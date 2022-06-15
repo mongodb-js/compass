@@ -2,15 +2,12 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { TextWriteButton } from '@mongodb-js/compass-deployment-awareness';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
+import { ErrorSummary, WarningSummary } from '@mongodb-js/compass-components';
 
-import { Indexes } from '../indexes';
 import styles from './indexes.module.less';
-
-import CreateIndexButton from '../create-index-button';
-import { StatusRow } from 'hadron-react-components';
+import { Indexes } from '../indexes';
 import IndexHeader from '../index-header';
 import IndexList from '../index-list';
 
@@ -25,12 +22,6 @@ describe('indexes [Component]', function () {
 
   before(function () {
     const appRegistry = new AppRegistry();
-
-    appRegistry.registerComponent(
-      'DeploymentAwareness.TextWriteButton',
-      TextWriteButton
-    );
-
     global.hadronApp = hadronApp;
     global.hadronApp.appRegistry = appRegistry;
   });
@@ -64,15 +55,16 @@ describe('indexes [Component]', function () {
     });
 
     it('renders a create-index-button', function () {
-      expect(component.find(CreateIndexButton)).to.be.present();
+      expect(
+        component
+          .find('button')
+          .findWhere((node) => node.text() === 'Create Index')
+      ).to.be.present();
     });
 
-    it('renders the controls container', function () {
-      expect(component.find(CreateIndexButton)).to.be.present();
-    });
-
-    it('does not render a status row', function () {
-      expect(component.find(StatusRow)).to.not.be.present();
+    it('does not render errors or warnings', function () {
+      expect(component.find(ErrorSummary)).to.not.be.present();
+      expect(component.find(WarningSummary)).to.not.be.present();
     });
 
     it('renders the list and header', function () {
@@ -110,16 +102,16 @@ describe('indexes [Component]', function () {
     });
 
     it('does not render a create-index-button', function () {
-      expect(component.find(CreateIndexButton)).to.not.be.present();
+      expect(
+        component
+          .find('button')
+          .findWhere((node) => node.text() === 'Create Index')
+      ).to.not.be.present();
     });
 
-    it('does not render the controls container', function () {
-      expect(component.find(CreateIndexButton)).to.not.be.present();
-    });
-
-    it('renders a status row', function () {
-      expect(component.find(StatusRow)).to.be.present();
-      expect(component.find(StatusRow).text()).to.equal(
+    it('renders a warning summary', function () {
+      expect(component.find(WarningSummary)).to.be.present();
+      expect(component.find(WarningSummary).text()).to.equal(
         'Readonly views may not contain indexes.'
       );
     });
@@ -159,15 +151,16 @@ describe('indexes [Component]', function () {
     });
 
     it('does not render a create-index-button', function () {
-      expect(component.find(CreateIndexButton)).to.not.be.present();
+      expect(
+        component
+          .find('button')
+          .findWhere((node) => node.text() === 'Create Index')
+      ).to.not.be.present();
     });
 
-    it('does not render the controls container', function () {
-      expect(component.find(CreateIndexButton)).to.not.be.present();
-    });
-
-    it('does not render a status row', function () {
-      expect(component.find(StatusRow)).to.not.be.present();
+    it('does not render errors or warnings', function () {
+      expect(component.find(ErrorSummary)).to.not.be.present();
+      expect(component.find(WarningSummary)).to.not.be.present();
     });
 
     it('renders the main column', function () {
@@ -201,9 +194,9 @@ describe('indexes [Component]', function () {
       component = null;
     });
 
-    it('renders a status row', function () {
-      expect(component.find(StatusRow)).to.be.present();
-      expect(component.find(StatusRow).text()).to.equal('a test error');
+    it('renders an error summary', function () {
+      expect(component.find(ErrorSummary)).to.be.present();
+      expect(component.find(ErrorSummary).text()).to.equal('a test error');
     });
   });
 });

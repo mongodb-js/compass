@@ -11,12 +11,11 @@ import { reset } from '../../modules/reset';
 import { changeName } from '../../modules/drop-index/name';
 import { openLink } from '../../modules/link';
 
-import CreateIndexButton from '../create-index-button';
 import IndexHeader from '../index-header';
 import IndexList from '../index-list';
+import { IndexesToolbar } from '../indexes-toolbar';
 
 import styles from './indexes.module.less';
-import { ErrorSummary, Toolbar, WarningSummary } from '@mongodb-js/compass-components';
 
 class Indexes extends PureComponent {
   static displayName = 'IndexesComponent';
@@ -62,28 +61,6 @@ class Indexes extends PureComponent {
     );
   }
 
-  renderBanner() {
-    if (this.props.isReadonlyView) {
-      return (
-        <WarningSummary warnings={['Readonly views may not contain indexes.']} />
-      );
-    }
-    return <ErrorSummary errors={[this.props.errorMessage]} />;
-  }
-
-  renderCreateIndexButton() {
-    if (
-      !this.props.isReadonly &&
-      !this.props.isReadonlyView &&
-      !this.props.errorMessage
-    ) {
-      return (
-        <CreateIndexButton localAppRegistry={this.props.localAppRegistry} />
-      );
-    }
-    return <div data-test-id="indexes-toolbar-empty" />;
-  }
-
   /**
    * Render the indexes.
    *
@@ -92,14 +69,16 @@ class Indexes extends PureComponent {
   render() {
     return (
       <div className={styles['indexes-container']}>
-        <Toolbar>
-          {this.renderCreateIndexButton()}
-        </Toolbar>
-
-        {this.props.isReadonlyView || !!this.props.errorMessage
-          ? this.renderBanner()
-          : this.renderComponent()
-        }
+        <IndexesToolbar
+          isWritable={this.props.isWritable}
+          isReadonly={this.props.isReadonly}
+          isReadonlyView={this.props.isReadonlyView}
+          errorMessage={this.props.errorMessage}
+          localAppRegistry={this.props.localAppRegistry}
+        />
+        {!this.props.isReadonlyView &&
+          !this.props.errorMessage &&
+          this.renderComponent()}
       </div>
     );
   }
