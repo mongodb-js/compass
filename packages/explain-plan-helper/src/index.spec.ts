@@ -287,6 +287,32 @@ describe('explain-plan-plan', function () {
           expect(plan.usedIndexes).to.deep.equal([]);
         });
       });
+
+      describe('stages with indexesUsed', function () {
+        beforeEach(async function () {
+          plan = await loadExplainFixture(
+            'aggregate_$lookup_with_indexes.json'
+          );
+        });
+
+        it('should have usedIndexes in executionStats object', function () {
+          const expectedIndexes = [{ index: '_id_', shard: null }];
+          expect(plan.executionStats.stageIndexes).to.deep.equal(
+            expectedIndexes
+          );
+          expect(plan.usedIndexes).to.deep.equal(expectedIndexes);
+        });
+      });
+
+      describe('execution time', function () {
+        beforeEach(async function () {
+          plan = await loadExplainFixture('aggregate_stages_with_no_time.json');
+        });
+
+        it('should sum estimate time correctly', function () {
+          expect(plan.executionStats.executionTimeMillis).to.equal(21317);
+        });
+      });
     });
     context('Sharded aggregation', function () {
       describe('single shard with stages', function () {
@@ -334,7 +360,8 @@ describe('explain-plan-plan', function () {
         });
         it('should have correct execution metrics', function () {
           expect(plan.executionStats.nReturned).to.equal(422); // nReturned is from the last stage
-          expect(plan.executionStats.executionTimeMillis).to.equal(30); // sum of executionTimeMillis from each stage
+          // executionTimeMillis from each stage (except $cursor) + executionTimeMillis of $cursor stage for each shard
+          expect(plan.executionStats.executionTimeMillis).to.equal(32);
           expect(plan.executionStats.totalKeysExamined).to.equal(719);
           expect(plan.executionStats.totalDocsExamined).to.equal(490);
         });
@@ -439,7 +466,8 @@ describe('explain-plan-plan', function () {
         });
         it('should have correct execution metrics', function () {
           expect(plan.executionStats.nReturned).to.equal(485); // sum of nReturned from the last stage of each shard
-          expect(plan.executionStats.executionTimeMillis).to.equal(13); // sum of executionTimeMillis from each stage of each shard
+          // executionTimeMillis from each stage (except $cursor) + executionTimeMillis of $cursor stage for each shard
+          expect(plan.executionStats.executionTimeMillis).to.equal(28);
           expect(plan.executionStats.totalKeysExamined).to.equal(719);
           expect(plan.executionStats.totalDocsExamined).to.equal(490);
         });
@@ -492,6 +520,20 @@ describe('explain-plan-plan', function () {
           const stage1 = plan.findStageByName('SHARD_MERGE');
           const stage2 = plan.findStageByName('SHARD_MERGE', stage1);
           expect(stage1).to.equal(stage2);
+        });
+      });
+      describe('stages with indexesUsed', function () {
+        let plan: ExplainPlan;
+        beforeEach(async function () {
+          plan = await loadExplainFixture(
+            'sharded_aggregate_$lookup_with_indexes.json'
+          );
+        });
+
+        it('should have usedIndexes in executionStats object', function () {
+          expect(plan.executionStats.stageIndexes).to.deep.equal([
+            { index: '_id_', shard: 'shard2' },
+          ]);
         });
       });
     });

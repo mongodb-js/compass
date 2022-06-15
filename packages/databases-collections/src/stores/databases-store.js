@@ -32,18 +32,26 @@ store.onActivated = (appRegistry) => {
     store.dispatch(databasesStatusChanged(instance));
     onDatabasesChange(instance.databases);
 
+    store.dispatch(toggleIsGenuineMongoDB(instance.genuineMongoDB.isGenuine));
+
     instance.genuineMongoDB.on('change:isGenuine', (model, newVal) => {
       store.dispatch(toggleIsGenuineMongoDB(newVal));
     });
+
+    store.dispatch(toggleIsDataLake(instance.dataLake.isDataLake));
 
     instance.dataLake.on('change:isDataLake', (model, newVal) => {
       store.dispatch(toggleIsDataLake(newVal));
     });
 
+    store.dispatch(databasesStatusChanged(instance.databasesStatus));
+
     instance.on('change:databasesStatus', () => {
       store.dispatch(databasesStatusChanged(instance));
       onDatabasesChange(instance.databases);
     });
+
+    onDatabasesChange(instance.databases);
 
     instance.on('change:databases.status', () => {
       onDatabasesChange(instance.databases);
