@@ -9,7 +9,6 @@ import {
   focusRingVisibleStyles,
   spacing,
   uiColors,
-  breakpoints,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
@@ -28,7 +27,6 @@ const queryBarFormStyles = css({
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[1],
-  minWidth: breakpoints.Tablet,
 
   // TODO: This margin and background will go away when the query bar is
   // wrapped in the Toolbar component in each of the plugins. COMPASS-5484
@@ -46,6 +44,10 @@ const queryBarFirstRowStyles = css({
 
 const queryBarFirstRowOpenedStyles = css({
   paddingBottom: 0,
+});
+
+const filterContainerStyles = css({
+  flexGrow: 1,
 });
 
 const openQueryHistoryStyles = cx(
@@ -140,20 +142,22 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             <Icon glyph="CaretDown" />
           </button>
         )}
-        <QueryOptionComponent
-          hasError={!queryOptionProps.filterValid}
-          queryOption="filter"
-          onChange={(value: string) => onChangeQueryOption('filter', value)}
-          onApply={onApply}
-          placeholder={
-            queryOptionProps.filterPlaceholder ||
-            OPTION_DEFINITION.filter.placeholder
-          }
-          refreshEditorAction={refreshEditorAction}
-          schemaFields={schemaFields}
-          serverVersion={serverVersion}
-          value={queryOptionProps.filterString}
-        />
+        <div className={filterContainerStyles}>
+          <QueryOptionComponent
+            hasError={!queryOptionProps.filterValid}
+            queryOption="filter"
+            onChange={(value: string) => onChangeQueryOption('filter', value)}
+            onApply={onApply}
+            placeholder={
+              queryOptionProps.filterPlaceholder ||
+              OPTION_DEFINITION.filter.placeholder
+            }
+            refreshEditorAction={refreshEditorAction}
+            schemaFields={schemaFields}
+            serverVersion={serverVersion}
+            value={queryOptionProps.filterString}
+          />
+        </div>
         <Button
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"

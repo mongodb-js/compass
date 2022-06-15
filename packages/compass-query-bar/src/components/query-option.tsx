@@ -16,7 +16,6 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 
 const queryOptionStyles = css({
   display: 'flex',
-  width: '100%',
   position: 'relative',
   alignItems: 'center',
 });
@@ -57,6 +56,7 @@ const queryOptionLabelContainerStyles = css({
 });
 
 type QueryOptionProps = {
+  gridArea?: QueryOptionType;
   hasError: boolean;
   onChange: (value: string) => void;
   onApply: () => void;
@@ -69,6 +69,7 @@ type QueryOptionProps = {
 };
 
 const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
+  gridArea,
   hasError,
   onApply,
   onChange,
@@ -88,9 +89,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     <div
       className={queryOptionStyles}
       data-testid={`query-bar-option-${queryOption}`}
-      style={{
-        gridArea: queryOption,
-      }}
+      style={gridArea ? { gridArea } : undefined}
     >
       {queryOption !== 'filter' && (
         <div

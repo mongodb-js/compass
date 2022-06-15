@@ -89,7 +89,7 @@ describe('OptionGrid Component', function () {
       ]);
       expect(gridTemplate).to.equal(`
   'project project project sort sort sort'
-  'empty empty skip limit maxTimeMS docsLink'
+  '. . skip limit maxTimeMS docsLink'
 `);
     });
 

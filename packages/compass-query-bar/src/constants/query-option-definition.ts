@@ -53,35 +53,11 @@ export const OPTION_DEFINITION: {
   },
 };
 
-export type QueryBarOptionProps = {
-  filterPlaceholder?: string; // The placeholder text for the filter input.
-  filterValid: boolean; // Whether the filter is valid.
-  filterString: string; // The value of the `filter`.
-
-  projectPlaceholder?: string;
-  projectValid: boolean;
-  projectString: string;
-
-  sortPlaceholder?: string;
-  sortValid: boolean;
-  sortString: string;
-
-  collationPlaceholder?: string;
-  collationValid: boolean;
-  collationString: string;
-
-  skipPlaceholder?: string;
-  skipValid: boolean;
-  skipString: string;
-
-  limitPlaceholder?: string;
-  limitValid: boolean;
-  limitString: string;
-
-  maxTimeMSPlaceholder?: string;
-  maxTimeMSValid: boolean;
-  maxTimeMSString: string;
-};
+export type QueryBarOptionProps = { [key in `${QueryOption}String`]: string } &
+  { [key in `${QueryOption}Valid`]: boolean } &
+  {
+    [key in `${QueryOption}Placeholder`]?: string;
+  };
 
 export type QueryBarRowLayout = QueryOption | QueryOption[];
 export type QueryBarLayout = Array<QueryBarRowLayout>;

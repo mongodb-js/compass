@@ -17,14 +17,15 @@ const gridStyles = css({
   margin: `0 ${spacing[1]}px`,
   marginTop: spacing[1],
   padding: `0 ${spacing[2]}px`,
-  gap: `${spacing[1]}px ${spacing[3]}px`,
+  gap: `${spacing[1]}px ${spacing[2]}px`,
 });
 
 const docsLinkContainerStyles = css({
   gridArea: 'docsLink',
   paddingRight: spacing[2],
-  minWidth: 'max-content', // Don't let the link collapse to two lines.
-  textAlign: 'right',
+  whiteSpace: 'nowrap',
+  display: 'flex',
+  justifyContent: 'flex-end',
 });
 
 const queryDocsLinkStyles = css({
@@ -34,18 +35,22 @@ const queryDocsLinkStyles = css({
 export function getGridTemplateForQueryOptions(
   queryOptions: QueryOption[]
 ): string {
-  const documentEditorOptionsToDisplay = Object.keys(OPTION_DEFINITION).filter(
-    (queryOption: string) =>
+  const documentEditorOptionsToDisplay = (
+    Object.keys(OPTION_DEFINITION) as QueryOption[]
+  ).filter(
+    (queryOption: QueryOption) =>
       queryOption !== 'filter' &&
-      OPTION_DEFINITION[queryOption as QueryOption].type === 'document' &&
-      queryOptions.includes(queryOption as QueryOption)
-  ) as QueryOption[];
+      OPTION_DEFINITION[queryOption].type === 'document' &&
+      queryOptions.includes(queryOption)
+  );
 
-  const numericEditorOptionsToDisplay = Object.keys(OPTION_DEFINITION).filter(
-    (queryOption: string) =>
-      OPTION_DEFINITION[queryOption as QueryOption].type === 'numeric' &&
-      queryOptions.includes(queryOption as QueryOption)
-  ) as QueryOption[];
+  const numericEditorOptionsToDisplay = (
+    Object.keys(OPTION_DEFINITION) as QueryOption[]
+  ).filter(
+    (queryOption: QueryOption) =>
+      OPTION_DEFINITION[queryOption].type === 'numeric' &&
+      queryOptions.includes(queryOption)
+  );
 
   const documentEditorCount = documentEditorOptionsToDisplay.length;
   const numericEditorCount = numericEditorOptionsToDisplay.length;
@@ -57,7 +62,7 @@ export function getGridTemplateForQueryOptions(
     if (numericEditorCount > 0) {
       return `
   '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]}'
-  'empty empty skip limit maxTimeMS docsLink'
+  '. . skip limit maxTimeMS docsLink'
 `;
     }
 
@@ -70,7 +75,7 @@ export function getGridTemplateForQueryOptions(
     if (numericEditorCount > 0) {
       return `
   '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]}'
-  'empty empty skip limit maxTimeMS docsLink'
+  '. . skip limit maxTimeMS docsLink'
 `;
     }
 
@@ -121,6 +126,7 @@ export const QueryOptionsGrid: React.FunctionComponent<QueryOptionsGridProps> =
       >
         {queryOptions.map((optionName: QueryOption) => (
           <QueryOptionComponent
+            gridArea={optionName}
             hasError={!queryOptionProps[`${optionName}Valid`]}
             key={`query-option-${optionName}`}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
