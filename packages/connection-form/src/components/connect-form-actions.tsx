@@ -86,7 +86,7 @@ function ConnectFormActions({
         )}
 
         {saveAndConnectButton !== 'hidden' && (
-          <div className={cx(saveAndConnectStyles)}>
+          <div className={saveAndConnectStyles}>
             <Button
               data-testid="save-and-connect-button"
               variant={ButtonVariant.PrimaryOutline}
