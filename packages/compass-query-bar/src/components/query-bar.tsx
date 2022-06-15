@@ -27,7 +27,6 @@ const queryBarFormStyles = css({
   flexGrow: 1,
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
-  // padding: `0 ${spacing[1]}px`,
   padding: spacing[1],
   minWidth: breakpoints.Tablet,
 
@@ -75,7 +74,6 @@ type QueryBarProps = {
     | 'limit'
     | 'maxTimeMS'
   )[];
-  // Omit<QueryOption, 'filter'>[];
   onApply: () => void;
   onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
   onReset: () => void;
@@ -95,37 +93,17 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
   onApply: _onApply,
   onChangeQueryOption,
-  onReset: _onReset,
+  onReset,
   queryState,
   refreshEditorAction,
   schemaFields,
   serverVersion,
   showQueryHistoryButton = true,
   toggleExpandQueryOptions,
-  toggleQueryHistory: _toggleQueryHistory,
+  toggleQueryHistory,
   valid: isQueryValid,
   ...queryOptionProps
 }) => {
-  const onReset = useCallback(
-    (evt: React.MouseEvent) => {
-      // Prevent form submission.
-      evt.preventDefault();
-
-      _onReset();
-    },
-    [_onReset]
-  );
-
-  const toggleQueryHistory = useCallback(
-    (evt: React.MouseEvent) => {
-      // Prevent form submission.
-      evt.preventDefault();
-
-      _toggleQueryHistory();
-    },
-    [_toggleQueryHistory]
-  );
-
   const onApply = useCallback(() => {
     if (isQueryValid) {
       _onApply();
@@ -182,6 +160,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           onClick={onReset}
           disabled={queryState !== 'apply'}
           size="small"
+          type="button"
         >
           Reset
         </Button>

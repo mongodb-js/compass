@@ -38,13 +38,10 @@ const queryOptionProps = {
 const renderQueryBar = (
   props: Partial<ComponentProps<typeof QueryBar>> = {}
 ) => {
-  // const defaultQueryOptions: QueryOption[] = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'];
-
   render(
     <QueryBar
       buttonLabel="Apply"
       expanded={false}
-      // queryOptions={['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS']}
       onApply={noop}
       onChangeQueryOption={noop}
       onReset={noop}
