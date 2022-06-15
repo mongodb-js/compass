@@ -147,20 +147,27 @@ function ConnectForm({
     (error) => error.fieldName === 'connectionString'
   );
 
-  const onSubmitForm = useCallback(() => {
-    const updatedConnectionOptions = cloneDeep(connectionOptions);
-    const formErrors = validateConnectionOptionsErrors(
-      updatedConnectionOptions
-    );
-    if (formErrors.length) {
-      setErrors(formErrors);
-      return;
-    }
-    onConnectClicked({
-      ...initialConnectionInfo,
-      connectionOptions: updatedConnectionOptions,
-    });
-  }, [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]);
+  const onSubmitForm = useCallback(
+    (connectionInfo?: ConnectionInfo) => {
+      const updatedConnectionOptions = cloneDeep(connectionOptions);
+      const formErrors = validateConnectionOptionsErrors(
+        updatedConnectionOptions
+      );
+      if (formErrors.length) {
+        setErrors(formErrors);
+        return;
+      }
+      onConnectClicked({
+        ...initialConnectionInfo,
+        // If connectionInfo is passed in that will be used similar to if there
+        // was initialConnectionInfo. Useful for connecting to a new favorite that
+        // was just added.
+        ...connectionInfo,
+        connectionOptions: updatedConnectionOptions,
+      });
+    },
+    [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]
+  );
 
   const callOnSaveConnectionClickedAndStoreErrors = useCallback(
     async (connectionInfo: ConnectionInfo): Promise<void> => {
@@ -245,7 +252,7 @@ function ConnectForm({
                 setEnableEditingConnectionString={
                   setEnableEditingConnectionString
                 }
-                onSubmit={onSubmitForm}
+                onSubmit={() => onSubmitForm()}
                 updateConnectionFormField={updateConnectionFormField}
               />
               {connectionStringInvalidError && (
@@ -285,7 +292,7 @@ function ConnectForm({
                 onSaveAndConnectClicked={() => {
                   setSaveConnectionModal('saveAndConnect');
                 }}
-                onConnectClicked={onSubmitForm}
+                onConnectClicked={() => onSubmitForm()}
               />
             </div>
           </form>
@@ -303,16 +310,18 @@ function ConnectForm({
           onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
             setSaveConnectionModal('hidden');
 
-            await callOnSaveConnectionClickedAndStoreErrors({
+            const connectionInfo = {
               ...cloneDeep(initialConnectionInfo),
               connectionOptions: cloneDeep(connectionOptions),
               favorite: {
                 ...favoriteInfo,
               },
-            });
+            };
+            await callOnSaveConnectionClickedAndStoreErrors(connectionInfo);
 
             if (saveConnectionModal === 'saveAndConnect') {
-              onSubmitForm();
+              // Connect to the newly created favorite
+              onSubmitForm(connectionInfo);
             }
           }}
           key={initialConnectionInfo.id}
