@@ -21,14 +21,6 @@ const queryOptionStyles = css({
   alignItems: 'center',
 });
 
-const documentEditorGridStyles = css({
-  // gridArea: 'document'
-});
-
-const numericEditorGridStyles = css({
-  // gridArea: 'numeric'
-});
-
 const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
   padding: `${spacing[2]}px 0`,
@@ -94,11 +86,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
 
   return (
     <div
-      className={cx(
-        queryOptionStyles,
-        isDocumentEditor ? documentEditorGridStyles : numericEditorGridStyles
-      )}
-      data-testid="query-bar-option"
+      className={queryOptionStyles}
+      data-testid={`query-bar-option-${queryOption}`}
       style={{
         gridArea: queryOption,
       }}

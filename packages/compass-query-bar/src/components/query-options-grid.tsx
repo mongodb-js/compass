@@ -31,7 +31,9 @@ const queryDocsLinkStyles = css({
   flexShrink: 0,
 });
 
-function getGridTemplateForQueryOptions(queryOptions: QueryOption[]): string {
+export function getGridTemplateForQueryOptions(
+  queryOptions: QueryOption[]
+): string {
   const documentEditorOptionsToDisplay = Object.keys(OPTION_DEFINITION).filter(
     (queryOption: string) =>
       queryOption !== 'filter' &&
@@ -50,41 +52,39 @@ function getGridTemplateForQueryOptions(queryOptions: QueryOption[]): string {
 
   if (documentEditorCount === 0) {
     // One row, all numeric editors.
-    return `
-      '${numericEditorOptionsToDisplay.join(' ')} docsLink'
-    `;
+    return `'${numericEditorOptionsToDisplay.join(' ')} docsLink'`;
   } else if (documentEditorCount === 1) {
     if (numericEditorCount > 0) {
       return `
-        '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]}'
-        'empty empty skip limit maxTimeMS docsLink'
-      `;
+  '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]}'
+  'empty empty skip limit maxTimeMS docsLink'
+`;
     }
 
     // One row, only a document editor.
     return `
-      '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} docsLink'
-    `;
+  '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} docsLink'
+`;
   } else if (documentEditorCount === 2) {
     // Two rows, document editors and numeric editors.
     if (numericEditorCount > 0) {
       return `
-        '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]}'
-        'empty empty skip limit maxTimeMS docsLink'
-      `;
+  '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]}'
+  'empty empty skip limit maxTimeMS docsLink'
+`;
     }
 
     // No numeric editors, just document editors.
     return `
-      '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]}'
-      '${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} docsLink'
-    `;
+  '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]}'
+  '${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} docsLink'
+`;
   }
 
   return `
-    'project project project sort sort sort'
-    'collation collation skip limit maxTimeMS docsLink'
-  `;
+  'project project project sort sort sort'
+  'collation collation skip limit maxTimeMS docsLink'
+`;
 }
 
 type QueryOptionsGridProps = {

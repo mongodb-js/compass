@@ -1,80 +1,174 @@
-import React, { ComponentProps } from 'react';
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import React from 'react';
+import type { ComponentProps } from 'react';
+import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-import { spy } from 'sinon';
-import type { SinonSpy } from 'sinon';
 
-import { QueryOptionsGrid, getGridTemplateForQueryOptions } from './query-options-grid';
+import {
+  QueryOptionsGrid,
+  getGridTemplateForQueryOptions,
+} from './query-options-grid';
 import type { QueryOption } from '../constants/query-option-definition';
+
+const queryOptionProps = {
+  filterValid: true,
+  filterString: '',
+
+  projectValid: true,
+  projectString: '',
+
+  sortValid: true,
+  sortString: '',
+
+  collationValid: true,
+  collationString: '',
+
+  skipValid: true,
+  skipString: '',
+
+  limitValid: true,
+  limitString: '',
+
+  maxTimeMSValid: true,
+  maxTimeMSString: '',
+};
+
+const defaultQueryOptions: QueryOption[] = [
+  'project',
+  'sort',
+  'collation',
+  'skip',
+  'limit',
+  'maxTimeMS',
+];
 
 const renderQueryOptionsGrid = (
   props: Partial<ComponentProps<typeof QueryOptionsGrid>> = {}
 ) => {
-  const defaultQueryOptions: QueryOption[] = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'];
-
   render(
     <QueryOptionsGrid
-      buttonLabel = 'Apply',
-      expanded: isQueryOptionsExpanded = false,
-      queryOptions: 
-      onApply: _onApply,
-      onChangeQueryOption,
-      onReset: _onReset,
-      queryState,
-      refreshEditorAction,
-      schemaFields,
-      serverVersion,
-      showQueryHistoryButton = true,
-      toggleExpandQueryOptions,
-      toggleQueryHistory: _toggleQueryHistory,
-      valid: isQueryValid,
-      ...queryOptionProps
-      onRunExplain={() => {}}
+      queryOptions={defaultQueryOptions}
+      onApply={() => {
+        /* noop */
+      }}
+      onChangeQueryOption={() => {
+        /* noop */
+      }}
+      queryOptionProps={queryOptionProps}
+      refreshEditorAction={
+        {
+          listen: () => {
+            return () => {
+              /* noop */
+            };
+          },
+        } as any
+      }
+      schemaFields={[]}
+      serverVersion={'1.2.3'}
       {...props}
     />
   );
 };
 
 describe('OptionGrid Component', function () {
-  describe('#getGridTemplateForQueryOptions', function() {
-    it('returns a grid template for a single document editor', function() {
-      const gridTemplate = OptionGrid.getGridTemplateForQueryOptions(['a']);
+  describe('#getGridTemplateForQueryOptions', function () {
+    it('returns a grid template for a single document editor', function () {
+      const gridTemplate = getGridTemplateForQueryOptions(['project']);
       expect(gridTemplate).to.equal(`
-        'a docsLink'
-      `);
+  'project project project project project docsLink'
+`);
     });
-  })
+
+    it('returns a grid template for a double document editor', function () {
+      const gridTemplate = getGridTemplateForQueryOptions([
+        'project',
+        'sort',
+        'skip',
+        'limit',
+        'maxTimeMS',
+      ]);
+      expect(gridTemplate).to.equal(`
+  'project project project sort sort sort'
+  'empty empty skip limit maxTimeMS docsLink'
+`);
+    });
+
+    it('returns a grid template for a double document editor without numerics', function () {
+      const gridTemplate = getGridTemplateForQueryOptions(['project', 'sort']);
+      expect(gridTemplate).to.equal(`
+  'project project project project project project'
+  'sort sort sort sort sort docsLink'
+`);
+    });
+
+    it('returns a grid template for a triple document editor', function () {
+      const gridTemplate = getGridTemplateForQueryOptions([
+        'project',
+        'sort',
+        'collation',
+      ]);
+      expect(gridTemplate).to.equal(`
+  'project project project sort sort sort'
+  'collation collation skip limit maxTimeMS docsLink'
+`);
+    });
+
+    it('returns a grid template for the default options', function () {
+      const gridTemplate = getGridTemplateForQueryOptions(defaultQueryOptions);
+      expect(gridTemplate).to.equal(`
+  'project project project sort sort sort'
+  'collation collation skip limit maxTimeMS docsLink'
+`);
+    });
+
+    it('returns a grid template for the numeric options', function () {
+      const gridTemplate = getGridTemplateForQueryOptions([
+        'limit',
+        'skip',
+        'maxTimeMS',
+      ]);
+      expect(gridTemplate).to.equal(`'skip limit maxTimeMS docsLink'`);
+    });
+  });
+
+  describe('layout: one document option', function () {
+    beforeEach(function () {
+      renderQueryOptionsGrid({
+        queryOptions: ['project'],
+      });
+    });
+
+    it('renders the project option', function () {
+      expect(screen.getByTestId('query-bar-option-project')).to.be.visible;
+    });
+
+    it('does not render the sort option', function () {
+      expect(screen.queryByTestId('query-bar-option-sort')).to.not.exist;
+    });
+
+    it('does not render the maxTimeMS option', function () {
+      expect(screen.queryByTestId('query-bar-option-maxTimeMS')).to.not.exist;
+    });
+  });
 
   describe('when rendered', function () {
-    let onSaveSpy: SinonSpy;
-    let onSaveAsSpy: SinonSpy;
-    let onCreateViewSpy: SinonSpy;
     beforeEach(function () {
-      onSaveSpy = spy();
-      onSaveAsSpy = spy();
-      onCreateViewSpy = spy();
-      render(
-        <OptionGrid
-          isCreateViewAvailable={true}
-          pipelineName={'Name'}
-          onSave={onSaveSpy}
-          onSaveAs={onSaveAsSpy}
-          onCreateView={onCreateViewSpy}
-        />
-      );
+      renderQueryOptionsGrid();
     });
 
-    it('renders the entire option grid', function () {
-      const menu = screen.getByTestId('save-menu');
-      expect(menu).to.exist;
+    it('renders all of the options', function () {
+      expect(screen.getByTestId('query-bar-option-project')).to.be.visible;
+      expect(screen.getByTestId('query-bar-option-sort')).to.be.visible;
+      expect(screen.getByTestId('query-bar-option-collation')).to.be.visible;
+      expect(screen.getByTestId('query-bar-option-skip')).to.be.visible;
+      expect(screen.getByTestId('query-bar-option-limit')).to.be.visible;
+      expect(screen.getByTestId('query-bar-option-maxTimeMS')).to.be.visible;
+    });
 
-      userEvent.click(menu);
-
-      const menuContent = screen.getByTestId('save-menu-content');
-      expect(within(menuContent).getByLabelText('Save')).to.exist;
-      expect(within(menuContent).getByLabelText('Save as')).to.exist;
-      expect(within(menuContent).getByLabelText('Create view')).to.exist;
+    it('renders a docs link', function () {
+      expect(screen.getByText('Learn more').closest('a'))
+        .attribute('href')
+        .to.be.equal('https://docs.mongodb.com/compass/current/query/filter/');
     });
   });
 });
