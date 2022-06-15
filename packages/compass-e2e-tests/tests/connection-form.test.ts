@@ -583,7 +583,9 @@ describe('Connection form', function () {
     });
 
     // It should use the new favorite name as the connection name in the top-left corner
-    expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(favoriteName);
+    expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(
+      favoriteName
+    );
   });
 });
 
