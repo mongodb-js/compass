@@ -8,6 +8,7 @@ import * as Selectors from '../helpers/selectors';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
 import path from 'path';
+import delay from '../helpers/delay';
 
 import { LOG_PATH } from '../helpers/compass';
 
@@ -588,10 +589,7 @@ describe('FLE2', function () {
         console.error(err);
       }
 
-      const mostRecentConnection = await browser.$(
-        Selectors.MostRecentConnection
-      );
-      await mostRecentConnection.waitForDisplayed({ timeout: 60_000 });
+      await delay(1000);
 
       await browser.clickVisible(Selectors.MostRecentConnection, {
         screenshot: path.join(LOG_PATH, 'recent-connection.png'),
