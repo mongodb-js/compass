@@ -589,7 +589,11 @@ describe('FLE2', function () {
         console.error(err);
       }
 
-      await delay(1000);
+      await delay(2000);
+
+      await browser.clickVisible(Selectors.RecentsHeader, {
+        screenshot: path.join(LOG_PATH, 'recent-header.png'),
+      });
 
       await browser.clickVisible(Selectors.MostRecentConnection, {
         screenshot: path.join(LOG_PATH, 'recent-connection.png'),

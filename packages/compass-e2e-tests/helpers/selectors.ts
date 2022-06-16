@@ -201,6 +201,7 @@ export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
 export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const RecentsHeader = '[data-testid="recents-header"]';
 export const MostRecentConnection =
   '[data-testid="recent-connection"]:first-child';
 
