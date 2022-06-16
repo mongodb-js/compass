@@ -39,11 +39,11 @@ const renderExplainToolbar = (
 
   render(
     <ExplainToolbar
-      globalAppRegistry={new AppRegistry()}
       localAppRegistry={localAppRegistry}
       explainResultId="123"
       explainErrorMessage={undefined}
       onExecuteExplainClicked={() => {}}
+      onExportToLanguageClicked={() => {}}
       showOutdatedWarning={false}
       showReadonlyWarning={false}
       switchToTreeView={() => {}}
@@ -59,52 +59,17 @@ describe('ExplainToolbar', function () {
     sinon.restore();
   });
 
-  it('emits an app registry event when the export to language is clicked', function () {
-    const globalAppRegistry = new AppRegistry();
-    const localAppRegistry = new AppRegistry();
-    const globalAppRegistrySpy = sinon.spy();
-    const localAppRegistrySpy = sinon.spy();
-    sinon.replace(globalAppRegistry, 'emit', globalAppRegistrySpy);
-    sinon.replace(localAppRegistry, 'emit', localAppRegistrySpy);
-
-    localAppRegistry.registerRole('Query.QueryBar', mockQueryBarRole);
-    localAppRegistry.registerStore(
-      mockQueryBarRole.storeName,
-      mockQueryBarStore
-    );
+  it('calls the click handler when the export to language is clicked', function () {
+    const onExportToLanguageClickedSpy = sinon.spy();
 
     renderExplainToolbar({
-      globalAppRegistry,
-      localAppRegistry,
+      onExportToLanguageClicked: onExportToLanguageClickedSpy,
     });
 
-    expect(globalAppRegistrySpy.called).to.be.false;
-    expect(localAppRegistrySpy.called).to.be.false;
-    // userEvent.click(screen.getByRole('Export to language').closest('button'));
+    expect(onExportToLanguageClickedSpy.called).to.be.false;
     userEvent.click(screen.getByRole('button'));
 
-    expect(globalAppRegistrySpy.calledOnce).to.be.true;
-    expect(localAppRegistrySpy.calledOnce).to.be.true;
-
-    expect(localAppRegistrySpy.firstCall.args[0]).to.equal(
-      'open-query-export-to-language'
-    );
-    expect(localAppRegistrySpy.firstCall.args[1]).to.deep.equal({
-      filter: '',
-      project: '',
-      sort: '',
-      collation: '',
-      skip: '',
-      limit: '',
-      maxTimeMS: '',
-    });
-
-    expect(globalAppRegistrySpy.firstCall.args[0]).to.equal(
-      'compass:export-to-language:opened'
-    );
-    expect(globalAppRegistrySpy.firstCall.args[1]).to.deep.equal({
-      source: 'Explain',
-    });
+    expect(onExportToLanguageClickedSpy.calledOnce).to.be.true;
   });
 
   it('calls to change the view type when a different view type is chosen', function () {

@@ -54,12 +54,12 @@ const OUTDATED_WARNING_MESSAGE = `The explain content is outdated and no longer 
 type ExplainView = 'json' | 'tree';
 
 type ExplainToolbarProps = {
-  globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   darkMode?: boolean;
   explainErrorMessage?: string;
   explainResultId: string;
   onExecuteExplainClicked: (queryBarStoreState: any) => void;
+  onExportToLanguageClicked: () => void;
   showOutdatedWarning: boolean;
   showReadonlyWarning: boolean;
   switchToTreeView: () => void;
@@ -68,12 +68,12 @@ type ExplainToolbarProps = {
 };
 
 function UnthemedExplainToolbar({
-  globalAppRegistry,
   localAppRegistry,
   darkMode,
   explainResultId,
   explainErrorMessage,
   onExecuteExplainClicked,
+  onExportToLanguageClicked,
   showOutdatedWarning,
   showReadonlyWarning,
   switchToTreeView,
@@ -107,23 +107,6 @@ function UnthemedExplainToolbar({
   );
 
   const QueryBarComponent = queryBarRef.current!.component;
-
-  const onExportToLanguageClicked = useCallback(() => {
-    const queryState = queryBarRef.current!.store.state;
-
-    localAppRegistry.emit('open-query-export-to-language', {
-      filter: queryState.filterString,
-      project: queryState.projectString,
-      sort: queryState.sortString,
-      collation: queryState.collationString,
-      skip: queryState.skipString,
-      limit: queryState.limitString,
-      maxTimeMS: queryState.maxTimeMSString,
-    });
-    globalAppRegistry.emit('compass:export-to-language:opened', {
-      source: 'Explain',
-    });
-  }, [globalAppRegistry, localAppRegistry]);
 
   return (
     <Toolbar className={explainToolbarStyles}>
