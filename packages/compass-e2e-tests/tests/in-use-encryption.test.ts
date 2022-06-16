@@ -588,11 +588,6 @@ describe('FLE2', function () {
         console.error(err);
       }
 
-      const mostRecentConnection = await browser.$(
-        Selectors.MostRecentConnection
-      );
-      await mostRecentConnection.waitForDisplayed();
-
       await browser.clickVisible(Selectors.MostRecentConnection, {
         scroll: true,
         screenshot: path.join(LOG_PATH, 'rcent-connections.png'),
