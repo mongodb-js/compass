@@ -24,7 +24,10 @@ import { getTypeDescriptorForValue } from './bson-csv';
  * @param {Object} obj
  * @returns {Object}
  */
-export function serialize(obj: Record<string, any>, { includeObjects = false } = {}): Record<string, any> {
+export function serialize(
+  obj: Record<string, unknown>,
+  { includeObjects = false } = {}
+): Record<string, unknown> {
   const flattened = flatten(obj, {
     safe: true, // preserve arrays and their contents
     /**
@@ -33,7 +36,7 @@ export function serialize(obj: Record<string, any>, { includeObjects = false } =
      * NOTE: lucas: Trying an existing fork that supports this new option:
      * https://github.com/hughsk/flat/pull/93
      */
-    ignoreValue: function (value: any): boolean {
+    ignoreValue: function (value: unknown): boolean {
       const t = getTypeDescriptorForValue(value);
       if (t.isBSON) {
         return true;
@@ -60,7 +63,7 @@ export function serialize(obj: Record<string, any>, { includeObjects = false } =
     ensuring that there is already an object at the target the ambiguity is
     removed.
     */
-    const withObjects: Record<string, any> = {};
+    const withObjects: Record<string, unknown> = {};
     const knownParents: Record<string, true> = {};
     for (const [path, value] of Object.entries(flattened)) {
       const parentPath = path.includes('.')
