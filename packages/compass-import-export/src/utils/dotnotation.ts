@@ -51,7 +51,7 @@ export function serialize(
     to properties inside those objects.
     ie. for { foo: { 1: 'one', two: 'two' } } we will return
     { foo: {}, 'foo.1': 'one', 'foo.two': 'two' } rather than
-    { 'foo.1': 'one', 'foo.two', 'two'}.
+    { 'foo.1': 'one', 'foo.two': 'two'}.
 
     This way when we walk the return value later by the time we encounter
     'foo.1' we already created foo, initialised to {}. Then _.set(result,
