@@ -9,7 +9,7 @@ import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
 
 const CONNECTION_HOSTS = 'localhost:27091';
-const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}`;
+const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
 describe('FLE2', function () {
   before(function () {
@@ -145,9 +145,7 @@ describe('FLE2', function () {
     });
 
     afterEach(async function () {
-      await browser.shellEval(
-        `db.getMongo().getDB('${databaseName}').dropDatabase()`
-      );
+      await plainMongo.db(databaseName).dropDatabase();
       await plainMongo.close();
     });
 
@@ -554,6 +552,49 @@ describe('FLE2', function () {
         phoneNumber: '"30303030"',
         name: '"Person Z"',
       });
+    });
+
+    it('does not store KMS settings if the checkbox is not set', async function () {
+      await browser.navigateToDatabaseTab(databaseName, 'Collections');
+      await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
+      await browser.addCollection(collectionName);
+
+      const selector = Selectors.collectionCard(databaseName, collectionName);
+      await browser.scrollToVirtualItem(
+        Selectors.CollectionsGrid,
+        selector,
+        'grid'
+      );
+
+      const collectionCard = await browser.$(selector);
+      await collectionCard.waitForDisplayed();
+
+      const collectionListFLE2BadgeElement = await browser.$(
+        Selectors.CollectionListFLE2Badge
+      );
+      const collectionListFLE2BadgeElementText =
+        await collectionListFLE2BadgeElement.getText();
+      expect(collectionListFLE2BadgeElementText).to.equal(
+        'QUERYABLE ENCRYPTION'
+      );
+
+      try {
+        await browser.disconnect();
+      } catch (err) {
+        console.error('Error during disconnect:');
+        console.error(err);
+      }
+
+      await browser.clickVisible(Selectors.MostRecentConnection);
+
+      const state = await browser.getConnectFormState();
+
+      expect(state.connectionString).to.be.equal(CONNECTION_STRING);
+      expect(state.fleKeyVaultNamespace).to.be.equal('fle-test.keyvault');
+      expect(state.fleStoreCredentials).to.be.equal(false);
+      expect(state.fleEncryptedFieldsMap).to.include(
+        'fle-test.my-another-collection'
+      );
     });
   });
 });

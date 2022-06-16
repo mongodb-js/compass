@@ -84,6 +84,8 @@ export const ConnectionFormInputAWSSessionToken =
 
 export const ConnectionFormInputFLEKeyVaultNamespace =
   '[data-testid="csfle-keyvault"]';
+export const ConnectionFormInputFLEStoreCredentialsCheckbox =
+  '[data-testid="csfle-storeCredentials-input"]';
 export const ConnectionFormInputFLELocalKMS =
   '[data-testid="csfle-kms-provider-local"]';
 export const ConnectionFormInputFLELocalKey =
@@ -192,12 +194,21 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 };
 
 // Connection Sidebar
-export const SidebarDatabaseAndConnectionList =
-  '[data-test-id="databases-and-collections"]';
-export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="treeitem"]`;
-export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
+export const SidebarFavoriteButton = '[data-testid="favorite-connection"]';
+export const ConnectionMenu = '[data-testid="connection-menu"]';
+export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
+export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
+export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const MostRecentConnection =
+  '[data-testid="recent-connection"]:first-child';
+
+// Database-Collection Sidebar
+export const SidebarDatabaseAndCollectionList =
+  '[data-test-id="databases-and-collections"]';
+export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;
+export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const TopologyReplicaSetHostAddress =
   '[data-test-id="topology-replica-set-host-address-0"]';
 export const ReplicaSetType = '[data-test-id="topology-replica-set-type"]';
@@ -209,11 +220,6 @@ export const ShowActionsButton = '[data-testid="show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
-export const SidebarFavoriteButton = '[data-testid="favorite-connection"]';
-export const ConnectionMenu = '[data-testid="connection-menu"]';
-export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
-export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
-export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
 export const SidebarInstanceRefreshButton =
   '[data-test-id="sidebar-instance-stats-refresh-button"]';
 export const SidebarInstanceRefreshSpinning =
