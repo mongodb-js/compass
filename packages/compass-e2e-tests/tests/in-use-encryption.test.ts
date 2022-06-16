@@ -589,15 +589,24 @@ describe('FLE2', function () {
         console.error(err);
       }
 
-      await delay(2000);
+      await browser.waitUntil(
+        async () => {
+          await delay(1000);
 
-      await browser.clickVisible(Selectors.RecentsHeader, {
-        screenshot: path.join(LOG_PATH, 'recent-header.png'),
-      });
+          await browser.clickVisible(Selectors.RecentsHeader, {
+            screenshot: path.join(LOG_PATH, 'recent-header.png'),
+          });
 
-      await browser.clickVisible(Selectors.MostRecentConnection, {
-        screenshot: path.join(LOG_PATH, 'recent-connection.png'),
-      });
+          await browser.clickVisible(Selectors.MostRecentConnection, {
+            screenshot: path.join(LOG_PATH, 'recent-connection.png'),
+          });
+
+          return true;
+        },
+        {
+          timeoutMsg: 'Waited for the recents to be displayed"',
+        }
+      );
 
       const state = await browser.getConnectFormState();
 
