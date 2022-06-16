@@ -585,6 +585,11 @@ describe('FLE2', function () {
         console.error(err);
       }
 
+      const mostRecentConnection = await browser.$(
+        Selectors.MostRecentConnection
+      );
+      await mostRecentConnection.waitForDisplayed();
+
       await browser.clickVisible(Selectors.MostRecentConnection);
 
       const state = await browser.getConnectFormState();
