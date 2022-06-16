@@ -112,7 +112,7 @@ describe('In-Use Encryption', function () {
   });
 
   it('sets storeCredentials', async function () {
-    fireEvent.click(screen.getByTestId('csfle-storeCredentials-input'));
+    fireEvent.click(screen.getByTestId('csfle-store-credentials-input'));
 
     await expectToConnectWith({
       connectionString: 'mongodb://localhost:27017',

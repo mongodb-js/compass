@@ -157,11 +157,11 @@ function CSFLETab({
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             handleStoreCredentialsChanged(event.target.checked);
           }}
-          data-testid="csfle-storeCredentials-input"
-          id="csfle-storeCredentials-input"
+          data-testid="csfle-store-credentials-input"
+          id="csfle-store-credentials-input"
           label={
             <>
-              <Label htmlFor="csfle-storeCredentials-input">
+              <Label htmlFor="csfle-store-credentials-inputt">
                 Store KMS provider secrets
               </Label>
               <Description>
