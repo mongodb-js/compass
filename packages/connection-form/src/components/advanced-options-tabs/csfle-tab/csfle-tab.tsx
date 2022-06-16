@@ -161,7 +161,7 @@ function CSFLETab({
           id="csfle-store-credentials-input"
           label={
             <>
-              <Label htmlFor="csfle-store-credentials-inputt">
+              <Label htmlFor="csfle-store-credentials-input">
                 Store KMS provider secrets
               </Label>
               <Description>

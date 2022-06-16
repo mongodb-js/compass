@@ -7,6 +7,9 @@ import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
+import path from 'path';
+
+import { LOG_PATH } from '../helpers/compass';
 
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
@@ -590,7 +593,10 @@ describe('FLE2', function () {
       );
       await mostRecentConnection.waitForDisplayed();
 
-      await browser.clickVisible(Selectors.MostRecentConnection);
+      await browser.clickVisible(Selectors.MostRecentConnection, {
+        scroll: true,
+        screenshot: path.join(LOG_PATH, 'rcent-connections.png'),
+      });
 
       const state = await browser.getConnectFormState();
 
