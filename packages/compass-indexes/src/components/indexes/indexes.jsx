@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { writeStateChanged } from '../../modules/is-writable';
-import { getDescription } from '../../modules/description';
 import { dataServiceConnected } from '../../modules/data-service';
 import { sortIndexes } from '../../modules/indexes';
 import { reset } from '../../modules/reset';
@@ -24,7 +23,6 @@ class Indexes extends PureComponent {
     isWritable: PropTypes.bool.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isReadonlyView: PropTypes.bool.isRequired,
-    description: PropTypes.string.isRequired,
     indexes: PropTypes.array.isRequired,
     sortColumn: PropTypes.string.isRequired,
     sortOrder: PropTypes.string.isRequired,
@@ -34,6 +32,7 @@ class Indexes extends PureComponent {
     errorMessage: PropTypes.string,
     changeName: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
+    writeStateDescription: PropTypes.string.isRequired,
   };
 
   renderComponent() {
@@ -75,6 +74,7 @@ class Indexes extends PureComponent {
           isReadonlyView={this.props.isReadonlyView}
           errorMessage={this.props.errorMessage}
           localAppRegistry={this.props.localAppRegistry}
+          writeStateDescription={this.props.writeStateDescription}
         />
         {!this.props.isReadonlyView &&
           !this.props.errorMessage &&
@@ -96,7 +96,7 @@ const mapStateToProps = (state) => ({
   isWritable: state.isWritable,
   isReadonly: state.isReadonly,
   isReadonlyView: state.isReadonlyView,
-  description: state.description,
+  writeStateDescription: state.description,
   errorMessage: state.error,
   dataService: state.dataService,
   sortColumn: state.sortColumn,
@@ -110,7 +110,6 @@ const mapStateToProps = (state) => ({
  */
 const MappedIndexes = connect(mapStateToProps, {
   writeStateChanged,
-  getDescription,
   dataServiceConnected,
   sortIndexes,
   reset,

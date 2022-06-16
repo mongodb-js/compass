@@ -1,16 +1,23 @@
 import React, { useCallback } from 'react';
 import {
   Button,
-  Toolbar,
-  css,
-  spacing,
-  WarningSummary,
   ErrorSummary,
+  Toolbar,
+  Tooltip,
+  WarningSummary,
+  css,
+  mergeProps,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 
 const toolbarStyles = css({
   padding: spacing[3],
+});
+
+const createIndexButtonContainerStyles = css({
+  display: 'inline-block',
+  width: 'fit-content',
 });
 
 type IndexesToolbarProps = {
@@ -19,6 +26,7 @@ type IndexesToolbarProps = {
   isReadonlyView: boolean;
   isWritable: boolean;
   localAppRegistry: AppRegistry;
+  writeStateDescription?: string;
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
@@ -27,6 +35,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   isReadonlyView,
   isWritable,
   localAppRegistry,
+  writeStateDescription,
 }) => {
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('toggle-create-index-modal', true);
@@ -37,15 +46,34 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   return (
     <Toolbar className={toolbarStyles}>
       {showCreateIndexButton ? (
-        <Button
-          data-testid="open-create-index-modal-button"
-          disabled={!isWritable}
-          onClick={onClickCreateIndex}
-          variant="primary"
-          size="small"
+        <Tooltip
+          enabled={!isWritable}
+          align="top"
+          justify="middle"
+          trigger={({ children, ...props }) => (
+            <div
+              {...mergeProps(
+                {
+                  className: createIndexButtonContainerStyles,
+                },
+                props
+              )}
+            >
+              <Button
+                data-testid="open-create-index-modal-button"
+                disabled={!isWritable}
+                onClick={onClickCreateIndex}
+                variant="primary"
+                size="small"
+              >
+                Create Index
+              </Button>
+              {children}
+            </div>
+          )}
         >
-          Create Index
-        </Button>
+          {writeStateDescription}
+        </Tooltip>
       ) : (
         <div data-test-id="indexes-toolbar-empty" />
       )}
