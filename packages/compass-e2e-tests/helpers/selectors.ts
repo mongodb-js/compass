@@ -767,7 +767,7 @@ export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
 export const NameColumnName = '[data-test-id="name-column-name"]';
 export const CreateIndexButton =
-  '[data-test-id="open-create-index-modal-button"]';
+  '[data-testid="open-create-index-modal-button"]';
 export const CreateIndexModal = '[data-test-id="create-index-modal"]';
 export const CreateIndexModalFieldSelect =
   '[data-test-id="create-index-modal-field-select"]';
