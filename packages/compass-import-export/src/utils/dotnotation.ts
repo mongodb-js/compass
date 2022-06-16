@@ -1,4 +1,5 @@
 import _ from 'lodash';
+// @ts-expect-error no types exist for this library
 import { flatten, unflatten } from 'flat';
 import { getTypeDescriptorForValue } from './bson-csv';
 /**
@@ -13,11 +14,17 @@ import { getTypeDescriptorForValue } from './bson-csv';
  * ```javascript
  * dotnotation.serialize({_id: 'arlo', collar: {size: 14}});
  * >> {_id: 'arlo', 'collar.size': 14}
+
+ * dotnotation.serialize({ foo: { 1: 'one', two: 'two' } });
+ * >> { 'foo.1': 'one', 'foo.two': 'two' }
+
+ * dotnotation.serialize({ foo: { 1: 'one', two: 'two' } }, { includeObjects: true });
+ * >> { foo: {}, 'foo.1': 'one', 'foo.two': 'two' }
  * ```
  * @param {Object} obj
  * @returns {Object}
  */
-export function serialize(obj, { includeObjects = false } = {}) {
+export function serialize(obj: Record<string, any>, { includeObjects = false } = {}): Record<string, any> {
   const flattened = flatten(obj, {
     safe: true, // preserve arrays and their contents
     /**
@@ -26,27 +33,45 @@ export function serialize(obj, { includeObjects = false } = {}) {
      * NOTE: lucas: Trying an existing fork that supports this new option:
      * https://github.com/hughsk/flat/pull/93
      */
-    ignoreValue: function (value) {
+    ignoreValue: function (value: any): boolean {
       const t = getTypeDescriptorForValue(value);
       if (t.isBSON) {
         return true;
       }
+      return false;
     },
   });
 
   if (includeObjects) {
-    const withObjects = {};
-    const knownParents = {};
+    /*
+    Make sure that paths to objects exist in the returned value before the paths
+    to properties inside those objects.
+    ie. for { foo: { 1: 'one', two: 'two' } } we will return
+    { foo: {}, 'foo.1': 'one', 'foo.two': 'two' } rather than
+    { 'foo.1': 'one', 'foo.two', 'two'}.
+
+    This way when we walk the return value later by the time we encounter
+    'foo.1' we already created foo, initialised to {}. Then _.set(result,
+    'foo.1', 'one') will not create foo as an array because 1 looks like an
+    index. This is because at that point result will already contain { foo: {} }
+
+    The use-case for this came about because paths that end with numbers are
+    ambiguous and _.set() will assume it is an array index by default. By
+    ensuring that there is already an object at the target the ambiguity is
+    removed.
+    */
+    const withObjects: Record<string, any> = {};
+    const knownParents: Record<string, true> = {};
     for (const [path, value] of Object.entries(flattened)) {
       const parentPath = path.includes('.')
         ? path.slice(0, path.lastIndexOf('.'))
         : null;
       if (parentPath && !knownParents[parentPath]) {
         knownParents[parentPath] = true;
-        if (Array.isArray(_.get(obj, parentPath))) {
-          continue;
+        // Leave arrays alone because they already got handled by safe: true above.
+        if (!Array.isArray(_.get(obj, parentPath))) {
+          withObjects[parentPath] = {};
         }
-        withObjects[parentPath] = {};
       }
       withObjects[path] = value;
     }
@@ -66,7 +91,7 @@ export function serialize(obj, { includeObjects = false } = {}) {
  * @param {Object} obj
  * @returns {Object}
  */
-export function deserialize(obj) {
+export function deserialize(obj: any): any {
   /**
    * TODO: lucas: bson type support. For now, drop.
    */
