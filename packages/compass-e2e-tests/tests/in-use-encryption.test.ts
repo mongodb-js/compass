@@ -588,9 +588,13 @@ describe('FLE2', function () {
         console.error(err);
       }
 
+      const mostRecentConnection = await browser.$(
+        Selectors.MostRecentConnection
+      );
+      await mostRecentConnection.waitForDisplayed({ timeout: 60_000 });
+
       await browser.clickVisible(Selectors.MostRecentConnection, {
-        scroll: true,
-        screenshot: path.join(LOG_PATH, 'rcent-connections.png'),
+        screenshot: path.join(LOG_PATH, 'recent-connection.png'),
       });
 
       const state = await browser.getConnectFormState();
