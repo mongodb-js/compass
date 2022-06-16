@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ComponentProps } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
@@ -7,39 +8,53 @@ import type { SinonSpy } from 'sinon';
 
 import { PipelineStages } from './pipeline-stages';
 
+const renderPipelineStages = (
+  props: Partial<ComponentProps<typeof PipelineStages>> = {}
+) => {
+  render(
+    <PipelineStages
+      isResultsMode={false}
+      stages={[]}
+      showAddNewStage={true}
+      onStageAdded={() => {}}
+      onChangeWorkspace={() => {}}
+      {...props}
+    />
+  );
+  return screen.getByTestId('toolbar-pipeline-stages');
+};
+
 describe('PipelineStages', function () {
-  describe('No stage', function () {
-    let container: HTMLElement;
-    let onStageAddedSpy: SinonSpy;
-    let onChangeWorkspaceSpy: SinonSpy;
-    beforeEach(function () {
-      onStageAddedSpy = spy();
-      onChangeWorkspaceSpy = spy();
-      render(
-        <PipelineStages
-          isEditing={false}
-          stages={[]}
-          onStageAdded={onStageAddedSpy}
-          onChangeWorkspace={onChangeWorkspaceSpy}
-        />
-      );
-      container = screen.getByTestId('toolbar-pipeline-stages');
+  it('renders text to show no stages are in pipeline', function () {
+    const container = renderPipelineStages({
+      isResultsMode: false,
+      stages: [],
+      showAddNewStage: true,
     });
+    expect(
+      within(container).findByText(
+        'Your pipeline is currently empty. To get started select the first stage.'
+      )
+    ).to.exist;
+  });
 
-    it('renders text to show no stages are in pipeline', function () {
-      expect(
-        within(container).findByText(
-          'Your pipeline is currently empty. To get started select the first stage.'
-        )
-      ).to.exist;
+  describe('add stage button', function () {
+    it('does not render add stage button', function () {
+      const container = renderPipelineStages({ showAddNewStage: false });
+      expect(() => {
+        within(container).getByTestId('pipeline-toolbar-add-stage-button');
+      }).to.throw;
     });
-
-    it('renders button to add first stage - when pipeline is empty', function () {
+    it('renders add stage button', function () {
+      const onStageAddedSpy = spy();
+      const container = renderPipelineStages({
+        showAddNewStage: true,
+        onStageAdded: onStageAddedSpy,
+      });
       expect(within(container).getByTestId('pipeline-toolbar-add-stage-button'))
         .to.exist;
-    });
 
-    it('calls onStageAdded when user clicks on add first stage button', function () {
+      expect(onStageAddedSpy.calledOnce).to.be.false;
       userEvent.click(
         within(container).getByTestId('pipeline-toolbar-add-stage-button')
       );
@@ -48,75 +63,41 @@ describe('PipelineStages', function () {
     });
   });
 
-  describe('Invalid stages', function () {
+  describe('builder mode', function () {
     let container: HTMLElement;
     let onStageAddedSpy: SinonSpy;
     let onChangeWorkspaceSpy: SinonSpy;
     beforeEach(function () {
       onStageAddedSpy = spy();
       onChangeWorkspaceSpy = spy();
-      render(
-        <PipelineStages
-          isEditing={false}
-          stages={['', '', '']}
-          onStageAdded={onStageAddedSpy}
-          onChangeWorkspace={onChangeWorkspaceSpy}
-        />
-      );
-      container = screen.getByTestId('toolbar-pipeline-stages');
+      container = renderPipelineStages({
+        isResultsMode: false,
+        stages: ['$group', '$sort'],
+        onStageAdded: onStageAddedSpy,
+        onChangeWorkspace: onChangeWorkspaceSpy,
+      });
     });
-    it('renders text to show no stages are in pipeline', function () {
-      expect(within(container).findByText('Your pipeline is currently empty.'))
-        .to.exist;
-    });
-
-    it('does not render button to add first stage - when pipeline is not empty', function () {
-      expect(() => {
-        within(container).getByTestId('pipeline-toolbar-add-stage-button');
-      }).to.throw;
-    });
-  });
-
-  describe('Proper stages in builder state', function () {
-    let container: HTMLElement;
-    let onStageAddedSpy: SinonSpy;
-    let onChangeWorkspaceSpy: SinonSpy;
-    beforeEach(function () {
-      onStageAddedSpy = spy();
-      onChangeWorkspaceSpy = spy();
-      render(
-        <PipelineStages
-          isEditing={false} // Corresponds to builder state
-          stages={['$match', '', '$project']}
-          onStageAdded={onStageAddedSpy}
-          onChangeWorkspace={onChangeWorkspaceSpy}
-        />
-      );
-      container = screen.getByTestId('toolbar-pipeline-stages');
-    });
-    it('renders stages', function () {
+    it('renders stages in builder mode', function () {
       expect(within(container).findByText('$match')).to.exist;
       expect(within(container).findByText('$project')).to.exist;
     });
   });
 
-  describe('Proper stages in results state', function () {
+  describe('results mode', function () {
     let container: HTMLElement;
     let onStageAddedSpy: SinonSpy;
     let onChangeWorkspaceSpy: SinonSpy;
     beforeEach(function () {
       onStageAddedSpy = spy();
       onChangeWorkspaceSpy = spy();
-      render(
-        <PipelineStages
-          isEditing={true} // Corresponds to results state
-          stages={['$match', '', '$project']}
-          onStageAdded={onStageAddedSpy}
-          onChangeWorkspace={onChangeWorkspaceSpy}
-        />
-      );
-      container = screen.getByTestId('toolbar-pipeline-stages');
+      container = renderPipelineStages({
+        isResultsMode: true,
+        stages: ['$match', '$project'],
+        onStageAdded: onStageAddedSpy,
+        onChangeWorkspace: onChangeWorkspaceSpy,
+      });
     });
+
     it('renders stages', function () {
       expect(within(container).findByText('$match')).to.exist;
       expect(within(container).findByText('$project')).to.exist;
@@ -124,8 +105,7 @@ describe('PipelineStages', function () {
     it('renders edit button', function () {
       expect(within(container).getByTestId('pipeline-toolbar-edit-button')).to
         .exist;
-    });
-    it('calls onChangeWorkspace when user clicks on edit button', function () {
+      expect(onChangeWorkspaceSpy.calledOnce).to.be.false;
       userEvent.click(
         within(container).getByTestId('pipeline-toolbar-edit-button')
       );

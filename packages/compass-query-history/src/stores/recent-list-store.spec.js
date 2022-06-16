@@ -89,4 +89,27 @@ describe('RecentListStore [Store]', () => {
       });
     });
   });
+
+  // TODO: this writes files to the current folder
+  describe.skip('#addRecent', () => {
+    it('ignores duplicate queries', () => {
+      expect(store.state.items.length).to.equal(0);
+
+      const recent = { ns: 'foo', filter: { foo: 1 } };
+
+      store.addRecent(recent);
+      expect(store.state.items.length).to.equal(1);
+
+      // set _lastExecuted to the epoch so we can check that it gets increased
+      store.state.items.at(0)._lastExecuted = 0;
+      store.state.items.at(0).save();
+      expect(store.state.items.at(0)._lastExecuted.getTime()).to.equal(0);
+
+      store.addRecent(recent);
+      expect(store.state.items.length).to.equal(1);
+
+      // didn't add a duplicate, but did move it to the top
+      expect(store.state.items.at(0)._lastExecuted.getTime()).to.be.gt(0);
+    });
+  });
 });
