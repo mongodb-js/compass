@@ -20,16 +20,12 @@ class CollationToolbar extends PureComponent {
   static displayName = 'CollationToolbarComponent';
 
   static propTypes = {
-    collation: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
-    collationChanged: PropTypes.func.isRequired,
-    collationString: PropTypes.string,
-    maxTimeMS: PropTypes.number,
+    collationString: PropTypes.object,
     collationStringChanged: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired,
+    maxTimeMS: PropTypes.number,
     maxTimeMSChanged: PropTypes.func,
+    openLink: PropTypes.func.isRequired,
   };
-
-  static defaultProps = { collation: {}, collationString: ''};
 
   state = { hasFocus: false };
 
@@ -40,7 +36,6 @@ class CollationToolbar extends PureComponent {
    */
   onCollationChange = (evt) => {
     this.props.collationStringChanged(evt.target.value);
-    this.props.collationChanged(evt.target.value);
   };
 
   onMaxTimeMsChanged = (evt) => {
@@ -85,7 +80,7 @@ class CollationToolbar extends PureComponent {
           <div
             className={classnames(
               styles['toolbar-input-label'],
-              { [ styles['has-error'] ]: (this.props.collation === false) }
+              { [ styles['has-error'] ]: !this.props.collationString.isValid }
             )}
             data-testid="collation-toolbar-input-label">
             <InfoSprinkle helpLink={HELP_URL_COLLATION} onClickHandler={this.props.openLink} />
@@ -96,7 +91,7 @@ class CollationToolbar extends PureComponent {
             placeholder="{ locale: 'simple' }"
             type="text"
             onChange={this.onCollationChange}
-            value={this.props.collationString}
+            value={this.props.collationString.text}
           />
           <div className={classnames(styles['max-time-ms'])}>
             <div

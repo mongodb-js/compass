@@ -336,7 +336,6 @@ export async function setConnectFormState(
         allText.push(text);
         if (text === key) {
           found = true;
-          console.log('clicking option', text);
           await option.scrollIntoView();
           await option.waitForDisplayed();
           await option.click();

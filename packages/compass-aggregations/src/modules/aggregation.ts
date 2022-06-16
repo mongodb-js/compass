@@ -241,9 +241,9 @@ const fetchAggregationData = (
       pipeline,
       namespace,
       maxTimeMS,
-      collation,
       dataService: { dataService },
       aggregation: { limit, abortController: _abortController },
+      collationString: { value: collation }
     } = getState();
 
     if (!dataService) {
@@ -266,7 +266,7 @@ const fetchAggregationData = (
 
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collation || undefined
+        collation: collation ?? undefined
       };
 
       const lastStage = nonEmptyStages[nonEmptyStages.length - 1] ?? {};
@@ -341,8 +341,8 @@ export const exportAggregationResults = (): ThunkAction<
       pipeline,
       namespace,
       maxTimeMS,
-      collation,
-      countDocuments: { count }
+      countDocuments: { count },
+      collationString: { value: collation }
     } = getState();
 
     const stages = mapPipelineToStages(pipeline);
@@ -350,7 +350,7 @@ export const exportAggregationResults = (): ThunkAction<
     const options: AggregateOptions = {
       maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
       allowDiskUse: true,
-      collation: collation || undefined
+      collation: collation ?? undefined
     };
 
     dispatch(
