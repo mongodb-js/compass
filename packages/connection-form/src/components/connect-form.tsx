@@ -138,26 +138,36 @@ function ConnectForm({
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
 
-  const [showSaveConnectionModal, setShowSaveConnectionModal] = useState(false);
+  type SaveConnectionModalState = 'hidden' | 'save' | 'saveAndConnect';
+
+  const [saveConnectionModal, setSaveConnectionModal] =
+    useState<SaveConnectionModalState>('hidden');
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'
   );
 
-  const onSubmitForm = useCallback(() => {
-    const updatedConnectionOptions = cloneDeep(connectionOptions);
-    const formErrors = validateConnectionOptionsErrors(
-      updatedConnectionOptions
-    );
-    if (formErrors.length) {
-      setErrors(formErrors);
-      return;
-    }
-    onConnectClicked({
-      ...initialConnectionInfo,
-      connectionOptions: updatedConnectionOptions,
-    });
-  }, [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]);
+  const onSubmitForm = useCallback(
+    (connectionInfo?: ConnectionInfo) => {
+      const updatedConnectionOptions = cloneDeep(connectionOptions);
+      const formErrors = validateConnectionOptionsErrors(
+        updatedConnectionOptions
+      );
+      if (formErrors.length) {
+        setErrors(formErrors);
+        return;
+      }
+      onConnectClicked({
+        ...initialConnectionInfo,
+        // If connectionInfo is passed in that will be used similar to if there
+        // was initialConnectionInfo. Useful for connecting to a new favorite that
+        // was just added.
+        ...connectionInfo,
+        connectionOptions: updatedConnectionOptions,
+      });
+    },
+    [initialConnectionInfo, onConnectClicked, setErrors, connectionOptions]
+  );
 
   const callOnSaveConnectionClickedAndStoreErrors = useCallback(
     async (connectionInfo: ConnectionInfo): Promise<void> => {
@@ -206,7 +216,7 @@ function ConnectForm({
                     data-testid="edit-favorite-name-button"
                     className={editFavoriteButtonStyles}
                     onClick={() => {
-                      setShowSaveConnectionModal(true);
+                      setSaveConnectionModal('save');
                     }}
                   >
                     <Icon glyph="Edit" />
@@ -224,7 +234,7 @@ function ConnectForm({
                   className={favoriteButtonStyles}
                   size="large"
                   onClick={() => {
-                    setShowSaveConnectionModal(true);
+                    setSaveConnectionModal('save');
                   }}
                 >
                   <div className={favoriteButtonContentStyles}>
@@ -242,7 +252,7 @@ function ConnectForm({
                 setEnableEditingConnectionString={
                   setEnableEditingConnectionString
                 }
-                onSubmit={onSubmitForm}
+                onSubmit={() => onSubmitForm()}
                 updateConnectionFormField={updateConnectionFormField}
               />
               {connectionStringInvalidError && (
@@ -262,19 +272,27 @@ function ConnectForm({
                 errors={connectionStringInvalidError ? [] : errors}
                 warnings={connectionStringInvalidError ? [] : warnings}
                 saveButton={
-                  initialConnectionInfo.favorite
-                    ? isDirty
-                      ? 'enabled'
-                      : 'disabled'
-                    : 'hidden'
+                  isDirty || !initialConnectionInfo.favorite
+                    ? 'enabled'
+                    : 'disabled'
+                }
+                saveAndConnectButton={
+                  initialConnectionInfo.favorite ? 'hidden' : 'enabled'
                 }
                 onSaveClicked={async () => {
-                  await callOnSaveConnectionClickedAndStoreErrors({
-                    ...cloneDeep(initialConnectionInfo),
-                    connectionOptions: cloneDeep(connectionOptions),
-                  });
+                  if (initialConnectionInfo.favorite) {
+                    await callOnSaveConnectionClickedAndStoreErrors({
+                      ...cloneDeep(initialConnectionInfo),
+                      connectionOptions: cloneDeep(connectionOptions),
+                    });
+                  } else {
+                    setSaveConnectionModal('save');
+                  }
                 }}
-                onConnectClicked={onSubmitForm}
+                onSaveAndConnectClicked={() => {
+                  setSaveConnectionModal('saveAndConnect');
+                }}
+                onConnectClicked={() => onSubmitForm()}
               />
             </div>
           </form>
@@ -282,20 +300,29 @@ function ConnectForm({
       </div>
       {!!onSaveConnectionClicked && (
         <SaveConnectionModal
-          open={showSaveConnectionModal}
+          open={saveConnectionModal !== 'hidden'}
+          saveText={
+            saveConnectionModal === 'saveAndConnect' ? 'Save & Connect' : 'Save'
+          }
           onCancelClicked={() => {
-            setShowSaveConnectionModal(false);
+            setSaveConnectionModal('hidden');
           }}
           onSaveClicked={async (favoriteInfo: ConnectionFavoriteOptions) => {
-            setShowSaveConnectionModal(false);
+            setSaveConnectionModal('hidden');
 
-            await callOnSaveConnectionClickedAndStoreErrors({
+            const connectionInfo = {
               ...cloneDeep(initialConnectionInfo),
               connectionOptions: cloneDeep(connectionOptions),
               favorite: {
                 ...favoriteInfo,
               },
-            });
+            };
+            await callOnSaveConnectionClickedAndStoreErrors(connectionInfo);
+
+            if (saveConnectionModal === 'saveAndConnect') {
+              // Connect to the newly created favorite
+              onSubmitForm(connectionInfo);
+            }
           }}
           key={initialConnectionInfo.id}
           initialFavoriteInfo={initialConnectionInfo.favorite}

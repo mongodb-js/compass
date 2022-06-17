@@ -28,7 +28,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
 
     case 'incomplete-schema-for-cloned-doc':
       return (
-        <Banner variant={BannerVariant.Danger}>
+        <Banner data-test-id="incomplete-schema-for-cloned-doc" variant={BannerVariant.Danger}>
           This insert operation will not encrypt all fields that were encrypted in the original
           document due to a missing or incomplete schema for this collection.
 

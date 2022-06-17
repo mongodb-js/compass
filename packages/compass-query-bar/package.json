@@ -85,7 +85,7 @@
     "hadron-app-registry": "^8.12.0",
     "hadron-react-components": "^5.15.0",
     "mocha": "^7.0.1",
-    "mongodb-ace-autocompleter": "^1.0.0",
+    "mongodb-ace-autocompleter": "^1.1.1",
     "mongodb-query-parser": "^2.4.6",
     "ms": "^2.1.2",
     "nyc": "^15.1.0",
