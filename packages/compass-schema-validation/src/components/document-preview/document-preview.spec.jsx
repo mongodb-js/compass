@@ -5,18 +5,18 @@ import { expect } from 'chai';
 import DocumentPreview from '../document-preview';
 import styles from './document-preview.module.less';
 
-describe('DocumentPreview [Component]', function() {
+describe('DocumentPreview [Component]', function () {
   let component;
 
-  beforeEach(function() {
+  beforeEach(function () {
     component = shallow(<DocumentPreview document={{}} />);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the wrapper div', function() {
+  it('renders the wrapper div', function () {
     expect(component.find(`.${styles['document-preview']}`)).to.be.present();
   });
 });

@@ -9,8 +9,8 @@ import CompassSchemaValidation from './components/compass-schema-validation';
 class Plugin extends Component {
   static displayName = 'CompassSchemaValidationPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.

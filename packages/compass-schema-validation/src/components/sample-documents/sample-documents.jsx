@@ -17,8 +17,8 @@ class SampleDocuments extends Component {
     sampleDocuments: PropTypes.shape({
       matching: PropTypes.object,
       notmatching: PropTypes.object,
-      isLoading: PropTypes.bool
-    })
+      isLoading: PropTypes.bool,
+    }),
   };
 
   /**
@@ -30,7 +30,8 @@ class SampleDocuments extends Component {
    */
   shouldComponentUpdate(nextProps) {
     return (
-      nextProps.sampleDocuments.isLoading !== this.props.sampleDocuments.isLoading
+      nextProps.sampleDocuments.isLoading !==
+      this.props.sampleDocuments.isLoading
     );
   }
 
@@ -43,16 +44,15 @@ class SampleDocuments extends Component {
     const title = 'Sample Document That Passed Validation';
 
     return (
-      <div className={styles['document-container']} data-test-id="matching-documents">
+      <div
+        className={styles['document-container']}
+        data-test-id="matching-documents"
+      >
         <div className={styles['matching-documents']}>
           <CheckCircle />
-          <span className={styles['matching-documents-title']}>
-            {title}
-          </span>
+          <span className={styles['matching-documents-title']}>{title}</span>
         </div>
-        <DocumentPreview
-          document={this.props.sampleDocuments.matching}
-        />
+        <DocumentPreview document={this.props.sampleDocuments.matching} />
       </div>
     );
   }
@@ -66,16 +66,15 @@ class SampleDocuments extends Component {
     const title = 'Sample Document That Failed Validation';
 
     return (
-      <div className={styles['document-container']} data-test-id="notmatching-documents">
+      <div
+        className={styles['document-container']}
+        data-test-id="notmatching-documents"
+      >
         <div className={styles['notmatching-documents']}>
           <CrossCircle />
-          <span className={styles['matching-documents-title']}>
-            {title}
-          </span>
+          <span className={styles['matching-documents-title']}>{title}</span>
         </div>
-        <DocumentPreview
-          document={this.props.sampleDocuments.notmatching}
-        />
+        <DocumentPreview document={this.props.sampleDocuments.notmatching} />
       </div>
     );
   }
@@ -89,10 +88,9 @@ class SampleDocuments extends Component {
     return (
       <div className={styles['sample-documents']}>
         <div className={styles['sample-documents-content']}>
-          { this.props.sampleDocuments.isLoading ?
-            <LoadingOverlay text="Sampling Document..." /> :
-            null
-          }
+          {this.props.sampleDocuments.isLoading ? (
+            <LoadingOverlay text="Sampling Document..." />
+          ) : null}
           {this.renderMatchingDocuments()}
           {this.renderNotMatchingDocuments()}
         </div>

@@ -94,7 +94,7 @@
     "hadron-react-components": "^5.15.0",
     "less": "^3.11.1",
     "mocha": "^8.4.0",
-    "mongodb-ace-autocompleter": "^1.0.0",
+    "mongodb-ace-autocompleter": "^1.1.1",
     "mongodb-data-service": "^21.21.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",

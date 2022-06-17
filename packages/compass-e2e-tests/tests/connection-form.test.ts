@@ -551,6 +551,8 @@ describe('Connection form', function () {
   });
 
   it('can save & connect', async function () {
+    const favoriteName = 'My New Favorite';
+
     // Fill in a valid URI
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
@@ -560,7 +562,7 @@ describe('Connection form', function () {
     // Save & Connect
     await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
     await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-    await browser.$(Selectors.FavoriteNameInput).setValue('My New Favorite');
+    await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
     await browser.clickVisible(
       `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
     );
@@ -579,6 +581,11 @@ describe('Connection form', function () {
     await element.waitForDisplayed({
       timeout: 30_000,
     });
+
+    // It should use the new favorite name as the connection name in the top-left corner
+    expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(
+      favoriteName
+    );
   });
 });
 

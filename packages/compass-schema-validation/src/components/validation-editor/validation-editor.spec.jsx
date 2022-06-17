@@ -8,8 +8,8 @@ import hadronApp from 'hadron-app';
 import ValidationEditor from '../validation-editor';
 import styles from './validation-editor.module.less';
 
-describe('ValidationEditor [Component]', function() {
-  context('when it is an editable mode', function() {
+describe('ValidationEditor [Component]', function () {
+  context('when it is an editable mode', function () {
     let component;
     const setValidatorChangedSpy = sinon.spy();
     const setValidationActionChangedSpy = sinon.spy();
@@ -25,17 +25,17 @@ describe('ValidationEditor [Component]', function() {
       validationLevel: 'moderate',
       isChanged: false,
       syntaxError: null,
-      error: null
+      error: null,
     };
     const isEditable = true;
     const appRegistry = new AppRegistry();
 
-    before(function() {
+    before(function () {
       global.hadronApp = hadronApp;
       global.hadronApp.appRegistry = appRegistry;
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <ValidationEditor
           validatorChanged={setValidatorChangedSpy}
@@ -52,17 +52,17 @@ describe('ValidationEditor [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the wrapper div', function() {
+    it('renders the wrapper div', function () {
       expect(component.find(`.${styles['validation-editor']}`)).to.be.present();
       expect(component.find('ReactAce').props().readOnly).to.be.equal(false);
     });
   });
 
-  context('when it is a not editable mode', function() {
+  context('when it is a not editable mode', function () {
     let component;
     const setValidatorChangedSpy = sinon.spy();
     const setValidationActionChangedSpy = sinon.spy();
@@ -78,17 +78,17 @@ describe('ValidationEditor [Component]', function() {
       validationLevel: 'moderate',
       isChanged: false,
       syntaxError: null,
-      error: null
+      error: null,
     };
     const isEditable = false;
     const appRegistry = new AppRegistry();
 
-    before(function() {
+    before(function () {
       global.hadronApp = hadronApp;
       global.hadronApp.appRegistry = appRegistry;
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <ValidationEditor
           validatorChanged={setValidatorChangedSpy}
@@ -105,11 +105,11 @@ describe('ValidationEditor [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the wrapper div', function() {
+    it('renders the wrapper div', function () {
       expect(component.find('ReactAce').props().readOnly).to.be.equal(true);
     });
   });

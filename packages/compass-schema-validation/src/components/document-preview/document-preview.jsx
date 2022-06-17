@@ -10,7 +10,7 @@ import styles from './document-preview.module.less';
 class DocumentPreview extends Component {
   static displayName = 'DocumentPreview';
 
-  static propTypes = { document: PropTypes.object }
+  static propTypes = { document: PropTypes.object };
 
   /**
    * Renders the document preview.
@@ -20,7 +20,10 @@ class DocumentPreview extends Component {
   render() {
     if (!this.props.document) {
       return (
-        <div className={styles['document-preview']} data-test-id="document-preview">
+        <div
+          className={styles['document-preview']}
+          data-test-id="document-preview"
+        >
           <div className={styles['document-preview-documents']}>
             <div className={styles['no-documents']}>
               <i>No Preview Documents</i>
@@ -31,13 +34,13 @@ class DocumentPreview extends Component {
     }
 
     return (
-      <div className={styles['document-preview']} data-test-id="document-preview">
+      <div
+        className={styles['document-preview']}
+        data-test-id="document-preview"
+      >
         <div className={styles['document-preview-documents']}>
           <div className={styles['document-preview-document-card']}>
-            <Document
-              doc={this.props.document}
-              editable={false}
-            />
+            <Document doc={this.props.document} editable={false} />
           </div>
         </div>
       </div>

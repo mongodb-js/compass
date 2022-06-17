@@ -12,5 +12,5 @@ export default function reducer(state = INITIAL_STATE, action) {
 
 export const isLoadedChanged = (isLoaded) => ({
   type: IS_LOADED_CHANGED,
-  isLoaded
+  isLoaded,
 });

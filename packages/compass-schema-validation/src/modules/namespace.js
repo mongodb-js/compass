@@ -1,4 +1,3 @@
-
 /**
  * Namespace changed action.
  */
@@ -34,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const namespaceChanged = (namespace) => ({
   type: NAMESPACE_CHANGED,
-  namespace
+  namespace,
 });

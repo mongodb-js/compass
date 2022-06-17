@@ -6,20 +6,18 @@ import CrossCircle from '../cross-circle';
 
 import styles from './cross-circle.module.less';
 
-describe('CrossCircle [Component]', function() {
+describe('CrossCircle [Component]', function () {
   let component;
 
-  beforeEach(function() {
-    component = mount(
-      <CrossCircle />
-    );
+  beforeEach(function () {
+    component = mount(<CrossCircle />);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the wrapper div', function() {
+  it('renders the wrapper div', function () {
     expect(component.find(`.${styles['cross-circle']}`)).to.be.present();
   });
 });

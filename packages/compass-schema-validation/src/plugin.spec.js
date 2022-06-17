@@ -2,15 +2,15 @@
 // import { mount } from 'enzyme';
 // import CompassSchemaValidationPlugin from './plugin';
 
-describe('CompassSchemaValidation [Plugin]', function() {
+describe('CompassSchemaValidation [Plugin]', function () {
   // let component;
 
-  beforeEach(function(done) {
+  beforeEach(function (done) {
     // component = mount(<CompassSchemaValidationPlugin />);
     done();
   });
 
-  afterEach(function(done) {
+  afterEach(function (done) {
     // component = null;
     done();
   });

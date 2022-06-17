@@ -7,24 +7,24 @@ import CompassSchemaValidation from '../compass-schema-validation';
 import configureStore from '../../stores';
 import styles from './compass-schema-validation.module.less';
 
-describe('CompassSchemaValidation [Component]', function() {
+describe('CompassSchemaValidation [Component]', function () {
   let component;
   let store;
   const appRegistry = new AppRegistry();
 
-  beforeEach(function() {
+  beforeEach(function () {
     store = configureStore({
-      localAppRegistry: appRegistry
+      localAppRegistry: appRegistry,
     });
     component = mount(<CompassSchemaValidation store={store} />);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     store = null;
     component = null;
   });
 
-  it('renders the correct root classname', function() {
+  it('renders the correct root classname', function () {
     expect(component.find(`.${styles.root}`)).to.be.present();
   });
 });
