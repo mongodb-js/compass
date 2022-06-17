@@ -9,6 +9,10 @@ import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
 import path from 'path';
 
+import delay from '../helpers/delay';
+
+import { promises as fs, readFileSync } from 'fs';
+
 import { LOG_PATH } from '../helpers/compass';
 
 const CONNECTION_HOSTS = 'localhost:27091';
@@ -588,9 +592,40 @@ describe('FLE2', function () {
         console.error(err);
       }
 
-      await afterTests(compass, this.currentTest);
-      compass = await beforeTests();
-      browser = compass.browser;
+      await delay(10000);
+
+      console.log('Trying reading recents...');
+
+      if (compass.userDataPath) {
+        try {
+          console.log('Compass userDataPath');
+          console.log(compass.userDataPath);
+
+          const connections = await fs.readdir(
+            path.join(compass.userDataPath, 'Connections')
+          );
+
+          console.log('Compass connections');
+          console.log(connections);
+
+          if (connections.length < 1) {
+            console.error('No recents found!');
+          } else {
+            const recentConnection = JSON.parse(
+              readFileSync(
+                path.join(compass.userDataPath, 'Connections', connections[0]),
+                'utf8'
+              )
+            );
+
+            console.log('Compass recent connection');
+            console.log(recentConnection);
+          }
+        } catch (err) {
+          console.error('Error during reading recents:');
+          console.error(err);
+        }
+      }
 
       const recentConnections = await browser.$(Selectors.RecentConnections);
       await recentConnections.waitForDisplayed({ timeout: 60_000 });
