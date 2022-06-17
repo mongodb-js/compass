@@ -11,7 +11,7 @@ import path from 'path';
 
 import delay from '../helpers/delay';
 
-import { promises as fs, readFileSync } from 'fs';
+import { promises as fs } from 'fs';
 
 import { LOG_PATH } from '../helpers/compass';
 
@@ -594,6 +594,10 @@ describe('FLE2', function () {
 
       await delay(10000);
 
+      await browser.saveScreenshot(
+        path.join(LOG_PATH, 'recent-connections-right-after-disconnect.png')
+      );
+
       console.log('Trying reading recents...');
 
       if (compass.userDataPath) {
@@ -607,20 +611,6 @@ describe('FLE2', function () {
 
           console.log('Compass connections');
           console.log(connections);
-
-          if (connections.length < 1) {
-            console.error('No recents found!');
-          } else {
-            const recentConnection = JSON.parse(
-              readFileSync(
-                path.join(compass.userDataPath, 'Connections', connections[0]),
-                'utf8'
-              )
-            );
-
-            console.log('Compass recent connection');
-            console.log(recentConnection);
-          }
         } catch (err) {
           console.error('Error during reading recents:');
           console.error(err);
@@ -628,11 +618,13 @@ describe('FLE2', function () {
       }
 
       const recentConnections = await browser.$(Selectors.RecentConnections);
-      await recentConnections.waitForDisplayed({ timeout: 60_000 });
+      await recentConnections.waitForDisplayed({ timeout: 100_000 });
 
-      await browser.clickVisible(`${Selectors.RecentConnections}:first-child`, {
-        screenshot: path.join(LOG_PATH, 'recent-connections.png'),
-      });
+      await browser.saveScreenshot(
+        path.join(LOG_PATH, 'recent-connections-right-after-60-sec.png')
+      );
+
+      await browser.clickVisible(`${Selectors.RecentConnections}:first-child`);
 
       const state = await browser.getConnectFormState();
 
