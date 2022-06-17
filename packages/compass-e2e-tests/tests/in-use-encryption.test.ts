@@ -8,7 +8,6 @@ import * as Selectors from '../helpers/selectors';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
 import path from 'path';
-import delay from '../helpers/delay';
 
 import { LOG_PATH } from '../helpers/compass';
 
@@ -589,24 +588,12 @@ describe('FLE2', function () {
         console.error(err);
       }
 
-      await browser.waitUntil(
-        async () => {
-          await delay(1000);
+      const recentConnections = await browser.$(Selectors.RecentConnections);
+      await recentConnections.waitForDisplayed({ timeout: 10_000 });
 
-          await browser.clickVisible(Selectors.RecentsHeader, {
-            screenshot: path.join(LOG_PATH, 'recent-header.png'),
-          });
-
-          await browser.clickVisible(Selectors.MostRecentConnection, {
-            screenshot: path.join(LOG_PATH, 'recent-connection.png'),
-          });
-
-          return true;
-        },
-        {
-          timeoutMsg: 'Waited for the recents to be displayed"',
-        }
-      );
+      await browser.clickVisible(`${Selectors.RecentConnections}:first-child`, {
+        screenshot: path.join(LOG_PATH, 'recent-connections.png'),
+      });
 
       const state = await browser.getConnectFormState();
 
