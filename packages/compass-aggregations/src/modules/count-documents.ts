@@ -92,8 +92,8 @@ export const countDocuments = (): ThunkAction<
       pipeline,
       namespace,
       maxTimeMS,
-      collation,
-      dataService: { dataService }
+      dataService: { dataService },
+      collationString: { value: collation }
     } = getState();
 
     if (!dataService) {
@@ -111,7 +111,7 @@ export const countDocuments = (): ThunkAction<
       const nonEmptyStages = mapPipelineToStages(pipeline);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collation || undefined,
+        collation: collation ?? undefined,
       };
 
       const [{ count }] = await aggregatePipeline({

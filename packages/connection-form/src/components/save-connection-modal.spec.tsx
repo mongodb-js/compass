@@ -143,4 +143,21 @@ describe('SaveConnectionModal Component', function () {
       expect(screen.getByTestId('color-pick-color3-selected')).to.be.visible;
     });
   });
+
+  describe('when saveText is passed', function () {
+    beforeEach(function () {
+      render(
+        <SaveConnectionModal
+          onSaveClicked={onSaveSpy}
+          onCancelClicked={onCancelSpy}
+          saveText="Save & Connect"
+          open
+        />
+      );
+    });
+
+    it('should set the button text accordingly', function () {
+      expect(screen.getByText('Save & Connect')).to.be.visible;
+    });
+  });
 });

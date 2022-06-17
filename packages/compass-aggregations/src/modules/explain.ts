@@ -145,9 +145,9 @@ export const explainAggregation = (): ThunkAction<
       pipeline: _pipeline,
       namespace,
       maxTimeMS,
-      collation,
       dataService: { dataService },
       indexes: collectionIndexes,
+      collationString: { value: collation }
     } = getState();
 
     if (!dataService) {
@@ -165,7 +165,7 @@ export const explainAggregation = (): ThunkAction<
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         allowDiskUse: true,
-        collation: collation || undefined,
+        collation: collation ?? undefined,
       };
 
       const pipeline = mapPipelineToStages(_pipeline);
