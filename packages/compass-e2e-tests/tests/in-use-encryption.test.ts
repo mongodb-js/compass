@@ -588,8 +588,12 @@ describe('FLE2', function () {
         console.error(err);
       }
 
+      await afterTests(compass, this.currentTest);
+      compass = await beforeTests();
+      browser = compass.browser;
+
       const recentConnections = await browser.$(Selectors.RecentConnections);
-      await recentConnections.waitForDisplayed({ timeout: 20_000 });
+      await recentConnections.waitForDisplayed({ timeout: 60_000 });
 
       await browser.clickVisible(`${Selectors.RecentConnections}:first-child`, {
         screenshot: path.join(LOG_PATH, 'recent-connections.png'),
