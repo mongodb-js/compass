@@ -589,7 +589,7 @@ describe('FLE2', function () {
       }
 
       const recentConnections = await browser.$(Selectors.RecentConnections);
-      await recentConnections.waitForDisplayed({ timeout: 10_000 });
+      await recentConnections.waitForDisplayed({ timeout: 20_000 });
 
       await browser.clickVisible(`${Selectors.RecentConnections}:first-child`, {
         screenshot: path.join(LOG_PATH, 'recent-connections.png'),
