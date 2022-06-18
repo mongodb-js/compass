@@ -717,7 +717,7 @@ tests:
           java: floor(10L) % 3L
           csharp: Math.floor(10, 2) % 3
           object: Math.floor(10, 2)%3
-          php: intdiv(10, 2) % 3
+          php: \intdiv(10, 2) % 3
           ruby: 10.div(2) % 3
           rust: 10 / 2 % 3
           go: 10 / 2 % 3
