@@ -60,4 +60,34 @@ describe('dotnotation', function () {
       locations: ['berlin', 'nyc', 'philadelphia'],
     });
   });
+
+  it('should pre-generate objects when includeObjects is specified', function () {
+    expect(
+      dotnotation.serialize(
+        {
+          foo: {
+            1: 'a',
+            two: 'b',
+          },
+        },
+        { includeObjects: true }
+      )
+    ).to.deep.equal({
+      foo: {},
+      'foo.1': 'a',
+      'foo.two': 'b',
+    });
+
+    // leaves arrays alone - already handled by flatten() with { safe: true }
+    expect(
+      dotnotation.serialize(
+        {
+          foo: ['a', 'b'],
+        },
+        { includeObjects: true }
+      )
+    ).to.deep.equal({
+      foo: ['a', 'b'],
+    });
+  });
 });
