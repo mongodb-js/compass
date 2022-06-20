@@ -56,7 +56,6 @@ jobs:
             - Update `AUTHORS` and `THIRD-PARTY-NOTICES`
 
       - name: Merge PR
-        if: ${{steps.cpr.outputs.pull-request-operation == 'created'}}
         env:
           PULL_REQUEST_NUMBER: ${{steps.cpr.outputs.pull-request-number}}
           # NOTE: we don't use a PAT so to not trigger further automation

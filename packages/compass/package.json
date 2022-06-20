@@ -3,7 +3,7 @@
   "private": true,
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI",
-  "homepage": "https://compass.mongodb.com",
+  "homepage": "https://www.mongodb.com/products/compass",
   "version": "1.32.3-beta.0",
   "apiVersion": "3.0.0",
   "main": "build/main.js",
