@@ -601,7 +601,16 @@ describe('FLE2', function () {
         'QUERYABLE ENCRYPTION'
       );
 
+      console.log('Compass userDataPath:');
+      console.log(compass.userDataPath);
+
+      console.log('Read recents before disconnecting');
+      await readRecentsFolder(compass);
+
       await delay(30000);
+
+      console.log('Read recents after disconnecting + 30000');
+      await readRecentsFolder(compass);
 
       try {
         await browser.disconnect();
@@ -610,10 +619,7 @@ describe('FLE2', function () {
         console.error(err);
       }
 
-      console.log('Compass userDataPath:');
-      console.log(compass.userDataPath);
-
-      console.log('Read recents before disconnecting');
+      console.log('Read recents after disconnecting');
       await readRecentsFolder(compass);
 
       console.log('Delay 30000');
