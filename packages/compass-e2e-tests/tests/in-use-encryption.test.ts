@@ -35,95 +35,108 @@ const readRecentsFolder = async (compass: Compass) => {
 };
 
 describe('FLE2', function () {
-  describe('when any server version and fleEncryptedFieldsMap is specified while connecting', function () {
-    const databaseName = 'fle-test';
-    const collectionName = 'my-another-collection';
-    let compass: Compass;
-    let browser: CompassBrowser;
-
-    before(async function () {
-      compass = await beforeTests();
-      browser = compass.browser;
+  describe('server version gte 4.2.20', function () {
+    before(function () {
+      if (
+        semver.lt(MONGODB_VERSION, '4.2.20') ||
+        process.env.MONGODB_USE_ENTERPRISE !== 'yes'
+      ) {
+        return this.skip();
+      }
     });
 
-    beforeEach(async function () {
-      await browser.connectWithConnectionForm({
-        hosts: [CONNECTION_HOSTS],
-        fleKeyVaultNamespace: `${databaseName}.keyvault`,
-        fleKey: 'A'.repeat(128),
-        fleEncryptedFieldsMap: `{
-          '${databaseName}.${collectionName}': {
-            fields: [
-              {
-                path: 'phoneNumber',
-                keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
-                bsonType: 'string',
-                queries: { queryType: 'equality' }
-              }
-            ]
-          }
-        }`,
+    describe('when fleEncryptedFieldsMap is specified while connecting', function () {
+      const databaseName = 'fle-test';
+      const collectionName = 'my-another-collection';
+      let compass: Compass;
+      let browser: CompassBrowser;
+
+      before(async function () {
+        compass = await beforeTests();
+        browser = compass.browser;
       });
-    });
 
-    after(async function () {
-      if (compass) {
-        await afterTests(compass, this.currentTest);
-      }
-    });
+      beforeEach(async function () {
+        await browser.connectWithConnectionForm({
+          hosts: [CONNECTION_HOSTS],
+          fleKeyVaultNamespace: `${databaseName}.keyvault`,
+          fleKey: 'A'.repeat(128),
+          fleEncryptedFieldsMap: `{
+            '${databaseName}.${collectionName}': {
+              fields: [
+                {
+                  path: 'phoneNumber',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string',
+                  queries: { queryType: 'equality' }
+                }
+              ]
+            }
+          }`,
+        });
+      });
 
-    it('does not store KMS settings if the checkbox is not set', async function () {
-      console.log('Compass userDataPath:');
-      console.log(compass.userDataPath);
+      after(async function () {
+        if (compass) {
+          await afterTests(compass, this.currentTest);
+        }
+      });
 
-      console.log('Read recents before disconnecting');
-      await readRecentsFolder(compass);
+      it('does not store KMS settings if the checkbox is not set', async function () {
+        console.log('Compass userDataPath:');
+        console.log(compass.userDataPath);
 
-      await delay(30000);
+        console.log('Read recents before disconnecting');
+        await readRecentsFolder(compass);
 
-      console.log('Read recents after disconnecting + 30000');
-      await readRecentsFolder(compass);
+        await delay(10000);
 
-      try {
-        await browser.disconnect();
-      } catch (err) {
-        console.error('Error during disconnect:');
-        console.error(err);
-      }
+        console.log('Read recents after disconnecting with delay');
+        await readRecentsFolder(compass);
 
-      console.log('Read recents after disconnecting');
-      await readRecentsFolder(compass);
+        try {
+          await browser.disconnect();
+        } catch (err) {
+          console.error('Error during disconnect:');
+          console.error(err);
+        }
 
-      console.log('Delay 30000');
-      await delay(30000);
+        console.log('Read recents after disconnecting');
+        await readRecentsFolder(compass);
 
-      console.log('Read recents after delay and before screenshot');
-      await readRecentsFolder(compass);
+        console.log('Delay 10000');
+        await delay(10000);
 
-      await browser.saveScreenshot(
-        path.join(LOG_PATH, 'recent-connections-right-after-disconnect.png')
-      );
+        console.log('Read recents after delay and before screenshot');
+        await readRecentsFolder(compass);
 
-      console.log('Read recents after screenshot');
-      await readRecentsFolder(compass);
+        await browser.saveScreenshot(
+          path.join(LOG_PATH, 'recent-connections-right-after-disconnect.png')
+        );
 
-      const recentConnections = await browser.$(Selectors.RecentConnections);
-      await recentConnections.waitForDisplayed({ timeout: 60_000 });
+        console.log('Read recents after screenshot');
+        await readRecentsFolder(compass);
 
-      await browser.saveScreenshot(
-        path.join(LOG_PATH, 'recent-connections-right-after-60-sec.png')
-      );
+        const recentConnections = await browser.$(Selectors.RecentConnections);
+        await recentConnections.waitForDisplayed({ timeout: 60_000 });
 
-      await browser.clickVisible(`${Selectors.RecentConnections}:first-child`);
+        await browser.saveScreenshot(
+          path.join(LOG_PATH, 'recent-connections-right-after-60-sec.png')
+        );
 
-      const state = await browser.getConnectFormState();
+        await browser.clickVisible(
+          `${Selectors.RecentConnections}:first-child`
+        );
 
-      expect(state.connectionString).to.be.equal(CONNECTION_STRING);
-      expect(state.fleKeyVaultNamespace).to.be.equal('fle-test.keyvault');
-      expect(state.fleStoreCredentials).to.be.equal(false);
-      expect(state.fleEncryptedFieldsMap).to.include(
-        'fle-test.my-another-collection'
-      );
+        const state = await browser.getConnectFormState();
+
+        expect(state.connectionString).to.be.equal(CONNECTION_STRING);
+        expect(state.fleKeyVaultNamespace).to.be.equal('fle-test.keyvault');
+        expect(state.fleStoreCredentials).to.be.equal(false);
+        expect(state.fleEncryptedFieldsMap).to.include(
+          'fle-test.my-another-collection'
+        );
+      });
     });
   });
 
