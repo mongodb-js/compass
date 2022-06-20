@@ -18,6 +18,22 @@ import { LOG_PATH } from '../helpers/compass';
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
+const readRecentsFolder = async (compass: Compass) => {
+  if (compass.userDataPath) {
+    try {
+      const connections = await fs.readdir(
+        path.join(compass.userDataPath, 'Connections')
+      );
+
+      console.log('Compass connections:');
+      console.log(connections);
+    } catch (err) {
+      console.error('Error during reading recents:');
+      console.error(err);
+    }
+  }
+};
+
 describe('FLE2', function () {
   before(function () {
     if (
@@ -585,6 +601,8 @@ describe('FLE2', function () {
         'QUERYABLE ENCRYPTION'
       );
 
+      await delay(30000);
+
       try {
         await browser.disconnect();
       } catch (err) {
@@ -592,33 +610,27 @@ describe('FLE2', function () {
         console.error(err);
       }
 
-      await delay(10000);
+      console.log('Compass userDataPath:');
+      console.log(compass.userDataPath);
+
+      console.log('Read recents before disconnecting');
+      await readRecentsFolder(compass);
+
+      console.log('Delay 30000');
+      await delay(30000);
+
+      console.log('Read recents after delay and before screenshot');
+      await readRecentsFolder(compass);
 
       await browser.saveScreenshot(
         path.join(LOG_PATH, 'recent-connections-right-after-disconnect.png')
       );
 
-      console.log('Trying reading recents...');
-
-      if (compass.userDataPath) {
-        try {
-          console.log('Compass userDataPath');
-          console.log(compass.userDataPath);
-
-          const connections = await fs.readdir(
-            path.join(compass.userDataPath, 'Connections')
-          );
-
-          console.log('Compass connections');
-          console.log(connections);
-        } catch (err) {
-          console.error('Error during reading recents:');
-          console.error(err);
-        }
-      }
+      console.log('Read recents after screenshot');
+      await readRecentsFolder(compass);
 
       const recentConnections = await browser.$(Selectors.RecentConnections);
-      await recentConnections.waitForDisplayed({ timeout: 100_000 });
+      await recentConnections.waitForDisplayed({ timeout: 60_000 });
 
       await browser.saveScreenshot(
         path.join(LOG_PATH, 'recent-connections-right-after-60-sec.png')
