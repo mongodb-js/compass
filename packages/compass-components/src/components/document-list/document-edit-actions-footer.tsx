@@ -4,69 +4,64 @@ import { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
 import { css, spacing, uiColors } from '../..';
 
-const enum Status {
-  Initial = 'Initial',
-  Editing = 'Editing',
-  Modified = 'Modified',
-  ContainsErrors = 'ContainsErrors',
-  UpdateStart = 'UpdateStart',
-  UpdateBlocked = 'UpdateBlocked',
-  UpdateSuccess = 'UpdateSuccess',
-  UpdateError = 'UpdateError',
-  Deleting = 'Deleting',
-  DeleteStart = 'DeleteStart',
-  DeleteSuccess = 'DeleteSuccess',
-  DeleteError = 'DeleteError',
-}
+type Status =
+  | 'Initial'
+  | 'Editing'
+  | 'Modified'
+  | 'ContainsErrors'
+  | 'UpdateStart'
+  | 'UpdateBlocked'
+  | 'UpdateSuccess'
+  | 'UpdateError'
+  | 'Deleting'
+  | 'DeleteStart'
+  | 'DeleteSuccess'
+  | 'DeleteError';
 
 function isDeleting(status: Status): boolean {
-  return [
-    Status.Deleting,
-    Status.DeleteStart,
-    Status.DeleteSuccess,
-    Status.DeleteError,
-  ].includes(status);
+  return ['Deleting', 'DeleteStart', 'DeleteSuccess', 'DeleteError'].includes(
+    status
+  );
 }
 
 function isSuccess(status: Status): boolean {
-  return [Status.DeleteSuccess, Status.UpdateSuccess].includes(status);
+  return ['DeleteSuccess', 'UpdateSuccess'].includes(status);
 }
 
 function isPrimaryActionDisabled(status: Status): boolean {
   return [
-    Status.Editing,
-    Status.ContainsErrors,
-    Status.UpdateStart,
-    Status.UpdateSuccess,
-    Status.DeleteStart,
-    Status.DeleteSuccess,
+    'Editing',
+    'ContainsErrors',
+    'UpdateStart',
+    'UpdateSuccess',
+    'DeleteStart',
+    'DeleteSuccess',
   ].includes(status);
 }
 
 function isCancelDisabled(status: Status): boolean {
   return [
-    Status.UpdateStart,
-    Status.UpdateSuccess,
-    Status.DeleteStart,
-    Status.DeleteSuccess,
+    'UpdateStart',
+    'UpdateSuccess',
+    'DeleteStart',
+    'DeleteSuccess',
   ].includes(status);
 }
 
 const StatusMessages: Record<Status, string> = {
-  [Status.Initial]: '',
-  [Status.Editing]: '',
-  [Status.Deleting]: 'Document flagged for deletion.',
-  [Status.Modified]: 'Document modified.',
-  [Status.ContainsErrors]:
-    'Update not permitted while document contains errors.',
-  [Status.UpdateStart]: 'Updating document…',
-  [Status.UpdateError]: '',
-  [Status.UpdateBlocked]:
+  ['Initial']: '',
+  ['Editing']: '',
+  ['Deleting']: 'Document flagged for deletion.',
+  ['Modified']: 'Document modified.',
+  ['ContainsErrors']: 'Update not permitted while document contains errors.',
+  ['UpdateStart']: 'Updating document…',
+  ['UpdateError']: '',
+  ['UpdateBlocked']:
     'Document was modified in the background or it longer exists. Do you wish to continue and possibly overwrite new changes?',
-  [Status.UpdateSuccess]: 'Document updated.',
-  [Status.DeleteStart]: 'Removing document…',
-  [Status.DeleteError]: '',
-  [Status.DeleteSuccess]: 'Document deleted.',
+  ['UpdateSuccess']: 'Document updated.',
+  ['DeleteStart']: 'Removing document…',
+  ['DeleteError']: '',
+  ['DeleteSuccess']: 'Document deleted.',
 };
 
 function useHadronDocumentStatus(
@@ -74,14 +69,14 @@ function useHadronDocumentStatus(
   editing: boolean,
   deleting: boolean
 ) {
-  const [status, setStatus] = useState(() => {
+  const [status, setStatus] = useState<Status>(() => {
     return editing
       ? doc.isModified()
-        ? Status.Modified
-        : Status.Editing
+        ? 'Modified'
+        : 'Editing'
       : deleting
-      ? Status.Deleting
-      : Status.Initial;
+      ? 'Deleting'
+      : 'Initial';
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const invalidElementsRef = useRef(new Set());
@@ -92,14 +87,14 @@ function useHadronDocumentStatus(
   }, []);
 
   useEffect(() => {
-    if (status !== Status.Initial) {
+    if (status !== 'Initial') {
       return;
     }
 
     if (editing) {
-      updateStatus(Status.Editing);
+      updateStatus('Editing');
     } else if (deleting) {
-      updateStatus(Status.Deleting);
+      updateStatus('Deleting');
     }
   }, [status, updateStatus, editing, deleting]);
 
@@ -108,9 +103,9 @@ function useHadronDocumentStatus(
       updateStatus(
         invalidElementsRef.current.size === 0
           ? doc.isModified()
-            ? Status.Modified
-            : Status.Editing
-          : Status.ContainsErrors
+            ? 'Modified'
+            : 'Editing'
+          : 'ContainsErrors'
       );
     };
     const onElementValid = (el: Element) => {
@@ -122,25 +117,25 @@ function useHadronDocumentStatus(
       onUpdate();
     };
     const onUpdateStart = () => {
-      updateStatus(Status.UpdateStart);
+      updateStatus('UpdateStart');
     };
     const onUpdateBlocked = () => {
-      updateStatus(Status.UpdateBlocked);
+      updateStatus('UpdateBlocked');
     };
     const onUpdateSuccess = () => {
-      updateStatus(Status.UpdateSuccess);
+      updateStatus('UpdateSuccess');
     };
     const onUpdateError = (err: string) => {
-      updateStatus(Status.UpdateError, err);
+      updateStatus('UpdateError', err);
     };
     const onRemoveStart = () => {
-      updateStatus(Status.DeleteStart);
+      updateStatus('DeleteStart');
     };
     const onRemoveSuccess = () => {
-      updateStatus(Status.DeleteSuccess);
+      updateStatus('DeleteSuccess');
     };
     const onRemoveError = (err: string) => {
-      updateStatus(Status.DeleteError, err);
+      updateStatus('DeleteError', err);
     };
 
     doc.on(Element.Events.Added, onUpdate);
@@ -177,7 +172,7 @@ function useHadronDocumentStatus(
   useEffect(() => {
     if (isSuccess(status)) {
       const timeoutId = setTimeout(() => {
-        updateStatus(Status.Initial);
+        updateStatus('Initial');
       }, 2000);
       return () => {
         clearTimeout(timeoutId);
@@ -215,25 +210,25 @@ const button = css({
 
 function getColorStyles(status: Status): React.CSSProperties {
   switch (status) {
-    case Status.Editing:
+    case 'Editing':
       return { backgroundColor: uiColors.gray.light2 };
-    case Status.ContainsErrors:
-    case Status.UpdateError:
-    case Status.UpdateBlocked:
-    case Status.Deleting:
-    case Status.DeleteError:
-    case Status.DeleteStart:
+    case 'ContainsErrors':
+    case 'UpdateError':
+    case 'UpdateBlocked':
+    case 'Deleting':
+    case 'DeleteError':
+    case 'DeleteStart':
       return {
         backgroundColor: uiColors.red.light2,
         color: uiColors.red.dark3,
       };
-    case Status.UpdateStart:
+    case 'UpdateStart':
       return {
         backgroundColor: uiColors.blue.light2,
         color: uiColors.blue.dark3,
       };
-    case Status.DeleteSuccess:
-    case Status.UpdateSuccess:
+    case 'DeleteSuccess':
+    case 'UpdateSuccess':
       return {
         backgroundColor: uiColors.green.light2,
         color: uiColors.green.dark3,
@@ -277,14 +272,14 @@ const EditActionsFooter: React.FunctionComponent<{
   // JSON editor where changing the document text doesn't really generate any
   // changes of the HadronDocument)
   const status = containsErrors
-    ? Status.ContainsErrors
+    ? 'ContainsErrors'
     : modified
-    ? Status.Modified
+    ? 'Modified'
     : _status;
 
   const statusMessage = StatusMessages[status];
 
-  if (status === Status.Initial) {
+  if (status === 'Initial') {
     return null;
   }
 
@@ -308,7 +303,7 @@ const EditActionsFooter: React.FunctionComponent<{
             onClick={() => {
               doc.cancel();
               onCancel?.();
-              updateStatus(Status.Initial);
+              updateStatus('Initial');
             }}
             disabled={isCancelDisabled(status)}
           >
@@ -323,14 +318,14 @@ const EditActionsFooter: React.FunctionComponent<{
               if (isDeleting(status)) {
                 onDelete();
               } else {
-                onUpdate(alwaysForceUpdate || status === Status.UpdateBlocked);
+                onUpdate(alwaysForceUpdate || status === 'UpdateBlocked');
               }
             }}
             disabled={isPrimaryActionDisabled(status)}
           >
             {isDeleting(status)
               ? 'Delete'
-              : alwaysForceUpdate || status === Status.UpdateBlocked
+              : alwaysForceUpdate || status === 'UpdateBlocked'
               ? 'Replace'
               : 'Update'}
           </Button>
