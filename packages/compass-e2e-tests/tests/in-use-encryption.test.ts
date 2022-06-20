@@ -301,11 +301,9 @@ describe('FLE2', function () {
       await input.setValue('10101010');
 
       const footer = await document.$(Selectors.DocumentFooterMessage);
-      expect(await footer.getText()).to.equal('Document Modified.');
+      expect(await footer.getText()).to.equal('Document modified.');
 
-      const button = await document.$(
-        '[data-test-id="update-document-button"]'
-      );
+      const button = await document.$(Selectors.UpdateDocumentButton);
       await button.click();
       await footer.waitForDisplayed({ reverse: true });
 
@@ -388,9 +386,7 @@ describe('FLE2', function () {
 
       await copiedDocumentFaxNumberEditor.setValue('0');
 
-      const button = await copiedDocument.$(
-        '[data-test-id="update-document-button"]'
-      );
+      const button = await copiedDocument.$(Selectors.UpdateDocumentButton);
       await button.click();
 
       const footer = await copiedDocument.$(Selectors.DocumentFooterMessage);
