@@ -59,12 +59,12 @@ const StatusMessages: Record<Status, string> = {
   [Status.Modified]: 'Document modified.',
   [Status.ContainsErrors]:
     'Update not permitted while document contains errors.',
-  [Status.UpdateStart]: 'Updating document...',
+  [Status.UpdateStart]: 'Updating document…',
   [Status.UpdateError]: '',
   [Status.UpdateBlocked]:
     'Document was modified in the background or it longer exists. Do you wish to continue and possibly overwrite new changes?',
   [Status.UpdateSuccess]: 'Document updated.',
-  [Status.DeleteStart]: 'Removing document...',
+  [Status.DeleteStart]: 'Removing document…',
   [Status.DeleteError]: '',
   [Status.DeleteSuccess]: 'Document deleted.',
 };
