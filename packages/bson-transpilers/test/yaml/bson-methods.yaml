@@ -31,7 +31,7 @@ tests:
                   'x': 1
                 }).scope
             object: "{'x': 1}"
-            php: (new \MongoDB\BSON\Javascript('test code', (object) ['x' => 1]))->getScope()
+            php: (new Javascript('test code', (object) ['x' => 1]))->getScope()
             ruby: |-
                 BSON::CodeWithScope.new('test code', {
                   'x' => 1
@@ -53,7 +53,7 @@ tests:
             csharp: new BsonJavaScript("test code").Code
             shell: new Code('test code').code
             object: "'test code'"
-            php: (new \MongoDB\BSON\Javascript('test code'))->getCode()
+            php: (new Javascript('test code'))->getCode()
             ruby: BSON::Code.new('test code').javascript
             go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"test code\")}.Code"
             # Rust doesn't have a code attribute
@@ -67,7 +67,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").ToString()
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').toString()
             object: "'5ab901c29ee65f5c8550c5b9'"
-            php: (string) new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9')
+            php: (string) new ObjectId('5ab901c29ee65f5c8550c5b9')
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_s
             go: |-
                 var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -89,7 +89,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Timestamp
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').getTimestamp()
             object: new Date('2018-03-26T14:20:50.000Z')
-            php: (new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9'))->getTimestamp()
+            php: (new ObjectId('5ab901c29ee65f5c8550c5b9'))->getTimestamp()
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9').to_time
             go: |-
                 var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -111,7 +111,7 @@ tests:
             csharp: new ObjectId("5ab901c29ee65f5c8550c5b9").Equals(new ObjectId("5ab901c29ee65f5c8550c5b9"))
             shell: new ObjectId('5ab901c29ee65f5c8550c5b9').equals(new ObjectId('5ab901c29ee65f5c8550c5b9'))
             object: true
-            php: new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9') == new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9')
+            php: new ObjectId('5ab901c29ee65f5c8550c5b9') == new ObjectId('5ab901c29ee65f5c8550c5b9')
             ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9') == BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
             go: |-
                 var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -181,7 +181,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
             shell: new DBRef('coll', new ObjectId(), "db").getDb()
             object: "'db'"
-            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => 'db']['databaseName']"
+            php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']['$db']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -198,7 +198,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId(), "db").DatabaseName
             shell: new DBRef('coll', new ObjectId(), 'db').getDb()
             object: "'db'"
-            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => 'db']['databaseName']"
+            php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']['$db']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -213,7 +213,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
             object: "'coll'"
-            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null]['collectionName']"
+            php: "['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'), '$db' => null]['$ref']"
     -   input:
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).$ref
         output:
@@ -222,7 +222,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).CollectionName
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getCollection()
             object: "'coll'"
-            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null]['collectionName']"
+            php: "['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'), '$db' => null]['$ref']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -238,7 +238,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId()).CollectionName
             shell: new DBRef('coll', new ObjectId()).getCollection()
             object: "'coll'"
-            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => null]['collectionName']"
+            php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => null]['$ref']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -252,7 +252,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
-            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null]['id']"
+            php: "['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'), '$db' => null]['$id']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -268,7 +268,7 @@ tests:
             csharp: new MongoDBRef("coll", new ObjectId("5bfeee5ffa63a31985db9e5e")).Id
             shell: new DBRef('coll', new ObjectId('5bfeee5ffa63a31985db9e5e')).getId()
             object: new ObjectId('5bfeee5ffa63a31985db9e5e')
-            php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId('5bfeee5ffa63a31985db9e5e'), 'databaseName' => null]['id']"
+            php: "['$ref' => 'coll', '$id' => new ObjectId('5bfeee5ffa63a31985db9e5e'), '$db' => null]['$id']"
             ruby: |-
                 BSON::DBRef.new(
                   '$ref' => 'coll',
@@ -368,7 +368,7 @@ tests:
             csharp: 429496729601L == 0
             shell: new NumberLong(429496729601) === 0
             object: 'false'
-            php: 429496729601 == 0
+            php: 429496729601 === 0
             ruby: 429496729601 == 0
             go: int64(429496729601) == int64(0)
             rust: 429496729601i64 == 0
@@ -392,7 +392,7 @@ tests:
             csharp: 429496729601L % 2 == 1
             shell: "(new NumberLong(429496729601) % 2) === 1"
             object: 'true'
-            php: "(429496729601 % 2) == 1"
+            php: "(429496729601 % 2) === 1"
             ruby: "(429496729601 % 2) == 1"
             go: int64(429496729601) % 2 == 1
             rust: 429496729601i64 % 2 == 1
@@ -633,7 +633,7 @@ tests:
             csharp: Decimal128.Parse("5.3E-6175").ToString()
             shell: new NumberDecimal(5.3E-6175).toString()
             output: "'5.3E-6175'"
-            php: (string) new \MongoDB\BSON\Decimal128('5.3E-6175')
+            php: (string) new Decimal128('5.3E-6175')
             ruby: BSON::Decimal128.new('5.3E-6175').to_s
             go: |-
                 var parseDecimal128 = func(str string) primitive.Decimal128 {
@@ -655,7 +655,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToString()
             shell: new Timestamp(1, 100).toString()
             object: "'429496729601'"
-            php: (string) new \MongoDB\BSON\Timestamp(100, 1)
+            php: (string) new Timestamp(100, 1)
             ruby: BSON::Timestamp.new(1, 100).to_s
             rust: "Timestamp { time: 1, increment: 100 }.to_string()"
     -   input:
@@ -666,7 +666,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Equals(new BsonTimestamp(2, 99))
             shell: new Timestamp(1, 100) === new Timestamp(2, 99)
             object: 'false'
-            php: new \MongoDB\BSON\Timestamp(100, 1) == new \MongoDB\BSON\Timestamp(99, 2)
+            php: new Timestamp(100, 1) == new Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) == BSON::Timestamp.new(2, 99)
             go: "primitive.Timestamp{T: 1, I: 100}.Equal(primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 } == Timestamp { time: 2, increment: 99 }"
@@ -678,7 +678,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).CompareTo(new BsonTimestamp(2, 99))
             shell: new Timestamp(1, 100) - new Timestamp(2, 99)
             object: '1'
-            php: new \MongoDB\BSON\Timestamp(100, 1) <=> new \MongoDB\BSON\Timestamp(99, 2)
+            php: new Timestamp(100, 1) <=> new Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) <=> BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 }.cmp(Timestamp { time: 2, increment: 99 })"
@@ -690,7 +690,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) != new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) !== new Timestamp(2, 99)
             object: 'true'
-            php: new \MongoDB\BSON\Timestamp(100, 1) != new \MongoDB\BSON\Timestamp(99, 2)
+            php: new Timestamp(100, 1) != new Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) != BSON::Timestamp.new(2, 99)
             go: "!primitive.Timestamp{T: 1, I: 100}.Equal(primitive.Timestamp{T: 2, I: 99})"
             rust: "Timestamp { time: 1, increment: 100 } != Timestamp { time: 2, increment: 99 }"
@@ -702,7 +702,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) > new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) > new Timestamp(2, 99)
             object: 'true'
-            php: new \MongoDB\BSON\Timestamp(100, 1) > new \MongoDB\BSON\Timestamp(99, 2)
+            php: new Timestamp(100, 1) > new Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) > BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == 1"
             rust: "Timestamp { time: 1, increment: 100 } > Timestamp { time: 2, increment: 99 }"
@@ -714,7 +714,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) >= new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) >= new Timestamp(2, 99)
             object: 'true'
-            php: new \MongoDB\BSON\Timestamp(100, 1) >= new \MongoDB\BSON\Timestamp(99, 2)
+            php: new Timestamp(100, 1) >= new Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) >= BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) >= 0"
             rust: "Timestamp { time: 1, increment: 100 } >= Timestamp { time: 2, increment: 99 }"
@@ -726,7 +726,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) < new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) < new Timestamp(2, 99)
             object: 'false'
-            php: new \MongoDB\BSON\Timestamp(100, 1) < new \MongoDB\BSON\Timestamp(99, 2)
+            php: new Timestamp(100, 1) < new Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) < BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) == -1"
             rust: "Timestamp { time: 1, increment: 100 } < Timestamp { time: 2, increment: 99 }"
@@ -738,7 +738,7 @@ tests:
             csharp: new BsonTimestamp(1, 100) <= new BsonTimestamp(2, 99)
             shell: new Timestamp(1, 100) <= new Timestamp(2, 99)
             object: 'false'
-            php: new \MongoDB\BSON\Timestamp(100, 1) <= new \MongoDB\BSON\Timestamp(99, 2)
+            php: new Timestamp(100, 1) <= new Timestamp(99, 2)
             ruby: BSON::Timestamp.new(1, 100) <= BSON::Timestamp.new(2, 99)
             go: "primitive.CompareTimestamp(primitive.Timestamp{T: 1, I: 100}, primitive.Timestamp{T: 2, I: 99}) <= 0"
             rust: "Timestamp { time: 1, increment: 100 } <= Timestamp { time: 2, increment: 99 }"
@@ -752,7 +752,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToUniversalTime()
             shell: new Timestamp(1, 100).getTime()
             object: '1'
-            php: (new \MongoDB\BSON\Timestamp(100, 1))->getTimestamp()
+            php: (new Timestamp(100, 1))->getTimestamp()
             ruby: BSON::Timestamp.new(1, 100).seconds
             go: "primitive.Timestamp{T: 1, I: 100}.T"
             rust: "Timestamp { time: 1, increment: 100 }.time"
@@ -766,7 +766,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Increment
             shell: new Timestamp(1, 100).getInc()
             object: '100'
-            php: (new \MongoDB\BSON\Timestamp(100, 1))->getIncrement()
+            php: (new Timestamp(100, 1))->getIncrement()
             ruby: BSON::Timestamp.new(1, 100).increment
             go: "primitive.Timestamp{T: 1, I: 100}.I"
             rust: "Timestamp { time: 1, increment: 100 }.increment"
@@ -778,7 +778,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).ToUniversalTime()
             shell: new Timestamp(1, 100).getTime()
             object: '1'
-            php: (new \MongoDB\BSON\Timestamp(100, 1))->getTimestamp()
+            php: (new Timestamp(100, 1))->getTimestamp()
             ruby: BSON::Timestamp.new(1, 100).seconds
             go: "primitive.Timestamp{T: 1, I: 100}.T"
             rust: "Timestamp { time: 1, increment: 100 }.time"
@@ -790,7 +790,7 @@ tests:
             csharp: new BsonTimestamp(1, 100).Increment
             shell: new Timestamp(1, 100).getInc()
             object: '100'
-            php: (new \MongoDB\BSON\Timestamp(100, 1))->getIncrement()
+            php: (new Timestamp(100, 1))->getIncrement()
             ruby: BSON::Timestamp.new(1, 100).increment
             go: "primitive.Timestamp{T: 1, I: 100}.I"
             rust: "Timestamp { time: 1, increment: 100 }.increment"
@@ -802,7 +802,7 @@ tests:
           csharp: new DateTime(1970, 1, 1).AddSeconds(new BsonTimestamp(1, 100).Timestamp)
           shell: new Date(new Timestamp(1, 100).getHighBits() * 1000)
           object: "new Date('1970-01-01T00:01:40.000Z')"
-          php: (new \DateTime('1970-1-1', new \DateTimeZone('UTC')))->setTimestamp((new \MongoDB\BSON\Timestamp(100, 1))->getTimestamp())
+          php: (new \DateTime('1970-1-1', new \DateTimeZone('UTC')))->setTimestamp((new Timestamp(100, 1))->getTimestamp())
           ruby: Time.at(BSON::Timestamp.new(1, 100).increment).utc
           go: "time.Unix(primitive.Timestamp{T: 1, I: 100}.T, 0)"
           rust: "DateTime::from_millis(Timestamp { time: 1, increment: 100 }.time)"
@@ -852,7 +852,7 @@ tests:
           csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
           python: ObjectId('5ab901c29ee65f5c8550c5b9')
           object: new ObjectId('5ab901c29ee65f5c8550c5b9')
-          php: new \MongoDB\BSON\ObjectId('5ab901c29ee65f5c8550c5b9')
+          php: new ObjectId('5ab901c29ee65f5c8550c5b9')
           ruby: BSON::ObjectId('5ab901c29ee65f5c8550c5b9')
           rust: ObjectId::parse_str("5ab901c29ee65f5c8550c5b9")?
           go: |-
@@ -875,7 +875,7 @@ tests:
           shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))
           # TODO: fix? this previously called ObjectId.createFromTime with a Date, but that function does not actually take a Date argument
           # object: new ObjectId('03ede8800000000000000000')
-          php: new \MongoDB\BSON\ObjectId(str_pad(dechex((new \DateTime('1972-02-03 00:00:00', new \DateTimeZone('UTC')))->getTimestamp()), 24, '0'))
+          php: new ObjectId(\str_pad(\dechex((new \DateTime('1972-02-03 00:00:00', new \DateTimeZone('UTC')))->getTimestamp()), 24, '0'))
           ruby: BSON::ObjectId.from_time(Time.utc(1972, 2, 3, 0, 0, 0))
     - input:
           javascript: ObjectId.createFromTime(1522075031)
@@ -886,7 +886,7 @@ tests:
           csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031))
           python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031))
           object: new ObjectId('62bdd85a0000000000000000')
-          php: new \MongoDB\BSON\ObjectId(str_pad(dechex(1522075031), 24, '0'))
+          php: new ObjectId(\str_pad(\dechex(1522075031), 24, '0'))
           ruby: BSON::ObjectId.from_time(Time.at(1522075031))
           go: primitive.NewObjectIDFromTimestamp(time.Unix(1522075031, int64(0)))
     - input:
@@ -902,8 +902,8 @@ tests:
               $isValidBSONObjectId = function ($objectId) {
                   $valid = true;
                   try {
-                      $obj = new \MongoDB\BSON\ObjectId($objectId);
-                  } catch (\MongoDB\Driver\Exception\InvalidArgumentException $e) {
+                      $obj = new ObjectId($objectId);
+                  } catch (InvalidArgumentException $e) {
                       $valid = false;
                   }
                   return $valid;
@@ -920,7 +920,7 @@ tests:
 #          java: BsonBinarySubType.BINARY
 #          csharp: BsonBinarySubType.Binary
 #          python: binary.BINARY_SUBTYPE
-#          php: \MongoDB\BSON\Binary::TYPE_GENERIC
+#          php: Binary::TYPE_GENERIC
 #    - input:
 #          javascript: Binary.SUBTYPE_FUNCTION
 #      output:
@@ -928,7 +928,7 @@ tests:
 #          java: BsonBinarySubType.FUNCTION
 #          csharp: BsonBinarySubType.Function
 #          python: binary.FUNCTION_SUBTYPE
-#          php: \MongoDB\BSON\Binary::TYPE_FUNCTION
+#          php: Binary::TYPE_FUNCTION
 #    - input:
 #          javascript: Binary.SUBTYPE_BYTE_ARRAY
 #      output:
@@ -936,7 +936,7 @@ tests:
 #          java: BsonBinarySubType.BINARY
 #          csharp: BsonBinarySubType.OldBinary
 #          python: binary.BINARY_SUBTYPE
-#          php: \MongoDB\BSON\Binary::TYPE_OLD_BINARY
+#          php: Binary::TYPE_OLD_BINARY
 #    - input:
 #          javascript: Binary.SUBTYPE_UUID_OLD
 #      output:
@@ -944,7 +944,7 @@ tests:
 #          java: BsonBinarySubType.UUID_LEGACY
 #          csharp: BsonBinarySubType.UuidLegacy
 #          python: binary.OLD_UUID_SUBTYPE
-#          php: \MongoDB\BSON\Binary::TYPE_OLD_UUID
+#          php: Binary::TYPE_OLD_UUID
 #    - input:
 #          javascript: Binary.SUBTYPE_UUID
 #      output:
@@ -952,7 +952,7 @@ tests:
 #          java: BsonBinarySubType.UUID_STANDARD
 #          csharp: BsonBinarySubType.UuidStandard
 #          python: binary.UUID_SUBTYPE
-#          php: \MongoDB\BSON\Binary::TYPE_UUID
+#          php: Binary::TYPE_UUID
 #    - input:
 #          javascript: Binary.SUBTYPE_MD5
 #      output:
@@ -960,7 +960,7 @@ tests:
 #          java: BsonBinarySubType.MD5
 #          csharp: BsonBinarySubType.MD5
 #          python: binary.MD5_SUBTYPE
-#          php: \MongoDB\BSON\Binary::TYPE_MD5
+#          php: Binary::TYPE_MD5
 #    - input:
 #          javascript: Binary.SUBTYPE_USER_DEFINED
 #      output:
@@ -968,7 +968,7 @@ tests:
 #          java: BsonBinarySubType.USER_DEFINED
 #          csharp: BsonBinarySubType.UserDefined
 #          python: binary.USER_DEFINED_SUBTYPE
-#          php: \MongoDB\BSON\Binary::TYPE_USER_DEFINED
+#          php: Binary::TYPE_USER_DEFINED
     Long-utils:
     - input:
           javascript: Long.MAX_VALUE
@@ -1109,7 +1109,7 @@ tests:
             csharp: Decimal128.Parse("5")
             python: Decimal128('5')
             object: Decimal128.fromString("5")
-            php: new \MongoDB\BSON\Decimal128('5')
+            php: new Decimal128('5')
             ruby: BSON::Decimal128.new('5')
             go: |-
                 var parseDecimal128 = func(str string) primitive.Decimal128 {
@@ -1130,7 +1130,7 @@ tests:
             java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
             csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
             object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-            php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
+            php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
             ruby: /^[a-z0-9_-]{3,16}$/imx
             go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsux")'
     -   input:
@@ -1141,7 +1141,7 @@ tests:
             java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
             csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
             object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-            php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
+            php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
             ruby: /^[a-z0-9_-]{3,16}$/imx
             go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsx")'
     - input:
@@ -1152,7 +1152,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-          php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsux" }'
     - input:
@@ -1163,7 +1163,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-          php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsx" }'
 

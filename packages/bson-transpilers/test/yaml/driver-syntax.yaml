@@ -76,9 +76,6 @@ tests:
                     // Requires the MongoDB PHP Driver
                     // https://www.mongodb.com/docs/drivers/php/
 
-                    $client = new \MongoDB\Client('mongodb://localhost:27017');
-                    $db = $client->selectDatabase('db');
-                    
                     $convertPipelineArray = function ($aggregationData) {
                         return array_map(function ($key, $value) {
                                 return [$key => $value];
@@ -87,8 +84,9 @@ tests:
                             $aggregationData
                         );
                     };
-
-                    $result = $db->selectCollection('collection')->aggregate($convertPipelineArray(['x' => 0, 'y' => new \MongoDB\BSON\ObjectId()]));
+                    
+                    $client = new Client('mongodb://localhost:27017');
+                    $cursor = $client->selectCollection('db', 'collection')->aggregate($convertPipelineArray(['x' => 0, 'y' => new ObjectId()]));
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/
@@ -159,7 +157,10 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
-                php: ''
+                php: |-
+                    use MongoDB\BSON\ObjectId;
+                    use MongoDB\Client;
+                    use MongoDB\Driver\Exception\InvalidArgumentException;
                 ruby: require 'mongo'
                 go: |-
                   import (
@@ -241,10 +242,8 @@ tests:
                     // Requires the MongoDB PHP Driver
                     // https://www.mongodb.com/docs/drivers/php/
 
-                    $client = new \MongoDB\Client('mongodb://localhost:27017');
-                    $db = $client->selectDatabase('db');
-                    
-                    $result = $db->selectCollection('collection')->find(['x' => 0]);
+                    $client = new Client('mongodb://localhost:27017');
+                    $cursor = $client->selectCollection('db', 'collection')->find(['x' => 0]);
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/
@@ -308,7 +307,8 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
-                php: ''
+                php: |-
+                    use MongoDB\Client;
                 ruby: require 'mongo'
                 go: |-
                   import (
@@ -465,22 +465,14 @@ tests:
                     // Requires the MongoDB PHP Driver
                     // https://www.mongodb.com/docs/drivers/php/
 
-                    $client = new \MongoDB\Client('mongodb://localhost:27017');
-                    $db = $client->selectDatabase('db');
-                    $projection = ['y' => new \MongoDB\BSON\ObjectId()];
-                    $sort = ['name' => 1];
-                    $skip = 5;
-                    $limit = 10;
-                    $maxTimeMS = 100;
-                    $collation = ['locale' => 'zh'];
-        
-                    $result = $db->selectCollection('collection')->find(['x' => 0], [
-                        'projection' => $projection,
-                        'sort' => $sort,
-                        'skip' => $skip,
-                        'limit' => $limit,
-                        'maxTimeMS' => $maxTimeMS,
-                        'collation' => $collation
+                    $client = new Client('mongodb://localhost:27017');
+                    $cursor = $client->selectCollection('db', 'collection')->find(['x' => 0], [
+                        'projection' => ['y' => new ObjectId()],
+                        'sort' => ['name' => 1],
+                        'skip' => 5,
+                        'limit' => 10,
+                        'maxTimeMS' => 100,
+                        'collation' => ['locale' => 'zh']
                     ]);
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
@@ -582,7 +574,10 @@ tests:
                       Long
                     } = require('mongodb');
                 shell: ''
-                php: ''
+                php: |-
+                    use MongoDB\BSON\ObjectId;
+                    use MongoDB\Client;
+                    use MongoDB\Driver\Exception\InvalidArgumentException;
                 ruby: require 'mongo'
                 go: |-
                   import (

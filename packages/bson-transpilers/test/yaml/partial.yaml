@@ -31,7 +31,7 @@ tests:
           java: Decimal128
           csharp: Decimal128
           shell: NumberDecimal
-          php: new \MongoDB\BSON\Decimal128
+          php: new Decimal128
           ruby: BSON::Decimal128
           go: ''
     - input:
@@ -80,7 +80,7 @@ tests:
           java: Decimal128
           csharp: Decimal128
           shell: NumberDecimal
-          php: new \MongoDB\BSON\Decimal128
+          php: new Decimal128
           ruby: BSON::Decimal128
           go: ''
     - input:
@@ -92,7 +92,7 @@ tests:
           java: ObjectId
           csharp: ObjectId
           shell: ObjectId
-          php: new \MongoDB\BSON\ObjectId
+          php: new ObjectId
           ruby: BSON::ObjectId
           go: ''
           rust: ObjectId
@@ -105,7 +105,7 @@ tests:
           java: Code
           csharp: BsonJavaScript
           shell: Code
-          php: new \MongoDB\BSON\Javascript
+          php: new Javascript
           ruby: BSON::Code
           go: primitive.CodeWithScope
           rust: ''
@@ -129,7 +129,7 @@ tests:
           java: BSONTimestamp
           csharp: BsonTimestamp
           shell: Timestamp
-          php: new \MongoDB\BSON\Timestamp
+          php: new Timestamp
           ruby: BSON::Timestamp
           go: primitive.Timestamp
           rust: Timestamp
@@ -154,7 +154,7 @@ tests:
           java: MinKey
           csharp: BsonMinKey
           shell: MinKey
-          php: new \MongoDB\BSON\MinKey
+          php: new MinKey
           ruby: BSON::MinKey
           go: primitive.MinKey
           rust: Bson::MinKey
@@ -167,7 +167,7 @@ tests:
           java: MaxKey
           csharp: BsonMaxKey
           shell: MaxKey
-          php: new \MongoDB\BSON\MaxKey
+          php: new MaxKey
           ruby: BSON::MaxKey
           go: primitive.MaxKey
           rust: Bson::MaxKey
@@ -180,7 +180,7 @@ tests:
           java: BsonRegularExpression
           csharp: BsonRegularExpression
           shell: RegExp
-          php: new \MongoDB\BSON\Regex
+          php: new Regex
           ruby: ''
           go: "primitive.Regex"
           rust: Regex
@@ -231,7 +231,7 @@ tests:
           java: new ObjectId
           csharp: new ObjectId.GenerateNewId
           shell: ObjectId.fromDate
-          php: new \MongoDB\BSON\ObjectId
+          php: new ObjectId
           ruby: BSON::ObjectId.from_time
           go: primitive.NewObjectIDFromTimestamp
     - input:
@@ -254,7 +254,7 @@ tests:
           java: new ObjectId().toHexString()
           csharp: new ObjectId().ToString()
           shell: new ObjectId().toString()
-          php: (string) new \MongoDB\BSON\ObjectId()
+          php: (string) new ObjectId()
           ruby: BSON::ObjectId.new.to_s
           go: primitive.NewObjectID().String()
           rust: ObjectId::new().to_hex()
@@ -266,7 +266,7 @@ tests:
           java: new ObjectId().getTimestamp()
           csharp: new ObjectId().Timestamp
           shell: new ObjectId().getTimestamp()
-          php: (new \MongoDB\BSON\ObjectId())->getTimestamp()
+          php: (new ObjectId())->getTimestamp()
           ruby: BSON::ObjectId.new.to_time
           go: primitive.NewObjectID().Timestamp()
           rust: ObjectId::new().timestamp()
@@ -278,7 +278,7 @@ tests:
           java: new ObjectId().equals
           csharp: new ObjectId().Equals
           shell: new ObjectId().equals
-          php: new \MongoDB\BSON\ObjectId() ==
+          php: new ObjectId() ==
           ruby: BSON::ObjectId.new ==
           go: ''
           rust: ObjectId::new() ==
@@ -326,7 +326,7 @@ tests:
           java: 429496729601L == 0
           csharp: 429496729601L == 0
           shell: new NumberLong(429496729601) === 0
-          php: 429496729601 == 0
+          php: 429496729601 === 0
           ruby: 429496729601 == 0
           go: int64(429496729601) == int64(0)
           rust: 429496729601i64 == 0
@@ -590,7 +590,7 @@ tests:
           java: Decimal128.parse("5.3E-6175").toString
           csharp: Decimal128.Parse("5.3E-6175").ToString
           shell: new NumberDecimal(5.3E-6175).toString
-          php: (string) new \MongoDB\BSON\Decimal128('5.3E-6175')
+          php: (string) new Decimal128('5.3E-6175')
           ruby: BSON::Decimal128.new('5.3E-6175').to_s
           go: |-
             var parseDecimal128 = func(str string) primitive.Decimal128 {
@@ -610,7 +610,7 @@ tests:
           java: new BSONTimestamp(1, 100).toString
           csharp: new BsonTimestamp(1, 100).ToString
           shell: new Timestamp(1, 100).toString
-          php: (string) new \MongoDB\BSON\Timestamp(100, 1)
+          php: (string) new Timestamp(100, 1)
           ruby: BSON::Timestamp.new(1, 100).to_s
           go: "time.Unix(primitive.Timestamp{T: 1, I: 100}.T, 0).String"
           rust: "Timestamp { time: 1, increment: 100 }.to_string()"
@@ -622,7 +622,7 @@ tests:
           java: new BSONTimestamp(1, 100).equals
           csharp: new BsonTimestamp(1, 100).Equals
           shell: new Timestamp(1, 100) ===
-          php: new \MongoDB\BSON\Timestamp(100, 1) ==
+          php: new Timestamp(100, 1) ==
           ruby: BSON::Timestamp.new(1, 100) ==
           go: "primitive.Timestamp{T: 1, I: 100}.Equal"
           rust: "Timestamp { time: 1, increment: 100 } =="
@@ -634,7 +634,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100).CompareTo
           shell: new Timestamp(1, 100) -
-          php: new \MongoDB\BSON\Timestamp(100, 1) <=>
+          php: new Timestamp(100, 1) <=>
           ruby: BSON::Timestamp.new(1, 100) <=>
           go: primitive.CompareTimestamp
           rust: "Timestamp { time: 1, increment: 100 }.cmp"
@@ -646,7 +646,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) !=
           shell: new Timestamp(1, 100) !==
-          php: new \MongoDB\BSON\Timestamp(100, 1) !=
+          php: new Timestamp(100, 1) !=
           ruby: BSON::Timestamp.new(1, 100) !=
           go: "!primitive.Timestamp{T: 1, I: 100}.Equal"
           rust: "Timestamp { time: 1, increment: 100 } !="
@@ -658,7 +658,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) >
           shell: new Timestamp(1, 100) >
-          php: new \MongoDB\BSON\Timestamp(100, 1) >
+          php: new Timestamp(100, 1) >
           ruby: BSON::Timestamp.new(1, 100) >
           go: ''
           rust: "Timestamp { time: 1, increment: 100 } >"
@@ -670,7 +670,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) >=
           shell: new Timestamp(1, 100) >=
-          php: new \MongoDB\BSON\Timestamp(100, 1) >=
+          php: new Timestamp(100, 1) >=
           ruby: BSON::Timestamp.new(1, 100) >=
           go: ''
           rust: "Timestamp { time: 1, increment: 100 } >="
@@ -682,7 +682,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) <
           shell: new Timestamp(1, 100) <
-          php: new \MongoDB\BSON\Timestamp(100, 1) <
+          php: new Timestamp(100, 1) <
           ruby: BSON::Timestamp.new(1, 100) <
           go: ''
           rust: "Timestamp { time: 1, increment: 100 } <"
@@ -694,7 +694,7 @@ tests:
           java: new BSONTimestamp(1, 100).compareTo
           csharp: new BsonTimestamp(1, 100) <=
           shell: new Timestamp(1, 100) <=
-          php: new \MongoDB\BSON\Timestamp(100, 1) <=
+          php: new Timestamp(100, 1) <=
           ruby: BSON::Timestamp.new(1, 100) <=
           go: ''
           rust: "Timestamp { time: 1, increment: 100 } <="
@@ -706,7 +706,7 @@ tests:
           java: new BSONTimestamp(1, 100).getTime
           csharp: new BsonTimestamp(1, 100).ToUniversalTime
           shell: new Timestamp(1, 100).getTime
-          php: (new \MongoDB\BSON\Timestamp(100, 1))->getTimestamp()
+          php: (new Timestamp(100, 1))->getTimestamp()
           ruby: BSON::Timestamp.new(1, 100).seconds
           go: "primitive.Timestamp{T: 1, I: 100}.T"
           rust: "Timestamp { time: 1, increment: 100 }.time"
@@ -718,7 +718,7 @@ tests:
           java: new BSONTimestamp(1, 100).getInc
           csharp: new BsonTimestamp(1, 100).Increment
           shell: new Timestamp(1, 100).getInc
-          php: (new \MongoDB\BSON\Timestamp(100, 1))->getIncrement()
+          php: (new Timestamp(100, 1))->getIncrement()
           ruby: BSON::Timestamp.new(1, 100).increment
           go: "primitive.Timestamp{T: 1, I: 100}.I"
           rust: "Timestamp { time: 1, increment: 100 }.increment"

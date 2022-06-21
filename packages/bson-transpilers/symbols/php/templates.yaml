@@ -61,11 +61,17 @@ Templates:
         
         
             const options = spec.options;
-            const filter = spec.filter || {}
+            const filter = spec.filter || {};
             delete spec.options;
-            delete spec.filter
+            delete spec.filter;
 
-            comment = '// Requires the MongoDB PHP Driver\n// https://www.mongodb.com/docs/drivers/php/';
+            comment = []
+                .concat('// Requires the MongoDB PHP Driver')
+                .concat('// https://www.mongodb.com/docs/drivers/php/')
+                .join('\n')
+            ;
+            const client = `$client = new Client('${options.uri}');`;
+
             const connect = `$client = new \\MongoDB\\Client('${options.uri}');\n$db = $client->selectDatabase('${options.database}');`;
             const coll = `$db->selectCollection('${options.collection}')`;
 
@@ -79,68 +85,83 @@ Templates:
                     .concat('        $aggregationData')
                     .concat('    );')
                     .concat('};')
-                    .concat('')
                     .join('\n')
                 ;
-                return `${comment}\n\n${connect}\n\n${convertFunction}\n$result = ${coll}->aggregate($convertPipelineArray(${unObjectize(spec.aggregation)}));`;
+                return []
+                    .concat(comment)
+                    .concat('')
+                    .concat(convertFunction)
+                    .concat('')
+                    .concat(client)
+                    .concat(`$cursor = $client->selectCollection('${options.database}', '${options.collection}')->aggregate($convertPipelineArray(${unObjectize(spec.aggregation)}));`)
+                    .join('\n')
+                ;
             }
-
-            const vars = Object.keys(spec).reduce(
-                (result, k) => {
-                    let val = unObjectize(spec[k]);
-                    return `${result}\n$${getKey(k)} = ${val};`;
-                },
-                connect
-            );
 
             const args = Object.keys(spec).reduce(
                 (result, k) => {
+                    let val = unObjectize(spec[k]);
                     const divider = result === '' ? '' : ',\n';
-                    return `${result}${divider}    '${getKey(k)}' => $${getKey(k)}`;
+                    return `${result}${divider}    '${getKey(k)}' => ${val}`;
                 },
                 ''
             );
 
-            const cmd = `$result = ${coll}->find(${unObjectize(filter)}${args ? `, [\n${args}\n]` : ''});`;
-
-            return `${comment}\n\n${vars}\n\n${cmd}`;
+            return []
+                .concat(comment)
+                .concat('')
+                .concat(client)
+                .concat(`$cursor = $client->selectCollection('${options.database}', '${options.collection}')->find(${unObjectize(filter)}${args ? `, [\n${args}\n]` : ''});`)
+                .join('\n')
+            ;
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
+            // Identity comparison
+            if (op.includes('is')) {
+                if (op.includes('not')) {
+                    return `${lhs} !== ${rhs}`;
+                } else {
+                    return `${lhs} === ${rhs}`;
+                }
+            }
             // Not equal
             if (op.includes('!') || op.includes('not')) {
                 return `${lhs} != ${rhs}`;
             }
             // Equal
-            if (op === '==' || op === '===' || op.includes('is')) {
+            if (op === '==' || op === '===') {
                 return `${lhs} == ${rhs}`;
             }
             // All other cases
-            let notStart = op.includes('not') ? '! (' : '';
-            let notEnd = op.includes('not') ? ')' : '';
-            return `${notStart}${lhs} ${op} ${rhs}${notEnd}`;
+            return `${lhs} ${op} ${rhs}`;
         }
     InSyntaxTemplate: &InSyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
-            let tp = typeof rhs;
             // array
             if (rhs.charAt(0) === '[' && rhs.charAt(rhs.length - 1) === ']') {
                 let not = '';
                 if (op.includes('!') || op.includes('not')) {
-                    not = '!';
+                    not = '! ';
                 }
-                return `${not}in_array(${lhs}, ${rhs})`;
+                return `${not}\\in_array(${lhs}, ${rhs})`;
             }
-            // string
-            if (tp === 'string') {
-                let targop = '!==';
+            
+            //object
+            if (rhs.indexOf('(object) ') === 0) {
+                let not = '';
                 if (op.includes('!') || op.includes('not')) {
-                    targop = '===';
+                    not = '! ';
                 }
-                return `strpos(${rhs}, ${lhs}) ${targop} false`;
+                return `${not}\\property_exists(${rhs}, ${lhs})`;
             }
-        
-            throw new Error(`unsupported haystack type: ${tp}`);
+            
+            // string - all other cases
+            let targop = '!==';
+            if (op.includes('!') || op.includes('not')) {
+                targop = '===';
+            }
+            return `\\strpos(${rhs}, ${lhs}) ${targop} false`;
         }
     AndSyntaxTemplate: &AndSyntaxTemplate !!js/function >
         (args) => {
@@ -186,7 +207,7 @@ Templates:
                     case '**':
                         return `${s} ** ${rhs}`;
                     case '//':
-                        return `intdiv(${s}, ${rhs})`;
+                        return `\\intdiv(${s}, ${rhs})`;
                     case '%':
                         return `${s} % ${rhs}`;
                     case '>>':
@@ -230,15 +251,13 @@ Templates:
         }
     RegexTypeTemplate: &RegexTypeTemplate !!js/function >
         (pattern, flags) => {
-            const str = pattern;
-            let newStr = str;
+            let newStr = pattern;
             if (
-                (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                newStr = str.substr(1, str.length - 2);
+                (pattern.charAt(0) === '\'' && pattern.charAt(str.length - 1) === '\'') ||
+                (pattern.charAt(0) === '"' && pattern.charAt(str.length - 1) === '"')) {
+                newStr = pattern.substr(1, pattern.length - 2);
             }
-            pattern = `${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}`;
-            return `'/${pattern}/${flags ? flags : ''}'`;
+            return `'/${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}/${flags ? flags : ''}'`;
         }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
@@ -268,7 +287,6 @@ Templates:
     NumericTypeTemplate: &NumericTypeTemplate null # args: literal, argType
     ArrayTypeTemplate: &ArrayTypeTemplate !!js/function >
         (literal, depth) => {
-            depth++;
             if (literal === '') {
                 return '[]'
             }
@@ -330,7 +348,7 @@ Templates:
     #############################################
     CodeSymbolTemplate: &CodeSymbolTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\Javascript';
+            return 'new Javascript';
         }
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
@@ -353,7 +371,7 @@ Templates:
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\ObjectId';
+            return 'new ObjectId';
         }
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (lhs, id) => {
@@ -373,7 +391,7 @@ Templates:
         }
     BinarySymbolTemplate: &BinarySymbolTemplate  !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\Binary';
+            return 'new Binary';
         }
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
         (lhs, bytes, type) => {
@@ -387,37 +405,37 @@ Templates:
             bytes = `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
 
             if (type === null) {
-                type = '0';
+                type = 'Binary::TYPE_GENERIC';
             }
             return `(${bytes}, ${type})`;
         }
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
         () => {
-            return '\\MongoDB\\BSON\\Binary::TYPE_GENERIC';
+            return 'Binary::TYPE_GENERIC';
         }
     BinarySymbolSubtypeFunctionTemplate: &BinarySymbolSubtypeFunctionTemplate !!js/function >
         () => {
-            return '\\MongoDB\\BSON\\Binary::TYPE_FUNCTION';
+            return 'Binary::TYPE_FUNCTION';
         }
     BinarySymbolSubtypeByteArrayTemplate: &BinarySymbolSubtypeByteArrayTemplate !!js/function >
         () => {
-            return '\\MongoDB\\BSON\\Binary::TYPE_OLD_BINARY';
+            return 'Binary::TYPE_OLD_BINARY';
         }
     BinarySymbolSubtypeUuidOldTemplate: &BinarySymbolSubtypeUuidOldTemplate !!js/function >
         () => {
-            return '\\MongoDB\\BSON\\Binary::TYPE_OLD_UUID';
+            return 'Binary::TYPE_OLD_UUID';
         }
     BinarySymbolSubtypeUuidTemplate: &BinarySymbolSubtypeUuidTemplate !!js/function >
         () => {
-            return '\\MongoDB\\BSON\\Binary::TYPE_UUID';
+            return 'Binary::TYPE_UUID';
         }
     BinarySymbolSubtypeMd5Template: &BinarySymbolSubtypeMd5Template !!js/function >
         () => {
-            return '\\MongoDB\\BSON\\Binary::TYPE_MD5';
+            return 'Binary::TYPE_MD5';
         }
     BinarySymbolSubtypeUserDefinedTemplate: &BinarySymbolSubtypeUserDefinedTemplate !!js/function >
         () => {
-            return '\\MongoDB\\BSON\\Binary::TYPE_USER_DEFINED';
+            return 'Binary::TYPE_USER_DEFINED';
         }
     DBRefSymbolTemplate: &DBRefSymbolTemplate !!js/function >
         () => {
@@ -435,9 +453,9 @@ Templates:
                 return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
             }
 
-            let coll_string = `'collectionName' => ${singleStringify(coll)}`;
-            let id_string = `, 'id' => ${id}`;
-            let db_string = db ? `, 'databaseName' => ${singleStringify(db)}` : `, 'databaseName' => null`;
+            let coll_string = `'$ref' => ${singleStringify(coll)}`;
+            let id_string = `, '$id' => ${id}`;
+            let db_string = db ? `, '$db' => ${singleStringify(db)}` : `, '$db' => null`;
         
             return `[${coll_string}${id_string}${db_string}]`;
         }
@@ -451,6 +469,9 @@ Templates:
             if (type === '_decimal' || type === '_double') {
                 return arg;
             }
+            if (type === '_integer' || type === '_long') {
+                return `${arg}.0`;
+            }
             return `(float) ${arg}`;
         }
     Int32SymbolTemplate: &Int32SymbolTemplate !!js/function >
@@ -460,7 +481,7 @@ Templates:
     Int32SymbolArgsTemplate: &Int32SymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
-            if (type === '_integer' || type === '_long') {
+            if (type === '_integer' || type === '_long' || type === '_hex' || type === '_octal') {
                 return arg;
             }
             return `(int) ${arg}`;
@@ -472,7 +493,7 @@ Templates:
     LongSymbolArgsTemplate: &LongSymbolArgsTemplate !!js/function >
         (lhs, arg, type) => {
             arg = arg === undefined ? 0 : arg;
-            if (type === '_integer' || type === '_long') {
+            if (type === '_integer' || type === '_long' || type === '_hex' || type === '_octal') {
                 return arg;
             }
             return `(int) ${arg}`;
@@ -492,7 +513,7 @@ Templates:
         }
     BSONRegExpSymbolTemplate: &BSONRegExpSymbolTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\Regex';
+            return 'new Regex';
         }
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (lhs, pattern, flags) => {
@@ -518,22 +539,22 @@ Templates:
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\Decimal128';
+            return 'new Decimal128';
         }
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (lhs, arg) => {
             arg = arg === undefined ? '0' : arg.toString();
-            if (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') {
-                return `(${arg})`;
-            }
-            if (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"') {
-                return `(${arg})`;
+            if (
+                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
+                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')
+            ) {
+                return `('${arg.substr(1, arg.length - 2)}')`;
             }
             return `('${arg}')`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\MinKey';
+            return 'new MinKey';
         }
     MinKeySymbolArgsTemplate: &MinKeySymbolArgsTemplate !!js/function >
         () => {
@@ -541,7 +562,7 @@ Templates:
         }
     MaxKeySymbolTemplate: &MaxKeySymbolTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\MaxKey';
+            return 'new MaxKey';
         }
     MaxKeySymbolArgsTemplate: &MaxKeySymbolArgsTemplate !!js/function >
         () => {
@@ -549,10 +570,13 @@ Templates:
         }
     TimestampSymbolTemplate: &TimestampSymbolTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\Timestamp';
+            return 'new Timestamp';
         }
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
         (lhs, arg1, arg2) => {
+            // Till the ticket https://jira.mongodb.org/browse/PHPC-845 is not yet implemented 
+            // the sequence of arguments: 
+            // increment is the first one, timestamp is the second one
             return `(${arg2 === undefined ? 0 : arg2}, ${arg1 === undefined ? 0 : arg1})`;
         }
     # non bson-specific
@@ -564,7 +588,7 @@ Templates:
 
             switch(type) {
                 case '_string':
-                    if (arg.indexOf('.') !== -1) {
+                    if ((arg.indexOf('.') !== -1) && (arg.indexOf('.') !== arg.length - 2)) {
                         return `(float) ${arg}`
                     }
                     return `(int) ${arg}`
@@ -688,8 +712,8 @@ Templates:
                 .concat('$isValidBSONObjectId = function ($objectId) {')
                 .concat('    $valid = true;')
                 .concat('    try {')
-                .concat('        $obj = new \\MongoDB\\BSON\\ObjectId($objectId);')
-                .concat('    } catch (\\MongoDB\\Driver\\Exception\\InvalidArgumentException $e) {')
+                .concat('        $obj = new ObjectId($objectId);')
+                .concat('    } catch (InvalidArgumentException $e) {')
                 .concat('        $valid = false;')
                 .concat('    }')
                 .concat('    return $valid;')
@@ -732,15 +756,15 @@ Templates:
         }
     DBRefGetDBTemplate: &DBRefGetDBTemplate !!js/function >
         (lhs) => {
-            return `${lhs}['databaseName']`;
+            return `${lhs}['$db']`;
         }
     DBRefGetCollectionTemplate: &DBRefGetCollectionTemplate !!js/function >
         (lhs) => {
-            return `${lhs}['collectionName']`;
+            return `${lhs}['$ref']`;
         }
     DBRefGetIdTemplate: &DBRefGetIdTemplate !!js/function >
         (lhs) => {
-            return `${lhs}['id']`;
+            return `${lhs}['$id']`;
         }
     DBRefGetDBArgsTemplate: &DBRefGetDBArgsTemplate !!js/function >
         (lhs) => {
@@ -899,7 +923,7 @@ Templates:
         }
     LongIsOddTemplate: &LongIsOddTemplate !!js/function >
         (lhs) => {
-            return `(${lhs} % 2) == 1`;
+            return `(${lhs} % 2) === 1`;
         }
     LongIsOddArgsTemplate: &LongIsOddArgsTemplate !!js/function >
         () => {
@@ -907,7 +931,7 @@ Templates:
         }
     LongIsZeroTemplate: &LongIsZeroTemplate !!js/function >
         (lhs) => {
-            return `${lhs} == 0`;
+            return `${lhs} === 0`;
         }
     LongIsZeroArgsTemplate: &LongIsZeroArgsTemplate !!js/function >
         () => {
@@ -1191,7 +1215,7 @@ Templates:
         }
     Decimal128SymbolFromStringTemplate: &Decimal128SymbolFromStringTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\Decimal128';
+            return 'new Decimal128';
         }
     Decimal128SymbolFromStringArgsTemplate: &Decimal128SymbolFromStringArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -1199,7 +1223,7 @@ Templates:
         }
     ObjectIdCreateFromHexStringTemplate: &ObjectIdCreateFromHexStringTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\ObjectId';
+            return 'new ObjectId';
         }
     ObjectIdCreateFromHexStringArgsTemplate: &ObjectIdCreateFromHexStringArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -1207,14 +1231,14 @@ Templates:
         }
     ObjectIdCreateFromTimeTemplate: &ObjectIdCreateFromTimeTemplate !!js/function >
         () => {
-            return 'new \\MongoDB\\BSON\\ObjectId';
+            return 'new ObjectId';
         }
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
         (lhs, arg, isNumber) => {
             if (!isNumber) {
-                return `(str_pad(dechex((${arg})->getTimestamp()), 24, '0'))`;
+                return `(\\str_pad(\\dechex((${arg})->getTimestamp()), 24, '0'))`;
             }
-            return `(str_pad(dechex(${arg}), 24, '0'))`;
+            return `(\\str_pad(\\dechex(${arg}), 24, '0'))`;
         }
     # non bson-specific would go here, but there aren't any atm.
 
@@ -1230,8 +1254,18 @@ Templates:
     # into one statement.                       #
     #                                           #
     #############################################
-    ImportTemplate: &ImportTemplate null
-    DriverImportTemplate: &DriverImportTemplate null
+    ImportTemplate: &ImportTemplate !!js/function >
+        (args) => {
+            let set = new Set(Object.values(args));
+            if (set.has(`use MongoDB\\BSON\\ObjectId;`)) {
+                set.add(`use MongoDB\\Driver\\Exception\\InvalidArgumentException;`);
+            }
+            return [...set].sort().join('\n');
+        }
+    DriverImportTemplate: &DriverImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\Client;`;
+        }
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
     2ImportTemplate: &2ImportTemplate null
@@ -1240,24 +1274,59 @@ Templates:
     5ImportTemplate: &5ImportTemplate null
     6ImportTemplate: &6ImportTemplate null
     7ImportTemplate: &7ImportTemplate null
+    # Common internal Regexp
     8ImportTemplate: &8ImportTemplate null
     9ImportTemplate: &9ImportTemplate null
     10ImportTemplate: &10ImportTemplate null
     11ImportTemplate: &11ImportTemplate null
     12ImportTemplate: &12ImportTemplate null
-    100ImportTemplate: &100ImportTemplate null
-    101ImportTemplate: &101ImportTemplate null
-    102ImportTemplate: &102ImportTemplate null
+    # Code
+    100ImportTemplate: &100ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\Javascript;`;
+        }
+    # ObjectId
+    101ImportTemplate: &101ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\ObjectId;`;
+        }
+    # Binary
+    102ImportTemplate: &102ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\Binary;`;
+        }
+    # DBRef
     103ImportTemplate: &103ImportTemplate null
     104ImportTemplate: &104ImportTemplate null
     105ImportTemplate: &105ImportTemplate null
+    # Int64
     106ImportTemplate: &106ImportTemplate null
-    107ImportTemplate: &107ImportTemplate null
-    108ImportTemplate: &108ImportTemplate null
-    109ImportTemplate: &109ImportTemplate null
-    110ImportTemplate: &110ImportTemplate null
+    # MinKey
+    107ImportTemplate: &107ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\MinKey;`;
+        }
+    # MaxKey
+    108ImportTemplate: &108ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\MaxKey;`;
+        }
+    # Regex
+    109ImportTemplate: &109ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\Regex;`;
+        }
+    # Timestamp
+    110ImportTemplate: &110ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\Timestamp;`;
+        }
     111ImportTemplate: &111ImportTemplate null
-    112ImportTemplate: &112ImportTemplate null
+    # Decimal128
+    112ImportTemplate: &112ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\Decimal128;`;
+        }
     113ImportTemplate: &113ImportTemplate null
     114ImportTemplate: &114ImportTemplate null
     200ImportTemplate: &200ImportTemplate null

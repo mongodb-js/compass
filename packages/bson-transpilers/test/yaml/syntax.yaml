@@ -168,7 +168,7 @@ tests:
           java: "4L == 5L"
           csharp: "4 == 5"
           object: "false"
-          php: "4 == 5"
+          php: "4 === 5"
           ruby: "4.equal?(5)"
           go: 4 == 5
           rust: "4 == 5"
@@ -181,7 +181,7 @@ tests:
           java: "4L != 5L"
           csharp: "4 != 5"
           object: "true"
-          php: "4 != 5"
+          php: "4 !== 5"
           ruby: "!4.equal?(5)"
           go: 4 != 5
           rust: "4 != 5"
@@ -194,7 +194,7 @@ tests:
           java: "Arrays.asList(1L, 2L).contains(4L)"
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) != -1"
           object: "false"
-          php: "in_array(4, [1, 2])"
+          php: "\\in_array(4, [1, 2])"
           ruby: "[\n  1, 2\n].include?(4)"
           go: |-
             var contains = func(elems bson.A, v interface{}) bool {
@@ -224,7 +224,7 @@ tests:
           java: "!Arrays.asList(1L, 2L).contains(4L)"
           csharp: "new BsonArray\n{\n    1,\n    2\n}.indexOf(4) == -1"
           object: "true"
-          php: "!in_array(4, [1, 2])"
+          php: "! \\in_array(4, [1, 2])"
           ruby: "![\n  1, 2\n].include?(4)"
           go: |-
             var contains = func(elems bson.A, v interface{}) bool {

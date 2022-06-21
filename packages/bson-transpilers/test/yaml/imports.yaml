@@ -53,7 +53,15 @@ tests:
                 Double,
                 BSONRegExp
               } = require('bson');
-          php: ''
+          php: |-
+            use MongoDB\BSON\Decimal128;
+            use MongoDB\BSON\Javascript;
+            use MongoDB\BSON\MaxKey;
+            use MongoDB\BSON\MinKey;
+            use MongoDB\BSON\ObjectId;
+            use MongoDB\BSON\Timestamp;
+            use MongoDB\Client;
+            use MongoDB\Driver\Exception\InvalidArgumentException;
           ruby: |-
             require 'mongo'
             require 'bson'
@@ -75,7 +83,8 @@ tests:
               const {
                 Code
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\Javascript;
           ruby: require 'bson'
           go: |-
             import (
@@ -104,7 +113,8 @@ tests:
               const {
                 Code
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\Javascript;
           ruby: require 'bson'
           go: |-
             import (
@@ -132,7 +142,9 @@ tests:
               const {
                 ObjectId
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\ObjectId;
+            use MongoDB\Driver\Exception\InvalidArgumentException;
           ruby: require 'bson'
           go: |-
             import (
@@ -160,7 +172,8 @@ tests:
               const {
                 Timestamp
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\Timestamp;
           go: |-
             import (
               "go.mongodb.org/mongo-driver/bson"
@@ -188,7 +201,9 @@ tests:
                 ObjectId,
                 DBRef
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\ObjectId;
+            use MongoDB\Driver\Exception\InvalidArgumentException;
           ruby: require 'bson'
           go: |-
             import (
@@ -279,7 +294,8 @@ tests:
               const {
                 MinKey
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\MinKey;
           ruby: require 'bson'
           go: |-
             import (
@@ -306,7 +322,8 @@ tests:
               const {
                 MaxKey
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\MaxKey;
           ruby: require 'bson'
           go: |-
             import (
@@ -353,7 +370,8 @@ tests:
               using MongoDB.Bson;
               using MongoDB.Driver;
           python: from bson import Regex
-          php: ''
+          php: |-
+            use MongoDB\BSON\Regex;
           go: |-
             import (
               "go.mongodb.org/mongo-driver/bson"
@@ -403,7 +421,8 @@ tests:
               const {
                 Timestamp
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\Timestamp;
           ruby: require 'bson'
           go: |-
             import (
@@ -454,7 +473,8 @@ tests:
               const {
                 Decimal128
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\Decimal128;
           ruby: require 'bson'
           go: |-
             import (
@@ -596,7 +616,14 @@ tests:
                 BSONSymbol,
                 Decimal128
               } = require('mongodb');
-          php: ''
+          php: |-
+            use MongoDB\BSON\Decimal128;
+            use MongoDB\BSON\Javascript;
+            use MongoDB\BSON\MaxKey;
+            use MongoDB\BSON\MinKey;
+            use MongoDB\BSON\ObjectId;
+            use MongoDB\BSON\Timestamp;
+            use MongoDB\Driver\Exception\InvalidArgumentException;
           ruby: require 'bson'
           go: |-
             import (

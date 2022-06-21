@@ -19,7 +19,7 @@ tests:
           java: new Code("some code")
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
-          php: new \MongoDB\BSON\Javascript('some code')
+          php: new Javascript('some code')
           ruby: BSON::Code.new('some code')
           go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"some code\")}"
           rust: Bson::JavaScriptCode("some code".to_string())
@@ -35,7 +35,7 @@ tests:
           java: new Code("some code")
           csharp: new BsonJavaScript("some code")
           object: new Code('some code')
-          php: new \MongoDB\BSON\Javascript('some code')
+          php: new Javascript('some code')
           ruby: BSON::Code.new('some code')
           go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"some code\")}"
           rust: Bson::JavaScriptCode("some code".to_string())
@@ -51,7 +51,7 @@ tests:
           java: 'new CodeWithScope("string", new Document("x", "1"))'
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: 'new Code("string", {"x": 1})'
-          php: "new \\MongoDB\\BSON\\Javascript('string', (object) ['x' => '1'])"
+          php: "new Javascript('string', (object) ['x' => '1'])"
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"string\"), Scope: bson.D{{\"x\", \"1\"}}}"
           rust: |-
@@ -68,7 +68,7 @@ tests:
           java: new Code("")
           csharp: new BsonJavaScript("")
           object: new Code('')
-          php: new \MongoDB\BSON\Javascript('')
+          php: new Javascript('')
           ruby: BSON::Code.new
           go: primitive.CodeWithScope{}
           rust: Bson::JavaScriptCode("".to_string())
@@ -82,7 +82,7 @@ tests:
           java: new Code("function(test){console.log(test);}")
           csharp: new BsonJavaScript("function(test){console.log(test);}")
           object: new Code('function(test){console.log(test);}')
-          php: new \MongoDB\BSON\Javascript('function(test){console.log(test);}')
+          php: new Javascript('function(test){console.log(test);}')
           ruby: BSON::Code.new('function(test){console.log(test);}')
           go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"function(test){console.log(test);}\")}"
           rust: Bson::JavaScriptCode("function(test){console.log(test);}".to_string())
@@ -96,7 +96,7 @@ tests:
           java: 'new CodeWithScope("string", new Document("x", "1"))'
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: "new Code('string', {'x': '1'})"
-          php: "new \\MongoDB\\BSON\\Javascript('string', (object) ['x' => '1'])"
+          php: "new Javascript('string', (object) ['x' => '1'])"
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"string\"), Scope: bson.D{{\"x\", \"1\"}}}"
           rust: |-
@@ -116,7 +116,7 @@ tests:
           java: new ObjectId()
           csharp: new ObjectId()
           object: new ObjectId()
-          php: new \MongoDB\BSON\ObjectId()
+          php: new ObjectId()
           ruby: BSON::ObjectId.new
           go: primitive.NewObjectID()
           rust: ObjectId::new()
@@ -131,7 +131,7 @@ tests:
           java: new ObjectId()
           csharp: new ObjectId()
           object: new ObjectId()
-          php: new \MongoDB\BSON\ObjectId()
+          php: new ObjectId()
           ruby: BSON::ObjectId.new
           go: primitive.NewObjectID()
           rust: ObjectId::new()
@@ -147,7 +147,7 @@ tests:
           java: new ObjectId("5a7382114ec1f67ae445f778")
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
-          php: new \MongoDB\BSON\ObjectId('5a7382114ec1f67ae445f778')
+          php: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
           go: |-
             var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -170,7 +170,7 @@ tests:
           java: new ObjectId("5a7382114ec1f67ae445f778")
           csharp: new ObjectId("5a7382114ec1f67ae445f778")
           object: new ObjectId('5a7382114ec1f67ae445f778')
-          php: new \MongoDB\BSON\ObjectId('5a7382114ec1f67ae445f778')
+          php: new ObjectId('5a7382114ec1f67ae445f778')
           ruby: BSON::ObjectId('5a7382114ec1f67ae445f778')
           go: |-
             var objectIDFromHex = func(hex string) primitive.ObjectID {
@@ -195,7 +195,7 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
-          php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => null]"
+          php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => null]"
           ruby: |-
             BSON::DBRef.new(
               '$ref' => 'coll',
@@ -213,7 +213,7 @@ tests:
           java: new DBRef("coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId())
           object: new DBRef('coll', new ObjectId())
-          php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => null]"
+          php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => null]"
           ruby: |-
             BSON::DBRef.new(
               '$ref' => 'coll',
@@ -231,7 +231,7 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
-          php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => 'db']"
+          php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']"
           ruby: |-
             BSON::DBRef.new(
               '$ref' => 'coll',
@@ -248,7 +248,7 @@ tests:
           java: new DBRef("db", "coll", new ObjectId())
           csharp: new MongoDBRef("coll", new ObjectId(), "db")
           object: new DBRef('coll', new ObjectId(), 'db')
-          php: "['collectionName' => 'coll', 'id' => new \\MongoDB\\BSON\\ObjectId(), 'databaseName' => 'db']"
+          php: "['$ref' => 'coll', '$id' => new ObjectId(), '$db' => 'db']"
           ruby: |-
             BSON::DBRef.new(
               '$ref' => 'coll',
@@ -339,7 +339,7 @@ tests:
           java: (int) 0x3
           csharp: Convert.ToInt32(0x3)
           object: new Int32(0x3)
-          php: (int) 0x3
+          php: '0x3'
           ruby: 0x3.to_i
           go: int32(0x3)
           rust: '0x3'
@@ -371,7 +371,7 @@ tests:
           java: (int) 03
           csharp: '3'
           object: new Int32(0o3)
-          php: (int) 03
+          php: '03'
           ruby: 0o3.to_i
           go: int32(0o3)
           rust: 0o3
@@ -387,7 +387,7 @@ tests:
           java: 3d
           csharp: '3.0'
           object: new Double(3)
-          php: (float) 3
+          php: '3.0'
           ruby: 3.to_f
           go: float64(3)
           rust: '3.0'
@@ -401,7 +401,7 @@ tests:
           java: 3d
           csharp: '3.0'
           object: new Double(3)
-          php: (float) 3
+          php: '3.0'
           ruby: 3.to_f
           go: float64(3)
           rust: '3.0'
@@ -555,7 +555,7 @@ tests:
           java: Decimal128.parse("5.3E-6175")
           csharp: Decimal128.Parse("5.3E-6175")
           object: Decimal128.fromString('5.3E-6175')
-          php: new \MongoDB\BSON\Decimal128('5.3E-6175')
+          php: new Decimal128('5.3E-6175')
           ruby: BSON::Decimal128.new('5.3E-6175')
           go: |-
             var parseDecimal128 = func(str string) primitive.Decimal128 {
@@ -578,7 +578,7 @@ tests:
           java: Decimal128.parse("5")
           csharp: Decimal128.Parse("5")
           object: Decimal128.fromString('5')
-          php: new \MongoDB\BSON\Decimal128('5')
+          php: new Decimal128('5')
           ruby: BSON::Decimal128.new('5')
     - description: 'NEW'
       input:
@@ -590,7 +590,7 @@ tests:
           java: Decimal128.parse("5.3E-6175")
           csharp: Decimal128.Parse("5.3E-6175")
           object: new Decimal128(Buffer.from('5\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'))
-          php: new \MongoDB\BSON\Decimal128('5.3E-6175')
+          php: new Decimal128('5.3E-6175')
           ruby: BSON::Decimal128.new('5.3E-6175')
     - description: 'number arg'
       input:
@@ -602,7 +602,7 @@ tests:
           java: Decimal128.parse("5")
           csharp: Decimal128.Parse("5")
           object: Decimal128.fromString('5')
-          php: new \MongoDB\BSON\Decimal128('5')
+          php: new Decimal128('5')
           ruby: BSON::Decimal128.new('5')
     - description: 'no arg'
       input:
@@ -614,7 +614,7 @@ tests:
           java: Decimal128.parse("0")
           csharp: Decimal128.Parse("0")
           object: Decimal128.fromString('0')
-          php: new \MongoDB\BSON\Decimal128('0')
+          php: new Decimal128('0')
           ruby: BSON::Decimal128.new('0')
     MinKey/MaxKey:
     - description: 'MinKey'
@@ -629,7 +629,7 @@ tests:
           java: new MinKey()
           csharp: BsonMinKey.Value
           object: new MinKey()
-          php: new \MongoDB\BSON\MinKey()
+          php: new MinKey()
           ruby: BSON::MinKey.new
           go: primitive.MinKey{}
           rust: Bson::MinKey
@@ -644,7 +644,7 @@ tests:
           java: new MinKey()
           csharp: BsonMinKey.Value
           object: new MinKey()
-          php: new \MongoDB\BSON\MinKey()
+          php: new MinKey()
           ruby: BSON::MinKey.new
           go: primitive.MinKey{}
           rust: Bson::MinKey
@@ -660,7 +660,7 @@ tests:
           java: new MaxKey()
           csharp: BsonMaxKey.Value
           object: new MaxKey()
-          php: new \MongoDB\BSON\MaxKey()
+          php: new MaxKey()
           ruby: BSON::MaxKey.new
           go: primitive.MaxKey{}
           rust: Bson::MaxKey
@@ -675,7 +675,7 @@ tests:
           java: new MaxKey()
           csharp: BsonMaxKey.Value
           object: new MaxKey()
-          php: new \MongoDB\BSON\MaxKey()
+          php: new MaxKey()
           ruby: BSON::MaxKey.new
           go: primitive.MaxKey{}
           rust: Bson::MaxKey
@@ -691,7 +691,7 @@ tests:
           java: new BSONTimestamp(10, 100)
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
-          php: new \MongoDB\BSON\Timestamp(100, 10)
+          php: new Timestamp(100, 10)
           ruby: BSON::Timestamp.new(10, 100)
           go: "primitive.Timestamp{T: 10, I: 100}"
           rust: "Timestamp { time: 10, increment: 100 }"
@@ -707,7 +707,7 @@ tests:
           java: new BSONTimestamp(10, 100)
           csharp: new BsonTimestamp(10, 100)
           object: new Timestamp(10, 100)
-          php: new \MongoDB\BSON\Timestamp(100, 10)
+          php: new Timestamp(100, 10)
           ruby: BSON::Timestamp.new(10, 100)
           go: "primitive.Timestamp{T: 10, I: 100}"
           rust: "Timestamp { time: 10, increment: 100 }"
@@ -723,7 +723,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
-          php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "")
           ruby: /^[a-z0-9_-]{3,16}$/
           go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
@@ -737,7 +737,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
-          php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "")
           ruby: /^[a-z0-9_-]{3,16}$/
           go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
@@ -752,7 +752,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
-          php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\", Options: \"imuxls\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'
@@ -766,7 +766,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
-          php: new \MongoDB\BSON\Regex("^[a-z0-9_-]{3,16}$", "imx")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\", Options: \"imuxls\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'

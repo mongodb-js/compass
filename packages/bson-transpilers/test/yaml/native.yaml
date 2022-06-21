@@ -1301,7 +1301,7 @@ tests:
           java: (int) 0x3
           csharp: Convert.ToInt32(0x3)
           object: 'new Int32(0x3)'
-          php: '(int) 0x3'
+          php: '0x3'
           ruby: '0x3.to_i'
           rust: '0x3'
           go: int32(0x3)
@@ -1314,7 +1314,7 @@ tests:
           java: (int) 03
           csharp: '3'
           object: 'new Int32(0o3)'
-          php: '(int) 03'
+          php: '03'
           ruby: '0o3.to_i'
           rust: '0o3'
           go: int32(0o3)
@@ -1327,7 +1327,7 @@ tests:
           java: '3d'
           csharp: '3.0'
           object: new Double(3)
-          php: (float) 3
+          php: '3.0'
           ruby: 3.to_f
           rust: '3.0'
           go: float64(3)
