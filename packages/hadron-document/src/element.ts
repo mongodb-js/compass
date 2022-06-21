@@ -88,20 +88,6 @@ export class Element extends EventEmitter {
   decrypted: boolean;
 
   /**
-   * Bulk edit the element. Can accept JSON strings.
-   *
-   * @param {String} value - The JSON string value.
-   */
-  bulkEdit(value: string): void {
-    if (ARRAY_OR_OBJECT.exec(value)) {
-      this.edit(JSON.parse(value));
-      this._bubbleUp(Events.Converted, this);
-    } else {
-      this.edit(value);
-    }
-  }
-
-  /**
    * Cancel any modifications to the element.
    */
   cancel(): void {
@@ -241,7 +227,7 @@ export class Element extends EventEmitter {
    * @returns {Element} The element.
    */
   get(key: string | number): Element | undefined {
-    return this.elements ? this.elements.get(key) : undefined;
+    return this.elements?.get(key);
   }
 
   /**
@@ -252,7 +238,7 @@ export class Element extends EventEmitter {
    * @returns {Element} The element.
    */
   at(i: number): Element | undefined {
-    return this.elements ? this.elements.at(i) : undefined;
+    return this.elements?.at(i);
   }
 
   /**
@@ -525,15 +511,14 @@ export class Element extends EventEmitter {
    * @returns {Boolean} If the element was renamed.
    */
   isRenamed(): boolean {
-    let keyChanged = false;
     if (
       !this.parent ||
       this.parent.isRoot() ||
       this.parent.currentType === 'Object'
     ) {
-      keyChanged = this.key !== this.currentKey;
+      return this.key !== this.currentKey;
     }
-    return keyChanged;
+    return false;
   }
 
   /**
