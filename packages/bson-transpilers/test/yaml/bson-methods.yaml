@@ -978,7 +978,7 @@ tests:
           csharp: Int64.MaxValue
           python: sys.maxsize
           object: new Long(-1, 2147483647)
-          php: PHP_INT_MAX
+          php: \PHP_INT_MAX
           ruby: '9223372036854775807'
           rust: i64::MAX
           go: int(^uint(0) >> 1)
@@ -990,7 +990,7 @@ tests:
           csharp: Int64.MinValue
           python: "-sys.maxsize -1"
           object: new Long(0, -2147483648)
-          php: PHP_INT_MIN
+          php: \PHP_INT_MIN
           ruby: '-9223372036854775808'
           rust: i64::MIN
           go: -(1+int(^uint(0) >> 1))

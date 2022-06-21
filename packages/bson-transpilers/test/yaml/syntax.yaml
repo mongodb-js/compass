@@ -140,7 +140,7 @@ tests:
           java: "!true"
           csharp: "!true"
           object: "false"
-          php: "!true"
+          php: "! true"
           ruby: "!true"
           go: "!true"
           rust: "!true"
