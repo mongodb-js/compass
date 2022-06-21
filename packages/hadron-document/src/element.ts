@@ -60,11 +60,6 @@ const CURLY = '{';
 const BRACKET = '[';
 
 /**
- * Regex to match an array or object string.
- */
-const ARRAY_OR_OBJECT = /^(\[|\{)(.+)(\]|\})$/;
-
-/**
  * Represents an element in a document.
  */
 export class Element extends EventEmitter {
