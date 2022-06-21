@@ -1161,7 +1161,7 @@ Templates:
     #############################################
     LongSymbolMaxTemplate: &LongSymbolMaxTemplate !!js/function >
         () => {
-            return 'PHP_INT_MAX';
+            return '\PHP_INT_MAX';
         }
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
     LongSymbolMinTemplate: &LongSymbolMinTemplate !!js/function >
