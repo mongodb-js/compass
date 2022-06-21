@@ -732,7 +732,7 @@ Templates:
         }
     BinaryLengthTemplate: &BinaryLengthTemplate !!js/function >
         (lhs) => {
-            return `strlen((${lhs})->getData())`;
+            return `\strlen((${lhs})->getData())`;
         }
     BinaryLengthArgsTemplate: &BinaryLengthArgsTemplate !!js/function >
         () => {
