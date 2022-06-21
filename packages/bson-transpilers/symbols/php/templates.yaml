@@ -1166,7 +1166,7 @@ Templates:
     LongSymbolMaxArgsTemplate: &LongSymbolMaxArgsTemplate null
     LongSymbolMinTemplate: &LongSymbolMinTemplate !!js/function >
         () => {
-            return 'PHP_INT_MIN';
+            return '\PHP_INT_MIN';
         }
     LongSymbolMinArgsTemplate: &LongSymbolMinArgsTemplate null
     LongSymbolZeroTemplate: &LongSymbolZeroTemplate !!js/function >
