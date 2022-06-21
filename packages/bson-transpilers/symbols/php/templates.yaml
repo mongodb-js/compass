@@ -173,7 +173,7 @@ Templates:
         }
     NotSyntaxTemplate: &NotSyntaxTemplate !!js/function >
         (arg) => {
-            return `!${arg}`;
+            return `! ${arg}`;
         }
     UnarySyntaxTemplate: &UnarySyntaxTemplate !!js/function >
         (op, arg) => {
