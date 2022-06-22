@@ -723,7 +723,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
-          php: new Regex("^[a-z0-9_-]{3,16}$", "")
+          php: new Regex("^[a-z0-9_-]{3,16}$")
           ruby: /^[a-z0-9_-]{3,16}$/
           go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'
@@ -737,7 +737,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$')
-          php: new Regex("^[a-z0-9_-]{3,16}$", "")
+          php: new Regex("^[a-z0-9_-]{3,16}$")
           ruby: /^[a-z0-9_-]{3,16}$/
           go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "" }'

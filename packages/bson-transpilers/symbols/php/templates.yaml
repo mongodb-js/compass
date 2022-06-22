@@ -52,14 +52,6 @@ Templates:
                 }
                 return k in translateKey ? translateKey[k] : k
             };
-            const unObjectize = (str) => {
-                if (str.indexOf('(object) ') === 0) {
-                    str = str.slice(9);
-                }        
-                return str;
-            }
-        
-        
             const options = spec.options;
             const filter = spec.filter || {};
             delete spec.options;
@@ -93,14 +85,14 @@ Templates:
                     .concat(convertFunction)
                     .concat('')
                     .concat(client)
-                    .concat(`$cursor = $client->selectCollection('${options.database}', '${options.collection}')->aggregate($convertPipelineArray(${unObjectize(spec.aggregation)}));`)
+                    .concat(`$cursor = $client->selectCollection('${options.database}', '${options.collection}')->aggregate($convertPipelineArray(${this.utils.removePHPObject(spec.aggregation)}));`)
                     .join('\n')
                 ;
             }
 
             const args = Object.keys(spec).reduce(
                 (result, k) => {
-                    let val = unObjectize(spec[k]);
+                    let val = this.utils.removePHPObject(spec[k]);
                     const divider = result === '' ? '' : ',\n';
                     return `${result}${divider}    '${getKey(k)}' => ${val}`;
                 },
@@ -111,7 +103,7 @@ Templates:
                 .concat(comment)
                 .concat('')
                 .concat(client)
-                .concat(`$cursor = $client->selectCollection('${options.database}', '${options.collection}')->find(${unObjectize(filter)}${args ? `, [\n${args}\n]` : ''});`)
+                .concat(`$cursor = $client->selectCollection('${options.database}', '${options.collection}')->find(${this.utils.removePHPObject(filter)}${args ? `, [\n${args}\n]` : ''});`)
                 .join('\n')
             ;
         }
@@ -241,23 +233,41 @@ Templates:
     #############################################
     StringTypeTemplate: &StringTypeTemplate  !!js/function >
         (str) => {
-          let newStr = str;
-          if (
-            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-            newStr = str.substr(1, str.length - 2);
-          }
-          return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
+            // This is some standalone object context, which is generated to parse 
+            // node and doesn't have access to main Generator object. Thus we can't
+            // use utility function call. All ~Template calls use this type of 
+            // context. All ~ArgsTemplate have access to utility functions.
+        
+            stringifyWithSingleQuotes = (str) => {
+                if (
+                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')
+                ) {
+                    str = str.substr(1, str.length - 2);
+                }
+                return `'${str.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
+            };
+
+            return `${stringifyWithSingleQuotes(str)}`;
         }
     RegexTypeTemplate: &RegexTypeTemplate !!js/function >
         (pattern, flags) => {
-            let newStr = pattern;
-            if (
-                (pattern.charAt(0) === '\'' && pattern.charAt(str.length - 1) === '\'') ||
-                (pattern.charAt(0) === '"' && pattern.charAt(str.length - 1) === '"')) {
-                newStr = pattern.substr(1, pattern.length - 2);
-            }
-            return `'/${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}/${flags ? flags : ''}'`;
+            // This is some standalone object context, which is generated to parse 
+            // node and doesn't have access to main Generator object. Thus we can't
+            // use utility function call. All ~Template calls use this type of 
+            // context. All ~ArgsTemplate have access to utility functions.
+
+            stringifyWithSingleQuotes = (str) => {
+                if (
+                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')
+                ) {
+                    str = str.substr(1, str.length - 2);
+                }
+                return `${str.replace(/\\([\s\S])|(')/g, '\\$1$2')}`;
+            };
+        
+            return `'/${stringifyWithSingleQuotes(pattern)}/${flags ? flags : ''}'`;
         }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
@@ -314,17 +324,8 @@ Templates:
                 return '[]';
             }
         
-            const singleStringify = (str) => {
-                let newStr = str;
-                if (
-                  (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                  (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
-            }
             const pairs = args.map((arg) => {
-                return `${singleStringify(arg[0])} => ${arg[1]}`;
+                return `${this.utils.stringifyWithSingleQuotes(arg[0])} => ${arg[1]}`;
             }).join(', ');
 
             return `[${pairs}]`
@@ -352,21 +353,12 @@ Templates:
         }
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
-            const singleStringify = (str) => {
-                let newStr = str;
-                if (
-                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
-            }
             if (code === undefined) {
                 return `('')`;
             }
             return !scope 
-                ? `(${singleStringify(code)})` 
-                : `(${singleStringify(code)}, ${scope})`
+                ? `(${this.utils.stringifyWithSingleQuotes(code)})` 
+                : `(${this.utils.stringifyWithSingleQuotes(code)}, ${scope})`
             ;
         }
     ObjectIdSymbolTemplate: &ObjectIdSymbolTemplate !!js/function >
@@ -375,18 +367,9 @@ Templates:
         }
     ObjectIdSymbolArgsTemplate: &ObjectIdSymbolArgsTemplate !!js/function >
         (lhs, id) => {
-            const singleStringify = (str) => {
-                let newStr = str;
-                if (
-                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
-            }
             return !id 
                 ? `()` 
-                : `(${singleStringify(id)})`
+                : `(${this.utils.stringifyWithSingleQuotes(id)})`
             ;
         }
     BinarySymbolTemplate: &BinarySymbolTemplate  !!js/function >
@@ -395,19 +378,10 @@ Templates:
         }
     BinarySymbolArgsTemplate: &BinarySymbolArgsTemplate !!js/function >
         (lhs, bytes, type) => {
-            const str = bytes;
-            let newStr = str;
-            if (
-              (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-              (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                newStr = str.substr(1, str.length - 2);
-            }
-            bytes = `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
-
             if (type === null) {
                 type = 'Binary::TYPE_GENERIC';
             }
-            return `(${bytes}, ${type})`;
+            return `(${this.utils.stringifyWithSingleQuotes(bytes)}, ${type})`;
         }
     BinarySymbolSubtypeDefaultTemplate: &BinarySymbolSubtypeDefaultTemplate !!js/function >
         () => {
@@ -443,20 +417,9 @@ Templates:
         }
     DBRefSymbolArgsTemplate: &DBRefSymbolArgsTemplate !!js/function >
         (lhs, coll, id, db) => {
-            const singleStringify = (str) => {
-                let newStr = str;
-                if (
-                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
-            }
-
-            let coll_string = `'$ref' => ${singleStringify(coll)}`;
+            let coll_string = `'$ref' => ${this.utils.stringifyWithSingleQuotes(coll)}`;
             let id_string = `, '$id' => ${id}`;
-            let db_string = db ? `, '$db' => ${singleStringify(db)}` : `, '$db' => null`;
-        
+            let db_string = db ? `, '$db' => ${this.utils.stringifyWithSingleQuotes(db)}` : `, '$db' => null`;
             return `[${coll_string}${id_string}${db_string}]`;
         }
     DoubleSymbolTemplate: &DoubleSymbolTemplate !!js/function >
@@ -517,25 +480,7 @@ Templates:
         }
     BSONRegExpSymbolArgsTemplate: &BSONRegExpSymbolArgsTemplate !!js/function >
         (lhs, pattern, flags) => {
-            const singleQuoStringify = (str) => {
-                let newStr = str;
-                if (
-                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}`;
-            }
-            const singleStringify = (str) => {
-                let newStr = str;
-                if (
-                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `${newStr.replace(/\\([\s\S])/g, '\\$1')}`;
-            }
-            return `("${singleQuoStringify(pattern)}", "${flags ? singleStringify(flags) : ''}")`;
+            return `(${this.utils.stringifyWithDoubleQuotes(pattern)}${flags ? ', ' + this.utils.stringifyWithDoubleQuotes(flags) : ''})`;
         }
     Decimal128SymbolTemplate: &Decimal128SymbolTemplate !!js/function >
         () => {
@@ -698,16 +643,6 @@ Templates:
         }
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate !!js/function >
         (lhs, arg) => {
-            const singleStringify = (str) => {
-                let newStr = str;
-                if (
-                    (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-                    (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-                    newStr = str.substr(1, str.length - 2);
-                }
-                return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
-            }
-        
             this.declarations.addFunc([]
                 .concat('$isValidBSONObjectId = function ($objectId) {')
                 .concat('    $valid = true;')
@@ -720,7 +655,7 @@ Templates:
                 .concat('};')
                 .join('\n'));
         
-            return `$isValidBSONObjectId(${singleStringify(arg)})`;
+            return `$isValidBSONObjectId(${this.utils.stringifyWithSingleQuotes(arg)})`;
         }
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {
