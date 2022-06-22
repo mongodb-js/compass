@@ -510,9 +510,7 @@ Templates:
         }
     TimestampSymbolArgsTemplate: &TimestampSymbolArgsTemplate !!js/function >
         (lhs, arg1, arg2) => {
-            // Till the ticket https://jira.mongodb.org/browse/PHPC-845 is not yet implemented 
-            // the sequence of arguments: 
-            // increment is the first one, timestamp is the second one
+            // PHP orders increment and timestamp args differently (see: PHPC-845)
             return `(${arg2 === undefined ? 0 : arg2}, ${arg1 === undefined ? 0 : arg1})`;
         }
     # non bson-specific
