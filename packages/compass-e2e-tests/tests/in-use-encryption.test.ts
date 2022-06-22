@@ -18,7 +18,7 @@ import { LOG_PATH } from '../helpers/compass';
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
-const readRecentsFolder = async (compass: Compass) => {
+const readSavedConnectionsFolder = async (compass: Compass) => {
   if (compass.userDataPath) {
     try {
       const connections = await fs.readdir(
@@ -28,116 +28,124 @@ const readRecentsFolder = async (compass: Compass) => {
       console.log('Compass connections:');
       console.log(connections);
     } catch (err) {
-      console.error('Error during reading recents:');
+      console.error('Error during reading connections:');
       console.error(err);
     }
   }
 };
 
 describe('FLE2', function () {
-  describe('windows platform', function () {
-    before(function () {
+  describe('server version gte 4.2.20', function () {
+    const databaseName = 'fle-test';
+    const collectionName = 'my-another-collection';
+    let compass: Compass;
+    let browser: CompassBrowser;
+
+    before(async function () {
       if (
         semver.lt(MONGODB_VERSION, '4.2.20') ||
-        process.env.MONGODB_USE_ENTERPRISE !== 'yes' ||
-        process.platform !== 'win32'
+        process.env.MONGODB_USE_ENTERPRISE !== 'yes'
       ) {
         return this.skip();
       }
+
+      compass = await beforeTests();
+      browser = compass.browser;
     });
 
-    describe('when fleEncryptedFieldsMap is specified while connecting', function () {
-      const databaseName = 'fle-test';
-      const collectionName = 'my-another-collection';
-      let compass: Compass;
-      let browser: CompassBrowser;
+    beforeEach(async function () {
+      const sidebar = await browser.$(Selectors.SidebarTitle);
+      if (await sidebar.isDisplayed()) {
+        await browser.disconnect();
+      }
+    });
 
-      before(async function () {
-        compass = await beforeTests();
-        browser = compass.browser;
+    after(async function () {
+      if (compass) {
+        await afterTests(compass, this.currentTest);
+      }
+    });
+
+    it('does not store KMS settings if the checkbox is not set', async function () {
+      const favoriteName = 'My FLE Favorite';
+      const options = {
+        hosts: [CONNECTION_HOSTS],
+        fleKeyVaultNamespace: `${databaseName}.keyvault`,
+        fleKey: 'A'.repeat(128),
+        fleEncryptedFieldsMap: `{
+          '${databaseName}.${collectionName}': {
+            fields: [
+              {
+                path: 'phoneNumber',
+                keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                bsonType: 'string',
+                queries: { queryType: 'equality' }
+              }
+            ]
+          }
+        }`,
+      };
+
+      await browser.setConnectFormState(options);
+
+      // Save & Connect
+      await browser.clickVisible(Selectors.ConnectionFormSaveAndConnectButton);
+      await browser.$(Selectors.FavoriteModal).waitForDisplayed();
+      await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
+      await browser.clickVisible(
+        `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
+      );
+
+      // The modal's button text should read Save & Connect and not the default Save
+      expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
+        'Save & Connect'
+      );
+
+      await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
+      await browser.clickVisible(Selectors.FavoriteSaveButton);
+      await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+
+      // Wait for it to connect
+      const element = await browser.$(Selectors.MyQueriesList);
+      await element.waitForDisplayed({
+        timeout: 30_000,
       });
 
-      beforeEach(async function () {
-        await browser.connectWithConnectionForm({
-          hosts: [CONNECTION_HOSTS],
-          fleKeyVaultNamespace: `${databaseName}.keyvault`,
-          fleKey: 'A'.repeat(128),
-          fleEncryptedFieldsMap: `{
-            '${databaseName}.${collectionName}': {
-              fields: [
-                {
-                  path: 'phoneNumber',
-                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
-                  bsonType: 'string',
-                  queries: { queryType: 'equality' }
-                }
-              ]
-            }
-          }`,
-        });
+      console.log('Compass userDataPath:');
+      console.log(compass.userDataPath);
+
+      await delay(10000);
+
+      try {
+        await browser.disconnect();
+      } catch (err) {
+        console.error('Error during disconnect:');
+        console.error(err);
+      }
+
+      await delay(10000);
+
+      console.log('Read favorites after disconnecting and delay');
+      await readSavedConnectionsFolder(compass);
+
+      await browser.saveScreenshot(
+        path.join(LOG_PATH, 'saved-connections-right-after-disconnect.png')
+      );
+
+      await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
+      await browser.waitUntil(async () => {
+        const text = await browser.$(Selectors.ConnectionTitle).getText();
+        return text === favoriteName;
       });
 
-      after(async function () {
-        if (compass) {
-          await afterTests(compass, this.currentTest);
-        }
-      });
+      const state = await browser.getConnectFormState();
 
-      it('does not store KMS settings if the checkbox is not set', async function () {
-        console.log('Compass userDataPath:');
-        console.log(compass.userDataPath);
-
-        console.log('Read recents before disconnecting');
-        await readRecentsFolder(compass);
-
-        await delay(10000);
-
-        console.log('Read recents after disconnecting with delay');
-        await readRecentsFolder(compass);
-
-        try {
-          await browser.disconnect();
-        } catch (err) {
-          console.error('Error during disconnect:');
-          console.error(err);
-        }
-
-        console.log('Read recents after disconnecting');
-        await readRecentsFolder(compass);
-
-        console.log('Delay 10000');
-        await delay(10000);
-
-        console.log('Read recents after delay and before screenshot');
-        await readRecentsFolder(compass);
-
-        await browser.saveScreenshot(
-          path.join(LOG_PATH, 'recent-connections-right-after-disconnect.png')
-        );
-
-        console.log('Read recents after screenshot');
-        await readRecentsFolder(compass);
-
-        const recentConnections = await browser.$(Selectors.RecentConnections);
-        await recentConnections.waitForDisplayed({ timeout: 60_000 });
-
-        await browser.saveScreenshot(
-          path.join(LOG_PATH, 'recent-connections-right-after-60-sec.png')
-        );
-
-        await browser.clickVisible(
-          `${Selectors.RecentConnections}:first-child`
-        );
-
-        const state = await browser.getConnectFormState();
-
-        expect(state.connectionString).to.be.equal(CONNECTION_STRING);
-        expect(state.fleKeyVaultNamespace).to.be.equal('fle-test.keyvault');
-        expect(state.fleStoreCredentials).to.be.equal(false);
-        expect(state.fleEncryptedFieldsMap).to.include(
-          'fle-test.my-another-collection'
-        );
-      });
+      expect(state.connectionString).to.be.equal(CONNECTION_STRING);
+      expect(state.fleKeyVaultNamespace).to.be.equal('fle-test.keyvault');
+      expect(state.fleStoreCredentials).to.be.equal(false);
+      expect(state.fleEncryptedFieldsMap).to.include(
+        'fle-test.my-another-collection'
+      );
     });
   });
 

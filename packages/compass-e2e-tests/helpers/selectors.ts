@@ -196,7 +196,7 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 // Connection Sidebar
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
-export const SidebarFavoriteButton = '[data-testid="favorite-connection"]';
+export const FavoriteConnections = '[data-testid="favorite-connection"]';
 export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
@@ -248,7 +248,7 @@ export const sidebarCollection = (
 };
 
 export const sidebarFavorite = (favoriteName: string): string => {
-  return `${SidebarFavoriteButton}[data-id="favorite-connection-${favoriteName}"]`;
+  return `${FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
 
 export const sidebarFavoriteButton = (favoriteName: string): string => {
