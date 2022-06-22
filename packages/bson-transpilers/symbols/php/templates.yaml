@@ -353,9 +353,6 @@ Templates:
         }
     CodeSymbolArgsTemplate: &CodeSymbolArgsTemplate !!js/function >
         (lhs, code, scope) => {
-            if (code === undefined) {
-                return `('')`;
-            }
             return !scope 
                 ? `(${this.utils.stringifyWithSingleQuotes(code)})` 
                 : `(${this.utils.stringifyWithSingleQuotes(code)}, ${scope})`
