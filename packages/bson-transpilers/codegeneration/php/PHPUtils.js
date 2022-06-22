@@ -58,6 +58,7 @@ class PHPUtils {
   };
 
   /**
+   * This function is duplicated in the "StringTypeTemplate" and "RegexTypeTemplate".
    * @param {string|undefined} str
    * @returns {string} - Parsed string
    */

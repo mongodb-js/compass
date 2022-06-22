@@ -63,9 +63,7 @@ Templates:
                 .join('\n')
             ;
             const client = `$client = new Client('${options.uri}');`;
-
-            const connect = `$client = new \\MongoDB\\Client('${options.uri}');\n$db = $client->selectDatabase('${options.database}');`;
-            const coll = `$db->selectCollection('${options.collection}')`;
+            const collection = `$collection = $client->selectCollection('${options.database}', '${options.collection}');`;
 
             if ('aggregation' in spec) {
                 let convertFunction = []
@@ -85,7 +83,8 @@ Templates:
                     .concat(convertFunction)
                     .concat('')
                     .concat(client)
-                    .concat(`$cursor = $client->selectCollection('${options.database}', '${options.collection}')->aggregate($convertPipelineArray(${this.utils.removePHPObject(spec.aggregation)}));`)
+                    .concat(collection)
+                    .concat(`$cursor = $collection->aggregate($convertPipelineArray(${this.utils.removePHPObject(spec.aggregation)}));`)
                     .join('\n')
                 ;
             }
@@ -103,7 +102,8 @@ Templates:
                 .concat(comment)
                 .concat('')
                 .concat(client)
-                .concat(`$cursor = $client->selectCollection('${options.database}', '${options.collection}')->find(${this.utils.removePHPObject(filter)}${args ? `, [\n${args}\n]` : ''});`)
+                .concat(collection)
+                .concat(`$cursor = $collection->find(${this.utils.removePHPObject(filter)}${args ? `, [\n${args}\n]` : ''});`)
                 .join('\n')
             ;
         }
@@ -486,13 +486,7 @@ Templates:
     Decimal128SymbolArgsTemplate: &Decimal128SymbolArgsTemplate !!js/function >
         (lhs, arg) => {
             arg = arg === undefined ? '0' : arg.toString();
-            if (
-                (arg.charAt(0) === '\'' && arg.charAt(arg.length - 1) === '\'') ||
-                (arg.charAt(0) === '"' && arg.charAt(arg.length - 1) === '"')
-            ) {
-                return `('${arg.substr(1, arg.length - 2)}')`;
-            }
-            return `('${arg}')`;
+            return `('${this.utils.removeStringQuotes(arg)}')`;
         }
     MinKeySymbolTemplate: &MinKeySymbolTemplate !!js/function >
         () => {
@@ -560,12 +554,7 @@ Templates:
                 (date.getUTCSeconds()).toString().length == 1 ? ['0', date.getUTCSeconds()].join('') : date.getUTCSeconds()
             ].join(':');
         
-        
-            const dateStr = [
-                dateData,
-                ' ',
-                timeData
-            ].join('');
+            const dateStr = dateData + ' ' + timeData;
 
             return isString 
                 ? `(new ${lhs}('${dateStr}', new \\DateTimeZone('UTC')))->format('D M d Y H:i:s e')`
@@ -640,19 +629,7 @@ Templates:
         }
     ObjectIdIsValidArgsTemplate: &ObjectIdIsValidArgsTemplate !!js/function >
         (lhs, arg) => {
-            this.declarations.addFunc([]
-                .concat('$isValidBSONObjectId = function ($objectId) {')
-                .concat('    $valid = true;')
-                .concat('    try {')
-                .concat('        $obj = new ObjectId($objectId);')
-                .concat('    } catch (InvalidArgumentException $e) {')
-                .concat('        $valid = false;')
-                .concat('    }')
-                .concat('    return $valid;')
-                .concat('};')
-                .join('\n'));
-        
-            return `$isValidBSONObjectId(${this.utils.stringifyWithSingleQuotes(arg)})`;
+            return `(\\ctype_xdigit(${this.utils.stringifyWithSingleQuotes(arg)}) && \\strlen(${this.utils.stringifyWithSingleQuotes(arg)}) == 24)`;
         }
     BinaryValueTemplate: &BinaryValueTemplate !!js/function >
         (lhs) => {
@@ -710,15 +687,8 @@ Templates:
         (lhs) => {
             return '';
         }
-    DBRefToStringTemplate: &DBRefToStringTemplate !!js/function >
-        () => {
-            // Can't be converted to string
-            return `''`;
-        }
-    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate !!js/function >
-        () => {
-            return '';
-        }
+    DBRefToStringTemplate: &DBRefToStringTemplate null
+    DBRefToStringArgsTemplate: &DBRefToStringArgsTemplate null
     DoubleValueOfTemplate: &DoubleValueOfTemplate null
     DoubleValueOfArgsTemplate: &DoubleValueOfArgsTemplate null
     Int32ValueOfTemplate: &Int32ValueOfTemplate null
@@ -847,7 +817,7 @@ Templates:
         }
     LongCompareTemplate: &LongCompareTemplate !!js/function >
         (lhs) => {
-            return `${lhs} -`;
+            return `${lhs} <=>`;
         }
     LongCompareArgsTemplate: &LongCompareArgsTemplate !!js/function >
         (lhs, arg) => {
@@ -1120,7 +1090,10 @@ Templates:
         () => {
             return '';
         }
-    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate null
+    LongSymbolFromBitsArgsTemplate: &LongSymbolFromBitsArgsTemplate !!js/function >
+        (lhs, arg) => {
+            return `(int) ${arg}`;
+        }
     LongSymbolFromIntTemplate: &LongSymbolFromIntTemplate !!js/function >
         () => {
             return '';
@@ -1189,9 +1162,6 @@ Templates:
     ImportTemplate: &ImportTemplate !!js/function >
         (args) => {
             let set = new Set(Object.values(args));
-            if (set.has(`use MongoDB\\BSON\\ObjectId;`)) {
-                set.add(`use MongoDB\\Driver\\Exception\\InvalidArgumentException;`);
-            }
             return [...set].sort().join('\n');
         }
     DriverImportTemplate: &DriverImportTemplate !!js/function >

@@ -86,7 +86,8 @@ tests:
                     };
                     
                     $client = new Client('mongodb://localhost:27017');
-                    $cursor = $client->selectCollection('db', 'collection')->aggregate($convertPipelineArray(['x' => 0, 'y' => new ObjectId()]));
+                    $collection = $client->selectCollection('db', 'collection');
+                    $cursor = $collection->aggregate($convertPipelineArray(['x' => 0, 'y' => new ObjectId()]));
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/
@@ -160,7 +161,6 @@ tests:
                 php: |-
                     use MongoDB\BSON\ObjectId;
                     use MongoDB\Client;
-                    use MongoDB\Driver\Exception\InvalidArgumentException;
                 ruby: require 'mongo'
                 go: |-
                   import (
@@ -243,7 +243,8 @@ tests:
                     // https://www.mongodb.com/docs/drivers/php/
 
                     $client = new Client('mongodb://localhost:27017');
-                    $cursor = $client->selectCollection('db', 'collection')->find(['x' => 0]);
+                    $collection = $client->selectCollection('db', 'collection');
+                    $cursor = $collection->find(['x' => 0]);
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/
@@ -466,7 +467,8 @@ tests:
                     // https://www.mongodb.com/docs/drivers/php/
 
                     $client = new Client('mongodb://localhost:27017');
-                    $cursor = $client->selectCollection('db', 'collection')->find(['x' => 0], [
+                    $collection = $client->selectCollection('db', 'collection');
+                    $cursor = $collection->find(['x' => 0], [
                         'projection' => ['y' => new ObjectId()],
                         'sort' => ['name' => 1],
                         'skip' => 5,
@@ -577,7 +579,6 @@ tests:
                 php: |-
                     use MongoDB\BSON\ObjectId;
                     use MongoDB\Client;
-                    use MongoDB\Driver\Exception\InvalidArgumentException;
                 ruby: require 'mongo'
                 go: |-
                   import (

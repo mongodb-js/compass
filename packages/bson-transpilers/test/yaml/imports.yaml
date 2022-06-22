@@ -61,7 +61,6 @@ tests:
             use MongoDB\BSON\ObjectId;
             use MongoDB\BSON\Timestamp;
             use MongoDB\Client;
-            use MongoDB\Driver\Exception\InvalidArgumentException;
           ruby: |-
             require 'mongo'
             require 'bson'
@@ -144,7 +143,6 @@ tests:
               } = require('mongodb');
           php: |-
             use MongoDB\BSON\ObjectId;
-            use MongoDB\Driver\Exception\InvalidArgumentException;
           ruby: require 'bson'
           go: |-
             import (
@@ -203,7 +201,6 @@ tests:
               } = require('mongodb');
           php: |-
             use MongoDB\BSON\ObjectId;
-            use MongoDB\Driver\Exception\InvalidArgumentException;
           ruby: require 'bson'
           go: |-
             import (
@@ -623,7 +620,6 @@ tests:
             use MongoDB\BSON\MinKey;
             use MongoDB\BSON\ObjectId;
             use MongoDB\BSON\Timestamp;
-            use MongoDB\Driver\Exception\InvalidArgumentException;
           ruby: require 'bson'
           go: |-
             import (

@@ -428,7 +428,7 @@ tests:
             csharp: 429496729601L - 4294967305L
             shell: new NumberLong(429496729601) - new NumberLong(4294967305)
             object: "1"
-            php: 429496729601 - 4294967305
+            php: 429496729601 <=> 4294967305
             ruby: 429496729601 - 4294967305
             go: int64(429496729601) - int64(4294967305)
             rust: 429496729601i64 - 4294967305i64
@@ -898,18 +898,7 @@ tests:
           csharp: new ObjectId("5ab901c29ee65f5c8550c5b9")
           python: ObjectId.is_valid('5ab901c29ee65f5c8550c5b9')
           object: 'true'
-          php:  |-
-              $isValidBSONObjectId = function ($objectId) {
-                  $valid = true;
-                  try {
-                      $obj = new ObjectId($objectId);
-                  } catch (InvalidArgumentException $e) {
-                      $valid = false;
-                  }
-                  return $valid;
-              };
-              
-              $isValidBSONObjectId('5ab901c29ee65f5c8550c5b9')
+          php: (\ctype_xdigit('5ab901c29ee65f5c8550c5b9') && \strlen('5ab901c29ee65f5c8550c5b9') == 24)
           ruby: BSON::ObjectId.legal?('5ab901c29ee65f5c8550c5b9')
           go: primitive.IsValidObjectID("5ab901c29ee65f5c8550c5b9")
 #    Binary-utils:
