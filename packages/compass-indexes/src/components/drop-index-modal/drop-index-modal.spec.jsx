@@ -13,13 +13,27 @@ describe('DropIndexModal [Component]', function () {
   let changeConfirmNameSpy;
   let resetFormSpy;
   let dropIndexSpy;
+
+  beforeEach(function () {
+    toggleIsVisibleSpy = sinon.spy();
+    toggleInProgressSpy = sinon.spy();
+    changeConfirmNameSpy = sinon.spy();
+    resetFormSpy = sinon.spy();
+    dropIndexSpy = sinon.spy();
+  });
+
+  afterEach(function () {
+    toggleIsVisibleSpy = null;
+    toggleInProgressSpy = null;
+    changeConfirmNameSpy = null;
+    resetFormSpy = null;
+    dropIndexSpy = null;
+    component.unmount();
+    component = null;
+  });
+
   context('when the modal is visible and names do not match', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      toggleInProgressSpy = sinon.spy();
-      changeConfirmNameSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      dropIndexSpy = sinon.spy();
       component = mount(
         <DropIndexModal
           isVisible
@@ -33,15 +47,6 @@ describe('DropIndexModal [Component]', function () {
           dropIndex={dropIndexSpy}
         />
       );
-    });
-
-    afterEach(function () {
-      toggleIsVisibleSpy = null;
-      toggleInProgressSpy = null;
-      changeConfirmNameSpy = null;
-      resetFormSpy = null;
-      dropIndexSpy = null;
-      component = null;
     });
 
     it('displays the modal', function () {
@@ -84,11 +89,6 @@ describe('DropIndexModal [Component]', function () {
 
   context('when the modal is visible and names match', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      toggleInProgressSpy = sinon.spy();
-      changeConfirmNameSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      dropIndexSpy = sinon.spy();
       component = mount(
         <DropIndexModal
           isVisible
@@ -104,15 +104,6 @@ describe('DropIndexModal [Component]', function () {
       );
     });
 
-    afterEach(function () {
-      toggleIsVisibleSpy = null;
-      toggleInProgressSpy = null;
-      changeConfirmNameSpy = null;
-      resetFormSpy = null;
-      dropIndexSpy = null;
-      component = null;
-    });
-
     context('when clicking drop', function () {
       it('drops the index', function () {
         component.find('button').at(0).hostNodes().simulate('click');
@@ -124,11 +115,6 @@ describe('DropIndexModal [Component]', function () {
 
   context('when the modal is visible and in progress', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      toggleInProgressSpy = sinon.spy();
-      changeConfirmNameSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      dropIndexSpy = sinon.spy();
       component = mount(
         <DropIndexModal
           isVisible
@@ -144,15 +130,6 @@ describe('DropIndexModal [Component]', function () {
       );
     });
 
-    afterEach(function () {
-      toggleIsVisibleSpy = null;
-      toggleInProgressSpy = null;
-      changeConfirmNameSpy = null;
-      resetFormSpy = null;
-      dropIndexSpy = null;
-      component = null;
-    });
-
     it('displays in progress message', function () {
       expect(component.find('[data-test-id="modal-message"]').text()).to.equal(
         'Drop in Progress'
@@ -161,11 +138,6 @@ describe('DropIndexModal [Component]', function () {
   });
   context('when the modal is visible and error', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      toggleInProgressSpy = sinon.spy();
-      changeConfirmNameSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      dropIndexSpy = sinon.spy();
       component = mount(
         <DropIndexModal
           isVisible
@@ -182,15 +154,6 @@ describe('DropIndexModal [Component]', function () {
       );
     });
 
-    afterEach(function () {
-      toggleIsVisibleSpy = null;
-      toggleInProgressSpy = null;
-      changeConfirmNameSpy = null;
-      resetFormSpy = null;
-      dropIndexSpy = null;
-      component = null;
-    });
-
     it('displays the error message', function () {
       expect(component.find('[data-test-id="modal-message"]').text()).to.equal(
         'test error'
@@ -199,11 +162,6 @@ describe('DropIndexModal [Component]', function () {
   });
   context('when the modal is not visible', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      toggleInProgressSpy = sinon.spy();
-      changeConfirmNameSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      dropIndexSpy = sinon.spy();
       component = mount(
         <div name="tester">
           <DropIndexModal
@@ -219,15 +177,6 @@ describe('DropIndexModal [Component]', function () {
           />
         </div>
       );
-    });
-
-    afterEach(function () {
-      toggleIsVisibleSpy = null;
-      toggleInProgressSpy = null;
-      changeConfirmNameSpy = null;
-      resetFormSpy = null;
-      dropIndexSpy = null;
-      component = null;
     });
 
     it('does not display the form', function () {
