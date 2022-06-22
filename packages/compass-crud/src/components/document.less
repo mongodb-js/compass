@@ -1,10 +1,6 @@
 .document {
   position: relative;
-  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 11px;
-  list-style: none;
   text-overflow: ellipsis;
-  white-space: nowrap;
   max-width: 100%;
 
   &::-webkit-scrollbar {
@@ -21,8 +17,7 @@
   }
 
   &-is-deleting {
-    box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
-    border: 1px solid #ef4c4c;
+    box-shadow: 0 0 0 1px #ef4c4c, 2px 5px 8px rgba(0, 0, 0, 0.2);
   }
 
   &-is-editing {

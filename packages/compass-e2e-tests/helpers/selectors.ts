@@ -505,14 +505,13 @@ export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
 export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
 export const SelectTableView = '[data-test-id="toolbar-view-table"]';
 export const SelectListView = '[data-test-id="toolbar-view-list"]';
-export const DocumentFooterMessage = '.document-footer-message';
-export const UpdateDocumentButton =
-  '.document-footer [data-test-id="update-document-button"]';
 export const CopyDocumentButton = '[data-testid="copy-document-button"]';
 export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
-export const ConfirmDeleteDocumentButton =
-  '[data-test-id="confirm-delete-document-button"]';
+export const DocumentFooter = '[data-testid="document-footer"]';
+export const DocumentFooterMessage = '[data-testid="document-footer-message"]';
+export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-button"]`;
+export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="delete-button"]`;
 
 // Insert Document modal
 
