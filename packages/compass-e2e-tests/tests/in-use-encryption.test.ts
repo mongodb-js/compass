@@ -35,7 +35,7 @@ const readSavedConnectionsFolder = async (compass: Compass) => {
 };
 
 describe('FLE2', function () {
-  describe('server version gte 4.2.20', function () {
+  describe('server version gte 4.2.20 and windows platform', function () {
     const databaseName = 'fle-test';
     const collectionName = 'my-another-collection';
     let compass: Compass;
@@ -44,7 +44,8 @@ describe('FLE2', function () {
     before(async function () {
       if (
         semver.lt(MONGODB_VERSION, '4.2.20') ||
-        process.env.MONGODB_USE_ENTERPRISE !== 'yes'
+        process.env.MONGODB_USE_ENTERPRISE !== 'yes' ||
+        process.platform !== 'win32'
       ) {
         return this.skip();
       }
