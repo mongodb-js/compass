@@ -1,5 +1,5 @@
 import MappedCompassSchemaValidation, {
-  CompassSchemaValidation
+  CompassSchemaValidation,
 } from './compass-schema-validation';
 
 export default MappedCompassSchemaValidation;

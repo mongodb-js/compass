@@ -1,47 +1,51 @@
-import reducer, {
-  editModeChanged,
-  EDIT_MODE_CHANGED
-} from './edit-mode';
+import { expect } from 'chai';
 
-describe('edit-mode module', () => {
-  describe('#editModeChanged', () => {
-    it('returns the EDIT_MODE_CHANGED action', () => {
+import reducer, { editModeChanged, EDIT_MODE_CHANGED } from './edit-mode';
+
+describe('edit-mode module', function () {
+  describe('#editModeChanged', function () {
+    it('returns the EDIT_MODE_CHANGED action', function () {
       const editMode = {
         collectionReadOnly: true,
         hadronReadOnly: false,
         writeStateStoreReadOnly: false,
-        oldServerReadOnly: false
+        oldServerReadOnly: false,
       };
 
       expect(editModeChanged(editMode)).to.deep.equal({
         type: EDIT_MODE_CHANGED,
-        editMode
+        editMode,
       });
     });
   });
 
-  describe('#reducer', () => {
-    context('when the action is not presented in edit-mode module', () => {
-      it('returns the default state', () => {
-        expect(reducer(undefined, { type: 'test' })).to.deep.equal({
-          collectionReadOnly: false,
-          hadronReadOnly: false,
-          writeStateStoreReadOnly: false,
-          oldServerReadOnly: false
+  describe('#reducer', function () {
+    context(
+      'when the action is not presented in edit-mode module',
+      function () {
+        it('returns the default state', function () {
+          expect(reducer(undefined, { type: 'test' })).to.deep.equal({
+            collectionReadOnly: false,
+            hadronReadOnly: false,
+            writeStateStoreReadOnly: false,
+            oldServerReadOnly: false,
+          });
         });
-      });
-    });
+      }
+    );
 
-    context('when the action is editModeChanged', () => {
-      it('returns the new state', () => {
+    context('when the action is editModeChanged', function () {
+      it('returns the new state', function () {
         const editMode = {
           collectionReadOnly: false,
           hadronReadOnly: false,
           writeStateStoreReadOnly: false,
-          oldServerReadOnly: true
+          oldServerReadOnly: true,
         };
 
-        expect(reducer(undefined, editModeChanged(editMode))).to.deep.equal(editMode);
+        expect(reducer(undefined, editModeChanged(editMode))).to.deep.equal(
+          editMode
+        );
       });
     });
   });
