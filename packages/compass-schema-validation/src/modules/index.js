@@ -1,12 +1,18 @@
 import { combineReducers } from 'redux';
 
-import appRegistry, { INITIAL_STATE as APP_REGISTRY_STATE } from '@mongodb-js/mongodb-redux-common/app-registry';
+import appRegistry, {
+  INITIAL_STATE as APP_REGISTRY_STATE,
+} from '@mongodb-js/mongodb-redux-common/app-registry';
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import namespace, { INITIAL_STATE as NS_INITIAL_STATE } from './namespace';
-import serverVersion, { INITIAL_STATE as SV_INITIAL_STATE } from './server-version';
+import serverVersion, {
+  INITIAL_STATE as SV_INITIAL_STATE,
+} from './server-version';
 import validation, { INITIAL_STATE as VALIDATION_STATE } from './validation';
-import sampleDocuments, { INITIAL_STATE as SAMPLE_DOCUMENTS_STATE } from './sample-documents';
+import sampleDocuments, {
+  INITIAL_STATE as SAMPLE_DOCUMENTS_STATE,
+} from './sample-documents';
 import isZeroState, { INITIAL_STATE as IS_ZERO_STATE } from './zero-state';
 import isLoaded, { INITIAL_STATE as IS_LOADED_STATE } from './is-loaded';
 import editMode, { INITIAL_STATE as EDIT_MODE_STATE } from './edit-mode';
@@ -29,7 +35,7 @@ export const INITIAL_STATE = {
   sampleDocuments: SAMPLE_DOCUMENTS_STATE,
   isZeroState: IS_ZERO_STATE,
   isLoaded: IS_LOADED_STATE,
-  editMode: EDIT_MODE_STATE
+  editMode: EDIT_MODE_STATE,
 };
 
 /**
@@ -45,7 +51,7 @@ const appReducer = combineReducers({
   sampleDocuments,
   isZeroState,
   isLoaded,
-  editMode
+  editMode,
 });
 
 /**
@@ -59,7 +65,7 @@ const doReset = () => ({ ...INITIAL_STATE });
  * The action to state modifier mappings.
  */
 const MAPPINGS = {
-  [RESET]: doReset
+  [RESET]: doReset,
 };
 
 /**

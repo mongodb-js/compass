@@ -13,7 +13,7 @@ export const DATA_SERVICE_CONNECTED = `${PREFIX}/DATA_SERVICE_CONNECTED`;
  */
 export const INITIAL_STATE = {
   error: null,
-  dataService: null
+  dataService: null,
 };
 
 /**
@@ -28,7 +28,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,
-      dataService: action.dataService
+      dataService: action.dataService,
     };
   }
 
@@ -46,5 +46,5 @@ export default function reducer(state = INITIAL_STATE, action) {
 export const dataServiceConnected = (error, dataService) => ({
   type: DATA_SERVICE_CONNECTED,
   error,
-  dataService
+  dataService,
 });
