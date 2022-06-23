@@ -45,6 +45,7 @@ describe('FLE2', function () {
       if (
         semver.lt(MONGODB_VERSION, '4.2.20') ||
         process.env.MONGODB_USE_ENTERPRISE !== 'yes' ||
+        // TODO(COMPASS-5911): Saved connections are not being displayed after disconnect on Linux CI.
         process.platform === 'linux'
       ) {
         return this.skip();
