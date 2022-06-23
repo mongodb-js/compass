@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 /*
  * Place tests that must run in a renderer context inside Electron here.
  *

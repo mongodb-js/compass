@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import databasesReducer, {
   INITIAL_STATE,
   changeDatabases,

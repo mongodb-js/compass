@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { expect } from 'chai';
 import FavoriteButton from './favorite-button';
 
 import styles from './favorite-button.module.less';

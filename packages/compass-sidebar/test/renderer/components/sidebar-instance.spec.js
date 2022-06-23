@@ -1,4 +1,5 @@
 import React from 'react';
+import { expect } from 'chai';
 import { mount } from 'enzyme';
 import SidebarInstance from '../../../src/components/sidebar-instance';
 import styles from '../../../src/components/sidebar-instance/sidebar-instance.module.less';

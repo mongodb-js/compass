@@ -1,6 +1,7 @@
 import AppRegistry from 'hadron-app-registry';
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
+import { expect } from 'chai';
 import store from './';
 import { reset } from '../modules/reset';
 import { createInstance } from '../../test/helpers';

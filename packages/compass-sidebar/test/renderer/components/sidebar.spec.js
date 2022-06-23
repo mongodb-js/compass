@@ -1,6 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import SidebarStore from '../../../src/stores';
 import Sidebar, { Sidebar as UnconnectedSidebar } from '../../../src/components/sidebar';

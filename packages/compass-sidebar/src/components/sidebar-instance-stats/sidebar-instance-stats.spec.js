@@ -1,6 +1,8 @@
 import React from 'react';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import { mount } from 'enzyme';
-
+import { expect } from 'chai';
 import SidebarInstanceStats from '../sidebar-instance-stats';
 import styles from './sidebar-instance-stats.module.less';
 

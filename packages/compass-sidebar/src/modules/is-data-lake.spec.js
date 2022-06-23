@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import reducer, {
   INITIAL_STATE,
   TOGGLE_IS_DATA_LAKE,

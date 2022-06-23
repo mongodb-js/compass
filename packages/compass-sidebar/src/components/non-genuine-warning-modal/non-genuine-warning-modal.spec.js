@@ -1,4 +1,6 @@
 import React from 'react';
+import { expect } from 'chai';
+import sinon from 'sinon';
 import { mount } from 'enzyme';
 import { Modal, Button, H3 } from '@mongodb-js/compass-components';
 import NonGenuineWarningModal from './non-genuine-warning-modal.jsx';
