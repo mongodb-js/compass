@@ -54,6 +54,7 @@ export interface ConnectFormState {
 
   // FLE2
   fleKeyVaultNamespace?: string;
+  fleStoreCredentials?: boolean;
   fleKey?: string;
   fleEncryptedFieldsMap?: string;
 
