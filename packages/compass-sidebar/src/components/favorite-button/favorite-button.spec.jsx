@@ -5,11 +5,11 @@ import FavoriteButton from './favorite-button';
 
 import styles from './favorite-button.module.less';
 
-describe('FavoriteButton [Component]', () => {
-  context('when it is a new connection', () => {
+describe('FavoriteButton [Component]', function () {
+  context('when it is a new connection', function () {
     let component;
 
-    beforeEach(() => {
+    beforeEach(function () {
       component = mount(
         <FavoriteButton
           toggleIsFavoriteModalVisible={()=>{}}
@@ -18,11 +18,11 @@ describe('FavoriteButton [Component]', () => {
       );
     });
 
-    afterEach(() => {
+    afterEach(function () {
       component = null;
     });
 
-    it('displays the the default button without star filled in', () => {
+    it('displays the the default button without star filled in', function () {
       expect(component.find(`.${styles['favorite-button']}`)).to.be.present();
       expect(component.find(`.${styles['favorite-button-text']}`)).to.be.present();
       let starStyle = component.find('#favoriteIconStar').get(0).props;
@@ -30,10 +30,10 @@ describe('FavoriteButton [Component]', () => {
     });
   });
 
-  context('when it is a saved with no color', () => {
+  context('when it is a saved with no color', function () {
     let component;
 
-    beforeEach(() => {
+    beforeEach(function () {
       component = mount(
         <FavoriteButton
           toggleIsFavoriteModalVisible={()=>{}}
@@ -45,11 +45,11 @@ describe('FavoriteButton [Component]', () => {
       );
     });
 
-    afterEach(() => {
+    afterEach(function () {
       component = null;
     });
 
-    it('displays the the filled in star', () => {
+    it('displays the the filled in star', function () {
       expect(component.find(`.${styles['favorite-button']}`)).to.be.present();
       expect(component.find(`.${styles['favorite-button-text']}`)).to.be.present();
 

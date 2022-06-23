@@ -5,14 +5,14 @@ import SidebarInstanceDetails from './sidebar-instance-details';
 
 import styles from './sidebar-instance-details.module.less';
 
-describe('SidebarInstanceDetails [Component]', () => {
-  context('when details are expanded', () => {
+describe('SidebarInstanceDetails [Component]', function () {
+  context('when details are expanded', function () {
     const isExpanded = true;
     const detailsPlugins = [];
     const isSidebarCollapsed = false;
     let component;
 
-    beforeEach(() => {
+    beforeEach(function () {
       component = shallow(
         <SidebarInstanceDetails
           isExpanded={isExpanded}
@@ -21,21 +21,21 @@ describe('SidebarInstanceDetails [Component]', () => {
       );
     });
 
-    afterEach(() => {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders details', () => {
+    it('renders details', function () {
       expect(component.find(`.${styles['sidebar-instance-details-container']}`)).to.be.present();
     });
   });
 
-  context('when details are collapsed', () => {
+  context('when details are collapsed', function () {
     const isExpanded = false;
     const detailsPlugins = [];
     let component;
 
-    beforeEach(() => {
+    beforeEach(function () {
       component = shallow(
         <SidebarInstanceDetails
           isExpanded={isExpanded}
@@ -44,11 +44,11 @@ describe('SidebarInstanceDetails [Component]', () => {
       );
     });
 
-    afterEach(() => {
+    afterEach(function () {
       component = null;
     });
 
-    it('does not render details', () => {
+    it('does not render details', function () {
       expect(component.find(`.${styles['sidebar-instance-details-container']}`)).to.be.not.present();
       expect(component.find(`.${styles['sidebar-instance-details']}`)).to.be.present();
     });

@@ -2,17 +2,16 @@ import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { mount } from 'enzyme';
-import { expect } from 'chai';
 import SidebarInstanceStats from '../sidebar-instance-stats';
 import styles from './sidebar-instance-stats.module.less';
 
-describe('SidebarInstanceStats [Component]', () => {
+describe('SidebarInstanceStats [Component]', function () {
   let component;
   let toggleSpy;
   let emitSpy;
 
-  describe('empty instance', () => {
-    beforeEach(() => {
+  describe('empty instance', function () {
+    beforeEach(function () {
       toggleSpy = sinon.spy();
       emitSpy = sinon.spy();
       component = mount(<SidebarInstanceStats
@@ -24,23 +23,23 @@ describe('SidebarInstanceStats [Component]', () => {
       />);
     });
 
-    afterEach(() => {
+    afterEach(function () {
       toggleSpy = null;
       emitSpy = null;
       component = null;
     });
 
-    it('counts collections correctly', () => {
+    it('counts collections correctly', function () {
       expect(component.find('#sidebar-instance-stats-collections')).to.have.text('-');
     });
 
-    it('counts dbs correctly', () => {
+    it('counts dbs correctly', function () {
       expect(component.find('#sidebar-instance-stats-dbs')).to.have.text('-');
     });
   });
 
-  describe('nonempty instance', () => {
-    beforeEach(() => {
+  describe('nonempty instance', function () {
+    beforeEach(function () {
       toggleSpy = sinon.spy();
       emitSpy = sinon.spy();
       component = mount(
@@ -60,21 +59,21 @@ describe('SidebarInstanceStats [Component]', () => {
       );
     });
 
-    afterEach(() => {
+    afterEach(function () {
       component = null;
     });
 
-    it('counts collections correctly', () => {
+    it('counts collections correctly', function () {
       expect(component.find('#sidebar-instance-stats-collections')).to.have.text('5');
     });
 
-    it('counts dbs correctly', () => {
+    it('counts dbs correctly', function () {
       expect(component.find('#sidebar-instance-stats-dbs')).to.have.text('3');
     });
   });
 
-  describe('nonempty instance', () => {
-    beforeEach(() => {
+  describe('ready instance', function () {
+    beforeEach(function () {
       toggleSpy = sinon.spy();
       emitSpy = sinon.spy();
       component = mount(
@@ -90,13 +89,13 @@ describe('SidebarInstanceStats [Component]', () => {
       );
     });
 
-    afterEach(() => {
+    afterEach(function () {
       toggleSpy = null;
       emitSpy = null;
       component = null;
     });
 
-    it('refreshes', () => {
+    it('refreshes', function () {
       component.find(`.${styles['sidebar-instance-stats-refresh-button']}`).simulate('click');
       expect(emitSpy.calledWith('refresh-data')).to.equal(true);
     });

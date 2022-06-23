@@ -4,11 +4,11 @@ import { mount } from 'enzyme';
 import SidebarInstance from '../../../src/components/sidebar-instance';
 import styles from '../../../src/components/sidebar-instance/sidebar-instance.module.less';
 
-describe('SidebarInstance [Component]', () => {
+describe.skip('SidebarInstance [Component]', function () {
   let component;
 
-  describe('empty instance', () => {
-    beforeEach(() => {
+  describe('empty instance', function () {
+    beforeEach(function () {
       component = mount(<SidebarInstance
         instance={{databases: null, collections: null}}
         isExpanded
@@ -27,11 +27,11 @@ describe('SidebarInstance [Component]', () => {
       />);
     });
 
-    afterEach(() => {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the container', () => {
+    it('renders the container', function () {
       expect(component.find(`.${styles['sidebar-instance']}`)).to.exist;
     });
   });

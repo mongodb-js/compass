@@ -83,6 +83,7 @@ class Sidebar extends PureComponent {
       this.updateWidth(this.state.prevWidth);
     }
 
+    // eslint-disable-next-line react/no-string-refs
     this.refs.filter.focus();
   }
 
@@ -145,6 +146,7 @@ class Sidebar extends PureComponent {
     const collapsedButton = 'fa' +
       (isExpanded ? ' fa-caret-left' : ' fa-caret-right');
 
+    /* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, react/no-string-refs */
     return (
       <div
         className={classnames(styles['compass-sidebar'], {
@@ -217,6 +219,7 @@ class Sidebar extends PureComponent {
         />
       </div>
     );
+    /* eslint-enable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, react/no-string-refs */
   }
 }
 

@@ -57,6 +57,7 @@ const SidebarTitle = ({
   onClick
 }) => {
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div
       className={classnames(styles['sidebar-title'], {
         [styles['sidebar-title-is-active']]: activeNamespace === NO_ACTIVE_NAMESPACE
