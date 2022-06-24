@@ -53,14 +53,6 @@ tests:
                 Double,
                 BSONRegExp
               } = require('bson');
-          php: |-
-            use MongoDB\BSON\Decimal128;
-            use MongoDB\BSON\Javascript;
-            use MongoDB\BSON\MaxKey;
-            use MongoDB\BSON\MinKey;
-            use MongoDB\BSON\ObjectId;
-            use MongoDB\BSON\Timestamp;
-            use MongoDB\Client;
           ruby: |-
             require 'mongo'
             require 'bson'
@@ -494,7 +486,8 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
-          php: ''
+          php: |-
+            use MongoDB\BSON\UTCDateTime;
           ruby: ''
           go: |-
             import (
@@ -517,7 +510,8 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
-          php: ''
+          php: |-
+            use MongoDB\BSON\UTCDateTime;
           ruby: ''
           go: |-
             import (
@@ -539,7 +533,8 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
-          php: ''
+          php: |-
+            use MongoDB\BSON\UTCDateTime;
           ruby: ''
           go: |-
             import (
@@ -620,6 +615,7 @@ tests:
             use MongoDB\BSON\MinKey;
             use MongoDB\BSON\ObjectId;
             use MongoDB\BSON\Timestamp;
+            use MongoDB\BSON\UTCDateTime;
           ruby: require 'bson'
           go: |-
             import (

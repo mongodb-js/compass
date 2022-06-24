@@ -802,7 +802,7 @@ tests:
           csharp: new DateTime(1970, 1, 1).AddSeconds(new BsonTimestamp(1, 100).Timestamp)
           shell: new Date(new Timestamp(1, 100).getHighBits() * 1000)
           object: "new Date('1970-01-01T00:01:40.000Z')"
-          php: (new \DateTime('1970-1-1', new \DateTimeZone('UTC')))->setTimestamp((new Timestamp(100, 1))->getTimestamp())
+          php: new UTCDateTime((new Timestamp(100, 1))->getTimestamp() * 1000)
           ruby: Time.at(BSON::Timestamp.new(1, 100).increment).utc
           go: "time.Unix(primitive.Timestamp{T: 1, I: 100}.T, 0)"
           rust: "DateTime::from_millis(Timestamp { time: 1, increment: 100 }.time)"
@@ -875,7 +875,7 @@ tests:
           shell: ObjectId.fromDate(new Date('Thu, 03 Feb 1972 00:00:00 GMT'))
           # TODO: fix? this previously called ObjectId.createFromTime with a Date, but that function does not actually take a Date argument
           # object: new ObjectId('03ede8800000000000000000')
-          php: new ObjectId(\str_pad(\dechex((new \DateTime('1972-02-03 00:00:00', new \DateTimeZone('UTC')))->getTimestamp()), 24, '0'))
+          php: new ObjectId(\str_pad(\bin2hex(\pack('N', (new UTCDateTime(65923200000))->toDateTime()->getTimestamp())), 24, '0'))
           ruby: BSON::ObjectId.from_time(Time.utc(1972, 2, 3, 0, 0, 0))
     - input:
           javascript: ObjectId.createFromTime(1522075031)
@@ -886,7 +886,7 @@ tests:
           csharp: new ObjectId.GenerateNewId(Convert.ToInt32(1522075031))
           python: ObjectId.from_datetime(datetime.fromtimestamp(1522075031))
           object: new ObjectId('62bdd85a0000000000000000')
-          php: new ObjectId(\str_pad(\dechex(1522075031), 24, '0'))
+          php: new ObjectId(\str_pad(\bin2hex(\pack('N', 1522075031)), 24, '0'))
           ruby: BSON::ObjectId.from_time(Time.at(1522075031))
           go: primitive.NewObjectIDFromTimestamp(time.Unix(1522075031, int64(0)))
     - input:

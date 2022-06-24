@@ -1405,7 +1405,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: "new Date()"
-          php: new \DateTime('now', new \DateTimeZone('UTC'))
+          php: new UTCDateTime()
           ruby: Time.new.utc
           rust: DateTime::now()
           go: time.Now()
@@ -1420,7 +1420,7 @@ tests:
           java: new java.util.Date().getTime()
           csharp: DateTime.Now
           object: "1" # just checks type and not value
-          php: new \DateTime('now', new \DateTimeZone('UTC'))
+          php: new UTCDateTime()
           ruby: Time.now.utc
           rust: "DateTime::now()"
           go: time.Now()
@@ -1435,7 +1435,7 @@ tests:
           java: new java.util.Date(819158400000L)
           csharp: new DateTime(1995, 12, 17, 0, 0, 0)
           object: new Date(1995, 11, 17)
-          php: new \DateTime('1995-12-17 00:00:00', new \DateTimeZone('UTC'))
+          php: new UTCDateTime(819158400000)
           ruby: Time.utc(1995, 12, 17, 0, 0, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T00:00:00.000Z")?
           go: time.Date(1995, 12, 17, 0, 0, 0, 0, time.UTC)
@@ -1450,7 +1450,7 @@ tests:
           java: new java.util.Date(819170640000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           object: new Date(1995, 11, 17, 3, 24)
-          php: new \DateTime('1995-12-17 03:24:00', new \DateTimeZone('UTC'))
+          php: new UTCDateTime(819170640000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1465,7 +1465,7 @@ tests:
           java: new java.util.Date(819170695000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 55)
           object: new Date('Sun, 17 Dec 1995 03:24:55 GMT')
-          php: new \DateTime('1995-12-17 03:24:55', new \DateTimeZone('UTC'))
+          php: new UTCDateTime(819170695000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 55)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:55.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 55, 0, time.UTC)
@@ -1479,7 +1479,7 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          php: new \DateTime('1995-12-17 03:24:00', new \DateTimeZone('UTC'))
+          php: new UTCDateTime(819170640000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1493,7 +1493,7 @@ tests:
           java: new java.util.Date(819167040000L)
           csharp: new DateTime(1995, 12, 17, 2, 24, 0)
           object: new Date(819167040000)
-          php: new \DateTime('1995-12-17 02:24:00', new \DateTimeZone('UTC'))
+          php: new UTCDateTime(819167040000)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T02:24:00.000Z")?
           go: time.Date(1995, 12, 17, 2, 24, 0, 0, time.UTC)
@@ -1508,7 +1508,7 @@ tests:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          php: (new \DateTime('1995-12-17 03:24:00', new \DateTimeZone('UTC')))->format('D M d Y H:i:s e')
+          php: (new UTCDateTime(819170640000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?.to_rfc3339_string()
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1522,7 +1522,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819167040000L))
           csharp: new DateTime(1995, 12, 17, 2, 24, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(819167040000)
-          php: (new \DateTime('1995-12-17 02:24:00', new \DateTimeZone('UTC')))->format('D M d Y H:i:s e')
+          php: (new UTCDateTime(819167040000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
           rust: DateTime::parse_rfc3339_str("1995-12-17T02:24:00.000Z")?.to_rfc3339_string()
           go: time.Date(1995, 12, 17, 2, 24, 0, 0, time.UTC)
@@ -1536,7 +1536,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819158400000L))
           csharp: new DateTime(1995, 12, 17, 0, 0, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(1995, 11, 17)
-          php: (new \DateTime('1995-12-17 00:00:00', new \DateTimeZone('UTC')))->format('D M d Y H:i:s e')
+          php: (new UTCDateTime(819158400000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
           ruby: Time.utc(1995, 12, 17, 0, 0, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
           rust: DateTime::parse_rfc3339_str("1995-12-17T00:00:00.000Z")?.to_rfc3339_string()
           go: time.Date(1995, 12, 17, 0, 0, 0, 0, time.UTC)
@@ -1549,7 +1549,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          php: new \DateTime('1995-12-17 03:24:00', new \DateTimeZone('UTC'))
+          php: new UTCDateTime(819170640000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1561,7 +1561,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
-          php: new \DateTime('1995-12-17 03:24:00', new \DateTimeZone('UTC'))
+          php: new UTCDateTime(819170640000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1574,7 +1574,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: new Date()
-          php: new \DateTime('now', new \DateTimeZone('UTC'))
+          php: new UTCDateTime()
           ruby: Time.new.utc
           rust: DateTime::now()
           go: time.Now()
@@ -1587,7 +1587,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: "new Date()"
-          php: new \DateTime('now', new \DateTimeZone('UTC'))
+          php: new UTCDateTime()
           ruby: Time.new.utc
           rust: DateTime::now()
           go: time.Now()

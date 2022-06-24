@@ -76,18 +76,9 @@ tests:
                     // Requires the MongoDB PHP Driver
                     // https://www.mongodb.com/docs/drivers/php/
 
-                    $convertPipelineArray = function ($aggregationData) {
-                        return array_map(function ($key, $value) {
-                                return [$key => $value];
-                            },
-                            array_keys($aggregationData),
-                            $aggregationData
-                        );
-                    };
-                    
                     $client = new Client('mongodb://localhost:27017');
                     $collection = $client->selectCollection('db', 'collection');
-                    $cursor = $collection->aggregate($convertPipelineArray(['x' => 0, 'y' => new ObjectId()]));
+                    $cursor = $collection->aggregate([(object) ['x' => 0, 'y' => new ObjectId()]]);
                 ruby: |-
                     # Requires the MongoDB Ruby Driver
                     # https://docs.mongodb.com/ruby-driver/master/

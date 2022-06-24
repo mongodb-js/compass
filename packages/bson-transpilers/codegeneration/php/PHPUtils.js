@@ -24,6 +24,19 @@ class PHPUtils {
    * @param {string|undefined} str - String with PHP representation of variable
    * @returns {string} - Parsed string
    */
+  toPHPArray(str) {
+    str = this.convertToString(str);
+    if (str.length > 0 && str.charAt(0) != '[') {
+      str = `[${str}]`;
+    }
+    return str;
+  };
+
+  /**
+   * Removing Object casting of PHP variable
+   * @param {string|undefined} str - String with PHP representation of variable
+   * @returns {string} - Parsed string
+   */
   removePHPObject(str) {
     str = this.convertToString(str);
     if (str.indexOf('(object) ') === 0) {

@@ -218,7 +218,7 @@ tests:
           java: java.util.Date
           csharp: DateTime
           shell: Date
-          php: \DateTime
+          php: UTCDateTime
           ruby: Time
           go: time.Date
           rust: DateTime

@@ -66,25 +66,12 @@ Templates:
             const collection = `$collection = $client->selectCollection('${options.database}', '${options.collection}');`;
 
             if ('aggregation' in spec) {
-                let convertFunction = []
-                    .concat('$convertPipelineArray = function ($aggregationData) {')
-                    .concat('    return array_map(function ($key, $value) {')
-                    .concat('            return [$key => $value];')
-                    .concat('        },')
-                    .concat('        array_keys($aggregationData),')
-                    .concat('        $aggregationData')
-                    .concat('    );')
-                    .concat('};')
-                    .join('\n')
-                ;
                 return []
                     .concat(comment)
                     .concat('')
-                    .concat(convertFunction)
-                    .concat('')
                     .concat(client)
                     .concat(collection)
-                    .concat(`$cursor = $collection->aggregate($convertPipelineArray(${this.utils.removePHPObject(spec.aggregation)}));`)
+                    .concat(`$cursor = $collection->aggregate(${this.utils.toPHPArray(spec.aggregation)});`)
                     .join('\n')
                 ;
             }
@@ -532,36 +519,21 @@ Templates:
         }
     DateSymbolTemplate: &DateSymbolTemplate !!js/function >
         () => {
-            return '\\DateTime';
+            return 'UTCDateTime';
         }
     DateSymbolArgsTemplate: &DateSymbolArgsTemplate !!js/function >
         (lhs, date, isString) => {
             if (date === null) {
-                return `new ${lhs}('now', new \\DateTimeZone('UTC'))`;
+                return `new ${lhs}()`;
             }
-        
-            const dateData = [
-                date.getUTCFullYear(),
-                (date.getUTCMonth() + 1).toString().length == 1 ? ['0', date.getUTCMonth() + 1].join('') : date.getUTCMonth() + 1,
-                (date.getUTCDate()).toString().length == 1 ? ['0', date.getUTCDate()].join('') : date.getUTCDate()
-            ].join('-');
-        
-            const timeData = [
-                (date.getUTCHours()).toString().length == 1 ? ['0', date.getUTCHours()].join('') : date.getUTCHours(),
-                (date.getUTCMinutes()).toString().length == 1 ? ['0', date.getUTCMinutes()].join('') : date.getUTCMinutes(),
-                (date.getUTCSeconds()).toString().length == 1 ? ['0', date.getUTCSeconds()].join('') : date.getUTCSeconds()
-            ].join(':');
-        
-            const dateStr = dateData + ' ' + timeData;
-
             return isString 
-                ? `(new ${lhs}('${dateStr}', new \\DateTimeZone('UTC')))->format('D M d Y H:i:s e')`
-                : `new ${lhs}('${dateStr}', new \\DateTimeZone('UTC'))`
+                ? `(new ${lhs}(${date.getTime()}))->toDateTime()->format(\\DateTimeInterface::RFC3339_EXTENDED)`
+                : `new ${lhs}(${date.getTime()})`
             ;
         }
     DateSymbolNowTemplate: &DateSymbolNowTemplate !!js/function >
         () => {
-            return `new \\DateTime('now', new \\DateTimeZone('UTC'))`;
+            return `new UTCDateTime()`;
         }
     DateSymbolNowArgsTemplate: &DateSymbolNowArgsTemplate !!js/function >
         (args) => {
@@ -955,8 +927,7 @@ Templates:
         }
     TimestampAsDateTemplate: &TimestampAsDateTemplate !!js/function >
         (lhs) => {
-            return `(new \\DateTime('1970-1-1', new \\DateTimeZone('UTC')))->setTimestamp((${lhs})->getTimestamp())`;
-            return `(new \\DateTime('1970-1-1', new \\DateTimeZone('UTC')))->setTimestamp((${lhs})->getTimestamp())->format('D M d Y H:i:s e')`;
+            return `new UTCDateTime((${lhs})->getTimestamp() * 1000)`;
         }
     TimestampAsDateArgsTemplate: &TimestampAsDateArgsTemplate null
     TimestampCompareTemplate: &TimestampCompareTemplate !!js/function >
@@ -1139,9 +1110,9 @@ Templates:
     ObjectIdCreateFromTimeArgsTemplate: &ObjectIdCreateFromTimeArgsTemplate !!js/function >
         (lhs, arg, isNumber) => {
             if (!isNumber) {
-                return `(\\str_pad(\\dechex((${arg})->getTimestamp()), 24, '0'))`;
+                return `(\\str_pad(\\bin2hex(\\pack('N', (${arg})->toDateTime()->getTimestamp())), 24, '0'))`;
             }
-            return `(\\str_pad(\\dechex(${arg}), 24, '0'))`;
+            return `(\\str_pad(\\bin2hex(\\pack('N', ${arg})), 24, '0'))`;
         }
     # non bson-specific would go here, but there aren't any atm.
 
@@ -1229,7 +1200,10 @@ Templates:
         }
     113ImportTemplate: &113ImportTemplate null
     114ImportTemplate: &114ImportTemplate null
-    200ImportTemplate: &200ImportTemplate null
+    200ImportTemplate: &200ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\UTCDateTime;`;
+        }
     201ImportTemplate: &201ImportTemplate null
     300ImportTemplate: &300ImportTemplate null
     301ImportTemplate: &301ImportTemplate null
