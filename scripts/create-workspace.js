@@ -186,6 +186,7 @@ async function main(argv) {
 
   const pkgJson = {
     name: dirToScopedPackageName(name),
+    productName: `${name} Plugin`,
     ...(description && { description }),
     author: {
       name: 'MongoDB Inc',
