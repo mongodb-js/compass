@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import {
   getSource,
   getSourceName,
@@ -31,50 +33,50 @@ const TIME_SERIES = {
 
 const COLLECTIONS = [ COLL, VIEW, VIEW_ON_VIEW, TIME_SERIES ];
 
-describe('collection module', () => {
-  describe('#getSource', () => {
-    context('when the name matches', () => {
-      it('returns the source', () => {
+describe('collection module', function () {
+  describe('#getSource', function () {
+    context('when the name matches', function () {
+      it('returns the source', function () {
         expect(getSource('testView', COLLECTIONS)._id).to.equal('db.testView');
       });
     });
 
-    context('when the name does not match', () => {
-      it('returns undefined', () => {
+    context('when the name does not match', function () {
+      it('returns undefined', function () {
         expect(getSource('notFound', COLLECTIONS)).to.equal(undefined);
       });
     });
   });
 
-  describe('#getSourceName', () => {
-    context('when the collection is a view', () => {
-      it('returns the source name', () => {
+  describe('#getSourceName', function () {
+    context('when the collection is a view', function () {
+      it('returns the source name', function () {
         expect(getSourceName(VIEW.readonly, 'db', 'testView')).to.equal('db.testView');
       });
     });
 
-    context('when the collection is not a view', () => {
-      it('returns null', () => {
+    context('when the collection is not a view', function () {
+      it('returns null', function () {
         expect(getSourceName(COLL.readonly)).to.equal(null);
       });
     });
 
-    context('when the collection is readonly but not a view', () => {
-      it('returns null', () => {
+    context('when the collection is readonly but not a view', function () {
+      it('returns null', function () {
         expect(getSourceName(true, 'db', undefined)).to.equal(null);
       });
     });
   });
 
-  describe('#getSourceViewOn', () => {
-    context('when the source is a view', () => {
-      it('returns the view namespace', () => {
+  describe('#getSourceViewOn', function () {
+    context('when the source is a view', function () {
+      it('returns the view namespace', function () {
         expect(getSourceViewOn('db', VIEW)).to.equal('db.test');
       });
     });
 
-    context('when the source is not a view', () => {
-      it('returns null', () => {
+    context('when the source is not a view', function () {
+      it('returns null', function () {
         expect(getSourceViewOn('db')).to.equal(null);
       });
     });

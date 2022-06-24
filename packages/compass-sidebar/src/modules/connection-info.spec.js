@@ -7,7 +7,7 @@ import reducer, {
   updateAndSaveConnectionInfo
 } from './connection-info';
 
-describe('connection info module', () => {
+describe('connection info module', function () {
   const connectionInfoNotFavorite = {
     connectionOptions: {
       connectionString: 'mongodb://outerspace:27000'
@@ -15,16 +15,16 @@ describe('connection info module', () => {
     id: '123'
   };
 
-  describe('reducer', () => {
-    context('when the action is changeConnectionInfo', () => {
-      it('returns the new state', () => {
+  describe('reducer', function () {
+    context('when the action is changeConnectionInfo', function () {
+      it('returns the new state', function () {
         expect(reducer(undefined, changeConnectionInfo(connectionInfoNotFavorite))).to.deep.equal({
           connectionInfo: connectionInfoNotFavorite,
           connectionStorage: {}
         });
       });
 
-      it('does not call the connection storage to save', () => {
+      it('does not call the connection storage to save', function () {
         const saveSpy = sinon.spy();
         reducer({
           connectionStorage: {
@@ -36,8 +36,8 @@ describe('connection info module', () => {
       });
     });
 
-    context('when the action is updateAndSaveConnectionInfo', () => {
-      it('returns the new state', () => {
+    context('when the action is updateAndSaveConnectionInfo', function () {
+      it('returns the new state', function () {
         const newConnection = updateAndSaveConnectionInfo({
           ...connectionInfoNotFavorite,
           favorite: {
@@ -47,7 +47,7 @@ describe('connection info module', () => {
         });
         const state = reducer({
           connectionStorage: {
-            save: () => {}
+            save: function () {}
           }
         }, newConnection);
 
@@ -55,7 +55,7 @@ describe('connection info module', () => {
         expect(state.connectionInfo.favorite.color).to.equal('#d4366e');
       });
 
-      it('calls to save the connection info in the connection storage', () => {
+      it('calls to save the connection info in the connection storage', function () {
         const newConnection = updateAndSaveConnectionInfo(
           {
             ...connectionInfoNotFavorite,
@@ -86,8 +86,8 @@ describe('connection info module', () => {
       });
     });
 
-    context('when an action is not provided', () => {
-      it('returns the default state', () => {
+    context('when an action is not provided', function () {
+      it('returns the default state', function () {
         expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
       });
     });
