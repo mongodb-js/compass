@@ -21,75 +21,103 @@ const gridStyles = css({
 });
 
 const docsLinkContainerStyles = css({
-  gridArea: 'docsLink',
   paddingRight: spacing[2],
   whiteSpace: 'nowrap',
   display: 'flex',
   justifyContent: 'flex-end',
 });
 
-const queryDocsLinkStyles = css({
-  flexShrink: 0,
+const numericEditorsGridAreaStyles = css({
+  gridArea: 'rest',
+  display: 'flex',
+  gap: `0px ${spacing[2]}px`,
 });
+
+const COLUMNS = 6;
+
+const cells = (area: string, n: number) => {
+  return Array(n).fill(area).join(' ');
+};
+
+const toTemplateArea = (rows: string[]) => {
+  return rows
+    .filter(Boolean)
+    .map((row) => `'${row}'`)
+    .join('\n');
+};
 
 export function getGridTemplateForQueryOptions(
   queryOptions: QueryOption[]
 ): string {
-  const documentEditorOptionsToDisplay = (
-    Object.keys(OPTION_DEFINITION) as QueryOption[]
-  ).filter(
-    (queryOption: QueryOption) =>
-      queryOption !== 'filter' &&
-      OPTION_DEFINITION[queryOption].type === 'document' &&
-      queryOptions.includes(queryOption)
-  );
+  const documentEditors = Object.values(OPTION_DEFINITION).filter((opt) => {
+    return (
+      opt.name !== 'filter' &&
+      queryOptions.includes(opt.name) &&
+      opt.type === 'document'
+    );
+  });
 
-  const numericEditorOptionsToDisplay = (
-    Object.keys(OPTION_DEFINITION) as QueryOption[]
-  ).filter(
-    (queryOption: QueryOption) =>
-      OPTION_DEFINITION[queryOption].type === 'numeric' &&
-      queryOptions.includes(queryOption)
-  );
+  const numericEditors = Object.values(OPTION_DEFINITION).filter((opt) => {
+    return queryOptions.includes(opt.name) && opt.type === 'numeric';
+  });
 
-  const documentEditorCount = documentEditorOptionsToDisplay.length;
-  const numericEditorCount = numericEditorOptionsToDisplay.length;
-
-  if (documentEditorCount === 0) {
-    // One row, all numeric editors.
-    return `'${numericEditorOptionsToDisplay.join(' ')} docsLink'`;
-  } else if (documentEditorCount === 1) {
-    if (numericEditorCount > 0) {
-      return `
-  '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]}'
-  '. . skip limit maxTimeMS docsLink'
-`;
-    }
-
-    // One row, only a document editor.
-    return `
-  '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} docsLink'
-`;
-  } else if (documentEditorCount === 2) {
-    // Two rows, document editors and numeric editors.
-    if (numericEditorCount > 0) {
-      return `
-  '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]}'
-  '. . skip limit maxTimeMS docsLink'
-`;
-    }
-
-    // No numeric editors, just document editors.
-    return `
-  '${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]} ${documentEditorOptionsToDisplay[0]}'
-  '${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} ${documentEditorOptionsToDisplay[1]} docsLink'
-`;
+  // If there are no document editors, numeric options and link take
+  // all the space of one row.
+  if (documentEditors.length === 0) {
+    return toTemplateArea([cells('rest', COLUMNS)]);
   }
 
-  return `
-  'project project project sort sort sort'
-  'collation collation skip limit maxTimeMS docsLink'
-`;
+  // When there are no numeric options, we want link to be last cell in
+  // last row.
+  if (numericEditors.length === 0) {
+    const lastDocumentEditor = documentEditors.pop();
+    const linkRow = `${cells(lastDocumentEditor!.name, COLUMNS - 1)} rest`;
+    const rows = [
+      documentEditors
+        // First row will have either 1 or 2 cells evenly distributed in 6
+        // available columns
+        .map((option) => {
+          return cells(option.name, COLUMNS / documentEditors.length);
+        })
+        .join(' '),
+      linkRow,
+    ];
+    return toTemplateArea(rows);
+  }
+
+  // For every other case we will do some special handling where numeric inputs
+  // will take 3 to 4 cells based on the amount of inputs provided and will
+  // always be on the end of the second row and document inputs adjust
+  // around that.
+  const numericCellsLength = numericEditors.length > 2 ? 4 : 3;
+  const freeCellsLength = COLUMNS - numericCellsLength;
+  const numericCells = cells('rest', numericCellsLength);
+
+  // If there is more than two editors in total, move last one to the next row.
+  if (documentEditors.length > 2) {
+    const lastDocumentEditor = documentEditors.pop();
+    const rows = [
+      documentEditors
+        .map((option) => {
+          return cells(option.name, COLUMNS / documentEditors.length);
+        })
+        .join(' '),
+      `${cells(lastDocumentEditor!.name, freeCellsLength)} ${numericCells}`,
+    ];
+    return toTemplateArea(rows);
+  }
+
+  // Otherwise keep numeric cells on the last row separately from document
+  // editors.
+  const rows = [
+    documentEditors
+      .map((option) => {
+        return cells(option.name, COLUMNS / documentEditors.length);
+      })
+      .join(' '),
+    `${cells('.', freeCellsLength)} ${numericCells}`,
+  ];
+  return toTemplateArea(rows);
 }
 
 type QueryOptionsGridProps = {
@@ -117,6 +145,29 @@ export const QueryOptionsGrid: React.FunctionComponent<QueryOptionsGridProps> =
       [queryOptions]
     );
 
+    const documentEditors = useMemo(
+      () =>
+        Object.values(OPTION_DEFINITION)
+          .filter((opt) => {
+            return (
+              opt.name !== 'filter' &&
+              queryOptions.includes(opt.name) &&
+              opt.type === 'document'
+            );
+          })
+          .map((optionDefinition) => optionDefinition.name),
+      [queryOptions]
+    );
+    const numericEditors = useMemo(
+      () =>
+        Object.values(OPTION_DEFINITION)
+          .filter((opt) => {
+            return queryOptions.includes(opt.name) && opt.type === 'numeric';
+          })
+          .map((optionDefinition) => optionDefinition.name),
+      [queryOptions]
+    );
+
     return (
       <div
         className={gridStyles}
@@ -124,11 +175,11 @@ export const QueryOptionsGrid: React.FunctionComponent<QueryOptionsGridProps> =
           gridTemplateAreas,
         }}
       >
-        {queryOptions.map((optionName: QueryOption) => (
+        {documentEditors.map((optionName: QueryOption) => (
           <QueryOptionComponent
             gridArea={optionName}
             hasError={!queryOptionProps[`${optionName}Valid`]}
-            key={`query-option-${optionName}`}
+            key={`document-query-option-${optionName}`}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
             onApply={onApply}
             placeholder={
@@ -142,14 +193,34 @@ export const QueryOptionsGrid: React.FunctionComponent<QueryOptionsGridProps> =
             value={queryOptionProps[`${optionName}String`]}
           />
         ))}
-        <div className={docsLinkContainerStyles}>
-          <Link
-            className={queryDocsLinkStyles}
-            href="https://docs.mongodb.com/compass/current/query/filter/"
-            target="_blank"
-          >
-            Learn more
-          </Link>
+        <div className={numericEditorsGridAreaStyles}>
+          {numericEditors.map((optionName: QueryOption) => (
+            <QueryOptionComponent
+              hasError={!queryOptionProps[`${optionName}Valid`]}
+              key={`numeric-query-option-${optionName}`}
+              onChange={(value: string) =>
+                onChangeQueryOption(optionName, value)
+              }
+              onApply={onApply}
+              placeholder={
+                queryOptionProps[`${optionName}Placeholder`] ||
+                OPTION_DEFINITION[optionName].placeholder
+              }
+              queryOption={optionName}
+              refreshEditorAction={refreshEditorAction}
+              schemaFields={schemaFields}
+              serverVersion={serverVersion}
+              value={queryOptionProps[`${optionName}String`]}
+            />
+          ))}
+          <div className={docsLinkContainerStyles}>
+            <Link
+              href="https://docs.mongodb.com/compass/current/query/filter/"
+              target="_blank"
+            >
+              Learn more
+            </Link>
+          </div>
         </div>
       </div>
     );

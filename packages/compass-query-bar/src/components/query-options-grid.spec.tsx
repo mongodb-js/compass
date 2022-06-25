@@ -74,9 +74,9 @@ describe('OptionGrid Component', function () {
   describe('#getGridTemplateForQueryOptions', function () {
     it('returns a grid template for a single document editor', function () {
       const gridTemplate = getGridTemplateForQueryOptions(['project']);
-      expect(gridTemplate).to.equal(`
-  'project project project project project docsLink'
-`);
+      expect(gridTemplate).to.equal(
+        `'project project project project project rest'`
+      );
     });
 
     it('returns a grid template for a double document editor', function () {
@@ -87,18 +87,15 @@ describe('OptionGrid Component', function () {
         'limit',
         'maxTimeMS',
       ]);
-      expect(gridTemplate).to.equal(`
-  'project project project sort sort sort'
-  '. . skip limit maxTimeMS docsLink'
-`);
+      expect(gridTemplate).to.equal(`'project project project sort sort sort'
+'. . rest rest rest rest'`);
     });
 
     it('returns a grid template for a double document editor without numerics', function () {
       const gridTemplate = getGridTemplateForQueryOptions(['project', 'sort']);
-      expect(gridTemplate).to.equal(`
-  'project project project project project project'
-  'sort sort sort sort sort docsLink'
-`);
+      expect(gridTemplate).to
+        .equal(`'project project project project project project'
+'sort sort sort sort sort rest'`);
     });
 
     it('returns a grid template for a triple document editor', function () {
@@ -107,18 +104,14 @@ describe('OptionGrid Component', function () {
         'sort',
         'collation',
       ]);
-      expect(gridTemplate).to.equal(`
-  'project project project sort sort sort'
-  'collation collation skip limit maxTimeMS docsLink'
-`);
+      expect(gridTemplate).to.equal(`'project project project sort sort sort'
+'collation collation collation collation collation rest'`);
     });
 
     it('returns a grid template for the default options', function () {
       const gridTemplate = getGridTemplateForQueryOptions(defaultQueryOptions);
-      expect(gridTemplate).to.equal(`
-  'project project project sort sort sort'
-  'collation collation skip limit maxTimeMS docsLink'
-`);
+      expect(gridTemplate).to.equal(`'project project project sort sort sort'
+'collation collation rest rest rest rest'`);
     });
 
     it('returns a grid template for the numeric options', function () {
@@ -127,7 +120,7 @@ describe('OptionGrid Component', function () {
         'skip',
         'maxTimeMS',
       ]);
-      expect(gridTemplate).to.equal(`'skip limit maxTimeMS docsLink'`);
+      expect(gridTemplate).to.equal(`'rest rest rest rest rest rest'`);
     });
   });
 
