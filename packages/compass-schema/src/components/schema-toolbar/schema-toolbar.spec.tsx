@@ -99,6 +99,7 @@ describe('SchemaToolbar', function () {
         'An error occurred during schema analysis: test error msg'
       )
     ).to.be.visible;
+    expect(screen.getByTestId('schema-toolbar-error-message')).to.be.visible;
   });
 
   it('does not render errors when the analysis state is not error', function () {
@@ -111,6 +112,7 @@ describe('SchemaToolbar', function () {
         'An error occurred during schema analysis: test error msg'
       )
     ).to.not.exist;
+    expect(screen.queryByTestId('schema-toolbar-error-message')).to.not.exist;
   });
 
   it('renders an export to language button', function () {

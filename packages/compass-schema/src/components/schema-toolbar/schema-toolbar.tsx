@@ -150,7 +150,10 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
         )}
       </div>
       {analysisState === ANALYSIS_STATE_ERROR && (
-        <ErrorSummary errors={[`${ERROR_WARNING}: ${errorMessage}`]} />
+        <ErrorSummary
+          data-testid="schema-toolbar-error-message"
+          errors={[`${ERROR_WARNING}: ${errorMessage}`]}
+        />
       )}
       {analysisState === ANALYSIS_STATE_TIMEOUT && (
         <WarningSummary warnings={[INCREASE_MAX_TIME_MS_HINT_MESSAGE]} />
