@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import DocumentFooter from '../document-footer';
-import RemoveDocumentFooter from '../remove-document-footer';
+import { DocumentList } from '@mongodb-js/compass-components';
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
@@ -92,25 +91,32 @@ class FullWidthCellRenderer extends React.Component {
   }
 
   render() {
-    if (this.state.mode === 'editing') {
-      return (
-        <DocumentFooter
-          doc={this.doc}
-          replaceDocument={this.props.replaceDocument}
-          updateDocument={this.props.updateDocument}
-          cancelHandler={this.handleCancelUpdate.bind(this)}
-          api={this.props.api} />
-      );
-    }
-    if (this.state.mode === 'deleting') {
-      return (
-        <RemoveDocumentFooter
-          doc={this.doc}
-          removeDocument={this.props.removeDocument}
-          cancelHandler={this.handleCancelRemove.bind(this)}
-          api={this.props.api} />
-      );
-    }
+    return (
+      <DocumentList.DocumentEditActionsFooter
+        doc={this.doc}
+        editing={this.state.mode === 'editing'}
+        deleting={this.state.mode === 'deleting'}
+        onUpdate={(force) => {
+          this.props.api.stopEditing();
+          if (force) {
+            this.props.replaceDocument(this.doc);
+          } else {
+            this.props.updateDocument(this.doc);
+          }
+        }}
+        onDelete={() => {
+          this.props.api.stopEditing();
+          this.props.removeDocument(this.doc);
+        }}
+        onCancel={() => {
+          if (this.state.mode === 'editing') {
+            this.handleCancelUpdate();
+          } else {
+            this.handleCancelRemove();
+          }
+        }}
+      />
+    );
   }
 }
 

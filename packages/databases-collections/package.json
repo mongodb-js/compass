@@ -120,7 +120,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@react-aria/utils": "^3.11.0",
+    "@react-aria/utils": "^3.13.1",
     "lodash": "^4.17.15"
   },
   "homepage": "https://github.com/mongodb-js/compass",

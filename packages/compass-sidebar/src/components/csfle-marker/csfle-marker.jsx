@@ -26,16 +26,18 @@ const badgeButtonStyles = css({
 });
 
 function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
+  const focusRingProps = useFocusRing();
+
   if (!csfleMode || csfleMode === 'unavailable') {
     return null;
   }
 
-  const focusRingProps = useFocusRing();
   const buttonProps = mergeProps(
     {
       type: 'button',
       'aria-label': 'Open connection In-Use Encryption configuration',
       title: 'Connection In-Use Encryption configuration',
+      'data-test-id': 'fle-connection-configuration',
       className: badgeButtonStyles,
       onClick: () => toggleCSFLEModalVisible()
     },

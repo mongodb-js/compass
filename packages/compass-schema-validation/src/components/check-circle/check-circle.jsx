@@ -15,9 +15,7 @@ class CheckCircle extends Component {
    * @returns {React.Component} The react component.
    */
   render() {
-    return (
-      <i className={`fa-lg ${classnames(styles['check-circle'])}`} />
-    );
+    return <i className={`fa-lg ${classnames(styles['check-circle'])}`} />;
   }
 }
 

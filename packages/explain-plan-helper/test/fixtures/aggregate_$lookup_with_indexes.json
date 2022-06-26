@@ -1,0 +1,102 @@
+{
+  "explainVersion": "1",
+  "stages": [
+    {
+      "$cursor": {
+        "queryPlanner": {
+          "namespace": "kashmir.folks",
+          "indexFilterSet": false,
+          "parsedQuery": {},
+          "queryHash": "8B3D4AB8",
+          "planCacheKey": "D542626C",
+          "maxIndexedOrSolutionsReached": false,
+          "maxIndexedAndSolutionsReached": false,
+          "maxScansToExplodeReached": false,
+          "winningPlan": {
+            "stage": "COLLSCAN",
+            "direction": "forward"
+          },
+          "rejectedPlans": []
+        },
+        "executionStats": {
+          "executionSuccess": true,
+          "nReturned": 6,
+          "executionTimeMillis": 0,
+          "totalKeysExamined": 0,
+          "totalDocsExamined": 6,
+          "executionStages": {
+            "stage": "COLLSCAN",
+            "nReturned": 6,
+            "executionTimeMillisEstimate": 0,
+            "works": 8,
+            "advanced": 6,
+            "needTime": 1,
+            "needYield": 0,
+            "saveState": 1,
+            "restoreState": 1,
+            "isEOF": 1,
+            "direction": "forward",
+            "docsExamined": 6
+          },
+          "allPlansExecution": []
+        }
+      },
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 0
+    },
+    {
+      "$lookup": {
+        "from": "districts",
+        "as": "district",
+        "localField": "district_id",
+        "foreignField": "_id",
+        "unwinding": {
+          "preserveNullAndEmptyArrays": false
+        }
+      },
+      "totalDocsExamined": 5,
+      "totalKeysExamined": 5,
+      "collectionScans": 0,
+      "indexesUsed": ["_id_"],
+      "nReturned": 6,
+      "executionTimeMillisEstimate": 0
+    }
+  ],
+  "serverInfo": {
+    "host": "101740a051f6",
+    "port": 27017,
+    "version": "5.0.8",
+    "gitVersion": "c87e1c23421bf79614baf500fda6622bd90f674e"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": 104857600,
+    "internalQueryFacetMaxOutputDocSizeBytes": 104857600,
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": 104857600,
+    "internalDocumentSourceGroupMaxMemoryBytes": 104857600,
+    "internalQueryMaxBlockingSortMemoryUsageBytes": 104857600,
+    "internalQueryProhibitBlockingMergeOnMongoS": 0,
+    "internalQueryMaxAddToSetBytes": 104857600,
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": 104857600
+  },
+  "command": {
+    "aggregate": "folks",
+    "pipeline": [
+      {
+        "$lookup": {
+          "from": "districts",
+          "localField": "district_id",
+          "foreignField": "_id",
+          "as": "district"
+        }
+      },
+      {
+        "$unwind": "$district"
+      }
+    ],
+    "allowDiskUse": true,
+    "cursor": {},
+    "maxTimeMS": 60000,
+    "$db": "kashmir"
+  },
+  "ok": 1
+}
