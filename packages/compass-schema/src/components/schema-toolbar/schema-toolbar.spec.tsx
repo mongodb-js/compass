@@ -30,6 +30,9 @@ const mockQueryBarStore = {
   },
 };
 
+const testErrorMessage =
+  'An error occurred during schema analysis: test error msg';
+
 const renderSchemaToolbar = (
   props: Partial<ComponentProps<typeof SchemaToolbar>> = {}
 ) => {
@@ -94,11 +97,7 @@ describe('SchemaToolbar', function () {
       errorMessage: 'test error msg',
     });
 
-    expect(
-      screen.getByText(
-        'An error occurred during schema analysis: test error msg'
-      )
-    ).to.be.visible;
+    expect(screen.getByText(testErrorMessage)).to.be.visible;
     expect(screen.getByTestId('schema-toolbar-error-message')).to.be.visible;
   });
 
@@ -107,11 +106,7 @@ describe('SchemaToolbar', function () {
       errorMessage: 'test error msg',
     });
 
-    expect(
-      screen.queryByText(
-        'An error occurred during schema analysis: test error msg'
-      )
-    ).to.not.exist;
+    expect(screen.queryByText(testErrorMessage)).to.not.exist;
     expect(screen.queryByTestId('schema-toolbar-error-message')).to.not.exist;
   });
 
