@@ -9,7 +9,8 @@ import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
 import DocumentJsonView from './document-json-view';
 import DocumentTableView from './document-table-view';
-import Toolbar from './toolbar';
+import LegacyToolbar from './legacy-toolbar';
+import { CrudToolbar } from './crud-toolbar';
 
 import {
   DOCUMENTS_STATUS_ERROR,
@@ -235,18 +236,36 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list.
    */
   render() {
+    const useNewToolbars = process?.env?.COMPASS_SHOW_NEW_TOOLBARS;
+
     return (
       <div className="compass-documents">
-        <div className="controls-container">
-          {this.renderQueryBar()}
-          <Toolbar
-            readonly={!this.props.isEditable}
-            insertHandler={this.handleOpenInsert.bind(this)}
-            viewSwitchHandler={this.props.viewChanged}
+        {useNewToolbars ? (
+          <CrudToolbar
             activeDocumentView={this.props.view}
-            {...this.props} />
-        </div>
-        {this.renderOutdatedWarning()}
+            insertHandler={this.handleOpenInsert.bind(this)}
+            localAppRegistry={this.props.store.localAppRegistry}
+            onApply={this.onApplyClicked.bind(this)}
+            onReset={this.onResetClicked.bind(this)}
+            readonly={!this.props.isEditable}
+            viewSwitchHandler={this.props.viewChanged}
+            {...this.props}
+          />
+        ) : (
+          <>
+            <div className="controls-container">
+              {this.renderQueryBar()}
+              <LegacyToolbar
+                readonly={!this.props.isEditable}
+                insertHandler={this.handleOpenInsert.bind(this)}
+                viewSwitchHandler={this.props.viewChanged}
+                activeDocumentView={this.props.view}
+                {...this.props}
+              />
+            </div>
+            {this.renderOutdatedWarning()}
+          </>
+        )}
         {this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}

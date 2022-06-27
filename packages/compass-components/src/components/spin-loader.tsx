@@ -4,6 +4,7 @@ import { uiColors } from '@leafygreen-ui/palette';
 
 interface SpinLoaderProps {
   size?: string;
+  title?: string;
 }
 
 const shellLoaderSpin = keyframes`
@@ -23,7 +24,10 @@ const spinLoaderStyle = css`
   animation: ${shellLoaderSpin} 700ms ease infinite;
 `;
 
-function SpinLoader({ size = '12px' }: SpinLoaderProps): JSX.Element {
+function SpinLoader({
+  size = '12px',
+  title
+}: SpinLoaderProps): JSX.Element {
   return (
     <div
       className={spinLoaderStyle}
@@ -31,6 +35,7 @@ function SpinLoader({ size = '12px' }: SpinLoaderProps): JSX.Element {
         width: size,
         height: size,
       }}
+      title={title}
     />
   );
 }
