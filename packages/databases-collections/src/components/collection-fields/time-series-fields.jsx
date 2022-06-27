@@ -1,11 +1,22 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Select, Option, TextInput } from '@mongodb-js/compass-components';
+import { spacing, css } from '@mongodb-js/compass-components';
 
 import FieldSet from '../field-set/field-set';
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 
-import styles from './time-series-fields.module.less';
+const optionsInputStyles = css({
+  paddingLeft: spacing[4]
+});
+
+const optionsSelectDropdownStyles = css({
+  paddingLeft: spacing[4],
+  zIndex: 1,
+  'button:focus, button:focus-within': {
+    zIndex: 20
+  }
+});
 
 const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
   'as timeField for the time-series collection. ' +
@@ -65,6 +76,7 @@ function TimeSeriesFields({
     >
       <FieldSet>
         <TextInput
+          className={optionsInputStyles}
           value={timeField}
           label="timeField"
           name="timeSeries.timeField"
@@ -77,6 +89,7 @@ function TimeSeriesFields({
 
       <FieldSet>
         <TextInput
+          className={optionsInputStyles}
           label="metaField"
           name="timeSeries.metaField"
           description={META_FIELD_INPUT_DESCRIPTION}
@@ -90,7 +103,7 @@ function TimeSeriesFields({
       <FieldSet>
         <Select
           id="timeSeries-granularity"
-          className={styles['options-select-dropdown']}
+          className={optionsSelectDropdownStyles}
           label="granularity"
           name="timeSeries.granularity"
           placeholder="Select a value [optional]"
@@ -113,6 +126,7 @@ function TimeSeriesFields({
 
       <FieldSet>
         <TextInput
+          className={optionsInputStyles}
           value={expireAfterSeconds}
           label="expireAfterSeconds"
           name="expireAfterSeconds"
