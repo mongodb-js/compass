@@ -26,7 +26,7 @@ class PHPUtils {
    */
   toPHPArray(str) {
     str = this.convertToString(str);
-    if (str.length > 0 && str.charAt(0) != '[') {
+    if (str.length > 0 && str.charAt(0) !== '[') {
       str = `[${str}]`;
     }
     return str;
