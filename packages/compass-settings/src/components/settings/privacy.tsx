@@ -13,12 +13,25 @@ import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/settings';
 
 type PrivacySettingsProps = {
-  handleChange: (field: string, value: boolean) => void;
+  handleChange: (field: CheckboxName, value: boolean) => void;
   autoUpdates?: boolean;
   enableMaps?: boolean;
   trackErrors?: boolean;
   trackUsageStatistics?: boolean;
   enableFeedbackPanel?: boolean;
+};
+
+type CheckboxName =
+  | 'autoUpdates'
+  | 'enableMaps'
+  | 'trackErrors'
+  | 'trackUsageStatistics'
+  | 'enableFeedbackPanel';
+
+type CheckboxItem = {
+  name: CheckboxName;
+  checked: boolean;
+  label: JSX.Element;
 };
 
 const checkboxStyles = css({
@@ -34,9 +47,75 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   enableFeedbackPanel,
   handleChange,
 }) => {
+  const checkboxItems: CheckboxItem[] = [
+    {
+      name: 'autoUpdates',
+      checked: !!autoUpdates,
+      label: (
+        <>
+          <Label htmlFor="autoUpdates">Enable Automatic Updates</Label>
+          <Description>
+            Allow Compass to periodically check for new updates.
+          </Description>
+        </>
+      ),
+    },
+    {
+      name: 'enableMaps',
+      checked: !!enableMaps,
+      label: (
+        <>
+          <Label htmlFor="enableMaps">Enable Geographic Visualizations</Label>
+          <Description>
+            Allow Compass to make requests to a 3rd party mapping service.
+          </Description>
+        </>
+      ),
+    },
+    {
+      name: 'trackErrors',
+      checked: !!trackErrors,
+      label: (
+        <>
+          <Label htmlFor="trackErrors">Enable Crash Reports</Label>
+          <Description>
+            Allow Compass to send crash reports containing stack traces and
+            unhandled exceptions.
+          </Description>
+        </>
+      ),
+    },
+    {
+      name: 'trackUsageStatistics',
+      checked: !!trackUsageStatistics,
+      label: (
+        <>
+          <Label htmlFor="trackUsageStatistics">Enable Usage Statistics</Label>
+          <Description>
+            Allow Compass to send anonymous usage statistics.
+          </Description>
+        </>
+      ),
+    },
+    {
+      name: 'enableFeedbackPanel',
+      checked: !!enableFeedbackPanel,
+      label: (
+        <>
+          <Label htmlFor="enableFeedbackPanel">Give Product Feedback</Label>
+          <Description>
+            Enables a tool that our Product team can use to occasionally reach
+            out for feedback about Compass.
+          </Description>
+        </>
+      ),
+    },
+  ];
+
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleChange(event.target.name, event.target.checked);
+    handleChange(event.target.name as CheckboxName, event.target.checked);
   };
+
   return (
     <div>
       <Body>
@@ -45,100 +124,18 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
         the settings below:
       </Body>
 
-      <Checkbox
-        className={checkboxStyles}
-        name="autoUpdates"
-        id="autoUpdates"
-        data-hook="auto-updates-checkbox"
-        data-test-id="auto-updates-checkbox"
-        onChange={handleCheckboxChange}
-        label={
-          <>
-            <Label htmlFor="autoUpdates">Enable Automatic Updates</Label>
-            <Description>
-              Allow Compass to periodically check for new updates.
-            </Description>
-          </>
-        }
-        checked={autoUpdates}
-      />
-
-      <Checkbox
-        className={checkboxStyles}
-        name="enableMaps"
-        id="enableMaps"
-        data-hook="enable-maps-checkbox"
-        data-test-id="enable-maps-checkbox"
-        onChange={handleCheckboxChange}
-        label={
-          <>
-            <Label htmlFor="enableMaps">Enable Geographic Visualizations</Label>
-            <Description>
-              Allow Compass to make requests to a 3rd party mapping service.
-            </Description>
-          </>
-        }
-        checked={enableMaps}
-      />
-
-      <Checkbox
-        className={checkboxStyles}
-        name="trackErrors"
-        id="trackErrors"
-        data-hook="track-errors-checkbox"
-        data-test-id="track-errors-checkbox"
-        onChange={handleCheckboxChange}
-        label={
-          <>
-            <Label htmlFor="trackErrors">Enable Crash Reports</Label>
-            <Description>
-              Allow Compass to send crash reports containing stack traces and
-              unhandled exceptions.
-            </Description>
-          </>
-        }
-        checked={trackErrors}
-      />
-
-      <Checkbox
-        className={checkboxStyles}
-        name="trackUsageStatistics"
-        id="trackUsageStatistics"
-        data-hook="usage-stats-checkbox"
-        data-test-id="usage-stats-checkbox"
-        onChange={handleCheckboxChange}
-        label={
-          <>
-            <Label htmlFor="trackUsageStatistics">
-              Enable Usage Statistics
-            </Label>
-            <Description>
-              Allow Compass to send anonymous usage statistics.
-            </Description>
-          </>
-        }
-        checked={trackUsageStatistics}
-      />
-
-      <Checkbox
-        className={checkboxStyles}
-        name="enableFeedbackPanel"
-        id="enableFeedbackPanel"
-        data-hook="product-feedback-checkbox"
-        data-test-id="product-feedback-checkbox"
-        onChange={handleCheckboxChange}
-        label={
-          <>
-            <Label htmlFor="enableFeedbackPanel">Give Product Feedback</Label>
-            <Description>
-              Enables a tool that our Product team can use to occasionally reach
-              out for feedback about Compass.
-            </Description>
-          </>
-        }
-        checked={enableFeedbackPanel}
-      />
-
+      {checkboxItems.map(({ name, checked, label }) => (
+        <Checkbox
+          key={name}
+          className={checkboxStyles}
+          name={name}
+          id={name}
+          data-testid={name}
+          onChange={handleCheckboxChange}
+          label={label}
+          checked={checked}
+        />
+      ))}
       <Body>
         With any of these options, none of your personal information or stored
         data will be submitted.
