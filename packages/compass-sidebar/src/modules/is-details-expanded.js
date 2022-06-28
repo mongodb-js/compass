@@ -1,8 +1,7 @@
 /**
  * Change is details expanded
  */
-export const TOGGLE_IS_DETAILS_EXPANDED =
-  'sidebar/is-details-expanded/TOGGLE_IS_DETAILS_EXPANDED';
+export const TOGGLE_IS_DETAILS_EXPANDED = 'sidebar/is-details-expanded/TOGGLE_IS_DETAILS_EXPANDED';
 
 /**
  * The initial state of the is expanded attribute.
@@ -33,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsDetailsExpanded = (isExpanded) => ({
   type: TOGGLE_IS_DETAILS_EXPANDED,
-  isExpanded: isExpanded,
+  isExpanded: isExpanded
 });

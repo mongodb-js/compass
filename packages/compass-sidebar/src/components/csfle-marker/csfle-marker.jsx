@@ -6,13 +6,13 @@ import {
   Badge,
   BadgeVariant,
   mergeProps,
-  useFocusRing,
+  useFocusRing
 } from '@mongodb-js/compass-components';
 
 // Let's not worry too much about styling here until
 // the sidebar is redone soon anyway.
 const badgeContainerStyles = css({
-  padding: '0px 0px 6px 36px',
+  padding: '0px 0px 6px 36px'
 });
 
 const badgeButtonStyles = css({
@@ -21,8 +21,8 @@ const badgeButtonStyles = css({
   margin: 0,
   border: 'none',
   '&:hover': {
-    cursor: 'pointer',
-  },
+    cursor: 'pointer'
+  }
 });
 
 function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
@@ -39,7 +39,7 @@ function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
       title: 'Connection In-Use Encryption configuration',
       'data-test-id': 'fle-connection-configuration',
       className: badgeButtonStyles,
-      onClick: () => toggleCSFLEModalVisible(),
+      onClick: () => toggleCSFLEModalVisible()
     },
     focusRingProps
   );
@@ -47,13 +47,7 @@ function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
   return (
     <div className={badgeContainerStyles}>
       <button {...buttonProps}>
-        <Badge
-          variant={
-            csfleMode === 'enabled'
-              ? BadgeVariant.DarkGray
-              : BadgeVariant.LightGray
-          }
-        >
+        <Badge variant={csfleMode === 'enabled' ? BadgeVariant.DarkGray : BadgeVariant.LightGray}>
           <Icon glyph="Key" />
           In-Use Encryption
         </Badge>

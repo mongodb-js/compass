@@ -37,5 +37,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsGenuineMongoDBVisible = (isVisible) => ({
   type: TOGGLE_IS_GENUINE_MONGODB_VISIBLE,
-  isVisible: isVisible,
+  isVisible: isVisible
 });

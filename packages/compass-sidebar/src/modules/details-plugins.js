@@ -36,5 +36,5 @@ export default reducer;
  */
 export const loadDetailsPlugins = (appRegistry) => ({
   type: LOAD_DETAILS_PLUGINS,
-  roles: appRegistry.getRole('InstanceDetails.Item') || [],
+  roles: appRegistry.getRole('InstanceDetails.Item') || []
 });

@@ -1,16 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { TextInput } from '@mongodb-js/compass-components';
-import { spacing, css } from '@mongodb-js/compass-components';
 
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 import FieldSet from '../field-set/field-set';
 
 const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
-
-const maximumSizeStyles = css({
-  paddingLeft: spacing[4]
-});
 
 function CappedCollectionFields({
   cappedSize,
@@ -33,7 +28,6 @@ function CappedCollectionFields({
     >
       <FieldSet>
         <TextInput
-          className={maximumSizeStyles}
           value={cappedSize}
           label="size"
           data-testid="capped-size"

@@ -3,16 +3,14 @@ import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   changeDescription,
-  CHANGE_DESCRIPTION,
+  CHANGE_DESCRIPTION
 } from './description';
 
 describe('sidebar description', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(
-          reducer(undefined, changeDescription('new description'))
-        ).to.equal('new description');
+        expect(reducer(undefined, changeDescription('new description'))).to.equal('new description');
       });
     });
 
@@ -27,7 +25,7 @@ describe('sidebar description', function () {
     it('returns the action', function () {
       expect(changeDescription('new description w action')).to.deep.equal({
         type: CHANGE_DESCRIPTION,
-        description: 'new description w action',
+        description: 'new description w action'
       });
     });
   });

@@ -123,12 +123,10 @@ store.onActivated = (appRegistry) => {
     });
   });
 
-  appRegistry
-    .getStore('DeploymentAwareness.WriteStateStore')
-    .listen((state) => {
-      store.dispatch(toggleIsWritable(state.isWritable));
-      store.dispatch(changeDescription(state.description));
-    });
+  appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
+    store.dispatch(toggleIsWritable(state.isWritable));
+    store.dispatch(changeDescription(state.description));
+  });
 
   appRegistry.on('select-namespace', ({ namespace }) => {
     store.dispatch(changeActiveNamespace(namespace));

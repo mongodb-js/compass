@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   TOGGLE_IS_DATA_LAKE,
-  toggleIsDataLake,
+  toggleIsDataLake
 } from './is-data-lake';
 
 describe('is-data-lake module', function () {
@@ -26,7 +26,7 @@ describe('is-data-lake module', function () {
       it('sets true in the action', function () {
         expect(toggleIsDataLake(true)).to.deep.equal({
           type: TOGGLE_IS_DATA_LAKE,
-          isDataLake: true,
+          isDataLake: true
         });
       });
     });
@@ -35,7 +35,7 @@ describe('is-data-lake module', function () {
       it('sets false in the action', function () {
         expect(toggleIsDataLake(false)).to.deep.equal({
           type: TOGGLE_IS_DATA_LAKE,
-          isDataLake: false,
+          isDataLake: false
         });
       });
     });

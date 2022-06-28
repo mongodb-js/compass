@@ -1,19 +1,12 @@
-import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Select, Option, SelectSize } from '@mongodb-js/compass-components';
-import { spacing, css } from '@mongodb-js/compass-components';
-
-const optionsSelectDropdownStyles = css({
-  paddingLeft: spacing[4],
-  zIndex: 1,
-  'button:focus, button:focus-within': {
-    zIndex: 20
-  }
-});
+import _ from 'lodash';
 
 import COLLATION_OPTIONS from '../../constants/collation';
 import FieldSet from '../field-set/field-set';
+
+import styles from './collation-fields.module.less';
 
 function CollationOptions(values) {
   const unifiedValues = values.map((elem) => ({
@@ -64,7 +57,7 @@ function CollationFields({
       <FieldSet key={element.field}>
         <Select
           id={`collation-field-${element.field}`}
-          className={optionsSelectDropdownStyles}
+          className={styles['options-select-dropdown']}
           label={element.field}
           name={element.field}
           placeholder={`Select a value${

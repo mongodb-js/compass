@@ -7,13 +7,13 @@ class SidebarInstanceDetails extends PureComponent {
   static displayName = 'SidebarInstanceDetails';
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
-    detailsPlugins: PropTypes.array.isRequired,
+    detailsPlugins: PropTypes.array.isRequired
   };
 
   constructor(props) {
     super(props);
     this.details = props.detailsPlugins.map((role, i) => {
-      return <role.component key={i} />;
+      return (<role.component key={i} />);
     });
   }
 

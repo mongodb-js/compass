@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   toggleIsWritable,
-  TOGGLE_IS_WRITABLE,
+  TOGGLE_IS_WRITABLE
 } from './is-writable';
 
 describe('sidebar isWritable', function () {
@@ -25,7 +25,7 @@ describe('sidebar isWritable', function () {
     it('returns the action', function () {
       expect(toggleIsWritable(false)).to.deep.equal({
         type: TOGGLE_IS_WRITABLE,
-        isWritable: false,
+        isWritable: false
       });
     });
   });

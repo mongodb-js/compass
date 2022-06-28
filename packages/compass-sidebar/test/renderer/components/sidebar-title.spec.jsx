@@ -2,7 +2,9 @@ import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { mount, shallow } from 'enzyme';
-import { LogoMark } from '@mongodb-js/compass-components';
+import {
+  LogoMark
+} from '@mongodb-js/compass-components';
 
 import { SidebarTitle as SidebarTitleClass } from '../../../src/components/sidebar-title/sidebar-title';
 import styles from '../../../src/components/sidebar-title/sidebar-title.module.less';
@@ -10,10 +12,9 @@ import styles from '../../../src/components/sidebar-title/sidebar-title.module.l
 describe('SidebarTitle [Component]', function () {
   const connectionInfo = {
     connectionOptions: {
-      connectionString:
-        'mongodb://localhost:27020?readPreference=primaryPreferred',
+      connectionString: 'mongodb://localhost:27020?readPreference=primaryPreferred'
     },
-    id: '123',
+    id: '123'
   };
 
   context('when sidebar is collapsed', function () {
@@ -37,15 +38,9 @@ describe('SidebarTitle [Component]', function () {
 
     it.skip('renders icon', function () {
       expect(component.find(`.${styles['sidebar-title']}`)).to.be.present();
-      expect(
-        component.find(`.${styles['sidebar-title-name']}`)
-      ).to.not.be.present();
-      expect(
-        component.find(`.${styles['sidebar-title-logo']}`)
-      ).to.be.present();
-      expect(
-        component.find(`.${styles['sidebar-title-is-active']}`)
-      ).to.not.be.present();
+      expect(component.find(`.${styles['sidebar-title-name']}`)).to.not.be.present();
+      expect(component.find(`.${styles['sidebar-title-logo']}`)).to.be.present();
+      expect(component.find(`.${styles['sidebar-title-is-active']}`)).to.not.be.present();
       expect(component.find(LogoMark)).to.be.present();
     });
   });
@@ -71,12 +66,8 @@ describe('SidebarTitle [Component]', function () {
 
     it.skip('renders icon', function () {
       expect(component.find(`.${styles['sidebar-title']}`)).to.be.present();
-      expect(
-        component.find(`.${styles['sidebar-title-name']}`)
-      ).to.be.present();
-      expect(
-        component.find(`.${styles['sidebar-title-logo']}`)
-      ).to.not.be.present();
+      expect(component.find(`.${styles['sidebar-title-name']}`)).to.be.present();
+      expect(component.find(`.${styles['sidebar-title-logo']}`)).to.not.be.present();
       expect(component.find(LogoMark)).to.be.not.present();
     });
   });
@@ -133,9 +124,7 @@ describe('SidebarTitle [Component]', function () {
     });
 
     it('has an active class', function () {
-      expect(
-        component.find(`.${styles['sidebar-title-is-active']}`)
-      ).to.be.present();
+      expect(component.find(`.${styles['sidebar-title-is-active']}`)).to.be.present();
     });
   });
 });

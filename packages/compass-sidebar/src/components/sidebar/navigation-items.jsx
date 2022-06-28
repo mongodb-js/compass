@@ -6,7 +6,7 @@ import {
   Icon,
   useFocusRing,
   mergeProps,
-  uiColors,
+  uiColors
 } from '@mongodb-js/compass-components';
 
 const items = [
@@ -31,8 +31,8 @@ const navItemButton = css({
   backgroundColor: uiColors.gray.dark2,
   ':hover': {
     cursor: 'pointer',
-    backgroundColor: uiColors.gray.dark3,
-  },
+    backgroundColor: uiColors.gray.dark3
+  }
 });
 
 const iconStyle = css({

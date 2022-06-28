@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   toggleIsGenuineMongoDB,
-  TOGGLE_IS_GENUINE_MONGODB,
+  TOGGLE_IS_GENUINE_MONGODB
 } from './is-genuine-mongodb';
 
 describe('is genuine mongodb module', function () {
@@ -25,7 +25,7 @@ describe('is genuine mongodb module', function () {
     it('returns the action', function () {
       expect(toggleIsGenuineMongoDB(false)).to.deep.equal({
         type: TOGGLE_IS_GENUINE_MONGODB,
-        isGenuineMongoDB: false,
+        isGenuineMongoDB: false
       });
     });
   });

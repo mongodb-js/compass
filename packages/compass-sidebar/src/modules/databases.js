@@ -5,8 +5,7 @@ import toNS from 'mongodb-ns';
  */
 export const CHANGE_FILTER_REGEX = 'sidebar/databases/CHANGE_FILTER_REGEX';
 export const CHANGE_DATABASES = 'sidebar/databases/CHANGE_DATABASES';
-export const CHANGE_ACTIVE_NAMESPACE =
-  'sidebar/databases/CHANGE_ACTIVE_NAMESPACE';
+export const CHANGE_ACTIVE_NAMESPACE = 'sidebar/databases/CHANGE_ACTIVE_NAMESPACE';
 export const TOGGLE_DATABASE = 'sidebar/databases/TOGGLE_DATABASE';
 
 const NO_REGEX = null;
@@ -21,7 +20,7 @@ export const INITIAL_STATE = {
   filteredDatabases: [],
   expandedDbList: {},
   activeNamespace: NO_ACTIVE_NAMESPACE,
-  filterRegex: NO_REGEX,
+  filterRegex: NO_REGEX
 };
 
 /**
@@ -102,7 +101,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeDatabases = (databases) => ({
   type: CHANGE_DATABASES,
-  databases,
+  databases
 });
 
 /**
@@ -115,7 +114,7 @@ export const changeDatabases = (databases) => ({
 export const changeActiveNamespace = (activeNamespace) => ({
   type: CHANGE_ACTIVE_NAMESPACE,
   activeNamespace,
-  activeDatabase: toNS(activeNamespace).database,
+  activeDatabase: toNS(activeNamespace).database
 });
 
 export const toggleDatabaseExpanded = (id, force) => (dispatch, getState) => {
@@ -160,7 +159,9 @@ const filterDatabases = (databases, re) => {
     if (re.test(id)) {
       result.push(db);
     } else {
-      const collections = db.collections.filter((coll) => re.test(coll.name));
+      const collections = db.collections.filter((coll) =>
+        re.test(coll.name)
+      );
 
       if (collections.length > 0) {
         result.push({

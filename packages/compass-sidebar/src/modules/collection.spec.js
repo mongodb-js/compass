@@ -1,33 +1,37 @@
 import { expect } from 'chai';
 
-import { getSource, getSourceName, getSourceViewOn } from './collection';
+import {
+  getSource,
+  getSourceName,
+  getSourceViewOn,
+} from './collection';
 
 const COLL = {
   _id: 'db.test',
-  readonly: false,
+  readonly: false
 };
 
 const VIEW = {
   _id: 'db.testView',
   readonly: true,
   view_on: 'test',
-  pipeline: [],
+  pipeline: []
 };
 
 const VIEW_ON_VIEW = {
   _id: 'db.testViewOnView',
   readonly: true,
   view_on: 'testView',
-  pipeline: [],
+  pipeline: []
 };
 
 const TIME_SERIES = {
   _id: 'db.testTimeSeries',
   type: 'timeSeries',
-  readonly: false,
+  readonly: false
 };
 
-const COLLECTIONS = [COLL, VIEW, VIEW_ON_VIEW, TIME_SERIES];
+const COLLECTIONS = [ COLL, VIEW, VIEW_ON_VIEW, TIME_SERIES ];
 
 describe('collection module', function () {
   describe('#getSource', function () {
@@ -47,9 +51,7 @@ describe('collection module', function () {
   describe('#getSourceName', function () {
     context('when the collection is a view', function () {
       it('returns the source name', function () {
-        expect(getSourceName(VIEW.readonly, 'db', 'testView')).to.equal(
-          'db.testView'
-        );
+        expect(getSourceName(VIEW.readonly, 'db', 'testView')).to.equal('db.testView');
       });
     });
 

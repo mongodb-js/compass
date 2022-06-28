@@ -9,24 +9,22 @@ describe.skip('SidebarInstance [Component]', function () {
 
   describe('empty instance', function () {
     beforeEach(function () {
-      component = mount(
-        <SidebarInstance
-          instance={{ databases: null, collections: null }}
-          isExpanded
-          isGenuineMongoDB
-          isSidebarCollapsed={false}
-          detailsPlugins={[]}
-          globalAppRegistryEmit={() => {}}
-          toggleIsDetailsExpanded={() => {}}
-          connectionInfo={{
-            connectionOptions: {
-              connectionString: 'mongodb://localhost:27017',
-            },
-            id: '123',
-          }}
-          updateConnectionInfo={() => {}}
-        />
-      );
+      component = mount(<SidebarInstance
+        instance={{databases: null, collections: null}}
+        isExpanded
+        isGenuineMongoDB
+        isSidebarCollapsed={false}
+        detailsPlugins={[]}
+        globalAppRegistryEmit={() => {}}
+        toggleIsDetailsExpanded={() => {}}
+        connectionInfo={{
+          connectionOptions: {
+            connectionString: 'mongodb://localhost:27017'
+          },
+          id: '123'
+        }}
+        updateConnectionInfo={() => {}}
+      />);
     });
 
     afterEach(function () {

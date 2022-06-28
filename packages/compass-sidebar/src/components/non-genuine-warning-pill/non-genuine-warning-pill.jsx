@@ -10,8 +10,8 @@ import styles from './non-genuine-warning-pill.module.less';
 class NonGenuineWarningPill extends PureComponent {
   static displayName = 'NonGenuineWarningPill';
   static propTypes = {
-    isGenuineMongoDB: PropTypes.bool.isRequired,
-  };
+    isGenuineMongoDB: PropTypes.bool.isRequired
+  }
 
   /**
    * Render the component.
@@ -25,7 +25,7 @@ class NonGenuineWarningPill extends PureComponent {
     return (
       <div className={styles['non-genuine-warning-pill']}>
         <div className={styles['non-genuine-warning-pill-text']}>
-          <FontAwesome name="exclamation-circle" />
+          <FontAwesome name="exclamation-circle"/>
           &nbsp;NON-GENUINE MONGODB
         </div>
       </div>

@@ -1,8 +1,7 @@
 /**
  * Create is genuine MongoDB action.
  */
-export const TOGGLE_IS_GENUINE_MONGODB =
-  'sidebar/is-genuine-mongodb/TOGGLE_IS_GENUINE_MONGODB';
+export const TOGGLE_IS_GENUINE_MONGODB = 'sidebar/is-genuine-mongodb/TOGGLE_IS_GENUINE_MONGODB';
 
 /**
  * The initial state of the instance header is genuine MongoDB.
@@ -33,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsGenuineMongoDB = (isGenuineMongoDB) => ({
   type: TOGGLE_IS_GENUINE_MONGODB,
-  isGenuineMongoDB: isGenuineMongoDB,
+  isGenuineMongoDB: isGenuineMongoDB
 });
