@@ -86,7 +86,6 @@ var Application = View.extend({
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="tour-container"></div>',
-      '  <div data-hook="optin-container"></div>',
       '  <div data-hook="security"></div>',
       '  <div data-hook="license"></div>',
       '</div>'
@@ -133,7 +132,6 @@ var Application = View.extend({
     Number.prototype.unref = () => {};
 
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
-    ipc.on('window:show-network-optin', this.showOptIn.bind(this));
     ipc.on('window:show-security-panel', this.showSecurity.bind(this));
 
     function trackPerfEvent({ name, value }) {
@@ -251,13 +249,6 @@ var Application = View.extend({
       this.tourClosed();
     }
   },
-  showOptIn: function() {
-    // if (process.env.HADRON_ISOLATED !== 'true') {
-    //   const NetworkOptInView = require('./network-optin');
-    //   const networkOptInView = new NetworkOptInView();
-    //   this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
-    // }
-  },
   showSecurity: function() {
     app.appRegistry.getAction('Security.Actions').show();
   },
@@ -265,7 +256,7 @@ var Application = View.extend({
     app.preferences.unset('showFeatureTour');
     app.preferences.save();
     if (!app.preferences.showedNetworkOptIn) {
-      this.showOptIn();
+      ipc.ipcMain.broadcastFocused('window:show-network-optin');
     }
   },
   onLinkClick: function(event) {
