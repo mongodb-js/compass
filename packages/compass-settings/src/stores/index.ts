@@ -1,19 +1,18 @@
-import { createStore, combineReducers } from 'redux';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { Store, AnyAction } from 'redux';
+import thunk from 'redux-thunk';
+
 
 import modalReducer from './modal';
-import privacyReducer from './privacy';
-
-import { getUserPreferences } from '../utils/user-preferences'
+import settingsReducer from './settings';
 
 const store = createStore(
   combineReducers({
     modal: modalReducer,
-    privacy: privacyReducer,
+    settings: settingsReducer,
   }),
+  applyMiddleware(thunk),
 );
-
-getUserPreferences();
 
 type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
 type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;

@@ -12,6 +12,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { toggleModal } from '../stores/modal';
+import { fetchSettings } from '../stores/settings';
 import type { RootState } from '../stores';
 
 import PrivacySettings from './settings/privacy';
@@ -21,6 +22,7 @@ import Sidebar from './sidebar';
 type SettingsModalProps = {
   isModalOpen: boolean;
   toggleModal: (value: boolean) => void;
+  onInit: () => void;
 };
 
 const contentStyles = css({
@@ -45,6 +47,7 @@ type Settings = {
 const CompassSettings: React.FunctionComponent<SettingsModalProps> = ({
   isModalOpen,
   toggleModal,
+  onInit,
 }) => {
   const settings: Settings[] = [
     { name: 'Privacy', component: PrivacySettings },
@@ -55,6 +58,10 @@ const CompassSettings: React.FunctionComponent<SettingsModalProps> = ({
 
   const SettingComponent =
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
+
+  useEffect(() => {
+    onInit();
+  }, [onInit]);
 
   useEffect(() => {
     (ipc as any).on('window:show-network-optin', () => {
@@ -90,6 +97,7 @@ const mapState = ({ modal: { isOpen } }: RootState) => ({
 
 const mapDispatch = {
   toggleModal,
+  onInit: fetchSettings,
 };
 
 export default connect(mapState, mapDispatch)(CompassSettings);

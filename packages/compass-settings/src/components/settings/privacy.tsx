@@ -9,15 +9,15 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
-import { changeValue } from '../../stores/privacy';
+import { changeFieldValue } from '../../stores/settings';
 
 type PrivacySettingsProps = {
-  autoUpdates: boolean;
-  enableMaps: boolean;
-  trackErrors: boolean;
-  trackUsageStatistics: boolean;
-  enableFeedbackPanel: boolean;
   handleChange: (field: string, value: boolean) => void;
+  autoUpdates?: boolean;
+  enableMaps?: boolean;
+  trackErrors?: boolean;
+  trackUsageStatistics?: boolean;
+  enableFeedbackPanel?: boolean;
 };
 
 const checkboxStyles = css({
@@ -141,12 +141,24 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   );
 };
 
-const mapState = ({ privacy }: RootState) => ({
-  ...privacy,
+const mapState = ({
+  settings: {
+    autoUpdates,
+    enableMaps,
+    trackErrors,
+    trackUsageStatistics,
+    enableFeedbackPanel,
+  },
+}: RootState) => ({
+  autoUpdates,
+  enableMaps,
+  trackErrors,
+  trackUsageStatistics,
+  enableFeedbackPanel,
 });
 
 const mapDispatch = {
-  handleChange: changeValue,
+  handleChange: changeFieldValue,
 };
 
 export default connect(mapState, mapDispatch)(PrivacySettings);
