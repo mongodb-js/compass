@@ -8,10 +8,6 @@ import FieldSet from '../field-set/field-set';
 
 const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
 
-const maximumSizeStyles = css({
-  paddingLeft: spacing[4]
-});
-
 function CappedCollectionFields({
   cappedSize,
   isCapped,
@@ -33,7 +29,6 @@ function CappedCollectionFields({
     >
       <FieldSet>
         <TextInput
-          className={maximumSizeStyles}
           value={cappedSize}
           label="size"
           data-testid="capped-size"

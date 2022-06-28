@@ -6,12 +6,7 @@ import { spacing, css } from '@mongodb-js/compass-components';
 import FieldSet from '../field-set/field-set';
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 
-const optionsInputStyles = css({
-  paddingLeft: spacing[4]
-});
-
 const optionsSelectDropdownStyles = css({
-  paddingLeft: spacing[4],
   zIndex: 1,
   'button:focus, button:focus-within': {
     zIndex: 20
@@ -76,7 +71,6 @@ function TimeSeriesFields({
     >
       <FieldSet>
         <TextInput
-          className={optionsInputStyles}
           value={timeField}
           label="timeField"
           name="timeSeries.timeField"
@@ -89,7 +83,6 @@ function TimeSeriesFields({
 
       <FieldSet>
         <TextInput
-          className={optionsInputStyles}
           label="metaField"
           name="timeSeries.metaField"
           description={META_FIELD_INPUT_DESCRIPTION}
@@ -126,7 +119,6 @@ function TimeSeriesFields({
 
       <FieldSet>
         <TextInput
-          className={optionsInputStyles}
           value={expireAfterSeconds}
           label="expireAfterSeconds"
           name="expireAfterSeconds"
