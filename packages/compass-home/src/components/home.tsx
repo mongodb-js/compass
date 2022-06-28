@@ -5,6 +5,7 @@ import {
   ToastArea,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
+import Settings from '@mongodb-js/compass-settings';
 import ipc from 'hadron-ipc';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
@@ -237,6 +238,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   if (isConnected) {
     return (
       <div className="with-global-bootstrap-styles">
+        <Settings />
         <Workspace namespace={namespace} />
       </div>
     );
@@ -245,6 +247,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   return (
     <div className={homeViewStyles} data-test-id="home-view">
       <div className={homePageStyles}>
+        <Settings />
         <Connections onConnected={onConnected} appName={appName} />
       </div>
     </div>

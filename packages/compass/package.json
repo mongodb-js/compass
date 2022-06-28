@@ -195,6 +195,7 @@
     "@mongodb-js/compass-schema-validation": "^5.24.0",
     "@mongodb-js/compass-server-version": "^5.23.0",
     "@mongodb-js/compass-serverstats": "^15.23.0",
+    "@mongodb-js/compass-settings": "^0.1.0",
     "@mongodb-js/compass-shell": "^2.24.0",
     "@mongodb-js/compass-sidebar": "^4.24.0",
     "@mongodb-js/compass-ssh-tunnel-status": "^6.23.0",
