@@ -10,7 +10,7 @@ const WriteStateStore = Reflux.createStore({
   mixins: [StateMixin.store],
   getInitialState() {
     return { isWritable: true, description: 'store initial state description' };
-  }
+  },
 });
 
 const instance = createInstance();
@@ -44,7 +44,10 @@ describe('SidebarStore [Store]', function () {
 
   describe('#onActivated', function () {
     const appRegistry = new AppRegistry();
-    appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
+    appRegistry.registerStore(
+      'DeploymentAwareness.WriteStateStore',
+      WriteStateStore
+    );
 
     before(function () {
       store.onActivated(appRegistry);
@@ -55,7 +58,7 @@ describe('SidebarStore [Store]', function () {
         expect(store.getState().isWritable).to.equal(true); // initial state
         WriteStateStore.setState({
           isWritable: false,
-          description: 'test description'
+          description: 'test description',
         });
       });
 
@@ -73,26 +76,26 @@ describe('SidebarStore [Store]', function () {
           filteredDatabases: [],
           expandedDbList: {},
           filterRegex: null,
-          activeNamespace: ''
+          activeNamespace: '',
         }); // initial state
         appRegistry.emit('instance-created', { instance });
       });
 
       it('updates the instance and databases state', function () {
-        expect(store.getState())
-          .to.have.property('instance')
-          .deep.equal({
-            databasesStatus: instance.databasesStatus,
-            refreshingStatus: instance.refreshingStatus,
-            csfleMode: instance.csfleMode,
-          });
-        expect(store.getState()).to.have.property('databases').deep.equal({
-          databases: getDatabases(instance),
-          filteredDatabases: getDatabases(instance),
-          activeNamespace: '',
-          expandedDbList: {},
-          filterRegex: null,
+        expect(store.getState()).to.have.property('instance').deep.equal({
+          databasesStatus: instance.databasesStatus,
+          refreshingStatus: instance.refreshingStatus,
+          csfleMode: instance.csfleMode,
         });
+        expect(store.getState())
+          .to.have.property('databases')
+          .deep.equal({
+            databases: getDatabases(instance),
+            filteredDatabases: getDatabases(instance),
+            activeNamespace: '',
+            expandedDbList: {},
+            filterRegex: null,
+          });
       });
     });
 
@@ -102,7 +105,9 @@ describe('SidebarStore [Store]', function () {
         appRegistry.emit('select-namespace', { namespace: 'test.coll' });
       });
       it('updates databases.activeNamespace', function () {
-        expect(store.getState().databases.activeNamespace).to.equal('test.coll');
+        expect(store.getState().databases.activeNamespace).to.equal(
+          'test.coll'
+        );
       });
     });
 

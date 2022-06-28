@@ -17,7 +17,8 @@ describe('SidebarInstanceDetails [Component]', function () {
         <SidebarInstanceDetails
           isExpanded={isExpanded}
           detailsPlugins={detailsPlugins}
-          isSidebarCollapsed={isSidebarCollapsed} />
+          isSidebarCollapsed={isSidebarCollapsed}
+        />
       );
     });
 
@@ -26,7 +27,9 @@ describe('SidebarInstanceDetails [Component]', function () {
     });
 
     it('renders details', function () {
-      expect(component.find(`.${styles['sidebar-instance-details-container']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['sidebar-instance-details-container']}`)
+      ).to.be.present();
     });
   });
 
@@ -49,8 +52,12 @@ describe('SidebarInstanceDetails [Component]', function () {
     });
 
     it('does not render details', function () {
-      expect(component.find(`.${styles['sidebar-instance-details-container']}`)).to.be.not.present();
-      expect(component.find(`.${styles['sidebar-instance-details']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['sidebar-instance-details-container']}`)
+      ).to.be.not.present();
+      expect(
+        component.find(`.${styles['sidebar-instance-details']}`)
+      ).to.be.present();
     });
   });
 });

@@ -38,5 +38,5 @@ export default reducer;
  */
 export const toggleIsWritable = (isWritable) => ({
   type: TOGGLE_IS_WRITABLE,
-  isWritable: isWritable
+  isWritable: isWritable,
 });

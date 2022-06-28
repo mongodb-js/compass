@@ -14,13 +14,15 @@ describe('SidebarInstanceStats [Component]', function () {
     beforeEach(function () {
       toggleSpy = sinon.spy();
       emitSpy = sinon.spy();
-      component = mount(<SidebarInstanceStats
-        instance={null}
-        databases={[]}
-        isExpanded
-        toggleIsExpanded={toggleSpy}
-        globalAppRegistryEmit={emitSpy}
-      />);
+      component = mount(
+        <SidebarInstanceStats
+          instance={null}
+          databases={[]}
+          isExpanded
+          toggleIsExpanded={toggleSpy}
+          globalAppRegistryEmit={emitSpy}
+        />
+      );
     });
 
     afterEach(function () {
@@ -30,7 +32,9 @@ describe('SidebarInstanceStats [Component]', function () {
     });
 
     it('counts collections correctly', function () {
-      expect(component.find('#sidebar-instance-stats-collections')).to.have.text('-');
+      expect(
+        component.find('#sidebar-instance-stats-collections')
+      ).to.have.text('-');
     });
 
     it('counts dbs correctly', function () {
@@ -64,7 +68,9 @@ describe('SidebarInstanceStats [Component]', function () {
     });
 
     it('counts collections correctly', function () {
-      expect(component.find('#sidebar-instance-stats-collections')).to.have.text('5');
+      expect(
+        component.find('#sidebar-instance-stats-collections')
+      ).to.have.text('5');
     });
 
     it('counts dbs correctly', function () {
@@ -96,7 +102,9 @@ describe('SidebarInstanceStats [Component]', function () {
     });
 
     it('refreshes', function () {
-      component.find(`.${styles['sidebar-instance-stats-refresh-button']}`).simulate('click');
+      component
+        .find(`.${styles['sidebar-instance-stats-refresh-button']}`)
+        .simulate('click');
       expect(emitSpy.calledWith('refresh-data')).to.equal(true);
     });
   });

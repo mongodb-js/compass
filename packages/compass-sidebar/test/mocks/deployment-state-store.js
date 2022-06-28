@@ -28,12 +28,15 @@ const DeploymentStateStore = Reflux.createStore({
   getInitialState() {
     return {
       isWritable: true,
-      description: DEFAULT_DESCRIPTION
+      description: DEFAULT_DESCRIPTION,
     };
   },
   setToInitial() {
-    this.setState({isWritable: true, description: 'description set from renderer'});
-  }
+    this.setState({
+      isWritable: true,
+      description: 'description set from renderer',
+    });
+  },
 });
 
 module.exports = DeploymentStateStore;

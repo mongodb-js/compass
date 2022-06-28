@@ -65,7 +65,7 @@ const onNamespaceAction = (namespace, action) => {
         emit('sidebar-duplicate-view', ns);
         break;
       default:
-        // no-op
+      // no-op
     }
   };
 };

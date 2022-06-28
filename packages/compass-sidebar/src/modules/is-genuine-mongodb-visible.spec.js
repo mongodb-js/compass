@@ -3,14 +3,16 @@ import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   toggleIsGenuineMongoDBVisible,
-  TOGGLE_IS_GENUINE_MONGODB_VISIBLE
+  TOGGLE_IS_GENUINE_MONGODB_VISIBLE,
 } from './is-genuine-mongodb-visible';
 
 describe('is genuine mongodb visible module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, toggleIsGenuineMongoDBVisible(true))).to.equal(true);
+        expect(
+          reducer(undefined, toggleIsGenuineMongoDBVisible(true))
+        ).to.equal(true);
       });
     });
 
@@ -25,7 +27,7 @@ describe('is genuine mongodb visible module', function () {
     it('returns the action', function () {
       expect(toggleIsGenuineMongoDBVisible(false)).to.deep.equal({
         type: TOGGLE_IS_GENUINE_MONGODB_VISIBLE,
-        isVisible: false
+        isVisible: false,
       });
     });
   });

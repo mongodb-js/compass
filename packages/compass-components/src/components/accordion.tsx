@@ -34,10 +34,13 @@ const buttonDarkThemeStyles = css({
 });
 const containerStyles = css({
   display: 'flex',
-  alignItems: 'center',
 });
 const buttonIconStyles = css({
   marginRight: spacing[1],
+});
+const buttonTextStyles = css({
+  alignItems: 'baseline',
+  display: 'flex',
 });
 const buttonHintStyles = css({
   margin: 0,
@@ -80,10 +83,12 @@ function UnthemedAccordion({
             className={buttonIconStyles}
             glyph={open ? 'ChevronDown' : 'ChevronRight'}
           />
-          {text}
-          {hintText && (
-            <Description className={buttonHintStyles}>{hintText}</Description>
-          )}
+          <div className={buttonTextStyles}>
+            {text}
+            {hintText && (
+              <Description className={buttonHintStyles}>{hintText}</Description>
+            )}
+          </div>
         </button>
       </div>
 
