@@ -8,8 +8,8 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../stores';
-import { changeValue } from '../stores/privacy';
+import type { RootState } from '../../stores';
+import { changeValue } from '../../stores/privacy';
 
 type PrivacySettingsProps = {
   autoUpdates: boolean;

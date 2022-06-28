@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import ipc from 'hadron-ipc';
 
 import {
   Modal,
   ModalTitle,
   ModalFooter,
   css,
-  cx,
   spacing,
-  uiColors,
   Button,
 } from '@mongodb-js/compass-components';
 
 import { toggleModal } from '../stores/modal';
 import type { RootState } from '../stores';
 
-import PrivacySettings from './privacy';
-import ThemeSettings from './themes';
+import PrivacySettings from './settings/privacy';
+import ThemeSettings from './settings/themes';
+import Sidebar from './sidebar';
 
 type SettingsModalProps = {
   isModalOpen: boolean;
-  closeModal: () => void;
+  toggleModal: (value: boolean) => void;
 };
 
 const contentStyles = css({
@@ -30,22 +30,6 @@ const contentStyles = css({
 
 const sideNavStyles = css({
   width: '20%',
-  ul: {
-    li: {
-      padding: spacing[2],
-      borderRadius: spacing[1],
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: uiColors.yellow.base,
-      },
-      marginTop: spacing[1],
-      marginBottom: spacing[1],
-    },
-  },
-});
-
-const activeItem = css({
-  backgroundColor: uiColors.yellow.base,
 });
 
 const settingsStyles = css({
@@ -60,7 +44,7 @@ type Settings = {
 
 const CompassSettings: React.FunctionComponent<SettingsModalProps> = ({
   isModalOpen,
-  closeModal,
+  toggleModal,
 }) => {
   const settings: Settings[] = [
     { name: 'Privacy', component: PrivacySettings },
@@ -72,33 +56,29 @@ const CompassSettings: React.FunctionComponent<SettingsModalProps> = ({
   const SettingComponent =
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
 
+  useEffect(() => {
+    (ipc as any).on('window:show-network-optin', () => {
+      toggleModal(true);
+    });
+  }, [toggleModal]);
+
   return (
-    <Modal size="large" open={isModalOpen} setOpen={closeModal}>
+    <Modal size="large" open={isModalOpen} setOpen={() => toggleModal(false)}>
       <ModalTitle>Compass Settings</ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
-          <ul>
-            {settings.map(({ name }) => (
-              // eslint-disable jsx-a11y/click-events-have-key-events
-              // eslint-disable jsx-a11y/no-noninteractive-element-interactions
-              <li
-                className={cx({
-                  [activeItem]: name === selectedSetting,
-                })}
-                key={name}
-                onClick={() => setSelectedSettings(name)}
-              >
-                {name}
-              </li>
-            ))}
-          </ul>
+          <Sidebar
+            activeItem={selectedSetting}
+            onSelectItem={setSelectedSettings}
+            items={settings.map((x) => x.name)}
+          />
         </div>
         <div className={settingsStyles}>
           <SettingComponent />
         </div>
       </div>
       <ModalFooter>
-        <Button onClick={closeModal}>Close</Button>
+        <Button onClick={() => toggleModal(false)}>Close</Button>
       </ModalFooter>
     </Modal>
   );
@@ -109,7 +89,7 @@ const mapState = ({ modal: { isOpen } }: RootState) => ({
 });
 
 const mapDispatch = {
-  closeModal: () => toggleModal(false),
+  toggleModal,
 };
 
 export default connect(mapState, mapDispatch)(CompassSettings);

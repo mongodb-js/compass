@@ -1,9 +1,10 @@
 import { createStore, combineReducers } from 'redux';
 import type { Store, AnyAction } from 'redux';
-import ipc from 'hadron-ipc';
 
-import modalReducer, { toggleModal } from './modal';
+import modalReducer from './modal';
 import privacyReducer from './privacy';
+
+import { getUserPreferences } from '../utils/user-preferences'
 
 const store = createStore(
   combineReducers({
@@ -12,11 +13,7 @@ const store = createStore(
   }),
 );
 
-// todo: validate
-(ipc as any).on('window:show-network-optin', () => {
-  store.dispatch(toggleModal(true));
-});
-
+getUserPreferences();
 
 type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
 type StoreState<T> = T extends Store<infer S, AnyAction> ? S : never;
