@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-indexes",
   "productName": "Compass Indexes plugin",
   "description": "Collection index management for Compass",
-  "version": "4.26.0",
+  "version": "4.27.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -56,7 +56,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.16.0",
-    "@mongodb-js/compass-deployment-awareness": "^11.24.0",
+    "@mongodb-js/compass-deployment-awareness": "^11.25.0",
     "bson": "^4.4.1",
     "debug": "4.3.0",
     "hadron-react-buttons": "^5.9.0",
@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-components": "^0.16.0",
-    "@mongodb-js/compass-deployment-awareness": "^11.24.0",
+    "@mongodb-js/compass-deployment-awareness": "^11.25.0",
     "@mongodb-js/eslint-config-compass": "^0.10.0",
     "@mongodb-js/mocha-config-compass": "^0.11.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
@@ -89,7 +89,7 @@
     "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^4.24.0",
+    "hadron-app": "^4.25.0",
     "hadron-app-registry": "^8.13.0",
     "hadron-react-buttons": "^5.9.0",
     "hadron-react-components": "^5.16.0",
