@@ -71,7 +71,7 @@ const CompassSettings: React.FunctionComponent<SettingsModalProps> = ({
 
   return (
     <Modal size="large" open={isModalOpen} setOpen={() => toggleModal(false)}>
-      <ModalTitle>Compass Settings</ModalTitle>
+      <ModalTitle>Settings</ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar

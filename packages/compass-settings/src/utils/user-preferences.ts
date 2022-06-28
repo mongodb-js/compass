@@ -41,7 +41,7 @@ export const fetchPreferences = async (): Promise<UserPreferences> => {
   return (settings as any).getAttributes({ props: true }, true);
 }
 
-export const updatePreference = async (key: keyof UserPreferences, value: boolean): Promise<void> => {
+export const updatePreference = async (key: keyof UserPreferences, value: boolean | string): Promise<void> => {
   const model = new Preferences();
   const fetch = promisifyAmpersandMethod(
     model.fetch.bind(model)

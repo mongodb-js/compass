@@ -17,7 +17,7 @@ export enum ActionTypes {
 type ChangeFieldAction = {
   type: ActionTypes.FieldChanged;
   key: string;
-  value: boolean;
+  value: boolean | string;
 };
 
 type SettingsFetchedAction = {
@@ -59,7 +59,7 @@ export const fetchSettings = (): ThunkAction<void, RootState, void, Actions> => 
   };
 };
 
-export const changeFieldValue = (field: keyof UserPreferences, value: boolean): ThunkAction<void, RootState, void, Actions> => {
+export const changeFieldValue = (field: keyof UserPreferences, value: string | boolean): ThunkAction<void, RootState, void, Actions> => {
   return async (dispatch: Dispatch<Actions>): Promise<void> => {
     try {
       await updatePreference(field, value);

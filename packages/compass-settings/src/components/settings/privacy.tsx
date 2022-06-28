@@ -7,6 +7,7 @@ import {
   Description,
   css,
   spacing,
+  Link,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/settings';
@@ -137,6 +138,16 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
         }
         checked={enableFeedbackPanel}
       />
+
+      <Body>
+        With any of these options, none of your personal information or stored
+        data will be submitted.
+        <br />
+        Learn more:&nbsp;
+        <Link href="https://www.mongodb.com/legal/privacy-policy">
+          MongoDB Privacy Policy
+        </Link>
+      </Body>
     </div>
   );
 };
