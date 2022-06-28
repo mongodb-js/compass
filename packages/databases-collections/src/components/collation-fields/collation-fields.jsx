@@ -2,10 +2,9 @@ import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Select, Option, SelectSize } from '@mongodb-js/compass-components';
-import { spacing, css } from '@mongodb-js/compass-components';
+import { css } from '@mongodb-js/compass-components';
 
 const optionsSelectDropdownStyles = css({
-  paddingLeft: spacing[4],
   zIndex: 1,
   'button:focus, button:focus-within': {
     zIndex: 20
