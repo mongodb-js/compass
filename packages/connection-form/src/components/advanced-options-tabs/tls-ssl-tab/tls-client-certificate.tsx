@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileInput, TextInput, css } from '@mongodb-js/compass-components';
+import { FileInput, TextInput } from '@mongodb-js/compass-components';
 
 import FormFieldContainer from '../../form-field-container';
 

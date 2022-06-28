@@ -4,7 +4,6 @@ import {
   Description,
   Label,
   FileInput,
-  css,
   cx,
 } from '@mongodb-js/compass-components';
 import {
