@@ -14,10 +14,6 @@ import {
 
 import FormFieldContainer from '../../form-field-container';
 
-const caFieldsContainer = css({
-  width: '80%',
-});
-
 function TLSCertificateAuthority({
   tlsCAFile,
   useSystemCA,
@@ -37,7 +33,7 @@ function TLSCertificateAuthority({
   ) => void;
 }): React.ReactElement {
   return (
-    <FormFieldContainer className={caFieldsContainer}>
+    <FormFieldContainer>
       <FileInput
         description={
           displayDatabaseConnectionUserHints ? 'Learn More' : undefined
