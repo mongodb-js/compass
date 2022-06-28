@@ -248,7 +248,6 @@ class EditableJson extends React.Component {
       highlightGutterLine: false,
       showLineNumbers: this.state.editing,
       fixedWidthGutter: false,
-      showPrintMargin: false,
       displayIndentGuides: false,
       wrapBehavioursEnabled: true,
       foldStyle: 'markbegin'
