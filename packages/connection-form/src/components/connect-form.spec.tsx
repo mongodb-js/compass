@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  getByText,
+} from '@testing-library/react';
 import { expect } from 'chai';
 
 import ConnectForm from './connect-form';
@@ -131,5 +137,53 @@ describe('ConnectForm Component', function () {
     );
 
     expect(screen.getByText('connection error')).to.be.visible;
+  });
+
+  it('should show a Save & Connect button when there is no existing connection', function () {
+    render(
+      <ConnectForm
+        onConnectClicked={noop}
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'pineapples',
+          },
+        }}
+        onSaveConnectionClicked={noop}
+      />
+    );
+
+    const saveAndConnectButton = screen.getByText('Save & Connect');
+    expect(saveAndConnectButton).to.be.visible;
+
+    fireEvent.click(saveAndConnectButton);
+
+    expect(screen.getByText('Save connection to favorites')).to.be.visible;
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).to.be.visible;
+
+    expect(getByText(dialog, 'Save & Connect')).to.be.visible;
+    expect(() => getByText(dialog, 'Save')).to.throw;
+  });
+
+  it('should not show a Save & Connect button when there is an existing connection', function () {
+    render(
+      <ConnectForm
+        onConnectClicked={noop}
+        initialConnectionInfo={{
+          id: 'test',
+          connectionOptions: {
+            connectionString: 'pineapples',
+          },
+          favorite: {
+            name: 'foo',
+          },
+        }}
+        onSaveConnectionClicked={noop}
+      />
+    );
+
+    expect(() => screen.getByText('Save & Connect')).to.throw;
   });
 });

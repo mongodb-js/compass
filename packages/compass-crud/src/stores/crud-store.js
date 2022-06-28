@@ -289,13 +289,19 @@ const configureStore = (options = {}) => {
      * @param {Object} instance - MongoDB instance model.
      */
     onInstanceCreated(instance) {
+      this.setState({ version: instance.build.version });
+
       instance.build.on('change:version', (model, version) => {
         this.setState({ version });
       });
 
+      if (instance.dataLake.isDataLake) {
+        this.setState({ isDataLake: true, isEditable: false });
+      }
+
       instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
         if (isDataLake) {
-          this.setState({ isDataLake, isEditable: false });
+          this.setState({ isDataLake: true, isEditable: false });
         }
       });
     },
@@ -400,6 +406,7 @@ const configureStore = (options = {}) => {
       track('Document Deleted', { mode: this.modeForTelemetry() });
       const id = doc.getId();
       if (id !== undefined) {
+        doc.emit('remove-start');
         this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
           if (error) {
             // emit on the document(list view) and success state(json view)
@@ -463,6 +470,7 @@ const configureStore = (options = {}) => {
     async updateDocument(doc) {
       track('Document Updated', { mode: this.modeForTelemetry() });
       try {
+        doc.emit('update-start');
         // We add the shard keys here, if there are any, because that is
         // required for updated documents in sharded collections.
         const {
@@ -508,6 +516,7 @@ const configureStore = (options = {}) => {
     async replaceDocument(doc) {
       track('Document Updated', { mode: this.modeForTelemetry() });
       try {
+        doc.emit('update-start');
         const object = doc.generateObject();
         const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
           _id: 1,

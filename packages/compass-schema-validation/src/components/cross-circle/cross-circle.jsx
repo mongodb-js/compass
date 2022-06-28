@@ -15,9 +15,7 @@ class CrossCircle extends Component {
    * @returns {React.Component} The react component.
    */
   render() {
-    return (
-      <i className={`fa-lg ${classnames(styles['cross-circle'])}`} />
-    );
+    return <i className={`fa-lg ${classnames(styles['cross-circle'])}`} />;
   }
 }
 

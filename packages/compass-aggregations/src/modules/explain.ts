@@ -1,16 +1,16 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
-import { ExplainVerbosity } from 'mongodb';
+import type { ExplainExecuteOptions } from 'mongodb-data-service';
 import type { ThunkAction } from 'redux-thunk';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { generateStage } from './stage';
+import { mapPipelineToStages } from '../utils/stage';
 import type { IndexInfo } from './indexes';
 
-const { log, mongoLogId } = createLoggerAndTelemetry(
+const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
 );
 export enum ActionTypes {
@@ -145,9 +145,9 @@ export const explainAggregation = (): ThunkAction<
       pipeline: _pipeline,
       namespace,
       maxTimeMS,
-      collation,
       dataService: { dataService },
       indexes: collectionIndexes,
+      collationString: { value: collation }
     } = getState();
 
     if (!dataService) {
@@ -165,13 +165,11 @@ export const explainAggregation = (): ThunkAction<
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         allowDiskUse: true,
-        collation: collation || undefined,
+        collation: collation ?? undefined,
       };
 
-      const pipeline = _pipeline.map(generateStage)
-        .filter(x => Object.keys(x).length > 0);
-
-      const explainVerbosity = getExplainVerbosity(pipeline, isDataLake);
+      const pipeline = mapPipelineToStages(_pipeline);
+      const explainVerbosity = _getExplainVerbosity(pipeline, isDataLake);
       const rawExplain = await dataService.explainAggregate(
         namespace,
         pipeline,
@@ -191,7 +189,7 @@ export const explainAggregation = (): ThunkAction<
           executionTimeMillis,
           usedIndexes
         } = new ExplainPlan(rawExplain as any);
-        const indexes = mapIndexesInformation(collectionIndexes, usedIndexes);
+        const indexes = _mapIndexesInformation(collectionIndexes, usedIndexes);
         const stats = {
           executionTimeMillis,
           nReturned,
@@ -206,6 +204,10 @@ export const explainAggregation = (): ThunkAction<
           { message: (e as Error).message }
         );
       } finally {
+        track('Aggregation Explained', {
+          num_stages: pipeline.length,
+          index_used: explain.stats?.indexes?.length ?? 0,
+        });
         // If parsing fails, we still show raw explain json.
         dispatch({
           type: ActionTypes.ExplainFinished,
@@ -230,40 +232,37 @@ export const explainAggregation = (): ThunkAction<
   }
 };
 
-const getExplainVerbosity = (
+export const _getExplainVerbosity = (
   pipeline: Document[],
   isDataLake: boolean
-): keyof typeof ExplainVerbosity => {
+): ExplainExecuteOptions['explainVerbosity'] => {
   // dataLake does not have $out/$merge operators
   if (isDataLake) {
-    return ExplainVerbosity.queryPlannerExtended;
+    return 'queryPlannerExtended';
   }
   const lastStage = pipeline[pipeline.length - 1] ?? {};
   const isOutOrMergePipeline =
     Object.prototype.hasOwnProperty.call(lastStage, '$out') ||
     Object.prototype.hasOwnProperty.call(lastStage, '$merge');
   return isOutOrMergePipeline
-    ? ExplainVerbosity.queryPlanner // $out & $merge only work with queryPlanner
-    : ExplainVerbosity.allPlansExecution;
+    ? 'queryPlanner' // $out & $merge only work with queryPlanner
+    : 'allPlansExecution';
 };
 
-const mapIndexesInformation = function (
+export const _mapIndexesInformation = function (
   collectionIndexes: IndexInfo[],
   explainIndexes: IndexInformation[]
 ): ExplainIndex[] {
   return explainIndexes
     .filter(x => x.index)
     .map((explainIndex) => {
-      const index = collectionIndexes.find(
+      const collectionIndex = collectionIndexes.find(
         (collectionIndex) => collectionIndex.name === explainIndex.index
       );
-      if (!index) {
-        return null;
-      }
       return {
-        name: index.name,
+        name: explainIndex.index,
         shard: explainIndex.shard,
-        key: index.key,
+        key: collectionIndex?.key ?? {},
       };
     })
     .filter(Boolean) as ExplainIndex[];

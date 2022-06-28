@@ -48,12 +48,20 @@ const configureStore = (options = {}) => {
     const globalAppRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-    globalAppRegistry
-      .getStore('DeploymentAwareness.WriteStateStore')
-      .listen((state) => {
-        store.dispatch(writeStateChanged(state.isWritable));
-        store.dispatch(getDescription(state.description));
-      });
+    const deploymentAwarenessStore = globalAppRegistry.getStore(
+      'DeploymentAwareness.WriteStateStore'
+    );
+
+    deploymentAwarenessStore.listen((state) => {
+      store.dispatch(writeStateChanged(state.isWritable));
+      store.dispatch(getDescription(state.description));
+    });
+
+    // Load the initial deployment awareness state.
+    store.dispatch(
+      writeStateChanged(deploymentAwarenessStore.state.isWritable)
+    );
+    store.dispatch(getDescription(deploymentAwarenessStore.state.description));
 
     globalAppRegistry.on('refresh-data', () => {
       store.dispatch(loadIndexesFromDb());

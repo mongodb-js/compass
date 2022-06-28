@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, ButtonSize, ButtonVariant, Link } from '@mongodb-js/compass-components';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+  Link,
+} from '@mongodb-js/compass-components';
 import { ZeroState, StatusRow } from 'hadron-react-components';
 import ValidationEditor from '../validation-editor';
 import SampleDocuments from '../sample-documents';
@@ -12,10 +17,12 @@ import styles from './validation-states.module.less';
  * Warnings for the banner.
  */
 export const READ_ONLY_WARNING = {
-  collectionTimeSeries: 'Schema validation for time-series collections is not supported.',
+  collectionTimeSeries:
+    'Schema validation for time-series collections is not supported.',
   collectionReadOnly: 'Schema validation for readonly views is not supported.',
   writeStateStoreReadOnly: 'This action is not available on a secondary node.',
-  oldServerReadOnly: 'Compass no longer supports the visual rule builder for server versions below 3.2. To use the visual rule builder, please'
+  oldServerReadOnly:
+    'Compass no longer supports the visual rule builder for server versions below 3.2. To use the visual rule builder, please',
 };
 
 /**
@@ -26,17 +33,20 @@ const HEADER = 'Add validation rules';
 /**
  * Additional text for zero state.
  */
-const SUBTEXT = 'Create rules to enforce data structure of documents on updates and inserts.';
+const SUBTEXT =
+  'Create rules to enforce data structure of documents on updates and inserts.';
 
 /**
  * Link to the schema validation documentation.
  */
-const DOC_SCHEMA_VALIDATION = 'https://docs.mongodb.com/manual/core/schema-validation/';
+const DOC_SCHEMA_VALIDATION =
+  'https://docs.mongodb.com/manual/core/schema-validation/';
 
 /**
  * Link to the upgrading to the latest revision documentation.
  */
-const DOC_UPGRADE_REVISION = 'https://docs.mongodb.com/manual/tutorial/upgrade-revision/';
+const DOC_UPGRADE_REVISION =
+  'https://docs.mongodb.com/manual/tutorial/upgrade-revision/';
 
 /**
  * The ValidationStates component.
@@ -50,9 +60,8 @@ class ValidationStates extends Component {
     changeZeroState: PropTypes.func.isRequired,
     zeroStateChanged: PropTypes.func.isRequired,
     editMode: PropTypes.object.isRequired,
-    openLink: PropTypes.func.isRequired,
-    serverVersion: PropTypes.string
-  }
+    serverVersion: PropTypes.string,
+  };
 
   /**
    * Checks if the validation is editable.
@@ -112,12 +121,13 @@ class ValidationStates extends Component {
             <div id="oldServerReadOnly">
               {READ_ONLY_WARNING.oldServerReadOnly}
               <div>&nbsp;</div>
-              <a
+              <Link
                 className={styles['upgrade-link']}
-                onClick={this.props.openLink.bind(this, DOC_UPGRADE_REVISION)}
+                target="_blank"
+                href={DOC_UPGRADE_REVISION}
               >
                 upgrade to MongoDB 3.2.
-              </a>
+              </Link>
             </div>
           </StatusRow>
         );
@@ -157,7 +167,8 @@ class ValidationStates extends Component {
           </div>
           <Link
             className={styles['zero-state-link']}
-            onClick={this.props.openLink.bind(this, DOC_SCHEMA_VALIDATION)}
+            href={DOC_SCHEMA_VALIDATION}
+            target="_blank"
           >
             Learn more about validations
           </Link>

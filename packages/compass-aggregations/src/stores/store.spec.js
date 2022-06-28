@@ -175,10 +175,6 @@ describe('Aggregation Store', function() {
           expect(state.collationString).to.equal(INITIAL_STATE.collationString);
         });
 
-        it('resets is collation expanded', function() {
-          expect(state.isCollationExpanded).to.equal(INITIAL_STATE.isCollationExpanded);
-        });
-
         it('resets is overview on', function() {
           expect(state.isOverviewOn).to.equal(INITIAL_STATE.isOverviewOn);
         });
@@ -223,7 +219,6 @@ describe('Aggregation Store', function() {
           // eslint-disable-next-line no-unused-vars
           const { aggregationWorkspaceId, ...state } = store.getState();
           expect(state).to.deep.equal({
-            allowWrites: INITIAL_STATE.allowWrites,
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
             env: INITIAL_STATE.env,
@@ -247,9 +242,7 @@ describe('Aggregation Store', function() {
             isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
             isReadonly: INITIAL_STATE.isReadonly,
             importPipeline: INITIAL_STATE.importPipeline,
-            collation: INITIAL_STATE.collation,
             collationString: INITIAL_STATE.collationString,
-            isCollationExpanded: INITIAL_STATE.isCollationExpanded,
             isOverviewOn: INITIAL_STATE.isOverviewOn,
             settings: INITIAL_STATE.settings,
             limit: INITIAL_STATE.limit,

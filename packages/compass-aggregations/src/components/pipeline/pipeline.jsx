@@ -32,7 +32,6 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
-    allowWrites: PropTypes.bool.isRequired,
     env: PropTypes.string.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
     openPipelineById: PropTypes.func.isRequired,
@@ -84,13 +83,9 @@ class Pipeline extends PureComponent {
     updateView: PropTypes.func.isRequired,
     updateViewError: PropTypes.string,
     importPipelineError: PropTypes.string,
-    collation: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
-    collationChanged: PropTypes.func.isRequired,
-    collationString: PropTypes.string,
+    collationString: PropTypes.object,
     collationStringChanged: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
-    collationCollapseToggled: PropTypes.func.isRequired,
-    isCollationExpanded: PropTypes.bool.isRequired,
     isOverviewOn: PropTypes.bool.isRequired,
     toggleOverview: PropTypes.func.isRequired,
     settings: PropTypes.object.isRequired,
@@ -204,7 +199,6 @@ class Pipeline extends PureComponent {
       <PipelineResultsWorkspace />
     ) : (
       <PipelineBuilderWorkspace
-        allowWrites={this.props.allowWrites}
         editViewName={this.props.editViewName}
         env={this.props.env}
         isTimeSeries={this.props.isTimeSeries}

@@ -11,8 +11,8 @@ class LoadingOverlay extends PureComponent {
   static displayName = 'LoadingOverlay';
 
   static propTypes = {
-    text: PropTypes.string.isRequired
-  }
+    text: PropTypes.string.isRequired,
+  };
 
   /**
    * Renders the loading overlay.

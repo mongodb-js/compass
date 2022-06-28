@@ -38,24 +38,26 @@ const addStageStyles = css({
 });
 
 type PipelineStagesProps = {
-  isEditing: boolean;
+  isResultsMode: boolean;
   stages: string[];
+  showAddNewStage: boolean;
   onStageAdded: () => void;
   onChangeWorkspace: (workspace: Workspace) => void;
 };
 
 export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
-  isEditing,
+  isResultsMode,
   stages,
+  showAddNewStage,
   onStageAdded,
   onChangeWorkspace,
 }) => {
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
-      {stages.filter(Boolean).length === 0 ? (
+      {stages.length === 0 ? (
         <Description className={cx(descriptionStyles)}>
           Your pipeline is currently empty.
-          {stages.length === 0 && (
+          {showAddNewStage && (
             <>
               {' '}
               To get started select the&nbsp;
@@ -73,12 +75,12 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
         </Description>
       ) : (
         <Pipeline size="small">
-          {stages.filter(Boolean).map((stage, index) => (
+          {stages.map((stage, index) => (
             <Stage key={`${index}-${stage}`}>{stage}</Stage>
           ))}
         </Pipeline>
       )}
-      {isEditing && (
+      {isResultsMode && (
         <Button
           data-testid="pipeline-toolbar-edit-button"
           variant="primaryOutline"
@@ -94,8 +96,12 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
 };
 
 const mapState = ({ pipeline, workspace }: RootState) => ({
-  stages: pipeline.map((stageState) => stageState.stageOperator),
-  isEditing: workspace === 'results',
+  stages: pipeline
+    .filter((stage) => stage.isEnabled)
+    .map(({ stageOperator }) => stageOperator)
+    .filter(Boolean),
+  showAddNewStage: pipeline.length === 0,
+  isResultsMode: workspace === 'results',
 });
 
 const mapDispatch = {

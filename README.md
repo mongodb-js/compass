@@ -1,6 +1,6 @@
 # MongoDB Compass Monorepo
 
-This repository contains the source code and build tooling used in [MongoDB Compass](https://compass.mongodb.com).
+This repository contains the source code and build tooling used in [MongoDB Compass](https://www.mongodb.com/products/compass).
 
 ![Aggregation Pipeline Builder Tab in Compass](packages/compass/compass-screenshot.png)
 
@@ -63,8 +63,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker
 - [**mongodb-ace-mode**](packages/ace-mode): MongoDB Mode for the ACE Editor
-- [**mongodb-ace-theme**](packages/ace-theme): MongoDB Theme for the ACE Editor
-- [**mongodb-ace-theme-query**](packages/ace-theme-query): MongoDB Theme for the ACE Editor in the Query Bar
 - [**mongodb-collection-model**](packages/collection-model): MongoDB collection model.
 - [**mongodb-connection-model**](packages/connection-model): MongoDB connection model.
 - [**mongodb-data-service**](packages/data-service): MongoDB Data Service

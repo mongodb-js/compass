@@ -10,6 +10,8 @@ export const CloseFeatureTourModal = '[data-test-id="close-tour-button"]';
 // Connection screen
 export const ConnectSection = '[data-testid="connections-disconnected"]';
 export const ConnectButton = '[data-testid="connect-button"]';
+export const ConnectionFormSaveAndConnectButton =
+  '[data-testid="save-and-connect-button"]';
 export const ConnectionStringInput = 'textarea[data-testid="connectionString"]';
 export const ConnectionFormEditFavouriteButton =
   '[data-testid="edit-favorite-icon-button"]';
@@ -82,6 +84,8 @@ export const ConnectionFormInputAWSSessionToken =
 
 export const ConnectionFormInputFLEKeyVaultNamespace =
   '[data-testid="csfle-keyvault"]';
+export const ConnectionFormInputFLEStoreCredentialsCheckbox =
+  '[data-testid="csfle-store-credentials-input"]';
 export const ConnectionFormInputFLELocalKMS =
   '[data-testid="csfle-kms-provider-local"]';
 export const ConnectionFormInputFLELocalKey =
@@ -190,12 +194,21 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 };
 
 // Connection Sidebar
-export const SidebarDatabaseAndConnectionList =
-  '[data-test-id="databases-and-collections"]';
-export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="treeitem"]`;
-export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
+export const FavoriteConnections = '[data-testid="favorite-connection"]';
+export const ConnectionMenu = '[data-testid="connection-menu"]';
+export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
+export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
+export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const RecentConnectionsHeader = '[data-testid="recents-header"]';
+export const RecentConnections = '[data-testid="recent-connection"]';
+
+// Database-Collection Sidebar
+export const SidebarDatabaseAndCollectionList =
+  '[data-test-id="databases-and-collections"]';
+export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;
+export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const TopologyReplicaSetHostAddress =
   '[data-test-id="topology-replica-set-host-address-0"]';
 export const ReplicaSetType = '[data-test-id="topology-replica-set-type"]';
@@ -207,17 +220,17 @@ export const ShowActionsButton = '[data-testid="show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
-export const SidebarFavoriteButton = '[data-testid="favorite-connection"]';
-export const ConnectionMenu = '[data-testid="connection-menu"]';
-export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
-export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
-export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
 export const SidebarInstanceRefreshButton =
   '[data-test-id="sidebar-instance-stats-refresh-button"]';
 export const SidebarInstanceRefreshSpinning =
   '[data-test-id="sidebar-instance-stats-refresh-spinning"]';
 export const SidebarInstanceRefreshIdle =
   '[data-test-id="sidebar-instance-stats-refresh-idle"]';
+export const FleConnectionConfigurationBanner =
+  '[data-test-id="fle-connection-configuration"]';
+export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
+export const CSFLEConnectionModal = '[data-test-id="csfle-connection-modal"]';
+export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -235,7 +248,7 @@ export const sidebarCollection = (
 };
 
 export const sidebarFavorite = (favoriteName: string): string => {
-  return `${SidebarFavoriteButton}[data-id="favorite-connection-${favoriteName}"]`;
+  return `${FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
 
 export const sidebarFavoriteButton = (favoriteName: string): string => {
@@ -492,14 +505,13 @@ export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
 export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
 export const SelectTableView = '[data-test-id="toolbar-view-table"]';
 export const SelectListView = '[data-test-id="toolbar-view-list"]';
-export const DocumentFooterMessage = '.document-footer-message';
-export const UpdateDocumentButton =
-  '.document-footer [data-test-id="update-document-button"]';
 export const CopyDocumentButton = '[data-testid="copy-document-button"]';
 export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
-export const ConfirmDeleteDocumentButton =
-  '[data-test-id="confirm-delete-document-button"]';
+export const DocumentFooter = '[data-testid="document-footer"]';
+export const DocumentFooterMessage = '[data-testid="document-footer-message"]';
+export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-button"]`;
+export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="delete-button"]`;
 
 // Insert Document modal
 
@@ -513,6 +525,8 @@ export const InsertCancel =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
 export const insertCSFLEHasKnownSchemaMsg =
   '[data-test-id="insert-csfle-has-known-schema"]';
+export const incompleteSchemaForClonedDocMsg =
+  '[data-test-id="incomplete-schema-for-cloned-doc"]';
 
 // Import File modal
 
@@ -578,9 +592,6 @@ export const documentListDocumentKey = (n: number): string => {
 };
 export const documentListDocumentValue = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentValue}`;
-};
-export const documentListDecryptedIcon = (n: number): string => {
-  return `${DocumentListItem}:nth-child(${n}) ${HadronDocumentElementDecryptedIcon}`;
 };
 
 // Query bar history
@@ -763,7 +774,7 @@ export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
 export const NameColumnName = '[data-test-id="name-column-name"]';
 export const CreateIndexButton =
-  '[data-test-id="open-create-index-modal-button"]';
+  '[data-testid="open-create-index-modal-button"]';
 export const CreateIndexModal = '[data-test-id="create-index-modal"]';
 export const CreateIndexModalFieldSelect =
   '[data-test-id="create-index-modal-field-select"]';

@@ -47,7 +47,7 @@ export class ExplainPlan {
     const ixscan = this.findAllStagesByName('IXSCAN');
     // special case for IDHACK stage, using the _id_ index.
     const idhack = this.findStageByName('IDHACK');
-    const ret: IndexInformation[] = [];
+    const ret: IndexInformation[] = this.executionStats.stageIndexes ?? [];
     for (const stage of [...ixscan, idhack]) {
       if (!stage) continue;
       let shard: string | null = null;

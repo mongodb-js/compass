@@ -5,7 +5,8 @@ const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 /**
  * Zero state changed action.
  */
-export const IS_ZERO_STATE_CHANGED = 'validation/namespace/IS_ZERO_STATE_CHANGED';
+export const IS_ZERO_STATE_CHANGED =
+  'validation/namespace/IS_ZERO_STATE_CHANGED';
 
 /**
  * The initial state.
@@ -37,7 +38,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const zeroStateChanged = (isZeroState) => ({
   type: IS_ZERO_STATE_CHANGED,
-  isZeroState
+  isZeroState,
 });
 
 /**
@@ -50,28 +51,28 @@ export const zeroStateChanged = (isZeroState) => ({
  *
  * @returns {Function} The function.
  */
-const sendMetrics = (dispatch, dataService, namespace, registryEvent) => dataService
-  .database(namespace.database, {}, (errorDB, res) => {
+const sendMetrics = (dispatch, dataService, namespace, registryEvent) =>
+  dataService.database(namespace.database, {}, (errorDB, res) => {
     let collectionSize = 0;
 
     if (!errorDB) {
-      const collection = res.collections.find((coll) => (
-        coll.name === namespace.collection
-      ));
+      const collection = res.collections.find(
+        (coll) => coll.name === namespace.collection
+      );
 
       collectionSize = collection.document_count;
     }
 
-    return dispatch(globalAppRegistryEmit(registryEvent, { collectionSize } ));
+    return dispatch(globalAppRegistryEmit(registryEvent, { collectionSize }));
   });
 
 /**
-* Change zero state.
-*
-* @param {Boolean} isZeroState - Is zero state.
-*
-* @returns {Function} The function.
-*/
+ * Change zero state.
+ *
+ * @param {Boolean} isZeroState - Is zero state.
+ *
+ * @returns {Function} The function.
+ */
 export const changeZeroState = (isZeroState) => {
   return (dispatch, getState) => {
     const state = getState();
@@ -80,7 +81,12 @@ export const changeZeroState = (isZeroState) => {
 
     if (isZeroState === false) {
       track('Schema Validation Added');
-      sendMetrics(dispatch, dataService, namespace, 'schema-validation-rules-added');
+      sendMetrics(
+        dispatch,
+        dataService,
+        namespace,
+        'schema-validation-rules-added'
+      );
     }
 
     return dispatch(zeroStateChanged(isZeroState));

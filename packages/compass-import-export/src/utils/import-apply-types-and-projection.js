@@ -43,7 +43,7 @@ function transformProjectedTypes(
     return data;
   }
 
-  const dotted = serialize(data);
+  const dotted = serialize(data, { includeObjects: true });
   const result = {};
 
   _.forEach(

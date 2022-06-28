@@ -3,7 +3,7 @@ import type { AggregateOptions } from 'mongodb';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { generateStage } from './stage';
+import { mapPipelineToStages } from '../utils/stage';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import type { Actions as WorkspaceActions } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
@@ -92,8 +92,8 @@ export const countDocuments = (): ThunkAction<
       pipeline,
       namespace,
       maxTimeMS,
-      collation,
-      dataService: { dataService }
+      dataService: { dataService },
+      collationString: { value: collation }
     } = getState();
 
     if (!dataService) {
@@ -108,13 +108,10 @@ export const countDocuments = (): ThunkAction<
         abortController,
       });
 
-      const nonEmptyStages = pipeline
-        .map(generateStage)
-        .filter((stage) => Object.keys(stage).length > 0);
-
+      const nonEmptyStages = mapPipelineToStages(pipeline);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collation || undefined,
+        collation: collation ?? undefined,
       };
 
       const [{ count }] = await aggregatePipeline({
