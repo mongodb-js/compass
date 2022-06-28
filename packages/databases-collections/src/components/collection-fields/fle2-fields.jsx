@@ -16,8 +16,7 @@ import {
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 import FieldSet from '../field-set/field-set';
 
-// TODO(COMPASS-5777): Use URL specifically for FLE2
-const HELP_URL_FLE2 = 'https://www.mongodb.com/docs/drivers/security/client-side-field-level-encryption-guide/';
+const HELP_URL_FLE2 = 'https://dochub.mongodb.org/core/rqe-encrypted-fields';
 
 const kmsProviderNames = {
   local: 'Local',
