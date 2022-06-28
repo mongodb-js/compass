@@ -164,7 +164,6 @@ class StageEditor extends Component {
             name={`aggregations-stage-editor-${this.props.index}`}
             options={({minLines: 5})}
             completer={this.completer}
-            showPrintMargin={false}
             onLoad={(editor) => {
               this.editor = editor;
             }}

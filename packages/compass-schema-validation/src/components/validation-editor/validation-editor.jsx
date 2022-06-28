@@ -313,7 +313,6 @@ class ValidationEditor extends Component {
               onChangeText={(text) => this.onValidatorChange(text)}
               options={{
                 highlightActiveLine: false,
-                showPrintMargin: false,
               }}
               readOnly={!this.props.isEditable}
               completer={this.completer}
