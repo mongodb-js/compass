@@ -3,10 +3,12 @@ import type { Store, AnyAction } from 'redux';
 import ipc from 'hadron-ipc';
 
 import modalReducer, { toggleModal } from './modal';
+import privacyReducer from './privacy';
 
 const store = createStore(
   combineReducers({
     modal: modalReducer,
+    privacy: privacyReducer,
   }),
 );
 
