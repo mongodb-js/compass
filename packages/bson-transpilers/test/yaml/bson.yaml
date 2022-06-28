@@ -51,7 +51,7 @@ tests:
           java: 'new CodeWithScope("string", new Document("x", "1"))'
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: 'new Code("string", {"x": 1})'
-          php: "new Javascript('string', (object) ['x' => '1'])"
+          php: "new Javascript('string', ['x' => '1'])"
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"string\"), Scope: bson.D{{\"x\", \"1\"}}}"
           rust: |-
@@ -96,7 +96,7 @@ tests:
           java: 'new CodeWithScope("string", new Document("x", "1"))'
           csharp: 'new BsonJavaScriptWithScope("string", new BsonDocument("x", "1"))'
           object: "new Code('string', {'x': '1'})"
-          php: "new Javascript('string', (object) ['x' => '1'])"
+          php: "new Javascript('string', ['x' => '1'])"
           ruby: "BSON::CodeWithScope.new('string', {\n  'x' => '1'\n})"
           go: "primitive.CodeWithScope{Code: primitive.JavaScript(\"string\"), Scope: bson.D{{\"x\", \"1\"}}}"
           rust: |-

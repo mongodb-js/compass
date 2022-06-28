@@ -31,7 +31,7 @@ tests:
                   'x': 1
                 }).scope
             object: "{'x': 1}"
-            php: (new Javascript('test code', (object) ['x' => 1]))->getScope()
+            php: (new Javascript('test code', ['x' => 1]))->getScope()
             ruby: |-
                 BSON::CodeWithScope.new('test code', {
                   'x' => 1
@@ -295,7 +295,7 @@ tests:
             csharp: 429496729601L & 0x0000ffff
             python: Int64(429496729601) & 0x0000ffff
             object: '1'
-            php: 429496729601 & 0x0000ffff
+            php: 429496729601 & 0x00000000ffffffff
             ruby: 429496729601 & 0x0000ffff
             go: int64(429496729601) & 0x0000ffff
             rust: 429496729601i64 & 0x0000ffff

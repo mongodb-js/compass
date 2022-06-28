@@ -300,22 +300,39 @@ Templates:
         }
     ObjectTypeTemplate: &ObjectTypeTemplate !!js/function >
         (literal) => {
-            if (literal === '') {
-                return `(object) []`;
-            }
-            return `(object) ${literal}`;
+            return `${literal}`;
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args, depth) => {
+            let isObj = true;
+        
             if (args.length === 0) {
-                return '[]';
+                return `[]`;
+            }
+
+            const checkIndex = (strIndex, numericIndex) => {
+                let parsedIndex = parseInt(strIndex);
+                if (isNaN(parsedIndex) || ('' + parsedIndex !== strIndex) || parsedIndex != numericIndex) return false;
+                return true;
             }
         
-            const pairs = args.map((arg) => {
+            let indexTest = -1;
+            let pairs = args.map((arg) => {
+                indexTest++;
+                if (isObj && !checkIndex(arg[0], indexTest)) {
+                    isObj = false;
+                }
                 return `${this.utils.stringifyWithSingleQuotes(arg[0])} => ${arg[1]}`;
             }).join(', ');
 
-            return `[${pairs}]`
+            // Rebuilding pairs for numeric sequential indexes without quotes
+            if (isObj) {
+                pairs = args.map((arg) => {
+                    return `${arg[0]} => ${arg[1]}`;
+                }).join(', ');
+            }
+
+            return `${isObj ? '(object) ' : ''}[${pairs}]`
         }
 
     #############################################
@@ -883,7 +900,7 @@ Templates:
         }
     LongBottomTemplate: &LongBottomTemplate !!js/function >
         (lhs) => {
-            return `${lhs} & 0x0000ffff`;
+            return `${lhs} & 0x00000000ffffffff`;
         }
     TimestampToStringTemplate: &TimestampToStringTemplate !!js/function >
         (lhs) => {

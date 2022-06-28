@@ -19,7 +19,7 @@ tests:
           csharp: "new BsonDocument(\"x\", \"1\")"
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
-          php: "(object) ['x' => '1']"
+          php: "['x' => '1']"
           ruby: "{\n  'x' => '1'\n}"
           rust: |-
             doc! {
@@ -37,7 +37,7 @@ tests:
           csharp: "new BsonDocument(\"x\", \"1\")"
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
-          php: "(object) ['x' => '1']"
+          php: "['x' => '1']"
           ruby: "{\n  'x' => '1'\n}"
           rust: |-
             doc! {
@@ -55,7 +55,7 @@ tests:
           csharp: "new BsonDocument(\"x\", new BsonArray\n    {\n        \"1\",\n        \"2\"\n    })"
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
-          php: "(object) ['x' => ['1', '2']]"
+          php: "['x' => ['1', '2']]"
           ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
           rust: |-
             doc! {
@@ -84,7 +84,7 @@ tests:
           csharp: "new BsonDocument(\"x\", new BsonDocument(\"y\", 2))"
           shell: "{\n  'x': {\n    'y': 2\n  }\n}"
           object: "{x: {y: 2}}"
-          php: "(object) ['x' => (object) ['y' => 2]]"
+          php: "['x' => ['y' => 2]]"
           ruby: "{\n  'x' => {\n    'y' => 2\n  }\n}"
           rust: |-
             doc! {
@@ -104,7 +104,7 @@ tests:
           java: "new Document()"
           csharp: "new BsonDocument()"
           object: "{}"
-          php: "(object) []"
+          php: "[]"
           ruby: "{}"
           rust: "doc! {}"
           go: bson.D{}
@@ -119,7 +119,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"x\", \"1\" }, \n    { \"n\", \"4\" }\n}"
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
-          php: "(object) ['x' => '1', 'n' => '4']"
+          php: "['x' => '1', 'n' => '4']"
           ruby: "{\n  'x' => '1',\n  'n' => '4'\n}"
           rust: |-
             doc! {
@@ -132,6 +132,12 @@ tests:
                 {"n", "4"},
             }
     - input:
+        javascript: "{0: '1', 1: '2', 2: '3'}"
+        shell: "{0: '1', 1: '2', 2: '3'}"
+        python: "{'0': '1', '1': '2', '2': '3'}"
+      output:
+        php: "(object) [0 => '1', 1 => '2', 2 => '3']"
+    - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           python: "{'graphLookup': {'from': 'raw_data', 'startWith': '$_id', 'connectFromField': '_id', 'connectToField': 'manager', 'as': 'reports'}}"
@@ -142,7 +148,7 @@ tests:
           csharp: "new BsonDocument(\"graphLookup\", new BsonDocument\n    {\n        { \"from\", \"raw_data\" }, \n        { \"startWith\", \"$_id\" }, \n        { \"connectFromField\", \"_id\" }, \n        { \"connectToField\", \"manager\" }, \n        { \"as\", \"reports\" }\n    })"
           shell: "{\n  'graphLookup': {\n    'from': 'raw_data', \n    'startWith': '$_id', \n    'connectFromField': '_id', \n    'connectToField': 'manager', \n    'as': 'reports'\n  }\n}"
           object: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
-          php: "(object) ['graphLookup' => (object) ['from' => 'raw_data', 'startWith' => '$_id', 'connectFromField' => '_id', 'connectToField' => 'manager', 'as' => 'reports']]"
+          php: "['graphLookup' => ['from' => 'raw_data', 'startWith' => '$_id', 'connectFromField' => '_id', 'connectToField' => 'manager', 'as' => 'reports']]"
           ruby: "{\n  'graphLookup' => {\n    'from' => 'raw_data',\n    'startWith' => '$_id',\n    'connectFromField' => '_id',\n    'connectToField' => 'manager',\n    'as' => 'reports'\n  }\n}"
           rust: |-
             doc! {
@@ -177,7 +183,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}"
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
-          php: "(object) ['status' => 'A', '$or' => [(object) ['qty' => (object) ['$lt' => 30]], (object) ['item' => (object) ['$regex' => '^p']]]]"
+          php: "['status' => 'A', '$or' => [['qty' => ['$lt' => 30]], ['item' => ['$regex' => '^p']]]]"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
           rust: |-
             doc! {
@@ -214,7 +220,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}"
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
-          php: "(object) ['status' => 'A', '$or' => [(object) ['qty' => (object) ['$lt' => 30]], (object) ['item' => (object) ['$regex' => '^p']]]]"
+          php: "['status' => 'A', '$or' => [['qty' => ['$lt' => 30]], ['item' => ['$regex' => '^p']]]]"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
           rust: |-
             doc! {
@@ -300,7 +306,7 @@ tests:
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           python: "[\n    '1', {\n        'settings': 'http2'\n    }\n]"
           object: "['1', { settings: 'http2' }]"
-          php: "['1', (object) ['settings' => 'http2']]"
+          php: "['1', ['settings' => 'http2']]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
           rust: |-
             [
@@ -325,7 +331,7 @@ tests:
           shell: "{\n  'pipeline': [\n    {\n      '$match': {\n        '$expr': {\n          '$eq': [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project': {\n        'managers': 0\n      }\n    }, {\n      '$sort': {\n        'startQuarter': 1, \n        'notes': 1, \n        'job_code': 1\n      }\n    }\n  ]\n}"
           python: "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}"
           object: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
-          php: "(object) ['pipeline' => [(object) ['$match' => (object) ['$expr' => (object) ['$eq' => ['$manager', '$$me']]]], (object) ['$project' => (object) ['managers' => 0]], (object) ['$sort' => (object) ['startQuarter' => 1, 'notes' => 1, 'job_code' => 1]]]]"
+          php: "['pipeline' => [['$match' => ['$expr' => ['$eq' => ['$manager', '$$me']]]], ['$project' => ['managers' => 0]], ['$sort' => ['startQuarter' => 1, 'notes' => 1, 'job_code' => 1]]]]"
           ruby: "{\n  'pipeline' => [\n    {\n      '$match' => {\n        '$expr' => {\n          '$eq' => [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project' => {\n        'managers' => 0\n      }\n    }, {\n      '$sort' => {\n        'startQuarter' => 1,\n        'notes' => 1,\n        'job_code' => 1\n      }\n    }\n  ]\n}"
           rust: |-
             doc! {
@@ -608,7 +614,7 @@ tests:
           csharp: "new BsonArray\n{\n    \"1\",\n    new BsonDocument(\"settings\", \"http2\")\n}"
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           object: "['1', { 'settings': 'http2' }]"
-          php: "['1', (object) ['settings' => 'http2']]"
+          php: "['1', ['settings' => 'http2']]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
           rust: |-
             [
