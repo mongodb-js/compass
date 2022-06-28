@@ -32,9 +32,6 @@ const buttonLightThemeStyles = css({
 const buttonDarkThemeStyles = css({
   color: uiColors.white,
 });
-const containerStyles = css({
-  display: 'flex',
-});
 const buttonIconStyles = css({
   marginRight: spacing[1],
 });
@@ -64,33 +61,31 @@ function UnthemedAccordion({
   const labelId = useId('label-');
   return (
     <>
-      <div className={containerStyles}>
-        <button
-          data-testid={props['data-testid']}
-          className={cx(
-            darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
-            buttonStyles
+      <button
+        data-testid={props['data-testid']}
+        className={cx(
+          darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
+          buttonStyles
+        )}
+        id={labelId}
+        type="button"
+        aria-expanded={open ? 'true' : 'false'}
+        aria-controls={regionId}
+        onClick={() => {
+          setOpen((currentOpen) => !currentOpen);
+        }}
+      >
+        <Icon
+          className={buttonIconStyles}
+          glyph={open ? 'ChevronDown' : 'ChevronRight'}
+        />
+        <div className={buttonTextStyles}>
+          {text}
+          {hintText && (
+            <Description className={buttonHintStyles}>{hintText}</Description>
           )}
-          id={labelId}
-          type="button"
-          aria-expanded={open ? 'true' : 'false'}
-          aria-controls={regionId}
-          onClick={() => {
-            setOpen((currentOpen) => !currentOpen);
-          }}
-        >
-          <Icon
-            className={buttonIconStyles}
-            glyph={open ? 'ChevronDown' : 'ChevronRight'}
-          />
-          <div className={buttonTextStyles}>
-            {text}
-            {hintText && (
-              <Description className={buttonHintStyles}>{hintText}</Description>
-            )}
-          </div>
-        </button>
-      </div>
+        </div>
+      </button>
 
       {open && (
         <div role="region" aria-labelledby={labelId} id={regionId}>
