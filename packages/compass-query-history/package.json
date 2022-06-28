@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
-  "version": "8.24.0",
+  "version": "8.25.0",
   "apiVersion": "3.0.0",
   "description": "The query history sidebar.",
   "main": "lib/index.js",
@@ -46,7 +46,7 @@
     "@mongodb-js/compass-logging": "^0.13.0",
     "bson": "^4.4.1",
     "lodash": "^4.17.15",
-    "mongodb-data-service": "^21.22.0"
+    "mongodb-data-service": "^21.23.0"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.16.0",
@@ -95,7 +95,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.24.0",
+    "hadron-app": "^4.25.0",
     "hadron-app-registry": "^8.13.0",
     "hadron-react-components": "^5.16.0",
     "har-validator": "^5.1.3",

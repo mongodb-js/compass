@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "6.25.0",
+  "version": "6.26.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -120,7 +120,7 @@
     "eslint": "^7.25.0",
     "hadron-app-registry": "^8.13.0",
     "mocha": "^8.4.0",
-    "mongodb-data-service": "^21.22.0",
+    "mongodb-data-service": "^21.23.0",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
     "redux-mock-store": "^1.5.4",

@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -80,7 +80,7 @@
     "eslint": "^7.25.0",
     "mocha": "^8.4.0",
     "mongodb": "^4.6.0",
-    "mongodb-data-service": "^21.22.0",
+    "mongodb-data-service": "^21.23.0",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
     "sinon": "^9.2.3",
