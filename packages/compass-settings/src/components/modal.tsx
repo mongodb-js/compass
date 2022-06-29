@@ -11,12 +11,15 @@ import {
   Button,
 } from '@mongodb-js/compass-components';
 
-import { toggleModal } from '../stores/modal';
 import { fetchSettings } from '../stores/settings';
-import type { RootState } from '../stores';
 
 import PrivacySettings from './settings/privacy';
 import Sidebar from './sidebar';
+
+type Settings = {
+  name: string;
+  component: React.ComponentType;
+};
 
 type SettingsModalProps = {
   isModalOpen: boolean;
@@ -38,20 +41,12 @@ const settingsStyles = css({
   padding: spacing[2],
 });
 
-type Settings = {
-  name: string;
-  component: React.ComponentType;
-};
+const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
-  isModalOpen,
-  toggleModal,
   onInit,
 }) => {
-  const settings: Settings[] = [
-    { name: 'Privacy', component: PrivacySettings },
-  ];
-
+  const [isOpen, setIsOpen] = useState(false);
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
 
   const SettingComponent =
@@ -63,15 +58,15 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 
   useEffect(() => {
     (ipc as any).on('window:show-network-optin', () => {
-      toggleModal(true);
+      setIsOpen(true);
     });
-  }, [toggleModal]);
+  }, [setIsOpen]);
 
   return (
     <Modal
       size="large"
-      open={isModalOpen}
-      setOpen={() => toggleModal(false)}
+      open={isOpen}
+      setOpen={() => setIsOpen(false)}
       data-testid="settings-modal"
     >
       <ModalTitle>Settings</ModalTitle>
@@ -90,7 +85,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       <ModalFooter>
         <Button
           data-testid="close-settings-button"
-          onClick={() => toggleModal(false)}
+          onClick={() => setIsOpen(false)}
         >
           Close
         </Button>
@@ -99,13 +94,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   );
 };
 
-const mapState = ({ modal: { isOpen } }: RootState) => ({
-  isModalOpen: isOpen,
-});
-
-const mapDispatch = {
-  toggleModal,
+export default connect(null, {
   onInit: fetchSettings,
-};
-
-export default connect(mapState, mapDispatch)(SettingsModal);
+})(SettingsModal);

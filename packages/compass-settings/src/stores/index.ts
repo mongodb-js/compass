@@ -2,12 +2,10 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import type { Store, AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 
-import modalReducer from './modal';
 import settingsReducer from './settings';
 
 const store = createStore(
   combineReducers({
-    modal: modalReducer,
     settings: settingsReducer,
   }),
   applyMiddleware(thunk),
