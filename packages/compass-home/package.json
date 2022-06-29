@@ -37,7 +37,8 @@
   },
   "license": "SSPL",
   "dependencies": {
-    "@mongodb-js/compass-connections": "^0.10.0"
+    "@mongodb-js/compass-connections": "^0.10.0",
+    "@mongodb-js/compass-settings": "^0.1.0"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.15.0",
