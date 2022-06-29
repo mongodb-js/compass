@@ -59,9 +59,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 
   useEffect(() => {
     (ipc as any).on('window:show-network-optin', () => {
-      setIsOpen(true);
+      setIsOpen(!isOpen);
     });
-  }, [setIsOpen]);
+  }, [setIsOpen, isOpen]);
 
   return (
     <Modal
