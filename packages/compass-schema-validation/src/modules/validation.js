@@ -46,8 +46,8 @@ export const VALIDATION_ACTION_CHANGED = `${PREFIX}/VALIDATION_ACTION_CHANGED`;
 export const VALIDATION_LEVEL_CHANGED = `${PREFIX}/VALIDATION_LEVEL_CHANGED`;
 
 /**
-* Syntax error occurred action name.
-*/
+ * Syntax error occurred action name.
+ */
 export const SYNTAX_ERROR_OCCURRED = `${PREFIX}/SYNTAX_ERROR_OCCURRED`;
 
 /**
@@ -59,7 +59,7 @@ export const INITIAL_STATE = {
   validationLevel: 'strict',
   isChanged: false,
   syntaxError: null,
-  error: null
+  error: null,
 };
 
 /**
@@ -77,7 +77,7 @@ export const checkValidator = (validator) => {
 
   if (validator === '') {
     validation.syntaxError = {
-      message: 'The validator must be an object.'
+      message: 'The validator must be an object.',
     };
   } else {
     try {
@@ -104,7 +104,7 @@ const changeValidator = (state, action) => {
     ...state,
     validator: action.validator,
     syntaxError: checkedValidator.syntaxError,
-    error: null
+    error: null,
   };
 
   return {
@@ -112,22 +112,22 @@ const changeValidator = (state, action) => {
     isChanged: !isEqual(
       pick(newState, ['validator', 'validationAction', 'validationLevel']),
       state.prevValidation
-    )
+    ),
   };
 };
 
 /**
-* Sets syntax error.
-*
-* @param {Object} state - The state
-* @param {Object} action - The action.
-*
-* @returns {Object} The new state.
-*/
+ * Sets syntax error.
+ *
+ * @param {Object} state - The state
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
 const setSyntaxError = (state, action) => ({
   ...state,
   isChanged: true,
-  syntaxError: action.syntaxError
+  syntaxError: action.syntaxError,
 });
 
 /**
@@ -147,14 +147,14 @@ const setValidation = (state, action) => {
     prevValidation: {
       validator,
       validationAction: action.validation.validationAction,
-      validationLevel: action.validation.validationLevel
+      validationLevel: action.validation.validationLevel,
     },
     isChanged: action.validation.isChanged || false,
     validator: validator,
     validationAction: action.validation.validationAction,
     validationLevel: action.validation.validationLevel,
     syntaxError: null,
-    error: action.validation.error || null
+    error: action.validation.error || null,
   };
 };
 
@@ -169,7 +169,7 @@ const setValidation = (state, action) => {
 const setError = (state, action) => {
   return {
     ...state,
-    error: action.error || null
+    error: action.error || null,
   };
 };
 
@@ -184,7 +184,7 @@ const setError = (state, action) => {
 const changeValidationAction = (state, action) => {
   const newState = {
     ...state,
-    validationAction: action.validationAction
+    validationAction: action.validationAction,
   };
 
   return {
@@ -192,7 +192,7 @@ const changeValidationAction = (state, action) => {
     isChanged: !isEqual(
       pick(newState, ['validator', 'validationAction', 'validationLevel']),
       state.prevValidation
-    )
+    ),
   };
 };
 
@@ -207,7 +207,7 @@ const changeValidationAction = (state, action) => {
 const changeValidationLevel = (state, action) => {
   const newState = {
     ...state,
-    validationLevel: action.validationLevel
+    validationLevel: action.validationLevel,
   };
 
   return {
@@ -215,7 +215,7 @@ const changeValidationLevel = (state, action) => {
     isChanged: !isEqual(
       pick(newState, ['validator', 'validationAction', 'validationLevel']),
       state.prevValidation
-    )
+    ),
   };
 };
 
@@ -229,7 +229,7 @@ const MAPPINGS = {
   [VALIDATION_SAVE_FAILED]: setError,
   [VALIDATION_ACTION_CHANGED]: changeValidationAction,
   [VALIDATION_LEVEL_CHANGED]: changeValidationLevel,
-  [SYNTAX_ERROR_OCCURRED]: setSyntaxError
+  [SYNTAX_ERROR_OCCURRED]: setSyntaxError,
 };
 
 /**
@@ -255,7 +255,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const validationActionChanged = (validationAction) => ({
   type: VALIDATION_ACTION_CHANGED,
-  validationAction
+  validationAction,
 });
 
 /**
@@ -267,7 +267,7 @@ export const validationActionChanged = (validationAction) => ({
  */
 export const validationLevelChanged = (validationLevel) => ({
   type: VALIDATION_LEVEL_CHANGED,
-  validationLevel
+  validationLevel,
 });
 
 /**
@@ -279,7 +279,7 @@ export const validationLevelChanged = (validationLevel) => ({
  */
 export const validatorChanged = (validator) => ({
   type: VALIDATOR_CHANGED,
-  validator
+  validator,
 });
 
 /**
@@ -291,7 +291,7 @@ export const validatorChanged = (validator) => ({
  */
 export const validationFetched = (validation) => ({
   type: VALIDATION_FETCHED,
-  validation
+  validation,
 });
 
 /**
@@ -303,7 +303,7 @@ export const validationFetched = (validation) => ({
  */
 export const validationCanceled = (validation) => ({
   type: VALIDATION_CANCELED,
-  validation
+  validation,
 });
 
 /**
@@ -315,7 +315,7 @@ export const validationCanceled = (validation) => ({
  */
 export const validationSaveFailed = (error) => ({
   type: VALIDATION_SAVE_FAILED,
-  error
+  error,
 });
 
 /**
@@ -327,7 +327,7 @@ export const validationSaveFailed = (error) => ({
  */
 export const syntaxErrorOccurred = (syntaxError) => ({
   type: SYNTAX_ERROR_OCCURRED,
-  syntaxError
+  syntaxError,
 });
 
 /**
@@ -341,16 +341,22 @@ export const syntaxErrorOccurred = (syntaxError) => ({
  *
  * @returns {Function} The function.
  */
-const sendMetrics = (dispatch, dataService, namespace, validation, registryEvent) => dataService
-  .database(namespace.database, {}, (errorDB, res) => {
+const sendMetrics = (
+  dispatch,
+  dataService,
+  namespace,
+  validation,
+  registryEvent
+) =>
+  dataService.database(namespace.database, {}, (errorDB, res) => {
     let collectionSize = 0;
     let ruleCount = 0;
     let validator = validation.validator;
 
     if (!errorDB) {
-      const collection = res.collections.find((coll) => (
-        coll.name === namespace.collection
-      ));
+      const collection = res.collections.find(
+        (coll) => coll.name === namespace.collection
+      );
 
       collectionSize = collection.document_count;
     }
@@ -366,16 +372,15 @@ const sendMetrics = (dispatch, dataService, namespace, validation, registryEvent
       ruleCount = -1;
     }
 
-    return dispatch(globalAppRegistryEmit(
-      registryEvent,
-      {
+    return dispatch(
+      globalAppRegistryEmit(registryEvent, {
         ruleCount,
         validationLevel: validation.validationLevel,
         validationAction: validation.validationAction,
-        jsonSchema: (!!validator.$jsonSchema),
-        collectionSize
-      }
-    ));
+        jsonSchema: !!validator.$jsonSchema,
+        collectionSize,
+      })
+    );
   });
 
 /**
@@ -460,7 +465,7 @@ export const saveValidation = (validation) => {
       validator: checkedValidator.validator,
       validationAction: validation.validationAction,
       validationLevel: validation.validationLevel,
-      isChanged: false
+      isChanged: false,
     };
 
     if (dataService) {
@@ -481,7 +486,7 @@ export const saveValidation = (validation) => {
         {
           validator: savedValidation.validator,
           validationAction: savedValidation.validationAction,
-          validationLevel: savedValidation.validationLevel
+          validationLevel: savedValidation.validationLevel,
         },
         (error) => {
           if (error) {
@@ -505,14 +510,16 @@ export const cancelValidation = () => {
     const state = getState();
     const prevValidation = state.validation.prevValidation;
 
-    dispatch(validationCanceled({
-      isChanged: false,
-      validator: prevValidation.validator,
-      validationAction: prevValidation.validationAction,
-      validationLevel: prevValidation.validationLevel,
-      syntaxError: null,
-      error: null
-    }));
+    dispatch(
+      validationCanceled({
+        isChanged: false,
+        validator: prevValidation.validator,
+        validationAction: prevValidation.validationAction,
+        validationLevel: prevValidation.validationLevel,
+        syntaxError: null,
+        error: null,
+      })
+    );
     dispatch(fetchSampleDocuments(prevValidation.validator));
 
     return;
@@ -520,10 +527,10 @@ export const cancelValidation = () => {
 };
 
 /**
-* Activate validation.
-*
-* @returns {Function} The function.
-*/
+ * Activate validation.
+ *
+ * @returns {Function} The function.
+ */
 export const activateValidation = () => {
   return (dispatch, getState) => {
     const state = getState();

@@ -3,12 +3,14 @@ import { checkValidator, syntaxErrorOccurred } from './validation';
 /**
  * Sample documents fetched action.
  */
-export const SAMPLE_DOCUMENTS_FETCHED = 'validation/namespace/SAMPLE_DOCUMENTS_FETCHED';
+export const SAMPLE_DOCUMENTS_FETCHED =
+  'validation/namespace/SAMPLE_DOCUMENTS_FETCHED';
 
 /**
  * Loading sample documents aciton name.
  */
-export const LOADING_SAMPLE_DOCUMENTS = 'validation/namespace/LOADING_SAMPLE_DOCUMENTS';
+export const LOADING_SAMPLE_DOCUMENTS =
+  'validation/namespace/LOADING_SAMPLE_DOCUMENTS';
 
 /**
  * The initial state.
@@ -32,7 +34,7 @@ const refreshSampleDocuments = (state, action) => ({
   ...state,
   matching: action.matching,
   notmatching: action.notmatching,
-  isLoading: false
+  isLoading: false,
 });
 
 /**
@@ -45,7 +47,7 @@ const refreshSampleDocuments = (state, action) => ({
 export const sampleDocumentsFetched = (sampleDocuments) => ({
   type: SAMPLE_DOCUMENTS_FETCHED,
   matching: sampleDocuments.matching,
-  notmatching: sampleDocuments.notmatching
+  notmatching: sampleDocuments.notmatching,
 });
 
 /**
@@ -58,7 +60,7 @@ export const sampleDocumentsFetched = (sampleDocuments) => ({
 const loadSampleDocuments = (state) => ({
   ...state,
   type: LOADING_SAMPLE_DOCUMENTS,
-  isLoading: true
+  isLoading: true,
 });
 
 /**
@@ -66,7 +68,9 @@ const loadSampleDocuments = (state) => ({
  *
  * @returns {Object} The action.
  */
-export const loadingSampleDocuments = () => ({ type: LOADING_SAMPLE_DOCUMENTS });
+export const loadingSampleDocuments = () => ({
+  type: LOADING_SAMPLE_DOCUMENTS,
+});
 
 /**
  * To not have a huge switch statement in the reducer.
@@ -83,10 +87,13 @@ MAPPINGS[LOADING_SAMPLE_DOCUMENTS] = loadSampleDocuments;
  *
  * @returns {Function} The function.
  */
-const setZeroDocuments = (dispatch) => dispatch(sampleDocumentsFetched({
-  matching: undefined,
-  notmatching: undefined
-}));
+const setZeroDocuments = (dispatch) =>
+  dispatch(
+    sampleDocumentsFetched({
+      matching: undefined,
+      notmatching: undefined,
+    })
+  );
 
 /**
  * Sets syntax error.
@@ -96,7 +103,8 @@ const setZeroDocuments = (dispatch) => dispatch(sampleDocumentsFetched({
  *
  * @returns {Function} The function.
  */
-const setSyntaxError = (dispatch, error) => dispatch(syntaxErrorOccurred(error));
+const setSyntaxError = (dispatch, error) =>
+  dispatch(syntaxErrorOccurred(error));
 
 /**
  * Fetch sample documents.
@@ -178,19 +186,18 @@ export const fetchSampleDocuments = (validator, error) => {
           namespace,
           dispatch,
           dataService,
-          count
+          count,
         };
 
         getSampleDocuments(docsOptions, (matching) => {
-          docsOptions.pipeline = [
-            { $match: { '$nor': [ query ] } },
-            { $limit: 1 }
-          ];
+          docsOptions.pipeline = [{ $match: { $nor: [query] } }, { $limit: 1 }];
           getSampleDocuments(docsOptions, (notmatching) => {
-            return dispatch(sampleDocumentsFetched({
-              matching: matching[0],
-              notmatching: notmatching[0]
-            }));
+            return dispatch(
+              sampleDocumentsFetched({
+                matching: matching[0],
+                notmatching: notmatching[0],
+              })
+            );
           });
         });
       });

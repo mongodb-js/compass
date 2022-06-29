@@ -22,6 +22,7 @@ import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/mode-ruby';
 import 'ace-builds/src-noconflict/mode-rust';
 import 'ace-builds/src-noconflict/mode-golang';
+import beautify from 'ace-builds/src-noconflict/ext-beautify';
 import 'mongodb-ace-mode';
 import '../constants/mongodb-ace-theme';
 import '../constants/mongodb-ace-theme-query';
@@ -37,6 +38,7 @@ const DEFAULT_OPTIONS: IAceOptions = {
   minLines: 10,
   maxLines: Infinity,
   showGutter: true,
+  showPrintMargin: false,
   useWorker: false,
 };
 
@@ -106,6 +108,7 @@ function Editor({
       editorProps={{ $blockScrolling: Infinity }}
       setOptions={setOptions}
       readOnly={readOnly}
+      commands={beautify.commands}
       // name should be unique since it gets translated to an id
       name={aceProps.name ?? editorName}
       {...aceProps}

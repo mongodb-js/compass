@@ -64,7 +64,6 @@ const editorSettings = {
   maxLines: 10,
   fontSize: 12,
   highlightActiveLine: false,
-  showPrintMargin: false,
   showGutter: false,
 };
 

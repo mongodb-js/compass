@@ -55,6 +55,8 @@ class SidebarInstanceStats extends PureComponent {
     }
 
     return (
+      // TODO: https://jira.mongodb.org/browse/COMPASS-5918
+      /* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
       <div className={styles['sidebar-instance-stats']}>
         <div
           className={styles['sidebar-instance-stats-expand']}
@@ -86,6 +88,7 @@ class SidebarInstanceStats extends PureComponent {
           </button>
         </div>
       </div>
+      /* eslint-enable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
     );
   }
 }

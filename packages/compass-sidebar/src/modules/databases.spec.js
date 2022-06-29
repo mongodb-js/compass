@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import databasesReducer, {
   INITIAL_STATE,
   changeDatabases,
@@ -40,10 +42,10 @@ function createMockStoreSlice(
   };
 }
 
-describe('sidebar databases', () => {
-  describe('#reducer', () => {
-    context('when changing databases and no filter is set', () => {
-      it('sets databases as-is', () => {
+describe('sidebar databases', function () {
+  describe('#reducer', function () {
+    context('when changing databases and no filter is set', function () {
+      it('sets databases as-is', function () {
         const dbs = createDatabases([{ _id: 'foo' }, { _id: 'bar' }]);
 
         expect(databasesReducer(undefined, changeDatabases(dbs))).to.deep.equal(
@@ -56,8 +58,8 @@ describe('sidebar databases', () => {
       });
     });
 
-    context('when changing databases and there is a filter in the state', () => {
-      it('filters databases in the state', () => {
+    context('when changing databases and there is a filter in the state', function () {
+      it('filters databases in the state', function () {
         const initialState = {
           ...INITIAL_STATE,
           filterRegex: /^foo$/,
@@ -75,8 +77,8 @@ describe('sidebar databases', () => {
       });
     });
 
-    context('when active namespace changed', () => {
-      it('changes active namespace and "expands" the namespace in the list', () => {
+    context('when active namespace changed', function () {
+      it('changes active namespace and "expands" the namespace in the list', function () {
         expect(
           databasesReducer(undefined, changeActiveNamespace('new_active.namespace'))
         ).to.deep.equal({
@@ -89,8 +91,8 @@ describe('sidebar databases', () => {
       });
     });
 
-    context('when filter changed', () => {
-      it('filters and updates the databases and collections', () => {
+    context('when filter changed', function () {
+      it('filters and updates the databases and collections', function () {
         const getState = createGetState();
 
         const dbs = createDatabases([
@@ -118,8 +120,8 @@ describe('sidebar databases', () => {
       });
     });
 
-    context('when an action is not provided', () => {
-      it('returns the default state', () => {
+    context('when an action is not provided', function () {
+      it('returns the default state', function () {
         expect(databasesReducer(undefined, {})).to.equal(INITIAL_STATE);
       });
     });

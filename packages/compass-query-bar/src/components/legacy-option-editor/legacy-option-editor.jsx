@@ -113,7 +113,6 @@ class LegacyOptionEditor extends Component {
           minLines: 1,
           maxLines: 10,
           highlightActiveLine: false,
-          showPrintMargin: false,
           showGutter: false,
         }}
         completer={this.completer}
