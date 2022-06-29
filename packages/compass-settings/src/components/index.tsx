@@ -6,7 +6,7 @@ import store from '../stores';
 const WithStore: React.FunctionComponent = () => {
   return (
     <Provider store={store}>
-      <SettingsModal></SettingsModal>
+      <SettingsModal />
     </Provider>
   );
 };

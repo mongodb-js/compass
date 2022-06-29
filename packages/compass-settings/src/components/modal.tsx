@@ -6,6 +6,7 @@ import {
   Modal,
   ModalTitle,
   ModalFooter,
+  H3,
   css,
   spacing,
   Button,
@@ -22,8 +23,6 @@ type Settings = {
 };
 
 type SettingsModalProps = {
-  isModalOpen: boolean;
-  toggleModal: (value: boolean) => void;
   onInit: () => void;
 };
 
@@ -53,8 +52,10 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
 
   useEffect(() => {
-    onInit();
-  }, [onInit]);
+    if (isOpen) {
+      onInit();
+    }
+  }, [onInit, isOpen]);
 
   useEffect(() => {
     (ipc as any).on('window:show-network-optin', () => {
@@ -69,7 +70,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       setOpen={() => setIsOpen(false)}
       data-testid="settings-modal"
     >
-      <ModalTitle>Settings</ModalTitle>
+      <ModalTitle as={H3}>Settings</ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles} data-testid="settings-sidebar">
           <Sidebar
@@ -79,7 +80,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           />
         </div>
         <div className={settingsStyles} data-testid="settings-content">
-          <SettingComponent />
+          {SettingComponent && <SettingComponent />}
         </div>
       </div>
       <ModalFooter>
