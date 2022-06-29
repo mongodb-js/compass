@@ -28,9 +28,7 @@ type SettingsFetchedAction = {
   settings: UserPreferences;
 };
 
-export type Actions =
-  | ChangeFieldAction
-  | SettingsFetchedAction;
+export type Actions = ChangeFieldAction | SettingsFetchedAction;
 
 const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
@@ -48,13 +46,18 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   }
 };
 
-export const fetchSettings = (): ThunkAction<void, RootState, void, Actions> => {
+export const fetchSettings = (): ThunkAction<
+  void,
+  RootState,
+  void,
+  Actions
+> => {
   return async (dispatch: Dispatch<Actions>): Promise<void> => {
     try {
       const settings = await fetchPreferences();
       dispatch({
         type: ActionTypes.SettingsFetched,
-        settings
+        settings,
       });
     } catch (e) {
       log.warn(
@@ -67,14 +70,17 @@ export const fetchSettings = (): ThunkAction<void, RootState, void, Actions> => 
   };
 };
 
-export const changeFieldValue = (field: keyof UserPreferences, value: string | boolean): ThunkAction<void, RootState, void, Actions> => {
+export const changeFieldValue = (
+  field: keyof UserPreferences,
+  value: string | boolean
+): ThunkAction<void, RootState, void, Actions> => {
   return async (dispatch: Dispatch<Actions>): Promise<void> => {
     try {
       await updatePreference(field, value);
       dispatch({
         type: ActionTypes.FieldChanged,
         key: field,
-        value
+        value,
       });
     } catch (e) {
       log.warn(

@@ -13,26 +13,21 @@ export type UserPreferences = {
 
 export const fetchPreferences = async (): Promise<UserPreferences> => {
   const model = new Preferences();
-  const fetch = promisifyAmpersandMethod(
-    model.fetch.bind(model)
-  );
+  const fetch = promisifyAmpersandMethod(model.fetch.bind(model));
   const settings = await fetch();
   return (settings as any).getAttributes({ props: true }, true);
-}
+};
 
-export const updatePreference = async (key: keyof UserPreferences, value: boolean | string): Promise<void> => {
+export const updatePreference = async (
+  key: keyof UserPreferences,
+  value: boolean | string
+): Promise<void> => {
   const model = new Preferences();
-  const fetch = promisifyAmpersandMethod(
-    model.fetch.bind(model)
-  );
+  const fetch = promisifyAmpersandMethod(model.fetch.bind(model));
   await fetch();
 
-  model.set({
-    [key]: value
-  });
+  model.set(key, value);
 
-  const save = promisifyAmpersandMethod(
-    model.save.bind(model)
-  );
-  await save(model);
-}
+  const save = promisifyAmpersandMethod(model.save.bind(model));
+  await (save as any)(model);
+};

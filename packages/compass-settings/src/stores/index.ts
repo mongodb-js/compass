@@ -8,7 +8,7 @@ const store = createStore(
   combineReducers({
     settings: settingsReducer,
   }),
-  applyMiddleware(thunk),
+  applyMiddleware(thunk)
 );
 
 type StoreActions<T> = T extends Store<unknown, infer A> ? A : never;
