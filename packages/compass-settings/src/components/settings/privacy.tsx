@@ -98,7 +98,7 @@ const checkboxItems: CheckboxItem[] = [
   },
 ];
 
-const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
+export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   autoUpdates,
   enableMaps,
   trackErrors,
