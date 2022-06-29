@@ -28,13 +28,14 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
   onSelectItem,
 }) => {
   return (
-    <nav>
+    <nav data-testid="settings-sidebar">
       <ul role="menu">
         {items.map((item) => (
           <li
-            data-testid="settings-sidebar-item"
-            role="menuitem"
+            data-testid={`sidebar-${item}-item`}
+            role="option"
             tabIndex={0}
+            aria-selected={activeItem === item}
             className={cx(navItemStyles, {
               [activeItemStyles]: item === activeItem,
             })}

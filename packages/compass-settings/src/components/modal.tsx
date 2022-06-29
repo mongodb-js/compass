@@ -72,7 +72,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     >
       <ModalTitle as={H3}>Settings</ModalTitle>
       <div className={contentStyles}>
-        <div className={sideNavStyles} data-testid="settings-sidebar">
+        <div className={sideNavStyles}>
           <Sidebar
             activeItem={selectedSetting}
             onSelectItem={setSelectedSettings}

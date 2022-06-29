@@ -61,7 +61,7 @@ export const fetchSettings = (): ThunkAction<
       });
     } catch (e) {
       log.warn(
-        mongoLogId(1_001_000_110),
+        mongoLogId(1_001_000_141),
         'Settings',
         'Failed to fetch settings',
         { message: (e as Error).message }
@@ -84,7 +84,7 @@ export const changeFieldValue = (
       });
     } catch (e) {
       log.warn(
-        mongoLogId(1_001_000_109),
+        mongoLogId(1_001_000_142),
         'Settings',
         'Failed to update the settings',
         { message: (e as Error).message }

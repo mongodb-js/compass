@@ -60,11 +60,14 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^0.15.0",
     "@mongodb-js/compass-logging": "^0.12.0",
+    "compass-preferences-model": "^1.23.0",
+    "hadron-ipc": "^2.10.0",
     "mongodb-data-service": "^21.21.0",
     "react": "*",
     "react-dom": "*",
-    "react-redux": "^8.0.2",
-    "redux": "^4.2.0"
+    "react-redux": "^5.1.2",
+    "redux": "^4.2.0",
+    "redux-thunk": "^2.4.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^0.9.0",
@@ -83,7 +86,6 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^8.12.0",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
