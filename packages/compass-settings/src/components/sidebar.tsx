@@ -32,6 +32,7 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
       <ul role="menu">
         {items.map((item) => (
           <li
+            data-testid="settings-sidebar-item"
             role="menuitem"
             tabIndex={0}
             className={cx(navItemStyles, {

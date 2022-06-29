@@ -3,33 +3,12 @@ import Preferences from 'compass-preferences-model';
 import type { THEMES } from 'compass-preferences-model';
 
 export type UserPreferences = {
-  agreedToLicense: boolean;
-  authKerberos: boolean;
-  authLdap: boolean;
-  authMongodb: boolean;
-  authX509: boolean;
   autoUpdates: boolean;
-  chartView: boolean;
-  currentUserId: string;
-  enableFeedbackPanel: boolean;
   enableMaps: boolean;
-  id: string;
-  indexDDL: boolean;
-  lastKnownVersion: string;
-  networkTraffic: boolean;
-  queryBuilder: boolean;
-  serverStats: boolean;
-  showAutoUpdateBanner: boolean;
-  showExplainPlanTab: boolean;
-  showedNetworkOptIn: boolean;
-  singleDocumentCrud: boolean;
-  sslAll: boolean;
-  sslServer: boolean;
-  sslUnvalidated: boolean;
-  telemetryAnonymousId: string;
-  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
   trackErrors: boolean;
   trackUsageStatistics: boolean;
+  enableFeedbackPanel: boolean;
+  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
 };
 
 export const fetchPreferences = async (): Promise<UserPreferences> => {

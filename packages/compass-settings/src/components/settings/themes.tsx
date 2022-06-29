@@ -45,7 +45,7 @@ const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
     changeTheme(checked ? THEMES.OS_THEME : THEMES.LIGHT);
   };
   return (
-    <div>
+    <div data-testid="theme-settings">
       <Body>Change the apperance of Compass.</Body>
       <Checkbox
         className={checkboxStyles}

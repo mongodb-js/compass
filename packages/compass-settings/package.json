@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^0.15.0",
+    "@mongodb-js/compass-logging": "^0.12.0",
     "mongodb-data-service": "^21.21.0",
     "react": "*",
     "react-dom": "*",

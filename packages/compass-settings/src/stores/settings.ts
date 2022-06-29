@@ -1,6 +1,9 @@
 import type { Reducer, Dispatch } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
 import { fetchPreferences, updatePreference } from '../utils/user-preferences';
 import type { UserPreferences } from '../utils/user-preferences';
@@ -54,7 +57,12 @@ export const fetchSettings = (): ThunkAction<void, RootState, void, Actions> => 
         settings
       });
     } catch (e) {
-      console.error(`Failed to fetch settings: ${(e as Error).message}`);
+      log.warn(
+        mongoLogId(1_001_000_110),
+        'Settings',
+        'Failed to fetch settings',
+        { message: (e as Error).message }
+      );
     }
   };
 };
@@ -69,7 +77,12 @@ export const changeFieldValue = (field: keyof UserPreferences, value: string | b
         value
       });
     } catch (e) {
-      console.error(`Failed to update settings: ${(e as Error).message}`);
+      log.warn(
+        mongoLogId(1_001_000_109),
+        'Settings',
+        'Failed to update the settings',
+        { message: (e as Error).message }
+      );
     }
   };
 };

@@ -44,7 +44,7 @@ type Settings = {
   component: React.ComponentType;
 };
 
-const CompassSettings: React.FunctionComponent<SettingsModalProps> = ({
+export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isModalOpen,
   toggleModal,
   onInit,
@@ -70,22 +70,32 @@ const CompassSettings: React.FunctionComponent<SettingsModalProps> = ({
   }, [toggleModal]);
 
   return (
-    <Modal size="large" open={isModalOpen} setOpen={() => toggleModal(false)}>
+    <Modal
+      size="large"
+      open={isModalOpen}
+      setOpen={() => toggleModal(false)}
+      data-testid="settings-modal"
+    >
       <ModalTitle>Settings</ModalTitle>
       <div className={contentStyles}>
-        <div className={sideNavStyles}>
+        <div className={sideNavStyles} data-testid="settings-sidebar">
           <Sidebar
             activeItem={selectedSetting}
             onSelectItem={setSelectedSettings}
             items={settings.map((x) => x.name)}
           />
         </div>
-        <div className={settingsStyles}>
+        <div className={settingsStyles} data-testid="settings-content">
           <SettingComponent />
         </div>
       </div>
       <ModalFooter>
-        <Button onClick={() => toggleModal(false)}>Close</Button>
+        <Button
+          data-testid="close-settings-button"
+          onClick={() => toggleModal(false)}
+        >
+          Close
+        </Button>
       </ModalFooter>
     </Modal>
   );
@@ -100,4 +110,4 @@ const mapDispatch = {
   onInit: fetchSettings,
 };
 
-export default connect(mapState, mapDispatch)(CompassSettings);
+export default connect(mapState, mapDispatch)(SettingsModal);

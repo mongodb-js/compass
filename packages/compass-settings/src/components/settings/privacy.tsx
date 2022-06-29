@@ -30,7 +30,6 @@ type PrivacyFields =
 
 type CheckboxItem = {
   name: PrivacyFields;
-  checked: boolean;
   label: JSX.Element;
 };
 
@@ -38,6 +37,66 @@ const checkboxStyles = css({
   marginTop: spacing[3],
   marginBottom: spacing[3],
 });
+
+const checkboxItems: CheckboxItem[] = [
+  {
+    name: 'autoUpdates',
+    label: (
+      <>
+        <Label htmlFor="autoUpdates">Enable Automatic Updates</Label>
+        <Description>
+          Allow Compass to periodically check for new updates.
+        </Description>
+      </>
+    ),
+  },
+  {
+    name: 'enableMaps',
+    label: (
+      <>
+        <Label htmlFor="enableMaps">Enable Geographic Visualizations</Label>
+        <Description>
+          Allow Compass to make requests to a 3rd party mapping service.
+        </Description>
+      </>
+    ),
+  },
+  {
+    name: 'trackErrors',
+    label: (
+      <>
+        <Label htmlFor="trackErrors">Enable Crash Reports</Label>
+        <Description>
+          Allow Compass to send crash reports containing stack traces and
+          unhandled exceptions.
+        </Description>
+      </>
+    ),
+  },
+  {
+    name: 'trackUsageStatistics',
+    label: (
+      <>
+        <Label htmlFor="trackUsageStatistics">Enable Usage Statistics</Label>
+        <Description>
+          Allow Compass to send anonymous usage statistics.
+        </Description>
+      </>
+    ),
+  },
+  {
+    name: 'enableFeedbackPanel',
+    label: (
+      <>
+        <Label htmlFor="enableFeedbackPanel">Give Product Feedback</Label>
+        <Description>
+          Enables a tool that our Product team can use to occasionally reach out
+          for feedback about Compass.
+        </Description>
+      </>
+    ),
+  },
+];
 
 const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   autoUpdates,
@@ -47,84 +106,27 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   enableFeedbackPanel,
   handleChange,
 }) => {
-  const checkboxItems: CheckboxItem[] = [
-    {
-      name: 'autoUpdates',
-      checked: Boolean(autoUpdates),
-      label: (
-        <>
-          <Label htmlFor="autoUpdates">Enable Automatic Updates</Label>
-          <Description>
-            Allow Compass to periodically check for new updates.
-          </Description>
-        </>
-      ),
-    },
-    {
-      name: 'enableMaps',
-      checked: Boolean(enableMaps),
-      label: (
-        <>
-          <Label htmlFor="enableMaps">Enable Geographic Visualizations</Label>
-          <Description>
-            Allow Compass to make requests to a 3rd party mapping service.
-          </Description>
-        </>
-      ),
-    },
-    {
-      name: 'trackErrors',
-      checked: Boolean(trackErrors),
-      label: (
-        <>
-          <Label htmlFor="trackErrors">Enable Crash Reports</Label>
-          <Description>
-            Allow Compass to send crash reports containing stack traces and
-            unhandled exceptions.
-          </Description>
-        </>
-      ),
-    },
-    {
-      name: 'trackUsageStatistics',
-      checked: Boolean(trackUsageStatistics),
-      label: (
-        <>
-          <Label htmlFor="trackUsageStatistics">Enable Usage Statistics</Label>
-          <Description>
-            Allow Compass to send anonymous usage statistics.
-          </Description>
-        </>
-      ),
-    },
-    {
-      name: 'enableFeedbackPanel',
-      checked: Boolean(enableFeedbackPanel),
-      label: (
-        <>
-          <Label htmlFor="enableFeedbackPanel">Give Product Feedback</Label>
-          <Description>
-            Enables a tool that our Product team can use to occasionally reach
-            out for feedback about Compass.
-          </Description>
-        </>
-      ),
-    },
-  ];
-
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleChange(event.target.name as PrivacyFields, event.target.checked);
   };
 
+  const checkboxValues: Record<PrivacyFields, boolean> = {
+    autoUpdates: Boolean(autoUpdates),
+    enableMaps: Boolean(enableMaps),
+    trackErrors: Boolean(trackErrors),
+    trackUsageStatistics: Boolean(trackUsageStatistics),
+    enableFeedbackPanel: Boolean(enableFeedbackPanel),
+  };
+
   return (
-    <div>
+    <div data-testid="privacy-settings">
       <Body>
         To enhance the user experience, Compass can integrate with 3rd party
         services, which requires external network requests. Please choose from
         the settings below:
       </Body>
 
-      {checkboxItems.map(({ name, checked, label }) => (
+      {checkboxItems.map(({ name, label }) => (
         <Checkbox
           key={name}
           className={checkboxStyles}
@@ -133,7 +135,7 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
           data-testid={name}
           onChange={handleCheckboxChange}
           label={label}
-          checked={checked}
+          checked={checkboxValues[name]}
         />
       ))}
       <Body>
