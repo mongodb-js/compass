@@ -16,7 +16,6 @@ import { fetchSettings } from '../stores/settings';
 import type { RootState } from '../stores';
 
 import PrivacySettings from './settings/privacy';
-import ThemeSettings from './settings/themes';
 import Sidebar from './sidebar';
 
 type SettingsModalProps = {
@@ -51,7 +50,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 }) => {
   const settings: Settings[] = [
     { name: 'Privacy', component: PrivacySettings },
-    { name: 'Theme', component: ThemeSettings },
   ];
 
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
