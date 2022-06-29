@@ -6,7 +6,6 @@ const navItemStyles = css({
   padding: spacing[2],
   borderRadius: spacing[1],
   cursor: 'pointer',
-  marginTop: spacing[1],
   marginBottom: spacing[1],
   '&:hover': {
     backgroundColor: uiColors.yellow.base,
@@ -30,13 +29,20 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
 }) => {
   return (
     <nav>
-      <ul>
+      <ul role="menu">
         {items.map((item) => (
           <li
+            role="menuitem"
+            tabIndex={0}
             className={cx(navItemStyles, {
               [activeItemStyles]: item === activeItem,
             })}
             key={item}
+            onKeyDown={({ key }) => {
+              if (key === 'Enter') {
+                onSelectItem(item);
+              }
+            }}
             onClick={() => onSelectItem(item)}
           >
             {item}

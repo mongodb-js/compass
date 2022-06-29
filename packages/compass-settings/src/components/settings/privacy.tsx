@@ -13,7 +13,7 @@ import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/settings';
 
 type PrivacySettingsProps = {
-  handleChange: (field: CheckboxName, value: boolean) => void;
+  handleChange: (field: PrivacyFields, value: boolean) => void;
   autoUpdates?: boolean;
   enableMaps?: boolean;
   trackErrors?: boolean;
@@ -21,7 +21,7 @@ type PrivacySettingsProps = {
   enableFeedbackPanel?: boolean;
 };
 
-type CheckboxName =
+type PrivacyFields =
   | 'autoUpdates'
   | 'enableMaps'
   | 'trackErrors'
@@ -29,7 +29,7 @@ type CheckboxName =
   | 'enableFeedbackPanel';
 
 type CheckboxItem = {
-  name: CheckboxName;
+  name: PrivacyFields;
   checked: boolean;
   label: JSX.Element;
 };
@@ -50,7 +50,7 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   const checkboxItems: CheckboxItem[] = [
     {
       name: 'autoUpdates',
-      checked: !!autoUpdates,
+      checked: Boolean(autoUpdates),
       label: (
         <>
           <Label htmlFor="autoUpdates">Enable Automatic Updates</Label>
@@ -62,7 +62,7 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
     },
     {
       name: 'enableMaps',
-      checked: !!enableMaps,
+      checked: Boolean(enableMaps),
       label: (
         <>
           <Label htmlFor="enableMaps">Enable Geographic Visualizations</Label>
@@ -74,7 +74,7 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
     },
     {
       name: 'trackErrors',
-      checked: !!trackErrors,
+      checked: Boolean(trackErrors),
       label: (
         <>
           <Label htmlFor="trackErrors">Enable Crash Reports</Label>
@@ -87,7 +87,7 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
     },
     {
       name: 'trackUsageStatistics',
-      checked: !!trackUsageStatistics,
+      checked: Boolean(trackUsageStatistics),
       label: (
         <>
           <Label htmlFor="trackUsageStatistics">Enable Usage Statistics</Label>
@@ -99,7 +99,7 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
     },
     {
       name: 'enableFeedbackPanel',
-      checked: !!enableFeedbackPanel,
+      checked: Boolean(enableFeedbackPanel),
       label: (
         <>
           <Label htmlFor="enableFeedbackPanel">Give Product Feedback</Label>
@@ -113,7 +113,7 @@ const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   ];
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleChange(event.target.name as CheckboxName, event.target.checked);
+    handleChange(event.target.name as PrivacyFields, event.target.checked);
   };
 
   return (

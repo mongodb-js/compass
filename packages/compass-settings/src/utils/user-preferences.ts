@@ -1,6 +1,6 @@
 import { promisifyAmpersandMethod } from 'mongodb-data-service';
 import Preferences from 'compass-preferences-model';
-// import type { THEMES } from 'compass-preferences-model';
+import type { THEMES } from 'compass-preferences-model';
 
 export type UserPreferences = {
   agreedToLicense: boolean;
@@ -27,7 +27,7 @@ export type UserPreferences = {
   sslServer: boolean;
   sslUnvalidated: boolean;
   telemetryAnonymousId: string;
-  theme: string; // todo use THEMES
+  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
   trackErrors: boolean;
   trackUsageStatistics: boolean;
 };
