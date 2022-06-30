@@ -5,11 +5,9 @@ import ipc from 'hadron-ipc';
 import {
   Modal,
   ModalTitle,
-  ModalFooter,
   H3,
   css,
   spacing,
-  Button,
 } from '@mongodb-js/compass-components';
 
 import { fetchSettings } from '../stores/settings';
@@ -37,10 +35,14 @@ const sideNavStyles = css({
 
 const settingsStyles = css({
   width: '80%',
-  padding: spacing[2],
+  paddingLeft: spacing[2],
 });
 
-const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
+const settings: Settings[] = [
+  { name: 'Privacy', component: PrivacySettings },
+  { name: 'Theme', component: PrivacySettings },
+  { name: 'Locale', component: PrivacySettings }
+];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onInit,
@@ -52,16 +54,14 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
 
   useEffect(() => {
-    if (isOpen) {
-      onInit();
-    }
-  }, [onInit, isOpen]);
+    onInit();
+  }, [onInit]);
 
   useEffect(() => {
     (ipc as any).on('window:show-network-optin', () => {
-      setIsOpen(!isOpen);
+      setIsOpen(true);
     });
-  }, [setIsOpen, isOpen]);
+  }, [setIsOpen]);
 
   return (
     <Modal
@@ -83,14 +83,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           {SettingComponent && <SettingComponent />}
         </div>
       </div>
-      <ModalFooter>
-        <Button
-          data-testid="close-settings-button"
-          onClick={() => setIsOpen(false)}
-        >
-          Close
-        </Button>
-      </ModalFooter>
     </Modal>
   );
 };
