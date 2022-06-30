@@ -76,7 +76,7 @@ Templates:
                 ;
             }
 
-            const args = Object.keys(spec).reduce(
+            let args = Object.keys(spec).reduce(
                 (result, k) => {
                     let val = this.utils.removePHPObject(spec[k]);
                     const divider = result === '' ? '' : ',\n';
@@ -84,13 +84,14 @@ Templates:
                 },
                 ''
             );
+            args = args ? `, [\n${args}\n]` : '';
 
             return []
                 .concat(comment)
                 .concat('')
                 .concat(client)
                 .concat(collection)
-                .concat(`$cursor = $collection->find(${this.utils.removePHPObject(filter)}${args ? `, [\n${args}\n]` : ''});`)
+                .concat(`$cursor = $collection->find(${this.utils.removePHPObject(filter)}${args});`)
                 .join('\n')
             ;
         }
