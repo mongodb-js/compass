@@ -2,18 +2,21 @@ import React from 'react';
 
 import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
 
-const navItemStyles = css({
+const itemStyles = css({
   padding: spacing[2],
   borderRadius: spacing[1],
   cursor: 'pointer',
   marginBottom: spacing[1],
+});
+
+const itemHoverStyles = css({
   '&:hover': {
-    backgroundColor: uiColors.yellow.base,
+    backgroundColor: uiColors.green.light2,
   },
 });
 
-const activeItemStyles = css({
-  backgroundColor: uiColors.yellow.base,
+const itemActiveStyles = css({
+  backgroundColor: uiColors.green.light3,
 });
 
 type SidebarProps = {
@@ -36,8 +39,9 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
             role="option"
             tabIndex={0}
             aria-selected={activeItem === item}
-            className={cx(navItemStyles, {
-              [activeItemStyles]: item === activeItem,
+            className={cx(itemStyles, {
+              [itemHoverStyles]: item !== activeItem,
+              [itemActiveStyles]: item === activeItem,
             })}
             key={item}
             onKeyDown={({ key }) => {
