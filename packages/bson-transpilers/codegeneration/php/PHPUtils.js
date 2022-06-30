@@ -30,7 +30,7 @@ class PHPUtils {
       str = `[${str}]`;
     }
     return str;
-  };
+  }
 
   /**
    * Removing Object casting of PHP variable
@@ -43,7 +43,7 @@ class PHPUtils {
       str = str.slice(9);
     }
     return str;
-  };
+  }
 
   /**
    * Removing surrounding quotes of PHP string variable content
@@ -53,13 +53,13 @@ class PHPUtils {
   removeStringQuotes(str) {
     str = this.convertToString(str);
     if (
-        (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-        (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')
+      (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
+      (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')
     ) {
       str = str.substr(1, str.length - 2);
     }
     return str;
-  };
+  }
 
   /**
    * @param {string|undefined} str
@@ -68,7 +68,7 @@ class PHPUtils {
   stringify(str) {
     str = this.removeStringQuotes(str);
     return `${str.replace(/\\([\s\S])/g, '\\$1')}`;
-  };
+  }
 
   /**
    * This function is duplicated in the "StringTypeTemplate" and "RegexTypeTemplate".
@@ -78,7 +78,7 @@ class PHPUtils {
   stringifyWithSingleQuotes(str) {
     str = this.removeStringQuotes(str);
     return `'${str.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
-  };
+  }
 
   /**
    * @param {string|undefined} str
@@ -87,7 +87,7 @@ class PHPUtils {
   stringifyWithDoubleQuotes(str) {
     str = this.removeStringQuotes(str);
     return `"${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
-  };
+  }
 }
 
 module.exports = PHPUtils;
