@@ -1,11 +1,17 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Select, Option, TextInput } from '@mongodb-js/compass-components';
+import { spacing, css } from '@mongodb-js/compass-components';
 
 import FieldSet from '../field-set/field-set';
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 
-import styles from './time-series-fields.module.less';
+const optionsSelectDropdownStyles = css({
+  zIndex: 1,
+  'button:focus, button:focus-within': {
+    zIndex: 20
+  }
+});
 
 const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
   'as timeField for the time-series collection. ' +
@@ -90,7 +96,7 @@ function TimeSeriesFields({
       <FieldSet>
         <Select
           id="timeSeries-granularity"
-          className={styles['options-select-dropdown']}
+          className={optionsSelectDropdownStyles}
           label="granularity"
           name="timeSeries.granularity"
           placeholder="Select a value [optional]"

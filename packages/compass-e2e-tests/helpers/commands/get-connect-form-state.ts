@@ -191,6 +191,26 @@ export async function getConnectFormState(
     ),
   });
 
+  // FLE2
+  await browser.navigateToConnectTab('In-Use Encryption');
+  await browser.expandAccordion(Selectors.ConnectionFormInputFLELocalKMS);
+
+  const inUseEncryptionState = await promiseMap({
+    fleKeyVaultNamespace: getValue(
+      browser,
+      Selectors.ConnectionFormInputFLEKeyVaultNamespace
+    ),
+    fleStoreCredentials: getCheckboxValue(
+      browser,
+      Selectors.ConnectionFormInputFLEStoreCredentialsCheckbox
+    ),
+    fleKey: getValue(browser, Selectors.ConnectionFormInputFLELocalKMS),
+    fleEncryptedFieldsMap: getAceValue(
+      browser,
+      Selectors.ConnectionFormInputFLEEncryptedFieldsMap
+    ),
+  });
+
   // Advanced
   await browser.navigateToConnectTab('Advanced');
   const advancedState = await promiseMap({
@@ -232,6 +252,7 @@ export async function getConnectFormState(
     ...tlsState,
     ...proxyState,
     ...advancedState,
+    ...inUseEncryptionState,
   };
 
   // restore the initial state
@@ -310,6 +331,19 @@ async function getValue(
   }
 
   const value = await element.getValue();
+  return value || null;
+}
+
+async function getAceValue(
+  browser: CompassBrowser,
+  selector: string
+): Promise<string | null> {
+  const aceEditor = await browser.$(`${selector} .ace_content`);
+  if (!(await aceEditor.isExisting())) {
+    return null;
+  }
+
+  const value = await aceEditor.getText();
   return value || null;
 }
 

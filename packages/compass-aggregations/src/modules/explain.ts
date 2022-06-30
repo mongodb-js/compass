@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
-import { ExplainVerbosity } from 'mongodb';
+import type { ExplainExecuteOptions } from 'mongodb-data-service';
 import type { ThunkAction } from 'redux-thunk';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
@@ -145,9 +145,9 @@ export const explainAggregation = (): ThunkAction<
       pipeline: _pipeline,
       namespace,
       maxTimeMS,
-      collation,
       dataService: { dataService },
       indexes: collectionIndexes,
+      collationString: { value: collation }
     } = getState();
 
     if (!dataService) {
@@ -165,7 +165,7 @@ export const explainAggregation = (): ThunkAction<
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         allowDiskUse: true,
-        collation: collation || undefined,
+        collation: collation ?? undefined,
       };
 
       const pipeline = mapPipelineToStages(_pipeline);
@@ -235,18 +235,18 @@ export const explainAggregation = (): ThunkAction<
 export const _getExplainVerbosity = (
   pipeline: Document[],
   isDataLake: boolean
-): keyof typeof ExplainVerbosity => {
+): ExplainExecuteOptions['explainVerbosity'] => {
   // dataLake does not have $out/$merge operators
   if (isDataLake) {
-    return ExplainVerbosity.queryPlannerExtended;
+    return 'queryPlannerExtended';
   }
   const lastStage = pipeline[pipeline.length - 1] ?? {};
   const isOutOrMergePipeline =
     Object.prototype.hasOwnProperty.call(lastStage, '$out') ||
     Object.prototype.hasOwnProperty.call(lastStage, '$merge');
   return isOutOrMergePipeline
-    ? ExplainVerbosity.queryPlanner // $out & $merge only work with queryPlanner
-    : ExplainVerbosity.allPlansExecution;
+    ? 'queryPlanner' // $out & $merge only work with queryPlanner
+    : 'allPlansExecution';
 };
 
 export const _mapIndexesInformation = function (

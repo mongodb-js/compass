@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -52,17 +52,17 @@
     "react-dom": "^16.14.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^0.15.0",
-    "@react-aria/utils": "^3.9.0",
-    "@react-aria/visually-hidden": "^3.2.3",
+    "@mongodb-js/compass-components": "^0.16.0",
+    "@react-aria/utils": "^3.13.1",
+    "@react-aria/visually-hidden": "^3.3.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.9.0",
-    "@mongodb-js/mocha-config-compass": "^0.10.0",
+    "@mongodb-js/eslint-config-compass": "^0.10.0",
+    "@mongodb-js/mocha-config-compass": "^0.11.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^0.6.0",
     "@testing-library/react": "^12.0.0",

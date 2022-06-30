@@ -345,9 +345,9 @@ FindIterable<Document> result = collection.find(filter);`);
     await input.setValue('42');
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
-    expect(await footer.getText()).to.equal('Document Modified.');
+    expect(await footer.getText()).to.equal('Document modified.');
 
-    const button = await document.$('[data-test-id="update-document-button"]');
+    const button = await document.$(Selectors.UpdateDocumentButton);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
@@ -384,9 +384,9 @@ FindIterable<Document> result = collection.find(filter);`);
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
-    expect(await footer.getText()).to.equal('Document Modified.');
+    expect(await footer.getText()).to.equal('Document modified.');
 
-    const button = await document.$('[data-test-id="update-document-button"]');
+    const button = await document.$(Selectors.UpdateDocumentButton);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
@@ -431,9 +431,9 @@ FindIterable<Document> result = collection.find(filter);`);
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
-    expect(await footer.getText()).to.equal('Document Modified.');
+    expect(await footer.getText()).to.equal('Document modified.');
 
-    const button = await document.$('[data-test-id="update-document-button"]');
+    const button = await document.$(Selectors.UpdateDocumentButton);
     await button.click();
     await footer.waitForDisplayed({ reverse: true });
 
@@ -466,7 +466,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await input.setValue('-100');
 
     const footer = await browser.$(Selectors.DocumentFooterMessage);
-    expect(await footer.getText()).to.equal('Document Modified.');
+    expect(await footer.getText()).to.equal('Document modified.');
 
     const button = await browser.$(Selectors.UpdateDocumentButton);
     await button.click();

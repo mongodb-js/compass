@@ -1,7 +1,7 @@
 {
   "name": "mongodb-compass-monorepo",
   "description": "Monorepo that includes Compass and all its dependencies",
-  "homepage": "https://compass.mongodb.com",
+  "homepage": "https://www.mongodb.com/products/compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"

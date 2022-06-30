@@ -28,6 +28,9 @@ const configureStore = (options = {}) => {
 
       const now = Date.now();
       const attributes = recent.getAttributes({ props: true });
+      if (!attributes._host) {
+        attributes._host = this.state.currentHost;
+      }
       attributes._name = name;
       attributes._dateSaved = now;
       attributes._dateModified = now;
@@ -78,7 +81,11 @@ const configureStore = (options = {}) => {
     getInitialState() {
       return {
         items: new FavoriteQueryCollection(),
-        current: null
+        current: null,
+        currentHost:
+          options.dataProvider?.dataProvider
+            ?.getConnectionString?.()
+            .hosts.join(',') ?? null,
       };
     }
   });

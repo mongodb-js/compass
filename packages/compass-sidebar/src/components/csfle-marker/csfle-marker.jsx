@@ -26,11 +26,12 @@ const badgeButtonStyles = css({
 });
 
 function CSFLEMarker({ csfleMode, toggleCSFLEModalVisible }) {
+  const focusRingProps = useFocusRing();
+
   if (!csfleMode || csfleMode === 'unavailable') {
     return null;
   }
 
-  const focusRingProps = useFocusRing();
   const buttonProps = mergeProps(
     {
       type: 'button',

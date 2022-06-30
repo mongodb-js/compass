@@ -98,56 +98,60 @@ export const updatePipelineList = () => {
  * @returns {import('redux').AnyAction} The action.
  */
 export const saveCurrentPipeline = () => {
-  return (dispatch, getState) => {
-    const asyncr = require('async');
-    const fs = require('fs');
+  return async (dispatch, getState) => {
+    const { promises: fs } = require('fs');
     const path = require('path');
 
     const state = getState();
 
-    if (state.id === '') {
+    if (getState().id === '') {
       dispatch(createId());
     }
-    const id = getState().id;
 
     const pipeline = state.pipeline.map((stage) => {
       return { ...stage, previewDocuments: [] };
     });
-    track('Aggregation Saved', { id, num_stages: pipeline.length });
 
-    const stateRecord = Object.assign({}
-      , { namespace: state.namespace }
-      , { env: state.env }
-      , { isTimeSeries: state.isTimeSeries }
-      , { isReadonly: state.isReadonly }
-      , { sourceName: state.sourceName }
-      , { pipeline: pipeline }
-      , { name: state.name }
-      , { id: id }
-      , { comments: state.comments }
-      , { sample: state.sample }
-      , { autoPreview: state.autoPreview }
-      , { collation: state.collation }
-      , { collationString: state.collationString }
-    );
+    const {
+      id,
+      name,
+      namespace,
+      comments,
+      sample,
+      autoPreview,
+      collationString: { text },
+      dataService
+    } = getState();
+
+    const stateRecord = {
+      id,
+      name,
+      namespace,
+      comments,
+      sample,
+      autoPreview,
+      collationString: text,
+      pipeline,
+      host:
+        dataService?.dataService?.getConnectionString?.().hosts.join(',') ??
+        null
+    };
+
+    track('Aggregation Saved', {
+      id: stateRecord.id,
+      num_stages: pipeline.length
+    });
 
     const dirname = getDirectory();
-    asyncr.series([
-      (callback) => {
-        fs.mkdir(dirname, { recursive: true }, () => {
-          callback();
-        });
-      },
-      (callback) => {
-        const fileName = path.join(dirname, `${stateRecord.id}.json`);
-        const options = { encoding: 'utf8', flag: 'w' };
-        fs.writeFile(fileName, JSON.stringify(stateRecord), options, () => {
-          callback(null);
-        });
-      }
-    ], () => {
-      dispatch(updatePipelineList());
-    });
+
+    await fs.mkdir(dirname, { recursive: true });
+
+    const fileName = path.join(dirname, `${stateRecord.id}.json`);
+    const options = { encoding: 'utf8', flag: 'w' };
+
+    await fs.writeFile(fileName, JSON.stringify(stateRecord), options);
+
+    dispatch(updatePipelineList());
   };
 };
 

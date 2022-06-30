@@ -122,8 +122,8 @@ function CSFLETab({
     <div className={containerStyles}>
       <Banner>
         In-Use Encryption is an Enterprise/Atlas-only feature of MongoDB.&nbsp;
-        {/* TODO(COMPASS-5777): Use generic In-Use Encryption documentation URL instead of FLE1-specific one */}
-        <Link href="https://www.mongodb.com/docs/drivers/security/client-side-field-level-encryption-guide/">
+        {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
+        <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields">
           Learn More
         </Link>
       </Banner>
@@ -157,11 +157,11 @@ function CSFLETab({
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             handleStoreCredentialsChanged(event.target.checked);
           }}
-          data-testid="csfle-storeCredentials-input"
-          id="csfle-storeCredentials-input"
+          data-testid="csfle-store-credentials-input"
+          id="csfle-store-credentials-input"
           label={
             <>
-              <Label htmlFor="csfle-storeCredentials-input">
+              <Label htmlFor="csfle-store-credentials-input">
                 Store KMS provider secrets
               </Label>
               <Description>

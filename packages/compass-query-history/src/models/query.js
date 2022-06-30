@@ -48,7 +48,11 @@ const Query = Model.extend({
     /**
      * The namespace the query was executed on.
      */
-    _ns: 'string'
+    _ns: 'string',
+    /**
+     * Current connection hosts
+     */
+    _host: 'string'
   },
   parse: function(attrs) {
     return attrs ? EJSON.deserialize(attrs) : undefined;
