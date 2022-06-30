@@ -143,8 +143,7 @@ type AbortSignal = {
   dispatchEvent: (event: any) => boolean;
 };
 
-type BSONServerExplainResults = Document;
-type ExplainExecuteOptions = {
+export type ExplainExecuteOptions = {
   abortSignal?: AbortSignal;
   explainVerbosity?: keyof typeof mongodb.ExplainVerbosity;
 };
@@ -532,7 +531,7 @@ export interface DataService {
     pipeline: Document[],
     options: AggregateOptions,
     executionOptions?: ExplainExecuteOptions
-  ): Promise<BSONServerExplainResults>;
+  ): Promise<Document>;
 
   /**
    * Get the indexes for the collection.
@@ -1642,7 +1641,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     pipeline: Document[],
     options: AggregateOptions,
     executionOptions?: ExplainExecuteOptions
-  ): Promise<BSONServerExplainResults> {
+  ): Promise<Document> {
     const verbosity =
       executionOptions?.explainVerbosity ||
       mongodb.ExplainVerbosity.queryPlanner;

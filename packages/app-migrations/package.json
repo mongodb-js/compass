@@ -1,7 +1,7 @@
 {
   "name": "app-migrations",
   "description": "Helper for application schema migrations.",
-  "version": "2.12.0",
+  "version": "2.13.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha",
@@ -22,7 +22,7 @@
   "main": "index.js",
   "compass:main": "index.js",
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.12.0",
+    "@mongodb-js/compass-logging": "^0.13.0",
     "async": "^3.2.0",
     "debug": "4.3.0",
     "lodash": "4.17.15",
