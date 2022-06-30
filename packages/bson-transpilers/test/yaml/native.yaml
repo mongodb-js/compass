@@ -104,7 +104,7 @@ tests:
           java: "new Document()"
           csharp: "new BsonDocument()"
           object: "{}"
-          php: "[]"
+          php: "(object) []"
           ruby: "{}"
           rust: "doc! {}"
           go: bson.D{}

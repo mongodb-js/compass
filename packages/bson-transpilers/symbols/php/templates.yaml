@@ -305,34 +305,34 @@ Templates:
         }
     ObjectTypeArgsTemplate: &ObjectTypeArgsTemplate !!js/function >
         (args, depth) => {
-            let isObj = true;
+            let isObjectCastRequired = true;
         
             if (args.length === 0) {
-                return `[]`;
+                return `(object) []`;
             }
 
             const isExpectedIndex = (actualIndex, expectedIndex) => {
-                let parsedIndex = parseInt(strIndex);
-                return !(isNaN(parsedIndex) || ('' + parsedIndex !== strIndex) || parsedIndex != numericIndex);
+                let parsedActualIndex = parseInt(actualIndex);
+                return !(isNaN(parsedActualIndex) || ('' + parsedActualIndex !== actualIndex) || parsedActualIndex != expectedIndex);
             }
         
-            let indexTest = -1;
+            let indexTest = 0;
             let pairs = args.map((arg) => {
-                indexTest++;
-                if (isObj && !checkIndex(arg[0], indexTest)) {
-                    isObj = false;
+                if (isObjectCastRequired && !isExpectedIndex(arg[0], indexTest)) {
+                    isObjectCastRequired = false;
                 }
+                indexTest++;
                 return `${this.utils.stringifyWithSingleQuotes(arg[0])} => ${arg[1]}`;
             }).join(', ');
 
             // Rebuilding pairs for numeric sequential indexes without quotes
-            if (isObj) {
+            if (isObjectCastRequired) {
                 pairs = args.map((arg) => {
                     return `${arg[0]} => ${arg[1]}`;
                 }).join(', ');
             }
 
-            return `${isObj ? '(object) ' : ''}[${pairs}]`
+            return `${isObjectCastRequired ? '(object) ' : ''}[${pairs}]`
         }
 
     #############################################
