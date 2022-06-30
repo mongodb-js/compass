@@ -1,7 +1,6 @@
 import { combineReducers } from 'redux';
 
 import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
-import detailsPlugins from './details-plugins';
 import databases, {
   INITIAL_STATE as DATABASES_INITIAL_STATE
 } from './databases';
@@ -30,6 +29,15 @@ import isGenuineMongoDBVisible, {
 import connectionInfo, {
   INITIAL_STATE as CONNECTION_INFO_IS
 } from './connection-info';
+import deploymentAwareness, {
+  INITIAL_STATE as DEPLOYMENT_AWARENESS_IS
+} from './deployment-awareness';
+import serverVersion, {
+  INITIAL_STATE as SERVER_VERSION_IS
+} from './server-version';
+import sshTunnelStatus, {
+  INITIAL_STATE as SSH_TUNNEL_STATUS_IS
+} from './ssh-tunnel-status';
 
 /**
  * The reducer.
@@ -39,13 +47,15 @@ const reducer = combineReducers({
   databases,
   connectionInfo,
   description,
-  detailsPlugins,
   instance,
   isDetailsExpanded,
   isWritable,
   isGenuineMongoDB,
   isGenuineMongoDBVisible,
-  isDataLake
+  isDataLake,
+  deploymentAwareness,
+  serverVersion,
+  sshTunnelStatus
 });
 
 /**
@@ -68,7 +78,10 @@ const rootReducer = (state, action) => {
       isWritable: IS_WRITABLE_INITIAL_STATE,
       isGenuineMongoDB: GENUINE_IS,
       isGenuineMongoDBVisible: IS_VISIBLE_IS,
-      isDataLake: DL_INITIAL_STATE
+      isDataLake: DL_INITIAL_STATE,
+      deploymentAwareness: DEPLOYMENT_AWARENESS_IS,
+      serverVersion: SERVER_VERSION_IS,
+      sshTunnelStatus: SSH_TUNNEL_STATUS_IS,
     };
   }
   return reducer(state, action);

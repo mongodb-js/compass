@@ -1,27 +1,41 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
+import DeploymentAwareness from '../deployment-awareness';
+import ServerVersion from '../server-version';
+import SshTunnelStatus from '../ssh-tunnel-status';
+
 import styles from './sidebar-instance-details.module.less';
+
 
 class SidebarInstanceDetails extends PureComponent {
   static displayName = 'SidebarInstanceDetails';
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
-    detailsPlugins: PropTypes.array.isRequired
+    deploymentAwareness: PropTypes.object.isRequired,
+    serverVersion: PropTypes.object.isRequired,
+    sshTunnelStatus: PropTypes.object.isRequired
   };
 
   constructor(props) {
     super(props);
-    this.details = props.detailsPlugins.map((role, i) => {
-      return (<role.component key={i} />);
-    });
   }
 
-  renderPlugins() {
-    if (this.props.isExpanded) {
+  renderDetails() {
+    const { isExpanded, deploymentAwareness, serverVersion, sshTunnelStatus } = this.props;
+
+    if (isExpanded) {
       return (
         <div className={styles['sidebar-instance-details-container']}>
-          {this.details}
+          <DeploymentAwareness
+            {...deploymentAwareness}
+            />
+          <ServerVersion
+            {...serverVersion}
+            />
+          <SshTunnelStatus
+            {...sshTunnelStatus}
+            />
         </div>
       );
     }
@@ -31,7 +45,7 @@ class SidebarInstanceDetails extends PureComponent {
   render() {
     return (
       <div className={styles['sidebar-instance-details']}>
-        {this.renderPlugins()}
+        {this.renderDetails()}
       </div>
     );
   }

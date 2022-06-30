@@ -43,7 +43,6 @@ class Sidebar extends PureComponent {
     isDetailsExpanded: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
-    detailsPlugins: PropTypes.array.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
     isDataLake: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
@@ -51,7 +50,10 @@ class Sidebar extends PureComponent {
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
     connectionInfo: PropTypes.object.isRequired,
-    updateAndSaveConnectionInfo: PropTypes.func.isRequired
+    updateAndSaveConnectionInfo: PropTypes.func.isRequired,
+    deploymentAwareness: PropTypes.object.isRequired,
+    serverVersion: PropTypes.object.isRequired,
+    sshTunnelStatus: PropTypes.object.isRequired,
   };
 
   state = {
@@ -185,13 +187,15 @@ class Sidebar extends PureComponent {
             instance={this.props.instance}
             databases={this.props.databases}
             isExpanded={this.props.isDetailsExpanded}
-            detailsPlugins={this.props.detailsPlugins}
             isGenuineMongoDB={this.props.isGenuineMongoDB}
             toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
             connectionInfo={this.props.connectionInfo}
             updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
             setConnectionIsCSFLEEnabled={(enabled) => this.handleSetConnectionIsCSFLEEnabled(enabled)}
+            deploymentAwareness={this.props.deploymentAwareness}
+            serverVersion={this.props.serverVersion}
+            sshTunnelStatus={this.props.sshTunnelStatus}
           />
         )}
         <NavigationItems
@@ -238,10 +242,12 @@ const mapStateToProps = (state) => ({
   databases: state.databases.databases,
   isDetailsExpanded: state.isDetailsExpanded,
   isWritable: state.isWritable,
-  detailsPlugins: state.detailsPlugins,
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
+  deploymentAwareness: state.deploymentAwareness,
+  serverVersion: state.serverVersion,
+  sshTunnelStatus: state.sshTunnelStatus
 });
 
 /**

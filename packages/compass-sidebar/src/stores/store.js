@@ -4,16 +4,21 @@ import reducer from '../modules';
 import thunk from 'redux-thunk';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 
+import { ATLAS, ADL } from '../constants/deployment-awareness';
+
 import { changeInstance } from '../modules/instance';
 import { changeActiveNamespace, changeDatabases } from '../modules/databases';
 import { reset } from '../modules/reset';
 import { toggleIsWritable } from '../modules/is-writable';
 import { changeDescription } from '../modules/description';
 import { toggleIsDataLake } from '../modules/is-data-lake';
-import { loadDetailsPlugins } from '../modules/details-plugins';
 import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { changeConnectionInfo } from '../modules/connection-info';
+import { changeInstanceStatus  } from '../modules/server-version';
+import { changeAtlasInstanceStatus, changeTopologyDescription } from '../modules/deployment-awareness';
+import { changeDataService } from '../modules/ssh-tunnel-status';
+import serversArray from '../utils/servers-array';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -27,6 +32,60 @@ store.onActivated = (appRegistry) => {
       })
     );
   }, 300);
+
+
+  const onInstanceStatusChange = (instance, newStatus) => {
+    if (newStatus !== 'ready') {
+      return;
+    }
+
+    const state = store.getState();
+
+    const prevVersion = state.versionNumber;
+    if (instance.build.version !== prevVersion) {
+      // TODO: this is probably not the ideal place for this event to be emitted from
+      appRegistry.emit('server-version-changed', instance.build.version);
+    }
+
+    store.dispatch(changeInstanceStatus(instance, newStatus));
+
+    const { isAtlas, dataLake } = instance;
+
+    if (!isAtlas) {
+      return;
+    }
+
+    const env = dataLake.isDataLake ? ADL : ATLAS;
+    // TODO: again probably not the ideal place for this event to be emitted from
+    appRegistry.emit('compass:deployment-awareness:topology-changed', {
+      topologyType: state.deploymentAwareness.topologyType,
+      setName: state.deploymentAwareness.setName,
+      servers: state.deploymentAwareness.servers,
+      env
+    });
+
+    store.dispatch(changeAtlasInstanceStatus(instance, newStatus));
+  };
+
+  const onTopologyDescriptionChanged = (topologyDescription) => {
+    const state = store.getState();
+    if (topologyDescription.type !== state.topologyType) {
+      const servers = serversArray(topologyDescription.servers);
+
+      // TODO: again, this is probably not the ideal place for this event to be emitted from
+      appRegistry.emit(
+        'compass:deployment-awareness:topology-changed',
+        {
+          topologyType: topologyDescription.type,
+          setName: topologyDescription.setName,
+          env: state.deploymentAwareness.env,
+          servers
+        }
+      );
+    }
+
+    store.dispatch(changeTopologyDescription(topologyDescription));
+  }
 
   function getDatabaseInfo(db) {
     return {
@@ -59,16 +118,24 @@ store.onActivated = (appRegistry) => {
 
   store.dispatch(globalAppRegistryActivated(appRegistry));
 
-  store.dispatch(loadDetailsPlugins(appRegistry));
-
   appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
     store.dispatch(changeConnectionInfo(connectionInfo));
+    store.dispatch(changeDataService(dataService));
+    dataService.on('topologyDescriptionChanged', (evt) => {
+      onTopologyDescriptionChanged(evt.newDescription);
+    });
+
+    const topologyDescription = dataService.getLastSeenTopology();
+    if (topologyDescription !== null) {
+      onTopologyDescriptionChanged(topologyDescription);
+    }
 
     appRegistry.removeAllListeners('sidebar-toggle-csfle-enabled');
     appRegistry.on('sidebar-toggle-csfle-enabled', (enabled) => {
       dataService.setCSFLEEnabled(enabled);
       appRegistry.emit('refresh-data');
     });
+
   });
 
   appRegistry.on('instance-destroyed', () => {
@@ -77,8 +144,14 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('instance-created', ({ instance }) => {
+
     onInstanceChange(instance);
     onDatabasesChange(instance.databases);
+    onInstanceStatusChange(instance, instance.status);
+
+    instance.on('change:status', (instance, newStatus) => {
+      onInstanceStatusChange(instance, newStatus);
+    });
 
     instance.on('change:csfleMode', () => {
       onInstanceChange(instance);

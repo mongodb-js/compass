@@ -19,10 +19,12 @@ export const SidebarInstance = ({
   isGenuineMongoDB,
   toggleIsDetailsExpanded,
   globalAppRegistryEmit,
-  detailsPlugins,
   connectionInfo,
   updateConnectionInfo,
-  setConnectionIsCSFLEEnabled
+  setConnectionIsCSFLEEnabled,
+  deploymentAwareness,
+  serverVersion,
+  sshTunnelStatus
 }) => {
   const [ isFavoriteModalVisible, setIsFavoriteModalVisible ] = useState(false);
   const [ isCSFLEModalVisible, setIsCSFLEModalVisible ] = useState(false);
@@ -71,7 +73,9 @@ export const SidebarInstance = ({
         isGenuineMongoDB={isGenuineMongoDB}
       />
       <SidebarInstanceDetails
-        detailsPlugins={detailsPlugins}
+        deploymentAwareness={deploymentAwareness}
+        serverVersion={serverVersion}
+        sshTunnelStatus={sshTunnelStatus}
         isExpanded={isExpanded}
       />
     </div>
@@ -86,7 +90,9 @@ SidebarInstance.propTypes = {
   isGenuineMongoDB: PropTypes.bool.isRequired,
   toggleIsDetailsExpanded: PropTypes.func.isRequired,
   globalAppRegistryEmit: PropTypes.func.isRequired,
-  detailsPlugins: PropTypes.array.isRequired,
+  deploymentAwareness: PropTypes.object.isRequired,
+  serverVersion: PropTypes.object.isRequired,
+  sshTunnelStatus: PropTypes.object.isRequired,
   connectionInfo: PropTypes.object.isRequired,
   updateConnectionInfo: PropTypes.func.isRequired,
   setConnectionIsCSFLEEnabled: PropTypes.func.isRequired,
