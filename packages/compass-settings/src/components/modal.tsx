@@ -38,11 +38,7 @@ const settingsStyles = css({
   paddingLeft: spacing[2],
 });
 
-const settings: Settings[] = [
-  { name: 'Privacy', component: PrivacySettings },
-  { name: 'Theme', component: PrivacySettings },
-  { name: 'Locale', component: PrivacySettings }
-];
+const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onInit,
