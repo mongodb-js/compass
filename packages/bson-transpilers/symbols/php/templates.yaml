@@ -311,7 +311,7 @@ Templates:
                 return `[]`;
             }
 
-            const checkIndex = (strIndex, numericIndex) => {
+            const isExpectedIndex = (actualIndex, expectedIndex) => {
                 let parsedIndex = parseInt(strIndex);
                 return !(isNaN(parsedIndex) || ('' + parsedIndex !== strIndex) || parsedIndex != numericIndex);
             }
