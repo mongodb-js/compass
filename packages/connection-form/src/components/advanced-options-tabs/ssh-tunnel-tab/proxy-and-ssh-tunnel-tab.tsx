@@ -69,8 +69,6 @@ const containerStyles = css({
 
 const contentStyles = css({
   marginTop: spacing[3],
-  width: '50%',
-  minWidth: 400,
 });
 
 const getSelectedTunnelType = (

@@ -22,7 +22,6 @@ import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/mode-ruby';
 import 'ace-builds/src-noconflict/mode-rust';
 import 'ace-builds/src-noconflict/mode-golang';
-n
 import 'ace-builds/src-noconflict/mode-php';
 import beautify from 'ace-builds/src-noconflict/ext-beautify';
 import 'mongodb-ace-mode';
@@ -40,6 +39,7 @@ const DEFAULT_OPTIONS: IAceOptions = {
   minLines: 10,
   maxLines: Infinity,
   showGutter: true,
+  showPrintMargin: false,
   useWorker: false,
 };
 
