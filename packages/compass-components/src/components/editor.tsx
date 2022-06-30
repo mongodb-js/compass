@@ -39,6 +39,7 @@ const DEFAULT_OPTIONS: IAceOptions = {
   minLines: 10,
   maxLines: Infinity,
   showGutter: true,
+  showPrintMargin: false,
   useWorker: false,
 };
 
