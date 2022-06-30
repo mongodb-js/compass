@@ -313,8 +313,7 @@ Templates:
 
             const checkIndex = (strIndex, numericIndex) => {
                 let parsedIndex = parseInt(strIndex);
-                if (isNaN(parsedIndex) || ('' + parsedIndex !== strIndex) || parsedIndex != numericIndex) return false;
-                return true;
+                return !(isNaN(parsedIndex) || ('' + parsedIndex !== strIndex) || parsedIndex != numericIndex);
             }
         
             let indexTest = -1;
