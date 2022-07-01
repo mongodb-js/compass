@@ -56,6 +56,8 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.16.0",
+    "hadron-react-buttons": "^5.9.0",
+    "hadron-react-components": "^5.16.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-redux": "^5.0.6",
@@ -103,6 +105,8 @@
     "eslint": "^7.25.0",
     "hadron-app": "^4.25.0",
     "hadron-app-registry": "^8.13.0",
+    "hadron-react-buttons": "^5.9.0",
+    "hadron-react-components": "^5.16.0",
     "lodash": "^4.17.21",
     "mocha": "^8.4.0",
     "mongodb-data-service": "^21.23.0",
