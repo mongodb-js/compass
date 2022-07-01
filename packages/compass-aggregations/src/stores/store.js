@@ -283,6 +283,7 @@ const configureStore = (options = {}) => {
   if (options.env) {
     setEnv(store, options.env);
   } else if (global && global.hadronApp && global.hadronApp.appRegistry) {
+    // TODO: update to CompassSidebar.Store?
     const deploymentAwarenessStore = global.hadronApp.appRegistry.getStore('DeploymentAwareness.Store');
     if (deploymentAwarenessStore) {
       setEnv(store, deploymentAwarenessStore.state.env);

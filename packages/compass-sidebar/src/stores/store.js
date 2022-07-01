@@ -196,6 +196,7 @@ store.onActivated = (appRegistry) => {
     });
   });
 
+  // TODO: replace withomething?
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
     store.dispatch(toggleIsWritable(state.isWritable));
     store.dispatch(changeDescription(state.description));

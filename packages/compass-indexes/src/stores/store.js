@@ -48,6 +48,7 @@ const configureStore = (options = {}) => {
     const globalAppRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
+    // TODO: replace this with.. something?
     const deploymentAwarenessStore = globalAppRegistry.getStore(
       'DeploymentAwareness.WriteStateStore'
     );

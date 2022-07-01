@@ -87,6 +87,7 @@ const configureStore = (options = {}) => {
    */
   if (options.namespace) {
     const namespace = toNS(options.namespace);
+    // TODO: replace with something else
     const WriteStateStore = options.globalAppRegistry.getStore(
       'DeploymentAwareness.WriteStateStore'
     );
