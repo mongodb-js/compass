@@ -3,9 +3,7 @@ import throttle from 'lodash/throttle';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
-
-import { ATLAS, ADL } from '../constants/deployment-awareness';
-
+import { Environment, serversArray } from 'mongodb-instance-model'
 import { changeInstance } from '../modules/instance';
 import { changeActiveNamespace, changeDatabases } from '../modules/databases';
 import { reset } from '../modules/reset';
@@ -18,7 +16,6 @@ import { changeConnectionInfo } from '../modules/connection-info';
 import { changeInstanceStatus  } from '../modules/server-version';
 import { changeAtlasInstanceStatus, changeTopologyDescription } from '../modules/deployment-awareness';
 import { changeDataService } from '../modules/ssh-tunnel-status';
-import serversArray from '../utils/servers-array';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -55,13 +52,13 @@ store.onActivated = (appRegistry) => {
       return;
     }
 
-    const env = dataLake.isDataLake ? ADL : ATLAS;
+    const env = dataLake.isDataLake ? Environment.ADL : Environment.ATLAS;
     // TODO: again probably not the ideal place for this event to be emitted from
     appRegistry.emit('compass:deployment-awareness:topology-changed', {
       topologyType: state.deploymentAwareness.topologyType,
       setName: state.deploymentAwareness.setName,
       servers: state.deploymentAwareness.servers,
-      env
+      env // TODO: move this separately
     });
 
     store.dispatch(changeAtlasInstanceStatus(instance, newStatus));
@@ -78,7 +75,7 @@ store.onActivated = (appRegistry) => {
         {
           topologyType: topologyDescription.type,
           setName: topologyDescription.setName,
-          env: state.deploymentAwareness.env,
+          env: state.deploymentAwareness.env, // TODO: move this
           servers
         }
       );

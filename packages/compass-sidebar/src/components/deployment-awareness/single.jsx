@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { humanize } from '../../models/server-type';
+import { ServerType } from 'mongodb-instance-model';
 import classnames from 'classnames';
 
 import styles from './single.module.less';
@@ -28,7 +28,7 @@ class Single extends React.Component {
           CLUSTER
         </div>
         <div className={classnames(styles['topology-single-cluster-type'])} data-test-id="topology-single-cluster-type">
-          {humanize(this.props.server.type)}
+          {ServerType.humanize(this.props.server.type)}
         </div>
       </div>
     );

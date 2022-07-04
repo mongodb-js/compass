@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import MongoDbInstance from 'mongodb-instance-model';
+import { MongoDbInstance, serversArray } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
 import reducer from '../modules/instance';
 import { reset } from '../modules/instance/reset';
@@ -8,6 +8,14 @@ import { changeErrorMessage } from '../modules/instance/error-message';
 import { changeDataService } from '../modules/instance/data-service';
 
 const debug = require('debug')('mongodb-compass:stores:InstanceStore');
+
+function getTopologyDescription(topologyDescription) {
+  return {
+    type: topologyDescription.type,
+    servers: serversArray(topologyDescription.servers),
+    setName: topologyDescription.setName
+  };
+}
 
 const store = createStore(reducer);
 
@@ -178,6 +186,7 @@ store.onActivated = (appRegistry) => {
       _id: firstHost,
       hostname: hostname,
       port: port ? +port : undefined,
+      topologyDescription: getTopologyDescription(dataService.getLastSeenTopology())
     }));
 
     appRegistry.emit('instance-created', { instance });
@@ -189,7 +198,23 @@ store.onActivated = (appRegistry) => {
       fetchDatabases: true,
       fetchDbStats: true,
     });
+
+    dataService.on('topologyDescriptionChanged', (evt) => {
+      instance.set({
+        topologyDescription: getTopologyDescription(evt.newDescription)
+      });
+    });
+
+    debug('initial topologyDescription', {
+      isTopologyWritable: instance.isTopologyWritable,
+      singleServerType: instance.singleServerType,
+      isServerWritable: instance.isServerWritable,
+      isWritable: instance.isWritable,
+      description: instance.description,
+      env: instance.env
+    });
   });
+
 
   appRegistry.on('select-database', (dbName) => {
     store.fetchDatabaseDetails(dbName);

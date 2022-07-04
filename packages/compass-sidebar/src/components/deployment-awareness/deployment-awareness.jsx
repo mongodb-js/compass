@@ -1,13 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import {
-  SINGLE,
-  SHARDED,
-  REPLICA_SET_NO_PRIMARY,
-  REPLICA_SET_WITH_PRIMARY,
-  LOAD_BALANCED
-} from '../../models/topology-type';
+import { TopologyType } from 'mongodb-instance-model'
 import Single from './single';
 import Sharded from './sharded';
 import ReplicaSet from './replica-set';
@@ -36,15 +30,15 @@ class DeploymentAwarenessComponent extends React.Component {
    */
   renderTopologyInfo() {
     switch (this.props.topologyType) {
-      case SINGLE:
+      case TopologyType.SINGLE:
         return (<Single server={this.props.servers[0]} isDataLake={this.props.isDataLake}/>);
-      case SHARDED:
+      case TopologyType.SHARDED:
         return (<Sharded servers={this.props.servers} />);
-      case REPLICA_SET_NO_PRIMARY:
+      case TopologyType.REPLICA_SET_NO_PRIMARY:
         return (<ReplicaSet {...this.props} />);
-      case REPLICA_SET_WITH_PRIMARY:
+      case TopologyType.REPLICA_SET_WITH_PRIMARY:
         return (<ReplicaSet {...this.props} />);
-      case LOAD_BALANCED:
+      case TopologyType.LOAD_BALANCED:
         return (<LoadBalanced server={this.props.servers[0]} />);
       default:
         return (<Unknown servers={this.props.servers} isDataLake={this.props.isDataLake}/>);

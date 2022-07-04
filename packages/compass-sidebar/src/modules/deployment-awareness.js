@@ -1,5 +1,4 @@
-import { ATLAS, ADL, ON_PREM } from '../constants/deployment-awareness';
-import serversArray from '../utils/servers-array';
+import { Environment, serversArray } from 'mongodb-instance-model';
 
 export const CHANGE_ATLAS_INSTANCE = 'sidebar/deployment-awareness/CHANGE_ATLAS_INSTANCE';
 export const CHANGE_TOPOLOGY = 'sidebar/deployment-awareness/CHANGE_TOPOLOGY';
@@ -9,7 +8,7 @@ export const INITIAL_STATE = {
   setName: '',
   servers: [],
   isDataLake: false,
-  env: ON_PREM
+  env: Environment.ON_PREM
 };
 
 
@@ -40,7 +39,7 @@ export function changeAtlasInstanceStatus({ isAtlas, dataLake}, newStatus) {
     return;
   }
 
-  const env = dataLake.isDataLake ? ADL : ATLAS;
+  const env = dataLake.isDataLake ? Environment.ADL : Environment.ATLAS;
 
   return {
     type: CHANGE_ATLAS_INSTANCE,

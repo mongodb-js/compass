@@ -1,4 +1,4 @@
-export default function serversArray(serversMap) {
+module.exports = function serversArray(serversMap) {
   const servers = [];
 
   for (const desc of serversMap.values()) {
@@ -10,4 +10,4 @@ export default function serversArray(serversMap) {
   }
 
   return servers;
-}
+};

@@ -101,8 +101,7 @@ const humanize = (topologyType) => {
   return HUMANIZED_TYPES[topologyType];
 };
 
-export default isWritable;
-export {
+module.exports = {
   humanize,
   isWritable,
   isReadable,

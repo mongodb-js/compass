@@ -69,8 +69,7 @@ const isWritable = (serverType) => {
   return WRITABLE_SERVER_TYPES.includes(serverType);
 };
 
-export default isWritable;
-export {
+module.exports = {
   humanize,
   isWritable,
   STANDALONE,
