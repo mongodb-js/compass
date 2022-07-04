@@ -205,6 +205,7 @@ store.onActivated = (appRegistry) => {
       });
     });
 
+    /*
     debug('initial topologyDescription', {
       isTopologyWritable: instance.isTopologyWritable,
       singleServerType: instance.singleServerType,
@@ -213,6 +214,7 @@ store.onActivated = (appRegistry) => {
       description: instance.description,
       env: instance.env
     });
+    */
   });
 
 

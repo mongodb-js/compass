@@ -63,7 +63,7 @@ store.onActivated = (appRegistry) => {
    *
    * @param {Object} state - The write state store state.
    */
-  // TODO: change with something
+  // TODO: replace with instance store/model usage
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
     store.dispatch(writeStateChanged(state));
   });

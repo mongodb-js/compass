@@ -29,6 +29,7 @@ class TextWriteButton extends React.Component {
    * Subscribe to the state changing stores.
    */
   componentDidMount() {
+    // TODO: we can replace this with instance store/model usage, but really we should drop this whole component
     this.unsubscribeWriteState = WriteStateStore.listen(this.writeStateChanged.bind(this));
   }
 

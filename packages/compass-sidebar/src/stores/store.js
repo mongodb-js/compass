@@ -41,6 +41,7 @@ store.onActivated = (appRegistry) => {
     const prevVersion = state.versionNumber;
     if (instance.build.version !== prevVersion) {
       // TODO: this is probably not the ideal place for this event to be emitted from
+      // TODO: remove this event, replace with instance model usage
       appRegistry.emit('server-version-changed', instance.build.version);
     }
 
@@ -54,6 +55,7 @@ store.onActivated = (appRegistry) => {
 
     const env = dataLake.isDataLake ? Environment.ADL : Environment.ATLAS;
     // TODO: again probably not the ideal place for this event to be emitted from
+    // TODO: Remove this event, replace with instance model usage
     appRegistry.emit('compass:deployment-awareness:topology-changed', {
       topologyType: state.deploymentAwareness.topologyType,
       setName: state.deploymentAwareness.setName,
@@ -70,6 +72,7 @@ store.onActivated = (appRegistry) => {
       const servers = serversArray(topologyDescription.servers);
 
       // TODO: again, this is probably not the ideal place for this event to be emitted from
+      // TODO: remove
       appRegistry.emit(
         'compass:deployment-awareness:topology-changed',
         {
@@ -81,6 +84,7 @@ store.onActivated = (appRegistry) => {
       );
     }
 
+    // TODO: can we remove this?
     store.dispatch(changeTopologyDescription(topologyDescription));
   }
 
@@ -116,8 +120,10 @@ store.onActivated = (appRegistry) => {
   store.dispatch(globalAppRegistryActivated(appRegistry));
 
   appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
+    // TODO: remove these
     store.dispatch(changeConnectionInfo(connectionInfo));
     store.dispatch(changeDataService(dataService));
+    // TODO: remove this
     dataService.on('topologyDescriptionChanged', (evt) => {
       onTopologyDescriptionChanged(evt.newDescription);
     });
@@ -127,6 +133,7 @@ store.onActivated = (appRegistry) => {
       onTopologyDescriptionChanged(topologyDescription);
     }
 
+    // TODO: this is probably the only bit we want to keep here
     appRegistry.removeAllListeners('sidebar-toggle-csfle-enabled');
     appRegistry.on('sidebar-toggle-csfle-enabled', (enabled) => {
       dataService.setCSFLEEnabled(enabled);
@@ -193,7 +200,7 @@ store.onActivated = (appRegistry) => {
     });
   });
 
-  // TODO: replace withomething?
+  // TODO: replace with instance store/model usage
   appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
     store.dispatch(toggleIsWritable(state.isWritable));
     store.dispatch(changeDescription(state.description));

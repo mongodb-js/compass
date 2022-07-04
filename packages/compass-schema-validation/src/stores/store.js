@@ -86,8 +86,7 @@ const configureStore = (options = {}) => {
    * @param {String} ns - The full namespace.
    */
   if (options.namespace) {
-    const namespace = toNS(options.namespace);
-    // TODO: replace with something else
+    // TODO: replace with instance store/model usage
     const WriteStateStore = options.globalAppRegistry.getStore(
       'DeploymentAwareness.WriteStateStore'
     );
@@ -98,6 +97,7 @@ const configureStore = (options = {}) => {
       writeStateStoreReadOnly: !WriteStateStore.state.isWritable,
     };
 
+    const namespace = toNS(options.namespace);
     store.dispatch(namespaceChanged(namespace));
 
     if (editMode.collectionReadOnly || editMode.collectionTimeSeries) {
