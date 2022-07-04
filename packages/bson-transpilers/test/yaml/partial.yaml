@@ -193,7 +193,7 @@ tests:
           java: Pattern
           csharp: Regex
           shell: RegExp
-          php: ''
+          php: new Regex
           ruby: ''
           go: regex
           rust: Regex

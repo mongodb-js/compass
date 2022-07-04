@@ -752,7 +752,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
-          php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "imxs")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\", Options: \"imuxls\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'
@@ -766,7 +766,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imuxls")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imxs")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'imuxls')
-          php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "imxs")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           go: "primitive.Regex(Pattern: \"^[a-z0-9_-]{3,16}$\", Options: \"imuxls\")"
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "imuxls" }'

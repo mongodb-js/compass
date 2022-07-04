@@ -33,7 +33,7 @@ Templates:
         i: 'i'
         m: 'm'
         x: 'x'
-        s: ''
+        s: 's'
         l: ''
         u: ''
 
@@ -245,17 +245,20 @@ Templates:
             // use utility function call. All ~Template calls use this type of 
             // context. All ~ArgsTemplate have access to utility functions.
 
-            stringifyWithSingleQuotes = (str) => {
+            stringifyWithDoubleQuotes = (str) => {
                 if (
                     (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
                     (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')
                 ) {
                     str = str.substr(1, str.length - 2);
                 }
-                return `${str.replace(/\\([\s\S])|(')/g, '\\$1$2')}`;
+                return `${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}`;
             };
         
-            return `'/${stringifyWithSingleQuotes(pattern)}/${flags ? flags : ''}'`;
+            pattern = `"${stringifyWithDoubleQuotes(pattern)}"`;
+            flags = flags ? `, "${flags}"` : '';
+
+            return `new Regex(${pattern}${flags})`;
         }
     BoolTypeTemplate: &BoolTypeTemplate !!js/function >
         (literal) => {
@@ -464,7 +467,7 @@ Templates:
         }
     RegExpSymbolTemplate: &RegExpSymbolTemplate !!js/function >
         () => {
-            return '';
+            return 'new Regex';
         }
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null # Args: lhs, pattern, flags
     SymbolSymbolTemplate: &SymbolSymbolTemplate !!js/function >
@@ -1163,7 +1166,10 @@ Templates:
     6ImportTemplate: &6ImportTemplate null
     7ImportTemplate: &7ImportTemplate null
     # Common internal Regexp
-    8ImportTemplate: &8ImportTemplate null
+    8ImportTemplate: &8ImportTemplate !!js/function >
+        () => {
+            return `use MongoDB\\BSON\\Regex;`;
+        }
     9ImportTemplate: &9ImportTemplate null
     10ImportTemplate: &10ImportTemplate null
     11ImportTemplate: &11ImportTemplate null

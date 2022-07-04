@@ -337,7 +337,8 @@ tests:
               using System.Text.RegularExpressions;
           python: import re
           javascript: ''
-          php: ''
+          php:  |-
+            use MongoDB\BSON\Regex;
           ruby: ''
           go: |-
             import (
@@ -383,7 +384,8 @@ tests:
               using System.Text.RegularExpressions;
           python: import re
           javascript: ''
-          php: ''
+          php:  |-
+            use MongoDB\BSON\Regex;
           ruby: ''
           go: |-
             import (
@@ -614,6 +616,7 @@ tests:
             use MongoDB\BSON\MaxKey;
             use MongoDB\BSON\MinKey;
             use MongoDB\BSON\ObjectId;
+            use MongoDB\BSON\Regex;
             use MongoDB\BSON\Timestamp;
             use MongoDB\BSON\UTCDateTime;
           ruby: require 'bson'

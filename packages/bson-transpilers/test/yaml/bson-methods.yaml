@@ -1119,7 +1119,7 @@ tests:
             java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
             csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
             object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-            php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
+            php: new Regex("^[a-z0-9_-]{3,16}$", "imsx")
             ruby: /^[a-z0-9_-]{3,16}$/imx
             go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsux")'
     -   input:
@@ -1130,7 +1130,7 @@ tests:
             java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
             csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
             object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-            php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
+            php: new Regex("^[a-z0-9_-]{3,16}$", "imsx")
             ruby: /^[a-z0-9_-]{3,16}$/imx
             go: 'primitive.Regex(Pattern: "^[a-z0-9_-]{3,16}$", Options: "ilmsx")'
     - input:
@@ -1141,7 +1141,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsux")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsux')
-          php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "imsx")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsux" }'
     - input:
@@ -1152,7 +1152,7 @@ tests:
           java: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "ilmsx")
           csharp: new BsonRegularExpression("^[a-z0-9_-]{3,16}$", "imsx")
           object: new BSONRegExp('^[a-z0-9_-]{3,16}$', 'ilmsx')
-          php: new Regex("^[a-z0-9_-]{3,16}$", "imx")
+          php: new Regex("^[a-z0-9_-]{3,16}$", "imsx")
           ruby: /^[a-z0-9_-]{3,16}$/imx
           rust: 'Regex { pattern: "^[a-z0-9_-]{3,16}$", flags: "ilmsx" }'
 
