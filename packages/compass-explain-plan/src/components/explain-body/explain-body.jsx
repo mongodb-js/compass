@@ -56,7 +56,7 @@ class ExplainBody extends Component {
     if (this.props.explain.viewType === EXPLAIN_VIEWS.json) {
       return (
         <ExplainJSON
-          originalExplainData={this.props.explain.originalExplainData}
+          originalExplainData={this.props.explain.originalExplainData ?? {}}
         />
       );
     }
