@@ -761,9 +761,9 @@ export class ElementList implements Iterable<Element> {
 
   constructor(
     private parent: Document | Element,
-    originalDoc: BSONObject | BSONArray
+    originalDoc: BSONObject | BSONArray | null | undefined
   ) {
-    this.elements = Object.entries(originalDoc).map(([k, v]) => {
+    this.elements = Object.entries(originalDoc ?? {}).map(([k, v]) => {
       return new Element(
         this.isArray() ? parseInt(k, 10) : k,
         v as BSONValue,
