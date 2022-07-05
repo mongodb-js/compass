@@ -3,10 +3,14 @@ import React from 'react';
 import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
 
 const itemStyles = css({
-  padding: spacing[2],
   borderRadius: spacing[1],
   cursor: 'pointer',
   marginBottom: spacing[1],
+  background: 'none',
+  border: 'none',
+  width: '100%',
+  padding: spacing[2],
+  textAlign: 'left',
 });
 
 const itemHoverStyles = css({
@@ -32,26 +36,19 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
 }) => {
   return (
     <nav data-testid="settings-sidebar">
-      <ul role="menu">
+      <ul role="tablist">
         {items.map((item) => (
-          <li
-            data-testid={`sidebar-${item}-item`}
-            role="option"
-            tabIndex={0}
-            aria-selected={activeItem === item}
-            className={cx(itemStyles, {
-              [itemHoverStyles]: item !== activeItem,
-              [itemActiveStyles]: item === activeItem,
-            })}
-            key={item}
-            onKeyDown={({ key }) => {
-              if (key === 'Enter') {
-                onSelectItem(item);
-              }
-            }}
-            onClick={() => onSelectItem(item)}
-          >
-            {item}
+          <li role="tab" key={item}>
+            <button
+              className={cx(itemStyles, {
+                [itemHoverStyles]: item !== activeItem,
+                [itemActiveStyles]: item === activeItem,
+              })}
+              data-testid={`sidebar-${item}-item`}
+              onClick={() => onSelectItem(item)}
+            >
+              {item}
+            </button>
           </li>
         ))}
       </ul>
