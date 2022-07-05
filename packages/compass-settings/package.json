@@ -58,7 +58,7 @@
     "react-dom": "*"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^0.15.0",
+    "@mongodb-js/compass-components": "^0.16.0",
     "@mongodb-js/compass-logging": "^0.12.0",
     "compass-preferences-model": "^1.23.0",
     "hadron-ipc": "^2.10.0",
