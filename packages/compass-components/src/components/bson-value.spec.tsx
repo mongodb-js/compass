@@ -25,7 +25,7 @@ describe('BSONValue', function () {
     {
       type: 'Binary',
       value: new Binary('test', Binary.SUBTYPE_DEFAULT),
-      expected: "Binary('dGVzdA==', 0)",
+      expected: "BinData(0, 'dGVzdA==')",
     },
     {
       type: 'Binary',
