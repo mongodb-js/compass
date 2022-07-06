@@ -2,7 +2,7 @@ import React from 'react';
 
 import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
 
-const itemStyles = css({
+const buttonStyles = css({
   borderRadius: spacing[1],
   cursor: 'pointer',
   marginBottom: spacing[1],
@@ -13,13 +13,13 @@ const itemStyles = css({
   textAlign: 'left',
 });
 
-const itemHoverStyles = css({
+const hoverStyles = css({
   '&:hover': {
     backgroundColor: uiColors.green.light2,
   },
 });
 
-const itemActiveStyles = css({
+const activeStyles = css({
   backgroundColor: uiColors.green.light3,
 });
 
@@ -35,24 +35,30 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
   onSelectItem,
 }) => {
   return (
-    <nav data-testid="settings-sidebar">
-      <ul role="tablist">
-        {items.map((item) => (
-          <li role="tab" key={item}>
-            <button
-              className={cx(itemStyles, {
-                [itemHoverStyles]: item !== activeItem,
-                [itemActiveStyles]: item === activeItem,
-              })}
-              data-testid={`sidebar-${item}-item`}
-              onClick={() => onSelectItem(item)}
-            >
-              {item}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <div
+      data-testid="settings-modal-sidebar"
+      role="tablist"
+      aria-labelledby="settings-tablist"
+    >
+      {items.map((item) => (
+        <button
+          key={item}
+          type="button"
+          role="tab"
+          aria-controls={`${item} Tab`}
+          aria-selected={activeItem === item}
+          className={cx(buttonStyles, {
+            [hoverStyles]: item !== activeItem,
+            [activeStyles]: item === activeItem,
+          })}
+          id={`${item} Tab`}
+          data-testid={`sidebar-${item}-item`}
+          onClick={() => onSelectItem(item)}
+        >
+          {item}
+        </button>
+      ))}
+    </div>
   );
 };
 

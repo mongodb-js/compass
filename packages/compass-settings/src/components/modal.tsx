@@ -66,7 +66,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       setOpen={() => setIsOpen(false)}
       data-testid="settings-modal"
     >
-      <ModalTitle as={H3}>Settings</ModalTitle>
+      <ModalTitle as={H3} data-testid="settings-modal-title">
+        Settings
+      </ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar
@@ -75,7 +77,13 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
             items={settings.map((x) => x.name)}
           />
         </div>
-        <div className={settingsStyles} data-testid="settings-content">
+        <div
+          className={settingsStyles}
+          data-testid="settings-modal-content"
+          role="tabpanel"
+          id={`tabpanel-${selectedSetting}`}
+          aria-labelledby={`${selectedSetting} Tab`}
+        >
           {SettingComponent && <SettingComponent />}
         </div>
       </div>
