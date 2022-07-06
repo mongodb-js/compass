@@ -279,9 +279,9 @@ function ConnectForm({
                 saveAndConnectButton={
                   initialConnectionInfo.favorite ? 'hidden' : 'enabled'
                 }
-                onSaveClicked={async () => {
+                onSaveClicked={() => {
                   if (initialConnectionInfo.favorite) {
-                    await callOnSaveConnectionClickedAndStoreErrors({
+                    void callOnSaveConnectionClickedAndStoreErrors({
                       ...cloneDeep(initialConnectionInfo),
                       connectionOptions: cloneDeep(connectionOptions),
                     });

@@ -1,13 +1,6 @@
 {
-  "exclude": [
-    "config",
-    ".tmp",
-    "test"
-  ],
-  "reporter": [
-    "text",
-    "html"
-  ],
+  "exclude": ["config", ".tmp", "test"],
+  "reporter": ["text", "html"],
   "sourceMap": false,
   "instrument": false
 }
