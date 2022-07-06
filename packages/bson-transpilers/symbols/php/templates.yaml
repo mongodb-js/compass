@@ -66,6 +66,7 @@ Templates:
             const collection = `$collection = $client->selectCollection('${options.database}', '${options.collection}');`;
 
             if ('aggregation' in spec) {
+                // Note: toPHPArray() may not be required here as Compass should always provide an array for spec.aggregation
                 return []
                     .concat(comment)
                     .concat('')
@@ -315,8 +316,7 @@ Templates:
             }
 
             const isExpectedIndex = (actualIndex, expectedIndex) => {
-                let parsedActualIndex = parseInt(actualIndex);
-                return !(isNaN(parsedActualIndex) || ('' + parsedActualIndex !== actualIndex) || parsedActualIndex != expectedIndex);
+                return '' + actualIndex === '' + expectedIndex;
             }
         
             let indexTest = 0;
@@ -335,7 +335,7 @@ Templates:
                 }).join(', ');
             }
 
-            return `${isObjectCastRequired ? '(object) ' : ''}[${pairs}]`
+            return `${isObjectCastRequired ? '(object) ' : ''}[${pairs}]`;
         }
 
     #############################################
