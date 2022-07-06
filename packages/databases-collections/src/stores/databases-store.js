@@ -56,16 +56,11 @@ store.onActivated = (appRegistry) => {
     instance.on('change:databases.status', () => {
       onDatabasesChange(instance.databases);
     });
-  });
 
-  /**
-   * When write state changes based on SDAM events we change the store state.
-   *
-   * @param {Object} state - The write state store state.
-   */
-  // TODO: replace with instance store/model usage
-  appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
-    store.dispatch(writeStateChanged(state));
+    store.dispatch(writeStateChanged({ isWritable: instance.isWritable }));
+    instance.on('change:isWritable', () => {
+      store.dispatch(writeStateChanged({ isWritable: instance.isWritable }));
+    });
   });
 
   /**

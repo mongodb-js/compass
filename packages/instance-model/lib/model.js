@@ -97,14 +97,6 @@ const DataLake = AmpersandModel.extend({
   },
 });
 
-const TopologyDescription = AmpersandModel.extend({
-  props: {
-    type: 'string',
-    servers: 'array',
-    setName: 'string'
-  }
-});
-
 /**
  * Returns true if model was fetched before (or is currently being fetched) or
  * force fetch is requested
@@ -137,7 +129,8 @@ const InstanceModel = AmpersandModel.extend(
       refreshingStatus: { type: 'string', default: 'initial' },
       refreshingStatusError: { type: 'string', default: null },
       isAtlas: { type: 'boolean', default: false },
-      csfleMode: { type: 'string', default: 'unavailable' }
+      csfleMode: { type: 'string', default: 'unavailable' },
+      topologyDescription: 'state'
     },
     derived: {
       isRefreshing: {
@@ -147,13 +140,13 @@ const InstanceModel = AmpersandModel.extend(
         },
       },
       isTopologyWritable: {
-        deps: ['topologyDescription'],
+        deps: ['topologyDescription.type'],
         fn() {
           return TopologyType.isWritable(this.topologyDescription.type)
         }
       },
       singleServerType: {
-        deps: ['topologyDescription'],
+        deps: ['topologyDescription.type', 'topologDescription.servers'],
         fn() {
           if (this.topologyDescription.type === TopologyType.SINGLE) {
             return this.topologyDescription.servers[0].type;
@@ -162,13 +155,13 @@ const InstanceModel = AmpersandModel.extend(
         }
       },
       isServerWritable: {
-        deps: ['topologyDescription'],
+        deps: ['singleServerType'],
         fn() {
           return this.singleServerType !== null && ServerType.isWritable(this.singleServerType);
         }
       },
       isWritable: {
-        deps: ['topologyDescription'],
+        deps: ['topologyDescription.type', 'isTopologyWritable', 'isServerWritable'],
         fn() {
           if (this.isTopologyWritable) {
             if (this.topologyDescription.type === TopologyType.SINGLE) {
@@ -182,7 +175,7 @@ const InstanceModel = AmpersandModel.extend(
         }
       },
       description: {
-        deps: ['topologyDescription'],
+        deps: ['topologyDescription.type', 'isTopologyWritable', 'isServerWritable', 'singleServerType'],
         fn() {
           const topologyType = this.topologyDescription.type;
 
@@ -214,8 +207,7 @@ const InstanceModel = AmpersandModel.extend(
       build: BuildInfo,
       genuineMongoDB: GenuineMongoDB,
       dataLake: DataLake,
-      auth: AuthInfo,
-      topologyDescription: TopologyDescription
+      auth: AuthInfo
     },
     collections: {
       databases: MongoDbDatabaseCollection,

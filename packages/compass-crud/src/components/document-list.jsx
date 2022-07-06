@@ -287,7 +287,9 @@ DocumentList.propTypes = {
   debouncingLoad: PropTypes.bool,
   loadingCount: PropTypes.bool,
   outdated: PropTypes.bool,
-  resultId: PropTypes.number
+  resultId: PropTypes.number,
+  isWritable: PropTypes.bool,
+  instanceDescription: PropTypes.string
 };
 
 DocumentList.defaultProps = {

@@ -151,6 +151,10 @@ store.onActivated = (appRegistry: AppRegistry) => {
         }
       );
       store.dispatch(dataLakeChanged(instance.dataLake.isDataLake));
+
+      instance.build.on('change:version', () => {
+        store.dispatch(serverVersionChanged(instance.build.version));
+      });
     }
   });
 
@@ -266,15 +270,6 @@ store.onActivated = (appRegistry: AppRegistry) => {
       store.dispatch(dataServiceConnected(error, dataService));
     }
   );
-
-  /**
-   * When the instance is loaded, set our server version.
-   *
-   * @param {String} version - The version.
-   */
-  appRegistry.on('server-version-changed', (version) => {
-    store.dispatch(serverVersionChanged(version));
-  });
 
   /**
    * When we disconnect from the instance, clear all the tabs.

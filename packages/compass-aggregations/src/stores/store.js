@@ -214,6 +214,7 @@ const configureStore = (options = {}) => {
     });
   }
 
+
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
     setGlobalAppRegistry(store, globalAppRegistry);
@@ -232,12 +233,10 @@ const configureStore = (options = {}) => {
       }
     });
 
-    /**
-     * Set the environment.
-     */
-    globalAppRegistry.on('compass:deployment-awareness:topology-changed', (data) => {
-      setEnv(store, data.env);
-    });
+    const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
+    const instance = instanceStore.getState().instance;
+
+    setEnv(store, instance.env);
   }
 
   // Set the data provider - this must happen second.
@@ -278,16 +277,6 @@ const configureStore = (options = {}) => {
       options.isReadonly,
       options.sourceName
     );
-  }
-
-  if (options.env) {
-    setEnv(store, options.env);
-  } else if (global && global.hadronApp && global.hadronApp.appRegistry) {
-    // TODO: update to CompassSidebar.Store?
-    const deploymentAwarenessStore = global.hadronApp.appRegistry.getStore('DeploymentAwareness.Store');
-    if (deploymentAwarenessStore) {
-      setEnv(store, deploymentAwarenessStore.state.env);
-    }
   }
 
   if (options.isTimeSeries) {

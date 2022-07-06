@@ -8,7 +8,6 @@ import { fieldsChanged } from '../modules/fields';
 import { serverVersionChanged } from '../modules/server-version';
 import { activateValidation } from '../modules/validation';
 import { editModeChanged } from '../modules/edit-mode';
-import { changeZeroState } from '../modules/zero-state';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated,
@@ -43,19 +42,6 @@ const configureStore = (options = {}) => {
     });
 
     /**
-     * Refresh on query change.
-     */
-    localAppRegistry.on('server-version-changed', (version) => {
-      store.dispatch(serverVersionChanged(version));
-      if (version) {
-        const editMode = {
-          oldServerReadOnly: semver.gte(MIN_VERSION, version),
-        };
-        store.dispatch(editModeChanged(editMode));
-      }
-    });
-
-    /**
      * When the Schema Validation is an active tab, send 'activated' metric.
      *
      * @param {String} tabName - The name of active tab.
@@ -70,41 +56,50 @@ const configureStore = (options = {}) => {
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-  }
 
-  if (options.dataProvider) {
-    setDataProvider(
-      store,
-      options.dataProvider.error,
-      options.dataProvider.dataProvider
-    );
-  }
+    const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
+    const instance = instanceStore.getState().instance;
 
-  /**
-   * When the collection is changed, update the store.
-   *
-   * @param {String} ns - The full namespace.
-   */
-  if (options.namespace) {
-    // TODO: replace with instance store/model usage
-    const WriteStateStore = options.globalAppRegistry.getStore(
-      'DeploymentAwareness.WriteStateStore'
-    );
-    const editMode = {
-      collectionTimeSeries: !!options.isTimeSeries,
-      collectionReadOnly: options.isReadonly ? true : false,
-      hadronReadOnly: process.env.HADRON_READONLY === 'true',
-      writeStateStoreReadOnly: !WriteStateStore.state.isWritable,
-    };
-
-    const namespace = toNS(options.namespace);
-    store.dispatch(namespaceChanged(namespace));
-
-    if (editMode.collectionReadOnly || editMode.collectionTimeSeries) {
-      store.dispatch(changeZeroState(true));
+    const changeEditMode = () => {
+      const editMode = {
+        collectionTimeSeries: !!options.isTimeSeries,
+        collectionReadOnly: options.isReadonly ? true : false,
+        hadronReadOnly: process.env.HADRON_READONLY === 'true',
+        writeStateStoreReadOnly: !instance.isWritable,
+        oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version)
+      };
+      store.dispatch(editModeChanged(editMode));
     }
 
-    store.dispatch(editModeChanged(editMode));
+    // set the initial value
+    changeEditMode();
+
+    // isWritable can change later
+    instance.on('change:isWritable', () => {
+      changeEditMode();
+    });
+
+    store.dispatch(serverVersionChanged(instance.version));
+
+    /**
+     * When the collection is changed, update the store.
+     *
+     * @param {String} ns - The full namespace.
+     */
+    if (options.namespace) {
+      const namespace = toNS(options.namespace);
+      store.dispatch(namespaceChanged(namespace));
+
+      // TODO: shouldn't this update if the namespace is updated? Is that even possible?
+    }
+
+    if (options.dataProvider) {
+      setDataProvider(
+        store,
+        options.dataProvider.error,
+        options.dataProvider.dataProvider
+      );
+    }
   }
 
   return store;

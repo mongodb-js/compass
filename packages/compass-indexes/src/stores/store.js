@@ -48,21 +48,20 @@ const configureStore = (options = {}) => {
     const globalAppRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-    // TODO: replace this with.. something?
-    const deploymentAwarenessStore = globalAppRegistry.getStore(
-      'DeploymentAwareness.WriteStateStore'
-    );
+    const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
+    const instance = instanceStore.getState().instance;
 
-    deploymentAwarenessStore.listen((state) => {
-      store.dispatch(writeStateChanged(state.isWritable));
-      store.dispatch(getDescription(state.description));
+    // set the initial values
+    store.dispatch(writeStateChanged(instance.isWritable));
+    store.dispatch(getDescription(instance.description));
+
+    // these can change later
+    instance.on('change:isWritable', () => {
+      store.dispatch(writeStateChanged(instance.isWritable));
     });
-
-    // Load the initial deployment awareness state.
-    store.dispatch(
-      writeStateChanged(deploymentAwarenessStore.state.isWritable)
-    );
-    store.dispatch(getDescription(deploymentAwarenessStore.state.description));
+    instance.on('change:description', () => {
+      store.dispatch(getDescription(instance.description));
+    });
 
     globalAppRegistry.on('refresh-data', () => {
       store.dispatch(loadIndexesFromDb());

@@ -3,7 +3,6 @@ import throttle from 'lodash/throttle';
 import reducer from '../modules';
 import thunk from 'redux-thunk';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { Environment, serversArray } from 'mongodb-instance-model'
 import { changeInstance } from '../modules/instance';
 import { changeActiveNamespace, changeDatabases } from '../modules/databases';
 import { reset } from '../modules/reset';
@@ -36,54 +35,18 @@ store.onActivated = (appRegistry) => {
       return;
     }
 
-    const state = store.getState();
-
-    const prevVersion = state.versionNumber;
-    if (instance.build.version !== prevVersion) {
-      // TODO: this is probably not the ideal place for this event to be emitted from
-      // TODO: remove this event, replace with instance model usage
-      appRegistry.emit('server-version-changed', instance.build.version);
-    }
-
     store.dispatch(changeInstanceStatus(instance, newStatus));
 
-    const { isAtlas, dataLake } = instance;
+    const { isAtlas } = instance;
 
     if (!isAtlas) {
       return;
     }
 
-    const env = dataLake.isDataLake ? Environment.ADL : Environment.ATLAS;
-    // TODO: again probably not the ideal place for this event to be emitted from
-    // TODO: Remove this event, replace with instance model usage
-    appRegistry.emit('compass:deployment-awareness:topology-changed', {
-      topologyType: state.deploymentAwareness.topologyType,
-      setName: state.deploymentAwareness.setName,
-      servers: state.deploymentAwareness.servers,
-      env // TODO: move this separately
-    });
-
     store.dispatch(changeAtlasInstanceStatus(instance, newStatus));
   };
 
   const onTopologyDescriptionChanged = (topologyDescription) => {
-    const state = store.getState();
-    if (topologyDescription.type !== state.topologyType) {
-      const servers = serversArray(topologyDescription.servers);
-
-      // TODO: again, this is probably not the ideal place for this event to be emitted from
-      // TODO: remove
-      appRegistry.emit(
-        'compass:deployment-awareness:topology-changed',
-        {
-          topologyType: topologyDescription.type,
-          setName: topologyDescription.setName,
-          env: state.deploymentAwareness.env, // TODO: move this
-          servers
-        }
-      );
-    }
-
     // TODO: can we remove this?
     store.dispatch(changeTopologyDescription(topologyDescription));
   }
@@ -123,11 +86,13 @@ store.onActivated = (appRegistry) => {
     // TODO: remove these
     store.dispatch(changeConnectionInfo(connectionInfo));
     store.dispatch(changeDataService(dataService));
+
     // TODO: remove this
     dataService.on('topologyDescriptionChanged', (evt) => {
       onTopologyDescriptionChanged(evt.newDescription);
     });
 
+    // TODO: remove this
     const topologyDescription = dataService.getLastSeenTopology();
     if (topologyDescription !== null) {
       onTopologyDescriptionChanged(topologyDescription);
@@ -148,10 +113,20 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('instance-created', ({ instance }) => {
-
     onInstanceChange(instance);
     onDatabasesChange(instance.databases);
     onInstanceStatusChange(instance, instance.status);
+
+    store.dispatch(toggleIsWritable(instance.isWritable));
+    store.dispatch(changeDescription(instance.description));
+
+    instance.on('change:isWritable', () => {
+      store.dispatch(toggleIsWritable(instance.isWritable));
+    });
+
+    instance.on('change:description', () => {
+      store.dispatch(changeDescription(instance.description));
+    });
 
     instance.on('change:status', (instance, newStatus) => {
       onInstanceStatusChange(instance, newStatus);
@@ -194,16 +169,9 @@ store.onActivated = (appRegistry) => {
     }
 
     onIsDataLakeChange(instance.dataLake.isDataLake);
-
     instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
       onIsDataLakeChange(isDataLake);
     });
-  });
-
-  // TODO: replace with instance store/model usage
-  appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
-    store.dispatch(toggleIsWritable(state.isWritable));
-    store.dispatch(changeDescription(state.description));
   });
 
   appRegistry.on('select-namespace', ({ namespace }) => {

@@ -220,7 +220,9 @@ const configureStore = (options = {}) => {
         loadingCount: false,
         outdated: false,
         shardKeys: null,
-        resultId: resultId()
+        resultId: resultId(),
+        isWritable: false,
+        instanceDescription: ''
       };
     },
 
@@ -281,29 +283,6 @@ const configureStore = (options = {}) => {
      */
     modeForTelemetry() {
       return this.state.view.toLowerCase();
-    },
-
-    /**
-     * Handle the instance changing.
-     *
-     * @param {Object} instance - MongoDB instance model.
-     */
-    onInstanceCreated(instance) {
-      this.setState({ version: instance.build.version });
-
-      instance.build.on('change:version', (model, version) => {
-        this.setState({ version });
-      });
-
-      if (instance.dataLake.isDataLake) {
-        this.setState({ isDataLake: true, isEditable: false });
-      }
-
-      instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
-        if (isDataLake) {
-          this.setState({ isDataLake: true, isEditable: false });
-        }
-      });
     },
 
     /**
@@ -1259,7 +1238,6 @@ const configureStore = (options = {}) => {
     }
   });
 
-
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
@@ -1274,8 +1252,26 @@ const configureStore = (options = {}) => {
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
 
-    globalAppRegistry.on('instance-created', ({ instance }) => {
-      store.onInstanceCreated(instance);
+    const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
+    const instance = instanceStore.getState().instance;
+
+    const initialState = {
+      isWritable: instance.isWritable,
+      instanceDescription: instance.description,
+      version: instance.build.version
+    };
+    if (instance.dataLake.isDataLake) {
+      initialState.isDataLake = true;
+      initialState.isEditable = false;
+    }
+    store.setState(initialState);
+
+    // these can change later
+    instance.on('change:isWritable', () => {
+      store.setState({ isWritable: instance.isWritable });
+    });
+    instance.on('change:description', () => {
+      store.setState({ instanceDescription: instance.description });
     });
 
     globalAppRegistry.on('refresh-data', () => {

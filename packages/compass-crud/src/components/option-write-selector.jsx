@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip } from 'hadron-react-components';
-import WriteStateStore from '../stores/write-state-store';
 import { OptionSelector } from 'hadron-react-components';
 
 /**
@@ -15,6 +14,7 @@ const WRAPPER = 'tooltip-button-wrapper';
  * This button contains only text, no icons, no animations. Hadron Components'
  * OptionSelector is an extension of React-Bootstrap DropdownButton.
  */
+// TODO: move this to compass-crud as that's the only place it is used
 class OptionWriteSelector extends React.Component {
   static displayName = 'OptionWriteSelector';
 
@@ -27,41 +27,9 @@ class OptionWriteSelector extends React.Component {
     isCollectionLevel: PropTypes.bool,
     onSelect: PropTypes.func.isRequired,
     options: PropTypes.object.isRequired,
-    tooltipId: PropTypes.string.isRequired
-  }
-
-  /**
-   * Subscribe to the state changing stores.
-   */
-  componentDidMount() {
-    // TODO: we can replace this with instance store/model usage, but really we should drop this whole component
-    this.unsubscribeWriteState = WriteStateStore.listen(this.writeStateChanged.bind(this));
-  }
-
-  /**
-   * Unsubscribe from the stores.
-   */
-  componentWillUnmount() {
-    this.unsubscribeWriteState();
-  }
-
-  /**
-   * Determine if the application is in a writable state.
-   *
-   * @returns {Boolean} If the application is writable.
-   */
-  isWritable() {
-    const isWritable = WriteStateStore.state.isWritable;
-    return isWritable;
-  }
-
-  /**
-   * Handle write state changes.
-   *
-   * @param {Object} state - The write state.
-   */
-  writeStateChanged(state) {
-    this.setState(state);
+    tooltipId: PropTypes.string.isRequired,
+    isWritable: PropTypes.bool.isRequired,
+    instanceDescription: PropTypes.string.isRequired
   }
 
   /**
@@ -70,8 +38,8 @@ class OptionWriteSelector extends React.Component {
    * @returns {String} The tooltip text.
    */
   tooltipText() {
-    if (!this.isWritable()) {
-      return WriteStateStore.state.description;
+    if (!this.props.isWritable) {
+      return this.props.instanceDescription;
     }
   }
 
@@ -81,7 +49,7 @@ class OptionWriteSelector extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const tooltip = (this.isWritable()) ? null : (<Tooltip id={this.props.tooltipId} />);
+    const tooltip = (this.props.isWritable) ? null : (<Tooltip id={this.props.tooltipId} />);
     return (
       <div className={WRAPPER} data-tip={this.tooltipText()} data-for={this.props.tooltipId}>
         <OptionSelector
@@ -90,7 +58,7 @@ class OptionWriteSelector extends React.Component {
           title={this.props.title}
           bsSize={this.props.bsSize}
           options={this.props.options}
-          disabled={!this.isWritable()}
+          disabled={!this.props.isWritable}
           onSelect={this.props.onSelect}
           className={this.props.className}/>
         {tooltip}
