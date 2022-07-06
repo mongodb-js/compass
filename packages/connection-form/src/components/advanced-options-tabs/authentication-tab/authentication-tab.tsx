@@ -79,7 +79,6 @@ const containerStyles = css({
 
 const contentStyles = css({
   marginTop: spacing[3],
-  width: spacing[7] * 5,
 });
 
 function getSelectedAuthTabForConnectionString(

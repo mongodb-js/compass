@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-crud",
   "productName": "Compass CRUD plugin",
-  "version": "12.25.0",
+  "version": "12.26.0",
   "description": "Compass Plugin for CRUD Operations",
   "repository": {
     "type": "git",
@@ -76,7 +76,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.24.0",
+    "hadron-app": "^4.25.0",
     "hadron-app-registry": "^8.13.0",
     "hadron-react-buttons": "^5.9.0",
     "hadron-react-components": "^5.16.0",
@@ -91,7 +91,7 @@
     "mocha": "^5.0.0",
     "mocha-webpack": "^2.0.0-beta.0",
     "mongodb-connection-model": "^21.18.0",
-    "mongodb-data-service": "^21.22.0",
+    "mongodb-data-service": "^21.23.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-runner": "^4.9.0",
     "node-loader": "^0.6.0",

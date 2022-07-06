@@ -35,3 +35,5 @@ export {
   mergeSecrets,
   promisifyAmpersandMethod,
 };
+
+export type { ExplainExecuteOptions } from './data-service';

@@ -53,10 +53,6 @@ const containerStyles = css({
   marginTop: spacing[3],
 });
 
-const fieldStyles = css({
-  width: '50%',
-});
-
 function AdvancedTab({
   updateConnectionFormField,
   connectionStringUrl,
@@ -144,7 +140,6 @@ function AdvancedTab({
       <FormFieldContainer>
         <TextInput
           spellCheck={false}
-          className={fieldStyles}
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
             handleFieldChanged('replicaSet', value);
           }}
@@ -161,7 +156,6 @@ function AdvancedTab({
       <FormFieldContainer>
         <TextInput
           spellCheck={false}
-          className={fieldStyles}
           onChange={({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
             handlePathChanged(value);
           }}
