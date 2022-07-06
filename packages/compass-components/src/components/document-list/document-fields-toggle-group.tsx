@@ -1,18 +1,25 @@
 import React, { useCallback, useMemo } from 'react';
 import { css } from '@leafygreen-ui/emotion';
-import { spacing } from '@leafygreen-ui/tokens';
-import { Button, Icon } from '../leafygreen';
+import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
+import { Link } from '../leafygreen';
 
 const container = css({
   display: 'flex',
   gap: spacing[2],
-  paddingTop: spacing[3],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[3],
+  paddingTop: spacing[2],
+  paddingLeft: 16 * 3 + 8 + 4 + 8
 });
 
 const button = css({
+  display: 'block',
+  background: 'none',
+  border: 'none',
+  fontFamily: fontFamilies.code,
+  fontSize: '12px',
+  lineHeight: `${spacing[3]}px`,
   flex: 'none',
+  padding: 0,
+  margin: 0
 });
 
 const DocumentFieldsToggleGroup: React.FunctionComponent<{
@@ -27,7 +34,7 @@ const DocumentFieldsToggleGroup: React.FunctionComponent<{
   currentSize,
   totalSize,
   minSize = 25,
-  step = 1000,
+  step = 10,
   onSizeChange,
 }) => {
   const showSizeDiff = useMemo(() => {
@@ -61,26 +68,26 @@ const DocumentFieldsToggleGroup: React.FunctionComponent<{
   return (
     <div className={container}>
       {isShowButtonVisible && (
-        <Button
-          size="xsmall"
-          leftGlyph={<Icon glyph="ArrowDown"></Icon>}
+        <Link
+          as="button"
+          hideExternalIcon={true}
           onClick={onShowClick}
           className={button}
           data-testid="show-more-fields-button"
         >
           Show {showSizeDiff} more fields
-        </Button>
+        </Link>
       )}
       {isHideButtonVisible && (
-        <Button
-          size="xsmall"
-          leftGlyph={<Icon glyph="ArrowUp"></Icon>}
+        <Link
+          as="button"
+          hideExternalIcon={true}
           onClick={onHideClick}
           className={button}
           data-testid="hide-fields-button"
         >
           Hide {hideSizeDiff} fields
-        </Button>
+        </Link>
       )}
     </div>
   );

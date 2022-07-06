@@ -20,6 +20,7 @@ import { FontAwesomeIcon } from './font-awesome-icon';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { usePrevious } from './use-previous';
+import DocumentFieldsToggleGroup from './document-fields-toggle-group';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -330,6 +331,12 @@ export const HadronElement: React.FunctionComponent<{
     removed,
     internal,
   } = useHadronElement(element);
+  const [visibleChildrenSize, setVisibleChildrenSize] = useState(25);
+  const visibleChildren = useMemo(() => {
+    return children.filter(Boolean).slice(0, visibleChildrenSize);
+  }, [visibleChildrenSize, children]);
+
+  // console.log({key, children, visibleChildren, visibleChildrenSize});
 
   useEffect(() => {
     setExpanded(allExpanded);
@@ -559,22 +566,37 @@ export const HadronElement: React.FunctionComponent<{
           </div>
         )}
       </div>
-      {expandable &&
-        expanded &&
-        children.map((el, idx) => {
-          return (
-            <HadronElement
-              key={idx}
-              value={el}
-              editable={editable}
-              editingEnabled={editingEnabled}
-              onEditStart={onEditStart}
-              allExpanded={allExpanded}
-              lineNumberSize={lineNumberSize}
-              onAddElement={onAddElement}
-            ></HadronElement>
-          );
-        })}
+      {expandable && expanded && (
+        <>
+          {visibleChildren.map((el, idx) => {
+            return (
+              <HadronElement
+                key={idx}
+                value={el}
+                editable={editable}
+                editingEnabled={editingEnabled}
+                onEditStart={onEditStart}
+                allExpanded={allExpanded}
+                lineNumberSize={lineNumberSize}
+                onAddElement={onAddElement}
+              ></HadronElement>
+            );
+          })}
+          <div
+            style={{
+              paddingLeft: (editable ? spacing[2] : 0) + spacing[3] * level + 8,
+              paddingBottom: 8,
+            }}
+          >
+            <DocumentFieldsToggleGroup
+              currentSize={visibleChildrenSize}
+              totalSize={children.length}
+              showHideButton={!editingEnabled}
+              onSizeChange={setVisibleChildrenSize}
+            ></DocumentFieldsToggleGroup>
+          </div>
+        </>
+      )}
     </>
   );
 };

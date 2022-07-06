@@ -233,29 +233,6 @@ class EditableDocument extends React.Component {
   }
 
   /**
-   * Render the show/hide fields bar.
-   *
-   * @returns {React.Component} The expansion bar.
-   */
-  renderExpansion() {
-    return (
-      <DocumentList.DocumentFieldsToggleGroup
-        // TODO: "Hide items" button will only be shown when document is not
-        // edited because it's not decided how to handle changes to the fields
-        // that are changed but then hidden
-        // https://jira.mongodb.org/browse/COMPASS-5587
-        showHideButton={!this.state.editing}
-        currentSize={this.state.renderSize}
-        totalSize={this.props.doc.elements.size}
-        minSize={INITIAL_FIELD_LIMIT}
-        // Performance - Reduce extra fields added per click in edit mode
-        step={this.state.editing ? 100 : 1000}
-        onSizeChange={this.setRenderSize.bind(this)}
-      />
-    );
-  }
-
-  /**
    * Render the footer component.
    *
    * @returns {Component} The footer component.
@@ -295,7 +272,6 @@ class EditableDocument extends React.Component {
           <div className={ELEMENTS}>
             {this.renderElements()}
           </div>
-          {this.renderExpansion()}
           {this.renderActions()}
         </div>
         {this.renderFooter()}

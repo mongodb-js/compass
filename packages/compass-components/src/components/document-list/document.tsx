@@ -10,6 +10,7 @@ import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { HadronElement } from './element';
 import { usePrevious } from './use-previous';
+import DocumentFieldsToggleGroup from './document-fields-toggle-group';
 
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
@@ -65,23 +66,22 @@ const hadronDocument = css({
 // https://jira.mongodb.org/browse/COMPASS-5614
 const HadronDocument: React.FunctionComponent<{
   value: HadronDocumentType;
-  visibleFieldsCount?: number;
   expanded?: boolean;
   editable?: boolean;
   editing?: boolean;
   onEditStart?: () => void;
 }> = ({
   value: document,
-  visibleFieldsCount,
   expanded = false,
   editable = false,
   editing = false,
   onEditStart,
 }) => {
   const { elements } = useHadronDocument(document);
+  const [visibleElementsSize, setVisibleElementsSize] = useState(25);
   const visibleElements = useMemo(() => {
-    return elements.filter(Boolean).slice(0, visibleFieldsCount);
-  }, [elements, visibleFieldsCount]);
+    return elements.filter(Boolean).slice(0, visibleElementsSize);
+  }, [elements, visibleElementsSize]);
   const [autoFocus, setAutoFocus] = useState<{
     id: string;
     type: 'key' | 'value' | 'type';
@@ -127,6 +127,16 @@ const HadronDocument: React.FunctionComponent<{
           );
         })}
       </AutoFocusContext.Provider>
+      <DocumentFieldsToggleGroup
+        currentSize={visibleElementsSize}
+        totalSize={elements.length}
+        // TODO: "Hide items" button will only be shown when document is not
+        // edited because it's not decided how to handle changes to the fields
+        // that are changed but then hidden
+        // https://jira.mongodb.org/browse/COMPASS-5587
+        showHideButton={!editing}
+        onSizeChange={setVisibleElementsSize}
+      ></DocumentFieldsToggleGroup>
     </div>
   );
 };

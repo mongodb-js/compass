@@ -61,22 +61,6 @@ class ReadonlyDocument extends React.Component {
     );
   }
 
-  /**
-   * Render the expander bar.
-   *
-   * @returns {React.Component} The expander bar.
-   */
-  renderExpansion() {
-    return (
-      <DocumentList.DocumentFieldsToggleGroup
-        currentSize={this.state.renderSize}
-        totalSize={this.props.doc.elements.size}
-        minSize={INITIAL_FIELD_LIMIT}
-        onSizeChange={this.setRenderSize.bind(this)}
-      />
-    );
-  }
-
   renderActions() {
     return (
       <DocumentList.DocumentActionsGroup
@@ -96,7 +80,6 @@ class ReadonlyDocument extends React.Component {
       <div className={BASE} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
           {this.renderElements()}
-          {this.renderExpansion()}
           {this.renderActions()}
         </div>
       </div>
