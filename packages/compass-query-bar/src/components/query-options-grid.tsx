@@ -24,6 +24,8 @@ const docsLinkContainerStyles = css({
   paddingRight: spacing[2],
   whiteSpace: 'nowrap',
   display: 'flex',
+  justifyContent: 'flex-end',
+  flexGrow: 1,
 });
 
 const numericEditorsGridAreaStyles = css({

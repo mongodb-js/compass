@@ -92,7 +92,11 @@ type QueryBarProps = {
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
   expanded: isQueryOptionsExpanded = false,
-  queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
+  // queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
+  // queryOptions = ['project', 'sort', 'collation'],
+  // queryOptions = ['project', 'sort'],
+  // queryOptions = ['project'],
+  queryOptions = [],
   onApply: _onApply,
   onChangeQueryOption,
   onReset,
@@ -178,7 +182,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           {buttonLabel}
         </Button>
 
-        {queryOptions && queryOptions.length > 1 && (
+        {queryOptions && queryOptions.length > 0 && (
           <MoreOptionsToggle
             aria-controls="additional-query-options-container"
             data-testid="query-bar-options-toggle"
@@ -187,19 +191,21 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           />
         )}
       </div>
-      <div id="additional-query-options-container">
-        {isQueryOptionsExpanded && (
-          <QueryOptionsGrid
-            queryOptions={queryOptions}
-            queryOptionProps={queryOptionProps}
-            onChangeQueryOption={onChangeQueryOption}
-            onApply={onApply}
-            refreshEditorAction={refreshEditorAction}
-            schemaFields={schemaFields}
-            serverVersion={serverVersion}
-          />
-        )}
-      </div>
+      {queryOptions && queryOptions.length > 0 && (
+        <div id="additional-query-options-container">
+          {isQueryOptionsExpanded && (
+            <QueryOptionsGrid
+              queryOptions={queryOptions}
+              queryOptionProps={queryOptionProps}
+              onChangeQueryOption={onChangeQueryOption}
+              onApply={onApply}
+              refreshEditorAction={refreshEditorAction}
+              schemaFields={schemaFields}
+              serverVersion={serverVersion}
+            />
+          )}
+        </div>
+      )}
     </form>
   );
 };
