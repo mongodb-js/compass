@@ -66,10 +66,10 @@ const configureStore = (options = {}) => {
         collectionReadOnly: options.isReadonly ? true : false,
         hadronReadOnly: process.env.HADRON_READONLY === 'true',
         writeStateStoreReadOnly: !instance.isWritable,
-        oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version)
+        oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
       };
       store.dispatch(editModeChanged(editMode));
-    }
+    };
 
     // set the initial value
     changeEditMode();

@@ -1,6 +1,7 @@
 ignores: [
   "@babel/cli",
   "@babel/register",
+  "@mongodb-js/compass-deployment-awareness",
   "core-js",
   "font-awesome",
   "karma-electron",
