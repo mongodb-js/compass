@@ -51,7 +51,7 @@ function formatQuery(query: Query) {
 
 export function copyToClipboard(
   id: string
-): ThunkAction<void, RootState, void, RootActions> {
+): ThunkAction<Promise<void>, RootState, void, RootActions> {
   return async (_dispatch, getState) => {
     const {
       savedItems: { items },

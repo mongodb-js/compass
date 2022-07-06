@@ -134,11 +134,9 @@ export function useSortedItems<T extends Record<string, unknown>>(
     name: keyof T | null;
     order: SortOrder;
   },
-  sortFn: Partial<
-    {
-      [key in keyof T]: (a: T[key], b: T[key], order: SortOrder) => number;
-    }
-  > | null = null
+  sortFn: Partial<{
+    [key in keyof T]: (a: T[key], b: T[key], order: SortOrder) => number;
+  }> | null = null
 ): T[] {
   return useMemo(() => {
     return [...items].sort((a, b) => {
