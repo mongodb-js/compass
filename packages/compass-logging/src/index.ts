@@ -15,7 +15,7 @@ function emit(
 ): void {
   // We use ipc.callQuiet instead of ipc.call because we already
   // print debugging messages below
-  ipc?.callQuiet?.(event, data);
+  void ipc?.callQuiet?.(event, data);
   if (typeof process !== 'undefined' && typeof process.emit === 'function') {
     (process as any).emit(event, data);
   }

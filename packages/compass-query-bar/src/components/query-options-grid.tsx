@@ -135,56 +135,80 @@ type QueryOptionsGridProps = {
   serverVersion: string;
 };
 
-export const QueryOptionsGrid: React.FunctionComponent<QueryOptionsGridProps> =
-  ({
-    queryOptions,
-    onApply,
-    onChangeQueryOption,
-    queryOptionProps,
-    refreshEditorAction,
-    schemaFields,
-    serverVersion,
-  }) => {
-    const gridTemplateAreas = useMemo(
-      () => getGridTemplateForQueryOptions(queryOptions),
-      [queryOptions]
-    );
+export const QueryOptionsGrid: React.FunctionComponent<
+  QueryOptionsGridProps
+> = ({
+  queryOptions,
+  onApply,
+  onChangeQueryOption,
+  queryOptionProps,
+  refreshEditorAction,
+  schemaFields,
+  serverVersion,
+}) => {
+  const gridTemplateAreas = useMemo(
+    () => getGridTemplateForQueryOptions(queryOptions),
+    [queryOptions]
+  );
 
-    const documentEditors = useMemo(
-      () =>
-        Object.values(OPTION_DEFINITION)
-          .filter((opt) => {
-            return (
-              opt.name !== 'filter' &&
-              queryOptions.includes(opt.name) &&
-              opt.type === 'document'
-            );
-          })
-          .map((optionDefinition) => optionDefinition.name),
-      [queryOptions]
-    );
-    const numericEditors = useMemo(
-      () =>
-        Object.values(OPTION_DEFINITION)
-          .filter((opt) => {
-            return queryOptions.includes(opt.name) && opt.type === 'numeric';
-          })
-          .map((optionDefinition) => optionDefinition.name),
-      [queryOptions]
-    );
+  const documentEditors = useMemo(
+    () =>
+      Object.values(OPTION_DEFINITION)
+        .filter((opt) => {
+          return (
+            opt.name !== 'filter' &&
+            queryOptions.includes(opt.name) &&
+            opt.type === 'document'
+          );
+        })
+        .map((optionDefinition) => optionDefinition.name),
+    [queryOptions]
+  );
+  const numericEditors = useMemo(
+    () =>
+      Object.values(OPTION_DEFINITION)
+        .filter((opt) => {
+          return queryOptions.includes(opt.name) && opt.type === 'numeric';
+        })
+        .map((optionDefinition) => optionDefinition.name),
+    [queryOptions]
+  );
 
-    return (
+  return (
+    <div
+      className={gridStyles}
+      style={{
+        gridTemplateAreas,
+      }}
+    >
+      {documentEditors.map((optionName: QueryOption) => (
+        <QueryOptionComponent
+          gridArea={optionName}
+          hasError={!queryOptionProps[`${optionName}Valid`]}
+          key={`document-query-option-${optionName}`}
+          onChange={(value: string) => onChangeQueryOption(optionName, value)}
+          onApply={onApply}
+          placeholder={
+            queryOptionProps[`${optionName}Placeholder`] ||
+            OPTION_DEFINITION[optionName].placeholder
+          }
+          queryOption={optionName}
+          refreshEditorAction={refreshEditorAction}
+          schemaFields={schemaFields}
+          serverVersion={serverVersion}
+          value={queryOptionProps[`${optionName}String`]}
+        />
+      ))}
       <div
-        className={gridStyles}
-        style={{
-          gridTemplateAreas,
-        }}
+        className={cx(
+          numericEditorsGridAreaStyles,
+          numericEditors.length === 0 && emptyNumericEditorsGridAreaStyles
+        )}
       >
-        {documentEditors.map((optionName: QueryOption) => (
+        {numericEditors.map((optionName: QueryOption) => (
           <QueryOptionComponent
-            gridArea={optionName}
             hasError={!queryOptionProps[`${optionName}Valid`]}
-            key={`document-query-option-${optionName}`}
+            key={`numeric-query-option-${optionName}`}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
             onApply={onApply}
             placeholder={
@@ -198,40 +222,15 @@ export const QueryOptionsGrid: React.FunctionComponent<QueryOptionsGridProps> =
             value={queryOptionProps[`${optionName}String`]}
           />
         ))}
-        <div
-          className={cx(
-            numericEditorsGridAreaStyles,
-            numericEditors.length === 0 && emptyNumericEditorsGridAreaStyles
-          )}
-        >
-          {numericEditors.map((optionName: QueryOption) => (
-            <QueryOptionComponent
-              hasError={!queryOptionProps[`${optionName}Valid`]}
-              key={`numeric-query-option-${optionName}`}
-              onChange={(value: string) =>
-                onChangeQueryOption(optionName, value)
-              }
-              onApply={onApply}
-              placeholder={
-                queryOptionProps[`${optionName}Placeholder`] ||
-                OPTION_DEFINITION[optionName].placeholder
-              }
-              queryOption={optionName}
-              refreshEditorAction={refreshEditorAction}
-              schemaFields={schemaFields}
-              serverVersion={serverVersion}
-              value={queryOptionProps[`${optionName}String`]}
-            />
-          ))}
-          <div className={docsLinkContainerStyles}>
-            <Link
-              href="https://docs.mongodb.com/compass/current/query/filter/"
-              target="_blank"
-            >
-              Learn more
-            </Link>
-          </div>
+        <div className={docsLinkContainerStyles}>
+          <Link
+            href="https://docs.mongodb.com/compass/current/query/filter/"
+            target="_blank"
+          >
+            Learn more
+          </Link>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};

@@ -541,7 +541,12 @@ describe('Connection form', function () {
       favoriteName,
       Selectors.CopyConnectionStringItem
     );
-    expect(await clipboard.read()).to.equal('mongodb://localhost:27017');
+    await browser.waitUntil(
+      async () => {
+        return (await clipboard.read()) === 'mongodb://localhost:27017';
+      },
+      { timeoutMsg: 'Expected copy to clipboard to work' }
+    );
 
     // duplicate
     await selectConnectionMenuItem(

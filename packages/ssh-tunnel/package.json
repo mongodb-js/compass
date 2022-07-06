@@ -68,10 +68,10 @@
     "mocha": "^8.4.0",
     "node-fetch": "^2.6.1",
     "nyc": "^15.1.0",
-    "prettier": "2.3.2",
+    "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "socks": "^2.6.1",
-    "typescript": "^4.3.5"
+    "typescript": "^4.7.4"
   },
   "dependencies": {
     "debug": "4.3.0",

@@ -110,7 +110,7 @@
     "mongodb-ns": "^2.4.0",
     "mongodb-reflux-store": "^0.0.1",
     "nyc": "^15.1.0",
-    "prettier": "2.3.2",
+    "prettier": "^2.7.1",
     "prop-types": "^15.7.2",
     "react-fontawesome": "^1.6.1",
     "rimraf": "^3.0.2",

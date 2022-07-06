@@ -93,49 +93,50 @@ export const ObjectIdValue: React.FunctionComponent<
   );
 };
 
-export const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> =
-  ({ value }) => {
-    const { stringifiedValue, title } = useMemo(() => {
-      if (value.sub_type === Binary.SUBTYPE_ENCRYPTED) {
-        return {
-          stringifiedValue: '*********',
-          title: 'Encrypted',
-        };
-      }
-      if (value.sub_type === Binary.SUBTYPE_UUID) {
-        let uuid: string;
-
-        try {
-          // Try to get the pretty hex version of the UUID
-          uuid = value.toUUID().toString();
-        } catch {
-          // If uuid is not following the uuid format converting it to UUID will
-          // fail, we don't want the UI to fail rendering it and instead will
-          // just display "unformatted" hex value of the binary whatever it is
-          uuid = value.toString('hex');
-        }
-
-        return { stringifiedValue: `UUID('${uuid}')` };
-      }
+export const BinaryValue: React.FunctionComponent<
+  PropsByValueType<'Binary'>
+> = ({ value }) => {
+  const { stringifiedValue, title } = useMemo(() => {
+    if (value.sub_type === Binary.SUBTYPE_ENCRYPTED) {
       return {
-        // The shell displays these values as Binary(Buffer.from(<hex string>, 'hex'), <subtype>).
-        // This would be a bit nicer here, since we want to encourage usage of standard Node.js
-        // driver types, but Buffer.from() is not something that Compass understands (and maybe
-        // shouldn't understand) in text input, and passing a string to Binary() is a legacy
-        // concept as well.
-        stringifiedValue: `BinData(${value.sub_type}, '${truncate(
-          value.toString('base64'),
-          100
-        )}')`,
+        stringifiedValue: '*********',
+        title: 'Encrypted',
       };
-    }, [value]);
+    }
+    if (value.sub_type === Binary.SUBTYPE_UUID) {
+      let uuid: string;
 
-    return (
-      <div className={getStyles('Binary')} title={title ?? stringifiedValue}>
-        {stringifiedValue}
-      </div>
-    );
-  };
+      try {
+        // Try to get the pretty hex version of the UUID
+        uuid = value.toUUID().toString();
+      } catch {
+        // If uuid is not following the uuid format converting it to UUID will
+        // fail, we don't want the UI to fail rendering it and instead will
+        // just display "unformatted" hex value of the binary whatever it is
+        uuid = value.toString('hex');
+      }
+
+      return { stringifiedValue: `UUID('${uuid}')` };
+    }
+    return {
+      // The shell displays these values as Binary(Buffer.from(<hex string>, 'hex'), <subtype>).
+      // This would be a bit nicer here, since we want to encourage usage of standard Node.js
+      // driver types, but Buffer.from() is not something that Compass understands (and maybe
+      // shouldn't understand) in text input, and passing a string to Binary() is a legacy
+      // concept as well.
+      stringifiedValue: `BinData(${value.sub_type}, '${truncate(
+        value.toString('base64'),
+        100
+      )}')`,
+    };
+  }, [value]);
+
+  return (
+    <div className={getStyles('Binary')} title={title ?? stringifiedValue}>
+      {stringifiedValue}
+    </div>
+  );
+};
 
 export const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   value,
@@ -185,18 +186,19 @@ export const NumberValue: React.FunctionComponent<
   );
 };
 
-export const StringValue: React.FunctionComponent<PropsByValueType<'String'>> =
-  ({ value }) => {
-    const truncatedValue = useMemo(() => {
-      return truncate(value, 70);
-    }, [value]);
+export const StringValue: React.FunctionComponent<
+  PropsByValueType<'String'>
+> = ({ value }) => {
+  const truncatedValue = useMemo(() => {
+    return truncate(value, 70);
+  }, [value]);
 
-    return (
-      <div className={getStyles('String')} title={value}>
-        &quot;{truncatedValue}&quot;
-      </div>
-    );
-  };
+  return (
+    <div className={getStyles('String')} title={value}>
+      &quot;{truncatedValue}&quot;
+    </div>
+  );
+};
 
 export const RegExpValue: React.FunctionComponent<
   PropsByValueType<'BSONRegExp'>
@@ -226,18 +228,19 @@ export const TimestampValue: React.FunctionComponent<
   );
 };
 
-export const KeyValue: React.FunctionComponent<{ type: 'MinKey' | 'MaxKey' }> =
-  ({ type }) => {
-    const stringifiedValue = useMemo(() => {
-      return `${type}()`;
-    }, [type]);
+export const KeyValue: React.FunctionComponent<{
+  type: 'MinKey' | 'MaxKey';
+}> = ({ type }) => {
+  const stringifiedValue = useMemo(() => {
+    return `${type}()`;
+  }, [type]);
 
-    return (
-      <div className={getStyles(type)} title={stringifiedValue}>
-        {stringifiedValue}
-      </div>
-    );
-  };
+  return (
+    <div className={getStyles(type)} title={stringifiedValue}>
+      {stringifiedValue}
+    </div>
+  );
+};
 
 export const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,

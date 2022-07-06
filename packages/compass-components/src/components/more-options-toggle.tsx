@@ -32,50 +32,50 @@ type MoreOptionsToggleProps = {
   id?: string;
 };
 
-export const MoreOptionsToggle: React.FunctionComponent<MoreOptionsToggleProps> =
-  ({
-    'aria-controls': ariaControls,
-    isExpanded,
-    id,
-    'data-testid': dataTestId,
-    onToggleOptions,
-  }) => {
-    const optionsIcon = useMemo(
-      () => (isExpanded ? 'CaretDown' : 'CaretRight'),
-      [isExpanded]
-    );
-    const optionsLabel = useMemo(
-      () => (isExpanded ? 'Less Options' : 'More Options'),
-      [isExpanded]
-    );
-    const focusRingProps = useFocusRing();
-    const buttonProps = mergeProps(
-      {
-        className: optionsButtonStyles,
-      },
-      focusRingProps
-      // We cast here so that the `as` prop of link can be properly typed.
-    ) as Partial<React.ComponentType<React.ComponentProps<typeof Link>>>;
+export const MoreOptionsToggle: React.FunctionComponent<
+  MoreOptionsToggleProps
+> = ({
+  'aria-controls': ariaControls,
+  isExpanded,
+  id,
+  'data-testid': dataTestId,
+  onToggleOptions,
+}) => {
+  const optionsIcon = useMemo(
+    () => (isExpanded ? 'CaretDown' : 'CaretRight'),
+    [isExpanded]
+  );
+  const optionsLabel = useMemo(
+    () => (isExpanded ? 'Less Options' : 'More Options'),
+    [isExpanded]
+  );
+  const focusRingProps = useFocusRing();
+  const buttonProps = mergeProps(
+    {
+      className: optionsButtonStyles,
+    },
+    focusRingProps
+    // We cast here so that the `as` prop of link can be properly typed.
+  ) as Partial<React.ComponentType<React.ComponentProps<typeof Link>>>;
 
-    return (
-      <div className={optionContainerStyles}>
-        <Link
-          aria-label={optionsLabel}
-          aria-expanded={isExpanded}
-          aria-controls={ariaControls}
-          as="button"
-          hideExternalIcon={true}
-          data-testid={dataTestId}
-          id={id}
-          type="button"
-          onClick={onToggleOptions}
-          {...buttonProps}
-        >
-          <div className={optionStyles}>
-            {optionsLabel}
-            <Icon glyph={optionsIcon} />
-          </div>
-        </Link>
-      </div>
-    );
-  };
+  return (
+    <div className={optionContainerStyles}>
+      <Link
+        aria-label={optionsLabel}
+        aria-expanded={isExpanded}
+        aria-controls={ariaControls}
+        as="button"
+        hideExternalIcon={true}
+        data-testid={dataTestId}
+        id={id}
+        onClick={onToggleOptions}
+        {...buttonProps}
+      >
+        <div className={optionStyles}>
+          {optionsLabel}
+          <Icon glyph={optionsIcon} />
+        </div>
+      </Link>
+    </div>
+  );
+};

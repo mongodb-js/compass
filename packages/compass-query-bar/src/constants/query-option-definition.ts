@@ -61,11 +61,11 @@ export const OPTION_DEFINITION: {
   },
 };
 
-export type QueryBarOptionProps = { [key in `${QueryOption}String`]: string } &
-  { [key in `${QueryOption}Valid`]: boolean } &
-  {
-    [key in `${QueryOption}Placeholder`]?: string;
-  };
+export type QueryBarOptionProps = {
+  [key in `${QueryOption}String`]: string;
+} & { [key in `${QueryOption}Valid`]: boolean } & {
+  [key in `${QueryOption}Placeholder`]?: string;
+};
 
 export type QueryBarRowLayout = QueryOption | QueryOption[];
 export type QueryBarLayout = Array<QueryBarRowLayout>;

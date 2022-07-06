@@ -87,7 +87,7 @@ export class WebpackPluginStartElectron {
 
           const fullPath = path.join(
             compilation.options.output.path,
-            entryChunkFilename
+            entryChunkFilename as string
           );
 
           if (this.electronProcess !== null && this.opts.electronLiveReload) {

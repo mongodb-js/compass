@@ -61,10 +61,10 @@
     "mongodb-log-writer": "^1.1.4",
     "mongodb-runner": "^4.9.0",
     "nyc": "^15.1.0",
-    "prettier": "*",
+    "prettier": "^2.7.1",
     "resolve-mongodb-srv": "^1.1.1",
     "semver": "^5.7.1",
-    "ts-node": "^10.4.0",
+    "ts-node": "^10.8.2",
     "webdriverio": "^7.16.13",
     "xvfb-maybe": "^0.2.1"
   }
