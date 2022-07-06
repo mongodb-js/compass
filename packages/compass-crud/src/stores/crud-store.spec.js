@@ -1918,7 +1918,16 @@ describe('store', function() {
         { _id: '004', cat: 'pia' }
       ], {}, (err) => {
         if (err) return done(err);
-        dataService.createView('testview', 'compass-crud.test', [{$sort: {cat: 1}}], {}, done);
+        dataService.createView(
+          'testview',
+          'compass-crud.test',
+          [{$sort: {cat: 1}}],
+          {},
+          (createViewError) => {
+            if (createViewError) return done(createViewError);
+            done();
+          }
+        );
       });
     });
 
