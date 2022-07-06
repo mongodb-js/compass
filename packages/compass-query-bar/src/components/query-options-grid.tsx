@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link, css, spacing } from '@mongodb-js/compass-components';
+import { Link, css, cx, spacing } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
 import type {
@@ -24,8 +24,6 @@ const docsLinkContainerStyles = css({
   paddingRight: spacing[2],
   whiteSpace: 'nowrap',
   display: 'flex',
-  justifyContent: 'flex-end',
-  flexGrow: 1,
 });
 
 const numericEditorsGridAreaStyles = css({
@@ -33,6 +31,11 @@ const numericEditorsGridAreaStyles = css({
   display: 'flex',
   gap: `0px ${spacing[2]}px`,
   justifyContent: 'space-between',
+});
+
+// When only the docs link is show we want to ensure it is aligned to the right.
+const emptyNumericEditorsGridAreaStyles = css({
+  justifyContent: 'flex-end',
 });
 
 const COLUMNS = 6;
@@ -195,7 +198,12 @@ export const QueryOptionsGrid: React.FunctionComponent<QueryOptionsGridProps> =
             value={queryOptionProps[`${optionName}String`]}
           />
         ))}
-        <div className={numericEditorsGridAreaStyles}>
+        <div
+          className={cx(
+            numericEditorsGridAreaStyles,
+            numericEditors.length === 0 && emptyNumericEditorsGridAreaStyles
+          )}
+        >
           {numericEditors.map((optionName: QueryOption) => (
             <QueryOptionComponent
               hasError={!queryOptionProps[`${optionName}Valid`]}

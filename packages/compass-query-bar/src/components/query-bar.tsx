@@ -92,11 +92,7 @@ type QueryBarProps = {
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
   expanded: isQueryOptionsExpanded = false,
-  // queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
-  // queryOptions = ['project', 'sort', 'collation'],
-  // queryOptions = ['project', 'sort'],
-  // queryOptions = ['project'],
-  queryOptions = [],
+  queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
   onApply: _onApply,
   onChangeQueryOption,
   onReset,
