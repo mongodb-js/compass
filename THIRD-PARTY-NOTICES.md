@@ -74,7 +74,7 @@ Package|Version|License
 **[safe-buffer](#952cf236ee56e7de5ea7e772caf3e256866f9dbdffc492539c48cd8c15ac9674)**|5.2.1|MIT
 **[safe-buffer](#115052870841b125f6e9deb1b800b99ed9c660f269050eafb32c84bdd9211f12)**|5.1.2|MIT
 **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**|1.1.2|MIT
-**[semver](#e2f1c7bd615a3b61317d37fe215dc55bcd042a778ca15ab45bda8d9c8c39d54e)**|7.3.5|ISC
+**[semver](#4bed5cd5bcb541cb0c5c45e33f4b082818b19f6e916d1badfad14f9d3fb5132d)**|7.3.7|ISC
 **[semver](#e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d)**|5.7.1|ISC
 **[set-blocking](#d10823126ec31b1e665e321d110e1fde8413f70e2df17b24b0c71c43fe2c0558)**|2.0.0|ISC
 **[signal-exit](#5ad551060d44370794e770309e198719e94f939e46a3ea537b776c9c4fdad9e4)**|3.0.7|ISC
@@ -4137,8 +4137,8 @@ Authors:
 License tags: MIT
 
 
-<a id="e2f1c7bd615a3b61317d37fe215dc55bcd042a778ca15ab45bda8d9c8c39d54e"></a>
-### [semver](https://www.npmjs.com/package/semver) (version 7.3.5)
+<a id="4bed5cd5bcb541cb0c5c45e33f4b082818b19f6e916d1badfad14f9d3fb5132d"></a>
+### [semver](https://www.npmjs.com/package/semver) (version 7.3.7)
 <!-- initially found at node_modules/semver -->
 > The semantic version parser used by npm.
 
@@ -4163,6 +4163,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
       
+
+Authors:
+* GitHub Inc.
 
 
 <a id="e166af9700b507cf6e45c57af6bf29f9ba7059e4535e65fac0f3d5c37970544d"></a>
