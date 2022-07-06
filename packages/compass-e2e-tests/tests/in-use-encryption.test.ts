@@ -11,28 +11,10 @@ import path from 'path';
 
 import delay from '../helpers/delay';
 
-import { promises as fs } from 'fs';
-
 import { LOG_PATH } from '../helpers/compass';
 
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
-
-const readSavedConnectionsFolder = async (compass: Compass) => {
-  if (compass.userDataPath) {
-    try {
-      const connections = await fs.readdir(
-        path.join(compass.userDataPath, 'Connections')
-      );
-
-      console.log('Compass connections:');
-      console.log(connections);
-    } catch (err) {
-      console.error('Error during reading connections:');
-      console.error(err);
-    }
-  }
-};
 
 describe('FLE2', function () {
   describe('server version gte 4.2.20 and not a linux platform', function () {
@@ -109,12 +91,7 @@ describe('FLE2', function () {
 
       // Wait for it to connect
       const element = await browser.$(Selectors.MyQueriesList);
-      await element.waitForDisplayed({
-        timeout: 30_000,
-      });
-
-      console.log('Compass userDataPath:');
-      console.log(compass.userDataPath);
+      await element.waitForDisplayed();
 
       await delay(10000);
 
@@ -126,12 +103,8 @@ describe('FLE2', function () {
       }
 
       await delay(10000);
-
-      console.log('Read favorites after disconnecting and delay');
-      await readSavedConnectionsFolder(compass);
-
       await browser.saveScreenshot(
-        path.join(LOG_PATH, 'saved-connections-right-after-disconnect.png')
+        path.join(LOG_PATH, 'saved-connections-after-disconnect.png')
       );
 
       await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
@@ -372,7 +345,6 @@ describe('FLE2', function () {
 
         // wait for the modal to go away
         await insertDialog.waitForDisplayed({ reverse: true });
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
 
         const result = await getFirstListDocument(browser);
 
@@ -593,7 +565,6 @@ describe('FLE2', function () {
 
         // wait for the modal to go away
         await insertDialog.waitForDisplayed({ reverse: true });
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
 
         await browser.runFindOperation('Documents', "{ name: 'Third' }");
 
