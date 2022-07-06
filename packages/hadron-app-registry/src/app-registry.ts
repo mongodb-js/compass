@@ -19,6 +19,8 @@ const STUB_STORE = Reflux.createStore({});
 interface Role {
   name: string;
   component: React.ComponentType<any>;
+  actionName?: string;
+  storeName?: string;
   order?: number;
 }
 

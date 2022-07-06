@@ -1,7 +1,8 @@
 /**
  * Server version changed action.
  */
-export const SERVER_VERSION_CHANGED = 'validation/server-version/SERVER_VERSION_CHANGED';
+export const SERVER_VERSION_CHANGED =
+  'validation/server-version/SERVER_VERSION_CHANGED';
 
 /**
  * The initial state.
@@ -33,5 +34,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const serverVersionChanged = (version) => ({
   type: SERVER_VERSION_CHANGED,
-  version
+  version,
 });

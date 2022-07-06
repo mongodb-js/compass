@@ -11,7 +11,7 @@ import { editModeChanged } from '../modules/edit-mode';
 import { changeZeroState } from '../modules/zero-state';
 import {
   localAppRegistryActivated,
-  globalAppRegistryActivated
+  globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import semver from 'semver';
 
@@ -48,7 +48,9 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('server-version-changed', (version) => {
       store.dispatch(serverVersionChanged(version));
       if (version) {
-        const editMode = { oldServerReadOnly: semver.gte(MIN_VERSION, version) };
+        const editMode = {
+          oldServerReadOnly: semver.gte(MIN_VERSION, version),
+        };
         store.dispatch(editModeChanged(editMode));
       }
     });
@@ -85,12 +87,14 @@ const configureStore = (options = {}) => {
    */
   if (options.namespace) {
     const namespace = toNS(options.namespace);
-    const WriteStateStore = options.globalAppRegistry.getStore('DeploymentAwareness.WriteStateStore');
+    const WriteStateStore = options.globalAppRegistry.getStore(
+      'DeploymentAwareness.WriteStateStore'
+    );
     const editMode = {
       collectionTimeSeries: !!options.isTimeSeries,
       collectionReadOnly: options.isReadonly ? true : false,
-      hadronReadOnly: (process.env.HADRON_READONLY === 'true'),
-      writeStateStoreReadOnly: !WriteStateStore.state.isWritable
+      hadronReadOnly: process.env.HADRON_READONLY === 'true',
+      writeStateStoreReadOnly: !WriteStateStore.state.isWritable,
     };
 
     store.dispatch(namespaceChanged(namespace));

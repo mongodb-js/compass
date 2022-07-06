@@ -42,7 +42,8 @@ describe('<AddFieldButton />', function() {
             columnApi={columnApi}
             buttonRef="test"
             context={context}
-            displace={0}/>
+            displace={0}
+          />
         );
         done();
       });
@@ -149,7 +150,6 @@ describe('<AddFieldButton />', function() {
             );
             const wrapper = component.find({'data-test-id': 'add-field-after'});
             expect(wrapper).to.be.present();
-            rowNode.data.hadronDocument.elements.flush();
             wrapper.simulate('click');
             done();
           });

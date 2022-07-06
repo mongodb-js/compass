@@ -1,7 +1,6 @@
 'use strict';
 
 import EventEmitter from 'eventemitter3';
-import keys from 'lodash.keys';
 import isObject from 'lodash.isplainobject';
 import isArray from 'lodash.isarray';
 import isEqual from 'lodash.isequal';
@@ -50,21 +49,6 @@ const UNEDITABLE_TYPES = [
 ];
 
 /**
- * Curly brace constant.
- */
-const CURLY = '{';
-
-/**
- * Bracket constant.
- */
-const BRACKET = '[';
-
-/**
- * Regex to match an array or object string.
- */
-const ARRAY_OR_OBJECT = /^(\[|\{)(.+)(\]|\})$/;
-
-/**
  * Represents an element in a document.
  */
 export class Element extends EventEmitter {
@@ -75,31 +59,15 @@ export class Element extends EventEmitter {
   currentValue: BSONValue;
   added: boolean;
   removed: boolean;
-  elements?: LinkedList | null;
+  elements?: ElementList;
   originalExpandableValue?: BSONObject | BSONArray;
   parent: Element | Document | null;
-  previousElement: Element | null;
-  nextElement: Element | null;
   type: TypeCastTypes;
   currentType: TypeCastTypes;
   level: number;
   currentTypeValid?: boolean;
   invalidTypeMessage?: string;
   decrypted: boolean;
-
-  /**
-   * Bulk edit the element. Can accept JSON strings.
-   *
-   * @param {String} value - The JSON string value.
-   */
-  bulkEdit(value: string): void {
-    if (ARRAY_OR_OBJECT.exec(value)) {
-      this.edit(JSON.parse(value));
-      this._bubbleUp(Events.Converted, this);
-    } else {
-      this.edit(value);
-    }
-  }
 
   /**
    * Cancel any modifications to the element.
@@ -120,28 +88,22 @@ export class Element extends EventEmitter {
   /**
    * Create the element.
    *
-   * @param {String} key - The key.
-   * @param {Object} value - The value.
-   * @param {Boolean} added - Is the element a new 'addition'?
-   * @param {Element|Document} parent - The parent element.
-   * @param {Element} previousElement - The previous element in the list.
-   * @param {Element} nextElement - The next element in the list.
+   * @param key - The key.
+   * @param value - The value.
+   * @param added - Is the element a new 'addition'?
+   * @param parent - The parent element.
    */
   constructor(
     key: string | number,
-    value: BSONValue,
-    added = false,
+    value: BSONValue | number,
     parent: Element | Document | null = null,
-    previousElement: Element | null = null,
-    nextElement: Element | null = null
+    added = false
   ) {
     super();
     this.uuid = new UUID().toHexString();
     this.key = key;
     this.currentKey = key;
     this.parent = parent;
-    this.previousElement = previousElement;
-    this.nextElement = nextElement;
     this.added = added;
     this.removed = false;
     this.type = TypeChecker.type(value);
@@ -149,9 +111,17 @@ export class Element extends EventEmitter {
     this.level = this._getLevel();
     this.setValid();
 
+    // Make sure that all values that element will hold onto will be explicit
+    // bson types: convert JavaScript numbers to either Int32 or Double
+    if (typeof value === 'number') {
+      value = TypeChecker.cast(value, TypeChecker.type(value));
+    }
+
     if (this._isExpandable(value)) {
-      this.elements = this._generateElements(value);
+      // NB: Important to set `originalExpandableValue` first as element
+      // generation will depend on it
       this.originalExpandableValue = value;
+      this.elements = this._generateElements(value);
     } else {
       this.value = value;
       this.currentValue = value;
@@ -168,9 +138,18 @@ export class Element extends EventEmitter {
     }
     const parentDecryptedKeys =
       parentValue && (parentValue as any)[Symbol.for('@@mdb.decryptedKeys')];
+
     this.decrypted = (parentDecryptedKeys || [])
       .map(String)
       .includes(String(key));
+  }
+
+  get nextElement(): Element | undefined {
+    return this.parent?.elements?.findNext(this);
+  }
+
+  get previousElement(): Element | undefined {
+    return this.parent?.elements?.findPrevious(this);
   }
 
   _getLevel(): number {
@@ -186,7 +165,7 @@ export class Element extends EventEmitter {
   /**
    * Edit the element.
    *
-   * @param {Object} value - The new value.
+   * @param value - The new value.
    */
   edit(value: BSONValue): void {
     this.currentType = TypeChecker.type(value);
@@ -205,11 +184,9 @@ export class Element extends EventEmitter {
 
   changeType(newType: TypeCastTypes): void {
     if (newType === 'Object') {
-      this.edit('{');
-      this.next();
+      this._convertToEmptyObject();
     } else if (newType === 'Array') {
-      this.edit('[');
-      this.next();
+      this._convertToEmptyArray();
     } else {
       try {
         if (newType === 'Date') {
@@ -219,8 +196,8 @@ export class Element extends EventEmitter {
         } else {
           this.edit(TypeChecker.cast(this.generateObject(), newType));
         }
-      } catch (e: any) {
-        this.setInvalid(this.currentValue, newType, e.message);
+      } catch (e: unknown) {
+        this.setInvalid(this.currentValue, newType, (e as Error).message);
       }
     }
   }
@@ -236,51 +213,31 @@ export class Element extends EventEmitter {
   /**
    * Get an element by its key.
    *
-   * @param {String} key - The key name.
+   * @param key - The key name.
    *
-   * @returns {Element} The element.
+   * @returns The element.
    */
   get(key: string | number): Element | undefined {
-    return this.elements ? this.elements.get(key) : undefined;
+    return this.elements?.get(key);
   }
 
   /**
    * Get an element by its index.
    *
-   * @param {Number} i - The index.
+   * @param i - The index.
    *
-   * @returns {Element} The element.
+   * @returns The element.
    */
   at(i: number): Element | undefined {
-    return this.elements ? this.elements.at(i) : undefined;
-  }
-
-  /**
-   * Go to the next edit.
-   *
-   * Will check if the value is either { or [ and take appropriate action.
-   */
-  next(): void {
-    if (this.currentValue === CURLY) {
-      return this._convertToEmptyObject();
-    } else if (this.currentValue === BRACKET) {
-      return this._convertToEmptyArray();
-    }
-    return this._next();
+    return this.elements?.at(i);
   }
 
   /**
    * Rename the element. Update the parent's mapping if available.
    *
-   * @param {String} key - The new key.
+   * @param key - The new key.
    */
   rename(key: string | number): void {
-    if (this.parent) {
-      const elm = this.parent.elements!._map[this.currentKey];
-      delete this.parent.elements!._map[this.currentKey];
-      this.parent.elements!._map[key] = elm;
-    }
-
     this.currentKey = key;
     this._bubbleUp(Events.Edited, this);
   }
@@ -288,7 +245,7 @@ export class Element extends EventEmitter {
   /**
    * Generate the javascript object for this element.
    *
-   * @returns {Object} The javascript object.
+   * @returns The javascript object.
    */
   generateObject(options?: ObjectGeneratorOptions): BSONValue {
     if (this.currentType === 'Array') {
@@ -304,7 +261,7 @@ export class Element extends EventEmitter {
    * Generate the javascript object representing the original values
    * for this element (pre-element removal, renaming, editing).
    *
-   * @returns {Object} The javascript object.
+   * @returns The javascript object.
    */
   generateOriginalObject(options?: ObjectGeneratorOptions): BSONValue {
     if (this.type === 'Array') {
@@ -328,11 +285,11 @@ export class Element extends EventEmitter {
    * then ignore the key specified by the caller and use the correct index.
    * Update the keys of the rest of the elements in the LinkedList.
    *
-   * @param {Element} element - The element to insert after.
-   * @param {String} key - The key.
-   * @param {Object} value - The value.
+   * @param element - The element to insert after.
+   * @param key - The key.
+   * @param value - The value.
    *
-   * @returns {Element} The new element.
+   * @returns The new element.
    */
   insertAfter(
     element: Element,
@@ -342,49 +299,24 @@ export class Element extends EventEmitter {
     if (!this.elements) {
       throw new Error('Cannot insert values on non-array/non-object elements');
     }
-    if (this.currentType === 'Array') {
-      if (element.currentKey === '') {
-        this.elements.handleEmptyKeys(element);
-      }
-      key = (element.currentKey as number) + 1;
-    }
-    const newElement = this.elements.insertAfter(
-      element,
-      key,
-      value,
-      true,
-      this
-    );
-    if (this.currentType === 'Array') {
-      this.elements.updateKeys(newElement, 1);
-    }
-    newElement._bubbleUp(Events.Added, newElement, this);
-    return newElement;
+    const newElement = this.elements.insertAfter(element, key, value);
+    newElement!._bubbleUp(Events.Added, newElement, this);
+    return newElement!;
   }
 
   /**
    * Add a new element to this element.
    *
-   * @param {String | Number} key - The element key.
-   * @param {Object} value - The value.
+   * @param| Number} key - The element key.
+   * @param value - The value.
    *
-   * @returns {Element} The new element.
+   * @returns The new element.
    */
   insertEnd(key: string | number, value: BSONValue): Element {
     if (!this.elements) {
       throw new Error('Cannot insert values on non-array/non-object elements');
     }
-    if (this.currentType === 'Array') {
-      this.elements.flush();
-      key = 0;
-      if (this.elements.lastElement) {
-        if (this.elements.lastElement.currentKey === '') {
-          this.elements.handleEmptyKeys(this.elements.lastElement);
-        }
-        key = (this.elements.lastElement.currentKey as number) + 1;
-      }
-    }
-    const newElement = this.elements.insertEnd(key, value, true, this);
+    const newElement = this.elements.insertEnd(key, value, true);
     this._bubbleUp(Events.Added, newElement);
     return newElement;
   }
@@ -392,20 +324,20 @@ export class Element extends EventEmitter {
   /**
    * Insert a placeholder element at the end of the element.
    *
-   * @returns {Element} The placeholder element.
+   * @returns The placeholder element.
    */
   insertPlaceholder(): Element {
     return this.insertEnd('', '');
   }
 
   insertSiblingPlaceholder(): Element {
-    return this.parent!.insertAfter(this, '', '');
+    return this.parent!.insertAfter(this, '', '')!;
   }
 
   /**
-   * Is the element a newly added element?
+   * Is the element a newly added element
    *
-   * @returns {Boolean} If the element is newly added.
+   * @returns If the element is newly added.
    */
   isAdded(): boolean {
     return this.added || !!this.parent?.isAdded();
@@ -414,7 +346,7 @@ export class Element extends EventEmitter {
   /**
    * Is the element blank?
    *
-   * @returns {Boolean} If the element is blank.
+   * @returns If the element is blank.
    */
   isBlank(): boolean {
     return this.currentKey === '' && this.currentValue === '';
@@ -423,7 +355,7 @@ export class Element extends EventEmitter {
   /**
    * Does the element have a valid value for the current type?
    *
-   * @returns {Boolean} If the value is valid.
+   * @returns If the value is valid.
    */
   isCurrentTypeValid(): boolean {
     return !!this.currentTypeValid;
@@ -441,9 +373,9 @@ export class Element extends EventEmitter {
   /**
    * Set the element as invalid.
    *
-   * @param {Object} value - The value.
-   * @param {String} newType - The new type.
-   * @param {String} message - The error message.
+   * @param value - The value.
+   * @param newType - The new type.
+   * @param message - The error message.
    */
   setInvalid(value: BSONValue, newType: TypeCastTypes, message: string): void {
     this.currentValue = value;
@@ -456,9 +388,9 @@ export class Element extends EventEmitter {
   /**
    * Determine if the key is a duplicate.
    *
-   * @param {String} value - The value to check.
+   * @param value - The value to check.
    *
-   * @returns {Boolean} If the key is a duplicate.
+   * @returns If the key is a duplicate.
    */
   isDuplicateKey(value: string | number): boolean {
     if (value === '') {
@@ -477,7 +409,7 @@ export class Element extends EventEmitter {
    * the key or value changed. Does not count array values whose keys have
    * changed as edited.
    *
-   * @returns {Boolean} If the element is edited.
+   * @returns If the element is edited.
    */
   isEdited(): boolean {
     return (
@@ -491,7 +423,7 @@ export class Element extends EventEmitter {
   /**
    * Check for value equality.
 
-   * @returns {Boolean} If the value is equal.
+   * @returns If the value is equal.
    */
   _valuesEqual(): boolean {
     if (this.currentType === 'Date' && isString(this.currentValue)) {
@@ -513,7 +445,7 @@ export class Element extends EventEmitter {
   /**
    * Is the element the last in the elements.
    *
-   * @returns {Boolean} If the element is last.
+   * @returns If the element is last.
    */
   isLast(): boolean {
     return this.parent?.elements?.lastElement === this;
@@ -522,24 +454,23 @@ export class Element extends EventEmitter {
   /**
    * Determine if the element is renamed.
    *
-   * @returns {Boolean} If the element was renamed.
+   * @returns If the element was renamed.
    */
   isRenamed(): boolean {
-    let keyChanged = false;
     if (
       !this.parent ||
       this.parent.isRoot() ||
       this.parent.currentType === 'Object'
     ) {
-      keyChanged = this.key !== this.currentKey;
+      return this.key !== this.currentKey;
     }
-    return keyChanged;
+    return false;
   }
 
   /**
    * Can changes to the elemnt be reverted?
    *
-   * @returns {Boolean} If the element can be reverted.
+   * @returns If the element can be reverted.
    */
   isRevertable(): boolean {
     return this.isEdited() || this.isRemoved();
@@ -548,16 +479,16 @@ export class Element extends EventEmitter {
   /**
    * Can the element be removed?
    *
-   * @returns {Boolean} If the element can be removed.
+   * @returns If the element can be removed.
    */
   isRemovable(): boolean {
     return !this.parent!.isRemoved();
   }
 
   /**
-   * Can no action be taken on the element?
+   * Can no action be taken on the element
    *
-   * @returns {Boolean} If no action can be taken.
+   * @returns If no action can be taken.
    */
   isNotActionable(): boolean {
     return (
@@ -577,10 +508,10 @@ export class Element extends EventEmitter {
    *      \-- c: number
    *
    * a.isValueDecrypted() === false
-   * a.get('b').isValueDecrypted() === true
-   * a.get('b').get('c').isValueDecrypted() === true
+   * a.get('b')?.isValueDecrypted() === true
+   * a.get('b')?.get('c')?.isValueDecrypted() === true
    *
-   * @returns {Boolean} If the value was encrypted on the server and is now decrypted.
+   * @returns If the value was encrypted on the server and is now decrypted.
    */
   isValueDecrypted(): boolean {
     return this.decrypted;
@@ -599,10 +530,10 @@ export class Element extends EventEmitter {
    *      \-- c: number
    *
    * a.containsDecryptedChildren() === true
-   * a.get('b').containsDecryptedChildren() === true
-   * a.get('b').get('c').containsDecryptedChildren() === false
+   * a.get('b')?.containsDecryptedChildren() === true
+   * a.get('b')?.get('c')?.containsDecryptedChildren() === false
    *
-   * @returns {Boolean} If any child of this element has been decrypted directly.
+   * @returns If any child of this element has been decrypted directly.
    */
   containsDecryptedChildren(): boolean {
     if (this.isValueDecrypted()) {
@@ -619,7 +550,7 @@ export class Element extends EventEmitter {
   /**
    * Determine if the value is editable.
    *
-   * @returns {Boolean} If the value is editable.
+   * @returns If the value is editable.
    */
   isValueEditable(): boolean {
     return (
@@ -631,7 +562,7 @@ export class Element extends EventEmitter {
   /**
    * Determine if the key of the parent element is editable.
    *
-   * @returns {Boolean} If the parent's key is editable.
+   * @returns If the parent's key is editable.
    */
   isParentEditable(): boolean {
     if (this.parent && !this.parent.isRoot()) {
@@ -650,7 +581,7 @@ export class Element extends EventEmitter {
   /**
    * Determine if the key is editable.
    *
-   * @returns {Boolean} If the key is editable.
+   * @returns If the key is editable.
    */
   isKeyEditable(): boolean {
     return this._isKeyLegallyEditable() && !this.containsDecryptedChildren();
@@ -660,10 +591,12 @@ export class Element extends EventEmitter {
    * Is this a field that is used internally by the MongoDB driver or server
    * and not for user consumption?
    *
-   * @returns {Boolean}
+   * @returns
    */
   isInternalField(): boolean {
-    if (!this.parent) return false;
+    if (!this.parent) {
+      return false;
+    }
     if (!this.parent.isRoot() && this.parent.isInternalField()) {
       return true;
     }
@@ -676,7 +609,7 @@ export class Element extends EventEmitter {
   /**
    * Determine if the element is modified at all.
    *
-   * @returns {Boolean} If the element is modified.
+   * @returns If the element is modified.
    */
   isModified(): boolean {
     if (this.elements) {
@@ -692,7 +625,7 @@ export class Element extends EventEmitter {
   /**
    * Is the element flagged for removal?
    *
-   * @returns {Boolean} If the element is flagged for removal.
+   * @returns If the element is flagged for removal.
    */
   isRemoved(): boolean {
     return this.removed;
@@ -701,7 +634,7 @@ export class Element extends EventEmitter {
   /**
    * Elements themselves are not the root.
    *
-   * @returns {false} Always false.
+   * @returns Always false.
    */
   isRoot(): false {
     return false;
@@ -723,19 +656,16 @@ export class Element extends EventEmitter {
    */
   revert(): void {
     if (this.isAdded()) {
-      if (this.parent?.currentType === 'Array') {
-        this.parent.elements!.updateKeys(this, -1);
-      }
       this.parent!.elements!.remove(this);
       this._bubbleUp(Events.Removed, this, this.parent);
-      this.parent = null;
+      delete (this as any).parent;
     } else {
       if (this.originalExpandableValue) {
         this.elements = this._generateElements(this.originalExpandableValue);
         this.currentValue = undefined;
       } else {
         if (this.currentValue === null && this.value !== null) {
-          this.elements = null;
+          delete this.elements;
         } else {
           this._removeAddedElements();
         }
@@ -752,8 +682,8 @@ export class Element extends EventEmitter {
   /**
    * Fire and bubble up the event.
    *
-   * @param {Event} evt - The event.
-   * @param {*} data - Optional.
+   * @param evt - The event.
+   * @paramdata - Optional.
    */
   _bubbleUp(evt: typeof Events[keyof typeof Events], ...data: BSONArray): void {
     this.emit(evt, ...data);
@@ -786,61 +716,34 @@ export class Element extends EventEmitter {
   /**
    * Is the element empty?
    *
-   * @param {Element} element - The element to check.
+   * @param element - The element to check.
    *
-   * @returns {Boolean} If the element is empty.
+   * @returns If the element is empty.
    */
-  _isElementEmpty(this: unknown, element: Element | undefined | null): boolean {
+  _isElementEmpty(element: Element | undefined | null): boolean {
     return !!element && element.isAdded() && element.isBlank();
   }
 
   /**
    * Check if the value is expandable.
    *
-   * @param {Object} value - The value to check.
+   * @param value - The value to check.
    *
-   * @returns {Boolean} If the value is expandable.
+   * @returns If the value is expandable.
    */
-  _isExpandable(
-    this: unknown,
-    value: BSONValue
-  ): value is BSONObject | BSONArray {
+  _isExpandable(value: BSONValue): value is BSONObject | BSONArray {
     return isObject(value) || isArray(value);
   }
 
   /**
    * Generates a sequence of child elements.
    *
-   * @param {Object} object - The object to generate from.
+   * @param object - The object to generate from.
    *
-   * @returns {Array} The elements.
+   * @returns The elements.
    */
-  _generateElements(object: BSONObject | BSONArray): LinkedList {
-    return new LinkedList(this, object); // eslint-disable-line no-use-before-define
-  }
-
-  /**
-   * Get the key for the element.
-   *
-   * @param {String} key
-   * @param {Number} index
-   *
-   * @returns {String|Number} The index if the type is an array, or the key.
-   */
-  _key(key: string, index: number): string | number {
-    return this.currentType === 'Array' ? index : key;
-  }
-
-  /**
-   * Add a new element to the parent.
-   */
-  _next(): void {
-    if (
-      !this._isElementEmpty(this.nextElement) &&
-      !this._isElementEmpty(this)
-    ) {
-      this.parent!.insertAfter(this, '', '');
-    }
+  _generateElements(object: BSONObject | BSONArray): ElementList {
+    return new ElementList(this, object);
   }
 
   /**
@@ -867,379 +770,211 @@ export class Element extends EventEmitter {
 /**
  * Represents a doubly linked list.
  */
-export class LinkedList {
-  firstElement: Element | null;
-  lastElement: Element | null;
-  doc: Element | Document;
-  originalDoc: BSONObject | BSONArray;
-  keys: string[] | number[];
-  size: number;
-  loaded: number;
-  _map: Record<string, Element>;
+export class ElementList implements Iterable<Element> {
+  private elements: Element[];
 
-  /**
-   * Get the element at the provided index.
-   *
-   * @param {Integer} index - The index.
-   *
-   * @returns {Element} The matching element.
-   */
+  constructor(
+    private parent: Document | Element,
+    originalDoc: BSONObject | BSONArray | null | undefined
+  ) {
+    this.elements = Object.entries(originalDoc ?? {}).map(([k, v]) => {
+      return new Element(
+        this.isArray() ? parseInt(k, 10) : k,
+        v as BSONValue,
+        parent,
+        parent.isRoot() ? parent.cloned : false
+      );
+    });
+  }
+
+  private isArray(): boolean {
+    return this.parent.currentType === 'Array';
+  }
+
+  get size(): number {
+    return this.elements.length;
+  }
+
   at(index: number): Element | undefined {
-    this.flush();
-    if (!Number.isInteger(index)) {
-      return undefined;
-    }
-
-    let element = this.firstElement;
-    for (let i = 0; i < index; i++) {
-      if (!element) {
-        return undefined;
-      }
-      element = element.nextElement;
-    }
-    return element === null ? undefined : element;
+    return this.elements[index];
   }
 
   get(key: string | number): Element | undefined {
-    this.flush();
-    return this._map[key];
+    return this.elements.find((el) => {
+      return el.currentKey === key;
+    });
   }
 
-  // Instantiate the new doubly linked list.
-  constructor(doc: Document | Element, originalDoc: BSONObject | BSONArray) {
-    this.firstElement = null;
-    this.lastElement = null;
-    this.doc = doc;
-    this.originalDoc = originalDoc;
-    this.keys = keys(this.originalDoc);
-    if (this.doc.currentType === 'Array') {
-      this.keys = this.keys.map((k) => parseInt(k, 10));
-    }
-    this.size = this.keys.length;
-    this.loaded = 0;
-    this._map = {};
+  get firstElement(): Element | undefined {
+    return this.elements[0];
+  }
+
+  get lastElement(): Element | undefined {
+    return this.elements[this.elements.length - 1];
   }
 
   /**
    * Insert data after the provided element.
    *
-   * @param {Element} element - The element to insert after.
-   * @param {String} key - The element key.
-   * @param {Object} value - The element value.
-   * @param {Boolean} added - If the element is new.
-   * @param {Object} parent - The parent.
+   * @param afterElement - The element to insert after.
+   * @param key - The element key.
+   * @param value - The element value.
+   * @param added - If the element is new.
    *
-   * @returns {Element} The inserted element.
+   * @returns The inserted element.
    */
   insertAfter(
-    element: Element,
+    afterElement: Element,
     key: string | number,
     value: BSONValue,
-    added: boolean,
-    parent: Element | Document
-  ): Element {
-    this.flush();
-    return this._insertAfter(element, key, value, added, parent);
-  }
-
-  /**
-   * Update the currentKey of each element if array elements.
-   *
-   * @param {Element} element - The element to insert after.
-   * @param {Number} add - 1 if adding a new element, -1 if removing.
-   */
-  updateKeys(element: Element, add: number): void {
-    this.flush();
-    while (element.nextElement) {
-      (element.nextElement as any).currentKey += add;
-      element = element.nextElement;
-    }
-  }
-
-  /**
-   * If an element is added after a placeholder, convert that placeholder
-   * into an empty element with the correct key.
-   *
-   * @param {Element} element - The placeholder element.
-   */
-  handleEmptyKeys(element: Element): void {
-    if (element.currentKey === '') {
-      let e = element;
-      while (e.currentKey === '') {
-        if (!e.previousElement) {
-          e.currentKey = 0;
-          break;
-        } else {
-          e = e.previousElement;
-        }
+    added = true
+  ): Element | undefined {
+    let newElement;
+    let newElementIdx = -1;
+    for (const [idx, el] of this.elements.entries()) {
+      if (afterElement === el) {
+        newElementIdx = idx + 1;
+        newElement = new Element(
+          this.isArray() ? newElementIdx : key,
+          value,
+          this.parent,
+          added
+        );
+        continue;
       }
-      while (e.nextElement) {
-        e.nextElement.currentKey = (e.currentKey as number) + 1;
-        e = e.nextElement;
+      if (newElement && this.isArray()) {
+        el.currentKey = idx + 1;
       }
     }
+    if (newElement) {
+      this.elements.splice(newElementIdx, 0, newElement);
+    }
+    return newElement;
   }
 
   /**
    * Insert data before the provided element.
    *
-   * @param {Element} element - The element to insert before.
-   * @param {String} key - The element key.
-   * @param {Object} value - The element value.
-   * @param {Boolean} added - If the element is new.
-   * @param {Object} parent - The parent.
+   * @param beforeElement - The element to insert before.
+   * @param key - The element key.
+   * @param value - The element value.
+   * @param added - If the element is new.
    *
-   * @returns {Element} The inserted element.
+   * @returns The inserted element.
    */
   insertBefore(
-    element: Element,
+    beforeElement: Element,
     key: string | number,
     value: BSONValue,
-    added: boolean,
-    parent: Document | Element
-  ): Element {
-    this.flush();
-    return this._insertBefore(element, key, value, added, parent);
+    added = true
+  ): Element | undefined {
+    let newElement;
+    let newElementIdx = -1;
+    for (const [idx, el] of this.elements.entries()) {
+      if (beforeElement === el) {
+        newElementIdx = idx;
+        newElement = new Element(
+          this.isArray() ? newElementIdx : key,
+          value,
+          this.parent,
+          added
+        );
+      }
+      if (newElement && this.isArray()) {
+        el.currentKey = idx + 1;
+      }
+    }
+    if (newElement) {
+      this.elements.splice(newElementIdx, 0, newElement);
+    }
+    return newElement;
   }
 
   /**
    * Insert data at the beginning of the list.
    *
-   * @param {String} key - The element key.
-   * @param {Object} value - The element value.
-   * @param {Boolean} added - If the element is new.
-   * @param {Object} parent - The parent.
+   * @param key - The element key.
+   * @param value - The element value.
+   * @param added - If the element is new.
    *
-   * @returns {Element} The data element.
+   * @returns The data element.
    */
   insertBeginning(
     key: string | number,
     value: BSONValue,
-    added: boolean,
-    parent: Document | Element
+    added = true
   ): Element {
-    this.flush();
-    return this._insertBeginning(key, value, added, parent);
+    const newElement = new Element(
+      this.isArray() ? 0 : key,
+      value,
+      this.parent,
+      added
+    );
+    if (this.isArray()) {
+      this.elements.forEach((el) => {
+        (el.currentKey as number) += 1;
+      });
+    }
+    this.elements.unshift(newElement);
+    return newElement;
   }
 
   /**
    * Insert data at the end of the list.
    *
-   * @param {String} key - The element key.
-   * @param {Object} value - The element value.
-   * @param {Boolean} added - If the element is new.
-   * @param {Object} parent - The parent.
+   * @param key - The element key.
+   * @param value - The element value.
+   * @param added - If the element is new.
    *
-   * @returns {Element} The data element.
+   * @returns The data element.
    */
-  insertEnd(
-    key: string | number,
-    value: BSONValue,
-    added: boolean,
-    parent: Document | Element
-  ): Element {
-    this.flush();
-    if (!this.lastElement) {
-      return this.insertBeginning(key, value, added, parent);
-    }
-    return this.insertAfter(this.lastElement, key, value, added, parent);
-  }
-
-  flush(): void {
-    if (this.loaded < this.size) {
-      // Only iterate from the loaded index to the size.
-      for (const element of this) {
-        element?.elements?.flush();
-      }
-    }
-  }
-
-  /**
-   * Get an iterator for the list.
-   *
-   * @returns {Iterator} The iterator.
-   */
-  *[Symbol.iterator](): Iterator<Element> {
-    let currentElement: Element | undefined | null;
-    let index = 0;
-    while (true) {
-      if (this._needsLazyLoad(index)) {
-        const key = this.keys[index];
-        index += 1;
-        currentElement = this._lazyInsertEnd(key);
-        yield currentElement;
-      } else if (this._needsStandardIteration(index)) {
-        if (currentElement) {
-          currentElement = currentElement.nextElement;
-        } else {
-          currentElement = this.firstElement;
-        }
-        if (currentElement) {
-          index += 1;
-          yield currentElement;
-        } else {
-          break;
-        }
-      } else {
-        break;
-      }
-    }
-  }
-
-  _needsLazyLoad(index: number): boolean {
-    return (
-      (index === 0 && this.loaded === 0 && this.size > 0) ||
-      (this.loaded <= index && index < this.size)
-    );
-  }
-
-  _needsStandardIteration(index: number): boolean {
-    return this.loaded > 0 && index < this.loaded && index < this.size;
-  }
-
-  /**
-   * Insert on the end of the list lazily.
-   *
-   * @param {String} key - The key.
-   *
-   * @returns {Element} The inserted element.
-   */
-  _lazyInsertEnd(key: string | number): Element {
-    this.size -= 1;
-    return this._insertEnd(
-      key,
-      (this.originalDoc as any)[key],
-      (this.doc as Document).cloned,
-      this.doc
-    );
-  }
-
-  _insertEnd(
-    key: string | number,
-    value: BSONValue,
-    added: boolean,
-    parent: Document | Element
-  ): Element {
-    if (!this.lastElement) {
-      return this._insertBeginning(key, value, added, parent);
-    }
-    return this._insertAfter(this.lastElement, key, value, added, parent);
-  }
-
-  _insertBefore(
-    element: Element,
-    key: string | number,
-    value: BSONValue,
-    added: boolean,
-    parent: Document | Element
-  ): Element {
+  insertEnd(key: string | number, value: BSONValue, added = true): Element {
     const newElement = new Element(
-      key,
+      this.isArray() ? this.elements.length : key,
       value,
-      added,
-      parent,
-      element.previousElement,
-      element
+      this.parent,
+      added
     );
-    if (element.previousElement) {
-      element.previousElement.nextElement = newElement;
-    } else {
-      this.firstElement = newElement;
-    }
-    element.previousElement = newElement;
-    this._map[newElement.key] = newElement;
-    this.size += 1;
-    this.loaded += 1;
-    return newElement;
-  }
-
-  _insertBeginning(
-    key: string | number,
-    value: BSONValue,
-    added: boolean,
-    parent: Document | Element
-  ): Element {
-    if (!this.firstElement) {
-      const element = new Element(key, value, added, parent, null, null);
-      this.firstElement = this.lastElement = element;
-      this.size += 1;
-      this.loaded += 1;
-      this._map[element.key] = element;
-      return element;
-    }
-    const newElement = this.insertBefore(
-      this.firstElement,
-      key,
-      value,
-      added,
-      parent
-    );
-    this._map[newElement.key] = newElement;
-    return newElement;
-  }
-
-  _insertAfter(
-    element: Element,
-    key: string | number,
-    value: BSONValue,
-    added: boolean,
-    parent: Document | Element
-  ): Element {
-    const newElement = new Element(
-      key,
-      value,
-      added,
-      parent,
-      element,
-      element.nextElement
-    );
-    if (element.nextElement) {
-      element.nextElement.previousElement = newElement;
-    } else {
-      this.lastElement = newElement;
-    }
-    element.nextElement = newElement;
-    this._map[newElement.key] = newElement;
-    this.size += 1;
-    this.loaded += 1;
+    this.elements.push(newElement);
     return newElement;
   }
 
   /**
    * Remove the element from the list.
    *
-   * @param {Element} element - The element to remove.
+   * @param removeElement - The element to remove.
    *
-   * @returns {DoublyLinkedList} The list with the element removed.
+   * @returns The list with the element removed.
    */
-  remove(element: Element): this {
-    this.flush();
-    if (element.previousElement) {
-      element.previousElement.nextElement = element.nextElement;
-    } else {
-      this.firstElement = element.nextElement;
+  remove(removeElement: Element): this {
+    let removeIdx = -1;
+    for (const [idx, el] of this.elements.entries()) {
+      if (el === removeElement) {
+        removeIdx = idx;
+        continue;
+      }
+      if (removeIdx !== -1 && this.isArray()) {
+        (el.currentKey as number) -= 1;
+      }
     }
-    if (element.nextElement) {
-      element.nextElement.previousElement = element.previousElement;
-    } else {
-      this.lastElement = element.previousElement;
+    if (removeIdx !== -1) {
+      this.elements.splice(removeIdx, 1);
     }
-    element.nextElement = element.previousElement = null;
-    delete this._map[element.currentKey];
-    this.size -= 1;
-    this.loaded -= 1;
     return this;
   }
 
-  findIndex(el: Element): number {
-    let idx = 0;
-    for (const item of this) {
-      if (item === el) {
-        return idx;
-      }
-      idx++;
-    }
-    return -1;
+  findNext(el: Element): Element | undefined {
+    const idx = this.elements.indexOf(el);
+    return idx !== -1 ? this.elements[idx + 1] : undefined;
+  }
+
+  findPrevious(el: Element): Element | undefined {
+    const idx = this.elements.indexOf(el);
+    return idx !== -1 ? this.elements[idx - 1] : undefined;
+  }
+
+  *[Symbol.iterator](): Iterator<Element> {
+    yield* this.elements;
   }
 }
 

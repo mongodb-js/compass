@@ -40,20 +40,27 @@ class DocumentTableView extends React.Component {
           handleUpdate: this.handleUpdate,
           handleRemove: this.handleRemove,
           handleClone: this.handleClone,
-          path: []
+          path: [],
         },
         onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
-        rowHeight: 28, // .document-footer row needs 28px, ag-grid default is 25px
+        getRowHeight({ data: { isFooter } }) {
+          // deafult row style expects 28, "footer" row with leafygreen
+          // components needs to be 38 (minimum button height + padding)
+          return isFooter ? 38 : 28;
+        },
         getRowStyle: this.updateWidth,
         suppressPreventDefaultOnMouseWheel: true,
         suppressRowTransform: true,
         tabToNextCell: (params) => {
-          if (!params.previousCellDef || !params.nextCellDef ||
-              params.previousCellDef.rowIndex !== params.nextCellDef.rowIndex) {
+          if (
+            !params.previousCellDef ||
+            !params.nextCellDef ||
+            params.previousCellDef.rowIndex !== params.nextCellDef.rowIndex
+          ) {
             return null;
           }
           return params.nextCellDef;
-        }
+        },
       },
       onGridReady: this.onGridReady.bind(this),
       isFullWidthCell: function(rowNode) {
@@ -65,12 +72,12 @@ class DocumentTableView extends React.Component {
         cleanCols: this.props.cleanCols,
         removeDocument: this.props.removeDocument,
         replaceDocument: this.props.replaceDocument,
-        updateDocument: this.props.updateDocument
+        updateDocument: this.props.updateDocument,
       },
       getRowNodeId: function(data) {
         const fid = data.isFooter ? '1' : '0';
         return '' + data.hadronDocument.getStringId() + fid;
-      }
+      },
     };
 
     this.collection = mongodbns(props.ns).collection;

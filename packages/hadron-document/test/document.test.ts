@@ -9,7 +9,7 @@ describe('Document', function () {
       const doc = new Document({ name: 'test' });
 
       it('returns the element', function () {
-        expect(doc.get('name').currentValue).to.equal('test');
+        expect(doc.get('name')?.currentValue).to.equal('test');
       });
     });
 
@@ -31,7 +31,7 @@ describe('Document', function () {
       const element = doc.elements.at(0);
 
       before(function () {
-        element.rename('testing');
+        element?.rename('testing');
       });
 
       it('returns the element for the new key', function () {
@@ -56,7 +56,7 @@ describe('Document', function () {
     const doc = new Document({
       array: ['1', [['1', ['inner array']]]],
       object: { a: { b: { c: { d: 'inner object' } } } },
-      mixed: { a: [{ b: [1, { c: 'inner mixed' }] }] },
+      mixed: { a: [{ b: ['abc', { c: 'inner mixed' }] }] },
     });
     context('when path is empty', function () {
       it('returns undefined', function () {
@@ -87,23 +87,23 @@ describe('Document', function () {
     context('indexing only into arrays', function () {
       it('returns the deepest element', function () {
         const element = doc.getChild(['array', 1, 0, 1, 0]);
-        expect(element.value).to.equal('inner array');
+        expect(element?.value).to.equal('inner array');
       });
       it('returns a  middle element', function () {
         const element = doc.getChild(['array', 1, 0]);
-        expect(element.currentType).to.equal('Array');
-        expect(element.generateObject()).to.deep.equal(['1', ['inner array']]);
+        expect(element?.currentType).to.equal('Array');
+        expect(element?.generateObject()).to.deep.equal(['1', ['inner array']]);
       });
     });
     context('indexing only into objects', function () {
       it('returns the deepest element', function () {
         const element = doc.getChild(['object', 'a', 'b', 'c', 'd']);
-        expect(element.value).to.equal('inner object');
+        expect(element?.value).to.equal('inner object');
       });
       it('returns a  middle element', function () {
         const element = doc.getChild(['object', 'a', 'b']);
-        expect(element.currentType).to.equal('Object');
-        expect(element.generateObject()).to.deep.equal({
+        expect(element?.currentType).to.equal('Object');
+        expect(element?.generateObject()).to.deep.equal({
           c: { d: 'inner object' },
         });
       });
@@ -111,13 +111,13 @@ describe('Document', function () {
     context('indexing into mixed array and object', function () {
       it('returns the deepest element', function () {
         const element = doc.getChild(['mixed', 'a', 0, 'b', 1, 'c']);
-        expect(element.value).to.equal('inner mixed');
+        expect(element?.value).to.equal('inner mixed');
       });
       it('returns a  middle element', function () {
         const element = doc.getChild(['mixed', 'a', 0, 'b']);
-        expect(element.currentType).to.equal('Array');
-        expect(element.generateObject()).to.deep.equal([
-          1,
+        expect(element?.currentType).to.equal('Array');
+        expect(element?.generateObject()).to.deep.equal([
+          'abc',
           { c: 'inner mixed' },
         ]);
       });
@@ -126,15 +126,15 @@ describe('Document', function () {
 
   describe('#generateObject', function () {
     context('when nothing has been loaded', function () {
-      const doc = new Document({ _id: 1 });
+      const doc = new Document({ _id: 'abc' });
 
       it('generates the appropriate document', function () {
-        expect(doc.generateObject()).to.deep.equal({ _id: 1 });
+        expect(doc.generateObject()).to.deep.equal({ _id: 'abc' });
       });
     });
 
     context('when the list is partially loaded', function () {
-      const doc = new Document({ _id: 1, name: 'test' });
+      const doc = new Document({ _id: 'abc', name: 'test' });
 
       before(function () {
         for (const element of doc.elements) {
@@ -144,43 +144,49 @@ describe('Document', function () {
       });
 
       it('generates the appropriate document', function () {
-        expect(doc.generateObject()).to.deep.equal({ _id: 1, name: 'test' });
-      });
-    });
-
-    context('when adding to the document before iterating', function () {
-      const doc = new Document({ _id: 1 });
-
-      before(function () {
-        doc.insertEnd('name', 'test');
-      });
-
-      it('generates the appropriate document', function () {
-        expect(doc.generateObject()).to.deep.equal({ _id: 1, name: 'test' });
-      });
-    });
-  });
-
-  describe('#generateOriginalObject', function () {
-    context('with an unchanged document', function () {
-      const doc = new Document({ _id: 1, name: 'test' });
-
-      it('generates the appropriate document', function () {
-        expect(doc.generateOriginalObject()).to.deep.equal({
-          _id: 1,
+        expect(doc.generateObject()).to.deep.equal({
+          _id: 'abc',
           name: 'test',
         });
       });
     });
 
     context('when adding to the document before iterating', function () {
-      const doc = new Document({ _id: 1 });
+      const doc = new Document({ _id: 'abc' });
 
       before(function () {
         doc.insertEnd('name', 'test');
-        doc.get('name').edit('test2');
+      });
+
+      it('generates the appropriate document', function () {
+        expect(doc.generateObject()).to.deep.equal({
+          _id: 'abc',
+          name: 'test',
+        });
+      });
+    });
+  });
+
+  describe('#generateOriginalObject', function () {
+    context('with an unchanged document', function () {
+      const doc = new Document({ _id: 'abc', name: 'test' });
+
+      it('generates the appropriate document', function () {
+        expect(doc.generateOriginalObject()).to.deep.equal({
+          _id: 'abc',
+          name: 'test',
+        });
+      });
+    });
+
+    context('when adding to the document before iterating', function () {
+      const doc = new Document({ _id: 'abc' });
+
+      before(function () {
+        doc.insertEnd('name', 'test');
+        doc.get('name')?.edit('test2');
         doc.insertEnd('name2', 'test22');
-        doc.get('name').remove();
+        doc.get('name')?.remove();
         doc.insertEnd('nestedArray', [
           {
             a: 3,
@@ -192,7 +198,7 @@ describe('Document', function () {
       });
 
       it('generates the appropriate original document', function () {
-        expect(doc.generateOriginalObject()).to.deep.equal({ _id: 1 });
+        expect(doc.generateOriginalObject()).to.deep.equal({ _id: 'abc' });
       });
     });
   });
@@ -206,15 +212,15 @@ describe('Document', function () {
       });
 
       it('adds the new element', function () {
-        expect(doc.elements.at(0).key).to.equal('name');
+        expect(doc.elements.at(0)?.key).to.equal('name');
       });
 
       it('sets the new element value', function () {
-        expect(doc.elements.at(0).value).to.equal('Aphex Twin');
+        expect(doc.elements.at(0)?.value).to.equal('Aphex Twin');
       });
 
       it('flags the new element as added', function () {
-        expect(doc.elements.at(0).isAdded()).to.equal(true);
+        expect(doc.elements.at(0)?.isAdded()).to.equal(true);
       });
     });
 
@@ -325,7 +331,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).remove();
+        doc.elements.at(0)?.remove();
       });
 
       it('includes the element in the object', function () {
@@ -351,7 +357,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('');
+        doc.elements.at(0)?.rename('');
       });
 
       it('includes the element in the object', function () {
@@ -366,7 +372,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('aa');
+        doc.elements.at(0)?.rename('aa');
       });
 
       it('includes the element in the object', function () {
@@ -381,7 +387,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).edit('aa');
+        doc.elements.at(0)?.edit('aa');
       });
 
       it('includes the element in the object', function () {
@@ -453,19 +459,19 @@ describe('Document', function () {
       });
 
       it('sets the element original key', function () {
-        expect(doc.elements.at(0).key).to.equal('name');
+        expect(doc.elements.at(0)?.key).to.equal('name');
       });
 
       it('sets the element current key', function () {
-        expect(doc.elements.at(0).currentKey).to.equal('name');
+        expect(doc.elements.at(0)?.currentKey).to.equal('name');
       });
 
       it('sets the element original value', function () {
-        expect(doc.elements.at(0).value).to.equal('Aphex Twin');
+        expect(doc.elements.at(0)?.value).to.equal('Aphex Twin');
       });
 
       it('sets the element current value', function () {
-        expect(doc.elements.at(0).currentValue).to.equal('Aphex Twin');
+        expect(doc.elements.at(0)?.currentValue).to.equal('Aphex Twin');
       });
     });
 
@@ -478,28 +484,28 @@ describe('Document', function () {
       });
 
       it('sets the element original key', function () {
-        expect(doc.elements.at(0).key).to.equal('studios');
+        expect(doc.elements.at(0)?.key).to.equal('studios');
       });
 
       it('sets the element current key', function () {
-        expect(doc.elements.at(0).currentKey).to.equal('studios');
+        expect(doc.elements.at(0)?.currentKey).to.equal('studios');
       });
 
       it('sets the element indexes', function () {
-        expect(doc.elements.at(0).elements.at(0).key).to.equal(0);
-        expect(doc.elements.at(0).elements.at(1).key).to.equal(1);
+        expect(doc.elements.at(0)?.elements?.at(0)?.key).to.equal(0);
+        expect(doc.elements.at(0)?.elements?.at(1)?.key).to.equal(1);
       });
 
       it('sets the element original values', function () {
-        expect(doc.elements.at(0).elements.at(0).value).to.equal('London');
-        expect(doc.elements.at(0).elements.at(1).value).to.equal('New York');
+        expect(doc.elements.at(0)?.elements?.at(0)?.value).to.equal('London');
+        expect(doc.elements.at(0)?.elements?.at(1)?.value).to.equal('New York');
       });
 
       it('sets the element current values', function () {
-        expect(doc.elements.at(0).elements.at(0).currentValue).to.equal(
+        expect(doc.elements.at(0)?.elements?.at(0)?.currentValue).to.equal(
           'London'
         );
-        expect(doc.elements.at(0).elements.at(1).currentValue).to.equal(
+        expect(doc.elements.at(0)?.elements?.at(1)?.currentValue).to.equal(
           'New York'
         );
       });
@@ -515,26 +521,28 @@ describe('Document', function () {
         });
 
         it('sets the element original key', function () {
-          expect(doc.elements.at(0).key).to.equal('email');
+          expect(doc.elements.at(0)?.key).to.equal('email');
         });
 
         it('sets the element current key', function () {
-          expect(doc.elements.at(0).currentKey).to.equal('email');
+          expect(doc.elements.at(0)?.currentKey).to.equal('email');
         });
 
         it('sets the embedded element key', function () {
-          expect(doc.elements.at(0).elements.at(0).key).to.equal('work');
-          expect(doc.elements.at(0).elements.at(0).currentKey).to.equal('work');
+          expect(doc.elements.at(0)?.elements?.at(0)?.key).to.equal('work');
+          expect(doc.elements.at(0)?.elements?.at(0)?.currentKey).to.equal(
+            'work'
+          );
         });
 
         it('sets the embedded element original value', function () {
-          expect(doc.elements.at(0).elements.at(0).value).to.equal(
+          expect(doc.elements.at(0)?.elements?.at(0)?.value).to.equal(
             'test@example.com'
           );
         });
 
         it('sets the embedded element current value', function () {
-          expect(doc.elements.at(0).elements.at(0).currentValue).to.equal(
+          expect(doc.elements.at(0)?.elements?.at(0)?.currentValue).to.equal(
             'test@example.com'
           );
         });
@@ -551,22 +559,22 @@ describe('Document', function () {
           });
 
           it('sets the element original key', function () {
-            expect(doc.elements.at(0).key).to.equal('contact');
+            expect(doc.elements.at(0)?.key).to.equal('contact');
           });
 
           it('sets the embedded element key', function () {
-            expect(doc.elements.at(0).elements.at(0).key).to.equal('email');
+            expect(doc.elements.at(0)?.elements?.at(0)?.key).to.equal('email');
           });
 
           it('sets the multi embedded element key', function () {
             expect(
-              doc.elements.at(0).elements.at(0).elements.at(0).key
+              doc.elements.at(0)?.elements?.at(0)?.elements?.at(0)?.key
             ).to.equal('work');
           });
 
           it('sets the embedded element original value', function () {
             expect(
-              doc.elements.at(0).elements.at(0).elements.at(0).value
+              doc.elements.at(0)?.elements?.at(0)?.elements?.at(0)?.value
             ).to.equal('test@example.com');
           });
         }
@@ -583,22 +591,22 @@ describe('Document', function () {
           });
 
           it('sets the element original key', function () {
-            expect(doc.elements.at(0).key).to.equal('emails');
+            expect(doc.elements.at(0)?.key).to.equal('emails');
           });
 
           it('sets the embedded element key', function () {
-            expect(doc.elements.at(0).elements.at(0).key).to.equal(0);
+            expect(doc.elements.at(0)?.elements?.at(0)?.key).to.equal(0);
           });
 
           it('sets the multi embedded element key', function () {
             expect(
-              doc.elements.at(0).elements.at(0).elements.at(0).key
+              doc.elements.at(0)?.elements?.at(0)?.elements?.at(0)?.key
             ).to.equal('work');
           });
 
           it('sets the embedded element original value', function () {
             expect(
-              doc.elements.at(0).elements.at(0).elements.at(0).value
+              doc.elements.at(0)?.elements?.at(0)?.elements?.at(0)?.value
             ).to.equal('test@example.com');
           });
         }
@@ -617,30 +625,36 @@ describe('Document', function () {
           });
 
           it('sets the element original key', function () {
-            expect(doc.elements.at(0).key).to.equal('contact');
+            expect(doc.elements.at(0)?.key).to.equal('contact');
           });
 
           it('sets the embedded element key', function () {
-            expect(doc.elements.at(0).elements.at(0).key).to.equal('emails');
+            expect(doc.elements.at(0)?.elements?.at(0)?.key).to.equal('emails');
           });
 
           it('sets the multi embedded element key', function () {
             expect(
-              doc.elements.at(0).elements.at(0).elements.at(0).key
+              doc.elements.at(0)?.elements?.at(0)?.elements?.at(0)?.key
             ).to.equal(0);
           });
 
           it('sets the lowest level embedded element key', function () {
             expect(
-              doc.elements.at(0).elements.at(0).elements.at(0).elements.at(0)
-                .key
+              doc.elements
+                .at(0)
+                ?.elements?.at(0)
+                ?.elements?.at(0)
+                ?.elements?.at(0)?.key
             ).to.equal('work');
           });
 
           it('sets the embedded element original value', function () {
             expect(
-              doc.elements.at(0).elements.at(0).elements.at(0).elements.at(0)
-                .value
+              doc.elements
+                .at(0)
+                ?.elements?.at(0)
+                ?.elements?.at(0)
+                ?.elements?.at(0)?.value
             ).to.equal('test@example.com');
           });
         }
@@ -660,22 +674,22 @@ describe('Document', function () {
     const childObject = doc.elements.at(2);
 
     before(function () {
-      root.edit('value edit');
-      childArray.elements.at(2).remove();
-      childObject.insertEnd('new', 'value');
+      root?.edit('value edit');
+      childArray?.elements?.at(2)?.remove();
+      childObject?.insertEnd('new', 'value');
       doc.cancel();
     });
 
     it('resets edited elements', function () {
-      expect(root.currentValue).to.equal('value');
+      expect(root?.currentValue).to.equal('value');
     });
 
     it('resets deleted elements', function () {
-      expect(childArray.elements.size).to.equal(3);
+      expect(childArray?.elements?.size).to.equal(3);
     });
 
     it('removes added elements', function () {
-      expect(childObject.elements.size).to.equal(1);
+      expect(childObject?.elements?.size).to.equal(1);
     });
   });
 
@@ -683,7 +697,7 @@ describe('Document', function () {
     context('when called with an edited document', function () {
       const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
       const hadronDoc = new Document(doc);
-      hadronDoc.get('name').edit('Desert Sand');
+      hadronDoc.get('name')?.edit('Desert Sand');
 
       it('has the original value for the edited value in the query', function () {
         const { query } =
@@ -721,8 +735,8 @@ describe('Document', function () {
     context('when an element has been renamed', function () {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new Document(doc);
-      hadronDoc.get('name').edit('Desert Sand');
-      hadronDoc.get('name').rename('newname');
+      hadronDoc.get('name')?.edit('Desert Sand');
+      hadronDoc.get('name')?.rename('newname');
 
       it('has the original value for the edited value in the query', function () {
         const { query } =
@@ -754,10 +768,10 @@ describe('Document', function () {
       function () {
         const doc = {
           _id: 'testing',
-          a: { nestedField1: 5, nestedField2: 'aaa' },
+          a: { nestedField1: 'abc', nestedField2: 'aaa' },
         };
         const hadronDoc = new Document(doc);
-        hadronDoc.get('a').get('nestedField1').edit(10);
+        hadronDoc.get('a')?.get('nestedField1')?.edit('cba');
 
         it('has the original value for the edited value in the query', function () {
           const { query } =
@@ -765,7 +779,7 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 5, nestedField2: 'aaa' },
+            a: { nestedField1: 'abc', nestedField2: 'aaa' },
           });
         });
 
@@ -775,7 +789,7 @@ describe('Document', function () {
 
           expect(updateDoc).to.deep.equal({
             $set: {
-              a: { nestedField1: 10, nestedField2: 'aaa' },
+              a: { nestedField1: 'cba', nestedField2: 'aaa' },
             },
           });
         });
@@ -785,9 +799,9 @@ describe('Document', function () {
     context(
       'when a nested element has been renamed in the document',
       function () {
-        const doc = { _id: 'testing', a: { nestedField1: 5, bbb: 'vvv' } };
+        const doc = { _id: 'testing', a: { nestedField1: 'abc', bbb: 'vvv' } };
         const hadronDoc = new Document(doc);
-        hadronDoc.get('a').get('nestedField1').rename('newname');
+        hadronDoc.get('a')?.get('nestedField1')?.rename('newname');
 
         it('has the original value for the edited value in the query', function () {
           const { query } =
@@ -795,7 +809,7 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 5, bbb: 'vvv' },
+            a: { nestedField1: 'abc', bbb: 'vvv' },
           });
         });
 
@@ -805,7 +819,7 @@ describe('Document', function () {
 
           expect(updateDoc).to.deep.equal({
             $set: {
-              a: { newname: 5, bbb: 'vvv' },
+              a: { newname: 'abc', bbb: 'vvv' },
             },
           });
         });
@@ -817,10 +831,10 @@ describe('Document', function () {
       function () {
         const doc = {
           _id: 'testing',
-          a: { nestedField1: 5, nestedField2: 'aaa' },
+          a: { nestedField1: 'abc', nestedField2: 'aaa' },
         };
         const hadronDoc = new Document(doc);
-        hadronDoc.get('a').get('nestedField1').remove();
+        hadronDoc.get('a')?.get('nestedField1')?.remove();
 
         it('has the original value for the edited value in the query', function () {
           const { query } =
@@ -828,7 +842,7 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 5, nestedField2: 'aaa' },
+            a: { nestedField1: 'abc', nestedField2: 'aaa' },
           });
         });
 
@@ -873,7 +887,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).remove();
+        doc.elements.at(0)?.remove();
       });
 
       it('includes the key in the object', function () {
@@ -901,7 +915,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('');
+        doc.elements.at(0)?.rename('');
       });
 
       it('includes the original in the object', function () {
@@ -918,7 +932,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('aa');
+        doc.elements.at(0)?.rename('aa');
       });
 
       it('includes the original in the object', function () {
@@ -941,7 +955,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.get('name').get('last').edit('aa');
+        doc.get('name')?.get('last')?.edit('aa');
       });
 
       it('returns the original element in the object', function () {
@@ -961,7 +975,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('');
+        doc.elements.at(0)?.rename('');
       });
 
       it('includes the change in the object', function () {
@@ -979,7 +993,7 @@ describe('Document', function () {
 
       before(function () {
         doc.insertEnd('aa', '333');
-        doc.elements.at(1).rename('');
+        doc.elements.at(1)?.rename('');
       });
 
       it('does not have any element in the object', function () {
@@ -1019,7 +1033,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.get('name').get('last').remove();
+        doc.get('name')?.get('last')?.remove();
       });
 
       it('returns the original element in the object', function () {
@@ -1041,7 +1055,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).remove();
+        doc.elements.at(0)?.remove();
       });
 
       it('does not include the element in the object', function () {
@@ -1063,7 +1077,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('');
+        doc.elements.at(0)?.rename('');
       });
 
       it('does not include the element in the object', function () {
@@ -1076,7 +1090,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('aa');
+        doc.elements.at(0)?.rename('aa');
       });
 
       it('includes the element in the object', function () {
@@ -1096,7 +1110,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.get('name').get('last').edit('aa');
+        doc.get('name')?.get('last')?.edit('aa');
       });
 
       it('includes the element in the object', function () {
@@ -1119,7 +1133,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.get('name').get('last').rename('aa');
+        doc.get('name')?.get('last')?.rename('aa');
       });
 
       it('includes the element in the object', function () {
@@ -1137,7 +1151,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('');
+        doc.elements.at(0)?.rename('');
       });
 
       it('does not include the change in the object', function () {
@@ -1151,7 +1165,7 @@ describe('Document', function () {
 
       before(function () {
         doc.insertEnd('aa', '333');
-        doc.elements.at(1).rename('');
+        doc.elements.at(1)?.rename('');
       });
 
       it('does not include the change in the object', function () {
@@ -1184,7 +1198,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.get('name').get('last').remove();
+        doc.get('name')?.get('last')?.remove();
       });
 
       it('does includes the top level element in the object', function () {
@@ -1203,7 +1217,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).remove();
+        doc.elements.at(0)?.remove();
       });
 
       it('includes the key in the object', function () {
@@ -1227,7 +1241,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('');
+        doc.elements.at(0)?.rename('');
       });
 
       it('has the original key in the object', function () {
@@ -1243,7 +1257,7 @@ describe('Document', function () {
 
       before(function () {
         doc.insertEnd('aa', '333');
-        doc.elements.at(1).rename('');
+        doc.elements.at(1)?.rename('');
       });
 
       it('does not include the change in the object', function () {
@@ -1269,7 +1283,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('aa');
+        doc.elements.at(0)?.rename('aa');
       });
 
       it('includes the original key in the object', function () {
@@ -1289,7 +1303,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.get('name').get('last').edit('aa');
+        doc.get('name')?.get('last')?.edit('aa');
       });
 
       it('returns empty object', function () {
@@ -1307,70 +1321,11 @@ describe('Document', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.get('name').get('last').remove();
+        doc.get('name')?.get('last')?.remove();
       });
 
       it('does not include the element in the object', function () {
         expect(doc.getUnsetUpdateForDocumentChanges()).to.deep.equal({});
-      });
-    });
-  });
-
-  describe('#next', function () {
-    context('when the document has no elements', function () {
-      const doc = new Document({});
-
-      before(function () {
-        doc.next();
-      });
-
-      it('adds an empty element to the document', function () {
-        expect(doc.elements.at(0).currentKey).to.equal('');
-        expect(doc.elements.at(0).currentValue).to.equal('');
-      });
-    });
-
-    context('when the document has elements', function () {
-      context('when there are no added elements', function () {
-        const doc = new Document({ first: 'value' });
-
-        before(function () {
-          doc.next();
-        });
-
-        it('adds an empty element to the document', function () {
-          expect(doc.elements.at(1).currentKey).to.equal('');
-          expect(doc.elements.at(1).currentValue).to.equal('');
-        });
-      });
-
-      context('when there are added elements', function () {
-        context('when the last added element is empty', function () {
-          const doc = new Document({});
-
-          before(function () {
-            doc.next();
-            doc.next();
-          });
-
-          it('removes the empty element from the document', function () {
-            expect(doc.elements.size).to.equal(0);
-          });
-        });
-
-        context('when the last added element is not empty', function () {
-          const doc = new Document({});
-
-          before(function () {
-            doc.next();
-            doc.elements.at(0).edit('testing');
-            doc.next();
-          });
-
-          it('does not remove the last element', function () {
-            expect(doc.elements.size).to.equal(2);
-          });
-        });
       });
     });
   });
@@ -1390,50 +1345,50 @@ describe('Document', function () {
     };
     const doc = new Document(object);
     const address = doc.elements.at(0);
-    const postalCode = address.elements.at(0);
+    const postalCode = address?.elements?.at(0);
     const email = doc.elements.at(1);
     const label = doc.elements.at(4);
 
     it('sets the postal code edit', function () {
-      postalCode.edit(72550);
-      expect(postalCode.value).to.equal('72550');
-      expect(postalCode.currentValue).to.equal(72550);
-      expect(postalCode.isEdited()).to.equal(true);
+      postalCode?.edit(72550);
+      expect(postalCode?.value).to.equal('72550');
+      expect(postalCode?.currentValue).to.equal(72550);
+      expect(postalCode?.isEdited()).to.equal(true);
     });
 
     it('adds the state to the address', function () {
-      const state = address.insertEnd('state', 'CA');
-      expect(state.key).to.equal('state');
-      expect(state.value).to.equal('CA');
-      expect(state.isAdded()).to.equal(true);
+      const state = address?.insertEnd('state', 'CA');
+      expect(state?.key).to.equal('state');
+      expect(state?.value).to.equal('CA');
+      expect(state?.isAdded()).to.equal(true);
     });
 
     it('changes the email to an embedded document', function () {
-      email.rename('emails');
-      email.edit({});
-      expect(email.key).to.equal('email');
-      expect(email.currentKey).to.equal('emails');
-      expect(email.elements.size).to.equal(0);
+      email?.rename('emails');
+      email?.edit({});
+      expect(email?.key).to.equal('email');
+      expect(email?.currentKey).to.equal('emails');
+      expect(email?.elements?.size).to.equal(0);
     });
 
     it('adds the home email element', function () {
-      const home = email.insertEnd('home', 'home@example.com');
-      expect(email.elements.size).to.equal(1);
-      expect(home.key).to.equal('home');
-      expect(home.value).to.equal('home@example.com');
-      expect(home.isAdded()).to.equal(true);
+      const home = email?.insertEnd('home', 'home@example.com');
+      expect(email?.elements?.size).to.equal(1);
+      expect(home?.key).to.equal('home');
+      expect(home?.value).to.equal('home@example.com');
+      expect(home?.isAdded()).to.equal(true);
     });
 
     it('adds the work email element', function () {
-      const work = email.insertEnd('work', 'work@example.com');
-      expect(email.elements.size).to.equal(2);
-      expect(work.key).to.equal('work');
-      expect(work.value).to.equal('work@example.com');
-      expect(work.isAdded()).to.equal(true);
+      const work = email?.insertEnd('work', 'work@example.com');
+      expect(email?.elements?.size).to.equal(2);
+      expect(work?.key).to.equal('work');
+      expect(work?.value).to.equal('work@example.com');
+      expect(work?.isAdded()).to.equal(true);
     });
 
     it('generates an update object', function () {
-      label.remove();
+      label?.remove();
       expect(doc.generateObject()).to.deep.equal({
         address: {
           postal_code: 72550,
@@ -1461,7 +1416,6 @@ describe('Document', function () {
           for (const element of elements) {
             expect(element.currentKey).to.equal(`f${i}`);
             expect(element.currentValue).to.equal(`v${i}`);
-            expect(elements.loaded).to.equal(i);
             i++;
           }
         });
@@ -1476,10 +1430,6 @@ describe('Document', function () {
         const hadronDoc = new Document(doc);
         const elements = hadronDoc.elements;
 
-        before(function () {
-          elements.flush();
-        });
-
         it('iterates all the elements in the list', function () {
           let i = 1;
           for (const element of elements) {
@@ -1491,10 +1441,6 @@ describe('Document', function () {
 
         it('sets the proper size', function () {
           expect(elements.size).to.equal(3);
-        });
-
-        it('does not increment the loaded count', function () {
-          expect(elements.loaded).to.equal(3);
         });
       });
     });
@@ -1509,7 +1455,6 @@ describe('Document', function () {
         for (const element of elements) {
           expect(element.currentKey).to.equal(`f${index}`);
           index += 1;
-          elements.flush();
         }
       });
     });
@@ -1527,16 +1472,8 @@ describe('Document', function () {
         }
       });
 
-      it('sets the correct loaded count', function () {
-        expect(elements.loaded).to.equal(1);
-      });
-
       it('keeps the correct size', function () {
         expect(elements.size).to.equal(3);
-      });
-
-      it('does not load more than 1 element', function () {
-        expect(elements.firstElement.nextElement).to.equal(null);
       });
 
       context('when iterating again', function () {
@@ -1545,17 +1482,12 @@ describe('Document', function () {
           for (const element of elements) {
             expect(element.currentKey).to.equal(`f${i}`);
             expect(element.currentValue).to.equal(`v${i}`);
-            expect(elements.loaded).to.equal(i);
             i++;
           }
         });
 
         it('sets the proper size', function () {
           expect(elements.size).to.equal(3);
-        });
-
-        it('does not increment the loaded count', function () {
-          expect(elements.loaded).to.equal(3);
         });
       });
     });
@@ -1565,7 +1497,7 @@ describe('Document', function () {
     describe('Document.FromJSON', function () {
       it('parses strings in EJSON strict mode', function () {
         const parsed = Document.FromEJSON('{"a": 1}');
-        expect(parsed.get('a').currentType).to.equal('Int32');
+        expect(parsed.get('a')?.currentType).to.equal('Int32');
       });
     });
 
@@ -1573,13 +1505,13 @@ describe('Document', function () {
       it('parses arrays', function () {
         const parsed = Document.FromEJSONArray('[{"a": 1}]');
         expect(parsed).to.have.lengthOf(1);
-        expect(parsed[0].get('a').currentType).to.equal('Int32');
+        expect(parsed[0].get('a')?.currentType).to.equal('Int32');
       });
 
       it('lifts single objects to a singleton arrays', function () {
         const parsed = Document.FromEJSONArray('{"a": 1}');
         expect(parsed).to.have.lengthOf(1);
-        expect(parsed[0].get('a').currentType).to.equal('Int32');
+        expect(parsed[0].get('a')?.currentType).to.equal('Int32');
       });
     });
 
@@ -1590,7 +1522,7 @@ describe('Document', function () {
           b: { foo: 2 },
           null_val: null,
         });
-        expect(doc.toEJSON('current', { indent: null })).to.equal(
+        expect(doc.toEJSON('current', { indent: undefined })).to.equal(
           '{"a":1,"b":{"foo":2},"null_val":null}'
         );
       });
@@ -1601,7 +1533,7 @@ describe('Document', function () {
           b: 1.5,
           c: Long.fromNumber(2),
         });
-        expect(doc.toEJSON('current', { indent: null })).to.equal(
+        expect(doc.toEJSON('current', { indent: undefined })).to.equal(
           '{"a":1,"b":1.5,"c":{"$numberLong":"2"}}'
         );
       });
@@ -1612,11 +1544,11 @@ describe('Document', function () {
           b: 1.5,
           c: Long.fromNumber(2),
         });
-        doc.get('a').edit(2);
-        expect(doc.toEJSON('current', { indent: null })).to.equal(
+        doc.get('a')?.edit(2);
+        expect(doc.toEJSON('current', { indent: undefined })).to.equal(
           '{"a":2,"b":1.5,"c":{"$numberLong":"2"}}'
         );
-        expect(doc.toEJSON('original', { indent: null })).to.equal(
+        expect(doc.toEJSON('original', { indent: undefined })).to.equal(
           '{"a":1,"b":1.5,"c":{"$numberLong":"2"}}'
         );
       });

@@ -179,7 +179,9 @@ function ConnectionList({
           onMouseLeave={() => setRecentHover(false)}
         >
           <div className={sectionHeaderIconStyles}>{recentIcon}</div>
-          <H2 className={sectionHeaderTitleStyles}>Recents</H2>
+          <H2 data-testid="recents-header" className={sectionHeaderTitleStyles}>
+            Recents
+          </H2>
           {recentHeaderHover && (
             <Button
               onClick={removeAllRecentsConnections}

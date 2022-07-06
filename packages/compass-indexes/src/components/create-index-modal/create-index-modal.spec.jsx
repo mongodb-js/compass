@@ -2,6 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import AppRegistry from 'hadron-app-registry';
+import hadronApp from 'hadron-app';
 
 import { CreateIndexModal } from '../create-index-modal';
 import styles from './create-index-modal.module.less';
@@ -27,6 +29,13 @@ describe('CreateIndexModal [Component]', function () {
   let changePartialFilterExpressionSpy;
   let changeCollationOptionSpy;
   let changeNameSpy;
+
+  before(function () {
+    const appRegistry = new AppRegistry();
+    global.hadronApp = hadronApp;
+    global.hadronApp.appRegistry = appRegistry;
+  });
+
   context('when the modal is visible', function () {
     beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
