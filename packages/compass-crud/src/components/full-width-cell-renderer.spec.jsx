@@ -26,14 +26,14 @@ describe('<FullWidthCellRenderer />', function() {
     const actions = getActions();
     const context = getContext([]);
 
-    after(() => {
+    after(function() {
       component.unmount();
       component = null;
     });
 
-    describe('editing mode', () => {
-      describe('unmodified', () => {
-        before((done) => {
+    describe('editing mode', function() {
+      describe('unmodified', function() {
+        before(function(done) {
           rowNode = getNode({field1: {'subfield1': 'value'}});
           rowNode.data.state = 'editing';
           data = rowNode.data;
@@ -51,13 +51,13 @@ describe('<FullWidthCellRenderer />', function() {
           expect(component).to.be.present();
           done();
         });
-        it('renders footer as editing', () => {
+        it('renders footer as editing', function() {
           expect(component.find('[data-testid="document-footer"]')).to.be.present();
         });
-        it('renders the cancel button', () => {
+        it('renders the cancel button', function() {
           expect(component.find('button[data-testid="cancel-button"]')).to.be.present();
         });
-        it('renders the update button', () => {
+        it('renders the update button', function() {
           expect(component.find('button[data-testid="update-button"]')).to.be.present();
         });
       });
@@ -81,17 +81,17 @@ describe('<FullWidthCellRenderer />', function() {
           expect(component).to.be.present();
           done();
         });
-        it('renders footer as editing', () => {
+        it('renders footer as editing', function() {
           expect(
             component.find(
               '[data-testid="document-footer"][data-status="Modified"]'
             )
           ).to.be.present();
         });
-        it('renders the cancel button', () => {
+        it('renders the cancel button', function() {
           expect(component.find('button[data-testid="cancel-button"]')).to.be.present();
         });
-        it('renders the update button', () => {
+        it('renders the update button', function() {
           expect(component.find('button[data-testid="update-button"]')).to.be.present();
         });
       });
@@ -115,17 +115,17 @@ describe('<FullWidthCellRenderer />', function() {
         expect(component).to.be.present();
         done();
       });
-      it('renders footer as deleting', () => {
+      it('renders footer as deleting', function() {
         expect(
           component.find(
             '[data-testid="document-footer"][data-status="Deleting"]'
           )
         ).to.be.present();
       });
-      it('renders the cancel button', () => {
+      it('renders the cancel button', function() {
         expect(component.find('button[data-testid="cancel-button"]')).to.be.present();
       });
-      it('renders the delete button', () => {
+      it('renders the delete button', function() {
         expect(component.find('button[data-testid="delete-button"]')).to.be.present();
       });
     });
@@ -141,7 +141,7 @@ describe('<FullWidthCellRenderer />', function() {
           const api = getApi();
           const actions = getActions();
           const context = getContext([]);
-          before((done) => {
+          before(function(done) {
             rowNode = getNode({toAdd: '1', toTypeChange: '2'});
             rowNode.data.state = 'editing';
             data = rowNode.data;
@@ -198,7 +198,7 @@ describe('<FullWidthCellRenderer />', function() {
           const api = getApi();
           const actions = getActions();
           const context = getContext(['field does not exist']);
-          before((done) => {
+          before(function(done) {
             rowNode = getNode({toAdd: '1', toTypeChange: '2'});
             rowNode.data.state = 'editing';
             data = rowNode.data;
