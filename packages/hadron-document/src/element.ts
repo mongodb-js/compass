@@ -960,9 +960,7 @@ export class ElementList implements Iterable<Element> {
   }
 
   *[Symbol.iterator](): Iterator<Element> {
-    for (const el of this.elements) {
-      yield el;
-    }
+    yield* this.elements;
   }
 }
 
