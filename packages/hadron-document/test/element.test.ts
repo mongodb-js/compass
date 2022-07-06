@@ -29,7 +29,7 @@ describe('Element', function () {
       const element = new Element('key', { name: 'test' });
 
       it('returns the element', function () {
-        expect(element.get('name').currentValue).to.equal('test');
+        expect(element.get('name')?.currentValue).to.equal('test');
       });
     });
 
@@ -48,10 +48,10 @@ describe('Element', function () {
 
     context('when the element field is changed', function () {
       const element = new Element('key', { name: 'test' });
-      const child = element.elements.at(0);
+      const child = element.elements?.at(0);
 
       before(function () {
-        child.rename('testing');
+        child?.rename('testing');
       });
 
       it('returns undefined for the original key', function () {
@@ -85,8 +85,8 @@ describe('Element', function () {
       const element = new Element('key', ['item0', 'item1']);
 
       it('returns the element', function () {
-        expect(element.at(0).currentValue).to.equal('item0');
-        expect(element.at(1).currentValue).to.equal('item1');
+        expect(element.at(0)?.currentValue).to.equal('item0');
+        expect(element.at(1)?.currentValue).to.equal('item1');
       });
     });
 
@@ -94,16 +94,16 @@ describe('Element', function () {
       const element = new Element('key', ['item0', 'item1']);
 
       before(function () {
-        element.at(0).remove();
+        element.at(0)?.remove();
       });
 
       it('returns the original elements', function () {
-        expect(element.at(0).currentValue).to.equal('item0');
-        expect(element.at(0).currentKey).to.equal(0);
-        expect(element.at(0).isRemoved()).to.equal(true);
-        expect(element.at(1).currentValue).to.equal('item1');
+        expect(element.at(0)?.currentValue).to.equal('item0');
+        expect(element.at(0)?.currentKey).to.equal(0);
+        expect(element.at(0)?.isRemoved()).to.equal(true);
+        expect(element.at(1)?.currentValue).to.equal('item1');
         /* Since element removed was not added, keys not modified */
-        expect(element.at(1).currentKey).to.equal(1);
+        expect(element.at(1)?.currentKey).to.equal(1);
       });
     });
 
@@ -122,11 +122,11 @@ describe('Element', function () {
 
     context('when added elements are removed from the middle', function () {
       const element = new Element('key', []);
-      const child1 = element.insertEnd('', 'test1');
+      const test1 = element.insertEnd('', 'test1');
       element.insertEnd('', 'test2');
-      const child2 = element.insertEnd('', 'test3');
+      const test3 = element.insertEnd('', 'test3');
       element.insertEnd('', 'test4');
-      const child3 = element.insertEnd('', 'test5');
+      const test5 = element.insertEnd('', 'test5');
 
       before(function () {
         expect(element.generateObject()).to.deep.equal([
@@ -136,31 +136,31 @@ describe('Element', function () {
           'test4',
           'test5',
         ]);
-        child1.remove();
-        child2.remove();
-        child3.remove();
+        element.elements?.remove(test1);
+        element.elements?.remove(test3);
+        element.elements?.remove(test5);
       });
 
       it('returns the correct elements', function () {
-        expect(element.at(0).currentValue).to.equal('test2');
-        expect(element.at(0).currentKey).to.equal(0);
-        expect(element.at(1).currentValue).to.equal('test4');
-        expect(element.at(1).currentKey).to.equal(1);
+        expect(element.at(0)?.currentValue).to.equal('test2');
+        expect(element.at(0)?.currentKey).to.equal(0);
+        expect(element.at(1)?.currentValue).to.equal('test4');
+        expect(element.at(1)?.currentKey).to.equal(1);
         expect(element.at(2)).to.equal(undefined);
       });
     });
 
     context('when the element value is changed', function () {
       const element = new Element('key', ['test']);
-      const child = element.elements.at(0);
+      const child = element.elements?.at(0);
 
       before(function () {
-        child.edit('test2');
+        child?.edit('test2');
       });
 
       it('returns the new element for the index', function () {
         expect(element.at(0)).to.equal(child);
-        expect(element.at(0).currentValue).to.equal('test2');
+        expect(element.at(0)?.currentValue).to.equal('test2');
       });
     });
 
@@ -176,7 +176,7 @@ describe('Element', function () {
   describe('#cancel', function () {
     context('when the element is invalid', function () {
       const doc = new Document({});
-      const element = new Element('string', 'testing', false, doc);
+      const element = new Element('string', 'testing', doc);
       before(function () {
         element.setInvalid('testing', 'Date', 'invalid');
         element.cancel();
@@ -197,15 +197,15 @@ describe('Element', function () {
 
     context('when the element has child elements', function () {
       context('when the type is array', function () {
-        const element = new Element('test', [1, 2], false, doc);
+        const element = new Element('test', ['a', 'b'], doc);
 
         it('returns the array', function () {
-          expect(element.generateObject()).to.deep.equal([1, 2]);
+          expect(element.generateObject()).to.deep.equal(['a', 'b']);
         });
       });
 
       context('when the type is object', function () {
-        const element = new Element('test', { test: 'value' }, false, doc);
+        const element = new Element('test', { test: 'value' }, doc);
 
         it('returns the array', function () {
           expect(element.generateObject()).to.deep.equal({ test: 'value' });
@@ -214,24 +214,24 @@ describe('Element', function () {
     });
 
     context('when the element has no child elements', function () {
-      context('when the current value is 0', function () {
-        const element = new Element('test', 0, false, doc);
+      context('when the current value is a', function () {
+        const element = new Element('test', 'a', doc);
 
-        it('returns 0', function () {
-          expect(element.generateObject()).to.equal(0);
+        it('returns "a"', function () {
+          expect(element.generateObject()).to.deep.equal('a');
         });
       });
 
-      context('when the current value is 1', function () {
-        const element = new Element('test', 1, false, doc);
+      context('when the current value is "b"', function () {
+        const element = new Element('test', 'b', doc);
 
         it('returns 1', function () {
-          expect(element.generateObject()).to.equal(1);
+          expect(element.generateObject()).to.deep.equal('b');
         });
       });
 
       context('when the current value is ""', function () {
-        const element = new Element('test', '', false, doc);
+        const element = new Element('test', '', doc);
 
         it('returns ""', function () {
           expect(element.generateObject()).to.equal('');
@@ -239,7 +239,7 @@ describe('Element', function () {
       });
 
       context('when the current value is null', function () {
-        const element = new Element('test', null, false, doc);
+        const element = new Element('test', null, doc);
 
         it('returns null', function () {
           expect(element.generateObject()).to.equal(null);
@@ -247,7 +247,7 @@ describe('Element', function () {
       });
 
       context('when the current value is undefined', function () {
-        const element = new Element('test', undefined, false, doc);
+        const element = new Element('test', undefined, doc);
 
         it('returns undefined', function () {
           expect(element.generateObject()).to.equal(undefined);
@@ -255,7 +255,7 @@ describe('Element', function () {
       });
 
       context('when the current value is false', function () {
-        const element = new Element('test', false, false, doc);
+        const element = new Element('test', false, doc);
 
         it('returns false', function () {
           expect(element.generateObject()).to.equal(false);
@@ -263,7 +263,7 @@ describe('Element', function () {
       });
 
       context('when the current value is truthy', function () {
-        const element = new Element('test', 'test', false, doc);
+        const element = new Element('test', 'test', doc);
 
         it('returns the value', function () {
           expect(element.generateObject()).to.equal('test');
@@ -277,15 +277,15 @@ describe('Element', function () {
 
     context('when the element has child elements', function () {
       context('when the type is array', function () {
-        const element = new Element('test', [1, 2], false, doc);
+        const element = new Element('test', ['a', 'b'], doc);
 
         it('returns the array', function () {
-          expect(element.generateOriginalObject()).to.deep.equal([1, 2]);
+          expect(element.generateOriginalObject()).to.deep.equal(['a', 'b']);
         });
       });
 
       context('when the type is object', function () {
-        const element = new Element('test', { test: 'value' }, false, doc);
+        const element = new Element('test', { test: 'value' }, doc);
 
         it('returns the array', function () {
           expect(element.generateOriginalObject()).to.deep.equal({
@@ -296,24 +296,24 @@ describe('Element', function () {
     });
 
     context('when the element has no child elements', function () {
-      context('when the current value is 0', function () {
-        const element = new Element('test', 0, false, doc);
+      context('when the current value is "a"', function () {
+        const element = new Element('test', 'a', doc);
 
         it('returns 0', function () {
-          expect(element.generateOriginalObject()).to.equal(0);
+          expect(element.generateOriginalObject()).to.equal('a');
         });
       });
 
-      context('when the current value is 1', function () {
-        const element = new Element('test', 1, false, doc);
+      context('when the current value is "b"', function () {
+        const element = new Element('test', 'b', doc);
 
         it('returns 1', function () {
-          expect(element.generateOriginalObject()).to.equal(1);
+          expect(element.generateOriginalObject()).to.deep.equal('b');
         });
       });
 
       context('when the value is ""', function () {
-        const element = new Element('test', '', false, doc);
+        const element = new Element('test', '', doc);
 
         it('returns ""', function () {
           expect(element.generateOriginalObject()).to.equal('');
@@ -321,7 +321,7 @@ describe('Element', function () {
       });
 
       context('when the value is null', function () {
-        const element = new Element('test', null, false, doc);
+        const element = new Element('test', null, doc);
 
         it('returns null', function () {
           expect(element.generateOriginalObject()).to.equal(null);
@@ -329,7 +329,7 @@ describe('Element', function () {
       });
 
       context('when the value is undefined', function () {
-        const element = new Element('test', undefined, false, doc);
+        const element = new Element('test', undefined, doc);
 
         it('returns undefined', function () {
           expect(element.generateOriginalObject()).to.equal(undefined);
@@ -337,7 +337,7 @@ describe('Element', function () {
       });
 
       context('when the value is false', function () {
-        const element = new Element('test', false, false, doc);
+        const element = new Element('test', false, doc);
 
         it('returns false', function () {
           expect(element.generateOriginalObject()).to.equal(false);
@@ -345,7 +345,7 @@ describe('Element', function () {
       });
 
       context('when the value is a string', function () {
-        const element = new Element('test', 'test', false, doc);
+        const element = new Element('test', 'test', doc);
 
         it('returns the value', function () {
           expect(element.generateOriginalObject()).to.equal('test');
@@ -353,7 +353,7 @@ describe('Element', function () {
       });
 
       context('when the current value is truthy', function () {
-        const element = new Element('test', false, false, doc);
+        const element = new Element('test', false, doc);
         element.edit(true);
 
         it('returns the original value', function () {
@@ -366,62 +366,59 @@ describe('Element', function () {
   describe('#insertEnd', function () {
     context('when the new embedded element is a document', function () {
       const doc = new Document({});
-      const element = new Element(
-        'email',
-        { work: 'work@example.com' },
-        false,
-        doc
-      );
+      const element = new Element('email', { work: 'work@example.com' }, doc);
 
       before(function () {
         element.insertEnd('home', 'home@example.com');
       });
 
       it('adds the new embedded element', function () {
-        expect(element.elements.at(1).key).to.equal('home');
-        expect(element.elements.at(1).value).to.equal('home@example.com');
+        expect(element.elements?.at(1)?.key).to.equal('home');
+        expect(element.elements?.at(1)?.value).to.equal('home@example.com');
       });
 
       it('flags the new element as added', function () {
-        expect(element.elements.at(1).isAdded()).to.equal(true);
+        expect(element.elements?.at(1)?.isAdded()).to.equal(true);
       });
     });
     context(
       'when the embedded element is an array of embedded documents',
       function () {
         const doc = new Document({});
-        const element = new Element('emails', [], false, doc);
+        const element = new Element('emails', [], doc);
 
         before(function () {
           element.insertEnd('', '').edit({ home: 'home@example.com' });
         });
 
         it('adds the new embedded element', function () {
-          expect(element.elements.at(0).elements.at(0).key).to.equal('home');
-          expect(element.elements.at(0).elements.at(0).value).to.equal(
+          expect(element.elements?.at(0)?.elements?.at(0)?.key).to.equal(
+            'home'
+          );
+          expect(element.elements?.at(0)?.elements?.at(0)?.value).to.equal(
             'home@example.com'
           );
         });
 
         it('flags the new elements as added', function () {
-          expect(element.elements.at(0).isAdded()).to.equal(true);
-          expect(element.elements.at(0).elements.at(0).isAdded()).to.equal(
+          expect(element.elements?.at(0)?.isAdded()).to.equal(true);
+          expect(element.elements?.at(0)?.elements?.at(0)?.isAdded()).to.equal(
             true
           );
         });
 
         it('does not flag the new elements as edited', function () {
-          expect(element.elements.at(0).isEdited()).to.equal(false);
-          expect(element.elements.at(0).elements.at(0).isEdited()).to.equal(
+          expect(element.elements?.at(0)?.isEdited()).to.equal(false);
+          expect(element.elements?.at(0)?.elements?.at(0)?.isEdited()).to.equal(
             false
           );
         });
 
         it('does not flag the new elements as renamed', function () {
-          expect(element.elements.at(0).isRenamed()).to.equal(false);
-          expect(element.elements.at(0).elements.at(0).isRenamed()).to.equal(
-            false
-          );
+          expect(element.elements?.at(0)?.isRenamed()).to.equal(false);
+          expect(
+            element.elements?.at(0)?.elements?.at(0)?.isRenamed()
+          ).to.equal(false);
         });
       }
     );
@@ -434,21 +431,20 @@ describe('Element', function () {
       const element = new Element(
         'email',
         { key0: 'item0', key2: 'item2' },
-        false,
         doc
       );
 
       before(function () {
-        element.insertAfter(element.at(0), 'key1', 'item1');
+        element.insertAfter(element.at(0)!, 'key1', 'item1');
       });
 
       it('adds the new embedded element', function () {
-        expect(element.elements.at(1).key).to.equal('key1');
-        expect(element.elements.at(1).value).to.equal('item1');
+        expect(element.elements?.at(1)?.key).to.equal('key1');
+        expect(element.elements?.at(1)?.value).to.equal('item1');
       });
 
       it('flags the new element as added', function () {
-        expect(element.elements.at(1).isAdded()).to.equal(true);
+        expect(element.elements?.at(1)?.isAdded()).to.equal(true);
       });
     });
     /* Testing embedded arrays is in 'modifying arrays' */
@@ -496,171 +492,24 @@ describe('Element', function () {
     });
   });
 
-  describe('#next', function () {
-    context('when the element is the last element in the parent', function () {
-      context('when the value is changed to {', function () {
-        const doc = new Document({});
-        doc.insertEnd('first', 'test');
-        const last = doc.insertEnd('last', 'test');
-
-        before(function () {
-          last.edit('{');
-          last.next();
-        });
-
-        it('changes the element to an object', function () {
-          expect(last.elements.at(0).currentKey).to.equal('');
-          expect(last.elements.at(0).currentValue).to.equal('');
-        });
-      });
-
-      context('when the value is changed to [', function () {
-        const doc = new Document({});
-        doc.insertEnd('first', 'test');
-        const last = doc.insertEnd('last', 'test');
-
-        before(function () {
-          last.edit('[');
-          last.next();
-        });
-
-        it('changes the element to an empty array', function () {
-          expect(last.elements.at(0).currentKey).to.equal(0);
-          expect(last.elements.at(0).currentValue).to.equal('');
-        });
-      });
-
-      context(
-        'when the value is changed to [ and additional elements are added',
-        function () {
-          const doc = new Document({});
-          doc.insertEnd('first', 'test');
-          const last = doc.insertEnd('last', 'test');
-          let newLast = null;
-
-          before(function () {
-            last.edit('[');
-            last.next();
-            newLast = last.elements.at(0);
-            newLast.edit('testing');
-            newLast.next();
-          });
-
-          it('adds the additional elements to the array', function () {
-            expect(last.elements.at(1).currentKey).to.equal(1);
-            expect(last.elements.at(1).currentValue).to.equal('');
-          });
-        }
-      );
-
-      context('when the value is different', function () {
-        const doc = new Document({});
-        doc.insertEnd('first', 'test');
-        const last = doc.insertEnd('last', 'test');
-
-        before(function () {
-          last.edit('test');
-          last.next();
-        });
-
-        it('adds another element to the parent', function () {
-          expect(doc.elements.at(2).currentKey).to.equal('');
-          expect(doc.elements.at(2).currentValue).to.equal('');
-        });
-      });
-    });
-
-    context(
-      'when the element is not the last element is in the parent',
-      function () {
-        context(
-          'when the next element in the parent is not added',
-          function () {
-            const doc = new Document({
-              first: 'test-first',
-              second: 'test-second',
-            });
-            const element = doc.elements.at(0);
-
-            before(function () {
-              element.next();
-            });
-
-            it('inserts a new empty element', function () {
-              expect(doc.elements.at(1).currentKey).to.equal('');
-              expect(doc.elements.at(1).currentValue).to.equal('');
-            });
-          }
-        );
-
-        context('when the current element is added', function () {
-          context('when the current element is empty', function () {
-            const doc = new Document({ first: 'test-first' });
-
-            before(function () {
-              const element = doc.insertEnd('', '');
-              element.next();
-            });
-
-            it('removes the empty element', function () {
-              expect(doc.elements.size).to.equal(2);
-            });
-          });
-        });
-
-        context('when the next element in the parent is added', function () {
-          context('when the next element is empty', function () {
-            const doc = new Document({ first: 'test-first' });
-            const element = doc.elements.at(0);
-
-            before(function () {
-              doc.insertEnd('', '');
-              element.next();
-            });
-
-            it('ignores the empty element', function () {
-              expect(doc.elements.size).to.equal(2);
-            });
-          });
-
-          context('when the next element is not empty', function () {
-            const doc = new Document({ first: 'test-first' });
-            const element = doc.elements.at(0);
-
-            before(function () {
-              doc.insertEnd('test', '');
-              element.next();
-            });
-
-            it('inserts a new empty element', function () {
-              expect(doc.elements.size).to.equal(3);
-            });
-          });
-        });
-      }
-    );
-  });
-
   describe('#isEditable', function () {
     context(
       'when the key is _id and the value is a nested object',
       function () {
-        const subelement2 = new Element('subsubkey', 'test value');
-        const subelement = new Element('subkey', subelement2);
-        const element = new Element('_id', subelement);
-        subelement.parent = element;
-        subelement2.parent = subelement;
+        const element = new Element('_id', {});
+        element.insertEnd('subkey', {});
+        element.get('subkey')?.insertEnd('subsubkey', 'test value');
         context('#isValueEditable', function () {
           it('top level element returns false', function () {
             expect(element.isValueEditable()).to.equal(false);
           });
           it('sub element returns false', function () {
-            expect((element.value as any).isValueEditable()).to.equal(false);
+            expect(element.get('subkey')?.isValueEditable()).to.equal(false);
           });
           it('sub sub element returns false', function () {
-            expect((element.value as any).value.isValueEditable()).to.equal(
-              false
-            );
+            expect(
+              element.get('subkey')?.get('subsubkey')?.isValueEditable()
+            ).to.equal(false);
           });
         });
         context('#isKeyEditable', function () {
@@ -669,16 +518,16 @@ describe('Element', function () {
             expect(element.isParentEditable()).to.equal(true);
           });
           it('sub element returns false', function () {
-            expect((element.value as any).isKeyEditable()).to.equal(false);
-            expect((element.value as any).isParentEditable()).to.equal(false);
+            expect(element.get('subkey')?.isKeyEditable()).to.equal(false);
+            expect(element.get('subkey')?.isParentEditable()).to.equal(false);
           });
           it('sub sub element returns false', function () {
-            expect((element.value as any).value.isKeyEditable()).to.equal(
-              false
-            );
-            expect((element.value as any).value.isParentEditable()).to.equal(
-              false
-            );
+            expect(
+              element.get('subkey')?.get('subsubkey')?.isKeyEditable()
+            ).to.equal(false);
+            expect(
+              element.get('subkey')?.get('subsubkey')?.isParentEditable()
+            ).to.equal(false);
           });
         });
       }
@@ -688,7 +537,7 @@ describe('Element', function () {
   describe('#isValueEditable', function () {
     context('when the key is _id', function () {
       context('when the element is not added', function () {
-        const element = new Element('_id', 'test', false);
+        const element = new Element('_id', 'test');
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);
@@ -696,7 +545,7 @@ describe('Element', function () {
       });
 
       context('when the element is added', function () {
-        const element = new Element('_id', 'test', true);
+        const element = new Element('_id', 'test', null, true);
 
         it('returns true', function () {
           expect(element.isValueEditable()).to.equal(true);
@@ -706,7 +555,7 @@ describe('Element', function () {
 
     context('when the key is not _id', function () {
       context('when the type is ObjectId', function () {
-        const element = new Element('name', new ObjectId(), false);
+        const element = new Element('name', new ObjectId());
 
         it('returns true', function () {
           expect(element.isValueEditable()).to.equal(true);
@@ -714,7 +563,7 @@ describe('Element', function () {
       });
 
       context('when the type is binary', function () {
-        const element = new Element('name', new Binary('test'), false);
+        const element = new Element('name', new Binary('test'));
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);
@@ -722,7 +571,7 @@ describe('Element', function () {
       });
 
       context('when the type is code', function () {
-        const element = new Element('name', new Code('test'), false);
+        const element = new Element('name', new Code('test'));
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);
@@ -730,7 +579,7 @@ describe('Element', function () {
       });
 
       context('when the type is min key', function () {
-        const element = new Element('name', new MinKey(), false);
+        const element = new Element('name', new MinKey());
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);
@@ -738,7 +587,7 @@ describe('Element', function () {
       });
 
       context('when the type is max key', function () {
-        const element = new Element('name', new MaxKey(), false);
+        const element = new Element('name', new MaxKey());
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);
@@ -746,7 +595,7 @@ describe('Element', function () {
       });
 
       context('when the type is a timestamp', function () {
-        const element = new Element('name', new Timestamp(0, 0), false);
+        const element = new Element('name', new Timestamp(0, 0));
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);
@@ -754,7 +603,7 @@ describe('Element', function () {
       });
 
       context('when the type is editable', function () {
-        const element = new Element('name', 'test', false);
+        const element = new Element('name', 'test');
 
         it('returns true', function () {
           expect(element.isValueEditable()).to.equal(true);
@@ -766,12 +615,12 @@ describe('Element', function () {
   describe('#isValueDecrypted', function () {
     it('returns false when the element was not decrypted and is not nested', function () {
       const doc = new Document({ a: 1 });
-      expect(doc.get('a').isValueDecrypted()).to.equal(false);
+      expect(doc.get('a')?.isValueDecrypted()).to.equal(false);
     });
 
     it('returns false when the element was not decrypted and is nested', function () {
       const doc = new Document({ a: { b: 1 } });
-      expect(doc.get('a').get('b').isValueDecrypted()).to.equal(false);
+      expect(doc.get('a')?.get('b')?.isValueDecrypted()).to.equal(false);
     });
 
     it('returns true when the element was decrypted and is not nested', function () {
@@ -779,8 +628,8 @@ describe('Element', function () {
         a: { b: 1 },
         [Symbol.for('@@mdb.decryptedKeys')]: ['a'],
       });
-      expect(doc.get('a').isValueDecrypted()).to.equal(true);
-      expect(doc.get('a').get('b').isValueDecrypted()).to.equal(false);
+      expect(doc.get('a')?.isValueDecrypted()).to.equal(true);
+      expect(doc.get('a')?.get('b')?.isValueDecrypted()).to.equal(false);
     });
 
     it('returns true when the element was decrypted and is nested', function () {
@@ -794,24 +643,26 @@ describe('Element', function () {
           [Symbol.for('@@mdb.decryptedKeys')]: ['b'],
         },
       });
-      expect(doc.get('a').isValueDecrypted()).to.equal(false);
-      expect(doc.get('a').get('b').isValueDecrypted()).to.equal(true);
-      expect(doc.get('a').get('c').isValueDecrypted()).to.equal(false);
-      expect(doc.get('a').get('d').isValueDecrypted()).to.equal(false);
-      expect(doc.get('a').get('d').at(0).isValueDecrypted()).to.equal(true);
-      expect(doc.get('a').get('d').at(1).isValueDecrypted()).to.equal(false);
+      expect(doc.get('a')?.isValueDecrypted()).to.equal(false);
+      expect(doc.get('a')?.get('b')?.isValueDecrypted()).to.equal(true);
+      expect(doc.get('a')?.get('c')?.isValueDecrypted()).to.equal(false);
+      expect(doc.get('a')?.get('d')?.isValueDecrypted()).to.equal(false);
+      expect(doc.get('a')?.get('d')?.at(0)?.isValueDecrypted()).to.equal(true);
+      expect(doc.get('a')?.get('d')?.at(1)?.isValueDecrypted()).to.equal(false);
     });
   });
 
   describe('#containsDecryptedChildren', function () {
     it('returns false when the element was not decrypted and is not nested', function () {
       const doc = new Document({ a: 1 });
-      expect(doc.get('a').containsDecryptedChildren()).to.equal(false);
+      expect(doc.get('a')?.containsDecryptedChildren()).to.equal(false);
     });
 
     it('returns false when the element was not decrypted and is nested', function () {
       const doc = new Document({ a: { b: 1 } });
-      expect(doc.get('a').get('b').containsDecryptedChildren()).to.equal(false);
+      expect(doc.get('a')?.get('b')?.containsDecryptedChildren()).to.equal(
+        false
+      );
     });
 
     it('returns true when the element was decrypted and is not nested', function () {
@@ -819,8 +670,10 @@ describe('Element', function () {
         a: { b: 1 },
         [Symbol.for('@@mdb.decryptedKeys')]: ['a'],
       });
-      expect(doc.get('a').containsDecryptedChildren()).to.equal(true);
-      expect(doc.get('a').get('b').containsDecryptedChildren()).to.equal(false);
+      expect(doc.get('a')?.containsDecryptedChildren()).to.equal(true);
+      expect(doc.get('a')?.get('b')?.containsDecryptedChildren()).to.equal(
+        false
+      );
     });
 
     it('returns true when the element was decrypted and is nested', function () {
@@ -836,16 +689,22 @@ describe('Element', function () {
       });
       // Note: This is the only case in which .containsDecryptedChildren()
       // and .isValueDecrypted() differ.
-      expect(doc.get('a').containsDecryptedChildren()).to.equal(true);
-      expect(doc.get('a').get('b').containsDecryptedChildren()).to.equal(true);
-      expect(doc.get('a').get('c').containsDecryptedChildren()).to.equal(false);
-      expect(doc.get('a').get('d').containsDecryptedChildren()).to.equal(true);
-      expect(doc.get('a').get('d').at(0).containsDecryptedChildren()).to.equal(
+      expect(doc.get('a')?.containsDecryptedChildren()).to.equal(true);
+      expect(doc.get('a')?.get('b')?.containsDecryptedChildren()).to.equal(
         true
       );
-      expect(doc.get('a').get('d').at(1).containsDecryptedChildren()).to.equal(
+      expect(doc.get('a')?.get('c')?.containsDecryptedChildren()).to.equal(
         false
       );
+      expect(doc.get('a')?.get('d')?.containsDecryptedChildren()).to.equal(
+        true
+      );
+      expect(
+        doc.get('a')?.get('d')?.at(0)?.containsDecryptedChildren()
+      ).to.equal(true);
+      expect(
+        doc.get('a')?.get('d')?.at(1)?.containsDecryptedChildren()
+      ).to.equal(false);
     });
 
     context('#isKeyEditable', function () {
@@ -857,9 +716,9 @@ describe('Element', function () {
             [Symbol.for('@@mdb.decryptedKeys')]: ['b'],
           },
         });
-        expect(doc.get('a').isKeyEditable()).to.equal(false);
-        expect(doc.get('a').get('b').isKeyEditable()).to.equal(false);
-        expect(doc.get('a').get('c').isKeyEditable()).to.equal(true);
+        expect(doc.get('a')?.isKeyEditable()).to.equal(false);
+        expect(doc.get('a')?.get('b')?.isKeyEditable()).to.equal(false);
+        expect(doc.get('a')?.get('c')?.isKeyEditable()).to.equal(true);
       });
     });
   });
@@ -867,7 +726,7 @@ describe('Element', function () {
   describe('#isModified', function () {
     context('when the element has no children', function () {
       context('when the element is not modified', function () {
-        const element = new Element('name', 'Aphex Twin', false);
+        const element = new Element('name', 'Aphex Twin');
 
         it('returns false', function () {
           expect(element.isModified()).to.equal(false);
@@ -875,7 +734,7 @@ describe('Element', function () {
       });
 
       context('when the element is added', function () {
-        const element = new Element('name', 'Aphex Twin', true);
+        const element = new Element('name', 'Aphex Twin', null, true);
 
         it('returns true', function () {
           expect(element.isModified()).to.equal(true);
@@ -883,7 +742,7 @@ describe('Element', function () {
       });
 
       context('when the element is edited', function () {
-        const element = new Element('name', 'Aphex Twin', false);
+        const element = new Element('name', 'Aphex Twin');
 
         before(function () {
           element.edit('APX');
@@ -895,7 +754,7 @@ describe('Element', function () {
       });
 
       context('when the element is removed', function () {
-        const element = new Element('name', 'Aphex Twin', false);
+        const element = new Element('name', 'Aphex Twin');
 
         before(function () {
           element.remove();
@@ -907,7 +766,7 @@ describe('Element', function () {
       });
 
       context('when the element is reverted', function () {
-        const element = new Element('name', 'Aphex Twin', false);
+        const element = new Element('name', 'Aphex Twin');
 
         before(function () {
           element.edit('APX');
@@ -922,7 +781,7 @@ describe('Element', function () {
 
     context('when the element has children', function () {
       context('when a child element is added', function () {
-        const element = new Element('names', [], false);
+        const element = new Element('names', []);
 
         before(function () {
           element.insertEnd('', 'testing');
@@ -934,10 +793,10 @@ describe('Element', function () {
       });
 
       context('when a child element is edited', function () {
-        const element = new Element('names', ['testing'], false);
+        const element = new Element('names', ['testing']);
 
         before(function () {
-          element.elements.at(0).edit('test');
+          element.elements?.at(0)?.edit('test');
         });
 
         it('returns true', function () {
@@ -946,10 +805,10 @@ describe('Element', function () {
       });
 
       context('when a child element is removed', function () {
-        const element = new Element('names', ['testing'], false);
+        const element = new Element('names', ['testing']);
 
         before(function () {
-          element.elements.at(0).remove();
+          element.elements?.at(0)?.remove();
         });
 
         it('returns true', function () {
@@ -962,7 +821,7 @@ describe('Element', function () {
   describe('#isRenamed', function () {
     context('when the element has no children', function () {
       context('when the element is not modified', function () {
-        const element = new Element('name', 'Pineapple', false);
+        const element = new Element('name', 'Pineapple');
 
         it('returns false', function () {
           expect(element.isRenamed()).to.equal(false);
@@ -970,7 +829,7 @@ describe('Element', function () {
       });
 
       context('when the element is added', function () {
-        const element = new Element('name', 'Pineapple', true);
+        const element = new Element('name', 'Pineapple', null, true);
 
         it('returns false', function () {
           expect(element.isRenamed()).to.equal(false);
@@ -978,7 +837,7 @@ describe('Element', function () {
       });
 
       context('when the element is edited', function () {
-        const element = new Element('name', 'Pineapple', false);
+        const element = new Element('name', 'Pineapple');
 
         before(function () {
           element.edit('not pineapple');
@@ -990,7 +849,7 @@ describe('Element', function () {
       });
 
       context('when the element is removed', function () {
-        const element = new Element('name', 'Pineapple', false);
+        const element = new Element('name', 'Pineapple');
 
         before(function () {
           element.remove();
@@ -1002,7 +861,7 @@ describe('Element', function () {
       });
 
       context('when the element is renamed', function () {
-        const element = new Element('name', 'Pineapple', false);
+        const element = new Element('name', 'Pineapple');
 
         before(function () {
           element.edit('not pineapple');
@@ -1014,7 +873,7 @@ describe('Element', function () {
       });
 
       context('when the element is reverted', function () {
-        const element = new Element('name', 'Pineapple', false);
+        const element = new Element('name', 'Pineapple');
 
         before(function () {
           element.rename('Not pineapple');
@@ -1029,10 +888,10 @@ describe('Element', function () {
 
     context('when the element has children', function () {
       context('when a child element is edited', function () {
-        const element = new Element('names', ['testing'], false);
+        const element = new Element('names', ['testing']);
 
         before(function () {
-          element.elements.at(0).edit('test');
+          element.elements?.at(0)?.edit('test');
         });
 
         it('returns false', function () {
@@ -1041,10 +900,10 @@ describe('Element', function () {
       });
 
       context('when a child element is renamed', function () {
-        const element = new Element('names', ['testing'], false);
+        const element = new Element('names', ['testing']);
 
         before(function () {
-          element.elements.at(0).remove();
+          element.elements?.at(0)?.remove();
         });
 
         it('returns false', function () {
@@ -1053,7 +912,7 @@ describe('Element', function () {
       });
 
       context('when the element is renamed', function () {
-        const element = new Element('names', ['testing'], false);
+        const element = new Element('names', ['testing']);
 
         before(function () {
           element.rename('test');
@@ -1068,7 +927,7 @@ describe('Element', function () {
 
   describe('#new', function () {
     context('when the element is primitive', function () {
-      const element = new Element('name', 'Aphex Twin', false);
+      const element = new Element('name', 'Aphex Twin');
 
       it('sets the key', function () {
         expect(element.key).to.equal('name');
@@ -1100,7 +959,7 @@ describe('Element', function () {
     });
 
     context('when the element is an array', function () {
-      const element = new Element('albums', ['Windowlicker'], false);
+      const element = new Element('albums', ['Windowlicker']);
 
       it('sets the key', function () {
         expect(element.key).to.equal('albums');
@@ -1111,7 +970,7 @@ describe('Element', function () {
       });
 
       it('sets the elements', function () {
-        expect(element.elements.size).to.equal(1);
+        expect(element.elements?.size).to.equal(1);
       });
 
       it('sets the element type', function () {
@@ -1124,7 +983,7 @@ describe('Element', function () {
     });
 
     context('when the element is an embedded document', function () {
-      const element = new Element('email', { work: 'test@example.com' }, false);
+      const element = new Element('email', { work: 'test@example.com' });
 
       it('sets the key', function () {
         expect(element.key).to.equal('email');
@@ -1135,7 +994,7 @@ describe('Element', function () {
       });
 
       it('sets the elements', function () {
-        expect(element.elements.size).to.equal(1);
+        expect(element.elements?.size).to.equal(1);
       });
 
       it('sets the element type', function () {
@@ -1149,7 +1008,7 @@ describe('Element', function () {
   });
 
   describe('#setInvalid', function () {
-    const element = new Element('val', 1, false);
+    const element = new Element('val', 1);
 
     before(function () {
       element.setInvalid('testing', 'Date', 'invalid');
@@ -1189,7 +1048,7 @@ describe('Element', function () {
   describe('#edit', function () {
     context('when the value is a date', function () {
       const date = new Date('2014-12-01 12:00:00.000');
-      const element = new Element('val', date, false);
+      const element = new Element('val', date);
 
       context('when editing to the same value', function () {
         before(function () {
@@ -1215,7 +1074,7 @@ describe('Element', function () {
 
     context('when the value is an object id', function () {
       const oid = new ObjectId();
-      const element = new Element('val', oid, false);
+      const element = new Element('val', oid);
 
       context('when editing to the same value', function () {
         before(function () {
@@ -1240,7 +1099,7 @@ describe('Element', function () {
     });
 
     context('when the value is an int32', function () {
-      const element = new Element('val', new Int32(10), false);
+      const element = new Element('val', new Int32(10));
 
       context('when editing to the same value', function () {
         before(function () {
@@ -1254,7 +1113,7 @@ describe('Element', function () {
     });
 
     context('when the value is a double', function () {
-      const element = new Element('val', new Double(10.0), false);
+      const element = new Element('val', new Double(10.0));
 
       context('when editing to the same value', function () {
         before(function () {
@@ -1268,7 +1127,7 @@ describe('Element', function () {
     });
 
     context('when the value is a long', function () {
-      const element = new Element('val', Long.fromNumber(10), false);
+      const element = new Element('val', Long.fromNumber(10));
 
       context('when editing to the same value', function () {
         before(function () {
@@ -1282,7 +1141,7 @@ describe('Element', function () {
     });
 
     context('when the value is a decimal 128', function () {
-      const element = new Element('val', new Decimal128('10.0'), false);
+      const element = new Element('val', new Decimal128('10.0'));
 
       context('when editing to the same value', function () {
         before(function () {
@@ -1296,7 +1155,7 @@ describe('Element', function () {
     });
 
     context('when the element is a document', function () {
-      const element = new Element('val', { test: 'value' }, false);
+      const element = new Element('val', { test: 'value' });
 
       context('when the element is changed to a non-expandable', function () {
         before(function () {
@@ -1331,8 +1190,8 @@ describe('Element', function () {
           });
 
           it('returns the elements from the original value', function () {
-            expect(element.elements.at(0).currentKey).to.equal('test');
-            expect(element.elements.at(0).currentValue).to.equal('value');
+            expect(element.elements?.at(0)?.currentKey).to.equal('test');
+            expect(element.elements?.at(0)?.currentValue).to.equal('value');
           });
 
           it('returns the original value from generateObject', function () {
@@ -1359,7 +1218,7 @@ describe('Element', function () {
     context('when the element is not a document', function () {
       context('when the value is changed', function () {
         context('when the value is changed to another primitive', function () {
-          const element = new Element('name', 'Aphex Twin', false);
+          const element = new Element('name', 'Aphex Twin');
 
           before(function () {
             element.edit('APX');
@@ -1383,7 +1242,7 @@ describe('Element', function () {
         });
 
         context('when the value is changed to an int32', function () {
-          const element = new Element('name', 'Aphex Twin', false);
+          const element = new Element('name', 'Aphex Twin');
 
           before(function () {
             element.edit(new Int32(42));
@@ -1407,7 +1266,7 @@ describe('Element', function () {
         });
 
         context('when the value is changed to an int64', function () {
-          const element = new Element('name', 'Aphex Twin', false);
+          const element = new Element('name', 'Aphex Twin');
 
           before(function () {
             element.edit(new Long(4200000000000));
@@ -1431,7 +1290,7 @@ describe('Element', function () {
         });
 
         context('when the value is changed to an double', function () {
-          const element = new Element('name', 'Aphex Twin', false);
+          const element = new Element('name', 'Aphex Twin');
 
           before(function () {
             element.edit(new Double(42.23));
@@ -1457,14 +1316,14 @@ describe('Element', function () {
         context(
           'when the value is changed to an empty embedded document',
           function () {
-            const element = new Element('email', 'test@example.com', false);
+            const element = new Element('email', 'test@example.com');
 
             before(function () {
               element.edit({});
             });
 
             it('changes the document to an embedded document', function () {
-              expect(element.elements.size).to.equal(0);
+              expect(element.elements?.size).to.equal(0);
             });
 
             it('removes the current value', function () {
@@ -1488,16 +1347,18 @@ describe('Element', function () {
         context(
           'when the value is changed to an embedded document',
           function () {
-            const element = new Element('email', 'test@example.com', false);
+            const element = new Element('email', 'test@example.com');
 
             before(function () {
               element.edit({ home: 'home@example.com' });
             });
 
             it('changes the document to an embedded document', function () {
-              expect(element.elements.size).to.equal(1);
-              expect(element.elements.at(0).key).to.equal('home');
-              expect(element.elements.at(0).value).to.equal('home@example.com');
+              expect(element.elements?.size).to.equal(1);
+              expect(element.elements?.at(0)?.key).to.equal('home');
+              expect(element.elements?.at(0)?.value).to.equal(
+                'home@example.com'
+              );
             });
 
             it('removes the current value', function () {
@@ -1519,14 +1380,14 @@ describe('Element', function () {
         );
 
         context('when the value is changed to an empty array', function () {
-          const element = new Element('email', 'test@example.com', false);
+          const element = new Element('email', 'test@example.com');
 
           before(function () {
             element.edit([]);
           });
 
           it('changes the document to an embedded document', function () {
-            expect(element.elements.size).to.equal(0);
+            expect(element.elements?.size).to.equal(0);
           });
 
           it('removes the current value', function () {
@@ -1547,16 +1408,16 @@ describe('Element', function () {
         });
 
         context('when the value is changed to an array', function () {
-          const element = new Element('email', 'test@example.com', false);
+          const element = new Element('email', 'test@example.com');
 
           before(function () {
             element.edit(['home@example.com']);
           });
 
           it('changes the document to an embedded document', function () {
-            expect(element.elements.size).to.equal(1);
-            expect(element.elements.at(0).key).to.equal(0);
-            expect(element.elements.at(0).value).to.equal('home@example.com');
+            expect(element.elements?.size).to.equal(1);
+            expect(element.elements?.at(0)?.key).to.equal(0);
+            expect(element.elements?.at(0)?.value).to.equal('home@example.com');
           });
 
           it('removes the current value', function () {
@@ -1578,7 +1439,7 @@ describe('Element', function () {
       });
 
       context('when the value is changed (2)', function () {
-        const element = new Element('name', 'Aphex Twin', false);
+        const element = new Element('name', 'Aphex Twin');
 
         before(function () {
           element.edit('APX');
@@ -1600,7 +1461,7 @@ describe('Element', function () {
   });
 
   describe('#rename', function () {
-    const element = new Element('name', 'Aphex Twin', false);
+    const element = new Element('name', 'Aphex Twin');
 
     before(function () {
       element.rename('alias');
@@ -1625,7 +1486,7 @@ describe('Element', function () {
 
   describe('#remove', function () {
     context('when the element has not been edited', function () {
-      const element = new Element('name', 'Aphex Twin', false);
+      const element = new Element('name', 'Aphex Twin');
 
       before(function () {
         element.remove();
@@ -1637,7 +1498,7 @@ describe('Element', function () {
     });
 
     context('when the element has been edited', function () {
-      const element = new Element('name', 'Aphex Twin', false);
+      const element = new Element('name', 'Aphex Twin');
 
       before(function () {
         element.edit('name');
@@ -1673,7 +1534,7 @@ describe('Element', function () {
 
   describe('#revert', function () {
     context('when the element is edited', function () {
-      const element = new Element('name', 'Aphex Twin', false);
+      const element = new Element('name', 'Aphex Twin');
 
       before(function () {
         element.edit('alias');
@@ -1697,7 +1558,7 @@ describe('Element', function () {
     });
 
     context('when the element is removed', function () {
-      const element = new Element('name', 'Aphex Twin', false);
+      const element = new Element('name', 'Aphex Twin');
 
       before(function () {
         element.remove();
@@ -1721,7 +1582,7 @@ describe('Element', function () {
     });
 
     context('when elements have been added', function () {
-      const element = new Element('email', { work: 'work@example.com' }, false);
+      const element = new Element('email', { work: 'work@example.com' });
 
       before(function () {
         element.insertEnd('home', 'home@example.com');
@@ -1734,8 +1595,8 @@ describe('Element', function () {
       });
 
       it('sets the elements back to the original', function () {
-        expect(element.elements.size).to.equal(1);
-        expect(element.elements.at(0).key).to.equal('work');
+        expect(element.elements?.size).to.equal(1);
+        expect(element.elements?.at(0)?.key).to.equal('work');
       });
     });
 
@@ -1754,7 +1615,7 @@ describe('Element', function () {
 
     context('when the element has been converted to an object', function () {
       context('when child elements have been added', function () {
-        const element = new Element('email', 'test@example.com', false);
+        const element = new Element('email', 'test@example.com');
 
         before(function () {
           element.edit({});
@@ -1768,7 +1629,7 @@ describe('Element', function () {
         });
 
         it('sets the elements back to the original', function () {
-          expect(element.elements).to.equal(null);
+          expect(element).to.not.haveOwnProperty('elements');
         });
 
         it('sets the type back to the original', function () {
@@ -1785,7 +1646,7 @@ describe('Element', function () {
 
     context('when the element has been converted to an array', function () {
       context('when child elements have been added', function () {
-        const element = new Element('email', 'test@example.com', false);
+        const element = new Element('email', 'test@example.com');
 
         before(function () {
           element.edit([]);
@@ -1799,7 +1660,7 @@ describe('Element', function () {
         });
 
         it('sets the elements back to the original', function () {
-          expect(element.elements).to.equal(null);
+          expect(element).to.not.haveOwnProperty('elements');
         });
 
         it('sets the type back to the original', function () {
@@ -1819,7 +1680,7 @@ describe('Element', function () {
     describe('#insertEnd', function () {
       const doc = new Document({});
       const items = ['work@example.com'];
-      const element = new Element('emails', items, false, doc);
+      const element = new Element('emails', items, doc);
       const finalArray = [
         'work@example.com',
         'home@example.com',
@@ -1833,28 +1694,28 @@ describe('Element', function () {
       });
       it('adds the new embedded elements', function () {
         for (let i = 0; i < finalArray.length; i++) {
-          expect(element.elements.at(i).currentKey).to.equal(i);
-          expect(element.elements.at(i).key).to.equal(i);
-          expect(element.elements.at(i).value).to.equal(finalArray[i]);
+          expect(element.elements?.at(i)?.currentKey).to.equal(i);
+          expect(element.elements?.at(i)?.key).to.equal(i);
+          expect(element.elements?.at(i)?.value).to.equal(finalArray[i]);
         }
       });
       it('flags the right elements as added', function () {
-        expect(element.elements.at(0).isAdded()).to.equal(false);
-        expect(element.elements.at(1).isAdded()).to.equal(true);
-        expect(element.elements.at(2).isAdded()).to.equal(true);
-        expect(element.elements.at(3).isAdded()).to.equal(true);
+        expect(element.elements?.at(0)?.isAdded()).to.equal(false);
+        expect(element.elements?.at(1)?.isAdded()).to.equal(true);
+        expect(element.elements?.at(2)?.isAdded()).to.equal(true);
+        expect(element.elements?.at(3)?.isAdded()).to.equal(true);
       });
       it('flags the right elements as modified', function () {
-        expect(element.elements.at(0).isModified()).to.equal(false);
-        expect(element.elements.at(1).isModified()).to.equal(true);
-        expect(element.elements.at(2).isModified()).to.equal(true);
-        expect(element.elements.at(3).isModified()).to.equal(true);
+        expect(element.elements?.at(0)?.isModified()).to.equal(false);
+        expect(element.elements?.at(1)?.isModified()).to.equal(true);
+        expect(element.elements?.at(2)?.isModified()).to.equal(true);
+        expect(element.elements?.at(3)?.isModified()).to.equal(true);
       });
       it('flags the right elements as edited', function () {
-        expect(element.elements.at(0).isEdited()).to.equal(false);
-        expect(element.elements.at(1).isEdited()).to.equal(false);
-        expect(element.elements.at(2).isEdited()).to.equal(false);
-        expect(element.elements.at(3).isEdited()).to.equal(false);
+        expect(element.elements?.at(0)?.isEdited()).to.equal(false);
+        expect(element.elements?.at(1)?.isEdited()).to.equal(false);
+        expect(element.elements?.at(2)?.isEdited()).to.equal(false);
+        expect(element.elements?.at(3)?.isEdited()).to.equal(false);
       });
       it('maintains the original with generateOriginalObject', function () {
         expect(element.generateOriginalObject()).to.deep.equal(items);
@@ -1864,83 +1725,73 @@ describe('Element', function () {
     describe('#insertAfter', function () {
       context('inserting into the array', function () {
         const doc = new Document({});
-        const element = new Element('emails', ['item0'], false, doc);
+        const element = new Element('emails', ['item0'], doc);
         before(function () {
-          element.insertAfter(element.at(0), 'key3', 'item3');
-          element.insertAfter(element.at(0), 'ignore', 'item1');
-          element.insertAfter(element.at(1), '', 'item2');
+          element.insertAfter(element.at(0)!, 'key3', 'item3');
+          element.insertAfter(element.at(0)!, 'ignore', 'item1');
+          element.insertAfter(element.at(1)!, '', 'item2');
         });
         it('adds the new embedded elements', function () {
           for (let i = 0; i < 4; i++) {
-            expect(element.elements.at(i).currentKey).to.equal(i);
-            expect(element.elements.at(i).value).to.equal(`item${i}`);
+            expect(element.elements?.at(i)?.currentKey).to.equal(i);
+            expect(element.elements?.at(i)?.value).to.equal(`item${i}`);
           }
         });
         it('flags the new element as added', function () {
-          expect(element.elements.at(1).isAdded()).to.equal(true);
-          expect(element.elements.at(2).isAdded()).to.equal(true);
-          expect(element.elements.at(3).isAdded()).to.equal(true);
+          expect(element.elements?.at(1)?.isAdded()).to.equal(true);
+          expect(element.elements?.at(2)?.isAdded()).to.equal(true);
+          expect(element.elements?.at(3)?.isAdded()).to.equal(true);
         });
         it('flags the original element as not modified', function () {
-          expect(element.elements.at(0).isModified()).to.equal(false);
+          expect(element.elements?.at(0)?.isModified()).to.equal(false);
         });
         it('flags the original element as not renamed', function () {
-          expect(element.elements.at(0).isRenamed()).to.equal(false);
+          expect(element.elements?.at(0)?.isRenamed()).to.equal(false);
         });
       });
       context('inserting into the middle of the array', function () {
         const doc = new Document({});
-        const element = new Element(
-          'items',
-          ['item0', 'item2', 'item3'],
-          false,
-          doc
-        );
+        const element = new Element('items', ['item0', 'item2', 'item3'], doc);
 
         before(function () {
-          element.insertAfter(element.at(0), 'key3', 'item1');
+          element.insertAfter(element.at(0)!, 'key3', 'item1');
         });
         it('inserts the element into the list with the correct key', function () {
-          expect(element.at(0).nextElement.currentKey).to.equal(1);
-          expect(element.at(0).nextElement.key).to.equal(1);
-          expect(element.at(0).nextElement.value).to.equal('item1');
+          expect(element.at(1)?.currentKey).to.equal(1);
+          expect(element.at(1)?.key).to.equal(1);
+          expect(element.at(1)?.value).to.equal('item1');
         });
         it('updates the currentKey of subsequent elements', function () {
           for (let i = 0; i < 4; i++) {
-            expect(element.at(i).currentKey).to.equal(i);
-            expect(element.at(i).value).to.equal(`item${i}`);
+            expect(element.at(i)?.currentKey).to.equal(i);
+            expect(element.at(i)?.value).to.equal(`item${i}`);
           }
         });
         it('correctly marks elements as modified', function () {
           for (let i = 0; i < 4; i++) {
-            expect(element.at(i).isModified()).to.equal(i === 1);
+            expect(element.at(i)?.isModified()).to.equal(i === 1);
           }
         });
       });
       context('inserting into the end of the array', function () {
         const doc = new Document({});
-        const element = new Element(
-          'emails',
-          ['item0', 'item1', 'item2'],
-          false,
-          doc
-        );
+        const element = new Element('emails', ['item0', 'item1', 'item2'], doc);
         before(function () {
-          element.insertAfter(element.at(2), 'key3', 'item3');
+          element.insertAfter(element.at(2)!, 'key3', 'item3');
         });
         it('inserts the element into the list with the correct key', function () {
-          expect(element.at(2).nextElement.currentKey).to.equal(3);
-          expect(element.at(2).nextElement.value).to.equal('item3');
+          expect(element.at(3)?.currentKey).to.equal(3);
+          expect(element.at(3)?.value).to.equal('item3');
         });
         it('updates the key and currentKey of subsequent elements', function () {
           for (let i = 0; i < 4; i++) {
-            expect(element.at(i).currentKey).to.equal(i);
-            expect(element.at(i).value).to.equal(`item${i}`);
+            expect(element.at(i)?.currentKey).to.equal(i);
+            expect(element.at(i)?.value).to.equal(`item${i}`);
           }
         });
         it('correctly marks elements as modified', function () {
           for (let i = 0; i < 4; i++) {
-            expect(element.at(i).isModified()).to.equal(i === 3);
+            expect(element.at(i)?.isModified()).to.equal(i === 3);
           }
         });
       });
@@ -1949,44 +1800,39 @@ describe('Element', function () {
     describe('#insertPlaceholder', function () {
       context('into an empty array', function () {
         const doc = new Document({});
-        const element = new Element('emails', [], false, doc);
+        const element = new Element('emails', [], doc);
         before(function () {
           element.insertPlaceholder();
         });
         it('array has one element', function () {
-          expect(element.at(0).currentKey).to.equal(0);
-          expect(element.at(0).value).to.equal('');
-          expect(element.elements.size).to.equal(1);
+          expect(element.at(0)?.currentKey).to.equal(0);
+          expect(element.at(0)?.value).to.equal('');
+          expect(element.elements?.size).to.equal(1);
         });
         it('element is modified', function () {
-          expect(element.at(0).isModified()).to.equal(true);
+          expect(element.at(0)?.isModified()).to.equal(true);
         });
       });
       context('into a full array', function () {
         const doc = new Document({});
-        const element = new Element(
-          'emails',
-          ['item0', 'item1', 'item2'],
-          false,
-          doc
-        );
+        const element = new Element('emails', ['item0', 'item1', 'item2'], doc);
         before(function () {
           element.insertPlaceholder();
         });
         it('inserts the element into the end', function () {
-          expect(element.at(3).currentKey).to.equal(3);
-          expect(element.at(3).value).to.equal('');
+          expect(element.at(3)?.currentKey).to.equal(3);
+          expect(element.at(3)?.value).to.equal('');
         });
         it('keeps the other elements the same', function () {
-          expect(element.elements.size).to.equal(4);
+          expect(element.elements?.size).to.equal(4);
           for (let i = 0; i < 3; i++) {
-            expect(element.at(i).currentKey).to.equal(i);
-            expect(element.at(i).value).to.equal(`item${i}`);
+            expect(element.at(i)?.currentKey).to.equal(i);
+            expect(element.at(i)?.value).to.equal(`item${i}`);
           }
         });
         it('element is modified', function () {
           for (let i = 0; i < 4; i++) {
-            expect(element.at(i).isModified()).to.equal(i === 3);
+            expect(element.at(i)?.isModified()).to.equal(i === 3);
           }
         });
       });
@@ -1995,7 +1841,7 @@ describe('Element', function () {
           context('with only placeholders', function () {
             context('multiple', function () {
               const doc = new Document({});
-              const element = new Element('emails', [], false, doc);
+              const element = new Element('emails', [], doc);
               before(function () {
                 element.insertPlaceholder();
                 element.insertPlaceholder();
@@ -2003,48 +1849,48 @@ describe('Element', function () {
                 element.insertAfter(e, '', 'value');
               });
               it('inserts the element into the end', function () {
-                expect(element.at(0).currentKey).to.equal(0);
-                expect(element.at(0).value).to.equal('');
-                expect(element.at(1).currentKey).to.equal(1);
-                expect(element.at(1).value).to.equal('');
-                expect(element.at(2).currentKey).to.equal(2);
-                expect(element.at(2).value).to.equal('');
-                expect(element.at(3).currentKey).to.equal(3);
-                expect(element.at(3).value).to.equal('value');
+                expect(element.at(0)?.currentKey).to.equal(0);
+                expect(element.at(0)?.value).to.equal('');
+                expect(element.at(1)?.currentKey).to.equal(1);
+                expect(element.at(1)?.value).to.equal('');
+                expect(element.at(2)?.currentKey).to.equal(2);
+                expect(element.at(2)?.value).to.equal('');
+                expect(element.at(3)?.currentKey).to.equal(3);
+                expect(element.at(3)?.value).to.equal('value');
               });
             });
             context('one', function () {
               const doc = new Document({});
-              const element = new Element('emails', [], false, doc);
+              const element = new Element('emails', [], doc);
               before(function () {
                 const e = element.insertPlaceholder();
                 element.insertAfter(e, '', 'value');
               });
               it('inserts the element into the end', function () {
-                expect(element.at(0).currentKey).to.equal(0);
-                expect(element.at(0).value).to.equal('');
-                expect(element.at(1).currentKey).to.equal(1);
-                expect(element.at(1).value).to.equal('value');
+                expect(element.at(0)?.currentKey).to.equal(0);
+                expect(element.at(0)?.value).to.equal('');
+                expect(element.at(1)?.currentKey).to.equal(1);
+                expect(element.at(1)?.value).to.equal('value');
               });
             });
           });
           context('with keys and placeholders', function () {
             const doc = new Document({});
-            const element = new Element('emails', ['first val'], false, doc);
+            const element = new Element('emails', ['first val'], doc);
             before(function () {
               element.insertPlaceholder();
               const e = element.insertPlaceholder();
               element.insertAfter(e, '', 'value');
             });
             it('inserts the element into the end', function () {
-              expect(element.at(0).currentKey).to.equal(0);
-              expect(element.at(0).value).to.equal('first val');
-              expect(element.at(1).currentKey).to.equal(1);
-              expect(element.at(1).value).to.equal('');
-              expect(element.at(2).currentKey).to.equal(2);
-              expect(element.at(2).value).to.equal('');
-              expect(element.at(3).currentKey).to.equal(3);
-              expect(element.at(3).value).to.equal('value');
+              expect(element.at(0)?.currentKey).to.equal(0);
+              expect(element.at(0)?.value).to.equal('first val');
+              expect(element.at(1)?.currentKey).to.equal(1);
+              expect(element.at(1)?.value).to.equal('');
+              expect(element.at(2)?.currentKey).to.equal(2);
+              expect(element.at(2)?.value).to.equal('');
+              expect(element.at(3)?.currentKey).to.equal(3);
+              expect(element.at(3)?.value).to.equal('value');
             });
           });
         });
@@ -2052,7 +1898,7 @@ describe('Element', function () {
           context('with only placeholders', function () {
             context('multiple', function () {
               const doc = new Document({});
-              const element = new Element('emails', [], false, doc);
+              const element = new Element('emails', [], doc);
               before(function () {
                 element.insertPlaceholder();
                 element.insertPlaceholder();
@@ -2060,48 +1906,48 @@ describe('Element', function () {
                 element.insertEnd('', 'value');
               });
               it('inserts the element into the end', function () {
-                expect(element.at(0).currentKey).to.equal(0);
-                expect(element.at(0).value).to.equal('');
-                expect(element.at(1).currentKey).to.equal(1);
-                expect(element.at(1).value).to.equal('');
-                expect(element.at(2).currentKey).to.equal(2);
-                expect(element.at(2).value).to.equal('');
-                expect(element.at(3).currentKey).to.equal(3);
-                expect(element.at(3).value).to.equal('value');
+                expect(element.at(0)?.currentKey).to.equal(0);
+                expect(element.at(0)?.value).to.equal('');
+                expect(element.at(1)?.currentKey).to.equal(1);
+                expect(element.at(1)?.value).to.equal('');
+                expect(element.at(2)?.currentKey).to.equal(2);
+                expect(element.at(2)?.value).to.equal('');
+                expect(element.at(3)?.currentKey).to.equal(3);
+                expect(element.at(3)?.value).to.equal('value');
               });
             });
             context('one', function () {
               const doc = new Document({});
-              const element = new Element('emails', [], false, doc);
+              const element = new Element('emails', [], doc);
               before(function () {
                 element.insertPlaceholder();
                 element.insertEnd('', 'value');
               });
               it('inserts the element into the end', function () {
-                expect(element.at(0).currentKey).to.equal(0);
-                expect(element.at(0).value).to.equal('');
-                expect(element.at(1).currentKey).to.equal(1);
-                expect(element.at(1).value).to.equal('value');
+                expect(element.at(0)?.currentKey).to.equal(0);
+                expect(element.at(0)?.value).to.equal('');
+                expect(element.at(1)?.currentKey).to.equal(1);
+                expect(element.at(1)?.value).to.equal('value');
               });
             });
           });
           context('with keys and placeholders', function () {
             const doc = new Document({});
-            const element = new Element('emails', ['first val'], false, doc);
+            const element = new Element('emails', ['first val'], doc);
             before(function () {
               element.insertPlaceholder();
               element.insertPlaceholder();
               element.insertEnd('', 'value');
             });
             it('inserts the element into the end', function () {
-              expect(element.at(0).currentKey).to.equal(0);
-              expect(element.at(0).value).to.equal('first val');
-              expect(element.at(1).currentKey).to.equal(1);
-              expect(element.at(1).value).to.equal('');
-              expect(element.at(2).currentKey).to.equal(2);
-              expect(element.at(2).value).to.equal('');
-              expect(element.at(3).currentKey).to.equal(3);
-              expect(element.at(3).value).to.equal('value');
+              expect(element.at(0)?.currentKey).to.equal(0);
+              expect(element.at(0)?.value).to.equal('first val');
+              expect(element.at(1)?.currentKey).to.equal(1);
+              expect(element.at(1)?.value).to.equal('');
+              expect(element.at(2)?.currentKey).to.equal(2);
+              expect(element.at(2)?.value).to.equal('');
+              expect(element.at(3)?.currentKey).to.equal(3);
+              expect(element.at(3)?.value).to.equal('value');
             });
           });
         });
@@ -2113,29 +1959,29 @@ describe('Element', function () {
         context('and is added', function () {
           const doc = new Document({});
           const items = ['item0', 'item2'];
-          const element = new Element('items', items, false, doc);
+          const element = new Element('items', items, doc);
 
           before(function () {
-            element.insertAfter(element.at(0), 'key3', 'item1');
+            element.insertAfter(element.at(0)!, 'key3', 'item1');
             expect(element.generateObject()).to.deep.equal([
               'item0',
               'item1',
               'item2',
             ]);
             expect(element.generateOriginalObject()).to.deep.equal(items);
-            element.at(1).remove();
+            element.at(1)?.remove();
           });
           it('deletes the element', function () {
             expect(element.generateObject()).to.deep.equal(items);
             expect(element.isModified()).to.equal(false);
           });
           it('updates keys correctly', function () {
-            expect(element.at(0).currentKey).to.equal(0);
-            expect(element.at(0).key).to.equal(0);
-            expect(element.at(0).value).to.equal('item0');
-            expect(element.at(1).currentKey).to.equal(1);
-            expect(element.at(1).key).to.equal(1);
-            expect(element.at(1).value).to.equal('item2');
+            expect(element.at(0)?.currentKey).to.equal(0);
+            expect(element.at(0)?.key).to.equal(0);
+            expect(element.at(0)?.value).to.equal('item0');
+            expect(element.at(1)?.currentKey).to.equal(1);
+            expect(element.at(1)?.key).to.equal(1);
+            expect(element.at(1)?.value).to.equal('item2');
           });
         });
         context('and is not added', function () {
@@ -2144,12 +1990,11 @@ describe('Element', function () {
           const element = new Element(
             'items',
             ['item0', 'item1', 'item2'],
-            false,
             doc
           );
 
           before(function () {
-            element.at(1).remove();
+            element.at(1)?.remove();
           });
           it('deletes the element', function () {
             expect(element.generateObject()).to.deep.equal(items);
@@ -2163,21 +2008,21 @@ describe('Element', function () {
             ]);
           });
           it('updates keys correctly', function () {
-            expect(element.at(0).currentKey).to.equal(0);
-            expect(element.at(0).value).to.equal('item0');
-            expect(element.at(1).currentKey).to.equal(1);
-            expect(element.at(1).key).to.equal(1);
-            expect(element.at(1).value).to.equal('item1');
-            expect(element.at(1).isRemoved()).to.equal(true);
-            expect(element.at(2).key).to.equal(2);
-            expect(element.at(2).value).to.equal('item2');
-            expect(element.at(2).isEdited()).to.equal(false);
-            expect(element.at(2).isRenamed()).to.equal(false);
+            expect(element.at(0)?.currentKey).to.equal(0);
+            expect(element.at(0)?.value).to.equal('item0');
+            expect(element.at(1)?.currentKey).to.equal(1);
+            expect(element.at(1)?.key).to.equal(1);
+            expect(element.at(1)?.value).to.equal('item1');
+            expect(element.at(1)?.isRemoved()).to.equal(true);
+            expect(element.at(2)?.key).to.equal(2);
+            expect(element.at(2)?.value).to.equal('item2');
+            expect(element.at(2)?.isEdited()).to.equal(false);
+            expect(element.at(2)?.isRenamed()).to.equal(false);
           });
           it('sets flags correctly', function () {
-            expect(element.at(0).isModified()).to.equal(false);
-            expect(element.at(1).isRemoved()).to.equal(true);
-            expect(element.at(2).isModified()).to.equal(false);
+            expect(element.at(0)?.isModified()).to.equal(false);
+            expect(element.at(1)?.isRemoved()).to.equal(true);
+            expect(element.at(2)?.isModified()).to.equal(false);
           });
         });
       });
@@ -2188,14 +2033,14 @@ describe('Element', function () {
             ['00', '01', '02'],
             ['10', '11', '12'],
           ];
-          const element = new Element('items', items, false, doc);
+          const element = new Element('items', items, doc);
           before(function () {
-            element.at(0).insertAfter(element.at(0).at(1), '$new', '99');
+            element.at(0)?.insertAfter(element.at(0)!.at(1)!, '$new', '99');
             expect(element.generateObject()).to.deep.equal([
               ['00', '01', '99', '02'],
               ['10', '11', '12'],
             ]);
-            element.at(0).at(2).remove();
+            element.at(0)?.at(2)?.remove();
           });
           it('reverts the document', function () {
             expect(element.generateObject()).to.deep.equal(items);
@@ -2205,11 +2050,11 @@ describe('Element', function () {
             for (let i = 0; i < items.length; i++) {
               for (let j = 0; j < items[0].length; j++) {
                 const parent = element.at(i);
-                expect(parent.currentKey).to.equal(i);
-                expect(parent.key).to.equal(i);
-                expect(parent.at(j).currentKey).to.equal(j);
-                expect(parent.at(j).key).to.equal(j);
-                expect(parent.at(j).value).to.equal(`${i}${j}`);
+                expect(parent?.currentKey).to.equal(i);
+                expect(parent?.key).to.equal(i);
+                expect(parent?.at(j)?.currentKey).to.equal(j);
+                expect(parent?.at(j)?.key).to.equal(j);
+                expect(parent?.at(j)?.value).to.equal(`${i}${j}`);
               }
             }
           });
@@ -2220,9 +2065,9 @@ describe('Element', function () {
             ['00', '01', '99', '02'],
             ['10', '11', '12'],
           ];
-          const element = new Element('items', items, false, doc);
+          const element = new Element('items', items, doc);
           before(function () {
-            element.at(0).at(2).remove();
+            element.at(0)?.at(2)?.remove();
           });
           it('removes the element from the document', function () {
             expect(element.generateObject()).to.deep.equal([
@@ -2235,31 +2080,31 @@ describe('Element', function () {
             expect(element.generateOriginalObject()).to.deep.equal(items);
           });
           it('leaves the top level be', function () {
-            expect(element.at(0).currentKey).to.equal(0);
-            expect(element.at(0).key).to.equal(0);
-            expect(element.at(0).isModified()).to.equal(true);
-            expect(element.at(1).currentKey).to.equal(1);
-            expect(element.at(1).key).to.equal(1);
-            expect(element.at(1).isModified()).to.equal(false);
+            expect(element.at(0)?.currentKey).to.equal(0);
+            expect(element.at(0)?.key).to.equal(0);
+            expect(element.at(0)?.isModified()).to.equal(true);
+            expect(element.at(1)?.currentKey).to.equal(1);
+            expect(element.at(1)?.key).to.equal(1);
+            expect(element.at(1)?.isModified()).to.equal(false);
           });
           it('updates keys correctly', function () {
             const parent = element.at(0);
-            expect(parent.at(0).currentKey).to.equal(0);
-            expect(parent.at(0).value).to.equal('00');
-            expect(parent.at(1).currentKey).to.equal(1);
-            expect(parent.at(1).value).to.equal('01');
-            expect(parent.at(2).currentKey).to.equal(2);
-            expect(parent.at(2).value).to.equal('99');
-            expect(parent.at(2).isRemoved()).to.equal(true);
-            expect(parent.at(3).currentKey).to.equal(3);
-            expect(parent.at(3).value).to.equal('02');
+            expect(parent?.at(0)?.currentKey).to.equal(0);
+            expect(parent?.at(0)?.value).to.equal('00');
+            expect(parent?.at(1)?.currentKey).to.equal(1);
+            expect(parent?.at(1)?.value).to.equal('01');
+            expect(parent?.at(2)?.currentKey).to.equal(2);
+            expect(parent?.at(2)?.value).to.equal('99');
+            expect(parent?.at(2)?.isRemoved()).to.equal(true);
+            expect(parent?.at(3)?.currentKey).to.equal(3);
+            expect(parent?.at(3)?.value).to.equal('02');
           });
           it('updates flags correctly', function () {
             const parent = element.at(0);
-            expect(parent.at(0).isModified()).to.equal(false);
-            expect(parent.at(1).isModified()).to.equal(false);
-            expect(parent.at(2).isRemoved()).to.equal(true);
-            expect(parent.at(3).isModified()).to.equal(false);
+            expect(parent?.at(0)?.isModified()).to.equal(false);
+            expect(parent?.at(1)?.isModified()).to.equal(false);
+            expect(parent?.at(2)?.isRemoved()).to.equal(true);
+            expect(parent?.at(3)?.isModified()).to.equal(false);
           });
         });
       });
@@ -2270,10 +2115,10 @@ describe('Element', function () {
         context('and is added', function () {
           const doc = new Document({});
           const items = ['item0', 'item1', 'item2'];
-          const element = new Element('items', items, false, doc);
+          const element = new Element('items', items, doc);
 
           before(function () {
-            element.insertAfter(element.at(0), '', 'item9');
+            element.insertAfter(element.at(0)!, '', 'item9');
             expect(element.generateObject()).to.deep.equal([
               'item0',
               'item9',
@@ -2289,19 +2134,19 @@ describe('Element', function () {
           });
           it('updates keys correctly', function () {
             for (let i = 0; i < items.length; i++) {
-              expect(element.at(i).currentKey).to.equal(i);
-              expect(element.at(i).key).to.equal(i);
-              expect(element.at(i).value).to.equal(`item${i}`);
+              expect(element.at(i)?.currentKey).to.equal(i);
+              expect(element.at(i)?.key).to.equal(i);
+              expect(element.at(i)?.value).to.equal(`item${i}`);
             }
           });
         });
         context('and is removed', function () {
           const doc = new Document({});
           const items = ['item0', 'item1', 'item2', 'item3'];
-          const element = new Element('items', items, false, doc);
+          const element = new Element('items', items, doc);
 
           before(function () {
-            element.at(1).remove();
+            element.at(1)?.remove();
             expect(element.generateObject()).to.deep.equal([
               'item0',
               'item2',
@@ -2318,9 +2163,9 @@ describe('Element', function () {
           });
           it('updates keys correctly', function () {
             for (let i = 0; i < items.length; i++) {
-              expect(element.at(i).currentKey).to.equal(i);
-              expect(element.at(i).key).to.equal(i);
-              expect(element.at(i).value).to.equal(`item${i}`);
+              expect(element.at(i)?.currentKey).to.equal(i);
+              expect(element.at(i)?.key).to.equal(i);
+              expect(element.at(i)?.value).to.equal(`item${i}`);
             }
           });
         });
@@ -2333,9 +2178,9 @@ describe('Element', function () {
               ['00', '01', '02'],
               ['10', '11', '12'],
             ];
-            const element = new Element('items', items, false, doc);
+            const element = new Element('items', items, doc);
             before(function () {
-              element.at(0).insertAfter(element.at(0).at(1), '$new', '99');
+              element.at(0)?.insertAfter(element.at(0)!.at(1)!, '$new', '99');
               expect(element.generateObject()).to.deep.equal([
                 ['00', '01', '99', '02'],
                 ['10', '11', '12'],
@@ -2351,11 +2196,11 @@ describe('Element', function () {
               for (let i = 0; i < items.length; i++) {
                 for (let j = 0; j < items[0].length; j++) {
                   const parent = element.at(i);
-                  expect(parent.currentKey).to.equal(i);
-                  expect(parent.key).to.equal(i);
-                  expect(parent.at(j).currentKey).to.equal(j);
-                  expect(parent.at(j).key).to.equal(j);
-                  expect(parent.at(j).value).to.equal(`${i}${j}`);
+                  expect(parent?.currentKey).to.equal(i);
+                  expect(parent?.key).to.equal(i);
+                  expect(parent?.at(j)?.currentKey).to.equal(j);
+                  expect(parent?.at(j)?.key).to.equal(j);
+                  expect(parent?.at(j)?.value).to.equal(`${i}${j}`);
                 }
               }
             });
@@ -2366,9 +2211,9 @@ describe('Element', function () {
               ['00', '01', '02'],
               ['10', '11', '12'],
             ];
-            const element = new Element('items', items, false, doc);
+            const element = new Element('items', items, doc);
             before(function () {
-              element.at(0).at(1).remove();
+              element.at(0)?.at(1)?.remove();
               expect(element.generateObject()).to.deep.equal([
                 ['00', '02'],
                 ['10', '11', '12'],
@@ -2383,11 +2228,11 @@ describe('Element', function () {
               for (let i = 0; i < items.length; i++) {
                 for (let j = 0; j < items[0].length; j++) {
                   const parent = element.at(i);
-                  expect(parent.currentKey).to.equal(i);
-                  expect(parent.key).to.equal(i);
-                  expect(parent.at(j).currentKey).to.equal(j);
-                  expect(parent.at(j).key).to.equal(j);
-                  expect(parent.at(j).value).to.equal(`${i}${j}`);
+                  expect(parent?.currentKey).to.equal(i);
+                  expect(parent?.key).to.equal(i);
+                  expect(parent?.at(j)?.currentKey).to.equal(j);
+                  expect(parent?.at(j)?.key).to.equal(j);
+                  expect(parent?.at(j)?.value).to.equal(`${i}${j}`);
                 }
               }
             });
@@ -2400,14 +2245,14 @@ describe('Element', function () {
               ['00', '01', '02'],
               ['10', '11', '12'],
             ];
-            const element = new Element('items', items, false, doc);
+            const element = new Element('items', items, doc);
             before(function () {
-              element.at(0).insertAfter(element.at(0).at(1), '$new', '99');
+              element.at(0)?.insertAfter(element.at(0)!.at(1)!, '$new', '99');
               expect(element.generateObject()).to.deep.equal([
                 ['00', '01', '99', '02'],
                 ['10', '11', '12'],
               ]);
-              element.at(0).revert();
+              element.at(0)?.revert();
             });
             it('maintains the original with generateOriginalObject', function () {
               expect(element.generateOriginalObject()).to.deep.equal(items);
@@ -2420,11 +2265,11 @@ describe('Element', function () {
               for (let i = 0; i < items.length; i++) {
                 for (let j = 0; j < items[0].length; j++) {
                   const parent = element.at(i);
-                  expect(parent.currentKey).to.equal(i);
-                  expect(parent.key).to.equal(i);
-                  expect(parent.at(j).currentKey).to.equal(j);
-                  expect(parent.at(j).key).to.equal(j);
-                  expect(parent.at(j).value).to.equal(`${i}${j}`);
+                  expect(parent?.currentKey).to.equal(i);
+                  expect(parent?.key).to.equal(i);
+                  expect(parent?.at(j)?.currentKey).to.equal(j);
+                  expect(parent?.at(j)?.key).to.equal(j);
+                  expect(parent?.at(j)?.value).to.equal(`${i}${j}`);
                 }
               }
             });
@@ -2435,14 +2280,14 @@ describe('Element', function () {
               ['00', '01', '02'],
               ['10', '11', '12'],
             ];
-            const element = new Element('items', items, false, doc);
+            const element = new Element('items', items, doc);
             before(function () {
-              element.at(0).at(1).remove();
+              element.at(0)?.at(1)?.remove();
               expect(element.generateObject()).to.deep.equal([
                 ['00', '02'],
                 ['10', '11', '12'],
               ]);
-              element.at(0).revert();
+              element.at(0)?.revert();
             });
             it('maintains the original with generateOriginalObject', function () {
               expect(element.generateOriginalObject()).to.deep.equal(items);
@@ -2455,11 +2300,11 @@ describe('Element', function () {
               for (let i = 0; i < items.length; i++) {
                 for (let j = 0; j < items[0].length; j++) {
                   const parent = element.at(i);
-                  expect(parent.currentKey).to.equal(i);
-                  expect(parent.key).to.equal(i);
-                  expect(parent.at(j).currentKey).to.equal(j);
-                  expect(parent.at(j).key).to.equal(j);
-                  expect(parent.at(j).value).to.equal(`${i}${j}`);
+                  expect(parent?.currentKey).to.equal(i);
+                  expect(parent?.key).to.equal(i);
+                  expect(parent?.at(j)?.currentKey).to.equal(j);
+                  expect(parent?.at(j)?.key).to.equal(j);
+                  expect(parent?.at(j)?.value).to.equal(`${i}${j}`);
                 }
               }
             });
@@ -2472,14 +2317,14 @@ describe('Element', function () {
               ['00', '01', '02'],
               ['10', '11', '12'],
             ];
-            const element = new Element('items', items, false, doc);
+            const element = new Element('items', items, doc);
             before(function () {
-              element.at(0).insertAfter(element.at(0).at(1), '$new', '99');
+              element.at(0)?.insertAfter(element.at(0)!.at(1)!, '$new', '99');
               expect(element.generateObject()).to.deep.equal([
                 ['00', '01', '99', '02'],
                 ['10', '11', '12'],
               ]);
-              element.at(0).at(2).revert();
+              element.at(0)?.at(2)?.revert();
             });
             it('reverts the document', function () {
               expect(element.generateObject()).to.deep.equal(items);
@@ -2489,11 +2334,11 @@ describe('Element', function () {
               for (let i = 0; i < items.length; i++) {
                 for (let j = 0; j < items[0].length; j++) {
                   const parent = element.at(i);
-                  expect(parent.currentKey).to.equal(i);
-                  expect(parent.key).to.equal(i);
-                  expect(parent.at(j).currentKey).to.equal(j);
-                  expect(parent.at(j).key).to.equal(j);
-                  expect(parent.at(j).value).to.equal(`${i}${j}`);
+                  expect(parent?.currentKey).to.equal(i);
+                  expect(parent?.key).to.equal(i);
+                  expect(parent?.at(j)?.currentKey).to.equal(j);
+                  expect(parent?.at(j)?.key).to.equal(j);
+                  expect(parent?.at(j)?.value).to.equal(`${i}${j}`);
                 }
               }
             });
@@ -2504,14 +2349,14 @@ describe('Element', function () {
               ['00', '01', '02'],
               ['10', '11', '12'],
             ];
-            const element = new Element('items', items, false, doc);
+            const element = new Element('items', items, doc);
             before(function () {
-              element.at(0).at(1).remove();
+              element.at(0)?.at(1)?.remove();
               expect(element.generateObject()).to.deep.equal([
                 ['00', '02'],
                 ['10', '11', '12'],
               ]);
-              element.at(0).at(1).revert();
+              element.at(0)?.at(1)?.revert();
             });
             it('maintains the original with generateOriginalObject', function () {
               expect(element.generateOriginalObject()).to.deep.equal(items);
@@ -2524,11 +2369,11 @@ describe('Element', function () {
               for (let i = 0; i < items.length; i++) {
                 for (let j = 0; j < items[0].length; j++) {
                   const parent = element.at(i);
-                  expect(parent.currentKey).to.equal(i);
-                  expect(parent.key).to.equal(i);
-                  expect(parent.at(j).currentKey).to.equal(j);
-                  expect(parent.at(j).key).to.equal(j);
-                  expect(parent.at(j).value).to.equal(`${i}${j}`);
+                  expect(parent?.currentKey).to.equal(i);
+                  expect(parent?.key).to.equal(i);
+                  expect(parent?.at(j)?.currentKey).to.equal(j);
+                  expect(parent?.at(j)?.key).to.equal(j);
+                  expect(parent?.at(j)?.value).to.equal(`${i}${j}`);
                 }
               }
             });
@@ -2543,10 +2388,10 @@ describe('Element', function () {
         ['00', '01', '02'],
         ['10', '11', '12'],
       ];
-      const element = new Element('items', items, false, doc);
+      const element = new Element('items', items, doc);
       before(function () {
-        element.at(1).at(0).remove();
-        element.at(0).insertAfter(element.at(0).at(0), '$new', '99');
+        element.at(1)?.at(0)?.remove();
+        element.at(0)?.insertAfter(element.at(0)!.at(0)!, '$new', '99');
         expect(element.generateObject()).to.deep.equal([
           ['00', '99', '01', '02'],
           ['11', '12'],
@@ -2564,11 +2409,11 @@ describe('Element', function () {
         for (let i = 0; i < items.length; i++) {
           for (let j = 0; j < items[0].length; j++) {
             const parent = element.at(i);
-            expect(parent.currentKey).to.equal(i);
-            expect(parent.key).to.equal(i);
-            expect(parent.at(j).currentKey).to.equal(j);
-            expect(parent.at(j).key).to.equal(j);
-            expect(parent.at(j).value).to.equal(`${i}${j}`);
+            expect(parent?.currentKey).to.equal(i);
+            expect(parent?.key).to.equal(i);
+            expect(parent?.at(j)?.currentKey).to.equal(j);
+            expect(parent?.at(j)?.key).to.equal(j);
+            expect(parent?.at(j)?.value).to.equal(`${i}${j}`);
           }
         }
       });
