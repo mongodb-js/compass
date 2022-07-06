@@ -134,7 +134,7 @@ export const cancelExplain = (): ThunkAction<
 };
 
 export const explainAggregation = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions

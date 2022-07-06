@@ -82,7 +82,7 @@ export const cancelCount = (): ThunkAction<void, RootState, void, Actions> => {
 };
 
 export const countDocuments = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions
