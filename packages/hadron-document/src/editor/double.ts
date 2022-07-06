@@ -38,7 +38,7 @@ export default class DoubleEditor extends StandardEditor {
   edit(value: BSONValue): void {
     try {
       const double = TypeChecker.cast(value, 'Double');
-      if (isNaN(double.valueOf())) {
+      if (isNaN(double.value)) {
         this.element.setInvalid(
           value,
           'Double',

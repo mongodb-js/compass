@@ -56,7 +56,7 @@ describe('Document', function () {
     const doc = new Document({
       array: ['1', [['1', ['inner array']]]],
       object: { a: { b: { c: { d: 'inner object' } } } },
-      mixed: { a: [{ b: [1, { c: 'inner mixed' }] }] },
+      mixed: { a: [{ b: ['abc', { c: 'inner mixed' }] }] },
     });
     context('when path is empty', function () {
       it('returns undefined', function () {
@@ -117,7 +117,7 @@ describe('Document', function () {
         const element = doc.getChild(['mixed', 'a', 0, 'b']);
         expect(element?.currentType).to.equal('Array');
         expect(element?.generateObject()).to.deep.equal([
-          1,
+          'abc',
           { c: 'inner mixed' },
         ]);
       });
@@ -126,15 +126,15 @@ describe('Document', function () {
 
   describe('#generateObject', function () {
     context('when nothing has been loaded', function () {
-      const doc = new Document({ _id: 1 });
+      const doc = new Document({ _id: 'abc' });
 
       it('generates the appropriate document', function () {
-        expect(doc.generateObject()).to.deep.equal({ _id: 1 });
+        expect(doc.generateObject()).to.deep.equal({ _id: 'abc' });
       });
     });
 
     context('when the list is partially loaded', function () {
-      const doc = new Document({ _id: 1, name: 'test' });
+      const doc = new Document({ _id: 'abc', name: 'test' });
 
       before(function () {
         for (const element of doc.elements) {
@@ -144,37 +144,43 @@ describe('Document', function () {
       });
 
       it('generates the appropriate document', function () {
-        expect(doc.generateObject()).to.deep.equal({ _id: 1, name: 'test' });
-      });
-    });
-
-    context('when adding to the document before iterating', function () {
-      const doc = new Document({ _id: 1 });
-
-      before(function () {
-        doc.insertEnd('name', 'test');
-      });
-
-      it('generates the appropriate document', function () {
-        expect(doc.generateObject()).to.deep.equal({ _id: 1, name: 'test' });
-      });
-    });
-  });
-
-  describe('#generateOriginalObject', function () {
-    context('with an unchanged document', function () {
-      const doc = new Document({ _id: 1, name: 'test' });
-
-      it('generates the appropriate document', function () {
-        expect(doc.generateOriginalObject()).to.deep.equal({
-          _id: 1,
+        expect(doc.generateObject()).to.deep.equal({
+          _id: 'abc',
           name: 'test',
         });
       });
     });
 
     context('when adding to the document before iterating', function () {
-      const doc = new Document({ _id: 1 });
+      const doc = new Document({ _id: 'abc' });
+
+      before(function () {
+        doc.insertEnd('name', 'test');
+      });
+
+      it('generates the appropriate document', function () {
+        expect(doc.generateObject()).to.deep.equal({
+          _id: 'abc',
+          name: 'test',
+        });
+      });
+    });
+  });
+
+  describe('#generateOriginalObject', function () {
+    context('with an unchanged document', function () {
+      const doc = new Document({ _id: 'abc', name: 'test' });
+
+      it('generates the appropriate document', function () {
+        expect(doc.generateOriginalObject()).to.deep.equal({
+          _id: 'abc',
+          name: 'test',
+        });
+      });
+    });
+
+    context('when adding to the document before iterating', function () {
+      const doc = new Document({ _id: 'abc' });
 
       before(function () {
         doc.insertEnd('name', 'test');
@@ -192,7 +198,7 @@ describe('Document', function () {
       });
 
       it('generates the appropriate original document', function () {
-        expect(doc.generateOriginalObject()).to.deep.equal({ _id: 1 });
+        expect(doc.generateOriginalObject()).to.deep.equal({ _id: 'abc' });
       });
     });
   });
@@ -762,10 +768,10 @@ describe('Document', function () {
       function () {
         const doc = {
           _id: 'testing',
-          a: { nestedField1: 5, nestedField2: 'aaa' },
+          a: { nestedField1: 'abc', nestedField2: 'aaa' },
         };
         const hadronDoc = new Document(doc);
-        hadronDoc.get('a')?.get('nestedField1')?.edit(10);
+        hadronDoc.get('a')?.get('nestedField1')?.edit('cba');
 
         it('has the original value for the edited value in the query', function () {
           const { query } =
@@ -773,7 +779,7 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 5, nestedField2: 'aaa' },
+            a: { nestedField1: 'abc', nestedField2: 'aaa' },
           });
         });
 
@@ -783,7 +789,7 @@ describe('Document', function () {
 
           expect(updateDoc).to.deep.equal({
             $set: {
-              a: { nestedField1: 10, nestedField2: 'aaa' },
+              a: { nestedField1: 'cba', nestedField2: 'aaa' },
             },
           });
         });
@@ -793,7 +799,7 @@ describe('Document', function () {
     context(
       'when a nested element has been renamed in the document',
       function () {
-        const doc = { _id: 'testing', a: { nestedField1: 5, bbb: 'vvv' } };
+        const doc = { _id: 'testing', a: { nestedField1: 'abc', bbb: 'vvv' } };
         const hadronDoc = new Document(doc);
         hadronDoc.get('a')?.get('nestedField1')?.rename('newname');
 
@@ -803,7 +809,7 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 5, bbb: 'vvv' },
+            a: { nestedField1: 'abc', bbb: 'vvv' },
           });
         });
 
@@ -813,7 +819,7 @@ describe('Document', function () {
 
           expect(updateDoc).to.deep.equal({
             $set: {
-              a: { newname: 5, bbb: 'vvv' },
+              a: { newname: 'abc', bbb: 'vvv' },
             },
           });
         });
@@ -825,7 +831,7 @@ describe('Document', function () {
       function () {
         const doc = {
           _id: 'testing',
-          a: { nestedField1: 5, nestedField2: 'aaa' },
+          a: { nestedField1: 'abc', nestedField2: 'aaa' },
         };
         const hadronDoc = new Document(doc);
         hadronDoc.get('a')?.get('nestedField1')?.remove();
@@ -836,7 +842,7 @@ describe('Document', function () {
 
           expect(query).to.deep.equal({
             _id: 'testing',
-            a: { nestedField1: 5, nestedField2: 'aaa' },
+            a: { nestedField1: 'abc', nestedField2: 'aaa' },
           });
         });
 

@@ -20,8 +20,8 @@ export type TypeCastMap = {
   Code: Code;
   Date: Date;
   Decimal128: Decimal128;
-  Double: Double | number;
-  Int32: Int32 | number;
+  Double: Double;
+  Int32: Int32;
   Int64: Long;
   MaxKey: MaxKey;
   MinKey: MinKey;

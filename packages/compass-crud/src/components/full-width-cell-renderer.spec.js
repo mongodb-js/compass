@@ -140,13 +140,13 @@ describe('<FullWidthCellRenderer />', () => {
           const actions = getActions();
           const context = getContext([]);
           before((done) => {
-            rowNode = getNode({toAdd: 1, toTypeChange: 2});
+            rowNode = getNode({toAdd: '1', toTypeChange: '2'});
             rowNode.data.state = 'editing';
             data = rowNode.data;
 
             data.hadronDocument.get('toAdd').remove();
-            data.hadronDocument.insertEnd('toRemove', 3);
-            data.hadronDocument.get('toTypeChange').edit('2');
+            data.hadronDocument.insertEnd('toRemove', '3');
+            data.hadronDocument.get('toTypeChange').edit(false);
 
             component = mount(
               <FullWidthCellRenderer
@@ -170,7 +170,7 @@ describe('<FullWidthCellRenderer />', () => {
           it('calls replaceDoc', () => {
             expect(actions.replaceDoc.callCount).to.equal(1);
             expect(actions.replaceDoc.alwaysCalledWithExactly(
-              '1', '1', {toAdd: 1, toTypeChange: 2, _id: '1'})
+              '1', '1', {toAdd: '1', toTypeChange: '2', _id: '1'})
             ).to.equal(true);
           });
           it('calls cleanCols', () => {
@@ -182,7 +182,7 @@ describe('<FullWidthCellRenderer />', () => {
           });
           it('calls cancel on the HadronDocument', () => {
             expect(data.hadronDocument.generateObject()).to.deep.equal({
-              _id: '1', toAdd: 1, toTypeChange: 2
+              _id: '1', toAdd: '1', toTypeChange: '2'
             });
           });
           it('removes the footer', () => {
@@ -197,7 +197,7 @@ describe('<FullWidthCellRenderer />', () => {
           const actions = getActions();
           const context = getContext(['field does not exist']);
           before((done) => {
-            rowNode = getNode({toAdd: 1, toTypeChange: 2});
+            rowNode = getNode({toAdd: '1', toTypeChange: '2'});
             rowNode.data.state = 'editing';
             data = rowNode.data;
 
@@ -234,7 +234,7 @@ describe('<FullWidthCellRenderer />', () => {
           });
           it('calls cancel on the HadronDocument', () => {
             expect(data.hadronDocument.generateObject()).to.deep.equal({
-              _id: '1', toAdd: 1, toTypeChange: 2
+              _id: '1', toAdd: '1', toTypeChange: '2'
             });
           });
           it('removes the footer', () => {

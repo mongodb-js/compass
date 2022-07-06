@@ -197,10 +197,10 @@ describe('Element', function () {
 
     context('when the element has child elements', function () {
       context('when the type is array', function () {
-        const element = new Element('test', [1, 2], doc);
+        const element = new Element('test', ['a', 'b'], doc);
 
         it('returns the array', function () {
-          expect(element.generateObject()).to.deep.equal([1, 2]);
+          expect(element.generateObject()).to.deep.equal(['a', 'b']);
         });
       });
 
@@ -214,19 +214,19 @@ describe('Element', function () {
     });
 
     context('when the element has no child elements', function () {
-      context('when the current value is 0', function () {
-        const element = new Element('test', 0, doc);
+      context('when the current value is a', function () {
+        const element = new Element('test', 'a', doc);
 
-        it('returns 0', function () {
-          expect(element.generateObject()).to.equal(0);
+        it('returns "a"', function () {
+          expect(element.generateObject()).to.deep.equal('a');
         });
       });
 
-      context('when the current value is 1', function () {
-        const element = new Element('test', 1, doc);
+      context('when the current value is "b"', function () {
+        const element = new Element('test', 'b', doc);
 
         it('returns 1', function () {
-          expect(element.generateObject()).to.equal(1);
+          expect(element.generateObject()).to.deep.equal('b');
         });
       });
 
@@ -277,10 +277,10 @@ describe('Element', function () {
 
     context('when the element has child elements', function () {
       context('when the type is array', function () {
-        const element = new Element('test', [1, 2], doc);
+        const element = new Element('test', ['a', 'b'], doc);
 
         it('returns the array', function () {
-          expect(element.generateOriginalObject()).to.deep.equal([1, 2]);
+          expect(element.generateOriginalObject()).to.deep.equal(['a', 'b']);
         });
       });
 
@@ -296,19 +296,19 @@ describe('Element', function () {
     });
 
     context('when the element has no child elements', function () {
-      context('when the current value is 0', function () {
-        const element = new Element('test', 0, doc);
+      context('when the current value is "a"', function () {
+        const element = new Element('test', 'a', doc);
 
         it('returns 0', function () {
-          expect(element.generateOriginalObject()).to.equal(0);
+          expect(element.generateOriginalObject()).to.equal('a');
         });
       });
 
-      context('when the current value is 1', function () {
-        const element = new Element('test', 1, doc);
+      context('when the current value is "b"', function () {
+        const element = new Element('test', 'b', doc);
 
         it('returns 1', function () {
-          expect(element.generateOriginalObject()).to.equal(1);
+          expect(element.generateOriginalObject()).to.deep.equal('b');
         });
       });
 

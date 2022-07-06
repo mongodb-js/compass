@@ -95,7 +95,7 @@ export class Element extends EventEmitter {
    */
   constructor(
     key: string | number,
-    value: BSONValue,
+    value: BSONValue | number,
     parent: Element | Document | null = null,
     added = false
   ) {
@@ -110,6 +110,12 @@ export class Element extends EventEmitter {
     this.currentType = this.type;
     this.level = this._getLevel();
     this.setValid();
+
+    // Make sure that all values that element will hold onto will be explicit
+    // bson types: convert JavaScript numbers to either Int32 or Double
+    if (typeof value === 'number') {
+      value = TypeChecker.cast(value, TypeChecker.type(value));
+    }
 
     if (this._isExpandable(value)) {
       // NB: Important to set `originalExpandableValue` first as element
@@ -737,7 +743,7 @@ export class Element extends EventEmitter {
    * @returns The elements.
    */
   _generateElements(object: BSONObject | BSONArray): ElementList {
-    return new ElementList(this, object); // eslint-disable-line no-use-before-define
+    return new ElementList(this, object);
   }
 
   /**
