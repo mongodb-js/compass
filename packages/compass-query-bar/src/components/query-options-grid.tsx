@@ -24,13 +24,13 @@ const docsLinkContainerStyles = css({
   paddingRight: spacing[2],
   whiteSpace: 'nowrap',
   display: 'flex',
-  justifyContent: 'flex-end',
 });
 
 const numericEditorsGridAreaStyles = css({
   gridArea: 'rest',
   display: 'flex',
   gap: `0px ${spacing[2]}px`,
+  justifyContent: 'space-between',
 });
 
 const COLUMNS = 6;
