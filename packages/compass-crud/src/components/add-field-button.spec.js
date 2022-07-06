@@ -39,9 +39,9 @@ describe('<AddFieldButton />', () => {
             drillDown={actions.drillDown}
             columnApi={columnApi}
             buttonRef="test"
-            displace={20}
             context={context}
-            displace={0}/>
+            displace={0}
+          />
         );
         done();
       });
@@ -195,7 +195,7 @@ describe('<AddFieldButton />', () => {
             notCalledExcept(actions, ['addColumn']);
           });
           it('adds the new element after the current element', () => {
-            expect(value.parent.elements.findNext(value).currentKey).to.equal('$new');
+            expect(value.nextElement.currentKey).to.equal('$new');
           });
         });
       });
@@ -232,7 +232,7 @@ describe('<AddFieldButton />', () => {
           notCalledExcept(actions, ['addColumn']);
         });
         it('adds the new element to the sub element', () => {
-          expect(value.parent.elements.findNext(value).currentKey).to.equal('$new');
+          expect(value.nextElement.currentKey).to.equal('$new');
           expect(rowNode.data.hadronDocument.generateObject()).to.deep.equal({
             _id: '1', field0: {field1: 'value', $new: ''}
           });
@@ -275,7 +275,7 @@ describe('<AddFieldButton />', () => {
               notCalledExcept(actions, ['addColumn']);
             });
             it('adds the new element to the sub element', () => {
-              expect(value.parent.elements.findNext(value).currentKey).to.equal(3);
+              expect(value.nextElement.currentKey).to.equal(3);
               expect(rowNode.data.hadronDocument.generateObject()).to.deep.equal({
                 _id: '1', field0: ['value0', 'value1', 'value2', '']});
             });
@@ -313,7 +313,7 @@ describe('<AddFieldButton />', () => {
               notCalledExcept(actions, ['addColumn']);
             });
             it('adds the new element to the sub element', () => {
-              expect(value.parent.elements.findNext(value).currentKey).to.equal(2);
+              expect(value.nextElement.currentKey).to.equal(2);
               expect(rowNode.data.hadronDocument.generateObject()).to.deep.equal({
                 _id: '1', field0: ['value0', 'value1', '', 'value2']});
             });
@@ -354,7 +354,7 @@ describe('<AddFieldButton />', () => {
               notCalledExcept(actions, ['addColumn']);
             });
             it('adds the new element to the sub element', () => {
-              expect(value.parent.elements.findNext(value).currentKey).to.equal(3);
+              expect(value.nextElement.currentKey).to.equal(3);
               expect(rowNode.data.hadronDocument.generateObject()).to.deep.equal({
                 _id: '1', field0: ['value0', 'value1', 'value2', '']});
             });
@@ -392,7 +392,7 @@ describe('<AddFieldButton />', () => {
               notCalledExcept(actions, ['addColumn']);
             });
             it('adds the new element to the sub element', () => {
-              expect(value.parent.elements.findNext(value).currentKey).to.equal(2);
+              expect(value.nextElement.currentKey).to.equal(2);
               expect(rowNode.data.hadronDocument.generateObject()).to.deep.equal({
                 _id: '1', field0: ['value0', 'value1', '', 'value2']});
             });
@@ -436,7 +436,7 @@ describe('<AddFieldButton />', () => {
       });
       it('adds the new element to the sub element', () => {
         const child = rowNode.data.hadronDocument.getChild(['field0', 'field1']);
-        expect(child.parent.elements.findNext(child).currentKey).to.equal('$new');
+        expect(child.nextElement.currentKey).to.equal('$new');
         expect(rowNode.data.hadronDocument.generateObject()).to.deep.equal({
           _id: '1', field0: {field1: 'value', $new: ''}
         });

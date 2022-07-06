@@ -138,6 +138,14 @@ export class Element extends EventEmitter {
       .includes(String(key));
   }
 
+  get nextElement(): Element | undefined {
+    return this.parent?.elements?.findNext(this);
+  }
+
+  get previousElement(): Element | undefined {
+    return this.parent?.elements?.findPrevious(this);
+  }
+
   _getLevel(): number {
     let level = -1;
     let parent = this.parent;
