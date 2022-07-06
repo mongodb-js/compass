@@ -1,4 +1,3 @@
-
 /**
  * The edit mode changed action.
  */
@@ -11,7 +10,7 @@ export const INITIAL_STATE = {
   collectionReadOnly: false,
   hadronReadOnly: false,
   writeStateStoreReadOnly: false,
-  oldServerReadOnly: false
+  oldServerReadOnly: false,
 };
 
 /**
@@ -39,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const editModeChanged = (editMode) => ({
   type: EDIT_MODE_CHANGED,
-  editMode
+  editMode,
 });

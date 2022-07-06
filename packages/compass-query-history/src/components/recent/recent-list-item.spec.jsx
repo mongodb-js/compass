@@ -82,21 +82,21 @@ describe('RecentListItem [Component]', function() {
       const node = component.find('[data-test-id="query-history-button-fav"]');
       node.simulate('click');
 
-      actions.saveRecent.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.saveRecent).to.have.been.calledOnce;
     });
 
     it('should call the copyQuery action when the copy query button is clicked', function() {
       const node = component.find('[data-test-id="query-history-button-copy-query"]');
       node.simulate('click');
 
-      actions.copyQuery.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.copyQuery).to.have.been.calledOnce;
     });
 
     it('should call the deleteRecent action when the copy query button is clicked', function() {
       const node = component.find('[data-test-id="query-history-button-delete-recent"]');
       node.simulate('click');
 
-      actions.deleteRecent.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.deleteRecent).to.have.been.calledOnce;
     });
   });
 });

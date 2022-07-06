@@ -80,14 +80,14 @@ describe('FavoriteListItem [Component]', function() {
       const node = component.find('[data-test-id="query-history-button-copy-query"]');
       node.simulate('click');
 
-      actions.copyQuery.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.copyQuery).to.have.been.calledOnce;
     });
 
     it('should call the deleteFavorite action when the copy query button is clicked', function() {
       const node = component.find('[data-test-id="query-history-button-delete-fav"]');
       node.simulate('click');
 
-      actions.deleteFavorite.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.deleteFavorite).to.have.been.calledOnce;
     });
   });
 });

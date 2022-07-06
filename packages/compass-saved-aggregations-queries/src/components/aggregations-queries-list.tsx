@@ -154,13 +154,17 @@ const AggregationsQueriesList = ({
     (id: string, actionName: Action) => {
       switch (actionName) {
         case 'open':
-          return onOpenItem(id);
+          onOpenItem(id);
+          return;
         case 'rename':
-          return onEditItem(id);
+          onEditItem(id);
+          return;
         case 'delete':
-          return onDeleteItem(id);
+          onDeleteItem(id);
+          return;
         case 'copy':
-          return onCopyToClipboard(id);
+          void onCopyToClipboard(id);
+          return;
       }
     },
     [onOpenItem, onEditItem, onDeleteItem, onCopyToClipboard]

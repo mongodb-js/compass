@@ -3,6 +3,7 @@ import React from 'react';
 
 const formFieldContainerStyles = css({
   marginTop: spacing[3],
+  width: spacing[7] * 6,
 });
 
 function FormFieldContainer({

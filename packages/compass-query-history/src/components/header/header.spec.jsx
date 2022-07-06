@@ -54,10 +54,10 @@ describe('Header [Component]', function() {
 
     it('should close the query history side bar when the close button is clicked', function() {
       component = shallow(<Header actions={actions} showing="recent" />);
-      const node = component.find('[data-test-id="query-history-button-close-panel"]').hostNodes();
+      const node = component.find('[data-test-id="query-history-button-close-panel"]');
 
       node.simulate('click');
-      actions.collapse.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.collapse).to.have.been.calledOnce;
     });
 
     describe('when viewing the Recent Queries tab', function() {
@@ -73,14 +73,14 @@ describe('Header [Component]', function() {
         const node = component.find({ 'data-test-id': 'past-queries-favorites' }).hostNodes();
 
         node.simulate('click');
-        actions.showFavorites.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+        expect(actions.showFavorites).to.have.been.calledOnce;
       });
 
       it('it should be a no-op twhen the Recents button is clicked', function() {
         const node = component.find({ 'data-test-id': 'past-queries-recent' }).hostNodes();
 
         node.simulate('click');
-        actions.showFavorites.should.not.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+        expect(actions.showFavorites).to.not.have.been.calledOnce;
       });
     });
 
@@ -97,14 +97,14 @@ describe('Header [Component]', function() {
         const node = component.find({ 'data-test-id': 'past-queries-recent' }).hostNodes();
 
         node.simulate('click');
-        actions.showRecent.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+        expect(actions.showRecent).to.have.been.calledOnce;
       });
 
       it('it should be a no-op twhen the Favorites button is clicked', function() {
         const node = component.find({ 'data-test-id': 'past-queries-favorites' }).hostNodes();
 
         node.simulate('click');
-        actions.showRecent.should.not.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+        expect(actions.showRecent).to.not.have.been.calledOnce;
       });
     });
   });

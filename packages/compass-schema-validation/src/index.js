@@ -10,7 +10,7 @@ const ROLE = {
   configureStore: configureStore,
   configureActions: () => {},
   storeName: 'CompassSchemaValidation.Store',
-  actionName: 'CompassSchemaValidation.Action'
+  actionName: 'CompassSchemaValidation.Action',
 };
 
 /**

@@ -1,16 +1,28 @@
+const { TestBackend } = require('storage-mixin');
 import { expect } from 'chai';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 import AppRegistry from 'hadron-app-registry';
 
 import configureStore from '../../src/stores/recent-list-store';
 
 describe('RecentListStore [Store]', function() {
+  let tmpDir;
   let store;
   let appRegistry;
 
   beforeEach(function() {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recent-list-store-tests'));
+    TestBackend.enable(tmpDir);
     appRegistry = new AppRegistry();
     store = configureStore({ localAppRegistry: appRegistry });
   });
+
+  afterEach(function() {
+    TestBackend.disable();
+    fs.rmdirSync(tmpDir, { recursive: true });
+  })
 
   describe('#init', function() {
     it('initializes with the recent list', function() {
@@ -92,8 +104,7 @@ describe('RecentListStore [Store]', function() {
     });
   });
 
-  // TODO: this writes files to the current folder
-  describe.skip('#addRecent', function() {
+  describe('#addRecent', function() {
     it('ignores duplicate queries', function() {
       expect(store.state.items.length).to.equal(0);
 

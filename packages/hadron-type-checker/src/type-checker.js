@@ -208,7 +208,8 @@ const toObjectID = (object) => {
 };
 
 const toBinary = (object) => {
-  return new Binary('' + object, Binary.SUBTYPE_DEFAULT);
+  const buffer = ArrayBuffer.isView(object) ? Buffer.from(object) : Buffer.from(toString(object), 'utf8');
+  return new Binary(buffer, Binary.SUBTYPE_DEFAULT);
 };
 
 const toRegex = (object) => {

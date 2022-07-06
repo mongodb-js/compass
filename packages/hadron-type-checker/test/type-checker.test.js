@@ -42,6 +42,15 @@ describe('TypeChecker', function() {
             expect(TypeChecker.cast(value, 'ObjectId')).to.be.an.instanceof(bson.ObjectId);
           });
         });
+
+        context('when casting to a binary', function() {
+          it('returns a corresponding binary object', function() {
+            const value = 'yay 🎉';
+
+            expect(TypeChecker.cast(value, 'Binary')._bsontype).to.equal('Binary');
+            expect(TypeChecker.cast(value, 'Binary').toString()).to.equal(value);
+          });
+        });
       });
 
       context('when the string is an integer', function() {

@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import reducer, {
   INITIAL_STATE,
   LOAD_DETAILS_PLUGINS,
@@ -5,34 +7,34 @@ import reducer, {
 } from './details-plugins';
 import AppRegistry from 'hadron-app-registry';
 
-describe('details-plugins module', () => {
+describe('details-plugins module', function () {
   const appRegistry = new AppRegistry();
 
-  describe('reducer', () => {
-    before(() => {
+  describe('reducer', function () {
+    before(function () {
       appRegistry.registerRole('Sample.Item', { name: 'SAMPLE' });
     });
 
-    after(() => {
+    after(function () {
       appRegistry.deregisterRole('Sample.Item', { name: 'SAMPLE' });
     });
 
-    context('when the action is loadDetailsPlugins', () => {
-      it('returns the new state', () => {
+    context('when the action is loadDetailsPlugins', function () {
+      it('returns the new state', function () {
         expect(reducer(undefined, loadDetailsPlugins(appRegistry))).to.deep.equal(INITIAL_STATE);
       });
     });
 
-    context('when an action is not provided', () => {
-      it('returns the default state', () => {
+    context('when an action is not provided', function () {
+      it('returns the default state', function () {
         expect(reducer(undefined, {})).to.deep.equal(INITIAL_STATE);
       });
     });
   });
 
-  describe('#loadDetailsPlugins', () => {
-    context('when role is not registered', () => {
-      it('sets the empty array', () => {
+  describe('#loadDetailsPlugins', function () {
+    context('when role is not registered', function () {
+      it('sets the empty array', function () {
         expect(loadDetailsPlugins(appRegistry)).to.deep.equal({
           type: LOAD_DETAILS_PLUGINS,
           roles: INITIAL_STATE
@@ -40,16 +42,16 @@ describe('details-plugins module', () => {
       });
     });
 
-    context('when role does not match', () => {
-      before(() => {
+    context('when role does not match', function () {
+      before(function () {
         appRegistry.registerRole('Sample.Item', { name: 'SAMPLE' });
       });
 
-      after(() => {
+      after(function () {
         appRegistry.deregisterRole('Sample.Item', { name: 'SAMPLE' });
       });
 
-      it('sets the empty array', () => {
+      it('sets the empty array', function () {
         expect(loadDetailsPlugins(appRegistry)).to.deep.equal({
           type: LOAD_DETAILS_PLUGINS,
           roles: INITIAL_STATE
@@ -57,16 +59,16 @@ describe('details-plugins module', () => {
       });
     });
 
-    context('when `InstanceDetails.Item` is present', () => {
-      before(() => {
+    context('when `InstanceDetails.Item` is present', function () {
+      before(function () {
         appRegistry.registerRole('InstanceDetails.Item', { name: 'INSTANCEDETAILS' });
       });
 
-      after(() => {
+      after(function () {
         appRegistry.deregisterRole('InstanceDetails.Item', { name: 'INSTANCEDETAILS' });
       });
 
-      it('sets the roles array', () => {
+      it('sets the roles array', function () {
         expect(loadDetailsPlugins(appRegistry)).to.deep.equal({
           type: LOAD_DETAILS_PLUGINS,
           roles: [{ name: 'INSTANCEDETAILS' }]

@@ -4,7 +4,6 @@ import {
   Description,
   Label,
   FileInput,
-  css,
   cx,
 } from '@mongodb-js/compass-components';
 import {
@@ -13,10 +12,6 @@ import {
 } from './tls-ssl-tab';
 
 import FormFieldContainer from '../../form-field-container';
-
-const caFieldsContainer = css({
-  width: '80%',
-});
 
 function TLSCertificateAuthority({
   tlsCAFile,
@@ -37,7 +32,7 @@ function TLSCertificateAuthority({
   ) => void;
 }): React.ReactElement {
   return (
-    <FormFieldContainer className={caFieldsContainer}>
+    <FormFieldContainer>
       <FileInput
         description={
           displayDatabaseConnectionUserHints ? 'Learn More' : undefined

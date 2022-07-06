@@ -1,3 +1,7 @@
+const { TestBackend } = require('storage-mixin');
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 import bson from 'bson';
 import { expect } from 'chai';
 
@@ -8,9 +12,17 @@ import { RecentQuery } from '../../src/models';
 describe('FavoritesListStore [Store]', function() {
   const actions = configureActions();
   let store;
+  let tmpDir;
 
   beforeEach(function() {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recent-list-store-tests'));
+    TestBackend.enable(tmpDir);
     store = configureStore({ actions: actions });
+  });
+
+  afterEach(function() {
+    TestBackend.disable();
+    fs.rmdirSync(tmpDir, { recursive: true });
   });
 
   describe('#init', function() {
@@ -75,7 +87,7 @@ describe('FavoritesListStore [Store]', function() {
     const filter = { name: 'test' };
     const recent = new RecentQuery({ ns: ns, filter: filter });
 
-    before(function() {
+    beforeEach(function() {
       store.saveFavorite(recent, 'testing');
       const model = store.state.items.models[0];
       store.deleteFavorite(model);

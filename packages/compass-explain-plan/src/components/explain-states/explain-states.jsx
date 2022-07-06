@@ -15,6 +15,7 @@ import EXPLAIN_STATES from '../../constants/explain-states';
 import EXPLAIN_VIEWS from '../../constants/explain-views';
 
 import styles from './explain-states.module.less';
+import { ExplainToolbar } from '../explain-toolbar/explain-toolbar';
 
 /**
  * Readonly warning for the status row.
@@ -67,6 +68,7 @@ class ExplainStates extends Component {
       error: PropTypes.object,
       resultId: PropTypes.number.isRequired,
     }),
+    exportToLanguage: PropTypes.func.isRequired,
     fetchExplainPlan: PropTypes.func.isRequired,
     changeExplainPlanState: PropTypes.func.isRequired,
     switchToTreeView: PropTypes.func.isRequired,
@@ -109,6 +111,10 @@ class ExplainStates extends Component {
   onExecuteExplainClicked() {
     this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
     this.props.fetchExplainPlan(this.queryBarStore.state);
+  }
+
+  onExportToLanguageClicked() {
+    this.props.exportToLanguage(this.queryBarStore.state);
   }
 
   /**
@@ -239,15 +245,39 @@ class ExplainStates extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    return [
-      <div key="controls-container" className={styles['controls-container']}>
-        {this.renderBanner()}
-        {this.renderQueryBar()}
-        {this.renderViewSwitcher()}
-      </div>,
-      this.renderZeroState(),
-      this.renderContent(),
-    ];
+    const useNewToolbars = process?.env?.COMPASS_SHOW_NEW_TOOLBARS;
+    return (
+      <>
+        {useNewToolbars ? (
+          <ExplainToolbar
+            explainErrorMessage={this.props.explain.error?.message}
+            localAppRegistry={this.props.appRegistry.localAppRegistry}
+            onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
+            onExportToLanguageClicked={this.onExportToLanguageClicked.bind(
+              this
+            )}
+            showOutdatedWarning={
+              this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
+            }
+            showReadonlyWarning={!this.props.isEditable}
+            switchToTreeView={this.props.switchToTreeView}
+            switchToJSONView={this.props.switchToJSONView}
+            viewType={this.props.explain.viewType}
+          />
+        ) : (
+          <div
+            key="controls-container"
+            className={styles['controls-container']}
+          >
+            {this.renderBanner()}
+            {this.renderQueryBar()}
+            {this.renderViewSwitcher()}
+          </div>
+        )}
+        {this.renderZeroState()}
+        {this.renderContent()}
+      </>
+    );
   }
 }
 

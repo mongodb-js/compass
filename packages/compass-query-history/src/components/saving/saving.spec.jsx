@@ -125,7 +125,7 @@ describe('Saving [Component]', function() {
       const node = component.find('[data-test-id="query-history-saving-form-button-save"]');
 
       node.simulate('click');
-      actions.saveFavorite.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.saveFavorite).to.have.been.calledOnce;
     });
 
     it('should cancel the saving of the query as a favorite when the cancel button is clicked', function() {
@@ -133,7 +133,7 @@ describe('Saving [Component]', function() {
       const node = component.find('[data-test-id="query-history-saving-form-button-cancel"]');
 
       node.simulate('click');
-      actions.cancelSave.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.cancelSave).to.have.been.calledOnce;
     });
   });
 });

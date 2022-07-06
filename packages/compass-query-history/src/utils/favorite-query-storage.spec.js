@@ -30,7 +30,7 @@ describe('favorite-query-storage [Utils]', function() {
   let tmpDir;
   let favoriteQueryStorage;
   beforeEach(function() {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'connection-storage-tests'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'favorite-query-storage-tests'));
     TestBackend.enable(tmpDir);
     favoriteQueryStorage = new FavoriteQueryStorage();
   });

@@ -7,6 +7,7 @@ import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import BSONValue, { hasCustomColor, VALUE_COLOR_BY_TYPE } from '../bson-value';
 import { Tooltip } from '../tooltip';
+import { mergeProps } from '../../utils/merge-props';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -222,7 +223,12 @@ export const ValueEditor: React.FunctionComponent<{
             onMouseDown,
             /* eslint-enable @typescript-eslint/no-unused-vars */
             ...triggerProps
-          }: React.HTMLProps<HTMLInputElement>) => {
+          }: React.HTMLProps<HTMLElement>) => {
+            // NB: Order is important, if triggerProps has onFocus / onBlur we
+            // want to merge them with ours, if they are not passed, we want our
+            // listeners to overwrite undefined keys
+            const mergedProps = mergeProps(triggerProps, { onBlur, onFocus });
+
             return (
               <div className={className}>
                 {type === 'String' ? (
@@ -235,8 +241,6 @@ export const ValueEditor: React.FunctionComponent<{
                       onChange={(evt) => {
                         onChange(evt.currentTarget.value);
                       }}
-                      onFocus={onFocus}
-                      onBlur={onBlur}
                       // See ./element.tsx
                       // eslint-disable-next-line jsx-a11y/no-autofocus
                       autoFocus={autoFocus}
@@ -248,7 +252,7 @@ export const ValueEditor: React.FunctionComponent<{
                       )}
                       spellCheck="false"
                       style={inputStyle}
-                      {...(triggerProps as React.HTMLProps<HTMLTextAreaElement>)}
+                      {...(mergedProps as React.HTMLProps<HTMLTextAreaElement>)}
                     ></textarea>
                   </div>
                 ) : (
@@ -259,20 +263,17 @@ export const ValueEditor: React.FunctionComponent<{
                     onChange={(evt) => {
                       onChange(evt.currentTarget.value);
                     }}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
                     // See ./element.tsx
                     // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus={autoFocus}
                     className={cx(
                       editorReset,
                       editorOutline,
-                      getCustomColorStyle(type),
                       !valid && editorInvalid
                     )}
                     style={inputStyle}
                     spellCheck="false"
-                    {...triggerProps}
+                    {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
                   ></input>
                 )}
                 {children}

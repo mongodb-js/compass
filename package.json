@@ -1,7 +1,7 @@
 {
   "name": "mongodb-compass-monorepo",
   "description": "Monorepo that includes Compass and all its dependencies",
-  "homepage": "https://compass.mongodb.com",
+  "homepage": "https://www.mongodb.com/products/compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -58,6 +58,7 @@
     "@babel/parser": "7.16.0",
     "@testing-library/dom": "^8.11.1",
     "@webpack-cli/serve": "^0.2.0",
+    "babel-loader": "^7.1.5",
     "lerna": "^4.0.0",
     "node-gyp": "^8.4.1",
     "npm-cli-adduser": "^1.1.4",

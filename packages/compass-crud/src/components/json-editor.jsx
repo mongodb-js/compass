@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import jsonParse from 'fast-json-parse';
 import { DocumentList } from '@mongodb-js/compass-components';
 import HadronDocument from 'hadron-document';
-import UpdateDocumentFooter from './document-footer';
-import RemoveDocumentFooter from './remove-document-footer';
 
 import { Editor, EditorVariant } from '@mongodb-js/compass-components';
 
@@ -194,7 +191,13 @@ class EditableJson extends React.Component {
    * @param {String} value - changed value of json doc being edited.
    */
   handleOnChange(value) {
-    this.setState({ value, containsErrors: !!jsonParse(value).err });
+    let containsErrors = false;
+    try {
+      JSON.parse(value);
+    } catch {
+      containsErrors = true;
+    }
+    this.setState({ value, containsErrors });
   }
 
   /**
@@ -245,7 +248,6 @@ class EditableJson extends React.Component {
       highlightGutterLine: false,
       showLineNumbers: this.state.editing,
       fixedWidthGutter: false,
-      showPrintMargin: false,
       displayIndentGuides: false,
       wrapBehavioursEnabled: true,
       foldStyle: 'markbegin'
@@ -270,29 +272,26 @@ class EditableJson extends React.Component {
    * @returns {Component} The footer component.
    */
   renderFooter() {
-    if (this.state.editing) {
-      return (
-        <UpdateDocumentFooter
-          doc={this.props.doc}
-          replaceDocument={() => {
-            this.props.doc.apply(HadronDocument.FromEJSON(this.state.value));
-            this.props.replaceDocument(this.props.doc);
-          }}
-          cancelHandler={this.handleCancel.bind(this)}
-          editing={this.state.editing}
-          modified={this.state.value !== this.state.initialValue}
-          containsErrors={this.state.containsErrors}
-        />
-      );
-    } else if (this.state.deleting) {
-      return (
-        <RemoveDocumentFooter
-          doc={this.props.doc}
-          removeDocument={this.props.removeDocument}
-          cancelHandler={this.handleCancelRemove.bind(this)}
-        />
-      );
-    }
+    return (
+      <DocumentList.DocumentEditActionsFooter
+        doc={this.props.doc}
+        alwaysForceUpdate
+        editing={this.state.editing}
+        deleting={this.state.deleting}
+        modified={this.state.value !== this.state.initialValue}
+        containsErrors={this.state.containsErrors}
+        onUpdate={() => {
+          this.props.doc.apply(HadronDocument.FromEJSON(this.state.value));
+          this.props.replaceDocument(this.props.doc);
+        }}
+        onDelete={() => {
+          this.props.removeDocument(this.props.doc);
+        }}
+        onCancel={() => {
+          this.handleCancel();
+        }}
+      />
+    );
   }
 
   /**

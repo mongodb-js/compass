@@ -23,6 +23,12 @@ describe('<FullWidthCellRenderer />', () => {
     const api = getApi();
     const actions = getActions();
     const context = getContext([]);
+
+    after(() => {
+      component.unmount();
+      component = null;
+    });
+
     describe('editing mode', () => {
       describe('unmodified', () => {
         before((done) => {
@@ -44,17 +50,13 @@ describe('<FullWidthCellRenderer />', () => {
           done();
         });
         it('renders footer as editing', () => {
-          expect(component.find('.document-footer-is-viewing')).to.be.present();
+          expect(component.find('[data-testid="document-footer"]')).to.be.present();
         });
         it('renders the cancel button', () => {
-          expect(component.find({
-            'data-test-id': 'cancel-document-button'
-          })).to.be.present();
+          expect(component.find('button[data-testid="cancel-button"]')).to.be.present();
         });
         it('renders the update button', () => {
-          expect(component.find({
-            'data-test-id': 'update-document-button'
-          })).to.be.present();
+          expect(component.find('button[data-testid="update-button"]')).to.be.present();
         });
       });
       describe('modified', () => {
@@ -78,17 +80,17 @@ describe('<FullWidthCellRenderer />', () => {
           done();
         });
         it('renders footer as editing', () => {
-          expect(component.find('.document-footer-is-modified')).to.be.present();
+          expect(
+            component.find(
+              '[data-testid="document-footer"][data-status="Modified"]'
+            )
+          ).to.be.present();
         });
         it('renders the cancel button', () => {
-          expect(component.find({
-            'data-test-id': 'cancel-document-button'
-          })).to.be.present();
+          expect(component.find('button[data-testid="cancel-button"]')).to.be.present();
         });
         it('renders the update button', () => {
-          expect(component.find({
-            'data-test-id': 'update-document-button'
-          })).to.be.present();
+          expect(component.find('button[data-testid="update-button"]')).to.be.present();
         });
       });
     });
@@ -111,18 +113,18 @@ describe('<FullWidthCellRenderer />', () => {
         expect(component).to.be.present();
         done();
       });
-      it('renders footer as editing', () => {
-        expect(component.find('.document-footer-is-error')).to.be.present();
+      it('renders footer as deleting', () => {
+        expect(
+          component.find(
+            '[data-testid="document-footer"][data-status="Deleting"]'
+          )
+        ).to.be.present();
       });
       it('renders the cancel button', () => {
-        expect(component.find({
-          'data-test-id': 'cancel-document-button'
-        })).to.be.present();
+        expect(component.find('button[data-testid="cancel-button"]')).to.be.present();
       });
-      it('renders the update button', () => {
-        expect(component.find({
-          'data-test-id': 'confirm-delete-document-button'
-        })).to.be.present();
+      it('renders the delete button', () => {
+        expect(component.find('button[data-testid="delete-button"]')).to.be.present();
       });
     });
   });
@@ -138,13 +140,13 @@ describe('<FullWidthCellRenderer />', () => {
           const actions = getActions();
           const context = getContext([]);
           before((done) => {
-            rowNode = getNode({toAdd: 1, toTypeChange: 2});
+            rowNode = getNode({toAdd: '1', toTypeChange: '2'});
             rowNode.data.state = 'editing';
             data = rowNode.data;
 
             data.hadronDocument.get('toAdd').remove();
-            data.hadronDocument.insertEnd('toRemove', 3);
-            data.hadronDocument.get('toTypeChange').edit('2');
+            data.hadronDocument.insertEnd('toRemove', '3');
+            data.hadronDocument.get('toTypeChange').edit(false);
 
             component = mount(
               <FullWidthCellRenderer
@@ -157,7 +159,7 @@ describe('<FullWidthCellRenderer />', () => {
                 replaceDocument={actions.replaceDocument}
                 data={data}
                 context={context} />);
-            const wrapper = component.find({'data-test-id': 'cancel-document-button'});
+            const wrapper = component.find('button[data-testid="cancel-button"]');
             expect(wrapper).to.be.present();
             wrapper.simulate('click');
             done();
@@ -168,7 +170,7 @@ describe('<FullWidthCellRenderer />', () => {
           it('calls replaceDoc', () => {
             expect(actions.replaceDoc.callCount).to.equal(1);
             expect(actions.replaceDoc.alwaysCalledWithExactly(
-              '1', '1', {toAdd: 1, toTypeChange: 2, _id: '1'})
+              '1', '1', {toAdd: '1', toTypeChange: '2', _id: '1'})
             ).to.equal(true);
           });
           it('calls cleanCols', () => {
@@ -180,7 +182,7 @@ describe('<FullWidthCellRenderer />', () => {
           });
           it('calls cancel on the HadronDocument', () => {
             expect(data.hadronDocument.generateObject()).to.deep.equal({
-              _id: '1', toAdd: 1, toTypeChange: 2
+              _id: '1', toAdd: '1', toTypeChange: '2'
             });
           });
           it('removes the footer', () => {
@@ -195,7 +197,7 @@ describe('<FullWidthCellRenderer />', () => {
           const actions = getActions();
           const context = getContext(['field does not exist']);
           before((done) => {
-            rowNode = getNode({toAdd: 1, toTypeChange: 2});
+            rowNode = getNode({toAdd: '1', toTypeChange: '2'});
             rowNode.data.state = 'editing';
             data = rowNode.data;
 
@@ -213,7 +215,7 @@ describe('<FullWidthCellRenderer />', () => {
                 removeDocument={actions.removeDocument}
                 data={data}
                 context={context} />);
-            const wrapper = component.find({'data-test-id': 'cancel-document-button'});
+            const wrapper = component.find('button[data-testid="cancel-button"]');
             expect(wrapper).to.be.present();
             wrapper.simulate('click');
             done();
@@ -232,7 +234,7 @@ describe('<FullWidthCellRenderer />', () => {
           });
           it('calls cancel on the HadronDocument', () => {
             expect(data.hadronDocument.generateObject()).to.deep.equal({
-              _id: '1', toAdd: 1, toTypeChange: 2
+              _id: '1', toAdd: '1', toTypeChange: '2'
             });
           });
           it('removes the footer', () => {
@@ -262,9 +264,7 @@ describe('<FullWidthCellRenderer />', () => {
               replaceDocument={actions.replaceDocument}
               data={data}
               context={context} />);
-          const wrapper = component.find({
-            'data-test-id': 'cancel-document-button'
-          });
+          const wrapper = component.find('button[data-testid="cancel-button"]');
           expect(wrapper).to.be.present();
           wrapper.simulate('click');
           done();
@@ -289,7 +289,6 @@ describe('<FullWidthCellRenderer />', () => {
           rowNode = getNode({toRemove: 1}, oid);
           rowNode.data.state = 'editing';
           data = rowNode.data;
-          data.hadronDocument.elements.flush();
           data.hadronDocument.insertEnd('newfield', 'value');
           data.hadronDocument.get('toRemove').remove();
           component = mount(
@@ -303,10 +302,12 @@ describe('<FullWidthCellRenderer />', () => {
               replaceDocument={actions.replaceDocument}
               data={data}
               context={context} />);
-          expect(component.find('.document-footer-is-modified')).to.be.present();
-          const wrapper = component.find({
-            'data-test-id': 'update-document-button'
-          });
+          expect(
+            component.find(
+              '[data-testid="document-footer"][data-status="Modified"]'
+            )
+          ).to.be.present();
+          const wrapper = component.find('button[data-testid="update-button"]');
           expect(wrapper).to.be.present();
           wrapper.simulate('click');
         });
@@ -338,10 +339,12 @@ describe('<FullWidthCellRenderer />', () => {
               replaceDocument={actions.replaceDocument}
               data={data}
               context={context} />);
-          expect(component.find('.document-footer-is-error')).to.be.present();
-          const wrapper = component.find({
-            'data-test-id': 'confirm-delete-document-button'
-          });
+          expect(
+            component.find(
+              '[data-testid="document-footer"][data-status="Deleting"]'
+            )
+          ).to.be.present();
+          const wrapper = component.find('button[data-testid="delete-button"]');
           expect(wrapper).to.be.present();
           wrapper.simulate('click');
         });

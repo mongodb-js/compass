@@ -2,8 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import { DocumentList } from '@mongodb-js/compass-components';
-import DocumentFooter from './document-footer';
-import RemoveDocumentFooter from './remove-document-footer';
 
 /**
  * The base class.
@@ -45,7 +43,6 @@ class EditableDocument extends React.Component {
       renderSize: INITIAL_FIELD_LIMIT,
       editing: false,
       deleting: false,
-      deleteFinished: false,
       expandAll: false
     };
 
@@ -123,29 +120,21 @@ class EditableDocument extends React.Component {
    * Fires when the document update was successful.
    */
   handleUpdateSuccess() {
-    if (this.state.editing) {
-      setTimeout(() => {
-        this.setState({ editing: false, renderSize: INITIAL_FIELD_LIMIT });
-      }, 500);
-    }
+    this.setState({ editing: false });
   }
 
   /**
    * Handle the successful remove.
    */
   handleRemoveSuccess() {
-    if (this.state.deleting) {
-      setTimeout(() => {
-        this.setState({ deleting: false, deleteFinished: true });
-      }, 500);
-    }
+    this.setState({ deleting: false });
   }
 
   /**
    * Handles canceling edits to the document.
    */
   handleCancel() {
-    this.setState({ editing: false, renderSize: INITIAL_FIELD_LIMIT });
+    this.setState({ editing: false, deleting: false, renderSize: INITIAL_FIELD_LIMIT });
   }
 
   /**
@@ -175,13 +164,6 @@ class EditableDocument extends React.Component {
   }
 
   /**
-   * Handles canceling a delete.
-   */
-  handleCancelRemove() {
-    this.setState({ deleting: false, deleteFinished: false });
-  }
-
-  /**
    * Handle the edit click.
    */
   handleEdit() {
@@ -205,7 +187,7 @@ class EditableDocument extends React.Component {
     if (this.state.editing) {
       style = style.concat(' document-is-editing');
     }
-    if (this.state.deleting && !this.state.deleteFinished) {
+    if (this.state.deleting) {
       style = style.concat(' document-is-deleting');
     }
     return style;
@@ -279,21 +261,26 @@ class EditableDocument extends React.Component {
    * @returns {Component} The footer component.
    */
   renderFooter() {
-    if (this.state.editing) {
-      return (
-        <DocumentFooter
-          doc={this.props.doc}
-          replaceDocument={this.props.replaceDocument}
-          updateDocument={this.props.updateDocument} />
-      );
-    } else if (this.state.deleting) {
-      return (
-        <RemoveDocumentFooter
-          doc={this.props.doc}
-          removeDocument={this.props.removeDocument}
-          cancelHandler={this.handleCancelRemove.bind(this)} />
-      );
-    }
+    return (
+      <DocumentList.DocumentEditActionsFooter
+        doc={this.props.doc}
+        editing={this.state.editing}
+        deleting={this.state.deleting}
+        onUpdate={(force) => {
+          if (force) {
+            this.props.replaceDocument(this.props.doc);
+          } else {
+            this.props.updateDocument(this.props.doc);
+          }
+        }}
+        onDelete={() => {
+          this.props.removeDocument(this.props.doc);
+        }}
+        onCancel={() => {
+          this.handleCancel();
+        }}
+      />
+    );
   }
 
   /**

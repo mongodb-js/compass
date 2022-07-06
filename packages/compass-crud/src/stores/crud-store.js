@@ -406,6 +406,7 @@ const configureStore = (options = {}) => {
       track('Document Deleted', { mode: this.modeForTelemetry() });
       const id = doc.getId();
       if (id !== undefined) {
+        doc.emit('remove-start');
         this.dataService.deleteOne(this.state.ns, { _id: id }, {}, (error) => {
           if (error) {
             // emit on the document(list view) and success state(json view)
@@ -469,6 +470,7 @@ const configureStore = (options = {}) => {
     async updateDocument(doc) {
       track('Document Updated', { mode: this.modeForTelemetry() });
       try {
+        doc.emit('update-start');
         // We add the shard keys here, if there are any, because that is
         // required for updated documents in sharded collections.
         const {
@@ -514,6 +516,7 @@ const configureStore = (options = {}) => {
     async replaceDocument(doc) {
       track('Document Updated', { mode: this.modeForTelemetry() });
       try {
+        doc.emit('update-start');
         const object = doc.generateObject();
         const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
           _id: 1,
@@ -923,40 +926,18 @@ const configureStore = (options = {}) => {
           });
         }
 
-        // check if the newly inserted document matches the current filter, by
-        // running the same filter but targeted only to the doc's _id.
-        const filter = Object.assign({}, this.state.query.filter, { _id: doc._id });
-        this.dataService.count(this.state.ns, filter, {}, (err, count) => {
-          if (err) {
-            return this.setState({
-              insert: this.getInitialInsertState()
-            });
-          }
-          // track mode for analytics events
-          const payload = {
-            ns: this.state.ns,
-            view: this.state.view,
-            mode: this.state.insert.jsonView ? 'json' : 'default',
-            multiple: false,
-            docs: [doc],
-          };
-          this.localAppRegistry.emit('document-inserted', payload);
-          this.globalAppRegistry.emit('document-inserted', payload);
+        const payload = {
+          ns: this.state.ns,
+          view: this.state.view,
+          mode: this.state.insert.jsonView ? 'json' : 'default',
+          multiple: false,
+          docs: [doc],
+        };
+        this.localAppRegistry.emit('document-inserted', payload);
+        this.globalAppRegistry.emit('document-inserted', payload);
 
-          // count is greater than 0, if 1 then the new doc matches the filter
-          if (count > 0) {
-            return this.setState({
-              docs: this.state.docs.concat([ new HadronDocument(doc) ]),
-              count: this.state.count + 1,
-              end: this.state.end + 1,
-              insert: this.getInitialInsertState()
-            });
-          }
-          this.setState({
-            count: this.state.count + 1,
-            insert: this.getInitialInsertState()
-          });
-        });
+        this.state.insert = this.getInitialInsertState();
+        this.refreshDocuments();
       });
     },
 
