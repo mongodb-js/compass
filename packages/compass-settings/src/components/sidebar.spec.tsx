@@ -6,7 +6,7 @@ import { expect } from 'chai';
 
 import Sidebar from './sidebar';
 
-describe('SettingsModal', function () {
+describe('Sidebar', function () {
   it('renders sidebar with menu items', function () {
     render(
       <Sidebar
@@ -15,7 +15,7 @@ describe('SettingsModal', function () {
         onSelectItem={() => {}}
       />
     );
-    const sidebar = screen.getByTestId('settings-sidebar');
+    const sidebar = screen.getByTestId('settings-modal-sidebar');
     expect(sidebar).to.exist;
     expect(within(sidebar).getByTestId('sidebar-theme-item')).to.exist;
     expect(within(sidebar).getByTestId('sidebar-profile-item')).to.exist;
@@ -31,7 +31,7 @@ describe('SettingsModal', function () {
       />
     );
     expect(onSelectItemSpy.calledOnce).to.be.false;
-    const sidebar = screen.getByTestId('settings-sidebar');
+    const sidebar = screen.getByTestId('settings-modal-sidebar');
 
     const profileItem = within(sidebar).getByTestId('sidebar-profile-item');
     userEvent.click(profileItem);

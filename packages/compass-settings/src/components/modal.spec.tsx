@@ -1,6 +1,6 @@
 import React, { ComponentProps } from 'react';
 import { render, screen, within } from '@testing-library/react';
-import { spy } from 'sinon';
+import { SinonSpy, spy } from 'sinon';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
@@ -37,31 +37,28 @@ const renderSettingsModal = (
   );
 };
 
-describe.only('SettingsModal', function () {
+describe('SettingsModal', function () {
+  let onInitSpy: SinonSpy<any[], any>;
   beforeEach(() => {
     setupIpc();
+    onInitSpy = spy();
+    renderSettingsModal({ onInit: onInitSpy });
+    require('hadron-ipc').emit('window:show-network-optin');
   });
 
   it('sets up component', function () {
-    const onInitSpy = spy();
-    renderSettingsModal({ onInit: onInitSpy });
-
-    require('hadron-ipc').emit('window:show-network-optin');
-
     expect(onInitSpy.calledOnce).to.be.true;
     const container = screen.getByTestId('settings-modal');
     expect(container).to.exist;
     expect(within(container).getByTestId('settings-modal-title')).to.exist;
   });
 
-  it.only('navigates between settings', function () {
-    renderSettingsModal();
-    require('hadron-ipc').emit('window:show-network-optin');
+  it('navigates between settings', function () {
     const container = screen.getByTestId('settings-modal');
     const sidebar = within(container).getByTestId('settings-modal-sidebar');
     expect(sidebar).to.exist;
 
-    ['Privacy', 'Name'].forEach((option) => {
+    ['Privacy'].forEach((option) => {
       const button = within(sidebar).getByTestId(`sidebar-${option}-item`);
       expect(button, `it renders ${option} button`).to.exist;
       userEvent.click(button);
