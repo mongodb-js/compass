@@ -307,7 +307,8 @@ describe('CompassMenu', function () {
             label: `${app.getName()} &Overview`
           },
           {
-            label: '&Privacy Settings'
+            label: '&Settings',
+            accelerator: 'Command+,',
           },
           {
             label: '&Plugins'
