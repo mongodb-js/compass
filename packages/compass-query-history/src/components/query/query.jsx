@@ -56,6 +56,7 @@ class Query extends PureComponent {
 
     return (
       <div
+        data-test-id="query-history-query-attribute"
         className={queryAttributeStyles}
         key={index}
       >
