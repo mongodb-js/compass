@@ -81,9 +81,10 @@ function ConnectionMenu({
       >
         <MenuItem
           data-testid="copy-connection-string"
-          onClick={async () => {
-            await copyConnectionString(connectionString);
-            setMenuIsOpen(false);
+          onClick={() => {
+            copyConnectionString(connectionString).finally(() => {
+              setMenuIsOpen(false);
+            });
           }}
         >
           Copy Connection String

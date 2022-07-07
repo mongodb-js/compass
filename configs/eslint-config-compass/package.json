@@ -16,8 +16,8 @@
     "@babel/core": "^7.14.3",
     "@babel/eslint-parser": "^7.14.3",
     "@mongodb-js/eslint-plugin-compass": "^0.3.0",
-    "@typescript-eslint/eslint-plugin": "^4.28.4",
-    "@typescript-eslint/parser": "^4.28.4",
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
+    "@typescript-eslint/parser": "^5.30.5",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-filename-rules": "^1.2.0",
     "eslint-plugin-jsx-a11y": "^6.4.1",
@@ -26,7 +26,7 @@
     "eslint-plugin-react-hooks": "^4.2.0"
   },
   "devDependencies": {
-    "prettier": "2.3.2"
+    "prettier": "^2.7.1"
   },
   "scripts": {
     "check": "npm run lint",

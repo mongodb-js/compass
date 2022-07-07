@@ -132,15 +132,14 @@ interface CompassClientSession extends ClientSession {
 // With the implementation of cancellable actions using AbortSignal, we have custom AbortSignal
 // type definition to avoid including DOM compiler options in tsconfig.
 type AbortSignal = {
-  aborted: boolean;
-  onabort: ((this: AbortSignal, event: any) => void) | null;
+  readonly aborted: boolean;
+  onabort: ((event: any) => void) | null;
   addEventListener: (
     type: string,
     listener: (event: any) => void,
     options: Record<string, unknown>
   ) => void;
   removeEventListener: (type: string, listener: (event: any) => void) => void;
-  dispatchEvent: (event: any) => boolean;
 };
 
 export type ExplainExecuteOptions = {
