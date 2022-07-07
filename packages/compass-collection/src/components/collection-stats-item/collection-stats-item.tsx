@@ -51,24 +51,25 @@ type CollectionStatsItemProps = {
 /**
  * Component for a single collection stats item.
  */
-const CollectionStatsItem: React.FunctionComponent<CollectionStatsItemProps> =
-  ({ darkMode, dataTestId, label, value }: CollectionStatsItemProps) => {
-    return (
-      <div className={collectionStatsItemStyles} data-testid={dataTestId}>
-        <H3
-          className={darkMode ? darkThemeValueStyles : lightThemeValueStyles}
-          data-testid={`${dataTestId}-value`}
-        >
-          {value}
-        </H3>
-        <Disclaimer
-          className={darkMode ? darkThemeLabelStyles : lightThemeLabelStyles}
-          data-testid={`${dataTestId}-label`}
-        >
-          {label}
-        </Disclaimer>
-      </div>
-    );
-  };
+const CollectionStatsItem: React.FunctionComponent<
+  CollectionStatsItemProps
+> = ({ darkMode, dataTestId, label, value }: CollectionStatsItemProps) => {
+  return (
+    <div className={collectionStatsItemStyles} data-testid={dataTestId}>
+      <H3
+        className={darkMode ? darkThemeValueStyles : lightThemeValueStyles}
+        data-testid={`${dataTestId}-value`}
+      >
+        {value}
+      </H3>
+      <Disclaimer
+        className={darkMode ? darkThemeLabelStyles : lightThemeLabelStyles}
+        data-testid={`${dataTestId}-label`}
+      >
+        {label}
+      </Disclaimer>
+    </div>
+  );
+};
 
 export default withTheme(CollectionStatsItem);

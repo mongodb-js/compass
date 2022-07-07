@@ -303,13 +303,14 @@ function securityItem(): MenuItemConstructorOptions {
 function license(): MenuItemConstructorOptions {
   return {
     label: '&License',
-    async click() {
-      const LICENSE = (await import('../../LICENSE')).default;
-      const licenseTemp = path.join(app.getPath('temp'), 'License');
-      fs.writeFile(licenseTemp, LICENSE, (err) => {
-        if (!err) {
-          void shell.openPath(licenseTemp);
-        }
+    click() {
+      void import('../../LICENSE').then(({ default: LICENSE }) => {
+        const licenseTemp = path.join(app.getPath('temp'), 'License');
+        fs.writeFile(licenseTemp, LICENSE, (err) => {
+          if (!err) {
+            void shell.openPath(licenseTemp);
+          }
+        });
       });
     },
   };

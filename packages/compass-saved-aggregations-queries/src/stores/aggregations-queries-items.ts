@@ -86,7 +86,12 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
   return state;
 };
 
-export const fetchItems = (): ThunkAction<void, RootState, void, Actions> => {
+export const fetchItems = (): ThunkAction<
+  Promise<void>,
+  RootState,
+  void,
+  Actions
+> => {
   return async (dispatch: Dispatch<Actions>): Promise<void> => {
     const payload = await Promise.allSettled([
       getAggregationItems(),

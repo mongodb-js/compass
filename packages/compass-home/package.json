@@ -76,7 +76,7 @@
     "mongodb-data-service": "^21.23.0",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.0.0",
-    "prettier": "2.3.2",
+    "prettier": "^2.7.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "resolve": "^1.15.1",

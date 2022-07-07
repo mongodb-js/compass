@@ -82,7 +82,7 @@
     "mongodb": "^4.6.0",
     "mongodb-data-service": "^21.23.0",
     "nyc": "^15.1.0",
-    "prettier": "2.3.2",
+    "prettier": "^2.7.1",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }

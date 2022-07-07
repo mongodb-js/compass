@@ -492,20 +492,29 @@ export function useConnections({
         });
       }
     },
-    removeConnection,
-    async duplicateConnection(connectionInfo: ConnectionInfo) {
+    removeConnection(connectionInfo) {
+      void removeConnection(connectionInfo);
+    },
+    duplicateConnection(connectionInfo: ConnectionInfo) {
       const duplicate: ConnectionInfo = {
         ...cloneDeep(connectionInfo),
         id: uuidv4(),
       };
-      duplicate.favorite!.name += ' (copy)';
-
-      await saveConnectionInfo(duplicate);
-      dispatch({
-        type: 'set-connections-and-select',
-        connections: [...connections, duplicate],
-        activeConnectionInfo: duplicate,
-      });
+      if (duplicate.favorite?.name) {
+        duplicate.favorite.name += ' (copy)';
+      }
+      saveConnectionInfo(duplicate).then(
+        () => {
+          dispatch({
+            type: 'set-connections-and-select',
+            connections: [...connections, duplicate],
+            activeConnectionInfo: duplicate,
+          });
+        },
+        () => {
+          // We do nothing when if it fails
+        }
+      );
     },
     async removeAllRecentsConnections() {
       const recentConnections = connections.filter((conn) => {

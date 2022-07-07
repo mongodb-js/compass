@@ -18,6 +18,9 @@ const tsRules = {
     'error',
     { prefer: 'type-imports' },
   ],
+  // Newly converted plugins use `any` quite a lot, we can't enable the rule,
+  // but we can warn so we can eventually address this
+  '@typescript-eslint/no-unsafe-argument': 'warn',
 };
 
 const reactConfigurations = [
@@ -34,6 +37,8 @@ const testRules = {
   'mocha/no-setup-in-describe': 'off',
   '@typescript-eslint/no-explicit-any': 'off',
   '@typescript-eslint/no-empty-function': 'off',
+  '@typescript-eslint/no-unsafe-argument': 'off',
+  '@typescript-eslint/restrict-template-expressions': 'off',
 };
 
 const javascriptParserOptions = {

@@ -662,7 +662,7 @@ export const newPipelineFromPaste = (text: string): ThunkAction<void, RootState,
  *
  * @returns {Function} The thunk function.
  */
-export const deletePipeline = (pipelineId: string): ThunkAction<void, RootState, void, AnyAction> => {
+export const deletePipeline = (pipelineId: string): ThunkAction<Promise<void>, RootState, void, AnyAction> => {
   return async (dispatch, getState) => {
     const pipelineStorage = new PipelineStorage();
     await pipelineStorage.delete(pipelineId);
@@ -679,7 +679,7 @@ export const deletePipeline = (pipelineId: string): ThunkAction<void, RootState,
 /**
  * Restore pipeline by an ID
  */
-export const openPipelineById = (id: string): ThunkAction<void, RootState, void, AnyAction> => {
+export const openPipelineById = (id: string): ThunkAction<Promise<void>, RootState, void, AnyAction> => {
   return async (dispatch) => {
     const file = path.join(getDirectory(), `${id}.json`);
     try {
