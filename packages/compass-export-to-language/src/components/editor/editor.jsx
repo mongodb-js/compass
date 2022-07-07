@@ -30,7 +30,7 @@ class ExportToLanguageEditor extends PureComponent {
   setLanguageMode() {
     // PHP needs some special handling because `<?php` is not included in the
     // generated snippets
-   if (this.props.language === 'php') {
+    if (this.props.language === 'php') {
       this.editor.session.setMode({
         path: `ace/mode/${this.props.language}`,
         inline: true
