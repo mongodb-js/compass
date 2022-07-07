@@ -1894,7 +1894,7 @@ describe('store', function() {
     });
   });
 
-  describe('default query for view with own sort order', function() {
+  describe.skip('default query for view with own sort order', function() {
     let store;
     let actions;
 
