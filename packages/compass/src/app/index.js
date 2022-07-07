@@ -226,11 +226,12 @@ var Application = View.extend({
     app.appRegistry.getAction('Security.Actions').show();
   },
   tourClosed: function() {
-    app.preferences.unset('showFeatureTour');
-    app.preferences.save();
     if (!app.preferences.showedNetworkOptIn) {
-      ipc.ipcMain.broadcastFocused('window:show-network-optin');
+      ipc.ipcRenderer.emit('window:show-network-optin');
     }
+    app.preferences.unset('showFeatureTour');
+    app.preferences.set('showedNetworkOptIn', true);
+    app.preferences.save();
   },
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
