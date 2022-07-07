@@ -22,6 +22,7 @@ import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/mode-ruby';
 import 'ace-builds/src-noconflict/mode-rust';
 import 'ace-builds/src-noconflict/mode-golang';
+import 'ace-builds/src-noconflict/mode-php';
 import beautify from 'ace-builds/src-noconflict/ext-beautify';
 import 'mongodb-ace-mode';
 import '../constants/mongodb-ace-theme';

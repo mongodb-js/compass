@@ -112,6 +112,10 @@ const favoriteButtonLabelStyles = css({
   fontSize: 12,
 });
 
+const connectionStringErrorStyles = css({
+  marginBottom: spacing[3],
+});
+
 function ConnectForm({
   darkMode,
   initialConnectionInfo,
@@ -256,7 +260,10 @@ function ConnectForm({
                 updateConnectionFormField={updateConnectionFormField}
               />
               {connectionStringInvalidError && (
-                <Banner variant={BannerVariant.Danger}>
+                <Banner
+                  className={connectionStringErrorStyles}
+                  variant={BannerVariant.Danger}
+                >
                   {connectionStringInvalidError.message}
                 </Banner>
               )}
