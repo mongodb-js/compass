@@ -1730,7 +1730,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   ): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_049),
-      'Running insertOne',
+      'Running insertMany',
       { ns }
     );
     this._collection(ns, 'CRUD').insertMany(docs, options, (error, result) => {
