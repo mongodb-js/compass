@@ -615,7 +615,7 @@ export async function beforeTests(
     await browser.closeTourModal();
   }
   if (compass.isFirstRun) {
-    await browser.closePrivacySettingsModal();
+    await browser.closeSettingsModal();
   }
 
   return compass;
