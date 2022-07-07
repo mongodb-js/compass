@@ -492,8 +492,11 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.hover(Selectors.DocumentListEntry);
     await browser.clickVisible(Selectors.CopyDocumentButton);
 
-    expect((await clipboard.read()).replace(/\s+/g, ' ')).to.match(
-      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 34, "j": 0\}$/
+    const clipboardText = (await clipboard.read())
+      .replace(/\s+/g, ' ')
+      .replace(/\n/g, '');
+    expect(clipboardText).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 34, "j": 0 \}$/
     );
   });
 
