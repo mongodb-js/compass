@@ -103,8 +103,12 @@ function Connections({
           recentConnections={recentConnections}
           createNewConnection={createNewConnection}
           setActiveConnectionId={setActiveConnectionById}
-          onDoubleClick={connect}
-          removeAllRecentsConnections={removeAllRecentsConnections}
+          onDoubleClick={(connectionInfo) => {
+            void connect(connectionInfo);
+          }}
+          removeAllRecentsConnections={() => {
+            void removeAllRecentsConnections();
+          }}
           removeConnection={removeConnection}
           duplicateConnection={duplicateConnection}
         />
@@ -123,7 +127,7 @@ function Connections({
           >
             <ConnectionForm
               onConnectClicked={(connectionInfo) =>
-                connect({
+                void connect({
                   ...cloneDeep(connectionInfo),
                 })
               }
