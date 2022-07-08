@@ -2161,7 +2161,6 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       client.on(
         'topologyDescriptionChanged',
         (evt: TopologyDescriptionChangedEvent) => {
-          debug('topologyDescriptionChanged', evt);
           this._isWritable = this._checkIsWritable(evt);
           this._topologyType = evt.newDescription.type;
           const attr = {
