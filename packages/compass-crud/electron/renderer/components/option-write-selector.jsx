@@ -14,7 +14,6 @@ const WRAPPER = 'tooltip-button-wrapper';
  * OptionSelector is an extension of React-Bootstrap DropdownButton.
  */
 class OptionWriteSelector extends React.Component {
-
   /**
    * Determine if the application is in a writable state.
    *
@@ -31,8 +30,7 @@ class OptionWriteSelector extends React.Component {
    */
   tooltipText() {
     if (!this.isWritable()) {
-      // TODO
-      return WriteStateStore.state.description;
+      return 'not writable';
     }
   }
 
