@@ -31,6 +31,7 @@ class OptionWriteSelector extends React.Component {
    */
   tooltipText() {
     if (!this.isWritable()) {
+      // TODO
       return WriteStateStore.state.description;
     }
   }

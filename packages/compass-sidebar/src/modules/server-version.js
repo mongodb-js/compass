@@ -6,7 +6,7 @@ export const INITIAL_STATE = {
   versionDistro: '',
   versionNumber: '',
   isDataLake: false,
-  dataLakeVersion: ''
+  dataLakeVersion: '',
 };
 
 export default function reducer(state = INITIAL_STATE, action) {
@@ -27,7 +27,7 @@ export function changeInstanceStatus(instance, newStatus) {
       versionDistro: instance.build.isEnterprise ? ENTERPRISE : COMMUNITY,
       versionNumber: instance.build.version,
       isDataLake: instance.dataLake.isDataLake,
-      dataLakeVersion: instance.dataLake.version || null
-    }
+      dataLakeVersion: instance.dataLake.version || null,
+    },
   };
 }

@@ -19,6 +19,7 @@ import CreateDatabasePlugin from '../../src/components/create-database-plugin';
 import DropDatabasePlugin from '../../src/components/drop-database-plugin';
 import DatabasesCollectionsPlugin from './components/databases-collections';
 import CollectionStore from './mocks/collection-store';
+// TODO: remove
 import TextWriteButton from './mocks/text-write-button';
 
 const appRegistry = new AppRegistry();

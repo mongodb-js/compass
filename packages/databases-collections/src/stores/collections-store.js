@@ -81,8 +81,8 @@ store.onActivated = (appRegistry) => {
     store.instance = instance;
 
     store.dispatch(toggleIsDataLake(instance.dataLake.isDataLake));
-    instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
-      store.dispatch(toggleIsDataLake(isDataLake));
+    instance.dataLake.on('change:isDataLake', () => {
+      store.dispatch(toggleIsDataLake(instance.dataLake.isDataLake));
     });
 
     store.dispatch(writeStateChanged({ isWritable: instance.isWritable }));

@@ -38,5 +38,5 @@ export default reducer;
  */
 export const changeDescription = (description) => ({
   type: CHANGE_DESCRIPTION,
-  description: description
+  description: description,
 });

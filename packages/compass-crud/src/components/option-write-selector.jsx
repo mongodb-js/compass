@@ -14,7 +14,6 @@ const WRAPPER = 'tooltip-button-wrapper';
  * This button contains only text, no icons, no animations. Hadron Components'
  * OptionSelector is an extension of React-Bootstrap DropdownButton.
  */
-// TODO: move this to compass-crud as that's the only place it is used
 class OptionWriteSelector extends React.Component {
   static displayName = 'OptionWriteSelector';
 

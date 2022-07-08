@@ -24,19 +24,22 @@ export const SidebarInstance = ({
   setConnectionIsCSFLEEnabled,
   deploymentAwareness,
   serverVersion,
-  sshTunnelStatus
+  sshTunnelStatus,
 }) => {
-  const [ isFavoriteModalVisible, setIsFavoriteModalVisible ] = useState(false);
-  const [ isCSFLEModalVisible, setIsCSFLEModalVisible ] = useState(false);
+  const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
+  const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
 
-  const onClickSaveFavorite = useCallback((newFavoriteInfo) => {
-    updateConnectionInfo({
-      ...cloneDeep(connectionInfo),
-      favorite: newFavoriteInfo
-    });
+  const onClickSaveFavorite = useCallback(
+    (newFavoriteInfo) => {
+      updateConnectionInfo({
+        ...cloneDeep(connectionInfo),
+        favorite: newFavoriteInfo,
+      });
 
-    setIsFavoriteModalVisible(false);
-  }, [connectionInfo, updateConnectionInfo, setIsFavoriteModalVisible]);
+      setIsFavoriteModalVisible(false);
+    },
+    [connectionInfo, updateConnectionInfo, setIsFavoriteModalVisible]
+  );
 
   return (
     <div className={styles['sidebar-instance']}>
@@ -49,13 +52,15 @@ export const SidebarInstance = ({
       />
       <FavoriteButton
         favoriteOptions={connectionInfo.favorite}
-        toggleIsFavoriteModalVisible={() => setIsFavoriteModalVisible(
-          !isFavoriteModalVisible
-        )}
+        toggleIsFavoriteModalVisible={() =>
+          setIsFavoriteModalVisible(!isFavoriteModalVisible)
+        }
       />
       <CSFLEMarker
         csfleMode={instance?.csfleMode}
-        toggleCSFLEModalVisible={() => setIsCSFLEModalVisible(!isCSFLEModalVisible)}
+        toggleCSFLEModalVisible={() =>
+          setIsCSFLEModalVisible(!isCSFLEModalVisible)
+        }
       />
       <CSFLEConnectionModal
         open={isCSFLEModalVisible}
@@ -69,9 +74,7 @@ export const SidebarInstance = ({
         onCancelClicked={() => setIsFavoriteModalVisible(false)}
         onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
       />
-      <NonGenuineWarningPill
-        isGenuineMongoDB={isGenuineMongoDB}
-      />
+      <NonGenuineWarningPill isGenuineMongoDB={isGenuineMongoDB} />
       <SidebarInstanceDetails
         deploymentAwareness={deploymentAwareness}
         serverVersion={serverVersion}

@@ -1,9 +1,40 @@
+import { EventEmitter } from 'events';
 import AppRegistry from 'hadron-app-registry';
 import { InstanceStore as store } from './';
 import { reset } from '../modules/instance/reset';
 import { INITIAL_STATE } from '../modules/instance/instance';
 import { changeDataService } from '../modules/instance/data-service';
 import { once } from 'events';
+
+class FakeDataService extends EventEmitter {
+  getConnectionString() {
+    return { hosts: ['localhost:27020'] };
+  }
+  instance() {
+    return Promise.resolve(this.instanceInfo);
+  }
+  listDatabases() {
+    return Promise.resolve([]);
+  }
+  listCollections() {
+    return Promise.resolve([]);
+  }
+  getLastSeenTopology() {
+    return {
+      type: 'Unknown',
+      servers: [],
+      setName: 'foo'
+    };
+  }
+}
+
+function createDataService(
+  instanceInfo = { build: { version: '1.2.3' }, host: { arch: 'x64' } }
+) {
+  const dataService = new FakeDataService();
+  dataService.instanceInfo = instanceInfo;
+  return dataService;
+}
 
 describe('InstanceStore [Store]', () => {
   beforeEach(() => {
@@ -13,25 +44,6 @@ describe('InstanceStore [Store]', () => {
   afterEach(() => {
     store.dispatch(reset());
   });
-
-  function createDataService(
-    instanceInfo = { build: { version: '1.2.3' }, host: { arch: 'x64' } }
-  ) {
-    return {
-      getConnectionString() {
-        return { hosts: ['localhost:27020'] };
-      },
-      instance() {
-        return Promise.resolve(instanceInfo);
-      },
-      listDatabases() {
-        return Promise.resolve([]);
-      },
-      listCollections() {
-        return Promise.resolve([]);
-      }
-    };
-  }
 
   describe('#onActivated', () => {
     let hold;
@@ -91,6 +103,8 @@ describe('InstanceStore [Store]', () => {
         ]);
       });
     });
+
+    // TODO: when the topologyDescription changed
 
     context('when data service connects with error', () => {
       beforeEach(() => {

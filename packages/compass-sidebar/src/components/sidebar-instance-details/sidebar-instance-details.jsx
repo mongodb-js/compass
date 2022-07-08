@@ -7,14 +7,13 @@ import SshTunnelStatus from '../ssh-tunnel-status';
 
 import styles from './sidebar-instance-details.module.less';
 
-
 class SidebarInstanceDetails extends PureComponent {
   static displayName = 'SidebarInstanceDetails';
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
     deploymentAwareness: PropTypes.object.isRequired,
     serverVersion: PropTypes.object.isRequired,
-    sshTunnelStatus: PropTypes.object.isRequired
+    sshTunnelStatus: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -22,20 +21,15 @@ class SidebarInstanceDetails extends PureComponent {
   }
 
   renderDetails() {
-    const { isExpanded, deploymentAwareness, serverVersion, sshTunnelStatus } = this.props;
+    const { isExpanded, deploymentAwareness, serverVersion, sshTunnelStatus } =
+      this.props;
 
     if (isExpanded) {
       return (
         <div className={styles['sidebar-instance-details-container']}>
-          <DeploymentAwareness
-            {...deploymentAwareness}
-            />
-          <ServerVersion
-            {...serverVersion}
-            />
-          <SshTunnelStatus
-            {...sshTunnelStatus}
-            />
+          <DeploymentAwareness {...deploymentAwareness} />
+          <ServerVersion {...serverVersion} />
+          <SshTunnelStatus {...sshTunnelStatus} />
         </div>
       );
     }

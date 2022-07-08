@@ -1,5 +1,5 @@
 import { createStore } from 'redux';
-import { MongoDbInstance, serversArray, TopologyDescription } from 'mongodb-instance-model';
+import { MongoDBInstance, serversArray, TopologyDescription } from 'mongodb-instance-model';
 import toNS from 'mongodb-ns';
 import reducer from '../modules/instance';
 import { reset } from '../modules/instance/reset';
@@ -182,7 +182,7 @@ store.onActivated = (appRegistry) => {
     const firstHost = connectionString.hosts[0] || '';
     const [hostname, port] = firstHost.split(':');
 
-    const instance = (global.hadronApp.instance = new MongoDbInstance({
+    const instance = (global.hadronApp.instance = new MongoDBInstance({
       _id: firstHost,
       hostname: hostname,
       port: port ? +port : undefined,

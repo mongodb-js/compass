@@ -12,8 +12,11 @@ import { toggleIsDataLake } from '../modules/is-data-lake';
 import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { changeConnectionInfo } from '../modules/connection-info';
-import { changeInstanceStatus  } from '../modules/server-version';
-import { changeAtlasInstanceStatus, changeTopologyDescription } from '../modules/deployment-awareness';
+import { changeInstanceStatus } from '../modules/server-version';
+import {
+  changeAtlasInstanceStatus,
+  changeTopologyDescription,
+} from '../modules/deployment-awareness';
 import { changeDataService } from '../modules/ssh-tunnel-status';
 
 const store = createStore(reducer, applyMiddleware(thunk));
@@ -29,13 +32,13 @@ store.onActivated = (appRegistry) => {
     );
   }, 300);
 
-
+  // TODO: remove this and rather just get the data from instance model
   const onInstanceStatusChange = (instance, newStatus) => {
     if (newStatus !== 'ready') {
       return;
     }
 
-    store.dispatch(changeInstanceStatus(instance, newStatus));
+    store.dispatch(changeInstanceStatus(instance, newStatus)); // part of server version
 
     const { isAtlas } = instance;
 
@@ -43,13 +46,13 @@ store.onActivated = (appRegistry) => {
       return;
     }
 
-    store.dispatch(changeAtlasInstanceStatus(instance, newStatus));
+    store.dispatch(changeAtlasInstanceStatus(instance, newStatus)); // part of deployment awareness
   };
 
+  // TODO: remove this and rather just get the data from instance model
   const onTopologyDescriptionChanged = (topologyDescription) => {
-    // TODO: can we remove this?
-    store.dispatch(changeTopologyDescription(topologyDescription));
-  }
+    store.dispatch(changeTopologyDescription(topologyDescription)); // part of deployment awareness
+  };
 
   function getDatabaseInfo(db) {
     return {
@@ -83,28 +86,26 @@ store.onActivated = (appRegistry) => {
   store.dispatch(globalAppRegistryActivated(appRegistry));
 
   appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
-    // TODO: remove these
     store.dispatch(changeConnectionInfo(connectionInfo));
-    store.dispatch(changeDataService(dataService));
+    // TODO: remove this and rather just get the data from instance model
+    store.dispatch(changeDataService(dataService)); // stores ssh tunnel status
 
-    // TODO: remove this
+    // TODO: remove this and rather just get the data from instance model
     dataService.on('topologyDescriptionChanged', (evt) => {
-      onTopologyDescriptionChanged(evt.newDescription);
+      onTopologyDescriptionChanged(evt.newDescription); // stores deployment awareness
     });
 
-    // TODO: remove this
+    // TODO: remove this and rather just get the data from instance model
     const topologyDescription = dataService.getLastSeenTopology();
     if (topologyDescription !== null) {
       onTopologyDescriptionChanged(topologyDescription);
     }
 
-    // TODO: this is probably the only bit we want to keep here
     appRegistry.removeAllListeners('sidebar-toggle-csfle-enabled');
     appRegistry.on('sidebar-toggle-csfle-enabled', (enabled) => {
       dataService.setCSFLEEnabled(enabled);
       appRegistry.emit('refresh-data');
     });
-
   });
 
   appRegistry.on('instance-destroyed', () => {

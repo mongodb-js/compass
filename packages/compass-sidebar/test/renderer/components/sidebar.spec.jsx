@@ -5,19 +5,22 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import SidebarStore from '../../../src/stores';
-import Sidebar, { Sidebar as UnconnectedSidebar } from '../../../src/components/sidebar';
+import Sidebar, {
+  Sidebar as UnconnectedSidebar,
+} from '../../../src/components/sidebar';
 import SidebarInstance from '../../../src/components/sidebar-instance';
 import styles from '../../../src/components/sidebar/sidebar.module.less';
 
 describe('Sidebar [Component]', function () {
   const connectionInfo = {
     connectionOptions: {
-      connectionString: 'mongodb://localhost:27020?readPreference=primaryPreferred'
+      connectionString:
+        'mongodb://localhost:27020?readPreference=primaryPreferred',
     },
     id: '123',
     favorite: {
-      name: 'my favorite'
-    }
+      name: 'my favorite',
+    },
   };
 
   describe('when rendered with the store', function () {
@@ -26,9 +29,7 @@ describe('Sidebar [Component]', function () {
     beforeEach(function () {
       component = mount(
         <Provider store={SidebarStore}>
-          <Sidebar
-            onCollapse={()=>{}}
-          />
+          <Sidebar onCollapse={() => {}} />
         </Provider>
       );
     });
@@ -57,11 +58,11 @@ describe('Sidebar [Component]', function () {
             connectionInfo={connectionInfo}
             description="Topology type not yet discovered."
             databases={{
-              databases: []
+              databases: [],
             }}
             instance={{
               databases: null,
-              collections: null
+              collections: null,
             }}
             filterRegex={/(?:)/}
             power_of_two={false}
@@ -72,7 +73,7 @@ describe('Sidebar [Component]', function () {
             globalAppRegistryEmit={emitSpy}
             isGenuineMongoDB
             isGenuineMongoDBVisible={false}
-            toggleIsGenuineMongoDBVisible={()=>{}}
+            toggleIsGenuineMongoDBVisible={() => {}}
             openLink={function () {}}
             isDetailsExpanded={false}
             toggleIsDetailsExpanded={function () {}}
@@ -80,8 +81,8 @@ describe('Sidebar [Component]', function () {
             filterDatabases={function () {}}
             changeDatabases={function () {}}
             changeFilterRegex={function () {}}
-            updateAndSaveConnectionInfo={()=>{}}
-            setConnectionIsCSFLEEnabled={function (){}}
+            updateAndSaveConnectionInfo={() => {}}
+            setConnectionIsCSFLEEnabled={function () {}}
             saveFavorite={saveFavoriteSpy}
           />
         </Provider>
@@ -105,9 +106,9 @@ describe('Sidebar [Component]', function () {
     });
 
     it('renders the sidebar content', function () {
-      expect(component.find(
-        `.${styles['compass-sidebar-content']}`
-      )).to.be.present();
+      expect(
+        component.find(`.${styles['compass-sidebar-content']}`)
+      ).to.be.present();
     });
   });
 
@@ -135,9 +136,9 @@ describe('Sidebar [Component]', function () {
     });
 
     it.skip('does not render the sidebar content', function () {
-      expect(component.find(
-        `.${styles['compass-sidebar-content']}`
-      )).to.not.be.present();
+      expect(
+        component.find(`.${styles['compass-sidebar-content']}`)
+      ).to.not.be.present();
     });
   });
 
@@ -155,7 +156,10 @@ describe('Sidebar [Component]', function () {
     });
 
     it('sets the collapsed width to 36', function () {
-      expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(36);
+      expect(
+        component.find('[data-test-id="compass-sidebar-panel"]').prop('style')
+          .width
+      ).to.equal(36);
     });
 
     context('when it is expanded again', function () {
@@ -165,7 +169,10 @@ describe('Sidebar [Component]', function () {
       });
 
       it('sets the collapsed width to 250', function () {
-        expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(250);
+        expect(
+          component.find('[data-test-id="compass-sidebar-panel"]').prop('style')
+            .width
+        ).to.equal(250);
       });
     });
   });
@@ -177,7 +184,7 @@ describe('Sidebar [Component]', function () {
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar
-            updateAndSaveConnectionInfo={()=>{}}
+            updateAndSaveConnectionInfo={() => {}}
             setConnectionIsCSFLEEnabled={function () {}}
             connectionInfo={connectionInfo}
           />
@@ -196,7 +203,11 @@ describe('Sidebar [Component]', function () {
         });
 
         it('updates the width', function () {
-          expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(189);
+          expect(
+            component
+              .find('[data-test-id="compass-sidebar-panel"]')
+              .prop('style').width
+          ).to.equal(189);
         });
 
         context('when it hits the lower bound', function () {
@@ -207,7 +218,11 @@ describe('Sidebar [Component]', function () {
           });
 
           it('collapses the sidebar', function () {
-            expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(36);
+            expect(
+              component
+                .find('[data-test-id="compass-sidebar-panel"]')
+                .prop('style').width
+            ).to.equal(36);
           });
         });
       });
@@ -227,8 +242,14 @@ describe('Sidebar [Component]', function () {
         });
 
         it('updates the width', function () {
-          expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(36);
-          expect(component.find('[type="range"]').at(0).prop('value')).to.equal(55);
+          expect(
+            component
+              .find('[data-test-id="compass-sidebar-panel"]')
+              .prop('style').width
+          ).to.equal(36);
+          expect(component.find('[type="range"]').at(0).prop('value')).to.equal(
+            55
+          );
         });
 
         context('when it hits the expand threshold bound', function () {
@@ -239,7 +260,11 @@ describe('Sidebar [Component]', function () {
           });
 
           it('expands the sidebar', function () {
-            expect(component.find('[data-test-id="compass-sidebar-panel"]').prop('style').width).to.equal(171);
+            expect(
+              component
+                .find('[data-test-id="compass-sidebar-panel"]')
+                .prop('style').width
+            ).to.equal(171);
           });
         });
       });

@@ -19,6 +19,7 @@ describe('Schema Validation Store', function () {
   const writeStateStore = { state: { isWritable: true } };
 
   before(function () {
+    // TODO: replace
     globalAppRegistry.registerStore(
       'DeploymentAwareness.WriteStateStore',
       writeStateStore

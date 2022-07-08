@@ -11,6 +11,7 @@ const WRAPPER = 'tooltip-button-wrapper';
  * Button component that is aware of the write state of the application.
  * This button contains only text, no icons, no animations.
  */
+// TODO: remove this whole file
 class TextWriteButton extends React.Component {
 
   /**

@@ -1,6 +1,7 @@
 import { Environment, serversArray } from 'mongodb-instance-model';
 
-export const CHANGE_ATLAS_INSTANCE = 'sidebar/deployment-awareness/CHANGE_ATLAS_INSTANCE';
+export const CHANGE_ATLAS_INSTANCE =
+  'sidebar/deployment-awareness/CHANGE_ATLAS_INSTANCE';
 export const CHANGE_TOPOLOGY = 'sidebar/deployment-awareness/CHANGE_TOPOLOGY';
 
 export const INITIAL_STATE = {
@@ -8,29 +9,28 @@ export const INITIAL_STATE = {
   setName: '',
   servers: [],
   isDataLake: false,
-  env: Environment.ON_PREM
+  env: Environment.ON_PREM,
 };
-
 
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === CHANGE_ATLAS_INSTANCE) {
     return {
       ...state,
-      ...action.instance
+      ...action.instance,
     };
   }
 
   if (action.type === CHANGE_TOPOLOGY) {
     return {
       ...state,
-      ...action.topology
+      ...action.topology,
     };
   }
 
   return state;
 }
 
-export function changeAtlasInstanceStatus({ isAtlas, dataLake}, newStatus) {
+export function changeAtlasInstanceStatus({ isAtlas, dataLake }, newStatus) {
   if (newStatus !== 'ready') {
     return;
   }
@@ -45,8 +45,8 @@ export function changeAtlasInstanceStatus({ isAtlas, dataLake}, newStatus) {
     type: CHANGE_ATLAS_INSTANCE,
     instance: {
       isDataLake: dataLake.isDataLake,
-      env
-    }
+      env,
+    },
   };
 }
 
@@ -58,7 +58,7 @@ export function changeTopologyDescription(topologyDescription) {
     topology: {
       topologyType: topologyDescription.type,
       setName: topologyDescription.setName,
-      servers
-    }
+      servers,
+    },
   };
 }

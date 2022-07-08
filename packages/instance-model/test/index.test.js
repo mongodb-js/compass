@@ -1,9 +1,9 @@
 const { expect } = require('chai');
-const Instance = require('../');
+const { MongoDBInstance } = require('../');
 
 describe('mongodb-instance-model', function () {
   it('should be in initial state when created', function () {
-    const instance = new Instance({ _id: 'abc' });
+    const instance = new MongoDBInstance({ _id: 'abc' });
     expect(instance).to.have.property('status', 'initial');
     expect(instance.build.toJSON()).to.be.an('object').that.is.empty;
     expect(instance.host.toJSON()).to.be.an('object').that.is.empty;
@@ -22,7 +22,7 @@ describe('mongodb-instance-model', function () {
     };
 
     it('should fetch and populate instance info when fetch called', async function () {
-      const instance = new Instance({ _id: 'abc' });
+      const instance = new MongoDBInstance({ _id: 'abc' });
 
       await instance.fetch({ dataService });
 

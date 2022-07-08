@@ -1,22 +1,15 @@
 import React from 'react';
-import AppRegistry from 'hadron-app-registry';
 import { shallow } from 'enzyme';
 import OptionWriteSelector from './option-write-selector';
-import WriteStateStore from '../stores/write-state-store';
 
 describe('<OptionWriteSelector />', () => {
   describe('#render', () => {
-    beforeEach(() => {
-      global.hadronApp.appRegistry = new AppRegistry();
-    });
-
     context('when the button is not at the collection level', () => {
       context('when the write state is writable', () => {
         let component;
         let spy;
 
         beforeEach(() => {
-          WriteStateStore.setState({ isWritable: true });
           spy = sinon.spy();
           const onSelect = () => { spy(); };
           const options = { 'test-key': 'test-val' };
@@ -28,12 +21,10 @@ describe('<OptionWriteSelector />', () => {
               options={options}
               tooltipId="test-selector"
               bsSize="small"
-              onSelect={onSelect}/>
+              onSelect={onSelect}
+              isWritable
+              instanceDescription="writable"/>
           );
-        });
-
-        afterEach(() => {
-          WriteStateStore.setState(WriteStateStore.getInitialState());
         });
 
         it('renders the wrapper', () => {
@@ -71,7 +62,6 @@ describe('<OptionWriteSelector />', () => {
         let component;
 
         beforeEach(() => {
-          WriteStateStore.setState({ isWritable: false });
           const onSelect = () => {};
           const options = { 'test-key': 'test-val' };
           component = shallow(
@@ -82,7 +72,9 @@ describe('<OptionWriteSelector />', () => {
               bsSize="small"
               options={options}
               onSelect={onSelect}
-              tooltipId="test-selector" />
+              tooltipId="test-selector"
+              isWritable={false}
+              instanceDescription="not writable" />
           );
         });
 
@@ -93,7 +85,7 @@ describe('<OptionWriteSelector />', () => {
 
         it('renders the wrapper data-tip', () => {
           const wrapper = component.find('.tooltip-button-wrapper');
-          expect(wrapper).to.have.data('tip', 'Topology type not yet discovered.');
+          expect(wrapper).to.have.data('tip', 'not writable');
         });
 
         it('renders the wrapper data-for', () => {

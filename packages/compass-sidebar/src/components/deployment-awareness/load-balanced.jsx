@@ -12,7 +12,7 @@ class LoadBalanced extends React.Component {
 
   static propTypes = {
     server: PropTypes.object.isRequired,
-  }
+  };
 
   /**
    * Render the load balanced component.
@@ -23,7 +23,9 @@ class LoadBalanced extends React.Component {
     return (
       <div className={classnames(styles['topology-load-balanced'])}>
         <div className={classnames(styles['topology-load-balanced-host'])}>
-          <div className={classnames(styles['topology-load-balanced-host-title'])}>
+          <div
+            className={classnames(styles['topology-load-balanced-host-title'])}
+          >
             HOST (Load Balancer)
           </div>
           {this.props.server.address}

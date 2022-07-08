@@ -9,12 +9,12 @@ class SshTunnelStatus extends Component {
 
   static propTypes = {
     sshTunnel: PropTypes.bool,
-    sshTunnelHostPortString: PropTypes.string
+    sshTunnelHostPortString: PropTypes.string,
   };
 
   static defaultProps = {
     sshTunnel: false,
-    sshTunnelHostPortString: ''
+    sshTunnelHostPortString: '',
   };
 
   /**
@@ -30,7 +30,8 @@ class SshTunnelStatus extends Component {
     return (
       <div
         data-test-id="ssh-tunnel-status"
-        className={classnames(styles['ssh-tunnel-status'])}>
+        className={classnames(styles['ssh-tunnel-status'])}
+      >
         <div className={classnames(styles['ssh-tunnel-status-label'])}>
           SSH connection via
         </div>

@@ -13,8 +13,8 @@ class ReplicaSet extends React.Component {
   static propTypes = {
     servers: PropTypes.array.isRequired,
     setName: PropTypes.string.isRequired,
-    topologyType: PropTypes.string.isRequired
-  }
+    topologyType: PropTypes.string.isRequired,
+  };
 
   /**
    * Renders the server count.
@@ -41,7 +41,8 @@ class ReplicaSet extends React.Component {
           className={classnames(styles['topology-replica-set-host-address'])}
           data-test-id={`topology-replica-set-host-address-${i}`}
           key={i}
-          title={server.address}>
+          title={server.address}
+        >
           {server.address}
         </div>
       );
@@ -57,13 +58,17 @@ class ReplicaSet extends React.Component {
     return (
       <div className={classnames(styles['topology-replica-set'])}>
         <div className={classnames(styles['topology-replica-set-host'])}>
-          <div className={classnames(styles['topology-replica-set-host-title'])}>
+          <div
+            className={classnames(styles['topology-replica-set-host-title'])}
+          >
             {this.props.servers.length > 1 ? 'HOSTS' : 'HOST'}
           </div>
           {this.renderServers()}
         </div>
         <div className={classnames(styles['topology-replica-set-cluster'])}>
-          <div className={classnames(styles['topology-replica-set-cluster-title'])}>
+          <div
+            className={classnames(styles['topology-replica-set-cluster-title'])}
+          >
             CLUSTER
           </div>
           <div
@@ -72,7 +77,9 @@ class ReplicaSet extends React.Component {
           >
             Replica Set ({this.props.setName})
           </div>
-          <div className={classnames(styles['topology-replica-set-cluster-nodes'])}>
+          <div
+            className={classnames(styles['topology-replica-set-cluster-nodes'])}
+          >
             {this.renderServerCount()}
           </div>
         </div>

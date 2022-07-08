@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { TopologyType } from 'mongodb-instance-model'
+import { TopologyType } from 'mongodb-instance-model';
 import Single from './single';
 import Sharded from './sharded';
 import ReplicaSet from './replica-set';
@@ -20,8 +20,8 @@ class DeploymentAwarenessComponent extends React.Component {
     servers: PropTypes.array,
     setName: PropTypes.string,
     topologyType: PropTypes.string,
-    isDataLake: PropTypes.bool
-  }
+    isDataLake: PropTypes.bool,
+  };
 
   /**
    * Renders the topology information.
@@ -31,17 +31,27 @@ class DeploymentAwarenessComponent extends React.Component {
   renderTopologyInfo() {
     switch (this.props.topologyType) {
       case TopologyType.SINGLE:
-        return (<Single server={this.props.servers[0]} isDataLake={this.props.isDataLake}/>);
+        return (
+          <Single
+            server={this.props.servers[0]}
+            isDataLake={this.props.isDataLake}
+          />
+        );
       case TopologyType.SHARDED:
-        return (<Sharded servers={this.props.servers} />);
+        return <Sharded servers={this.props.servers} />;
       case TopologyType.REPLICA_SET_NO_PRIMARY:
-        return (<ReplicaSet {...this.props} />);
+        return <ReplicaSet {...this.props} />;
       case TopologyType.REPLICA_SET_WITH_PRIMARY:
-        return (<ReplicaSet {...this.props} />);
+        return <ReplicaSet {...this.props} />;
       case TopologyType.LOAD_BALANCED:
-        return (<LoadBalanced server={this.props.servers[0]} />);
+        return <LoadBalanced server={this.props.servers[0]} />;
       default:
-        return (<Unknown servers={this.props.servers} isDataLake={this.props.isDataLake}/>);
+        return (
+          <Unknown
+            servers={this.props.servers}
+            isDataLake={this.props.isDataLake}
+          />
+        );
     }
   }
 
@@ -52,7 +62,10 @@ class DeploymentAwarenessComponent extends React.Component {
    */
   render() {
     return (
-      <div className={classnames(styles['deployment-awareness'])} data-test-id="deployment-awareness">
+      <div
+        className={classnames(styles['deployment-awareness'])}
+        data-test-id="deployment-awareness"
+      >
         {this.renderTopologyInfo()}
       </div>
     );

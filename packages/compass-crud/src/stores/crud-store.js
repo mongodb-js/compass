@@ -677,7 +677,7 @@ const configureStore = (options = {}) => {
       }
 
       const csfleState = { state: 'none' };
-      const dataServiceCSFLEMode = this.dataService.getCSFLEMode && this.dataService.getCSFLEMode();
+      const dataServiceCSFLEMode = this.dataService && this.dataService.getCSFLEMode && this.dataService.getCSFLEMode();
       if (dataServiceCSFLEMode === 'enabled') {
         // Show a warning if this is a CSFLE-enabled connection but this collection
         // does not have a schema.
@@ -1272,6 +1272,9 @@ const configureStore = (options = {}) => {
     });
     instance.on('change:description', () => {
       store.setState({ instanceDescription: instance.description });
+    });
+    instance.build.on('change:version', () => {
+      store.setState({ version: instance.build.version });
     });
 
     globalAppRegistry.on('refresh-data', () => {

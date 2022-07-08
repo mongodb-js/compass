@@ -1,18 +1,18 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import Single from './single';
-import {
-  STANDALONE,
-  RS_PRIMARY,
-  RS_SECONDARY,
-  RS_ARBITER,:
-  RS_OTHER,
-  RS_GHOST,
-  UNKNOWN,
-  POSSIBLE_PRIMARY
-} from '../../models/server-type';
+import { expect } from 'chai';
 
 import styles from './single.module.less';
+
+const STANDALONE = 'Standalone';
+const POSSIBLE_PRIMARY = 'PossiblePrimary';
+const RS_PRIMARY = 'RSPrimary';
+const RS_SECONDARY = 'RSSecondary';
+const RS_ARBITER = 'RSArbiter';
+const RS_OTHER = 'RSOther';
+const RS_GHOST = 'RSGhost';
+const UNKNOWN = 'Unknown';
 
 describe('<Single />', function () {
   describe('#render', function () {
@@ -21,12 +21,16 @@ describe('<Single />', function () {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.have.text('Standalone');
       });
     });
@@ -36,12 +40,16 @@ describe('<Single />', function () {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.have.text('Primary');
       });
     });
@@ -51,12 +59,16 @@ describe('<Single />', function () {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.have.text('Secondary');
       });
     });
@@ -66,12 +78,16 @@ describe('<Single />', function () {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.have.text('Arbiter');
       });
     });
@@ -81,12 +97,16 @@ describe('<Single />', function () {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.have.text('Ghost');
       });
     });
@@ -96,12 +116,16 @@ describe('<Single />', function () {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.have.text('Unknown');
       });
     });
@@ -111,42 +135,54 @@ describe('<Single />', function () {
       const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.have.text('Other');
       });
     });
 
     context('when the server is a possible primary', function () {
       const server = { address: '127.0.0.1:27017', type: POSSIBLE_PRIMARY };
-      const component = shallow(<Single server={server} isDataLake={false}/>);
+      const component = shallow(<Single server={server} isDataLake={false} />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.have.text('Possible Primary');
       });
     });
 
     context('when connected to DataLake', function () {
       const server = { address: '127.0.0.1:27017', type: STANDALONE };
-      const component = shallow(<Single server={server} isDataLake/>);
+      const component = shallow(<Single server={server} isDataLake />);
 
       it('renders the address', function () {
-        const node = component.find(`.${styles['topology-single-host-address']}`);
+        const node = component.find(
+          `.${styles['topology-single-host-address']}`
+        );
         expect(node).to.have.text('127.0.0.1:27017');
       });
 
       it('does not renders the humanized type', function () {
-        const node = component.find(`.${styles['topology-single-cluster-type']}`);
+        const node = component.find(
+          `.${styles['topology-single-cluster-type']}`
+        );
         expect(node).to.be.not.present();
       });
     });

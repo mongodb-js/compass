@@ -2,41 +2,37 @@ import { combineReducers } from 'redux';
 
 import appRegistry from '@mongodb-js/mongodb-redux-common/app-registry';
 import databases, {
-  INITIAL_STATE as DATABASES_INITIAL_STATE
+  INITIAL_STATE as DATABASES_INITIAL_STATE,
 } from './databases';
 import description, {
-  INITIAL_STATE as DESCRIPTION_INITIAL_STATE
+  INITIAL_STATE as DESCRIPTION_INITIAL_STATE,
 } from './description';
-import instance, {
-  INITIAL_STATE as INSTANCE_INITIAL_STATE
-} from './instance';
+import instance, { INITIAL_STATE as INSTANCE_INITIAL_STATE } from './instance';
 import isDetailsExpanded, {
-  INITIAL_STATE as IS_DETAILS_EXPANDED_INITIAL_STATE
+  INITIAL_STATE as IS_DETAILS_EXPANDED_INITIAL_STATE,
 } from './is-details-expanded';
 import isWritable, {
-  INITIAL_STATE as IS_WRITABLE_INITIAL_STATE
+  INITIAL_STATE as IS_WRITABLE_INITIAL_STATE,
 } from './is-writable';
-import isDataLake, {
-  INITIAL_STATE as DL_INITIAL_STATE
-} from './is-data-lake';
+import isDataLake, { INITIAL_STATE as DL_INITIAL_STATE } from './is-data-lake';
 import { RESET } from './reset';
 import isGenuineMongoDB, {
-  INITIAL_STATE as GENUINE_IS
+  INITIAL_STATE as GENUINE_IS,
 } from './is-genuine-mongodb';
 import isGenuineMongoDBVisible, {
-  INITIAL_STATE as IS_VISIBLE_IS
+  INITIAL_STATE as IS_VISIBLE_IS,
 } from './is-genuine-mongodb-visible';
 import connectionInfo, {
-  INITIAL_STATE as CONNECTION_INFO_IS
+  INITIAL_STATE as CONNECTION_INFO_IS,
 } from './connection-info';
 import deploymentAwareness, {
-  INITIAL_STATE as DEPLOYMENT_AWARENESS_IS
+  INITIAL_STATE as DEPLOYMENT_AWARENESS_IS,
 } from './deployment-awareness';
 import serverVersion, {
-  INITIAL_STATE as SERVER_VERSION_IS
+  INITIAL_STATE as SERVER_VERSION_IS,
 } from './server-version';
 import sshTunnelStatus, {
-  INITIAL_STATE as SSH_TUNNEL_STATUS_IS
+  INITIAL_STATE as SSH_TUNNEL_STATUS_IS,
 } from './ssh-tunnel-status';
 
 /**
@@ -55,7 +51,7 @@ const reducer = combineReducers({
   isDataLake,
   deploymentAwareness,
   serverVersion,
-  sshTunnelStatus
+  sshTunnelStatus,
 });
 
 /**

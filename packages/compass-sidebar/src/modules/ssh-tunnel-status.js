@@ -6,7 +6,7 @@ export const INITIAL_STATE = {
   sshTunnel: false,
   sshTunnelHostname: '',
   sshTunnelPort: '',
-  sshTunnelHostPortString: ''
+  sshTunnelHostPortString: '',
 };
 
 export default function reducer(state = INITIAL_STATE, action) {
@@ -27,12 +27,8 @@ function combineHostPort(host, port, truncate) {
 export function changeDataService(ds) {
   const connectionOptions = ds.getConnectionOptions();
   const sshTunnel = !!connectionOptions.sshTunnel;
-  const sshTunnelHostname = sshTunnel
-    ? connectionOptions.sshTunnel.host
-    : '';
-  const sshTunnelPort = sshTunnel
-    ? connectionOptions.sshTunnel.port
-    : '';
+  const sshTunnelHostname = sshTunnel ? connectionOptions.sshTunnel.host : '';
+  const sshTunnelPort = sshTunnel ? connectionOptions.sshTunnel.port : '';
   const sshTunnelHostPortString = sshTunnel
     ? combineHostPort(sshTunnelHostname, sshTunnelPort, true)
     : '';
@@ -43,7 +39,7 @@ export function changeDataService(ds) {
       sshTunnel,
       sshTunnelHostname,
       sshTunnelPort,
-      sshTunnelHostPortString
-    }
+      sshTunnelHostPortString,
+    },
   };
 }

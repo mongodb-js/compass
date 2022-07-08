@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   changeInstance,
-  CHANGE_INSTANCE
+  CHANGE_INSTANCE,
 } from './instance';
 
 const instance = {
@@ -31,7 +31,7 @@ describe('sidebar instance', function () {
     it('returns the action', function () {
       expect(changeInstance('new instance w action')).to.deep.equal({
         type: CHANGE_INSTANCE,
-        instance: 'new instance w action'
+        instance: 'new instance w action',
       });
     });
   });

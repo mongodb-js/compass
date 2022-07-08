@@ -12,17 +12,19 @@ class ServerVersion extends Component {
     versionNumber: PropTypes.string,
     versionDistro: PropTypes.oneOf(['', ENTERPRISE, COMMUNITY]),
     isDataLake: PropTypes.bool,
-    dataLakeVersion: PropTypes.string
+    dataLakeVersion: PropTypes.string,
   };
 
   static defaultProps = {
     versionNumber: '',
-    versionDistro: ''
+    versionDistro: '',
   };
 
   getVersion() {
     if (this.props.isDataLake) {
-      return `Atlas Data Lake ${this.props.dataLakeVersion ? this.props.dataLakeVersion : ''}`;
+      return `Atlas Data Lake ${
+        this.props.dataLakeVersion ? this.props.dataLakeVersion : ''
+      }`;
     }
     return `MongoDB ${this.props.versionNumber} ${this.props.versionDistro}`;
   }
@@ -37,11 +39,17 @@ class ServerVersion extends Component {
       return null;
     }
     return (
-      <div className={classnames(styles['server-version'])} data-test-id="server-version">
+      <div
+        className={classnames(styles['server-version'])}
+        data-test-id="server-version"
+      >
         <div className={classnames(styles['server-version-edition'])}>
           EDITION
         </div>
-        <div className={classnames(styles['server-version-text'])} data-test-id="server-version-text">
+        <div
+          className={classnames(styles['server-version-text'])}
+          data-test-id="server-version-text"
+        >
           {this.getVersion()}
         </div>
       </div>

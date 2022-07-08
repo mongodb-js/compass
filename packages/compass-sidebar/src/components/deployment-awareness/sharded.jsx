@@ -11,8 +11,8 @@ class Sharded extends React.Component {
   static displayName = 'Sharded';
 
   static propTypes = {
-    servers: PropTypes.array.isRequired
-  }
+    servers: PropTypes.array.isRequired,
+  };
 
   /**
    * Renders the server count.
@@ -39,7 +39,8 @@ class Sharded extends React.Component {
           className={classnames(styles['topology-sharded-host-address'])}
           data-test-id={`topology-sharded-host-address-${i}`}
           key={i}
-          title={server.address}>
+          title={server.address}
+        >
           {server.address}
         </div>
       );

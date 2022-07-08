@@ -12,8 +12,8 @@ class Unknown extends React.Component {
 
   static propTypes = {
     servers: PropTypes.array.isRequired,
-    isDataLake: PropTypes.bool.isRequired
-  }
+    isDataLake: PropTypes.bool.isRequired,
+  };
 
   /**
    * Renders the server count.
@@ -57,7 +57,10 @@ class Unknown extends React.Component {
   renderServers() {
     return this.props.servers.map((server, i) => {
       return (
-        <div className={classnames(styles['topology-unknown-host-address'])} key={i}>
+        <div
+          className={classnames(styles['topology-unknown-host-address'])}
+          key={i}
+        >
           {server.address}
         </div>
       );
@@ -78,7 +81,7 @@ class Unknown extends React.Component {
           </div>
           {this.renderServers()}
         </div>
-        { this.props.isDataLake ? null : this.renderCluster() }
+        {this.props.isDataLake ? null : this.renderCluster()}
       </div>
     );
   }
