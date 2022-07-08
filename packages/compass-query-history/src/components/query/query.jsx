@@ -64,11 +64,9 @@ class Query extends PureComponent {
         <Body
           data-test-id="query-history-query-label"
           className={labelStyles}
-          htmlFor={`query-history-query-attr-${attrKey}`}
         >{attrKey}</Body>
         <Code
           className={codeStyles}
-          id={`query-history-query-attr-${attrKey}`}
           data-test-id="query-history-query-code"
           language="javascript"
           copyable={false}
