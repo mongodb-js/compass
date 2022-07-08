@@ -112,6 +112,10 @@ const favoriteButtonLabelStyles = css({
   fontSize: 12,
 });
 
+const connectionStringErrorStyles = css({
+  marginBottom: spacing[3],
+});
+
 function ConnectForm({
   darkMode,
   initialConnectionInfo,
@@ -256,7 +260,10 @@ function ConnectForm({
                 updateConnectionFormField={updateConnectionFormField}
               />
               {connectionStringInvalidError && (
-                <Banner variant={BannerVariant.Danger}>
+                <Banner
+                  className={connectionStringErrorStyles}
+                  variant={BannerVariant.Danger}
+                >
                   {connectionStringInvalidError.message}
                 </Banner>
               )}
@@ -279,9 +286,9 @@ function ConnectForm({
                 saveAndConnectButton={
                   initialConnectionInfo.favorite ? 'hidden' : 'enabled'
                 }
-                onSaveClicked={async () => {
+                onSaveClicked={() => {
                   if (initialConnectionInfo.favorite) {
-                    await callOnSaveConnectionClickedAndStoreErrors({
+                    void callOnSaveConnectionClickedAndStoreErrors({
                       ...cloneDeep(initialConnectionInfo),
                       connectionOptions: cloneDeep(connectionOptions),
                     });

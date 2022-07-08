@@ -99,13 +99,13 @@
     "mongodb-ace-autocompleter": "^1.1.1",
     "mongodb-ace-mode": "^1.8.0",
     "nyc": "^15.0.0",
-    "prettier": "2.3.2",
+    "prettier": "^2.7.1",
     "react": "^16.14.0",
     "react-ace": "^9.5.0",
     "react-dom": "^16.14.0",
     "rimraf": "^3.0.2",
     "sinon": "^9.0.0",
-    "typescript": "^4.3.5"
+    "typescript": "^4.7.4"
   },
   "repository": {
     "type": "git",

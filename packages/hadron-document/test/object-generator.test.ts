@@ -152,10 +152,10 @@ describe('ObjectGenerator', function () {
     it('preserves encrypted fields', function () {
       const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
       const object = {
-        a: 1,
+        a: 'a',
         b: {
-          c: 2,
-          d: Object.assign([3, 4], { [DECRYPTED_KEYS]: ['0'] }),
+          c: 'c',
+          d: Object.assign(['d1', 'd2'], { [DECRYPTED_KEYS]: ['0'] }),
           [DECRYPTED_KEYS]: ['c'],
         },
         [DECRYPTED_KEYS]: ['a'],

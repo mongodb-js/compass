@@ -959,7 +959,7 @@ describe('store', function() {
         it('inserts the document but does not add to the list', async() => {
           const listener = waitForState(store, (state) => {
             expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(1);
+            expect(state.count).to.equal(0);
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);

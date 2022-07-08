@@ -63,6 +63,9 @@ export function camelCase(str: string): string {
 
 export function getLibraryNameFromCwd(cwd: string): string {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { name, productName } = require(path.join(cwd, 'package.json'));
+  const { name, productName } = require(path.join(cwd, 'package.json')) as {
+    name: string;
+    productName: string;
+  };
   return camelCase(productName || name);
 }

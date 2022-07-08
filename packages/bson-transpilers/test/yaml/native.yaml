@@ -19,6 +19,7 @@ tests:
           csharp: "new BsonDocument(\"x\", \"1\")"
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
+          php: "['x' => '1']"
           ruby: "{\n  'x' => '1'\n}"
           rust: |-
             doc! {
@@ -36,6 +37,7 @@ tests:
           csharp: "new BsonDocument(\"x\", \"1\")"
           shell: "{\n  'x': '1'\n}"
           object: "{x: '1'}"
+          php: "['x' => '1']"
           ruby: "{\n  'x' => '1'\n}"
           rust: |-
             doc! {
@@ -53,6 +55,7 @@ tests:
           csharp: "new BsonDocument(\"x\", new BsonArray\n    {\n        \"1\",\n        \"2\"\n    })"
           shell: "{\n  'x': [\n    '1', '2'\n  ]\n}"
           object: "{x: ['1', '2']}"
+          php: "['x' => ['1', '2']]"
           ruby: "{\n  'x' => [\n    '1', '2'\n  ]\n}"
           rust: |-
             doc! {
@@ -81,6 +84,7 @@ tests:
           csharp: "new BsonDocument(\"x\", new BsonDocument(\"y\", 2))"
           shell: "{\n  'x': {\n    'y': 2\n  }\n}"
           object: "{x: {y: 2}}"
+          php: "['x' => ['y' => 2]]"
           ruby: "{\n  'x' => {\n    'y' => 2\n  }\n}"
           rust: |-
             doc! {
@@ -100,6 +104,7 @@ tests:
           java: "new Document()"
           csharp: "new BsonDocument()"
           object: "{}"
+          php: "(object) []"
           ruby: "{}"
           rust: "doc! {}"
           go: bson.D{}
@@ -114,6 +119,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"x\", \"1\" }, \n    { \"n\", \"4\" }\n}"
           shell: "{\n  'x': '1', \n  'n': '4'\n}"
           object: "{x: '1', n: '4'}"
+          php: "['x' => '1', 'n' => '4']"
           ruby: "{\n  'x' => '1',\n  'n' => '4'\n}"
           rust: |-
             doc! {
@@ -126,6 +132,12 @@ tests:
                 {"n", "4"},
             }
     - input:
+        javascript: "{0: '1', 1: '2', 2: '3'}"
+        shell: "{0: '1', 1: '2', 2: '3'}"
+        python: "{'0': '1', '1': '2', '2': '3'}"
+      output:
+        php: "(object) [0 => '1', 1 => '2', 2 => '3']"
+    - input:
           javascript: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           shell: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
           python: "{'graphLookup': {'from': 'raw_data', 'startWith': '$_id', 'connectFromField': '_id', 'connectToField': 'manager', 'as': 'reports'}}"
@@ -136,6 +148,7 @@ tests:
           csharp: "new BsonDocument(\"graphLookup\", new BsonDocument\n    {\n        { \"from\", \"raw_data\" }, \n        { \"startWith\", \"$_id\" }, \n        { \"connectFromField\", \"_id\" }, \n        { \"connectToField\", \"manager\" }, \n        { \"as\", \"reports\" }\n    })"
           shell: "{\n  'graphLookup': {\n    'from': 'raw_data', \n    'startWith': '$_id', \n    'connectFromField': '_id', \n    'connectToField': 'manager', \n    'as': 'reports'\n  }\n}"
           object: "{ graphLookup : { \"from\" : \"raw_data\", \"startWith\" : \"$_id\", \"connectFromField\" : \"_id\", \"connectToField\" : \"manager\", \"as\" : \"reports\" } }"
+          php: "['graphLookup' => ['from' => 'raw_data', 'startWith' => '$_id', 'connectFromField' => '_id', 'connectToField' => 'manager', 'as' => 'reports']]"
           ruby: "{\n  'graphLookup' => {\n    'from' => 'raw_data',\n    'startWith' => '$_id',\n    'connectFromField' => '_id',\n    'connectToField' => 'manager',\n    'as' => 'reports'\n  }\n}"
           rust: |-
             doc! {
@@ -170,6 +183,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}"
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ status: 'A', $or: [{ qty: { $lt: 30 } }, { item: { $regex: '^p' } }] }"
+          php: "['status' => 'A', '$or' => [['qty' => ['$lt' => 30]], ['item' => ['$regex' => '^p']]]]"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
           rust: |-
             doc! {
@@ -206,6 +220,7 @@ tests:
           csharp: "new BsonDocument\n{\n    { \"status\", \"A\" }, \n    { \"$or\", new BsonArray\n    {\n        new BsonDocument(\"qty\", \n        new BsonDocument(\"$lt\", 30)),\n        new BsonDocument(\"item\", \n        new BsonDocument(\"$regex\", \"^p\"))\n    } }\n}"
           shell: "{\n  'status': 'A', \n  '$or': [\n    {\n      'qty': {\n        '$lt': 30\n      }\n    }, {\n      'item': {\n        '$regex': '^p'\n      }\n    }\n  ]\n}"
           object: "{ 'status': 'A', '$or': [{'qty': { '$lt': 30}}, {'item': { '$regex': '^p'}}]}"
+          php: "['status' => 'A', '$or' => [['qty' => ['$lt' => 30]], ['item' => ['$regex' => '^p']]]]"
           ruby: "{\n  'status' => 'A',\n  '$or' => [\n    {\n      'qty' => {\n        '$lt' => 30\n      }\n    }, {\n      'item' => {\n        '$regex' => '^p'\n      }\n    }\n  ]\n}"
           rust: |-
             doc! {
@@ -245,6 +260,7 @@ tests:
           shell: "[\n  '1', '2'\n]"
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
+          php: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
           rust: |-
             [
@@ -267,6 +283,7 @@ tests:
           shell: "[\n  '1', '2'\n]"
           python: "[\n    '1', '2'\n]"
           object: "['1', '2']"
+          php: "['1', '2']"
           ruby: "[\n  '1', '2'\n]"
           rust: |-
             [
@@ -289,6 +306,7 @@ tests:
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           python: "[\n    '1', {\n        'settings': 'http2'\n    }\n]"
           object: "['1', { settings: 'http2' }]"
+          php: "['1', ['settings' => 'http2']]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
           rust: |-
             [
@@ -313,6 +331,7 @@ tests:
           shell: "{\n  'pipeline': [\n    {\n      '$match': {\n        '$expr': {\n          '$eq': [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project': {\n        'managers': 0\n      }\n    }, {\n      '$sort': {\n        'startQuarter': 1, \n        'notes': 1, \n        'job_code': 1\n      }\n    }\n  ]\n}"
           python: "{\n    'pipeline': [\n        {\n            '$match': {\n                '$expr': {\n                    '$eq': [\n                        '$manager', '$$me'\n                    ]\n                }\n            }\n        }, {\n            '$project': {\n                'managers': 0\n            }\n        }, {\n            '$sort': {\n                'startQuarter': 1, \n                'notes': 1, \n                'job_code': 1\n            }\n        }\n    ]\n}"
           object: "{\"pipeline\": [ { $match: { $expr: { \"$eq\": [ \"$manager\", \"$$me\" ] } } }, { $project: { managers : 0 } }, { $sort: { startQuarter: 1, notes:1, job_code: 1 } } ]}"
+          php: "['pipeline' => [['$match' => ['$expr' => ['$eq' => ['$manager', '$$me']]]], ['$project' => ['managers' => 0]], ['$sort' => ['startQuarter' => 1, 'notes' => 1, 'job_code' => 1]]]]"
           ruby: "{\n  'pipeline' => [\n    {\n      '$match' => {\n        '$expr' => {\n          '$eq' => [\n            '$manager', '$$me'\n          ]\n        }\n      }\n    }, {\n      '$project' => {\n        'managers' => 0\n      }\n    }, {\n      '$sort' => {\n        'startQuarter' => 1,\n        'notes' => 1,\n        'job_code' => 1\n      }\n    }\n  ]\n}"
           rust: |-
             doc! {
@@ -385,6 +404,7 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           python: "[\n    '1', [\n        '2', '3'\n    ]\n]"
           object: "['1', ['2', '3']]"
+          php: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           rust: |-
             [
@@ -413,6 +433,7 @@ tests:
           shell: "[]"
           python: "[]"
           object: "[]"
+          php: "[]"
           ruby: "[]"
           rust: "[]"
           go: bson.A{}
@@ -425,6 +446,7 @@ tests:
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           python: "[\n    '1', [\n        '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
+          php: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           rust: |-
             [
@@ -453,6 +475,7 @@ tests:
           shell: "[\n  undefined, '1', '2'\n]"
           javascript: "[\n  undefined, '1', '2'\n]"
           object: "[undefined, '1', '2']"
+          php: "[null, '1', '2']"
           ruby: "[\n  nil, '1', '2'\n]"
           rust: |-
             [
@@ -476,6 +499,7 @@ tests:
           shell: "[\n  undefined\n]"
           javascript: "[\n  undefined\n]"
           object: "[undefined]"
+          php: "[null]"
           ruby: "[\n  nil\n]"
           rust: |-
             [
@@ -495,6 +519,7 @@ tests:
           shell: "[\n  undefined, undefined\n]"
           javascript: "[\n  undefined, undefined\n]"
           object: "[undefined, undefined]"
+          php: "[null, null]"
           ruby: "[\n  nil, nil\n]"
           rust: |-
             [
@@ -516,6 +541,7 @@ tests:
           shell: "[\n  '1', undefined, undefined, undefined, '2'\n]"
           javascript: "[\n  '1', undefined, undefined, undefined, '2'\n]"
           object: "['1', undefined, undefined, undefined, '2']"
+          php: "['1', null, null, null, '2']"
           ruby: "[\n  '1', nil, nil, nil, '2'\n]"
           rust: |-
             [
@@ -543,6 +569,7 @@ tests:
           csharp: "new BsonArray()"
           shell: "[]"
           object: "[]"
+          php: "[]"
           ruby: "[]"
           rust: "[]"
           go: bson.A{}
@@ -555,6 +582,7 @@ tests:
           csharp: "new BsonArray\n{\n    1\n}"
           shell: "[\n  1\n]"
           object: "[1]"
+          php: "[1]"
           ruby: "[\n  1\n]"
           rust: |-
             [
@@ -573,6 +601,7 @@ tests:
           csharp: "(1)"
           shell: "(1)"
           object: "(1)"
+          php: "(1)"
           ruby: "(1)"
           rust: "(1)"
           go: "(1)"
@@ -585,6 +614,7 @@ tests:
           csharp: "new BsonArray\n{\n    \"1\",\n    new BsonDocument(\"settings\", \"http2\")\n}"
           shell: "[\n  '1', {\n    'settings': 'http2'\n  }\n]"
           object: "['1', { 'settings': 'http2' }]"
+          php: "['1', ['settings' => 'http2']]"
           ruby: "[\n  '1', {\n    'settings' => 'http2'\n  }\n]"
           rust: |-
             [
@@ -607,6 +637,7 @@ tests:
           csharp: "new BsonArray\n{\n    \"1\",\n    new BsonArray\n    {\n        \"2\",\n        \"3\"\n    }\n}"
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
+          php: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           rust: |-
             [
@@ -633,6 +664,7 @@ tests:
           csharp: "new BsonArray\n{\n    \"1\",\n    new BsonArray\n    {\n        \"2\",\n        \"3\"\n    }\n}"
           shell: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           object: "['1', ['2', '3']]"
+          php: "['1', ['2', '3']]"
           ruby: "[\n  '1', [\n    '2', '3'\n  ]\n]"
           rust: |-
             [
@@ -662,6 +694,7 @@ tests:
           java: 2L + 5L - 1L
           csharp: 2 + 5 - 1
           object: 2 + 5 - 1
+          php: 2 + 5 - 1
           ruby: 2 + 5 - 1
           rust: 2 + 5 - 1
           go: 2 + 5 - 1
@@ -677,6 +710,7 @@ tests:
           java: 2L + (4L * 36L) / 3L
           csharp: 2 + (4 * 36) / 3
           object: 2 + (4 * 36) / 3
+          php: 2 + (4 * 36) / 3
           ruby: 2 + (4 * 36) / 3
           rust: 2 + (4 * 36) / 3
           go: 2 + (4 * 36) / 3
@@ -689,6 +723,7 @@ tests:
           java: floor(10L) % 3L
           csharp: Math.floor(10, 2) % 3
           object: Math.floor(10, 2)%3
+          php: \intdiv(10, 2) % 3
           ruby: 10.div(2) % 3
           rust: 10 / 2 % 3
           go: 10 / 2 % 3
@@ -701,6 +736,7 @@ tests:
           java: pow(6L, 7L)
           csharp: Math.pow(6, 7)
           object: Math.pow(6, 7)
+          php: 6 ** 7
           ruby: 6 ** 7
           rust: 6.pow(7)
           go: math.Pow(6, 7)
@@ -715,6 +751,7 @@ tests:
           java: 1L | 2L ^ 3L & 4L << 6L >> 7L
           csharp: 1 | 2 ^ 3 & 4 << 6 >> 7
           object: 1 | 2 ^ 3 & 4 << 6 >> 7
+          php: 1 | 2 ^ 3 & 4 << 6 >> 7
           ruby: 1 | 2 ^ 3 & 4 << 6 >> 7
           rust: 1 | 2 ^ 3 & 4 << 6 >> 7
           go: 1 | 2 ^ 3 & 4 << 6 >> 7
@@ -729,6 +766,7 @@ tests:
           java: 2L + +5L - -6L
           csharp: 2 + +5 - -6
           object: 2 + +5 - -6
+          php: 2 + +5 - -6
           ruby: 2 + +5 - -6
           rust: 2 + 5 - -6
           go: 2 + 5 - -6
@@ -744,6 +782,7 @@ tests:
           java: '+1L'
           csharp: '+1'
           object: '+1'
+          php: '+1'
           ruby: '+1'
           rust: '1'
           go: '1'
@@ -758,6 +797,7 @@ tests:
           java: '-1L'
           csharp: '-1'
           object: '-1'
+          php: '-1'
           ruby: '-1'
           rust: '-1'
           go: '-1'
@@ -772,6 +812,7 @@ tests:
           java: '~1L'
           csharp: '~1'
           object: '~1'
+          php: '~1'
           ruby: '~1'
           rust: '!1'
           go: '!1'
@@ -786,6 +827,7 @@ tests:
           java: 2d
           csharp: (int) 2
           object: Number(2)
+          php: '2'
           ruby: 2.to_f
           rust: '2'
           go: '2'
@@ -799,6 +841,7 @@ tests:
           java: 2d
           csharp: (int) 2
           object: Number(2)
+          php: '2'
           ruby: 2.to_f
           go: '2'
     - input:
@@ -811,6 +854,7 @@ tests:
           java: Double.parseDouble("2")
           csharp: int.Parse("2")
           object: Number(2)
+          php: "(int) '2'"
           ruby: "'2'.to_f"
           rust: "\"2\".parse::<i32>()?"
           go: |-
@@ -832,6 +876,7 @@ tests:
           java: 0d
           csharp: (int) 0
           object: '0'
+          php: '0'
           ruby: 0.to_f
           rust: '0'
           go: '0'
@@ -847,6 +892,7 @@ tests:
           java: '2L'
           csharp: '2'
           object: '2'
+          php: '2'
           ruby: '2'
           rust: '2'
           go: '2'
@@ -861,6 +907,7 @@ tests:
           java: '429496729601L'
           csharp: '429496729601'
           object: '429496729601'
+          php: '429496729601'
           ruby: '429496729601'
           rust: '429496729601'
           go: '429496729601'
@@ -875,6 +922,7 @@ tests:
           java: '2.001d'
           csharp: '2.001'
           object: '2.001'
+          php: '2.001'
           ruby: '2.001'
           rust: '2.001'
           go: '2.001'
@@ -889,6 +937,7 @@ tests:
           java: '0X123ABC'
           csharp: '0X123ABC'
           object: '0X123ABC'
+          php: '0X123ABC'
           ruby: '0X123ABC'
           rust: '0x123ABC'
           go: 0X123ABC
@@ -903,6 +952,7 @@ tests:
           java: '0x123abc'
           csharp: '0x123abc'
           object: '0x123abc'
+          php: '0x123abc'
           ruby: '0x123abc'
           rust: '0x123abc'
     - input:
@@ -916,6 +966,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '0o1234567'
+          php: '01234567'
           ruby: '0o1234567'
           rust: '0o1234567'
           go: 0o1234567
@@ -929,6 +980,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '01234567'
+          php: '01234567'
           ruby: '0o1234567'
           rust: '0o1234567'
           go: '01234567'
@@ -942,6 +994,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '001234567'
+          php: '01234567'
           ruby: '0o1234567'
           rust: '0o1234567'
           go: '001234567'
@@ -956,6 +1009,7 @@ tests:
           java: '01234567'
           csharp: '342391'
           object: '0O1234567'
+          php: '01234567'
           ruby: '0o1234567'
           rust: '0o1234567'
           go: 0O1234567
@@ -971,6 +1025,7 @@ tests:
           java: 'true'
           csharp: 'true'
           object: 'true'
+          php: 'true'
           ruby: 'true'
           rust: 'true'
           go: 'true'
@@ -985,6 +1040,7 @@ tests:
           java: 'false'
           csharp: 'false'
           object: 'false'
+          php: 'false'
           ruby: 'false'
           rust: 'false'
           go: 'false'
@@ -999,6 +1055,7 @@ tests:
           java: 'new BsonNull()'
           csharp: 'BsonNull.Value'
           object: 'null'
+          php: 'null'
           ruby: 'nil'
           rust: 'Bson::Null'
           go: primitive.Null{}
@@ -1012,6 +1069,7 @@ tests:
           java: 'new BsonUndefined()'
           csharp: 'BsonUndefined.Value'
           object: 'undefined'
+          php: 'null'
           ruby: 'nil'
           rust: 'Bson::Undefined'
           go: primitive.Undefined{}
@@ -1027,6 +1085,7 @@ tests:
           java: "\"string\""
           csharp: "\"string\""
           object: "'string'"
+          php: "'string'"
           ruby: "'string'"
           rust: "\"string\""
           go: '"string"'
@@ -1041,6 +1100,7 @@ tests:
           java: "\"string\""
           csharp: "\"string\""
           object: "\"string\""
+          php: "'string'"
           ruby: "'string'"
           rust: "\"string\""
           go: '"string"'
@@ -1053,6 +1113,7 @@ tests:
           csharp": "\"string\""
           shell": "'string'"
           object: "\"string\""
+          php: "'string'"
           ruby: "'string'"
           rust: "\"string\""
           go: '"string"'
@@ -1064,6 +1125,7 @@ tests:
           csharp: "\"string\""
           shell: "'string'"
           object: "\"string\""
+          php: "'string'"
           ruby: "'string'"
           rust: "\"string\""
           go: '"string"'
@@ -1075,6 +1137,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "'abc'"
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1086,6 +1149,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1097,6 +1161,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
     - input:
@@ -1107,6 +1172,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1118,6 +1184,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1129,6 +1196,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1140,6 +1208,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1151,6 +1220,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1162,6 +1232,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1173,6 +1244,7 @@ tests:
           csharp: "\"abc\""
           shell: "'abc'"
           object: "\"abc\""
+          php: "'abc'"
           ruby: "'abc'"
           rust: "\"abc\""
           go: '"abc"'
@@ -1187,6 +1259,7 @@ tests:
           java: '3'
           csharp: '3'
           object: 'new Int32(3)'
+          php: '3'
           ruby: '3'
           rust: '3'
           go: int32(3)
@@ -1199,6 +1272,7 @@ tests:
           java: Integer.parseInt("3")
           csharp: Convert.ToInt32("3")
           object: new Int32('3')
+          php: "(int) '3'"
           ruby: "'3'.to_i"
           rust: "\"3\".parse::<i32>()?"
           go: |-
@@ -1220,6 +1294,7 @@ tests:
           java: (int) 3.001d
           csharp: Convert.ToInt32(3.001)
           object: 'new Int32(3.001)'
+          php: '(int) 3.001'
           ruby: '3.001.to_i'
           rust: 'i32::try_from(3.001)?'
           go: int32(3.001)
@@ -1232,6 +1307,7 @@ tests:
           java: (int) 0x3
           csharp: Convert.ToInt32(0x3)
           object: 'new Int32(0x3)'
+          php: '0x3'
           ruby: '0x3.to_i'
           rust: '0x3'
           go: int32(0x3)
@@ -1244,6 +1320,7 @@ tests:
           java: (int) 03
           csharp: '3'
           object: 'new Int32(0o3)'
+          php: '03'
           ruby: '0o3.to_i'
           rust: '0o3'
           go: int32(0o3)
@@ -1256,6 +1333,7 @@ tests:
           java: '3d'
           csharp: '3.0'
           object: new Double(3)
+          php: '3.0'
           ruby: 3.to_f
           rust: '3.0'
           go: float64(3)
@@ -1268,6 +1346,7 @@ tests:
           java: Double.parseDouble("3")
           csharp: Convert.ToDouble("3")
           object: new Double('3')
+          php: "(float) '3'"
           ruby: "'3'.to_f"
           rust: "\"3\".parse::<f32>()?"
           go: |-
@@ -1289,6 +1368,7 @@ tests:
           java: 3.001d
           csharp: '3.001'
           object: new Double(3.001)
+          php: '3.001'
           ruby: '3.001'
           rust: '3.001'
           go: float64(3.001)
@@ -1301,6 +1381,7 @@ tests:
           java: (double) 0x3
           csharp: Convert.ToDouble(0x3)
           object: new Double(0x3)
+          php: (float) 0x3
           ruby: 0x3.to_f
           rust: 'f32::try_from(0x3)?'
           go: float64(0x3)
@@ -1313,6 +1394,7 @@ tests:
           java: (double) 03
           csharp: '3.0'
           object: new Double(0o3)
+          php: (float) 03
           ruby: 0o3.to_f
           rust: 'f32::try_from(0o3)?'
           go: float64(0o3)
@@ -1329,6 +1411,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: "new Date()"
+          php: new UTCDateTime()
           ruby: Time.new.utc
           rust: DateTime::now()
           go: time.Now()
@@ -1343,6 +1426,7 @@ tests:
           java: new java.util.Date().getTime()
           csharp: DateTime.Now
           object: "1" # just checks type and not value
+          php: new UTCDateTime()
           ruby: Time.now.utc
           rust: "DateTime::now()"
           go: time.Now()
@@ -1357,6 +1441,7 @@ tests:
           java: new java.util.Date(819158400000L)
           csharp: new DateTime(1995, 12, 17, 0, 0, 0)
           object: new Date(1995, 11, 17)
+          php: new UTCDateTime(819158400000)
           ruby: Time.utc(1995, 12, 17, 0, 0, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T00:00:00.000Z")?
           go: time.Date(1995, 12, 17, 0, 0, 0, 0, time.UTC)
@@ -1371,6 +1456,7 @@ tests:
           java: new java.util.Date(819170640000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           object: new Date(1995, 11, 17, 3, 24)
+          php: new UTCDateTime(819170640000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1385,6 +1471,7 @@ tests:
           java: new java.util.Date(819170695000L)
           csharp: new DateTime(1995, 12, 17, 3, 24, 55)
           object: new Date('Sun, 17 Dec 1995 03:24:55 GMT')
+          php: new UTCDateTime(819170695000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 55)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:55.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 55, 0, time.UTC)
@@ -1398,6 +1485,7 @@ tests:
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
+          php: new UTCDateTime(819170640000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1411,6 +1499,7 @@ tests:
           java: new java.util.Date(819167040000L)
           csharp: new DateTime(1995, 12, 17, 2, 24, 0)
           object: new Date(819167040000)
+          php: new UTCDateTime(819167040000)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T02:24:00.000Z")?
           go: time.Date(1995, 12, 17, 2, 24, 0, 0, time.UTC)
@@ -1425,6 +1514,7 @@ tests:
           javascript: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           shell: Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: Date('Sun, 17 Dec 1995 03:24:00 GMT')
+          php: (new UTCDateTime(819170640000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?.to_rfc3339_string()
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1438,6 +1528,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819167040000L))
           csharp: new DateTime(1995, 12, 17, 2, 24, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(819167040000)
+          php: (new UTCDateTime(819167040000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
           ruby: Time.utc(1995, 12, 17, 2, 24, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
           rust: DateTime::parse_rfc3339_str("1995-12-17T02:24:00.000Z")?.to_rfc3339_string()
           go: time.Date(1995, 12, 17, 2, 24, 0, 0, time.UTC)
@@ -1451,6 +1542,7 @@ tests:
           java: new SimpleDateFormat("EEE MMMMM dd yyyy HH:mm:ss").format(new java.util.Date(819158400000L))
           csharp: new DateTime(1995, 12, 17, 0, 0, 0).ToString("ddd MMM dd yyyy HH':'mm':'ss UTC")
           object: Date(1995, 11, 17)
+          php: (new UTCDateTime(819158400000))->toDateTime()->format(\DateTimeInterface::RFC3339_EXTENDED)
           ruby: Time.utc(1995, 12, 17, 0, 0, 0).strftime('%a %b %d %Y %H:%M:%S %Z')
           rust: DateTime::parse_rfc3339_str("1995-12-17T00:00:00.000Z")?.to_rfc3339_string()
           go: time.Date(1995, 12, 17, 0, 0, 0, 0, time.UTC)
@@ -1463,6 +1555,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
+          php: new UTCDateTime(819170640000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1474,6 +1567,7 @@ tests:
           csharp: new DateTime(1995, 12, 17, 3, 24, 0)
           javascript: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
           object: new Date('Sun, 17 Dec 1995 03:24:00 GMT')
+          php: new UTCDateTime(819170640000)
           ruby: Time.utc(1995, 12, 17, 3, 24, 0)
           rust: DateTime::parse_rfc3339_str("1995-12-17T03:24:00.000Z")?
           go: time.Date(1995, 12, 17, 3, 24, 0, 0, time.UTC)
@@ -1486,6 +1580,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: new Date()
+          php: new UTCDateTime()
           ruby: Time.new.utc
           rust: DateTime::now()
           go: time.Now()
@@ -1498,6 +1593,7 @@ tests:
           java: new java.util.Date()
           csharp: DateTime.Now
           object: "new Date()"
+          php: new UTCDateTime()
           ruby: Time.new.utc
           rust: DateTime::now()
           go: time.Now()
@@ -1514,6 +1610,7 @@ tests:
           java: "Pattern.compile(\"(?:)\")"
           csharp: "new Regex(\"(?:)\")"
           object: "RegExp('')"
+          php: 'new Regex("(?:)")'
           ruby: "/(?:)/"
           rust: "Regex { pattern: \"(?:)\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "(?:)"}'
@@ -1529,6 +1626,7 @@ tests:
           csharp: "new Regex(\"abc\")"
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
+          php: 'new Regex("abc")'
           ruby: "/abc/"
           rust: "Regex { pattern: \"abc\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "abc"}'
@@ -1541,6 +1639,7 @@ tests:
           csharp: "new Regex(\"abc\")"
           shell: "new RegExp('abc')"
           object: "new RegExp('abc')"
+          php: 'new Regex("abc")'
           ruby: "/abc/"
           rust: "Regex { pattern: \"abc\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "abc"}'
@@ -1556,6 +1655,7 @@ tests:
           csharp: "new Regex(\"(?im)ab+c\")"
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
+          php: 'new Regex("ab+c", "im")'
           ruby: "/ab+c/im"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"im\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "im"}'
@@ -1568,6 +1668,7 @@ tests:
           csharp: "new Regex(\"(?im)ab+c\")"
           shell: "new RegExp('ab+c', 'im')"
           object: "new RegExp('ab+c', 'im')"
+          php: 'new Regex("ab+c", "im")'
           ruby: "/ab+c/im"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"im\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "im"}'
@@ -1582,6 +1683,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
+          php: 'new Regex("ab+c", "i")'
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "gi"}'
@@ -1597,6 +1699,7 @@ tests:
           csharp: "new Regex(\"ab\\/cd\")"
           shell: "new RegExp('ab\\/cd')"
           object: "new RegExp('ab\\/cd')"
+          php: 'new Regex("ab\/cd")'
           ruby: "/ab\\/cd/"
           rust: "Regex { pattern: \"ab\\/cd\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab\/cd"}'
@@ -1612,6 +1715,7 @@ tests:
           csharp: "new Regex(\"ab\\\"ab\")"
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
+          php: 'new Regex("ab\"ab")'
           ruby: "/ab\"ab/"
           rust: "Regex { pattern: \"ab\\\"ab\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab\"ab"}'
@@ -1627,6 +1731,7 @@ tests:
           csharp: "new Regex(\"ab\\\"ab\")"
           shell: "new RegExp('ab\"ab')"
           object: "new RegExp('ab\"ab')"
+          php: 'new Regex("ab\"ab")'
           ruby: "/ab\"ab/"
           rust: "Regex { pattern: \"ab\\\"ab\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab\"ab"}'
@@ -1642,6 +1747,7 @@ tests:
           csharp: "new Regex(\"ab'ab\")"
           shell: "new RegExp('ab\\'ab')"
           object: "new RegExp('ab\\'ab')"
+          php: "new Regex(\"ab'ab\")"
           ruby: "/ab'ab/"
           rust: "Regex { pattern: \"ab'ab\".to_string(), options: \"\".to_string() }"
           go: "primitive.Regex{Pattern: \"ab'ab\"}"
@@ -1657,6 +1763,7 @@ tests:
           java: "Pattern.compile(\"ab'ab\")"
           csharp: "new Regex(\"ab'ab\")"
           object: "new RegExp('ab\\'ab')"
+          php: "new Regex(\"ab'ab\")"
           ruby: "/ab'ab/"
           rust: "Regex { pattern: \"ab'ab\".to_string(), options: \"\".to_string() }"
           go: "primitive.Regex{Pattern: \"ab'ab\"}"
@@ -1672,6 +1779,7 @@ tests:
           java: "Pattern.compile(\"\\\\n\")"
           csharp: "new Regex(\"\\n\")"
           object: /\n/
+          php: 'new Regex("\n")'
           ruby: /\n/
           rust: "Regex { pattern: \"\\n\".to_string(), options: \"\".to_string() }"
           go: 'primitive.Regex{Pattern: "\n"}'
@@ -1686,6 +1794,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'gi')"
           object: "new RegExp('ab+c', 'gi')"
+          php: 'new Regex("ab+c", "i")'
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "gi"}'
@@ -1701,6 +1810,7 @@ tests:
           csharp: "new Regex(\"(?i)ab+c\")"
           shell: "new RegExp('ab+c', 'i')"
           object: "new RegExp('ab+c', 'i')"
+          php: 'new Regex("ab+c", "i")'
           ruby: "/ab+c/i"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"i\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "i"}'
@@ -1714,6 +1824,7 @@ tests:
           csharp: "new Regex(\"ab+c\")"
           shell: "new RegExp('ab+c', 'u')"
           object: "new RegExp('ab+c', 'u')"
+          php: 'new Regex("ab+c")'
           ruby: "/ab+c/"
           rust: "Regex { pattern: \"ab+c\".to_string(), options: \"u\".to_string() }"
           go: 'primitive.Regex{Pattern: "ab+c", Options: "u"}'
