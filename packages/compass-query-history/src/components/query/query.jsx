@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Code, Label, css, spacing } from '@mongodb-js/compass-components';
+import { Body, Code, css, spacing } from '@mongodb-js/compass-components';
 
 import { formatQuery } from '../../utils';
 
@@ -21,6 +21,7 @@ const queryAttributeStyles = css({
 
 const labelStyles = css({
   textTransform: 'capitalize',
+  fontWeight: 'bold',
 });
 
 const codeStyles = css({
@@ -60,11 +61,11 @@ class Query extends PureComponent {
         className={queryAttributeStyles}
         key={index}
       >
-        <Label
+        <Body
           data-test-id="query-history-query-label"
           className={labelStyles}
           htmlFor={`query-history-query-attr-${attrKey}`}
-        >{attrKey}</Label>
+        >{attrKey}</Body>
         <Code
           className={codeStyles}
           id={`query-history-query-attr-${attrKey}`}
