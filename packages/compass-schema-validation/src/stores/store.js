@@ -81,16 +81,9 @@ const configureStore = (options = {}) => {
 
     store.dispatch(serverVersionChanged(instance.version));
 
-    /**
-     * When the collection is changed, update the store.
-     *
-     * @param {String} ns - The full namespace.
-     */
     if (options.namespace) {
       const namespace = toNS(options.namespace);
       store.dispatch(namespaceChanged(namespace));
-
-      // TODO: shouldn't this update if the namespace is updated? Is that even possible?
     }
 
     if (options.dataProvider) {
