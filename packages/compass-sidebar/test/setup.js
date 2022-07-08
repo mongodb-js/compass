@@ -10,11 +10,6 @@ const appRegistry = new AppRegistry();
 global.hadronApp = hadronApp;
 global.hadronApp.appRegistry = new AppRegistry();
 
-// TODO: replace with App.InstanceStore
-appRegistry.registerStore(
-  'DeploymentAwareness.WriteStateStore',
-  WriteStateStore
-);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 

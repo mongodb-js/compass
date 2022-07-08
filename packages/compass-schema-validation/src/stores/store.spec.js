@@ -16,15 +16,6 @@ describe('Schema Validation Store', function () {
   let store;
   const globalAppRegistry = new AppRegistry();
   const localAppRegistry = new AppRegistry();
-  const writeStateStore = { state: { isWritable: true } };
-
-  before(function () {
-    // TODO: replace
-    globalAppRegistry.registerStore(
-      'DeploymentAwareness.WriteStateStore',
-      writeStateStore
-    );
-  });
 
   beforeEach(function () {
     store = configureStore({
