@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { ConfirmationModal, Description } from '@mongodb-js/compass-components';
 import type { RootState } from '../stores';
 import { deleteItemConfirm, deleteItemCancel } from '../stores/delete-item';
-import type { Item } from '../stores/aggregations-queries-items';
+import type { AggregationQueryItem } from '@mongodb-js/compass-store';
 
 type DeleteItemModalProps = {
   isOpen: boolean;
-  itemType: Item['type'] | null;
+  itemType: AggregationQueryItem['type'] | null;
   onDeleteCancel: () => void;
   onDeleteConfirm: () => void;
 };

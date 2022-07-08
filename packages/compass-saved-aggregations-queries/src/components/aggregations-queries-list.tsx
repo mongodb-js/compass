@@ -1,6 +1,11 @@
-import React, { useEffect, useCallback, useContext, useRef } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useContext,
+  useRef,
+  useMemo,
+} from 'react';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
 import {
   VirtualGrid,
   css,
@@ -8,10 +13,7 @@ import {
   useSortControls,
   useSortedItems,
 } from '@mongodb-js/compass-components';
-import { fetchItems } from '../stores/aggregations-queries-items';
-import type { Item } from '../stores/aggregations-queries-items';
 import { openSavedItem } from '../stores/open-item';
-import type { RootState } from '../stores/index';
 import { SavedItemCard, CARD_WIDTH, CARD_HEIGHT } from './saved-item-card';
 import type { Action } from './saved-item-card';
 import { NoSavedItems, NoSearchResults } from './empty-list-items';
@@ -19,12 +21,14 @@ import OpenItemModal from './open-item-modal';
 import EditItemModal from './edit-item-modal';
 import DeleteItemModal from './delete-item-modal';
 import { useGridFilters, useFilteredItems } from '../hooks/use-grid-filters';
-import { editItem } from '../stores/edit-item';
-import { deleteItem } from '../stores/delete-item';
-import { copyToClipboard } from '../stores/copy-to-clipboard';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
+// import { editItem } from '../stores/edit-item';
+// import { deleteItem } from '../stores/delete-item';
+// import { copyToClipboard } from '../stores/copy-to-clipboard';
+import type { AggregationQueryItem } from '@mongodb-js/compass-store';
+import {
+  useSavedAggregationsQueriesItems,
+  useLoggingAndTelemetry,
+} from '@mongodb-js/compass-store';
 
 /**
  * Runs an effect, but only after the value changes for the first time (skipping
@@ -51,13 +55,13 @@ function useEffectOnChange<T>(fn: React.EffectCallback, val: T) {
   }, [val]);
 }
 
-const sortBy: { name: keyof Item; label: string }[] = [
+const sortBy: { name: keyof AggregationQueryItem; label: string }[] = [
   {
     name: 'name',
     label: 'Name',
   },
   {
-    name: 'lastModified',
+    name: 'updatedAt',
     label: 'Last Modified',
   },
 ];
@@ -98,18 +102,25 @@ const GridControls = () => {
   );
 };
 
+type AggregationsQueriesListProps = {
+  onOpenItem(item?: AggregationQueryItem): void;
+  onEditItem(id: string): void;
+  onDeleteItem(id: string): void;
+  onCopyToClipboard(id: string): void;
+};
+
 const AggregationsQueriesList = ({
-  loading,
-  items,
-  onMount,
   onOpenItem,
   onEditItem,
   onDeleteItem,
   onCopyToClipboard,
 }: AggregationsQueriesListProps) => {
-  useEffect(() => {
-    void onMount();
-  }, [onMount]);
+  const { items: _items, loaded } = useSavedAggregationsQueriesItems();
+  const { track } = useLoggingAndTelemetry('COMPASS-MY-QUERIES-UI');
+
+  const items = useMemo(() => {
+    return _items.filter((item) => item.name);
+  }, [_items]);
 
   const {
     controls: filterControls,
@@ -154,7 +165,7 @@ const AggregationsQueriesList = ({
     (id: string, actionName: Action) => {
       switch (actionName) {
         case 'open':
-          onOpenItem(id);
+          onOpenItem(items.find((item) => item.id === id));
           return;
         case 'rename':
           onEditItem(id);
@@ -167,7 +178,7 @@ const AggregationsQueriesList = ({
           return;
       }
     },
-    [onOpenItem, onEditItem, onDeleteItem, onCopyToClipboard]
+    [onOpenItem, onEditItem, onDeleteItem, onCopyToClipboard, items]
   );
 
   const renderItem: React.ComponentProps<typeof VirtualGrid>['renderItem'] =
@@ -185,7 +196,7 @@ const AggregationsQueriesList = ({
             name={item.name}
             database={item.database}
             collection={item.collection}
-            lastModified={item.lastModified}
+            updatedAt={item.updatedAt}
             onAction={onAction}
             data-testid={`grid-item-${index}`}
             {...props}
@@ -195,7 +206,7 @@ const AggregationsQueriesList = ({
       [onAction, sortedItems]
     );
 
-  if (loading) {
+  if (!loaded) {
     return null;
   }
 
@@ -228,27 +239,18 @@ const AggregationsQueriesList = ({
         resetActiveItemOnBlur={false}
       ></VirtualGrid>
       <OpenItemModal></OpenItemModal>
-      <EditItemModal></EditItemModal>
-      <DeleteItemModal></DeleteItemModal>
+      {/* <EditItemModal></EditItemModal> */}
+      {/* <DeleteItemModal></DeleteItemModal> */}
     </ControlsContext.Provider>
   );
 };
 
-const mapState = ({ savedItems: { items, loading } }: RootState) => ({
-  items,
-  loading,
-});
+const mapState = () => ({});
 
 const mapDispatch = {
-  onMount: fetchItems,
   onOpenItem: openSavedItem,
-  onEditItem: editItem,
-  onDeleteItem: deleteItem,
-  onCopyToClipboard: copyToClipboard,
 };
 
 const connector = connect(mapState, mapDispatch);
-
-type AggregationsQueriesListProps = ConnectedProps<typeof connector>;
 
 export default connector(AggregationsQueriesList);

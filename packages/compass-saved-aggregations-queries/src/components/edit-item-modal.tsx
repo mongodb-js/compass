@@ -9,14 +9,14 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
+import type { AggregationQueryItem } from '@mongodb-js/compass-store';
 import type { RootState } from '../stores';
 import type { UpdateItemAttributes } from '../stores/edit-item';
-import type { Item } from '../stores/aggregations-queries-items';
 import { cancelEditItem, updateItem } from '../stores/edit-item';
 
 type EditItemModalProps = {
   isModalOpen: boolean;
-  item?: Pick<Item, 'id' | 'name' | 'type'>;
+  item?: Pick<AggregationQueryItem, 'id' | 'name' | 'type'>;
   onSubmit(id: string, attributes: UpdateItemAttributes): void;
   onCancel: () => void;
 };

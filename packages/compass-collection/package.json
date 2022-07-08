@@ -63,8 +63,8 @@
     "mongodb-collection-model": "^4.25.0",
     "mongodb-data-service": "^21.23.0",
     "numeral": "*",
-    "react": "*",
-    "react-dom": "*"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.13.0",

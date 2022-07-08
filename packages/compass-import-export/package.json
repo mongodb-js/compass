@@ -59,8 +59,8 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.16.0",
-    "react": "*",
-    "react-dom": "*"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.13.0",
@@ -90,7 +90,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-bootstrap": "^0.32.1",
-    "react-dom": "*",
+    "react-dom": "^16.14.0",
     "react-redux": "^5.0.6",
     "redux": "^4.1.2",
     "redux-thunk": "^2.3.0",

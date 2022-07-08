@@ -18,7 +18,7 @@ const { track } = createLoggerAndTelemetry(
   'COMPASS-DATABASES-COLLECTIONS-LIST-UI'
 );
 
-type Item = { _id: string } & Record<string, unknown>;
+type Item = { name: string } & Record<string, unknown>;
 
 const row = css({
   paddingLeft: spacing[3],
@@ -186,7 +186,7 @@ export const ItemsGrid = <T extends Item>({
         itemsCount={sortedItems.length}
         colCount={viewType === 'list' ? 1 : undefined}
         renderItem={renderItem}
-        itemKey={(index: number) => sortedItems[index]._id}
+        itemKey={(index: number) => sortedItems[index]}
         headerHeight={CONTROLS_HEIGHT}
         renderHeader={GridControls}
         classNames={{

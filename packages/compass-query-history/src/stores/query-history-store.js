@@ -30,20 +30,6 @@ const configureStore = (options = {}) => {
      */
     listenables: options.actions,
 
-    showFavorites() {
-      track('Query History Favorites');
-      this.setState({
-        showing: 'favorites'
-      });
-    },
-
-    showRecent() {
-      track('Query History Recent');
-      this.setState({
-        showing: 'recent'
-      });
-    },
-
     collapse() {
       if (!this.state.collapsed) {
         track('Query History Closed');
@@ -78,7 +64,6 @@ const configureStore = (options = {}) => {
      */
     getInitialState() {
       return {
-        showing: 'recent',
         collapsed: true,
         ns: mongodbns('')
       };
@@ -99,25 +84,6 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('toggle-query-history', () => {
       store.toggleCollapse();
     });
-
-    // Configure all the other stores.
-    const favoriteListStore = localAppRegistry.getStore(FAVORITE_LIST_STORE);
-    const recentListStore = localAppRegistry.getStore(RECENT_LIST_STORE);
-    const headerStore = localAppRegistry.getStore(HEADER_STORE);
-
-    if (!favoriteListStore.saveRecent) {
-      localAppRegistry.registerStore(FAVORITE_LIST_STORE, configureFavoriteListStore(options));
-    }
-
-    if (!recentListStore.addRecent) {
-      localAppRegistry.registerStore(RECENT_LIST_STORE, configureRecentListStore(options));
-    }
-
-    if (!headerStore.showRecent) {
-      localAppRegistry.registerStore(HEADER_STORE, configureHeaderStore(options));
-    }
-
-    store.localAppRegistry = localAppRegistry;
   }
 
   return store;

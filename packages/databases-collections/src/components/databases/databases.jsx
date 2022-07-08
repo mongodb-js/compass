@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { ZeroState } from 'hadron-react-components';
 import { Banner, BannerVariant, Link, WorkspaceContainer } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
+import { useDatabases, isError } from '@mongodb-js/compass-store';
 
 import styles from './databases.module.less';
 
@@ -34,10 +35,11 @@ function NonGenuineZeroState() {
   );
 }
 
-class Databases extends PureComponent {
+class _Databases extends PureComponent {
   static propTypes = {
     databases: PropTypes.array.isRequired,
-    databasesStatus: PropTypes.object.isRequired,
+    databasesStatus: PropTypes.string.isRequired,
+    databasesError: PropTypes.string,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
@@ -56,6 +58,7 @@ class Databases extends PureComponent {
     const {
       databases,
       databasesStatus,
+      databasesError,
       isReadonly,
       isWritable,
       isDataLake,
@@ -65,11 +68,11 @@ class Databases extends PureComponent {
       onCreateDatabaseClick,
     } = this.props;
 
-    if (databasesStatus.status === 'error') {
+    if (isError(databasesStatus)) {
       return (
         <div className={styles['databases-error']}>
           <Banner variant={BannerVariant.Danger}>
-            {ERROR_WARNING}: {databasesStatus.error}
+            {ERROR_WARNING}: {databasesError}
           </Banner>
         </div>
       );
@@ -98,8 +101,6 @@ class Databases extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  databases: state.databases,
-  databasesStatus: state.databasesStatus,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
   isGenuineMongoDB: state.isGenuineMongoDB,
@@ -129,7 +130,18 @@ const mapDispatchToProps = {
 const ConnectedDatabases = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Databases);
+)(_Databases);
 
-export default ConnectedDatabases;
+const Databases = () => {
+  const databases = useDatabases();
+  return (
+    <ConnectedDatabases
+      databases={databases.items}
+      databasesStatus={databases.status}
+      databasesError={databases.error}
+    />
+  );
+};
+
+export default Databases;
 export { Databases };

@@ -8,11 +8,8 @@ import {
   Option,
   TextInput,
 } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
-
-import type { Item } from '../stores/aggregations-queries-items';
+import type { AggregationQueryItem } from '@mongodb-js/compass-store';
+import { useLoggingAndTelemetry } from '@mongodb-js/compass-store';
 
 interface SelectState {
   database?: string;
@@ -21,7 +18,7 @@ interface SelectState {
 
 interface FilterItem {
   score: number;
-  item: Item;
+  item: AggregationQueryItem;
 }
 
 const selectContainer = css({
@@ -76,6 +73,7 @@ const FilterSelect: React.FunctionComponent<{
 
 function useSearchFilter(): [React.ReactElement, string] {
   const [search, setSearch] = useState('');
+  const telemetry = useLoggingAndTelemetry('COMPASS-MY-QUERIES-UI');
   const searchControls = useMemo(() => {
     return (
       <TextInput
@@ -89,18 +87,20 @@ function useSearchFilter(): [React.ReactElement, string] {
         }}
         onBlur={() => {
           if (search.length > 0) {
-            track('My Queries Search');
+            telemetry.track('My Queries Search');
           }
         }}
         spellCheck={false}
       />
     );
-  }, [search]);
+  }, [search, telemetry]);
 
   return [searchControls, search];
 }
 
-function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
+function useSelectFilter(
+  items: AggregationQueryItem[]
+): [React.ReactElement, SelectState] {
   const [selectedDatabase, setSelectedDatabase] = useState<
     string | undefined
   >();
@@ -169,7 +169,10 @@ function useSelectFilter(items: Item[]): [React.ReactElement, SelectState] {
   return [selectControls, selectState];
 }
 
-function filterItemByConditions(item: Item, conditions: SelectState): boolean {
+function filterItemByConditions(
+  item: FilterItem['item'],
+  conditions: SelectState
+): boolean {
   if (Object.keys(conditions).length === 0) {
     return true;
   }
@@ -184,11 +187,14 @@ function filterItemByConditions(item: Item, conditions: SelectState): boolean {
   return shouldReturnItem;
 }
 
-export function filterByText(items: Item[], text: string): FilterItem[] {
+export function filterByText(
+  items: FilterItem['item'][],
+  text: string
+): FilterItem[] {
   if (!text || text.length === 1) {
     return items.map((item) => ({ item, score: 1 }));
   }
-  const fuse = new Fuse<Item>(items, {
+  const fuse = new Fuse<FilterItem['item']>(items, {
     findAllMatches: true,
     shouldSort: false,
     minMatchCharLength: 2,
@@ -213,7 +219,7 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
         weight: 1,
       },
     ],
-    getFn: (item: Item, path) => {
+    getFn: (item: FilterItem['item'], path) => {
       // The `path` here can only be names from the `keys` configuration option
       // so it is safe to assert the type here. Additionally the argument value
       // is typed by the library as string | string[]. Even though the library
@@ -269,7 +275,7 @@ function filterByConditions(items: FilterItem[], conditions: SelectState) {
   );
 }
 
-export function useGridFilters(items: Item[]): {
+export function useGridFilters(items: AggregationQueryItem[]): {
   controls: React.ReactElement;
   conditions: SelectState;
   search: string;
@@ -294,7 +300,7 @@ export function useGridFilters(items: Item[]): {
 }
 
 export function useFilteredItems(
-  items: Item[],
+  items: FilterItem['item'][],
   conditions: SelectState,
   search: string
 ): FilterItem[] {

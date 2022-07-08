@@ -2,7 +2,6 @@ import type AppRegistry from 'hadron-app-registry';
 import { createStore, applyMiddleware, combineReducers } from 'redux';
 import type { Store, AnyAction } from 'redux';
 import thunk from 'redux-thunk';
-import itemsReducer from './aggregations-queries-items';
 import instanceReducer, { setInstance, resetInstance } from './instance';
 import dataServiceReducer, {
   setDataService,
@@ -15,7 +14,6 @@ import appRegistryReducer, { setAppRegistry } from './app-registry';
 
 const _store = createStore(
   combineReducers({
-    savedItems: itemsReducer,
     instance: instanceReducer,
     dataService: dataServiceReducer,
     openItem: openItemReducer,

@@ -4,8 +4,9 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import SavePipelineCard from './save-pipeline-card/save-pipeline-card';
 import styles from './save-pipeline.module.less';
+import { useSavedAggregations, useDeleteSavedItem } from '@mongodb-js/compass-store';
 
-class SavePipeline extends Component {
+class _SavePipeline extends Component {
   static displayName = 'SavePipelineComponent';
 
   static propTypes = {
@@ -13,7 +14,8 @@ class SavePipeline extends Component {
     restorePipelineFrom: PropTypes.func.isRequired,
     deletePipeline: PropTypes.func.isRequired,
     savedPipelinesListToggle: PropTypes.func.isRequired,
-    savedPipeline: PropTypes.object.isRequired
+    isVisible: PropTypes.bool.isRequired,
+    items: PropTypes.array.isRequired
   }
 
   handleSavedPipelinesClose = () => {
@@ -26,21 +28,24 @@ class SavePipeline extends Component {
    * @returns {Component} The component.
    */
   render() {
-    const pipelines = this.props.savedPipeline.pipelines.map((pipeline, i) => {
+    const pipelines = this.props.items.map((item) => {
       return (
         <SavePipelineCard
+          key={item.id}
+          name={item.name}
+          objectID={item.aggregation.id}
           restorePipelineModalToggle={this.props.restorePipelineModalToggle}
           restorePipelineFrom={this.props.restorePipelineFrom}
-          deletePipeline={this.props.deletePipeline}
-          name={pipeline.name}
-          objectID={pipeline.id}
-          key={i}/>
+          deletePipeline={() => {
+            this.props.deletePipeline(item.id);
+          }}
+        />
       );
     });
 
     const className = classnames({
       [ styles['save-pipeline'] ]: true,
-      [ styles['save-pipeline-is-visible'] ]: this.props.savedPipeline.isListVisible
+      [ styles['save-pipeline-is-visible'] ]: this.props.isVisible
     });
 
     return (
@@ -59,4 +64,26 @@ class SavePipeline extends Component {
   }
 }
 
-export default SavePipeline;
+const SavedPipelineList = ({
+  namespace,
+  restorePipelineModalToggle,
+  restorePipelineFrom,
+  savedPipelinesListToggle,
+  savedPipeline
+}) => {
+  const items = useSavedAggregations(namespace);
+  const deletePipeline = useDeleteSavedItem();
+
+  return (
+    <_SavePipeline
+      isVisible={savedPipeline.isListVisible}
+      savedPipelinesListToggle={savedPipelinesListToggle}
+      restorePipelineModalToggle={restorePipelineModalToggle}
+      restorePipelineFrom={restorePipelineFrom}
+      deletePipeline={deletePipeline}
+      items={items}
+    ></_SavePipeline>
+  );
+};
+
+export default SavedPipelineList;

@@ -31,12 +31,8 @@ class FavoriteListItem extends PureComponent {
 
   render() {
     const { model, className } = this.props;
-
-    const attributes = this.props.model.getAttributes({ props: true });
-
-    Object.keys(attributes)
-      .filter(key => key.charAt(0) === '_')
-      .forEach(key => delete attributes[key]);
+    const { filter, project, sort, skip, limit, collation } = this.props.model;
+    const attributes = { filter, project, sort, skip, limit, collation };
 
     return (
       <Card className={className}>

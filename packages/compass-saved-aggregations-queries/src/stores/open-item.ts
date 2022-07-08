@@ -1,8 +1,8 @@
 import type { ActionCreator, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
-import type { Item } from './aggregations-queries-items';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { AggregationQueryItem } from '@mongodb-js/compass-store';
+import type { RootState } from '.';
 
 const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
 
@@ -10,7 +10,7 @@ export type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
 export type State = {
   isModalOpen: boolean;
-  selectedItem: Item | null;
+  selectedItem: AggregationQueryItem | null;
   createCollectionStatus: Status;
   databases: string[];
   selectedDatabase: string | null;
@@ -48,7 +48,7 @@ export enum ActionTypes {
 
 type OpenModalAction = {
   type: ActionTypes.OpenModal;
-  selectedItem: Item;
+  selectedItem: AggregationQueryItem;
 };
 
 type CloseModalAction = {
@@ -175,7 +175,9 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
 };
 
 const openModal =
-  (selectedItem: Item): ThunkAction<void, RootState, void, Actions> =>
+  (
+    selectedItem: AggregationQueryItem
+  ): ThunkAction<void, RootState, void, Actions> =>
   async (dispatch, getState) => {
     dispatch({ type: ActionTypes.OpenModal, selectedItem });
 
@@ -204,11 +206,11 @@ export const closeModal: ActionCreator<CloseModalAction> = () => {
 
 const openItem =
   (
-    item: Item,
+    item: AggregationQueryItem,
     database: string,
     collection: string
   ): ThunkAction<void, RootState, void, Actions> =>
-  async (dispatch, getState) => {
+  async (_dispatch, getState) => {
     const { dataService, instance, appRegistry } = getState();
 
     if (!instance || !dataService || !appRegistry) {
@@ -237,27 +239,27 @@ const openItem =
       }
     );
 
+    // TODO: This is redux state from compass-store we are passing and
+    // aggregation plugin immediately tries to mutate it when opening the tab
+    // which blows up because all redux state is read only in RTK and can only
+    // be updated in reducers. Quick hack to make it work for now
+    const clone = obj => JSON.parse(JSON.stringify(obj))
+
     appRegistry.emit('open-namespace-in-new-tab', {
       ...metadata,
-      aggregation: item.type === 'aggregation' ? item.aggregation : null,
-      query: item.type === 'query' ? item.query : null,
+      aggregation: item.type === 'aggregation' ? clone(item.aggregation) : null,
+      query: item.type === 'query' ? clone(item.query) : null,
     });
   };
 
 export const openSavedItem =
-  (id: string): ThunkAction<void, RootState, void, Actions> =>
+  (item?: AggregationQueryItem): ThunkAction<void, RootState, void, Actions> =>
   async (dispatch, getState) => {
-    const {
-      instance,
-      dataService,
-      savedItems: { items },
-    } = getState();
-
-    const item = items.find((item) => item.id === id);
-
     if (!item) {
       return;
     }
+
+    const { instance, dataService } = getState();
 
     if (!instance || !dataService) {
       return;

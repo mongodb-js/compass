@@ -33,6 +33,10 @@ class Query extends PureComponent {
   renderAttr = (attrKey, index) => {
     const { attributes } = this.props;
 
+    if (typeof attributes[attrKey] === 'undefined') {
+      return null;
+    }
+
     return (
       <li key={index}>
         <label

@@ -1,27 +1,11 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { ComponentProps } from 'react';
 import { spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import type { BadgeProp } from './namespace-card';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
-
-type Collection = {
-  _id: string;
-  name: string;
-  type: string;
-  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-  document_count: number;
-  document_size: number;
-  avg_document_size: number;
-  storage_size: number;
-  free_storage_size: number;
-  index_count: number;
-  index_size: number;
-  size: number;
-  properties: { id: string }[];
-  source?: Collection;
-};
+import { useCollection } from '@mongodb-js/compass-store';
 
 const COLLECTION_CARD_WIDTH = spacing[6] * 4;
 
@@ -75,6 +59,79 @@ function collectionPropertyToBadge({
   }
 }
 
+type Collection = ReturnType<typeof useCollection>;
+
+const CollectionItem: React.FunctionComponent<
+  { item: Collection } & Pick<
+    ComponentProps<typeof NamespaceItemCard>,
+    'onItemClick' | 'onItemDeleteClick' | 'viewType'
+  >
+> = ({ item: coll, ...props }) => {
+  const {
+    stats: { data: stats, status: statsStatus },
+    info: { data: info, status: infoStatus },
+  } = useCollection(coll.name);
+
+  const status =
+    statsStatus === 'Fetching' ||
+    statsStatus === 'Refreshing' ||
+    infoStatus === 'Fetching' ||
+    infoStatus === 'Refreshing'
+      ? 'fetching'
+      : statsStatus === 'Error' || infoStatus === 'Error'
+      ? 'error'
+      : 'ready';
+
+  const data =
+    coll.type === 'view'
+      ? [{ label: 'View on', value: info?.viewOn }]
+      : [
+          {
+            label: 'Storage size',
+            value: stats
+              ? compactBytes(stats.storageSize - stats.freeStorageSize)
+              : 0,
+            hint: `Uncompressed data size: ${
+              stats ? compactBytes(stats.size) : 0
+            }`,
+          },
+          {
+            label: 'Documents',
+            value: stats ? compactNumber(stats.documentCount) : 0,
+          },
+          {
+            label: 'Avg. document size',
+            value: stats ? compactBytes(stats.avgDocumentSize) : 0,
+          },
+          {
+            label: 'Indexes',
+            value: stats ? compactNumber(stats.indexCount) : 0,
+          },
+          {
+            label: 'Total index size',
+            value: stats ? compactBytes(stats.indexSize) : 0,
+          },
+        ];
+
+  // const badges = coll.properties.map((prop) => {
+  //   return collectionPropertyToBadge(prop);
+  // });
+  const badges: [] = [];
+
+  return (
+    <NamespaceItemCard
+      id={coll.name}
+      key={coll.name}
+      name={coll.name}
+      type="collection"
+      status={status}
+      data={data}
+      badges={badges}
+      {...props}
+    ></NamespaceItemCard>
+  );
+};
+
 const CollectionsList: React.FunctionComponent<{
   collections: Collection[];
   onCollectionClick(id: string): void;
@@ -104,60 +161,7 @@ const CollectionsList: React.FunctionComponent<{
       onItemClick={onCollectionClick}
       onDeleteItemClick={onDeleteCollectionClick}
       onCreateItemClick={onCreateCollectionClick}
-      renderItem={({
-        item: coll,
-        onItemClick,
-        onDeleteItemClick,
-        ...props
-      }) => {
-        const data =
-          coll.type === 'view'
-            ? [{ label: 'View on', value: coll.source?.name }]
-            : [
-                {
-                  label: 'Storage size',
-                  value: compactBytes(
-                    coll.storage_size - coll.free_storage_size
-                  ),
-                  hint: `Uncompressed data size: ${compactBytes(coll.size)}`,
-                },
-                {
-                  label: 'Documents',
-                  value: compactNumber(coll.document_count),
-                },
-                {
-                  label: 'Avg. document size',
-                  value: compactBytes(coll.avg_document_size),
-                },
-                {
-                  label: 'Indexes',
-                  value: compactNumber(coll.index_count),
-                },
-                {
-                  label: 'Total index size',
-                  value: compactBytes(coll.index_size),
-                },
-              ];
-
-        const badges = coll.properties.map((prop) => {
-          return collectionPropertyToBadge(prop);
-        });
-
-        return (
-          <NamespaceItemCard
-            id={coll._id}
-            key={coll._id}
-            name={coll.name}
-            type="collection"
-            status={coll.status}
-            data={data}
-            badges={badges}
-            onItemClick={onItemClick}
-            onItemDeleteClick={onDeleteItemClick}
-            {...props}
-          ></NamespaceItemCard>
-        );
-      }}
+      renderItem={CollectionItem}
     ></ItemsGrid>
   );
 };

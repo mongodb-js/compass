@@ -16,14 +16,14 @@ import {
   MenuItem,
   IconButton,
 } from '@mongodb-js/compass-components';
-import type { Item } from '../stores/aggregations-queries-items';
+import type { AggregationQueryItem } from '@mongodb-js/compass-store';
 import { formatDate } from '../utlis/format-date';
 
 export type Action = 'open' | 'delete' | 'copy' | 'rename';
 
 export type SavedItemCardProps = Pick<
-  Item,
-  'id' | 'type' | 'name' | 'database' | 'collection' | 'lastModified'
+  AggregationQueryItem,
+  'id' | 'type' | 'name' | 'database' | 'collection' | 'updatedAt'
 > & {
   onAction(id: string, actionName: Action): void;
 };
@@ -120,7 +120,7 @@ const namespaceGroup = css({
   marginBottom: spacing[3],
 });
 
-const lastModifiedLabel = css({
+const updatedAtLabel = css({
   fontStyle: 'italic',
 });
 
@@ -219,7 +219,7 @@ export const SavedItemCard: React.FunctionComponent<
   name,
   database,
   collection,
-  lastModified,
+  updatedAt,
   onAction,
   ...containerProps
 }) => {
@@ -237,7 +237,7 @@ export const SavedItemCard: React.FunctionComponent<
     defaultActionProps
   );
 
-  const formattedDate = useFormattedDate(lastModified);
+  const formattedDate = useFormattedDate(updatedAt);
 
   return (
     // @ts-expect-error the error here is caused by passing children to Card
@@ -269,9 +269,7 @@ export const SavedItemCard: React.FunctionComponent<
         <NamespacePart type="database" name={database}></NamespacePart>
         <NamespacePart type="collection" name={collection}></NamespacePart>
       </div>
-      <div className={lastModifiedLabel}>
-        Last&nbsp;modified: {formattedDate}
-      </div>
+      <div className={updatedAtLabel}>Last&nbsp;modified: {formattedDate}</div>
     </Card>
   );
 };

@@ -9,6 +9,8 @@ function isConnectionAttemptTerminatedError(err: Error) {
   return err?.name === 'MongoError' && err?.message === 'Topology closed';
 }
 
+// TODO: This depends on dataService implementation too much, should be part of
+// the store
 export class ConnectionAttempt {
   _cancelled: Promise<void>;
   _cancelConnectionAttempt?: () => void;

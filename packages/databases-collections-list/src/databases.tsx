@@ -1,18 +1,59 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { ComponentProps } from 'react';
 import { spacing } from '@mongodb-js/compass-components';
 import { compactBytes, compactNumber } from './format';
 import { NamespaceItemCard } from './namespace-card';
 import { ItemsGrid } from './items-grid';
+import {
+  useDatabaseStats,
+  isError,
+  isReady,
+  useDatabases,
+} from '@mongodb-js/compass-store';
 
-type Database = {
-  _id: string;
-  name: string;
-  status: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
-  storage_size: number;
-  data_size: number;
-  index_count: number;
-  collectionsLength: number;
+type Database = ReturnType<typeof useDatabases>['items'][number];
+
+const DatabaseItem: React.FunctionComponent<
+  { item: string } & Pick<
+    ComponentProps<typeof NamespaceItemCard>,
+    'viewType' | 'onItemClick'
+  >
+> = ({ item, ...props }) => {
+  const dbName = item;
+  const { data: stats, status } = useDatabaseStats(dbName) ?? {};
+
+  return (
+    <NamespaceItemCard
+      id={dbName}
+      name={dbName}
+      type="database"
+      status={
+        !status
+          ? 'initial'
+          : isReady(status)
+          ? 'ready'
+          : isError(status)
+          ? 'error'
+          : 'fetching'
+      }
+      data={[
+        {
+          label: 'Storage size',
+          value: compactBytes(stats?.storageSize ?? 0),
+          hint: `Uncompressed data size: ${compactBytes(stats?.dataSize ?? 0)}`,
+        },
+        {
+          label: 'Collections',
+          value: compactNumber(stats?.collectionCount ?? 0),
+        },
+        {
+          label: 'Indexes',
+          value: compactNumber(stats?.indexCount ?? 0),
+        },
+      ]}
+      {...props}
+    ></NamespaceItemCard>
+  );
 };
 
 const DATABASE_CARD_WIDTH = spacing[6] * 4;
@@ -22,7 +63,7 @@ const DATABASE_CARD_HEIGHT = 154;
 const DATABASE_CARD_LIST_HEIGHT = 118;
 
 const DatabasesList: React.FunctionComponent<{
-  databases: Database[];
+  databases: string[];
   onDatabaseClick(id: string): void;
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
@@ -48,42 +89,7 @@ const DatabasesList: React.FunctionComponent<{
       onItemClick={onDatabaseClick}
       onDeleteItemClick={onDeleteDatabaseClick}
       onCreateItemClick={onCreateDatabaseClick}
-      renderItem={({
-        item: db,
-        onItemClick,
-        onDeleteItemClick,
-        viewType,
-        ...props
-      }) => {
-        return (
-          <NamespaceItemCard
-            id={db._id}
-            key={db._id}
-            name={db.name}
-            type="database"
-            viewType={viewType}
-            status={db.status}
-            data={[
-              {
-                label: 'Storage size',
-                value: compactBytes(db.storage_size),
-                hint: `Uncompressed data size: ${compactBytes(db.data_size)}`,
-              },
-              {
-                label: 'Collections',
-                value: compactNumber(db.collectionsLength),
-              },
-              {
-                label: 'Indexes',
-                value: compactNumber(db.index_count),
-              },
-            ]}
-            onItemClick={onItemClick}
-            onItemDeleteClick={onDeleteItemClick}
-            {...props}
-          ></NamespaceItemCard>
-        );
-      }}
+      renderItem={DatabaseItem}
     ></ItemsGrid>
   );
 };

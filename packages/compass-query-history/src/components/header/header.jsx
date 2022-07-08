@@ -9,59 +9,25 @@ class Header extends PureComponent {
   static displayName = 'QueryHistoryHeader';
 
   static propTypes = {
-    actions: PropTypes.object.isRequired,
-    showing: PropTypes.oneOf(['recent', 'favorites']).isRequired
-  };
-
-  static defaultProps = {
-    showing: 'recent'
-  };
-
-  onViewSwitch = (label) => {
-    if (label === 'Recent') {
-      this.showRecent();
-    } else if (label === 'Favorites') {
-      this.showFavorites();
-    }
-  };
-
-  showRecent = () => {
-    const { showing, actions } = this.props;
-
-    if (showing !== 'recent') {
-      actions.showRecent();
-    }
-  };
-
-  showFavorites = () => {
-    const { showing, actions } = this.props;
-
-    if (showing !== 'favorites') {
-      actions.showFavorites();
-    }
-  }
-
-  collapse = () => {
-    this.props.actions.collapse();
+    onViewSwitchClick: PropTypes.func.isRequired,
+    onCollapseClick: PropTypes.func.isRequired,
+    currentView: PropTypes.oneOf(['Recent', 'Favorites']).isRequired
   };
 
   render() {
-    const { showing } = this.props;
-    const activeButton = showing === 'recent' ? 'Recent' : 'Favorites';
-
     return (
       <div className={classnames(styles.component)}>
         <ViewSwitcher
           dataTestId="past-queries"
           label="Past Queries"
           buttonLabels={['Recent', 'Favorites']}
-          activeButton={activeButton}
-          onClick={this.onViewSwitch} />
+          activeButton={this.props.currentView}
+          onClick={this.props.onViewSwitchClick} />
         <span
           className={classnames(styles.close)}
           data-test-id="query-history-button-close-panel"
           href="#"
-          onClick={this.collapse}>
+          onClick={this.props.onCollapseClick}>
           ×
         </span>
       </div>

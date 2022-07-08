@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import mongodbns from 'mongodb-ns';
-import { StoreConnector } from 'hadron-react-components';
 
 // Components
 import Header from '../header';
@@ -16,42 +15,38 @@ class QueryHistory extends PureComponent {
 
   static propTypes = {
     actions: PropTypes.object.isRequired,
-    store: PropTypes.object.isRequired,
-    showing: PropTypes.oneOf(['recent', 'favorites']),
     collapsed: PropTypes.bool,
     ns: PropTypes.object
   };
 
   static defaultProps = {
-    showing: 'recent',
     collapsed: true,
     ns: mongodbns('')
   };
 
+  state = {
+    currentView: 'Recent'
+  }
+
   renderFavorites = () => (
-    <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.FavoriteListStore')}>
-      <FavoriteList
-        data-test-id="query-history-list-favorites"
-        ns={this.props.ns}
-        actions={this.props.actions}
-        zeroStateTitle="Favorite a query to see it saved here!"
-      />
-    </StoreConnector>
+    <FavoriteList
+      data-test-id="query-history-list-favorites"
+      ns={this.props.ns}
+      zeroStateTitle="Favorite a query to see it saved here!"
+    />
   );
 
   renderRecents = () => (
-    <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.RecentListStore')}>
-      <RecentList
-        data-test-id="query-history-list-recent"
-        ns={this.props.ns}
-        actions={this.props.actions}
-        zeroStateTitle="Run a query to see it saved here!"
-      />
-    </StoreConnector>
+    <RecentList
+      data-test-id="query-history-list-recent"
+      ns={this.props.ns}
+      zeroStateTitle="Run a query to see it saved here!"
+    />
   );
 
   render() {
-    const { collapsed, showing, actions } = this.props;
+    const { collapsed } = this.props;
+    const { currentView } = this.state;
 
     if (collapsed) {
       return null;
@@ -63,16 +58,19 @@ class QueryHistory extends PureComponent {
         className={styles.component}
       >
         <div className={styles.inner}>
-          <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.HeaderStore')}>
-            <Header
-              data-test-id="query-history-header"
-              actions={actions}
-              showing={showing}
-            />
-          </StoreConnector>
+          <Header
+            data-test-id="query-history-header"
+            onViewSwitchClick={(newVal) => {
+              this.setState({ currentView: newVal });
+            }}
+            currentView={currentView}
+            onCollapseClick={() => {
+              this.props.actions.collapse();
+            }}
+          />
 
-          {showing === 'favorites' ? this.renderFavorites() : null}
-          {showing === 'recent' ? this.renderRecents() : null}
+          {currentView === 'Favorites' ? this.renderFavorites() : null}
+          {currentView === 'Recent' ? this.renderRecents() : null}
         </div>
       </div>
     );

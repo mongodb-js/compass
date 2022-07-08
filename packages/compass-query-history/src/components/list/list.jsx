@@ -55,11 +55,16 @@ const factory = (ListItem, Saving) => {
     };
 
     render() {
-      const { items, ns, actions } = this.props;
+      const { items, actions } = this.props;
 
-      const renderItems = items
-        .filter( item => item._ns === ns.ns)
-        .map((item, index) => (<ListItem key={index + 1} className={classnames(styles.item)} model={item} actions={actions} />));
+      const renderItems = items.map((item) => (
+        <ListItem
+          key={item.id}
+          className={classnames(styles.item)}
+          model={item}
+          actions={actions}
+        />
+      ));
 
       return (
         <div className={classnames(styles.component)}>

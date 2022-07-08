@@ -366,6 +366,8 @@ export function useConnections({
     };
   }, []);
 
+  // TODO: Connection form knows too much unrelated info about connection
+  // process
   const connect = async (connectionInfo: ConnectionInfo) => {
     if (connectionAttempt || isConnected) {
       // Ensure we aren't currently connecting.

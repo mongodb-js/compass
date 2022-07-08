@@ -65,6 +65,7 @@
     "@mongodb-js/compass-components": "^0.16.0",
     "@mongodb-js/compass-logging": "^0.13.0",
     "@mongodb-js/compass-query-history": "^8.25.0",
+    "@mongodb-js/compass-store": "^0.1.0",
     "@react-aria/utils": "^3.13.1",
     "bson": "^4.6.1",
     "fuse.js": "^6.5.3",

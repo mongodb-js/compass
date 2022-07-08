@@ -174,6 +174,7 @@ class Pipeline extends PureComponent {
     if (!this.props.isAtlasDeployed) {
       return (
         <SavePipeline
+          namespace={this.props.namespace}
           restorePipelineModalToggle={this.props.restorePipelineModalToggle}
           restorePipelineFrom={this.props.restorePipelineFrom}
           deletePipeline={this.props.deletePipeline}
