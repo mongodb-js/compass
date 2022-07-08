@@ -19,8 +19,6 @@ import CreateDatabasePlugin from '../../src/components/create-database-plugin';
 import DropDatabasePlugin from '../../src/components/drop-database-plugin';
 import DatabasesCollectionsPlugin from './components/databases-collections';
 import CollectionStore from './mocks/collection-store';
-// TODO: remove
-import TextWriteButton from './mocks/text-write-button';
 
 const appRegistry = new AppRegistry();
 
@@ -29,7 +27,6 @@ global.hadronApp.appRegistry = appRegistry;
 
 appRegistry.registerStore('App.NamespaceStore', NamespaceStore);
 appRegistry.registerStore('App.CollectionStore', CollectionStore);
-appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);
@@ -112,6 +109,7 @@ dataService.connect((error, ds) => {
             return;
           }
 
+          // TODO: remove this
           appRegistry.emit('server-version-changed', info.version);
         });
 

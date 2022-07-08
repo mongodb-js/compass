@@ -26,11 +26,8 @@ global.hadronApp.appRegistry = appRegistry;
 
 // Activate our plugin with the Hadron App Registry
 const QueryChangedStore = require('./stores/query-changed-store');
-// TODO: remove
-const TextWriteButton = require('./components/text-write-button');
 const OptionWriteSelector = require('./components/option-write-selector');
 appRegistry.registerStore('Query.ChangedStore', QueryChangedStore);
-appRegistry.registerComponent('DeploymentAwareness.TextWriteButton', TextWriteButton);
 appRegistry.registerComponent('DeploymentAwareness.OptionWriteSelector', OptionWriteSelector);
 
 activate(appRegistry);
