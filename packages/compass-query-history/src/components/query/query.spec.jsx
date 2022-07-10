@@ -26,7 +26,7 @@ describe('Query [Component]', function() {
 
     it('renders the attribute label', function() {
       const node = component.find('[data-test-id="query-history-query-label"]');
-      expect(node).to.have.text('filter');
+      expect(node).to.contain.html('>filter<');
     });
 
     it('renders the formatted attributes with a Code component', function() {
