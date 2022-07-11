@@ -172,7 +172,7 @@ class CreateIndexField extends PureComponent {
             usePortal={false}
             allowDeselect={false}
             value={this.props.field.type}
-            popoverZIndex="1000000"
+            popoverZIndex={999999}
             aria-labelledby="Field Type"
           >
             {this.getDropdownTypes()}
