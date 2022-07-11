@@ -64,31 +64,6 @@ const MODIFYING = 'modifying';
 const LIST = 'List';
 
 /**
- * Input type.
- */
-const TYPE = 'text';
-
-/**
- * Styles attribute.
- */
-const STYLES = 'styles';
-
-/**
- * Input display.
- */
-const DISPLAY = 'display: none;';
-
-/**
- * Input type.
- */
-const INPUT = 'input';
-
-/**
- * Copy command.
- */
-const COPY = 'copy';
-
-/**
  * The delete error message.
  */
 const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id field.');
@@ -384,17 +359,9 @@ const configureStore = (options = {}) => {
      */
     copyToClipboard(doc) {
       track('Document Copied', { mode: this.modeForTelemetry() });
-      const documentJSON = doc.toEJSON();
-      let input = document.createElement(INPUT);
-      input.type = TYPE;
-      input.setAttribute(STYLES, DISPLAY);
-      input.value = documentJSON;
-      document.body.appendChild(input);
-      input.select();
-      const success = document.execCommand(COPY);
-      document.body.removeChild(input);
-      input = null;
-      return success;
+      const documentEJSON = doc.toEJSON();
+      // eslint-disable-next-line no-undef
+      void navigator.clipboard.writeText(documentEJSON);
     },
 
     /**
