@@ -29,6 +29,7 @@ const getObjectGenerator = require('./codegeneration/object/Generator');
 const getRubyGenerator = require('./codegeneration/ruby/Generator.js');
 const getGoGenerator = require('./codegeneration/go/Generator.js');
 const getRustGenerator = require('./codegeneration/rust/Generator.js');
+const getPhpGenerator = require('./codegeneration/php/Generator.js');
 
 const javascriptjavasymbols = require('./lib/symbol-table/javascripttojava');
 const javascriptpythonsymbols = require('./lib/symbol-table/javascripttopython');
@@ -38,6 +39,7 @@ const javascriptobjectsymbols = require('./lib/symbol-table/javascripttoobject')
 const javascriptrubysymbols = require('./lib/symbol-table/javascripttoruby');
 const javascriptgosymbols = require('./lib/symbol-table/javascripttogo');
 const javascriptrustsymbols = require('./lib/symbol-table/javascripttorust');
+const javascriptphpsymbols = require('./lib/symbol-table/javascripttophp');
 
 const shelljavasymbols = require('./lib/symbol-table/shelltojava');
 const shellpythonsymbols = require('./lib/symbol-table/shelltopython');
@@ -47,6 +49,7 @@ const shellobjectsymbols = require('./lib/symbol-table/shelltoobject');
 const shellrubysymbols = require('./lib/symbol-table/shelltoruby');
 const shellgosymbols = require('./lib/symbol-table/shelltogo');
 const shellrustsymbols = require('./lib/symbol-table/shelltorust');
+const shellphpsymbols = require('./lib/symbol-table/shelltophp');
 
 const pythonjavasymbols = require('./lib/symbol-table/pythontojava');
 const pythonshellsymbols = require('./lib/symbol-table/pythontoshell');
@@ -56,6 +59,7 @@ const pythonobjectsymbols = require('./lib/symbol-table/pythontoobject');
 const pythonrubysymbols = require('./lib/symbol-table/pythontoruby');
 const pythongosymbols = require('./lib/symbol-table/pythontogo');
 const pythonrustsymbols = require('./lib/symbol-table/pythontorust');
+const pythonphpsymbols = require('./lib/symbol-table/pythontophp');
 
 /**
  * Constructs the parse tree from the JS or Shell code given by the user.
@@ -235,6 +239,12 @@ module.exports = {
       getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
       getRustGenerator,
       javascriptrustsymbols
+    ),
+    php: getTranspiler(
+      loadJSTree,
+      getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor)),
+      getPhpGenerator,
+      javascriptphpsymbols
     )
   },
   shell: {
@@ -285,6 +295,12 @@ module.exports = {
       getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
       getRustGenerator,
       shellrustsymbols
+    ),
+    php: getTranspiler(
+      loadJSTree,
+      getShellVisitor(getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))),
+      getPhpGenerator,
+      shellphpsymbols
     )
   },
   python: {
@@ -335,6 +351,12 @@ module.exports = {
       getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
       getRustGenerator,
       pythonrustsymbols
+    ),
+    php: getTranspiler(
+      loadPyTree,
+      getPythonVisitor(getCodeGenerationVisitor(PythonANTLRVisitor)),
+      getPhpGenerator,
+      pythonphpsymbols
     )
   },
   getTree: {

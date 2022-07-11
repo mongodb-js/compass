@@ -64,31 +64,6 @@ const MODIFYING = 'modifying';
 const LIST = 'List';
 
 /**
- * Input type.
- */
-const TYPE = 'text';
-
-/**
- * Styles attribute.
- */
-const STYLES = 'styles';
-
-/**
- * Input display.
- */
-const DISPLAY = 'display: none;';
-
-/**
- * Input type.
- */
-const INPUT = 'input';
-
-/**
- * Copy command.
- */
-const COPY = 'copy';
-
-/**
  * The delete error message.
  */
 const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id field.');
@@ -384,17 +359,9 @@ const configureStore = (options = {}) => {
      */
     copyToClipboard(doc) {
       track('Document Copied', { mode: this.modeForTelemetry() });
-      const documentJSON = doc.toEJSON();
-      let input = document.createElement(INPUT);
-      input.type = TYPE;
-      input.setAttribute(STYLES, DISPLAY);
-      input.value = documentJSON;
-      document.body.appendChild(input);
-      input.select();
-      const success = document.execCommand(COPY);
-      document.body.removeChild(input);
-      input = null;
-      return success;
+      const documentEJSON = doc.toEJSON();
+      // eslint-disable-next-line no-undef
+      void navigator.clipboard.writeText(documentEJSON);
     },
 
     /**
@@ -926,40 +893,18 @@ const configureStore = (options = {}) => {
           });
         }
 
-        // check if the newly inserted document matches the current filter, by
-        // running the same filter but targeted only to the doc's _id.
-        const filter = Object.assign({}, this.state.query.filter, { _id: doc._id });
-        this.dataService.count(this.state.ns, filter, {}, (err, count) => {
-          if (err) {
-            return this.setState({
-              insert: this.getInitialInsertState()
-            });
-          }
-          // track mode for analytics events
-          const payload = {
-            ns: this.state.ns,
-            view: this.state.view,
-            mode: this.state.insert.jsonView ? 'json' : 'default',
-            multiple: false,
-            docs: [doc],
-          };
-          this.localAppRegistry.emit('document-inserted', payload);
-          this.globalAppRegistry.emit('document-inserted', payload);
+        const payload = {
+          ns: this.state.ns,
+          view: this.state.view,
+          mode: this.state.insert.jsonView ? 'json' : 'default',
+          multiple: false,
+          docs: [doc],
+        };
+        this.localAppRegistry.emit('document-inserted', payload);
+        this.globalAppRegistry.emit('document-inserted', payload);
 
-          // count is greater than 0, if 1 then the new doc matches the filter
-          if (count > 0) {
-            return this.setState({
-              docs: this.state.docs.concat([ new HadronDocument(doc) ]),
-              count: this.state.count + 1,
-              end: this.state.end + 1,
-              insert: this.getInitialInsertState()
-            });
-          }
-          this.setState({
-            count: this.state.count + 1,
-            insert: this.getInitialInsertState()
-          });
-        });
+        this.state.insert = this.getInitialInsertState();
+        this.refreshDocuments();
       });
     },
 

@@ -126,7 +126,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === 'Displaying documents 0 - 1 of 1';
+      return text === 'Displaying documents 1 - 1 of 1';
     });
 
     const result = await getFirstListDocument(browser);
@@ -198,7 +198,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === 'Displaying documents 0 - 1 of 1';
+      return text === 'Displaying documents 1 - 1 of 1';
     });
 
     const result = await getFirstListDocument(browser);

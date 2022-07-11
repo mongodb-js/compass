@@ -1,4 +1,3 @@
-/* eslint-disable no-loop-func */
 import React from 'react';
 import PropTypes from 'prop-types';
 import {AgGridReact} from 'ag-grid-react';
@@ -14,8 +13,6 @@ import HeaderComponent from './table-view/header-cell-renderer';
 import CellEditor from './table-view/cell-editor';
 
 import './document-table-view.less';
-
-/* eslint react/sort-comp:0 */
 
 const MIXED = 'Mixed';
 
@@ -102,7 +99,7 @@ class DocumentTableView extends React.Component {
     this.gridApi.destroy();
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.hadronDocs = nextProps.docs;
   }
 

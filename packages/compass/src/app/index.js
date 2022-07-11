@@ -48,7 +48,6 @@ const Preferences = require('compass-preferences-model');
 var User = require('compass-user-model');
 
 require('./menu-renderer');
-var Router = require('./router');
 marky.mark('Migrations');
 var migrateApp = require('./migrations');
 marky.stop('Migrations');
@@ -122,9 +121,6 @@ var Application = View.extend({
     user: User,
     preferences: Preferences
   },
-  events: {
-    'click a': 'onLinkClick'
-  },
   initialize: function() {
     /**
      * @see NODE-4281
@@ -150,39 +146,6 @@ var Application = View.extend({
     webvitals.getLCP(trackPerfEvent);
     webvitals.getFID(trackPerfEvent);
     webvitals.getCLS(trackPerfEvent);
-  },
-  startRouter: function() {
-    if (this.router) {
-      return debug('router already started!');
-    }
-    this.router = new Router();
-
-    debug('Starting router...');
-    this.router.history.start({
-      pushState: false,
-      root: '/'
-    });
-  },
-  /**
-   * When you want to go to a different page in the app or just save
-   * state via the URL.
-   * @param {String} fragment - To update the location bar with.
-   * @param {Object} [options] - `silent` and `params`
-   */
-  navigate: function(fragment, options) {
-    options = _.defaults(options || {}, {
-      silent: false,
-      params: null
-    });
-    if (options.params) {
-      const qs = require('qs');
-      fragment += '?' + qs.stringify(options.params);
-    }
-
-    var hash = fragment.charAt(0) === '/' ? fragment.slice(1) : fragment;
-    this.router.history.navigate(hash, {
-      trigger: !options.silent
-    });
   },
   /**
    * Pre-load into the require cache a bunch of expensive modules while the
@@ -225,6 +188,16 @@ var Application = View.extend({
       );
     }
 
+    this.homeComponent = app.appRegistry.getComponent('Home.Home');
+    ReactDOM.render(
+      React.createElement(this.homeComponent, {
+        appRegistry: app.appRegistry,
+        // TODO: Get rid of remote
+        appName: electron.remote.app.getName(),
+      }),
+      this.queryByHook('layout-container')
+    );
+
     const handleTour = () => {
       if (app.preferences.showFeatureTour) {
         this.showTour(false);
@@ -266,22 +239,6 @@ var Application = View.extend({
     app.preferences.save();
     if (!app.preferences.showedNetworkOptIn) {
       this.showOptIn();
-    }
-  },
-  onLinkClick: function(event) {
-    const localLinks = require('local-links');
-    const pathname = localLinks.getLocalPathname(event);
-    if (pathname) {
-      event.preventDefault();
-      this.router.history.navigate(pathname);
-      return;
-    } else if (
-      event.target.getAttribute('href') &&
-      event.target.getAttribute('href') !== '#'
-    ) {
-      event.preventDefault();
-      event.stopPropagation();
-      electron.shell.openExternal(event.target.href);
     }
   },
   fetchUser: function(done) {
@@ -349,7 +306,6 @@ var state = new Application();
 
 app.extend({
   client: null,
-  navigate: state.navigate.bind(state),
   isFeatureEnabled: function(feature) {
     // proxy to preferences for now
     return this.preferences.isFeatureEnabled(feature);
@@ -416,7 +372,6 @@ app.extend({
           // as soon as dom is ready, render and set up the rest
           state.render();
           marky.stop('Time to Connect rendered');
-          state.startRouter();
           state.postRender();
           marky.stop('Time to user can Click Connect');
           if (process.env.MONGODB_COMPASS_TEST_UNCAUGHT_EXCEPTION) {

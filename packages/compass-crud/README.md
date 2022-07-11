@@ -139,9 +139,7 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 we manage: `crud-store`(`./src/stores/crud-store.js`) and
 `grid-store`(`./src/stores/grid-store.js`). Overall structure of this repo:
 
-- `./config`: webpack configurations for dev, prod, and testing
-- `./electron`: electron setup to run this plugin locally.
-- `./lib`: webpack-compiled version of this plugin.
+- `./dist`: webpack-compiled version of this plugin.
 - `./scripts`: scripts to `link` and `unlink` React version to compass when
   developing this locally in Compass.
 - `./src/actions`: reflux actions that are available throughout this plugin.
@@ -150,13 +148,6 @@ we manage: `crud-store`(`./src/stores/crud-store.js`) and
   components have a `.jsx`, `.spec.js`, `.less` and `.js` files.
 - `./src/stores`: home to reflux stores.
 - `./src/utils`: util `.js` files to be used throughout the plugin.
-
-### Running locally
-`./electron` directory contains an Electron instance that allows for this plugin
-to be developed in isolation from other Compass plugins. By default it sets up a
-MongoDB connection to `echo` database and `artists` collection. To get it to
-work with a db and collection of your choice, change [db variable
-here][db-variable] and [collection variable here][coll-variable].
 
 ## Install
 ```shell
@@ -170,8 +161,6 @@ npm install -S @mongodb-js/compass-crud
 
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
-[hadron-app]: https://github.com/mongodb-js/hadron-app
-[hadron-app-registry]: https://github.com/mongodb-js/hadron-app-registry
-[compass]: https://github.com/mongodb-js/compass
-[db-variable]: https://github.com/mongodb-js/compass-crud/blob/master/electron/renderer/index.js#L21
-[coll-variable]: https://github.com/mongodb-js/compass-crud/blob/master/electron/renderer/index.js#L22
+[hadron-app]: https://github.com/mongodb-js/compass/packages/hadron-app
+[hadron-app-registry]: https://github.com/mongodb-js/compass/packages/hadron-app-registry
+[compass]: https://github.com/mongodb-js/compass/packages/compass

@@ -65,7 +65,7 @@ export const deleteItemCancel = (): DeleteItemCancelAction => {
 };
 
 export const deleteItemConfirm = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions

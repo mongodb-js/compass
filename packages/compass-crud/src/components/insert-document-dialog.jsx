@@ -38,7 +38,8 @@ class InsertDocumentDialog extends React.PureComponent {
    *
    * @param {Object} nextProps - The new properties.
    */
-  componentWillReceiveProps(nextProps) { // eslint-disable-line complexity
+  // TODO: COMPASS-5847 Remove deprecated react function usage.
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const isMany = this.hasManyDocuments();
 
     if (!isMany) {
