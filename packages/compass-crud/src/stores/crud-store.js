@@ -1,6 +1,6 @@
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
-import { findIndex, isEmpty } from 'lodash';
+import { findIndex, isEmpty, isEqual } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -494,6 +494,27 @@ const configureStore = (options = {}) => {
           // _verifyUpdateAllowed emitted update-error
           return;
         }
+
+        if (
+          this.dataService.getCSFLEMode &&
+          this.dataService.getCSFLEMode() === 'enabled' &&
+          object.__safeContent__ &&
+          isEqual(
+            object.__safeContent__,
+            doc.generateOriginalObject().__safeContent__
+          ) &&
+          (
+            await this.dataService
+              .getCSFLECollectionTracker()
+              .knownSchemaForCollection(this.state.ns)
+          ).hasSchema
+        ) {
+          // SERVER-66662 blocks writes of __safeContent__ for queryable-encryption-enabled
+          // collections. We remove it unless it was edited, in which case we assume that the
+          // user really knows what they are doing.
+          delete object.__safeContent__;
+        }
+
         // eslint-disable-next-line no-shadow
         const [ error, d ] = await findAndModifyWithFLEFallback(this.dataService, this.state.ns, (ds, ns, opts, cb) => {
           ds.findOneAndReplace(ns, query, object, opts, cb);
