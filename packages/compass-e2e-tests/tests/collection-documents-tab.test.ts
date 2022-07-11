@@ -35,7 +35,9 @@ async function getRecentQueries(
       const attributes: RecentQuery = {};
       await Promise.all(
         attributeTags.map(async (attributeTag: Element<'async'>) => {
-          const labelTag = await attributeTag.$('label');
+          const labelTag = await attributeTag.$(
+            '[data-test-id="query-history-query-label"]'
+          );
           const preTag = await attributeTag.$('pre');
           const key = await labelTag.getText();
           const value = await preTag.getText();
