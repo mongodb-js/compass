@@ -15,23 +15,23 @@ import configureStore from './';
 
 const topologyDescription = new TopologyDescription({
   type: 'Unknown',
-  servers: [{ type: 'Unknown' }]
+  servers: [{ type: 'Unknown' }],
 });
 
 const fakeInstance = new MongoDBInstance({
   _id: '123',
   topologyDescription,
   build: {
-    version: '6.0.0'
-  }
+    version: '6.0.0',
+  },
 });
 
 const fakeAppInstanceStore = {
-  getState: function() {
+  getState: function () {
     return {
-      instance: fakeInstance
+      instance: fakeInstance,
     };
-  }
+  },
 };
 
 describe('Schema Validation Store', function () {
