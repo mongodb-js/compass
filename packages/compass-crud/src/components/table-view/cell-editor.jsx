@@ -1,6 +1,10 @@
-/* eslint-disable react/sort-comp */
+
+// TODO: COMPASS-5847 Fix accessibility issues and remove lint disables.
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
 import { Tooltip } from 'hadron-react-components';
@@ -54,7 +58,7 @@ class CellEditor extends React.Component {
    * in this cell, get the type of the column from this.props.column and add a
    * field to the HadronDocument that is empty.
    */
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.element = this.props.value;
     this.wasEmpty = false;
     this.newField = false;
@@ -115,7 +119,6 @@ class CellEditor extends React.Component {
     while (this.nodes[this.minNodes] === undefined) {
       this.minNodes++;
     }
-    this.focus();
   }
 
   componentWillUnmount() {
@@ -234,15 +237,6 @@ class CellEditor extends React.Component {
        */
     }
     this.props.api.refreshCells({rowNodes: [this.props.node], force: true});
-  }
-
-  focus() {
-    setTimeout(() => {
-      const container = ReactDOM.findDOMNode(this.props.reactContainer);
-      if (container) {
-        container.focus();
-      }
-    });
   }
 
   handleTypeChange() {
@@ -418,7 +412,8 @@ class CellEditor extends React.Component {
       <div
         className={`${BEM_BASE}-input-types`}
         onBlur={this.handleTypeChange.bind(this)}
-        onClick={() => {this.nodeIndex = 3;}}>
+        onClick={() => {this.nodeIndex = 3;}}
+      >
         <Types
           element={this.element}
           version={this.props.version}
