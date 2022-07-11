@@ -1,4 +1,4 @@
-import type HadronDocument from "hadron-document";
+import type HadronDocument from 'hadron-document';
 
 type Doc = HadronDocument | Record<string, any>;
 

@@ -86,9 +86,10 @@ class Types extends React.Component {
           aria-expanded={this.state.isOpen}
           onClick={() => this.toggleOpenClass()}
           onBlur={() => this.toggleOpenClass(false)}
-          ref={this.props.buttonRef ? this.props.buttonRef : () => {}}>
+          ref={this.props.buttonRef ? this.props.buttonRef : () => {}}
+        >
           {this.element.currentType}
-          <span className="caret"/>
+          <span className="caret" />
         </button>
         <ul className="dropdown-menu" aria-labelledby="types-dropdown">
           {this.renderTypes()}
@@ -135,7 +136,7 @@ Types.propTypes = {
   element: PropTypes.object.isRequired,
   version: PropTypes.string.isRequired,
   className: PropTypes.string,
-  buttonRef: PropTypes.any
+  buttonRef: PropTypes.any,
 };
 
 export default Types;

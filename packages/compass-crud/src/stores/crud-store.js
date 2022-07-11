@@ -9,7 +9,7 @@ import {
   findDocuments,
   countDocuments,
   fetchShardingKeys,
-  OPERATION_CANCELLED_MESSAGE
+  OPERATION_CANCELLED_MESSAGE,
 } from '../utils';
 
 import {
@@ -18,7 +18,7 @@ import {
   DOCUMENTS_STATUS_ERROR,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
   DOCUMENTS_STATUS_FETCHED_CUSTOM,
-  DOCUMENTS_STATUS_FETCHED_PAGINATION
+  DOCUMENTS_STATUS_FETCHED_PAGINATION,
 } from '../constants/documents-statuses';
 
 import configureGridStore from './grid-store';
@@ -66,12 +66,16 @@ const LIST = 'List';
 /**
  * The delete error message.
  */
-const DELETE_ERROR = new Error('Cannot delete documents that do not have an _id field.');
+const DELETE_ERROR = new Error(
+  'Cannot delete documents that do not have an _id field.'
+);
 
 /**
  * The empty update error message.
  */
-const EMPTY_UPDATE_ERROR = new Error('Unable to update, no changes have been made.');
+const EMPTY_UPDATE_ERROR = new Error(
+  'Unable to update, no changes have been made.'
+);
 
 /**
  * Default max time ms for the first query which is not getting the value from
@@ -195,7 +199,7 @@ const configureStore = (options = {}) => {
         loadingCount: false,
         outdated: false,
         shardKeys: null,
-        resultId: resultId()
+        resultId: resultId(),
       };
     },
 
@@ -213,7 +217,7 @@ const configureStore = (options = {}) => {
         mode: MODIFYING,
         jsonView: false,
         isOpen: false,
-        isCommentNeeded: true
+        isCommentNeeded: true,
       };
     },
 
@@ -227,7 +231,7 @@ const configureStore = (options = {}) => {
         doc: null,
         path: [],
         types: [],
-        editParams: null
+        editParams: null,
       };
     },
 
@@ -245,7 +249,7 @@ const configureStore = (options = {}) => {
         maxTimeMS: DEFAULT_INITIAL_MAX_TIME_MS,
         project: null,
         collation: null,
-        ...pickQueryProps(options.query ?? {})
+        ...pickQueryProps(options.query ?? {}),
       };
     },
 
@@ -313,7 +317,7 @@ const configureStore = (options = {}) => {
         collection: nsobj.collection,
         isEditable: editable,
         table: this.getInitialTableState(),
-        query: this.getInitialQueryState()
+        query: this.getInitialQueryState(),
       });
     },
 
@@ -345,9 +349,11 @@ const configureStore = (options = {}) => {
      * @returns {Boolean} If the list is editable.
      */
     isListEditable() {
-      return !this.state.isDataLake &&
+      return (
+        !this.state.isDataLake &&
         !this.state.isReadonly &&
-        process.env.HADRON_READONLY !== 'true';
+        process.env.HADRON_READONLY !== 'true'
+      );
     },
 
     /**
@@ -390,7 +396,7 @@ const configureStore = (options = {}) => {
             this.state.docs.splice(index, 1);
             this.setState({
               count: this.state.count - 1,
-              end: Math.max(this.state.end - 1, 0)
+              end: Math.max(this.state.end - 1, 0),
             });
           }
         });
@@ -412,15 +418,22 @@ const configureStore = (options = {}) => {
      * @returns {boolean} Whether updating is allowed.
      */
     async _verifyUpdateAllowed(ns, doc) {
-      if (this.dataService.getCSFLEMode && this.dataService.getCSFLEMode() === 'enabled') {
+      if (
+        this.dataService.getCSFLEMode &&
+        this.dataService.getCSFLEMode() === 'enabled'
+      ) {
         // Editing the document and then being informed that
         // doing so is disallowed might not be great UX, but
         // since we are mostly targeting typical FLE2 use cases,
         // it's probably not worth spending too much time on this.
-        const isAllowed = await this.dataService.getCSFLECollectionTracker().isUpdateAllowed(
-          ns, doc.generateOriginalObject());
+        const isAllowed = await this.dataService
+          .getCSFLECollectionTracker()
+          .isUpdateAllowed(ns, doc.generateOriginalObject());
         if (!isAllowed) {
-          doc.emit('update-error', 'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.');
+          doc.emit(
+            'update-error',
+            'Update blocked as it could unintentionally write unencrypted data due to a missing or incomplete schema.'
+          );
           return false;
         }
       }
@@ -440,23 +453,27 @@ const configureStore = (options = {}) => {
         doc.emit('update-start');
         // We add the shard keys here, if there are any, because that is
         // required for updated documents in sharded collections.
-        const {
-          query,
-          updateDoc
-        } = doc.generateUpdateUnlessChangedInBackgroundQuery(this.state.shardKeys);
+        const { query, updateDoc } =
+          doc.generateUpdateUnlessChangedInBackgroundQuery(
+            this.state.shardKeys
+          );
 
         if (Object.keys(updateDoc).length === 0) {
           doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
           return;
         }
 
-        if (!await this._verifyUpdateAllowed(this.state.ns, doc)) {
+        if (!(await this._verifyUpdateAllowed(this.state.ns, doc))) {
           // _verifyUpdateAllowed emitted update-error
           return;
         }
-        const [ error, d ] = await findAndModifyWithFLEFallback(this.dataService, this.state.ns, (ds, ns, opts, cb) => {
-          ds.findOneAndUpdate(ns, query, updateDoc, opts, cb);
-        });
+        const [error, d] = await findAndModifyWithFLEFallback(
+          this.dataService,
+          this.state.ns,
+          (ds, ns, opts, cb) => {
+            ds.findOneAndUpdate(ns, query, updateDoc, opts, cb);
+          }
+        );
 
         if (error) {
           doc.emit('update-error', error.message);
@@ -471,7 +488,10 @@ const configureStore = (options = {}) => {
           doc.emit('update-blocked');
         }
       } catch (err) {
-        doc.emit('update-error', `An error occured when attempting to update the document: ${err.message}`);
+        doc.emit(
+          'update-error',
+          `An error occured when attempting to update the document: ${err.message}`
+        );
       }
     },
 
@@ -487,10 +507,10 @@ const configureStore = (options = {}) => {
         const object = doc.generateObject();
         const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
           _id: 1,
-          ...(this.state.shardKeys || {})
+          ...(this.state.shardKeys || {}),
         });
 
-        if (!await this._verifyUpdateAllowed(this.state.ns, doc)) {
+        if (!(await this._verifyUpdateAllowed(this.state.ns, doc))) {
           // _verifyUpdateAllowed emitted update-error
           return;
         }
@@ -516,9 +536,13 @@ const configureStore = (options = {}) => {
         }
 
         // eslint-disable-next-line no-shadow
-        const [ error, d ] = await findAndModifyWithFLEFallback(this.dataService, this.state.ns, (ds, ns, opts, cb) => {
-          ds.findOneAndReplace(ns, query, object, opts, cb);
-        });
+        const [error, d] = await findAndModifyWithFLEFallback(
+          this.dataService,
+          this.state.ns,
+          (ds, ns, opts, cb) => {
+            ds.findOneAndReplace(ns, query, object, opts, cb);
+          }
+        );
         if (error) {
           doc.emit('update-error', error.message);
         } else {
@@ -530,7 +554,10 @@ const configureStore = (options = {}) => {
           this.trigger(this.state);
         }
       } catch (err) {
-        doc.emit('update-error', `An error occured when attempting to update the document: ${err.message}`);
+        doc.emit(
+          'update-error',
+          `An error occured when attempting to update the document: ${err.message}`
+        );
       }
     },
 
@@ -579,7 +606,7 @@ const configureStore = (options = {}) => {
         sort,
         project: projection,
         collation,
-        maxTimeMS
+        maxTimeMS,
       } = this.state.query;
 
       const skip = this.state.query.skip + page * NUM_PAGE_DOCS;
@@ -602,7 +629,9 @@ const configureStore = (options = {}) => {
       const abortController = new AbortController();
       const signal = abortController.signal;
 
-      abortController.signal.addEventListener('abort', this.onAbort, { once: true });
+      abortController.signal.addEventListener('abort', this.onAbort, {
+        once: true,
+      });
 
       const opts = {
         signal,
@@ -614,14 +643,14 @@ const configureStore = (options = {}) => {
         collation,
         maxTimeMS,
         promoteValues: false,
-        bsonRegExp: true
+        bsonRegExp: true,
       };
 
       this.setState({
         status: DOCUMENTS_STATUS_FETCHING,
         abortController,
         sessions: [session],
-        error: null
+        error: null,
       });
 
       const cancelDebounceLoad = this.debounceLoading();
@@ -638,15 +667,17 @@ const configureStore = (options = {}) => {
       const length = error ? 0 : documents.length;
       this.setState({
         error,
-        status: error ? DOCUMENTS_STATUS_ERROR : DOCUMENTS_STATUS_FETCHED_PAGINATION,
-        docs: documents.map(doc => new HadronDocument(doc)),
+        status: error
+          ? DOCUMENTS_STATUS_ERROR
+          : DOCUMENTS_STATUS_FETCHED_PAGINATION,
+        docs: documents.map((doc) => new HadronDocument(doc)),
         start: skip + 1,
         end: skip + length,
         page,
         table: this.getInitialTableState(),
         resultId: resultId(),
         abortController: null,
-        sessions: null
+        sessions: null,
       });
       abortController.signal.removeEventListener('abort', this.onAbort);
       this.localAppRegistry.emit('documents-paginated', view, documents);
@@ -660,7 +691,7 @@ const configureStore = (options = {}) => {
      */
     closeInsertDocumentDialog() {
       this.setState({
-        insert: this.getInitialInsertState()
+        insert: this.getInitialInsertState(),
       });
     },
 
@@ -686,18 +717,23 @@ const configureStore = (options = {}) => {
       }
 
       const csfleState = { state: 'none' };
-      const dataServiceCSFLEMode = this.dataService.getCSFLEMode && this.dataService.getCSFLEMode();
+      const dataServiceCSFLEMode =
+        this.dataService.getCSFLEMode && this.dataService.getCSFLEMode();
       if (dataServiceCSFLEMode === 'enabled') {
         // Show a warning if this is a CSFLE-enabled connection but this collection
         // does not have a schema.
-        const csfleCollectionTracker = this.dataService.getCSFLECollectionTracker();
-        const { hasSchema, encryptedFields } = await csfleCollectionTracker.knownSchemaForCollection(this.state.ns);
+        const csfleCollectionTracker =
+          this.dataService.getCSFLECollectionTracker();
+        const { hasSchema, encryptedFields } =
+          await csfleCollectionTracker.knownSchemaForCollection(this.state.ns);
         if (encryptedFields) {
           csfleState.encryptedFields = encryptedFields;
         }
         if (!hasSchema) {
           csfleState.state = 'no-known-schema';
-        } else if (!await csfleCollectionTracker.isUpdateAllowed(this.state.ns, doc)) {
+        } else if (
+          !(await csfleCollectionTracker.isUpdateAllowed(this.state.ns, doc))
+        ) {
           csfleState.state = 'incomplete-schema-for-cloned-doc';
         } else {
           csfleState.state = 'has-known-schema';
@@ -717,8 +753,8 @@ const configureStore = (options = {}) => {
           csfleState,
           mode: MODIFYING,
           isOpen: true,
-          isCommentNeeded: true
-        }
+          isCommentNeeded: true,
+        },
       });
     },
 
@@ -741,7 +777,7 @@ const configureStore = (options = {}) => {
         namespace: this.state.ns,
         query: { filter, limit, skip },
         // Pass the doc count to the export modal so we can avoid re-counting.
-        count: this.state.count
+        count: this.state.count,
       });
     },
 
@@ -764,8 +800,8 @@ const configureStore = (options = {}) => {
             csfleState: this.state.insert.csfleState,
             mode: MODIFYING,
             isOpen: true,
-            isCommentNeeded: this.state.insert.isCommentNeeded
-          }
+            isCommentNeeded: this.state.insert.isCommentNeeded,
+          },
         });
       } else {
         let hadronDoc;
@@ -785,8 +821,8 @@ const configureStore = (options = {}) => {
             csfleState: this.state.insert.csfleState,
             mode: MODIFYING,
             isOpen: true,
-            isCommentNeeded: this.state.insert.isCommentNeeded
-          }
+            isCommentNeeded: this.state.insert.isCommentNeeded,
+          },
         });
       }
     },
@@ -807,8 +843,8 @@ const configureStore = (options = {}) => {
           csfleState: this.state.insert.csfleState,
           mode: MODIFYING,
           isOpen: true,
-          isCommentNeeded: this.state.insert.isCommentNeeded
-        }
+          isCommentNeeded: this.state.insert.isCommentNeeded,
+        },
       });
     },
 
@@ -828,8 +864,8 @@ const configureStore = (options = {}) => {
           csfleState: this.state.insert.csfleState,
           mode: MODIFYING,
           isOpen: true,
-          isCommentNeeded: this.state.insert.isCommentNeeded
-        }
+          isCommentNeeded: this.state.insert.isCommentNeeded,
+        },
       });
     },
 
@@ -837,12 +873,12 @@ const configureStore = (options = {}) => {
      * Insert a single document.
      */
     insertMany() {
-      const docs =
-        HadronDocument.FromEJSONArray(this.state.insert.jsonDoc)
-          .map(doc => doc.generateObject());
+      const docs = HadronDocument.FromEJSONArray(this.state.insert.jsonDoc).map(
+        (doc) => doc.generateObject()
+      );
       track('Document Inserted', {
         mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
-        multiple: docs.length > 1
+        multiple: docs.length > 1,
       });
 
       this.dataService.insertMany(this.state.ns, docs, {}, (error) => {
@@ -856,8 +892,8 @@ const configureStore = (options = {}) => {
               csfleState: this.state.insert.csfleState,
               mode: ERROR,
               isOpen: true,
-              isCommentNeeded: this.state.insert.isCommentNeeded
-            }
+              isCommentNeeded: this.state.insert.isCommentNeeded,
+            },
           });
         }
         // track mode for analytics events
@@ -887,13 +923,15 @@ const configureStore = (options = {}) => {
     insertDocument() {
       track('Document Inserted', {
         mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
-        multiple: false
+        multiple: false,
       });
 
       let doc;
 
       if (this.state.insert.jsonView) {
-        doc = HadronDocument.FromEJSON(this.state.insert.jsonDoc).generateObject();
+        doc = HadronDocument.FromEJSON(
+          this.state.insert.jsonDoc
+        ).generateObject();
       } else {
         doc = this.state.insert.doc.generateObject();
       }
@@ -909,8 +947,8 @@ const configureStore = (options = {}) => {
               csfleState: this.state.insert.csfleState,
               mode: ERROR,
               isOpen: true,
-              isCommentNeeded: this.state.insert.isCommentNeeded
-            }
+              isCommentNeeded: this.state.insert.isCommentNeeded,
+            },
           });
         }
 
@@ -939,11 +977,11 @@ const configureStore = (options = {}) => {
     drillDown(doc, element, editParams) {
       this.setState({
         table: {
-          path: this.state.table.path.concat([ element.currentKey ]),
-          types: this.state.table.types.concat([ element.currentType ]),
+          path: this.state.table.path.concat([element.currentKey]),
+          types: this.state.table.types.concat([element.currentType]),
           doc: doc,
-          editParams: editParams
-        }
+          editParams: editParams,
+        },
       });
     },
 
@@ -959,8 +997,8 @@ const configureStore = (options = {}) => {
           doc: this.state.table.doc,
           editParams: this.state.table.editParams,
           path: path,
-          types: types
-        }
+          types: types,
+        },
       });
     },
 
@@ -1004,7 +1042,11 @@ const configureStore = (options = {}) => {
      * @returns {Boolean}
      */
     isInitialQuery(query) {
-      return (isEmpty(query.filter) && isEmpty(query.project) && isEmpty(query.collation));
+      return (
+        isEmpty(query.filter) &&
+        isEmpty(query.project) &&
+        isEmpty(query.collation)
+      );
     },
 
     /**
@@ -1012,7 +1054,11 @@ const configureStore = (options = {}) => {
      */
     async refreshDocuments() {
       if (this.dataService && !this.dataService.isConnected()) {
-        log.warn(mongoLogId(1001000072), 'Documents', 'Trying to refresh documents but dataService is disconnected');
+        log.warn(
+          mongoLogId(1001000072),
+          'Documents',
+          'Trying to refresh documents but dataService is disconnected'
+        );
         return;
       }
 
@@ -1024,15 +1070,16 @@ const configureStore = (options = {}) => {
 
       const fetchShardingKeysOptions = {
         maxTimeMS: query.maxTimeMS,
-        session: this.dataService.startSession('CRUD')
+        session: this.dataService.startSession('CRUD'),
       };
 
       const countOptions = {
         skip: query.skip,
-        maxTimeMS: query.maxTimeMS > COUNT_MAX_TIME_MS_CAP ?
-          COUNT_MAX_TIME_MS_CAP :
-          query.maxTimeMS,
-        session: this.dataService.startSession('CRUD')
+        maxTimeMS:
+          query.maxTimeMS > COUNT_MAX_TIME_MS_CAP
+            ? COUNT_MAX_TIME_MS_CAP
+            : query.maxTimeMS,
+        session: this.dataService.startSession('CRUD'),
       };
 
       if (this.isCountHintSafe()) {
@@ -1048,7 +1095,7 @@ const configureStore = (options = {}) => {
         maxTimeMS: query.maxTimeMS,
         promoteValues: false,
         bsonRegExp: true,
-        session: this.dataService.startSession('CRUD')
+        session: this.dataService.startSession('CRUD'),
       };
 
       // only set limit if it's > 0, read-only views cannot handle 0 limit.
@@ -1061,13 +1108,15 @@ const configureStore = (options = {}) => {
         ns,
         withFilter: !isEmpty(query.filter),
         findOptions,
-        countOptions
+        countOptions,
       });
 
       const abortController = new AbortController();
       const signal = abortController.signal;
 
-      abortController.signal.addEventListener('abort', this.onAbort, { once: true });
+      abortController.signal.addEventListener('abort', this.onAbort, {
+        once: true,
+      });
 
       // pass the signal so that the queries can close their own cursors and
       // reject their promises
@@ -1090,7 +1139,7 @@ const configureStore = (options = {}) => {
 
       const promises = [
         fetchShardingKeys(this.dataService, ns, fetchShardingKeysOptions),
-        findDocuments(this.dataService, ns, query.filter, findOptions)
+        findDocuments(this.dataService, ns, query.filter, findOptions),
       ];
 
       // This is so that the UI can update to show that we're fetching
@@ -1115,7 +1164,7 @@ const configureStore = (options = {}) => {
         outdated: false,
         error: null,
         count: null, // we don't know the new count yet
-        loadingCount: true
+        loadingCount: true,
       });
 
       // don't start showing the loading indicator and cancel button immediately
@@ -1127,12 +1176,12 @@ const configureStore = (options = {}) => {
         const [shardKeys, docs] = await Promise.all(promises);
 
         Object.assign(stateChanges, {
-          status: this.isInitialQuery(query) ?
-            DOCUMENTS_STATUS_FETCHED_INITIAL :
-            DOCUMENTS_STATUS_FETCHED_CUSTOM,
+          status: this.isInitialQuery(query)
+            ? DOCUMENTS_STATUS_FETCHED_INITIAL
+            : DOCUMENTS_STATUS_FETCHED_CUSTOM,
           isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
-          docs: docs.map(doc => new HadronDocument(doc)),
+          docs: docs.map((doc) => new HadronDocument(doc)),
           page: 0,
           start: docs.length > 0 ? 1 : 0,
           end: docs.length,
@@ -1143,7 +1192,12 @@ const configureStore = (options = {}) => {
         this.localAppRegistry.emit('documents-refreshed', view, docs);
         this.globalAppRegistry.emit('documents-refreshed', view, docs);
       } catch (error) {
-        log.error(mongoLogId(1001000074), 'Documents', 'Failed to refresh documents', error);
+        log.error(
+          mongoLogId(1001000074),
+          'Documents',
+          'Failed to refresh documents',
+          error
+        );
         Object.assign(stateChanges, {
           error,
           status: DOCUMENTS_STATUS_ERROR,
@@ -1174,7 +1228,11 @@ const configureStore = (options = {}) => {
       try {
         await this.dataService.killSessions(sessions);
       } catch (err) {
-        log.warn(mongoLogId(1001000096), 'Documents', 'Attempting to kill the session failed');
+        log.warn(
+          mongoLogId(1001000096),
+          'Documents',
+          'Attempting to kill the session failed'
+        );
       }
     },
 
@@ -1200,10 +1258,9 @@ const configureStore = (options = {}) => {
         cancelDebounceLoad = resolve;
       });
 
-      Promise.race([debouncePromise, loadPromise])
-        .then(() => {
-          this.setState({ debouncingLoad: false });
-        });
+      Promise.race([debouncePromise, loadPromise]).then(() => {
+        this.setState({ debouncingLoad: false });
+      });
 
       return cancelDebounceLoad;
     },
@@ -1222,9 +1279,8 @@ const configureStore = (options = {}) => {
       if (!error) {
         this.dataService = dataService;
       }
-    }
+    },
   });
-
 
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
@@ -1290,13 +1346,12 @@ const configureStore = (options = {}) => {
 export default configureStore;
 
 function resultId() {
-  return Math.floor(Math.random() * (2 ** 53));
+  return Math.floor(Math.random() * 2 ** 53);
 }
-
 
 export async function findAndModifyWithFLEFallback(ds, ns, doFindAndModify) {
   const opts = { returnDocument: 'after', promoteValues: false };
-  let [ error, d ] = await new Promise(resolve => {
+  let [error, d] = await new Promise((resolve) => {
     doFindAndModify(ds, ns, opts, (...cbArgs) => resolve(cbArgs));
   });
   const originalError = error;
@@ -1305,14 +1360,16 @@ export async function findAndModifyWithFLEFallback(ds, ns, doFindAndModify) {
   if (error && +error.code === 6371402) {
     // For encrypted documents, returnDocument: 'after' is unsupported on the server
     const fallbackOpts = { returnDocument: 'before', promoteValues: false };
-    [ error, d ] = await new Promise(resolve => {
+    [error, d] = await new Promise((resolve) => {
       doFindAndModify(ds, ns, fallbackOpts, (...cbArgs) => resolve(cbArgs));
     });
 
     if (!error) {
       let docs;
-      [ error, docs ] = await new Promise(resolve => {
-        ds.find(ns, { _id: d._id }, fallbackOpts, (...cbArgs) => resolve(cbArgs));
+      [error, docs] = await new Promise((resolve) => {
+        ds.find(ns, { _id: d._id }, fallbackOpts, (...cbArgs) =>
+          resolve(cbArgs)
+        );
       });
 
       if (error || !docs || !docs.length) {
