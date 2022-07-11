@@ -1,11 +1,7 @@
 import React from 'react';
-import { FileInput, TextInput, css } from '@mongodb-js/compass-components';
+import { FileInput, TextInput } from '@mongodb-js/compass-components';
 
 import FormFieldContainer from '../../form-field-container';
-
-const inputFieldStyles = css({
-  width: '80%',
-});
 
 function TLSClientCertificate({
   tlsCertificateKeyFile,
@@ -28,7 +24,7 @@ function TLSClientCertificate({
 }): React.ReactElement {
   return (
     <>
-      <FormFieldContainer className={inputFieldStyles}>
+      <FormFieldContainer>
         <FileInput
           description={
             displayDatabaseConnectionUserHints ? 'Learn More' : undefined
@@ -59,7 +55,6 @@ function TLSClientCertificate({
       </FormFieldContainer>
       <FormFieldContainer>
         <TextInput
-          className={inputFieldStyles}
           onChange={({
             target: { value },
           }: React.ChangeEvent<HTMLInputElement>) => {

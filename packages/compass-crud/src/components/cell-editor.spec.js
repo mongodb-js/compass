@@ -51,7 +51,6 @@ describe('<CellEditor />', () => {
           columnApi={columnApi}
           context={context}/>
         );
-        rowNode.data.hadronDocument.elements.flush();
         done();
       });
       it('renders the input field', () => {
@@ -956,7 +955,6 @@ describe('<CellEditor />', () => {
       });
       describe('close with editing', () => {
         const rowNode = getNode({});
-        rowNode.data.hadronDocument.elements.flush();
         const value = undefined;
         const api = getApi();
         const actions = getActions();

@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-schema",
   "productName": "Compass Schema plugin",
   "description": "Compass Schema Tab Plugin",
-  "version": "5.23.0",
+  "version": "5.24.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -24,13 +24,13 @@
     "dist"
   ],
   "main": "dist/index.js",
-  "compass:main": "src/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
     "require": "./dist/index.js",
     "browser": "./dist/browser.js"
   },
   "compass:exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
   "scripts": {
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
@@ -55,15 +55,15 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.15.0",
-    "@mongodb-js/compass-query-bar": "^7.22.0",
+    "@mongodb-js/compass-components": "^0.16.0",
+    "@mongodb-js/compass-query-bar": "^7.23.0",
     "bson": "*",
     "d3": "^3.5.17",
     "debug": "^3.0.1",
-    "hadron-document": "^7.11.0",
+    "hadron-document": "^7.12.0",
     "hadron-ipc": "^2.10.0",
     "hadron-react-buttons": "^5.9.0",
-    "hadron-react-components": "^5.15.0",
+    "hadron-react-components": "^5.16.0",
     "jquery": "^2.1.4",
     "mongodb-ns": "^2.4.0",
     "prop-types": "^15.7.2",
@@ -75,13 +75,15 @@
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin"
   },
   "devDependencies": {
-    "@mongodb-js/compass-components": "^0.15.0",
-    "@mongodb-js/compass-query-bar": "^7.22.0",
-    "@mongodb-js/eslint-config-compass": "^0.9.0",
-    "@mongodb-js/mocha-config-compass": "^0.10.0",
+    "@mongodb-js/compass-components": "^0.16.0",
+    "@mongodb-js/compass-query-bar": "^7.23.0",
+    "@mongodb-js/eslint-config-compass": "^0.10.0",
+    "@mongodb-js/mocha-config-compass": "^0.11.0",
     "@mongodb-js/prettier-config-compass": "^0.5.0",
     "@mongodb-js/tsconfig-compass": "^0.6.0",
-    "@mongodb-js/webpack-config-compass": "^0.9.0",
+    "@mongodb-js/webpack-config-compass": "^0.10.0",
+    "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/react": "^17.0.5",
@@ -95,11 +97,11 @@
     "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^8.12.0",
-    "hadron-document": "^7.11.0",
+    "hadron-app-registry": "^8.13.0",
+    "hadron-document": "^7.12.0",
     "hadron-ipc": "^2.10.0",
     "hadron-react-buttons": "^5.9.0",
-    "hadron-react-components": "^5.15.0",
+    "hadron-react-components": "^5.16.0",
     "jquery": "^2.1.4",
     "leaflet-defaulticon-compatibility": "^0.1.1",
     "lodash": "^4.17.21",
@@ -114,11 +116,11 @@
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^2.6.1",
-    "sinon": "^3.2.0",
+    "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.12.0",
+    "@mongodb-js/compass-logging": "^0.13.0",
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
     "lodash.debounce": "^4.0.8",

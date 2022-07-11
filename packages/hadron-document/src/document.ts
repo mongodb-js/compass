@@ -1,6 +1,6 @@
 'use strict';
 import type { Element } from './element';
-import { LinkedList, Events as ElementEvents } from './element';
+import { ElementList, Events as ElementEvents } from './element';
 import EventEmitter from 'eventemitter3';
 import { EJSON, UUID } from 'bson';
 import type { ObjectGeneratorOptions } from './object-generator';
@@ -29,7 +29,7 @@ export class Document extends EventEmitter {
   doc: BSONObject;
   cloned: boolean;
   isUpdatable: boolean;
-  elements: LinkedList;
+  elements: ElementList;
   type: 'Document';
   currentType: 'Document';
 
@@ -57,9 +57,9 @@ export class Document extends EventEmitter {
     this.doc = doc;
     this.cloned = cloned || false;
     this.isUpdatable = true;
-    this.elements = this._generateElements();
     this.type = 'Document';
     this.currentType = 'Document';
+    this.elements = this._generateElements();
   }
 
   apply(doc: BSONObject | Document): void {
@@ -350,7 +350,7 @@ export class Document extends EventEmitter {
    * @returns {Element} The new element.
    */
   insertBeginning(key: string | number, value: BSONValue): Element {
-    const newElement = this.elements.insertBeginning(key, value, true, this);
+    const newElement = this.elements.insertBeginning(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
     return newElement;
   }
@@ -364,7 +364,7 @@ export class Document extends EventEmitter {
    * @returns {Element} The new element.
    */
   insertEnd(key: string | number, value: BSONValue): Element {
-    const newElement = this.elements.insertEnd(key, value, true, this);
+    const newElement = this.elements.insertEnd(key, value);
     newElement._bubbleUp(ElementEvents.Added, newElement, this);
     return newElement;
   }
@@ -382,22 +382,16 @@ export class Document extends EventEmitter {
     element: Element,
     key: string | number,
     value: BSONValue
-  ): Element {
-    const newElement = this.elements.insertAfter(
-      element,
-      key,
-      value,
-      true,
-      this
-    );
-    newElement._bubbleUp(ElementEvents.Added, newElement, this);
+  ): Element | undefined {
+    const newElement = this.elements.insertAfter(element, key, value);
+    newElement?._bubbleUp(ElementEvents.Added, newElement, this);
     return newElement;
   }
 
   /**
    * A document always exists, is never added.
    *
-   * @returns {false} Always false.
+   * @returns Always false.
    */
   isAdded(): boolean {
     return false;
@@ -436,29 +430,12 @@ export class Document extends EventEmitter {
   }
 
   /**
-   * Handle the next element in the document.
-   */
-  next(): void {
-    this.elements.flush();
-    const lastElement = this.elements.lastElement;
-    if (lastElement && lastElement.isAdded()) {
-      if (lastElement.isBlank()) {
-        lastElement.remove();
-      } else {
-        this.insertPlaceholder();
-      }
-    } else {
-      this.insertPlaceholder();
-    }
-  }
-
-  /**
    * Generates a sequence of elements.
    *
    * @returns {Array} The elements.
    */
-  _generateElements(): LinkedList {
-    return new LinkedList(this, this.doc);
+  _generateElements(): ElementList {
+    return new ElementList(this, this.doc);
   }
 
   /**

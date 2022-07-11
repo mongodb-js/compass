@@ -195,7 +195,7 @@ export const fetchNextPage = (): ThunkAction<
 };
 
 export const retryAggregation = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions

@@ -10,6 +10,7 @@ ignores:
   # bumped higher than the version that breaks depcheck package
   - '@babel/core'
   - '@babel/parser'
+  - 'babel-loader'
   # npm picks up the node-gyp installation in this repository rather than the
   # one it ships with, so we install one of our own to get the version right
   # (because we need one with vscode 2022 support for github actions CI)

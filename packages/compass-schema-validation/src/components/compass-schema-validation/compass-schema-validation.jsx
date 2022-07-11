@@ -7,10 +7,9 @@ import {
   cancelValidation,
   saveValidation,
   validationActionChanged,
-  validationLevelChanged
+  validationLevelChanged,
 } from '../../modules/validation';
 import { namespaceChanged } from '../../modules/namespace';
-import { openLink } from '../../modules/link';
 import { fetchSampleDocuments } from '../../modules/sample-documents';
 import { changeZeroState, zeroStateChanged } from '../../modules/zero-state';
 
@@ -43,9 +42,8 @@ class CompassSchemaValidation extends Component {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) => pick(
-  state,
-  [
+const mapStateToProps = (state) =>
+  pick(state, [
     'serverVersion',
     'validation',
     'fields',
@@ -53,28 +51,23 @@ const mapStateToProps = (state) => pick(
     'sampleDocuments',
     'isZeroState',
     'isLoaded',
-    'editMode'
-  ]
-);
+    'editMode',
+  ]);
 
 /**
  * Connect the redux store to the component (dispatch).
  */
-const MappedCompassSchemaValidation = connect(
-  mapStateToProps,
-  {
-    fetchSampleDocuments,
-    validatorChanged,
-    cancelValidation,
-    saveValidation,
-    namespaceChanged,
-    validationActionChanged,
-    validationLevelChanged,
-    openLink,
-    zeroStateChanged,
-    changeZeroState
-  },
-)(CompassSchemaValidation);
+const MappedCompassSchemaValidation = connect(mapStateToProps, {
+  fetchSampleDocuments,
+  validatorChanged,
+  cancelValidation,
+  saveValidation,
+  namespaceChanged,
+  validationActionChanged,
+  validationLevelChanged,
+  zeroStateChanged,
+  changeZeroState,
+})(CompassSchemaValidation);
 
 export default MappedCompassSchemaValidation;
 export { CompassSchemaValidation };

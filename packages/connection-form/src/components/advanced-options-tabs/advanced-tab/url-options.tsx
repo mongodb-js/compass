@@ -14,7 +14,6 @@ import UrlOptionsTable from './url-options-table';
 
 const urlOptionsContainerStyles = css({
   marginTop: spacing[3],
-  width: spacing[6] * 7,
 });
 
 const urlOptionsTableDescriptionStyles = css({

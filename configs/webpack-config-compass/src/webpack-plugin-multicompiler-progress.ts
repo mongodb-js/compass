@@ -41,9 +41,10 @@ function progressHandler(
   );
 
   const padStartMsg = Math.max(
-    ...Array.from(bars.values()).map((bar) =>
+    ...(Array.from(bars.values()).map((bar) =>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       bar ? (bar as any).payload.msg.trim().length : 0
-    )
+    ) as number[])
   );
 
   const payload = {

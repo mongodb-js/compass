@@ -84,6 +84,8 @@ export const ConnectionFormInputAWSSessionToken =
 
 export const ConnectionFormInputFLEKeyVaultNamespace =
   '[data-testid="csfle-keyvault"]';
+export const ConnectionFormInputFLEStoreCredentialsCheckbox =
+  '[data-testid="csfle-store-credentials-input"]';
 export const ConnectionFormInputFLELocalKMS =
   '[data-testid="csfle-kms-provider-local"]';
 export const ConnectionFormInputFLELocalKey =
@@ -192,12 +194,21 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 };
 
 // Connection Sidebar
-export const SidebarDatabaseAndConnectionList =
-  '[data-test-id="databases-and-collections"]';
-export const SidebarTreeItems = `${SidebarDatabaseAndConnectionList} [role="treeitem"]`;
-export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
+export const FavoriteConnections = '[data-testid="favorite-connection"]';
+export const ConnectionMenu = '[data-testid="connection-menu"]';
+export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
+export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
+export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const RecentConnectionsHeader = '[data-testid="recents-header"]';
+export const RecentConnections = '[data-testid="recent-connection"]';
+
+// Database-Collection Sidebar
+export const SidebarDatabaseAndCollectionList =
+  '[data-test-id="databases-and-collections"]';
+export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;
+export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
 export const TopologyReplicaSetHostAddress =
   '[data-test-id="topology-replica-set-host-address-0"]';
 export const ReplicaSetType = '[data-test-id="topology-replica-set-type"]';
@@ -209,11 +220,6 @@ export const ShowActionsButton = '[data-testid="show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
-export const SidebarFavoriteButton = '[data-testid="favorite-connection"]';
-export const ConnectionMenu = '[data-testid="connection-menu"]';
-export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
-export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
-export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
 export const SidebarInstanceRefreshButton =
   '[data-test-id="sidebar-instance-stats-refresh-button"]';
 export const SidebarInstanceRefreshSpinning =
@@ -242,7 +248,7 @@ export const sidebarCollection = (
 };
 
 export const sidebarFavorite = (favoriteName: string): string => {
-  return `${SidebarFavoriteButton}[data-id="favorite-connection-${favoriteName}"]`;
+  return `${FavoriteConnections}[data-id="favorite-connection-${favoriteName}"]`;
 };
 
 export const sidebarFavoriteButton = (favoriteName: string): string => {
@@ -768,7 +774,7 @@ export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
 export const NameColumnName = '[data-test-id="name-column-name"]';
 export const CreateIndexButton =
-  '[data-test-id="open-create-index-modal-button"]';
+  '[data-testid="open-create-index-modal-button"]';
 export const CreateIndexModal = '[data-test-id="create-index-modal"]';
 export const CreateIndexModalFieldSelect =
   '[data-test-id="create-index-modal-field-select"]';

@@ -7,6 +7,9 @@ import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 
+const DEFAULT_FLE_ENCRYPTED_FIELDS_MAP =
+  "{\n/**\n * // Client-side encrypted fields map configuration:\n * 'database.collection': {\n *   fields: [\n *     {\n *       keyId: UUID(\"...\"),\n *       path: '...',\n *       bsonType: '...',\n *       queries: [{ queryType: 'equality' }]\n *     }\n *   ]\n * }\n */\n}";
+
 describe('Connection form', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -43,6 +46,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     });
   });
 
@@ -67,6 +72,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -97,6 +104,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -127,6 +136,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -164,6 +175,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -201,6 +214,8 @@ describe('Connection form', function () {
       tlsAllowInvalidCertificates: true,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     await browser.setValueVisible(
@@ -268,6 +283,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -302,6 +319,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -338,6 +357,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -375,6 +396,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -413,6 +436,8 @@ describe('Connection form', function () {
         connectTimeoutMS: '1234',
         maxPoolSize: '100',
       },
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     };
 
     const state = await browser.getConnectFormState();
@@ -450,6 +475,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     });
   });
 
@@ -485,6 +512,8 @@ describe('Connection form', function () {
       tlsInsecure: false,
       useSystemCA: false,
       readPreference: 'defaultReadPreference',
+      fleStoreCredentials: false,
+      fleEncryptedFieldsMap: DEFAULT_FLE_ENCRYPTED_FIELDS_MAP,
     });
   });
 
@@ -512,7 +541,12 @@ describe('Connection form', function () {
       favoriteName,
       Selectors.CopyConnectionStringItem
     );
-    expect(await clipboard.read()).to.equal('mongodb://localhost:27017');
+    await browser.waitUntil(
+      async () => {
+        return (await clipboard.read()) === 'mongodb://localhost:27017';
+      },
+      { timeoutMsg: 'Expected copy to clipboard to work' }
+    );
 
     // duplicate
     await selectConnectionMenuItem(

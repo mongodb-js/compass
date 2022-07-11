@@ -17,10 +17,27 @@ class ExportToLanguageEditor extends PureComponent {
     language: 'javascript'
   }
 
+  componentDidMount() {
+    this.setLanguageMode();
+  }
+
   componentDidUpdate() {
     this.editor.setValue(this.props.value);
-    this.editor.session.setMode(`ace/mode/${this.props.language}`);
+    this.setLanguageMode();
     this.editor.clearSelection();
+  }
+
+  setLanguageMode() {
+    // PHP needs some special handling because `<?php` is not included in the
+    // generated snippets
+    if (this.props.language === 'php') {
+      this.editor.session.setMode({
+        path: `ace/mode/${this.props.language}`,
+        inline: true
+      });
+    } else {
+      this.editor.session.setMode(`ace/mode/${this.props.language}`);
+    }
   }
 
   render() {

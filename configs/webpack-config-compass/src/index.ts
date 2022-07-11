@@ -234,7 +234,9 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
   const opts = webpackArgsWithDefaults(args, { target: 'web' });
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { peerDependencies } = require(path.join(opts.cwd, 'package.json'));
+  const { peerDependencies } = require(path.join(opts.cwd, 'package.json')) as {
+    peerDependencies: Record<string, string>;
+  };
 
   return {
     entry: entriesToNamedEntries(opts.entry),
