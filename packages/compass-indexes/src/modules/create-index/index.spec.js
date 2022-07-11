@@ -7,7 +7,7 @@ import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET } from '../reset';
 
-describe('create index is background module', function () {
+describe('create index module', function () {
   let errorSpy;
   let progressSpy;
   let visibleSpy;

@@ -2,9 +2,13 @@
   margin-bottom: 5px;
   display: flex;
 
-  .has-error .Select-control {
-    border: 1px solid #ef4c4c;
-    box-shadow: 0 2px 6px 0 rgba(239, 76, 76, 0.3);
+  .options {
+    z-index: 1;
+
+    button:focus,
+    button:focus-within {
+      z-index: 20;
+    }
   }
 
   &-dropdown-name {
@@ -19,9 +23,15 @@
   }
 
   &-dropdown-type {
+    align-self: flex-end;
     width: 120px;
     text-align: left;
     text-transform: none;
     margin-right: 8px;
+  }
+
+  &-button {
+    align-self: flex-end;
+    margin-bottom: 3px;
   }
 }

@@ -4,7 +4,12 @@ import PropTypes from 'prop-types';
 import styles from './create-index-field.module.less';
 import { hasColumnstoreIndexesSupport } from '../../utils/has-columnstore-indexes-support';
 
-import Select from 'react-select-plus';
+import {
+  Combobox,
+  ComboboxOption,
+  Select,
+  Option,
+} from '@mongodb-js/compass-components';
 
 /**
  * Current allowed types for indexes.
@@ -36,6 +41,8 @@ class CreateIndexField extends PureComponent {
     removeField: PropTypes.func.isRequired,
     updateFieldName: PropTypes.func.isRequired,
     updateFieldType: PropTypes.func.isRequired,
+    newIndexField: PropTypes.string,
+    createNewIndexField: PropTypes.func.isRequired,
   };
 
   /**
@@ -59,37 +66,39 @@ class CreateIndexField extends PureComponent {
   getDropdownTypes() {
     if (!hasColumnstoreIndexesSupport(this.props.serverVersion)) {
       return INDEX_TYPES.filter((elem) => elem !== 'columnstore').map(
-        (elem) => ({
-          value: elem,
-          label: elem,
-        })
+        (elem) => (
+          <Option key={elem} value={`${elem}`}>
+            {elem}
+          </Option>
+        )
       );
     }
 
-    return INDEX_TYPES.map((elem) => ({
-      value: elem,
-      label: elem,
-    }));
+    return INDEX_TYPES.map((elem) => (
+      <Option key={elem} value={`${elem}`}>
+        {elem}
+      </Option>
+    ));
   }
 
   /**
-   * Set state to selected field on field change.
+   * Set state to selected field on name change.
    *
-   * @param {object} field - The selected field object.
+   * @param {object} name - The selected field name.
    */
-  selectFieldName(field) {
-    if (field !== null) {
-      this.props.updateFieldName(this.props.idx, field.label);
+  selectFieldName(name) {
+    if (name !== null) {
+      this.props.updateFieldName(this.props.idx, name);
     }
   }
 
   /**
-   * Set state to selected type on type change.
+   * Set state to selected field on type change.
    *
-   * @param {string} field - The selected field object.
+   * @param {string} type - The selected field type.
    */
-  selectFieldType(field) {
-    this.props.updateFieldType(this.props.idx, field.label);
+  selectFieldType(type) {
+    this.props.updateFieldType(this.props.idx, type);
   }
 
   /**
@@ -103,8 +112,28 @@ class CreateIndexField extends PureComponent {
     this.props.removeField(this.props.idx);
   }
 
-  _promptText(label) {
-    return `Create Index: '${label}'`;
+  renderIndexOptions() {
+    const fields = this.props.fields.map((value, idx) => (
+      <ComboboxOption
+        key={`combobox-option-${idx}`}
+        value={value}
+        displayName={value}
+      />
+    ));
+
+    if (this.props.newIndexField) {
+      const newIndexField = this.props.newIndexField;
+
+      fields.push(
+        <ComboboxOption
+          key={`combobox-option-new`}
+          value={newIndexField}
+          displayName={`Create Index: ${newIndexField}`}
+        />
+      );
+    }
+
+    return fields;
   }
 
   /**
@@ -113,40 +142,43 @@ class CreateIndexField extends PureComponent {
    * @returns {React.Component} The index field form.
    */
   render() {
-    const hasNameError = this.props.field.name !== '' ? '' : 'has-error';
-    const hasTypeError = this.props.field.type !== '' ? '' : 'has-error';
-
     return (
       <div className={styles['create-index-field']}>
         <div
           className={styles['create-index-field-dropdown-name']}
           data-test-id="create-index-modal-field-select"
         >
-          <Select.Creatable
+          <Combobox
             value={this.props.field.name}
+            label="Index fields"
             placeholder={DEFAULT_FIELD.name}
-            options={this.getDropdownFieldsSelect(this.props.fields)}
+            popoverZIndex={999999}
+            onFilter={this.props.createNewIndexField}
             onChange={this.selectFieldName.bind(this)}
             clearable={false}
-            promptTextCreator={this._promptText}
-            className={hasNameError}
-          />
+          >
+            {this.renderIndexOptions()}
+          </Combobox>
         </div>
         <div
           className={styles['create-index-field-dropdown-type']}
           data-test-id="create-index-modal-type-select"
         >
           <Select
-            value={this.props.field.type}
+            name="field-type"
+            className={styles['options']}
             placeholder={DEFAULT_FIELD.type}
-            options={this.getDropdownTypes()}
             onChange={this.selectFieldType.bind(this)}
-            clearable={false}
-            searchable={false}
-            className={hasTypeError}
-          />
+            usePortal={false}
+            allowDeselect={false}
+            value={this.props.field.type}
+            popoverZIndex="1000000"
+            aria-labelledby="Field Type"
+          >
+            {this.getDropdownTypes()}
+          </Select>
         </div>
-        <div>
+        <div className={styles['create-index-field-button']}>
           <button
             disabled={this.props.isRemovable}
             className="btn btn-primary btn-circle"

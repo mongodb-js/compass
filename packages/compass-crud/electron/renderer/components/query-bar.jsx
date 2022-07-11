@@ -48,14 +48,14 @@ QueryBar.propTypes = {
   lastExecutedQuery: PropTypes.object,
   onReset: PropTypes.func,
   onApply: PropTypes.func,
-  schemaFields: PropTypes.object
+  schemaFields: PropTypes.array
 };
 
 QueryBar.defaultProps = {
   expanded: false,
   buttonLabel: 'Apply',
   layout: ['filter', 'project', ['sort', 'skip', 'limit']],
-  schemaFields: {}
+  schemaFields: []
 };
 
 QueryBar.displayName = 'QueryBar';
