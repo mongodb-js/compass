@@ -427,7 +427,7 @@ describe('FLE2', function () {
         expect(modifiedResult._id).to.be.equal(result._id);
       });
 
-      it.only('can edit and query the encrypted field in the JSON view', async function () {
+      it('can edit and query the encrypted field in the JSON view', async function () {
         await browser.shellEval(`db.createCollection('${collectionName}')`);
         await browser.shellEval(
           `db[${JSON.stringify(
