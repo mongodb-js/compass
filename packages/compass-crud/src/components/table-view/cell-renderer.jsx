@@ -1,4 +1,3 @@
-/* eslint-disable react/sort-comp */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { BSONValue, Icon } from '@mongodb-js/compass-components';
@@ -227,9 +226,9 @@ class CellRenderer extends React.Component {
       return null;
     }
     return (
-      <div className={`${undoButtonClass}`} onClick={this.handleUndo.bind(this)}>
+      <button className={`${undoButtonClass}`} onClick={this.handleUndo.bind(this)}>
         <span className={'fa fa-rotate-left'} aria-hidden />
-      </div>
+      </button>
     );
   }
 
@@ -238,9 +237,9 @@ class CellRenderer extends React.Component {
       return null;
     }
     return (
-      <div className={'table-view-cell-circle-button'} onClick={this.handleDrillDown.bind(this)}>
+      <button className={BUTTON_CLASS} onClick={this.handleDrillDown.bind(this)}>
         <span className={'fa fa-expand'} aria-hidden />
-      </div>
+      </button>
     );
   }
 
@@ -277,7 +276,17 @@ class CellRenderer extends React.Component {
     }
 
     return (
-      <div className={className} onClick={this.handleClicked.bind(this)}>
+      // TODO: COMPASS-5847 Fix accessibility issues and remove lint disables.
+      /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+      /* eslint-disable jsx-a11y/interactive-supports-focus */
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+      <div
+        className={className}
+        onClick={this.handleClicked.bind(this)}
+        role="button"
+      >
+        {/* eslint-enable jsx-a11y/interactive-supports-focus */}
+        {/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */}
         {this.renderUndo(canUndo, canExpand)}
         {this.renderExpand(canExpand)}
         {element}
