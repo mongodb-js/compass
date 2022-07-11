@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Create a new index field in memory.
  */
@@ -23,7 +25,7 @@ export const INITIAL_STATE = null;
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === CREATE_NEW_INDEX_FIELD) {
     return action.newField;
   }
@@ -40,7 +42,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The action.
  */
-export const createNewIndexField = (newField) => ({
+export const createNewIndexField = (newField: string) => ({
   type: CREATE_NEW_INDEX_FIELD,
   newField: newField,
 });
@@ -50,6 +52,6 @@ export const createNewIndexField = (newField) => ({
  *
  * @returns {Object} The action.
  */
-export const clearNewIndexField = () => ({
+export const clearNewIndexField = (): { type: string } => ({
   type: CLEAR_NEW_INDEX_FIELD,
 });

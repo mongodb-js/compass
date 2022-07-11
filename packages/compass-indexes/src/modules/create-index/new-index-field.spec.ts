@@ -32,7 +32,7 @@ describe('create index new index field module', function () {
 
     context('when an action is not provided', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
+        expect(reducer(undefined, { type: 'test' })).to.equal(INITIAL_STATE);
       });
     });
   });
