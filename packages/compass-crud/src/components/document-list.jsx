@@ -243,7 +243,7 @@ class DocumentList extends React.Component {
         {useNewToolbars ? (
           <CrudToolbar
             activeDocumentView={this.props.view}
-            insertHandler={this.handleOpenInsert.bind(this)}
+            insertDataHandler={this.handleOpenInsert.bind(this)}
             localAppRegistry={this.props.store.localAppRegistry}
             onApply={this.onApplyClicked.bind(this)}
             onReset={this.onResetClicked.bind(this)}
