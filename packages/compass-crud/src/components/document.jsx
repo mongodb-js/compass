@@ -47,7 +47,7 @@ Document.propTypes = {
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func,
-  copyToClipboard: PropTypes.func
+  copyToClipboard: PropTypes.func,
 };
 
 export default Document;

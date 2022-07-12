@@ -7,7 +7,6 @@ const MIXED = 'Mixed';
 
 const configureStore = (options = {}) => {
   const store = Reflux.createStore({
-
     init() {
       const actions = options.actions;
 
@@ -20,8 +19,14 @@ const configureStore = (options = {}) => {
       this.listenTo(actions.cleanCols, this.cleanCols.bind(this));
       this.listenTo(actions.elementAdded, this.elementAdded.bind(this));
       this.listenTo(actions.elementRemoved, this.elementRemoved.bind(this));
-      this.listenTo(actions.elementMarkRemoved, this.elementMarkRemoved.bind(this));
-      this.listenTo(actions.elementTypeChanged, this.elementTypeChanged.bind(this));
+      this.listenTo(
+        actions.elementMarkRemoved,
+        this.elementMarkRemoved.bind(this)
+      );
+      this.listenTo(
+        actions.elementTypeChanged,
+        this.elementTypeChanged.bind(this)
+      );
       this.listenTo(actions.renameColumn, this.renameColumn.bind(this));
       this.listenTo(actions.replaceDoc, this.replaceDoc.bind(this));
 
@@ -101,7 +106,7 @@ const configureStore = (options = {}) => {
      * @param {Object} newDoc
      */
     replaceDoc(oldOid, newOid, newDoc) {
-      const params = {refresh: {oid: newOid}};
+      const params = { refresh: { oid: newOid } };
 
       /* Replace types in this.columns */
       forEach(this.columns, (val, key) => {
@@ -140,7 +145,7 @@ const configureStore = (options = {}) => {
         }
       });
 
-      params.updateHeaders = {showing: this.showing};
+      params.updateHeaders = { showing: this.showing };
 
       this.trigger(params);
     },
@@ -181,7 +186,7 @@ const configureStore = (options = {}) => {
         }
       }
       if (toDel.length) {
-        this.trigger({remove: {colIds: toDel}});
+        this.trigger({ remove: { colIds: toDel } });
       }
     },
 
@@ -213,7 +218,7 @@ const configureStore = (options = {}) => {
       this.stageField(key, oid, false);
 
       if (oldType !== this.showing[key]) {
-        const params = {updateHeaders: {showing: {}}};
+        const params = { updateHeaders: { showing: {} } };
         params.updateHeaders.showing[key] = this.showing[key];
         this.trigger(params);
       }
@@ -245,7 +250,7 @@ const configureStore = (options = {}) => {
           this.setShowing(key);
         }
         if (oldType !== this.showing[key]) {
-          params.updateHeaders = {showing: {}};
+          params.updateHeaders = { showing: {} };
           params.updateHeaders.showing[key] = this.showing[key];
           this.trigger(params);
         }
@@ -270,7 +275,7 @@ const configureStore = (options = {}) => {
         for (let i = key; i < Object.keys(this.showing).length; i++) {
           /* Move columns, updating headers or removing the last column if needed */
 
-          if ((i + 1) in this.columns && oid in this.columns[i + 1]) {
+          if (i + 1 in this.columns && oid in this.columns[i + 1]) {
             if (!(i in this.columns)) {
               this.columns[i] = {};
             }
@@ -282,7 +287,10 @@ const configureStore = (options = {}) => {
               this.setShowing(i);
               newShowing[i] = this.showing[i];
             }
-          } else if ((i + 1) in this.stageRemove && oid in this.stageRemove[i + 1]) {
+          } else if (
+            i + 1 in this.stageRemove &&
+            oid in this.stageRemove[i + 1]
+          ) {
             this.stageField(i, oid, true);
             if (i in this.columns) {
               delete this.columns[i][oid];
@@ -306,12 +314,12 @@ const configureStore = (options = {}) => {
             }
 
             if (!(i in this.columns) && !(i in this.stageRemove)) {
-              params.remove = {colIds: [i]};
+              params.remove = { colIds: [i] };
               delete this.showing[i];
             }
           }
         }
-        params.refresh = {oid: oid};
+        params.refresh = { oid: oid };
       } else {
         if (this.columns[key] && this.columns[key][oid]) {
           delete this.columns[key][oid];
@@ -324,7 +332,7 @@ const configureStore = (options = {}) => {
         if (isEmpty(this.columns[key])) {
           delete this.columns[key];
           if (!(key in this.stageRemove)) {
-            params.remove = {colIds: [key]};
+            params.remove = { colIds: [key] };
             delete this.showing[key];
           }
         } else {
@@ -340,14 +348,13 @@ const configureStore = (options = {}) => {
       }
 
       if (!isEmpty(newShowing)) {
-        params.updateHeaders = {showing: newShowing};
+        params.updateHeaders = { showing: newShowing };
       }
 
       if (!isEmpty(params)) {
         this.trigger(params);
       }
     },
-
 
     /**
      * The type of an element has changed. If the new type will change
@@ -366,10 +373,11 @@ const configureStore = (options = {}) => {
         if (oldType === MIXED) {
           this.setShowing(key);
         } else {
-          this.showing[key] = (Object.keys(this.columns[key]).length === 1) ? type : MIXED;
+          this.showing[key] =
+            Object.keys(this.columns[key]).length === 1 ? type : MIXED;
         }
         if (oldType !== this.showing[key]) {
-          const params = {updateHeaders: {showing: {}}};
+          const params = { updateHeaders: { showing: {} } };
           params.updateHeaders.showing[key] = this.showing[key];
           this.trigger(params);
         }
@@ -391,12 +399,17 @@ const configureStore = (options = {}) => {
     addColumn(newColId, columnBefore, rowIndex, path, isArray, editOnly, oid) {
       const params = {
         edit: {
-          colId: newColId, rowIndex: rowIndex
-        }
+          colId: newColId,
+          rowIndex: rowIndex,
+        },
       };
       if (!editOnly) {
         params.add = {
-          newColId: newColId, colIdBefore: columnBefore, path: path, isArray: isArray, colType: ''
+          newColId: newColId,
+          colIdBefore: columnBefore,
+          path: path,
+          isArray: isArray,
+          colType: '',
         };
       }
       /* If we're inserting into an array, need to update headers */
@@ -418,7 +431,10 @@ const configureStore = (options = {}) => {
             this.columns[index][oid] = this.columns[index - 1][oid];
             this.setShowing(index);
             newShowing[index] = this.showing[index];
-          } else if (index - 1 in this.stageRemove && oid in this.stageRemove[index - 1]) {
+          } else if (
+            index - 1 in this.stageRemove &&
+            oid in this.stageRemove[index - 1]
+          ) {
             /* If a field is empty because it's marked as removed, not end of array */
             if (index in this.columns) {
               delete this.columns[index][oid];
@@ -465,8 +481,8 @@ const configureStore = (options = {}) => {
      * @param {String} colId - The colId of the column to be removed.
      */
     removeColumn(colId) {
-      this.trigger({remove: {colIds: [colId]}});
-    }
+      this.trigger({ remove: { colIds: [colId] } });
+    },
   });
 
   return store;

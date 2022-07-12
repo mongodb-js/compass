@@ -31,7 +31,11 @@ class DocumentListView extends React.Component {
   renderDocuments() {
     return this.props.docs.map((doc, index) => {
       return (
-        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={index}>
+        <li
+          className={LIST_ITEM_CLASS}
+          data-test-id={LIST_ITEM_TEST_ID}
+          key={index}
+        >
           <Document
             doc={doc}
             editable={this.props.isEditable}
@@ -53,11 +57,7 @@ class DocumentListView extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    return (
-      <ol className={LIST_CLASS}>
-        {this.renderDocuments()}
-      </ol>
-    );
+    return <ol className={LIST_CLASS}>{this.renderDocuments()}</ol>;
   }
 }
 

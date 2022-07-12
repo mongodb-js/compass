@@ -382,7 +382,7 @@ describe('FLE2', function () {
         expect(isDocumentPhoneNumberDecryptedIconExisting).to.be.equal(true);
       });
 
-      it('can edit and query the encrypted field', async function () {
+      it('can edit and query the encrypted field in the CRUD view', async function () {
         await browser.shellEval(`db.createCollection('${collectionName}')`);
         await browser.shellEval(
           `db[${JSON.stringify(
@@ -425,6 +425,72 @@ describe('FLE2', function () {
         const modifiedResult = await getFirstListDocument(browser);
         expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
         expect(modifiedResult._id).to.be.equal(result._id);
+      });
+
+      it('can edit and query the encrypted field in the JSON view', async function () {
+        await browser.shellEval(`db.createCollection('${collectionName}')`);
+        await browser.shellEval(
+          `db[${JSON.stringify(
+            collectionName
+          )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+        );
+
+        await browser.navigateToCollectionTab(
+          databaseName,
+          collectionName,
+          'Documents'
+        );
+        await browser.clickVisible(Selectors.SelectJSONView);
+
+        const document = await browser.$(Selectors.DocumentJSONEntry);
+        await document.waitForDisplayed();
+
+        // Recursively expand __safeContent__ so that the JSON is valid
+        for (let i = 0; i < 3; i++) {
+          await browser.clickVisible(
+            `${Selectors.DocumentJSONEntry} .ace_fold-widget.ace_closed`
+          );
+        }
+        let json = '';
+        await browser.waitUntil(async function () {
+          json = await document.getText();
+          try {
+            JSON.parse(json);
+            return true;
+          } catch {
+            return false;
+          }
+        });
+
+        expect(json).to.include('30303030');
+        expect(json).to.include('__safeContent__');
+
+        await browser.hover('[data-test-id="editable-json"]');
+        await browser.clickVisible('[data-testid="edit-document-button"]');
+
+        const newjson = JSON.stringify({
+          ...JSON.parse(json),
+          phoneNumber: '10101010',
+        });
+        await browser.setAceValue(
+          '[data-test-id="editable-json"] .ace_editor',
+          newjson
+        );
+
+        const footer = await document.$(Selectors.DocumentFooterMessage);
+        expect(await footer.getText()).to.equal('Document modified.');
+
+        const button = await document.$(Selectors.UpdateDocumentButton);
+        await button.click();
+        await footer.waitForDisplayed({ reverse: true });
+
+        await browser.runFindOperation(
+          'Documents',
+          "{ phoneNumber: '10101010' }"
+        );
+
+        const modifiedResult = await getFirstListDocument(browser);
+        expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       });
 
       it('can not edit the copied encrypted field', async function () {

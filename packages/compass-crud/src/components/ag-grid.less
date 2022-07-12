@@ -1,23 +1,23 @@
 .ag {
   &-parent {
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
     font-size: 11px;
     height: 100%;
     padding: 15px 15px 40px 15px;
   }
   &-root {
-    background-color: #FAFAFA;
+    background-color: #fafafa;
     box-shadow: 0 0px 6px 0 rgba(0, 0, 0, 0.15);
     border-radius: 0px 3px 3px 3px;
   }
   &-bl-full-height {
-    background-color: #FAFAFA;
+    background-color: #fafafa;
     box-shadow: 0 0px 6px 0 rgba(0, 0, 0, 0.15);
     border-radius: 0px 3px 3px 3px;
   }
   &-header {
-    background: #F5F6F7;
-    box-shadow: 0 2px 10px 0 rgba(0,0,0,0.10), inset 0 -1px 0 0 #D7D7D7;
+    background: #f5f6f7;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.1), inset 0 -1px 0 0 #d7d7d7;
     &-cell {
       border: 0;
       line-height: 25px;
@@ -42,25 +42,29 @@
         overflow: hidden;
         display: block;
         white-space: nowrap;
-        background-color: #F5F6F7;
+        background-color: #f5f6f7;
         border-radius: 3px 3px 0 0;
+        border: none;
         box-shadow: 0 -1px 6px 0 rgba(0, 0, 0, 0.15);
         cursor: pointer;
         &-active {
-          border-left: 5px solid #69AD55;
+          border-left: 5px solid #69ad55;
         }
       }
     }
     &-viewport {
-      margin-right: 0!important;
+      margin-right: 0 !important;
     }
   }
-  &-row  {
+  &-row {
     box-sizing: border-box;
     background-color: white;
     &-hover {
       background-color: #f5f6f7;
-      .table-view-cell, .table-view-cell-row-number, .table-view-cell-is-empty, .table-view-cell-is-uneditable {
+      .table-view-cell,
+      .table-view-cell-row-number,
+      .table-view-cell-is-empty,
+      .table-view-cell-is-uneditable {
         background-color: #f5f6f7;
       }
       .ag-cell-first-right-pinned {
@@ -77,23 +81,22 @@
   }
   &-full-width-row {
     background: white;
-    border-bottom: 2px solid #5CAEEB;
+    border-bottom: 2px solid #5caeeb;
   }
   &-cell {
-    border-right: 0.5px solid #E0E0E0;
-    border-bottom: 0.5px solid #E0E0E0;
+    border-right: 0.5px solid #e0e0e0;
+    border-bottom: 0.5px solid #e0e0e0;
     position: absolute;
 
     outline: 0;
     &-focus {
       overflow: visible !important;
-
     }
     &-subtable-objectid {
       border-right: 3px solid #bfbfbe;
       border-bottom: 0;
       .table-view-cell {
-        border-bottom: 0.5px solid #E0E0E0;
+        border-bottom: 0.5px solid #e0e0e0;
       }
     }
   }
@@ -102,12 +105,12 @@
   }
   &-pinned-right {
     &-header {
-      width: 0!important;
+      width: 0 !important;
     }
     &-cols {
       &-container {
         margin-top: 1px;
-        border-left: 1px solid #E0E0E0;
+        border-left: 1px solid #e0e0e0;
         .ag {
           &-row {
             border: 0;

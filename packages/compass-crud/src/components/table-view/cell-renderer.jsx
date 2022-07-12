@@ -1,4 +1,3 @@
-/* eslint-disable react/sort-comp */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { BSONValue, Icon } from '@mongodb-js/compass-components';
@@ -58,7 +57,6 @@ const DELETED = 'is-deleted';
  */
 const BUTTON_CLASS = 'table-view-cell-circle-button';
 
-
 /**
  * The custom cell renderer that renders a cell in the table view.
  */
@@ -73,8 +71,13 @@ class CellRenderer extends React.Component {
     /* Can't get the editable() function from here, so have to reevaluate */
     this.editable = true;
     if (props.context.path.length > 0 && props.column.getColId() !== '$_id') {
-      const parent = props.node.data.hadronDocument.getChild(props.context.path);
-      if (!parent || (props.parentType && parent.currentType !== props.parentType)) {
+      const parent = props.node.data.hadronDocument.getChild(
+        props.context.path
+      );
+      if (
+        !parent ||
+        (props.parentType && parent.currentType !== props.parentType)
+      ) {
         this.editable = false;
       } else if (parent.currentType === 'Array') {
         let maxKey = 0;
@@ -114,9 +117,15 @@ class CellRenderer extends React.Component {
 
   unsubscribeElementEvents() {
     this.element.removeListener(Element.Events.Added, this.unsubscribeAdded);
-    this.element.removeListener(Element.Events.Converted, this.unsubscribeConverted);
+    this.element.removeListener(
+      Element.Events.Converted,
+      this.unsubscribeConverted
+    );
     this.element.removeListener(Element.Events.Edited, this.unsubscribeEdited);
-    this.element.removeListener(Element.Events.Reverted, this.unsubscribeReverted);
+    this.element.removeListener(
+      Element.Events.Reverted,
+      this.unsubscribeReverted
+    );
   }
 
   handleElementEvent() {
@@ -128,12 +137,22 @@ class CellRenderer extends React.Component {
     const oid = this.props.node.data.hadronDocument.getStringId();
     if (this.element.isAdded()) {
       this.isDeleted = true;
-      const isArray = !this.element.parent.isRoot() && this.element.parent.currentType === 'Array';
+      const isArray =
+        !this.element.parent.isRoot() &&
+        this.element.parent.currentType === 'Array';
       this.props.elementRemoved(this.element.currentKey, oid, isArray);
     } else if (this.element.isRemoved()) {
-      this.props.elementAdded(this.element.currentKey, this.element.currentType, oid);
+      this.props.elementAdded(
+        this.element.currentKey,
+        this.element.currentType,
+        oid
+      );
     } else {
-      this.props.elementTypeChanged(this.element.currentKey, this.element.type, oid);
+      this.props.elementTypeChanged(
+        this.element.currentKey,
+        this.element.type,
+        oid
+      );
     }
     this.element.revert();
   }
@@ -147,7 +166,7 @@ class CellRenderer extends React.Component {
     if (this.props.node.data.state === 'editing') {
       this.props.api.startEditingCell({
         rowIndex: this.props.node.rowIndex,
-        colKey: this.props.column.getColId()
+        colKey: this.props.column.getColId(),
       });
     }
   }
@@ -162,11 +181,7 @@ class CellRenderer extends React.Component {
 
     /* Return internal div because invalid cells should only hightlight text? */
 
-    return (
-      <div className={valueClass}>
-        {this.element.currentValue}
-      </div>
-    );
+    return <div className={valueClass}>{this.element.currentValue}</div>;
   }
 
   getLength() {
@@ -202,16 +217,14 @@ class CellRenderer extends React.Component {
 
     return (
       <div className={className}>
-        {
-          this.props.value.decrypted && (
-            <span
-              data-test-id="hadron-document-element-decrypted-icon"
-              title="Encrypted Field"
-            >
-              <Icon glyph="Key" size="small" />
-            </span>
-          )
-        }
+        {this.props.value.decrypted && (
+          <span
+            data-test-id="hadron-document-element-decrypted-icon"
+            title="Encrypted Field"
+          >
+            <Icon glyph="Key" size="small" />
+          </span>
+        )}
         {element}
       </div>
     );
@@ -227,9 +240,12 @@ class CellRenderer extends React.Component {
       return null;
     }
     return (
-      <div className={`${undoButtonClass}`} onClick={this.handleUndo.bind(this)}>
+      <button
+        className={`${undoButtonClass}`}
+        onClick={this.handleUndo.bind(this)}
+      >
         <span className={'fa fa-rotate-left'} aria-hidden />
-      </div>
+      </button>
     );
   }
 
@@ -238,9 +254,12 @@ class CellRenderer extends React.Component {
       return null;
     }
     return (
-      <div className={'table-view-cell-circle-button'} onClick={this.handleDrillDown.bind(this)}>
+      <button
+        className={BUTTON_CLASS}
+        onClick={this.handleDrillDown.bind(this)}
+      >
         <span className={'fa fa-expand'} aria-hidden />
-      </div>
+      </button>
     );
   }
 
@@ -273,11 +292,23 @@ class CellRenderer extends React.Component {
         className = `${className}-${EDITED}`;
         canUndo = true;
       }
-      canExpand = (this.element.currentType === 'Object' || this.element.currentType === 'Array');
+      canExpand =
+        this.element.currentType === 'Object' ||
+        this.element.currentType === 'Array';
     }
 
     return (
-      <div className={className} onClick={this.handleClicked.bind(this)}>
+      // TODO: COMPASS-5847 Fix accessibility issues and remove lint disables.
+      /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+      /* eslint-disable jsx-a11y/interactive-supports-focus */
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events
+      <div
+        className={className}
+        onClick={this.handleClicked.bind(this)}
+        role="button"
+      >
+        {/* eslint-enable jsx-a11y/interactive-supports-focus */}
+        {/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */}
         {this.renderUndo(canUndo, canExpand)}
         {this.renderExpand(canExpand)}
         {element}
@@ -297,7 +328,7 @@ CellRenderer.propTypes = {
   elementRemoved: PropTypes.func.isRequired,
   elementTypeChanged: PropTypes.func.isRequired,
   drillDown: PropTypes.func.isRequired,
-  tz: PropTypes.string.isRequired
+  tz: PropTypes.string.isRequired,
 };
 
 CellRenderer.displayName = 'CellRenderer';

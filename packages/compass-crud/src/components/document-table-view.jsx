@@ -1,7 +1,6 @@
-/* eslint-disable no-loop-func */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {AgGridReact} from 'ag-grid-react';
+import { AgGridReact } from 'ag-grid-react';
 import { map } from 'lodash';
 import HadronDocument from 'hadron-document';
 import mongodbns from 'mongodb-ns';
@@ -14,8 +13,6 @@ import HeaderComponent from './table-view/header-cell-renderer';
 import CellEditor from './table-view/cell-editor';
 
 import './document-table-view.less';
-
-/* eslint react/sort-comp:0 */
 
 const MIXED = 'Mixed';
 
@@ -66,7 +63,7 @@ class DocumentTableView extends React.Component {
         },
       },
       onGridReady: this.onGridReady.bind(this),
-      isFullWidthCell: function(rowNode) {
+      isFullWidthCell: function (rowNode) {
         return rowNode.data.isFooter;
       },
       fullWidthCellRendererFramework: FullWidthCellRenderer,
@@ -77,7 +74,7 @@ class DocumentTableView extends React.Component {
         replaceDocument: this.props.replaceDocument,
         updateDocument: this.props.updateDocument,
       },
-      getRowNodeId: function(data) {
+      getRowNodeId: function (data) {
         const fid = data.isFooter ? '1' : '0';
         return '' + data.hadronDocument.getStringId() + fid;
       },
@@ -87,14 +84,13 @@ class DocumentTableView extends React.Component {
     this.hadronDocs = [];
     this.topLevel = true;
 
-    this.AGGrid = React.createElement(
-      AgGridReact,
-      this.sharedGridProperties
-    );
+    this.AGGrid = React.createElement(AgGridReact, this.sharedGridProperties);
   }
 
   componentDidMount() {
-    this.unsubscribeGridStore = this.props.store.gridStore.listen(this.modifyColumns.bind(this));
+    this.unsubscribeGridStore = this.props.store.gridStore.listen(
+      this.modifyColumns.bind(this)
+    );
   }
 
   componentWillUnmount() {
@@ -102,7 +98,7 @@ class DocumentTableView extends React.Component {
     this.gridApi.destroy();
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     this.hadronDocs = nextProps.docs;
   }
 
@@ -123,7 +119,9 @@ class DocumentTableView extends React.Component {
    * @param {Object} data - The data object.
    */
   handleClone(data) {
-    const clonedDoc = data.hadronDocument.generateObject({ excludeInternalFields: true });
+    const clonedDoc = data.hadronDocument.generateObject({
+      excludeInternalFields: true,
+    });
     this.props.openInsertDocumentDialog(clonedDoc, true);
   }
 
@@ -168,15 +166,19 @@ class DocumentTableView extends React.Component {
     /* Add footer below this row */
     node.data.hasFooter = true;
     node.data.state = state;
-    this.gridApi.refreshCells({rowNodes: [node], columns: ['$rowActions'], force: true});
+    this.gridApi.refreshCells({
+      rowNodes: [node],
+      columns: ['$rowActions'],
+      force: true,
+    });
 
     const newData = {
       hadronDocument: data.hadronDocument,
       hasFooter: false,
       isFooter: true,
-      state: state
+      state: state,
     };
-    this.gridApi.updateRowData({add: [newData], addIndex: node.rowIndex + 1});
+    this.gridApi.updateRowData({ add: [newData], addIndex: node.rowIndex + 1 });
   }
 
   /**
@@ -192,9 +194,13 @@ class DocumentTableView extends React.Component {
 
     dataNode.data.hasFooter = false;
     dataNode.data.state = null;
-    this.gridApi.refreshCells({rowNodes: [dataNode], columns: ['$rowActions'], force: true});
+    this.gridApi.refreshCells({
+      rowNodes: [dataNode],
+      columns: ['$rowActions'],
+      force: true,
+    });
     this.gridApi.clearFocusedCell();
-    this.gridApi.updateRowData({remove: [node.data]});
+    this.gridApi.updateRowData({ remove: [node.data] });
   }
 
   /**
@@ -222,7 +228,7 @@ class DocumentTableView extends React.Component {
     }
 
     /* Update the grid */
-    this.gridApi.updateRowData({remove: [dataNode.data]});
+    this.gridApi.updateRowData({ remove: [dataNode.data] });
   }
 
   /**
@@ -241,19 +247,22 @@ class DocumentTableView extends React.Component {
       isFooter: false,
       hasFooter: false,
       state: null,
-      rowNumber: rowNumber
+      rowNumber: rowNumber,
     };
 
     /* Update this.hadronDocs */
     for (let i = 0; i < this.hadronDocs.length; i++) {
-      if (this.hadronDocs[i].getStringId() === newData.hadronDocument.getStringId()) {
+      if (
+        this.hadronDocs[i].getStringId() ===
+        newData.hadronDocument.getStringId()
+      ) {
         this.hadronDocs[i] = newData.hadronDocument;
         break;
       }
     }
 
     dataNode.setData(newData);
-    this.gridApi.redrawRows({rowNodes: [dataNode]});
+    this.gridApi.redrawRows({ rowNodes: [dataNode] });
 
     const footerRowId = data._id + '1';
     const footerNode = this.gridApi.getRowNode(footerRowId);
@@ -274,7 +283,9 @@ class DocumentTableView extends React.Component {
    * headers because of an insert.
    */
   addGridColumn(colIdBefore, headerName, colType, path, updateArray) {
-    const columnHeaders = map(this.columnApi.getAllGridColumns(), col => col.getColDef());
+    const columnHeaders = map(this.columnApi.getAllGridColumns(), (col) =>
+      col.getColDef()
+    );
 
     let i = 0;
     while (i < columnHeaders.length) {
@@ -290,12 +301,14 @@ class DocumentTableView extends React.Component {
         if (updateArray) {
           let j = i + 1;
           while (j < columnHeaders.length) {
-            if (!(columnHeaders[j].colId.toString().includes('$'))) {
+            if (!columnHeaders[j].colId.toString().includes('$')) {
               const newId = columnHeaders[j].colId + 1;
               columnHeaders[j].colId = newId;
               columnHeaders[j].headerName = newId;
-              columnHeaders[j].valueGetter = function(params) {
-                return params.data.hadronDocument.getChild([].concat(path, [newId]));
+              columnHeaders[j].valueGetter = function (params) {
+                return params.data.hadronDocument.getChild(
+                  [].concat(path, [newId])
+                );
               };
               /* The bsonType is updated from the GridStore */
             }
@@ -310,12 +323,17 @@ class DocumentTableView extends React.Component {
     const parentType = updateArray ? 'Array' : 'Object';
 
     // Newly added columns are always editable.
-    const newColDef = this.createColumnHeader(colType, true, [].concat(path, [headerName]), parentType);
+    const newColDef = this.createColumnHeader(
+      colType,
+      true,
+      [].concat(path, [headerName]),
+      parentType
+    );
     columnHeaders.splice(i + 1, 0, newColDef);
 
     this.gridApi.setColumnDefs(columnHeaders);
     if (updateArray) {
-      this.gridApi.refreshCells({force: true});
+      this.gridApi.refreshCells({ force: true });
     }
   }
 
@@ -325,12 +343,16 @@ class DocumentTableView extends React.Component {
    * @param {Array} colIds - The list of colIds that will be removed.
    */
   removeColumns(colIds) {
-    const columnHeaders = map(this.columnApi.getAllGridColumns(), col => col.getColDef());
+    const columnHeaders = map(this.columnApi.getAllGridColumns(), (col) =>
+      col.getColDef()
+    );
 
     const newCols = [];
     for (let i = 0; i < columnHeaders.length; i++) {
-      if (!colIds.includes('' + columnHeaders[i].colId) &&
-          !colIds.includes(columnHeaders[i].colId)) {
+      if (
+        !colIds.includes('' + columnHeaders[i].colId) &&
+        !colIds.includes(columnHeaders[i].colId)
+      ) {
         newCols.push(columnHeaders[i]);
       }
     }
@@ -350,7 +372,8 @@ class DocumentTableView extends React.Component {
     const colIds = Object.keys(showing);
     for (let i = 0; i < columnHeaders.length; i++) {
       if (colIds.includes('' + columnHeaders[i].colId)) {
-        columnHeaders[i].headerComponentParams.bsonType = showing[columnHeaders[i].colId];
+        columnHeaders[i].headerComponentParams.bsonType =
+          showing[columnHeaders[i].colId];
       }
     }
   }
@@ -382,26 +405,34 @@ class DocumentTableView extends React.Component {
   modifyColumns(params) {
     if ('add' in params) {
       this.addGridColumn(
-        params.add.colIdBefore, params.add.newColId, params.add.colType,
-        params.add.path, params.add.isArray
+        params.add.colIdBefore,
+        params.add.newColId,
+        params.add.colType,
+        params.add.path,
+        params.add.isArray
       );
     }
     if ('remove' in params) {
       this.removeColumns(params.remove.colIds);
     }
     if ('updateHeaders' in params) {
-      const columnHeaders = map(this.columnApi.getAllGridColumns(), col => col.getColDef());
+      const columnHeaders = map(this.columnApi.getAllGridColumns(), (col) =>
+        col.getColDef()
+      );
 
       this.updateHeaders(params.updateHeaders.showing, columnHeaders);
       this.gridApi.refreshHeader();
     }
     if ('refresh' in params) {
       const node = this.gridApi.getRowNode(params.refresh.oid + '0');
-      this.gridApi.refreshCells({rowNodes: [node], force: true});
+      this.gridApi.refreshCells({ rowNodes: [node], force: true });
     }
     if ('edit' in params) {
       this.gridApi.setFocusedCell(params.edit.rowIndex, params.edit.colId);
-      this.gridApi.startEditingCell({rowIndex: params.edit.rowIndex, colKey: params.edit.colId});
+      this.gridApi.startEditingCell({
+        rowIndex: params.edit.rowIndex,
+        colKey: params.edit.colId,
+      });
     }
   }
 
@@ -413,12 +444,12 @@ class DocumentTableView extends React.Component {
    */
   updateRowNumbers(index, insert) {
     const add = insert ? 1 : -1;
-    this.gridApi.forEachNodeAfterFilterAndSort(function(node) {
+    this.gridApi.forEachNodeAfterFilterAndSort(function (node) {
       if (!node.data.isFooter && node.data.rowNumber >= index) {
         node.data.rowNumber += add;
       }
     });
-    this.gridApi.refreshCells({columns: ['$rowNumber']});
+    this.gridApi.refreshCells({ columns: ['$rowNumber'] });
   }
 
   /**
@@ -437,7 +468,7 @@ class DocumentTableView extends React.Component {
       isFooter: false,
       hasFooter: false,
       state: null,
-      rowNumber: lineNumber
+      rowNumber: lineNumber,
     };
 
     /* Update this.hadronDocs */
@@ -448,11 +479,15 @@ class DocumentTableView extends React.Component {
       this.updateRowNumbers(lineNumber, true);
 
       /* Update grid API */
-      this.gridApi.updateRowData({add: [data], addIndex: index});
+      this.gridApi.updateRowData({ add: [data], addIndex: index });
 
       /* Update the headers */
       for (const element of data.hadronDocument.elements) {
-        this.props.elementAdded(element.currentKey, element.currentType, doc._id);
+        this.props.elementAdded(
+          element.currentKey,
+          element.currentType,
+          doc._id
+        );
       }
     }
   }
@@ -487,17 +522,28 @@ class DocumentTableView extends React.Component {
 
       this.gridApi.gridOptionsWrapper.gridOptions.context.path = [];
       this.gridApi.setColumnDefs(headers);
-      this.gridApi.setRowData(this.createRowData(this.hadronDocs, this.props.start));
-    } else if (params.types[params.types.length - 1] === 'Object' ||
-               params.types[params.types.length - 1] === 'Array') {
+      this.gridApi.setRowData(
+        this.createRowData(this.hadronDocs, this.props.start)
+      );
+    } else if (
+      params.types[params.types.length - 1] === 'Object' ||
+      params.types[params.types.length - 1] === 'Array'
+    ) {
       this.topLevel = false;
 
-      const headers = this.createColumnHeaders(this.hadronDocs, params.path, params.types);
+      const headers = this.createColumnHeaders(
+        this.hadronDocs,
+        params.path,
+        params.types
+      );
       headers.push(this.createObjectIdHeader());
 
       if (headers.length <= 3) {
-        headers.push(this.createPlaceholderHeader(
-          params.types[params.types.length - 1] === 'Array', params.path)
+        headers.push(
+          this.createPlaceholderHeader(
+            params.types[params.types.length - 1] === 'Array',
+            params.path
+          )
         );
       }
 
@@ -505,7 +551,7 @@ class DocumentTableView extends React.Component {
       this.gridApi.setRowData(this.createRowData(this.hadronDocs, 1));
       this.gridApi.setColumnDefs(headers);
     }
-    this.gridApi.refreshCells({force: true});
+    this.gridApi.refreshCells({ force: true });
 
     if (this.gridApi) {
       this.addFooters();
@@ -517,8 +563,14 @@ class DocumentTableView extends React.Component {
       const strColId = '' + params.editParams.colId;
       this.gridApi.ensureColumnVisible(strColId);
       this.gridApi.setFocusedCell(params.editParams.rowIndex, strColId);
-      this.gridApi.startEditingCell({rowIndex: params.editParams.rowIndex, colKey: strColId});
-    } else if (params.path.length && params.types[params.types.length - 1] === 'Array') {
+      this.gridApi.startEditingCell({
+        rowIndex: params.editParams.rowIndex,
+        colKey: strColId,
+      });
+    } else if (
+      params.path.length &&
+      params.types[params.types.length - 1] === 'Array'
+    ) {
       this.gridApi.ensureColumnVisible('0');
     }
   }
@@ -537,16 +589,19 @@ class DocumentTableView extends React.Component {
     const allColumns = this.columnApi.getAllColumns();
     const rootPanel = document.querySelector('.ag-root-wrapper');
     const tableWidth = rootPanel ? rootPanel.offsetWidth : 0;
-    if (params.node.data.state === 'editing' || params.node.data.state === 'deleting') {
+    if (
+      params.node.data.state === 'editing' ||
+      params.node.data.state === 'deleting'
+    ) {
       let width = 30;
       const newColumn = this.columnApi.getColumn('$new');
       for (let i = 0; i < allColumns.length - 2; i++) {
         width = width + 200;
       }
       if (width > tableWidth || newColumn) {
-        return {width: '100%'};
+        return { width: '100%' };
       }
-      return {width: `${width}px`};
+      return { width: `${width}px` };
     }
   }
 
@@ -565,7 +620,12 @@ class DocumentTableView extends React.Component {
   createPlaceholderHeader(isArray, path) {
     const name = isArray ? 0 : '$new';
     const type = isArray ? 'Array' : 'Object';
-    return this.createColumnHeader('String', true, [].concat(path, [name]), type);
+    return this.createColumnHeader(
+      'String',
+      true,
+      [].concat(path, [name]),
+      type
+    );
   }
 
   createObjectIdHeader() {
@@ -573,14 +633,14 @@ class DocumentTableView extends React.Component {
       headerName: '_id',
       colId: '$_id',
       cellClass: 'ag-cell-subtable-objectid',
-      valueGetter: function(params) {
+      valueGetter: function (params) {
         return params.data.hadronDocument.get('_id');
       },
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
         hide: false,
         bsonType: 'ObjectId',
-        subtable: true
+        subtable: true,
       },
       cellRendererFramework: CellRenderer,
       cellRendererParams: {
@@ -589,11 +649,11 @@ class DocumentTableView extends React.Component {
         elementTypeChanged: this.props.elementTypeChanged,
         drillDown: this.props.drillDown,
         parentType: '',
-        tz: this.props.tz
+        tz: this.props.tz,
       },
       editable: false,
       cellEditorFramework: CellEditor,
-      pinned: 'left'
+      pinned: 'left',
     };
   }
 
@@ -614,7 +674,7 @@ class DocumentTableView extends React.Component {
     return {
       headerName: path[path.length - 1],
       colId: path[path.length - 1],
-      valueGetter: function(params) {
+      valueGetter: function (params) {
         const child = params.data.hadronDocument.getChild(path);
         if (path.length <= 1) {
           return child;
@@ -632,17 +692,21 @@ class DocumentTableView extends React.Component {
         }
         return child;
       },
-      valueSetter: function(params) {
+      valueSetter: function (params) {
         if (params.oldValue === undefined && params.newValue === undefined) {
           return false;
         }
-        return params.newValue.isEdited() || params.newValue.isAdded() || params.newValue.isRemoved();
+        return (
+          params.newValue.isEdited() ||
+          params.newValue.isAdded() ||
+          params.newValue.isRemoved()
+        );
       },
 
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
         hide: false,
-        bsonType: type
+        bsonType: type,
       },
 
       cellRendererFramework: CellRenderer,
@@ -652,10 +716,10 @@ class DocumentTableView extends React.Component {
         elementTypeChanged: this.props.elementTypeChanged,
         drillDown: this.props.drillDown,
         parentType: parentType,
-        tz: this.props.tz
+        tz: this.props.tz,
       },
 
-      editable: function(params) {
+      editable: function (params) {
         if (!isEditable || params.node.data.state === 'deleting') {
           return false;
         } else if (path.length <= 1) {
@@ -667,7 +731,10 @@ class DocumentTableView extends React.Component {
         if (!parent || parent.currentType !== parentType) {
           return false;
         }
-        if (parent.currentType === 'Array' && params.column.getColId() !== '$_id') {
+        if (
+          parent.currentType === 'Array' &&
+          params.column.getColId() !== '$_id'
+        ) {
           let maxKey = 0;
           if (parent.elements.lastElement) {
             maxKey = parent.elements.lastElement.currentKey + 1;
@@ -690,8 +757,8 @@ class DocumentTableView extends React.Component {
         elementTypeChanged: this.props.elementTypeChanged,
         elementMarkRemoved: this.props.elementMarkRemoved,
         drillDown: this.props.drillDown,
-        tz: this.props.tz
-      }
+        tz: this.props.tz,
+      },
     };
   }
 
@@ -725,9 +792,9 @@ class DocumentTableView extends React.Component {
       pinned: 'left',
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
-        hide: true
+        hide: true,
       },
-      cellRendererFramework: RowNumberRenderer
+      cellRendererFramework: RowNumberRenderer,
     };
 
     /* Make column definitions + track type for header components */
@@ -750,7 +817,12 @@ class DocumentTableView extends React.Component {
       for (const element of topLevel.elements) {
         const key = element.currentKey;
         const type = element.currentType;
-        headers[key] = addHeader(type, isEditable, [].concat(path, [key]), parentType);
+        headers[key] = addHeader(
+          type,
+          isEditable,
+          [].concat(path, [key]),
+          parentType
+        );
 
         if (!(key in headerTypes)) {
           headerTypes[key] = {};
@@ -768,7 +840,7 @@ class DocumentTableView extends React.Component {
     const columnHeaders = Object.values(headers);
     const showing = {};
 
-    map(headerTypes, function(oids, key) {
+    map(headerTypes, function (oids, key) {
       const colTypes = Object.values(oids);
       let currentType = colTypes[0];
       for (let i = 0; i < colTypes.length; i++) {
@@ -785,25 +857,25 @@ class DocumentTableView extends React.Component {
        level action buttons */
     columnHeaders.push({
       colId: '$rowActions',
-      valueGetter: function(params) {
+      valueGetter: function (params) {
         return params.data;
       },
 
       headerComponentFramework: HeaderComponent,
       headerComponentParams: {
-        hide: true
+        hide: true,
       },
 
       cellRendererFramework: RowActionsRenderer,
       cellRendererParams: {
-        nested: (path.length !== 0),
+        nested: path.length !== 0,
         isEditable: this.props.isEditable,
         copyToClipboard: this.props.copyToClipboard,
-        tz: this.props.tz
+        tz: this.props.tz,
       },
       editable: false,
       pinned: 'right',
-      width: 100
+      width: 100,
     });
 
     /* Return the updated column definitions */
@@ -831,7 +903,7 @@ class DocumentTableView extends React.Component {
         /* If this is a footer, state is 'editing' or 'deleting' */
         state: null,
         /* Add a row number for the first column */
-        rowNumber: i + index
+        rowNumber: i + index,
       };
     });
   }
@@ -849,7 +921,8 @@ class DocumentTableView extends React.Component {
             collection={this.collection}
             pathChanged={this.props.pathChanged}
             path={this.props.table.path}
-            types={this.props.table.types} />
+            types={this.props.table.types}
+          />
           {this.AGGrid}
         </div>
       </div>
@@ -884,7 +957,7 @@ DocumentTableView.propTypes = {
   start: PropTypes.number,
   store: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired,
-  tz: PropTypes.string.isRequired
+  tz: PropTypes.string.isRequired,
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

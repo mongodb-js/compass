@@ -27,7 +27,7 @@ const TEST_ID = 'readonly-document';
  */
 class ReadonlyDocument extends React.Component {
   state = {
-    renderSize: INITIAL_FIELD_LIMIT
+    renderSize: INITIAL_FIELD_LIMIT,
   };
 
   setRenderSize(newLimit) {
@@ -35,16 +35,18 @@ class ReadonlyDocument extends React.Component {
   }
 
   handleClone = () => {
-    const clonedDoc = this.props.doc.generateObject({ excludeInternalFields: true });
+    const clonedDoc = this.props.doc.generateObject({
+      excludeInternalFields: true,
+    });
     this.props.openInsertDocumentDialog(clonedDoc, true);
-  }
+  };
 
   /**
    * Handle copying JSON to clipboard of the document.
    */
   handleCopy = () => {
     this.props.copyToClipboard(this.props.doc);
-  }
+  };
 
   /**
    * Get the elements for the document.
@@ -81,7 +83,9 @@ class ReadonlyDocument extends React.Component {
     return (
       <DocumentList.DocumentActionsGroup
         onCopy={this.props.copyToClipboard ? this.handleCopy : undefined}
-        onClone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
+        onClone={
+          this.props.openInsertDocumentDialog ? this.handleClone : undefined
+        }
       />
     );
   }
@@ -111,7 +115,7 @@ ReadonlyDocument.propTypes = {
   doc: PropTypes.object.isRequired,
   expandAll: PropTypes.bool,
   openInsertDocumentDialog: PropTypes.func,
-  tz: PropTypes.string
+  tz: PropTypes.string,
 };
 
 export default ReadonlyDocument;

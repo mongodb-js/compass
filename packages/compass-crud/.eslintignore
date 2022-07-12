@@ -1,7 +1,2 @@
-node_modules/**
-lib/**
-coverage/**
-.nyc_output/**
-src/assets/**
-compass/**
-./index.d.ts
+.nyc-output
+dist
