@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import { Code } from '@mongodb-js/compass-components';
 import { expect } from 'chai';
 
@@ -11,7 +11,7 @@ describe('Query [Component]', function() {
   let component;
 
   beforeEach(function() {
-    component = shallow(<Query title={title} attributes={attributes} />);
+    component = mount(<Query title={title} attributes={attributes} />);
   });
 
   afterEach(function() {
@@ -26,12 +26,12 @@ describe('Query [Component]', function() {
 
     it('renders the attribute label', function() {
       const node = component.find('[data-test-id="query-history-query-label"]');
-      expect(node).to.contain.html('>filter<');
+      expect(node.hostNodes()).to.contain.text('filter');
     });
 
     it('renders the formatted attributes with a Code component', function() {
-      const node = component.find('[data-test-id="query-history-query-code"]');
-      expect(node).to.have.type(Code);
+      const node = component.find('[data-test-id="query-history-query-code"]').hostNodes();
+      expect(node).to.have.type('pre');
     });
   });
 });

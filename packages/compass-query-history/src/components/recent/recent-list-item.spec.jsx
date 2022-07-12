@@ -72,8 +72,8 @@ describe('RecentListItem [Component]', function() {
       const node = component.find(Query);
       const queryAttributes = node.prop('attributes');
 
-      expect(queryAttributes._name).to.equal(undefined);
-      expect(queryAttributes._dateSaved).to.equal(undefined);
+      expect(queryAttributes).to.not.have.property('_name');
+      expect(queryAttributes).to.not.have.property('_dateSaved');
     });
   });
 
