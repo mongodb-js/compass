@@ -56,7 +56,7 @@ class Saving extends PureComponent {
           className={classnames(styles['form-input'])}
           placeholder="Favorite Name"
           onChange={this.handleChange}
-          autoFocus />
+        />
       </form>
     );
   }
