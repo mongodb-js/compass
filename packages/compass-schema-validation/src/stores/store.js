@@ -79,7 +79,7 @@ const configureStore = (options = {}) => {
       changeEditMode();
     });
 
-    store.dispatch(serverVersionChanged(instance.version));
+    store.dispatch(serverVersionChanged(instance.build.version));
 
     if (options.namespace) {
       const namespace = toNS(options.namespace);
