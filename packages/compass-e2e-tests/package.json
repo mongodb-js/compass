@@ -33,9 +33,9 @@
     "mongodb-compass": "^0.0.1-dev.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.10.0",
-    "@mongodb-js/prettier-config-compass": "^0.5.0",
-    "@mongodb-js/tsconfig-compass": "^0.6.0",
+    "@mongodb-js/eslint-config-compass": "^0.11.0",
+    "@mongodb-js/prettier-config-compass": "^0.6.0",
+    "@mongodb-js/tsconfig-compass": "^0.7.0",
     "@types/chai-as-promised": "^7.1.4",
     "@types/cross-spawn": "^6.0.2",
     "@types/puppeteer": "^5.4.4",
