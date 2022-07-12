@@ -145,10 +145,11 @@ class CreateIndexField extends PureComponent {
     return (
       <div className={styles['create-index-field']}>
         <div
-          className={styles['create-index-field-dropdown-name']}
-          data-test-id="create-index-modal-field-select"
+          className={styles['create-index-field-name']}
+          data-test-id={`create-index-field-name-${this.props.idx}`}
         >
           <Combobox
+            id={`create-index-field-name-${this.props.idx}`}
             value={this.props.field.name}
             label="Index fields"
             placeholder={DEFAULT_FIELD.name}
@@ -160,12 +161,12 @@ class CreateIndexField extends PureComponent {
           </Combobox>
         </div>
         <div
-          className={styles['create-index-field-dropdown-type']}
-          data-test-id="create-index-modal-type-select"
+          className={styles['create-index-field-type']}
+          data-test-id={`create-index-field-type-${this.props.idx}`}
         >
           <Select
-            name="field-type"
-            className={styles['create-index-field-dropdown-type-select']}
+            id={`create-index-field-type-${this.props.idx}`}
+            className={styles['create-index-field-type-select']}
             placeholder={DEFAULT_FIELD.type}
             onChange={this.selectFieldType.bind(this)}
             usePortal={false}

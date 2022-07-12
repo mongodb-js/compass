@@ -3,30 +3,21 @@ import { expect } from 'chai';
 import reducer, {
   INITIAL_STATE,
   createNewIndexField,
-  CREATE_NEW_INDEX_FIELD,
   clearNewIndexField,
-  CLEAR_NEW_INDEX_FIELD,
+  ActionTypes,
 } from '../create-index/new-index-field';
 
 describe('create index new index field module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state for createNewIndexField', function () {
-        expect(
-          reducer(
-            undefined,
-            createNewIndexField('FIELD1')
-          )
-        ).to.deep.equal('FIELD1');
+        expect(reducer(undefined, createNewIndexField('FIELD1'))).to.deep.equal(
+          'FIELD1'
+        );
       });
 
       it('returns the new state for clearNewIndexField', function () {
-        expect(
-          reducer(
-            undefined,
-            clearNewIndexField()
-          )
-        ).to.deep.equal(null);
+        expect(reducer(undefined, clearNewIndexField())).to.deep.equal(null);
       });
     });
 
@@ -39,10 +30,8 @@ describe('create index new index field module', function () {
 
   describe('#createNewIndexField', function () {
     it('returns the action', function () {
-      expect(
-        createNewIndexField('FIELD2')
-      ).to.deep.equal({
-        type: CREATE_NEW_INDEX_FIELD,
+      expect(createNewIndexField('FIELD2')).to.deep.equal({
+        type: ActionTypes.createNewIndexField,
         newField: 'FIELD2',
       });
     });
@@ -50,10 +39,8 @@ describe('create index new index field module', function () {
 
   describe('#clearNewIndexField', function () {
     it('returns the action', function () {
-      expect(
-        clearNewIndexField()
-      ).to.deep.equal({
-        type: CLEAR_NEW_INDEX_FIELD,
+      expect(clearNewIndexField()).to.deep.equal({
+        type: ActionTypes.clearNewIndexField,
       });
     });
   });

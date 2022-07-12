@@ -40,7 +40,9 @@ describe('create-index-field [Component]', function () {
       });
     });
     it('does not have columnstore indexes as a selectable index type', function () {
-      const typeSelectComponent = component.find('[name="field-type"]');
+      const typeSelectComponent = component.find(
+        '[id="create-index-field-type-0"]'
+      );
       expect(typeSelectComponent).to.be.present();
       expect(typeSelectComponent).to.not.contain('columnstore');
     });
@@ -53,7 +55,9 @@ describe('create-index-field [Component]', function () {
       });
     });
     it('shows columnstore indexes as a selectable index type', function () {
-      const typeSelectComponent = component.find('[name="field-type"]');
+      const typeSelectComponent = component.find(
+        '[id="create-index-field-type-0"]'
+      );
       expect(typeSelectComponent).to.be.present();
       expect(typeSelectComponent).to.contain('columnstore');
     });

@@ -15,7 +15,7 @@ import reducer, {
 } from '../create-index/fields';
 import { HANDLE_ERROR } from '../error';
 import { CHANGE_SCHEMA_FIELDS } from '../create-index/schema-fields';
-import { CLEAR_NEW_INDEX_FIELD } from '../create-index/new-index-field';
+import { ActionTypes } from '../create-index/new-index-field';
 
 describe('create index fields module', function () {
   describe('#reducer', function () {
@@ -191,9 +191,9 @@ describe('create index fields module', function () {
             schemaFields: ['def', 'abc'],
           });
           actionSpy();
-        } else if (res.type === CLEAR_NEW_INDEX_FIELD) {
+        } else if (res.type === ActionTypes.clearNewIndexField) {
           expect(res).to.deep.equal({
-            type: CLEAR_NEW_INDEX_FIELD,
+            type: ActionTypes.clearNewIndexField,
           });
           actionSpy();
         } else {
