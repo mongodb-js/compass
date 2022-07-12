@@ -22,7 +22,8 @@ class UpdatableIconButton extends React.Component {
         title={this.props.title}
         data-test-id={this.props.dataTestId}
         className={this.props.className}
-        onClick={this.props.clickHandler}>
+        onClick={this.props.clickHandler}
+      >
         <i className={this.props.iconClassName} aria-hidden />
       </button>
     );
@@ -36,7 +37,7 @@ UpdatableIconButton.propTypes = {
   clickHandler: PropTypes.func.isRequired,
   className: PropTypes.string,
   iconClassName: PropTypes.string.isRequired,
-  dataTestId: PropTypes.string
+  dataTestId: PropTypes.string,
 };
 
 export default UpdatableIconButton;

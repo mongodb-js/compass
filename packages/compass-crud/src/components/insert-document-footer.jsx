@@ -17,7 +17,7 @@ const MESSAGE_CLASS = `${PREFIX}-message`;
 const MODES = {
   progress: 'is-in-progress',
   error: 'is-error',
-  modifying: 'is-modifying'
+  modifying: 'is-modifying',
 };
 
 /**
@@ -39,7 +39,7 @@ InsertDocumentFooter.displayName = 'InsertDocumentFooter';
 
 InsertDocumentFooter.propTypes = {
   message: PropTypes.string.isRequired,
-  mode: PropTypes.string.isRequired
+  mode: PropTypes.string.isRequired,
 };
 
 export default InsertDocumentFooter;

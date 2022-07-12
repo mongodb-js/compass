@@ -1,98 +1,111 @@
-import configureStore from '../../src/stores/recent-list-store';
+const { TestBackend } = require('storage-mixin');
+import { expect } from 'chai';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 import AppRegistry from 'hadron-app-registry';
 
-describe('RecentListStore [Store]', () => {
+import configureStore from '../../src/stores/recent-list-store';
+
+describe('RecentListStore [Store]', function() {
+  let tmpDir;
   let store;
   let appRegistry;
 
-  beforeEach(() => {
+  beforeEach(function() {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recent-list-store-tests'));
+    TestBackend.enable(tmpDir);
     appRegistry = new AppRegistry();
     store = configureStore({ localAppRegistry: appRegistry });
   });
 
-  describe('#init', () => {
-    it('initializes with the recent list', () => {
+  afterEach(function() {
+    TestBackend.disable();
+    fs.rmdirSync(tmpDir, { recursive: true });
+  })
+
+  describe('#init', function() {
+    it('initializes with the recent list', function() {
       expect(store.state.items.length).to.equal(0);
     });
   });
 
-  describe('#emit query-applied', () => {
-    context('when the filter is blank', () => {
-      beforeEach(() => {
+  describe('#emit query-applied', function() {
+    context('when the filter is blank', function() {
+      beforeEach(function() {
         appRegistry.emit('query-applied', { ns: 'test.test', filter: {}});
       });
 
-      it('does not add the query to the list', () => {
+      it('does not add the query to the list', function() {
         expect(store.state.items.length).to.equal(0);
       });
     });
 
-    context('when the project is blank', () => {
-      beforeEach(() => {
+    context('when the project is blank', function() {
+      beforeEach(function() {
         appRegistry.emit('query-applied', { ns: 'test.test', project: {}});
       });
 
-      it('does not add the query to the list', () => {
+      it('does not add the query to the list', function() {
         expect(store.state.items.length).to.equal(0);
       });
     });
 
-    context('when the sort is blank', () => {
-      beforeEach(() => {
+    context('when the sort is blank', function() {
+      beforeEach(function() {
         appRegistry.emit('query-applied', { ns: 'test.test', sort: {}});
       });
 
-      it('does not add the query to the list', () => {
+      it('does not add the query to the list', function() {
         expect(store.state.items.length).to.equal(0);
       });
     });
 
-    context('when the ns is blank', () => {
-      beforeEach(() => {
+    context('when the ns is blank', function() {
+      beforeEach(function() {
         appRegistry.emit('query-applied', { filter: { name: 'test' }});
       });
 
-      it('does not add the query to the list', () => {
+      it('does not add the query to the list', function() {
         expect(store.state.items.length).to.equal(0);
       });
     });
 
-    context('when the attributes are not blank', () => {
-      beforeEach(() => {
+    context('when the attributes are not blank', function() {
+      beforeEach(function() {
         appRegistry.emit('query-applied', { ns: 'test.test', filter: { name: 'test' }});
       });
 
-      afterEach(() => {
+      afterEach(function() {
         store.state.items.reset();
       });
 
-      it('adds the query to the list', () => {
+      it('adds the query to the list', function() {
         expect(store.state.items.length).to.equal(1);
       });
     });
 
-    context('when a collation is present', () => {
-      beforeEach(() => {
+    context('when a collation is present', function() {
+      beforeEach(function() {
         appRegistry.emit('query-applied', { ns: 'test.test', collation: { locale: 'en' }});
       });
 
-      afterEach(() => {
+      afterEach(function() {
         store.state.items.reset();
       });
 
-      it('adds the query to the list', () => {
+      it('adds the query to the list', function() {
         expect(store.state.items.length).to.equal(1);
       });
 
-      it('stores the collation', () => {
+      it('stores the collation', function() {
         expect(store.state.items.at(0).collation).to.deep.equal({ locale: 'en' });
       });
     });
   });
 
-  // TODO: this writes files to the current folder
-  describe.skip('#addRecent', () => {
-    it('ignores duplicate queries', () => {
+  describe('#addRecent', function() {
+    it('ignores duplicate queries', function() {
       expect(store.state.items.length).to.equal(0);
 
       const recent = { ns: 'foo', filter: { foo: 1 } };

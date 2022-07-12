@@ -13,7 +13,7 @@ class FullWidthCellRenderer extends React.Component {
 
     this.doc = props.data.hadronDocument;
     this.state = {
-      mode: props.data.state
+      mode: props.data.state,
     };
     this.boundHandleUpdateSuccess = this.handleUpdateSuccess.bind(this);
     this.boundHandleRemoveSuccess = this.handleRemoveSuccess.bind(this);
@@ -129,7 +129,7 @@ FullWidthCellRenderer.propTypes = {
   removeDocument: PropTypes.func.isRequired,
   replaceDocument: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
-  cleanCols: PropTypes.func.isRequired
+  cleanCols: PropTypes.func.isRequired,
 };
 
 FullWidthCellRenderer.displayName = 'FullWidthCellRenderer';
