@@ -2,7 +2,14 @@ import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import AppRegistry from 'hadron-app-registry';
-import { fireEvent, render, screen, cleanup } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  cleanup,
+  within,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { CrudToolbar } from './crud-toolbar';
 
@@ -91,7 +98,10 @@ describe('CrudToolbar Component', function () {
     });
 
     expect(viewSwitchHandlerSpy.called).to.be.false;
-    fireEvent.click(screen.getByTestId('toolbar-view-table'));
+    const option = within(screen.getByTestId('toolbar-view-table')).getByRole(
+      'tab'
+    );
+    userEvent.click(option);
 
     expect(viewSwitchHandlerSpy.calledOnce).to.be.true;
     expect(viewSwitchHandlerSpy.firstCall.args[0]).to.equal('Table');
@@ -119,6 +129,11 @@ describe('CrudToolbar Component', function () {
     expect(getPageSpy.called).to.be.false;
     fireEvent.click(screen.getByTestId('docs-toolbar-prev-page-btn'));
 
+    expect(screen.getByTestId('docs-toolbar-prev-page-btn')).to.have.attribute(
+      'aria-disabled',
+      'true'
+    );
+
     expect(getPageSpy.calledOnce).to.be.false;
     expect(screen.getByTestId('docs-toolbar-prev-page-btn')).to.be.visible;
   });
@@ -131,12 +146,37 @@ describe('CrudToolbar Component', function () {
       start: 20,
       end: 40,
     });
+    expect(screen.getByTestId('docs-toolbar-prev-page-btn')).to.have.attribute(
+      'aria-disabled',
+      'false'
+    );
 
     expect(getPageSpy.called).to.be.false;
     fireEvent.click(screen.getByTestId('docs-toolbar-prev-page-btn'));
 
     expect(getPageSpy.calledOnce).to.be.true;
     expect(getPageSpy.firstCall.args[0]).to.equal(0);
+  });
+
+  it('should have the next page button disabled when on the last page', function () {
+    const getPageSpy = sinon.spy();
+    renderCrudToolbar({
+      getPage: getPageSpy,
+      page: 1,
+      start: 20,
+      end: 39,
+      count: 39,
+    });
+
+    expect(getPageSpy.called).to.be.false;
+    fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
+
+    expect(screen.getByTestId('docs-toolbar-next-page-btn')).to.have.attribute(
+      'aria-disabled',
+      'true'
+    );
+
+    expect(getPageSpy.calledOnce).to.be.false;
   });
 
   it('should render the add data button when it is not readonly', function () {
@@ -147,11 +187,35 @@ describe('CrudToolbar Component', function () {
     expect(screen.queryByText(addDataText)).to.be.visible;
   });
 
+  it('should render the start and end count', function () {
+    renderCrudToolbar({
+      start: 5,
+      end: 25,
+      count: 200,
+    });
+
+    expect(screen.getByTestId('crud-document-count-display')).to.have.text(
+      '5 - 25 of 200'
+    );
+  });
+
   it('should not render the add data button when it is readonly', function () {
     renderCrudToolbar({
       readonly: true,
     });
 
     expect(screen.queryByText(addDataText)).to.not.exist;
+  });
+
+  it('should call to open the export dialog when export is clicked', function () {
+    const exportSpy = sinon.spy();
+    renderCrudToolbar({
+      openExportFileDialog: exportSpy,
+    });
+
+    expect(exportSpy.called).to.be.false;
+    fireEvent.click(screen.getByText('Export Collection'));
+
+    expect(exportSpy.calledOnce).to.be.true;
   });
 });

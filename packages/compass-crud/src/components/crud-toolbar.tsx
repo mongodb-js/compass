@@ -14,7 +14,6 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { useId } from '@react-aria/utils';
-import type { Listenable } from 'reflux';
 import { AddDataMenu } from './add-data-menu';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
@@ -96,8 +95,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     isExportable
       ? {
           component: queryBarRole.component,
-          store: localAppRegistry.getStore(queryBarRole.storeName),
-          actions: localAppRegistry.getAction(queryBarRole.actionName),
+          store: localAppRegistry.getStore(queryBarRole.storeName!),
+          actions: localAppRegistry.getAction(queryBarRole.actionName!),
         }
       : null
   );
@@ -150,7 +149,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           </Button>
         </div>
         <div className={toolbarRightActionStyles}>
-          <Body>
+          <Body data-testid="crud-document-count-display">
             {start} - {end} of {displayedDocumentCount}
           </Body>
           {loadingCount && (
