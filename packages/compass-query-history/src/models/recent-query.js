@@ -11,7 +11,7 @@ const RecentQuery = Query.extend(storageMixin, {
   storage: {
     backend: 'disk',
     basepath: remote ? remote.app.getPath('userData') : undefined,
-  }
+  },
 });
 
 export default RecentQuery;

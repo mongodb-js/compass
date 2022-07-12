@@ -7,105 +7,113 @@ import AppRegistry from 'hadron-app-registry';
 
 import configureStore from '../../src/stores/recent-list-store';
 
-describe('RecentListStore [Store]', function() {
+describe('RecentListStore [Store]', function () {
   let tmpDir;
   let store;
   let appRegistry;
 
-  beforeEach(function() {
+  beforeEach(function () {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recent-list-store-tests'));
     TestBackend.enable(tmpDir);
     appRegistry = new AppRegistry();
     store = configureStore({ localAppRegistry: appRegistry });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     TestBackend.disable();
     fs.rmdirSync(tmpDir, { recursive: true });
-  })
+  });
 
-  describe('#init', function() {
-    it('initializes with the recent list', function() {
+  describe('#init', function () {
+    it('initializes with the recent list', function () {
       expect(store.state.items.length).to.equal(0);
     });
   });
 
-  describe('#emit query-applied', function() {
-    context('when the filter is blank', function() {
-      beforeEach(function() {
-        appRegistry.emit('query-applied', { ns: 'test.test', filter: {}});
+  describe('#emit query-applied', function () {
+    context('when the filter is blank', function () {
+      beforeEach(function () {
+        appRegistry.emit('query-applied', { ns: 'test.test', filter: {} });
       });
 
-      it('does not add the query to the list', function() {
+      it('does not add the query to the list', function () {
         expect(store.state.items.length).to.equal(0);
       });
     });
 
-    context('when the project is blank', function() {
-      beforeEach(function() {
-        appRegistry.emit('query-applied', { ns: 'test.test', project: {}});
+    context('when the project is blank', function () {
+      beforeEach(function () {
+        appRegistry.emit('query-applied', { ns: 'test.test', project: {} });
       });
 
-      it('does not add the query to the list', function() {
+      it('does not add the query to the list', function () {
         expect(store.state.items.length).to.equal(0);
       });
     });
 
-    context('when the sort is blank', function() {
-      beforeEach(function() {
-        appRegistry.emit('query-applied', { ns: 'test.test', sort: {}});
+    context('when the sort is blank', function () {
+      beforeEach(function () {
+        appRegistry.emit('query-applied', { ns: 'test.test', sort: {} });
       });
 
-      it('does not add the query to the list', function() {
+      it('does not add the query to the list', function () {
         expect(store.state.items.length).to.equal(0);
       });
     });
 
-    context('when the ns is blank', function() {
-      beforeEach(function() {
-        appRegistry.emit('query-applied', { filter: { name: 'test' }});
+    context('when the ns is blank', function () {
+      beforeEach(function () {
+        appRegistry.emit('query-applied', { filter: { name: 'test' } });
       });
 
-      it('does not add the query to the list', function() {
+      it('does not add the query to the list', function () {
         expect(store.state.items.length).to.equal(0);
       });
     });
 
-    context('when the attributes are not blank', function() {
-      beforeEach(function() {
-        appRegistry.emit('query-applied', { ns: 'test.test', filter: { name: 'test' }});
+    context('when the attributes are not blank', function () {
+      beforeEach(function () {
+        appRegistry.emit('query-applied', {
+          ns: 'test.test',
+          filter: { name: 'test' },
+        });
       });
 
-      afterEach(function() {
+      afterEach(function () {
         store.state.items.reset();
       });
 
-      it('adds the query to the list', function() {
+      it('adds the query to the list', function () {
         expect(store.state.items.length).to.equal(1);
       });
     });
 
-    context('when a collation is present', function() {
-      beforeEach(function() {
-        appRegistry.emit('query-applied', { ns: 'test.test', collation: { locale: 'en' }});
+    context('when a collation is present', function () {
+      beforeEach(function () {
+        appRegistry.emit('query-applied', {
+          ns: 'test.test',
+          collation: { locale: 'en' },
+        });
       });
 
-      afterEach(function() {
+      afterEach(function () {
         store.state.items.reset();
       });
 
-      it('adds the query to the list', function() {
+      it('adds the query to the list', function () {
         expect(store.state.items.length).to.equal(1);
       });
 
-      it('stores the collation', function() {
-        expect(store.state.items.at(0).collation).to.deep.equal({ locale: 'en' });
+      it('stores the collation', function () {
+        expect(store.state.items.at(0).collation).to.deep.equal({
+          locale: 'en',
+        });
       });
     });
   });
 
-  describe('#addRecent', function() {
-    it('ignores duplicate queries', function() {
+  describe('#addRecent', function () {
+    it('ignores duplicate queries', function () {
       expect(store.state.items.length).to.equal(0);
 
       const recent = { ns: 'foo', filter: { foo: 1 } };
