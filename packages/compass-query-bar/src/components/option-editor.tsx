@@ -121,8 +121,9 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
   const onApplyClicked = useCallback(() => onApply(), [onApply]);
   const onApplyRef = useRef(onApplyClicked);
+  onApplyRef.current = onApplyClicked;
 
-  const onLoadEditor = (editor: Ace.Editor) => {
+  const onLoadEditor = useCallback((editor: Ace.Editor) => {
     editorRef.current = editor;
     editorRef.current.setBehavioursEnabled(true);
     editorRef.current.commands.addCommand({
@@ -135,7 +136,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         onApplyRef.current();
       },
     });
-  };
+  }, []);
 
   return (
     <Editor
