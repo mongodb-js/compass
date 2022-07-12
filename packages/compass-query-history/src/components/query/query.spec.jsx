@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Code } from '@mongodb-js/compass-components';
 import { expect } from 'chai';
 
 import Query from '../query';
