@@ -43,7 +43,7 @@ class EditableDocument extends React.Component {
       renderSize: INITIAL_FIELD_LIMIT,
       editing: false,
       deleting: false,
-      expandAll: false
+      expandAll: false,
     };
 
     this.boundHandleCancel = this.handleCancel.bind(this);
@@ -134,7 +134,11 @@ class EditableDocument extends React.Component {
    * Handles canceling edits to the document.
    */
   handleCancel() {
-    this.setState({ editing: false, deleting: false, renderSize: INITIAL_FIELD_LIMIT });
+    this.setState({
+      editing: false,
+      deleting: false,
+      renderSize: INITIAL_FIELD_LIMIT,
+    });
   }
 
   /**
@@ -148,7 +152,9 @@ class EditableDocument extends React.Component {
    * Handle cloning of the document.
    */
   handleClone() {
-    const clonedDoc = this.props.doc.generateObject({ excludeInternalFields: true });
+    const clonedDoc = this.props.doc.generateObject({
+      excludeInternalFields: true,
+    });
     this.props.openInsertDocumentDialog(clonedDoc, true);
   }
 
@@ -159,7 +165,7 @@ class EditableDocument extends React.Component {
     this.setState({
       deleting: true,
       editing: false,
-      renderSize: INITIAL_FIELD_LIMIT
+      renderSize: INITIAL_FIELD_LIMIT,
     });
   }
 
@@ -292,9 +298,7 @@ class EditableDocument extends React.Component {
     return (
       <div className={this.style()} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
-          <div className={ELEMENTS}>
-            {this.renderElements()}
-          </div>
+          <div className={ELEMENTS}>{this.renderElements()}</div>
           {this.renderExpansion()}
           {this.renderActions()}
         </div>
@@ -313,7 +317,7 @@ EditableDocument.propTypes = {
   replaceDocument: PropTypes.func.isRequired,
   updateDocument: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired,
-  copyToClipboard: PropTypes.func.isRequired
+  copyToClipboard: PropTypes.func.isRequired,
 };
 
 export default EditableDocument;

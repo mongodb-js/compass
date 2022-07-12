@@ -1,6 +1,3 @@
-
-
-
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -9,7 +6,9 @@ import { fireEvent, render, screen, cleanup } from '@testing-library/react';
 
 import { CrudToolbar } from './crud-toolbar';
 
-const noop = () => {/* noop */};
+const noop = () => {
+  /* noop */
+};
 const queryBarText = 'Query bar';
 const mockQueryBarRole = {
   name: 'Query Bar',
@@ -79,7 +78,7 @@ describe('CrudToolbar Component', function () {
 
   it('should not render the query bar role when isExportable is false', function () {
     renderCrudToolbar({
-      isExportable: false
+      isExportable: false,
     });
 
     expect(screen.queryByText(queryBarText)).to.not.exist;
@@ -101,7 +100,7 @@ describe('CrudToolbar Component', function () {
   it('should call to get the next page when the next button is hit', function () {
     const getPageSpy = sinon.spy();
     renderCrudToolbar({
-      getPage: getPageSpy
+      getPage: getPageSpy,
     });
 
     expect(getPageSpy.called).to.be.false;
@@ -114,7 +113,7 @@ describe('CrudToolbar Component', function () {
   it('should have the prev page button disabled', function () {
     const getPageSpy = sinon.spy();
     renderCrudToolbar({
-      getPage: getPageSpy
+      getPage: getPageSpy,
     });
 
     expect(getPageSpy.called).to.be.false;
@@ -130,7 +129,7 @@ describe('CrudToolbar Component', function () {
       getPage: getPageSpy,
       page: 1,
       start: 20,
-      end: 40
+      end: 40,
     });
 
     expect(getPageSpy.called).to.be.false;
@@ -140,10 +139,9 @@ describe('CrudToolbar Component', function () {
     expect(getPageSpy.firstCall.args[0]).to.equal(0);
   });
 
-
   it('should render the add data button when it is not readonly', function () {
     renderCrudToolbar({
-      readonly: false
+      readonly: false,
     });
 
     expect(screen.queryByText(addDataText)).to.be.visible;
@@ -151,7 +149,7 @@ describe('CrudToolbar Component', function () {
 
   it('should not render the add data button when it is readonly', function () {
     renderCrudToolbar({
-      readonly: true
+      readonly: true,
     });
 
     expect(screen.queryByText(addDataText)).to.not.exist;

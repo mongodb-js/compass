@@ -2,7 +2,7 @@ export {
   findDocuments,
   countDocuments,
   fetchShardingKeys,
-  OPERATION_CANCELLED_MESSAGE
+  OPERATION_CANCELLED_MESSAGE,
 } from './cancellable-queries';
 
 /**

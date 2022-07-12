@@ -16,7 +16,7 @@ type AddDataMenuProps = {
 };
 
 const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
-  insertDataHandler
+  insertDataHandler,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -69,8 +69,6 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
       </MenuItem>
     </Menu>
   );
-}
-
-export {
-  AddDataMenu
 };
+
+export { AddDataMenu };

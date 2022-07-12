@@ -36,7 +36,7 @@ const crudBarStyles = css({
   width: '100%',
   display: 'flex',
   gap: spacing[2],
-  justifyContent: 'space-between'
+  justifyContent: 'space-between',
 });
 
 const toolbarLeftActionStyles = css({
@@ -66,7 +66,7 @@ type CrudToolbarProps = {
   page: number;
   readonly: boolean;
   refreshDocuments: () => void;
-  resultId: string,
+  resultId: string;
   start: number;
   viewSwitchHandler: (view: 'List' | 'JSON' | 'Table') => void;
 };
@@ -92,47 +92,40 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
 }) => {
   const queryBarRole = localAppRegistry.getRole('Query.QueryBar')![0];
 
-  const queryBarRef = useRef(isExportable ? {
-    component: queryBarRole.component,
-    store: localAppRegistry.getStore(queryBarRole.storeName),
-    actions: localAppRegistry.getAction(queryBarRole.actionName),
-  } : null);
+  const queryBarRef = useRef(
+    isExportable
+      ? {
+          component: queryBarRole.component,
+          store: localAppRegistry.getStore(queryBarRole.storeName),
+          actions: localAppRegistry.getAction(queryBarRole.actionName),
+        }
+      : null
+  );
 
   const displayedDocumentCount = useMemo(
-    () => (
-      loadingCount
-        ? ''
-        : `${count ?? 'N/A'}`
-    ),
-    [ loadingCount, count ]
+    () => (loadingCount ? '' : `${count ?? 'N/A'}`),
+    [loadingCount, count]
   );
 
   const onClickRefreshDocuments = useCallback(() => {
     track('Query Results Refreshed');
     refreshDocuments();
-  }, [ refreshDocuments ]);
+  }, [refreshDocuments]);
 
-  const QueryBarComponent = isExportable ? queryBarRef.current!.component : null;
+  const QueryBarComponent = isExportable
+    ? queryBarRef.current!.component
+    : null;
 
   const controlId = useId();
-  const prevButtonDisabled = useMemo(
-    () => (
-      page === 0
-    ),
-    [ page ]
-  );
+  const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(
-    () => (
-      count ? 20 * (page + 1) >= count : false
-    ),
-    [ count, page ]
+    () => (count ? 20 * (page + 1) >= count : false),
+    [count, page]
   );
 
   return (
     <Toolbar className={crudToolbarStyles}>
-      <div
-        className={crudQueryBarStyles}
-      >
+      <div className={crudQueryBarStyles}>
         {isExportable && QueryBarComponent && (
           <QueryBarComponent
             store={queryBarRef.current!.store}
@@ -146,11 +139,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       </div>
       <div className={crudBarStyles}>
         <div className={toolbarLeftActionStyles}>
-          {!readonly && (
-            <AddDataMenu
-              insertDataHandler={insertDataHandler}
-            />
-          )}
+          {!readonly && <AddDataMenu insertDataHandler={insertDataHandler} />}
           <Button
             leftGlyph={<Icon glyph="Export" />}
             data-testid="export-collection-button"
@@ -165,10 +154,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             {start} - {end} of {displayedDocumentCount}
           </Body>
           {loadingCount && (
-            <SpinLoader
-              size="12px"
-              title="Fetching document count…"
-            />
+            <SpinLoader size="12px" title="Fetching document count…" />
           )}
           {!loadingCount && (
             <IconButton
@@ -207,7 +193,9 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             aria-label="View"
             size="small"
             value={activeDocumentView}
-            onChange={(value) => viewSwitchHandler(value as 'List' | 'JSON' | 'Table')}
+            onChange={(value) =>
+              viewSwitchHandler(value as 'List' | 'JSON' | 'Table')
+            }
           >
             <SegmentedControlOption
               data-testid="toolbar-view-list"
@@ -235,8 +223,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       </div>
     </Toolbar>
   );
-}
-
-export {
-  CrudToolbar
 };
+
+export { CrudToolbar };

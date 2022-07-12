@@ -5,15 +5,17 @@ import { css, Banner, BannerVariant } from '@mongodb-js/compass-components';
 function InsertCSFLEWarningBanner({ csfleState }) {
   let fieldsNotice = undefined;
   if (csfleState.encryptedFields && csfleState.encryptedFields.length > 0) {
-    fieldsNotice = (<div>
-      The following fields will be encrypted according to the collection schema:&nbsp;
-
-      <ul className={css({listStyle: 'inherit'})}>
-        {csfleState.encryptedFields.map(fieldName => (
-          <li key={fieldName}>{fieldName}</li>
-        ))}
-      </ul>
-    </div>);
+    fieldsNotice = (
+      <div>
+        The following fields will be encrypted according to the collection
+        schema:&nbsp;
+        <ul className={css({ listStyle: 'inherit' })}>
+          {csfleState.encryptedFields.map((fieldName) => (
+            <li key={fieldName}>{fieldName}</li>
+          ))}
+        </ul>
+      </div>
+    );
   }
 
   switch (csfleState.state) {
@@ -23,27 +25,34 @@ function InsertCSFLEWarningBanner({ csfleState }) {
     case 'no-known-schema':
       return (
         <Banner variant={BannerVariant.Warning}>
-          This insert operation will not encrypt any document fields because
-          no schema or In-Use Encryption configuration is associated with the collection.
+          This insert operation will not encrypt any document fields because no
+          schema or In-Use Encryption configuration is associated with the
+          collection.
         </Banner>
       );
 
     case 'incomplete-schema-for-cloned-doc':
       return (
-        <Banner data-test-id="incomplete-schema-for-cloned-doc" variant={BannerVariant.Danger}>
-          This insert operation will not encrypt all fields that were encrypted in the original
-          document due to a missing or incomplete schema for this collection.
-
+        <Banner
+          data-test-id="incomplete-schema-for-cloned-doc"
+          variant={BannerVariant.Danger}
+        >
+          This insert operation will not encrypt all fields that were encrypted
+          in the original document due to a missing or incomplete schema for
+          this collection.
           {fieldsNotice}
         </Banner>
       );
 
     case 'has-known-schema':
       return (
-        <Banner data-test-id="insert-csfle-has-known-schema" variant={BannerVariant.Info}>
-          This insert operation will encrypt all fields that are specified in the schema
-          or In-Use Encryption configuration associated with the collection.
-
+        <Banner
+          data-test-id="insert-csfle-has-known-schema"
+          variant={BannerVariant.Info}
+        >
+          This insert operation will encrypt all fields that are specified in
+          the schema or In-Use Encryption configuration associated with the
+          collection.
           {fieldsNotice}
         </Banner>
       );
@@ -64,7 +73,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
 InsertCSFLEWarningBanner.displayName = 'InsertCSFLEWarningBanner';
 
 InsertCSFLEWarningBanner.propTypes = {
-  csfleState: PropTypes.object.isRequired
+  csfleState: PropTypes.object.isRequired,
 };
 
 export default InsertCSFLEWarningBanner;

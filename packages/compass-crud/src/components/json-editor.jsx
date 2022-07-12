@@ -20,7 +20,6 @@ const CONTENTS = `${BASE}-contents`;
  */
 const TEST_ID = 'editable-json';
 
-
 /**
  * Component for a single editable document in a list of json documents.
  */
@@ -44,7 +43,7 @@ class EditableJson extends React.Component {
       deleteFinished: false,
       containsErrors: false,
       value,
-      initialValue: value
+      initialValue: value,
     };
 
     this.boundHandleCancel = this.handleCancel.bind(this);
@@ -154,7 +153,9 @@ class EditableJson extends React.Component {
    * Handle cloning of the json document.
    */
   handleClone() {
-    const clonedDoc = this.props.doc.generateObject({ excludeInternalFields: true });
+    const clonedDoc = this.props.doc.generateObject({
+      excludeInternalFields: true,
+    });
     this.props.openInsertDocumentDialog(clonedDoc, true);
   }
 
@@ -164,7 +165,7 @@ class EditableJson extends React.Component {
   handleDelete() {
     this.setState({
       deleting: true,
-      editing: false
+      editing: false,
     });
   }
 
@@ -174,7 +175,7 @@ class EditableJson extends React.Component {
   handleCancelRemove() {
     this.setState({
       deleting: false,
-      deleteFinished: false
+      deleteFinished: false,
     });
   }
 
@@ -250,7 +251,7 @@ class EditableJson extends React.Component {
       fixedWidthGutter: false,
       displayIndentGuides: false,
       wrapBehavioursEnabled: true,
-      foldStyle: 'markbegin'
+      foldStyle: 'markbegin',
     };
 
     return (
@@ -261,7 +262,10 @@ class EditableJson extends React.Component {
           onChangeText={this.handleOnChange.bind(this)}
           options={options}
           readOnly={!this.state.editing}
-          onLoad={(editor) => { this.editor = editor; }}/>
+          onLoad={(editor) => {
+            this.editor = editor;
+          }}
+        />
       </div>
     );
   }
@@ -322,7 +326,7 @@ EditableJson.propTypes = {
   replaceDocument: PropTypes.func.isRequired,
   updateDocument: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired,
-  copyToClipboard: PropTypes.func.isRequired
+  copyToClipboard: PropTypes.func.isRequired,
 };
 
 export default EditableJson;

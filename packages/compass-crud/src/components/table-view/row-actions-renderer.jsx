@@ -40,17 +40,20 @@ class RowActionsRenderer extends React.Component {
             title="Copy Document"
             className={`${BEM_BASE}-panel-button btn btn-default btn-xs document-actions-button-copy`}
             iconClassName={`${BEM_BASE}-button-icon fa fa-copy`}
-            clickHandler={this.handleCopy.bind(this)} />
+            clickHandler={this.handleCopy.bind(this)}
+          />
           <IconButton
             title="Clone Document"
             className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
             iconClassName={`${BEM_BASE}-button-icon fa fa-clone`}
-            clickHandler={this.handleClone.bind(this)} />
+            clickHandler={this.handleClone.bind(this)}
+          />
           <IconButton
             title="Delete Document"
             className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
             iconClassName={`${BEM_BASE}-button-icon fa fa-trash-o`}
-            clickHandler={this.handleRemove.bind(this)} />
+            clickHandler={this.handleRemove.bind(this)}
+          />
         </div>
       );
     }
@@ -58,9 +61,11 @@ class RowActionsRenderer extends React.Component {
 
   render() {
     /* Don't show actions for rows that are being edited or marked for deletion */
-    if (this.props.value.state === 'editing' ||
-        this.props.value.state === 'deleting' ||
-        !this.props.isEditable) {
+    if (
+      this.props.value.state === 'editing' ||
+      this.props.value.state === 'deleting' ||
+      !this.props.isEditable
+    ) {
       return null;
     }
 
@@ -71,7 +76,8 @@ class RowActionsRenderer extends React.Component {
             title="Edit Document"
             className={`${BEM_BASE}-panel-button btn btn-default btn-xs`}
             iconClassName={`${BEM_BASE}-button-icon fa fa-pencil`}
-            clickHandler={this.handleEdit.bind(this)} />
+            clickHandler={this.handleEdit.bind(this)}
+          />
           {this.renderTopLevelActions()}
         </div>
       </div>
@@ -87,7 +93,7 @@ RowActionsRenderer.propTypes = {
   data: PropTypes.any,
   nested: PropTypes.bool,
   isEditable: PropTypes.bool.isRequired,
-  copyToClipboard: PropTypes.func.isRequired
+  copyToClipboard: PropTypes.func.isRequired,
 };
 
 RowActionsRenderer.displayName = 'RowActionsRenderer';

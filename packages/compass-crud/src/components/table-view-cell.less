@@ -18,7 +18,8 @@
     border-radius: 50%;
     margin: 4px 5px;
     background: white;
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,0.15), inset 0 2px 5px 0 rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.15),
+      inset 0 2px 5px 0 rgba(0, 0, 0, 0.05);
     cursor: pointer;
 
     &-left {
@@ -34,11 +35,12 @@
 
     .element-value {
       &-is-string {
-      white-space: nowrap;
+        white-space: nowrap;
       }
 
       &-is-objectid {
-        &::before, &::after  {
+        &::before,
+        &::after {
           content: '';
         }
       }
@@ -46,7 +48,7 @@
   }
 
   &-is-empty {
-    background-color: #EFEFEF;
+    background-color: #efefef;
     line-height: 26px;
     margin: 1px;
     padding-left: 5px;
@@ -54,7 +56,7 @@
   }
 
   &-is-uneditable {
-    background: #FAFAFA;
+    background: #fafafa;
   }
 
   &:hover {
@@ -63,7 +65,11 @@
     }
   }
 
-  &-is-deleted, &-is-edited, &-is-added, &-is-invalid, &-is-uneditable {
+  &-is-deleted,
+  &-is-edited,
+  &-is-added,
+  &-is-invalid,
+  &-is-uneditable {
     height: 24px;
     line-height: 24px;
     margin: 2px 1px;
@@ -78,7 +84,7 @@
       min-height: 24px;
       z-index: 1;
     }
-    
+
     &:hover {
       .table-view-cell-circle-button {
         opacity: 1;
@@ -110,7 +116,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #A2A0A0;
+    color: #a2a0a0;
     height: 27px;
   }
 
@@ -119,7 +125,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-align: left;
-    border-right: 0.5px solid #E0E0E0;
+    border-right: 0.5px solid #e0e0e0;
 
     &-icon {
       float: right;

@@ -60,7 +60,11 @@ class Toolbar extends React.Component {
 
     return (
       <span>
-        Displaying documents <b>{this.props.start} - {this.props.end}</b> of {suffix}
+        Displaying documents{' '}
+        <b>
+          {this.props.start} - {this.props.end}
+        </b>{' '}
+        of {suffix}
       </span>
     );
   }
@@ -70,14 +74,14 @@ class Toolbar extends React.Component {
       return;
     }
 
-    return (
-      <SpinLoader size="12px" />
-    );
+    return <SpinLoader size="12px" />;
   }
 
   renderPageButtons() {
     const prevButtonDisabled = this.props.page === 0;
-    const nextButtonDisabled = this.props.count ? 20 * (this.props.page + 1) >= this.props.count : false;
+    const nextButtonDisabled = this.props.count
+      ? 20 * (this.props.page + 1) >= this.props.count
+      : false;
 
     return (
       <div className={PAGINATION_CLASS}>
@@ -106,19 +110,29 @@ class Toolbar extends React.Component {
       return;
     }
 
-    const dropdownOptions = { 'import-file': 'Import File', 'insert-document': 'Insert Document' };
-    const OptionWriteSelector = global.hadronApp.appRegistry.
-      getComponent('DeploymentAwareness.OptionWriteSelector');
+    const dropdownOptions = {
+      'import-file': 'Import File',
+      'insert-document': 'Insert Document',
+    };
+    const OptionWriteSelector = global.hadronApp.appRegistry.getComponent(
+      'DeploymentAwareness.OptionWriteSelector'
+    );
     return (
       <OptionWriteSelector
         className={INSERT_DATA}
         id="insert-data-dropdown"
         isCollectionLevel
-        title={<div className={INSERT_DATA_TITLE}><i className="fa fa-download"/><div>ADD DATA</div></div>}
+        title={
+          <div className={INSERT_DATA_TITLE}>
+            <i className="fa fa-download" />
+            <div>ADD DATA</div>
+          </div>
+        }
         options={dropdownOptions}
         bsSize="xs"
         tooltipId="document-is-not-writable"
-        onSelect={this.props.insertHandler} />
+        onSelect={this.props.insertHandler}
+      />
     );
   }
 
@@ -127,13 +141,15 @@ class Toolbar extends React.Component {
       <div
         data-for="export-collection-tooltip"
         data-tip="Export Collection"
-        data-place="top">
+        data-place="top"
+      >
         <IconButton
           title="ExportCollection"
           className={`${EXPORT_COLLECTION_CLASS} btn btn-default btn-xs`}
           iconClassName={`${EXPORT_COLLECTION_CLASS}-button fa fa-upload`}
           dataTestId="export-collection-button"
-          clickHandler={this.props.openExportFileDialog} />
+          clickHandler={this.props.openExportFileDialog}
+        />
         <Tooltip id="export-collection-tooltip" />
       </div>
     );
@@ -161,9 +177,14 @@ class Toolbar extends React.Component {
                 label="View"
                 buttonLabels={['List', 'JSON', 'Table']}
                 showLabels={false}
-                iconClassNames={['fa fa-list-ul', 'curly-bracket', 'fa fa-table']}
+                iconClassNames={[
+                  'fa fa-list-ul',
+                  'curly-bracket',
+                  'fa fa-table',
+                ]}
                 activeButton={this.props.activeDocumentView}
-                onClick={this.switchDocumentView.bind(this)} />
+                onClick={this.switchDocumentView.bind(this)}
+              />
             </div>
           </div>
           <div className={CONTAINER_CLASS}>
@@ -180,7 +201,8 @@ class Toolbar extends React.Component {
                 className="btn btn-default btn-xs"
                 iconClassName="fa fa-repeat"
                 text="REFRESH"
-                animatingIconClassName="fa fa-refresh fa-spin"/>
+                animatingIconClassName="fa fa-refresh fa-spin"
+              />
             </div>
           </div>
         </div>
@@ -205,7 +227,7 @@ Toolbar.propTypes = {
   refreshDocuments: PropTypes.func.isRequired,
   start: PropTypes.number.isRequired,
   viewSwitchHandler: PropTypes.func.isRequired,
-  pageLoadedListenable: PropTypes.object.isRequired
+  pageLoadedListenable: PropTypes.object.isRequired,
 };
 
 export default Toolbar;
