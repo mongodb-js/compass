@@ -64,7 +64,6 @@ type CrudToolbarProps = {
   onResetClicked: () => void;
   openExportFileDialog: () => void;
   page: number;
-  pageLoadedListenable: Listenable;
   readonly: boolean;
   refreshDocuments: () => void;
   resultId: string,
@@ -85,7 +84,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   onResetClicked,
   openExportFileDialog,
   page,
-  pageLoadedListenable,
   readonly,
   refreshDocuments,
   resultId,
@@ -106,7 +104,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         ? ''
         : `${count ?? 'N/A'}`
     ),
-    [loadingCount, count]
+    [ loadingCount, count ]
   );
 
   const onClickRefreshDocuments = useCallback(() => {
@@ -117,8 +115,18 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const QueryBarComponent = isExportable ? queryBarRef.current!.component : null;
 
   const controlId = useId();
-  const prevButtonDisabled = page === 0;
-  const nextButtonDisabled = count ? 20 * (page + 1) >= count : false;
+  const prevButtonDisabled = useMemo(
+    () => (
+      page === 0
+    ),
+    [ page ]
+  );
+  const nextButtonDisabled = useMemo(
+    () => (
+      count ? 20 * (page + 1) >= count : false
+    ),
+    [ count, page ]
+  );
 
   return (
     <Toolbar className={crudToolbarStyles}>
@@ -138,11 +146,14 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       </div>
       <div className={crudBarStyles}>
         <div className={toolbarLeftActionStyles}>
-          <AddDataMenu
-            insertDataHandler={insertDataHandler}
-          />
+          {!readonly && (
+            <AddDataMenu
+              insertDataHandler={insertDataHandler}
+            />
+          )}
           <Button
             leftGlyph={<Icon glyph="Export" />}
+            data-testid="export-collection-button"
             size="xsmall"
             onClick={openExportFileDialog}
           >
@@ -163,14 +174,16 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             <IconButton
               aria-label="Refresh documents"
               title="Refresh documents"
+              data-testid="refresh-documents-button"
               onClick={onClickRefreshDocuments}
             >
               <Icon glyph="Refresh" />
             </IconButton>
           )}
+
           <div>
-          
             <IconButton
+              data-testid="docs-toolbar-prev-page-btn"
               aria-label="Previous Page"
               title="Previous Page"
               onClick={() => getPage(page - 1)}
@@ -179,6 +192,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               <Icon glyph="ChevronLeft" />
             </IconButton>
             <IconButton
+              data-testid="docs-toolbar-next-page-btn"
               aria-label="Previous Page"
               title="Previous Page"
               onClick={() => getPage(page + 1)}
@@ -187,6 +201,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               <Icon glyph="ChevronRight" />
             </IconButton>
           </div>
+
           <SegmentedControl
             id={controlId}
             aria-label="View"
@@ -194,13 +209,25 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             value={activeDocumentView}
             onChange={(value) => viewSwitchHandler(value as 'List' | 'JSON' | 'Table')}
           >
-            <SegmentedControlOption aria-label="Document list" value="List">
+            <SegmentedControlOption
+              data-testid="toolbar-view-list"
+              aria-label="Document list"
+              value="List"
+            >
               <Icon glyph="Menu" />
             </SegmentedControlOption>
-            <SegmentedControlOption aria-label="E-JSON View" value="JSON">
+            <SegmentedControlOption
+              data-testid="toolbar-view-json"
+              aria-label="E-JSON View"
+              value="JSON"
+            >
               <Icon glyph="CurlyBraces" />
             </SegmentedControlOption>
-            <SegmentedControlOption aria-label="Table View" value="Table">
+            <SegmentedControlOption
+              data-testid="toolbar-view-table"
+              aria-label="Table View"
+              value="Table"
+            >
               <Icon glyph="Table" />
             </SegmentedControlOption>
           </SegmentedControl>
