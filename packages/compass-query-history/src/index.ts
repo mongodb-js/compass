@@ -13,7 +13,7 @@ const ROLE = {
   component: QueryHistoryPlugin,
   configureStore: configureStore,
   configureActions: configureActions,
-  storeName: 'Query.History'
+  storeName: 'Query.History',
 };
 
 /**
@@ -33,5 +33,11 @@ function deactivate(appRegistry: AppRegistry): void {
 }
 
 export default QueryHistoryPlugin;
-export { activate, deactivate, configureStore, configureActions, FavoriteQueryStorage };
+export {
+  activate,
+  deactivate,
+  configureStore,
+  configureActions,
+  FavoriteQueryStorage,
+};
 export { default as metadata } from '../package.json';

@@ -9,10 +9,10 @@ This plugin keeps track of recently run queries and any queries that are saved a
 method "onQueryChanged". Each query passed to the component gets made into a
 Query model, and first saved as a RecentQuery within the RecentQueryCollection.
 The RecentListStore contains the RecentQueryCollection, which saves the queries
- to disk so that they can be reloaded after Compass is closed and then opened
- again. When a user clicks 'favorite' on a recent query, the RecentQuery is
- converted to a FavoriteQuery and is saved in the FavoriteQueryCollection.
- The FavoriteQueryCollection is kept in the FavoriteListStore.
+to disk so that they can be reloaded after Compass is closed and then opened
+again. When a user clicks 'favorite' on a recent query, the RecentQuery is
+converted to a FavoriteQuery and is saved in the FavoriteQueryCollection.
+The FavoriteQueryCollection is kept in the FavoriteListStore.
 
 ## Features
 
@@ -58,7 +58,6 @@ For completeness, below is a list of directories present in this module:
     - `cancelSave` - the user has pressed 'cancel' on the currently being saved query.
     - `runQuery` - the user has clicked on the query card and wants to populate the query bar with the contents of this saved query. This action is listened to by Compass.
     - `namespaceChanged` - the namespace has changed so new queries will be saved with the new namespace and the queries being shown should be limited to the current namespace.
-
 
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-query-history.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-query-history

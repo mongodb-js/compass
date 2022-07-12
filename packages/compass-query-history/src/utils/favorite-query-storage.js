@@ -28,11 +28,9 @@ export class FavoriteQueryStorage {
     if (!modelId) {
       throw new Error('modelId is required');
     }
-    const model = new FavoriteQuery({_id: modelId});
+    const model = new FavoriteQuery({ _id: modelId });
 
-    const fetch = promisifyAmpersandMethod(
-      model.fetch.bind(model)
-    );
+    const fetch = promisifyAmpersandMethod(model.fetch.bind(model));
 
     await fetch();
 
@@ -41,9 +39,7 @@ export class FavoriteQueryStorage {
       _dateModified: Date.now(),
     });
 
-    const save = promisifyAmpersandMethod(
-      model.save.bind(model)
-    );
+    const save = promisifyAmpersandMethod(model.save.bind(model));
     await save(model);
     return model.getAttributes({ props: true }, true);
   }
@@ -54,10 +50,8 @@ export class FavoriteQueryStorage {
    * @param {string} modelId Model ID
    */
   async delete(modelId) {
-    const model = new FavoriteQuery({_id: modelId});
-    const destroy = promisifyAmpersandMethod(
-      model.destroy.bind(model)
-    );
+    const model = new FavoriteQuery({ _id: modelId });
+    const destroy = promisifyAmpersandMethod(model.destroy.bind(model));
     return destroy();
   }
 }

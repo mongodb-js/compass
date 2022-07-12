@@ -5,9 +5,8 @@ import { ViewSwitcher } from 'hadron-react-components';
 import styles from './header.module.less';
 import { Icon, IconButton, css } from '@mongodb-js/compass-components';
 
-
 const closeButtonStyles = css({
-  marginLeft: 'auto'
+  marginLeft: 'auto',
 });
 
 class Header extends PureComponent {
@@ -15,11 +14,11 @@ class Header extends PureComponent {
 
   static propTypes = {
     actions: PropTypes.object.isRequired,
-    showing: PropTypes.oneOf(['recent', 'favorites']).isRequired
+    showing: PropTypes.oneOf(['recent', 'favorites']).isRequired,
   };
 
   static defaultProps = {
-    showing: 'recent'
+    showing: 'recent',
   };
 
   onViewSwitch = (label) => {
@@ -44,7 +43,7 @@ class Header extends PureComponent {
     if (showing !== 'favorites') {
       actions.showFavorites();
     }
-  }
+  };
 
   collapse = () => {
     this.props.actions.collapse();

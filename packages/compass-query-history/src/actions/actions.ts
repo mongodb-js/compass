@@ -17,7 +17,7 @@ const configureActions = () => {
     'saveFavorite',
     'cancelSave',
     'runQuery',
-    'namespaceChanged'
+    'namespaceChanged',
   ]);
 
   return actions;

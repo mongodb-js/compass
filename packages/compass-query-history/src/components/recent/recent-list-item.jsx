@@ -14,7 +14,7 @@ class RecentListItem extends PureComponent {
   static propTypes = {
     model: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
   };
 
   static defaultProps = {};
@@ -40,8 +40,8 @@ class RecentListItem extends PureComponent {
     const attributes = this.props.model.getAttributes({ props: true });
 
     Object.keys(attributes)
-      .filter(key => key.charAt(0) === '_')
-      .forEach(key => delete attributes[key]);
+      .filter((key) => key.charAt(0) === '_')
+      .forEach((key) => delete attributes[key]);
 
     return (
       <Card data-testid="recent-query-list-item" className={className}>
@@ -49,25 +49,44 @@ class RecentListItem extends PureComponent {
           <button
             title="Favorite Query"
             data-test-id="query-history-button-fav"
-            className={classnames('btn', 'btn-xs', 'btn-default', styles.button)}
-            onClick={this.saveRecent}>
-            <FontAwesome name="star-o"/>
+            className={classnames(
+              'btn',
+              'btn-xs',
+              'btn-default',
+              styles.button
+            )}
+            onClick={this.saveRecent}
+          >
+            <FontAwesome name="star-o" />
           </button>
 
           <button
             title="Copy Query to Clipboard"
             data-test-id="query-history-button-copy-query"
-            className={classnames('btn', 'btn-xs', 'btn-default', styles.button, styles['button-copy'])}
-            onClick={this.copyQuery}>
-            <FontAwesome name="clipboard"/>
+            className={classnames(
+              'btn',
+              'btn-xs',
+              'btn-default',
+              styles.button,
+              styles['button-copy']
+            )}
+            onClick={this.copyQuery}
+          >
+            <FontAwesome name="clipboard" />
           </button>
 
           <button
-            title= "Delete Query from Recent List"
+            title="Delete Query from Recent List"
             data-test-id="query-history-button-delete-recent"
-            className={classnames('btn', 'btn-xs', 'btn-default', styles.button)}
-            onClick={this.deleteRecent}>
-            <FontAwesome name="trash"/>
+            className={classnames(
+              'btn',
+              'btn-xs',
+              'btn-default',
+              styles.button
+            )}
+            onClick={this.deleteRecent}
+          >
+            <FontAwesome name="trash" />
           </button>
         </CardHeader>
 
