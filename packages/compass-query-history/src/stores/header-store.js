@@ -10,26 +10,25 @@ const configureStore = (options = {}) => {
 
     listenables: options.actions,
 
-    init() {
-    },
+    init() {},
 
     showFavorites() {
       this.setState({
-        showing: 'favorites'
+        showing: 'favorites',
       });
     },
 
     showRecent() {
       this.setState({
-        showing: 'recent'
+        showing: 'recent',
       });
     },
 
     getInitialState() {
       return {
-        showing: 'recent'
+        showing: 'recent',
       };
-    }
+    },
   });
 
   return store;

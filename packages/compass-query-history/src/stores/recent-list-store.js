@@ -10,7 +10,6 @@ const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 const TOTAL_RECENTS = 30;
 const ALLOWED = ['filter', 'project', 'sort', 'skip', 'limit', 'collation'];
 
-
 /**
  * Query History Recent List store.
  */
@@ -31,7 +30,10 @@ const configureStore = (options = {}) => {
         if (Object.prototype.hasOwnProperty.call(attributes, key)) {
           if (!attributes[key] || ALLOWED.indexOf(key) === -1) {
             delete attributes[key];
-          } else if (_.isObject(attributes[key]) && _.isEmpty(attributes[key])) {
+          } else if (
+            _.isObject(attributes[key]) &&
+            _.isEmpty(attributes[key])
+          ) {
             delete attributes[key];
           }
         }
@@ -43,7 +45,7 @@ const configureStore = (options = {}) => {
       this.state.items.fetch({
         success: () => {
           this.trigger(this.state);
-        }
+        },
       });
     },
 
@@ -70,7 +72,9 @@ const configureStore = (options = {}) => {
       });
 
       /* Ignore duplicate queries */
-      const existingQuery = this.state.items.find((item) => _.isEqual(comparableQuery(item), recent));
+      const existingQuery = this.state.items.find((item) =>
+        _.isEqual(comparableQuery(item), recent)
+      );
       if (existingQuery) {
         if (!existingQuery._host) {
           existingQuery._host = this.state.currentHost;
@@ -106,14 +110,18 @@ const configureStore = (options = {}) => {
         success: () => {
           this.state.items.remove(query._id);
           this.trigger(this.state);
-        }
+        },
       });
     },
 
     runQuery(query) {
-      if (this.state.items.map(item => comparableQuery(item)).some(item => {
-        return _.isEqual(item, query);
-      })) {
+      if (
+        this.state.items
+          .map((item) => comparableQuery(item))
+          .some((item) => {
+            return _.isEqual(item, query);
+          })
+      ) {
         track('Query History Recent Used');
       }
       this.localAppRegistry.emit('compass:query-history:run-query', query);
@@ -123,8 +131,8 @@ const configureStore = (options = {}) => {
       const attributes = query.getAttributes({ props: true });
 
       Object.keys(attributes)
-        .filter(key => key.charAt(0) === '_')
-        .forEach(key => delete attributes[key]);
+        .filter((key) => key.charAt(0) === '_')
+        .forEach((key) => delete attributes[key]);
 
       remote.clipboard.writeText(formatQuery(attributes));
     },
@@ -137,7 +145,7 @@ const configureStore = (options = {}) => {
             ?.getConnectionString?.()
             .hosts.join(',') ?? null,
       };
-    }
+    },
   });
 
   store.onConnected();

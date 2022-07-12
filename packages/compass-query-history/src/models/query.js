@@ -13,9 +13,9 @@ const Query = Model.extend({
      */
     _id: {
       type: 'string',
-      default: function() {
+      default: function () {
         return uuid.v4();
-      }
+      },
     },
     /**
      * The query filter.
@@ -52,17 +52,15 @@ const Query = Model.extend({
     /**
      * Current connection hosts
      */
-    _host: 'string'
+    _host: 'string',
   },
-  parse: function(attrs) {
+  parse: function (attrs) {
     return attrs ? EJSON.deserialize(attrs) : undefined;
   },
-  serialize: function() {
+  serialize: function () {
     return EJSON.serialize(this.getAttributes({ props: true }));
-  }
+  },
 });
 
 export default Query;
-export {
-  Query
-};
+export { Query };
