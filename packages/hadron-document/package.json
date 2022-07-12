@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.12.0",
+  "version": "7.13.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -52,7 +52,7 @@
     "bson": "^4.4.1",
     "debug": "4.3.0",
     "eventemitter3": "^4.0.0",
-    "hadron-type-checker": "^6.9.0",
+    "hadron-type-checker": "^6.10.0",
     "lodash.foreach": "^4.5.0",
     "lodash.isarray": "^4.0.0",
     "lodash.isequal": "^4.5.0",
@@ -60,10 +60,10 @@
     "lodash.isstring": "^4.0.1"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.10.0",
-    "@mongodb-js/mocha-config-compass": "^0.11.0",
-    "@mongodb-js/prettier-config-compass": "^0.5.0",
-    "@mongodb-js/tsconfig-compass": "^0.6.0",
+    "@mongodb-js/eslint-config-compass": "^0.11.0",
+    "@mongodb-js/mocha-config-compass": "^0.12.0",
+    "@mongodb-js/prettier-config-compass": "^0.6.0",
+    "@mongodb-js/tsconfig-compass": "^0.7.0",
     "@types/lodash.isarray": "^4.0.6",
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.isplainobject": "^4.0.6",

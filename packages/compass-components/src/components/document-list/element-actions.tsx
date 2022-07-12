@@ -61,6 +61,13 @@ const addFieldButton = css({
 
 const menu = css({
   width: 'auto',
+  // Replicating leafygreen ~200px but as a min width instead of static width
+  minWidth: spacing[6] * 3,
+});
+
+const menuItem = css({
+  // Make sure labels are not collapsing
+  whiteSpace: 'nowrap',
 });
 
 export const AddFieldActions: React.FunctionComponent<{
@@ -123,6 +130,7 @@ export const AddFieldActions: React.FunctionComponent<{
             setIsOpen(false);
             onAddFieldToElement();
           }}
+          className={menuItem}
         >
           <FontAwesomeIcon icon="addChild"></FontAwesomeIcon>&nbsp;Add{' '}
           {type === 'Array' ? 'item' : 'field'} to <b>{keyName}</b>
@@ -134,6 +142,7 @@ export const AddFieldActions: React.FunctionComponent<{
           setIsOpen(false);
           onAddFieldAfterElement();
         }}
+        className={menuItem}
       >
         <FontAwesomeIcon icon="addSibling"></FontAwesomeIcon>&nbsp;Add{' '}
         {parentType === 'Array' ? 'item' : 'field'} after <b>{keyName}</b>

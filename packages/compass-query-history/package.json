@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "description": "The query history sidebar of Compass",
-  "version": "8.25.0",
+  "version": "8.26.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -56,17 +56,17 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.13.0",
+    "@mongodb-js/compass-logging": "^0.14.0",
     "@react-aria/utils": "^3.13.1",
     "bson": "^4.4.1",
     "lodash": "^4.17.15",
-    "mongodb-data-service": "^21.23.0"
+    "mongodb-data-service": "^21.24.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.16.0",
+    "@mongodb-js/compass-components": "^0.17.0",
     "bson": "^4.4.1",
     "debug": "*",
-    "hadron-react-components": "^5.16.0",
+    "hadron-react-components": "^5.17.0",
     "mongodb-query-parser": "^2.4.6",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
@@ -78,12 +78,12 @@
     "storage-mixin": "^4.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-components": "^0.16.0",
-    "@mongodb-js/eslint-config-compass": "^0.10.0",
-    "@mongodb-js/mocha-config-compass": "^0.11.0",
-    "@mongodb-js/prettier-config-compass": "^0.5.0",
-    "@mongodb-js/tsconfig-compass": "^0.6.0",
-    "@mongodb-js/webpack-config-compass": "^0.10.0",
+    "@mongodb-js/compass-components": "^0.17.0",
+    "@mongodb-js/eslint-config-compass": "^0.11.0",
+    "@mongodb-js/mocha-config-compass": "^0.12.0",
+    "@mongodb-js/prettier-config-compass": "^0.6.0",
+    "@mongodb-js/tsconfig-compass": "^0.7.0",
+    "@mongodb-js/webpack-config-compass": "^0.11.0",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "ampersand-model": "^8.0.1",
@@ -96,8 +96,8 @@
     "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^8.13.0",
-    "hadron-react-components": "^5.16.0",
+    "hadron-app-registry": "^8.14.0",
+    "hadron-react-components": "^5.17.0",
     "mocha": "^8.4.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",

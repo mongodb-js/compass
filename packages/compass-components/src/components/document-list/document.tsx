@@ -10,6 +10,7 @@ import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { HadronElement } from './element';
 import { usePrevious } from './use-previous';
+import DocumentFieldsToggleGroup from './document-fields-toggle-group';
 
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
@@ -60,25 +61,27 @@ const hadronDocument = css({
   counterReset: 'line-number',
 });
 
+const INITIAL_FIELD_LIMIT = 25;
+
 // TODO: This element should implement treegrid aria role to be accessible
 // https://www.w3.org/TR/wai-aria-practices/examples/treegrid/treegrid-1.html
 // https://jira.mongodb.org/browse/COMPASS-5614
 const HadronDocument: React.FunctionComponent<{
   value: HadronDocumentType;
-  visibleFieldsCount?: number;
   expanded?: boolean;
   editable?: boolean;
   editing?: boolean;
   onEditStart?: () => void;
 }> = ({
   value: document,
-  visibleFieldsCount,
   expanded = false,
   editable = false,
   editing = false,
   onEditStart,
 }) => {
   const { elements } = useHadronDocument(document);
+  const [visibleFieldsCount, setVisibleFieldsCount] =
+    useState(INITIAL_FIELD_LIMIT);
   const visibleElements = useMemo(() => {
     return elements.filter(Boolean).slice(0, visibleFieldsCount);
   }, [elements, visibleFieldsCount]);
@@ -94,39 +97,55 @@ const HadronDocument: React.FunctionComponent<{
   }, [editing]);
 
   return (
-    <div
-      className={hadronDocument}
-      data-testid="hadron-document"
-      data-id={document.uuid}
-    >
-      <AutoFocusContext.Provider value={autoFocus}>
-        {visibleElements.map((el, idx) => {
-          return (
-            <HadronElement
-              key={idx}
-              value={el}
-              editable={editable}
-              editingEnabled={editing}
-              allExpanded={expanded}
-              onEditStart={
-                editable
-                  ? (id, type) => {
-                      setAutoFocus({ id, type });
-                      onEditStart?.();
-                    }
-                  : undefined
-              }
-              lineNumberSize={visibleElements.length}
-              onAddElement={(el) => {
-                setAutoFocus({
-                  id: el.uuid,
-                  type: el.parent?.currentType === 'Array' ? 'value' : 'key',
-                });
-              }}
-            ></HadronElement>
-          );
-        })}
-      </AutoFocusContext.Provider>
+    <div>
+      <div
+        className={hadronDocument}
+        data-testid="hadron-document"
+        data-id={document.uuid}
+      >
+        <AutoFocusContext.Provider value={autoFocus}>
+          {visibleElements.map((el, idx) => {
+            return (
+              <HadronElement
+                key={idx}
+                value={el}
+                editable={editable}
+                editingEnabled={editing}
+                allExpanded={expanded}
+                onEditStart={
+                  editable
+                    ? (id, type) => {
+                        setAutoFocus({ id, type });
+                        onEditStart?.();
+                      }
+                    : undefined
+                }
+                lineNumberSize={visibleElements.length}
+                onAddElement={(el) => {
+                  setAutoFocus({
+                    id: el.uuid,
+                    type: el.parent?.currentType === 'Array' ? 'value' : 'key',
+                  });
+                }}
+              ></HadronElement>
+            );
+          })}
+        </AutoFocusContext.Provider>
+      </div>
+      <DocumentFieldsToggleGroup
+        // TODO: "Hide items" button will only be shown when document is not
+        // edited because it's not decided how to handle changes to the fields
+        // that are changed but then hidden
+        // https://jira.mongodb.org/browse/COMPASS-5587
+        showHideButton={!editing}
+        currentSize={visibleFieldsCount}
+        totalSize={elements.length}
+        minSize={INITIAL_FIELD_LIMIT}
+        // In the editing mode we allow to show / hide less fields because
+        // historically Compass was doing this for "performance" reasons
+        step={editing ? 100 : 1000}
+        onSizeChange={setVisibleFieldsCount}
+      ></DocumentFieldsToggleGroup>
     </div>
   );
 };
