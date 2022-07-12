@@ -30,7 +30,7 @@ InsertDocument.displayName = 'InsertDocument';
 InsertDocument.propTypes = {
   doc: PropTypes.object.isRequired,
   version: PropTypes.string.isRequired,
-  tz: PropTypes.string
+  tz: PropTypes.string,
 };
 
 export default InsertDocument;

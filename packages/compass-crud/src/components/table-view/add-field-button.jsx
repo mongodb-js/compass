@@ -78,7 +78,9 @@ class AddFieldButton extends React.Component {
    * @returns {String} The class name.
    */
   divClassName() {
-    return this.state.menu ? `${BEM_BASE} ${BEM_BASE}-is-selected btn btn-default btn-xs` : `${BEM_BASE} btn btn-default btn-xs`;
+    return this.state.menu
+      ? `${BEM_BASE} ${BEM_BASE}-is-selected btn btn-default btn-xs`
+      : `${BEM_BASE} btn btn-default btn-xs`;
   }
 
   /**
@@ -86,7 +88,7 @@ class AddFieldButton extends React.Component {
    */
   handleClick() {
     if (this.empty || this.props.value.isParentEditable()) {
-      this.setState({menu: !this.state.menu});
+      this.setState({ menu: !this.state.menu });
     }
   }
 
@@ -97,7 +99,7 @@ class AddFieldButton extends React.Component {
    */
   handleKeyPress(event) {
     if (event.key === 'Enter' && this.props.value.isParentEditable()) {
-      this.setState({menu: !this.state.menu});
+      this.setState({ menu: !this.state.menu });
     }
   }
 
@@ -120,7 +122,7 @@ class AddFieldButton extends React.Component {
       parent = parent.getChild(this.props.context.path);
     }
 
-    const isArray = (!parent.isRoot() && parent.currentType === 'Array');
+    const isArray = !parent.isRoot() && parent.currentType === 'Array';
     let newElement;
 
     if (!this.empty) {
@@ -144,7 +146,8 @@ class AddFieldButton extends React.Component {
       this.props.context.path,
       isArray,
       editOnly,
-      this.props.node.data.hadronDocument.getStringId());
+      this.props.node.data.hadronDocument.getStringId()
+    );
   }
 
   /**
@@ -156,14 +159,15 @@ class AddFieldButton extends React.Component {
 
     const edit = {
       colId: newElement.currentKey,
-      rowIndex: this.props.node.childIndex
+      rowIndex: this.props.node.childIndex,
     };
 
     this.props.drillDown(
-      this.props.node.data.hadronDocument, this.props.value, edit
+      this.props.node.data.hadronDocument,
+      this.props.value,
+      edit
     );
   }
-
 
   /**
    * Is the current element an object?
@@ -204,8 +208,9 @@ class AddFieldButton extends React.Component {
    * @returns {String} The class name.
    */
   menuClassName() {
-    return this.state.menu ?
-      `${MENU_CLASS} ${MENU_CLASS}-is-visible dropdown-menu` : `${MENU_CLASS} dropdown-menu`;
+    return this.state.menu
+      ? `${MENU_CLASS} ${MENU_CLASS}-is-visible dropdown-menu`
+      : `${MENU_CLASS} dropdown-menu`;
   }
 
   /**
@@ -268,7 +273,10 @@ class AddFieldButton extends React.Component {
       return this.props.column.getColDef().headerName;
     }
     // this case is already handled in renderDefaultItem()
-    if (this.isParentArray() && (this.isElementObject() || this.isElementArray())) {
+    if (
+      this.isParentArray() &&
+      (this.isElementObject() || this.isElementArray())
+    ) {
       return this.props.value.currentType;
     }
     return this.props.value.currentKey || this.renderValue();
@@ -323,7 +331,10 @@ class AddFieldButton extends React.Component {
    */
   renderMenu() {
     return (
-      <ul className={this.menuClassName()} style={{left: `${this.props.displace}px`}}>
+      <ul
+        className={this.menuClassName()}
+        style={{ left: `${this.props.displace}px` }}
+      >
         {this.renderObjectItem()}
         {this.renderArrayItem()}
         {this.renderDefaultItem()}
@@ -346,8 +357,9 @@ class AddFieldButton extends React.Component {
         onClick={this.handleClick.bind(this)}
         onKeyPress={this.handleKeyPress.bind(this)}
         onBlur={this.handleClickOutside.bind(this)}
-        ref={this.props.buttonRef}>
-        <FontAwesome name="plus-square-o" className={`${BEM_BASE}-icon`}/>
+        ref={this.props.buttonRef}
+      >
+        <FontAwesome name="plus-square-o" className={`${BEM_BASE}-icon`} />
         {this.renderMenu()}
       </button>
     );
@@ -366,7 +378,7 @@ AddFieldButton.propTypes = {
   node: PropTypes.any.isRequired,
   addColumn: PropTypes.func.isRequired,
   drillDown: PropTypes.func.isRequired,
-  buttonRef: PropTypes.any.isRequired
+  buttonRef: PropTypes.any.isRequired,
 };
 
 export default outsideClickable(AddFieldButton);

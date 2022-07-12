@@ -25,7 +25,7 @@ class InsertJsonDocument extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    return (nextProps.jsonDoc !== this.props.jsonDoc);
+    return nextProps.jsonDoc !== this.props.jsonDoc;
   }
 
   onChange(value) {
@@ -47,11 +47,14 @@ class InsertJsonDocument extends Component {
           defaultValue={EDITOR_COMMENT}
           text={value}
           onChangeText={this.onChange.bind(this)}
-          options={({
+          options={{
             highlightActiveLine: true,
             highlightGutterLine: true,
-          })}
-          onLoad={(editor) => { this.editor = editor; }}/>
+          }}
+          onLoad={(editor) => {
+            this.editor = editor;
+          }}
+        />
       </div>
     );
   }
@@ -63,7 +66,7 @@ InsertJsonDocument.propTypes = {
   updateJsonDoc: PropTypes.func,
   jsonDoc: PropTypes.string,
   isCommentNeeded: PropTypes.bool,
-  updateComment: PropTypes.func
+  updateComment: PropTypes.func,
 };
 
 export default InsertJsonDocument;

@@ -15,13 +15,13 @@ const COLLECTION_TAB_ROLE = {
   configureStore: configureStore,
   storeName: 'CRUD.Store',
   configureActions: configureActions,
-  actionName: 'CRUD.Actions'
+  actionName: 'CRUD.Actions',
 };
 
 const DOCUMENT_ROLE = {
   component: Document,
   name: 'STANDARD',
-  order: 1
+  order: 1,
 };
 
 /**
@@ -52,7 +52,7 @@ export {
   Document,
   InsertDocumentDialog,
   configureStore,
-  configureActions
+  configureActions,
 };
 export { default as DocumentListView } from './components/document-list-view';
 export { default as DocumentJsonView } from './components/document-json-view';

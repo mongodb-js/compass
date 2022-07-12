@@ -17,7 +17,7 @@ const configureStore = (options = {}) => {
 
     saveRecent(query) {
       this.setState({
-        current: query
+        current: query,
       });
       options.actions.showFavorites();
     },
@@ -45,7 +45,7 @@ const configureStore = (options = {}) => {
 
     cancelSave() {
       this.setState({
-        current: null
+        current: null,
       });
       options.actions.showRecent();
     },
@@ -59,20 +59,19 @@ const configureStore = (options = {}) => {
         success: () => {
           this.state.items.remove(query._id);
           this.trigger(this.state);
-        }
+        },
       });
     },
 
     runQuery(query) {
-      const existingQuery = this.state.items
-        .find((item) => {
-          return _.isEqual(comparableQuery(item), query);
-        });
+      const existingQuery = this.state.items.find((item) => {
+        return _.isEqual(comparableQuery(item), query);
+      });
       if (existingQuery) {
         const item = existingQuery.serialize();
         track('Query History Favorite Used', {
           id: item._id,
-          screen: 'documents'
+          screen: 'documents',
         });
       }
       this.localAppRegistry.emit('compass:query-history:run-query', query);
@@ -87,13 +86,13 @@ const configureStore = (options = {}) => {
             ?.getConnectionString?.()
             .hosts.join(',') ?? null,
       };
-    }
+    },
   });
 
   store.state.items.fetch({
     success: () => {
       store.trigger(store.state);
-    }
+    },
   });
 
   if (options.localAppRegistry) {

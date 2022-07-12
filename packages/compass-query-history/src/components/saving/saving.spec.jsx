@@ -1,50 +1,52 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
 import { Card, CardHeader } from '../card';
 import Saving from '../saving';
 import Query from '../query';
 
-describe('Saving [Component]', () => {
+describe('Saving [Component]', function () {
   const date = new Date();
   const model = {
     _lastExecuted: date,
     serialize: () => {
       return {
         _lastExecuted: date,
-        filter: { name: 'test' }
+        filter: { name: 'test' },
       };
-    }
+    },
   };
 
   let actions;
 
-  beforeEach(() => {
+  beforeEach(function () {
     actions = {
       cancelSave: sinon.stub(),
-      saveFavorite: sinon.stub()
+      saveFavorite: sinon.stub(),
     };
   });
 
-  afterEach(() => {
+  afterEach(function () {
     actions = null;
   });
 
-  describe('#rendering', () => {
+  describe('#rendering', function () {
     let component;
 
-    afterEach(() => {
+    afterEach(function () {
       component = null;
     });
 
-    it('does not render the saving component when the model is null', () => {
+    it('does not render the saving component when the model is null', function () {
       component = shallow(<Saving model={null} actions={actions} />);
 
       const node = component.find('[data-test-id="query-history-saving"]');
       expect(node).to.have.length(0);
     });
 
-    it('renders the correct root element', () => {
+    it('renders the correct root element', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
       const node = component.find('[data-test-id="query-history-saving"]');
@@ -53,24 +55,28 @@ describe('Saving [Component]', () => {
       expect(node).to.have.type(Card);
     });
 
-    it('renders the header', () => {
+    it('renders the header', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving-header"]');
+      const node = component.find(
+        '[data-test-id="query-history-saving-header"]'
+      );
 
       expect(node).to.have.length(1);
       expect(node).to.have.type(CardHeader);
     });
 
-    it('the header should have two children', () => {
+    it('the header should have two children', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving-header"]');
+      const node = component.find(
+        '[data-test-id="query-history-saving-header"]'
+      );
 
       expect(node.children()).to.have.length(2);
     });
 
-    it('renders the form', () => {
+    it('renders the form', function () {
       component = mount(<Saving model={model} actions={actions} />);
 
       const node = component.find('[data-test-id="query-history-saving-form"]');
@@ -79,7 +85,7 @@ describe('Saving [Component]', () => {
       expect(node).to.have.type('form');
     });
 
-    it('the form should have an input', () => {
+    it('the form should have an input', function () {
       component = mount(<Saving model={model} actions={actions} />);
 
       const node = component.find('[data-test-id="query-history-saving-form"]');
@@ -88,25 +94,29 @@ describe('Saving [Component]', () => {
       expect(node.childAt(0)).to.have.type('input');
     });
 
-    it('renders the save button', () => {
+    it('renders the save button', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving-form-button-save"]');
+      const node = component.find(
+        '[data-test-id="query-history-saving-form-button-save"]'
+      );
 
       expect(node).to.have.length(1);
       expect(node).to.have.type('button');
     });
 
-    it('renders the cancel button', () => {
+    it('renders the cancel button', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving-form-button-cancel"]');
+      const node = component.find(
+        '[data-test-id="query-history-saving-form-button-cancel"]'
+      );
 
       expect(node).to.have.length(1);
       expect(node).to.have.type('button');
     });
 
-    it('renders the query component', () => {
+    it('renders the query component', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
       const node = component.find(Query);
@@ -114,24 +124,28 @@ describe('Saving [Component]', () => {
     });
   });
 
-  describe('#behavior', () => {
+  describe('#behavior', function () {
     let component;
 
-    it('should save the query as a favorite when the form is submitted', () => {
+    it('should save the query as a favorite when the form is submitted', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving-form-button-save"]');
+      const node = component.find(
+        '[data-test-id="query-history-saving-form-button-save"]'
+      );
 
       node.simulate('click');
-      actions.saveFavorite.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.saveFavorite).to.have.been.calledOnce;
     });
 
-    it('should cancel the saving of the query as a favorite when the cancel button is clicked', () => {
+    it('should cancel the saving of the query as a favorite when the cancel button is clicked', function () {
       component = shallow(<Saving model={model} actions={actions} />);
-      const node = component.find('[data-test-id="query-history-saving-form-button-cancel"]');
+      const node = component.find(
+        '[data-test-id="query-history-saving-form-button-cancel"]'
+      );
 
       node.simulate('click');
-      actions.cancelSave.should.have.been.calledOnce; // eslint-disable-line no-unused-expressions
+      expect(actions.cancelSave).to.have.been.calledOnce;
     });
   });
 });

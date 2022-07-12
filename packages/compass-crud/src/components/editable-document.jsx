@@ -40,10 +40,9 @@ class EditableDocument extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      renderSize: INITIAL_FIELD_LIMIT,
       editing: false,
       deleting: false,
-      expandAll: false
+      expandAll: false,
     };
 
     this.boundHandleCancel = this.handleCancel.bind(this);
@@ -86,15 +85,6 @@ class EditableDocument extends React.Component {
   }
 
   /**
-   * Set the render size.
-   *
-   * @param {Number} newLimit - The new limit.
-   */
-  setRenderSize(newLimit) {
-    this.setState({ renderSize: newLimit });
-  }
-
-  /**
    * Subscribe to the hadron document events.
    *
    * @param {Document} doc - The hadron document.
@@ -134,7 +124,11 @@ class EditableDocument extends React.Component {
    * Handles canceling edits to the document.
    */
   handleCancel() {
-    this.setState({ editing: false, deleting: false, renderSize: INITIAL_FIELD_LIMIT });
+    this.setState({
+      editing: false,
+      deleting: false,
+      renderSize: INITIAL_FIELD_LIMIT,
+    });
   }
 
   /**
@@ -148,7 +142,9 @@ class EditableDocument extends React.Component {
    * Handle cloning of the document.
    */
   handleClone() {
-    const clonedDoc = this.props.doc.generateObject({ excludeInternalFields: true });
+    const clonedDoc = this.props.doc.generateObject({
+      excludeInternalFields: true,
+    });
     this.props.openInsertDocumentDialog(clonedDoc, true);
   }
 
@@ -159,7 +155,7 @@ class EditableDocument extends React.Component {
     this.setState({
       deleting: true,
       editing: false,
-      renderSize: INITIAL_FIELD_LIMIT
+      renderSize: INITIAL_FIELD_LIMIT,
     });
   }
 
@@ -223,34 +219,10 @@ class EditableDocument extends React.Component {
     return (
       <DocumentList.Document
         value={this.props.doc}
-        visibleFieldsCount={this.state.renderSize}
         expanded={this.state.expandAll}
         editable
         editing={this.state.editing}
         onEditStart={this.handleEdit.bind(this)}
-      />
-    );
-  }
-
-  /**
-   * Render the show/hide fields bar.
-   *
-   * @returns {React.Component} The expansion bar.
-   */
-  renderExpansion() {
-    return (
-      <DocumentList.DocumentFieldsToggleGroup
-        // TODO: "Hide items" button will only be shown when document is not
-        // edited because it's not decided how to handle changes to the fields
-        // that are changed but then hidden
-        // https://jira.mongodb.org/browse/COMPASS-5587
-        showHideButton={!this.state.editing}
-        currentSize={this.state.renderSize}
-        totalSize={this.props.doc.elements.size}
-        minSize={INITIAL_FIELD_LIMIT}
-        // Performance - Reduce extra fields added per click in edit mode
-        step={this.state.editing ? 100 : 1000}
-        onSizeChange={this.setRenderSize.bind(this)}
       />
     );
   }
@@ -292,10 +264,7 @@ class EditableDocument extends React.Component {
     return (
       <div className={this.style()} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
-          <div className={ELEMENTS}>
-            {this.renderElements()}
-          </div>
-          {this.renderExpansion()}
+          <div className={ELEMENTS}>{this.renderElements()}</div>
           {this.renderActions()}
         </div>
         {this.renderFooter()}
@@ -313,7 +282,7 @@ EditableDocument.propTypes = {
   replaceDocument: PropTypes.func.isRequired,
   updateDocument: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired,
-  copyToClipboard: PropTypes.func.isRequired
+  copyToClipboard: PropTypes.func.isRequired,
 };
 
 export default EditableDocument;
