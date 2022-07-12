@@ -42,10 +42,6 @@ const queryBarFirstRowStyles = css({
   margin: `0 ${spacing[1]}px`,
 });
 
-const queryBarFirstRowOpenedStyles = css({
-  paddingBottom: 0,
-});
-
 const filterContainerStyles = css({
   flexGrow: 1,
 });
@@ -123,12 +119,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
   return (
     <form className={queryBarFormStyles} onSubmit={onFormSubmit} noValidate>
-      <div
-        className={cx(
-          queryBarFirstRowStyles,
-          isQueryOptionsExpanded && queryBarFirstRowOpenedStyles
-        )}
-      >
+      <div className={queryBarFirstRowStyles}>
         {showQueryHistoryButton && (
           <button
             data-testid="query-history-button"

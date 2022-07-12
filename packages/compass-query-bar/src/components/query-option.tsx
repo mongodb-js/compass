@@ -23,6 +23,7 @@ const queryOptionStyles = css({
 const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
   padding: `${spacing[2]}px 0`,
+  marginRight: spacing[2],
 });
 
 const documentEditorOptionStyles = css(
@@ -36,7 +37,7 @@ const documentEditorOptionStyles = css(
 
 const numericTextInputStyles = css({
   input: {
-    borderColor: 'transparent',
+    // borderColor: 'transparent',
   },
 });
 
@@ -52,11 +53,9 @@ const queryOptionLabelContainerStyles = css({
   alignItems: 'center',
   display: 'flex',
   margin: 0,
-  marginRight: spacing[2],
 });
 
 type QueryOptionProps = {
-  gridArea?: QueryOptionType;
   hasError: boolean;
   onChange: (value: string) => void;
   onApply: () => void;
@@ -69,7 +68,6 @@ type QueryOptionProps = {
 };
 
 const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
-  gridArea,
   hasError,
   onApply,
   onChange,
@@ -89,9 +87,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     <div
       className={queryOptionStyles}
       data-testid={`query-bar-option-${queryOption}`}
-      style={gridArea ? { gridArea } : undefined}
     >
-      {queryOption !== 'filter' && (
+      {
         <div
           className={queryOptionLabelContainerStyles}
           data-testid="query-bar-option-label"
@@ -100,11 +97,14 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             htmlFor={`query-bar-option-input-${queryOption}`}
             id={`query-bar-option-input-${queryOption}-label`}
             className={queryOptionLabelStyles}
+            // We hide the `Filter` label, but keep it in the dom for
+            // screen reader label support.
+            hidden={queryOption === 'filter'}
           >
             {queryOption}
           </Label>
         </div>
-      )}
+      }
       <div className={cx(isDocumentEditor && documentEditorOptionStyles)}>
         {isDocumentEditor ? (
           <OptionEditor

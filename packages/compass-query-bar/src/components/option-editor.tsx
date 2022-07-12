@@ -119,23 +119,23 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     completer.current.update(schemaFields);
   }, [schemaFields]);
 
-  const onLoadEditor = useCallback(
-    (editor: Ace.Editor) => {
-      editorRef.current = editor;
-      editorRef.current.setBehavioursEnabled(true);
-      editorRef.current.commands.addCommand({
-        name: 'executeQuery',
-        bindKey: {
-          win: 'Enter',
-          mac: 'Enter',
-        },
-        exec: () => {
-          onApply();
-        },
-      });
-    },
-    [onApply]
-  );
+  const onApplyClicked = useCallback(() => onApply(), [onApply]);
+  const onApplyRef = useRef(onApplyClicked);
+
+  const onLoadEditor = (editor: Ace.Editor) => {
+    editorRef.current = editor;
+    editorRef.current.setBehavioursEnabled(true);
+    editorRef.current.commands.addCommand({
+      name: 'executeQuery',
+      bindKey: {
+        win: 'Enter',
+        mac: 'Enter',
+      },
+      exec: () => {
+        onApplyRef.current();
+      },
+    });
+  };
 
   return (
     <Editor

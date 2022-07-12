@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link, css, cx, spacing } from '@mongodb-js/compass-components';
+import { Link, css, spacing } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
 import type {
@@ -18,12 +18,14 @@ const gridStyles = css({
   marginTop: spacing[1],
   padding: `0 ${spacing[2]}px`,
   gap: `${spacing[1]}px ${spacing[2]}px`,
+  gridTemplateColumns: 'repeat(6, 1fr)',
 });
 
 const docsLinkContainerStyles = css({
   paddingRight: spacing[2],
   whiteSpace: 'nowrap',
   display: 'flex',
+  marginLeft: 'auto',
 });
 
 const numericEditorsGridAreaStyles = css({
@@ -31,11 +33,6 @@ const numericEditorsGridAreaStyles = css({
   display: 'flex',
   gap: `0px ${spacing[2]}px`,
   justifyContent: 'space-between',
-});
-
-// When only the docs link is show we want to ensure it is aligned to the right.
-const emptyNumericEditorsGridAreaStyles = css({
-  justifyContent: 'flex-end',
 });
 
 const COLUMNS = 6;
@@ -182,29 +179,29 @@ export const QueryOptionsGrid: React.FunctionComponent<
       }}
     >
       {documentEditors.map((optionName: QueryOption) => (
-        <QueryOptionComponent
-          gridArea={optionName}
-          hasError={!queryOptionProps[`${optionName}Valid`]}
+        <div
           key={`document-query-option-${optionName}`}
-          onChange={(value: string) => onChangeQueryOption(optionName, value)}
-          onApply={onApply}
-          placeholder={
-            queryOptionProps[`${optionName}Placeholder`] ||
-            OPTION_DEFINITION[optionName].placeholder
-          }
-          queryOption={optionName}
-          refreshEditorAction={refreshEditorAction}
-          schemaFields={schemaFields}
-          serverVersion={serverVersion}
-          value={queryOptionProps[`${optionName}String`]}
-        />
+          style={{
+            gridArea: optionName,
+          }}
+        >
+          <QueryOptionComponent
+            hasError={!queryOptionProps[`${optionName}Valid`]}
+            onChange={(value: string) => onChangeQueryOption(optionName, value)}
+            onApply={onApply}
+            placeholder={
+              queryOptionProps[`${optionName}Placeholder`] ||
+              OPTION_DEFINITION[optionName].placeholder
+            }
+            queryOption={optionName}
+            refreshEditorAction={refreshEditorAction}
+            schemaFields={schemaFields}
+            serverVersion={serverVersion}
+            value={queryOptionProps[`${optionName}String`]}
+          />
+        </div>
       ))}
-      <div
-        className={cx(
-          numericEditorsGridAreaStyles,
-          numericEditors.length === 0 && emptyNumericEditorsGridAreaStyles
-        )}
-      >
+      <div className={numericEditorsGridAreaStyles}>
         {numericEditors.map((optionName: QueryOption) => (
           <QueryOptionComponent
             hasError={!queryOptionProps[`${optionName}Valid`]}
