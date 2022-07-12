@@ -152,7 +152,6 @@ class CreateIndexField extends PureComponent {
             value={this.props.field.name}
             label="Index fields"
             placeholder={DEFAULT_FIELD.name}
-            popoverZIndex={999999}
             onFilter={this.props.createNewIndexField}
             onChange={this.selectFieldName.bind(this)}
             clearable={false}
@@ -166,7 +165,7 @@ class CreateIndexField extends PureComponent {
         >
           <Select
             name="field-type"
-            className={styles['options']}
+            className={styles['create-index-field-dropdown-type-select']}
             placeholder={DEFAULT_FIELD.type}
             onChange={this.selectFieldType.bind(this)}
             usePortal={false}

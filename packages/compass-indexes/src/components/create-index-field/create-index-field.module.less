@@ -1,15 +1,10 @@
+div[id^="combobox-menu"] {
+  z-index: 999999;
+}
+
 .create-index-field {
   margin-bottom: 5px;
   display: flex;
-
-  .options {
-    z-index: 1;
-
-    button:focus,
-    button:focus-within {
-      z-index: 20;
-    }
-  }
 
   &-dropdown-name {
     width: 260px;
@@ -17,6 +12,7 @@
     text-transform: none;
     padding-right: 10px;
     white-space: nowrap;
+    z-index: 999999;
     input {
       outline: none;
     }
@@ -28,6 +24,15 @@
     text-align: left;
     text-transform: none;
     margin-right: 8px;
+
+    &-select {
+      z-index: 1;
+  
+      button:focus,
+      button:focus-within {
+        z-index: 20;
+      }
+    }
   }
 
   &-button {

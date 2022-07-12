@@ -37,7 +37,7 @@
     "@leafygreen-ui/card": "^5.1.4",
     "@leafygreen-ui/checkbox": "^6.0.6",
     "@leafygreen-ui/code": "^9.4.0",
-    "@leafygreen-ui/combobox": "^1.2.2",
+    "@leafygreen-ui/combobox": "^0.9.0",
     "@leafygreen-ui/confirmation-modal": "^2.2.3",
     "@leafygreen-ui/emotion": "^4.0.0",
     "@leafygreen-ui/icon": "^11.7.0",
