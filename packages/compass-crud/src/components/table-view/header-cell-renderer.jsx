@@ -23,7 +23,12 @@ class HeaderCellRenderer extends React.Component {
       displayName = 'New Field';
     }
     return (
-      <div className={classNames('table-view-cell-header', {'table-view-cell-header-subtable-objectid': this.props.subtable === true})}>
+      <div
+        className={classNames('table-view-cell-header', {
+          'table-view-cell-header-subtable-objectid':
+            this.props.subtable === true,
+        })}
+      >
         <b>{displayName}</b> {this.props.bsonType}
       </div>
     );
@@ -34,7 +39,7 @@ HeaderCellRenderer.propTypes = {
   displayName: PropTypes.any,
   bsonType: PropTypes.string,
   hide: PropTypes.bool,
-  subtable: PropTypes.bool
+  subtable: PropTypes.bool,
 };
 
 HeaderCellRenderer.displayName = 'HeaderCellRenderer';
