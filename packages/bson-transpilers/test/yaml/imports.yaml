@@ -74,6 +74,8 @@ tests:
               const {
                 Code
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\Javascript;
           ruby: require 'bson'
           go: |-
             import (
@@ -102,6 +104,8 @@ tests:
               const {
                 Code
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\Javascript;
           ruby: require 'bson'
           go: |-
             import (
@@ -129,6 +133,8 @@ tests:
               const {
                 ObjectId
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\ObjectId;
           ruby: require 'bson'
           go: |-
             import (
@@ -156,6 +162,8 @@ tests:
               const {
                 Timestamp
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\Timestamp;
           go: |-
             import (
               "go.mongodb.org/mongo-driver/bson"
@@ -183,6 +191,8 @@ tests:
                 ObjectId,
                 DBRef
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\ObjectId;
           ruby: require 'bson'
           go: |-
             import (
@@ -205,6 +215,7 @@ tests:
               using MongoDB.Driver;
           python: ''
           javascript: ''
+          php: ''
           ruby: ''
           rust: use mongodb::bson::doc;
     - description: Single import NumberInt
@@ -222,6 +233,7 @@ tests:
               const {
                 Int32
               } = require('mongodb');
+          php: ''
           ruby: ''
           go: |-
             import (
@@ -245,6 +257,7 @@ tests:
               const {
                 Long
               } = require('mongodb');
+          php: ''
           ruby: ''
           go: |-
             import (
@@ -270,6 +283,8 @@ tests:
               const {
                 MinKey
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\MinKey;
           ruby: require 'bson'
           go: |-
             import (
@@ -296,6 +311,8 @@ tests:
               const {
                 MaxKey
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\MaxKey;
           ruby: require 'bson'
           go: |-
             import (
@@ -320,6 +337,8 @@ tests:
               using System.Text.RegularExpressions;
           python: import re
           javascript: ''
+          php:  |-
+            use MongoDB\BSON\Regex;
           ruby: ''
           go: |-
             import (
@@ -341,6 +360,8 @@ tests:
               using MongoDB.Bson;
               using MongoDB.Driver;
           python: from bson import Regex
+          php: |-
+            use MongoDB\BSON\Regex;
           go: |-
             import (
               "go.mongodb.org/mongo-driver/bson"
@@ -363,6 +384,8 @@ tests:
               using System.Text.RegularExpressions;
           python: import re
           javascript: ''
+          php:  |-
+            use MongoDB\BSON\Regex;
           ruby: ''
           go: |-
             import (
@@ -389,6 +412,8 @@ tests:
               const {
                 Timestamp
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\Timestamp;
           ruby: require 'bson'
           go: |-
             import (
@@ -414,6 +439,7 @@ tests:
               const {
                 BSONSymbol
               } = require('mongodb');
+          php: ''
           ruby: ''
           go: |-
             import (
@@ -438,6 +464,8 @@ tests:
               const {
                 Decimal128
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\Decimal128;
           ruby: require 'bson'
           go: |-
             import (
@@ -460,6 +488,8 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
+          php: |-
+            use MongoDB\BSON\UTCDateTime;
           ruby: ''
           go: |-
             import (
@@ -482,6 +512,8 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
+          php: |-
+            use MongoDB\BSON\UTCDateTime;
           ruby: ''
           go: |-
             import (
@@ -503,6 +535,8 @@ tests:
               using System;
           python: from datetime import datetime, tzinfo, timezone
           javascript: ''
+          php: |-
+            use MongoDB\BSON\UTCDateTime;
           ruby: ''
           go: |-
             import (
@@ -518,6 +552,7 @@ tests:
           java: ''
           csharp: ''
           javascript: ''
+          php: ''
           ruby: ''
           go: ''
           rust: ''
@@ -575,6 +610,15 @@ tests:
                 BSONSymbol,
                 Decimal128
               } = require('mongodb');
+          php: |-
+            use MongoDB\BSON\Decimal128;
+            use MongoDB\BSON\Javascript;
+            use MongoDB\BSON\MaxKey;
+            use MongoDB\BSON\MinKey;
+            use MongoDB\BSON\ObjectId;
+            use MongoDB\BSON\Regex;
+            use MongoDB\BSON\Timestamp;
+            use MongoDB\BSON\UTCDateTime;
           ruby: require 'bson'
           go: |-
             import (

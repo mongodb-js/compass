@@ -5,23 +5,24 @@ Compass.
 ![compass-crud](./compass-crud.png)
 
 ## Usage
+
 ### Definitions
 
 | Key                 | Description                  |
-|---------------------|------------------------------|
+| ------------------- | ---------------------------- |
 | `CRUD.Document`     | Renders a single document.   |
 | `CRUD.DocumentList` | Renders a list of documents. |
 
 ### Actions
 
 | Key            | Description                   |
-|----------------|-------------------------------|
+| -------------- | ----------------------------- |
 | `CRUD.Actions` | All the CRUD related actions. |
 
 ### Stores
 
-| Key                           | Description
-|-------------------------------|---------------------------------------------------------|
+| Key                           | Description                                             |
+| ----------------------------- | ------------------------------------------------------- |
 | `CRUD.InsertDocumentStore`    | Triggers when a document is inserted.                   |
 | `CRUD.ResetDocumentListStore` | Triggers when the query filter is reset.                |
 | `CRUD.LoadMoreDocumentsStore` | Triggers when more documents are fetched via scrolling. |
@@ -31,6 +32,7 @@ Components from this plugin can be interracted with using
 a few examples of working with `compass-crud`'s `Action` and `Roles`.
 
 Render an editable document in a React component.
+
 ```jsx
 const app = require('hadron-app');
 const React = require('react');
@@ -41,12 +43,13 @@ class MyComponent extends React.Component {
     this.Document = app.appRegistry.getRole('CRUD.Document')[0].component;
   }
   render() {
-    return (<this.Document doc={this.props.document} editable />);
+    return <this.Document doc={this.props.document} editable />;
   }
 }
 ```
 
 Render a non-editable pre-expanded document in a React component.
+
 ```jsx
 const app = require('hadron-app');
 const React = require('react');
@@ -57,7 +60,7 @@ class MyComponent extends React.Component {
     this.Document = app.appRegistry.getRole('CRUD.Document')[0].component;
   }
   render() {
-    return (<this.Document doc={this.props.document} expandAll />);
+    return <this.Document doc={this.props.document} expandAll />;
   }
 }
 ```
@@ -84,12 +87,14 @@ CrudActions.insertDocument((doc) => {
 ```
 
 ### App Registry Events Emmitted
+
 Various actions within this plugin will emit events for other parts of the
 application can be listened to via [hadron-app-registry][hadron-app-registry].
 `Local` events are scoped to a `Tab`.
 `Global` events are scoped to the whole Compass application.
 
 #### Global
+
 - **'document-view-changed', view**: indicates document view changed. `view` can
   be either `JSON`, `List`, or `Table`.
 - **'documents-paginated'**: indicates when pagination is complete. Called when
@@ -101,6 +106,7 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 - **'document-deleted'**: indicates a document was deleted.
 
 #### Local
+
 - **'document-view-changed', view**: indicates document view changed. `view` can
   be either `JSON`, `List`, or `Table`.
 - **'documents-paginated'**: indicates when pagination is complete. Called when
@@ -112,20 +118,25 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 - **'document-deleted'**: indicates a document was deleted.
 
 ### App Registry Events Received
+
 #### Local
+
 - **'import-finished'**: received when import in the import-export plugin is
   finished. Refreshes documents.
 - **'query-changed'**: received when query was changed in the query bar. Handles updates to crud plugin's query
   state, and refreshes documents.
 - **'refresh-data'**: received when other plugins need documents refreshed.
   Refreshes documents.
+
 #### Global
+
 - **'instance-refreshed'**: received when compass instance was refreshed
 - **'refresh-data'**: received when other plugins need documents refreshed.
   Refreshes documents.
   (reloaded). Refreshes instance state: `dataLake` variables.
 
 ### Metrics Events
+
 - **document-view-changed**
 - **documents-paginated**
 - **documents-refreshed**
@@ -134,14 +145,14 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 - **document-deleted**
 
 ## Development
+
 ### Code Tour
+
 `Compass Crud` uses React, and Reflux for state management. There are two stores
 we manage: `crud-store`(`./src/stores/crud-store.js`) and
 `grid-store`(`./src/stores/grid-store.js`). Overall structure of this repo:
 
-- `./config`: webpack configurations for dev, prod, and testing
-- `./electron`: electron setup to run this plugin locally.
-- `./lib`: webpack-compiled version of this plugin.
+- `./dist`: webpack-compiled version of this plugin.
 - `./scripts`: scripts to `link` and `unlink` React version to compass when
   developing this locally in Compass.
 - `./src/actions`: reflux actions that are available throughout this plugin.
@@ -151,27 +162,20 @@ we manage: `crud-store`(`./src/stores/crud-store.js`) and
 - `./src/stores`: home to reflux stores.
 - `./src/utils`: util `.js` files to be used throughout the plugin.
 
-### Running locally
-`./electron` directory contains an Electron instance that allows for this plugin
-to be developed in isolation from other Compass plugins. By default it sets up a
-MongoDB connection to `echo` database and `artists` collection. To get it to
-work with a db and collection of your choice, change [db variable
-here][db-variable] and [collection variable here][coll-variable].
-
 ## Install
+
 ```shell
 npm install -S @mongodb-js/compass-crud
 ```
 
 ## See Also
+
 - [compass][compass]
 - [hadron-app-registry][hadron-app-registry]
 - [hadron-app][hadron-app]
 
 [npm_img]: https://img.shields.io/npm/v/@mongodb-js/compass-crud.svg?style=flat-square
 [npm_url]: https://www.npmjs.org/package/@mongodb-js/compass-crud
-[hadron-app]: https://github.com/mongodb-js/hadron-app
-[hadron-app-registry]: https://github.com/mongodb-js/hadron-app-registry
-[compass]: https://github.com/mongodb-js/compass
-[db-variable]: https://github.com/mongodb-js/compass-crud/blob/master/electron/renderer/index.js#L21
-[coll-variable]: https://github.com/mongodb-js/compass-crud/blob/master/electron/renderer/index.js#L22
+[hadron-app]: https://github.com/mongodb-js/compass/packages/hadron-app
+[hadron-app-registry]: https://github.com/mongodb-js/compass/packages/hadron-app-registry
+[compass]: https://github.com/mongodb-js/compass/packages/compass

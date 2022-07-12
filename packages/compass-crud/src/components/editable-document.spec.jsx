@@ -4,24 +4,27 @@ import app from 'hadron-app';
 import AppRegistry from 'hadron-app-registry';
 import { mount } from 'enzyme';
 import HadronDocument from 'hadron-document';
+import { expect } from 'chai';
+import sinon from 'sinon';
+
 import EditableDocument from './editable-document';
 
-describe('<EditableDocument />', () => {
-  before(() => {
+describe('<EditableDocument />', function () {
+  before(function () {
     global.hadronApp = app;
     global.hadronApp.appRegistry = new AppRegistry();
   });
 
-  after(() => {
+  after(function () {
     global.hadronApp.appRegistry = new AppRegistry();
   });
 
-  describe('#render', () => {
+  describe('#render', function () {
     let wrapper;
     const doc = { a: 1, b: 2, c: null };
     const action = Reflux.createAction();
 
-    before(() => {
+    before(function () {
       wrapper = mount(
         <EditableDocument
           doc={new HadronDocument(doc)}
@@ -32,21 +35,22 @@ describe('<EditableDocument />', () => {
           version="3.4.0"
           tz="UTC"
           openImportFileDialog={sinon.spy(action)}
-          openInsertDocumentDialog={sinon.spy(action)} />
+          openInsertDocumentDialog={sinon.spy(action)}
+        />
       );
     });
 
-    it('renders the list div', () => {
+    it('renders the list div', function () {
       const component = wrapper.find('.document');
       expect(component).to.be.present();
     });
 
-    it('renders the base element list', () => {
+    it('renders the base element list', function () {
       const component = wrapper.find('.document-elements');
       expect(component).to.be.present();
     });
 
-    it('renders an editable element for each document element', () => {
+    it('renders an editable element for each document element', function () {
       const component = wrapper.find('[data-testid="hadron-document-element"]');
       expect(component).to.have.lengthOf(3);
     });

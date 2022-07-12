@@ -14,7 +14,8 @@ import InsertDocumentFooter from './insert-document-footer';
 /**
  * The insert invalid message.
  */
-const INSERT_INVALID_MESSAGE = 'Insert not permitted while document contains errors.';
+const INSERT_INVALID_MESSAGE =
+  'Insert not permitted while document contains errors.';
 
 /**
  * Component for the insert document dialog.
@@ -38,7 +39,8 @@ class InsertDocumentDialog extends React.PureComponent {
    *
    * @param {Object} nextProps - The new properties.
    */
-  componentWillReceiveProps(nextProps) { // eslint-disable-line complexity
+  // TODO: COMPASS-5847 Remove deprecated react function usage.
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const isMany = this.hasManyDocuments();
 
     if (!isMany) {
@@ -50,14 +52,25 @@ class InsertDocumentDialog extends React.PureComponent {
         this.invalidElements = [];
         nextProps.doc.on(Element.Events.Invalid, this.unsubscribeInvalid);
         nextProps.doc.on(Element.Events.Valid, this.unsubscribeValid);
-      // Closing the modal or switching back to jsonView.
-      //
-      // Remove the listeners to the BSON type validation errors in order to
-      // clean up properly.
-      } else if ((!nextProps.isOpen && this.props.isOpen && !this.props.jsonView)
-                 || (nextProps.isOpen && this.props.isOpen && !this.props.jsonView && nextProps.jsonView)) {
-        this.props.doc.removeListener(Element.Events.Invalid, this.unsubscribeInvalid);
-        this.props.doc.removeListener(Element.Events.Valid, this.unsubscribeValid);
+        // Closing the modal or switching back to jsonView.
+        //
+        // Remove the listeners to the BSON type validation errors in order to
+        // clean up properly.
+      } else if (
+        (!nextProps.isOpen && this.props.isOpen && !this.props.jsonView) ||
+        (nextProps.isOpen &&
+          this.props.isOpen &&
+          !this.props.jsonView &&
+          nextProps.jsonView)
+      ) {
+        this.props.doc.removeListener(
+          Element.Events.Invalid,
+          this.unsubscribeInvalid
+        );
+        this.props.doc.removeListener(
+          Element.Events.Valid,
+          this.unsubscribeValid
+        );
       }
     }
     this.setState({ message: nextProps.message, mode: nextProps.mode });
@@ -150,7 +163,11 @@ class InsertDocumentDialog extends React.PureComponent {
   renderDocument() {
     if (this.props.doc) {
       return (
-        <InsertDocument doc={this.props.doc} version={this.props.version} tz={this.props.tz} />
+        <InsertDocument
+          doc={this.props.doc}
+          version={this.props.version}
+          tz={this.props.tz}
+        />
       );
     }
   }
@@ -165,15 +182,15 @@ class InsertDocumentDialog extends React.PureComponent {
       if (this.hasManyDocuments()) {
         return (
           <div className="view-not-supported">
-            <p>This view is not supported for multiple documents. To specify data
-               types and use other functionality of this view, please insert
-               documents one at a time.</p>
+            <p>
+              This view is not supported for multiple documents. To specify data
+              types and use other functionality of this view, please insert
+              documents one at a time.
+            </p>
           </div>
         );
       }
-      return (
-        this.renderDocument()
-      );
+      return this.renderDocument();
     }
 
     return (
@@ -219,7 +236,9 @@ class InsertDocumentDialog extends React.PureComponent {
         </div>
         {this.renderDocumentOrJsonView()}
         <InsertDocumentFooter
-          message={this.hasErrors() ? INSERT_INVALID_MESSAGE : this.state.message}
+          message={
+            this.hasErrors() ? INSERT_INVALID_MESSAGE : this.state.message
+          }
           mode={this.hasErrors() ? 'error' : this.state.mode}
         />
         <InsertCSFLEWarningBanner csfleState={this.props.csfleState} />
@@ -248,7 +267,7 @@ InsertDocumentDialog.propTypes = {
   ns: PropTypes.string,
   tz: PropTypes.string,
   isCommentNeeded: PropTypes.bool,
-  updateComment: PropTypes.func.isRequired
+  updateComment: PropTypes.func.isRequired,
 };
 
 export default InsertDocumentDialog;

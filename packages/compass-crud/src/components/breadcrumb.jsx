@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
 
 const BEM_BASE = 'ag-header-breadcrumb';
-const ICON_TYPE = {Array: '[ ]', Object: '{ }' };
+const ICON_TYPE = { Array: '[ ]', Object: '{ }' };
 
 class BreadcrumbComponent extends React.PureComponent {
   constructor(props) {
@@ -32,10 +32,13 @@ class BreadcrumbComponent extends React.PureComponent {
   render() {
     return (
       <div className={`${BEM_BASE}-container`}>
-        <div onClick={this.onHomeClicked.bind(this)} className={`${BEM_BASE}-tab`}>
-          <FontAwesome name="home" className={`${BEM_BASE}-home-icon`}/>
+        <button
+          onClick={this.onHomeClicked.bind(this)}
+          className={`${BEM_BASE}-tab`}
+        >
+          <FontAwesome name="home" className={`${BEM_BASE}-home-icon`} />
           {this.props.collection}
-        </div>
+        </button>
         {this.props.path.map((name, i) => {
           let displayName = '';
           if (typeof name === 'number' && i > 0) {
@@ -43,12 +46,13 @@ class BreadcrumbComponent extends React.PureComponent {
           }
           displayName = displayName.concat(name);
           return (
-            <span
+            <button
               key={i}
               onClick={() => this.onTabClicked(i)}
-              className={this.getPathClassName(i)}>
+              className={this.getPathClassName(i)}
+            >
               {displayName} {ICON_TYPE[this.props.types[i]]}
-            </span>
+            </button>
           );
         })}
       </div>
@@ -60,11 +64,11 @@ BreadcrumbComponent.propTypes = {
   collection: PropTypes.string.isRequired,
   pathChanged: PropTypes.func.isRequired,
   path: PropTypes.array.isRequired,
-  types: PropTypes.array.isRequired
+  types: PropTypes.array.isRequired,
 };
 
 BreadcrumbComponent.defaultPropTypes = {
-  collection: ''
+  collection: '',
 };
 
 BreadcrumbComponent.displayName = 'BreadcrumbComponent';
