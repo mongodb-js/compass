@@ -14,7 +14,7 @@ class FavoriteListItem extends PureComponent {
   static propTypes = {
     model: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
   };
 
   static defaultProps = {};
@@ -35,8 +35,8 @@ class FavoriteListItem extends PureComponent {
     const attributes = this.props.model.getAttributes({ props: true });
 
     Object.keys(attributes)
-      .filter(key => key.charAt(0) === '_')
-      .forEach(key => delete attributes[key]);
+      .filter((key) => key.charAt(0) === '_')
+      .forEach((key) => delete attributes[key]);
 
     return (
       <Card className={className}>
@@ -44,17 +44,30 @@ class FavoriteListItem extends PureComponent {
           <button
             title="Copy Query to Clipboard"
             data-test-id="query-history-button-copy-query"
-            className={classnames('btn', 'btn-xs', 'btn-default', styles.button, styles['button-copy'])}
-            onClick={this.copyQuery}>
-            <FontAwesome name="clipboard"/>
+            className={classnames(
+              'btn',
+              'btn-xs',
+              'btn-default',
+              styles.button,
+              styles['button-copy']
+            )}
+            onClick={this.copyQuery}
+          >
+            <FontAwesome name="clipboard" />
           </button>
 
           <button
             title="Delete Query from Favorites List"
             data-test-id="query-history-button-delete-fav"
-            className={classnames('btn', 'btn-xs', 'btn-default', styles.button)}
-            onClick={this.deleteFavorite}>
-            <FontAwesome name="trash"/>
+            className={classnames(
+              'btn',
+              'btn-xs',
+              'btn-default',
+              styles.button
+            )}
+            onClick={this.deleteFavorite}
+          >
+            <FontAwesome name="trash" />
           </button>
         </CardHeader>
 
@@ -62,7 +75,8 @@ class FavoriteListItem extends PureComponent {
           <Query
             attributes={attributes}
             actions={this.props.actions}
-            title={model._name}/>
+            title={model._name}
+          />
         </CardBody>
       </Card>
     );

@@ -1,20 +1,24 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { ViewSwitcher } from 'hadron-react-components';
 
 import styles from './header.module.less';
+import { Icon, IconButton, css } from '@mongodb-js/compass-components';
+
+const closeButtonStyles = css({
+  marginLeft: 'auto',
+});
 
 class Header extends PureComponent {
   static displayName = 'QueryHistoryHeader';
 
   static propTypes = {
     actions: PropTypes.object.isRequired,
-    showing: PropTypes.oneOf(['recent', 'favorites']).isRequired
+    showing: PropTypes.oneOf(['recent', 'favorites']).isRequired,
   };
 
   static defaultProps = {
-    showing: 'recent'
+    showing: 'recent',
   };
 
   onViewSwitch = (label) => {
@@ -39,7 +43,7 @@ class Header extends PureComponent {
     if (showing !== 'favorites') {
       actions.showFavorites();
     }
-  }
+  };
 
   collapse = () => {
     this.props.actions.collapse();
@@ -50,20 +54,22 @@ class Header extends PureComponent {
     const activeButton = showing === 'recent' ? 'Recent' : 'Favorites';
 
     return (
-      <div className={classnames(styles.component)}>
+      <div className={styles.component}>
         <ViewSwitcher
           dataTestId="past-queries"
           label="Past Queries"
           buttonLabels={['Recent', 'Favorites']}
           activeButton={activeButton}
-          onClick={this.onViewSwitch} />
-        <span
-          className={classnames(styles.close)}
+          onClick={this.onViewSwitch}
+        />
+        <IconButton
+          className={closeButtonStyles}
           data-test-id="query-history-button-close-panel"
-          href="#"
-          onClick={this.collapse}>
-          ×
-        </span>
+          onClick={this.collapse}
+          aria-label="Close query history"
+        >
+          <Icon glyph="X" />
+        </IconButton>
       </div>
     );
   }

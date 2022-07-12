@@ -24,10 +24,7 @@ const spinLoaderStyle = css`
   animation: ${shellLoaderSpin} 700ms ease infinite;
 `;
 
-function SpinLoader({
-  size = '12px',
-  title
-}: SpinLoaderProps): JSX.Element {
+function SpinLoader({ size = '12px', title }: SpinLoaderProps): JSX.Element {
   return (
     <div
       className={spinLoaderStyle}

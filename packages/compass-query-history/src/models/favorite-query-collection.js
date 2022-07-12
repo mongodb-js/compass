@@ -22,7 +22,7 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
   mainIndex: '_id',
   comparator: (favorite) => {
     return -favorite._dateSaved;
-  }
+  },
 });
 
 export default FavoriteQueryCollection;
