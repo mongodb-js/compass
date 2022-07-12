@@ -4,7 +4,7 @@ import mongodbns from 'mongodb-ns';
 import { StoreConnector } from 'hadron-react-components';
 
 // Components
-import Header from '../header';
+import { Toolbar } from '../toolbar/toolbar';
 import { RecentList } from '../recent';
 import { FavoriteList } from '../favorite';
 
@@ -68,17 +68,11 @@ class QueryHistory extends PureComponent {
     return (
       <div data-test-id="query-history" className={styles.component}>
         <div className={styles.inner}>
-          <StoreConnector
-            store={this.props.store.localAppRegistry.getStore(
-              'QueryHistory.HeaderStore'
-            )}
-          >
-            <Header
-              data-test-id="query-history-header"
-              actions={actions}
-              showing={showing}
-            />
-          </StoreConnector>
+          <Toolbar
+            data-test-id="query-history-header"
+            actions={actions}
+            showing={showing}
+          />
 
           {showing === 'favorites' ? this.renderFavorites() : null}
           {showing === 'recent' ? this.renderRecents() : null}
