@@ -21,12 +21,11 @@ describe('Collection indexes tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
   });
 
@@ -55,23 +54,29 @@ describe('Collection indexes tab', function () {
     const createModal = await browser.$(Selectors.CreateIndexModal);
     await createModal.waitForDisplayed();
 
-    await browser.clickVisible(Selectors.CreateIndexModalFieldSelect);
-    const fieldList = await browser.$(
-      `${Selectors.CreateIndexModalFieldSelect} [role="listbox"]`
+    const fieldNameSelect = await browser.$(
+      Selectors.CreateIndexModalFieldNameSelectInput(0)
     );
-    await fieldList.waitForDisplayed();
-    const iOption = await fieldList.$('div=i'); // div element with the text "i"
-    iOption.waitForDisplayed();
-    iOption.click();
 
-    await browser.clickVisible(Selectors.CreateIndexModalTypeSelect);
-    const typeList = await browser.$(
-      `${Selectors.CreateIndexModalTypeSelect} [role="listbox"]`
+    await browser.setValueVisible(fieldNameSelect, 'i');
+    await browser.keys(['Enter']);
+
+    const fieldTypeSelect = await browser.$(
+      Selectors.CreateIndexModalFieldTypeSelectButtont(0)
     );
-    await typeList.waitForDisplayed();
-    const textOption = await typeList.$('div=text'); // div element with the text "text"
-    textOption.waitForDisplayed();
-    textOption.click();
+    await fieldTypeSelect.waitForDisplayed();
+
+    await fieldTypeSelect.click();
+
+    const fieldTypeSelectMenu = await browser.$(
+      Selectors.CreateIndexModalFieldTypeSelectMenu(0)
+    );
+    await fieldTypeSelectMenu.waitForDisplayed();
+
+    const fieldTypeSelectSpan = await fieldTypeSelectMenu.$('span=text');
+
+    await fieldTypeSelectSpan.waitForDisplayed();
+    await fieldTypeSelectSpan.click();
 
     await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
@@ -107,25 +112,33 @@ describe('Collection indexes tab', function () {
       const createModal = await browser.$(Selectors.CreateIndexModal);
       await createModal.waitForDisplayed();
 
-      await browser.clickVisible(Selectors.CreateIndexModalFieldSelect);
-
-      const fieldList = await browser.$(
-        `${Selectors.CreateIndexModalFieldSelect} [role="listbox"]`
+      // Select i filed name from Combobox.
+      const fieldNameSelect = await browser.$(
+        Selectors.CreateIndexModalFieldNameSelectInput(0)
       );
-      await fieldList.waitForDisplayed();
 
-      const columnstoreIndexKey = '$**';
-      await fieldList.setValue(columnstoreIndexKey);
+      await browser.setValueVisible(fieldNameSelect, '$**');
+      await browser.keys(['Enter']);
 
-      await browser.clickVisible(Selectors.CreateIndexModalTypeSelect);
-      const typeList = await browser.$(
-        `${Selectors.CreateIndexModalTypeSelect} [role="listbox"]`
+      // Select text filed type from Select.
+      const fieldTypeSelect = await browser.$(
+        Selectors.CreateIndexModalFieldTypeSelectButtont(0)
       );
-      await typeList.waitForDisplayed();
-      // Click on the columnstore index type.
-      const textOption = await typeList.$('div=columnstore'); // div element with the text "columnstore"
-      textOption.waitForDisplayed();
-      textOption.click();
+      await fieldTypeSelect.waitForDisplayed();
+
+      await fieldTypeSelect.click();
+
+      const fieldTypeSelectMenu = await browser.$(
+        Selectors.CreateIndexModalFieldTypeSelectMenu(0)
+      );
+      await fieldTypeSelectMenu.waitForDisplayed();
+
+      const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(
+        'span=columnstore'
+      );
+
+      await fieldTypeSelectSpan.waitForDisplayed();
+      await fieldTypeSelectSpan.click();
 
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 

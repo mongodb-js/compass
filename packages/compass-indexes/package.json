@@ -94,7 +94,6 @@
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-redux": "^5.0.6",
-    "react-select-plus": "^1.2.0",
     "react-tooltip": "^3.11.1",
     "redux": "^4.1.2",
     "redux-thunk": "^2.3.0",

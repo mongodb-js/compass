@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
+import AppRegistry from 'hadron-app-registry';
 
 import IndexComponent from '../index-component';
 import styles from './index-component.module.less';
@@ -21,11 +22,14 @@ const index = {
 };
 
 describe('index-component [Component]', function () {
+  const localAppRegistry = new AppRegistry();
   let component;
+
   describe('render', function () {
     beforeEach(function () {
       component = mount(
         <IndexComponent
+          localAppRegistry={localAppRegistry}
           isWritable
           isReadonly={false}
           toggleIsVisible={() => {}}
