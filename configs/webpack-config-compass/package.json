@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -24,8 +24,8 @@
   "license": "SSPL",
   "main": "dist/index.js",
   "exports": {
-    "require": "./dist/index.js",
-    "import": "./dist/.esm-wrapper.mjs"
+    "import": "./dist/.esm-wrapper.mjs",
+    "require": "./dist/index.js"
   },
   "bin": {
     "webpack-compass": "./bin/webpack.js"

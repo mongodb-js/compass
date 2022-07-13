@@ -1,14 +1,14 @@
 {
   "name": "@mongodb-js/compass-home",
   "productName": "Home plugin",
-  "version": "5.29.0",
+  "version": "5.29.1",
   "apiVersion": "3.0.0",
   "description": "Home",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "require": "./dist/index.js",
-    "browser": "./dist/browser.js"
+    "browser": "./dist/browser.js",
+    "require": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
@@ -37,14 +37,14 @@
   },
   "license": "SSPL",
   "dependencies": {
-    "@mongodb-js/compass-connections": "^0.13.0"
+    "@mongodb-js/compass-connections": "^0.13.1"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.17.0",
     "debug": "*",
     "hadron-react-buttons": "^5.9.0",
     "hadron-react-components": "^5.17.0",
-    "mongodb-data-service": "^21.24.0",
+    "mongodb-data-service": "^21.24.1",
     "mongodb-ns": "^2.4.0",
     "react": "^16.14.0",
     "react-bootstrap": "^0.32.1",
@@ -57,7 +57,7 @@
     "@mongodb-js/mocha-config-compass": "^0.12.0",
     "@mongodb-js/prettier-config-compass": "^0.6.0",
     "@mongodb-js/tsconfig-compass": "^0.7.0",
-    "@mongodb-js/webpack-config-compass": "^0.11.0",
+    "@mongodb-js/webpack-config-compass": "^0.11.1",
     "@testing-library/react": "^12.0.0",
     "@types/chai": "^4.2.21",
     "chai": "^4.1.2",
@@ -67,12 +67,12 @@
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eventemitter3": "^4.0.0",
-    "hadron-app-registry": "^8.14.0",
+    "hadron-app-registry": "^8.14.1",
     "hadron-ipc": "^2.10.0",
     "hadron-react-buttons": "^5.9.0",
     "hadron-react-components": "^5.17.0",
     "mocha": "^8.4.0",
-    "mongodb-data-service": "^21.24.0",
+    "mongodb-data-service": "^21.24.1",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.0.0",
     "prettier": "^2.7.1",

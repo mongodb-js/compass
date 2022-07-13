@@ -16,7 +16,6 @@ class Settings extends PureComponent {
     isExpanded: PropTypes.bool.isRequired,
     limit: PropTypes.number.isRequired,
     largeLimit: PropTypes.number.isRequired,
-    maxTimeMS: PropTypes.number.isRequired,
     settings: PropTypes.object.isRequired,
     toggleSettingsIsExpanded: PropTypes.func.isRequired,
     toggleSettingsIsCommentMode: PropTypes.func.isRequired,
