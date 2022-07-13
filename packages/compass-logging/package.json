@@ -48,7 +48,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "is-electron-renderer": "^2.0.1",
     "mongodb-log-writer": "^1.1.4"
   },

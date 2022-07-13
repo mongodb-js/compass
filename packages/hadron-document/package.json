@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "bson": "^4.4.1",
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "eventemitter3": "^4.0.0",
     "hadron-type-checker": "^6.10.0",
     "lodash.foreach": "^4.5.0",

@@ -1,5 +1,6 @@
 import contains from 'lodash.contains';
 import { changeSchemaFields } from '../create-index/schema-fields';
+import { clearNewIndexField } from '../create-index/new-index-field';
 import { handleError } from '../error';
 
 /**
@@ -84,6 +85,7 @@ export const updateFieldName = (idx, name) => {
         const sFields = [...state.schemaFields];
         sFields.push(name);
         dispatch(changeSchemaFields(sFields));
+        dispatch(clearNewIndexField());
       }
     }
   };

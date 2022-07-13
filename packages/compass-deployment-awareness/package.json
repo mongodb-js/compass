@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-deployment-awareness",
   "productName": "Compass Deployment Awareness",
-  "version": "11.26.0",
+  "version": "11.26.1",
   "apiVersion": "3.0.0",
   "description": "Compass Deployment Awareness Plugin",
   "main": "lib/index.js",
@@ -35,8 +35,7 @@
   "peerDependencies": {
     "hadron-react-buttons": "^5.9.0",
     "hadron-react-components": "^5.17.0",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0"
+    "react": "^16.14.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -63,11 +62,9 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.26.0",
-    "hadron-app-registry": "^8.14.0",
+    "hadron-app": "^4.26.1",
+    "hadron-app-registry": "^8.14.1",
     "hadron-ipc": "^2.10.0",
-    "hadron-react-buttons": "^5.9.0",
-    "hadron-react-components": "^5.17.0",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.1",
@@ -86,15 +83,14 @@
     "less-loader": "^7.3.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^21.19.0",
-    "mongodb-data-service": "^21.24.0",
+    "mongodb-connection-model": "^21.19.1",
+    "mongodb-data-service": "^21.24.1",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "postcss-loader": "^2.1.6",
     "prop-types": "^15.7.2",
-    "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
     "reflux": "^0.4.1",
@@ -121,5 +117,10 @@
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
+  },
+  "dependencies": {
+    "hadron-react-buttons": "^5.9.0",
+    "hadron-react-components": "^5.17.0",
+    "react": "^16.14.0"
   }
 }
