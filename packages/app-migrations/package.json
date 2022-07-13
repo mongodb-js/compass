@@ -24,7 +24,7 @@
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.14.0",
     "async": "^3.2.0",
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "lodash": "4.17.15",
     "semver": "^7.1.1"
   },
