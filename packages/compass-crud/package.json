@@ -74,7 +74,6 @@
     "react": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-query-bar": "^7.24.1",
     "@mongodb-js/eslint-config-compass": "^0.11.0",
     "@mongodb-js/mocha-config-compass": "^0.12.0",
     "@mongodb-js/prettier-config-compass": "^0.6.0",
@@ -102,7 +101,6 @@
     "react-click-outside": "^3.0.1",
     "react-dom": "^16.14.0",
     "react-fontawesome": "^1.6.1",
-    "react-tooltip": "^3.11.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^3.0.0",
