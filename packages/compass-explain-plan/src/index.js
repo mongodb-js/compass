@@ -5,6 +5,7 @@ const ROLE = {
   name: 'Explain Plan',
   component: ExplainPlanPlugin,
   order: 4,
+  hasQueryHistory: true,
   configureStore: configureStore,
   configureActions: () => {},
   storeName: 'ExplainPlan.Store',
