@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-find-in-page",
   "productName": "Compass Find In Page plugin",
   "description": "cmd-f UI for Compass",
-  "version": "3.25.0",
+  "version": "3.25.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -71,7 +71,7 @@
     "@mongodb-js/mocha-config-compass": "^0.12.0",
     "@mongodb-js/prettier-config-compass": "^0.6.0",
     "@mongodb-js/tsconfig-compass": "^0.7.0",
-    "@mongodb-js/webpack-config-compass": "^0.11.0",
+    "@mongodb-js/webpack-config-compass": "^0.11.1",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -84,7 +84,7 @@
     "depcheck": "^1.4.1",
     "electron": "^13.5.1",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^8.14.0",
+    "hadron-app-registry": "^8.14.1",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
