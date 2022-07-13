@@ -121,7 +121,10 @@ class CreateIndexField extends PureComponent {
       />
     ));
 
-    if (this.props.newIndexField) {
+    if (
+      this.props.newIndexField &&
+      !this.props.fields.includes(this.props.newIndexField)
+    ) {
       const newIndexField = this.props.newIndexField;
 
       fields.push(
@@ -151,7 +154,7 @@ class CreateIndexField extends PureComponent {
           <Combobox
             id={`create-index-field-name-${this.props.idx}`}
             value={this.props.field.name}
-            label="Index fields"
+            aria-labelledby="Index fields"
             placeholder={DEFAULT_FIELD.name}
             onFilter={this.props.createNewIndexField}
             onChange={this.selectFieldName.bind(this)}
@@ -173,7 +176,7 @@ class CreateIndexField extends PureComponent {
             allowDeselect={false}
             value={this.props.field.type}
             popoverZIndex={999999}
-            aria-labelledby="Field Type"
+            aria-labelledby="Field type"
           >
             {this.getDropdownTypes()}
           </Select>

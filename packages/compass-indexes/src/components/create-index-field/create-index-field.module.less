@@ -13,8 +13,10 @@ div[id^='combobox-menu'] {
     padding-right: 10px;
     white-space: nowrap;
     z-index: 999999;
+
     input {
       outline: none;
+      width: 100%;
     }
   }
 
@@ -28,6 +30,9 @@ div[id^='combobox-menu'] {
     &-select {
       z-index: 1;
 
+      button {
+        margin-top: 0;
+      }
       button:focus,
       button:focus-within {
         z-index: 20;
