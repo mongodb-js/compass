@@ -43,7 +43,7 @@
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-sync": "^5.1.0",
     "async": "^3.2.0",
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "hadron-ipc": "^2.10.0",
     "keytar": "^7.7.0",
     "localforage": "^1.7.3",
