@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-explain-plan",
   "productName": "Explain Plan plugin",
   "description": "Evaluate the performance of your query",
-  "version": "5.29.0",
+  "version": "5.29.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -26,8 +26,8 @@
   "main": "dist/index.js",
   "compass:main": "src/index.js",
   "exports": {
-    "require": "./dist/index.js",
-    "browser": "./dist/browser.js"
+    "browser": "./dist/browser.js",
+    "require": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.js"
@@ -56,11 +56,11 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.17.0",
-    "@mongodb-js/compass-crud": "^12.27.0",
-    "@mongodb-js/compass-field-store": "^7.26.0",
-    "@mongodb-js/compass-indexes": "^4.28.0",
-    "@mongodb-js/compass-query-bar": "^7.24.0",
-    "@mongodb-js/compass-query-history": "^8.26.0",
+    "@mongodb-js/compass-crud": "^12.27.1",
+    "@mongodb-js/compass-field-store": "^7.26.1",
+    "@mongodb-js/compass-indexes": "^4.28.1",
+    "@mongodb-js/compass-query-bar": "^7.24.1",
+    "@mongodb-js/compass-query-history": "^8.26.1",
     "d3": "^3.5.17",
     "debug": "*",
     "hadron-document": "^7.13.0",
@@ -82,7 +82,7 @@
     "@mongodb-js/mocha-config-compass": "^0.12.0",
     "@mongodb-js/prettier-config-compass": "^0.6.0",
     "@mongodb-js/tsconfig-compass": "^0.7.0",
-    "@mongodb-js/webpack-config-compass": "^0.11.0",
+    "@mongodb-js/webpack-config-compass": "^0.11.1",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.2.0",
@@ -93,8 +93,8 @@
     "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^4.26.0",
-    "hadron-app-registry": "^8.14.0",
+    "hadron-app": "^4.26.1",
+    "hadron-app-registry": "^8.14.1",
     "hadron-react-buttons": "^5.9.0",
     "hadron-react-components": "^5.17.0",
     "mocha": "^8.4.0",
@@ -112,8 +112,8 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.14.0",
-    "@mongodb-js/explain-plan-helper": "^0.11.0",
-    "@mongodb-js/mongodb-redux-common": "^1.14.0",
+    "@mongodb-js/explain-plan-helper": "^0.11.1",
+    "@mongodb-js/mongodb-redux-common": "^1.14.1",
     "@react-aria/utils": "^3.11.3",
     "d3-flextree": "1.0.3",
     "lodash": "^4.17.15"

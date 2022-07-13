@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-schema",
   "productName": "Compass Schema plugin",
   "description": "Compass Schema Tab Plugin",
-  "version": "5.25.0",
+  "version": "5.25.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -26,8 +26,8 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "require": "./dist/index.js",
-    "browser": "./dist/browser.js"
+    "browser": "./dist/browser.js",
+    "require": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
@@ -56,7 +56,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.17.0",
-    "@mongodb-js/compass-query-bar": "^7.24.0",
+    "@mongodb-js/compass-query-bar": "^7.24.1",
     "bson": "*",
     "d3": "^3.5.17",
     "debug": "^3.0.1",
@@ -76,12 +76,12 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-components": "^0.17.0",
-    "@mongodb-js/compass-query-bar": "^7.24.0",
+    "@mongodb-js/compass-query-bar": "^7.24.1",
     "@mongodb-js/eslint-config-compass": "^0.11.0",
     "@mongodb-js/mocha-config-compass": "^0.12.0",
     "@mongodb-js/prettier-config-compass": "^0.6.0",
     "@mongodb-js/tsconfig-compass": "^0.7.0",
-    "@mongodb-js/webpack-config-compass": "^0.11.0",
+    "@mongodb-js/webpack-config-compass": "^0.11.1",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -97,7 +97,7 @@
     "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^8.14.0",
+    "hadron-app-registry": "^8.14.1",
     "hadron-document": "^7.13.0",
     "hadron-ipc": "^2.10.0",
     "hadron-react-buttons": "^5.9.0",

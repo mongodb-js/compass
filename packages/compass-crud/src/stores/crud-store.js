@@ -23,7 +23,8 @@ import {
 
 import configureGridStore from './grid-store';
 
-const { log, mongoLogId, track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
+const { debug, log, mongoLogId, track } =
+  createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
 function pickQueryProps({
   filter,
@@ -455,8 +456,9 @@ const configureStore = (options = {}) => {
         // required for updated documents in sharded collections.
         const { query, updateDoc } =
           doc.generateUpdateUnlessChangedInBackgroundQuery(
-            this.state.shardKeys
+            Object.keys(this.state.shardKeys)
           );
+        debug('Performing findOneAndUpdate', { query, updateDoc });
 
         if (Object.keys(updateDoc).length === 0) {
           doc.emit('update-error', EMPTY_UPDATE_ERROR.message);
@@ -476,6 +478,13 @@ const configureStore = (options = {}) => {
         );
 
         if (error) {
+          if (
+            error.codeName === 'InvalidPipelineOperator' &&
+            error.message.match(/\$[gs]etField/)
+          ) {
+            const nbsp = '\u00a0';
+            error.message += ` (Updating fields whose names contain dots or start with $ require MongoDB${nbsp}5.0 or above.)`;
+          }
           doc.emit('update-error', error.message);
         } else if (d) {
           doc.emit('update-success', d);
@@ -505,10 +514,11 @@ const configureStore = (options = {}) => {
       try {
         doc.emit('update-start');
         const object = doc.generateObject();
-        const query = doc.getOriginalKeysAndValuesForSpecifiedKeys({
-          _id: 1,
-          ...(this.state.shardKeys || {}),
-        });
+        const query = doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys([
+          '_id',
+          ...Object.keys(this.state.shardKeys || {}),
+        ]);
+        debug('Performing findOneAndReplace', { query, object });
 
         if (!(await this._verifyUpdateAllowed(this.state.ns, doc))) {
           // _verifyUpdateAllowed emitted update-error
