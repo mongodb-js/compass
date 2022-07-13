@@ -1,4 +1,7 @@
 import type { Element } from './element';
+import type { Document } from './document';
+import type { BSONArray, BSONObject, BSONValue } from './utils';
+import isEqual from 'lodash.isequal';
 
 const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
 
@@ -23,6 +26,19 @@ function maybeDecorateWithDecryptedKeys(
     (object as any)[DECRYPTED_KEYS].push(String(element.currentKey));
   }
 }
+
+/** Used to represent missing values, i.e. non-existent fields. */
+const DoesNotExist = Symbol('DidNotExist');
+
+/**
+ * Describe a field in a document, with its path and current value.
+ * For example, in the document `{ a: { b: 42 } }`, the nested property
+ * `b` of `a` would be described by `{ path: ['a', 'b'], value: 42 }`.
+ */
+type FieldDescription = {
+  path: string[];
+  value: BSONValue | typeof DoesNotExist;
+};
 
 /**
  * Generates javascript objects from elements.
@@ -142,6 +158,310 @@ export class ObjectGenerator {
       return array;
     }
     return elements;
+  }
+
+  /**
+   * As the first step in generating query and update documents for updated
+   * fields in a document, gather the original and new paths and values
+   * for those updated fields.
+   *
+   * @param target The target document, or, when recursing, element.
+   * @param alwaysIncludeOriginalKeys A list of fields whose original values
+   *     are always included in `originalFields`. Dots inside key names
+   *     are interpreted as referring to nested properties.
+   * @param includeUpdatedFields Whether to include original and new values
+   *     of updated fields. If set to `false`, only fields included in
+   *     @see alwaysIncludeOriginalKeys are included.
+   * @returns A pair `{ originalFields, newFields }`, each listing the
+   *     original and new paths and values for updated fields, respectively.
+   */
+  private static recursivelyGatherFieldsAndValuesForUpdate(
+    target: Document | Element,
+    alwaysIncludeOriginalKeys: string[],
+    includeUpdatedFields: boolean
+  ): {
+    originalFields: FieldDescription[];
+    newFields: FieldDescription[];
+  } {
+    const originalFields: FieldDescription[] = [];
+    const newFields: FieldDescription[] = [];
+
+    for (const element of target.elements ?? []) {
+      // Recurse into an element if it either has been updated and we are looking
+      // for updated fields, or it is part of the set of keys that we should always
+      // include.
+      if (
+        (includeUpdatedFields &&
+          element.isModified() &&
+          !element.isAdded() &&
+          !element.hasChangedKey()) ||
+        alwaysIncludeOriginalKeys.some(
+          (key) =>
+            key === String(element.key) || key.startsWith(`${element.key}.`)
+        )
+      ) {
+        // Two possible cases: Either we recurse into this element and change
+        // nested values, or we replace the element entirely.
+        // We can only recurse if:
+        // - This is a nested element with children, i.e. array or document
+        // - It was not explicitly requested via alwaysIncludeOriginalKeys to
+        //   always include it in its entirety
+        // - Its type has not changed
+        // - It is not an array with removed elements, since MongoDB has
+        //   no way to remove individual array elements (!!) prior to
+        //   agg-pipeline-style updates added in 4.2, and even then it's complex
+        //   to actually do so
+        if (
+          element.elements &&
+          !alwaysIncludeOriginalKeys.includes(String(element.key)) &&
+          ((element.type === 'Object' && element.currentType === 'Object') ||
+            (element.type === 'Array' &&
+              element.currentType === 'Array' &&
+              !element.hasAnyRemovedChild()))
+        ) {
+          // Nested case: Translate alwaysIncludeKeys to the nested keys,
+          // get the original keys and values for the nested element,
+          // then translate the result back to this level.
+          const nestedAlwaysIncludeKeys = alwaysIncludeOriginalKeys
+            .filter((key) => key.startsWith(`${element.key}.`))
+            .map((key) => key.replace(`${element.key}.`, ''));
+          const nestedResult =
+            ObjectGenerator.recursivelyGatherFieldsAndValuesForUpdate(
+              element,
+              nestedAlwaysIncludeKeys,
+              includeUpdatedFields
+            );
+          for (const { path, value } of nestedResult.originalFields) {
+            originalFields.push({
+              path: [String(element.key), ...path],
+              value,
+            });
+          }
+          for (const { path, value } of nestedResult.newFields) {
+            newFields.push({
+              path: [String(element.currentKey), ...path],
+              value,
+            });
+          }
+        } else {
+          // Using `.key` instead of `.currentKey` to ensure we look at
+          // the original field's value.
+          originalFields.push({
+            path: [String(element.key)],
+            value: element.generateOriginalObject(),
+          });
+
+          if (
+            includeUpdatedFields &&
+            element.currentKey !== '' &&
+            !element.isRemoved()
+          ) {
+            newFields.push({
+              path: [String(element.currentKey)],
+              value: element.generateObject(),
+            });
+          }
+        }
+      }
+
+      if (
+        includeUpdatedFields &&
+        !element.isRemoved() &&
+        (element.isAdded() || element.hasChangedKey()) &&
+        element.currentKey !== ''
+      ) {
+        // When a new field is added, check if that field
+        // was already added in the background.
+        originalFields.push({
+          path: [String(element.currentKey)],
+          value: DoesNotExist,
+        });
+        newFields.push({
+          path: [String(element.currentKey)],
+          value: element.generateObject(),
+        });
+      }
+
+      if (
+        includeUpdatedFields &&
+        !element.isAdded() &&
+        (element.isRemoved() || element.hasChangedKey()) &&
+        element.key !== ''
+      ) {
+        // Remove the original field when an element is removed or renamed.
+        originalFields.push({
+          path: [String(element.key)],
+          value: element.generateOriginalObject(),
+        });
+        newFields.push({ path: [String(element.key)], value: DoesNotExist });
+      }
+    }
+
+    // Sometimes elements are removed or renamed, and then another
+    // element is added or renamed to take its place. We filter out
+    // the DoesNotExist entry for that case.
+    for (let i = 0; i < newFields.length; ) {
+      const entry = newFields[i];
+      if (entry.value === DoesNotExist) {
+        if (
+          newFields.some(
+            (otherEntry) =>
+              isEqual(otherEntry.path, entry.path) && entry !== otherEntry
+          )
+        ) {
+          // Drop `entry`.
+          newFields.splice(i, 1);
+          continue;
+        }
+      }
+      i++;
+    }
+
+    return { originalFields, newFields };
+  }
+
+  // Return a $getField expression that evaluates to the current value
+  // of the document at `path`.
+  private static createGetFieldExpr(path: string[]): BSONObject {
+    return path.reduce(
+      (input, key) => ({
+        $getField: {
+          field: { $literal: key },
+          input,
+        },
+      }),
+      '$$ROOT' as any
+    );
+  }
+
+  // Return a $setField expression that writes the specified value
+  // to the document at `path`.
+  private static createSetFieldExpr(
+    path: string[],
+    value: BSONValue | typeof DoesNotExist
+  ): BSONValue {
+    return path.reduceRight(
+      (value, key, idx, array) => ({
+        $setField: {
+          field: { $literal: key },
+          input: ObjectGenerator.createGetFieldExpr(array.slice(0, idx)),
+          value,
+        },
+      }),
+      (value === DoesNotExist ? '$$REMOVE' : { $literal: value }) as any
+    );
+  }
+
+  /**
+   * Generate the query javascript object reflecting original
+   * values of specific elements in this documents. This can include
+   * elements that were updated in this document. In that case, the
+   * values of this object are the original values, this can be used
+   * when querying for an update to see if the original document was
+   * changed in the background while it was being updated elsewhere.
+   *
+   * NOTE: `alwaysIncludeKeys` is currently used for sharding, since
+   * updates on sharded setups need to include the shard key in their
+   * find part. https://jira.mongodb.org/browse/PM-1632 will make
+   * this requirement go away for future MongoDB versions!
+   *
+   * @param target The target (sub-)document.
+   * @param alwaysIncludeOriginalKeys A list whose entries are used as keys
+   *     that are always included in the generated query. Dots inside key names
+   *     are interpreted as referring to nested properties.
+   * @param includeUpdatedFields Whether to include the original values for
+   *     updated fields.
+   *
+   * @returns A pair of lists, one containing the original values for updated fields
+   *     or those specified in the always-include list, and one containing new values
+   *     of the updated fields. If includeUpdatedFields is not set, the second
+   *     list will be empty.
+   */
+  static getQueryForOriginalKeysAndValuesForSpecifiedFields(
+    target: Document | Element,
+    alwaysIncludeOriginalKeys: string[],
+    includeUpdatedFields: boolean
+  ): BSONObject {
+    const { originalFields } =
+      ObjectGenerator.recursivelyGatherFieldsAndValuesForUpdate(
+        target,
+        alwaysIncludeOriginalKeys,
+        includeUpdatedFields
+      );
+
+    const query: any = {};
+    if (
+      originalFields.some(({ path }) =>
+        path.some((key) => key.includes('.') || key.startsWith('$'))
+      )
+    ) {
+      // Some of the keys in this query are only accesible via $getField,
+      // which was introduced in MongoDB 5.0.
+      for (const { path, value } of originalFields) {
+        const getFieldExpr = ObjectGenerator.createGetFieldExpr(path);
+        const matchExpr =
+          value !== DoesNotExist
+            ? {
+                $eq: [getFieldExpr, { $literal: value }],
+              }
+            : {
+                $eq: [{ $type: getFieldExpr }, 'missing'],
+              };
+        query.$expr ??= { $and: [] };
+        query.$expr.$and.push(matchExpr);
+      }
+    } else {
+      for (const { path, value } of originalFields) {
+        const matchValue = value === DoesNotExist ? { $exists: false } : value;
+        query[path.join('.')] = matchValue;
+      }
+    }
+    return query;
+  }
+
+  /**
+   * Generate an update document or pipeline which reflects the updates
+   * that have taken place for this document. A pipeline will be returned
+   * if the updates require changes to fields containing dots or prefixed
+   * with $.
+   *
+   * @param target The target (sub-)document.
+   */
+  static generateUpdateDoc(
+    target: Document | Element
+  ): { $set?: BSONObject; $unset?: BSONObject } | BSONArray {
+    const { newFields } =
+      ObjectGenerator.recursivelyGatherFieldsAndValuesForUpdate(
+        target,
+        [],
+        true
+      );
+
+    if (
+      newFields.some(({ path }) =>
+        path.some((key) => key.includes('.') || key.startsWith('$'))
+      )
+    ) {
+      // Some of the keys in this query are only writable via $setField/$unsetField,
+      // which was introduced in MongoDB 5.0. In this case we can use pipeline-style updates.
+      return newFields.map(({ path, value }) => {
+        return {
+          $replaceWith: ObjectGenerator.createSetFieldExpr(path, value),
+        };
+      });
+    } else {
+      const updateDoc: { $set?: BSONObject; $unset?: BSONObject } = {};
+      for (const { path, value } of newFields) {
+        if (value === DoesNotExist) {
+          updateDoc.$unset ??= {};
+          updateDoc.$unset[path.join('.')] = true;
+        } else {
+          updateDoc.$set ??= {};
+          updateDoc.$set[path.join('.')] = value;
+        }
+      }
+      return updateDoc;
+    }
   }
 }
 
