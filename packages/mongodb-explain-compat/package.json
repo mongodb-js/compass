@@ -10,8 +10,8 @@
   "main": "lib/index.js",
   "compass:main": "lib/index.js",
   "exports": {
-    "require": "./lib/index.js",
-    "import": "./.esm-wrapper.mjs"
+    "import": "./.esm-wrapper.mjs",
+    "require": "./lib/index.js"
   },
   "compass:exports": {
     ".": "./lib/index.js"
