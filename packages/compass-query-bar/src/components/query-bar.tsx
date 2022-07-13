@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import {
   Button,
   Icon,
+  IconButton,
   MoreOptionsToggle,
   css,
   cx,
@@ -74,11 +75,13 @@ type QueryBarProps = {
   )[];
   onApply: () => void;
   onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
+  onOpenExportToLanguage: () => void;
   onReset: () => void;
   queryState: 'apply' | 'reset';
   refreshEditorAction: Listenable;
   schemaFields: string[];
   serverVersion: string;
+  showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
   toggleExpandQueryOptions: () => void;
   toggleQueryHistory: () => void;
@@ -91,11 +94,13 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
   onApply: _onApply,
   onChangeQueryOption,
+  onOpenExportToLanguage,
   onReset,
   queryState,
   refreshEditorAction,
   schemaFields,
   serverVersion,
+  showExportToLanguageButton = true,
   showQueryHistoryButton = true,
   toggleExpandQueryOptions,
   toggleQueryHistory,
@@ -168,6 +173,17 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         >
           {buttonLabel}
         </Button>
+        {showExportToLanguageButton && (
+          <IconButton
+            onClick={onOpenExportToLanguage}
+            title="Open export to language"
+            aria-label="Open export to language"
+            data-testid="query-bar-open-export-to-language-button"
+            type="button"
+          >
+            <Icon glyph="Export" />
+          </IconButton>
+        )}
 
         {queryOptions && queryOptions.length > 0 && (
           <MoreOptionsToggle

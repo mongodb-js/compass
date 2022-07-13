@@ -20,22 +20,22 @@ const editorStyles = cx(
   focusRingStyles,
   css({
     minWidth: spacing[7],
-    '&::before': {
+    '&::after': {
       position: 'absolute',
       content: '""',
       pointerEvents: 'none',
-      top: 3,
-      right: 3,
-      bottom: 3,
-      left: 3,
+      top: -1,
+      right: -1,
+      bottom: -1,
+      left: -1,
       borderRadius: spacing[1],
-      boxShadow: 'inset 0 0 0 0 transparent',
       transition: 'box-shadow .16s ease-in',
-    },
-    '&::after': {
       boxShadow: '0 0 0 0 transparent',
     },
-    borderRadius: '6px',
+    border: `1px solid ${uiColors.gray.base}`,
+    borderRadius: '4px',
+    overflow: 'visible',
+    background: 'transparent',
     '&:hover': {
       '&::after': {
         boxShadow: `0 0 0 3px ${uiColors.gray.light2}`,
@@ -47,14 +47,9 @@ const editorStyles = cx(
 );
 
 const editorWithErrorStyles = css({
+  borderColor: uiColors.red.base,
   '&:focus-within': {
-    '&::before': {
-      boxShadow: 'inset 0 0 0 1px transparent',
-    },
-  },
-  '&::before': {
-    zIndex: 5,
-    boxShadow: `inset 0px 0px 0px 1px ${uiColors.red.base}`,
+    borderColor: uiColors.gray.base,
   },
 });
 
@@ -149,7 +144,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       options={editorSettings}
       completer={completer.current}
       placeholder={placeholder}
-      scrollMargin={[10, 10, 0, 0]}
+      scrollMargin={[6, 6, 0, 0]}
       onLoad={onLoadEditor}
     />
   );

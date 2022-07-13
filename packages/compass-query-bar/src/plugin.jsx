@@ -38,9 +38,11 @@ function Plugin({
           onApply={onApply}
           onReset={onReset}
           onChangeQueryOption={actions.typeQueryString}
+          onOpenExportToLanguage={actions.exportToLanguage}
           refreshEditorAction={actions.refreshEditor}
           toggleExpandQueryOptions={actions.toggleQueryOptions}
           toggleQueryHistory={actions.toggleQueryHistory}
+          {...props}
         />
       ) : (
         <LegacyQueryBar
@@ -59,6 +61,8 @@ Plugin.propTypes = {
   actions: PropTypes.object.isRequired,
   onApply: PropTypes.func,
   onReset: PropTypes.func,
+  showExportToLanguageButton: PropTypes.bool,
+  showQueryHistoryButton: PropTypes.bool,
   store: PropTypes.object.isRequired,
 };
 
