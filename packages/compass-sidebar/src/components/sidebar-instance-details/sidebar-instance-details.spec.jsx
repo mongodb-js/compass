@@ -8,16 +8,21 @@ import styles from './sidebar-instance-details.module.less';
 describe('SidebarInstanceDetails [Component]', function () {
   context('when details are expanded', function () {
     const isExpanded = true;
-    const detailsPlugins = [];
-    const isSidebarCollapsed = false;
     let component;
+
+    const instance = {
+      build: {},
+      dataLake: {},
+      topologyDescription: {}
+    };
+    const connectionOptions = {};
 
     beforeEach(function () {
       component = shallow(
         <SidebarInstanceDetails
+          instance={instance}
+          connectionOptions={connectionOptions}
           isExpanded={isExpanded}
-          detailsPlugins={detailsPlugins}
-          isSidebarCollapsed={isSidebarCollapsed}
         />
       );
     });

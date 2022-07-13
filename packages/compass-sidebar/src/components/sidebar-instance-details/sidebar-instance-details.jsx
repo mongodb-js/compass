@@ -5,15 +5,16 @@ import DeploymentAwareness from '../deployment-awareness';
 import ServerVersion from '../server-version';
 import SshTunnelStatus from '../ssh-tunnel-status';
 
+import { ENTERPRISE, COMMUNITY } from '../../constants/server-version';
+
 import styles from './sidebar-instance-details.module.less';
 
 class SidebarInstanceDetails extends PureComponent {
   static displayName = 'SidebarInstanceDetails';
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
-    deploymentAwareness: PropTypes.object.isRequired,
-    serverVersion: PropTypes.object.isRequired,
-    sshTunnelStatus: PropTypes.object.isRequired,
+    instance: PropTypes.object.isRequired,
+    connectionOptions: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -21,15 +22,24 @@ class SidebarInstanceDetails extends PureComponent {
   }
 
   renderDetails() {
-    const { isExpanded, deploymentAwareness, serverVersion, sshTunnelStatus } =
+    const { isExpanded, instance, connectionOptions } =
       this.props;
 
     if (isExpanded) {
       return (
         <div className={styles['sidebar-instance-details-container']}>
-          <DeploymentAwareness {...deploymentAwareness} />
-          <ServerVersion {...serverVersion} />
-          <SshTunnelStatus {...sshTunnelStatus} />
+          <DeploymentAwareness
+            servers={instance.topologyDescription.servers}
+            setName={instance.topologyDescription.setName}
+            topologyType={instance.topologyDescription.type}
+            isDataLake={instance.dataLake.isDataLake} />
+          <ServerVersion
+            versionNumber={instance.build.version}
+            versionDistro={instance.build.isEnterprise ? ENTERPRISE : COMMUNITY}
+            isDataLake={instance.dataLake.isDataLake}
+            dataLakeVersion={instance.dataLake.version}
+          />
+          <SshTunnelStatus {...connectionOptions} />
         </div>
       );
     }

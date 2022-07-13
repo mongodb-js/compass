@@ -6,7 +6,7 @@ import styles from './sidebar-instance-stats.module.less';
 
 class SidebarInstanceStats extends PureComponent {
   static propTypes = {
-    instance: PropTypes.object,
+    instance: PropTypes.object.isRequired,
     databases: PropTypes.array,
     isExpanded: PropTypes.bool.isRequired,
     toggleIsExpanded: PropTypes.func.isRequired,

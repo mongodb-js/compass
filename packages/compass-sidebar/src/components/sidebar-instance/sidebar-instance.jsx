@@ -16,15 +16,12 @@ export const SidebarInstance = ({
   instance,
   databases,
   isExpanded,
-  isGenuineMongoDB,
   toggleIsDetailsExpanded,
   globalAppRegistryEmit,
   connectionInfo,
+  connectionOptions,
   updateConnectionInfo,
   setConnectionIsCSFLEEnabled,
-  deploymentAwareness,
-  serverVersion,
-  sshTunnelStatus,
 }) => {
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
@@ -74,11 +71,10 @@ export const SidebarInstance = ({
         onCancelClicked={() => setIsFavoriteModalVisible(false)}
         onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
       />
-      <NonGenuineWarningPill isGenuineMongoDB={isGenuineMongoDB} />
+      <NonGenuineWarningPill isGenuineMongoDB={instance?.genuineMongoDB.isGenuine} />
       <SidebarInstanceDetails
-        deploymentAwareness={deploymentAwareness}
-        serverVersion={serverVersion}
-        sshTunnelStatus={sshTunnelStatus}
+        instance={instance}
+        connectionOptions={connectionOptions}
         isExpanded={isExpanded}
       />
     </div>
@@ -87,16 +83,13 @@ export const SidebarInstance = ({
 
 SidebarInstance.displayName = 'SidebarInstance';
 SidebarInstance.propTypes = {
-  instance: PropTypes.object,
+  instance: PropTypes.object.isRequired,
   databases: PropTypes.array,
   isExpanded: PropTypes.bool.isRequired,
-  isGenuineMongoDB: PropTypes.bool.isRequired,
   toggleIsDetailsExpanded: PropTypes.func.isRequired,
   globalAppRegistryEmit: PropTypes.func.isRequired,
-  deploymentAwareness: PropTypes.object.isRequired,
-  serverVersion: PropTypes.object.isRequired,
-  sshTunnelStatus: PropTypes.object.isRequired,
   connectionInfo: PropTypes.object.isRequired,
+  connectionOptions: PropTypes.object.isRequired,
   updateConnectionInfo: PropTypes.func.isRequired,
   setConnectionIsCSFLEEnabled: PropTypes.func.isRequired,
 };

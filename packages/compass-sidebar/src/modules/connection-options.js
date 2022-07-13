@@ -1,6 +1,6 @@
 const HOST_STRING_LENGTH = 25;
 
-export const CHANGE_STATUS = 'sidebar/ssh-tunnel-status/CHANGE_STATUS';
+export const CHANGE_CONNECTION_OPTIONS = 'sidebar/connection-options/CHANGE_CONNECTION_OPTIONS';
 
 export const INITIAL_STATE = {
   sshTunnel: false,
@@ -10,8 +10,8 @@ export const INITIAL_STATE = {
 };
 
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === CHANGE_STATUS) {
-    return action.status;
+  if (action.type === CHANGE_CONNECTION_OPTIONS) {
+    return action.options;
   }
   return state;
 }
@@ -24,8 +24,7 @@ function combineHostPort(host, port, truncate) {
   return `${host}:${port}`;
 }
 
-export function changeDataService(ds) {
-  const connectionOptions = ds.getConnectionOptions();
+export function changeConnectionOptions(connectionOptions) {
   const sshTunnel = !!connectionOptions.sshTunnel;
   const sshTunnelHostname = sshTunnel ? connectionOptions.sshTunnel.host : '';
   const sshTunnelPort = sshTunnel ? connectionOptions.sshTunnel.port : '';
@@ -34,8 +33,8 @@ export function changeDataService(ds) {
     : '';
 
   return {
-    type: CHANGE_STATUS,
-    status: {
+    type: CHANGE_CONNECTION_OPTIONS,
+    options: {
       sshTunnel,
       sshTunnelHostname,
       sshTunnelPort,

@@ -38,22 +38,19 @@ function boundSidebarWidth(attemptedWidth) {
 class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
   static propTypes = {
-    instance: PropTypes.object.isRequired,
+    // Sidebar is a global plugin and will be instantiated before the instance
+    // is available. Therefore instance cannot be required.
+    instance: PropTypes.object,
     databases: PropTypes.array.isRequired,
     isDetailsExpanded: PropTypes.bool.isRequired,
-    isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
-    isDataLake: PropTypes.bool.isRequired,
-    isGenuineMongoDB: PropTypes.bool.isRequired,
     isGenuineMongoDBVisible: PropTypes.bool.isRequired,
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
     connectionInfo: PropTypes.object.isRequired,
+    connectionOptions: PropTypes.object.isRequired,
     updateAndSaveConnectionInfo: PropTypes.func.isRequired,
-    deploymentAwareness: PropTypes.object.isRequired,
-    serverVersion: PropTypes.object.isRequired,
-    sshTunnelStatus: PropTypes.object.isRequired,
   };
 
   state = {
@@ -120,8 +117,8 @@ class Sidebar extends PureComponent {
   }
 
   renderCreateDatabaseButton() {
-    if (!this.isReadonlyDistro() && !this.props.isDataLake) {
-      const isW = !this.props.isWritable
+    if (!this.isReadonlyDistro() && !this.props.instance.dataLake.isDataLake) {
+      const isW = !this.props.instance.isWritable
         ? styles['compass-sidebar-button-is-disabled']
         : '';
       const className = classnames(
@@ -140,7 +137,7 @@ class Sidebar extends PureComponent {
             data-test-id="create-database-button"
             onClick={this.handleCreateDatabaseClick.bind(
               this,
-              this.props.isWritable
+              this.props.instance.isWritable
             )}
           >
             <i className="mms-icon-add" />
@@ -154,6 +151,11 @@ class Sidebar extends PureComponent {
   }
 
   render() {
+    if (!this.props.instance) {
+      // don't do anything until the instance is created
+      return null;
+    }
+
     const { width, prevWidth } = this.state;
 
     const isExpanded = width > sidebarMinWidthOpened;
@@ -206,17 +208,15 @@ class Sidebar extends PureComponent {
             instance={this.props.instance}
             databases={this.props.databases}
             isExpanded={this.props.isDetailsExpanded}
-            isGenuineMongoDB={this.props.isGenuineMongoDB}
+            isGenuineMongoDB={this.props.instance.genuineMongoDB.isGenuine}
             toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
             connectionInfo={this.props.connectionInfo}
+            connectionOptions={this.props.connectionOptions}
             updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
             setConnectionIsCSFLEEnabled={(enabled) =>
               this.handleSetConnectionIsCSFLEEnabled(enabled)
             }
-            deploymentAwareness={this.props.deploymentAwareness}
-            serverVersion={this.props.serverVersion}
-            sshTunnelStatus={this.props.sshTunnelStatus}
           />
         )}
         <NavigationItems
@@ -265,16 +265,11 @@ class Sidebar extends PureComponent {
  */
 const mapStateToProps = (state) => ({
   connectionInfo: state.connectionInfo.connectionInfo,
+  connectionOptions: state.connectionOptions,
   instance: state.instance,
   databases: state.databases.databases,
   isDetailsExpanded: state.isDetailsExpanded,
-  isWritable: state.isWritable,
-  isDataLake: state.isDataLake,
-  isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-  deploymentAwareness: state.deploymentAwareness,
-  serverVersion: state.serverVersion,
-  sshTunnelStatus: state.sshTunnelStatus,
 });
 
 /**

@@ -4,7 +4,7 @@ const TopologyDescription = AmpersandModel.extend({
   props: {
     type: 'string',
     servers: 'array',
-    setName: 'string' // TODO: not sure this actually gets used
+    setName: 'string'
   }
 });
 
