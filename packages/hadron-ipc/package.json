@@ -17,7 +17,7 @@
   "main": "index.js",
   "compass:main": "index.js",
   "dependencies": {
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "is-electron-renderer": "^2.0.1",
     "is-promise": "^2.1.0",
     "lodash.forin": "^4.4.0",

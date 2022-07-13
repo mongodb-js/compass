@@ -6,7 +6,7 @@ import reducer, {
   TOGGLE_SHOW_OPTIONS,
 } from '../create-index/show-options';
 
-describe('create index is options module', function () {
+describe('create index show options module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {

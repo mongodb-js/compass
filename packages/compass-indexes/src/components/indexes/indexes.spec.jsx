@@ -12,6 +12,7 @@ import IndexHeader from '../index-header';
 import IndexList from '../index-list';
 
 describe('indexes [Component]', function () {
+  const localAppRegistry = new AppRegistry();
   let component;
   const sortIndexesSpy = sinon.spy();
   const toggleIsVisibleSpy = sinon.spy();
@@ -20,15 +21,15 @@ describe('indexes [Component]', function () {
   const openLinkSpy = sinon.spy();
 
   before(function () {
-    const appRegistry = new AppRegistry();
     global.hadronApp = hadronApp;
-    global.hadronApp.appRegistry = appRegistry;
+    global.hadronApp.appRegistry = localAppRegistry;
   });
 
   context('when the collection is not a readonly view', function () {
     beforeEach(function () {
       component = mount(
         <Indexes
+          localAppRegistry={localAppRegistry}
           isWritable={true}
           isReadonly={false}
           isReadonlyView={false}

@@ -43,7 +43,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "eventemitter3": "^4.0.0",
     "reflux": "^0.4.1"
   },
