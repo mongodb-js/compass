@@ -36,7 +36,7 @@
     "@mongodb-js/ssh-tunnel": "^1.9.1",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "lodash": "^4.17.15",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb3": "npm:mongodb@^3.6.3",

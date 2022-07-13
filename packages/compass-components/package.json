@@ -37,6 +37,7 @@
     "@leafygreen-ui/card": "^5.1.4",
     "@leafygreen-ui/checkbox": "^6.0.6",
     "@leafygreen-ui/code": "^9.4.0",
+    "@leafygreen-ui/combobox": "^0.9.0",
     "@leafygreen-ui/confirmation-modal": "^2.2.3",
     "@leafygreen-ui/emotion": "^4.0.0",
     "@leafygreen-ui/icon": "^11.7.0",
@@ -74,7 +75,7 @@
   },
   "peerDependencies": {
     "ace-builds": "^1.4.3",
-    "mongodb-ace-autocompleter": "*",
+    "mongodb-ace-autocompleter": "^1.1.1",
     "mongodb-ace-mode": "^1.8.0",
     "react": "^16.14.0",
     "react-ace": "^9.5.0"

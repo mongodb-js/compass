@@ -38,7 +38,7 @@
     "mongodb-ns": "^2.4.0"
   },
   "devDependencies": {
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
