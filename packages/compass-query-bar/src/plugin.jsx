@@ -1,38 +1,70 @@
-import React, { Component } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { StoreConnector } from 'hadron-react-components';
+import { isFunction } from 'lodash';
+
 import LegacyQueryBar from './components/legacy-query-bar';
-import { QueryBar } from './components/query-bar/query-bar';
+import { QueryBar } from './components/query-bar';
 
-class Plugin extends Component {
-  static displayName = 'QueryBarPlugin';
-  static propTypes = {
-    store: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
-  };
+function Plugin({
+  actions,
+  onApply: _onApply,
+  onReset: _onReset,
+  store,
+  ...props
+}) {
+  const useNewQueryBar = process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true';
 
-  /**
-   * Connect the Plugin to the store and render.
-   *
-   * @returns {React.Component} The rendered component.
-   */
-  render() {
-    const useNewQueryBar = process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true';
+  const onApply = useCallback(() => {
+    actions.apply();
 
-    return (
-      <StoreConnector store={this.props.store}>
-        {useNewQueryBar ? (
-          <QueryBar
-            toggleExpandQueryOptions={this.props.actions.toggleQueryOptions}
-            toggleQueryHistory={this.props.actions.toggleQueryHistory}
-          />
-        ) : (
-          <LegacyQueryBar actions={this.props.actions} {...this.props} />
-        )}
-      </StoreConnector>
-    );
-  }
+    if (isFunction(_onApply)) {
+      _onApply();
+    }
+  }, [_onApply, actions]);
+
+  const onReset = useCallback(() => {
+    actions.reset();
+
+    if (isFunction(_onReset)) {
+      _onReset();
+    }
+  }, [_onReset, actions]);
+
+  return (
+    <StoreConnector store={store}>
+      {useNewQueryBar ? (
+        <QueryBar
+          onApply={onApply}
+          onReset={onReset}
+          onChangeQueryOption={actions.typeQueryString}
+          onOpenExportToLanguage={actions.exportToLanguage}
+          refreshEditorAction={actions.refreshEditor}
+          toggleExpandQueryOptions={actions.toggleQueryOptions}
+          toggleQueryHistory={actions.toggleQueryHistory}
+          {...props}
+        />
+      ) : (
+        <LegacyQueryBar
+          actions={actions}
+          onApply={onApply}
+          onReset={onReset}
+          {...props}
+        />
+      )}
+    </StoreConnector>
+  );
 }
+
+Plugin.displayName = 'QueryBarPlugin';
+Plugin.propTypes = {
+  actions: PropTypes.object.isRequired,
+  onApply: PropTypes.func,
+  onReset: PropTypes.func,
+  showExportToLanguageButton: PropTypes.bool,
+  showQueryHistoryButton: PropTypes.bool,
+  store: PropTypes.object.isRequired,
+};
 
 export default Plugin;
 export { Plugin };
