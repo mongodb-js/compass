@@ -54,7 +54,6 @@
     "@mongodb-js/prettier-config-compass": "^0.6.0",
     "@mongodb-js/tsconfig-compass": "^0.7.0",
     "@mongodb-js/webpack-config-compass": "^0.11.1",
-    "@react-aria/utils": "^3.13.1",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/decomment": "^0.9.2",

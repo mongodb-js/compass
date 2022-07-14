@@ -1,7 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, Description, Label, Link } from '@mongodb-js/compass-components';
-import { useId } from '@react-aria/utils';
+import {
+  Checkbox,
+  Description,
+  Label,
+  Link,
+  useId
+} from '@mongodb-js/compass-components';
 
 import FieldSet from '../field-set/field-set';
 import styles from './collapsible-field-set.module.less';

@@ -53,7 +53,6 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^0.17.0",
-    "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
