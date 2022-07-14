@@ -42,7 +42,7 @@
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
@@ -59,9 +59,6 @@
     "@mongodb-js/compass-logging": "^0.14.0",
     "@mongodb-js/compass-query-history": "^8.26.1",
     "bson": "^4.6.1",
-    "hadron-app-registry": "^8.14.1",
-    "mongodb-data-service": "^21.24.1",
-    "mongodb-instance-model": "^11.26.1",
     "react": "^16.14.0"
   },
   "dependencies": {
@@ -70,9 +67,6 @@
     "@mongodb-js/compass-logging": "^0.14.0",
     "@mongodb-js/compass-query-history": "^8.26.1",
     "bson": "^4.6.1",
-    "hadron-app-registry": "^8.14.1",
-    "mongodb-data-service": "^21.24.1",
-    "mongodb-instance-model": "^11.26.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -96,7 +90,10 @@
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "fuse.js": "^6.5.3",
+    "hadron-app-registry": "^8.14.1",
     "mocha": "^8.4.0",
+    "mongodb-data-service": "^21.24.1",
+    "mongodb-instance-model": "^11.26.1",
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",

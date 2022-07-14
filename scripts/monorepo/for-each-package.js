@@ -12,14 +12,18 @@ const LERNA_BIN = path.resolve(
   'lerna'
 );
 
+async function getPackages() {
+  return JSON.parse(
+    (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
+  );
+}
+
 async function forEachPackage(fn) {
   let interrupted = false;
   const interrupt = () => {
     interrupted = true;
   };
-  const packages = JSON.parse(
-    (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
-  );
+  const packages = await getPackages();
   const result = [];
   for (const packageInfo of packages) {
     const packageJson = require(path.join(
@@ -36,4 +40,4 @@ async function forEachPackage(fn) {
   return result;
 }
 
-module.exports = { forEachPackage };
+module.exports = { forEachPackage, getPackages };
