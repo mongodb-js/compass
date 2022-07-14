@@ -24,8 +24,8 @@ function mapStateToProps(state) {
   );
   const isReadOnly =
     process.env.HADRON_READONLY === 'true' ||
-    state.isDataLake ||
-    !state.isWritable;
+    instance?.dataLake.isDataLake ||
+    !instance?.isWritable;
   return {
     isReady,
     isReadOnly,
