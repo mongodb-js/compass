@@ -3,13 +3,11 @@ import StateMixin from 'reflux-state-mixin';
 import mongodbns from 'mongodb-ns';
 import configureFavoriteListStore from './favorite-list-store';
 import configureRecentListStore from './recent-list-store';
-import configureHeaderStore from './header-store';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const FAVORITE_LIST_STORE = 'QueryHistory.FavoriteListStore';
 const RECENT_LIST_STORE = 'QueryHistory.RecentListStore';
-const HEADER_STORE = 'QueryHistory.HeaderStore';
 
 /**
  * QueryHistoryStore store.
@@ -105,7 +103,6 @@ const configureStore = (options = {}) => {
     // Configure all the other stores.
     const favoriteListStore = localAppRegistry.getStore(FAVORITE_LIST_STORE);
     const recentListStore = localAppRegistry.getStore(RECENT_LIST_STORE);
-    const headerStore = localAppRegistry.getStore(HEADER_STORE);
 
     if (!favoriteListStore.saveRecent) {
       localAppRegistry.registerStore(
@@ -118,13 +115,6 @@ const configureStore = (options = {}) => {
       localAppRegistry.registerStore(
         RECENT_LIST_STORE,
         configureRecentListStore(options)
-      );
-    }
-
-    if (!headerStore.showRecent) {
-      localAppRegistry.registerStore(
-        HEADER_STORE,
-        configureHeaderStore(options)
       );
     }
 
