@@ -58,6 +58,7 @@ export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { Variant as ToastVariant } from '@leafygreen-ui/toast';
+export { useId } from '@react-aria/utils';
 
 export { useToast, ToastArea } from './hooks/use-toast';
 

@@ -57,6 +57,7 @@ function PipelineActionMenu<T extends string>({
           variant="primary"
           size="xsmall"
           leftGlyph={<Icon glyph={glyph} />}
+          rightGlyph={<Icon glyph="CaretDown" />}
           onClick={(evt) => {
             evt.stopPropagation();
             onClick();

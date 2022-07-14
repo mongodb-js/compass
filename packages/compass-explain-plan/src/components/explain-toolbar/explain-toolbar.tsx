@@ -10,11 +10,11 @@ import {
   Toolbar,
   css,
   spacing,
+  useId,
   withTheme,
   WarningSummary,
   ErrorSummary,
 } from '@mongodb-js/compass-components';
-import { useId } from '@react-aria/utils';
 
 const explainToolbarStyles = css({
   display: 'flex',

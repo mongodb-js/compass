@@ -21,7 +21,7 @@
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc --noEmit",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "eslint": "eslint",
     "lint": "npm run eslint .",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
@@ -45,7 +45,6 @@
     "hadron-react-buttons": "^5.9.0",
     "hadron-react-components": "^5.17.0",
     "mongodb-ace-autocompleter": "^1.1.1",
-    "mongodb-data-service": "^21.24.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -55,7 +54,6 @@
     "@mongodb-js/prettier-config-compass": "^0.6.0",
     "@mongodb-js/tsconfig-compass": "^0.7.0",
     "@mongodb-js/webpack-config-compass": "^0.11.1",
-    "@react-aria/utils": "^3.13.1",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/decomment": "^0.9.2",
@@ -81,6 +79,7 @@
     "mocha": "^8.4.0",
     "mongodb": "^4.6.0",
     "mongodb-connection-model": "^21.19.1",
+    "mongodb-data-service": "^21.24.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
     "mongodb-reflux-store": "^0.0.1",
@@ -111,7 +110,6 @@
     "hadron-react-buttons": "^5.9.0",
     "hadron-react-components": "^5.17.0",
     "mongodb-ace-autocompleter": "^1.1.1",
-    "mongodb-data-service": "^21.24.1",
     "react": "^16.14.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",
