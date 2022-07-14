@@ -1,4 +1,3 @@
-/* eslint react/sort-comp:0 */
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -25,6 +24,10 @@ import {
 } from '../../modules/create-index/fields';
 import { changeName } from '../../modules/create-index/name';
 import { changeSchemaFields } from '../../modules/create-index/schema-fields';
+import {
+  createNewIndexField,
+  clearNewIndexField,
+} from '../../modules/create-index/new-index-field';
 import { clearError, handleError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleIsBackground } from '../../modules/create-index/is-background';
@@ -96,6 +99,8 @@ class CreateIndexModal extends PureComponent {
     changePartialFilterExpression: PropTypes.func.isRequired,
     changeCollationOption: PropTypes.func.isRequired,
     changeName: PropTypes.func.isRequired,
+    newIndexField: PropTypes.string,
+    createNewIndexField: PropTypes.func.isRequired,
   };
 
   /**
@@ -180,6 +185,8 @@ class CreateIndexModal extends PureComponent {
           updateFieldType={this.props.updateFieldType}
           addField={this.props.addField}
           removeField={this.props.removeField}
+          newIndexField={this.props.newIndexField}
+          createNewIndexField={this.props.createNewIndexField}
         />
       );
     });
@@ -509,6 +516,7 @@ const mapStateToProps = (state) => ({
   collation: state.collation,
   name: state.name,
   serverVersion: state.serverVersion,
+  newIndexField: state.newIndexField,
 });
 
 /**
@@ -534,6 +542,8 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   changeWildcardProjection,
   changeColumnstoreProjection,
   changeCollationOption,
+  createNewIndexField,
+  clearNewIndexField,
   openLink,
   changeName,
   createIndex,

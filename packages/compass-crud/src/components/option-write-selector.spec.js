@@ -11,7 +11,9 @@ describe('<OptionWriteSelector />', () => {
 
         beforeEach(() => {
           spy = sinon.spy();
-          const onSelect = () => { spy(); };
+          const onSelect = () => {
+            spy();
+          };
           const options = { 'test-key': 'test-val' };
           component = shallow(
             <OptionWriteSelector
@@ -23,7 +25,8 @@ describe('<OptionWriteSelector />', () => {
               bsSize="small"
               onSelect={onSelect}
               isWritable
-              instanceDescription="writable"/>
+              instanceDescription="writable"
+            />
           );
         });
 
@@ -74,7 +77,8 @@ describe('<OptionWriteSelector />', () => {
               onSelect={onSelect}
               tooltipId="test-selector"
               isWritable={false}
-              instanceDescription="not writable" />
+              instanceDescription="not writable"
+            />
           );
         });
 

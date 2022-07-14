@@ -208,10 +208,12 @@ async function main(argv) {
     main: 'dist/index.js',
     'compass:main': 'src/index.ts',
     exports: {
-      require: './dist/index.js',
+      // NB: Order is important, browser / import should go first, otherwise
+      // webpack refuses to pick it up
       ...(isPlugin
         ? { browser: './dist/browser.js' }
         : { import: './dist/.esm-wrapper.mjs' }),
+      require: './dist/index.js',
     },
     'compass:exports': {
       '.': './src/index.ts',

@@ -11,7 +11,7 @@ class ToggleQueryHistoryButton extends PureComponent {
   static displayName = 'ToggleQueryHistoryButton';
 
   static propTypes = {
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
   };
 
   static defaultProps = {};
@@ -29,7 +29,8 @@ class ToggleQueryHistoryButton extends PureComponent {
         data-test-id="query-history-button"
         type="button"
         onClick={this.handleCollapse}
-        data-tip="Past and Favorite Queries">
+        data-tip="Past and Favorite Queries"
+      >
         <FontAwesome
           data-test-id="query-history-button-icon"
           name="history"
@@ -39,7 +40,8 @@ class ToggleQueryHistoryButton extends PureComponent {
           place="top"
           type="dark"
           effect="solid"
-          className={styles.tooltip}/>
+          className={styles.tooltip}
+        />
       </button>
     );
   }

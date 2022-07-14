@@ -6,21 +6,21 @@ const ObjectId = require('bson').ObjectId;
 
 const NUM_DOCS = 20;
 const expectedDocs = [];
-for (let i = 0; i < 60; i++ ) {
-  expectedDocs.push({_id: new ObjectId(), x: i.toString()});
+for (let i = 0; i < 60; i++) {
+  expectedDocs.push({ _id: new ObjectId(), x: i.toString() });
 }
 
-const getApi = function() {
+const getApi = function () {
   return {
     selectAll: sinon.spy(),
     startEditingCell: sinon.spy(),
     stopEditing: sinon.spy(),
     refreshHeader: sinon.spy(),
-    refreshCells: sinon.spy()
+    refreshCells: sinon.spy(),
   };
 };
 
-const getActions = function() {
+const getActions = function () {
   return {
     addColumn: sinon.spy(),
     removeColumn: sinon.spy(),
@@ -37,11 +37,11 @@ const getActions = function() {
     updateDocument: sinon.spy(),
     getPage: sinon.spy(),
     pathChanged: sinon.spy(),
-    drillDown: sinon.spy()
+    drillDown: sinon.spy(),
   };
 };
 
-const getRowNode = function(doc, id) {
+const getRowNode = function (doc, id) {
   if (!id) {
     id = '1';
   }
@@ -52,27 +52,35 @@ const getRowNode = function(doc, id) {
       isFooter: false,
       hasFooter: false,
       state: null,
-      rowNumber: 0
+      rowNumber: 0,
     },
-    childIndex: 2
+    childIndex: 2,
   };
 };
 
-const getColumn = function(colId, colDef) {
+const getColumn = function (colId, colDef) {
   return {
-    getColId: () => { return colId; },
-    getColDef: () => { return colDef; }
+    getColId: () => {
+      return colId;
+    },
+    getColDef: () => {
+      return colDef;
+    },
   };
 };
 
-const getColumnApi = function(columns) {
+const getColumnApi = function (columns) {
   return {
-    getAllColumns: () => { return columns; },
-    getColumn: (index) => { return index in columns ? columns[index] : null; }
+    getAllColumns: () => {
+      return columns;
+    },
+    getColumn: (index) => {
+      return index in columns ? columns[index] : null;
+    },
   };
 };
 
-const getContext = function(path) {
+const getContext = function (path) {
   return {
     path: path,
     removeFooter: sinon.spy(),
@@ -80,11 +88,11 @@ const getContext = function(path) {
     handleRemove: sinon.spy(),
     addFooter: sinon.spy(),
     handleClone: sinon.spy(),
-    handleCopy: sinon.spy()
+    handleCopy: sinon.spy(),
   };
 };
 
-const getDataService = function(done) {
+const getDataService = function (done) {
   const foarSpy = sinon.spy();
   const foauSpy = sinon.spy();
   const iSpy = sinon.spy();
@@ -113,23 +121,36 @@ const getDataService = function(done) {
       dSpy(filter);
       handleResult(null, 1);
       done();
-    }
+    },
   };
 };
 
-const checkPageRange = function(error, documents, start, end, page, expectedPage, skip, limit) {
+const checkPageRange = function (
+  error,
+  documents,
+  start,
+  end,
+  page,
+  expectedPage,
+  skip,
+  limit
+) {
   expect(error).to.equal(null);
   expect(page).to.equal(expectedPage);
 
-  const startingDocument = (NUM_DOCS * page) + skip;
+  const startingDocument = NUM_DOCS * page + skip;
 
   let nextPageSize = NUM_DOCS;
 
   if (startingDocument + nextPageSize > expectedDocs.length) {
     nextPageSize = expectedDocs.length - startingDocument;
   }
-  if (limit !== 0 && limit < expectedDocs.length && startingDocument + nextPageSize > limit) {
-    nextPageSize = limit - (NUM_DOCS * page);
+  if (
+    limit !== 0 &&
+    limit < expectedDocs.length &&
+    startingDocument + nextPageSize > limit
+  ) {
+    nextPageSize = limit - NUM_DOCS * page;
   }
 
   expect(documents.length).to.equal(nextPageSize);
@@ -137,14 +158,21 @@ const checkPageRange = function(error, documents, start, end, page, expectedPage
   // expect(documents[nextPageSize - 1].generateObject()).to.deep.equal(expectedDocs[endingDocument - 1]);
 
   /* 1-indexed */
-  expect(start).to.equal((NUM_DOCS * page) + 1);
-  expect(end).to.equal((NUM_DOCS * page) + nextPageSize);
+  expect(start).to.equal(NUM_DOCS * page + 1);
+  expect(end).to.equal(NUM_DOCS * page + nextPageSize);
 };
 
-const notCalledExcept = function(spies, except) {
+const notCalledExcept = function (spies, except) {
   for (const action in spies) {
-    if (except.indexOf(action) < 0 && action !== 'selectAll' && action !== 'path') {
-      expect(spies[action].called).to.equal(false, action + ' called but should not be');
+    if (
+      except.indexOf(action) < 0 &&
+      action !== 'selectAll' &&
+      action !== 'path'
+    ) {
+      expect(spies[action].called).to.equal(
+        false,
+        action + ' called but should not be'
+      );
     }
   }
 };
@@ -160,5 +188,5 @@ module.exports = {
   notCalledExcept: notCalledExcept,
   NUM_DOCS: NUM_DOCS,
   expectedDocs: expectedDocs,
-  checkPageRange: checkPageRange
+  checkPageRange: checkPageRange,
 };

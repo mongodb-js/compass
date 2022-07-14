@@ -7,8 +7,8 @@ class ConnectedDocumentList extends Component {
   static displayName = 'ConnectedDocumentList';
   static propTypes = {
     store: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired
-  }
+    actions: PropTypes.object.isRequired,
+  };
 
   /**
    * Connected DocumentList Component to store and render.
@@ -22,7 +22,8 @@ class ConnectedDocumentList extends Component {
           {...this.props.actions}
           {...this.props}
           pageLoadedListenable={this.props.store}
-          isExportable />
+          isExportable
+        />
       </StoreConnector>
     );
   }

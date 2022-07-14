@@ -3,7 +3,10 @@ import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
 import { StatusRow, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
-import { CancelLoader, WorkspaceContainer } from '@mongodb-js/compass-components';
+import {
+  CancelLoader,
+  WorkspaceContainer,
+} from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
 import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
@@ -14,7 +17,7 @@ import Toolbar from './toolbar';
 import {
   DOCUMENTS_STATUS_ERROR,
   DOCUMENTS_STATUS_FETCHING,
-  DOCUMENTS_STATUS_FETCHED_CUSTOM
+  DOCUMENTS_STATUS_FETCHED_CUSTOM,
 } from '../constants/documents-statuses';
 
 import './index.less';
@@ -35,7 +38,9 @@ class DocumentList extends React.Component {
       this.queryBarRole = appRegistry.getRole('Query.QueryBar')[0];
       this.queryBar = this.queryBarRole.component;
       this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
-      this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
+      this.queryBarActions = appRegistry.getAction(
+        this.queryBarRole.actionName
+      );
     }
   }
 
@@ -58,7 +63,10 @@ class DocumentList extends React.Component {
    */
   handleOpenInsert(key) {
     if (key === 'insert-document') {
-      this.props.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
+      this.props.openInsertDocumentDialog(
+        { _id: new ObjectId(), '': '' },
+        false
+      );
     } else if (key === 'import-file') {
       this.props.openImportFileDialog();
     }
@@ -71,27 +79,20 @@ class DocumentList extends React.Component {
    */
   renderViews() {
     if (this.props.view === 'List') {
-      return (<DocumentListView {...this.props} />);
+      return <DocumentListView {...this.props} />;
     } else if (this.props.view === 'Table') {
-      return (<DocumentTableView {...this.props} />);
+      return <DocumentTableView {...this.props} />;
     }
 
-    return (<DocumentJsonView {...this.props} />);
+    return <DocumentJsonView {...this.props} />;
   }
 
   renderOutdatedWarning() {
-    if (
-      this.props.error ||
-      !this.props.outdated) {
+    if (this.props.error || !this.props.outdated) {
       return;
     }
 
-
-    return (
-      <StatusRow style="warning">
-        {OUTDATED_WARNING}
-      </StatusRow>
-    );
+    return <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
   }
 
   /*
@@ -117,22 +118,17 @@ class DocumentList extends React.Component {
    */
   renderContent() {
     if (this.props.error) {
-      return (
-        <StatusRow style="error">
-          {this.props.error.message}
-        </StatusRow>
-      );
+      return <StatusRow style="error">{this.props.error.message}</StatusRow>;
     }
 
-    if (this.props.status === DOCUMENTS_STATUS_FETCHING && !this.props.debouncingLoad) {
+    if (
+      this.props.status === DOCUMENTS_STATUS_FETCHING &&
+      !this.props.debouncingLoad
+    ) {
       return this.renderFetching();
     }
 
-    return (
-      <WorkspaceContainer>
-        {this.renderViews()}
-      </WorkspaceContainer>
-    );
+    return <WorkspaceContainer>{this.renderViews()}</WorkspaceContainer>;
   }
 
   /**
@@ -155,7 +151,8 @@ class DocumentList extends React.Component {
           tz={this.props.tz}
           ns={this.props.ns}
           updateComment={this.props.updateComment}
-          {...this.props.insert} />
+          {...this.props.insert}
+        />
       );
     }
   }
@@ -186,7 +183,10 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The query bar.
    */
   renderZeroState() {
-    if (this.props.docs.length > 0 || this.props.status === DOCUMENTS_STATUS_FETCHING) {
+    if (
+      this.props.docs.length > 0 ||
+      this.props.status === DOCUMENTS_STATUS_FETCHING
+    ) {
       return null;
     }
 
@@ -195,9 +195,13 @@ class DocumentList extends React.Component {
     }
 
     let header = 'This collection has no data';
-    let subtext = 'It only takes a few seconds to import data from a JSON or CSV file';
+    let subtext =
+      'It only takes a few seconds to import data from a JSON or CSV file';
 
-    if (this.props.docs.length === 0 && this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM) {
+    if (
+      this.props.docs.length === 0 &&
+      this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
+    ) {
       header = 'No results';
       subtext = 'Try to modify your query to get results';
 
@@ -221,7 +225,8 @@ class DocumentList extends React.Component {
                 dataTestId="import-data-button"
                 className={`btn btn-primary btn-lg ${editableClass}`}
                 text="Import Data"
-                clickHandler={this.props.openImportFileDialog} />
+                clickHandler={this.props.openImportFileDialog}
+              />
             </div>
           </div>
         </ZeroState>
@@ -244,7 +249,8 @@ class DocumentList extends React.Component {
             insertHandler={this.handleOpenInsert.bind(this)}
             viewSwitchHandler={this.props.viewChanged}
             activeDocumentView={this.props.view}
-            {...this.props} />
+            {...this.props}
+          />
         </div>
         {this.renderOutdatedWarning()}
         {this.renderZeroState()}
@@ -289,7 +295,7 @@ DocumentList.propTypes = {
   outdated: PropTypes.bool,
   resultId: PropTypes.number,
   isWritable: PropTypes.bool,
-  instanceDescription: PropTypes.string
+  instanceDescription: PropTypes.string,
 };
 
 DocumentList.defaultProps = {
@@ -298,7 +304,7 @@ DocumentList.defaultProps = {
   version: '3.4.0',
   isEditable: true,
   insert: {},
-  tz: 'UTC'
+  tz: 'UTC',
 };
 
 export default DocumentList;

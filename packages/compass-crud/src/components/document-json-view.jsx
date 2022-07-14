@@ -31,7 +31,11 @@ class DocumentJsonView extends React.Component {
   renderDocuments() {
     return this.props.docs.map((doc, i) => {
       return (
-        <li className={LIST_ITEM_CLASS} data-test-id={LIST_ITEM_TEST_ID} key={i}>
+        <li
+          className={LIST_ITEM_CLASS}
+          data-test-id={LIST_ITEM_TEST_ID}
+          key={i}
+        >
           <JsonEditor
             key={doc.uuid}
             doc={doc}
@@ -54,11 +58,7 @@ class DocumentJsonView extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    return (
-      <ol className={LIST_CLASS}>
-        {this.renderDocuments()}
-      </ol>
-    );
+    return <ol className={LIST_CLASS}>{this.renderDocuments()}</ol>;
   }
 }
 
@@ -70,7 +70,7 @@ DocumentJsonView.propTypes = {
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func,
-  copyToClipboard: PropTypes.func
+  copyToClipboard: PropTypes.func,
 };
 
 DocumentJsonView.displayName = 'DocumentJsonView';

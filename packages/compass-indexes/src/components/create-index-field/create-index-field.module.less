@@ -1,27 +1,47 @@
+div[id^='combobox-menu'] {
+  z-index: 999999;
+}
+
 .create-index-field {
   margin-bottom: 5px;
   display: flex;
 
-  .has-error .Select-control {
-    border: 1px solid #ef4c4c;
-    box-shadow: 0 2px 6px 0 rgba(239, 76, 76, 0.3);
-  }
-
-  &-dropdown-name {
+  &-name {
     width: 260px;
     text-align: left;
     text-transform: none;
     padding-right: 10px;
     white-space: nowrap;
+    z-index: 999999;
+
     input {
       outline: none;
+      width: 100%;
     }
   }
 
-  &-dropdown-type {
+  &-type {
+    align-self: flex-end;
     width: 120px;
     text-align: left;
     text-transform: none;
     margin-right: 8px;
+
+    &-select {
+      z-index: 1;
+
+      button {
+        margin-top: 0;
+      }
+      button:focus,
+      button:focus-within {
+        z-index: 20;
+      }
+    }
+  }
+
+  &-button {
+    align-self: flex-end;
+    margin-bottom: 3px;
   }
 }

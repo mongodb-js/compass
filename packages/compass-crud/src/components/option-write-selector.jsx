@@ -19,7 +19,7 @@ class OptionWriteSelector extends React.Component {
 
   static propTypes = {
     label: PropTypes.string,
-    title: PropTypes.oneOfType([ PropTypes.string, PropTypes.object ]),
+    title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     bsSize: PropTypes.string,
     className: PropTypes.string,
     id: PropTypes.string.isRequired,
@@ -28,8 +28,8 @@ class OptionWriteSelector extends React.Component {
     options: PropTypes.object.isRequired,
     tooltipId: PropTypes.string.isRequired,
     isWritable: PropTypes.bool.isRequired,
-    instanceDescription: PropTypes.string.isRequired
-  }
+    instanceDescription: PropTypes.string.isRequired,
+  };
 
   /**
    * Get the tooltip text.
@@ -48,9 +48,15 @@ class OptionWriteSelector extends React.Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const tooltip = (this.props.isWritable) ? null : (<Tooltip id={this.props.tooltipId} />);
+    const tooltip = this.props.isWritable ? null : (
+      <Tooltip id={this.props.tooltipId} />
+    );
     return (
-      <div className={WRAPPER} data-tip={this.tooltipText()} data-for={this.props.tooltipId}>
+      <div
+        className={WRAPPER}
+        data-tip={this.tooltipText()}
+        data-for={this.props.tooltipId}
+      >
         <OptionSelector
           id={this.props.id}
           label={this.props.label}
@@ -59,7 +65,8 @@ class OptionWriteSelector extends React.Component {
           options={this.props.options}
           disabled={!this.props.isWritable}
           onSelect={this.props.onSelect}
-          className={this.props.className}/>
+          className={this.props.className}
+        />
         {tooltip}
       </div>
     );
