@@ -25,6 +25,7 @@ class Plugin extends Component {
           <QueryBar
             toggleExpandQueryOptions={this.props.actions.toggleQueryOptions}
             toggleQueryHistory={this.props.actions.toggleQueryHistory}
+            {...this.props}
           />
         ) : (
           <LegacyQueryBar actions={this.props.actions} {...this.props} />

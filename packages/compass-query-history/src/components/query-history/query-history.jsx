@@ -16,9 +16,9 @@ class QueryHistory extends PureComponent {
 
   static propTypes = {
     actions: PropTypes.object.isRequired,
+    onClose: PropTypes.func.isRequired,
     store: PropTypes.object.isRequired,
     showing: PropTypes.oneOf(['recent', 'favorites']),
-    collapsed: PropTypes.bool,
     ns: PropTypes.object,
   };
 
@@ -59,16 +59,17 @@ class QueryHistory extends PureComponent {
   );
 
   render() {
-    const { collapsed, showing, actions } = this.props;
-
-    if (collapsed) {
-      return null;
-    }
+    const { showing, actions, onClose } = this.props;
 
     return (
       <div data-test-id="query-history" className={styles.component}>
         <div className={styles.inner}>
-          <Toolbar actions={actions} showing={showing} />
+          <Toolbar
+            showRecent={actions.showRecent}
+            showFavorites={actions.showFavorites}
+            onClose={onClose}
+            showing={showing}
+          />
 
           {showing === 'favorites' ? this.renderFavorites() : null}
           {showing === 'recent' ? this.renderRecents() : null}

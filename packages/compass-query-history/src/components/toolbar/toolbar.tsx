@@ -10,6 +10,9 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const toolbarStyles = css({
   display: 'flex',
@@ -33,32 +36,33 @@ const closeButtonStyles = css({
 });
 
 type ToolbarProps = {
-  actions: {
-    showRecent: () => void;
-    showFavorites: () => void;
-    collapse: () => void;
-  }; // Query history actions are not currently typed.
+  onClose: () => void;
   showing: 'recent' | 'favorites';
+  showFavorites: () => void;
+  showRecent: () => void;
 };
 
 const Toolbar: React.FunctionComponent<ToolbarProps> = ({
-  actions,
+  onClose,
   showing,
+  showRecent,
+  showFavorites,
 }) => {
   const onViewSwitch = useCallback(
     (label: 'recent' | 'favorites') => {
       if (label === 'recent') {
-        actions.showRecent();
+        showRecent();
       } else if (label === 'favorites') {
-        actions.showFavorites();
+        showFavorites();
       }
     },
-    [actions]
+    [showRecent, showFavorites]
   );
 
-  const onCollapse = useCallback(() => {
-    actions.collapse();
-  }, [actions]);
+  const onClickClose = useCallback(() => {
+    track('Query History Closed');
+    onClose();
+  }, [onClose]);
 
   const labelId = useId();
   const controlId = useId();
@@ -95,7 +99,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <IconButton
         className={closeButtonStyles}
         data-testid="query-history-button-close-panel"
-        onClick={onCollapse}
+        onClick={onClickClose}
         aria-label="Close query history"
       >
         <Icon glyph="X" />

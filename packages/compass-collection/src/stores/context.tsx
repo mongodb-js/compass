@@ -79,6 +79,11 @@ type ContextProps = {
   connectionString?: string;
 };
 
+type ContextWithAppRegistry = ContextProps & {
+  globalAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
+}
+
 /**
  * Setup a scoped store to the collection.
  *
@@ -115,7 +120,7 @@ const setupStore = ({
   query,
   aggregation,
   connectionString,
-}: ContextProps) => {
+}: ContextWithAppRegistry) => {
   const store = role.configureStore({
     localAppRegistry,
     globalAppRegistry,
@@ -138,7 +143,7 @@ const setupStore = ({
     aggregation,
     connectionString,
   });
-  localAppRegistry?.registerStore(role.storeName, store);
+  localAppRegistry.registerStore(role.storeName, store);
 
   return store;
 };
@@ -176,7 +181,7 @@ const setupPlugin = ({
   sourceName,
   connectionString,
   key,
-}: ContextProps) => {
+}: ContextWithAppRegistry) => {
   const actions = role.configureActions();
   const store = setupStore({
     role,
@@ -232,7 +237,7 @@ const setupScopedModals = ({
   isFLE,
   sourceName,
   connectionString,
-}: ContextProps) => {
+}: ContextWithAppRegistry) => {
   const roles = globalAppRegistry?.getRole('Collection.ScopedModal');
   if (roles) {
     return roles.map((role: any, i: number) => {
@@ -256,6 +261,77 @@ const setupScopedModals = ({
   }
   return [];
 };
+
+/**
+ * Setup the query bar plugins. Need to instantiate the store and actions
+ * and put them in the app registry for use by all the plugins. This way
+ * there is only 1 query bar store per collection tab instead of one per
+ * plugin that uses it.
+ *
+ * @param {Object} options - The scope modal plugin options.
+ * @property {Object} options.globalAppRegistry - The global app registry.
+ * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
+ * @property {Object} options.dataService - The data service.
+ * @property {String} options.namespace - The namespace.
+ * @property {String} options.serverVersion - The server version.
+ * @property {Boolean} options.isReadonly - If the collection is a readonly view.
+ * @property {Boolean} options.isTimeSeries - If the collection is a time-series.
+ * @property {Boolean} options.isClustered - If the collection is a time-series.
+ * @property {Boolean} options.isFLE - If the collection is a FLE collection.
+ *
+ * @returns {Array} The components.
+ */
+const setupQueryPlugins = ({
+  globalAppRegistry,
+  localAppRegistry,
+  serverVersion,
+  state,
+  namespace,
+  isReadonly,
+  isTimeSeries,
+  isClustered,
+  isFLE,
+  query,
+  aggregation,
+}: ContextWithAppRegistry) => {
+  const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')![0];
+  localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
+  const queryBarActions = setupActions(queryBarRole, localAppRegistry);
+  setupStore({
+    role: queryBarRole,
+    globalAppRegistry,
+    localAppRegistry,
+    dataService: state.dataService,
+    namespace,
+    serverVersion,
+    isReadonly,
+    isTimeSeries,
+    isClustered,
+    isFLE,
+    actions: queryBarActions,
+    query,
+    aggregation,
+  });
+
+  const queryHistoryRole = globalAppRegistry.getRole('Query.QueryHistory')![0];
+  localAppRegistry.registerRole('Query.QueryHistory', queryHistoryRole);
+  const queryHistoryActions = setupActions(queryHistoryRole, localAppRegistry);
+  setupStore({
+    role: queryHistoryRole,
+    globalAppRegistry,
+    localAppRegistry,
+    dataService: state.dataService,
+    namespace,
+    serverVersion,
+    isReadonly,
+    isTimeSeries,
+    isClustered,
+    isFLE,
+    actions: queryHistoryActions,
+    query,
+    aggregation,
+  });
+}
 
 /**
  * Create the context in which a tab is created.
@@ -306,25 +382,16 @@ const createContext = ({
   const views: JSX.Element[] = [];
   const queryHistoryIndexes: number[] = [];
 
-  // Setup the query bar plugin. Need to instantiate the store and actions
-  // and put them in the app registry for use by all the plugins. This way
-  // there is only 1 query bar store per collection tab instead of one per
-  // plugin that uses it.
-  const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')[0];
-  localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
-  const queryBarActions = setupActions(queryBarRole, localAppRegistry);
-  setupStore({
-    role: queryBarRole,
+  setupQueryPlugins({
     globalAppRegistry,
     localAppRegistry,
-    dataService: state.dataService,
-    namespace,
     serverVersion,
+    state,
+    namespace,
     isReadonly,
     isTimeSeries,
     isClustered,
     isFLE,
-    actions: queryBarActions,
     query,
     aggregation,
   });

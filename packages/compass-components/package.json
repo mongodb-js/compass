@@ -48,6 +48,7 @@
     "@leafygreen-ui/modal": "^7.0.0",
     "@leafygreen-ui/palette": "^3.3.1",
     "@leafygreen-ui/pipeline": "^2.1.5",
+    "@leafygreen-ui/popover": "^7.2.2",
     "@leafygreen-ui/portal": "^4.0.2",
     "@leafygreen-ui/radio-box-group": "^6.1.5",
     "@leafygreen-ui/radio-group": "^7.0.6",
