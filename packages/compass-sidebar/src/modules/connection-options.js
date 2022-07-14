@@ -17,8 +17,8 @@ export default function reducer(state = INITIAL_STATE, action) {
   return state;
 }
 
-function combineHostPort(host, port, truncate) {
-  if (host.length >= HOST_STRING_LENGTH && truncate) {
+function combineHostPort(host, port) {
+  if (host.length >= HOST_STRING_LENGTH) {
     return `${host.slice(0, 9)}...${host.slice(-9)}:${port}`;
   }
 
