@@ -43,7 +43,6 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@mongodb-js/mocha-config-compass": "^0.12.0",
-    "@react-aria/utils": "^3.13.1",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
     "bson": "^4.4.1",

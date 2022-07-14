@@ -65,6 +65,7 @@ export const MoreOptionsToggle: React.FunctionComponent<
         aria-expanded={isExpanded}
         aria-controls={ariaControls}
         as="button"
+        type="button"
         hideExternalIcon={true}
         data-testid={dataTestId}
         id={id}
