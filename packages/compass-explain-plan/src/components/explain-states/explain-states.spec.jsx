@@ -3,9 +3,9 @@ import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { Banner, Toolbar } from '@mongodb-js/compass-components';
 
 import ExplainStates from '../explain-states';
-import styles from './explain-states.module.less';
 
 describe('ExplainStates [Component]', function () {
   let component;
@@ -63,11 +63,15 @@ describe('ExplainStates [Component]', function () {
     component = null;
   });
 
-  it('renders the wrapper div', function () {
-    expect(component.find(`.${styles['controls-container']}`)).to.be.present();
+  it('renders the toolbar', function () {
+    expect(component.find(Toolbar)).to.be.present();
   });
 
   it('renders the read only banner', function () {
-    expect(component.find('StatusRow')).to.be.present();
+    expect(component.find(Banner)).to.be.present();
+  });
+
+  it('renders the query bar', function () {
+    expect(component.find('Query Bar')).to.be.present();
   });
 });

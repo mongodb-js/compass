@@ -42,12 +42,6 @@ declare module 'process' {
          */
         COMPASS_LG_DARKMODE?: 'true' | 'false';
 
-        /**
-         * Set to true to enable the new toolbars with leafygreen components.
-         * https://jira.mongodb.org/browse/COMPASS-5484
-         */
-        COMPASS_SHOW_NEW_TOOLBARS?: 'true' | 'false';
-
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
 
         /**

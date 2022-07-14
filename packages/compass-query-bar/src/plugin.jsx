@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { StoreConnector } from 'hadron-react-components';
 import { isFunction } from 'lodash';
 
-import LegacyQueryBar from './components/legacy-query-bar';
 import { QueryBar } from './components/query-bar';
 
 function Plugin({
@@ -13,8 +12,6 @@ function Plugin({
   store,
   ...props
 }) {
-  const useNewQueryBar = process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true';
-
   const onApply = useCallback(() => {
     actions.apply();
 
@@ -33,26 +30,17 @@ function Plugin({
 
   return (
     <StoreConnector store={store}>
-      {useNewQueryBar ? (
-        <QueryBar
-          onApply={onApply}
-          onReset={onReset}
-          onChangeQueryOption={actions.typeQueryString}
-          onOpenExportToLanguage={actions.exportToLanguage}
-          refreshEditorAction={actions.refreshEditor}
-          toggleExpandQueryOptions={actions.toggleQueryOptions}
-          globalAppRegistry={store.globalAppRegistry}
-          localAppRegistry={store.localAppRegistry}
-          {...props}
-        />
-      ) : (
-        <LegacyQueryBar
-          actions={actions}
-          onApply={onApply}
-          onReset={onReset}
-          {...props}
-        />
-      )}
+      <QueryBar
+        onApply={onApply}
+        onReset={onReset}
+        onChangeQueryOption={actions.typeQueryString}
+        onOpenExportToLanguage={actions.exportToLanguage}
+        refreshEditorAction={actions.refreshEditor}
+        toggleExpandQueryOptions={actions.toggleQueryOptions}
+        globalAppRegistry={store.globalAppRegistry}
+        localAppRegistry={store.localAppRegistry}
+        {...props}
+      />
     </StoreConnector>
   );
 }

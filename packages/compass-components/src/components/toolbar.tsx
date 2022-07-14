@@ -3,10 +3,9 @@ import { cx, css } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 
 import { withTheme } from '../hooks/use-theme';
-import { gray8 } from '../compass-ui-colors';
 
 const toolbarLightThemeStyles = css({
-  backgroundColor: gray8,
+  backgroundColor: uiColors.white,
   color: uiColors.gray.dark2,
 });
 

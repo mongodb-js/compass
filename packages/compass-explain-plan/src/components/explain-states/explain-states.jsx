@@ -6,28 +6,15 @@ import {
   ButtonVariant,
   Link,
 } from '@mongodb-js/compass-components';
-import { ZeroState, StatusRow, ViewSwitcher } from 'hadron-react-components';
+import { ZeroState } from 'hadron-react-components';
 import { ZeroGraphic } from '../zero-graphic';
 import { ExplainBody } from '../explain-body';
 
 import INDEX_TYPES from '../../constants/index-types';
 import EXPLAIN_STATES from '../../constants/explain-states';
-import EXPLAIN_VIEWS from '../../constants/explain-views';
 
 import styles from './explain-states.module.less';
 import { ExplainToolbar } from '../explain-toolbar/explain-toolbar';
-
-/**
- * Readonly warning for the status row.
- */
-const READ_ONLY_WARNING = 'Explain plans on readonly views are not supported.';
-
-/**
- * Outdated warning for the status row.
- */
-const OUTDATED_WARNING = `The explain content is outdated and no longer in sync
-with the documents view. Press "Explain" again to see the explain plan for
-the current query.`;
 
 /**
  * Header for zero state.
@@ -93,19 +80,6 @@ class ExplainStates extends Component {
   }
 
   /**
-   * On view switch handler.
-   *
-   * @param {String} label - The label.
-   */
-  onViewSwitch(label) {
-    if (label === 'Visual Tree') {
-      this.props.switchToTreeView();
-    } else if (label === 'Raw JSON') {
-      this.props.switchToJSONView();
-    }
-  }
-
-  /**
    * Executes the explain plan.
    */
   onExecuteExplainClicked() {
@@ -127,27 +101,6 @@ class ExplainStates extends Component {
       this.props.explain.explainState === EXPLAIN_STATES.INITIAL ||
       !this.props.isEditable
     );
-  }
-
-  /**
-   * Render banner with information.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderBanner() {
-    if (!this.props.isEditable) {
-      return <StatusRow style="warning">{READ_ONLY_WARNING}</StatusRow>;
-    }
-
-    if (this.props.explain.explainState === EXPLAIN_STATES.OUTDATED) {
-      return <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
-    }
-
-    if (this.props.explain.error) {
-      return (
-        <StatusRow style="error">{this.props.explain.error.message}</StatusRow>
-      );
-    }
   }
 
   /**
@@ -197,83 +150,26 @@ class ExplainStates extends Component {
   }
 
   /**
-   * Renders QueryBar component.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderQueryBar() {
-    return (
-      <this.queryBar
-        store={this.queryBarStore}
-        actions={this.queryBarActions}
-        buttonLabel="Explain"
-        resultId={this.props.explain.resultId}
-        onApply={this.onExecuteExplainClicked.bind(this)}
-        onReset={this.onExecuteExplainClicked.bind(this)}
-      />
-    );
-  }
-
-  /**
-   * Renders ViewSwitcher component.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderViewSwitcher() {
-    const activeViewTypeButton =
-      this.props.explain.viewType === EXPLAIN_VIEWS.tree
-        ? 'Visual Tree'
-        : 'Raw JSON';
-
-    return (
-      <div className={styles['action-bar']}>
-        <ViewSwitcher
-          label="View Details As"
-          dataTestId="explain-states"
-          buttonLabels={['Visual Tree', 'Raw JSON']}
-          activeButton={activeViewTypeButton}
-          disabled={this.checkIfZeroState()}
-          onClick={this.onViewSwitch.bind(this)}
-        />
-      </div>
-    );
-  }
-
-  /**
    * Renders ExplainPlan component.
    *
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const useNewToolbars = process?.env?.COMPASS_SHOW_NEW_TOOLBARS;
     return (
       <>
-        {useNewToolbars ? (
-          <ExplainToolbar
-            explainErrorMessage={this.props.explain.error?.message}
-            localAppRegistry={this.props.appRegistry.localAppRegistry}
-            onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
-            onExportToLanguageClicked={this.onExportToLanguageClicked.bind(
-              this
-            )}
-            showOutdatedWarning={
-              this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
-            }
-            showReadonlyWarning={!this.props.isEditable}
-            switchToTreeView={this.props.switchToTreeView}
-            switchToJSONView={this.props.switchToJSONView}
-            viewType={this.props.explain.viewType}
-          />
-        ) : (
-          <div
-            key="controls-container"
-            className={styles['controls-container']}
-          >
-            {this.renderBanner()}
-            {this.renderQueryBar()}
-            {this.renderViewSwitcher()}
-          </div>
-        )}
+        <ExplainToolbar
+          explainErrorMessage={this.props.explain.error?.message}
+          localAppRegistry={this.props.appRegistry.localAppRegistry}
+          onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
+          onExportToLanguageClicked={this.onExportToLanguageClicked.bind(this)}
+          showOutdatedWarning={
+            this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
+          }
+          showReadonlyWarning={!this.props.isEditable}
+          switchToTreeView={this.props.switchToTreeView}
+          switchToJSONView={this.props.switchToJSONView}
+          viewType={this.props.explain.viewType}
+        />
         {this.renderZeroState()}
         {this.renderContent()}
       </>
