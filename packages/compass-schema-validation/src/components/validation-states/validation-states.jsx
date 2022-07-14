@@ -90,7 +90,7 @@ class ValidationStates extends Component {
       if (this.props.editMode.collectionTimeSeries) {
         return (
           <WarningSummary
-            warnings={[READ_ONLY_WARNING.collectionTimeSeries]}
+            warnings={READ_ONLY_WARNING.collectionTimeSeries}
             data-testid="collection-validation-warning"
           />
         );
@@ -99,7 +99,7 @@ class ValidationStates extends Component {
       if (this.props.editMode.collectionReadOnly) {
         return (
           <WarningSummary
-            warnings={[READ_ONLY_WARNING.collectionReadOnly]}
+            warnings={READ_ONLY_WARNING.collectionReadOnly}
             data-testid="collection-validation-warning"
           />
         );
@@ -108,7 +108,7 @@ class ValidationStates extends Component {
       if (this.props.editMode.writeStateStoreReadOnly) {
         return (
           <WarningSummary
-            warnings={[READ_ONLY_WARNING.writeStateStoreReadOnly]}
+            warnings={READ_ONLY_WARNING.writeStateStoreReadOnly}
             data-testid="collection-validation-warning"
           />
         );
@@ -116,10 +116,7 @@ class ValidationStates extends Component {
 
       if (this.props.editMode.oldServerReadOnly) {
         return (
-          <Banner
-            variant="warning"
-            warnings={[READ_ONLY_WARNING.oldServerReadOnly]}
-          >
+          <Banner variant="warning">
             <div data-testid="old-server-read-only">
               {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
               <Link
