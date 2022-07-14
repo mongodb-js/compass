@@ -242,7 +242,9 @@ async function main(argv) {
       eslint: 'eslint',
       prettier: 'prettier',
       lint: 'npm run eslint . && npm run prettier -- --check .',
-      depcheck: 'depcheck',
+      depcheck: isPlugin
+        ? 'compass-scripts check-peer-deps && depcheck'
+        : 'depcheck',
       check: 'npm run typecheck && npm run lint && npm run depcheck',
       'check-ci': 'npm run check',
       test: 'mocha',

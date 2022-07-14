@@ -21,7 +21,7 @@
     "test-cov": "nyc npm run test",
     "check": "npm run lint && npm run depcheck",
     "lint": "eslint \"./src/**/*.{js,jsx}\" \"./test/**/*.js\" \"./electron/**/*.js\" \"./config/**/*.{js,jsx}\"",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "test-ci": "npm run test",
     "test-ci-electron": "echo \"TODO(COMPASS-5555): These tests are broken and disabled for now\"",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
