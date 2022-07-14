@@ -734,10 +734,20 @@ const configureStore = (options = {}) => {
         // does not have a schema.
         const csfleCollectionTracker =
           this.dataService.getCSFLECollectionTracker();
-        const { hasSchema, encryptedFields } =
-          await csfleCollectionTracker.knownSchemaForCollection(this.state.ns);
+        const {
+          hasSchema,
+          encryptedFields: { encryptedFields },
+        } = await csfleCollectionTracker.knownSchemaForCollection(
+          this.state.ns
+        );
         if (encryptedFields) {
-          csfleState.encryptedFields = encryptedFields;
+          // This is for displaying encrypted fields to the user. We do not really
+          // need to worry about the distinction between '.' as a nested-field
+          // indicator and '.' as a literal part of a field name here, esp. since
+          // automatic Queryable Encryption does not support '.' in field names at all.
+          csfleState.encryptedFields = encryptedFields.map((field) =>
+            field.join('.')
+          );
         }
         if (!hasSchema) {
           csfleState.state = 'no-known-schema';
