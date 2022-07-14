@@ -1,17 +1,19 @@
-import React from 'react';
+import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import React from 'react';
+import sinon from 'sinon';
 import OptionWriteSelector from './option-write-selector';
 
-describe('<OptionWriteSelector />', () => {
-  describe('#render', () => {
-    context('when the button is not at the collection level', () => {
-      context('when the write state is writable', () => {
+describe('<OptionWriteSelector />', function () {
+  describe('#render', function () {
+    context('when the button is not at the collection level', function () {
+      context('when the write state is writable', function () {
         let component;
         let spy;
 
-        beforeEach(() => {
+        beforeEach(function () {
           spy = sinon.spy();
-          const onSelect = () => {
+          const onSelect = function () {
             spy();
           };
           const options = { 'test-key': 'test-val' };
@@ -30,42 +32,42 @@ describe('<OptionWriteSelector />', () => {
           );
         });
 
-        it('renders the wrapper', () => {
+        it('renders the wrapper', function () {
           const wrapper = component.find('.tooltip-button-wrapper');
           expect(wrapper).to.be.present();
         });
 
-        it('renders the button label', () => {
+        it('renders the button label', function () {
           const button = component.find('#test-id');
           expect(button.dive().text()).to.match(/^test-label/);
         });
 
-        it('sets the button as enabled', () => {
+        it('sets the button as enabled', function () {
           const button = component.find('#test-id');
           expect(button.dive()).to.not.be.disabled();
         });
 
-        it('sets the tooltipId', () => {
+        it('sets the tooltipId', function () {
           const wrapper = component.find('.tooltip-button-wrapper');
           expect(wrapper).to.have.data('for', 'test-selector');
         });
 
-        context('when clicking on the button', () => {
-          beforeEach(() => {
+        context('when clicking on the button', function () {
+          beforeEach(function () {
             component.find('#test-id').simulate('select');
           });
 
-          it('calls the button click handler', () => {
+          it('calls the button click handler', function () {
             expect(spy).to.have.property('callCount', 1);
           });
         });
       });
 
-      context('when the write state is not writable', () => {
+      context('when the write state is not writable', function () {
         let component;
 
-        beforeEach(() => {
-          const onSelect = () => {};
+        beforeEach(function () {
+          const onSelect = function () {};
           const options = { 'test-key': 'test-val' };
           component = shallow(
             <OptionWriteSelector
@@ -82,17 +84,17 @@ describe('<OptionWriteSelector />', () => {
           );
         });
 
-        it('sets the button as disabled', () => {
+        it('sets the button as disabled', function () {
           const el = component.find('#test-id');
           expect(el.prop('disabled')).to.be.equal(true);
         });
 
-        it('renders the wrapper data-tip', () => {
+        it('renders the wrapper data-tip', function () {
           const wrapper = component.find('.tooltip-button-wrapper');
           expect(wrapper).to.have.data('tip', 'not writable');
         });
 
-        it('renders the wrapper data-for', () => {
+        it('renders the wrapper data-for', function () {
           const wrapper = component.find('.tooltip-button-wrapper');
           expect(wrapper).to.have.data('for', 'test-selector');
         });
