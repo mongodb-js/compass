@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-crud",
   "productName": "Compass CRUD plugin",
-  "version": "12.26.0",
+  "version": "12.27.1",
   "description": "Compass Plugin for CRUD Operations",
   "author": {
     "name": "MongoDB Inc",
@@ -26,8 +26,8 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "require": "./dist/index.js",
-    "browser": "./dist/browser.js"
+    "browser": "./dist/browser.js",
+    "require": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
@@ -44,7 +44,7 @@
     "prettier": "prettier",
     "lint": "npm run eslint .",
     "prettier-skipped-for-now": "&& npm run prettier -- --check .",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "start-test-mdb-server": "mongodb-runner start --port 27018",
@@ -63,43 +63,42 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.16.0",
-    "@mongodb-js/compass-query-bar": "^7.23.0",
-    "bson": "*",
+    "@mongodb-js/compass-components": "^0.17.0",
+    "@mongodb-js/compass-logging": "^0.14.0",
+    "bson": "^4.4.1",
+    "hadron-document": "^7.13.0",
     "hadron-react-buttons": "^5.9.0",
-    "hadron-react-components": "^5.16.0",
-    "prop-types": "^15.7.2",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
-    "react-tooltip": "^3.11.1"
+    "hadron-react-components": "^5.17.0",
+    "hadron-type-checker": "^6.10.0",
+    "react": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-components": "^0.16.0",
-    "@mongodb-js/compass-query-bar": "^7.23.0",
-    "@mongodb-js/eslint-config-compass": "^0.10.0",
-    "@mongodb-js/mocha-config-compass": "^0.11.0",
-    "@mongodb-js/prettier-config-compass": "^0.5.0",
-    "@mongodb-js/tsconfig-compass": "^0.6.0",
-    "@mongodb-js/webpack-config-compass": "^0.10.0",
+    "@mongodb-js/eslint-config-compass": "^0.11.0",
+    "@mongodb-js/mocha-config-compass": "^0.12.0",
+    "@mongodb-js/prettier-config-compass": "^0.6.0",
+    "@mongodb-js/tsconfig-compass": "^0.7.0",
+    "@mongodb-js/webpack-config-compass": "^0.11.1",
+    "ag-grid-community": "20.2.0",
+    "ag-grid-react": "20.2.0",
     "chai": "^4.1.2",
-    "chai-as-promised": "*",
+    "chai-as-promised": "^7.1.1",
     "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
     "electron": "^13.5.1",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^4.25.0",
-    "hadron-app-registry": "^8.13.0",
-    "hadron-react-buttons": "^5.9.0",
-    "hadron-react-components": "^5.16.0",
+    "fast-json-parse": "^1.0.3",
+    "hadron-app": "^4.26.1",
+    "hadron-app-registry": "^8.14.1",
+    "lodash": "^4.17.15",
     "mocha": "^8.4.0",
-    "mongodb-connection-model": "^21.18.0",
-    "mongodb-data-service": "^21.23.0",
+    "mongodb-connection-model": "^21.19.1",
+    "mongodb-data-service": "^21.24.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-runner": "^4.9.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
-    "react": "^16.14.0",
+    "react-click-outside": "^3.0.1",
     "react-dom": "^16.14.0",
     "react-fontawesome": "^1.6.1",
     "reflux": "^0.4.1",
@@ -109,15 +108,13 @@
     "webpack": "^4.46.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.13.0",
-    "ag-grid-community": "20.2.0",
-    "ag-grid-react": "20.2.0",
-    "bson": "*",
-    "fast-json-parse": "^1.0.3",
-    "hadron-document": "^7.12.0",
-    "hadron-type-checker": "^6.9.0",
-    "lodash": "^4.17.15",
-    "react-click-outside": "^3.0.1",
-    "react-tooltip": "^3.11.1"
+    "@mongodb-js/compass-components": "^0.17.0",
+    "@mongodb-js/compass-logging": "^0.14.0",
+    "bson": "^4.4.1",
+    "hadron-document": "^7.13.0",
+    "hadron-react-buttons": "^5.9.0",
+    "hadron-react-components": "^5.17.0",
+    "hadron-type-checker": "^6.10.0",
+    "react": "^16.14.0"
   }
 }

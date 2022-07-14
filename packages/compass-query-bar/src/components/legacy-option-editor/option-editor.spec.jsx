@@ -30,7 +30,7 @@ describe('OptionEditor [Component]', function () {
           label="Apply"
           serverVersion="3.4.0"
           autoPopulated={false}
-          actions={configureActions()}
+          refreshEditorAction={configureActions().refreshEditor}
           value="{ name: 'testing' }"
           onChange={onChangeSpy}
           onApply={onApplySpy}

@@ -40,7 +40,6 @@ class EditableDocument extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      renderSize: INITIAL_FIELD_LIMIT,
       editing: false,
       deleting: false,
       expandAll: false,
@@ -83,15 +82,6 @@ class EditableDocument extends React.Component {
    */
   componentWillUnmount() {
     this.unsubscribeFromDocumentEvents(this.props.doc);
-  }
-
-  /**
-   * Set the render size.
-   *
-   * @param {Number} newLimit - The new limit.
-   */
-  setRenderSize(newLimit) {
-    this.setState({ renderSize: newLimit });
   }
 
   /**
@@ -229,34 +219,10 @@ class EditableDocument extends React.Component {
     return (
       <DocumentList.Document
         value={this.props.doc}
-        visibleFieldsCount={this.state.renderSize}
         expanded={this.state.expandAll}
         editable
         editing={this.state.editing}
         onEditStart={this.handleEdit.bind(this)}
-      />
-    );
-  }
-
-  /**
-   * Render the show/hide fields bar.
-   *
-   * @returns {React.Component} The expansion bar.
-   */
-  renderExpansion() {
-    return (
-      <DocumentList.DocumentFieldsToggleGroup
-        // TODO: "Hide items" button will only be shown when document is not
-        // edited because it's not decided how to handle changes to the fields
-        // that are changed but then hidden
-        // https://jira.mongodb.org/browse/COMPASS-5587
-        showHideButton={!this.state.editing}
-        currentSize={this.state.renderSize}
-        totalSize={this.props.doc.elements.size}
-        minSize={INITIAL_FIELD_LIMIT}
-        // Performance - Reduce extra fields added per click in edit mode
-        step={this.state.editing ? 100 : 1000}
-        onSizeChange={this.setRenderSize.bind(this)}
       />
     );
   }
@@ -299,7 +265,6 @@ class EditableDocument extends React.Component {
       <div className={this.style()} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
           <div className={ELEMENTS}>{this.renderElements()}</div>
-          {this.renderExpansion()}
           {this.renderActions()}
         </div>
         {this.renderFooter()}

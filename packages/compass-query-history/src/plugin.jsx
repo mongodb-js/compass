@@ -7,8 +7,8 @@ class Plugin extends Component {
   static displayName = 'QueryHistoryPlugin';
   static propTypes = {
     store: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired
-  }
+    actions: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.

@@ -11,21 +11,19 @@ const factory = (ListItem, Saving) => {
     static displayName = 'QueryHistoryList';
 
     static propTypes = {
-      items: PropTypes.oneOfType([
-        PropTypes.array,
-        PropTypes.object
-      ]).isRequired,
+      items: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
+        .isRequired,
       actions: PropTypes.object.isRequired,
       zeroStateTitle: PropTypes.string.isRequired,
       current: PropTypes.object,
-      ns: PropTypes.object
+      ns: PropTypes.object,
     };
 
     static defaultProps = {
       items: [],
       zeroStateTitle: '',
       current: null,
-      ns: mongodbns('')
+      ns: mongodbns(''),
     };
 
     renderSaving = () => {
@@ -35,7 +33,14 @@ const factory = (ListItem, Saving) => {
         return null;
       }
 
-      return <Saving key={0} className={classnames(styles.item)} model={current} actions={actions} />;
+      return (
+        <Saving
+          key={0}
+          className={classnames(styles.item)}
+          model={current}
+          actions={actions}
+        />
+      );
     };
 
     renderZeroState = (length) => {
@@ -45,7 +50,9 @@ const factory = (ListItem, Saving) => {
         return (
           <Card>
             <CardBody className={classnames(styles.zeroState)}>
-              <div className={classnames(styles['zeroState-title'])}>{zeroStateTitle}</div>
+              <div className={classnames(styles['zeroState-title'])}>
+                {zeroStateTitle}
+              </div>
             </CardBody>
           </Card>
         );
@@ -58,16 +65,21 @@ const factory = (ListItem, Saving) => {
       const { items, ns, actions } = this.props;
 
       const renderItems = items
-        .filter( item => item._ns === ns.ns)
-        .map((item, index) => (<ListItem key={index + 1} className={classnames(styles.item)} model={item} actions={actions} />));
+        .filter((item) => item._ns === ns.ns)
+        .map((item, index) => (
+          <ListItem
+            key={index + 1}
+            className={classnames(styles.item)}
+            model={item}
+            actions={actions}
+          />
+        ));
 
       return (
         <div className={classnames(styles.component)}>
           {this.renderSaving()}
           {this.renderZeroState(renderItems.length)}
-          <ul className={classnames(styles.items)}>
-            {renderItems}
-          </ul>
+          <ul className={classnames(styles.items)}>{renderItems}</ul>
         </div>
       );
     }

@@ -5,7 +5,4 @@ import Saving from '../saving';
 const FavoriteList = listFactory(FavoriteListItem, Saving);
 
 export default FavoriteList;
-export {
-  FavoriteList,
-  FavoriteListItem
-};
+export { FavoriteList, FavoriteListItem };

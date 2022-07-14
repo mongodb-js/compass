@@ -208,10 +208,12 @@ async function main(argv) {
     main: 'dist/index.js',
     'compass:main': 'src/index.ts',
     exports: {
-      require: './dist/index.js',
+      // NB: Order is important, browser / import should go first, otherwise
+      // webpack refuses to pick it up
       ...(isPlugin
         ? { browser: './dist/browser.js' }
         : { import: './dist/.esm-wrapper.mjs' }),
+      require: './dist/index.js',
     },
     'compass:exports': {
       '.': './src/index.ts',
@@ -240,7 +242,9 @@ async function main(argv) {
       eslint: 'eslint',
       prettier: 'prettier',
       lint: 'npm run eslint . && npm run prettier -- --check .',
-      depcheck: 'depcheck',
+      depcheck: isPlugin
+        ? 'compass-scripts check-peer-deps && depcheck'
+        : 'depcheck',
       check: 'npm run typecheck && npm run lint && npm run depcheck',
       'check-ci': 'npm run check',
       test: 'mocha',

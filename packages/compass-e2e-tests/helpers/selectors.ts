@@ -776,11 +776,18 @@ export const NameColumnName = '[data-test-id="name-column-name"]';
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
 export const CreateIndexModal = '[data-test-id="create-index-modal"]';
-export const CreateIndexModalFieldSelect =
-  '[data-test-id="create-index-modal-field-select"]';
-export const CreateIndexModalTypeSelect =
-  '[data-test-id="create-index-modal-type-select"]';
+
+export const CreateIndexModalFieldNameSelectInput = (idx: number): string => {
+  return `[data-test-id="create-index-field-name-${idx}"] input`;
+};
+export const CreateIndexModalFieldTypeSelectButtont = (idx: number): string => {
+  return `[data-test-id="create-index-field-type-${idx}"] button`;
+};
+export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
+  return `[data-test-id="create-index-field-type-${idx}"] #create-index-field-type-${idx}-menu`;
+};
 export const CreateIndexConfirmButton = '[data-test-id="create-index-button"]';
+
 export const DropIndexModal = '[data-testid="drop_index_modal"]';
 export const DropIndexModalConfirmName =
   '[data-test-id="confirm-drop-index-name"]';

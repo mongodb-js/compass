@@ -257,7 +257,7 @@ describe('Connection form', function () {
 
   it('parses and formats a URI for Kerberos authentication', async function () {
     const connectionString =
-      'mongodb://principal:password@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
+      'mongodb://principal@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
 
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
@@ -270,9 +270,9 @@ describe('Connection form', function () {
       hosts: ['localhost:27017'],
       directConnection: false,
       authMethod: 'GSSAPI',
-      kerberosPassword: 'password',
+      // kerberosPassword: 'password',
       kerberosPrincipal: 'principal',
-      kerberosProvidePassword: true,
+      // kerberosProvidePassword: true,
       kerberosServiceName: 'service name',
       kerberosCanonicalizeHostname: 'forward',
       kerberosServiceRealm: 'service realm',

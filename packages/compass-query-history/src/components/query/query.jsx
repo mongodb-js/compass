@@ -33,7 +33,7 @@ class Query extends PureComponent {
 
   static propTypes = {
     attributes: PropTypes.object,
-    actions: PropTypes.object.isRequired
+    actions: PropTypes.object.isRequired,
   };
 
   static defaultProps = {};
@@ -61,10 +61,9 @@ class Query extends PureComponent {
         className={queryAttributeStyles}
         key={index}
       >
-        <Body
-          data-test-id="query-history-query-label"
-          className={labelStyles}
-        >{attrKey}</Body>
+        <Body data-test-id="query-history-query-label" className={labelStyles}>
+          {attrKey}
+        </Body>
         <Code
           className={codeStyles}
           data-test-id="query-history-query-code"
@@ -86,7 +85,7 @@ class Query extends PureComponent {
         className={queryAttributesContainerStyles}
         data-test-id="query-history-query-attributes"
       >
-        { Object.keys(attributes).map(this.renderAttr) }
+        {Object.keys(attributes).map(this.renderAttr)}
       </button>
     );
   }

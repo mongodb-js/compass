@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { InfoSprinkle } from 'hadron-react-components';
-import OptionEditor from '../option-editor';
+import OptionEditor from '../legacy-option-editor';
 
 import styles from './query-option.module.less';
 
@@ -14,15 +14,14 @@ class QueryOption extends Component {
     label: PropTypes.string.isRequired,
     serverVersion: PropTypes.string.isRequired,
     link: PropTypes.string.isRequired,
-    actions: PropTypes.object.isRequired,
     inputType: PropTypes.oneOf(['numeric', 'boolean', 'document']).isRequired,
     value: PropTypes.any,
     autoPopulated: PropTypes.bool,
     hasToggle: PropTypes.bool,
     hasError: PropTypes.bool,
-    validationFunc: PropTypes.func,
     onChange: PropTypes.func,
     onApply: PropTypes.func,
+    refreshEditorAction: PropTypes.func.isRequired,
     schemaFields: PropTypes.array,
   };
 
@@ -50,7 +49,7 @@ class QueryOption extends Component {
     return (
       <input
         id={`querybar-option-input-${label}`}
-        data-test-id="query-bar-option-input"
+        data-testid="query-bar-option-input"
         className={this._getInnerClassName()}
         type="checkbox"
         checked={value}
@@ -80,7 +79,7 @@ class QueryOption extends Component {
         onChange={this.props.onChange}
         onApply={this.props.onApply}
         autoPopulated={this.props.autoPopulated}
-        actions={this.props.actions}
+        refreshEditorAction={this.props.refreshEditorAction}
         schemaFields={this.props.schemaFields}
         placeholder={this.props.placeholder}
       />
@@ -91,7 +90,7 @@ class QueryOption extends Component {
     return (
       <input
         id={`querybar-option-input-${this.props.label}`}
-        data-test-id="query-bar-option-input"
+        data-testid="query-bar-option-input"
         className={this._getInnerClassName()}
         type="text"
         value={this.props.value}
@@ -121,8 +120,8 @@ class QueryOption extends Component {
     );
 
     return (
-      <div className={_className} data-test-id="query-bar-option">
-        <div className={styles.label} data-test-id="query-bar-option-label">
+      <div className={_className} data-testid="query-bar-option">
+        <div className={styles.label} data-testid="query-bar-option-label">
           <InfoSprinkle helpLink={link} onClickHandler={this._openLink} />
           {label}
         </div>

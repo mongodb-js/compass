@@ -8,24 +8,26 @@ import AppRegistry from 'hadron-app-registry';
 import configureStore from '../../src/stores/recent-list-store';
 import { comparableQuery } from './';
 
-describe('comparableQuery', function() {
+describe('comparableQuery', function () {
   let tmpDir;
   let store;
   let appRegistry;
 
-  beforeEach(function() {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'comparable-query-storage-tests'));
+  beforeEach(function () {
+    tmpDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'comparable-query-storage-tests')
+    );
     TestBackend.enable(tmpDir);
     appRegistry = new AppRegistry();
     store = configureStore({ localAppRegistry: appRegistry });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     TestBackend.disable();
     fs.rmdirSync(tmpDir, { recursive: true });
   });
 
-  it('strips ampersand properties', function() {
+  it('strips ampersand properties', function () {
     const recent = { ns: 'foo', filter: { foo: 1 } };
 
     store.addRecent(recent);
@@ -40,7 +42,7 @@ describe('comparableQuery', function() {
     expect(serialized).to.haveOwnProperty('_ns');
 
     expect(comparableQuery(query)).to.deep.equal({
-      filter: { foo: 1 }
+      filter: { foo: 1 },
     });
   });
 });

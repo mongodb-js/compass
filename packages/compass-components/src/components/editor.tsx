@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { useId } from '@react-aria/utils';
 
 if (typeof window === 'undefined' && typeof globalThis !== 'undefined') {
@@ -52,6 +52,7 @@ const EditorVariant = {
 type EditorProps = {
   variant: keyof typeof EditorVariant;
   text?: string;
+  id?: string;
   options?: Omit<IAceOptions, 'readOnly'>;
   readOnly?: boolean;
   completer?: unknown;
@@ -64,6 +65,7 @@ function Editor({
   variant,
   options,
   readOnly,
+  id,
   onChangeText,
   completer,
   onFocus,
@@ -78,10 +80,21 @@ function Editor({
     ...(!!completer && { enableLiveAutocompletion: true }),
   };
 
-  const editorId = useId();
+  const editorRef = useRef<AceEditor | null>(null);
+
+  useLayoutEffect(() => {
+    if (id && editorRef.current) {
+      // After initial load, assign the id to the text area used by ace.
+      // This is so labels can `htmlFor` the input.
+      editorRef.current.editor.textInput.getElement().id = id;
+    }
+  }, [id]);
+
+  const editorName = useId();
 
   const editor = (
     <AceEditor
+      ref={(ref) => (editorRef.current = ref)}
       mode={
         variant === 'Generic'
           ? undefined
@@ -98,7 +111,7 @@ function Editor({
       readOnly={readOnly}
       commands={beautify.commands}
       // name should be unique since it gets translated to an id
-      name={aceProps.name ?? editorId}
+      name={aceProps.name ?? editorName}
       {...aceProps}
       onFocus={(ev: any) => {
         if (completer) {
