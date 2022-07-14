@@ -37,6 +37,8 @@ const documentEditorOptionStyles = css(
 
 const numericTextInputStyles = css({
   input: {
+    // TODO: Decide border styles for query bar editors.
+    // Remove these commented styles if we want borders.
     // borderColor: 'transparent',
   },
 });
@@ -88,23 +90,21 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
       className={queryOptionStyles}
       data-testid={`query-bar-option-${queryOption}`}
     >
-      {
-        <div
-          className={queryOptionLabelContainerStyles}
-          data-testid="query-bar-option-label"
+      <div
+        className={queryOptionLabelContainerStyles}
+        data-testid="query-bar-option-label"
+      >
+        <Label
+          htmlFor={`query-bar-option-input-${queryOption}`}
+          id={`query-bar-option-input-${queryOption}-label`}
+          className={queryOptionLabelStyles}
+          // We hide the `Filter` label, but keep it in the dom for
+          // screen reader label support.
+          hidden={queryOption === 'filter'}
         >
-          <Label
-            htmlFor={`query-bar-option-input-${queryOption}`}
-            id={`query-bar-option-input-${queryOption}-label`}
-            className={queryOptionLabelStyles}
-            // We hide the `Filter` label, but keep it in the dom for
-            // screen reader label support.
-            hidden={queryOption === 'filter'}
-          >
-            {queryOption}
-          </Label>
-        </div>
-      }
+          {queryOption}
+        </Label>
+      </div>
       <div className={cx(isDocumentEditor && documentEditorOptionStyles)}>
         {isDocumentEditor ? (
           <OptionEditor
