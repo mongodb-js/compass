@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { useId } from '@react-aria/utils';
 import {
   Icon,
   IconButton,
@@ -9,6 +8,7 @@ import {
   Toolbar as CompassComponentsToolbar,
   css,
   spacing,
+  useId,
 } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 

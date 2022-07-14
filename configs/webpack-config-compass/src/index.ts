@@ -27,7 +27,7 @@ import {
   entriesToHtml,
   getLibraryNameFromCwd,
 } from './util';
-import { sharedExternals } from './externals';
+import { sharedExternals, pluginExternals } from './externals';
 import { WebpackPluginMulticompilerProgress } from './webpack-plugin-multicompiler-progress';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
@@ -310,14 +310,20 @@ export function compassPluginConfig(
     }
 
     return [
-      createElectronMainConfig({
-        ...opts,
-        entry: sandboxMain,
-      }),
-      createElectronRendererConfig({
-        ...opts,
-        entry: sandboxRenderer,
-      }),
+      merge(
+        createElectronMainConfig({
+          ...opts,
+          entry: sandboxMain,
+        }),
+        { externals: toCommonJsExternal(pluginExternals) }
+      ),
+      merge(
+        createElectronRendererConfig({
+          ...opts,
+          entry: sandboxRenderer,
+        }),
+        { externals: toCommonJsExternal(pluginExternals) }
+      ),
     ];
   }
 
@@ -326,19 +332,26 @@ export function compassPluginConfig(
     : path.join(opts.cwd, 'src', 'index.js');
 
   return [
-    createElectronRendererConfig({
-      ...opts,
-      entry,
-      outputFilename: 'index.js',
-    }),
-    createWebConfig({
-      ...opts,
-      entry,
-      outputFilename: 'browser.js',
-    }),
+    merge(
+      createElectronRendererConfig({
+        ...opts,
+        entry,
+        outputFilename: 'index.js',
+      }),
+      { externals: toCommonJsExternal(pluginExternals) }
+    ),
+    merge(
+      createWebConfig({
+        ...opts,
+        entry,
+        outputFilename: 'browser.js',
+      }),
+      { externals: toCommonJsExternal(pluginExternals) }
+    ),
   ];
 }
 
+export { sharedExternals, pluginExternals };
 export { webpackArgsWithDefaults, isServe } from './args';
 export { default as webpack } from 'webpack';
 export { merge } from 'webpack-merge';

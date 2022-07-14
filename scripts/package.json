@@ -38,9 +38,11 @@
   },
   "dependencies": {
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
+    "@mongodb-js/webpack-config-compass": "^0.11.1",
     "chalk": "^4.1.1",
     "electron": "^13.5.1",
     "find-up": "^5.0.0",
+    "glob": "^7.1.6",
     "jsdom": "^16.7.0",
     "keytar": "^7.7.0",
     "lodash": "^4.17.21",

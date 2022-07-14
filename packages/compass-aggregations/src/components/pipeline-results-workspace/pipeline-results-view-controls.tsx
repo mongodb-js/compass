@@ -6,8 +6,8 @@ import {
   Overline,
   Icon,
   spacing,
+  useId,
 } from '@mongodb-js/compass-components';
-import { useId } from '@react-aria/utils';
 
 import type { ResultsViewType } from './pipeline-results-list';
 
