@@ -58,7 +58,6 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^0.17.0",
     "@mongodb-js/compass-logging": "^0.14.0",
-    "@react-aria/utils": "^3.13.1",
     "bson": "^4.4.1",
     "hadron-react-components": "^5.17.0",
     "mongodb-data-service": "^21.24.1",

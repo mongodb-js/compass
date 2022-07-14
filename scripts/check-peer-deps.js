@@ -99,7 +99,7 @@ async function main() {
     )}`;
   const prodMismatch =
     !prodDependenciesMatching &&
-    'Package `peerDependenceis` should match `dependencies`';
+    'Package `peerDependencies` should match `dependencies`';
 
   const message = [
     header,
