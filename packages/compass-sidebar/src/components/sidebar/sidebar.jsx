@@ -151,11 +151,6 @@ class Sidebar extends PureComponent {
   }
 
   render() {
-    if (!this.props.instance) {
-      // don't do anything until the instance is created
-      return null;
-    }
-
     const { width, prevWidth } = this.state;
 
     const isExpanded = width > sidebarMinWidthOpened;
@@ -203,7 +198,7 @@ class Sidebar extends PureComponent {
           isSidebarExpanded={isExpanded}
           onClick={() => this.onNavigationItemClick()}
         />
-        {isExpanded && (
+        {isExpanded && this.props.instance && (
           <SidebarInstance
             instance={this.props.instance}
             databases={this.props.databases}
@@ -244,7 +239,7 @@ class Sidebar extends PureComponent {
         </div>
         <div className={styles['compass-sidebar-content']}>
           {isExpanded && <SidebarDatabasesNavigation />}
-          {this.renderCreateDatabaseButton()}
+          {this.props.instance && this.renderCreateDatabaseButton()}
         </div>
         <NonGenuineWarningModal
           isVisible={this.props.isGenuineMongoDBVisible}

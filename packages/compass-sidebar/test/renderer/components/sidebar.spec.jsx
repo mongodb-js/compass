@@ -4,15 +4,22 @@ import { Provider } from 'react-redux';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import AppRegistry from 'hadron-app-registry';
+import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
+
 import SidebarStore from '../../../src/stores';
 import Sidebar, {
   Sidebar as UnconnectedSidebar,
 } from '../../../src/components/sidebar';
 import SidebarInstance from '../../../src/components/sidebar-instance';
+import DeploymentAwareness from '../../../src/components/deployment-awareness';
+import ServerVersion from '../../../src/components/server-version';
+import SshTunnelStatus from '../../../src/components/ssh-tunnel-status';
 import styles from '../../../src/components/sidebar/sidebar.module.less';
 
-// TODO: unskip
-describe.skip('Sidebar [Component]', function () {
+describe('Sidebar [Component]', function () {
+  let appRegistry;
+
   const connectionInfo = {
     connectionOptions: {
       connectionString:
@@ -24,10 +31,38 @@ describe.skip('Sidebar [Component]', function () {
     },
   };
 
+  const topologyDescription = new TopologyDescription({
+    type: 'Unknown',
+    servers: [{ type: 'Unknown' }],
+  });
+
+  const fakeInstance = new MongoDBInstance({
+    _id: '123',
+    topologyDescription,
+    /*
+    dataLake: {
+      isDataLake: false,
+      version: '1.2.3'
+    },
+    build: {
+      isEnterprise: false,
+      version: '6.0.0',
+    },
+    databases: null,
+    collections: null
+    */
+  });
+
+  before(function () {
+    appRegistry = new AppRegistry();
+    SidebarStore.onActivated(appRegistry);
+  });
+
   describe('when rendered with the store', function () {
     let component;
 
     beforeEach(function () {
+      // NOTE: no instance-created yet, so no instance in this case
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar onCollapse={() => {}} />
@@ -44,6 +79,48 @@ describe.skip('Sidebar [Component]', function () {
     });
   });
 
+  describe('when the instance details are loaded', function () {
+    let component;
+
+    beforeEach(function () {
+      appRegistry.emit('instance-created', { instance: fakeInstance });
+
+      component = mount(
+        <Provider store={SidebarStore}>
+          <Sidebar />
+        </Provider>
+      );
+
+      fakeInstance.set({
+        status: 'ready',
+        statusError: null,
+        build: {
+          isEnterprise: true,
+          version: '2.3.4',
+        },
+        dataLake: {
+          isDataLake: true,
+          version: '3.4.5',
+        },
+        genuineMongoDB: {
+          isGenuineMongoDB: true,
+        },
+      });
+
+      component.update();
+    });
+
+    afterEach(function () {
+      appRegistry.emit('instance-destroyed');
+    });
+
+    it('renders instance details', function () {
+      expect(component.find(DeploymentAwareness)).to.be.present();
+      expect(component.find(ServerVersion)).to.be.present();
+      expect(component.find(SshTunnelStatus)).to.be.present();
+    });
+  });
+
   describe('when it is open (not collapsed)', function () {
     let component;
     let emitSpy;
@@ -52,6 +129,11 @@ describe.skip('Sidebar [Component]', function () {
     beforeEach(function () {
       emitSpy = sinon.spy();
       saveFavoriteSpy = sinon.spy();
+
+      // the provider's state will override the props and most of the sidebar
+      // expects the instance to be there
+      appRegistry.emit('instance-created', { instance: fakeInstance });
+
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar
@@ -60,10 +142,6 @@ describe.skip('Sidebar [Component]', function () {
             description="Topology type not yet discovered."
             databases={{
               databases: [],
-            }}
-            instance={{
-              databases: null,
-              collections: null,
             }}
             filterRegex={/(?:)/}
             power_of_two={false}
@@ -91,6 +169,8 @@ describe.skip('Sidebar [Component]', function () {
     });
 
     afterEach(function () {
+      appRegistry.emit('instance-destroyed');
+
       component = null;
       emitSpy = null;
       saveFavoriteSpy = null;
@@ -117,6 +197,8 @@ describe.skip('Sidebar [Component]', function () {
     let component;
 
     beforeEach(function () {
+      appRegistry.emit('instance-created', { instance: fakeInstance });
+
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar />
@@ -127,6 +209,7 @@ describe.skip('Sidebar [Component]', function () {
     });
 
     afterEach(function () {
+      appRegistry.emit('instance-destroyed');
       component = null;
     });
 
@@ -147,6 +230,8 @@ describe.skip('Sidebar [Component]', function () {
     let component;
 
     beforeEach(function () {
+      appRegistry.emit('instance-created', { instance: fakeInstance });
+
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar />
@@ -154,6 +239,10 @@ describe.skip('Sidebar [Component]', function () {
       );
       component.find('[data-test-id="toggle-sidebar"]').simulate('click');
       component.update();
+    });
+
+    afterEach(function () {
+      appRegistry.emit('instance-destroyed');
     });
 
     it('sets the collapsed width to 36', function () {
@@ -182,6 +271,8 @@ describe.skip('Sidebar [Component]', function () {
     let component;
 
     beforeEach(function () {
+      appRegistry.emit('instance-created', { instance: fakeInstance });
+
       component = mount(
         <Provider store={SidebarStore}>
           <Sidebar
@@ -193,6 +284,10 @@ describe.skip('Sidebar [Component]', function () {
       );
       component.find('[data-test-id="toggle-sidebar"]').simulate('click');
       component.update();
+    });
+
+    afterEach(function () {
+      appRegistry.emit('instance-destroyed');
     });
 
     context('when expanded', function () {

@@ -53,14 +53,35 @@ describe('SidebarStore [Store]', function () {
         appRegistry.emit('instance-created', { instance });
       });
 
-      // TODO: unskip
-      it.skip('updates the instance and databases state', function () {
-        expect(store.getState()).to.have.property('instance').deep.equal({
-          databasesStatus: instance.databasesStatus,
-          refreshingStatus: instance.refreshingStatus,
-          csfleMode: instance.csfleMode,
-        });
-        expect(store.getState())
+      afterEach(function () {
+        appRegistry.emit('instance-destroyed');
+      });
+
+      it('updates the instance and databases state', function () {
+        const state = store.getState();
+
+        expect(state)
+          .to.have.property('instance')
+          .deep.equal({
+            build: {},
+            csfleMode: 'unavailable',
+            dataLake: {
+              isDataLake: false,
+            },
+            databasesStatus: 'initial',
+            env: 'on-prem',
+            genuineMongoDB: {
+              isGenuine: true,
+            },
+            isWritable: false,
+            refreshingStatus: 'initial',
+            topologyDescription: {
+              servers: [],
+              setName: 'foo',
+              type: 'Unknown',
+            },
+          });
+        expect(state)
           .to.have.property('databases')
           .deep.equal({
             databases: getDatabases(instance),

@@ -71,7 +71,9 @@ export const SidebarInstance = ({
         onCancelClicked={() => setIsFavoriteModalVisible(false)}
         onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
       />
-      <NonGenuineWarningPill isGenuineMongoDB={instance?.genuineMongoDB.isGenuine} />
+      <NonGenuineWarningPill
+        isGenuineMongoDB={instance?.genuineMongoDB.isGenuine}
+      />
       <SidebarInstanceDetails
         instance={instance}
         connectionOptions={connectionOptions}

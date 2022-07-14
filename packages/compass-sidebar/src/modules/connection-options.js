@@ -1,6 +1,7 @@
 const HOST_STRING_LENGTH = 25;
 
-export const CHANGE_CONNECTION_OPTIONS = 'sidebar/connection-options/CHANGE_CONNECTION_OPTIONS';
+export const CHANGE_CONNECTION_OPTIONS =
+  'sidebar/connection-options/CHANGE_CONNECTION_OPTIONS';
 
 export const INITIAL_STATE = {
   sshTunnel: false,

@@ -10,7 +10,7 @@ class ServerVersion extends Component {
 
   static propTypes = {
     versionNumber: PropTypes.string,
-    versionDistro: PropTypes.oneOf([ENTERPRISE, COMMUNITY]),
+    versionDistro: PropTypes.oneOf(['', ENTERPRISE, COMMUNITY]),
     isDataLake: PropTypes.bool,
     dataLakeVersion: PropTypes.string,
   };

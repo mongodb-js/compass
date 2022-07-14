@@ -13,7 +13,7 @@ describe('SidebarInstanceDetails [Component]', function () {
     const instance = {
       build: {},
       dataLake: {},
-      topologyDescription: {}
+      topologyDescription: {},
     };
     const connectionOptions = {};
 

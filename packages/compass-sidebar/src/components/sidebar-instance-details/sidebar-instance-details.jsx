@@ -9,6 +9,15 @@ import { ENTERPRISE, COMMUNITY } from '../../constants/server-version';
 
 import styles from './sidebar-instance-details.module.less';
 
+function getVersionDistro(isEnterprise) {
+  // it is unknown until instance details are loaded
+  if (typeof isEnterprise === 'undefined') {
+    return '';
+  }
+
+  return isEnterprise ? ENTERPRISE : COMMUNITY;
+}
+
 class SidebarInstanceDetails extends PureComponent {
   static displayName = 'SidebarInstanceDetails';
   static propTypes = {
@@ -22,8 +31,7 @@ class SidebarInstanceDetails extends PureComponent {
   }
 
   renderDetails() {
-    const { isExpanded, instance, connectionOptions } =
-      this.props;
+    const { isExpanded, instance, connectionOptions } = this.props;
 
     if (isExpanded) {
       return (
@@ -32,10 +40,11 @@ class SidebarInstanceDetails extends PureComponent {
             servers={instance.topologyDescription.servers}
             setName={instance.topologyDescription.setName}
             topologyType={instance.topologyDescription.type}
-            isDataLake={instance.dataLake.isDataLake} />
+            isDataLake={instance.dataLake.isDataLake}
+          />
           <ServerVersion
             versionNumber={instance.build.version}
-            versionDistro={instance.build.isEnterprise ? ENTERPRISE : COMMUNITY}
+            versionDistro={getVersionDistro(instance.build.isEnterprise)}
             isDataLake={instance.dataLake.isDataLake}
             dataLakeVersion={instance.dataLake.version}
           />

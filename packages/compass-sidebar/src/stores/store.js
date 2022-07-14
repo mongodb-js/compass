@@ -10,22 +10,25 @@ import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-vis
 import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
 
+// We use these symbols so that nothing from outside can access these values on
+// the store
+const kInstance = Symbol('instance');
+
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
-
   const onInstanceChangeNow = (instance) => {
     store.dispatch(
       changeInstance({
         refreshingStatus: instance.refreshingStatus,
         databasesStatus: instance.databasesStatus,
         csfleMode: instance.csfleMode,
-        build: instance.build,
-        dataLake: instance.dataLake,
-        genuineMongoDB: instance.genuineMongoDB,
-        topologyDescription: instance.topologyDescription,
+        build: instance.build.toJSON(),
+        dataLake: instance.dataLake.toJSON(),
+        genuineMongoDB: instance.genuineMongoDB.toJSON(),
+        topologyDescription: instance.topologyDescription.toJSON(),
         isWritable: instance.isWritable,
-        env: instance.env
+        env: instance.env,
       })
     );
   };
@@ -78,11 +81,23 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('instance-destroyed', () => {
+    store[kInstance].off();
+    store[kInstance].build.off();
+    store[kInstance].dataLake.off();
+    store[kInstance].genuineMongoDB.off();
+    store[kInstance] = null;
     onInstanceChange.cancel();
     onDatabasesChange.cancel();
   });
 
   appRegistry.on('instance-created', ({ instance }) => {
+    if (store[kInstance]) {
+      // we should probably throw in this case
+      return;
+    }
+
+    store[kInstance] = instance;
+
     onInstanceChangeNow(instance);
     onDatabasesChange(instance.databases);
 
@@ -128,7 +143,9 @@ store.onActivated = (appRegistry) => {
       onInstanceChange(instance);
     });
 
-    store.dispatch(toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine));
+    store.dispatch(
+      toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
+    );
 
     instance.genuineMongoDB.on('change:isGenuine', (model, isGenuine) => {
       onInstanceChange(instance); // isGenuineMongoDB is part of instance state
