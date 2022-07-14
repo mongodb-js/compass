@@ -43,7 +43,7 @@
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
@@ -61,8 +61,6 @@
     "bson": "^4.4.1",
     "hadron-app-registry": "^8.14.1",
     "hadron-ipc": "^2.10.0",
-    "mongodb-collection-model": "^4.26.1",
-    "mongodb-data-service": "^21.24.1",
     "react": "^16.14.0"
   },
   "dependencies": {
@@ -71,8 +69,6 @@
     "bson": "^4.4.1",
     "hadron-app-registry": "^8.14.1",
     "hadron-ipc": "^2.10.0",
-    "mongodb-collection-model": "^4.26.1",
-    "mongodb-data-service": "^21.24.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -96,8 +92,10 @@
     "eslint": "^7.25.0",
     "mocha": "^8.4.0",
     "mongodb": "^4.6.0",
+    "mongodb-collection-model": "^4.26.1",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb-ns": "^2.4.0",
+    "mongodb-data-service": "^21.24.1",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",

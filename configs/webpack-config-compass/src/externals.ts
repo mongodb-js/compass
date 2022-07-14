@@ -1,3 +1,5 @@
+import { execSync } from 'child_process';
+
 export const sharedExternals: string[] = [
   // Native Modules are very hard to bundle correctly with Webpack (and there is
   // not much reason to do so) so to make our lives easier, we will always
@@ -17,4 +19,28 @@ export const sharedExternals: string[] = [
   'bson-ext',
   'snappy',
   'snappy/package.json',
+  // Only used by compass-shell, but in theory should stay external everywhere
+  '@mongosh/node-runtime-worker-thread',
+];
+
+const monorepoWorkspaces = (
+  JSON.parse(
+    execSync('npx lerna list --all --json', {
+      encoding: 'utf-8',
+
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+  ) as { name: string; location: string }[]
+).map((ws) => ws.name);
+
+export const pluginExternals: string[] = [
+  // All monorepo dependencies should be externalized
+  ...monorepoWorkspaces,
+  // React needs to always stay external to avoid the chance of having multiple
+  // react runtimes in one context
+  'react',
+  // Arbitrary external dependencies that would make sense to keep out of the
+  // plugin bundles, feel free to update this as needed
+  'mongodb-ace-autocompleter',
+  'bson',
 ];
