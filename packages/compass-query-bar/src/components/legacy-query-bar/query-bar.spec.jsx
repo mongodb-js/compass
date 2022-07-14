@@ -3,28 +3,22 @@ import { shallow, mount } from 'enzyme';
 import { expect } from 'chai';
 
 import QueryBar from '.';
-import QueryOption from '../query-option';
-import OptionsToggle from '../options-toggle';
-import configureStore from '../../stores';
+import QueryOption from '../legacy-query-option';
+import OptionsToggle from '../legacy-options-toggle';
 import configureActions from '../../actions';
 
 import styles from './query-bar.module.less';
 
 describe('QueryBar [Component]', function () {
   let actions;
-  let store;
 
   beforeEach(function (done) {
     actions = configureActions();
-    store = configureStore({
-      actions: actions,
-    });
     done();
   });
 
   afterEach(function (done) {
     actions = null;
-    store = null;
     done();
   });
 
@@ -41,7 +35,6 @@ describe('QueryBar [Component]', function () {
         it('defaults to "Apply"', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -56,7 +49,6 @@ describe('QueryBar [Component]', function () {
         it('sets a custom label', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -74,7 +66,6 @@ describe('QueryBar [Component]', function () {
         it('has only one <QueryOption />', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -87,7 +78,6 @@ describe('QueryBar [Component]', function () {
         it('has no option groups', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -100,7 +90,6 @@ describe('QueryBar [Component]', function () {
         it('has an <OptionsToggle />', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -113,7 +102,6 @@ describe('QueryBar [Component]', function () {
         it('does not contain the focus class by default', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -126,7 +114,6 @@ describe('QueryBar [Component]', function () {
         it('contains the focus class on focus', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -143,7 +130,6 @@ describe('QueryBar [Component]', function () {
         it('has a query history button', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -160,7 +146,6 @@ describe('QueryBar [Component]', function () {
         it('has all 6 <QueryOption />s', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded
@@ -173,7 +158,6 @@ describe('QueryBar [Component]', function () {
         it('has one .query-option-group div', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded
@@ -188,7 +172,6 @@ describe('QueryBar [Component]', function () {
         it('does not contain the focus class by default', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded
@@ -201,7 +184,6 @@ describe('QueryBar [Component]', function () {
         it('contains the focus class on focus', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded
@@ -224,7 +206,6 @@ describe('QueryBar [Component]', function () {
         it('has only one <QueryOption />', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -237,7 +218,6 @@ describe('QueryBar [Component]', function () {
         it('has no <OptionsToggle />', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded={false}
@@ -252,7 +232,6 @@ describe('QueryBar [Component]', function () {
         it('has only one <QueryOption />', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded
@@ -265,7 +244,6 @@ describe('QueryBar [Component]', function () {
         it('has no <OptionsToggle />', function () {
           const component = shallow(
             <QueryBar
-              store={store}
               actions={actions}
               layout={layout}
               expanded
@@ -283,7 +261,6 @@ describe('QueryBar [Component]', function () {
       it('query history button renderes by default', function () {
         const component = shallow(
           <QueryBar
-            store={store}
             actions={actions}
             layout={layout}
             expanded
@@ -297,7 +274,6 @@ describe('QueryBar [Component]', function () {
       it('query history button renderes when showQueryHistoryButton prop is passed and set to true', function () {
         const component = shallow(
           <QueryBar
-            store={store}
             actions={actions}
             layout={layout}
             showQueryHistoryButton
@@ -312,7 +288,6 @@ describe('QueryBar [Component]', function () {
       it('query history button does not render when showQueryHistoryButton prop is passed and set to false', function () {
         const component = shallow(
           <QueryBar
-            store={store}
             actions={actions}
             layout={layout}
             showQueryHistoryButton={false}
@@ -331,7 +306,6 @@ describe('QueryBar [Component]', function () {
       it('export to language button renderes by default', function () {
         const component = shallow(
           <QueryBar
-            store={store}
             actions={actions}
             layout={layout}
             showExportToLanguageButton
@@ -345,7 +319,6 @@ describe('QueryBar [Component]', function () {
       it('export to language button renderes when showExportToLanguageButton prop is passed and set to true', function () {
         const component = shallow(
           <QueryBar
-            store={store}
             actions={actions}
             layout={layout}
             showExportToLanguageButton
@@ -359,7 +332,6 @@ describe('QueryBar [Component]', function () {
       it('export to language button does not render when showExportToLanguageButton prop is passed and set to false', function () {
         const component = shallow(
           <QueryBar
-            store={store}
             actions={actions}
             layout={layout}
             showExportToLanguageButton={false}
@@ -382,7 +354,6 @@ describe('QueryBar [Component]', function () {
       it('the input fields have a placeholder by default', function () {
         const component = mount(
           <QueryBar
-            store={store}
             actions={actions}
             layout={layout}
             expanded
@@ -419,7 +390,6 @@ describe('QueryBar [Component]', function () {
       it('the input fields placeholders can be modified', function () {
         const component = mount(
           <QueryBar
-            store={store}
             actions={actions}
             layout={layout}
             sortOptionPlaceholder="{ field: -1 }"
