@@ -12,8 +12,8 @@ import {
   Toolbar,
   css,
   spacing,
+  useId,
 } from '@mongodb-js/compass-components';
-import { useId } from '@react-aria/utils';
 import { AddDataMenu } from './add-data-menu';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
