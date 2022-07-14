@@ -58,7 +58,6 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^0.17.0",
     "@mongodb-js/compass-logging": "^0.14.0",
-    "@react-aria/utils": "^3.13.1",
     "bson": "^4.4.1",
     "hadron-react-components": "^5.17.0",
     "mongodb-data-service": "^21.24.1",
@@ -80,6 +79,7 @@
     "@mongodb-js/prettier-config-compass": "^0.6.0",
     "@mongodb-js/tsconfig-compass": "^0.7.0",
     "@mongodb-js/webpack-config-compass": "^0.11.1",
+    "@react-aria/utils": "^3.13.1",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "ampersand-model": "^8.0.1",
