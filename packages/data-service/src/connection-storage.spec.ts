@@ -375,7 +375,7 @@ describe('ConnectionStorage', function () {
       });
     });
 
-    it('saves an X509 connection (make sure old connection-model validations are not triggered)', async function () {
+    it('does not trigger old connection-model validations', async function () {
       const connectionStorage = new ConnectionStorage();
       const id = uuid();
       await connectionStorage.save({
