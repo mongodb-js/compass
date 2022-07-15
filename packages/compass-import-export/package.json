@@ -110,7 +110,7 @@
     "marky": "^1.2.1",
     "mime-types": "^2.1.24",
     "mocha": "^8.4.0",
-    "mongodb": "^4.8.0",
+    "mongodb": "^4.6.0",
     "mongodb-data-service": "^21.24.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
