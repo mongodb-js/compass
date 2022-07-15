@@ -56,7 +56,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "mongodb": "^4.6.0"
+    "mongodb": "^4.8.0"
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^0.14.0",
@@ -90,7 +90,7 @@
     "eslint": "^7.25.0",
     "kerberos": "^2.0.0",
     "mocha": "^8.4.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.8.0",
     "mongodb-runner": "^4.9.0",
     "nyc": "^15.0.0",
     "prettier": "^2.7.1",
