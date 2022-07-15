@@ -70,7 +70,7 @@ class ImportPipeline extends PureComponent {
             onChangeText={this.props.changeText}
             options={({minLines: 10})}
             name="import-pipeline-editor"
-            />
+          />
         </div>
         {this.renderError()}
       </ConfirmationModal>

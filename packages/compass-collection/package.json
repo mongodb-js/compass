@@ -91,7 +91,7 @@
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "mocha": "^8.4.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.8.0",
     "mongodb-collection-model": "^4.26.1",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb-ns": "^2.4.0",
