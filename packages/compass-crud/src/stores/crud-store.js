@@ -527,7 +527,7 @@ const configureStore = (options = {}) => {
         const object = doc.generateObject();
         const queryKeyInclusionOptions = {
           alwaysIncludeKeys: [
-            '_id',
+            ['_id'],
             // '.' in shard keys means nested doc
             ...Object.keys(this.state.shardKeys || {}).map((key) =>
               key.split('.')
@@ -765,7 +765,7 @@ const configureStore = (options = {}) => {
         } = await csfleCollectionTracker.knownSchemaForCollection(
           this.state.ns
         );
-        if (encryptedFields) {
+        if (encryptedFields.length > 0) {
           // This is for displaying encrypted fields to the user. We do not really
           // need to worry about the distinction between '.' as a nested-field
           // indicator and '.' as a literal part of a field name here, esp. since
