@@ -49,7 +49,7 @@
     "hadron-build": "^24.17.0",
     "lodash": "^4.17.21",
     "mocha": "^8.4.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.8.0",
     "mongodb-connection-string-url": "^2.5.2",
     "mongodb-log-writer": "^1.1.4",
     "mongodb-runner": "^4.9.0",
