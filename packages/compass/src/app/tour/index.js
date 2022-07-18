@@ -3,7 +3,7 @@ const View = require('ampersand-view');
 const app = require('hadron-app');
 const semver = require('semver');
 const _ = require('lodash');
-const electronApp = require('electron').remote.app;
+const electronApp = require('@electron/remote').app;
 const { track } = require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-TOUR');
 
 // const debug = require('debug')('mongodb-compass:tour:index');

@@ -169,6 +169,7 @@
     "system-ca": "^1.0.2"
   },
   "devDependencies": {
+    "@electron/remote": "^2.0.8",
     "@mongodb-js/compass-aggregations": "^8.27.1",
     "@mongodb-js/compass-app-stores": "^5.26.1",
     "@mongodb-js/compass-auto-updates": "^3.26.1",
