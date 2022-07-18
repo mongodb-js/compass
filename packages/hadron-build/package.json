@@ -34,7 +34,7 @@
     "download": "^8.0.0",
     "electron": "^13.5.1",
     "electron-license": "^2.8.0",
-    "electron-packager": "^14.2.0",
+    "electron-packager": "^15.5.1",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
     "electron-rebuild": "^3.2.7",
     "flatnest": "^1.0.0",
@@ -71,7 +71,7 @@
   },
   "optionalDependencies": {
     "electron-installer-debian": "^3.0.0",
-    "electron-installer-dmg": "^3.0.0",
+    "electron-installer-dmg": "^4.0.0",
     "electron-installer-redhat": "^2.0.0",
     "electron-winstaller": "^5.0.0"
   },
