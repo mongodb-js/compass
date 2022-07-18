@@ -46,6 +46,11 @@ export {
 export { Checkbox } from './components/checkbox';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
+export {
+  Combobox,
+  ComboboxOption,
+  ComboboxGroup,
+} from '@leafygreen-ui/combobox';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassFontSizes from './compass-font-sizes';
 export * as compassUIColors from './compass-ui-colors';
@@ -53,6 +58,7 @@ export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { Variant as ToastVariant } from '@leafygreen-ui/toast';
+export { useId } from '@react-aria/utils';
 
 export { useToast, ToastArea } from './hooks/use-toast';
 

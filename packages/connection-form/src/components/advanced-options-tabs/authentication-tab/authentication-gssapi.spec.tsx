@@ -170,65 +170,78 @@ describe('AuthenticationGssapi Component', function () {
     });
   });
 
-  describe('when password is not in the connection string', function () {
-    beforeEach(function () {
-      renderComponent({
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-      });
+  describe('Kerberos password support', function () {
+    let oldEnvValue;
 
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+    before(function () {
+      oldEnvValue = process.env.COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD;
+      process.env.COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD = 'true';
     });
 
-    it('allows to edit the password when enter password directly is enabled', function () {
-      expect(screen.queryByTestId('gssapi-password-input')).to.not.exist;
-      const checkbox = screen.getByTestId('gssapi-password-checkbox');
-      expect(checkbox.closest('input').checked).to.be.false;
-
-      fireEvent.click(checkbox);
-
-      const passwordInput = screen.getByTestId('gssapi-password-input');
-
-      fireEvent.change(passwordInput, {
-        target: { value: 'some-password' },
-      });
-
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-password',
-        password: 'some-password',
-      });
-    });
-  });
-
-  describe('when password is in the connection string', function () {
-    beforeEach(function () {
-      renderComponent({
-        connectionStringUrl: new ConnectionStringUrl(
-          'mongodb://user:password@localhost:27017'
-        ),
-        updateConnectionFormField: updateConnectionFormFieldSpy,
-      });
-
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+    after(function () {
+      process.env.COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD = oldEnvValue;
     });
 
-    it('enables the checkbox and shows the password input', function () {
-      const checkbox = screen.getByTestId('gssapi-password-checkbox');
-      expect(checkbox.closest('input').checked).to.be.true;
-      const passwordInput = screen.queryByTestId('gssapi-password-input');
-      expect(passwordInput).to.exist;
-      expect(passwordInput.closest('input').value).to.equal('password');
+    describe('when password is not in the connection string', function () {
+      beforeEach(function () {
+        renderComponent({
+          updateConnectionFormField: updateConnectionFormFieldSpy,
+        });
+
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+      });
+
+      it('allows to edit the password when enter password directly is enabled', function () {
+        expect(screen.queryByTestId('gssapi-password-input')).to.not.exist;
+        const checkbox = screen.getByTestId('gssapi-password-checkbox');
+        expect(checkbox.closest('input').checked).to.be.false;
+
+        fireEvent.click(checkbox);
+
+        const passwordInput = screen.getByTestId('gssapi-password-input');
+
+        fireEvent.change(passwordInput, {
+          target: { value: 'some-password' },
+        });
+
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-password',
+          password: 'some-password',
+        });
+      });
     });
 
-    it('resets the password when the checkbox is unchecked', function () {
-      const checkbox = screen.getByTestId('gssapi-password-checkbox');
-      expect(checkbox.closest('input').checked).to.be.true;
-      fireEvent.click(checkbox);
+    describe('when password is in the connection string', function () {
+      beforeEach(function () {
+        renderComponent({
+          connectionStringUrl: new ConnectionStringUrl(
+            'mongodb://user:password@localhost:27017'
+          ),
+          updateConnectionFormField: updateConnectionFormFieldSpy,
+        });
 
-      expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
-      expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
-        type: 'update-password',
-        password: '',
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(0);
+      });
+
+      it('enables the checkbox and shows the password input', function () {
+        const checkbox = screen.getByTestId('gssapi-password-checkbox');
+        expect(checkbox.closest('input').checked).to.be.true;
+        const passwordInput = screen.queryByTestId('gssapi-password-input');
+        expect(passwordInput).to.exist;
+        expect(passwordInput.closest('input').value).to.equal('password');
+      });
+
+      it('resets the password when the checkbox is unchecked', function () {
+        const checkbox = screen.getByTestId('gssapi-password-checkbox');
+        expect(checkbox.closest('input').checked).to.be.true;
+        fireEvent.click(checkbox);
+
+        expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
+        expect(updateConnectionFormFieldSpy.firstCall.args[0]).to.deep.equal({
+          type: 'update-password',
+          password: '',
+        });
       });
     });
   });

@@ -8,6 +8,7 @@ import connect from './connect';
 describe('CSFLECollectionTracker', function () {
   const DECRYPTED_KEYS = Symbol.for('@@mdb.decryptedKeys');
   const ALGO_DET = 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic';
+  const ALGO_RND = 'AEAD_AES_256_CBC_HMAC_SHA_512-Random';
 
   let dataService: DataService;
   let tracker: CSFLECollectionTracker;
@@ -70,8 +71,8 @@ describe('CSFLECollectionTracker', function () {
 
   // Run tests for isUpdateAllowed where the collections:
   // - test1 does not have an FLE schema
-  // - test2 has an FLE schema for encrypting 'a'
-  // - test3 has an FLE schema for encrypting 'n.a'
+  // - test2 has an FLE schema for encrypting 'a' as indexed/equality-queryable
+  // - test3 has an FLE schema for encrypting 'n.a' as unindexed
   async function runIsUpdateAllowedTestsWithSchema(
     tracker: CSFLECollectionTracker
   ): Promise<void> {
@@ -140,7 +141,10 @@ describe('CSFLECollectionTracker', function () {
     it('correctly returns whether there is a known schema', async function () {
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test`)
-      ).to.deep.equal({ hasSchema: false, encryptedFields: [] });
+      ).to.deep.equal({
+        hasSchema: false,
+        encryptedFields: { _encryptedFields: [] },
+      });
     });
   });
 
@@ -172,7 +176,7 @@ describe('CSFLECollectionTracker', function () {
                     encrypt: {
                       bsonType: 'number',
                       keyId: [SOME_UUID1],
-                      algorithm: ALGO_DET,
+                      algorithm: ALGO_RND,
                     },
                   },
                 },
@@ -190,13 +194,26 @@ describe('CSFLECollectionTracker', function () {
     it('correctly returns whether there is a known schema', async function () {
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test1`)
-      ).to.deep.equal({ hasSchema: false, encryptedFields: [] });
+      ).to.deep.equal({
+        hasSchema: false,
+        encryptedFields: { _encryptedFields: [] },
+      });
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test2`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['a'], equalityQueryable: true }],
+        },
+      });
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test3`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['n', 'a'], equalityQueryable: false }],
+        },
+      });
     });
   });
 
@@ -206,7 +223,14 @@ describe('CSFLECollectionTracker', function () {
         ([SOME_UUID1, SOME_UUID2]) => ({
           encryptedFieldsMap: {
             [`${dbName}.test2`]: {
-              fields: [{ path: 'a', keyId: SOME_UUID1, bsonType: 'string' }],
+              fields: [
+                {
+                  path: 'a',
+                  keyId: SOME_UUID1,
+                  bsonType: 'string',
+                  queries: { queryType: 'equality' },
+                },
+              ],
             },
             [`${dbName}.test3`]: {
               fields: [{ path: 'n.a', keyId: SOME_UUID2, bsonType: 'string' }],
@@ -223,13 +247,26 @@ describe('CSFLECollectionTracker', function () {
     it('correctly returns whether there is a known schema', async function () {
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test1`)
-      ).to.deep.equal({ hasSchema: false, encryptedFields: [] });
+      ).to.deep.equal({
+        hasSchema: false,
+        encryptedFields: { _encryptedFields: [] },
+      });
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test2`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['a'], equalityQueryable: true }],
+        },
+      });
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test3`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['n', 'a'], equalityQueryable: false }],
+        },
+      });
     });
   });
 
@@ -278,7 +315,7 @@ describe('CSFLECollectionTracker', function () {
                     encrypt: {
                       bsonType: 'number',
                       keyId: [SOME_UUID1],
-                      algorithm: ALGO_DET,
+                      algorithm: ALGO_RND,
                     },
                   },
                 },
@@ -296,13 +333,26 @@ describe('CSFLECollectionTracker', function () {
     it('correctly returns whether there is a known schema', async function () {
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test1`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: [] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: { _encryptedFields: [] },
+      });
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test2`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['a'], equalityQueryable: true }],
+        },
+      });
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test3`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['n', 'a'], equalityQueryable: false }],
+        },
+      });
     });
   });
 
@@ -318,7 +368,14 @@ describe('CSFLECollectionTracker', function () {
       )._initializedClient('META');
       await metaDataClient.db(dbName).createCollection('test2', {
         encryptedFields: {
-          fields: [{ path: 'a', keyId: SOME_UUID1, bsonType: 'string' }],
+          fields: [
+            {
+              path: 'a',
+              keyId: SOME_UUID1,
+              bsonType: 'string',
+              queries: [{ queryType: 'equality' }],
+            },
+          ],
         },
       });
 
@@ -336,13 +393,26 @@ describe('CSFLECollectionTracker', function () {
     it('correctly returns whether there is a known schema', async function () {
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test1`)
-      ).to.deep.equal({ hasSchema: false, encryptedFields: [] });
+      ).to.deep.equal({
+        hasSchema: false,
+        encryptedFields: { _encryptedFields: [] },
+      });
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test2`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['a'], equalityQueryable: true }],
+        },
+      });
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test3`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['n', 'a'], equalityQueryable: false }],
+        },
+      });
     });
 
     context('when server validation changes', function () {
@@ -465,7 +535,12 @@ describe('CSFLECollectionTracker', function () {
     it('does not return duplicates of encrypted fields', async function () {
       expect(
         await tracker.knownSchemaForCollection(`${dbName}.test3`)
-      ).to.deep.equal({ hasSchema: true, encryptedFields: ['n.a'] });
+      ).to.deep.equal({
+        hasSchema: true,
+        encryptedFields: {
+          _encryptedFields: [{ path: ['n', 'a'], equalityQueryable: false }],
+        },
+      });
     });
   });
 });

@@ -156,6 +156,7 @@ export interface LegacyConnectionModelProperties {
 export interface AmpersandMethodOptions<T> {
   success: (model: T) => void;
   error: (model: T, error: Error) => void;
+  validate?: boolean;
 }
 
 export interface LegacyConnectionModel extends LegacyConnectionModelProperties {

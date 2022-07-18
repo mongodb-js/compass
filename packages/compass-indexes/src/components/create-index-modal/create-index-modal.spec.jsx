@@ -22,6 +22,7 @@ describe('CreateIndexModal [Component]', function () {
   let toggleIsPartialFilterExpressionSpy;
   let toggleIsCustomCollationSpy;
   let toggleHasColumnstoreProjectionSpy;
+  let toggleHasWildcardProjectionSpy;
   let resetFormSpy;
   let createIndexSpy;
   let openLinkSpy;
@@ -29,6 +30,61 @@ describe('CreateIndexModal [Component]', function () {
   let changePartialFilterExpressionSpy;
   let changeCollationOptionSpy;
   let changeNameSpy;
+  let changeColumnstoreProjectionSpy;
+  let changeWildcardProjectionSpy;
+  let createNewIndexFieldSpy;
+
+  const spyComponentProps = () => {
+    toggleIsVisibleSpy = sinon.spy();
+    updateFiedTypeSpy = sinon.spy();
+    updateFieldNameSpy = sinon.spy();
+    addFieldSpy = sinon.spy();
+    removeFieldSpy = sinon.spy();
+    toggleIsUniqueSpy = sinon.spy();
+    toggleShowOptionsSpy = sinon.spy();
+    toggleIsBackgroundSpy = sinon.spy();
+    toggleIsTtlSpy = sinon.spy();
+    toggleIsPartialFilterExpressionSpy = sinon.spy();
+    toggleIsCustomCollationSpy = sinon.spy();
+    toggleHasColumnstoreProjectionSpy = sinon.spy();
+    toggleHasWildcardProjectionSpy = sinon.spy();
+    resetFormSpy = sinon.spy();
+    createIndexSpy = sinon.spy();
+    openLinkSpy = sinon.spy();
+    changeTtlSpy = sinon.spy();
+    changePartialFilterExpressionSpy = sinon.spy();
+    changeCollationOptionSpy = sinon.spy();
+    changeNameSpy = sinon.spy();
+    changeColumnstoreProjectionSpy = sinon.spy();
+    changeWildcardProjectionSpy = sinon.spy();
+    createNewIndexFieldSpy = sinon.spy();
+  };
+
+  const resetSpyComponentProps = () => {
+    toggleIsVisibleSpy = null;
+    updateFiedTypeSpy = null;
+    updateFieldNameSpy = null;
+    addFieldSpy = null;
+    removeFieldSpy = null;
+    toggleIsUniqueSpy = null;
+    toggleShowOptionsSpy = null;
+    toggleIsBackgroundSpy = null;
+    toggleIsTtlSpy = null;
+    toggleIsPartialFilterExpressionSpy = null;
+    toggleIsCustomCollationSpy = null;
+    toggleHasColumnstoreProjectionSpy = null;
+    toggleHasWildcardProjectionSpy = null;
+    resetFormSpy = null;
+    createIndexSpy = null;
+    openLinkSpy = null;
+    changeTtlSpy = null;
+    changePartialFilterExpressionSpy = null;
+    changeCollationOptionSpy = null;
+    changeNameSpy = null;
+    changeColumnstoreProjectionSpy = null;
+    changeWildcardProjectionSpy = null;
+    createNewIndexFieldSpy = null;
+  };
 
   before(function () {
     const appRegistry = new AppRegistry();
@@ -38,24 +94,7 @@ describe('CreateIndexModal [Component]', function () {
 
   context('when the modal is visible', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      updateFiedTypeSpy = sinon.spy();
-      updateFieldNameSpy = sinon.spy();
-      addFieldSpy = sinon.spy();
-      removeFieldSpy = sinon.spy();
-      toggleIsUniqueSpy = sinon.spy();
-      toggleShowOptionsSpy = sinon.spy();
-      toggleIsBackgroundSpy = sinon.spy();
-      toggleIsTtlSpy = sinon.spy();
-      toggleIsPartialFilterExpressionSpy = sinon.spy();
-      toggleIsCustomCollationSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      createIndexSpy = sinon.spy();
-      openLinkSpy = sinon.spy();
-      changeTtlSpy = sinon.spy();
-      changePartialFilterExpressionSpy = sinon.spy();
-      changeCollationOptionSpy = sinon.spy();
-      changeNameSpy = sinon.spy();
+      spyComponentProps();
 
       component = mount(
         <CreateIndexModal
@@ -85,6 +124,8 @@ describe('CreateIndexModal [Component]', function () {
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
+          toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
+          toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
           resetForm={resetFormSpy}
           createIndex={createIndexSpy}
           openLink={openLinkSpy}
@@ -92,29 +133,20 @@ describe('CreateIndexModal [Component]', function () {
           changePartialFilterExpression={changePartialFilterExpressionSpy}
           changeCollationOption={changeCollationOptionSpy}
           changeName={changeNameSpy}
+          wildcardProjection=""
+          hasWildcardProjection={false}
+          columnstoreProjection=""
+          hasColumnstoreProjection={false}
+          serverVersion="4.0.0"
+          changeColumnstoreProjection={changeColumnstoreProjectionSpy}
+          changeWildcardProjection={changeWildcardProjectionSpy}
+          createNewIndexField={createNewIndexFieldSpy}
         />
       );
     });
 
     afterEach(function () {
-      toggleIsVisibleSpy = null;
-      updateFiedTypeSpy = null;
-      updateFieldNameSpy = null;
-      addFieldSpy = null;
-      removeFieldSpy = null;
-      toggleIsUniqueSpy = null;
-      toggleShowOptionsSpy = null;
-      toggleIsBackgroundSpy = null;
-      toggleIsTtlSpy = null;
-      toggleIsPartialFilterExpressionSpy = null;
-      toggleIsCustomCollationSpy = null;
-      resetFormSpy = null;
-      createIndexSpy = null;
-      openLinkSpy = null;
-      changeTtlSpy = null;
-      changePartialFilterExpressionSpy = null;
-      changeCollationOptionSpy = null;
-      changeNameSpy = null;
+      resetSpyComponentProps();
       // Note: We unmount the component here because of a
       // race condition with leafygreen modals.
       // They both attempt to maintain autofocus and cause a large noise
@@ -207,25 +239,7 @@ describe('CreateIndexModal [Component]', function () {
 
   context('when the checkbox options are visible', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      updateFiedTypeSpy = sinon.spy();
-      updateFieldNameSpy = sinon.spy();
-      addFieldSpy = sinon.spy();
-      removeFieldSpy = sinon.spy();
-      toggleIsUniqueSpy = sinon.spy();
-      toggleShowOptionsSpy = sinon.spy();
-      toggleIsBackgroundSpy = sinon.spy();
-      toggleIsTtlSpy = sinon.spy();
-      toggleIsPartialFilterExpressionSpy = sinon.spy();
-      toggleIsCustomCollationSpy = sinon.spy();
-      toggleHasColumnstoreProjectionSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      createIndexSpy = sinon.spy();
-      openLinkSpy = sinon.spy();
-      changeTtlSpy = sinon.spy();
-      changePartialFilterExpressionSpy = sinon.spy();
-      changeCollationOptionSpy = sinon.spy();
-      changeNameSpy = sinon.spy();
+      spyComponentProps();
 
       component = mount(
         <CreateIndexModal
@@ -255,6 +269,7 @@ describe('CreateIndexModal [Component]', function () {
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
+          toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
           toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
           resetForm={resetFormSpy}
           createIndex={createIndexSpy}
@@ -263,30 +278,20 @@ describe('CreateIndexModal [Component]', function () {
           changePartialFilterExpression={changePartialFilterExpressionSpy}
           changeCollationOption={changeCollationOptionSpy}
           changeName={changeNameSpy}
+          hasWildcardProjection={false}
+          hasColumnstoreProjection={false}
+          wildcardProjection=""
+          columnstoreProjection=""
+          serverVersion="4.0.0"
+          changeColumnstoreProjection={changeColumnstoreProjectionSpy}
+          changeWildcardProjection={changeWildcardProjectionSpy}
+          createNewIndexField={createNewIndexFieldSpy}
         />
       );
     });
 
     afterEach(function () {
-      toggleIsVisibleSpy = null;
-      updateFiedTypeSpy = null;
-      updateFieldNameSpy = null;
-      addFieldSpy = null;
-      removeFieldSpy = null;
-      toggleIsUniqueSpy = null;
-      toggleShowOptionsSpy = null;
-      toggleIsBackgroundSpy = null;
-      toggleIsTtlSpy = null;
-      toggleIsPartialFilterExpressionSpy = null;
-      toggleIsCustomCollationSpy = null;
-      toggleHasColumnstoreProjectionSpy = null;
-      resetFormSpy = null;
-      createIndexSpy = null;
-      openLinkSpy = null;
-      changeTtlSpy = null;
-      changePartialFilterExpressionSpy = null;
-      changeCollationOptionSpy = null;
-      changeNameSpy = null;
+      resetSpyComponentProps();
       component.unmount();
       component = null;
     });
@@ -396,24 +401,7 @@ describe('CreateIndexModal [Component]', function () {
 
   context('when the options are visible', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      updateFiedTypeSpy = sinon.spy();
-      updateFieldNameSpy = sinon.spy();
-      addFieldSpy = sinon.spy();
-      removeFieldSpy = sinon.spy();
-      toggleIsUniqueSpy = sinon.spy();
-      toggleShowOptionsSpy = sinon.spy();
-      toggleIsBackgroundSpy = sinon.spy();
-      toggleIsTtlSpy = sinon.spy();
-      toggleIsPartialFilterExpressionSpy = sinon.spy();
-      toggleIsCustomCollationSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      createIndexSpy = sinon.spy();
-      openLinkSpy = sinon.spy();
-      changeTtlSpy = sinon.spy();
-      changePartialFilterExpressionSpy = sinon.spy();
-      changeCollationOptionSpy = sinon.spy();
-      changeNameSpy = sinon.spy();
+      spyComponentProps();
 
       component = mount(
         <CreateIndexModal
@@ -443,6 +431,8 @@ describe('CreateIndexModal [Component]', function () {
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
+          toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
+          toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
           resetForm={resetFormSpy}
           createIndex={createIndexSpy}
           openLink={openLinkSpy}
@@ -451,29 +441,19 @@ describe('CreateIndexModal [Component]', function () {
           changeCollationOption={changeCollationOptionSpy}
           changeName={changeNameSpy}
           serverVersion="5.0.0"
+          hasWildcardProjection={false}
+          hasColumnstoreProjection={false}
+          wildcardProjection=""
+          columnstoreProjection=""
+          changeColumnstoreProjection={changeColumnstoreProjectionSpy}
+          changeWildcardProjection={changeWildcardProjectionSpy}
+          createNewIndexField={createNewIndexFieldSpy}
         />
       );
     });
 
     afterEach(function () {
-      toggleIsVisibleSpy = null;
-      updateFiedTypeSpy = null;
-      updateFieldNameSpy = null;
-      addFieldSpy = null;
-      removeFieldSpy = null;
-      toggleIsUniqueSpy = null;
-      toggleShowOptionsSpy = null;
-      toggleIsBackgroundSpy = null;
-      toggleIsTtlSpy = null;
-      toggleIsPartialFilterExpressionSpy = null;
-      toggleIsCustomCollationSpy = null;
-      resetFormSpy = null;
-      createIndexSpy = null;
-      openLinkSpy = null;
-      changeTtlSpy = null;
-      changePartialFilterExpressionSpy = null;
-      changeCollationOptionSpy = null;
-      changeNameSpy = null;
+      resetSpyComponentProps();
       component.unmount();
       component = null;
     });
@@ -527,24 +507,7 @@ describe('CreateIndexModal [Component]', function () {
 
   context('when the modal is not visible', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      updateFiedTypeSpy = sinon.spy();
-      updateFieldNameSpy = sinon.spy();
-      addFieldSpy = sinon.spy();
-      removeFieldSpy = sinon.spy();
-      toggleIsUniqueSpy = sinon.spy();
-      toggleShowOptionsSpy = sinon.spy();
-      toggleIsBackgroundSpy = sinon.spy();
-      toggleIsTtlSpy = sinon.spy();
-      toggleIsPartialFilterExpressionSpy = sinon.spy();
-      toggleIsCustomCollationSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      createIndexSpy = sinon.spy();
-      openLinkSpy = sinon.spy();
-      changeTtlSpy = sinon.spy();
-      changePartialFilterExpressionSpy = sinon.spy();
-      changeCollationOptionSpy = sinon.spy();
-      changeNameSpy = sinon.spy();
+      spyComponentProps();
 
       component = mount(
         <CreateIndexModal
@@ -574,6 +537,8 @@ describe('CreateIndexModal [Component]', function () {
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
+          toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
+          toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
           resetForm={resetFormSpy}
           createIndex={createIndexSpy}
           openLink={openLinkSpy}
@@ -581,29 +546,20 @@ describe('CreateIndexModal [Component]', function () {
           changePartialFilterExpression={changePartialFilterExpressionSpy}
           changeCollationOption={changeCollationOptionSpy}
           changeName={changeNameSpy}
+          hasWildcardProjection={false}
+          hasColumnstoreProjection={false}
+          wildcardProjection=""
+          columnstoreProjection=""
+          changeColumnstoreProjection={changeColumnstoreProjectionSpy}
+          changeWildcardProjection={changeWildcardProjectionSpy}
+          createNewIndexField={createNewIndexFieldSpy}
+          serverVersion="4.0.0"
         />
       );
     });
 
     afterEach(function () {
-      toggleIsVisibleSpy = null;
-      updateFiedTypeSpy = null;
-      updateFieldNameSpy = null;
-      addFieldSpy = null;
-      removeFieldSpy = null;
-      toggleIsUniqueSpy = null;
-      toggleShowOptionsSpy = null;
-      toggleIsBackgroundSpy = null;
-      toggleIsTtlSpy = null;
-      toggleIsPartialFilterExpressionSpy = null;
-      toggleIsCustomCollationSpy = null;
-      resetFormSpy = null;
-      createIndexSpy = null;
-      openLinkSpy = null;
-      changeTtlSpy = null;
-      changePartialFilterExpressionSpy = null;
-      changeCollationOptionSpy = null;
-      changeNameSpy = null;
+      resetSpyComponentProps();
       component.unmount();
       component = null;
     });
@@ -614,24 +570,8 @@ describe('CreateIndexModal [Component]', function () {
   });
   context('when the modal is visible and in progress', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      updateFiedTypeSpy = sinon.spy();
-      updateFieldNameSpy = sinon.spy();
-      addFieldSpy = sinon.spy();
-      removeFieldSpy = sinon.spy();
-      toggleIsUniqueSpy = sinon.spy();
-      toggleShowOptionsSpy = sinon.spy();
-      toggleIsBackgroundSpy = sinon.spy();
-      toggleIsTtlSpy = sinon.spy();
-      toggleIsPartialFilterExpressionSpy = sinon.spy();
-      toggleIsCustomCollationSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      createIndexSpy = sinon.spy();
-      openLinkSpy = sinon.spy();
-      changeTtlSpy = sinon.spy();
-      changePartialFilterExpressionSpy = sinon.spy();
-      changeCollationOptionSpy = sinon.spy();
-      changeNameSpy = sinon.spy();
+      spyComponentProps();
+
       component = mount(
         <CreateIndexModal
           showOptions={false}
@@ -660,6 +600,8 @@ describe('CreateIndexModal [Component]', function () {
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
+          toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
+          toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
           resetForm={resetFormSpy}
           createIndex={createIndexSpy}
           openLink={openLinkSpy}
@@ -667,29 +609,20 @@ describe('CreateIndexModal [Component]', function () {
           changePartialFilterExpression={changePartialFilterExpressionSpy}
           changeCollationOption={changeCollationOptionSpy}
           changeName={changeNameSpy}
+          hasWildcardProjection={false}
+          hasColumnstoreProjection={false}
+          wildcardProjection=""
+          columnstoreProjection=""
+          changeColumnstoreProjection={changeColumnstoreProjectionSpy}
+          changeWildcardProjection={changeWildcardProjectionSpy}
+          createNewIndexField={createNewIndexFieldSpy}
+          serverVersion="4.0.0"
         />
       );
     });
 
     afterEach(function () {
-      toggleIsVisibleSpy = null;
-      updateFiedTypeSpy = null;
-      updateFieldNameSpy = null;
-      addFieldSpy = null;
-      removeFieldSpy = null;
-      toggleIsUniqueSpy = null;
-      toggleShowOptionsSpy = null;
-      toggleIsBackgroundSpy = null;
-      toggleIsTtlSpy = null;
-      toggleIsPartialFilterExpressionSpy = null;
-      toggleIsCustomCollationSpy = null;
-      resetFormSpy = null;
-      createIndexSpy = null;
-      openLinkSpy = null;
-      changeTtlSpy = null;
-      changePartialFilterExpressionSpy = null;
-      changeCollationOptionSpy = null;
-      changeNameSpy = null;
+      resetSpyComponentProps();
       component.unmount();
       component = null;
     });
@@ -702,24 +635,8 @@ describe('CreateIndexModal [Component]', function () {
   });
   context('when the modal is visible and error', function () {
     beforeEach(function () {
-      toggleIsVisibleSpy = sinon.spy();
-      updateFiedTypeSpy = sinon.spy();
-      updateFieldNameSpy = sinon.spy();
-      addFieldSpy = sinon.spy();
-      removeFieldSpy = sinon.spy();
-      toggleIsUniqueSpy = sinon.spy();
-      toggleShowOptionsSpy = sinon.spy();
-      toggleIsBackgroundSpy = sinon.spy();
-      toggleIsTtlSpy = sinon.spy();
-      toggleIsPartialFilterExpressionSpy = sinon.spy();
-      toggleIsCustomCollationSpy = sinon.spy();
-      resetFormSpy = sinon.spy();
-      createIndexSpy = sinon.spy();
-      openLinkSpy = sinon.spy();
-      changeTtlSpy = sinon.spy();
-      changePartialFilterExpressionSpy = sinon.spy();
-      changeCollationOptionSpy = sinon.spy();
-      changeNameSpy = sinon.spy();
+      spyComponentProps();
+
       component = mount(
         <CreateIndexModal
           showOptions={false}
@@ -749,6 +666,8 @@ describe('CreateIndexModal [Component]', function () {
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
+          toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
+          toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
           resetForm={resetFormSpy}
           createIndex={createIndexSpy}
           openLink={openLinkSpy}
@@ -756,29 +675,20 @@ describe('CreateIndexModal [Component]', function () {
           changePartialFilterExpression={changePartialFilterExpressionSpy}
           changeCollationOption={changeCollationOptionSpy}
           changeName={changeNameSpy}
+          hasWildcardProjection={false}
+          hasColumnstoreProjection={false}
+          wildcardProjection=""
+          columnstoreProjection=""
+          changeColumnstoreProjection={changeColumnstoreProjectionSpy}
+          changeWildcardProjection={changeWildcardProjectionSpy}
+          createNewIndexField={createNewIndexFieldSpy}
+          serverVersion="4.0.0"
         />
       );
     });
 
     afterEach(function () {
-      toggleIsVisibleSpy = null;
-      updateFiedTypeSpy = null;
-      updateFieldNameSpy = null;
-      addFieldSpy = null;
-      removeFieldSpy = null;
-      toggleIsUniqueSpy = null;
-      toggleShowOptionsSpy = null;
-      toggleIsBackgroundSpy = null;
-      toggleIsTtlSpy = null;
-      toggleIsPartialFilterExpressionSpy = null;
-      toggleIsCustomCollationSpy = null;
-      resetFormSpy = null;
-      createIndexSpy = null;
-      openLinkSpy = null;
-      changeTtlSpy = null;
-      changePartialFilterExpressionSpy = null;
-      changeCollationOptionSpy = null;
-      changeNameSpy = null;
+      resetSpyComponentProps();
       component.unmount();
       component = null;
     });

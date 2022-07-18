@@ -4,7 +4,7 @@ import mongodbns from 'mongodb-ns';
 import { StoreConnector } from 'hadron-react-components';
 
 // Components
-import Header from '../header';
+import { Toolbar } from '../toolbar/toolbar';
 import { RecentList } from '../recent';
 import { FavoriteList } from '../favorite';
 
@@ -19,17 +19,21 @@ class QueryHistory extends PureComponent {
     store: PropTypes.object.isRequired,
     showing: PropTypes.oneOf(['recent', 'favorites']),
     collapsed: PropTypes.bool,
-    ns: PropTypes.object
+    ns: PropTypes.object,
   };
 
   static defaultProps = {
     showing: 'recent',
     collapsed: true,
-    ns: mongodbns('')
+    ns: mongodbns(''),
   };
 
   renderFavorites = () => (
-    <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.FavoriteListStore')}>
+    <StoreConnector
+      store={this.props.store.localAppRegistry.getStore(
+        'QueryHistory.FavoriteListStore'
+      )}
+    >
       <FavoriteList
         data-test-id="query-history-list-favorites"
         ns={this.props.ns}
@@ -40,7 +44,11 @@ class QueryHistory extends PureComponent {
   );
 
   renderRecents = () => (
-    <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.RecentListStore')}>
+    <StoreConnector
+      store={this.props.store.localAppRegistry.getStore(
+        'QueryHistory.RecentListStore'
+      )}
+    >
       <RecentList
         data-test-id="query-history-list-recent"
         ns={this.props.ns}
@@ -58,18 +66,9 @@ class QueryHistory extends PureComponent {
     }
 
     return (
-      <div
-        data-test-id="query-history"
-        className={styles.component}
-      >
+      <div data-test-id="query-history" className={styles.component}>
         <div className={styles.inner}>
-          <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.HeaderStore')}>
-            <Header
-              data-test-id="query-history-header"
-              actions={actions}
-              showing={showing}
-            />
-          </StoreConnector>
+          <Toolbar actions={actions} showing={showing} />
 
           {showing === 'favorites' ? this.renderFavorites() : null}
           {showing === 'recent' ? this.renderRecents() : null}

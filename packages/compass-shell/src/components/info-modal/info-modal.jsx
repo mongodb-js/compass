@@ -14,9 +14,9 @@ import {
 
 import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
 
-import packageJson from '../../../package.json';
-
-const mongoshVersion = `v${packageJson.dependencies['@mongosh/browser-repl'].replace('^', '')}`;
+const mongoshVersion = `v${
+  require('@mongosh/browser-repl/package.json').version
+}`;
 
 const modalContentWrapperStyles = css({
   padding: 'initial'

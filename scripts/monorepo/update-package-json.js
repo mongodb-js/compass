@@ -11,6 +11,17 @@ function insertAfter(obj, key, insertKey, insertValue) {
   );
 }
 
+function sortKeys(obj) {
+  const keys = Object.keys(obj).sort((a, b) => {
+    return a.localeCompare(b);
+  });
+  return Object.fromEntries(
+    keys.map((key) => {
+      return [key, obj[key]];
+    })
+  );
+}
+
 async function updatePackageJson(packageDir, updateFn) {
   const pathToPkg = path.resolve(packageDir, 'package.json');
   const pkgJson = require(pathToPkg);
@@ -34,4 +45,4 @@ async function updatePackageJson(packageDir, updateFn) {
   );
 }
 
-module.exports = { skip, updatePackageJson, insertAfter };
+module.exports = { skip, updatePackageJson, insertAfter, sortKeys };

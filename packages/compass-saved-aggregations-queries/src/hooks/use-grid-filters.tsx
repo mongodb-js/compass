@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { useId } from '@react-aria/utils';
 import Fuse from 'fuse.js';
 import {
   css,
   spacing,
+  useId,
   Select,
   Option,
   TextInput,

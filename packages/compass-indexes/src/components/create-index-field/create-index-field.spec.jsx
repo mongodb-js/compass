@@ -1,14 +1,13 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { expect } from 'chai';
-import Select from 'react-select-plus';
 
 import CreateIndexField from '../create-index-field';
 
 const noop = () => {};
 
 function renderCreateIndexField(optionalProps) {
-  return mount(
+  return shallow(
     <CreateIndexField
       fields={[]}
       field={{}}
@@ -20,6 +19,7 @@ function renderCreateIndexField(optionalProps) {
       removeField={noop}
       updateFieldName={noop}
       updateFieldType={noop}
+      createNewIndexField={noop}
       {...optionalProps}
     />
   );
@@ -40,12 +40,11 @@ describe('create-index-field [Component]', function () {
       });
     });
     it('does not have columnstore indexes as a selectable index type', function () {
-      const typeSelectComponent = component.find(Select).at(1);
+      const typeSelectComponent = component.find(
+        '[id="create-index-field-type-0"]'
+      );
       expect(typeSelectComponent).to.be.present();
-      expect(typeSelectComponent.props().options).to.not.deep.contain({
-        value: 'columnstore',
-        type: 'columnstore',
-      });
+      expect(typeSelectComponent).to.not.contain('columnstore');
     });
   });
 
@@ -56,12 +55,11 @@ describe('create-index-field [Component]', function () {
       });
     });
     it('shows columnstore indexes as a selectable index type', function () {
-      const typeSelectComponent = component.find(Select).at(1);
+      const typeSelectComponent = component.find(
+        '[id="create-index-field-type-0"]'
+      );
       expect(typeSelectComponent).to.be.present();
-      expect(typeSelectComponent.props().options).to.deep.contain({
-        value: 'columnstore',
-        label: 'columnstore',
-      });
+      expect(typeSelectComponent).to.contain('columnstore');
     });
   });
 });

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import styles from './card.module.less';
 
-const Card = ({children, className, ...other}) => {
+const Card = ({ children, className, ...other }) => {
   const _className = classnames(styles.component, className);
 
   return (
@@ -15,11 +15,11 @@ const Card = ({children, className, ...other}) => {
 
 Card.propTypes = {
   children: PropTypes.any,
-  className: PropTypes.string
+  className: PropTypes.string,
 };
 
 Card.defaultProps = {
-  className: ''
+  className: '',
 };
 
 export default Card;

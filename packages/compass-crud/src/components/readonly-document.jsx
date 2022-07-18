@@ -13,11 +13,6 @@ const BASE = 'document';
 const CONTENTS = `${BASE}-contents`;
 
 /**
- * The initial field limit.
- */
-const INITIAL_FIELD_LIMIT = 25;
-
-/**
  * The test id.
  */
 const TEST_ID = 'readonly-document';
@@ -26,25 +21,19 @@ const TEST_ID = 'readonly-document';
  * Component for a single readonly document in a list of documents.
  */
 class ReadonlyDocument extends React.Component {
-  state = {
-    renderSize: INITIAL_FIELD_LIMIT
-  };
-
-  setRenderSize(newLimit) {
-    this.setState({ renderSize: newLimit });
-  }
-
   handleClone = () => {
-    const clonedDoc = this.props.doc.generateObject({ excludeInternalFields: true });
+    const clonedDoc = this.props.doc.generateObject({
+      excludeInternalFields: true,
+    });
     this.props.openInsertDocumentDialog(clonedDoc, true);
-  }
+  };
 
   /**
    * Handle copying JSON to clipboard of the document.
    */
   handleCopy = () => {
     this.props.copyToClipboard(this.props.doc);
-  }
+  };
 
   /**
    * Get the elements for the document.
@@ -52,36 +41,16 @@ class ReadonlyDocument extends React.Component {
    * @returns {Array} The elements.
    */
   renderElements() {
-    return (
-      <DocumentList.Document
-        value={this.props.doc}
-        expanded={this.state.expandAll}
-        visibleFieldsCount={this.state.renderSize}
-      />
-    );
-  }
-
-  /**
-   * Render the expander bar.
-   *
-   * @returns {React.Component} The expander bar.
-   */
-  renderExpansion() {
-    return (
-      <DocumentList.DocumentFieldsToggleGroup
-        currentSize={this.state.renderSize}
-        totalSize={this.props.doc.elements.size}
-        minSize={INITIAL_FIELD_LIMIT}
-        onSizeChange={this.setRenderSize.bind(this)}
-      />
-    );
+    return <DocumentList.Document value={this.props.doc} />;
   }
 
   renderActions() {
     return (
       <DocumentList.DocumentActionsGroup
         onCopy={this.props.copyToClipboard ? this.handleCopy : undefined}
-        onClone={this.props.openInsertDocumentDialog ? this.handleClone : undefined}
+        onClone={
+          this.props.openInsertDocumentDialog ? this.handleClone : undefined
+        }
       />
     );
   }
@@ -96,7 +65,6 @@ class ReadonlyDocument extends React.Component {
       <div className={BASE} data-test-id={TEST_ID}>
         <div className={CONTENTS}>
           {this.renderElements()}
-          {this.renderExpansion()}
           {this.renderActions()}
         </div>
       </div>
@@ -111,7 +79,7 @@ ReadonlyDocument.propTypes = {
   doc: PropTypes.object.isRequired,
   expandAll: PropTypes.bool,
   openInsertDocumentDialog: PropTypes.func,
-  tz: PropTypes.string
+  tz: PropTypes.string,
 };
 
 export default ReadonlyDocument;

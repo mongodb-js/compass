@@ -86,9 +86,10 @@ class Types extends React.Component {
           aria-expanded={this.state.isOpen}
           onClick={() => this.toggleOpenClass()}
           onBlur={() => this.toggleOpenClass(false)}
-          ref={this.props.buttonRef ? this.props.buttonRef : () => {}}>
+          ref={this.props.buttonRef ? this.props.buttonRef : () => {}}
+        >
           {this.element.currentType}
-          <span className="caret"/>
+          <span className="caret" />
         </button>
         <ul className="dropdown-menu" aria-labelledby="types-dropdown">
           {this.renderTypes()}
@@ -106,9 +107,12 @@ class Types extends React.Component {
     return TypeChecker.castableTypes(this.isHighPrecision()).map((type) => {
       return (
         <li key={type}>
+          {/* TODO: COMPASS-5847 Remove eslint disables: */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
           <span
             className={`editable-element-type-${type.toLowerCase()}`}
-            onMouseDown={this.handleTypeChange.bind(this)}>
+            onMouseDown={this.handleTypeChange.bind(this)}
+          >
             {type}
           </span>
         </li>
@@ -132,7 +136,7 @@ Types.propTypes = {
   element: PropTypes.object.isRequired,
   version: PropTypes.string.isRequired,
   className: PropTypes.string,
-  buttonRef: PropTypes.any
+  buttonRef: PropTypes.any,
 };
 
 export default Types;

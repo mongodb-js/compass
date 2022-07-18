@@ -6,7 +6,7 @@ import reducer, {
   CHANGE_SCHEMA_FIELDS,
 } from '../create-index/schema-fields';
 
-describe('create index partial filter expression module', function () {
+describe('create index schema fields module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {

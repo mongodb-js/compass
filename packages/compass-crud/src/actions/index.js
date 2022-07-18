@@ -32,7 +32,7 @@ const configureActions = () => {
     'updateDocument',
     'updateJsonDoc',
     'viewChanged',
-    'updateComment'
+    'updateComment',
   ]);
 
   return actions;
