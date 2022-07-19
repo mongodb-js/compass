@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
+  BSONDocumentEditor,
   css,
   Description,
   Editor,
@@ -26,7 +27,7 @@ const kmsProviderNames = {
   kmip: 'KMIP'
 };
 
-export const ENCRYPTED_FIELDS_PLACEHOLDER = `{
+const ENCRYPTED_FIELDS_PLACEHOLDER = `{
   fields: [
     {
       path: "encryptedField",
@@ -79,12 +80,13 @@ function FLE2Fields({
       <FieldSet>
         <Label htmlFor="TODO(COMPASS-5653)">Encrypted fields</Label>
         <Description>Indicate which fields should be encrypted and whether they should be queryable.</Description>
-        <Editor
-          variant={EditorVariant.Shell}
+        <BSONDocumentEditor
           name="fle2.encryptedFields"
-          value={fle2.encryptedFields}
+          defaultValue={ENCRYPTED_FIELDS_PLACEHOLDER}
+          text={fle2.encryptedFields ? undefined : ENCRYPTED_FIELDS_PLACEHOLDER}
+          value={fle2.encryptedFields ?? undefined}
           data-testid="fle2-encryptedFields"
-          onChangeText={(newText) => onChangeField('fle2.encryptedFields', newText)}
+          onChangeValue={(newValue, error) => onChangeField('fle2.encryptedFields', error ?? newValue)}
         />
       </FieldSet>
 
@@ -126,13 +128,13 @@ function FLE2Fields({
       <FieldSet>
         <Label htmlFor="TODO(COMPASS-5653)">Key Encryption Key</Label>
         <Description>Specify which key encryption key to use for creating new data encryption keys.</Description>
-        <Editor
-          variant={EditorVariant.Shell}
+        <BSONDocumentEditor
           name="fle2.keyEncryptionKey"
           defaultValue={keyEncryptionKeyTemplate[fle2.kmsProvider]}
-          value={fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]}
+          text={fle2.keyEncryptionKey ? undefined : keyEncryptionKeyTemplate[fle2.kmsProvider]}
+          value={fle2.keyEncryptionKey ?? undefined}
           data-testid="fle2-keyEncryptionKey"
-          onChangeText={(newText) => onChangeField('fle2.keyEncryptionKey', newText)}
+          onChangeValue={(newValue, error) => onChangeField('fle2.keyEncryptionKey', error ?? newValue)}
         />
       </FieldSet>
     </CollapsibleFieldSet>

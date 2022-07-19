@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Button, Icon, Tooltip } from '../leafygreen';
+import { useElementParentHoverState } from '../../utils/use-element-parent-hover-state';
 
 const actionsGroupContainer = css({
   position: 'absolute',
@@ -23,34 +24,6 @@ const actionsGroupItemSeparator = css({
   flex: '1 0 auto',
 });
 
-function useElementParentHoverState<T extends HTMLElement>(
-  ref: React.RefObject<T>
-): boolean {
-  const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    const node = ref.current?.parentElement;
-
-    const onMouseEnter = () => {
-      setIsHovered(true);
-    };
-
-    const onMouseLeave = () => {
-      setIsHovered(false);
-    };
-
-    node?.addEventListener('mouseenter', onMouseEnter);
-    node?.addEventListener('mouseleave', onMouseLeave);
-
-    return () => {
-      node?.removeEventListener('mouseenter', onMouseEnter);
-      node?.removeEventListener('mouseleave', onMouseLeave);
-    };
-  }, [ref]);
-
-  return isHovered;
-}
-
 const DocumentActionsGroup: React.FunctionComponent<
   {
     onEdit?: () => void;
@@ -71,8 +44,8 @@ const DocumentActionsGroup: React.FunctionComponent<
   expanded,
   onlyShowOnHover = true,
 }) => {
-  const conatinerRef = useRef<HTMLDivElement | null>(null);
-  const isHovered = useElementParentHoverState(conatinerRef);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isHovered = useElementParentHoverState(containerRef);
   const [showCopyButtonTooltip, setShowCopyButtonTooltip] = useState(false);
 
   useEffect(() => {
@@ -88,7 +61,7 @@ const DocumentActionsGroup: React.FunctionComponent<
 
   return (
     <div
-      ref={conatinerRef}
+      ref={containerRef}
       className={actionsGroupContainer}
       style={{
         display: onlyShowOnHover ? (isHovered ? 'flex' : 'none') : 'flex',

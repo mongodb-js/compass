@@ -12,7 +12,7 @@ import TimeSeriesFields from './time-series-fields';
 import hasClusteredCollectionSupport from './has-clustered-collection-support';
 import ClusteredCollectionFields from './clustered-collection-fields';
 import hasFLE2Support from './has-fle2-support';
-import FLE2Fields, { ENCRYPTED_FIELDS_PLACEHOLDER } from './fle2-fields';
+import FLE2Fields from './fle2-fields';
 import Collation from './collation';
 
 const advancedCollectionOptionsContainerStyles = css({
@@ -58,12 +58,12 @@ export default class CollectionFields extends PureComponent {
       expireAfterSeconds: '',
       clusteredIndex: { name: '', unique: true, key: { _id: 1 } },
       fle2: {
-        encryptedFields: ENCRYPTED_FIELDS_PLACEHOLDER,
+        encryptedFields: undefined,
         kmsProvider:
           (this.props.configuredKMSProviders || []).length === 1 ?
             this.props.configuredKMSProviders[0] :
             '',
-        keyEncryptionKey: ''
+        keyEncryptionKey: undefined
       }
     }
   };
@@ -117,9 +117,9 @@ export default class CollectionFields extends PureComponent {
 
     const fle2Options = isFLE2
       ? {
-        encryptedFields: fields.fle2.encryptedFields.trim(),
+        encryptedFields: fields.fle2.encryptedFields,
         kmsProvider: `${fields.fle2.kmsProvider || ''}`,
-        keyEncryptionKey: fields.fle2.keyEncryptionKey.trim()
+        keyEncryptionKey: fields.fle2.keyEncryptionKey
       }
       : {};
 

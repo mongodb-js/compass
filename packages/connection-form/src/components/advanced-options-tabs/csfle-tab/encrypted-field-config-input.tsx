@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import type { Document } from 'mongodb';
 import {
-  encryptedFieldConfigToText,
-  textToEncryptedFieldConfig,
+  encryptedFieldConfigToEditorProps,
+  editorTextToEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
 import FormFieldContainer from '../../form-field-container';
 import {
-  Editor,
+  BSONDocumentEditor,
   Label,
   Banner,
   Description,
@@ -52,7 +52,10 @@ function EncryptedFieldConfigInput({
   const [hasEditedContent, setHasEditedContent] = useState(false);
 
   if (encryptedFieldsMap === undefined && !hasEditedContent) {
-    encryptedFieldsMap = textToEncryptedFieldConfig(
+    encryptedFieldsMap = editorTextToEncryptedFieldConfig(
+      {},
+      null,
+      'Shell',
       ENCRYPTED_FIELDS_MAP_PLACEHOLDER
     );
   }
@@ -62,13 +65,14 @@ function EncryptedFieldConfigInput({
       <FormFieldContainer>
         <Label htmlFor="TODO(COMPASS-5653)">{label}</Label>
         <Description>{description}</Description>
-        <Editor
+        <BSONDocumentEditor
           data-testid="encrypted-fields-map-editor"
-          variant="Shell"
-          text={encryptedFieldConfigToText(encryptedFieldsMap)}
-          onChangeText={(newText) => {
+          {...encryptedFieldConfigToEditorProps(encryptedFieldsMap)}
+          onChangeValue={(value, error, variant, newText) => {
             setHasEditedContent(true);
-            onChange(textToEncryptedFieldConfig(newText));
+            onChange(
+              editorTextToEncryptedFieldConfig(value, error, variant, newText)
+            );
           }}
         />
       </FormFieldContainer>

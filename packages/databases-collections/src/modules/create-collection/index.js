@@ -17,7 +17,6 @@ import error, {
 import { reset, RESET } from '../reset';
 import { prepareMetrics } from '../metrics';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import queryParser from 'mongodb-query-parser';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
 
@@ -153,16 +152,18 @@ export const createCollection = (data, kind = 'Collection') => {
   };
 };
 
+function isError(value) {
+  return Object.prototype.toString.call(value) === '[object Error]';
+}
+
 export async function handleFLE2Options(ds, options) {
   if (!options) {
     return options;
   }
 
   if (options.encryptedFields) {
-    try {
-      options.encryptedFields = queryParser(options.encryptedFields);
-    } catch (err) {
-      throw new Error(`Could not parse encryptedFields config: ${err.message}`);
+    if (isError(options.encryptedFields)) {
+      throw new Error(`Could not parse encryptedFields config: ${options.encryptedFields.message}`);
     }
 
     if (Object.keys(options.encryptedFields).length === 0) {
@@ -170,11 +171,9 @@ export async function handleFLE2Options(ds, options) {
     } else if (options.kmsProvider) {
       // If keys are missing from the encryptedFields config,
       // generate them as part of the collection creation operation.
-      let keyEncryptionKey;
-      try {
-        keyEncryptionKey = queryParser(options.keyEncryptionKey || '{}');
-      } catch (err) {
-        throw new Error(`Could not parse keyEncryptionKey: ${err.message}`);
+      const keyEncryptionKey = options.keyEncryptionKey || {};
+      if (isError(keyEncryptionKey)) {
+        throw new Error(`Could not parse keyEncryptionKey: ${keyEncryptionKey.message}`);
       }
 
       const fields = options.encryptedFields.fields;
