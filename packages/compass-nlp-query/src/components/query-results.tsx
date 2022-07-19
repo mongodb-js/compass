@@ -1,11 +1,10 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
-import type { DataService } from 'mongodb-data-service';
-import type AppRegistry from 'hadron-app-registry';
 
-import { useNLPQuery } from '../hooks/use-nlp-query';
 import { DocumentResultsView } from './document-results-view';
 import { TranslateView } from './translate-view';
+import type { ResultState, TranslateState } from '../hooks/use-nlp-query';
+import type { ResultsViewType } from './document-list';
 
 const resultsContainerStyles = css({
   paddingTop: spacing[2],
@@ -14,56 +13,54 @@ const resultsContainerStyles = css({
 });
 
 type QueryResultsProps = {
-  dataService: DataService;
-  localAppRegistry: AppRegistry;
-  namespace: string;
   queryText: string;
+
+  translateState: TranslateState;
+  translateTimeMS: number;
+  translateErrorMessage?: string;
+
+  resultState: ResultState;
+  resultErrorMessage?: string;
+
+  mqlText: string;
+  resultDocuments: Document[];
+  resultsViewType: ResultsViewType;
+
+  onOpenAggregation: () => void;
+  onClearError: () => void;
+  onTranslateQuery: () => Promise<void>;
+  onRunQuery: () => Promise<void>;
+  setResultsViewType: (viewType: ResultsViewType) => void;
 };
 
 function QueryResults({
-  dataService,
-  localAppRegistry,
-  namespace,
-  queryText
+  queryText,
+
+  translateState,
+  translateErrorMessage,
+  translateTimeMS,
+
+  mqlText,
+
+  resultState,
+  resultErrorMessage,
+  resultDocuments,
+  resultsViewType,
+
+  onOpenAggregation,
+  onClearError,
+  onTranslateQuery,
+  onRunQuery,
+  setResultsViewType,
 }: QueryResultsProps): React.ReactElement {
-  const [{
-    translateState,
-    translateErrorMessage,
-    translateTimeMS,
-
-    mqlText,
-
-    resultState,
-    resultErrorMessage,
-    resultDocuments,
-    resultsViewType,
-  }, {
-    onClearError,
-    onTranslateQuery,
-    onRunQuery,
-    setResultsViewType
-  }] = useNLPQuery({
-    dataService,
-    namespace,
-    queryText
-  });
-
-  const onOpenAggregation = useCallback(() => {
-    localAppRegistry.emit('open-aggregation-in-editor', mqlText);
-  }, [ localAppRegistry, mqlText ]);
-  
   return (
-    <div
-      className={resultsContainerStyles}
-    >
+    <div className={resultsContainerStyles}>
       <TranslateView
         mqlText={mqlText}
-
         onClickOpenAggregation={onOpenAggregation}
         onClearError={onClearError}
         onTranslateQuery={onTranslateQuery}
         onRunQuery={onRunQuery}
-
         translateState={translateState}
         translateErrorMessage={translateErrorMessage}
         translateTimeMS={translateTimeMS}
@@ -71,13 +68,10 @@ function QueryResults({
       {translateState === 'loaded' && (
         <DocumentResultsView
           queryText={queryText}
-
           onClearError={onClearError}
-
           resultDocuments={resultDocuments}
           resultErrorMessage={resultErrorMessage}
           resultState={resultState}
-
           resultsViewType={resultsViewType}
           setResultsViewType={setResultsViewType}
         />

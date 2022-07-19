@@ -25,9 +25,7 @@ const DocumentResultsViewControls: React.FunctionComponent<{
   const labelId = useId();
   const controlId = useId();
   return (
-    <div
-      className={containerStyles}
-    >
+    <div className={containerStyles}>
       <Overline
         as="label"
         id={labelId}

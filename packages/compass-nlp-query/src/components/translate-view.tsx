@@ -1,5 +1,12 @@
 import React from 'react';
-import { Banner, Body, Button, SpinLoader, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  Body,
+  Button,
+  SpinLoader,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import { ProposedQuery } from './proposed-query';
 import type { TranslateState } from '../hooks/use-nlp-query';
@@ -13,7 +20,6 @@ const translateButtonStyles = css({
 });
 
 type TranslateViewProps = {
-
   mqlText: string;
 
   onClearError: () => void;
@@ -37,12 +43,8 @@ function TranslateView({
   translateState,
 }: TranslateViewProps): React.ReactElement {
   switch (translateState) {
-    case 'empty': 
-      return (
-        <Body>
-          Enter a query above to see documents here.
-        </Body>
-      );
+    case 'empty':
+      return <Body>Enter a query above to see documents here.</Body>;
     case 'awaiting-run': {
       return (
         <div>
@@ -50,7 +52,9 @@ function TranslateView({
             className={translateButtonStyles}
             variant="primary"
             onClick={() => void onTranslateQuery()}
-          >Translate</Button>
+          >
+            Translate
+          </Button>
         </div>
       );
     }
@@ -74,11 +78,7 @@ function TranslateView({
     case 'error': {
       return (
         <div>
-          <Banner
-            variant="danger"
-            dismissible
-            onClose={onClearError}
-          >
+          <Banner variant="danger" dismissible onClose={onClearError}>
             {translateErrorMessage}
           </Banner>
         </div>

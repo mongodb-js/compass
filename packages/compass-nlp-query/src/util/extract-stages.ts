@@ -17,7 +17,8 @@ export function extractStages(input: string) {
 
   if (!stages) {
     throw new Error(
-      'Unable to extract pipeline stages: the provided input is not an array of objects.');
+      'Unable to extract pipeline stages: the provided input is not an array of objects.'
+    );
   }
 
   return stages;
@@ -26,21 +27,21 @@ export function extractStages(input: string) {
 function parseProgram(input: string) {
   try {
     const program = parse(input, {
-      ecmaVersion: 6
+      ecmaVersion: 6,
     });
 
     return program;
   } catch (originalError: any) {
-    const err = new Error(`Unable to parse the pipeline source: ${originalError.message as string}`);
+    const err = new Error(
+      `Unable to parse the pipeline source: ${originalError.message as string}`
+    );
     err.stack = originalError.stack;
     throw err;
   }
 }
 
 function programToStages(program: any): undefined | Stage[] {
-  if (
-    !program.body ||
-    program.body.length !== 1) {
+  if (!program.body || program.body.length !== 1) {
     return;
   }
 
@@ -64,12 +65,15 @@ function programToStages(program: any): undefined | Stage[] {
 }
 
 function isValidObjectExpression(element: any) {
-  return element.type === 'ObjectExpression' &&
+  return (
+    element.type === 'ObjectExpression' &&
     element.properties &&
-    element.properties.length === 1;
+    element.properties.length === 1
+  );
 }
 
-export const PARSE_ERROR = 'Unable to parse stage in pipeline, the stage must be a properly formatted document.';
+export const PARSE_ERROR =
+  'Unable to parse stage in pipeline, the stage must be a properly formatted document.';
 
 function parseStage(stageSource: string) {
   const parsed = mongodbQueryParser(stageSource);
@@ -85,13 +89,13 @@ function parseStage(stageSource: string) {
 
 function objectExpressionToStage(objectExpression: any): Stage {
   const { key: keyNode, value: valueNode } = objectExpression.properties[0];
-  
+
   // Keep comments? (comments: true)
   const source = generate(valueNode, { comments: false, indent: '  ' });
-  
+
   return {
     operator: keyNode.name || keyNode.value,
     source,
-    parsedSource: parseStage(decomment(source))
+    parsedSource: parseStage(decomment(source)),
   };
 }

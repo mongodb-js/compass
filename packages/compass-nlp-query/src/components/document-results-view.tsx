@@ -1,5 +1,10 @@
 import React from 'react';
-import { Banner, SpinLoader, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  SpinLoader,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import { DocumentList } from './document-list';
 import type { ResultsViewType } from './document-list';
@@ -21,10 +26,9 @@ const resultsStyles = css({
   overflowY: 'auto',
   '&:not(:first-child)': {
     height: `calc(100% - ${spacing[3]}px)`,
-    marginTop: spacing[3]
-  }
+    marginTop: spacing[3],
+  },
 });
-
 
 type DocumentResultsViewProps = {
   onClearError: () => void;
@@ -49,14 +53,11 @@ function DocumentResultsView({
   resultDocuments,
   resultsViewType,
 
-  setResultsViewType
+  setResultsViewType,
 }: DocumentResultsViewProps): React.ReactElement {
   switch (resultState) {
     case 'awaiting-run': {
-      return (
-        <div>
-        </div>
-      );
+      return <div></div>;
     }
     case 'loading': {
       return (
@@ -77,8 +78,8 @@ function DocumentResultsView({
           </div>
           <div className={resultsStyles}>
             <DocumentList
-              documents={resultDocuments || [] as Document[]}
-              view={resultsViewType} 
+              documents={resultDocuments || ([] as Document[])}
+              view={resultsViewType}
             />
           </div>
         </div>
@@ -87,11 +88,7 @@ function DocumentResultsView({
     case 'error': {
       return (
         <div className={resultsHeaderStyles}>
-          <Banner
-            variant="danger"
-            dismissible
-            onClose={onClearError}
-          >
+          <Banner variant="danger" dismissible onClose={onClearError}>
             {resultErrorMessage}
           </Banner>
         </div>

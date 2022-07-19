@@ -17,25 +17,22 @@ const controlsStyles = css({
   alignItems: 'center',
 });
 
-const DocumentResultsHeader: React.FunctionComponent<DocumentResultsHeaderProps> =
-  ({
-    onChangeResultsView,
-    queryText,
-    resultsView
-  }) => {
-    return (
-      <div>
-        <div className={controlsStyles}>
-          <Body>
-            Results for <strong>&apos;{queryText}&apos;</strong>
-          </Body>
-          <DocumentResultsViewControls
-            value={resultsView}
-            onChange={onChangeResultsView}
-          />
-        </div>
+const DocumentResultsHeader: React.FunctionComponent<
+  DocumentResultsHeaderProps
+> = ({ onChangeResultsView, queryText, resultsView }) => {
+  return (
+    <div>
+      <div className={controlsStyles}>
+        <Body>
+          Results for <strong>&apos;{queryText}&apos;</strong>
+        </Body>
+        <DocumentResultsViewControls
+          value={resultsView}
+          onChange={onChangeResultsView}
+        />
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 export { DocumentResultsHeader };

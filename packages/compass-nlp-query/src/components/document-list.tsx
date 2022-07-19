@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { DocumentListView, DocumentJsonView } from '@mongodb-js/compass-crud';
 import type { Document } from 'mongodb';
 import HadronDocument from 'hadron-document';
-import { css, spacing } from '@mongodb-js/compass-components';
+import { Body, css, spacing, uiColors } from '@mongodb-js/compass-components';
+import { MAX_DOCUMENTS_IN_NLP_PREVIEW } from '../hooks/use-nlp-query';
 
 export type ResultsViewType = 'document' | 'json';
 
@@ -12,6 +13,15 @@ const containerStyles = css({
   },
   marginLeft: spacing[1],
   marginRight: spacing[1],
+});
+
+const emptyDocumentsStyles = css({
+  padding: spacing[3],
+  color: uiColors.gray.dark2,
+});
+
+const moreDocumentsStyles = css({
+  padding: spacing[3],
 });
 
 const DocumentList: React.FunctionComponent<{
@@ -31,7 +41,11 @@ const DocumentList: React.FunctionComponent<{
   );
 
   if (documents.length === 0) {
-    return null;
+    return (
+      <div className={emptyDocumentsStyles}>
+        <em>No documents found :&apos;(</em>
+      </div>
+    );
   }
 
   const DocumentView =
@@ -40,6 +54,11 @@ const DocumentList: React.FunctionComponent<{
   return (
     <div className={containerStyles}>
       <DocumentView {...listProps}></DocumentView>
+      {documents.length >= MAX_DOCUMENTS_IN_NLP_PREVIEW && (
+        <Body className={moreDocumentsStyles}>
+          ^ the first <strong>{MAX_DOCUMENTS_IN_NLP_PREVIEW}</strong> documents.
+        </Body>
+      )}
     </div>
   );
 };

@@ -24,15 +24,17 @@ async function getTrainingData(): Promise<string> {
 const createPipelineFromText = (text: string) => {
   const stages = extractStages(text);
 
-  return stages.map(({
-    operator,
-    parsedSource
-  }: {
-    operator: string,
-    parsedSource: Document
-  }) => ({
-    [operator]: parsedSource
-  }));
+  return stages.map(
+    ({
+      operator,
+      parsedSource,
+    }: {
+      operator: string;
+      parsedSource: Document;
+    }) => ({
+      [operator]: parsedSource,
+    })
+  );
 };
 
 // Testing pipeline from text:
@@ -53,10 +55,12 @@ export function parseMQLFromAIText(aiGeneratedMQLText: string): Document[] {
   return createPipelineFromText(aiGeneratedMQLText);
 }
 
-export async function getMQLForNaturalLanguageText(naturalLanguageText: string) {
+export async function getMQLForNaturalLanguageText(
+  naturalLanguageText: string
+) {
   // We currently build a prompt for open ai with the training data
   // in the prompt. The training data is a bunch of questions and responses
-  // The AI generates an answer for the prompt given by the user. 
+  // The AI generates an answer for the prompt given by the user.
   const trainingData = await getTrainingData();
   const aiInput = `${trainingData}Q:${naturalLanguageText}\nA:`;
 
@@ -68,7 +72,7 @@ export async function getMQLForNaturalLanguageText(naturalLanguageText: string) 
     topP: 1,
     frequencyPenalty: 0.2,
     presencePenalty: 0,
-    stop: ['\n']
+    stop: ['\n'],
   });
 
   console.log('gpt input (excluding training data):', naturalLanguageText);

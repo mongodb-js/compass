@@ -1,5 +1,12 @@
 import React from 'react';
-import { Body, Button, Code, css, Icon, spacing } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Button,
+  Code,
+  css,
+  Icon,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   padding: 0,
@@ -7,7 +14,7 @@ const containerStyles = css({
 });
 
 const runButtonStyles = css({
-  marginTop: spacing[2]
+  marginTop: spacing[2],
 });
 
 const openAggregationButtonStyles = css({
@@ -19,7 +26,7 @@ const openAggregationButtonStyles = css({
 const mqlCodeContainerStyles = css({
   maxWidth: spacing[7] * 10,
   display: 'flex',
-  alignItems: 'center'
+  alignItems: 'center',
 });
 
 type ProposedQueryProps = {
@@ -33,7 +40,7 @@ function ProposedQuery({
   mqlText,
   translateTimeMS,
   onClickOpenAggregation,
-  onClickRunQuery
+  onClickRunQuery,
 }: ProposedQueryProps): React.ReactElement {
   // const onClickOpenAggregation = useCallback(() => {
   //   // TODO: Better app registry access (provider from home).
@@ -50,11 +57,7 @@ function ProposedQuery({
         Translated in <strong>{translateTimeMS} ms</strong>.
       </Body>
       <div className={mqlCodeContainerStyles}>
-        <Code
-          language="javascript"
-        >
-          {mqlText}
-        </Code>
+        <Code language="javascript">{mqlText}</Code>
         <Button
           className={openAggregationButtonStyles}
           onClick={onClickOpenAggregation}
@@ -70,7 +73,9 @@ function ProposedQuery({
         className={runButtonStyles}
         variant="primary"
         onClick={onClickRunQuery}
-      >Run</Button>
+      >
+        Run
+      </Button>
     </div>
   );
 }

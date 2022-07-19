@@ -5,15 +5,18 @@ const ROLE = {
   name: 'Query',
   component: NLPQueryPlugin,
   order: 1.5,
-  configureStore: () => { /* noop */ },
-  configureActions: () => { /* noop */ },
+  configureStore: () => {
+    /* noop */
+  },
+  configureActions: () => {
+    /* noop */
+  },
   storeName: 'Query.Store',
 };
 
 function activate(appRegistry: AppRegistry): void {
   // Register plugin stores, roles, and components.
   appRegistry.registerRole('Collection.Tab', ROLE);
-
 }
 
 function deactivate(appRegistry: AppRegistry): void {

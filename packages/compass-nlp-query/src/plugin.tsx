@@ -6,7 +6,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { NLPQuery } from './components/nlp-query';
 
 const warningStyles = css({
-  margin: spacing[3]
+  margin: spacing[3],
 });
 
 type NLPQueryPluginProps = {
@@ -34,7 +34,8 @@ function Plugin({
   ) : (
     <div>
       <Banner className={warningStyles} variant="warning">
-        No `OPEN_AI_API_KEY` found in environment. Be sure to set it when running `npm start`.
+        No `OPEN_AI_API_KEY` found in environment. Be sure to set it when
+        running `npm start`.
       </Banner>
     </div>
   );

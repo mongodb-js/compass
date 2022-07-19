@@ -10,7 +10,6 @@ import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
 import { savingPipelineOpen } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 import { VIEWS_MIN_SERVER_VERSION } from '../../../constants';
-import { appendFileSync } from 'original-fs';
 
 type PipelineActionMenuProp<ActionType extends string> = {
   onAction: (action: ActionType) => void;
