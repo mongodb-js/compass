@@ -187,6 +187,7 @@
     "@mongodb-js/compass-indexes": "^4.28.1",
     "@mongodb-js/compass-instance": "^3.26.1",
     "@mongodb-js/compass-logging": "^0.14.0",
+    "@mongodb-js/compass-nlp-query": "^0.1.0",
     "@mongodb-js/compass-plugin-info": "^3.26.1",
     "@mongodb-js/compass-query-bar": "^7.24.1",
     "@mongodb-js/compass-query-history": "^8.26.1",

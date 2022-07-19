@@ -370,6 +370,13 @@ const createContext = ({
         showRunButton: true,
         showExplainButton: true,
       }),
+
+      // TODO: This can be made out of sync easily.
+      // Once we have nice state management hooks we should do this all
+      // differently. Temp hack for quick access to ns and data service for
+      // skunkworks.
+      dataService: state.dataService.dataService,
+      namespace
     };
 
     // Add the view.

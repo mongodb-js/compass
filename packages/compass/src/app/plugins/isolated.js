@@ -24,5 +24,6 @@ module.exports = [
   require('@mongodb-js/compass-ssh-tunnel-status'),
   require('@mongodb-js/compass-indexes'),
   require('@mongodb-js/compass-explain-plan'),
+  require('@mongodb-js/compass-nlp-query'),
   require('@mongodb-js/compass-saved-aggregations-queries'),
 ];

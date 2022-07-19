@@ -1,0 +1,34 @@
+Q: Query username with value "pikachu"
+A: [{$match : {"username" : "pikachu"}}]
+Q: username is "pikachu"
+A: [{$match : {"username" : "pikachu"}}]
+Q: username "pikachu"
+A: [{$match : {"username" : "pikachu"}}]
+Q: quantity 10
+A: [{$match : {"quantity" : 10}}]
+Q: quantity 10
+A: [{$match : {"quantity" : 10}}]
+Q: price 200
+A: [{$match : {"price" : 200}}]
+Q: name test
+A: [{$match : {"name" : "test"}}]
+Q: name "test"
+A: [{$match : {"name" : "test"}}]
+Q: Find where age is greater than 100
+A: [{$match : {"age" : {$gt : 100}}}]
+Q: Show documents where the age is greater than 100
+A: [{$match : {"age" : {$gt : 100}}}]
+Q: Find all of the documents where age is greater than 100
+A: [{$match : {"age" : {$gt : 100}}}]
+Q: Find all of the documents where "age" is greater than 100
+A: [{$match : {"age" : {$gt : 100}}}]
+Q: "age" is greater than 100
+A: [{$match : {"age" : {$gt : 100}}}]
+Q: Match documents where the price is greater than 5
+A: [{$match : {"price" : {$gt : 5}}}]
+Q: Match documents where the value of "price" is more than 5
+A: [{$match : {"price" : {$gt : 5}}}]
+Q: aggregate documents to calculate salary sum per document
+A: [{$group : { _id : "$username" , salary_sum : { $sum : "$salary" }}}]
+Q: Lookup users from the orders collection
+A: [{$lookup : {from: 'orders', localField : "_id", foreignField : "userId", as : "result" }} ]
