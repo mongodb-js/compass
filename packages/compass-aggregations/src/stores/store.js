@@ -1,7 +1,7 @@
 /* eslint complexity: 0 */
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer, { openPipeline } from '../modules';
+import reducer, { newPipelineFromPaste, openPipeline } from '../modules';
 import toNS from 'mongodb-ns';
 import { namespaceChanged } from '../modules/namespace';
 import { dataServiceConnected } from '../modules/data-service';
@@ -197,6 +197,16 @@ const configureStore = (options = {}) => {
      */
     localAppRegistry.on('refresh-data', () => {
       refreshInput(store);
+    });
+
+    localAppRegistry.on('open-aggregation', () => {
+      // newPipelineFromPaste
+      refreshInput(store);
+    });
+
+    localAppRegistry.on('open-aggregation-in-editor', (pipelineText) => {
+      console.log('Aggregations open pipeline from text from nlp', pipelineText);
+      newPipelineFromPaste(pipelineText)(store.dispatch);
     });
 
     /**

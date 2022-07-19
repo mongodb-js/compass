@@ -140,7 +140,7 @@ describe('PipelineMenus', function () {
       expect(onCreatePipelineSpy.firstCall.args).to.be.empty;
     });
 
-    it('calls createPipleineFromText', function () {
+    it('calls createPipelineFromText', function () {
       const menu = screen.getByTestId('create-new-menu');
       expect(menu).to.exist;
 

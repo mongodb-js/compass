@@ -137,6 +137,21 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     ]
   );
 
+  useEffect(() => {
+    function onOpenAggregationInEditor() {
+      changeActiveSubTab(2, id);
+    }
+
+    localAppRegistry.on('open-aggregation-in-editor', onOpenAggregationInEditor);
+
+    return () => {
+      localAppRegistry.removeListener(
+        'open-aggregation-in-editor',
+        onOpenAggregationInEditor
+      );
+    };
+  }, [ localAppRegistry, changeActiveSubTab, id ]);
+
   return (
     <div
       className={cx(

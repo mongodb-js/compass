@@ -376,7 +376,8 @@ const createContext = ({
       // differently. Temp hack for quick access to ns and data service for
       // skunkworks.
       dataService: state.dataService.dataService,
-      namespace
+      namespace,
+      localAppRegistry
     };
 
     // Add the view.

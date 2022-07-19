@@ -10,6 +10,7 @@ import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
 import { savingPipelineOpen } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 import { VIEWS_MIN_SERVER_VERSION } from '../../../constants';
+import { appendFileSync } from 'original-fs';
 
 type PipelineActionMenuProp<ActionType extends string> = {
   onAction: (action: ActionType) => void;
@@ -149,21 +150,25 @@ export const SaveMenu = connect(
   mapSaveMenuDispatch
 )(SaveMenuComponent);
 
-type CreateMenuActions = 'createPipleine' | 'createPipleineFromText';
+type CreateMenuActions = 'createPipeline' | 'createPipelineFromText' | 'createPipelineFromNLP';
 type CreateMenuProps = {
   onCreatePipeline: () => void;
   onCreatePipelineFromText: () => void;
+  onCreatePipelineFromNLP: () => void;
 };
 export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
   onCreatePipeline,
   onCreatePipelineFromText,
+  onCreatePipelineFromNLP,
 }) => {
   const onAction = (action: CreateMenuActions) => {
     switch (action) {
-      case 'createPipleine':
+      case 'createPipeline':
         return onCreatePipeline();
-      case 'createPipleineFromText':
+      case 'createPipelineFromText':
         return onCreatePipelineFromText();
+      case 'createPipelineFromNLP':
+        return onCreatePipelineFromNLP();
     }
   };
   return (
@@ -173,8 +178,9 @@ export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
       glyph="Plus"
       onAction={onAction}
       menuItems={[
-        { action: 'createPipleine', title: 'Pipeline' },
-        { action: 'createPipleineFromText', title: 'Pipeline from text' },
+        { action: 'createPipeline', title: 'Pipeline' },
+        { action: 'createPipelineFromText', title: 'Pipeline from text' },
+        { action: 'createPipelineFromNLP', title: 'Pipeline from NLP' },
       ]}
     />
   );
@@ -182,6 +188,11 @@ export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
 const mapCreateMenuDispatch = (dispatch: Dispatch) => ({
   onCreatePipeline: () => dispatch(setIsNewPipelineConfirm(true)),
   onCreatePipelineFromText: () => dispatch(newPipelineFromText()),
+  onCreatePipelineFromNLP: () => dispatch(((dispatch: any, getState: any): any => {
+    // console.log('nice', getState());
+    // newPipelineFromNLP()
+    getState().appRegistry.localAppRegistry.emit('show-nlp-modal');
+  }) as any),
 });
 export const CreateMenu = connect(
   null,

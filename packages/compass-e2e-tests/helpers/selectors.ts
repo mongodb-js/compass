@@ -619,9 +619,9 @@ export const CreateNewPipelineMenuButton = '[data-testid="create-new-menu"]';
 export const CreateNewPipelineMenuContent =
   '[data-testid="create-new-menu-content"]';
 export const CreateNewEmptyPipelineAction =
-  '[data-testid="create-new-menu-createPipleine"]';
+  '[data-testid="create-new-menu-createPipeline"]';
 export const CreateNewPipelineFromTextAction =
-  '[data-testid="create-new-menu-createPipleineFromText"]';
+  '[data-testid="create-new-menu-createPipelineFromText"]';
 export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';

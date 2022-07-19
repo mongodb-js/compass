@@ -11,6 +11,7 @@ import configureStore, {
   setGlobalAppRegistry,
   setLocalAppRegistry
 } from './stores';
+import NlpModal from './components/nlp-modal';
 
 class Plugin extends Component {
   static displayName = 'AggregationsPlugin';
@@ -36,11 +37,14 @@ class Plugin extends Component {
   render() {
     return (
       <Provider store={this.props.store}>
-        <Aggregations
-          showExportButton={this.props.showExportButton}
-          showRunButton={this.props.showRunButton}
-          showExplainButton={this.props.showExplainButton}
-        />
+        <>
+          <NlpModal />
+          <Aggregations
+            showExportButton={this.props.showExportButton}
+            showRunButton={this.props.showRunButton}
+            showExplainButton={this.props.showExplainButton}
+          />
+        </>
       </Provider>
     );
   }

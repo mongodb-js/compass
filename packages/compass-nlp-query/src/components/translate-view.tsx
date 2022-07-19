@@ -17,6 +17,7 @@ type TranslateViewProps = {
   mqlText: string;
 
   onClearError: () => void;
+  onClickOpenAggregation: () => void;
   onTranslateQuery: () => Promise<void>;
   onRunQuery: () => Promise<void>;
 
@@ -28,6 +29,7 @@ type TranslateViewProps = {
 function TranslateView({
   mqlText,
   onClearError,
+  onClickOpenAggregation,
   onRunQuery,
   onTranslateQuery,
   translateErrorMessage,
@@ -65,6 +67,7 @@ function TranslateView({
           mqlText={mqlText}
           translateTimeMS={translateTimeMS}
           onClickRunQuery={() => void onRunQuery()}
+          onClickOpenAggregation={onClickOpenAggregation}
         />
       );
     }

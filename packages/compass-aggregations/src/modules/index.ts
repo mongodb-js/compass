@@ -462,6 +462,7 @@ const doModifyView = (state: RootState, action: AnyAction): RootState => {
  * @returns {Object}
  */
 const doNewFromPastedText = (state: RootState, action: AnyAction): RootState => {
+  console.log('action.text', action.text);
   const pipe = createPipeline(action.text);
   const error = pipe.length > 0 ? pipe[0].syntaxError : null;
   /**
@@ -474,9 +475,11 @@ const doNewFromPastedText = (state: RootState, action: AnyAction): RootState => 
   /**
    * Do nothing if you have more than default first stage.
    */
-  if (state.pipeline.length > 1) {
-    return state;
-  }
+  // TODO: Probably need to not overload this here and make a separate listener
+  // for the pipeline from another tab.
+  // if (state.pipeline.length > 1) {
+  //   return state;
+  // }
 
   return {
     ...state,

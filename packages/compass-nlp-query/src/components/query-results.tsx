@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { css, spacing } from '@mongodb-js/compass-components';
 import type { DataService } from 'mongodb-data-service';
+import type AppRegistry from 'hadron-app-registry';
 
 import { useNLPQuery } from '../hooks/use-nlp-query';
 import { DocumentResultsView } from './document-results-view';
 import { TranslateView } from './translate-view';
 
 const resultsContainerStyles = css({
-  padding: spacing[2],
   paddingTop: spacing[2],
   paddingBottom: spacing[2],
   flexGrow: 1,
@@ -15,12 +15,14 @@ const resultsContainerStyles = css({
 
 type QueryResultsProps = {
   dataService: DataService;
+  localAppRegistry: AppRegistry;
   namespace: string;
   queryText: string;
 };
 
 function QueryResults({
   dataService,
+  localAppRegistry,
   namespace,
   queryText
 }: QueryResultsProps): React.ReactElement {
@@ -45,6 +47,10 @@ function QueryResults({
     namespace,
     queryText
   });
+
+  const onOpenAggregation = useCallback(() => {
+    localAppRegistry.emit('open-aggregation-in-editor', mqlText);
+  }, [ localAppRegistry, mqlText ]);
   
   return (
     <div
@@ -53,6 +59,7 @@ function QueryResults({
       <TranslateView
         mqlText={mqlText}
 
+        onClickOpenAggregation={onOpenAggregation}
         onClearError={onClearError}
         onTranslateQuery={onTranslateQuery}
         onRunQuery={onRunQuery}

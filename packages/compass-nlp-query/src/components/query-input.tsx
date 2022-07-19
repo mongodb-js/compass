@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { TextInput, css, spacing } from '@mongodb-js/compass-components';
 
 const inputStyles = css({
-  maxWidth: spacing[7] * 8
+  maxWidth: spacing[7] * 7.75
 });
 
 type QueryInputProps = {

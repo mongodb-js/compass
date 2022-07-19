@@ -21,5 +21,5 @@ function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
 }
 
-export { activate, deactivate };
+export { activate, deactivate, NLPQueryPlugin };
 export { default as metadata } from '../package.json';
