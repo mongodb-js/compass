@@ -6,7 +6,8 @@ import { QueryInput } from './query-input';
 import { QueryResults } from './query-results';
 
 const containerStyles = css({
-  padding: spacing[3]
+  padding: spacing[4],
+  flexGrow: 1,
 });
 
 type NLPQueryProps = {

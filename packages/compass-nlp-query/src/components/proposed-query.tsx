@@ -2,7 +2,8 @@ import React from 'react';
 import { Body, Button, Code, css, spacing } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
-  padding: 0
+  maxWidth: spacing[7] * 8,
+  padding: 0,
 });
 
 const runButtonStyles = css({

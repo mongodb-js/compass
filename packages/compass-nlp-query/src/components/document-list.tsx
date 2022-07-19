@@ -10,8 +10,8 @@ const containerStyles = css({
   ol: {
     padding: 0,
   },
-  marginLeft: spacing[3] + spacing[1],
-  marginRight: spacing[4] + spacing[1],
+  marginLeft: spacing[1],
+  marginRight: spacing[1],
 });
 
 const DocumentList: React.FunctionComponent<{
