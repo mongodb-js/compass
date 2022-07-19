@@ -1,0 +1,13 @@
+Things to do:
+ - Better training data
+  - Explore better models
+  - Explore different models 
+  - Explore parameters
+ - Better example use cases
+  - Lazy developer (Speed of query creation)
+  - Non-developer (Helping learn query language)
+  - Datasets & questions
+ - Deploy as a web app
+ - Chained pipeline
+ - More commands than just aggregation
+ - 

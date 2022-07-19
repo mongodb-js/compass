@@ -2,7 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 import NLPQueryPlugin from './plugin';
 
 const ROLE = {
-  name: 'NLPQueryPlugin',
+  name: 'Query',
   component: NLPQueryPlugin,
   order: 1.5,
   configureStore: () => {
