@@ -18,6 +18,14 @@ import {
 } from './connection-secrets';
 import { configuredKMSProviders } from './instance-detail-helper';
 
+export type {
+  InstanceDetails,
+  DatabaseInfo,
+  CollectionInfo,
+} from './instance-detail-helper';
+
+export type { CollectionStats } from './types';
+
 export {
   ConnectionInfo,
   ConnectionFavoriteOptions,

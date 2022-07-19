@@ -125,6 +125,15 @@ function sortString(a: string, b: string, order: SortOrder): number {
   return a.localeCompare(b) * order;
 }
 
+function get(a: unknown, _key: string) {
+  return _key.split('.').reduce((val, key) => {
+    if (typeof val === 'undefined') {
+      return val;
+    }
+    return val[key];
+  }, a);
+}
+
 export function useSortedItems<T extends Record<string, unknown>>(
   items: T[],
   {
@@ -145,19 +154,23 @@ export function useSortedItems<T extends Record<string, unknown>>(
       }
       // If value we are sorting by doesn't exist on an object, send it all the
       // way to the back of the list
-      if (typeof a[name] === 'undefined') {
+      if (typeof get(a, name) === 'undefined') {
         return 1;
       }
       const sort = sortFn && sortFn[name];
       // If custom sort is provided for the key, use it
       if (sort) {
-        return sort(a[name], b[name], order);
+        return sort(get(a, name), get(b, name), order);
       }
       // Otherwise use default sort method based on the value type
-      if (typeof a[name] === 'string') {
-        return sortString(a[name] as string, b[name] as string, order);
+      if (typeof get(a, name) === 'string') {
+        return sortString(
+          get(a, name) as string,
+          get(b, name) as string,
+          order
+        );
       }
-      return sortUnknown(a[name], b[name], order);
+      return sortUnknown(get(a, name), get(b, name), order);
     });
   }, [items, name, sortFn, order]);
 }

@@ -20,6 +20,7 @@ import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
+import { useConnect } from '@mongodb-js/compass-store';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -234,6 +235,8 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
+  const connect = useConnect();
+
   if (isConnected) {
     return (
       <div className="with-global-bootstrap-styles">
@@ -245,7 +248,14 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   return (
     <div className={homeViewStyles} data-test-id="home-view">
       <div className={homePageStyles}>
-        <Connections onConnected={onConnected} appName={appName} />
+        <Connections
+          // @ts-expect-error This should rather have a onConnect callback
+          // interface instead of passing dependency directly, connection form
+          // knows too much about data service and connection process
+          connectFn={connect}
+          onConnected={onConnected}
+          appName={appName}
+        />
       </div>
     </div>
   );
@@ -287,7 +297,7 @@ function ThemedHome(
   return (
     <ThemeProvider theme={theme}>
       <ToastArea>
-        <Home {...props}></Home>
+        <Home appName={props.appName}></Home>
       </ToastArea>
     </ThemeProvider>
   );

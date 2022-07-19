@@ -1,3 +1,4 @@
+/* eslint-disable react/no-multi-comp */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -5,6 +6,7 @@ import { CollectionsList } from '@mongodb-js/databases-collections-list';
 import toNS from 'mongodb-ns';
 import { Banner, BannerVariant } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { isError, useCollectionsForDatabase, useCollectionIdsForDatabase, observer } from '@mongodb-js/compass-store';
 
 import styles from './collections.module.less';
 
@@ -12,10 +14,11 @@ const ERROR_WARNING = 'An error occurred while loading collections';
 
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTIONS-UI');
 
-class Collections extends PureComponent {
+class _Collections extends PureComponent {
   static propTypes = {
     collections: PropTypes.array.isRequired,
-    collectionsStatus: PropTypes.object.isRequired,
+    collectionsStatus: PropTypes.string.isRequired,
+    collectionsError: PropTypes.string,
     databaseName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
@@ -38,6 +41,7 @@ class Collections extends PureComponent {
     const {
       collections,
       collectionsStatus,
+      collectionsError,
       databaseName,
       isReadonly,
       isWritable,
@@ -47,11 +51,11 @@ class Collections extends PureComponent {
       onCreateCollectionClick,
     } = this.props;
 
-    if (collectionsStatus.status === 'error') {
+    if (isError(collectionsStatus)) {
       return (
         <div className={styles['collections-error']}>
           <Banner variant={BannerVariant.Danger}>
-            {ERROR_WARNING}: {collectionsStatus.error}
+            {ERROR_WARNING}: {collectionsError}
           </Banner>
         </div>
       );
@@ -74,6 +78,30 @@ class Collections extends PureComponent {
   }
 }
 
+const Collections = observer(
+  ({ databaseName, isReadonly, isWritable, isDataLake, isGenuineMongoDB }) => {
+    // For mobx just get the real items and pass then down
+    const collections = useCollectionsForDatabase(databaseName);
+    const items = Array.from(collections?.items?.values() ?? []);
+
+    // Redux requires special handling to avoid performance pitfalls
+    // const collections = useCollectionIdsForDatabase(databaseName);
+    // const items = collections.items ?? [];
+    return (
+      <_Collections
+        databaseName={databaseName}
+        collections={items}
+        collectionsStatus={collections?.status ?? 'Initial'}
+        collectionsError={collections?.error ?? null}
+        isReadonly={isReadonly}
+        isWritable={isWritable}
+        isDataLake={isDataLake}
+        isGenuineMongoDB={isGenuineMongoDB}
+      />
+    );
+  }
+);
+
 /**
  * Map the store state to properties to pass to the components.
  *
@@ -82,20 +110,6 @@ class Collections extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  collections: (state.collections || []).map((coll) => {
-    if (coll.type === 'view') {
-      return {
-        _id: coll._id,
-        name: coll.name,
-        type: coll.type,
-        status: coll.status,
-        source: coll.source,
-        properties: coll.properties,
-      };
-    }
-    return coll;
-  }),
-  collectionsStatus: state.collectionsStatus,
   databaseName: state.databaseName,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,

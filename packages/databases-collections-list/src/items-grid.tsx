@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useContext, useCallback } from 'react';
+import React, { useContext, useCallback, useEffect } from 'react';
 import {
   css,
   cx,
@@ -18,7 +18,7 @@ const { track } = createLoggerAndTelemetry(
   'COMPASS-DATABASES-COLLECTIONS-LIST-UI'
 );
 
-type Item = { _id: string } & Record<string, unknown>;
+type Item = { name: string } & Record<string, unknown>;
 
 const row = css({
   paddingLeft: spacing[3],
@@ -134,6 +134,8 @@ export const ItemsGrid = <T extends Item>({
   itemListHeight = itemGridHeight,
   items,
   sortBy = [],
+  sortValue,
+  onSort,
   onItemClick,
   onDeleteItemClick,
   onCreateItemClick,
@@ -150,7 +152,14 @@ export const ItemsGrid = <T extends Item>({
   const [viewTypeControls, viewType] = useViewTypeControls({
     onChange: onViewTypeChange,
   });
-  const sortedItems = useSortedItems(items, sortState);
+
+  // TODO: Quick hack to make redux work, really a terrible way of handling
+  // this state
+  useEffect(() => {
+    onSort?.(sortState);
+  }, [onSort, sortState]);
+
+  const sortedItems = useSortedItems(items, sortValue ?? sortState);
 
   const itemWidth = viewType === 'grid' ? itemGridWidth : itemListWidth;
   const itemHeight = viewType === 'grid' ? itemGridHeight : itemListHeight;
@@ -161,7 +170,7 @@ export const ItemsGrid = <T extends Item>({
     useCallback(
       ({ index, ...props }) => {
         const item = sortedItems[index];
-        return _renderItem({
+        return React.createElement(_renderItem, {
           item,
           viewType,
           onItemClick,
@@ -186,7 +195,8 @@ export const ItemsGrid = <T extends Item>({
         itemsCount={sortedItems.length}
         colCount={viewType === 'list' ? 1 : undefined}
         renderItem={renderItem}
-        itemKey={(index: number) => sortedItems[index]._id}
+        // itemKey={(index: number) => sortedItems[index]}
+        itemKey={(index: number) => sortedItems[index].name}
         headerHeight={CONTROLS_HEIGHT}
         renderHeader={GridControls}
         classNames={{

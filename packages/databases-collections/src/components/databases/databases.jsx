@@ -5,8 +5,10 @@ import { connect } from 'react-redux';
 import { ZeroState } from 'hadron-react-components';
 import { Banner, BannerVariant, Link, WorkspaceContainer } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
+import { useDatabases, useDatabasesIds, useSortedDatabaseIds, isError, observer } from '@mongodb-js/compass-store';
 
 import styles from './databases.module.less';
+import { useMemo } from 'react';
 
 const HEADER = 'Unable to display databases and collections';
 const SUBTEXT =
@@ -34,10 +36,11 @@ function NonGenuineZeroState() {
   );
 }
 
-class Databases extends PureComponent {
+class _Databases extends PureComponent {
   static propTypes = {
     databases: PropTypes.array.isRequired,
-    databasesStatus: PropTypes.object.isRequired,
+    databasesStatus: PropTypes.string.isRequired,
+    databasesError: PropTypes.string,
     isReadonly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
@@ -56,6 +59,7 @@ class Databases extends PureComponent {
     const {
       databases,
       databasesStatus,
+      databasesError,
       isReadonly,
       isWritable,
       isDataLake,
@@ -63,13 +67,15 @@ class Databases extends PureComponent {
       onDatabaseClick,
       onDeleteDatabaseClick,
       onCreateDatabaseClick,
+      onSortDatabases,
+      databasesSortValue
     } = this.props;
 
-    if (databasesStatus.status === 'error') {
+    if (isError(databasesStatus)) {
       return (
         <div className={styles['databases-error']}>
           <Banner variant={BannerVariant.Danger}>
-            {ERROR_WARNING}: {databasesStatus.error}
+            {ERROR_WARNING}: {databasesError}
           </Banner>
         </div>
       );
@@ -86,7 +92,16 @@ class Databases extends PureComponent {
         : {}
     );
 
-    return <DatabasesList databases={databases} {...actions} />;
+    return (
+      <DatabasesList
+        databases={databases}
+        // Only needed for Redux
+        sortValue={databasesSortValue}
+        onDatabasesSort={onSortDatabases}
+        // ---
+        {...actions}
+      />
+    );
   }
 }
 
@@ -98,8 +113,6 @@ class Databases extends PureComponent {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  databases: state.databases,
-  databasesStatus: state.databasesStatus,
   isReadonly: state.isReadonly,
   isWritable: state.isWritable,
   isGenuineMongoDB: state.isGenuineMongoDB,
@@ -129,7 +142,32 @@ const mapDispatchToProps = {
 const ConnectedDatabases = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Databases);
+)(_Databases);
 
-export default ConnectedDatabases;
+
+const Databases = observer(() => {
+  // mobx version: there is no need to have a special ids selector to avoid
+  // massive performance issues when trying to do the same with redux
+  const databases = useDatabases();
+  const items = Array.from(databases.items.values());
+
+  // redux version: we are using special selector to avoid depending on the
+  // actual items in the state, see databases slice for more info in the issue
+  // const databases = useSortedDatabaseIds();
+  // const items = databases.items;
+
+  return (
+    <ConnectedDatabases
+      databases={items}
+      databasesStatus={databases.status}
+      databasesError={databases.error}
+      // Only needed for Redux
+      databasesSortValue={databases.sortValue}
+      onSortDatabases={databases.onSortBy}
+    />
+  );
+});
+
+
+export default Databases;
 export { Databases };

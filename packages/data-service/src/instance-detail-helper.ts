@@ -17,10 +17,10 @@ import type {
   AtlasVersionInfo,
   BuildInfo,
   CmdLineOpts,
-  CollectionInfo,
-  CollectionInfoNameOnly,
+  CollectionInfo as CmdCollectionInfo,
+  CollectionInfoNameOnly as CmdCollectionInfoNameOnly,
   ConnectionStatusWithPrivileges,
-  DatabaseInfo,
+  DatabaseInfo as CmdDatabaseInfo,
   DbStats,
   HostInfo,
 } from './run-command';
@@ -355,7 +355,7 @@ function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>) {
 }
 
 export function adaptDatabaseInfo(
-  databaseStats: Partial<DbStats> & Partial<DatabaseInfo>
+  databaseStats: Partial<DbStats> & Partial<CmdDatabaseInfo>
 ): Omit<DatabaseDetails, '_id' | 'collections' | 'name'> {
   return {
     collection_count: databaseStats.collections ?? 0,
@@ -367,14 +367,16 @@ export function adaptDatabaseInfo(
   };
 }
 
+export type DatabaseInfo = ReturnType<typeof adaptDatabaseInfo>;
+
 export function adaptCollectionInfo({
   db,
   name,
   info,
   options,
   type,
-}: CollectionInfoNameOnly &
-  Partial<CollectionInfo> & { db: string }): CollectionDetails {
+}: CmdCollectionInfoNameOnly &
+  Partial<CmdCollectionInfo> & { db: string }): CollectionDetails {
   const ns = toNS(`${db}.${name}`);
   const {
     collection,
@@ -424,3 +426,5 @@ export function adaptCollectionInfo({
       : null,
   };
 }
+
+export type CollectionInfo = ReturnType<typeof adaptCollectionInfo>;

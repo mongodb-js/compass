@@ -222,6 +222,17 @@ export interface DataService {
   ): void;
 
   /**
+   * Get the stats for a collection.
+   *
+   * @param databaseName - The database name.
+   * @param collectionName - The collection name.
+   */
+  collectionStatsAsync(
+    databaseName: string,
+    collectionName: string
+  ): Promise<CollectionStats>;
+
+  /**
    * Returns normalized collection info provided by listCollection command for a
    * specific collection
    *
@@ -907,6 +918,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       );
     });
   }
+
+  collectionStatsAsync = promisify(this.collectionStats.bind(this));
 
   async collectionInfo(
     dbName: string,

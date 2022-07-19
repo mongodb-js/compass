@@ -203,11 +203,20 @@ async function onAppReady(compassApp: CompassApplication) {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
-    const { default: installDevtools, REACT_DEVELOPER_TOOLS } = await import(
-      'electron-devtools-installer'
-    );
+    const {
+      default: installDevtools,
+      REACT_DEVELOPER_TOOLS,
+      REDUX_DEVTOOLS,
+      MOBX_DEVTOOLS,
+    } = await import('electron-devtools-installer');
     try {
-      await installDevtools(REACT_DEVELOPER_TOOLS);
+      await installDevtools([
+        REACT_DEVELOPER_TOOLS,
+        REDUX_DEVTOOLS,
+        // TODO: Latest version is broken, but it works in general, just need to
+        // find the right one to download
+        // MOBX_DEVTOOLS,
+      ]);
     } catch (e) {
       // noop
     }

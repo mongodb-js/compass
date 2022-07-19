@@ -1,4 +1,8 @@
 const ipc = require('hadron-ipc');
+const {
+  ServiceProvider,
+  CompassStoreProvider,
+} = require('@mongodb-js/compass-store');
 
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
@@ -190,11 +194,19 @@ var Application = View.extend({
 
     this.homeComponent = app.appRegistry.getComponent('Home.Home');
     ReactDOM.render(
-      React.createElement(this.homeComponent, {
-        appRegistry: app.appRegistry,
-        // TODO: Get rid of remote
-        appName: electron.remote.app.getName(),
-      }),
+      React.createElement(
+        ServiceProvider,
+        {},
+        React.createElement(
+          CompassStoreProvider,
+          {},
+          React.createElement(this.homeComponent, {
+            appRegistry: app.appRegistry,
+            // TODO: Get rid of remote
+            appName: electron.remote.app.getName(),
+          })
+        )
+      ),
       this.queryByHook('layout-container')
     );
 
