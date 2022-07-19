@@ -375,7 +375,7 @@ const createContext = ({
       // Once we have nice state management hooks we should do this all
       // differently. Temp hack for quick access to ns and data service for
       // skunkworks.
-      dataService: state.dataService.dataService,
+      dataService: state.dataService,
       namespace,
       localAppRegistry
     };

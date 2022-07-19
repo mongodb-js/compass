@@ -10,7 +10,9 @@ const warningStyles = css({
 });
 
 type NLPQueryPluginProps = {
-  dataService: DataService;
+  dataService: {
+    dataService: DataService
+  };
   namespace: string;
   noPadding?: boolean;
   localAppRegistry: AppRegistry;
@@ -26,7 +28,7 @@ function Plugin({
 
   return hasOpenAIKey ? (
     <NLPQuery
-      dataService={dataService}
+      dataService={dataService.dataService}
       namespace={namespace}
       noPadding={noPadding}
       localAppRegistry={localAppRegistry}
@@ -41,6 +43,6 @@ function Plugin({
   );
 }
 
-Plugin.displayName = 'HomePlugin';
+Plugin.displayName = 'Compass NLP Query Plugin';
 
 export default Plugin;
