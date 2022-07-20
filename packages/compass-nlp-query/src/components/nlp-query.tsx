@@ -6,6 +6,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { QueryInput } from './query-input';
 import { QueryResults } from './query-results';
 import { useNLPQuery } from '../hooks/use-nlp-query';
+import { LeafyFlower } from './leafy-flower';
 
 const containerStyles = css({
   flexGrow: 1,
@@ -79,6 +80,8 @@ function NLPQuery({
         onRunQuery={onRunQuery}
         setResultsViewType={setResultsViewType}
       />
+      {/* Uncomment to show flowers: */}
+      {/* <LeafyFlower /> */}
     </div>
   );
 }
