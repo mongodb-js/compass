@@ -16,7 +16,8 @@ declare class AutoUpdateManager extends EventEmitter {
     iconURL?: NativeImage,
     product: string,
     channel: string,
-    platform: string
+    platform: string,
+    arch: string
   );
   constructor(options: {
     endpoint: string;
@@ -24,6 +25,7 @@ declare class AutoUpdateManager extends EventEmitter {
     channel: string;
     platform: string;
     icon?: NativeImage;
+    arch: string;
   });
   state: State;
   releaseNotes?: string;
