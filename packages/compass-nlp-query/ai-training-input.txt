@@ -46,3 +46,5 @@ Q: aggregate documents to calculate salary sum per document
 A: [{$group : { _id : "$username" , salary_sum : { $sum : "$salary" }}}]
 Q: Lookup users from the orders collection
 A: [{$lookup : {from: 'orders', localField : "_id", foreignField : "userId", as : "result" }} ]
+Q: Count the amount of documents where the quantity is less than 20
+A: [{$match : {quantity : { $lt: 20}}}, {$count : "quantity_lt_20"}]
