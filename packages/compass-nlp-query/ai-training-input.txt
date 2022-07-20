@@ -1,3 +1,17 @@
+Q: Find me employees who's first name is "John"
+A: [{$match: {"first_name" : "John"}}]
+Q: Get employees who's last name is "Doe"
+A: [{$match: {"first_name" : "Doe"}}]
+Q: Return movies made before 1900
+A: [{$match: {"year" : { $lt: 1900 }}}]
+Q: Query for movies that have not won any awards sorted by year in descending order
+A: [{$match: {"awards.wins": { $lt: 1 }}}, {$sort: { year: -1 }}]
+Q: Query for restaurants in Brooklyn
+A: [{$match: {"borough": "Brooklyn"}}]
+Q: Get the total count of classes with over 100 students
+A: [{ $group: { _id: '$class_id', class_size: { $sum: 1 }}}, { $match: { class_size: { $gt: 100 }}}, { $count: 'count' }]
+Q: Lookup all transactions for the account with id 371138
+A: [{ $match: { account_id: 371138 }}, {$lookup: {from: 'transactions', localField: 'account_id', foreignField: 'account_id', as: 'account_transactions'}}]
 Q: Query username with value "pikachu"
 A: [{$match : {"username" : "pikachu"}}]
 Q: username is "pikachu"
