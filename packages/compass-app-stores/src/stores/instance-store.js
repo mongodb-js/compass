@@ -250,6 +250,18 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('open-namespace-in-new-tab', metadata);
   });
 
+  appRegistry.on(
+    'debugger-open-collection-in-new-tab',
+    async({ ns, aggregation, query }) => {
+      const metadata = await store.fetchCollectionMetadata(ns);
+      appRegistry.emit('open-namespace-in-new-tab', {
+        ...metadata,
+        aggregation,
+        query,
+      });
+    }
+  );
+
   appRegistry.on('sidebar-modify-view', async({ ns }) => {
     const coll = await store.fetchCollectionDetails(ns);
     if (coll.sourceId && coll.pipeline) {

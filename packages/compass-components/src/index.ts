@@ -64,7 +64,7 @@ export { useToast, ToastArea } from './hooks/use-toast';
 
 export { Toggle } from './components/toggle';
 
-export { breakpoints, spacing } from '@leafygreen-ui/tokens';
+export * from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 
 export {

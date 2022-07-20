@@ -70,7 +70,8 @@ import importPipeline, {
   INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE,
   CONFIRM_NEW,
   createPipeline,
-  createPipelineFromView
+  createPipelineFromView,
+  createStage
 } from './import-pipeline';
 import appRegistry, {
   localAppRegistryEmit,
@@ -310,15 +311,32 @@ const doReset = (state: RootState) => ({
  * @returns {Object} The new state.
  */
 const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
-  const {
-    id,
-    name,
-    comments,
-    sample,
-    autoPreview,
-    collationString,
-    pipeline
-  } = action.restoreState;
+  if (Array.isArray(action.restoreState)) {
+    const pipeline = action.restoreState;
+    return {
+      ...state,
+      pipeline: pipeline
+        .map((stage) => {
+          const operator = Object.keys(stage).shift();
+          if (!operator) {
+            return null;
+          }
+          return createStage(
+            operator,
+            JSON.stringify(stage[operator], null, 2),
+            null
+          );
+        })
+        .filter(Boolean) as Pipeline[],
+      savedPipeline: {
+        ...state.savedPipeline,
+        isListVisible: false
+      }
+    };
+  }
+
+  const { id, name, comments, sample, autoPreview, collationString, pipeline } =
+    action.restoreState;
 
   return {
     // Current state will be mostly preserved (i.e, namespace, isTimeSeries, etc)
