@@ -1,7 +1,7 @@
 Q: Find me employees who's first name is "John"
 A: [{$match: {"first_name" : "John"}}]
 Q: Get employees who's last name is "Doe"
-A: [{$match: {"first_name" : "Doe"}}]
+A: [{$match: {"last_name" : "Doe"}}]
 Q: Return movies made before 1900
 A: [{$match: {"year" : { $lt: 1900 }}}]
 Q: Query for movies that have not won any awards sorted by year in descending order
