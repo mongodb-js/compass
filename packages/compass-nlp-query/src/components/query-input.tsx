@@ -54,16 +54,14 @@ function QueryInput({
 
   const onClickButton = useCallback(() => {
     // Starts it
-    leafyListener.current.start();
-    console.log('we are listening');
+    // leafyListener.current.start();
+    // console.log('we are listening');
 
-    // TODO: Cleanup or auto stop.
-    setTimeout(() => {
-      leafyListener.current.stop();
-      console.log('stopped listening');
-
-
-    }, 5000);
+    // // TODO: Cleanup or auto stop.
+    // setTimeout(() => {
+    //   leafyListener.current.stop();
+    //   console.log('stopped listening');
+    // }, 5000);
   }, []);
 
   return (

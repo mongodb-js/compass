@@ -231,6 +231,12 @@ class EditableJson extends React.Component {
             onCopy={this.handleCopy.bind(this)}
             onRemove={!this.props.isTimeSeries && this.handleDelete.bind(this)}
             onClone={this.handleClone.bind(this)}
+            onSpeak={() => {
+              const textString = this._getObjectAsString();
+              const utterance = new SpeechSynthesisUtterance(textString);
+              speechSynthesis.speak(utterance);
+              console.log('hello', textString);
+            }}
           />
         );
       }

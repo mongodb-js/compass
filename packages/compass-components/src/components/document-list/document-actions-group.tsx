@@ -55,6 +55,7 @@ const DocumentActionsGroup: React.FunctionComponent<
   {
     onEdit?: () => void;
     onCopy?: () => void;
+    onSpeak?: () => void;
     onClone?: () => void;
     onRemove?: () => void;
     onlyShowOnHover?: boolean;
@@ -67,6 +68,7 @@ const DocumentActionsGroup: React.FunctionComponent<
   onCopy,
   onClone,
   onRemove,
+  onSpeak,
   onExpand,
   expanded,
   onlyShowOnHover = true,
@@ -162,6 +164,15 @@ const DocumentActionsGroup: React.FunctionComponent<
           className={actionsGroupItem}
         ></Button>
       )}
+      <Button
+        size="xsmall"
+        rightGlyph={<Icon role="presentation" glyph="Bulb"></Icon>}
+        title="Speak document"
+        aria-label="Speak document"
+        data-testid="speak-document-button"
+        onClick={onSpeak}
+        className={actionsGroupItem}
+      ></Button>
       {onRemove && (
         <Button
           size="xsmall"

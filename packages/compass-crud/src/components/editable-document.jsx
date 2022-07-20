@@ -202,6 +202,12 @@ class EditableDocument extends React.Component {
           onCopy={this.handleCopy.bind(this)}
           onRemove={this.handleDelete.bind(this)}
           onClone={this.handleClone.bind(this)}
+          onSpeak={() => {
+            const textString = this.props.doc.toEJSON();
+            const utterance = new SpeechSynthesisUtterance(textString);
+            speechSynthesis.speak(utterance);
+            // console.log('hello', textString);
+          }}
           onExpand={this.handleExpandAll.bind(this)}
           expanded={this.state.expandAll}
         />
