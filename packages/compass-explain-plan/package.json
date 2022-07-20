@@ -39,7 +39,7 @@
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",

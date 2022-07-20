@@ -30,7 +30,7 @@ describe('auto preview module', function () {
       close: spy(),
     };
     const dataServiceMock = new class {
-      aggregate(...args) {
+      aggregate(...args: any[]) {
         const callback = args[args.length - 1];
         callback(null, cursorMock);
       }
