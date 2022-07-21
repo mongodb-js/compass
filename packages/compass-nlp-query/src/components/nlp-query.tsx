@@ -8,6 +8,10 @@ import { QueryResults } from './query-results';
 import { useNLPQuery } from '../hooks/use-nlp-query';
 import { LeafyFlower } from './leafy-flower';
 
+// Flag for indicating if we should enable the mode where 
+// chained/followup input is possible.
+const followUpQueryMode = false;
+
 const containerStyles = css({
   flexGrow: 1,
 });

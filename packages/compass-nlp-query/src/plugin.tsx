@@ -4,6 +4,7 @@ import type { DataService } from 'mongodb-data-service';
 import type AppRegistry from 'hadron-app-registry';
 
 import { NLPQuery } from './components/nlp-query';
+import { CommandPalette } from './components/command-palette';
 
 const warningStyles = css({
   margin: spacing[3],
@@ -27,12 +28,22 @@ function Plugin({
   const hasOpenAIKey = !!process.env.OPEN_AI_API_KEY;
 
   return hasOpenAIKey ? (
-    <NLPQuery
-      dataService={dataService.dataService}
-      namespace={namespace}
-      noPadding={noPadding}
-      localAppRegistry={localAppRegistry}
-    />
+    <>
+      <NLPQuery
+        dataService={dataService.dataService}
+        namespace={namespace}
+        noPadding={noPadding}
+        localAppRegistry={localAppRegistry}
+      />
+      <CommandPalette>
+        <NLPQuery
+          dataService={dataService.dataService}
+          namespace={namespace}
+          noPadding={noPadding}
+          localAppRegistry={localAppRegistry}
+        />
+      </CommandPalette>
+    </>
   ) : (
     <div>
       <Banner className={warningStyles} variant="warning">

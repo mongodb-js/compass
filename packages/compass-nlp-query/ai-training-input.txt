@@ -20,13 +20,9 @@ Q: username "pikachu"
 A: [{$match : {"username" : "pikachu"}}]
 Q: quantity 10
 A: [{$match : {"quantity" : 10}}]
-Q: quantity 10
-A: [{$match : {"quantity" : 10}}]
 Q: price 200
 A: [{$match : {"price" : 200}}]
 Q: name test
-A: [{$match : {"name" : "test"}}]
-Q: name "test"
 A: [{$match : {"name" : "test"}}]
 Q: Find where age is greater than 100
 A: [{$match : {"age" : {$gt : 100}}}]
@@ -36,6 +32,8 @@ Q: Find all of the documents where age is greater than 100
 A: [{$match : {"age" : {$gt : 100}}}]
 Q: Find all of the documents where "age" is greater than 100
 A: [{$match : {"age" : {$gt : 100}}}]
+Q: Find where "age" is greater than 100 and "name" is jerry
+A: [{$match : {"age" : {$gt : 100}, "name": "jerry"}}]
 Q: "age" is greater than 100
 A: [{$match : {"age" : {$gt : 100}}}]
 Q: Match documents where the price is greater than 5

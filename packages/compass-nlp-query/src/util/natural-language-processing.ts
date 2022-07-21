@@ -75,8 +75,13 @@ export async function getMQLForNaturalLanguageText(
     stop: ['\n'],
   });
 
+  const rawGptResponse = gptResponse.data.choices[0].text;
+
+  // We replace $where with $match as it returns it often.
+  const cleanedGptResponse = rawGptResponse.replace('$where', '$match')
+
   console.log('gpt input (excluding training data):', naturalLanguageText);
   console.log('gpt response:');
-  console.log(gptResponse.data.choices[0].text);
-  return gptResponse.data.choices[0].text;
+  console.log(rawGptResponse);
+  return cleanedGptResponse;
 }

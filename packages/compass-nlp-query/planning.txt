@@ -7,7 +7,9 @@ Things to do:
   - Lazy developer (Speed of query creation)
   - Non-developer (Helping learn query language)
   - Datasets & questions
+    - Lookup example
  - Deploy as a web app
  - Chained pipeline
  - More commands than just aggregation
- - 
+  - Move it up a layer in Compass?
+
