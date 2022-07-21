@@ -68,7 +68,7 @@ describe('PipelineActions', function () {
     it('calls onToggleOptions on click', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
-      expect(button.textContent.toLowerCase().trim()).to.equal('less options');
+      expect(button?.textContent?.toLowerCase().trim()).to.equal('less options');
       expect(within(button).getByLabelText('Caret Down Icon')).to.exist;
 
       userEvent.click(button);
@@ -101,7 +101,7 @@ describe('PipelineActions', function () {
     it('toggle options action button', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
-      expect(button.textContent.toLowerCase().trim()).to.equal('more options');
+      expect(button?.textContent?.toLowerCase().trim()).to.equal('more options');
       expect(within(button).getByLabelText('Caret Right Icon')).to.exist;
 
       userEvent.click(button);

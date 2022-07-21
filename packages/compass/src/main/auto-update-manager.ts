@@ -15,15 +15,6 @@ const API_PRODUCT: Record<string, string> = {
   'mongodb-compass-readonly': 'compass-readonly',
 };
 
-/**
- * Platform API mappings.
- */
-const API_PLATFORM: Record<string, string> = {
-  darwin: 'osx',
-  win32: 'windows',
-  linux: 'linux',
-};
-
 class CompassAutoUpdateManager {
   private static initCalled = false;
 
@@ -48,26 +39,13 @@ class CompassAutoUpdateManager {
       return;
     }
 
-    const platform = API_PLATFORM[process.platform];
-    if (!platform) {
-      log.info(
-        mongoLogId(1001000132),
-        'CompassAutoUpdateManager',
-        'Skipping setup on unknown platform',
-        {
-          platformId: process.platform,
-        }
-      );
-
-      return;
-    }
-
     const autoUpdateManagerOptions = {
       endpoint: process.env.HADRON_AUTO_UPDATE_ENDPOINT,
       icon: COMPASS_ICON,
       product: product,
       channel: process.env.HADRON_CHANNEL,
-      platform: platform,
+      platform: process.platform,
+      arch: process.arch,
     };
 
     log.info(

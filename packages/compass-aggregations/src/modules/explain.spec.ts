@@ -13,6 +13,7 @@ import reducer, {
 } from './explain';
 import configureStore from '../stores/store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
+import type { IndexInfo } from './indexes';
 
 describe('explain module', function () {
   describe('#reducer', function () {
@@ -130,9 +131,9 @@ describe('explain module', function () {
     });
 
     it('maps indexes correctly', function () {
-      const collectionIndexes = [
-        { ns: 'test.users', name: '_id_', key: { _id: 1 } },
-        { ns: 'test.users', name: '_location_', key: { _address: '2dsphere' } }
+      const collectionIndexes: IndexInfo[] = [
+        { ns: 'test.users', name: '_id_', key: { _id: 1 }, extra: {} },
+        { ns: 'test.users', name: '_location_', key: { _address: '2dsphere' }, extra: {} }
       ];
       const explainIndexes = [
         { index: '_id_', shard: 'shard01' },

@@ -18,6 +18,8 @@ describe.skip('Workspace [Component]', function () {
 
     render(
       <Workspace
+        // @ts-expect-error there is way too many errors in this file but also
+        // these tests are skipped so I'm just expecting error here for now
         tabs={tabs}
         closeTab={() => ({
           type: 'type',

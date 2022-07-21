@@ -20,7 +20,7 @@
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "eslint": "eslint",
     "lint": "npm run eslint .",
