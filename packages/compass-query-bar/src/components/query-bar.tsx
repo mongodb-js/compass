@@ -37,7 +37,7 @@ const queryBarFormStyles = css({
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
   gap: spacing[2],
   padding: `0 ${spacing[2]}px`,
   margin: `0 ${spacing[1]}px`,
@@ -53,7 +53,7 @@ const openQueryHistoryStyles = cx(
     backgroundColor: 'transparent',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: spacing[2],
+    padding: '6px',
     '&:hover': {
       cursor: 'pointer',
     },
