@@ -65,7 +65,18 @@ export async function getMQLForNaturalLanguageText(
   const aiInput = `${trainingData}Q:${naturalLanguageText}\nA:`;
 
   const gptResponse = await openaiClient.complete({
-    engine: 'davinci',
+
+    // More at https://beta.openai.com/docs/models/overview
+    // Full list response in `engines-response.txt`
+    // Top two basic engines from open ai based on gpt:
+    engine: 'davinci', // More expensive
+    // engine: 'curie', // Faster, still good responses.
+
+    // Codex private beta engine:
+    // engine: 'code-davinci-002', // S-Tier this one is nice.
+    // code-davinci-002
+    // code-cushman-001
+
     prompt: aiInput,
     temperature: 0.3,
     maxTokens: 400,
@@ -85,3 +96,5 @@ export async function getMQLForNaturalLanguageText(
   console.log(rawGptResponse);
   return cleanedGptResponse;
 }
+
+
