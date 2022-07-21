@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * The initial state of the new index field.
  */
@@ -17,20 +19,15 @@ type ClearNewIndexFieldAction = {
   type: ActionTypes.clearNewIndexField;
 };
 
-type NewIndexFieldAction = CreateNewIndexFieldAction | ClearNewIndexFieldAction;
-
 /**
  * Reducer function for handle state changes.
  *
- * @param {String} state - The new index field state.
- * @param {Object} action - The action.
+ * @param state - The new index field state.
+ * @param action - The action.
  *
- * @returns {String} The new state.
+ * @returns The new state.
  */
-export default function reducer(
-  state = INITIAL_STATE,
-  action: NewIndexFieldAction
-) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === ActionTypes.createNewIndexField) {
     return action.newField;
   }

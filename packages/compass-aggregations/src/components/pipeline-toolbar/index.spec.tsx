@@ -78,7 +78,7 @@ describe('PipelineToolbar', function () {
       expect(
         within(settings)
           .getByTestId('pipeline-name')
-          .textContent.trim()
+          ?.textContent?.trim()
           .toLowerCase(),
         'shows untitled as default name'
       ).to.equal('untitled');

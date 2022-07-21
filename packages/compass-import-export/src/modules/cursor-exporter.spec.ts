@@ -12,7 +12,7 @@ class StringStream extends Writable {
   constructor() {
     super();
   }
-  _write(chunk, enc, next) {
+  _write(chunk: any, enc: any, next: any) {
     this.output += chunk.toString();
     next();
   }
