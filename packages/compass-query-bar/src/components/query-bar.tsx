@@ -53,7 +53,7 @@ const openQueryHistoryStyles = cx(
     backgroundColor: 'transparent',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: '6px',
+    padding: spacing[2] - 2, // -2px for border.
     '&:hover': {
       cursor: 'pointer',
     },
