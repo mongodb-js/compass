@@ -79,7 +79,8 @@ class Stage extends Component {
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
+    newPipelineFromPaste: PropTypes.func.isRequired,
+    isAtlasDeployed: PropTypes.bool
   };
 
   /* eslint complexity: 0 */
@@ -218,7 +219,7 @@ class Stage extends Component {
             runOutStage={this.props.runOutStage}
             gotoOutResults={this.props.gotoOutResults}
             gotoMergeResults={this.props.gotoMergeResults}
-            openLink={this.props.openLink}
+            isAtlasDeployed={this.props.isAtlasDeployed}
           />
         )}
       </div>
