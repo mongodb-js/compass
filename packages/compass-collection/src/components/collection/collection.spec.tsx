@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 import { spy } from 'sinon';
 
 import Collection from '../collection';
-import { INITIAL_STATE as STATS_INITIAL_STATE } from '../../modules/stats';
+import { getInitialState } from '../../modules/stats';
 
 describe('Collection [Component]', function () {
   let changeSubTabSpy;
@@ -22,7 +22,6 @@ describe('Collection [Component]', function () {
         isTimeSeries={false}
         isClustered={false}
         isFLE={false}
-        sourceName={null}
         tabs={[]}
         views={[]}
         queryHistoryIndexes={[]}
@@ -36,7 +35,7 @@ describe('Collection [Component]', function () {
         selectOrCreateTab={selectOrCreateTabSpy}
         sourceReadonly={sourceReadonly}
         pipeline={[]}
-        stats={STATS_INITIAL_STATE}
+        stats={getInitialState()}
       />
     );
   });

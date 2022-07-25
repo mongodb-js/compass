@@ -7,9 +7,9 @@ import type { Dispatch } from 'redux';
 /**
  * Opens export to language.
  *
- * @param {Object} query - The query.
+ * @param query - The query.
  *
- * @returns {Function} The function.
+ * @returns The function.
  */
 export const exportToLanguage = (queryState: {
   filterString: string;

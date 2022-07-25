@@ -40,6 +40,29 @@ type FieldDescription = {
   value: BSONValue | typeof DoesNotExist;
 };
 
+export interface KeyInclusionOptions {
+  /**
+   * An array whose entries are used as keys that are always included
+   * in lists for queried keys (e.g. as part of the `find` portion of
+   * an update).
+   *
+   * A nested field for `{ a: { b: 42 } }` would be described by the
+   * field path `['a', 'b']`.
+   */
+  alwaysIncludeKeys?: string[][];
+
+  /**
+   * An array whose entries are used as keys that are included in lists
+   * for queried keys (e.g. as part of the `find` portion of
+   * an update), even when the value of that field has originally been
+   * an encrypted value in the sense of CSFLE/QE.
+   *
+   * A nested field for `{ a: { b: 42 } }` would be described by the
+   * field path `['a', 'b']`.
+   */
+  includableEncryptedKeys?: string[][];
+}
+
 /**
  * Generates javascript objects from elements.
  */
@@ -166,9 +189,8 @@ export class ObjectGenerator {
    * for those updated fields.
    *
    * @param target The target document, or, when recursing, element.
-   * @param alwaysIncludeOriginalKeys A list of fields whose original values
-   *     are always included in `originalFields`. Dots inside key names
-   *     are interpreted as referring to nested properties.
+   * @param keyInclusionOptions Specify which fields to include in the
+   *     originalFields list.
    * @param includeUpdatedFields Whether to include original and new values
    *     of updated fields. If set to `false`, only fields included in
    *     @see alwaysIncludeOriginalKeys are included.
@@ -177,7 +199,7 @@ export class ObjectGenerator {
    */
   private static recursivelyGatherFieldsAndValuesForUpdate(
     target: Document | Element,
-    alwaysIncludeOriginalKeys: string[],
+    keyInclusionOptions: Readonly<KeyInclusionOptions>,
     includeUpdatedFields: boolean
   ): {
     originalFields: FieldDescription[];
@@ -185,8 +207,20 @@ export class ObjectGenerator {
   } {
     const originalFields: FieldDescription[] = [];
     const newFields: FieldDescription[] = [];
+    const alwaysIncludeKeys = keyInclusionOptions.alwaysIncludeKeys ?? [];
+    const includableEncryptedKeys =
+      keyInclusionOptions.includableEncryptedKeys ?? [];
 
     for (const element of target.elements ?? []) {
+      // Do not include encrypted fields in the `originalFields` list
+      // unless we know that it is okay to include them (i.e. because
+      // we know that we can perform equality queries on those fields).
+      const canIncludeOriginalValue =
+        !element.isValueDecrypted() ||
+        includableEncryptedKeys.some(
+          (key) => key.length === 1 && key[0] === String(element.key)
+        );
+
       // Recurse into an element if it either has been updated and we are looking
       // for updated fields, or it is part of the set of keys that we should always
       // include.
@@ -195,16 +229,13 @@ export class ObjectGenerator {
           element.isModified() &&
           !element.isAdded() &&
           !element.hasChangedKey()) ||
-        alwaysIncludeOriginalKeys.some(
-          (key) =>
-            key === String(element.key) || key.startsWith(`${element.key}.`)
-        )
+        alwaysIncludeKeys.some((key) => key[0] === String(element.key))
       ) {
         // Two possible cases: Either we recurse into this element and change
         // nested values, or we replace the element entirely.
         // We can only recurse if:
         // - This is a nested element with children, i.e. array or document
-        // - It was not explicitly requested via alwaysIncludeOriginalKeys to
+        // - It was not explicitly requested via alwaysIncludeKeys to
         //   always include it in its entirety
         // - Its type has not changed
         // - It is not an array with removed elements, since MongoDB has
@@ -213,22 +244,32 @@ export class ObjectGenerator {
         //   to actually do so
         if (
           element.elements &&
-          !alwaysIncludeOriginalKeys.includes(String(element.key)) &&
+          !alwaysIncludeKeys.some(
+            (key) => key.length === 1 && key[0] === String(element.key)
+          ) &&
           ((element.type === 'Object' && element.currentType === 'Object') ||
             (element.type === 'Array' &&
               element.currentType === 'Array' &&
               !element.hasAnyRemovedChild()))
         ) {
-          // Nested case: Translate alwaysIncludeKeys to the nested keys,
+          // Nested case: Translate keyInclusionOptions to the nested keys,
           // get the original keys and values for the nested element,
           // then translate the result back to this level.
-          const nestedAlwaysIncludeKeys = alwaysIncludeOriginalKeys
-            .filter((key) => key.startsWith(`${element.key}.`))
-            .map((key) => key.replace(`${element.key}.`, ''));
+          const filterAndShiftFieldPaths = (paths: string[][]) =>
+            paths
+              .filter((key) => key[0] === String(element.key))
+              .map((key) => key.slice(1))
+              .filter((key) => key.length > 0);
+          const nestedKeyInclusionOptions: KeyInclusionOptions = {
+            alwaysIncludeKeys: filterAndShiftFieldPaths(alwaysIncludeKeys),
+            includableEncryptedKeys: filterAndShiftFieldPaths(
+              includableEncryptedKeys
+            ),
+          };
           const nestedResult =
             ObjectGenerator.recursivelyGatherFieldsAndValuesForUpdate(
               element,
-              nestedAlwaysIncludeKeys,
+              nestedKeyInclusionOptions,
               includeUpdatedFields
             );
           for (const { path, value } of nestedResult.originalFields) {
@@ -246,10 +287,12 @@ export class ObjectGenerator {
         } else {
           // Using `.key` instead of `.currentKey` to ensure we look at
           // the original field's value.
-          originalFields.push({
-            path: [String(element.key)],
-            value: element.generateOriginalObject(),
-          });
+          if (canIncludeOriginalValue) {
+            originalFields.push({
+              path: [String(element.key)],
+              value: element.generateOriginalObject(),
+            });
+          }
 
           if (
             includeUpdatedFields &&
@@ -289,10 +332,12 @@ export class ObjectGenerator {
         element.key !== ''
       ) {
         // Remove the original field when an element is removed or renamed.
-        originalFields.push({
-          path: [String(element.key)],
-          value: element.generateOriginalObject(),
-        });
+        if (canIncludeOriginalValue) {
+          originalFields.push({
+            path: [String(element.key)],
+            value: element.generateOriginalObject(),
+          });
+        }
         newFields.push({ path: [String(element.key)], value: DoesNotExist });
       }
     }
@@ -366,9 +411,8 @@ export class ObjectGenerator {
    * this requirement go away for future MongoDB versions!
    *
    * @param target The target (sub-)document.
-   * @param alwaysIncludeOriginalKeys A list whose entries are used as keys
-   *     that are always included in the generated query. Dots inside key names
-   *     are interpreted as referring to nested properties.
+   * @param keyInclusionOptions Specify which fields to include in the
+   *     originalFields list.
    * @param includeUpdatedFields Whether to include the original values for
    *     updated fields.
    *
@@ -379,13 +423,13 @@ export class ObjectGenerator {
    */
   static getQueryForOriginalKeysAndValuesForSpecifiedFields(
     target: Document | Element,
-    alwaysIncludeOriginalKeys: string[],
+    keyInclusionOptions: Readonly<KeyInclusionOptions>,
     includeUpdatedFields: boolean
   ): BSONObject {
     const { originalFields } =
       ObjectGenerator.recursivelyGatherFieldsAndValuesForUpdate(
         target,
-        alwaysIncludeOriginalKeys,
+        keyInclusionOptions,
         includeUpdatedFields
       );
 
@@ -433,7 +477,7 @@ export class ObjectGenerator {
     const { newFields } =
       ObjectGenerator.recursivelyGatherFieldsAndValuesForUpdate(
         target,
-        [],
+        {},
         true
       );
 

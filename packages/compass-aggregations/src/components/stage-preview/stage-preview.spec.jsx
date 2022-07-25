@@ -14,7 +14,6 @@ describe('StagePreview [Component]', function() {
     beforeEach(function() {
       component = mount(
         <StagePreview
-          openLink={sinon.spy()}
           documents={[{ name: 'test' }]}
           isValid
           isEnabled
@@ -46,7 +45,6 @@ describe('StagePreview [Component]', function() {
     beforeEach(function() {
       component = mount(
         <StagePreview
-          openLink={sinon.spy()}
           documents={[]}
           isValid
           isEnabled
@@ -78,7 +76,6 @@ describe('StagePreview [Component]', function() {
       beforeEach(function() {
         component = mount(
           <StagePreview
-            openLink={sinon.spy()}
             documents={[{ name: 'test' }]}
             isValid
             isEnabled
@@ -117,7 +114,6 @@ describe('StagePreview [Component]', function() {
       beforeEach(function() {
         component = mount(
           <StagePreview
-            openLink={sinon.spy()}
             stage="'testing'"
             documents={[{ name: 'test' }]}
             isValid
@@ -168,7 +164,6 @@ describe('StagePreview [Component]', function() {
       beforeEach(function() {
         component = mount(
           <StagePreview
-            openLink={sinon.spy()}
             documents={[]}
             isValid
             isEnabled
@@ -199,7 +194,6 @@ describe('StagePreview [Component]', function() {
       beforeEach(function() {
         component = mount(
           <StagePreview
-            openLink={sinon.spy()}
             documents={[]}
             isValid
             isEnabled
@@ -227,6 +221,53 @@ describe('StagePreview [Component]', function() {
           component.find(`.${styles['stage-preview-empty']}`)
         ).to.not.be.present();
       });
+    });
+  });
+
+
+  context('when atlas deployed', function () {
+    let component;
+
+    function render(stageOperator = '$out') {
+      return mount(
+        <StagePreview
+          documents={[{ name: 'test' }]}
+          isValid
+          isEnabled
+          isComplete={false}
+          index={0}
+          runOutStage={sinon.spy()}
+          gotoOutResults={sinon.spy()}
+          gotoMergeResults={sinon.spy()}
+          isLoading={false}
+          stage=""
+          stageOperator={stageOperator}
+          isAtlasDeployed
+        />
+      );
+    }
+
+    afterEach(function () {
+      component.unmount();
+      component = null;
+    });
+
+    it('shows "Save documents" button for $out stage', function () {
+      component = render('$out');
+      expect(
+        component
+          .getDOMNode()
+          .querySelector('[data-testid="save-out-documents"]')
+      ).to.exist;
+    });
+
+    it('shows "Merge documents" button for $merge stage', function () {
+      component = render('$merge');
+      expect(
+        component
+          .getDOMNode()
+          .querySelector('[data-testid="save-merge-documents"]')
+      ).to.exist;
     });
   });
 });

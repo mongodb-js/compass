@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { DataService } from 'mongodb-data-service';
 
 import reducer, {
   dataServiceConnected,
@@ -8,7 +9,7 @@ import reducer, {
 describe('data service module', function () {
   describe('#dataServiceConnected', function () {
     it('returns the DATA_SERVICE_CONNECTED action', function () {
-      expect(dataServiceConnected(null, {})).to.deep.equal({
+      expect(dataServiceConnected(null, {} as DataService)).to.deep.equal({
         type: DATA_SERVICE_CONNECTED,
         error: null,
         dataService: {},
@@ -29,7 +30,7 @@ describe('data service module', function () {
     context('when the action is data service connected', function () {
       it('returns the new state', function () {
         expect(
-          reducer(undefined, dataServiceConnected(null, {}))
+          reducer(undefined, dataServiceConnected(null, {} as DataService))
         ).to.deep.equal({
           error: null,
           dataService: {},

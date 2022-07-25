@@ -230,6 +230,7 @@ class Pipeline extends PureComponent {
         projections={this.props.projections}
         projectionsChanged={this.props.projectionsChanged}
         newPipelineFromPaste={this.props.newPipelineFromPaste}
+        isAtlasDeployed={this.props.isAtlasDeployed}
       />
     );
   }

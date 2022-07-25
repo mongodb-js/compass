@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import type { AnyAction } from 'redux';
+import type { AnyAction , Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import isEmpty from 'lodash.isempty';
@@ -577,14 +577,14 @@ const MAPPINGS = {
 /**
  * The root reducer.
  *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
+ * @param state - The state.
+ * @param action - The action.
  *
- * @returns {Object} The new state.
+ * @returns The new state.
  */
-const rootReducer = (state: RootState, action: AnyAction): RootState => {
+const rootReducer: Reducer<RootState, AnyAction> = (state, action): RootState => {
   const fn = MAPPINGS[action.type];
-  return fn ? fn(state, action) : appReducer(state, action);
+  return (state && fn) ? fn(state, action) : appReducer(state, action);
 };
 
 export default rootReducer;
