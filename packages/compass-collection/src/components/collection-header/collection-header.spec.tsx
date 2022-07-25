@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 
 import CollectionHeader from '../collection-header';
-import { INITIAL_STATE as STATS_INITIAL_STATE } from '../../modules/stats';
+import { getInitialState } from '../../modules/stats';
 
 describe('CollectionHeader [Component]', function () {
   context('when the collection is not readonly', function () {
@@ -20,13 +20,12 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={false}
           isClustered={false}
           isFLE={false}
-          sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS_INITIAL_STATE}
+          stats={getInitialState()}
         />
       );
     });
@@ -79,7 +78,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS_INITIAL_STATE}
+          stats={getInitialState()}
         />
       );
     });
@@ -124,13 +123,12 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={false}
           isClustered={false}
           isFLE={false}
-          sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS_INITIAL_STATE}
+          stats={getInitialState()}
         />
       );
     });
@@ -161,13 +159,12 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={true}
           isClustered={false}
           isFLE={false}
-          sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS_INITIAL_STATE}
+          stats={getInitialState()}
         />
       );
     });
@@ -198,13 +195,12 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={false}
           isClustered={true}
           isFLE={false}
-          sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS_INITIAL_STATE}
+          stats={getInitialState()}
         />
       );
     });
@@ -239,13 +235,12 @@ describe('CollectionHeader [Component]', function () {
           isTimeSeries={false}
           isClustered={false}
           isFLE={true}
-          sourceName={null}
           globalAppRegistry={globalAppRegistry}
           namespace="db.coll"
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS_INITIAL_STATE}
+          stats={getInitialState()}
         />
       );
     });
@@ -283,7 +278,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={STATS_INITIAL_STATE}
+          stats={getInitialState()}
         />
       );
 

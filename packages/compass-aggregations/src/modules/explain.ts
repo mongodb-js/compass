@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
 import type { ExplainExecuteOptions } from 'mongodb-data-service';
 import type { ThunkAction } from 'redux-thunk';
@@ -74,7 +74,7 @@ export const INITIAL_STATE: State = {
   isModalOpen: false,
 };
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.ExplainStarted:
       return {

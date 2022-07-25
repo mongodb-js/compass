@@ -3,6 +3,7 @@ import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { ZeroState } from 'hadron-react-components';
+import { Banner, WarningSummary } from '@mongodb-js/compass-components';
 
 import ValidationStates from '../validation-states';
 import ValidationEditor from '../validation-editor';
@@ -65,15 +66,17 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('renders the version banner', function () {
-      expect(component.find({ id: 'oldServerReadOnly' })).to.be.present();
+      expect(
+        component.find({ ['data-testid']: 'old-server-read-only' })
+      ).to.be.present();
     });
 
     it('does not render other banners', function () {
-      expect(component.find({ id: 'collectionReadOnly' })).to.be.not.present();
-      expect(component.find({ id: 'hadronReadOnly' })).to.be.not.present();
       expect(
-        component.find({ id: 'writeStateStoreReadOnly' })
-      ).to.be.not.present();
+        component.find({
+          ['data-testid']: 'collection-validation-warning',
+        })
+      ).to.not.be.present();
     });
   });
 
@@ -94,7 +97,21 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('renders the collection time-series banner', function () {
-      expect(component.find({ id: 'collectionTimeSeries' })).to.be.present();
+      expect(
+        component.find({
+          ['data-testid']: 'collection-validation-warning',
+        })
+      ).to.be.present();
+      expect(
+        component
+          .find({
+            ['data-testid']: 'collection-validation-warning',
+          })
+          .at(0)
+          .text()
+      ).to.equal(
+        'Schema validation for time-series collections is not supported.'
+      );
     });
   });
 
@@ -114,14 +131,24 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('renders the collection read-only banner', function () {
-      expect(component.find({ id: 'collectionReadOnly' })).to.be.present();
+      expect(
+        component.find({
+          ['data-testid']: 'collection-validation-warning',
+        })
+      ).to.be.present();
+      expect(
+        component
+          .find({
+            ['data-testid']: 'collection-validation-warning',
+          })
+          .at(0)
+          .text()
+      ).to.equal('Schema validation for readonly views is not supported.');
     });
 
     it('does not render other banners', function () {
-      expect(component.find({ id: 'oldServerReadOnly' })).to.be.not.present();
-      expect(component.find({ id: 'hadronReadOnly' })).to.be.not.present();
       expect(
-        component.find({ id: 'writeStateStoreReadOnly' })
+        component.find({ ['data-testid']: 'old-server-read-only' })
       ).to.be.not.present();
     });
   });
@@ -142,7 +169,8 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('does not render a warning banner', function () {
-      expect(component.find('StatusRow')).to.be.not.present();
+      expect(component.find(Banner)).to.be.not.present();
+      expect(component.find(WarningSummary)).to.be.not.present();
     });
   });
 
@@ -162,7 +190,8 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('does not render a warning banner', function () {
-      expect(component.find('StatusRow')).to.be.not.present();
+      expect(component.find(Banner)).to.be.not.present();
+      expect(component.find(WarningSummary)).to.be.not.present();
     });
   });
 
@@ -182,13 +211,25 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('renders the writable banner', function () {
-      expect(component.find({ id: 'writeStateStoreReadOnly' })).to.be.present();
+      expect(
+        component.find({
+          ['data-testid']: 'collection-validation-warning',
+        })
+      ).to.be.present();
+      expect(
+        component
+          .find({
+            ['data-testid']: 'collection-validation-warning',
+          })
+          .at(0)
+          .text()
+      ).to.equal('This action is not available on a secondary node.');
     });
 
     it('does not render other banners', function () {
-      expect(component.find({ id: 'collectionReadOnly' })).to.be.not.present();
-      expect(component.find({ id: 'hadronReadOnly' })).to.be.not.present();
-      expect(component.find({ id: 'oldServerReadOnly' })).to.be.not.present();
+      expect(
+        component.find({ ['data-testid']: 'old-server-read-only' })
+      ).to.be.not.present();
     });
   });
 
