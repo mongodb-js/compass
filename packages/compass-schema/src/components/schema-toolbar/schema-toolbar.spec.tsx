@@ -78,12 +78,6 @@ describe('SchemaToolbar', function () {
     expect(screen.queryByTestId('schema-toolbar-error-message')).to.not.exist;
   });
 
-  it('renders an export to language button', function () {
-    renderSchemaToolbar();
-
-    expect(screen.getByText('Export to language')).to.be.visible;
-  });
-
   it('renders the sample size count', function () {
     renderSchemaToolbar({
       sampleSize: 123123,
