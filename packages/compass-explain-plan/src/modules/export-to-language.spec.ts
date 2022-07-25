@@ -32,7 +32,8 @@ describe('exportToLanguage', function () {
     expect(globalAppRegistrySpy.called).to.be.false;
     expect(localAppRegistrySpy.called).to.be.false;
 
-    store.dispatch(exportToLanguage(mockQueryBarStore));
+    // js import that requires assertion
+    (store as any).dispatch(exportToLanguage(mockQueryBarStore));
 
     expect(globalAppRegistrySpy.calledOnce).to.be.true;
     expect(localAppRegistrySpy.calledOnce).to.be.true;

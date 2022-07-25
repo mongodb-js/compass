@@ -55,7 +55,7 @@
     "@testing-library/react-hooks": "^7.0.2",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.4.0",
-    "mongodb-connection-string-url": "^2.5.2",
+    "mongodb-connection-string-url": "^2.5.3",
     "mongodb-query-parser": "^2.4.6",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"

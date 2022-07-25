@@ -6,14 +6,20 @@ import AppRegistry from 'hadron-app-registry';
 import CollectionStats from '../collection-stats';
 
 describe('CollectionStats [Component]', function () {
+  beforeEach(function () {
+    (window as any).hadronApp = {
+      appRegistry: new AppRegistry(),
+    };
+  });
+
+  afterEach(function () {
+    delete (window as any).hadronApp;
+  });
+
   describe('when rendered', function () {
     afterEach(cleanup);
 
     beforeEach(function () {
-      global.hadronApp = {
-        appRegistry: new AppRegistry(),
-      };
-
       render(
         <CollectionStats
           documentCount=""
@@ -40,10 +46,6 @@ describe('CollectionStats [Component]', function () {
     afterEach(cleanup);
 
     beforeEach(function () {
-      global.hadronApp = {
-        appRegistry: new AppRegistry(),
-      };
-
       render(
         <CollectionStats
           isTimeSeries={true}
