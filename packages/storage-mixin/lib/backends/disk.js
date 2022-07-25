@@ -14,20 +14,6 @@ var debug = require('debug')('storage-mixin:backends:disk');
  */
 var JSON_REGEX = /.json$/gi;
 
-if (_.isEmpty(fs)) {
-  /**
-   * looks like we're in a browser context. check if we can use electron's
-   * remote module to access fs.
-   */
-  try {
-    /* eslint no-undef: 0 */
-    fs = require('@electron/remote').require('fs');
-  } catch (e) {
-    // not possible, throw error
-    throw new Error('browser context, `fs` module not available for disk storage');
-  }
-}
-
 function DiskBackend(options) {
   if (!(this instanceof DiskBackend)) {
     return new DiskBackend(options);
