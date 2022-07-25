@@ -52,7 +52,7 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
@@ -93,7 +93,7 @@
     "mocha": "^8.4.0",
     "mongodb": "^4.6.0",
     "mongodb-collection-model": "^4.26.1",
-    "mongodb-connection-string-url": "^2.5.2",
+    "mongodb-connection-string-url": "^2.5.3",
     "mongodb-ns": "^2.4.0",
     "mongodb-data-service": "^21.24.1",
     "numeral": "^2.0.6",

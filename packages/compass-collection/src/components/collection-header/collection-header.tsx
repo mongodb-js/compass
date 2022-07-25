@@ -108,7 +108,7 @@ type CollectionHeaderProps = {
   isClustered: boolean;
   isFLE: boolean;
   selectOrCreateTab: (options: any) => any;
-  sourceName: string;
+  sourceName?: string;
   sourceReadonly: boolean;
   sourceViewOn?: string;
   editViewName?: string;

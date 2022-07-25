@@ -4,6 +4,7 @@ import type {
   Document,
   AutoEncryptionOptions,
 } from 'mongodb';
+import type { ClientEncryptionEncryptOptions } from 'mongodb-client-encryption';
 import type { DataService } from './data-service';
 import type {
   CollectionInfo,
@@ -15,6 +16,24 @@ import _ from 'lodash';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
+
+/**
+ * A list of field paths for a document.
+ * For example, ['a', 'b'] refers to the field b of the nested document a.
+ * This is used rather than dot-style `a.b` notation to disambiguate
+ * cases in which field names contain a literal `.` character.
+ */
+type FieldPath = string[];
+
+/**
+ * A description of the list of encrypted fields for a given collection.
+ * Equality-searchable fields are handled separately since they require
+ * special treatments in some cases.
+ */
+export interface CSFLEEncryptedFieldsSet {
+  readonly encryptedFields: FieldPath[];
+  readonly equalityQueryableEncryptedFields: FieldPath[];
+}
 
 /**
  * Helper for ensuring that all fields that were decrypted when
@@ -51,18 +70,83 @@ export interface CSFLECollectionTracker {
    */
   knownSchemaForCollection(
     ns: string
-  ): Promise<{ hasSchema: boolean; encryptedFields: string[] }>;
+  ): Promise<{ hasSchema: boolean; encryptedFields: CSFLEEncryptedFieldsSet }>;
 }
 
-// A list of field paths for a document.
-// For example, ['a', 'b'] refers to the field b of the nested document a.
-// This is used rather than dot-style `a.b` notation to disambiguate
-// cases in which field names contain a literal `.` character.
-type FieldPath = string[];
+class CSFLEEncryptedFieldsSetImpl implements CSFLEEncryptedFieldsSet {
+  _encryptedFields: { path: FieldPath; equalityQueryable: boolean }[] = [];
+
+  get encryptedFields(): FieldPath[] {
+    return this._encryptedFields.map(({ path }) => path);
+  }
+
+  get equalityQueryableEncryptedFields(): FieldPath[] {
+    return this._encryptedFields
+      .filter(({ equalityQueryable }) => equalityQueryable)
+      .map(({ path }) => path);
+  }
+
+  addField(path: Readonly<FieldPath>, equalityQueryable: boolean): this {
+    const existingField = this._encryptedFields.find((field) =>
+      _.isEqual(field.path, path)
+    );
+    if (existingField) {
+      // Deduplicate field entries. If there already is one for this field,
+      // only make sure that the `equalityQueryable` attributes match.
+      // If they don't, assume that the field is not equality-queryable.
+      existingField.equalityQueryable &&= equalityQueryable;
+    } else {
+      this._encryptedFields.push({ path: [...path], equalityQueryable });
+    }
+    return this;
+  }
+
+  withPathPrefix(prefix: string): CSFLEEncryptedFieldsSetImpl {
+    const ret = new CSFLEEncryptedFieldsSetImpl();
+    ret._encryptedFields = this._encryptedFields.map(
+      ({ path, equalityQueryable }) => ({
+        path: [prefix, ...path],
+        equalityQueryable,
+      })
+    );
+    return ret;
+  }
+
+  static isEncryptedField(
+    set: CSFLEEncryptedFieldsSet,
+    path: FieldPath
+  ): boolean {
+    return set.encryptedFields.some((encryptedField) =>
+      _.isEqual(path, encryptedField)
+    );
+  }
+
+  static isEqualityQueryableEncryptedField(
+    set: CSFLEEncryptedFieldsSet,
+    path: FieldPath
+  ): boolean {
+    return set.equalityQueryableEncryptedFields.some((encryptedField) =>
+      _.isEqual(path, encryptedField)
+    );
+  }
+
+  static merge(
+    ...sets: (CSFLEEncryptedFieldsSet | undefined)[]
+  ): CSFLEEncryptedFieldsSetImpl {
+    const ret = new CSFLEEncryptedFieldsSetImpl();
+    for (const set of sets) {
+      if (!set) continue;
+      for (const field of set.encryptedFields) {
+        ret.addField(field, this.isEqualityQueryableEncryptedField(set, field));
+      }
+    }
+    return ret;
+  }
+}
 
 interface CSFLECollectionInfo {
-  serverEnforcedEncryptedFields?: FieldPath[];
-  clientEnforcedEncryptedFields?: FieldPath[];
+  serverEnforcedEncryptedFields?: CSFLEEncryptedFieldsSetImpl;
+  clientEnforcedEncryptedFields?: CSFLEEncryptedFieldsSetImpl;
   hasServerSchema?: boolean;
   lastUpdated?: Date;
 }
@@ -70,53 +154,65 @@ interface CSFLECollectionInfo {
 // Fetch a list of encrypted fields from a JSON schema document.
 function extractEncryptedFieldsFromSchema(
   schema: Document | undefined
-): FieldPath[] {
+): CSFLEEncryptedFieldsSetImpl {
+  let ret = new CSFLEEncryptedFieldsSetImpl();
   if (schema?.encrypt) {
-    return [[]];
+    const algorithm: ClientEncryptionEncryptOptions['algorithm'] =
+      schema?.encrypt?.algorithm;
+    // Deterministic encryption in CSFLE = Equality-searchable
+    return ret.addField(
+      [],
+      algorithm === 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic'
+    );
   }
-  const fields = [];
   for (const [key, subschema] of Object.entries(schema?.properties ?? {})) {
-    for (const subfield of extractEncryptedFieldsFromSchema(
-      subschema as Document
-    )) {
-      fields.push([key, ...subfield]);
-    }
+    const subfields = extractEncryptedFieldsFromSchema(subschema as Document);
+    ret = CSFLEEncryptedFieldsSetImpl.merge(ret, subfields.withPathPrefix(key));
   }
-  return fields;
+  return ret;
 }
 
-// Fetch a list of encrypted fields from an FLE2 EncryptedFieldConfig document.
+// Fetch a list of encrypted fields from a QE EncryptedFieldConfig document.
 function extractEncryptedFieldsFromEncryptedFieldsConfig(
   encryptedFields: Document | undefined
-): FieldPath[] {
-  return (encryptedFields?.fields ?? []).map((field: Document) =>
-    field.path.split('.')
-  );
+): CSFLEEncryptedFieldsSetImpl {
+  const fields: any[] = encryptedFields?.fields ?? [];
+  const ret = new CSFLEEncryptedFieldsSetImpl();
+  for (const field of fields) {
+    const queries: any[] = Array.isArray(field.queries)
+      ? field.queries
+      : [field.queries ?? {}];
+    const equalityQueryable = queries.some(
+      ({ queryType }) => queryType === 'equality' || queryType === 'range'
+    );
+    ret.addField(field.path.split('.'), equalityQueryable);
+  }
+  return ret;
 }
 
 // Fetch a list of encrypted fields based on client-side driver options.
 function extractEncrytedFieldFromAutoEncryptionOptions(
   ns: string,
   autoEncryption: AutoEncryptionOptions
-): FieldPath[] {
-  return [
-    ...extractEncryptedFieldsFromSchema(autoEncryption.schemaMap?.[ns]),
-    ...extractEncryptedFieldsFromEncryptedFieldsConfig(
+): CSFLEEncryptedFieldsSetImpl {
+  return CSFLEEncryptedFieldsSetImpl.merge(
+    extractEncryptedFieldsFromSchema(autoEncryption.schemaMap?.[ns]),
+    extractEncryptedFieldsFromEncryptedFieldsConfig(
       autoEncryption?.encryptedFieldsMap?.[ns]
-    ),
-  ];
+    )
+  );
 }
 
 // Fetch a list of encrypted fields based on the server-side collection info.
 function extractEncryptedFieldsFromListCollectionsResult(
   options: CollectionInfo['options'] | undefined
-): FieldPath[] {
+): CSFLEEncryptedFieldsSetImpl {
   const schema = options?.validator?.$jsonSchema;
   const encryptedFieldsConfig = options?.encryptedFields;
-  return [
-    ...extractEncryptedFieldsFromSchema(schema),
-    ...extractEncryptedFieldsFromEncryptedFieldsConfig(encryptedFieldsConfig),
-  ];
+  return CSFLEEncryptedFieldsSetImpl.merge(
+    extractEncryptedFieldsFromSchema(schema),
+    extractEncryptedFieldsFromEncryptedFieldsConfig(encryptedFieldsConfig)
+  );
 }
 
 // Fetch a list of encrypted fields based on a document received from the server.
@@ -183,11 +279,7 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
       // about writing them back unencrypted.
       return true;
     }
-    const info = await this._fetchCSFLECollectionInfo(ns);
-    const collectionEncryptedFields = [
-      ...(info.serverEnforcedEncryptedFields ?? []),
-      ...(info.clientEnforcedEncryptedFields ?? []),
-    ];
+    const { encryptedFields } = await this.knownSchemaForCollection(ns);
     // Updates are allowed if there is a guarantee that all fields that
     // were decrypted in the original document will also be written back
     // as encrypted fields. To that end, the server or client configuration
@@ -195,8 +287,9 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     // for encrypted fields.
     for (const originalDocPath of originalDocEncryptedFields) {
       if (
-        !collectionEncryptedFields.some((path) =>
-          _.isEqual(originalDocPath, path)
+        !CSFLEEncryptedFieldsSetImpl.isEncryptedField(
+          encryptedFields,
+          originalDocPath
         )
       ) {
         return false;
@@ -205,20 +298,19 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     return true;
   }
 
-  async knownSchemaForCollection(
-    ns: string
-  ): Promise<{ hasSchema: boolean; encryptedFields: string[] }> {
+  async knownSchemaForCollection(ns: string): Promise<{
+    hasSchema: boolean;
+    encryptedFields: CSFLEEncryptedFieldsSetImpl;
+  }> {
     const info = await this._fetchCSFLECollectionInfo(ns);
-    const hasSchema = !!(
-      info.hasServerSchema ||
-      info.clientEnforcedEncryptedFields?.length ||
-      info.serverEnforcedEncryptedFields?.length
+    const encryptedFields = CSFLEEncryptedFieldsSetImpl.merge(
+      info.clientEnforcedEncryptedFields,
+      info.serverEnforcedEncryptedFields
     );
-    const encryptedFields = [
-      ...(info.clientEnforcedEncryptedFields ?? []),
-      ...(info.serverEnforcedEncryptedFields ?? []),
-    ].map((fieldPath) => fieldPath.join('.'));
-    return { hasSchema, encryptedFields: [...new Set(encryptedFields)] };
+    const hasSchema = !!(
+      info.hasServerSchema || encryptedFields.encryptedFields.length > 0
+    );
+    return { hasSchema, encryptedFields };
   }
 
   _processClientSchemaDefinitions(): void {
@@ -372,7 +464,7 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
     const existingInfo = this._getCSFLECollectionInfo(ns);
 
     if (collectionInfos.length === 0) {
-      if (existingInfo.serverEnforcedEncryptedFields?.length) {
+      if (existingInfo.serverEnforcedEncryptedFields?.encryptedFields?.length) {
         return new Error(
           `[Compass] Missing encrypted field information of collection '${ns}'`
         );
@@ -392,9 +484,13 @@ export class CSFLECollectionTrackerImpl implements CSFLECollectionTracker {
       info.options
     );
 
-    for (const expectedEncryptedField of existingInfo.serverEnforcedEncryptedFields ??
-      []) {
-      if (!newInfo.some((field) => _.isEqual(field, expectedEncryptedField))) {
+    for (const expectedEncryptedField of existingInfo
+      .serverEnforcedEncryptedFields?.encryptedFields ?? []) {
+      if (
+        !newInfo.encryptedFields.some((field) =>
+          _.isEqual(field, expectedEncryptedField)
+        )
+      ) {
         return new Error(
           `[Compass] Missing encrypted field '${expectedEncryptedField.join(
             '.'

@@ -32,6 +32,7 @@ export function mergeSecrets(
   const connectionOptions = connectionInfoWithSecrets.connectionOptions;
 
   const uri = new ConnectionString(connectionOptions.connectionString);
+
   const searchParams = uri.typedSearchParams<MongoClientOptions>();
 
   if (secrets.password) {

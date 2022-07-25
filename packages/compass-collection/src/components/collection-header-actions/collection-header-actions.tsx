@@ -30,7 +30,7 @@ type CollectionHeaderActionsProps = {
   isReadonly: boolean;
   onEditViewClicked: () => void;
   onReturnToViewClicked: () => void;
-  sourceName: string;
+  sourceName?: string;
 };
 
 const CollectionHeaderActions: React.FunctionComponent<

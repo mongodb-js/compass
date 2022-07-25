@@ -336,7 +336,9 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys({
+            alwaysIncludeKeys: [['name']],
+          })
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -347,7 +349,9 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys({
+            alwaysIncludeKeys: [['name']],
+          })
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -362,7 +366,9 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys({
+            alwaysIncludeKeys: [['name']],
+          })
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -377,7 +383,9 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys({
+            alwaysIncludeKeys: [['name']],
+          })
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -392,7 +400,9 @@ describe('Document', function () {
 
       it('includes the element in the object', function () {
         expect(
-          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(['name'])
+          doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys({
+            alwaysIncludeKeys: [['name']],
+          })
         ).to.deep.equal({ name: 'test' });
       });
     });
@@ -711,7 +721,9 @@ describe('Document', function () {
 
       it('contains keys that were explicitly requested', function () {
         const { query } =
-          hadronDoc.generateUpdateUnlessChangedInBackgroundQuery(['yes']);
+          hadronDoc.generateUpdateUnlessChangedInBackgroundQuery({
+            alwaysIncludeKeys: [['yes']],
+          });
 
         expect(query).to.deep.equal({
           _id: 'testing',
@@ -882,6 +894,52 @@ describe('Document', function () {
           hadronDoc.generateUpdateUnlessChangedInBackgroundQuery();
 
         expect(updateDoc).to.deep.equal({});
+      });
+    });
+
+    context('when an encrypted element has been updated', function () {
+      const object = {
+        name: 'test',
+        ignored: 'ignored',
+        [Symbol.for('@@mdb.decryptedKeys')]: ['name'],
+      };
+      const doc = new Document(object);
+
+      before(function () {
+        doc.elements.at(0)?.edit('aa');
+      });
+
+      it('excludes the element from the object', function () {
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+          },
+          updateDoc: {
+            $set: {
+              name: 'aa',
+            },
+          },
+        });
+      });
+
+      it('includes the element in the object if requested', function () {
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery({
+            includableEncryptedKeys: [['name']],
+          })
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            name: 'test',
+          },
+          updateDoc: {
+            $set: {
+              name: 'aa',
+            },
+          },
+        });
       });
     });
   });

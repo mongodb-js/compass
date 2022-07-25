@@ -3,7 +3,10 @@ import type { Element } from './element';
 import { ElementList, Events as ElementEvents } from './element';
 import EventEmitter from 'eventemitter3';
 import { EJSON, UUID } from 'bson';
-import type { ObjectGeneratorOptions } from './object-generator';
+import type {
+  KeyInclusionOptions,
+  ObjectGeneratorOptions,
+} from './object-generator';
 import ObjectGenerator from './object-generator';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
@@ -114,15 +117,14 @@ export class Document extends EventEmitter {
    * on MongoDB 5.0+. (Note that field names starting with `$` are also only
    * allowed in MongoDB 5.0+.)
    *
-   * @param {Object} alwaysIncludeKeys - An object whose keys are used as keys
-   *     that are always included in the generated query. Dots inside key names
-   *     are interpreted as referring to nested properties.
+   * @param keyInclusionOptions Specify which fields to include in the
+   *     originalFields list.
    *
    * @returns {Object} An object containing the `query` and `updateDoc` to be
    * used in an update operation.
    */
   generateUpdateUnlessChangedInBackgroundQuery(
-    alwaysIncludeKeys: string[] = []
+    opts: Readonly<KeyInclusionOptions> = {}
   ): {
     query: BSONObject;
     updateDoc: { $set?: BSONObject; $unset?: BSONObject } | BSONArray;
@@ -134,7 +136,7 @@ export class Document extends EventEmitter {
     const originalFieldsThatWillBeUpdated =
       ObjectGenerator.getQueryForOriginalKeysAndValuesForSpecifiedFields(
         this,
-        alwaysIncludeKeys,
+        opts,
         true
       );
     const query = {
@@ -203,16 +205,17 @@ export class Document extends EventEmitter {
    * the original values, this can be used when querying for an update based
    * on multiple criteria.
    *
-   * @param keys - An array whose entries are used as keys
-   *     that are included in the generated query. Dots inside key names
-   *     are interpreted as referring to nested properties.
+   * @param keyInclusionOptions Specify which fields to include in the
+   *     originalFields list.
    *
    * @returns {Object} The javascript object.
    */
-  getQueryForOriginalKeysAndValuesForSpecifiedKeys(keys: string[]): BSONObject {
+  getQueryForOriginalKeysAndValuesForSpecifiedKeys(
+    opts: Readonly<KeyInclusionOptions> = {}
+  ): BSONObject {
     return ObjectGenerator.getQueryForOriginalKeysAndValuesForSpecifiedFields(
       this,
-      keys,
+      opts,
       false
     );
   }

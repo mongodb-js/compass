@@ -57,7 +57,6 @@ describe('CollectionHeaderActions [Component]', function () {
           isReadonly={true}
           onEditViewClicked={() => {}}
           onReturnToViewClicked={() => {}}
-          sourceName={null}
         />
       );
     });
@@ -98,7 +97,6 @@ describe('CollectionHeaderActions [Component]', function () {
           onEditViewClicked={() => {}}
           onReturnToViewClicked={() => {}}
           editViewName="db.editing"
-          sourceName={null}
         />
       );
     });
