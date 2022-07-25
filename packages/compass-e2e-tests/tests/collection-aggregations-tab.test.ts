@@ -9,8 +9,8 @@ import {
   afterTest,
   outputFilename,
 } from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import { MONGODB_VERSION } from '../helpers/compass';
+import type { Compass, ServerVersionInfo } from '../helpers/compass';
+import { getServerVersion } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
@@ -64,15 +64,18 @@ async function getDocuments(browser: CompassBrowser) {
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let serverVersion: ServerVersionInfo;
+  const connectionString = 'mongodb://localhost:27091/test';
 
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+    serverVersion = await getServerVersion(connectionString);
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString(connectionString);
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     // Get us back to the empty stage every time. Also test the Create New
@@ -136,25 +139,25 @@ describe('Collection aggregations tab', function () {
       '$unwind',
     ];
 
-    if (semver.gte(MONGODB_VERSION, '4.1.11')) {
+    if (semver.gte(serverVersion.version, '4.1.11')) {
       expectedAggregations.push('$search');
     }
-    if (semver.gte(MONGODB_VERSION, '4.2.0')) {
+    if (semver.gte(serverVersion.version, '4.2.0')) {
       expectedAggregations.push('$merge', '$replaceWith', '$set', '$unset');
     }
-    if (semver.gte(MONGODB_VERSION, '4.4.0')) {
+    if (semver.gte(serverVersion.version, '4.4.0')) {
       expectedAggregations.push('$unionWith');
     }
-    if (semver.gte(MONGODB_VERSION, '4.4.9')) {
+    if (semver.gte(serverVersion.version, '4.4.9')) {
       expectedAggregations.push('$searchMeta');
     }
-    if (semver.gte(MONGODB_VERSION, '5.0.0')) {
+    if (semver.gte(serverVersion.version, '5.0.0')) {
       expectedAggregations.push('$setWindowFields');
     }
-    if (semver.gte(MONGODB_VERSION, '5.1.0')) {
+    if (semver.gte(serverVersion.version, '5.1.0')) {
       expectedAggregations.push('$densify');
     }
-    if (semver.gte(MONGODB_VERSION, '5.3.0')) {
+    if (semver.gte(serverVersion.version, '5.3.0')) {
       expectedAggregations.push('$fill');
     }
 
@@ -179,7 +182,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.1.11')) {
+    if (semver.lt(serverVersion.version, '4.1.11')) {
       this.skip();
     }
 
@@ -437,7 +440,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports $merge as the last stage', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+    if (semver.lt(serverVersion.version, '4.2.0')) {
       return this.skip();
     }
 
@@ -620,7 +623,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    if (semver.lt(MONGODB_VERSION, '4.4.0')) {
+    if (semver.lt(serverVersion.version, '4.4.0')) {
       // $function expression that we use to simulate slow aggregation is only
       // supported since server 4.4
       this.skip();

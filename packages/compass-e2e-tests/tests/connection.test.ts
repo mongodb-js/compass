@@ -7,11 +7,11 @@ import ConnectionString from 'mongodb-connection-string-url';
 import resolveMongodbSrv from 'resolve-mongodb-srv';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
+import type { Compass, ServerVersionInfo } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
 import semver from 'semver';
-import { MONGODB_VERSION } from '../helpers/compass';
+import { getServerVersion } from '../helpers/compass';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -719,10 +719,13 @@ describe('System CA access', function () {
 describe('FLE2', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let serverVersion: ServerVersionInfo;
+  const connectionString = 'mongodb://localhost:27091/test';
 
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+    serverVersion = await getServerVersion(connectionString);
   });
 
   after(async function () {
@@ -731,8 +734,8 @@ describe('FLE2', function () {
 
   it('can connect using local KMS', async function () {
     if (
-      semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
-      process.env.MONGODB_USE_ENTERPRISE !== 'yes'
+      semver.lt(serverVersion.version, '6.0.0') ||
+      !serverVersion.enterprise
     ) {
       return this.skip();
     }

@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import { MONGODB_VERSION } from '../helpers/compass';
+import type { Compass, ServerVersionInfo } from '../helpers/compass';
+import { getServerVersion } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
   createDummyCollections,
@@ -13,10 +13,13 @@ import {
 describe('Database collections tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let serverVersion: ServerVersionInfo;
+  const connectionString = 'mongodb://localhost:27091/test';
 
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+    serverVersion = await getServerVersion(connectionString);
   });
 
   after(async function () {
@@ -26,7 +29,7 @@ describe('Database collections tab', function () {
   beforeEach(async function () {
     await createDummyCollections();
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString(connectionString);
     await browser.navigateToDatabaseTab('test', 'Collections');
   });
 
@@ -185,7 +188,7 @@ describe('Database collections tab', function () {
   });
 
   it('can create a time series collection', async function () {
-    if (semver.lt(MONGODB_VERSION, '5.0.0')) {
+    if (semver.lt(serverVersion.version, '5.0.0')) {
       return this.skip();
     }
 
@@ -218,7 +221,7 @@ describe('Database collections tab', function () {
   });
 
   it('can create a clustered collection', async function () {
-    if (semver.lt(MONGODB_VERSION, '5.3.0')) {
+    if (semver.lt(serverVersion.version, '5.3.0')) {
       return this.skip();
     }
 

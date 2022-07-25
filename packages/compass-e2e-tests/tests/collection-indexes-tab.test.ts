@@ -3,12 +3,12 @@ import semver from 'semver';
 
 import type { CompassBrowser } from '../helpers/compass-browser';
 import {
-  MONGODB_VERSION,
   beforeTests,
   afterTests,
   afterTest,
+  getServerVersion,
 } from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
+import type { Compass, ServerVersionInfo } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
@@ -17,15 +17,18 @@ const { expect } = chai;
 describe('Collection indexes tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let serverVersion: ServerVersionInfo;
+  const connectionString = 'mongodb://localhost:27091/test';
 
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+    serverVersion = await getServerVersion(connectionString);
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
+    await browser.connectWithConnectionString(connectionString);
     await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
   });
 
@@ -109,7 +112,7 @@ describe('Collection indexes tab', function () {
 
   describe('server version 4.2.0', function () {
     it('supports creating a wildcard index', async function () {
-      if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+      if (semver.lt(serverVersion.version, '4.2.0')) {
         return this.skip();
       }
 
@@ -177,7 +180,7 @@ describe('Collection indexes tab', function () {
 
   describe('server version 6.1.0', function () {
     it('supports creating a columnstore index', async function () {
-      if (semver.lt(MONGODB_VERSION, '6.1.0-alpha0')) {
+      if (semver.lt(serverVersion.version, '6.1.0-alpha0')) {
         return this.skip();
       }
 

@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests } from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import { MONGODB_VERSION } from '../helpers/compass';
+import type { Compass, ServerVersionInfo } from '../helpers/compass';
+import { getServerVersion } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { getFirstListDocument } from '../helpers/read-first-document-content';
 import { MongoClient } from 'mongodb';
@@ -17,6 +17,12 @@ const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
 describe('FLE2', function () {
+  let serverVersion: ServerVersionInfo;
+
+  before(async function () {
+    serverVersion = await getServerVersion(CONNECTION_STRING);
+  });
+
   describe('server version gte 4.2.20 and not a linux platform', function () {
     const databaseName = 'fle-test';
     const collectionName = 'my-another-collection';
@@ -25,8 +31,8 @@ describe('FLE2', function () {
 
     before(async function () {
       if (
-        semver.lt(MONGODB_VERSION, '4.2.20') ||
-        process.env.MONGODB_USE_ENTERPRISE !== 'yes' ||
+        semver.lt(serverVersion.version, '4.2.20') ||
+        !serverVersion.enterprise ||
         // TODO(COMPASS-5911): Saved connections are not being displayed after disconnect on Linux CI.
         process.platform === 'linux'
       ) {
@@ -127,8 +133,8 @@ describe('FLE2', function () {
   describe('server version gte 6.0.0-rc0', function () {
     before(function () {
       if (
-        semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
-        process.env.MONGODB_USE_ENTERPRISE !== 'yes'
+        semver.lt(serverVersion.version, '6.0.0') ||
+        !serverVersion.enterprise
       ) {
         return this.skip();
       }

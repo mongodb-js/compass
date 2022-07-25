@@ -20,6 +20,7 @@ import * as Commands from './commands';
 import type { CompassBrowser } from './compass-browser';
 import type { LogEntry } from './telemetry';
 import Debug from 'debug';
+import { MongoClient } from 'mongodb';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -36,15 +37,25 @@ export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
 const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
-// mongodb-runner defaults to stable if the env var isn't there
-export const MONGODB_VERSION = (process.env.MONGODB_VERSION || '5.0.6')
-  // semver interprets these suffixes like a prerelease (ie. alpha or rc) and it
-  // is irrelevant for our version comparisons anyway
-  .replace('-community', '')
-  .replace('>', '')
-  // HACK: comparisons don't allow X-Ranges and 5.x or 5.x.x installs 5.2.1 so
-  // we can't just map it to 5.0.0
-  .replace(/x/g, '999');
+export interface ServerVersionInfo {
+  version: string;
+  enterprise: boolean;
+}
+
+export async function getServerVersion(
+  connectionString: string
+): Promise<ServerVersionInfo> {
+  const client = await MongoClient.connect(connectionString);
+  try {
+    const buildInfo = await client.db('admin').command({ buildInfo: 1 });
+    return {
+      version: buildInfo.version,
+      enterprise: buildInfo.modules?.includes('enterprise') || false,
+    };
+  } finally {
+    await client.close();
+  }
+}
 
 // For the user data dirs
 let i = 0;
