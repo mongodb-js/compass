@@ -21,7 +21,7 @@ if (_.isEmpty(fs)) {
    */
   try {
     /* eslint no-undef: 0 */
-    fs = window.require('@electron/remote').require('fs');
+    fs = require('@electron/remote').require('fs');
   } catch (e) {
     // not possible, throw error
     throw new Error('browser context, `fs` module not available for disk storage');

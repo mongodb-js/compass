@@ -2,7 +2,7 @@ import '../setup-hadron-distribution';
 import './setup-csfle-library';
 import { app } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
-import {initialize } from '@electron/remote/main';
+import { initialize } from '@electron/remote/main';
 
 initialize();
 
