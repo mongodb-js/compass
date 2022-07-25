@@ -60,7 +60,14 @@ function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
       continue;
     }
     if (entry.$numberDouble) {
-      (value as any)[key] = +entry.$numberDouble;
+      if (
+        Number.isFinite(+entry.$numberDouble) &&
+        !Object.is(+entry.$numberDouble, -0)
+      ) {
+        // EJSON can represent +/-Infinity or NaN values but JSON can't
+        // (and -0 can be parsed from JSON but not serialized by JSON.stringify).
+        (value as any)[key] = +entry.$numberDouble;
+      }
       continue;
     }
     makeEJSONIdiomatic(entry);
