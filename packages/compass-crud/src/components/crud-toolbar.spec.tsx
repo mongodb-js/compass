@@ -56,6 +56,8 @@ function renderCrudToolbar(
       isExportable
       loadingCount={false}
       localAppRegistry={appRegistry}
+      isWritable
+      instanceDescription=""
       onApplyClicked={noop}
       onResetClicked={noop}
       openExportFileDialog={noop}
@@ -227,9 +229,9 @@ describe('CrudToolbar Component', function () {
     });
 
     it('has the add data button enabled', function () {
-      expect(screen.getByText(addDataText).getAttribute('disabled')).to.equal(
-        undefined
-      );
+      expect(
+        screen.getByTestId('crud-add-data-button').getAttribute('disabled')
+      ).to.equal(null);
     });
   });
 
@@ -241,9 +243,9 @@ describe('CrudToolbar Component', function () {
     });
 
     it('has the add data button disabled', function () {
-      expect(screen.getByText(addDataText).getAttribute('disabled')).to.equal(
-        'true'
-      );
+      expect(
+        screen.getByTestId('crud-add-data-button').getAttribute('disabled')
+      ).to.equal('true');
     });
   });
 });

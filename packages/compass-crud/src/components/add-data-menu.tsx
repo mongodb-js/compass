@@ -52,6 +52,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
                       rightGlyph={<Icon glyph="CaretDown" />}
                       variant="primary"
                       disabled={!isWritable}
+                      data-testid="crud-add-data-button"
                       size="xsmall"
                       onClick={onClick}
                       {...menuProps}
