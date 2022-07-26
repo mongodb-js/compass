@@ -104,8 +104,6 @@ describe('InstanceStore [Store]', () => {
       });
     });
 
-    // TODO: when the topologyDescription changed
-
     context('when data service connects with error', () => {
       beforeEach(() => {
         expect(store.getState().dataService).to.deep.equal(null); // initial state
