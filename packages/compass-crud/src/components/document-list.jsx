@@ -248,13 +248,24 @@ class DocumentList extends React.Component {
         {useNewToolbars ? (
           <CrudToolbar
             activeDocumentView={this.props.view}
+            count={this.props.count}
+            loadingCount={this.props.loadingCount}
+            start={this.props.start}
+            end={this.props.end}
+            page={this.props.page}
+            getPage={this.props.getPage}
             insertDataHandler={this.handleOpenInsert.bind(this)}
             localAppRegistry={this.props.store.localAppRegistry}
-            onApply={this.onApplyClicked.bind(this)}
-            onReset={this.onResetClicked.bind(this)}
+            isExportable={this.props.isExportable}
+            onApplyClicked={this.onApplyClicked.bind(this)}
+            onResetClicked={this.onResetClicked.bind(this)}
+            openExportFileDialog={this.props.openExportFileDialog}
             readonly={!this.props.isEditable}
             viewSwitchHandler={this.props.viewChanged}
-            {...this.props}
+            isWritable={this.props.isWritable}
+            instanceDescription={this.props.instanceDescription}
+            refreshDocuments={this.props.refreshDocuments}
+            resultId={this.props.resultId}
           />
         ) : (
           <>
@@ -285,6 +296,11 @@ DocumentList.propTypes = {
   closeInsertDocumentDialog: PropTypes.func,
   toggleInsertDocumentView: PropTypes.func.isRequired,
   toggleInsertDocument: PropTypes.func.isRequired,
+  count: PropTypes.number,
+  start: PropTypes.number,
+  end: PropTypes.number,
+  page: PropTypes.number,
+  getPage: PropTypes.func,
   error: PropTypes.object,
   insert: PropTypes.object,
   insertDocument: PropTypes.func,
@@ -296,6 +312,7 @@ DocumentList.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openExportFileDialog: PropTypes.func,
+  refreshDocuments: PropTypes.func,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
@@ -312,6 +329,8 @@ DocumentList.propTypes = {
   loadingCount: PropTypes.bool,
   outdated: PropTypes.bool,
   resultId: PropTypes.number,
+  isWritable: PropTypes.bool,
+  instanceDescription: PropTypes.string,
 };
 
 DocumentList.defaultProps = {

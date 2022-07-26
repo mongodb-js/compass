@@ -10,15 +10,13 @@ let appName;
 let basepath;
 
 try {
-  const electron = require('electron');
+  const remote = require('@electron/remote');
 
-  appName = electron.remote ? electron.remote.app.getName() : undefined;
-  basepath = electron.remote
-    ? electron.remote.app.getPath('userData')
-    : undefined;
+  appName = remote.app.getName();
+  basepath = remote.app.getPath('userData');
 } catch (e) {
   /* eslint no-console: 0 */
-  console.log('Could not load electron', e.message);
+  console.log('Could not load @electron/remote', e.message);
 }
 
 /**

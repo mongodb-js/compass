@@ -10,7 +10,6 @@ const DEFAULT_NAMESPACE = '';
  * The store holds the source of truth for the namespace being worked on.
  */
 const NamespaceStore = Reflux.createStore({
-
   /**
    * Initializing the store should set up the default namespace.
    */
@@ -39,14 +38,17 @@ const NamespaceStore = Reflux.createStore({
       if (oldNs.database !== newNs.database) {
         registry.emit('database-changed', ns);
       }
-      if (oldNs.database !== newNs.database || oldNs.collection !== newNs.collection) {
+      if (
+        oldNs.database !== newNs.database ||
+        oldNs.collection !== newNs.collection
+      ) {
         registry.emit('collection-changed', ns);
       }
     }
     // TODO: still trigger if appRegistry is not available?
     this._ns = ns;
     this.trigger(this._ns);
-  }
+  },
 });
 
 module.exports = NamespaceStore;

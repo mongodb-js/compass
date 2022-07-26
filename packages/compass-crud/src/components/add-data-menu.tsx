@@ -4,6 +4,7 @@ import {
   Icon,
   Menu,
   MenuItem,
+  Tooltip,
   css,
 } from '@mongodb-js/compass-components';
 
@@ -12,11 +13,15 @@ const menuStyles = css({
 });
 
 type AddDataMenuProps = {
+  instanceDescription: string;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
+  isWritable: boolean;
 };
 
 const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
+  instanceDescription,
   insertDataHandler,
+  isWritable,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -29,26 +34,47 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
       trigger={({
         children,
         onClick,
-        ...props
+        ...menuProps
       }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'>) => {
         return (
           <>
-            <Button
-              leftGlyph={<Icon glyph="Download" />}
-              rightGlyph={<Icon glyph="CaretDown" />}
-              variant="primary"
-              size="xsmall"
-              onClick={onClick}
-              {...props}
+            <Tooltip
+              trigger={({
+                className,
+                children,
+                ...tooltipTriggerProps
+              }: React.HTMLProps<HTMLInputElement>) => {
+                //</HTMLInputElement> </>{ children: React.ReactChildren }) => {
+                return (
+                  <div className={className} {...tooltipTriggerProps}>
+                    <Button
+                      leftGlyph={<Icon glyph="Download" />}
+                      rightGlyph={<Icon glyph="CaretDown" />}
+                      variant="primary"
+                      disabled={!isWritable}
+                      size="xsmall"
+                      onClick={onClick}
+                      {...menuProps}
+                    >
+                      Add Data
+                    </Button>
+                    {children}
+                  </div>
+                );
+              }}
+              // Disable the tooltip when the instance is in a writable state.
+              isDisabled={isWritable}
+              justify="middle"
+              delay={500}
+              darkMode
             >
-              Add Data
-            </Button>
+              {instanceDescription}
+            </Tooltip>
             {children}
           </>
         );
       }}
     >
-      {/* TODO: This needs to be behind an is-writable check */}
       <MenuItem
         data-testid="hadron-document-add-child"
         onClick={() => {

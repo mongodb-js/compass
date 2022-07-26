@@ -1,16 +1,23 @@
+import { EventEmitter } from 'events';
 import AppRegistry from 'hadron-app-registry';
-import Reflux from 'reflux';
-import StateMixin from 'reflux-state-mixin';
 import { expect } from 'chai';
 
 import configureStore from './';
 
-const WriteStateStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return { isWritable: true, description: 'store initial state description' };
+class FakeInstance extends EventEmitter {
+  isWritable = true;
+  description = 'initial description';
+}
+
+const fakeInstance = new FakeInstance();
+
+const fakeAppInstanceStore = {
+  getState: function () {
+    return {
+      instance: fakeInstance,
+    };
   },
-});
+};
 
 describe('IndexesStore [Store]', function () {
   let appRegistry;
@@ -21,10 +28,7 @@ describe('IndexesStore [Store]', function () {
   beforeEach(function () {
     appRegistry = new AppRegistry();
     localAppRegistry = new AppRegistry();
-    appRegistry.registerStore(
-      'DeploymentAwareness.WriteStateStore',
-      WriteStateStore
-    );
+    appRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
     store = configureStore({
       globalAppRegistry: appRegistry,
@@ -61,17 +65,30 @@ describe('IndexesStore [Store]', function () {
     expect(store.getState().dataService).to.not.equal(null);
   });
 
-  context('when write state changes', function () {
-    beforeEach(function () {
-      expect(store.getState().isWritable).to.equal(true); // initial state
-      WriteStateStore.setState({
-        isWritable: false,
-        description: 'test description',
-      });
+  context('when instance state changes', function () {
+    before(function () {
+      expect(store.getState().isWritable).to.equal(true);
+      expect(store.getState().description).to.equal('initial description');
+
+      fakeInstance.isWritable = false;
+      fakeInstance.emit(
+        'change:isWritable',
+        fakeInstance,
+        fakeInstance.isWritable
+      );
+      fakeInstance.description = 'test description';
+      fakeInstance.emit(
+        'change:description',
+        fakeInstance,
+        fakeInstance.description
+      );
     });
 
-    it('dispatches the change write state action', function () {
+    it('dispatches the writeStateChanged action', function () {
       expect(store.getState().isWritable).to.equal(false);
+    });
+
+    it('dispatches the getDescription action', function () {
       expect(store.getState().description).to.equal('test description');
     });
   });

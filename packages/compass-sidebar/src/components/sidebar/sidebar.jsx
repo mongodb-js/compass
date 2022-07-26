@@ -38,25 +38,24 @@ function boundSidebarWidth(attemptedWidth) {
 class Sidebar extends PureComponent {
   static displayName = 'Sidebar';
   static propTypes = {
-    instance: PropTypes.object.isRequired,
+    // Sidebar is a global plugin and will be instantiated before the instance
+    // is available. Therefore instance cannot be required.
+    instance: PropTypes.object,
     databases: PropTypes.array.isRequired,
     isDetailsExpanded: PropTypes.bool.isRequired,
-    isWritable: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
-    detailsPlugins: PropTypes.array.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
-    isDataLake: PropTypes.bool.isRequired,
-    isGenuineMongoDB: PropTypes.bool.isRequired,
     isGenuineMongoDBVisible: PropTypes.bool.isRequired,
     toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
     connectionInfo: PropTypes.object.isRequired,
-    updateAndSaveConnectionInfo: PropTypes.func.isRequired
+    connectionOptions: PropTypes.object.isRequired,
+    updateAndSaveConnectionInfo: PropTypes.func.isRequired,
   };
 
   state = {
     width: defaultSidebarWidthOpened,
-    prevWidth: defaultSidebarWidthOpened
+    prevWidth: defaultSidebarWidthOpened,
   };
 
   onNavigationItemClick(tabName) {
@@ -65,15 +64,16 @@ class Sidebar extends PureComponent {
 
   updateWidth(width) {
     this.setState(
-      (width > sidebarMinWidthOpened)
+      width > sidebarMinWidthOpened
         ? {
-          width,
-          // Store the previous width to use when toggling open/close
-          // when we resize while the sidebar is expanded.
-          prevWidth: width
-        } : {
-          width
-        }
+            width,
+            // Store the previous width to use when toggling open/close
+            // when we resize while the sidebar is expanded.
+            prevWidth: width,
+          }
+        : {
+            width,
+          }
     );
   }
 
@@ -117,17 +117,29 @@ class Sidebar extends PureComponent {
   }
 
   renderCreateDatabaseButton() {
-    if (!this.isReadonlyDistro() && !this.props.isDataLake) {
-      const isW = !this.props.isWritable ? styles['compass-sidebar-button-is-disabled'] : '';
-      const className = classnames(styles['compass-sidebar-button-create-database'], styles[isW]);
+    if (!this.isReadonlyDistro() && !this.props.instance.dataLake.isDataLake) {
+      const isW = !this.props.instance.isWritable
+        ? styles['compass-sidebar-button-is-disabled']
+        : '';
+      const className = classnames(
+        styles['compass-sidebar-button-create-database'],
+        styles[isW]
+      );
       return (
         <div
-          className={classnames(styles['compass-sidebar-button-create-database-container'])}>
+          className={classnames(
+            styles['compass-sidebar-button-create-database-container']
+          )}
+        >
           <button
             className={className}
             title="Create Database"
             data-test-id="create-database-button"
-            onClick={this.handleCreateDatabaseClick.bind(this, this.props.isWritable)}>
+            onClick={this.handleCreateDatabaseClick.bind(
+              this,
+              this.props.instance.isWritable
+            )}
+          >
             <i className="mms-icon-add" />
             <div className={classnames(styles['plus-button'])}>
               Create Database
@@ -142,17 +154,19 @@ class Sidebar extends PureComponent {
     const { width, prevWidth } = this.state;
 
     const isExpanded = width > sidebarMinWidthOpened;
-    const renderedWidth = isExpanded ? boundSidebarWidth(width) : sidebarWidthCollapsed;
+    const renderedWidth = isExpanded
+      ? boundSidebarWidth(width)
+      : sidebarWidthCollapsed;
 
-    const collapsedButton = 'fa' +
-      (isExpanded ? ' fa-caret-left' : ' fa-caret-right');
+    const collapsedButton =
+      'fa' + (isExpanded ? ' fa-caret-left' : ' fa-caret-right');
 
     // TODO: https://jira.mongodb.org/browse/COMPASS-5918
     /* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, react/no-string-refs */
     return (
       <div
         className={classnames(styles['compass-sidebar'], {
-          [styles['compass-sidebar-collapsed']]: !isExpanded
+          [styles['compass-sidebar-collapsed']]: !isExpanded,
         })}
         data-test-id="compass-sidebar-panel"
         style={{ width: renderedWidth }}
@@ -166,32 +180,38 @@ class Sidebar extends PureComponent {
           title="sidebar"
         />
         <button
-          className={classnames(styles['compass-sidebar-toggle'], 'btn btn-default btn-sm')}
-          onClick={() => isExpanded
-            ? this.updateWidth(sidebarWidthCollapsed)
-            : this.updateWidth(prevWidth)
+          className={classnames(
+            styles['compass-sidebar-toggle'],
+            'btn btn-default btn-sm'
+          )}
+          onClick={() =>
+            isExpanded
+              ? this.updateWidth(sidebarWidthCollapsed)
+              : this.updateWidth(prevWidth)
           }
           data-test-id="toggle-sidebar"
         >
-          <i className={collapsedButton}/>
+          <i className={collapsedButton} />
         </button>
         <SidebarTitle
           connectionInfo={this.props.connectionInfo}
           isSidebarExpanded={isExpanded}
           onClick={() => this.onNavigationItemClick()}
         />
-        {isExpanded && (
+        {isExpanded && this.props.instance && (
           <SidebarInstance
             instance={this.props.instance}
             databases={this.props.databases}
             isExpanded={this.props.isDetailsExpanded}
-            detailsPlugins={this.props.detailsPlugins}
-            isGenuineMongoDB={this.props.isGenuineMongoDB}
+            isGenuineMongoDB={this.props.instance.genuineMongoDB.isGenuine}
             toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
             globalAppRegistryEmit={this.props.globalAppRegistryEmit}
             connectionInfo={this.props.connectionInfo}
+            connectionOptions={this.props.connectionOptions}
             updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
-            setConnectionIsCSFLEEnabled={(enabled) => this.handleSetConnectionIsCSFLEEnabled(enabled)}
+            setConnectionIsCSFLEEnabled={(enabled) =>
+              this.handleSetConnectionIsCSFLEEnabled(enabled)
+            }
           />
         )}
         <NavigationItems
@@ -202,7 +222,13 @@ class Sidebar extends PureComponent {
           className={styles['compass-sidebar-filter']}
           onClick={this.handleSearchFocus.bind(this)}
         >
-          <i className={classnames('fa', 'fa-search', styles['compass-sidebar-search-icon'])}/>
+          <i
+            className={classnames(
+              'fa',
+              'fa-search',
+              styles['compass-sidebar-search-icon']
+            )}
+          />
           <input
             data-test-id="sidebar-filter-input"
             ref="filter"
@@ -213,7 +239,7 @@ class Sidebar extends PureComponent {
         </div>
         <div className={styles['compass-sidebar-content']}>
           {isExpanded && <SidebarDatabasesNavigation />}
-          {this.renderCreateDatabaseButton()}
+          {this.props.instance && this.renderCreateDatabaseButton()}
         </div>
         <NonGenuineWarningModal
           isVisible={this.props.isGenuineMongoDBVisible}
@@ -234,13 +260,10 @@ class Sidebar extends PureComponent {
  */
 const mapStateToProps = (state) => ({
   connectionInfo: state.connectionInfo.connectionInfo,
+  connectionOptions: state.connectionOptions,
   instance: state.instance,
   databases: state.databases.databases,
   isDetailsExpanded: state.isDetailsExpanded,
-  isWritable: state.isWritable,
-  detailsPlugins: state.detailsPlugins,
-  isDataLake: state.isDataLake,
-  isGenuineMongoDB: state.isGenuineMongoDB,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
 });
 
@@ -248,16 +271,13 @@ const mapStateToProps = (state) => ({
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedSidebar = connect(
-  mapStateToProps,
-  {
-    toggleIsDetailsExpanded,
-    toggleIsGenuineMongoDBVisible,
-    changeFilterRegex,
-    globalAppRegistryEmit,
-    updateAndSaveConnectionInfo
-  },
-)(Sidebar);
+const MappedSidebar = connect(mapStateToProps, {
+  toggleIsDetailsExpanded,
+  toggleIsGenuineMongoDBVisible,
+  changeFilterRegex,
+  globalAppRegistryEmit,
+  updateAndSaveConnectionInfo,
+})(Sidebar);
 
 export default MappedSidebar;
 export { Sidebar };

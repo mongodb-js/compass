@@ -14,6 +14,7 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
+
 import { AddDataMenu } from './add-data-menu';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
@@ -56,7 +57,9 @@ type CrudToolbarProps = {
   end: number;
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
+  instanceDescription: string;
   isExportable: boolean;
+  isWritable: boolean;
   loadingCount: boolean;
   localAppRegistry: AppRegistry;
   onApplyClicked: () => void;
@@ -76,7 +79,9 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   end,
   getPage,
   insertDataHandler,
+  instanceDescription,
   isExportable,
+  isWritable,
   loadingCount,
   localAppRegistry,
   onApplyClicked,
@@ -138,7 +143,13 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       </div>
       <div className={crudBarStyles}>
         <div className={toolbarLeftActionStyles}>
-          {!readonly && <AddDataMenu insertDataHandler={insertDataHandler} />}
+          {!readonly && (
+            <AddDataMenu
+              insertDataHandler={insertDataHandler}
+              isWritable={isWritable}
+              instanceDescription={instanceDescription}
+            />
+          )}
           <Button
             leftGlyph={<Icon glyph="Export" />}
             data-testid="export-collection-button"

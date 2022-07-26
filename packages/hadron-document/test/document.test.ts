@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import Document from '../src/';
 import SharedExamples from './shared-examples';
-import { ObjectId, Long, Int32 } from 'bson';
+import { ObjectId, Long, Int32, Double } from 'bson';
 
 describe('Document', function () {
   describe('#get', function () {
@@ -2056,6 +2056,27 @@ describe('Document', function () {
         const doc = new Document({ a: 1 });
         expect(doc.toEJSON('current', { indent: '>' })).to.equal(
           '{\n>"a": 1\n}'
+        );
+      });
+
+      it('handles oddball floating point values', function () {
+        const doc = new Document({
+          negzero: new Double(-0),
+          int: new Int32(1),
+          inf: Infinity,
+          ninf: -Infinity,
+          nan: NaN,
+        });
+        expect(doc.toEJSON('current', { indent: undefined })).to.equal(
+          '{' +
+            [
+              '"negzero":{"$numberDouble":"-0.0"},',
+              '"int":1,',
+              '"inf":{"$numberDouble":"Infinity"},',
+              '"ninf":{"$numberDouble":"-Infinity"},',
+              '"nan":{"$numberDouble":"NaN"}',
+            ].join('') +
+            '}'
         );
       });
     });

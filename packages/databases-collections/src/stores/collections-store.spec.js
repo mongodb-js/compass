@@ -1,20 +1,46 @@
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import Reflux from 'reflux';
-import StateMixin from 'reflux-state-mixin';
-import InstanceModel from 'mongodb-instance-model';
-import sinon from 'sinon';
+import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
 import store from './collections-store';
 import { reset } from '../modules/reset';
 
-const WriteStateStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return { isWritable: false };
+const coll = {
+  _id: 'db1.spotify',
+  document_count: 10,
+  size: 200,
+  index_count: 1,
+  index_size: 15,
+  collation: { locale: 'se' }
+};
+
+const dbs = [{ _id: 'db1', storage_size: 10, collections: [ coll ], index_count: 2 }];
+
+const topologyDescription = new TopologyDescription({
+  type: 'Unknown',
+  servers: [{ type: 'Unknown' }]
+});
+
+const fakeInstance = new MongoDBInstance({
+  _id: '123',
+  databases: dbs,
+  topologyDescription,
+  dataLake: {
+    isDataLake: false
   }
 });
 
+const fakeAppInstanceStore = {
+  getState: function() {
+    return {
+      instance: fakeInstance
+    };
+  }
+};
+
 describe('Collections [Store]', () => {
+  const appRegistry = new AppRegistry();
+  appRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
+
   beforeEach(() => {
     store.dispatch(reset());
   });
@@ -24,17 +50,8 @@ describe('Collections [Store]', () => {
   });
 
   describe('#onActivated', () => {
-    const appRegistry = new AppRegistry();
-    appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
-    const clock = sinon.useFakeTimers();
-
-    before(() => {
+    beforeEach(() => {
       store.onActivated(appRegistry);
-      clock.runAll();
-    });
-
-    after(() => {
-      clock.restore();
     });
 
     it('activates the app registry module', () => {
@@ -42,30 +59,15 @@ describe('Collections [Store]', () => {
     });
 
     context('when the instance store triggers', () => {
-      const coll = {
-        _id: 'db1.spotify',
-        document_count: 10,
-        size: 200,
-        index_count: 1,
-        index_size: 15,
-        collation: { locale: 'se' }
-      };
-
-      const dbs = [{ _id: 'db1', storage_size: 10, collections: [ coll ], index_count: 2 }];
-
       beforeEach(() => {
-        appRegistry.emit('instance-created', {
-          instance: new InstanceModel({ _id: '123', databases: dbs }),
-        });
+        appRegistry.emit('instance-created', { instance: fakeInstance });
         appRegistry.emit('select-database', 'db1');
-        clock.runAll();
       });
 
       context('when the database name changes', () => {
         context('when the name is different', () => {
           beforeEach(() => {
             appRegistry.emit('select-database', 'db1');
-            clock.runAll();
           });
 
           it('loads the collections', () => {
@@ -79,14 +81,25 @@ describe('Collections [Store]', () => {
       });
     });
 
-    context('when write state changes', () => {
+    context('when instance state changes', function() {
       beforeEach(() => {
-        WriteStateStore.setState({ isWritable: true });
-        clock.runAll();
+        appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
-      it('dispatches the change write state action', () => {
+      it('dispatches the writeStateChanged action', function() {
+        expect(store.getState().isWritable).to.equal(false);
+
+        fakeInstance.topologyDescription.set({ type: 'ReplicaSetWithPrimary' });
+
         expect(store.getState().isWritable).to.equal(true);
+      });
+
+      it('dispatches the toggleIsDataLake action', function() {
+        expect(store.getState().isDataLake).to.equal(false);
+
+        fakeInstance.dataLake.set({ isDataLake: true });
+
+        expect(store.getState().isDataLake).to.equal(true);
       });
     });
   });

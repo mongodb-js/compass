@@ -2,6 +2,9 @@ import '../setup-hadron-distribution';
 import './setup-csfle-library';
 import { app } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
+import { initialize } from '@electron/remote/main';
+
+initialize();
 
 // Name and version are setup outside of Application and before anything else so
 // that if uncaught exception happens we already show correct name and version

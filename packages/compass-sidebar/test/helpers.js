@@ -1,12 +1,17 @@
-import InstanceModel from 'mongodb-instance-model';
+import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
 
 export function createInstance(
   dbs = [
     { _id: 'admin', collections: ['citibikecoll', 'coll'] },
     { _id: 'citibike', collections: ['admincoll', 'coll2'] },
-  ]
+  ],
+  topologyDescription = {
+    type: 'Unknown',
+    servers: [],
+    setName: 'foo',
+  }
 ) {
-  return new InstanceModel({
+  return new MongoDBInstance({
     _id: '123',
     databases: dbs.map((db) => {
       return {
@@ -18,5 +23,6 @@ export function createInstance(
         }),
       };
     }),
+    topologyDescription: new TopologyDescription(topologyDescription),
   });
 }

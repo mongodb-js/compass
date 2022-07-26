@@ -23,8 +23,10 @@ store.onActivated = (appRegistry) => {
     }
   });
 
-  appRegistry.on('server-version-changed', (version) => {
-    store.dispatch(serverVersionChanged(version));
+  appRegistry.on('instance-created', ({ instance }) => {
+    instance.build.on('change:version', () => {
+      store.dispatch(serverVersionChanged(instance.build.version));
+    });
   });
 
   /**

@@ -1,5 +1,5 @@
 const marky = require('marky');
-const electron = require('electron');
+const remote = require('@electron/remote');
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
@@ -36,7 +36,7 @@ const PLUGINS_DIR = 'plugins-directory';
  * Location of the dev plugins.
  */
 const DEV_PLUGINS = path.join(
-  electron.remote.app.getPath('home'),
+  remote.app.getPath('home'),
   DISTRIBUTION[PLUGINS_DIR]
 );
 

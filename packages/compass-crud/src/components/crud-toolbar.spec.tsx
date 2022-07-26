@@ -218,4 +218,32 @@ describe('CrudToolbar Component', function () {
 
     expect(exportSpy.calledOnce).to.be.true;
   });
+
+  describe('when the instance is in a writable state (`isWritable` is true)', function () {
+    beforeEach(function () {
+      renderCrudToolbar({
+        isWritable: true,
+      });
+    });
+
+    it('has the add data button enabled', function () {
+      expect(screen.getByText(addDataText).getAttribute('disabled')).to.equal(
+        undefined
+      );
+    });
+  });
+
+  describe('when the instance is not in a writable state (`isWritable` is false)', function () {
+    beforeEach(function () {
+      renderCrudToolbar({
+        isWritable: false,
+      });
+    });
+
+    it('has the add data button disabled', function () {
+      expect(screen.getByText(addDataText).getAttribute('disabled')).to.equal(
+        'true'
+      );
+    });
+  });
 });
