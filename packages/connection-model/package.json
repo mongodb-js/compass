@@ -47,6 +47,7 @@
     "storage-mixin": "^4.14.0"
   },
   "devDependencies": {
+    "@electron/remote": "^2.0.8",
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "depcheck": "^1.4.1",

@@ -27,6 +27,7 @@
     "chai": "^4.3.4",
     "chai-dom": "^1.9.0",
     "chai-enzyme": "^1.0.0-beta.1",
+    "@electron/remote": "^2.0.8",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
     "global-jsdom": "^8.3.0",

@@ -1,5 +1,5 @@
 export default function fileSaveDialog(fileType, prefillFileName) {
-  const { dialog, getCurrentWindow } = require('electron').remote;
+  const { dialog, getCurrentWindow } = require('@electron/remote');
 
   const filters = [
     {
