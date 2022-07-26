@@ -1308,9 +1308,6 @@ const configureStore = (options = {}) => {
     instance.on('change:description', () => {
       store.setState({ instanceDescription: instance.description });
     });
-    instance.build.on('change:version', () => {
-      store.setState({ version: instance.build.version });
-    });
 
     globalAppRegistry.on('refresh-data', () => {
       store.refreshDocuments();
