@@ -27,16 +27,14 @@ const queryBarFormStyles = css({
   flexGrow: 1,
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
-  padding: spacing[1],
+  padding: spacing[2],
   background: uiColors.white,
 });
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
   gap: spacing[2],
-  padding: `0 ${spacing[2]}px`,
-  margin: `0 ${spacing[1]}px`,
 });
 
 const filterContainerStyles = css({
@@ -49,7 +47,7 @@ const openQueryHistoryStyles = cx(
     backgroundColor: 'transparent',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: spacing[2],
+    padding: spacing[2] - 2, // -2px for border.
     '&:hover': {
       cursor: 'pointer',
     },
