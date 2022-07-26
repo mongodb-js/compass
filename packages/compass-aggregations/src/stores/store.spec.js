@@ -12,6 +12,16 @@ import {
 import { INITIAL_STATE } from '../modules/index';
 import { expect } from 'chai';
 
+const fakeAppInstanceStore = {
+  getState: function () {
+    return {
+      instance: {
+        env: 'atlas'
+      }
+    };
+  }
+};
+
 describe('Aggregation Store', function() {
   describe('#configureStore', function() {
     context('when providing an app registry', function() {
@@ -20,13 +30,14 @@ describe('Aggregation Store', function() {
       const globalAppRegistry = new AppRegistry();
 
       beforeEach(function() {
+        globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
         store = configureStore({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry
         });
       });
 
-      it('sets the app registry the state', function() {
+      it('sets the app registry state', function() {
         expect(store.getState().appRegistry).to.deep.equal({
           localAppRegistry: localAppRegistry,
           globalAppRegistry: globalAppRegistry
@@ -271,6 +282,7 @@ describe('Aggregation Store', function() {
     const globalAppRegistry = new AppRegistry();
 
     beforeEach(function() {
+      globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
       store = configureStore({
         localAppRegistry: localAppRegistry,
         globalAppRegistry: globalAppRegistry

@@ -1,5 +1,6 @@
-import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
+import AppRegistry from 'hadron-app-registry';
+import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
 
 import {
   validatorChanged,
@@ -12,18 +13,33 @@ import { fetchSampleDocuments } from '../modules/sample-documents';
 import { stringify as javascriptStringify } from 'javascript-stringify';
 import configureStore from './';
 
+const topologyDescription = new TopologyDescription({
+  type: 'Unknown',
+  servers: [{ type: 'Unknown' }],
+});
+
+const fakeInstance = new MongoDBInstance({
+  _id: '123',
+  topologyDescription,
+  build: {
+    version: '6.0.0',
+  },
+});
+
+const fakeAppInstanceStore = {
+  getState: function () {
+    return {
+      instance: fakeInstance,
+    };
+  },
+};
+
 describe('Schema Validation Store', function () {
   let store;
   const globalAppRegistry = new AppRegistry();
   const localAppRegistry = new AppRegistry();
-  const writeStateStore = { state: { isWritable: true } };
 
-  before(function () {
-    globalAppRegistry.registerStore(
-      'DeploymentAwareness.WriteStateStore',
-      writeStateStore
-    );
-  });
+  globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
   beforeEach(function () {
     store = configureStore({
@@ -37,6 +53,10 @@ describe('Schema Validation Store', function () {
   });
 
   describe('#onActivated', function () {
+    it('uses instance.build.version', function () {
+      expect(store.getState().serverVersion).to.equal('6.0.0');
+    });
+
     context('when the validation changes', function () {
       it('updates the namespace in the store', function (done) {
         const unsubscribe = store.subscribe(() => {
@@ -92,6 +112,33 @@ describe('Schema Validation Store', function () {
               version: '0.0.0',
             },
           ],
+        });
+      });
+    });
+
+    context('when instance.isWritable changes', function () {
+      it('updates editMode', function () {
+        expect(store.getState().editMode).to.deep.equal({
+          collectionReadOnly: false,
+          collectionTimeSeries: false,
+          hadronReadOnly: false,
+          oldServerReadOnly: false,
+          writeStateStoreReadOnly: true,
+        });
+
+        fakeInstance.set({
+          topologyDescription: new TopologyDescription({
+            type: 'Single',
+            servers: [{ type: 'Standalone' }],
+          }),
+        });
+
+        expect(store.getState().editMode).to.deep.equal({
+          collectionReadOnly: false,
+          collectionTimeSeries: false,
+          hadronReadOnly: false,
+          oldServerReadOnly: false,
+          writeStateStoreReadOnly: false,
         });
       });
     });

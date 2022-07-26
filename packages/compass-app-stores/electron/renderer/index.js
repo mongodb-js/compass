@@ -6,7 +6,7 @@ import 'mongodb-compass/src/app/styles/index.less';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import app from 'hadron-app';
-import MongoDBInstance from 'mongodb-instance-model';
+import { MongoDBInstance } from 'mongodb-instance-model';
 import AppRegistry from 'hadron-app-registry';
 import { AppContainer } from 'react-hot-loader';
 import { activate } from '../../src/index';

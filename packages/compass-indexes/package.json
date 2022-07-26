@@ -97,8 +97,6 @@
     "react-tooltip": "^3.11.1",
     "redux": "^4.1.2",
     "redux-thunk": "^2.3.0",
-    "reflux": "^0.4.1",
-    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^3.0.2",
     "semver": "^5.4.1",
     "sinon": "^9.2.3",

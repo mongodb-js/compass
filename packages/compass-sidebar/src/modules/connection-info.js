@@ -1,6 +1,4 @@
-import {
-  ConnectionStorage
-} from 'mongodb-data-service';
+import { ConnectionStorage } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-SIDEBAR');
@@ -11,20 +9,20 @@ const { debug } = createLoggerAndTelemetry('COMPASS-SIDEBAR');
 const CHANGE_CONNECTION_INFO = 'sidebar/connection/CHANGE_CONNECTION_INFO';
 
 /**
-* Save favorite connection action name.
-*/
+ * Save favorite connection action name.
+ */
 const SAVE_CONNECTION_INFO = 'sidebar/connection/SAVE_CONNECTION_INFO';
 
 /**
-* The initial state of the connection.
-*/
+ * The initial state of the connection.
+ */
 export const INITIAL_STATE = {
   connectionInfo: {
     connectionOptions: {
-      connectionString: 'mongodb://localhost:27017'
-    }
+      connectionString: 'mongodb://localhost:27017',
+    },
   },
-  connectionStorage: new ConnectionStorage()
+  connectionStorage: new ConnectionStorage(),
 };
 
 async function saveConnectionInfo(connectionInfo, connectionStorage) {
@@ -42,25 +40,25 @@ async function saveConnectionInfo(connectionInfo, connectionStorage) {
 }
 
 /**
-* Changes the connection.
-*
-* @param {Object} state - The state.
-* @param {Object} action - The action.
-*
-* @returns {Object} The new state.
-*/
+ * Changes the connection.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
 const doChangeConnectionInfo = (state, action) => {
   return { ...state, connectionInfo: action.connectionInfo };
 };
 
 /**
-* Saves the new favorite connection info.
-*
-* @param {Object} state - The state.
-* @param {Object} action - The action.
-*
-* @returns {Object} The new state.
-*/
+ * Saves the new favorite connection info.
+ *
+ * @param {Object} state - The state.
+ * @param {Object} action - The action.
+ *
+ * @returns {Object} The new state.
+ */
 const doSaveConnectionInfo = (state, action) => {
   saveConnectionInfo(action.connectionInfo, state.connectionStorage);
 
@@ -68,21 +66,21 @@ const doSaveConnectionInfo = (state, action) => {
 };
 
 /**
-* To not have a huge switch statement in the reducer.
-*/
+ * To not have a huge switch statement in the reducer.
+ */
 const MAPPINGS = {
   [CHANGE_CONNECTION_INFO]: doChangeConnectionInfo,
-  [SAVE_CONNECTION_INFO]: doSaveConnectionInfo
+  [SAVE_CONNECTION_INFO]: doSaveConnectionInfo,
 };
 
 /**
-* Reducer function for handle state changes.
-*
-* @param {String} state - The status state.
-* @param {Object} action - The action.
-*
-* @returns {String} The new state.
-*/
+ * Reducer function for handle state changes.
+ *
+ * @param {String} state - The status state.
+ * @param {Object} action - The action.
+ *
+ * @returns {String} The new state.
+ */
 export default function reducer(state = INITIAL_STATE, action) {
   const fn = MAPPINGS[action.type];
 
@@ -90,25 +88,25 @@ export default function reducer(state = INITIAL_STATE, action) {
 }
 
 /**
-* Change connection action creator.
-*
-* @param {Object} connectionInfo - The connection info object.
-*
-* @returns {Object} The action.
-*/
+ * Change connection action creator.
+ *
+ * @param {Object} connectionInfo - The connection info object.
+ *
+ * @returns {Object} The action.
+ */
 export const changeConnectionInfo = (connectionInfo) => ({
   type: CHANGE_CONNECTION_INFO,
-  connectionInfo
+  connectionInfo,
 });
 
 /**
-* Save connection info action creator.
-*
-* @param {Object} connectionInfo - The connection info object.
-*
-* @returns {Object} The action.
-*/
+ * Save connection info action creator.
+ *
+ * @param {Object} connectionInfo - The connection info object.
+ *
+ * @returns {Object} The action.
+ */
 export const updateAndSaveConnectionInfo = (connectionInfo) => ({
   type: SAVE_CONNECTION_INFO,
-  connectionInfo
+  connectionInfo,
 });

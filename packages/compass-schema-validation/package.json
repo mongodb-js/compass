@@ -84,6 +84,7 @@
     "lodash": "^4.17.15",
     "mocha": "^8.4.0",
     "mongodb-data-service": "^21.24.1",
+    "mongodb-instance-model": "^11.26.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
     "nyc": "^15.0.0",
