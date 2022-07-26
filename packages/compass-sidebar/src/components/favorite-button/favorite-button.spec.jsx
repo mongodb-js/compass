@@ -12,7 +12,7 @@ describe('FavoriteButton [Component]', function () {
     beforeEach(function () {
       component = mount(
         <FavoriteButton
-          toggleIsFavoriteModalVisible={()=>{}}
+          toggleIsFavoriteModalVisible={() => {}}
           favoriteOptions={undefined}
         />
       );
@@ -24,7 +24,9 @@ describe('FavoriteButton [Component]', function () {
 
     it('displays the the default button without star filled in', function () {
       expect(component.find(`.${styles['favorite-button']}`)).to.be.present();
-      expect(component.find(`.${styles['favorite-button-text']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['favorite-button-text']}`)
+      ).to.be.present();
       let starStyle = component.find('#favoriteIconStar').get(0).props;
       expect(starStyle).to.have.property('fill', 'none');
     });
@@ -36,10 +38,10 @@ describe('FavoriteButton [Component]', function () {
     beforeEach(function () {
       component = mount(
         <FavoriteButton
-          toggleIsFavoriteModalVisible={()=>{}}
+          toggleIsFavoriteModalVisible={() => {}}
           favoriteOptions={{
             name: '123',
-            color: undefined
+            color: undefined,
           }}
         />
       );
@@ -51,7 +53,9 @@ describe('FavoriteButton [Component]', function () {
 
     it('displays the the filled in star', function () {
       expect(component.find(`.${styles['favorite-button']}`)).to.be.present();
-      expect(component.find(`.${styles['favorite-button-text']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['favorite-button-text']}`)
+      ).to.be.present();
 
       let starStyle = component.find('#favoriteIconStar').get(0).props;
       expect(starStyle).to.have.property('fill', '#ffffff');

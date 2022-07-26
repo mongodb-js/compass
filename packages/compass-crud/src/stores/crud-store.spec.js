@@ -3,6 +3,7 @@ import Connection from 'mongodb-connection-model';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 import AppRegistry from 'hadron-app-registry';
 import HadronDocument, { Element } from 'hadron-document';
+import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
 import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
@@ -23,6 +24,30 @@ const CONNECTION = new Connection({
 });
 
 const delay = util.promisify(setTimeout);
+
+const topologyDescription = new TopologyDescription({
+  type: 'Unknown',
+  servers: [{ type: 'Unknown' }],
+});
+
+const fakeInstance = new MongoDBInstance({
+  _id: '123',
+  topologyDescription,
+  build: {
+    version: '6.0.0',
+  },
+  dataLake: {
+    isDataLake: false,
+  },
+});
+
+const fakeAppInstanceStore = {
+  getState: function () {
+    return {
+      instance: fakeInstance,
+    };
+  },
+};
 
 function waitForStates(store, cbs, timeout = 2000) {
   let numMatches = 0;
@@ -96,6 +121,8 @@ describe('store', function () {
 
   const localAppRegistry = new AppRegistry();
   const globalAppRegistry = new AppRegistry();
+
+  globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
   before(async function () {
     const info = convertConnectionModelToInfo(CONNECTION);
@@ -183,10 +210,12 @@ describe('store', function () {
           csfleState: { state: 'none' },
           mode: 'modifying',
         },
+        instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
         isEditable: true,
         isReadonly: false,
         isTimeSeries: false,
+        isWritable: false,
         ns: '',
         outdated: false,
         page: 0,
@@ -208,7 +237,7 @@ describe('store', function () {
           path: [],
           types: [],
         },
-        version: '3.4.0',
+        version: '6.0.0',
         view: 'List',
       });
     });

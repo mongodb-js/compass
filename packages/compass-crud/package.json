@@ -94,6 +94,7 @@
     "mocha": "^8.4.0",
     "mongodb-connection-model": "^21.19.1",
     "mongodb-data-service": "^21.24.1",
+    "mongodb-instance-model": "^11.26.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-runner": "^4.9.0",
     "nyc": "^15.1.0",

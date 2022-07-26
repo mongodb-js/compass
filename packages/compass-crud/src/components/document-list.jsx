@@ -294,6 +294,8 @@ DocumentList.propTypes = {
   loadingCount: PropTypes.bool,
   outdated: PropTypes.bool,
   resultId: PropTypes.number,
+  isWritable: PropTypes.bool,
+  instanceDescription: PropTypes.string,
 };
 
 DocumentList.defaultProps = {

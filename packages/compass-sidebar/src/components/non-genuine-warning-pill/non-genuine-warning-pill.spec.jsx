@@ -10,7 +10,12 @@ describe('NonGenuineWarningPill [Component]', function () {
 
   context('when the instance is a non genuine mongo', function () {
     beforeEach(function () {
-      component = mount(<NonGenuineWarningPill isGenuineMongoDB={false} isSidebarCollapsed={false} />);
+      component = mount(
+        <NonGenuineWarningPill
+          isGenuineMongoDB={false}
+          isSidebarCollapsed={false}
+        />
+      );
     });
 
     afterEach(function () {
@@ -18,7 +23,9 @@ describe('NonGenuineWarningPill [Component]', function () {
     });
 
     it('renders the pill', function () {
-      expect(component.find(`.${styles['non-genuine-warning-pill']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['non-genuine-warning-pill']}`)
+      ).to.be.present();
     });
 
     it('renders the icon', function () {
@@ -28,7 +35,9 @@ describe('NonGenuineWarningPill [Component]', function () {
 
   context('when the instance is a genuine mongo', function () {
     beforeEach(function () {
-      component = mount(<NonGenuineWarningPill isGenuineMongoDB isSidebarCollapsed={false} />);
+      component = mount(
+        <NonGenuineWarningPill isGenuineMongoDB isSidebarCollapsed={false} />
+      );
     });
 
     afterEach(function () {
@@ -36,13 +45,17 @@ describe('NonGenuineWarningPill [Component]', function () {
     });
 
     it('does not render the pill', function () {
-      expect(component.find(`.${styles['non-genuine-warning-pill']}`)).to.not.be.present();
+      expect(
+        component.find(`.${styles['non-genuine-warning-pill']}`)
+      ).to.not.be.present();
     });
   });
 
   context('when the instance is collapsed', function () {
     beforeEach(function () {
-      component = mount(<NonGenuineWarningPill isGenuineMongoDB isSidebarCollapsed />);
+      component = mount(
+        <NonGenuineWarningPill isGenuineMongoDB isSidebarCollapsed />
+      );
     });
 
     afterEach(function () {
@@ -50,7 +63,9 @@ describe('NonGenuineWarningPill [Component]', function () {
     });
 
     it('does not render the pill', function () {
-      expect(component.find(`.${styles['non-genuine-warning-pill']}`)).to.not.be.present();
+      expect(
+        component.find(`.${styles['non-genuine-warning-pill']}`)
+      ).to.not.be.present();
     });
   });
 });

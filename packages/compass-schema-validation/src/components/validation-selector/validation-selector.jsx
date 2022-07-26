@@ -14,7 +14,11 @@ class ValidationSelector extends Component {
     id: PropTypes.string.isRequired,
     bsSize: PropTypes.string,
     options: PropTypes.object.isRequired,
-    label: PropTypes.oneOfType([PropTypes.string, PropTypes.array]),
+    label: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.array,
+      PropTypes.node,
+    ]),
     title: PropTypes.string,
     onSelect: PropTypes.func,
     disabled: PropTypes.bool,
