@@ -435,7 +435,12 @@ const configureStore = (options = {}) => {
         // required for updated documents in sharded collections.
         const { query, updateDoc } =
           doc.generateUpdateUnlessChangedInBackgroundQuery(
-            Object.keys(this.state.shardKeys)
+            // '.' in shard keys means nested doc
+            {
+              alwaysIncludeKeys: Object.keys(this.state.shardKeys || {}).map(
+                (key) => key.split('.')
+              ),
+            }
           );
         debug('Performing findOneAndUpdate', { query, updateDoc });
 
@@ -492,37 +497,57 @@ const configureStore = (options = {}) => {
       track('Document Updated', { mode: this.modeForTelemetry() });
       try {
         doc.emit('update-start');
-        const object = doc.generateObject();
-        const query = doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys([
-          '_id',
-          ...Object.keys(this.state.shardKeys || {}),
-        ]);
-        debug('Performing findOneAndReplace', { query, object });
 
         if (!(await this._verifyUpdateAllowed(this.state.ns, doc))) {
           // _verifyUpdateAllowed emitted update-error
           return;
         }
 
+        const object = doc.generateObject();
+        const queryKeyInclusionOptions = {
+          alwaysIncludeKeys: [
+            ['_id'],
+            // '.' in shard keys means nested doc
+            ...Object.keys(this.state.shardKeys || {}).map((key) =>
+              key.split('.')
+            ),
+          ],
+        };
+
         if (
           this.dataService.getCSFLEMode &&
-          this.dataService.getCSFLEMode() === 'enabled' &&
-          object.__safeContent__ &&
-          isEqual(
-            object.__safeContent__,
-            doc.generateOriginalObject().__safeContent__
-          ) &&
-          (
-            await this.dataService
-              .getCSFLECollectionTracker()
-              .knownSchemaForCollection(this.state.ns)
-          ).hasSchema
+          this.dataService.getCSFLEMode() === 'enabled'
         ) {
-          // SERVER-66662 blocks writes of __safeContent__ for queryable-encryption-enabled
-          // collections. We remove it unless it was edited, in which case we assume that the
-          // user really knows what they are doing.
-          delete object.__safeContent__;
+          const knownSchemaForCollection = await this.dataService
+            .getCSFLECollectionTracker()
+            .knownSchemaForCollection(this.state.ns);
+
+          // The find/query portion will typically exclude encrypted fields,
+          // because those cannot be queried to make sure that the original
+          // value matches the current one; however, if we know that the
+          // field is equality-searchable, we can (and should) still include it.
+          queryKeyInclusionOptions.includableEncryptedKeys =
+            knownSchemaForCollection.encryptedFields.equalityQueryableEncryptedFields;
+
+          if (
+            object.__safeContent__ &&
+            isEqual(
+              object.__safeContent__,
+              doc.generateOriginalObject().__safeContent__
+            ) &&
+            knownSchemaForCollection.hasSchema
+          ) {
+            // SERVER-66662 blocks writes of __safeContent__ for queryable-encryption-enabled
+            // collections. We remove it unless it was edited, in which case we assume that the
+            // user really knows what they are doing.
+            delete object.__safeContent__;
+          }
         }
+
+        const query = doc.getQueryForOriginalKeysAndValuesForSpecifiedKeys(
+          queryKeyInclusionOptions
+        );
+        debug('Performing findOneAndReplace', { query, object });
 
         // eslint-disable-next-line no-shadow
         const [error, d] = await findAndModifyWithFLEFallback(
@@ -715,10 +740,20 @@ const configureStore = (options = {}) => {
         // does not have a schema.
         const csfleCollectionTracker =
           this.dataService.getCSFLECollectionTracker();
-        const { hasSchema, encryptedFields } =
-          await csfleCollectionTracker.knownSchemaForCollection(this.state.ns);
-        if (encryptedFields) {
-          csfleState.encryptedFields = encryptedFields;
+        const {
+          hasSchema,
+          encryptedFields: { encryptedFields },
+        } = await csfleCollectionTracker.knownSchemaForCollection(
+          this.state.ns
+        );
+        if (encryptedFields.length > 0) {
+          // This is for displaying encrypted fields to the user. We do not really
+          // need to worry about the distinction between '.' as a nested-field
+          // indicator and '.' as a literal part of a field name here, esp. since
+          // automatic Queryable Encryption does not support '.' in field names at all.
+          csfleState.encryptedFields = encryptedFields.map((field) =>
+            field.join('.')
+          );
         }
         if (!hasSchema) {
           csfleState.state = 'no-known-schema';

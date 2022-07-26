@@ -58,7 +58,7 @@
     "@mongodb-js/connection-form": "^0.9.1",
     "debug": "^4.2.0",
     "lodash": "^4.17.21",
-    "mongodb": "^4.8.0",
+    "mongodb": "^4.6.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "uuid": "^8.2.0"
@@ -84,7 +84,7 @@
     "mocha": "^8.4.0",
     "mongodb-build-info": "^1.3.0",
     "mongodb-cloud-info": "^1.1.3",
-    "mongodb-connection-string-url": "^2.5.2",
+    "mongodb-connection-string-url": "^2.5.3",
     "mongodb-data-service": "^21.24.1",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",

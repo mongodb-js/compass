@@ -43,7 +43,6 @@ const renderExplainToolbar = (
       explainResultId="123"
       explainErrorMessage={undefined}
       onExecuteExplainClicked={() => {}}
-      onExportToLanguageClicked={() => {}}
       showOutdatedWarning={false}
       showReadonlyWarning={false}
       switchToTreeView={() => {}}
@@ -59,19 +58,6 @@ describe('ExplainToolbar', function () {
     sinon.restore();
   });
 
-  it('calls the click handler when the export to language is clicked', function () {
-    const onExportToLanguageClickedSpy = sinon.spy();
-
-    renderExplainToolbar({
-      onExportToLanguageClicked: onExportToLanguageClickedSpy,
-    });
-
-    expect(onExportToLanguageClickedSpy.called).to.be.false;
-    userEvent.click(screen.getByRole('button'));
-
-    expect(onExportToLanguageClickedSpy.calledOnce).to.be.true;
-  });
-
   it('calls to change the view type when a different view type is chosen', function () {
     const switchToJSONViewSpy = sinon.spy();
     renderExplainToolbar({
@@ -82,12 +68,6 @@ describe('ExplainToolbar', function () {
     userEvent.click(screen.getByText('Raw Json'));
 
     expect(switchToJSONViewSpy.calledOnce).to.be.true;
-  });
-
-  it('renders an export to language button', function () {
-    renderExplainToolbar();
-
-    expect(screen.getByText('Export to language')).to.be.visible;
   });
 
   it('renders the query bar role', function () {

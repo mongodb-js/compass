@@ -1396,7 +1396,7 @@ describe('store', function () {
         });
 
         getCSFLEMode.returns('enabled');
-        knownSchemaForCollection.resolves({ hasSchema: false });
+        knownSchemaForCollection.resolves({ hasSchema: false, encryptedFields: { encryptedFields: [] } });
 
         store.openInsertDocumentDialog(doc, false);
 
@@ -1420,7 +1420,7 @@ describe('store', function () {
         getCSFLEMode.returns('enabled');
         knownSchemaForCollection.resolves({
           hasSchema: true,
-          encryptedFields: ['x'],
+          encryptedFields: { encryptedFields: [['x']] },
         });
         isUpdateAllowed.resolves(false);
 
@@ -1446,7 +1446,7 @@ describe('store', function () {
         getCSFLEMode.returns('enabled');
         knownSchemaForCollection.resolves({
           hasSchema: true,
-          encryptedFields: ['x'],
+          encryptedFields: { encryptedFields: [['x']] },
         });
         isUpdateAllowed.resolves(true);
 
@@ -1471,7 +1471,7 @@ describe('store', function () {
         getCSFLEMode.returns('disabled');
         knownSchemaForCollection.resolves({
           hasSchema: true,
-          encryptedFields: ['x'],
+          encryptedFields: { encryptedFields: [['x']] },
         });
         isUpdateAllowed.resolves(true);
 

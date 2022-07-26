@@ -16,7 +16,6 @@ const renderPipelineExplain = (
       isModalOpen={true}
       onCancelExplain={() => {}}
       onCloseModal={() => {}}
-      onRunExplain={() => {}}
       {...props}
     />
   );
@@ -33,7 +32,7 @@ describe('PipelineExplain', function () {
     expect(within(modal).getByTestId('pipeline-explain-cancel')).to.exist;
     expect(onCancelExplainSpy.callCount).to.equal(0);
 
-    userEvent.click(within(modal).getByText(/cancel/gi), null, {
+    userEvent.click(within(modal).getByText(/cancel/gi), undefined, {
       skipPointerEventsCheck: true,
     });
     expect(onCancelExplainSpy.callCount).to.equal(1);

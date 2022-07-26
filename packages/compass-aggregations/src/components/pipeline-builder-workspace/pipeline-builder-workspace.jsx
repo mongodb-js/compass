@@ -55,7 +55,8 @@ class PipelineWorkspace extends PureComponent {
     isOverviewOn: PropTypes.bool.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
+    newPipelineFromPaste: PropTypes.func.isRequired,
+    isAtlasDeployed: PropTypes.bool
   };
 
   /**
@@ -132,6 +133,7 @@ class PipelineWorkspace extends PureComponent {
       projections={this.props.projections}
       projectionsChanged={this.props.projectionsChanged}
       newPipelineFromPaste={this.props.newPipelineFromPaste}
+      isAtlasDeployed={this.props.isAtlasDeployed}
     />);
   }
 

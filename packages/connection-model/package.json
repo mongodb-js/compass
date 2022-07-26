@@ -30,7 +30,7 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "peerDependencies": {
-    "mongodb": "^4.8.0"
+    "mongodb": "^4.6.0"
   },
   "dependencies": {
     "@mongodb-js/ssh-tunnel": "^1.9.1",
@@ -38,7 +38,7 @@
     "ampersand-rest-collection": "^6.0.0",
     "debug": "^4.2.0",
     "lodash": "^4.17.15",
-    "mongodb-connection-string-url": "^2.5.2",
+    "mongodb-connection-string-url": "^2.5.3",
     "mongodb3": "npm:mongodb@^3.6.3",
     "os-dns-native": "^1.2.0",
     "raf": "^3.4.1",
@@ -55,7 +55,7 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1",
     "mock-require": "^3.0.3",
-    "mongodb": "^4.8.0",
+    "mongodb": "^4.6.0",
     "mongodb-runner": "^4.9.0",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.2",
