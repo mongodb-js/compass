@@ -21,8 +21,8 @@ class FakeInstance extends EventEmitter {
 }
 
 describe('Collection Store', function () {
-  let appRegistry;
-  let dispatchSpy;
+  let appRegistry: AppRegistry;
+  let dispatchSpy: sinon.SinonSpy;
 
   before(function () {
     appRegistry = new AppRegistry();
@@ -40,7 +40,7 @@ describe('Collection Store', function () {
 
   describe('#onActivated', function () {
     describe('on instance-created', function () {
-      let instance;
+      let instance: FakeInstance;
 
       before(function () {
         instance = new FakeInstance();
