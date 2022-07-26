@@ -32,7 +32,7 @@ const editorStyles = cx(
       transition: 'box-shadow .16s ease-in',
       boxShadow: '0 0 0 0 transparent',
     },
-    border: `1px solid ${uiColors.gray.base}`,
+    border: `1px solid ${uiColors.gray.light2}`,
     borderRadius: '4px',
     overflow: 'visible',
     background: 'transparent',
@@ -144,6 +144,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       options={editorSettings}
       completer={completer.current}
       placeholder={placeholder}
+      fontSize={12}
       scrollMargin={[6, 6, 0, 0]}
       onLoad={onLoadEditor}
     />

@@ -111,6 +111,7 @@ background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZg
 const mongodbAceThemeQueryCssText = `
 .ace-mongodb-query .ace_scroller {
 margin: 0px 6px;
+line-height: 14px;
 }
 .ace-mongodb-query .ace_gutter {
 background: #ffffff;
