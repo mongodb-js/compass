@@ -245,7 +245,7 @@ describe('CrudToolbar Component', function () {
     it('has the add data button disabled', function () {
       expect(
         screen.getByTestId('crud-add-data-button').getAttribute('disabled')
-      ).to.equal('true');
+      ).to.exist;
     });
   });
 });

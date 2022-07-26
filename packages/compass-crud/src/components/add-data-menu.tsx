@@ -44,7 +44,6 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
                 children,
                 ...tooltipTriggerProps
               }: React.HTMLProps<HTMLInputElement>) => {
-                //</HTMLInputElement> </>{ children: React.ReactChildren }) => {
                 return (
                   <div className={className} {...tooltipTriggerProps}>
                     <Button
