@@ -107,6 +107,9 @@ export { useDOMRect } from './hooks/use-dom-rect';
 export { VirtualGrid } from './components/virtual-grid';
 export { mergeProps } from './utils/merge-props';
 export {
+  useOnClickOutside
+} from './hooks/use-on-click-outside';
+export {
   focusRingStyles,
   focusRingVisibleStyles,
   useFocusRing,

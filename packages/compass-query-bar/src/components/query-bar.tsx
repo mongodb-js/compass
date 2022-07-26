@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   Button,
   Icon,
@@ -11,6 +11,7 @@ import {
   focusRingVisibleStyles,
   spacing,
   uiColors,
+  useOnClickOutside,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -32,15 +33,13 @@ const queryBarFormStyles = css({
   flexGrow: 1,
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
-  padding: spacing[1],
+  padding: spacing[2],
 });
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
   gap: spacing[2],
-  padding: `0 ${spacing[2]}px`,
-  margin: `0 ${spacing[1]}px`,
 });
 
 const filterContainerStyles = css({
@@ -53,7 +52,7 @@ const openQueryHistoryStyles = cx(
     backgroundColor: 'transparent',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: spacing[2],
+    padding: spacing[2] - 2, // -2px for border.
     '&:hover': {
       cursor: 'pointer',
     },
@@ -68,46 +67,10 @@ const queryHistoryContainerStyles = css({
 });
 
 const queryHistoryPopoverStyles = css({
-  maxHeight: 'calc(100vh - 260px)',
+  maxHeight: 'calc(100vh - 270px)',
   display: 'flex',
+  marginLeft: -spacing[4], // Align to the left of the query bar.
 });
-
-function useOnClickOutside(
-  ref: React.RefObject<HTMLDivElement>,
-  buttonRef: React.RefObject<HTMLButtonElement>,
-  useHook: boolean,
-  handler: (event: Event) => void
-) {
-  useEffect(
-    () => {
-      if (useHook) {
-        const listener: EventListener = (event) => {
-          // Do nothing if clicking ref's element or descendent elements
-          if (!ref.current || ref.current.contains(event.target)) {
-            return;
-          }
-          if (!buttonRef.current || buttonRef.current.contains(event.target)) {
-            return;
-          }
-          handler(event);
-        };
-        document.addEventListener('mousedown', listener);
-        document.addEventListener('touchstart', listener);
-        return () => {
-          document.removeEventListener('mousedown', listener);
-          document.removeEventListener('touchstart', listener);
-        };
-      }
-    },
-    // Add ref and handler to effect dependencies
-    // It's worth noting that because passed in handler is a new ...
-    // ... function on every render that will cause this effect ...
-    // ... callback/cleanup to run every render. It's not a big deal ...
-    // ... but to optimize you can wrap handler in useCallback before ...
-    // ... passing it into this hook.
-    [ref, buttonRef, handler, useHook]
-  );
-}
 
 type QueryBarProps = {
   buttonLabel?: string;
@@ -175,20 +138,37 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
   const [showQueryHistory, setShowQueryHistory] = useState(false);
 
-  useOnClickOutside(
-    queryHistoryContainerRef,
-    queryHistoryButtonRef,
-    showQueryHistory,
-    () => setShowQueryHistory(false)
-  );
-
-  const onClickToggleQueryHistory = useCallback(() => {
+  const onClickQueryHistory = useCallback(() => {
     if (!showQueryHistory) {
       track('Query History Opened');
     }
 
     setShowQueryHistory(!showQueryHistory);
   }, [showQueryHistory, setShowQueryHistory]);
+
+  const onClickOutsideQueryHistory = useCallback(
+    (event) => {
+      // Ignore clicks on the query history button as it has its own handler.
+      if (
+        !queryHistoryButtonRef.current ||
+        queryHistoryButtonRef.current.contains(event.target as Node)
+      ) {
+        return;
+      }
+      setShowQueryHistory(false);
+    },
+    [queryHistoryButtonRef, setShowQueryHistory]
+  );
+
+  useOnClickOutside(
+    queryHistoryContainerRef,
+    showQueryHistory,
+    onClickOutsideQueryHistory
+  );
+
+  const onHideQueryHistory = useCallback(() => {
+    setShowQueryHistory(false);
+  }, [setShowQueryHistory]);
 
   const onApply = useCallback(() => {
     if (isQueryValid) {
@@ -214,7 +194,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           <>
             <button
               data-testid="query-history-button"
-              onClick={onClickToggleQueryHistory}
+              onClick={onClickQueryHistory}
               className={openQueryHistoryStyles}
               id="open-query-history"
               aria-label="Open query history"
@@ -241,7 +221,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               >
                 {QueryHistoryComponent && (
                   <QueryHistoryComponent
-                    onClose={() => setShowQueryHistory(false)}
+                    onClose={onHideQueryHistory}
                     store={queryHistoryRef.current?.store}
                     actions={queryHistoryRef.current?.actions}
                   />

@@ -81,9 +81,13 @@ store.onActivated = (appRegistry) => {
     store.instance = instance;
 
     store.dispatch(toggleIsDataLake(instance.dataLake.isDataLake));
+    instance.dataLake.on('change:isDataLake', () => {
+      store.dispatch(toggleIsDataLake(instance.dataLake.isDataLake));
+    });
 
-    instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
-      store.dispatch(toggleIsDataLake(isDataLake));
+    store.dispatch(writeStateChanged({ isWritable: instance.isWritable }));
+    instance.on('change:isWritable', () => {
+      store.dispatch(writeStateChanged({ isWritable: instance.isWritable }));
     });
   });
 
@@ -93,15 +97,6 @@ store.onActivated = (appRegistry) => {
    * @param {String} ns - The namespace.
    */
   appRegistry.on('select-database', onSelectDatabase);
-
-  /**
-   * When write state changes based on SDAM events we change the store state.
-   *
-   * @param {Object} state - The write state store state.
-   */
-  appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
-    store.dispatch(writeStateChanged(state));
-  });
 
   /**
    * Set the data service in the store when connected.

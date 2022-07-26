@@ -4,33 +4,38 @@ import sinon from 'sinon';
 import reducer, {
   INITIAL_STATE,
   changeConnectionInfo,
-  updateAndSaveConnectionInfo
+  updateAndSaveConnectionInfo,
 } from './connection-info';
 
 describe('connection info module', function () {
   const connectionInfoNotFavorite = {
     connectionOptions: {
-      connectionString: 'mongodb://outerspace:27000'
+      connectionString: 'mongodb://outerspace:27000',
     },
-    id: '123'
+    id: '123',
   };
 
   describe('reducer', function () {
     context('when the action is changeConnectionInfo', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, changeConnectionInfo(connectionInfoNotFavorite))).to.deep.equal({
+        expect(
+          reducer(undefined, changeConnectionInfo(connectionInfoNotFavorite))
+        ).to.deep.equal({
           connectionInfo: connectionInfoNotFavorite,
-          connectionStorage: {}
+          connectionStorage: {},
         });
       });
 
       it('does not call the connection storage to save', function () {
         const saveSpy = sinon.spy();
-        reducer({
-          connectionStorage: {
-            save: saveSpy
-          }
-        }, changeConnectionInfo(connectionInfoNotFavorite));
+        reducer(
+          {
+            connectionStorage: {
+              save: saveSpy,
+            },
+          },
+          changeConnectionInfo(connectionInfoNotFavorite)
+        );
 
         expect(saveSpy.callCount).to.equal(0);
       });
@@ -42,46 +47,50 @@ describe('connection info module', function () {
           ...connectionInfoNotFavorite,
           favorite: {
             name: 'My Favorite',
-            color: '#d4366e'
-          }
+            color: '#d4366e',
+          },
         });
-        const state = reducer({
-          connectionStorage: {
-            save: function () {}
-          }
-        }, newConnection);
+        const state = reducer(
+          {
+            connectionStorage: {
+              save: function () {},
+            },
+          },
+          newConnection
+        );
 
         expect(state.connectionInfo.favorite.name).to.equal('My Favorite');
         expect(state.connectionInfo.favorite.color).to.equal('#d4366e');
       });
 
       it('calls to save the connection info in the connection storage', function () {
-        const newConnection = updateAndSaveConnectionInfo(
-          {
-            ...connectionInfoNotFavorite,
-            favorite: {
-              name: 'My Favorite',
-              color: '#d4366e'
-            }
-          }
-        );
+        const newConnection = updateAndSaveConnectionInfo({
+          ...connectionInfoNotFavorite,
+          favorite: {
+            name: 'My Favorite',
+            color: '#d4366e',
+          },
+        });
         const saveSpy = sinon.spy();
-        reducer({
-          connectionStorage: {
-            save: saveSpy
-          }
-        }, newConnection);
+        reducer(
+          {
+            connectionStorage: {
+              save: saveSpy,
+            },
+          },
+          newConnection
+        );
 
         expect(saveSpy.callCount).to.equal(1);
         expect(saveSpy.firstCall.args[0]).to.deep.equal({
           connectionOptions: {
-            connectionString: 'mongodb://outerspace:27000'
+            connectionString: 'mongodb://outerspace:27000',
           },
           id: '123',
           favorite: {
             name: 'My Favorite',
-            color: '#d4366e'
-          }
+            color: '#d4366e',
+          },
         });
       });
     });

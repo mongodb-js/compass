@@ -2,8 +2,6 @@ import type AppRegistry from 'hadron-app-registry';
 
 import React, { useCallback, useRef } from 'react';
 import {
-  Button,
-  Icon,
   SegmentedControl,
   SegmentedControlOption,
   Overline,
@@ -34,12 +32,6 @@ const explainActionsToolbarStyles = css({
   display: 'flex',
   alignItems: 'center',
   width: '100%',
-});
-
-const explainActionsToolbarRightStyles = css({
-  flexGrow: 1,
-  display: 'flex',
-  alignItems: 'center',
   justifyContent: 'flex-end',
   gap: spacing[2],
 });
@@ -58,7 +50,6 @@ type ExplainToolbarProps = {
   explainErrorMessage?: string;
   explainResultId: string;
   onExecuteExplainClicked: (queryBarStoreState: any) => void;
-  onExportToLanguageClicked: () => void;
   showOutdatedWarning: boolean;
   showReadonlyWarning: boolean;
   switchToTreeView: () => void;
@@ -72,7 +63,6 @@ function UnthemedExplainToolbar({
   explainResultId,
   explainErrorMessage,
   onExecuteExplainClicked,
-  onExportToLanguageClicked,
   showOutdatedWarning,
   showReadonlyWarning,
   switchToTreeView,
@@ -122,40 +112,29 @@ function UnthemedExplainToolbar({
         }
       </div>
       <div className={explainActionsToolbarStyles}>
-        <Button
-          variant="primaryOutline"
-          size="xsmall"
-          leftGlyph={<Icon glyph={'Export'} />}
-          onClick={onExportToLanguageClicked}
-          data-testid="explain-toolbar-export-button"
+        <Overline
+          as="label"
+          id={labelId}
+          htmlFor={controlId}
+          aria-label="Show explain as"
         >
-          Export to language
-        </Button>
-        <div className={explainActionsToolbarRightStyles}>
-          <Overline
-            as="label"
-            id={labelId}
-            htmlFor={controlId}
-            aria-label="Show explain as"
-          >
-            View
-          </Overline>
-          <SegmentedControl
-            darkMode={darkMode}
-            id={controlId}
-            aria-labelledby={labelId}
-            size="small"
-            value={viewType}
-            onChange={(value) => toggleView(value as ExplainView)}
-          >
-            <SegmentedControlOption aria-label="Visual Tree View" value="tree">
-              Visual Tree
-            </SegmentedControlOption>
-            <SegmentedControlOption aria-label="Raw Json View" value="json">
-              Raw Json
-            </SegmentedControlOption>
-          </SegmentedControl>
-        </div>
+          View
+        </Overline>
+        <SegmentedControl
+          darkMode={darkMode}
+          id={controlId}
+          aria-labelledby={labelId}
+          size="small"
+          value={viewType}
+          onChange={(value) => toggleView(value as ExplainView)}
+        >
+          <SegmentedControlOption aria-label="Visual Tree View" value="tree">
+            Visual Tree
+          </SegmentedControlOption>
+          <SegmentedControlOption aria-label="Raw Json View" value="json">
+            Raw Json
+          </SegmentedControlOption>
+        </SegmentedControl>
       </div>
       {(showOutdatedWarning || showReadonlyWarning) && (
         <WarningSummary

@@ -36,7 +36,6 @@ const queryOptionProps = {
 };
 
 const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
-const queryHistoryButtonId = 'query-history-button';
 
 const renderQueryBar = (
   props: Partial<ComponentProps<typeof QueryBar>> = {}
@@ -62,7 +61,6 @@ const renderQueryBar = (
       showExportToLanguageButton
       showQueryHistoryButton
       toggleExpandQueryOptions={noop}
-      toggleQueryHistory={noop}
       valid
       {...queryOptionProps}
       {...props}
@@ -73,14 +71,12 @@ const renderQueryBar = (
 describe('QueryBar Component', function () {
   let onApplySpy: SinonSpy;
   let onResetSpy: SinonSpy;
-  let toggleQueryHistorySpy: SinonSpy;
   let toggleExpandQueryOptionsSpy: SinonSpy;
   let onOpenExportToLanguageSpy: SinonSpy;
   beforeEach(function () {
     onApplySpy = sinon.spy();
     onResetSpy = sinon.spy();
     onOpenExportToLanguageSpy = sinon.spy();
-    toggleQueryHistorySpy = sinon.spy();
     toggleExpandQueryOptionsSpy = sinon.spy();
   });
 
@@ -91,7 +87,6 @@ describe('QueryBar Component', function () {
         onReset: onResetSpy,
         onOpenExportToLanguage: onOpenExportToLanguageSpy,
         showExportToLanguageButton: true,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -120,16 +115,6 @@ describe('QueryBar Component', function () {
       expect(onOpenExportToLanguageSpy).to.have.been.calledOnce;
     });
 
-    it('calls toggleQueryHistory when the query history button is clicked', function () {
-      const queryHistoryButton = screen.getByTestId(queryHistoryButtonId);
-      expect(queryHistoryButton).to.exist;
-
-      expect(toggleQueryHistorySpy).to.not.have.been.called;
-      userEvent.click(queryHistoryButton);
-
-      expect(toggleQueryHistorySpy).to.have.been.calledOnce;
-    });
-
     it('calls onClick when the expand button is clicked', function () {
       const expandButton = screen.getByText('More Options');
       expect(expandButton).to.exist;
@@ -150,7 +135,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -168,7 +152,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -186,7 +169,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -212,19 +194,6 @@ describe('QueryBar Component', function () {
     });
   });
 
-  describe('when query history is clicked', function () {
-    beforeEach(function () {
-      renderQueryBar({
-        toggleQueryHistory: toggleQueryHistorySpy,
-      });
-    });
-
-    it('does not render the query history button', function () {
-      const queryHistoryButton = screen.queryByTestId('queryHistoryButtonIdId');
-      expect(queryHistoryButton).to.not.exist;
-    });
-  });
-
   describe('when showQueryHistoryButton is false', function () {
     beforeEach(function () {
       renderQueryBar({
@@ -247,7 +216,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -265,7 +233,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });

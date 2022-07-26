@@ -171,7 +171,6 @@ class Schema extends Component {
         <SchemaToolbar
           localAppRegistry={this.props.store.localAppRegistry}
           onAnalyzeSchemaClicked={this.onApplyClicked.bind(this)}
-          onExportToLanguageClicked={this.props.actions.onExportToLanguage}
           onResetClicked={this.onResetClicked.bind(this)}
           analysisState={this.props.analysisState}
           errorMessage={this.props.errorMessage}

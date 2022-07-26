@@ -40,6 +40,7 @@ const numericTextInputStyles = css({
     // TODO: Decide border styles for query bar editors.
     // Remove these commented styles if we want borders.
     // borderColor: 'transparent',
+    borderColor: uiColors.gray.light2,
   },
 });
 

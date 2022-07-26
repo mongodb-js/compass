@@ -34,17 +34,27 @@ describe('NonGenuineWarningModal [Component]', function () {
     });
 
     it('renders the continue button', function () {
-      expect(component.find('[data-test-id="continue-button"]').hostNodes()).to.have.text('Continue');
+      expect(
+        component.find('[data-test-id="continue-button"]').hostNodes()
+      ).to.have.text('Continue');
     });
 
     it('opens the learn more link', function () {
-      expect(component.find('[data-test-id="non-genuine-warning-modal-learn-more-link"]').hostNodes().props().href).to.equal(
+      expect(
+        component
+          .find('[data-test-id="non-genuine-warning-modal-learn-more-link"]')
+          .hostNodes()
+          .props().href
+      ).to.equal(
         'https://docs.mongodb.com/compass/master/faq/#how-does-compass-determine-a-connection-is-not-genuine'
       );
     });
 
     it('closes on continue', function () {
-      component.find('[data-test-id="continue-button"]').hostNodes().simulate('click');
+      component
+        .find('[data-test-id="continue-button"]')
+        .hostNodes()
+        .simulate('click');
       expect(toggleIsVisibleSpy.calledOnce).to.equal(true);
     });
   });

@@ -128,30 +128,41 @@ store.onActivated = (appRegistry: AppRegistry) => {
    * When instance is created.
    */
   appRegistry.on('instance-created', ({ instance }) => {
-    if (!store[kInstance]) {
-      store[kInstance] = instance;
-      instance.on(
-        'change:collections.status',
-        (collectionModel: Collection, status: string) => {
-          const { namespace } = store.getState();
-          if (collectionModel.ns === namespace) {
-            if (status === 'ready') {
-              store.dispatch(updateCollectionDetails(collectionModel));
-            }
-            if (status === 'error') {
-              store.dispatch(resetCollectionDetails());
-            }
-          }
-        }
-      );
-      instance.dataLake.on(
-        'change:isDataLake',
-        (_model: unknown, value: boolean) => {
-          store.dispatch(dataLakeChanged(value));
-        }
-      );
-      store.dispatch(dataLakeChanged(instance.dataLake.isDataLake));
+    if (store[kInstance]) {
+      // we should probably throw in this case
+      return;
     }
+
+    store[kInstance] = instance;
+
+    instance.on(
+      'change:collections.status',
+      (collectionModel: Collection, status: string) => {
+        const { namespace } = store.getState();
+        if (collectionModel.ns !== namespace) {
+          return;
+        }
+        if (status === 'ready') {
+          store.dispatch(updateCollectionDetails(collectionModel));
+        }
+        if (status === 'error') {
+          store.dispatch(resetCollectionDetails());
+        }
+      }
+    );
+
+    instance.dataLake.on(
+      'change:isDataLake',
+      (_model: unknown, value: boolean) => {
+        store.dispatch(dataLakeChanged(value));
+      }
+    );
+    // TODO: is it even possible that instance.dataLake.isDataLake already makes sense before the event arrives?
+    store.dispatch(dataLakeChanged(instance.dataLake.isDataLake));
+
+    instance.build.on('change:version', (_model: unknown, value: string) => {
+      store.dispatch(serverVersionChanged(value));
+    });
   });
 
   /**
@@ -168,34 +179,44 @@ store.onActivated = (appRegistry: AppRegistry) => {
    * @param {Object} metadata - The metadata.
    */
   appRegistry.on('open-namespace-in-new-tab', (metadata) => {
-    if (metadata.namespace) {
-      store.dispatch(namespaceChanged(metadata.namespace));
-
-      const namespace = toNS(metadata.namespace);
-      const { database, collection, ns } = namespace;
-
-      if (database !== '' && collection !== '') {
-        const collectionModel =
-          store[kInstance].databases.get(database).collections.get(ns) ?? null;
-        store.dispatch(updateCollectionDetails(collectionModel));
-        store.dispatch(
-          createNewTab({
-            namespace: metadata.namespace,
-            isReadonly: metadata.isReadonly,
-            sourceName: metadata.sourceName,
-            editViewName: metadata.editViewName,
-            sourceReadonly: metadata.sourceReadonly,
-            isTimeSeries: !!metadata.isTimeSeries,
-            isClustered: !!metadata.isClustered,
-            isFLE: !!metadata.isFLE,
-            sourceViewOn: metadata.sourceViewOn,
-            sourcePipeline: metadata.sourcePipeline,
-            query: metadata.query,
-            aggregation: metadata.aggregation,
-          })
-        );
-      }
+    if (!metadata.namespace) {
+      return;
     }
+
+    store.dispatch(namespaceChanged(metadata.namespace));
+
+    const namespace = toNS(metadata.namespace);
+    const { database, collection, ns } = namespace;
+
+    if (database === '' || collection === '') {
+      return;
+    }
+
+    const collectionModel =
+      store[kInstance].databases.get(database).collections.get(ns) ?? null;
+
+    if (!collectionModel) {
+      return;
+    }
+
+    store.dispatch(updateCollectionDetails(collectionModel as Collection));
+
+    store.dispatch(
+      createNewTab({
+        namespace: metadata.namespace,
+        isReadonly: metadata.isReadonly,
+        sourceName: metadata.sourceName,
+        editViewName: metadata.editViewName,
+        sourceReadonly: metadata.sourceReadonly,
+        isTimeSeries: !!metadata.isTimeSeries,
+        isClustered: !!metadata.isClustered,
+        isFLE: !!metadata.isFLE,
+        sourceViewOn: metadata.sourceViewOn,
+        sourcePipeline: metadata.sourcePipeline,
+        query: metadata.query,
+        aggregation: metadata.aggregation,
+      })
+    );
   });
 
   /**
@@ -204,32 +225,42 @@ store.onActivated = (appRegistry: AppRegistry) => {
    * @param {Object} metatada - The metadata.
    */
   appRegistry.on('select-namespace', (metadata) => {
-    if (metadata.namespace) {
-      store.dispatch(namespaceChanged(metadata.namespace));
-
-      const namespace = toNS(metadata.namespace);
-      const { database, collection, ns } = namespace;
-
-      if (database !== '' && collection !== '') {
-        const collectionModel =
-          store[kInstance].databases.get(database).collections.get(ns) ?? null;
-        store.dispatch(updateCollectionDetails(collectionModel));
-        store.dispatch(
-          selectOrCreateTab({
-            namespace: metadata.namespace,
-            isReadonly: metadata.isReadonly,
-            isTimeSeries: metadata.isTimeSeries,
-            isClustered: metadata.isClustered,
-            isFLE: metadata.isFLE,
-            sourceName: metadata.sourceName,
-            editViewName: metadata.editViewName,
-            sourceReadonly: metadata.sourceReadonly,
-            sourceViewOn: metadata.sourceViewOn,
-            sourcePipeline: metadata.sourcePipeline,
-          })
-        );
-      }
+    if (!metadata.namespace) {
+      return;
     }
+
+    store.dispatch(namespaceChanged(metadata.namespace));
+
+    const namespace = toNS(metadata.namespace);
+    const { database, collection, ns } = namespace;
+
+    if (database === '' || collection === '') {
+      return;
+    }
+
+    const collectionModel =
+      store[kInstance].databases.get(database).collections.get(ns) ?? null;
+
+    if (!collectionModel) {
+      return;
+    }
+
+    store.dispatch(updateCollectionDetails(collectionModel as Collection));
+
+    store.dispatch(
+      selectOrCreateTab({
+        namespace: metadata.namespace,
+        isReadonly: metadata.isReadonly,
+        isTimeSeries: metadata.isTimeSeries,
+        isClustered: metadata.isClustered,
+        isFLE: metadata.isFLE,
+        sourceName: metadata.sourceName,
+        editViewName: metadata.editViewName,
+        sourceReadonly: metadata.sourceReadonly,
+        sourceViewOn: metadata.sourceViewOn,
+        sourcePipeline: metadata.sourcePipeline,
+      })
+    );
   });
 
   /**
@@ -268,39 +299,34 @@ store.onActivated = (appRegistry: AppRegistry) => {
   );
 
   /**
-   * When the instance is loaded, set our server version.
-   *
-   * @param {String} version - The version.
-   */
-  appRegistry.on('server-version-changed', (version) => {
-    store.dispatch(serverVersionChanged(version));
-  });
-
-  /**
    * When we disconnect from the instance, clear all the tabs.
    */
   appRegistry.on('data-service-disconnected', () => {
     store.dispatch(clearTabs());
   });
 
-  /**
-   * When `Share Schema as JSON` clicked in menu send event to the active tab.
-   */
-  ipc.on('window:menu-share-schema-json', () => {
-    const state = store.getState();
-    if (state.tabs) {
-      const activeTab = state.tabs.find(
-        (tab: WorkspaceTabObject) => tab.isActive === true
-      );
-      if (activeTab.localAppRegistry) {
-        activeTab.localAppRegistry.emit('menu-share-schema-json');
+  // TODO: importing hadron-ipc in unit tests doesn't work right now
+  if (ipc.on) {
+    /**
+     * When `Share Schema as JSON` clicked in menu send event to the active tab.
+     */
+    ipc.on('window:menu-share-schema-json', () => {
+      const state = store.getState();
+      if (state.tabs) {
+        const activeTab = state.tabs.find(
+          (tab: WorkspaceTabObject) => tab.isActive === true
+        );
+        if (activeTab.localAppRegistry) {
+          activeTab.localAppRegistry.emit('menu-share-schema-json');
+        }
       }
-    }
-  });
+    });
 
-  ipc.on('compass:open-export', () => {
-    const state = store.getState();
-    if (state.tabs) {
+    ipc.on('compass:open-export', () => {
+      const state = store.getState();
+      if (!state.tabs) {
+        return;
+      }
       const activeTab = state.tabs.find(
         (tab: WorkspaceTabObject) => tab.isActive === true
       );
@@ -314,20 +340,20 @@ store.onActivated = (appRegistry: AppRegistry) => {
           count,
         });
       }
-    }
-  });
+    });
 
-  ipc.on('compass:open-import', () => {
-    const state = store.getState();
-    if (state.tabs) {
-      const activeTab = state.tabs.find(
-        (tab: WorkspaceTabObject) => tab.isActive === true
-      );
-      if (activeTab) {
-        appRegistry.emit('open-import', { namespace: activeTab.namespace });
+    ipc.on('compass:open-import', () => {
+      const state = store.getState();
+      if (state.tabs) {
+        const activeTab = state.tabs.find(
+          (tab: WorkspaceTabObject) => tab.isActive === true
+        );
+        if (activeTab) {
+          appRegistry.emit('open-import', { namespace: activeTab.namespace });
+        }
       }
-    }
-  });
+    });
+  }
 
   /**
    * Set the app registry to use later.

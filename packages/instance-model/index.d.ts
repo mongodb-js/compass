@@ -34,6 +34,16 @@ interface DataLake {
   version: string;
 }
 
+interface Server {
+  type: string
+}
+
+interface TopologyDescription {
+  type: string,
+  servers: Server[],
+  setName: string
+}
+
 declare class MongoDBInstanceProps {
   _id: string;
   hostname: string;
@@ -46,6 +56,12 @@ declare class MongoDBInstanceProps {
   refreshingStatusError: string | null;
   isAtlas: boolean;
   isRefreshing: boolean;
+  isTopologyWritable: boolean;
+  singleServerType: string | null;
+  isServerWritable: boolean;
+  isWritable: boolean;
+  description: string;
+  env: string;
   host: HostInfo;
   build: BuildInfo;
   genuineMongoDB: GenuineMongoDB;
@@ -53,6 +69,7 @@ declare class MongoDBInstanceProps {
   auth: AuthInfo;
   databases: DatabaseCollection;
   csfleMode: 'enabled' | 'disabled' | 'unavailable';
+  topologyDescription: TopologyDescription
 }
 
 declare class MongoDBInstance extends MongoDBInstanceProps {
@@ -79,5 +96,4 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   toJSON(opts?: { derived?: boolean }): this;
 }
 
-export default MongoDBInstance;
-export { MongoDBInstanceProps };
+export { MongoDBInstance, MongoDBInstanceProps };
