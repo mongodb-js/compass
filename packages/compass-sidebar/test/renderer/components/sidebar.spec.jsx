@@ -10,12 +10,12 @@ import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
 import SidebarStore from '../../../src/stores';
 import Sidebar, {
   Sidebar as UnconnectedSidebar,
-} from '../../../src/components/sidebar';
-import SidebarInstance from '../../../src/components/sidebar-instance';
-import DeploymentAwareness from '../../../src/components/deployment-awareness';
-import ServerVersion from '../../../src/components/server-version';
-import SshTunnelStatus from '../../../src/components/ssh-tunnel-status';
-import styles from '../../../src/components/sidebar/sidebar.module.less';
+} from '../../../src/components-legacy/sidebar';
+import SidebarInstance from '../../../src/components-legacy/sidebar-instance';
+import DeploymentAwareness from '../../../src/components-legacy/deployment-awareness';
+import ServerVersion from '../../../src/components-legacy/server-version';
+import SshTunnelStatus from '../../../src/components-legacy/ssh-tunnel-status';
+import styles from '../../../src/components-legacy/sidebar/sidebar.module.less';
 
 describe('Sidebar [Component]', function () {
   let appRegistry;
