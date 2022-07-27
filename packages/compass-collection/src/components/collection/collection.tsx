@@ -58,7 +58,7 @@ type CollectionProps = {
   sourceViewOn?: string;
   selectOrCreateTab: (options: any) => any;
   pipeline: Document[];
-  sourceName: string;
+  sourceName?: string;
   activeSubTab: number;
   id: string;
   queryHistoryIndexes: number[];

@@ -38,7 +38,7 @@
     "ampersand-rest-collection": "^6.0.0",
     "debug": "^4.2.0",
     "lodash": "^4.17.15",
-    "mongodb-connection-string-url": "^2.5.2",
+    "mongodb-connection-string-url": "^2.5.3",
     "mongodb3": "npm:mongodb@^3.6.3",
     "os-dns-native": "^1.2.0",
     "raf": "^3.4.1",
@@ -47,6 +47,7 @@
     "storage-mixin": "^4.14.0"
   },
   "devDependencies": {
+    "@electron/remote": "^2.0.8",
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "depcheck": "^1.4.1",

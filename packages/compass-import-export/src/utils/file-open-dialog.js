@@ -1,5 +1,5 @@
 export default function fileOpenDialog() {
-  const { dialog, getCurrentWindow } = require('electron').remote;
+  const { dialog, getCurrentWindow } = require('@electron/remote');
 
   const filters = [
     { name: 'All Files', extensions: ['*'] },

@@ -47,6 +47,7 @@
     "storage-mixin": "^4.14.0"
   },
   "devDependencies": {
+    "@electron/remote": "^2.0.8",
     "depcheck": "^1.4.1",
     "electron": "^13.5.1",
     "eslint": "^7.25.0",

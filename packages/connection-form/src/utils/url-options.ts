@@ -53,6 +53,7 @@ export const editableUrlOptions = [
       'retryWrites',
       'srvMaxHosts',
       'uuidRepresentation',
+      'enableUtf8Validation',
     ],
   },
 ];

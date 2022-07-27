@@ -16,25 +16,27 @@ export const SidebarInstance = ({
   instance,
   databases,
   isExpanded,
-  isGenuineMongoDB,
   toggleIsDetailsExpanded,
   globalAppRegistryEmit,
-  detailsPlugins,
   connectionInfo,
+  connectionOptions,
   updateConnectionInfo,
-  setConnectionIsCSFLEEnabled
+  setConnectionIsCSFLEEnabled,
 }) => {
-  const [ isFavoriteModalVisible, setIsFavoriteModalVisible ] = useState(false);
-  const [ isCSFLEModalVisible, setIsCSFLEModalVisible ] = useState(false);
+  const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
+  const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
 
-  const onClickSaveFavorite = useCallback((newFavoriteInfo) => {
-    updateConnectionInfo({
-      ...cloneDeep(connectionInfo),
-      favorite: newFavoriteInfo
-    });
+  const onClickSaveFavorite = useCallback(
+    (newFavoriteInfo) => {
+      updateConnectionInfo({
+        ...cloneDeep(connectionInfo),
+        favorite: newFavoriteInfo,
+      });
 
-    setIsFavoriteModalVisible(false);
-  }, [connectionInfo, updateConnectionInfo, setIsFavoriteModalVisible]);
+      setIsFavoriteModalVisible(false);
+    },
+    [connectionInfo, updateConnectionInfo, setIsFavoriteModalVisible]
+  );
 
   return (
     <div className={styles['sidebar-instance']}>
@@ -47,13 +49,15 @@ export const SidebarInstance = ({
       />
       <FavoriteButton
         favoriteOptions={connectionInfo.favorite}
-        toggleIsFavoriteModalVisible={() => setIsFavoriteModalVisible(
-          !isFavoriteModalVisible
-        )}
+        toggleIsFavoriteModalVisible={() =>
+          setIsFavoriteModalVisible(!isFavoriteModalVisible)
+        }
       />
       <CSFLEMarker
         csfleMode={instance?.csfleMode}
-        toggleCSFLEModalVisible={() => setIsCSFLEModalVisible(!isCSFLEModalVisible)}
+        toggleCSFLEModalVisible={() =>
+          setIsCSFLEModalVisible(!isCSFLEModalVisible)
+        }
       />
       <CSFLEConnectionModal
         open={isCSFLEModalVisible}
@@ -68,10 +72,11 @@ export const SidebarInstance = ({
         onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
       />
       <NonGenuineWarningPill
-        isGenuineMongoDB={isGenuineMongoDB}
+        isGenuineMongoDB={instance?.genuineMongoDB.isGenuine}
       />
       <SidebarInstanceDetails
-        detailsPlugins={detailsPlugins}
+        instance={instance}
+        connectionOptions={connectionOptions}
         isExpanded={isExpanded}
       />
     </div>
@@ -80,14 +85,13 @@ export const SidebarInstance = ({
 
 SidebarInstance.displayName = 'SidebarInstance';
 SidebarInstance.propTypes = {
-  instance: PropTypes.object,
+  instance: PropTypes.object.isRequired,
   databases: PropTypes.array,
   isExpanded: PropTypes.bool.isRequired,
-  isGenuineMongoDB: PropTypes.bool.isRequired,
   toggleIsDetailsExpanded: PropTypes.func.isRequired,
   globalAppRegistryEmit: PropTypes.func.isRequired,
-  detailsPlugins: PropTypes.array.isRequired,
   connectionInfo: PropTypes.object.isRequired,
+  connectionOptions: PropTypes.object.isRequired,
   updateConnectionInfo: PropTypes.func.isRequired,
   setConnectionIsCSFLEEnabled: PropTypes.func.isRequired,
 };

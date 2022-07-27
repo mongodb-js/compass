@@ -38,7 +38,7 @@
     "webpack": "webpack-compass",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -76,6 +76,7 @@
     "react": "^16.14.0"
   },
   "devDependencies": {
+    "@electron/remote": "^2.0.8",
     "@mongodb-js/eslint-config-compass": "^0.11.0",
     "@mongodb-js/mocha-config-compass": "^0.12.0",
     "@mongodb-js/prettier-config-compass": "^0.6.0",

@@ -4,6 +4,7 @@ import { ViewSwitcher, Tooltip } from 'hadron-react-components';
 import { AnimatedIconTextButton, IconButton } from 'hadron-react-buttons';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { SpinLoader } from '@mongodb-js/compass-components';
+import OptionWriteSelector from './option-write-selector';
 
 const { track } = createLoggerAndTelemetry('COMPASS-CRUD-UI');
 
@@ -114,9 +115,6 @@ class Toolbar extends React.Component {
       'import-file': 'Import File',
       'insert-document': 'Insert Document',
     };
-    const OptionWriteSelector = global.hadronApp.appRegistry.getComponent(
-      'DeploymentAwareness.OptionWriteSelector'
-    );
     return (
       <OptionWriteSelector
         className={INSERT_DATA}
@@ -132,6 +130,8 @@ class Toolbar extends React.Component {
         bsSize="xs"
         tooltipId="document-is-not-writable"
         onSelect={this.props.insertHandler}
+        isWritable={this.props.isWritable}
+        instanceDescription={this.props.instanceDescription}
       />
     );
   }
@@ -228,6 +228,8 @@ Toolbar.propTypes = {
   start: PropTypes.number.isRequired,
   viewSwitchHandler: PropTypes.func.isRequired,
   pageLoadedListenable: PropTypes.object.isRequired,
+  isWritable: PropTypes.bool.isRequired,
+  instanceDescription: PropTypes.string.isRequired,
 };
 
 export default Toolbar;
