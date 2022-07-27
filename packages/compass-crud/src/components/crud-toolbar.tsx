@@ -123,7 +123,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const controlId = useId();
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(
-    () => (count ? 20 * (page + 1) >= count : false),
+    () => (count ? 20 * (page + 1) >= count : true),
     [count, page]
   );
 
@@ -189,8 +189,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             </IconButton>
             <IconButton
               data-testid="docs-toolbar-next-page-btn"
-              aria-label="Previous Page"
-              title="Previous Page"
+              aria-label="Next Page"
+              title="Next Page"
               onClick={() => getPage(page + 1)}
               disabled={nextButtonDisabled}
             >

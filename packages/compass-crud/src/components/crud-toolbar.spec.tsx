@@ -140,6 +140,25 @@ describe('CrudToolbar Component', function () {
     expect(screen.getByTestId('docs-toolbar-prev-page-btn')).to.be.visible;
   });
 
+  it('should have the next page button disabled when on the first page without more than a page of documents', function () {
+    const getPageSpy = sinon.spy();
+    renderCrudToolbar({
+      getPage: getPageSpy,
+      page: 0,
+      start: 1,
+      end: 5,
+    });
+    expect(getPageSpy.called).to.be.false;
+    fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
+
+    expect(screen.getByTestId('docs-toolbar-next-page-btn')).to.have.attribute(
+      'aria-disabled',
+      'true'
+    );
+
+    expect(getPageSpy.calledOnce).to.be.false;
+  });
+
   it('should call to get the next page when the prev button is hit on a non-first page', function () {
     const getPageSpy = sinon.spy();
     renderCrudToolbar({

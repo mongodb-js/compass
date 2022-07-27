@@ -44,7 +44,7 @@
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "check": "npm run lint && npm run depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "start-test-mdb-server": "mongodb-runner start --port 27018",
     "stop-test-mdb-server": "mongodb-runner stop --port 27018",
