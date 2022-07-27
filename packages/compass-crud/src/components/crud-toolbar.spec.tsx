@@ -152,10 +152,10 @@ describe('CrudToolbar Component', function () {
     expect(getPageSpy.called).to.be.false;
     fireEvent.click(screen.getByTestId('docs-toolbar-next-page-btn'));
 
-    // expect(screen.getByTestId('docs-toolbar-next-page-btn')).to.have.attribute(
-    //   'aria-disabled',
-    //   'true'
-    // );
+    expect(screen.getByTestId('docs-toolbar-next-page-btn')).to.have.attribute(
+      'aria-disabled',
+      'true'
+    );
 
     expect(getPageSpy.calledOnce).to.be.false;
   });
