@@ -12,11 +12,40 @@ const menuStyles = css({
   width: 'auto',
 });
 
+const tooltipContainerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+});
+
 type AddDataMenuProps = {
   instanceDescription: string;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
   isWritable: boolean;
 };
+
+function AddDataButton({
+  disabled,
+  onClick,
+}: {
+  disabled?: boolean;
+  onClick: () => void;
+}): React.ReactElement {
+  return (
+    <Button
+      size="xsmall"
+      leftGlyph={<Icon glyph="Download" />}
+      rightGlyph={<Icon glyph="CaretDown" />}
+      disabled={disabled}
+      variant="primary"
+      title="Add Data"
+      aria-label="Add Data"
+      data-testid="crud-add-data-button"
+      onClick={onClick}
+    >
+      Add Data
+    </Button>
+  );
+}
 
 const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   instanceDescription,
@@ -25,6 +54,36 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  if (!isWritable) {
+    // When we're not writable return a disabled button with the instance
+    // description as a tooltip.
+    return (
+      <Tooltip
+        trigger={({
+          children: tooltipChildren,
+          ...tooltipTriggerProps
+        }: React.HTMLProps<HTMLInputElement>) => (
+          <div className={tooltipContainerStyles} {...tooltipTriggerProps}>
+            <AddDataButton
+              disabled
+              onClick={() => {
+                /* no-op as it's disabled. */
+              }}
+            />
+            {tooltipChildren}
+          </div>
+        )}
+        // Disable the tooltip when the instance is in a writable state.
+        isDisabled={isWritable}
+        justify="middle"
+        delay={500}
+        darkMode
+      >
+        {instanceDescription}
+      </Tooltip>
+    );
+  }
+
   return (
     <Menu
       open={isOpen}
@@ -32,48 +91,17 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
       justify="start"
       className={menuStyles}
       trigger={({
-        children,
         onClick,
-        ...menuProps
-      }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'>) => {
-        return (
-          <>
-            <Tooltip
-              trigger={({
-                className,
-                children,
-                ...tooltipTriggerProps
-              }: React.HTMLProps<HTMLInputElement>) => {
-                return (
-                  <div className={className} {...tooltipTriggerProps}>
-                    <Button
-                      leftGlyph={<Icon glyph="Download" />}
-                      rightGlyph={<Icon glyph="CaretDown" />}
-                      variant="primary"
-                      disabled={!isWritable}
-                      data-testid="crud-add-data-button"
-                      size="xsmall"
-                      onClick={onClick}
-                      {...menuProps}
-                    >
-                      Add Data
-                    </Button>
-                    {children}
-                  </div>
-                );
-              }}
-              // Disable the tooltip when the instance is in a writable state.
-              isDisabled={isWritable}
-              justify="middle"
-              delay={500}
-              darkMode
-            >
-              {instanceDescription}
-            </Tooltip>
-            {children}
-          </>
-        );
-      }}
+        children,
+      }: {
+        onClick(): void;
+        children: React.ReactChildren;
+      }) => (
+        <>
+          <AddDataButton onClick={() => onClick()} />
+          {children}
+        </>
+      )}
     >
       <MenuItem
         data-testid="hadron-document-add-child"
