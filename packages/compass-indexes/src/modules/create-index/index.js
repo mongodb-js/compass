@@ -23,18 +23,15 @@ import isVisible, {
   toggleIsVisible,
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
 } from '../is-visible';
-import collation, {
+import collationString, {
   INITIAL_STATE as COLLATION_INITIAL_STATE,
-} from '../create-index/collation';
+} from '../create-index/collation-string';
 import fields, {
   INITIAL_STATE as FIELDS_INITIAL_STATE,
 } from '../create-index/fields';
 import showOptions, {
   INITIAL_STATE as SHOW_OPTIONS_INITIAL_STATE,
 } from '../create-index/show-options';
-import isBackground, {
-  INITIAL_STATE as IS_BACKGROUND_INITIAL_STATE,
-} from '../create-index/is-background';
 import isUnique, {
   INITIAL_STATE as IS_UNIQUE_INITIAL_STATE,
 } from '../create-index/is-unique';
@@ -80,7 +77,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 const reducer = combineReducers({
   dataService,
   appRegistry,
-  collation,
+  collationString,
   fields,
   inProgress,
   isCustomCollation,
@@ -89,7 +86,6 @@ const reducer = combineReducers({
   showOptions,
   isVisible,
   error,
-  isBackground,
   isUnique,
   isTtl,
   hasWildcardProjection,
@@ -116,14 +112,13 @@ const rootReducer = (state, action) => {
   if (action.type === RESET || action.type === RESET_FORM) {
     return {
       ...state,
-      collation: COLLATION_INITIAL_STATE,
+      collationString: COLLATION_INITIAL_STATE,
       fields: FIELDS_INITIAL_STATE,
       inProgress: IN_PROGRESS_INITIAL_STATE,
       isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
       showOptions: SHOW_OPTIONS_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
       error: ERROR_INITIAL_STATE,
-      isBackground: IS_BACKGROUND_INITIAL_STATE,
       isUnique: IS_UNIQUE_INITIAL_STATE,
       isTtl: IS_TTL_INITIAL_STATE,
       hasWildcardProjection: HAS_WILDCARD_PROJECTION_INITIAL_STATE,
@@ -165,14 +160,13 @@ export const createIndex = () => {
     });
 
     const options = {};
-    options.background = state.isBackground;
     options.unique = state.isUnique;
     // The server will generate a name when we don't provide one.
     if (state.name !== '') {
       options.name = state.name;
     }
     if (state.isCustomCollation) {
-      options.collation = state.collation;
+      options.collation = state.collationString.value;
     }
     if (state.isTtl) {
       options.expireAfterSeconds = Number(state.ttl);
@@ -224,7 +218,6 @@ export const createIndex = () => {
     state.dataService.createIndex(ns, spec, options, (createErr) => {
       if (!createErr) {
         const trackEvent = {
-          background: state.isBackground,
           unique: state.isUnique,
           ttl: state.isTtl,
           columnstore_index: hasColumnstoreIndex,
@@ -240,14 +233,13 @@ export const createIndex = () => {
         dispatch(
           globalAppRegistryEmit('compass:indexes:created', {
             isCollation: state.isCustomCollation,
-            isBackground: state.isBackground,
             isPartialFilterExpression: state.isPartialFilterExpression,
             isTTL: state.isTtl,
             isUnique: state.isUnique,
             hasColumnstoreIndex,
             hasColumnstoreProjection: state.hasColumnstoreProjection,
             hasWildcardProjection: state.hasWildcardProjection,
-            collation: state.collation,
+            collation: state.collationString.value,
             ttl: state.ttl,
           })
         );

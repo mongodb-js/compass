@@ -30,7 +30,6 @@ import {
 } from '../../modules/create-index/new-index-field';
 import { clearError, handleError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
-import { toggleIsBackground } from '../../modules/create-index/is-background';
 import { toggleIsUnique } from '../../modules/create-index/is-unique';
 import { toggleIsPartialFilterExpression } from '../../modules/create-index/is-partial-filter-expression';
 import { toggleIsTtl } from '../../modules/create-index/is-ttl';
@@ -41,7 +40,7 @@ import { changeWildcardProjection } from '../../modules/create-index/wildcard-pr
 import { changeColumnstoreProjection } from '../../modules/create-index/columnstore-projection';
 import { changePartialFilterExpression } from '../../modules/create-index/partial-filter-expression';
 import { toggleIsCustomCollation } from '../../modules/create-index/is-custom-collation';
-import { changeCollationOption } from '../../modules/create-index/collation';
+import { collationStringChanged } from '../../modules/create-index/collation-string';
 import { openLink } from '../../modules/link';
 import { createIndex } from '../../modules/create-index';
 import { resetForm } from '../../modules/reset-form';
@@ -50,6 +49,8 @@ import getIndexHelpLink from '../../utils/index-link-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { hasColumnstoreIndexesSupport } from '../../utils/has-columnstore-indexes-support';
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+
+import { Editor, EditorVariant } from '@mongodb-js/compass-components';
 
 /**
  * Component for the create index modal.
@@ -63,7 +64,6 @@ class CreateIndexModal extends PureComponent {
     schemaFields: PropTypes.array.isRequired,
     fields: PropTypes.array.isRequired,
     isVisible: PropTypes.bool.isRequired,
-    isBackground: PropTypes.bool.isRequired,
     isUnique: PropTypes.bool.isRequired,
     isTtl: PropTypes.bool.isRequired,
     ttl: PropTypes.string.isRequired,
@@ -74,7 +74,8 @@ class CreateIndexModal extends PureComponent {
     isPartialFilterExpression: PropTypes.bool.isRequired,
     partialFilterExpression: PropTypes.string.isRequired,
     isCustomCollation: PropTypes.bool.isRequired,
-    collation: PropTypes.object.isRequired,
+    collationString: PropTypes.object,
+    collationStringChanged: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
     serverVersion: PropTypes.string.isRequired,
     updateFieldName: PropTypes.func.isRequired,
@@ -84,7 +85,6 @@ class CreateIndexModal extends PureComponent {
     toggleIsUnique: PropTypes.func.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
     toggleShowOptions: PropTypes.func.isRequired,
-    toggleIsBackground: PropTypes.func.isRequired,
     toggleIsTtl: PropTypes.func.isRequired,
     toggleHasWildcardProjection: PropTypes.func.isRequired,
     toggleHasColumnstoreProjection: PropTypes.func.isRequired,
@@ -97,7 +97,6 @@ class CreateIndexModal extends PureComponent {
     changeColumnstoreProjection: PropTypes.func.isRequired,
     changeWildcardProjection: PropTypes.func.isRequired,
     changePartialFilterExpression: PropTypes.func.isRequired,
-    changeCollationOption: PropTypes.func.isRequired,
     changeName: PropTypes.func.isRequired,
     newIndexField: PropTypes.string,
     createNewIndexField: PropTypes.func.isRequired,
@@ -110,8 +109,6 @@ class CreateIndexModal extends PureComponent {
    */
   constructor(props) {
     super(props);
-    this.CollationSelect =
-      global.hadronApp.appRegistry.getComponent('Collation.Select');
   }
 
   handleShow() {
@@ -201,17 +198,6 @@ class CreateIndexModal extends PureComponent {
         className={styles['create-index-modal-options']}
         data-test-id="create-index-modal-options"
       >
-        <ModalCheckbox
-          name="Build index in the background"
-          data-test-id="toggle-is-background"
-          titleClassName={styles['create-index-modal-options-checkbox']}
-          checked={this.props.isBackground}
-          helpUrl={getIndexHelpLink('BACKGROUND')}
-          onClickHandler={() =>
-            this.props.toggleIsBackground(!this.props.isBackground)
-          }
-          onLinkClickHandler={this.props.openLink}
-        />
         <ModalCheckbox
           name="Create unique index"
           data-test-id="toggle-is-unique"
@@ -365,9 +351,11 @@ class CreateIndexModal extends PureComponent {
     if (this.props.isCustomCollation) {
       return (
         <div className={styles['create-index-modal-options-param-wrapper']}>
-          <this.CollationSelect
-            collation={this.props.collation || {}}
-            changeCollationOption={this.props.changeCollationOption}
+          <Editor
+            variant={EditorVariant.Shell}
+            onChangeText={this.props.collationStringChanged}
+            options={({minLines: 10})}
+            name="add-index-collation-editor"
           />
         </div>
       );
@@ -502,7 +490,6 @@ const mapStateToProps = (state) => ({
   schemaFields: state.schemaFields,
   error: state.error,
   isVisible: state.isVisible,
-  isBackground: state.isBackground,
   isTtl: state.isTtl,
   ttl: state.ttl,
   hasWildcardProjection: state.hasWildcardProjection,
@@ -513,7 +500,7 @@ const mapStateToProps = (state) => ({
   isPartialFilterExpression: state.isPartialFilterExpression,
   partialFilterExpression: state.partialFilterExpression,
   isCustomCollation: state.isCustomCollation,
-  collation: state.collation,
+  collationString: state.collationString,
   name: state.name,
   serverVersion: state.serverVersion,
   newIndexField: state.newIndexField,
@@ -530,7 +517,6 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   clearError,
   handleError,
   toggleIsVisible,
-  toggleIsBackground,
   toggleIsTtl,
   toggleHasWildcardProjection,
   toggleHasColumnstoreProjection,
@@ -541,7 +527,7 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   changeTtl,
   changeWildcardProjection,
   changeColumnstoreProjection,
-  changeCollationOption,
+  collationStringChanged,
   createNewIndexField,
   clearNewIndexField,
   openLink,
