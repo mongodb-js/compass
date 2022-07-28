@@ -1,21 +1,21 @@
 import reducer, {
-  collationStringChanged,
-  COLLATION_STRING_CHANGED,
-} from './collation-string';
+  collationInfoChanged,
+  COLLATION_INFO_CHANGED,
+} from './collation-info';
 import { expect } from 'chai';
 
-describe('collation string module', function () {
-  describe('#collationStringChanged', function () {
-    it('returns the COLLATION_STRING_CHANGED action', function () {
-      expect(collationStringChanged("{locale: 'simple'}")).to.deep.equal({
-        type: COLLATION_STRING_CHANGED,
+describe('collation info module', function () {
+  describe('#collationInfoChanged', function () {
+    it('returns the COLLATION_INFO_CHANGED action', function () {
+      expect(collationInfoChanged("{locale: 'simple'}")).to.deep.equal({
+        type: COLLATION_INFO_CHANGED,
         value: "{locale: 'simple'}",
       });
     });
   });
 
   describe('#reducer', function () {
-    context('when the action is not collation string changed', function () {
+    context('when the action is not collation info changed', function () {
       it('returns the default state', function () {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           text: '',
@@ -25,10 +25,10 @@ describe('collation string module', function () {
       });
     });
 
-    context('when the action is collation string changed', function () {
+    context('when the action is collation info changed', function () {
       it('returns the new state', function () {
         expect(
-          reducer(undefined, collationStringChanged("{locale: 'simple'}"))
+          reducer(undefined, collationInfoChanged("{locale: 'simple'}"))
         ).to.deep.equal({
           text: "{locale: 'simple'}",
           value: { locale: 'simple' },
@@ -38,11 +38,11 @@ describe('collation string module', function () {
     });
 
     context(
-      'when the action is collation string changed with an invalid collation',
+      'when the action is collation info changed with an invalid collation',
       function () {
         it('returns the new state', function () {
           expect(
-            reducer(undefined, collationStringChanged("locale 'simple'}"))
+            reducer(undefined, collationInfoChanged("locale 'simple'}"))
           ).to.deep.equal({
             text: "locale 'simple'}",
             value: null,

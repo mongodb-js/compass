@@ -111,7 +111,7 @@ describe('create index module', function () {
         isUnique: true,
         name: 'test name',
         isCustomCollation: true,
-        collationString: {
+        collationInfo: {
           text: "{locale: 'en'}",
           value: {
             locale: 'en',
@@ -185,7 +185,7 @@ describe('create index module', function () {
         isUnique: true,
         name: '',
         isCustomCollation: true,
-        collationString: {
+        collationInfo: {
           text: "{locale: 'en'}",
           value: {
             locale: 'en',

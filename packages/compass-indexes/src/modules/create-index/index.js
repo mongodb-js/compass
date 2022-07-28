@@ -23,9 +23,9 @@ import isVisible, {
   toggleIsVisible,
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
 } from '../is-visible';
-import collationString, {
+import collationInfo, {
   INITIAL_STATE as COLLATION_INITIAL_STATE,
-} from '../create-index/collation-string';
+} from '../create-index/collation-info';
 import fields, {
   INITIAL_STATE as FIELDS_INITIAL_STATE,
 } from '../create-index/fields';
@@ -77,7 +77,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 const reducer = combineReducers({
   dataService,
   appRegistry,
-  collationString,
+  collationInfo,
   fields,
   inProgress,
   isCustomCollation,
@@ -112,7 +112,7 @@ const rootReducer = (state, action) => {
   if (action.type === RESET || action.type === RESET_FORM) {
     return {
       ...state,
-      collationString: COLLATION_INITIAL_STATE,
+      collationInfo: COLLATION_INITIAL_STATE,
       fields: FIELDS_INITIAL_STATE,
       inProgress: IN_PROGRESS_INITIAL_STATE,
       isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
@@ -166,7 +166,7 @@ export const createIndex = () => {
       options.name = state.name;
     }
     if (state.isCustomCollation) {
-      options.collation = state.collationString.value;
+      options.collation = state.collationInfo.value;
     }
     if (state.isTtl) {
       options.expireAfterSeconds = Number(state.ttl);
@@ -239,7 +239,7 @@ export const createIndex = () => {
             hasColumnstoreIndex,
             hasColumnstoreProjection: state.hasColumnstoreProjection,
             hasWildcardProjection: state.hasWildcardProjection,
-            collation: state.collationString.value,
+            collation: state.collationInfo.value,
             ttl: state.ttl,
           })
         );

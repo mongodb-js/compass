@@ -40,7 +40,7 @@ import { changeWildcardProjection } from '../../modules/create-index/wildcard-pr
 import { changeColumnstoreProjection } from '../../modules/create-index/columnstore-projection';
 import { changePartialFilterExpression } from '../../modules/create-index/partial-filter-expression';
 import { toggleIsCustomCollation } from '../../modules/create-index/is-custom-collation';
-import { collationStringChanged } from '../../modules/create-index/collation-string';
+import { collationInfoChanged } from '../../modules/create-index/collation-info';
 import { openLink } from '../../modules/link';
 import { createIndex } from '../../modules/create-index';
 import { resetForm } from '../../modules/reset-form';
@@ -74,8 +74,8 @@ class CreateIndexModal extends PureComponent {
     isPartialFilterExpression: PropTypes.bool.isRequired,
     partialFilterExpression: PropTypes.string.isRequired,
     isCustomCollation: PropTypes.bool.isRequired,
-    collationString: PropTypes.object,
-    collationStringChanged: PropTypes.func.isRequired,
+    collationInfo: PropTypes.object,
+    collationInfoChanged: PropTypes.func.isRequired,
     name: PropTypes.string.isRequired,
     serverVersion: PropTypes.string.isRequired,
     updateFieldName: PropTypes.func.isRequired,
@@ -353,7 +353,7 @@ class CreateIndexModal extends PureComponent {
         <div className={styles['create-index-modal-options-param-wrapper']}>
           <Editor
             variant={EditorVariant.Shell}
-            onChangeText={this.props.collationStringChanged}
+            onChangeText={this.props.collationInfoChanged}
             options={{ minLines: 10 }}
             name="add-index-collation-editor"
           />
@@ -500,7 +500,7 @@ const mapStateToProps = (state) => ({
   isPartialFilterExpression: state.isPartialFilterExpression,
   partialFilterExpression: state.partialFilterExpression,
   isCustomCollation: state.isCustomCollation,
-  collationString: state.collationString,
+  collationInfo: state.collationInfo,
   name: state.name,
   serverVersion: state.serverVersion,
   newIndexField: state.newIndexField,
@@ -527,7 +527,7 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   changeTtl,
   changeWildcardProjection,
   changeColumnstoreProjection,
-  collationStringChanged,
+  collationInfoChanged,
   createNewIndexField,
   clearNewIndexField,
   openLink,
