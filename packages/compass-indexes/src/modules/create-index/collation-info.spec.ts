@@ -9,7 +9,7 @@ describe('collation info module', function () {
     it('returns the COLLATION_INFO_CHANGED action', function () {
       expect(collationInfoChanged("{locale: 'simple'}")).to.deep.equal({
         type: COLLATION_INFO_CHANGED,
-        value: "{locale: 'simple'}",
+        collationString: "{locale: 'simple'}",
       });
     });
   });

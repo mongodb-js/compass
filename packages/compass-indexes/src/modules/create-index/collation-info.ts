@@ -24,11 +24,13 @@ export const INITIAL_STATE: CollationInfoState = {
 };
 
 export function getCollationStateFromString(
-  collationInfo: string
+  collationInput: unknown
 ): CollationInfoState {
-  const collation = queryParser.isCollationValid(collationInfo);
+  const collationString = String(collationInput);
+  const collation = queryParser.isCollationValid(collationString);
+
   return {
-    text: collationInfo,
+    text: collationString,
     value: collation === false ? null : collation,
     isValid: collation !== false,
   };
@@ -42,7 +44,7 @@ export default function reducer(
   action: AnyAction
 ): CollationInfoState {
   if (action.type === COLLATION_INFO_CHANGED) {
-    return getCollationStateFromString(action.value);
+    return getCollationStateFromString(action.collationString);
   }
   return state;
 }
@@ -50,6 +52,6 @@ export default function reducer(
 /**
  * Action creator for collation info changed event.
  */
-export const collationInfoChanged = (value: string): AnyAction => {
-  return { type: COLLATION_INFO_CHANGED, value };
+export const collationInfoChanged = (collationString: string): AnyAction => {
+  return { type: COLLATION_INFO_CHANGED, collationString: collationString };
 };
