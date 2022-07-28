@@ -24,7 +24,7 @@ export type CollationStringState = {
 export const INITIAL_STATE: CollationStringState = {
   text: '',
   value: null,
-  isValid: true
+  isValid: true,
 };
 
 export function getCollationStateFromString(
@@ -34,7 +34,7 @@ export function getCollationStateFromString(
   return {
     text: collationString,
     value: collation === false ? null : collation,
-    isValid: collation !== false
+    isValid: collation !== false,
   };
 }
 

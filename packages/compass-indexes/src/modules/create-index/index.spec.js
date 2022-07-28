@@ -114,9 +114,9 @@ describe('create index module', function () {
         collationString: {
           text: "{locale: 'en'}",
           value: {
-            locale: 'en'
+            locale: 'en',
           },
-          isValid: true
+          isValid: true,
         },
         isTtl: true,
         ttl: 100,
@@ -130,7 +130,7 @@ describe('create index module', function () {
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
               collation: {
-                locale: 'en'
+                locale: 'en',
               },
               expireAfterSeconds: 100,
               name: 'test name',
@@ -188,9 +188,9 @@ describe('create index module', function () {
         collationString: {
           text: "{locale: 'en'}",
           value: {
-            locale: 'en'
+            locale: 'en',
           },
-          isValid: true
+          isValid: true,
         },
         isTtl: true,
         ttl: 100,
@@ -204,7 +204,7 @@ describe('create index module', function () {
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
               collation: {
-                locale: 'en'
+                locale: 'en',
               },
               expireAfterSeconds: 100,
               partialFilterExpression: { a: 1 },

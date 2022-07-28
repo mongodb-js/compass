@@ -354,7 +354,7 @@ class CreateIndexModal extends PureComponent {
           <Editor
             variant={EditorVariant.Shell}
             onChangeText={this.props.collationStringChanged}
-            options={({minLines: 10})}
+            options={{ minLines: 10 }}
             name="add-index-collation-editor"
           />
         </div>
