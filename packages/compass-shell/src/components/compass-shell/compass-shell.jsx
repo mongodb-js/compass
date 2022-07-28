@@ -161,7 +161,10 @@ export class CompassShell extends Component {
 
   hideInfoModal() {
     this.setState({ showInfoModal: false });
-    if (this.shellRef.current) {
+  }
+
+  focusEditor() {
+    if (this.shellRef.current && window.getSelection()?.type !== 'Range') {
       this.shellRef.current.focusEditor();
     }
   }
@@ -197,6 +200,7 @@ export class CompassShell extends Component {
           className={compassShellStyles}
           style={{ height: renderedHeight }}
           id="content"
+          onClick={this.focusEditor.bind(this)}
         >
           <ResizeHandle
             direction={ResizeDirection.TOP}

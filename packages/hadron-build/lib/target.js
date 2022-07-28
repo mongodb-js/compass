@@ -17,6 +17,7 @@ const execFile = promisify(childProcess.execFile);
 const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const tarPack = require('tar-pack').pack;
 const which = require('which');
+const os = require('os');
 const { signtool } = require('./signtool');
 
 async function signLinuxPackage(src) {
@@ -106,6 +107,7 @@ function getPkg(directory) {
 }
 
 class Target {
+  // eslint-disable-next-line complexity
   constructor(dir, opts = {}) {
     this.dir = dir || process.cwd();
     this.out = path.join(this.dir, 'dist');
@@ -113,9 +115,24 @@ class Target {
     const pkg = getPkg(dir);
     this.pkg = pkg;
 
+    const defaultArch =
+      // eslint-disable-next-line no-nested-ternary
+      process.platform === 'darwin'
+        ? os.cpus().some((cpu) => {
+          // process.arch / os.arch() will return the arch for which the node
+          // binary was compiled. Checking if one of the CPUs has Apple in its
+          // name is the way to check (there is slight difference between the
+          // earliest models naming and a current one, so we check only for
+          // Apple in the name)
+          return /Apple/.test(cpu.model);
+        })
+          ? 'arm64'
+          : 'x64'
+        : process.arch;
+
     _.defaults(opts, { version: process.env.HADRON_APP_VERSION }, pkg, {
       platform: process.platform,
-      arch: process.arch,
+      arch: defaultArch,
       sign: true
     });
 
@@ -456,14 +473,12 @@ class Target {
       icon: `${this.id}.icns`
     });
 
+    const destDir = `${this.productName}-${this.platform}-${this.arch}`;
+
     // this.resources = OSX_RESOURCES;
-    const OSX_DOT_APP = this.dest(
-      `${this.productName}-darwin-x64`,
-      `${this.productName}.app`
-    );
-    this.appPath = OSX_DOT_APP;
+    this.appPath = this.dest(destDir, `${this.productName}.app`);
     this.resources = this.dest(
-      `${this.productName}-darwin-x64`,
+      destDir,
       `${this.productName}.app`,
       'Contents',
       'Resources'
@@ -503,10 +518,7 @@ class Target {
       icon: this.packagerOptions.icon,
       identity_display: platformSettings.codesign_identity,
       identity: platformSettings.codesign_sha1,
-      appPath: this.dest(
-        `${this.productName}-darwin-x64`,
-        `${this.productName}.app`
-      ),
+      appPath: this.appPath,
       /**
        * Background image for `.dmg`.
        * @see http://npm.im/electron-installer-dmg
@@ -534,32 +546,10 @@ class Target {
           x: 93,
           y: 243,
           type: 'file',
-          path: this.dest(
-            `${this.productName}-darwin-x64`,
-            `${this.productName}.app`
-          )
+          path: this.appPath
         }
       ]
     };
-
-    /**
-     * TODO (imlucas) Auto-generate homebrew cask.
-     *
-     * @see https://github.com/caskroom/homebrew-versions/blob/master/Casks/mongodb-compass-beta.rb
-     * @see https://caskroom.github.io/
-     */
-    // const url = 'https://s3.mysite.com/hadron-#{version}-darwin-x64.dmg';
-    // const caskContents = dedent`cask '${CONFIG.id}' do
-    //   version '1.5.0-beta.0'
-    //   sha256 '${sha_of_dmg_contents}'
-    //
-    //   url "${url}"
-    //   name '${CONFIG.productName}'
-    //   homepage '${product_url_or_homepage_url_from_packagejson}'
-    //
-    //   app '${CONFIG.productName}.app'
-    // end`;
-    // // write caskContents to `${CONFIG.id}.rb` asset
 
     this.createInstaller = async() => {
       if (process.env.MACOS_NOTARY_KEY &&
@@ -567,10 +557,7 @@ class Target {
           process.env.MACOS_NOTARY_CLIENT_URL &&
           process.env.MACOS_NOTARY_API_URL) {
         const appDirectoryName = `${this.productName}.app`;
-        const appPath = this.dest(
-          `${this.productName}-darwin-x64`,
-          appDirectoryName
-        );
+        const appPath = this.appPath;
         debug(`Signing and notarizing "${appPath}"`);
         // https://wiki.corp.mongodb.com/display/BUILD/How+to+use+MacOS+notary+service
         debug(`Downloading the notary client from ${process.env.MACOS_NOTARY_CLIENT_URL} to ${path.resolve('macnotary')}`);
