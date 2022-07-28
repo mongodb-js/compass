@@ -1,20 +1,14 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   Button,
   Icon,
   IconButton,
   MoreOptionsToggle,
-  Popover,
   css,
-  cx,
-  focusRingStyles,
-  focusRingVisibleStyles,
   spacing,
   uiColors,
-  useOnClickOutside,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type AppRegistry from 'hadron-app-registry';
 
 import type {
@@ -24,8 +18,7 @@ import type {
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import { QueryOption as QueryOptionComponent } from './query-option';
 import { QueryOptionsGrid } from './query-options-grid';
-
-const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
+import { QueryHistoryButtonPopover } from './query-history-button-popover';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -44,32 +37,6 @@ const queryBarFirstRowStyles = css({
 
 const filterContainerStyles = css({
   flexGrow: 1,
-});
-
-const openQueryHistoryStyles = cx(
-  css({
-    border: 'none',
-    backgroundColor: 'transparent',
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: spacing[2] - 2, // -2px for border.
-    '&:hover': {
-      cursor: 'pointer',
-    },
-    '&:focus': focusRingVisibleStyles,
-  }),
-  focusRingStyles
-);
-
-const queryHistoryContainerStyles = css({
-  display: 'flex',
-  height: '100%',
-});
-
-const queryHistoryPopoverStyles = css({
-  maxHeight: 'calc(100vh - 270px)',
-  display: 'flex',
-  marginLeft: -spacing[4], // Align to the left of the query bar.
 });
 
 type QueryBarProps = {
@@ -119,57 +86,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   valid: isQueryValid,
   ...queryOptionProps
 }) => {
-  const queryHistoryRef = useRef<{
-    component: React.ComponentType<any>;
-    store: any; // Query history store is not currently typed.
-    actions: any; // Query history actions are not typed.
-  } | null>(
-    showQueryHistoryButton
-      ? {
-          component:
-            globalAppRegistry.getRole('Query.QueryHistory')![0].component,
-          store: localAppRegistry.getStore('Query.History'),
-          actions: localAppRegistry.getAction('Query.History.Actions'),
-        }
-      : null
-  );
-  const queryHistoryButtonRef = useRef<HTMLButtonElement>(null);
-  const queryHistoryContainerRef = useRef<HTMLDivElement>(null);
-
-  const [showQueryHistory, setShowQueryHistory] = useState(false);
-
-  const onClickQueryHistory = useCallback(() => {
-    if (!showQueryHistory) {
-      track('Query History Opened');
-    }
-
-    setShowQueryHistory(!showQueryHistory);
-  }, [showQueryHistory, setShowQueryHistory]);
-
-  const onClickOutsideQueryHistory = useCallback(
-    (event) => {
-      // Ignore clicks on the query history button as it has its own handler.
-      if (
-        !queryHistoryButtonRef.current ||
-        queryHistoryButtonRef.current.contains(event.target as Node)
-      ) {
-        return;
-      }
-      setShowQueryHistory(false);
-    },
-    [queryHistoryButtonRef, setShowQueryHistory]
-  );
-
-  useOnClickOutside(
-    queryHistoryContainerRef,
-    showQueryHistory,
-    onClickOutsideQueryHistory
-  );
-
-  const onHideQueryHistory = useCallback(() => {
-    setShowQueryHistory(false);
-  }, [setShowQueryHistory]);
-
   const onApply = useCallback(() => {
     if (isQueryValid) {
       _onApply();
@@ -185,50 +101,14 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     [onApply]
   );
 
-  const QueryHistoryComponent = queryHistoryRef.current?.component;
-
   return (
     <form className={queryBarFormStyles} onSubmit={onFormSubmit} noValidate>
       <div className={queryBarFirstRowStyles}>
         {showQueryHistoryButton && (
-          <>
-            <button
-              data-testid="query-history-button"
-              onClick={onClickQueryHistory}
-              className={openQueryHistoryStyles}
-              id="open-query-history"
-              aria-label="Open query history"
-              type="button"
-              ref={queryHistoryButtonRef}
-            >
-              <Icon glyph="Clock" />
-              <Icon glyph="CaretDown" />
-            </button>
-            <Popover
-              align="bottom"
-              justify="start"
-              active={showQueryHistory}
-              usePortal
-              adjustOnMutation
-              spacing={0}
-              popoverZIndex={99999}
-              className={queryHistoryPopoverStyles}
-              refEl={queryHistoryButtonRef}
-            >
-              <div
-                className={queryHistoryContainerStyles}
-                ref={queryHistoryContainerRef}
-              >
-                {QueryHistoryComponent && (
-                  <QueryHistoryComponent
-                    onClose={onHideQueryHistory}
-                    store={queryHistoryRef.current?.store}
-                    actions={queryHistoryRef.current?.actions}
-                  />
-                )}
-              </div>
-            </Popover>
-          </>
+          <QueryHistoryButtonPopover
+            localAppRegistry={localAppRegistry}
+            globalAppRegistry={globalAppRegistry}
+          />
         )}
         <div className={filterContainerStyles}>
           <QueryOptionComponent

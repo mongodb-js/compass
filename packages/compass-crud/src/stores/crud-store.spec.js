@@ -1396,7 +1396,10 @@ describe('store', function () {
         });
 
         getCSFLEMode.returns('enabled');
-        knownSchemaForCollection.resolves({ hasSchema: false, encryptedFields: { encryptedFields: [] } });
+        knownSchemaForCollection.resolves({
+          hasSchema: false,
+          encryptedFields: { encryptedFields: [] },
+        });
 
         store.openInsertDocumentDialog(doc, false);
 

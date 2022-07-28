@@ -12,7 +12,7 @@ import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
 import DocumentJsonView from './document-json-view';
 import DocumentTableView from './document-table-view';
-import Toolbar from './toolbar';
+import { CrudToolbar } from './crud-toolbar';
 
 import {
   DOCUMENTS_STATUS_ERROR,
@@ -31,19 +31,6 @@ the current query.`;
  * Component for the entire document list.
  */
 class DocumentList extends React.Component {
-  constructor(props) {
-    super(props);
-    if (props.isExportable) {
-      const appRegistry = props.store.localAppRegistry;
-      this.queryBarRole = appRegistry.getRole('Query.QueryBar')[0];
-      this.queryBar = this.queryBarRole.component;
-      this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
-      this.queryBarActions = appRegistry.getAction(
-        this.queryBarRole.actionName
-      );
-    }
-  }
-
   onApplyClicked() {
     this.props.store.refreshDocuments();
   }
@@ -158,26 +145,6 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * Render the query bar.
-   *
-   * @returns {React.Component} The query bar.
-   */
-  renderQueryBar() {
-    if (this.props.isExportable) {
-      return (
-        <this.queryBar
-          store={this.queryBarStore}
-          actions={this.queryBarActions}
-          buttonLabel="Find"
-          resultId={this.props.resultId}
-          onApply={this.onApplyClicked.bind(this)}
-          onReset={this.onResetClicked.bind(this)}
-        />
-      );
-    }
-  }
-
-  /**
    * Render ZeroState view when no documents are present.
    *
    * @returns {React.Component} The query bar.
@@ -242,17 +209,27 @@ class DocumentList extends React.Component {
   render() {
     return (
       <div className="compass-documents">
-        <div className="controls-container">
-          {this.renderQueryBar()}
-          <Toolbar
-            readonly={!this.props.isEditable}
-            insertHandler={this.handleOpenInsert.bind(this)}
-            viewSwitchHandler={this.props.viewChanged}
-            activeDocumentView={this.props.view}
-            {...this.props}
-          />
-        </div>
-        {this.renderOutdatedWarning()}
+        <CrudToolbar
+          activeDocumentView={this.props.view}
+          count={this.props.count}
+          loadingCount={this.props.loadingCount}
+          start={this.props.start}
+          end={this.props.end}
+          page={this.props.page}
+          getPage={this.props.getPage}
+          insertDataHandler={this.handleOpenInsert.bind(this)}
+          localAppRegistry={this.props.store.localAppRegistry}
+          isExportable={this.props.isExportable}
+          onApplyClicked={this.onApplyClicked.bind(this)}
+          onResetClicked={this.onResetClicked.bind(this)}
+          openExportFileDialog={this.props.openExportFileDialog}
+          readonly={!this.props.isEditable}
+          viewSwitchHandler={this.props.viewChanged}
+          isWritable={this.props.isWritable}
+          instanceDescription={this.props.instanceDescription}
+          refreshDocuments={this.props.refreshDocuments}
+          resultId={this.props.resultId}
+        />
         {this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}
@@ -267,6 +244,11 @@ DocumentList.propTypes = {
   closeInsertDocumentDialog: PropTypes.func,
   toggleInsertDocumentView: PropTypes.func.isRequired,
   toggleInsertDocument: PropTypes.func.isRequired,
+  count: PropTypes.number,
+  start: PropTypes.number,
+  end: PropTypes.number,
+  page: PropTypes.number,
+  getPage: PropTypes.func,
   error: PropTypes.object,
   insert: PropTypes.object,
   insertDocument: PropTypes.func,
@@ -278,6 +260,7 @@ DocumentList.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openExportFileDialog: PropTypes.func,
+  refreshDocuments: PropTypes.func,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,

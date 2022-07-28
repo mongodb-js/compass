@@ -78,7 +78,7 @@ function UnthemedExplainToolbar({
     component: React.ComponentType<any>;
     store: any; // Query bar store is not currently typed.
     actions: any; // Query bar actions are not typed.
-  } | null>({
+  }>({
     component: queryBarRole.component,
     store: localAppRegistry.getStore(queryBarRole.storeName!),
     actions: localAppRegistry.getAction(queryBarRole.actionName!),
@@ -95,15 +95,15 @@ function UnthemedExplainToolbar({
     [switchToJSONView, switchToTreeView]
   );
 
-  const QueryBarComponent = queryBarRef.current!.component;
+  const QueryBarComponent = queryBarRef.current.component;
 
   return (
     <Toolbar className={explainToolbarStyles}>
       <div className={explainQueryBarStyles}>
         {
           <QueryBarComponent
-            store={queryBarRef.current!.store}
-            actions={queryBarRef.current!.actions}
+            store={queryBarRef.current.store}
+            actions={queryBarRef.current.actions}
             buttonLabel="Explain"
             resultId={explainResultId}
             onApply={onExecuteExplainClicked}

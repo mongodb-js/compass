@@ -10,6 +10,7 @@ function Plugin({
   onApply: _onApply,
   onReset: _onReset,
   store,
+  queryOptions,
   ...props
 }) {
   const onApply = useCallback(() => {
@@ -39,6 +40,7 @@ function Plugin({
         toggleExpandQueryOptions={actions.toggleQueryOptions}
         globalAppRegistry={store.globalAppRegistry}
         localAppRegistry={store.localAppRegistry}
+        queryOptions={queryOptions}
         {...props}
       />
     </StoreConnector>
@@ -50,6 +52,7 @@ Plugin.propTypes = {
   actions: PropTypes.object.isRequired,
   onApply: PropTypes.func,
   onReset: PropTypes.func,
+  queryOptions: PropTypes.arrayOf(PropTypes.string),
   showExportToLanguageButton: PropTypes.bool,
   showQueryHistoryButton: PropTypes.bool,
   store: PropTypes.object.isRequired,

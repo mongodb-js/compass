@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
+import AppRegistry from 'hadron-app-registry';
 
 import { QueryBar } from './query-bar';
 
@@ -37,13 +38,36 @@ const queryOptionProps = {
 
 const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 
+const mockQueryHistoryRole = {
+  name: 'Query History',
+  // eslint-disable-next-line react/display-name
+  component: () => <div>Query history</div>,
+  configureStore: () => ({}),
+  configureActions: () => {},
+  storeName: 'Query.History',
+  actionName: 'Query.History.Actions',
+};
+
 const renderQueryBar = (
   props: Partial<ComponentProps<typeof QueryBar>> = {}
 ) => {
+  const globalAppRegistry = new AppRegistry();
+  globalAppRegistry.registerRole('Query.QueryHistory', mockQueryHistoryRole);
+
+  const localAppRegistry = new AppRegistry();
+  localAppRegistry.registerStore('Query.History', {
+    onActivated: noop,
+  });
+  localAppRegistry.registerAction('Query.History.Actions', {
+    actions: true,
+  });
+
   render(
     <QueryBar
       buttonLabel="Apply"
       expanded={false}
+      globalAppRegistry={globalAppRegistry}
+      localAppRegistry={localAppRegistry}
       onApply={noop}
       onChangeQueryOption={noop}
       onOpenExportToLanguage={noop}
@@ -242,4 +266,7 @@ describe('QueryBar Component', function () {
       expect(queryInputs.length).to.equal(5);
     });
   });
+
+  // TODO: Opening the query history tests.
+  // And rendering the query history role.
 });

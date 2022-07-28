@@ -2,27 +2,52 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 import { StoreConnector } from 'hadron-react-components';
 import { expect } from 'chai';
+import AppRegistry from 'hadron-app-registry';
 
 import QueryBarPlugin from './plugin';
 import configureStore from './stores';
 import configureActions from './actions';
-import OptionEditor from './components/legacy-option-editor';
+import OptionEditor from './components/option-editor';
+
+const mockQueryHistoryRole = {
+  name: 'Query History',
+  // eslint-disable-next-line react/display-name
+  component: () => <div>Query history</div>,
+  configureStore: () => ({}),
+  configureActions: () => {},
+  storeName: 'Query.History',
+  actionName: 'Query.History.Actions',
+};
 
 describe('QueryBar [Plugin]', function () {
   let store;
   let actions;
   let component;
 
+  const globalAppRegistry = new AppRegistry();
+  globalAppRegistry.registerRole('Query.QueryHistory', mockQueryHistoryRole);
+
+  const localAppRegistry = new AppRegistry();
+  localAppRegistry.registerStore('Query.History', {
+    onActivated: () => {},
+  });
+  localAppRegistry.registerAction('Query.History.Actions', {
+    actions: true,
+  });
+
   beforeEach(function () {
     actions = configureActions();
     store = configureStore({
-      actions: actions,
+      actions,
+      globalAppRegistry,
+      localAppRegistry,
     });
   });
 
   afterEach(function () {
     actions = null;
     store = null;
+    component.unmount();
     component = null;
   });
 
@@ -42,11 +67,12 @@ describe('QueryBar [Plugin]', function () {
       });
 
       component = mount(
-        <QueryBarPlugin store={store} actions={actions} layout={['filter']} />
+        <QueryBarPlugin store={store} actions={actions} />
       );
 
       // Set the ace editor input value.
-      component.find(OptionEditor).instance().editor.session.setValue('{a: 3}');
+      const aceEditor = component.find('[id="query-bar-option-input-filter"]').first();
+      aceEditor.simulate('change', '{a: 3}');
     });
 
     it('updates the store state to valid', function () {
@@ -63,7 +89,6 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={['filter']}
           onApply={() => {
             calledApply = true;
           }}
@@ -87,14 +112,11 @@ describe('QueryBar [Plugin]', function () {
   });
 
   describe('when the plugin is rendered with or without a query history button', function () {
-    const layout = ['filter'];
-
-    it('query history button renderes by default', function () {
+    it('query history button renders by default', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           expanded
           serverVersion="3.4.0"
         />
@@ -103,12 +125,11 @@ describe('QueryBar [Plugin]', function () {
         .exist;
     });
 
-    it('query history button renderes when showQueryHistoryButton prop is passed and set to true', function () {
+    it('query history button renders when showQueryHistoryButton prop is passed and set to true', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showQueryHistoryButton
           expanded
           serverVersion="3.4.0"
@@ -123,7 +144,6 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showQueryHistoryButton={false}
           expanded
           serverVersion="3.4.0"
@@ -135,14 +155,11 @@ describe('QueryBar [Plugin]', function () {
   });
 
   describe('when rendered with or without an export to language button', function () {
-    const layout = ['filter'];
-
     it('export to language button renderes by default', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showExportToLanguageButton
           expanded
           serverVersion="3.4.0"
@@ -156,7 +173,6 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showExportToLanguageButton
           expanded
           serverVersion="3.4.0"
@@ -170,7 +186,6 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showExportToLanguageButton={false}
           expanded
           serverVersion="3.4.0"
@@ -181,11 +196,8 @@ describe('QueryBar [Plugin]', function () {
   });
 
   describe('a user is able to provide custom placeholders for the input fields', function () {
-    const layout = [
-      'filter',
-      'project',
-      ['sort', 'maxTimeMS'],
-      ['collation', 'skip', 'limit'],
+    const queryOptions = [
+      'project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'
     ];
 
     it('the input fields have a placeholder by default', function () {
@@ -193,7 +205,7 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
+          queryOptions={queryOptions}
           expanded
           serverVersion="3.4.0"
         />
@@ -228,7 +240,7 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
+          queryOptions={queryOptions}
           sortOptionPlaceholder="{ field: -1 }"
           expanded
           serverVersion="3.4.0"
