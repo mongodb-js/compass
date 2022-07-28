@@ -6,12 +6,23 @@ const workspacesDirPath = path.resolve(__dirname, '..', '..', '..', 'packages');
 
 const workspaces = fs
   .readdirSync(workspacesDirPath)
+  .filter((workspacesDir) => {
+    // Unexpected but seems to be a thing that happens? Ignore hidden files
+    return !workspacesDir.startsWith('.');
+  })
   .map((workspaceName) => path.join(workspacesDirPath, workspaceName));
 
 const sourcePaths = Object.fromEntries(
   workspaces
     .map((workspacePath) => {
-      const packageJson = require(path.join(workspacePath, 'package.json'));
+      let packageJson = {};
+      try {
+        packageJson = require(path.join(workspacePath, 'package.json'));
+      } catch (err) {
+        console.warn(
+          `\x1b[33mWarning: Directory at path "${workspacePath}" is not a workspace. Did you forget to clean up?\x1b[0m`
+        );
+      }
       if (packageJson['compass:main'] || packageJson['compass:exports']) {
         return [
           packageJson.name,
