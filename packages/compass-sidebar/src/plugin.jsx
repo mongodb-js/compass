@@ -1,7 +1,9 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 
+import Sidebar from './components/sidebar';
 import LegacySidebar from './components-legacy/sidebar';
+
 import store from './stores';
 
 /**
@@ -10,9 +12,11 @@ import store from './stores';
  * @returns {React.Component} The rendered component.
  */
 function SidebarPlugin() {
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+
   return (
     <Provider store={store}>
-      <LegacySidebar />
+      {useNewSidebar ? (<Sidebar />): (<LegacySidebar />)}
     </Provider>
   );
 }

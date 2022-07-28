@@ -29,6 +29,7 @@ import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
+import ResizableSidebar from './components/resizeable-sidebar';
 export {
   Editor,
   EditorVariant,
@@ -67,6 +68,7 @@ export { Toggle } from './components/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 
+
 export {
   Accordion,
   CancelLoader,
@@ -80,6 +82,7 @@ export {
   SpinLoader,
   ResizeHandle,
   ResizeDirection,
+  ResizableSidebar,
   Toolbar,
   WarningSummary,
   WorkspaceTabs,
