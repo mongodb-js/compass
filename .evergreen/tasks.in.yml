@@ -263,58 +263,6 @@ tasks:
           compass_distribution: compass-readonly
 
       - func: publish
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=win32'
-      - func: publish
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=linux'
-      - func: publish
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=darwin'
-      - func: publish
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
-
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=win32'
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=linux'
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=darwin'
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
-
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=win32'
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=linux'
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=darwin'
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
 
   # copied as test-packaged-app-macos due to depends_on variation
   <% for (const task of testPackagedAppVariations) { %>

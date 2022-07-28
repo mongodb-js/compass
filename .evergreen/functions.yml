@@ -282,7 +282,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
 
           echo "Uploading release assets to S3 and GitHub if needed..."
-          npm run --workspace mongodb-compass upload -- ${target_platform} ${target_arch} ${compass_distribution}
+          npm run --workspace mongodb-compass upload
 
   get-packaged-app:
     - <<: *get-artifact
@@ -446,8 +446,8 @@ functions:
         content_type: application/x-redhat-package-manager
     - <<: *save-artifact
       params:
-        local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
+        local_file: src/packages/compass/dist/${rhel_tar_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${rhel_tar_filename}
         content_type: application/x-gzip
 
   save-ubuntu-artifacts:

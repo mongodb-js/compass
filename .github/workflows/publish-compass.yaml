@@ -1,0 +1,35 @@
+# Update download center manifest with the latest Compass release info
+name: Publish Compass
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Publish updated manifest to download center
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: ^14.17.5
+          cache: 'npm'
+
+      - name: Install npm@8
+        run: |
+          npm install -g npm@8
+
+      - name: Install Dependencies
+        run: |
+          npm -v
+          npm ci
+
+      - name: Upload updated download center manifest
+        env:
+          DEBUG: 'hadron*,mongo*,compass*'
+        run: |
+          npm run --workspace mongodb-compass upload -- --manifest

@@ -1,44 +1,20 @@
 /* eslint-disable no-console */
 const { cli } = require('cli-ux');
-const semver = require('semver');
 const chalk = require('chalk');
-const version = require('./version');
 const ux = require('./ux');
 
 module.exports = async function publish(
-  releaseVersion, { downloadCenter, github, changelog }
+  releaseVersion, { github, changelog }
 ) {
-  await uploadConfigIfNewer(releaseVersion, { downloadCenter });
   await waitGithubRelease(releaseVersion, { github, changelog });
 
   cli.info(
     '\n',
     chalk.green(`🚀 Release ${chalk.bold(releaseVersion)} complete.`), '\n\n',
     'Please verify that everything is in order:', '\n\n',
-    '▶ Download Center: ', ux.link('https://www.mongodb.com/try/download/compass'), '\n',
     '▶ Github Releases: ', ux.link('https://github.com/mongodb-js/compass/releases'), '\n',
   );
 };
-
-async function uploadConfigIfNewer(
-  releaseVersion, { downloadCenter }
-) {
-  cli.action.start('Uploading new download center config');
-
-  const oldConfig = await downloadCenter.downloadConfig();
-  const releaseChannel = version.getReleaseChannel(releaseVersion);
-  const oldVersion = downloadCenter.getVersion(oldConfig, releaseChannel);
-
-  if (semver.gte(oldVersion, releaseVersion)) {
-    cli.action.stop(chalk.dim(`skipped: ${oldVersion} (old) >= ${releaseVersion} (new)`));
-    return;
-  }
-
-  const newConfig = downloadCenter.replaceVersion(oldConfig, releaseVersion);
-  await downloadCenter.uploadConfig(newConfig);
-
-  cli.action.stop();
-}
 
 async function waitGithubRelease(releaseVersion, { github, changelog }) {
   cli.info('\n' + ux.separator(`👇 CHANGELOG FOR ${releaseVersion}`));
@@ -62,8 +38,7 @@ async function waitGithubRelease(releaseVersion, { github, changelog }) {
   cli.action.start(`Checking if Github release ${chalk.bold(releaseVersion)} really is published.`);
   const alreadyPublished = await github.isReleasePublished(releaseVersion);
   if (!alreadyPublished) {
-    cli.error('Release is not published yet - did you really publish?');
-    cli.info('Please publish the release on Github and run publish again to verify it worked.');
+    cli.error('Release is not published yet - did you really publish? Please publish the release on Github and run publish again to verify it worked.');
   }
   cli.action.stop();
 }
