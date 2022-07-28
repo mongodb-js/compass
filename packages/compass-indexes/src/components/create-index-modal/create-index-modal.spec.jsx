@@ -292,6 +292,87 @@ describe('CreateIndexModal [Component]', function () {
         component.find('[data-test-id="create-index-modal-options"]')
       ).to.be.present();
     });
+
+    context('unique', function () {
+      it('calls the toggleIsUnique function', function () {
+        component
+          .find('[data-test-id="toggle-is-unique"]')
+          .find('[type="checkbox"]')
+          .simulate('change', { target: { checked: true } });
+        expect(toggleIsUniqueSpy.called).to.equal(true);
+      });
+      it('calls the clickLink function', function () {
+        component
+          .find('[data-test-id="toggle-is-unique"]')
+          .find('.info-sprinkle')
+          .simulate('click');
+        expect(openLinkSpy.called).to.equal(true);
+      });
+    });
+    context('ttl', function () {
+      it('calls the toggleIsTtl function', function () {
+        component
+          .find('[data-test-id="toggle-is-ttl"]')
+          .find('[type="checkbox"]')
+          .simulate('change', { target: { checked: true } });
+        expect(toggleIsTtlSpy.called).to.equal(true);
+      });
+      it('calls the clickLink function', function () {
+        component
+          .find('[data-test-id="toggle-is-ttl"]')
+          .find('.info-sprinkle')
+          .simulate('click');
+        expect(openLinkSpy.called).to.equal(true);
+      });
+    });
+    context('partialFilterExpression', function () {
+      it('calls the toggleIsPartialFilterExpression function', function () {
+        component
+          .find('[data-test-id="toggle-is-pfe"]')
+          .find('[type="checkbox"]')
+          .simulate('change', { target: { checked: true } });
+        expect(toggleIsPartialFilterExpressionSpy.called).to.equal(true);
+      });
+      it('calls the clickLink function', function () {
+        component
+          .find('[data-test-id="toggle-is-pfe"]')
+          .find('.info-sprinkle')
+          .simulate('click');
+        expect(openLinkSpy.called).to.equal(true);
+      });
+    });
+    context('customCollation', function () {
+      it('calls the toggleIsCustomCollation function', function () {
+        component
+          .find('[data-test-id="toggle-is-custom-collation"]')
+          .find('[type="checkbox"]')
+          .simulate('change', { target: { checked: true } });
+        expect(toggleIsCustomCollationSpy.called).to.equal(true);
+      });
+      it('calls the clickLink function', function () {
+        component
+          .find('[data-test-id="toggle-is-custom-collation"]')
+          .find('.info-sprinkle')
+          .simulate('click');
+        expect(openLinkSpy.called).to.equal(true);
+      });
+    });
+    context('serverVersion gte 6.1.0', function () {
+      beforeEach(function () {
+        component.setProps({
+          serverVersion: '6.1.0',
+        });
+      });
+      context('columnstoreIndexes', function () {
+        it('calls the toggleHasColumnstoreProjection function', function () {
+          component
+            .find('[data-test-id="toggle-is-columnstore"]')
+            .find('[type="checkbox"]')
+            .simulate('change', { target: { checked: true } });
+          expect(toggleHasColumnstoreProjectionSpy.called).to.equal(true);
+        });
+      });
+    });
   });
 
   context('when the options are visible', function () {
