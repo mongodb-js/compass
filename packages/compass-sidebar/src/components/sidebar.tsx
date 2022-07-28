@@ -1,13 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import {
-  spacing,
-  ResizableSidebar
-} from '@mongodb-js/compass-components';
-import {
-  globalAppRegistryEmit
-} from '@mongodb-js/mongodb-redux-common/app-registry';
+import { spacing, ResizableSidebar } from '@mongodb-js/compass-components';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 import { toggleIsDetailsExpanded } from '../modules/is-details-expanded';
@@ -19,7 +14,8 @@ import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
 const minSidebarWidth = spacing[4] * 9; // 216px
 
-const mapStateToProps = (state: any) => ({ // TODO: type the state
+const mapStateToProps = (state: any) => ({
+  // TODO: type the state
   connectionInfo: state.connectionInfo.connectionInfo,
   connectionOptions: state.connectionOptions,
   instance: state.instance,
@@ -36,7 +32,7 @@ const connector = connect(mapStateToProps, {
   updateAndSaveConnectionInfo,
 });
 
-type PropsFromRedux = ConnectedProps<typeof connector>
+type PropsFromRedux = ConnectedProps<typeof connector>;
 
 type Props = PropsFromRedux;
 
@@ -56,11 +52,14 @@ export function Sidebar({}: Props) {
   // TODO: filter
   // TODO: create database
   // TODO: non genuine warning label
-  return <ResizableSidebar
-    minWidth={minSidebarWidth}
-    initialWidth={initialSidebarWidth}>
-    <SidebarDatabasesNavigation />
-  </ResizableSidebar>
+  return (
+    <ResizableSidebar
+      minWidth={minSidebarWidth}
+      initialWidth={initialSidebarWidth}
+    >
+      <SidebarDatabasesNavigation />
+    </ResizableSidebar>
+  );
 }
 
 const MappedSidebar = connector(Sidebar);

@@ -68,7 +68,6 @@ export { Toggle } from './components/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 
-
 export {
   Accordion,
   CancelLoader,

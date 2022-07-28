@@ -16,7 +16,7 @@ function SidebarPlugin() {
 
   return (
     <Provider store={store}>
-      {useNewSidebar ? (<Sidebar />): (<LegacySidebar />)}
+      {useNewSidebar ? <Sidebar /> : <LegacySidebar />}
     </Provider>
   );
 }

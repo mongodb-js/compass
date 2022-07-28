@@ -1,9 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import {
-  ResizeHandle,
-  ResizeDirection,
-  css,
-} from '../index';
+import { ResizeHandle, ResizeDirection, css } from '../index';
 
 import { uiColors } from '@leafygreen-ui/palette';
 

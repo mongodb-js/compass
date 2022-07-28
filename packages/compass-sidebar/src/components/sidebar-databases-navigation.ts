@@ -6,7 +6,8 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import toNS from 'mongodb-ns';
 import { toggleDatabaseExpanded } from '../modules/databases';
 
-function mapStateToProps(state: any) { // TODO: type state
+function mapStateToProps(state: any) {
+  // TODO: type state
   const {
     databases: {
       filterRegex,
@@ -17,7 +18,8 @@ function mapStateToProps(state: any) { // TODO: type state
     instance,
   } = state;
   const status = instance?.databasesStatus;
-  const isReady = status !== undefined && !['initial', 'fetching'].includes(status as string);
+  const isReady =
+    status !== undefined && !['initial', 'fetching'].includes(status as string);
   const defaultExpanded = Boolean(filterRegex);
   const expanded = Object.fromEntries(
     (filteredDatabases as any[]).map(({ name }) => [
