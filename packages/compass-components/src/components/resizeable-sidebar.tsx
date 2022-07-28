@@ -1,10 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import {
-  ResizeHandle,
-  ResizeDirection,
-  uiColors,
-  css,
-} from '@mongodb-js/compass-components';
+import { ResizeHandle, ResizeDirection, css } from '../index';
+
+import { uiColors } from '@leafygreen-ui/palette';
 
 const containerStyles = css({
   display: 'flex',

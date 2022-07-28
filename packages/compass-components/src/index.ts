@@ -29,6 +29,7 @@ import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
+import ResizableSidebar from './components/resizeable-sidebar';
 export {
   Editor,
   EditorVariant,
@@ -80,6 +81,7 @@ export {
   SpinLoader,
   ResizeHandle,
   ResizeDirection,
+  ResizableSidebar,
   Toolbar,
   WarningSummary,
   WorkspaceTabs,
