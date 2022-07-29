@@ -71,7 +71,7 @@ function readablePlatformName(arch, platform, fileName) {
 
   switch (`${platform}-${arch}`) {
     case 'darwin-x64':
-      name = 'macOS 64-bit (10.10+)';
+      name = 'macOS 64-bit (10.14+)';
       break;
     case 'darwin-arm64':
       name = 'macOS arm64 (M1) (11.0+)';
@@ -82,7 +82,7 @@ function readablePlatformName(arch, platform, fileName) {
     case 'linux-x64':
       name = fileName.endsWith('.rpm')
         ? 'RedHat 64-bit (7+)'
-        : 'Ubuntu 64-bit (14.04+)';
+        : 'Ubuntu 64-bit (16.04+)';
       break;
     default:
       throw new Error(

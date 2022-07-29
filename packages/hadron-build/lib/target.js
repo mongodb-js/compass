@@ -799,9 +799,9 @@ class Target {
 
   static getChannelFromVersion(version) {
     // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
-    const mtch = version.match(/-([a-z]+)(\.\d+)?$/);
-    if (mtch) {
-      return mtch[1].toLowerCase();
+    const match = version.match(/-([a-z]+)(\.\d+)?$/);
+    if (match) {
+      return match[1].toLowerCase();
     }
     return 'stable';
   }
