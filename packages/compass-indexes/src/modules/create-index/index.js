@@ -155,7 +155,7 @@ export const createIndex = () => {
 
     // Check for collaction errors.
     const collation = queryParser.isCollationValid(state.collationString);
-    if (state.isCustomCollation && collation === false) {
+    if (state.isCustomCollation && !collation) {
       dispatch(handleError('You must provide a valid collation object'));
       return;
     }
