@@ -108,11 +108,10 @@ describe('create index module', function () {
         fields: [{ name: 'abc', type: '1 (asc)' }],
         isPartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
-        isBackground: true,
         isUnique: true,
         name: 'test name',
         isCustomCollation: true,
-        collation: 'coll',
+        collationString: "{locale: 'en'}",
         isTtl: true,
         ttl: 100,
         appRegistry: {
@@ -124,8 +123,9 @@ describe('create index module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: true,
-              collation: 'coll',
+              collation: {
+                locale: 'en',
+              },
               expireAfterSeconds: 100,
               name: 'test name',
               partialFilterExpression: { a: 1 },
@@ -176,11 +176,10 @@ describe('create index module', function () {
         fields: [{ name: 'abc', type: '1 (asc)' }],
         isPartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
-        isBackground: true,
         isUnique: true,
         name: '',
         isCustomCollation: true,
-        collation: 'coll',
+        collationString: "{locale: 'en'}",
         isTtl: true,
         ttl: 100,
         namespace: 'db.coll',
@@ -192,8 +191,9 @@ describe('create index module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: true,
-              collation: 'coll',
+              collation: {
+                locale: 'en',
+              },
               expireAfterSeconds: 100,
               partialFilterExpression: { a: 1 },
               unique: true,
@@ -240,7 +240,6 @@ describe('create index module', function () {
         isPartialFilterExpression: false,
         isTtl: false,
         isUnique: false,
-        isBackground: false,
         name: 'test name',
         namespace: 'db.coll',
         appRegistry: {},
@@ -249,7 +248,6 @@ describe('create index module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: false,
               name: 'test name',
               unique: false,
             });
