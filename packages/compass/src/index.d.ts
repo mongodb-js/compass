@@ -48,6 +48,8 @@ declare module 'process' {
          */
         COMPASS_SHOW_NEW_TOOLBARS?: 'true' | 'false';
 
+        COMPASS_SHOW_NEW_SIDEBAR?: 'true' | 'false',
+
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
 
         /**

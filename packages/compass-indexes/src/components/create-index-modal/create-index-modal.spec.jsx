@@ -17,7 +17,6 @@ describe('CreateIndexModal [Component]', function () {
   let removeFieldSpy;
   let toggleIsUniqueSpy;
   let toggleShowOptionsSpy;
-  let toggleIsBackgroundSpy;
   let toggleIsTtlSpy;
   let toggleIsPartialFilterExpressionSpy;
   let toggleIsCustomCollationSpy;
@@ -28,7 +27,7 @@ describe('CreateIndexModal [Component]', function () {
   let openLinkSpy;
   let changeTtlSpy;
   let changePartialFilterExpressionSpy;
-  let changeCollationOptionSpy;
+  let collationStringChangedSpy;
   let changeNameSpy;
   let changeColumnstoreProjectionSpy;
   let changeWildcardProjectionSpy;
@@ -42,7 +41,6 @@ describe('CreateIndexModal [Component]', function () {
     removeFieldSpy = sinon.spy();
     toggleIsUniqueSpy = sinon.spy();
     toggleShowOptionsSpy = sinon.spy();
-    toggleIsBackgroundSpy = sinon.spy();
     toggleIsTtlSpy = sinon.spy();
     toggleIsPartialFilterExpressionSpy = sinon.spy();
     toggleIsCustomCollationSpy = sinon.spy();
@@ -53,7 +51,7 @@ describe('CreateIndexModal [Component]', function () {
     openLinkSpy = sinon.spy();
     changeTtlSpy = sinon.spy();
     changePartialFilterExpressionSpy = sinon.spy();
-    changeCollationOptionSpy = sinon.spy();
+    collationStringChangedSpy = sinon.spy();
     changeNameSpy = sinon.spy();
     changeColumnstoreProjectionSpy = sinon.spy();
     changeWildcardProjectionSpy = sinon.spy();
@@ -68,7 +66,6 @@ describe('CreateIndexModal [Component]', function () {
     removeFieldSpy = null;
     toggleIsUniqueSpy = null;
     toggleShowOptionsSpy = null;
-    toggleIsBackgroundSpy = null;
     toggleIsTtlSpy = null;
     toggleIsPartialFilterExpressionSpy = null;
     toggleIsCustomCollationSpy = null;
@@ -79,7 +76,7 @@ describe('CreateIndexModal [Component]', function () {
     openLinkSpy = null;
     changeTtlSpy = null;
     changePartialFilterExpressionSpy = null;
-    changeCollationOptionSpy = null;
+    collationStringChangedSpy = null;
     changeNameSpy = null;
     changeColumnstoreProjectionSpy = null;
     changeWildcardProjectionSpy = null;
@@ -103,14 +100,12 @@ describe('CreateIndexModal [Component]', function () {
           schemaFields={[]}
           fields={[{ name: '', type: '' }]}
           dataService={{}}
-          isBackground={false}
           isUnique={false}
           isTtl={false}
           ttl=""
           isPartialFilterExpression={false}
           partialFilterExpression=""
           isCustomCollation={false}
-          collation={{}}
           name=""
           isVisible
           toggleIsVisible={toggleIsVisibleSpy}
@@ -120,7 +115,6 @@ describe('CreateIndexModal [Component]', function () {
           removeField={removeFieldSpy}
           toggleIsUnique={toggleIsUniqueSpy}
           toggleShowOptions={toggleShowOptionsSpy}
-          toggleIsBackground={toggleIsBackgroundSpy}
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
@@ -131,7 +125,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          changeCollationOption={changeCollationOptionSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           wildcardProjection=""
           hasWildcardProjection={false}
@@ -248,14 +242,12 @@ describe('CreateIndexModal [Component]', function () {
           schemaFields={[]}
           fields={[{ name: '', type: '' }]}
           dataService={{}}
-          isBackground={false}
           isUnique={false}
           isTtl={false}
           ttl=""
           isPartialFilterExpression={false}
           partialFilterExpression=""
           isCustomCollation={false}
-          collation={{}}
           name=""
           isVisible
           toggleIsVisible={toggleIsVisibleSpy}
@@ -265,7 +257,6 @@ describe('CreateIndexModal [Component]', function () {
           removeField={removeFieldSpy}
           toggleIsUnique={toggleIsUniqueSpy}
           toggleShowOptions={toggleShowOptionsSpy}
-          toggleIsBackground={toggleIsBackgroundSpy}
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
@@ -276,7 +267,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          changeCollationOption={changeCollationOptionSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           hasWildcardProjection={false}
           hasColumnstoreProjection={false}
@@ -301,99 +292,84 @@ describe('CreateIndexModal [Component]', function () {
         component.find('[data-test-id="create-index-modal-options"]')
       ).to.be.present();
     });
-    context('background', function () {
-      it('calls the toggleIsBackground function', function () {
+
+    context('unique', function () {
+      it('calls the toggleIsUnique function', function () {
         component
-          .find('[data-test-id="toggle-is-background"]')
+          .find('[data-test-id="toggle-is-unique"]')
           .find('[type="checkbox"]')
           .simulate('change', { target: { checked: true } });
-        expect(toggleIsBackgroundSpy.called).to.equal(true);
+        expect(toggleIsUniqueSpy.called).to.equal(true);
       });
       it('calls the clickLink function', function () {
         component
-          .find('[data-test-id="toggle-is-background"]')
+          .find('[data-test-id="toggle-is-unique"]')
           .find('.info-sprinkle')
           .simulate('click');
         expect(openLinkSpy.called).to.equal(true);
       });
-      context('unique', function () {
-        it('calls the toggleIsUnique function', function () {
-          component
-            .find('[data-test-id="toggle-is-unique"]')
-            .find('[type="checkbox"]')
-            .simulate('change', { target: { checked: true } });
-          expect(toggleIsUniqueSpy.called).to.equal(true);
-        });
-        it('calls the clickLink function', function () {
-          component
-            .find('[data-test-id="toggle-is-unique"]')
-            .find('.info-sprinkle')
-            .simulate('click');
-          expect(openLinkSpy.called).to.equal(true);
+    });
+    context('ttl', function () {
+      it('calls the toggleIsTtl function', function () {
+        component
+          .find('[data-test-id="toggle-is-ttl"]')
+          .find('[type="checkbox"]')
+          .simulate('change', { target: { checked: true } });
+        expect(toggleIsTtlSpy.called).to.equal(true);
+      });
+      it('calls the clickLink function', function () {
+        component
+          .find('[data-test-id="toggle-is-ttl"]')
+          .find('.info-sprinkle')
+          .simulate('click');
+        expect(openLinkSpy.called).to.equal(true);
+      });
+    });
+    context('partialFilterExpression', function () {
+      it('calls the toggleIsPartialFilterExpression function', function () {
+        component
+          .find('[data-test-id="toggle-is-pfe"]')
+          .find('[type="checkbox"]')
+          .simulate('change', { target: { checked: true } });
+        expect(toggleIsPartialFilterExpressionSpy.called).to.equal(true);
+      });
+      it('calls the clickLink function', function () {
+        component
+          .find('[data-test-id="toggle-is-pfe"]')
+          .find('.info-sprinkle')
+          .simulate('click');
+        expect(openLinkSpy.called).to.equal(true);
+      });
+    });
+    context('customCollation', function () {
+      it('calls the toggleIsCustomCollation function', function () {
+        component
+          .find('[data-test-id="toggle-is-custom-collation"]')
+          .find('[type="checkbox"]')
+          .simulate('change', { target: { checked: true } });
+        expect(toggleIsCustomCollationSpy.called).to.equal(true);
+      });
+      it('calls the clickLink function', function () {
+        component
+          .find('[data-test-id="toggle-is-custom-collation"]')
+          .find('.info-sprinkle')
+          .simulate('click');
+        expect(openLinkSpy.called).to.equal(true);
+      });
+    });
+    context('serverVersion gte 6.1.0', function () {
+      beforeEach(function () {
+        component.setProps({
+          serverVersion: '6.1.0',
         });
       });
-      context('ttl', function () {
-        it('calls the toggleIsTtl function', function () {
+      context('columnstoreIndexes', function () {
+        it('calls the toggleHasColumnstoreProjection function', function () {
           component
-            .find('[data-test-id="toggle-is-ttl"]')
+            .find('[data-test-id="toggle-is-columnstore"]')
             .find('[type="checkbox"]')
             .simulate('change', { target: { checked: true } });
-          expect(toggleIsTtlSpy.called).to.equal(true);
-        });
-        it('calls the clickLink function', function () {
-          component
-            .find('[data-test-id="toggle-is-ttl"]')
-            .find('.info-sprinkle')
-            .simulate('click');
-          expect(openLinkSpy.called).to.equal(true);
-        });
-      });
-      context('partialFilterExpression', function () {
-        it('calls the toggleIsPartialFilterExpression function', function () {
-          component
-            .find('[data-test-id="toggle-is-pfe"]')
-            .find('[type="checkbox"]')
-            .simulate('change', { target: { checked: true } });
-          expect(toggleIsPartialFilterExpressionSpy.called).to.equal(true);
-        });
-        it('calls the clickLink function', function () {
-          component
-            .find('[data-test-id="toggle-is-pfe"]')
-            .find('.info-sprinkle')
-            .simulate('click');
-          expect(openLinkSpy.called).to.equal(true);
-        });
-      });
-      context('customCollation', function () {
-        it('calls the toggleIsCustomCollation function', function () {
-          component
-            .find('[data-test-id="toggle-is-custom-collation"]')
-            .find('[type="checkbox"]')
-            .simulate('change', { target: { checked: true } });
-          expect(toggleIsCustomCollationSpy.called).to.equal(true);
-        });
-        it('calls the clickLink function', function () {
-          component
-            .find('[data-test-id="toggle-is-custom-collation"]')
-            .find('.info-sprinkle')
-            .simulate('click');
-          expect(openLinkSpy.called).to.equal(true);
-        });
-      });
-      context('serverVersion gte 6.1.0', function () {
-        beforeEach(function () {
-          component.setProps({
-            serverVersion: '6.1.0',
-          });
-        });
-        context('columnstoreIndexes', function () {
-          it('calls the toggleHasColumnstoreProjection function', function () {
-            component
-              .find('[data-test-id="toggle-is-columnstore"]')
-              .find('[type="checkbox"]')
-              .simulate('change', { target: { checked: true } });
-            expect(toggleHasColumnstoreProjectionSpy.called).to.equal(true);
-          });
+          expect(toggleHasColumnstoreProjectionSpy.called).to.equal(true);
         });
       });
     });
@@ -410,14 +386,12 @@ describe('CreateIndexModal [Component]', function () {
           schemaFields={[]}
           fields={[{ name: '', type: '' }]}
           dataService={{}}
-          isBackground
           isUnique
           isTtl
           ttl=""
           isPartialFilterExpression
           partialFilterExpression=""
           isCustomCollation={false}
-          collation={{}}
           name=""
           isVisible
           toggleIsVisible={toggleIsVisibleSpy}
@@ -427,7 +401,6 @@ describe('CreateIndexModal [Component]', function () {
           removeField={removeFieldSpy}
           toggleIsUnique={toggleIsUniqueSpy}
           toggleShowOptions={toggleShowOptionsSpy}
-          toggleIsBackground={toggleIsBackgroundSpy}
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
@@ -438,7 +411,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          changeCollationOption={changeCollationOptionSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           serverVersion="5.0.0"
           hasWildcardProjection={false}
@@ -516,14 +489,12 @@ describe('CreateIndexModal [Component]', function () {
           schemaFields={[]}
           fields={[{ name: '', type: '' }]}
           dataService={{}}
-          isBackground={false}
           isUnique={false}
           isTtl={false}
           ttl=""
           isPartialFilterExpression={false}
           partialFilterExpression=""
           isCustomCollation={false}
-          collation={{}}
           name=""
           isVisible={false}
           toggleIsVisible={toggleIsVisibleSpy}
@@ -533,7 +504,6 @@ describe('CreateIndexModal [Component]', function () {
           removeField={removeFieldSpy}
           toggleIsUnique={toggleIsUniqueSpy}
           toggleShowOptions={toggleShowOptionsSpy}
-          toggleIsBackground={toggleIsBackgroundSpy}
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
@@ -544,7 +514,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          changeCollationOption={changeCollationOptionSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           hasWildcardProjection={false}
           hasColumnstoreProjection={false}
@@ -579,14 +549,12 @@ describe('CreateIndexModal [Component]', function () {
           schemaFields={[]}
           fields={[{ name: '', type: '' }]}
           dataService={{}}
-          isBackground={false}
           isUnique={false}
           isTtl={false}
           ttl=""
           isPartialFilterExpression={false}
           partialFilterExpression=""
           isCustomCollation={false}
-          collation={{}}
           name=""
           isVisible
           toggleIsVisible={toggleIsVisibleSpy}
@@ -596,7 +564,6 @@ describe('CreateIndexModal [Component]', function () {
           removeField={removeFieldSpy}
           toggleIsUnique={toggleIsUniqueSpy}
           toggleShowOptions={toggleShowOptionsSpy}
-          toggleIsBackground={toggleIsBackgroundSpy}
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
@@ -607,7 +574,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          changeCollationOption={changeCollationOptionSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           hasWildcardProjection={false}
           hasColumnstoreProjection={false}
@@ -644,14 +611,12 @@ describe('CreateIndexModal [Component]', function () {
           schemaFields={[]}
           fields={[{ name: '', type: '' }]}
           dataService={{}}
-          isBackground={false}
           isUnique={false}
           isTtl={false}
           ttl=""
           isPartialFilterExpression={false}
           partialFilterExpression=""
           isCustomCollation={false}
-          collation={{}}
           name=""
           isVisible
           error="test error"
@@ -662,7 +627,6 @@ describe('CreateIndexModal [Component]', function () {
           removeField={removeFieldSpy}
           toggleIsUnique={toggleIsUniqueSpy}
           toggleShowOptions={toggleShowOptionsSpy}
-          toggleIsBackground={toggleIsBackgroundSpy}
           toggleIsTtl={toggleIsTtlSpy}
           toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
           toggleIsCustomCollation={toggleIsCustomCollationSpy}
@@ -673,7 +637,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          changeCollationOption={changeCollationOptionSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           hasWildcardProjection={false}
           hasColumnstoreProjection={false}

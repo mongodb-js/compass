@@ -201,7 +201,6 @@ const fromDB = [
     name: 'CCCC',
     v: 2,
     key: { cccc0: -1, cccc1: '2dsphere', cccc2: 1 },
-    background: false,
     '2dsphereIndexVersion': 3,
     usageHost: 'computername.local:27017',
     usageCount: 5,
@@ -212,7 +211,6 @@ const fromDB = [
     name: 'AAAA',
     v: 2,
     key: { aaaa: -1 },
-    background: false,
     expireAfterSeconds: 300,
     partialFilterExpression: { y: 1 },
     usageHost: 'computername.local:27017',
@@ -224,7 +222,6 @@ const fromDB = [
     name: 'BBBB',
     v: 2,
     key: { 'bbbb.abcd': 1 },
-    background: false,
     collation: {
       locale: 'ar',
       caseLevel: true,
@@ -255,7 +252,6 @@ const defaultSort = [
     usageHost: 'computername.local:27017',
     version: 2,
     extra: {
-      background: false,
       expireAfterSeconds: 300,
       partialFilterExpression: { y: 1 },
     },
@@ -287,7 +283,6 @@ const defaultSort = [
     usageHost: 'computername.local:27017',
     version: 2,
     extra: {
-      background: false,
       collation: {
         locale: 'ar',
         caseLevel: true,
@@ -328,7 +323,7 @@ const defaultSort = [
     usageSince: '2019-02-08T14:38:56.147Z',
     usageHost: 'computername.local:27017',
     version: 2,
-    extra: { background: false, '2dsphereIndexVersion': 3 },
+    extra: { '2dsphereIndexVersion': 3 },
     id: 'citibike.trips.CCCC',
     unique: false,
     sparse: false,
@@ -389,7 +384,6 @@ const usageSort = [
     usageHost: 'computername.local:27017',
     version: 2,
     extra: {
-      background: false,
       expireAfterSeconds: 300,
       partialFilterExpression: { y: 1 },
     },
@@ -420,7 +414,7 @@ const usageSort = [
     usageSince: '2019-02-08T14:38:56.147Z',
     usageHost: 'computername.local:27017',
     version: 2,
-    extra: { background: false, '2dsphereIndexVersion': 3 },
+    extra: { '2dsphereIndexVersion': 3 },
     id: 'citibike.trips.CCCC',
     unique: false,
     sparse: false,
@@ -477,7 +471,6 @@ const usageSort = [
     usageHost: 'computername.local:27017',
     version: 2,
     extra: {
-      background: false,
       collation: {
         locale: 'ar',
         caseLevel: true,

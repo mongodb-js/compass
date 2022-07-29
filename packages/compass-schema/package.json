@@ -110,7 +110,7 @@
     "mapbox-gl": "^1.2.0",
     "mocha": "^8.4.0",
     "moment": "^2.27.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.8.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-util": "^0.0.3",
     "mongodb-schema": "^8.2.5",
