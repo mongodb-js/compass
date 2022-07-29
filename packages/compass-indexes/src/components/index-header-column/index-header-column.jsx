@@ -1,10 +1,14 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-
-import classnames from 'classnames';
-import styles from './index-header-column.module.less';
+import { css, cx, uiColors } from '@mongodb-js/compass-components';
 
 import { DEFAULT, DESC, ASC } from '../../modules/indexes';
+
+const sortStyles = css({
+  display: 'inline-block',
+  fontSize: '13px',
+  color: uiColors.gray.base
+});
 
 /**
  * Component for an index header column.
@@ -37,11 +41,6 @@ class IndexHeaderColumn extends PureComponent {
     this.props.sortIndexes(this.props.indexes, this.props.name, order);
   }
 
-  _renderClassName() {
-    const active = this.props.sortColumn === this.props.name ? '-active' : '';
-    return classnames(styles[`index-header-column${active}`]);
-  }
-
   /**
    * Render the index header column.
    *
@@ -51,16 +50,15 @@ class IndexHeaderColumn extends PureComponent {
     return (
       <th
         data-test-id={this.props.dataTestId}
-        className={this._renderClassName()}
         onClick={this.handleIndexSort.bind(this)}
       >
         {this.props.name}
-        <i
-          className={classnames(
-            styles['index-header-column-sort'],
+        {this.props.sortColumn === this.props.name && <i
+          className={cx(
+            sortStyles,
             `fa fa-fw ${this.props.sortOrder}`
           )}
-        />
+        />}
       </th>
     );
   }

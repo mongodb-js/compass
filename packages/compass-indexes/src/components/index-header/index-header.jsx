@@ -1,9 +1,14 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { css } from '@mongodb-js/compass-components';
 import IndexHeaderColumn from '../index-header-column';
 
-import classnames from 'classnames';
-import styles from './index-header.module.less';
+const containerStyles = css({
+  textAlign: 'left',
+  'th': {
+    padding: '12px 24px',
+  }
+});
 
 /**
  * Component for the index header.
@@ -26,7 +31,7 @@ class IndexHeader extends PureComponent {
    */
   render() {
     return (
-      <thead className={classnames(styles['index-header'])}>
+      <thead className={containerStyles}>
         <tr>
           <IndexHeaderColumn
             dataTestId="index-header-name"

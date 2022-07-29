@@ -1,28 +1,15 @@
 import React from 'react';
 import {
-  Badge,
-  BadgeVariant,
   css,
-  Icon,
   spacing,
   uiColors,
   Accordion,
+  IndexKeys,
 } from '@mongodb-js/compass-components';
 import type { ExplainIndex } from '../../modules/explain';
-import type { IndexDirection } from 'mongodb';
 
 type ExplainIndexesProps = {
   indexes: ExplainIndex[];
-};
-
-const IndexDirectionIcon = ({ direction }: { direction: IndexDirection }) => {
-  return direction === 1 ? (
-    <Icon glyph="ArrowUp" />
-  ) : direction === -1 ? (
-    <Icon glyph="ArrowDown" />
-  ) : (
-    <>({String(direction)})</>
-  );
 };
 
 const containerStyles = css({
@@ -34,13 +21,6 @@ const containerStyles = css({
 const accordianContainerStyles = css({
   marginTop: spacing[1],
   marginBottom: spacing[1],
-});
-
-const accordianContentStyles = css({
-  marginTop: spacing[1],
-  '*:not(:last-child)': {
-    marginRight: spacing[1],
-  },
 });
 
 const shardStyles = css({
@@ -72,20 +52,7 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
                 text={title}
                 data-testid={`explain-index-button-${name}-${shard ?? ''}`}
               >
-                <div
-                  className={accordianContentStyles}
-                  data-testid={`explain-index-content-${name}-${shard ?? ''}`}
-                >
-                  {Object.entries(indexKeys).map(
-                    ([keyName, direction], listIndex) => (
-                      <Badge variant={BadgeVariant.LightGray} key={listIndex}>
-                        {keyName}
-                        &nbsp;
-                        <IndexDirectionIcon direction={direction} />
-                      </Badge>
-                    )
-                  )}
-                </div>
+                <IndexKeys keys={indexKeys} />
               </Accordion>
             </div>
           );

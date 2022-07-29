@@ -1,12 +1,14 @@
 import numeral from 'numeral';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import ReactTooltip from 'react-tooltip';
 
-import classnames from 'classnames';
-import styles from './size-column.module.less';
+import { spacing, css, Body, Tooltip } from '@mongodb-js/compass-components';
 
-const TOOLTIP_ID = 'index-size';
+const containerStyles = css({
+  width: '10%',
+  paddingLeft: spacing[4],
+  paddingRight: spacing[4],
+});
 
 /**
  * Component for the size column.
@@ -24,43 +26,24 @@ class SizeColumn extends PureComponent {
     return numeral(size).format(precision + ' b');
   }
 
-  /**
-   * Render the size column.
-   *
-   * @returns {React.Component} The size column.
-   */
   render() {
-    const indexSize = this._format(this.props.size).split(' ');
-    const tooltipText = `${this.props.relativeSize.toFixed(
+    const indexSize = this._format(this.props.size);
+    const tooltip = `${this.props.relativeSize.toFixed(
       2
     )}% compared to largest index`;
-    const tooltipOptions = {
-      'data-tip': tooltipText,
-      'data-for': TOOLTIP_ID,
-      'data-effect': 'solid',
-      'data-border': true,
-    };
     return (
-      <td className={classnames(styles['size-column'])}>
-        <div
-          className={classnames(styles['size-column-quantity'])}
-          data-test-id="index-table-size"
+      <td className={containerStyles}>
+        <Tooltip
+          data-testid="index-table-size"
+          trigger={({ children, ...props }) => (
+            <span {...props}>
+              {children}
+              <Body>{indexSize}</Body>
+            </span>
+          )}
         >
-          {indexSize[0]}
-        </div>
-        <div className={classnames(styles['size-column-unit'])}>
-          {indexSize[1]}
-        </div>
-        <div
-          {...tooltipOptions}
-          className={classnames(styles['size-column-progress'])}
-        >
-          <ReactTooltip id={TOOLTIP_ID} />
-          <div
-            className={classnames(styles['size-column-progress-bar'])}
-            style={{ width: `${this.props.relativeSize}%` }}
-          />
-        </div>
+          <Body>{tooltip}</Body>
+        </Tooltip>
       </td>
     );
   }

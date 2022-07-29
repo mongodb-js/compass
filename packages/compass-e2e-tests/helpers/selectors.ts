@@ -772,7 +772,7 @@ export const ExplainDocumentsReturnedSummary =
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
-export const NameColumnName = '[data-test-id="name-column-name"]';
+export const NameColumnName = '[data-testid="name-column-name"]';
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
 export const CreateIndexModal = '[data-test-id="create-index-modal"]';

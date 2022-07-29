@@ -1,14 +1,14 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { spacing, css, Body, IndexKeys } from '@mongodb-js/compass-components';
 
-import IndexDefinitionType from '../index-definition-type';
+const containerStyles = css({
+  paddingLeft: spacing[4],
+  paddingBottom: spacing[3],
+  position: 'relative',
+  width: '35%',
+});
 
-import classnames from 'classnames';
-import styles from './name-column.module.less';
-
-/**
- * Component for the name column.
- */
 class NameColumn extends PureComponent {
   static displayName = 'NameColumn';
 
@@ -16,23 +16,17 @@ class NameColumn extends PureComponent {
     index: PropTypes.object.isRequired,
   };
 
-  /**
-   * Render the name column.
-   *
-   * @returns {React.Component} The name column.
-   */
   render() {
+    const indexKeys = {};
+    const indexName = this.props.index.name;
+    this.props.index.fields.serialize().forEach(({ field, value }) => {
+      indexKeys[field] = value;
+    });
     return (
-      <td className={classnames(styles['name-column'])}>
+      <td className={containerStyles}>
         <div className="index-definition">
-          <div
-            className={classnames(styles['name-column-name'])}
-            data-test-id="name-column-name"
-            title={this.props.index.name}
-          >
-            {this.props.index.name}
-          </div>
-          <IndexDefinitionType index={this.props.index} />
+          <Body data-testid="name-column-name">{indexName}</Body>
+          <IndexKeys keys={indexKeys} />
         </div>
       </td>
     );
