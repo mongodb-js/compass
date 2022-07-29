@@ -147,14 +147,14 @@ export const createIndex = () => {
     const state = getState();
     const spec = {};
 
-    // check for index field errors.
+    // Check for field errors.
     if (state.fields.some((field) => field.name === '' || field.type === '')) {
       dispatch(handleError('You must select a field name and type'));
       return;
     }
 
+    // Check for collaction errors.
     const collation = queryParser.isCollationValid(state.collationString);
-    // check for collaction errors.
     if (state.isCustomCollation && collation === false) {
       dispatch(handleError('You must provide a valid collation object'));
       return;
