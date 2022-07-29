@@ -111,7 +111,7 @@ function generateVersionsForAssets(assets, version, channel) {
           return asset.config.distribution === distribution;
         })
         // eslint-disable-next-line no-shadow
-        .map(({ assets, config }) => {
+        .flatMap(({ assets, config }) => {
           return assets
             .filter(({ downloadCenter }) => {
               return downloadCenter;
@@ -127,7 +127,6 @@ function generateVersionsForAssets(assets, version, channel) {
               };
             });
         })
-        .flat()
     };
   });
 }
@@ -172,11 +171,9 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
     await repo.updateDraftRelease(release);
   }
 
-  const assetsToUpload = assets
-    .map((item) => {
-      return item.assets;
-    })
-    .flat();
+  const assetsToUpload = assets.flatMap((item) => {
+    return item.assets;
+  });
 
   const versionManifest = generateVersionsForAssets(assets, version, channel);
 
@@ -225,10 +222,9 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
 
 async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
   const assetsToUpload = assets
-    .map((item) => {
+    .flatMap((item) => {
       return item.assets;
     })
-    .flat()
     .filter(({ downloadCenter }) => {
       return downloadCenter;
     });
@@ -309,10 +305,6 @@ async function getLatestRelease(channel = 'stable') {
   }
 }
 
-function getDiffFromAssertionError(message) {
-  return message.split(/\+ actual.+?\n/)[1];
-}
-
 async function getLatestReleaseVersions(channel = 'stable') {
   const release = await getLatestRelease(channel);
   if (!release) {
@@ -390,7 +382,7 @@ const builder = {
   ['dry-run']: {
     description:
       'Does everything the real script will do without actually publishing assets to GH / download center',
-    default: false
+    default: process.env.npm_config_dry_run === 'true'
   }
 };
 

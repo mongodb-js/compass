@@ -280,12 +280,11 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          DRY_RUN=""
           if [[ "${project}" == "10gen-compass-main" ]]; then
             export npm_config_dry_run=true
           fi
           echo "Uploading release assets to S3 and GitHub if needed..."
-          npm run --workspace mongodb-compass upload -- "$DRY_RUN"
+          npm run --workspace mongodb-compass upload
 
   get-packaged-app:
     - <<: *get-artifact

@@ -776,23 +776,19 @@ class Target {
   }
 
   static getAssetsForVersion(dir, version) {
-    const configs = supportedDistributions
-      .map((distribution) => {
-        return supportedPlatforms.map((platformConfig) => {
-          return { ...platformConfig, distribution };
-        });
-      })
-      .flat();
+    const configs = supportedDistributions.flatMap((distribution) => {
+      return supportedPlatforms.map((platformConfig) => {
+        return { ...platformConfig, distribution };
+      });
+    });
 
-    const assets = configs
-      .map((config) => {
-        const target = new Target(dir, { ...config, version });
-        return {
-          config: { ...config, version: target.version, channel: target.channel },
-          assets: target.assets
-        };
-      })
-      .flat();
+    const assets = configs.flatMap((config) => {
+      const target = new Target(dir, { ...config, version });
+      return {
+        config: { ...config, version: target.version, channel: target.channel },
+        assets: target.assets
+      };
+    });
 
     return assets;
   }
