@@ -17,6 +17,10 @@ const containerStyles = css({
   width: 'auto',
   paddingLeft: spacing[4],
   paddingRight: spacing[4],
+  marginTop: spacing[1],
+  '*:not(:last-child)': {
+    marginRight: spacing[1],
+  },
 });
 
 class PropertyColumn extends PureComponent {
@@ -94,10 +98,8 @@ class PropertyColumn extends PureComponent {
     );
     return (
       <td className={containerStyles}>
-        <div>
-          {properties}
-          {this.renderCardinality()}
-        </div>
+        {properties}
+        {this.renderCardinality()}
       </td>
     );
   }
