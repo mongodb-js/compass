@@ -52,7 +52,11 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
                 text={title}
                 data-testid={`explain-index-button-${name}-${shard ?? ''}`}
               >
-                <IndexKeys keys={indexKeys} />
+                <div
+                  data-testid={`explain-index-content-${name}-${shard ?? ''}`}
+                >
+                  <IndexKeys keys={indexKeys} />
+                </div>
               </Accordion>
             </div>
           );
