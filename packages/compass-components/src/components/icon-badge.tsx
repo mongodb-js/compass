@@ -23,8 +23,8 @@ type IconBadgeProps = {
   text: string;
   icon: string;
   dataTestId?: string;
-  onClick: () => void;
-  variant: Variant;
+  onClick?: () => void;
+  variant?: Variant;
 };
 
 function IconBadge({

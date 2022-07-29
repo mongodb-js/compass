@@ -30,7 +30,11 @@ const IndexKeys: React.FunctionComponent<IndexKeysProps> = ({ keys }) => {
   return (
     <div className={containerStyles}>
       {Object.entries(keys).map(([keyName, direction], listIndex) => (
-        <Badge variant={Variant.LightGray} key={listIndex}>
+        <Badge
+          data-testid={`${keyName}-key`}
+          variant={Variant.LightGray}
+          key={listIndex}
+        >
           {keyName}
           &nbsp;
           <IndexDirectionIcon direction={direction} />
