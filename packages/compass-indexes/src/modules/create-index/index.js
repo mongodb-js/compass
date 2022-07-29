@@ -1,6 +1,7 @@
 import { EJSON } from 'bson';
 import { combineReducers } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import queryParser from 'mongodb-query-parser';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -23,9 +24,9 @@ import isVisible, {
   toggleIsVisible,
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
 } from '../is-visible';
-import collationInfo, {
+import collationString, {
   INITIAL_STATE as COLLATION_INITIAL_STATE,
-} from '../create-index/collation-info';
+} from '../create-index/collation-string';
 import fields, {
   INITIAL_STATE as FIELDS_INITIAL_STATE,
 } from '../create-index/fields';
@@ -77,7 +78,7 @@ const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 const reducer = combineReducers({
   dataService,
   appRegistry,
-  collationInfo,
+  collationString,
   fields,
   inProgress,
   isCustomCollation,
@@ -112,7 +113,7 @@ const rootReducer = (state, action) => {
   if (action.type === RESET || action.type === RESET_FORM) {
     return {
       ...state,
-      collationInfo: COLLATION_INITIAL_STATE,
+      collationString: COLLATION_INITIAL_STATE,
       fields: FIELDS_INITIAL_STATE,
       inProgress: IN_PROGRESS_INITIAL_STATE,
       isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
@@ -146,9 +147,16 @@ export const createIndex = () => {
     const state = getState();
     const spec = {};
 
-    // check for errors
+    // check for index field errors.
     if (state.fields.some((field) => field.name === '' || field.type === '')) {
       dispatch(handleError('You must select a field name and type'));
+      return;
+    }
+
+    const collation = queryParser.isCollationValid(state.collationString);
+    // check for collaction errors.
+    if (state.isCustomCollation && collation === false) {
+      dispatch(handleError('You must provide a valid collation object'));
       return;
     }
 
@@ -166,7 +174,7 @@ export const createIndex = () => {
       options.name = state.name;
     }
     if (state.isCustomCollation) {
-      options.collation = state.collationInfo.value;
+      options.collation = collation;
     }
     if (state.isTtl) {
       options.expireAfterSeconds = Number(state.ttl);
@@ -239,7 +247,7 @@ export const createIndex = () => {
             hasColumnstoreIndex,
             hasColumnstoreProjection: state.hasColumnstoreProjection,
             hasWildcardProjection: state.hasWildcardProjection,
-            collation: state.collationInfo.value,
+            collation: state.collationString,
             ttl: state.ttl,
           })
         );

@@ -27,7 +27,7 @@ describe('CreateIndexModal [Component]', function () {
   let openLinkSpy;
   let changeTtlSpy;
   let changePartialFilterExpressionSpy;
-  let collationInfoChangedSpy;
+  let collationStringChangedSpy;
   let changeNameSpy;
   let changeColumnstoreProjectionSpy;
   let changeWildcardProjectionSpy;
@@ -51,7 +51,7 @@ describe('CreateIndexModal [Component]', function () {
     openLinkSpy = sinon.spy();
     changeTtlSpy = sinon.spy();
     changePartialFilterExpressionSpy = sinon.spy();
-    collationInfoChangedSpy = sinon.spy();
+    collationStringChangedSpy = sinon.spy();
     changeNameSpy = sinon.spy();
     changeColumnstoreProjectionSpy = sinon.spy();
     changeWildcardProjectionSpy = sinon.spy();
@@ -76,7 +76,7 @@ describe('CreateIndexModal [Component]', function () {
     openLinkSpy = null;
     changeTtlSpy = null;
     changePartialFilterExpressionSpy = null;
-    collationInfoChangedSpy = null;
+    collationStringChangedSpy = null;
     changeNameSpy = null;
     changeColumnstoreProjectionSpy = null;
     changeWildcardProjectionSpy = null;
@@ -125,7 +125,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          collationInfoChanged={collationInfoChangedSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           wildcardProjection=""
           hasWildcardProjection={false}
@@ -267,7 +267,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          collationInfoChanged={collationInfoChangedSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           hasWildcardProjection={false}
           hasColumnstoreProjection={false}
@@ -411,7 +411,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          collationInfoChanged={collationInfoChangedSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           serverVersion="5.0.0"
           hasWildcardProjection={false}
@@ -514,7 +514,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          collationInfoChanged={collationInfoChangedSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           hasWildcardProjection={false}
           hasColumnstoreProjection={false}
@@ -574,7 +574,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          collationInfoChanged={collationInfoChangedSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           hasWildcardProjection={false}
           hasColumnstoreProjection={false}
@@ -637,7 +637,7 @@ describe('CreateIndexModal [Component]', function () {
           openLink={openLinkSpy}
           changeTtl={changeTtlSpy}
           changePartialFilterExpression={changePartialFilterExpressionSpy}
-          collationInfoChanged={collationInfoChangedSpy}
+          collationStringChanged={collationStringChangedSpy}
           changeName={changeNameSpy}
           hasWildcardProjection={false}
           hasColumnstoreProjection={false}

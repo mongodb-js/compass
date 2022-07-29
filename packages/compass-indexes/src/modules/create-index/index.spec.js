@@ -111,13 +111,7 @@ describe('create index module', function () {
         isUnique: true,
         name: 'test name',
         isCustomCollation: true,
-        collationInfo: {
-          text: "{locale: 'en'}",
-          value: {
-            locale: 'en',
-          },
-          isValid: true,
-        },
+        collationString: "{locale: 'en'}",
         isTtl: true,
         ttl: 100,
         appRegistry: {
@@ -185,13 +179,7 @@ describe('create index module', function () {
         isUnique: true,
         name: '',
         isCustomCollation: true,
-        collationInfo: {
-          text: "{locale: 'en'}",
-          value: {
-            locale: 'en',
-          },
-          isValid: true,
-        },
+        collationString: "{locale: 'en'}",
         isTtl: true,
         ttl: 100,
         namespace: 'db.coll',

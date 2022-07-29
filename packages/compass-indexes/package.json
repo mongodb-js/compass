@@ -88,7 +88,6 @@
     "lodash.pick": "^4.4.0",
     "lodash.pluck": "^3.1.2",
     "mocha": "^8.4.0",
-    "mongodb": "^4.6.0",
     "mongodb-query-parser": "^2.4.6",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
