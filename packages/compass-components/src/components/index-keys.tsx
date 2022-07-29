@@ -1,11 +1,8 @@
 import React from 'react';
-import {
-  Badge,
-  BadgeVariant,
-  css,
-  Icon,
-  spacing,
-} from '@mongodb-js/compass-components';
+import Badge, { Variant } from '@leafygreen-ui/badge';
+import { css } from '@leafygreen-ui/emotion';
+import Icon from '@leafygreen-ui/icon';
+import { spacing } from '@leafygreen-ui/tokens';
 import type { IndexDirection } from 'mongodb';
 
 type IndexKeysProps = {
@@ -33,7 +30,7 @@ const IndexKeys: React.FunctionComponent<IndexKeysProps> = ({ keys }) => {
   return (
     <div className={containerStyles}>
       {Object.entries(keys).map(([keyName, direction], listIndex) => (
-        <Badge variant={BadgeVariant.LightGray} key={listIndex}>
+        <Badge variant={Variant.LightGray} key={listIndex}>
           {keyName}
           &nbsp;
           <IndexDirectionIcon direction={direction} />

@@ -1,6 +1,7 @@
 import React from 'react';
-import { spacing } from '@mongodb-js/compass-components';
-import { css, BadgeVariant } from '@mongodb-js/compass-components';
+import { spacing } from '@leafygreen-ui/tokens';
+import { css } from '@leafygreen-ui/emotion';
+import { Variant } from '@leafygreen-ui/badge';
 
 import { Badge, Icon } from './leafygreen';
 
@@ -23,14 +24,14 @@ type IconBadgeProps = {
   icon: string;
   dataTestId?: string;
   onClick: () => void;
-  variant: BadgeVariant;
+  variant: Variant;
 };
 
 function IconBadge({
   text,
   icon,
   dataTestId,
-  variant = BadgeVariant.DarkGray,
+  variant = Variant.DarkGray,
   onClick = () => null,
 }: IconBadgeProps): React.ReactElement {
   return (
