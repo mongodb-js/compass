@@ -7,16 +7,14 @@
 // eslint-disable-next-line strict
 'use strict';
 const path = require('path');
+const os = require('os');
 const { promises: fs } = require('fs');
+const { deepStrictEqual } = require('assert');
 const { Octokit } = require('@octokit/rest');
 const { GithubRepo } = require('@mongodb-js/devtools-github-repo');
 const { diffString } = require('json-diff');
+const download = require('download');
 const Target = require('../lib/target');
-
-const cli = require('mongodb-js-cli')('hadron-build:upload');
-const abortIfError = cli.abortIfError.bind(cli);
-const root = path.resolve(__dirname, '..', '..', '..');
-
 const {
   getKeyPrefix,
   downloadManifest,
@@ -24,12 +22,17 @@ const {
   uploadManifest
 } = require('../lib/download-center');
 
+const cli = require('mongodb-js-cli')('hadron-build:upload');
+const abortIfError = cli.abortIfError.bind(cli);
+const root = path.resolve(__dirname, '..', '..', '..');
+
 async function checkAssetsExist(paths) {
-  return await Promise.all(
+  await Promise.all(
     paths.map((assetPath) => {
       return fs.stat(assetPath);
     })
   );
+  return true;
 }
 
 function isBeta(id) {
@@ -98,7 +101,38 @@ function readablePlatformName(arch, platform, fileName) {
   return name;
 }
 
-async function publishGitHubRelease(assets, version, dryRun) {
+function generateVersionsForAssets(assets, version, channel) {
+  return Target.supportedDistributions.map((distribution) => {
+    return {
+      _id: versionId(version, distribution),
+      version: readableVersionName(version, channel, distribution),
+      platform: assets
+        .filter((asset) => {
+          return asset.config.distribution === distribution;
+        })
+        // eslint-disable-next-line no-shadow
+        .map(({ assets, config }) => {
+          return assets
+            .filter(({ downloadCenter }) => {
+              return downloadCenter;
+            })
+            .map(({ name }) => {
+              const prefix = getKeyPrefix(channel);
+              const link = `https://downloads.mongodb.com/${prefix}/${name}`;
+              return {
+                arch: config.arch,
+                os: config.platform,
+                name: readablePlatformName(config.arch, config.platform, name),
+                download_link: link
+              };
+            });
+        })
+        .flat()
+    };
+  });
+}
+
+async function publishGitHubRelease(assets, version, channel, dryRun) {
   if (!dryRun && !process.env.GITHUB_TOKEN) {
     throw new Error(
       "Can't publish a release because process.env.GITHUB_TOKEN not set."
@@ -144,6 +178,20 @@ async function publishGitHubRelease(assets, version, dryRun) {
     })
     .flat();
 
+  const versionManifest = generateVersionsForAssets(assets, version, channel);
+
+  const versionManifestPath = path.join(
+    os.tmpdir(),
+    `version-manifest-${version}-${Date.now()}.json`
+  );
+
+  await fs.writeFile(
+    versionManifestPath,
+    JSON.stringify(versionManifest, null, 2)
+  );
+
+  assetsToUpload.push({ name: 'manifest.json', path: versionManifestPath });
+
   cli.info('Uploading assets to GitHub release…');
 
   await checkAssetsExist(
@@ -181,7 +229,6 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
       return item.assets;
     })
     .flat()
-    // eslint-disable-next-line no-shadow
     .filter(({ downloadCenter }) => {
       return downloadCenter;
     });
@@ -210,68 +257,110 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
   await Promise.all(uploads);
 }
 
-async function updateManifest(assets, version, channel, dryRun) {
+/**
+ *
+ * @param {'stable' | 'beta'} channel
+ */
+async function getLatestRelease(channel = 'stable') {
+  const octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN
+  });
+
+  const page = 1;
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    let releases = [];
+
+    try {
+      const { data } = await octokit.request(
+        'GET /repos/{owner}/{repo}/releases',
+        {
+          owner: 'mongodb-js',
+          repo: 'compass',
+          per_page: 100,
+          page
+        }
+      );
+      releases = data;
+    } catch (err) {
+      cli.warn(`Failed to fetch releases: ${err.message}`);
+    }
+
+    // We ran out of releases or failed to fetch
+    if (releases.length === 0) {
+      return null;
+    }
+
+    const latestRelease = releases.find((release) => {
+      return (
+        !release.draft &&
+        (channel === 'beta'
+          ? isBeta(release.tag_name)
+          : isStable(release.tag_name))
+      );
+    });
+
+    if (latestRelease) {
+      return latestRelease;
+    }
+
+    page++;
+  }
+}
+
+function getDiffFromAssertionError(message) {
+  return message.split(/\+ actual.+?\n/)[1];
+}
+
+async function getLatestReleaseVersions(channel = 'stable') {
+  const release = await getLatestRelease(channel);
+  if (!release) {
+    throw new Error(`Couldn't find latest release for ${channel} channel`);
+  }
+  const manifest = release.assets.find((asset) => {
+    return asset.name === 'manifest.json';
+  });
+  if (!manifest) {
+    throw new Error(`No manifest found in the release for ${channel} channel`);
+  }
+  const content = JSON.parse(
+    (await download(manifest.browser_download_url)).toString()
+  );
+  return content;
+}
+
+async function updateManifest(dryRun) {
+  cli.info('Downloading current manifest');
   const currentManifest = await downloadManifest();
 
-  const versionFilter = channel === 'beta' ? isStable : isBeta;
-
-  const newVersions = Target.supportedDistributions.map((distribution) => {
-    return {
-      _id: versionId(version, distribution),
-      version: readableVersionName(version, channel, distribution),
-      platform: assets
-        .filter((asset) => {
-          return asset.config.distribution === distribution;
-        })
-        // eslint-disable-next-line no-shadow
-        .map(({ assets, config }) => {
-          return assets
-            .filter(({ downloadCenter }) => {
-              return downloadCenter;
-            })
-            .map(({ name }) => {
-              const prefix = getKeyPrefix(channel);
-              const link = `https://downloads.mongodb.com/${prefix}/${name}`;
-              return {
-                arch: config.arch,
-                os: config.platform,
-                name: readablePlatformName(config.arch, config.platform, name),
-                download_link: link
-              };
-            });
-        })
-        .flat()
-    };
-  });
+  const versions = (
+    await Promise.all(
+      ['stable', 'beta'].map((channel) => {
+        cli.info(`Looking for the latest release for the ${channel} channel`);
+        return getLatestReleaseVersions(channel);
+      })
+    )
+  ).flat();
 
   const newManifest = {
     ...currentManifest,
-    versions: newVersions
-      .concat(
-        currentManifest.versions.filter(({ _id }) => {
-          return versionFilter(_id);
-        })
-      )
-      .sort(({ _id }) => {
-        return isBeta(_id) ? 1 : -1;
-      })
+    versions
   };
 
-  cli.info('Uploading updated manifest');
-
-  diffString(
-    currentManifest.versions.slice().sort((a, b) => {
-      a.version.localeCompare(b.version);
-    }),
-    newManifest.versions.slice().sort((a, b) => {
-      a.version.localeCompare(b.version);
-    })
-  )
-    .trim()
-    .split('\n')
-    .forEach((line) => {
-      cli.info(line);
-    });
+  try {
+    deepStrictEqual(currentManifest, newManifest);
+    cli.warn('Skipping upload: manifests are identical');
+    return;
+  } catch (_) {
+    cli.info('Uploading updated manifest');
+    diffString(currentManifest, newManifest)
+      .trim()
+      .split('\n')
+      .forEach((line) => {
+        cli.info(line);
+      });
+  }
 
   if (!dryRun) {
     // NB: This will also validate the schema and that download_link assets
@@ -280,11 +369,11 @@ async function updateManifest(assets, version, channel, dryRun) {
   }
 }
 
-exports.command = 'upload [options]';
+const command = 'upload [options]';
 
-exports.describe = 'Upload assets from `release`.';
+const describe = 'Upload assets from `release`.';
 
-exports.builder = {
+const builder = {
   dir: {
     description: 'Project root directory',
     default: process.cwd()
@@ -305,12 +394,11 @@ exports.builder = {
   }
 };
 
-exports.handler = function(argv) {
+const handler = function handler(argv) {
   cli.argv = argv;
-
   argv.version = argv.version.replace(/^v/, '');
-
   const channel = Target.getChannelFromVersion(argv.version);
+  const assets = Target.getAssetsForVersion(argv.dir, argv.version);
 
   if (argv.dryRun) {
     cli.warn('Running script in dry-run mode. Skipping checks and publishing');
@@ -325,8 +413,6 @@ exports.handler = function(argv) {
     cli.error('Trying to publish a release from non-CI environment');
     return;
   }
-
-  const assets = Target.getAssetsForVersion(argv.dir, argv.version);
 
   if (argv.manifest) {
     updateManifest(assets, argv.version, channel, argv.dryRun).catch(
@@ -362,9 +448,19 @@ exports.handler = function(argv) {
     }
   }
 
-  publishGitHubRelease(assets, argv.version, argv.dryRun)
+  publishGitHubRelease(assets, argv.version, channel, argv.dryRun)
     .then(() => {
       return uploadAssetsToDownloadCenter(assets, channel, argv.dryRun);
     })
     .catch(abortIfError);
+};
+
+module.exports = {
+  command,
+  describe,
+  builder,
+  handler,
+  getLatestRelease,
+  updateManifest,
+  generateVersionsForAssets
 };

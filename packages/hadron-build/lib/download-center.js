@@ -1,5 +1,5 @@
-/* eslint-disable mocha/no-exports */
-const fs = require('fs-extra');
+/* eslint-disable valid-jsdoc */
+const fs = require('fs');
 const { DownloadCenter } = require('@mongodb-js/dl-center');
 
 const DOWNLOADS_BUCKET = 'downloads.10gen.com';
@@ -7,10 +7,13 @@ const MANIFEST_BUCKET = 'info-mongodb-com';
 const MANIFEST_OBJECT_KEY = 'com-download-center/compass.json';
 
 const requireEnvironmentVariables = (keys) => {
-  for (let key of keys) {
-    if (process.env[key]) return true;
-    throw new TypeError(`Please set the environment variable ${key}`);
+  const missing = keys.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new TypeError(
+      `Please set the environment variable(s) ${keys.join(', ')}`
+    );
   }
+  return true;
 };
 
 const getDownloadCenter = (bucketConfig) => {
@@ -36,9 +39,9 @@ const uploadAsset = async(channel, asset) => {
   return dlCenter.uploadAsset(objectKey, fs.createReadStream(asset.path));
 };
 
-const downloadManifest = async() => {
+const downloadManifest = async(key = MANIFEST_OBJECT_KEY) => {
   const dlCenter = getDownloadCenter({ bucket: MANIFEST_BUCKET });
-  return dlCenter.downloadConfig(MANIFEST_OBJECT_KEY);
+  return dlCenter.downloadConfig(key);
 };
 
 const uploadManifest = async(manifest) => {
@@ -47,8 +50,10 @@ const uploadManifest = async(manifest) => {
 };
 
 module.exports = {
+  requireEnvironmentVariables,
+  getDownloadCenter,
+  getKeyPrefix,
   uploadAsset,
   downloadManifest,
-  uploadManifest,
-  getKeyPrefix
+  uploadManifest
 };
