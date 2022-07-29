@@ -742,9 +742,10 @@ class Target {
     const createTarball = () => {
       debug(
         'creating tarball %s -> %s',
-        tar(this.appPath, this.app_archive_name)
+        this.appPath,
+        this.dest(this.app_archive_name)
       );
-      return tar(this.appPath, this.app_archive_name);
+      return tar(this.appPath, this.dest(this.app_archive_name));
     };
 
     this.createInstaller = () => {
