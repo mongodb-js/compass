@@ -30,7 +30,7 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "peerDependencies": {
-    "mongodb": "^4.6.0"
+    "mongodb": "^4.8.1"
   },
   "dependencies": {
     "@mongodb-js/ssh-tunnel": "^1.9.1",
@@ -56,7 +56,7 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1",
     "mock-require": "^3.0.3",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.8.1",
     "mongodb-runner": "^4.9.0",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.2",
