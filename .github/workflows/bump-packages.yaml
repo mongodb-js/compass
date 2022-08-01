@@ -1,0 +1,57 @@
+name: Bump packages
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_generated_files:
+    name: Bump packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          # don't checkout a detatched HEAD
+          ref: ${{ github.head_ref }}
+
+          # this is important so git log can pick up on
+          # the whole history to generate the list of AUTHORS
+          fetch-depth: '0'
+
+      - name: Setup git
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ^14.17.5
+          cache: 'npm'
+
+      - name: Install npm@8.3.1
+        run: |
+          npm install -g npm@8.3.1
+
+      - name: Install Dependencies
+        run: |
+          npm -v
+          npm ci
+
+      - name: Bump packages
+        env:
+          LAST_BUMP_COMMIT_MESSAGE: 'chore(release): Bump package versions'
+        run: |
+          npm run bump-packages
+          git add .
+          git commit --no-allow-empty -m "$LAST_BUMP_COMMIT_MESSAGE" || true
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: 'chore(release): Bump package versions'
+          branch: ci/bump-packages
+          title: 'chore(release): Bump package versions'
+          body: |
+            - Bump package versions
