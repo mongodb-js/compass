@@ -35,7 +35,7 @@ class TypeColumn extends PureComponent {
     );
   }
 
-  _textTooltip() {
+  renderTooltip() {
     const info = pick(this.props.index.extra, [
       'weights',
       'default_language',
@@ -43,9 +43,10 @@ class TypeColumn extends PureComponent {
       'wildcardProjection',
       'columnstoreProjection',
     ]);
-    return map(info, (v, k) => {
-      return format('%s: %j', k, v);
-    }).join('\n');
+    const items = map(info, (v, k) => {
+      return <Body>{format('%s: %j', k, v)}</Body>;
+    });
+    return <>{items}</>;
   }
 
   render() {
@@ -65,8 +66,7 @@ class TypeColumn extends PureComponent {
             </span>
           )}
         >
-          {/* todo: tooltip is rendered without breaks */}
-          <Body>{this._textTooltip()}</Body>
+          {this.renderTooltip()}
         </Tooltip>
       </td>
     );
