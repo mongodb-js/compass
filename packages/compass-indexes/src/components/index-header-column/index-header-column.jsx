@@ -7,7 +7,7 @@ import { DEFAULT, DESC, ASC } from '../../modules/indexes';
 const sortStyles = css({
   display: 'inline-block',
   fontSize: '13px',
-  color: uiColors.gray.base
+  color: uiColors.gray.base,
 });
 
 /**
@@ -53,12 +53,9 @@ class IndexHeaderColumn extends PureComponent {
         onClick={this.handleIndexSort.bind(this)}
       >
         {this.props.name}
-        {this.props.sortColumn === this.props.name && <i
-          className={cx(
-            sortStyles,
-            `fa fa-fw ${this.props.sortOrder}`
-          )}
-        />}
+        {this.props.sortColumn === this.props.name && (
+          <i className={cx(sortStyles, `fa fa-fw ${this.props.sortOrder}`)} />
+        )}
       </th>
     );
   }

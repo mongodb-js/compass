@@ -2,7 +2,12 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ModalStatusMessage } from 'hadron-react-components';
-import { ConfirmationModal, css, Icon, spacing } from '@mongodb-js/compass-components';
+import {
+  ConfirmationModal,
+  css,
+  Icon,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleInProgress } from '../../modules/in-progress';
@@ -14,7 +19,7 @@ import { resetForm } from '../../modules/reset-form';
 
 const messageStyles = css({
   display: 'flex',
-  gap: spacing[1]
+  gap: spacing[1],
 });
 
 /**
@@ -84,7 +89,7 @@ class DropIndexModal extends PureComponent {
       >
         <div>
           <p className={messageStyles}>
-            <Icon glyph='Warning' />
+            <Icon glyph="Warning" />
             Type the index name
             <strong> {this.props.name} </strong>
             to drop

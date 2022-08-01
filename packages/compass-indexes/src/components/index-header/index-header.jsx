@@ -5,9 +5,9 @@ import IndexHeaderColumn from '../index-header-column';
 
 const containerStyles = css({
   textAlign: 'left',
-  'th': {
+  th: {
     padding: '12px 24px',
-  }
+  },
 });
 
 /**
