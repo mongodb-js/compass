@@ -507,6 +507,10 @@ functions:
       params:
         local_file: src/packages/compass/dist/${linux_tar_filename}
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
+    - <<: *get-artifact
+      params:
+        local_file: src/packages/compass/dist/${rhel_tar_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${rhel_tar_filename}
 
   generate-tasks:
     - command: generate.tasks

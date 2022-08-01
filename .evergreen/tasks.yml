@@ -189,6 +189,9 @@ tasks:
   # Publish happens in one go to make sure we are not creating multiple github
   # releases in parallel
   - name: publish
+    # Does a dry-run: doesn't actually publishes, but checks that all files
+    # exist and we are not trying to do a "broken" publish
+    tags: ['run-on-pr']
     depends_on:
       - name: '.required-for-publish'
         variant: '*'
