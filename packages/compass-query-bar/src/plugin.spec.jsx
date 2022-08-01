@@ -18,6 +18,9 @@ const mockQueryHistoryRole = {
   actionName: 'Query.History.Actions',
 };
 
+const exportToLanguageSelector =
+  '[data-testid="query-bar-open-export-to-language-button"]';
+
 describe('QueryBar [Plugin]', function () {
   let store;
   let actions;
@@ -35,6 +38,7 @@ describe('QueryBar [Plugin]', function () {
   });
 
   beforeEach(function () {
+    component = null;
     actions = configureActions();
     store = configureStore({
       actions,
@@ -46,8 +50,10 @@ describe('QueryBar [Plugin]', function () {
   afterEach(function () {
     actions = null;
     store = null;
-    component.unmount();
-    component = null;
+    if (component) {
+      component.unmount();
+      component = null;
+    }
   });
 
   it('should contain a <StoreConnector /> with a store prop', function () {
@@ -68,10 +74,11 @@ describe('QueryBar [Plugin]', function () {
       component = mount(<QueryBarPlugin store={store} actions={actions} />);
 
       // Set the ace editor input value.
-      const aceEditor = component
+      const aceEditorDomNode = component
         .find('[id="query-bar-option-input-filter"]')
-        .first();
-      aceEditor.simulate('change', '{a: 3}');
+        .first()
+        .getDOMNode();
+      aceEditorDomNode.env.editor.session.setValue('{a: 3}');
     });
 
     it('updates the store state to valid', function () {
@@ -94,11 +101,12 @@ describe('QueryBar [Plugin]', function () {
         />
       );
 
+      expect(calledApply).to.equal(false);
+
       // Click the filter button.
       component
-        .find({ 'data-test-id': 'query-bar-apply-filter-button' })
-        .props()
-        .onClick();
+        .find('button[data-testid="query-bar-apply-filter-button"]')
+        .simulate('submit');
     });
 
     afterEach(function () {
@@ -120,7 +128,7 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .exist;
     });
 
@@ -134,7 +142,7 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .exist;
     });
 
@@ -148,13 +156,13 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .not.exist;
     });
   });
 
   describe('when rendered with or without an export to language button', function () {
-    it('export to language button renderes by default', function () {
+    it('export to language button renders by default', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
@@ -164,10 +172,11 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('#query-bar-menu-actions')).to.exist;
+      //
+      expect(component.find(exportToLanguageSelector)).to.exist;
     });
 
-    it('export to language button renderes when showExportToLanguageButton prop is passed and set to true', function () {
+    it('export to language button renders when showExportToLanguageButton prop is passed and set to true', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
@@ -177,7 +186,7 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('#query-bar-menu-actions')).to.exist;
+      expect(component.find(exportToLanguageSelector)).to.exist;
     });
 
     it('export to language button does not render when showExportToLanguageButton prop is passed and set to false', function () {
@@ -190,7 +199,7 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('#query-bar-menu-actions')).to.not.exist;
+      expect(component.find(exportToLanguageSelector)).to.not.exist;
     });
   });
 
@@ -215,28 +224,39 @@ describe('QueryBar [Plugin]', function () {
         />
       );
 
-      expect(component.find('button[data-test-id="query-bar-options-toggle"]'))
+      expect(component.find('button[data-testid="query-bar-options-toggle"]'))
         .to.exist;
       component
-        .find('button[data-test-id="query-bar-options-toggle"]')
+        .find('button[data-testid="query-bar-options-toggle"]')
+        .hostNodes()
         .simulate('click');
-      expect(component.find('OptionEditor[label="filter"]').prop('placeholder'))
-        .to.not.be.empty;
       expect(
-        component.find('OptionEditor[label="project"]').prop('placeholder')
+        component.find('OptionEditor[queryOption="filter"]').prop('placeholder')
       ).to.not.be.empty;
       expect(
-        component.find('OptionEditor[label="collation"]').prop('placeholder')
+        component
+          .find('OptionEditor[queryOption="project"]')
+          .prop('placeholder')
       ).to.not.be.empty;
-      expect(component.find('OptionEditor[label="sort"]').prop('placeholder'))
-        .to.not.be.empty;
       expect(
-        component.find('QueryOption[label="Max Time MS"]').prop('placeholder')
+        component
+          .find('OptionEditor[queryOption="collation"]')
+          .prop('placeholder')
       ).to.not.be.empty;
-      expect(component.find('QueryOption[label="skip"]').prop('placeholder')).to
-        .not.be.empty;
-      expect(component.find('QueryOption[label="limit"]').prop('placeholder'))
-        .to.not.be.empty;
+      expect(
+        component.find('OptionEditor[queryOption="sort"]').prop('placeholder')
+      ).to.not.be.empty;
+      expect(
+        component
+          .find('QueryOption[queryOption="maxTimeMS"]')
+          .prop('placeholder')
+      ).to.not.be.empty;
+      expect(
+        component.find('QueryOption[queryOption="skip"]').prop('placeholder')
+      ).to.not.be.empty;
+      expect(
+        component.find('QueryOption[queryOption="limit"]').prop('placeholder')
+      ).to.not.be.empty;
     });
 
     it('the input fields placeholders can be modified', function () {
@@ -258,31 +278,38 @@ describe('QueryBar [Plugin]', function () {
         />
       );
 
-      expect(component.find('button[data-test-id="query-bar-options-toggle"]'))
+      expect(component.find('button[data-testid="query-bar-options-toggle"]'))
         .to.exist;
       component
-        .find('button[data-test-id="query-bar-options-toggle"]')
+        .find('button[data-testid="query-bar-options-toggle"]')
+        .hostNodes()
         .simulate('click');
       expect(
-        component.find('OptionEditor[label="filter"]').prop('placeholder')
+        component.find('OptionEditor[queryOption="filter"]').prop('placeholder')
       ).to.equal("{field: 'matchValue'}");
       expect(
-        component.find('OptionEditor[label="project"]').prop('placeholder')
+        component
+          .find('OptionEditor[queryOption="project"]')
+          .prop('placeholder')
       ).to.equal('{field: 1}');
       expect(
-        component.find('OptionEditor[label="collation"]').prop('placeholder')
+        component
+          .find('OptionEditor[queryOption="collation"]')
+          .prop('placeholder')
       ).to.equal("{locale: 'fr' }");
       expect(
-        component.find('OptionEditor[label="sort"]').prop('placeholder')
+        component.find('OptionEditor[queryOption="sort"]').prop('placeholder')
       ).to.equal('{field: 1}');
       expect(
-        component.find('QueryOption[label="Max Time MS"]').prop('placeholder')
+        component
+          .find('QueryOption[queryOption="maxTimeMS"]')
+          .prop('placeholder')
       ).to.equal('50000');
       expect(
-        component.find('QueryOption[label="skip"]').prop('placeholder')
+        component.find('QueryOption[queryOption="skip"]').prop('placeholder')
       ).to.equal('10');
       expect(
-        component.find('QueryOption[label="limit"]').prop('placeholder')
+        component.find('QueryOption[queryOption="limit"]').prop('placeholder')
       ).to.equal('20');
     });
   });

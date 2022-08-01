@@ -597,7 +597,7 @@ export const documentListDocumentValue = (n: number): string => {
 
 // Query bar history
 
-export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
+export const QueryBarHistoryButton = '[data-testid="query-history-button"]';
 export const QueryBarHistory = '[data-test-id="query-history"]';
 
 export const QueryHistoryRecentItem = '[data-testid="recent-query-list-item"]';
@@ -850,15 +850,15 @@ export const queryBarOptionInputLimit = (tabName: string): string => {
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-apply-filter-button"]`;
+  return `${tabSelector} [data-testid="query-bar-apply-filter-button"]`;
 };
 export const queryBarOptionsToggle = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-options-toggle"]`;
+  return `${tabSelector} [data-testid="query-bar-options-toggle"]`;
 };
 export const queryBarResetFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-reset-filter-button"]`;
+  return `${tabSelector} [data-testid="query-bar-reset-filter-button"]`;
 };
 export const queryBarMenuActionsButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);

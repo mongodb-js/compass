@@ -7,15 +7,15 @@ import { Banner, Toolbar } from '@mongodb-js/compass-components';
 
 import ExplainStates from '../explain-states';
 
+class MockQueryBarComponent extends React.Component {
+  render() {
+    return <div id="queryBar">Query Bar</div>;
+  }
+}
+
 describe('ExplainStates [Component]', function () {
   let component;
   const appRegistry = new AppRegistry();
-
-  class MockQueryBarComponent extends React.Component {
-    render() {
-      return <div id="queryBar">Query Bar</div>;
-    }
-  }
 
   const isEditable = false;
   const explain = {
@@ -60,6 +60,7 @@ describe('ExplainStates [Component]', function () {
   });
 
   afterEach(function () {
+    component.unmount();
     component = null;
   });
 
@@ -72,6 +73,6 @@ describe('ExplainStates [Component]', function () {
   });
 
   it('renders the query bar', function () {
-    expect(component.find('Query Bar')).to.be.present();
+    expect(component.find(MockQueryBarComponent)).to.be.present();
   });
 });
