@@ -486,7 +486,8 @@ export const collectionHeaderTitle = (
 };
 
 // Documents tab
-export const DocumentListActionBarMessage = '[data-test-id="crud-document-count-display"]';
+export const DocumentListActionBarMessage =
+  '[data-test-id="crud-document-count-display"]';
 export const ExportCollectionButton =
   '[data-test-id="export-collection-button"]';
 export const DocumentListFetching =

@@ -7,7 +7,6 @@ import AppRegistry from 'hadron-app-registry';
 import QueryBarPlugin from './plugin';
 import configureStore from './stores';
 import configureActions from './actions';
-import OptionEditor from './components/option-editor';
 
 const mockQueryHistoryRole = {
   name: 'Query History',
@@ -66,12 +65,12 @@ describe('QueryBar [Plugin]', function () {
         filterValid: false,
       });
 
-      component = mount(
-        <QueryBarPlugin store={store} actions={actions} />
-      );
+      component = mount(<QueryBarPlugin store={store} actions={actions} />);
 
       // Set the ace editor input value.
-      const aceEditor = component.find('[id="query-bar-option-input-filter"]').first();
+      const aceEditor = component
+        .find('[id="query-bar-option-input-filter"]')
+        .first();
       aceEditor.simulate('change', '{a: 3}');
     });
 
@@ -197,7 +196,12 @@ describe('QueryBar [Plugin]', function () {
 
   describe('a user is able to provide custom placeholders for the input fields', function () {
     const queryOptions = [
-      'project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'
+      'project',
+      'sort',
+      'collation',
+      'skip',
+      'limit',
+      'maxTimeMS',
     ];
 
     it('the input fields have a placeholder by default', function () {

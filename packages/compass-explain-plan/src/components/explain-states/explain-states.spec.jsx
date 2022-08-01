@@ -11,7 +11,7 @@ describe('ExplainStates [Component]', function () {
   let component;
   const appRegistry = new AppRegistry();
 
-  class QueryBar extends React.Component {
+  class MockQueryBarComponent extends React.Component {
     render() {
       return <div id="queryBar">Query Bar</div>;
     }
@@ -39,7 +39,7 @@ describe('ExplainStates [Component]', function () {
 
   beforeEach(function () {
     appRegistry.registerRole('Query.QueryBar', {
-      component: QueryBar,
+      component: MockQueryBarComponent,
       configureStore: () => {},
       configureActions: () => {},
     });

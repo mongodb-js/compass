@@ -85,11 +85,7 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
     [queryHistoryButtonRef, setShowQueryHistory]
   );
 
-  useOnClickOutside(
-    queryHistoryContainerRef,
-    showQueryHistory,
-    onClickOutsideQueryHistory
-  );
+  useOnClickOutside(queryHistoryContainerRef, onClickOutsideQueryHistory);
 
   const onHideQueryHistory = useCallback(() => {
     setShowQueryHistory(false);

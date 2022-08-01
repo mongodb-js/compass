@@ -82,7 +82,7 @@ type ContextProps = {
 type ContextWithAppRegistry = ContextProps & {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
-}
+};
 
 /**
  * Setup a scoped store to the collection.
@@ -331,7 +331,7 @@ const setupQueryPlugins = ({
     query,
     aggregation,
   });
-}
+};
 
 /**
  * Create the context in which a tab is created.
