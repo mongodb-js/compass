@@ -322,6 +322,15 @@ async function getLatestReleaseVersions(channel = 'stable') {
   return content;
 }
 
+function isDeepStrictEqual(a, b) {
+  try {
+    deepStrictEqual(a, b);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 async function updateManifest(dryRun) {
   cli.info('Downloading current manifest');
   const currentManifest = await downloadManifest();
@@ -336,23 +345,27 @@ async function updateManifest(dryRun) {
   ).flat();
 
   const newManifest = {
-    ...currentManifest,
-    versions
+    versions,
+    manual_link: 'https://docs.mongodb.org/manual/products/compass',
+    release_notes_link: '',
+    previous_releases_link: '',
+    development_releases_link: '',
+    supported_browsers_link: '',
+    tutorial_link: ''
   };
 
-  try {
-    deepStrictEqual(currentManifest, newManifest);
+  if (isDeepStrictEqual(currentManifest, newManifest)) {
     cli.warn('Skipping upload: manifests are identical');
     return;
-  } catch (_) {
-    cli.info('Uploading updated manifest');
-    diffString(currentManifest, newManifest)
-      .trim()
-      .split('\n')
-      .forEach((line) => {
-        cli.info(line);
-      });
   }
+
+  cli.info('Uploading updated manifest');
+  diffString(currentManifest, newManifest)
+    .trim()
+    .split('\n')
+    .forEach((line) => {
+      cli.info(line);
+    });
 
   if (!dryRun) {
     // NB: This will also validate the schema and that download_link assets
