@@ -87,7 +87,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   ...queryOptionProps
 }) => {
   const onApply = useCallback(() => {
-    console.log('\nwe applied\n');
     if (isQueryValid) {
       _onApply();
     }
