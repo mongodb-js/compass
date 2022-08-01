@@ -60,6 +60,7 @@ class DropColumn extends PureComponent {
           <IconButton
             aria-label="Delete Index"
             onClick={this.clickDropHandler.bind(this)}
+            data-testId={`drop-index-button-${this.props.indexName}`}
           >
             <Icon glyph="Trash" />
           </IconButton>

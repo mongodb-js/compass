@@ -799,7 +799,7 @@ export const indexComponent = (indexName: string): string => {
 };
 
 export const dropIndexButton = (indexName: string): string => {
-  return `[data-test-id="index-component-${indexName}"] .btn-default`;
+  return `[data-testid="drop-index-button-${indexName}"]`;
 };
 
 // Validation tab
