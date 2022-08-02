@@ -488,6 +488,10 @@ FindIterable<Document> result = collection.find(filter);`);
   });
 
   it('can copy a document from the contextual toolbar', async function () {
+    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE === 'true') {
+      this.skip();
+    }
+
     await browser.runFindOperation('Documents', '{ i: 34 }');
 
     const document = await browser.$(Selectors.DocumentListEntry);

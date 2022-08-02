@@ -370,8 +370,14 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
 
   // https://webdriver.io/docs/options/#webdriverio
   const wdioOptions = {
-    waitforTimeout: 10000, // default is 3000ms
-    waitforInterval: 100, // default is 500ms
+    // default is 3000ms
+    waitforTimeout: process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT
+      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT)
+      : 120_000,
+    // default is 500ms
+    waitforInterval: process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL
+      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL)
+      : 100,
   };
 
   process.env.COMPASS_CLUSTERED_COLLECTIONS = 'true';

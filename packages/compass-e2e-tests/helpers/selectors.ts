@@ -926,6 +926,8 @@ export const ExportToLanguageCopyOutputButton =
   '[data-test-id="export-to-lang-copy-output"]';
 export const ExportToLanguageCloseButton =
   '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';
+export const ExportToLanguageQueryOutput =
+  '[data-testid="export-to-lang-query-output-container"]';
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =

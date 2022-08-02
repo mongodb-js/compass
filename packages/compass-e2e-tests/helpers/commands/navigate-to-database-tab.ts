@@ -18,5 +18,5 @@ export async function navigateToDatabaseTab(
   const tabSelectedSelector = Selectors.databaseTab(tabName, true);
 
   const tabSelectorElement = await browser.$(tabSelectedSelector);
-  await tabSelectorElement.waitForDisplayed({ timeout: 60000 });
+  await tabSelectorElement.waitForDisplayed();
 }
