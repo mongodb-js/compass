@@ -11,11 +11,9 @@ function renderQueryHistoryToolbar(
 ) {
   return render(
     <Toolbar
-      actions={{
-        showRecent: sinon.stub(),
-        showFavorites: sinon.stub(),
-        collapse: sinon.stub(),
-      }}
+      showRecent={sinon.stub()}
+      showFavorites={sinon.stub()}
+      onClose={sinon.stub()}
       showing="recent"
       {...props}
     />
@@ -29,7 +27,7 @@ describe('Toolbar [Component]', function () {
     actions = {
       showRecent: sinon.stub(),
       showFavorites: sinon.stub(),
-      collapse: sinon.stub(),
+      onClose: sinon.stub(),
     };
   });
 
@@ -38,7 +36,7 @@ describe('Toolbar [Component]', function () {
   describe('#rendering', function () {
     beforeEach(function () {
       renderQueryHistoryToolbar({
-        actions,
+        ...actions,
       });
     });
 
@@ -55,19 +53,19 @@ describe('Toolbar [Component]', function () {
   describe('#behavior', function () {
     it('should close the query history side bar when the close button is clicked', function () {
       renderQueryHistoryToolbar({
-        actions,
+        ...actions,
       });
 
       const button = screen.getByTestId('query-history-button-close-panel');
 
       userEvent.click(button);
-      expect(actions.collapse).to.have.been.calledOnce;
+      expect(actions.onClose).to.have.been.calledOnce;
     });
 
     describe('when viewing the Recent Queries tab', function () {
       beforeEach(function () {
         renderQueryHistoryToolbar({
-          actions,
+          ...actions,
           showing: 'recent',
         });
       });
@@ -94,7 +92,7 @@ describe('Toolbar [Component]', function () {
     describe('when viewing the Favorites tab', function () {
       beforeEach(function () {
         renderQueryHistoryToolbar({
-          actions,
+          ...actions,
           showing: 'favorites',
         });
       });
