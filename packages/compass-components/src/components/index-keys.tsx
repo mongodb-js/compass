@@ -11,7 +11,7 @@ type IndexKeysProps = {
 };
 
 const containerStyles = css({
-  '*:not(:last-child)': {
+  'div:not(:last-child)': {
     marginRight: spacing[1],
   },
 });
