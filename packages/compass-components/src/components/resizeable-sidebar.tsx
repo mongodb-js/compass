@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ResizeHandle, ResizeDirection, css } from '../index';
+import { ResizeHandle, ResizeDirection, css, cx } from '../index';
 
 import { uiColors } from '@leafygreen-ui/palette';
 
@@ -11,8 +11,16 @@ const containerStyles = css({
   maxWidth: '80%',
   height: '100%',
   position: 'relative',
+});
+
+const containerStylesDark = css({
   background: uiColors.gray.dark3,
   color: 'white',
+});
+
+const containerStylesLight = css({
+  background: uiColors.gray.light3,
+  color: uiColors.gray.dark3,
 });
 
 const ResizableSidebar = ({
@@ -30,9 +38,15 @@ const ResizableSidebar = ({
     return Math.max(minWidth, window.innerWidth - 100);
   }, [minWidth]);
 
+
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+
   return (
     <div
-      className={containerStyles}
+      className={cx(
+      containerStyles,
+      useNewSidebar ? containerStylesLight : containerStylesDark
+      )}
       style={{
         minWidth: minWidth,
         width: width,
