@@ -11,7 +11,6 @@ import { css, uiColors } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   height: '80px',
-  paddingBottom: '20px',
   backgroundColor: uiColors.white,
   boxShadow: '0 2px 10px 0 rgba(0, 0, 0, 0.075)',
 });

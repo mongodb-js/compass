@@ -6,7 +6,6 @@ import { DEFAULT, DESC, ASC } from '../../modules/indexes';
 
 const sortStyles = css({
   display: 'inline-block',
-  fontSize: '13px',
   color: uiColors.gray.base,
 });
 
