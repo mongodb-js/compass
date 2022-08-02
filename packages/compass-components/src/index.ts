@@ -67,7 +67,6 @@ export { Toggle } from './components/toggle';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
-import IconBadge from './components/icon-badge';
 import IndexKeys from './components/index-keys';
 
 export {
@@ -76,7 +75,6 @@ export {
   ConfirmationModal,
   ErrorSummary,
   FileInput,
-  IconBadge,
   IndexKeys,
   Modal,
   ModalTitle,

@@ -8,9 +8,11 @@ import getIndexHelpLink from '../../utils/index-link-helper';
 import {
   spacing,
   css,
-  IconBadge,
   Tooltip,
   Body,
+  Badge,
+  BadgeVariant,
+  Icon,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
@@ -21,6 +23,14 @@ const containerStyles = css({
   '*:not(:last-child)': {
     marginRight: spacing[1],
   },
+});
+
+const iconButtonStyles = css({
+  padding: 0,
+  background: 'transparent',
+  border: 'none',
+  lineHeight: 0,
+  cursor: 'pointer',
 });
 
 class PropertyColumn extends PureComponent {
@@ -52,11 +62,12 @@ class PropertyColumn extends PureComponent {
         trigger={({ children, ...props }) => (
           <span {...props}>
             {children}
-            <IconBadge
-              text={text}
-              icon={'InfoWithCircle'}
-              onClick={() => shell.openExternal(link)}
-            />
+            <Badge variant={BadgeVariant.DarkGray}>
+              {text}&nbsp;
+              <button aria-label='Index docs' className={iconButtonStyles} onClick={() => shell.openExternal(link)}>
+                <Icon glyph='InfoWithCircle' />
+              </button>
+            </Badge>
           </span>
         )}
       >

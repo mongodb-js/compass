@@ -9,13 +9,23 @@ import {
   css,
   Tooltip,
   Body,
-  IconBadge,
+  Badge,
+  BadgeVariant,
+  Icon,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   width: 'auto',
   paddingLeft: spacing[4],
   paddingRight: spacing[4],
+});
+
+const iconButtonStyles = css({
+  padding: 0,
+  background: 'transparent',
+  border: 'none',
+  lineHeight: 0,
+  cursor: 'pointer',
 });
 
 /**
@@ -58,11 +68,12 @@ class TypeColumn extends PureComponent {
           trigger={({ children, ...props }) => (
             <span {...props}>
               {children}
-              <IconBadge
-                text={this.props.index.type}
-                icon={'InfoWithCircle'}
-                onClick={() => this.props.openLink(helpLink)}
-              />
+              <Badge variant={BadgeVariant.DarkGray}>
+                {this.props.index.type}&nbsp;
+                <button aria-label='Index docs' className={iconButtonStyles} onClick={() => this.props.openLink(helpLink)}>
+                  <Icon glyph='InfoWithCircle' />
+                </button>
+              </Badge>
             </span>
           )}
         >
