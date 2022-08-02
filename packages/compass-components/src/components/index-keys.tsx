@@ -4,7 +4,14 @@ import { css } from '@leafygreen-ui/emotion';
 import Icon from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
 
-type IndexDirection = -1 | 1 | '2d' | '2dsphere' | 'text' | 'geoHaystack' | number
+type IndexDirection =
+  | -1
+  | 1
+  | '2d'
+  | '2dsphere'
+  | 'text'
+  | 'geoHaystack'
+  | number;
 
 type IndexKeysProps = {
   keys: Record<string, IndexDirection>;

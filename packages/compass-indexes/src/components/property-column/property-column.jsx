@@ -64,8 +64,12 @@ class PropertyColumn extends PureComponent {
             {children}
             <Badge variant={BadgeVariant.DarkGray}>
               {text}&nbsp;
-              <button aria-label='Index docs' className={iconButtonStyles} onClick={() => shell.openExternal(link)}>
-                <Icon glyph='InfoWithCircle' />
+              <button
+                aria-label="Index property docs"
+                className={iconButtonStyles}
+                onClick={() => shell.openExternal(link)}
+              >
+                <Icon glyph="InfoWithCircle" />
               </button>
             </Badge>
           </span>

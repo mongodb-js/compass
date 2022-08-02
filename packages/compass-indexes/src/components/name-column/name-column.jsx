@@ -30,7 +30,9 @@ class NameColumn extends PureComponent {
       <td className={containerStyles}>
         <div className="index-definition">
           <Body data-testid="name-column-name">{indexName}</Body>
-          <div className={indexKeyStyles}><IndexKeys keys={indexKeys} /></div>
+          <div className={indexKeyStyles}>
+            <IndexKeys keys={indexKeys} />
+          </div>
         </div>
       </td>
     );

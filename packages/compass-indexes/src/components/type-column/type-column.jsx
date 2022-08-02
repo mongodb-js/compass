@@ -70,8 +70,12 @@ class TypeColumn extends PureComponent {
               {children}
               <Badge variant={BadgeVariant.DarkGray}>
                 {this.props.index.type}&nbsp;
-                <button aria-label='Index docs' className={iconButtonStyles} onClick={() => this.props.openLink(helpLink)}>
-                  <Icon glyph='InfoWithCircle' />
+                <button
+                  aria-label="Index type docs"
+                  className={iconButtonStyles}
+                  onClick={() => this.props.openLink(helpLink)}
+                >
+                  <Icon glyph="InfoWithCircle" />
                 </button>
               </Badge>
             </span>
