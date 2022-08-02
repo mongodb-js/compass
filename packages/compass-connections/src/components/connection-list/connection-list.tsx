@@ -17,36 +17,20 @@ import Connection from './connection';
 const newConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  position: 'relative',
-});
-
-const newConnectionButtonContainerDarkStyles = css({
   background: uiColors.gray.dark2,
-});
-
-const newConnectionButtonContainerLightStyles = css({
-  background: uiColors.gray.light2,
+  position: 'relative',
 });
 
 const newConnectionButtonStyles = css({
   border: 'none',
   fontWeight: 'bold',
   borderRadius: 0,
-  ':hover': {
-    border: 'none',
-    boxShadow: 'none',
-  },
-});
-
-const newConnectionButtonDarkStyles = css({
   svg: {
     color: uiColors.white,
   },
-});
-
-const newConnectionButtonLightStyles = css({
-  svg: {
-    color: uiColors.black,
+  ':hover': {
+    border: 'none',
+    boxShadow: 'none',
   },
 });
 
@@ -66,18 +50,11 @@ const recentHeaderStyles = css({
 });
 
 const sectionHeaderTitleStyles = css({
+  color: 'white',
   flexGrow: 1,
   fontSize: '16px',
   lineHeight: '24px',
   fontWeight: 700,
-});
-
-const sectionHeaderTitleDarkStyles = css({
-  color: 'white',
-});
-
-const sectionHeaderTitleLightStyles = css({
-  color: 'black',
 });
 
 const sectionHeaderIconStyles = css({
@@ -103,7 +80,7 @@ const connectionListStyles = css({
   padding: 0,
 });
 
-const recentIcon = (darkmode: boolean) => (
+const recentIcon = (
   <svg
     width={spacing[4]}
     height={spacing[4]}
@@ -113,14 +90,14 @@ const recentIcon = (darkmode: boolean) => (
   >
     <path
       d="M9.66663 11.6667C9.66663 14.0566 11.6101 16 14 16C16.3899 16 18.3333 14.0566 18.3333 11.6667C18.3333 9.27677 16.3899 7.33333 14 7.33333C11.6101 7.33333 9.66663 9.27677 9.66663 11.6667Z"
-      stroke={darkmode ? 'white' : '#061621'}
+      stroke="white"
     />
     <path
       d="M4.99998 12.449C4.99998 12.2348 4.99998 12.0475 4.99998 11.8333C4.99998 6.96162 8.9616 3 13.8333 3C18.705 3 22.6666 6.96162 22.6666 11.8333C22.6666 16.705 18.705 20.6667 13.8333 20.6667M1.33331 9L4.63998 12.1795C4.85331 12.3846 5.17331 12.3846 5.35998 12.1795L8.66665 9"
-      stroke={darkmode ? 'white' : '#061621'}
+      stroke="white"
       strokeMiterlimit="10"
     />
-    <path d="M13.6666 10V12H15.6666" stroke={darkmode ? 'white' : '#061621'} strokeMiterlimit="10" />
+    <path d="M13.6666 10V12H15.6666" stroke="white" strokeMiterlimit="10" />
   </svg>
 );
 
@@ -150,15 +127,12 @@ function ConnectionList({
 }): React.ReactElement {
   const [recentHeaderHover, setRecentHover] = useState(false);
 
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
-  const darkmode = !useNewSidebar;
-
   return (
     <Fragment>
-      <div className={cx(newConnectionButtonContainerStyles, useNewSidebar ? newConnectionButtonContainerLightStyles : newConnectionButtonContainerDarkStyles)}>
+      <div className={newConnectionButtonContainerStyles}>
         <Button
-          className={cx(newConnectionButtonStyles, useNewSidebar ? newConnectionButtonLightStyles : newConnectionButtonDarkStyles)}
-          darkMode={!useNewSidebar}
+          className={newConnectionButtonStyles}
+          darkMode
           onClick={createNewConnection}
           size="large"
           data-testid="new-connection-button"
@@ -170,9 +144,9 @@ function ConnectionList({
       <div className={connectionListSectionStyles}>
         <div className={sectionHeaderStyles}>
           <div className={sectionHeaderIconStyles}>
-            <FavoriteIcon darkMode={!useNewSidebar} />
+            <FavoriteIcon darkMode />
           </div>
-          <H2 className={cx(sectionHeaderTitleStyles, useNewSidebar ? sectionHeaderTitleLightStyles : sectionHeaderTitleDarkStyles)}>Favorites</H2>
+          <H2 className={sectionHeaderTitleStyles}>Favorites</H2>
         </div>
         <ul className={connectionListStyles}>
           {favoriteConnections.map((connectionInfo, index) => (
@@ -204,8 +178,8 @@ function ConnectionList({
           onMouseEnter={() => setRecentHover(true)}
           onMouseLeave={() => setRecentHover(false)}
         >
-          <div className={sectionHeaderIconStyles}>{recentIcon(darkmode)}</div>
-          <H2 data-testid="recents-header" className={cx(sectionHeaderTitleStyles, useNewSidebar ? sectionHeaderTitleLightStyles : sectionHeaderTitleDarkStyles)}>
+          <div className={sectionHeaderIconStyles}>{recentIcon}</div>
+          <H2 data-testid="recents-header" className={sectionHeaderTitleStyles}>
             Recents
           </H2>
           {recentHeaderHover && (

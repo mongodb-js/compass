@@ -68,25 +68,15 @@ const connectionButtonStyles = css({
   '&:hover': {
     cursor: 'pointer',
     border: 'none',
+    background: uiColors.gray.dark2,
   },
   '&:focus': {
     border: 'none',
   },
 });
 
-const connectionButtonDarkStyles = css({
-  '&:hover': {
-    background: uiColors.gray.dark2,
-  }
-});
-
-const connectionButtonLightStyles = css({
-  '&:hover': {
-    background: uiColors.gray.light2,
-  }
-});
-
 const connectionTitleStyles = css({
+  color: uiColors.white,
   fontSize: compassFontSizes.defaultFontSize,
   lineHeight: '20px',
   margin: 0,
@@ -99,16 +89,8 @@ const connectionTitleStyles = css({
   textAlign: 'left',
 });
 
-
-const connectionTitleDarkStyles = css({
-  color: uiColors.white
-});
-
-const connectionTitleLightStyles = css({
-  color: uiColors.black
-});
-
 const connectionDescriptionStyles = css({
+  color: uiColors.gray.base,
   fontWeight: 'bold',
   fontSize: '12px',
   lineHeight: '20px',
@@ -118,14 +100,6 @@ const connectionDescriptionStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   gridArea: 'description',
-});
-
-const connectionDescriptionDarkStyles = css({
-  color: uiColors.gray.base,
-});
-
-const connectionDescriptionLightStyles = css({
-  color: uiColors.gray.base,
 });
 
 // Creates a date string formatted as `Oct 27, 3000, 2:06 PM`.
@@ -164,33 +138,6 @@ function FavoriteColorIndicator({
   );
 }
 
-function pickColors(hasColoredBackground: boolean, favoriteColorHex: string, darkmode: boolean) {
-  if (darkmode) {
-    return {
-      descriptionColor: hasColoredBackground
-        ? uiColors.gray.dark3
-        : uiColors.gray.base,
-      connectionMenuColor: hasColoredBackground
-        ? uiColors.gray.dark3
-        : uiColors.white,
-      titleColor: hasColoredBackground ? uiColors.black : uiColors.white,
-      backgroundColor: hasColoredBackground ? `${favoriteColorHex} !important` : 'none'
-    };
-  }
-  else {
-    return {
-      descriptionColor: hasColoredBackground
-        ? uiColors.gray.light3
-        : uiColors.gray.base,
-      connectionMenuColor: hasColoredBackground
-        ? uiColors.gray.light3
-        : uiColors.black,
-      titleColor: hasColoredBackground ? uiColors.white : uiColors.gray.dark3,
-      backgroundColor: hasColoredBackground ? `${favoriteColorHex} !important` : 'none'
-    };
-  }
-}
-
 function Connection({
   isActive,
   connectionInfo,
@@ -216,11 +163,19 @@ function Connection({
   const { connectionColorToHex } = useConnectionColor();
   const favoriteColorHex = connectionColorToHex(favorite?.color) ?? '';
 
-  const hasColoredBackground = !!(isActive && favoriteColorHex);
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
-  const darkmode = !useNewSidebar;
+  const hasColoredBackground = isActive && favoriteColorHex;
+  const titleColor = hasColoredBackground ? uiColors.black : uiColors.white;
+  const backgroundColor = hasColoredBackground
+    ? `${favoriteColorHex} !important`
+    : 'none';
 
-  const { descriptionColor, connectionMenuColor, titleColor, backgroundColor } = pickColors(hasColoredBackground, favoriteColorHex, darkmode);
+  const descriptionColor = hasColoredBackground
+    ? uiColors.gray.dark3
+    : uiColors.gray.base;
+
+  const connectionMenuColor = hasColoredBackground
+    ? uiColors.gray.dark3
+    : uiColors.white;
 
   return (
     <div className={connectionButtonContainerStyles}>
@@ -253,7 +208,6 @@ function Connection({
         <Description
           className={cx(
             connectionDescriptionStyles,
-            useNewSidebar ? connectionDescriptionLightStyles : connectionDescriptionDarkStyles,
             css({ color: descriptionColor })
           )}
           data-testid={`${
