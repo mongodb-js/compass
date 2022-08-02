@@ -53,7 +53,7 @@ const channelLabel = {
   beta: 'Beta'
 };
 
-function versionId(version, distribution) {
+function versionId(version, distribution = '') {
   return [version, distribution.replace(/compass\-?/, '')]
     .filter(Boolean)
     .join('-');
@@ -66,7 +66,7 @@ function readableVersionName(version, channel, distribution) {
   return `${version} ${desc ? `(${desc})` : ''}`.trim();
 }
 
-function readablePlatformName(arch, platform, fileName) {
+function readablePlatformName(arch, platform, fileName = '') {
   let name = null;
 
   switch (`${platform}-${arch}`) {
@@ -465,7 +465,13 @@ module.exports = {
   describe,
   builder,
   handler,
+  versionId,
+  readableVersionName,
+  readablePlatformName,
+  generateVersionsForAssets,
+  publishGitHubRelease,
+  uploadAssetsToDownloadCenter,
   getLatestRelease,
-  updateManifest,
-  generateVersionsForAssets
+  getLatestReleaseVersions,
+  updateManifest
 };
