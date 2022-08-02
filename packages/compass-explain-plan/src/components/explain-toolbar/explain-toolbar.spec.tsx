@@ -42,6 +42,7 @@ const renderExplainToolbar = (
       localAppRegistry={localAppRegistry}
       explainResultId="123"
       explainErrorMessage={undefined}
+      hasExplainResults={false}
       onExecuteExplainClicked={() => {}}
       showOutdatedWarning={false}
       showReadonlyWarning={false}
