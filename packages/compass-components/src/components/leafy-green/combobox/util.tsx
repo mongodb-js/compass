@@ -1,5 +1,5 @@
 import { isComponentType, keyMap as _keyMap } from '@leafygreen-ui/lib';
-import { kebabCase } from 'lodash';
+import { kebabCase, escapeRegExp } from 'lodash';
 import React from 'react';
 import type { ComboboxOptionProps } from './combobox-types';
 
@@ -9,10 +9,6 @@ export const keyMap = {
   Backspace: 8,
   Delete: 46,
 } as const;
-
-const escapeRegExp = (input: string) => {
-  return input.replace(/[-[/\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-};
 
 /**
  *
@@ -31,7 +27,11 @@ export const wrapJSX = (
   element?: string
 ): JSX.Element => {
   if (wrap && element) {
-    const regex = new RegExp(escapeRegExp(wrap), 'gi');
+    // Escape the user input before passing it to RegExp.
+    // Compass workaround: https://jira.mongodb.org/browse/COMPASS-5992
+    // LG fix: https://jira.mongodb.org/browse/PD-2250
+    const cleanWrap = escapeRegExp(wrap);
+    const regex = new RegExp(cleanWrap, 'gi');
     const startIndex = str.search(regex);
     const endIndex = startIndex + wrap.length;
     const nameArr = str.split('');

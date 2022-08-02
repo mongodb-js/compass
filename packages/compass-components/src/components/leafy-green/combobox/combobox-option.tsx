@@ -96,7 +96,9 @@ const InternalComboboxOption = React.forwardRef<
         if (
           e.target === optionRef.current ||
           (e.target as Element).tagName === 'INPUT' ||
-          (e.target as Element).tagName === 'SPAN' // TODO(alenakhineika): investigate this workaround later.
+          // Original LG code without a span check:
+          // https://github.com/mongodb/leafygreen-ui/blob/main/packages/combobox/src/ComboboxOption.tsx#L200-L206
+          (e.target as Element).tagName === 'SPAN'
         ) {
           setSelected();
         }
