@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ResizeHandle, ResizeDirection, css } from '../index';
+import { ResizeHandle, ResizeDirection, css, cx } from '../index';
 
 import { uiColors } from '@leafygreen-ui/palette';
 
@@ -11,18 +11,29 @@ const containerStyles = css({
   maxWidth: '80%',
   height: '100%',
   position: 'relative',
+});
+
+const containerStylesDark = css({
   background: uiColors.gray.dark3,
   color: 'white',
+});
+
+const containerStylesLight = css({
+
+  background: uiColors.gray.light3,
+  color: uiColors.gray.dark3,
 });
 
 const ResizableSidebar = ({
   initialWidth,
   minWidth,
   children,
+  darkMode
 }: {
   initialWidth: number;
   minWidth: number;
   children: JSX.Element;
+  darkMode: boolean;
 }): JSX.Element => {
   const [width, setWidth] = useState(initialWidth);
 
@@ -32,7 +43,7 @@ const ResizableSidebar = ({
 
   return (
     <div
-      className={containerStyles}
+      className={cx(containerStyles, darkMode ? containerStylesDark : containerStylesLight )}
       style={{
         minWidth: minWidth,
         width: width,

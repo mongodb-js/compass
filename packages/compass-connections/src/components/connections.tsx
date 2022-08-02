@@ -96,6 +96,7 @@ function Connections({
       <ResizableSidebar
         minWidth={minSidebarWidth}
         initialWidth={initialSidebarWidth}
+        darkMode
       >
         <ConnectionList
           activeConnectionId={activeConnectionId}
