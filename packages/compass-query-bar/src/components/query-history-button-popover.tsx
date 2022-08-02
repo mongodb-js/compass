@@ -55,14 +55,12 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
   const [showQueryHistory, setShowQueryHistory] = useState(false);
 
   const onSetShowQueryHistory = useCallback(
-    (newShowQueryHistory) => {
-      setShowQueryHistory((currentQueryHistory) => {
-        if (!currentQueryHistory && newShowQueryHistory) {
-          track('Query History Opened');
-        }
+    (newShowQueryHistory: boolean) => {
+      if (newShowQueryHistory) {
+        track('Query History Opened');
+      }
 
-        return newShowQueryHistory;
-      });
+      setShowQueryHistory(newShowQueryHistory);
     },
     [setShowQueryHistory]
   );
@@ -73,13 +71,9 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
     return null;
   }
 
-  const popoverContent = ({
-    setOpen,
-  }: {
-    setOpen: (open: boolean) => void;
-  }) => (
+  const popoverContent = ({ onClose }: { onClose: () => void }) => (
     <QueryHistoryComponent
-      onClose={() => setOpen(false)}
+      onClose={onClose}
       store={queryHistoryRef.current?.store}
       actions={queryHistoryRef.current?.actions}
     />

@@ -9,34 +9,11 @@ const contentContainerStyles = css({
   height: '100%',
 });
 
-function useOnClickOutside(
-  ref: React.RefObject<HTMLDivElement>,
-  handler: (event: Event) => void
-) {
-  useEffect(() => {
-    const clickEventListener = (event: MouseEvent | TouchEvent) => {
-      // Ignore clicks on the ref.
-      if (!ref.current || ref.current.contains(event.target as Node)) {
-        return;
-      }
-      handler(event);
-    };
-    document.addEventListener('mousedown', clickEventListener);
-    document.addEventListener('touchstart', clickEventListener);
-    return () => {
-      document.removeEventListener('mousedown', clickEventListener);
-      document.removeEventListener('touchstart', clickEventListener);
-    };
-  }, [ref, handler]);
-}
-
 type InteractivePopoverProps = {
   className: string;
-  children: (childrenProps: {
-    setOpen: (open: boolean) => void;
-  }) => React.ReactElement;
+  children: (childrenProps: { onClose: () => void }) => React.ReactElement;
   trigger: (triggerProps: {
-    onClick: () => void;
+    onClick: (event: React.MouseEvent | React.TouchEvent) => void;
     ref: React.RefObject<HTMLButtonElement>;
     children: React.ReactNode;
   }) => React.ReactElement;
@@ -54,7 +31,7 @@ function InteractivePopover({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverContentContainerRef = useRef<HTMLDivElement>(null);
 
-  const onHide = useCallback(() => {
+  const onClose = useCallback(() => {
     setOpen(false);
 
     // Return focus to the trigger when the popover is hidden.
@@ -63,17 +40,30 @@ function InteractivePopover({
     });
   }, [setOpen]);
 
-  const onToggleOpen = useCallback(() => {
+  const onClickTrigger = useCallback(() => {
     if (open) {
-      onHide();
+      onClose();
       return;
     }
 
     setOpen(!open);
-  }, [open, setOpen, onHide]);
+  }, [open, setOpen, onClose]);
 
-  const onClickOutsidePopover = useCallback(
-    (event) => {
+  // When the popover is open, close it when an item that isn't the popover
+  // is clicked.
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const clickEventListener = (event: MouseEvent | TouchEvent) => {
+      // Ignore clicks on the popover.
+      if (
+        !popoverContentContainerRef.current ||
+        popoverContentContainerRef.current.contains(event.target as Node)
+      ) {
+        return;
+      }
       // Ignore clicks on the trigger as it has its own handler.
       if (
         !triggerRef.current ||
@@ -81,35 +71,40 @@ function InteractivePopover({
       ) {
         return;
       }
-      onHide();
-    },
-    [triggerRef, onHide]
-  );
 
-  useOnClickOutside(popoverContentContainerRef, onClickOutsidePopover);
+      onClose();
+    };
+    window.addEventListener('mousedown', clickEventListener);
+    window.addEventListener('touchstart', clickEventListener);
+    return () => {
+      window.removeEventListener('mousedown', clickEventListener);
+      window.removeEventListener('touchstart', clickEventListener);
+    };
+  }, [open, onClose]);
 
   const onPopoverKeyDown = useCallback(
     (evt: KeyboardEvent) => {
       if (evt.key === 'Escape') {
-        onHide();
+        onClose();
         return;
       }
     },
-    [onHide]
+    [onClose]
   );
 
   useEffect(() => {
-    if (open) {
-      window.addEventListener('keydown', onPopoverKeyDown);
-
-      return () => {
-        window.removeEventListener('keydown', onPopoverKeyDown);
-      };
+    if (!open) {
+      return;
     }
+    document.addEventListener('keydown', onPopoverKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', onPopoverKeyDown);
+    };
   }, [onPopoverKeyDown, open]);
 
   return trigger({
-    onClick: onToggleOpen,
+    onClick: onClickTrigger,
     ref: triggerRef,
     children: (
       <Popover
@@ -123,13 +118,17 @@ function InteractivePopover({
         refEl={triggerRef}
       >
         {open && (
-          <FocusTrap>
+          <FocusTrap
+            focusTrapOptions={{
+              clickOutsideDeactivates: true,
+            }}
+          >
             <div
               className={contentContainerStyles}
               ref={popoverContentContainerRef}
             >
               {children({
-                setOpen: onToggleOpen,
+                onClose: onClose,
               })}
             </div>
           </FocusTrap>
