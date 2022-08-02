@@ -50,11 +50,11 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
   QueryHistoryProps
 > = ({ globalAppRegistry, localAppRegistry }) => {
   const queryHistoryRef = useRef<{
-    component: React.ComponentType<any>;
+    component?: React.ComponentType<any>;
     store: any; // Query history store is not currently typed.
     actions: any; // Query history actions are not typed.
   }>({
-    component: globalAppRegistry.getRole('Query.QueryHistory')![0].component,
+    component: globalAppRegistry.getRole('Query.QueryHistory')?.[0].component,
     store: localAppRegistry.getStore('Query.History'),
     actions: localAppRegistry.getAction('Query.History.Actions'),
   });
@@ -91,7 +91,7 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
     setShowQueryHistory(false);
   }, [setShowQueryHistory]);
 
-  const QueryHistoryComponent = queryHistoryRef.current?.component;
+  const QueryHistoryComponent = queryHistoryRef.current.component;
 
   return (
     <>

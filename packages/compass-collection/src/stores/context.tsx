@@ -267,19 +267,6 @@ const setupScopedModals = ({
  * and put them in the app registry for use by all the plugins. This way
  * there is only 1 query bar store per collection tab instead of one per
  * plugin that uses it.
- *
- * @param {Object} options - The scope modal plugin options.
- * @property {Object} options.globalAppRegistry - The global app registry.
- * @property {Object} options.localAppRegistry - The scoped app registry to the collection.
- * @property {Object} options.dataService - The data service.
- * @property {String} options.namespace - The namespace.
- * @property {String} options.serverVersion - The server version.
- * @property {Boolean} options.isReadonly - If the collection is a readonly view.
- * @property {Boolean} options.isTimeSeries - If the collection is a time-series.
- * @property {Boolean} options.isClustered - If the collection is a time-series.
- * @property {Boolean} options.isFLE - If the collection is a FLE collection.
- *
- * @returns {Array} The components.
  */
 const setupQueryPlugins = ({
   globalAppRegistry,
@@ -293,44 +280,51 @@ const setupQueryPlugins = ({
   isFLE,
   query,
   aggregation,
-}: ContextWithAppRegistry) => {
-  const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')![0];
-  localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
-  const queryBarActions = setupActions(queryBarRole, localAppRegistry);
-  setupStore({
-    role: queryBarRole,
-    globalAppRegistry,
-    localAppRegistry,
-    dataService: state.dataService,
-    namespace,
-    serverVersion,
-    isReadonly,
-    isTimeSeries,
-    isClustered,
-    isFLE,
-    actions: queryBarActions,
-    query,
-    aggregation,
-  });
+}: ContextWithAppRegistry): void => {
+  const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')?.[0];
+  if (queryBarRole) {
+    localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
+    const queryBarActions = setupActions(queryBarRole, localAppRegistry);
+    setupStore({
+      role: queryBarRole,
+      globalAppRegistry,
+      localAppRegistry,
+      dataService: state.dataService,
+      namespace,
+      serverVersion,
+      isReadonly,
+      isTimeSeries,
+      isClustered,
+      isFLE,
+      actions: queryBarActions,
+      query,
+      aggregation,
+    });
+  }
 
-  const queryHistoryRole = globalAppRegistry.getRole('Query.QueryHistory')![0];
-  localAppRegistry.registerRole('Query.QueryHistory', queryHistoryRole);
-  const queryHistoryActions = setupActions(queryHistoryRole, localAppRegistry);
-  setupStore({
-    role: queryHistoryRole,
-    globalAppRegistry,
-    localAppRegistry,
-    dataService: state.dataService,
-    namespace,
-    serverVersion,
-    isReadonly,
-    isTimeSeries,
-    isClustered,
-    isFLE,
-    actions: queryHistoryActions,
-    query,
-    aggregation,
-  });
+  const queryHistoryRole = globalAppRegistry.getRole('Query.QueryHistory')?.[0];
+  if (queryHistoryRole) {
+    localAppRegistry.registerRole('Query.QueryHistory', queryHistoryRole);
+    const queryHistoryActions = setupActions(
+      queryHistoryRole,
+      localAppRegistry
+    );
+    setupStore({
+      role: queryHistoryRole,
+      globalAppRegistry,
+      localAppRegistry,
+      dataService: state.dataService,
+      namespace,
+      serverVersion,
+      isReadonly,
+      isTimeSeries,
+      isClustered,
+      isFLE,
+      actions: queryHistoryActions,
+      query,
+      aggregation,
+    });
+  }
 };
 
 /**
