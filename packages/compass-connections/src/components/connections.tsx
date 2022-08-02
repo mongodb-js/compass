@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ResizableSidebar,
   ErrorBoundary,
   WorkspaceContainer,
   spacing,
@@ -14,7 +15,6 @@ import type {
 import { ConnectionStorage, connect } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
 import { useConnections } from '../stores/connections-store';

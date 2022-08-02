@@ -4,8 +4,8 @@ import sinon from 'sinon';
 import { mount, shallow } from 'enzyme';
 import { LogoMark } from '@mongodb-js/compass-components';
 
-import { SidebarTitle as SidebarTitleClass } from '../../../src/components/sidebar-title/sidebar-title';
-import styles from '../../../src/components/sidebar-title/sidebar-title.module.less';
+import { SidebarTitle as SidebarTitleClass } from '../../../src/components-legacy/sidebar-title/sidebar-title';
+import styles from '../../../src/components-legacy/sidebar-title/sidebar-title.module.less';
 
 describe('SidebarTitle [Component]', function () {
   const connectionInfo = {

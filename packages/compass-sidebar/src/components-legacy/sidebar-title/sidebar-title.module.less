@@ -1,0 +1,53 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+@compass-sidebar-title-background-color: @gray1;
+@compass-sidebar-title-background-color: lighten(hsl(204, 29%, 18%), 5%);
+@compass-sidebar-hover-background-color: @gray1;
+@compass-sidebar-hover-background-color: lighten(hsl(204, 29%, 18%), 5%);
+@compass-sidebar-active-background-color: @gray4;
+@compass-sidebar-active-background-color: lighten(hsl(201, 11%, 41%), 10%);
+
+.sidebar-title {
+  background-color: @compass-sidebar-title-background-color;
+
+  border-bottom: 1px solid @gray2;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background: @compass-sidebar-hover-background-color;
+    color: @pw;
+  }
+
+  &-is-active {
+    color: @pw;
+    background: @compass-sidebar-active-background-color;
+    &:hover {
+      color: @pw;
+      background: @compass-sidebar-active-background-color;
+    }
+  }
+
+  &-name {
+    padding: 12px;
+    color: @pw;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &-logo {
+    padding: 10px;
+    padding-bottom: 3px;
+    padding-top: 7px;
+    width: 100%;
+
+    svg {
+      margin: 0 auto;
+      height: 30px;
+    }
+  }
+}

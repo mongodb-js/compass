@@ -109,8 +109,8 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           onReset={onResetClicked}
         />
       </div>
-      <div className={schemaToolbarActionBarStyles}>
-        {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
+      {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
+        <div className={schemaToolbarActionBarStyles}>
           <div
             className={schemaToolbarActionBarRightStyles}
             data-testid="schema-document-count"
@@ -127,8 +127,8 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
               Learn more
             </Link>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       {analysisState === ANALYSIS_STATE_ERROR && (
         <ErrorSummary
           data-testid="schema-toolbar-error-message"

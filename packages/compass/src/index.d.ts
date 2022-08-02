@@ -42,6 +42,8 @@ declare module 'process' {
          */
         COMPASS_LG_DARKMODE?: 'true' | 'false';
 
+        COMPASS_SHOW_NEW_SIDEBAR?: 'true' | 'false',
+
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
 
         /**
