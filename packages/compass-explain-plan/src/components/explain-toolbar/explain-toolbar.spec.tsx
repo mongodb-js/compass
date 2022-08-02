@@ -40,7 +40,7 @@ const renderExplainToolbar = (
   render(
     <ExplainToolbar
       localAppRegistry={localAppRegistry}
-      explainResultId="123"
+      resultId="123"
       explainErrorMessage={undefined}
       onExecuteExplainClicked={() => {}}
       showOutdatedWarning={false}

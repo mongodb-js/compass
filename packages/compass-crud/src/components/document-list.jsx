@@ -230,6 +230,7 @@ class DocumentList extends React.Component {
           refreshDocuments={this.props.refreshDocuments}
           resultId={this.props.resultId}
         />
+        {this.renderOutdatedWarning()}
         {this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}

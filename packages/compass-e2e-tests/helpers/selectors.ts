@@ -359,9 +359,6 @@ export const ShellOutput =
 export const ShellLoader =
   '[data-test-id="shell-content"] [class~=mongosh-shell-loader-shell-loader]';
 
-// Query bar (Find, Schema, Explain Plan)
-export const QueryBarMenuActions = '#query-bar-menu-actions';
-
 // Instance screen
 export const InstanceTabs = '[data-test-id="instance-tabs"]';
 export const InstanceTab = '.test-tab-nav-bar-tab';
@@ -487,25 +484,24 @@ export const collectionHeaderTitle = (
 
 // Documents tab
 export const DocumentListActionBarMessage =
-  '[data-test-id="crud-document-count-display"]';
+  '[data-testid="crud-document-count-display"]';
 export const ExportCollectionButton =
-  '[data-test-id="export-collection-button"]';
+  '[data-testid="export-collection-button"]';
 export const DocumentListFetching =
   '[data-test-id="documents-content"] [data-testid="fetching-documents"]';
 export const DocumentListFetchingStopButton =
   '[data-test-id="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError =
   '[data-test-id="documents-content"] .status-row-has-error';
-export const AddDataButton = '#insert-data-dropdown';
+export const AddDataButton = '[data-testid="crud-add-data-button"]';
 export const InsertDocumentOption =
-  '[data-test-id="insert-data-dropdown-insert-document"]';
-export const ImportFileOption =
-  '[data-test-id="insert-data-dropdown-import-file"]';
+  '[data-testid="crud-add-data-insert-document"]';
+export const ImportFileOption = '[data-testid="crud-add-data-import-file"]';
 export const DocumentListEntry = '[data-test-id="editable-document"]';
 export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
-export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
-export const SelectTableView = '[data-test-id="toolbar-view-table"]';
-export const SelectListView = '[data-test-id="toolbar-view-list"]';
+export const SelectJSONView = '[data-testid="toolbar-view-json"]';
+export const SelectTableView = '[data-testid="toolbar-view-table"]';
+export const SelectListView = '[data-testid="toolbar-view-list"]';
 export const CopyDocumentButton = '[data-testid="copy-document-button"]';
 export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
@@ -758,7 +754,7 @@ export const stageEditorErrorMessage = (stageIndex: number): string => {
 export const AnalyzeSchemaButton = '[data-test-id="analyze-schema-button"]';
 export const SchemaFieldList = '.schema-field-list';
 export const AnalysisMessage =
-  '[data-test-id="schema-content"] .analysis-message';
+  '[data-test-id="schema-content"] [data-testid="schema-analysis-message"]';
 export const SchemaField = '.schema-field';
 export const SchemaFieldName = '.schema-field-name';
 export const SchemaFieldTypeList = '.schema-field-type-list';
@@ -818,35 +814,35 @@ export const ValidationNotMatchingDocumentsPreview =
 // Find (Documents, Schema and Explain Plan tabs)
 export const queryBar = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar"]`;
+  return `${tabSelector} [data-testid="query-bar"]`;
 };
 export const queryBarOptionInputFilter = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-filter`;
+  return `${tabSelector} [data-testid="query-bar-option-filter"]`;
 };
 export const queryBarOptionInputProject = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-project`;
+  return `${tabSelector} [data-testid="query-bar-option-project"]`;
 };
 export const queryBarOptionInputSort = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-sort`;
+  return `${tabSelector} [data-testid="query-bar-option-sort"]`;
 };
 export const queryBarOptionInputCollation = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-collation`;
+  return `${tabSelector} [data-testid="query-bar-option-collation"]`;
 };
 export const queryBarOptionInputMaxTimeMS = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [id="querybar-option-input-Max Time MS"]`;
+  return `${tabSelector} [data-testid="query-bar-option-maxTimeMS"]`;
 };
 export const queryBarOptionInputSkip = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #querybar-option-input-skip`;
+  return `${tabSelector} [data-testid="query-bar-option-skip"]`;
 };
 export const queryBarOptionInputLimit = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #querybar-option-input-limit`;
+  return `${tabSelector} [data-testid="query-bar-option-limit"]`;
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
@@ -860,13 +856,9 @@ export const queryBarResetFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-reset-filter-button"]`;
 };
-export const queryBarMenuActionsButton = (tabName: string): string => {
+export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions}`;
-};
-export const queryBarActionsMenu = (tabName: string): string => {
-  const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
+  return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
 
 // Workspace tabs at the top

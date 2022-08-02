@@ -104,7 +104,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
       )}
     >
       <MenuItem
-        data-testid="hadron-document-add-child"
+        data-testid="crud-add-data-import-file"
         onClick={() => {
           setIsOpen(false);
           insertDataHandler('import-file');
@@ -113,7 +113,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
         Import File
       </MenuItem>
       <MenuItem
-        data-testid="hadron-document-add-sibling"
+        data-testid="crud-add-data-insert-document"
         onClick={() => {
           setIsOpen(false);
           insertDataHandler('insert-document');

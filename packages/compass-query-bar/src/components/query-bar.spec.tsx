@@ -85,6 +85,7 @@ const renderQueryBar = (
       showExportToLanguageButton
       showQueryHistoryButton
       toggleExpandQueryOptions={noop}
+      resultId="123"
       valid
       {...queryOptionProps}
       {...props}

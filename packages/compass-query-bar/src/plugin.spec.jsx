@@ -106,7 +106,7 @@ describe('QueryBar [Plugin]', function () {
       // Click the filter button.
       component
         .find('button[data-testid="query-bar-apply-filter-button"]')
-        .simulate('submit');
+        .simulate('click');
     });
 
     afterEach(function () {

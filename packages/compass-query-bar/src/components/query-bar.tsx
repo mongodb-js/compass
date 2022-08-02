@@ -58,6 +58,7 @@ type QueryBarProps = {
   )[];
   queryState: 'apply' | 'reset';
   refreshEditorAction: Listenable;
+  resultId: string | number;
   schemaFields: string[];
   serverVersion: string;
   showExportToLanguageButton?: boolean;
@@ -78,6 +79,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
   queryState,
   refreshEditorAction,
+  resultId,
   schemaFields,
   serverVersion,
   showExportToLanguageButton = true,
@@ -102,7 +104,13 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   );
 
   return (
-    <form className={queryBarFormStyles} onSubmit={onFormSubmit} noValidate>
+    <form
+      className={queryBarFormStyles}
+      data-testid="query-bar"
+      onSubmit={onFormSubmit}
+      noValidate
+      data-result-id={resultId}
+    >
       <div className={queryBarFirstRowStyles}>
         {showQueryHistoryButton && (
           <QueryHistoryButtonPopover
@@ -142,6 +150,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           variant="primary"
           size="small"
           type="submit"
+          onClick={onFormSubmit}
         >
           {buttonLabel}
         </Button>

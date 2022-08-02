@@ -48,7 +48,7 @@ type ExplainToolbarProps = {
   localAppRegistry: AppRegistry;
   darkMode?: boolean;
   explainErrorMessage?: string;
-  explainResultId: string;
+  resultId: string;
   onExecuteExplainClicked: (queryBarStoreState: any) => void;
   showOutdatedWarning: boolean;
   showReadonlyWarning: boolean;
@@ -60,7 +60,7 @@ type ExplainToolbarProps = {
 function UnthemedExplainToolbar({
   localAppRegistry,
   darkMode,
-  explainResultId,
+  resultId,
   explainErrorMessage,
   onExecuteExplainClicked,
   showOutdatedWarning,
@@ -105,7 +105,7 @@ function UnthemedExplainToolbar({
             store={queryBarRef.current.store}
             actions={queryBarRef.current.actions}
             buttonLabel="Explain"
-            resultId={explainResultId}
+            resultId={resultId}
             onApply={onExecuteExplainClicked}
             onReset={onExecuteExplainClicked}
           />

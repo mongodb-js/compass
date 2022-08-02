@@ -163,6 +163,7 @@ class ExplainStates extends Component {
           switchToTreeView={this.props.switchToTreeView}
           switchToJSONView={this.props.switchToJSONView}
           viewType={this.props.explain.viewType}
+          resultId={this.props.explain.resultId}
         />
         {this.renderZeroState()}
         {this.renderContent()}

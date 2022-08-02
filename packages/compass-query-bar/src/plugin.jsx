@@ -9,6 +9,7 @@ function Plugin({
   actions,
   onApply: _onApply,
   onReset: _onReset,
+  resultId,
   store,
   queryOptions,
   ...props
@@ -41,6 +42,7 @@ function Plugin({
         globalAppRegistry={store.globalAppRegistry}
         localAppRegistry={store.localAppRegistry}
         queryOptions={queryOptions}
+        resultId={resultId}
         {...props}
       />
     </StoreConnector>
@@ -53,6 +55,7 @@ Plugin.propTypes = {
   onApply: PropTypes.func,
   onReset: PropTypes.func,
   queryOptions: PropTypes.arrayOf(PropTypes.string),
+  resultId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   showExportToLanguageButton: PropTypes.bool,
   showQueryHistoryButton: PropTypes.bool,
   store: PropTypes.object.isRequired,
