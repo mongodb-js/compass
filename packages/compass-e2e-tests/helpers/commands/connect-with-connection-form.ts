@@ -2,13 +2,11 @@ import type { CompassBrowser } from '../compass-browser';
 import type { ConnectFormState } from '../connect-form-state';
 import * as Selectors from '../selectors';
 
-const defaultTimeoutMS = 30_000;
-
 export async function connectWithConnectionForm(
   browser: CompassBrowser,
   options: ConnectFormState,
-  timeout = defaultTimeoutMS,
-  connectionStatus: 'success' | 'failure' | 'either' = 'success'
+  connectionStatus: 'success' | 'failure' | 'either' = 'success',
+  timeout?: number
 ): Promise<void> {
   const sidebar = await browser.$(Selectors.SidebarTitle);
   if (await sidebar.isDisplayed()) {
@@ -17,5 +15,5 @@ export async function connectWithConnectionForm(
 
   await browser.setConnectFormState(options);
 
-  await browser.doConnect(timeout, connectionStatus);
+  await browser.doConnect(connectionStatus, timeout);
 }

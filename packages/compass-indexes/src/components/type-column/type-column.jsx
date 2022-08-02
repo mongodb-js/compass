@@ -63,7 +63,7 @@ class TypeColumn extends PureComponent {
       <div
         {...tooltipOptions}
         className={styles[`type-column-property-${this.props.index.type}`]}
-        data-test-id="index-table-type"
+        data-test-id="index-field-type"
       >
         {this.props.index.type}
         {helpLink && (

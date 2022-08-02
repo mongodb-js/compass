@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import {
   Button,
   Icon,
-  IconButton,
   MoreOptionsToggle,
   css,
   spacing,
@@ -155,15 +154,16 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           {buttonLabel}
         </Button>
         {showExportToLanguageButton && (
-          <IconButton
+          <Button
             onClick={onOpenExportToLanguage}
             title="Open export to language"
             aria-label="Open export to language"
             data-testid="query-bar-open-export-to-language-button"
             type="button"
+            size="small"
           >
-            <Icon glyph="Export" />
-          </IconButton>
+            <Icon glyph="Code" />
+          </Button>
         )}
 
         {queryOptions && queryOptions.length > 0 && (

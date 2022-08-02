@@ -37,14 +37,11 @@ export async function shellEval(
   await browser.keys(['Enter']);
 
   // wait until more output appears
-  await browser.waitUntil(
-    async () => {
-      const lines = await getOutputText(browser);
-      // first the command we send appears then later the response
-      return lines.length > numLines + 1;
-    },
-    { timeout: 10000 }
-  );
+  await browser.waitUntil(async () => {
+    const lines = await getOutputText(browser);
+    // first the command we send appears then later the response
+    return lines.length > numLines + 1;
+  });
 
   const shellOutputElements = await browser.$$(Selectors.ShellOutput);
   const output = await shellOutputElements[
