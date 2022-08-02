@@ -101,49 +101,57 @@ describe('Collection indexes tab', function () {
     await indexComponent.waitForDisplayed({ reverse: true });
   });
 
-  it('supports creating a wildcard index', async function () {
-    await browser.clickVisible(Selectors.CreateIndexButton);
+  describe('server version 4.2.0', function () {
+    it('supports creating a wildcard index', async function () {
+      if (semver.lt(MONGODB_VERSION, '4.2.0')) {
+        return this.skip();
+      }
 
-    const createModal = await browser.$(Selectors.CreateIndexModal);
-    await createModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.CreateIndexButton);
 
-    // Select i filed name from Combobox.
-    const fieldNameSelect = await browser.$(
-      Selectors.CreateIndexModalFieldNameSelectInput(0)
-    );
+      const createModal = await browser.$(Selectors.CreateIndexModal);
+      await createModal.waitForDisplayed();
 
-    await browser.setValueVisible(fieldNameSelect, 'i.$**');
-    await browser.keys(['Enter']);
+      // Select i filed name from Combobox.
+      const fieldNameSelect = await browser.$(
+        Selectors.CreateIndexModalFieldNameSelectInput(0)
+      );
 
-    // Select text filed type from Select.
-    const fieldTypeSelect = await browser.$(
-      Selectors.CreateIndexModalFieldTypeSelectButtont(0)
-    );
-    await fieldTypeSelect.waitForDisplayed();
+      await browser.setValueVisible(fieldNameSelect, 'i.$**');
+      await browser.keys(['Enter']);
 
-    await fieldTypeSelect.click();
+      // Select text filed type from Select.
+      const fieldTypeSelect = await browser.$(
+        Selectors.CreateIndexModalFieldTypeSelectButtont(0)
+      );
+      await fieldTypeSelect.waitForDisplayed();
 
-    const fieldTypeSelectMenu = await browser.$(
-      Selectors.CreateIndexModalFieldTypeSelectMenu(0)
-    );
-    await fieldTypeSelectMenu.waitForDisplayed();
+      await fieldTypeSelect.click();
 
-    const fieldTypeSelectSpan = await fieldTypeSelectMenu.$('span=1 (asc)');
+      const fieldTypeSelectMenu = await browser.$(
+        Selectors.CreateIndexModalFieldTypeSelectMenu(0)
+      );
+      await fieldTypeSelectMenu.waitForDisplayed();
 
-    await fieldTypeSelectSpan.waitForDisplayed();
-    await fieldTypeSelectSpan.click();
+      const fieldTypeSelectSpan = await fieldTypeSelectMenu.$('span=1 (asc)');
 
-    await browser.clickVisible(Selectors.CreateIndexConfirmButton);
+      await fieldTypeSelectSpan.waitForDisplayed();
+      await fieldTypeSelectSpan.click();
 
-    await createModal.waitForDisplayed({ reverse: true });
+      await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
-    const indexComponent = await browser.$(Selectors.indexComponent('i.$**_1'));
-    await indexComponent.waitForDisplayed();
+      await createModal.waitForDisplayed({ reverse: true });
 
-    const indexFieldTypeElement = await browser.$(
-      `${Selectors.indexComponent('i.$**_1')} ${Selectors.IndexFieldType}`
-    );
-    expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
+      const indexComponent = await browser.$(
+        Selectors.indexComponent('i.$**_1')
+      );
+      await indexComponent.waitForDisplayed();
+
+      const indexFieldTypeElement = await browser.$(
+        `${Selectors.indexComponent('i.$**_1')} ${Selectors.IndexFieldType}`
+      );
+      expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
+    });
   });
 
   describe('server version 6.1.0', function () {
