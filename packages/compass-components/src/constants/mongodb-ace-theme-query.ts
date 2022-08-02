@@ -1,6 +1,5 @@
 const mongodbAceThemeQueryCssText = `
 .ace-mongodb-query .ace_scroller {
-margin: 0px 6px;
 line-height: 14px;
 }
 .ace-mongodb-query .ace_gutter {
@@ -16,7 +15,7 @@ font-family: inherit;
 transform: none;
 opacity: 1;
 margin: 0;
-padding: 6px !important;
+padding: 6px 14px !important;
 }
 .ace-mongodb-query .ace_keyword {
 color: #999999;
