@@ -9,6 +9,10 @@ const containerStyles = css({
   width: '35%',
 });
 
+const indexKeyStyles = css({
+  marginTop: spacing[1],
+});
+
 class NameColumn extends PureComponent {
   static displayName = 'NameColumn';
 
@@ -26,7 +30,7 @@ class NameColumn extends PureComponent {
       <td className={containerStyles}>
         <div className="index-definition">
           <Body data-testid="name-column-name">{indexName}</Body>
-          <IndexKeys keys={indexKeys} />
+          <div className={indexKeyStyles}><IndexKeys keys={indexKeys} /></div>
         </div>
       </td>
     );

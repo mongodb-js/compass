@@ -3,14 +3,14 @@ import Badge, { Variant } from '@leafygreen-ui/badge';
 import { css } from '@leafygreen-ui/emotion';
 import Icon from '@leafygreen-ui/icon';
 import { spacing } from '@leafygreen-ui/tokens';
-import type { IndexDirection } from 'mongodb';
+
+type IndexDirection = -1 | 1 | '2d' | '2dsphere' | 'text' | 'geoHaystack' | number
 
 type IndexKeysProps = {
   keys: Record<string, IndexDirection>;
 };
 
 const containerStyles = css({
-  marginTop: spacing[1],
   '*:not(:last-child)': {
     marginRight: spacing[1],
   },

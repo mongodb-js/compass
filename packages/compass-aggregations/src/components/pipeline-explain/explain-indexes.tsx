@@ -27,6 +27,10 @@ const shardStyles = css({
   color: uiColors.gray.dark1,
 });
 
+const indexKeyStyles = css({
+  marginTop: spacing[1],
+});
+
 export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
   indexes,
 }) => {
@@ -53,6 +57,7 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
                 data-testid={`explain-index-button-${name}-${shard ?? ''}`}
               >
                 <div
+                  className={indexKeyStyles}
                   data-testid={`explain-index-content-${name}-${shard ?? ''}`}
                 >
                   <IndexKeys keys={indexKeys} />
