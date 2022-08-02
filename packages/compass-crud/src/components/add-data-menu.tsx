@@ -17,6 +17,10 @@ const tooltipContainerStyles = css({
   alignItems: 'center',
 });
 
+const addDataButtonStyles = css({
+  whiteSpace: 'nowrap',
+});
+
 type AddDataMenuProps = {
   instanceDescription: string;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
@@ -33,6 +37,7 @@ function AddDataButton({
   return (
     <Button
       size="xsmall"
+      className={addDataButtonStyles}
       leftGlyph={<Icon glyph="Download" />}
       rightGlyph={<Icon glyph="CaretDown" />}
       disabled={disabled}
