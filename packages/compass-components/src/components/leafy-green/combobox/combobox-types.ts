@@ -41,7 +41,6 @@ export type SearchState = typeof SearchState[keyof typeof SearchState];
 /**
  * Generic Typing
  */
-
 export type SelectValueType<M extends boolean> = M extends true
   ? Array<string>
   : string | null;
