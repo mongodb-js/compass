@@ -69,6 +69,7 @@
     "@react-aria/utils": "^3.13.1",
     "@react-stately/tooltip": "^3.0.5",
     "bson": "^4.6.1",
+    "focus-trap-react": "^9.0.2",
     "hadron-document": "^7.13.0",
     "hadron-type-checker": "^6.10.0",
     "react-sortable-hoc": "^2.0.0",

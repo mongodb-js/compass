@@ -1,20 +1,19 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
   Icon,
-  Popover,
+  InteractivePopover,
   css,
   cx,
   focusRingStyles,
   focusRingVisibleStyles,
   spacing,
-  useOnClickOutside,
 } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type AppRegistry from 'hadron-app-registry';
 
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
-const openQueryHistoryStyles = cx(
+const openQueryHistoryButtonStyles = cx(
   css({
     border: 'none',
     backgroundColor: 'transparent',
@@ -28,11 +27,6 @@ const openQueryHistoryStyles = cx(
   }),
   focusRingStyles
 );
-
-const queryHistoryContainerStyles = css({
-  display: 'flex',
-  height: '100%',
-});
 
 const queryHistoryPopoverStyles = css({
   // We want the popover to open almost to the shell at the bottom of Compass.
@@ -58,79 +52,65 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
     store: localAppRegistry.getStore('Query.History'),
     actions: localAppRegistry.getAction('Query.History.Actions'),
   });
-  const queryHistoryButtonRef = useRef<HTMLButtonElement>(null);
-  const queryHistoryContainerRef = useRef<HTMLDivElement>(null);
-
   const [showQueryHistory, setShowQueryHistory] = useState(false);
 
-  const onClickQueryHistory = useCallback(() => {
-    if (!showQueryHistory) {
-      track('Query History Opened');
-    }
+  const onSetShowQueryHistory = useCallback(
+    (newShowQueryHistory) => {
+      setShowQueryHistory((currentQueryHistory) => {
+        if (!currentQueryHistory && newShowQueryHistory) {
+          track('Query History Opened');
+        }
 
-    setShowQueryHistory(!showQueryHistory);
-  }, [showQueryHistory, setShowQueryHistory]);
-
-  const onClickOutsideQueryHistory = useCallback(
-    (event) => {
-      // Ignore clicks on the query history button as it has its own handler.
-      if (
-        !queryHistoryButtonRef.current ||
-        queryHistoryButtonRef.current.contains(event.target as Node)
-      ) {
-        return;
-      }
-      setShowQueryHistory(false);
+        return newShowQueryHistory;
+      });
     },
-    [queryHistoryButtonRef, setShowQueryHistory]
+    [setShowQueryHistory]
   );
-
-  useOnClickOutside(queryHistoryContainerRef, onClickOutsideQueryHistory);
-
-  const onHideQueryHistory = useCallback(() => {
-    setShowQueryHistory(false);
-  }, [setShowQueryHistory]);
 
   const QueryHistoryComponent = queryHistoryRef.current.component;
 
+  if (!QueryHistoryComponent) {
+    return null;
+  }
+
+  const popoverContent = ({
+    setOpen,
+  }: {
+    setOpen: (open: boolean) => void;
+  }) => (
+    <QueryHistoryComponent
+      onClose={() => setOpen(false)}
+      store={queryHistoryRef.current?.store}
+      actions={queryHistoryRef.current?.actions}
+    />
+  );
+
   return (
-    <>
-      <button
-        data-testid="query-history-button"
-        onClick={onClickQueryHistory}
-        className={openQueryHistoryStyles}
-        id="open-query-history"
-        aria-label="Open query history"
-        type="button"
-        ref={queryHistoryButtonRef}
-      >
-        <Icon glyph="Clock" />
-        <Icon glyph="CaretDown" />
-      </button>
-      <Popover
-        align="bottom"
-        justify="start"
-        active={showQueryHistory}
-        usePortal
-        adjustOnMutation
-        spacing={0}
-        popoverZIndex={99999}
-        className={queryHistoryPopoverStyles}
-        refEl={queryHistoryButtonRef}
-      >
-        <div
-          className={queryHistoryContainerStyles}
-          ref={queryHistoryContainerRef}
-        >
-          {QueryHistoryComponent && (
-            <QueryHistoryComponent
-              onClose={onHideQueryHistory}
-              store={queryHistoryRef.current?.store}
-              actions={queryHistoryRef.current?.actions}
-            />
-          )}
-        </div>
-      </Popover>
-    </>
+    <InteractivePopover
+      className={queryHistoryPopoverStyles}
+      trigger={({ onClick, ref, children }) => (
+        <>
+          <button
+            data-testid="query-history-button"
+            onClick={onClick}
+            className={openQueryHistoryButtonStyles}
+            aria-label="Open query history"
+            aria-haspopup="true"
+            tabIndex={0}
+            aria-expanded={showQueryHistory ? true : undefined}
+            type="button"
+            ref={ref}
+          >
+            <Icon glyph="Clock" />
+            <Icon glyph="CaretDown" />
+          </button>
+          {children}
+        </>
+      )}
+      open={showQueryHistory}
+      setOpen={onSetShowQueryHistory}
+    >
+      {popoverContent}
+    </InteractivePopover>
   );
 };
