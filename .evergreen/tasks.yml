@@ -275,14 +275,17 @@ tasks:
         vars:
           compass_distribution: compass
           target_platform: '--platform=win32'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass
           target_platform: '--platform=linux'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass
           target_platform: '--platform=darwin'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass
@@ -293,14 +296,17 @@ tasks:
         vars:
           compass_distribution: compass-isolated
           target_platform: '--platform=win32'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass-isolated
           target_platform: '--platform=linux'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass-isolated
           target_platform: '--platform=darwin'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass-isolated
@@ -311,14 +317,17 @@ tasks:
         vars:
           compass_distribution: compass-readonly
           target_platform: '--platform=win32'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass-readonly
           target_platform: '--platform=linux'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass-readonly
           target_platform: '--platform=darwin'
+          target_arch: '--arch=x64'
       - func: publish
         vars:
           compass_distribution: compass-readonly
