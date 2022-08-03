@@ -37,7 +37,7 @@ import { changeTtl } from '../../modules/create-index/ttl';
 import { toggleHasWildcardProjection } from '../../modules/create-index/has-wildcard-projection';
 import { toggleHasColumnstoreProjection } from '../../modules/create-index/has-columnstore-projection';
 import { wildcardProjectionChanged } from '../../modules/create-index/wildcard-projection';
-import { changeColumnstoreProjection } from '../../modules/create-index/columnstore-projection';
+import { columnstoreProjectionChanged } from '../../modules/create-index/columnstore-projection';
 import { changePartialFilterExpression } from '../../modules/create-index/partial-filter-expression';
 import { toggleIsCustomCollation } from '../../modules/create-index/is-custom-collation';
 import { collationStringChanged } from '../../modules/create-index/collation-string';
@@ -94,7 +94,7 @@ class CreateIndexModal extends PureComponent {
     createIndex: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     changeTtl: PropTypes.func.isRequired,
-    changeColumnstoreProjection: PropTypes.func.isRequired,
+    columnstoreProjectionChanged: PropTypes.func.isRequired,
     wildcardProjectionChanged: PropTypes.func.isRequired,
     changePartialFilterExpression: PropTypes.func.isRequired,
     changeName: PropTypes.func.isRequired,
@@ -315,13 +315,11 @@ class CreateIndexModal extends PureComponent {
     if (this.props.showOptions && this.props.hasColumnstoreProjection) {
       return (
         <div className={styles['create-index-modal-options-param-wrapper']}>
-          <ModalInput
-            id="columnstore-projection-value"
-            name=""
-            value={this.props.columnstoreProjection}
-            onChangeHandler={(evt) =>
-              this.props.changeColumnstoreProjection(evt.target.value)
-            }
+          <Editor
+            variant={EditorVariant.Shell}
+            onChangeText={this.props.columnstoreProjectionChanged}
+            options={{ minLines: 10 }}
+            name="add-index-columnstore-projection-editor"
           />
         </div>
       );
@@ -529,7 +527,7 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   changePartialFilterExpression,
   changeTtl,
   wildcardProjectionChanged,
-  changeColumnstoreProjection,
+  columnstoreProjectionChanged,
   collationStringChanged,
   createNewIndexField,
   clearNewIndexField,
