@@ -149,7 +149,7 @@ export const CollectionItem: React.FunctionComponent<
       {...hoverProps}
     >
       <CollectionIcon type={type} />
-      <ItemLabel className={cx(collectionItemLabel)}>{name}</ItemLabel>
+      <ItemLabel className={collectionItemLabel}>{name}</ItemLabel>
       <ActionControls
         className={collectionActions}
         onAction={onAction}
