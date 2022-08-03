@@ -8,11 +8,20 @@ describe('IndexKeys Component', function () {
   afterEach(cleanup);
 
   it('should render the keys of an index', function () {
-    const keys = {
-      name: 1,
-      user_id: -1,
-      tagline: 'text',
-    };
+    const keys = [
+      {
+        field: 'name',
+        value: 1,
+      },
+      {
+        field: 'user_id',
+        value: -1,
+      },
+      {
+        field: 'tagline',
+        value: 'text',
+      },
+    ];
     render(<IndexKeys keys={keys} />);
 
     // name
