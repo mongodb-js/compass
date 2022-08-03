@@ -774,7 +774,7 @@ export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
 export const IndexFieldName = '[data-test-id="index-field-name"]';
 export const IndexFieldType = '[data-test-id="index-field-type"]';
-export const IndexToggleOption =
+export const IndexToggleOptions =
   '[data-test-id="create-index-modal-toggle-options"]';
 export const IndexToggleIsWildcard =
   '[data-test-id="wildcard-projection"] input[type="checkbox"]';

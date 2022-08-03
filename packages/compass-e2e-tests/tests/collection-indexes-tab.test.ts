@@ -138,8 +138,8 @@ describe('Collection indexes tab', function () {
       await fieldTypeSelectSpan.waitForDisplayed();
       await fieldTypeSelectSpan.click();
 
-      const indexToggleOption = await browser.$(Selectors.IndexToggleOption);
-      await indexToggleOption.click();
+      const indexToggleOptions = await browser.$(Selectors.IndexToggleOptions);
+      await indexToggleOptions.click();
 
       const indexToggleIsWildcard = await browser.$(
         Selectors.IndexToggleIsWildcard
