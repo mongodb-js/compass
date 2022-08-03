@@ -232,12 +232,14 @@ const configureStore = (options = {}) => {
       }
     });
 
-    /**
-     * Set the environment.
-     */
-    globalAppRegistry.on('compass:deployment-awareness:topology-changed', (data) => {
-      setEnv(store, data.env);
-    });
+    // TODO: for now this is how we get to the env in compass as opposed to in
+    // mms where it comes from options.env. Ideally options.env would be
+    // required so we can always get it from there, but that's something for a
+    // future task. In theory we already know the env by the time this code
+    // executes, so it should be doable.
+    const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
+    const instance = instanceStore.getState().instance;
+    setEnv(store, instance.env);
   }
 
   // Set the data provider - this must happen second.
@@ -249,6 +251,8 @@ const configureStore = (options = {}) => {
     );
   }
 
+  // options.isAtlasDeployed is only used by mms to change some behaviour in the
+  // aggregations plugin
   if (options.isAtlasDeployed !== null && options.isAtlasDeployed !== undefined) {
     setIsAtlas(store, options.isAtlasDeployed);
   }
@@ -263,9 +267,11 @@ const configureStore = (options = {}) => {
   if (options.serverVersion) {
     setServerVersion(store, options.serverVersion);
   }
+  // options.fields is only used by mms, but always set to [] which is the initial value anyway
   if (options.fields) {
     setFields(store, options.fields);
   }
+  // options.outResultsFn is only used by mms
   if (options.outResultsFn) {
     setOutResultsFn(store, options.outResultsFn);
   }
@@ -278,15 +284,6 @@ const configureStore = (options = {}) => {
       options.isReadonly,
       options.sourceName
     );
-  }
-
-  if (options.env) {
-    setEnv(store, options.env);
-  } else if (global && global.hadronApp && global.hadronApp.appRegistry) {
-    const deploymentAwarenessStore = global.hadronApp.appRegistry.getStore('DeploymentAwareness.Store');
-    if (deploymentAwarenessStore) {
-      setEnv(store, deploymentAwarenessStore.state.env);
-    }
   }
 
   if (options.isTimeSeries) {
@@ -307,6 +304,13 @@ const configureStore = (options = {}) => {
 
   if (options.isDataLake) {
     store.dispatch(setDataLake(options.isDataLake));
+  }
+
+  // mms specifies options.env whereas we don't currently get this variable when
+  // we use the aggregations plugin inside compass. In that use case we get it
+  // from the instance model above.
+  if (options.env) {
+    setEnv(store, options.env);
   }
 
   return store;

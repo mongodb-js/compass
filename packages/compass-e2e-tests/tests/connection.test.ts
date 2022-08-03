@@ -357,6 +357,7 @@ describe('Connection screen', function () {
     }
 
     if (process.env.EVERGREEN && process.platform === 'win32') {
+      // TODO: https://jira.mongodb.org/browse/COMPASS-5575
       console.warn("Evergreen doesn't have aws cli installed");
       this.skip();
     }
@@ -590,7 +591,6 @@ describe('SRV connectivity', function () {
       // (Unless you have a server listening on port 27017)
       await browser.connectWithConnectionString(
         'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
-        undefined,
         'either'
       );
     } finally {

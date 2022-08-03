@@ -73,8 +73,12 @@ let maybeUploadManifest = (CONFIG) => {
     channel: CONFIG.channel,
     platform: [
       {
-        name: 'OS X 10.10+ 64-bit',
+        name: 'MacOS 10.10+ 64-bit',
         download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-darwin-x64.dmg`
+      },
+      {
+        name: 'MacOS 11.0+ arm64 (Apple M1)',
+        download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-darwin-arm64.dmg`
       },
       {
         name: 'Windows 7+ 64-bit',

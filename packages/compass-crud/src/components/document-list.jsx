@@ -12,7 +12,8 @@ import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
 import DocumentJsonView from './document-json-view';
 import DocumentTableView from './document-table-view';
-import Toolbar from './toolbar';
+import LegacyToolbar from './legacy-toolbar';
+import { CrudToolbar } from './crud-toolbar';
 
 import {
   DOCUMENTS_STATUS_ERROR,
@@ -240,19 +241,47 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list.
    */
   render() {
+    const useNewToolbars = process?.env?.COMPASS_SHOW_NEW_TOOLBARS;
+
     return (
       <div className="compass-documents">
-        <div className="controls-container">
-          {this.renderQueryBar()}
-          <Toolbar
-            readonly={!this.props.isEditable}
-            insertHandler={this.handleOpenInsert.bind(this)}
-            viewSwitchHandler={this.props.viewChanged}
+        {useNewToolbars ? (
+          <CrudToolbar
             activeDocumentView={this.props.view}
-            {...this.props}
+            count={this.props.count}
+            loadingCount={this.props.loadingCount}
+            start={this.props.start}
+            end={this.props.end}
+            page={this.props.page}
+            getPage={this.props.getPage}
+            insertDataHandler={this.handleOpenInsert.bind(this)}
+            localAppRegistry={this.props.store.localAppRegistry}
+            isExportable={this.props.isExportable}
+            onApplyClicked={this.onApplyClicked.bind(this)}
+            onResetClicked={this.onResetClicked.bind(this)}
+            openExportFileDialog={this.props.openExportFileDialog}
+            readonly={!this.props.isEditable}
+            viewSwitchHandler={this.props.viewChanged}
+            isWritable={this.props.isWritable}
+            instanceDescription={this.props.instanceDescription}
+            refreshDocuments={this.props.refreshDocuments}
+            resultId={this.props.resultId}
           />
-        </div>
-        {this.renderOutdatedWarning()}
+        ) : (
+          <>
+            <div className="controls-container">
+              {this.renderQueryBar()}
+              <LegacyToolbar
+                readonly={!this.props.isEditable}
+                insertHandler={this.handleOpenInsert.bind(this)}
+                viewSwitchHandler={this.props.viewChanged}
+                activeDocumentView={this.props.view}
+                {...this.props}
+              />
+            </div>
+            {this.renderOutdatedWarning()}
+          </>
+        )}
         {this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}
@@ -267,6 +296,11 @@ DocumentList.propTypes = {
   closeInsertDocumentDialog: PropTypes.func,
   toggleInsertDocumentView: PropTypes.func.isRequired,
   toggleInsertDocument: PropTypes.func.isRequired,
+  count: PropTypes.number,
+  start: PropTypes.number,
+  end: PropTypes.number,
+  page: PropTypes.number,
+  getPage: PropTypes.func,
   error: PropTypes.object,
   insert: PropTypes.object,
   insertDocument: PropTypes.func,
@@ -278,6 +312,7 @@ DocumentList.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openExportFileDialog: PropTypes.func,
+  refreshDocuments: PropTypes.func,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
@@ -294,6 +329,8 @@ DocumentList.propTypes = {
   loadingCount: PropTypes.bool,
   outdated: PropTypes.bool,
   resultId: PropTypes.number,
+  isWritable: PropTypes.bool,
+  instanceDescription: PropTypes.string,
 };
 
 DocumentList.defaultProps = {

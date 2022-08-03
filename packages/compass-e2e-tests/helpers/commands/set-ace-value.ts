@@ -1,4 +1,3 @@
-import clipboard from 'clipboardy';
 import { expect } from 'chai';
 import Debug from 'debug';
 import type { CompassBrowser } from '../compass-browser';
@@ -29,27 +28,23 @@ export async function setAceValue(
     return focused;
   });
 
-  const META = process.platform === 'darwin' ? 'Meta' : 'Control';
-
-  await browser.keys([META, 'a']);
-  await browser.keys([META]); // meta a second time to release it
-  await browser.keys(['Backspace']);
-
-  await clipboard.write(value);
-
-  expect(await clipboard.read()).to.equal(value);
-
+  const editorValue = await browser.execute(
+    (_selector, _value) => {
+      const editorNode =
+        document.querySelector(`${_selector} .ace_editor`) ||
+        document.querySelector(`${_selector}.ace_editor`);
+      if (!editorNode) {
+        throw new Error(
+          `Cannot find ace-editor container for selector ${_selector}`
+        );
+      }
+      const editor = (window as any).ace.edit(editorNode.id);
+      editor.setValue(_value);
+      return editor.getValue();
+    },
+    selector,
+    value
+  );
+  expect(editorValue).to.equal(value);
   await browser.pause(100);
-
-  // For whatever reason it is shift-insert and not cmd-v  ¯\_(ツ)_/¯
-  // https://twitter.com/webdriverio/status/812034986341789696?lang=en
-  // https://bugs.chromium.org/p/chromedriver/issues/detail?id=30
-  // https://support.google.com/chrome/thread/15776362/is-shift-insert-to-paste-disabled-when-copying-from-outside-of-chrome?hl=en
-  if (process.platform === 'darwin') {
-    await browser.keys(['Shift', 'Insert']);
-    await browser.keys(['Shift']); // shift a second time to release it
-  } else {
-    await browser.keys(['Control', 'v']);
-    await browser.keys(['Control']); // control a second time to release it
-  }
 }

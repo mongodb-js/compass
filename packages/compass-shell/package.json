@@ -46,14 +46,14 @@
     "@mongodb-js/compass-components": "^0.17.0",
     "@mongodb-js/compass-logging": "^0.14.0",
     "@mongodb-js/mongodb-redux-common": "^1.14.1",
-    "@mongosh/node-runtime-worker-thread": "^1.5.0",
+    "@mongosh/node-runtime-worker-thread": "^1.5.4",
     "react": "^16.14.0"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^0.17.0",
     "@mongodb-js/compass-logging": "^0.14.0",
     "@mongodb-js/mongodb-redux-common": "^1.14.1",
-    "@mongosh/node-runtime-worker-thread": "^1.5.0",
+    "@mongosh/node-runtime-worker-thread": "^1.5.4",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -66,9 +66,9 @@
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
     "@leafygreen-ui/code": "^9.4.0",
-    "@mongosh/browser-repl": "^1.5.0",
-    "@mongosh/logging": "^1.5.0",
-    "@mongosh/service-provider-core": "^1.5.0",
+    "@mongosh/browser-repl": "^1.5.4",
+    "@mongosh/logging": "^1.5.4",
+    "@mongosh/service-provider-core": "^1.5.4",
     "ace-builds": "^1.4.3",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
@@ -105,7 +105,7 @@
     "karma-webpack": "^4.0.2",
     "mocha": "^5.2.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.8.1",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^13.1.0",

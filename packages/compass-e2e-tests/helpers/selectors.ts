@@ -772,7 +772,8 @@ export const ExplainDocumentsReturnedSummary =
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
-export const NameColumnName = '[data-test-id="name-column-name"]';
+export const IndexFieldName = '[data-test-id="index-field-name"]';
+export const IndexFieldType = '[data-test-id="index-field-type"]';
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
 export const CreateIndexModal = '[data-test-id="create-index-modal"]';
@@ -926,6 +927,8 @@ export const ExportToLanguageCopyOutputButton =
   '[data-test-id="export-to-lang-copy-output"]';
 export const ExportToLanguageCloseButton =
   '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';
+export const ExportToLanguageQueryOutput =
+  '[data-testid="export-to-lang-query-output-container"]';
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =

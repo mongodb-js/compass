@@ -1,23 +1,32 @@
 buildvariants:
   - name: macos_gui
-    display_name: MacOS (Test w/ GUI Session)
+    display_name: MacOS x64 (Test w/ GUI Session)
     # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
     run_on: macos-1014-codesign
     tasks:
       - name: test-electron
-      # TODO: These tests are not currently running due to keychain access
-      #       missing. We disable this step to not block codesign machine time
-      #       with bootstrap / teardown that does nothing. We should be able to
-      #       enable these tests after https://jira.mongodb.org/browse/BUILD-14458
-      # - name: test-packaged-app-macos
+      # TODO: Even though these tests are running, they run compass with a
+      #       keychain disabled and clipboard tests skipped
+      #
+      #       https://jira.mongodb.org/browse/BUILD-14458
+      #       https://jira.mongodb.org/browse/BUILD-14780
+      - name: test-packaged-app-macos
 
   - name: macos
-    display_name: MacOS (Test and Package)
+    display_name: MacOS x64 (Test and Package)
     # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
     run_on: macos-1014
     tasks:
       - name: test
       - name: check
+      - name: package
+      - name: package-readonly
+      - name: package-isolated
+
+  - name: macos_arm
+    display_name: MacOS arm64 (Package)
+    run_on: macos-1100-arm64
+    tasks:
       - name: package
       - name: package-readonly
       - name: package-isolated

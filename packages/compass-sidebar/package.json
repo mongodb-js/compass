@@ -61,6 +61,7 @@
     "@mongodb-js/connection-form": "^0.9.1",
     "@mongodb-js/mongodb-redux-common": "^1.14.1",
     "mongodb-data-service": "^21.24.1",
+    "mongodb-instance-model": "^11.26.1",
     "react": "^16.14.0"
   },
   "dependencies": {
@@ -70,12 +71,10 @@
     "@mongodb-js/connection-form": "^0.9.1",
     "@mongodb-js/mongodb-redux-common": "^1.14.1",
     "mongodb-data-service": "^21.24.1",
+    "mongodb-instance-model": "^11.26.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-deployment-awareness": "^11.26.1",
-    "@mongodb-js/compass-server-version": "^5.26.1",
-    "@mongodb-js/compass-ssh-tunnel-status": "^6.26.1",
     "@mongodb-js/eslint-config-compass": "^0.11.0",
     "@mongodb-js/mocha-config-compass": "^0.12.0",
     "@mongodb-js/prettier-config-compass": "^0.6.0",
@@ -99,7 +98,6 @@
     "hadron-app-registry": "^8.14.1",
     "lodash": "^4.17.21",
     "mocha": "^8.4.0",
-    "mongodb-instance-model": "^11.26.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-reflux-store": "^0.0.1",
     "nyc": "^15.1.0",

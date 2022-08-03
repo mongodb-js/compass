@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import {
   Button,
   Icon,
-  IconButton,
   MoreOptionsToggle,
   css,
   cx,
@@ -27,20 +26,14 @@ const queryBarFormStyles = css({
   flexGrow: 1,
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
-  padding: spacing[1],
-
-  // TODO: This margin and background will go away when the query bar is
-  // wrapped in the Toolbar component in each of the plugins. COMPASS-5484
-  margin: spacing[3],
+  padding: spacing[2],
   background: uiColors.white,
 });
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
   gap: spacing[2],
-  padding: `0 ${spacing[2]}px`,
-  margin: `0 ${spacing[1]}px`,
 });
 
 const filterContainerStyles = css({
@@ -53,7 +46,7 @@ const openQueryHistoryStyles = cx(
     backgroundColor: 'transparent',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: spacing[2],
+    padding: spacing[2] - 2, // -2px for border.
     '&:hover': {
       cursor: 'pointer',
     },
@@ -174,15 +167,16 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           {buttonLabel}
         </Button>
         {showExportToLanguageButton && (
-          <IconButton
+          <Button
             onClick={onOpenExportToLanguage}
             title="Open export to language"
             aria-label="Open export to language"
             data-testid="query-bar-open-export-to-language-button"
             type="button"
+            size="small"
           >
-            <Icon glyph="Export" />
-          </IconButton>
+            <Icon glyph="Code" />
+          </Button>
         )}
 
         {queryOptions && queryOptions.length > 0 && (

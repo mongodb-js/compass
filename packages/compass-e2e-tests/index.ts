@@ -45,7 +45,9 @@ let metricsClient: MongoClient;
 const FIRST_TEST = 'tests/time-to-first-query.test.ts';
 
 async function setup() {
-  await keychain.activate();
+  if (process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE !== 'true') {
+    await keychain.activate();
+  }
 
   const disableStartStop = process.argv.includes('--disable-start-stop');
 
@@ -94,7 +96,11 @@ function cleanup() {
 }
 
 async function main() {
-  if (process.env.EVERGREEN && process.platform === 'darwin') {
+  if (
+    process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE !== 'true' &&
+    process.env.EVERGREEN &&
+    process.platform === 'darwin'
+  ) {
     // TODO: https://jira.mongodb.org/browse/COMPASS-5214
     console.warn(
       '⚠️ Compass e2e tests are skipped in Evergreen environment on macOS ' +
