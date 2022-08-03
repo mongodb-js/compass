@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
+import AppRegistry from 'hadron-app-registry';
 
 import { QueryBar } from './query-bar';
 
@@ -36,15 +37,37 @@ const queryOptionProps = {
 };
 
 const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
-const queryHistoryButtonId = 'query-history-button';
+
+const mockQueryHistoryRole = {
+  name: 'Query History',
+  // eslint-disable-next-line react/display-name
+  component: () => <div>Query history</div>,
+  configureStore: () => ({}),
+  configureActions: () => {},
+  storeName: 'Query.History',
+  actionName: 'Query.History.Actions',
+};
 
 const renderQueryBar = (
   props: Partial<ComponentProps<typeof QueryBar>> = {}
 ) => {
+  const globalAppRegistry = new AppRegistry();
+  globalAppRegistry.registerRole('Query.QueryHistory', mockQueryHistoryRole);
+
+  const localAppRegistry = new AppRegistry();
+  localAppRegistry.registerStore('Query.History', {
+    onActivated: noop,
+  });
+  localAppRegistry.registerAction('Query.History.Actions', {
+    actions: true,
+  });
+
   render(
     <QueryBar
       buttonLabel="Apply"
       expanded={false}
+      globalAppRegistry={globalAppRegistry}
+      localAppRegistry={localAppRegistry}
       onApply={noop}
       onChangeQueryOption={noop}
       onOpenExportToLanguage={noop}
@@ -62,7 +85,7 @@ const renderQueryBar = (
       showExportToLanguageButton
       showQueryHistoryButton
       toggleExpandQueryOptions={noop}
-      toggleQueryHistory={noop}
+      resultId="123"
       valid
       {...queryOptionProps}
       {...props}
@@ -73,14 +96,12 @@ const renderQueryBar = (
 describe('QueryBar Component', function () {
   let onApplySpy: SinonSpy;
   let onResetSpy: SinonSpy;
-  let toggleQueryHistorySpy: SinonSpy;
   let toggleExpandQueryOptionsSpy: SinonSpy;
   let onOpenExportToLanguageSpy: SinonSpy;
   beforeEach(function () {
     onApplySpy = sinon.spy();
     onResetSpy = sinon.spy();
     onOpenExportToLanguageSpy = sinon.spy();
-    toggleQueryHistorySpy = sinon.spy();
     toggleExpandQueryOptionsSpy = sinon.spy();
   });
 
@@ -91,7 +112,6 @@ describe('QueryBar Component', function () {
         onReset: onResetSpy,
         onOpenExportToLanguage: onOpenExportToLanguageSpy,
         showExportToLanguageButton: true,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -120,16 +140,6 @@ describe('QueryBar Component', function () {
       expect(onOpenExportToLanguageSpy).to.have.been.calledOnce;
     });
 
-    it('calls toggleQueryHistory when the query history button is clicked', function () {
-      const queryHistoryButton = screen.getByTestId(queryHistoryButtonId);
-      expect(queryHistoryButton).to.exist;
-
-      expect(toggleQueryHistorySpy).to.not.have.been.called;
-      userEvent.click(queryHistoryButton);
-
-      expect(toggleQueryHistorySpy).to.have.been.calledOnce;
-    });
-
     it('calls onClick when the expand button is clicked', function () {
       const expandButton = screen.getByText('More Options');
       expect(expandButton).to.exist;
@@ -150,7 +160,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -168,7 +177,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -186,7 +194,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -212,19 +219,6 @@ describe('QueryBar Component', function () {
     });
   });
 
-  describe('when query history is clicked', function () {
-    beforeEach(function () {
-      renderQueryBar({
-        toggleQueryHistory: toggleQueryHistorySpy,
-      });
-    });
-
-    it('does not render the query history button', function () {
-      const queryHistoryButton = screen.queryByTestId('queryHistoryButtonIdId');
-      expect(queryHistoryButton).to.not.exist;
-    });
-  });
-
   describe('when showQueryHistoryButton is false', function () {
     beforeEach(function () {
       renderQueryBar({
@@ -247,7 +241,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -265,7 +258,6 @@ describe('QueryBar Component', function () {
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
-        toggleQueryHistory: toggleQueryHistorySpy,
         toggleExpandQueryOptions: toggleExpandQueryOptionsSpy,
       });
     });
@@ -275,4 +267,7 @@ describe('QueryBar Component', function () {
       expect(queryInputs.length).to.equal(5);
     });
   });
+
+  // TODO: Opening the query history tests.
+  // And rendering the query history role.
 });

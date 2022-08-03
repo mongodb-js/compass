@@ -10,6 +10,9 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const toolbarStyles = css({
   display: 'flex',
@@ -38,12 +41,14 @@ type ToolbarProps = {
     showFavorites: () => void;
     collapse: () => void;
   }; // Query history actions are not currently typed.
+  onClose?: () => void;
   showing: 'recent' | 'favorites';
 };
 
 const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   actions,
   showing,
+  onClose,
 }) => {
   const onViewSwitch = useCallback(
     (label: 'recent' | 'favorites') => {
@@ -59,6 +64,13 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   const onCollapse = useCallback(() => {
     actions.collapse();
   }, [actions]);
+
+  // TODO(COMPASS-5679): After we enable the feature flag,
+  // we can remove the collapsed handler and make `onClose` default required.
+  const onClickClose = useCallback(() => {
+    track('Query History Closed');
+    onClose?.();
+  }, [onClose]);
 
   const labelId = useId();
   const controlId = useId();
@@ -95,7 +107,7 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <IconButton
         className={closeButtonStyles}
         data-testid="query-history-button-close-panel"
-        onClick={onCollapse}
+        onClick={onClose ? onClickClose : onCollapse}
         aria-label="Close query history"
       >
         <Icon glyph="X" />
