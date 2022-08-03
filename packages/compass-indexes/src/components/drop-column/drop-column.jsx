@@ -58,7 +58,7 @@ class DropColumn extends PureComponent {
       <td className={containerStyles}>
         {this.isDroppable() ? (
           <IconButton
-            aria-label="Delete Index"
+            aria-label={`Delete Index ${this.props.indexName}`}
             onClick={this.clickDropHandler.bind(this)}
             data-testid={`drop-index-button-${this.props.indexName}`}
           >
