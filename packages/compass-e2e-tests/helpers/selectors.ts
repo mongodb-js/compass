@@ -183,14 +183,12 @@ export const connectionFormReadPreferenceRadio = (value: string): string => {
   return `#read-preferences input[value="${value}"]`;
 };
 export const connectionFormUrlOptionKeyButton = (index: number): string => {
-  return `[data-testid="url-options-table"] tr:nth-child(${
-    index + 1
-  }) button[name="name"]`;
+  return `[data-testid="url-options-table"] tr:nth-child(${index + 1
+    }) button[name="name"]`;
 };
 export const connectionFormUrlOptionValueInput = (index: number): string => {
-  return `[data-testid="url-options-table"] tr:nth-child(${
-    index + 1
-  }) input[aria-labelledby="Enter value"]`;
+  return `[data-testid="url-options-table"] tr:nth-child(${index + 1
+    }) input[aria-labelledby="Enter value"]`;
 };
 
 // Connection Sidebar
@@ -772,7 +770,8 @@ export const ExplainDocumentsReturnedSummary =
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
-export const NameColumnName = '[data-testid="name-column-name"]';
+export const IndexFieldName = '[data-testid="index-field-name"]';
+export const IndexFieldType = '[data-testid="index-field-type"]';
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
 export const CreateIndexModal = '[data-test-id="create-index-modal"]';
@@ -926,6 +925,8 @@ export const ExportToLanguageCopyOutputButton =
   '[data-test-id="export-to-lang-copy-output"]';
 export const ExportToLanguageCloseButton =
   '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';
+export const ExportToLanguageQueryOutput =
+  '[data-testid="export-to-lang-query-output-container"]';
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =

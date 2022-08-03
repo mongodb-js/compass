@@ -64,7 +64,7 @@ class TypeColumn extends PureComponent {
   render() {
     const helpLink = getIndexHelpLink(this.props.index.type.toUpperCase());
     return (
-      <td className={containerStyles} data-testid="index-table-type">
+      <td className={containerStyles} data-testid="index-field-type">
         <Tooltip
           enabled={this.canRenderTooltip()}
           trigger={({ children, ...props }) => (

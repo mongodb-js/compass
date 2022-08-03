@@ -430,7 +430,10 @@ describe('FLE2', function () {
           const button = await document.$(Selectors.UpdateDocumentButton);
           await button.click();
           try {
-            await footer.waitForDisplayed({ reverse: true, timeout: 1000 });
+            // Prmpt failure is required here and so the timeout should be
+            // present and smaller than the default one to allow for tests to
+            // proceed correctly
+            await footer.waitForDisplayed({ reverse: true, timeout: 10000 });
           } catch (err) {
             if (
               mode === 'unindexed' &&

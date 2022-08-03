@@ -51,7 +51,7 @@ export {
   Combobox,
   ComboboxOption,
   ComboboxGroup,
-} from '@leafygreen-ui/combobox';
+} from './components/leafy-green/combobox';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassFontSizes from './compass-font-sizes';
 export * as compassUIColors from './compass-ui-colors';

@@ -3,8 +3,8 @@ import * as Selectors from '../selectors';
 
 export async function doConnect(
   browser: CompassBrowser,
-  timeout: number,
-  connectionStatus: 'success' | 'failure' | 'either' = 'success'
+  connectionStatus: 'success' | 'failure' | 'either' = 'success',
+  timeout?: number
 ): Promise<void> {
   await browser.clickVisible(Selectors.ConnectButton);
   let selector: string;
@@ -19,7 +19,7 @@ export async function doConnect(
     selector = Selectors.ConnectionFormErrorMessage;
   }
   const element = await browser.$(selector);
-  await element.waitForDisplayed({
-    timeout,
-  });
+  await element.waitForDisplayed(
+    typeof timeout !== 'undefined' ? { timeout } : undefined
+  );
 }

@@ -25,7 +25,7 @@ class NameColumn extends PureComponent {
     const indexKeys = this.props.index.fields.serialize();
     return (
       <td className={containerStyles}>
-        <Body data-testid="name-column-name">{indexName}</Body>
+        <Body data-testid="index-field-name">{indexName}</Body>
         <div className={indexKeyStyles}>
           <IndexKeys keys={indexKeys} />
         </div>
