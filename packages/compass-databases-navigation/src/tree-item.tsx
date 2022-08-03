@@ -8,9 +8,12 @@ import {
   mergeProps,
 } from '@mongodb-js/compass-components';
 import {
-  backgroundColorActive,
-  backgroundColor,
-  backgroundColorHover,
+  darkBackgroundColorActive,
+  darkBackgroundColor,
+  darkBackgroundColorHover,
+  lightBackgroundColorActive,
+  lightBackgroundColor,
+  lightBackgroundColorHover,
 } from './constants';
 import type { Actions } from './constants';
 
@@ -65,16 +68,28 @@ export function useDefaultAction<T>(
 const itemContainer = css({
   display: 'flex',
   alignItems: 'center',
-  backgroundColor: backgroundColor,
   cursor: 'pointer',
 });
 
-const activeBackground = css({
-  backgroundColor: backgroundColorActive,
+const itemContainerDark = css({
+  backgroundColor: darkBackgroundColor,
+});
+const itemContainerLight = css({
+  backgroundColor: lightBackgroundColor,
 });
 
-const hoverBackground = css({
-  backgroundColor: backgroundColorHover,
+const activeBackgroundDark = css({
+  backgroundColor: darkBackgroundColorActive,
+});
+const activeBackgroundLight = css({
+  backgroundColor: lightBackgroundColorActive,
+});
+
+const hoverBackgroundDark = css({
+  backgroundColor: darkBackgroundColorHover,
+});
+const hoverBackgroundLight = css({
+  backgroundColor: lightBackgroundColorHover,
 });
 
 export const ItemContainer: React.FunctionComponent<
@@ -110,6 +125,21 @@ export const ItemContainer: React.FunctionComponent<
   const focusRingProps = useFocusRing<HTMLDivElement>();
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+  const darkMode = !useNewSidebar; // for now assume the old sidebar is dark and the new one light
+
+  const backgroundCSS = [];
+  if (darkMode) {
+    backgroundCSS.push(itemContainerDark);
+  } else {
+    backgroundCSS.push(itemContainerLight);
+  }
+  if (isActive) {
+    backgroundCSS.push(darkMode ? activeBackgroundDark : activeBackgroundLight);
+  } else if (isHovered) {
+    backgroundCSS.push(darkMode ? hoverBackgroundDark : hoverBackgroundLight);
+  }
+
   const treeItemProps = mergeProps(
     {
       role: 'treeitem',
@@ -118,11 +148,7 @@ export const ItemContainer: React.FunctionComponent<
       'aria-posinset': posInSet,
       'aria-expanded': isExpanded,
       tabIndex: isTabbable ? 0 : -1,
-      className: cx(
-        itemContainer,
-        isActive ? activeBackground : isHovered && hoverBackground,
-        className
-      ),
+      className: cx(itemContainer, ...backgroundCSS, className),
     },
     props,
     defaultActionProps,

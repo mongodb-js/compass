@@ -10,8 +10,8 @@ import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-vis
 import { changeFilterRegex } from '../modules/databases';
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 
-// TODO: this should either change for this sidebar or be shared somewhere
-const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
+// TODO: this should probably be shared be shared somewhere
+const initialSidebarWidth = spacing[6] * 4 - spacing[1]; // 252px
 const minSidebarWidth = spacing[4] * 9; // 216px
 
 const mapStateToProps = (state: any) => ({
@@ -56,6 +56,7 @@ export function Sidebar({}: Props) {
     <ResizableSidebar
       minWidth={minSidebarWidth}
       initialWidth={initialSidebarWidth}
+      darkMode={false}
     >
       <SidebarDatabasesNavigation />
     </ResizableSidebar>

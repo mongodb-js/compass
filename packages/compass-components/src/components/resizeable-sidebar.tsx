@@ -19,7 +19,6 @@ const containerStylesDark = css({
 });
 
 const containerStylesLight = css({
-
   background: uiColors.gray.light3,
   color: uiColors.gray.dark3,
 });
@@ -28,7 +27,7 @@ const ResizableSidebar = ({
   initialWidth,
   minWidth,
   children,
-  darkMode
+  darkMode,
 }: {
   initialWidth: number;
   minWidth: number;
@@ -43,7 +42,10 @@ const ResizableSidebar = ({
 
   return (
     <div
-      className={cx(containerStyles, darkMode ? containerStylesDark : containerStylesLight )}
+      className={cx(
+        containerStyles,
+        darkMode ? containerStylesDark : containerStylesLight
+      )}
       style={{
         minWidth: minWidth,
         width: width,
