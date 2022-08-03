@@ -117,7 +117,7 @@ describe('Collection indexes tab', function () {
         Selectors.CreateIndexModalFieldNameSelectInput(0)
       );
 
-      await browser.setValueVisible(fieldNameSelect, 'i.$**');
+      await browser.setValueVisible(fieldNameSelect, '$**');
       await browser.keys(['Enter']);
 
       // Select text filed type from Select.
@@ -138,19 +138,44 @@ describe('Collection indexes tab', function () {
       await fieldTypeSelectSpan.waitForDisplayed();
       await fieldTypeSelectSpan.click();
 
+      const indexToggleOption = await browser.$(Selectors.IndexToggleOption);
+      await indexToggleOption.click();
+
+      const indexToggleIsWildcard = await browser.$(
+        Selectors.IndexToggleIsWildcard
+      );
+      await indexToggleIsWildcard.click();
+
+      // set the text in the editor
+      await browser.setAceValue(
+        Selectors.IndexWildcardProjectionEditor,
+        '{ "fieldA" : 1, "fieldB.fieldC" : 1 }'
+      );
+
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
       await createModal.waitForDisplayed({ reverse: true });
 
-      const indexComponent = await browser.$(
-        Selectors.indexComponent('i.$**_1')
-      );
+      const indexComponent = await browser.$(Selectors.indexComponent('$**_1'));
       await indexComponent.waitForDisplayed();
 
       const indexFieldTypeElement = await browser.$(
-        `${Selectors.indexComponent('i.$**_1')} ${Selectors.IndexFieldType}`
+        `${Selectors.indexComponent('$**_1')} ${Selectors.IndexFieldType}`
       );
       expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
+
+      await browser.hover(
+        `${Selectors.indexComponent('$**_1')} ${Selectors.IndexFieldType}`
+      );
+
+      const indexFieldTypeTooltipElement = await browser.$(
+        `${Selectors.indexComponent(
+          '$**_1'
+        )} div[id="index-type"][data-id="tooltip"]`
+      );
+      expect(await indexFieldTypeTooltipElement.getText()).to.include(
+        'wildcardProjection: {"fieldA":true,"fieldB":{"fieldC":true},"_id":false}'
+      );
     });
   });
 

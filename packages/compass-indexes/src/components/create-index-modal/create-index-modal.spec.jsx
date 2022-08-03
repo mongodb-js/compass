@@ -30,7 +30,7 @@ describe('CreateIndexModal [Component]', function () {
   let collationStringChangedSpy;
   let changeNameSpy;
   let changeColumnstoreProjectionSpy;
-  let changeWildcardProjectionSpy;
+  let wildcardProjectionChangedSpy;
   let createNewIndexFieldSpy;
 
   const spyComponentProps = () => {
@@ -54,7 +54,7 @@ describe('CreateIndexModal [Component]', function () {
     collationStringChangedSpy = sinon.spy();
     changeNameSpy = sinon.spy();
     changeColumnstoreProjectionSpy = sinon.spy();
-    changeWildcardProjectionSpy = sinon.spy();
+    wildcardProjectionChangedSpy = sinon.spy();
     createNewIndexFieldSpy = sinon.spy();
   };
 
@@ -79,7 +79,7 @@ describe('CreateIndexModal [Component]', function () {
     collationStringChangedSpy = null;
     changeNameSpy = null;
     changeColumnstoreProjectionSpy = null;
-    changeWildcardProjectionSpy = null;
+    wildcardProjectionChangedSpy = null;
     createNewIndexFieldSpy = null;
   };
 
@@ -133,7 +133,7 @@ describe('CreateIndexModal [Component]', function () {
           hasColumnstoreProjection={false}
           serverVersion="4.0.0"
           changeColumnstoreProjection={changeColumnstoreProjectionSpy}
-          changeWildcardProjection={changeWildcardProjectionSpy}
+          wildcardProjectionChanged={wildcardProjectionChangedSpy}
           createNewIndexField={createNewIndexFieldSpy}
         />
       );
@@ -275,7 +275,7 @@ describe('CreateIndexModal [Component]', function () {
           columnstoreProjection=""
           serverVersion="4.0.0"
           changeColumnstoreProjection={changeColumnstoreProjectionSpy}
-          changeWildcardProjection={changeWildcardProjectionSpy}
+          wildcardProjectionChanged={wildcardProjectionChangedSpy}
           createNewIndexField={createNewIndexFieldSpy}
         />
       );
@@ -419,7 +419,7 @@ describe('CreateIndexModal [Component]', function () {
           wildcardProjection=""
           columnstoreProjection=""
           changeColumnstoreProjection={changeColumnstoreProjectionSpy}
-          changeWildcardProjection={changeWildcardProjectionSpy}
+          wildcardProjectionChanged={wildcardProjectionChangedSpy}
           createNewIndexField={createNewIndexFieldSpy}
         />
       );
@@ -521,7 +521,7 @@ describe('CreateIndexModal [Component]', function () {
           wildcardProjection=""
           columnstoreProjection=""
           changeColumnstoreProjection={changeColumnstoreProjectionSpy}
-          changeWildcardProjection={changeWildcardProjectionSpy}
+          wildcardProjectionChanged={wildcardProjectionChangedSpy}
           createNewIndexField={createNewIndexFieldSpy}
           serverVersion="4.0.0"
         />
@@ -581,7 +581,7 @@ describe('CreateIndexModal [Component]', function () {
           wildcardProjection=""
           columnstoreProjection=""
           changeColumnstoreProjection={changeColumnstoreProjectionSpy}
-          changeWildcardProjection={changeWildcardProjectionSpy}
+          wildcardProjectionChanged={wildcardProjectionChangedSpy}
           createNewIndexField={createNewIndexFieldSpy}
           serverVersion="4.0.0"
         />
@@ -644,7 +644,7 @@ describe('CreateIndexModal [Component]', function () {
           wildcardProjection=""
           columnstoreProjection=""
           changeColumnstoreProjection={changeColumnstoreProjectionSpy}
-          changeWildcardProjection={changeWildcardProjectionSpy}
+          wildcardProjectionChanged={wildcardProjectionChangedSpy}
           createNewIndexField={createNewIndexFieldSpy}
           serverVersion="4.0.0"
         />
