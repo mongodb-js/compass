@@ -21,11 +21,8 @@ class NameColumn extends PureComponent {
   };
 
   render() {
-    const indexKeys = {};
     const indexName = this.props.index.name;
-    this.props.index.fields.serialize().forEach(({ field, value }) => {
-      indexKeys[field] = value;
-    });
+    const indexKeys = this.props.index.fields.serialize();
     return (
       <td className={containerStyles}>
         <div className="index-definition">

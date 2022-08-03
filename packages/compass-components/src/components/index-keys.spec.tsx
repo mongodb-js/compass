@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, cleanup, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
-import type { IndexDirection } from 'mongodb';
 
 import IndexKeys from './index-keys';
 
@@ -9,7 +8,7 @@ describe('IndexKeys Component', function () {
   afterEach(cleanup);
 
   it('should render the keys of an index', function () {
-    const keys: Record<string, IndexDirection> = {
+    const keys = {
       name: 1,
       user_id: -1,
       tagline: 'text',

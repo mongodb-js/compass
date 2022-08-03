@@ -50,6 +50,9 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
           ) : (
             name
           );
+          const keys = Object.keys(indexKeys).map((field) => {
+            return { field, value: indexKeys[field] };
+          });
           return (
             <div className={accordianContainerStyles} key={arrIndex}>
               <Accordion
@@ -60,7 +63,7 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
                   className={indexKeyStyles}
                   data-testid={`explain-index-content-${name}-${shard ?? ''}`}
                 >
-                  <IndexKeys keys={indexKeys} />
+                  <IndexKeys keys={keys} />
                 </div>
               </Accordion>
             </div>

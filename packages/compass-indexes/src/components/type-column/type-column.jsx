@@ -1,6 +1,5 @@
 import map from 'lodash.map';
 import pick from 'lodash.pick';
-import { format } from 'util';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import getIndexHelpLink from '../../utils/index-link-helper';
@@ -12,6 +11,8 @@ import {
   Badge,
   BadgeVariant,
   Icon,
+  Link,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
@@ -20,12 +21,13 @@ const containerStyles = css({
   paddingRight: spacing[4],
 });
 
-const iconButtonStyles = css({
-  padding: 0,
-  background: 'transparent',
-  border: 'none',
+const iconLinkStyles = css({
   lineHeight: 0,
-  cursor: 'pointer',
+  color: uiColors.white,
+  span: {
+    // LG uses backgroundImage instead of textDecoration
+    backgroundImage: 'none !important',
+  },
 });
 
 /**
@@ -54,7 +56,7 @@ class TypeColumn extends PureComponent {
       'columnstoreProjection',
     ]);
     const items = map(info, (v, k) => {
-      return <Body>{format('%s: %j', k, v)}</Body>;
+      return <Body>{`${k}: ${JSON.stringify(v)}`}</Body>;
     });
     return <>{items}</>;
   }
@@ -70,13 +72,14 @@ class TypeColumn extends PureComponent {
               {children}
               <Badge variant={BadgeVariant.DarkGray}>
                 {this.props.index.type}&nbsp;
-                <button
+                <Link
+                  hideExternalIcon
                   aria-label="Index type docs"
-                  className={iconButtonStyles}
-                  onClick={() => this.props.openLink(helpLink)}
+                  className={iconLinkStyles}
+                  href={helpLink}
                 >
                   <Icon glyph="InfoWithCircle" />
-                </button>
+                </Link>
               </Badge>
             </span>
           )}

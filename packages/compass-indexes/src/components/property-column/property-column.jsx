@@ -1,8 +1,6 @@
 import map from 'lodash.map';
-import { format } from 'util';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { shell } from 'electron';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
 import {
@@ -13,24 +11,28 @@ import {
   Badge,
   BadgeVariant,
   Icon,
+  Link,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   width: 'auto',
   paddingLeft: spacing[4],
   paddingRight: spacing[4],
-  marginTop: spacing[1],
-  '*:not(:last-child)': {
-    marginRight: spacing[1],
-  },
 });
 
-const iconButtonStyles = css({
-  padding: 0,
-  background: 'transparent',
-  border: 'none',
+const contentStyles = css({
+  display: 'flex',
+  gap: spacing[1],
+});
+
+const iconLinkStyles = css({
   lineHeight: 0,
-  cursor: 'pointer',
+  color: uiColors.white,
+  span: {
+    // LG uses backgroundImage instead of textDecoration
+    backgroundImage: 'none !important',
+  },
 });
 
 class PropertyColumn extends PureComponent {
@@ -42,17 +44,15 @@ class PropertyColumn extends PureComponent {
   };
 
   _partialTooltip() {
-    return format(
-      'partialFilterExpression: %j',
-      this.props.index.extra.partialFilterExpression
-    );
+    const { partialFilterExpression } = this.props.index.extra;
+    return `partialFilterExpression: ${JSON.stringify(
+      partialFilterExpression
+    )}`;
   }
 
   _ttlTooltip() {
-    return format(
-      'expireAfterSeconds: %d',
-      this.props.index.extra.expireAfterSeconds
-    );
+    const { expireAfterSeconds } = this.props.index.extra;
+    return `expireAfterSeconds: ${expireAfterSeconds}`;
   }
 
   renderItemWithTooltip(text, link, tooltip) {
@@ -64,13 +64,14 @@ class PropertyColumn extends PureComponent {
             {children}
             <Badge variant={BadgeVariant.DarkGray}>
               {text}&nbsp;
-              <button
+              <Link
+                hideExternalIcon
                 aria-label="Index property docs"
-                className={iconButtonStyles}
-                onClick={() => shell.openExternal(link)}
+                className={iconLinkStyles}
+                href={link}
               >
                 <Icon glyph="InfoWithCircle" />
-              </button>
+              </Link>
             </Badge>
           </span>
         )}
@@ -113,8 +114,10 @@ class PropertyColumn extends PureComponent {
     );
     return (
       <td className={containerStyles}>
-        {properties}
-        {this.renderCardinality()}
+        <div className={contentStyles}>
+          {properties}
+          {this.renderCardinality()}
+        </div>
       </td>
     );
   }

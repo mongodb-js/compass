@@ -14,13 +14,15 @@ type IndexDirection =
   | number;
 
 type IndexKeysProps = {
-  keys: Record<string, IndexDirection>;
+  keys: {
+    field: string;
+    value: IndexDirection;
+  }[];
 };
 
 const containerStyles = css({
-  'div:not(:last-child)': {
-    marginRight: spacing[1],
-  },
+  display: 'flex',
+  gap: spacing[1],
 });
 
 const IndexDirectionIcon = ({ direction }: { direction: IndexDirection }) => {
@@ -36,15 +38,15 @@ const IndexDirectionIcon = ({ direction }: { direction: IndexDirection }) => {
 const IndexKeys: React.FunctionComponent<IndexKeysProps> = ({ keys }) => {
   return (
     <div className={containerStyles}>
-      {Object.entries(keys).map(([keyName, direction], listIndex) => (
+      {keys.map(({ field, value }) => (
         <Badge
-          data-testid={`${keyName}-key`}
+          data-testid={`${field}-key`}
           variant={Variant.LightGray}
-          key={listIndex}
+          key={field}
         >
-          {keyName}
+          {field}
           &nbsp;
-          <IndexDirectionIcon direction={direction} />
+          <IndexDirectionIcon direction={value} />
         </Badge>
       ))}
     </div>
