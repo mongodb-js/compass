@@ -142,6 +142,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       onChangeText={(value) => onChange(value)}
       id={id}
       options={editorSettings}
+      wrapEnabled
       completer={completer.current}
       placeholder={placeholder}
       fontSize={12}
