@@ -149,7 +149,7 @@ describe('Collection indexes tab', function () {
       // set the text in the editor
       await browser.setAceValue(
         Selectors.IndexWildcardProjectionEditor,
-        '{ "fieldA" : 1, "fieldB.fieldC" : 1 }'
+        '{ "fieldA": 1, "fieldB.fieldC": 1 }'
       );
 
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
