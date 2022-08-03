@@ -496,22 +496,24 @@ class Target {
       this.packagerOptions.appBundleId += `.${this.channel}`;
     }
 
-    this.osx_dmg_label = this.osx_dmg_filename = `${this.productName}.dmg`;
-    this.osx_zip_label = this.osx_zip_filename = `${this.productName}.zip`;
+    this.osx_dmg_label =
+      this.osx_dmg_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.dmg`;
+    this.osx_zip_label =
+      this.osx_zip_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`;
 
     this.assets = [
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.dmg`,
+        name: this.osx_dmg_label,
         path: this.dest(this.osx_dmg_label)
       },
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`,
+        name: this.osx_zip_label,
         path: this.dest(this.osx_zip_label)
       }
     ];
 
     this.installerOptions = {
-      dmgPath: this.dest(`${this.productName}.dmg`),
+      dmgPath: this.dest(this.osx_dmg_filename),
       title: this.truncatedProductName, // actually names the dmg
       overwrite: true,
       out: this.out,
