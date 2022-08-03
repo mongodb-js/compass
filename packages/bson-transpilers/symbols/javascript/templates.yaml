@@ -15,7 +15,7 @@ Templates:
         l: 'l'
         u: 'u'
     # Syntax
-    DriverTemplate: &DriverTemplate !!js/function >
+    DriverTemplate: &DriverTemplate !!js/function |
         (spec) => {
             const comment = `/*
          * Requires the MongoDB Node.js Driver
@@ -29,7 +29,7 @@ Templates:
             let defs;
             if ('aggregation' in spec) {
                 const agg = spec.aggregation;
-                cmd = `coll.aggregate(agg, (cmdErr, result) => {`;
+                cmd = `const cursor = coll.aggregate(agg);`;
                 defs = `const agg = ${agg};\n`;
             } else {
                 let opts = '';
@@ -44,29 +44,26 @@ Templates:
                     defs = Object.keys(args).reduce((s, k) => {
                         if (k !== 'filter') {
                             if (opts === '') {
-                                opts = `${k}: ${k}`;
+                                opts = `${k}`;
                             } else {
-                                opts = `${opts}, ${k}: ${k}`;
+                                opts = `${opts}, ${k}`;
                             }
                         }
                         return `${s}const ${k} = ${args[k]};\n`;
                     }, '');
                     opts = opts === '' ? '' : `, { ${opts} }`;
                 }
-                cmd = `coll.find(filter${opts}, (cmdErr, result) => {`;
+                cmd = `const cursor = coll.find(filter${opts});`;
             }
             return `${comment}\n\n${defs}
-        MongoClient.connect(
+        const client = await MongoClient.connect(
           '${spec.options.uri}',
-          { useNewUrlParser: true, useUnifiedTopology: true },
-          function(connectErr, client) {
-            assert.equal(null, connectErr);
-            const coll = client.db('${spec.options.database}').collection('${spec.options.collection}');
-            ${cmd}
-              assert.equal(null, cmdErr);
-            });
-            client.close();
-          });`;
+          { useNewUrlParser: true, useUnifiedTopology: true }
+        );
+        const coll = client.db('${spec.options.database}').collection('${spec.options.collection}');
+        ${cmd}
+        const result = await cursor.toArray();
+        await client.close();`;
         }
     EqualitySyntaxTemplate: &EqualitySyntaxTemplate !!js/function >
         (lhs, op, rhs) => {
@@ -574,14 +571,13 @@ Templates:
                 }
             );
             if (bson.length) {
-                other.push(`const {\n  ${bson.join(',\n  ')}\n} = require('mongodb');`);
+                other.push(`import {\n  ${bson.join(',\n  ')}\n} from 'mongodb';`);
             }
             return other.join('\n');
         }
     DriverImportTemplate: &DriverImportTemplate !!js/function >
         () => {
-            return `const MongoClient = require('mongodb').MongoClient;
-        const assert = require('assert');`;
+            return `import { MongoClient } from 'mongodb';`;
         }
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
