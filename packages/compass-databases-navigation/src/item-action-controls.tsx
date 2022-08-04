@@ -84,7 +84,6 @@ export const ActionControls: React.FunctionComponent<{
             <IconButtonSmall
               ref={menuTriggerRef}
               glyph="Ellipsis"
-              mode="hovered"
               label="Show actions"
               title="Show actions"
               data-testid="show-actions"
@@ -124,7 +123,6 @@ export const ActionControls: React.FunctionComponent<{
           <IconButtonSmall
             key={action}
             glyph={icon}
-            mode="hovered"
             label={label}
             title={label}
             isActive={isActive}

@@ -23,7 +23,7 @@ const icons = {
   }),
 } as const;
 
-export type IconMode = 'normal' | 'hovered';
+type IconMode = 'normal' | 'hovered';
 
 export const SmallIcon: React.FunctionComponent<
   { glyph: string; mode: IconMode } & React.HTMLProps<HTMLSpanElement>
@@ -51,7 +51,6 @@ export const IconButtonSmall = forwardRef<
   HTMLButtonElement,
   {
     glyph: string;
-    mode: IconMode;
     label: string;
     title?: string;
     onClick(evt: React.MouseEvent<HTMLButtonElement>): void;
@@ -60,7 +59,6 @@ export const IconButtonSmall = forwardRef<
 >(function IconButtonSmall(
   {
     glyph,
-    mode,
     label,
     onClick,
     isActive,
@@ -92,7 +90,7 @@ export const IconButtonSmall = forwardRef<
       darkMode={darkMode}
       {...rest}
     >
-      <SmallIcon role="presentation" glyph={glyph} mode={mode}></SmallIcon>
+      <SmallIcon role="presentation" glyph={glyph} mode="hovered"></SmallIcon>
       {/* Only here to make leafygreen menus work */}
       {children}
     </IconButton>
