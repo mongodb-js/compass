@@ -68,6 +68,18 @@ const itemContainer = css({
 const activeItemContainer = css({
   color: 'var(--item-color-active)',
   backgroundColor: 'var(--item-bg-color-active)',
+
+  // this is copied from leafygreen's own navigation, hence the pixel values
+  '::before': {
+    backgroundColor: 'var(--item-color-active)',
+    content: '""',
+    position: 'absolute',
+    left: '0px',
+    top: '6px',
+    bottom: '6px',
+    width: '4px',
+    borderRadius: '0px 6px 6px 0px',
+  },
 });
 
 const hoverItemContainer = css({
