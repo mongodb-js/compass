@@ -14,13 +14,41 @@ const containerStyles = css({
 });
 
 const containerStylesDark = css({
-  background: uiColors.gray.dark3,
-  color: 'white',
+  '--color': 'white',
+  '--bg-color': uiColors.gray.dark3,
+
+  '--icon-color': 'white',
+  // NOTE: This is for icons that only display when hovering over an item,
+  // not the color used for the icon when hovering over the icon itself.
+  '--hover-icon-color': 'white',
+
+  '--item-color': 'white',
+  '--item-color-hover': 'white',
+  '--item-color-active': 'white',
+  '--item-bg-color': uiColors.gray.dark2,
+  '--item-bg-color-hover': uiColors.gray.dark3,
+  '--item-bg-color-active': uiColors.gray.dark1,
+
+  color: 'var(--color)',
+  backgroundColor: 'var(--bg-color)',
 });
 
 const containerStylesLight = css({
-  background: uiColors.gray.light3,
-  color: uiColors.gray.dark3,
+  '--color': uiColors.gray.dark3,
+  '--bg-color': uiColors.gray.light3,
+
+  '--icon-color': uiColors.gray.dark3,
+  '--hover-icon-color': uiColors.gray.dark1,
+
+  '--item-color': uiColors.gray.dark3,
+  '--item-color-hover': uiColors.gray.dark3,
+  '--item-color-active': uiColors.green.dark2,
+  '--item-bg-color': uiColors.gray.light3,
+  '--item-bg-color-hover': uiColors.gray.light2,
+  '--item-bg-color-active': uiColors.green.light3,
+
+  color: 'var(--color)',
+  backgroundColor: 'var(--bg-color)',
 });
 
 const ResizableSidebar = ({

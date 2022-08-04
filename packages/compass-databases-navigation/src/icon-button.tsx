@@ -7,11 +7,12 @@ import {
   css,
   cx,
 } from '@mongodb-js/compass-components';
+
 import {
   darkIconColor,
-  darkIconColorHover,
+  darkHoverIconColor,
   lightIconColor,
-  lightIconColorHover,
+  lightHoverIconColor,
 } from './constants';
 
 const iconContainer = css({
@@ -25,12 +26,12 @@ export type IconMode = 'normal' | 'hovered';
 function pickColor(darkMode: boolean, mode: IconMode) {
   if (darkMode) {
     if (mode === 'hovered') {
-      return darkIconColorHover;
+      return darkHoverIconColor;
     }
     return darkIconColor;
   } else {
     if (mode === 'hovered') {
-      return lightIconColorHover;
+      return lightHoverIconColor;
     }
     return lightIconColor;
   }

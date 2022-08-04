@@ -29,7 +29,7 @@ const padding = {
     collection: css({
       paddingLeft: spacing[4] + spacing[4] + spacing[1],
     }),
-  }
+  },
 } as const;
 
 export const PlaceholderItem: React.FunctionComponent<{
