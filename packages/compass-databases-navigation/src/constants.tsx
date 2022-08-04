@@ -1,4 +1,4 @@
-import { uiColors, spacing } from '@mongodb-js/compass-components';
+import { spacing } from '@mongodb-js/compass-components';
 
 // TODO: Currently we show placeholder for every collection item in the list, but
 // do we want to / need to?
