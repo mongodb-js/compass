@@ -71,9 +71,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import Code
           javascript: |-
-              const {
+              import {
                 Code
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\Javascript;
           ruby: require 'bson'
@@ -101,9 +101,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import Code
           javascript: |-
-              const {
+              import {
                 Code
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\Javascript;
           ruby: require 'bson'
@@ -130,9 +130,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import ObjectId
           javascript: |-
-              const {
+              import {
                 ObjectId
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\ObjectId;
           ruby: require 'bson'
@@ -159,9 +159,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import Timestamp
           javascript: |-
-              const {
+              import {
                 Timestamp
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\Timestamp;
           go: |-
@@ -187,10 +187,10 @@ tests:
               using MongoDB.Driver;
           python: from bson import ObjectId, DBRef
           javascript: |-
-              const {
+              import {
                 ObjectId,
                 DBRef
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\ObjectId;
           ruby: require 'bson'
@@ -230,9 +230,9 @@ tests:
               using MongoDB.Driver;
           python: ''
           javascript: |-
-              const {
+              import {
                 Int32
-              } = require('mongodb');
+              } from 'mongodb';
           php: ''
           ruby: ''
           go: |-
@@ -254,9 +254,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import Int64
           javascript: |-
-              const {
+              import {
                 Long
-              } = require('mongodb');
+              } from 'mongodb';
           php: ''
           ruby: ''
           go: |-
@@ -280,9 +280,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import MinKey
           javascript: |-
-              const {
+              import {
                 MinKey
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\MinKey;
           ruby: require 'bson'
@@ -308,9 +308,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import MaxKey
           javascript: |-
-              const {
+              import {
                 MaxKey
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\MaxKey;
           ruby: require 'bson'
@@ -409,9 +409,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import Timestamp
           javascript: |-
-              const {
+              import {
                 Timestamp
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\Timestamp;
           ruby: require 'bson'
@@ -436,9 +436,9 @@ tests:
               using MongoDB.Driver;
           python: ''
           javascript: |-
-              const {
+              import {
                 BSONSymbol
-              } = require('mongodb');
+              } from 'mongodb';
           php: ''
           ruby: ''
           go: |-
@@ -461,9 +461,9 @@ tests:
               using MongoDB.Driver;
           python: from bson import Decimal128
           javascript: |-
-              const {
+              import {
                 Decimal128
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\Decimal128;
           ruby: require 'bson'
@@ -598,7 +598,7 @@ tests:
               from datetime import datetime, tzinfo, timezone
               from bson import Code, ObjectId, DBRef, Int64, MinKey, MaxKey, Timestamp, Decimal128
           javascript: |-
-              const {
+              import {
                 Code,
                 ObjectId,
                 DBRef,
@@ -609,7 +609,7 @@ tests:
                 Timestamp,
                 BSONSymbol,
                 Decimal128
-              } = require('mongodb');
+              } from 'mongodb';
           php: |-
             use MongoDB\BSON\Decimal128;
             use MongoDB\BSON\Javascript;
