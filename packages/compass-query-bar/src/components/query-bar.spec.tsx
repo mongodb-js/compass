@@ -37,11 +37,18 @@ const queryOptionProps = {
 };
 
 const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
+const queryHistoryButtonId = 'query-history-button';
+const queryHistoryComponentTestId = 'query-history-component-test-id';
 
 const mockQueryHistoryRole = {
   name: 'Query History',
   // eslint-disable-next-line react/display-name
-  component: () => <div>Query history</div>,
+  component: () => (
+    <div data-testid={queryHistoryComponentTestId}>
+      <div>Query history</div>
+      <button onClick={() => {}}>Button</button>
+    </div>
+  ),
   configureStore: () => ({}),
   configureActions: () => {},
   storeName: 'Query.History',
@@ -152,6 +159,16 @@ describe('QueryBar Component', function () {
 
       expect(toggleExpandQueryOptionsSpy).to.have.been.calledOnce;
     });
+
+    it('renders the query history button', function () {
+      const queryHistoryButton = screen.queryByTestId(queryHistoryButtonId);
+      expect(queryHistoryButton).to.be.visible;
+    });
+
+    it('does not render the query history popover', function () {
+      const queryHistory = screen.queryByTestId(queryHistoryComponentTestId);
+      expect(queryHistory).to.not.exist;
+    });
   });
 
   describe('when expanded', function () {
@@ -213,7 +230,7 @@ describe('QueryBar Component', function () {
 
     it('does not render the exportToLanguage button', function () {
       const exportToLanguageButton = screen.queryByTestId(
-        'exportToLanguageButtonId'
+        exportToLanguageButtonId
       );
       expect(exportToLanguageButton).to.not.exist;
     });
@@ -227,10 +244,8 @@ describe('QueryBar Component', function () {
     });
 
     it('does not render the query history button', function () {
-      const exportToLanguageButton = screen.queryByTestId(
-        'exportToLanguageButtonId'
-      );
-      expect(exportToLanguageButton).to.not.exist;
+      const queryHistoryButton = screen.queryByTestId(queryHistoryButtonId);
+      expect(queryHistoryButton).to.not.exist;
     });
   });
 
@@ -268,6 +283,17 @@ describe('QueryBar Component', function () {
     });
   });
 
-  // TODO: Opening the query history tests.
-  // And rendering the query history role.
+  describe('when the query history button is clicked', function () {
+    beforeEach(function () {
+      renderQueryBar();
+
+      const button = screen.getByTestId(queryHistoryButtonId);
+      button.click();
+    });
+
+    it('renders the query history popover', function () {
+      const queryHistory = screen.getByTestId(queryHistoryComponentTestId);
+      expect(queryHistory).to.be.visible;
+    });
+  });
 });
