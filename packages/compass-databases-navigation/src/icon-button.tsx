@@ -23,7 +23,7 @@ const icons = {
   }),
 } as const;
 
-type IconMode = 'normal' | 'hovered';
+type IconMode = keyof typeof icons;
 
 export const SmallIcon: React.FunctionComponent<
   { glyph: string; mode: IconMode } & React.HTMLProps<HTMLSpanElement>
