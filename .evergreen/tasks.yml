@@ -215,11 +215,6 @@ tasks:
           compass_distribution: compass
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
       - func: get-artifacts
         vars:
           compass_distribution: compass
@@ -239,11 +234,6 @@ tasks:
           compass_distribution: compass-isolated
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
       - func: get-artifacts
         vars:
           compass_distribution: compass-isolated
@@ -263,11 +253,6 @@ tasks:
           compass_distribution: compass-readonly
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
       - func: get-artifacts
         vars:
           compass_distribution: compass-readonly
@@ -287,11 +272,6 @@ tasks:
           compass_distribution: compass
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: publish
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
 
       - func: publish
         vars:
@@ -308,11 +288,6 @@ tasks:
           compass_distribution: compass-isolated
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
 
       - func: publish
         vars:
@@ -329,11 +304,6 @@ tasks:
           compass_distribution: compass-readonly
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
 
   # copied as test-packaged-app-macos due to depends_on variation
   
