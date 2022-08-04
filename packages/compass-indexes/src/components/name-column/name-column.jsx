@@ -27,7 +27,7 @@ class NameColumn extends PureComponent {
         <div className="index-definition">
           <div
             className={classnames(styles['name-column-name'])}
-            data-test-id="name-column-name"
+            data-test-id="index-field-name"
             title={this.props.index.name}
           >
             {this.props.index.name}

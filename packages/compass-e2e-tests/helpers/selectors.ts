@@ -772,7 +772,14 @@ export const ExplainDocumentsReturnedSummary =
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
-export const NameColumnName = '[data-test-id="name-column-name"]';
+export const IndexFieldName = '[data-test-id="index-field-name"]';
+export const IndexFieldType = '[data-test-id="index-field-type"]';
+export const IndexToggleOptions =
+  '[data-test-id="create-index-modal-toggle-options"]';
+export const IndexToggleIsWildcard =
+  '[data-test-id="wildcard-projection"] input[type="checkbox"]';
+export const IndexWildcardProjectionEditor =
+  '[data-test-id="create-index-modal-options-param-wrapper-editor"] .ace_editor';
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
 export const CreateIndexModal = '[data-test-id="create-index-modal"]';
@@ -780,7 +787,7 @@ export const CreateIndexModal = '[data-test-id="create-index-modal"]';
 export const CreateIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-test-id="create-index-field-name-${idx}"] input`;
 };
-export const CreateIndexModalFieldTypeSelectButtont = (idx: number): string => {
+export const CreateIndexModalFieldTypeSelectButton = (idx: number): string => {
   return `[data-test-id="create-index-field-type-${idx}"] button`;
 };
 export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
@@ -926,6 +933,8 @@ export const ExportToLanguageCopyOutputButton =
   '[data-test-id="export-to-lang-copy-output"]';
 export const ExportToLanguageCloseButton =
   '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';
+export const ExportToLanguageQueryOutput =
+  '[data-testid="export-to-lang-query-output-container"]';
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =

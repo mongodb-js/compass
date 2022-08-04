@@ -26,7 +26,10 @@ const ExtendedConnection = Connection.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'Connections',
   storage: {
-    backend: 'splice-disk-ipc',
+    backend:
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true'
+        ? 'disk'
+        : 'splice-disk-ipc',
     namespace: 'Connections',
     basepath,
     appName, // Not to be confused with `props.appname` that is being sent to driver

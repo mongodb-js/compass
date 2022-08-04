@@ -183,6 +183,7 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars:
+          mongodb_version: '5.x.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
@@ -217,11 +218,6 @@ tasks:
           compass_distribution: compass
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
       - func: get-artifacts
         vars:
           compass_distribution: compass
@@ -241,11 +237,6 @@ tasks:
           compass_distribution: compass-isolated
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
       - func: get-artifacts
         vars:
           compass_distribution: compass-isolated
@@ -265,11 +256,6 @@ tasks:
           compass_distribution: compass-readonly
           target_platform: '--platform=darwin'
           target_arch: '--arch=x64'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=darwin'
-          target_arch: '--arch=arm64'
       - func: get-artifacts
         vars:
           compass_distribution: compass-readonly

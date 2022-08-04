@@ -1,13 +1,11 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-const defaultTimeoutMS = 30_000;
-
 export async function connectWithConnectionString(
   browser: CompassBrowser,
   connectionString: string,
-  timeout = defaultTimeoutMS,
-  connectionStatus: 'success' | 'failure' | 'either' = 'success'
+  connectionStatus: 'success' | 'failure' | 'either' = 'success',
+  timeout?: number
 ): Promise<void> {
   const sidebar = await browser.$(Selectors.SidebarTitle);
   if (await sidebar.isDisplayed()) {
@@ -18,5 +16,5 @@ export async function connectWithConnectionString(
     Selectors.ConnectionStringInput,
     connectionString
   );
-  await browser.doConnect(timeout, connectionStatus);
+  await browser.doConnect(connectionStatus, timeout);
 }

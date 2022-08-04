@@ -5,11 +5,12 @@ buildvariants:
     run_on: macos-1014-codesign
     tasks:
       - name: test-electron
-      # TODO: These tests are not currently running due to keychain access
-      #       missing. We disable this step to not block codesign machine time
-      #       with bootstrap / teardown that does nothing. We should be able to
-      #       enable these tests after https://jira.mongodb.org/browse/BUILD-14458
-      # - name: test-packaged-app-macos
+      # TODO: Even though these tests are running, they run compass with a
+      #       keychain disabled and clipboard tests skipped
+      #
+      #       https://jira.mongodb.org/browse/BUILD-14458
+      #       https://jira.mongodb.org/browse/BUILD-14780
+      - name: test-packaged-app-macos
 
   - name: macos
     display_name: MacOS x64 (Test and Package)

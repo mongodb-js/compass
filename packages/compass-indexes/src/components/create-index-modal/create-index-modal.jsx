@@ -36,8 +36,8 @@ import { toggleIsTtl } from '../../modules/create-index/is-ttl';
 import { changeTtl } from '../../modules/create-index/ttl';
 import { toggleHasWildcardProjection } from '../../modules/create-index/has-wildcard-projection';
 import { toggleHasColumnstoreProjection } from '../../modules/create-index/has-columnstore-projection';
-import { changeWildcardProjection } from '../../modules/create-index/wildcard-projection';
-import { changeColumnstoreProjection } from '../../modules/create-index/columnstore-projection';
+import { wildcardProjectionChanged } from '../../modules/create-index/wildcard-projection';
+import { columnstoreProjectionChanged } from '../../modules/create-index/columnstore-projection';
 import { changePartialFilterExpression } from '../../modules/create-index/partial-filter-expression';
 import { toggleIsCustomCollation } from '../../modules/create-index/is-custom-collation';
 import { collationStringChanged } from '../../modules/create-index/collation-string';
@@ -94,8 +94,8 @@ class CreateIndexModal extends PureComponent {
     createIndex: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     changeTtl: PropTypes.func.isRequired,
-    changeColumnstoreProjection: PropTypes.func.isRequired,
-    changeWildcardProjection: PropTypes.func.isRequired,
+    columnstoreProjectionChanged: PropTypes.func.isRequired,
+    wildcardProjectionChanged: PropTypes.func.isRequired,
     changePartialFilterExpression: PropTypes.func.isRequired,
     changeName: PropTypes.func.isRequired,
     newIndexField: PropTypes.string,
@@ -243,20 +243,21 @@ class CreateIndexModal extends PureComponent {
           onLinkClickHandler={this.props.openLink}
         />
         {this.renderCollation()}
-        <ModalCheckbox
-          name="Wildcard Projection"
-          data-test-id="toggle-is-wildcard"
-          titleClassName={styles['create-index-modal-options-param']}
-          checked={this.props.hasWildcardProjection}
-          helpUrl={getIndexHelpLink('WILDCARD')}
-          onClickHandler={() =>
-            this.props.toggleHasWildcardProjection(
-              !this.props.hasWildcardProjection
-            )
-          }
-          onLinkClickHandler={this.props.openLink}
-        />
-        {this.renderWildcard()}
+        <div data-test-id="wildcard-projection">
+          <ModalCheckbox
+            name="Wildcard Projection"
+            titleClassName={styles['create-index-modal-options-param']}
+            checked={this.props.hasWildcardProjection}
+            helpUrl={getIndexHelpLink('WILDCARD')}
+            onClickHandler={() =>
+              this.props.toggleHasWildcardProjection(
+                !this.props.hasWildcardProjection
+              )
+            }
+            onLinkClickHandler={this.props.openLink}
+          />
+          {this.renderWildcard()}
+        </div>
         {hasColumnstoreIndexesSupport(this.props.serverVersion) && (
           <>
             <ModalCheckbox
@@ -296,14 +297,15 @@ class CreateIndexModal extends PureComponent {
   renderWildcard() {
     if (this.props.showOptions && this.props.hasWildcardProjection) {
       return (
-        <div className={styles['create-index-modal-options-param-wrapper']}>
-          <ModalInput
-            id="wildcard-projection-value"
-            name=""
-            value={this.props.wildcardProjection}
-            onChangeHandler={(evt) =>
-              this.props.changeWildcardProjection(evt.target.value)
-            }
+        <div
+          data-test-id="create-index-modal-options-param-wrapper-editor"
+          className={styles['create-index-modal-options-param-wrapper']}
+        >
+          <Editor
+            variant={EditorVariant.Shell}
+            onChangeText={this.props.wildcardProjectionChanged}
+            options={{ minLines: 10 }}
+            name="add-index-wildcard-projection-editor"
           />
         </div>
       );
@@ -313,13 +315,11 @@ class CreateIndexModal extends PureComponent {
     if (this.props.showOptions && this.props.hasColumnstoreProjection) {
       return (
         <div className={styles['create-index-modal-options-param-wrapper']}>
-          <ModalInput
-            id="columnstore-projection-value"
-            name=""
-            value={this.props.columnstoreProjection}
-            onChangeHandler={(evt) =>
-              this.props.changeColumnstoreProjection(evt.target.value)
-            }
+          <Editor
+            variant={EditorVariant.Shell}
+            onChangeText={this.props.columnstoreProjectionChanged}
+            options={{ minLines: 10 }}
+            name="add-index-columnstore-projection-editor"
           />
         </div>
       );
@@ -412,6 +412,7 @@ class CreateIndexModal extends PureComponent {
             </div>
 
             <button
+              data-test-id="create-index-modal-toggle-options"
               className={styles['create-index-modal-toggle-bar']}
               onClick={this.handleToggleBarClick.bind(this)}
             >
@@ -525,8 +526,8 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   toggleIsCustomCollation,
   changePartialFilterExpression,
   changeTtl,
-  changeWildcardProjection,
-  changeColumnstoreProjection,
+  wildcardProjectionChanged,
+  columnstoreProjectionChanged,
   collationStringChanged,
   createNewIndexField,
   clearNewIndexField,
