@@ -8,45 +8,29 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 
-import {
-  darkIconColor,
-  darkHoverIconColor,
-  lightIconColor,
-  lightHoverIconColor,
-} from './constants';
-
 const iconContainer = css({
   display: 'block',
   flex: 'none',
   fontSize: 0,
 });
 
-export type IconMode = 'normal' | 'hovered';
+const icons = {
+  normal: css({
+    color: 'var(--icon-color)',
+  }),
+  hovered: css({
+    color: 'var(--hover-icon-color)',
+  }),
+} as const;
 
-function pickColor(darkMode: boolean, mode: IconMode) {
-  if (darkMode) {
-    if (mode === 'hovered') {
-      return darkHoverIconColor;
-    }
-    return darkIconColor;
-  } else {
-    if (mode === 'hovered') {
-      return lightHoverIconColor;
-    }
-    return lightIconColor;
-  }
-}
+export type IconMode = 'normal' | 'hovered';
 
 export const SmallIcon: React.FunctionComponent<
   { glyph: string; mode: IconMode } & React.HTMLProps<HTMLSpanElement>
 > = ({ glyph, mode, className, ...props }) => {
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
-  const darkMode = !useNewSidebar; // for now assume the old sidebar is dark and the new one light
-  const fill = pickColor(darkMode, mode);
-
   return (
     <span className={cx(iconContainer, className)} {...props}>
-      <Icon size="small" glyph={glyph} fill={fill}></Icon>
+      <Icon size="small" glyph={glyph} className={icons[mode]}></Icon>
     </span>
   );
 };
@@ -102,6 +86,9 @@ export const IconButtonSmall = forwardRef<
       aria-label={label}
       title={title}
       onClick={onClick}
+      // TODO: we should probably explicitly set our own colors given that we're
+      // setting all the colours around it. Rather than rely on leafygreen's
+      // default dark or light hover background colour.
       darkMode={darkMode}
       {...rest}
     >

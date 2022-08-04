@@ -11,12 +11,6 @@ export const DATABASE_ROW_HEIGHT = spacing[5];
 export const COLLECTION_ROW_HEIGHT = DATABASE_ROW_HEIGHT;
 // export const COLLETIONS_MARGIN_BOTTOM = spacing[1];
 
-export const darkIconColor = 'white';
-export const darkHoverIconColor = 'white';
-
-export const lightIconColor = uiColors.gray.dark3; // for the icons that are always visible
-export const lightHoverIconColor = uiColors.gray.dark1; // for the icons that only show when a tree item is hovered over
-
 export type Actions =
   | 'select-database'
   | 'drop-database'

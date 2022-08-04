@@ -44,7 +44,7 @@ const containerStylesLight = css({
   '--item-color-hover': uiColors.gray.dark3,
   '--item-color-active': uiColors.green.dark2,
   '--item-bg-color': uiColors.gray.light3,
-  '--item-bg-color-hover': uiColors.gray.light2,
+  '--item-bg-color-hover': uiColors.green.light2,
   '--item-bg-color-active': uiColors.green.light3,
 
   color: 'var(--color)',
