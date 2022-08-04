@@ -85,7 +85,7 @@ class TypeColumn extends PureComponent {
     return (
       <td className={styles['type-column']}>
         {this.renderType()}
-        <ReactTooltip id={TOOLTIP_ID} />
+        <ReactTooltip id={TOOLTIP_ID} data-testid="tooltip-index-field-type" />
       </td>
     );
   }
