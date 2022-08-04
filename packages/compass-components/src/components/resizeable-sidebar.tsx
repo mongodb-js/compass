@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { ResizeHandle, ResizeDirection, css, cx } from '../index';
 
 import { uiColors } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
 
 const containerStyles = css({
   display: 'flex',
@@ -51,14 +52,17 @@ const containerStylesLight = css({
   backgroundColor: 'var(--bg-color)',
 });
 
+const initialSidebarWidth = spacing[6] * 4 - spacing[1]; // 252px
+const minSidebarWidth = spacing[4] * 9; // 216px
+
 const ResizableSidebar = ({
-  initialWidth,
-  minWidth,
+  initialWidth = initialSidebarWidth,
+  minWidth = minSidebarWidth,
   children,
   darkMode,
 }: {
-  initialWidth: number;
-  minWidth: number;
+  initialWidth?: number;
+  minWidth?: number;
   children: JSX.Element;
   darkMode: boolean;
 }): JSX.Element => {

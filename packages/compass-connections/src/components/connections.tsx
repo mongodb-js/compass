@@ -47,9 +47,6 @@ const formContainerStyles = css({
   gap: spacing[4],
 });
 
-const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
-const minSidebarWidth = spacing[4] * 9; // 216px
-
 function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
@@ -93,11 +90,7 @@ function Connections({
       }
       className={connectStyles}
     >
-      <ResizableSidebar
-        minWidth={minSidebarWidth}
-        initialWidth={initialSidebarWidth}
-        darkMode
-      >
+      <ResizableSidebar darkMode>
         <ConnectionList
           activeConnectionId={activeConnectionId}
           favoriteConnections={favoriteConnections}

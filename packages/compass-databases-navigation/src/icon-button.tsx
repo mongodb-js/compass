@@ -57,16 +57,7 @@ export const IconButtonSmall = forwardRef<
     isActive: boolean;
   } & React.HTMLProps<HTMLButtonElement>
 >(function IconButtonSmall(
-  {
-    glyph,
-    label,
-    onClick,
-    isActive,
-    children,
-    title,
-    className,
-    ...rest
-  },
+  { glyph, label, onClick, isActive, children, title, className, ...rest },
   ref
 ) {
   const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
