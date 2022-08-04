@@ -27,7 +27,7 @@ This repository includes a few recommended plugins for your convenience:
 
 ## Working With the Monorepo
 
-You'll need node `^14.17.5` and npm `7` installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
+You'll need node `^16` and npm `^8` installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
 After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
 

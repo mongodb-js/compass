@@ -12,9 +12,6 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
-  "engines": {
-    "node": ">=14.17.5"
-  },
   "license": "SSPL",
   "keywords": [
     "mongodb-js"

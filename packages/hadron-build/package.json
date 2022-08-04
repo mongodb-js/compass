@@ -32,7 +32,7 @@
     "debug": "^4.2.0",
     "del": "^2.0.2",
     "download": "^8.0.0",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "electron-license": "^2.8.0",
     "electron-packager": "^15.5.1",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",

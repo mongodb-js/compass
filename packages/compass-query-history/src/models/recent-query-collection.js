@@ -1,7 +1,13 @@
-import { remote } from 'electron';
 import Collection from 'ampersand-rest-collection';
 import RecentQuery from './recent-query';
 import storageMixin from 'storage-mixin';
+
+let remote;
+try {
+  remote = require('@electron/remote');
+} catch (e) {
+  console.error('Could not load @electron/remote', e.message);
+}
 
 /**
  * Represents a collection of recent queries.

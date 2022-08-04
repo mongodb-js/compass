@@ -34,8 +34,8 @@ variables:
     EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
-    NODE_JS_VERSION: '14.17.5'
-    NPM_VERSION: '8.3.1'
+    NODE_JS_VERSION: '16.15.1'
+    NPM_VERSION: '8.15.1'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
