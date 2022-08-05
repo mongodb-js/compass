@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Thu Aug 04 2022.
+This document was automatically generated on Fri Aug 05 2022.
 
 ## List of dependencies
 
