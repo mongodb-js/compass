@@ -6,8 +6,6 @@ import {
   spacing,
   css,
   cx,
-  useTheme,
-  Theme,
 } from '@mongodb-js/compass-components';
 
 const iconContainer = css({
@@ -62,7 +60,6 @@ export const IconButtonSmall = forwardRef<
   { glyph, label, onClick, isActive, children, title, className, ...rest },
   ref
 ) {
-  const { theme } = useTheme();
   return (
     <IconButton
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -76,10 +73,6 @@ export const IconButtonSmall = forwardRef<
       aria-label={label}
       title={title}
       onClick={onClick}
-      // TODO: we should probably explicitly set our own colors given that we're
-      // setting all the colours around it. Rather than rely on leafygreen's
-      // default dark or light hover background colour.
-      darkMode={theme === Theme.Dark}
       {...rest}
     >
       <SmallIcon role="presentation" glyph={glyph} mode="hovered"></SmallIcon>
