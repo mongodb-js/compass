@@ -67,6 +67,8 @@ variables:
     GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
+    EVERGREEN_BUCKET_NAME: mciuploads
+    EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -283,9 +285,11 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-
+          if [[ "${project}" == "10gen-compass-main" ]]; then
+            export npm_config_dry_run=true
+          fi
           echo "Uploading release assets to S3 and GitHub if needed..."
-          npm run --workspace mongodb-compass upload -- ${target_platform} ${target_arch} ${compass_distribution}
+          npm run --workspace mongodb-compass upload
 
   get-packaged-app:
     - <<: *get-artifact
@@ -464,8 +468,8 @@ functions:
         content_type: application/x-redhat-package-manager
     - <<: *save-artifact
       params:
-        local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
+        local_file: src/packages/compass/dist/${rhel_tar_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${rhel_tar_filename}
         content_type: application/x-gzip
 
   save-ubuntu-artifacts:
@@ -480,49 +484,20 @@ functions:
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
 
-  get-artifacts:
-    - <<: *get-artifact
+  get-all-artifacts:
+    - command: shell.exec
       params:
-        local_file: src/packages/compass/dist/${windows_setup_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_setup_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_msi_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_msi_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_zip_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_zip_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_nupkg_full_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_releases_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_releases_filename}
-
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${osx_dmg_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${osx_dmg_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${osx_zip_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${osx_zip_filename}
-
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${linux_rpm_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${linux_deb_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          echo "Downloading release assets from evergreen bucket..."
+          npm run --workspace mongodb-compass download
 
   generate-tasks:
     - command: generate.tasks
