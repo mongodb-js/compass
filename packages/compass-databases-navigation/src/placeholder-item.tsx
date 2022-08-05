@@ -38,7 +38,6 @@ export const PlaceholderItem: React.FunctionComponent<{
 }> = ({ type = 'collection', style }) => {
   const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
   const variant = useNewSidebar ? 'new' : 'old';
-  // TODO: remove the darkMode override once the darkmode feature lands so it can just pick it up from the provider
   return (
     <div className={cx(placeholderItem, padding[variant][type])} style={style}>
       <Placeholder />
