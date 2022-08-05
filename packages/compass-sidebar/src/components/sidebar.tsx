@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import {
-  ResizableSidebar,
-} from '@mongodb-js/compass-components';
+import { ResizableSidebar } from '@mongodb-js/compass-components';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';

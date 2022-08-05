@@ -1,14 +1,7 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import type { CSSProperties } from 'react';
-import {
-  spacing,
-  Placeholder,
-  css,
-  cx,
-  useTheme,
-  Theme,
-} from '@mongodb-js/compass-components';
+import { spacing, Placeholder, css, cx } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
 
 const placeholderItem = css({
@@ -45,10 +38,10 @@ export const PlaceholderItem: React.FunctionComponent<{
 }> = ({ type = 'collection', style }) => {
   const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
   const variant = useNewSidebar ? 'new' : 'old';
-  const { theme } = useTheme();
+  // TODO: remove the darkMode override once the darkmode feature lands so it can just pick it up from the provider
   return (
     <div className={cx(placeholderItem, padding[variant][type])} style={style}>
-      <Placeholder darkMode={theme === Theme.Dark}></Placeholder>
+      <Placeholder />
     </div>
   );
 };

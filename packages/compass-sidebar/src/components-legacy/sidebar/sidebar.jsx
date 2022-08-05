@@ -62,7 +62,7 @@ class Sidebar extends PureComponent {
     width: defaultSidebarWidthOpened,
     prevWidth: defaultSidebarWidthOpened,
     // The old sidebar is always dark
-    theme: { theme: Theme.Dark },
+    theme: { theme: Theme.Dark, enabled: true },
   };
 
   onNavigationItemClick(tabName) {
