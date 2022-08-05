@@ -68,4 +68,4 @@ const withTheme = function <
   return React.forwardRef(ComponentWithTheme) as typeof WrappedComponent;
 };
 
-export { Theme, ThemeProvider, useTheme, withTheme };
+export { Theme, ThemeState, ThemeProvider, useTheme, withTheme };

@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ResizableSidebar,
+  Theme,
+  ThemeProvider,
   ErrorBoundary,
   WorkspaceContainer,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
+import type { ThemeState } from '@mongodb-js/compass-components';
 import ConnectionForm from '@mongodb-js/connection-form';
 import type {
   ConnectionInfo,
@@ -83,6 +86,11 @@ function Connections({
     isConnected,
   } = state;
 
+  // For now the connections sidebar is always dark
+  const [theme] = useState<ThemeState>({
+    theme: Theme.Dark,
+  });
+
   return (
     <div
       data-testid={
@@ -90,23 +98,25 @@ function Connections({
       }
       className={connectStyles}
     >
-      <ResizableSidebar darkMode>
-        <ConnectionList
-          activeConnectionId={activeConnectionId}
-          favoriteConnections={favoriteConnections}
-          recentConnections={recentConnections}
-          createNewConnection={createNewConnection}
-          setActiveConnectionId={setActiveConnectionById}
-          onDoubleClick={(connectionInfo) => {
-            void connect(connectionInfo);
-          }}
-          removeAllRecentsConnections={() => {
-            void removeAllRecentsConnections();
-          }}
-          removeConnection={removeConnection}
-          duplicateConnection={duplicateConnection}
-        />
-      </ResizableSidebar>
+      <ThemeProvider theme={theme}>
+        <ResizableSidebar>
+          <ConnectionList
+            activeConnectionId={activeConnectionId}
+            favoriteConnections={favoriteConnections}
+            recentConnections={recentConnections}
+            createNewConnection={createNewConnection}
+            setActiveConnectionId={setActiveConnectionById}
+            onDoubleClick={(connectionInfo) => {
+              void connect(connectionInfo);
+            }}
+            removeAllRecentsConnections={() => {
+              void removeAllRecentsConnections();
+            }}
+            removeConnection={removeConnection}
+            duplicateConnection={duplicateConnection}
+          />
+        </ResizableSidebar>
+      </ThemeProvider>
       <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary

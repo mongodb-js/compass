@@ -1,5 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { ResizeHandle, ResizeDirection, css, cx } from '../index';
+import {
+  ResizeHandle,
+  ResizeDirection,
+  useTheme,
+  Theme,
+  css,
+  cx,
+} from '../index';
 
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -59,12 +66,10 @@ const ResizableSidebar = ({
   initialWidth = initialSidebarWidth,
   minWidth = minSidebarWidth,
   children,
-  darkMode,
 }: {
   initialWidth?: number;
   minWidth?: number;
   children: JSX.Element;
-  darkMode: boolean;
 }): JSX.Element => {
   const [width, setWidth] = useState(initialWidth);
 
@@ -72,11 +77,13 @@ const ResizableSidebar = ({
     return Math.max(minWidth, window.innerWidth - 100);
   }, [minWidth]);
 
+  const { theme } = useTheme();
+
   return (
     <div
       className={cx(
         containerStyles,
-        darkMode ? containerStylesDark : containerStylesLight
+        theme === Theme.Dark ? containerStylesDark : containerStylesLight
       )}
       style={{
         minWidth: minWidth,

@@ -6,6 +6,8 @@ import {
   spacing,
   css,
   cx,
+  useTheme,
+  Theme,
 } from '@mongodb-js/compass-components';
 
 const iconContainer = css({
@@ -60,8 +62,7 @@ export const IconButtonSmall = forwardRef<
   { glyph, label, onClick, isActive, children, title, className, ...rest },
   ref
 ) {
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
-  const darkMode = !useNewSidebar; // for now assume the old sidebar is dark and the new one light
+  const { theme } = useTheme();
   return (
     <IconButton
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -78,7 +79,7 @@ export const IconButtonSmall = forwardRef<
       // TODO: we should probably explicitly set our own colors given that we're
       // setting all the colours around it. Rather than rely on leafygreen's
       // default dark or light hover background colour.
-      darkMode={darkMode}
+      darkMode={theme === Theme.Dark}
       {...rest}
     >
       <SmallIcon role="presentation" glyph={glyph} mode="hovered"></SmallIcon>

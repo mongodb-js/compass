@@ -2,7 +2,12 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { ResizeHandle, ResizeDirection } from '@mongodb-js/compass-components';
+import {
+  ResizeHandle,
+  ResizeDirection,
+  ThemeProvider,
+  Theme,
+} from '@mongodb-js/compass-components';
 
 import classnames from 'classnames';
 import styles from './sidebar.module.less';
@@ -56,6 +61,8 @@ class Sidebar extends PureComponent {
   state = {
     width: defaultSidebarWidthOpened,
     prevWidth: defaultSidebarWidthOpened,
+    // The old sidebar is always dark
+    theme: { theme: Theme.Dark },
   };
 
   onNavigationItemClick(tabName) {
@@ -163,89 +170,92 @@ class Sidebar extends PureComponent {
 
     // TODO: https://jira.mongodb.org/browse/COMPASS-5918
     /* eslint-disable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, react/no-string-refs */
+
     return (
-      <div
-        className={classnames(styles['compass-sidebar'], {
-          [styles['compass-sidebar-collapsed']]: !isExpanded,
-        })}
-        data-test-id="compass-sidebar-panel"
-        style={{ width: renderedWidth }}
-      >
-        <ResizeHandle
-          onChange={(newWidth) => this.updateWidth(newWidth)}
-          direction={ResizeDirection.RIGHT}
-          value={width}
-          minValue={sidebarWidthCollapsed}
-          maxValue={getMaxSidebarWidth()}
-          title="sidebar"
-        />
-        <button
-          className={classnames(
-            styles['compass-sidebar-toggle'],
-            'btn btn-default btn-sm'
-          )}
-          onClick={() =>
-            isExpanded
-              ? this.updateWidth(sidebarWidthCollapsed)
-              : this.updateWidth(prevWidth)
-          }
-          data-test-id="toggle-sidebar"
-        >
-          <i className={collapsedButton} />
-        </button>
-        <SidebarTitle
-          connectionInfo={this.props.connectionInfo}
-          isSidebarExpanded={isExpanded}
-          onClick={() => this.onNavigationItemClick()}
-        />
-        {isExpanded && this.props.instance && (
-          <SidebarInstance
-            instance={this.props.instance}
-            databases={this.props.databases}
-            isExpanded={this.props.isDetailsExpanded}
-            isGenuineMongoDB={this.props.instance.genuineMongoDB.isGenuine}
-            toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
-            globalAppRegistryEmit={this.props.globalAppRegistryEmit}
-            connectionInfo={this.props.connectionInfo}
-            connectionOptions={this.props.connectionOptions}
-            updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
-            setConnectionIsCSFLEEnabled={(enabled) =>
-              this.handleSetConnectionIsCSFLEEnabled(enabled)
-            }
-          />
-        )}
-        <NavigationItems
-          onItemClick={(tabName) => this.onNavigationItemClick(tabName)}
-          isExpanded={isExpanded}
-        />
+      <ThemeProvider theme={this.state.theme}>
         <div
-          className={styles['compass-sidebar-filter']}
-          onClick={this.handleSearchFocus.bind(this)}
+          className={classnames(styles['compass-sidebar'], {
+            [styles['compass-sidebar-collapsed']]: !isExpanded,
+          })}
+          data-test-id="compass-sidebar-panel"
+          style={{ width: renderedWidth }}
         >
-          <i
+          <ResizeHandle
+            onChange={(newWidth) => this.updateWidth(newWidth)}
+            direction={ResizeDirection.RIGHT}
+            value={width}
+            minValue={sidebarWidthCollapsed}
+            maxValue={getMaxSidebarWidth()}
+            title="sidebar"
+          />
+          <button
             className={classnames(
-              'fa',
-              'fa-search',
-              styles['compass-sidebar-search-icon']
+              styles['compass-sidebar-toggle'],
+              'btn btn-default btn-sm'
             )}
+            onClick={() =>
+              isExpanded
+                ? this.updateWidth(sidebarWidthCollapsed)
+                : this.updateWidth(prevWidth)
+            }
+            data-test-id="toggle-sidebar"
+          >
+            <i className={collapsedButton} />
+          </button>
+          <SidebarTitle
+            connectionInfo={this.props.connectionInfo}
+            isSidebarExpanded={isExpanded}
+            onClick={() => this.onNavigationItemClick()}
           />
-          <input
-            data-test-id="sidebar-filter-input"
-            ref="filter"
-            className={styles['compass-sidebar-search-input']}
-            placeholder="Filter your data"
-            onChange={this.handleFilter.bind(this)}
+          {isExpanded && this.props.instance && (
+            <SidebarInstance
+              instance={this.props.instance}
+              databases={this.props.databases}
+              isExpanded={this.props.isDetailsExpanded}
+              isGenuineMongoDB={this.props.instance.genuineMongoDB.isGenuine}
+              toggleIsDetailsExpanded={this.props.toggleIsDetailsExpanded}
+              globalAppRegistryEmit={this.props.globalAppRegistryEmit}
+              connectionInfo={this.props.connectionInfo}
+              connectionOptions={this.props.connectionOptions}
+              updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
+              setConnectionIsCSFLEEnabled={(enabled) =>
+                this.handleSetConnectionIsCSFLEEnabled(enabled)
+              }
+            />
+          )}
+          <NavigationItems
+            onItemClick={(tabName) => this.onNavigationItemClick(tabName)}
+            isExpanded={isExpanded}
+          />
+          <div
+            className={styles['compass-sidebar-filter']}
+            onClick={this.handleSearchFocus.bind(this)}
+          >
+            <i
+              className={classnames(
+                'fa',
+                'fa-search',
+                styles['compass-sidebar-search-icon']
+              )}
+            />
+            <input
+              data-test-id="sidebar-filter-input"
+              ref="filter"
+              className={styles['compass-sidebar-search-input']}
+              placeholder="Filter your data"
+              onChange={this.handleFilter.bind(this)}
+            />
+          </div>
+          <div className={styles['compass-sidebar-content']}>
+            {isExpanded && <SidebarDatabasesNavigation />}
+            {this.props.instance && this.renderCreateDatabaseButton()}
+          </div>
+          <NonGenuineWarningModal
+            isVisible={this.props.isGenuineMongoDBVisible}
+            toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
           />
         </div>
-        <div className={styles['compass-sidebar-content']}>
-          {isExpanded && <SidebarDatabasesNavigation />}
-          {this.props.instance && this.renderCreateDatabaseButton()}
-        </div>
-        <NonGenuineWarningModal
-          isVisible={this.props.isGenuineMongoDBVisible}
-          toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
-        />
-      </div>
+      </ThemeProvider>
     );
     /* eslint-enable jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, react/no-string-refs */
   }
