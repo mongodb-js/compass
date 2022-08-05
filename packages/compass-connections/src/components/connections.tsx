@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ResizableSidebar,
+  Theme,
+  ThemeProvider,
   ErrorBoundary,
   WorkspaceContainer,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
+import type { ThemeState } from '@mongodb-js/compass-components';
 import ConnectionForm from '@mongodb-js/connection-form';
 import type {
   ConnectionInfo,
@@ -47,9 +50,6 @@ const formContainerStyles = css({
   gap: spacing[4],
 });
 
-const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
-const minSidebarWidth = spacing[4] * 9; // 216px
-
 function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
@@ -86,6 +86,12 @@ function Connections({
     isConnected,
   } = state;
 
+  // For now the connections sidebar is always dark
+  const [theme] = useState<ThemeState>({
+    theme: Theme.Dark,
+    enabled: true,
+  });
+
   return (
     <div
       data-testid={
@@ -93,26 +99,25 @@ function Connections({
       }
       className={connectStyles}
     >
-      <ResizableSidebar
-        minWidth={minSidebarWidth}
-        initialWidth={initialSidebarWidth}
-      >
-        <ConnectionList
-          activeConnectionId={activeConnectionId}
-          favoriteConnections={favoriteConnections}
-          recentConnections={recentConnections}
-          createNewConnection={createNewConnection}
-          setActiveConnectionId={setActiveConnectionById}
-          onDoubleClick={(connectionInfo) => {
-            void connect(connectionInfo);
-          }}
-          removeAllRecentsConnections={() => {
-            void removeAllRecentsConnections();
-          }}
-          removeConnection={removeConnection}
-          duplicateConnection={duplicateConnection}
-        />
-      </ResizableSidebar>
+      <ThemeProvider theme={theme}>
+        <ResizableSidebar>
+          <ConnectionList
+            activeConnectionId={activeConnectionId}
+            favoriteConnections={favoriteConnections}
+            recentConnections={recentConnections}
+            createNewConnection={createNewConnection}
+            setActiveConnectionId={setActiveConnectionById}
+            onDoubleClick={(connectionInfo) => {
+              void connect(connectionInfo);
+            }}
+            removeAllRecentsConnections={() => {
+              void removeAllRecentsConnections();
+            }}
+            removeConnection={removeConnection}
+            duplicateConnection={duplicateConnection}
+          />
+        </ResizableSidebar>
+      </ThemeProvider>
       <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary

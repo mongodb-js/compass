@@ -42,6 +42,7 @@ const renderExplainToolbar = (
       localAppRegistry={localAppRegistry}
       explainResultId="123"
       explainErrorMessage={undefined}
+      hasExplainResults={false}
       onExecuteExplainClicked={() => {}}
       showOutdatedWarning={false}
       showReadonlyWarning={false}
@@ -53,19 +54,32 @@ const renderExplainToolbar = (
   );
 };
 
+const viewTypeSwitcherText = 'Raw Json';
+
 describe('ExplainToolbar', function () {
   afterEach(function () {
     sinon.restore();
   });
 
+  it('when there are no results it does not show the view switcher', function () {
+    const switchToJSONViewSpy = sinon.spy();
+    renderExplainToolbar({
+      hasExplainResults: false,
+      switchToJSONView: switchToJSONViewSpy,
+    });
+
+    expect(screen.queryByText(viewTypeSwitcherText)).to.not.exist;
+  });
+
   it('calls to change the view type when a different view type is chosen', function () {
     const switchToJSONViewSpy = sinon.spy();
     renderExplainToolbar({
+      hasExplainResults: true,
       switchToJSONView: switchToJSONViewSpy,
     });
 
     expect(switchToJSONViewSpy.called).to.be.false;
-    userEvent.click(screen.getByText('Raw Json'));
+    userEvent.click(screen.getByText(viewTypeSwitcherText));
 
     expect(switchToJSONViewSpy.calledOnce).to.be.true;
   });

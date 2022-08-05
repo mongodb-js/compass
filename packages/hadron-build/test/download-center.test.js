@@ -1,42 +1,44 @@
-const assert = require('assert');
-const { generateKey } = require('../lib/download-center');
+const { expect } = require('chai');
+const {
+  getKeyPrefix,
+  requireEnvironmentVariables
+} = require('../lib/download-center');
 
-describe('download-center', () => {
-  describe('#generateKey', () => {
-    context('when the channel is not stable', () => {
-      context('when the id is for compass', () => {
-        const config = { id: 'mongodb-compass', channel: 'beta' };
-
-        it('returns compass/beta', () => {
-          assert.equal(generateKey(config).download_center_key_prefix, 'compass/beta');
-        });
-      });
-
-      context('when the id is for compass community', () => {
-        const config = { id: 'mongodb-compass-community', channel: 'beta' };
-
-        it('returns compass/beta', () => {
-          assert.equal(generateKey(config).download_center_key_prefix, 'compass/beta');
-        });
-      });
+describe('download-center', function() {
+  describe('getKeyPrefix', function() {
+    it('should return compass for stable channel', function() {
+      expect(getKeyPrefix('stable')).to.eq('compass');
     });
 
-    context('when the channel is stable', () => {
-      context('when the id is for compass', () => {
-        const config = { id: 'mongodb-compass', channel: 'stable' };
+    it('should return compass when no channel is passed', function() {
+      expect(getKeyPrefix()).to.eq('compass');
+    });
 
-        it('returns compass', () => {
-          assert.equal(generateKey(config).download_center_key_prefix, 'compass');
-        });
-      });
+    it('should return prefix with channel when channel is not stable', function() {
+      expect(getKeyPrefix('beta')).to.eq('compass/beta');
+    });
+  });
 
-      context('when the id is for compass community', () => {
-        const config = { id: 'mongodb-compass-community', channel: 'stable' };
+  describe('requireEnvironmentVariables', function() {
+    it('should throw if variable is missing', function() {
+      expect(() => {
+        requireEnvironmentVariables([
+          'I_WOULD_BE_REALLY_SURPRISED_IF_THIS_ACTUALLY_EXISTS'
+        ]);
+      }).to.throw();
+    });
 
-        it('returns compass', () => {
-          assert.equal(generateKey(config).download_center_key_prefix, 'compass');
-        });
-      });
+    it('should return true if variable is set', function() {
+      try {
+        process.env.THIS_IS_HERE_TO_TEST_REQUIRE_ENV_VARIABLES_METHOD = '1';
+        expect(
+          requireEnvironmentVariables([
+            'THIS_IS_HERE_TO_TEST_REQUIRE_ENV_VARIABLES_METHOD'
+          ])
+        ).to.eq(true);
+      } finally {
+        delete process.env.THIS_IS_HERE_TO_TEST_REQUIRE_ENV_VARIABLES_METHOD;
+      }
     });
   });
 });
