@@ -6,22 +6,31 @@ import {
   spacing,
   css,
   cx,
-  uiColors,
 } from '@mongodb-js/compass-components';
 
 const iconContainer = css({
-  color: uiColors.white,
   display: 'block',
   flex: 'none',
   fontSize: 0,
 });
 
+const icons = {
+  normal: css({
+    color: 'var(--icon-color)',
+  }),
+  hovered: css({
+    color: 'var(--hover-icon-color)',
+  }),
+} as const;
+
+type IconMode = keyof typeof icons;
+
 export const SmallIcon: React.FunctionComponent<
-  { glyph: string } & React.HTMLProps<HTMLSpanElement>
-> = ({ glyph, className, ...props }) => {
+  { glyph: string; mode: IconMode } & React.HTMLProps<HTMLSpanElement>
+> = ({ glyph, mode, className, ...props }) => {
   return (
     <span className={cx(iconContainer, className)} {...props}>
-      <Icon size="small" glyph={glyph}></Icon>
+      <Icon size="small" glyph={glyph} className={icons[mode]}></Icon>
     </span>
   );
 };
@@ -64,10 +73,9 @@ export const IconButtonSmall = forwardRef<
       aria-label={label}
       title={title}
       onClick={onClick}
-      darkMode
       {...rest}
     >
-      <SmallIcon role="presentation" glyph={glyph}></SmallIcon>
+      <SmallIcon role="presentation" glyph={glyph} mode="hovered"></SmallIcon>
       {/* Only here to make leafygreen menus work */}
       {children}
     </IconButton>
