@@ -3,9 +3,6 @@ import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import {
   ResizableSidebar,
-  Theme,
-  ThemeProvider,
-  ThemeState,
 } from '@mongodb-js/compass-components';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 
@@ -54,17 +51,10 @@ export function Sidebar({}: Props) {
   // TODO: create database
   // TODO: non genuine warning label
 
-  // For now the new sidebar is always light
-  const [theme] = useState<ThemeState>({
-    theme: Theme.Light,
-  });
-
   return (
-    <ThemeProvider theme={theme}>
-      <ResizableSidebar>
-        <SidebarDatabasesNavigation />
-      </ResizableSidebar>
-    </ThemeProvider>
+    <ResizableSidebar>
+      <SidebarDatabasesNavigation />
+    </ResizableSidebar>
   );
 }
 
