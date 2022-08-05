@@ -36,6 +36,7 @@ export {
   EditorTextCompleter,
   setEditorValue,
 } from './components/editor';
+export { BSONDocumentEditor } from './components/bson-document-editor';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';

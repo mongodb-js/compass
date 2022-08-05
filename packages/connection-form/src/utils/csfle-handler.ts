@@ -7,7 +7,7 @@ import type {
   Document,
 } from 'mongodb';
 import type { KMSProviderName } from './csfle-kms-fields';
-import queryParser from 'mongodb-query-parser';
+import { EJSON } from 'bson';
 
 const DEFAULT_FLE_OPTIONS: NonNullable<ConnectionOptions['fleOptions']> = {
   storeCredentials: false,
@@ -202,7 +202,12 @@ export function hasAnyCsfleOption(o: Readonly<AutoEncryptionOptions>): boolean {
   );
 }
 
-export function textToEncryptedFieldConfig(text: string): Document | undefined {
+export function editorTextToEncryptedFieldConfig(
+  value: any,
+  error: Error | null,
+  variant: 'EJSON' | 'Shell',
+  text: string
+): Document | undefined {
   if (!text.trim()) {
     return undefined;
   }
@@ -210,63 +215,51 @@ export function textToEncryptedFieldConfig(text: string): Document | undefined {
   // We use `$compass`-prefixed strings here since the keys of
   // `encryptedFieldConfigMap` refer to databases and
   // those never contain `$`.
-
-  let parsed: Document = {};
-  try {
-    parsed = queryParser(text);
-    if (!parsed || typeof parsed !== 'object') {
-      // XXX(COMPASS-5689): We've hit the condition in
-      // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
-      // in which instead of returning a parsed value or throwing an error,
-      // the query parser just returns an empty string when encountering
-      // input that can be parsed as JS but not as a valid query.
-      // Unfortunately, this also means that all context around what
-      // caused this error is unavailable here.
-      parsed = {};
-      throw new Error('Field contained invalid input');
-    }
-    parsed['$compass.error'] = null;
-  } catch (err: unknown) {
-    parsed['$compass.error'] = (err as Error).message;
+  let parsed: Document;
+  if (typeof value !== 'object' || !value) {
+    parsed = {};
+  } else {
+    parsed = value;
   }
-
+  parsed['$compass.error'] = error?.message ?? null;
   parsed['$compass.rawText'] = text;
+  parsed['$compass.ejson'] = EJSON.serialize(parsed);
   return parsed;
 }
 
-export function encryptedFieldConfigToText(
+export function encryptedFieldConfigToEditorProps(
   config: Readonly<Document> | undefined
-): string {
+): { text: string } | { initialValue: any } {
   if (!config) {
-    return '';
+    return { text: '' };
   }
   if (config['$compass.rawText']) {
-    return config['$compass.rawText'];
+    return { text: config['$compass.rawText'] };
   }
   const withoutCompassKeys = Object.fromEntries(
     Object.entries(config).filter(([key]) => !key.startsWith('$compass.'))
   );
-  return queryParser.toJSString(withoutCompassKeys);
+  return { initialValue: withoutCompassKeys };
 }
 
 // The CSFLE encryptedFieldConfigMap contains BSON values, including
 // UUIDs, which are not serialized correctly by the connection model.
 // To account for this, we regenerate the actual values from its
-// text representation on connection form load.
+// EJSON representation on connection form load.
 export function adjustCSFLEParams(
   connectionOptions: Readonly<ConnectionOptions>
 ): ConnectionOptions {
   connectionOptions = cloneDeep(connectionOptions);
   const autoEncryptionOptions = connectionOptions.fleOptions?.autoEncryption;
   if (autoEncryptionOptions?.schemaMap?.['$compass.error'] === null) {
-    autoEncryptionOptions.schemaMap = textToEncryptedFieldConfig(
-      autoEncryptionOptions.schemaMap['$compass.rawText']
-    );
+    autoEncryptionOptions.schemaMap = EJSON.deserialize(
+      autoEncryptionOptions.schemaMap['$compass.ejson']
+    ) as Document;
   }
   if (autoEncryptionOptions?.encryptedFieldsMap?.['$compass.error'] === null) {
-    autoEncryptionOptions.encryptedFieldsMap = textToEncryptedFieldConfig(
-      autoEncryptionOptions.encryptedFieldsMap['$compass.rawText']
-    );
+    autoEncryptionOptions.encryptedFieldsMap = EJSON.deserialize(
+      autoEncryptionOptions.encryptedFieldsMap['$compass.ejson']
+    ) as Document;
   }
   return connectionOptions;
 }

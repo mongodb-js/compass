@@ -145,4 +145,10 @@ function setEditorValue(element: HTMLElement, value: string): void {
 }
 
 const EditorTextCompleter = tools.textCompleter;
-export { Editor, EditorVariant, EditorTextCompleter, setEditorValue };
+export {
+  Editor,
+  EditorProps,
+  EditorVariant,
+  EditorTextCompleter,
+  setEditorValue,
+};
