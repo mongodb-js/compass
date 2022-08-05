@@ -1,6 +1,7 @@
 /* eslint-disable valid-jsdoc */
 const fs = require('fs');
 const { DownloadCenter } = require('@mongodb-js/dl-center');
+const download = require('download');
 
 const DOWNLOADS_BUCKET = 'downloads.10gen.com';
 const MANIFEST_BUCKET = 'info-mongodb-com';
@@ -49,11 +50,23 @@ const uploadManifest = async(manifest) => {
   return dlCenter.uploadConfig(MANIFEST_OBJECT_KEY, manifest);
 };
 
+const downloadAssetFromEvergreen = async({ name, path: dest }) => {
+  requireEnvironmentVariables([
+    'EVERGREEN_BUCKET_NAME',
+    'EVERGREEN_BUCKET_KEY_PREFIX'
+  ]);
+  const bucket = process.env.EVERGREEN_BUCKET_NAME;
+  const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
+  const url = `https://${bucket}.s3.amazonaws.com/${key}`;
+  return await download(url, dest);
+};
+
 module.exports = {
   requireEnvironmentVariables,
   getDownloadCenter,
   getKeyPrefix,
   uploadAsset,
   downloadManifest,
-  uploadManifest
+  uploadManifest,
+  downloadAssetFromEvergreen
 };

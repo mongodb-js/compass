@@ -346,40 +346,39 @@ class Target {
       `-${this.channel}$1`
     );
 
-    /**
-     * TODO (imlucas) Remove these after evergreen.yml updated to use inline templating.
-     */
-    this.windows_msi_label = this.windows_msi_filename = `${this.productName.replace(
-      /\s/g,
-      ''
-    )}.msi`;
-    this.windows_setup_label = this.windows_setup_filename = `${this.productName}Setup.exe`;
-    this.windows_zip_label = this.windows_zip_filename = `${this.productName}-windows.zip`;
-    this.windows_nupkg_full_label = this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
-    this.windows_releases_label = this.windows_releases_filename = `${this.distribution}-RELEASES`;
+    this.windows_setup_label =
+      this.windows_setup_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.exe`;
+    this.windows_msi_label =
+      this.windows_msi_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.msi`;
+    this.windows_zip_label =
+      this.windows_zip_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`;
+    this.windows_releases_label =
+      this.windows_releases_filename = `${this.slug}-RELEASES`;
+    this.windows_nupkg_full_label =
+      this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
 
     this.assets = [
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.exe`,
+        name: this.windows_setup_label,
         path: this.dest(this.windows_setup_label),
         downloadCenter: true
       },
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.msi`,
+        name: this.windows_msi_label,
         path: this.dest(this.windows_msi_label),
         downloadCenter: true
       },
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`,
+        name: this.windows_zip_label,
         path: this.dest(this.windows_zip_label),
         downloadCenter: true
       },
       {
-        name: `${this.slug}-RELEASES`,
+        name: this.windows_releases_label,
         path: this.dest(this.windows_releases_label)
       },
       {
-        name: `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`,
+        name: this.windows_nupkg_full_label,
         path: this.dest(this.windows_nupkg_full_label)
       }
     ];
@@ -435,7 +434,7 @@ class Target {
 
       await fs.promises.rename(
         this.dest('RELEASES'),
-        this.dest(`${this.distribution}-RELEASES`),
+        this.dest(this.windows_releases_label),
       );
 
       const { MSICreator } = require('@mongodb-js/electron-wix-msi');
@@ -468,6 +467,11 @@ class Target {
 
       // sign the MSI
       await signWindowsPackage(this.dest(this.packagerOptions.name + '.msi'));
+
+      await fs.promises.rename(
+        this.dest(this.packagerOptions.name + '.msi'),
+        this.dest(this.windows_msi_label),
+      );
     };
   }
 
