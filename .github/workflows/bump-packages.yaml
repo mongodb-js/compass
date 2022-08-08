@@ -50,6 +50,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v4
         with:
+          token: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
           commit-message: 'chore(release): bump package versions'
           branch: ci/bump-packages
           title: 'chore(release): bump package versions'

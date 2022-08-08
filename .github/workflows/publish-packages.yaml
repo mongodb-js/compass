@@ -5,19 +5,15 @@ on:
   # cause the tags to point to a different commit that the one used to publish
   # the packages
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Check and Test"]
-    branches: [main]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
   publish:
     if: |
-      github.event_name == 'workflow_dispatch' || (
-        startsWith(github.event.workflow_run.head_commit.message, 'chore(release): bump package versions') &&
-        github.event.workflow_run.conclusion == 'success'
-      )
+      github.event_name == 'workflow_dispatch' ||
+        startsWith(github.event.head_commit.message, 'chore(release): bump package versions')
 
     runs-on: ubuntu-latest
 
@@ -50,7 +46,7 @@ jobs:
 
     - name: "Publish what is not already in NPM"
       env:
-        NPM_TOKEN: ${{ secrets.SVC_DEVTOOLSBOT_TOKEN }}
+        NPM_TOKEN: ${{ secrets.DEVTOOLSBOT_NPM_TOKEN }}
       run: |
         echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         git update-index --assume-unchanged .npmrc
