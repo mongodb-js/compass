@@ -15,7 +15,7 @@ jobs:
   publish:
     if: |
       github.event_name == 'workflow_dispatch' || (
-        startsWith(github.event.workflow_run.head_commit.message, 'chore(release): Bump package versions') &&
+        startsWith(github.event.workflow_run.head_commit.message, 'chore(release): bump package versions') &&
         github.event.workflow_run.conclusion == 'success'
       )
 
