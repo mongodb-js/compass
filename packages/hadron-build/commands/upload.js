@@ -28,8 +28,11 @@ const root = path.resolve(__dirname, '..', '..', '..');
 
 async function checkAssetsExist(paths) {
   await Promise.all(
-    paths.map((assetPath) => {
-      return fs.stat(assetPath);
+    paths.map(async(assetPath) => {
+      const stats = await fs.stat(assetPath);
+      if (!stats.isFile()) {
+        throw new TypeError(`Not a file at path ${assetPath}`);
+      }
     })
   );
   return true;

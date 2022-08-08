@@ -1,5 +1,6 @@
 /* eslint-disable valid-jsdoc */
 const fs = require('fs');
+const path = require('path');
 const { DownloadCenter } = require('@mongodb-js/dl-center');
 const download = require('download');
 
@@ -50,15 +51,21 @@ const uploadManifest = async(manifest) => {
   return dlCenter.uploadConfig(MANIFEST_OBJECT_KEY, manifest);
 };
 
-const downloadAssetFromEvergreen = async({ name, path: dest }) => {
-  requireEnvironmentVariables([
-    'EVERGREEN_BUCKET_NAME',
-    'EVERGREEN_BUCKET_KEY_PREFIX'
-  ]);
-  const bucket = process.env.EVERGREEN_BUCKET_NAME;
-  const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
-  const url = `https://${bucket}.s3.amazonaws.com/${key}`;
-  return await download(url, dest);
+const downloadAssetFromEvergreen = ({ name, path: dest }) => {
+  return new Promise(async(resolve, reject) => {
+    requireEnvironmentVariables([
+      'EVERGREEN_BUCKET_NAME',
+      'EVERGREEN_BUCKET_KEY_PREFIX'
+    ]);
+    const bucket = process.env.EVERGREEN_BUCKET_NAME;
+    const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
+    const url = `https://${bucket}.s3.amazonaws.com/${key}`;
+    const stream = download(url);
+    await fs.promises.mkdir(path.dirname(dest), { recursive: true });
+    stream.pipe(fs.createWriteStream(dest));
+    stream.on('end', resolve);
+    stream.on('error', reject);
+  });
 };
 
 module.exports = {
