@@ -16,9 +16,8 @@ import type {
   TreeItemProps,
   NamespaceItemProps,
 } from './tree-item';
-import { Actions } from './constants';
+import type { Actions } from './constants';
 
-const DBActionControls = ItemActionControls<Actions>;
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -152,14 +151,14 @@ export const CollectionItem: React.FunctionComponent<
     >
       <CollectionIcon type={type} />
       <ItemLabel className={collectionItemLabel}>{name}</ItemLabel>
-      <DBActionControls
+      <ItemActionControls<Actions>
         className={collectionActions}
         onAction={onAction}
         isActive={isActive}
         isHovered={isHovered}
         actions={actions}
         shouldCollapseActionsToMenu
-      ></DBActionControls>
+      ></ItemActionControls>
     </ItemContainer>
   );
 };

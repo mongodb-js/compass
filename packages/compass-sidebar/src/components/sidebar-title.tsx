@@ -18,8 +18,6 @@ import type { ItemAction } from '@mongodb-js/compass-components';
 
 type Actions = 'copy-connection-string' | 'edit-favorite' | 'cluster-info';
 
-const TitleActionControls = ItemActionControls<Actions>;
-
 const titleContainer = css({
   // TODO: move, also we need dark colors too
   '--title-color': 'white',
@@ -143,13 +141,13 @@ function SidebarTitle({
       <TitleLogo />
       <TitleLabel title={title}>{title}</TitleLabel>
 
-      <TitleActionControls
+      <ItemActionControls<Actions>
         onAction={onAction}
         isActive={isActive}
         isHovered={isHovered}
         actions={actions}
         shouldCollapseActionsToMenu
-      ></TitleActionControls>
+      ></ItemActionControls>
     </div>
   );
 }

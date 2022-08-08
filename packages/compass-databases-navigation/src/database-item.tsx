@@ -16,9 +16,7 @@ import type {
   TreeItemProps,
   NamespaceItemProps,
 } from './tree-item';
-import { Actions } from './constants';
-
-const DBActionControls = ItemActionControls<Actions>;
+import type { Actions } from './constants';
 
 const buttonReset = css({
   padding: 0,
@@ -187,13 +185,13 @@ export const DatabaseItem: React.FunctionComponent<
         {name}
       </ItemLabel>
       {!isReadOnly && (
-        <DBActionControls
+        <ItemActionControls<Actions>
           className={databaseActions}
           onAction={onAction}
           isActive={isActive}
           isHovered={isHovered}
           actions={actions}
-        ></DBActionControls>
+        ></ItemActionControls>
       )}
     </ItemContainer>
   );
