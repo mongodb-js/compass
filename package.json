@@ -27,7 +27,7 @@
     "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",
     "packages-publish": "lerna publish from-package --allow-branch main",
     "postpackages-publish": "git push && git push --tags",
-    "packages-version": "lerna version --allow-branch main --no-push --no-private -m \"chore(release): Bump package versions\"",
+    "packages-version": "lerna version --allow-branch main --no-push --no-private -m \"chore(release): bump package versions\"",
     "release": "npm run release --workspace mongodb-compass --",
     "reformat": "lerna run reformat --stream --no-bail",
     "reformat-changed": "lerna run reformat --stream --no-bail --since origin/HEAD --exclude-dependents",
@@ -65,8 +65,8 @@
     "wait-on": "^5.3.0"
   },
   "engines": {
-    "node": ">=14.17.5",
-    "npm": ">=7.16.0"
+    "node": ">=16.15.1",
+    "npm": ">=8.15.1"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",

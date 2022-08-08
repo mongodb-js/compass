@@ -2,7 +2,7 @@ const { THEMES } = require('compass-preferences-model');
 const { Theme } = require('@mongodb-js/compass-components');
 const ipc = require('hadron-ipc');
 const darkreader = require('darkreader');
-const { remote } = require('electron');
+const remote = require('@electron/remote');
 const {
   applyGlobalDarkThemeStyles,
   applyGlobalLightThemeStyles,

@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",

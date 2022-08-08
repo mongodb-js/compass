@@ -1,7 +1,12 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import React from 'react';
-import sinon from 'sinon';
 
 import { ToastArea, ToastVariant, useToast } from '..';
 
@@ -67,16 +72,6 @@ describe('useToast', function () {
   });
 
   describe('with timeout', function () {
-    let clock;
-
-    beforeEach(function () {
-      clock = sinon.useFakeTimers();
-    });
-
-    afterEach(function () {
-      clock.restore();
-    });
-
     it('closes a toast after timeout expires', async function () {
       render(
         <ToastArea>
@@ -85,7 +80,7 @@ describe('useToast', function () {
             id="toast-1"
             title="My Toast"
             body="Toast body"
-            timeout={5000}
+            timeout={1000}
             variant={ToastVariant.Success}
           />
         </ToastArea>
@@ -95,11 +90,9 @@ describe('useToast', function () {
 
       await screen.findByText('My Toast');
 
-      clock.tick(2000);
-
-      await screen.findByText('My Toast');
-
-      clock.tick(3001);
+      await waitForElementToBeRemoved(() => {
+        return screen.queryByText('My Toast');
+      });
 
       expect(screen.queryByText('My Toast')).to.not.exist;
     });

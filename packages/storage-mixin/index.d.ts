@@ -1,2 +1,2 @@
-type StorageMixin = any;
+declare const StorageMixin: any;
 export = StorageMixin;

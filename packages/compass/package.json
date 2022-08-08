@@ -142,6 +142,7 @@
     "package-compass": "hadron-build release",
     "test-release-tasks": "cross-env MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID='' mocha \"./release/*.spec.js\"",
     "upload": "hadron-build upload",
+    "download": "hadron-build download",
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "build-info": "hadron-build info",
     "jsx": "babel ./src --out-dir ./lib",
@@ -203,7 +204,6 @@
     "@mongodb-js/prettier-config-compass": "^0.6.0",
     "@mongodb-js/tsconfig-compass": "^0.7.0",
     "@mongodb-js/webpack-config-compass": "^0.11.1",
-    "@octokit/rest": "^18.5.3",
     "@types/analytics-node": "^3.1.7",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
@@ -224,7 +224,7 @@
     "debug-menu": "^0.3.0",
     "decompress": "^4.2.1",
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^10.1.0",
     "electron-rebuild": "^3.2.7",
@@ -271,9 +271,5 @@
     "macos-export-certificate-and-key": "^1.1.1",
     "vscode-windows-registry": "1.0.2",
     "win-export-certificate-and-key": "^1.1.1"
-  },
-  "engines": {
-    "node": "^14.17.5",
-    "npm": ">=7.0.0"
   }
 }

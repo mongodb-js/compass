@@ -3,7 +3,6 @@ const {
   releaseBeta,
   releaseGa,
   releaseCheckout,
-  releasePublish,
   releaseChangelog,
   releaseWait
 } = require('./commands');
@@ -26,9 +25,6 @@ npm run release ga
 
 npm run release wait
 \twait for release assets to be built and available.
-
-npm run release publish
-\tpublishes a release from a release branch.
 
 npm run release changelog [version to compare to]
 \tprints the git log between a release and the provided git tag (optional,
@@ -71,10 +67,6 @@ async function main(args) {
     return await runChangelogCommand(args);
   }
 
-  if (command === 'publish') {
-    return await runPublishCommand(args);
-  }
-
   failWithUsage();
 }
 
@@ -86,14 +78,6 @@ main(process.argv.slice(2))
     console.error(error);
     process.exit(1);
   });
-
-async function runPublishCommand(args) {
-  if (args.length) {
-    failWithUsage();
-  }
-
-  return await releasePublish();
-}
 
 async function runCheckoutCommand(args) {
   const version = args.shift();

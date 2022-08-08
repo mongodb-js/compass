@@ -8,11 +8,9 @@ const bump = require('./bump');
 const CompassDownloadCenter = require('./download-center');
 const env = require('./env');
 const git = require('./git');
-const github = require('./github');
 const npm = require('./npm');
 const version = require('./version');
 
-const publishRelease = require('./publish');
 const waitForAssets = require('./wait-for-assets');
 const ux = require('./ux');
 const changelog = require('./changelog');
@@ -151,39 +149,6 @@ async function releaseChangelog(optionalVersionToCompareTo) {
   await changelog.render(releaseVersion, optionalVersionToCompareTo);
 }
 
-async function releasePublish() {
-  const releaseBranch = await getValidReleaseBranch();
-  await ensureNoDirtyRepo();
-
-  const releaseVersion = await getPackageJsonVersion();
-
-  // Exits if the releaseVersion does not match the release branch:
-  if (!branch.hasVersion(releaseBranch, releaseVersion)) {
-    throw new Error(
-      `${releaseVersion} can only be published from ${branch.buildReleaseBranchName(releaseVersion)}`);
-  }
-
-  // Exits if a tag does not exists
-  const tags = await git.getTags();
-  const releaseTag = tags.find((t) => t === `v${releaseVersion}`);
-  if (!releaseTag) {
-    throw new Error(
-      `No tag found for ${releaseVersion}. Did "npm run release <beta|ga>" succeed?`);
-  }
-
-  const answer = await cli.confirm(
-    `Are you sure you want to publish the release ${chalk.bold(releaseVersion)}?`);
-  if (!answer) {
-    return;
-  }
-
-  await publishRelease(releaseVersion, {
-    downloadCenter: createDownloadCenter(),
-    github,
-    changelog
-  });
-}
-
 async function releaseWait() {
   await getValidReleaseBranch();
   const releaseVersion = await getPackageJsonVersion();
@@ -207,7 +172,6 @@ module.exports = {
   releaseGa,
   releaseCheckout,
   releaseChangelog,
-  releasePublish,
   releaseWait
 };
 

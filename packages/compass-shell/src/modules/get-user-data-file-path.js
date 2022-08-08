@@ -1,5 +1,12 @@
-const { remote } = require('electron');
 const path = require('path');
+
+let remote;
+try {
+  remote = require('@electron/remote');
+} catch (e) {
+  // eslint-disable-next-line no-console
+  console.error('Could not load @electron/remote', e.message);
+}
 
 export function getUserDataFilePath(filename) {
   if (!remote) {
