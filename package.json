@@ -65,8 +65,8 @@
     "wait-on": "^5.3.0"
   },
   "engines": {
-    "node": ">=14.17.5",
-    "npm": ">=7.16.0"
+    "node": ">=16.15.1",
+    "npm": ">=8.15.1"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",

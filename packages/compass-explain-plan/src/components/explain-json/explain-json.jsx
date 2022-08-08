@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
 import { Document } from '@mongodb-js/compass-crud';
-import { clipboard } from 'electron';
 
 import styles from './explain-json.module.less';
 
@@ -17,7 +16,9 @@ class ExplainJSON extends Component {
   };
 
   copyToClipboard = () => {
-    clipboard.writeText(JSON.stringify(this.props.originalExplainData));
+    navigator.clipboard.writeText(
+      JSON.stringify(this.props.originalExplainData)
+    );
   };
 
   /**

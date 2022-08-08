@@ -24,15 +24,17 @@
     "access": "public"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.8",
     "chai": "^4.3.4",
     "chai-dom": "^1.9.0",
     "chai-enzyme": "^1.0.0-beta.1",
-    "@electron/remote": "^2.0.8",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
     "global-jsdom": "^8.3.0",
     "identity-obj-proxy": "^3.0.0",
+    "react-16-node-hanging-test-fix": "^1.0.0",
     "sinon-chai": "^3.7.0",
-    "ts-node": "^10.8.2"
+    "ts-node": "^10.8.2",
+    "why-is-node-running": "^2.2.2"
   }
 }

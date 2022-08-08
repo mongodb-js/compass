@@ -1,5 +1,4 @@
 import L from 'leaflet';
-import fetch from 'node-fetch';
 
 import { COPYRIGHT_URL } from './constants';
 

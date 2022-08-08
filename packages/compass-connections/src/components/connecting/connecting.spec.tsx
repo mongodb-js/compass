@@ -1,5 +1,11 @@
 import React from 'react';
-import { cleanup, render, screen, fireEvent } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
@@ -9,7 +15,6 @@ describe('Connecting Component', function () {
   let onCancelConnectionClickedSpy;
 
   beforeEach(function () {
-    this.clock = sinon.useFakeTimers();
     onCancelConnectionClickedSpy = sinon.spy();
   });
 
@@ -19,7 +24,6 @@ describe('Connecting Component', function () {
   });
 
   afterEach(function () {
-    this.clock.restore();
     // Modals can have delays and transitions so it's best to cleanup.
     cleanup();
   });
@@ -47,9 +51,10 @@ describe('Connecting Component', function () {
     });
 
     describe('after a slight delay', function () {
-      beforeEach(function () {
-        // Speedup the modal showing annimation.
-        this.clock.tick(300);
+      beforeEach(async function () {
+        await waitFor(() => {
+          return screen.getByText('Cancel');
+        });
       });
 
       it('shows the connecting modal', function () {

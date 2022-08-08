@@ -1,6 +1,5 @@
-# "bullseye" is the debian distribution that
-# ubuntu:20.04 is based on
-FROM node:14-bullseye
+# "bullseye" is the debian distribution that ubuntu:20.04 is based on
+FROM node:16-bullseye
 
 COPY .evergreen/connectivity-tests/krb5.conf /etc/krb5.conf
 

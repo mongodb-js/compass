@@ -224,7 +224,7 @@
     "debug-menu": "^0.3.0",
     "decompress": "^4.2.1",
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^10.1.0",
     "electron-rebuild": "^3.2.7",
@@ -271,9 +271,5 @@
     "macos-export-certificate-and-key": "^1.1.1",
     "vscode-windows-registry": "1.0.2",
     "win-export-certificate-and-key": "^1.1.1"
-  },
-  "engines": {
-    "node": "^14.17.5",
-    "npm": ">=7.0.0"
   }
 }
