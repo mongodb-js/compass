@@ -1,22 +1,17 @@
 /* eslint-disable react/prop-types */
 import React, { useCallback, useState, useRef } from 'react';
-import {
-  Menu,
-  MenuItem,
-  spacing,
-  css,
-  cx,
-} from '@mongodb-js/compass-components';
-import { IconButtonSmall } from './icon-button';
-import type { Actions } from './constants';
+import { Menu, MenuItem } from '../index';
 
-export type NamespaceAction = {
+import { spacing } from '@leafygreen-ui/tokens';
+import { css, cx } from '@leafygreen-ui/emotion';
+
+import { IconButtonSmall } from './icon-button';
+
+export type ItemAction<Actions> = {
   action: Actions;
   label: string;
   icon: string;
 };
-
-type ActionControlOptions = NamespaceAction[];
 
 const actionControls = css({
   flex: 'none',
@@ -31,21 +26,21 @@ const actionIconButton = css({
   },
 });
 
-export const ActionControls: React.FunctionComponent<{
-  actions: ActionControlOptions;
-  onAction(actionName: Actions): void;
-  className?: string;
-  isActive: boolean;
-  isHovered: boolean;
-  shouldCollapseActionsToMenu?: boolean;
-}> = ({
+export function ItemActionControls<Actions extends string>({
   actions,
   onAction,
   className,
   isActive,
   isHovered,
   shouldCollapseActionsToMenu = false,
-}) => {
+}: {
+  actions: ItemAction<Actions>[];
+  onAction(actionName: Actions): void;
+  className?: string;
+  isActive: boolean;
+  isHovered: boolean;
+  shouldCollapseActionsToMenu?: boolean;
+}) {
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -134,4 +129,4 @@ export const ActionControls: React.FunctionComponent<{
       })}
     </div>
   );
-};
+}

@@ -1,12 +1,9 @@
 /* eslint-disable react/prop-types */
 import React, { forwardRef } from 'react';
-import {
-  Icon,
-  IconButton,
-  spacing,
-  css,
-  cx,
-} from '@mongodb-js/compass-components';
+import { Icon, IconButton } from '../index';
+
+import { spacing } from '@leafygreen-ui/tokens';
+import { css, cx } from '@leafygreen-ui/emotion';
 
 const iconContainer = css({
   display: 'block',

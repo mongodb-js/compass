@@ -5,18 +5,20 @@ import {
   spacing,
   css,
   cx,
+  ItemActionControls,
+  SmallIcon,
 } from '@mongodb-js/compass-components';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import { DATABASE_ROW_HEIGHT } from './constants';
-import { ActionControls } from './item-action-controls';
-import type { NamespaceAction } from './item-action-controls';
 import { ItemContainer, ItemLabel } from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
   NamespaceItemProps,
 } from './tree-item';
-import { SmallIcon } from './icon-button';
-import type { Actions } from './constants';
+import { Actions } from './constants';
+
+const DBActionControls = ItemActionControls<Actions>;
 
 const buttonReset = css({
   padding: 0,
@@ -134,7 +136,7 @@ export const DatabaseItem: React.FunctionComponent<
     [id, onNamespaceAction]
   );
 
-  const actions: NamespaceAction[] = useMemo(() => {
+  const actions: ItemAction<Actions>[] = useMemo(() => {
     return [
       {
         action: 'create-collection',
@@ -185,13 +187,13 @@ export const DatabaseItem: React.FunctionComponent<
         {name}
       </ItemLabel>
       {!isReadOnly && (
-        <ActionControls
+        <DBActionControls
           className={databaseActions}
           onAction={onAction}
           isActive={isActive}
           isHovered={isHovered}
           actions={actions}
-        ></ActionControls>
+        ></DBActionControls>
       )}
     </ItemContainer>
   );

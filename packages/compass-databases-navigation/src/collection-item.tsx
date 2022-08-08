@@ -5,18 +5,20 @@ import {
   spacing,
   css,
   cx,
+  ItemActionControls,
+  SmallIcon,
 } from '@mongodb-js/compass-components';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
-import { ActionControls } from './item-action-controls';
-import type { NamespaceAction } from './item-action-controls';
 import { ItemContainer, ItemLabel } from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
   NamespaceItemProps,
 } from './tree-item';
-import { SmallIcon } from './icon-button';
-import type { Actions } from './constants';
+import { Actions } from './constants';
+
+const DBActionControls = ItemActionControls<Actions>;
 
 const CollectionIcon: React.FunctionComponent<{
   type: string;
@@ -87,7 +89,7 @@ export const CollectionItem: React.FunctionComponent<
   );
 
   const actions = useMemo(() => {
-    const actions: NamespaceAction[] = [
+    const actions: ItemAction<Actions>[] = [
       {
         action: 'open-in-new-tab',
         label: 'Open in New Tab',
@@ -150,14 +152,14 @@ export const CollectionItem: React.FunctionComponent<
     >
       <CollectionIcon type={type} />
       <ItemLabel className={collectionItemLabel}>{name}</ItemLabel>
-      <ActionControls
+      <DBActionControls
         className={collectionActions}
         onAction={onAction}
         isActive={isActive}
         isHovered={isHovered}
         actions={actions}
         shouldCollapseActionsToMenu
-      ></ActionControls>
+      ></DBActionControls>
     </ItemContainer>
   );
 };
