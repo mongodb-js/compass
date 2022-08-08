@@ -50,8 +50,8 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v4
         with:
-          commit-message: 'chore(release): Bump package versions'
+          commit-message: 'chore(release): bump package versions'
           branch: ci/bump-packages
-          title: 'chore(release): Bump package versions'
+          title: 'chore(release): bump package versions'
           body: |
             - Bump package versions
