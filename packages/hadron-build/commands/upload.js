@@ -420,9 +420,7 @@ const handler = function handler(argv) {
   }
 
   if (argv.manifest) {
-    updateManifest(assets, argv.version, channel, argv.dryRun).catch(
-      abortIfError
-    );
+    updateManifest(argv.dryRun).catch(abortIfError);
     return;
   }
 
