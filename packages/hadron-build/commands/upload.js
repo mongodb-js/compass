@@ -197,27 +197,14 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
     })
   );
 
-  const uploads = assetsToUpload.map(async(asset) => {
-    cli.info(
-      `${
-        asset.name
-      }: upload to Github release ${releaseTag} started (path: ${path.relative(
-        root,
-        asset.path
-      )}).`
-    );
-    if (!dryRun) {
-      await repo.uploadReleaseAsset(releaseTag, {
-        name: asset.name,
-        path: asset.path
-      });
-    }
-    cli.info(
-      `${asset.name}: upload to Github release ${releaseTag} completed.`
-    );
+  cli.info(`Uploading ${assetsToUpload.length} asset(s) to GitHub release:`);
+  assetsToUpload.forEach((asset) => {
+    cli.info(` - ${path.relative(root, asset.path)}`);
   });
-
-  await Promise.all(uploads);
+  if (!dryRun) {
+    await repo.uploadReleaseAsset(releaseTag, assetsToUpload);
+  }
+  cli.info('Asset upload complete');
 }
 
 async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
