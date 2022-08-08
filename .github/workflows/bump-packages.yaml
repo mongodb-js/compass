@@ -40,7 +40,7 @@ jobs:
 
       - name: Bump packages
         env:
-          LAST_BUMP_COMMIT_MESSAGE: 'chore(release): Bump package versions'
+          LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump package versions'
         run: |
           npm run bump-packages
           git add .
