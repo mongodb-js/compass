@@ -259,6 +259,8 @@ function ThemedHome(
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: (global as any).hadronApp?.theme ?? Theme.Light,
+    // useful for quickly testing the new dark sidebar without rebuilding
+    //theme: Theme.Dark, enabled: true
   });
 
   function onDarkModeEnabled() {
