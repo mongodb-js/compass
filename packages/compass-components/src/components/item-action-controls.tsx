@@ -6,6 +6,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 
 import { IconButtonSmall } from './icon-button';
+import type { IconMode } from './icon-button';
 
 export type ItemAction<Actions> = {
   action: Actions;
@@ -27,6 +28,7 @@ const actionIconButton = css({
 });
 
 export function ItemActionControls<Actions extends string>({
+  mode = 'hovered',
   actions,
   onAction,
   className,
@@ -34,6 +36,7 @@ export function ItemActionControls<Actions extends string>({
   isHovered,
   shouldCollapseActionsToMenu = false,
 }: {
+  mode: IconMode;
   actions: ItemAction<Actions>[];
   onAction(actionName: Actions): void;
   className?: string;
@@ -57,7 +60,10 @@ export function ItemActionControls<Actions extends string>({
     [onAction]
   );
 
-  if (actions.length === 0 || (!isActive && !isHovered && !isMenuOpen)) {
+  if (
+    actions.length === 0 ||
+    (!isActive && !isHovered && !isMenuOpen && mode === 'hovered')
+  ) {
     return null;
   }
 
@@ -79,6 +85,7 @@ export function ItemActionControls<Actions extends string>({
             <IconButtonSmall
               ref={menuTriggerRef}
               glyph="Ellipsis"
+              mode={mode}
               label="Show actions"
               title="Show actions"
               data-testid="show-actions"
@@ -118,6 +125,7 @@ export function ItemActionControls<Actions extends string>({
           <IconButtonSmall
             key={action}
             glyph={icon}
+            mode={mode}
             label={label}
             title={label}
             isActive={isActive}

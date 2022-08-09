@@ -18,7 +18,6 @@ import type {
 } from './tree-item';
 import type { Actions } from './constants';
 
-
 const CollectionIcon: React.FunctionComponent<{
   type: string;
 }> = ({ type }) => {
