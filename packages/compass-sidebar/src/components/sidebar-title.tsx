@@ -49,9 +49,11 @@ const titleLogo = css({
 });
 
 function TitleLogo() {
+  const { theme } = useTheme();
+
   return (
     <div className={titleLogo}>
-      <MongoDBLogoMark color="green-base" height={32} />
+      <MongoDBLogoMark color={theme === Theme.Dark ? 'green-dark-2' : 'green-base'} height={32} />
     </div>
   );
 }
