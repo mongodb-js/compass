@@ -53,7 +53,10 @@ function TitleLogo() {
 
   return (
     <div className={titleLogo}>
-      <MongoDBLogoMark color={theme === Theme.Dark ? 'green-dark-2' : 'green-base'} height={32} />
+      <MongoDBLogoMark
+        color={theme === Theme.Dark ? 'green-dark-2' : 'green-base'}
+        height={32}
+      />
     </div>
   );
 }
