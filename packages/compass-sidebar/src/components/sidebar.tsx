@@ -79,8 +79,6 @@ export function Sidebar({
   }
 
   const onAction = useCallback((action: string) => {
-    console.log(action);
-
     if (action === 'copy-connection-string') {
       void copyConnectionString(
         connectionInfo.connectionOptions.connectionString
