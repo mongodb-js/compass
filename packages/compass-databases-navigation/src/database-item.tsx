@@ -191,6 +191,7 @@ export const DatabaseItem: React.FunctionComponent<
           isActive={isActive}
           isHovered={isHovered}
           actions={actions}
+          mode="hovered"
         ></ItemActionControls>
       )}
     </ItemContainer>

@@ -157,6 +157,7 @@ export const CollectionItem: React.FunctionComponent<
         isHovered={isHovered}
         actions={actions}
         shouldCollapseActionsToMenu
+        mode="hovered"
       ></ItemActionControls>
     </ItemContainer>
   );
