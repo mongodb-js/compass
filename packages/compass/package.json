@@ -221,7 +221,6 @@
     "cross-env": "^7.0.3",
     "darkreader": "^4.9.40",
     "debug": "^4.2.0",
-    "debug-menu": "^0.3.0",
     "decompress": "^4.2.1",
     "depcheck": "^1.4.1",
     "electron": "^15.5.7",
