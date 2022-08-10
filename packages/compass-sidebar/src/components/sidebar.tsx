@@ -15,9 +15,6 @@ import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 import SidebarTitle from './sidebar-title';
 import FavoriteIndicator from './favorite-indicator';
 
-//import { toggleIsDetailsExpanded } from '../modules/is-details-expanded';
-//import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
-//import { changeFilterRegex } from '../modules/databases';
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
@@ -33,10 +30,8 @@ export function Sidebar({
   updateAndSaveConnectionInfo: any; // TODO
 }) {
   // TODO: toggle sidebar
-  // TODO: sidebar title
   // TODO: sidebar instance
   //   - instance stats
-  //   - favourite button?
   //   - csfle marker
   //   - csfle connection modal
   //   - save connection modal
@@ -131,17 +126,9 @@ const mapStateToProps = (state: {
   };
 }) => ({
   connectionInfo: state.connectionInfo.connectionInfo,
-  //connectionOptions: state.connectionOptions,
-  //instance: state.instance,
-  //databases: state.databases.databases,
-  //isDetailsExpanded: state.isDetailsExpanded,
-  //isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
 });
 
 const MappedSidebar = connect(mapStateToProps, {
-  //toggleIsDetailsExpanded, // TODO: local state
-  //toggleIsGenuineMongoDBVisible, // TODO: local state
-  //changeFilterRegex, // TODO: local state?
   globalAppRegistryEmit,
   updateAndSaveConnectionInfo,
 })(Sidebar);
