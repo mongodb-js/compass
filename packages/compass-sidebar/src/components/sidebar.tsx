@@ -59,26 +59,27 @@ export function Sidebar({
 
   const { openToast } = useToast('compass-connections');
 
-  async function copyConnectionString(connectionString: string) {
-    try {
-      await navigator.clipboard.writeText(connectionString);
-      openToast('copy-to-clipboard', {
-        title: 'Success',
-        body: 'Copied to clipboard.',
-        variant: ToastVariant.Success,
-        timeout: TOAST_TIMEOUT_MS,
-      });
-    } catch (err) {
-      openToast('copy-to-clipboard', {
-        title: 'Error',
-        body: 'An error occurred when copying to clipboard. Please try again.',
-        variant: ToastVariant.Warning,
-        timeout: TOAST_TIMEOUT_MS,
-      });
-    }
-  }
 
   const onAction = useCallback((action: string) => {
+    async function copyConnectionString(connectionString: string) {
+      try {
+        await navigator.clipboard.writeText(connectionString);
+        openToast('copy-to-clipboard', {
+          title: 'Success',
+          body: 'Copied to clipboard.',
+          variant: ToastVariant.Success,
+          timeout: TOAST_TIMEOUT_MS,
+        });
+      } catch (err) {
+        openToast('copy-to-clipboard', {
+          title: 'Error',
+          body: 'An error occurred when copying to clipboard. Please try again.',
+          variant: ToastVariant.Warning,
+          timeout: TOAST_TIMEOUT_MS,
+        });
+      }
+    }
+
     if (action === 'copy-connection-string') {
       void copyConnectionString(
         connectionInfo.connectionOptions.connectionString
@@ -92,7 +93,7 @@ export function Sidebar({
     }
 
     globalAppRegistryEmit(action);
-  }, []);
+  }, [connectionInfo.connectionOptions.connectionString, globalAppRegistryEmit, openToast]);
 
   return (
     <ResizableSidebar>
