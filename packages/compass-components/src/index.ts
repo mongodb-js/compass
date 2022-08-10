@@ -30,6 +30,11 @@ import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar from './components/resizeable-sidebar';
+import {
+  ItemAction,
+  ItemActionControls,
+} from './components/item-action-controls';
+import { SmallIcon, IconButtonSmall } from './components/icon-button';
 export {
   Editor,
   EditorVariant,
@@ -85,6 +90,10 @@ export {
   Toolbar,
   WarningSummary,
   WorkspaceTabs,
+  ItemAction,
+  ItemActionControls,
+  SmallIcon,
+  IconButtonSmall,
 };
 export {
   useFocusState,

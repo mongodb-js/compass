@@ -1,12 +1,9 @@
 /* eslint-disable react/prop-types */
 import React, { forwardRef } from 'react';
-import {
-  Icon,
-  IconButton,
-  spacing,
-  css,
-  cx,
-} from '@mongodb-js/compass-components';
+import { Icon, IconButton } from '../index';
+
+import { spacing } from '@leafygreen-ui/tokens';
+import { css, cx } from '@leafygreen-ui/emotion';
 
 const iconContainer = css({
   display: 'block',
@@ -21,9 +18,28 @@ const icons = {
   hovered: css({
     color: 'var(--hover-icon-color)',
   }),
+  inherit: css({
+    color: 'inherit',
+  }),
 } as const;
 
-type IconMode = keyof typeof icons;
+const buttons = {
+  normal: css({
+    color: 'var(--icon-color)',
+    ':hover': {
+      color: 'var(--icon-color-hover)',
+    },
+  }),
+  hovered: css({
+    color: 'var(--hover-icon-color)',
+    ':hover': {
+      color: 'var(--hover-icon-color-hover)',
+    },
+  }),
+  inherit: css({}),
+} as const;
+
+export type IconMode = keyof typeof icons;
 
 export const SmallIcon: React.FunctionComponent<
   { glyph: string; mode: IconMode } & React.HTMLProps<HTMLSpanElement>
@@ -44,20 +60,34 @@ const iconButtonSmall = css({
 });
 
 const iconButtonSmallActive = css({
-  color: 'currentColor !important',
+  color: 'var(--color) !important',
+  ':hover': {
+    color: 'var(--hover-icon-color-hover) !important',
+  },
 });
 
 export const IconButtonSmall = forwardRef<
   HTMLButtonElement,
   {
     glyph: string;
+    mode: IconMode;
     label: string;
     title?: string;
     onClick(evt: React.MouseEvent<HTMLButtonElement>): void;
     isActive: boolean;
   } & React.HTMLProps<HTMLButtonElement>
 >(function IconButtonSmall(
-  { glyph, label, onClick, isActive, children, title, className, ...rest },
+  {
+    glyph,
+    mode,
+    label,
+    onClick,
+    isActive,
+    children,
+    title,
+    className,
+    ...rest
+  },
   ref
 ) {
   return (
@@ -68,6 +98,7 @@ export const IconButtonSmall = forwardRef<
       className={cx(
         iconButtonSmall,
         isActive && iconButtonSmallActive,
+        buttons[mode],
         className
       )}
       aria-label={label}
@@ -75,7 +106,7 @@ export const IconButtonSmall = forwardRef<
       onClick={onClick}
       {...rest}
     >
-      <SmallIcon role="presentation" glyph={glyph} mode="hovered"></SmallIcon>
+      <SmallIcon role="presentation" glyph={glyph} mode="inherit"></SmallIcon>
       {/* Only here to make leafygreen menus work */}
       {children}
     </IconButton>
