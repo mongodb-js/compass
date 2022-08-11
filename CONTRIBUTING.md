@@ -79,10 +79,15 @@ HADRON_SKIP_INSTALLER=true npm run test-package-compass
 
 ### Publishing Packages
 
-For package changes to be applied in Compass beta or GA releases they need to be published first. The whole publish process happens from the main branch with the following command in order:
+Compass is built out of a number of different NPM packages. Since all the relevant code is bundled in the packaged version of Compass with webpack, it is not necessary to publish any package to build and run the Compass application.
 
-1. `npm run packages-version [semver bump]`: updates package versions for everything that was changed since the last release, updates package-lock file at the root of the repository, commits and tags the changes. See lerna docs to learn more about optional [`semver bump`](https://github.com/lerna/lerna/tree/main/commands/version#semver-bump) argument.
-1. `npm run packages-publish`: publishes packages to the registry, if your npm account uses OTP publishing protection get ready to enter the code a few times, as an alternative you might want to use [npm automation authorization tokens](https://docs.npmjs.com/creating-and-viewing-access-tokens) locally if OTP gets in the way too much (in that case add a [`--no-verify-access`](https://github.com/lerna/lerna/tree/main/commands/publish#--no-verify-access) flag to the publish command). Publish command can be re-run safely multiple times, so if something bad happens mid-release (e.g., your internet goes out), you should be able to safely fiinish the process. After publish finishes successfully the script will push version update commit and tags created in step 1. We do it automatically only post-release so that when evergreen picks up a commit in the main branch, all the tasks can run with the packages already published.
+Some of the packages, however, are used externally by other MongoDB products and by the javascript community. These packages are published through CI workflows.
+
+In particular each change to the `main` branch is analyzed to calculate a new version based on changes since the last time it was published. A pr with the new versions of each changed package is opened and updated on each new change.
+
+Merging that PR will trigger another CI job that will publish to NPM any package which version is not yet present on the registry.
+
+The version of packages is calculated following conventional bumps: See https://github.com/mongodb-js/devtools-shared/tree/main/packages/bump-monorepo-packages for details.
 
 ### Add / Update / Remove Dependencies in Packages
 

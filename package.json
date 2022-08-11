@@ -38,7 +38,7 @@
     "update-authors": "node scripts/generate-authors.js",
     "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md",
     "bump-packages": "bump-monorepo-packages",
-    "publish-packages": "lerna publish from-package --no-verify-access --no-changelog --no-push --exact --no-git-tag-version --force-publish --yes",
+    "publish-packages": "lerna publish from-package --no-verify-access --no-push --no-git-tag-version --yes",
     "version": "node ./scripts/align-monorepo-dependencies.js --no-commit",
     "where": "node ./scripts/monorepo/where.js",
     "create-workspace": "node ./scripts/create-workspace.js",
