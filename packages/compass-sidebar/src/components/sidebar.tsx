@@ -1,44 +1,37 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
-import type { ConnectedProps } from 'react-redux';
-import { ResizableSidebar } from '@mongodb-js/compass-components';
+import { getConnectionTitle } from 'mongodb-data-service';
+import type { ConnectionInfo } from 'mongodb-data-service';
+import {
+  ResizableSidebar,
+  useToast,
+  ToastVariant,
+} from '@mongodb-js/compass-components';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarDatabasesNavigation from './sidebar-databases-navigation';
-import { toggleIsDetailsExpanded } from '../modules/is-details-expanded';
-import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
-import { changeFilterRegex } from '../modules/databases';
+import SidebarTitle from './sidebar-title';
+import FavoriteIndicator from './favorite-indicator';
+
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 
-const mapStateToProps = (state: any) => ({
-  // TODO: type the state
-  connectionInfo: state.connectionInfo.connectionInfo,
-  connectionOptions: state.connectionOptions,
-  instance: state.instance,
-  databases: state.databases.databases,
-  isDetailsExpanded: state.isDetailsExpanded,
-  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
-});
-
-const connector = connect(mapStateToProps, {
-  toggleIsDetailsExpanded,
-  toggleIsGenuineMongoDBVisible,
-  changeFilterRegex,
-  globalAppRegistryEmit,
-  updateAndSaveConnectionInfo,
-});
-
-type PropsFromRedux = ConnectedProps<typeof connector>;
-
-type Props = PropsFromRedux;
+const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
 // eslint-disable-next-line no-empty-pattern
-export function Sidebar({}: Props) {
+export function Sidebar({
+  connectionInfo,
+  globalAppRegistryEmit,
+  updateAndSaveConnectionInfo,
+}: {
+  connectionInfo: ConnectionInfo;
+  globalAppRegistryEmit: any; // TODO
+  updateAndSaveConnectionInfo: any; // TODO
+}) {
   // TODO: toggle sidebar
-  // TODO: sidebar title
   // TODO: sidebar instance
   //   - instance stats
-  //   - favourite button
   //   - csfle marker
   //   - csfle connection modal
   //   - save connection modal
@@ -49,13 +42,94 @@ export function Sidebar({}: Props) {
   // TODO: create database
   // TODO: non genuine warning label
 
+  const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
+  const [isExpanded] = useState(true);
+
+  const onClickSaveFavorite = useCallback(
+    (newFavoriteInfo) => {
+      setIsFavoriteModalVisible(false);
+
+      return updateAndSaveConnectionInfo({
+        ...cloneDeep(connectionInfo),
+        favorite: newFavoriteInfo,
+      });
+    },
+    [connectionInfo, updateAndSaveConnectionInfo, setIsFavoriteModalVisible]
+  );
+
+  const { openToast } = useToast('compass-connections');
+
+
+  const onAction = useCallback((action: string) => {
+    async function copyConnectionString(connectionString: string) {
+      try {
+        await navigator.clipboard.writeText(connectionString);
+        openToast('copy-to-clipboard', {
+          title: 'Success',
+          body: 'Copied to clipboard.',
+          variant: ToastVariant.Success,
+          timeout: TOAST_TIMEOUT_MS,
+        });
+      } catch (err) {
+        openToast('copy-to-clipboard', {
+          title: 'Error',
+          body: 'An error occurred when copying to clipboard. Please try again.',
+          variant: ToastVariant.Warning,
+          timeout: TOAST_TIMEOUT_MS,
+        });
+      }
+    }
+
+    if (action === 'copy-connection-string') {
+      void copyConnectionString(
+        connectionInfo.connectionOptions.connectionString
+      );
+      return;
+    }
+
+    if (action === 'edit-favorite') {
+      setIsFavoriteModalVisible(true);
+      return;
+    }
+
+    globalAppRegistryEmit(action);
+  }, [connectionInfo.connectionOptions.connectionString, globalAppRegistryEmit, openToast]);
+
   return (
     <ResizableSidebar>
-      <SidebarDatabasesNavigation />
+      <>
+        <SidebarTitle
+          title={getConnectionTitle(connectionInfo)}
+          isFavorite={!!connectionInfo.favorite}
+          isExpanded={isExpanded}
+          onAction={onAction}
+        />
+        {connectionInfo.favorite && (
+          <FavoriteIndicator favorite={connectionInfo.favorite} />
+        )}
+        <SidebarDatabasesNavigation />
+        <SaveConnectionModal
+          initialFavoriteInfo={connectionInfo.favorite}
+          open={isFavoriteModalVisible}
+          onCancelClicked={() => setIsFavoriteModalVisible(false)}
+          onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
+        />
+      </>
     </ResizableSidebar>
   );
 }
 
-const MappedSidebar = connector(Sidebar);
+const mapStateToProps = (state: {
+  connectionInfo: {
+    connectionInfo: ConnectionInfo;
+  };
+}) => ({
+  connectionInfo: state.connectionInfo.connectionInfo,
+});
+
+const MappedSidebar = connect(mapStateToProps, {
+  globalAppRegistryEmit,
+  updateAndSaveConnectionInfo,
+})(Sidebar);
 
 export default MappedSidebar;

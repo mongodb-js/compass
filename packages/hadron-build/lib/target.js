@@ -256,7 +256,20 @@ class Target {
 
     this.resourcesAppDir = path.join(this.resources, 'app');
 
-    debug('target ready', this);
+    debug(
+      'target ready',
+      _.pick(this, [
+        'name',
+        'productName',
+        'version',
+        'platform',
+        'arch',
+        'channel',
+        'assets',
+        'packagerOptions',
+        'installerOptions'
+      ])
+    );
   }
 
   setArchiveName() {
@@ -807,6 +820,13 @@ class Target {
       return match[1].toLowerCase();
     }
     return 'stable';
+  }
+
+  static getDownloadLinkForAsset(version, asset) {
+    const channel = Target.getChannelFromVersion(version);
+    const prefix =
+      channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
+    return `https://downloads.mongodb.com/${prefix}/${asset.name}`;
   }
 }
 

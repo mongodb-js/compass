@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/prettier-config-compass",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "description": "Shared Compass prettier configuration",
   "license": "SSPL",
   "main": "index.json",

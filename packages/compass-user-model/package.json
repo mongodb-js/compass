@@ -2,7 +2,7 @@
   "name": "compass-user-model",
   "description": "MongoDB user model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "1.26.1",
+  "version": "2.0.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -40,11 +40,11 @@
     "ampersand-state": "5.0.3",
     "debug": "^2.2.0",
     "lodash.get": "^4.4.2",
-    "mongodb-collection-model": "^4.26.1",
-    "mongodb-database-model": "^1.15.1",
+    "mongodb-collection-model": "^5.0.0",
+    "mongodb-database-model": "^2.0.0",
     "mongodb-ns": "^2.4.0",
     "raf": "^3.4.1",
-    "storage-mixin": "^4.14.0",
+    "storage-mixin": "^5.0.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

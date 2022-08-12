@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "description": "The query history sidebar of Compass",
-  "version": "8.26.1",
+  "version": "9.0.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -56,30 +56,30 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^0.17.0",
-    "@mongodb-js/compass-logging": "^0.14.0",
+    "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-logging": "^1.0.0",
     "bson": "^4.4.1",
-    "hadron-react-components": "^5.17.0",
-    "mongodb-data-service": "^21.24.1",
+    "hadron-react-components": "^6.0.0",
+    "mongodb-data-service": "^22.0.0",
     "react": "^16.14.0",
-    "storage-mixin": "^4.14.0"
+    "storage-mixin": "^5.0.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.17.0",
-    "@mongodb-js/compass-logging": "^0.14.0",
+    "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-logging": "^1.0.0",
     "bson": "^4.4.1",
-    "hadron-react-components": "^5.17.0",
-    "mongodb-data-service": "^21.24.1",
+    "hadron-react-components": "^6.0.0",
+    "mongodb-data-service": "^22.0.0",
     "react": "^16.14.0",
-    "storage-mixin": "^4.14.0"
+    "storage-mixin": "^5.0.0"
   },
   "devDependencies": {
     "@electron/remote": "^2.0.8",
-    "@mongodb-js/eslint-config-compass": "^0.11.0",
-    "@mongodb-js/mocha-config-compass": "^0.12.0",
-    "@mongodb-js/prettier-config-compass": "^0.6.0",
-    "@mongodb-js/tsconfig-compass": "^0.7.0",
-    "@mongodb-js/webpack-config-compass": "^0.11.1",
+    "@mongodb-js/eslint-config-compass": "^1.0.0",
+    "@mongodb-js/mocha-config-compass": "^1.0.0",
+    "@mongodb-js/prettier-config-compass": "^1.0.0",
+    "@mongodb-js/tsconfig-compass": "^1.0.0",
+    "@mongodb-js/webpack-config-compass": "^1.0.0",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "ampersand-model": "^8.0.1",
@@ -90,7 +90,7 @@
     "electron": "^15.5.7",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^8.14.1",
+    "hadron-app-registry": "^9.0.0",
     "lodash": "^4.17.15",
     "mocha": "^8.4.0",
     "mongodb-ns": "^2.4.0",
