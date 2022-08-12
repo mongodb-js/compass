@@ -57,9 +57,7 @@
     "@webpack-cli/serve": "^0.2.0",
     "babel-loader": "^7.1.5",
     "lerna": "^4.0.0",
-    "node-gyp": "^8.4.1",
-    "npm-cli-adduser": "^1.1.4",
-    "wait-on": "^5.3.0"
+    "node-gyp": "^8.4.1"
   },
   "engines": {
     "node": ">=16.15.1",

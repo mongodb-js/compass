@@ -41,6 +41,7 @@ jobs:
       - name: Bump packages
         env:
           LAST_BUMP_COMMIT_MESSAGE: 'chore(release): bump package versions'
+          SKIP_BUMP_PACKAGES: 'mongodb-compass'
         run: |
           npm run bump-packages
           git add .
