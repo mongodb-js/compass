@@ -52,7 +52,7 @@
   "devDependencies": {
     "@babel/core": "7.16.0",
     "@babel/parser": "7.16.0",
-    "@mongodb-js/bump-monorepo-packages": "^0.1.1",
+    "@mongodb-js/bump-monorepo-packages": "^0.2.0",
     "@testing-library/dom": "^8.11.1",
     "@webpack-cli/serve": "^0.2.0",
     "babel-loader": "^7.1.5",
