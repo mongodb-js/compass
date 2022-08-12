@@ -217,9 +217,6 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
   const assetsToUpload = assets
     .flatMap((item) => {
       return item.assets;
-    })
-    .filter(({ downloadCenter }) => {
-      return downloadCenter;
     });
 
   cli.info('Uploading assets to download center…');
