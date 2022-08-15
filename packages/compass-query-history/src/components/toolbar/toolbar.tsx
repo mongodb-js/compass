@@ -9,6 +9,8 @@ import {
   css,
   spacing,
   useId,
+  uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -17,6 +19,14 @@ const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 const toolbarStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
+});
+
+const titleStylesDark = css({
+  color: uiColors.green.light2,
+});
+
+const titleStylesLight = css({
+  color: uiColors.green.dark2,
 });
 
 const toolbarActionStyles = css({
@@ -41,15 +51,17 @@ type ToolbarProps = {
     showFavorites: () => void;
     collapse: () => void;
   }; // Query history actions are not currently typed.
+  darkMode?: boolean;
   onClose?: () => void;
   showing: 'recent' | 'favorites';
 };
 
-const Toolbar: React.FunctionComponent<ToolbarProps> = ({
+function UnthemedToolbar({
   actions,
+  darkMode,
   showing,
   onClose,
-}) => {
+}: ToolbarProps): React.ReactElement {
   const onViewSwitch = useCallback(
     (label: 'recent' | 'favorites') => {
       if (label === 'recent') {
@@ -78,7 +90,11 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
   return (
     <CompassComponentsToolbar className={toolbarStyles}>
       <div className={toolbarActionStyles}>
-        <Label id={labelId} htmlFor={controlId}>
+        <Label
+          className={darkMode ? titleStylesDark : titleStylesLight}
+          id={labelId}
+          htmlFor={controlId}
+        >
           Queries
         </Label>
         <SegmentedControl
@@ -114,6 +130,8 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       </IconButton>
     </CompassComponentsToolbar>
   );
-};
+}
+
+const Toolbar = withTheme(UnthemedToolbar);
 
 export { Toolbar };
