@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import {
   MongoDBLogoMark,
@@ -117,13 +117,13 @@ function SidebarTitle({
 
   const { theme } = useTheme();
 
+  const onClick = useCallback(() => {
+    onAction('open-instance-workspace');
+  }, [onAction]);
+
   return (
-    // TODO: https://jira.mongodb.org/browse/COMPASS-5918
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-    <div
-      className={cx(sidebarTitle)}
-      onClick={() => onAction('open-instance-workspace')}
-    >
+    <div className={cx(sidebarTitle)} onClick={onClick}>
       <TitleLogo />
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (

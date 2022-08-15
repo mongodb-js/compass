@@ -28,6 +28,7 @@ const navigationItem = css({
   height: spacing[5],
   paddingLeft: spacing[3],
   paddingRight: spacing[1],
+  position: 'relative',
 
   ':hover': {
     fontWeight: 'bold',
@@ -37,6 +38,7 @@ const navigationItem = css({
 const activeNavigationItem = css({
   color: 'var(--item-color-active)',
   backgroundColor: 'var(--item-bg-color-active)',
+  fontWeight: 'bold',
 
   // this is copied from leafygreen's own navigation, hence the pixel values
   '::before': {
@@ -48,10 +50,6 @@ const activeNavigationItem = css({
     bottom: '6px',
     width: '4px',
     borderRadius: '0px 6px 6px 0px',
-  },
-
-  ':hover': {
-    fontWeight: 'inherit',
   },
 });
 
@@ -65,16 +63,17 @@ export function NavigationItem<Actions extends string>({
   glyph,
   label,
   actions,
-  tabName
+  tabName,
+  isActive,
 }: {
   isExpanded?: boolean;
   onAction(actionName: string, ...rest: any[]): void;
   glyph: string;
   label: string;
   actions?: ItemAction<Actions>[];
-  tabName: string
+  tabName: string;
+  isActive: boolean;
 }) {
-  const isActive = false; // TODO: how do we determine if we're on one of these?
   const [hoverProps, isHovered] = useHoverState();
 
   const onClick = useCallback(() => {
@@ -82,9 +81,10 @@ export function NavigationItem<Actions extends string>({
   }, [onAction]);
 
   return (
-    <button
+    <div
       className={cx(navigationItem, isActive && activeNavigationItem)}
       onClick={onClick}
+      tabIndex={0}
       {...hoverProps}
     >
       <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>
@@ -99,7 +99,7 @@ export function NavigationItem<Actions extends string>({
           isHovered={isHovered}
         ></ItemActionControls>
       )}
-    </button>
+    </div>
   );
 }
 
@@ -107,10 +107,12 @@ export function NavigationItems({
   isExpanded,
   changeFilterRegex,
   onAction,
+  currentLocation,
 }: {
   isExpanded?: boolean;
   changeFilterRegex: any;
   onAction: any;
+  currentLocation: string | null;
 }) {
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [];
@@ -132,6 +134,7 @@ export function NavigationItems({
         glyph="CurlyBraces"
         label="My queries"
         tabName="My Queries"
+        isActive={currentLocation === 'My Queries'}
       />
       <NavigationItem<DatabasesActions>
         isExpanded={isExpanded}
@@ -140,6 +143,7 @@ export function NavigationItems({
         label="Databases"
         tabName="Databases"
         actions={databasesActions}
+        isActive={currentLocation === 'Databases'}
       />
       <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
       <SidebarDatabasesNavigation />
@@ -147,7 +151,9 @@ export function NavigationItems({
   );
 }
 
-const mapStateToProps = () => ({});
+const mapStateToProps = (state: { location: string | null }) => ({
+  currentLocation: state.location,
+});
 
 const MappedNavigationItems = connect(mapStateToProps, {
   changeFilterRegex,
