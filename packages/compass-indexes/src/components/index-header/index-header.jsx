@@ -1,16 +1,10 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { css, spacing } from '@mongodb-js/compass-components';
+import { css } from '@mongodb-js/compass-components';
 import IndexHeaderColumn from '../index-header-column';
 
 const containerStyles = css({
   textAlign: 'left',
-  th: {
-    paddingTop: spacing[2],
-    paddingBottom: spacing[2],
-    paddingRight: spacing[4],
-    paddingLeft: spacing[4],
-  },
 });
 
 /**

@@ -1,8 +1,15 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { css, cx, uiColors } from '@mongodb-js/compass-components';
+import { css, cx, uiColors, spacing } from '@mongodb-js/compass-components';
 
 import { DEFAULT, DESC, ASC } from '../../modules/indexes';
+
+const headerStyles = css({
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
+  paddingRight: spacing[4],
+  paddingLeft: spacing[4],
+});
 
 const sortStyles = css({
   display: 'inline-block',
@@ -50,6 +57,7 @@ class IndexHeaderColumn extends PureComponent {
       <th
         data-test-id={this.props.dataTestId}
         onClick={this.handleIndexSort.bind(this)}
+        className={headerStyles}
       >
         {this.props.name}
         {this.props.sortColumn === this.props.name && (
