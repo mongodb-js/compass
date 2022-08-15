@@ -82,7 +82,9 @@ export const updatePipelineList = (): ThunkAction<void, RootState, void, AnyActi
     const state = getState();
     pipelineStorage.loadAll()
       .then(pipelines => {
-        const thisNamespacePipelines = pipelines.filter(({namespace}) => namespace === state.namespace);
+        const thisNamespacePipelines = pipelines.filter(
+          ({namespace}) => namespace === state.namespace
+        );
         dispatch(setIsModified(false));
         dispatch(savedPipelineAdd(thisNamespacePipelines));
         dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
@@ -97,7 +99,9 @@ export const updatePipelineList = (): ThunkAction<void, RootState, void, AnyActi
  *
  * @returns {import('redux').AnyAction} The action.
  */
-export const saveCurrentPipeline = (): ThunkAction<void, RootState, void, AnyAction> => async (dispatch, getState) => {
+export const saveCurrentPipeline = (): ThunkAction<void, RootState, void, AnyAction> => async (
+  dispatch, getState
+) => {
   // We dynamically require these libraries as this file is used in cloud and
   // we don't want global imports of packages not available on the web.
   // eslint-disable-next-line @typescript-eslint/no-var-requires

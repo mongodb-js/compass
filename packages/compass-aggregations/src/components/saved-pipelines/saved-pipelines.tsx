@@ -46,7 +46,12 @@ const closeButtonStyles = css({
 });
 
 const cardsContainerStyles = css({
-  overflowY: 'scroll'
+  overflowY: 'scroll',
+});
+
+const emptyMessageStyles = css({
+  fontStyle: 'italic',
+  padding: spacing[3],
 });
 
 type SavedPipelinesProps = {
@@ -79,7 +84,7 @@ const SavedPipelines: React.FunctionComponent<SavedPipelinesProps> = ({
           className={closeButtonStyles}
           data-testid="saved-pipelines-close-button"
           onClick={() => onSetShowSavedPipelines(false)}
-          aria-label="Close query history"
+          aria-label="Close saved pipelines popover"
         >
           <Icon glyph="X" />
         </IconButton>
@@ -95,6 +100,14 @@ const SavedPipelines: React.FunctionComponent<SavedPipelinesProps> = ({
             key={pipeline.id}
           />
         ))}
+        {savedPipelines.length === 0 && (
+          <Body
+            className={emptyMessageStyles}
+            data-testid="saved-pipelines-empty-state"
+          >
+            No saved pipelines found.
+          </Body>
+        )}
       </div>
     </div>
   );

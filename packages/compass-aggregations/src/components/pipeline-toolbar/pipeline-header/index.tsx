@@ -101,14 +101,11 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   );
 
   const onSetShowSavedPipelinesCallback = useCallback((showSavedPipelines: boolean) => {
-    console.log('onSetShowSavedPipelinesCallback', showSavedPipelines);
     if (showSavedPipelines) {
       return onShowSavedPipelines();
     }
     onSetShowSavedPipelines(false);
   }, [ onShowSavedPipelines, onSetShowSavedPipelines ]);
-
-  console.log('isSavedPipelineVisible', isSavedPipelineVisible);
 
   return (
     <div className={containerStyles} data-testid="pipeline-header">
@@ -140,20 +137,6 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           {savedPipelinesPopover}
         </InteractivePopover>
       )}
-      {/* {isOpenPipelineVisible && (
-        <div className={pipelineTextAndOpenStyles}>
-          <Body weight="medium">Pipeline</Body>
-          <button
-            data-testid="pipeline-toolbar-open-pipelines-button"
-            onClick={onShowSavedPipelines}
-            className={openSavedPipelinesStyles}
-            aria-label="Open saved pipelines"
-          >
-            <Icon glyph="Folder" />
-            <Icon glyph="CaretDown" />
-          </button>
-        </div>
-      )} */}
       <div className={pipelineStagesStyles}>
         <PipelineStages />
       </div>
