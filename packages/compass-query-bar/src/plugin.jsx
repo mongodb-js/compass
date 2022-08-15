@@ -41,7 +41,8 @@ function Plugin({
           onOpenExportToLanguage={actions.exportToLanguage}
           refreshEditorAction={actions.refreshEditor}
           toggleExpandQueryOptions={actions.toggleQueryOptions}
-          toggleQueryHistory={actions.toggleQueryHistory}
+          globalAppRegistry={store.globalAppRegistry}
+          localAppRegistry={store.localAppRegistry}
           {...props}
         />
       ) : (
@@ -61,6 +62,8 @@ Plugin.propTypes = {
   actions: PropTypes.object.isRequired,
   onApply: PropTypes.func,
   onReset: PropTypes.func,
+  queryOptions: PropTypes.arrayOf(PropTypes.string),
+  resultId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   showExportToLanguageButton: PropTypes.bool,
   showQueryHistoryButton: PropTypes.bool,
   store: PropTypes.object.isRequired,
