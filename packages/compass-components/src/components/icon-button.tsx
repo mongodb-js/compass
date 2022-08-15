@@ -12,7 +12,7 @@ const iconContainer = css({
 });
 
 const icons = {
-  // the expand/collapse CarentRight and add database icons both use normal so
+  // the expand/collapse CaretRight and add database icons both use normal so
   // they don't follow the surrounding text colour
   normal: css({
     color: 'var(--icon-color)',
