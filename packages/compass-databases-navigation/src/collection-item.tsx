@@ -4,7 +4,6 @@ import {
   useHoverState,
   spacing,
   css,
-  cx,
   ItemActionControls,
   SmallIcon,
 } from '@mongodb-js/compass-components';
@@ -29,20 +28,13 @@ const CollectionIcon: React.FunctionComponent<{
       : 'Folder';
   }, [type]);
 
-  return <SmallIcon glyph={glyph} mode="normal"></SmallIcon>;
+  return <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>;
 };
 
 const collectionItem = css({
   height: COLLECTION_ROW_HEIGHT,
   paddingRight: spacing[1],
-});
-
-const collectionItemOldSpacing = css({
   paddingLeft: spacing[5] + spacing[1],
-});
-
-const collectionItemNewSpacing = css({
-  paddingLeft: spacing[4] + spacing[4] + spacing[1],
 });
 
 const collectionItemLabel = css({
@@ -128,8 +120,6 @@ export const CollectionItem: React.FunctionComponent<
     return actions;
   }, [type, isReadOnly]);
 
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
-
   return (
     <ItemContainer
       id={id}
@@ -138,13 +128,9 @@ export const CollectionItem: React.FunctionComponent<
       setSize={setSize}
       posInSet={posInSet}
       isActive={isActive}
-      isHovered={isHovered}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
-      className={cx(
-        collectionItem,
-        useNewSidebar ? collectionItemNewSpacing : collectionItemOldSpacing
-      )}
+      className={collectionItem}
       style={style}
       {...hoverProps}
     >

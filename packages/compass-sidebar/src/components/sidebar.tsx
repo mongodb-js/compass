@@ -11,9 +11,9 @@ import {
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
-import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 import SidebarTitle from './sidebar-title';
 import FavoriteIndicator from './favorite-indicator';
+import NavigationItems from './navigation-items';
 
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 
@@ -59,41 +59,48 @@ export function Sidebar({
 
   const { openToast } = useToast('compass-connections');
 
-
-  const onAction = useCallback((action: string) => {
-    async function copyConnectionString(connectionString: string) {
-      try {
-        await navigator.clipboard.writeText(connectionString);
-        openToast('copy-to-clipboard', {
-          title: 'Success',
-          body: 'Copied to clipboard.',
-          variant: ToastVariant.Success,
-          timeout: TOAST_TIMEOUT_MS,
-        });
-      } catch (err) {
-        openToast('copy-to-clipboard', {
-          title: 'Error',
-          body: 'An error occurred when copying to clipboard. Please try again.',
-          variant: ToastVariant.Warning,
-          timeout: TOAST_TIMEOUT_MS,
-        });
+  const onAction = useCallback(
+    (action: string, ...rest: any[]) => {
+      async function copyConnectionString(connectionString: string) {
+        try {
+          await navigator.clipboard.writeText(connectionString);
+          openToast('copy-to-clipboard', {
+            title: 'Success',
+            body: 'Copied to clipboard.',
+            variant: ToastVariant.Success,
+            timeout: TOAST_TIMEOUT_MS,
+          });
+        } catch (err) {
+          openToast('copy-to-clipboard', {
+            title: 'Error',
+            body: 'An error occurred when copying to clipboard. Please try again.',
+            variant: ToastVariant.Warning,
+            timeout: TOAST_TIMEOUT_MS,
+          });
+        }
       }
-    }
 
-    if (action === 'copy-connection-string') {
-      void copyConnectionString(
-        connectionInfo.connectionOptions.connectionString
-      );
-      return;
-    }
+      if (action === 'copy-connection-string') {
+        void copyConnectionString(
+          connectionInfo.connectionOptions.connectionString
+        );
+        return;
+      }
 
-    if (action === 'edit-favorite') {
-      setIsFavoriteModalVisible(true);
-      return;
-    }
+      if (action === 'edit-favorite') {
+        setIsFavoriteModalVisible(true);
+        return;
+      }
 
-    globalAppRegistryEmit(action);
-  }, [connectionInfo.connectionOptions.connectionString, globalAppRegistryEmit, openToast]);
+      console.log(action, ...rest);
+      globalAppRegistryEmit(action, ...rest);
+    },
+    [
+      connectionInfo.connectionOptions.connectionString,
+      globalAppRegistryEmit,
+      openToast,
+    ]
+  );
 
   return (
     <ResizableSidebar>
@@ -107,7 +114,9 @@ export function Sidebar({
         {connectionInfo.favorite && (
           <FavoriteIndicator favorite={connectionInfo.favorite} />
         )}
-        <SidebarDatabasesNavigation />
+
+        <NavigationItems isExpanded={isExpanded} onAction={onAction} />
+
         <SaveConnectionModal
           initialFavoriteInfo={connectionInfo.favorite}
           open={isFavoriteModalVisible}

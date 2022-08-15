@@ -63,11 +63,16 @@ const itemContainer = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
   backgroundColor: 'var(--item-bg-color)',
+
+  ':hover': {
+    fontWeight: 'bold',
+  },
 });
 
 const activeItemContainer = css({
   color: 'var(--item-color-active)',
   backgroundColor: 'var(--item-bg-color-active)',
+  fontWeight: 'bold',
 
   // this is copied from leafygreen's own navigation, hence the pixel values
   '::before': {
@@ -82,11 +87,6 @@ const activeItemContainer = css({
   },
 });
 
-const hoverItemContainer = css({
-  color: 'var(--item-color-active)',
-  backgroundColor: 'var(--item-bg-color-hover)',
-});
-
 export const ItemContainer: React.FunctionComponent<
   {
     id: string;
@@ -95,7 +95,6 @@ export const ItemContainer: React.FunctionComponent<
     posInSet: number;
     isExpanded?: boolean;
     isActive?: boolean;
-    isHovered?: boolean;
     isTabbable?: boolean;
     onDefaultAction(
       evt:
@@ -110,7 +109,6 @@ export const ItemContainer: React.FunctionComponent<
   posInSet,
   isExpanded,
   isActive,
-  isHovered,
   isTabbable,
   onDefaultAction,
   children,
@@ -123,8 +121,6 @@ export const ItemContainer: React.FunctionComponent<
   const extraCSS = [];
   if (isActive) {
     extraCSS.push(activeItemContainer);
-  } else if (isHovered) {
-    extraCSS.push(hoverItemContainer);
   }
 
   const treeItemProps = mergeProps(

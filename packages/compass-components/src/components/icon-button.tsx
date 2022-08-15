@@ -15,9 +15,7 @@ const icons = {
   normal: css({
     color: 'var(--icon-color)',
   }),
-  hovered: css({
-    color: 'var(--hover-icon-color)',
-  }),
+  hovered: css({}),
   inherit: css({
     color: 'inherit',
   }),
@@ -26,16 +24,8 @@ const icons = {
 const buttons = {
   normal: css({
     color: 'var(--icon-color)',
-    ':hover': {
-      color: 'var(--icon-color-hover)',
-    },
   }),
-  hovered: css({
-    color: 'var(--hover-icon-color)',
-    ':hover': {
-      color: 'var(--hover-icon-color-hover)',
-    },
-  }),
+  hovered: css({}),
   inherit: css({}),
 } as const;
 
@@ -60,10 +50,7 @@ const iconButtonSmall = css({
 });
 
 const iconButtonSmallActive = css({
-  color: 'var(--color) !important',
-  ':hover': {
-    color: 'var(--hover-icon-color-hover) !important',
-  },
+  color: 'var(--icon-color) !important',
 });
 
 export const IconButtonSmall = forwardRef<
