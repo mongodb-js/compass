@@ -3,9 +3,6 @@ const {
   releaseBeta,
   releaseGa,
   releaseCheckout,
-  releasePublish,
-  releaseChangelog,
-  releaseWait
 } = require('./commands');
 
 function usage() {
@@ -23,16 +20,6 @@ npm run release beta
 npm run release ga
 \tincrease the package version to the next ga patch and trigger a release from a
 \trelease branch.
-
-npm run release wait
-\twait for release assets to be built and available.
-
-npm run release publish
-\tpublishes a release from a release branch.
-
-npm run release changelog [version to compare to]
-\tprints the git log between a release and the provided git tag (optional,
-\tdefault is the previous one).
 
 npm run release help
 \tprints this screen of help.
@@ -59,20 +46,8 @@ async function main(args) {
     return await runGaCommand(args);
   }
 
-  if (command === 'wait') {
-    return await runWait(args);
-  }
-
   if (command === 'checkout') {
     return await runCheckoutCommand(args);
-  }
-
-  if (command === 'changelog') {
-    return await runChangelogCommand(args);
-  }
-
-  if (command === 'publish') {
-    return await runPublishCommand(args);
   }
 
   failWithUsage();
@@ -86,14 +61,6 @@ main(process.argv.slice(2))
     console.error(error);
     process.exit(1);
   });
-
-async function runPublishCommand(args) {
-  if (args.length) {
-    failWithUsage();
-  }
-
-  return await releasePublish();
-}
 
 async function runCheckoutCommand(args) {
   const version = args.shift();
@@ -109,28 +76,12 @@ async function runCheckoutCommand(args) {
   return await releaseCheckout(version);
 }
 
-async function runChangelogCommand(args) {
-  if (args.length > 1) {
-    failWithUsage();
-  }
-
-  return await releaseChangelog(args[0]);
-}
-
 async function runGaCommand(args) {
   if (args.length) {
     failWithUsage();
   }
 
   return await releaseGa();
-}
-
-async function runWait(args) {
-  if (args.length) {
-    failWithUsage();
-  }
-
-  return await releaseWait();
 }
 
 async function runBetaCommand(args) {

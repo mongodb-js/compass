@@ -1,16 +1,21 @@
 /* eslint-disable react/prop-types */
 import React, { useCallback, useMemo } from 'react';
-import { useHoverState, spacing, css } from '@mongodb-js/compass-components';
+import {
+  useHoverState,
+  spacing,
+  css,
+  cx,
+  ItemActionControls,
+  SmallIcon,
+} from '@mongodb-js/compass-components';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
-import { ActionControls } from './item-action-controls';
-import type { NamespaceAction } from './item-action-controls';
 import { ItemContainer, ItemLabel } from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
   NamespaceItemProps,
 } from './tree-item';
-import { SmallIcon } from './icon-button';
 import type { Actions } from './constants';
 
 const CollectionIcon: React.FunctionComponent<{
@@ -23,13 +28,21 @@ const CollectionIcon: React.FunctionComponent<{
       ? 'Visibility'
       : 'Folder';
   }, [type]);
-  return <SmallIcon glyph={glyph}></SmallIcon>;
+
+  return <SmallIcon glyph={glyph} mode="normal"></SmallIcon>;
 };
 
 const collectionItem = css({
   height: COLLECTION_ROW_HEIGHT,
-  paddingLeft: spacing[5] + spacing[1],
   paddingRight: spacing[1],
+});
+
+const collectionItemOldSpacing = css({
+  paddingLeft: spacing[5] + spacing[1],
+});
+
+const collectionItemNewSpacing = css({
+  paddingLeft: spacing[4] + spacing[4] + spacing[1],
 });
 
 const collectionItemLabel = css({
@@ -74,7 +87,7 @@ export const CollectionItem: React.FunctionComponent<
   );
 
   const actions = useMemo(() => {
-    const actions: NamespaceAction[] = [
+    const actions: ItemAction<Actions>[] = [
       {
         action: 'open-in-new-tab',
         label: 'Open in New Tab',
@@ -115,6 +128,8 @@ export const CollectionItem: React.FunctionComponent<
     return actions;
   }, [type, isReadOnly]);
 
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+
   return (
     <ItemContainer
       id={id}
@@ -126,20 +141,24 @@ export const CollectionItem: React.FunctionComponent<
       isHovered={isHovered}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
-      className={collectionItem}
+      className={cx(
+        collectionItem,
+        useNewSidebar ? collectionItemNewSpacing : collectionItemOldSpacing
+      )}
       style={style}
       {...hoverProps}
     >
       <CollectionIcon type={type} />
       <ItemLabel className={collectionItemLabel}>{name}</ItemLabel>
-      <ActionControls
+      <ItemActionControls<Actions>
         className={collectionActions}
         onAction={onAction}
         isActive={isActive}
         isHovered={isHovered}
         actions={actions}
         shouldCollapseActionsToMenu
-      ></ActionControls>
+        mode="hovered"
+      ></ItemActionControls>
     </ItemContainer>
   );
 };

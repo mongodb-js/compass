@@ -206,12 +206,6 @@ var Application = View.extend({
     };
 
     handleTour();
-
-    if (process.env.NODE_ENV === 'development') {
-      debug('Installing "Inspect Element" context menu');
-      const addInspectElementMenu = require('debug-menu').install;
-      addInspectElementMenu();
-    }
   },
   showTour: function(force) {
     const TourView = require('./tour');

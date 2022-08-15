@@ -1,6 +1,5 @@
 import Reflux from 'reflux';
 import StateMixin from 'reflux-state-mixin';
-import { remote } from 'electron';
 import _ from 'lodash';
 import { formatQuery, comparableQuery } from '../utils';
 import { RecentQuery, RecentQueryCollection } from '../models';
@@ -134,7 +133,7 @@ const configureStore = (options = {}) => {
         .filter((key) => key.charAt(0) === '_')
         .forEach((key) => delete attributes[key]);
 
-      remote.clipboard.writeText(formatQuery(attributes));
+      navigator.clipboard.writeText(formatQuery(attributes));
     },
 
     getInitialState() {

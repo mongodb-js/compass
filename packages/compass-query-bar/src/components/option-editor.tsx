@@ -119,6 +119,10 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   onApplyRef.current = onApplyClicked;
 
   const onLoadEditor = useCallback((editor: Ace.Editor) => {
+    // Setting the padding is not available as an editor option.
+    // https://github.com/ajaxorg/ace/wiki/Configuring-Ace
+    editor.renderer.setPadding(spacing[2]);
+
     editorRef.current = editor;
     editorRef.current.setBehavioursEnabled(true);
     editorRef.current.commands.addCommand({

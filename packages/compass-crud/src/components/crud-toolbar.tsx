@@ -51,6 +51,10 @@ const toolbarRightActionStyles = css({
   gap: spacing[2],
 });
 
+const exportCollectionButtonStyles = css({
+  whiteSpace: 'nowrap',
+});
+
 type CrudToolbarProps = {
   activeDocumentView: string;
   count?: number;
@@ -151,6 +155,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             />
           )}
           <Button
+            className={exportCollectionButtonStyles}
             leftGlyph={<Icon glyph="Export" />}
             data-testid="export-collection-button"
             size="xsmall"

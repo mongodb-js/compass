@@ -7,6 +7,7 @@ enum Theme {
 
 type ThemeState = {
   theme: Theme;
+  enabled?: true;
 };
 
 const ThemeContext = createContext<ThemeState>({
@@ -48,7 +49,9 @@ const withTheme = function <
   ) => {
     const theme = useTheme();
 
-    const applyTheme = global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
+    const applyTheme =
+      theme.enabled === true ||
+      global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
 
     return (
       <WrappedComponent
@@ -68,4 +71,4 @@ const withTheme = function <
   return React.forwardRef(ComponentWithTheme) as typeof WrappedComponent;
 };
 
-export { Theme, ThemeProvider, useTheme, withTheme };
+export { Theme, ThemeState, ThemeProvider, useTheme, withTheme };

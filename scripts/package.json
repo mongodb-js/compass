@@ -30,17 +30,17 @@
     "reformat": "npm run prettier -- --write ."
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^0.11.0",
-    "@mongodb-js/prettier-config-compass": "^0.6.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.0",
+    "@mongodb-js/prettier-config-compass": "^1.0.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "prettier": "^2.7.1"
   },
   "dependencies": {
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
-    "@mongodb-js/webpack-config-compass": "^0.11.1",
+    "@mongodb-js/webpack-config-compass": "^1.0.0",
     "chalk": "^4.1.1",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "find-up": "^5.0.0",
     "glob": "^7.1.6",
     "jsdom": "^16.7.0",
@@ -49,7 +49,7 @@
     "make-fetch-happen": "^8.0.14",
     "minimist": "^1.2.5",
     "mongodb-connection-string-url": "^2.5.3",
-    "mongodb-data-service": "^21.24.1",
+    "mongodb-data-service": "^22.0.0",
     "ora": "^5.4.0",
     "pacote": "^11.3.5",
     "pkg-up": "^3.1.0",

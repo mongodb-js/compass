@@ -50,6 +50,7 @@ type ExplainToolbarProps = {
   darkMode?: boolean;
   explainErrorMessage?: string;
   explainResultId: string;
+  hasExplainResults: boolean;
   onExecuteExplainClicked: (queryBarStoreState: any) => void;
   showOutdatedWarning: boolean;
   showReadonlyWarning: boolean;
@@ -63,6 +64,7 @@ function UnthemedExplainToolbar({
   darkMode,
   explainResultId,
   explainErrorMessage,
+  hasExplainResults,
   onExecuteExplainClicked,
   showOutdatedWarning,
   showReadonlyWarning,
@@ -112,31 +114,33 @@ function UnthemedExplainToolbar({
           />
         }
       </div>
-      <div className={explainActionsToolbarStyles}>
-        <Overline
-          as="label"
-          id={labelId}
-          htmlFor={controlId}
-          aria-label="Show explain as"
-        >
-          View
-        </Overline>
-        <SegmentedControl
-          darkMode={darkMode}
-          id={controlId}
-          aria-labelledby={labelId}
-          size="small"
-          value={viewType}
-          onChange={(value) => toggleView(value as ExplainView)}
-        >
-          <SegmentedControlOption aria-label="Visual Tree View" value="tree">
-            Visual Tree
-          </SegmentedControlOption>
-          <SegmentedControlOption aria-label="Raw Json View" value="json">
-            Raw Json
-          </SegmentedControlOption>
-        </SegmentedControl>
-      </div>
+      {hasExplainResults && (
+        <div className={explainActionsToolbarStyles}>
+          <Overline
+            as="label"
+            id={labelId}
+            htmlFor={controlId}
+            aria-label="Show explain as"
+          >
+            View
+          </Overline>
+          <SegmentedControl
+            darkMode={darkMode}
+            id={controlId}
+            aria-labelledby={labelId}
+            size="small"
+            value={viewType}
+            onChange={(value) => toggleView(value as ExplainView)}
+          >
+            <SegmentedControlOption aria-label="Visual Tree View" value="tree">
+              Visual Tree
+            </SegmentedControlOption>
+            <SegmentedControlOption aria-label="Raw Json View" value="json">
+              Raw Json
+            </SegmentedControlOption>
+          </SegmentedControl>
+        </div>
+      )}
       {(showOutdatedWarning || showReadonlyWarning) && (
         <WarningSummary
           warnings={[

@@ -1,198 +1,79 @@
-const fs = require('fs-extra');
-const debug = require('debug')('mongodb-download-center');
-const AWS = require('aws-sdk');
+/* eslint-disable valid-jsdoc */
+const fs = require('fs');
+const path = require('path');
+const { DownloadCenter } = require('@mongodb-js/dl-center');
+const download = require('download');
 
+const DOWNLOADS_BUCKET = 'downloads.10gen.com';
 const MANIFEST_BUCKET = 'info-mongodb-com';
+const MANIFEST_OBJECT_KEY = 'com-download-center/compass.json';
 
-let maybeUpload = (CONFIG, asset) => {
-  const bucket = 'downloads.10gen.com';
-  const key = `${CONFIG.download_center_key_prefix}/${asset.name}`;
-
-  const params = {
-    Bucket: bucket,
-    Key: key,
-    Body: fs.createReadStream(asset.path),
-    ACL: 'public-read',
-    Metadata: {
-      Name: asset.name
-    }
-  };
-
-  return new Promise((resolve, reject) => {
-    new AWS.S3({
-      params: {
-        Bucket: bucket,
-        Key: key
-      }
-    }).headObject( (err, data) => {
-      if (data) {
-        debug(`Asset at s3://${bucket}/${key} already exists.  Skipping.`);
-        return resolve(data);
-      }
-
-      if (err && err.code !== 'NotFound') {
-        return reject(err);
-      }
-
-      const uploadReq = new AWS.S3.ManagedUpload({
-        params: params
-      });
-
-      uploadReq.send(function(uploadErr, res) {
-        if (uploadErr) {
-          debug(`uploading ${asset.name} failed: ${uploadErr}`);
-          return reject(err);
-        }
-        debug(`upload of ${asset.name} complete`);
-        resolve(res);
-      });
-
-      uploadReq.on('httpUploadProgress', (evt) => {
-        debug('got httpUploadProgress', evt);
-        if (!evt.total) return;
-        debug(`upload ${asset.name}: ${evt.total / evt.loaded}`);
-      });
-    });
-  });
-};
-
-let requireEnvironmentVariables = (keys) => {
-  for (let key of keys) {
-    if (process.env[key]) return true;
-    throw new TypeError(`Please set the environment variable ${key}`);
+const requireEnvironmentVariables = (keys) => {
+  const missing = keys.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new TypeError(
+      `Please set the environment variable(s) ${keys.join(', ')}`
+    );
   }
+  return true;
 };
 
-let maybeUploadManifest = (CONFIG) => {
-  const prefix = `https://downloads.mongodb.com/${CONFIG.download_center_id}/${CONFIG.channel}`;
-  const bucket = 'info-mongodb-com';
-  const key = `com-download-center/${CONFIG.download_center_id}/${CONFIG.version}.json`;
-
-  const MANIFEST = {
-    version: CONFIG.version,
-    channel: CONFIG.channel,
-    platform: [
-      {
-        name: 'MacOS 10.10+ 64-bit',
-        download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-darwin-x64.dmg`
-      },
-      {
-        name: 'MacOS 11.0+ arm64 (Apple M1)',
-        download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-darwin-arm64.dmg`
-      },
-      {
-        name: 'Windows 7+ 64-bit',
-        download_link: `${prefix}/${CONFIG.id}-${CONFIG.version}-win32-x64.exe`
-      }
-    ],
-    development_releases_link: `https://${CONFIG.download_center_id}.mongodb.com/beta`,
-    manual_link: `https://${CONFIG.download_center_id}.mongodb.com/docs`,
-    release_notes_link: `https://${CONFIG.download_center_id}.mongodb.com/releases/${CONFIG.version}`,
-    previous_releases_link: `https://${CONFIG.download_center_id}.mongodb.com/releases`,
-    supported_browsers_link: '',
-    tutorial_link: ''
-  };
-
-  return new Promise((resolve, reject) => {
-    const req = new AWS.S3({
-      params: {
-        Bucket: bucket,
-        Key: key
-      }
-    });
-    req.headObject( (err, data) => {
-      if (data) {
-        debug(`Manifest for ${CONFIG.version} already exists`, data);
-        return resolve(data);
-      }
-
-      if (err && err.code !== 'NotFound') {
-        return reject(err);
-      }
-      debug(`Uploading manifest for ${CONFIG.version}`);
-      req.upload({Body: JSON.stringify(MANIFEST, null, 2)}, (_err) => {
-        if (_err) return reject(_err);
-        resolve(MANIFEST);
-      });
-    });
-  });
-};
-
-let setup = () => {
+const getDownloadCenter = (bucketConfig) => {
   requireEnvironmentVariables([
     'DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID',
     'DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY'
   ]);
 
-  AWS.config.update({
+  return new DownloadCenter({
+    ...bucketConfig,
     accessKeyId: process.env.DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY
   });
 };
 
-exports.generateKey = (CONFIG) => {
-  CONFIG.download_center_id = CONFIG.id.split('-')[1];
-  CONFIG.download_center_key_prefix = CONFIG.download_center_id;
-  if (CONFIG.channel !== 'stable') {
-    CONFIG.download_center_key_prefix += `/${CONFIG.channel}`;
-  }
-  return CONFIG;
+const getKeyPrefix = (channel) => {
+  return channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
 };
 
-exports.maybeUpload = (CONFIG) => {
-  setup();
-
-  if (CONFIG.channel === 'dev' || CONFIG.channel === 'alpha') {
-    debug('Skipping publish to S3 for %s channel.', CONFIG.channel);
-    return Promise.resolve();
-  }
-
-  exports.generateKey(CONFIG);
-
-  return Promise.all(CONFIG.assets.map( (asset) => maybeUpload(CONFIG, asset)))
-    .then(maybeUploadManifest(CONFIG));
+const uploadAsset = async(channel, asset) => {
+  const dlCenter = getDownloadCenter({ bucket: DOWNLOADS_BUCKET });
+  const objectKey = `${getKeyPrefix(channel)}/${asset.name}`;
+  return dlCenter.uploadAsset(objectKey, fs.createReadStream(asset.path));
 };
 
-exports.release = (id, version) => {
-  setup();
+const downloadManifest = async(key = MANIFEST_OBJECT_KEY) => {
+  const dlCenter = getDownloadCenter({ bucket: MANIFEST_BUCKET });
+  return dlCenter.downloadConfig(key);
+};
 
-  return new Promise((resolve, reject) => {
-    if (version.indexOf('-dev') > -1) {
-      debug('We dont post dev channel releases to the download center.');
-      return resolve(false);
-    }
-    let channel = version.indexOf('-beta') > -1 ? 'beta' : 'stable';
-    let dest = `com-download-center/${id}_${version.indexOf('-beta') > -1 ? '_beta' : ''}_latest.json`;
-    let src = `com-download-center/${id}/${version}.json`;
-    const s3 = new AWS.S3({
-      params: {
-        Bucket: MANIFEST_BUCKET,
-        Key: src
-      }
-    });
+const uploadManifest = async(manifest) => {
+  const dlCenter = getDownloadCenter({ bucket: MANIFEST_BUCKET });
+  return dlCenter.uploadConfig(MANIFEST_OBJECT_KEY, manifest);
+};
 
-    s3.headObject( (err, data) => {
-      if (data) {
-        debug(`copying ${src} -> ${dest}`);
-        return s3.copyObject({
-          Bucket: MANIFEST_BUCKET,
-          Key: dest,
-          CopySource: src
-        }, (_err, res) => {
-          if (_err) return reject(_err);
-
-          if (channel === 'stable') {
-            debug(`:dancers: ${id}@${version} is now available in the download center.`);
-          }
-          resolve(res);
-        });
-      }
-
-      if (err && err.code !== 'NotFound') {
-        return reject(err);
-      }
-
-      return reject(new Error(`No manifest found for ${id}@${version}`));
-    });
+const downloadAssetFromEvergreen = ({ name, path: dest }) => {
+  return new Promise(async(resolve, reject) => {
+    requireEnvironmentVariables([
+      'EVERGREEN_BUCKET_NAME',
+      'EVERGREEN_BUCKET_KEY_PREFIX'
+    ]);
+    const bucket = process.env.EVERGREEN_BUCKET_NAME;
+    const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
+    const url = `https://${bucket}.s3.amazonaws.com/${key}`;
+    const stream = download(url);
+    await fs.promises.mkdir(path.dirname(dest), { recursive: true });
+    stream.pipe(fs.createWriteStream(dest));
+    stream.on('end', resolve);
+    stream.on('error', reject);
   });
+};
+
+module.exports = {
+  requireEnvironmentVariables,
+  getDownloadCenter,
+  getKeyPrefix,
+  uploadAsset,
+  downloadManifest,
+  uploadManifest,
+  downloadAssetFromEvergreen
 };
