@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   useHoverState,
@@ -24,6 +24,7 @@ const navigationItem = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
   backgroundColor: 'var(--item-bg-color)',
+  border: 'none',
   height: spacing[5],
   paddingLeft: spacing[3],
   paddingRight: spacing[1],
@@ -64,19 +65,26 @@ export function NavigationItem<Actions extends string>({
   glyph,
   label,
   actions,
+  tabName
 }: {
   isExpanded?: boolean;
-  onAction(actionName: string): void;
+  onAction(actionName: string, ...rest: any[]): void;
   glyph: string;
   label: string;
   actions?: ItemAction<Actions>[];
+  tabName: string
 }) {
   const isActive = false; // TODO: how do we determine if we're on one of these?
   const [hoverProps, isHovered] = useHoverState();
 
+  const onClick = useCallback(() => {
+    onAction('open-instance-workspace', tabName);
+  }, [onAction]);
+
   return (
-    <div
+    <button
       className={cx(navigationItem, isActive && activeNavigationItem)}
+      onClick={onClick}
       {...hoverProps}
     >
       <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>
@@ -91,7 +99,7 @@ export function NavigationItem<Actions extends string>({
           isHovered={isHovered}
         ></ItemActionControls>
       )}
-    </div>
+    </button>
   );
 }
 
@@ -123,12 +131,14 @@ export function NavigationItems({
         onAction={onAction}
         glyph="CurlyBraces"
         label="My queries"
+        tabName="My Queries"
       />
       <NavigationItem<DatabasesActions>
         isExpanded={isExpanded}
         onAction={onAction}
         glyph="Database"
         label="Databases"
+        tabName="Databases"
         actions={databasesActions}
       />
       <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
