@@ -31,6 +31,8 @@ const navItemButton = css({
   backgroundColor: uiColors.gray.dark2,
   ':hover': {
     cursor: 'pointer',
+    // removed the hover background color change and bolding the text so the old
+    // sidebar fits with the compass-databases-navigation colour changes.
     fontWeight: 'bold',
   },
 });
