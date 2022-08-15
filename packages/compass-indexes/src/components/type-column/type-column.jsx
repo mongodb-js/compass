@@ -21,6 +21,10 @@ const containerStyles = css({
   paddingRight: spacing[4],
 });
 
+const badgeStyles = css({
+  gap: spacing[2],
+});
+
 const iconLinkStyles = css({
   lineHeight: 0,
   color: uiColors.white,
@@ -70,8 +74,8 @@ class TypeColumn extends PureComponent {
           trigger={({ children, ...props }) => (
             <span {...props}>
               {children}
-              <Badge variant={BadgeVariant.DarkGray}>
-                {this.props.index.type}&nbsp;
+              <Badge variant={BadgeVariant.DarkGray} className={badgeStyles}>
+                {this.props.index.type}
                 <Link
                   hideExternalIcon
                   aria-label="Index type docs"

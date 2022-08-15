@@ -4,7 +4,9 @@ import {
   spacing,
   uiColors,
   Accordion,
-  IndexKeys,
+  IndexIcon,
+  Badge,
+  BadgeVariant,
 } from '@mongodb-js/compass-components';
 import type { ExplainIndex } from '../../modules/explain';
 
@@ -29,6 +31,8 @@ const shardStyles = css({
 
 const indexKeyStyles = css({
   marginTop: spacing[1],
+  display: 'flex',
+  gap: spacing[1],
 });
 
 export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
@@ -50,9 +54,6 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
           ) : (
             name
           );
-          const keys = Object.keys(indexKeys).map((field) => {
-            return { field, value: indexKeys[field] };
-          });
           return (
             <div className={accordianContainerStyles} key={arrIndex}>
               <Accordion
@@ -63,7 +64,17 @@ export const ExplainIndexes: React.FunctionComponent<ExplainIndexesProps> = ({
                   className={indexKeyStyles}
                   data-testid={`explain-index-content-${name}-${shard ?? ''}`}
                 >
-                  <IndexKeys keys={keys} />
+                  {Object.keys(indexKeys).map((field) => (
+                    <Badge
+                      data-testid={`${field}-key`}
+                      variant={BadgeVariant.LightGray}
+                      key={field}
+                    >
+                      {field}
+                      &nbsp;
+                      <IndexIcon direction={indexKeys[field]} />
+                    </Badge>
+                  ))}
                 </div>
               </Accordion>
             </div>

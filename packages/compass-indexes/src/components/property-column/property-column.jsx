@@ -26,6 +26,10 @@ const contentStyles = css({
   gap: spacing[1],
 });
 
+const badgeStyles = css({
+  gap: spacing[2],
+});
+
 const iconLinkStyles = css({
   lineHeight: 0,
   color: uiColors.white,
@@ -62,8 +66,8 @@ class PropertyColumn extends PureComponent {
         trigger={({ children, ...props }) => (
           <span {...props}>
             {children}
-            <Badge variant={BadgeVariant.DarkGray}>
-              {text}&nbsp;
+            <Badge variant={BadgeVariant.DarkGray} className={badgeStyles}>
+              {text}
               <Link
                 hideExternalIcon
                 aria-label="Index property docs"
