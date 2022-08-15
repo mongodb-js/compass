@@ -49,10 +49,6 @@ const iconButtonSmall = css({
   height: `${spacing[4]}px !important`,
 });
 
-const iconButtonSmallActive = css({
-  color: 'var(--icon-color) !important',
-});
-
 export const IconButtonSmall = forwardRef<
   HTMLButtonElement,
   {
@@ -61,7 +57,6 @@ export const IconButtonSmall = forwardRef<
     label: string;
     title?: string;
     onClick(evt: React.MouseEvent<HTMLButtonElement>): void;
-    isActive: boolean;
   } & React.HTMLProps<HTMLButtonElement>
 >(function IconButtonSmall(
   {
@@ -69,7 +64,6 @@ export const IconButtonSmall = forwardRef<
     mode,
     label,
     onClick,
-    isActive,
     children,
     title,
     className,
@@ -84,7 +78,6 @@ export const IconButtonSmall = forwardRef<
       ref={ref}
       className={cx(
         iconButtonSmall,
-        isActive && iconButtonSmallActive,
         buttons[mode],
         className
       )}

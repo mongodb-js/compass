@@ -34,12 +34,8 @@ export function Sidebar({
   //   - instance stats
   //   - csfle marker
   //   - csfle connection modal
-  //   - save connection modal
   //   - non genuine warning pill
   //   - sidebar instance details
-  // TODO: navigation items
-  // TODO: filter
-  // TODO: create database
   // TODO: non genuine warning label
 
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);

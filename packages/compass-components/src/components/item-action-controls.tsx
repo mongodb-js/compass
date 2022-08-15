@@ -93,7 +93,6 @@ export function ItemActionControls<Actions extends string>({
                 evt.stopPropagation();
                 onClick();
               }}
-              isActive={isActive}
               className={actionIconButton}
             >
               {children}
@@ -128,7 +127,6 @@ export function ItemActionControls<Actions extends string>({
             mode={mode}
             label={label}
             title={label}
-            isActive={isActive}
             data-action={action}
             onClick={onClick}
             className={actionIconButton}
