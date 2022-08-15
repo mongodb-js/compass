@@ -89,7 +89,7 @@ function SidebarTitle({
   title: string;
   isFavorite: boolean;
   isExpanded?: boolean;
-  onAction(actionName: Actions): void;
+  onAction(actionName: Actions, ...rest: any[]): void;
 }) {
   const actions = useMemo(() => {
     const actions: ItemAction<Actions>[] = [];
@@ -118,7 +118,7 @@ function SidebarTitle({
   const { theme } = useTheme();
 
   const onClick = useCallback(() => {
-    onAction('open-instance-workspace');
+    onAction('open-instance-workspace', 'My Queries');
   }, [onAction]);
 
   return (
