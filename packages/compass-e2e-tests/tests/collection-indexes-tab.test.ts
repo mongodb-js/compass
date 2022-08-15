@@ -62,7 +62,7 @@ describe('Collection indexes tab', function () {
     await browser.keys(['Enter']);
 
     const fieldTypeSelect = await browser.$(
-      Selectors.CreateIndexModalFieldTypeSelectButtont(0)
+      Selectors.CreateIndexModalFieldTypeSelectButton(0)
     );
     await fieldTypeSelect.waitForDisplayed();
 
@@ -117,12 +117,12 @@ describe('Collection indexes tab', function () {
         Selectors.CreateIndexModalFieldNameSelectInput(0)
       );
 
-      await browser.setValueVisible(fieldNameSelect, 'i.$**');
+      await browser.setValueVisible(fieldNameSelect, '$**');
       await browser.keys(['Enter']);
 
       // Select text filed type from Select.
       const fieldTypeSelect = await browser.$(
-        Selectors.CreateIndexModalFieldTypeSelectButtont(0)
+        Selectors.CreateIndexModalFieldTypeSelectButton(0)
       );
       await fieldTypeSelect.waitForDisplayed();
 
@@ -138,19 +138,36 @@ describe('Collection indexes tab', function () {
       await fieldTypeSelectSpan.waitForDisplayed();
       await fieldTypeSelectSpan.click();
 
+      const indexToggleOptions = await browser.$(Selectors.IndexToggleOptions);
+      await indexToggleOptions.click();
+
+      const indexToggleIsWildcard = await browser.$(
+        Selectors.IndexToggleIsWildcard
+      );
+      await indexToggleIsWildcard.click();
+
+      // set the text in the editor
+      await browser.setAceValue(
+        Selectors.IndexWildcardProjectionEditor,
+        '{ "fieldA": 1, "fieldB.fieldC": 1 }'
+      );
+
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
       await createModal.waitForDisplayed({ reverse: true });
 
-      const indexComponent = await browser.$(
-        Selectors.indexComponent('i.$**_1')
-      );
+      const indexComponent = await browser.$(Selectors.indexComponent('$**_1'));
       await indexComponent.waitForDisplayed();
 
       const indexFieldTypeElement = await browser.$(
-        `${Selectors.indexComponent('i.$**_1')} ${Selectors.IndexFieldType}`
+        `${Selectors.indexComponent('$**_1')} ${Selectors.IndexFieldType}`
       );
       expect(await indexFieldTypeElement.getText()).to.match(/WILDCARD/);
+
+      const indexFieldTypeDataTip = await indexFieldTypeElement.getAttribute(
+        'data-tip'
+      );
+      expect(indexFieldTypeDataTip).to.include('wildcardProjection');
     });
   });
 
@@ -175,7 +192,7 @@ describe('Collection indexes tab', function () {
 
       // Select text filed type from Select.
       const fieldTypeSelect = await browser.$(
-        Selectors.CreateIndexModalFieldTypeSelectButtont(0)
+        Selectors.CreateIndexModalFieldTypeSelectButton(0)
       );
       await fieldTypeSelect.waitForDisplayed();
 

@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-instance",
   "productName": "Instance plugin",
-  "version": "3.26.1",
+  "version": "4.0.0",
   "apiVersion": "3.0.0",
   "description": "compass instance plugin",
   "main": "lib/index.js",
@@ -33,8 +33,8 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.17.0",
-    "@mongodb-js/compass-logging": "^0.14.0",
+    "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-logging": "^1.0.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -45,8 +45,8 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@mongodb-js/compass-database": "^2.26.1",
-    "@mongodb-js/compass-serverstats": "^15.26.1",
+    "@mongodb-js/compass-database": "^3.0.0",
+    "@mongodb-js/compass-serverstats": "^16.0.0",
     "autoprefixer": "^9.7.4",
     "babel-loader": "^8.2.2",
     "chai": "^4.2.0",
@@ -59,7 +59,7 @@
     "css-loader": "^4.3.0",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.25.0",
@@ -67,8 +67,8 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^4.26.1",
-    "hadron-app-registry": "^8.14.1",
+    "hadron-app": "^5.0.0",
+    "hadron-app-registry": "^9.0.0",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.1",
@@ -87,7 +87,7 @@
     "less-loader": "^7.3.0",
     "mocha": "^7.0.1",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-connection-model": "^21.19.1",
+    "mongodb-connection-model": "^22.0.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
     "nyc": "^15.0.0",
@@ -121,8 +121,8 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^0.17.0",
-    "@mongodb-js/compass-logging": "^0.14.0",
+    "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-logging": "^1.0.0",
     "react": "^16.14.0"
   }
 }

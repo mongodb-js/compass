@@ -12,7 +12,7 @@ export const COPY_TO_CLIPBOARD_FN_CHANGED = `${PREFIX}/COPY_TO_CLIPBOARD_FN_CHAN
  * The initial state.
  */
 export const INITIAL_STATE = (action) => {
-  require('electron').clipboard.writeText(action);
+  navigator.clipboard.writeText(action);
 };
 
 /**

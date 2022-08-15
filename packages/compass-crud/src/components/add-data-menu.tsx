@@ -17,6 +17,10 @@ const tooltipContainerStyles = css({
   alignItems: 'center',
 });
 
+const addDataButtonStyles = css({
+  whiteSpace: 'nowrap',
+});
+
 type AddDataMenuProps = {
   instanceDescription: string;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
@@ -32,6 +36,7 @@ function AddDataButton({
 }): React.ReactElement {
   return (
     <Button
+      className={addDataButtonStyles}
       size="xsmall"
       leftGlyph={<Icon glyph="Download" />}
       rightGlyph={<Icon glyph="CaretDown" />}
@@ -104,7 +109,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
       )}
     >
       <MenuItem
-        data-testid="hadron-document-add-child"
+        data-testid="crud-add-data-import-file"
         onClick={() => {
           setIsOpen(false);
           insertDataHandler('import-file');
@@ -113,7 +118,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
         Import File
       </MenuItem>
       <MenuItem
-        data-testid="hadron-document-add-sibling"
+        data-testid="crud-add-data-insert-document"
         onClick={() => {
           setIsOpen(false);
           insertDataHandler('insert-document');

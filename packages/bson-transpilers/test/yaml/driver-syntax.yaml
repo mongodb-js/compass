@@ -55,17 +55,14 @@ tests:
                       'y': new ObjectId()
                     };
 
-                    MongoClient.connect(
+                    const client = await MongoClient.connect(
                       'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true },
-                      function(connectErr, client) {
-                        assert.equal(null, connectErr);
-                        const coll = client.db('db').collection('collection');
-                        coll.aggregate(agg, (cmdErr, result) => {
-                          assert.equal(null, cmdErr);
-                        });
-                        client.close();
-                      });
+                      { useNewUrlParser: true, useUnifiedTopology: true }
+                    );
+                    const coll = client.db('db').collection('collection');
+                    const cursor = coll.aggregate(agg);
+                    const result = await cursor.toArray();
+                    await client.close();
                 shell: |-
                     mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
                     db.collection.aggregate({
@@ -142,12 +139,11 @@ tests:
                     import java.util.concurrent.TimeUnit;
                     import org.bson.Document;
                 javascript: |-
-                    const MongoClient = require('mongodb').MongoClient;
-                    const assert = require('assert');
-                    const {
+                    import { MongoClient } from 'mongodb';
+                    import {
                       ObjectId,
                       Long
-                    } = require('mongodb');
+                    } from 'mongodb';
                 shell: ''
                 php: |-
                     use MongoDB\BSON\ObjectId;
@@ -213,17 +209,14 @@ tests:
                       'x': Long.fromNumber(0)
                     };
 
-                    MongoClient.connect(
+                    const client = await MongoClient.connect(
                       'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true },
-                      function(connectErr, client) {
-                        assert.equal(null, connectErr);
-                        const coll = client.db('db').collection('collection');
-                        coll.find(filter, (cmdErr, result) => {
-                          assert.equal(null, cmdErr);
-                        });
-                        client.close();
-                      });
+                      { useNewUrlParser: true, useUnifiedTopology: true }
+                    );
+                    const coll = client.db('db').collection('collection');
+                    const cursor = coll.find(filter);
+                    const result = await cursor.toArray();
+                    await client.close();
                 shell: |-
                     mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
                     db.collection.find({
@@ -293,11 +286,10 @@ tests:
                     import java.util.concurrent.TimeUnit;
                     import org.bson.Document;
                 javascript: |-
-                    const MongoClient = require('mongodb').MongoClient;
-                    const assert = require('assert');
-                    const {
+                    import { MongoClient } from 'mongodb';
+                    import {
                       Long
-                    } = require('mongodb');
+                    } from 'mongodb';
                 shell: ''
                 php: |-
                     use MongoDB\Client;
@@ -431,17 +423,14 @@ tests:
                       'locale': 'zh'
                     };
 
-                    MongoClient.connect(
+                    const client = await MongoClient.connect(
                       'mongodb://localhost:27017',
-                      { useNewUrlParser: true, useUnifiedTopology: true },
-                      function(connectErr, client) {
-                        assert.equal(null, connectErr);
-                        const coll = client.db('db').collection('collection');
-                        coll.find(filter, { projection: projection, sort: sort, skip: skip, limit: limit, maxTimeMS: maxTimeMS, collation: collation }, (cmdErr, result) => {
-                          assert.equal(null, cmdErr);
-                        });
-                        client.close();
-                      });
+                      { useNewUrlParser: true, useUnifiedTopology: true }
+                    );
+                    const coll = client.db('db').collection('collection');
+                    const cursor = coll.find(filter, { projection, sort, skip, limit, maxTimeMS, collation });
+                    const result = await cursor.toArray();
+                    await client.close();
                 shell: |-
                     mongo 'mongodb://localhost:27017' --eval "db = db.getSiblingDB('db');
                     db.collection.find({
@@ -560,12 +549,11 @@ tests:
                     import java.util.concurrent.TimeUnit;
                     import org.bson.Document;
                 javascript: |-
-                    const MongoClient = require('mongodb').MongoClient;
-                    const assert = require('assert');
-                    const {
+                    import { MongoClient } from 'mongodb';
+                    import {
                       ObjectId,
                       Long
-                    } = require('mongodb');
+                    } from 'mongodb';
                 shell: ''
                 php: |-
                     use MongoDB\BSON\ObjectId;

@@ -25,9 +25,6 @@
     "check-leafygreen-dependency-usage": "node scripts/check-leafygreen-dep-usage.js",
     "electron-rebuild": "npm run electron-rebuild --workspace mongodb-compass",
     "node-rebuild": "node ./scripts/rebuild.js kerberos keytar interruptor",
-    "packages-publish": "lerna publish from-package --allow-branch main",
-    "postpackages-publish": "git push && git push --tags",
-    "packages-version": "lerna version --allow-branch main --no-push --no-private -m \"chore(release): Bump package versions\"",
     "release": "npm run release --workspace mongodb-compass --",
     "reformat": "lerna run reformat --stream --no-bail",
     "reformat-changed": "lerna run reformat --stream --no-bail --since origin/HEAD --exclude-dependents",
@@ -38,11 +35,10 @@
     "test-changed": "lerna run test --stream --concurrency 1 --since origin/HEAD",
     "test-ci": "lerna run test-ci --concurrency 1",
     "test-ci-electron": "lerna run test-ci-electron --concurrency 1",
-    "pretest-packages-publish": "./scripts/monorepo/start-proxy-registry.sh && wait-on -t 3000 http://localhost:4873 && npm-cli-adduser -u test -p test -e test@test.test --registry http://localhost:4873 && echo $'\\n\\n!!! LOCAL REGISTRY DOCKER IMAGE IS RUNNING, DO NOT FORGET TO CLEAN IN UP WHEN YOU ARE DONE\\n\\n'",
-    "test-packages-publish": "lerna publish from-package --registry http://localhost:4873",
-    "test-packages-version": "lerna version --no-push --no-private -m \"tmp(release): Test release\"",
     "update-authors": "node scripts/generate-authors.js",
     "update-third-party-notices": "node scripts/gather-licenses.js packages/compass/ > THIRD-PARTY-NOTICES.md",
+    "bump-packages": "bump-monorepo-packages",
+    "publish-packages": "lerna publish from-package --no-verify-access --no-push --no-git-tag-version --yes",
     "version": "node ./scripts/align-monorepo-dependencies.js --no-commit",
     "where": "node ./scripts/monorepo/where.js",
     "create-workspace": "node ./scripts/create-workspace.js",
@@ -56,17 +52,16 @@
   "devDependencies": {
     "@babel/core": "7.16.0",
     "@babel/parser": "7.16.0",
+    "@mongodb-js/bump-monorepo-packages": "^0.2.1",
     "@testing-library/dom": "^8.11.1",
     "@webpack-cli/serve": "^0.2.0",
     "babel-loader": "^7.1.5",
     "lerna": "^4.0.0",
-    "node-gyp": "^8.4.1",
-    "npm-cli-adduser": "^1.1.4",
-    "wait-on": "^5.3.0"
+    "node-gyp": "^8.4.1"
   },
   "engines": {
-    "node": ">=14.17.5",
-    "npm": ">=7.16.0"
+    "node": ">=16.15.1",
+    "npm": ">=8.15.1"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",

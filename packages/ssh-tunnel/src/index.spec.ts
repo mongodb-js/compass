@@ -33,8 +33,8 @@ function createTestHttpServer(): Promise<void> {
         res.statusCode = 500;
         res.end('Error');
       } else if (req.url === '/wait') {
-        await sleep(500);
-        res.end('Waited 500ms');
+        await sleep(5000);
+        res.end('Waited 5000ms');
       } else {
         res.end('Hello from http server');
       }
@@ -250,7 +250,7 @@ describe('SSHTunnel', function () {
           }
         ),
         (async () => {
-          await sleep(50);
+          await sleep(500);
           await sshTunnel.close();
         })(),
       ]);

@@ -16,9 +16,7 @@ function renderAccordion(
 }
 
 describe('Accordion Component', function () {
-  afterEach(function () {
-    cleanup();
-  });
+  afterEach(cleanup);
 
   it('should open the accordion on click', function () {
     renderAccordion();

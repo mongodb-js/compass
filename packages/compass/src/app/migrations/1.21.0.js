@@ -2,7 +2,7 @@ const debug = require('debug')('mongodb-compass:migrations');
 const asyncr = require('async');
 const fs = require('fs');
 const path = require('path');
-const { remote } = require('electron');
+const remote = require('@electron/remote');
 
 /**
  * The plugin database name.

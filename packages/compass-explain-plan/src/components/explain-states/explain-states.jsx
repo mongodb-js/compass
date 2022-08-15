@@ -251,6 +251,7 @@ class ExplainStates extends Component {
             showOutdatedWarning={
               this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
             }
+            hasExplainResults={!this.checkIfZeroState()}
             showReadonlyWarning={!this.props.isEditable}
             switchToTreeView={this.props.switchToTreeView}
             switchToJSONView={this.props.switchToJSONView}

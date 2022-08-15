@@ -40,7 +40,7 @@ async function loadSavedConnectionAndConnect(connectionInfo: ConnectionInfo) {
 
   // Wait for the connection to load in the form.
   await waitFor(() =>
-    expect(screen.queryByRole('textbox').textContent).to.equal(
+    expect(screen.queryByRole('textbox')?.textContent).to.equal(
       connectionInfo.connectionOptions.connectionString
     )
   );
@@ -84,7 +84,7 @@ describe('Connections Component', function () {
     });
 
     it('renders the connect button from the connect-form', function () {
-      const button = screen.queryByText('Connect').closest('button');
+      const button = screen.queryByText('Connect')?.closest('button');
       expect(button).to.not.equal(null);
     });
 
@@ -181,17 +181,24 @@ describe('Connections Component', function () {
     });
 
     describe('when a saved connection is clicked on and connected to', function () {
+      const _Date = globalThis.Date;
       beforeEach(async function () {
-        this.clock = sinon.useFakeTimers({
-          now: 1483228800000,
-        });
+        globalThis.Date = class {
+          constructor() {
+            return new _Date(0);
+          }
+          static now() {
+            return 0;
+          }
+        } as DateConstructor;
         await loadSavedConnectionAndConnect(
-          connections.find(({ id }) => id === savedConnectionId)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          connections.find(({ id }) => id === savedConnectionId)!
         );
       });
 
       afterEach(function () {
-        this.clock.restore();
+        globalThis.Date = _Date;
       });
 
       it('should call the connect function with the connection options to connect', function () {
@@ -218,7 +225,7 @@ describe('Connections Component', function () {
       it('should call to save the connection with a new lastUsed time', function () {
         expect(saveConnectionSpy.callCount).to.equal(1);
         expect(saveConnectionSpy.firstCall.args[0].lastUsed.getTime()).to.equal(
-          1483228800000
+          0
         );
       });
 
@@ -242,7 +249,8 @@ describe('Connections Component', function () {
     describe('when a saved connection with appName is clicked on and connected to', function () {
       beforeEach(async function () {
         await loadSavedConnectionAndConnect(
-          connections.find(({ id }) => id === savedConnectionWithAppNameId)
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          connections.find(({ id }) => id === savedConnectionWithAppNameId)!
         );
       });
 
@@ -329,7 +337,7 @@ describe('Connections Component', function () {
 
       // Wait for the connection to load in the form.
       await waitFor(() =>
-        expect(screen.queryByRole('textbox').textContent).to.equal(
+        expect(screen.queryByRole('textbox')?.textContent).to.equal(
           'mongodb://localhost:27099/?connectTimeoutMS=5000&serverSelectionTimeoutMS=5000'
         )
       );
@@ -378,7 +386,8 @@ describe('Connections Component', function () {
       describe('connecting to a successful connection after cancelling a connect', function () {
         beforeEach(async function () {
           await loadSavedConnectionAndConnect(
-            connections.find(({ id }) => id === savedConnectableId)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            connections.find(({ id }) => id === savedConnectableId)!
           );
         });
 

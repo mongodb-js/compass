@@ -64,6 +64,7 @@ class TypeColumn extends PureComponent {
     return (
       <td data-testid="index-field-type">
         <Tooltip
+          data-testid="tooltip-index-field-type"
           enabled={this.canRenderTooltip()}
           trigger={({ children, ...props }) => (
             <span {...props}>

@@ -12,6 +12,7 @@ import type {
   FindInPageOptions,
 } from 'electron';
 import { app as electronApp, shell, dialog, BrowserWindow } from 'electron';
+import { enable } from '@electron/remote/main';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 
@@ -71,16 +72,16 @@ async function showWindowWhenReady(bw: BrowserWindow) {
  * [0]: http://git.io/vnwTY
  */
 function showConnectWindow(
-  compassApp: CompassApplication,
+  compassApp: typeof CompassApplication,
   opts: Partial<BrowserWindowConstructorOptions & { url: string }> = {}
 ): BrowserWindow {
   const url = opts.url ?? DEFAULT_URL;
 
   const windowOpts = {
-    width: DEFAULT_WIDTH,
-    height: DEFAULT_HEIGHT,
-    minWidth: MIN_WIDTH,
-    minHeight: MIN_HEIGHT,
+    width: Number(DEFAULT_WIDTH),
+    height: Number(DEFAULT_HEIGHT),
+    minWidth: Number(MIN_WIDTH),
+    minHeight: Number(MIN_HEIGHT),
     /**
      * On Windows and macOS, this will be set automatically to the optimal
      * app icon.  Only on Linux do we need to set this explictly.
@@ -104,6 +105,8 @@ function showConnectWindow(
   debug('creating new main window:', windowOpts);
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
+
+  enable(window.webContents);
 
   compassApp.emit('new-window', window);
 
@@ -199,7 +202,7 @@ const onStopFindInPage = (
  * those API's.
  */
 
-async function onAppReady(compassApp: CompassApplication) {
+async function onAppReady(compassApp: typeof CompassApplication) {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
@@ -217,7 +220,7 @@ async function onAppReady(compassApp: CompassApplication) {
 }
 
 async function showConnectWindowWhenReady(
-  compassApp: CompassApplication
+  compassApp: typeof CompassApplication
 ): Promise<void> {
   await electronApp.whenReady();
   await onAppReady(compassApp);
@@ -226,7 +229,7 @@ async function showConnectWindowWhenReady(
 class CompassWindowManager {
   private static initPromise: Promise<void> | null = null;
 
-  private static async _init(compassApp: CompassApplication) {
+  private static async _init(compassApp: typeof CompassApplication) {
     electronApp.on('before-quit', function () {
       const first = BrowserWindow.getAllWindows()[0];
       if (first) {
@@ -273,7 +276,7 @@ class CompassWindowManager {
     });
   }
 
-  static init(app: CompassApplication): Promise<void> {
+  static init(app: typeof CompassApplication): Promise<void> {
     return (this.initPromise ??= this._init(app));
   }
 }

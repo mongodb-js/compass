@@ -80,5 +80,6 @@ export async function exportToLanguage(
   await browser.clickVisible(Selectors.ExportToLanguageCloseButton);
   await exportModal.waitForDisplayed({ reverse: true });
 
-  return text;
+  // normalize copied text so that it's the same for all platforms
+  return text.replace(/\r\n/g, '\n');
 }

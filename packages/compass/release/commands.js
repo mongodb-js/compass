@@ -5,17 +5,10 @@ const pkgUp = require('pkg-up');
 
 const branch = require('./branch');
 const bump = require('./bump');
-const CompassDownloadCenter = require('./download-center');
-const env = require('./env');
 const git = require('./git');
-const github = require('./github');
 const npm = require('./npm');
-const version = require('./version');
 
-const publishRelease = require('./publish');
-const waitForAssets = require('./wait-for-assets');
 const ux = require('./ux');
-const changelog = require('./changelog');
 
 async function getPackageJsonVersion() {
   return require(await pkgUp()).version;
@@ -54,8 +47,6 @@ async function commitAndPushNewVersion(newSemver, currentBranch) {
 }
 
 async function startRelease(bumpFn, evergreenProject) {
-  const downloadCenter = createDownloadCenter();
-
   const packageJsonVersion = await getPackageJsonVersion();
   const currentBranch = await getValidReleaseBranch();
 
@@ -98,8 +89,6 @@ async function startRelease(bumpFn, evergreenProject) {
     ),
     '\n'
   );
-
-  await waitForAssets(newSemver, { downloadCenter });
 }
 
 async function ensureNoDirtyRepo() {
@@ -145,75 +134,8 @@ async function releaseCheckout(versionLike) {
   cli.info('Switched to branch:', chalk.bold(await git.getCurrentBranch()));
 }
 
-async function releaseChangelog(optionalVersionToCompareTo) {
-  await getValidReleaseBranch();
-  const releaseVersion = await getPackageJsonVersion();
-  await changelog.render(releaseVersion, optionalVersionToCompareTo);
-}
-
-async function releasePublish() {
-  const releaseBranch = await getValidReleaseBranch();
-  await ensureNoDirtyRepo();
-
-  const releaseVersion = await getPackageJsonVersion();
-
-  // Exits if the releaseVersion does not match the release branch:
-  if (!branch.hasVersion(releaseBranch, releaseVersion)) {
-    throw new Error(
-      `${releaseVersion} can only be published from ${branch.buildReleaseBranchName(releaseVersion)}`);
-  }
-
-  // Exits if a tag does not exists
-  const tags = await git.getTags();
-  const releaseTag = tags.find((t) => t === `v${releaseVersion}`);
-  if (!releaseTag) {
-    throw new Error(
-      `No tag found for ${releaseVersion}. Did "npm run release <beta|ga>" succeed?`);
-  }
-
-  const answer = await cli.confirm(
-    `Are you sure you want to publish the release ${chalk.bold(releaseVersion)}?`);
-  if (!answer) {
-    return;
-  }
-
-  await publishRelease(releaseVersion, {
-    downloadCenter: createDownloadCenter(),
-    github,
-    changelog
-  });
-}
-
-async function releaseWait() {
-  await getValidReleaseBranch();
-  const releaseVersion = await getPackageJsonVersion();
-
-  const evergreenProject = version.isGa(releaseVersion) ?
-    '10gen-compass-stable' : '10gen-compass-testing';
-
-  cli.info(
-    `Waiting ${chalk.bold(releaseVersion)} assets for being built in evergreen:`,
-    ux.link(`https://evergreen.mongodb.com/waterfall/${evergreenProject}`),
-    '\n'
-  );
-
-  await waitForAssets(releaseVersion, {
-    downloadCenter: createDownloadCenter()
-  });
-}
-
 module.exports = {
   releaseBeta,
   releaseGa,
-  releaseCheckout,
-  releaseChangelog,
-  releasePublish,
-  releaseWait
+  releaseCheckout
 };
-
-function createDownloadCenter() {
-  return new CompassDownloadCenter({
-    accessKeyId: env.requireEnvVar('MONGODB_DOWNLOADS_AWS_ACCESS_KEY_ID'),
-    secretAccessKey: env.requireEnvVar('MONGODB_DOWNLOADS_AWS_SECRET_ACCESS_KEY')
-  });
-}
