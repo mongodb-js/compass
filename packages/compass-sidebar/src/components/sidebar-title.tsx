@@ -72,14 +72,12 @@ const sidebarTitle = css({
   padding: spacing[3],
 });
 
-const sidebarTitleDark = css({
-  '--icon-color': uiColors.gray.dark3,
-  '--icon-color-hover': uiColors.black,
+const iconButtonDark = css({
+  color: uiColors.gray.dark3,
 });
 
-const sidebarTitleLight = css({
-  '--icon-color': 'white',
-  '--icon-color-hover': uiColors.black,
+const iconButtonLight = css({
+  color: 'white',
 });
 
 function SidebarTitle({
@@ -123,22 +121,22 @@ function SidebarTitle({
     // TODO: https://jira.mongodb.org/browse/COMPASS-5918
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div
-      className={cx(
-        sidebarTitle,
-        theme === Theme.Dark ? sidebarTitleDark : sidebarTitleLight
-      )}
+      className={cx(sidebarTitle)}
       onClick={() => onAction('open-instance-workspace')}
     >
       <TitleLogo />
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (
         <ItemActionControls<Actions>
-          mode="normal"
+          mode="inherit"
           onAction={onAction}
           actions={actions}
           shouldCollapseActionsToMenu
           isActive={false}
           isHovered={false}
+          iconClassName={
+            theme === Theme.Dark ? iconButtonDark : iconButtonLight
+          }
         ></ItemActionControls>
       )}
     </div>

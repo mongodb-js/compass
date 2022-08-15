@@ -79,7 +79,7 @@ export function NavigationItem<Actions extends string>({
       className={cx(navigationItem, isActive && activeNavigationItem)}
       {...hoverProps}
     >
-      <SmallIcon glyph={glyph} mode="normal"></SmallIcon>
+      <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>
       {isExpanded && <span className={navigationItemLabel}>{label}</span>}
       {isExpanded && actions && (
         <ItemActionControls<Actions>

@@ -31,7 +31,7 @@ const navItemButton = css({
   backgroundColor: uiColors.gray.dark2,
   ':hover': {
     cursor: 'pointer',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
 });
 
