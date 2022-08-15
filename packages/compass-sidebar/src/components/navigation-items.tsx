@@ -132,7 +132,7 @@ export function NavigationItems({
         isExpanded={isExpanded}
         onAction={onAction}
         glyph="CurlyBraces"
-        label="My queries"
+        label="My Queries"
         tabName="My Queries"
         isActive={currentLocation === 'My Queries'}
       />
