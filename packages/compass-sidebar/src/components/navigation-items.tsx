@@ -81,10 +81,10 @@ export function NavigationItem<Actions extends string>({
   }, [onAction]);
 
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div
       className={cx(navigationItem, isActive && activeNavigationItem)}
       onClick={onClick}
-      tabIndex={0}
       {...hoverProps}
     >
       <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>
