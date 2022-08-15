@@ -15,12 +15,6 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 
-const containerStyles = css({
-  width: 'auto',
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
-});
-
 const badgeStyles = css({
   gap: spacing[2],
 });
@@ -68,7 +62,7 @@ class TypeColumn extends PureComponent {
   render() {
     const helpLink = getIndexHelpLink(this.props.index.type.toUpperCase());
     return (
-      <td className={containerStyles} data-testid="index-field-type">
+      <td data-testid="index-field-type">
         <Tooltip
           enabled={this.canRenderTooltip()}
           trigger={({ children, ...props }) => (

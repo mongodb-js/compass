@@ -1,11 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { css, spacing, IconButton, Icon } from '@mongodb-js/compass-components';
-
-const containerStyles = css({
-  padding: spacing[2],
-  marginRight: spacing[2],
-});
+import { IconButton, Icon } from '@mongodb-js/compass-components';
 
 /**
  * Component for the drop column.
@@ -55,7 +50,7 @@ class DropColumn extends PureComponent {
    */
   render() {
     return (
-      <td className={containerStyles}>
+      <td>
         {this.isDroppable() ? (
           <IconButton
             aria-label={`Delete Index ${this.props.indexName}`}

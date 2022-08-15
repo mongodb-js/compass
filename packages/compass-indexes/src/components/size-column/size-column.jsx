@@ -2,13 +2,7 @@ import numeral from 'numeral';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { spacing, css, Body, Tooltip } from '@mongodb-js/compass-components';
-
-const containerStyles = css({
-  width: '10%',
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
-});
+import { Body, Tooltip } from '@mongodb-js/compass-components';
 
 /**
  * Component for the size column.
@@ -32,7 +26,7 @@ class SizeColumn extends PureComponent {
       2
     )}% compared to largest index`;
     return (
-      <td className={containerStyles}>
+      <td>
         <Tooltip
           data-testid="index-table-size"
           trigger={({ children, ...props }) => (

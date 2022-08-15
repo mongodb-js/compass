@@ -15,12 +15,6 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 
-const containerStyles = css({
-  width: 'auto',
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
-});
-
 const contentStyles = css({
   display: 'flex',
   gap: spacing[1],
@@ -117,7 +111,7 @@ class PropertyColumn extends PureComponent {
       this.renderProperty.bind(this)
     );
     return (
-      <td className={containerStyles}>
+      <td>
         <div className={contentStyles}>
           {properties}
           {this.renderCardinality()}

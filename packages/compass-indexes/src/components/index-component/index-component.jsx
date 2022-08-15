@@ -7,12 +7,14 @@ import UsageColumn from '../usage-column';
 import PropertyColumn from '../property-column';
 import DropColumn from '../drop-column';
 
-import { css, uiColors } from '@mongodb-js/compass-components';
+import { css, spacing, uiColors } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
-  height: '80px',
   backgroundColor: uiColors.white,
   boxShadow: '0 2px 10px 0 rgba(0, 0, 0, 0.075)',
+  td: {
+    padding: spacing[3],
+  },
 });
 
 /**

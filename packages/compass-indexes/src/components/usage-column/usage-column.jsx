@@ -2,13 +2,7 @@ import isUndefined from 'lodash.isundefined';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { css, spacing, Tooltip, Body } from '@mongodb-js/compass-components';
-
-const containerStyles = css({
-  width: '20%',
-  paddingLeft: spacing[4],
-  paddingRight: spacing[4],
-});
+import { Tooltip, Body } from '@mongodb-js/compass-components';
 
 const NO_USAGE_STATS =
   'Either the server does not support the $indexStats command' +
@@ -45,7 +39,7 @@ class UsageColumn extends PureComponent {
     const usage = isUndefined(this.props.usage) ? '0' : this.props.usage;
     const tooltip = this.tooltip();
     return (
-      <td className={containerStyles}>
+      <td>
         <Tooltip
           trigger={({ children, ...props }) => (
             <span {...props}>
