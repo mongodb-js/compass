@@ -144,7 +144,7 @@ describe('PipelineExplain', function () {
     expect(within(indexContent1).getByText(/host_id/gi)).to.exist;
     expect(
       within(indexContent1).getByRole('img', {
-        name: /arrow up icon/i, // host_id index direction 1
+        name: /ascending index/i, // host_id index direction 1
       })
     ).to.exist;
     expect(within(indexContent1).getByText(/location \(2dsphere\)/i)).to.exist;
@@ -161,7 +161,7 @@ describe('PipelineExplain', function () {
     expect(within(indexContent2).getByText(/city_id/gi)).to.exist;
     expect(
       within(indexContent2).getByRole('img', {
-        name: /arrow down icon/i, // city_id index direction -1
+        name: /descending index/i, // city_id index direction -1
       })
     ).to.exist;
     expect(within(indexContent2).getByText(/title \(text\)/i)).to.exist;
