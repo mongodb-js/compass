@@ -4,7 +4,6 @@ import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 
 import IndexComponent from '../index-component';
-import styles from './index-component.module.less';
 
 import NameColumn from '../name-column';
 import TypeColumn from '../type-column';
@@ -16,9 +15,10 @@ import DropColumn from '../drop-column';
 const index = {
   name: 'a',
   type: 'regular',
-  fields: { serialize: () => {} },
+  fields: { serialize: () => [] },
   size: 10,
   relativeSize: 10,
+  properties: [],
 };
 
 describe('index-component [Component]', function () {
@@ -41,9 +41,6 @@ describe('index-component [Component]', function () {
     });
     afterEach(function () {
       component = null;
-    });
-    it('renders the component', function () {
-      expect(component.find(`.${styles['index-component']}`)).to.be.present();
     });
     it('renders the type column', function () {
       expect(component.find(TypeColumn)).to.be.present();

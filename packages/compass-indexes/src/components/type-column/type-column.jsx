@@ -1,15 +1,32 @@
 import map from 'lodash.map';
 import pick from 'lodash.pick';
-import { format } from 'util';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { InfoSprinkle } from 'hadron-react-components';
-import ReactTooltip from 'react-tooltip';
 import getIndexHelpLink from '../../utils/index-link-helper';
+import {
+  spacing,
+  css,
+  Tooltip,
+  Body,
+  Badge,
+  BadgeVariant,
+  Icon,
+  Link,
+  uiColors,
+} from '@mongodb-js/compass-components';
 
-const TOOLTIP_ID = 'index-type';
+const badgeStyles = css({
+  gap: spacing[2],
+});
 
-import styles from './type-column.module.less';
+const iconLinkStyles = css({
+  lineHeight: 0,
+  color: uiColors.white,
+  span: {
+    // LG uses backgroundImage instead of textDecoration
+    backgroundImage: 'none !important',
+  },
+});
 
 /**
  * Component for the type column.
@@ -22,7 +39,13 @@ class TypeColumn extends PureComponent {
     openLink: PropTypes.func.isRequired,
   };
 
-  _textTooltip() {
+  canRenderTooltip() {
+    return (
+      ['text', 'wildcard', 'columnstore'].indexOf(this.props.index.type) !== -1
+    );
+  }
+
+  renderTooltip() {
     const info = pick(this.props.index.extra, [
       'weights',
       'default_language',
@@ -30,62 +53,38 @@ class TypeColumn extends PureComponent {
       'wildcardProjection',
       'columnstoreProjection',
     ]);
-    return map(info, (v, k) => {
-      return format('%s: %j', k, v);
-    }).join('<br />');
+    const items = map(info, (v, k) => {
+      return <Body>{`${k}: ${JSON.stringify(v)}`}</Body>;
+    });
+    return <>{items}</>;
   }
 
-  /**
-   * Render the type div.
-   *
-   * @returns {React.Component} The type div.
-   */
-  renderType() {
-    let tooltipOptions = {};
-    if (
-      this.props.index.type === 'text' ||
-      this.props.index.type === 'wildcard' ||
-      this.props.index.type === 'columnstore'
-    ) {
-      const tooltipText = `${this._textTooltip()}`;
-      tooltipOptions = {
-        'data-tip': tooltipText,
-        'data-for': TOOLTIP_ID,
-        'data-effect': 'solid',
-        'data-multiline': true,
-        'data-border': true,
-      };
-    }
-
-    const helpLink = getIndexHelpLink(this.props.index.type.toUpperCase());
-
-    return (
-      <div
-        {...tooltipOptions}
-        className={styles[`type-column-property-${this.props.index.type}`]}
-        data-test-id="index-field-type"
-      >
-        {this.props.index.type}
-        {helpLink && (
-          <InfoSprinkle
-            helpLink={helpLink}
-            onClickHandler={this.props.openLink}
-          />
-        )}
-      </div>
-    );
-  }
-
-  /**
-   * Render the type column.
-   *
-   * @returns {React.Component} The type column.
-   */
   render() {
+    const helpLink = getIndexHelpLink(this.props.index.type.toUpperCase());
     return (
-      <td className={styles['type-column']}>
-        {this.renderType()}
-        <ReactTooltip id={TOOLTIP_ID} data-testid="tooltip-index-field-type" />
+      <td data-testid="index-field-type">
+        <Tooltip
+          data-testid="tooltip-index-field-type"
+          enabled={this.canRenderTooltip()}
+          trigger={({ children, ...props }) => (
+            <span {...props}>
+              {children}
+              <Badge variant={BadgeVariant.DarkGray} className={badgeStyles}>
+                {this.props.index.type}
+                <Link
+                  hideExternalIcon
+                  aria-label="Index type docs"
+                  className={iconLinkStyles}
+                  href={helpLink}
+                >
+                  <Icon glyph="InfoWithCircle" />
+                </Link>
+              </Badge>
+            </span>
+          )}
+        >
+          {this.renderTooltip()}
+        </Tooltip>
       </td>
     );
   }

@@ -1,14 +1,24 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import {
+  spacing,
+  css,
+  IndexIcon,
+  BadgeVariant,
+  Badge,
+  Accordion,
+} from '@mongodb-js/compass-components';
 
-import IndexDefinitionType from '../index-definition-type';
+const keyListStyles = css({
+  marginTop: spacing[1],
+  marginBottom: spacing[1],
+});
 
-import classnames from 'classnames';
-import styles from './name-column.module.less';
+const keyItemStyles = css({
+  paddingTop: spacing[1],
+  paddingLeft: spacing[4],
+});
 
-/**
- * Component for the name column.
- */
 class NameColumn extends PureComponent {
   static displayName = 'NameColumn';
 
@@ -16,24 +26,31 @@ class NameColumn extends PureComponent {
     index: PropTypes.object.isRequired,
   };
 
-  /**
-   * Render the name column.
-   *
-   * @returns {React.Component} The name column.
-   */
   render() {
+    const indexName = this.props.index.name;
+    const indexKeys = this.props.index.fields.serialize();
     return (
-      <td className={classnames(styles['name-column'])}>
-        <div className="index-definition">
-          <div
-            className={classnames(styles['name-column-name'])}
-            data-test-id="index-field-name"
-            title={this.props.index.name}
-          >
-            {this.props.index.name}
-          </div>
-          <IndexDefinitionType index={this.props.index} />
-        </div>
+      <td>
+        <Accordion
+          text={indexName}
+          data-testid="index-field-name"
+          aria-label={`Show/Hide index ${indexName} keys`}
+        >
+          <ul className={keyListStyles}>
+            {indexKeys.map(({ field, value }) => (
+              <li key={field} className={keyItemStyles}>
+                <Badge
+                  data-testid={`${field}-key`}
+                  variant={BadgeVariant.LightGray}
+                >
+                  {field}
+                  &nbsp;
+                  <IndexIcon direction={value} />
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </Accordion>
       </td>
     );
   }

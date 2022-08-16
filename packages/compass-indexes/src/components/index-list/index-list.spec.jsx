@@ -10,16 +10,18 @@ const indexes = [
   {
     name: 'a',
     type: 'regular',
-    fields: { serialize: () => {} },
+    fields: { serialize: () => [] },
     size: 10,
     relativeSize: 10,
+    properties: [],
   },
   {
     name: 'b',
     type: 'regular',
-    fields: { serialize: () => {} },
+    fields: { serialize: () => [] },
     size: 20,
     relativeSize: 20,
+    properties: [],
   },
 ];
 

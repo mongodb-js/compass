@@ -772,8 +772,8 @@ export const ExplainDocumentsReturnedSummary =
 // Indexes tab
 export const IndexList = '[data-test-id="index-list"]';
 export const IndexComponent = '[data-test-id="index-list"] tr';
-export const IndexFieldName = '[data-test-id="index-field-name"]';
-export const IndexFieldType = '[data-test-id="index-field-type"]';
+export const IndexFieldName = '[data-testid="index-field-name"]';
+export const IndexFieldType = '[data-testid="index-field-type"]';
 export const IndexToggleOptions =
   '[data-test-id="create-index-modal-toggle-options"]';
 export const IndexToggleIsWildcard =
@@ -806,7 +806,7 @@ export const indexComponent = (indexName: string): string => {
 };
 
 export const dropIndexButton = (indexName: string): string => {
-  return `[data-test-id="index-component-${indexName}"] .btn-default`;
+  return `[data-testid="drop-index-button-${indexName}"]`;
 };
 
 // Validation tab

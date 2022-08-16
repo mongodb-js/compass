@@ -7,8 +7,15 @@ import UsageColumn from '../usage-column';
 import PropertyColumn from '../property-column';
 import DropColumn from '../drop-column';
 
-import classnames from 'classnames';
-import styles from './index-component.module.less';
+import { css, spacing, uiColors } from '@mongodb-js/compass-components';
+
+const containerStyles = css({
+  backgroundColor: uiColors.white,
+  boxShadow: '0 2px 10px 0 rgba(0, 0, 0, 0.075)',
+  td: {
+    padding: spacing[3],
+  },
+});
 
 /**
  * Component for the index.
@@ -32,7 +39,7 @@ class IndexComponent extends PureComponent {
   render() {
     return (
       <tr
-        className={classnames(styles['index-component'])}
+        className={containerStyles}
         data-test-id={`index-component-${this.props.index.name}`}
       >
         <NameColumn index={this.props.index} />

@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-
-import classnames from 'classnames';
-import styles from './drop-column.module.less';
+import { IconButton, Icon } from '@mongodb-js/compass-components';
 
 /**
  * Component for the drop column.
@@ -52,15 +50,15 @@ class DropColumn extends PureComponent {
    */
   render() {
     return (
-      <td className={classnames(styles['drop-column'])}>
+      <td>
         {this.isDroppable() ? (
-          <button
-            className="drop-btn btn btn-default btn-sm"
-            type="button"
+          <IconButton
+            aria-label={`Delete Index ${this.props.indexName}`}
             onClick={this.clickDropHandler.bind(this)}
+            data-testid={`drop-index-button-${this.props.indexName}`}
           >
-            <i className="drop-column-icon fa fa-trash-o" />
-          </button>
+            <Icon glyph="Trash" />
+          </IconButton>
         ) : null}
       </td>
     );
