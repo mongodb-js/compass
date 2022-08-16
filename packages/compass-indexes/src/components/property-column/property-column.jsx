@@ -1,4 +1,3 @@
-import map from 'lodash.map';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import getIndexHelpLink from '../../utils/index-link-helper';
@@ -106,8 +105,7 @@ class PropertyColumn extends PureComponent {
   }
 
   render() {
-    const properties = map(
-      this.props.index.properties,
+    const properties = this.props.index.properties.map(
       this.renderProperty.bind(this)
     );
     return (

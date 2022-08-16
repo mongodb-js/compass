@@ -18,6 +18,7 @@ const index = {
   fields: { serialize: () => [] },
   size: 10,
   relativeSize: 10,
+  properties: [],
 };
 
 describe('index-component [Component]', function () {

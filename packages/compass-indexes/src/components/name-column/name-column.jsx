@@ -34,7 +34,7 @@ class NameColumn extends PureComponent {
         <Accordion
           text={indexName}
           data-testid="index-field-name"
-          aria-label={`${indexName}-index`}
+          aria-label={`Show/Hide index ${indexName} keys`}
         >
           <ul className={keyListStyles}>
             {indexKeys.map(({ field, value }) => (
