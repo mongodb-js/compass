@@ -9,11 +9,24 @@ import {
   css,
   spacing,
   useId,
+  uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const toolbarStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
+});
+
+const titleStylesDark = css({
+  color: uiColors.green.light2,
+});
+
+const titleStylesLight = css({
+  color: uiColors.green.dark2,
 });
 
 const toolbarActionStyles = css({
@@ -38,13 +51,17 @@ type ToolbarProps = {
     showFavorites: () => void;
     collapse: () => void;
   }; // Query history actions are not currently typed.
+  darkMode?: boolean;
+  onClose?: () => void;
   showing: 'recent' | 'favorites';
 };
 
-const Toolbar: React.FunctionComponent<ToolbarProps> = ({
+function UnthemedToolbar({
   actions,
+  darkMode,
   showing,
-}) => {
+  onClose,
+}: ToolbarProps): React.ReactElement {
   const onViewSwitch = useCallback(
     (label: 'recent' | 'favorites') => {
       if (label === 'recent') {
@@ -60,13 +77,24 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
     actions.collapse();
   }, [actions]);
 
+  // TODO(COMPASS-5679): After we enable the feature flag,
+  // we can remove the collapsed handler and make `onClose` default required.
+  const onClickClose = useCallback(() => {
+    track('Query History Closed');
+    onClose?.();
+  }, [onClose]);
+
   const labelId = useId();
   const controlId = useId();
 
   return (
     <CompassComponentsToolbar className={toolbarStyles}>
       <div className={toolbarActionStyles}>
-        <Label id={labelId} htmlFor={controlId}>
+        <Label
+          className={darkMode ? titleStylesDark : titleStylesLight}
+          id={labelId}
+          htmlFor={controlId}
+        >
           Queries
         </Label>
         <SegmentedControl
@@ -95,13 +123,15 @@ const Toolbar: React.FunctionComponent<ToolbarProps> = ({
       <IconButton
         className={closeButtonStyles}
         data-testid="query-history-button-close-panel"
-        onClick={onCollapse}
+        onClick={onClose ? onClickClose : onCollapse}
         aria-label="Close query history"
       >
         <Icon glyph="X" />
       </IconButton>
     </CompassComponentsToolbar>
   );
-};
+}
+
+const Toolbar = withTheme(UnthemedToolbar);
 
 export { Toolbar };
