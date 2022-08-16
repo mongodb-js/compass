@@ -14,6 +14,7 @@ const ROLE = {
   configureStore: configureStore,
   configureActions: configureActions,
   storeName: 'Query.History',
+  actionName: 'Query.History.Actions',
 };
 
 /**
@@ -21,7 +22,11 @@ const ROLE = {
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
 function activate(appRegistry: AppRegistry): void {
+  // TODO(COMPASS-5679): After we enable the toolbars feature flag,
+  // we can remove the ScopedModal role for this plugin as it's no longer used.
   appRegistry.registerRole('Collection.ScopedModal', ROLE);
+
+  appRegistry.registerRole('Query.QueryHistory', ROLE);
 }
 
 /**
@@ -30,6 +35,8 @@ function activate(appRegistry: AppRegistry): void {
  **/
 function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('Collection.ScopedModal', ROLE);
+
+  appRegistry.deregisterRole('Query.QueryHistory', ROLE);
 }
 
 export default QueryHistoryPlugin;
