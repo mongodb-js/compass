@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import {
   MongoDBLogoMark,
@@ -72,14 +72,12 @@ const sidebarTitle = css({
   padding: spacing[3],
 });
 
-const sidebarTitleDark = css({
-  '--icon-color': uiColors.gray.dark3,
-  '--icon-color-hover': uiColors.black,
+const iconButtonDark = css({
+  color: uiColors.gray.dark3,
 });
 
-const sidebarTitleLight = css({
-  '--icon-color': 'white',
-  '--icon-color-hover': uiColors.black,
+const iconButtonLight = css({
+  color: 'white',
 });
 
 function SidebarTitle({
@@ -91,7 +89,7 @@ function SidebarTitle({
   title: string;
   isFavorite: boolean;
   isExpanded?: boolean;
-  onAction(actionName: Actions): void;
+  onAction(actionName: Actions, ...rest: any[]): void;
 }) {
   const actions = useMemo(() => {
     const actions: ItemAction<Actions>[] = [];
@@ -119,26 +117,26 @@ function SidebarTitle({
 
   const { theme } = useTheme();
 
+  const onClick = useCallback(() => {
+    onAction('open-instance-workspace', 'My Queries');
+  }, [onAction]);
+
   return (
-    // TODO: https://jira.mongodb.org/browse/COMPASS-5918
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-    <div
-      className={cx(
-        sidebarTitle,
-        theme === Theme.Dark ? sidebarTitleDark : sidebarTitleLight
-      )}
-      onClick={() => onAction('open-instance-workspace')}
-    >
+    <div className={cx(sidebarTitle)} onClick={onClick}>
       <TitleLogo />
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (
         <ItemActionControls<Actions>
-          mode="normal"
+          mode="inherit"
           onAction={onAction}
           actions={actions}
           shouldCollapseActionsToMenu
           isActive={false}
           isHovered={false}
+          iconClassName={
+            theme === Theme.Dark ? iconButtonDark : iconButtonLight
+          }
         ></ItemActionControls>
       )}
     </div>
