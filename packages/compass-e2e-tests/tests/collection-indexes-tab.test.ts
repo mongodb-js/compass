@@ -159,7 +159,9 @@ describe('Collection indexes tab', function () {
       const indexComponent = await browser.$(Selectors.indexComponent('$**_1'));
       await indexComponent.waitForDisplayed();
 
-      const indexFieldTypeSelector = `${Selectors.indexComponent('$**_1')} ${Selectors.IndexFieldType}`;
+      const indexFieldTypeSelector = `${Selectors.indexComponent('$**_1')} ${
+        Selectors.IndexFieldType
+      }`;
       const indexFieldTypeElement = await browser.$(indexFieldTypeSelector);
       expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
     });
