@@ -12,31 +12,21 @@ const iconContainer = css({
 });
 
 const icons = {
+  // the expand/collapse CaretRight and add database icons both use normal so
+  // they don't follow the surrounding text colour
   normal: css({
     color: 'var(--icon-color)',
   }),
-  hovered: css({
-    color: 'var(--hover-icon-color)',
-  }),
+  // item-action-controls usually use hovered, except for the add database one
+  // which is normal. This allows them to not override the standard leafygreen
+  // colour
+  hovered: css({}),
+  // collection, database and nav item icons use inherit so they use the same
+  // colour as the surrounding test. The sidebar title also uses inherit, then
+  // sets a colour on the button.
   inherit: css({
     color: 'inherit',
   }),
-} as const;
-
-const buttons = {
-  normal: css({
-    color: 'var(--icon-color)',
-    ':hover': {
-      color: 'var(--icon-color-hover)',
-    },
-  }),
-  hovered: css({
-    color: 'var(--hover-icon-color)',
-    ':hover': {
-      color: 'var(--hover-icon-color-hover)',
-    },
-  }),
-  inherit: css({}),
 } as const;
 
 export type IconMode = keyof typeof icons;
@@ -59,13 +49,6 @@ const iconButtonSmall = css({
   height: `${spacing[4]}px !important`,
 });
 
-const iconButtonSmallActive = css({
-  color: 'var(--color) !important',
-  ':hover': {
-    color: 'var(--hover-icon-color-hover) !important',
-  },
-});
-
 export const IconButtonSmall = forwardRef<
   HTMLButtonElement,
   {
@@ -74,20 +57,9 @@ export const IconButtonSmall = forwardRef<
     label: string;
     title?: string;
     onClick(evt: React.MouseEvent<HTMLButtonElement>): void;
-    isActive: boolean;
   } & React.HTMLProps<HTMLButtonElement>
 >(function IconButtonSmall(
-  {
-    glyph,
-    mode,
-    label,
-    onClick,
-    isActive,
-    children,
-    title,
-    className,
-    ...rest
-  },
+  { glyph, mode, label, onClick, children, title, className, ...rest },
   ref
 ) {
   return (
@@ -95,18 +67,13 @@ export const IconButtonSmall = forwardRef<
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error leafygreen confuses TS a lot here
       ref={ref}
-      className={cx(
-        iconButtonSmall,
-        isActive && iconButtonSmallActive,
-        buttons[mode],
-        className
-      )}
+      className={cx(iconButtonSmall, className)}
       aria-label={label}
       title={title}
       onClick={onClick}
       {...rest}
     >
-      <SmallIcon role="presentation" glyph={glyph} mode="inherit"></SmallIcon>
+      <SmallIcon role="presentation" glyph={glyph} mode={mode}></SmallIcon>
       {/* Only here to make leafygreen menus work */}
       {children}
     </IconButton>

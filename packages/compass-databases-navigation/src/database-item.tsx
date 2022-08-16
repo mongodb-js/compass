@@ -72,7 +72,7 @@ const databaseItemOldSpacing = css({
 });
 
 const databaseItemNewSpacing = css({
-  paddingLeft: spacing[4],
+  paddingLeft: spacing[2],
 });
 
 const databaseItemLabelOldSpacing = css({
@@ -160,7 +160,6 @@ export const DatabaseItem: React.FunctionComponent<
       posInSet={posInSet}
       isExpanded={isExpanded}
       isActive={isActive}
-      isHovered={isHovered}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
       className={cx(
@@ -174,7 +173,7 @@ export const DatabaseItem: React.FunctionComponent<
         onClick={onExpandButtonClick}
         isExpanded={isExpanded}
       ></ExpandButton>
-      {useNewSidebar && <SmallIcon glyph="Database" mode="normal"></SmallIcon>}
+      {useNewSidebar && <SmallIcon glyph="Database" mode="inherit"></SmallIcon>}
       <ItemLabel
         className={
           useNewSidebar
