@@ -250,7 +250,9 @@ describe('Database collections tab', function () {
 
     await browser.navigateToCollectionTab('test', collectionName, 'Indexes');
 
-    const typeElementSelector = `${Selectors.indexComponent(indexName)} ${Selectors.IndexFieldType}`;
+    const typeElementSelector = `${Selectors.indexComponent(indexName)} ${
+      Selectors.IndexFieldType
+    }`;
     const typeElement = await browser.$(typeElementSelector);
     await typeElement.waitForDisplayed();
     expect(await typeElement.getText()).to.equal('CLUSTERED');
