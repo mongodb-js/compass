@@ -159,15 +159,9 @@ describe('Collection indexes tab', function () {
       const indexComponent = await browser.$(Selectors.indexComponent('$**_1'));
       await indexComponent.waitForDisplayed();
 
-      const indexFieldTypeElement = await browser.$(
-        `${Selectors.indexComponent('$**_1')} ${Selectors.IndexFieldType}`
-      );
-      expect(await indexFieldTypeElement.getText()).to.match(/WILDCARD/);
-
-      const indexFieldTypeDataTip = await indexFieldTypeElement.getAttribute(
-        'data-tip'
-      );
-      expect(indexFieldTypeDataTip).to.include('wildcardProjection');
+      const indexFieldTypeSelector = `${Selectors.indexComponent('$**_1')} ${Selectors.IndexFieldType}`;
+      const indexFieldTypeElement = await browser.$(indexFieldTypeSelector);
+      expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
     });
   });
 
