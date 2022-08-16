@@ -30,7 +30,7 @@ function reducer(state = { tabs: [], ...INITIAL_STATE }, action) {
         isDataLake: action.instance.dataLake.isDataLake,
       };
     case 'reset':
-      return { ...state, ...INITIAL_STATE };
+      return { ...state, ...INITIAL_STATE, appRegistry: state.appRegistry };
     case 'change-tab':
       return { ...state, activeTabId: action.id };
     default:
