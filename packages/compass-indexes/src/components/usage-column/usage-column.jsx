@@ -29,8 +29,8 @@ class UsageColumn extends PureComponent {
     }
     return (
       <span>
-        since&nbsp;
-        {this.props.since ? this.props.since.toDateString() : 'N/A'}
+        (since&nbsp;
+        {this.props.since ? this.props.since.toDateString() : 'N/A'})
       </span>
     );
   }
@@ -45,7 +45,7 @@ class UsageColumn extends PureComponent {
             <span {...props}>
               {children}
               <Body>
-                {usage}&nbsp;({this.renderSince()})
+                {usage}&nbsp;{this.renderSince()}
               </Body>
             </span>
           )}
