@@ -1,5 +1,3 @@
-import map from 'lodash.map';
-import pick from 'lodash.pick';
 import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
 import { Tooltip, Body } from '@mongodb-js/compass-components';
@@ -19,16 +17,19 @@ type TypeFieldProps = {
 const IndexTypeTooltip: React.FunctionComponent<{
   extra: IndexModel['extra'];
 }> = ({ extra }) => {
-  const info = pick(extra, [
+  const allowedProps = [
     'weights',
     'default_language',
     'language_override',
     'wildcardProjection',
     'columnstoreProjection',
-  ]);
-  const items = map(info, (v: unknown, k: string) => {
-    return <Body key={k}>{`${k}: ${JSON.stringify(v)}`}</Body>;
-  });
+  ];
+  const items: JSX.Element[] = [];
+  for (const k in extra) {
+    if (allowedProps.includes(k)) {
+      items.push(<Body key={k}>{`${k}: ${JSON.stringify(extra[k])}`}</Body>);
+    }
+  }
   return <>{items}</>;
 };
 

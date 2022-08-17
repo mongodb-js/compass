@@ -7,7 +7,6 @@ import {
   Cell,
   cx,
 } from '@mongodb-js/compass-components';
-import type { IndexDirection } from 'mongodb';
 
 import NameField from './name-field';
 import TypeField from './type-field';
@@ -33,7 +32,7 @@ const deletFieldStyles = css({
 export type IndexModel = {
   name: string;
   fields: {
-    serialize: () => { field: string; value: IndexDirection }[];
+    serialize: () => { field: string; value: number | string }[];
   };
   type: 'geo' | 'hashed' | 'text' | 'wildcard' | 'clustered' | 'columnstore';
   cardinality: 'single' | 'compound';
