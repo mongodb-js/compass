@@ -8,7 +8,6 @@ import {
   cx,
 } from '@mongodb-js/compass-components';
 import type { IndexDirection } from 'mongodb';
-import type AppRegistry from 'hadron-app-registry';
 
 import NameField from './name-field';
 import TypeField from './type-field';
@@ -39,7 +38,7 @@ export type IndexModel = {
   type: 'geo' | 'hashed' | 'text' | 'wildcard' | 'clustered' | 'columnstore';
   cardinality: 'single' | 'compound';
   properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
-  extra: Record<string, string | number | JSON>;
+  extra: Record<string, string | number | Record<string, any>>;
   size: number;
   relativeSize: number;
   usageCount?: number;
@@ -48,18 +47,16 @@ export type IndexModel = {
 
 type IndexesTableProps = {
   indexes: IndexModel[];
-  isReadonly: boolean;
-  isWritable: boolean;
-  localAppRegistry: AppRegistry;
+  canDeleteIndex: boolean;
   onSortTable: (name: string, direction: 'asc' | 'desc') => void;
+  onDeleteIndex: (name: string) => void;
 };
 
 export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   indexes,
-  isReadonly,
-  isWritable,
-  localAppRegistry,
+  canDeleteIndex,
   onSortTable,
+  onDeleteIndex,
 }) => {
   const columns = useMemo(() => {
     const _columns = [
@@ -81,11 +78,11 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
       );
     });
     // The delete column
-    if (!isReadonly && isWritable) {
+    if (canDeleteIndex) {
       _columns.push(<TableHeader label={''} />);
     }
     return _columns;
-  }, [isReadonly, isWritable, onSortTable]);
+  }, [canDeleteIndex, onSortTable]);
 
   return (
     <Table
@@ -120,18 +117,12 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
             />
           </Cell>
           {/* Delete column is conditional */}
-          {index.name !== '_id_' && isWritable && !isReadonly && (
+          {index.name !== '_id_' && canDeleteIndex && (
             <Cell data-testid="index-drop-field">
               <div className={cx(deletFieldStyles, 'delete-cell')}>
                 <DropField
                   name={index.name}
-                  onDelete={() =>
-                    localAppRegistry.emit(
-                      'toggle-drop-index-modal',
-                      true,
-                      index.name
-                    )
-                  }
+                  onDelete={() => onDeleteIndex(index.name)}
                 />
               </div>
             </Cell>

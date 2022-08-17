@@ -174,7 +174,7 @@ export const loadIndexes = (indexes) => ({
 export const sortIndexes = (column, order) => {
   return (dispatch, getState) => {
     const { indexes } = getState();
-    dispatch({
+    return dispatch({
       type: SORT_INDEXES,
       indexes,
       column,

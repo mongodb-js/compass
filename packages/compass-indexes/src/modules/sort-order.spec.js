@@ -7,9 +7,11 @@ describe('sort order module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new order', function () {
-        expect(reducer(undefined, sortIndexes(null, '', 'desc'))).to.equal(
-          'desc'
-        );
+        const dispatch = (x) => x;
+        const getState = () => ({});
+        expect(
+          reducer(undefined, sortIndexes('', 'desc')(dispatch, getState))
+        ).to.equal('desc');
       });
     });
 

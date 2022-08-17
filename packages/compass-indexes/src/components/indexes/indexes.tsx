@@ -40,6 +40,9 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   localAppRegistry,
   onSortTable,
 }) => {
+  const onDeleteIndex = (name: string) => {
+    return localAppRegistry.emit('toggle-drop-index-modal', true, name);
+  };
   return (
     <Card className={containerStyles} data-testid="indexes">
       <IndexesToolbar
@@ -53,10 +56,9 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
       {!isReadonlyView && !error && (
         <IndexesTable
           indexes={indexes}
-          isReadonly={isReadonly}
-          isWritable={isWritable}
-          localAppRegistry={localAppRegistry}
+          canDeleteIndex={isWritable && !isReadonly}
           onSortTable={onSortTable}
+          onDeleteIndex={onDeleteIndex}
         />
       )}
     </Card>

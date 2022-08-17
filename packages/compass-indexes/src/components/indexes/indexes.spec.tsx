@@ -62,7 +62,7 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [
         {
-          cardinality: 'compound',
+          cardinality: 'single',
           name: '_id_',
           size: 12,
           relativeSize: 20,

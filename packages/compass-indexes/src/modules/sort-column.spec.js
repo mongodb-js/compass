@@ -7,9 +7,11 @@ describe('sort column module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new column', function () {
-        expect(reducer(undefined, sortIndexes(null, 'Size', ''))).to.equal(
-          'Size'
-        );
+        const dispatch = (x) => x;
+        const getState = () => ({});
+        expect(
+          reducer(undefined, sortIndexes('Size', '')(dispatch, getState))
+        ).to.equal('Size');
       });
     });
 
