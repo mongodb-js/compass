@@ -17,8 +17,6 @@ import UsageField from './usage-field';
 import PropertyField from './property-field';
 import DropField from './drop-field';
 
-const tableCellStyles = css({});
-
 // When row is hovered, we show the delete button
 const rowStyles = css({
   ':hover': {
@@ -90,26 +88,31 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   }, [isReadonly, isWritable, onSortTable]);
 
   return (
-    <Table data={indexes} columns={columns} data-testid="indexes-list">
+    <Table
+      data={indexes}
+      columns={columns}
+      data-testid="indexes-list"
+      aria-label="Indexes List Table"
+    >
       {({ datum: index }) => (
         <Row
           key={index.name}
           data-testid={`index-row-${index.name}`}
           className={rowStyles}
         >
-          <Cell className={tableCellStyles} data-testid="index-name-field">
+          <Cell data-testid="index-name-field">
             <NameField name={index.name} keys={index.fields.serialize()} />
           </Cell>
-          <Cell className={tableCellStyles} data-testid="index-type-field">
+          <Cell data-testid="index-type-field">
             <TypeField type={index.type} extra={index.extra} />
           </Cell>
-          <Cell className={tableCellStyles} data-testid="index-size-field">
+          <Cell data-testid="index-size-field">
             <SizeField size={index.size} relativeSize={index.relativeSize} />
           </Cell>
-          <Cell className={tableCellStyles} data-testid="index-usage-field">
+          <Cell data-testid="index-usage-field">
             <UsageField usage={index.usageCount} since={index.usageSince} />
           </Cell>
-          <Cell className={tableCellStyles} data-testid="index-property-field">
+          <Cell data-testid="index-property-field">
             <PropertyField
               cardinality={index.cardinality}
               extra={index.extra}
@@ -118,7 +121,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
           </Cell>
           {/* Delete column is conditional */}
           {index.name !== '_id_' && isWritable && !isReadonly && (
-            <Cell className={tableCellStyles} data-testid="index-drop-field">
+            <Cell data-testid="index-drop-field">
               <div className={cx(deletFieldStyles, 'delete-cell')}>
                 <DropField
                   name={index.name}
