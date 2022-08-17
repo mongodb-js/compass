@@ -5,10 +5,8 @@ import {
   TableHeader,
   Row,
   Cell,
-  spacing,
 } from '@mongodb-js/compass-components';
 import type { IndexDirection } from 'mongodb';
-import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
 
 import NameField from './name-field';
@@ -18,11 +16,7 @@ import UsageField from './usage-field';
 import PropertyField from './property-field';
 import DropField from './drop-field';
 
-import { sortIndexes } from '../../modules/indexes';
-
-const tableCellStyles = css({
-  padding: spacing[3],
-});
+const tableCellStyles = css({});
 
 // todo: move to redux store when converting that to ts
 export type IndexModel = {
@@ -124,20 +118,3 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
     </Table>
   );
 };
-
-const mapState = ({
-  indexes,
-  isReadonly,
-  isWritable,
-  appRegistry: { localAppRegistry },
-}: any) => ({
-  indexes,
-  isReadonly,
-  isWritable,
-  localAppRegistry,
-});
-
-const mapDispatch = {
-  onSortTable: sortIndexes,
-};
-export default connect(mapState, mapDispatch)(IndexesTable as any);
