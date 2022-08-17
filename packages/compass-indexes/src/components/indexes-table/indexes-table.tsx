@@ -5,6 +5,7 @@ import {
   TableHeader,
   Row,
   Cell,
+  cx,
 } from '@mongodb-js/compass-components';
 import type { IndexDirection } from 'mongodb';
 import type AppRegistry from 'hadron-app-registry';
@@ -17,6 +18,19 @@ import PropertyField from './property-field';
 import DropField from './drop-field';
 
 const tableCellStyles = css({});
+
+// When row is hovered, we show the delete button
+const rowStyles = css({
+  ':hover': {
+    '.delete-cell': {
+      visibility: 'visible',
+    },
+  },
+});
+// When row is not hovered, we hide the delete button
+const deletFieldStyles = css({
+  visibility: 'hidden',
+});
 
 // todo: move to redux store when converting that to ts
 export type IndexModel = {
@@ -78,7 +92,11 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   return (
     <Table data={indexes} columns={columns} data-testid="index-list">
       {({ datum: index }) => (
-        <Row key={index.name} data-testid={`index-row-${index.name}`}>
+        <Row
+          key={index.name}
+          data-testid={`index-row-${index.name}`}
+          className={rowStyles}
+        >
           <Cell className={tableCellStyles} data-testid="index-name-field">
             <NameField name={index.name} keys={index.fields.serialize()} />
           </Cell>
@@ -101,16 +119,18 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
           {/* Delete column is conditional */}
           {index.name !== '_id_' && isWritable && !isReadonly && (
             <Cell className={tableCellStyles} data-testid="index-drop-field">
-              <DropField
-                name={index.name}
-                onDelete={() =>
-                  localAppRegistry.emit(
-                    'toggle-drop-index-modal',
-                    true,
-                    index.name
-                  )
-                }
-              />
+              <div className={cx(deletFieldStyles, 'delete-cell')}>
+                <DropField
+                  name={index.name}
+                  onDelete={() =>
+                    localAppRegistry.emit(
+                      'toggle-drop-index-modal',
+                      true,
+                      index.name
+                    )
+                  }
+                />
+              </div>
             </Cell>
           )}
         </Row>
