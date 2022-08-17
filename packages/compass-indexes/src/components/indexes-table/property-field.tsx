@@ -25,7 +25,6 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
 }> = ({ text, link, tooltip }) => {
   return (
     <Tooltip
-      key={text}
       enabled={!!tooltip}
       trigger={({ children, ...props }) => (
         <span {...props}>

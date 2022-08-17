@@ -10,6 +10,7 @@ type UsageFieldProps = {
   since?: Date;
 };
 
+const nbsp = '\u00a0';
 const UsageField: React.FunctionComponent<UsageFieldProps> = ({
   usage,
   since,
@@ -20,12 +21,8 @@ const UsageField: React.FunctionComponent<UsageFieldProps> = ({
         <span {...props}>
           {children}
           <Body>
-            {usage || 0}&nbsp;(
-            <span>
-              since&nbsp;
-              {since ? since.toDateString() : 'N/A'}
-            </span>
-            )
+            {usage || 0}
+            {nbsp}(<>{since ? `since ${since.toDateString()}` : 'N/A'}</>)
           </Body>
         </span>
       )}

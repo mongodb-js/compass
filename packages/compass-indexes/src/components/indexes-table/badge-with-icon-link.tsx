@@ -32,7 +32,11 @@ const BadgeWithIconLink: React.FunctionComponent<BadgeWithIconLinkProps> = ({
   link,
 }) => {
   return (
-    <Badge variant={BadgeVariant.DarkGray} className={badgeStyles}>
+    <Badge
+      variant={BadgeVariant.DarkGray}
+      className={badgeStyles}
+      data-testid={`${text}-badge`}
+    >
       {text}
       <Link
         hideExternalIcon
