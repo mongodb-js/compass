@@ -30,10 +30,8 @@ const HELP_URLS = {
  * The function looks up index help links.
  *
  * @param {String} section - The name of the section to open.
- * @returns {String} - the link.
  */
-function getIndexHelpLink(section: keyof typeof HELP_URLS) {
+export default function getIndexHelpLink(section: keyof typeof HELP_URLS) {
   return HELP_URLS[section] || null;
 }
 
-module.exports = getIndexHelpLink;

@@ -25,8 +25,8 @@ export const SORT_INDEXES = `${PREFIX}/indexes/SORT_INDEXES`;
  * Default sortOrder
  */
 export const DEFAULT = 'Name and Definition';
-export const ASC = 'fa-sort-asc';
-export const DESC = 'fa-sort-desc';
+export const ASC = 'asc';
+export const DESC = 'desc';
 export const USAGE = 'Usage';
 
 /**
@@ -171,21 +171,17 @@ export const loadIndexes = (indexes) => ({
   indexes: indexes,
 });
 
-/**
- * Action creator for sort indexes events.
- *
- * @param {Array} indexes - The raw indexes list.
- * @param {String} column - The column.
- * @param {String} order - The order.
- *
- * @returns {Object} The load indexes action.
- */
-export const sortIndexes = (indexes, column, order) => ({
-  type: SORT_INDEXES,
-  indexes: indexes,
-  column: column,
-  order: order,
-});
+export const sortIndexes = (column, order) => {
+  return (dispatch, getState) => {
+    const { indexes } = getState();
+    dispatch({
+      type: SORT_INDEXES,
+      indexes,
+      column,
+      order,
+    });
+  };
+};
 
 /**
  * Load indexes from DB.
