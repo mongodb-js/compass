@@ -34,4 +34,3 @@ const HELP_URLS = {
 export default function getIndexHelpLink(section: keyof typeof HELP_URLS) {
   return HELP_URLS[section] || null;
 }
-
