@@ -44,7 +44,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const showCreateIndexButton = !isReadonly && !isReadonlyView && !errorMessage;
 
   return (
-    <Toolbar className={toolbarStyles}>
+    <Toolbar className={toolbarStyles} data-testid="indexes-toolbar">
       {showCreateIndexButton ? (
         <Tooltip
           enabled={!isWritable}

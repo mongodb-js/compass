@@ -24,7 +24,7 @@ type IndexesProps = {
   isWritable: boolean;
   isReadonly: boolean;
   isReadonlyView: boolean;
-  description: string;
+  description?: string;
   error?: string;
   localAppRegistry: AppRegistry;
   onSortTable: (name: string, direction: 'asc' | 'desc') => void;
@@ -41,7 +41,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   onSortTable,
 }) => {
   return (
-    <Card className={containerStyles}>
+    <Card className={containerStyles} data-testid="indexes">
       <IndexesToolbar
         isWritable={isWritable}
         isReadonly={isReadonly}
