@@ -90,7 +90,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   }, [isReadonly, isWritable, onSortTable]);
 
   return (
-    <Table data={indexes} columns={columns} data-testid="index-list">
+    <Table data={indexes} columns={columns} data-testid="indexes-list">
       {({ datum: index }) => (
         <Row
           key={index.name}

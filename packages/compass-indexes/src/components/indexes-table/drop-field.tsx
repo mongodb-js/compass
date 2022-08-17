@@ -14,7 +14,7 @@ const DropField: React.FunctionComponent<DropFieldProps> = ({
     <IconButton
       aria-label={`Drop Index ${name}`}
       onClick={onDelete}
-      data-testid="index-drop-button"
+      data-testid="drop-index-button"
     >
       <Icon glyph="Trash" />
     </IconButton>

@@ -20,6 +20,10 @@ const keyItemStyles = css({
   paddingLeft: spacing[4],
 });
 
+const badgeStyles = css({
+  gap: spacing[1],
+});
+
 type NameFieldProps = {
   name: string;
   keys: ReturnType<IndexModel['fields']['serialize']>;
@@ -34,9 +38,9 @@ const NameField: React.FunctionComponent<NameFieldProps> = ({ name, keys }) => {
             <Badge
               data-testid={`${field}-key`}
               variant={BadgeVariant.LightGray}
+              className={badgeStyles}
             >
               {field}
-              &nbsp;
               <IndexIcon direction={value} />
             </Badge>
           </li>
