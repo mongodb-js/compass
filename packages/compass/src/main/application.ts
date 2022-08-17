@@ -52,8 +52,6 @@ class CompassApplication {
   }
 
   private static setupJavaScriptArguments(): void {
-    // Enable ES6 features
-    app.commandLine.appendSwitch('js-flags', '--harmony');
     // For Linux users with drivers that are avoided by Chromium we disable the
     // GPU check to attempt to bypass the disabled WebGL settings.
     app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
