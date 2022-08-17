@@ -21,6 +21,12 @@ const toolbarStyles = css({
   justifyContent: 'space-between',
 });
 
+const titleStyles = css({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
 const titleStylesDark = css({
   color: uiColors.green.light2,
 });
@@ -30,6 +36,7 @@ const titleStylesLight = css({
 });
 
 const toolbarActionStyles = css({
+  overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
   padding: spacing[3],
@@ -51,6 +58,9 @@ type ToolbarProps = {
     showFavorites: () => void;
     collapse: () => void;
   }; // Query history actions are not currently typed.
+  namespace: {
+    ns: string;
+  };
   darkMode?: boolean;
   onClose?: () => void;
   showing: 'recent' | 'favorites';
@@ -59,6 +69,7 @@ type ToolbarProps = {
 function UnthemedToolbar({
   actions,
   darkMode,
+  namespace,
   showing,
   onClose,
 }: ToolbarProps): React.ReactElement {
@@ -90,12 +101,14 @@ function UnthemedToolbar({
   return (
     <CompassComponentsToolbar className={toolbarStyles}>
       <div className={toolbarActionStyles}>
-        <Label
-          className={darkMode ? titleStylesDark : titleStylesLight}
-          id={labelId}
-          htmlFor={controlId}
-        >
-          Queries
+        <Label className={titleStyles} id={labelId} htmlFor={controlId}>
+          Queries in{' '}
+          <span
+            className={darkMode ? titleStylesDark : titleStylesLight}
+            title={namespace.ns}
+          >
+            {namespace.ns}
+          </span>
         </Label>
         <SegmentedControl
           className={viewSwitcherStyles}

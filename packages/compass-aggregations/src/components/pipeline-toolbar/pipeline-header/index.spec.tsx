@@ -23,6 +23,7 @@ describe('PipelineHeader', function () {
           isOpenPipelineVisible
           isSavedPipelineVisible={false}
           isOptionsVisible
+          namespace="test.pineapple"
           savedPipelines={[]}
           showRunButton
           showExportButton

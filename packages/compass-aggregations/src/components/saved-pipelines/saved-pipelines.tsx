@@ -7,7 +7,8 @@ import {
   Toolbar,
   uiColors,
   compassUIColors,
-  Body
+  Body,
+  withTheme
 } from '@mongodb-js/compass-components';
 
 import SavePipelineCard from './save-pipeline-card/save-pipeline-card';
@@ -24,6 +25,16 @@ const savedPipelinesStyles = css({
 
 const toolbarTitleStyles = css({
   fontWeight: 'bold',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+const titleStylesDark = css({
+  color: uiColors.green.light2,
+});
+
+const titleStylesLight = css({
   color: uiColors.green.dark2,
 });
 
@@ -34,6 +45,7 @@ const toolbarStyles = css({
 });
 
 const toolbarContentStyles = css({
+  overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
   padding: spacing[3],
@@ -55,20 +67,24 @@ const emptyMessageStyles = css({
 });
 
 type SavedPipelinesProps = {
+  darkMode?: boolean;
   deletePipeline: (pipelineId: string) => void;
+  namespace: string;
   onSetShowSavedPipelines: (show: boolean) => void;
   restorePipelineFrom: (pipelineId: string) => void;
   restorePipelineModalToggle: (index: number) => void;
   savedPipelines: Pipeline[];
 }
 
-const SavedPipelines: React.FunctionComponent<SavedPipelinesProps> = ({
+function UnthemedSavedPipelines({
+  darkMode,
+  namespace,
   restorePipelineModalToggle,
   restorePipelineFrom,
   deletePipeline,
   onSetShowSavedPipelines,
   savedPipelines,
-}) => {
+}: SavedPipelinesProps) {
   return (
     <div className={savedPipelinesStyles}>
       <Toolbar className={toolbarStyles}>
@@ -77,7 +93,11 @@ const SavedPipelines: React.FunctionComponent<SavedPipelinesProps> = ({
             className={toolbarTitleStyles}
             id="saved-pipeline-header-title"
           >
-            Saved Pipelines
+            Saved Pipelines in <span
+              className={darkMode ? titleStylesDark : titleStylesLight}
+              data-testid="saved-pipeline-header-title-namespace"
+              title={namespace}
+            >{namespace}</span>
           </Body>
         </div>
         <IconButton
@@ -111,6 +131,8 @@ const SavedPipelines: React.FunctionComponent<SavedPipelinesProps> = ({
       </div>
     </div>
   );
-}
+};
+
+const SavedPipelines = withTheme(UnthemedSavedPipelines);
 
 export { SavedPipelines };
