@@ -2,7 +2,7 @@ import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { TextInput } from '@mongodb-js/compass-components';
+import { TextInput } from './leafygreen';
 import { render, screen, cleanup } from '@testing-library/react';
 
 import { CollapsibleFieldSet } from './collapsible-field-set';
