@@ -65,7 +65,6 @@ describe('Collection indexes tab', function () {
       Selectors.CreateIndexModalFieldTypeSelectButton(0)
     );
     await fieldTypeSelect.waitForDisplayed();
-
     await fieldTypeSelect.click();
 
     const fieldTypeSelectMenu = await browser.$(

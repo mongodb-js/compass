@@ -351,3 +351,10 @@ export const menuMessage = css`
     height: 1em;
   }
 `;
+
+export const popoverStyle = () => css`
+  overflow: hidden;
+  top: auto;
+  left: auto;
+  box-shadow: 0 3px 7px 0 rgba(6, 22, 33, 0.3);
+`;

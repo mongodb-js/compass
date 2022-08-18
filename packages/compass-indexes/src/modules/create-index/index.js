@@ -20,6 +20,9 @@ import inProgress, {
 import isCustomCollation, {
   INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE,
 } from '../create-index/is-custom-collation';
+import hasIndexName, {
+  INITIAL_STATE as HAS_INDEX_NAME_INITIAL_STATE,
+} from '../create-index/has-index-name';
 import isVisible, {
   toggleIsVisible,
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
@@ -30,9 +33,6 @@ import collationString, {
 import fields, {
   INITIAL_STATE as FIELDS_INITIAL_STATE,
 } from '../create-index/fields';
-import showOptions, {
-  INITIAL_STATE as SHOW_OPTIONS_INITIAL_STATE,
-} from '../create-index/show-options';
 import isUnique, {
   INITIAL_STATE as IS_UNIQUE_INITIAL_STATE,
 } from '../create-index/is-unique';
@@ -82,9 +82,9 @@ const reducer = combineReducers({
   fields,
   inProgress,
   isCustomCollation,
+  hasIndexName,
   schemaFields,
   newIndexField,
-  showOptions,
   isVisible,
   error,
   isUnique,
@@ -117,7 +117,7 @@ const rootReducer = (state, action) => {
       fields: FIELDS_INITIAL_STATE,
       inProgress: IN_PROGRESS_INITIAL_STATE,
       isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
-      showOptions: SHOW_OPTIONS_INITIAL_STATE,
+      hasIndexName: HAS_INDEX_NAME_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
       error: ERROR_INITIAL_STATE,
       isUnique: IS_UNIQUE_INITIAL_STATE,
