@@ -28,6 +28,19 @@ const OUTDATED_WARNING = `The content is outdated and no longer in sync
 with the current query. Press "Find" again to see the results for
 the current query.`;
 
+// From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L86
+const ERROR_CODE_OPERATION_TIMED_OUT = 50;
+
+const INCREASE_MAX_TIME_MS_HINT =
+  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
+
+function isOperationTimedOutError(err) {
+  return (
+    err.name === 'MongoServerError' &&
+    err.code?.value === ERROR_CODE_OPERATION_TIMED_OUT
+  );
+}
+
 /**
  * Component for the entire document list.
  */
@@ -119,7 +132,11 @@ class DocumentList extends React.Component {
    */
   renderContent() {
     if (this.props.error) {
-      return <StatusRow style="error">{this.props.error.message}</StatusRow>;
+      const errorMessage = isOperationTimedOutError(this.props.error)
+        ? INCREASE_MAX_TIME_MS_HINT
+        : this.props.error.message;
+
+      return <StatusRow style="error">{errorMessage}</StatusRow>;
     }
 
     if (
