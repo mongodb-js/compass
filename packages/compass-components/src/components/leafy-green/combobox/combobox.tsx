@@ -1162,7 +1162,7 @@ export default function Combobox<M extends boolean>({
             popoverStyle(),
             menuWrapperStyle({ darkMode, size, width: menuWidth })
           )}
-          usePortal={false}
+          usePortal={false} // combobox@0.9.0 does not have implemented functionality for usePortal yet.
           popoverZIndex={999999}
         >
           <div

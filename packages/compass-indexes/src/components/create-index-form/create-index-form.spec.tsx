@@ -2,12 +2,11 @@ import React from 'react';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
+import sinon from 'sinon';
 
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 
 import CreateIndexForm from '../create-index-form';
-
-import sinon from 'sinon';
 
 describe('CreateIndexForm Component', function () {
   let toggleIsVisibleSpy;

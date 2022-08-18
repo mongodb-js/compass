@@ -352,6 +352,7 @@ export const menuMessage = css`
   }
 `;
 
+// Show combobox menu under the input workaround when usePortal=false.
 export const popoverStyle = () => css`
   overflow: hidden;
   top: auto;

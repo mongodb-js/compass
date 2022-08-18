@@ -18,7 +18,7 @@ import {
 const INDEX_TYPES = ['1 (asc)', '-1 (desc)', '2dsphere', 'text', 'columnstore'];
 
 /**
- * Default values for field name and type as presented in the UI
+ * Default values for field name and type as presented in the UI.
  */
 const DEFAULT_FIELD = {
   name: 'Select or type a field name',

@@ -68,21 +68,30 @@ class CreateIndexModal extends PureComponent<
   }
 
   /**
-   * Close modal and fire clear create index form action.
+   * Close modal and fire clear index form action.
    */
   handleClose() {
     this.props.toggleIsVisible(false);
     this.props.resetForm();
   }
 
+  /**
+   * Close modal and fire create index form action.
+   */
   onConfirm = () => {
     this.props.createIndex();
   };
 
+  /**
+   * Close modal and fire toggle is visible form action.
+   */
   onCancel = () => {
     return this.props.toggleIsVisible(false);
   };
 
+  /**
+   * Render an error banner.
+   */
   renderError() {
     if (!this.props.error) {
       return;
@@ -100,6 +109,9 @@ class CreateIndexModal extends PureComponent<
     );
   }
 
+  /**
+   * Render in progress banner.
+   */
   renderInProgress() {
     if (!this.props.error || !this.props.inProgress) {
       return;

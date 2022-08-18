@@ -185,9 +185,9 @@ class CreateIndexForm extends Component<CreateIndexProps> {
   }
 
   /**
-   * Render the create index modal.
+   * Render the create index form.
    *
-   * @returns {React.Component} The create index modal.
+   * @returns {React.Component} The create index form.
    */
   render() {
     return (
