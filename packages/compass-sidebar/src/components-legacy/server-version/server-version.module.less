@@ -1,0 +1,22 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.server-version {
+  background-color: inherit;
+  display: flex;
+  flex-direction: column;
+  font-family: "Euclid Circular A", "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 6px 24px 6px 24px;
+
+  &-edition {
+    text-transform: uppercase;
+    color: @gray5;
+    font-weight: bold;
+    font-size: 11px;
+  }
+
+  &-text {
+    color: @pw;
+    text-overflow: ellipsis;
+    font-size: 14px;
+  }
+}

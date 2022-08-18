@@ -1,0 +1,22 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.ssh-tunnel-status {
+  background: inherit;
+  display: flex;
+  flex-direction: column;
+  font-family: "Euclid Circular A", "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  padding: 6px 24px 6px 12px;
+
+  &-label {
+    text-transform: uppercase;
+    color: @gray5;
+    font-weight: bold;
+    font-size: 11px;
+  }
+
+  &-string {
+    color: @pw;
+    text-overflow: ellipsis;
+    font-size: 14px;
+  }
+}

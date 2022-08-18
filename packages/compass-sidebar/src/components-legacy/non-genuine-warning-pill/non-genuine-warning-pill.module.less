@@ -1,0 +1,22 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+.non-genuine-warning-pill {
+  display: flex;
+  flex-direction: row;
+  font-family: "Euclid Circular A", "Akzidenz", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  padding: 0px 0px 12px 36px;
+  align-items: center;
+  justify-content: left;
+
+  &-text {
+    background-color: @yellow;
+    text-transform: uppercase;
+    color: @gray1;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 0 8px;
+    margin-right: 5px;
+    font-weight: bold;
+  }
+}
