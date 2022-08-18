@@ -5,6 +5,12 @@ const NO_USAGE_STATS =
   'Either the server does not support the $indexStats command' +
   'or the user is not authorized to execute it.';
 
+export const getUsageTooltip = (usage?: number): string => {
+  return !usage
+    ? NO_USAGE_STATS
+    : `${usage} index hits since index creation or last server restart`;
+};
+
 type UsageFieldProps = {
   usage?: number;
   since?: Date;
@@ -27,11 +33,7 @@ const UsageField: React.FunctionComponent<UsageFieldProps> = ({
         </span>
       )}
     >
-      <Body>
-        {!usage
-          ? NO_USAGE_STATS
-          : `${usage} index hits since index creation or last server restart`}
-      </Body>
+      <Body>{getUsageTooltip(usage)}</Body>
     </Tooltip>
   );
 };

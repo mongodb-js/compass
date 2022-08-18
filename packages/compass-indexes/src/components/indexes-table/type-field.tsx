@@ -5,7 +5,7 @@ import { Tooltip, Body } from '@mongodb-js/compass-components';
 import type { IndexModel } from './indexes-table';
 import BadgeWithIconLink from './badge-with-icon-link';
 
-const canRenderTooltip = (type: IndexModel['type']) => {
+export const canRenderTooltip = (type: IndexModel['type']) => {
   return ['text', 'wildcard', 'columnstore'].indexOf(type) !== -1;
 };
 
@@ -14,7 +14,7 @@ type TypeFieldProps = {
   extra: IndexModel['extra'];
 };
 
-const IndexTypeTooltip: React.FunctionComponent<{
+export const IndexTypeTooltip: React.FunctionComponent<{
   extra: IndexModel['extra'];
 }> = ({ extra }) => {
   const allowedProps = [

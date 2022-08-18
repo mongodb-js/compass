@@ -18,6 +18,17 @@ const ttlTooltip = (expireAfterSeconds: number) => {
   return `expireAfterSeconds: ${expireAfterSeconds}`;
 };
 
+export const getPropertyTooltip = (
+  property: IndexModel['properties'][0],
+  extra: IndexModel['extra']
+): string | null => {
+  return property === 'ttl'
+    ? ttlTooltip(extra.expireAfterSeconds as number)
+    : property === 'partial'
+    ? partialTooltip(extra.partialFilterExpression as JSON)
+    : null;
+};
+
 const PropertyBadgeWithTooltip: React.FunctionComponent<{
   text: string;
   link: string;
@@ -52,20 +63,13 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   return (
     <div className={containerStyles}>
       {properties.map((property) => {
-        const tooltip =
-          property === 'ttl'
-            ? ttlTooltip(extra.expireAfterSeconds as number)
-            : property === 'partial'
-            ? partialTooltip(extra.partialFilterExpression as JSON)
-            : null;
-
         return (
           <PropertyBadgeWithTooltip
             key={property}
             text={property}
             // todo: align index types across
             link={getIndexHelpLink(property.toUpperCase() as any) ?? '#'}
-            tooltip={tooltip}
+            tooltip={getPropertyTooltip(property, extra)}
           />
         );
       })}

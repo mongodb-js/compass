@@ -7,27 +7,29 @@ type SizeFieldProps = {
   relativeSize: number;
 };
 
-const format = (size: number) => {
+export const formatSize = (size: number) => {
   const precision = size <= 1000 ? '0' : '0.0';
   return numeral(size).format(precision + ' b');
+};
+
+export const getSizeTooltip = (relativeSize: number): string => {
+  return `${relativeSize.toFixed(2)}% compared to largest index`;
 };
 
 const SizeField: React.FunctionComponent<SizeFieldProps> = ({
   relativeSize,
   size,
 }) => {
-  const indexSize = format(size);
-  const tooltip = `${relativeSize.toFixed(2)}% compared to largest index`;
   return (
     <Tooltip
       trigger={({ children, ...props }) => (
         <span {...props}>
           {children}
-          <Body>{indexSize}</Body>
+          <Body>{formatSize(size)}</Body>
         </span>
       )}
     >
-      <Body>{tooltip}</Body>
+      <Body>{getSizeTooltip(relativeSize)}</Body>
     </Tooltip>
   );
 };
