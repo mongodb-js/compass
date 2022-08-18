@@ -86,7 +86,8 @@ class CreateIndexModal extends PureComponent<
    * Close modal and fire toggle is visible form action.
    */
   onCancel = () => {
-    return this.props.toggleIsVisible(false);
+    this.props.resetForm();
+    this.props.toggleIsVisible(false);
   };
 
   /**

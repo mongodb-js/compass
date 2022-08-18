@@ -229,7 +229,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
           >
             <Icon glyph="Plus" />
           </IconButton>
-          {this.props.schemaFields.length > 1 && (
+          {this.props.fields.length > 1 && (
             <IconButton
               className={hostActionButtonStyles}
               aria-label="Remove index field"

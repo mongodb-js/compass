@@ -72,7 +72,7 @@ export const updateFieldName = (idx, name) => {
     const fields = [...state.fields];
     if (idx >= 0 && idx < state.fields.length) {
       // check if field name exists
-      if (state.fields.some((field) => field.name === name)) {
+      if (state.fields.filter((field) => field.name === name).length > 1) {
         dispatch(handleError('Index keys must be unique'));
         return;
       }
