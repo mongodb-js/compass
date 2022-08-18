@@ -40,7 +40,7 @@ describe('TypeField', function () {
 
   describe('IndexTypeTooltip Component', function () {
     it('renders allowed props in tooltip', function () {
-      const extras = {
+      const extras: any = {
         weights: 20,
         default_language: 'de',
         language_override: 'en',
@@ -57,7 +57,7 @@ describe('TypeField', function () {
     });
 
     it('does not render disallowed props in tooltip', function () {
-      const extras = {
+      const extras: any = {
         expireAfterSeconds: 200,
         partialFilterExpression: { _id: true },
       };

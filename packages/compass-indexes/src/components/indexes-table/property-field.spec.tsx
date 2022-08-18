@@ -80,7 +80,7 @@ describe('PropertyField', function () {
 
     it('returns null for unsupported properties', function () {
       ['unique', 'sparse', 'collation'].forEach(
-        (prop) => expect(getPropertyTooltip(prop, {})).to.be.null
+        (prop) => expect(getPropertyTooltip(prop as any, {})).to.be.null
       );
     });
   });
