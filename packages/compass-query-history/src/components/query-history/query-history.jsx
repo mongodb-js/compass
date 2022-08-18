@@ -62,7 +62,7 @@ class QueryHistory extends PureComponent {
   );
 
   render() {
-    const { collapsed, showing, onClose, actions } = this.props;
+    const { collapsed, ns, showing, onClose, actions } = this.props;
 
     if (!onClose && collapsed) {
       // TODO(COMPASS-5679): After we enable the toolbars feature flag,
@@ -77,7 +77,12 @@ class QueryHistory extends PureComponent {
         className={onClose ? styles.component : styles['component-legacy']}
       >
         <div className={styles.inner}>
-          <Toolbar actions={actions} showing={showing} onClose={onClose} />
+          <Toolbar
+            actions={actions}
+            showing={showing}
+            onClose={onClose}
+            namespace={ns}
+          />
 
           {showing === 'favorites' ? this.renderFavorites() : null}
           {showing === 'recent' ? this.renderRecents() : null}

@@ -24,6 +24,7 @@ describe('SavedPipelines [Component]', function() {
           deletePipeline={deletePipelineSpy}
           savedPipelines={savedPipelines}
           onSetShowSavedPipelines={spy}
+          namespace="test.test123"
         />
       );
     });
@@ -56,6 +57,13 @@ describe('SavedPipelines [Component]', function() {
         'button'
       ).at(0).hostNodes().simulate('click');
       expect(spy.calledOnce).to.equal(true);
+    });
+
+    it('renders the namespace', function () {
+
+      expect(
+        component.find('[data-testid="saved-pipeline-header-title-namespace"]').first()
+      ).to.contain.text('test.test123');
     });
   });
 

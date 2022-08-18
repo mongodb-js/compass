@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { render, screen, cleanup, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import mongodbns from 'mongodb-ns';
 
 import { Toolbar } from './toolbar';
 
@@ -16,6 +17,7 @@ function renderQueryHistoryToolbar(
         showFavorites: sinon.stub(),
         collapse: sinon.stub(),
       }}
+      namespace={mongodbns('test.test')}
       showing="recent"
       {...props}
     />
@@ -49,6 +51,11 @@ describe('Toolbar [Component]', function () {
     it('renders a close button', function () {
       expect(screen.getByTestId('query-history-button-close-panel')).to.be
         .visible;
+    });
+
+    it('renders the namespace', function () {
+      expect(screen.getByText('Queries in')).to.be.visible;
+      expect(screen.getByText('test.test')).to.be.visible;
     });
   });
 

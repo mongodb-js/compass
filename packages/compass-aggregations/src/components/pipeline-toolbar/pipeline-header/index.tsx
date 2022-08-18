@@ -62,6 +62,7 @@ const savedAggregationsPopoverStyles = css({
 type PipelineHeaderProps = {
   deletePipeline: (pipelineId: string) => void;
   isOptionsVisible: boolean;
+  namespace: string;
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
@@ -77,6 +78,7 @@ type PipelineHeaderProps = {
 
 export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   deletePipeline,
+  namespace,
   onShowSavedPipelines,
   showRunButton,
   showExportButton,
@@ -92,6 +94,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
 }) => {
   const savedPipelinesPopover = () => (
     <SavedPipelines
+      namespace={namespace}
       restorePipelineModalToggle={restorePipelineModalToggle}
       restorePipelineFrom={restorePipelineFrom}
       deletePipeline={deletePipeline}
@@ -159,6 +162,7 @@ export default connect(
     return {
       isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
       isSavedPipelineVisible: state.savedPipeline.isListVisible,
+      namespace: state.namespace,
       savedPipelines: state.savedPipeline.pipelines,
     };
   },
