@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import type { ReactElement } from 'react';
 import { hasColumnstoreIndexesSupport } from '../../utils/has-columnstore-indexes-support';
 
 import {
@@ -11,6 +12,15 @@ import {
   css,
   Icon,
 } from '@mongodb-js/compass-components';
+
+// Inject types that this component accepts
+const ComboboxOptionTyped =
+  ComboboxOption as unknown as React.JSXElementConstructor<{
+    value?: string;
+    displayName?: string;
+    glyph?: ReactElement;
+    className?: string;
+  }>;
 
 /**
  * Current allowed types for indexes.
@@ -148,7 +158,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
 
   renderIndexOptions() {
     const fields = this.props.schemaFields.map((value, idx) => (
-      <ComboboxOption
+      <ComboboxOptionTyped
         key={`combobox-option-${idx}`}
         value={value}
         displayName={value}
@@ -162,7 +172,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
       const newIndexField = this.props.newIndexField;
 
       fields.push(
-        <ComboboxOption
+        <ComboboxOptionTyped
           key={`combobox-option-new`}
           value={newIndexField}
           displayName={`Create Index: ${newIndexField}`}

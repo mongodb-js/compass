@@ -7,3 +7,4 @@ declare module 'mongodb-query-parser' {
 }
 
 declare module 'hadron-react-components';
+declare module 'hadron-app';
