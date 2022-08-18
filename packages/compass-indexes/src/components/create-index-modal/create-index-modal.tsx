@@ -130,6 +130,7 @@ class CreateIndexModal extends PureComponent<
    * @returns {React.Component} The create index modal.
    */
   render() {
+    this.handleShow();
     return (
       <ConfirmationModal
         title="Create Index"

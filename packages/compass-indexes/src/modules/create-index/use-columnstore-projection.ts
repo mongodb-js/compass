@@ -45,5 +45,5 @@ export const toggleUseColumnstoreProjection = (
   useColumnstoreProjection: UseColumnstoreProjectionState
 ): useColumnstoreProjectionAction => ({
   type: TOGGLE_USE_COLUMNSTORE_PROJECTION,
-  useColumnstoreProjection: useColumnstoreProjection,
+  useColumnstoreProjection,
 });

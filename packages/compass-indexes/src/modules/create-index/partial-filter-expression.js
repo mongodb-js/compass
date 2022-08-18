@@ -33,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const partialFilterExpressionChanged = (partialFilterExpression) => ({
   type: PARTIAL_FILTER_EXPRESSION_CHANGED,
-  partialFilterExpression: partialFilterExpression,
+  partialFilterExpression,
 });

@@ -35,5 +35,5 @@ export const toggleUsePartialFilterExpression = (
   usePartialFilterExpression
 ) => ({
   type: TOGGLE_USE_PARTIAL_FILTER_EXPRESSION,
-  usePartialFilterExpression: usePartialFilterExpression,
+  usePartialFilterExpression,
 });

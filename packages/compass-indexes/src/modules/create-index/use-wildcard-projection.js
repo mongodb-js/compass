@@ -33,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleUseWildcardProjection = (useWildcardProjection) => ({
   type: TOGGLE_USE_WILDCARD_PROJECTION,
-  useWildcardProjection: useWildcardProjection,
+  useWildcardProjection,
 });

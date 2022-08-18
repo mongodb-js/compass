@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const nameChanged = (name) => ({
   type: NAME_CHANGED,
-  name: name,
+  name,
 });

@@ -32,5 +32,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleUseTtl = (useTtl) => ({
   type: TOGGLE_USE_TTL,
-  useTtl: useTtl,
+  useTtl,
 });

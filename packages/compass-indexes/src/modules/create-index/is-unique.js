@@ -33,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsUnique = (isUnique) => ({
   type: TOGGLE_IS_UNIQUE,
-  isUnique: isUnique,
+  isUnique,
 });
