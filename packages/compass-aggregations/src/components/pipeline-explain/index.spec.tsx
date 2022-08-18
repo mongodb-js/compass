@@ -147,7 +147,8 @@ describe('PipelineExplain', function () {
         name: /ascending index/i, // host_id index direction 1
       })
     ).to.exist;
-    expect(within(indexContent1).getByText(/location \(2dsphere\)/i)).to.exist;
+    expect(within(indexContent1).getByText(/location/i)).to.exist;
+    expect(within(indexContent1).getByText(/\(2dsphere\)/i)).to.exist;
 
     // Toggle second accordian
     userEvent.click(
@@ -164,6 +165,7 @@ describe('PipelineExplain', function () {
         name: /descending index/i, // city_id index direction -1
       })
     ).to.exist;
-    expect(within(indexContent2).getByText(/title \(text\)/i)).to.exist;
+    expect(within(indexContent2).getByText(/title/i)).to.exist;
+    expect(within(indexContent2).getByText(/\(text\)/i)).to.exist;
   });
 });
