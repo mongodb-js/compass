@@ -40,7 +40,7 @@ const UnthemedCollapsibleFieldSet = ({
   dataTestId,
   ...props
 }: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
-  const labelId = dataTestId || useId();
+  const labelId = dataTestId || 'collapsible-fieldset-props';
   return (
     <fieldset
       className={collapsibleFieldsetStyles}
