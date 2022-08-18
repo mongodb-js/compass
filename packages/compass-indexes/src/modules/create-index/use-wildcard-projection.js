@@ -1,8 +1,8 @@
 /**
  * Change is wildcard action name.
  */
-export const TOGGLE_HAS_WILDCARD_PROJECTION =
-  'indexes/create-indexes/has-wildcard-projection/TOGGLE_HAS_WILDCARD_PROJECTION';
+export const TOGGLE_USE_WILDCARD_PROJECTION =
+  'indexes/create-indexes/use-wildcard-projection/TOGGLE_USE_WILDCARD_PROJECTION';
 
 /**
  * The initial state of the is writable attribute.
@@ -18,8 +18,8 @@ export const INITIAL_STATE = false;
  * @returns {Array} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === TOGGLE_HAS_WILDCARD_PROJECTION) {
-    return action.hasWildcardProjection;
+  if (action.type === TOGGLE_USE_WILDCARD_PROJECTION) {
+    return action.useWildcardProjection;
   }
   return state;
 }
@@ -27,11 +27,11 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The toggle is wildcard action creator.
  *
- * @param {Boolean} hasWildcardProjection - Is wildcard.
+ * @param {Boolean} useWildcardProjection - Is wildcard.
  *
  * @returns {Object} The action.
  */
-export const toggleHasWildcardProjection = (hasWildcardProjection) => ({
-  type: TOGGLE_HAS_WILDCARD_PROJECTION,
-  hasWildcardProjection: hasWildcardProjection,
+export const toggleUseWildcardProjection = (useWildcardProjection) => ({
+  type: TOGGLE_USE_WILDCARD_PROJECTION,
+  useWildcardProjection: useWildcardProjection,
 });

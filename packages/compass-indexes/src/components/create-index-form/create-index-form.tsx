@@ -32,48 +32,59 @@ export type CreateIndexProps = {
   error?: string;
   inProgress: boolean;
   fields: IndexField[];
+  newIndexField?: string;
   schemaFields: string[];
+
   isVisible: boolean;
   isUnique: boolean;
-  isTtl: boolean;
-  ttl?: string;
-  hasWildcardProjection: boolean;
-  hasColumnstoreProjection: boolean;
-  wildcardProjection: string;
-  columnstoreProjection: string;
-  isPartialFilterExpression: boolean;
-  partialFilterExpression?: string;
-  isCustomCollation: boolean;
-  collationString?: string;
-  hasIndexName: boolean;
+
+  useIndexName: boolean;
+  useTtl: boolean;
+  usePartialFilterExpression: boolean;
+  useCustomCollation: boolean;
+  useWildcardProjection: boolean;
+  useColumnstoreProjection: boolean;
+
   name: string;
+  ttl?: string;
+  partialFilterExpression?: string;
+  wildcardProjection: string;
+  collationString?: string;
+  columnstoreProjection: string;
+
   namespace: string;
   serverVersion: string;
-  newIndexField?: string;
+
   // TODO: Refactor modules to get rid of return any.
+  clearError: () => any;
+  createIndex: () => any; // Create Index button.
+  resetForm: () => any; // Close Index button.
+  toggleIsVisible: (isVisible: boolean) => any; // Cancel button.
+  toggleIsUnique: (isUnique: boolean) => any;
+
+  toggleUseIndexName: (useIndexName: boolean) => any;
+  toggleUseTtl: (useTtl: boolean) => any;
+  toggleUsePartialFilterExpression: (
+    usePartialFilterExpression: boolean
+  ) => any;
+  toggleUseWildcardProjection: (useWildcardProjection: boolean) => any;
+  toggleUseCustomCollation: (useCustomCollation: boolean) => any;
+  toggleUseColumnstoreProjection: (useColumnstoreProjection: boolean) => any;
+
+  nameChanged: (name: string) => any;
+  ttlChanged: (ttl: string) => any;
+  partialFilterExpressionChanged: (partialFilterExpression: string) => any;
+  wildcardProjectionChanged: (wildcardProjection: string) => any;
   collationStringChanged: (collationString: string) => any;
+  columnstoreProjectionChanged: (columnstoreProjection: string) => any;
+
   updateFieldName: (idx: number, name: string) => any;
   updateFieldType: (idx: number, fType: string) => any;
-  addField: () => any;
-  removeField: (idx: number) => any;
-  toggleIsUnique: (isUnique: boolean) => any;
-  toggleIsVisible: (isVisible: boolean) => any;
-  toggleIsTtl: (isTtl: boolean) => any;
-  toggleHasWildcardProjection: (hasWildcardProjection: boolean) => any;
-  toggleHasColumnstoreProjection: (hasColumnstoreProjection: boolean) => any;
-  toggleIsPartialFilterExpression: (isPartialFilterExpression: boolean) => any;
-  toggleIsCustomCollation: (isCustomCollation: boolean) => any;
-  toggleHasIndexName: (hasIndexName: boolean) => any;
-  resetForm: () => any;
-  createIndex: () => any;
+  addField: () => any; // Plus icon.
+  removeField: (idx: number) => any; // Minus icon.
+  createNewIndexField: (newField: string) => any; // Create a new index name.
+
   openLink: (href: string) => any;
-  changeTtl: (ttl: string) => any;
-  columnstoreProjectionChanged: (columnstoreProjection: string) => any;
-  wildcardProjectionChanged: (wildcardProjection: string) => any;
-  changePartialFilterExpression: (partialFilterExpression: string) => any;
-  changeName: (name: string) => any;
-  createNewIndexField: (newField: string) => any;
-  clearError: () => any;
 };
 
 /**
@@ -124,44 +135,44 @@ class CreateIndexForm extends Component<CreateIndexProps> {
           toggleIsUnique={this.props.toggleIsUnique}
         />
         <IndexNameCollapsibleFieldSet
-          hasIndexName={this.props.hasIndexName}
-          toggleHasIndexName={this.props.toggleHasIndexName}
+          useIndexName={this.props.useIndexName}
+          toggleUseIndexName={this.props.toggleUseIndexName}
           indexName={this.props.name}
-          changeName={this.props.changeName}
+          nameChanged={this.props.nameChanged}
         />
         <TTLCollapsibleFieldSet
-          isTtl={this.props.isTtl}
-          toggleIsTtl={this.props.toggleIsTtl}
+          useTtl={this.props.useTtl}
+          toggleUseTtl={this.props.toggleUseTtl}
           ttl={this.props.ttl}
-          changeTtl={this.props.changeTtl}
+          ttlChanged={this.props.ttlChanged}
         />
         <PartialFilterCollapsibleFieldSet
-          isPartialFilterExpression={this.props.isPartialFilterExpression}
-          toggleIsPartialFilterExpression={
-            this.props.toggleIsPartialFilterExpression
+          usePartialFilterExpression={this.props.usePartialFilterExpression}
+          toggleUsePartialFilterExpression={
+            this.props.toggleUsePartialFilterExpression
           }
           partialFilterExpression={this.props.partialFilterExpression}
-          changePartialFilterExpression={
-            this.props.changePartialFilterExpression
+          partialFilterExpressionChanged={
+            this.props.partialFilterExpressionChanged
           }
         />
         <CustomCollationCollapsibleFieldSet
-          isCustomCollation={this.props.isCustomCollation}
-          toggleIsCustomCollation={this.props.toggleIsCustomCollation}
+          useCustomCollation={this.props.useCustomCollation}
+          toggleUseCustomCollation={this.props.toggleUseCustomCollation}
           collationString={this.props.collationString}
-          collationStringChanged={this.props.changePartialFilterExpression}
+          collationStringChanged={this.props.partialFilterExpressionChanged}
         />
         <WildcardProjectionCollapsibleFieldSet
-          hasWildcardProjection={this.props.hasWildcardProjection}
-          toggleHasWildcardProjection={this.props.toggleHasWildcardProjection}
+          useWildcardProjection={this.props.useWildcardProjection}
+          toggleUseWildcardProjection={this.props.toggleUseWildcardProjection}
           wildcardProjection={this.props.wildcardProjection}
           wildcardProjectionChanged={this.props.wildcardProjectionChanged}
         />
         {hasColumnstoreIndexesSupport(this.props.serverVersion) && (
           <ColumnstoreProjectionCollapsibleFieldSet
-            hasColumnstoreProjection={this.props.hasColumnstoreProjection}
-            toggleHasColumnstoreProjection={
-              this.props.toggleHasColumnstoreProjection
+            useColumnstoreProjection={this.props.useColumnstoreProjection}
+            toggleUseColumnstoreProjection={
+              this.props.toggleUseColumnstoreProjection
             }
             columnstoreProjection={this.props.columnstoreProjection}
             columnstoreProjectionChanged={

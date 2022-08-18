@@ -2,15 +2,15 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  toggleHasWildcardProjection,
-  TOGGLE_HAS_WILDCARD_PROJECTION,
-} from '../create-index/has-wildcard-projection';
+  toggleUseCustomCollation,
+  TOGGLE_USE_CUSTOM_COLLATION,
+} from '../create-index/use-custom-collation';
 
-describe('create index has wildcard projection module', function () {
+describe('create index use custom collation module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, toggleHasWildcardProjection(true))).to.equal(
+        expect(reducer(undefined, toggleUseCustomCollation(true))).to.equal(
           true
         );
       });
@@ -23,11 +23,11 @@ describe('create index has wildcard projection module', function () {
     });
   });
 
-  describe('#toggleHasWildcardProjection', function () {
+  describe('#toggleUseCustomCollation', function () {
     it('returns the action', function () {
-      expect(toggleHasWildcardProjection(false)).to.deep.equal({
-        type: TOGGLE_HAS_WILDCARD_PROJECTION,
-        hasWildcardProjection: false,
+      expect(toggleUseCustomCollation(false)).to.deep.equal({
+        type: TOGGLE_USE_CUSTOM_COLLATION,
+        useCustomCollation: false,
       });
     });
   });

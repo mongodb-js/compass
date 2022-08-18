@@ -55,7 +55,7 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        isTtl: true,
+        useTtl: true,
         ttl: 'abc',
       });
       createIndex()(dispatch, state);
@@ -72,7 +72,7 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: 'abc',
       });
       createIndex()(dispatch, state);
@@ -106,13 +106,13 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
         isUnique: true,
         name: 'test name',
-        isCustomCollation: true,
+        useCustomCollation: true,
         collationString: "{locale: 'en'}",
-        isTtl: true,
+        useTtl: true,
         ttl: 100,
         appRegistry: {
           emit: emitSpy,
@@ -174,13 +174,13 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
         isUnique: true,
         name: '',
-        isCustomCollation: true,
+        useCustomCollation: true,
         collationString: "{locale: 'en'}",
-        isTtl: true,
+        useTtl: true,
         ttl: 100,
         namespace: 'db.coll',
         appRegistry: {
@@ -237,8 +237,8 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: false,
-        isTtl: false,
+        usePartialFilterExpression: false,
+        useTtl: false,
         isUnique: false,
         name: 'test name',
         namespace: 'db.coll',

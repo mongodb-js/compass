@@ -6,22 +6,22 @@ import {
 } from '@mongodb-js/compass-components';
 
 type ColumnstoreProjection = {
-  hasColumnstoreProjection: boolean;
-  toggleHasColumnstoreProjection: (hasColumnstoreProjection: boolean) => any;
+  useColumnstoreProjection: boolean;
+  toggleUseColumnstoreProjection: (useColumnstoreProjection: boolean) => any;
   columnstoreProjection?: string;
   columnstoreProjectionChanged: (columnstoreProjection: string) => any;
 };
 
 const ColumnstoreProjectionCollapsibleFieldSet = ({
-  hasColumnstoreProjection,
-  toggleHasColumnstoreProjection,
+  useColumnstoreProjection,
+  toggleUseColumnstoreProjection,
   columnstoreProjection,
   columnstoreProjectionChanged,
 }: ColumnstoreProjection) => {
   return (
     <CollapsibleFieldSet
-      toggled={hasColumnstoreProjection}
-      onToggle={(checked: boolean) => toggleHasColumnstoreProjection(checked)}
+      toggled={useColumnstoreProjection}
+      onToggle={(checked: boolean) => toggleUseColumnstoreProjection(checked)}
       label="Columnstore Projection"
       dataTestId="create-index-modal-has-columnstore-checkbox"
       description="Columnstore indexes support queries against unknown or arbitrary fields."

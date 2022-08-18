@@ -1,7 +1,7 @@
 /**
  * Create name action.
  */
-export const CHANGE_NAME = 'indexes/create-index/name/CHANGE_NAME';
+export const NAME_CHANGED = 'indexes/create-index/name/NAME_CHANGED';
 
 /**
  * The initial state of the index name.
@@ -17,7 +17,7 @@ export const INITIAL_STATE = '';
  * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === CHANGE_NAME) {
+  if (action.type === NAME_CHANGED) {
     return action.name;
   }
   return state;
@@ -30,7 +30,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The action.
  */
-export const changeName = (name) => ({
-  type: CHANGE_NAME,
+export const nameChanged = (name) => ({
+  type: NAME_CHANGED,
   name: name,
 });

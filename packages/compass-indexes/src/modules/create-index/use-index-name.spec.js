@@ -2,17 +2,15 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  toggleIsCustomCollation,
-  TOGGLE_IS_CUSTOM_COLLATION,
-} from '../create-index/is-custom-collation';
+  toggleUseIndexName,
+  TOGGLE_USE_INDEX_NAME,
+} from '../create-index/use-index-name';
 
-describe('create index is custom collation module', function () {
+describe('create index use index name module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, toggleIsCustomCollation(true))).to.equal(
-          true
-        );
+        expect(reducer(undefined, toggleUseIndexName(true))).to.equal(true);
       });
     });
 
@@ -23,11 +21,11 @@ describe('create index is custom collation module', function () {
     });
   });
 
-  describe('#toggleIsCustomCollation', function () {
+  describe('#toggleUseIndexName', function () {
     it('returns the action', function () {
-      expect(toggleIsCustomCollation(false)).to.deep.equal({
-        type: TOGGLE_IS_CUSTOM_COLLATION,
-        isCustomCollation: false,
+      expect(toggleUseIndexName(false)).to.deep.equal({
+        type: TOGGLE_USE_INDEX_NAME,
+        useIndexName: false,
       });
     });
   });

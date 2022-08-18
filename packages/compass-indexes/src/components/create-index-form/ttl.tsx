@@ -2,33 +2,33 @@ import React from 'react';
 import { TextInput, CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
 type TTL = {
-  isTtl: boolean;
-  toggleIsTtl: (isTtl: boolean) => any;
+  useTtl: boolean;
+  toggleUseTtl: (useTtl: boolean) => any;
   ttl?: string;
-  changeTtl: (ttl: string) => any;
+  ttlChanged: (ttl: string) => any;
 };
 
 const TTLCollapsibleFieldSet = ({
-  isTtl,
-  toggleIsTtl,
+  useTtl,
+  toggleUseTtl,
   ttl,
-  changeTtl,
+  ttlChanged,
 }: TTL) => {
   return (
-    <div data-testid="create-index-modal-is-ttl">
+    <div data-testid="create-index-modal-use-ttl">
       <CollapsibleFieldSet
-        toggled={isTtl}
-        onToggle={(checked: boolean) => toggleIsTtl(checked)}
+        toggled={useTtl}
+        onToggle={(checked: boolean) => toggleUseTtl(checked)}
         label="Create TTL"
-        dataTestId="create-index-modal-is-ttl-checkbox"
+        dataTestId="create-index-modal-use-ttl-checkbox"
         description="TTL indexes are special single-field indexes that MongoDB can use to automatically remove documents from a collection after a certain amount of time or at a specific clock time."
       >
         <TextInput
           value={ttl}
           label="seconds"
-          data-testid="create-index-modal-is-ttl-input"
+          data-testid="create-index-modal-use-ttl-input"
           type="number"
-          onChange={(e) => changeTtl(e.target.value)}
+          onChange={(e) => ttlChanged(e.target.value)}
           spellCheck={false}
         />
       </CollapsibleFieldSet>

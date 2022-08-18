@@ -2,15 +2,17 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  toggleHasIndexName,
-  TOGGLE_HAS_INDEX_NAME,
-} from '../create-index/has-index-name';
+  toggleUseWildcardProjection,
+  TOGGLE_USE_WILDCARD_PROJECTION,
+} from '../create-index/use-wildcard-projection';
 
-describe('create index has index name module', function () {
+describe('create index use wildcard projection module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, toggleHasIndexName(true))).to.equal(true);
+        expect(reducer(undefined, toggleUseWildcardProjection(true))).to.equal(
+          true
+        );
       });
     });
 
@@ -21,11 +23,11 @@ describe('create index has index name module', function () {
     });
   });
 
-  describe('#toggleHasIndexName', function () {
+  describe('#toggleUseWildcardProjection', function () {
     it('returns the action', function () {
-      expect(toggleHasIndexName(false)).to.deep.equal({
-        type: TOGGLE_HAS_INDEX_NAME,
-        hasIndexName: false,
+      expect(toggleUseWildcardProjection(false)).to.deep.equal({
+        type: TOGGLE_USE_WILDCARD_PROJECTION,
+        useWildcardProjection: false,
       });
     });
   });

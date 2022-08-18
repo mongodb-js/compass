@@ -1,7 +1,7 @@
 /**
  * Create index ttl action.
  */
-export const CHANGE_TTL = 'indexes/create-index/ttl/CHANGE_TTL';
+export const TTL_CHANGED = 'indexes/create-index/ttl/TTL_CHANGED';
 
 /**
  * The initial state of the index ttl.
@@ -17,7 +17,7 @@ export const INITIAL_STATE = '';
  * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === CHANGE_TTL) {
+  if (action.type === TTL_CHANGED) {
     return action.ttl;
   }
   return state;
@@ -30,7 +30,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The action.
  */
-export const changeTtl = (ttl) => ({
-  type: CHANGE_TTL,
+export const ttlChanged = (ttl) => ({
+  type: TTL_CHANGED,
   ttl: ttl,
 });

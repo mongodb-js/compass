@@ -16,7 +16,7 @@ import {
   updateFieldType,
   updateFieldName,
 } from '../../modules/create-index/fields';
-import { changeName } from '../../modules/create-index/name';
+import { nameChanged } from '../../modules/create-index/name';
 import { changeSchemaFields } from '../../modules/create-index/schema-fields';
 import {
   createNewIndexField,
@@ -25,22 +25,22 @@ import {
 import { clearError, handleError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleIsUnique } from '../../modules/create-index/is-unique';
-import { toggleIsPartialFilterExpression } from '../../modules/create-index/is-partial-filter-expression';
-import { toggleIsTtl } from '../../modules/create-index/is-ttl';
-import { changeTtl } from '../../modules/create-index/ttl';
-import { toggleHasWildcardProjection } from '../../modules/create-index/has-wildcard-projection';
-import { toggleHasColumnstoreProjection } from '../../modules/create-index/has-columnstore-projection';
+import { toggleUsePartialFilterExpression } from '../../modules/create-index/use-partial-filter-expression';
+import { toggleUseTtl } from '../../modules/create-index/use-ttl';
+import { ttlChanged } from '../../modules/create-index/ttl';
+import { toggleUseWildcardProjection } from '../../modules/create-index/use-wildcard-projection';
+import { toggleUseColumnstoreProjection } from '../../modules/create-index/use-columnstore-projection';
 import { wildcardProjectionChanged } from '../../modules/create-index/wildcard-projection';
 import { columnstoreProjectionChanged } from '../../modules/create-index/columnstore-projection';
-import { changePartialFilterExpression } from '../../modules/create-index/partial-filter-expression';
-import { toggleIsCustomCollation } from '../../modules/create-index/is-custom-collation';
+import { partialFilterExpressionChanged } from '../../modules/create-index/partial-filter-expression';
+import { toggleUseCustomCollation } from '../../modules/create-index/use-custom-collation';
 import { collationStringChanged } from '../../modules/create-index/collation-string';
 import { openLink } from '../../modules/link';
 import { createIndex } from '../../modules/create-index';
 import { resetForm } from '../../modules/reset-form';
 import type { CreateIndexProps } from '../create-index-form';
 import CreateIndexForm from '../create-index-form';
-import { toggleHasIndexName } from '../../modules/create-index/has-index-name';
+import { toggleUseIndexName } from '../../modules/create-index/use-index-name';
 
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
@@ -142,17 +142,17 @@ const mapStateToProps = (state: any) => ({
   schemaFields: state.schemaFields,
   error: state.error,
   isVisible: state.isVisible,
-  isTtl: state.isTtl,
+  useTtl: state.useTtl,
   ttl: state.ttl,
-  hasWildcardProjection: state.hasWildcardProjection,
-  hasColumnstoreProjection: state.hasColumnstoreProjection,
+  useWildcardProjection: state.useWildcardProjection,
+  useColumnstoreProjection: state.useColumnstoreProjection,
   columnstoreProjection: state.columnstoreProjection,
   wildcardProjection: state.wildcardProjection,
   isUnique: state.isUnique,
-  isPartialFilterExpression: state.isPartialFilterExpression,
+  usePartialFilterExpression: state.usePartialFilterExpression,
   partialFilterExpression: state.partialFilterExpression,
-  isCustomCollation: state.isCustomCollation,
-  hasIndexName: state.hasIndexName,
+  useCustomCollation: state.useCustomCollation,
+  useIndexName: state.useIndexName,
   collationString: state.collationString,
   name: state.name,
   namespace: state.namespace,
@@ -170,22 +170,22 @@ const MappedCreateIndexModal = connect(mapStateToProps, {
   clearError,
   handleError,
   toggleIsVisible,
-  toggleIsTtl,
-  toggleHasWildcardProjection,
-  toggleHasColumnstoreProjection,
+  toggleUseTtl,
+  toggleUseWildcardProjection,
+  toggleUseColumnstoreProjection,
   toggleIsUnique,
-  toggleIsPartialFilterExpression,
-  toggleIsCustomCollation,
-  toggleHasIndexName,
-  changePartialFilterExpression,
-  changeTtl,
+  toggleUsePartialFilterExpression,
+  toggleUseCustomCollation,
+  toggleUseIndexName,
+  partialFilterExpressionChanged,
+  ttlChanged,
   wildcardProjectionChanged,
   columnstoreProjectionChanged,
   collationStringChanged,
   createNewIndexField,
   clearNewIndexField,
   openLink,
-  changeName,
+  nameChanged,
   createIndex,
   resetForm,
   addField,

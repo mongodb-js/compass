@@ -17,12 +17,12 @@ import inProgress, {
   toggleInProgress,
   INITIAL_STATE as IN_PROGRESS_INITIAL_STATE,
 } from '../in-progress';
-import isCustomCollation, {
+import useCustomCollation, {
   INITIAL_STATE as IS_CUSTOM_COLLATION_INITIAL_STATE,
-} from '../create-index/is-custom-collation';
-import hasIndexName, {
+} from '../create-index/use-custom-collation';
+import useIndexName, {
   INITIAL_STATE as HAS_INDEX_NAME_INITIAL_STATE,
-} from '../create-index/has-index-name';
+} from '../create-index/use-index-name';
 import isVisible, {
   toggleIsVisible,
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
@@ -36,18 +36,18 @@ import fields, {
 import isUnique, {
   INITIAL_STATE as IS_UNIQUE_INITIAL_STATE,
 } from '../create-index/is-unique';
-import isTtl, {
+import useTtl, {
   INITIAL_STATE as IS_TTL_INITIAL_STATE,
-} from '../create-index/is-ttl';
-import hasWildcardProjection, {
+} from '../create-index/use-ttl';
+import useWildcardProjection, {
   INITIAL_STATE as HAS_WILDCARD_PROJECTION_INITIAL_STATE,
-} from './has-wildcard-projection';
-import hasColumnstoreProjection, {
+} from './use-wildcard-projection';
+import useColumnstoreProjection, {
   INITIAL_STATE as HAS_COLUMNSTORE_PROJECTION_INITIAL_STATE,
-} from '../create-index/has-columnstore-projection';
-import isPartialFilterExpression, {
+} from '../create-index/use-columnstore-projection';
+import usePartialFilterExpression, {
   INITIAL_STATE as IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
-} from '../create-index/is-partial-filter-expression';
+} from '../create-index/use-partial-filter-expression';
 import ttl, { INITIAL_STATE as TTL_INITIAL_STATE } from '../create-index/ttl';
 import wildcardProjection, {
   INITIAL_STATE as WILDCARD_PROJECTION_INITIAL_STATE,
@@ -81,17 +81,17 @@ const reducer = combineReducers({
   collationString,
   fields,
   inProgress,
-  isCustomCollation,
-  hasIndexName,
+  useCustomCollation,
+  useIndexName,
   schemaFields,
   newIndexField,
   isVisible,
   error,
   isUnique,
-  isTtl,
-  hasWildcardProjection,
-  hasColumnstoreProjection,
-  isPartialFilterExpression,
+  useTtl,
+  useWildcardProjection,
+  useColumnstoreProjection,
+  usePartialFilterExpression,
   ttl,
   wildcardProjection,
   columnstoreProjection,
@@ -116,15 +116,15 @@ const rootReducer = (state, action) => {
       collationString: COLLATION_INITIAL_STATE,
       fields: FIELDS_INITIAL_STATE,
       inProgress: IN_PROGRESS_INITIAL_STATE,
-      isCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
-      hasIndexName: HAS_INDEX_NAME_INITIAL_STATE,
+      useCustomCollation: IS_CUSTOM_COLLATION_INITIAL_STATE,
+      useIndexName: HAS_INDEX_NAME_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
       error: ERROR_INITIAL_STATE,
       isUnique: IS_UNIQUE_INITIAL_STATE,
-      isTtl: IS_TTL_INITIAL_STATE,
-      hasWildcardProjection: HAS_WILDCARD_PROJECTION_INITIAL_STATE,
-      hasColumnstoreProjection: HAS_COLUMNSTORE_PROJECTION_INITIAL_STATE,
-      isPartialFilterExpression: IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
+      useTtl: IS_TTL_INITIAL_STATE,
+      useWildcardProjection: HAS_WILDCARD_PROJECTION_INITIAL_STATE,
+      useColumnstoreProjection: HAS_COLUMNSTORE_PROJECTION_INITIAL_STATE,
+      usePartialFilterExpression: IS_PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       ttl: TTL_INITIAL_STATE,
       columnstoreProjection: COLUMNSTORE_PROJECTION_INITIAL_STATE,
       wildcardProjection: WILDCARD_PROJECTION_INITIAL_STATE,
@@ -155,7 +155,7 @@ export const createIndex = () => {
 
     // Check for collaction errors.
     const collation = queryParser.isCollationValid(state.collationString);
-    if (state.isCustomCollation && !collation) {
+    if (state.useCustomCollation && !collation) {
       dispatch(handleError('You must provide a valid collation object'));
       return;
     }
@@ -173,17 +173,17 @@ export const createIndex = () => {
     if (state.name !== '') {
       options.name = state.name;
     }
-    if (state.isCustomCollation) {
+    if (state.useCustomCollation) {
       options.collation = collation;
     }
-    if (state.isTtl) {
+    if (state.useTtl) {
       options.expireAfterSeconds = Number(state.ttl);
       if (isNaN(options.expireAfterSeconds)) {
         dispatch(handleError(`Bad TTL: "${state.ttl}"`));
         return;
       }
     }
-    if (state.hasWildcardProjection) {
+    if (state.useWildcardProjection) {
       try {
         options.wildcardProjection = EJSON.parse(state.wildcardProjection);
       } catch (err) {
@@ -200,7 +200,7 @@ export const createIndex = () => {
       delete options.unique;
     }
 
-    if (state.hasColumnstoreProjection) {
+    if (state.useColumnstoreProjection) {
       try {
         options.columnstoreProjection = EJSON.parse(
           state.columnstoreProjection
@@ -210,7 +210,7 @@ export const createIndex = () => {
         return;
       }
     }
-    if (state.isPartialFilterExpression) {
+    if (state.usePartialFilterExpression) {
       try {
         options.partialFilterExpression = EJSON.parse(
           state.partialFilterExpression
@@ -227,11 +227,11 @@ export const createIndex = () => {
       if (!createErr) {
         const trackEvent = {
           unique: state.isUnique,
-          ttl: state.isTtl,
+          ttl: state.useTtl,
           columnstore_index: hasColumnstoreIndex,
-          has_columnstore_projection: state.hasColumnstoreProjection,
-          has_wildcard_projection: state.hasWildcardProjection,
-          custom_collation: state.isCustomCollation,
+          has_columnstore_projection: state.useColumnstoreProjection,
+          has_wildcard_projection: state.useWildcardProjection,
+          custom_collation: state.useCustomCollation,
           geo:
             state.fields.filter(({ type }) => type === '2dsphere').length > 0,
         };
@@ -240,13 +240,13 @@ export const createIndex = () => {
         dispatch(localAppRegistryEmit('refresh-data'));
         dispatch(
           globalAppRegistryEmit('compass:indexes:created', {
-            isCollation: state.isCustomCollation,
-            isPartialFilterExpression: state.isPartialFilterExpression,
-            isTTL: state.isTtl,
+            isCollation: state.useCustomCollation,
+            usePartialFilterExpression: state.usePartialFilterExpression,
+            useTtl: state.useTtl,
             isUnique: state.isUnique,
             hasColumnstoreIndex,
-            hasColumnstoreProjection: state.hasColumnstoreProjection,
-            hasWildcardProjection: state.hasWildcardProjection,
+            useColumnstoreProjection: state.useColumnstoreProjection,
+            useWildcardProjection: state.useWildcardProjection,
             collation: state.collationString,
             ttl: state.ttl,
           })

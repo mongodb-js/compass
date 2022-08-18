@@ -2,22 +2,24 @@ import React from 'react';
 import { TextInput, CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
 type PartialFilter = {
-  isPartialFilterExpression: boolean;
-  toggleIsPartialFilterExpression: (isPartialFilterExpression: boolean) => any;
+  usePartialFilterExpression: boolean;
+  toggleUsePartialFilterExpression: (
+    usePartialFilterExpression: boolean
+  ) => any;
   partialFilterExpression?: string;
-  changePartialFilterExpression: (partialFilterExpression: string) => any;
+  partialFilterExpressionChanged: (partialFilterExpression: string) => any;
 };
 
 const PartialFilterCollapsibleFieldSet = ({
-  isPartialFilterExpression,
-  toggleIsPartialFilterExpression,
+  usePartialFilterExpression,
+  toggleUsePartialFilterExpression,
   partialFilterExpression,
-  changePartialFilterExpression,
+  partialFilterExpressionChanged,
 }: PartialFilter) => {
   return (
     <CollapsibleFieldSet
-      toggled={isPartialFilterExpression}
-      onToggle={(checked: boolean) => toggleIsPartialFilterExpression(checked)}
+      toggled={usePartialFilterExpression}
+      onToggle={(checked: boolean) => toggleUsePartialFilterExpression(checked)}
       label="Partial Filter Expression"
       dataTestId="create-index-modal-is-pfe-checkbox"
       description="Partial indexes only index the documents in a collection that meet a specified filter expression."
@@ -28,7 +30,7 @@ const PartialFilterCollapsibleFieldSet = ({
         type="text"
         aria-label="Partial Filter Expression"
         aria-labelledby="create-index-modal-is-pfe-checkbox"
-        onChange={(e) => changePartialFilterExpression(e.target.value)}
+        onChange={(e) => partialFilterExpressionChanged(e.target.value)}
         spellCheck={false}
       />
     </CollapsibleFieldSet>

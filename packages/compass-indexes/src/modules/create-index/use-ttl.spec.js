@@ -2,15 +2,15 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  toggleIsTtl,
-  TOGGLE_IS_TTL,
-} from '../create-index/is-ttl';
+  toggleUseTtl,
+  TOGGLE_USE_TTL,
+} from '../create-index/use-ttl';
 
-describe('create index is ttl module', function () {
+describe('create index use ttl module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, toggleIsTtl(true))).to.equal(true);
+        expect(reducer(undefined, toggleUseTtl(true))).to.equal(true);
       });
     });
 
@@ -21,11 +21,11 @@ describe('create index is ttl module', function () {
     });
   });
 
-  describe('#toggleIsTtl', function () {
+  describe('#toggleUseTtl', function () {
     it('returns the action', function () {
-      expect(toggleIsTtl(false)).to.deep.equal({
-        type: TOGGLE_IS_TTL,
-        isTtl: false,
+      expect(toggleUseTtl(false)).to.deep.equal({
+        type: TOGGLE_USE_TTL,
+        useTtl: false,
       });
     });
   });

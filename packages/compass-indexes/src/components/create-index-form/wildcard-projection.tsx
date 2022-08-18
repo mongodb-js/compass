@@ -6,22 +6,22 @@ import {
 } from '@mongodb-js/compass-components';
 
 type WildcardProjection = {
-  hasWildcardProjection: boolean;
-  toggleHasWildcardProjection: (hasWildcardProjection: boolean) => any;
+  useWildcardProjection: boolean;
+  toggleUseWildcardProjection: (useWildcardProjection: boolean) => any;
   wildcardProjection?: string;
   wildcardProjectionChanged: (wildcardProjection: string) => any;
 };
 
 const WildcardProjectionCollapsibleFieldSet = ({
-  hasWildcardProjection,
-  toggleHasWildcardProjection,
+  useWildcardProjection,
+  toggleUseWildcardProjection,
   wildcardProjection,
   wildcardProjectionChanged,
 }: WildcardProjection) => {
   return (
     <CollapsibleFieldSet
-      toggled={hasWildcardProjection}
-      onToggle={(checked: boolean) => toggleHasWildcardProjection(checked)}
+      toggled={useWildcardProjection}
+      onToggle={(checked: boolean) => toggleUseWildcardProjection(checked)}
       label="Wildcard Projection"
       dataTestId="create-index-modal-has-wildcard-checkbox"
       description="Wildcard indexes support queries against unknown or arbitrary fields."

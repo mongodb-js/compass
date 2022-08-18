@@ -16,22 +16,22 @@ describe('CreateIndexForm Component', function () {
   let addFieldSpy;
   let removeFieldSpy;
   let toggleIsUniqueSpy;
-  let toggleIsTtlSpy;
-  let toggleIsPartialFilterExpressionSpy;
-  let toggleIsCustomCollationSpy;
-  let toggleHasColumnstoreProjectionSpy;
-  let toggleHasWildcardProjectionSpy;
+  let toggleUseTtlSpy;
+  let toggleUsePartialFilterExpressionSpy;
+  let toggleUseCustomCollationSpy;
+  let toggleUseColumnstoreProjectionSpy;
+  let toggleUseWildcardProjectionSpy;
   let resetFormSpy;
   let createIndexSpy;
   let openLinkSpy;
-  let changeTtlSpy;
-  let changePartialFilterExpressionSpy;
+  let ttlChangedSpy;
+  let partialFilterExpressionChangedSpy;
   let collationStringChangedSpy;
-  let changeNameSpy;
+  let nameChangedSpy;
   let columnstoreProjectionChangedSpy;
   let wildcardProjectionChangedSpy;
   let createNewIndexFieldSpy;
-  let toggleHasIndexNameSpy;
+  let toggleUseIndexNameSpy;
   let clearErrorSpy;
 
   const spyComponentProps = () => {
@@ -41,22 +41,22 @@ describe('CreateIndexForm Component', function () {
     addFieldSpy = sinon.spy();
     removeFieldSpy = sinon.spy();
     toggleIsUniqueSpy = sinon.spy();
-    toggleIsTtlSpy = sinon.spy();
-    toggleIsPartialFilterExpressionSpy = sinon.spy();
-    toggleIsCustomCollationSpy = sinon.spy();
-    toggleHasColumnstoreProjectionSpy = sinon.spy();
-    toggleHasWildcardProjectionSpy = sinon.spy();
+    toggleUseTtlSpy = sinon.spy();
+    toggleUsePartialFilterExpressionSpy = sinon.spy();
+    toggleUseCustomCollationSpy = sinon.spy();
+    toggleUseColumnstoreProjectionSpy = sinon.spy();
+    toggleUseWildcardProjectionSpy = sinon.spy();
     resetFormSpy = sinon.spy();
     createIndexSpy = sinon.spy();
     openLinkSpy = sinon.spy();
-    changeTtlSpy = sinon.spy();
-    changePartialFilterExpressionSpy = sinon.spy();
+    ttlChangedSpy = sinon.spy();
+    partialFilterExpressionChangedSpy = sinon.spy();
     collationStringChangedSpy = sinon.spy();
-    changeNameSpy = sinon.spy();
+    nameChangedSpy = sinon.spy();
     columnstoreProjectionChangedSpy = sinon.spy();
     wildcardProjectionChangedSpy = sinon.spy();
     createNewIndexFieldSpy = sinon.spy();
-    toggleHasIndexNameSpy = sinon.spy();
+    toggleUseIndexNameSpy = sinon.spy();
     clearErrorSpy = sinon.spy();
   };
 
@@ -67,22 +67,22 @@ describe('CreateIndexForm Component', function () {
     addFieldSpy = null;
     removeFieldSpy = null;
     toggleIsUniqueSpy = null;
-    toggleIsTtlSpy = null;
-    toggleIsPartialFilterExpressionSpy = null;
-    toggleIsCustomCollationSpy = null;
-    toggleHasColumnstoreProjectionSpy = null;
-    toggleHasWildcardProjectionSpy = null;
+    toggleUseTtlSpy = null;
+    toggleUsePartialFilterExpressionSpy = null;
+    toggleUseCustomCollationSpy = null;
+    toggleUseColumnstoreProjectionSpy = null;
+    toggleUseWildcardProjectionSpy = null;
     resetFormSpy = null;
     createIndexSpy = null;
     openLinkSpy = null;
-    changeTtlSpy = null;
-    changePartialFilterExpressionSpy = null;
+    ttlChangedSpy = null;
+    partialFilterExpressionChangedSpy = null;
     collationStringChangedSpy = null;
-    changeNameSpy = null;
+    nameChangedSpy = null;
     columnstoreProjectionChangedSpy = null;
     wildcardProjectionChangedSpy = null;
     createNewIndexFieldSpy = null;
-    toggleHasIndexNameSpy = null;
+    toggleUseIndexNameSpy = null;
     clearErrorSpy = null;
   };
 
@@ -102,13 +102,13 @@ describe('CreateIndexForm Component', function () {
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
-            isTtl={false}
+            useTtl={false}
             ttl=""
-            isPartialFilterExpression={false}
+            usePartialFilterExpression={false}
             partialFilterExpression=""
-            isCustomCollation={false}
+            useCustomCollation={false}
             name=""
-            hasIndexName={false}
+            useIndexName={false}
             namespace="db.coll"
             newIndexField=""
             isVisible
@@ -118,27 +118,29 @@ describe('CreateIndexForm Component', function () {
             addField={addFieldSpy}
             removeField={removeFieldSpy}
             toggleIsUnique={toggleIsUniqueSpy}
-            toggleIsTtl={toggleIsTtlSpy}
-            toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
-            toggleIsCustomCollation={toggleIsCustomCollationSpy}
-            toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
-            toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
+            toggleUseTtl={toggleUseTtlSpy}
+            toggleUsePartialFilterExpression={
+              toggleUsePartialFilterExpressionSpy
+            }
+            toggleUseCustomCollation={toggleUseCustomCollationSpy}
+            toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
+            toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
             resetForm={resetFormSpy}
             createIndex={createIndexSpy}
             openLink={openLinkSpy}
-            changeTtl={changeTtlSpy}
-            changePartialFilterExpression={changePartialFilterExpressionSpy}
+            ttlChanged={ttlChangedSpy}
+            partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
             collationStringChanged={collationStringChangedSpy}
-            changeName={changeNameSpy}
+            nameChanged={nameChangedSpy}
             wildcardProjection=""
-            hasWildcardProjection={false}
+            useWildcardProjection={false}
             columnstoreProjection=""
-            hasColumnstoreProjection={false}
+            useColumnstoreProjection={false}
             serverVersion="4.0.0"
             columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
-            toggleHasIndexName={toggleHasIndexNameSpy}
+            toggleUseIndexName={toggleUseIndexNameSpy}
             clearError={clearErrorSpy}
           />
         );
@@ -152,7 +154,9 @@ describe('CreateIndexForm Component', function () {
       it('renders create index form component', function () {
         const createIndexForm = screen.getByTestId('create-index-form');
         expect(createIndexForm).to.exist;
-        const createIndexFields = screen.getByTestId('create-index-fields-line-0');
+        const createIndexFields = screen.getByTestId(
+          'create-index-fields-line-0'
+        );
         expect(createIndexFields).to.exist;
         const createIndexOptions = screen.getByTestId(
           'create-index-modal-toggle-options'
@@ -179,54 +183,54 @@ describe('CreateIndexForm Component', function () {
         });
 
         context('index name', function () {
-          it('calls the toggleHasIndexName functions', function () {
+          it('calls the toggleUseIndexName functions', function () {
             const checkbox = screen.getByTestId(
-              'create-index-modal-has-index-name-checkbox'
+              'create-index-modal-use-index-name-checkbox'
             );
             fireEvent.click(checkbox);
-            expect(toggleHasIndexNameSpy).to.have.been.calledWith(true);
+            expect(toggleUseIndexNameSpy).to.have.been.calledWith(true);
           });
         });
 
         context('ttl', function () {
-          it('calls the toggleIsTtl functions', function () {
+          it('calls the toggleUseTtl functions', function () {
             const checkbox = screen.getByTestId(
-              'create-index-modal-is-ttl-checkbox'
+              'create-index-modal-use-ttl-checkbox'
             );
             fireEvent.click(checkbox);
-            expect(toggleIsTtlSpy).to.have.been.calledWith(true);
+            expect(toggleUseTtlSpy).to.have.been.calledWith(true);
           });
         });
 
         context('partial filter expression', function () {
-          it('calls the toggleIsPartialFilterExpression functions', function () {
+          it('calls the toggleUsePartialFilterExpression functions', function () {
             const checkbox = screen.getByTestId(
               'create-index-modal-is-pfe-checkbox'
             );
             fireEvent.click(checkbox);
-            expect(toggleIsPartialFilterExpressionSpy).to.have.been.calledWith(
+            expect(toggleUsePartialFilterExpressionSpy).to.have.been.calledWith(
               true
             );
           });
         });
 
         context('custom collation', function () {
-          it('calls the toggleIsCustomCollation functions', function () {
+          it('calls the toggleUseCustomCollation functions', function () {
             const checkbox = screen.getByTestId(
-              'create-index-modal-is-custom-collation-checkbox'
+              'create-index-modal-use-custom-collation-checkbox'
             );
             fireEvent.click(checkbox);
-            expect(toggleIsCustomCollationSpy).to.have.been.calledWith(true);
+            expect(toggleUseCustomCollationSpy).to.have.been.calledWith(true);
           });
         });
 
         context('wildcard projection', function () {
-          it('calls the toggleHasWildcardProjection functions', function () {
+          it('calls the toggleUseWildcardProjection functions', function () {
             const checkbox = screen.getByTestId(
               'create-index-modal-has-wildcard-checkbox'
             );
             fireEvent.click(checkbox);
-            expect(toggleHasWildcardProjectionSpy).to.have.been.calledWith(
+            expect(toggleUseWildcardProjectionSpy).to.have.been.calledWith(
               true
             );
           });
@@ -252,13 +256,13 @@ describe('CreateIndexForm Component', function () {
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
-            isTtl={false}
+            useTtl={false}
             ttl=""
-            isPartialFilterExpression={false}
+            usePartialFilterExpression={false}
             partialFilterExpression=""
-            isCustomCollation={false}
+            useCustomCollation={false}
             name=""
-            hasIndexName={true}
+            useIndexName={true}
             namespace="db.coll"
             newIndexField=""
             isVisible
@@ -268,27 +272,29 @@ describe('CreateIndexForm Component', function () {
             addField={addFieldSpy}
             removeField={removeFieldSpy}
             toggleIsUnique={toggleIsUniqueSpy}
-            toggleIsTtl={toggleIsTtlSpy}
-            toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
-            toggleIsCustomCollation={toggleIsCustomCollationSpy}
-            toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
-            toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
+            toggleUseTtl={toggleUseTtlSpy}
+            toggleUsePartialFilterExpression={
+              toggleUsePartialFilterExpressionSpy
+            }
+            toggleUseCustomCollation={toggleUseCustomCollationSpy}
+            toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
+            toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
             resetForm={resetFormSpy}
             createIndex={createIndexSpy}
             openLink={openLinkSpy}
-            changeTtl={changeTtlSpy}
-            changePartialFilterExpression={changePartialFilterExpressionSpy}
+            ttlChanged={ttlChangedSpy}
+            partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
             collationStringChanged={collationStringChangedSpy}
-            changeName={changeNameSpy}
+            nameChanged={nameChangedSpy}
             wildcardProjection=""
-            hasWildcardProjection={false}
+            useWildcardProjection={false}
             columnstoreProjection=""
-            hasColumnstoreProjection={false}
+            useColumnstoreProjection={false}
             serverVersion="4.0.0"
             columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
-            toggleHasIndexName={toggleHasIndexNameSpy}
+            toggleUseIndexName={toggleUseIndexNameSpy}
             clearError={clearErrorSpy}
           />
         );
@@ -299,16 +305,16 @@ describe('CreateIndexForm Component', function () {
         cleanup();
       });
 
-      it('calls the changeName function', function () {
+      it('calls the nameChanged function', function () {
         const createIndexOptions = screen.getByTestId(
           'create-index-modal-toggle-options'
         );
         fireEvent.click(createIndexOptions);
         const input = screen.getByTestId(
-          'create-index-modal-has-index-name-input'
+          'create-index-modal-use-index-name-input'
         );
         fireEvent.change(input, { target: { value: 'Name' } });
-        expect(changeNameSpy).to.have.been.calledWith('Name');
+        expect(nameChangedSpy).to.have.been.calledWith('Name');
       });
     });
 
@@ -321,13 +327,13 @@ describe('CreateIndexForm Component', function () {
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
-            isTtl={true}
+            useTtl={true}
             ttl=""
-            isPartialFilterExpression={false}
+            usePartialFilterExpression={false}
             partialFilterExpression=""
-            isCustomCollation={false}
+            useCustomCollation={false}
             name=""
-            hasIndexName={false}
+            useIndexName={false}
             namespace="db.coll"
             newIndexField=""
             isVisible
@@ -337,27 +343,29 @@ describe('CreateIndexForm Component', function () {
             addField={addFieldSpy}
             removeField={removeFieldSpy}
             toggleIsUnique={toggleIsUniqueSpy}
-            toggleIsTtl={toggleIsTtlSpy}
-            toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
-            toggleIsCustomCollation={toggleIsCustomCollationSpy}
-            toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
-            toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
+            toggleUseTtl={toggleUseTtlSpy}
+            toggleUsePartialFilterExpression={
+              toggleUsePartialFilterExpressionSpy
+            }
+            toggleUseCustomCollation={toggleUseCustomCollationSpy}
+            toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
+            toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
             resetForm={resetFormSpy}
             createIndex={createIndexSpy}
             openLink={openLinkSpy}
-            changeTtl={changeTtlSpy}
-            changePartialFilterExpression={changePartialFilterExpressionSpy}
+            ttlChanged={ttlChangedSpy}
+            partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
             collationStringChanged={collationStringChangedSpy}
-            changeName={changeNameSpy}
+            nameChanged={nameChangedSpy}
             wildcardProjection=""
-            hasWildcardProjection={false}
+            useWildcardProjection={false}
             columnstoreProjection=""
-            hasColumnstoreProjection={false}
+            useColumnstoreProjection={false}
             serverVersion="4.0.0"
             columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
-            toggleHasIndexName={toggleHasIndexNameSpy}
+            toggleUseIndexName={toggleUseIndexNameSpy}
             clearError={clearErrorSpy}
           />
         );
@@ -368,14 +376,14 @@ describe('CreateIndexForm Component', function () {
         cleanup();
       });
 
-      it('calls the changeTtl function', function () {
+      it('calls the ttlChanged function', function () {
         const createIndexOptions = screen.getByTestId(
           'create-index-modal-toggle-options'
         );
         fireEvent.click(createIndexOptions);
-        const input = screen.getByTestId('create-index-modal-is-ttl-input');
+        const input = screen.getByTestId('create-index-modal-use-ttl-input');
         fireEvent.change(input, { target: { value: '33' } });
-        expect(changeTtlSpy).to.have.been.calledWith('33');
+        expect(ttlChangedSpy).to.have.been.calledWith('33');
       });
     });
 
@@ -388,13 +396,13 @@ describe('CreateIndexForm Component', function () {
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
-            isTtl={false}
+            useTtl={false}
             ttl=""
-            isPartialFilterExpression={true}
+            usePartialFilterExpression={true}
             partialFilterExpression=""
-            isCustomCollation={false}
+            useCustomCollation={false}
             name=""
-            hasIndexName={false}
+            useIndexName={false}
             namespace="db.coll"
             newIndexField=""
             isVisible
@@ -404,27 +412,29 @@ describe('CreateIndexForm Component', function () {
             addField={addFieldSpy}
             removeField={removeFieldSpy}
             toggleIsUnique={toggleIsUniqueSpy}
-            toggleIsTtl={toggleIsTtlSpy}
-            toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
-            toggleIsCustomCollation={toggleIsCustomCollationSpy}
-            toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
-            toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
+            toggleUseTtl={toggleUseTtlSpy}
+            toggleUsePartialFilterExpression={
+              toggleUsePartialFilterExpressionSpy
+            }
+            toggleUseCustomCollation={toggleUseCustomCollationSpy}
+            toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
+            toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
             resetForm={resetFormSpy}
             createIndex={createIndexSpy}
             openLink={openLinkSpy}
-            changeTtl={changeTtlSpy}
-            changePartialFilterExpression={changePartialFilterExpressionSpy}
+            ttlChanged={ttlChangedSpy}
+            partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
             collationStringChanged={collationStringChangedSpy}
-            changeName={changeNameSpy}
+            nameChanged={nameChangedSpy}
             wildcardProjection=""
-            hasWildcardProjection={false}
+            useWildcardProjection={false}
             columnstoreProjection=""
-            hasColumnstoreProjection={false}
+            useColumnstoreProjection={false}
             serverVersion="4.0.0"
             columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
-            toggleHasIndexName={toggleHasIndexNameSpy}
+            toggleUseIndexName={toggleUseIndexNameSpy}
             clearError={clearErrorSpy}
           />
         );
@@ -435,14 +445,14 @@ describe('CreateIndexForm Component', function () {
         cleanup();
       });
 
-      it('calls the changePartialFilterExpression function', function () {
+      it('calls the partialFilterExpressionChanged function', function () {
         const createIndexOptions = screen.getByTestId(
           'create-index-modal-toggle-options'
         );
         fireEvent.click(createIndexOptions);
         const input = screen.getByTestId('create-index-modal-is-pfe-input');
         fireEvent.change(input, { target: { value: '{}' } });
-        expect(changePartialFilterExpressionSpy).to.have.been.calledWith('{}');
+        expect(partialFilterExpressionChangedSpy).to.have.been.calledWith('{}');
       });
     });
 
@@ -461,13 +471,13 @@ describe('CreateIndexForm Component', function () {
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
-            isTtl={false}
+            useTtl={false}
             ttl=""
-            isPartialFilterExpression={false}
+            usePartialFilterExpression={false}
             partialFilterExpression=""
-            isCustomCollation={false}
+            useCustomCollation={false}
             name=""
-            hasIndexName={false}
+            useIndexName={false}
             namespace="db.coll"
             newIndexField=""
             isVisible
@@ -477,27 +487,29 @@ describe('CreateIndexForm Component', function () {
             addField={addFieldSpy}
             removeField={removeFieldSpy}
             toggleIsUnique={toggleIsUniqueSpy}
-            toggleIsTtl={toggleIsTtlSpy}
-            toggleIsPartialFilterExpression={toggleIsPartialFilterExpressionSpy}
-            toggleIsCustomCollation={toggleIsCustomCollationSpy}
-            toggleHasWildcardProjection={toggleHasWildcardProjectionSpy}
-            toggleHasColumnstoreProjection={toggleHasColumnstoreProjectionSpy}
+            toggleUseTtl={toggleUseTtlSpy}
+            toggleUsePartialFilterExpression={
+              toggleUsePartialFilterExpressionSpy
+            }
+            toggleUseCustomCollation={toggleUseCustomCollationSpy}
+            toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
+            toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
             resetForm={resetFormSpy}
             createIndex={createIndexSpy}
             openLink={openLinkSpy}
-            changeTtl={changeTtlSpy}
-            changePartialFilterExpression={changePartialFilterExpressionSpy}
+            ttlChanged={ttlChangedSpy}
+            partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
             collationStringChanged={collationStringChangedSpy}
-            changeName={changeNameSpy}
+            nameChanged={nameChangedSpy}
             wildcardProjection=""
-            hasWildcardProjection={false}
+            useWildcardProjection={false}
             columnstoreProjection=""
-            hasColumnstoreProjection={false}
+            useColumnstoreProjection={false}
             serverVersion="6.1.0"
             columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
-            toggleHasIndexName={toggleHasIndexNameSpy}
+            toggleUseIndexName={toggleUseIndexNameSpy}
             clearError={clearErrorSpy}
           />
         );
@@ -517,12 +529,12 @@ describe('CreateIndexForm Component', function () {
         });
 
         context('columnstore projection', function () {
-          it('calls the toggleHasColumnstoreProjection functions', function () {
+          it('calls the toggleUseColumnstoreProjection functions', function () {
             const checkbox = screen.getByTestId(
               'create-index-modal-has-columnstore-checkbox'
             );
             fireEvent.click(checkbox);
-            expect(toggleHasColumnstoreProjectionSpy).to.have.been.calledWith(
+            expect(toggleUseColumnstoreProjectionSpy).to.have.been.calledWith(
               true
             );
           });
