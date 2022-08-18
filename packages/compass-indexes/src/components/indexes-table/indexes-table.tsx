@@ -6,6 +6,7 @@ import {
   Row,
   Cell,
   cx,
+  spacing,
 } from '@mongodb-js/compass-components';
 
 import NameField from './name-field';
@@ -26,6 +27,15 @@ const rowStyles = css({
 // When row is not hovered, we hide the delete button
 const deletFieldStyles = css({
   visibility: 'hidden',
+});
+
+const cellStyles = css({
+  verticalAlign: 'top',
+});
+
+const nameFieldStyles = css({
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
 });
 
 // todo: move to redux store when converting that to ts
@@ -96,19 +106,21 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
           data-testid={`index-row-${index.name}`}
           className={rowStyles}
         >
-          <Cell data-testid="index-name-field">
-            <NameField name={index.name} keys={index.fields.serialize()} />
+          <Cell data-testid="index-name-field" className={cellStyles}>
+            <div className={nameFieldStyles}>
+              <NameField name={index.name} keys={index.fields.serialize()} />
+            </div>
           </Cell>
-          <Cell data-testid="index-type-field">
+          <Cell data-testid="index-type-field" className={cellStyles}>
             <TypeField type={index.type} extra={index.extra} />
           </Cell>
-          <Cell data-testid="index-size-field">
+          <Cell data-testid="index-size-field" className={cellStyles}>
             <SizeField size={index.size} relativeSize={index.relativeSize} />
           </Cell>
-          <Cell data-testid="index-usage-field">
+          <Cell data-testid="index-usage-field" className={cellStyles}>
             <UsageField usage={index.usageCount} since={index.usageSince} />
           </Cell>
-          <Cell data-testid="index-property-field">
+          <Cell data-testid="index-property-field" className={cellStyles}>
             <PropertyField
               cardinality={index.cardinality}
               extra={index.extra}
@@ -117,7 +129,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
           </Cell>
           {/* Delete column is conditional */}
           {index.name !== '_id_' && canDeleteIndex && (
-            <Cell data-testid="index-drop-field">
+            <Cell data-testid="index-drop-field" className={cellStyles}>
               <div className={cx(deletFieldStyles, 'delete-cell')}>
                 <DropField
                   name={index.name}
