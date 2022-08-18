@@ -73,6 +73,7 @@
     "@react-stately/tooltip": "^3.0.5",
     "@types/lodash": "^4.14.172",
     "bson": "^4.6.1",
+    "focus-trap-react": "^8.4.2",
     "hadron-document": "^8.0.0",
     "hadron-type-checker": "^7.0.0",
     "lodash": "^4.17.21",

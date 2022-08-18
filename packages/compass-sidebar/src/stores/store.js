@@ -4,6 +4,7 @@ import thunk from 'redux-thunk';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 import reducer from '../modules';
 import { changeInstance } from '../modules/instance';
+import { changeLocation } from '../modules/location';
 import { changeActiveNamespace, changeDatabases } from '../modules/databases';
 import { reset } from '../modules/reset';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
@@ -167,18 +168,22 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('select-namespace', ({ namespace }) => {
     store.dispatch(changeActiveNamespace(namespace));
+    store.dispatch(changeLocation('collection'));
   });
 
   appRegistry.on('open-namespace-in-new-tab', ({ namespace }) => {
     store.dispatch(changeActiveNamespace(namespace));
+    store.dispatch(changeLocation('collection'));
   });
 
   appRegistry.on('select-database', (dbName) => {
     store.dispatch(changeActiveNamespace(dbName));
+    store.dispatch(changeLocation('database'));
   });
 
-  appRegistry.on('open-instance-workspace', () => {
+  appRegistry.on('open-instance-workspace', (tabName = null) => {
     store.dispatch(changeActiveNamespace(''));
+    store.dispatch(changeLocation(tabName));
   });
 
   appRegistry.on('data-service-disconnected', () => {

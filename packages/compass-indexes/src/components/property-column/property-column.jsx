@@ -1,20 +1,37 @@
-import map from 'lodash.map';
-import { format } from 'util';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import ReactTooltip from 'react-tooltip';
-import { InfoSprinkle } from 'hadron-react-components';
-import { shell } from 'electron';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
-import classnames from 'classnames';
-import styles from './property-column.module.less';
+import {
+  spacing,
+  css,
+  Tooltip,
+  Body,
+  Badge,
+  BadgeVariant,
+  Icon,
+  Link,
+  uiColors,
+} from '@mongodb-js/compass-components';
 
-const TOOLTIP_ID = 'index-property';
+const contentStyles = css({
+  display: 'flex',
+  gap: spacing[1],
+});
 
-/**
- * Component for the property column.
- */
+const badgeStyles = css({
+  gap: spacing[2],
+});
+
+const iconLinkStyles = css({
+  lineHeight: 0,
+  color: uiColors.white,
+  span: {
+    // LG uses backgroundImage instead of textDecoration
+    backgroundImage: 'none !important',
+  },
+});
+
 class PropertyColumn extends PureComponent {
   static displayName = 'PropertyColumn';
 
@@ -24,113 +41,77 @@ class PropertyColumn extends PureComponent {
   };
 
   _partialTooltip() {
-    return format(
-      'partialFilterExpression: %j',
-      this.props.index.extra.partialFilterExpression
-    );
+    const { partialFilterExpression } = this.props.index.extra;
+    return `partialFilterExpression: ${JSON.stringify(
+      partialFilterExpression
+    )}`;
   }
 
   _ttlTooltip() {
-    return format(
-      'expireAfterSeconds: %d',
-      this.props.index.extra.expireAfterSeconds
-    );
+    const { expireAfterSeconds } = this.props.index.extra;
+    return `expireAfterSeconds: ${expireAfterSeconds}`;
   }
 
-  /**
-   * Render cardinality info.
-   *
-   * @returns {React.Component} The cardianlity info.
-   */
-  renderCardinality() {
-    if (this.props.index.cardinality === 'compound') {
-      return (
-        <div
-          className={classnames(styles['property-column-property-cardinality'])}
-        >
-          {this.props.index.cardinality}
-          <InfoSprinkle
-            helpLink={getIndexHelpLink('COMPOUND')}
-            onClickHandler={this.props.openLink}
-          />
-        </div>
-      );
-    }
-  }
-
-  /**
-   * Render the property column
-   *
-   * @param {String} prop - The property.
-   *
-   * @returns {React.Component} The property component.
-   */
-  renderProperty(prop) {
-    const tooltipOptions = {
-      'data-for': TOOLTIP_ID,
-      'data-effect': 'solid',
-      'data-border': true,
-    };
-
-    if (prop === 'ttl') {
-      tooltipOptions['data-tip'] = this._ttlTooltip();
-      return (
-        <div
-          {...tooltipOptions}
-          key={prop}
-          className={classnames(styles['property-column-property'])}
-        >
-          {prop}
-          <InfoSprinkle
-            helpLink={getIndexHelpLink('TTL')}
-            onClickHandler={shell.openExternal}
-          />
-        </div>
-      );
-    } else if (prop === 'partial') {
-      tooltipOptions['data-tip'] = this._partialTooltip();
-      return (
-        <div
-          {...tooltipOptions}
-          key={prop}
-          className={classnames(styles['property-column-property'])}
-        >
-          {prop}
-          <InfoSprinkle
-            helpLink={getIndexHelpLink('PARTIAL')}
-            onClickHandler={shell.openExternal}
-          />
-        </div>
-      );
-    }
+  renderItemWithTooltip(text, link, tooltip) {
     return (
-      <div
-        key={prop}
-        className={classnames(styles['property-column-property'])}
+      <Tooltip
+        enabled={!!tooltip}
+        trigger={({ children, ...props }) => (
+          <span {...props}>
+            {children}
+            <Badge variant={BadgeVariant.DarkGray} className={badgeStyles}>
+              {text}
+              <Link
+                hideExternalIcon
+                aria-label="Index property docs"
+                className={iconLinkStyles}
+                href={link}
+              >
+                <Icon glyph="InfoWithCircle" />
+              </Link>
+            </Badge>
+          </span>
+        )}
       >
-        {prop}
-        <InfoSprinkle
-          helpLink={getIndexHelpLink(prop.toUpperCase())}
-          onClickHandler={shell.openExternal}
-        />
-      </div>
+        <Body>{tooltip}</Body>
+      </Tooltip>
     );
   }
 
-  /**
-   * Render the property column.
-   *
-   * @returns {React.Component} The property column.
-   */
+  renderCardinality() {
+    const { cardinality } = this.props.index;
+    if (cardinality !== 'compound') {
+      return null;
+    }
+    return this.renderItemWithTooltip(
+      cardinality,
+      getIndexHelpLink('COMPOUND')
+    );
+  }
+
+  renderProperty(prop) {
+    const tooltip =
+      prop === 'ttl'
+        ? this._ttlTooltip()
+        : prop === 'partial'
+        ? this._partialTooltip()
+        : null;
+
+    return this.renderItemWithTooltip(
+      prop,
+      getIndexHelpLink(prop.toUpperCase()),
+      tooltip
+    );
+  }
+
   render() {
-    const properties = map(this.props.index.properties, (prop) => {
-      return this.renderProperty(prop);
-    });
+    const properties = this.props.index.properties.map(
+      this.renderProperty.bind(this)
+    );
     return (
-      <td className={classnames(styles['property-column'])}>
-        <div>
+      <td>
+        <div className={contentStyles}>
           {properties}
-          <ReactTooltip id={TOOLTIP_ID} />
           {this.renderCardinality()}
         </div>
       </td>

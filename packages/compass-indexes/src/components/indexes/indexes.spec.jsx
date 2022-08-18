@@ -6,7 +6,6 @@ import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
 import { ErrorSummary, WarningSummary } from '@mongodb-js/compass-components';
 
-import styles from './indexes.module.less';
 import { Indexes } from '../indexes';
 import IndexHeader from '../index-header';
 import IndexList from '../index-list';
@@ -48,10 +47,6 @@ describe('indexes [Component]', function () {
 
     afterEach(function () {
       component = null;
-    });
-
-    it('renders the correct root classname', function () {
-      expect(component.find(`.${styles.indexes}`)).to.be.present();
     });
 
     it('renders a create-index-button', function () {
@@ -97,10 +92,6 @@ describe('indexes [Component]', function () {
       component = null;
     });
 
-    it('does not render the correct root classname', function () {
-      expect(component.find(`.${styles.indexes}`)).to.not.be.present();
-    });
-
     it('does not render a create-index-button', function () {
       expect(
         component
@@ -144,10 +135,6 @@ describe('indexes [Component]', function () {
 
     afterEach(function () {
       component = null;
-    });
-
-    it('renders the correct root classname', function () {
-      expect(component.find(`.${styles.indexes}`)).to.be.present();
     });
 
     it('does not render a create-index-button', function () {

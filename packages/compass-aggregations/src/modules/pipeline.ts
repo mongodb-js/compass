@@ -40,6 +40,7 @@ export type Pipeline = {
   id: string;
   stageOperator: string;
   stage: string;
+  name?: string;
   isValid: boolean;
   isEnabled: boolean;
   isExpanded: boolean;
@@ -118,7 +119,7 @@ export const STAGE_TOGGLED = `${PREFIX}/STAGE_TOGGLED`;
 export const STAGE_PREVIEW_UPDATED = `${PREFIX}/STAGE_PREVIEW_UPDATED`;
 
 /**
- * Loading stage results aciton name.
+ * Loading stage results action name.
  */
 export const LOADING_STAGE_RESULTS = `${PREFIX}/LOADING_STAGE_RESULTS`;
 
@@ -133,7 +134,7 @@ export const LIMIT = Object.freeze({ $limit: DEFAULT_SAMPLE_SIZE });
 export const LARGE_LIMIT = Object.freeze({ $limit: DEFAULT_LARGE_LIMIT });
 
 /**
- * N/A contant.
+ * N/A constant.
  */
 const NA = 'N/A';
 

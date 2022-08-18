@@ -2,9 +2,12 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ModalStatusMessage } from 'hadron-react-components';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
-
-import styles from './drop-index-modal.module.less';
+import {
+  ConfirmationModal,
+  css,
+  Icon,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleInProgress } from '../../modules/in-progress';
@@ -13,6 +16,11 @@ import { changeConfirmName } from '../../modules/drop-index/confirm-name';
 import { handleError, clearError } from '../../modules/error';
 import { dropIndex } from '../../modules/drop-index';
 import { resetForm } from '../../modules/reset-form';
+
+const messageStyles = css({
+  display: 'flex',
+  gap: spacing[1],
+});
 
 /**
  * Component for the drop confirmation modal.
@@ -77,12 +85,11 @@ class DropIndexModal extends PureComponent {
         buttonText="Drop"
         variant="danger"
         submitDisabled={this.props.confirmName !== this.props.name}
-        className={styles['drop-index-modal']}
         trackingId="drop_index_modal"
       >
         <div>
-          <p className={styles['drop-index-modal-confirm']}>
-            <i className="fa fa-exclamation-triangle" aria-hidden="true" />
+          <p className={messageStyles}>
+            <Icon glyph="Warning" />
             Type the index name
             <strong> {this.props.name} </strong>
             to drop

@@ -18,6 +18,9 @@ class QueryHistory extends PureComponent {
     actions: PropTypes.object.isRequired,
     store: PropTypes.object.isRequired,
     showing: PropTypes.oneOf(['recent', 'favorites']),
+    // TODO(COMPASS-5679): After we enable the toolbars feature flag,
+    // we can remove the collapsed boolean and make `onClose` required.
+    onClose: PropTypes.func,
     collapsed: PropTypes.bool,
     ns: PropTypes.object,
   };
@@ -59,16 +62,27 @@ class QueryHistory extends PureComponent {
   );
 
   render() {
-    const { collapsed, showing, actions } = this.props;
+    const { collapsed, ns, showing, onClose, actions } = this.props;
 
-    if (collapsed) {
+    if (!onClose && collapsed) {
+      // TODO(COMPASS-5679): After we enable the toolbars feature flag,
+      // we can remove the collapsed boolean and make `onClose` required.
+      // And remove this condition.
       return null;
     }
 
     return (
-      <div data-test-id="query-history" className={styles.component}>
+      <div
+        data-test-id="query-history"
+        className={onClose ? styles.component : styles['component-legacy']}
+      >
         <div className={styles.inner}>
-          <Toolbar actions={actions} showing={showing} />
+          <Toolbar
+            actions={actions}
+            showing={showing}
+            onClose={onClose}
+            namespace={ns}
+          />
 
           {showing === 'favorites' ? this.renderFavorites() : null}
           {showing === 'recent' ? this.renderRecents() : null}

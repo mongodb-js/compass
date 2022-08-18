@@ -11,9 +11,9 @@ import {
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
-import SidebarDatabasesNavigation from './sidebar-databases-navigation';
 import SidebarTitle from './sidebar-title';
 import FavoriteIndicator from './favorite-indicator';
+import NavigationItems from './navigation-items';
 
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 
@@ -34,12 +34,8 @@ export function Sidebar({
   //   - instance stats
   //   - csfle marker
   //   - csfle connection modal
-  //   - save connection modal
   //   - non genuine warning pill
   //   - sidebar instance details
-  // TODO: navigation items
-  // TODO: filter
-  // TODO: create database
   // TODO: non genuine warning label
 
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
@@ -60,7 +56,7 @@ export function Sidebar({
   const { openToast } = useToast('compass-connections');
 
   const onAction = useCallback(
-    (action: string) => {
+    (action: string, ...rest: any[]) => {
       async function copyConnectionString(connectionString: string) {
         try {
           await navigator.clipboard.writeText(connectionString);
@@ -92,7 +88,8 @@ export function Sidebar({
         return;
       }
 
-      globalAppRegistryEmit(action);
+      console.log(action, ...rest);
+      globalAppRegistryEmit(action, ...rest);
     },
     [
       connectionInfo.connectionOptions.connectionString,
@@ -113,7 +110,9 @@ export function Sidebar({
         {connectionInfo.favorite && (
           <FavoriteIndicator favorite={connectionInfo.favorite} />
         )}
-        <SidebarDatabasesNavigation />
+
+        <NavigationItems isExpanded={isExpanded} onAction={onAction} />
+
         <SaveConnectionModal
           initialFavoriteInfo={connectionInfo.favorite}
           open={isFavoriteModalVisible}

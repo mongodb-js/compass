@@ -14,7 +14,28 @@ import IndexHeader from '../index-header';
 import IndexList from '../index-list';
 import { IndexesToolbar } from '../indexes-toolbar';
 
-import styles from './indexes.module.less';
+import { css, spacing } from '@mongodb-js/compass-components';
+
+const containerStyles = css({
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  flexGrow: 1,
+  overflow: 'hidden',
+});
+const indexesStyles = css({
+  width: '100%',
+  padding: spacing[3],
+  paddingTop: 0,
+  flexGrow: 1,
+  overflow: 'auto',
+});
+const indexesTableStyles = css({
+  tableLayout: 'auto',
+  borderCollapse: 'separate',
+  borderSpacing: '0 3px',
+  width: '100%',
+});
 
 class Indexes extends PureComponent {
   static displayName = 'IndexesComponent';
@@ -37,8 +58,8 @@ class Indexes extends PureComponent {
 
   renderComponent() {
     return (
-      <div className={styles['indexes']}>
-        <table className={styles['indexes-table']}>
+      <div className={indexesStyles}>
+        <table className={indexesTableStyles}>
           <IndexHeader
             isWritable={this.props.isWritable}
             isReadonly={this.props.isReadonly}
@@ -67,7 +88,7 @@ class Indexes extends PureComponent {
    */
   render() {
     return (
-      <div className={styles['indexes-container']}>
+      <div className={containerStyles}>
         <IndexesToolbar
           isWritable={this.props.isWritable}
           isReadonly={this.props.isReadonly}
