@@ -13,6 +13,7 @@ import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarTitle from './sidebar-title';
 import FavoriteIndicator from './favorite-indicator';
+import DBStats from './db-stats';
 import NavigationItems from './navigation-items';
 
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
@@ -110,6 +111,8 @@ export function Sidebar({
         {connectionInfo.favorite && (
           <FavoriteIndicator favorite={connectionInfo.favorite} />
         )}
+
+        {isExpanded && <DBStats />}
 
         <NavigationItems isExpanded={isExpanded} onAction={onAction} />
 
