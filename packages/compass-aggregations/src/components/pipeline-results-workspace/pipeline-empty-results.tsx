@@ -3,7 +3,7 @@ import {
   css,
   spacing,
   uiColors,
-  H2,
+  H3,
   Subtitle,
 } from '@mongodb-js/compass-components';
 
@@ -67,7 +67,7 @@ export const PipelineEmptyResults: React.FunctionComponent = () => {
           />
         </g>
       </svg>
-      <H2 className={headingStyles}>No results</H2>
+      <H3 className={headingStyles}>No results</H3>
       <Subtitle className={bodyStyles}>
         Try to modify your pipeline to get results
       </Subtitle>
