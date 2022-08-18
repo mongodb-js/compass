@@ -1,7 +1,6 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { Link, Checkbox, Label } from './leafygreen';
-import { useId } from '@react-aria/utils';
 import { spacing } from '@leafygreen-ui/tokens';
 import { withTheme } from '../hooks/use-theme';
 import { Description } from '@leafygreen-ui/typography';
