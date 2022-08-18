@@ -48,6 +48,13 @@ const bannerStyles = css({
   marginTop: spacing[3],
 });
 
+const createIndexModal = css({
+  'div[role=dialog] > :first-child': {
+    maxHeight: '80vh',
+    overflow: 'scroll',
+  },
+});
+
 /**
  * Component for the create index modal.
  */
@@ -119,6 +126,7 @@ class CreateIndexModal extends PureComponent<
         onCancel={this.onCancel}
         buttonText="Create Index"
         trackingId="create_index_modal"
+        className={createIndexModal}
       >
         <Disclaimer>{this.props.namespace}</Disclaimer>
         <CreateIndexForm {...this.props} />
