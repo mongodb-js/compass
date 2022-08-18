@@ -15,24 +15,22 @@ const TTLCollapsibleFieldSet = ({
   ttlChanged,
 }: TTL) => {
   return (
-    <div data-testid="create-index-modal-use-ttl">
-      <CollapsibleFieldSet
-        toggled={useTtl}
-        onToggle={(checked: boolean) => toggleUseTtl(checked)}
-        label="Create TTL"
-        dataTestId="create-index-modal-use-ttl-checkbox"
-        description="TTL indexes are special single-field indexes that MongoDB can use to automatically remove documents from a collection after a certain amount of time or at a specific clock time."
-      >
-        <TextInput
-          value={ttl}
-          label="seconds"
-          data-testid="create-index-modal-use-ttl-input"
-          type="number"
-          onChange={(e) => ttlChanged(e.target.value)}
-          spellCheck={false}
-        />
-      </CollapsibleFieldSet>
-    </div>
+    <CollapsibleFieldSet
+      toggled={useTtl}
+      onToggle={(checked: boolean) => toggleUseTtl(checked)}
+      label="Create TTL"
+      dataTestId="create-index-modal-use-ttl-checkbox"
+      description="TTL indexes are special single-field indexes that MongoDB can use to automatically remove documents from a collection after a certain amount of time or at a specific clock time."
+    >
+      <TextInput
+        value={ttl}
+        label="seconds"
+        data-testid="create-index-modal-use-ttl-input"
+        type="number"
+        onChange={(e) => ttlChanged(e.target.value)}
+        spellCheck={false}
+      />
+    </CollapsibleFieldSet>
   );
 };
 

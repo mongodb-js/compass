@@ -23,7 +23,7 @@ const ColumnstoreProjectionCollapsibleFieldSet = ({
       toggled={useColumnstoreProjection}
       onToggle={(checked: boolean) => toggleUseColumnstoreProjection(checked)}
       label="Columnstore Projection"
-      dataTestId="create-index-modal-has-columnstore-checkbox"
+      dataTestId="create-index-modal-use-columnstore-checkbox"
       description="Columnstore indexes support queries against unknown or arbitrary fields."
     >
       <Editor
@@ -31,7 +31,7 @@ const ColumnstoreProjectionCollapsibleFieldSet = ({
         variant={EditorVariant.Shell}
         onChangeText={columnstoreProjectionChanged}
         options={{ minLines: 10 }}
-        name="create-index-modal-has-columnstore-editor"
+        name="create-index-modal-use-columnstore-editor"
       />
     </CollapsibleFieldSet>
   );

@@ -6,5 +6,4 @@ declare module 'mongodb-query-parser' {
   export { isCollationValid };
 }
 
-declare module 'hadron-react-buttons';
 declare module 'hadron-react-components';

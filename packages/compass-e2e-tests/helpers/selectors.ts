@@ -794,9 +794,9 @@ export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
 export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-has-wildcard-checkbox"] input[type="checkbox"]';
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] #create-index-modal-use-wildcard-checkbox-label';
 export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-has-wildcard-checkbox"] .ace_editor';
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] .ace_editor';
 
 export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
 export const CreateIndexConfirmButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:first-child`;

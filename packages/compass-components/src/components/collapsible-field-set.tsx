@@ -17,7 +17,7 @@ const collapsibleFieldsetStyles = css({
   },
 });
 
-export type CreateIndexProps = {
+export type CollapsibleFieldSetProps = {
   darkMode?: boolean;
   dataTestId?: string;
   children?: React.ReactElement;
@@ -37,13 +37,17 @@ const UnthemedCollapsibleFieldSet = ({
   label,
   onToggle,
   toggled,
+  dataTestId,
   ...props
-}: React.PropsWithChildren<CreateIndexProps>): React.ReactElement => {
-  const labelId = useId();
+}: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
+  const labelId = dataTestId || useId();
   return (
-    <fieldset className={collapsibleFieldsetStyles}>
+    <fieldset
+      className={collapsibleFieldsetStyles}
+      data-testid={`${labelId}-fieldset`}
+    >
       <Checkbox
-        data-testid={props.dataTestId}
+        data-testid={labelId}
         onChange={(event) => {
           onToggle(event.target.checked);
         }}

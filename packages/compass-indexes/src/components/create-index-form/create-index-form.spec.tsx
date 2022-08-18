@@ -226,7 +226,7 @@ describe('CreateIndexForm Component', function () {
         context('wildcard projection', function () {
           it('calls the toggleUseWildcardProjection functions', function () {
             const checkbox = screen.getByTestId(
-              'create-index-modal-has-wildcard-checkbox'
+              'create-index-modal-use-wildcard-checkbox'
             );
             fireEvent.click(checkbox);
             expect(toggleUseWildcardProjectionSpy).to.have.been.calledWith(
@@ -238,7 +238,7 @@ describe('CreateIndexForm Component', function () {
         context('columnstore projection', function () {
           it('does not display columnstore projection checkbox', function () {
             const checkbox = screen.queryByTestId(
-              'create-index-modal-has-columnstore-checkbox'
+              'create-index-modal-use-columnstore-checkbox'
             );
             expect(checkbox).to.not.exist;
           });
@@ -530,7 +530,7 @@ describe('CreateIndexForm Component', function () {
         context('columnstore projection', function () {
           it('calls the toggleUseColumnstoreProjection functions', function () {
             const checkbox = screen.getByTestId(
-              'create-index-modal-has-columnstore-checkbox'
+              'create-index-modal-use-columnstore-checkbox'
             );
             fireEvent.click(checkbox);
             expect(toggleUseColumnstoreProjectionSpy).to.have.been.calledWith(

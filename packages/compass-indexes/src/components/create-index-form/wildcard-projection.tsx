@@ -23,7 +23,7 @@ const WildcardProjectionCollapsibleFieldSet = ({
       toggled={useWildcardProjection}
       onToggle={(checked: boolean) => toggleUseWildcardProjection(checked)}
       label="Wildcard Projection"
-      dataTestId="create-index-modal-has-wildcard-checkbox"
+      dataTestId="create-index-modal-use-wildcard-checkbox"
       description="Wildcard indexes support queries against unknown or arbitrary fields."
     >
       <Editor
@@ -31,7 +31,7 @@ const WildcardProjectionCollapsibleFieldSet = ({
         variant={EditorVariant.Shell}
         onChangeText={wildcardProjectionChanged}
         options={{ minLines: 10 }}
-        name="create-index-modal-has-wildcard-editor"
+        name="create-index-modal-use-wildcard-editor"
       />
     </CollapsibleFieldSet>
   );

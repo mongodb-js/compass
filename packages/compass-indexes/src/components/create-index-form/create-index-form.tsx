@@ -160,7 +160,7 @@ class CreateIndexForm extends Component<CreateIndexProps> {
           useCustomCollation={this.props.useCustomCollation}
           toggleUseCustomCollation={this.props.toggleUseCustomCollation}
           collationString={this.props.collationString}
-          collationStringChanged={this.props.partialFilterExpressionChanged}
+          collationStringChanged={this.props.collationStringChanged}
         />
         <WildcardProjectionCollapsibleFieldSet
           useWildcardProjection={this.props.useWildcardProjection}
