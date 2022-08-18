@@ -20,7 +20,6 @@ const explainToolbarStyles = css({
   alignItems: 'center',
   gap: spacing[3],
   padding: spacing[3],
-  boxShadow: '0 2px 2px rgb(0 0 0 / 20%)',
   zIndex: 10,
 });
 
