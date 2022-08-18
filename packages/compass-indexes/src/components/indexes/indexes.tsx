@@ -12,11 +12,21 @@ import type { IndexModel } from '../indexes-table/indexes-table';
 const containerStyles = css({
   margin: spacing[3],
   padding: spacing[3],
-  display: 'flex',
-  flexDirection: 'column',
+  display: 'grid',
+  gridTemplateAreas: `
+    'toolbar'
+    'indexTable'
+  `,
   width: '100%',
-  height: 'auto',
-  overflowY: 'scroll',
+  overflow: 'hidden',
+  alignContent: 'start',
+});
+const toolbarStyles = css({
+  gridArea: 'toolbar',
+});
+const indexTableStyles = css({
+  gridArea: 'indexTable',
+  overflow: 'auto',
 });
 
 type IndexesProps = {
@@ -45,21 +55,25 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   };
   return (
     <Card className={containerStyles} data-testid="indexes">
-      <IndexesToolbar
-        isWritable={isWritable}
-        isReadonly={isReadonly}
-        isReadonlyView={isReadonlyView}
-        errorMessage={error}
-        localAppRegistry={localAppRegistry}
-        writeStateDescription={description}
-      />
-      {!isReadonlyView && !error && (
-        <IndexesTable
-          indexes={indexes}
-          canDeleteIndex={isWritable && !isReadonly}
-          onSortTable={onSortTable}
-          onDeleteIndex={onDeleteIndex}
+      <div className={toolbarStyles}>
+        <IndexesToolbar
+          isWritable={isWritable}
+          isReadonly={isReadonly}
+          isReadonlyView={isReadonlyView}
+          errorMessage={error}
+          localAppRegistry={localAppRegistry}
+          writeStateDescription={description}
         />
+      </div>
+      {!isReadonlyView && !error && (
+        <div className={indexTableStyles}>
+          <IndexesTable
+            indexes={indexes}
+            canDeleteIndex={isWritable && !isReadonly}
+            onSortTable={onSortTable}
+            onDeleteIndex={onDeleteIndex}
+          />
+        </div>
       )}
     </Card>
   );
