@@ -39,7 +39,7 @@ const DEFAULT_FIELD = {
   type: 'Select a type',
 };
 
-const hostActionButtonStyles = css({
+const addFieldButtonStyles = css({
   marginLeft: spacing[1],
   marginTop: spacing[1],
 });
@@ -52,7 +52,7 @@ const createIndexFieldsStyles = css({
 });
 
 const createIndexFieldsNameStyles = css({
-  width: +spacing[7] * 3 + +spacing[6],
+  width: '50vw',
   textTransform: 'none',
   marginRight: spacing[2],
   whiteSpace: 'nowrap',
@@ -63,7 +63,7 @@ const createIndexFieldsNameStyles = css({
 });
 
 const createIndexFieldsTypeStyles = css({
-  width: +spacing[7] * 2 + +spacing[3],
+  width: '40vw',
   textTransform: 'none',
   marginRight: spacing[2],
   whiteSpace: 'nowrap',
@@ -232,7 +232,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
         </div>
         <div className={createIndexFieldsButtonsStyles}>
           <IconButton
-            className={hostActionButtonStyles}
+            className={addFieldButtonStyles}
             aria-label="Add new index field"
             type="button"
             data-testid="add-index-field-button"
@@ -242,7 +242,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
           </IconButton>
           {this.props.fields.length > 1 && (
             <IconButton
-              className={hostActionButtonStyles}
+              className={addFieldButtonStyles}
               aria-label="Remove index field"
               type="button"
               data-testid="remove-index-field-button"

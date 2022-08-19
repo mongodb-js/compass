@@ -64,11 +64,22 @@ const modalContentStyles = css({
 });
 
 const bannerStyles = css({
-  marginTop: spacing[3],
+  margin: `${spacing[3]}px 0`,
 });
 
 const createIndexButtonStyles = css({
   marginLeft: spacing[2],
+});
+
+const modalFooterStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const modalFooterActionsStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: spacing[2],
 });
 
 /**
@@ -129,7 +140,7 @@ function CreateIndexModal({
     }
 
     return (
-      <Banner className={bannerStyles} variant="info" dismissible>
+      <Banner className={bannerStyles} variant="info">
         Create in Progress
       </Banner>
     );
@@ -157,18 +168,22 @@ function CreateIndexModal({
         <H3>Create Index</H3>
         <Disclaimer>{namespace}</Disclaimer>
         <CreateIndexForm {...props} />
-        {renderError()}
-        {renderInProgress()}
       </div>
-      <ModalFooter>
-        <Button
-          onClick={onConfirm}
-          variant="primary"
-          className={createIndexButtonStyles}
-        >
-          Create Index
-        </Button>
-        <Button onClick={onCancel}>Cancel</Button>
+      <ModalFooter className={modalFooterStyles}>
+        <div>
+          {renderError()}
+          {renderInProgress()}
+        </div>
+        <div className={modalFooterActionsStyles}>
+          <Button
+            onClick={onConfirm}
+            variant="primary"
+            className={createIndexButtonStyles}
+          >
+            Create Index
+          </Button>
+          <Button onClick={onCancel}>Cancel</Button>
+        </div>
       </ModalFooter>
     </Modal>
   );
