@@ -15,7 +15,9 @@ import {
 
 import type { IndexField } from '../../modules/create-index/fields';
 
-// Inject types that this component accepts
+// Inject types that the ComboboxOption component accepts.
+// Otherwise, ComboboxOption causes
+// the `Property 'value' does not exist on type 'IntrinsicAttributes'` error.
 const ComboboxOptionTyped =
   ComboboxOption as unknown as React.JSXElementConstructor<{
     value?: string;

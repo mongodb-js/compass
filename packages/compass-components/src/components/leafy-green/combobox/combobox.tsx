@@ -886,10 +886,11 @@ export default function Combobox<M extends boolean>({
       }
 
       setInputFocus(cursorPos);
-      // Open menu on click instead of on focus.
-      // https://jira.mongodb.org/browse/PD-2321
-      openMenu();
     }
+
+    // Open menu on click instead of on focus.
+    // https://jira.mongodb.org/browse/PD-2321
+    openMenu();
   };
 
   // Fired when the wrapper gains focus
