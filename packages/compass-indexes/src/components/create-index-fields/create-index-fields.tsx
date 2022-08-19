@@ -52,7 +52,7 @@ const createIndexFieldsStyles = css({
 });
 
 const createIndexFieldsNameStyles = css({
-  width: '50vw',
+  width: +spacing[7] * 3 + +spacing[6],
   textTransform: 'none',
   marginRight: spacing[2],
   whiteSpace: 'nowrap',
@@ -63,7 +63,7 @@ const createIndexFieldsNameStyles = css({
 });
 
 const createIndexFieldsTypeStyles = css({
-  width: '40vw',
+  width: +spacing[7] * 2 + +spacing[3],
   textTransform: 'none',
   marginRight: spacing[2],
   whiteSpace: 'nowrap',
