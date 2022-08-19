@@ -33,7 +33,7 @@ const editorStyles = cx(
       boxShadow: '0 0 0 0 transparent',
     },
     border: `1px solid transparent`,
-    borderRadius: '12px',
+    borderRadius: spacing[1],
     overflow: 'visible',
     '&:hover': {
       '&::after': {
