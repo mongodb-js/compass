@@ -1,7 +1,11 @@
+import type { AnyAction, Dispatch } from 'redux';
+
 import contains from 'lodash.contains';
 import { changeSchemaFields } from '../create-index/schema-fields';
 import { clearNewIndexField } from '../create-index/new-index-field';
 import { handleError } from '../error';
+
+import type { RootState } from '../create-index';
 
 /**
  * Create field names.
@@ -12,6 +16,8 @@ export const UPDATE_FIELD_TYPE =
 export const REMOVE_FIELD = 'indexes/create-index/fields/REMOVE_FIELD';
 export const CHANGE_FIELDS = 'indexes/create-index/fields/CHANGE_FIELDS';
 
+export type IndexField = { name: string; type: string };
+
 /**
  * The initial state of the field names.
  */
@@ -20,12 +26,12 @@ export const INITIAL_STATE = [{ name: '', type: '' }];
 /**
  * Reducer function for handle state changes to the field names.
  *
- * @param {String} state - The change field names state.
- * @param {Object} action - The action.
+ * @param state - The change field names state.
+ * @param action - The action.
  *
- * @returns {Object} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   const fields = [...state];
   if (action.type === ADD_FIELD) {
     fields.push({ name: '', type: '' });
@@ -52,28 +58,34 @@ export default function reducer(state = INITIAL_STATE, action) {
 export const addField = () => ({
   type: ADD_FIELD,
 });
-export const removeField = (idx) => ({
+
+export const removeField = (idx: number) => ({
   type: REMOVE_FIELD,
-  idx: idx,
+  idx,
 });
-export const updateFieldType = (idx, fType) => ({
+
+export const updateFieldType = (idx: number, fType: string) => ({
   type: UPDATE_FIELD_TYPE,
   idx: idx,
-  fType: fType,
+  fType,
 });
-export const changeFields = (fields) => ({
+
+export const changeFields = (fields: IndexField[]) => ({
   type: CHANGE_FIELDS,
   fields: fields,
 });
 
-export const updateFieldName = (idx, name) => {
-  return (dispatch, getState) => {
+export const updateFieldName = (idx: number, name: string) => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
-    const fields = [...state.fields];
+    const fields: IndexField[] = [...state.fields];
     if (idx >= 0 && idx < state.fields.length) {
       // check if field name exists
       if (
-        state.fields.some((field, eIdx) => field.name === name && eIdx !== idx)
+        state.fields.some(
+          (field: IndexField, eIdx: number) =>
+            field.name === name && eIdx !== idx
+        )
       ) {
         dispatch(handleError('Index keys must be unique'));
         return;
@@ -84,7 +96,7 @@ export const updateFieldName = (idx, name) => {
       dispatch(changeFields(fields));
       // check if field name exists in schemaFields, otherwise add
       if (!contains(state.schemaFields, name)) {
-        const sFields = [...state.schemaFields];
+        const sFields: string[] = [...state.schemaFields];
         sFields.push(name);
         dispatch(changeSchemaFields(sFields));
         dispatch(clearNewIndexField());

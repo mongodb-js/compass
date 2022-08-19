@@ -29,13 +29,10 @@ type IndexField = { name: string; type: string };
 
 export type CreateIndexProps = {
   darkMode?: boolean;
-  error?: string;
-  inProgress: boolean;
   fields: IndexField[];
   newIndexField?: string;
   schemaFields: string[];
 
-  isVisible: boolean;
   isUnique: boolean;
 
   useIndexName: boolean;
@@ -52,39 +49,33 @@ export type CreateIndexProps = {
   collationString?: string;
   columnstoreProjection: string;
 
-  namespace: string;
   serverVersion: string;
 
-  // TODO: Refactor modules to get rid of return any.
-  clearError: () => any;
-  createIndex: () => any; // Create Index button.
-  resetForm: () => any; // Close Index button.
-  toggleIsVisible: (isVisible: boolean) => any; // Cancel button.
-  toggleIsUnique: (isUnique: boolean) => any;
+  toggleIsUnique: (isUnique: boolean) => void;
 
-  toggleUseIndexName: (useIndexName: boolean) => any;
-  toggleUseTtl: (useTtl: boolean) => any;
+  toggleUseIndexName: (useIndexName: boolean) => void;
+  toggleUseTtl: (useTtl: boolean) => void;
   toggleUsePartialFilterExpression: (
     usePartialFilterExpression: boolean
-  ) => any;
-  toggleUseWildcardProjection: (useWildcardProjection: boolean) => any;
-  toggleUseCustomCollation: (useCustomCollation: boolean) => any;
-  toggleUseColumnstoreProjection: (useColumnstoreProjection: boolean) => any;
+  ) => void;
+  toggleUseWildcardProjection: (useWildcardProjection: boolean) => void;
+  toggleUseCustomCollation: (useCustomCollation: boolean) => void;
+  toggleUseColumnstoreProjection: (useColumnstoreProjection: boolean) => void;
 
-  nameChanged: (name: string) => any;
-  ttlChanged: (ttl: string) => any;
-  partialFilterExpressionChanged: (partialFilterExpression: string) => any;
-  wildcardProjectionChanged: (wildcardProjection: string) => any;
-  collationStringChanged: (collationString: string) => any;
-  columnstoreProjectionChanged: (columnstoreProjection: string) => any;
+  nameChanged: (name: string) => void;
+  ttlChanged: (ttl: string) => void;
+  partialFilterExpressionChanged: (partialFilterExpression: string) => void;
+  wildcardProjectionChanged: (wildcardProjection: string) => void;
+  collationStringChanged: (collationString: string) => void;
+  columnstoreProjectionChanged: (columnstoreProjection: string) => void;
 
-  updateFieldName: (idx: number, name: string) => any;
-  updateFieldType: (idx: number, fType: string) => any;
-  addField: () => any; // Plus icon.
-  removeField: (idx: number) => any; // Minus icon.
-  createNewIndexField: (newField: string) => any; // Create a new index name.
+  updateFieldName: (idx: number, name: string) => void;
+  updateFieldType: (idx: number, fType: string) => void;
+  addField: () => void; // Plus icon.
+  removeField: (idx: number) => void; // Minus icon.
+  createNewIndexField: (newField: string) => void; // Create a new index name.
 
-  openLink: (href: string) => any;
+  openLink: (href: string) => void;
 };
 
 /**

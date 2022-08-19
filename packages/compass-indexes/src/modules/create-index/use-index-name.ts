@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Change use index name action name.
  */
@@ -12,12 +14,12 @@ export const INITIAL_STATE = false;
 /**
  * Reducer function for handle state changes to use index name.
  *
- * @param {Boolean} state - The use index name state.
- * @param {Object} action - The action.
+ * @param state - The use index name state.
+ * @param action - The action.
  *
- * @returns {Array} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === TOGGLE_USE_INDEX_NAME) {
     return action.useIndexName;
   }
@@ -27,11 +29,11 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The toggle use index name action creator.
  *
- * @param {Boolean} useIndexName - Use index name.
+ * @param useIndexName - Use index name.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const toggleUseIndexName = (useIndexName) => ({
+export const toggleUseIndexName = (useIndexName: boolean) => ({
   type: TOGGLE_USE_INDEX_NAME,
   useIndexName,
 });

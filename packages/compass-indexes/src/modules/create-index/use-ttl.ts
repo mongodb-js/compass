@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Change use ttl action name.
  */
@@ -11,12 +13,12 @@ export const INITIAL_STATE = false;
 /**
  * Reducer function for handle state changes to use ttl.
  *
- * @param {Boolean} state - The use ttl state.
- * @param {Object} action - The action.
+ * @param state - The use ttl state.
+ * @param action - The action.
  *
- * @returns {Array} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === TOGGLE_USE_TTL) {
     return action.useTtl;
   }
@@ -26,11 +28,11 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The toggle use ttl action creator.
  *
- * @param {Boolean} useTtl - use ttl.
+ * @param useTtl - use ttl.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const toggleUseTtl = (useTtl) => ({
+export const toggleUseTtl = (useTtl: boolean) => ({
   type: TOGGLE_USE_TTL,
   useTtl,
 });

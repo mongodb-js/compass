@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Change is unique action name.
  */
@@ -12,12 +14,12 @@ export const INITIAL_STATE = false;
 /**
  * Reducer function for handle state changes to is unique.
  *
- * @param {Boolean} state - The is unique state.
- * @param {Object} action - The action.
+ * @param state - The is unique state.
+ * @param action - The action.
  *
- * @returns {Array} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === TOGGLE_IS_UNIQUE) {
     return action.isUnique;
   }
@@ -27,11 +29,11 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The toggle is unique action creator.
  *
- * @param {Boolean} isUnique - Is unique.
+ * @param isUnique - Is unique.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const toggleIsUnique = (isUnique) => ({
+export const toggleIsUnique = (isUnique: boolean) => ({
   type: TOGGLE_IS_UNIQUE,
   isUnique,
 });

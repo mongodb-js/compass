@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Change schema fields.
  */
@@ -12,12 +14,12 @@ export const INITIAL_STATE = [];
 /**
  * Reducer function for handle state changes to create schema fields.
  *
- * @param {String} state - The create schema fields state.
- * @param {Object} action - The action.
+ * @param state - The create schema fields state.
+ * @param action - The action.
  *
- * @returns {String} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === CHANGE_SCHEMA_FIELDS) {
     return action.schemaFields;
   }
@@ -27,11 +29,11 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The change name action creator.
  *
- * @param {Array} schemaFields - The schema fields.
+ * @param schemaFields - The schema fields.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const changeSchemaFields = (schemaFields) => ({
+export const changeSchemaFields = (schemaFields: string[]) => ({
   type: CHANGE_SCHEMA_FIELDS,
-  schemaFields: schemaFields,
+  schemaFields,
 });

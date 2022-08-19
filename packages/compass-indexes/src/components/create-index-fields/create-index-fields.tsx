@@ -13,6 +13,8 @@ import {
   Icon,
 } from '@mongodb-js/compass-components';
 
+import type { IndexField } from '../../modules/create-index/fields';
+
 // Inject types that this component accepts
 const ComboboxOptionTyped =
   ComboboxOption as unknown as React.JSXElementConstructor<{
@@ -48,7 +50,7 @@ const createIndexFieldsStyles = css({
 });
 
 const createIndexFieldsNameStyles = css({
-  width: `${spacing[7] * 3 + spacing[6]}px`,
+  width: +spacing[7] * 3 + +spacing[6],
   textTransform: 'none',
   marginRight: spacing[2],
   whiteSpace: 'nowrap',
@@ -59,7 +61,7 @@ const createIndexFieldsNameStyles = css({
 });
 
 const createIndexFieldsTypeStyles = css({
-  width: `${spacing[7] * 2 + spacing[3]}px`,
+  width: +spacing[7] * 2 + +spacing[3],
   textTransform: 'none',
   marginRight: spacing[2],
   whiteSpace: 'nowrap',
@@ -80,20 +82,17 @@ const createIndexFieldsButtonsStyles = css({
   justifyContent: 'end',
 });
 
-type IndexField = { name: string; type: string };
-
 export type CreateIndexFieldsProps = {
   fields: IndexField[];
   schemaFields: string[];
   serverVersion: string;
   isRemovable: boolean;
   newIndexField?: string;
-  // TODO: Refactor modules to get rid of return any.
-  addField: () => any;
-  removeField: (idx: number) => any;
-  updateFieldName: (idx: number, name: string) => any;
-  updateFieldType: (idx: number, fType: string) => any;
-  createNewIndexField: (newField: string) => any;
+  addField: () => void;
+  removeField: (idx: number) => void;
+  updateFieldName: (idx: number, name: string) => void;
+  updateFieldType: (idx: number, fType: string) => void;
+  createNewIndexField: (newField: string) => void;
 };
 
 /**

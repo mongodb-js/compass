@@ -1,7 +1,9 @@
 import { EJSON } from 'bson';
 import { combineReducers } from 'redux';
+import type { AnyAction, Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import queryParser from 'mongodb-query-parser';
+import type { CollationOptions } from 'mongodb';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -33,6 +35,7 @@ import collationString, {
 import fields, {
   INITIAL_STATE as FIELDS_INITIAL_STATE,
 } from '../create-index/fields';
+import type { IndexField } from '../create-index/fields';
 import isUnique, {
   INITIAL_STATE as IS_UNIQUE_INITIAL_STATE,
 } from '../create-index/is-unique';
@@ -72,6 +75,8 @@ import { parseErrorMsg } from '../indexes';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
+type CreateIndexSpec = { [name: string]: string | number };
+
 /**
  * The main reducer.
  */
@@ -101,6 +106,8 @@ const reducer = combineReducers({
   serverVersion,
 });
 
+export type RootState = ReturnType<typeof reducer>;
+
 /**
  * The root reducer.
  *
@@ -109,7 +116,7 @@ const reducer = combineReducers({
  *
  * @returns {Object} The new state.
  */
-const rootReducer = (state, action) => {
+const rootReducer: any = (state: RootState, action: AnyAction): RootState => {
   if (action.type === RESET || action.type === RESET_FORM) {
     return {
       ...state,
@@ -143,12 +150,16 @@ export default rootReducer;
  * @returns {Function} The thunk function.
  */
 export const createIndex = () => {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
-    const spec = {};
+    const spec = {} as CreateIndexSpec;
 
     // Check for field errors.
-    if (state.fields.some((field) => field.name === '' || field.type === '')) {
+    if (
+      state.fields.some(
+        (field: IndexField) => field.name === '' || field.type === ''
+      )
+    ) {
       dispatch(handleError('You must select a field name and type'));
       return;
     }
@@ -160,14 +171,22 @@ export const createIndex = () => {
       return;
     }
 
-    state.fields.forEach((field) => {
-      let type = field.type;
+    state.fields.forEach((field: IndexField) => {
+      let type: string | number = field.type;
       if (type === '1 (asc)') type = 1;
       if (type === '-1 (desc)') type = -1;
       spec[field.name] = type;
     });
 
-    const options = {};
+    const options: {
+      unique?: boolean;
+      name?: string;
+      collation?: false | CollationOptions | null;
+      expireAfterSeconds?: number;
+      wildcardProjection?: EJSON.SerializableTypes;
+      columnstoreProjection?: EJSON.SerializableTypes;
+      partialFilterExpression?: EJSON.SerializableTypes;
+    } = {};
     options.unique = state.isUnique;
     // The server will generate a name when we don't provide one.
     if (state.name !== '') {
@@ -179,7 +198,7 @@ export const createIndex = () => {
     if (state.useTtl) {
       options.expireAfterSeconds = Number(state.ttl);
       if (isNaN(options.expireAfterSeconds)) {
-        dispatch(handleError(`Bad TTL: "${state.ttl}"`));
+        dispatch(handleError(`Bad TTL: "${String(state.ttl)}"`));
         return;
       }
     }
@@ -193,7 +212,7 @@ export const createIndex = () => {
     }
 
     const hasColumnstoreIndex = state.fields.some(
-      (field) => field.type === 'columnstore'
+      (field: IndexField) => field.type === 'columnstore'
     );
     if (hasColumnstoreIndex) {
       // Index type 'columnstore' does not support the 'unique' option.
@@ -223,7 +242,7 @@ export const createIndex = () => {
     dispatch(toggleInProgress(true));
     const ns = state.namespace;
 
-    state.dataService.createIndex(ns, spec, options, (createErr) => {
+    state.dataService.createIndex(ns, spec, options, (createErr: Error) => {
       if (!createErr) {
         const trackEvent = {
           unique: state.isUnique,
@@ -233,7 +252,9 @@ export const createIndex = () => {
           has_wildcard_projection: state.useWildcardProjection,
           custom_collation: state.useCustomCollation,
           geo:
-            state.fields.filter(({ type }) => type === '2dsphere').length > 0,
+            state.fields.filter(
+              ({ type }: { type: string }) => type === '2dsphere'
+            ).length > 0,
         };
         track('Index Created', trackEvent);
         dispatch(reset());

@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Create index partial filter expression action.
  */
@@ -12,12 +14,12 @@ export const INITIAL_STATE = '';
 /**
  * Reducer function for handle state changes to create partial filter expression.
  *
- * @param {String} state - The create partial filter expression state.
- * @param {Object} action - The action.
+ * @param state - The create partial filter expression state.
+ * @param action - The action.
  *
- * @returns {String} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === PARTIAL_FILTER_EXPRESSION_CHANGED) {
     return action.partialFilterExpression;
   }
@@ -27,11 +29,13 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The change partial filter expression action creator.
  *
- * @param {String} partialFilterExpression - The partial filter expression.
+ * @param partialFilterExpression - The partial filter expression.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const partialFilterExpressionChanged = (partialFilterExpression) => ({
+export const partialFilterExpressionChanged = (
+  partialFilterExpression: string
+) => ({
   type: PARTIAL_FILTER_EXPRESSION_CHANGED,
   partialFilterExpression,
 });

@@ -3,9 +3,9 @@ import { TextInput, CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
 type TTL = {
   useTtl: boolean;
-  toggleUseTtl: (useTtl: boolean) => any;
+  toggleUseTtl: (useTtl: boolean) => void;
   ttl?: string;
-  ttlChanged: (ttl: string) => any;
+  ttlChanged: (ttl: string) => void;
 };
 
 const TTLCollapsibleFieldSet = ({
@@ -17,7 +17,7 @@ const TTLCollapsibleFieldSet = ({
   return (
     <CollapsibleFieldSet
       toggled={useTtl}
-      onToggle={(checked: boolean) => toggleUseTtl(checked)}
+      onToggle={toggleUseTtl}
       label="Create TTL"
       dataTestId="create-index-modal-use-ttl-checkbox"
       description="TTL indexes are special single-field indexes that MongoDB can use to automatically remove documents from a collection after a certain amount of time or at a specific clock time."

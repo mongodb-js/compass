@@ -5,9 +5,9 @@ type PartialFilter = {
   usePartialFilterExpression: boolean;
   toggleUsePartialFilterExpression: (
     usePartialFilterExpression: boolean
-  ) => any;
+  ) => void;
   partialFilterExpression?: string;
-  partialFilterExpressionChanged: (partialFilterExpression: string) => any;
+  partialFilterExpressionChanged: (partialFilterExpression: string) => void;
 };
 
 const PartialFilterCollapsibleFieldSet = ({
@@ -19,7 +19,7 @@ const PartialFilterCollapsibleFieldSet = ({
   return (
     <CollapsibleFieldSet
       toggled={usePartialFilterExpression}
-      onToggle={(checked: boolean) => toggleUsePartialFilterExpression(checked)}
+      onToggle={toggleUsePartialFilterExpression}
       label="Partial Filter Expression"
       dataTestId="create-index-modal-is-pfe-checkbox"
       description="Partial indexes only index the documents in a collection that meet a specified filter expression."

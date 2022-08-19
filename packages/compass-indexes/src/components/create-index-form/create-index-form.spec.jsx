@@ -9,7 +9,6 @@ import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import CreateIndexForm from '../create-index-form';
 
 describe('CreateIndexForm Component', function () {
-  let toggleIsVisibleSpy;
   let updateFieldNameSpy;
   let updateFiedTypeSpy;
   let addFieldSpy;
@@ -20,8 +19,6 @@ describe('CreateIndexForm Component', function () {
   let toggleUseCustomCollationSpy;
   let toggleUseColumnstoreProjectionSpy;
   let toggleUseWildcardProjectionSpy;
-  let resetFormSpy;
-  let createIndexSpy;
   let openLinkSpy;
   let ttlChangedSpy;
   let partialFilterExpressionChangedSpy;
@@ -31,10 +28,8 @@ describe('CreateIndexForm Component', function () {
   let wildcardProjectionChangedSpy;
   let createNewIndexFieldSpy;
   let toggleUseIndexNameSpy;
-  let clearErrorSpy;
 
   const spyComponentProps = () => {
-    toggleIsVisibleSpy = sinon.spy();
     updateFiedTypeSpy = sinon.spy();
     updateFieldNameSpy = sinon.spy();
     addFieldSpy = sinon.spy();
@@ -45,8 +40,6 @@ describe('CreateIndexForm Component', function () {
     toggleUseCustomCollationSpy = sinon.spy();
     toggleUseColumnstoreProjectionSpy = sinon.spy();
     toggleUseWildcardProjectionSpy = sinon.spy();
-    resetFormSpy = sinon.spy();
-    createIndexSpy = sinon.spy();
     openLinkSpy = sinon.spy();
     ttlChangedSpy = sinon.spy();
     partialFilterExpressionChangedSpy = sinon.spy();
@@ -56,11 +49,9 @@ describe('CreateIndexForm Component', function () {
     wildcardProjectionChangedSpy = sinon.spy();
     createNewIndexFieldSpy = sinon.spy();
     toggleUseIndexNameSpy = sinon.spy();
-    clearErrorSpy = sinon.spy();
   };
 
   const resetSpyComponentProps = () => {
-    toggleIsVisibleSpy = null;
     updateFiedTypeSpy = null;
     updateFieldNameSpy = null;
     addFieldSpy = null;
@@ -71,8 +62,6 @@ describe('CreateIndexForm Component', function () {
     toggleUseCustomCollationSpy = null;
     toggleUseColumnstoreProjectionSpy = null;
     toggleUseWildcardProjectionSpy = null;
-    resetFormSpy = null;
-    createIndexSpy = null;
     openLinkSpy = null;
     ttlChangedSpy = null;
     partialFilterExpressionChangedSpy = null;
@@ -82,7 +71,6 @@ describe('CreateIndexForm Component', function () {
     wildcardProjectionChangedSpy = null;
     createNewIndexFieldSpy = null;
     toggleUseIndexNameSpy = null;
-    clearErrorSpy = null;
   };
 
   before(function () {
@@ -97,7 +85,6 @@ describe('CreateIndexForm Component', function () {
         spyComponentProps();
         render(
           <CreateIndexForm
-            inProgress={false}
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
@@ -108,10 +95,7 @@ describe('CreateIndexForm Component', function () {
             useCustomCollation={false}
             name=""
             useIndexName={false}
-            namespace="db.coll"
             newIndexField=""
-            isVisible
-            toggleIsVisible={toggleIsVisibleSpy}
             updateFieldName={updateFieldNameSpy}
             updateFieldType={updateFiedTypeSpy}
             addField={addFieldSpy}
@@ -124,8 +108,6 @@ describe('CreateIndexForm Component', function () {
             toggleUseCustomCollation={toggleUseCustomCollationSpy}
             toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
             toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
-            resetForm={resetFormSpy}
-            createIndex={createIndexSpy}
             openLink={openLinkSpy}
             ttlChanged={ttlChangedSpy}
             partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
@@ -140,7 +122,6 @@ describe('CreateIndexForm Component', function () {
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
             toggleUseIndexName={toggleUseIndexNameSpy}
-            clearError={clearErrorSpy}
           />
         );
       });
@@ -251,7 +232,6 @@ describe('CreateIndexForm Component', function () {
         spyComponentProps();
         render(
           <CreateIndexForm
-            inProgress={false}
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
@@ -262,10 +242,7 @@ describe('CreateIndexForm Component', function () {
             useCustomCollation={false}
             name=""
             useIndexName={true}
-            namespace="db.coll"
             newIndexField=""
-            isVisible
-            toggleIsVisible={toggleIsVisibleSpy}
             updateFieldName={updateFieldNameSpy}
             updateFieldType={updateFiedTypeSpy}
             addField={addFieldSpy}
@@ -278,8 +255,6 @@ describe('CreateIndexForm Component', function () {
             toggleUseCustomCollation={toggleUseCustomCollationSpy}
             toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
             toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
-            resetForm={resetFormSpy}
-            createIndex={createIndexSpy}
             openLink={openLinkSpy}
             ttlChanged={ttlChangedSpy}
             partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
@@ -294,7 +269,6 @@ describe('CreateIndexForm Component', function () {
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
             toggleUseIndexName={toggleUseIndexNameSpy}
-            clearError={clearErrorSpy}
           />
         );
       });
@@ -322,7 +296,6 @@ describe('CreateIndexForm Component', function () {
         spyComponentProps();
         render(
           <CreateIndexForm
-            inProgress={false}
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
@@ -333,10 +306,7 @@ describe('CreateIndexForm Component', function () {
             useCustomCollation={false}
             name=""
             useIndexName={false}
-            namespace="db.coll"
             newIndexField=""
-            isVisible
-            toggleIsVisible={toggleIsVisibleSpy}
             updateFieldName={updateFieldNameSpy}
             updateFieldType={updateFiedTypeSpy}
             addField={addFieldSpy}
@@ -349,8 +319,6 @@ describe('CreateIndexForm Component', function () {
             toggleUseCustomCollation={toggleUseCustomCollationSpy}
             toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
             toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
-            resetForm={resetFormSpy}
-            createIndex={createIndexSpy}
             openLink={openLinkSpy}
             ttlChanged={ttlChangedSpy}
             partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
@@ -365,7 +333,6 @@ describe('CreateIndexForm Component', function () {
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
             toggleUseIndexName={toggleUseIndexNameSpy}
-            clearError={clearErrorSpy}
           />
         );
       });
@@ -391,7 +358,6 @@ describe('CreateIndexForm Component', function () {
         spyComponentProps();
         render(
           <CreateIndexForm
-            inProgress={false}
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
@@ -402,10 +368,7 @@ describe('CreateIndexForm Component', function () {
             useCustomCollation={false}
             name=""
             useIndexName={false}
-            namespace="db.coll"
             newIndexField=""
-            isVisible
-            toggleIsVisible={toggleIsVisibleSpy}
             updateFieldName={updateFieldNameSpy}
             updateFieldType={updateFiedTypeSpy}
             addField={addFieldSpy}
@@ -418,8 +381,6 @@ describe('CreateIndexForm Component', function () {
             toggleUseCustomCollation={toggleUseCustomCollationSpy}
             toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
             toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
-            resetForm={resetFormSpy}
-            createIndex={createIndexSpy}
             openLink={openLinkSpy}
             ttlChanged={ttlChangedSpy}
             partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
@@ -434,7 +395,6 @@ describe('CreateIndexForm Component', function () {
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
             toggleUseIndexName={toggleUseIndexNameSpy}
-            clearError={clearErrorSpy}
           />
         );
       });
@@ -466,7 +426,6 @@ describe('CreateIndexForm Component', function () {
         spyComponentProps();
         render(
           <CreateIndexForm
-            inProgress={false}
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
@@ -477,10 +436,7 @@ describe('CreateIndexForm Component', function () {
             useCustomCollation={false}
             name=""
             useIndexName={false}
-            namespace="db.coll"
             newIndexField=""
-            isVisible
-            toggleIsVisible={toggleIsVisibleSpy}
             updateFieldName={updateFieldNameSpy}
             updateFieldType={updateFiedTypeSpy}
             addField={addFieldSpy}
@@ -493,8 +449,6 @@ describe('CreateIndexForm Component', function () {
             toggleUseCustomCollation={toggleUseCustomCollationSpy}
             toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
             toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
-            resetForm={resetFormSpy}
-            createIndex={createIndexSpy}
             openLink={openLinkSpy}
             ttlChanged={ttlChangedSpy}
             partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
@@ -509,7 +463,6 @@ describe('CreateIndexForm Component', function () {
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
             toggleUseIndexName={toggleUseIndexNameSpy}
-            clearError={clearErrorSpy}
           />
         );
       });

@@ -3,9 +3,9 @@ import { TextInput, CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
 type IndexName = {
   indexName: string;
-  nameChanged: (indexName: string) => any;
+  nameChanged: (indexName: string) => void;
   useIndexName: boolean;
-  toggleUseIndexName: (useIndexName: boolean) => any;
+  toggleUseIndexName: (useIndexName: boolean) => void;
 };
 
 const IndexNameCollapsibleFieldSet = ({
@@ -17,7 +17,7 @@ const IndexNameCollapsibleFieldSet = ({
   return (
     <CollapsibleFieldSet
       toggled={useIndexName}
-      onToggle={(checked: boolean) => toggleUseIndexName(checked)}
+      onToggle={toggleUseIndexName}
       label="Index name"
       dataTestId="create-index-modal-use-index-name-checkbox"
       description="Enter the name of the index to create, or leave blank to have MongoDB create a default name for the index."

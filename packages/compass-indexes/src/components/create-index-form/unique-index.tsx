@@ -9,7 +9,7 @@ import {
 
 type UniqueIndex = {
   isUnique: boolean;
-  toggleIsUnique: (isUnique: boolean) => any;
+  toggleIsUnique: (isUnique: boolean) => void;
 };
 
 const uniqueIndexStyles = css({

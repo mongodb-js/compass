@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Change in progress action name.
  */
@@ -14,9 +16,9 @@ export const INITIAL_STATE = false;
  * @param {Boolean} state - The in progress state.
  * @param {Object} action - The action.
  *
- * @returns {Array} The new state.
+ * @returns {Boolean} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === TOGGLE_IN_PROGRESS) {
     return action.inProgress;
   }
@@ -30,7 +32,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The action.
  */
-export const toggleInProgress = (inProgress) => ({
+export const toggleInProgress = (inProgress: boolean) => ({
   type: TOGGLE_IN_PROGRESS,
-  inProgress: inProgress,
+  inProgress,
 });

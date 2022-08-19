@@ -14,10 +14,10 @@ export const INITIAL_STATE = '';
 /**
  * Reducer function for handle wildcard projection state changes.
  *
- * @param {String} state - The wildcard projection state.
- * @param {Object} action - The action.
+ * @param state - The wildcard projection state.
+ * @param action - The action.
  *
- * @returns {String} The new state.
+ * @returns The new state.
  */
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === WILDCARD_PROJECTION_CHANGED) {
@@ -29,9 +29,9 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 /**
  * The change wildcard projection action creator.
  *
- * @param {String} wildcardProjection - The wildcard projection.
+ * @param wildcardProjection - The wildcard projection.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
 export const wildcardProjectionChanged = (
   wildcardProjection: string

@@ -1,33 +1,25 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Change use columnstore projection action name.
  */
 export const TOGGLE_USE_COLUMNSTORE_PROJECTION =
   'indexes/create-indexes/is-columnstore/TOGGLE_USE_COLUMNSTORE_PROJECTION';
 
-type UseColumnstoreProjectionState = boolean;
-
 /**
  * The initial state of the use columnstore projection attribute.
  */
-export const INITIAL_STATE: UseColumnstoreProjectionState = false;
-
-type useColumnstoreProjectionAction = {
-  type: typeof TOGGLE_USE_COLUMNSTORE_PROJECTION;
-  useColumnstoreProjection: boolean;
-};
+export const INITIAL_STATE = false;
 
 /**
  * Reducer function for handle state changes to use columnstore projection.
  *
- * @param {Boolean} state - The has columnstore state.
- * @param {Object} action - The action.
+ * @param state - The has columnstore state.
+ * @param action - The action.
  *
- * @returns {Array} The new state.
+ * @returns The new state.
  */
-export default function reducer(
-  state = INITIAL_STATE,
-  action: useColumnstoreProjectionAction
-): UseColumnstoreProjectionState {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === TOGGLE_USE_COLUMNSTORE_PROJECTION) {
     return action.useColumnstoreProjection;
   }
@@ -37,13 +29,13 @@ export default function reducer(
 /**
  * The toggle use columnstore projection action creator.
  *
- * @param {Boolean} useColumnstoreProjection - use columnstore projection.
+ * @param useColumnstoreProjection - use columnstore projection.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
 export const toggleUseColumnstoreProjection = (
-  useColumnstoreProjection: UseColumnstoreProjectionState
-): useColumnstoreProjectionAction => ({
+  useColumnstoreProjection: boolean
+) => ({
   type: TOGGLE_USE_COLUMNSTORE_PROJECTION,
   useColumnstoreProjection,
 });

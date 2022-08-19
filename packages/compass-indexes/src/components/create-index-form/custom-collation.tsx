@@ -7,9 +7,9 @@ import {
 
 type CustomCollation = {
   useCustomCollation: boolean;
-  toggleUseCustomCollation: (useCustomCollation: boolean) => any;
+  toggleUseCustomCollation: (useCustomCollation: boolean) => void;
   collationString?: string;
-  collationStringChanged: (collationString: string) => any;
+  collationStringChanged: (collationString: string) => void;
 };
 
 const CustomCollationCollapsibleFieldSet = ({
@@ -21,7 +21,7 @@ const CustomCollationCollapsibleFieldSet = ({
   return (
     <CollapsibleFieldSet
       toggled={useCustomCollation}
-      onToggle={(checked: boolean) => toggleUseCustomCollation(checked)}
+      onToggle={toggleUseCustomCollation}
       label="Use Custom Collation"
       dataTestId="create-index-modal-use-custom-collation-checkbox"
       description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."

@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * The action name prefix.
  */
@@ -26,7 +28,7 @@ export const INITIAL_STATE = null;
  *
  * @returns {Error} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === HANDLE_ERROR) {
     return action.error;
   } else if (action.type === CLEAR_ERROR) {
@@ -38,13 +40,13 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Handle error action creator.
  *
- * @param {Error} error - The error.
+ * @param {String} error - The error.
  *
- * @returns {Object} The action.
+ * @returns {String} The action.
  */
-export const handleError = (error) => ({
+export const handleError = (error: string) => ({
   type: HANDLE_ERROR,
-  error: error,
+  error,
 });
 
 /**

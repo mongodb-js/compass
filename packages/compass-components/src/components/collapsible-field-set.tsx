@@ -24,7 +24,7 @@ export type CollapsibleFieldSetProps = {
   description?: React.ReactElement | string;
   disabled?: boolean;
   helpUrl?: string;
-  onToggle: (checked: boolean) => boolean;
+  onToggle: (checked: boolean) => void;
   toggled?: boolean;
 };
 
@@ -37,7 +37,7 @@ const UnthemedCollapsibleFieldSet = ({
   onToggle,
   toggled,
   dataTestId,
-  ...props
+  children,
 }: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
   const labelId = dataTestId || 'collapsible-fieldset-props';
   return (
@@ -74,7 +74,7 @@ const UnthemedCollapsibleFieldSet = ({
         id={labelId}
         darkMode={darkMode}
       />
-      {toggled && <fieldset>{props.children}</fieldset>}
+      {toggled && <fieldset>{children}</fieldset>}
     </fieldset>
   );
 };

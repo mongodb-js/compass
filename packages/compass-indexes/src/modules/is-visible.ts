@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * The prefix.
  */
@@ -21,7 +23,7 @@ export const INITIAL_STATE = false;
  *
  * @returns {Boolean} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === TOGGLE_IS_VISIBLE) {
     return action.isVisible;
   }
@@ -35,7 +37,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  *
  * @returns {Object} The action.
  */
-export const toggleIsVisible = (isVisible) => ({
+export const toggleIsVisible = (isVisible: boolean) => ({
   type: TOGGLE_IS_VISIBLE,
-  isVisible: isVisible,
+  isVisible,
 });

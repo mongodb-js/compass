@@ -7,9 +7,9 @@ import {
 
 type ColumnstoreProjection = {
   useColumnstoreProjection: boolean;
-  toggleUseColumnstoreProjection: (useColumnstoreProjection: boolean) => any;
+  toggleUseColumnstoreProjection: (useColumnstoreProjection: boolean) => void;
   columnstoreProjection?: string;
-  columnstoreProjectionChanged: (columnstoreProjection: string) => any;
+  columnstoreProjectionChanged: (columnstoreProjection: string) => void;
 };
 
 const ColumnstoreProjectionCollapsibleFieldSet = ({
@@ -21,7 +21,7 @@ const ColumnstoreProjectionCollapsibleFieldSet = ({
   return (
     <CollapsibleFieldSet
       toggled={useColumnstoreProjection}
-      onToggle={(checked: boolean) => toggleUseColumnstoreProjection(checked)}
+      onToggle={toggleUseColumnstoreProjection}
       label="Columnstore Projection"
       dataTestId="create-index-modal-use-columnstore-checkbox"
       description="Columnstore indexes support queries against unknown or arbitrary fields."

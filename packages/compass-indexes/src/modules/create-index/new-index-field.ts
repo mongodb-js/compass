@@ -10,15 +10,6 @@ export enum ActionTypes {
   clearNewIndexField = 'indexes/create-index/name/CLEAR_NEW_INDEX_FIELD',
 }
 
-type CreateNewIndexFieldAction = {
-  type: ActionTypes.createNewIndexField;
-  newField: string;
-};
-
-type ClearNewIndexFieldAction = {
-  type: ActionTypes.clearNewIndexField;
-};
-
 /**
  * Reducer function for handle state changes.
  *
@@ -40,22 +31,20 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 /**
  * The create new index field action creator.
  *
- * @param {String} newField - The new index field.
+ * @param newField - The new index field.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const createNewIndexField = (
-  newField: string
-): CreateNewIndexFieldAction => ({
+export const createNewIndexField = (newField: string) => ({
   type: ActionTypes.createNewIndexField,
-  newField: newField,
+  newField,
 });
 
 /**
  * The clear new index field action creator.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const clearNewIndexField = (): ClearNewIndexFieldAction => ({
+export const clearNewIndexField = () => ({
   type: ActionTypes.clearNewIndexField,
 });

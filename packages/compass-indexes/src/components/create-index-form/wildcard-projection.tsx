@@ -7,9 +7,9 @@ import {
 
 type WildcardProjection = {
   useWildcardProjection: boolean;
-  toggleUseWildcardProjection: (useWildcardProjection: boolean) => any;
+  toggleUseWildcardProjection: (useWildcardProjection: boolean) => void;
   wildcardProjection?: string;
-  wildcardProjectionChanged: (wildcardProjection: string) => any;
+  wildcardProjectionChanged: (wildcardProjection: string) => void;
 };
 
 const WildcardProjectionCollapsibleFieldSet = ({
@@ -21,7 +21,7 @@ const WildcardProjectionCollapsibleFieldSet = ({
   return (
     <CollapsibleFieldSet
       toggled={useWildcardProjection}
-      onToggle={(checked: boolean) => toggleUseWildcardProjection(checked)}
+      onToggle={toggleUseWildcardProjection}
       label="Wildcard Projection"
       dataTestId="create-index-modal-use-wildcard-checkbox"
       description="Wildcard indexes support queries against unknown or arbitrary fields."

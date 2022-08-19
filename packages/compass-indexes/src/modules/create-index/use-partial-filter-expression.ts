@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Change use partial filter expression action name.
  */
@@ -12,12 +14,12 @@ export const INITIAL_STATE = false;
 /**
  * Reducer function for handle state changes to use partial filter expression.
  *
- * @param {Boolean} state - The use partial filter expression state.
- * @param {Object} action - The action.
+ * @param state - The use partial filter expression state.
+ * @param action - The action.
  *
- * @returns {Array} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === TOGGLE_USE_PARTIAL_FILTER_EXPRESSION) {
     return action.usePartialFilterExpression;
   }
@@ -27,12 +29,12 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The toggle use partial filter expression action creator.
  *
- * @param {Boolean} usePartialFilterExpression - use partial filter expression.
+ * @param usePartialFilterExpression - use partial filter expression.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
 export const toggleUsePartialFilterExpression = (
-  usePartialFilterExpression
+  usePartialFilterExpression: boolean
 ) => ({
   type: TOGGLE_USE_PARTIAL_FILTER_EXPRESSION,
   usePartialFilterExpression,
