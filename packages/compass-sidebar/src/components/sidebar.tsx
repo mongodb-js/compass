@@ -15,6 +15,7 @@ import SidebarTitle from './sidebar-title';
 import FavoriteIndicator from './favorite-indicator';
 import DBStats from './db-stats';
 import NavigationItems from './navigation-items';
+import InstanceInfo from './instance-info';
 
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 
@@ -115,6 +116,8 @@ export function Sidebar({
         {isExpanded && <DBStats />}
 
         <NavigationItems isExpanded={isExpanded} onAction={onAction} />
+
+        {isExpanded && <InstanceInfo />}
 
         <SaveConnectionModal
           initialFavoriteInfo={connectionInfo.favorite}
