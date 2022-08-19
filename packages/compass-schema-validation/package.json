@@ -63,7 +63,7 @@
     "hadron-react-buttons": "^6.0.0",
     "hadron-react-components": "^6.0.0",
     "mongodb-ace-autocompleter": "^1.1.1",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.0",
@@ -90,7 +90,7 @@
     "nyc": "^15.0.0",
     "prop-types": "^15.7.2",
     "react-bootstrap": "^0.32.1",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-redux": "^5.0.6",
     "redux": "^4.1.2",
     "redux-thunk": "^2.3.0",
@@ -107,6 +107,6 @@
     "hadron-react-buttons": "^6.0.0",
     "hadron-react-components": "^6.0.0",
     "mongodb-ace-autocompleter": "^1.1.1",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   }
 }

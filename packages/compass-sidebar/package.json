@@ -62,7 +62,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "mongodb-data-service": "^22.0.0",
     "mongodb-instance-model": "^12.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
@@ -72,7 +72,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "mongodb-data-service": "^22.0.0",
     "mongodb-instance-model": "^12.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.0",
@@ -103,7 +103,7 @@
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "prop-types": "^15.7.2",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-fontawesome": "^1.6.1",
     "react-redux": "^5.0.6",
     "redux": "^4.1.2",

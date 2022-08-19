@@ -31,7 +31,7 @@
   "peerDependencies": {
     "hadron-ipc": "^3.0.0",
     "hadron-react-buttons": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -85,7 +85,7 @@
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "postcss-loader": "^2.1.6",
     "prop-types": "^15.7.2",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-hot-loader": "^4.13.0",
     "react-redux": "^5.0.6",
     "redux": "^4.1.2",
@@ -110,7 +110,7 @@
   "dependencies": {
     "hadron-ipc": "^3.0.0",
     "hadron-react-buttons": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

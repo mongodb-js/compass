@@ -31,7 +31,7 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
     "@mongodb-js/compass-logging": "^1.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -83,7 +83,7 @@
     "nyc": "^15.0.0",
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "postcss-loader": "^2.1.6",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-hot-loader": "^4.13.0",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
@@ -114,6 +114,6 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
     "@mongodb-js/compass-logging": "^1.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   }
 }

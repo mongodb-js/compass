@@ -48,8 +48,8 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "dependencies": {
     "@testing-library/react-hooks": "^7.0.2",
@@ -57,8 +57,8 @@
     "mongodb-build-info": "^1.4.0",
     "mongodb-connection-string-url": "^2.5.3",
     "mongodb-query-parser": "^2.4.6",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",

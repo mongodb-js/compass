@@ -59,7 +59,7 @@
     "@mongodb-js/compass-logging": "^1.0.0",
     "hadron-react-components": "^6.0.0",
     "mongodb-ace-autocompleter": "^1.1.1",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.0",
@@ -87,7 +87,7 @@
     "object-diff": "0.0.4",
     "prop-types": "^15.7.2",
     "react-bootstrap": "^0.32.1",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-fontawesome": "^1.6.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
@@ -100,6 +100,6 @@
     "@mongodb-js/compass-logging": "^1.0.0",
     "hadron-react-components": "^6.0.0",
     "mongodb-ace-autocompleter": "^1.1.1",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   }
 }

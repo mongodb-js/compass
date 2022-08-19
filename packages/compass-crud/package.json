@@ -69,7 +69,7 @@
     "hadron-react-buttons": "^6.0.0",
     "hadron-react-components": "^6.0.0",
     "hadron-type-checker": "^7.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.0",
@@ -101,7 +101,7 @@
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
     "react-click-outside": "^3.0.1",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-fontawesome": "^1.6.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
@@ -117,6 +117,6 @@
     "hadron-react-buttons": "^6.0.0",
     "hadron-react-components": "^6.0.0",
     "hadron-type-checker": "^7.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   }
 }

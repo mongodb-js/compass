@@ -34,7 +34,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "bson-transpilers": "^2.0.0",
     "hadron-react-buttons": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -96,7 +96,7 @@
     "prop-types": "^15.7.2",
     "react-ace": "^9.5.0",
     "react-bootstrap": "^0.32.1",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-hot-loader": "^4.13.0",
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.2.0",
@@ -123,7 +123,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "bson-transpilers": "^2.0.0",
     "hadron-react-buttons": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

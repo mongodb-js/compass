@@ -45,7 +45,7 @@
     "hadron-react-buttons": "^6.0.0",
     "hadron-react-components": "^6.0.0",
     "mongodb-ace-autocompleter": "^1.1.1",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@electron/remote": "^2.0.8",
@@ -87,7 +87,7 @@
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
     "re-resizable": "^6.9.0",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-redux": "^5.0.6",
     "react-select-plus": "^1.2.0",
     "react-sortable-hoc": "^2.0.0",
@@ -111,7 +111,7 @@
     "hadron-react-buttons": "^6.0.0",
     "hadron-react-components": "^6.0.0",
     "mongodb-ace-autocompleter": "^1.1.1",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
