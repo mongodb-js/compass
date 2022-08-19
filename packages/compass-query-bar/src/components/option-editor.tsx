@@ -32,10 +32,9 @@ const editorStyles = cx(
       transition: 'box-shadow .16s ease-in',
       boxShadow: '0 0 0 0 transparent',
     },
-    border: `1px solid ${uiColors.gray.light2}`,
-    borderRadius: '4px',
+    border: '1px solid transparent',
+    borderRadius: spacing[1],
     overflow: 'visible',
-    background: uiColors.white,
     '&:hover': {
       '&::after': {
         boxShadow: `0 0 0 3px ${uiColors.gray.light2}`,

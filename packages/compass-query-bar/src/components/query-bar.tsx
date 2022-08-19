@@ -25,12 +25,14 @@ const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
+  background: 'white',
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[2],
 });
 
 const queryBarFormDarkStyles = css({
+  background: uiColors.gray.dark3,
   borderColor: uiColors.gray.dark2,
 });
 
