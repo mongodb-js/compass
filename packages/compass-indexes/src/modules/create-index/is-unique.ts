@@ -1,18 +1,18 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Change is unique action name.
+ * Toggle is unique action name.
  */
 export const TOGGLE_IS_UNIQUE =
   'indexes/create-indexes/is-unique/TOGGLE_IS_UNIQUE';
 
 /**
- * The initial state of the is writable attribute.
+ * The initial state of is unique.
  */
 export const INITIAL_STATE = false;
 
 /**
- * Reducer function for handle state changes to is unique.
+ * Reducer function for handle is unique state changes.
  *
  * @param state - The is unique state.
  * @param action - The action.

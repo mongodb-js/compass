@@ -779,7 +779,7 @@ export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
 
 // Indexes modal
-export const CreateIndexModal = '[data-testid="create_index_modal"]';
+export const CreateIndexModal = '[data-testid="create-index-modal"]';
 
 export const CreateIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;

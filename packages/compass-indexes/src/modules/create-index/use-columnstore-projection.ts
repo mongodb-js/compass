@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Change use columnstore projection action name.
+ * Toggle use columnstore projection action name.
  */
 export const TOGGLE_USE_COLUMNSTORE_PROJECTION =
   'indexes/create-indexes/is-columnstore/TOGGLE_USE_COLUMNSTORE_PROJECTION';
@@ -12,7 +12,7 @@ export const TOGGLE_USE_COLUMNSTORE_PROJECTION =
 export const INITIAL_STATE = false;
 
 /**
- * Reducer function for handle state changes to use columnstore projection.
+ * Reducer function for handle the columnstore projection state changes.
  *
  * @param state - The has columnstore state.
  * @param action - The action.

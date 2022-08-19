@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Change use index name action name.
+ * Toggle use index name action name.
  */
 export const TOGGLE_USE_INDEX_NAME =
   'indexes/create-indexes/use-index-name/TOGGLE_USE_INDEX_NAME';
@@ -12,7 +12,7 @@ export const TOGGLE_USE_INDEX_NAME =
 export const INITIAL_STATE = false;
 
 /**
- * Reducer function for handle state changes to use index name.
+ * Reducer function for handle state changes to the use index name.
  *
  * @param state - The use index name state.
  * @param action - The action.

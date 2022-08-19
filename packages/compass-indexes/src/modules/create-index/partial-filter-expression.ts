@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Create index partial filter expression action.
+ * Partial filter expression changed action name.
  */
 export const PARTIAL_FILTER_EXPRESSION_CHANGED =
   'indexes/create-index/partial-filter-expression/PARTIAL_FILTER_EXPRESSION_CHANGED';
@@ -12,7 +12,7 @@ export const PARTIAL_FILTER_EXPRESSION_CHANGED =
 export const INITIAL_STATE = '';
 
 /**
- * Reducer function for handle state changes to create partial filter expression.
+ * Reducer function for handle the partial filter expression state changes.
  *
  * @param state - The create partial filter expression state.
  * @param action - The action.
@@ -27,7 +27,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 }
 
 /**
- * The change partial filter expression action creator.
+ * Action creator for the partial filter expression changed event.
  *
  * @param partialFilterExpression - The partial filter expression.
  *

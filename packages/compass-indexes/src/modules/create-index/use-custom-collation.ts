@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Change use custom collation action name.
+ * Toggle use custom collation action name.
  */
 export const TOGGLE_USE_CUSTOM_COLLATION =
   'indexes/create-index/use-custom-collation/TOGGLE_USE_CUSTOM_COLLATION';
@@ -12,7 +12,7 @@ export const TOGGLE_USE_CUSTOM_COLLATION =
 export const INITIAL_STATE = false;
 
 /**
- * Reducer function for handle state changes to use custom collation.
+ * Reducer function for handle state changes to the use custom collation.
  *
  * @param state - The use custom collation state.
  * @param action - The action.

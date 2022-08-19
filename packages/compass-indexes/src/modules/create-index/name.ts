@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Create name action.
+ * Name changed action name.
  */
 export const NAME_CHANGED = 'indexes/create-index/name/NAME_CHANGED';
 
@@ -11,9 +11,9 @@ export const NAME_CHANGED = 'indexes/create-index/name/NAME_CHANGED';
 export const INITIAL_STATE = '';
 
 /**
- * Reducer function for handle state changes to create index name.
+ * Reducer function for handle the name state changes.
  *
- * @param state - The create index name state.
+ * @param state - The name state.
  * @param action - The action.
  *
  * @returns The new state.
@@ -26,7 +26,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 }
 
 /**
- * The change name action creator.
+ * Action creator for the name changed event.
  *
  * @param name - The name.
  *

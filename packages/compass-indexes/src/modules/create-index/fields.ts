@@ -7,9 +7,6 @@ import { handleError } from '../error';
 
 import type { RootState } from '../create-index';
 
-/**
- * Create field names.
- */
 export const ADD_FIELD = 'indexes/create-index/fields/ADD_FIELD';
 export const UPDATE_FIELD_TYPE =
   'indexes/create-index/fields/UPDATE_FIELD_TYPE';
@@ -19,14 +16,14 @@ export const CHANGE_FIELDS = 'indexes/create-index/fields/CHANGE_FIELDS';
 export type IndexField = { name: string; type: string };
 
 /**
- * The initial state of the field names.
+ * The initial state of the fields.
  */
 export const INITIAL_STATE = [{ name: '', type: '' }];
 
 /**
- * Reducer function for handle state changes to the field names.
+ * Reducer function for handle the fields state changes.
  *
- * @param state - The change field names state.
+ * @param state - The fields state.
  * @param action - The action.
  *
  * @returns The new state.
@@ -80,7 +77,7 @@ export const updateFieldName = (idx: number, name: string) => {
     const state = getState();
     const fields: IndexField[] = [...state.fields];
     if (idx >= 0 && idx < state.fields.length) {
-      // check if field name exists
+      // Check if field name exists.
       if (
         state.fields.some(
           (field: IndexField, eIdx: number) =>
@@ -94,7 +91,7 @@ export const updateFieldName = (idx: number, name: string) => {
       field.name = name;
       fields[idx] = field;
       dispatch(changeFields(fields));
-      // check if field name exists in schemaFields, otherwise add
+      // Check if field name exists in schemaFields, otherwise add.
       if (!contains(state.schemaFields, name)) {
         const sFields: string[] = [...state.schemaFields];
         sFields.push(name);

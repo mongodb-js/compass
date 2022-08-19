@@ -29,6 +29,8 @@ const UniqueIndexCheckbox = ({ isUnique, toggleIsUnique }: UniqueIndex) => {
           toggleIsUnique(event.target.checked);
         }}
         label={<Label htmlFor={labelId}>Create unique index</Label>}
+        // LG Checkbox expects a string description, but we use Description component
+        // to alight with styles from CollapsibleFieldSet that are used on the same form.
         description={
           (
             <Description>

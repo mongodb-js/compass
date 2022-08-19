@@ -1,19 +1,19 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Create index ttl action.
+ * Ttl changed action name.
  */
 export const TTL_CHANGED = 'indexes/create-index/ttl/TTL_CHANGED';
 
 /**
- * The initial state of the index ttl.
+ * The initial state of the ttl.
  */
 export const INITIAL_STATE = '';
 
 /**
- * Reducer function for handle state changes to create index ttl.
+ * Reducer function for handle the ttl state changes.
  *
- * @param state - The create index ttl state.
+ * @param state - The ttl state.
  * @param action - The action.
  *
  * @returns The new state.
@@ -26,7 +26,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 }
 
 /**
- * The change ttl action creator.
+ * Action creator for the ttl changed event.
  *
  * @param ttl - The ttl.
  *

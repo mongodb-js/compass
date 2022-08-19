@@ -11,7 +11,7 @@ export enum ActionTypes {
 }
 
 /**
- * Reducer function for handle state changes.
+ * Reducer function for handle the new field state changes.
  *
  * @param state - The new index field state.
  * @param action - The action.
@@ -29,7 +29,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 }
 
 /**
- * The create new index field action creator.
+ * Action creator for the create new index field event.
  *
  * @param newField - The new index field.
  *
@@ -41,7 +41,7 @@ export const createNewIndexField = (newField: string) => ({
 });
 
 /**
- * The clear new index field action creator.
+ * Action creator for the clear new index field event.
  *
  * @returns The action.
  */

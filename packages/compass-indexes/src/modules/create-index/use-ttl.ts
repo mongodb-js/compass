@@ -1,17 +1,17 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Change use ttl action name.
+ * Toggle use ttl action name.
  */
 export const TOGGLE_USE_TTL = 'indexes/create-indexes/use-ttl/TOGGLE_USE_TTL';
 
 /**
- * The initial state of the is writable attribute.
+ * The initial state of the use ttl.
  */
 export const INITIAL_STATE = false;
 
 /**
- * Reducer function for handle state changes to use ttl.
+ * Reducer function for handle state changes to the use ttl.
  *
  * @param state - The use ttl state.
  * @param action - The action.

@@ -116,7 +116,7 @@ export type RootState = ReturnType<typeof reducer>;
  *
  * @returns {Object} The new state.
  */
-const rootReducer: any = (state: RootState, action: AnyAction): RootState => {
+const rootReducer = (state: RootState, action: AnyAction): RootState => {
   if (action.type === RESET || action.type === RESET_FORM) {
     return {
       ...state,
