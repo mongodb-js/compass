@@ -32,7 +32,7 @@ const editorStyles = cx(
       transition: 'box-shadow .16s ease-in',
       boxShadow: '0 0 0 0 transparent',
     },
-    border: `1px solid transparent`,
+    border: '1px solid transparent',
     borderRadius: spacing[1],
     overflow: 'visible',
     '&:hover': {
