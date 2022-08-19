@@ -85,6 +85,7 @@ const createIndexFieldsButtonsStyles = css({
 });
 
 export type CreateIndexFieldsProps = {
+  darkMode?: boolean;
   fields: IndexField[];
   schemaFields: string[];
   serverVersion: string;
@@ -208,6 +209,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
             onFilter={this.props.createNewIndexField}
             onChange={this.selectFieldName.bind(this, idx)}
             clearable={false}
+            darkMode={this.props.darkMode}
           >
             {this.renderIndexOptions()}
           </Combobox>
@@ -226,6 +228,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
             value={field.type}
             popoverZIndex={999999}
             aria-labelledby="Field type"
+            darkMode={this.props.darkMode}
           >
             {this.getDropdownTypes()}
           </Select>

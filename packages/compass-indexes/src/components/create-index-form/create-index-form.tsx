@@ -106,6 +106,7 @@ class CreateIndexForm extends Component<CreateIndexProps> {
         removeField={this.props.removeField}
         newIndexField={this.props.newIndexField}
         createNewIndexField={this.props.createNewIndexField}
+        darkMode={this.props.darkMode}
       />
     );
   }

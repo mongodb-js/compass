@@ -10,6 +10,8 @@ import {
   H3,
   ModalFooter,
   Button,
+  Body,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
 import { toggleInProgress } from '../../modules/in-progress';
@@ -80,6 +82,14 @@ const modalFooterActionsStyles = css({
   display: 'flex',
   justifyContent: 'flex-end',
   gap: spacing[2],
+});
+
+const collectionHeaderTitleLightStyles = css({
+  color: uiColors.gray.dark1,
+});
+
+const createIndexHeaderTitleDarkStyles = css({
+  color: uiColors.gray.light1,
 });
 
 /**
@@ -164,11 +174,19 @@ function CreateIndexModal({
       className={modalStyles}
       contentClassName={modalContentWrapperStyles}
     >
-      <div className={modalContentStyles}>
-        <H3>Create Index</H3>
+      <Body className={modalContentStyles}>
+        <H3
+          className={
+            props.darkMode
+              ? createIndexHeaderTitleDarkStyles
+              : collectionHeaderTitleLightStyles
+          }
+        >
+          Create Index
+        </H3>
         <Disclaimer>{namespace}</Disclaimer>
         <CreateIndexForm {...props} />
-      </div>
+      </Body>
       <ModalFooter className={modalFooterStyles}>
         <div>
           {renderError()}
