@@ -145,7 +145,7 @@ function CreateIndexModal({
   };
 
   const renderInProgress = () => {
-    if (!error || !inProgress) {
+    if (error || !inProgress) {
       return;
     }
 
