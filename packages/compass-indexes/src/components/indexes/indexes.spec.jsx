@@ -16,7 +16,7 @@ describe('indexes [Component]', function () {
   const sortIndexesSpy = sinon.spy();
   const toggleIsVisibleSpy = sinon.spy();
   const resetSpy = sinon.spy();
-  const changeNameSpy = sinon.spy();
+  const nameChangedSpy = sinon.spy();
   const openLinkSpy = sinon.spy();
 
   before(function () {
@@ -39,7 +39,7 @@ describe('indexes [Component]', function () {
           sortIndexes={sortIndexesSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy}
-          changeName={changeNameSpy}
+          nameChanged={nameChangedSpy}
           openLink={openLinkSpy}
         />
       );
@@ -82,7 +82,7 @@ describe('indexes [Component]', function () {
           sortIndexes={sortIndexesSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy}
-          changeName={changeNameSpy}
+          nameChanged={nameChangedSpy}
           openLink={openLinkSpy}
         />
       );
@@ -127,7 +127,7 @@ describe('indexes [Component]', function () {
           sortIndexes={sortIndexesSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy}
-          changeName={changeNameSpy}
+          nameChanged={nameChangedSpy}
           openLink={openLinkSpy}
         />
       );
@@ -171,7 +171,7 @@ describe('indexes [Component]', function () {
           sortIndexes={sortIndexesSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           reset={resetSpy}
-          changeName={changeNameSpy}
+          nameChanged={nameChangedSpy}
           openLink={openLinkSpy}
         />
       );

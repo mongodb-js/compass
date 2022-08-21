@@ -65,7 +65,6 @@ describe('Collection indexes tab', function () {
       Selectors.CreateIndexModalFieldTypeSelectButton(0)
     );
     await fieldTypeSelect.waitForDisplayed();
-
     await fieldTypeSelect.click();
 
     const fieldTypeSelectMenu = await browser.$(
@@ -144,7 +143,9 @@ describe('Collection indexes tab', function () {
       const indexToggleIsWildcard = await browser.$(
         Selectors.IndexToggleIsWildcard
       );
-      await indexToggleIsWildcard.click();
+
+      await indexToggleIsWildcard.waitForDisplayed();
+      await browser.clickVisible(Selectors.IndexToggleIsWildcard);
 
       // set the text in the editor
       await browser.setAceValue(

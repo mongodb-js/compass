@@ -7,7 +7,7 @@ import { writeStateChanged } from '../../modules/is-writable';
 import { dataServiceConnected } from '../../modules/data-service';
 import { sortIndexes } from '../../modules/indexes';
 import { reset } from '../../modules/reset';
-import { changeName } from '../../modules/drop-index/name';
+import { nameChanged } from '../../modules/drop-index/name';
 import { openLink } from '../../modules/link';
 
 import IndexHeader from '../index-header';
@@ -51,7 +51,7 @@ class Indexes extends PureComponent {
     localAppRegistry: PropTypes.object.isRequired,
     reset: PropTypes.func.isRequired,
     errorMessage: PropTypes.string,
-    changeName: PropTypes.func.isRequired,
+    nameChanged: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     writeStateDescription: PropTypes.string.isRequired,
   };
@@ -73,7 +73,7 @@ class Indexes extends PureComponent {
             isReadonly={this.props.isReadonly}
             indexes={this.props.indexes}
             localAppRegistry={this.props.localAppRegistry}
-            changeName={this.props.changeName}
+            nameChanged={this.props.nameChanged}
             openLink={this.props.openLink}
           />
         </table>
@@ -134,7 +134,7 @@ const MappedIndexes = connect(mapStateToProps, {
   dataServiceConnected,
   sortIndexes,
   reset,
-  changeName,
+  nameChanged,
   openLink,
 })(Indexes);
 

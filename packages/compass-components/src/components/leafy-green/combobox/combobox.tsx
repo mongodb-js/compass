@@ -45,6 +45,7 @@ import {
   menuMessage,
   menuStyle,
   menuWrapperStyle,
+  popoverStyle,
 } from './combobox.styles';
 import { InternalComboboxGroup } from './combobox-group';
 import type { OptionObject } from './util';
@@ -886,12 +887,18 @@ export default function Combobox<M extends boolean>({
 
       setInputFocus(cursorPos);
     }
+
+    // Open menu on click instead of on focus.
+    // https://jira.mongodb.org/browse/PD-2321
+    openMenu();
   };
 
   // Fired when the wrapper gains focus
   const handleInputWrapperFocus = () => {
     scrollToEnd();
-    openMenu();
+    // To prevent Combobox menu from automatically being opened on focus.
+    // https://jira.mongodb.org/browse/PD-2321
+    // openMenu();
   };
 
   // Fired onChange
@@ -1152,7 +1159,12 @@ export default function Combobox<M extends boolean>({
           justify="middle"
           refEl={comboboxRef}
           adjustOnMutation={true}
-          className={menuWrapperStyle({ darkMode, size, width: menuWidth })}
+          className={cx(
+            popoverStyle(),
+            menuWrapperStyle({ darkMode, size, width: menuWidth })
+          )}
+          usePortal={false} // combobox@0.9.0 does not have implemented functionality for usePortal yet.
+          popoverZIndex={999999}
         >
           <div
             id={menuId}

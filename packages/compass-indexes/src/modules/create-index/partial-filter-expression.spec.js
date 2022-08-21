@@ -2,8 +2,8 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  changePartialFilterExpression,
-  CHANGE_PARTIAL_FILTER_EXPRESSION,
+  partialFilterExpressionChanged,
+  PARTIAL_FILTER_EXPRESSION_CHANGED,
 } from '../create-index/partial-filter-expression';
 
 describe('create index partial filter expression module', function () {
@@ -13,7 +13,7 @@ describe('create index partial filter expression module', function () {
         expect(
           reducer(
             undefined,
-            changePartialFilterExpression({ testkey: 'testvalue' })
+            partialFilterExpressionChanged({ testkey: 'testvalue' })
           )
         ).to.deep.equal({ testkey: 'testvalue' });
       });
@@ -26,12 +26,12 @@ describe('create index partial filter expression module', function () {
     });
   });
 
-  describe('#changePartialFilterExpression', function () {
+  describe('#partialFilterExpressionChanged', function () {
     it('returns the action', function () {
       expect(
-        changePartialFilterExpression({ testkey: 'testvalue' })
+        partialFilterExpressionChanged({ testkey: 'testvalue' })
       ).to.deep.equal({
-        type: CHANGE_PARTIAL_FILTER_EXPRESSION,
+        type: PARTIAL_FILTER_EXPRESSION_CHANGED,
         partialFilterExpression: { testkey: 'testvalue' },
       });
     });

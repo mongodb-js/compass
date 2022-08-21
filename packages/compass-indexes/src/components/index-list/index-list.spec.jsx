@@ -37,7 +37,7 @@ describe('index-list [Component]', function () {
           isWritable
           isReadonly={false}
           toggleIsVisible={() => {}}
-          changeName={() => {}}
+          nameChanged={() => {}}
           indexes={indexes}
           openLink={() => {}}
         />

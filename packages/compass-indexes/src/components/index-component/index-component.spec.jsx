@@ -33,7 +33,7 @@ describe('index-component [Component]', function () {
           isWritable
           isReadonly={false}
           toggleIsVisible={() => {}}
-          changeName={() => {}}
+          nameChanged={() => {}}
           openLink={() => {}}
           index={index}
         />
