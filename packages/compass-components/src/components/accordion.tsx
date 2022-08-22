@@ -36,13 +36,13 @@ const buttonIconStyles = css({
   marginRight: spacing[1],
 });
 const buttonTextStyles = css({
-  alignItems: 'baseline',
-  display: 'flex',
+  textAlign: 'left',
 });
 const buttonHintStyles = css({
   margin: 0,
   marginLeft: spacing[1],
   padding: 0,
+  display: 'inline',
 });
 interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
   darkMode?: boolean;
