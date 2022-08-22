@@ -9,7 +9,7 @@ const IndexIcon = ({ direction }: { direction: IndexDirection }) => {
   ) : direction === -1 ? (
     <Icon glyph="ArrowDown" size="small" aria-label="Descending index" />
   ) : (
-    <>({String(direction)})</>
+    <span>({String(direction)})</span>
   );
 };
 

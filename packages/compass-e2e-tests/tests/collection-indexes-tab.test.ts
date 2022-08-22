@@ -41,10 +41,12 @@ describe('Collection indexes tab', function () {
     const element = await browser.$(Selectors.IndexList);
     await element.waitForDisplayed();
 
-    const indexes = await browser.$$(Selectors.IndexComponent);
+    const indexes = await browser.$$(Selectors.IndexComponent('_id_'));
     expect(indexes).to.have.lengthOf(1);
 
-    const indexFieldNameElement = await browser.$(Selectors.IndexFieldName);
+    const indexFieldNameElement = await browser.$(
+      `${Selectors.IndexComponent('_id_')} ${Selectors.IndexFieldName}`
+    );
     expect(await indexFieldNameElement.getText()).to.equal('_id_');
   });
 
@@ -81,10 +83,15 @@ describe('Collection indexes tab', function () {
 
     await createModal.waitForDisplayed({ reverse: true });
 
-    const indexComponent = await browser.$(Selectors.indexComponent('i_text'));
+    const indexComponentSelector = Selectors.IndexComponent('i_text');
+
+    const indexComponent = await browser.$(indexComponentSelector);
     await indexComponent.waitForDisplayed();
 
-    await browser.clickVisible(Selectors.dropIndexButton('i_text'));
+    await browser.hover(indexComponentSelector);
+    await browser.clickVisible(
+      `${indexComponentSelector} ${Selectors.DropIndexButton}`
+    );
 
     const dropModal = await browser.$(Selectors.DropIndexModal);
     await dropModal.waitForDisplayed();
@@ -157,10 +164,10 @@ describe('Collection indexes tab', function () {
 
       await createModal.waitForDisplayed({ reverse: true });
 
-      const indexComponent = await browser.$(Selectors.indexComponent('$**_1'));
+      const indexComponent = await browser.$(Selectors.IndexComponent('$**_1'));
       await indexComponent.waitForDisplayed();
 
-      const indexFieldTypeSelector = `${Selectors.indexComponent('$**_1')} ${
+      const indexFieldTypeSelector = `${Selectors.IndexComponent('$**_1')} ${
         Selectors.IndexFieldType
       }`;
       const indexFieldTypeElement = await browser.$(indexFieldTypeSelector);
@@ -212,11 +219,15 @@ describe('Collection indexes tab', function () {
       await createModal.waitForDisplayed({ reverse: true });
 
       const indexComponent = await browser.$(
-        Selectors.indexComponent('columnstore')
+        Selectors.IndexComponent('columnstore')
       );
       await indexComponent.waitForDisplayed();
 
-      await browser.clickVisible(Selectors.dropIndexButton('columnstore'));
+      await browser.clickVisible(
+        `${Selectors.IndexComponent('columnstore')} ${
+          Selectors.DropIndexButton
+        }`
+      );
 
       const dropModal = await browser.$(Selectors.DropIndexModal);
       await dropModal.waitForDisplayed();

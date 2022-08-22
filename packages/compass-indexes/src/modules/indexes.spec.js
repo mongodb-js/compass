@@ -31,17 +31,33 @@ describe('indexes module', function () {
         context('when the column is Usage', function () {
           context('when sorting asc', function () {
             it('returns the sorted indexes list', function () {
-              expect(
-                reducer(undefined, sortIndexes(defaultSort, USAGE, ASC))
-              ).to.deep.equal(usageSort);
+              const dispatch = (args) => args;
+              const getState = () => {
+                return {
+                  indexes: defaultSort,
+                };
+              };
+              const result = reducer(
+                undefined,
+                sortIndexes(USAGE, ASC)(dispatch, getState)
+              );
+              expect(result).to.deep.equal(usageSort);
             });
           });
 
           context('when sorting desc', function () {
             it('returns the sorted indexes list', function () {
-              expect(
-                reducer(undefined, sortIndexes(defaultSort, USAGE, DESC))
-              ).to.deep.equal(usageSortDesc);
+              const dispatch = (args) => args;
+              const getState = () => {
+                return {
+                  indexes: defaultSort,
+                };
+              };
+              const result = reducer(
+                undefined,
+                sortIndexes(USAGE, DESC)(dispatch, getState)
+              );
+              expect(result).to.deep.equal(usageSortDesc);
             });
           });
         });
@@ -49,17 +65,33 @@ describe('indexes module', function () {
         context('when the column is Name and Definition', function () {
           context('when sorting asc', function () {
             it('returns the sorted indexes list', function () {
-              expect(
-                reducer(undefined, sortIndexes(usageSort, DEFAULT, ASC))
-              ).to.deep.equal(defaultSort);
+              const dispatch = (args) => args;
+              const getState = () => {
+                return {
+                  indexes: usageSort,
+                };
+              };
+              const result = reducer(
+                undefined,
+                sortIndexes(DEFAULT, ASC)(dispatch, getState)
+              );
+              expect(result).to.deep.equal(defaultSort);
             });
           });
 
           context('when sorting desc', function () {
             it('returns the sorted indexes list', function () {
-              expect(
-                reducer(undefined, sortIndexes(usageSort, DEFAULT, DESC))
-              ).to.deep.equal(defaultSortDesc);
+              const dispatch = (args) => args;
+              const getState = () => {
+                return {
+                  indexes: usageSort,
+                };
+              };
+              const result = reducer(
+                undefined,
+                sortIndexes(DEFAULT, DESC)(dispatch, getState)
+              );
+              expect(result).to.deep.equal(defaultSortDesc);
             });
           });
         });
@@ -84,7 +116,11 @@ describe('indexes module', function () {
 
   describe('#sortIndexes', function () {
     it('returns the action', function () {
-      expect(sortIndexes([], 'Database Name', DESC)).to.deep.equal({
+      const dispatch = (x) => x;
+      const getState = () => ({ indexes: [] });
+      expect(
+        sortIndexes('Database Name', DESC)(dispatch, getState)
+      ).to.deep.equal({
         type: SORT_INDEXES,
         indexes: [],
         column: 'Database Name',
