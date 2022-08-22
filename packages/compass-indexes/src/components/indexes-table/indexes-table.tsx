@@ -25,8 +25,13 @@ const rowStyles = css({
   },
 });
 // When row is not hovered, we hide the delete button
-const deletFieldStyles = css({
-  opacity: 0,
+const deleteFieldStyles = css({
+  button: {
+    opacity: 0,
+    '&:focus': {
+      opacity: 1,
+    },
+  },
 });
 
 const tableHeaderStyles = css({
@@ -159,7 +164,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
           {/* Delete column is conditional */}
           {index.name !== '_id_' && canDeleteIndex && (
             <Cell data-testid="index-drop-field" className={cellStyles}>
-              <div className={cx(deletFieldStyles, 'delete-cell')}>
+              <div className={cx(deleteFieldStyles, 'delete-cell')}>
                 <DropField
                   darkMode={darkMode}
                   name={index.name}
