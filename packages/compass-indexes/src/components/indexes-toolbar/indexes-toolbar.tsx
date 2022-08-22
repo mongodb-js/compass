@@ -12,7 +12,7 @@ import {
 import type AppRegistry from 'hadron-app-registry';
 
 const toolbarStyles = css({
-  padding: spacing[3],
+  padding: spacing[2],
   backgroundColor: 'transparent',
 });
 
