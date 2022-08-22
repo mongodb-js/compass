@@ -83,11 +83,14 @@ describe('Collection indexes tab', function () {
 
     await createModal.waitForDisplayed({ reverse: true });
 
-    const indexComponent = await browser.$(Selectors.IndexComponent('i_text'));
+    const indexComponentSelector = Selectors.IndexComponent('i_text');
+
+    const indexComponent = await browser.$(indexComponentSelector);
     await indexComponent.waitForDisplayed();
 
+    await browser.hover(indexComponentSelector);
     await browser.clickVisible(
-      `${Selectors.IndexComponent('i_text')} ${Selectors.DropIndexButton}`
+      `${indexComponentSelector} ${Selectors.DropIndexButton}`
     );
 
     const dropModal = await browser.$(Selectors.DropIndexModal);

@@ -777,11 +777,11 @@ export const IndexComponent = (name: string): string => {
 export const IndexFieldName = '[data-testid="index-name-field"]';
 export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
-  '[data-test-id="create-index-modal-toggle-options"]';
+  '[data-testid="create-index-modal-toggle-options"]';
 export const IndexToggleIsWildcard =
-  '[data-test-id="wildcard-projection"] input[type="checkbox"]';
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] #create-index-modal-use-wildcard-checkbox-label';
 export const IndexWildcardProjectionEditor =
-  '[data-test-id="create-index-modal-options-param-wrapper-editor"] .ace_editor';
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] .ace_editor';
 
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
@@ -798,13 +798,6 @@ export const CreateIndexModalFieldTypeSelectButton = (idx: number): string => {
 export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
   return `[data-testid="create-index-fields-type-${idx}"] #create-index-fields-type-select-${idx}-menu`;
 };
-
-export const IndexToggleOptions =
-  '[data-testid="create-index-modal-toggle-options"]';
-export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] #create-index-modal-use-wildcard-checkbox-label';
-export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] .ace_editor';
 
 export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
 export const CreateIndexConfirmButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:first-child`;

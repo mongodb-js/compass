@@ -20,7 +20,9 @@ import DropField from './drop-field';
 const rowStyles = css({
   ':hover': {
     '.delete-cell': {
-      opacity: 1,
+      button: {
+        opacity: 1,
+      }
     },
   },
 });
