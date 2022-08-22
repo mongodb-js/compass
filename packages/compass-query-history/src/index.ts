@@ -24,7 +24,9 @@ const ROLE = {
 function activate(appRegistry: AppRegistry): void {
   // TODO(COMPASS-5679): After we enable the toolbars feature flag,
   // we can remove the ScopedModal role for this plugin as it's no longer used.
-  appRegistry.registerRole('Collection.ScopedModal', ROLE);
+  if (process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'false') {
+    appRegistry.registerRole('Collection.ScopedModal', ROLE);
+  }
 
   appRegistry.registerRole('Query.QueryHistory', ROLE);
 }
@@ -34,7 +36,9 @@ function activate(appRegistry: AppRegistry): void {
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
 function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Collection.ScopedModal', ROLE);
+  if (process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'false') {
+    appRegistry.deregisterRole('Collection.ScopedModal', ROLE);
+  }
 
   appRegistry.deregisterRole('Query.QueryHistory', ROLE);
 }
