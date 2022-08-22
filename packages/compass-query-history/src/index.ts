@@ -26,9 +26,9 @@ function activate(appRegistry: AppRegistry): void {
   // we can remove the ScopedModal role for this plugin as it's no longer used.
   if (process?.env?.COMPASS_SHOW_NEW_TOOLBARS !== 'true') {
     appRegistry.registerRole('Collection.ScopedModal', ROLE);
+  } else {
+    appRegistry.registerRole('Query.QueryHistory', ROLE);
   }
-
-  appRegistry.registerRole('Query.QueryHistory', ROLE);
 }
 
 /**
@@ -38,9 +38,9 @@ function activate(appRegistry: AppRegistry): void {
 function deactivate(appRegistry: AppRegistry): void {
   if (process?.env?.COMPASS_SHOW_NEW_TOOLBARS !== 'true') {
     appRegistry.deregisterRole('Collection.ScopedModal', ROLE);
+  } else {
+    appRegistry.deregisterRole('Query.QueryHistory', ROLE);
   }
-
-  appRegistry.deregisterRole('Query.QueryHistory', ROLE);
 }
 
 export default QueryHistoryPlugin;
