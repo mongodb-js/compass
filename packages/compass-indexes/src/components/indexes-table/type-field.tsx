@@ -37,7 +37,6 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
   type,
   extra,
 }) => {
-  // todo: align index types across
   const link = getIndexHelpLink(type.toUpperCase() as any);
   return (
     <Tooltip

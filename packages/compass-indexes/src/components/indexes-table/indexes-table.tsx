@@ -20,13 +20,21 @@ import DropField from './drop-field';
 const rowStyles = css({
   ':hover': {
     '.delete-cell': {
-      visibility: 'visible',
+      opacity: 1,
     },
   },
 });
 // When row is not hovered, we hide the delete button
 const deletFieldStyles = css({
-  visibility: 'hidden',
+  opacity: 0,
+});
+
+const tableHeaderStyles = css({
+  borderWidth: 0,
+  borderBottomWidth: 3,
+  '> div': {
+    justifyContent: 'space-between',
+  },
 });
 
 const cellStyles = css({
@@ -80,6 +88,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
           data-testid={`index-header-${name}`}
           label={name}
           key={name}
+          className={tableHeaderStyles}
           handleSort={(direction) => {
             onSortTable(name, direction);
           }}
@@ -88,7 +97,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
     });
     // The delete column
     if (canDeleteIndex) {
-      _columns.push(<TableHeader label={''} />);
+      _columns.push(<TableHeader label={''} className={tableHeaderStyles} />);
     }
     return _columns;
   }, [canDeleteIndex, onSortTable]);

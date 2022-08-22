@@ -7,6 +7,9 @@ import {
   Link,
   uiColors,
   spacing,
+  cx,
+  focusRingStyles,
+  focusRingVisibleStyles,
 } from '@mongodb-js/compass-components';
 
 const badgeStyles = css({
@@ -20,6 +23,7 @@ const linkStyles = css({
     // LG uses backgroundImage instead of textDecoration
     backgroundImage: 'none !important',
   },
+  '&:focus': focusRingVisibleStyles,
 });
 
 type BadgeWithIconLinkProps = {
@@ -34,7 +38,7 @@ const BadgeWithIconLink: React.FunctionComponent<BadgeWithIconLinkProps> = ({
   return (
     <Badge
       variant={BadgeVariant.DarkGray}
-      className={badgeStyles}
+      className={cx(badgeStyles, focusRingStyles)}
       data-testid={`${text}-badge`}
     >
       {text}

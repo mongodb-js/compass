@@ -67,7 +67,6 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
           <PropertyBadgeWithTooltip
             key={property}
             text={property}
-            // todo: align index types across
             link={getIndexHelpLink(property.toUpperCase() as any) ?? '#'}
             tooltip={getPropertyTooltip(property, extra)}
           />
@@ -76,7 +75,6 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
           text={cardinality}
-          // todo: align index types across
           link={getIndexHelpLink(cardinality.toUpperCase() as any) ?? '#'}
         />
       )}

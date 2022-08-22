@@ -8,11 +8,20 @@ import {
   css,
   mergeProps,
   spacing,
+  uiColors,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 
 const toolbarStyles = css({
   padding: spacing[3],
+  backgroundColor: uiColors.white,
+});
+
+const toolbarButtonsContainer = css({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[2],
+  justifyContent: 'flex-end',
 });
 
 const createIndexButtonContainerStyles = css({
@@ -45,38 +54,38 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
 
   return (
     <Toolbar className={toolbarStyles} data-testid="indexes-toolbar">
-      {showCreateIndexButton ? (
-        <Tooltip
-          enabled={!isWritable}
-          align="top"
-          justify="middle"
-          trigger={({ children, ...props }) => (
-            <div
-              {...mergeProps(
-                {
-                  className: createIndexButtonContainerStyles,
-                },
-                props
-              )}
-            >
-              <Button
-                data-testid="open-create-index-modal-button"
-                disabled={!isWritable}
-                onClick={onClickCreateIndex}
-                variant="primary"
-                size="small"
+      <div className={toolbarButtonsContainer}>
+        {showCreateIndexButton && (
+          <Tooltip
+            enabled={!isWritable}
+            align="top"
+            justify="middle"
+            trigger={({ children, ...props }) => (
+              <div
+                {...mergeProps(
+                  {
+                    className: createIndexButtonContainerStyles,
+                  },
+                  props
+                )}
               >
-                Create Index
-              </Button>
-              {children}
-            </div>
-          )}
-        >
-          {writeStateDescription}
-        </Tooltip>
-      ) : (
-        <div data-test-id="indexes-toolbar-empty" />
-      )}
+                <Button
+                  data-testid="open-create-index-modal-button"
+                  disabled={!isWritable}
+                  onClick={onClickCreateIndex}
+                  variant="primary"
+                  size="small"
+                >
+                  Create Index
+                </Button>
+                {children}
+              </div>
+            )}
+          >
+            {writeStateDescription}
+          </Tooltip>
+        )}
+      </div>
       {isReadonlyView ? (
         <WarningSummary
           warnings={['Readonly views may not contain indexes.']}
