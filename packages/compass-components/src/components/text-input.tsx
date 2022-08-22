@@ -4,6 +4,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
 import { withTheme } from '../hooks/use-theme';
 
+// NOTE: we are wrapping this component to counter the 4px padding top
 const textInputStyles = css({
   marginTop: -spacing[1],
 });
