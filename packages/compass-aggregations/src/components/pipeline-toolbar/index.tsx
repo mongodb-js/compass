@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Toolbar, css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
+import { Toolbar, css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import PipelineHeader from './pipeline-header';
@@ -9,10 +9,8 @@ import PipelineSettings from './pipeline-settings';
 import type { RootState } from '../../modules';
 
 const containerStyles = css({
-  paddingTop: spacing[3],
+  padding: spacing[3],
   paddingRight: spacing[5],
-  paddingBottom: spacing[3],
-  paddingLeft: spacing[3]
 });
 
 const containerDisplayStyles = css({
@@ -21,8 +19,6 @@ const containerDisplayStyles = css({
   gridTemplateAreas: `
   "headerAndOptionsRow"
   `,
-  marginLeft: spacing[1],
-  marginRight: spacing[1]
 });
 
 const displaySettings = css({
@@ -40,6 +36,10 @@ const headerAndOptionsRowStyles = css({
   padding: spacing[2]
 });
 
+const headerAndOptionsRowDarkStyles = css({
+  borderColor: uiColors.gray.dark2,
+});
+
 const settingsRowStyles = css({
   gridArea: 'settingsRow'
 });
@@ -49,6 +49,7 @@ const optionsStyles = css({
 });
 
 type PipelineToolbarProps = {
+  darkMode?: boolean;
   isSettingsVisible: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
@@ -56,6 +57,7 @@ type PipelineToolbarProps = {
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
+  darkMode,
   isSettingsVisible,
   showRunButton,
   showExportButton,
@@ -72,7 +74,12 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
       data-testid="pipeline-toolbar"
     >
       <>
-        <div className={headerAndOptionsRowStyles}>
+        <div
+          className={cx(
+            headerAndOptionsRowStyles,
+            darkMode && headerAndOptionsRowDarkStyles
+          )}
+        >
           <PipelineHeader
             isOptionsVisible={isOptionsVisible}
             onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
@@ -99,4 +106,4 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 const mapState = ({ workspace }: RootState) => ({
   isSettingsVisible: workspace === 'builder'
 });
-export default connect(mapState)(PipelineToolbar);
+export default withTheme(connect(mapState)(PipelineToolbar));

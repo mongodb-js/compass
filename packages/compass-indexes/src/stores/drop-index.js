@@ -9,7 +9,7 @@ import {
 import { parseErrorMsg } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { toggleIsVisible } from '../modules/is-visible';
-import { changeName } from '../modules/drop-index/name';
+import { nameChanged } from '../modules/drop-index/name';
 import { namespaceChanged } from '../modules/namespace';
 
 /**
@@ -36,7 +36,7 @@ const configureStore = (options = {}) => {
     store.dispatch(localAppRegistryActivated(localAppRegistry));
 
     localAppRegistry.on('toggle-drop-index-modal', (isVisible, indexName) => {
-      store.dispatch(changeName(indexName));
+      store.dispatch(nameChanged(indexName));
       store.dispatch(toggleIsVisible(isVisible));
     });
 

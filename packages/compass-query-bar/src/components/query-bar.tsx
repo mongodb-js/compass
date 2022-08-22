@@ -4,8 +4,10 @@ import {
   Icon,
   MoreOptionsToggle,
   css,
+  cx,
   spacing,
   uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 import type AppRegistry from 'hadron-app-registry';
@@ -23,9 +25,15 @@ const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
+  background: 'white',
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[2],
+});
+
+const queryBarFormDarkStyles = css({
+  background: uiColors.gray.dark3,
+  borderColor: uiColors.gray.dark2,
 });
 
 const queryBarFirstRowStyles = css({
@@ -40,6 +48,7 @@ const filterContainerStyles = css({
 
 type QueryBarProps = {
   buttonLabel?: string;
+  darkMode?: boolean;
   expanded: boolean;
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
@@ -66,8 +75,9 @@ type QueryBarProps = {
   valid: boolean;
 } & QueryBarOptionProps;
 
-export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
+const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
+  darkMode,
   expanded: isQueryOptionsExpanded = false,
   globalAppRegistry,
   localAppRegistry,
@@ -104,7 +114,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
   return (
     <form
-      className={queryBarFormStyles}
+      className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
       data-testid="query-bar"
       onSubmit={onFormSubmit}
       noValidate
@@ -193,3 +203,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     </form>
   );
 };
+
+const QueryBar = withTheme(UnthemedQueryBar);
+
+export { QueryBar };

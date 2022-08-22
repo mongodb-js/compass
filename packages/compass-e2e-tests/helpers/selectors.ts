@@ -782,20 +782,33 @@ export const IndexToggleIsWildcard =
   '[data-test-id="wildcard-projection"] input[type="checkbox"]';
 export const IndexWildcardProjectionEditor =
   '[data-test-id="create-index-modal-options-param-wrapper-editor"] .ace_editor';
+
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
-export const CreateIndexModal = '[data-test-id="create-index-modal"]';
+
+// Indexes modal
+export const CreateIndexModal = '[data-testid="create-index-modal"]';
 
 export const CreateIndexModalFieldNameSelectInput = (idx: number): string => {
-  return `[data-test-id="create-index-field-name-${idx}"] input`;
+  return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
 export const CreateIndexModalFieldTypeSelectButton = (idx: number): string => {
-  return `[data-test-id="create-index-field-type-${idx}"] button`;
+  return `[data-testid="create-index-fields-type-${idx}"] button`;
 };
 export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
-  return `[data-test-id="create-index-field-type-${idx}"] #create-index-field-type-${idx}-menu`;
+  return `[data-testid="create-index-fields-type-${idx}"] #create-index-fields-type-select-${idx}-menu`;
 };
-export const CreateIndexConfirmButton = '[data-test-id="create-index-button"]';
+
+export const IndexToggleOptions =
+  '[data-testid="create-index-modal-toggle-options"]';
+export const IndexToggleIsWildcard =
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] #create-index-modal-use-wildcard-checkbox-label';
+export const IndexWildcardProjectionEditor =
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] .ace_editor';
+
+export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
+export const CreateIndexConfirmButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:first-child`;
+export const CreateIndexCancelButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:last-child`;
 
 export const DropIndexModal = '[data-testid="drop_index_modal"]';
 export const DropIndexModalConfirmName =

@@ -1,5 +1,14 @@
 import React, { useCallback } from 'react';
-import { css, spacing, Body, Icon, InteractivePopover } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Icon,
+  InteractivePopover,
+  css,
+  cx,
+  focusRingVisibleStyles,
+  focusRingStyles,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import PipelineStages from './pipeline-stages';
@@ -28,18 +37,23 @@ const containerStyles = css({
 const pipelineTextAndOpenStyles = css({
   display: 'flex',
   gap: spacing[2],
+  alignItems: 'center',
 });
 
-const openSavedPipelinesStyles = css({
-  border: 'none',
-  backgroundColor: 'transparent',
-  lineHeight: 1,
-  display: 'flex',
-  alignItems: 'center',
-  '&:hover': {
-    cursor: 'pointer',
-  },
-});
+const openSavedPipelinesStyles = cx(
+  css({
+    border: 'none',
+    backgroundColor: 'transparent',
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: spacing[2] - 2, // -2px for border.
+    '&:hover': {
+      cursor: 'pointer',
+    },
+    '&:focus': focusRingVisibleStyles,
+  }),
+  focusRingStyles
+);
 
 const pipelineStagesStyles = css({
   display: 'flex',
@@ -62,6 +76,7 @@ const savedAggregationsPopoverStyles = css({
 type PipelineHeaderProps = {
   deletePipeline: (pipelineId: string) => void;
   isOptionsVisible: boolean;
+  namespace: string;
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
@@ -77,6 +92,7 @@ type PipelineHeaderProps = {
 
 export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   deletePipeline,
+  namespace,
   onShowSavedPipelines,
   showRunButton,
   showExportButton,
@@ -92,6 +108,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
 }) => {
   const savedPipelinesPopover = () => (
     <SavedPipelines
+      namespace={namespace}
       restorePipelineModalToggle={restorePipelineModalToggle}
       restorePipelineFrom={restorePipelineFrom}
       deletePipeline={deletePipeline}
@@ -159,6 +176,7 @@ export default connect(
     return {
       isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
       isSavedPipelineVisible: state.savedPipeline.isListVisible,
+      namespace: state.namespace,
       savedPipelines: state.savedPipeline.pipelines,
     };
   },

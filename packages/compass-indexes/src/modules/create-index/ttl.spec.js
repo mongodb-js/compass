@@ -2,15 +2,15 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  changeTtl,
-  CHANGE_TTL,
+  ttlChanged,
+  TTL_CHANGED,
 } from '../create-index/ttl';
 
 describe('create index partial filter expression module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, changeTtl(1000))).to.deep.equal(1000);
+        expect(reducer(undefined, ttlChanged(1000))).to.deep.equal(1000);
       });
     });
 
@@ -21,10 +21,10 @@ describe('create index partial filter expression module', function () {
     });
   });
 
-  describe('#changeTtl', function () {
+  describe('#ttlChanged', function () {
     it('returns the action', function () {
-      expect(changeTtl(1000)).to.deep.equal({
-        type: CHANGE_TTL,
+      expect(ttlChanged(1000)).to.deep.equal({
+        type: TTL_CHANGED,
         ttl: 1000,
       });
     });

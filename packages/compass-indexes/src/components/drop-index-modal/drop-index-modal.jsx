@@ -11,7 +11,7 @@ import {
 
 import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleInProgress } from '../../modules/in-progress';
-import { changeName } from '../../modules/drop-index/name';
+import { nameChanged } from '../../modules/drop-index/name';
 import { changeConfirmName } from '../../modules/drop-index/confirm-name';
 import { handleError, clearError } from '../../modules/error';
 import { dropIndex } from '../../modules/drop-index';
@@ -152,7 +152,7 @@ const MappedDropIndexModal = connect(mapStateToProps, {
   toggleInProgress,
   clearError,
   handleError,
-  changeName,
+  nameChanged,
   changeConfirmName,
   dropIndex,
   resetForm,

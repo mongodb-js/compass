@@ -7,6 +7,7 @@ import {
   focusRingStyles,
   spacing,
   uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
@@ -35,12 +36,15 @@ const documentEditorOptionStyles = css(
   focusRingStyles
 );
 
-const numericTextInputStyles = css({
+const numericTextInputLightStyles = css({
   input: {
-    // TODO: Decide border styles for query bar editors.
-    // Remove these commented styles if we want borders.
-    // borderColor: 'transparent',
-    borderColor: uiColors.gray.light2,
+    borderColor: 'transparent',
+  },
+});
+
+const numericTextInputDarkStyles = css({
+  input: {
+    borderColor: 'transparent',
   },
 });
 
@@ -59,6 +63,7 @@ const queryOptionLabelContainerStyles = css({
 });
 
 type QueryOptionProps = {
+  darkMode?: boolean;
   hasError: boolean;
   onChange: (value: string) => void;
   onApply: () => void;
@@ -70,7 +75,8 @@ type QueryOptionProps = {
   value?: string;
 };
 
-const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
+const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
+  darkMode,
   hasError,
   onApply,
   onChange,
@@ -126,7 +132,9 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             id={`query-bar-option-input-${queryOption}`}
             data-testid="query-bar-option-input"
             className={cx(
-              numericTextInputStyles,
+              darkMode
+                ? numericTextInputDarkStyles
+                : numericTextInputLightStyles,
               hasError && optionInputWithErrorStyles
             )}
             type="text"
@@ -143,5 +151,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     </div>
   );
 };
+
+const QueryOption = withTheme(UnthemedQueryOption);
 
 export { QueryOption };
