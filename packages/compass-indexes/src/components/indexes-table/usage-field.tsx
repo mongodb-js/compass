@@ -12,20 +12,17 @@ export const getUsageTooltip = (usage?: number): string => {
 };
 
 type UsageFieldProps = {
-  darkMode?: boolean;
   usage?: number;
   since?: Date;
 };
 
 const nbsp = '\u00a0';
 const UsageField: React.FunctionComponent<UsageFieldProps> = ({
-  darkMode,
   usage,
   since,
 }) => {
   return (
     <Tooltip
-      darkMode={darkMode}
       trigger={({ children, ...props }) => (
         <span {...props}>
           {children}

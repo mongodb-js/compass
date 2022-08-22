@@ -10,7 +10,6 @@ export const canRenderTooltip = (type: IndexModel['type']) => {
 };
 
 type TypeFieldProps = {
-  darkMode?: boolean;
   type: IndexModel['type'];
   extra: IndexModel['extra'];
 };
@@ -35,14 +34,12 @@ export const IndexTypeTooltip: React.FunctionComponent<{
 };
 
 const TypeField: React.FunctionComponent<TypeFieldProps> = ({
-  darkMode,
   type,
   extra,
 }) => {
   const link = getIndexHelpLink(type.toUpperCase() as any);
   return (
     <Tooltip
-      darkMode={darkMode}
       enabled={canRenderTooltip(type)}
       trigger={({ children, ...props }) => (
         <span {...props}>

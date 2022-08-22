@@ -8,13 +8,12 @@ import {
   css,
   mergeProps,
   spacing,
-  uiColors,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 
 const toolbarStyles = css({
   padding: spacing[3],
-  backgroundColor: uiColors.white,
+  backgroundColor: 'transparent',
 });
 
 const toolbarButtonsContainer = css({

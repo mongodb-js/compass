@@ -3,7 +3,6 @@ import React from 'react';
 import { Body, Tooltip } from '@mongodb-js/compass-components';
 
 type SizeFieldProps = {
-  darkMode?: boolean;
   size: number;
   relativeSize: number;
 };
@@ -18,13 +17,11 @@ export const getSizeTooltip = (relativeSize: number): string => {
 };
 
 const SizeField: React.FunctionComponent<SizeFieldProps> = ({
-  darkMode,
   relativeSize,
   size,
 }) => {
   return (
     <Tooltip
-      darkMode={darkMode}
       trigger={({ children, ...props }) => (
         <span {...props}>
           {children}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, Card, spacing, withTheme } from '@mongodb-js/compass-components';
+import { css, Card, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
 
@@ -30,7 +30,6 @@ const indexTableStyles = css({
 });
 
 type IndexesProps = {
-  darkMode?: boolean;
   indexes: IndexModel[];
   isWritable: boolean;
   isReadonly: boolean;
@@ -41,8 +40,7 @@ type IndexesProps = {
   onSortTable: (name: string, direction: 'asc' | 'desc') => void;
 };
 
-const UnthemedIndexes: React.FunctionComponent<IndexesProps> = ({
-  darkMode,
+export const Indexes: React.FunctionComponent<IndexesProps> = ({
   indexes,
   isWritable,
   isReadonly,
@@ -70,7 +68,6 @@ const UnthemedIndexes: React.FunctionComponent<IndexesProps> = ({
       {!isReadonlyView && !error && (
         <div className={indexTableStyles}>
           <IndexesTable
-            darkMode={darkMode}
             indexes={indexes}
             canDeleteIndex={isWritable && !isReadonly}
             onSortTable={onSortTable}
@@ -104,5 +101,4 @@ const mapDispatch = {
   onSortTable: sortIndexes,
 };
 
-export const Indexes = withTheme(UnthemedIndexes);
 export default connect(mapState, mapDispatch)(Indexes as any);

@@ -25,22 +25,13 @@ const badgeStyles = css({
 });
 
 type NameFieldProps = {
-  darkMode?: boolean;
   name: string;
   keys: ReturnType<IndexModel['fields']['serialize']>;
 };
 
-const NameField: React.FunctionComponent<NameFieldProps> = ({
-  darkMode,
-  name,
-  keys,
-}) => {
+const NameField: React.FunctionComponent<NameFieldProps> = ({ name, keys }) => {
   return (
-    <Accordion
-      darkMode={darkMode}
-      text={name}
-      aria-label={`Show/Hide index ${name} keys`}
-    >
+    <Accordion text={name} aria-label={`Show/Hide index ${name} keys`}>
       <ul className={keyListStyles}>
         {keys.map(({ field, value }) => (
           <li key={field} className={keyItemStyles}>
