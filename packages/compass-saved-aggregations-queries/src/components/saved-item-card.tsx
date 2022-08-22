@@ -69,8 +69,8 @@ const card = css({
   width: '100%',
   paddingTop: spacing[3],
   paddingBottom: spacing[3],
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+  paddingLeft: spacing[3],
+  paddingRight: spacing[3],
 });
 
 const actionsRow = css({

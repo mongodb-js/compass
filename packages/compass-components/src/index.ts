@@ -75,7 +75,7 @@ export { VisuallyHidden } from '@react-aria/visually-hidden';
 export { useToast, ToastArea } from './hooks/use-toast';
 
 export { Toggle } from './components/toggle';
-
+export { TextInput } from './components/text-input';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 import IndexIcon from './components/index-icon';
