@@ -445,14 +445,14 @@ describe('Connection screen', function () {
       defaultPassword: password,
       hosts: [host],
       sslConnection: 'ON',
-      useSystemCA: true
+      useSystemCA: true,
     });
     // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     expect(result).to.have.property('ok', 1);
   });
 
