@@ -63,6 +63,7 @@ export type IndexModel = {
 };
 
 type IndexesTableProps = {
+  darkMode?: boolean;
   indexes: IndexModel[];
   canDeleteIndex: boolean;
   onSortTable: (name: string, direction: 'asc' | 'desc') => void;
@@ -70,6 +71,7 @@ type IndexesTableProps = {
 };
 
 export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
+  darkMode,
   indexes,
   canDeleteIndex,
   onSortTable,
@@ -104,6 +106,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
 
   return (
     <Table
+      darkMode={darkMode}
       data={indexes}
       columns={columns}
       data-testid="indexes-list"
@@ -117,20 +120,37 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
         >
           <Cell data-testid="index-name-field" className={cellStyles}>
             <div className={nameFieldStyles}>
-              <NameField name={index.name} keys={index.fields.serialize()} />
+              <NameField
+                darkMode={darkMode}
+                name={index.name}
+                keys={index.fields.serialize()}
+              />
             </div>
           </Cell>
           <Cell data-testid="index-type-field" className={cellStyles}>
-            <TypeField type={index.type} extra={index.extra} />
+            <TypeField
+              darkMode={darkMode}
+              type={index.type}
+              extra={index.extra}
+            />
           </Cell>
           <Cell data-testid="index-size-field" className={cellStyles}>
-            <SizeField size={index.size} relativeSize={index.relativeSize} />
+            <SizeField
+              darkMode={darkMode}
+              size={index.size}
+              relativeSize={index.relativeSize}
+            />
           </Cell>
           <Cell data-testid="index-usage-field" className={cellStyles}>
-            <UsageField usage={index.usageCount} since={index.usageSince} />
+            <UsageField
+              darkMode={darkMode}
+              usage={index.usageCount}
+              since={index.usageSince}
+            />
           </Cell>
           <Cell data-testid="index-property-field" className={cellStyles}>
             <PropertyField
+              darkMode={darkMode}
               cardinality={index.cardinality}
               extra={index.extra}
               properties={index.properties}
@@ -141,6 +161,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
             <Cell data-testid="index-drop-field" className={cellStyles}>
               <div className={cx(deletFieldStyles, 'delete-cell')}>
                 <DropField
+                  darkMode={darkMode}
                   name={index.name}
                   onDelete={() => onDeleteIndex(index.name)}
                 />

@@ -30,12 +30,14 @@ export const getPropertyTooltip = (
 };
 
 const PropertyBadgeWithTooltip: React.FunctionComponent<{
+  darkMode?: boolean;
   text: string;
   link: string;
   tooltip?: string | null;
-}> = ({ text, link, tooltip }) => {
+}> = ({ darkMode, text, link, tooltip }) => {
   return (
     <Tooltip
+      darkMode={darkMode}
       enabled={!!tooltip}
       trigger={({ children, ...props }) => (
         <span {...props}>
@@ -50,12 +52,14 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
 };
 
 type PropertyFieldProps = {
+  darkMode?: boolean;
   extra: IndexModel['extra'];
   properties: IndexModel['properties'];
   cardinality: IndexModel['cardinality'];
 };
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
+  darkMode,
   extra,
   properties,
   cardinality,
@@ -65,6 +69,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
       {properties.map((property) => {
         return (
           <PropertyBadgeWithTooltip
+            darkMode={darkMode}
             key={property}
             text={property}
             link={getIndexHelpLink(property.toUpperCase() as any) ?? '#'}
@@ -74,6 +79,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
       })}
       {cardinality === 'compound' && (
         <PropertyBadgeWithTooltip
+          darkMode={darkMode}
           text={cardinality}
           link={getIndexHelpLink(cardinality.toUpperCase() as any) ?? '#'}
         />
