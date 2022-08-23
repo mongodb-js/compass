@@ -110,7 +110,7 @@ class DropIndexModal extends PureComponent {
         </div>
         <form onSubmit={this.onFormSubmit.bind(this)}>
           <TextInput
-            aria-labelledby="Confrim drop index"
+            aria-labelledby="Confirm drop index"
             type="text"
             data-testid="confirm-drop-index-name"
             value={this.props.confirmName}
