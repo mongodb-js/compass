@@ -4,7 +4,9 @@ import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
 import { withTheme } from '../hooks/use-theme';
 
-// NOTE: we are wrapping this component to counter the 4px padding top
+// NOTE: we are wrapping this component to counter the 4px padding top,
+// We can remove this hack after https://jira.mongodb.org/browse/PD-2345
+// lands in Leafygreen.
 const textInputStyles = css({
   marginTop: -spacing[1],
 });
