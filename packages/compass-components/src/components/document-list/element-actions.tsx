@@ -132,8 +132,10 @@ export const AddFieldActions: React.FunctionComponent<{
           }}
           className={menuItem}
         >
-          <FontAwesomeIcon icon="addChild"></FontAwesomeIcon>&nbsp;Add{' '}
-          {type === 'Array' ? 'item' : 'field'} to <b>{keyName}</b>
+          <div>
+            <FontAwesomeIcon icon="addChild"></FontAwesomeIcon>&nbsp;Add{' '}
+            {type === 'Array' ? 'item' : 'field'} to <b>{keyName}</b>
+          </div>
         </MenuItem>
       )}
       <MenuItem
@@ -144,8 +146,10 @@ export const AddFieldActions: React.FunctionComponent<{
         }}
         className={menuItem}
       >
-        <FontAwesomeIcon icon="addSibling"></FontAwesomeIcon>&nbsp;Add{' '}
-        {parentType === 'Array' ? 'item' : 'field'} after <b>{keyName}</b>
+        <div>
+          <FontAwesomeIcon icon="addSibling"></FontAwesomeIcon>&nbsp;Add{' '}
+          {parentType === 'Array' ? 'item' : 'field'} after <b>{keyName}</b>
+        </div>
       </MenuItem>
     </Menu>
   );
