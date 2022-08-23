@@ -50,7 +50,6 @@
     "@leafygreen-ui/menu": "^15.0.0",
     "@leafygreen-ui/modal": "^10.0.0",
     "@leafygreen-ui/palette": "^3.4.0",
-    "@leafygreen-ui/pipeline": "^2.1.7",
     "@leafygreen-ui/popover": "^9.0.0",
     "@leafygreen-ui/portal": "^4.0.3",
     "@leafygreen-ui/radio-box-group": "^9.0.2",
@@ -79,6 +78,9 @@
     "hadron-type-checker": "^7.0.0",
     "lodash": "^4.17.21",
     "polished": "^4.2.2",
+    "react-children-utilities": "^2.8.0",
+    "react-intersection-observer": "^9.4.0",
+    "react-merge-refs": "^2.0.1",
     "react-sortable-hoc": "^2.0.0",
     "react-window": "^1.8.6"
   },
