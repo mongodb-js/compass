@@ -54,7 +54,7 @@ export function serialize(
     { 'foo.1': 'one', 'foo.two': 'two'}.
 
     This way when we walk the return value later by the time we encounter
-    'foo.1' we already created foo, initialised to {}. Then _.set(result,
+    'foo.1' we already created foo, initialized to {}. Then _.set(result,
     'foo.1', 'one') will not create foo as an array because 1 looks like an
     index. This is because at that point result will already contain { foo: {} }
 

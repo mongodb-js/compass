@@ -43,8 +43,12 @@ function transformProjectedTypes(
     return data;
   }
 
+  console.log('ayo ayo');
+  console.log('data', data);
+
   const dotted = serialize(data, { includeObjects: true });
   const result = {};
+  console.log('data123', dotted);
 
   _.forEach(
     exclude,
@@ -61,11 +65,13 @@ function transformProjectedTypes(
   const allPaths = _.keys(dotted);
   allPaths.forEach(function (keyPath) {
     const value = _.get(dotted, keyPath);
+    console.log('value', keyPath, value);
     if (ignoreBlanks === true && value === '') {
       // debug('dropped blank field', value);
       _.unset(result, [keyPath]);
       return false;
     }
+    console.log('1')
     // debug('targetType', {keyPathToTransform, keyPath});
 
     const targetType = _.get(keyPathToTransform, keyPath);
@@ -74,6 +80,8 @@ function transformProjectedTypes(
       _.set(result, keyPath, value);
       return;
     }
+    console.log('22')
+
     const sourceType = getTypeDescriptorForValue(value).type;
 
     let casted = value;
@@ -82,17 +90,24 @@ function transformProjectedTypes(
         throw new TypeError('Cant find lookup for ' + targetType);
       }
       casted = bsonCSV[targetType].fromString(value);
-      // debug('Target type differs from source type. Casting.', {
-      //   targetType,
-      //   sourceType,
-      //   value,
-      //   keyPath,
-      //   casted
-      // });
+      debug('Target type differs from source type. Casting.', {
+        targetType,
+        sourceType,
+        value,
+        keyPath,
+        casted
+      });
     }
+
+    console.log('\n\n\nsetset', keyPath);
+    console.log('\nto', casted);
+    console.log('\n\n\n')
 
     _.set(result, keyPath, casted);
   });
+
+  console.log('\n\n123result', result);
+  console.log('\n\n\n')
 
   debug('result', result);
   return result;
