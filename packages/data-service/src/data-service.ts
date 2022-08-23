@@ -279,8 +279,8 @@ export interface DataService {
     options?: {
       nameOnly?: true;
       privileges?:
-        | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-        | null;
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null;
     }
   ): Promise<ReturnType<typeof adaptCollectionInfo>[]>;
 
@@ -290,11 +290,11 @@ export interface DataService {
   listDatabases(options?: {
     nameOnly?: true;
     privileges?:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-      | null;
+    | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+    | null;
     roles?:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
-      | null;
+    | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+    | null;
   }): Promise<{ _id: string; name: string }[]>;
 
   connect(): Promise<void>;
@@ -539,7 +539,7 @@ export interface DataService {
    * @param options - The options (unused).
    * @param callback - The callback.
    */
-  indexes(ns: string, options: unknown, callback: Callback<Document>): void;
+  indexes(ns: string, options: unknown, callback: Callback<Document[]>): void;
 
   /**
    * Get the current instance details.
@@ -1004,8 +1004,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }: {
       nameOnly?: true;
       privileges?:
-        | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-        | null;
+      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+      | null;
     } = {}
   ): Promise<ReturnType<typeof adaptCollectionInfo>[]> {
     const logop = this._startLogOp(
@@ -1103,11 +1103,11 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }: {
     nameOnly?: true;
     privileges?:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-      | null;
+    | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
+    | null;
     roles?:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
-      | null;
+    | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
+    | null;
   } = {}): Promise<{ _id: string; name: string }[]> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_033),
@@ -1402,9 +1402,9 @@ export class DataServiceImpl extends EventEmitter implements DataService {
           ?.close(true)
           .catch((err) => debug('failed to close MongoClient', err)),
         this._crudClient !== this._metadataClient &&
-          this._crudClient
-            ?.close(true)
-            .catch((err) => debug('failed to close MongoClient', err)),
+        this._crudClient
+          ?.close(true)
+          .catch((err) => debug('failed to close MongoClient', err)),
         this._tunnel
           ?.close()
           .catch((err) => debug('failed to close tunnel', err)),
@@ -1655,7 +1655,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     );
   }
 
-  indexes(ns: string, options: unknown, callback: Callback<Document>): void {
+  indexes(ns: string, options: unknown, callback: Callback<Document[]>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_047),
       'Listing indexes',
@@ -2582,11 +2582,11 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       tlsOptions: autoEncryptionOptions.tlsOptions,
       proxyOptions: proxyHost
         ? {
-            proxyHost,
-            proxyPort,
-            proxyUsername,
-            proxyPassword,
-          }
+          proxyHost,
+          proxyPort,
+          proxyUsername,
+          proxyPassword,
+        }
         : undefined,
     });
   }

@@ -1,7 +1,7 @@
 import IndexModel from 'mongodb-index-model';
-import type { AmpersandIndexModel } from 'mongodb-index-model';
+import type { Document } from 'mongodb';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import type { ThunkAction } from 'redux-thunk';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import _debug from 'debug';
 
 import type { RootState } from './index';
@@ -9,10 +9,6 @@ import { handleError } from './error';
 import type { HandleErrorAction, IndexesError } from './error';
 import { ActionTypes as RefreshActionTypes } from './is-refreshing';
 import type { RefreshFinishedAction } from './is-refreshing';
-import { ActionTypes as SortOrderActions } from './sort-order';
-import type { SortOrderChangedAction } from './sort-order';
-import { ActionTypes as SortColumnActions } from './sort-column';
-import type { SortColumnChangedAction } from './sort-column';
 
 const debug = _debug('mongodb-compass:modules:indexes');
 
@@ -45,7 +41,7 @@ export type IndexDefinition = {
   usageSince?: Date;
 };
 
-enum ActionTypes {
+export enum ActionTypes {
   LoadIndexes = 'indexes/indexes/LOAD_INDEXES',
   SortIndexes = 'indexes/indexes/SORT_INDEXES',
 }
@@ -55,7 +51,7 @@ type LoadIndexesAction = {
   indexes: IndexDefinition[];
 };
 
-type SortIndexesAction = {
+export type SortIndexesAction = {
   type: ActionTypes.SortIndexes;
   indexes: IndexDefinition[];
   column: SortColumn;
@@ -81,20 +77,10 @@ export default function reducer(state: State = INITIAL_STATE, action: Actions) {
 
 export const loadIndexes = (
   indexes: IndexDefinition[]
-): ThunkAction<
-  void,
-  RootState,
-  void,
-  LoadIndexesAction | RefreshFinishedAction
-> => {
-  return (dispatch) => {
-    dispatch({ type: RefreshActionTypes.RefreshFinished });
-    dispatch({
-      type: ActionTypes.LoadIndexes,
-      indexes,
-    });
-  };
-};
+): LoadIndexesAction => ({
+  type: ActionTypes.LoadIndexes,
+  indexes,
+});
 
 export const sortIndexes = (
   column: SortColumn,
@@ -103,12 +89,10 @@ export const sortIndexes = (
   void,
   RootState,
   void,
-  SortIndexesAction | SortOrderChangedAction | SortColumnChangedAction
+  SortIndexesAction
 > => {
   return (dispatch, getState) => {
     const { indexes } = getState();
-    dispatch({ type: SortOrderActions.SortOrderChanged, order });
-    dispatch({ type: SortColumnActions.SortColumnChanged, column });
     dispatch({
       type: ActionTypes.SortIndexes,
       indexes,
@@ -118,23 +102,31 @@ export const sortIndexes = (
   };
 };
 
+const _handleIndexesChanged = (
+  dispatch: ThunkDispatch<RootState, void, RefreshFinishedAction | LoadIndexesAction>,
+  indexes: IndexDefinition[]
+) => {
+  dispatch(loadIndexes(indexes));
+  dispatch(localAppRegistryEmit('indexes-changed', indexes));
+  dispatch({ type: RefreshActionTypes.RefreshFinished });
+};
+
 export const fetchIndexes = (): ThunkAction<
   void,
   RootState,
   void,
-  LoadIndexesAction | HandleErrorAction
+  LoadIndexesAction | RefreshFinishedAction | HandleErrorAction
 > => {
   return (dispatch, getState) => {
     const { isReadonly, dataService, namespace, sortColumn, sortOrder } =
       getState();
 
     if (isReadonly) {
-      dispatch(loadIndexes([]));
-      dispatch(localAppRegistryEmit('indexes-changed', []));
-      return;
+      return _handleIndexesChanged(dispatch, []);
     }
 
-    if (dataService && !dataService.isConnected()) {
+    if (!dataService) {
+      dispatch({ type: RefreshActionTypes.RefreshFinished });
       debug(
         'warning: trying to load indexes but dataService is disconnected',
         dataService
@@ -145,12 +137,10 @@ export const fetchIndexes = (): ThunkAction<
     dataService.indexes(
       namespace,
       {},
-      (err: IndexesError, indexes: AmpersandIndexModel[]) => {
+      (err: any, indexes: Document[]) => {
         if (err) {
-          dispatch(handleError(err));
-          dispatch(loadIndexes([]));
-          dispatch(localAppRegistryEmit('indexes-changed', []));
-          return;
+          dispatch(handleError(err as IndexesError));
+          return _handleIndexesChanged(dispatch, []);
         }
         // Set the `ns` field manually as it is not returned from the server
         // since version 4.4.
@@ -158,8 +148,7 @@ export const fetchIndexes = (): ThunkAction<
           index.ns = namespace;
         }
         const ixs = _mapAndSort(indexes, sortColumn, sortOrder);
-        dispatch(loadIndexes(ixs));
-        dispatch(localAppRegistryEmit('indexes-changed', ixs));
+        return _handleIndexesChanged(dispatch, ixs);
       }
     );
   };
@@ -206,7 +195,7 @@ const _mapColumnToProp = (column: SortColumn): SortField => {
  * Index models (IndexDefinition) and adds computed props.
  */
 const _convertToModels = (
-  indexes: AmpersandIndexModel[]
+  indexes: Document[]
 ): IndexDefinition[] => {
   const sizes = indexes.map((index) => index.size);
   const maxSize = Math.max(...sizes);
@@ -219,7 +208,7 @@ const _convertToModels = (
 };
 
 const _mapAndSort = (
-  indexes: AmpersandIndexModel[],
+  indexes: Document[],
   sortColumn: SortColumn,
   sortOrder: SortDirection
 ) => {

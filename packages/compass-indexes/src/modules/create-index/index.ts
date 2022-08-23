@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 import type { AnyAction, Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import queryParser from 'mongodb-query-parser';
-import type { CollationOptions } from 'mongodb';
+import type { IndexSpecification, CreateIndexesOptions, IndexDirection, AnyError } from 'mongodb';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -73,8 +73,6 @@ import { RESET_FORM } from '../reset-form';
 import { RESET, reset } from '../reset';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
-
-type CreateIndexSpec = { [name: string]: string | number };
 
 /**
  * The main reducer.
@@ -151,7 +149,7 @@ export default rootReducer;
 export const createIndex = () => {
   return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
-    const spec = {} as CreateIndexSpec;
+    const spec: IndexSpecification = {};
 
     // Check for field errors.
     if (
@@ -164,28 +162,20 @@ export const createIndex = () => {
     }
 
     // Check for collaction errors.
-    const collation = queryParser.isCollationValid(state.collationString);
+    const collation = queryParser.isCollationValid(state.collationString) || undefined;
     if (state.useCustomCollation && !collation) {
       dispatch(handleError('You must provide a valid collation object'));
       return;
     }
 
     state.fields.forEach((field: IndexField) => {
-      let type: string | number = field.type;
-      if (type === '1 (asc)') type = 1;
-      if (type === '-1 (desc)') type = -1;
+      let type = field.type as IndexDirection;
+      if ((type as string) === '1 (asc)') type = 1;
+      if ((type as string) === '-1 (desc)') type = -1;
       spec[field.name] = type;
     });
 
-    const options: {
-      unique?: boolean;
-      name?: string;
-      collation?: false | CollationOptions | null;
-      expireAfterSeconds?: number;
-      wildcardProjection?: EJSON.SerializableTypes;
-      columnstoreProjection?: EJSON.SerializableTypes;
-      partialFilterExpression?: EJSON.SerializableTypes;
-    } = {};
+    const options: CreateIndexesOptions = {};
     options.unique = state.isUnique;
     // The server will generate a name when we don't provide one.
     if (state.name !== '') {
@@ -203,7 +193,7 @@ export const createIndex = () => {
     }
     if (state.useWildcardProjection) {
       try {
-        options.wildcardProjection = EJSON.parse(state.wildcardProjection);
+        options.wildcardProjection = EJSON.parse(state.wildcardProjection) as Document;
       } catch (err) {
         dispatch(handleError(`Bad WildcardProjection: ${String(err)}`));
         return;
@@ -220,9 +210,10 @@ export const createIndex = () => {
 
     if (state.useColumnstoreProjection) {
       try {
-        options.columnstoreProjection = EJSON.parse(
+        // columnstoreProjection is not part of CreateIndexesOptions yet
+        (options as any).columnstoreProjection = EJSON.parse(
           state.columnstoreProjection
-        );
+        ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad ColumnstoreProjection: ${String(err)}`));
         return;
@@ -232,7 +223,7 @@ export const createIndex = () => {
       try {
         options.partialFilterExpression = EJSON.parse(
           state.partialFilterExpression
-        );
+        ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad PartialFilterExpression: ${String(err)}`));
         return;
@@ -241,7 +232,7 @@ export const createIndex = () => {
     dispatch(toggleInProgress(true));
     const ns = state.namespace;
 
-    state.dataService.createIndex(ns, spec, options, (createErr: Error) => {
+    state.dataService?.createIndex(ns, spec, options, (createErr: any) => {
       if (!createErr) {
         const trackEvent = {
           unique: state.isUnique,

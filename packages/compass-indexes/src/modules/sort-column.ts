@@ -1,13 +1,5 @@
-import type { SortColumn } from './indexes';
-
-export enum ActionTypes {
-  SortColumnChanged = 'indexes/sort-column/sortColumnChanged',
-}
-
-export type SortColumnChangedAction = {
-  type: ActionTypes.SortColumnChanged;
-  column: SortColumn;
-};
+import { ActionTypes as IndexesActionTypes } from './indexes';
+import type { SortColumn, SortIndexesAction } from './indexes';
 
 type State = SortColumn;
 
@@ -15,9 +7,9 @@ export const INITIAL_STATE: State = 'Name and Definition';
 
 export default function reducer(
   state = INITIAL_STATE,
-  action: SortColumnChangedAction
+  action: SortIndexesAction
 ) {
-  if (action.type === ActionTypes.SortColumnChanged) {
+  if (action.type === IndexesActionTypes.SortIndexes) {
     return action.column;
   }
   return state;

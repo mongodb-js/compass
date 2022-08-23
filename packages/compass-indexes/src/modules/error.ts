@@ -1,6 +1,7 @@
 import { MongoError } from 'mongodb';
+import type { AnyError } from 'mongodb';
 
-export type IndexesError = MongoError | Error | string | null | undefined;
+export type IndexesError = AnyError | string | null | undefined;
 
 enum ActionTypes {
   HandleError = 'indexes/error/HANDLE_ERROR',

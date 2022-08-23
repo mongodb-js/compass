@@ -1,13 +1,5 @@
-import type { SortDirection } from './indexes';
-
-export enum ActionTypes {
-  SortOrderChanged = 'indexes/sort-order/sortOrderChanged',
-}
-
-export type SortOrderChangedAction = {
-  type: ActionTypes.SortOrderChanged;
-  order: SortDirection;
-};
+import { ActionTypes as IndexesActionTypes } from './indexes';
+import type { SortDirection, SortIndexesAction } from './indexes';
 
 type State = SortDirection;
 
@@ -15,9 +7,9 @@ export const INITIAL_STATE: State = 'asc';
 
 export default function reducer(
   state = INITIAL_STATE,
-  action: SortOrderChangedAction
+  action: SortIndexesAction
 ) {
-  if (action.type === ActionTypes.SortOrderChanged) {
+  if (action.type === IndexesActionTypes.SortIndexes) {
     return action.order;
   }
   return state;

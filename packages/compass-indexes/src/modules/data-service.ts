@@ -1,44 +1,26 @@
-import type { AnyAction } from 'redux';
 import type { DataService } from 'mongodb-data-service';
 
-/**
- * The prefix.
- */
-const PREFIX = 'indexes/data-service';
+enum ActionTypes {
+  DataServiceConnected = 'indexes/data-service/DATA_SERVICE_CONNECTED',
+};
 
-/**
- * Data service connected.
- */
-export const DATA_SERVICE_CONNECTED = `${PREFIX}/DATA_SERVICE_CONNECTED`;
+type DataServiceConnectedAction = {
+  type: ActionTypes.DataServiceConnected;
+  dataService: DataService;
+};
 
-/**
- * The initial state.
- */
-export const INITIAL_STATE = null;
+type State = DataService | null;
 
-/**
- * Reducer function for handling data service connected actions.
- *
- * @param {Object} state - The data service state.
- * @param {Object} action - The action.
- *
- * @returns {DataService} The data service connected action.
- */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
-  if (action.type === DATA_SERVICE_CONNECTED) {
+const INITIAL_STATE: State = null;
+
+export default function reducer(state = INITIAL_STATE, action: DataServiceConnectedAction) {
+  if (action.type === ActionTypes.DataServiceConnected) {
     return action.dataService;
   }
   return state;
 }
 
-/**
- * Action creator for data service connected events.
- *
- * @param {DataService} dataService - The data service.
- *
- * @returns {Object} The data service connected action.
- */
 export const dataServiceConnected = (dataService: DataService) => ({
-  type: DATA_SERVICE_CONNECTED,
+  type: ActionTypes.DataServiceConnected,
   dataService,
 });
