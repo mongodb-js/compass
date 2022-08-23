@@ -805,7 +805,7 @@ export const CreateIndexCancelButton = `${CreateIndexModal} [role=dialog] > div:
 
 export const DropIndexModal = '[data-testid="drop_index_modal"]';
 export const DropIndexModalConfirmName =
-  '[data-test-id="confirm-drop-index-name"]';
+  '[data-testid="confirm-drop-index-name"]';
 export const DropIndexModalConfirmButton =
   '[data-testid="drop_index_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
