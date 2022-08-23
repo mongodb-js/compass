@@ -75,9 +75,7 @@ export default function reducer(state: State = INITIAL_STATE, action: Actions) {
   return state;
 }
 
-export const loadIndexes = (
-  indexes: IndexDefinition[]
-): LoadIndexesAction => ({
+export const loadIndexes = (indexes: IndexDefinition[]): LoadIndexesAction => ({
   type: ActionTypes.LoadIndexes,
   indexes,
 });
@@ -85,12 +83,7 @@ export const loadIndexes = (
 export const sortIndexes = (
   column: SortColumn,
   order: SortDirection
-): ThunkAction<
-  void,
-  RootState,
-  void,
-  SortIndexesAction
-> => {
+): ThunkAction<void, RootState, void, SortIndexesAction> => {
   return (dispatch, getState) => {
     const { indexes } = getState();
     dispatch({
@@ -103,7 +96,11 @@ export const sortIndexes = (
 };
 
 const _handleIndexesChanged = (
-  dispatch: ThunkDispatch<RootState, void, RefreshFinishedAction | LoadIndexesAction>,
+  dispatch: ThunkDispatch<
+    RootState,
+    void,
+    RefreshFinishedAction | LoadIndexesAction
+  >,
   indexes: IndexDefinition[]
 ) => {
   dispatch(loadIndexes(indexes));
@@ -134,23 +131,19 @@ export const fetchIndexes = (): ThunkAction<
       return;
     }
 
-    dataService.indexes(
-      namespace,
-      {},
-      (err: any, indexes: Document[]) => {
-        if (err) {
-          dispatch(handleError(err as IndexesError));
-          return _handleIndexesChanged(dispatch, []);
-        }
-        // Set the `ns` field manually as it is not returned from the server
-        // since version 4.4.
-        for (const index of indexes) {
-          index.ns = namespace;
-        }
-        const ixs = _mapAndSort(indexes, sortColumn, sortOrder);
-        return _handleIndexesChanged(dispatch, ixs);
+    dataService.indexes(namespace, {}, (err: any, indexes: Document[]) => {
+      if (err) {
+        dispatch(handleError(err as IndexesError));
+        return _handleIndexesChanged(dispatch, []);
       }
-    );
+      // Set the `ns` field manually as it is not returned from the server
+      // since version 4.4.
+      for (const index of indexes) {
+        index.ns = namespace;
+      }
+      const ixs = _mapAndSort(indexes, sortColumn, sortOrder);
+      return _handleIndexesChanged(dispatch, ixs);
+    });
   };
 };
 
@@ -194,9 +187,7 @@ const _mapColumnToProp = (column: SortColumn): SortField => {
  * Converts the raw index data (from ampersand) to
  * Index models (IndexDefinition) and adds computed props.
  */
-const _convertToModels = (
-  indexes: Document[]
-): IndexDefinition[] => {
+const _convertToModels = (indexes: Document[]): IndexDefinition[] => {
   const sizes = indexes.map((index) => index.size);
   const maxSize = Math.max(...sizes);
 

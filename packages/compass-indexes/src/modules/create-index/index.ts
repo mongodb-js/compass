@@ -3,7 +3,11 @@ import { combineReducers } from 'redux';
 import type { AnyAction, Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import queryParser from 'mongodb-query-parser';
-import type { IndexSpecification, CreateIndexesOptions, IndexDirection, AnyError } from 'mongodb';
+import type {
+  IndexSpecification,
+  CreateIndexesOptions,
+  IndexDirection,
+} from 'mongodb';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -162,7 +166,8 @@ export const createIndex = () => {
     }
 
     // Check for collaction errors.
-    const collation = queryParser.isCollationValid(state.collationString) || undefined;
+    const collation =
+      queryParser.isCollationValid(state.collationString) || undefined;
     if (state.useCustomCollation && !collation) {
       dispatch(handleError('You must provide a valid collation object'));
       return;
@@ -193,7 +198,9 @@ export const createIndex = () => {
     }
     if (state.useWildcardProjection) {
       try {
-        options.wildcardProjection = EJSON.parse(state.wildcardProjection) as Document;
+        options.wildcardProjection = EJSON.parse(
+          state.wildcardProjection
+        ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad WildcardProjection: ${String(err)}`));
         return;
