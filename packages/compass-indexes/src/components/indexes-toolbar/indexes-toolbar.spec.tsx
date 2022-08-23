@@ -20,6 +20,8 @@ const renderIndexesToolbar = (
       isWritable={true}
       localAppRegistry={appRegistry}
       writeStateDescription={undefined}
+      onRefreshIndexes={() => {}}
+      isRefreshing={false}
       {...props}
     />
   );

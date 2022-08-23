@@ -1,59 +1,58 @@
-import type { AnyAction } from 'redux';
+import { MongoError } from 'mongodb';
 
-/**
- * The action name prefix.
- */
-const PREFIX = 'indexes/error';
+export type IndexesError = MongoError | Error | string | null | undefined;
 
-/**
- * Handle error action name.
- */
-export const HANDLE_ERROR = `${PREFIX}/HANDLE_ERROR`;
+enum ActionTypes {
+  HandleError = 'indexes/error/HANDLE_ERROR',
+  ClearError = 'indexes/error/CLEAR_ERROR',
+}
 
-/**
- * Clear error action name.
- */
-export const CLEAR_ERROR = `${PREFIX}/CLEAR_ERROR`;
+export type HandleErrorAction = {
+  type: ActionTypes.HandleError;
+  error: IndexesError;
+};
 
-/**
- * The initial state of the error.
- */
-export const INITIAL_STATE = null;
+type ClearErrorAction = {
+  type: ActionTypes.ClearError;
+};
 
-/**
- * Reducer function for handle state changes to errors.
- *
- * @param {Error} state - The error state.
- * @param {Object} action - The action.
- *
- * @returns {Error} The new state.
- */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
-  if (action.type === HANDLE_ERROR) {
-    return action.error;
-  } else if (action.type === CLEAR_ERROR) {
-    return null;
+export type Actions = HandleErrorAction | ClearErrorAction;
+
+type State = string | null;
+export const INITIAL_STATE: State = null;
+
+export default function reducer(state: State = INITIAL_STATE, action: Actions) {
+  if (action.type === ActionTypes.HandleError) {
+    return _parseError(action.error);
+  } else if (action.type === ActionTypes.ClearError) {
+    return INITIAL_STATE;
   }
   return state;
 }
 
-/**
- * Handle error action creator.
- *
- * @param {String} error - The error.
- *
- * @returns {String} The action.
- */
-export const handleError = (error: string) => ({
-  type: HANDLE_ERROR,
+export const handleError = (error: IndexesError): HandleErrorAction => ({
+  type: ActionTypes.HandleError,
   error,
 });
 
-/**
- * Clear error action creator.
- *
- * @returns {Object} The action.
- */
-export const clearError = () => ({
-  type: CLEAR_ERROR,
+export const clearError = (): ClearErrorAction => ({
+  type: ActionTypes.ClearError,
 });
+
+/**
+ * Data Service attaches string message property for some errors, but not all
+ * that can happen during index creation/dropping.
+ * Check for data service custom error, then node driver errmsg.
+ */
+export const _parseError = (err: IndexesError): string => {
+  if (typeof err === 'string') {
+    return err;
+  }
+  if (typeof err?.message === 'string') {
+    return err.message;
+  }
+  if (err instanceof MongoError && err.errmsg === 'string') {
+    return err.errmsg;
+  }
+  return 'Unknown error';
+};

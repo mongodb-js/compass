@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import reducer, {
-  loadIndexesFromDb,
+  fetchIndexes,
   loadIndexes,
   sortIndexes,
   LOAD_INDEXES,
@@ -128,7 +128,7 @@ describe('indexes module', function () {
       });
     });
   });
-  describe('#loadIndexesFromDb', function () {
+  describe('#fetchIndexes', function () {
     let actionSpy;
     let emitSpy;
     beforeEach(function () {
@@ -153,7 +153,7 @@ describe('indexes module', function () {
         isReadonly: true,
         namespace: 'citibike.trips',
       });
-      loadIndexesFromDb()(dispatch, state);
+      fetchIndexes()(dispatch, state);
       expect(actionSpy.calledOnce).to.equal(true);
     });
 
@@ -187,7 +187,7 @@ describe('indexes module', function () {
         },
         namespace: 'citibike.trips',
       });
-      loadIndexesFromDb()(dispatch, state);
+      fetchIndexes()(dispatch, state);
       expect(actionSpy.calledTwice).to.equal(true);
     });
 
@@ -217,7 +217,7 @@ describe('indexes module', function () {
         sortOrder: ASC,
         namespace: 'citibike.trips',
       });
-      loadIndexesFromDb()(dispatch, state);
+      fetchIndexes()(dispatch, state);
       expect(actionSpy.calledOnce).to.equal(true);
     });
   });

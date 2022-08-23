@@ -5,9 +5,9 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 
 import { IndexesTable } from './indexes-table';
-import type { IndexModel } from './indexes-table';
+import type { IndexDefinition } from '../../modules/indexes';
 
-const indexes: IndexModel[] = [
+const indexes: IndexDefinition[] = [
   {
     cardinality: 'single',
     name: '_id_',
@@ -26,6 +26,7 @@ const indexes: IndexModel[] = [
         ];
       },
     },
+    usageCount: 10,
   },
   {
     cardinality: 'compound',
@@ -49,6 +50,7 @@ const indexes: IndexModel[] = [
         ];
       },
     },
+    usageCount: 15,
   },
   {
     cardinality: 'compound',
@@ -73,6 +75,7 @@ const indexes: IndexModel[] = [
         ];
       },
     },
+    usageCount: 20,
   },
   {
     cardinality: 'single',
@@ -97,6 +100,7 @@ const indexes: IndexModel[] = [
         ];
       },
     },
+    usageCount: 25,
   },
 ];
 

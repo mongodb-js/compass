@@ -71,7 +71,6 @@ import schemaFields from '../create-index/schema-fields';
 import newIndexField from '../create-index/new-index-field';
 import { RESET_FORM } from '../reset-form';
 import { RESET, reset } from '../reset';
-import { parseErrorMsg } from '../indexes';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
@@ -277,7 +276,7 @@ export const createIndex = () => {
         dispatch(toggleIsVisible(false));
       } else {
         dispatch(toggleInProgress(false));
-        dispatch(handleError(parseErrorMsg(createErr)));
+        dispatch(handleError(createErr));
       }
     });
   };

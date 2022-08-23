@@ -4,10 +4,15 @@ import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
 
 import { sortIndexes } from '../../modules/indexes';
+import type {
+  IndexDefinition,
+  SortColumn,
+  SortDirection,
+} from '../../modules/indexes';
 
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
-import type { IndexModel } from '../indexes-table/indexes-table';
+import { refreshIndexes } from '../../modules/is-refreshing';
 
 const containerStyles = css({
   margin: spacing[3],
@@ -30,14 +35,16 @@ const indexTableStyles = css({
 });
 
 type IndexesProps = {
-  indexes: IndexModel[];
+  indexes: IndexDefinition[];
   isWritable: boolean;
   isReadonly: boolean;
   isReadonlyView: boolean;
   description?: string;
   error?: string;
   localAppRegistry: AppRegistry;
-  onSortTable: (name: string, direction: 'asc' | 'desc') => void;
+  isRefreshing: boolean;
+  onSortTable: (name: SortColumn, direction: SortDirection) => void;
+  onRefresh: () => void;
 };
 
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
@@ -48,7 +55,9 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   description,
   error,
   localAppRegistry,
+  isRefreshing,
   onSortTable,
+  onRefresh,
 }) => {
   const onDeleteIndex = (name: string) => {
     return localAppRegistry.emit('toggle-drop-index-modal', true, name);
@@ -62,7 +71,9 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
           isReadonlyView={isReadonlyView}
           errorMessage={error}
           localAppRegistry={localAppRegistry}
+          isRefreshing={isRefreshing}
           writeStateDescription={description}
+          onRefreshIndexes={() => onRefresh()}
         />
       </div>
       {!isReadonlyView && !error && (
@@ -86,6 +97,7 @@ const mapState = ({
   isReadonlyView,
   description,
   error,
+  isRefreshing,
   appRegistry: { localAppRegistry },
 }: any) => ({
   indexes,
@@ -95,10 +107,12 @@ const mapState = ({
   description,
   error,
   localAppRegistry,
+  isRefreshing,
 });
 
 const mapDispatch = {
   onSortTable: sortIndexes,
+  onRefresh: refreshIndexes,
 };
 
 export default connect(mapState, mapDispatch)(Indexes as any);

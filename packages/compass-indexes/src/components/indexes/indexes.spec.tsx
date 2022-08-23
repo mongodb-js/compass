@@ -18,7 +18,9 @@ const renderIndexes = (
       description={undefined}
       error={undefined}
       localAppRegistry={appRegistry}
+      isRefreshing={false}
       onSortTable={() => {}}
+      onRefresh={() => {}}
       {...props}
     />
   );
@@ -79,6 +81,7 @@ describe('Indexes Component', function () {
               ];
             },
           },
+          usageCount: 20,
         },
       ],
       isReadonlyView: false,

@@ -8,6 +8,8 @@ import {
   css,
   mergeProps,
   spacing,
+  Icon,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
 
@@ -23,6 +25,8 @@ const toolbarButtonsContainer = css({
   justifyContent: 'flex-end',
 });
 
+const spinnerStyles = css({ marginRight: spacing[2] });
+
 const createIndexButtonContainerStyles = css({
   display: 'inline-block',
   width: 'fit-content',
@@ -34,7 +38,9 @@ type IndexesToolbarProps = {
   isReadonlyView: boolean;
   isWritable: boolean;
   localAppRegistry: AppRegistry;
+  isRefreshing: boolean;
   writeStateDescription?: string;
+  onRefreshIndexes: () => void;
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
@@ -43,17 +49,36 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   isReadonlyView,
   isWritable,
   localAppRegistry,
+  isRefreshing,
   writeStateDescription,
+  onRefreshIndexes,
 }) => {
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('toggle-create-index-modal', true);
   }, [localAppRegistry]);
 
   const showCreateIndexButton = !isReadonly && !isReadonlyView && !errorMessage;
+  const refreshButtonIcon = isRefreshing ? (
+    <div className={spinnerStyles}>
+      <SpinLoader />
+    </div>
+  ) : (
+    <Icon glyph="Refresh" />
+  );
 
   return (
     <Toolbar className={toolbarStyles} data-testid="indexes-toolbar">
       <div className={toolbarButtonsContainer}>
+        <Button
+          data-testid="refresh-indexes-button"
+          disabled={isRefreshing}
+          onClick={() => onRefreshIndexes()}
+          variant="default"
+          size="small"
+          leftGlyph={refreshButtonIcon}
+        >
+          Refresh
+        </Button>
         {showCreateIndexButton && (
           <Tooltip
             enabled={!isWritable}
