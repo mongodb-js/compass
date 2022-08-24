@@ -148,7 +148,10 @@ var IndexModel = Model.extend({
         // Text index which is created with other fields (that are not text), will have >2 keys and is a compound
         // Text index which is created with other fields (that are text), will have 2 keys + extra.weights > 1 and is a compound
         const isSingleTextIndex = this.text && _.keys(this.key).length === 2 && _.keys(this.extra.weights).length === 1;
-        return this.single || isSingleTextIndex ? 'single' : 'compound';
+        if (isSingleTextIndex) {
+          return 'single';
+        }
+        return this.single ? 'single' : 'compound';
       }
     },
     properties: {
