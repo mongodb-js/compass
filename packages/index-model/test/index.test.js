@@ -1,4 +1,5 @@
 var assert = require('assert');
+var IndexModel = require('../');
 var IndexCollection = require('../').Collection;
 var _ = require('lodash');
 
@@ -139,6 +140,32 @@ describe('mongodb-index-model', function() {
       assert.ok('partial' in index);
       assert.ok('columnstore' in index);
       assert.ok('text' in index);
+    });
+
+    it('calculates correct ttl', function() {
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: 20}))).ttl,
+        true,
+        'its ttl when expireAfterSeconds is 20'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: 0}))).ttl,
+        true,
+        'its ttl when expireAfterSeconds is 0'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: undefined}))).ttl,
+        false,
+        'its not ttl when expireAfterSeconds is undefined'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({}))).ttl,
+        false,
+        'its just not ttl'
+      );
     });
   });
 
