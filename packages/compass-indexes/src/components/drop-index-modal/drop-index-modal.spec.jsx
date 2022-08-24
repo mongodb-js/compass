@@ -59,14 +59,14 @@ describe('DropIndexModal [Component]', function () {
 
     it('renders the modal form', function () {
       expect(
-        component.find('[data-test-id="confirm-drop-index-name"]')
+        component.find('[data-testid="confirm-drop-index-name"]')
       ).to.be.present();
     });
 
     context('when changing the confirm index name', function () {
       it('calls the change confirm index name function', function () {
         component
-          .find('[data-test-id="confirm-drop-index-name"]')
+          .find('[data-testid="confirm-drop-index-name"]')
           .hostNodes()
           .simulate('change', { target: { value: 'iName' } });
         expect(changeConfirmNameSpy.calledWith('iName')).to.equal(true);
