@@ -47,7 +47,7 @@ var IndexModel = Model.extend({
     ttl: {
       deps: ['extra'],
       fn: function() {
-        return !!this.extra.expireAfterSeconds;
+        return this.extra.expireAfterSeconds > -1;
       }
     },
     hashed: {
