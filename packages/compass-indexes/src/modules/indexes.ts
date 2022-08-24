@@ -104,8 +104,8 @@ const _handleIndexesChanged = (
   indexes: IndexDefinition[]
 ) => {
   dispatch(loadIndexes(indexes));
-  dispatch(localAppRegistryEmit('indexes-changed', indexes));
   dispatch({ type: RefreshActionTypes.RefreshFinished });
+  dispatch(localAppRegistryEmit('indexes-changed', indexes));
 };
 
 export const fetchIndexes = (): ThunkAction<

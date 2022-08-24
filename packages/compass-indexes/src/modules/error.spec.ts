@@ -1,11 +1,11 @@
 import { expect } from 'chai';
+import { MongoError } from 'mongodb';
 
 import reducer, {
+  ActionTypes as ErrorActionTypes,
   INITIAL_STATE,
   clearError,
   handleError,
-  CLEAR_ERROR,
-  HANDLE_ERROR,
 } from './error';
 
 describe('handle error name module', function () {
@@ -14,8 +14,12 @@ describe('handle error name module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       context('when the action is handle error', function () {
-        it('returns the new state', function () {
-          expect(reducer(undefined, handleError(error))).to.equal(error);
+        it('processes the error', function () {
+          expect(reducer(undefined, handleError(error))).to.equal(error.message);
+          expect(reducer(undefined, handleError('something random'))).to.equal('something random');
+          expect(reducer(undefined, handleError(new MongoError('legacy error')))).to.equal('legacy error');
+          expect(reducer(undefined, handleError(undefined))).to.equal('Unknown error');
+          expect(reducer(undefined, handleError(null))).to.equal('Unknown error');
         });
       });
 
@@ -36,7 +40,7 @@ describe('handle error name module', function () {
   describe('#handleError', function () {
     it('returns the action', function () {
       expect(handleError(error)).to.deep.equal({
-        type: HANDLE_ERROR,
+        type: ErrorActionTypes.HandleError,
         error: error,
       });
     });
@@ -45,7 +49,7 @@ describe('handle error name module', function () {
   describe('#clearError', function () {
     it('returns the action', function () {
       expect(clearError()).to.deep.equal({
-        type: CLEAR_ERROR,
+        type: ErrorActionTypes.ClearError,
       });
     });
   });

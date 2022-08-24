@@ -3,7 +3,7 @@ import type { AnyError } from 'mongodb';
 
 export type IndexesError = AnyError | string | null | undefined;
 
-enum ActionTypes {
+export enum ActionTypes {
   HandleError = 'indexes/error/HANDLE_ERROR',
   ClearError = 'indexes/error/CLEAR_ERROR',
 }
@@ -19,8 +19,8 @@ type ClearErrorAction = {
 
 export type Actions = HandleErrorAction | ClearErrorAction;
 
-type State = string | undefined;
-export const INITIAL_STATE: State = undefined;
+type State = string | null;
+export const INITIAL_STATE: State = null;
 
 export default function reducer(state: State = INITIAL_STATE, action: Actions) {
   if (action.type === ActionTypes.HandleError) {
@@ -45,7 +45,7 @@ export const clearError = (): ClearErrorAction => ({
  * that can happen during index creation/dropping.
  * Check for data service custom error, then node driver errmsg.
  */
-export const _parseError = (err: IndexesError): string => {
+const _parseError = (err: IndexesError): string => {
   if (typeof err === 'string') {
     return err;
   }

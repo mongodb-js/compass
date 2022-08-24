@@ -1,16 +1,21 @@
 import { expect } from 'chai';
+import type { DataService } from 'mongodb-data-service';
 
 import reducer, {
   dataServiceConnected,
-  DATA_SERVICE_CONNECTED,
+  ActionTypes as DataServiceActions
 } from './data-service';
+
+const mockDataService = new class {
+  indexes() { }
+} as any as DataService;
 
 describe('data service module', function () {
   describe('#dataServiceConnected', function () {
-    it('returns the DATA_SERVICE_CONNECTED action', function () {
-      expect(dataServiceConnected('ds')).to.deep.equal({
-        type: DATA_SERVICE_CONNECTED,
-        dataService: 'ds',
+    it('returns the connected action', function () {
+      expect(dataServiceConnected(mockDataService)).to.deep.equal({
+        type: DataServiceActions.DataServiceConnected,
+        dataService: mockDataService,
       });
     });
   });
@@ -24,9 +29,8 @@ describe('data service module', function () {
 
     context('when the action is data service connected', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, dataServiceConnected('ds'))).to.deep.equal(
-          'ds'
-        );
+        expect(reducer(undefined, dataServiceConnected(mockDataService))).to.deep.equal(
+          mockDataService);
       });
     });
   });

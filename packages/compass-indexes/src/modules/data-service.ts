@@ -1,6 +1,6 @@
 import type { DataService } from 'mongodb-data-service';
 
-enum ActionTypes {
+export enum ActionTypes {
   DataServiceConnected = 'indexes/data-service/DATA_SERVICE_CONNECTED',
 }
 

@@ -7,7 +7,7 @@ export const INITIAL_STATE: State = 'asc';
 
 export default function reducer(
   state = INITIAL_STATE,
-  action: SortIndexesAction
+  action: Pick<SortIndexesAction, 'type' | 'order'>
 ) {
   if (action.type === IndexesActionTypes.SortIndexes) {
     return action.order;

@@ -1,224 +1,145 @@
-/* eslint-disable no-use-before-define */
 import { expect } from 'chai';
-import sinon from 'sinon';
-
+import type { Store } from 'redux';
+import type { DataService } from 'mongodb-data-service';
+import { spy } from 'sinon';
 import reducer, {
+  ActionTypes as IndexesActionTypes,
   fetchIndexes,
   loadIndexes,
   sortIndexes,
-  LOAD_INDEXES,
-  SORT_INDEXES,
-  ASC,
-  DESC,
-  DEFAULT,
-  USAGE,
 } from './indexes';
-
-import { HANDLE_ERROR } from './error';
+import { ActionTypes as IsRefreshingActionTypes } from './is-refreshing';
+import { dataServiceConnected } from './data-service';
+import type { RootState } from '.';
+import configureStore from '../stores/store';
 
 describe('indexes module', function () {
+  let store: Store<RootState>;
+  beforeEach(function () {
+    store = configureStore({ namespace: 'citibike.trips' });
+  });
   describe('#reducer', function () {
-    context('when an action is provided', function () {
-      context('when the action is LOAD_INDEXES', function () {
-        it('returns the default sorted', function () {
-          expect(reducer(undefined, loadIndexes(defaultSort))).to.deep.equal(
-            defaultSort
-          );
+    describe('when loading indexes', function () {
+      it('uses default sort order and column when user has not selected any', function () {
+        expect(reducer(undefined, loadIndexes(defaultSort as any))).to.deep.equal(
+          defaultSort
+        );
+      });
+    });
+
+    describe('sorting indexes', function () {
+      describe('Usage column', function () {
+        it('asc sort', function () {
+          store.dispatch(loadIndexes(defaultSort as any));
+          store.dispatch(sortIndexes('Usage', 'asc') as any);
+          const state = store.getState();
+          expect(state.indexes).to.deep.equal(usageSort);
+        });
+        it('desc sort', function () {
+          store.dispatch(loadIndexes(defaultSort as any));
+          store.dispatch(sortIndexes('Usage', 'desc') as any);
+          const state = store.getState();
+          expect(state.indexes).to.deep.equal(usageSortDesc);
         });
       });
 
-      context('when the action is SORT_INDEXES', function () {
-        context('when the column is Usage', function () {
-          context('when sorting asc', function () {
-            it('returns the sorted indexes list', function () {
-              const dispatch = (args) => args;
-              const getState = () => {
-                return {
-                  indexes: defaultSort,
-                };
-              };
-              const result = reducer(
-                undefined,
-                sortIndexes(USAGE, ASC)(dispatch, getState)
-              );
-              expect(result).to.deep.equal(usageSort);
-            });
-          });
-
-          context('when sorting desc', function () {
-            it('returns the sorted indexes list', function () {
-              const dispatch = (args) => args;
-              const getState = () => {
-                return {
-                  indexes: defaultSort,
-                };
-              };
-              const result = reducer(
-                undefined,
-                sortIndexes(USAGE, DESC)(dispatch, getState)
-              );
-              expect(result).to.deep.equal(usageSortDesc);
-            });
-          });
+      describe('Name and Definition column', function () {
+        it('asc sort', function () {
+          store.dispatch(loadIndexes(usageSort as any));
+          store.dispatch(sortIndexes('Name and Definition', 'asc') as any);
+          const state = store.getState();
+          expect(state.indexes).to.deep.equal(defaultSort);
         });
-
-        context('when the column is Name and Definition', function () {
-          context('when sorting asc', function () {
-            it('returns the sorted indexes list', function () {
-              const dispatch = (args) => args;
-              const getState = () => {
-                return {
-                  indexes: usageSort,
-                };
-              };
-              const result = reducer(
-                undefined,
-                sortIndexes(DEFAULT, ASC)(dispatch, getState)
-              );
-              expect(result).to.deep.equal(defaultSort);
-            });
-          });
-
-          context('when sorting desc', function () {
-            it('returns the sorted indexes list', function () {
-              const dispatch = (args) => args;
-              const getState = () => {
-                return {
-                  indexes: usageSort,
-                };
-              };
-              const result = reducer(
-                undefined,
-                sortIndexes(DEFAULT, DESC)(dispatch, getState)
-              );
-              expect(result).to.deep.equal(defaultSortDesc);
-            });
-          });
+        it('desc sort', function () {
+          store.dispatch(loadIndexes(usageSort as any));
+          store.dispatch(sortIndexes('Name and Definition', 'desc') as any);
+          const state = store.getState();
+          expect(state.indexes).to.deep.equal(defaultSortDesc);
         });
       });
+    });
 
-      context('when an action is not provided', function () {
-        it('returns the default state', function () {
-          expect(reducer(undefined, {})).to.deep.equal([]);
-        });
+    context('when no action is provided', function () {
+      it('returns the default state', function () {
+        expect(reducer(undefined, {})).to.deep.equal([]);
       });
     });
   });
 
-  describe('#loadIndexes', function () {
-    it('returns the action', function () {
-      expect(loadIndexes([])).to.deep.equal({
-        type: LOAD_INDEXES,
-        indexes: [],
-      });
-    });
+  it('#loadIndexes action', function () {
+    store.dispatch(loadIndexes([]));
+    expect(store.getState().indexes).to.deep.equal([]);
+
+    store.dispatch(loadIndexes(usageSort as any));
+    expect(JSON.stringify(store.getState().indexes)).to.equal(JSON.stringify(usageSort));
   });
 
-  describe('#sortIndexes', function () {
-    it('returns the action', function () {
-      const dispatch = (x) => x;
-      const getState = () => ({ indexes: [] });
-      expect(
-        sortIndexes('Database Name', DESC)(dispatch, getState)
-      ).to.deep.equal({
-        type: SORT_INDEXES,
-        indexes: [],
-        column: 'Database Name',
-        order: DESC,
-      });
-    });
+  it('#sortIndexes action', function () {
+    store.dispatch(loadIndexes(defaultSort as any));
+    store.dispatch(sortIndexes('Name and Definition', 'desc') as any);
+    const state = store.getState();
+    expect(state.sortColumn).to.equal('Name and Definition');
+    expect(state.sortOrder).to.equal('desc');
+    expect(JSON.stringify(state.indexes)).to.equal(JSON.stringify(defaultSortDesc));
   });
+
   describe('#fetchIndexes', function () {
-    let actionSpy;
-    let emitSpy;
-    beforeEach(function () {
-      actionSpy = sinon.spy();
-      emitSpy = sinon.spy();
-    });
-    afterEach(function () {
-      actionSpy = null;
-      emitSpy = null;
-    });
-    it('returns loadIndexes action with empty list for readonly', function () {
-      const dispatch = (res) => {
-        if (typeof res !== 'function') {
-          expect(res).to.deep.equal({ type: LOAD_INDEXES, indexes: [] });
-          actionSpy();
-        }
+    it('sets indexes to empty array for readonly', function () {
+
+      const dispatchSpy = spy();
+      const dispatch = (x: any) => {
+        dispatchSpy(x);
+        return x;
       };
-      const state = () => ({
-        appRegistry: {
-          emit: emitSpy,
-        },
-        isReadonly: true,
-        namespace: 'citibike.trips',
-      });
-      fetchIndexes()(dispatch, state);
-      expect(actionSpy.calledOnce).to.equal(true);
+      const getState = () => ({ isReadonly: true } as any as RootState);
+
+      fetchIndexes()(dispatch, getState);
+
+      expect(dispatchSpy.callCount).to.equal(3);
+
+      expect(dispatchSpy.getCall(0).args[0]).to.deep.equal({ type: IndexesActionTypes.LoadIndexes, indexes: [] });
+      expect(dispatchSpy.getCall(1).args[0]).to.deep.equal({ type: IsRefreshingActionTypes.RefreshFinished });
+      expect(typeof dispatchSpy.getCall(2).args[0] === 'function').to.true;
     });
 
-    it('returns loadIndexes action with error for error state', function () {
-      const dispatch = (res) => {
-        if (typeof res !== 'function') {
-          if (res.type === LOAD_INDEXES) {
-            expect(res).to.deep.equal({ type: LOAD_INDEXES, indexes: [] });
-            actionSpy();
-          } else if (res.type === HANDLE_ERROR) {
-            expect(res).to.deep.equal({
-              type: HANDLE_ERROR,
-              error: 'error message!',
-            });
-            actionSpy();
-          } else {
-            expect(true, 'unknown action called').to.be.false();
-          }
-        }
-      };
-      const state = () => ({
-        appRegistry: {
-          emit: emitSpy,
-        },
-        isReadonly: false,
-        dataService: {
-          indexes: (ns, opts, cb) => {
-            cb({ message: 'error message!' });
-          },
-          isConnected: () => true,
-        },
-        namespace: 'citibike.trips',
+    it('sets indexes to empty array when there is an error', function () {
+      const error = new Error('failed to connect to server');
+      // Set some data to validate the empty array condition
+      store.dispatch({
+        type: IndexesActionTypes.LoadIndexes,
+        indexes: defaultSort
       });
-      fetchIndexes()(dispatch, state);
-      expect(actionSpy.calledTwice).to.equal(true);
+      // Mock dataService.indexes
+      store.dispatch(dataServiceConnected({
+        indexes: (ns: any, opts: any, cb: any) => {
+          cb(error);
+        }
+      } as DataService));
+
+      store.dispatch(fetchIndexes() as any);
+
+      const state = store.getState();
+      expect(state.indexes).to.deep.equal([]);
+      expect(state.error).to.equal(error.message);
+      expect(state.isRefreshing).to.equal(false);
     });
 
-    it('returns loadIndexes action with sorted and modelled indexes', function () {
-      const dispatch = (res) => {
-        if (typeof res !== 'function') {
-          expect(Object.keys(res)).to.deep.equal(['type', 'indexes']);
-          expect(res.type).to.equal(LOAD_INDEXES);
-          expect(JSON.stringify(res.indexes, null, '\n')).to.equal(
-            JSON.stringify(defaultSort, null, '\n')
-          );
-          actionSpy();
+    it('sets indexes when fetched successfully', function () {
+      // Set indexes to empty
+      store.dispatch(loadIndexes([]));
+      store.dispatch(sortIndexes('Name and Definition', 'asc') as any);
+      store.dispatch(dataServiceConnected({
+        indexes: (_ns: any, _opts: any, cb: any) => {
+          cb(null, fromDB);
         }
-      };
-      const state = () => ({
-        appRegistry: {
-          emit: emitSpy,
-        },
-        isReadonly: false,
-        dataService: {
-          indexes: (ns, opts, cb) => {
-            cb(null, fromDB);
-          },
-          isConnected: () => true,
-        },
-        sortColumn: DEFAULT,
-        sortOrder: ASC,
-        namespace: 'citibike.trips',
-      });
-      fetchIndexes()(dispatch, state);
-      expect(actionSpy.calledOnce).to.equal(true);
+      } as DataService));
+
+      store.dispatch(fetchIndexes() as any);
+
+      const state = store.getState();
+      expect(JSON.stringify(state.indexes)).to.equal(JSON.stringify(defaultSort));
+      expect(state.error).to.be.null;
+      expect(state.isRefreshing).to.equal(false);
     });
   });
 });
