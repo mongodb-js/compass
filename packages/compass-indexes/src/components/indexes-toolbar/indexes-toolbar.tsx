@@ -33,7 +33,7 @@ const createIndexButtonContainerStyles = css({
 });
 
 type IndexesToolbarProps = {
-  errorMessage?: string;
+  errorMessage: string | null;
   isReadonly: boolean;
   isReadonlyView: boolean;
   isWritable: boolean;

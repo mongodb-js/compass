@@ -23,7 +23,7 @@ describe('data service module', function () {
   describe('#reducer', function () {
     context('when the action is not data service connected', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, { type: 'test' })).to.deep.equal(null);
+        expect(reducer(undefined, { type: 'test' } as any)).to.deep.equal(null);
       });
     });
 

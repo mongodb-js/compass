@@ -61,7 +61,7 @@ describe('indexes module', function () {
 
     context('when no action is provided', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, {})).to.deep.equal([]);
+        expect(reducer(undefined, {} as any)).to.deep.equal([]);
       });
     });
   });

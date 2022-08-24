@@ -32,7 +32,7 @@ describe('handle error name module', function () {
 
     context('when an action is not provided', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
+        expect(reducer(undefined, {} as any)).to.equal(INITIAL_STATE);
       });
     });
   });

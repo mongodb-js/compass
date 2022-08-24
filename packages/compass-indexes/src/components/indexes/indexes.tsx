@@ -41,7 +41,7 @@ type IndexesProps = {
   isReadonly: boolean;
   isReadonlyView: boolean;
   description?: string;
-  error?: string;
+  error: string | null;
   localAppRegistry: AppRegistry;
   isRefreshing: boolean;
   onSortTable: (name: SortColumn, direction: SortDirection) => void;

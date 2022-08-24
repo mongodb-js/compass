@@ -16,7 +16,7 @@ const renderIndexes = (
       isReadonly={false}
       isReadonlyView={false}
       description={undefined}
-      error={undefined}
+      error={null}
       localAppRegistry={appRegistry}
       isRefreshing={false}
       onSortTable={() => {}}
