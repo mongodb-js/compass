@@ -244,7 +244,6 @@ describe('connection secrets', function () {
                 aws: {
                   accessKeyId: 'accessKeyId',
                 },
-                local: {},
                 azure: {
                   tenantId: 'tenantId',
                   clientId: 'clientId',
