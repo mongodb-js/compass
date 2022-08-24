@@ -60,10 +60,10 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const showCreateIndexButton = !isReadonly && !isReadonlyView && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
-      <SpinLoader />
+      <SpinLoader title="Refreshing Indexes" />
     </div>
   ) : (
-    <Icon glyph="Refresh" />
+    <Icon glyph="Refresh" title="Refresh Indexes" />
   );
 
   return (
