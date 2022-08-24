@@ -21,9 +21,9 @@ describe('indexes module', function () {
   describe('#reducer', function () {
     describe('when loading indexes', function () {
       it('uses default sort order and column when user has not selected any', function () {
-        expect(reducer(undefined, loadIndexes(defaultSort as any))).to.deep.equal(
-          defaultSort
-        );
+        expect(
+          reducer(undefined, loadIndexes(defaultSort as any))
+        ).to.deep.equal(defaultSort);
       });
     });
 
@@ -71,7 +71,9 @@ describe('indexes module', function () {
     expect(store.getState().indexes).to.deep.equal([]);
 
     store.dispatch(loadIndexes(usageSort as any));
-    expect(JSON.stringify(store.getState().indexes)).to.equal(JSON.stringify(usageSort));
+    expect(JSON.stringify(store.getState().indexes)).to.equal(
+      JSON.stringify(usageSort)
+    );
   });
 
   it('#sortIndexes action', function () {
@@ -80,12 +82,13 @@ describe('indexes module', function () {
     const state = store.getState();
     expect(state.sortColumn).to.equal('Name and Definition');
     expect(state.sortOrder).to.equal('desc');
-    expect(JSON.stringify(state.indexes)).to.equal(JSON.stringify(defaultSortDesc));
+    expect(JSON.stringify(state.indexes)).to.equal(
+      JSON.stringify(defaultSortDesc)
+    );
   });
 
   describe('#fetchIndexes', function () {
     it('sets indexes to empty array for readonly', function () {
-
       const dispatchSpy = spy();
       const dispatch = (x: any) => {
         dispatchSpy(x);
@@ -97,8 +100,13 @@ describe('indexes module', function () {
 
       expect(dispatchSpy.callCount).to.equal(3);
 
-      expect(dispatchSpy.getCall(0).args[0]).to.deep.equal({ type: IndexesActionTypes.LoadIndexes, indexes: [] });
-      expect(dispatchSpy.getCall(1).args[0]).to.deep.equal({ type: IsRefreshingActionTypes.RefreshFinished });
+      expect(dispatchSpy.getCall(0).args[0]).to.deep.equal({
+        type: IndexesActionTypes.LoadIndexes,
+        indexes: [],
+      });
+      expect(dispatchSpy.getCall(1).args[0]).to.deep.equal({
+        type: IsRefreshingActionTypes.RefreshFinished,
+      });
       expect(typeof dispatchSpy.getCall(2).args[0] === 'function').to.true;
     });
 
@@ -107,14 +115,16 @@ describe('indexes module', function () {
       // Set some data to validate the empty array condition
       store.dispatch({
         type: IndexesActionTypes.LoadIndexes,
-        indexes: defaultSort
+        indexes: defaultSort,
       });
       // Mock dataService.indexes
-      store.dispatch(dataServiceConnected({
-        indexes: (ns: any, opts: any, cb: any) => {
-          cb(error);
-        }
-      } as DataService));
+      store.dispatch(
+        dataServiceConnected({
+          indexes: (ns: any, opts: any, cb: any) => {
+            cb(error);
+          },
+        } as DataService)
+      );
 
       store.dispatch(fetchIndexes() as any);
 
@@ -128,16 +138,20 @@ describe('indexes module', function () {
       // Set indexes to empty
       store.dispatch(loadIndexes([]));
       store.dispatch(sortIndexes('Name and Definition', 'asc') as any);
-      store.dispatch(dataServiceConnected({
-        indexes: (_ns: any, _opts: any, cb: any) => {
-          cb(null, fromDB);
-        }
-      } as DataService));
+      store.dispatch(
+        dataServiceConnected({
+          indexes: (_ns: any, _opts: any, cb: any) => {
+            cb(null, fromDB);
+          },
+        } as DataService)
+      );
 
       store.dispatch(fetchIndexes() as any);
 
       const state = store.getState();
-      expect(JSON.stringify(state.indexes)).to.equal(JSON.stringify(defaultSort));
+      expect(JSON.stringify(state.indexes)).to.equal(
+        JSON.stringify(defaultSort)
+      );
       expect(state.error).to.be.null;
       expect(state.isRefreshing).to.equal(false);
     });

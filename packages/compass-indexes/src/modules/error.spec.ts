@@ -15,11 +15,21 @@ describe('handle error name module', function () {
     context('when an action is provided', function () {
       context('when the action is handle error', function () {
         it('processes the error', function () {
-          expect(reducer(undefined, handleError(error))).to.equal(error.message);
-          expect(reducer(undefined, handleError('something random'))).to.equal('something random');
-          expect(reducer(undefined, handleError(new MongoError('legacy error')))).to.equal('legacy error');
-          expect(reducer(undefined, handleError(undefined))).to.equal('Unknown error');
-          expect(reducer(undefined, handleError(null))).to.equal('Unknown error');
+          expect(reducer(undefined, handleError(error))).to.equal(
+            error.message
+          );
+          expect(reducer(undefined, handleError('something random'))).to.equal(
+            'something random'
+          );
+          expect(
+            reducer(undefined, handleError(new MongoError('legacy error')))
+          ).to.equal('legacy error');
+          expect(reducer(undefined, handleError(undefined))).to.equal(
+            'Unknown error'
+          );
+          expect(reducer(undefined, handleError(null))).to.equal(
+            'Unknown error'
+          );
         });
       });
 

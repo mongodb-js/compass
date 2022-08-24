@@ -3,12 +3,12 @@ import type { DataService } from 'mongodb-data-service';
 
 import reducer, {
   dataServiceConnected,
-  ActionTypes as DataServiceActions
+  ActionTypes as DataServiceActions,
 } from './data-service';
 
-const mockDataService = new class {
-  indexes() { }
-} as any as DataService;
+const mockDataService = new (class {
+  indexes() {}
+})() as any as DataService;
 
 describe('data service module', function () {
   describe('#dataServiceConnected', function () {
@@ -29,8 +29,9 @@ describe('data service module', function () {
 
     context('when the action is data service connected', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, dataServiceConnected(mockDataService))).to.deep.equal(
-          mockDataService);
+        expect(
+          reducer(undefined, dataServiceConnected(mockDataService))
+        ).to.deep.equal(mockDataService);
       });
     });
   });

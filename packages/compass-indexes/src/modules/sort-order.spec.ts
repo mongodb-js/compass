@@ -8,21 +8,21 @@ describe('sort order reducer', function () {
     expect(
       reducer('desc', {
         type: IndexesActionTypes.SortIndexes,
-        order: 'asc'
+        order: 'asc',
       })
     ).to.equal('asc');
 
     expect(
       reducer('asc', {
         type: IndexesActionTypes.SortIndexes,
-        order: 'desc'
+        order: 'desc',
       })
     ).to.equal('desc');
 
     expect(
       reducer(undefined, {
         type: IndexesActionTypes.SortIndexes,
-        order: 'desc'
+        order: 'desc',
       })
     ).to.equal('desc');
   });

@@ -6,7 +6,10 @@ import { ActionTypes as IndexesActionTypes } from './indexes';
 describe('sort column reducer', function () {
   it('when action is provied with column', function () {
     expect(
-      reducer(undefined, { type: IndexesActionTypes.SortIndexes, column: 'Size' })
+      reducer(undefined, {
+        type: IndexesActionTypes.SortIndexes,
+        column: 'Size',
+      })
     ).to.equal('Size');
     expect(
       reducer('Size', { type: IndexesActionTypes.SortIndexes, column: 'Type' })
