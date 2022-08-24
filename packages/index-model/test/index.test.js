@@ -232,6 +232,32 @@ describe('mongodb-index-model', function() {
         assert.equal(model.cardinality, 'compound');
       });
     });
+
+    it('calculates correct ttl', function() {
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: 20}))).ttl,
+        true,
+        'its ttl when expireAfterSeconds is 20'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: 0}))).ttl,
+        true,
+        'its ttl when expireAfterSeconds is 0'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: undefined}))).ttl,
+        false,
+        'its not ttl when expireAfterSeconds is undefined'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({}))).ttl,
+        false,
+        'its just not ttl'
+      );
+    });
   });
 
   context('IndexField', function() {
