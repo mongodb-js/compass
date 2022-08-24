@@ -73,15 +73,14 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   onDeleteIndex,
 }) => {
   const columns = useMemo(() => {
-    const _columns = (
-      [
-        'Name and Definition',
-        'Type',
-        'Size',
-        'Usage',
-        'Properties',
-      ] as SortColumn[]
-    ).map((name) => {
+    const sortColumns: SortColumn[] = [
+      'Name and Definition',
+      'Type',
+      'Size',
+      'Usage',
+      'Properties',
+    ];
+    const _columns = sortColumns.map((name) => {
       return (
         <TableHeader
           data-testid={`index-header-${name}`}
