@@ -144,7 +144,7 @@ var IndexModel = Model.extend({
     cardinality: {
       deps: ['single'],
       fn: function() {
-        return this.single ? 'single' : 'compound';
+        return this.single || this.text ? 'single' : 'compound';
       }
     },
     properties: {
