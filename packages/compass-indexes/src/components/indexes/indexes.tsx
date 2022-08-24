@@ -13,6 +13,7 @@ import type {
 import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
 import { refreshIndexes } from '../../modules/is-refreshing';
+import type { RootState } from '../../modules';
 
 const containerStyles = css({
   margin: spacing[3],
@@ -98,15 +99,15 @@ const mapState = ({
   description,
   error,
   isRefreshing,
-  appRegistry: { localAppRegistry },
-}: any) => ({
+  appRegistry,
+}: RootState) => ({
   indexes,
   isWritable,
   isReadonly,
   isReadonlyView,
   description,
   error,
-  localAppRegistry,
+  localAppRegistry: (appRegistry as any).localAppRegistry,
   isRefreshing,
 });
 
@@ -115,4 +116,4 @@ const mapDispatch = {
   onRefresh: refreshIndexes,
 };
 
-export default connect(mapState, mapDispatch)(Indexes as any);
+export default connect(mapState, mapDispatch)(Indexes);

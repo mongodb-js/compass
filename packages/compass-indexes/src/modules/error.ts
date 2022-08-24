@@ -19,8 +19,8 @@ type ClearErrorAction = {
 
 export type Actions = HandleErrorAction | ClearErrorAction;
 
-type State = string | null;
-export const INITIAL_STATE: State = null;
+type State = string | undefined;
+export const INITIAL_STATE: State = undefined;
 
 export default function reducer(state: State = INITIAL_STATE, action: Actions) {
   if (action.type === ActionTypes.HandleError) {

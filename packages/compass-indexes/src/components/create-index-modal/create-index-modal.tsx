@@ -110,7 +110,7 @@ function CreateIndexModal({
   resetForm: () => void;
   isVisible: boolean;
   namespace: string;
-  error: string | null;
+  error?: string;
   clearError: () => void;
   inProgress: boolean;
   createIndex: () => void;
