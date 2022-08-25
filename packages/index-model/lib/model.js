@@ -47,7 +47,7 @@ var IndexModel = Model.extend({
     ttl: {
       deps: ['extra'],
       fn: function() {
-        return !!this.extra.expireAfterSeconds;
+        return this.extra.expireAfterSeconds > -1;
       }
     },
     hashed: {
@@ -144,6 +144,13 @@ var IndexModel = Model.extend({
     cardinality: {
       deps: ['single'],
       fn: function() {
+        // By default a text index has only 2 keys: _FTS & _FTSX and its a single.
+        // Text index which is created with other fields (that are not text), will have >2 keys and is a compound
+        // Text index which is created with other fields (that are text), will have 2 keys + extra.weights > 1 and is a compound
+        const isSingleTextIndex = this.text && _.keys(this.key).length === 2 && _.keys(this.extra.weights).length === 1;
+        if (isSingleTextIndex) {
+          return 'single';
+        }
         return this.single ? 'single' : 'compound';
       }
     },
