@@ -122,7 +122,7 @@ export const fetchIndexes = (): ThunkAction<
       return _handleIndexesChanged(dispatch, []);
     }
 
-    if (!dataService) {
+    if (!dataService || !dataService.isConnected()) {
       dispatch({ type: RefreshActionTypes.RefreshFinished });
       debug(
         'warning: trying to load indexes but dataService is disconnected',

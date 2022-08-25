@@ -110,6 +110,27 @@ describe('indexes module', function () {
       expect(typeof dispatchSpy.getCall(2).args[0] === 'function').to.true;
     });
 
+    it('when dataService is not connected, sets refreshing to false', function () {
+      store.dispatch({
+        type: IndexesActionTypes.LoadIndexes,
+        indexes: defaultSort,
+      });
+      // Mock dataService.indexes
+      store.dispatch(
+        dataServiceConnected({
+          isConnected() {
+            return false;
+          },
+        } as DataService)
+      );
+
+      store.dispatch(fetchIndexes() as any);
+
+      const state = store.getState();
+      expect(state.indexes).to.deep.equal(defaultSort);
+      expect(state.isRefreshing).to.equal(false);
+    });
+
     it('sets indexes to empty array when there is an error', function () {
       const error = new Error('failed to connect to server');
       // Set some data to validate the empty array condition
@@ -120,6 +141,9 @@ describe('indexes module', function () {
       // Mock dataService.indexes
       store.dispatch(
         dataServiceConnected({
+          isConnected() {
+            return true;
+          },
           indexes: (ns: any, opts: any, cb: any) => {
             cb(error);
           },
@@ -140,6 +164,9 @@ describe('indexes module', function () {
       store.dispatch(sortIndexes('Name and Definition', 'asc') as any);
       store.dispatch(
         dataServiceConnected({
+          isConnected() {
+            return true;
+          },
           indexes: (_ns: any, _opts: any, cb: any) => {
             cb(null, fromDB);
           },
