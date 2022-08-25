@@ -30,6 +30,9 @@ store.onActivated = (appRegistry) => {
         topologyDescription: instance.topologyDescription.toJSON(),
         isWritable: instance.isWritable,
         env: instance.env,
+        isAtlas: instance.isAtlas,
+        atlasVersion: instance.atlasVersion,
+        isMongos: instance.isMongos,
       })
     );
   };

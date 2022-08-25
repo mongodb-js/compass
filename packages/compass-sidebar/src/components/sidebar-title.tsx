@@ -17,7 +17,7 @@ type Actions =
   | 'open-instance-workspace'
   | 'copy-connection-string'
   | 'edit-favorite'
-  | 'cluster-info';
+  | 'open-connection-info';
 
 const titleLabel = css({
   overflow: 'hidden',
@@ -107,8 +107,8 @@ function SidebarTitle({
     });
 
     actions.push({
-      action: 'cluster-info',
-      label: 'Cluster info',
+      action: 'open-connection-info',
+      label: 'Connection info',
       icon: 'Connect',
     });
 

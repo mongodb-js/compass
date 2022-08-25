@@ -129,11 +129,13 @@ export function trackNewConnectionEvent(
         host,
         build,
         isAtlas: isAtlasInstance,
+        isMongos: isMongosInstance,
       } = await dataService.instance();
       const connectionData = await getConnectionData(connectionInfo);
       const trackEvent = {
         ...connectionData,
         is_atlas: isAtlasInstance,
+        is_mongos: isMongosInstance,
         is_dataLake: dataLake.isDataLake,
         is_enterprise: build.isEnterprise,
         is_genuine: genuineMongoDB.isGenuine,
