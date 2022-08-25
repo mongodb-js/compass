@@ -1,4 +1,5 @@
 var assert = require('assert');
+var IndexModel = require('../');
 var IndexCollection = require('../').Collection;
 var _ = require('lodash');
 
@@ -139,6 +140,123 @@ describe('mongodb-index-model', function() {
       assert.ok('partial' in index);
       assert.ok('columnstore' in index);
       assert.ok('text' in index);
+    });
+
+    describe('cardinality', function() {
+      it('non-text simple index', function() {
+        const index = {
+          'v': 1,
+          'key': {
+            age: 1
+          },
+          'name': 'age_index',
+          'ns': 'mongodb.fanclub',
+        };
+        const model = new IndexModel(new IndexModel().parse(index));
+        assert.equal(model.cardinality, 'single');
+      });
+
+      it('non-text index with multiple fields', function() {
+        const index = {
+          'v': 1,
+          'key': {
+            age: 1,
+            city: -1,
+          },
+          'name': 'age_index',
+          'ns': 'mongodb.fanclub',
+        };
+        const model = new IndexModel(new IndexModel().parse(index));
+        assert.equal(model.cardinality, 'compound');
+      });
+
+      it('simple text index', function() {
+        const index = {
+          'v': 1,
+          'key': {
+            '_fts': 'text',
+            '_ftsx': 1
+          },
+          'name': '$**_text',
+          'ns': 'mongodb.fanclub',
+          'weights': {
+            '$**': 2
+          },
+          'default_language': 'english',
+          'language_override': 'language',
+          'textIndexVersion': 3
+        };
+        const model = new IndexModel(new IndexModel().parse(index));
+        assert.equal(model.cardinality, 'single');
+      });
+
+      it('text index on multiple fields which are all text', function() {
+        const index = {
+          'v': 1,
+          'key': {
+            '_fts': 'text',
+            '_ftsx': 1
+          },
+          'name': 'name_text_city_text',
+          'ns': 'mongodb.fanclub',
+          'weights': {
+            'name': 1,
+            'city': 1,
+          },
+          'default_language': 'english',
+          'language_override': 'language',
+          'textIndexVersion': 3
+        };
+        const model = new IndexModel(new IndexModel().parse(index));
+        assert.equal(model.cardinality, 'compound');
+      });
+
+      it('text index on multiple fields which are mixed', function() {
+        const index = {
+          'v': 1,
+          'key': {
+            '_fts': 'text',
+            '_ftsx': 1,
+            'age': 1
+          },
+          'name': 'name_text_age',
+          'ns': 'mongodb.fanclub',
+          'weights': {
+            'name': 1,
+          },
+          'default_language': 'english',
+          'language_override': 'language',
+          'textIndexVersion': 3
+        };
+        const model = new IndexModel(new IndexModel().parse(index));
+        assert.equal(model.cardinality, 'compound');
+      });
+    });
+
+    it('calculates correct ttl', function() {
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: 20}))).ttl,
+        true,
+        'its ttl when expireAfterSeconds is 20'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: 0}))).ttl,
+        true,
+        'its ttl when expireAfterSeconds is 0'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({expireAfterSeconds: undefined}))).ttl,
+        false,
+        'its not ttl when expireAfterSeconds is undefined'
+      );
+
+      assert.equal(
+        (new IndexModel(new IndexModel().parse({}))).ttl,
+        false,
+        'its just not ttl'
+      );
     });
   });
 
