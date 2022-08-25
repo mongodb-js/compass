@@ -117,11 +117,13 @@ describe('indexes module', function () {
       });
       // Mock dataService.indexes
       store.dispatch(
-        dataServiceConnected({
-          isConnected() {
-            return false;
-          },
-        } as DataService)
+        dataServiceConnected(
+          new (class {
+            isConnected() {
+              return false;
+            }
+          })() as DataService
+        )
       );
 
       store.dispatch(fetchIndexes() as any);

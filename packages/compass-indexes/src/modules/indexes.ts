@@ -18,13 +18,13 @@ type SortField = keyof Pick<
 >;
 export type SortColumn = keyof typeof sortColumnToProps;
 export type SortDirection = 'asc' | 'desc';
-const sortColumnToProps: Record<string, SortField> = {
+const sortColumnToProps = {
   'Name and Definition': 'name',
   Type: 'type',
   Size: 'size',
   Usage: 'usageCount',
   Properties: 'properties',
-};
+} as const;
 
 export type IndexDefinition = {
   name: string;
