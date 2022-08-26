@@ -38,7 +38,6 @@ const titleStylesLight = css({
 const toolbarStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
-  // borderBottom: `1px solid ${uiColors.gray.light2}`,
 });
 
 const toolbarContentStyles = css({

@@ -60,12 +60,7 @@ function ModalPopover({
       open={open}
       setOpen={setOpen}
     >
-      {({
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        onClose,
-      }: {
-        onClose: () => void;
-      }) => {
+      {({ onClose }: { onClose: () => void }) => {
         return (
           <div
             className={cx(
