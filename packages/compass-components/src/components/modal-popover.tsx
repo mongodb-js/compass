@@ -32,7 +32,7 @@ const contentContainerStylesDark = css({
   color: uiColors.white,
 });
 
-type ModalPopopverProps = {
+type ModalPopoverProps = {
   className: string;
   children: (childrenProps: { onClose: () => void }) => React.ReactElement;
   trigger: (triggerProps: {
@@ -50,7 +50,7 @@ function ModalPopover({
   trigger,
   open,
   setOpen,
-}: ModalPopopverProps): React.ReactElement {
+}: ModalPopoverProps): React.ReactElement {
   const { theme } = useTheme();
 
   return (
