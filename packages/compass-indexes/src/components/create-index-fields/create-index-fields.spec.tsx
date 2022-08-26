@@ -67,7 +67,7 @@ describe('CreateIndexFields Component', function () {
       expect(minusButton).to.not.exist;
     });
 
-    it('does render a minus button for more than one field', function () {
+    it('renders a minus button for more than one field', function () {
       render(
         <CreateIndexFields
           schemaFields={[]}
@@ -88,7 +88,7 @@ describe('CreateIndexFields Component', function () {
       expect(minusButton.length).to.be.equal(2);
     });
 
-    it('does render a plus button for a single field', function () {
+    it('renders a plus button for a single field', function () {
       render(
         <CreateIndexFields
           schemaFields={[]}
@@ -106,7 +106,7 @@ describe('CreateIndexFields Component', function () {
       expect(minusButton.length).to.be.equal(1);
     });
 
-    it('does render a plus button for more than one field', function () {
+    it('renders a plus button for more than one field', function () {
       render(
         <CreateIndexFields
           schemaFields={[]}
