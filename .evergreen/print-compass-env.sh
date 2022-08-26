@@ -5,6 +5,7 @@ set -e
 if [[ $OSTYPE == "cygwin" ]]; then
     export PLATFORM='win32'
     export IS_WINDOWS=true
+    export ARCH=x64
 elif [[ $(uname) == Darwin ]]; then
     export PLATFORM='darwin'
     export IS_OSX=true

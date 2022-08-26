@@ -18,7 +18,7 @@
     "test-packaged-ci": "npm run test-ci -- -- --test-packaged-app",
     "reformat": "npm run prettier -- --write .",
     "start-server": "mongodb-runner start --topology=replicaset --secondaries=0 --port=27091 --dbpath ./.mongodb",
-    "stop-server": "mongodb-runner stop --port 27091",
+    "stop-server": "mongodb-runner stop --port 27091 || true",
     "unzip-fixtures": "ts-node ./scripts/gunzip.ts fixtures/*.gz",
     "testslow": "env DEBUG=hadron*,mongo*,compass* npm run test -- --disable-start-stop --bail",
     "testfast": "env DEBUG=hadron*,mongo*,compass* npm run test -- --no-native-modules --no-compile --disable-start-stop --bail",
