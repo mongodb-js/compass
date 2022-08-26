@@ -28,6 +28,7 @@ const WildcardProjectionCollapsibleFieldSet = ({
     >
       <Editor
         text={wildcardProjection}
+        data-testid="create-index-modal-use-wildcard-editor"
         variant={EditorVariant.Shell}
         onChangeText={wildcardProjectionChanged}
         options={{ minLines: 10 }}
