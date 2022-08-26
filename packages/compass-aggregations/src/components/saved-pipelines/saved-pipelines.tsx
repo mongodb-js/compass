@@ -6,7 +6,6 @@ import {
   spacing,
   Toolbar,
   uiColors,
-  compassUIColors,
   Body,
   withTheme
 } from '@mongodb-js/compass-components';
