@@ -109,6 +109,7 @@ describe('create index module', function () {
         usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
         isUnique: true,
+        isSparse: true,
         name: 'test name',
         useCustomCollation: true,
         collationString: "{locale: 'en'}",
@@ -130,6 +131,7 @@ describe('create index module', function () {
               name: 'test name',
               partialFilterExpression: { a: 1 },
               unique: true,
+              sparse: true,
             });
             cb(null);
           },
@@ -177,6 +179,7 @@ describe('create index module', function () {
         usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
         isUnique: true,
+        isSparse: false,
         name: '',
         useCustomCollation: true,
         collationString: "{locale: 'en'}",
@@ -197,6 +200,7 @@ describe('create index module', function () {
               expireAfterSeconds: 100,
               partialFilterExpression: { a: 1 },
               unique: true,
+              sparse: false,
             });
             cb(null);
           },
@@ -240,6 +244,7 @@ describe('create index module', function () {
         usePartialFilterExpression: false,
         useTtl: false,
         isUnique: false,
+        isSparse: false,
         name: 'test name',
         namespace: 'db.coll',
         appRegistry: {},
@@ -250,6 +255,7 @@ describe('create index module', function () {
             expect(options).to.deep.equal({
               name: 'test name',
               unique: false,
+              sparse: false,
             });
             cb({ message: 'test err' });
           },

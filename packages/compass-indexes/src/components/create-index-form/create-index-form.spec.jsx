@@ -35,6 +35,7 @@ describe('CreateIndexForm Component', function () {
   let wildcardProjectionChangedSpy;
   let createNewIndexFieldSpy;
   let toggleUseIndexNameSpy;
+  let toggleIsSparseSpy;
 
   const spyComponentProps = () => {
     updateFiedTypeSpy = sinon.spy();
@@ -56,6 +57,7 @@ describe('CreateIndexForm Component', function () {
     wildcardProjectionChangedSpy = sinon.spy();
     createNewIndexFieldSpy = sinon.spy();
     toggleUseIndexNameSpy = sinon.spy();
+    toggleIsSparseSpy = sinon.spy();
   };
 
   const resetSpyComponentProps = () => {
@@ -78,6 +80,7 @@ describe('CreateIndexForm Component', function () {
     wildcardProjectionChangedSpy = null;
     createNewIndexFieldSpy = null;
     toggleUseIndexNameSpy = null;
+    toggleIsSparseSpy = null;
   };
 
   before(function () {
@@ -95,6 +98,7 @@ describe('CreateIndexForm Component', function () {
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
+            isSparse={false}
             useTtl={false}
             ttl=""
             usePartialFilterExpression={false}
@@ -129,6 +133,7 @@ describe('CreateIndexForm Component', function () {
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
             toggleUseIndexName={toggleUseIndexNameSpy}
+            toggleIsSparse={toggleIsSparseSpy}
           />
         );
       });
@@ -166,6 +171,17 @@ describe('CreateIndexForm Component', function () {
             );
             fireEvent.click(checkbox);
             expect(toggleIsUniqueSpy).to.have.been.calledWith(true);
+          });
+        });
+
+        context('sparse', function () {
+          it('calls the toggleIsSparse function', function () {
+            const checkbox = screen.getByTestId(
+              'create-index-modal-is-sparse-checkbox'
+            );
+            expect(toggleIsSparseSpy.callCount).to.equal(0);
+            fireEvent.click(checkbox);
+            expect(toggleIsSparseSpy).to.have.been.calledWith(true);
           });
         });
 

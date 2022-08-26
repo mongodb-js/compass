@@ -70,6 +70,9 @@ import name, {
 } from '../create-index/name';
 import namespace from '../namespace';
 import serverVersion from '../server-version';
+import isSparse, {
+  INITIAL_STATE as IS_SPARSE_INITIAL_STATE,
+} from './is-sparse';
 
 import schemaFields from '../create-index/schema-fields';
 import newIndexField from '../create-index/new-index-field';
@@ -105,6 +108,7 @@ const reducer = combineReducers({
   name,
   namespace,
   serverVersion,
+  isSparse,
 });
 
 export type RootState = ReturnType<typeof reducer>;
@@ -138,6 +142,7 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
       wildcardProjection: WILDCARD_PROJECTION_INITIAL_STATE,
       partialFilterExpression: PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
+      isSparse: IS_SPARSE_INITIAL_STATE,
     };
   }
   return reducer(state, action);
@@ -182,6 +187,7 @@ export const createIndex = () => {
 
     const options: CreateIndexesOptions = {};
     options.unique = state.isUnique;
+    options.sparse = state.isSparse;
     // The server will generate a name when we don't provide one.
     if (state.name !== '') {
       options.name = state.name;

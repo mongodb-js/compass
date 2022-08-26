@@ -45,6 +45,7 @@ import CreateIndexForm from '../create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import { toggleUseIndexName } from '../../modules/create-index/use-index-name';
 import type { RootState } from '../../modules/create-index';
+import { toggleIsSparse } from '../../modules/create-index/is-sparse';
 
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
@@ -170,6 +171,7 @@ const mapState = ({
   namespace,
   serverVersion,
   newIndexField,
+  isSparse,
 }: RootState) => ({
   fields,
   inProgress,
@@ -192,6 +194,7 @@ const mapState = ({
   namespace,
   serverVersion,
   newIndexField,
+  isSparse,
 });
 
 const mapDispatch = {
@@ -222,5 +225,6 @@ const mapDispatch = {
   removeField,
   updateFieldName,
   updateFieldType,
+  toggleIsSparse,
 };
 export default connect(mapState, mapDispatch)(CreateIndexModal);
