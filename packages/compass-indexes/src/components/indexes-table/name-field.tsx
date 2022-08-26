@@ -8,7 +8,7 @@ import {
   IndexIcon,
 } from '@mongodb-js/compass-components';
 
-import type { IndexModel } from './indexes-table';
+import type { IndexDefinition } from '../../modules/indexes';
 
 const keyListStyles = css({
   marginTop: spacing[1],
@@ -26,7 +26,7 @@ const badgeStyles = css({
 
 type NameFieldProps = {
   name: string;
-  keys: ReturnType<IndexModel['fields']['serialize']>;
+  keys: ReturnType<IndexDefinition['fields']['serialize']>;
 };
 
 const NameField: React.FunctionComponent<NameFieldProps> = ({ name, keys }) => {

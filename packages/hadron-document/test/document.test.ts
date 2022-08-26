@@ -1558,65 +1558,373 @@ describe('Document', function () {
   });
 
   describe('array modifications', function () {
-    it('can add array elements', function () {
-      const doc = new Document({
-        a: [1, 2, 3],
+    context('with a plain array name', function () {
+      it('can add array elements', function () {
+        const doc = new Document({
+          a: [1, 2, 3],
+        });
+        doc.get('a')?.insertEnd(3, new Int32(4));
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: { _id: null, 'a.3': { $exists: false } },
+          updateDoc: { $set: { 'a.3': new Int32(4) } },
+        });
       });
-      doc.get('a')?.insertEnd(3, new Int32(4));
-      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
-        query: { _id: null, 'a.3': { $exists: false } },
-        updateDoc: { $set: { 'a.3': new Int32(4) } },
+      it('can edit array elements', function () {
+        const doc = new Document({
+          a: [1, 2, 3],
+        });
+        doc.get('a')?.get(2)?.edit(new Int32(4));
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: { _id: null, 'a.2': new Int32(3) },
+          updateDoc: { $set: { 'a.2': new Int32(4) } },
+        });
+      });
+      it('can insert array elements', function () {
+        const doc = new Document({
+          a: [1, 2, 3],
+        });
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        doc.get('a')?.insertAfter(doc.get('a')!.get(1)!, 2, new Int32(4));
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: { _id: null, 'a.2': new Int32(3), 'a.3': { $exists: false } },
+          updateDoc: { $set: { 'a.2': new Int32(4), 'a.3': new Int32(3) } },
+        });
+      });
+      it('can remove array elements in the middle of the array', function () {
+        const doc = new Document({
+          a: [1, 2, 3],
+        });
+        doc.get('a')?.get(1)?.remove();
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            a: [new Int32(1), new Int32(2), new Int32(3)],
+          },
+          updateDoc: {
+            $set: { a: [new Int32(1), new Int32(3)] },
+          },
+        });
+      });
+      it('can remove array elements at the end of the array', function () {
+        const doc = new Document({
+          a: [1, 2, 3],
+        });
+        doc.get('a')?.get(2)?.remove();
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            a: [new Int32(1), new Int32(2), new Int32(3)],
+          },
+          updateDoc: {
+            $set: { a: [new Int32(1), new Int32(2)] },
+          },
+        });
       });
     });
-    it('can edit array elements', function () {
-      const doc = new Document({
-        a: [1, 2, 3],
+    context('with a dots-and-dollars array name', function () {
+      it('can add array elements', function () {
+        const doc = new Document({
+          '$a.b': [1, 2, 3],
+        });
+        doc.get('$a.b')?.insertEnd(3, new Int32(4));
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            $expr: {
+              $eq: [
+                {
+                  $type: {
+                    $arrayElemAt: [
+                      {
+                        $getField: {
+                          field: { $literal: '$a.b' },
+                          input: '$$ROOT',
+                        },
+                      },
+                      3,
+                    ],
+                  },
+                },
+                'missing',
+              ],
+            },
+          },
+          updateDoc: [
+            {
+              $replaceWith: {
+                $setField: {
+                  field: { $literal: '$a.b' },
+                  input: '$$ROOT',
+                  value: {
+                    $let: {
+                      vars: {
+                        input: {
+                          $getField: {
+                            field: { $literal: '$a.b' },
+                            input: '$$ROOT',
+                          },
+                        },
+                      },
+                      in: {
+                        $concatArrays: [
+                          { $slice: ['$$input', 0, 3] },
+                          [{ $literal: new Int32(4) }],
+                          { $slice: ['$$input', 4, 2147483647] },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        });
       });
-      doc.get('a')?.get(2)?.edit(new Int32(4));
-      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
-        query: { _id: null, 'a.2': new Int32(3) },
-        updateDoc: { $set: { 'a.2': new Int32(4) } },
+      it('can edit array elements', function () {
+        const doc = new Document({
+          '$a.b': [1, 2, 3],
+        });
+        doc.get('$a.b')?.get(2)?.edit(new Int32(4));
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            $expr: {
+              $eq: [
+                {
+                  $arrayElemAt: [
+                    {
+                      $getField: {
+                        field: { $literal: '$a.b' },
+                        input: '$$ROOT',
+                      },
+                    },
+                    2,
+                  ],
+                },
+                { $literal: new Int32(3) },
+              ],
+            },
+          },
+          updateDoc: [
+            {
+              $replaceWith: {
+                $setField: {
+                  field: { $literal: '$a.b' },
+                  input: '$$ROOT',
+                  value: {
+                    $let: {
+                      vars: {
+                        input: {
+                          $getField: {
+                            field: { $literal: '$a.b' },
+                            input: '$$ROOT',
+                          },
+                        },
+                      },
+                      in: {
+                        $concatArrays: [
+                          { $slice: ['$$input', 0, 2] },
+                          [{ $literal: new Int32(4) }],
+                          { $slice: ['$$input', 3, 2147483647] },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        });
       });
-    });
-    it('can insert array elements', function () {
-      const doc = new Document({
-        a: [1, 2, 3],
+      it('can insert array elements', function () {
+        const doc = new Document({
+          '$a.b': [1, 2, 3],
+        });
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        doc.get('$a.b')?.insertAfter(doc.get('$a.b')!.get(1)!, 2, new Int32(4));
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            $expr: {
+              $and: [
+                {
+                  $eq: [
+                    {
+                      $type: {
+                        $arrayElemAt: [
+                          {
+                            $getField: {
+                              field: { $literal: '$a.b' },
+                              input: '$$ROOT',
+                            },
+                          },
+                          3,
+                        ],
+                      },
+                    },
+                    'missing',
+                  ],
+                },
+                {
+                  $eq: [
+                    {
+                      $arrayElemAt: [
+                        {
+                          $getField: {
+                            field: { $literal: '$a.b' },
+                            input: '$$ROOT',
+                          },
+                        },
+                        2,
+                      ],
+                    },
+                    { $literal: new Int32(3) },
+                  ],
+                },
+              ],
+            },
+          },
+          updateDoc: [
+            {
+              $replaceWith: {
+                $setField: {
+                  field: { $literal: '$a.b' },
+                  input: '$$ROOT',
+                  value: {
+                    $let: {
+                      vars: {
+                        input: {
+                          $getField: {
+                            field: { $literal: '$a.b' },
+                            input: '$$ROOT',
+                          },
+                        },
+                      },
+                      in: {
+                        $concatArrays: [
+                          { $slice: ['$$input', 0, 2] },
+                          [{ $literal: new Int32(4) }],
+                          { $slice: ['$$input', 3, 2147483647] },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            {
+              $replaceWith: {
+                $setField: {
+                  field: { $literal: '$a.b' },
+                  input: '$$ROOT',
+                  value: {
+                    $let: {
+                      vars: {
+                        input: {
+                          $getField: {
+                            field: { $literal: '$a.b' },
+                            input: '$$ROOT',
+                          },
+                        },
+                      },
+                      in: {
+                        $concatArrays: [
+                          { $slice: ['$$input', 0, 3] },
+                          [{ $literal: new Int32(3) }],
+                          { $slice: ['$$input', 4, 2147483647] },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        });
       });
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      doc.get('a')?.insertAfter(doc.get('a')!.get(1)!, 2, new Int32(4));
-      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
-        query: { _id: null, 'a.2': new Int32(3), 'a.3': { $exists: false } },
-        updateDoc: { $set: { 'a.2': new Int32(4), 'a.3': new Int32(3) } },
+      it('can remove array elements in the middle of the array', function () {
+        const doc = new Document({
+          '$a.b': [1, 2, 3],
+        });
+        doc.get('$a.b')?.get(1)?.remove();
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            $expr: {
+              $eq: [
+                {
+                  $getField: { field: { $literal: '$a.b' }, input: '$$ROOT' },
+                },
+                {
+                  $literal: [new Int32(1), new Int32(2), new Int32(3)],
+                },
+              ],
+            },
+          },
+          updateDoc: [
+            {
+              $replaceWith: {
+                $setField: {
+                  field: { $literal: '$a.b' },
+                  input: '$$ROOT',
+                  value: { $literal: [new Int32(1), new Int32(3)] },
+                },
+              },
+            },
+          ],
+        });
       });
-    });
-    it('can remove array elements in the middle of the array', function () {
-      const doc = new Document({
-        a: [1, 2, 3],
-      });
-      doc.get('a')?.get(1)?.remove();
-      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
-        query: {
-          _id: null,
-          a: [new Int32(1), new Int32(2), new Int32(3)],
-        },
-        updateDoc: {
-          $set: { a: [new Int32(1), new Int32(3)] },
-        },
-      });
-    });
-    it('can remove array elements at the end of the array', function () {
-      const doc = new Document({
-        a: [1, 2, 3],
-      });
-      doc.get('a')?.get(2)?.remove();
-      expect(doc.generateUpdateUnlessChangedInBackgroundQuery()).to.deep.equal({
-        query: {
-          _id: null,
-          a: [new Int32(1), new Int32(2), new Int32(3)],
-        },
-        updateDoc: {
-          $set: { a: [new Int32(1), new Int32(2)] },
-        },
+      it('can remove array elements at the end of the array', function () {
+        const doc = new Document({
+          '$a.b': [1, 2, 3],
+        });
+        doc.get('$a.b')?.get(2)?.remove();
+        expect(
+          doc.generateUpdateUnlessChangedInBackgroundQuery()
+        ).to.deep.equal({
+          query: {
+            _id: null,
+            $expr: {
+              $eq: [
+                {
+                  $getField: { field: { $literal: '$a.b' }, input: '$$ROOT' },
+                },
+                {
+                  $literal: [new Int32(1), new Int32(2), new Int32(3)],
+                },
+              ],
+            },
+          },
+          updateDoc: [
+            {
+              $replaceWith: {
+                $setField: {
+                  field: { $literal: '$a.b' },
+                  input: '$$ROOT',
+                  value: { $literal: [new Int32(1), new Int32(2)] },
+                },
+              },
+            },
+          ],
+        });
       });
     });
   });
@@ -1633,23 +1941,19 @@ describe('Document', function () {
         query: {
           _id: null,
           $expr: {
-            $and: [
+            $eq: [
               {
-                $eq: [
-                  {
+                $getField: {
+                  field: { $literal: 'c.d' },
+                  input: {
                     $getField: {
-                      field: { $literal: 'c.d' },
-                      input: {
-                        $getField: {
-                          field: { $literal: 'a.b' },
-                          input: '$$ROOT',
-                        },
-                      },
+                      field: { $literal: 'a.b' },
+                      input: '$$ROOT',
                     },
                   },
-                  { $literal: 'x' },
-                ],
+                },
               },
+              { $literal: 'x' },
             ],
           },
         },
@@ -1689,23 +1993,19 @@ describe('Document', function () {
         query: {
           _id: null,
           $expr: {
-            $and: [
+            $eq: [
               {
-                $eq: [
-                  {
+                $getField: {
+                  field: { $literal: '$foo' },
+                  input: {
                     $getField: {
-                      field: { $literal: '$foo' },
-                      input: {
-                        $getField: {
-                          field: { $literal: 'a.b' },
-                          input: '$$ROOT',
-                        },
-                      },
+                      field: { $literal: 'a.b' },
+                      input: '$$ROOT',
                     },
                   },
-                  { $literal: 'x' },
-                ],
+                },
               },
+              { $literal: 'x' },
             ],
           },
         },

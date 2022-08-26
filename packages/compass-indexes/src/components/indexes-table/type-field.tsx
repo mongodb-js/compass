@@ -2,20 +2,20 @@ import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
 import { Tooltip, Body } from '@mongodb-js/compass-components';
 
-import type { IndexModel } from './indexes-table';
+import type { IndexDefinition } from '../../modules/indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
 
-export const canRenderTooltip = (type: IndexModel['type']) => {
+export const canRenderTooltip = (type: IndexDefinition['type']) => {
   return ['text', 'wildcard', 'columnstore'].indexOf(type) !== -1;
 };
 
 type TypeFieldProps = {
-  type: IndexModel['type'];
-  extra: IndexModel['extra'];
+  type: IndexDefinition['type'];
+  extra: IndexDefinition['extra'];
 };
 
 export const IndexTypeTooltip: React.FunctionComponent<{
-  extra: IndexModel['extra'];
+  extra: IndexDefinition['extra'];
 }> = ({ extra }) => {
   const allowedProps = [
     'weights',

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { createIndex } from '../create-index';
-import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
+import { ActionTypes as ErrorActionTypes } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET } from '../reset';
@@ -34,7 +34,7 @@ describe('create index module', function () {
     it('errors if fields are undefined', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'You must select a field name and type',
         });
         errorSpy();
@@ -48,7 +48,7 @@ describe('create index module', function () {
     it('errors if TTL is not number', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'Bad TTL: "abc"',
         });
         errorSpy();
@@ -64,7 +64,7 @@ describe('create index module', function () {
     it('errors if PFE is not JSON', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error:
             'Bad PartialFilterExpression: SyntaxError: Unexpected token a in JSON at position 0',
         });
@@ -88,7 +88,7 @@ describe('create index module', function () {
             case RESET:
               resetSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
@@ -158,7 +158,7 @@ describe('create index module', function () {
             case RESET:
               resetSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
@@ -221,10 +221,10 @@ describe('create index module', function () {
           case TOGGLE_IN_PROGRESS:
             progressSpy();
             break;
-          case HANDLE_ERROR:
+          case ErrorActionTypes.HandleError:
             expect(res).to.deep.equal({
-              type: HANDLE_ERROR,
-              error: 'test err',
+              type: ErrorActionTypes.HandleError,
+              error: { message: 'test err' },
             });
             errorSpy();
             break;
