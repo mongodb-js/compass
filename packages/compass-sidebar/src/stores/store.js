@@ -31,7 +31,6 @@ store.onActivated = (appRegistry) => {
         isWritable: instance.isWritable,
         env: instance.env,
         isAtlas: instance.isAtlas,
-        isMongos: instance.isMongos,
       })
     );
   };
