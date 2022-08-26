@@ -6,7 +6,6 @@ import {
   localAppRegistryActivated,
   globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { parseErrorMsg } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { toggleIsVisible } from '../modules/is-visible';
 import { nameChanged } from '../modules/drop-index/name';
@@ -21,7 +20,7 @@ import { namespaceChanged } from '../modules/namespace';
  */
 export const setDataProvider = (store, error, provider) => {
   if (error !== null) {
-    store.dispatch(handleError(parseErrorMsg(error)));
+    store.dispatch(handleError(error));
   } else {
     store.dispatch(dataServiceConnected(provider));
   }

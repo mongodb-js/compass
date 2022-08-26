@@ -18,8 +18,6 @@ export const INITIAL_STATE = 'Topology type not yet discovered.';
  *
  * @param {Boolean} state - The status state.
  * @param {Object} action - The action.
- *
- * @returns {Boolean} The new state.
  */
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === GET_DESCRIPTION) {
