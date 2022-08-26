@@ -168,6 +168,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     dispatch({
       type: 'disconnected',
     });
+    hideCollectionSubMenu();
     updateTitle(appName);
   }, [appName]);
 

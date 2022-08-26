@@ -110,6 +110,7 @@
           "**/win-export-certificate-and-key/**",
           "**/macos-export-certificate-and-key/**",
           "**/system-ca/**",
+          "**/node-forge/**",
           "**/mongo_crypt_v1.*"
         ]
       },

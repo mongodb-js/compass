@@ -1,18 +1,18 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Collation string changed action.
+ * Collation string changed action name.
  */
 export const COLLATION_STRING_CHANGED =
   'aggregations/collation/COLLATION_STRING_CHANGED';
 
 /**
- * The collation string initial state.
+ * The initial state of the collation string.
  */
 export const INITIAL_STATE = '';
 
 /**
- * Reducer function for handle collation string state changes.
+ * Reducer function for handle the collation string state changes.
  *
  * @param {String} state - The collation string state.
  * @param {Object} action - The action.
@@ -30,7 +30,7 @@ export default function reducer(
 }
 
 /**
- * Action creator for collation string changed event.
+ * Action creator for the collation string changed event.
  *
  * @param {String} collationString - The collation string.
  *

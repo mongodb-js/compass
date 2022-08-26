@@ -35,7 +35,7 @@
     "@leafygreen-ui/banner": "^3.0.9",
     "@leafygreen-ui/button": "^12.0.5",
     "@leafygreen-ui/card": "^5.1.4",
-    "@leafygreen-ui/checkbox": "^6.0.6",
+    "@leafygreen-ui/checkbox": "^7.0.1",
     "@leafygreen-ui/code": "^9.4.0",
     "@leafygreen-ui/confirmation-modal": "^2.2.3",
     "@leafygreen-ui/emotion": "^4.0.0",

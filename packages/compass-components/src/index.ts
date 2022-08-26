@@ -28,6 +28,7 @@ import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
+import { CollapsibleFieldSet } from './components/collapsible-field-set';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar from './components/resizeable-sidebar';
 import {
@@ -76,6 +77,7 @@ import IndexIcon from './components/index-icon';
 
 export {
   Accordion,
+  CollapsibleFieldSet,
   CancelLoader,
   ConfirmationModal,
   ErrorSummary,

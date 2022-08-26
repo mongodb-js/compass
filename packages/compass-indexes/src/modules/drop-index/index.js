@@ -25,7 +25,6 @@ import confirmName, {
 
 import { RESET_FORM } from '../reset-form';
 import { RESET, reset } from '../reset';
-import { parseErrorMsg } from '../indexes';
 import namespace from '../namespace';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
@@ -90,7 +89,7 @@ export const dropIndex = (indexName) => {
         dispatch(toggleIsVisible(false));
       } else {
         dispatch(toggleInProgress(false));
-        dispatch(handleError(parseErrorMsg(err)));
+        dispatch(handleError(err));
       }
     });
   };

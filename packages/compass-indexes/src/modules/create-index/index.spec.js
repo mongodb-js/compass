@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { createIndex } from '../create-index';
-import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
+import { ActionTypes as ErrorActionTypes } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET } from '../reset';
@@ -34,7 +34,7 @@ describe('create index module', function () {
     it('errors if fields are undefined', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'You must select a field name and type',
         });
         errorSpy();
@@ -48,14 +48,14 @@ describe('create index module', function () {
     it('errors if TTL is not number', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'Bad TTL: "abc"',
         });
         errorSpy();
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        isTtl: true,
+        useTtl: true,
         ttl: 'abc',
       });
       createIndex()(dispatch, state);
@@ -64,7 +64,7 @@ describe('create index module', function () {
     it('errors if PFE is not JSON', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error:
             'Bad PartialFilterExpression: SyntaxError: Unexpected token a in JSON at position 0',
         });
@@ -72,7 +72,7 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: 'abc',
       });
       createIndex()(dispatch, state);
@@ -88,7 +88,7 @@ describe('create index module', function () {
             case RESET:
               resetSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
@@ -106,13 +106,13 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
         isUnique: true,
         name: 'test name',
-        isCustomCollation: true,
+        useCustomCollation: true,
         collationString: "{locale: 'en'}",
-        isTtl: true,
+        useTtl: true,
         ttl: 100,
         appRegistry: {
           emit: emitSpy,
@@ -158,7 +158,7 @@ describe('create index module', function () {
             case RESET:
               resetSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
@@ -174,13 +174,13 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
         isUnique: true,
         name: '',
-        isCustomCollation: true,
+        useCustomCollation: true,
         collationString: "{locale: 'en'}",
-        isTtl: true,
+        useTtl: true,
         ttl: 100,
         namespace: 'db.coll',
         appRegistry: {
@@ -221,10 +221,10 @@ describe('create index module', function () {
           case TOGGLE_IN_PROGRESS:
             progressSpy();
             break;
-          case HANDLE_ERROR:
+          case ErrorActionTypes.HandleError:
             expect(res).to.deep.equal({
-              type: HANDLE_ERROR,
-              error: 'test err',
+              type: ErrorActionTypes.HandleError,
+              error: { message: 'test err' },
             });
             errorSpy();
             break;
@@ -237,8 +237,8 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: false,
-        isTtl: false,
+        usePartialFilterExpression: false,
+        useTtl: false,
         isUnique: false,
         name: 'test name',
         namespace: 'db.coll',

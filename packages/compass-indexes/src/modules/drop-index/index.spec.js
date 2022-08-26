@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { dropIndex } from '../drop-index';
-import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
+import { ActionTypes as ErrorActionTypes } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET } from '../reset';
@@ -41,7 +41,7 @@ describe('drop index module', function () {
             case RESET:
               resetSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
@@ -88,10 +88,10 @@ describe('drop index module', function () {
           case TOGGLE_IN_PROGRESS:
             progressSpy();
             break;
-          case HANDLE_ERROR:
+          case ErrorActionTypes.HandleError:
             expect(res).to.deep.equal({
-              type: HANDLE_ERROR,
-              error: 'test err',
+              type: ErrorActionTypes.HandleError,
+              error: { message: 'test err' },
             });
             errorSpy();
             break;

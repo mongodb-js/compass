@@ -38,19 +38,13 @@ const documentEditorOptionStyles = css(
 
 const numericTextInputLightStyles = css({
   input: {
-    // TODO: Decide border styles for query bar editors.
-    // Remove these commented styles if we want borders.
-    // borderColor: 'transparent',
-    borderColor: uiColors.gray.light2,
+    borderColor: 'transparent',
   },
 });
 
 const numericTextInputDarkStyles = css({
   input: {
-    // TODO: Decide border styles for query bar editors.
-    // Remove these commented styles if we want borders.
-    // borderColor: 'transparent',
-    borderColor: uiColors.gray.base,
+    borderColor: 'transparent',
   },
 });
 

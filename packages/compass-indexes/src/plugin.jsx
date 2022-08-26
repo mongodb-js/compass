@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import PropTypes from 'prop-types';
-import Indexes from './components/indexes';
+import Indexes from './components/indexes/indexes';
 
 class Plugin extends Component {
   static displayName = 'IndexesPlugin';
