@@ -91,6 +91,7 @@ describe('CreateIndexForm Component', function () {
             schemaFields={[]}
             fields={[{ name: '', type: '' }]}
             isUnique={false}
+            isSparse={false}
             useTtl={false}
             ttl=""
             usePartialFilterExpression={false}
@@ -125,6 +126,7 @@ describe('CreateIndexForm Component', function () {
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
             toggleUseIndexName={toggleUseIndexNameSpy}
+            toggleIsSparse={toggleIsSparseSpy}
           />
         );
       });
@@ -170,7 +172,7 @@ describe('CreateIndexForm Component', function () {
             const checkbox = screen.getByTestId(
               'create-index-modal-is-sparse-checkbox'
             );
-            expect(toggleIsSparseSpy).to.have.been.calledWith(false);
+            expect(toggleIsSparseSpy.callCount).to.equal(0);
             fireEvent.click(checkbox);
             expect(toggleIsSparseSpy).to.have.been.calledWith(true);
           });
