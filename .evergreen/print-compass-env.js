@@ -96,6 +96,7 @@ function printCompassEnv() {
   printVar('npm_config_tmp', npmTmpDir);
 
   printVar('PLATFORM', process.env.PLATFORM);
+  printVar('ARCH', process.env.ARCH);
   printVar('IS_WINDOWS', process.env.IS_WINDOWS);
   printVar('IS_OSX', process.env.IS_OSX);
   printVar('IS_LINUX', process.env.IS_LINUX);
