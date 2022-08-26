@@ -48,6 +48,84 @@ describe('CreateIndexFields Component', function () {
       const fieldTypes = screen.getByTestId('create-index-fields-type-0');
       expect(fieldTypes).to.not.contain.html('columnstore');
     });
+
+    it('does not render a minus button for a single field', function () {
+      render(
+        <CreateIndexFields
+          schemaFields={[]}
+          fields={[{ name: '', type: '' }]}
+          serverVersion="5.0.0"
+          isRemovable
+          updateFieldName={noop}
+          updateFieldType={noop}
+          addField={noop}
+          removeField={noop}
+          createNewIndexField={noop}
+        />
+      );
+      const minusButton = screen.queryByTestId('remove-index-field-button');
+      expect(minusButton).to.not.exist;
+    });
+
+    it('does render a minus button for more than one field', function () {
+      render(
+        <CreateIndexFields
+          schemaFields={[]}
+          fields={[
+            { name: 'name1', type: '1 (asc)' },
+            { name: 'name2', type: '1 (asc)' },
+          ]}
+          serverVersion="5.0.0"
+          isRemovable
+          updateFieldName={noop}
+          updateFieldType={noop}
+          addField={noop}
+          removeField={noop}
+          createNewIndexField={noop}
+        />
+      );
+      const minusButton = screen.getAllByTestId('remove-index-field-button');
+      expect(minusButton.length).to.be.equal(2);
+    });
+
+    it('does render a plus button for a single field', function () {
+      render(
+        <CreateIndexFields
+          schemaFields={[]}
+          fields={[{ name: '', type: '' }]}
+          serverVersion="5.0.0"
+          isRemovable
+          updateFieldName={noop}
+          updateFieldType={noop}
+          addField={noop}
+          removeField={noop}
+          createNewIndexField={noop}
+        />
+      );
+      const minusButton = screen.getAllByTestId('add-index-field-button');
+      expect(minusButton.length).to.be.equal(1);
+    });
+
+    it('does render a plus button for more than one field', function () {
+      render(
+        <CreateIndexFields
+          schemaFields={[]}
+          fields={[
+            { name: 'name1', type: '1 (asc)' },
+            { name: 'name2', type: '1 (asc)' },
+          ]}
+          serverVersion="5.0.0"
+          isRemovable
+          updateFieldName={noop}
+          updateFieldType={noop}
+          addField={noop}
+          removeField={noop}
+          createNewIndexField={noop}
+        />
+      );
+      const minusButton = screen.getAllByTestId('add-index-field-button');
+      expect(minusButton.length).to.be.equal(2);
+    });
   });
 
   describe('server version 6.1.0', function () {

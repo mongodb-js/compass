@@ -4,7 +4,14 @@ import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
 import sinon from 'sinon';
 
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  within,
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import CreateIndexForm from '../create-index-form';
 
@@ -353,6 +360,76 @@ describe('CreateIndexForm Component', function () {
       });
     });
 
+    context('with custom collation', function () {
+      before(function () {
+        spyComponentProps();
+        render(
+          <CreateIndexForm
+            schemaFields={[]}
+            fields={[{ name: '', type: '' }]}
+            isUnique={false}
+            useTtl={false}
+            ttl=""
+            usePartialFilterExpression={false}
+            partialFilterExpression=""
+            useCustomCollation={true}
+            name=""
+            useIndexName={false}
+            newIndexField=""
+            updateFieldName={updateFieldNameSpy}
+            updateFieldType={updateFiedTypeSpy}
+            addField={addFieldSpy}
+            removeField={removeFieldSpy}
+            toggleIsUnique={toggleIsUniqueSpy}
+            toggleUseTtl={toggleUseTtlSpy}
+            toggleUsePartialFilterExpression={
+              toggleUsePartialFilterExpressionSpy
+            }
+            toggleUseCustomCollation={toggleUseCustomCollationSpy}
+            toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
+            toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
+            openLink={openLinkSpy}
+            ttlChanged={ttlChangedSpy}
+            partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
+            collationStringChanged={collationStringChangedSpy}
+            nameChanged={nameChangedSpy}
+            wildcardProjection=""
+            useWildcardProjection={false}
+            columnstoreProjection=""
+            useColumnstoreProjection={false}
+            serverVersion="4.0.0"
+            columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
+            wildcardProjectionChanged={wildcardProjectionChangedSpy}
+            createNewIndexField={createNewIndexFieldSpy}
+            toggleUseIndexName={toggleUseIndexNameSpy}
+          />
+        );
+      });
+
+      after(function () {
+        resetSpyComponentProps();
+        cleanup();
+      });
+
+      it('calls the collationStringChanged function', function () {
+        const createIndexOptions = screen.getByTestId(
+          'create-index-modal-toggle-options'
+        );
+        fireEvent.click(createIndexOptions);
+        const editorWrapper = screen.getByTestId(
+          'create-index-modal-use-custom-collation-editor'
+        );
+
+        const editor = within(editorWrapper).getByRole('textbox');
+
+        screen.debug(editor);
+
+        userEvent.paste(editor, '{}');
+
+        expect(collationStringChangedSpy).to.have.been.calledWith('{}');
+      });
+    });
+
     context('with partial filter expression', function () {
       before(function () {
         spyComponentProps();
@@ -409,15 +486,89 @@ describe('CreateIndexForm Component', function () {
           'create-index-modal-toggle-options'
         );
         fireEvent.click(createIndexOptions);
-        const input = screen.getByTestId('create-index-modal-is-pfe-input');
-        fireEvent.change(input, { target: { value: '{}' } });
+        const editorWrapper = screen.getByTestId(
+          'create-index-modal-is-pfe-editor'
+        );
+
+        const editor = within(editorWrapper).getByRole('textbox');
+
+        screen.debug(editor);
+
+        userEvent.paste(editor, '{}');
+
         expect(partialFilterExpressionChangedSpy).to.have.been.calledWith('{}');
       });
     });
 
-    // TODO: test editors on change event.
-    context.skip('with custom collation', function () {});
-    context.skip('with wildcard projection', function () {});
+    context('with wildcard projection', function () {
+      before(function () {
+        spyComponentProps();
+        render(
+          <CreateIndexForm
+            schemaFields={[]}
+            fields={[{ name: '', type: '' }]}
+            isUnique={false}
+            useTtl={false}
+            ttl=""
+            usePartialFilterExpression={false}
+            partialFilterExpression=""
+            useCustomCollation={false}
+            name=""
+            useIndexName={false}
+            newIndexField=""
+            updateFieldName={updateFieldNameSpy}
+            updateFieldType={updateFiedTypeSpy}
+            addField={addFieldSpy}
+            removeField={removeFieldSpy}
+            toggleIsUnique={toggleIsUniqueSpy}
+            toggleUseTtl={toggleUseTtlSpy}
+            toggleUsePartialFilterExpression={
+              toggleUsePartialFilterExpressionSpy
+            }
+            toggleUseCustomCollation={toggleUseCustomCollationSpy}
+            toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
+            toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
+            openLink={openLinkSpy}
+            ttlChanged={ttlChangedSpy}
+            partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
+            collationStringChanged={collationStringChangedSpy}
+            nameChanged={nameChangedSpy}
+            wildcardProjection=""
+            useWildcardProjection={true}
+            columnstoreProjection=""
+            useColumnstoreProjection={false}
+            serverVersion="4.0.0"
+            columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
+            wildcardProjectionChanged={wildcardProjectionChangedSpy}
+            createNewIndexField={createNewIndexFieldSpy}
+            toggleUseIndexName={toggleUseIndexNameSpy}
+          />
+        );
+      });
+
+      after(function () {
+        resetSpyComponentProps();
+        cleanup();
+      });
+
+      it('calls the wildcardProjectionChanged function', function () {
+        const createIndexOptions = screen.getByTestId(
+          'create-index-modal-toggle-options'
+        );
+        fireEvent.click(createIndexOptions);
+        const editorWrapper = screen.getByTestId(
+          'create-index-modal-use-wildcard-editor'
+        );
+
+        const editor = within(editorWrapper).getByRole('textbox');
+
+        screen.debug(editor);
+
+        userEvent.paste(editor, '{}');
+
+        expect(wildcardProjectionChangedSpy).to.have.been.calledWith('{}');
+      });
+    });
   });
 
   describe('server version 6.1.0', function () {
@@ -494,6 +645,74 @@ describe('CreateIndexForm Component', function () {
       });
     });
 
-    context.skip('with columnstore projection', function () {});
+    context('with columnstore projection', function () {
+      before(function () {
+        spyComponentProps();
+        render(
+          <CreateIndexForm
+            schemaFields={[]}
+            fields={[{ name: '', type: '' }]}
+            isUnique={false}
+            useTtl={false}
+            ttl=""
+            usePartialFilterExpression={false}
+            partialFilterExpression=""
+            useCustomCollation={false}
+            name=""
+            useIndexName={false}
+            newIndexField=""
+            updateFieldName={updateFieldNameSpy}
+            updateFieldType={updateFiedTypeSpy}
+            addField={addFieldSpy}
+            removeField={removeFieldSpy}
+            toggleIsUnique={toggleIsUniqueSpy}
+            toggleUseTtl={toggleUseTtlSpy}
+            toggleUsePartialFilterExpression={
+              toggleUsePartialFilterExpressionSpy
+            }
+            toggleUseCustomCollation={toggleUseCustomCollationSpy}
+            toggleUseWildcardProjection={toggleUseWildcardProjectionSpy}
+            toggleUseColumnstoreProjection={toggleUseColumnstoreProjectionSpy}
+            openLink={openLinkSpy}
+            ttlChanged={ttlChangedSpy}
+            partialFilterExpressionChanged={partialFilterExpressionChangedSpy}
+            collationStringChanged={collationStringChangedSpy}
+            nameChanged={nameChangedSpy}
+            wildcardProjection=""
+            useWildcardProjection={false}
+            columnstoreProjection=""
+            useColumnstoreProjection={true}
+            serverVersion="6.1.0"
+            columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
+            wildcardProjectionChanged={wildcardProjectionChangedSpy}
+            createNewIndexField={createNewIndexFieldSpy}
+            toggleUseIndexName={toggleUseIndexNameSpy}
+          />
+        );
+      });
+
+      after(function () {
+        resetSpyComponentProps();
+        cleanup();
+      });
+
+      it('calls the columnstoreProjectionChanged function', function () {
+        const createIndexOptions = screen.getByTestId(
+          'create-index-modal-toggle-options'
+        );
+        fireEvent.click(createIndexOptions);
+        const editorWrapper = screen.getByTestId(
+          'create-index-modal-use-columnstore-editor'
+        );
+
+        const editor = within(editorWrapper).getByRole('textbox');
+
+        screen.debug(editor);
+
+        userEvent.paste(editor, '{}');
+
+        expect(columnstoreProjectionChangedSpy).to.have.been.calledWith('{}');
+      });
+    });
   });
 });
