@@ -36,7 +36,7 @@ function CreateIndexActions({
   darkMode?: boolean;
   toggleIsVisible: (isVisible: boolean) => void;
   resetForm: () => void;
-  error?: string;
+  error: string | null;
   clearError: () => void;
   inProgress: boolean;
   createIndex: () => void;
