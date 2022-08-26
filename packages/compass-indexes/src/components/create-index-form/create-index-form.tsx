@@ -148,17 +148,17 @@ class CreateIndexForm extends Component<CreateIndexProps> {
             this.props.partialFilterExpressionChanged
           }
         />
-        <CustomCollationCollapsibleFieldSet
-          useCustomCollation={this.props.useCustomCollation}
-          toggleUseCustomCollation={this.props.toggleUseCustomCollation}
-          collationString={this.props.collationString}
-          collationStringChanged={this.props.collationStringChanged}
-        />
         <WildcardProjectionCollapsibleFieldSet
           useWildcardProjection={this.props.useWildcardProjection}
           toggleUseWildcardProjection={this.props.toggleUseWildcardProjection}
           wildcardProjection={this.props.wildcardProjection}
           wildcardProjectionChanged={this.props.wildcardProjectionChanged}
+        />
+        <CustomCollationCollapsibleFieldSet
+          useCustomCollation={this.props.useCustomCollation}
+          toggleUseCustomCollation={this.props.toggleUseCustomCollation}
+          collationString={this.props.collationString}
+          collationStringChanged={this.props.collationStringChanged}
         />
         {hasColumnstoreIndexesSupport(this.props.serverVersion) && (
           <ColumnstoreProjectionCollapsibleFieldSet
