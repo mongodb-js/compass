@@ -42,7 +42,6 @@ type ModalPopopverProps = {
   }) => React.ReactElement;
   open: boolean;
   setOpen: (open: boolean) => void;
-  onClose?: () => void;
 };
 
 function ModalPopover({
