@@ -2,7 +2,7 @@ import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
 import { spacing, css, Tooltip, Body } from '@mongodb-js/compass-components';
-import type { IndexModel } from './indexes-table';
+import type { IndexDefinition } from '../../modules/indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
 
 const containerStyles = css({
@@ -19,8 +19,8 @@ const ttlTooltip = (expireAfterSeconds: number) => {
 };
 
 export const getPropertyTooltip = (
-  property: IndexModel['properties'][0],
-  extra: IndexModel['extra']
+  property: IndexDefinition['properties'][0],
+  extra: IndexDefinition['extra']
 ): string | null => {
   return property === 'ttl'
     ? ttlTooltip(extra.expireAfterSeconds as number)
@@ -50,9 +50,9 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
 };
 
 type PropertyFieldProps = {
-  extra: IndexModel['extra'];
-  properties: IndexModel['properties'];
-  cardinality: IndexModel['cardinality'];
+  extra: IndexDefinition['extra'];
+  properties: IndexDefinition['properties'];
+  cardinality: IndexDefinition['cardinality'];
 };
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({

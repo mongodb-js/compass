@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
@@ -14,12 +14,14 @@ const renderIndexesToolbar = (
 
   render(
     <IndexesToolbar
-      errorMessage={undefined}
+      errorMessage={null}
       isReadonly={false}
       isReadonlyView={false}
       isWritable={true}
       localAppRegistry={appRegistry}
       writeStateDescription={undefined}
+      onRefreshIndexes={() => {}}
+      isRefreshing={false}
       {...props}
     />
   );
@@ -126,6 +128,38 @@ describe('IndexesToolbar Component', function () {
       expect(emitSpy).to.have.been.calledOnce;
       expect(emitSpy.firstCall.args[0]).to.equal('toggle-create-index-modal');
       expect(emitSpy.firstCall.args[1]).to.equal(true);
+    });
+  });
+
+  describe('when the refresh button is clicked', function () {
+    it('renders refresh button - enabled state', function () {
+      renderIndexesToolbar({
+        isRefreshing: false,
+      });
+      const refreshButton = screen.getByTestId('refresh-indexes-button');
+      expect(refreshButton).to.exist;
+      expect(refreshButton.getAttribute('disabled')).to.be.null;
+    });
+
+    it('renders refresh button - disabled state', function () {
+      renderIndexesToolbar({
+        isRefreshing: true,
+      });
+      const refreshButton = screen.getByTestId('refresh-indexes-button');
+      expect(refreshButton).to.exist;
+      expect(refreshButton.getAttribute('disabled')).to.not.be.null;
+      expect(within(refreshButton).getByTitle(/refreshing indexes/i)).to.exist;
+    });
+
+    it('should call onRefreshIndexes', function () {
+      const onRefreshIndexesSpy = sinon.spy();
+      renderIndexesToolbar({
+        onRefreshIndexes: onRefreshIndexesSpy,
+      });
+      const refreshButton = screen.getByTestId('refresh-indexes-button');
+      expect(onRefreshIndexesSpy.callCount).to.equal(0);
+      userEvent.click(refreshButton);
+      expect(onRefreshIndexesSpy).to.have.been.calledOnce;
     });
   });
 });
