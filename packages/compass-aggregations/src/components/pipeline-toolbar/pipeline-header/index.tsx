@@ -2,12 +2,12 @@ import React, { useCallback } from 'react';
 import {
   Body,
   Icon,
-  InteractivePopover,
   css,
   cx,
   focusRingVisibleStyles,
   focusRingStyles,
   spacing,
+  ModalPopover
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
@@ -68,9 +68,10 @@ const pipelineActionStyles = css({
 
 const savedAggregationsPopoverStyles = css({
   // We want the popover to open almost to the shell at the bottom of Compass.
-  maxHeight: 'calc(100vh - 270px)',
+  maxHeight: 'calc(100vh - 260px)',
   display: 'flex',
   marginLeft: -spacing[2] - 1, // Align to the left of the bar.
+  marginTop: spacing[1],
 });
 
 type PipelineHeaderProps = {
@@ -127,7 +128,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   return (
     <div className={containerStyles} data-testid="pipeline-header">
       {isOpenPipelineVisible && (
-        <InteractivePopover
+        <ModalPopover
           className={savedAggregationsPopoverStyles}
           trigger={({ onClick, ref, children }) => (
             <div className={pipelineTextAndOpenStyles}>
@@ -152,7 +153,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           setOpen={onSetShowSavedPipelinesCallback}
         >
           {savedPipelinesPopover}
-        </InteractivePopover>
+        </ModalPopover>
       )}
       <div className={pipelineStagesStyles}>
         <PipelineStages />

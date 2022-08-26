@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
   Icon,
-  InteractivePopover,
+  ModalPopover,
   css,
   cx,
   focusRingStyles,
@@ -31,6 +31,7 @@ const openQueryHistoryButtonStyles = cx(
 const queryHistoryPopoverStyles = css({
   // We want the popover to open almost to the shell at the bottom of Compass.
   maxHeight: 'calc(100vh - 270px)',
+  marginTop: spacing[1],
   display: 'flex',
   marginLeft: -spacing[2] - 1, // Align to the left of the query bar.
 });
@@ -80,7 +81,7 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
   );
 
   return (
-    <InteractivePopover
+    <ModalPopover
       className={queryHistoryPopoverStyles}
       trigger={({ onClick, ref, children }) => (
         <>
@@ -105,6 +106,6 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
       setOpen={onSetShowQueryHistory}
     >
       {popoverContent}
-    </InteractivePopover>
+    </ModalPopover>
   );
 };
