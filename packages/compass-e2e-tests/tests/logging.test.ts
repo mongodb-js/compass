@@ -54,7 +54,7 @@ describe('Logging and Telemetry integration', function () {
           .events()
           .find((entry) => entry.type === 'identify');
         expect(identify.traits.platform).to.equal(process.platform);
-        expect(identify.traits.arch).to.equal(process.arch);
+        expect(identify.traits.arch).to.match(/^(x64|arm64)$/);
       });
 
       it('tracks an event for the welcome tour being closed', function () {
@@ -140,7 +140,7 @@ describe('Logging and Telemetry integration', function () {
           attr: (actual: any) => {
             expect(actual.version).to.be.a('string');
             expect(actual.platform).to.equal(process.platform);
-            expect(actual.arch).to.equal(process.arch);
+            expect(actual.arch).to.match(/^(x64|arm64)$/);
           },
         },
         {
