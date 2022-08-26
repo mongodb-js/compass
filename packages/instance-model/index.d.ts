@@ -2,8 +2,8 @@ import type Collection from 'mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
 import type { Collection as DatabaseCollection } from 'mongodb-database-model';
 
-import { ServerType } from 'mongodb-instance-model';
-import { TopologyType } from 'mongodb-instance-model';
+import { ServerType } from './server-type';
+import { TopologyType } from './topology-type';
 
 interface AuthInfo {
   user: unknown | null;
@@ -60,7 +60,6 @@ declare class MongoDBInstanceProps {
   refreshingStatusError: string | null;
   isAtlas: boolean;
   atlasVersion: string;
-  isMongos: boolean;
   isRefreshing: boolean;
   isTopologyWritable: boolean;
   singleServerType: string | null;

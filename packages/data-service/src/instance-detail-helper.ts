@@ -23,7 +23,6 @@ import type {
   DatabaseInfo,
   DbStats,
   HostInfo,
-  IsMasterInfo,
 } from './run-command';
 import { runCommand } from './run-command';
 
@@ -107,8 +106,6 @@ export type InstanceDetails = {
   dataLake: DataLakeDetails;
   featureCompatibilityVersion: string | null;
   isAtlas: boolean;
-  atlasVersion: string;
-  isMongos: boolean;
   csfleMode: 'enabled' | 'disabled' | 'unavailable';
 };
 
@@ -123,7 +120,6 @@ export async function getInstance(
     buildInfoResult,
     getParameterResult,
     atlasVersionResult,
-    isMasterResult,
   ] = await Promise.all([
     runCommand(adminDb, { connectionStatus: 1, showPrivileges: true }).catch(
       ignoreNotAuthorized(null)
@@ -154,10 +150,9 @@ export async function getInstance(
     runCommand(adminDb, { atlasVersion: 1 }).catch(() => {
       return { atlasVersion: '', gitVersion: '' };
     }),
-    runCommand(adminDb, { isMaster: 1 }).catch(() => null),
   ]);
 
-  const result = {
+  return {
     auth: adaptAuthInfo(connectionStatus),
     build: adaptBuildInfo(buildInfoResult),
     host: adaptHostInfo(hostInfoResult),
@@ -169,11 +164,7 @@ export async function getInstance(
     featureCompatibilityVersion:
       getParameterResult?.featureCompatibilityVersion.version ?? null,
     isAtlas: checkIsAtlas(client, atlasVersionResult),
-    atlasVersion: atlasVersionResult.atlasVersion,
-    isMongos: checkIsMongos(isMasterResult),
   };
-
-  return result;
 }
 
 function checkIsAtlas(
@@ -186,10 +177,6 @@ function checkIsAtlas(
     return /mongodb(-dev)?\.net$/i.test(firstHost);
   }
   return true;
-}
-
-function checkIsMongos(isMasterResult: IsMasterInfo | null): boolean {
-  return isMasterResult?.msg === 'isdbgrid';
 }
 
 export function checkIsCSFLEConnection(client: {

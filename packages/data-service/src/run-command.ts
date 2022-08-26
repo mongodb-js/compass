@@ -140,11 +140,6 @@ interface RunDiagnosticsCommand {
     spec: { atlasVersion: 1 },
     options?: RunCommandOptions
   ): Promise<AtlasVersionInfo>;
-  (
-    db: Db,
-    spec: { isMaster: 1 },
-    options?: RunCommandOptions
-  ): Promise<IsMasterInfo>;
 }
 
 export type ListDatabasesOptions = {
@@ -210,10 +205,6 @@ export type ListCollectionsOptionsNamesOnly = Omit<
 export type AtlasVersionInfo = {
   atlasVersion: string;
   gitVersion: string;
-};
-
-export type IsMasterInfo = {
-  msg?: string;
 };
 
 export type ListCollectionsResult<CollectionType> = {

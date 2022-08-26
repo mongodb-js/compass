@@ -130,7 +130,6 @@ const InstanceModel = AmpersandModel.extend(
       refreshingStatusError: { type: 'string', default: null },
       isAtlas: { type: 'boolean', default: false },
       atlasVersion: { type: 'string', default: '' },
-      isMongos: { type: 'boolean', default: false },
       csfleMode: { type: 'string', default: 'unavailable' },
       topologyDescription: 'state'
     },

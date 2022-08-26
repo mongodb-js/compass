@@ -16,7 +16,6 @@ const infoContainer = css({
 });
 
 function InfoTerm({ children }: { children: React.ReactChild }) {
-  // TODO: medium should be semibold once we have the new font
   return <Body weight="medium">{children}</Body>;
 }
 function InfoDescription({ children }: { children: React.ReactChild }) {
