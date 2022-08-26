@@ -187,6 +187,7 @@ export const createIndex = () => {
 
     const options: CreateIndexesOptions = {};
     options.unique = state.isUnique;
+    options.sparse = state.isSparse;
     // The server will generate a name when we don't provide one.
     if (state.name !== '') {
       options.name = state.name;
