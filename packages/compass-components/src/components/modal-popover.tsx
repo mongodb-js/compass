@@ -49,7 +49,6 @@ function ModalPopover({
   children,
   trigger,
   open,
-  // onClose,
   setOpen,
 }: ModalPopopverProps): React.ReactElement {
   const { theme } = useTheme();
