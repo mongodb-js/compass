@@ -349,16 +349,10 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          ulimit -c unlimited
-
           DEBUG=${debug} \
             MONGODB_VERSION="${mongodb_version|4.4.x}" \
             MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm --workspace compass-e2e-tests test-ci || echo "e2e-coverage failed"
-    - <<: *save-artifact
-      params:
-        local_files_include_filter: src/packages/compass-e2e-tests/dump*
-        remote_file: ${project}/${revision}_${revision_order_id}/${build_variant}/${task_name}/dump/
+            npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
