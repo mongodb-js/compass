@@ -3,7 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import rimraf from 'rimraf';
-import { extractPartialLogFile } from '../../src/main/logging';
+import { extractPartialLogFile } from './logging';
 
 describe('extractPartialLogFile', function () {
   let tmpdir;
