@@ -248,6 +248,9 @@ async function run() {
 
     cleanup();
   }
+
+  // Work around a crash in CI that only happens in coverage mode
+  process.exit(0);
 }
 
 void run();
