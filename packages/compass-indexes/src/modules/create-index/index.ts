@@ -232,8 +232,8 @@ export const createIndex = () => {
 
     if (state.useColumnstoreProjection) {
       try {
-        // columnstoreProjection is not part of CreateIndexesOptions yet
-        (options as any).columnstoreProjection = EJSON.parse(
+        // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
+        options.columnstoreProjection = EJSON.parse(
           state.columnstoreProjection
         ) as Document;
       } catch (err) {
@@ -282,10 +282,14 @@ export const createIndex = () => {
       localAppRegistryEmit('in-progress-indexes-added', inProgressIndex)
     );
 
-    state.dataService?.createIndex(ns, spec, options, (createErr: any) => {
+    state.dataService?.createIndex(ns, spec, options, (createErr) => {
+      dispatch(
+        localAppRegistryEmit('in-progress-indexes-removed', inProgressIndexId)
+      );
+
       if (createErr) {
         dispatch(toggleInProgress(false));
-        dispatch(handleError(createErr));
+        dispatch(handleError(createErr as Error));
         return;
       }
 
@@ -302,14 +306,11 @@ export const createIndex = () => {
           ).length > 0,
       };
       track('Index Created', trackEvent);
-      dispatch(
-        localAppRegistryEmit('in-progress-indexes-removed', inProgressIndexId)
-      );
-      dispatch(localAppRegistryEmit('refresh-data'));
-      dispatch(resetForm());
       dispatch(clearError());
+      dispatch(resetForm());
       dispatch(toggleInProgress(false));
       dispatch(toggleIsVisible(false));
+      dispatch(localAppRegistryEmit('refresh-data'));
     });
   };
 };
