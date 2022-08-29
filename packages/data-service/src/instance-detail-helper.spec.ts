@@ -277,7 +277,7 @@ describe('instance-detail-helper', function () {
         const client = createMongoClientMock({
           hosts: [{ host: 'fakehost.my.server.com', port: 9999 }],
           commands: {
-            atlasVersion: { version: '1.1.1', gitVersion: '1.2.3' },
+            atlasVersion: { atlasVersion: '1.1.1', gitVersion: '1.2.3' },
             buildInfo: {},
             getCmdLineOpts: fixtures.CMD_LINE_OPTS,
           },

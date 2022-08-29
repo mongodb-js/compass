@@ -15,6 +15,7 @@ import SidebarTitle from './sidebar-title';
 import FavoriteIndicator from './favorite-indicator';
 import DBStats from './db-stats';
 import NavigationItems from './navigation-items';
+import ConnectionInfoModal from './connection-info-modal';
 
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 
@@ -40,6 +41,8 @@ export function Sidebar({
   // TODO: non genuine warning label
 
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
+  const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
+    useState(false);
   const [isExpanded] = useState(true);
 
   const onClickSaveFavorite = useCallback(
@@ -89,6 +92,11 @@ export function Sidebar({
         return;
       }
 
+      if (action === 'open-connection-info') {
+        setIsConnectionInfoModalVisible(true);
+        return;
+      }
+
       console.log(action, ...rest);
       globalAppRegistryEmit(action, ...rest);
     },
@@ -121,6 +129,11 @@ export function Sidebar({
           open={isFavoriteModalVisible}
           onCancelClicked={() => setIsFavoriteModalVisible(false)}
           onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
+        />
+
+        <ConnectionInfoModal
+          isVisible={isConnectionInfoModalVisible}
+          close={() => setIsConnectionInfoModalVisible(false)}
         />
       </>
     </ResizableSidebar>
