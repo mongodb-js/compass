@@ -722,7 +722,6 @@ class Target {
         },
         bin: this.productName,
         requires: [
-          'lsb-core-noarch',
           'libXScrnSaver',
           'gnome-keyring',
           'libsecret',

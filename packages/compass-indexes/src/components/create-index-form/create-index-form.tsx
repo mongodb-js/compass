@@ -16,6 +16,7 @@ import CustomCollationCollapsibleFieldSet from './custom-collation';
 import WildcardProjectionCollapsibleFieldSet from './wildcard-projection';
 import ColumnstoreProjectionCollapsibleFieldSet from './columnstore-projection';
 import IndexNameCollapsibleFieldSet from './index-name';
+import SparseIndexCheckbox from './sparse-index';
 
 const createIndexModalFieldsStyles = css({
   margin: `${spacing[4]}px 0 ${spacing[5]}px 0`,
@@ -34,6 +35,7 @@ export type CreateIndexProps = {
   schemaFields: string[];
 
   isUnique: boolean;
+  isSparse: boolean;
 
   useIndexName: boolean;
   useTtl: boolean;
@@ -52,6 +54,7 @@ export type CreateIndexProps = {
   serverVersion: string;
 
   toggleIsUnique: (isUnique: boolean) => void;
+  toggleIsSparse: (isSparse: boolean) => void;
 
   toggleUseIndexName: (useIndexName: boolean) => void;
   toggleUseTtl: (useTtl: boolean) => void;
@@ -148,17 +151,17 @@ class CreateIndexForm extends Component<CreateIndexProps> {
             this.props.partialFilterExpressionChanged
           }
         />
-        <CustomCollationCollapsibleFieldSet
-          useCustomCollation={this.props.useCustomCollation}
-          toggleUseCustomCollation={this.props.toggleUseCustomCollation}
-          collationString={this.props.collationString}
-          collationStringChanged={this.props.collationStringChanged}
-        />
         <WildcardProjectionCollapsibleFieldSet
           useWildcardProjection={this.props.useWildcardProjection}
           toggleUseWildcardProjection={this.props.toggleUseWildcardProjection}
           wildcardProjection={this.props.wildcardProjection}
           wildcardProjectionChanged={this.props.wildcardProjectionChanged}
+        />
+        <CustomCollationCollapsibleFieldSet
+          useCustomCollation={this.props.useCustomCollation}
+          toggleUseCustomCollation={this.props.toggleUseCustomCollation}
+          collationString={this.props.collationString}
+          collationStringChanged={this.props.collationStringChanged}
         />
         {hasColumnstoreIndexesSupport(this.props.serverVersion) && (
           <ColumnstoreProjectionCollapsibleFieldSet
@@ -172,6 +175,10 @@ class CreateIndexForm extends Component<CreateIndexProps> {
             }
           />
         )}
+        <SparseIndexCheckbox
+          isSparse={this.props.isSparse}
+          toggleIsSparse={this.props.toggleIsSparse}
+        />
       </div>
     );
   }

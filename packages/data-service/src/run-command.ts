@@ -203,7 +203,7 @@ export type ListCollectionsOptionsNamesOnly = Omit<
 };
 
 export type AtlasVersionInfo = {
-  version: string;
+  atlasVersion: string;
   gitVersion: string;
 };
 

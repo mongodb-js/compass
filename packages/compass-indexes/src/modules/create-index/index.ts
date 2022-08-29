@@ -3,7 +3,11 @@ import { combineReducers } from 'redux';
 import type { AnyAction, Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import queryParser from 'mongodb-query-parser';
-import type { CollationOptions } from 'mongodb';
+import type {
+  IndexSpecification,
+  CreateIndexesOptions,
+  IndexDirection,
+} from 'mongodb';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -66,16 +70,16 @@ import name, {
 } from '../create-index/name';
 import namespace from '../namespace';
 import serverVersion from '../server-version';
+import isSparse, {
+  INITIAL_STATE as IS_SPARSE_INITIAL_STATE,
+} from './is-sparse';
 
 import schemaFields from '../create-index/schema-fields';
 import newIndexField from '../create-index/new-index-field';
 import { RESET_FORM } from '../reset-form';
 import { RESET, reset } from '../reset';
-import { parseErrorMsg } from '../indexes';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
-
-type CreateIndexSpec = { [name: string]: string | number };
 
 /**
  * The main reducer.
@@ -104,6 +108,7 @@ const reducer = combineReducers({
   name,
   namespace,
   serverVersion,
+  isSparse,
 });
 
 export type RootState = ReturnType<typeof reducer>;
@@ -137,6 +142,7 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
       wildcardProjection: WILDCARD_PROJECTION_INITIAL_STATE,
       partialFilterExpression: PARTIAL_FILTER_EXPRESSION_INITIAL_STATE,
       name: NAME_INITIAL_STATE,
+      isSparse: IS_SPARSE_INITIAL_STATE,
     };
   }
   return reducer(state, action);
@@ -152,7 +158,7 @@ export default rootReducer;
 export const createIndex = () => {
   return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
-    const spec = {} as CreateIndexSpec;
+    const spec: IndexSpecification = {};
 
     // Check for field errors.
     if (
@@ -165,29 +171,23 @@ export const createIndex = () => {
     }
 
     // Check for collaction errors.
-    const collation = queryParser.isCollationValid(state.collationString);
+    const collation =
+      queryParser.isCollationValid(state.collationString) || undefined;
     if (state.useCustomCollation && !collation) {
       dispatch(handleError('You must provide a valid collation object'));
       return;
     }
 
     state.fields.forEach((field: IndexField) => {
-      let type: string | number = field.type;
-      if (type === '1 (asc)') type = 1;
-      if (type === '-1 (desc)') type = -1;
+      let type = field.type as IndexDirection;
+      if ((type as string) === '1 (asc)') type = 1;
+      if ((type as string) === '-1 (desc)') type = -1;
       spec[field.name] = type;
     });
 
-    const options: {
-      unique?: boolean;
-      name?: string;
-      collation?: false | CollationOptions | null;
-      expireAfterSeconds?: number;
-      wildcardProjection?: EJSON.SerializableTypes;
-      columnstoreProjection?: EJSON.SerializableTypes;
-      partialFilterExpression?: EJSON.SerializableTypes;
-    } = {};
+    const options: CreateIndexesOptions = {};
     options.unique = state.isUnique;
+    options.sparse = state.isSparse;
     // The server will generate a name when we don't provide one.
     if (state.name !== '') {
       options.name = state.name;
@@ -204,7 +204,9 @@ export const createIndex = () => {
     }
     if (state.useWildcardProjection) {
       try {
-        options.wildcardProjection = EJSON.parse(state.wildcardProjection);
+        options.wildcardProjection = EJSON.parse(
+          state.wildcardProjection
+        ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad WildcardProjection: ${String(err)}`));
         return;
@@ -221,9 +223,10 @@ export const createIndex = () => {
 
     if (state.useColumnstoreProjection) {
       try {
-        options.columnstoreProjection = EJSON.parse(
+        // columnstoreProjection is not part of CreateIndexesOptions yet
+        (options as any).columnstoreProjection = EJSON.parse(
           state.columnstoreProjection
-        );
+        ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad ColumnstoreProjection: ${String(err)}`));
         return;
@@ -233,7 +236,7 @@ export const createIndex = () => {
       try {
         options.partialFilterExpression = EJSON.parse(
           state.partialFilterExpression
-        );
+        ) as Document;
       } catch (err) {
         dispatch(handleError(`Bad PartialFilterExpression: ${String(err)}`));
         return;
@@ -242,7 +245,7 @@ export const createIndex = () => {
     dispatch(toggleInProgress(true));
     const ns = state.namespace;
 
-    state.dataService.createIndex(ns, spec, options, (createErr: Error) => {
+    state.dataService?.createIndex(ns, spec, options, (createErr: any) => {
       if (!createErr) {
         const trackEvent = {
           unique: state.isUnique,
@@ -277,7 +280,7 @@ export const createIndex = () => {
         dispatch(toggleIsVisible(false));
       } else {
         dispatch(toggleInProgress(false));
-        dispatch(handleError(parseErrorMsg(createErr)));
+        dispatch(handleError(createErr));
       }
     });
   };

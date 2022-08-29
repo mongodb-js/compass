@@ -7,6 +7,9 @@ import {
   css,
   Icon,
   spacing,
+  Body,
+  Label,
+  TextInput,
 } from '@mongodb-js/compass-components';
 
 import { toggleIsVisible } from '../../modules/is-visible';
@@ -20,6 +23,18 @@ import { resetForm } from '../../modules/reset-form';
 const messageStyles = css({
   display: 'flex',
   gap: spacing[1],
+  marginTop: spacing[3],
+  marginBottom: spacing[3],
+});
+
+const iconStyles = css({ flexShrink: 0 });
+
+const messageTextStyles = css({
+  display: '-webkit-box',
+  WebkitBoxOrient: 'vertical',
+  WebkitLineClamp: 3,
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
 });
 
 /**
@@ -87,24 +102,20 @@ class DropIndexModal extends PureComponent {
         submitDisabled={this.props.confirmName !== this.props.name}
         trackingId="drop_index_modal"
       >
-        <div>
-          <p className={messageStyles}>
-            <Icon glyph="Warning" />
-            Type the index name
-            <strong> {this.props.name} </strong>
-            to drop
-          </p>
+        <div className={messageStyles}>
+          <Icon glyph="Warning" className={iconStyles} />
+          <Body className={messageTextStyles}>
+            Type the index name <Label>{this.props.name}</Label> to drop
+          </Body>
         </div>
         <form onSubmit={this.onFormSubmit.bind(this)}>
-          <div className="form-group">
-            <input
-              type="text"
-              className="form-control"
-              data-test-id="confirm-drop-index-name"
-              value={this.props.confirmName}
-              onChange={(evt) => this.props.changeConfirmName(evt.target.value)}
-            />
-          </div>
+          <TextInput
+            aria-labelledby="Confirm drop index"
+            type="text"
+            data-testid="confirm-drop-index-name"
+            value={this.props.confirmName}
+            onChange={(evt) => this.props.changeConfirmName(evt.target.value)}
+          />
           {!(this.props.error === null || this.props.error === undefined) ? (
             <ModalStatusMessage
               icon="times"

@@ -15,6 +15,11 @@ import SizeField from './size-field';
 import UsageField from './usage-field';
 import PropertyField from './property-field';
 import DropField from './drop-field';
+import type {
+  IndexDefinition,
+  SortColumn,
+  SortDirection,
+} from '../../modules/indexes';
 
 // When row is hovered, we show the delete button
 const rowStyles = css({
@@ -53,27 +58,11 @@ const nameFieldStyles = css({
   paddingBottom: spacing[2],
 });
 
-// todo: move to redux store when converting that to ts
-export type IndexModel = {
-  name: string;
-  fields: {
-    serialize: () => { field: string; value: number | string }[];
-  };
-  type: 'geo' | 'hashed' | 'text' | 'wildcard' | 'clustered' | 'columnstore';
-  cardinality: 'single' | 'compound';
-  properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
-  extra: Record<string, string | number | Record<string, any>>;
-  size: number;
-  relativeSize: number;
-  usageCount?: number;
-  usageSince?: Date;
-};
-
 type IndexesTableProps = {
   darkMode?: boolean;
-  indexes: IndexModel[];
+  indexes: IndexDefinition[];
   canDeleteIndex: boolean;
-  onSortTable: (name: string, direction: 'asc' | 'desc') => void;
+  onSortTable: (column: SortColumn, direction: SortDirection) => void;
   onDeleteIndex: (name: string) => void;
 };
 
@@ -84,13 +73,14 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   onDeleteIndex,
 }) => {
   const columns = useMemo(() => {
-    const _columns = [
+    const sortColumns: SortColumn[] = [
       'Name and Definition',
       'Type',
       'Size',
       'Usage',
       'Properties',
-    ].map((name) => {
+    ];
+    const _columns = sortColumns.map((name) => {
       return (
         <TableHeader
           data-testid={`index-header-${name}`}

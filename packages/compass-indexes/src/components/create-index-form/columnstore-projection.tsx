@@ -28,6 +28,7 @@ const ColumnstoreProjectionCollapsibleFieldSet = ({
     >
       <Editor
         text={columnstoreProjection}
+        data-testid="create-index-modal-use-columnstore-editor"
         variant={EditorVariant.Shell}
         onChangeText={columnstoreProjectionChanged}
         options={{ minLines: 10 }}

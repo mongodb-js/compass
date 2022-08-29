@@ -3,13 +3,11 @@ import { connect } from 'react-redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   Modal,
-  Banner,
   Disclaimer,
   css,
   spacing,
   H3,
   ModalFooter,
-  Button,
   Body,
   uiColors,
 } from '@mongodb-js/compass-components';
@@ -44,8 +42,10 @@ import { openLink } from '../../modules/link';
 import { createIndex } from '../../modules/create-index';
 import { resetForm } from '../../modules/reset-form';
 import CreateIndexForm from '../create-index-form';
+import CreateIndexActions from '../create-index-actions';
 import { toggleUseIndexName } from '../../modules/create-index/use-index-name';
 import type { RootState } from '../../modules/create-index';
+import { toggleIsSparse } from '../../modules/create-index/is-sparse';
 
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
@@ -65,23 +65,9 @@ const modalContentStyles = css({
   padding: spacing[5],
 });
 
-const bannerStyles = css({
-  margin: `${spacing[3]}px 0`,
-});
-
-const createIndexButtonStyles = css({
-  marginLeft: spacing[2],
-});
-
 const modalFooterStyles = css({
   display: 'flex',
   flexDirection: 'column',
-});
-
-const modalFooterActionsStyles = css({
-  display: 'flex',
-  justifyContent: 'flex-end',
-  gap: spacing[2],
 });
 
 const collectionHeaderTitleLightStyles = css({
@@ -110,7 +96,7 @@ function CreateIndexModal({
   resetForm: () => void;
   isVisible: boolean;
   namespace: string;
-  error?: string;
+  error: string | null;
   clearError: () => void;
   inProgress: boolean;
   createIndex: () => void;
@@ -126,44 +112,6 @@ function CreateIndexModal({
     },
     [toggleIsVisible, resetForm]
   );
-
-  const renderError = () => {
-    if (!error) {
-      return;
-    }
-
-    return (
-      <Banner
-        className={bannerStyles}
-        variant="danger"
-        dismissible
-        onClose={clearError}
-      >
-        {error}
-      </Banner>
-    );
-  };
-
-  const renderInProgress = () => {
-    if (error || !inProgress) {
-      return;
-    }
-
-    return (
-      <Banner className={bannerStyles} variant="info">
-        Create in Progress
-      </Banner>
-    );
-  };
-
-  const onCancel = () => {
-    toggleIsVisible(false);
-    resetForm();
-  };
-
-  const onConfirm = () => {
-    createIndex();
-  };
 
   return (
     <Modal
@@ -188,20 +136,14 @@ function CreateIndexModal({
         <CreateIndexForm {...props} />
       </Body>
       <ModalFooter className={modalFooterStyles}>
-        <div>
-          {renderError()}
-          {renderInProgress()}
-        </div>
-        <div className={modalFooterActionsStyles}>
-          <Button
-            onClick={onConfirm}
-            variant="primary"
-            className={createIndexButtonStyles}
-          >
-            Create Index
-          </Button>
-          <Button onClick={onCancel}>Cancel</Button>
-        </div>
+        <CreateIndexActions
+          toggleIsVisible={toggleIsVisible}
+          resetForm={resetForm}
+          error={error}
+          clearError={clearError}
+          inProgress={inProgress}
+          createIndex={createIndex}
+        />
       </ModalFooter>
     </Modal>
   );
@@ -229,6 +171,7 @@ const mapState = ({
   namespace,
   serverVersion,
   newIndexField,
+  isSparse,
 }: RootState) => ({
   fields,
   inProgress,
@@ -251,6 +194,7 @@ const mapState = ({
   namespace,
   serverVersion,
   newIndexField,
+  isSparse,
 });
 
 const mapDispatch = {
@@ -281,5 +225,6 @@ const mapDispatch = {
   removeField,
   updateFieldName,
   updateFieldType,
+  toggleIsSparse,
 };
 export default connect(mapState, mapDispatch)(CreateIndexModal);

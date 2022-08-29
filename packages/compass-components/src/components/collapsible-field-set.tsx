@@ -16,6 +16,10 @@ const collapsibleFieldsetStyles = css({
   },
 });
 
+const checkboxStyles = css({
+  padding: `${spacing[2]}px 0`,
+});
+
 export type CollapsibleFieldSetProps = {
   darkMode?: boolean;
   dataTestId?: string;
@@ -73,6 +77,7 @@ const UnthemedCollapsibleFieldSet = ({
         checked={toggled}
         id={labelId}
         darkMode={darkMode}
+        className={checkboxStyles}
       />
       {toggled && <fieldset>{children}</fieldset>}
     </fieldset>

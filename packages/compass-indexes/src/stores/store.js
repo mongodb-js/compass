@@ -9,7 +9,7 @@ import { writeStateChanged } from '../modules/is-writable';
 import { readonlyViewChanged } from '../modules/is-readonly-view';
 import { getDescription } from '../modules/description';
 import { dataServiceConnected } from '../modules/data-service';
-import { loadIndexesFromDb, parseErrorMsg } from '../modules/indexes';
+import { fetchIndexes } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
@@ -23,10 +23,10 @@ import { serverVersionChanged } from '../modules/server-version';
  */
 export const setDataProvider = (store, error, provider) => {
   if (error !== null) {
-    store.dispatch(handleError(parseErrorMsg(error)));
+    store.dispatch(handleError(error));
   } else {
     store.dispatch(dataServiceConnected(provider));
-    store.dispatch(loadIndexesFromDb());
+    store.dispatch(fetchIndexes());
   }
 };
 
@@ -39,7 +39,7 @@ const configureStore = (options = {}) => {
     store.dispatch(localAppRegistryActivated(localAppRegistry));
 
     localAppRegistry.on('refresh-data', () => {
-      store.dispatch(loadIndexesFromDb());
+      store.dispatch(fetchIndexes());
     });
     // TODO: could save the version to check for wildcard indexes
   }
@@ -64,7 +64,7 @@ const configureStore = (options = {}) => {
     });
 
     globalAppRegistry.on('refresh-data', () => {
-      store.dispatch(loadIndexesFromDb());
+      store.dispatch(fetchIndexes());
     });
   }
 

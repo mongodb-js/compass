@@ -4,6 +4,8 @@ ignores: [
     # peer dependency of compass-shell
     '@mongosh/node-runtime-worker-thread',
     # native addons
+    'kerberos',
+    'keytar',
     'os-dns-native',
     'system-ca',
     'win-export-certificate-and-key',
