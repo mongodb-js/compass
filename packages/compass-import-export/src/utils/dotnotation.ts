@@ -66,8 +66,8 @@ export function serialize(
     const withObjects: Record<string, unknown> = {};
     const knownParents: Record<string, true> = {};
     for (const [path, value] of Object.entries(flattened)) {
-      const parentPath = path.includes('.')
-        ? path.slice(0, path.lastIndexOf('.'))
+      let parentPath = path.includes('.')
+        ? path.slice(0, path.indexOf('.'))
         : null;
       if (parentPath && !knownParents[parentPath]) {
         knownParents[parentPath] = true;
@@ -75,9 +75,26 @@ export function serialize(
         if (!Array.isArray(_.get(obj, parentPath))) {
           withObjects[parentPath] = {};
         }
+
+        // Build all of the parent objects that contain the current path.
+        // (a.b.c -> a = {} a.b = {})
+        while (parentPath && parentPath.includes('.')) {
+          knownParents[parentPath] = true;
+
+          // Leave arrays alone because they already got handled by safe: true above.
+          if (!Array.isArray(_.get(obj, parentPath))) {
+            withObjects[parentPath] = {};
+          }
+
+          // Continue to the next parent if there is one.
+          parentPath = parentPath.includes('.')
+            ? parentPath.slice(0, path.indexOf('.'))
+            : null;
+        }
       }
       withObjects[path] = value;
     }
+
     return withObjects;
   }
 

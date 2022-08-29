@@ -90,4 +90,87 @@ describe('dotnotation', function () {
       foo: ['a', 'b'],
     });
   });
+
+  it('should parse deeply nested objects without including objects', function () {
+    const serializedObject = dotnotation.serialize(
+      {
+        supermarket: {
+          fruits: {
+            oranges: {
+              amount: {
+                '2022-01-15': 1.66,
+                '2022-02-16': 1.22,
+                '2022-03-13': 1.11,
+                '2022-04-14': 7.69,
+              },
+            },
+            apples: {
+              amount: {
+                '2022-01-15': 3.47,
+                '2022-02-14': 4.18,
+                '2022-03-15': 4.18,
+              },
+            },
+            currency: 'usd',
+          },
+        },
+        test: '123',
+      },
+      { includeObjects: false }
+    );
+
+    expect(serializedObject).to.deep.equal({
+      'supermarket.fruits.oranges.amount.2022-01-15': 1.66,
+      'supermarket.fruits.oranges.amount.2022-02-16': 1.22,
+      'supermarket.fruits.oranges.amount.2022-03-13': 1.11,
+      'supermarket.fruits.oranges.amount.2022-04-14': 7.69,
+      'supermarket.fruits.apples.amount.2022-01-15': 3.47,
+      'supermarket.fruits.apples.amount.2022-02-14': 4.18,
+      'supermarket.fruits.apples.amount.2022-03-15': 4.18,
+      'supermarket.fruits.currency': 'usd',
+      test: '123',
+    });
+  });
+
+  it('should parse deeply nested objects', function () {
+    const serializedObject = dotnotation.serialize(
+      {
+        supermarket: {
+          fruits: {
+            oranges: {
+              amount: {
+                '2022-01-15': 1.66,
+                '2022-02-16': 1.22,
+                '2022-03-13': 1.11,
+                '2022-04-14': 7.69,
+              },
+            },
+            apples: {
+              amount: {
+                '2022-01-15': 3.47,
+                '2022-02-14': 4.18,
+                '2022-03-15': 4.18,
+              },
+            },
+            currency: 'usd',
+          },
+        },
+        test: '123',
+      },
+      { includeObjects: true }
+    );
+
+    expect(serializedObject).to.deep.equal({
+      supermarket: {},
+      'supermarket.fruits.oranges.amount.2022-01-15': 1.66,
+      'supermarket.fruits.oranges.amount.2022-02-16': 1.22,
+      'supermarket.fruits.oranges.amount.2022-03-13': 1.11,
+      'supermarket.fruits.oranges.amount.2022-04-14': 7.69,
+      'supermarket.fruits.apples.amount.2022-01-15': 3.47,
+      'supermarket.fruits.apples.amount.2022-02-14': 4.18,
+      'supermarket.fruits.apples.amount.2022-03-15': 4.18,
+      'supermarket.fruits.currency': 'usd',
+      test: '123',
+    });
+  });
 });

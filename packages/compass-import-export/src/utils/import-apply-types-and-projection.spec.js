@@ -173,37 +173,37 @@ describe('import-apply-types-and-projection', function () {
     });
   });
   describe('Regression Tests', function () {
-
     // COMPASS-5971 Importing JSON document from file drops deeply nested fields
     it('should parse deeply nested objects', function () {
-      const res = apply({
-        supermarket: {
-          fruits: {
-            oranges: {
-              amount: {
-                '2022-01-15': 1.66,
-                '2022-02-16': 1.22,
-                '2022-03-13': 1.11,
-                '2022-04-14': 7.69
-              }
+      const res = apply(
+        {
+          supermarket: {
+            fruits: {
+              oranges: {
+                amount: {
+                  '2022-01-15': 1.66,
+                  '2022-02-16': 1.22,
+                  '2022-03-13': 1.11,
+                  '2022-04-14': 7.69,
+                },
+              },
+              apples: {
+                amount: {
+                  '2022-01-15': 3.47,
+                  '2022-02-14': 4.18,
+                  '2022-03-15': 4.18,
+                },
+              },
+              currency: 'usd',
             },
-            apples: {
-              amount: {
-                '2022-01-15': 3.47,
-                '2022-02-14': 4.18,
-                '2022-03-15': 4.18
-              }
-            },
-            currency: 'usd'
-          }
+          },
+          test: '123',
         },
-        test: '123'
-      }, {
-        exclude: [],
-        transform: [
-
-        ],
-      });
+        {
+          exclude: [],
+          transform: [],
+        }
+      );
 
       expect(res).to.deep.equal({
         supermarket: {
@@ -213,20 +213,20 @@ describe('import-apply-types-and-projection', function () {
                 '2022-01-15': 1.66,
                 '2022-02-16': 1.22,
                 '2022-03-13': 1.11,
-                '2022-04-14': 7.69
-              }
+                '2022-04-14': 7.69,
+              },
             },
             apples: {
               amount: {
                 '2022-01-15': 3.47,
                 '2022-02-14': 4.18,
-                '2022-03-15': 4.18
-              }
+                '2022-03-15': 4.18,
+              },
             },
-            currency: 'usd'
-          }
+            currency: 'usd',
+          },
         },
-        test: '123'
+        test: '123',
       });
     });
 
