@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import icon from '../../src/main/icon';
+import icon from './icon';
 
 describe('icon', function () {
   it('should be a non-empty nativeImage', function () {

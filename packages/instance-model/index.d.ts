@@ -2,6 +2,9 @@ import type Collection from 'mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
 import type { Collection as DatabaseCollection } from 'mongodb-database-model';
 
+import { ServerType } from './server-type';
+import { TopologyType } from './topology-type';
+
 interface AuthInfo {
   user: unknown | null;
   roles: unknown[] | null;
@@ -36,6 +39,7 @@ interface DataLake {
 
 interface Server {
   type: string
+  address: string
 }
 
 interface TopologyDescription {
@@ -55,6 +59,7 @@ declare class MongoDBInstanceProps {
   refreshingStatus: string;
   refreshingStatusError: string | null;
   isAtlas: boolean;
+  atlasVersion: string;
   isRefreshing: boolean;
   isTopologyWritable: boolean;
   singleServerType: string | null;
@@ -96,4 +101,4 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   toJSON(opts?: { derived?: boolean }): this;
 }
 
-export { MongoDBInstance, MongoDBInstanceProps };
+export { MongoDBInstance, MongoDBInstanceProps, ServerType, TopologyType };
