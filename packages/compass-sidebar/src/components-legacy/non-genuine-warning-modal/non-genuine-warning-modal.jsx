@@ -77,6 +77,7 @@ NonGenuineWarningModal.displayName = 'NonGenuineWarningModal';
 NonGenuineWarningModal.propTypes = {
   isVisible: PropTypes.bool.isRequired,
   toggleIsVisible: PropTypes.func.isRequired,
+  darkMode: PropTypes.bool,
 };
 
 export default NonGenuineWarningModal;
