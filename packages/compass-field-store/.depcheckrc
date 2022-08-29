@@ -14,5 +14,16 @@ ignores: [
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",
-  "mongodb-compass"
+  "mongodb-compass",
+  "babel-loader",
+  "css-loader",
+  "file-loader",
+  "ignore-loader",
+  "istanbul-instrumenter-loader",
+  "less-loader",
+  "node-loader",
+  "postcss-loader",
+  "shebang-loader",
+  "style-loader",
+  "url-loader"
 ]
