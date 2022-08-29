@@ -6,7 +6,6 @@ const FIXTURES = {
   BAD_CSV: path.join(__dirname, 'test_bad.csv'),
   JS_I_THINK_IS_JSON: path.join(__dirname, 'js-i-think-is-json'),
   GOOD_JSON: path.join(__dirname, 'docs.json'),
-  DEEP_NESTED_JSON: path.join(__dirname, 'deep-nested.json'),
   LINE_DELIMITED_JSON: path.join(__dirname, 'docs.jsonl'),
   LINE_DELIMITED_JSON_EXTRA_LINE: path.join(
     __dirname,

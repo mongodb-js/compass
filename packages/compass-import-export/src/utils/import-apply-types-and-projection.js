@@ -83,13 +83,13 @@ function transformProjectedTypes(
         throw new TypeError('Cant find lookup for ' + targetType);
       }
       casted = bsonCSV[targetType].fromString(value);
-      debug('Target type differs from source type. Casting.', {
-        targetType,
-        sourceType,
-        value,
-        keyPath,
-        casted,
-      });
+      // debug('Target type differs from source type. Casting.', {
+      //   targetType,
+      //   sourceType,
+      //   value,
+      //   keyPath,
+      //   casted,
+      // });
     }
 
     _.set(result, keyPath, casted);
