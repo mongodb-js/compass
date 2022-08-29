@@ -90,7 +90,7 @@ export type CreateIndexFieldsProps = {
   schemaFields: string[];
   serverVersion: string;
   isRemovable: boolean;
-  newIndexField?: string;
+  newIndexField: string | null;
   addField: () => void;
   removeField: (idx: number) => void;
   updateFieldName: (idx: number, name: string) => void;

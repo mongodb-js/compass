@@ -23,8 +23,7 @@ import confirmName, {
   INITIAL_STATE as CONFIRM_NAME_INITIAL_STATE,
 } from '../drop-index/confirm-name';
 
-import { RESET_FORM } from '../reset-form';
-import { RESET, reset } from '../reset';
+import { RESET_FORM, resetForm } from '../reset-form';
 import namespace from '../namespace';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
@@ -52,7 +51,7 @@ const reducer = combineReducers({
  * @returns {Object} The new state.
  */
 const rootReducer = (state, action) => {
-  if (action.type === RESET || action.type === RESET_FORM) {
+  if (action.type === RESET_FORM) {
     return {
       ...state,
       inProgress: IN_PROGRESS_INITIAL_STATE,
@@ -82,7 +81,7 @@ export const dropIndex = (indexName) => {
     state.dataService.dropIndex(ns, indexName, (err) => {
       if (!err) {
         track('Index Dropped');
-        dispatch(reset());
+        dispatch(resetForm());
         dispatch(localAppRegistryEmit('refresh-data'));
         dispatch(clearError());
         dispatch(toggleInProgress(false));

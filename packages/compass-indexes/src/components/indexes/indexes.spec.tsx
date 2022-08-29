@@ -82,6 +82,7 @@ describe('Indexes Component', function () {
             },
           },
           usageCount: 20,
+          inProgress: false,
         },
       ],
       isReadonlyView: false,

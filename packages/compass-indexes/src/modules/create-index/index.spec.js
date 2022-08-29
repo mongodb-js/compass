@@ -5,29 +5,29 @@ import { createIndex } from '../create-index';
 import { ActionTypes as ErrorActionTypes } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
-import { RESET } from '../reset';
+import { RESET_FORM } from '../reset-form';
 
 describe('create index module', function () {
   let errorSpy;
-  let progressSpy;
-  let visibleSpy;
-  let resetSpy;
+  let inProgressSpy;
+  let toggleIsvisibleSpy;
+  let resetFormSpy;
   let clearErrorSpy;
   let emitSpy;
   describe('#createIndex', function () {
     beforeEach(function () {
       errorSpy = sinon.spy();
-      progressSpy = sinon.spy();
-      visibleSpy = sinon.spy();
-      resetSpy = sinon.spy();
+      inProgressSpy = sinon.spy();
+      toggleIsvisibleSpy = sinon.spy();
+      resetFormSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
       emitSpy = sinon.spy();
     });
     afterEach(function () {
       errorSpy = null;
-      progressSpy = null;
-      visibleSpy = null;
-      resetSpy = null;
+      inProgressSpy = null;
+      toggleIsvisibleSpy = null;
+      resetFormSpy = null;
       clearErrorSpy = null;
       emitSpy = null;
     });
@@ -83,18 +83,16 @@ describe('create index module', function () {
         if (typeof res !== 'function') {
           switch (res.type) {
             case TOGGLE_IN_PROGRESS:
-              progressSpy();
+              inProgressSpy();
               break;
-            case RESET:
-              resetSpy();
+            case RESET_FORM:
+              resetFormSpy();
               break;
             case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
-              visibleSpy();
-              break;
-            case Function:
+              toggleIsvisibleSpy();
               break;
             default:
               expect(true).to.equal(
@@ -138,13 +136,13 @@ describe('create index module', function () {
         },
       });
       createIndex()(dispatch, state);
-      expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
+      expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
-      expect(progressSpy.calledTwice).to.equal(
+      expect(inProgressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'
       );
-      expect(visibleSpy.calledOnce).to.equal(
+      expect(toggleIsvisibleSpy.calledOnce).to.equal(
         true,
         'toggleIsVisible not called'
       );
@@ -155,16 +153,16 @@ describe('create index module', function () {
         if (typeof res !== 'function') {
           switch (res.type) {
             case TOGGLE_IN_PROGRESS:
-              progressSpy();
+              inProgressSpy();
               break;
-            case RESET:
-              resetSpy();
+            case RESET_FORM:
+              resetFormSpy();
               break;
             case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
-              visibleSpy();
+              toggleIsvisibleSpy();
               break;
             default:
               expect(true).to.equal(
@@ -207,13 +205,13 @@ describe('create index module', function () {
         },
       });
       createIndex()(dispatch, state);
-      expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
+      expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
-      expect(progressSpy.calledTwice).to.equal(
+      expect(inProgressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'
       );
-      expect(visibleSpy.calledOnce).to.equal(
+      expect(toggleIsvisibleSpy.calledOnce).to.equal(
         true,
         'toggleIsVisible not called'
       );
@@ -221,22 +219,24 @@ describe('create index module', function () {
     });
     it('handles error in createIndex', function () {
       const dispatch = (res) => {
-        switch (res.type) {
-          case TOGGLE_IN_PROGRESS:
-            progressSpy();
-            break;
-          case ErrorActionTypes.HandleError:
-            expect(res).to.deep.equal({
-              type: ErrorActionTypes.HandleError,
-              error: { message: 'test err' },
-            });
-            errorSpy();
-            break;
-          default:
-            expect(true).to.equal(
-              false,
-              `Unexpected action called ${res.type}`
-            );
+        if (typeof res !== 'function') {
+          switch (res.type) {
+            case TOGGLE_IN_PROGRESS:
+              inProgressSpy();
+              break;
+            case ErrorActionTypes.HandleError:
+              expect(res).to.deep.equal({
+                type: ErrorActionTypes.HandleError,
+                error: { message: 'test err' },
+              });
+              errorSpy();
+              break;
+            default:
+              expect(true).to.equal(
+                false,
+                `Unexpected action called ${res.type}`
+              );
+          }
         }
       };
       const state = () => ({
@@ -262,7 +262,7 @@ describe('create index module', function () {
         },
       });
       createIndex()(dispatch, state);
-      expect(progressSpy.calledTwice).to.equal(
+      expect(inProgressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'
       );

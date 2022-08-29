@@ -1,13 +1,21 @@
 import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
 
-import { spacing, css, Tooltip, Body } from '@mongodb-js/compass-components';
+import {
+  spacing,
+  css,
+  Tooltip,
+  Body,
+  Badge,
+  BadgeVariant,
+} from '@mongodb-js/compass-components';
 import type { IndexDefinition } from '../../modules/indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
 
 const containerStyles = css({
   display: 'flex',
   gap: spacing[1],
+  minWidth: spacing[3] * 7,
 });
 
 const partialTooltip = (partialFilterExpression: JSON) => {
@@ -53,12 +61,14 @@ type PropertyFieldProps = {
   extra: IndexDefinition['extra'];
   properties: IndexDefinition['properties'];
   cardinality: IndexDefinition['cardinality'];
+  inProgress: IndexDefinition['inProgress'];
 };
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   extra,
   properties,
   cardinality,
+  inProgress,
 }) => {
   return (
     <div className={containerStyles}>
@@ -78,6 +88,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
           link={getIndexHelpLink(cardinality.toUpperCase() as any) ?? '#'}
         />
       )}
+      {inProgress && <Badge variant={BadgeVariant.Blue}>In Progress...</Badge>}
     </div>
   );
 };

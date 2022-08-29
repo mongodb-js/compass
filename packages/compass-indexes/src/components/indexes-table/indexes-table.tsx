@@ -132,6 +132,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
               cardinality={index.cardinality}
               extra={index.extra}
               properties={index.properties}
+              inProgress={index.inProgress}
             />
           </Cell>
           {/* Delete column is conditional */}

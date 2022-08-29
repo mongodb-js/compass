@@ -23,6 +23,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const fieldsComponent = screen.getByTestId('create-index-fields-line-0');
@@ -41,6 +42,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const select = screen.getByTestId('leafygreen-ui-select-menubutton');
@@ -61,6 +63,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const minusButton = screen.queryByTestId('remove-index-field-button');
@@ -82,6 +85,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const minusButton = screen.getAllByTestId('remove-index-field-button');
@@ -100,6 +104,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const minusButton = screen.getAllByTestId('add-index-field-button');
@@ -121,6 +126,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const minusButton = screen.getAllByTestId('add-index-field-button');
@@ -143,6 +149,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const select = screen.getByTestId('leafygreen-ui-select-menubutton');

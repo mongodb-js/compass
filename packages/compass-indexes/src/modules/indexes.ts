@@ -3,6 +3,7 @@ import type { Document } from 'mongodb';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import _debug from 'debug';
+import cloneDeep from 'lodash.clonedeep';
 
 import type { RootState } from './index';
 import { handleError } from './error';
@@ -33,6 +34,7 @@ export type IndexDefinition = {
   };
   type: 'geo' | 'hashed' | 'text' | 'wildcard' | 'clustered' | 'columnstore';
   cardinality: 'single' | 'compound';
+  inProgress: boolean;
   properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
   extra: Record<string, string | number | Record<string, any>>;
   size: number;
@@ -115,8 +117,8 @@ export const fetchIndexes = (): ThunkAction<
   LoadIndexesAction | RefreshFinishedAction | HandleErrorAction
 > => {
   return (dispatch, getState) => {
-    const { isReadonly, dataService, namespace, sortColumn, sortOrder } =
-      getState();
+    const state = getState();
+    const { isReadonly, dataService, namespace, sortColumn, sortOrder } = state;
 
     if (isReadonly) {
       return _handleIndexesChanged(dispatch, []);
@@ -141,7 +143,11 @@ export const fetchIndexes = (): ThunkAction<
       for (const index of indexes) {
         index.ns = namespace;
       }
-      const ixs = _mapAndSort(indexes, sortColumn, sortOrder);
+
+      const inProgressIndexes = cloneDeep(state.inProgressIndexes);
+      const ixs = _convertToModels(indexes.concat(inProgressIndexes)).sort(
+        _getSortFunction(_mapColumnToProp(sortColumn), sortOrder)
+      );
       return _handleIndexesChanged(dispatch, ixs);
     });
   };
@@ -196,14 +202,4 @@ const _convertToModels = (indexes: Document[]): IndexDefinition[] => {
     model.relativeSize = (model.size / maxSize) * 100;
     return model as IndexDefinition;
   });
-};
-
-const _mapAndSort = (
-  indexes: Document[],
-  sortColumn: SortColumn,
-  sortOrder: SortDirection
-) => {
-  return _convertToModels(indexes).sort(
-    _getSortFunction(_mapColumnToProp(sortColumn), sortOrder)
-  );
 };

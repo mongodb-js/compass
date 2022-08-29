@@ -12,7 +12,6 @@ import {
   uiColors,
 } from '@mongodb-js/compass-components';
 
-import { toggleInProgress } from '../../modules/in-progress';
 import {
   addField,
   removeField,
@@ -26,7 +25,6 @@ import {
   clearNewIndexField,
 } from '../../modules/create-index/new-index-field';
 import { clearError, handleError } from '../../modules/error';
-import { toggleIsVisible } from '../../modules/is-visible';
 import { toggleIsUnique } from '../../modules/create-index/is-unique';
 import { toggleUsePartialFilterExpression } from '../../modules/create-index/use-partial-filter-expression';
 import { toggleUseTtl } from '../../modules/create-index/use-ttl';
@@ -39,8 +37,7 @@ import { partialFilterExpressionChanged } from '../../modules/create-index/parti
 import { toggleUseCustomCollation } from '../../modules/create-index/use-custom-collation';
 import { collationStringChanged } from '../../modules/create-index/collation-string';
 import { openLink } from '../../modules/link';
-import { createIndex } from '../../modules/create-index';
-import { resetForm } from '../../modules/reset-form';
+import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
 import CreateIndexForm from '../create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import { toggleUseIndexName } from '../../modules/create-index/use-index-name';
@@ -82,35 +79,32 @@ const createIndexHeaderTitleDarkStyles = css({
  * Create index modal.
  */
 function CreateIndexModal({
-  toggleIsVisible,
-  resetForm,
   isVisible,
   namespace,
   error,
   clearError,
   inProgress,
   createIndex,
+  closeCreateIndexModal,
   ...props
 }: React.ComponentProps<typeof CreateIndexForm> & {
-  toggleIsVisible: (isVisible: boolean) => void;
-  resetForm: () => void;
   isVisible: boolean;
   namespace: string;
   error: string | null;
   clearError: () => void;
   inProgress: boolean;
   createIndex: () => void;
+  closeCreateIndexModal: () => void;
 }) {
   const onSetOpen = useCallback(
     (open) => {
       if (!open) {
-        toggleIsVisible(false);
-        resetForm();
+        closeCreateIndexModal();
       } else {
         track('Screen', { name: 'create_index_modal' });
       }
     },
-    [toggleIsVisible, resetForm]
+    [closeCreateIndexModal]
   );
 
   return (
@@ -137,12 +131,11 @@ function CreateIndexModal({
       </Body>
       <ModalFooter className={modalFooterStyles}>
         <CreateIndexActions
-          toggleIsVisible={toggleIsVisible}
-          resetForm={resetForm}
           error={error}
           clearError={clearError}
           inProgress={inProgress}
           createIndex={createIndex}
+          closeCreateIndexModal={closeCreateIndexModal}
         />
       </ModalFooter>
     </Modal>
@@ -198,11 +191,9 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  toggleInProgress,
   changeSchemaFields,
   clearError,
   handleError,
-  toggleIsVisible,
   toggleUseTtl,
   toggleUseWildcardProjection,
   toggleUseColumnstoreProjection,
@@ -220,7 +211,7 @@ const mapDispatch = {
   openLink,
   nameChanged,
   createIndex,
-  resetForm,
+  closeCreateIndexModal,
   addField,
   removeField,
   updateFieldName,

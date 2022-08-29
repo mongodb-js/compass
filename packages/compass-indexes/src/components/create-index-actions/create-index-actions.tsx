@@ -26,20 +26,18 @@ const modalFooterActionsStyles = css({
  */
 function CreateIndexActions({
   darkMode,
-  toggleIsVisible,
-  resetForm,
   error,
   clearError,
   inProgress,
   createIndex,
+  closeCreateIndexModal,
 }: {
   darkMode?: boolean;
-  toggleIsVisible: (isVisible: boolean) => void;
-  resetForm: () => void;
   error: string | null;
   clearError: () => void;
   inProgress: boolean;
   createIndex: () => void;
+  closeCreateIndexModal: () => void;
 }) {
   const renderError = () => {
     if (!error) {
@@ -75,8 +73,7 @@ function CreateIndexActions({
   };
 
   const onCancel = () => {
-    toggleIsVisible(false);
-    resetForm();
+    closeCreateIndexModal();
   };
 
   const onConfirm = () => {

@@ -38,6 +38,12 @@ var IndexModel = Model.extend({
         return this.name === '_id_' || !!this.extra.unique;
       }
     },
+    inProgress: {
+      deps: ['extra'],
+      fn: function() {
+        return !!this.extra.inProgress;
+      }
+    },
     sparse: {
       deps: ['extra'],
       fn: function() {

@@ -14,6 +14,10 @@ import { IndexesToolbar } from '../indexes-toolbar/indexes-toolbar';
 import { IndexesTable } from '../indexes-table/indexes-table';
 import { refreshIndexes } from '../../modules/is-refreshing';
 import type { RootState } from '../../modules';
+import {
+  inProgressIndexAdded,
+  inProgressIndexRemoved,
+} from '../../modules/in-progress-indexes';
 
 const containerStyles = css({
   margin: spacing[3],
@@ -100,6 +104,7 @@ const mapState = ({
   error,
   isRefreshing,
   appRegistry,
+  inProgressIndexes,
 }: RootState) => ({
   indexes,
   isWritable,
@@ -109,11 +114,14 @@ const mapState = ({
   error,
   localAppRegistry: (appRegistry as any).localAppRegistry,
   isRefreshing,
+  inProgressIndexes,
 });
 
 const mapDispatch = {
   onSortTable: sortIndexes,
   onRefresh: refreshIndexes,
+  inProgressIndexAdded,
+  inProgressIndexRemoved,
 };
 
 export default connect(mapState, mapDispatch)(Indexes);

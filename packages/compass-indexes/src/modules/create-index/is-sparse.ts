@@ -14,7 +14,7 @@ export const INITIAL_STATE: State = false;
 export default function reducer(
   state: State = INITIAL_STATE,
   action: ToggleIsSparseAction
-) {
+): boolean {
   if (action.type === ActionTypes.ToggleIsSparse) {
     return action.isSparse;
   }

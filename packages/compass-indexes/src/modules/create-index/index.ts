@@ -1,4 +1,4 @@
-import { EJSON } from 'bson';
+import { EJSON, ObjectId } from 'bson';
 import { combineReducers } from 'redux';
 import type { AnyAction, Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -12,7 +12,6 @@ import type {
 import dataService from '../data-service';
 import appRegistry, {
   localAppRegistryEmit,
-  globalAppRegistryEmit,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import error, {
   clearError,
@@ -75,9 +74,10 @@ import isSparse, {
 } from './is-sparse';
 
 import schemaFields from '../create-index/schema-fields';
-import newIndexField from '../create-index/new-index-field';
-import { RESET_FORM } from '../reset-form';
-import { RESET, reset } from '../reset';
+import newIndexField, {
+  INITIAL_STATE as NEW_INDEX_FIELD_INITIAL_STATE,
+} from '../create-index/new-index-field';
+import { RESET_FORM, resetForm } from '../reset-form';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
@@ -122,9 +122,10 @@ export type RootState = ReturnType<typeof reducer>;
  * @returns {Object} The new state.
  */
 const rootReducer = (state: RootState, action: AnyAction): RootState => {
-  if (action.type === RESET || action.type === RESET_FORM) {
+  if (action.type === RESET_FORM) {
     return {
       ...state,
+      newIndexField: NEW_INDEX_FIELD_INITIAL_STATE,
       collationString: COLLATION_INITIAL_STATE,
       fields: FIELDS_INITIAL_STATE,
       inProgress: IN_PROGRESS_INITIAL_STATE,
@@ -149,6 +150,14 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
 };
 
 export default rootReducer;
+
+export const closeCreateIndexModal = () => {
+  return (dispatch: Dispatch) => {
+    dispatch(localAppRegistryEmit('refresh-data'));
+    dispatch(toggleIsVisible(false));
+    dispatch(resetForm());
+  };
+};
 
 /**
  * The create index action.
@@ -243,45 +252,64 @@ export const createIndex = () => {
       }
     }
     dispatch(toggleInProgress(true));
+
     const ns = state.namespace;
+    const inProgressIndexId = new ObjectId().toHexString();
+    const inProgressIndexFields = Object.keys(spec).map((field) => ({
+      field,
+      value: spec[field],
+    }));
+    const inProgressIndexName =
+      options.name ||
+      Object.keys(spec).reduce((previousValue, currentValue) => {
+        return `${
+          previousValue === '' ? '' : `${previousValue}_`
+        }${currentValue}_${spec[currentValue]}`;
+      }, '');
+    const inProgressIndex = {
+      id: inProgressIndexId,
+      inProgress: true,
+      key: spec,
+      fields: inProgressIndexFields,
+      name: inProgressIndexName,
+      ns,
+      size: 0,
+      relativeSize: 0,
+      usageCount: 0,
+    };
+
+    dispatch(
+      localAppRegistryEmit('in-progress-indexes-added', inProgressIndex)
+    );
 
     state.dataService?.createIndex(ns, spec, options, (createErr: any) => {
-      if (!createErr) {
-        const trackEvent = {
-          unique: state.isUnique,
-          ttl: state.useTtl,
-          columnstore_index: hasColumnstoreIndex,
-          has_columnstore_projection: state.useColumnstoreProjection,
-          has_wildcard_projection: state.useWildcardProjection,
-          custom_collation: state.useCustomCollation,
-          geo:
-            state.fields.filter(
-              ({ type }: { type: string }) => type === '2dsphere'
-            ).length > 0,
-        };
-        track('Index Created', trackEvent);
-        dispatch(reset());
-        dispatch(localAppRegistryEmit('refresh-data'));
-        dispatch(
-          globalAppRegistryEmit('compass:indexes:created', {
-            isCollation: state.useCustomCollation,
-            usePartialFilterExpression: state.usePartialFilterExpression,
-            useTtl: state.useTtl,
-            isUnique: state.isUnique,
-            hasColumnstoreIndex,
-            useColumnstoreProjection: state.useColumnstoreProjection,
-            useWildcardProjection: state.useWildcardProjection,
-            collation: state.collationString,
-            ttl: state.ttl,
-          })
-        );
-        dispatch(clearError());
-        dispatch(toggleInProgress(false));
-        dispatch(toggleIsVisible(false));
-      } else {
+      if (createErr) {
         dispatch(toggleInProgress(false));
         dispatch(handleError(createErr));
+        return;
       }
+
+      const trackEvent = {
+        unique: state.isUnique,
+        ttl: state.useTtl,
+        columnstore_index: hasColumnstoreIndex,
+        has_columnstore_projection: state.useColumnstoreProjection,
+        has_wildcard_projection: state.useWildcardProjection,
+        custom_collation: state.useCustomCollation,
+        geo:
+          state.fields.filter(
+            ({ type }: { type: string }) => type === '2dsphere'
+          ).length > 0,
+      };
+      track('Index Created', trackEvent);
+      dispatch(
+        localAppRegistryEmit('in-progress-indexes-removed', inProgressIndexId)
+      );
+      dispatch(localAppRegistryEmit('refresh-data'));
+      dispatch(resetForm());
+      dispatch(clearError());
+      dispatch(toggleInProgress(false));
+      dispatch(toggleIsVisible(false));
     });
   };
 };

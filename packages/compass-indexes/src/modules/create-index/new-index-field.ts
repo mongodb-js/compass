@@ -3,7 +3,7 @@ import type { AnyAction } from 'redux';
 /**
  * The initial state of the new index field.
  */
-export const INITIAL_STATE = null;
+export const INITIAL_STATE: string | null = null;
 
 export enum ActionTypes {
   createNewIndexField = 'indexes/create-index/name/CREATE_NEW_INDEX_FIELD',
@@ -18,7 +18,10 @@ export enum ActionTypes {
  *
  * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string | null {
   if (action.type === ActionTypes.createNewIndexField) {
     return action.newField;
   }

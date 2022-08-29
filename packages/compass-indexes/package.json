@@ -80,6 +80,7 @@
     "hadron-app": "^5.0.0",
     "hadron-app-registry": "^9.0.0",
     "lodash.contains": "^2.4.3",
+    "lodash.clonedeep": "^4.5.0",
     "mocha": "^8.4.0",
     "mongodb": "^4.6.0",
     "mongodb-data-service": "^22.0.0",

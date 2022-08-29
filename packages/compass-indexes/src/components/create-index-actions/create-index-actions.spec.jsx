@@ -13,23 +13,20 @@ import {
 import CreateIndexActions from '../create-index-actions';
 
 describe('CreateIndexActions Component', function () {
-  let toggleIsVisibleSpy;
   let clearErrorSpy;
   let createIndexSpy;
-  let resetFormSpy;
+  let closeCreateIndexModalSpy;
 
   beforeEach(function () {
-    toggleIsVisibleSpy = sinon.spy();
     clearErrorSpy = sinon.spy();
     createIndexSpy = sinon.spy();
-    resetFormSpy = sinon.spy();
+    closeCreateIndexModalSpy = sinon.spy();
   });
 
   afterEach(function () {
-    toggleIsVisibleSpy = null;
     clearErrorSpy = null;
     createIndexSpy = null;
-    resetFormSpy = null;
+    closeCreateIndexModalSpy = null;
 
     cleanup();
   });
@@ -37,12 +34,11 @@ describe('CreateIndexActions Component', function () {
   it('renders a cancel button', function () {
     render(
       <CreateIndexActions
-        toggleIsVisible={toggleIsVisibleSpy}
-        resetForm={resetFormSpy}
         error={null}
         clearError={clearErrorSpy}
         inProgress={false}
         createIndex={createIndexSpy}
+        closeCreateIndexModal={closeCreateIndexModalSpy}
       />
     );
 
@@ -51,38 +47,20 @@ describe('CreateIndexActions Component', function () {
   });
 
   context('onCancel', function () {
-    it('calls the toggleIsVisible function', function () {
+    it('calls the closeCreateIndexModal function', function () {
       render(
         <CreateIndexActions
-          toggleIsVisible={toggleIsVisibleSpy}
-          resetForm={resetFormSpy}
           error={null}
           clearError={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
+          closeCreateIndexModal={closeCreateIndexModalSpy}
         />
       );
 
       const button = screen.getByTestId('create-index-actions-cancel-button');
       fireEvent.click(button);
-      expect(toggleIsVisibleSpy).to.have.been.calledWith(false);
-    });
-
-    it('calls the resetForm function', function () {
-      render(
-        <CreateIndexActions
-          toggleIsVisible={toggleIsVisibleSpy}
-          resetForm={resetFormSpy}
-          error={null}
-          clearError={clearErrorSpy}
-          inProgress={false}
-          createIndex={createIndexSpy}
-        />
-      );
-
-      const button = screen.getByTestId('create-index-actions-cancel-button');
-      fireEvent.click(button);
-      expect(resetFormSpy).to.have.been.calledOnce;
+      expect(closeCreateIndexModalSpy).to.have.been.calledOnce;
     });
   });
 
@@ -90,12 +68,11 @@ describe('CreateIndexActions Component', function () {
     it('calls the createIndex function', function () {
       render(
         <CreateIndexActions
-          toggleIsVisible={toggleIsVisibleSpy}
-          resetForm={resetFormSpy}
           error={null}
           clearError={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
+          closeCreateIndexModal={closeCreateIndexModalSpy}
         />
       );
 
@@ -110,12 +87,11 @@ describe('CreateIndexActions Component', function () {
   it('renders a create index button', function () {
     render(
       <CreateIndexActions
-        toggleIsVisible={toggleIsVisibleSpy}
-        resetForm={resetFormSpy}
         error={null}
         clearError={clearErrorSpy}
         inProgress={false}
         createIndex={createIndexSpy}
+        closeCreateIndexModal={closeCreateIndexModalSpy}
       />
     );
 
@@ -129,12 +105,11 @@ describe('CreateIndexActions Component', function () {
     it('renders error banner', function () {
       render(
         <CreateIndexActions
-          toggleIsVisible={toggleIsVisibleSpy}
-          resetForm={resetFormSpy}
           error={'Some error happened!'}
           clearError={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
+          closeCreateIndexModal={closeCreateIndexModalSpy}
         />
       );
 
@@ -147,12 +122,11 @@ describe('CreateIndexActions Component', function () {
     it('closes error banner', function () {
       render(
         <CreateIndexActions
-          toggleIsVisible={toggleIsVisibleSpy}
-          resetForm={resetFormSpy}
           error={'Some error happened!'}
           clearError={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
+          closeCreateIndexModal={closeCreateIndexModalSpy}
         />
       );
 
@@ -168,12 +142,11 @@ describe('CreateIndexActions Component', function () {
     it('does not render in progress banner', function () {
       render(
         <CreateIndexActions
-          toggleIsVisible={toggleIsVisibleSpy}
-          resetForm={resetFormSpy}
           error={'Some error happened!'}
           clearError={clearErrorSpy}
           inProgress={true}
           createIndex={createIndexSpy}
+          closeCreateIndexModal={closeCreateIndexModalSpy}
         />
       );
 
@@ -188,12 +161,11 @@ describe('CreateIndexActions Component', function () {
     it('does not render error banner', function () {
       render(
         <CreateIndexActions
-          toggleIsVisible={toggleIsVisibleSpy}
-          resetForm={resetFormSpy}
           error={null}
           clearError={clearErrorSpy}
           inProgress={false}
           createIndex={createIndexSpy}
+          closeCreateIndexModal={closeCreateIndexModalSpy}
         />
       );
 
@@ -206,12 +178,11 @@ describe('CreateIndexActions Component', function () {
     it('renders in progress banner', function () {
       render(
         <CreateIndexActions
-          toggleIsVisible={toggleIsVisibleSpy}
-          resetForm={resetFormSpy}
           error={null}
           clearError={clearErrorSpy}
           inProgress={true}
           createIndex={createIndexSpy}
+          closeCreateIndexModal={closeCreateIndexModalSpy}
         />
       );
 
