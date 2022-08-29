@@ -14,7 +14,6 @@ import styles from './sidebar.module.less';
 
 import SidebarTitle from '../sidebar-title';
 import SidebarInstance from '../sidebar-instance';
-import NonGenuineWarningModal from '../non-genuine-warning-modal';
 import SidebarDatabasesNavigation from '../sidebar-databases-navigation';
 
 import { toggleIsDetailsExpanded } from '../../modules/is-details-expanded';
@@ -50,12 +49,12 @@ class Sidebar extends PureComponent {
     isDetailsExpanded: PropTypes.bool.isRequired,
     toggleIsDetailsExpanded: PropTypes.func.isRequired,
     changeFilterRegex: PropTypes.func.isRequired,
-    isGenuineMongoDBVisible: PropTypes.bool.isRequired,
-    toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
     globalAppRegistryEmit: PropTypes.func.isRequired,
     connectionInfo: PropTypes.object.isRequired,
     connectionOptions: PropTypes.object.isRequired,
     updateAndSaveConnectionInfo: PropTypes.func.isRequired,
+    isGenuineMongoDBVisible: PropTypes.bool.isRequired,
+    toggleIsGenuineMongoDBVisible: PropTypes.func.isRequired,
   };
 
   state = {
@@ -218,6 +217,10 @@ class Sidebar extends PureComponent {
               connectionInfo={this.props.connectionInfo}
               connectionOptions={this.props.connectionOptions}
               updateConnectionInfo={this.props.updateAndSaveConnectionInfo}
+              isGenuineMongoDBVisible={this.props.isGenuineMongoDBVisible}
+              toggleIsGenuineMongoDBVisible={
+                this.props.toggleIsGenuineMongoDBVisible
+              }
               setConnectionIsCSFLEEnabled={(enabled) =>
                 this.handleSetConnectionIsCSFLEEnabled(enabled)
               }
@@ -250,10 +253,6 @@ class Sidebar extends PureComponent {
             {isExpanded && <SidebarDatabasesNavigation />}
             {this.props.instance && this.renderCreateDatabaseButton()}
           </div>
-          <NonGenuineWarningModal
-            isVisible={this.props.isGenuineMongoDBVisible}
-            toggleIsVisible={this.props.toggleIsGenuineMongoDBVisible}
-          />
         </div>
       </ThemeProvider>
     );
@@ -283,10 +282,10 @@ const mapStateToProps = (state) => ({
  */
 const MappedSidebar = connect(mapStateToProps, {
   toggleIsDetailsExpanded,
-  toggleIsGenuineMongoDBVisible,
   changeFilterRegex,
   globalAppRegistryEmit,
   updateAndSaveConnectionInfo,
+  toggleIsGenuineMongoDBVisible,
 })(Sidebar);
 
 export default MappedSidebar;
