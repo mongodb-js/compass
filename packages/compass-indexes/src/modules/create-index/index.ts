@@ -3,11 +3,7 @@ import { combineReducers } from 'redux';
 import type { AnyAction, Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import queryParser from 'mongodb-query-parser';
-import type {
-  IndexSpecification,
-  CreateIndexesOptions,
-  IndexDirection,
-} from 'mongodb';
+import type { CreateIndexesOptions, IndexSpecification } from 'mongodb';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -72,6 +68,7 @@ import serverVersion from '../server-version';
 import isSparse, {
   INITIAL_STATE as IS_SPARSE_INITIAL_STATE,
 } from './is-sparse';
+import type { InProgressIndex } from '../in-progress-indexes';
 
 import schemaFields from '../create-index/schema-fields';
 import newIndexField, {
@@ -112,6 +109,10 @@ const reducer = combineReducers({
 });
 
 export type RootState = ReturnType<typeof reducer>;
+
+export type CreateIndexSpec = {
+  [key: string]: string | number;
+};
 
 /**
  * The root reducer.
@@ -159,6 +160,40 @@ export const closeCreateIndexModal = () => {
   };
 };
 
+const prepareIndex = ({
+  ns,
+  name,
+  spec,
+}: {
+  ns: string;
+  name?: string;
+  spec: CreateIndexSpec;
+}): InProgressIndex => {
+  const inProgressIndexId = new ObjectId().toHexString();
+  const inProgressIndexFields = Object.keys(spec).map((field: string) => ({
+    field,
+    value: spec[field],
+  }));
+  const inProgressIndexName =
+    name ||
+    Object.keys(spec).reduce((previousValue, currentValue) => {
+      return `${
+        previousValue === '' ? '' : `${previousValue}_`
+      }${currentValue}_${spec[currentValue]}`;
+    }, '');
+  return {
+    id: inProgressIndexId,
+    status: 'inprogress',
+    key: spec,
+    fields: inProgressIndexFields,
+    name: inProgressIndexName,
+    ns,
+    size: 0,
+    relativeSize: 0,
+    usageCount: 0,
+  };
+};
+
 /**
  * The create index action.
  *
@@ -167,7 +202,7 @@ export const closeCreateIndexModal = () => {
 export const createIndex = () => {
   return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
-    const spec: IndexSpecification = {};
+    const spec = {} as CreateIndexSpec;
 
     // Check for field errors.
     if (
@@ -188,9 +223,9 @@ export const createIndex = () => {
     }
 
     state.fields.forEach((field: IndexField) => {
-      let type = field.type as IndexDirection;
-      if ((type as string) === '1 (asc)') type = 1;
-      if ((type as string) === '-1 (desc)') type = -1;
+      let type: string | number = field.type;
+      if (field.type === '1 (asc)') type = 1;
+      if (field.type === '-1 (desc)') type = -1;
       spec[field.name] = type;
     });
 
@@ -254,63 +289,54 @@ export const createIndex = () => {
     dispatch(toggleInProgress(true));
 
     const ns = state.namespace;
-    const inProgressIndexId = new ObjectId().toHexString();
-    const inProgressIndexFields = Object.keys(spec).map((field) => ({
-      field,
-      value: spec[field],
-    }));
-    const inProgressIndexName =
-      options.name ||
-      Object.keys(spec).reduce((previousValue, currentValue) => {
-        return `${
-          previousValue === '' ? '' : `${previousValue}_`
-        }${currentValue}_${spec[currentValue]}`;
-      }, '');
-    const inProgressIndex = {
-      id: inProgressIndexId,
-      inProgress: true,
-      key: spec,
-      fields: inProgressIndexFields,
-      name: inProgressIndexName,
-      ns,
-      size: 0,
-      relativeSize: 0,
-      usageCount: 0,
-    };
+    const inProgressIndex = prepareIndex({ ns, name: options.name, spec });
 
     dispatch(
       localAppRegistryEmit('in-progress-indexes-added', inProgressIndex)
     );
 
-    state.dataService?.createIndex(ns, spec, options, (createErr) => {
-      dispatch(
-        localAppRegistryEmit('in-progress-indexes-removed', inProgressIndexId)
-      );
+    state.dataService?.createIndex(
+      ns,
+      spec as IndexSpecification,
+      options,
+      (createErr) => {
+        if (createErr) {
+          dispatch(toggleInProgress(false));
+          dispatch(handleError(createErr as Error));
+          dispatch(
+            localAppRegistryEmit(
+              'in-progress-indexes-failed',
+              inProgressIndex.id
+            )
+          );
+          return;
+        }
 
-      if (createErr) {
+        const trackEvent = {
+          unique: state.isUnique,
+          ttl: state.useTtl,
+          columnstore_index: hasColumnstoreIndex,
+          has_columnstore_projection: state.useColumnstoreProjection,
+          has_wildcard_projection: state.useWildcardProjection,
+          custom_collation: state.useCustomCollation,
+          geo:
+            state.fields.filter(
+              ({ type }: { type: string }) => type === '2dsphere'
+            ).length > 0,
+        };
+        track('Index Created', trackEvent);
+        dispatch(clearError());
+        dispatch(resetForm());
         dispatch(toggleInProgress(false));
-        dispatch(handleError(createErr as Error));
-        return;
+        dispatch(toggleIsVisible(false));
+        dispatch(
+          localAppRegistryEmit(
+            'in-progress-indexes-removed',
+            inProgressIndex.id
+          )
+        );
+        dispatch(localAppRegistryEmit('refresh-data'));
       }
-
-      const trackEvent = {
-        unique: state.isUnique,
-        ttl: state.useTtl,
-        columnstore_index: hasColumnstoreIndex,
-        has_columnstore_projection: state.useColumnstoreProjection,
-        has_wildcard_projection: state.useWildcardProjection,
-        custom_collation: state.useCustomCollation,
-        geo:
-          state.fields.filter(
-            ({ type }: { type: string }) => type === '2dsphere'
-          ).length > 0,
-      };
-      track('Index Created', trackEvent);
-      dispatch(clearError());
-      dispatch(resetForm());
-      dispatch(toggleInProgress(false));
-      dispatch(toggleIsVisible(false));
-      dispatch(localAppRegistryEmit('refresh-data'));
-    });
+    );
   };
 };

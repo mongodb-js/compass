@@ -61,14 +61,12 @@ type PropertyFieldProps = {
   extra: IndexDefinition['extra'];
   properties: IndexDefinition['properties'];
   cardinality: IndexDefinition['cardinality'];
-  inProgress: IndexDefinition['inProgress'];
 };
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   extra,
   properties,
   cardinality,
-  inProgress,
 }) => {
   return (
     <div className={containerStyles}>
@@ -88,7 +86,12 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
           link={getIndexHelpLink(cardinality.toUpperCase() as any) ?? '#'}
         />
       )}
-      {inProgress && <Badge variant={BadgeVariant.Blue}>In Progress...</Badge>}
+      {extra.status === 'inprogress' && (
+        <Badge variant={BadgeVariant.Blue}>In Progress...</Badge>
+      )}
+      {extra.status === 'failed' && (
+        <Badge variant={BadgeVariant.Red}>Failed</Badge>
+      )}
     </div>
   );
 };

@@ -1,4 +1,6 @@
 import type { AnyAction } from 'redux';
+import type { CreateIndexSpec } from './create-index';
+import type { IndexFieldsDefinition } from './indexes';
 
 /**
  * In progress indexes added action name.
@@ -11,6 +13,24 @@ export const IN_PROGRESS_INDEXES_ADDED =
  */
 export const IN_PROGRESS_INDEXES_REMOVED =
   'indexes/in-progress-indexes/IN_PROGRESS_INDEXES_REMOVED';
+
+/**
+ * In progress indexes failed action name.
+ */
+export const IN_PROGRESS_INDEXES_FAILED =
+  'indexes/in-progress-indexes/IN_PROGRESS_INDEXES_FAILED';
+
+export type InProgressIndex = {
+  id: string;
+  status: 'inprogress' | 'failed';
+  key: CreateIndexSpec;
+  fields: IndexFieldsDefinition[];
+  name: string;
+  ns: string;
+  size: number;
+  relativeSize: number;
+  usageCount: number;
+};
 
 /**
  * The initial state of the in progress indexes.
@@ -30,9 +50,20 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
     return [...state, action.inProgressIndex];
   }
   if (action.type === IN_PROGRESS_INDEXES_REMOVED) {
-    return [...state].filter(
-      (item: any) => item.id !== action.inProgressIndexId
+    return [
+      ...state.filter(
+        (item: InProgressIndex) => item.id !== action.inProgressIndexId
+      ),
+    ];
+  }
+  if (action.type === IN_PROGRESS_INDEXES_FAILED) {
+    const newState = [...state];
+    const idx = newState.findIndex(
+      (item: InProgressIndex) => item.id === action.inProgressIndexId
     );
+    const failedIndex: InProgressIndex = newState[idx];
+    failedIndex.status = 'failed';
+    return newState;
   }
   return state;
 }
@@ -58,5 +89,17 @@ export const inProgressIndexAdded = (inProgressIndex: any) => ({
  */
 export const inProgressIndexRemoved = (inProgressIndexId: string) => ({
   type: IN_PROGRESS_INDEXES_REMOVED,
+  inProgressIndexId,
+});
+
+/**
+ * Action creator for the in progress index failed event.
+ *
+ * @param inProgressIndexId - The in progress index id.
+ *
+ * @returns The action.
+ */
+export const inProgressIndexFailed = (inProgressIndexId: string) => ({
+  type: IN_PROGRESS_INDEXES_FAILED,
   inProgressIndexId,
 });

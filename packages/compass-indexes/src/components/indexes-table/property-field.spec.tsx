@@ -12,7 +12,6 @@ describe('PropertyField', function () {
     it('renders index properties', function () {
       render(
         <PropertyField
-          inProgress={false}
           cardinality={'single'}
           extra={{
             expireAfterSeconds: 120,
@@ -38,12 +37,7 @@ describe('PropertyField', function () {
 
     it('does not render cardinality badge when its single', function () {
       render(
-        <PropertyField
-          inProgress={false}
-          cardinality={'single'}
-          extra={{}}
-          properties={[]}
-        />
+        <PropertyField cardinality={'single'} extra={{}} properties={[]} />
       );
       expect(() => {
         screen.getByTestId('compound-badge');
@@ -52,12 +46,7 @@ describe('PropertyField', function () {
 
     it('renders cardinality badge when its compound', function () {
       render(
-        <PropertyField
-          inProgress={false}
-          cardinality={'compound'}
-          extra={{}}
-          properties={[]}
-        />
+        <PropertyField cardinality={'compound'} extra={{}} properties={[]} />
       );
       const badge = screen.getByTestId('compound-badge');
       expect(badge).to.exist;

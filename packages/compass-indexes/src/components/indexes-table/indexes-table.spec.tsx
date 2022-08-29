@@ -10,7 +10,6 @@ import type { IndexDefinition } from '../../modules/indexes';
 const indexes: IndexDefinition[] = [
   {
     cardinality: 'single',
-    inProgress: false,
     name: '_id_',
     size: 12,
     relativeSize: 20,
@@ -31,7 +30,6 @@ const indexes: IndexDefinition[] = [
   },
   {
     cardinality: 'compound',
-    inProgress: false,
     name: 'album_id_artist_id',
     size: 20,
     relativeSize: 25,
@@ -56,7 +54,6 @@ const indexes: IndexDefinition[] = [
   },
   {
     cardinality: 'compound',
-    inProgress: false,
     name: 'partial_with_ttl',
     size: 20,
     relativeSize: 25,
@@ -82,7 +79,6 @@ const indexes: IndexDefinition[] = [
   },
   {
     cardinality: 'single',
-    inProgress: false,
     name: 'wildcard_index',
     size: 20,
     relativeSize: 25,

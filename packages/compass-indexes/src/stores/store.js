@@ -16,6 +16,7 @@ import { serverVersionChanged } from '../modules/server-version';
 import {
   inProgressIndexAdded,
   inProgressIndexRemoved,
+  inProgressIndexFailed,
 } from '../modules/in-progress-indexes';
 
 /**
@@ -52,6 +53,10 @@ const configureStore = (options = {}) => {
 
     localAppRegistry.on('in-progress-indexes-removed', (id) => {
       store.dispatch(inProgressIndexRemoved(id));
+    });
+
+    localAppRegistry.on('in-progress-indexes-failed', (id) => {
+      store.dispatch(inProgressIndexFailed(id));
     });
 
     // TODO: could save the version to check for wildcard indexes
