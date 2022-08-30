@@ -248,6 +248,38 @@ async function run() {
 
     cleanup();
   }
+
+  if (!process.exitCode) {
+    // For some reason, in CI (and only in CI), this process crashes
+    // while exiting when running e2e tests.
+    // (A typical stack trace would include e.g. references to native addon
+    // destructors crashing while Node.js performs its own finalization steps).
+    // Unfortunately, all attempts to reproduce this issue in a non-CI
+    // environment, even on the exact same host setup have been fruitless,
+    // as has been looking into core dumps from these crashes.
+    // This problem also occurs when calling process.exit(), since
+    // that still runs C++ destructors, and is still sufficient to crash the
+    // process.
+    // This is not a great problem to ignore, since it points to a significant
+    // bug, either in Node.js or our company's kerberos package (which is
+    // the only native addon that is mentioned in the core dumps).
+    // However, without the ability to investigate further, using a workaround
+    // seems appropriate, even if it is not pretty.
+    // This code uses the ffi-napi addon (which usually is not the best
+    // way to do things, but keeps this code here simple and straightforward)
+    // to load the native _exit() method, which instead of running C++
+    // destructors performs the exit syscall directly and skips all
+    // finalization steps that could crash at this point.
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('ffi-napi')
+        .Library(null, { _exit: ['void', ['int']] })
+        ._exit(0);
+    } catch (e) {
+      console.error('Failed to perform hacky exit', e);
+    }
+  }
 }
 
 void run();

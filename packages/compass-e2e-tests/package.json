@@ -61,5 +61,8 @@
     "ts-node": "^10.8.2",
     "webdriverio": "^7.16.13",
     "xvfb-maybe": "^0.2.1"
+  },
+  "optionalDependencies": {
+    "ffi-napi": "^4.0.3"
   }
 }
