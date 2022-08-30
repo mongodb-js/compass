@@ -2,12 +2,12 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { createIndex } from '../create-index';
-import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
+import { ActionTypes as ErrorActionTypes } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
 import { RESET } from '../reset';
 
-describe('create index is background module', function () {
+describe('create index module', function () {
   let errorSpy;
   let progressSpy;
   let visibleSpy;
@@ -34,7 +34,7 @@ describe('create index is background module', function () {
     it('errors if fields are undefined', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'You must select a field name and type',
         });
         errorSpy();
@@ -48,14 +48,14 @@ describe('create index is background module', function () {
     it('errors if TTL is not number', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'Bad TTL: "abc"',
         });
         errorSpy();
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        isTtl: true,
+        useTtl: true,
         ttl: 'abc',
       });
       createIndex()(dispatch, state);
@@ -64,7 +64,7 @@ describe('create index is background module', function () {
     it('errors if PFE is not JSON', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error:
             'Bad PartialFilterExpression: SyntaxError: Unexpected token a in JSON at position 0',
         });
@@ -72,7 +72,7 @@ describe('create index is background module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: 'abc',
       });
       createIndex()(dispatch, state);
@@ -88,7 +88,7 @@ describe('create index is background module', function () {
             case RESET:
               resetSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
@@ -106,14 +106,14 @@ describe('create index is background module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
-        isBackground: true,
         isUnique: true,
+        isSparse: true,
         name: 'test name',
-        isCustomCollation: true,
-        collation: 'coll',
-        isTtl: true,
+        useCustomCollation: true,
+        collationString: "{locale: 'en'}",
+        useTtl: true,
         ttl: 100,
         appRegistry: {
           emit: emitSpy,
@@ -124,12 +124,14 @@ describe('create index is background module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: true,
-              collation: 'coll',
+              collation: {
+                locale: 'en',
+              },
               expireAfterSeconds: 100,
               name: 'test name',
               partialFilterExpression: { a: 1 },
               unique: true,
+              sparse: true,
             });
             cb(null);
           },
@@ -158,7 +160,7 @@ describe('create index is background module', function () {
             case RESET:
               resetSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
@@ -174,14 +176,14 @@ describe('create index is background module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
-        isBackground: true,
         isUnique: true,
+        isSparse: false,
         name: '',
-        isCustomCollation: true,
-        collation: 'coll',
-        isTtl: true,
+        useCustomCollation: true,
+        collationString: "{locale: 'en'}",
+        useTtl: true,
         ttl: 100,
         namespace: 'db.coll',
         appRegistry: {
@@ -192,11 +194,13 @@ describe('create index is background module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: true,
-              collation: 'coll',
+              collation: {
+                locale: 'en',
+              },
               expireAfterSeconds: 100,
               partialFilterExpression: { a: 1 },
               unique: true,
+              sparse: false,
             });
             cb(null);
           },
@@ -221,10 +225,10 @@ describe('create index is background module', function () {
           case TOGGLE_IN_PROGRESS:
             progressSpy();
             break;
-          case HANDLE_ERROR:
+          case ErrorActionTypes.HandleError:
             expect(res).to.deep.equal({
-              type: HANDLE_ERROR,
-              error: 'test err',
+              type: ErrorActionTypes.HandleError,
+              error: { message: 'test err' },
             });
             errorSpy();
             break;
@@ -237,10 +241,10 @@ describe('create index is background module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: false,
-        isTtl: false,
+        usePartialFilterExpression: false,
+        useTtl: false,
         isUnique: false,
-        isBackground: false,
+        isSparse: false,
         name: 'test name',
         namespace: 'db.coll',
         appRegistry: {},
@@ -249,9 +253,9 @@ describe('create index is background module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: false,
               name: 'test name',
               unique: false,
+              sparse: false,
             });
             cb({ message: 'test err' });
           },

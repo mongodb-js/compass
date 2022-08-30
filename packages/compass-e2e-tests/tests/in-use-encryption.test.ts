@@ -209,6 +209,7 @@ describe('FLE2', function () {
     describe('when fleEncryptedFieldsMap is specified while connecting', function () {
       const databaseName = 'fle-test';
       const collectionName = 'my-another-collection';
+      const collectionNameUnindexed = 'my-another-collection2';
       let compass: Compass;
       let browser: CompassBrowser;
       let plainMongo: MongoClient;
@@ -231,6 +232,15 @@ describe('FLE2', function () {
                   keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
                   bsonType: 'string',
                   queries: { queryType: 'equality' }
+                }
+              ]
+            },
+            '${databaseName}.${collectionNameUnindexed}': {
+              fields: [
+                {
+                  path: 'phoneNumber',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string'
                 }
               ]
             }
@@ -382,7 +392,71 @@ describe('FLE2', function () {
         expect(isDocumentPhoneNumberDecryptedIconExisting).to.be.equal(true);
       });
 
-      it('can edit and query the encrypted field', async function () {
+      for (const [mode, coll] of [
+        ['indexed', collectionName],
+        ['unindexed', collectionNameUnindexed],
+      ]) {
+        it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
+          await browser.shellEval(`db.createCollection('${coll}')`);
+          await browser.shellEval(
+            `db[${JSON.stringify(
+              coll
+            )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
+          );
+
+          await browser.navigateToCollectionTab(
+            databaseName,
+            coll,
+            'Documents'
+          );
+
+          const result = await getFirstListDocument(browser);
+          expect(result.phoneNumber).to.be.equal('"30303030"');
+
+          const document = await browser.$(Selectors.DocumentListEntry);
+          const value = await document.$(
+            `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
+          );
+          await value.doubleClick();
+
+          const input = await document.$(
+            `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
+          );
+          await input.setValue('10101010');
+
+          const footer = await document.$(Selectors.DocumentFooterMessage);
+          expect(await footer.getText()).to.equal('Document modified.');
+
+          const button = await document.$(Selectors.UpdateDocumentButton);
+          await button.click();
+          try {
+            // Prmpt failure is required here and so the timeout should be
+            // present and smaller than the default one to allow for tests to
+            // proceed correctly
+            await footer.waitForDisplayed({ reverse: true, timeout: 10000 });
+          } catch (err) {
+            if (
+              mode === 'unindexed' &&
+              (await footer.getText()) ===
+                'Found indexed encrypted fields but could not find __safeContent__'
+            ) {
+              return; // This version is affected by SERVER-68065 where updates on unindexed fields in QE are buggy.
+            }
+          }
+          await footer.waitForDisplayed({ reverse: true });
+
+          await browser.runFindOperation(
+            'Documents',
+            "{ phoneNumber: '10101010' }"
+          );
+
+          const modifiedResult = await getFirstListDocument(browser);
+          expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
+          expect(modifiedResult._id).to.be.equal(result._id);
+        });
+      }
+
+      it('can edit and query the encrypted field in the JSON view', async function () {
         await browser.shellEval(`db.createCollection('${collectionName}')`);
         await browser.shellEval(
           `db[${JSON.stringify(
@@ -395,20 +469,42 @@ describe('FLE2', function () {
           collectionName,
           'Documents'
         );
+        await browser.clickVisible(Selectors.SelectJSONView);
 
-        const result = await getFirstListDocument(browser);
-        expect(result.phoneNumber).to.be.equal('"30303030"');
+        const document = await browser.$(Selectors.DocumentJSONEntry);
+        await document.waitForDisplayed();
 
-        const document = await browser.$(Selectors.DocumentListEntry);
-        const value = await document.$(
-          `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentClickableValue}`
+        // Recursively expand __safeContent__ so that the JSON is valid
+        for (let i = 0; i < 3; i++) {
+          await browser.clickVisible(
+            `${Selectors.DocumentJSONEntry} .ace_fold-widget.ace_closed`
+          );
+        }
+        let json = '';
+        await browser.waitUntil(async function () {
+          json = await document.getText();
+          try {
+            JSON.parse(json);
+            return true;
+          } catch {
+            return false;
+          }
+        });
+
+        expect(json).to.include('30303030');
+        expect(json).to.include('__safeContent__');
+
+        await browser.hover('[data-test-id="editable-json"]');
+        await browser.clickVisible('[data-testid="edit-document-button"]');
+
+        const newjson = JSON.stringify({
+          ...JSON.parse(json),
+          phoneNumber: '10101010',
+        });
+        await browser.setAceValue(
+          '[data-test-id="editable-json"] .ace_editor',
+          newjson
         );
-        await value.doubleClick();
-
-        const input = await document.$(
-          `${Selectors.HadronDocumentElement}[data-field="phoneNumber"] ${Selectors.HadronDocumentValueEditor}`
-        );
-        await input.setValue('10101010');
 
         const footer = await document.$(Selectors.DocumentFooterMessage);
         expect(await footer.getText()).to.equal('Document modified.');
@@ -424,7 +520,6 @@ describe('FLE2', function () {
 
         const modifiedResult = await getFirstListDocument(browser);
         expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
-        expect(modifiedResult._id).to.be.equal(result._id);
       });
 
       it('can not edit the copied encrypted field', async function () {

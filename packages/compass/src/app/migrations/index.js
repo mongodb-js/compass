@@ -1,7 +1,7 @@
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
 const semver = require('semver');
-const electronApp = require('electron').remote.app;
+const electronApp = require('@electron/remote').app;
 const ipc = require('hadron-ipc');
 
 const debug = require('debug')('mongodb-compass:migrations');

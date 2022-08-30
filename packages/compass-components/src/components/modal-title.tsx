@@ -9,7 +9,7 @@ const modalTitleStyles = css({
 });
 
 function ModalTitle(
-  props: React.ComponentProps<typeof H3>
+  props: Omit<React.ComponentProps<typeof H3>, 'as'>
 ): React.ReactElement {
   return <H3 {...props} className={cx(modalTitleStyles, props.className)} />;
 }

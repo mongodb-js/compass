@@ -1,4 +1,5 @@
 const ipc = require('hadron-ipc');
+const remote = require('@electron/remote');
 
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
@@ -34,8 +35,7 @@ global.hadronApp = app;
 /**
  * The main entrypoint for the application!
  */
-var electron = require('electron');
-var APP_VERSION = electron.remote.app.getVersion();
+var APP_VERSION = remote.app.getVersion();
 
 var _ = require('lodash');
 var View = require('ampersand-view');
@@ -190,8 +190,7 @@ var Application = View.extend({
     ReactDOM.render(
       React.createElement(this.homeComponent, {
         appRegistry: app.appRegistry,
-        // TODO: Get rid of remote
-        appName: electron.remote.app.getName(),
+        appName: remote.app.getName(),
       }),
       this.queryByHook('layout-container')
     );
@@ -205,12 +204,6 @@ var Application = View.extend({
     };
 
     handleTour();
-
-    if (process.env.NODE_ENV === 'development') {
-      debug('Installing "Inspect Element" context menu');
-      const addInspectElementMenu = require('debug-menu').install;
-      addInspectElementMenu();
-    }
   },
   showTour: function(force) {
     const TourView = require('./tour');

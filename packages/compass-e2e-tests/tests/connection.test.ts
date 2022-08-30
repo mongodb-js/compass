@@ -357,6 +357,7 @@ describe('Connection screen', function () {
     }
 
     if (process.env.EVERGREEN && process.platform === 'win32') {
+      // TODO: https://jira.mongodb.org/browse/COMPASS-5575
       console.warn("Evergreen doesn't have aws cli installed");
       this.skip();
     }
@@ -425,6 +426,33 @@ describe('Connection screen', function () {
       'db.runCommand({ connectionStatus: 1 })',
       true
     );
+    expect(result).to.have.property('ok', 1);
+  });
+
+  it('can connect to an Atlas with tlsUseSystemCA', async function () {
+    if (!hasAtlasEnvironmentVariables()) {
+      return this.skip();
+    }
+
+    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
+    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
+    const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
+
+    await browser.connectWithConnectionForm({
+      scheme: 'MONGODB_SRV',
+      authMethod: 'DEFAULT',
+      defaultUsername: username,
+      defaultPassword: password,
+      hosts: [host],
+      sslConnection: 'ON',
+      useSystemCA: true,
+    });
+    // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
+    const result = await browser.shellEval(
+      'db.runCommand({ connectionStatus: 1 })',
+      true
+    );
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     expect(result).to.have.property('ok', 1);
   });
 
@@ -590,7 +618,6 @@ describe('SRV connectivity', function () {
       // (Unless you have a server listening on port 27017)
       await browser.connectWithConnectionString(
         'mongodb+srv://test1.test.build.10gen.cc/test?tls=false',
-        undefined,
         'either'
       );
     } finally {

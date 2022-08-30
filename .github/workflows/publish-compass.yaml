@@ -1,0 +1,47 @@
+# Update download center manifest with the latest Compass release info
+name: Publish Compass
+
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: 'Run publish in dry-run mode (WARN: think twice when changing this value, this will override currently published manifest in download center!)'
+        required: true
+        default: 'true'
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Publish updated manifest to download center
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v2
+        with:
+          node-version: ^16.15.1
+          cache: 'npm'
+
+      - name: Install npm@8
+        run: |
+          npm install -g npm@8
+
+      - name: Install Dependencies
+        run: |
+          npm -v
+          npm ci
+
+      - name: Upload updated download center manifest
+        env:
+          DEBUG: 'hadron*,mongo*,compass*'
+          DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${{ secrets.DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID }}
+          DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${{ secrets.DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [[ "${{ github.event.inputs.dryRun }}" == "true" ]]; then
+            export npm_config_dry_run=true
+          fi
+          npm run --workspace mongodb-compass upload -- --manifest

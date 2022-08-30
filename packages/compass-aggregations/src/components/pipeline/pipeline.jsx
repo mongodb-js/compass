@@ -1,12 +1,8 @@
-/**
- * TODO (@imlucas) Rename -> Aggregation pipeline? Sep ./containers?
- */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Banner } from '@mongodb-js/compass-components';
 
-import SavePipeline from '../save-pipeline';
 import Settings from '../settings';
 import RestorePipelineModal from './modals/restore-pipeline-modal';
 import ImportPipeline from './modals/import-pipeline';
@@ -35,15 +31,12 @@ class Pipeline extends PureComponent {
     env: PropTypes.string.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
     openPipelineById: PropTypes.func.isRequired,
-    savedPipelinesListToggle: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
     toggleComments: PropTypes.func.isRequired,
     toggleSample: PropTypes.func.isRequired,
     toggleAutoPreview: PropTypes.func.isRequired,
     restorePipelineModalToggle: PropTypes.func.isRequired,
-    restorePipelineFrom: PropTypes.func.isRequired,
     restorePipeline: PropTypes.object.isRequired,
-    deletePipeline: PropTypes.func.isRequired,
     pipeline: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
@@ -54,7 +47,6 @@ class Pipeline extends PureComponent {
     stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
-    savedPipeline: PropTypes.object.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     newPipelineFromText: PropTypes.func.isRequired,
@@ -165,25 +157,6 @@ class Pipeline extends PureComponent {
     return null;
   }
 
-  /**
-   * Render the saved pipelines box.
-   *
-   * @returns {Component} The component.
-   */
-  renderSavePipeline() {
-    if (!this.props.isAtlasDeployed) {
-      return (
-        <SavePipeline
-          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
-          restorePipelineFrom={this.props.restorePipelineFrom}
-          deletePipeline={this.props.deletePipeline}
-          savedPipelinesListToggle={this.props.savedPipelinesListToggle}
-          savedPipeline={this.props.savedPipeline}
-        />
-      );
-    }
-  }
-
   renderPipelineToolbar() {
     return (
       <PipelineToolbar
@@ -230,6 +203,7 @@ class Pipeline extends PureComponent {
         projections={this.props.projections}
         projectionsChanged={this.props.projectionsChanged}
         newPipelineFromPaste={this.props.newPipelineFromPaste}
+        isAtlasDeployed={this.props.isAtlasDeployed}
       />
     );
   }
@@ -291,7 +265,6 @@ class Pipeline extends PureComponent {
         {this.renderPipelineToolbar()}
         {this.renderModifyingViewSourceError()}
         {this.renderPipelineWorkspace()}
-        {this.renderSavePipeline()}
         <PipelineExplain />
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}

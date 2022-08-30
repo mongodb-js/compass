@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
+  Banner,
   Button,
   ButtonSize,
   ButtonVariant,
   Link,
+  WarningSummary,
 } from '@mongodb-js/compass-components';
-import { ZeroState, StatusRow } from 'hadron-react-components';
+import { ZeroState } from 'hadron-react-components';
 import ValidationEditor from '../validation-editor';
 import SampleDocuments from '../sample-documents';
 import { ZeroGraphic } from '../zero-graphic';
@@ -87,40 +89,36 @@ class ValidationStates extends Component {
     if (!this.isEditable()) {
       if (this.props.editMode.collectionTimeSeries) {
         return (
-          <StatusRow style="warning">
-            <div id="collectionTimeSeries">
-              {READ_ONLY_WARNING.collectionTimeSeries}
-            </div>
-          </StatusRow>
+          <WarningSummary
+            warnings={READ_ONLY_WARNING.collectionTimeSeries}
+            data-testid="collection-validation-warning"
+          />
         );
       }
 
       if (this.props.editMode.collectionReadOnly) {
         return (
-          <StatusRow style="warning">
-            <div id="collectionReadOnly">
-              {READ_ONLY_WARNING.collectionReadOnly}
-            </div>
-          </StatusRow>
+          <WarningSummary
+            warnings={READ_ONLY_WARNING.collectionReadOnly}
+            data-testid="collection-validation-warning"
+          />
         );
       }
 
       if (this.props.editMode.writeStateStoreReadOnly) {
         return (
-          <StatusRow style="warning">
-            <div id="writeStateStoreReadOnly">
-              {READ_ONLY_WARNING.writeStateStoreReadOnly}
-            </div>
-          </StatusRow>
+          <WarningSummary
+            warnings={READ_ONLY_WARNING.writeStateStoreReadOnly}
+            data-testid="collection-validation-warning"
+          />
         );
       }
 
       if (this.props.editMode.oldServerReadOnly) {
         return (
-          <StatusRow style="warning">
-            <div id="oldServerReadOnly">
-              {READ_ONLY_WARNING.oldServerReadOnly}
-              <div>&nbsp;</div>
+          <Banner variant="warning">
+            <div data-testid="old-server-read-only">
+              {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
               <Link
                 className={styles['upgrade-link']}
                 target="_blank"
@@ -129,7 +127,7 @@ class ValidationStates extends Component {
                 upgrade to MongoDB 3.2.
               </Link>
             </div>
-          </StatusRow>
+          </Banner>
         );
       }
     }

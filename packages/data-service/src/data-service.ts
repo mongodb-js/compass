@@ -539,7 +539,7 @@ export interface DataService {
    * @param options - The options (unused).
    * @param callback - The callback.
    */
-  indexes(ns: string, options: unknown, callback: Callback<Document>): void;
+  indexes(ns: string, options: unknown, callback: Callback<Document[]>): void;
 
   /**
    * Get the current instance details.
@@ -1655,7 +1655,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     );
   }
 
-  indexes(ns: string, options: unknown, callback: Callback<Document>): void {
+  indexes(ns: string, options: unknown, callback: Callback<Document[]>): void {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_047),
       'Listing indexes',

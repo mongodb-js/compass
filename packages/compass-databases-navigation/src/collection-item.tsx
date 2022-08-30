@@ -1,16 +1,20 @@
 /* eslint-disable react/prop-types */
 import React, { useCallback, useMemo } from 'react';
-import { useHoverState, spacing, css } from '@mongodb-js/compass-components';
+import {
+  useHoverState,
+  spacing,
+  css,
+  ItemActionControls,
+  SmallIcon,
+} from '@mongodb-js/compass-components';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
-import { ActionControls } from './item-action-controls';
-import type { NamespaceAction } from './item-action-controls';
 import { ItemContainer, ItemLabel } from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
   NamespaceItemProps,
 } from './tree-item';
-import { SmallIcon } from './icon-button';
 import type { Actions } from './constants';
 
 const CollectionIcon: React.FunctionComponent<{
@@ -23,13 +27,14 @@ const CollectionIcon: React.FunctionComponent<{
       ? 'Visibility'
       : 'Folder';
   }, [type]);
-  return <SmallIcon glyph={glyph}></SmallIcon>;
+
+  return <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>;
 };
 
 const collectionItem = css({
   height: COLLECTION_ROW_HEIGHT,
-  paddingLeft: spacing[5] + spacing[1],
   paddingRight: spacing[1],
+  paddingLeft: spacing[5] + spacing[1],
 });
 
 const collectionItemLabel = css({
@@ -74,7 +79,7 @@ export const CollectionItem: React.FunctionComponent<
   );
 
   const actions = useMemo(() => {
-    const actions: NamespaceAction[] = [
+    const actions: ItemAction<Actions>[] = [
       {
         action: 'open-in-new-tab',
         label: 'Open in New Tab',
@@ -123,7 +128,6 @@ export const CollectionItem: React.FunctionComponent<
       setSize={setSize}
       posInSet={posInSet}
       isActive={isActive}
-      isHovered={isHovered}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
       className={collectionItem}
@@ -132,14 +136,15 @@ export const CollectionItem: React.FunctionComponent<
     >
       <CollectionIcon type={type} />
       <ItemLabel className={collectionItemLabel}>{name}</ItemLabel>
-      <ActionControls
+      <ItemActionControls<Actions>
         className={collectionActions}
         onAction={onAction}
         isActive={isActive}
         isHovered={isHovered}
         actions={actions}
         shouldCollapseActionsToMenu
-      ></ActionControls>
+        mode="hovered"
+      ></ItemActionControls>
     </ItemContainer>
   );
 };

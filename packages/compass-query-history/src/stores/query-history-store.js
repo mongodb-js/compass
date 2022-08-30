@@ -3,13 +3,11 @@ import StateMixin from 'reflux-state-mixin';
 import mongodbns from 'mongodb-ns';
 import configureFavoriteListStore from './favorite-list-store';
 import configureRecentListStore from './recent-list-store';
-import configureHeaderStore from './header-store';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
 
 const FAVORITE_LIST_STORE = 'QueryHistory.FavoriteListStore';
 const RECENT_LIST_STORE = 'QueryHistory.RecentListStore';
-const HEADER_STORE = 'QueryHistory.HeaderStore';
 
 /**
  * QueryHistoryStore store.
@@ -33,14 +31,14 @@ const configureStore = (options = {}) => {
     showFavorites() {
       track('Query History Favorites');
       this.setState({
-        showing: 'favorites'
+        showing: 'favorites',
       });
     },
 
     showRecent() {
       track('Query History Recent');
       this.setState({
-        showing: 'recent'
+        showing: 'recent',
       });
     },
 
@@ -48,15 +46,17 @@ const configureStore = (options = {}) => {
       if (!this.state.collapsed) {
         track('Query History Closed');
         this.setState({
-          collapsed: true
+          collapsed: true,
         });
       }
     },
 
     toggleCollapse() {
-      track(this.state.collapsed ? 'Query History Opened' : 'Query History Closed');
+      track(
+        this.state.collapsed ? 'Query History Opened' : 'Query History Closed'
+      );
       this.setState({
-        collapsed: !this.state.collapsed
+        collapsed: !this.state.collapsed,
       });
     },
 
@@ -80,9 +80,9 @@ const configureStore = (options = {}) => {
       return {
         showing: 'recent',
         collapsed: true,
-        ns: mongodbns('')
+        ns: mongodbns(''),
       };
-    }
+    },
   });
 
   if (options.namespace) {
@@ -103,18 +103,19 @@ const configureStore = (options = {}) => {
     // Configure all the other stores.
     const favoriteListStore = localAppRegistry.getStore(FAVORITE_LIST_STORE);
     const recentListStore = localAppRegistry.getStore(RECENT_LIST_STORE);
-    const headerStore = localAppRegistry.getStore(HEADER_STORE);
 
     if (!favoriteListStore.saveRecent) {
-      localAppRegistry.registerStore(FAVORITE_LIST_STORE, configureFavoriteListStore(options));
+      localAppRegistry.registerStore(
+        FAVORITE_LIST_STORE,
+        configureFavoriteListStore(options)
+      );
     }
 
     if (!recentListStore.addRecent) {
-      localAppRegistry.registerStore(RECENT_LIST_STORE, configureRecentListStore(options));
-    }
-
-    if (!headerStore.showRecent) {
-      localAppRegistry.registerStore(HEADER_STORE, configureHeaderStore(options));
+      localAppRegistry.registerStore(
+        RECENT_LIST_STORE,
+        configureRecentListStore(options)
+      );
     }
 
     store.localAppRegistry = localAppRegistry;

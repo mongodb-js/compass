@@ -2,6 +2,9 @@ const AmpersandModel = require('ampersand-model');
 const {
   Collection: MongoDbDatabaseCollection,
 } = require('mongodb-database-model');
+const TopologyType = require('./topology-type');
+const ServerType = require('./server-type');
+const Environment = require('./environment');
 
 const Inflight = new Map();
 
@@ -126,7 +129,9 @@ const InstanceModel = AmpersandModel.extend(
       refreshingStatus: { type: 'string', default: 'initial' },
       refreshingStatusError: { type: 'string', default: null },
       isAtlas: { type: 'boolean', default: false },
+      atlasVersion: { type: 'string', default: '' },
       csfleMode: { type: 'string', default: 'unavailable' },
+      topologyDescription: 'state'
     },
     derived: {
       isRefreshing: {
@@ -135,13 +140,75 @@ const InstanceModel = AmpersandModel.extend(
           return ['fetching', 'refreshing'].includes(this.refreshingStatus);
         },
       },
+      isTopologyWritable: {
+        deps: ['topologyDescription.type'],
+        fn() {
+          return TopologyType.isWritable(this.topologyDescription.type)
+        }
+      },
+      singleServerType: {
+        deps: ['topologyDescription.type', 'topologDescription.servers'],
+        fn() {
+          if (this.topologyDescription.type === TopologyType.SINGLE) {
+            return this.topologyDescription.servers[0].type;
+          }
+          return null;
+        }
+      },
+      isServerWritable: {
+        deps: ['singleServerType'],
+        fn() {
+          return this.singleServerType !== null && ServerType.isWritable(this.singleServerType);
+        }
+      },
+      isWritable: {
+        deps: ['topologyDescription.type', 'isTopologyWritable', 'isServerWritable'],
+        fn() {
+          if (this.isTopologyWritable) {
+            if (this.topologyDescription.type === TopologyType.SINGLE) {
+              return this.isServerWritable;
+            } else {
+              return true;
+            }
+          } else {
+            return false;
+          }
+        }
+      },
+      description: {
+        deps: ['topologyDescription.type', 'isTopologyWritable', 'isServerWritable', 'singleServerType'],
+        fn() {
+          const topologyType = this.topologyDescription.type;
+
+          if (this.isTopologyWritable) {
+            if (topologyType === TopologyType.SINGLE) {
+              const message = this.isServerWritable ? 'is writable' : 'is not writable';
+              return `Single connection to server type: ${ServerType.humanize(this.singleServerType)} ${message}`;
+            }
+            return `Topology type: ${TopologyType.humanize(topologyType)} is writable`;
+          }
+          return `Topology type: ${TopologyType.humanize(topologyType)} is not writable`;
+        }
+      },
+      env: {
+        deps: ['isAtlas', 'dataLake'],
+        fn() {
+          if (this.isAtlas) {
+            if (this.dataLake.isDataLake) {
+              return Environment.ADL;
+            }
+            return Environment.ATLAS;
+          }
+          return Environment.ON_PREM;
+        }
+      }
     },
     children: {
       host: HostInfo,
       build: BuildInfo,
       genuineMongoDB: GenuineMongoDB,
       dataLake: DataLake,
-      auth: AuthInfo,
+      auth: AuthInfo
     },
     collections: {
       databases: MongoDbDatabaseCollection,

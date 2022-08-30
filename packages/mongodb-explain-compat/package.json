@@ -1,6 +1,6 @@
 {
   "name": "mongodb-explain-compat",
-  "version": "2.10.0",
+  "version": "3.0.0",
   "description": "Convert mongodb SBE explain output to 4.4 explain output",
   "keywords": [
     "mongodb",
@@ -10,8 +10,8 @@
   "main": "lib/index.js",
   "compass:main": "lib/index.js",
   "exports": {
-    "require": "./lib/index.js",
-    "import": "./.esm-wrapper.mjs"
+    "import": "./.esm-wrapper.mjs",
+    "require": "./lib/index.js"
   },
   "compass:exports": {
     ".": "./lib/index.js"

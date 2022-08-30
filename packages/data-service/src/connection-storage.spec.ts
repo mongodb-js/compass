@@ -315,9 +315,7 @@ describe('ConnectionStorage', function () {
           storeCredentials: false,
           autoEncryption: {
             keyVaultNamespace: 'db.coll',
-            kmsProviders: {
-              local: {},
-            },
+            kmsProviders: {},
           },
         });
 
@@ -357,9 +355,7 @@ describe('ConnectionStorage', function () {
           storeCredentials: true,
           autoEncryption: {
             keyVaultNamespace: 'db.coll',
-            kmsProviders: {
-              local: {},
-            },
+            kmsProviders: {},
           },
         });
 
@@ -370,6 +366,32 @@ describe('ConnectionStorage', function () {
             local: {
               key: 'my-key',
             },
+          },
+        });
+      });
+    });
+
+    it('does not trigger old connection-model validations', async function () {
+      const connectionStorage = new ConnectionStorage();
+      const id = uuid();
+      await connectionStorage.save({
+        id,
+        connectionOptions: {
+          connectionString:
+            'mongodb://localhost:27017/?tls=true&tlsCertificateKeyFile=%2FUsers%2Fmaurizio%2FDownloads%2FX509-cert-2577072670755779500.pem',
+        },
+      });
+
+      await eventually(() => {
+        const { connectionInfo } = JSON.parse(
+          fs.readFileSync(getConnectionFilePath(tmpDir, id), 'utf-8')
+        );
+
+        expect(connectionInfo).to.deep.equal({
+          id,
+          connectionOptions: {
+            connectionString:
+              'mongodb://localhost:27017/?tls=true&tlsCertificateKeyFile=%2FUsers%2Fmaurizio%2FDownloads%2FX509-cert-2577072670755779500.pem',
           },
         });
       });

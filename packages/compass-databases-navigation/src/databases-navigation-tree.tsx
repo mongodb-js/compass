@@ -3,8 +3,7 @@ import React, { useCallback, useMemo, memo, useRef } from 'react';
 import { VisuallyHidden } from '@react-aria/visually-hidden';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { useId } from '@react-aria/utils';
-import { FadeInPlaceholder, css } from '@mongodb-js/compass-components';
+import { FadeInPlaceholder, css, useId } from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder-item';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,

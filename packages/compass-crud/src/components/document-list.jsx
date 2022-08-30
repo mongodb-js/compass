@@ -3,18 +3,22 @@ import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
 import { StatusRow, ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
-import { CancelLoader, WorkspaceContainer } from '@mongodb-js/compass-components';
+import {
+  CancelLoader,
+  WorkspaceContainer,
+} from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
 import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
 import DocumentJsonView from './document-json-view';
 import DocumentTableView from './document-table-view';
-import Toolbar from './toolbar';
+import LegacyToolbar from './legacy-toolbar';
+import { CrudToolbar } from './crud-toolbar';
 
 import {
   DOCUMENTS_STATUS_ERROR,
   DOCUMENTS_STATUS_FETCHING,
-  DOCUMENTS_STATUS_FETCHED_CUSTOM
+  DOCUMENTS_STATUS_FETCHED_CUSTOM,
 } from '../constants/documents-statuses';
 
 import './index.less';
@@ -23,6 +27,19 @@ import './ag-grid-dist.css';
 const OUTDATED_WARNING = `The content is outdated and no longer in sync
 with the current query. Press "Find" again to see the results for
 the current query.`;
+
+// From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L86
+const ERROR_CODE_OPERATION_TIMED_OUT = 50;
+
+const INCREASE_MAX_TIME_MS_HINT =
+  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
+
+function isOperationTimedOutError(err) {
+  return (
+    err.name === 'MongoServerError' &&
+    err.code?.value === ERROR_CODE_OPERATION_TIMED_OUT
+  );
+}
 
 /**
  * Component for the entire document list.
@@ -35,7 +52,9 @@ class DocumentList extends React.Component {
       this.queryBarRole = appRegistry.getRole('Query.QueryBar')[0];
       this.queryBar = this.queryBarRole.component;
       this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
-      this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
+      this.queryBarActions = appRegistry.getAction(
+        this.queryBarRole.actionName
+      );
     }
   }
 
@@ -58,7 +77,10 @@ class DocumentList extends React.Component {
    */
   handleOpenInsert(key) {
     if (key === 'insert-document') {
-      this.props.openInsertDocumentDialog({ _id: new ObjectId(), '': '' }, false);
+      this.props.openInsertDocumentDialog(
+        { _id: new ObjectId(), '': '' },
+        false
+      );
     } else if (key === 'import-file') {
       this.props.openImportFileDialog();
     }
@@ -70,28 +92,25 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list views.
    */
   renderViews() {
-    if (this.props.view === 'List') {
-      return (<DocumentListView {...this.props} />);
-    } else if (this.props.view === 'Table') {
-      return (<DocumentTableView {...this.props} />);
+    if (this.props.docs?.length === 0) {
+      return null;
     }
 
-    return (<DocumentJsonView {...this.props} />);
+    if (this.props.view === 'List') {
+      return <DocumentListView {...this.props} />;
+    } else if (this.props.view === 'Table') {
+      return <DocumentTableView {...this.props} />;
+    }
+
+    return <DocumentJsonView {...this.props} />;
   }
 
   renderOutdatedWarning() {
-    if (
-      this.props.error ||
-      !this.props.outdated) {
+    if (this.props.error || !this.props.outdated) {
       return;
     }
 
-
-    return (
-      <StatusRow style="warning">
-        {OUTDATED_WARNING}
-      </StatusRow>
-    );
+    return <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
   }
 
   /*
@@ -117,22 +136,21 @@ class DocumentList extends React.Component {
    */
   renderContent() {
     if (this.props.error) {
-      return (
-        <StatusRow style="error">
-          {this.props.error.message}
-        </StatusRow>
-      );
+      const errorMessage = isOperationTimedOutError(this.props.error)
+        ? INCREASE_MAX_TIME_MS_HINT
+        : this.props.error.message;
+
+      return <StatusRow style="error">{errorMessage}</StatusRow>;
     }
 
-    if (this.props.status === DOCUMENTS_STATUS_FETCHING && !this.props.debouncingLoad) {
+    if (
+      this.props.status === DOCUMENTS_STATUS_FETCHING &&
+      !this.props.debouncingLoad
+    ) {
       return this.renderFetching();
     }
 
-    return (
-      <WorkspaceContainer>
-        {this.renderViews()}
-      </WorkspaceContainer>
-    );
+    return <WorkspaceContainer>{this.renderViews()}</WorkspaceContainer>;
   }
 
   /**
@@ -155,7 +173,8 @@ class DocumentList extends React.Component {
           tz={this.props.tz}
           ns={this.props.ns}
           updateComment={this.props.updateComment}
-          {...this.props.insert} />
+          {...this.props.insert}
+        />
       );
     }
   }
@@ -186,7 +205,10 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The query bar.
    */
   renderZeroState() {
-    if (this.props.docs.length > 0 || this.props.status === DOCUMENTS_STATUS_FETCHING) {
+    if (
+      this.props.docs.length > 0 ||
+      this.props.status === DOCUMENTS_STATUS_FETCHING
+    ) {
       return null;
     }
 
@@ -195,9 +217,13 @@ class DocumentList extends React.Component {
     }
 
     let header = 'This collection has no data';
-    let subtext = 'It only takes a few seconds to import data from a JSON or CSV file';
+    let subtext =
+      'It only takes a few seconds to import data from a JSON or CSV file';
 
-    if (this.props.docs.length === 0 && this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM) {
+    if (
+      this.props.docs.length === 0 &&
+      this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
+    ) {
       header = 'No results';
       subtext = 'Try to modify your query to get results';
 
@@ -221,7 +247,8 @@ class DocumentList extends React.Component {
                 dataTestId="import-data-button"
                 className={`btn btn-primary btn-lg ${editableClass}`}
                 text="Import Data"
-                clickHandler={this.props.openImportFileDialog} />
+                clickHandler={this.props.openImportFileDialog}
+              />
             </div>
           </div>
         </ZeroState>
@@ -235,18 +262,47 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list.
    */
   render() {
+    const useNewToolbars = process?.env?.COMPASS_SHOW_NEW_TOOLBARS;
+
     return (
       <div className="compass-documents">
-        <div className="controls-container">
-          {this.renderQueryBar()}
-          <Toolbar
-            readonly={!this.props.isEditable}
-            insertHandler={this.handleOpenInsert.bind(this)}
-            viewSwitchHandler={this.props.viewChanged}
+        {useNewToolbars ? (
+          <CrudToolbar
             activeDocumentView={this.props.view}
-            {...this.props} />
-        </div>
-        {this.renderOutdatedWarning()}
+            count={this.props.count}
+            loadingCount={this.props.loadingCount}
+            start={this.props.start}
+            end={this.props.end}
+            page={this.props.page}
+            getPage={this.props.getPage}
+            insertDataHandler={this.handleOpenInsert.bind(this)}
+            localAppRegistry={this.props.store.localAppRegistry}
+            isExportable={this.props.isExportable}
+            onApplyClicked={this.onApplyClicked.bind(this)}
+            onResetClicked={this.onResetClicked.bind(this)}
+            openExportFileDialog={this.props.openExportFileDialog}
+            readonly={!this.props.isEditable}
+            viewSwitchHandler={this.props.viewChanged}
+            isWritable={this.props.isWritable}
+            instanceDescription={this.props.instanceDescription}
+            refreshDocuments={this.props.refreshDocuments}
+            resultId={this.props.resultId}
+          />
+        ) : (
+          <>
+            <div className="controls-container">
+              {this.renderQueryBar()}
+              <LegacyToolbar
+                readonly={!this.props.isEditable}
+                insertHandler={this.handleOpenInsert.bind(this)}
+                viewSwitchHandler={this.props.viewChanged}
+                activeDocumentView={this.props.view}
+                {...this.props}
+              />
+            </div>
+            {this.renderOutdatedWarning()}
+          </>
+        )}
         {this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}
@@ -261,6 +317,11 @@ DocumentList.propTypes = {
   closeInsertDocumentDialog: PropTypes.func,
   toggleInsertDocumentView: PropTypes.func.isRequired,
   toggleInsertDocument: PropTypes.func.isRequired,
+  count: PropTypes.number,
+  start: PropTypes.number,
+  end: PropTypes.number,
+  page: PropTypes.number,
+  getPage: PropTypes.func,
   error: PropTypes.object,
   insert: PropTypes.object,
   insertDocument: PropTypes.func,
@@ -272,6 +333,7 @@ DocumentList.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   openImportFileDialog: PropTypes.func,
   openExportFileDialog: PropTypes.func,
+  refreshDocuments: PropTypes.func,
   removeDocument: PropTypes.func,
   replaceDocument: PropTypes.func,
   updateDocument: PropTypes.func,
@@ -287,7 +349,9 @@ DocumentList.propTypes = {
   debouncingLoad: PropTypes.bool,
   loadingCount: PropTypes.bool,
   outdated: PropTypes.bool,
-  resultId: PropTypes.number
+  resultId: PropTypes.number,
+  isWritable: PropTypes.bool,
+  instanceDescription: PropTypes.string,
 };
 
 DocumentList.defaultProps = {
@@ -296,7 +360,7 @@ DocumentList.defaultProps = {
   version: '3.4.0',
   isEditable: true,
   insert: {},
-  tz: 'UTC'
+  tz: 'UTC',
 };
 
 export default DocumentList;

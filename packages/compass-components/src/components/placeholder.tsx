@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { uiColors } from '@leafygreen-ui/palette';
+import { withTheme } from '../hooks/use-theme';
 
 // Ratio of showing a highlight passing through the placeholder to background color
 const scale = 4;
@@ -47,7 +48,7 @@ function getBoundRandom(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
-export const Placeholder: React.FunctionComponent<
+const UnthemedPlaceholder: React.FunctionComponent<
   Omit<
     React.HTMLProps<HTMLDivElement>,
     'minChar' | 'maxChar' | 'width' | 'height'
@@ -81,3 +82,7 @@ export const Placeholder: React.FunctionComponent<
     ></div>
   );
 };
+
+const Placeholder = withTheme(UnthemedPlaceholder);
+
+export { Placeholder };

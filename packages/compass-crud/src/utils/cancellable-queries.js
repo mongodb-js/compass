@@ -8,7 +8,12 @@ const { log, mongoLogId, debug } = createLogger('cancellable-queries');
  */
 export const OPERATION_CANCELLED_MESSAGE = 'The operation was cancelled.';
 
-export async function findDocuments(dataService, ns, filter, { signal, ...options }) {
+export async function findDocuments(
+  dataService,
+  ns,
+  filter,
+  { signal, ...options }
+) {
   if (signal.aborted) {
     throw new Error(OPERATION_CANCELLED_MESSAGE);
   }
@@ -30,7 +35,12 @@ export async function findDocuments(dataService, ns, filter, { signal, ...option
   return result;
 }
 
-export async function countDocuments(dataService, ns, filter, { signal, session, skip, limit, maxTimeMS, hint }) {
+export async function countDocuments(
+  dataService,
+  ns,
+  filter,
+  { signal, session, skip, limit, maxTimeMS, hint }
+) {
   if (signal.aborted) {
     throw new Error(OPERATION_CANCELLED_MESSAGE);
   }
@@ -86,8 +96,11 @@ export async function countDocuments(dataService, ns, filter, { signal, session,
   return result;
 }
 
-
-export async function fetchShardingKeys(dataService, ns, { signal, session, maxTimeMS }) {
+export async function fetchShardingKeys(
+  dataService,
+  ns,
+  { signal, session, maxTimeMS }
+) {
   // best practise is to first check if the signal wasn't already aborted
   if (signal.aborted) {
     throw new Error(OPERATION_CANCELLED_MESSAGE);
@@ -105,7 +118,6 @@ export async function fetchShardingKeys(dataService, ns, { signal, session, maxT
   };
   signal.addEventListener('abort', abort, { once: true });
 
-
   let configDocs;
 
   try {
@@ -117,7 +129,12 @@ export async function fetchShardingKeys(dataService, ns, { signal, session, maxT
     }
 
     // for other errors assume that the query failed
-    log.warn(mongoLogId(1001000075), 'Documents', 'Failed to fetch sharding keys', err);
+    log.warn(
+      mongoLogId(1001000075),
+      'Documents',
+      'Failed to fetch sharding keys',
+      err
+    );
     configDocs = [];
   }
 
@@ -130,11 +147,11 @@ export async function fetchShardingKeys(dataService, ns, { signal, session, maxT
 /*
  * Return a promise you can race (just like a timeout from timeouts/promises).
  * It will reject if abortSignal triggers before successSignal
-*/
+ */
 function abortablePromise(abortSignal, successSignal) {
   let reject;
 
-  const promise = new Promise(function(resolve, _reject) {
+  const promise = new Promise(function (resolve, _reject) {
     reject = _reject;
   });
 
@@ -162,7 +179,7 @@ function abortablePromise(abortSignal, successSignal) {
  * We need a promise that will reject as soon as the operation is aborted since
  * closing the cursor isn't enough to immediately make the cursor method's
  * promise reject.
-*/
+ */
 async function raceWithAbort(promise, signal) {
   const successController = new AbortController();
   const abortPromise = abortablePromise(signal, successController.signal);

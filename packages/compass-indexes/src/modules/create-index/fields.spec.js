@@ -13,8 +13,9 @@ import reducer, {
   changeFields,
   CHANGE_FIELDS,
 } from '../create-index/fields';
-import { HANDLE_ERROR } from '../error';
+import { ActionTypes as ErrorActionTypes } from '../error';
 import { CHANGE_SCHEMA_FIELDS } from '../create-index/schema-fields';
+import { ActionTypes } from '../create-index/new-index-field';
 
 describe('create index fields module', function () {
   describe('#reducer', function () {
@@ -158,7 +159,7 @@ describe('create index fields module', function () {
     it('returns handleError action with duplicate name', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'Index keys must be unique',
         });
         actionSpy();
@@ -190,6 +191,11 @@ describe('create index fields module', function () {
             schemaFields: ['def', 'abc'],
           });
           actionSpy();
+        } else if (res.type === ActionTypes.clearNewIndexField) {
+          expect(res).to.deep.equal({
+            type: ActionTypes.clearNewIndexField,
+          });
+          actionSpy();
         } else {
           expect(true).to.be(false, 'Error: dispatch should not be called');
         }
@@ -202,7 +208,7 @@ describe('create index fields module', function () {
         schemaFields: ['def'],
       });
       updateFieldName(1, 'abc')(dispatch, state);
-      expect(actionSpy.calledTwice).to.equal(true);
+      expect(actionSpy.calledThrice).to.equal(true);
     });
   });
 });

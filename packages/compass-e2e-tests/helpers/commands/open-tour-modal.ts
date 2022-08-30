@@ -1,8 +1,6 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-const MINUTE = 60_000;
-
 export async function openTourModal(browser: CompassBrowser): Promise<void> {
   await browser.execute(() => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -10,5 +8,5 @@ export async function openTourModal(browser: CompassBrowser): Promise<void> {
   });
 
   const featureTourModalElement = await browser.$(Selectors.FeatureTourModal);
-  await featureTourModalElement.waitForExist({ timeout: MINUTE });
+  await featureTourModalElement.waitForExist();
 }

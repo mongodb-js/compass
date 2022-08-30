@@ -1,7 +1,13 @@
-import { remote } from 'electron';
 import Collection from 'ampersand-rest-collection';
 import FavoriteQuery from './favorite-query';
 import storageMixin from 'storage-mixin';
+
+let remote;
+try {
+  remote = require('@electron/remote');
+} catch (e) {
+  console.error('Could not load @electron/remote', e.message);
+}
 
 /**
  * Represents a collection of favorite queries.
@@ -22,7 +28,7 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
   mainIndex: '_id',
   comparator: (favorite) => {
     return -favorite._dateSaved;
-  }
+  },
 });
 
 export default FavoriteQueryCollection;

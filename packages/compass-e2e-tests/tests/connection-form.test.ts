@@ -257,7 +257,7 @@ describe('Connection form', function () {
 
   it('parses and formats a URI for Kerberos authentication', async function () {
     const connectionString =
-      'mongodb://principal:password@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
+      'mongodb://principal@localhost:27017/?authMechanism=GSSAPI&authSource=%24external&authMechanismProperties=SERVICE_NAME%3Aservice+name%2CCANONICALIZE_HOST_NAME%3Aforward%2CSERVICE_REALM%3Aservice+realm';
 
     await browser.setValueVisible(
       Selectors.ConnectionStringInput,
@@ -270,9 +270,9 @@ describe('Connection form', function () {
       hosts: ['localhost:27017'],
       directConnection: false,
       authMethod: 'GSSAPI',
-      kerberosPassword: 'password',
+      // kerberosPassword: 'password',
       kerberosPrincipal: 'principal',
-      kerberosProvidePassword: true,
+      // kerberosProvidePassword: true,
       kerberosServiceName: 'service name',
       kerberosCanonicalizeHostname: 'forward',
       kerberosServiceRealm: 'service realm',
@@ -535,18 +535,20 @@ describe('Connection form', function () {
     await browser.clickVisible(Selectors.FavoriteSaveButton);
     await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
 
-    // copy the connection string
-    await selectConnectionMenuItem(
-      browser,
-      favoriteName,
-      Selectors.CopyConnectionStringItem
-    );
-    await browser.waitUntil(
-      async () => {
-        return (await clipboard.read()) === 'mongodb://localhost:27017';
-      },
-      { timeoutMsg: 'Expected copy to clipboard to work' }
-    );
+    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+      // copy the connection string
+      await selectConnectionMenuItem(
+        browser,
+        favoriteName,
+        Selectors.CopyConnectionStringItem
+      );
+      await browser.waitUntil(
+        async () => {
+          return (await clipboard.read()) === 'mongodb://localhost:27017';
+        },
+        { timeoutMsg: 'Expected copy to clipboard to work' }
+      );
+    }
 
     // duplicate
     await selectConnectionMenuItem(
@@ -612,9 +614,7 @@ describe('Connection form', function () {
 
     // Wait for it to connect
     const element = await browser.$(Selectors.MyQueriesList);
-    await element.waitForDisplayed({
-      timeout: 30_000,
-    });
+    await element.waitForDisplayed();
 
     // It should use the new favorite name as the connection name in the top-left corner
     expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(
@@ -630,7 +630,7 @@ async function selectConnectionMenuItem(
 ) {
   const selector = Selectors.sidebarFavorite(favoriteName);
   // It takes some time for the favourites to load
-  await browser.$(selector).waitForDisplayed({ timeout: 60_000 });
+  await browser.$(selector).waitForDisplayed();
   await browser.hover(selector);
 
   await browser.clickVisible(Selectors.sidebarFavoriteMenuButton(favoriteName));

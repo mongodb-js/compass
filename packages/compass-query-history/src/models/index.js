@@ -9,5 +9,5 @@ export {
   FavoriteQuery,
   RecentQuery,
   FavoriteQueryCollection,
-  RecentQueryCollection
+  RecentQueryCollection,
 };

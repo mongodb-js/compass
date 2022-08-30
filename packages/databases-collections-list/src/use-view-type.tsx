@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useId } from '@react-aria/utils';
 import {
   SegmentedControl,
   SegmentedControlOption,
@@ -7,6 +6,7 @@ import {
   Label,
   css,
   spacing,
+  useId,
 } from '@mongodb-js/compass-components';
 
 export type ViewType = 'grid' | 'list';

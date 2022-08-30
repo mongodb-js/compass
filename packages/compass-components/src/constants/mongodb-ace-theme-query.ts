@@ -110,7 +110,8 @@ background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZg
 
 const mongodbAceThemeQueryCssText = `
 .ace-mongodb-query .ace_scroller {
-padding: 0px 14px;
+line-height: 14px;
+background: none;
 }
 .ace-mongodb-query .ace_gutter {
 background: #ffffff;
@@ -125,7 +126,7 @@ font-family: inherit;
 transform: none;
 opacity: 1;
 margin: 0;
-padding: 14px 8px !important;
+padding: 6px 14px !important;
 }
 .ace-mongodb-query .ace_keyword {
 color: #999999;

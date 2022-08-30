@@ -4,7 +4,7 @@ import mongodbns from 'mongodb-ns';
 import { StoreConnector } from 'hadron-react-components';
 
 // Components
-import Header from '../header';
+import { Toolbar } from '../toolbar/toolbar';
 import { RecentList } from '../recent';
 import { FavoriteList } from '../favorite';
 
@@ -18,18 +18,25 @@ class QueryHistory extends PureComponent {
     actions: PropTypes.object.isRequired,
     store: PropTypes.object.isRequired,
     showing: PropTypes.oneOf(['recent', 'favorites']),
+    // TODO(COMPASS-5679): After we enable the toolbars feature flag,
+    // we can remove the collapsed boolean and make `onClose` required.
+    onClose: PropTypes.func,
     collapsed: PropTypes.bool,
-    ns: PropTypes.object
+    ns: PropTypes.object,
   };
 
   static defaultProps = {
     showing: 'recent',
     collapsed: true,
-    ns: mongodbns('')
+    ns: mongodbns(''),
   };
 
   renderFavorites = () => (
-    <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.FavoriteListStore')}>
+    <StoreConnector
+      store={this.props.store.localAppRegistry.getStore(
+        'QueryHistory.FavoriteListStore'
+      )}
+    >
       <FavoriteList
         data-test-id="query-history-list-favorites"
         ns={this.props.ns}
@@ -40,7 +47,11 @@ class QueryHistory extends PureComponent {
   );
 
   renderRecents = () => (
-    <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.RecentListStore')}>
+    <StoreConnector
+      store={this.props.store.localAppRegistry.getStore(
+        'QueryHistory.RecentListStore'
+      )}
+    >
       <RecentList
         data-test-id="query-history-list-recent"
         ns={this.props.ns}
@@ -51,25 +62,27 @@ class QueryHistory extends PureComponent {
   );
 
   render() {
-    const { collapsed, showing, actions } = this.props;
+    const { collapsed, ns, showing, onClose, actions } = this.props;
 
-    if (collapsed) {
+    if (!onClose && collapsed) {
+      // TODO(COMPASS-5679): After we enable the toolbars feature flag,
+      // we can remove the collapsed boolean and make `onClose` required.
+      // And remove this condition.
       return null;
     }
 
     return (
       <div
         data-test-id="query-history"
-        className={styles.component}
+        className={onClose ? styles.component : styles['component-legacy']}
       >
         <div className={styles.inner}>
-          <StoreConnector store={this.props.store.localAppRegistry.getStore('QueryHistory.HeaderStore')}>
-            <Header
-              data-test-id="query-history-header"
-              actions={actions}
-              showing={showing}
-            />
-          </StoreConnector>
+          <Toolbar
+            actions={actions}
+            showing={showing}
+            onClose={onClose}
+            namespace={ns}
+          />
 
           {showing === 'favorites' ? this.renderFavorites() : null}
           {showing === 'recent' ? this.renderRecents() : null}

@@ -7,11 +7,6 @@ import {
   cx,
   mergeProps,
 } from '@mongodb-js/compass-components';
-import {
-  backgroundColorActive,
-  backgroundColor,
-  backgroundColorHover,
-} from './constants';
 import type { Actions } from './constants';
 
 export type VirtualListItemProps = {
@@ -65,16 +60,31 @@ export function useDefaultAction<T>(
 const itemContainer = css({
   display: 'flex',
   alignItems: 'center',
-  backgroundColor: backgroundColor,
   cursor: 'pointer',
+  color: 'var(--item-color)',
+  backgroundColor: 'var(--item-bg-color)',
+
+  ':hover': {
+    fontWeight: 'bold',
+  },
 });
 
-const activeBackground = css({
-  backgroundColor: backgroundColorActive,
-});
+const activeItemContainer = css({
+  color: 'var(--item-color-active)',
+  backgroundColor: 'var(--item-bg-color-active)',
+  fontWeight: 'bold',
 
-const hoverBackground = css({
-  backgroundColor: backgroundColorHover,
+  // this is copied from leafygreen's own navigation, hence the pixel values
+  '::before': {
+    backgroundColor: 'var(--item-color-active)',
+    content: '""',
+    position: 'absolute',
+    left: '0px',
+    top: '6px',
+    bottom: '6px',
+    width: '4px',
+    borderRadius: '0px 6px 6px 0px',
+  },
 });
 
 export const ItemContainer: React.FunctionComponent<
@@ -85,7 +95,6 @@ export const ItemContainer: React.FunctionComponent<
     posInSet: number;
     isExpanded?: boolean;
     isActive?: boolean;
-    isHovered?: boolean;
     isTabbable?: boolean;
     onDefaultAction(
       evt:
@@ -100,7 +109,6 @@ export const ItemContainer: React.FunctionComponent<
   posInSet,
   isExpanded,
   isActive,
-  isHovered,
   isTabbable,
   onDefaultAction,
   children,
@@ -110,6 +118,11 @@ export const ItemContainer: React.FunctionComponent<
   const focusRingProps = useFocusRing<HTMLDivElement>();
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
+  const extraCSS = [];
+  if (isActive) {
+    extraCSS.push(activeItemContainer);
+  }
+
   const treeItemProps = mergeProps(
     {
       role: 'treeitem',
@@ -118,11 +131,7 @@ export const ItemContainer: React.FunctionComponent<
       'aria-posinset': posInSet,
       'aria-expanded': isExpanded,
       tabIndex: isTabbable ? 0 : -1,
-      className: cx(
-        itemContainer,
-        isActive ? activeBackground : isHovered && hoverBackground,
-        className
-      ),
+      className: cx(itemContainer, ...extraCSS, className),
     },
     props,
     defaultActionProps,

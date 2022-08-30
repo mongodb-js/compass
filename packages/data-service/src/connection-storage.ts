@@ -79,6 +79,7 @@ export class ConnectionStorage {
         model.save(undefined, {
           success: resolve,
           error: reject,
+          validate: false,
         });
       });
     } catch (err) {

@@ -5,7 +5,6 @@ const { NamespaceStore } = require('mongodb-reflux-store');
  * Sets global collection information.
  */
 const CollectionStore = Reflux.createStore({
-
   /**
    * Initialize the store.
    */
@@ -58,7 +57,7 @@ const CollectionStore = Reflux.createStore({
    */
   isReadonly() {
     return this.collection.readonly;
-  }
+  },
 });
 
 module.exports = CollectionStore;

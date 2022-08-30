@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import type MongoDBInstance from 'mongodb-instance-model';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
 export type State = MongoDBInstance | null;
 

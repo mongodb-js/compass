@@ -770,30 +770,46 @@ export const ExplainDocumentsReturnedSummary =
   '[data-test-id="documents-returned-summary"]';
 
 // Indexes tab
-export const IndexList = '[data-test-id="index-list"]';
-export const IndexComponent = '[data-test-id="index-list"] tr';
-export const NameColumnName = '[data-test-id="name-column-name"]';
+export const IndexList = '[data-testid="indexes-list"]';
+export const IndexComponent = (name: string): string => {
+  return `[data-testid="index-row-${name}"]`;
+};
+export const IndexFieldName = '[data-testid="index-name-field"]';
+export const IndexFieldType = '[data-testid="index-type-field"]';
+export const IndexToggleOptions =
+  '[data-testid="create-index-modal-toggle-options"]';
+export const IndexToggleIsWildcard =
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] #create-index-modal-use-wildcard-checkbox-label';
+export const IndexWildcardProjectionEditor =
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] .ace_editor';
+
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
-export const CreateIndexModal = '[data-test-id="create-index-modal"]';
-export const CreateIndexModalFieldSelect =
-  '[data-test-id="create-index-modal-field-select"]';
-export const CreateIndexModalTypeSelect =
-  '[data-test-id="create-index-modal-type-select"]';
-export const CreateIndexConfirmButton = '[data-test-id="create-index-button"]';
+
+// Indexes modal
+export const CreateIndexModal = '[data-testid="create-index-modal"]';
+
+export const CreateIndexModalFieldNameSelectInput = (idx: number): string => {
+  return `[data-testid="create-index-fields-name-${idx}"] input`;
+};
+export const CreateIndexModalFieldTypeSelectButton = (idx: number): string => {
+  return `[data-testid="create-index-fields-type-${idx}"] button`;
+};
+export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
+  return `[data-testid="create-index-fields-type-${idx}"] #create-index-fields-type-select-${idx}-menu`;
+};
+
+export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
+export const CreateIndexConfirmButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:first-child`;
+export const CreateIndexCancelButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:last-child`;
+
 export const DropIndexModal = '[data-testid="drop_index_modal"]';
 export const DropIndexModalConfirmName =
-  '[data-test-id="confirm-drop-index-name"]';
+  '[data-testid="confirm-drop-index-name"]';
 export const DropIndexModalConfirmButton =
   '[data-testid="drop_index_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
-export const indexComponent = (indexName: string): string => {
-  return `[data-test-id="index-component-${indexName}"]`;
-};
-
-export const dropIndexButton = (indexName: string): string => {
-  return `[data-test-id="index-component-${indexName}"] .btn-default`;
-};
+export const DropIndexButton = '[data-testid="drop-index-button"]';
 
 // Validation tab
 export const AddRuleButton = '[data-test-id="add-rule-button"]';
@@ -919,6 +935,8 @@ export const ExportToLanguageCopyOutputButton =
   '[data-test-id="export-to-lang-copy-output"]';
 export const ExportToLanguageCloseButton =
   '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';
+export const ExportToLanguageQueryOutput =
+  '[data-testid="export-to-lang-query-output-container"]';
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =

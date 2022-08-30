@@ -28,7 +28,14 @@ import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
+import { CollapsibleFieldSet } from './components/collapsible-field-set';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
+import ResizableSidebar from './components/resizeable-sidebar';
+import {
+  ItemAction,
+  ItemActionControls,
+} from './components/item-action-controls';
+import { SmallIcon, IconButtonSmall } from './components/icon-button';
 export {
   Editor,
   EditorVariant,
@@ -46,6 +53,11 @@ export {
 export { Checkbox } from './components/checkbox';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
+export {
+  Combobox,
+  ComboboxOption,
+  ComboboxGroup,
+} from './components/leafy-green/combobox';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassFontSizes from './compass-font-sizes';
 export * as compassUIColors from './compass-ui-colors';
@@ -53,6 +65,7 @@ export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { Variant as ToastVariant } from '@leafygreen-ui/toast';
+export { useId } from '@react-aria/utils';
 
 export { useToast, ToastArea } from './hooks/use-toast';
 
@@ -60,13 +73,16 @@ export { Toggle } from './components/toggle';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
+import IndexIcon from './components/index-icon';
 
 export {
   Accordion,
+  CollapsibleFieldSet,
   CancelLoader,
   ConfirmationModal,
   ErrorSummary,
   FileInput,
+  IndexIcon,
   Modal,
   ModalTitle,
   MoreOptionsToggle,
@@ -74,16 +90,27 @@ export {
   SpinLoader,
   ResizeHandle,
   ResizeDirection,
+  ResizableSidebar,
   Toolbar,
   WarningSummary,
   WorkspaceTabs,
+  ItemAction,
+  ItemActionControls,
+  SmallIcon,
+  IconButtonSmall,
 };
 export {
   useFocusState,
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
-export { withTheme, useTheme, Theme, ThemeProvider } from './hooks/use-theme';
+export {
+  withTheme,
+  useTheme,
+  Theme,
+  ThemeState,
+  ThemeProvider,
+} from './hooks/use-theme';
 export {
   ContentWithFallback,
   FadeInPlaceholder,
@@ -96,6 +123,7 @@ export { ErrorBoundary } from './components/error-boundary';
 export { TabNavBar } from './components/tab-nav-bar';
 export { WorkspaceContainer } from './components/workspace-container';
 export { InlineInfoLink } from './components/inline-info-link';
+export { InteractivePopover } from './components/interactive-popover';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { VirtualGrid } from './components/virtual-grid';

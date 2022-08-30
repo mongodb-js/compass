@@ -90,6 +90,26 @@ describe('connection secrets', function () {
         },
       } as ConnectionInfo);
     });
+
+    it('merges secrets for a cosmosdb connection string', function () {
+      const originalConnectionInfo: ConnectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://database-ut@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
+        },
+      };
+
+      const newConnectionInfo = mergeSecrets(originalConnectionInfo, {
+        password: 'userPassword',
+      });
+
+      expect(newConnectionInfo).to.be.deep.equal({
+        connectionOptions: {
+          connectionString:
+            'mongodb://database-ut:userPassword@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
+        },
+      } as ConnectionInfo);
+    });
   });
 
   describe('extractSecrets', function () {
@@ -224,7 +244,6 @@ describe('connection secrets', function () {
                 aws: {
                   accessKeyId: 'accessKeyId',
                 },
-                local: {},
                 azure: {
                   tenantId: 'tenantId',
                   clientId: 'clientId',
@@ -301,6 +320,48 @@ describe('connection secrets', function () {
             },
           },
         },
+      } as ConnectionSecrets);
+
+      const { connectionInfo: newConnectionInfoNoFle, secrets: secretsNoFle } =
+        extractSecrets(
+          _.set(
+            _.cloneDeep(originalConnectionInfo),
+            'connectionOptions.fleOptions.storeCredentials',
+            false
+          )
+        );
+
+      expect(newConnectionInfoNoFle).to.deep.equal(
+        _.set(
+          _.cloneDeep(newConnectionInfo),
+          'connectionOptions.fleOptions.storeCredentials',
+          false
+        )
+      );
+      expect(secretsNoFle).to.deep.equal(_.omit(secrets, 'autoEncryption'));
+    });
+
+    it('extracts secrets for a cosmosdb connection string', function () {
+      const originalConnectionInfo: ConnectionInfo = {
+        connectionOptions: {
+          connectionString:
+            'mongodb://database-ut:somerandomsecret@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
+        },
+      };
+
+      const { connectionInfo: newConnectionInfo, secrets } = extractSecrets(
+        originalConnectionInfo
+      );
+
+      expect(newConnectionInfo).to.be.deep.equal({
+        connectionOptions: {
+          connectionString:
+            'mongodb://database-ut@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
+        },
+      } as ConnectionInfo);
+
+      expect(secrets).to.be.deep.equal({
+        password: 'somerandomsecret',
       } as ConnectionSecrets);
 
       const { connectionInfo: newConnectionInfoNoFle, secrets: secretsNoFle } =

@@ -50,6 +50,10 @@ tasks:
         vars:
           compass_distribution: compass
         variants: [macos]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass
+        variants: [macos_arm]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass
@@ -82,6 +86,10 @@ tasks:
         vars:
           compass_distribution: compass-isolated
         variants: [macos]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass-isolated
+        variants: [macos_arm]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-isolated
@@ -114,6 +122,10 @@ tasks:
         vars:
           compass_distribution: compass-readonly
         variants: [macos]
+      - func: save-macos-artifacts
+        vars:
+          compass_distribution: compass-readonly
+        variants: [macos_arm]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-readonly
@@ -171,12 +183,16 @@ tasks:
           compass_distribution: compass
       - func: test-packaged-app
         vars:
+          mongodb_version: '5.x.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
   # Publish happens in one go to make sure we are not creating multiple github
   # releases in parallel
   - name: publish
+    # Does a dry-run: doesn't actually publishes, but checks that all files
+    # exist and we are not trying to do a "broken" publish
+    tags: ['run-on-pr']
     depends_on:
       - name: '.required-for-publish'
         variant: '*'
@@ -186,93 +202,8 @@ tasks:
       - func: bootstrap
         vars:
           scope: mongodb-compass
-
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=win32'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=linux'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=darwin'
-      - func: get-artifacts
-        vars:
-          compass_distribution: compass
-
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=win32'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=linux'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=darwin'
-      - func: get-artifacts
-        vars:
-          compass_distribution: compass-isolated
-
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=win32'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=linux'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=darwin'
-      - func: get-artifacts
-        vars:
-          compass_distribution: compass-readonly
-
+      - func: get-all-artifacts
       - func: publish
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=win32'
-      - func: publish
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=linux'
-      - func: publish
-        vars:
-          compass_distribution: compass
-          target_platform: '--platform=darwin'
-
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=win32'
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=linux'
-      - func: publish
-        vars:
-          compass_distribution: compass-isolated
-          target_platform: '--platform=darwin'
-
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=win32'
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=linux'
-      - func: publish
-        vars:
-          compass_distribution: compass-readonly
-          target_platform: '--platform=darwin'
 
   # copied as test-packaged-app-macos due to depends_on variation
   <% for (const task of testPackagedAppVariations) { %>

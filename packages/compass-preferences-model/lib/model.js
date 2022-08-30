@@ -2,8 +2,14 @@ var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
 var get = require('lodash.get');
 var format = require('util').format;
-var electron = require('electron');
-var electronApp = electron.remote ? electron.remote.app : undefined;
+
+var electronApp;
+try {
+  electronApp = require('@electron/remote').app;
+} catch (e) {
+  /* eslint no-console: 0 */
+  console.log('Could not load @electron/remote', e.message);
+}
 
 var debug = require('debug')('mongodb-compass:models:preferences');
 

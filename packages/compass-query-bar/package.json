@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "7.23.0",
+  "version": "8.0.0",
   "description": "Renders a component for executing MongoDB queries through a GUI.",
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
@@ -26,8 +26,8 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "require": "./dist/index.js",
-    "browser": "./dist/browser.js"
+    "browser": "./dist/browser.js",
+    "require": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
@@ -37,13 +37,12 @@
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
-    "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
-    "depcheck": "depcheck",
+    "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
@@ -55,42 +54,37 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^0.16.0",
-    "debug": "*",
-    "hadron-react-components": "^5.16.0",
-    "mongodb-query-parser": "^2.4.6",
-    "prop-types": "^15.7.2",
-    "react": "^16.14.0",
-    "react-bootstrap": "^0.32.1",
-    "react-dom": "^16.14.0",
-    "react-fontawesome": "^1.6.1",
-    "reflux": "^0.4.1",
-    "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin"
+    "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-logging": "^1.0.0",
+    "hadron-react-components": "^6.0.0",
+    "mongodb-ace-autocompleter": "^1.1.1",
+    "react": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-components": "^0.16.0",
-    "@mongodb-js/eslint-config-compass": "^0.10.0",
-    "@mongodb-js/mocha-config-compass": "^0.11.0",
-    "@mongodb-js/prettier-config-compass": "^0.5.0",
-    "@mongodb-js/tsconfig-compass": "^0.6.0",
-    "@mongodb-js/webpack-config-compass": "^0.10.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.0",
+    "@mongodb-js/mocha-config-compass": "^1.0.0",
+    "@mongodb-js/prettier-config-compass": "^1.0.0",
+    "@mongodb-js/tsconfig-compass": "^1.0.0",
+    "@mongodb-js/webpack-config-compass": "^1.0.0",
+    "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
+    "ace-builds": "^1.4.3",
     "chai": "^4.2.0",
     "classnames": "^2.2.6",
-    "debug": "4.3.0",
+    "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app-registry": "^8.13.0",
-    "hadron-react-components": "^5.16.0",
+    "hadron-app-registry": "^9.0.0",
+    "lodash": "^4.17.15",
     "mocha": "^7.0.1",
-    "mongodb-ace-autocompleter": "^1.1.1",
     "mongodb-query-parser": "^2.4.6",
+    "mongodb-query-util": "^0.2.1",
     "ms": "^2.1.2",
     "nyc": "^15.1.0",
     "object-diff": "0.0.4",
     "prop-types": "^15.7.2",
-    "react": "^16.14.0",
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-fontawesome": "^1.6.1",
@@ -101,8 +95,10 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^0.13.0",
-    "lodash": "^4.17.15",
-    "mongodb-query-util": "^0.2.1"
+    "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-logging": "^1.0.0",
+    "hadron-react-components": "^6.0.0",
+    "mongodb-ace-autocompleter": "^1.1.1",
+    "react": "^16.14.0"
   }
 }

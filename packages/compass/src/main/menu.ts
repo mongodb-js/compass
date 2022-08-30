@@ -17,6 +17,7 @@ const debug = createDebug('mongodb-compass:menu');
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
 class ThemeState {
   theme: THEMES = THEMES.LIGHT;
+  enabled?: true
 }
 
 function updateTheme({

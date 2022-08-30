@@ -51,7 +51,7 @@ export const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = 
         <Button
           variant="primaryOutline"
           size="xsmall"
-          leftGlyph={<Icon glyph={'Export'} />}
+          leftGlyph={<Icon glyph="Code" />}
           onClick={onExportToLanguage}
           data-testid="pipeline-toolbar-export-button"
         >

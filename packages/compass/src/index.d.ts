@@ -48,12 +48,19 @@ declare module 'process' {
          */
         COMPASS_SHOW_NEW_TOOLBARS?: 'true' | 'false';
 
+        COMPASS_SHOW_NEW_SIDEBAR?: 'true' | 'false',
+
         COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
 
         /**
          * Permanent feature flag for debugging.
          */
         COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';
+
+        /**
+         * (Hopefully) temporary feature flag for Kerberos password support.
+         */
+         COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD?: 'true';
       }
     }
   }

@@ -452,9 +452,9 @@ export class Element extends EventEmitter {
   }
 
   /**
-   * Determine if the element is renamed.
+   * Determine if the element was explicitly renamed by the user.
    *
-   * @returns If the element was renamed.
+   * @returns If the element was explicitly renamed by the user.
    */
   isRenamed(): boolean {
     if (
@@ -468,7 +468,17 @@ export class Element extends EventEmitter {
   }
 
   /**
-   * Can changes to the elemnt be reverted?
+   * Determine if the element was renamed, potentially as part
+   * of moving array elements.
+   *
+   * @returns If the element was renamed, explicitly or implicitly.
+   */
+  hasChangedKey(): boolean {
+    return this.key !== this.currentKey;
+  }
+
+  /**
+   * Can changes to the element be reverted?
    *
    * @returns If the element can be reverted.
    */
@@ -629,6 +639,22 @@ export class Element extends EventEmitter {
    */
   isRemoved(): boolean {
     return this.removed;
+  }
+
+  /**
+   * Are any immediate children of this element flagged for removal?
+   *
+   * @returns If any immediate children of this element are flagged for removal.
+   */
+  hasAnyRemovedChild(): boolean {
+    if (this.elements) {
+      for (const element of this.elements) {
+        if (element.isRemoved()) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
