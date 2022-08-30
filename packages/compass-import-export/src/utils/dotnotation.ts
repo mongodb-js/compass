@@ -68,33 +68,33 @@ export function serialize(
   */
   const withObjects: Record<string, unknown> = {};
   const knownParents: Record<string, true> = {};
+
   for (const [path, value] of Object.entries(flattened)) {
-    let parentPath = path.includes('.')
-      ? path.slice(0, path.indexOf('.'))
-      : null;
-    if (parentPath && !knownParents[parentPath]) {
-      knownParents[parentPath] = true;
+    let currentIndex = path.indexOf('.');
+
+    let parentPath: string | null =
+      currentIndex > -1 ? path.slice(0, currentIndex) : null;
+
+    // Build all of the parent objects that contain the current path.
+    // (a.b.c -> a = {} a.b = {})
+    while (parentPath) {
       // Leave arrays alone because they already got handled by safe: true above.
-      if (!Array.isArray(_.get(obj, parentPath))) {
+      if (!knownParents[parentPath] && !Array.isArray(_.get(obj, parentPath))) {
+        knownParents[parentPath] = true;
+
         withObjects[parentPath] = {};
       }
 
-      // Build all of the parent objects that contain the current path.
-      // (a.b.c -> a = {} a.b = {})
-      while (parentPath && parentPath.includes('.')) {
-        knownParents[parentPath] = true;
-
-        // Leave arrays alone because they already got handled by safe: true above.
-        if (!Array.isArray(_.get(obj, parentPath))) {
-          withObjects[parentPath] = {};
-        }
-
-        // Continue to the next parent if there is one.
-        parentPath = parentPath.includes('.')
-          ? parentPath.slice(0, path.indexOf('.'))
-          : null;
+      currentIndex = path.indexOf('.', currentIndex + 1);
+      if (currentIndex === -1) {
+        // No more parents.
+        break;
       }
+
+      // Continue to the next parent if there is one.
+      parentPath = path.slice(0, currentIndex);
     }
+
     withObjects[path] = value;
   }
 

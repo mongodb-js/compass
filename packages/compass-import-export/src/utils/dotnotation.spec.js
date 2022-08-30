@@ -105,6 +105,7 @@ describe('dotnotation', function () {
               },
             },
             apples: {
+              a: 123,
               amount: {
                 '2022-01-15': 3.47,
                 '2022-02-14': 4.18,
@@ -127,8 +128,86 @@ describe('dotnotation', function () {
       'supermarket.fruits.apples.amount.2022-01-15': 3.47,
       'supermarket.fruits.apples.amount.2022-02-14': 4.18,
       'supermarket.fruits.apples.amount.2022-03-15': 4.18,
+      'supermarket.fruits.apples.a': 123,
       'supermarket.fruits.currency': 'usd',
       test: '123',
+    });
+  });
+
+  it('should parse deeply nested objects without overriding arrays', function () {
+    const serializedObject = dotnotation.serialize(
+      {
+        supermarket: {
+          17: 76,
+          fruits: {
+            apples: {
+              12: '34',
+              amount: {
+                '2022-01-15': 3.47,
+                '2022-02-14': 4.18,
+                '2022-03-15': 4.18,
+              },
+              a: 123,
+            },
+            currency: 'usd',
+          },
+        },
+        test: '123',
+        a: {
+          b: {
+            c: {
+              17: 76,
+              d: {
+                a: 'ok',
+                99: 'test',
+              },
+              f: [
+                {
+                  aa: {
+                    bb: {
+                      123: 'test',
+                    },
+                    4: 5,
+                  },
+                },
+              ],
+            },
+          },
+        },
+      },
+      { includeObjects: true }
+    );
+
+    expect(serializedObject).to.deep.equal({
+      supermarket: {},
+      'supermarket.17': 76,
+      'supermarket.fruits': {},
+      'supermarket.fruits.apples': {},
+      'supermarket.fruits.apples.12': '34',
+      'supermarket.fruits.apples.amount': {},
+      'supermarket.fruits.apples.amount.2022-01-15': 3.47,
+      'supermarket.fruits.apples.amount.2022-02-14': 4.18,
+      'supermarket.fruits.apples.amount.2022-03-15': 4.18,
+      'supermarket.fruits.apples.a': 123,
+      'supermarket.fruits.currency': 'usd',
+      test: '123',
+      a: {},
+      'a.b': {},
+      'a.b.c': {},
+      'a.b.c.17': 76,
+      'a.b.c.d': {},
+      'a.b.c.d.a': 'ok',
+      'a.b.c.d.99': 'test',
+      'a.b.c.f': [
+        {
+          aa: {
+            4: 5,
+            bb: {
+              123: 'test',
+            },
+          },
+        },
+      ],
     });
   });
 
@@ -138,6 +217,7 @@ describe('dotnotation', function () {
         supermarket: {
           fruits: {
             oranges: {
+              aTest: ['test'],
               amount: {
                 '2022-01-15': 1.66,
                 '2022-02-16': 1.22,
@@ -146,11 +226,13 @@ describe('dotnotation', function () {
               },
             },
             apples: {
+              a: 123,
               amount: {
                 '2022-01-15': 3.47,
                 '2022-02-14': 4.18,
                 '2022-03-15': 4.18,
               },
+              arrayTest: ['test'],
             },
             currency: 'usd',
           },
@@ -162,13 +244,22 @@ describe('dotnotation', function () {
 
     expect(serializedObject).to.deep.equal({
       supermarket: {},
+      'supermarket.fruits': {},
+      'supermarket.fruits.oranges': {},
+      'supermarket.fruits.oranges.aTest': ['test'],
+      'supermarket.fruits.oranges.amount': {},
+      'supermarket.fruits.oranges.amount.2022-01-15': 1.66,
       'supermarket.fruits.oranges.amount.2022-01-15': 1.66,
       'supermarket.fruits.oranges.amount.2022-02-16': 1.22,
       'supermarket.fruits.oranges.amount.2022-03-13': 1.11,
       'supermarket.fruits.oranges.amount.2022-04-14': 7.69,
+      'supermarket.fruits.apples': {},
+      'supermarket.fruits.apples.amount': {},
       'supermarket.fruits.apples.amount.2022-01-15': 3.47,
       'supermarket.fruits.apples.amount.2022-02-14': 4.18,
       'supermarket.fruits.apples.amount.2022-03-15': 4.18,
+      'supermarket.fruits.apples.arrayTest': ['test'],
+      'supermarket.fruits.apples.a': 123,
       'supermarket.fruits.currency': 'usd',
       test: '123',
     });

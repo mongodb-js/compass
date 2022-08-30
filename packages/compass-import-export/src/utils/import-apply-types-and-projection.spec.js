@@ -229,6 +229,92 @@ describe('import-apply-types-and-projection', function () {
         test: '123',
       });
     });
+    it('should parse deeply nested objects without overriding arrays', function () {
+      const res = apply(
+        {
+          supermarket: {
+            17: 76,
+            fruits: {
+              apples: {
+                12: '34',
+                amount: {
+                  '2022-01-15': 3.47,
+                  '2022-02-14': 4.18,
+                  '2022-03-15': 4.18,
+                },
+                a: 123,
+              },
+              currency: 'usd',
+            },
+          },
+          test: '123',
+          a: {
+            b: {
+              c: {
+                17: 76,
+                d: {
+                  a: 'ok',
+                  99: 'test',
+                },
+                f: [
+                  {
+                    aa: {
+                      bb: {
+                        123: 'test',
+                      },
+                      4: 5,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+        {
+          exclude: [],
+          transform: [],
+        }
+      );
+      expect(res).to.deep.equal({
+        supermarket: {
+          17: 76,
+          fruits: {
+            apples: {
+              12: '34',
+              amount: {
+                '2022-01-15': 3.47,
+                '2022-02-14': 4.18,
+                '2022-03-15': 4.18,
+              },
+              a: 123,
+            },
+            currency: 'usd',
+          },
+        },
+        test: '123',
+        a: {
+          b: {
+            c: {
+              17: 76,
+              d: {
+                a: 'ok',
+                99: 'test',
+              },
+              f: [
+                {
+                  aa: {
+                    bb: {
+                      123: 'test',
+                    },
+                    4: 5,
+                  },
+                },
+              ],
+            },
+          },
+        },
+      });
+    });
 
     // COMPASS-4204 Data type is not being set during import
     it('should transform csv strings to Number', function () {
