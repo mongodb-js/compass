@@ -56,7 +56,7 @@ declare class MongoDBInstanceProps {
   statusError: string | null;
   databasesStatus: string;
   databasesStatusError: string | null;
-  refreshingStatus: string;
+  refreshingStatus: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   refreshingStatusError: string | null;
   isAtlas: boolean;
   atlasVersion: string;
