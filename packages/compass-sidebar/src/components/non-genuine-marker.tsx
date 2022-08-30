@@ -39,7 +39,7 @@ export default function NonGenuineMarker({
     <div className={nonGenuineMarkerContainer}>
       <button
         {...focusRingProps}
-        type="button"
+        type={focusRingProps.type as 'button'}
         data-testid="non-genuine-information"
         className={nonGenuineMarkerButton}
         onClick={showNonGenuineModal}
