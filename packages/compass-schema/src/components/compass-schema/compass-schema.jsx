@@ -3,11 +3,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { StatusRow, ZeroState } from 'hadron-react-components';
 import {
+  Body,
   Button,
   ButtonSize,
   ButtonVariant,
   CancelLoader,
+  css,
   Link,
+  spacing,
 } from '@mongodb-js/compass-components';
 import Field from '../field';
 import AnalysisCompleteMessage from '../analysis-complete-message';
@@ -23,6 +26,7 @@ import {
   ANALYSIS_STATE_TIMEOUT,
 } from '../../constants/analysis-states';
 import { SchemaToolbar } from '../schema-toolbar/schema-toolbar';
+import { SchemaNoResults } from '../schema-no-results';
 
 const ERROR_WARNING = 'An error occurred during schema analysis';
 const OUTDATED_WARNING =
@@ -40,6 +44,11 @@ const SUBTEXT =
   '\xa0fields in your data set.';
 
 const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/';
+
+const noFieldsMessageStyles = css({
+  padding: spacing[7],
+  textAlign: 'center',
+});
 
 /**
  * Component for the entire schema view component.
@@ -135,7 +144,21 @@ class Schema extends Component {
       return;
     }
 
-    return get(this.props.schema, 'fields', []).map((field) => {
+    if (!this.props.schema || this.props.schema?.count === 0) {
+      return <SchemaNoResults />;
+    }
+
+    const fields = get(this.props.schema, 'fields', []);
+
+    if (!fields || fields.length === 0) {
+      return (
+        <div className={noFieldsMessageStyles}>
+          <Body>No fields found in sample</Body>
+        </div>
+      );
+    }
+
+    return fields.map((field) => {
       return (
         <Field
           key={field.name}
