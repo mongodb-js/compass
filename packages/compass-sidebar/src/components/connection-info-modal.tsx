@@ -6,6 +6,20 @@ import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { ConnectionOptions } from '../modules/connection-options';
 import { ENTERPRISE, COMMUNITY } from '../constants/server-version';
 
+type Collection = {
+  id: string;
+  name: string;
+  type: string;
+};
+
+type Database = {
+  _id: string;
+  name: string;
+  collectionsStatus: string;
+  collectionsLength: number;
+  collections: Collection[];
+};
+
 type ConnectionInfo = {
   term: string;
   description: React.ReactChild;
@@ -76,9 +90,30 @@ function getVersionDistro(isEnterprise?: boolean): string {
 
 type InfoParameters = {
   instance: MongoDBInstance;
+  databases: Database[];
   connectionInfo: ConnectionInfo;
   connectionOptions: ConnectionOptions;
 };
+
+function getStatsInfo({ instance, databases }: InfoParameters): ConnectionInfo {
+  const isReady = instance.refreshingStatus === 'ready';
+
+  const numDbs = isReady ? databases.length : '-';
+  const numCollections = isReady
+    ? databases.map((db) => db.collectionsLength).reduce((acc, n) => acc + n, 0)
+    : '-';
+  return {
+    term: 'Stats',
+    description: (
+      <div>
+        <div>{`${numDbs} DB${numDbs === 1 ? '' : 's'}`}</div>
+        <div>{`${numCollections} Collection${
+          numCollections === 1 ? '' : 's'
+        }`}</div>
+      </div>
+    ),
+  };
+}
 
 function getHostInfo({ instance }: InfoParameters): ConnectionInfo {
   const { type, servers } = instance.topologyDescription;
@@ -178,6 +213,8 @@ function getInfos(infoParameters: InfoParameters) {
     return infos;
   }
 
+  infos.push(getStatsInfo(infoParameters));
+
   infos.push(getHostInfo(infoParameters));
 
   if (
@@ -198,16 +235,24 @@ function getInfos(infoParameters: InfoParameters) {
 
 const mapStateToProps = (state: {
   instance: MongoDBInstance;
+  databases: {
+    databases: Database[];
+  };
   connectionInfo: {
     connectionInfo: ConnectionInfo;
   };
   connectionOptions: ConnectionOptions;
 }) => {
-  const { instance, connectionOptions } = state;
+  const { instance, databases, connectionOptions } = state;
   const { connectionInfo } = state.connectionInfo;
 
   return {
-    infos: getInfos({ instance, connectionInfo, connectionOptions }),
+    infos: getInfos({
+      instance,
+      databases: databases.databases,
+      connectionInfo,
+      connectionOptions,
+    }),
   };
 };
 

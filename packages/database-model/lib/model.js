@@ -118,7 +118,7 @@ const DatabaseModel = AmpersandModel.extend(
       // if possible if we haven't fetched collections yet, but use the real
       // number if real collections info is available
       collectionsLength: {
-        deps: ['collection_count', 'collectionsStatus'],
+        deps: ['collection_count', 'collectionsStatus', 'collections'],
         fn() {
           return ['ready', 'refreshing'].includes(this.collectionsStatus)
             ? this.collections.length
