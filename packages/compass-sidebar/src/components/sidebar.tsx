@@ -126,7 +126,6 @@ export function Sidebar({
   const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
 
   const toggleCSFLEModalVisible = useCallback(() => {
-    console.log('toggleCSFLEModalVisible');
     setIsCSFLEModalVisible(!isCSFLEModalVisible);
   }, [setIsCSFLEModalVisible, isCSFLEModalVisible]);
 
