@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import { getConnectionTitle } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import {
+  css,
+  spacing,
   ResizableSidebar,
   useToast,
   ToastVariant,
@@ -13,23 +15,41 @@ import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarTitle from './sidebar-title';
 import FavoriteIndicator from './favorite-indicator';
-import DBStats from './db-stats';
 import NavigationItems from './navigation-items';
 import ConnectionInfoModal from './connection-info-modal';
+import NonGenuineWarningModal from './non-genuine-warning-modal';
+import CSFLEConnectionModal from './csfle-connection-modal';
+import CSFLEMarker from './csfle-marker';
+import NonGenuineMarker from './non-genuine-marker';
 
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
+import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
+
+// NOTE: This covers both the typical case where we have no badges and the case where we do.
+const badgesPlaceholderStyles = css({
+  paddingTop: spacing[3],
+});
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
   connectionInfo,
   globalAppRegistryEmit,
   updateAndSaveConnectionInfo,
+  isGenuineMongoDBVisible,
+  toggleIsGenuineMongoDBVisible,
+  isGenuine,
+  csfleMode,
 }: {
   connectionInfo: ConnectionInfo;
   globalAppRegistryEmit: any; // TODO
   updateAndSaveConnectionInfo: any; // TODO
+  isGenuineMongoDBVisible: boolean;
+  toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
+  isGenuine?: boolean;
+  csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 }) {
   // TODO: toggle sidebar
   // TODO: sidebar instance
@@ -38,7 +58,6 @@ export function Sidebar({
   //   - csfle connection modal
   //   - non genuine warning pill
   //   - sidebar instance details
-  // TODO: non genuine warning label
 
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
@@ -97,7 +116,6 @@ export function Sidebar({
         return;
       }
 
-      console.log(action, ...rest);
       globalAppRegistryEmit(action, ...rest);
     },
     [
@@ -105,6 +123,23 @@ export function Sidebar({
       globalAppRegistryEmit,
       openToast,
     ]
+  );
+
+  const showNonGenuineModal = useCallback(() => {
+    toggleIsGenuineMongoDBVisible(true);
+  }, [toggleIsGenuineMongoDBVisible]);
+
+  const [isCSFLEModalVisible, setIsCSFLEModalVisible] = useState(false);
+
+  const toggleCSFLEModalVisible = useCallback(() => {
+    setIsCSFLEModalVisible(!isCSFLEModalVisible);
+  }, [setIsCSFLEModalVisible, isCSFLEModalVisible]);
+
+  const setConnectionIsCSFLEEnabled = useCallback(
+    (enabled: boolean) => {
+      globalAppRegistryEmit('sidebar-toggle-csfle-enabled', enabled);
+    },
+    [globalAppRegistryEmit]
   );
 
   return (
@@ -120,7 +155,20 @@ export function Sidebar({
           <FavoriteIndicator favorite={connectionInfo.favorite} />
         )}
 
-        {isExpanded && <DBStats />}
+        <div className={badgesPlaceholderStyles}>
+          {isExpanded && (
+            <NonGenuineMarker
+              isGenuine={isGenuine}
+              showNonGenuineModal={showNonGenuineModal}
+            />
+          )}
+          {isExpanded && (
+            <CSFLEMarker
+              csfleMode={csfleMode}
+              toggleCSFLEModalVisible={toggleCSFLEModalVisible}
+            />
+          )}
+        </div>
 
         <NavigationItems isExpanded={isExpanded} onAction={onAction} />
 
@@ -130,7 +178,16 @@ export function Sidebar({
           onCancelClicked={() => setIsFavoriteModalVisible(false)}
           onSaveClicked={(favoriteInfo) => onClickSaveFavorite(favoriteInfo)}
         />
-
+        <NonGenuineWarningModal
+          isVisible={isGenuineMongoDBVisible}
+          toggleIsVisible={toggleIsGenuineMongoDBVisible}
+        />
+        <CSFLEConnectionModal
+          open={isCSFLEModalVisible}
+          setOpen={(open: boolean) => setIsCSFLEModalVisible(open)}
+          csfleMode={csfleMode}
+          setConnectionIsCSFLEEnabled={setConnectionIsCSFLEEnabled}
+        />
         <ConnectionInfoModal
           isVisible={isConnectionInfoModalVisible}
           close={() => setIsConnectionInfoModalVisible(false)}
@@ -144,13 +201,19 @@ const mapStateToProps = (state: {
   connectionInfo: {
     connectionInfo: ConnectionInfo;
   };
+  isGenuineMongoDBVisible: boolean;
+  instance?: MongoDBInstance;
 }) => ({
   connectionInfo: state.connectionInfo.connectionInfo,
+  isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
+  isGenuine: state.instance?.genuineMongoDB.isGenuine,
+  csfleMode: state.instance?.csfleMode,
 });
 
 const MappedSidebar = connect(mapStateToProps, {
   globalAppRegistryEmit,
   updateAndSaveConnectionInfo,
+  toggleIsGenuineMongoDBVisible,
 })(Sidebar);
 
 export default MappedSidebar;
