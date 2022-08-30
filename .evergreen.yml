@@ -1,5 +1,5 @@
 stepback: false
-exec_timeout_secs: 5400
+exec_timeout_secs: 86400
 ignore:
   - AUTHORS
   - THIRD-PARTY-NOTICES.md

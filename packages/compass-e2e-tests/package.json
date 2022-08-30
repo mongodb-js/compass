@@ -11,7 +11,7 @@
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "pretest": "npm run unzip-fixtures",
-    "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1024x768x24\" -- gdb --batch -ex 'run' -ex 'bt' --args node ../../node_modules/.bin/ts-node index.ts",
+    "test": "xvfb-maybe --auto-servernum --server-args=\"-screen 0 1024x768x24\" -- valgrind node ../../node_modules/.bin/ts-node index.ts",
     "test-ci": "npm run test",
     "posttest-ci": "node ../../scripts/killall-mongo.js && npm run coverage-merge",
     "test-packaged": "npm run test -- -- --test-packaged-app",

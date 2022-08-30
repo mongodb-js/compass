@@ -334,8 +334,8 @@ functions:
 
   e2e-coverage:
     - command: shell.exec
-      # Fail the task if it's idle for 10 mins
-      timeout_secs: 600
+      # Fail the task if it's idle for 1 day lol
+      timeout_secs: 86400
       params:
         working_dir: src
         shell: bash
