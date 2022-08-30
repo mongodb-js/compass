@@ -196,7 +196,6 @@
     "@mongodb-js/compass-schema": "^6.0.0",
     "@mongodb-js/compass-schema-validation": "^6.0.0",
     "@mongodb-js/compass-serverstats": "^16.0.0",
-    "@mongodb-js/compass-settings": "^0.1.0",
     "@mongodb-js/compass-shell": "^3.0.0",
     "@mongodb-js/compass-sidebar": "^5.0.0",
     "@mongodb-js/eslint-config-compass": "^1.0.0",

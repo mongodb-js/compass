@@ -5,7 +5,6 @@ import ipc from 'hadron-ipc';
 import {
   Modal,
   ModalTitle,
-  H3,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -66,9 +65,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       setOpen={() => setIsOpen(false)}
       data-testid="settings-modal"
     >
-      <ModalTitle as={H3} data-testid="settings-modal-title">
-        Settings
-      </ModalTitle>
+      <ModalTitle data-testid="settings-modal-title">Settings</ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar
