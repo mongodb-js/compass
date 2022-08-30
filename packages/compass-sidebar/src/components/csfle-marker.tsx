@@ -37,7 +37,7 @@ export default function CSFLEMarker({
     <div className={badgeContainerStyles}>
       <button
         {...focusRingProps}
-        type="button"
+        type={focusRingProps.type as 'button'}
         data-testid="fle-connection-configuration"
         aria-label="Open connection In-Use Encryption configuration"
         title="Connection In-Use Encryption configuration"
