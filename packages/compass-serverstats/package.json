@@ -17,7 +17,6 @@
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
-    "start": "npm run webpack serve -- --mode development",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "check": "npm run lint && npm run depcheck",

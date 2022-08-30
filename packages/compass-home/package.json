@@ -28,7 +28,6 @@
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "start": "echo \"There is not an electron running environment available for this package. Please run `npm start` from the root to run this.\"",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
