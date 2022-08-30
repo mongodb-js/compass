@@ -3,10 +3,35 @@ import { css } from '@leafygreen-ui/emotion';
 import FocusTrap from 'focus-trap-react';
 
 import { Popover } from './leafygreen';
+import { spacing } from '@leafygreen-ui/tokens';
+import { uiColors } from '@leafygreen-ui/palette';
+import { transparentize } from 'polished';
+import { useTheme, Theme } from '../hooks/use-theme';
+import { gray8 } from '../compass-ui-colors';
+
+const borderRadius = spacing[2];
 
 const contentContainerStyles = css({
   display: 'flex',
   height: '100%',
+  alignItems: 'center',
+  borderRadius: borderRadius,
+  boxShadow: `0px 2px 4px -1px ${transparentize(0.85, uiColors.black)}`,
+  border: `1px solid`,
+  overflow: 'hidden',
+  width: 'fit-content',
+});
+
+const contentContainerStylesLight = css({
+  borderColor: uiColors.gray.light2,
+  backgroundColor: gray8,
+  color: uiColors.gray.dark2,
+});
+
+const contentContainerStylesDark = css({
+  borderColor: uiColors.gray.dark2,
+  backgroundColor: uiColors.gray.dark3,
+  color: uiColors.white,
 });
 
 type InteractivePopoverProps = {
@@ -28,6 +53,7 @@ function InteractivePopover({
   open,
   setOpen,
 }: InteractivePopoverProps): React.ReactElement {
+  const { theme } = useTheme();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverContentContainerRef = useRef<HTMLDivElement>(null);
 
@@ -124,7 +150,12 @@ function InteractivePopover({
             }}
           >
             <div
-              className={contentContainerStyles}
+              className={cx(
+                contentContainerStyles,
+                theme === Theme.Dark
+                  ? contentContainerStylesDark
+                  : contentContainerStylesLight
+              )}
               ref={popoverContentContainerRef}
             >
               {children({

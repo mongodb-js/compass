@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import {
   Icon,
-  ModalPopover,
+  InteractivePopover,
   css,
   cx,
   focusRingStyles,
@@ -81,7 +81,7 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
   );
 
   return (
-    <ModalPopover
+    <InteractivePopover
       className={queryHistoryPopoverStyles}
       trigger={({ onClick, ref, children }) => (
         <>
@@ -106,6 +106,6 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
       setOpen={onSetShowQueryHistory}
     >
       {popoverContent}
-    </ModalPopover>
+    </InteractivePopover>
   );
 };

@@ -7,7 +7,7 @@ import {
   focusRingVisibleStyles,
   focusRingStyles,
   spacing,
-  ModalPopover
+  InteractivePopover
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
@@ -128,7 +128,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   return (
     <div className={containerStyles} data-testid="pipeline-header">
       {isOpenPipelineVisible && (
-        <ModalPopover
+        <InteractivePopover
           className={savedAggregationsPopoverStyles}
           trigger={({ onClick, ref, children }) => (
             <div className={pipelineTextAndOpenStyles}>
@@ -153,7 +153,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           setOpen={onSetShowSavedPipelinesCallback}
         >
           {savedPipelinesPopover}
-        </ModalPopover>
+        </InteractivePopover>
       )}
       <div className={pipelineStagesStyles}>
         <PipelineStages />
