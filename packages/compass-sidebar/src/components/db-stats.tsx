@@ -11,6 +11,7 @@ import {
   Subtitle,
   Overline,
 } from '@mongodb-js/compass-components';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 
 type RefreshingStatus =
   | 'initial'
@@ -99,9 +100,7 @@ export function DBStats({
 }
 
 const mapStateToProps = (state: {
-  instance?: {
-    refreshingStatus: RefreshingStatus;
-  };
+  instance?: MongoDBInstance;
   databases: {
     databases: Database[];
   };

@@ -9,7 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 const badgeContainerStyles = css({
-  padding: `0 ${spacing[3]}px ${spacing[3]}px`,
+  padding: `0 ${spacing[3]}px ${spacing[2]}px`,
 });
 
 const badgeButtonStyles = css({
