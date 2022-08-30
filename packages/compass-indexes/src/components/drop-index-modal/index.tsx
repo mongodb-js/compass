@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+
 import {
   css,
   Label,
@@ -9,6 +11,15 @@ import {
   Body,
   TextInput,
 } from '@mongodb-js/compass-components';
+
+import { toggleIsVisible } from '../../modules/is-visible';
+import { nameChanged } from '../../modules/drop-index/name';
+import { changeConfirmName } from '../../modules/drop-index/confirm-name';
+import { handleError, clearError } from '../../modules/error';
+import { dropIndex } from '../../modules/drop-index';
+import { resetForm } from '../../modules/reset-form';
+
+import type { RootState } from '../../modules/drop-index';
 
 const messageStyles = css({
   display: 'flex',
@@ -46,9 +57,9 @@ export type DropIndexFormProps = {
 };
 
 /**
- * Drop index form.
+ * Drop index modal.
  */
-function DropIndexForm({
+export function DropIndexModal({
   isVisible,
   inProgress,
   error,
@@ -142,4 +153,28 @@ function DropIndexForm({
   );
 }
 
-export default DropIndexForm;
+const mapState = ({
+  isVisible,
+  inProgress,
+  error,
+  name,
+  confirmName,
+}: RootState) => ({
+  isVisible,
+  inProgress,
+  error,
+  name,
+  confirmName,
+});
+
+const mapDispatch = {
+  toggleIsVisible,
+  clearError,
+  handleError,
+  nameChanged,
+  changeConfirmName,
+  dropIndex,
+  resetForm,
+};
+
+export default connect(mapState, mapDispatch)(DropIndexModal);

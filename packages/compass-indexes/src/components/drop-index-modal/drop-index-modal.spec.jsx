@@ -10,7 +10,7 @@ import {
   within,
 } from '@testing-library/react';
 
-import DropIndexForm from '../drop-index-form';
+import { DropIndexModal } from '../drop-index-modal';
 
 describe('DropIndexForm [Component]', function () {
   let toggleIsVisibleSpy;
@@ -42,7 +42,7 @@ describe('DropIndexForm [Component]', function () {
   context('when names do not match', function () {
     beforeEach(function () {
       render(
-        <DropIndexForm
+        <DropIndexModal
           isVisible
           inProgress={false}
           name="test name"
@@ -110,7 +110,7 @@ describe('DropIndexForm [Component]', function () {
   context('when names match', function () {
     beforeEach(function () {
       render(
-        <DropIndexForm
+        <DropIndexModal
           isVisible
           inProgress={false}
           name="test name"
@@ -139,7 +139,7 @@ describe('DropIndexForm [Component]', function () {
   context('when in progress', function () {
     beforeEach(function () {
       render(
-        <DropIndexForm
+        <DropIndexModal
           isVisible
           inProgress
           name="test name"
@@ -165,7 +165,7 @@ describe('DropIndexForm [Component]', function () {
   context('when error', function () {
     beforeEach(function () {
       render(
-        <DropIndexForm
+        <DropIndexModal
           isVisible
           inProgress={false}
           error="test error"
