@@ -92,6 +92,10 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list views.
    */
   renderViews() {
+    if (this.props.docs?.length === 0) {
+      return null;
+    }
+
     if (this.props.view === 'List') {
       return <DocumentListView {...this.props} />;
     } else if (this.props.view === 'Table') {
