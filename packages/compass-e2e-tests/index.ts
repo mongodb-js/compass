@@ -250,7 +250,8 @@ async function run() {
   }
 
   // Work around a crash in CI that only happens in coverage mode
-  process.exit(0);
+  debug(`Done, exiting explicitly from process ${process.pid}`);
+  process.exit();
 }
 
 void run();
