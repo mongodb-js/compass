@@ -226,9 +226,9 @@ function mongodbAceThemeQuery(acequire: any, exports: any) {
   exports.isDark = false;
   exports.cssClass = 'ace-mongodb-query';
   exports.cssText =
-    process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true'
-      ? mongodbAceThemeQueryCssText
-      : mongodbAceThemeQueryCssTextLegacy;
+    process?.env?.COMPASS_SHOW_OLD_TOOLBARS === 'true'
+      ? mongodbAceThemeQueryCssTextLegacy
+      : mongodbAceThemeQueryCssText;
   const dom = acequire('../lib/dom');
   dom.importCssString(exports.cssText, exports.cssClass);
 }

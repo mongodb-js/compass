@@ -486,9 +486,10 @@ export const collectionHeaderTitle = (
 };
 
 // Documents tab
-export const DocumentListActionBarMessage = '.document-list-action-bar-message';
+export const DocumentListActionBarMessage =
+  '[data-testid="crud-document-count-display"]';
 export const ExportCollectionButton =
-  '[data-test-id="export-collection-button"]';
+  '[data-testid="export-collection-button"]';
 export const DocumentListFetching =
   '[data-test-id="documents-content"] [data-testid="fetching-documents"]';
 export const DocumentListFetchingStopButton =
@@ -502,9 +503,9 @@ export const ImportFileOption =
   '[data-test-id="insert-data-dropdown-import-file"]';
 export const DocumentListEntry = '[data-test-id="editable-document"]';
 export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
-export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
-export const SelectTableView = '[data-test-id="toolbar-view-table"]';
-export const SelectListView = '[data-test-id="toolbar-view-list"]';
+export const SelectJSONView = '[data-testid="toolbar-view-json"]';
+export const SelectTableView = '[data-testid="toolbar-view-table"]';
+export const SelectListView = '[data-testid="toolbar-view-list"]';
 export const CopyDocumentButton = '[data-testid="copy-document-button"]';
 export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
@@ -596,7 +597,7 @@ export const documentListDocumentValue = (n: number): string => {
 
 // Query bar history
 
-export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
+export const QueryBarHistoryButton = '[data-testid="query-history-button"]';
 export const QueryBarHistory = '[data-test-id="query-history"]';
 
 export const QueryHistoryRecentItem = '[data-testid="recent-query-list-item"]';
@@ -826,55 +827,51 @@ export const ValidationNotMatchingDocumentsPreview =
 // Find (Documents, Schema and Explain Plan tabs)
 export const queryBar = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar"]`;
+  return `${tabSelector} [data-testid="query-bar"]`;
 };
 export const queryBarOptionInputFilter = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-filter`;
+  return `${tabSelector} [data-testid="query-bar-option-filter"]`;
 };
 export const queryBarOptionInputProject = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-project`;
+  return `${tabSelector} [data-testid="query-bar-option-project"]`;
 };
 export const queryBarOptionInputSort = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-sort`;
+  return `${tabSelector} [data-testid="query-bar-option-sort"]`;
 };
 export const queryBarOptionInputCollation = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-collation`;
+  return `${tabSelector} [data-testid="query-bar-option-collation"]`;
 };
 export const queryBarOptionInputMaxTimeMS = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [id="querybar-option-input-Max Time MS"]`;
+  return `${tabSelector} [data-testid="query-bar-option-maxTimeMS"]`;
 };
 export const queryBarOptionInputSkip = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #querybar-option-input-skip`;
+  return `${tabSelector} [data-testid="querybar-option-skip"]`;
 };
 export const queryBarOptionInputLimit = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #querybar-option-input-limit`;
+  return `${tabSelector} [data-testid="querybar-option-limit"]`;
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-apply-filter-button"]`;
+  return `${tabSelector} [data-testid="query-bar-apply-filter-button"]`;
 };
 export const queryBarOptionsToggle = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-options-toggle"]`;
+  return `${tabSelector} [data-testid="query-bar-options-toggle"]`;
 };
 export const queryBarResetFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-reset-filter-button"]`;
+  return `${tabSelector} [data-testid="query-bar-reset-filter-button"]`;
 };
-export const queryBarMenuActionsButton = (tabName: string): string => {
+export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions}`;
-};
-export const queryBarActionsMenu = (tabName: string): string => {
-  const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
+  return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
 
 // Workspace tabs at the top

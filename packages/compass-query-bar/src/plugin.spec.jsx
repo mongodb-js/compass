@@ -2,28 +2,58 @@ import React from 'react';
 import { mount, shallow } from 'enzyme';
 import { StoreConnector } from 'hadron-react-components';
 import { expect } from 'chai';
+import AppRegistry from 'hadron-app-registry';
 
 import QueryBarPlugin from './plugin';
 import configureStore from './stores';
 import configureActions from './actions';
-import OptionEditor from './components/legacy-option-editor';
+
+const mockQueryHistoryRole = {
+  name: 'Query History',
+  // eslint-disable-next-line react/display-name
+  component: () => <div>Query history</div>,
+  configureStore: () => ({}),
+  configureActions: () => {},
+  storeName: 'Query.History',
+  actionName: 'Query.History.Actions',
+};
+
+const exportToLanguageSelector =
+  '[data-testid="query-bar-open-export-to-language-button"]';
 
 describe('QueryBar [Plugin]', function () {
   let store;
   let actions;
   let component;
 
+  const globalAppRegistry = new AppRegistry();
+  globalAppRegistry.registerRole('Query.QueryHistory', mockQueryHistoryRole);
+
+  const localAppRegistry = new AppRegistry();
+  localAppRegistry.registerStore('Query.History', {
+    onActivated: () => {},
+  });
+  localAppRegistry.registerAction('Query.History.Actions', {
+    actions: true,
+  });
+
   beforeEach(function () {
+    component = null;
     actions = configureActions();
     store = configureStore({
-      actions: actions,
+      actions,
+      globalAppRegistry,
+      localAppRegistry,
     });
   });
 
   afterEach(function () {
     actions = null;
     store = null;
-    component = null;
+    if (component) {
+      component.unmount();
+      component = null;
+    }
   });
 
   it('should contain a <StoreConnector /> with a store prop', function () {
@@ -41,12 +71,14 @@ describe('QueryBar [Plugin]', function () {
         filterValid: false,
       });
 
-      component = mount(
-        <QueryBarPlugin store={store} actions={actions} layout={['filter']} />
-      );
+      component = mount(<QueryBarPlugin store={store} actions={actions} />);
 
       // Set the ace editor input value.
-      component.find(OptionEditor).instance().editor.session.setValue('{a: 3}');
+      const aceEditorDomNode = component
+        .find('[id="query-bar-option-input-filter"]')
+        .first()
+        .getDOMNode();
+      aceEditorDomNode.env.editor.session.setValue('{a: 3}');
     });
 
     it('updates the store state to valid', function () {
@@ -63,18 +95,18 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={['filter']}
           onApply={() => {
             calledApply = true;
           }}
         />
       );
 
+      expect(calledApply).to.equal(false);
+
       // Click the filter button.
       component
-        .find({ 'data-test-id': 'query-bar-apply-filter-button' })
-        .props()
-        .onClick();
+        .find('button[data-testid="query-bar-apply-filter-button"]')
+        .simulate('click');
     });
 
     afterEach(function () {
@@ -87,34 +119,30 @@ describe('QueryBar [Plugin]', function () {
   });
 
   describe('when the plugin is rendered with or without a query history button', function () {
-    const layout = ['filter'];
-
-    it('query history button renderes by default', function () {
+    it('query history button renders by default', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           expanded
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .exist;
     });
 
-    it('query history button renderes when showQueryHistoryButton prop is passed and set to true', function () {
+    it('query history button renders when showQueryHistoryButton prop is passed and set to true', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showQueryHistoryButton
           expanded
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .exist;
     });
 
@@ -123,46 +151,42 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showQueryHistoryButton={false}
           expanded
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .not.exist;
     });
   });
 
   describe('when rendered with or without an export to language button', function () {
-    const layout = ['filter'];
-
-    it('export to language button renderes by default', function () {
+    it('export to language button renders by default', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showExportToLanguageButton
           expanded
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('#query-bar-menu-actions')).to.exist;
+      //
+      expect(component.find(exportToLanguageSelector)).to.exist;
     });
 
-    it('export to language button renderes when showExportToLanguageButton prop is passed and set to true', function () {
+    it('export to language button renders when showExportToLanguageButton prop is passed and set to true', function () {
       component = mount(
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showExportToLanguageButton
           expanded
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('#query-bar-menu-actions')).to.exist;
+      expect(component.find(exportToLanguageSelector)).to.exist;
     });
 
     it('export to language button does not render when showExportToLanguageButton prop is passed and set to false', function () {
@@ -170,22 +194,23 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
           showExportToLanguageButton={false}
           expanded
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('#query-bar-menu-actions')).to.not.exist;
+      expect(component.find(exportToLanguageSelector)).to.not.exist;
     });
   });
 
   describe('a user is able to provide custom placeholders for the input fields', function () {
-    const layout = [
-      'filter',
+    const queryOptions = [
       'project',
-      ['sort', 'maxTimeMS'],
-      ['collation', 'skip', 'limit'],
+      'sort',
+      'collation',
+      'skip',
+      'limit',
+      'maxTimeMS',
     ];
 
     it('the input fields have a placeholder by default', function () {
@@ -193,34 +218,49 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
+          queryOptions={queryOptions}
           expanded
           serverVersion="3.4.0"
         />
       );
 
-      expect(component.find('button[data-test-id="query-bar-options-toggle"]'))
+      expect(component.find('button[data-testid="query-bar-options-toggle"]'))
         .to.exist;
       component
-        .find('button[data-test-id="query-bar-options-toggle"]')
+        .find('button[data-testid="query-bar-options-toggle"]')
+        .hostNodes()
         .simulate('click');
-      expect(component.find('OptionEditor[label="filter"]').prop('placeholder'))
-        .to.not.be.empty;
       expect(
-        component.find('OptionEditor[label="project"]').prop('placeholder')
+        component.find('OptionEditor[queryOption="filter"]').prop('placeholder')
       ).to.not.be.empty;
       expect(
-        component.find('OptionEditor[label="collation"]').prop('placeholder')
+        component
+          .find('OptionEditor[queryOption="project"]')
+          .prop('placeholder')
       ).to.not.be.empty;
-      expect(component.find('OptionEditor[label="sort"]').prop('placeholder'))
-        .to.not.be.empty;
       expect(
-        component.find('QueryOption[label="Max Time MS"]').prop('placeholder')
+        component
+          .find('OptionEditor[queryOption="collation"]')
+          .prop('placeholder')
       ).to.not.be.empty;
-      expect(component.find('QueryOption[label="skip"]').prop('placeholder')).to
-        .not.be.empty;
-      expect(component.find('QueryOption[label="limit"]').prop('placeholder'))
-        .to.not.be.empty;
+      expect(
+        component.find('OptionEditor[queryOption="sort"]').prop('placeholder')
+      ).to.not.be.empty;
+      expect(
+        component
+          .find('UnthemedQueryOption[queryOption="maxTimeMS"]')
+          .prop('placeholder')
+      ).to.not.be.empty;
+      expect(
+        component
+          .find('UnthemedQueryOption[queryOption="skip"]')
+          .prop('placeholder')
+      ).to.not.be.empty;
+      expect(
+        component
+          .find('UnthemedQueryOption[queryOption="limit"]')
+          .prop('placeholder')
+      ).to.not.be.empty;
     });
 
     it('the input fields placeholders can be modified', function () {
@@ -228,7 +268,7 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          layout={layout}
+          queryOptions={queryOptions}
           sortOptionPlaceholder="{ field: -1 }"
           expanded
           serverVersion="3.4.0"
@@ -242,31 +282,42 @@ describe('QueryBar [Plugin]', function () {
         />
       );
 
-      expect(component.find('button[data-test-id="query-bar-options-toggle"]'))
+      expect(component.find('button[data-testid="query-bar-options-toggle"]'))
         .to.exist;
       component
-        .find('button[data-test-id="query-bar-options-toggle"]')
+        .find('button[data-testid="query-bar-options-toggle"]')
+        .hostNodes()
         .simulate('click');
       expect(
-        component.find('OptionEditor[label="filter"]').prop('placeholder')
+        component.find('OptionEditor[queryOption="filter"]').prop('placeholder')
       ).to.equal("{field: 'matchValue'}");
       expect(
-        component.find('OptionEditor[label="project"]').prop('placeholder')
+        component
+          .find('OptionEditor[queryOption="project"]')
+          .prop('placeholder')
       ).to.equal('{field: 1}');
       expect(
-        component.find('OptionEditor[label="collation"]').prop('placeholder')
+        component
+          .find('OptionEditor[queryOption="collation"]')
+          .prop('placeholder')
       ).to.equal("{locale: 'fr' }");
       expect(
-        component.find('OptionEditor[label="sort"]').prop('placeholder')
+        component.find('OptionEditor[queryOption="sort"]').prop('placeholder')
       ).to.equal('{field: 1}');
       expect(
-        component.find('QueryOption[label="Max Time MS"]').prop('placeholder')
+        component
+          .find('UnthemedQueryOption[queryOption="maxTimeMS"]')
+          .prop('placeholder')
       ).to.equal('50000');
       expect(
-        component.find('QueryOption[label="skip"]').prop('placeholder')
+        component
+          .find('UnthemedQueryOption[queryOption="skip"]')
+          .prop('placeholder')
       ).to.equal('10');
       expect(
-        component.find('QueryOption[label="limit"]').prop('placeholder')
+        component
+          .find('UnthemedQueryOption[queryOption="limit"]')
+          .prop('placeholder')
       ).to.equal('20');
     });
   });
