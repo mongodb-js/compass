@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 const nonGenuineMarkerContainer = css({
-  padding: `0 ${spacing[2]}px ${spacing[2]}px`,
+  padding: `0 ${spacing[3]}px ${spacing[3]}px`,
 });
 
 const nonGenuineMarkerButton = css({
