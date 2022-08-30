@@ -11,6 +11,7 @@ import {
   spacing,
   css,
   Icon,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
 import type { IndexField } from '../../modules/create-index/fields';
@@ -82,6 +83,23 @@ const createIndexFieldsTypeSelectStyles = css({
 const createIndexFieldsButtonsStyles = css({
   display: 'flex',
   justifyContent: 'end',
+});
+
+const comboboxOptionDarkStyles = css({
+  color: uiColors.white,
+  backgroundColor: uiColors.gray.dark2,
+  ':first-child': {
+    backgroundColor: uiColors.gray.dark2,
+  },
+  ':hover': {
+    backgroundColor: uiColors.gray.dark1,
+  },
+});
+
+const comboboxDarkStyles = css({
+  color: uiColors.white,
+  backgroundColor: uiColors.gray.dark2,
+  border: `1px solid ${uiColors.gray.dark2}`,
 });
 
 export type CreateIndexFieldsProps = {
@@ -156,6 +174,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
   renderIndexOptions() {
     const fields = this.props.schemaFields.map((value, idx) => (
       <ComboboxOptionTyped
+        className={this.props.darkMode ? comboboxOptionDarkStyles : ''}
         key={`combobox-option-${idx}`}
         value={value}
         displayName={value}
@@ -170,6 +189,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
 
       fields.push(
         <ComboboxOptionTyped
+          className={this.props.darkMode ? comboboxOptionDarkStyles : ''}
           key={`combobox-option-new`}
           value={newIndexField}
           displayName={`Create Index: ${newIndexField}`}
@@ -200,6 +220,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
             onChange={this.selectFieldName.bind(this, idx)}
             clearable={false}
             darkMode={this.props.darkMode}
+            className={this.props.darkMode ? comboboxDarkStyles : ''}
           >
             {this.renderIndexOptions()}
           </Combobox>
