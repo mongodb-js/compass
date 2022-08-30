@@ -249,7 +249,6 @@ describe('dotnotation', function () {
       'supermarket.fruits.oranges.aTest': ['test'],
       'supermarket.fruits.oranges.amount': {},
       'supermarket.fruits.oranges.amount.2022-01-15': 1.66,
-      'supermarket.fruits.oranges.amount.2022-01-15': 1.66,
       'supermarket.fruits.oranges.amount.2022-02-16': 1.22,
       'supermarket.fruits.oranges.amount.2022-03-13': 1.11,
       'supermarket.fruits.oranges.amount.2022-04-14': 7.69,
