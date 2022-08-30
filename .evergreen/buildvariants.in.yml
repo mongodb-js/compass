@@ -1,7 +1,7 @@
 buildvariants:
   - name: coverage
     display_name: E2E Coverage
-    run_on: ubuntu1604-large
+    run_on: ubuntu1804-large
     tasks:
       - name: e2e-coverage
 
