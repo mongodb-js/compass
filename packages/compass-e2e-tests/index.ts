@@ -272,6 +272,7 @@ async function run() {
     // finalization steps that could crash at this point.
 
     try {
+      console.error('Performing hacky "success" exit from', process.pid);
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('ffi-napi')
         .Library(null, { _exit: ['void', ['int']] })
