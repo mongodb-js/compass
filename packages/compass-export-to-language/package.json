@@ -98,7 +98,6 @@
     "redux-thunk": "^2.3.0",
     "resolve": "^1.15.1",
     "rimraf": "^2.7.1",
-    "semver": "^5.7.1",
     "shebang-loader": "^0.0.1",
     "sinon": "^3.2.0",
     "sinon-chai": "^2.11.0",
@@ -107,7 +106,6 @@
     "webpack": "^4.46.0",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0"
   },

@@ -99,7 +99,6 @@
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.1",
-    "semver": "^5.4.1",
     "shebang-loader": "^0.0.1",
     "sinon": "^4.5.0",
     "sinon-chai": "^3.5.0",
@@ -110,7 +109,6 @@
     "webpack": "^4.46.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0",
     "xvfb-maybe": "^0.2.1"

@@ -62,7 +62,6 @@
     "chai": "^4.1.2",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eventemitter3": "^4.0.0",

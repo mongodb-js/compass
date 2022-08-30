@@ -19,5 +19,7 @@ ignores: [
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",
-  "mongodb-compass"
+  "mongodb-compass",
+  "@hot-loader/react-dom",
+  "url-loader"
 ]

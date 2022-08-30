@@ -83,7 +83,6 @@
     "react-hot-loader": "^4.13.0",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.1",
-    "semver": "^5.4.1",
     "shebang-loader": "^0.0.1",
     "sinon": "^8.1.1",
     "sinon-chai": "^3.4.0",
@@ -92,7 +91,6 @@
     "webpack": "^4.46.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^4.2.2",
     "webpack-node-externals": "^3.0.0"
   },
