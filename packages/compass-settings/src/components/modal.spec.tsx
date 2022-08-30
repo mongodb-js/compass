@@ -1,6 +1,8 @@
-import React, { ComponentProps } from 'react';
+import React from 'react';
+import type { ComponentProps } from 'react';
 import { render, screen, within } from '@testing-library/react';
-import { SinonSpy, spy } from 'sinon';
+import { spy } from 'sinon';
+import type { SinonSpy } from 'sinon';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import userEvent from '@testing-library/user-event';
@@ -9,17 +11,20 @@ import store from '../stores';
 import { SettingsModal } from './modal';
 
 const setupIpc = () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   if (require('hadron-ipc').on) {
     return;
   }
 
   const callbacks = {};
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('hadron-ipc').on = (name: string, callback: CallableFunction) => {
     if (!callbacks[name]) {
       callbacks[name] = [];
     }
     callbacks[name].push(callback);
   };
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('hadron-ipc').emit = (name: string, ...args: unknown[]) => {
     (callbacks[name] ?? []).forEach((callback: CallableFunction) =>
       callback(...args)
@@ -39,10 +44,11 @@ const renderSettingsModal = (
 
 describe('SettingsModal', function () {
   let onInitSpy: SinonSpy<any[], any>;
-  beforeEach(() => {
+  beforeEach(function () {
     setupIpc();
     onInitSpy = spy();
     renderSettingsModal({ onInit: onInitSpy });
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('hadron-ipc').emit('window:show-network-optin');
   });
 

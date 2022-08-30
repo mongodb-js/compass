@@ -47,7 +47,7 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
 };
 
 export const fetchSettings = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions
@@ -73,7 +73,7 @@ export const fetchSettings = (): ThunkAction<
 export const changeFieldValue = (
   field: keyof UserPreferences,
   value: string | boolean
-): ThunkAction<void, RootState, void, Actions> => {
+): ThunkAction<Promise<void>, RootState, void, Actions> => {
   return async (dispatch: Dispatch<Actions>): Promise<void> => {
     try {
       await updatePreference(field, value);
