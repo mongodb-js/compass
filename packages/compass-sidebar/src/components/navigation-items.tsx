@@ -5,8 +5,8 @@ import {
   css,
   cx,
   ItemActionControls,
-  SmallIcon,
   spacing,
+  Icon,
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -87,11 +87,12 @@ export function NavigationItem<Actions extends string>({
       onClick={onClick}
       {...hoverProps}
     >
-      <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>
+      <Icon glyph={glyph} size="small"></Icon>
       {isExpanded && <span className={navigationItemLabel}>{label}</span>}
       {isExpanded && actions && (
         <ItemActionControls<Actions>
           mode="normal"
+          iconSize="small"
           onAction={onAction}
           actions={actions}
           shouldCollapseActionsToMenu

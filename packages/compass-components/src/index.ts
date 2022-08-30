@@ -34,8 +34,13 @@ import ResizableSidebar from './components/resizeable-sidebar';
 import {
   ItemAction,
   ItemActionControls,
+  ItemActionGroup,
+  ItemActionMenu,
 } from './components/item-action-controls';
-import { SmallIcon, IconButtonSmall } from './components/icon-button';
+import {
+  ItemActionButton,
+  ItemActionButtonSize,
+} from './components/item-action-button';
 export {
   Editor,
   EditorVariant,
@@ -96,8 +101,10 @@ export {
   WorkspaceTabs,
   ItemAction,
   ItemActionControls,
-  SmallIcon,
-  IconButtonSmall,
+  ItemActionButton,
+  ItemActionButtonSize,
+  ItemActionGroup,
+  ItemActionMenu,
 };
 export {
   useFocusState,

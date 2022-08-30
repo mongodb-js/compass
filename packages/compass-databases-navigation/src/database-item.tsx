@@ -6,7 +6,7 @@ import {
   css,
   cx,
   ItemActionControls,
-  SmallIcon,
+  Icon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { DATABASE_ROW_HEIGHT } from './constants';
@@ -57,7 +57,7 @@ const ExpandButton: React.FunctionComponent<{
       onClick={onClick}
       className={cx(buttonReset, expandButton, isExpanded && expanded)}
     >
-      <SmallIcon glyph="CaretRight" mode="normal"></SmallIcon>
+      <Icon glyph="CaretRight" size="small"></Icon>
     </button>
   );
 };
@@ -173,7 +173,7 @@ export const DatabaseItem: React.FunctionComponent<
         onClick={onExpandButtonClick}
         isExpanded={isExpanded}
       ></ExpandButton>
-      {useNewSidebar && <SmallIcon glyph="Database" mode="inherit"></SmallIcon>}
+      {useNewSidebar && <Icon glyph="Database" size="small"></Icon>}
       <ItemLabel
         className={
           useNewSidebar
@@ -188,6 +188,7 @@ export const DatabaseItem: React.FunctionComponent<
           className={databaseActions}
           onAction={onAction}
           isActive={isActive}
+          iconSize="small"
           isHovered={isHovered}
           actions={actions}
           mode="hovered"
