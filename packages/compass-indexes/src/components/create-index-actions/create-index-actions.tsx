@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  css,
-  withTheme,
-  Banner,
-  spacing,
-  Button,
-} from '@mongodb-js/compass-components';
+import { css, Banner, spacing, Button } from '@mongodb-js/compass-components';
 
 const bannerStyles = css({
   margin: `${spacing[3]}px 0`,
@@ -25,14 +19,12 @@ const modalFooterActionsStyles = css({
  * Create index actions.
  */
 function CreateIndexActions({
-  darkMode,
   error,
   clearError,
   inProgress,
   createIndex,
   closeCreateIndexModal,
 }: {
-  darkMode?: boolean;
   error: string | null;
   clearError: () => void;
   inProgress: boolean;
@@ -66,7 +58,7 @@ function CreateIndexActions({
     return (
       <div data-testid="create-index-actions-in-progress-banner-wrapper">
         <Banner className={bannerStyles} variant="info">
-          Create in Progress
+          Index creation in progress. The dialog can be closed.
         </Banner>
       </div>
     );
@@ -87,25 +79,25 @@ function CreateIndexActions({
         {renderInProgress()}
       </div>
       <div className={modalFooterActionsStyles}>
-        <Button
-          data-testid="create-index-actions-create-index-button"
-          onClick={onConfirm}
-          variant="primary"
-          className={createIndexButtonStyles}
-          darkMode={darkMode}
-        >
-          Create Index
-        </Button>
+        {!inProgress && (
+          <Button
+            data-testid="create-index-actions-create-index-button"
+            onClick={onConfirm}
+            variant="primary"
+            className={createIndexButtonStyles}
+          >
+            Create Index
+          </Button>
+        )}
         <Button
           data-testid="create-index-actions-cancel-button"
-          darkMode={darkMode}
           onClick={onCancel}
         >
-          Cancel
+          {inProgress ? 'Close' : 'Cancel'}
         </Button>
       </div>
     </>
   );
 }
 
-export default withTheme(CreateIndexActions);
+export default CreateIndexActions;

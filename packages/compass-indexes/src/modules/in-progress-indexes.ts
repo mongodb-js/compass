@@ -30,6 +30,7 @@ export type InProgressIndex = {
   size: number;
   relativeSize: number;
   usageCount: number;
+  error?: string;
 };
 
 /**
@@ -63,6 +64,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
     );
     const failedIndex: InProgressIndex = newState[idx];
     failedIndex.status = 'failed';
+    failedIndex.error = action.error;
     return newState;
   }
   return state;
@@ -75,7 +77,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
  *
  * @returns The action.
  */
-export const inProgressIndexAdded = (inProgressIndex: any) => ({
+export const inProgressIndexAdded = (inProgressIndex: InProgressIndex) => ({
   type: IN_PROGRESS_INDEXES_ADDED,
   inProgressIndex,
 });
@@ -96,10 +98,18 @@ export const inProgressIndexRemoved = (inProgressIndexId: string) => ({
  * Action creator for the in progress index failed event.
  *
  * @param inProgressIndexId - The in progress index id.
+ * @param error - The error message.
  *
  * @returns The action.
  */
-export const inProgressIndexFailed = (inProgressIndexId: string) => ({
+export const inProgressIndexFailed = ({
+  inProgressIndexId,
+  error,
+}: {
+  inProgressIndexId: string;
+  error: string;
+}) => ({
   type: IN_PROGRESS_INDEXES_FAILED,
   inProgressIndexId,
+  error,
 });

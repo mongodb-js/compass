@@ -12,6 +12,8 @@ import {
 
 import CreateIndexActions from '../create-index-actions';
 
+const noop = () => {};
+
 describe('CreateIndexActions Component', function () {
   let clearErrorSpy;
   let createIndexSpy;
@@ -175,21 +177,41 @@ describe('CreateIndexActions Component', function () {
       expect(errorBanner).to.not.exist;
     });
 
-    it('renders in progress banner', function () {
-      render(
-        <CreateIndexActions
-          error={null}
-          clearError={clearErrorSpy}
-          inProgress={true}
-          createIndex={createIndexSpy}
-          closeCreateIndexModal={closeCreateIndexModalSpy}
-        />
-      );
+    context('when in progress', function () {
+      beforeEach(function () {
+        render(
+          <CreateIndexActions
+            error={null}
+            clearError={noop}
+            inProgress={true}
+            createIndex={noop}
+            closeCreateIndexModal={noop}
+          />
+        );
+      });
 
-      const inProgressBanner = screen.getByTestId(
-        'create-index-actions-in-progress-banner-wrapper'
-      );
-      expect(inProgressBanner).to.contain.text('Create in Progress');
+      afterEach(cleanup);
+
+      it('renders in progress banner', function () {
+        const inProgressBanner = screen.getByTestId(
+          'create-index-actions-in-progress-banner-wrapper'
+        );
+        expect(inProgressBanner).to.contain.text('Index creation in progress');
+      });
+
+      it('hides the create index button', function () {
+        const createIndexButton = screen.queryByTestId(
+          'create-index-actions-create-index-button'
+        );
+        expect(createIndexButton).to.not.exist;
+      });
+
+      it('renames the cancel button to close', function () {
+        const cancelButton = screen.getByTestId(
+          'create-index-actions-cancel-button'
+        );
+        expect(cancelButton.textContent).to.be.equal('Close');
+      });
     });
   });
 });

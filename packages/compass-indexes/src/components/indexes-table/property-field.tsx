@@ -8,6 +8,7 @@ import {
   Body,
   Badge,
   BadgeVariant,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import type { IndexDefinition } from '../../modules/indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
@@ -57,13 +58,35 @@ const PropertyBadgeWithTooltip: React.FunctionComponent<{
   );
 };
 
+const ErrorBadgeWithTooltip: React.FunctionComponent<{
+  tooltip?: string | null;
+  darkMode?: boolean;
+}> = ({ tooltip, darkMode }) => {
+  return (
+    <Tooltip
+      darkMode={darkMode}
+      delay={500}
+      trigger={({ children, ...props }) => (
+        <span {...props}>
+          {children}
+          <Badge variant={BadgeVariant.Red}>Failed</Badge>
+        </span>
+      )}
+    >
+      <Body>{tooltip}</Body>
+    </Tooltip>
+  );
+};
+
 type PropertyFieldProps = {
+  darkMode?: boolean;
   extra: IndexDefinition['extra'];
   properties: IndexDefinition['properties'];
   cardinality: IndexDefinition['cardinality'];
 };
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
+  darkMode,
   extra,
   properties,
   cardinality,
@@ -90,10 +113,13 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
         <Badge variant={BadgeVariant.Blue}>In Progress...</Badge>
       )}
       {extra.status === 'failed' && (
-        <Badge variant={BadgeVariant.Red}>Failed</Badge>
+        <ErrorBadgeWithTooltip
+          tooltip={String(extra.error)}
+          darkMode={darkMode}
+        />
       )}
     </div>
   );
 };
 
-export default PropertyField;
+export default withTheme(PropertyField);

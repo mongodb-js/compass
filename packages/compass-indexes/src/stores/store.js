@@ -55,8 +55,8 @@ const configureStore = (options = {}) => {
       store.dispatch(inProgressIndexRemoved(id));
     });
 
-    localAppRegistry.on('in-progress-indexes-failed', (id) => {
-      store.dispatch(inProgressIndexFailed(id));
+    localAppRegistry.on('in-progress-indexes-failed', (data) => {
+      store.dispatch(inProgressIndexFailed(data));
     });
 
     // TODO: could save the version to check for wildcard indexes

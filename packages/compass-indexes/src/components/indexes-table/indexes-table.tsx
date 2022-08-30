@@ -63,7 +63,7 @@ type IndexesTableProps = {
   indexes: IndexDefinition[];
   canDeleteIndex: boolean;
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
-  onDeleteIndex: (name: string) => void;
+  onDeleteIndex: (index: IndexDefinition) => void;
 };
 
 export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
@@ -135,16 +135,18 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
             />
           </Cell>
           {/* Delete column is conditional */}
-          {index.name !== '_id_' && canDeleteIndex && (
-            <Cell data-testid="index-drop-field" className={cellStyles}>
-              <div className={cx(deleteFieldStyles, 'delete-cell')}>
-                <DropField
-                  name={index.name}
-                  onDelete={() => onDeleteIndex(index.name)}
-                />
-              </div>
-            </Cell>
-          )}
+          {index.name !== '_id_' &&
+            index.extra.status !== 'inprogress' &&
+            canDeleteIndex && (
+              <Cell data-testid="index-drop-field" className={cellStyles}>
+                <div className={cx(deleteFieldStyles, 'delete-cell')}>
+                  <DropField
+                    name={index.name}
+                    onDelete={() => onDeleteIndex(index)}
+                  />
+                </div>
+              </Cell>
+            )}
         </Row>
       )}
     </Table>

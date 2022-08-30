@@ -4,12 +4,14 @@ import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regis
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import _debug from 'debug';
 import cloneDeep from 'lodash.clonedeep';
+import type { AnyAction } from 'redux';
 
 import type { RootState } from './index';
 import { handleError } from './error';
 import type { HandleErrorAction, IndexesError } from './error';
 import { ActionTypes as RefreshActionTypes } from './is-refreshing';
 import type { RefreshFinishedAction } from './is-refreshing';
+import { inProgressIndexRemoved } from '../modules/in-progress-indexes';
 
 const debug = _debug('mongodb-compass:modules:indexes');
 
@@ -207,4 +209,13 @@ const _convertToModels = (indexes: Document[]): IndexDefinition[] => {
     model.relativeSize = (model.size / maxSize) * 100;
     return model as IndexDefinition;
   });
+};
+
+export const dropFailedIndex = (
+  id: string
+): ThunkAction<void, RootState, void, AnyAction> => {
+  return (dispatch) => {
+    dispatch(inProgressIndexRemoved(id));
+    dispatch(fetchIndexes());
+  };
 };

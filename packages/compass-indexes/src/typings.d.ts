@@ -6,7 +6,6 @@ declare module 'mongodb-query-parser' {
   export { isCollationValid };
 }
 
-declare module 'hadron-react-components';
 declare module 'hadron-app';
 declare module '@mongodb-js/mongodb-redux-common/app-registry';
 declare module 'lodash.contains';

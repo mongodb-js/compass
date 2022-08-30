@@ -99,15 +99,13 @@ export type CreateIndexFieldsProps = {
 };
 
 /**
- * Component for the index field form.
+ * Component for the index fields.
  */
 class CreateIndexFields extends Component<CreateIndexFieldsProps> {
   static displayName = 'CreateIndexFields';
 
   /**
    * Create React dropdown items for each element in the INDEX_TYPES array.
-   *
-   * @returns {Array} The React components for each item in the field and type dropdowns.
    */
   getDropdownTypes() {
     if (!hasColumnstoreIndexesSupport(this.props.serverVersion)) {
@@ -129,8 +127,6 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
 
   /**
    * Set state to selected field on name change.
-   *
-   * @param {string} name - The selected field name.
    */
   selectFieldName(idx: number, name: string | null) {
     if (name !== null) {
@@ -140,8 +136,6 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
 
   /**
    * Set state to selected field on type change.
-   *
-   * @param {string} type - The selected field type.
    */
   selectFieldType(idx: number, type: string) {
     this.props.updateFieldType(idx, type);
@@ -149,8 +143,6 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
 
   /**
    * Remove this index field
-   *
-   * @param {object} evt The click event.
    */
   remove(idx: number, evt: React.FormEvent) {
     evt.preventDefault();
@@ -158,6 +150,9 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
     this.props.removeField(idx);
   }
 
+  /**
+   * Render combobox options.
+   */
   renderIndexOptions() {
     const fields = this.props.schemaFields.map((value, idx) => (
       <ComboboxOptionTyped
@@ -185,11 +180,6 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
     return fields;
   }
 
-  /**
-   * Render the index field form.
-   *
-   * @returns {React.Component} The index field form.
-   */
   render() {
     return this.props.fields.map((field: IndexField, idx: number) => (
       <div
@@ -228,7 +218,6 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
             value={field.type}
             popoverZIndex={999999}
             aria-labelledby="Field type"
-            darkMode={this.props.darkMode}
           >
             {this.getDropdownTypes()}
           </Select>

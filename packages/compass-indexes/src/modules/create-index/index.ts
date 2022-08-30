@@ -304,10 +304,10 @@ export const createIndex = () => {
           dispatch(toggleInProgress(false));
           dispatch(handleError(createErr as Error));
           dispatch(
-            localAppRegistryEmit(
-              'in-progress-indexes-failed',
-              inProgressIndex.id
-            )
+            localAppRegistryEmit('in-progress-indexes-failed', {
+              inProgressIndexId: inProgressIndex.id,
+              error: createErr.message,
+            })
           );
           return;
         }
