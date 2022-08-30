@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import {
   css,
   Table,
@@ -7,6 +7,7 @@ import {
   Cell,
   cx,
   spacing,
+  uiColors,
 } from '@mongodb-js/compass-components';
 
 import NameField from './name-field';
@@ -58,12 +59,25 @@ const nameFieldStyles = css({
   paddingBottom: spacing[2],
 });
 
+const tableStyles = css({
+  thead: {
+    position: 'sticky',
+    top: 0,
+    background: uiColors.white,
+    zIndex: 1,
+  },
+});
+
 type IndexesTableProps = {
-  darkMode?: boolean;
   indexes: IndexDefinition[];
   canDeleteIndex: boolean;
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
   onDeleteIndex: (name: string) => void;
+};
+
+const getContainerHeight = (): string => {
+  // 300px for the compass tabs, collection info etc
+  return `${window.innerHeight - 300}px`;
 };
 
 export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
@@ -72,6 +86,8 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   onSortTable,
   onDeleteIndex,
 }) => {
+  const tableRef = useRef<HTMLTableElement>(null);
+  const [containerHeight, setContainerHeight] = useState(getContainerHeight());
   const columns = useMemo(() => {
     const sortColumns: SortColumn[] = [
       'Name and Definition',
@@ -100,53 +116,75 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
     return _columns;
   }, [canDeleteIndex, onSortTable]);
 
+  useEffect(() => {
+    const container =
+      tableRef.current?.getElementsByTagName('table')[0]?.parentElement;
+    if (container) {
+      container.style.height = containerHeight;
+    }
+  }, [tableRef, indexes, containerHeight]);
+
+  useEffect(() => {
+    const resizeListener = () => {
+      setContainerHeight(getContainerHeight());
+    };
+    window.addEventListener('resize', resizeListener);
+    return () => {
+      window.removeEventListener('resize', resizeListener);
+    };
+  }, [containerHeight, indexes]);
+
   return (
-    <Table
-      data={indexes}
-      columns={columns}
-      data-testid="indexes-list"
-      aria-label="Indexes List Table"
-    >
-      {({ datum: index }) => (
-        <Row
-          key={index.name}
-          data-testid={`index-row-${index.name}`}
-          className={rowStyles}
-        >
-          <Cell data-testid="index-name-field" className={cellStyles}>
-            <div className={nameFieldStyles}>
-              <NameField name={index.name} keys={index.fields.serialize()} />
-            </div>
-          </Cell>
-          <Cell data-testid="index-type-field" className={cellStyles}>
-            <TypeField type={index.type} extra={index.extra} />
-          </Cell>
-          <Cell data-testid="index-size-field" className={cellStyles}>
-            <SizeField size={index.size} relativeSize={index.relativeSize} />
-          </Cell>
-          <Cell data-testid="index-usage-field" className={cellStyles}>
-            <UsageField usage={index.usageCount} since={index.usageSince} />
-          </Cell>
-          <Cell data-testid="index-property-field" className={cellStyles}>
-            <PropertyField
-              cardinality={index.cardinality}
-              extra={index.extra}
-              properties={index.properties}
-            />
-          </Cell>
-          {/* Delete column is conditional */}
-          {index.name !== '_id_' && canDeleteIndex && (
-            <Cell data-testid="index-drop-field" className={cellStyles}>
-              <div className={cx(deleteFieldStyles, 'delete-cell')}>
-                <DropField
-                  name={index.name}
-                  onDelete={() => onDeleteIndex(index.name)}
-                />
+    // LG table does not forward ref
+    <div ref={tableRef}>
+      <Table
+        className={tableStyles}
+        data={indexes}
+        columns={columns}
+        data-testid="indexes-list"
+        aria-label="Indexes List Table"
+      >
+        {({ datum: index }) => (
+          <Row
+            key={index.name}
+            data-testid={`index-row-${index.name}`}
+            className={rowStyles}
+          >
+            <Cell data-testid="index-name-field" className={cellStyles}>
+              <div className={nameFieldStyles}>
+                <NameField name={index.name} keys={index.fields.serialize()} />
               </div>
             </Cell>
-          )}
-        </Row>
-      )}
-    </Table>
+            <Cell data-testid="index-type-field" className={cellStyles}>
+              <TypeField type={index.type} extra={index.extra} />
+            </Cell>
+            <Cell data-testid="index-size-field" className={cellStyles}>
+              <SizeField size={index.size} relativeSize={index.relativeSize} />
+            </Cell>
+            <Cell data-testid="index-usage-field" className={cellStyles}>
+              <UsageField usage={index.usageCount} since={index.usageSince} />
+            </Cell>
+            <Cell data-testid="index-property-field" className={cellStyles}>
+              <PropertyField
+                cardinality={index.cardinality}
+                extra={index.extra}
+                properties={index.properties}
+              />
+            </Cell>
+            {/* Delete column is conditional */}
+            {index.name !== '_id_' && canDeleteIndex && (
+              <Cell data-testid="index-drop-field" className={cellStyles}>
+                <div className={cx(deleteFieldStyles, 'delete-cell')}>
+                  <DropField
+                    name={index.name}
+                    onDelete={() => onDeleteIndex(index.name)}
+                  />
+                </div>
+              </Cell>
+            )}
+          </Row>
+        )}
+      </Table>
+    </div>
   );
 };

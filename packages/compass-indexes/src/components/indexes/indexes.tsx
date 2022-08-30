@@ -32,7 +32,6 @@ const toolbarStyles = css({
 });
 const indexTableStyles = css({
   gridArea: 'indexTable',
-  overflow: 'auto',
 });
 
 type IndexesProps = {
