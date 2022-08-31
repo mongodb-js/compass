@@ -587,7 +587,7 @@ describe('CreateIndexForm Component', function () {
     });
   });
 
-  describe('server version 6.1.0', function () {
+  describe('server version 7.0.0', function () {
     context('when initial state', function () {
       beforeEach(function () {
         spyComponentProps();
@@ -625,7 +625,7 @@ describe('CreateIndexForm Component', function () {
             useWildcardProjection={false}
             columnstoreProjection=""
             useColumnstoreProjection={false}
-            serverVersion="6.1.0"
+            serverVersion="7.0.0"
             columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
@@ -698,7 +698,7 @@ describe('CreateIndexForm Component', function () {
             useWildcardProjection={false}
             columnstoreProjection=""
             useColumnstoreProjection={true}
-            serverVersion="6.1.0"
+            serverVersion="7.0.0"
             columnstoreProjectionChanged={columnstoreProjectionChangedSpy}
             wildcardProjectionChanged={wildcardProjectionChangedSpy}
             createNewIndexField={createNewIndexFieldSpy}
