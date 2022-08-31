@@ -296,4 +296,24 @@ describe('QueryBar Component', function () {
       expect(queryHistory).to.be.visible;
     });
   });
+
+  describe('tab navigation', function () {
+    beforeEach(function () {
+      renderQueryBar();
+    });
+
+    it('should allow tabbing through the input to the apply button COMPASS-4900', function () {
+      const queryHistoryButton = screen.getByTestId(queryHistoryButtonId);
+      const applyButton = screen.getByTestId('query-bar-apply-filter-button');
+
+      queryHistoryButton.focus();
+      userEvent.tab();
+      userEvent.tab();
+      userEvent.tab();
+
+      expect(applyButton.ownerDocument.activeElement === applyButton).to.equal(
+        true
+      );
+    });
+  });
 });

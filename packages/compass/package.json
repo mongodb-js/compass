@@ -110,6 +110,7 @@
           "**/win-export-certificate-and-key/**",
           "**/macos-export-certificate-and-key/**",
           "**/system-ca/**",
+          "**/node-forge/**",
           "**/mongo_crypt_v1.*"
         ]
       },
@@ -188,7 +189,6 @@
     "@mongodb-js/compass-indexes": "^5.0.0",
     "@mongodb-js/compass-instance": "^4.0.0",
     "@mongodb-js/compass-logging": "^1.0.0",
-    "@mongodb-js/compass-plugin-info": "^4.0.0",
     "@mongodb-js/compass-query-bar": "^8.0.0",
     "@mongodb-js/compass-query-history": "^9.0.0",
     "@mongodb-js/compass-saved-aggregations-queries": "^1.0.0",

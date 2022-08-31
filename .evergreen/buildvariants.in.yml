@@ -1,8 +1,7 @@
 buildvariants:
   - name: macos_gui
     display_name: MacOS x64 (Test w/ GUI Session)
-    # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
-    run_on: macos-1014-codesign
+    run_on: macos-1100-gui
     tasks:
       - name: test-electron
       # TODO: Even though these tests are running, they run compass with a
@@ -14,8 +13,7 @@ buildvariants:
 
   - name: macos
     display_name: MacOS x64 (Test and Package)
-    # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
-    run_on: macos-1014
+    run_on: macos-1100-gui
     tasks:
       - name: test
       - name: check

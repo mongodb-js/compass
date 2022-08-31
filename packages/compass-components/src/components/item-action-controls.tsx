@@ -32,6 +32,7 @@ export function ItemActionControls<Actions extends string>({
   actions,
   onAction,
   className,
+  iconClassName,
   isActive,
   isHovered,
   shouldCollapseActionsToMenu = false,
@@ -40,6 +41,7 @@ export function ItemActionControls<Actions extends string>({
   actions: ItemAction<Actions>[];
   onAction(actionName: Actions): void;
   className?: string;
+  iconClassName?: string;
   isActive: boolean;
   isHovered: boolean;
   shouldCollapseActionsToMenu?: boolean;
@@ -93,8 +95,7 @@ export function ItemActionControls<Actions extends string>({
                 evt.stopPropagation();
                 onClick();
               }}
-              isActive={isActive}
-              className={actionIconButton}
+              className={cx(actionIconButton, iconClassName)}
             >
               {children}
             </IconButtonSmall>
@@ -128,10 +129,9 @@ export function ItemActionControls<Actions extends string>({
             mode={mode}
             label={label}
             title={label}
-            isActive={isActive}
             data-action={action}
             onClick={onClick}
-            className={actionIconButton}
+            className={cx(actionIconButton, iconClassName)}
           ></IconButtonSmall>
         );
       })}

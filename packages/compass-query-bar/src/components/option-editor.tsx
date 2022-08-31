@@ -32,10 +32,9 @@ const editorStyles = cx(
       transition: 'box-shadow .16s ease-in',
       boxShadow: '0 0 0 0 transparent',
     },
-    border: `1px solid ${uiColors.gray.light2}`,
-    borderRadius: '4px',
+    border: '1px solid transparent',
+    borderRadius: spacing[1],
     overflow: 'visible',
-    background: uiColors.white,
     '&:hover': {
       '&::after': {
         boxShadow: `0 0 0 3px ${uiColors.gray.light2}`,
@@ -61,6 +60,12 @@ const editorSettings = {
   highlightActiveLine: false,
   showGutter: false,
 };
+
+function disableEditorCommand(editor: Ace.Editor, name: keyof Ace.CommandMap) {
+  const command = editor.commands.byName[name];
+  command.bindKey = undefined;
+  editor.commands.addCommand(command);
+}
 
 type OptionEditorProps = {
   hasError: boolean;
@@ -125,6 +130,14 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
     editorRef.current = editor;
     editorRef.current.setBehavioursEnabled(true);
+
+    // Disable the default tab key handlers. COMPASS-4900
+    // This for accessibility so that users can tab navigate through Compass.
+    // Down the line if folks want tab functionality we can keep
+    // these commands enabled and disable them with the `Escape` key.
+    disableEditorCommand(editor, 'indent');
+    disableEditorCommand(editor, 'outdent');
+
     editorRef.current.commands.addCommand({
       name: 'executeQuery',
       bindKey: {

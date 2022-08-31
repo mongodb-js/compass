@@ -315,9 +315,7 @@ describe('ConnectionStorage', function () {
           storeCredentials: false,
           autoEncryption: {
             keyVaultNamespace: 'db.coll',
-            kmsProviders: {
-              local: {},
-            },
+            kmsProviders: {},
           },
         });
 
@@ -357,9 +355,7 @@ describe('ConnectionStorage', function () {
           storeCredentials: true,
           autoEncryption: {
             keyVaultNamespace: 'db.coll',
-            kmsProviders: {
-              local: {},
-            },
+            kmsProviders: {},
           },
         });
 

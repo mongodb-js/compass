@@ -86,7 +86,6 @@ var Application = View.extend({
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="tour-container"></div>',
       '  <div data-hook="optin-container"></div>',
-      '  <div data-hook="security"></div>',
       '  <div data-hook="license"></div>',
       '</div>'
     ].join('\n');
@@ -130,7 +129,6 @@ var Application = View.extend({
 
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
     ipc.on('window:show-network-optin', this.showOptIn.bind(this));
-    ipc.on('window:show-security-panel', this.showSecurity.bind(this));
 
     function trackPerfEvent({ name, value }) {
       const fullName = {
@@ -171,14 +169,6 @@ var Application = View.extend({
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
-
-    this.securityComponent = app.appRegistry.getRole(
-      'Application.Security'
-    )[0].component;
-    ReactDOM.render(
-      React.createElement(this.securityComponent),
-      this.queryByHook('security')
-    );
 
     this.autoUpdatesRoles = app.appRegistry.getRole('App.AutoUpdate');
     if (this.autoUpdatesRoles) {
@@ -223,9 +213,6 @@ var Application = View.extend({
       const networkOptInView = new NetworkOptInView();
       this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
     }
-  },
-  showSecurity: function() {
-    app.appRegistry.getAction('Security.Actions').show();
   },
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');

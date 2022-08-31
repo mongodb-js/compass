@@ -44,9 +44,8 @@ const buttonHintStyles = css({
   marginLeft: spacing[1],
   padding: 0,
 });
-interface AccordionProps {
+interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
   darkMode?: boolean;
-  'data-testid'?: string;
   text: string | React.ReactNode;
   hintText?: string;
 }
@@ -62,7 +61,7 @@ function UnthemedAccordion({
   return (
     <>
       <button
-        data-testid={props['data-testid']}
+        {...props}
         className={cx(
           darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
           buttonStyles

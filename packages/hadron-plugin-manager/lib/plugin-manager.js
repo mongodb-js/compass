@@ -6,7 +6,7 @@ const Plugin = require('./plugin');
 const Action = require('./action');
 
 const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
-const { debug, track } = createLoggerAndTelemetry('COMPASS-PLUGINS');
+const { log, track, mongoLogId } = createLoggerAndTelemetry('COMPASS-PLUGINS');
 
 /**
  * Manages plugins in the application.
@@ -48,7 +48,11 @@ class PluginManager {
   }
 
   async _loadPluginsFromPath(userPluginPath, appRegistry, apiVersion) {
-    debug('Loading plugins from path', userPluginPath);
+    log.info(
+      mongoLogId(1_001_000_141),
+      'Hadron Plugin Manager',
+      `Loading plugins from path ${userPluginPath}`
+    );
     try {
       const files = await fs.readdir(userPluginPath);
       return await Promise.all(
@@ -61,20 +65,34 @@ class PluginManager {
         })
       );
     } catch (e) {
-      debug('Failed to load plugins from path:', e);
+      log.warn(
+        mongoLogId(1_001_000_142),
+        'Hadron Plugin Manager',
+        'Failed to load plugins',
+        { path: userPluginPath, message: e.message }
+      );
     }
     return [];
   }
 
   async _loadPlugin(pluginPath, apiVersion) {
-    debug('Loading plugin from path', pluginPath);
+    log.info(
+      mongoLogId(1_001_000_143),
+      'Hadron Plugin Manager',
+      `Loading plugin from path ${pluginPath}`
+    );
     track('External Plugin Loaded');
     try {
       const plugin = new Plugin(pluginPath, apiVersion);
       this.plugins.push(plugin);
       return plugin;
     } catch (e) {
-      debug('Failed to load plugin:', e);
+      log.warn(
+        mongoLogId(1_001_000_144),
+        'Hadron Plugin Manager',
+        'Failed to load plugin',
+        { path: pluginPath, message: e.message }
+      );
     }
     return null;
   }
