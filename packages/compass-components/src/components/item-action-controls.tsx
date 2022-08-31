@@ -1,23 +1,29 @@
-import { useRef } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useRef, forwardRef, useCallback, useState } from 'react';
+import { Icon, IconButton } from '../index';
 
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 
-import type { IconMode } from './item-action-button';
-import { ItemActionButton, ItemActionButtonSize } from './item-action-button';
 import { Menu, MenuItem } from '@leafygreen-ui/menu';
 
-export type ItemAction<Actions> = {
-  action: Actions;
+export type ItemAction<Action> = {
+  action: Action;
   label: string;
   icon: string;
 };
 
-export type MenuAction<Actions> = {
-  action: Actions;
+export type MenuAction<Action> = {
+  action: Action;
   label: string;
 };
+
+const ItemActionButtonSize = {
+  Small: 'small',
+  Default: 'default',
+} as const;
+
+type ItemActionButtonSize =
+  typeof ItemActionButtonSize[keyof typeof ItemActionButtonSize];
 
 const actionControlsStyle = css({
   flex: 'none',
@@ -26,30 +32,86 @@ const actionControlsStyle = css({
   display: 'flex',
 });
 
-const ItemActionButtonStyle = css({
+const actionGroupButtonStyle = css({
   '&:not(:first-child)': {
     marginLeft: spacing[1],
   },
 });
 
-export function ItemActionMenu<Actions extends string>({
-  mode = 'hovered',
+const iconContainerStyle = css({
+  display: 'block',
+  flex: 'none',
+  fontSize: 0,
+  lineHeight: 0,
+});
+
+// Using important here because leafygreen / emotion applies styles in the order
+// that doesn't allow our styles override theirs
+const iconButtonSmallStyle = css({
+  flex: 'none',
+  width: `${spacing[4]}px !important`,
+  height: `${spacing[4]}px !important`,
+});
+
+function actionTestId<Action extends string>(
+  dataTestId: string | undefined,
+  action: Action
+) {
+  return dataTestId ? `${dataTestId}-${action}-action` : undefined;
+}
+
+const ItemActionButton = forwardRef<
+  HTMLButtonElement,
+  {
+    glyph: string;
+    label: string;
+    title?: string;
+    size: ItemActionButtonSize;
+    onClick(evt: React.MouseEvent<HTMLButtonElement>): void;
+  } & Omit<React.HTMLProps<HTMLButtonElement>, 'size'>
+>(function IconButtonSmall(
+  { glyph, size, label, onClick, children, title, className, ...rest },
+  ref
+) {
+  return (
+    <IconButton
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error leafygreen confuses TS a lot here
+      ref={ref}
+      className={cx(
+        size === ItemActionButtonSize.Small ? iconButtonSmallStyle : '',
+        className
+      )}
+      aria-label={label}
+      title={title}
+      onClick={onClick}
+      {...rest}
+    >
+      <span role="presentation" className={iconContainerStyle}>
+        <Icon size={size} glyph={glyph}></Icon>
+      </span>
+      {/* Only here to make leafygreen menus work */}
+      {children}
+    </IconButton>
+  );
+});
+
+export function ItemActionMenu<Action extends string>({
+  isVisible = true,
   actions,
   onAction,
   className,
   iconClassName,
   iconSize = ItemActionButtonSize.Default,
-  isActive,
-  isHovered,
+  'data-testid': dataTestId,
 }: {
-  mode: IconMode;
-  actions: MenuAction<Actions>[];
-  onAction(actionName: Actions): void;
+  actions: MenuAction<Action>[];
+  onAction(actionName: Action): void;
   className?: string;
   iconClassName?: string;
   iconSize?: ItemActionButtonSize;
-  isActive: boolean;
-  isHovered: boolean;
+  isVisible?: boolean;
+  'data-testid'?: string;
 }) {
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -67,10 +129,9 @@ export function ItemActionMenu<Actions extends string>({
     [onAction]
   );
 
-  if (
-    actions.length === 0 ||
-    (!isActive && !isHovered && !isMenuOpen && mode === 'hovered')
-  ) {
+  const shouldRender = isMenuOpen || (isVisible && actions.length > 0);
+
+  if (!shouldRender) {
     return null;
   }
 
@@ -80,6 +141,7 @@ export function ItemActionMenu<Actions extends string>({
         open={isMenuOpen}
         setOpen={setIsMenuOpen}
         refEl={menuTriggerRef}
+        data-testid={dataTestId}
         trigger={({
           onClick,
           children,
@@ -92,15 +154,16 @@ export function ItemActionMenu<Actions extends string>({
               ref={menuTriggerRef}
               size={iconSize}
               glyph="Ellipsis"
-              mode={mode}
               label="Show actions"
               title="Show actions"
-              data-testid="show-actions"
+              data-testid={
+                dataTestId ? `${dataTestId}-show-actions` : undefined
+              }
               onClick={(evt) => {
                 evt.stopPropagation();
                 onClick && onClick(evt);
               }}
-              className={cx(ItemActionButtonStyle, iconClassName)}
+              className={cx(actionGroupButtonStyle, iconClassName)}
             >
               {children}
             </ItemActionButton>
@@ -111,7 +174,7 @@ export function ItemActionMenu<Actions extends string>({
           return (
             <MenuItem
               key={action}
-              data-testid={action}
+              data-testid={actionTestId<Action>(dataTestId, action)}
               data-action={action}
               data-menuitem={true}
               onClick={onClick}
@@ -125,25 +188,23 @@ export function ItemActionMenu<Actions extends string>({
   );
 }
 
-export function ItemActionGroup<Actions extends string>({
-  mode = 'hovered',
+export function ItemActionGroup<Action extends string>({
   actions,
   onAction,
   className,
   iconClassName,
   iconSize = ItemActionButtonSize.Default,
-  isActive,
-  isHovered,
+  isVisible = true,
+  'data-testid': dataTestId,
 }: {
-  mode: IconMode;
-  actions: ItemAction<Actions>[];
-  onAction(actionName: Actions): void;
+  actions: ItemAction<Action>[];
+  onAction(actionName: Action): void;
   className?: string;
   iconClassName?: string;
   iconSize?: ItemActionButtonSize;
-  isActive: boolean;
-  isHovered: boolean;
-  shouldCollapseActionsToMenu?: boolean;
+  isVisible?: boolean;
+  collapseToMenuThreshold?: boolean;
+  'data-testid'?: string;
 }) {
   const onClick = useCallback(
     (evt) => {
@@ -153,24 +214,29 @@ export function ItemActionGroup<Actions extends string>({
     [onAction]
   );
 
-  if (actions.length === 0 || (!isActive && !isHovered && mode === 'hovered')) {
+  const shouldRender = isVisible && actions.length > 0;
+
+  if (!shouldRender) {
     return null;
   }
 
   return (
-    <div className={cx(actionControlsStyle, className)}>
+    <div
+      className={cx(actionControlsStyle, className)}
+      data-testid={dataTestId}
+    >
       {actions.map(({ action, icon, label }) => {
         return (
           <ItemActionButton
             key={action}
             glyph={icon}
-            mode={mode}
             label={label}
             title={label}
             size={iconSize}
             data-action={action}
+            data-testid={actionTestId<Action>(dataTestId, action)}
             onClick={onClick}
-            className={cx(ItemActionButtonStyle, iconClassName)}
+            className={cx(actionGroupButtonStyle, iconClassName)}
           ></ItemActionButton>
         );
       })}
@@ -178,58 +244,54 @@ export function ItemActionGroup<Actions extends string>({
   );
 }
 
-export function ItemActionControls<Actions extends string>({
-  mode = 'hovered',
+export function ItemActionControls<Action extends string>({
+  isVisible = true,
   actions,
   onAction,
   className,
   iconClassName,
   iconSize = ItemActionButtonSize.Default,
-  isActive,
-  isHovered,
-  shouldCollapseActionsToMenu = false,
+  collapseToMenuThreshold = 2,
+  'data-testid': dataTestId,
 }: {
-  mode: IconMode;
-  actions: ItemAction<Actions>[];
-  onAction(actionName: Actions): void;
+  isVisible?: boolean;
+  actions: ItemAction<Action>[];
+  onAction(actionName: Action): void;
   className?: string;
   iconSize?: ItemActionButtonSize;
   iconClassName?: string;
-  isActive: boolean;
-  isHovered: boolean;
-  shouldCollapseActionsToMenu?: boolean;
+  collapseToMenuThreshold?: number;
+  'data-testid'?: string;
 }) {
   if (actions.length === 0) {
     return null;
   }
 
-  const shouldShowMenu = shouldCollapseActionsToMenu && actions.length > 1;
+  const shouldShowMenu = actions.length >= collapseToMenuThreshold;
 
   if (shouldShowMenu) {
     return (
       <ItemActionMenu
-        mode={mode}
+        isVisible={isVisible}
         actions={actions}
         onAction={onAction}
         className={className}
         iconSize={iconSize}
         iconClassName={iconClassName}
-        isActive={isActive}
-        isHovered={isHovered}
+        data-testid={dataTestId}
       ></ItemActionMenu>
     );
   }
 
   return (
     <ItemActionGroup
-      mode={mode}
+      isVisible={isVisible}
       actions={actions}
       onAction={onAction}
       className={className}
       iconSize={iconSize}
+      data-testid={dataTestId}
       iconClassName={iconClassName}
-      isActive={isActive}
-      isHovered={isHovered}
     ></ItemActionGroup>
   );
 }

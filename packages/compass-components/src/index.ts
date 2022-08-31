@@ -37,10 +37,6 @@ import {
   ItemActionGroup,
   ItemActionMenu,
 } from './components/item-action-controls';
-import {
-  ItemActionButton,
-  ItemActionButtonSize,
-} from './components/item-action-button';
 export {
   Editor,
   EditorVariant,
@@ -101,8 +97,6 @@ export {
   WorkspaceTabs,
   ItemAction,
   ItemActionControls,
-  ItemActionButton,
-  ItemActionButtonSize,
   ItemActionGroup,
   ItemActionMenu,
 };

@@ -74,10 +74,20 @@ const sidebarTitle = css({
 
 const iconButtonDark = css({
   color: uiColors.gray.dark3,
+  '&:hover,&:focus,&:active': {
+    color: uiColors.white,
+  },
 });
 
 const iconButtonLight = css({
-  color: 'white',
+  color: uiColors.white,
+  '&:hover': {
+    color: uiColors.gray.dark3,
+  },
+});
+
+const iconButtonStyle = css({
+  color: 'inherit',
 });
 
 function SidebarTitle({
@@ -128,15 +138,14 @@ function SidebarTitle({
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (
         <ItemActionControls<Actions>
-          mode="inherit"
           onAction={onAction}
+          iconSize="small"
           actions={actions}
-          shouldCollapseActionsToMenu
-          isActive={false}
-          isHovered={false}
-          iconClassName={
+          data-testid="sidebar-title-actions"
+          iconClassName={cx(
+            iconButtonStyle,
             theme === Theme.Dark ? iconButtonDark : iconButtonLight
-          }
+          )}
         ></ItemActionControls>
       )}
     </div>

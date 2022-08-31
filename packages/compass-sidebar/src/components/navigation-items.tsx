@@ -91,13 +91,11 @@ export function NavigationItem<Actions extends string>({
       {isExpanded && <span className={navigationItemLabel}>{label}</span>}
       {isExpanded && actions && (
         <ItemActionControls<Actions>
-          mode="normal"
           iconSize="small"
           onAction={onAction}
+          data-testid="sidebar-navigation-item-actions"
           actions={actions}
-          shouldCollapseActionsToMenu
-          isActive={isActive}
-          isHovered={isHovered}
+          isVisible={isActive || isHovered}
         ></ItemActionControls>
       )}
     </div>

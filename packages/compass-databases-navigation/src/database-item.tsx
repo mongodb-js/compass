@@ -187,11 +187,11 @@ export const DatabaseItem: React.FunctionComponent<
         <ItemActionControls<Actions>
           className={databaseActions}
           onAction={onAction}
-          isActive={isActive}
+          isVisible={isActive || isHovered}
+          data-testid="sidebar-database-item-actions"
+          collapseToMenuThreshold={3}
           iconSize="small"
-          isHovered={isHovered}
           actions={actions}
-          mode="hovered"
         ></ItemActionControls>
       )}
     </ItemContainer>

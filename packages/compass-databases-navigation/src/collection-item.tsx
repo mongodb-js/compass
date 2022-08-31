@@ -139,12 +139,10 @@ export const CollectionItem: React.FunctionComponent<
       <ItemActionControls<Actions>
         className={collectionActions}
         onAction={onAction}
+        data-testid="sidebar-collection-item-actions"
         iconSize="small"
-        isActive={isActive}
-        isHovered={isHovered}
+        isVisible={isActive || isHovered}
         actions={actions}
-        shouldCollapseActionsToMenu
-        mode="hovered"
       ></ItemActionControls>
     </ItemContainer>
   );
