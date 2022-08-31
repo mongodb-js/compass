@@ -27,6 +27,10 @@ const buttonReset = css({
 
 const expandButton = css({
   display: 'flex',
+  // Not using leafygreen spacing here because none of them allow to align the
+  // button with the search bar content. This probably can go away when we are
+  // rebuilding the search also
+  padding: 7,
   transition: 'transform .16s linear',
   transform: 'rotate(0deg)',
   '&:hover': {
