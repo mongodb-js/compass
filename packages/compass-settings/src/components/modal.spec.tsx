@@ -37,17 +37,19 @@ const renderSettingsModal = (
 ) => {
   render(
     <Provider store={store}>
-      <SettingsModal onModalOpen={() => {}} {...props} />
+      <SettingsModal onModalOpen={() => {}} onUpdate={() => {}} {...props} />
     </Provider>
   );
 };
 
 describe('SettingsModal', function () {
   let onModalOpenSpy: SinonSpy<any[], any>;
+  let onUpdateSpy: SinonSpy<any[], any>;
   beforeEach(function () {
     setupIpc();
     onModalOpenSpy = spy();
-    renderSettingsModal({ onModalOpen: onModalOpenSpy });
+    onUpdateSpy = spy();
+    renderSettingsModal({ onModalOpen: onModalOpenSpy, onUpdate: onUpdateSpy });
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('hadron-ipc').emit('window:show-network-optin');
   });
@@ -57,6 +59,18 @@ describe('SettingsModal', function () {
     const container = screen.getByTestId('settings-modal');
     expect(container).to.exist;
     expect(within(container).getByTestId('settings-modal-title')).to.exist;
+  });
+
+  it('modal footer actions', function () {
+    expect(onUpdateSpy.callCount).to.equal(0);
+    const container = screen.getByTestId('settings-modal');
+    const updateButton = within(container).getByTestId(
+      'update-settings-button'
+    );
+    expect(updateButton).to.exist;
+
+    userEvent.click(updateButton);
+    expect(onUpdateSpy.calledOnce).to.be.true;
   });
 
   it('navigates between settings', function () {

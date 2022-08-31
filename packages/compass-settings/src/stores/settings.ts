@@ -1,45 +1,43 @@
-import type { Reducer, Dispatch } from 'redux';
+import type { Reducer } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
-import { fetchPreferences, updatePreference } from '../utils/user-preferences';
+import { fetchPreferences } from '../utils/user-preferences';
 import type { UserPreferences } from '../utils/user-preferences';
+import { ActionTypes as UpdatedFieldActionTypes } from './updated-fields';
+import type { Actions as UpdatedFieldActions } from './updated-fields';
 
 export type State = Partial<UserPreferences>;
 
 const INITIAL_STATE: State = {};
 
 export enum ActionTypes {
-  FieldChanged = 'compass-settings/settingsFieldChanged',
   SettingsFetched = 'compass-settings/settingsFetched',
 }
-
-type ChangeFieldAction = {
-  type: ActionTypes.FieldChanged;
-  key: string;
-  value: boolean | string;
-};
 
 type SettingsFetchedAction = {
   type: ActionTypes.SettingsFetched;
   settings: UserPreferences;
 };
 
-export type Actions = ChangeFieldAction | SettingsFetchedAction;
+export type Actions = SettingsFetchedAction;
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, Actions | UpdatedFieldActions> = (
+  state = INITIAL_STATE,
+  action
+) => {
   switch (action.type) {
     case ActionTypes.SettingsFetched:
       return {
         ...action.settings,
       };
-    case ActionTypes.FieldChanged:
+    case UpdatedFieldActionTypes.FieldUpdated:
       return {
         ...state,
-        [action.key]: action.value,
+        [action.field]: action.value,
       };
     default:
       return state;
@@ -52,7 +50,7 @@ export const fetchSettings = (): ThunkAction<
   void,
   Actions
 > => {
-  return async (dispatch: Dispatch<Actions>): Promise<void> => {
+  return async (dispatch): Promise<void> => {
     try {
       const settings = await fetchPreferences();
       dispatch({
@@ -64,29 +62,6 @@ export const fetchSettings = (): ThunkAction<
         mongoLogId(1_001_000_141),
         'Settings',
         'Failed to fetch settings',
-        { message: (e as Error).message }
-      );
-    }
-  };
-};
-
-export const changeFieldValue = (
-  field: keyof UserPreferences,
-  value: string | boolean
-): ThunkAction<Promise<void>, RootState, void, Actions> => {
-  return async (dispatch: Dispatch<Actions>): Promise<void> => {
-    try {
-      await updatePreference(field, value);
-      dispatch({
-        type: ActionTypes.FieldChanged,
-        key: field,
-        value,
-      });
-    } catch (e) {
-      log.warn(
-        mongoLogId(1_001_000_142),
-        'Settings',
-        'Failed to update the settings',
         { message: (e as Error).message }
       );
     }

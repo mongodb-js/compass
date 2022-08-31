@@ -3,10 +3,12 @@ import type { Store, AnyAction } from 'redux';
 import thunk from 'redux-thunk';
 
 import settingsReducer from './settings';
+import updatedFieldsReducer from './updated-fields';
 
 const store = createStore(
   combineReducers({
     settings: settingsReducer,
+    updatedFields: updatedFieldsReducer,
   }),
   applyMiddleware(thunk)
 );

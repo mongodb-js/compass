@@ -7,12 +7,15 @@ import {
   ModalTitle,
   css,
   spacing,
+  Button,
+  ModalFooter,
 } from '@mongodb-js/compass-components';
 
 import { fetchSettings } from '../stores/settings';
 
 import PrivacySettings from './settings/privacy';
 import Sidebar from './sidebar';
+import { updateSettings } from '../stores/updated-fields';
 
 type Settings = {
   name: string;
@@ -21,6 +24,7 @@ type Settings = {
 
 type SettingsModalProps = {
   onModalOpen: () => void;
+  onUpdate: () => void;
 };
 
 const contentStyles = css({
@@ -37,10 +41,20 @@ const settingsStyles = css({
   paddingLeft: spacing[2],
 });
 
+const footerStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  flexDirection: 'row',
+  gap: spacing[2],
+  paddingRight: 0,
+  paddingBottom: 0,
+});
+
 const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onModalOpen,
+  onUpdate,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
@@ -55,11 +69,17 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     });
   }, [setIsOpen, onModalOpen]);
 
+  const closeModal = () => setIsOpen(false);
+  const updateSettings = () => {
+    onUpdate();
+    closeModal();
+  };
+
   return (
     <Modal
       size="large"
       open={isOpen}
-      setOpen={() => setIsOpen(false)}
+      setOpen={closeModal}
       data-testid="settings-modal"
     >
       <ModalTitle data-testid="settings-modal-title">Settings</ModalTitle>
@@ -81,10 +101,27 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           {SettingComponent && <SettingComponent />}
         </div>
       </div>
+      <ModalFooter className={footerStyles}>
+        <Button
+          data-testid="cancel-settings-button"
+          variant="default"
+          onClick={closeModal}
+        >
+          Cancel
+        </Button>
+        <Button
+          data-testid="update-settings-button"
+          variant="primary"
+          onClick={updateSettings}
+        >
+          Update
+        </Button>
+      </ModalFooter>
     </Modal>
   );
 };
 
 export default connect(null, {
   onModalOpen: fetchSettings,
+  onUpdate: updateSettings,
 })(SettingsModal);

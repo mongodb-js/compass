@@ -15,6 +15,8 @@ export type UserPreferences = {
   theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
 };
 
+type UpdateRecord = { [P in keyof UserPreferences]?: boolean | string };
+
 export const fetchPreferences = async (): Promise<UserPreferences> => {
   const model = new Preferences();
   const fetch = promisifyAmpersandMethod(model.fetch.bind(model));
@@ -29,36 +31,27 @@ export const fetchPreferences = async (): Promise<UserPreferences> => {
   }
 
   // First time user.
-  // Set the defaults
   await _updateDefaultPreferences();
-  // update showedNetworkOptIn flag
-  await updatePreference('showedNetworkOptIn', true);
   return ((await fetch()) as any).getAttributes({ props: true }, true);
 };
 
-const _updateDefaultPreferences = async (): Promise<void> => {
-  const defaults = {
+const _updateDefaultPreferences = async () => {
+  // Set the defaults and also update showedNetworkOptIn flag
+  const defaults: UpdateRecord = {
     autoUpdates: true,
     enableMaps: true,
     trackErrors: true,
     trackUsageStatistics: true,
     enableFeedbackPanel: true,
+    showedNetworkOptIn: true,
   };
-  const model = new Preferences();
-  await (promisifyAmpersandMethod(model.fetch.bind(model)) as any)();
-  await (promisifyAmpersandMethod(model.save.bind(model)) as any)(defaults);
+  return updatePreferences(defaults);
 };
 
-export const updatePreference = async (
-  key: keyof UserPreferences,
-  value: boolean | string
+export const updatePreferences = async (
+  attributes: UpdateRecord
 ): Promise<void> => {
   const model = new Preferences();
-  const fetch = promisifyAmpersandMethod(model.fetch.bind(model));
-  await fetch();
-
-  model.set(key, value);
-
-  const save = promisifyAmpersandMethod(model.save.bind(model));
-  await (save as any)(model);
+  await (promisifyAmpersandMethod(model.fetch.bind(model)) as any)();
+  await (promisifyAmpersandMethod(model.save.bind(model)) as any)(attributes);
 };

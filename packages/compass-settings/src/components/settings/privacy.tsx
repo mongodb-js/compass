@@ -10,7 +10,7 @@ import {
   Link,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
-import { changeFieldValue } from '../../stores/settings';
+import { changeFieldValue } from '../../stores/updated-fields';
 
 type PrivacySettingsProps = {
   handleChange: (field: PrivacyFields, value: boolean) => void;
