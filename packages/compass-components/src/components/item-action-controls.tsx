@@ -203,7 +203,6 @@ export function ItemActionGroup<Action extends string>({
   iconClassName?: string;
   iconSize?: ItemActionButtonSize;
   isVisible?: boolean;
-  collapseToMenuThreshold?: boolean;
   'data-testid'?: string;
 }) {
   const onClick = useCallback(
