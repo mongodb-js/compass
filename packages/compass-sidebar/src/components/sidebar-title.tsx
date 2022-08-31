@@ -74,7 +74,7 @@ const sidebarTitle = css({
 
 const iconButtonDark = css({
   color: uiColors.gray.dark3,
-  '&:hover,&:focus,&:active': {
+  '&:hover': {
     color: uiColors.white,
   },
 });
