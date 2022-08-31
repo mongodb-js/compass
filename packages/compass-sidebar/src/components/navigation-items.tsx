@@ -57,6 +57,8 @@ const navigationItemLabel = css({
   marginLeft: spacing[2],
 });
 
+const navigationItemActionIcons = css({ color: 'inherit' });
+
 export function NavigationItem<Actions extends string>({
   isExpanded,
   onAction,
@@ -74,7 +76,7 @@ export function NavigationItem<Actions extends string>({
   tabName: string;
   isActive: boolean;
 }) {
-  const [hoverProps, isHovered] = useHoverState();
+  const [hoverProps] = useHoverState();
 
   const onClick = useCallback(() => {
     onAction('open-instance-workspace', tabName);
@@ -95,7 +97,12 @@ export function NavigationItem<Actions extends string>({
           onAction={onAction}
           data-testid="sidebar-navigation-item-actions"
           actions={actions}
-          isVisible={isActive || isHovered}
+          // This is what renders the "create database" action,
+          // the icons here should always be clearly visible,
+          // so we let the icon to inherit the foreground color of
+          // the text
+          isVisible={true}
+          iconClassName={navigationItemActionIcons}
         ></ItemActionControls>
       )}
     </div>
