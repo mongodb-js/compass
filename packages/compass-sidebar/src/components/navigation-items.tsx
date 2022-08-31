@@ -78,7 +78,7 @@ export function NavigationItem<Actions extends string>({
 
   const onClick = useCallback(() => {
     onAction('open-instance-workspace', tabName);
-  }, [onAction]);
+  }, [onAction, tabName]);
 
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
