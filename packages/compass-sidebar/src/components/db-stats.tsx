@@ -37,7 +37,6 @@ type Database = {
 const dbStats = css({
   display: 'flex',
   alignItems: 'center',
-  cursor: 'pointer',
   padding: `${spacing[5]}px ${spacing[3]}px`,
   gap: spacing[5],
 });
