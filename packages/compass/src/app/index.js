@@ -221,7 +221,7 @@ var Application = View.extend({
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');
     app.preferences.save({}, {success: () => {
-      if (!app.preferences.showedNetworkOptIn) {
+      if (!app.preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
         ipc.ipcRenderer.emit('window:show-network-optin');
       }
     }});
