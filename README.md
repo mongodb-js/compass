@@ -28,7 +28,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**@mongodb-js/compass-indexes**](packages/compass-indexes): Indexes support for Compass
 - [**@mongodb-js/compass-instance**](packages/compass-instance): compass instance plugin
 - [**@mongodb-js/compass-loading**](packages/compass-loading): Compass Loading Screen
-- [**@mongodb-js/compass-plugin-info**](packages/compass-plugin-info): Compass Plugin Information Plugin
 - [**@mongodb-js/compass-query-bar**](packages/compass-query-bar): Renders a component for executing MongoDB queries through a GUI.
 - [**@mongodb-js/compass-query-history**](packages/compass-query-history): The query history sidebar.
 - [**@mongodb-js/compass-schema**](packages/compass-schema): Compass Schema Tab Plugin
