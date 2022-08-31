@@ -20,7 +20,7 @@ type Settings = {
 };
 
 type SettingsModalProps = {
-  onInit: () => void;
+  onModalOpen: () => void;
 };
 
 const contentStyles = css({
@@ -40,7 +40,7 @@ const settingsStyles = css({
 const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
-  onInit,
+  onModalOpen,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
@@ -49,14 +49,11 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
 
   useEffect(() => {
-    onInit();
-  }, [onInit]);
-
-  useEffect(() => {
     (ipc as any).on('window:show-network-optin', () => {
+      onModalOpen();
       setIsOpen(true);
     });
-  }, [setIsOpen]);
+  }, [setIsOpen, onModalOpen]);
 
   return (
     <Modal
@@ -89,5 +86,5 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 };
 
 export default connect(null, {
-  onInit: fetchSettings,
+  onModalOpen: fetchSettings,
 })(SettingsModal);

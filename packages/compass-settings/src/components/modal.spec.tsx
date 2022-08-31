@@ -37,23 +37,23 @@ const renderSettingsModal = (
 ) => {
   render(
     <Provider store={store}>
-      <SettingsModal onInit={() => {}} {...props} />
+      <SettingsModal onModalOpen={() => {}} {...props} />
     </Provider>
   );
 };
 
 describe('SettingsModal', function () {
-  let onInitSpy: SinonSpy<any[], any>;
+  let onModalOpenSpy: SinonSpy<any[], any>;
   beforeEach(function () {
     setupIpc();
-    onInitSpy = spy();
-    renderSettingsModal({ onInit: onInitSpy });
+    onModalOpenSpy = spy();
+    renderSettingsModal({ onModalOpen: onModalOpenSpy });
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('hadron-ipc').emit('window:show-network-optin');
   });
 
   it('sets up component', function () {
-    expect(onInitSpy.calledOnce).to.be.true;
+    expect(onModalOpenSpy.calledOnce).to.be.true;
     const container = screen.getByTestId('settings-modal');
     expect(container).to.exist;
     expect(within(container).getByTestId('settings-modal-title')).to.exist;
