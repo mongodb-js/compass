@@ -40,3 +40,4 @@ export * from './expand-accordion';
 export * from './reset-connect-form';
 export * from './scroll-to-virtual-item';
 export * from './set-export-filename';
+export * from './set-feature';
