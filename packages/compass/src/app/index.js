@@ -207,17 +207,8 @@ var Application = View.extend({
       this.tourClosed();
     }
   },
-<<<<<<< HEAD
   showSecurity: function() {
     app.appRegistry.getAction('Security.Actions').show();
-=======
-  showOptIn: function() {
-    if (process.env.HADRON_ISOLATED !== 'true') {
-      const NetworkOptInView = require('./network-optin');
-      const networkOptInView = new NetworkOptInView();
-      this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
-    }
->>>>>>> origin
   },
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');
