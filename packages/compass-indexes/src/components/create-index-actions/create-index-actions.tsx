@@ -79,6 +79,12 @@ function CreateIndexActions({
         {renderInProgress()}
       </div>
       <div className={modalFooterActionsStyles}>
+        <Button
+          data-testid="create-index-actions-cancel-button"
+          onClick={onCancel}
+        >
+          {inProgress ? 'Close' : 'Cancel'}
+        </Button>
         {!inProgress && (
           <Button
             data-testid="create-index-actions-create-index-button"
@@ -89,12 +95,6 @@ function CreateIndexActions({
             Create Index
           </Button>
         )}
-        <Button
-          data-testid="create-index-actions-cancel-button"
-          onClick={onCancel}
-        >
-          {inProgress ? 'Close' : 'Cancel'}
-        </Button>
       </div>
     </>
   );

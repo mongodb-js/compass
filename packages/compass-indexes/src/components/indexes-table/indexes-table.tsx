@@ -39,6 +39,7 @@ const deleteFieldStyles = css({
       opacity: 1,
     },
   },
+  minWidth: spacing[5],
 });
 
 const tableHeaderStyles = css({
@@ -134,19 +135,18 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
               properties={index.properties}
             />
           </Cell>
-          {/* Delete column is conditional */}
-          {index.name !== '_id_' &&
-            index.extra.status !== 'inprogress' &&
-            canDeleteIndex && (
-              <Cell data-testid="index-drop-field" className={cellStyles}>
-                <div className={cx(deleteFieldStyles, 'delete-cell')}>
+          <Cell data-testid="index-drop-field" className={cellStyles}>
+            <div className={cx(deleteFieldStyles, 'delete-cell')}>
+              {index.name !== '_id_' &&
+                index.extra.status !== 'inprogress' &&
+                canDeleteIndex && (
                   <DropField
                     name={index.name}
                     onDelete={() => onDeleteIndex(index)}
                   />
-                </div>
-              </Cell>
-            )}
+                )}
+            </div>
+          </Cell>
         </Row>
       )}
     </Table>
