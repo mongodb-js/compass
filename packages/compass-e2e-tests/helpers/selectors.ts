@@ -810,7 +810,7 @@ export const DropIndexModalConfirmName =
 export const DropIndexModalConfirmButton =
   '[data-testid="drop-index-modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
-export const DropIndexButton = '[data-testid="drop-index-button"]';
+export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-test-id="add-rule-button"]';

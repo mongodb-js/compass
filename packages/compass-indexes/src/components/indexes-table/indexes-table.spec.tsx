@@ -140,10 +140,10 @@ describe('IndexesTable Component', function () {
         'index-size-field',
         'index-usage-field',
         'index-property-field',
-        'index-drop-field',
+        'index-actions-field',
       ].forEach((indexCell) => {
         // For _id index we always hide drop index field
-        if (index.name !== '_id_' && indexCell !== 'index-drop-field') {
+        if (index.name !== '_id_' && indexCell !== 'index-actions-field') {
           expect(within(indexRow).getByTestId(indexCell)).to.exist;
         } else {
           expect(() => {
@@ -161,7 +161,7 @@ describe('IndexesTable Component', function () {
     indexes.forEach((index) => {
       const indexRow = screen.getByTestId(`index-row-${index.name}`);
       expect(() => {
-        within(indexRow).getByTestId('index-drop-field');
+        within(indexRow).getByTestId('index-actions-field');
       }).to.throw;
     });
   });

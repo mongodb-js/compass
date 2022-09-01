@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import type { MenuAction } from '@mongodb-js/compass-components';
 import {
   Card,
   css,
@@ -12,9 +13,7 @@ import {
   useHoverState,
   mergeProps,
   FocusState,
-  Menu,
-  MenuItem,
-  IconButton,
+  ItemActionMenu,
 } from '@mongodb-js/compass-components';
 import type { Item } from '../stores/aggregations-queries-items';
 import { formatDate } from '../utlis/format-date';
@@ -142,72 +141,31 @@ function useFormattedDate(timestamp: number) {
   return formattedDate;
 }
 
-const menuContainer = css({
-  position: 'relative',
-});
+type SavedItemAction = 'copy' | 'rename' | 'delete';
+const savedItemActions: MenuAction[] = [
+  { action: 'copy', label: 'Copy' },
+  { action: 'rename', label: 'Rename' },
+  { action: 'delete', label: 'Delete' },
+];
 
 const CardActions: React.FunctionComponent<{
   itemId: string;
   isVisible: boolean;
   onAction: SavedItemCardProps['onAction'];
 }> = ({ itemId, isVisible, onAction }) => {
-  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const onMenuItemClick = useCallback(
-    (evt) => {
-      evt.stopPropagation();
-      setIsMenuOpen(false);
-      onAction(itemId, evt.currentTarget.dataset.action);
+    (action: SavedItemAction) => {
+      onAction(itemId, action);
     },
     [itemId, onAction]
   );
 
-  const isMenuTriggerVisible = isVisible || isMenuOpen;
-
   return (
-    <Menu
-      open={isMenuOpen}
-      setOpen={setIsMenuOpen}
-      // NB: Focus should be preserved inside the card while interactions are
-      // happening inside the card DOM tree, otherwise we will have troubles
-      // tracking card focus for the virtual grid keyboard navigation
-      usePortal={false}
-      trigger={({
-        onClick,
-        children: menu,
-      }: {
-        onClick(): void;
-        children: React.ReactChildren;
-      }) =>
-        isMenuTriggerVisible && (
-          <div className={menuContainer}>
-            <IconButton
-              ref={menuTriggerRef}
-              aria-label="Show actions"
-              title="Show actions"
-              onClick={(evt) => {
-                evt.stopPropagation();
-                onClick();
-              }}
-            >
-              <Icon glyph="Ellipsis"></Icon>
-            </IconButton>
-            {menu}
-          </div>
-        )
-      }
-    >
-      <MenuItem data-action="copy" onClick={onMenuItemClick}>
-        Copy
-      </MenuItem>
-      <MenuItem data-action="rename" onClick={onMenuItemClick}>
-        Rename
-      </MenuItem>
-      <MenuItem data-action="delete" onClick={onMenuItemClick}>
-        Delete
-      </MenuItem>
-    </Menu>
+    <ItemActionMenu<SavedItemAction>
+      isVisible={isVisible}
+      actions={savedItemActions}
+      onAction={onMenuItemClick}
+    ></ItemActionMenu>
   );
 };
 

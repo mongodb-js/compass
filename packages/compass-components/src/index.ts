@@ -33,6 +33,7 @@ import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar from './components/resizeable-sidebar';
 import {
   ItemAction,
+  MenuAction,
   ItemActionControls,
   ItemActionGroup,
   ItemActionMenu,
@@ -96,6 +97,7 @@ export {
   WarningSummary,
   WorkspaceTabs,
   ItemAction,
+  MenuAction,
   ItemActionControls,
   ItemActionGroup,
   ItemActionMenu,
