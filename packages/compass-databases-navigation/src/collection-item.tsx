@@ -5,7 +5,7 @@ import {
   spacing,
   css,
   ItemActionControls,
-  SmallIcon,
+  Icon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
@@ -28,7 +28,7 @@ const CollectionIcon: React.FunctionComponent<{
       : 'Folder';
   }, [type]);
 
-  return <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>;
+  return <Icon glyph={glyph} size="small"></Icon>;
 };
 
 const collectionItem = css({
@@ -139,11 +139,10 @@ export const CollectionItem: React.FunctionComponent<
       <ItemActionControls<Actions>
         className={collectionActions}
         onAction={onAction}
-        isActive={isActive}
-        isHovered={isHovered}
+        data-testid="sidebar-collection-item-actions"
+        iconSize="small"
+        isVisible={isActive || isHovered}
         actions={actions}
-        shouldCollapseActionsToMenu
-        mode="hovered"
       ></ItemActionControls>
     </ItemContainer>
   );

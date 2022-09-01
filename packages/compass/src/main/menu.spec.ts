@@ -310,9 +310,6 @@ describe('CompassMenu', function () {
             label: '&Privacy Settings'
           },
           {
-            label: '&Plugins'
-          },
-          {
             label: '&License'
           },
           {

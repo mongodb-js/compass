@@ -6,7 +6,7 @@ import {
   css,
   cx,
   ItemActionControls,
-  SmallIcon,
+  Icon,
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { DATABASE_ROW_HEIGHT } from './constants';
@@ -26,6 +26,7 @@ const buttonReset = css({
 });
 
 const expandButton = css({
+  display: 'flex',
   // Not using leafygreen spacing here because none of them allow to align the
   // button with the search bar content. This probably can go away when we are
   // rebuilding the search also
@@ -57,7 +58,7 @@ const ExpandButton: React.FunctionComponent<{
       onClick={onClick}
       className={cx(buttonReset, expandButton, isExpanded && expanded)}
     >
-      <SmallIcon glyph="CaretRight" mode="normal"></SmallIcon>
+      <Icon glyph="CaretRight" size="small"></Icon>
     </button>
   );
 };
@@ -173,7 +174,7 @@ export const DatabaseItem: React.FunctionComponent<
         onClick={onExpandButtonClick}
         isExpanded={isExpanded}
       ></ExpandButton>
-      {useNewSidebar && <SmallIcon glyph="Database" mode="inherit"></SmallIcon>}
+      {useNewSidebar && <Icon glyph="Database" size="small"></Icon>}
       <ItemLabel
         className={
           useNewSidebar
@@ -187,10 +188,11 @@ export const DatabaseItem: React.FunctionComponent<
         <ItemActionControls<Actions>
           className={databaseActions}
           onAction={onAction}
-          isActive={isActive}
-          isHovered={isHovered}
+          isVisible={isActive || isHovered}
+          data-testid="sidebar-database-item-actions"
+          collapseToMenuThreshold={3}
+          iconSize="small"
           actions={actions}
-          mode="hovered"
         ></ItemActionControls>
       )}
     </ItemContainer>

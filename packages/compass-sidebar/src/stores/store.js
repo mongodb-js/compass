@@ -65,6 +65,7 @@ store.onActivated = (appRegistry) => {
         }),
       };
     });
+
     store.dispatch(changeDatabases(dbs));
   }, 300);
 
@@ -121,7 +122,7 @@ store.onActivated = (appRegistry) => {
       onDatabasesChange(instance.databases);
     });
 
-    instance.on('change:databases.', () => {
+    instance.on('change:databases', () => {
       onDatabasesChange(instance.databases);
     });
 

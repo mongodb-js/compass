@@ -15,7 +15,6 @@ The Compass plugin responsible for gluing together other plugins:
 - [compass-import-export][compass-import-export]
 - [compass-indexes][compass-indexes]
 - [compass-instance][compass-instance]
-- [compass-plugin-info][compass-plugin-info]
 - [compass-query-bar][compass-query-bar]
 - [compass-query-history][compass-query-history]
 - [compass-schema-validation][compass-schema-validation]
@@ -101,7 +100,6 @@ For completeness, below is a list of directories present in this module:
 [compass-import-export]: ../compass-import-export
 [compass-indexes]: ../compass-indexes
 [compass-instance]: ../compass-instance
-[compass-plugin-info]: ../compass-plugin-info
 [compass-query-bar]: ../compass-query-bar
 [compass-query-history]: ../compass-query-history
 [compass-schema-validation]: ../compass-schema-validation

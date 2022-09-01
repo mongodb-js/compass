@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import { getConnectionTitle } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import {
+  css,
+  spacing,
   ResizableSidebar,
   useToast,
   ToastVariant,
@@ -13,7 +15,6 @@ import { SaveConnectionModal } from '@mongodb-js/connection-form';
 
 import SidebarTitle from './sidebar-title';
 import FavoriteIndicator from './favorite-indicator';
-import DBStats from './db-stats';
 import NavigationItems from './navigation-items';
 import ConnectionInfoModal from './connection-info-modal';
 import NonGenuineWarningModal from './non-genuine-warning-modal';
@@ -26,6 +27,11 @@ import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-vis
 import type { MongoDBInstance } from 'mongodb-instance-model';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
+
+// NOTE: This covers both the typical case where we have no badges and the case where we do.
+const badgesPlaceholderStyles = css({
+  paddingTop: spacing[3],
+});
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
@@ -149,19 +155,20 @@ export function Sidebar({
           <FavoriteIndicator favorite={connectionInfo.favorite} />
         )}
 
-        {isExpanded && <DBStats />}
-        {isExpanded && (
-          <NonGenuineMarker
-            isGenuine={isGenuine}
-            showNonGenuineModal={showNonGenuineModal}
-          />
-        )}
-        {isExpanded && (
-          <CSFLEMarker
-            csfleMode={csfleMode}
-            toggleCSFLEModalVisible={toggleCSFLEModalVisible}
-          />
-        )}
+        <div className={badgesPlaceholderStyles}>
+          {isExpanded && (
+            <NonGenuineMarker
+              isGenuine={isGenuine}
+              showNonGenuineModal={showNonGenuineModal}
+            />
+          )}
+          {isExpanded && (
+            <CSFLEMarker
+              csfleMode={csfleMode}
+              toggleCSFLEModalVisible={toggleCSFLEModalVisible}
+            />
+          )}
+        </div>
 
         <NavigationItems isExpanded={isExpanded} onAction={onAction} />
 
