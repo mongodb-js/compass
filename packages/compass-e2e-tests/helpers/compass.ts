@@ -380,7 +380,6 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
       : 100,
   };
 
-  process.env.COMPASS_CLUSTERED_COLLECTIONS = 'true';
   process.env.APP_ENV = 'webdriverio';
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
