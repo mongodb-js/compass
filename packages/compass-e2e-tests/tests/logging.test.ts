@@ -15,10 +15,10 @@ describe('Logging and Telemetry integration', function () {
       const compass = await beforeTests({ firstRun: true });
       const { browser } = compass;
       try {
+        await browser.setFeature('trackUsageStatistics', true);
         await browser.connectWithConnectionString(
           'mongodb://localhost:27091/test'
         );
-        await browser.setFeature('trackUsageStatistics', true);
 
         await browser.shellEval('use test');
         await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
