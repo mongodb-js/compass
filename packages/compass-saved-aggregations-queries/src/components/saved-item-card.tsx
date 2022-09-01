@@ -142,7 +142,7 @@ function useFormattedDate(timestamp: number) {
 }
 
 type SavedItemAction = 'copy' | 'rename' | 'delete';
-const savedItemActions: MenuAction[] = [
+const savedItemActions: MenuAction<SavedItemAction>[] = [
   { action: 'copy', label: 'Copy' },
   { action: 'rename', label: 'Rename' },
   { action: 'delete', label: 'Delete' },
