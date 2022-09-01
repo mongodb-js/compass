@@ -6,7 +6,6 @@ import {
   spacing,
   Toolbar,
   uiColors,
-  compassUIColors,
   Body,
   withTheme
 } from '@mongodb-js/compass-components';
@@ -15,10 +14,7 @@ import SavePipelineCard from './save-pipeline-card/save-pipeline-card';
 import type { Pipeline } from '../../modules/pipeline';
 
 const savedPipelinesStyles = css({
-  backgroundColor: compassUIColors.gray8,
-  border: `1px solid ${uiColors.gray.light1}`,
   width: '400px',
-  boxShadow: `rgba(0, 30, 43, 0.3) 0px ${spacing[1]}px ${spacing[2]}px -${spacing[1]}px`,
   display: 'flex',
   flexDirection: 'column',
 });
@@ -41,7 +37,6 @@ const titleStylesLight = css({
 const toolbarStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
-  borderBottom: `1px solid ${uiColors.gray.light2}`,
 });
 
 const toolbarContentStyles = css({
