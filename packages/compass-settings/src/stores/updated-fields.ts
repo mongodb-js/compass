@@ -67,7 +67,7 @@ export const updateSettings = (): ThunkAction<
       });
     } catch (e) {
       log.warn(
-        mongoLogId(1_001_000_142),
+        mongoLogId(1_001_000_146),
         'Settings',
         'Failed to update settings',
         { message: (e as Error).message }

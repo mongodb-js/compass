@@ -59,7 +59,7 @@ export const fetchSettings = (): ThunkAction<
       });
     } catch (e) {
       log.warn(
-        mongoLogId(1_001_000_141),
+        mongoLogId(1_001_000_145),
         'Settings',
         'Failed to fetch settings',
         { message: (e as Error).message }
