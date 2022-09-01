@@ -311,9 +311,6 @@ describe('CompassMenu', function () {
             accelerator: 'Command+,',
           },
           {
-            label: '&Plugins'
-          },
-          {
             label: '&License'
           },
           {

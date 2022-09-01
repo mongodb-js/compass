@@ -216,7 +216,8 @@ export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
 export const SidebarCreateDatabaseButton =
   '[data-test-id="create-database-button"]';
-export const ShowActionsButton = '[data-testid="show-actions"]';
+export const CollectionShowActionsButton =
+  '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';

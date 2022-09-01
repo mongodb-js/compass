@@ -170,14 +170,6 @@ var Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
-    this.securityComponent = app.appRegistry.getRole(
-      'Application.Security'
-    )[0].component;
-    ReactDOM.render(
-      React.createElement(this.securityComponent),
-      this.queryByHook('security')
-    );
-
     this.autoUpdatesRoles = app.appRegistry.getRole('App.AutoUpdate');
     if (this.autoUpdatesRoles) {
       ReactDOM.render(
@@ -215,8 +207,17 @@ var Application = View.extend({
       this.tourClosed();
     }
   },
+<<<<<<< HEAD
   showSecurity: function() {
     app.appRegistry.getAction('Security.Actions').show();
+=======
+  showOptIn: function() {
+    if (process.env.HADRON_ISOLATED !== 'true') {
+      const NetworkOptInView = require('./network-optin');
+      const networkOptInView = new NetworkOptInView();
+      this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
+    }
+>>>>>>> origin
   },
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');
