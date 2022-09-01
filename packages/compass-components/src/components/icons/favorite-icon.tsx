@@ -2,9 +2,12 @@ import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { uiColors } from '@leafygreen-ui/palette';
 
+import { withTheme } from '../../hooks/use-theme';
+
 import { gold } from '../../compass-ui-colors';
 
-export function FavoriteIcon({
+
+function UnthemedFavoriteIcon({
   // When it's a favorite, the star is filled in with gold.
   isFavorite = false,
   favoriteColor = gold,
@@ -45,3 +48,7 @@ export function FavoriteIcon({
     </svg>
   );
 }
+
+const FavoriteIcon = withTheme(UnthemedFavoriteIcon);
+
+export { FavoriteIcon };

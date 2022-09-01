@@ -88,7 +88,7 @@ function Connections({
 
   // For now the connections sidebar is always dark
   const [theme] = useState<ThemeState>({
-    theme: Theme.Dark,
+    theme: Theme.Dark, // TODO: don't override!
     enabled: true,
   });
 
