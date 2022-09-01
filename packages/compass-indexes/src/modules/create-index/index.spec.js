@@ -224,6 +224,9 @@ describe('create index module', function () {
             case TOGGLE_IN_PROGRESS:
               inProgressSpy();
               break;
+            case ErrorActionTypes.ClearError:
+              clearErrorSpy();
+              break;
             case ErrorActionTypes.HandleError:
               expect(res).to.deep.equal({
                 type: ErrorActionTypes.HandleError,

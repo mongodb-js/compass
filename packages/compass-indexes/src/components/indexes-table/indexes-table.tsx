@@ -135,18 +135,20 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
               properties={index.properties}
             />
           </Cell>
-          <Cell data-testid="index-drop-field" className={cellStyles}>
-            <div className={cx(deleteFieldStyles, 'delete-cell')}>
-              {index.name !== '_id_' &&
-                index.extra.status !== 'inprogress' &&
-                canDeleteIndex && (
-                  <DropField
-                    name={index.name}
-                    onDelete={() => onDeleteIndex(index)}
-                  />
-                )}
-            </div>
-          </Cell>
+          {/* Delete column is conditional */}
+          {canDeleteIndex && (
+            <Cell data-testid="index-drop-field" className={cellStyles}>
+              <div className={cx(deleteFieldStyles, 'delete-cell')}>
+                {index.name !== '_id_' &&
+                  index.extra.status !== 'inprogress' && (
+                    <DropField
+                      name={index.name}
+                      onDelete={() => onDeleteIndex(index)}
+                    />
+                  )}
+              </div>
+            </Cell>
+          )}
         </Row>
       )}
     </Table>

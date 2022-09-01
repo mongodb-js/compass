@@ -286,6 +286,8 @@ export const createIndex = () => {
         return;
       }
     }
+
+    dispatch(clearError());
     dispatch(toggleInProgress(true));
 
     const ns = state.namespace;
@@ -325,7 +327,6 @@ export const createIndex = () => {
             ).length > 0,
         };
         track('Index Created', trackEvent);
-        dispatch(clearError());
         dispatch(resetForm());
         dispatch(toggleInProgress(false));
         dispatch(toggleIsVisible(false));
