@@ -134,7 +134,7 @@ describe('CreateIndexFields Component', function () {
     });
   });
 
-  describe('server version 6.1.0', function () {
+  describe('server version 7.0.0', function () {
     afterEach(cleanup);
 
     it('shows columnstore indexes as a selectable index type', function () {
@@ -142,7 +142,7 @@ describe('CreateIndexFields Component', function () {
         <CreateIndexFields
           schemaFields={[]}
           fields={[{ name: '', type: '' }]}
-          serverVersion="6.1.0"
+          serverVersion="7.0.0"
           isRemovable
           updateFieldName={noop}
           updateFieldType={noop}

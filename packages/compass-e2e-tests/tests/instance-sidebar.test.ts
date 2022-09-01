@@ -188,7 +188,7 @@ describe('Instance sidebar', function () {
     await browser.hover(collectionSelector);
 
     // NOTE: if the menu was already open for another collection this could get confusing
-    await browser.clickVisible(Selectors.ShowActionsButton);
+    await browser.clickVisible(Selectors.CollectionShowActionsButton);
     await browser.clickVisible(Selectors.DropCollectionButton);
 
     await browser.dropCollection(collectionName);

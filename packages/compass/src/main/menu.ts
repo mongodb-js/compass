@@ -291,15 +291,6 @@ function helpWindowItem(): MenuItemConstructorOptions {
   };
 }
 
-function securityItem(): MenuItemConstructorOptions {
-  return {
-    label: '&Plugins',
-    click() {
-      ipcMain.broadcastFocused('window:show-security-panel');
-    },
-  };
-}
-
 function license(): MenuItemConstructorOptions {
   return {
     label: '&License',
@@ -337,7 +328,6 @@ function helpSubMenu(
     subMenu.push(networkOptInDialogItem());
   }
 
-  subMenu.push(securityItem());
   subMenu.push(license());
   subMenu.push(logFile(app));
 
