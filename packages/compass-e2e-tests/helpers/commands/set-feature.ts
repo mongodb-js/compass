@@ -15,7 +15,7 @@ export async function setFeature(
     value
   );
 
-  // Enable telemetry (CompassTelemetry.state). 
+  // Enable telemetry (CompassTelemetry.state).
   // Setting the feature above, just updates it in the global hadron.
   // Since the app has bootrapped already, we force update.
   if (name === 'trackUsageStatistics') {
