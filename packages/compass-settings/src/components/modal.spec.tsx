@@ -64,12 +64,10 @@ describe('SettingsModal', function () {
   it('modal footer actions', function () {
     expect(onUpdateSpy.callCount).to.equal(0);
     const container = screen.getByTestId('settings-modal');
-    const updateButton = within(container).getByTestId(
-      'update-settings-button'
-    );
-    expect(updateButton).to.exist;
+    const saveButton = within(container).getByTestId('save-settings-button');
+    expect(saveButton).to.exist;
 
-    userEvent.click(updateButton);
+    userEvent.click(saveButton);
     expect(onUpdateSpy.calledOnce).to.be.true;
   });
 

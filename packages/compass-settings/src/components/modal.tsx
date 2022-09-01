@@ -110,11 +110,11 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           Cancel
         </Button>
         <Button
-          data-testid="update-settings-button"
+          data-testid="save-settings-button"
           variant="primary"
           onClick={updateSettings}
         >
-          Update
+          Save
         </Button>
       </ModalFooter>
     </Modal>
