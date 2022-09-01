@@ -22,7 +22,7 @@ export async function setFeature(
     const event = value ? 'compass:usage:enabled' : 'compass:usage:disabled';
     await browser.execute((_event) => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require('hadron-ipc').call(_event);
+      require('electron').ipcRenderer.call(_event);
     }, event);
   }
 }
