@@ -42,6 +42,7 @@ type IndexesProps = {
   description?: string;
   error: string | null;
   localAppRegistry: AppRegistry;
+  globalAppRegistry: AppRegistry;
   isRefreshing: boolean;
   onSortTable: (name: SortColumn, direction: SortDirection) => void;
   onRefresh: () => void;
@@ -55,6 +56,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   description,
   error,
   localAppRegistry,
+  globalAppRegistry,
   isRefreshing,
   onSortTable,
   onRefresh,
@@ -83,6 +85,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
             canDeleteIndex={isWritable && !isReadonly}
             onSortTable={onSortTable}
             onDeleteIndex={onDeleteIndex}
+            globalAppRegistry={globalAppRegistry}
           />
         </div>
       )}
@@ -107,6 +110,7 @@ const mapState = ({
   description,
   error,
   localAppRegistry: (appRegistry as any).localAppRegistry,
+  globalAppRegistry: (appRegistry as any).globalAppRegistry,
   isRefreshing,
 });
 

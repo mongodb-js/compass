@@ -9,6 +9,7 @@ import {
   spacing,
   uiColors,
 } from '@mongodb-js/compass-components';
+import type AppRegistry from 'hadron-app-registry';
 
 import NameField from './name-field';
 import TypeField from './type-field';
@@ -73,21 +74,32 @@ type IndexesTableProps = {
   canDeleteIndex: boolean;
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
   onDeleteIndex: (name: string) => void;
+  globalAppRegistry: AppRegistry;
 };
 
-const getContainerHeight = (): string => {
-  // 300px for the compass tabs, collection info etc
-  return `${window.innerHeight - 300}px`;
+const getContainerHeight = (
+  containerRef: React.RefObject<HTMLDivElement>
+): string => {
+  const height =
+    containerRef.current?.parentElement?.parentElement?.clientHeight;
+  if (!height) {
+    // 320px for the compass tabs, collection info etc
+    return `${window.innerHeight - 320}px`;
+  }
+  return `${height - 78}px`;
 };
 
 export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   indexes,
   canDeleteIndex,
+  globalAppRegistry,
   onSortTable,
   onDeleteIndex,
 }) => {
-  const tableRef = useRef<HTMLTableElement>(null);
-  const [containerHeight, setContainerHeight] = useState(getContainerHeight());
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(
+    getContainerHeight(containerRef)
+  );
   const columns = useMemo(() => {
     const sortColumns: SortColumn[] = [
       'Name and Definition',
@@ -118,25 +130,31 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
 
   useEffect(() => {
     const container =
-      tableRef.current?.getElementsByTagName('table')[0]?.parentElement;
+      containerRef.current?.getElementsByTagName('table')[0]?.parentElement;
     if (container) {
       container.style.height = containerHeight;
     }
-  }, [tableRef, indexes, containerHeight]);
+  }, [containerRef, containerHeight]);
+
+  useEffect(() => {
+    globalAppRegistry.on('compass:compass-shell:resized', () => {
+      setContainerHeight(getContainerHeight(containerRef));
+    });
+  }, [globalAppRegistry, containerRef]);
 
   useEffect(() => {
     const resizeListener = () => {
-      setContainerHeight(getContainerHeight());
+      setContainerHeight(getContainerHeight(containerRef));
     };
     window.addEventListener('resize', resizeListener);
     return () => {
       window.removeEventListener('resize', resizeListener);
     };
-  }, [containerHeight, indexes]);
+  }, [containerRef]);
 
   return (
     // LG table does not forward ref
-    <div ref={tableRef}>
+    <div ref={containerRef}>
       <Table
         className={tableStyles}
         data={indexes}
