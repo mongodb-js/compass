@@ -68,7 +68,7 @@ const sidebarTitle = css({
   color: 'var(--title-color)',
   backgroundColor: 'var(--title-bg-color)',
 
-  height: spacing[6] + spacing[1],
+  height: spacing[6],
   padding: spacing[3],
 });
 

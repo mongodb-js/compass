@@ -16,8 +16,8 @@ const connectionsTitle = css({
   color: 'var(--title-color)',
   backgroundColor: 'var(--title-bg-color)',
 
-  height: spacing[6] + spacing[1],
-  padding: spacing[3],
+  height: spacing[6],
+  padding: spacing[3] + spacing[1],
 });
 
 const connectionsTitleText = css({
