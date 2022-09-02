@@ -8,7 +8,6 @@ import { Indexes } from './indexes';
 const renderIndexes = (
   props: Partial<React.ComponentProps<typeof Indexes>> = {}
 ) => {
-  const appRegistry = new AppRegistry();
   render(
     <Indexes
       indexes={[]}
@@ -17,7 +16,8 @@ const renderIndexes = (
       isReadonlyView={false}
       description={undefined}
       error={null}
-      localAppRegistry={appRegistry}
+      localAppRegistry={new AppRegistry()}
+      globalAppRegistry={new AppRegistry()}
       isRefreshing={false}
       onSortTable={() => {}}
       onRefresh={() => {}}

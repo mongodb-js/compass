@@ -6,6 +6,7 @@ import { spy } from 'sinon';
 
 import { IndexesTable } from './indexes-table';
 import type { IndexDefinition } from '../../modules/indexes';
+import AppRegistry from 'hadron-app-registry';
 
 const indexes: IndexDefinition[] = [
   {
@@ -113,6 +114,7 @@ const renderIndexList = (
       canDeleteIndex={true}
       onSortTable={() => {}}
       onDeleteIndex={() => {}}
+      globalAppRegistry={new AppRegistry()}
       {...props}
     />
   );

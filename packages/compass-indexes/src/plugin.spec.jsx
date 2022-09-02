@@ -7,13 +7,29 @@ import AppRegistry from 'hadron-app-registry';
 import IndexesPlugin from './plugin';
 import configureStore from './stores';
 
+const appInstanceStoreMock = {
+  getState: function () {
+    return {
+      instance: {
+        on: () => {},
+        description: null,
+        isWritable: null,
+      },
+    };
+  },
+};
+
 describe('Indexes [Plugin]', function () {
   let component;
   let store;
 
   beforeEach(function (done) {
+    const globalAppRegistry = new AppRegistry();
+    globalAppRegistry.registerStore('App.InstanceStore', appInstanceStoreMock);
+
     store = configureStore({
       localAppRegistry: new AppRegistry(),
+      globalAppRegistry,
     });
     component = mount(<IndexesPlugin store={store} />);
     done();
