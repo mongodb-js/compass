@@ -1,7 +1,7 @@
-// Privacy Settings Modal
-export const PrivacySettingsModal = '[data-test-id="privacy-settings-modal"]';
-export const ClosePrivacySettingsButton =
-  '[data-test-id="close-privacy-settings-button"]';
+// Settings Modal
+export const SettingsModal = '[data-testid="settings-modal"]';
+export const CloseSettingsModalButton =
+  '[data-testid="settings-modal"] [aria-label="Close modal"]';
 
 // Feature Tour Modal
 export const FeatureTourModal = '[data-test-id="feature-tour-modal"]';

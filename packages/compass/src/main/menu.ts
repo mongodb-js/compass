@@ -78,7 +78,8 @@ function compassOverviewItem(): MenuItemConstructorOptions {
 
 function networkOptInDialogItem(): MenuItemConstructorOptions {
   return {
-    label: '&Privacy Settings',
+    label: '&Settings',
+    accelerator: 'Command+,',
     click() {
       ipcMain.broadcastFocused('window:show-network-optin');
     },
