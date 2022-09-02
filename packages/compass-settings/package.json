@@ -54,8 +54,8 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "react": "*",
-    "react-dom": "*"
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
@@ -63,8 +63,8 @@
     "compass-preferences-model": "^2.0.0",
     "hadron-ipc": "^3.0.0",
     "mongodb-data-service": "^22.0.0",
-    "react": "*",
-    "react-dom": "*",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-redux": "^5.1.2",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.1"
