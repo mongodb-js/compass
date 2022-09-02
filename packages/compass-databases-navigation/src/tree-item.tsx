@@ -115,7 +115,7 @@ export const ItemContainer: React.FunctionComponent<
   className,
   ...props
 }) => {
-  const focusRingProps = useFocusRing<HTMLDivElement>();
+  const focusRingProps = useFocusRing();
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
   const extraCSS = [];

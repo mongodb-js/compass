@@ -1,6 +1,11 @@
 import React from 'react';
-
-import { css, cx, spacing, uiColors } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  uiColors,
+  focusRing,
+} from '@mongodb-js/compass-components';
 
 const buttonStyles = css({
   borderRadius: spacing[1],
@@ -45,9 +50,9 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
           key={item}
           type="button"
           role="tab"
-          aria-controls={`${item} Tab`}
+          aria-controls={`${item} Section`}
           aria-selected={activeItem === item}
-          className={cx(buttonStyles, {
+          className={cx(buttonStyles, focusRing, {
             [hoverStyles]: item !== activeItem,
             [activeStyles]: item === activeItem,
           })}

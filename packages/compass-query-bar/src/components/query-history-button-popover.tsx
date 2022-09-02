@@ -4,8 +4,7 @@ import {
   InteractivePopover,
   css,
   cx,
-  focusRingStyles,
-  focusRingVisibleStyles,
+  focusRing,
   spacing,
 } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -23,9 +22,8 @@ const openQueryHistoryButtonStyles = cx(
     '&:hover': {
       cursor: 'pointer',
     },
-    '&:focus': focusRingVisibleStyles,
   }),
-  focusRingStyles
+  focusRing
 );
 
 const queryHistoryPopoverStyles = css({

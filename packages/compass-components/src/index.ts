@@ -67,6 +67,7 @@ export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { Variant as ToastVariant } from '@leafygreen-ui/toast';
 export { useId } from '@react-aria/utils';
+export { VisuallyHidden } from '@react-aria/visually-hidden';
 
 export { useToast, ToastArea } from './hooks/use-toast';
 
@@ -129,11 +130,7 @@ export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { VirtualGrid } from './components/virtual-grid';
 export { mergeProps } from './utils/merge-props';
-export {
-  focusRingStyles,
-  focusRingVisibleStyles,
-  useFocusRing,
-} from './hooks/use-focus-ring';
+export { focusRing, useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
 export { Pipeline, Stage } from '@leafygreen-ui/pipeline';
