@@ -85,7 +85,6 @@ var Application = View.extend({
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="tour-container"></div>',
-      '  <div data-hook="security"></div>',
       '  <div data-hook="license"></div>',
       '</div>'
     ].join('\n');
@@ -128,7 +127,6 @@ var Application = View.extend({
     Number.prototype.unref = () => {};
 
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
-    ipc.on('window:show-security-panel', this.showSecurity.bind(this));
 
     function trackPerfEvent({ name, value }) {
       const fullName = {
@@ -206,9 +204,6 @@ var Application = View.extend({
     } else {
       this.tourClosed();
     }
-  },
-  showSecurity: function() {
-    app.appRegistry.getAction('Security.Actions').show();
   },
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');
