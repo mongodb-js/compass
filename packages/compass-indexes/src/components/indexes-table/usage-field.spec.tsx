@@ -9,7 +9,7 @@ describe('UsageField', function () {
   afterEach(cleanup);
 
   describe('UsageField Component', function () {
-    it('renders usage', function () {
+    it('renders usage and since', function () {
       const since = new Date();
       render(<UsageField usage={20} since={since} />);
 
@@ -18,16 +18,15 @@ describe('UsageField', function () {
     });
 
     it('renders zero when usage is not defined', function () {
-      const since = new Date();
-      render(<UsageField since={since} />);
+      render(<UsageField usage={0} />);
 
-      const renderedText = `0 (since ${since.toDateString()})`;
+      const renderedText = `0`;
       expect(screen.getByText(renderedText)).to.exist;
     });
 
-    it('renders N/A when since is not defined', function () {
+    it('renders only usage when since is not defined', function () {
       render(<UsageField usage={30} />);
-      const renderedText = '30 (N/A)';
+      const renderedText = '30';
       expect(screen.getByText(renderedText)).to.exist;
     });
   });

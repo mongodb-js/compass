@@ -19,7 +19,10 @@ export const INITIAL_STATE = '';
  *
  * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string {
   if (action.type === WILDCARD_PROJECTION_CHANGED) {
     return action.wildcardProjection;
   }

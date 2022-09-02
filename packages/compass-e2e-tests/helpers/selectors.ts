@@ -801,14 +801,14 @@ export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
 };
 
 export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
-export const CreateIndexConfirmButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:first-child`;
-export const CreateIndexCancelButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:last-child`;
+export const CreateIndexCancelButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:first-child`;
+export const CreateIndexConfirmButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:last-child`;
 
-export const DropIndexModal = '[data-testid="drop_index_modal"]';
+export const DropIndexModal = '[data-testid="drop-index-modal"]';
 export const DropIndexModalConfirmName =
   '[data-testid="confirm-drop-index-name"]';
 export const DropIndexModalConfirmButton =
-  '[data-testid="drop_index_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="drop-index-modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 export const DropIndexButton = '[data-testid="drop-index-button"]';
 

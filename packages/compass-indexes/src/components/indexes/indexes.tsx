@@ -3,7 +3,7 @@ import { css, Card, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
 
-import { sortIndexes } from '../../modules/indexes';
+import { sortIndexes, dropFailedIndex } from '../../modules/indexes';
 import type {
   IndexDefinition,
   SortColumn,
@@ -44,8 +44,9 @@ type IndexesProps = {
   error: string | null;
   localAppRegistry: AppRegistry;
   isRefreshing: boolean;
-  onSortTable: (name: SortColumn, direction: SortDirection) => void;
-  onRefresh: () => void;
+  sortIndexes: (name: SortColumn, direction: SortDirection) => void;
+  refreshIndexes: () => void;
+  dropFailedIndex: (id: string) => void;
 };
 
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
@@ -57,11 +58,16 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   error,
   localAppRegistry,
   isRefreshing,
-  onSortTable,
-  onRefresh,
+  sortIndexes,
+  refreshIndexes,
+  dropFailedIndex,
 }) => {
-  const onDeleteIndex = (name: string) => {
-    return localAppRegistry.emit('toggle-drop-index-modal', true, name);
+  const deleteIndex = (index: IndexDefinition) => {
+    if (index.extra.status === 'failed') {
+      return dropFailedIndex(String(index.extra.id));
+    }
+
+    return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
   };
   return (
     <Card className={containerStyles} data-testid="indexes">
@@ -74,7 +80,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
           localAppRegistry={localAppRegistry}
           isRefreshing={isRefreshing}
           writeStateDescription={description}
-          onRefreshIndexes={() => onRefresh()}
+          onRefreshIndexes={refreshIndexes}
         />
       </div>
       {!isReadonlyView && !error && (
@@ -82,8 +88,8 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
           <IndexesTable
             indexes={indexes}
             canDeleteIndex={isWritable && !isReadonly}
-            onSortTable={onSortTable}
-            onDeleteIndex={onDeleteIndex}
+            onSortTable={sortIndexes}
+            onDeleteIndex={deleteIndex}
           />
         </div>
       )}
@@ -112,8 +118,9 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onSortTable: sortIndexes,
-  onRefresh: refreshIndexes,
+  sortIndexes,
+  refreshIndexes,
+  dropFailedIndex,
 };
 
 export default connect(mapState, mapDispatch)(Indexes);

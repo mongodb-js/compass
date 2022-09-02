@@ -28,7 +28,10 @@ export const INITIAL_STATE = [{ name: '', type: '' }];
  *
  * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): IndexField[] {
   const fields = [...state];
   if (action.type === ADD_FIELD) {
     fields.push({ name: '', type: '' });
