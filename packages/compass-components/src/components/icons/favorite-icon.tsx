@@ -6,7 +6,6 @@ import { withTheme } from '../../hooks/use-theme';
 
 import { gold } from '../../compass-ui-colors';
 
-
 function UnthemedFavoriteIcon({
   // When it's a favorite, the star is filled in with gold.
   isFavorite = false,
