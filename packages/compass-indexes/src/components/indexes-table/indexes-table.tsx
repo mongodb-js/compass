@@ -139,7 +139,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
           {/* Delete column is conditional */}
           {canDeleteIndex && (
             <Cell data-testid="index-actions-field" className={cellStyles}>
-              {index.name !== '_id_' && (
+              {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
                 <div
                   className={cx(indexActionsCellStyles, 'index-actions-cell')}
                 >

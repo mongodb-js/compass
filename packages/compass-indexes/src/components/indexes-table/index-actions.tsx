@@ -5,7 +5,7 @@ import type { IndexDefinition } from '../../modules/indexes';
 
 type IndexActionsProps = {
   index: IndexDefinition;
-  onDeleteIndex: (indexName: string) => void;
+  onDeleteIndex: (index: IndexDefinition) => void;
 };
 
 type IndexAction = 'delete';
@@ -28,7 +28,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   const onAction = useCallback(
     (action: IndexAction) => {
       if (action === 'delete') {
-        onDeleteIndex(index.name);
+        onDeleteIndex(index);
       }
     },
     [onDeleteIndex, index]
