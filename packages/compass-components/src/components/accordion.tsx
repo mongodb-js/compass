@@ -78,9 +78,9 @@ function UnthemedAccordion({
           setOpen((currentOpen) => !currentOpen);
         }}
       >
-        <div className={buttonIconContainerStyles}>
+        <span className={buttonIconContainerStyles}>
           <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
-        </div>
+        </span>
 
         <div className={buttonTextStyles}>
           {text}
