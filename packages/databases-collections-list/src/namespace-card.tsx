@@ -256,7 +256,7 @@ export const NamespaceItemCard: React.FunctionComponent<
         {viewType === 'list' && badgesGroup}
 
         <ItemActionControls
-          data-testid="card-action-container"
+          data-testid="namespace-card-actions"
           isVisible={isButtonVisible}
           actions={cardActions}
           onAction={onAction}
