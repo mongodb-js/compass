@@ -10,33 +10,29 @@ import {
   css,
   cx,
   useTheme,
-  Theme
+  Theme,
+  withTheme
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 
 import Connection from './connection';
+import ConnectionsTitle from './connections-title';
 
-// TODO: keep old and new
+const legacyNewConnectionButtonContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  background: uiColors.gray.dark2,
+  position: 'relative',
+});
+
 const newConnectionButtonContainerStyles = css({
-  //display: 'flex',
-  //flexDirection: 'column',
-  //background: uiColors.gray.dark2,
-  //position: 'relative',
   padding: spacing[3],
 });
 
-// TODO: keep old and new
-const newConnectionButtonStyles = css({
-  width: '100%',
-  justifyContent: 'center',
-  fontWeight: 'bold',
-  '> div': {
-    width: 'auto'
-  }
-  /*
+const legacyNewConnectionButtonStyles = css({
   border: 'none',
   fontWeight: 'bold',
-  //borderRadius: 0,
+  borderRadius: 0,
   svg: {
     color: uiColors.white,
   },
@@ -44,7 +40,15 @@ const newConnectionButtonStyles = css({
     border: 'none',
     boxShadow: 'none',
   },
-  */
+});
+
+const newConnectionButtonStyles = css({
+  width: '100%',
+  justifyContent: 'center',
+  fontWeight: 'bold',
+  '> div': {
+    width: 'auto'
+  }
 });
 
 const newConnectionButtonStylesLight = css({
@@ -108,7 +112,9 @@ const connectionListStyles = css({
 });
 
 
-function RecentIcon({ color }: { color: string }) {
+function UnthemedRecentIcon({ darkMode }: {darkMode?: boolean}) {
+  const color = darkMode ? 'white' : uiColors.gray.dark3 ;
+
   return <svg
     width={spacing[4]}
     height={spacing[4]}
@@ -128,6 +134,8 @@ function RecentIcon({ color }: { color: string }) {
     <path d="M13.6666 10V12H15.6666" stroke={color} strokeMiterlimit="10" />
   </svg>;
 };
+
+const RecentIcon = withTheme(UnthemedRecentIcon);
 
 export type ConnectionInfoFavorite = ConnectionInfo &
   Required<Pick<ConnectionInfo, 'favorite'>>;
@@ -157,18 +165,21 @@ function ConnectionList({
 
   const { theme } = useTheme();
 
-  const sectionHeaderIconColor = theme === Theme.Dark ? 'white' : uiColors.gray.dark3 ;
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+
+  const isExpanded = true; // TODO
 
   return (
     <Fragment>
-      <div className={newConnectionButtonContainerStyles}>
+      {useNewSidebar && <ConnectionsTitle isExpanded={isExpanded} />}
+      <div className={useNewSidebar ? newConnectionButtonContainerStyles : legacyNewConnectionButtonContainerStyles}>
         <Button
           className={cx(
-            newConnectionButtonStyles,
-            theme === Theme.Dark ? newConnectionButtonStylesDark : newConnectionButtonStylesLight
+            useNewSidebar ? newConnectionButtonStyles : legacyNewConnectionButtonStyles,
+            useNewSidebar && (theme === Theme.Dark ? newConnectionButtonStylesDark : newConnectionButtonStylesLight)
           )}
           onClick={createNewConnection}
-          size="default"
+          size={useNewSidebar ? 'default' : 'large'}
           data-testid="new-connection-button"
           rightGlyph={<Icon glyph="Plus" />}
         >
@@ -215,7 +226,7 @@ function ConnectionList({
           onMouseEnter={() => setRecentHover(true)}
           onMouseLeave={() => setRecentHover(false)}
         >
-          <div className={sectionHeaderIconStyles}><RecentIcon color={sectionHeaderIconColor} /></div>
+          <div className={sectionHeaderIconStyles}><RecentIcon /></div>
           <H2 data-testid="recents-header" className={cx(
             sectionHeaderTitleStyles,
             theme === Theme.Dark ? sectionHeaderTitleStylesDark : sectionHeaderTitleStylesLight

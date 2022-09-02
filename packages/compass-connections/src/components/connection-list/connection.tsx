@@ -89,7 +89,6 @@ const connectionButtonStylesDark = css({
 });
 
 const connectionTitleStyles = css({
-  //color: uiColors.white,
   fontSize: compassFontSizes.defaultFontSize,
   fontWeight: 'normal',
   lineHeight: '20px',
@@ -104,8 +103,6 @@ const connectionTitleStyles = css({
 });
 
 const connectionDescriptionStyles = css({
-  //color: uiColors.gray.base,
-  //fontWeight: 'bold',
   fontSize: '12px',
   lineHeight: '20px',
   margin: 0,

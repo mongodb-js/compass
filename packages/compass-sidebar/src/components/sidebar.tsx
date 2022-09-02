@@ -44,21 +44,13 @@ export function Sidebar({
   csfleMode,
 }: {
   connectionInfo: ConnectionInfo;
-  globalAppRegistryEmit: any; // TODO
-  updateAndSaveConnectionInfo: any; // TODO
+  globalAppRegistryEmit: any;
+  updateAndSaveConnectionInfo: any;
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 }) {
-  // TODO: toggle sidebar
-  // TODO: sidebar instance
-  //   - instance stats
-  //   - csfle marker
-  //   - csfle connection modal
-  //   - non genuine warning pill
-  //   - sidebar instance details
-
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
     useState(false);
