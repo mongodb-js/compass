@@ -167,7 +167,7 @@ function ConnectionList({
 
   const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
 
-  const isExpanded = true; // TODO
+  const isExpanded = true; // TODO: https://jira.mongodb.org/browse/COMPASS-5967
 
   return (
     <Fragment>
