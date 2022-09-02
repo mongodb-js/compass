@@ -12,7 +12,9 @@ const buttonStyles = css({
   fontWeight: 'bold',
   fontSize: defaultFontSize,
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
+  paddingLeft: 0,
+  paddingRight: 0,
   border: 'none',
   background: 'none',
   borderRadius: '6px',
@@ -26,14 +28,16 @@ const buttonStyles = css({
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
 });
+
 const buttonLightThemeStyles = css({
   color: uiColors.gray.dark2,
 });
 const buttonDarkThemeStyles = css({
   color: uiColors.white,
 });
-const buttonIconStyles = css({
-  marginRight: spacing[1],
+const buttonIconContainerStyles = css({
+  padding: 2, // matches the line-height (16 + 4)
+  paddingLeft: 0,
 });
 const buttonTextStyles = css({
   textAlign: 'left',
@@ -74,10 +78,10 @@ function UnthemedAccordion({
           setOpen((currentOpen) => !currentOpen);
         }}
       >
-        <Icon
-          className={buttonIconStyles}
-          glyph={open ? 'ChevronDown' : 'ChevronRight'}
-        />
+        <div className={buttonIconContainerStyles}>
+          <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
+        </div>
+
         <div className={buttonTextStyles}>
           {text}
           {hintText && (
