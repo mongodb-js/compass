@@ -63,7 +63,7 @@
     "hadron-document": "^8.0.0",
     "hadron-react-buttons": "^6.0.0",
     "hadron-react-components": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
@@ -72,7 +72,7 @@
     "hadron-document": "^8.0.0",
     "hadron-react-buttons": "^6.0.0",
     "hadron-react-components": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@electron/remote": "^2.0.8",
@@ -122,9 +122,9 @@
     "progress-stream": "^2.0.0",
     "prop-types": "^15.7.2",
     "react-bootstrap": "^0.32.1",
-    "react-dom": "^16.14.0",
-    "react-redux": "^5.0.6",
-    "redux": "^4.1.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^8.0.2",
+    "redux": "^4.2.0",
     "redux-mock-store": "^1.5.4",
     "redux-thunk": "^2.3.0",
     "rimraf": "^3.0.2",

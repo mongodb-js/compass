@@ -42,14 +42,14 @@
     "@mongodb-js/compass-logging": "^1.0.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "@mongosh/node-runtime-worker-thread": "^1.5.4",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
     "@mongodb-js/compass-logging": "^1.0.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "@mongosh/node-runtime-worker-thread": "^1.5.4",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -104,11 +104,11 @@
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "prop-types": "^15.7.2",
     "react-ace": "^9.5.0",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-hot-loader": "^4.13.0",
-    "react-redux": "^7.1.1",
+    "react-redux": "^8.0.2",
     "react-tooltip": "^3.11.1",
-    "redux": "^4.1.2",
+    "redux": "^4.2.0",
     "resolve": "^1.15.1",
     "rimraf": "^2.6.1",
     "shebang-loader": "^0.0.1",

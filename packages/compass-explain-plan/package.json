@@ -61,7 +61,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "hadron-document": "^8.0.0",
     "hadron-react-components": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/compass-field-store": "^8.0.0",
@@ -88,10 +88,10 @@
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
     "react-bootstrap": "^0.32.1",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-fontawesome": "^1.6.1",
-    "react-redux": "^5.0.6",
-    "redux": "^4.1.2",
+    "react-redux": "^8.0.2",
+    "redux": "^4.2.0",
     "redux-thunk": "^2.3.0",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
@@ -105,6 +105,6 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "hadron-document": "^8.0.0",
     "hadron-react-components": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   }
 }

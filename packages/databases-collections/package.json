@@ -30,7 +30,7 @@
     "@mongodb-js/compass-logging": "^1.0.0",
     "@mongodb-js/databases-collections-list": "^1.0.0",
     "hadron-react-components": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -74,10 +74,10 @@
     "peer-deps-externals-webpack-plugin": "^1.0.4",
     "postcss-loader": "^2.1.6",
     "prop-types": "^15.7.2",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "react-hot-loader": "^4.13.0",
-    "react-redux": "^5.0.6",
-    "redux": "^4.1.2",
+    "react-redux": "^8.0.2",
+    "redux": "^4.2.0",
     "redux-thunk": "^2.3.0",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.2",
@@ -97,7 +97,7 @@
     "@mongodb-js/compass-logging": "^1.0.0",
     "@mongodb-js/databases-collections-list": "^1.0.0",
     "hadron-react-components": "^6.0.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

@@ -1,4 +1,4 @@
-const Adapter = require('enzyme-adapter-react-16');
+const Adapter = require('@wojtekmaj/enzyme-adapter-react-17');
 const chaiEnzyme = require('chai-enzyme');
 const sinonChai = require('sinon-chai');
 const enzyme = require('enzyme');
