@@ -4,8 +4,7 @@ import {
   Icon,
   css,
   cx,
-  focusRingVisibleStyles,
-  focusRingStyles,
+  focusRing,
   spacing,
   InteractivePopover
 } from '@mongodb-js/compass-components';
@@ -50,9 +49,8 @@ const openSavedPipelinesStyles = cx(
     '&:hover': {
       cursor: 'pointer',
     },
-    '&:focus': focusRingVisibleStyles,
   }),
-  focusRingStyles
+  focusRing
 );
 
 const pipelineStagesStyles = css({

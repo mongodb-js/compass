@@ -5,8 +5,9 @@ import {
   BadgeVariant,
   Icon,
   css,
+  cx,
   spacing,
-  useFocusRing,
+  focusRing,
 } from '@mongodb-js/compass-components';
 
 const nonGenuineMarkerContainer = css({
@@ -28,8 +29,6 @@ export default function NonGenuineMarker({
   isGenuine?: boolean;
   showNonGenuineModal: () => void;
 }) {
-  const focusRingProps = useFocusRing<HTMLButtonElement>();
-
   // isGenuine === undefined means we haven't loaded the info yet
   if (isGenuine !== false) {
     return null;
@@ -38,10 +37,9 @@ export default function NonGenuineMarker({
   return (
     <div className={nonGenuineMarkerContainer}>
       <button
-        {...focusRingProps}
-        type={focusRingProps.type as 'button'}
+        type="button"
         data-testid="non-genuine-information"
-        className={nonGenuineMarkerButton}
+        className={cx(nonGenuineMarkerButton, focusRing)}
         onClick={showNonGenuineModal}
       >
         <Badge variant={BadgeVariant.Yellow}>

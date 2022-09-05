@@ -9,6 +9,7 @@ import {
   spacing,
   Button,
   ModalFooter,
+  focusRing,
 } from '@mongodb-js/compass-components';
 
 import { fetchSettings } from '../stores/settings';
@@ -36,10 +37,13 @@ const sideNavStyles = css({
   width: '20%',
 });
 
-const settingsStyles = css({
-  width: '80%',
-  paddingLeft: spacing[2],
-});
+const settingsStyles = css(
+  {
+    width: '80%',
+    paddingLeft: spacing[2],
+  },
+  focusRing
+);
 
 const footerStyles = css({
   display: 'flex',
@@ -82,7 +86,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       setOpen={closeModal}
       data-testid="settings-modal"
     >
-      <ModalTitle data-testid="settings-modal-title">Settings</ModalTitle>
+      <ModalTitle id="settings-tablist" data-testid="settings-modal-title">
+        Settings
+      </ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar
@@ -95,7 +101,8 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           className={settingsStyles}
           data-testid="settings-modal-content"
           role="tabpanel"
-          id={`tabpanel-${selectedSetting}`}
+          tabIndex={0}
+          id={`${selectedSetting} Section`}
           aria-labelledby={`${selectedSetting} Tab`}
         >
           {SettingComponent && <SettingComponent />}
