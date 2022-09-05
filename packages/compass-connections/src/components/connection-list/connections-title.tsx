@@ -27,17 +27,21 @@ const connectionsTitleText = css({
 });
 
 export default function ConnectionsTitle({
-  isExpanded
+  isExpanded,
 }: {
-  isExpanded: boolean
+  isExpanded: boolean;
 }) {
   const { theme } = useTheme();
 
-  return <div className={cx(connectionsTitle)}>
-    <MongoDBLogo
-      color={theme === Theme.Dark ? 'black' : 'white'}
-      height={26}
-    />
-    {isExpanded && <Subtitle className={connectionsTitleText}>Compass</Subtitle>}
-  </div>
+  return (
+    <div className={cx(connectionsTitle)}>
+      <MongoDBLogo
+        color={theme === Theme.Dark ? 'black' : 'white'}
+        height={26}
+      />
+      {isExpanded && (
+        <Subtitle className={connectionsTitleText}>Compass</Subtitle>
+      )}
+    </div>
+  );
 }
