@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Create index wildcard projection action.
+ * Wildcard projection changed action name.
  */
 export const WILDCARD_PROJECTION_CHANGED =
   'indexes/create-index/wildcard-projection/WILDCARD_PROJECTION_CHANGED';
@@ -12,14 +12,17 @@ export const WILDCARD_PROJECTION_CHANGED =
 export const INITIAL_STATE = '';
 
 /**
- * Reducer function for handle wildcard projection state changes.
+ * Reducer function for handle the wildcard projection state changes.
  *
- * @param {String} state - The wildcard projection state.
- * @param {Object} action - The action.
+ * @param state - The wildcard projection state.
+ * @param action - The action.
  *
- * @returns {String} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string {
   if (action.type === WILDCARD_PROJECTION_CHANGED) {
     return action.wildcardProjection;
   }
@@ -27,11 +30,11 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 }
 
 /**
- * The change wildcard projection action creator.
+ * Action creator for the wildcard projection changed event.
  *
- * @param {String} wildcardProjection - The wildcard projection.
+ * @param wildcardProjection - The wildcard projection.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
 export const wildcardProjectionChanged = (
   wildcardProjection: string

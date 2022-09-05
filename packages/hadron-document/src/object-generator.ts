@@ -28,7 +28,17 @@ function maybeDecorateWithDecryptedKeys(
 }
 
 /** Used to represent missing values, i.e. non-existent fields. */
-const DoesNotExist = Symbol('DidNotExist');
+const DoesNotExist = Symbol('DoesNotExist');
+
+/**
+ * Describe a single property of a document. For us, not only the
+ * field name, but also whether it is an array index or a regular
+ * document property is relevant.
+ */
+type SubfieldDescription = {
+  key: string;
+  isArrayIndex: boolean;
+};
 
 /**
  * Describe a field in a document, with its path and current value.
@@ -36,7 +46,7 @@ const DoesNotExist = Symbol('DidNotExist');
  * `b` of `a` would be described by `{ path: ['a', 'b'], value: 42 }`.
  */
 type FieldDescription = {
-  path: string[];
+  path: SubfieldDescription[];
   value: BSONValue | typeof DoesNotExist;
 };
 
@@ -212,6 +222,7 @@ export class ObjectGenerator {
       keyInclusionOptions.includableEncryptedKeys ?? [];
 
     for (const element of target.elements ?? []) {
+      const isArrayIndex = target.currentType === 'Array';
       // Do not include encrypted fields in the `originalFields` list
       // unless we know that it is okay to include them (i.e. because
       // we know that we can perform equality queries on those fields).
@@ -274,13 +285,16 @@ export class ObjectGenerator {
             );
           for (const { path, value } of nestedResult.originalFields) {
             originalFields.push({
-              path: [String(element.key), ...path],
+              path: [{ key: String(element.key), isArrayIndex }, ...path],
               value,
             });
           }
           for (const { path, value } of nestedResult.newFields) {
             newFields.push({
-              path: [String(element.currentKey), ...path],
+              path: [
+                { key: String(element.currentKey), isArrayIndex },
+                ...path,
+              ],
               value,
             });
           }
@@ -289,7 +303,7 @@ export class ObjectGenerator {
           // the original field's value.
           if (canIncludeOriginalValue) {
             originalFields.push({
-              path: [String(element.key)],
+              path: [{ key: String(element.key), isArrayIndex }],
               value: element.generateOriginalObject(),
             });
           }
@@ -300,7 +314,7 @@ export class ObjectGenerator {
             !element.isRemoved()
           ) {
             newFields.push({
-              path: [String(element.currentKey)],
+              path: [{ key: String(element.currentKey), isArrayIndex }],
               value: element.generateObject(),
             });
           }
@@ -313,14 +327,29 @@ export class ObjectGenerator {
         (element.isAdded() || element.hasChangedKey()) &&
         element.currentKey !== ''
       ) {
-        // When a new field is added, check if that field
-        // was already added in the background.
-        originalFields.push({
-          path: [String(element.currentKey)],
-          value: DoesNotExist,
-        });
+        // When a new field is added, check if the original value of that
+        // field (which is typically that it was missing) was changed in
+        // the background. If there *was* another field in its place,
+        // that means that it was removed, and is added to `originalValue`
+        // at another point.
+        let wasRenamedToKeyOfPreviouslyExistingElement = false;
+        for (const otherElement of target.elements ?? []) {
+          if (
+            otherElement !== element &&
+            otherElement.key === element.currentKey
+          ) {
+            wasRenamedToKeyOfPreviouslyExistingElement = true;
+            break;
+          }
+        }
+        if (!wasRenamedToKeyOfPreviouslyExistingElement) {
+          originalFields.push({
+            path: [{ key: String(element.currentKey), isArrayIndex }],
+            value: DoesNotExist,
+          });
+        }
         newFields.push({
-          path: [String(element.currentKey)],
+          path: [{ key: String(element.currentKey), isArrayIndex }],
           value: element.generateObject(),
         });
       }
@@ -334,11 +363,27 @@ export class ObjectGenerator {
         // Remove the original field when an element is removed or renamed.
         if (canIncludeOriginalValue) {
           originalFields.push({
-            path: [String(element.key)],
+            path: [{ key: String(element.key), isArrayIndex }],
             value: element.generateOriginalObject(),
           });
         }
-        newFields.push({ path: [String(element.key)], value: DoesNotExist });
+
+        let wasRemovedAndLaterReplacedByNewElement = false;
+        for (const otherElement of target.elements ?? []) {
+          if (
+            otherElement !== element &&
+            otherElement.currentKey === element.key
+          ) {
+            wasRemovedAndLaterReplacedByNewElement = true;
+            break;
+          }
+        }
+        if (!wasRemovedAndLaterReplacedByNewElement) {
+          newFields.push({
+            path: [{ key: String(element.key), isArrayIndex }],
+            value: DoesNotExist,
+          });
+        }
       }
     }
 
@@ -367,14 +412,19 @@ export class ObjectGenerator {
 
   // Return a $getField expression that evaluates to the current value
   // of the document at `path`.
-  private static createGetFieldExpr(path: string[]): BSONObject {
+  private static createGetFieldExpr(path: SubfieldDescription[]): BSONObject {
     return path.reduce(
-      (input, key) => ({
-        $getField: {
-          field: { $literal: key },
-          input,
-        },
-      }),
+      (input, { key, isArrayIndex }) =>
+        isArrayIndex
+          ? {
+              $arrayElemAt: [input, +key],
+            }
+          : {
+              $getField: {
+                field: { $literal: key },
+                input,
+              },
+            },
       '$$ROOT' as any
     );
   }
@@ -382,19 +432,42 @@ export class ObjectGenerator {
   // Return a $setField expression that writes the specified value
   // to the document at `path`.
   private static createSetFieldExpr(
-    path: string[],
+    path: SubfieldDescription[],
     value: BSONValue | typeof DoesNotExist
   ): BSONValue {
-    return path.reduceRight(
-      (value, key, idx, array) => ({
-        $setField: {
-          field: { $literal: key },
-          input: ObjectGenerator.createGetFieldExpr(array.slice(0, idx)),
-          value,
+    return path.reduceRight((value, { key, isArrayIndex }, idx, array) => {
+      const input = ObjectGenerator.createGetFieldExpr(array.slice(0, idx));
+      if (!isArrayIndex) {
+        // 'Simple' case: Change a property of a document
+        return {
+          $setField: {
+            field: { $literal: key },
+            input,
+            value,
+          },
+        };
+      }
+
+      // Array case: concatenate the prefix of the array before the changed
+      // index, an array containing the new value at the changed index,
+      // and the suffix afterwards; use $let to avoid specifying the full
+      // input value expression multiple times.
+      return {
+        $let: {
+          vars: { input },
+          in: {
+            $concatArrays: [
+              // The third argument to $slice must not be 0
+              ...(+key > 0 ? [{ $slice: ['$$input', 0, +key] }] : []),
+              [value],
+              // The third argument is required; 2^31-1 is the maximum
+              // accepted value, and well beyond what BSON can represent.
+              { $slice: ['$$input', +key + 1, 2 ** 31 - 1] },
+            ],
+          },
         },
-      }),
-      (value === DoesNotExist ? '$$REMOVE' : { $literal: value }) as any
-    );
+      };
+    }, (value === DoesNotExist ? '$$REMOVE' : { $literal: value }) as any);
   }
 
   /**
@@ -436,28 +509,29 @@ export class ObjectGenerator {
     const query: any = {};
     if (
       originalFields.some(({ path }) =>
-        path.some((key) => key.includes('.') || key.startsWith('$'))
+        path.some(({ key }) => key.includes('.') || key.startsWith('$'))
       )
     ) {
       // Some of the keys in this query are only accesible via $getField,
       // which was introduced in MongoDB 5.0.
+      const equalityMatches: any[] = [];
       for (const { path, value } of originalFields) {
         const getFieldExpr = ObjectGenerator.createGetFieldExpr(path);
-        const matchExpr =
+        equalityMatches.push(
           value !== DoesNotExist
-            ? {
-                $eq: [getFieldExpr, { $literal: value }],
-              }
-            : {
-                $eq: [{ $type: getFieldExpr }, 'missing'],
-              };
-        query.$expr ??= { $and: [] };
-        query.$expr.$and.push(matchExpr);
+            ? { $eq: [getFieldExpr, { $literal: value }] }
+            : { $eq: [{ $type: getFieldExpr }, 'missing'] }
+        );
+      }
+      if (equalityMatches.length === 1) {
+        query.$expr = equalityMatches[0];
+      } else if (equalityMatches.length > 1) {
+        query.$expr = { $and: equalityMatches };
       }
     } else {
       for (const { path, value } of originalFields) {
         const matchValue = value === DoesNotExist ? { $exists: false } : value;
-        query[path.join('.')] = matchValue;
+        query[path.map(({ key }) => key).join('.')] = matchValue;
       }
     }
     return query;
@@ -483,7 +557,7 @@ export class ObjectGenerator {
 
     if (
       newFields.some(({ path }) =>
-        path.some((key) => key.includes('.') || key.startsWith('$'))
+        path.some(({ key }) => key.includes('.') || key.startsWith('$'))
       )
     ) {
       // Some of the keys in this query are only writable via $setField/$unsetField,
@@ -498,10 +572,10 @@ export class ObjectGenerator {
       for (const { path, value } of newFields) {
         if (value === DoesNotExist) {
           updateDoc.$unset ??= {};
-          updateDoc.$unset[path.join('.')] = true;
+          updateDoc.$unset[path.map(({ key }) => key).join('.')] = true;
         } else {
           updateDoc.$set ??= {};
-          updateDoc.$set[path.join('.')] = value;
+          updateDoc.$set[path.map(({ key }) => key).join('.')] = value;
         }
       }
       return updateDoc;

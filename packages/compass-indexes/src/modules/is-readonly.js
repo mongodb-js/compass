@@ -6,10 +6,6 @@ export const INITIAL_STATE =
 
 /**
  * Reducer function doesn't do anything since we're based on process.
- *
- * @param {Array} state - The state.
- *
- * @returns {Array} The state.
  */
 export default function reducer(state = INITIAL_STATE) {
   return state;

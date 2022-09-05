@@ -6,7 +6,6 @@ import DropIndexPlugin from './drop-index-plugin';
 import configureStore from './stores';
 import configureCreateIndexStore from './stores/create-index';
 import configureDropIndexStore from './stores/drop-index';
-import IndexDefinitionType from './components/index-definition-type';
 
 // Compass Plugin role definition.
 const ROLE = {
@@ -51,10 +50,6 @@ function activate(appRegistry: AppRegistry): void {
   appRegistry.registerRole('Collection.Tab', ROLE);
   appRegistry.registerRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
   appRegistry.registerRole('Collection.ScopedModal', DROP_INDEX_ROLE);
-  appRegistry.registerComponent(
-    'Indexes.IndexDefinitionType',
-    IndexDefinitionType
-  );
 }
 
 /**
@@ -65,7 +60,6 @@ function deactivate(appRegistry: AppRegistry): void {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
   appRegistry.deregisterRole('Collection.ScopedModal', CREATE_INDEX_ROLE);
   appRegistry.deregisterRole('Collection.ScopedModal', DROP_INDEX_ROLE);
-  appRegistry.deregisterComponent('Indexes.IndexDefinitionType');
 }
 
 export default IndexesPlugin;

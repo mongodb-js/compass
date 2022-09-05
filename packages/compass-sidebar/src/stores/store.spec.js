@@ -73,6 +73,7 @@ describe('SidebarStore [Store]', function () {
             genuineMongoDB: {
               isGenuine: true,
             },
+            isAtlas: false,
             isWritable: false,
             refreshingStatus: 'initial',
             topologyDescription: {

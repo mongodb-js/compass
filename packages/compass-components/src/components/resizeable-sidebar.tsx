@@ -25,17 +25,15 @@ const containerStylesDark = css({
   '--color': 'white',
   '--bg-color': uiColors.gray.dark3,
 
+  '--title-color': uiColors.gray.dark3,
+  '--title-bg-color': '#71F6BA', // TODO: there is no uiColors.green.light1,
+
   '--icon-color': 'white',
-  // NOTE: This is for icons that only display when hovering over an item,
-  // not the color used for the icon when hovering over the icon itself.
-  '--hover-icon-color': 'white',
 
   '--item-color': 'white',
-  '--item-color-hover': 'white',
-  '--item-color-active': 'white',
-  '--item-bg-color': uiColors.gray.dark2,
-  '--item-bg-color-hover': uiColors.gray.dark3,
-  '--item-bg-color-active': uiColors.gray.dark1,
+  '--item-color-active': '#71F6BA', // TODO: there is no uiColors.green.light1
+  '--item-bg-color': uiColors.gray.dark3,
+  '--item-bg-color-active': uiColors.black,
 
   color: 'var(--color)',
   backgroundColor: 'var(--bg-color)',
@@ -45,14 +43,14 @@ const containerStylesLight = css({
   '--color': uiColors.gray.dark3,
   '--bg-color': uiColors.gray.light3,
 
+  '--title-color': 'white',
+  '--title-bg-color': uiColors.green.dark2,
+
   '--icon-color': uiColors.gray.dark3,
-  '--hover-icon-color': uiColors.gray.dark1,
 
   '--item-color': uiColors.gray.dark3,
-  '--item-color-hover': uiColors.gray.dark3,
   '--item-color-active': uiColors.green.dark2,
   '--item-bg-color': uiColors.gray.light3,
-  '--item-bg-color-hover': uiColors.green.light2,
   '--item-bg-color-active': uiColors.green.light3,
 
   color: 'var(--color)',

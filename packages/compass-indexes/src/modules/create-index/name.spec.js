@@ -2,15 +2,15 @@ import { expect } from 'chai';
 
 import reducer, {
   INITIAL_STATE,
-  changeName,
-  CHANGE_NAME,
+  nameChanged,
+  NAME_CHANGED,
 } from '../create-index/name';
 
 describe('create index name module', function () {
   describe('#reducer', function () {
     context('when an action is provided', function () {
       it('returns the new state', function () {
-        expect(reducer(undefined, changeName('testing'))).to.equal('testing');
+        expect(reducer(undefined, nameChanged('testing'))).to.equal('testing');
       });
     });
 
@@ -21,10 +21,10 @@ describe('create index name module', function () {
     });
   });
 
-  describe('#changeName', function () {
+  describe('#nameChanged', function () {
     it('returns the action', function () {
-      expect(changeName('test')).to.deep.equal({
-        type: CHANGE_NAME,
+      expect(nameChanged('test')).to.deep.equal({
+        type: NAME_CHANGED,
         name: 'test',
       });
     });

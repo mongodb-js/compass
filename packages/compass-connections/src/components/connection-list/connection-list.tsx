@@ -9,19 +9,27 @@ import {
   spacing,
   css,
   cx,
+  useTheme,
+  Theme,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 
 import Connection from './connection';
+import ConnectionsTitle from './connections-title';
 
-const newConnectionButtonContainerStyles = css({
+const legacyNewConnectionButtonContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   background: uiColors.gray.dark2,
   position: 'relative',
 });
 
-const newConnectionButtonStyles = css({
+const newConnectionButtonContainerStyles = css({
+  padding: spacing[3],
+});
+
+const legacyNewConnectionButtonStyles = css({
   border: 'none',
   fontWeight: 'bold',
   borderRadius: 0,
@@ -32,6 +40,22 @@ const newConnectionButtonStyles = css({
     border: 'none',
     boxShadow: 'none',
   },
+});
+
+const newConnectionButtonStyles = css({
+  width: '100%',
+  justifyContent: 'center',
+  fontWeight: 'bold',
+  '> div': {
+    width: 'auto',
+  },
+});
+
+const newConnectionButtonStylesLight = css({
+  backgroundColor: 'white',
+});
+const newConnectionButtonStylesDark = css({
+  backgroundColor: uiColors.gray.dark2,
 });
 
 const sectionHeaderStyles = css({
@@ -50,11 +74,18 @@ const recentHeaderStyles = css({
 });
 
 const sectionHeaderTitleStyles = css({
-  color: 'white',
   flexGrow: 1,
   fontSize: '16px',
   lineHeight: '24px',
   fontWeight: 700,
+});
+
+const sectionHeaderTitleStylesLight = css({
+  color: uiColors.gray.dark3,
+});
+
+const sectionHeaderTitleStylesDark = css({
+  color: 'white',
 });
 
 const sectionHeaderIconStyles = css({
@@ -80,26 +111,32 @@ const connectionListStyles = css({
   padding: 0,
 });
 
-const recentIcon = (
-  <svg
-    width={spacing[4]}
-    height={spacing[4]}
-    viewBox="0 0 24 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M9.66663 11.6667C9.66663 14.0566 11.6101 16 14 16C16.3899 16 18.3333 14.0566 18.3333 11.6667C18.3333 9.27677 16.3899 7.33333 14 7.33333C11.6101 7.33333 9.66663 9.27677 9.66663 11.6667Z"
-      stroke="white"
-    />
-    <path
-      d="M4.99998 12.449C4.99998 12.2348 4.99998 12.0475 4.99998 11.8333C4.99998 6.96162 8.9616 3 13.8333 3C18.705 3 22.6666 6.96162 22.6666 11.8333C22.6666 16.705 18.705 20.6667 13.8333 20.6667M1.33331 9L4.63998 12.1795C4.85331 12.3846 5.17331 12.3846 5.35998 12.1795L8.66665 9"
-      stroke="white"
-      strokeMiterlimit="10"
-    />
-    <path d="M13.6666 10V12H15.6666" stroke="white" strokeMiterlimit="10" />
-  </svg>
-);
+function UnthemedRecentIcon({ darkMode }: { darkMode?: boolean }) {
+  const color = darkMode ? 'white' : uiColors.gray.dark3;
+
+  return (
+    <svg
+      width={spacing[4]}
+      height={spacing[4]}
+      viewBox="0 0 24 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M9.66663 11.6667C9.66663 14.0566 11.6101 16 14 16C16.3899 16 18.3333 14.0566 18.3333 11.6667C18.3333 9.27677 16.3899 7.33333 14 7.33333C11.6101 7.33333 9.66663 9.27677 9.66663 11.6667Z"
+        stroke={color}
+      />
+      <path
+        d="M4.99998 12.449C4.99998 12.2348 4.99998 12.0475 4.99998 11.8333C4.99998 6.96162 8.9616 3 13.8333 3C18.705 3 22.6666 6.96162 22.6666 11.8333C22.6666 16.705 18.705 20.6667 13.8333 20.6667M1.33331 9L4.63998 12.1795C4.85331 12.3846 5.17331 12.3846 5.35998 12.1795L8.66665 9"
+        stroke={color}
+        strokeMiterlimit="10"
+      />
+      <path d="M13.6666 10V12H15.6666" stroke={color} strokeMiterlimit="10" />
+    </svg>
+  );
+}
+
+const RecentIcon = withTheme(UnthemedRecentIcon);
 
 export type ConnectionInfoFavorite = ConnectionInfo &
   Required<Pick<ConnectionInfo, 'favorite'>>;
@@ -127,26 +164,55 @@ function ConnectionList({
 }): React.ReactElement {
   const [recentHeaderHover, setRecentHover] = useState(false);
 
+  const { theme } = useTheme();
+
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+
+  const isExpanded = true; // TODO: https://jira.mongodb.org/browse/COMPASS-5967
+
   return (
     <Fragment>
-      <div className={newConnectionButtonContainerStyles}>
+      {useNewSidebar && <ConnectionsTitle isExpanded={isExpanded} />}
+      <div
+        className={
+          useNewSidebar
+            ? newConnectionButtonContainerStyles
+            : legacyNewConnectionButtonContainerStyles
+        }
+      >
         <Button
-          className={newConnectionButtonStyles}
-          darkMode
+          className={cx(
+            useNewSidebar
+              ? newConnectionButtonStyles
+              : legacyNewConnectionButtonStyles,
+            useNewSidebar &&
+              (theme === Theme.Dark
+                ? newConnectionButtonStylesDark
+                : newConnectionButtonStylesLight)
+          )}
           onClick={createNewConnection}
-          size="large"
+          size={useNewSidebar ? 'default' : 'large'}
           data-testid="new-connection-button"
           rightGlyph={<Icon glyph="Plus" />}
         >
-          New Connection
+          New connection
         </Button>
       </div>
       <div className={connectionListSectionStyles}>
         <div className={sectionHeaderStyles}>
           <div className={sectionHeaderIconStyles}>
-            <FavoriteIcon darkMode />
+            <FavoriteIcon />
           </div>
-          <H2 className={sectionHeaderTitleStyles}>Favorites</H2>
+          <H2
+            className={cx(
+              sectionHeaderTitleStyles,
+              theme === Theme.Dark
+                ? sectionHeaderTitleStylesDark
+                : sectionHeaderTitleStylesLight
+            )}
+          >
+            Saved connections
+          </H2>
         </div>
         <ul className={connectionListStyles}>
           {favoriteConnections.map((connectionInfo, index) => (
@@ -178,8 +244,18 @@ function ConnectionList({
           onMouseEnter={() => setRecentHover(true)}
           onMouseLeave={() => setRecentHover(false)}
         >
-          <div className={sectionHeaderIconStyles}>{recentIcon}</div>
-          <H2 data-testid="recents-header" className={sectionHeaderTitleStyles}>
+          <div className={sectionHeaderIconStyles}>
+            <RecentIcon />
+          </div>
+          <H2
+            data-testid="recents-header"
+            className={cx(
+              sectionHeaderTitleStyles,
+              theme === Theme.Dark
+                ? sectionHeaderTitleStylesDark
+                : sectionHeaderTitleStylesLight
+            )}
+          >
             Recents
           </H2>
           {recentHeaderHover && (
@@ -187,7 +263,6 @@ function ConnectionList({
               onClick={removeAllRecentsConnections}
               variant="default"
               size="xsmall"
-              darkMode
             >
               Clear All
             </Button>

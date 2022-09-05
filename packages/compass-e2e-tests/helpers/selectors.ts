@@ -1,7 +1,7 @@
-// Privacy Settings Modal
-export const PrivacySettingsModal = '[data-test-id="privacy-settings-modal"]';
-export const ClosePrivacySettingsButton =
-  '[data-test-id="close-privacy-settings-button"]';
+// Settings Modal
+export const SettingsModal = '[data-testid="settings-modal"]';
+export const CloseSettingsModalButton =
+  '[data-testid="settings-modal"] [aria-label="Close modal"]';
 
 // Feature Tour Modal
 export const FeatureTourModal = '[data-test-id="feature-tour-modal"]';
@@ -216,7 +216,8 @@ export const ServerVersionText = '[data-test-id="server-version-text"]';
 export const SidebarTitle = '[data-test-id="sidebar-title"]';
 export const SidebarCreateDatabaseButton =
   '[data-test-id="create-database-button"]';
-export const ShowActionsButton = '[data-testid="show-actions"]';
+export const CollectionShowActionsButton =
+  '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
@@ -371,7 +372,7 @@ export const InstanceCreateDatabaseButton =
 export const DatabaseCard = '[data-testid="database-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const DatabaseCardDrop =
-  '[data-testid="database-grid"] [data-testid="card-action-container"] button';
+  '[data-testid="database-grid"] [data-testid="namespace-card-actions"] button';
 export const ServerStats = '.serverstats';
 
 export const instanceTab = (tabName: string, selected?: boolean): string => {
@@ -406,7 +407,7 @@ export const DatabaseCreateCollectionButton =
 export const CollectionCard = '[data-testid="collection-grid-item"]';
 // assume that there's only one hovered card at a time and that the first and only button is the drop button
 export const CollectionCardDrop =
-  '[data-testid="collection-grid"] [data-testid="card-action-container"] button';
+  '[data-testid="collection-grid"] [data-testid="namespace-card-actions"] button';
 
 export const databaseTab = (tabName: string, selected?: boolean): string => {
   const selector = `${DatabaseTab}[name="${tabName}"]`;
@@ -770,44 +771,46 @@ export const ExplainDocumentsReturnedSummary =
   '[data-test-id="documents-returned-summary"]';
 
 // Indexes tab
-export const IndexList = '[data-test-id="index-list"]';
-export const IndexComponent = '[data-test-id="index-list"] tr';
-export const IndexFieldName = '[data-test-id="index-field-name"]';
-export const IndexFieldType = '[data-test-id="index-field-type"]';
+export const IndexList = '[data-testid="indexes-list"]';
+export const IndexComponent = (name: string): string => {
+  return `[data-testid="index-row-${name}"]`;
+};
+export const IndexFieldName = '[data-testid="index-name-field"]';
+export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
-  '[data-test-id="create-index-modal-toggle-options"]';
+  '[data-testid="create-index-modal-toggle-options"]';
 export const IndexToggleIsWildcard =
-  '[data-test-id="wildcard-projection"] input[type="checkbox"]';
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] #create-index-modal-use-wildcard-checkbox-label';
 export const IndexWildcardProjectionEditor =
-  '[data-test-id="create-index-modal-options-param-wrapper-editor"] .ace_editor';
+  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] .ace_editor';
+
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';
-export const CreateIndexModal = '[data-test-id="create-index-modal"]';
+
+// Indexes modal
+export const CreateIndexModal = '[data-testid="create-index-modal"]';
 
 export const CreateIndexModalFieldNameSelectInput = (idx: number): string => {
-  return `[data-test-id="create-index-field-name-${idx}"] input`;
+  return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
 export const CreateIndexModalFieldTypeSelectButton = (idx: number): string => {
-  return `[data-test-id="create-index-field-type-${idx}"] button`;
+  return `[data-testid="create-index-fields-type-${idx}"] button`;
 };
 export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
-  return `[data-test-id="create-index-field-type-${idx}"] #create-index-field-type-${idx}-menu`;
+  return `[data-testid="create-index-fields-type-${idx}"] #create-index-fields-type-select-${idx}-menu`;
 };
-export const CreateIndexConfirmButton = '[data-test-id="create-index-button"]';
 
-export const DropIndexModal = '[data-testid="drop_index_modal"]';
+export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
+export const CreateIndexCancelButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:first-child`;
+export const CreateIndexConfirmButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:last-child`;
+
+export const DropIndexModal = '[data-testid="drop-index-modal"]';
 export const DropIndexModalConfirmName =
-  '[data-test-id="confirm-drop-index-name"]';
+  '[data-testid="confirm-drop-index-name"]';
 export const DropIndexModalConfirmButton =
-  '[data-testid="drop_index_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="drop-index-modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
-export const indexComponent = (indexName: string): string => {
-  return `[data-test-id="index-component-${indexName}"]`;
-};
-
-export const dropIndexButton = (indexName: string): string => {
-  return `[data-test-id="index-component-${indexName}"] .btn-default`;
-};
+export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
 
 // Validation tab
 export const AddRuleButton = '[data-test-id="add-rule-button"]';

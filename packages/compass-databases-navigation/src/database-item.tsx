@@ -5,17 +5,17 @@ import {
   spacing,
   css,
   cx,
+  ItemActionControls,
+  Icon,
 } from '@mongodb-js/compass-components';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import { DATABASE_ROW_HEIGHT } from './constants';
-import { ActionControls } from './item-action-controls';
-import type { NamespaceAction } from './item-action-controls';
 import { ItemContainer, ItemLabel } from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
   NamespaceItemProps,
 } from './tree-item';
-import { SmallIcon } from './icon-button';
 import type { Actions } from './constants';
 
 const buttonReset = css({
@@ -26,6 +26,7 @@ const buttonReset = css({
 });
 
 const expandButton = css({
+  display: 'flex',
   // Not using leafygreen spacing here because none of them allow to align the
   // button with the search bar content. This probably can go away when we are
   // rebuilding the search also
@@ -57,7 +58,7 @@ const ExpandButton: React.FunctionComponent<{
       onClick={onClick}
       className={cx(buttonReset, expandButton, isExpanded && expanded)}
     >
-      <SmallIcon glyph="CaretRight" mode="normal"></SmallIcon>
+      <Icon glyph="CaretRight" size="small"></Icon>
     </button>
   );
 };
@@ -72,7 +73,7 @@ const databaseItemOldSpacing = css({
 });
 
 const databaseItemNewSpacing = css({
-  paddingLeft: spacing[4],
+  paddingLeft: spacing[2],
 });
 
 const databaseItemLabelOldSpacing = css({
@@ -134,7 +135,7 @@ export const DatabaseItem: React.FunctionComponent<
     [id, onNamespaceAction]
   );
 
-  const actions: NamespaceAction[] = useMemo(() => {
+  const actions: ItemAction<Actions>[] = useMemo(() => {
     return [
       {
         action: 'create-collection',
@@ -160,7 +161,6 @@ export const DatabaseItem: React.FunctionComponent<
       posInSet={posInSet}
       isExpanded={isExpanded}
       isActive={isActive}
-      isHovered={isHovered}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
       className={cx(
@@ -174,7 +174,7 @@ export const DatabaseItem: React.FunctionComponent<
         onClick={onExpandButtonClick}
         isExpanded={isExpanded}
       ></ExpandButton>
-      {useNewSidebar && <SmallIcon glyph="Database" mode="normal"></SmallIcon>}
+      {useNewSidebar && <Icon glyph="Database" size="small"></Icon>}
       <ItemLabel
         className={
           useNewSidebar
@@ -185,13 +185,15 @@ export const DatabaseItem: React.FunctionComponent<
         {name}
       </ItemLabel>
       {!isReadOnly && (
-        <ActionControls
+        <ItemActionControls<Actions>
           className={databaseActions}
           onAction={onAction}
-          isActive={isActive}
-          isHovered={isHovered}
+          isVisible={isActive || isHovered}
+          data-testid="sidebar-database-item-actions"
+          collapseToMenuThreshold={3}
+          iconSize="small"
           actions={actions}
-        ></ActionControls>
+        ></ItemActionControls>
       )}
     </ItemContainer>
   );

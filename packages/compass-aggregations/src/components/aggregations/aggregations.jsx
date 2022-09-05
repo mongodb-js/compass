@@ -19,7 +19,6 @@ import { openLink } from '../../modules/link';
 import { toggleOverview } from '../../modules/is-overview-on';
 import { toggleFullscreen } from '../../modules/is-fullscreen-on';
 import {
-  deletePipeline,
   newPipeline,
   clonePipeline,
   openCreateView
@@ -39,7 +38,6 @@ import {
   stageToggled
 } from '../../modules/pipeline';
 import {
-  savedPipelinesListToggle,
   saveCurrentPipeline,
   savedPipelineAdd,
   getSavedPipelines
@@ -51,8 +49,7 @@ import {
   openPipelineById
 } from '../../modules/index';
 import {
-  restorePipelineModalToggle,
-  restorePipelineFrom
+  restorePipelineModalToggle
 } from '../../modules/restore-pipeline';
 import {
   newPipelineFromText,
@@ -121,7 +118,6 @@ const mapStateToProps = (state) => ({
   sourceName: state.sourceName,
   serverVersion: state.serverVersion,
   pipeline: state.pipeline,
-  savedPipeline: state.savedPipeline,
   restorePipeline: state.restorePipeline,
   name: state.name,
   collationString: state.collationString,
@@ -165,7 +161,6 @@ const MappedAggregations = connect(
     toggleComments,
     toggleSample,
     toggleAutoPreview,
-    deletePipeline,
     runStage,
     runOutStage,
     gotoOutResults,
@@ -184,12 +179,10 @@ const MappedAggregations = connect(
     setSettingsMaxTimeMS,
     setSettingsLimit,
     exportToLanguage,
-    savedPipelinesListToggle,
     saveCurrentPipeline,
     savedPipelineAdd,
     getSavedPipelines,
     restorePipelineModalToggle,
-    restorePipelineFrom,
     restoreSavedPipeline,
     newPipeline,
     newPipelineFromText,

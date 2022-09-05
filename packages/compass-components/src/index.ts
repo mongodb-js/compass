@@ -28,8 +28,16 @@ import { RadioBoxGroup } from './components/radio-box-group';
 import { SpinLoader } from './components/spin-loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
+import { CollapsibleFieldSet } from './components/collapsible-field-set';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
 import ResizableSidebar from './components/resizeable-sidebar';
+import {
+  ItemAction,
+  MenuAction,
+  ItemActionControls,
+  ItemActionGroup,
+  ItemActionMenu,
+} from './components/item-action-controls';
 export {
   Editor,
   EditorVariant,
@@ -60,6 +68,7 @@ export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
 export { Variant as ToastVariant } from '@leafygreen-ui/toast';
 export { useId } from '@react-aria/utils';
+export { VisuallyHidden } from '@react-aria/visually-hidden';
 
 export { useToast, ToastArea } from './hooks/use-toast';
 
@@ -67,13 +76,16 @@ export { Toggle } from './components/toggle';
 
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
+import IndexIcon from './components/index-icon';
 
 export {
   Accordion,
+  CollapsibleFieldSet,
   CancelLoader,
   ConfirmationModal,
   ErrorSummary,
   FileInput,
+  IndexIcon,
   Modal,
   ModalTitle,
   MoreOptionsToggle,
@@ -85,6 +97,11 @@ export {
   Toolbar,
   WarningSummary,
   WorkspaceTabs,
+  ItemAction,
+  MenuAction,
+  ItemActionControls,
+  ItemActionGroup,
+  ItemActionMenu,
 };
 export {
   useFocusState,
@@ -110,15 +127,12 @@ export { ErrorBoundary } from './components/error-boundary';
 export { TabNavBar } from './components/tab-nav-bar';
 export { WorkspaceContainer } from './components/workspace-container';
 export { InlineInfoLink } from './components/inline-info-link';
+export { InteractivePopover } from './components/interactive-popover';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { VirtualGrid } from './components/virtual-grid';
 export { mergeProps } from './utils/merge-props';
-export {
-  focusRingStyles,
-  focusRingVisibleStyles,
-  useFocusRing,
-} from './hooks/use-focus-ring';
+export { focusRing, useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
 export { Pipeline, Stage } from '@leafygreen-ui/pipeline';

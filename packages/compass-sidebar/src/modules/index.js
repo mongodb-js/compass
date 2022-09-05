@@ -18,6 +18,7 @@ import connectionInfo, {
 import connectionOptions, {
   INITIAL_STATE as CONNECTION_OPTIONS_IS,
 } from './connection-options';
+import location, { INITIAL_STATE as LOCATION_IS } from './location';
 
 /**
  * The reducer.
@@ -30,6 +31,7 @@ const reducer = combineReducers({
   instance,
   isDetailsExpanded,
   isGenuineMongoDBVisible,
+  location,
 });
 
 /**
@@ -50,6 +52,7 @@ const rootReducer = (state, action) => {
       instance: INSTANCE_INITIAL_STATE,
       isDetailsExpanded: IS_DETAILS_EXPANDED_INITIAL_STATE,
       isGenuineMongoDBVisible: IS_VISIBLE_IS,
+      location: LOCATION_IS,
     };
   }
   return reducer(state, action);

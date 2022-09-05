@@ -5,12 +5,12 @@ import {
   MoreOptionsToggle,
   css,
   cx,
-  focusRingStyles,
-  focusRingVisibleStyles,
   spacing,
   uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
+import type AppRegistry from 'hadron-app-registry';
 
 import type {
   QueryOption,
@@ -19,15 +19,21 @@ import type {
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import { QueryOption as QueryOptionComponent } from './query-option';
 import { QueryOptionsGrid } from './query-options-grid';
+import { QueryHistoryButtonPopover } from './query-history-button-popover';
 
 const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
+  background: 'white',
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[2],
-  background: uiColors.white,
+});
+
+const queryBarFormDarkStyles = css({
+  background: uiColors.gray.dark3,
+  borderColor: uiColors.gray.dark2,
 });
 
 const queryBarFirstRowStyles = css({
@@ -40,24 +46,16 @@ const filterContainerStyles = css({
   flexGrow: 1,
 });
 
-const openQueryHistoryStyles = cx(
-  css({
-    border: 'none',
-    backgroundColor: 'transparent',
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: spacing[2] - 2, // -2px for border.
-    '&:hover': {
-      cursor: 'pointer',
-    },
-    '&:focus': focusRingVisibleStyles,
-  }),
-  focusRingStyles
-);
-
 type QueryBarProps = {
   buttonLabel?: string;
+  darkMode?: boolean;
   expanded: boolean;
+  globalAppRegistry: AppRegistry;
+  localAppRegistry: AppRegistry;
+  onApply: () => void;
+  onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
+  onOpenExportToLanguage: () => void;
+  onReset: () => void;
   queryOptions?: (
     | 'project'
     | 'sort'
@@ -66,37 +64,36 @@ type QueryBarProps = {
     | 'limit'
     | 'maxTimeMS'
   )[];
-  onApply: () => void;
-  onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
-  onOpenExportToLanguage: () => void;
-  onReset: () => void;
   queryState: 'apply' | 'reset';
   refreshEditorAction: Listenable;
+  resultId: string | number;
   schemaFields: string[];
   serverVersion: string;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
   toggleExpandQueryOptions: () => void;
-  toggleQueryHistory: () => void;
   valid: boolean;
 } & QueryBarOptionProps;
 
-export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
+const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
+  darkMode,
   expanded: isQueryOptionsExpanded = false,
-  queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
+  globalAppRegistry,
+  localAppRegistry,
   onApply: _onApply,
   onChangeQueryOption,
   onOpenExportToLanguage,
   onReset,
+  queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
   queryState,
   refreshEditorAction,
+  resultId,
   schemaFields,
   serverVersion,
   showExportToLanguageButton = true,
   showQueryHistoryButton = true,
   toggleExpandQueryOptions,
-  toggleQueryHistory,
   valid: isQueryValid,
   ...queryOptionProps
 }) => {
@@ -116,20 +113,19 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   );
 
   return (
-    <form className={queryBarFormStyles} onSubmit={onFormSubmit} noValidate>
+    <form
+      className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
+      data-testid="query-bar"
+      onSubmit={onFormSubmit}
+      noValidate
+      data-result-id={resultId}
+    >
       <div className={queryBarFirstRowStyles}>
         {showQueryHistoryButton && (
-          <button
-            data-testid="query-history-button"
-            onClick={toggleQueryHistory}
-            className={openQueryHistoryStyles}
-            id="open-query-history"
-            aria-label="Open query history"
-            type="button"
-          >
-            <Icon glyph="Clock" />
-            <Icon glyph="CaretDown" />
-          </button>
+          <QueryHistoryButtonPopover
+            localAppRegistry={localAppRegistry}
+            globalAppRegistry={globalAppRegistry}
+          />
         )}
         <div className={filterContainerStyles}>
           <QueryOptionComponent
@@ -163,6 +159,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           variant="primary"
           size="small"
           type="submit"
+          onClick={onFormSubmit}
         >
           {buttonLabel}
         </Button>
@@ -206,3 +203,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     </form>
   );
 };
+
+const QueryBar = withTheme(UnthemedQueryBar);
+
+export { QueryBar };

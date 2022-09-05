@@ -1,6 +1,6 @@
 import semver from 'semver';
 
-const MIN_COLUMNSTORE_INDEXES_SERVER_VERSION = '6.1.0-alpha0';
+const MIN_COLUMNSTORE_INDEXES_SERVER_VERSION = '7.0.0-alpha0';
 
 export function hasColumnstoreIndexesSupport(
   serverVersion: string | undefined | null

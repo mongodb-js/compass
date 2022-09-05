@@ -119,13 +119,16 @@ function generateVersionsForAssets(assets, version, channel) {
             .filter(({ downloadCenter }) => {
               return downloadCenter;
             })
-            .map(({ name }) => {
-              const prefix = getKeyPrefix(channel);
-              const link = `https://downloads.mongodb.com/${prefix}/${name}`;
+            .map((asset) => {
+              const link = Target.getDownloadLinkForAsset(version, asset);
               return {
                 arch: config.arch,
                 os: config.platform,
-                name: readablePlatformName(config.arch, config.platform, name),
+                name: readablePlatformName(
+                  config.arch,
+                  config.platform,
+                  asset.name
+                ),
                 download_link: link
               };
             });
@@ -214,9 +217,6 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
   const assetsToUpload = assets
     .flatMap((item) => {
       return item.assets;
-    })
-    .filter(({ downloadCenter }) => {
-      return downloadCenter;
     });
 
   cli.info('Uploading assets to download center…');

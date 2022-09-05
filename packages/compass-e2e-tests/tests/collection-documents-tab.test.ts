@@ -96,6 +96,7 @@ describe('Collection documents tab', function () {
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
+    await browser.setFeature('trackUsageStatistics', true);
   });
 
   beforeEach(async function () {
@@ -235,7 +236,9 @@ describe('Collection documents tab', function () {
     await documentListErrorElement.waitForDisplayed();
 
     const errorText = await documentListErrorElement.getText();
-    expect(errorText).to.include('operation exceeded time limit');
+    expect(errorText).to.include(
+      'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+    );
   });
 
   it('keeps the query when navigating to schema and explain', async function () {

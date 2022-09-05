@@ -25,6 +25,7 @@ import {
   default as LeafyGreenModal,
   Footer as LeafyGreenModalFooter,
 } from '@leafygreen-ui/modal';
+import Popover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import {
   Radio,
@@ -160,6 +161,7 @@ export {
   ModalFooter,
   MongoDBLogoMark,
   MongoDBLogo,
+  Popover,
   RadioBox,
   RadioBoxGroup,
   Radio,

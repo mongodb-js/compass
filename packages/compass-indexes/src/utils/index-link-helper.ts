@@ -17,6 +17,7 @@ const HELP_URLS = {
   // see https://jira.mongodb.org/browse/COMPASS-5760
   // TODO: add an entry for COLUMNSTORE once the docs become available
   // see https://jira.mongodb.org/browse/COMPASS-5774
+  COLUMNSTORE: null,
   TEXT: 'https://docs.mongodb.org/manual/core/index-text/',
   HASHED: 'https://docs.mongodb.org/manual/core/index-hashed/',
   REGULAR: 'https://docs.mongodb.com/manual/indexes/#single-field',
@@ -30,10 +31,7 @@ const HELP_URLS = {
  * The function looks up index help links.
  *
  * @param {String} section - The name of the section to open.
- * @returns {String} - the link.
  */
-function getIndexHelpLink(section: keyof typeof HELP_URLS) {
+export default function getIndexHelpLink(section: keyof typeof HELP_URLS) {
   return HELP_URLS[section] || null;
 }
-
-module.exports = getIndexHelpLink;

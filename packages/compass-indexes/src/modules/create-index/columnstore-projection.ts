@@ -1,7 +1,7 @@
 import type { AnyAction } from 'redux';
 
 /**
- * Create index columnstore projection action.
+ * Columnstore projection changed action name.
  */
 export const COLUMNSTORE_PROJECTION_CHANGED =
   'indexes/create-index/columnstore-projection/COLUMNSTORE_PROJECTION_CHANGED';
@@ -12,14 +12,17 @@ export const COLUMNSTORE_PROJECTION_CHANGED =
 export const INITIAL_STATE = '';
 
 /**
- * Reducer function for handle columnstore projection state changes.
+ * Reducer function for handle the columnstore projection state changes.
  *
- * @param {String} state - The columnstore projection state.
- * @param {Object} action - The action.
+ * @param state - The columnstore projection state.
+ * @param action - The action.
  *
- * @returns {String} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string {
   if (action.type === COLUMNSTORE_PROJECTION_CHANGED) {
     return action.columnstoreProjection;
   }
@@ -27,11 +30,11 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 }
 
 /**
- * The change columnstore projection action creator.
+ * Action creator for the columnstore projection changed event.
  *
- * @param {String} columnstoreProjection - The columnstore projection.
+ * @param columnstoreProjection - The columnstore projection.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
 export const columnstoreProjectionChanged = (
   columnstoreProjection: string

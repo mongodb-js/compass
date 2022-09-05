@@ -2,16 +2,16 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { dropIndex } from '../drop-index';
-import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
+import { ActionTypes as ErrorActionTypes } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
-import { RESET } from '../reset';
+import { RESET_FORM } from '../reset-form';
 
 describe('drop index module', function () {
   let errorSpy;
   let progressSpy;
   let visibleSpy;
-  let resetSpy;
+  let resetFormSpy;
   let clearErrorSpy;
   let emitSpy;
   describe('#dropIndex', function () {
@@ -19,7 +19,7 @@ describe('drop index module', function () {
       errorSpy = sinon.spy();
       progressSpy = sinon.spy();
       visibleSpy = sinon.spy();
-      resetSpy = sinon.spy();
+      resetFormSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
       emitSpy = sinon.spy();
     });
@@ -27,7 +27,7 @@ describe('drop index module', function () {
       errorSpy = null;
       progressSpy = null;
       visibleSpy = null;
-      resetSpy = null;
+      resetFormSpy = null;
       clearErrorSpy = null;
       emitSpy = null;
     });
@@ -38,10 +38,10 @@ describe('drop index module', function () {
             case TOGGLE_IN_PROGRESS:
               progressSpy();
               break;
-            case RESET:
-              resetSpy();
+            case RESET_FORM:
+              resetFormSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
@@ -70,7 +70,7 @@ describe('drop index module', function () {
         },
       });
       dropIndex('index name')(dispatch, state);
-      expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
+      expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
       expect(progressSpy.calledTwice).to.equal(
         true,
@@ -88,10 +88,10 @@ describe('drop index module', function () {
           case TOGGLE_IN_PROGRESS:
             progressSpy();
             break;
-          case HANDLE_ERROR:
+          case ErrorActionTypes.HandleError:
             expect(res).to.deep.equal({
-              type: HANDLE_ERROR,
-              error: 'test err',
+              type: ErrorActionTypes.HandleError,
+              error: { message: 'test err' },
             });
             errorSpy();
             break;
