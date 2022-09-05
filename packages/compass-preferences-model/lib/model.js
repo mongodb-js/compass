@@ -4,7 +4,6 @@ const get = require('lodash.get');
 const format = require('util').format;
 const _ = require('lodash');
 const semver = require('semver');
-const { ipcRenderer } = require('hadron-ipc');
 
 var electronApp;
 var APP_VERSION = '';
@@ -209,13 +208,6 @@ class Preferences {
     this.getCliPreferences = function() { return cliPreferences; };
   }
 
-  async getPreferencesFromSetup() {
-    const ipcRendererResult = await ipcRenderer.invoke('compass:setup-preferences');
-
-    globalPreferences = ipcRendererResult.globalPreferences;
-    cliPreferences = ipcRendererResult.cliPreferences;
-  }
-
   refreshPreferences() {
     const user = this.getUserPreferences().getAttributes({ props: true, derived: true });
     const cli = this.getCliPreferences();
@@ -224,8 +216,6 @@ class Preferences {
   }
 
   fetch() {
-    this.getPreferencesFromSetup();
-
     return new Promise((resolve, reject) => {
       this.getUserPreferences().fetch({
         success: (model) => {
