@@ -8,7 +8,7 @@ import {
   css,
   cx,
   useTheme,
-  Theme
+  Theme,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
@@ -178,18 +178,21 @@ function Connection({
   const favoriteColorHex = connectionColorToHex(favorite?.color) ?? '';
 
   const hasColoredBackground = isActive && favoriteColorHex;
-  const normalTitleColor = theme === Theme.Dark ? uiColors.white : uiColors.gray.dark3;
+  const normalTitleColor =
+    theme === Theme.Dark ? uiColors.white : uiColors.gray.dark3;
   const titleColor = hasColoredBackground ? uiColors.black : normalTitleColor;
   const backgroundColor = hasColoredBackground
     ? `${favoriteColorHex} !important`
     : 'none';
 
-  const normalDescriptionColor = theme === Theme.Dark ? uiColors.gray.light1 : uiColors.gray.base;
+  const normalDescriptionColor =
+    theme === Theme.Dark ? uiColors.gray.light1 : uiColors.gray.base;
   const descriptionColor = hasColoredBackground
     ? uiColors.gray.dark3
     : normalDescriptionColor;
 
-  const normalConnectionMenuColor = theme === Theme.Dark ? 'white' : uiColors.gray.base;
+  const normalConnectionMenuColor =
+    theme === Theme.Dark ? 'white' : uiColors.gray.base;
   const connectionMenuColor = hasColoredBackground
     ? uiColors.gray.dark3
     : normalConnectionMenuColor;
@@ -199,7 +202,9 @@ function Connection({
       <button
         className={cx(
           connectionButtonStyles,
-          theme === Theme.Dark ? connectionButtonStylesDark : connectionButtonStylesLight,
+          theme === Theme.Dark
+            ? connectionButtonStylesDark
+            : connectionButtonStylesLight,
           css({ background: backgroundColor })
         )}
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
@@ -227,7 +232,7 @@ function Connection({
           className={cx(
             connectionDescriptionStyles,
             css({
-              color: descriptionColor
+              color: descriptionColor,
             })
           )}
           data-testid={`${

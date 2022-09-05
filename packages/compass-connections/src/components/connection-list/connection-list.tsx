@@ -11,7 +11,7 @@ import {
   cx,
   useTheme,
   Theme,
-  withTheme
+  withTheme,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 
@@ -47,15 +47,15 @@ const newConnectionButtonStyles = css({
   justifyContent: 'center',
   fontWeight: 'bold',
   '> div': {
-    width: 'auto'
-  }
+    width: 'auto',
+  },
 });
 
 const newConnectionButtonStylesLight = css({
   backgroundColor: 'white',
 });
 const newConnectionButtonStylesDark = css({
-  backgroundColor: uiColors.gray.dark2
+  backgroundColor: uiColors.gray.dark2,
 });
 
 const sectionHeaderStyles = css({
@@ -111,29 +111,30 @@ const connectionListStyles = css({
   padding: 0,
 });
 
+function UnthemedRecentIcon({ darkMode }: { darkMode?: boolean }) {
+  const color = darkMode ? 'white' : uiColors.gray.dark3;
 
-function UnthemedRecentIcon({ darkMode }: {darkMode?: boolean}) {
-  const color = darkMode ? 'white' : uiColors.gray.dark3 ;
-
-  return <svg
-    width={spacing[4]}
-    height={spacing[4]}
-    viewBox="0 0 24 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M9.66663 11.6667C9.66663 14.0566 11.6101 16 14 16C16.3899 16 18.3333 14.0566 18.3333 11.6667C18.3333 9.27677 16.3899 7.33333 14 7.33333C11.6101 7.33333 9.66663 9.27677 9.66663 11.6667Z"
-      stroke={color}
-    />
-    <path
-      d="M4.99998 12.449C4.99998 12.2348 4.99998 12.0475 4.99998 11.8333C4.99998 6.96162 8.9616 3 13.8333 3C18.705 3 22.6666 6.96162 22.6666 11.8333C22.6666 16.705 18.705 20.6667 13.8333 20.6667M1.33331 9L4.63998 12.1795C4.85331 12.3846 5.17331 12.3846 5.35998 12.1795L8.66665 9"
-      stroke={color}
-      strokeMiterlimit="10"
-    />
-    <path d="M13.6666 10V12H15.6666" stroke={color} strokeMiterlimit="10" />
-  </svg>;
-};
+  return (
+    <svg
+      width={spacing[4]}
+      height={spacing[4]}
+      viewBox="0 0 24 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M9.66663 11.6667C9.66663 14.0566 11.6101 16 14 16C16.3899 16 18.3333 14.0566 18.3333 11.6667C18.3333 9.27677 16.3899 7.33333 14 7.33333C11.6101 7.33333 9.66663 9.27677 9.66663 11.6667Z"
+        stroke={color}
+      />
+      <path
+        d="M4.99998 12.449C4.99998 12.2348 4.99998 12.0475 4.99998 11.8333C4.99998 6.96162 8.9616 3 13.8333 3C18.705 3 22.6666 6.96162 22.6666 11.8333C22.6666 16.705 18.705 20.6667 13.8333 20.6667M1.33331 9L4.63998 12.1795C4.85331 12.3846 5.17331 12.3846 5.35998 12.1795L8.66665 9"
+        stroke={color}
+        strokeMiterlimit="10"
+      />
+      <path d="M13.6666 10V12H15.6666" stroke={color} strokeMiterlimit="10" />
+    </svg>
+  );
+}
 
 const RecentIcon = withTheme(UnthemedRecentIcon);
 
@@ -172,11 +173,22 @@ function ConnectionList({
   return (
     <Fragment>
       {useNewSidebar && <ConnectionsTitle isExpanded={isExpanded} />}
-      <div className={useNewSidebar ? newConnectionButtonContainerStyles : legacyNewConnectionButtonContainerStyles}>
+      <div
+        className={
+          useNewSidebar
+            ? newConnectionButtonContainerStyles
+            : legacyNewConnectionButtonContainerStyles
+        }
+      >
         <Button
           className={cx(
-            useNewSidebar ? newConnectionButtonStyles : legacyNewConnectionButtonStyles,
-            useNewSidebar && (theme === Theme.Dark ? newConnectionButtonStylesDark : newConnectionButtonStylesLight)
+            useNewSidebar
+              ? newConnectionButtonStyles
+              : legacyNewConnectionButtonStyles,
+            useNewSidebar &&
+              (theme === Theme.Dark
+                ? newConnectionButtonStylesDark
+                : newConnectionButtonStylesLight)
           )}
           onClick={createNewConnection}
           size={useNewSidebar ? 'default' : 'large'}
@@ -191,10 +203,16 @@ function ConnectionList({
           <div className={sectionHeaderIconStyles}>
             <FavoriteIcon />
           </div>
-          <H2 className={cx(
-            sectionHeaderTitleStyles,
-            theme === Theme.Dark ? sectionHeaderTitleStylesDark : sectionHeaderTitleStylesLight
-          )}>Saved connections</H2>
+          <H2
+            className={cx(
+              sectionHeaderTitleStyles,
+              theme === Theme.Dark
+                ? sectionHeaderTitleStylesDark
+                : sectionHeaderTitleStylesLight
+            )}
+          >
+            Saved connections
+          </H2>
         </div>
         <ul className={connectionListStyles}>
           {favoriteConnections.map((connectionInfo, index) => (
@@ -226,11 +244,18 @@ function ConnectionList({
           onMouseEnter={() => setRecentHover(true)}
           onMouseLeave={() => setRecentHover(false)}
         >
-          <div className={sectionHeaderIconStyles}><RecentIcon /></div>
-          <H2 data-testid="recents-header" className={cx(
-            sectionHeaderTitleStyles,
-            theme === Theme.Dark ? sectionHeaderTitleStylesDark : sectionHeaderTitleStylesLight
-          )}>
+          <div className={sectionHeaderIconStyles}>
+            <RecentIcon />
+          </div>
+          <H2
+            data-testid="recents-header"
+            className={cx(
+              sectionHeaderTitleStyles,
+              theme === Theme.Dark
+                ? sectionHeaderTitleStylesDark
+                : sectionHeaderTitleStylesLight
+            )}
+          >
             Recents
           </H2>
           {recentHeaderHover && (

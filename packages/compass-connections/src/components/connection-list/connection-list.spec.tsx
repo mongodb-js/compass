@@ -131,7 +131,7 @@ describe('ConnectionList Component', function () {
 
       expect(setActiveConnectionIdSpy.called).to.equal(false);
 
-      const button = screen.getByText('New Connection').closest('button');
+      const button = screen.getByText('New connection').closest('button');
       fireEvent(
         button,
         new MouseEvent('click', {

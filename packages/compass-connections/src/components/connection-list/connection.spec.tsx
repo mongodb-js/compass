@@ -106,11 +106,11 @@ describe('Connection Component', function () {
         );
       });
 
-      it('it uses white by default', function () {
+      it('it uses 33, 49, 60 by default', function () {
         const favoriteIndicator = screen.getByTestId('connection-icon');
         expect(
           getComputedStyle(favoriteIndicator).getPropertyValue('color')
-        ).to.equal('rgb(255, 255, 255)');
+        ).to.equal('rgb(33, 49, 60)');
       });
     });
   });
@@ -134,12 +134,12 @@ describe('Connection Component', function () {
       );
     });
 
-    it('there is an icon and its white', function () {
+    it('there is an icon and its 33, 49, 60', function () {
       const favoriteIndicator = screen.queryByTestId('connection-icon');
       expect(favoriteIndicator).to.not.equal(null);
       expect(
         getComputedStyle(favoriteIndicator).getPropertyValue('color')
-      ).to.equal('rgb(255, 255, 255)');
+      ).to.equal('rgb(33, 49, 60)');
     });
 
     it('it shows the connection title as the name', function () {
