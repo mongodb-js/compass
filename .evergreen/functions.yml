@@ -204,6 +204,7 @@ functions:
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
+          set -x
           export DEBUG=${debug}
           export MONGODB_VERSION="${mongodb_version|}"
           if [ -z "$MONGODB_VERSION" ]; then
@@ -232,6 +233,7 @@ functions:
           # Preparing native addons for electron runtime
           npm run --unsafe-perm electron-rebuild
 
+          set -x
           export DEBUG=${debug}
           export MONGODB_VERSION="${mongodb_version|}"
           if [ -z "$MONGODB_VERSION" ]; then
@@ -355,6 +357,7 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
+          set -x
           export DEBUG=${debug}
           export MONGODB_VERSION="${mongodb_version|}"
           if [ -z "$MONGODB_VERSION" ]; then
@@ -389,6 +392,7 @@ functions:
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
 
+          set -x
           export DEBUG=${debug}
           export MONGODB_VERSION="${mongodb_version|}"
           if [ -z "$MONGODB_VERSION" ]; then
