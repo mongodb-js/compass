@@ -13,6 +13,11 @@ import { fetchIndexes } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
+import {
+  inProgressIndexAdded,
+  inProgressIndexRemoved,
+  inProgressIndexFailed,
+} from '../modules/in-progress-indexes';
 
 /**
  * Handle setting up the data provider.
@@ -41,6 +46,19 @@ const configureStore = (options = {}) => {
     localAppRegistry.on('refresh-data', () => {
       store.dispatch(fetchIndexes());
     });
+
+    localAppRegistry.on('in-progress-indexes-added', (index) => {
+      store.dispatch(inProgressIndexAdded(index));
+    });
+
+    localAppRegistry.on('in-progress-indexes-removed', (id) => {
+      store.dispatch(inProgressIndexRemoved(id));
+    });
+
+    localAppRegistry.on('in-progress-indexes-failed', (data) => {
+      store.dispatch(inProgressIndexFailed(data));
+    });
+
     // TODO: could save the version to check for wildcard indexes
   }
 

@@ -23,6 +23,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const fieldsComponent = screen.getByTestId('create-index-fields-line-0');
@@ -41,6 +42,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const select = screen.getByTestId('leafygreen-ui-select-menubutton');
@@ -61,6 +63,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const minusButton = screen.queryByTestId('remove-index-field-button');
@@ -82,6 +85,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const minusButton = screen.getAllByTestId('remove-index-field-button');
@@ -100,6 +104,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const minusButton = screen.getAllByTestId('add-index-field-button');
@@ -121,6 +126,7 @@ describe('CreateIndexFields Component', function () {
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const minusButton = screen.getAllByTestId('add-index-field-button');
@@ -128,7 +134,7 @@ describe('CreateIndexFields Component', function () {
     });
   });
 
-  describe('server version 6.1.0', function () {
+  describe('server version 7.0.0', function () {
     afterEach(cleanup);
 
     it('shows columnstore indexes as a selectable index type', function () {
@@ -136,13 +142,14 @@ describe('CreateIndexFields Component', function () {
         <CreateIndexFields
           schemaFields={[]}
           fields={[{ name: '', type: '' }]}
-          serverVersion="6.1.0"
+          serverVersion="7.0.0"
           isRemovable
           updateFieldName={noop}
           updateFieldType={noop}
           addField={noop}
           removeField={noop}
           createNewIndexField={noop}
+          newIndexField={null}
         />
       );
       const select = screen.getByTestId('leafygreen-ui-select-menubutton');

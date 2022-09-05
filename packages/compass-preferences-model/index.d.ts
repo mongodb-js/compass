@@ -1,8 +1,12 @@
-import AmpersandModel from 'ampersand-model';
-
-export type CompassPreferencesModel = typeof AmpersandModel;
-
-export = CompassPreferencesModel;
+declare class CompassPreferencesModel {
+  fetch: () => void;
+  save: () => void;
+  set: (
+    key: string,
+    value: unknown
+  ) => void;
+};
+export default CompassPreferencesModel;
 
 export enum THEMES {
   DARK = 'DARK',

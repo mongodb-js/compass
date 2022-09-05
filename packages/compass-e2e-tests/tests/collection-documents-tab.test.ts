@@ -96,6 +96,7 @@ describe('Collection documents tab', function () {
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
+    await browser.setFeature('trackUsageStatistics', true);
   });
 
   beforeEach(async function () {

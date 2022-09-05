@@ -10,6 +10,22 @@ import { FavoriteList } from '../favorite';
 
 // Stores
 import styles from './query-history.module.less';
+import { css } from '@mongodb-js/compass-components';
+
+const componentStyle = css({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  width: '335px',
+  height: '100%',
+});
+
+const innerStyle = css({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  height: '100%',
+});
 
 class QueryHistory extends PureComponent {
   static displayName = 'QueryHistory';
@@ -74,9 +90,9 @@ class QueryHistory extends PureComponent {
     return (
       <div
         data-test-id="query-history"
-        className={onClose ? styles.component : styles['component-legacy']}
+        className={onClose ? componentStyle : styles['component-legacy']}
       >
-        <div className={styles.inner}>
+        <div className={innerStyle}>
           <Toolbar
             actions={actions}
             showing={showing}

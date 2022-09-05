@@ -23,9 +23,9 @@ const titleLabel = css({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
-  fontSize: '18px', // TODO: what's the right way to do this?
+  fontSize: '18px',
   fontWeight: 600, // TODO: 500 once we have the new font
-  marginLeft: '2px', // TODO: hardcoded to try and match the design
+  marginLeft: '2px', // hardcoded to try and match the design
   paddingRight: spacing[2],
 });
 
@@ -44,7 +44,7 @@ const TitleLabel: React.FunctionComponent<React.HTMLProps<HTMLSpanElement>> = ({
 const titleLogo = css({
   width: spacing[5],
   paddingLeft: spacing[1],
-  marginTop: '6px', // TODO: hardcoded to try and match the design
+  marginTop: '6px', // hardcoded to try and match the design
   flexShrink: 0,
 });
 
@@ -68,16 +68,26 @@ const sidebarTitle = css({
   color: 'var(--title-color)',
   backgroundColor: 'var(--title-bg-color)',
 
-  height: spacing[6] + spacing[1], // TODO: 66px is kinda non-standard. Check with Claudia.
+  height: spacing[6],
   padding: spacing[3],
 });
 
 const iconButtonDark = css({
   color: uiColors.gray.dark3,
+  '&:hover': {
+    color: uiColors.white,
+  },
 });
 
 const iconButtonLight = css({
-  color: 'white',
+  color: uiColors.white,
+  '&:hover': {
+    color: uiColors.gray.dark3,
+  },
+});
+
+const iconButtonStyle = css({
+  color: 'inherit',
 });
 
 function SidebarTitle({
@@ -128,15 +138,14 @@ function SidebarTitle({
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (
         <ItemActionControls<Actions>
-          mode="inherit"
           onAction={onAction}
+          iconSize="small"
           actions={actions}
-          shouldCollapseActionsToMenu
-          isActive={false}
-          isHovered={false}
-          iconClassName={
+          data-testid="sidebar-title-actions"
+          iconClassName={cx(
+            iconButtonStyle,
             theme === Theme.Dark ? iconButtonDark : iconButtonLight
-          }
+          )}
         ></ItemActionControls>
       )}
     </div>

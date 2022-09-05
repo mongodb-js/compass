@@ -16,31 +16,33 @@ import TypeField from './type-field';
 import SizeField from './size-field';
 import UsageField from './usage-field';
 import PropertyField from './property-field';
-import DropField from './drop-field';
 import type {
   IndexDefinition,
   SortColumn,
   SortDirection,
 } from '../../modules/indexes';
+import IndexActions from './index-actions';
 
 // When row is hovered, we show the delete button
 const rowStyles = css({
   ':hover': {
-    '.delete-cell': {
+    '.index-actions-cell': {
       button: {
         opacity: 1,
       },
     },
   },
 });
+
 // When row is not hovered, we hide the delete button
-const deleteFieldStyles = css({
+const indexActionsCellStyles = css({
   button: {
     opacity: 0,
     '&:focus': {
       opacity: 1,
     },
   },
+  minWidth: spacing[5],
 });
 
 const tableHeaderStyles = css({
@@ -73,7 +75,7 @@ type IndexesTableProps = {
   indexes: IndexDefinition[];
   canDeleteIndex: boolean;
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
-  onDeleteIndex: (name: string) => void;
+  onDeleteIndex: (name: IndexDefinition) => void;
   globalAppRegistry: AppRegistry;
 };
 
@@ -162,46 +164,50 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
         data-testid="indexes-list"
         aria-label="Indexes List Table"
       >
-        {({ datum: index }) => (
-          <Row
-            key={index.name}
-            data-testid={`index-row-${index.name}`}
-            className={rowStyles}
-          >
-            <Cell data-testid="index-name-field" className={cellStyles}>
-              <div className={nameFieldStyles}>
-                <NameField name={index.name} keys={index.fields.serialize()} />
-              </div>
-            </Cell>
-            <Cell data-testid="index-type-field" className={cellStyles}>
-              <TypeField type={index.type} extra={index.extra} />
-            </Cell>
-            <Cell data-testid="index-size-field" className={cellStyles}>
-              <SizeField size={index.size} relativeSize={index.relativeSize} />
-            </Cell>
-            <Cell data-testid="index-usage-field" className={cellStyles}>
-              <UsageField usage={index.usageCount} since={index.usageSince} />
-            </Cell>
-            <Cell data-testid="index-property-field" className={cellStyles}>
-              <PropertyField
-                cardinality={index.cardinality}
-                extra={index.extra}
-                properties={index.properties}
-              />
-            </Cell>
-            {/* Delete column is conditional */}
-            {index.name !== '_id_' && canDeleteIndex && (
-              <Cell data-testid="index-drop-field" className={cellStyles}>
-                <div className={cx(deleteFieldStyles, 'delete-cell')}>
-                  <DropField
-                    name={index.name}
-                    onDelete={() => onDeleteIndex(index.name)}
-                  />
+      {({ datum: index }) => (
+        <Row
+          key={index.name}
+          data-testid={`index-row-${index.name}`}
+          className={rowStyles}
+        >
+          <Cell data-testid="index-name-field" className={cellStyles}>
+            <div className={nameFieldStyles}>
+              <NameField name={index.name} keys={index.fields.serialize()} />
+            </div>
+          </Cell>
+          <Cell data-testid="index-type-field" className={cellStyles}>
+            <TypeField type={index.type} extra={index.extra} />
+          </Cell>
+          <Cell data-testid="index-size-field" className={cellStyles}>
+            <SizeField size={index.size} relativeSize={index.relativeSize} />
+          </Cell>
+          <Cell data-testid="index-usage-field" className={cellStyles}>
+            <UsageField usage={index.usageCount} since={index.usageSince} />
+          </Cell>
+          <Cell data-testid="index-property-field" className={cellStyles}>
+            <PropertyField
+              cardinality={index.cardinality}
+              extra={index.extra}
+              properties={index.properties}
+            />
+          </Cell>
+          {/* Delete column is conditional */}
+          {canDeleteIndex && (
+            <Cell data-testid="index-actions-field" className={cellStyles}>
+              {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
+                <div
+                  className={cx(indexActionsCellStyles, 'index-actions-cell')}
+                >
+                  <IndexActions
+                    index={index}
+                    onDeleteIndex={onDeleteIndex}
+                  ></IndexActions>
                 </div>
-              </Cell>
-            )}
-          </Row>
-        )}
+              )}
+            </Cell>
+          )}
+        </Row>
+      )}
       </Table>
     </div>
   );
