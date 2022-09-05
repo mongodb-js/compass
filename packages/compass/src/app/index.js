@@ -37,14 +37,11 @@ global.hadronApp = app;
  */
 var APP_VERSION = remote.app.getVersion();
 
-var _ = require('lodash');
 var View = require('ampersand-view');
 var async = require('async');
 var webvitals = require('web-vitals');
 
-var semver = require('semver');
-
-const Preferences = require('compass-preferences-model');
+const { preferences } = require('compass-preferences-model');
 var User = require('compass-user-model');
 
 require('./menu-renderer');
@@ -115,11 +112,10 @@ var Application = View.extend({
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
-    router: 'object'
+    router: 'object',
   },
   children: {
-    user: User,
-    preferences: Preferences
+    user: User
   },
   initialize: function() {
     /**
@@ -198,7 +194,7 @@ var Application = View.extend({
     );
 
     const handleTour = () => {
-      if (app.preferences.showFeatureTour) {
+      if (preferences.showFeatureTour) {
         this.showTour(false);
       } else {
         this.tourClosed();
@@ -233,29 +229,30 @@ var Application = View.extend({
   showSecurity: function() {
     app.appRegistry.getAction('Security.Actions').show();
   },
-  tourClosed: function() {
-    app.preferences.unset('showFeatureTour');
-    app.preferences.save();
-    if (!app.preferences.showedNetworkOptIn) {
+  tourClosed: async function() {
+    await preferences.save({ showFeatureTour: undefined });
+
+    if (!preferences.showedNetworkOptIn) {
       this.showOptIn();
     }
   },
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
+
     User.getOrCreate(
       // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
-      this.preferences.currentUserId || this.preferences.telemetryAnonymousId,
-      function(err, user) {
+      preferences.currentUserId || preferences.telemetryAnonymousId,
+      async function(err, user) {
         if (err) {
           return done(err);
         }
         this.user.set(user.serialize());
         this.user.trigger('sync');
-        this.preferences.save({
-          telemetryAnonymousId: user.id
-        });
+
+        await preferences.save({ telemetryAnonymousId: user.id });
+
         ipc.call('compass:usage:identify', {
-          currentUserId: this.preferences.currentUserId,
+          currentUserId: preferences.currentUserId,
           telemetryAnonymousId: user.id
         });
         debug('user fetch successful', user.serialize());
@@ -263,41 +260,16 @@ var Application = View.extend({
       }.bind(this)
     );
   },
-  fetchPreferences: function(done) {
-    this.preferences.once('sync', function(prefs) {
-      prefs.trigger('page-refresh');
-      ipc.call(prefs.isFeatureEnabled('trackUsageStatistics') ?
-        'compass:usage:enabled' : 'compass:usage:disabled');
-      var oldVersion = _.get(prefs, 'lastKnownVersion', '0.0.0');
-      var currentVersion = APP_VERSION;
-      var save = false;
-      if (
-        semver.lt(oldVersion, currentVersion) ||
-        // this is so we can test the tour modal in E2E tests where the version
-        // is always the same
-        process.env.SHOW_TOUR
-      ) {
-        prefs.showFeatureTour = oldVersion;
-        save = true;
-      }
-      if (semver.neq(oldVersion, currentVersion)) {
-        prefs.lastKnownVersion = currentVersion;
-        save = true;
-      }
-      if (save) {
-        prefs.save(null, {
-          success: done.bind(null, null),
-          error: done.bind(null, null)
-        });
-      } else {
-        done(null);
-      }
-    });
-
+  async fetchPreferences() {
     ipc.call('compass:loading:change-status', {
       status: 'loading preferences'
     });
-    app.preferences.fetch();
+
+    await preferences.fetch();
+
+    ipc.call(preferences.isFeatureEnabled('trackUsageStatistics') ? 'compass:usage:enabled' : 'compass:usage:disabled');
+
+    return null;
   }
 });
 
@@ -305,10 +277,6 @@ var state = new Application();
 
 app.extend({
   client: null,
-  isFeatureEnabled: function(feature) {
-    // proxy to preferences for now
-    return this.preferences.isFeatureEnabled(feature);
-  },
   init: function() {
     async.series(
       [
@@ -325,16 +293,16 @@ app.extend({
         }
 
         // Get theme from the preferences and set accordingly.
-        loadTheme(app.preferences.theme);
+        loadTheme(preferences.theme);
         ipc.on('app:darkreader-enable', () => {
           enableDarkTheme();
         });
         ipc.on('app:darkreader-disable', () => {
           disableDarkTheme();
         });
-        ipc.on('app:save-theme', (_, theme) => {
+        ipc.on('app:save-theme', async (_, theme) => {
           // Save the new theme on the user's preferences.
-          app.preferences.save({
+          await preferences.save({
             theme
           });
         });
@@ -357,10 +325,10 @@ app.extend({
           });
           global.hadronApp.appRegistry.emit(
             'preferences-loaded',
-            state.preferences
+            preferences
           );
 
-          setupIntercom(state.preferences, state.user);
+          setupIntercom(preferences, state.user);
 
           // signal to main process that app is ready
           ipc.call('window:renderer-ready');
@@ -397,12 +365,6 @@ Object.defineProperty(app, 'instance', {
   },
   set: function(instance) {
     state.instance = instance;
-  }
-});
-
-Object.defineProperty(app, 'preferences', {
-  get: function() {
-    return state.preferences;
   }
 });
 

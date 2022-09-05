@@ -9,6 +9,7 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
+import { setupPreferences } from './setup-preferences';
 
 const debug = createDebug('mongodb-compass:main:application');
 
@@ -32,6 +33,9 @@ class CompassApplication {
     this.setupUserDirectory();
 
     await Promise.all([this.setupLogging(), this.setupTelemetry()]);
+
+    await setupPreferences();
+
     await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
 
     await setupCSFLELibrary();
@@ -88,13 +92,6 @@ class CompassApplication {
       event.preventDefault(); // Only exit asynchronously, after the cleanup handlers
       await this.runExitHandlers();
       app.exit();
-    });
-
-    ipcMain.respondTo({
-      'license:disagree': function () {
-        debug('Did not agree to license, quitting app.');
-        app.quit();
-      },
     });
 
     ipcMain.handle('coverage', () => {

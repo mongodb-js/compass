@@ -1,11 +1,16 @@
-var Model = require('ampersand-model');
-var storageMixin = require('storage-mixin');
-var get = require('lodash.get');
-var format = require('util').format;
+const Model = require('ampersand-model');
+const storageMixin = require('storage-mixin');
+const get = require('lodash.get');
+const format = require('util').format;
+const _ = require('lodash');
+const semver = require('semver');
+const { ipcRenderer } = require('hadron-ipc');
 
 var electronApp;
+var APP_VERSION = '';
 try {
   electronApp = require('@electron/remote').app;
+  APP_VERSION = electronApp.getVersion();
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load @electron/remote', e.message);
@@ -27,7 +32,10 @@ var preferencesProps = {
   id: {
     type: 'string',
     default: 'General',
-    required: true
+    required: true,
+    ui: false,
+    cli: false,
+    globalConfig: false
   },
   /**
    * Stores the last version compass was run as, e.g. `1.0.5`
@@ -35,7 +43,10 @@ var preferencesProps = {
    */
   lastKnownVersion: {
     type: 'string',
-    required: false
+    required: false,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Stores whether or not the feature tour should be presented to the
@@ -45,7 +56,10 @@ var preferencesProps = {
   showFeatureTour: {
     type: 'string',
     required: false,
-    default: undefined
+    default: undefined,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Stores whether or not the network opt-in screen has been shown to
@@ -55,7 +69,10 @@ var preferencesProps = {
   showedNetworkOptIn: {
     type: 'boolean',
     required: true,
-    default: false
+    default: false,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Stores the theme preference for the user.
@@ -64,7 +81,10 @@ var preferencesProps = {
   theme: {
     type: 'string',
     required: true,
-    default: THEMES.LIGHT
+    default: THEMES.LIGHT,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Stores a unique MongoDB ID for the current user.
@@ -75,7 +95,10 @@ var preferencesProps = {
    */
   currentUserId: {
     type: 'string',
-    required: false
+    required: false,
+    ui: false,
+    cli: false,
+    globalConfig: false
   },
   /**
    * Stores a unique telemetry anonymous ID (uuid) for the current user.
@@ -84,32 +107,19 @@ var preferencesProps = {
   telemetryAnonymousId: {
     type: 'string',
     required: true,
-    default: ''
-  },
-  /**
-   * Whether the user agreed to community license terms.
-   * @type {Boolean}
-   */
-  agreedToLicense: {
-    type: 'boolean',
-    required: true,
-    default: false
+    default: '',
+    ui: false,
+    cli: false,
+    globalConfig: false
   },
 
-  /**
-   * Feature Flags
-   */
-
-  /** Master switch to disable all network traffic, which includes
-   * - Maps
-   * - Intercom
-   * - Auto-updates
-   * @type {Boolean}
-   */
   networkTraffic: {
     type: 'boolean',
     required: true,
-    default: true
+    default: true,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Switch to enable/disable maps rendering
@@ -118,7 +128,10 @@ var preferencesProps = {
   enableMaps: {
     type: 'boolean',
     required: true,
-    default: false
+    default: false,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Switch to enable/disable error reports
@@ -127,7 +140,10 @@ var preferencesProps = {
   trackErrors: {
     type: 'boolean',
     required: true,
-    default: false
+    default: false,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`)
@@ -136,7 +152,10 @@ var preferencesProps = {
   enableFeedbackPanel: {
     type: 'boolean',
     required: true,
-    default: false
+    default: false,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Switch to enable/disable usage statistics collection
@@ -147,7 +166,10 @@ var preferencesProps = {
   trackUsageStatistics: {
     type: 'boolean',
     required: true,
-    default: false
+    default: false,
+    ui: true,
+    cli: true,
+    globalConfig: true
   },
   /**
    * Switch to enable/disable automatic updates
@@ -157,119 +179,14 @@ var preferencesProps = {
   autoUpdates: {
     type: 'boolean',
     required: true,
-    default: false
-  },
-  /**
-   * Switch to enable/disable index creation/dropping
-   *
-   * @type {Boolean}
-   */
-  indexDDL: {
-    type: 'boolean',
-    required: true,
-    default: false
-  },
-  /**
-   * Switch to enable/disable showing the update banner notification, this
-   * is independent of the autoUpdates flag and will not prevent checking for
-   * and downloading the new versions.
-   *
-   * @type {Boolean}
-   */
-  showAutoUpdateBanner: {
-    type: 'boolean',
-    required: true,
-    default: false
-  },
-  /**
-   * Switch to enable/disable the graphical query builder code
-   * @type {Boolean}
-   */
-  queryBuilder: {
-    type: 'boolean',
-    required: true,
-    default: true
-  },
-  /**
-   * Switch to enable/disable the "Explain Plan" tab on the collection level
-   * @type {Boolean}
-   */
-  showExplainPlanTab: {
-    type: 'boolean',
-    required: true,
-    default: false
-  },
-  /**
-   * Allow single document CRUD.
-   */
-  singleDocumentCrud: {
-    type: 'boolean',
-    required: true,
-    default: false
-  },
-  /**
-   * Allow server stats.
-   * @type {Boolean}
-   */
-  serverStats: {
-    type: 'boolean',
-    required: true,
-    default: false
-  },
-  /**
-   * Allow chart view.
-   * @type {Boolean}
-   */
-  chartView: {
-    type: 'boolean',
-    required: true,
-    default: false
-  },
-  /**
-   * Switches to enable/disable various authentication / ssl types
-   *
-   * Warning: currently not hooked into the code, see INT-859.
-   *
-   * @type {Boolean}
-   */
-  authMongodb: {
-    type: 'boolean',
-    required: true,
-    default: true
-  },
-  authKerberos: {
-    type: 'boolean',
-    required: true,
-    default: true
-  },
-  authLdap: {
-    type: 'boolean',
-    required: true,
-    default: true
-  },
-  authX509: {
-    type: 'boolean',
-    required: true,
-    default: false
-  },
-  sslUnvalidated: {
-    type: 'boolean',
-    required: true,
-    default: true
-  },
-  sslServer: {
-    type: 'boolean',
-    required: true,
-    default: true
-  },
-  sslAll: {
-    type: 'boolean',
-    required: true,
-    default: true
+    default: false,
+    ui: true,
+    cli: true,
+    globalConfig: true
   }
 };
 
-var Preferences = Model.extend(storageMixin, {
+const PreferencesModel = Model.extend(storageMixin, {
   props: preferencesProps,
   extraProperties: 'ignore',
   idAttribute: 'id',
@@ -277,53 +194,118 @@ var Preferences = Model.extend(storageMixin, {
   storage: {
     backend: 'disk',
     basepath: electronApp ? electronApp.getPath('userData') : undefined
-  },
-  initialize: function() {
-    this.on('page-refresh', this.onPageRefresh.bind(this));
-    this.on('app-restart', this.onAppRestart.bind(this));
-    this.on('app-version-mismatch', this.onAppVersionMismatch.bind(this));
-  },
-  onPageRefresh: function() {
-    debug('app page refresh detected');
-  },
-  onAppRestart: function() {
-    debug('app restart detected');
-  },
-  onAppVersionMismatch: function(lastKnownVersion, currentVersion) {
-    debug('version mismatch detected: was %s, now %s',
-      lastKnownVersion, currentVersion);
-  },
-  /**
-   * returns whether or not a given feature is enabled. In most cases, it just
-   * passes through whatever property is asked for, but some checks are more
-   * complex, like the `disableNetworkTraffic` main switch, which overwrites
-   * other feature flags.
-   *
-   * @param  {String} feature    check for this feature
-   * @return {Boolean}           enabled = true, disabled = false
-   *
-   * @example
-   * ```
-   * app.isFeatureEnabled('authWithKerberos')
-   * ```
-   * returns either true or false
-   */
-  isFeatureEnabled: function(feature) {
+  }
+});
+
+let globalPreferences = {};
+let cliPreferences = {};
+
+class Preferences {
+  constructor() {
+    const userPreferences = new PreferencesModel();
+
+    this.getUserPreferences = function() { return userPreferences; };
+    this.getGlobalPreferences = function() { return globalPreferences; };
+    this.getCliPreferences = function() { return cliPreferences; };
+  }
+
+  async getPreferencesFromSetup() {
+    const ipcRendererResult = await ipcRenderer.invoke('compass:setup-preferences');
+
+    globalPreferences = ipcRendererResult.globalPreferences;
+    cliPreferences = ipcRendererResult.cliPreferences;
+  }
+
+  refreshPreferences() {
+    const user = this.getUserPreferences().getAttributes({ props: true, derived: true });
+    const cli = this.getCliPreferences();
+    const global = this.getGlobalPreferences();
+    Object.assign(this, { ...user, ...cli, ...global });
+  }
+
+  fetch() {
+    this.getPreferencesFromSetup();
+
+    return new Promise((resolve, reject) => {
+      this.getUserPreferences().fetch({
+        success: (model) => {
+          debug('userPreferences fetch successful', model.serialize());
+
+          const userPreferencesAttributes = model.getAttributes({ props: true, derived: true });
+          const oldVersion = _.get(userPreferencesAttributes, 'lastKnownVersion', '0.0.0');
+          const attributes = {};
+
+          if (
+            semver.lt(oldVersion, APP_VERSION) ||
+            // this is so we can test the tour modal in E2E tests where the version
+            // is always the same
+            process.env.SHOW_TOUR
+          ) {
+            attributes.showFeatureTour = oldVersion;
+          }
+          if (semver.neq(oldVersion, APP_VERSION)) {
+            attributes.lastKnownVersion = APP_VERSION;
+          }
+
+          if (!_.isEmpty(attributes)) {
+            debug('userPreferences updated after fetch', attributes);
+            model.save(attributes);
+          }
+
+          this.refreshPreferences();
+
+          return resolve();
+        },
+        error: (model, err) => {
+          debug('fetching userPreferences error', err);
+          return reject(err);
+        }
+      });
+    });
+  }
+
+  save(attributes) {
+    const userPreferences = this.getUserPreferences();
+
+    return new Promise((resolve, reject) => {
+      if (attributes && !_.isEmpty(attributes)) {
+        userPreferences.save(attributes, {
+          success: (model) => {
+            debug('userPreferences saved', model.serialize());
+            this.refreshPreferences();
+            return resolve();
+          },
+          error: (model, err) => {
+            debug('saving userPreferences error', err);
+            return reject(err);
+          }
+        });
+      }
+    });
+  }
+
+  isFeatureEnabled(feature) {
     // main network switch overwrites all network related features
-    if (['enableMaps', 'trackErrors', 'enableFeedbackPanel',
-      'trackUsageStatistics', 'autoUpdates'].indexOf(feature) !== -1) {
-      return this.networkTraffic &&
-        process.env.HADRON_ISOLATED !== 'true' &&
-        get(this, feature);
+    if (['enableMaps', 'trackErrors', 'enableFeedbackPanel', 'trackUsageStatistics', 'autoUpdates'].indexOf(feature) !== -1) {
+      return this.networkTraffic && process.env.HADRON_ISOLATED !== 'true' && get(this, feature);
     }
-    var res = get(this, feature, null);
+    const res = get(this, feature, null);
     // don't allow asking for unknown features to prevent bugs
     if (res === null) {
       throw new Error(format('Feature %s unknown.', feature));
     }
     return res;
   }
-});
+
+  isUIConfigurable(key) {
+    return !(
+      !(key in this.getGlobalPreferences()) &&
+      !(key in this.cliPreferences()) &&
+      preferencesProps[key].ui
+    );
+  }
+}
 
 module.exports = Preferences;
+module.exports.preferences = new Preferences();
 module.exports.THEMES = THEMES;

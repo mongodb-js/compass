@@ -5,6 +5,7 @@ const semver = require('semver');
 const _ = require('lodash');
 const electronApp = require('@electron/remote').app;
 const { track } = require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-TOUR');
+const { preferences } = require('compass-preferences-model');
 
 // const debug = require('debug')('mongodb-compass:tour:index');
 
@@ -108,9 +109,9 @@ var TourView = View.extend({
   },
   derived: {
     previousVersion: {
-      deps: ['app.preferences.showFeatureTour'],
+      deps: [],
       fn: function() {
-        return app.preferences.showFeatureTour || '0.0.0';
+        return preferences.showFeatureTour || '0.0.0';
       }
     },
     title: {

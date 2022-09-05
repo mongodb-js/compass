@@ -4,6 +4,9 @@ export type CompassPreferencesModel = typeof AmpersandModel;
 
 export = CompassPreferencesModel;
 
+export async function loadGlobalConfig(){};
+export async function parseCliArgs(){};
+
 export enum THEMES {
   DARK = 'DARK',
   LIGHT = 'LIGHT',

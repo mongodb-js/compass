@@ -15,10 +15,6 @@ const appRegistry = new AppRegistry();
 
 global.hadronApp = app;
 global.hadronApp.appRegistry = appRegistry;
-global.hadronApp.preferences = {
-  listenToAndRun: () => {
-  }
-};
 
 // Activate our plugin with the Hadron App Registry
 activate(appRegistry);

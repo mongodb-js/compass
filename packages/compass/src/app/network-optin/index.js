@@ -2,6 +2,7 @@ var View = require('ampersand-view');
 var app = require('hadron-app');
 var _ = require('lodash');
 var ipc = require('hadron-ipc');
+const { preferences } = require('compass-preferences-model');
 
 var debug = require('debug')('mongodb-compass:network-optin:index');
 
@@ -17,7 +18,6 @@ var NetworkOptInView = View.extend({
     enableMaps: ['boolean', true, true]
   },
   session: {
-    preferences: 'state',
     buttonTitle: {
       type: 'string',
       required: true,
@@ -59,8 +59,8 @@ var NetworkOptInView = View.extend({
     }
   },
   initialize: function() {
-    this.preferences = app.preferences;
-    if (!app.preferences.showedNetworkOptIn) {
+    this.preferences = preferences;
+    if (!preferences.showedNetworkOptIn) {
       // first time, enable all checkboxes (but not features yet)
       debug('first time showing this dialog, propose to turn everything on');
       this.buttonTitle = 'Start Using Compass';
@@ -72,11 +72,11 @@ var NetworkOptInView = View.extend({
     } else {
       debug('seen this dialog before, show the real settings');
       this.buttonTitle = 'Close';
-      this.trackErrors = app.preferences.trackErrors;
-      this.enableFeedbackPanel = app.preferences.enableFeedbackPanel;
-      this.trackUsageStatistics = app.preferences.trackUsageStatistics;
-      this.autoUpdates = app.preferences.autoUpdates;
-      this.enableMaps = app.preferences.enableMaps;
+      this.trackErrors = preferences.trackErrors;
+      this.enableFeedbackPanel = preferences.enableFeedbackPanel;
+      this.trackUsageStatistics = preferences.trackUsageStatistics;
+      this.autoUpdates = preferences.autoUpdates;
+      this.enableMaps = preferences.enableMaps;
     }
   },
   checkboxChanged: function(evt) {
@@ -84,7 +84,7 @@ var NetworkOptInView = View.extend({
     var value = evt.target.checked;
     this.set(feature, value);
   },
-  buttonClicked: function() {
+  buttonClicked: async function() {
     var features = [
       'enableFeedbackPanel',
       'trackUsageStatistics',
@@ -93,23 +93,19 @@ var NetworkOptInView = View.extend({
       'enableMaps'
     ];
 
-    this.preferences.set('showedNetworkOptIn', true);
-    var settings = _.pick(this.serialize(), features);
-    this.preferences.set(settings);
-    this.preferences.save(null, {
-      success: function(res) {
-        debug('preferences saved:', _.pick(res.serialize(),
-          features));
-      }
+    const settings = _.pick(this.serialize(), features);
+    await this.preferences.save({
+      ...settings,
+      showedNetworkOptIn: true
     });
+
     _.delay(function() {
       this.remove();
     }.bind(this), 500);
 
     {
       // Broadcast the update to telemetry state
-      const event = this.preferences.isFeatureEnabled('trackUsageStatistics') ?
-        'compass:usage:enabled' : 'compass:usage:disabled';
+      const event = this.preferences.isFeatureEnabled('trackUsageStatistics') ? 'compass:usage:enabled' : 'compass:usage:disabled';
       global.hadronApp.appRegistry.emit(event); // Legacy metrics
       ipc.call(event); // Segment
     }
