@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   ResizableSidebar,
+  useTheme,
   Theme,
   ThemeProvider,
   ErrorBoundary,
@@ -86,11 +87,24 @@ function Connections({
     isConnected,
   } = state;
 
-  // For now the connections sidebar is always dark
-  const [theme] = useState<ThemeState>({
-    theme: Theme.Dark,
+  const existingTheme = useTheme();
+
+  // Use the same theme as Home if the feature flag is activated, otherwise
+  // always use Dark. We'll remove this code along with the provider once we
+  // remove the feature flag, hopefully soon.
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+  const expectedTheme = useNewSidebar ? existingTheme.theme : Theme.Dark;
+
+  const [theme, setTheme] = useState<ThemeState>({
+    theme: expectedTheme,
     enabled: true,
   });
+
+  // If the inherited theme (from Home) changes because the user changed the
+  // theme via the menu, we have to update it here too.
+  if (theme.theme !== expectedTheme) {
+    setTheme({ theme: expectedTheme, enabled: true });
+  }
 
   return (
     <div
