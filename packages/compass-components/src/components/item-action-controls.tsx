@@ -101,6 +101,7 @@ export function ItemActionMenu<Action extends string>({
   actions,
   onAction,
   className,
+  usePortal,
   iconClassName,
   iconSize = ItemActionButtonSize.Default,
   'data-testid': dataTestId,
@@ -108,6 +109,7 @@ export function ItemActionMenu<Action extends string>({
   actions: MenuAction<Action>[];
   onAction(actionName: Action): void;
   className?: string;
+  usePortal?: boolean;
   iconClassName?: string;
   iconSize?: ItemActionButtonSize;
   isVisible?: boolean;
@@ -141,6 +143,7 @@ export function ItemActionMenu<Action extends string>({
         open={isMenuOpen}
         setOpen={setIsMenuOpen}
         refEl={menuTriggerRef}
+        usePortal={usePortal}
         data-testid={dataTestId}
         trigger={({
           onClick,
@@ -250,6 +253,7 @@ export function ItemActionControls<Action extends string>({
   className,
   iconClassName,
   iconSize = ItemActionButtonSize.Default,
+  usePortal,
   collapseToMenuThreshold = 2,
   'data-testid': dataTestId,
 }: {
@@ -260,6 +264,7 @@ export function ItemActionControls<Action extends string>({
   iconSize?: ItemActionButtonSize;
   iconClassName?: string;
   collapseToMenuThreshold?: number;
+  usePortal?: boolean;
   'data-testid'?: string;
 }) {
   if (actions.length === 0) {
@@ -271,13 +276,14 @@ export function ItemActionControls<Action extends string>({
   if (shouldShowMenu) {
     return (
       <ItemActionMenu
-        isVisible={isVisible}
         actions={actions}
-        onAction={onAction}
         className={className}
-        iconSize={iconSize}
-        iconClassName={iconClassName}
         data-testid={dataTestId}
+        iconClassName={iconClassName}
+        iconSize={iconSize}
+        isVisible={isVisible}
+        onAction={onAction}
+        usePortal={usePortal}
       ></ItemActionMenu>
     );
   }
