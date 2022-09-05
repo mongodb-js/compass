@@ -203,7 +203,7 @@ var Application = View.extend({
   },
   tourClosed: async function() {
     await preferences.save({ showFeatureTour: undefined });
-    if (!app.preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
+    if (!preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
       ipc.ipcRenderer.emit('window:show-network-optin');
     }
   },
