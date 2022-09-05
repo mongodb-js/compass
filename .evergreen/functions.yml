@@ -204,10 +204,13 @@ functions:
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
+          export DEBUG=${debug}
+          export MONGODB_VERSION="${mongodb_version|}"
+          if [ -z "$MONGODB_VERSION" ]; then
+            export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
+          fi
+          export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+          npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
     - command: shell.exec
@@ -229,10 +232,13 @@ functions:
           # Preparing native addons for electron runtime
           npm run --unsafe-perm electron-rebuild
 
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm test-ci-electron -- --stream
+          export DEBUG=${debug}
+          export MONGODB_VERSION="${mongodb_version|}"
+          if [ -z "$MONGODB_VERSION" ]; then
+            export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
+          fi
+          export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+          npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
     - command: shell.exec
@@ -349,10 +355,13 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+          export DEBUG=${debug}
+          export MONGODB_VERSION="${mongodb_version|}"
+          if [ -z "$MONGODB_VERSION" ]; then
+            export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
+          fi
+          export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
@@ -380,10 +389,13 @@ functions:
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
 
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          export DEBUG=${debug}
+          export MONGODB_VERSION="${mongodb_version|}"
+          if [ -z "$MONGODB_VERSION" ]; then
+            export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
+          fi
+          export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+          npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
     - command: shell.exec

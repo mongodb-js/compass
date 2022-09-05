@@ -2,9 +2,11 @@
 
 set -e
 
+export MONGODB_DEFAULT_VERSION=4.4.x
 if [[ $OSTYPE == "cygwin" ]]; then
     export PLATFORM='win32'
     export IS_WINDOWS=true
+    export ARCH=x64
 elif [[ $(uname) == Darwin ]]; then
     export PLATFORM='darwin'
     export IS_OSX=true
@@ -12,6 +14,7 @@ elif [[ $(uname) == Darwin ]]; then
         export ARCH=x64
     else
         export ARCH=arm64
+        export MONGODB_DEFAULT_VERSION=6.x.x
     fi
 else
     export PLATFORM='linux'

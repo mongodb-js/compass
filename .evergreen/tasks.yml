@@ -53,7 +53,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass
-        variants: [macos_arm]
+        variants: [macos_arm64]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass
@@ -89,7 +89,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass-isolated
-        variants: [macos_arm]
+        variants: [macos_arm64]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-isolated
@@ -125,7 +125,7 @@ tasks:
       - func: save-macos-artifacts
         vars:
           compass_distribution: compass-readonly
-        variants: [macos_arm]
+        variants: [macos_arm64]
       - func: save-rhel-artifacts
         vars:
           compass_distribution: compass-readonly
