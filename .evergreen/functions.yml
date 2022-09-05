@@ -195,6 +195,13 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
+          export DEBUG=${debug}
+          export MONGODB_VERSION="${mongodb_version|}"
+          if [ -z "$MONGODB_VERSION" ]; then
+            export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
+          fi
+          export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+
           echo "Running tests in Node.js runtime"
 
           # compass-e2e-tests are ignored as we are running this test suite
@@ -204,13 +211,7 @@ functions:
           # debug option is not very useful in normal runs, but helpful when
           # debugging any issues with tests. Set to "mocha*", "hadron*", or
           # "mongo*" for some helpful output from the test tooling we are using
-          set -x
-          export DEBUG=${debug}
-          export MONGODB_VERSION="${mongodb_version|}"
-          if [ -z "$MONGODB_VERSION" ]; then
-            export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
-          fi
-          export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+
           npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
@@ -228,18 +229,18 @@ functions:
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
 
-          echo "Running tests in Electron runtime"
-
-          # Preparing native addons for electron runtime
-          npm run --unsafe-perm electron-rebuild
-
-          set -x
           export DEBUG=${debug}
           export MONGODB_VERSION="${mongodb_version|}"
           if [ -z "$MONGODB_VERSION" ]; then
             export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
           fi
           export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+
+          echo "Running tests in Electron runtime"
+
+          # Preparing native addons for electron runtime
+          npm run --unsafe-perm electron-rebuild
+
           npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
@@ -353,17 +354,18 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          source .evergreen/start-docker-envs.sh
 
-          echo "Running E2E tests while collecting coverage..."
-
-          set -x
           export DEBUG=${debug}
           export MONGODB_VERSION="${mongodb_version|}"
           if [ -z "$MONGODB_VERSION" ]; then
             export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
           fi
           export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+
+          source .evergreen/start-docker-envs.sh
+
+          echo "Running E2E tests while collecting coverage..."
+
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
@@ -381,6 +383,14 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+
+          export DEBUG=${debug}
+          export MONGODB_VERSION="${mongodb_version|}"
+          if [ -z "$MONGODB_VERSION" ]; then
+            export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
+          fi
+          export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
+
           source .evergreen/start-docker-envs.sh
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
@@ -392,13 +402,6 @@ functions:
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
 
-          set -x
-          export DEBUG=${debug}
-          export MONGODB_VERSION="${mongodb_version|}"
-          if [ -z "$MONGODB_VERSION" ]; then
-            export MONGODB_VERSION="$MONGODB_DEFAULT_VERSION";
-          fi
-          export MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}"
           npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
