@@ -2,6 +2,7 @@ import React from 'react';
 import { css, Card, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
 import { sortIndexes, dropFailedIndex } from '../../modules/indexes';
 import type {
@@ -18,20 +19,10 @@ import type { RootState } from '../../modules';
 const containerStyles = css({
   margin: spacing[3],
   padding: spacing[3],
-  display: 'grid',
-  gridTemplateAreas: `
-    'toolbar'
-    'indexTable'
-  `,
-  width: '100%',
   overflow: 'hidden',
-  alignContent: 'start',
-});
-const toolbarStyles = css({
-  gridArea: 'toolbar',
-});
-const indexTableStyles = css({
-  gridArea: 'indexTable',
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
 });
 
 type IndexesProps = {
@@ -42,7 +33,6 @@ type IndexesProps = {
   description?: string;
   error: string | null;
   localAppRegistry: AppRegistry;
-  globalAppRegistry: AppRegistry;
   isRefreshing: boolean;
   sortIndexes: (name: SortColumn, direction: SortDirection) => void;
   refreshIndexes: () => void;
@@ -57,7 +47,6 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   description,
   error,
   localAppRegistry,
-  globalAppRegistry,
   isRefreshing,
   sortIndexes,
   refreshIndexes,
@@ -72,28 +61,29 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   };
   return (
     <Card className={containerStyles} data-testid="indexes">
-      <div className={toolbarStyles}>
-        <IndexesToolbar
-          isWritable={isWritable}
-          isReadonly={isReadonly}
-          isReadonlyView={isReadonlyView}
-          errorMessage={error}
-          localAppRegistry={localAppRegistry}
-          isRefreshing={isRefreshing}
-          writeStateDescription={description}
-          onRefreshIndexes={refreshIndexes}
-        />
-      </div>
+      <IndexesToolbar
+        isWritable={isWritable}
+        isReadonly={isReadonly}
+        isReadonlyView={isReadonlyView}
+        errorMessage={error}
+        localAppRegistry={localAppRegistry}
+        isRefreshing={isRefreshing}
+        writeStateDescription={description}
+        onRefreshIndexes={refreshIndexes}
+      />
       {!isReadonlyView && !error && (
-        <div className={indexTableStyles}>
-          <IndexesTable
-            indexes={indexes}
-            canDeleteIndex={isWritable && !isReadonly}
-            onSortTable={sortIndexes}
-            onDeleteIndex={deleteIndex}
-            globalAppRegistry={globalAppRegistry}
-          />
-        </div>
+        <AutoSizer disableWidth>
+          {({ height }) => (
+            <IndexesTable
+              indexes={indexes}
+              canDeleteIndex={isWritable && !isReadonly}
+              onSortTable={sortIndexes}
+              onDeleteIndex={deleteIndex}
+              // Preserve the (table and card bottom) paddings
+              scrollHeight={height - 48}
+            />
+          )}
+        </AutoSizer>
       )}
     </Card>
   );
@@ -116,7 +106,6 @@ const mapState = ({
   description,
   error,
   localAppRegistry: (appRegistry as any).localAppRegistry,
-  globalAppRegistry: (appRegistry as any).globalAppRegistry,
   isRefreshing,
 });
 

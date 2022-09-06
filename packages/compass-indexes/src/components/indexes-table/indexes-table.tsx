@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, useState } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import {
   css,
   Table,
@@ -9,7 +9,6 @@ import {
   spacing,
   uiColors,
 } from '@mongodb-js/compass-components';
-import type AppRegistry from 'hadron-app-registry';
 
 import NameField from './name-field';
 import TypeField from './type-field';
@@ -74,34 +73,19 @@ const tableStyles = css({
 type IndexesTableProps = {
   indexes: IndexDefinition[];
   canDeleteIndex: boolean;
+  scrollHeight: number;
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
   onDeleteIndex: (name: IndexDefinition) => void;
-  globalAppRegistry: AppRegistry;
-};
-
-const getContainerHeight = (
-  containerRef: React.RefObject<HTMLDivElement>
-): string => {
-  const height =
-    containerRef.current?.parentElement?.parentElement?.clientHeight;
-  if (!height) {
-    // 320px for the compass tabs, collection info etc
-    return `${window.innerHeight - 320}px`;
-  }
-  return `${height - 78}px`;
 };
 
 export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   indexes,
   canDeleteIndex,
-  globalAppRegistry,
+  scrollHeight,
   onSortTable,
   onDeleteIndex,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState(
-    getContainerHeight(containerRef)
-  );
   const columns = useMemo(() => {
     const sortColumns: SortColumn[] = [
       'Name and Definition',
@@ -134,25 +118,9 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
     const container =
       containerRef.current?.getElementsByTagName('table')[0]?.parentElement;
     if (container) {
-      container.style.height = containerHeight;
+      container.style.height = `${scrollHeight}px`;
     }
-  }, [containerRef, containerHeight]);
-
-  useEffect(() => {
-    globalAppRegistry.on('compass:compass-shell:resized', () => {
-      setContainerHeight(getContainerHeight(containerRef));
-    });
-  }, [globalAppRegistry, containerRef]);
-
-  useEffect(() => {
-    const resizeListener = () => {
-      setContainerHeight(getContainerHeight(containerRef));
-    };
-    window.addEventListener('resize', resizeListener);
-    return () => {
-      window.removeEventListener('resize', resizeListener);
-    };
-  }, [containerRef]);
+  }, [scrollHeight]);
 
   return (
     // LG table does not forward ref
@@ -164,50 +132,50 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
         data-testid="indexes-list"
         aria-label="Indexes List Table"
       >
-      {({ datum: index }) => (
-        <Row
-          key={index.name}
-          data-testid={`index-row-${index.name}`}
-          className={rowStyles}
-        >
-          <Cell data-testid="index-name-field" className={cellStyles}>
-            <div className={nameFieldStyles}>
-              <NameField name={index.name} keys={index.fields.serialize()} />
-            </div>
-          </Cell>
-          <Cell data-testid="index-type-field" className={cellStyles}>
-            <TypeField type={index.type} extra={index.extra} />
-          </Cell>
-          <Cell data-testid="index-size-field" className={cellStyles}>
-            <SizeField size={index.size} relativeSize={index.relativeSize} />
-          </Cell>
-          <Cell data-testid="index-usage-field" className={cellStyles}>
-            <UsageField usage={index.usageCount} since={index.usageSince} />
-          </Cell>
-          <Cell data-testid="index-property-field" className={cellStyles}>
-            <PropertyField
-              cardinality={index.cardinality}
-              extra={index.extra}
-              properties={index.properties}
-            />
-          </Cell>
-          {/* Delete column is conditional */}
-          {canDeleteIndex && (
-            <Cell data-testid="index-actions-field" className={cellStyles}>
-              {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
-                <div
-                  className={cx(indexActionsCellStyles, 'index-actions-cell')}
-                >
-                  <IndexActions
-                    index={index}
-                    onDeleteIndex={onDeleteIndex}
-                  ></IndexActions>
-                </div>
-              )}
+        {({ datum: index }) => (
+          <Row
+            key={index.name}
+            data-testid={`index-row-${index.name}`}
+            className={rowStyles}
+          >
+            <Cell data-testid="index-name-field" className={cellStyles}>
+              <div className={nameFieldStyles}>
+                <NameField name={index.name} keys={index.fields.serialize()} />
+              </div>
             </Cell>
-          )}
-        </Row>
-      )}
+            <Cell data-testid="index-type-field" className={cellStyles}>
+              <TypeField type={index.type} extra={index.extra} />
+            </Cell>
+            <Cell data-testid="index-size-field" className={cellStyles}>
+              <SizeField size={index.size} relativeSize={index.relativeSize} />
+            </Cell>
+            <Cell data-testid="index-usage-field" className={cellStyles}>
+              <UsageField usage={index.usageCount} since={index.usageSince} />
+            </Cell>
+            <Cell data-testid="index-property-field" className={cellStyles}>
+              <PropertyField
+                cardinality={index.cardinality}
+                extra={index.extra}
+                properties={index.properties}
+              />
+            </Cell>
+            {/* Delete column is conditional */}
+            {canDeleteIndex && (
+              <Cell data-testid="index-actions-field" className={cellStyles}>
+                {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
+                  <div
+                    className={cx(indexActionsCellStyles, 'index-actions-cell')}
+                  >
+                    <IndexActions
+                      index={index}
+                      onDeleteIndex={onDeleteIndex}
+                    ></IndexActions>
+                  </div>
+                )}
+              </Cell>
+            )}
+          </Row>
+        )}
       </Table>
     </div>
   );

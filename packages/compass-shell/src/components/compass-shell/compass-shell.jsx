@@ -50,7 +50,6 @@ function boundShellHeight(attemptedHeight) {
 export class CompassShell extends Component {
   static propTypes = {
     emitShellPluginOpened: PropTypes.func,
-    emitShellResized: PropTypes.func,
     runtime: PropTypes.object,
     shellOutput: PropTypes.array,
     historyStorage: PropTypes.object
@@ -58,7 +57,6 @@ export class CompassShell extends Component {
 
   static defaultProps = {
     emitShellPluginOpened: () => {},
-    emitShellResized: () => {},
     runtime: null
   };
   constructor(props) {
@@ -159,7 +157,6 @@ export class CompassShell extends Component {
           height
         }
     );
-    this.props.emitShellResized();
   }
 
   hideInfoModal() {
@@ -252,11 +249,6 @@ export default connect(
     emitShellPluginOpened: () => {
       if (state.appRegistry && state.appRegistry.globalAppRegistry) {
         state.appRegistry.globalAppRegistry.emit('compass:compass-shell:opened');
-      }
-    },
-    emitShellResized: () => {
-      if (state.appRegistry && state.appRegistry.globalAppRegistry) {
-        state.appRegistry.globalAppRegistry.emit('compass:compass-shell:resized');
       }
     },
     runtime: state.runtime ? state.runtime.runtime : null

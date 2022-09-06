@@ -59,7 +59,8 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "bson": "^4.4.1",
     "mongodb-index-model": "^4.0.0",
-    "react": "^16.14.0"
+    "react": "^16.14.0",
+    "react-virtualized-auto-sizer": "^1.0.6"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.0",
@@ -77,8 +78,8 @@
     "eslint": "^7.25.0",
     "hadron-app": "^5.0.0",
     "hadron-app-registry": "^9.0.0",
-    "lodash.contains": "^2.4.3",
     "lodash.clonedeep": "^4.5.0",
+    "lodash.contains": "^2.4.3",
     "mocha": "^8.4.0",
     "mongodb": "^4.6.0",
     "mongodb-data-service": "^22.0.0",
@@ -101,6 +102,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "bson": "^4.4.1",
     "mongodb-index-model": "^4.0.0",
-    "react": "^16.14.0"
+    "react": "^16.14.0",
+    "react-virtualized-auto-sizer": "^1.0.6"
   }
 }
