@@ -54,7 +54,7 @@ export const fetchSettings = (): ThunkAction<
     try {
       dispatch({
         type: ActionTypes.SettingsFetched,
-        settings: preferences.getConfigurableUserPreferences()
+        settings: preferences.getConfigurableUserPreferences(),
       });
     } catch (e) {
       log.warn(
