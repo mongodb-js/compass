@@ -1,7 +1,8 @@
-import type { EventEmitter } from 'events';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
+
+import { preferences } from 'compass-preferences-model';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
 
@@ -10,12 +11,7 @@ type User = {
   createdAt: Date;
 };
 
-type Preferences = Pick<EventEmitter, 'on'> & {
-  isFeatureEnabled: (feature: 'enableFeedbackPanel') => boolean;
-};
-
 export async function setupIntercom(
-  preferences: Preferences,
   user: User,
   intercomScript: IntercomScript = new IntercomScript()
 ): Promise<void> {
@@ -64,7 +60,7 @@ export async function setupIntercom(
 
   debug('intercom is reachable, proceeding with the setup');
 
-  if (preferences.isFeatureEnabled('enableFeedbackPanel')) {
+  if (preferences.getPreferenceValue('enableFeedbackPanel')) {
     debug(
       'intercom loading enqueued since enableFeedbackPanel was initially enabled'
     );
@@ -73,11 +69,11 @@ export async function setupIntercom(
     debug('enableFeedbackPanel is disabled, skipping loading intercom for now');
   }
 
-  preferences.on('change:enableFeedbackPanel', function () {
+  preferences.onPreferenceChanged('enableFeedbackPanel', () => {
     debug('enableFeedbackPanel changed');
     // we need to re-check with isFeatureEnabled to make sure all the
     // other settings for network usage are aligned too.
-    if (preferences.isFeatureEnabled('enableFeedbackPanel')) {
+    if (preferences.getPreferenceValue('enableFeedbackPanel')) {
       debug('enqueuing intercom script loading');
       intercomScript.load(metadata);
     } else {

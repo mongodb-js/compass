@@ -60,7 +60,7 @@ export function createLoggerAndTelemetry(component: string): {
     event: string,
     properties: TrackProps = {}
   ): Promise<void> => {
-    const isTrackingEnabled = preferences.isFeatureEnabled(
+    const isTrackingEnabled = preferences.getPreferenceValue(
       'trackUsageStatistics'
     );
     if (!isTrackingEnabled) {

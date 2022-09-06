@@ -1,6 +1,5 @@
 const $ = require('jquery');
 const View = require('ampersand-view');
-const app = require('hadron-app');
 const semver = require('semver');
 const _ = require('lodash');
 const electronApp = require('@electron/remote').app;
@@ -111,7 +110,7 @@ var TourView = View.extend({
     previousVersion: {
       deps: [],
       fn: function() {
-        return preferences.showFeatureTour || '0.0.0';
+        return preferences.getPreferenceValue('showFeatureTour') || '0.0.0';
       }
     },
     title: {

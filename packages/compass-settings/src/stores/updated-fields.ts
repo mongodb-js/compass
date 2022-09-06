@@ -2,11 +2,23 @@ import type { Reducer } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { preferences } from 'compass-preferences-model';
+import type { THEMES } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
-import { updatePreferences } from '../utils/user-preferences';
-import type { UserPreferences } from '../utils/user-preferences';
+export type UserPreferences = {
+  /**
+   * Has the settings dialog has been shown before
+   */
+  showedNetworkOptIn: boolean;
+  autoUpdates: boolean;
+  enableMaps: boolean;
+  trackErrors: boolean;
+  trackUsageStatistics: boolean;
+  enableFeedbackPanel: boolean;
+  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
+};
 
 export type State = Partial<UserPreferences>;
 
@@ -61,7 +73,7 @@ export const updateSettings = (): ThunkAction<
   return async (dispatch, getState): Promise<void> => {
     const { updatedFields } = getState();
     try {
-      await updatePreferences(updatedFields);
+      await preferences.savePreferences(updatedFields);
       dispatch({
         type: ActionTypes.SettingsUpdated,
       });

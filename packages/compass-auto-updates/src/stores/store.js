@@ -15,6 +15,17 @@ store.onActivated = () => {
     ipc.on('app:update-available', (_, opts) => {
       store.dispatch(updateAvailable(opts.releaseVersion));
     });
+
+    /**
+     * Listen to changes in user preferences.
+     */
+    preferences.onPreferenceChanged('autoUpdates', () => {
+      if (preferences.getPreferenceValue('autoUpdates')) {
+        ipc.call('app:enable-auto-update');
+      } else {
+        ipc.call('app:disable-auto-update');
+      }
+    });
   } catch (e) {
     // Not in renderer process.
   }

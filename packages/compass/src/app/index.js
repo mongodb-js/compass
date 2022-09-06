@@ -35,23 +35,23 @@ global.hadronApp = app;
 /**
  * The main entrypoint for the application!
  */
-var APP_VERSION = remote.app.getVersion();
+const APP_VERSION = remote.app.getVersion();
 
-var View = require('ampersand-view');
-var async = require('async');
-var webvitals = require('web-vitals');
+const View = require('ampersand-view');
+const async = require('async');
+const webvitals = require('web-vitals');
 
 const { preferences } = require('compass-preferences-model');
-var User = require('compass-user-model');
+const User = require('compass-user-model');
 
 require('./menu-renderer');
 marky.mark('Migrations');
-var migrateApp = require('./migrations');
+const migrateApp = require('./migrations');
 marky.stop('Migrations');
 
-var React = require('react');
-var ReactDOM = require('react-dom');
-var { Action } = require('@mongodb-js/hadron-plugin-manager');
+const React = require('react');
+const ReactDOM = require('react-dom');
+const { Action } = require('@mongodb-js/hadron-plugin-manager');
 
 const {
   enableDarkTheme,
@@ -74,7 +74,7 @@ const { log, mongoLogId, debug, track } =
 /**
  * The top-level application singleton that brings everything together!
  */
-var Application = View.extend({
+const Application = View.extend({
   template: function() {
     return [
       '<div id="application">',
@@ -182,7 +182,7 @@ var Application = View.extend({
     );
 
     const handleTour = () => {
-      if (preferences.showFeatureTour) {
+      if (preferences.getPreferenceValue('showFeatureTour')) {
         this.showTour(false);
       } else {
         this.tourClosed();
@@ -202,17 +202,18 @@ var Application = View.extend({
     }
   },
   tourClosed: async function() {
-    await preferences.save({ showFeatureTour: undefined });
-    if (!preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
+    await preferences.savePreferences({ showFeatureTour: undefined });
+    if (!preferences.getPreferenceValue('showedNetworkOptIn') && process.env.HADRON_ISOLATED !== 'true') {
       ipc.ipcRenderer.emit('window:show-network-optin');
     }
   },
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
+    const currentUserId = preferences.getPreferenceValue('currentUserId');
 
     User.getOrCreate(
       // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
-      preferences.currentUserId || preferences.telemetryAnonymousId,
+      currentUserId || preferences.getPreferenceValue('telemetryAnonymousId'),
       async function(err, user) {
         if (err) {
           return done(err);
@@ -220,10 +221,10 @@ var Application = View.extend({
         this.user.set(user.serialize());
         this.user.trigger('sync');
 
-        await preferences.save({ telemetryAnonymousId: user.id });
+        await preferences.savePreferences({ telemetryAnonymousId: user.id });
 
         ipc.call('compass:usage:identify', {
-          currentUserId: preferences.currentUserId,
+          currentUserId,
           telemetryAnonymousId: user.id
         });
         debug('user fetch successful', user.serialize());
@@ -235,16 +236,13 @@ var Application = View.extend({
     ipc.call('compass:loading:change-status', {
       status: 'loading preferences'
     });
-
-    await preferences.fetch();
-
-    ipc.call(preferences.isFeatureEnabled('trackUsageStatistics') ? 'compass:usage:enabled' : 'compass:usage:disabled');
-
+    await preferences.fetchPreferences();
+    ipc.call(preferences.getPreferenceValue('trackUsageStatistics') ? 'compass:usage:enabled' : 'compass:usage:disabled');
     return null;
   }
 });
 
-var state = new Application();
+const state = new Application();
 
 app.extend({
   client: null,
@@ -264,7 +262,7 @@ app.extend({
         }
 
         // Get theme from the preferences and set accordingly.
-        loadTheme(preferences.theme);
+        loadTheme(preferences.getPreferenceValue('theme'));
         ipc.on('app:darkreader-enable', () => {
           enableDarkTheme();
         });
@@ -273,9 +271,7 @@ app.extend({
         });
         ipc.on('app:save-theme', async (_, theme) => {
           // Save the new theme on the user's preferences.
-          await preferences.save({
-            theme
-          });
+          await preferences.savePreferences({ theme });
         });
 
         Action.pluginActivationCompleted.listen(() => {
@@ -292,15 +288,9 @@ app.extend({
             process.env.HADRON_PRODUCT_NAME
           );
           ipc.call('compass:loading:change-status', {
-            status: 'loading preferences'
+            status: 'setting up intercom'
           });
-          global.hadronApp.appRegistry.emit(
-            'preferences-loaded',
-            preferences
-          );
-
-          setupIntercom(preferences, state.user);
-
+          setupIntercom(state.user);
           // signal to main process that app is ready
           ipc.call('window:renderer-ready');
           // catch a data refresh coming from window-manager

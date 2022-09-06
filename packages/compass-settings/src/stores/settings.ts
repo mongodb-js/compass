@@ -2,13 +2,26 @@ import type { Reducer } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { preferences } from 'compass-preferences-model';
+import type { THEMES } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
-import { fetchPreferences } from '../utils/user-preferences';
-import type { UserPreferences } from '../utils/user-preferences';
 import { ActionTypes as UpdatedFieldActionTypes } from './updated-fields';
 import type { Actions as UpdatedFieldActions } from './updated-fields';
+
+export type UserPreferences = {
+  /**
+   * Has the settings dialog has been shown before
+   */
+  showedNetworkOptIn: boolean;
+  autoUpdates: boolean;
+  enableMaps: boolean;
+  trackErrors: boolean;
+  trackUsageStatistics: boolean;
+  enableFeedbackPanel: boolean;
+  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
+};
 
 export type State = Partial<UserPreferences>;
 
@@ -45,18 +58,22 @@ const reducer: Reducer<State, Actions | UpdatedFieldActions> = (
 };
 
 export const fetchSettings = (): ThunkAction<
-  Promise<void>,
+  void,
   RootState,
   void,
   Actions
 > => {
-  return async (dispatch): Promise<void> => {
+  return (dispatch): void => {
     try {
-      const settings = await fetchPreferences();
-      dispatch({
-        type: ActionTypes.SettingsFetched,
-        settings,
-      });
+      const settings = preferences.userPreferencesModel.getAttributes({ props: true, derived: true });
+
+      // Not a first time user. Return saved preferences
+      if (preferences.getPreferenceValue('showedNetworkOptIn')) {
+        dispatch({
+          type: ActionTypes.SettingsFetched,
+          settings,
+        });
+      }
     } catch (e) {
       log.warn(
         mongoLogId(1_001_000_145),

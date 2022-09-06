@@ -1,4 +1,5 @@
 import type { CompassBrowser } from '../compass-browser';
+import { preferences } from 'compass-preferences-model';
 
 export async function setFeature(
   browser: CompassBrowser,
@@ -6,10 +7,8 @@ export async function setFeature(
   value: boolean | string
 ): Promise<void> {
   await browser.execute(
-    (_name, _value) => {
-      const preferences = (global as any)?.hadronApp?.preferences;
-      preferences.set(_name, _value);
-      preferences.save();
+    async (_name, _value) => {
+      await preferences.savePreferences({ [_name]: _value });
     },
     name,
     value

@@ -1,7 +1,5 @@
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
-const get = require('lodash.get');
-const format = require('util').format;
 const _ = require('lodash');
 const semver = require('semver');
 
@@ -196,73 +194,44 @@ const PreferencesModel = Model.extend(storageMixin, {
   }
 });
 
-let globalPreferences = {};
-let cliPreferences = {};
-
 class Preferences {
   constructor() {
-    const userPreferences = new PreferencesModel();
-
-    this.getUserPreferences = function() { return userPreferences; };
-    this.getGlobalPreferences = function() { return globalPreferences; };
-    this.getCliPreferences = function() { return cliPreferences; };
+    this.userPreferencesModel = new PreferencesModel();
   }
 
-  refreshPreferences() {
-    const user = this.getUserPreferences().getAttributes({ props: true, derived: true });
-    const cli = this.getCliPreferences();
-    const global = this.getGlobalPreferences();
-    Object.assign(this, { ...user, ...cli, ...global });
-  }
-
-  fetch() {
+  fetchPreferences() {
     return new Promise((resolve, reject) => {
-      this.getUserPreferences().fetch({
+      this.userPreferencesModel.fetch({
         success: (model) => {
-          debug('userPreferences fetch successful', model.serialize());
-
+          debug('fetch user preferences is successful', model.serialize());
           const userPreferencesAttributes = model.getAttributes({ props: true, derived: true });
           const oldVersion = _.get(userPreferencesAttributes, 'lastKnownVersion', '0.0.0');
           const attributes = {};
-
-          if (
-            semver.lt(oldVersion, APP_VERSION) ||
-            // this is so we can test the tour modal in E2E tests where the version
-            // is always the same
-            process.env.SHOW_TOUR
-          ) {
+          if (semver.lt(oldVersion, APP_VERSION) || process.env.SHOW_TOUR) {
             attributes.showFeatureTour = oldVersion;
           }
           if (semver.neq(oldVersion, APP_VERSION)) {
             attributes.lastKnownVersion = APP_VERSION;
           }
-
           if (!_.isEmpty(attributes)) {
             debug('userPreferences updated after fetch', attributes);
             model.save(attributes);
           }
-
-          this.refreshPreferences();
-
           return resolve();
         },
         error: (model, err) => {
-          debug('fetching userPreferences error', err);
+          debug('fetch user preferences failed', err.message);
           return reject(err);
         }
       });
     });
   }
 
-  save(attributes) {
-    const userPreferences = this.getUserPreferences();
-
+  savePreferences(attributes) {
     return new Promise((resolve, reject) => {
       if (attributes && !_.isEmpty(attributes)) {
-        userPreferences.save(attributes, {
-          success: (model) => {
-            debug('userPreferences saved', model.serialize());
-            this.refreshPreferences();
+        this.userPreferencesModel.save(attributes, {
+          success: () => {
             return resolve();
           },
           error: (model, err) => {
@@ -274,25 +243,25 @@ class Preferences {
     });
   }
 
-  isFeatureEnabled(feature) {
-    // main network switch overwrites all network related features
-    if (['enableMaps', 'trackErrors', 'enableFeedbackPanel', 'trackUsageStatistics', 'autoUpdates'].indexOf(feature) !== -1) {
-      return this.networkTraffic && process.env.HADRON_ISOLATED !== 'true' && get(this, feature);
-    }
-    const res = get(this, feature, null);
-    // don't allow asking for unknown features to prevent bugs
-    if (res === null) {
-      throw new Error(format('Feature %s unknown.', feature));
-    }
-    return res;
+  getPreferenceValue(preferenceName) {
+    const prefs = this.userPreferencesModel.getAttributes({ props: true, derived: true });
+    return prefs[preferenceName];
   }
 
-  isUIConfigurable(key) {
-    return !(
-      !(key in this.getGlobalPreferences()) &&
-      !(key in this.cliPreferences()) &&
-      preferencesProps[key].ui
+  getConfigurableUserPreferences() {
+    const prefs = this.userPreferencesModel.getAttributes({ props: true, derived: true });
+
+    return Object.fromEntries(
+      Object.keys(prefs).filter((key) => preferencesProps[key].ui === true)
     );
+  }
+
+  onPreferenceChanged(preferenceName, callback) {
+    const changeEvent = `change:${preferenceName}`;
+
+    this.userPreferencesModel.listenToAndRun(this.userPreferencesModel, changeEvent, () => {
+      return callback();
+    });
   }
 }
 

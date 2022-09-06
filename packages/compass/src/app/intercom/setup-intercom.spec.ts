@@ -25,10 +25,9 @@ async function testRunSetupIntercom(
     enableFeedbackPanel: initialEnableFeedbackPanel,
   });
 
-  sinon.spy(preferences, 'isFeatureEnabled');
+  sinon.spy(preferences, 'getPreferenceValue');
 
   await setupIntercom(
-    preferences,
     user,
     intercomScript as unknown as IntercomScript
   );
@@ -82,7 +81,7 @@ describe('setupIntercom', function () {
           mockUser
         );
 
-        expect(preferences.isFeatureEnabled).to.have.been.calledWith(
+        expect(preferences.getPreferenceValue).to.have.been.calledWith(
           'enableFeedbackPanel'
         );
 
@@ -96,7 +95,7 @@ describe('setupIntercom', function () {
         });
 
         expect(intercomScript.unload).not.to.have.been.called;
-        preferences.set('enableFeedbackPanel', false);
+        preferences.savePreferences({ enableFeedbackPanel: false });
         expect(intercomScript.unload).to.have.been.called;
       });
     });
@@ -108,13 +107,13 @@ describe('setupIntercom', function () {
           mockUser
         );
 
-        expect(preferences.isFeatureEnabled).to.have.been.calledWith(
+        expect(preferences.getPreferenceValue).to.have.been.calledWith(
           'enableFeedbackPanel'
         );
 
         expect(intercomScript.load).to.not.have.been.called;
 
-        preferences.set('enableFeedbackPanel', true);
+        preferences.savePreferences({ enableFeedbackPanel: true });
         expect(intercomScript.load).to.have.been.calledWith({
           app_id: 'appid123',
           app_name: 'My App Name',
@@ -134,14 +133,14 @@ describe('setupIntercom', function () {
         mockUser
       );
 
-      expect(preferences.isFeatureEnabled).not.to.have.been.calledWith(
+      expect(preferences.getPreferenceValue).not.to.have.been.calledWith(
         'enableFeedbackPanel'
       );
 
       expect(intercomScript.load).to.not.have.been.called;
 
-      preferences.set('enableFeedbackPanel', true);
-      expect(preferences.isFeatureEnabled).not.to.have.been.calledWith(
+      preferences.savePreferences({ enableFeedbackPanel: true });
+      expect(preferences.getPreferenceValue).not.to.have.been.calledWith(
         'enableFeedbackPanel'
       );
 
