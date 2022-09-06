@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import semver from 'semver';
 import { Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
@@ -26,6 +26,7 @@ function PipelineActionMenu<T extends string>({
   menuItems,
   ['data-testid']: dataTestId,
 }: PipelineActionMenuProp<T>) {
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const onMenuItemClick = useCallback(
@@ -41,6 +42,7 @@ function PipelineActionMenu<T extends string>({
     <Menu
       data-testid={`${dataTestId}-content`}
       open={isMenuOpen}
+      refEl={menuTriggerRef}
       setOpen={setIsMenuOpen}
       justify="start"
       trigger={({
@@ -51,6 +53,7 @@ function PipelineActionMenu<T extends string>({
         children: React.ReactChildren;
       }) => (
         <Button
+          ref={menuTriggerRef}
           data-testid={dataTestId}
           title={title}
           aria-label={title}
