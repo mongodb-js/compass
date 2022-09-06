@@ -35,7 +35,7 @@ describe.skip('hadron-build::release', function() {
     if (target.platform !== 'darwin') {
       return this.skip();
     }
-    const bin = target.dest(`${target.productName}-darwin-x64`, `${target.productName}.app`, 'Contents', 'MacOS', 'Electron');
+    const bin = target.dest(`${target.productName}-darwin-${target.arch}`, `${target.productName}.app`, 'Contents', 'MacOS', 'Electron');
     fs.exists(bin, function(exists) {
       assert(exists, `Expected ${bin} to exist`);
       done();
@@ -50,7 +50,7 @@ describe.skip('hadron-build::release', function() {
     if (target.platform !== 'darwin') {
       return this.skip();
     }
-    const info = target.dest(`${target.productName}-darwin-x64`, `${target.productName}.app`, 'Contents', 'Info.plist');
+    const info = target.dest(`${target.productName}-darwin-${target.arch}`, `${target.productName}.app`, 'Contents', 'Info.plist');
     // eslint-disable-next-line no-sync
     const config = plist.parse(fs.readFileSync(info, 'utf8'));
     assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron-testing.beta');

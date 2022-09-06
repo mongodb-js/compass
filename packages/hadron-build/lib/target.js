@@ -128,26 +128,11 @@ class Target {
     const pkg = getPkg(dir);
     this.pkg = pkg;
 
-    const defaultArch =
-      // eslint-disable-next-line no-nested-ternary
-      process.platform === 'darwin'
-        ? os.cpus().some((cpu) => {
-          // process.arch / os.arch() will return the arch for which the node
-          // binary was compiled. Checking if one of the CPUs has Apple in its
-          // name is the way to check (there is slight difference between the
-          // earliest models naming and a current one, so we check only for
-          // Apple in the name)
-          return /Apple/.test(cpu.model);
-        })
-          ? 'arm64'
-          : 'x64'
-        : process.arch;
-
     const distributions = pkg.config.hadron.distributions;
 
     _.defaults(opts, { version: process.env.HADRON_APP_VERSION }, pkg, {
       platform: process.platform,
-      arch: defaultArch,
+      arch: process.arch,
       sign: true,
       distribution: process.env.HADRON_DISTRIBUTION || distributions.default
     });

@@ -75,11 +75,6 @@ const download = async(url, destDir) => {
     // such as RHEL7.
     downloadOptions.distro = 'rhel70';
   }
-  if (process.platform === 'darwin' && os.cpus().some((cpu) => /Apple/.test(cpu.model))) {
-    // See the similar check in hadron-build/lib/target.js
-    // (we're currently running the x64 Node.js binaries in macos arm64 CI)
-    downloadOptions.arch = 'arm64';
-  }
   let artifactInfo;
   // Try getting the latest stable csfle library, if none exists
   // (which is the case at the time of writing), fall back to
