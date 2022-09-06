@@ -17,7 +17,8 @@ type Actions =
   | 'open-instance-workspace'
   | 'copy-connection-string'
   | 'edit-favorite'
-  | 'open-connection-info';
+  | 'open-connection-info'
+  | 'refresh-data';
 
 const titleLabel = css({
   overflow: 'hidden',
@@ -120,6 +121,12 @@ function SidebarTitle({
       action: 'open-connection-info',
       label: 'Connection info',
       icon: 'Connect',
+    });
+
+    actions.push({
+      action: 'refresh-data',
+      label: 'Refresh',
+      icon: 'Refresh',
     });
 
     return actions;

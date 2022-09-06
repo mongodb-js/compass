@@ -9,24 +9,26 @@ elif ! command -v docker-compose &>/dev/null; then
 else
   echo "Starting test environments"
 
+  DOCKER_COMPOSE="env MONGODB_VERSION= docker-compose"
+
   git clone -b v1.2.4 --single-branch https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
-  docker-compose -f test-envs/docker/enterprise/docker-compose.yaml up -d
-  docker-compose -f test-envs/docker/ldap/docker-compose.yaml up -d
-  docker-compose -f test-envs/docker/scram/docker-compose.yaml up -d
-  docker-compose -f test-envs/docker/sharded/docker-compose.yaml up -d
-  docker-compose -f test-envs/docker/ssh/docker-compose.yaml up -d
-  docker-compose -f test-envs/docker/tls/docker-compose.yaml up -d
-  docker-compose -f test-envs/docker/kerberos/docker-compose.yaml up -d
+  $DOCKER_COMPOSE -f test-envs/docker/enterprise/docker-compose.yaml up -d
+  $DOCKER_COMPOSE -f test-envs/docker/ldap/docker-compose.yaml up -d
+  $DOCKER_COMPOSE -f test-envs/docker/scram/docker-compose.yaml up -d
+  $DOCKER_COMPOSE -f test-envs/docker/sharded/docker-compose.yaml up -d
+  $DOCKER_COMPOSE -f test-envs/docker/ssh/docker-compose.yaml up -d
+  $DOCKER_COMPOSE -f test-envs/docker/tls/docker-compose.yaml up -d
+  $DOCKER_COMPOSE -f test-envs/docker/kerberos/docker-compose.yaml up -d
 
   __stop_all_docker_containers() {
     echo "Stopping test environments"
-    docker-compose -f test-envs/docker/enterprise/docker-compose.yaml down -v --remove-orphans
-    docker-compose -f test-envs/docker/ldap/docker-compose.yaml down -v --remove-orphans
-    docker-compose -f test-envs/docker/scram/docker-compose.yaml down -v --remove-orphans
-    docker-compose -f test-envs/docker/sharded/docker-compose.yaml down -v --remove-orphans
-    docker-compose -f test-envs/docker/ssh/docker-compose.yaml down -v --remove-orphans
-    docker-compose -f test-envs/docker/tls/docker-compose.yaml down -v --remove-orphans
-    docker-compose -f test-envs/docker/kerberos/docker-compose.yaml down -v --remove-orphans
+    $DOCKER_COMPOSE -f test-envs/docker/enterprise/docker-compose.yaml down -v --remove-orphans
+    $DOCKER_COMPOSE -f test-envs/docker/ldap/docker-compose.yaml down -v --remove-orphans
+    $DOCKER_COMPOSE -f test-envs/docker/scram/docker-compose.yaml down -v --remove-orphans
+    $DOCKER_COMPOSE -f test-envs/docker/sharded/docker-compose.yaml down -v --remove-orphans
+    $DOCKER_COMPOSE -f test-envs/docker/ssh/docker-compose.yaml down -v --remove-orphans
+    $DOCKER_COMPOSE -f test-envs/docker/tls/docker-compose.yaml down -v --remove-orphans
+    $DOCKER_COMPOSE -f test-envs/docker/kerberos/docker-compose.yaml down -v --remove-orphans
   }
 
   trap "__stop_all_docker_containers" EXIT

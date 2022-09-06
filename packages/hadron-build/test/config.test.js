@@ -101,7 +101,8 @@ describe('hadron-build::config', () => {
       version: '1.2.0',
       product_name: 'Hadron',
       platform: 'win32',
-      author: 'MongoDB Inc'
+      author: 'MongoDB Inc',
+      arch: 'x64'
     };
 
     let res;
@@ -150,7 +151,8 @@ describe('hadron-build::config', () => {
           name: 'hadron',
           product_name: 'Hadron',
           platform: 'win32',
-          author: 'MongoDB Inc'
+          author: 'MongoDB Inc',
+          arch: 'x64'
         });
       });
 
