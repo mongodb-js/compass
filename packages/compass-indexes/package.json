@@ -59,8 +59,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "bson": "^4.4.1",
     "mongodb-index-model": "^4.0.0",
-    "react": "^16.14.0",
-    "react-virtualized-auto-sizer": "^1.0.6"
+    "react": "^16.14.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.0",
@@ -89,6 +88,7 @@
     "prop-types": "^15.7.2",
     "react-dom": "^16.14.0",
     "react-redux": "^5.0.6",
+    "react-virtualized-auto-sizer": "^1.0.6",
     "redux": "^4.1.2",
     "redux-thunk": "^2.3.0",
     "rimraf": "^3.0.2",
@@ -102,7 +102,6 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "bson": "^4.4.1",
     "mongodb-index-model": "^4.0.0",
-    "react": "^16.14.0",
-    "react-virtualized-auto-sizer": "^1.0.6"
+    "react": "^16.14.0"
   }
 }
