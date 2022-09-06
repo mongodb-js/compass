@@ -396,6 +396,14 @@ function viewSubMenu(
       },
       separator(),
       {
+        label: '&Toggle Sidebar',
+        accelerator: 'CmdOrCtrl+Shift+D',
+        click() {
+          ipcMain.broadcast('app:toggle-sidebar');
+        },
+      },
+      separator(),
+      {
         label: 'Actual Size',
         accelerator: 'CmdOrCtrl+0',
         click() {

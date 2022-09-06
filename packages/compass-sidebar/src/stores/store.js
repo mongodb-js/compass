@@ -10,6 +10,7 @@ import { reset } from '../modules/reset';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
+import { toggleSidebar } from '../modules/is-expanded';
 
 // We use these symbols so that nothing from outside can access these values on
 // the store
@@ -190,6 +191,10 @@ store.onActivated = (appRegistry) => {
 
   appRegistry.on('data-service-disconnected', () => {
     store.dispatch(reset());
+  });
+
+  appRegistry.on('toggle-sidebar', () => {
+    store.dispatch(toggleSidebar());
   });
 };
 
