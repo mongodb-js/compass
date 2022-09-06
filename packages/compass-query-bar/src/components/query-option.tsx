@@ -22,7 +22,6 @@ const queryOptionStyles = css({
 
 const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
-  // padding: `${spacing[1]}px 0`,
   paddingTop: spacing[1],
   marginRight: spacing[2],
 });
