@@ -317,10 +317,13 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     sample,
     autoPreview,
     collationString,
-    settings,
+    limit,
+    largeLimit,
     maxTimeMS,
     pipeline
   } = action.restoreState;
+
+  console.log('restore state', action.restoreState);
 
   return {
     // Current state will be mostly preserved (i.e, namespace, isTimeSeries, etc)
@@ -332,7 +335,8 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     sample,
     autoPreview,
     collationString: getCollationStateFromString(collationString),
-    settings,
+    limit,
+    largeLimit,
     maxTimeMS,
     pipeline,
     // Relevant state that depens on the pipeline state is updated (NB: this
