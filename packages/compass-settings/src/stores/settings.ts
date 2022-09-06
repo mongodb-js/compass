@@ -3,25 +3,12 @@ import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { preferences } from 'compass-preferences-model';
-import type { THEMES } from 'compass-preferences-model';
+import type { UserPreferences } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
 import { ActionTypes as UpdatedFieldActionTypes } from './updated-fields';
 import type { Actions as UpdatedFieldActions } from './updated-fields';
-
-export type UserPreferences = {
-  /**
-   * Has the settings dialog has been shown before
-   */
-  showedNetworkOptIn: boolean;
-  autoUpdates: boolean;
-  enableMaps: boolean;
-  trackErrors: boolean;
-  trackUsageStatistics: boolean;
-  enableFeedbackPanel: boolean;
-  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
-};
 
 export type State = Partial<UserPreferences>;
 
@@ -65,10 +52,10 @@ export const fetchSettings = (): ThunkAction<
 > => {
   return (dispatch): void => {
     try {
-      const settings = preferences.userPreferencesModel.getAttributes({ props: true, derived: true });
+      const settings = preferences.getConfigurableUserPreferences();
 
       // Not a first time user. Return saved preferences
-      if (preferences.getPreferenceValue('showedNetworkOptIn')) {
+      if (settings.showedNetworkOptIn) {
         dispatch({
           type: ActionTypes.SettingsFetched,
           settings,

@@ -5,8 +5,7 @@ import createDebug from 'debug';
 import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { preferences } = require('compass-preferences-model');
+import { preferences } from 'compass-preferences-model';
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
 type TrackFunction = (event: string, properties?: TrackProps) => void;
@@ -60,10 +59,7 @@ export function createLoggerAndTelemetry(component: string): {
     event: string,
     properties: TrackProps = {}
   ): Promise<void> => {
-    const isTrackingEnabled = preferences.getPreferenceValue(
-      'trackUsageStatistics'
-    );
-    if (!isTrackingEnabled) {
+    if (!preferences.getPreferenceValue('trackUsageStatistics')) {
       return;
     }
     const data = {

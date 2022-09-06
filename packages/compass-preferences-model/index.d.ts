@@ -1,19 +1,22 @@
-declare class ApmersandPreferencesModel {
-  fetch: () => void;
-  save: () => void;
-  set: (
-    key: string,
-    value: unknown
-  ) => void;
-  getAttributes: (options: any) => any;
+export type UserPreferences = {
+  /**
+   * Has the settings dialog has been shown before
+   */
+  showedNetworkOptIn: boolean;
+  autoUpdates: boolean;
+  enableMaps: boolean;
+  trackErrors: boolean;
+  trackUsageStatistics: boolean;
+  enableFeedbackPanel: boolean;
+  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
 };
 
 declare class CompassPreferencesModel {
-  userPreferencesModel: ApmersandPreferencesModel;
   fetchPreferences: () => Promise<void>;
   savePreferences: (preferences: any) => Promise<void>;
   getPreferenceValue: any;
   onPreferenceChanged: (preferenceName: string, callback: () => void) => void;
+  getConfigurableUserPreferences: () => UserPreferences;
 };
 
 export default CompassPreferencesModel;

@@ -3,22 +3,9 @@ import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { preferences } from 'compass-preferences-model';
-import type { THEMES } from 'compass-preferences-model';
+import type { UserPreferences } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
-
-export type UserPreferences = {
-  /**
-   * Has the settings dialog has been shown before
-   */
-  showedNetworkOptIn: boolean;
-  autoUpdates: boolean;
-  enableMaps: boolean;
-  trackErrors: boolean;
-  trackUsageStatistics: boolean;
-  enableFeedbackPanel: boolean;
-  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
-};
 
 export type State = Partial<UserPreferences>;
 
