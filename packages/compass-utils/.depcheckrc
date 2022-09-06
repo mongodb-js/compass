@@ -4,5 +4,7 @@ ignores:
  - '@types/chai'
  - '@types/sinon-chai'
  - 'sinon'
+ - 'chai'
+ - 'electron'
 ignore-patterns:
  - 'dist'

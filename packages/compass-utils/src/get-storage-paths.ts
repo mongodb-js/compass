@@ -14,9 +14,10 @@ export function getStoragePaths(): StoragePaths | undefined {
       app = require('electron').app;
     } catch (e2: any) {
       console.log('Could not load @electron/remote', e1.message, e2.message);
-      return undefined;
     }
   }
+
+  if (!app) return undefined;
 
   const appName = app.getName();
   const basepath = app.getPath('userData');
