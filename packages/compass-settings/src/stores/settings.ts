@@ -52,15 +52,10 @@ export const fetchSettings = (): ThunkAction<
 > => {
   return (dispatch): void => {
     try {
-      const settings = preferences.getConfigurableUserPreferences();
-
-      // Not a first time user. Return saved preferences
-      if (settings.showedNetworkOptIn) {
-        dispatch({
-          type: ActionTypes.SettingsFetched,
-          settings,
-        });
-      }
+      dispatch({
+        type: ActionTypes.SettingsFetched,
+        settings: preferences.getConfigurableUserPreferences()
+      });
     } catch (e) {
       log.warn(
         mongoLogId(1_001_000_145),
