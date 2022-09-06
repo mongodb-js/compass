@@ -6,7 +6,5 @@ ignores: [
   "mongodb-database-model",
   "mongodb-ns",
   "raf",
-  "lodash.clone",
-  "lodash.result",
   "mongodb-compass"
 ]

@@ -1,10 +1,12 @@
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
-const _ = require('lodash');
 const semver = require('semver');
+const isEmpty = require('lodash.isempty');
+const get = require('lodash.get');
 
-var electronApp;
-var APP_VERSION = '';
+const APP_VERSION = '';
+let electronApp;
+
 try {
   electronApp = require('@electron/remote').app;
   APP_VERSION = electronApp.getVersion();
@@ -13,15 +15,15 @@ try {
   console.log('Could not load @electron/remote', e.message);
 }
 
-var debug = require('debug')('mongodb-compass:models:preferences');
+const debug = require('debug')('mongodb-compass:models:preferences');
 
-var THEMES = {
+const THEMES = {
   DARK: 'DARK',
   LIGHT: 'LIGHT',
   OS_THEME: 'OS_THEME'
 };
 
-var preferencesProps = {
+const preferencesProps = {
   /**
    * String identifier for this set of preferences. Default is `General`.
    * @type {String}
@@ -205,7 +207,7 @@ class Preferences {
         success: (model) => {
           debug('fetch user preferences is successful', model.serialize());
           const userPreferencesAttributes = model.getAttributes({ props: true, derived: true });
-          const oldVersion = _.get(userPreferencesAttributes, 'lastKnownVersion', '0.0.0');
+          const oldVersion = get(userPreferencesAttributes, 'lastKnownVersion', '0.0.0');
           const attributes = {};
           if (semver.lt(oldVersion, APP_VERSION) || process.env.SHOW_TOUR) {
             attributes.showFeatureTour = oldVersion;
@@ -213,7 +215,7 @@ class Preferences {
           if (semver.neq(oldVersion, APP_VERSION)) {
             attributes.lastKnownVersion = APP_VERSION;
           }
-          if (!_.isEmpty(attributes)) {
+          if (isEmpty(attributes)) {
             debug('userPreferences updated after fetch', attributes);
             model.save(attributes);
           }
@@ -229,7 +231,7 @@ class Preferences {
 
   savePreferences(attributes) {
     return new Promise((resolve, reject) => {
-      if (attributes && !_.isEmpty(attributes)) {
+      if (attributes && isEmpty(attributes)) {
         this.userPreferencesModel.save(attributes, {
           success: () => {
             return resolve();

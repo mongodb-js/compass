@@ -39,6 +39,8 @@
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-state": "5.0.3",
     "debug": "^2.2.0",
+    "lodash.get": "^4.4.2",
+    "lodash.isempty": "^4.4.0",
     "mongodb-collection-model": "^5.0.0",
     "mongodb-database-model": "^2.0.0",
     "mongodb-ns": "^2.4.0",
@@ -51,7 +53,7 @@
     "electron": "^15.5.7",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
-    "lodash.result": "^4.5.2",
-    "mocha": "^6.0.2"
+    "mocha": "^6.0.2",
+    "semver": "^7.3.5"
   }
 }
