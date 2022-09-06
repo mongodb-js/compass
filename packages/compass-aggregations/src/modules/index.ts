@@ -323,8 +323,6 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     pipeline
   } = action.restoreState;
 
-  console.log('restore state', action.restoreState);
-
   return {
     // Current state will be mostly preserved (i.e, namespace, isTimeSeries, etc)
     ...state,
