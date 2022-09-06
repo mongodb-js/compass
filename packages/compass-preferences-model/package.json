@@ -34,6 +34,7 @@
     "test-ci": "npm run test"
   },
   "dependencies": {
+    "@mongodb-js/compass-utils": "^0.1.0",
     "ampersand-collection-filterable": "^0.3.0",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
@@ -47,9 +48,7 @@
     "storage-mixin": "^5.0.0"
   },
   "devDependencies": {
-    "@electron/remote": "^2.0.8",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
     "lodash.result": "^4.5.2",

@@ -2,14 +2,8 @@ var Model = require('ampersand-model');
 var storageMixin = require('storage-mixin');
 var get = require('lodash.get');
 var format = require('util').format;
-
-var electronApp;
-try {
-  electronApp = require('@electron/remote').app;
-} catch (e) {
-  /* eslint no-console: 0 */
-  console.log('Could not load @electron/remote', e.message);
-}
+var compassUtils = require('@mongodb-js/compass-utils');
+var basepath = (compassUtils.getStoragePaths() || {}).basepath;
 
 var debug = require('debug')('mongodb-compass:models:preferences');
 
@@ -276,7 +270,7 @@ var Preferences = Model.extend(storageMixin, {
   namespace: 'AppPreferences',
   storage: {
     backend: 'disk',
-    basepath: electronApp ? electronApp.getPath('userData') : undefined
+    basepath: basepath
   },
   initialize: function() {
     this.on('page-refresh', this.onPageRefresh.bind(this));
