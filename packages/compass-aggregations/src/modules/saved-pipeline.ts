@@ -127,6 +127,8 @@ export const saveCurrentPipeline = (): ThunkAction<void, RootState, void, AnyAct
     sample,
     autoPreview,
     collationString: { text },
+    settings,
+    maxTimeMS,
     dataService
   } = getState();
 
@@ -138,6 +140,8 @@ export const saveCurrentPipeline = (): ThunkAction<void, RootState, void, AnyAct
     sample,
     autoPreview,
     collationString: text,
+    settings,
+    maxTimeMS,
     pipeline,
     host:
       dataService?.dataService?.getConnectionString?.().hosts.join(',') ??

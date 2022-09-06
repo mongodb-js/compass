@@ -317,6 +317,8 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     sample,
     autoPreview,
     collationString,
+    settings,
+    maxTimeMS,
     pipeline
   } = action.restoreState;
 
@@ -330,6 +332,8 @@ const doRestorePipeline = (state: RootState, action: AnyAction): RootState => {
     sample,
     autoPreview,
     collationString: getCollationStateFromString(collationString),
+    settings,
+    maxTimeMS,
     pipeline,
     // Relevant state that depens on the pipeline state is updated (NB: this
     // whole thing should be happening in the relevant slice reducers instead,
