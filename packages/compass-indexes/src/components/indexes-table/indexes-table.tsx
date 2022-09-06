@@ -14,25 +14,26 @@ import TypeField from './type-field';
 import SizeField from './size-field';
 import UsageField from './usage-field';
 import PropertyField from './property-field';
-import DropField from './drop-field';
 import type {
   IndexDefinition,
   SortColumn,
   SortDirection,
 } from '../../modules/indexes';
+import IndexActions from './index-actions';
 
 // When row is hovered, we show the delete button
 const rowStyles = css({
   ':hover': {
-    '.delete-cell': {
+    '.index-actions-cell': {
       button: {
         opacity: 1,
       },
     },
   },
 });
+
 // When row is not hovered, we hide the delete button
-const deleteFieldStyles = css({
+const indexActionsCellStyles = css({
   button: {
     opacity: 0,
     '&:focus': {
@@ -137,16 +138,17 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
           </Cell>
           {/* Delete column is conditional */}
           {canDeleteIndex && (
-            <Cell data-testid="index-drop-field" className={cellStyles}>
-              <div className={cx(deleteFieldStyles, 'delete-cell')}>
-                {index.name !== '_id_' &&
-                  index.extra.status !== 'inprogress' && (
-                    <DropField
-                      name={index.name}
-                      onDelete={() => onDeleteIndex(index)}
-                    />
-                  )}
-              </div>
+            <Cell data-testid="index-actions-field" className={cellStyles}>
+              {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
+                <div
+                  className={cx(indexActionsCellStyles, 'index-actions-cell')}
+                >
+                  <IndexActions
+                    index={index}
+                    onDeleteIndex={onDeleteIndex}
+                  ></IndexActions>
+                </div>
+              )}
             </Cell>
           )}
         </Row>

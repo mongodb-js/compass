@@ -154,8 +154,9 @@ describe('Indexes Component', function () {
 
     expect(indexPropertyField).to.contain.text('In Progress...');
 
-    const dropIndexButton =
-      within(inProgressIndex).queryByTestId('drop-index-button');
+    const dropIndexButton = within(inProgressIndex).queryByTestId(
+      'index-actions-delete-action'
+    );
     expect(dropIndexButton).to.not.exist;
   });
 
@@ -218,8 +219,9 @@ describe('Indexes Component', function () {
 
     expect(indexPropertyField).to.contain.text('Failed');
 
-    const dropIndexButton =
-      within(failedIndex).getByTestId('drop-index-button');
+    const dropIndexButton = within(failedIndex).getByTestId(
+      'index-actions-delete-action'
+    );
     expect(dropIndexButton).to.exist;
   });
 });

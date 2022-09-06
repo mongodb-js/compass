@@ -1,34 +1,4 @@
 buildvariants:
-  - name: macos_gui
-    display_name: MacOS x64 (Test w/ GUI Session)
-    run_on: macos-1100-gui
-    tasks:
-      - name: test-electron
-      # TODO: Even though these tests are running, they run compass with a
-      #       keychain disabled and clipboard tests skipped
-      #
-      #       https://jira.mongodb.org/browse/BUILD-14458
-      #       https://jira.mongodb.org/browse/BUILD-14780
-      - name: test-packaged-app-macos
-
-  - name: macos
-    display_name: MacOS x64 (Test and Package)
-    run_on: macos-1100-gui
-    tasks:
-      - name: test
-      - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
-
-  - name: macos_arm
-    display_name: MacOS arm64 (Package)
-    run_on: macos-1100-arm64
-    tasks:
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
-
   - name: coverage
     display_name: E2E Coverage
     run_on: ubuntu1604-large
