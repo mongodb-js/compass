@@ -191,6 +191,7 @@ export const QueryOptionsGrid: React.FunctionComponent<
             hasError={!queryOptionProps[`${optionName}Valid`]}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
             onApply={onApply}
+            id={`query-bar-option-input-${optionName}`}
             placeholder={
               queryOptionProps[`${optionName}Placeholder`] ||
               OPTION_DEFINITION[optionName].placeholder
@@ -213,6 +214,7 @@ export const QueryOptionsGrid: React.FunctionComponent<
           <QueryOptionComponent
             hasError={!queryOptionProps[`${optionName}Valid`]}
             key={`numeric-query-option-${optionName}`}
+            id={`query-bar-option-input-${optionName}`}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
             onApply={onApply}
             placeholder={
