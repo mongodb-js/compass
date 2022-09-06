@@ -248,7 +248,19 @@ class Preferences {
     return prefs[preferenceName];
   }
 
-  getConfigurableUserPreferences() {
+  async getConfigurableUserPreferences() {
+    // Set the defaults and also update showedNetworkOptIn flag.
+    if (!this.getPreferenceValue('showedNetworkOptIn')) {
+      await this.savePreferences({
+        autoUpdates: true,
+        enableMaps: true,
+        trackErrors: true,
+        trackUsageStatistics: true,
+        enableFeedbackPanel: true,
+        showedNetworkOptIn: true
+      });
+    }
+
     const prefs = this.userPreferencesModel.getAttributes({ props: true, derived: true });
 
     return Object.fromEntries(

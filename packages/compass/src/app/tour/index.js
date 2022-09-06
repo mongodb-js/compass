@@ -108,7 +108,6 @@ var TourView = View.extend({
   },
   derived: {
     previousVersion: {
-      deps: [],
       fn: function() {
         return preferences.getPreferenceValue('showFeatureTour') || '0.0.0';
       }

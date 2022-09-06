@@ -1,14 +1,17 @@
+export enum THEMES {
+  DARK = 'DARK',
+  LIGHT = 'LIGHT',
+  OS_THEME = 'OS_THEME'
+};
+
 export type UserPreferences = {
-  /**
-   * Has the settings dialog has been shown before
-   */
-  showedNetworkOptIn: boolean;
+  showedNetworkOptIn: boolean; // Has the settings dialog has been shown before.
   autoUpdates: boolean;
   enableMaps: boolean;
   trackErrors: boolean;
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
-  theme: THEMES.DARK | THEMES.LIGHT | THEMES.OS_THEME;
+  theme: THEMES;
 };
 
 declare class CompassPreferencesModel {
@@ -24,9 +27,3 @@ export default CompassPreferencesModel;
 // Export an instance of the class indirectly.
 const preferences = new CompassPreferencesModel();
 export { preferences };
-
-export enum THEMES {
-  DARK = 'DARK',
-  LIGHT = 'LIGHT',
-  OS_THEME = 'OS_THEME'
-};

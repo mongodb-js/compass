@@ -86,6 +86,13 @@ class CompassApplication {
       app.exit();
     });
 
+    ipcMain.respondTo({
+      'license:disagree': function () {
+        debug('Did not agree to license, quitting app.');
+        app.quit();
+      },
+    });
+
     ipcMain.handle('coverage', () => {
       return (global as any).__coverage__;
     });
