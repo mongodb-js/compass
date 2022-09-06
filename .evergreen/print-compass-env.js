@@ -94,6 +94,8 @@ function printCompassEnv() {
   printVar('npm_config_cache', npmCacheDir);
   // npm tmp is deprecated, but let's keep it around just in case
   printVar('npm_config_tmp', npmTmpDir);
+  // Also set in our .npmrc but that does not get picked up in the preinstall script.
+  printVar('npm_config_registry', 'https://registry.npmjs.org/');
 
   printVar('PLATFORM', process.env.PLATFORM);
   printVar('ARCH', process.env.ARCH);
