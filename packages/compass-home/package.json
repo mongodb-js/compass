@@ -28,7 +28,6 @@
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "start": "echo \"There is not an electron running environment available for this package. Please run `npm start` from the root to run this.\"",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
@@ -38,6 +37,7 @@
   "license": "SSPL",
   "dependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-settings": "^0.1.0",
     "@mongodb-js/compass-connections": "^1.0.0",
     "hadron-app-registry": "^9.0.0",
     "hadron-ipc": "^3.0.0",
@@ -46,6 +46,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-settings": "^0.1.0",
     "@mongodb-js/compass-connections": "^1.0.0",
     "hadron-app-registry": "^9.0.0",
     "hadron-ipc": "^3.0.0",
@@ -63,7 +64,6 @@
     "chai": "^4.1.2",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eventemitter3": "^4.0.0",

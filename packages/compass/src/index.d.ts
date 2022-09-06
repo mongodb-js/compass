@@ -50,8 +50,6 @@ declare module 'process' {
 
         COMPASS_SHOW_NEW_SIDEBAR?: 'true' | 'false',
 
-        COMPASS_CLUSTERED_COLLECTIONS?: 'true' | 'false';
-
         /**
          * Permanent feature flag for debugging.
          */

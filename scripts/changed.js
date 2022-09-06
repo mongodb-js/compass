@@ -130,7 +130,7 @@ async function main() {
     async function () {
       const spinner = this;
       const { stdout } = await runInDir(
-        'npx lerna list --since origin/HEAD --json --exclude-dependents'
+        'npx lerna list --all --since origin/HEAD --json --exclude-dependents'
       );
       const result = JSON.parse(stdout);
       spinner.text =

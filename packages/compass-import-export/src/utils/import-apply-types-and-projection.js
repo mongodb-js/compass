@@ -74,6 +74,7 @@ function transformProjectedTypes(
       _.set(result, keyPath, value);
       return;
     }
+
     const sourceType = getTypeDescriptorForValue(value).type;
 
     let casted = value;
@@ -87,7 +88,7 @@ function transformProjectedTypes(
       //   sourceType,
       //   value,
       //   keyPath,
-      //   casted
+      //   casted,
       // });
     }
 

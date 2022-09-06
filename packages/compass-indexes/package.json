@@ -37,7 +37,6 @@
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
-    "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
@@ -59,7 +58,6 @@
     "@mongodb-js/compass-logging": "^1.0.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "bson": "^4.4.1",
-    "hadron-react-components": "^6.0.0",
     "mongodb-index-model": "^4.0.0",
     "react": "^16.14.0"
   },
@@ -80,6 +78,7 @@
     "hadron-app": "^5.0.0",
     "hadron-app-registry": "^9.0.0",
     "lodash.contains": "^2.4.3",
+    "lodash.clonedeep": "^4.5.0",
     "mocha": "^8.4.0",
     "mongodb": "^4.6.0",
     "mongodb-data-service": "^22.0.0",
@@ -101,7 +100,6 @@
     "@mongodb-js/compass-logging": "^1.0.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "bson": "^4.4.1",
-    "hadron-react-components": "^6.0.0",
     "mongodb-index-model": "^4.0.0",
     "react": "^16.14.0"
   }

@@ -78,7 +78,8 @@ function compassOverviewItem(): MenuItemConstructorOptions {
 
 function networkOptInDialogItem(): MenuItemConstructorOptions {
   return {
-    label: '&Privacy Settings',
+    label: '&Settings',
+    accelerator: 'Command+,',
     click() {
       ipcMain.broadcastFocused('window:show-network-optin');
     },
@@ -291,15 +292,6 @@ function helpWindowItem(): MenuItemConstructorOptions {
   };
 }
 
-function securityItem(): MenuItemConstructorOptions {
-  return {
-    label: '&Plugins',
-    click() {
-      ipcMain.broadcastFocused('window:show-security-panel');
-    },
-  };
-}
-
 function license(): MenuItemConstructorOptions {
   return {
     label: '&License',
@@ -337,7 +329,6 @@ function helpSubMenu(
     subMenu.push(networkOptInDialogItem());
   }
 
-  subMenu.push(securityItem());
   subMenu.push(license());
   subMenu.push(logFile(app));
 

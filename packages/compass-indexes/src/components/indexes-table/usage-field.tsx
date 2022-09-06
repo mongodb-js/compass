@@ -28,7 +28,8 @@ const UsageField: React.FunctionComponent<UsageFieldProps> = ({
           {children}
           <Body>
             {usage || 0}
-            {nbsp}(<>{since ? `since ${since.toDateString()}` : 'N/A'}</>)
+            {nbsp}
+            <>{since ? `(since ${since.toDateString()})` : ''}</>
           </Body>
         </span>
       )}
