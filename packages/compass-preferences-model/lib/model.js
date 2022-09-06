@@ -4,12 +4,9 @@ const semver = require('semver');
 const isEmpty = require('lodash.isempty');
 const get = require('lodash.get');
 
-const APP_VERSION = '';
 let electronApp;
-
 try {
   electronApp = require('@electron/remote').app;
-  APP_VERSION = electronApp.getVersion();
 } catch (e) {
   /* eslint no-console: 0 */
   console.log('Could not load @electron/remote', e.message);
@@ -206,19 +203,24 @@ class Preferences {
       this.userPreferencesModel.fetch({
         success: (model) => {
           debug('fetch user preferences is successful', model.serialize());
-          const userPreferencesAttributes = model.getAttributes({ props: true, derived: true });
-          const oldVersion = get(userPreferencesAttributes, 'lastKnownVersion', '0.0.0');
-          const attributes = {};
-          if (semver.lt(oldVersion, APP_VERSION) || process.env.SHOW_TOUR) {
-            attributes.showFeatureTour = oldVersion;
+
+          if (electronApp) {
+            const userPreferencesAttributes = model.getAttributes({ props: true, derived: true });
+            const oldVersion = get(userPreferencesAttributes, 'lastKnownVersion', '0.0.0');
+            const attributes = {};
+            const appVersion = electronApp.getVersion();
+            if (semver.lt(oldVersion, appVersion) || process.env.SHOW_TOUR) {
+              attributes.showFeatureTour = oldVersion;
+            }
+            if (semver.neq(oldVersion, appVersion)) {
+              attributes.lastKnownVersion = appVersion;
+            }
+            if (!isEmpty(attributes)) {
+              debug('userPreferences updated after fetch', attributes);
+              model.save(attributes);
+            }
           }
-          if (semver.neq(oldVersion, APP_VERSION)) {
-            attributes.lastKnownVersion = APP_VERSION;
-          }
-          if (isEmpty(attributes)) {
-            debug('userPreferences updated after fetch', attributes);
-            model.save(attributes);
-          }
+
           return resolve();
         },
         error: (model, err) => {
@@ -231,7 +233,7 @@ class Preferences {
 
   savePreferences(attributes) {
     return new Promise((resolve, reject) => {
-      if (attributes && isEmpty(attributes)) {
+      if (attributes && !isEmpty(attributes)) {
         this.userPreferencesModel.save(attributes, {
           success: () => {
             return resolve();
