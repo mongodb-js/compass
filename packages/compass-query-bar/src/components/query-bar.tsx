@@ -20,7 +20,6 @@ import type {
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import {
   QueryOption as QueryOptionComponent,
-  queryOptionLabelStyles,
   queryOptionLabelContainerStyles,
 } from './query-option';
 import { QueryOptionsGrid } from './query-options-grid';
@@ -50,6 +49,10 @@ const queryBarFirstRowStyles = css({
 
 const filterContainerStyles = css({
   flexGrow: 1,
+});
+
+const filterLabelStyles = css({
+  padding: 0,
 });
 
 type QueryBarProps = {
@@ -133,7 +136,7 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
           <Label
             htmlFor={filterQueryOptionId}
             id="query-bar-option-input-filter-label"
-            className={queryOptionLabelStyles}
+            className={filterLabelStyles}
           >
             Filter
           </Label>

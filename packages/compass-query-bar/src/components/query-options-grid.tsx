@@ -10,13 +10,13 @@ import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import { QueryOption as QueryOptionComponent } from './query-option';
 
 const gridStyles = css({
-  alignItems: 'center',
+  alignItems: 'flex-start',
   display: 'grid',
   flexGrow: 1,
   position: 'relative',
-  marginTop: spacing[1] + 2,
+  marginTop: spacing[2],
   padding: `0 ${spacing[2]}px`,
-  gap: `${spacing[1]}px ${spacing[2]}px`,
+  gap: spacing[2],
   gridTemplateColumns: 'repeat(6, 1fr)',
 });
 

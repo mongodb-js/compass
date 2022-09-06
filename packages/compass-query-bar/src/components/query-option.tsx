@@ -17,12 +17,13 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 const queryOptionStyles = css({
   display: 'flex',
   position: 'relative',
-  alignItems: 'center',
+  alignItems: 'flex-start',
 });
 
-export const queryOptionLabelStyles = css({
+const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
-  padding: `${spacing[1]}px 0`,
+  // padding: `${spacing[1]}px 0`,
+  paddingTop: spacing[1],
   marginRight: spacing[2],
 });
 
@@ -51,6 +52,9 @@ const optionInputWithErrorStyles = css({
 });
 
 export const queryOptionLabelContainerStyles = css({
+  // Hardcoded height as we want the label not to vertically
+  // center on the input area when it's expanded.
+  height: spacing[4] + spacing[1],
   textTransform: 'capitalize',
   display: 'flex',
   alignItems: 'center',
@@ -93,7 +97,7 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
       className={queryOptionStyles}
       data-testid={`query-bar-option-${queryOption}`}
     >
-      {/* The filter label is applied separately. */}
+      {/* The filter label is shown by the query bar. */}
       {queryOption !== 'filter' && (
         <div className={queryOptionLabelContainerStyles}>
           <Label

@@ -19,6 +19,7 @@ const openQueryHistoryButtonStyles = cx(
     display: 'inline-flex',
     alignItems: 'center',
     padding: spacing[2] - 2, // -2px for border.
+    marginLeft: spacing[1],
     '&:hover': {
       cursor: 'pointer',
     },
@@ -31,7 +32,6 @@ const queryHistoryPopoverStyles = css({
   maxHeight: 'calc(100vh - 270px)',
   marginTop: spacing[1],
   display: 'flex',
-  marginLeft: -spacing[2] - 1, // Align to the left of the query bar.
 });
 
 type QueryHistoryProps = {
