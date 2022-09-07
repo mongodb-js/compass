@@ -13,11 +13,12 @@ import {
 
 import type { ItemAction } from '@mongodb-js/compass-components';
 
-type Actions =
+type Action =
   | 'open-instance-workspace'
   | 'copy-connection-string'
   | 'edit-favorite'
   | 'open-connection-info'
+  | 'expand-sidebar'
   | 'refresh-data';
 
 const titleLabel = css({
@@ -44,7 +45,6 @@ const TitleLabel: React.FunctionComponent<React.HTMLProps<HTMLSpanElement>> = ({
 
 const titleLogo = css({
   width: spacing[5],
-  paddingLeft: spacing[1],
   marginTop: '6px', // hardcoded to try and match the design
   flexShrink: 0,
 });
@@ -100,10 +100,10 @@ function SidebarTitle({
   title: string;
   isFavorite: boolean;
   isExpanded?: boolean;
-  onAction(actionName: Actions, ...rest: any[]): void;
+  onAction(actionName: Action, ...rest: any[]): void;
 }) {
   const actions = useMemo(() => {
-    const actions: ItemAction<Actions>[] = [];
+    const actions: ItemAction<Action>[] = [];
 
     actions.push({
       action: 'copy-connection-string',
@@ -135,8 +135,12 @@ function SidebarTitle({
   const { theme } = useTheme();
 
   const onClick = useCallback(() => {
-    onAction('open-instance-workspace', 'My Queries');
-  }, [onAction]);
+    if (isExpanded) {
+      onAction('open-instance-workspace', 'My Queries');
+    } else {
+      onAction('expand-sidebar');
+    }
+  }, [isExpanded, onAction]);
 
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
@@ -144,7 +148,7 @@ function SidebarTitle({
       <TitleLogo />
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (
-        <ItemActionControls<Actions>
+        <ItemActionControls<Action>
           onAction={onAction}
           iconSize="small"
           actions={actions}

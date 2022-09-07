@@ -341,6 +341,10 @@ app.extend({
           ipc.on('app:refresh-data', () =>
             global.hadronApp.appRegistry.emit('refresh-data')
           );
+          // catch a toggle sidebar coming from window-manager
+          ipc.on('app:toggle-sidebar', () =>
+            global.hadronApp.appRegistry.emit('toggle-sidebar')
+          );
           // as soon as dom is ready, render and set up the rest
           state.render();
           marky.stop('Time to Connect rendered');

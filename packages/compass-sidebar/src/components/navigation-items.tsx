@@ -151,8 +151,10 @@ export function NavigationItems({
         actions={databasesActions}
         isActive={currentLocation === 'Databases'}
       />
-      <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
-      <SidebarDatabasesNavigation />
+      {isExpanded && (
+        <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
+      )}
+      {isExpanded && <SidebarDatabasesNavigation />}
     </>
   );
 }

@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
 import { getConnectionTitle } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
+import type { MongoDBInstance } from 'mongodb-instance-model';
 import {
   css,
   spacing,
@@ -24,7 +25,7 @@ import NonGenuineMarker from './non-genuine-marker';
 
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
-import type { MongoDBInstance } from 'mongodb-instance-model';
+import { setIsExpanded } from '../modules/is-expanded';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -35,26 +36,29 @@ const badgesPlaceholderStyles = css({
 
 // eslint-disable-next-line no-empty-pattern
 export function Sidebar({
+  isExpanded,
   connectionInfo,
   globalAppRegistryEmit,
   updateAndSaveConnectionInfo,
   isGenuineMongoDBVisible,
   toggleIsGenuineMongoDBVisible,
+  setIsExpanded,
   isGenuine,
   csfleMode,
 }: {
+  isExpanded: boolean;
   connectionInfo: ConnectionInfo;
   globalAppRegistryEmit: any;
   updateAndSaveConnectionInfo: any;
   isGenuineMongoDBVisible: boolean;
   toggleIsGenuineMongoDBVisible: (isVisible: boolean) => void;
+  setIsExpanded: (isExpanded: boolean) => void;
   isGenuine?: boolean;
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
 }) {
   const [isFavoriteModalVisible, setIsFavoriteModalVisible] = useState(false);
   const [isConnectionInfoModalVisible, setIsConnectionInfoModalVisible] =
     useState(false);
-  const [isExpanded] = useState(true);
 
   const onClickSaveFavorite = useCallback(
     (newFavoriteInfo) => {
@@ -108,10 +112,16 @@ export function Sidebar({
         return;
       }
 
+      if (action === 'expand-sidebar') {
+        setIsExpanded(true);
+        return;
+      }
+
       globalAppRegistryEmit(action, ...rest);
     },
     [
       connectionInfo.connectionOptions.connectionString,
+      setIsExpanded,
       globalAppRegistryEmit,
       openToast,
     ]
@@ -135,7 +145,11 @@ export function Sidebar({
   );
 
   return (
-    <ResizableSidebar>
+    <ResizableSidebar
+      collapsable={true}
+      expanded={isExpanded}
+      setExpanded={setIsExpanded}
+    >
       <>
         <SidebarTitle
           title={getConnectionTitle(connectionInfo)}
@@ -190,12 +204,14 @@ export function Sidebar({
 }
 
 const mapStateToProps = (state: {
+  isExpanded: boolean;
   connectionInfo: {
     connectionInfo: ConnectionInfo;
   };
   isGenuineMongoDBVisible: boolean;
   instance?: MongoDBInstance;
 }) => ({
+  isExpanded: state.isExpanded,
   connectionInfo: state.connectionInfo.connectionInfo,
   isGenuineMongoDBVisible: state.isGenuineMongoDBVisible,
   isGenuine: state.instance?.genuineMongoDB.isGenuine,
@@ -206,6 +222,7 @@ const MappedSidebar = connect(mapStateToProps, {
   globalAppRegistryEmit,
   updateAndSaveConnectionInfo,
   toggleIsGenuineMongoDBVisible,
+  setIsExpanded,
 })(Sidebar);
 
 export default MappedSidebar;
