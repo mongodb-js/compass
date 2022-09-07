@@ -67,6 +67,10 @@ const itemContainer = css({
   ':hover': {
     fontWeight: 'bold',
   },
+
+  svg: {
+    flexShrink: 0
+  }
 });
 
 const activeItemContainer = css({
