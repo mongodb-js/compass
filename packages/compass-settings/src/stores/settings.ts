@@ -45,16 +45,18 @@ const reducer: Reducer<State, Actions | UpdatedFieldActions> = (
 };
 
 export const fetchSettings = (): ThunkAction<
-  void,
+  Promise<void>,
   RootState,
   void,
   Actions
 > => {
-  return (dispatch): void => {
+  return async (dispatch): Promise<void> => {
     try {
+      const settings = await preferences.getConfigurableUserPreferences();
+
       dispatch({
         type: ActionTypes.SettingsFetched,
-        settings: preferences.getConfigurableUserPreferences(),
+        settings,
       });
     } catch (e) {
       log.warn(

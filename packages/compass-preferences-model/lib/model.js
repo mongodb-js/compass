@@ -40,7 +40,7 @@ const preferencesProps = {
   lastKnownVersion: {
     type: 'string',
     required: false,
-    ui: true,
+    ui: false,
     cli: true,
     globalConfig: true
   },
@@ -208,7 +208,7 @@ class Preferences {
             const userPreferencesAttributes = model.getAttributes({ props: true, derived: true });
             const oldVersion = get(userPreferencesAttributes, 'lastKnownVersion', '0.0.0');
             const attributes = {};
-            const appVersion = electronApp.getVersion();
+            const appVersion = electronApp.getVersion() || '';
             if (semver.lt(oldVersion, appVersion) || process.env.SHOW_TOUR) {
               attributes.showFeatureTour = oldVersion;
             }
@@ -268,7 +268,7 @@ class Preferences {
     const prefs = this.userPreferencesModel.getAttributes({ props: true, derived: true });
 
     return Object.fromEntries(
-      Object.keys(prefs).filter((key) => preferencesProps[key].ui === true)
+      Object.entries(prefs).filter(([key]) => preferencesProps[key].ui === true)
     );
   }
 
