@@ -119,7 +119,7 @@ const ResizableSidebar = ({
     if (expanded && width === collapsedWidth) {
       setWidth(prevWidth);
     }
-  }, [ setWidth, expanded, width, collapsedWidth ]);
+  }, [ setWidth, prevWidth, expanded, width, collapsedWidth ]);
 
   const { theme } = useTheme();
 
