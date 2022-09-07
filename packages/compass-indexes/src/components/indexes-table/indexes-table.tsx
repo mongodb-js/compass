@@ -115,6 +115,10 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   }, [canDeleteIndex, onSortTable]);
 
   useEffect(() => {
+    /**
+     * For table header to be sticky, the wrapper element of table needs to have a height.
+     * LG wraps table in a div at multiple levels, so height can not be direclty applied to the wrapper we use.
+     */
     const container =
       containerRef.current?.getElementsByTagName('table')[0]?.parentElement;
     if (container) {
