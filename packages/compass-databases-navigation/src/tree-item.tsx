@@ -69,8 +69,8 @@ const itemContainer = css({
   },
 
   svg: {
-    flexShrink: 0
-  }
+    flexShrink: 0,
+  },
 });
 
 const activeItemContainer = css({
