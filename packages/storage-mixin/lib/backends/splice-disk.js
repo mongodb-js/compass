@@ -27,19 +27,17 @@ function SpliceDiskBackend(options) {
 
   // patch the serialize methods in both backends
   var condition = options.secureCondition;
-  DiskBackend.prototype.serialize = function(model) {
-    debug('Serializing for disk backend with condition', condition);
-    var res = _.omitBy(model.serialize(), condition);
-    return res;
-  };
   this.diskBackend = new DiskBackend(options);
-
-  SecureBackend.prototype.serialize = function(model) {
-    debug('Serializing for secure backend with condition', condition);
-    var res = _.pickBy(model.serialize(), condition);
-    return res;
+  this.diskBackend.serialize = function(model) {
+    debug('Serializing for disk backend with condition', condition);
+    return _.omitBy(model.serialize(), condition);
   };
+
   this.secureBackend = new SecureBackend(options);
+  this.secureBackend.serialize = function(model) {
+    debug('Serializing for secure backend with condition', condition);
+    return _.pickBy(model.serialize(), condition);
+  };
 }
 
 inherits(SpliceDiskBackend, BaseBackend);
