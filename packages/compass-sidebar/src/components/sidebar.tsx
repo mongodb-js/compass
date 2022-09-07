@@ -114,6 +114,7 @@ export function Sidebar({
 
       if (action === 'expand-sidebar') {
         setIsExpanded(true);
+        return;
       }
 
       globalAppRegistryEmit(action, ...rest);
