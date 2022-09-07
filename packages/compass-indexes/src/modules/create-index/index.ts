@@ -1,18 +1,13 @@
-import { EJSON } from 'bson';
+import { EJSON, ObjectId } from 'bson';
 import { combineReducers } from 'redux';
 import type { AnyAction, Dispatch } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import queryParser from 'mongodb-query-parser';
-import type {
-  IndexSpecification,
-  CreateIndexesOptions,
-  IndexDirection,
-} from 'mongodb';
+import type { CreateIndexesOptions, IndexSpecification } from 'mongodb';
 
 import dataService from '../data-service';
 import appRegistry, {
   localAppRegistryEmit,
-  globalAppRegistryEmit,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import error, {
   clearError,
@@ -73,11 +68,13 @@ import serverVersion from '../server-version';
 import isSparse, {
   INITIAL_STATE as IS_SPARSE_INITIAL_STATE,
 } from './is-sparse';
+import type { InProgressIndex } from '../in-progress-indexes';
 
 import schemaFields from '../create-index/schema-fields';
-import newIndexField from '../create-index/new-index-field';
-import { RESET_FORM } from '../reset-form';
-import { RESET, reset } from '../reset';
+import newIndexField, {
+  INITIAL_STATE as NEW_INDEX_FIELD_INITIAL_STATE,
+} from '../create-index/new-index-field';
+import { RESET_FORM, resetForm } from '../reset-form';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
 
@@ -113,6 +110,10 @@ const reducer = combineReducers({
 
 export type RootState = ReturnType<typeof reducer>;
 
+export type CreateIndexSpec = {
+  [key: string]: string | number;
+};
+
 /**
  * The root reducer.
  *
@@ -122,9 +123,10 @@ export type RootState = ReturnType<typeof reducer>;
  * @returns {Object} The new state.
  */
 const rootReducer = (state: RootState, action: AnyAction): RootState => {
-  if (action.type === RESET || action.type === RESET_FORM) {
+  if (action.type === RESET_FORM) {
     return {
       ...state,
+      newIndexField: NEW_INDEX_FIELD_INITIAL_STATE,
       collationString: COLLATION_INITIAL_STATE,
       fields: FIELDS_INITIAL_STATE,
       inProgress: IN_PROGRESS_INITIAL_STATE,
@@ -150,6 +152,48 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
 
 export default rootReducer;
 
+export const closeCreateIndexModal = () => {
+  return (dispatch: Dispatch) => {
+    dispatch(localAppRegistryEmit('refresh-data'));
+    dispatch(toggleIsVisible(false));
+    dispatch(resetForm());
+  };
+};
+
+const prepareIndex = ({
+  ns,
+  name,
+  spec,
+}: {
+  ns: string;
+  name?: string;
+  spec: CreateIndexSpec;
+}): InProgressIndex => {
+  const inProgressIndexId = new ObjectId().toHexString();
+  const inProgressIndexFields = Object.keys(spec).map((field: string) => ({
+    field,
+    value: spec[field],
+  }));
+  const inProgressIndexName =
+    name ||
+    Object.keys(spec).reduce((previousValue, currentValue) => {
+      return `${
+        previousValue === '' ? '' : `${previousValue}_`
+      }${currentValue}_${spec[currentValue]}`;
+    }, '');
+  return {
+    id: inProgressIndexId,
+    status: 'inprogress',
+    key: spec,
+    fields: inProgressIndexFields,
+    name: inProgressIndexName,
+    ns,
+    size: 0,
+    relativeSize: 0,
+    usageCount: 0,
+  };
+};
+
 /**
  * The create index action.
  *
@@ -158,7 +202,7 @@ export default rootReducer;
 export const createIndex = () => {
   return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
-    const spec: IndexSpecification = {};
+    const spec = {} as CreateIndexSpec;
 
     // Check for field errors.
     if (
@@ -179,9 +223,9 @@ export const createIndex = () => {
     }
 
     state.fields.forEach((field: IndexField) => {
-      let type = field.type as IndexDirection;
-      if ((type as string) === '1 (asc)') type = 1;
-      if ((type as string) === '-1 (desc)') type = -1;
+      let type: string | number = field.type;
+      if (field.type === '1 (asc)') type = 1;
+      if (field.type === '-1 (desc)') type = -1;
       spec[field.name] = type;
     });
 
@@ -223,8 +267,8 @@ export const createIndex = () => {
 
     if (state.useColumnstoreProjection) {
       try {
-        // columnstoreProjection is not part of CreateIndexesOptions yet
-        (options as any).columnstoreProjection = EJSON.parse(
+        // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
+        options.columnstoreProjection = EJSON.parse(
           state.columnstoreProjection
         ) as Document;
       } catch (err) {
@@ -242,11 +286,34 @@ export const createIndex = () => {
         return;
       }
     }
-    dispatch(toggleInProgress(true));
-    const ns = state.namespace;
 
-    state.dataService?.createIndex(ns, spec, options, (createErr: any) => {
-      if (!createErr) {
+    dispatch(clearError());
+    dispatch(toggleInProgress(true));
+
+    const ns = state.namespace;
+    const inProgressIndex = prepareIndex({ ns, name: options.name, spec });
+
+    dispatch(
+      localAppRegistryEmit('in-progress-indexes-added', inProgressIndex)
+    );
+
+    state.dataService?.createIndex(
+      ns,
+      spec as IndexSpecification,
+      options,
+      (createErr) => {
+        if (createErr) {
+          dispatch(toggleInProgress(false));
+          dispatch(handleError(createErr as Error));
+          dispatch(
+            localAppRegistryEmit('in-progress-indexes-failed', {
+              inProgressIndexId: inProgressIndex.id,
+              error: createErr.message,
+            })
+          );
+          return;
+        }
+
         const trackEvent = {
           unique: state.isUnique,
           ttl: state.useTtl,
@@ -260,28 +327,17 @@ export const createIndex = () => {
             ).length > 0,
         };
         track('Index Created', trackEvent);
-        dispatch(reset());
-        dispatch(localAppRegistryEmit('refresh-data'));
-        dispatch(
-          globalAppRegistryEmit('compass:indexes:created', {
-            isCollation: state.useCustomCollation,
-            usePartialFilterExpression: state.usePartialFilterExpression,
-            useTtl: state.useTtl,
-            isUnique: state.isUnique,
-            hasColumnstoreIndex,
-            useColumnstoreProjection: state.useColumnstoreProjection,
-            useWildcardProjection: state.useWildcardProjection,
-            collation: state.collationString,
-            ttl: state.ttl,
-          })
-        );
-        dispatch(clearError());
+        dispatch(resetForm());
         dispatch(toggleInProgress(false));
         dispatch(toggleIsVisible(false));
-      } else {
-        dispatch(toggleInProgress(false));
-        dispatch(handleError(createErr));
+        dispatch(
+          localAppRegistryEmit(
+            'in-progress-indexes-removed',
+            inProgressIndex.id
+          )
+        );
+        dispatch(localAppRegistryEmit('refresh-data'));
       }
-    });
+    );
   };
 };

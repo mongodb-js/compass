@@ -94,13 +94,19 @@ function printCompassEnv() {
   printVar('npm_config_cache', npmCacheDir);
   // npm tmp is deprecated, but let's keep it around just in case
   printVar('npm_config_tmp', npmTmpDir);
+  // Also set in our .npmrc but that does not get picked up in the preinstall script.
+  printVar('npm_config_registry', 'https://registry.npmjs.org/');
 
   printVar('PLATFORM', process.env.PLATFORM);
+  printVar('ARCH', process.env.ARCH);
   printVar('IS_WINDOWS', process.env.IS_WINDOWS);
   printVar('IS_OSX', process.env.IS_OSX);
   printVar('IS_LINUX', process.env.IS_LINUX);
   printVar('IS_RHEL', process.env.IS_RHEL);
   printVar('IS_UBUNTU', process.env.IS_UBUNTU);
+  printVar('DEBUG', process.env.DEBUG);
+  printVar('MONGODB_VERSION', process.env.MONGODB_VERSION || process.env.MONGODB_DEFAULT_VERSION);
+  printVar('MONGODB_USE_ENTERPRISE', process.env.MONGODB_USE_ENTERPRISE);
 }
 
 printCompassEnv();

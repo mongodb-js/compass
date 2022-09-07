@@ -37,6 +37,7 @@
   "license": "SSPL",
   "dependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-settings": "^0.1.0",
     "@mongodb-js/compass-connections": "^1.0.0",
     "hadron-app-registry": "^9.0.0",
     "hadron-ipc": "^3.0.0",
@@ -45,6 +46,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
+    "@mongodb-js/compass-settings": "^0.1.0",
     "@mongodb-js/compass-connections": "^1.0.0",
     "hadron-app-registry": "^9.0.0",
     "hadron-ipc": "^3.0.0",

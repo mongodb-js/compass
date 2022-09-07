@@ -4,8 +4,7 @@ import {
   InteractivePopover,
   css,
   cx,
-  focusRingStyles,
-  focusRingVisibleStyles,
+  focusRing,
   spacing,
 } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -23,14 +22,14 @@ const openQueryHistoryButtonStyles = cx(
     '&:hover': {
       cursor: 'pointer',
     },
-    '&:focus': focusRingVisibleStyles,
   }),
-  focusRingStyles
+  focusRing
 );
 
 const queryHistoryPopoverStyles = css({
   // We want the popover to open almost to the shell at the bottom of Compass.
   maxHeight: 'calc(100vh - 270px)',
+  marginTop: spacing[1],
   display: 'flex',
   marginLeft: -spacing[2] - 1, // Align to the left of the query bar.
 });

@@ -1,10 +1,11 @@
 import React from 'react';
 import {
   css,
+  cx,
   Icon,
   Badge,
   BadgeVariant,
-  useFocusRing,
+  focusRing,
   spacing,
 } from '@mongodb-js/compass-components';
 
@@ -27,8 +28,6 @@ export default function CSFLEMarker({
   csfleMode?: 'enabled' | 'disabled' | 'unavailable';
   toggleCSFLEModalVisible: () => void;
 }) {
-  const focusRingProps = useFocusRing<HTMLButtonElement>();
-
   if (!csfleMode || csfleMode === 'unavailable') {
     return null;
   }
@@ -36,12 +35,11 @@ export default function CSFLEMarker({
   return (
     <div className={badgeContainerStyles}>
       <button
-        {...focusRingProps}
-        type={focusRingProps.type as 'button'}
+        type="button"
         data-testid="fle-connection-configuration"
         aria-label="Open connection In-Use Encryption configuration"
         title="Connection In-Use Encryption configuration"
-        className={badgeButtonStyles}
+        className={cx(badgeButtonStyles, focusRing)}
         onClick={toggleCSFLEModalVisible}
       >
         <Badge

@@ -4,7 +4,7 @@ import type { AnyAction } from 'redux';
  * Toggle use partial filter expression action name.
  */
 export const TOGGLE_USE_PARTIAL_FILTER_EXPRESSION =
-  'indexes/create-indexes/is-partial_filter_expression/TOGGLE_USE_PARTIAL_FILTER_EXPRESSION';
+  'indexes/create-indexes/use-partial_filter_expression/TOGGLE_USE_PARTIAL_FILTER_EXPRESSION';
 
 /**
  * The initial state of the use partial filter expression.
@@ -19,7 +19,10 @@ export const INITIAL_STATE = false;
  *
  * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): boolean {
   if (action.type === TOGGLE_USE_PARTIAL_FILTER_EXPRESSION) {
     return action.usePartialFilterExpression;
   }

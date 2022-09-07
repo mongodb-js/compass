@@ -34,7 +34,7 @@ variables:
     EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
-    NODE_JS_VERSION: '16.15.1'
+    NODE_JS_VERSION: '16.17.0'
     NPM_VERSION: '8.15.1'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
@@ -189,6 +189,9 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
         script: |
           set -e
 
@@ -201,13 +204,7 @@ functions:
           # separately in the test-packaged-app task
           export IGNORE_TESTS="compass-e2e-tests"
 
-          # debug option is not very useful in normal runs, but helpful when
-          # debugging any issues with tests. Set to "mocha*", "hadron*", or
-          # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
+          npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
     - command: shell.exec
@@ -218,6 +215,9 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
         script: |
           set -e
 
@@ -229,10 +229,7 @@ functions:
           # Preparing native addons for electron runtime
           npm run --unsafe-perm electron-rebuild
 
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm test-ci-electron -- --stream
+          npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
     - command: shell.exec
@@ -341,6 +338,9 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
         script: |
           set -e
           # Load environment variables
@@ -349,10 +349,7 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
@@ -365,6 +362,9 @@ functions:
           <<: *compass-env
           COMPASS_APP_PATH: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
         script: |
           set -e
           # Load environment variables
@@ -380,10 +380,7 @@ functions:
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
 
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
     - command: shell.exec

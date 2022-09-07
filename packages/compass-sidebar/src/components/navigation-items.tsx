@@ -5,8 +5,8 @@ import {
   css,
   cx,
   ItemActionControls,
-  SmallIcon,
   spacing,
+  Icon,
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -57,6 +57,8 @@ const navigationItemLabel = css({
   marginLeft: spacing[2],
 });
 
+const navigationItemActionIcons = css({ color: 'inherit' });
+
 export function NavigationItem<Actions extends string>({
   isExpanded,
   onAction,
@@ -74,7 +76,7 @@ export function NavigationItem<Actions extends string>({
   tabName: string;
   isActive: boolean;
 }) {
-  const [hoverProps, isHovered] = useHoverState();
+  const [hoverProps] = useHoverState();
 
   const onClick = useCallback(() => {
     onAction('open-instance-workspace', tabName);
@@ -87,16 +89,20 @@ export function NavigationItem<Actions extends string>({
       onClick={onClick}
       {...hoverProps}
     >
-      <SmallIcon glyph={glyph} mode="inherit"></SmallIcon>
+      <Icon glyph={glyph} size="small"></Icon>
       {isExpanded && <span className={navigationItemLabel}>{label}</span>}
       {isExpanded && actions && (
         <ItemActionControls<Actions>
-          mode="normal"
+          iconSize="small"
           onAction={onAction}
+          data-testid="sidebar-navigation-item-actions"
           actions={actions}
-          shouldCollapseActionsToMenu
-          isActive={isActive}
-          isHovered={isHovered}
+          // This is what renders the "create database" action,
+          // the icons here should always be clearly visible,
+          // so we let the icon to inherit the foreground color of
+          // the text
+          isVisible={true}
+          iconClassName={navigationItemActionIcons}
         ></ItemActionControls>
       )}
     </div>

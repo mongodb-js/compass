@@ -19,7 +19,10 @@ export const INITIAL_STATE = false;
  *
  * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): boolean {
   if (action.type === TOGGLE_USE_INDEX_NAME) {
     return action.useIndexName;
   }

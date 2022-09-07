@@ -70,6 +70,7 @@
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/tooltip": "^3.2.1",
     "@react-aria/utils": "^3.13.1",
+    "@react-aria/visually-hidden": "^3.3.1",
     "@react-stately/tooltip": "^3.0.5",
     "@types/lodash": "^4.14.172",
     "bson": "^4.6.1",
@@ -77,6 +78,7 @@
     "hadron-document": "^8.0.0",
     "hadron-type-checker": "^7.0.0",
     "lodash": "^4.17.21",
+    "polished": "^4.2.2",
     "react-sortable-hoc": "^2.0.0",
     "react-window": "^1.8.6"
   },

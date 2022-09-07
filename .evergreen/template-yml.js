@@ -125,10 +125,28 @@ const buildVariants = [
     name: 'rhel',
     display_name: 'RHEL (Test and Package)',
     run_on: 'rhel76-large'
+  },
+  {
+    name: 'macos',
+    display_name: 'MacOS x64 (Test and Package)',
+    run_on: 'macos-1100-gui',
+    // TODO: Even though these tests are running, they run compass with a
+    //       keychain disabled and clipboard tests skipped
+    //
+    //       https://jira.mongodb.org/browse/BUILD-14458
+    //       https://jira.mongodb.org/browse/BUILD-14780
+    tasks: [{ name: 'test-packaged-app-60x-enterprise' }]
+  },
+  {
+    name: 'macos_arm64',
+    display_name: 'MacOS arm64 (Test and Package)',
+    run_on: 'macos-1100-arm64-gui',
+    tasks: [{ name: 'test-packaged-app-60x-enterprise' }]
   }
 ];
 
 for (const buildVariant of buildVariants) {
+  if (buildVariant.tasks) continue; // Do not generate tasks if already pre-specified
   buildVariant.tasks = [];
   for (const task of testPackagedAppVariations) {
     // TODO: The version of ubuntu we're using is not supported by mongodb 5 so

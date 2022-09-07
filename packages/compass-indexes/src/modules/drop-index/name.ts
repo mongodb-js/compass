@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Create index name action.
  */
@@ -11,12 +13,15 @@ export const INITIAL_STATE = '';
 /**
  * Reducer function for handle state changes to create index name.
  *
- * @param {String} state - The create index name state.
- * @param {Object} action - The action.
+ * @param state - The create index name state.
+ * @param action - The action.
  *
- * @returns {String} The new state.
+ * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string {
   if (action.type === NAME_CHANGED) {
     return action.name;
   }
@@ -26,11 +31,11 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * The change name action creator.
  *
- * @param {String} name - The index name.
+ * @param name - The index name.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const nameChanged = (name) => ({
+export const nameChanged = (name: string) => ({
   type: NAME_CHANGED,
-  name: name,
+  name,
 });

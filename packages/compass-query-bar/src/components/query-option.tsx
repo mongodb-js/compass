@@ -4,7 +4,6 @@ import {
   TextInput,
   css,
   cx,
-  focusRingStyles,
   spacing,
   uiColors,
   withTheme,
@@ -27,14 +26,11 @@ const queryOptionLabelStyles = css({
   marginRight: spacing[2],
 });
 
-const documentEditorOptionStyles = css(
-  {
-    minWidth: spacing[7],
-    display: 'flex',
-    flexGrow: 1,
-  },
-  focusRingStyles
-);
+const documentEditorOptionStyles = css({
+  minWidth: spacing[7],
+  display: 'flex',
+  flexGrow: 1,
+});
 
 const numericTextInputLightStyles = css({
   input: {

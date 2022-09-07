@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { AnyAction, Dispatch } from 'redux';
 
 import dataService from '../data-service';
 import appRegistry, {
@@ -23,8 +24,7 @@ import confirmName, {
   INITIAL_STATE as CONFIRM_NAME_INITIAL_STATE,
 } from '../drop-index/confirm-name';
 
-import { RESET_FORM } from '../reset-form';
-import { RESET, reset } from '../reset';
+import { RESET_FORM, resetForm } from '../reset-form';
 import namespace from '../namespace';
 
 const { track } = createLoggerAndTelemetry('COMPASS-INDEXES-UI');
@@ -43,6 +43,8 @@ const reducer = combineReducers({
   namespace,
 });
 
+export type RootState = ReturnType<typeof reducer>;
+
 /**
  * The root reducer.
  *
@@ -51,8 +53,8 @@ const reducer = combineReducers({
  *
  * @returns {Object} The new state.
  */
-const rootReducer = (state, action) => {
-  if (action.type === RESET || action.type === RESET_FORM) {
+const rootReducer = (state: RootState, action: AnyAction) => {
+  if (action.type === RESET_FORM) {
     return {
       ...state,
       inProgress: IN_PROGRESS_INITIAL_STATE,
@@ -73,23 +75,23 @@ export default rootReducer;
  *
  * @returns {Function} The thunk function.
  */
-export const dropIndex = (indexName) => {
-  return (dispatch, getState) => {
+export const dropIndex = (indexName: string) => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const ns = state.namespace;
 
     dispatch(toggleInProgress(true));
-    state.dataService.dropIndex(ns, indexName, (err) => {
+    state.dataService?.dropIndex(ns, indexName, (err) => {
       if (!err) {
         track('Index Dropped');
-        dispatch(reset());
+        dispatch(resetForm());
         dispatch(localAppRegistryEmit('refresh-data'));
         dispatch(clearError());
         dispatch(toggleInProgress(false));
         dispatch(toggleIsVisible(false));
       } else {
         dispatch(toggleInProgress(false));
-        dispatch(handleError(err));
+        dispatch(handleError(err as Error));
       }
     });
   };

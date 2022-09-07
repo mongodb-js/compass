@@ -10,7 +10,7 @@ var mergeSpliceResults = require('./util').mergeSpliceResults;
 var inherits = require('util').inherits;
 var TestBackend = require('./test');
 
-var debug = require('debug')('mongodb-storage-mixin:backends:splice-disk');
+var debug = require('debug')('mongodb-storage-mixin:backends:splice-disk-ipc');
 
 function SpliceDiskIpcBackend(options) {
   // replace with tests backend

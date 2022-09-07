@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Card,
   css,
   Icon,
-  IconButton,
   spacing,
   Subtitle,
   useHoverState,
@@ -16,8 +15,13 @@ import {
   uiColors,
   mergeProps,
   useDefaultAction,
+  ItemActionControls,
 } from '@mongodb-js/compass-components';
-import type { BadgeVariant, IconGlyph } from '@mongodb-js/compass-components';
+import type {
+  BadgeVariant,
+  IconGlyph,
+  ItemAction,
+} from '@mongodb-js/compass-components';
 import { NamespaceParam } from './namespace-param';
 import type { ItemType } from './use-create';
 import type { ViewType } from './use-view-type';
@@ -68,14 +72,6 @@ const cardActionContainer = css({
   marginLeft: 'auto',
   flex: 'none',
 });
-
-const CardActionContainer: React.FunctionComponent = ({ children }) => {
-  return (
-    <div className={cardActionContainer} data-testid="card-action-container">
-      {children}
-    </div>
-  );
-};
 
 const cardBadges = css({
   display: 'flex',
@@ -172,6 +168,8 @@ const column = css({
   flexDirection: 'column',
 });
 
+type NamespaceAction = 'delete';
+
 export const NamespaceItemCard: React.FunctionComponent<
   NamespaceItemCardProps &
     Omit<
@@ -197,13 +195,22 @@ export const NamespaceItemCard: React.FunctionComponent<
     onItemClick(id);
   }, [onItemClick, id]);
 
+  const cardActions: ItemAction<NamespaceAction>[] = useMemo(() => {
+    return [
+      {
+        action: 'delete',
+        label: `Delete ${type}`,
+        icon: 'Trash',
+      },
+    ];
+  }, [type]);
+
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
-  const onDeleteClick = useCallback(
-    (evt) => {
-      evt.stopPropagation();
-      if (onItemDeleteClick) {
-        onItemDeleteClick(id);
+  const onAction = useCallback(
+    (action: NamespaceAction) => {
+      if (action === 'delete') {
+        onItemDeleteClick?.(id);
       }
     },
     [onItemDeleteClick, id]
@@ -248,17 +255,13 @@ export const NamespaceItemCard: React.FunctionComponent<
 
         {viewType === 'list' && badgesGroup}
 
-        {isButtonVisible && (
-          <CardActionContainer>
-            <IconButton
-              aria-label={`Delete ${type}`}
-              title={`Delete ${type}`}
-              onClick={onDeleteClick}
-            >
-              <Icon glyph="Trash"></Icon>
-            </IconButton>
-          </CardActionContainer>
-        )}
+        <ItemActionControls
+          data-testid="namespace-card-actions"
+          isVisible={isButtonVisible}
+          actions={cardActions}
+          onAction={onAction}
+          className={cardActionContainer}
+        ></ItemActionControls>
       </CardTitleGroup>
 
       {viewType === 'grid' && badgesGroup}

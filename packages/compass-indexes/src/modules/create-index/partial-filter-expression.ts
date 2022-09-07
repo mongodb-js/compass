@@ -19,7 +19,10 @@ export const INITIAL_STATE = '';
  *
  * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string {
   if (action.type === PARTIAL_FILTER_EXPRESSION_CHANGED) {
     return action.partialFilterExpression;
   }

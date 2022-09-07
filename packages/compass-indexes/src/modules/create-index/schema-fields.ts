@@ -4,12 +4,12 @@ import type { AnyAction } from 'redux';
  * Change schema fields action name.
  */
 export const CHANGE_SCHEMA_FIELDS =
-  'indexes/create-index/name/CHANGE_SCHEMA_FIELDS';
+  'indexes/create-index/schema-fields/CHANGE_SCHEMA_FIELDS';
 
 /**
  * The initial state of the schema fields.
  */
-export const INITIAL_STATE = [];
+export const INITIAL_STATE: string[] = [];
 
 /**
  * Reducer function for handle the schema fields state changes.
@@ -19,7 +19,10 @@ export const INITIAL_STATE = [];
  *
  * @returns The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string[] {
   if (action.type === CHANGE_SCHEMA_FIELDS) {
     return action.schemaFields;
   }

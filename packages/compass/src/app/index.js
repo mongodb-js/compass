@@ -85,7 +85,6 @@ var Application = View.extend({
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="tour-container"></div>',
-      '  <div data-hook="optin-container"></div>',
       '  <div data-hook="license"></div>',
       '</div>'
     ].join('\n');
@@ -128,7 +127,6 @@ var Application = View.extend({
     Number.prototype.unref = () => {};
 
     ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
-    ipc.on('window:show-network-optin', this.showOptIn.bind(this));
 
     function trackPerfEvent({ name, value }) {
       const fullName = {
@@ -207,19 +205,13 @@ var Application = View.extend({
       this.tourClosed();
     }
   },
-  showOptIn: function() {
-    if (process.env.HADRON_ISOLATED !== 'true') {
-      const NetworkOptInView = require('./network-optin');
-      const networkOptInView = new NetworkOptInView();
-      this.renderSubview(networkOptInView, this.queryByHook('optin-container'));
-    }
-  },
   tourClosed: function() {
     app.preferences.unset('showFeatureTour');
-    app.preferences.save();
-    if (!app.preferences.showedNetworkOptIn) {
-      this.showOptIn();
-    }
+    app.preferences.save({}, {success: () => {
+      if (!app.preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
+        ipc.ipcRenderer.emit('window:show-network-optin');
+      }
+    }});
   },
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');

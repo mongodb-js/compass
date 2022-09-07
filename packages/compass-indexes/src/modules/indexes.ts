@@ -3,12 +3,15 @@ import type { Document } from 'mongodb';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import _debug from 'debug';
+import cloneDeep from 'lodash.clonedeep';
+import type { AnyAction } from 'redux';
 
 import type { RootState } from './index';
 import { handleError } from './error';
 import type { HandleErrorAction, IndexesError } from './error';
 import { ActionTypes as RefreshActionTypes } from './is-refreshing';
 import type { RefreshFinishedAction } from './is-refreshing';
+import { inProgressIndexRemoved } from '../modules/in-progress-indexes';
 
 const debug = _debug('mongodb-compass:modules:indexes');
 
@@ -26,10 +29,12 @@ const sortColumnToProps = {
   Properties: 'properties',
 } as const;
 
+export type IndexFieldsDefinition = { field: string; value: number | string };
+
 export type IndexDefinition = {
   name: string;
   fields: {
-    serialize: () => { field: string; value: number | string }[];
+    serialize: () => IndexFieldsDefinition[];
   };
   type: 'geo' | 'hashed' | 'text' | 'wildcard' | 'clustered' | 'columnstore';
   cardinality: 'single' | 'compound';
@@ -115,8 +120,14 @@ export const fetchIndexes = (): ThunkAction<
   LoadIndexesAction | RefreshFinishedAction | HandleErrorAction
 > => {
   return (dispatch, getState) => {
-    const { isReadonly, dataService, namespace, sortColumn, sortOrder } =
-      getState();
+    const {
+      isReadonly,
+      dataService,
+      namespace,
+      sortColumn,
+      sortOrder,
+      inProgressIndexes,
+    } = getState();
 
     if (isReadonly) {
       return _handleIndexesChanged(dispatch, []);
@@ -131,7 +142,7 @@ export const fetchIndexes = (): ThunkAction<
       return;
     }
 
-    dataService.indexes(namespace, {}, (err: any, indexes: Document[]) => {
+    dataService.indexes(namespace, {}, (err, indexes: Document[]) => {
       if (err) {
         dispatch(handleError(err as IndexesError));
         return _handleIndexesChanged(dispatch, []);
@@ -141,7 +152,9 @@ export const fetchIndexes = (): ThunkAction<
       for (const index of indexes) {
         index.ns = namespace;
       }
-      const ixs = _mapAndSort(indexes, sortColumn, sortOrder);
+      const ixs = _convertToModels(
+        indexes.concat(cloneDeep(inProgressIndexes))
+      ).sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
       return _handleIndexesChanged(dispatch, ixs);
     });
   };
@@ -188,7 +201,7 @@ const _mapColumnToProp = (column: SortColumn): SortField => {
  * Index models (IndexDefinition) and adds computed props.
  */
 const _convertToModels = (indexes: Document[]): IndexDefinition[] => {
-  const sizes = indexes.map((index) => index.size);
+  const sizes: number[] = indexes.map((index) => index.size);
   const maxSize = Math.max(...sizes);
 
   return indexes.map((index) => {
@@ -198,12 +211,11 @@ const _convertToModels = (indexes: Document[]): IndexDefinition[] => {
   });
 };
 
-const _mapAndSort = (
-  indexes: Document[],
-  sortColumn: SortColumn,
-  sortOrder: SortDirection
-) => {
-  return _convertToModels(indexes).sort(
-    _getSortFunction(_mapColumnToProp(sortColumn), sortOrder)
-  );
+export const dropFailedIndex = (
+  id: string
+): ThunkAction<void, RootState, void, AnyAction> => {
+  return (dispatch) => {
+    dispatch(inProgressIndexRemoved(id));
+    dispatch(fetchIndexes());
+  };
 };

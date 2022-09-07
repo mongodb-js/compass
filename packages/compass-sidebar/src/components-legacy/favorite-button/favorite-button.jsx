@@ -15,7 +15,7 @@ const FavoriteButton = ({ favoriteOptions, toggleIsFavoriteModalVisible }) => {
     color: isFavorite ? '#ffffff' : '#88989a',
   };
 
-  const focusRingProps = useFocusRing();
+  const focusRingProps = useFocusRing({ outer: true, radius: 14 });
   const buttonProps = mergeProps(
     {
       type: 'button',

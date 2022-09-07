@@ -31,7 +31,7 @@ type IndexField = { name: string; type: string };
 export type CreateIndexProps = {
   darkMode?: boolean;
   fields: IndexField[];
-  newIndexField?: string;
+  newIndexField: string | null;
   schemaFields: string[];
 
   isUnique: boolean;

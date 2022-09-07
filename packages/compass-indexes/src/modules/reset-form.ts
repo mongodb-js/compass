@@ -4,9 +4,9 @@
 export const RESET_FORM = 'indexes/reset-form';
 
 /**
- * Reset the form action.
+ * The reset form action creator.
  *
- * @return {Object} The action creator.
+ * @returns The action.
  */
 export const resetForm = () => ({
   type: RESET_FORM,
