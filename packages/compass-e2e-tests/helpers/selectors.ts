@@ -497,11 +497,10 @@ export const DocumentListFetchingStopButton =
   '[data-test-id="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError =
   '[data-test-id="documents-content"] .status-row-has-error';
-export const AddDataButton = '#insert-data-dropdown';
+export const AddDataButton = '[data-testid="crud-add-data-button"]';
 export const InsertDocumentOption =
-  '[data-test-id="insert-data-dropdown-insert-document"]';
-export const ImportFileOption =
-  '[data-test-id="insert-data-dropdown-import-file"]';
+  '[data-testid="crud-add-data-insert-document"]';
+export const ImportFileOption = '[data-testid="crud-add-data-import-file"]';
 export const DocumentListEntry = '[data-test-id="editable-document"]';
 export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
@@ -759,7 +758,7 @@ export const stageEditorErrorMessage = (stageIndex: number): string => {
 export const AnalyzeSchemaButton = '[data-test-id="analyze-schema-button"]';
 export const SchemaFieldList = '.schema-field-list';
 export const AnalysisMessage =
-  '[data-test-id="schema-content"] .analysis-message';
+  '[data-test-id="schema-content"] [data-testid="schema-analysis-message"]';
 export const SchemaField = '.schema-field';
 export const SchemaFieldName = '.schema-field-name';
 export const SchemaFieldTypeList = '.schema-field-type-list';
@@ -852,11 +851,11 @@ export const queryBarOptionInputMaxTimeMS = (tabName: string): string => {
 };
 export const queryBarOptionInputSkip = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="querybar-option-skip"]`;
+  return `${tabSelector} [data-testid="query-bar-option-skip"]`;
 };
 export const queryBarOptionInputLimit = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="querybar-option-limit"]`;
+  return `${tabSelector} [data-testid="query-bar-option-limit"]`;
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
