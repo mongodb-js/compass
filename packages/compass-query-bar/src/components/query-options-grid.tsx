@@ -10,13 +10,13 @@ import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import { QueryOption as QueryOptionComponent } from './query-option';
 
 const gridStyles = css({
-  alignItems: 'center',
+  alignItems: 'flex-start',
   display: 'grid',
   flexGrow: 1,
   position: 'relative',
-  marginTop: spacing[1] + 2,
+  marginTop: spacing[2],
   padding: `0 ${spacing[2]}px`,
-  gap: `${spacing[1]}px ${spacing[2]}px`,
+  gap: spacing[2],
   gridTemplateColumns: 'repeat(6, 1fr)',
 });
 
@@ -191,6 +191,7 @@ export const QueryOptionsGrid: React.FunctionComponent<
             hasError={!queryOptionProps[`${optionName}Valid`]}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
             onApply={onApply}
+            id={`query-bar-option-input-${optionName}`}
             placeholder={
               queryOptionProps[`${optionName}Placeholder`] ||
               OPTION_DEFINITION[optionName].placeholder
@@ -213,6 +214,7 @@ export const QueryOptionsGrid: React.FunctionComponent<
           <QueryOptionComponent
             hasError={!queryOptionProps[`${optionName}Valid`]}
             key={`numeric-query-option-${optionName}`}
+            id={`query-bar-option-input-${optionName}`}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
             onApply={onApply}
             placeholder={
