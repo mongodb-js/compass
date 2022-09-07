@@ -33,6 +33,7 @@ const containerStylesDark = css({
   '--item-color': 'white',
   '--item-color-active': '#71F6BA', // TODO: there is no uiColors.green.light1
   '--item-bg-color': uiColors.gray.dark3,
+  '--item-bg-color-hover': uiColors.gray.dark2,
   '--item-bg-color-active': uiColors.black,
 
   color: 'var(--color)',
@@ -51,6 +52,7 @@ const containerStylesLight = css({
   '--item-color': uiColors.gray.dark3,
   '--item-color-active': uiColors.green.dark2,
   '--item-bg-color': uiColors.gray.light3,
+  '--item-bg-color-hover': uiColors.gray.light2,
   '--item-bg-color-active': uiColors.green.light3,
 
   color: 'var(--color)',

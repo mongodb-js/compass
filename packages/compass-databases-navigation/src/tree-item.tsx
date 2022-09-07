@@ -65,12 +65,12 @@ const itemContainer = css({
   backgroundColor: 'var(--item-bg-color)',
 
   ':hover': {
-    fontWeight: 'bold',
+    backgroundColor: 'var(--item-bg-color-hover)',
   },
 
   svg: {
-    flexShrink: 0
-  }
+    flexShrink: 0,
+  },
 });
 
 const activeItemContainer = css({
