@@ -1,13 +1,8 @@
 import Collection from 'ampersand-rest-collection';
 import FavoriteQuery from './favorite-query';
 import storageMixin from 'storage-mixin';
-
-let remote;
-try {
-  remote = require('@electron/remote');
-} catch (e) {
-  console.error('Could not load @electron/remote', e.message);
-}
+import { getStoragePaths } from '@mongodb-js/compass-utils';
+const { basepath } = getStoragePaths() || {};
 
 /**
  * Represents a collection of favorite queries.
@@ -23,7 +18,7 @@ const FavoriteQueryCollection = Collection.extend(storageMixin, {
   namespace: 'FavoriteQueries',
   storage: {
     backend: 'disk',
-    basepath: remote ? remote.app.getPath('userData') : undefined,
+    basepath,
   },
   mainIndex: '_id',
   comparator: (favorite) => {

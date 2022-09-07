@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { promisifyAmpersandMethod } from 'mongodb-data-service';
+import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 
 import { FavoriteQueryStorage } from '.';
 import { FavoriteQuery, FavoriteQueryCollection } from '../models';
