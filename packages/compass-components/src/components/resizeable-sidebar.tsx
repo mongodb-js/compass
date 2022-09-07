@@ -115,9 +115,11 @@ const ResizableSidebar = ({
 
   const renderedWidth = expanded ? boundSidebarWidth(width) : collapsedWidth;
 
-  if (expanded && width === collapsedWidth) {
-    setWidth(prevWidth);
-  }
+  useEffect(() => {
+    if (expanded && width === collapsedWidth) {
+      setWidth(prevWidth);
+    }
+  }, [ setWidth, expanded, width, collapsedWidth ]);
 
   const { theme } = useTheme();
 
