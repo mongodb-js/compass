@@ -43,8 +43,8 @@ export function createLoggerAndTelemetry(component: string): {
     trackUsageStatistics = preferences?.trackUsageStatistics;
   };
   void trackUsageStatisticsInit();
-  preferencesIpc.onPreferencesChanged((preferences: any) => {
-    trackUsageStatistics = preferences?.trackUsageStatistics;
+  preferencesIpc.onPreferencesChanged((prefs: any) => {
+    trackUsageStatistics = prefs?.trackUsageStatistics;
   });
 
   const track = (...args: [string, TrackProps?]) => {

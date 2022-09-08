@@ -70,11 +70,11 @@ export async function setupIntercom(
     }
   };
 
-  const preferences = await preferencesIpc.getPreferences();
-  toggleEnableFeedbackPanel(preferences.enableFeedbackPanel);
+  const { enableFeedbackPanel } = await preferencesIpc.getPreferences();
+  toggleEnableFeedbackPanel(enableFeedbackPanel);
 
-  preferencesIpc.onPreferencesChanged((preferences: any) => {
+  preferencesIpc.onPreferencesChanged((prefs: any) => {
     debug('enableFeedbackPanel changed');
-    toggleEnableFeedbackPanel(preferences.enableFeedbackPanel);
+    toggleEnableFeedbackPanel(prefs.enableFeedbackPanel);
   });
 }

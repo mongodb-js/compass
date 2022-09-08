@@ -52,9 +52,7 @@ export const fetchSettings = (): ThunkAction<
 > => {
   return async (dispatch): Promise<void> => {
     try {
-      const settings = await preferencesIpc.getConfigurableUserPreferences(
-        'compass:get-configurable-user-preferences'
-      );
+      const settings = await preferencesIpc.getConfigurableUserPreferences();
 
       dispatch({
         type: ActionTypes.SettingsFetched,

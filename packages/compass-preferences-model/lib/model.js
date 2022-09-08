@@ -198,18 +198,20 @@ class Preferences {
 
   savePreferences(attributes) {
     return new Promise((resolve, reject) => {
-      if (attributes && !isEmpty(attributes)) {
-        // Save user preferences to the Ampersand model.
-        this.userPreferencesModel.save(attributes, {
-          success: () => {
-            return resolve(this.getAllPreferences());
-          },
-          error: (model, err) => {
-            debug('saving user preferences error', err);
-            return reject(err);
-          }
-        });
+      if (!attributes && isEmpty(attributes)) {
+        return resolve(this.getAllPreferences());
       }
+
+      // Save user preferences to the Ampersand model.
+      this.userPreferencesModel.save(attributes, {
+        success: () => {
+          return resolve(this.getAllPreferences());
+        },
+        error: (model, err) => {
+          debug('saving user preferences error', err);
+          return reject(err);
+        }
+      });
     });
   }
 

@@ -1,6 +1,5 @@
 const ipc = require('hadron-ipc');
 const remote = require('@electron/remote');
-const _ = require('lodash');
 const semver = require('semver');
 
 const { preferencesIpc } = require('compass-preferences-model');
@@ -185,8 +184,8 @@ const Application = View.extend({
     );
 
     const handleTour = async () => {
-      const preferences = await preferencesIpc.getPreferences();
-      if (preferences.showFeatureTour) {
+      const { showFeatureTour } = await preferencesIpc.getPreferences();
+      if (showFeatureTour) {
         await this.showTour(false);
       } else {
         this.tourClosed();
@@ -196,9 +195,9 @@ const Application = View.extend({
     handleTour();
   },
   showTour: async function(force) {
-    const preferences = await preferencesIpc.getPreferences();
+    const { previousVersion } = await preferencesIpc.getPreferences();
     const TourView = require('./tour');
-    const tourView = new TourView({ force: force, previousVersion: preferences.previousVersion });
+    const tourView = new TourView({ force, previousVersion });
     if (tourView.features.length > 0) {
       tourView.on('close', this.tourClosed.bind(this));
       this.renderSubview(tourView, this.queryByHook('tour-container'));
@@ -207,19 +206,20 @@ const Application = View.extend({
     }
   },
   tourClosed: async function() {
-    const preferences = await preferencesIpc.getPreferences();
-    if (!preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
+    const { showedNetworkOptIn } = await preferencesIpc.getPreferences();
+    if (!showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
       ipc.ipcRenderer.emit('window:show-network-optin');
     }
   },
   setInitialPreferences: async function() {
-    const preferences = await preferencesIpc.getPreferences();
+    const { trackUsageStatistics, lastKnownVersion } = await preferencesIpc.getPreferences();
 
-    ipc.call(preferences.trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
+    ipc.call(trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
 
-    const oldVersion = _.get(preferences, 'lastKnownVersion', '0.0.0');
+    const oldVersion = lastKnownVersion || '0.0.0';
     const appVersion = APP_VERSION || '';
 
+    const preferences = {};
     if (semver.lt(oldVersion, appVersion) || process.env.SHOW_TOUR) {
       preferences.showFeatureTour = oldVersion;
     }
@@ -231,10 +231,10 @@ const Application = View.extend({
   },
   fetchUser: async function() {
     debug('preferences fetched, now getting user');
-    const preferences = await preferencesIpc.getPreferences();
+    const { currentUserId, telemetryAnonymousId } = await preferencesIpc.getPreferences();
     
     // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
-    const user = await User.getOrCreate(preferences.currentUserId || preferences.telemetryAnonymousId);
+    const user = await User.getOrCreate(currentUserId || telemetryAnonymousId);
     
     this.user.set(user.serialize());
     this.user.trigger('sync');
@@ -256,7 +256,7 @@ const state = new Application();
 app.extend({
   client: null,
   init: async function() {
-    const preferences = await preferencesIpc.getPreferences();
+    const { theme } = await preferencesIpc.getPreferences();
 
     async.series(
       [
@@ -272,7 +272,7 @@ app.extend({
         }
 
         // Get theme from the preferences and set accordingly.
-        loadTheme(preferences.theme);
+        loadTheme(theme);
         ipc.on('app:darkreader-enable', () => {
           enableDarkTheme();
         });
@@ -371,5 +371,3 @@ Object.defineProperty(app, 'state', {
 
 require('./reflux-listen-to-external-store');
 app.init();
-// expose app globally for debugging purposes
-window.app = app;

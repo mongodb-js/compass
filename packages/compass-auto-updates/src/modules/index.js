@@ -88,8 +88,8 @@ const autoUpdatesChanged = (autoUpdates) => {
  */
 export const initAutoUpdates = () => {
   return async() => {
-    const preferences = await preferencesIpc.getPreferences();
-    autoUpdatesChanged(preferences.autoUpdates);
+    const { autoUpdates } = await preferencesIpc.getPreferences();
+    autoUpdatesChanged(autoUpdates);
   };
 };
 
@@ -100,8 +100,8 @@ export const initAutoUpdates = () => {
  *
  * @returns {Function} The function.
  */
-export const toggleAutoUpdates = (preferences) => {
+export const toggleAutoUpdates = ({ autoUpdates }) => {
   return () => {
-    autoUpdatesChanged(preferences.autoUpdates);
+    autoUpdatesChanged(autoUpdates);
   };
 };
