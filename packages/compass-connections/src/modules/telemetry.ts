@@ -8,15 +8,30 @@ import { configuredKMSProviders } from 'mongodb-data-service';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
+type HostInformation = {
+  is_localhost: boolean,
+  is_atlas_url: boolean,
+  is_do_url: boolean,
+  is_public_cloud?: boolean,
+  public_cloud_name?: string
+
+};
+
 async function getHostInformation(host: string) {
   if (isLocalhost(host)) {
     return {
+      is_public_cloud: false,
+      is_do_url: false,
+      is_atlas_url: false,
       is_localhost: true,
     };
   }
 
   if (isDigitalOcean(host)) {
     return {
+      is_localhost: false,
+      is_public_cloud: false,
+      is_atlas_url: false,
       is_do_url: true,
     };
   }
@@ -36,13 +51,18 @@ async function getHostInformation(host: string) {
     ? 'GCP'
     : '';
 
-  return {
+  const result: HostInformation = {
     is_localhost: false,
-    is_public_cloud: !!isPublicCloud,
     is_do_url: false,
     is_atlas_url: isAtlas(host),
-    public_cloud_name: publicCloudName,
   };
+
+  if (typeof isPublicCloud !== "undefined") {
+    result.is_public_cloud = isPublicCloud;
+    result.public_cloud_name = publicCloudName;
+  }
+
+  return result;
 }
 
 function getCsfleInformation(
