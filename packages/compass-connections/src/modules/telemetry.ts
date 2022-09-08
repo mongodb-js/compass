@@ -9,24 +9,14 @@ import { configuredKMSProviders } from 'mongodb-data-service';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 async function getHostInformation(host: string) {
-  const defaultValues = {
-    is_localhost: false,
-    is_public_cloud: false,
-    is_do_url: false,
-    is_atlas_url: false,
-    public_cloud_name: '',
-  };
-
   if (isLocalhost(host)) {
     return {
-      ...defaultValues,
       is_localhost: true,
     };
   }
 
   if (isDigitalOcean(host)) {
     return {
-      ...defaultValues,
       is_do_url: true,
     };
   }
