@@ -2,6 +2,8 @@ const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
 const isEmpty = require('lodash.isempty');
 const ipc = require('hadron-ipc');
+const compassUtils = require('@mongodb-js/compass-utils');
+const basepath = (compassUtils.getStoragePaths() || {}).basepath;
 
 const debug = require('debug')('mongodb-compass:models:preferences');
 
@@ -164,7 +166,7 @@ const preferencesProps = {
 };
 
 class Preferences {
-  constructor(userDataPath) {
+  constructor() {
     // User preferences are stored to disc via the Ampersand model.
     const PreferencesModel = Model.extend(storageMixin, {
       props: preferencesProps,
@@ -173,7 +175,7 @@ class Preferences {
       namespace: 'AppPreferences',
       storage: {
         backend: 'disk',
-        basepath: userDataPath // userDataPath of the electron app.
+        basepath,
       }
     });
 

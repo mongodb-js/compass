@@ -17,7 +17,7 @@ export type UserPreferences = {
 }
 
 declare class CompassPreferencesModel {
-  constructor(userDataPath: string): void;
+  constructor(): void;
   fetchPreferences(): Promise<any>;
   savePreferences(attributes: any): Promise<void>;
   getAllPreferences(): Promise<any>;
