@@ -154,6 +154,7 @@ function ConnectStringInput({
         <Toggle
           className={editToggleStyles}
           id="toggle-edit-connection-string"
+          data-testid="toggle-edit-connection-string"
           aria-labelledby="edit-connection-string-label"
           size="xsmall"
           type="button"
