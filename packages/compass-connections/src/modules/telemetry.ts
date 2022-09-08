@@ -39,6 +39,7 @@ async function getHostInformation(host: string) {
   const { isAws, isAzure, isGcp } = await getCloudInfo(host).catch(
     (err: Error) => {
       debug('getCloudInfo failed', err);
+      // TODO: we need to test this path because we had a bug where we cast undefined to false
       return {};
     }
   );
