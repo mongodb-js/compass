@@ -7,7 +7,6 @@ const setupPreferences = async() => {
   const preferences = new Preferences(userDataPath);
 
   await preferences.fetchPreferences();
-  ipcMain.broadcast('compass:preferences-changed', preferences);
 
   ipcMain.handle('compass:save-preferences', async (event, attributes) => {
     const savedPreferencesValues = await preferences.savePreferences(attributes);

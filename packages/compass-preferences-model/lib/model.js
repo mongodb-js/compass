@@ -1,6 +1,7 @@
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
 const isEmpty = require('lodash.isempty');
+const ipc = require('hadron-ipc');
 
 const debug = require('debug')('mongodb-compass:models:preferences');
 
@@ -234,5 +235,31 @@ class Preferences {
   }
 }
 
+const preferencesIpc = {
+  savePreferences(attributes) {
+    if (ipc && ipc.ipcRenderer && typeof ipc.ipcRenderer.invoke === 'function') {
+      return ipc.ipcRenderer.invoke('compass:save-preferences', attributes);
+    }
+  },
+  getPreferences() {
+    if (ipc && ipc.ipcRenderer && typeof ipc.ipcRenderer.invoke === 'function') {
+      return ipc.ipcRenderer.invoke('compass:get-all-preferences');
+    }
+  },
+  getConfigurableUserPreferences() {
+    if (ipc && ipc.ipcRenderer && typeof ipc.ipcRenderer.invoke === 'function') {
+      return ipc.ipcRenderer.invoke('compass:get-configurable-user-preferences');
+    }
+  },
+  onPreferencesChanged(callback) {
+    if (ipc && ipc.ipcRenderer && typeof ipc.ipcRenderer.on === 'function') {
+      ipc.ipcRenderer.on('compass:preferences-changed', (_, preferences) => {
+        callback(preferences);
+      });
+    }
+  }
+};
+
 module.exports = Preferences;
+module.exports.preferencesIpc = preferencesIpc;
 module.exports.THEMES = THEMES;

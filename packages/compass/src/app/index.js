@@ -3,6 +3,8 @@ const remote = require('@electron/remote');
 const _ = require('lodash');
 const semver = require('semver');
 
+const { preferencesIpc } = require('compass-preferences-model');
+
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
   event.preventDefault();
@@ -183,7 +185,7 @@ const Application = View.extend({
     );
 
     const handleTour = async () => {
-      const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+      const preferences = await preferencesIpc.getPreferences();
       if (preferences.showFeatureTour) {
         await this.showTour(false);
       } else {
@@ -194,7 +196,7 @@ const Application = View.extend({
     handleTour();
   },
   showTour: async function(force) {
-    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+    const preferences = await preferencesIpc.getPreferences();
     const TourView = require('./tour');
     const tourView = new TourView({ force: force, previousVersion: preferences.previousVersion });
     if (tourView.features.length > 0) {
@@ -205,13 +207,13 @@ const Application = View.extend({
     }
   },
   tourClosed: async function() {
-    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+    const preferences = await preferencesIpc.getPreferences();
     if (!preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
       ipc.ipcRenderer.emit('window:show-network-optin');
     }
   },
   setInitialPreferences: async function() {
-    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+    const preferences = await preferencesIpc.getPreferences();
 
     ipc.call(preferences.trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
 
@@ -225,28 +227,11 @@ const Application = View.extend({
       preferences.lastKnownVersion = appVersion;
     }
     
-    await ipc.ipcRenderer.invoke('compass:save-preferences', preferences);
-
-    global.hadronApp.preferences = {
-      savePreferences(attributes) {
-        return ipc.ipcRenderer.invoke('compass:save-preferences', attributes);
-      },
-      getPreferences() {
-        return ipc.ipcRenderer.invoke('compass:get-all-preferences');
-      },
-      getConfigurableUserPreferences() {
-        return ipc.ipcRenderer.invoke('compass:get-configurable-user-preferences');
-      },
-      onPreferenceschanged(callback) {
-        ipc.on('compass:preferences-changed', (_, preferences) => {
-          callback(preferences);
-        });
-      }
-    }
+    await preferencesIpc.savePreferences(preferences);
   },
   fetchUser: async function() {
     debug('preferences fetched, now getting user');
-    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+    const preferences = await preferencesIpc.getPreferences();
     
     // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
     const user = await User.getOrCreate(preferences.currentUserId || preferences.telemetryAnonymousId);
@@ -254,7 +239,7 @@ const Application = View.extend({
     this.user.set(user.serialize());
     this.user.trigger('sync');
 
-    const savedPreferences = await ipc.ipcRenderer.invoke('compass:save-preferences', { telemetryAnonymousId: user.id });
+    const savedPreferences = await preferencesIpc.savePreferences({ telemetryAnonymousId: user.id });
 
     ipc.call('compass:usage:identify', {
       currentUserId: savedPreferences.currentUserId,
@@ -271,7 +256,7 @@ const state = new Application();
 app.extend({
   client: null,
   init: async function() {
-    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+    const preferences = await preferencesIpc.getPreferences();
 
     async.series(
       [
@@ -297,7 +282,7 @@ app.extend({
         ipc.on('app:save-theme', (_, theme) => {
           // Save the new theme on the user's preferences.
           if (theme) {
-            ipc.ipcRenderer.invoke('compass:save-preferences', { theme });
+            preferencesIpc.savePreferences({ theme });
           }
         });
 

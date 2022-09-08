@@ -25,9 +25,6 @@
     "coverage-merge": "nyc merge .log/coverage .nyc_output/coverage.json",
     "coverage-report": "npm run coverage-merge && nyc report"
   },
-  "dependencies": {
-    "compass-preferences-model": "^2.0.0"
-  },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",

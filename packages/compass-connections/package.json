@@ -28,6 +28,13 @@
     ".": "./src/index.ts"
   },
   "types": "./dist/index.d.ts",
+  "mocha": {
+    "extension": [
+      "ts"
+    ],
+    "file": "./test/mocha-plugins.ts",
+    "recursive": true
+  },
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
@@ -39,7 +46,7 @@
     "depcheck": "depcheck",
     "check": "npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "test": "mocha",
+    "test": "cross-env NODE_ENV=test mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
@@ -49,6 +56,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
+    "hadron-ipc": "^3.0.0",
     "mongodb-data-service": "^22.0.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
@@ -57,6 +65,7 @@
     "@mongodb-js/compass-logging": "^1.0.0",
     "@mongodb-js/connection-form": "^1.0.0",
     "debug": "^4.2.0",
+    "hadron-ipc": "^3.0.0",
     "lodash": "^4.17.21",
     "mongodb": "^4.8.1",
     "react": "^16.14.0",

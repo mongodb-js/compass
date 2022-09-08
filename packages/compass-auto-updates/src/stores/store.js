@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer, { updateAvailable } from '../modules';
+import reducer, { updateAvailable, initAutoUpdates, toggleAutoUpdates } from '../modules';
+import { preferencesIpc } from 'compass-preferences-model';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -16,14 +17,11 @@ store.onActivated = () => {
     });
 
     /**
-     * Listen to changes in user preferences.
+     * Listen to changes in preferences.
      */
-    ipc.on('compass:preferences-changed', (_, preferences) => {
-      if (preferences.autoUpdates) {
-        ipc.call('app:enable-auto-update');
-      } else {
-        ipc.call('app:disable-auto-update');
-      }
+    store.dispatch(initAutoUpdates());
+    preferencesIpc.onPreferencesChanged((preferences) => {
+      store.dispatch(toggleAutoUpdates(preferences));
     });
   } catch (e) {
     // Not in renderer process.

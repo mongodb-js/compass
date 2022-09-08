@@ -27,6 +27,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
+    "compass-preferences-model": "^2.0.0",
     "hadron-ipc": "^3.0.0",
     "hadron-react-buttons": "^6.0.0",
     "react": "^16.14.0"
@@ -90,7 +91,7 @@
     "shebang-loader": "^0.0.1",
     "sinon": "^3.2.0",
     "sinon-chai": "^2.11.0",
-    "style-loader": "^2.0.0",
+    "style-loader": "^2.0.0", 
     "url-loader": "^3.0.0",
     "webpack": "^4.46.0",
     "webpack-bundle-analyzer": "^2.9.0",
@@ -99,6 +100,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
+    "compass-preferences-model": "^2.0.0",
     "hadron-ipc": "^3.0.0",
     "hadron-react-buttons": "^6.0.0",
     "react": "^16.14.0"

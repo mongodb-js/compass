@@ -3,7 +3,7 @@ import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { UserPreferences } from 'compass-preferences-model';
-import ipc from 'hadron-ipc';
+import { preferencesIpc } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
@@ -52,7 +52,7 @@ export const fetchSettings = (): ThunkAction<
 > => {
   return async (dispatch): Promise<void> => {
     try {
-      const settings = await ipc.ipcRenderer.invoke(
+      const settings = await preferencesIpc.getConfigurableUserPreferences(
         'compass:get-configurable-user-preferences'
       );
 

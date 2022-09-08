@@ -1,7 +1,8 @@
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
-import ipc from 'hadron-ipc';
+
+import { preferencesIpc } from 'compass-preferences-model';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
 
@@ -59,26 +60,21 @@ export async function setupIntercom(
 
   debug('intercom is reachable, proceeding with the setup');
 
-  const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
-  if (preferences.enableFeedbackPanel) {
-    debug(
-      'intercom loading enqueued since enableFeedbackPanel was initially enabled'
-    );
-    intercomScript.load(metadata);
-  } else {
-    debug('enableFeedbackPanel is disabled, skipping loading intercom for now');
-  }
-
-  ipc.ipcRenderer.on('compass:preferences-changed', (_, preferences: any) => {
-    debug('enableFeedbackPanel changed');
-    // we need to re-check with if the fature is enabled to make sure all the
-    // other settings for network usage are aligned too.
-    if (preferences.enableFeedbackPanel) {
-      debug('enqueuing intercom script loading');
+  const toggleEnableFeedbackPanel = (enableFeedbackPanel: boolean) => {
+    if (enableFeedbackPanel) {
+      debug('loading intercom script');
       intercomScript.load(metadata);
     } else {
-      debug('enqueuing intercom script unloading');
+      debug('unloading intercom script');
       intercomScript.unload();
     }
+  };
+
+  const preferences = await preferencesIpc.getPreferences();
+  toggleEnableFeedbackPanel(preferences.enableFeedbackPanel);
+
+  preferencesIpc.onPreferencesChanged((preferences: any) => {
+    debug('enableFeedbackPanel changed');
+    toggleEnableFeedbackPanel(preferences.enableFeedbackPanel);
   });
 }
