@@ -3,23 +3,8 @@ const Connection = require('./extended-model');
 const storageMixin = require('storage-mixin');
 const { each } = require('lodash');
 const raf = require('raf');
-
-/**
- * The name of a remote electron application that
- * uses `connection-model` as a dependency.
- */
-let appName;
-let basepath;
-
-try {
-  const remote = require('@electron/remote');
-
-  appName = remote.app.getName();
-  basepath = remote.app.getPath('userData');
-} catch (e) {
-  /* eslint no-console: 0 */
-  console.log('Could not load @electron/remote', e.message);
-}
+const { getStoragePaths } = require('@mongodb-js/compass-utils');
+const { appName, basepath } = getStoragePaths() || {};
 
 module.exports = Collection.extend(storageMixin, {
   model: Connection,

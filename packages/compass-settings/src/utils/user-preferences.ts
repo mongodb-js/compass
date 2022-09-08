@@ -1,4 +1,4 @@
-import { promisifyAmpersandMethod } from 'mongodb-data-service';
+import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 import Preferences from 'compass-preferences-model';
 import type { THEMES } from 'compass-preferences-model';
 

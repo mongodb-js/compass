@@ -113,6 +113,7 @@ const renderIndexList = (
       canDeleteIndex={true}
       onSortTable={() => {}}
       onDeleteIndex={() => {}}
+      scrollHeight={400}
       {...props}
     />
   );

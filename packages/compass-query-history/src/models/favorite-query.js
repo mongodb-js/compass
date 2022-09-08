@@ -1,12 +1,7 @@
 import Query from './query';
 import storageMixin from 'storage-mixin';
-
-let remote;
-try {
-  remote = require('@electron/remote');
-} catch (e) {
-  console.error('Could not load @electron/remote', e.message);
-}
+import { getStoragePaths } from '@mongodb-js/compass-utils';
+const { basepath } = getStoragePaths() || {};
 
 /**
  * A model that represents a favorite MongoDB query.
@@ -16,7 +11,7 @@ const FavoriteQuery = Query.extend(storageMixin, {
   namespace: 'FavoriteQueries',
   storage: {
     backend: 'disk',
-    basepath: remote ? remote.app.getPath('userData') : undefined,
+    basepath,
   },
   props: {
     /**

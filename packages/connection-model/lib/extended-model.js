@@ -1,23 +1,8 @@
 const Connection = require('./model');
 const storageMixin = require('storage-mixin');
 const { v4: uuidv4 } = require('uuid');
-
-/**
- * The name of a remote electon application that
- * uses `connection-model` as a dependency.
- */
-let appName;
-let basepath;
-
-try {
-  const remote = require('@electron/remote');
-
-  appName = remote.app.getName();
-  basepath = remote.app.getPath('userData');
-} catch (e) {
-  /* eslint no-console: 0 */
-  console.log('Could not load @electron/remote', e.message);
-}
+const { getStoragePaths } = require('@mongodb-js/compass-utils');
+const { appName, basepath } = getStoragePaths() || {};
 
 /**
  * Configuration for connecting to a MongoDB Deployment.

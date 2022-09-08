@@ -137,6 +137,13 @@ describe('CompassMenu', function () {
             type: 'separator',
           },
           {
+            accelerator: 'CmdOrCtrl+Shift+D',
+            label: '&Toggle Sidebar',
+          },
+          {
+            type: 'separator'
+          },
+          {
             accelerator: 'CmdOrCtrl+0',
             label: 'Actual Size',
           },
@@ -181,6 +188,13 @@ describe('CompassMenu', function () {
           },
           {
             type: 'separator',
+          },
+          {
+            accelerator: 'CmdOrCtrl+Shift+D',
+            label: '&Toggle Sidebar',
+          },
+          {
+            type: 'separator'
           },
           {
             accelerator: 'CmdOrCtrl+0',

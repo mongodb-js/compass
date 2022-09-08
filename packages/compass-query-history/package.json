@@ -57,23 +57,22 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
     "@mongodb-js/compass-logging": "^1.0.0",
+    "@mongodb-js/compass-utils": "^0.1.0",
     "bson": "^4.4.1",
     "hadron-react-components": "^6.0.0",
-    "mongodb-data-service": "^22.0.0",
     "react": "^16.14.0",
     "storage-mixin": "^5.0.0"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
     "@mongodb-js/compass-logging": "^1.0.0",
+    "@mongodb-js/compass-utils": "^0.1.0",
     "bson": "^4.4.1",
     "hadron-react-components": "^6.0.0",
-    "mongodb-data-service": "^22.0.0",
     "react": "^16.14.0",
     "storage-mixin": "^5.0.0"
   },
   "devDependencies": {
-    "@electron/remote": "^2.0.8",
     "@mongodb-js/eslint-config-compass": "^1.0.0",
     "@mongodb-js/mocha-config-compass": "^1.0.0",
     "@mongodb-js/prettier-config-compass": "^1.0.0",

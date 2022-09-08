@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Select, Option, TextInput } from '@mongodb-js/compass-components';
-import { spacing, css } from '@mongodb-js/compass-components';
+import { css } from '@mongodb-js/compass-components';
 
 import FieldSet from '../field-set/field-set';
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';

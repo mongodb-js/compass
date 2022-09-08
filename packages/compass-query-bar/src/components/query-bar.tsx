@@ -8,6 +8,7 @@ import {
   spacing,
   uiColors,
   withTheme,
+  Label,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 import type AppRegistry from 'hadron-app-registry';
@@ -17,7 +18,10 @@ import type {
   QueryBarOptionProps,
 } from '../constants/query-option-definition';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
-import { QueryOption as QueryOptionComponent } from './query-option';
+import {
+  QueryOption as QueryOptionComponent,
+  queryOptionLabelContainerStyles,
+} from './query-option';
 import { QueryOptionsGrid } from './query-options-grid';
 import { QueryHistoryButtonPopover } from './query-history-button-popover';
 
@@ -40,10 +44,15 @@ const queryBarFirstRowStyles = css({
   display: 'flex',
   alignItems: 'flex-start',
   gap: spacing[2],
+  paddingLeft: spacing[2],
 });
 
 const filterContainerStyles = css({
   flexGrow: 1,
+});
+
+const filterLabelStyles = css({
+  padding: 0,
 });
 
 type QueryBarProps = {
@@ -112,6 +121,8 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
     [onApply]
   );
 
+  const filterQueryOptionId = 'query-bar-option-input-filter';
+
   return (
     <form
       className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
@@ -121,16 +132,26 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-result-id={resultId}
     >
       <div className={queryBarFirstRowStyles}>
-        {showQueryHistoryButton && (
-          <QueryHistoryButtonPopover
-            localAppRegistry={localAppRegistry}
-            globalAppRegistry={globalAppRegistry}
-          />
-        )}
+        <div className={queryOptionLabelContainerStyles}>
+          <Label
+            htmlFor={filterQueryOptionId}
+            id="query-bar-option-input-filter-label"
+            className={filterLabelStyles}
+          >
+            Filter
+          </Label>
+          {showQueryHistoryButton && (
+            <QueryHistoryButtonPopover
+              localAppRegistry={localAppRegistry}
+              globalAppRegistry={globalAppRegistry}
+            />
+          )}
+        </div>
         <div className={filterContainerStyles}>
           <QueryOptionComponent
             hasError={!queryOptionProps.filterValid}
             queryOption="filter"
+            id={filterQueryOptionId}
             onChange={(value: string) => onChangeQueryOption('filter', value)}
             onApply={onApply}
             placeholder={
