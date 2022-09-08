@@ -16,6 +16,7 @@
 ### Checklist
 - [ ] New tests and/or benchmarks are included
 - [ ] Documentation is changed or added
+- [ ] I have signed the MongoDB Contributor License Agreement (https://www.mongodb.com/legal/contributor-agreement)
 
 ## Motivation and Context
 <!--- Why is this change required? What problem does it solve? -->
