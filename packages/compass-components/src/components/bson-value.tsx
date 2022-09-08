@@ -114,6 +114,7 @@ export const BinaryValue: React.FunctionComponent<
             href="https://www.mongodb.com/docs/compass/current/in-use-encryption-tutorial/"
             aria-label="Compass In-Use Encryption documentation"
             title="Compass In-Use Encryption documentation"
+            data-testid="bson-value-in-use-encryption-docs-link"
           >
             <Icon size="small" glyph="QuestionMarkWithCircle"></Icon>
           </Link>

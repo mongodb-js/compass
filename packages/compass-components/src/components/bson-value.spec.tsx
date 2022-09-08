@@ -17,7 +17,7 @@ import {
 } from 'bson';
 import BSONValue from './bson-value';
 import { expect } from 'chai';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, screen } from '@testing-library/react';
 
 describe('BSONValue', function () {
   afterEach(cleanup);
@@ -124,4 +124,13 @@ describe('BSONValue', function () {
       );
     });
   });
+
+  it('should render an info link for encrypted values', async function() {
+    render(<BSONValue
+      type="Binary"
+      value={new Binary('encrypted data', Binary.SUBTYPE_ENCRYPTED)}
+    />);
+
+    expect(await screen.findByTestId('bson-value-in-use-encryption-docs-link')).to.be.visible;
+  })
 });
