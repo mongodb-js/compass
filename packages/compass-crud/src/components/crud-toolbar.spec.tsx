@@ -39,6 +39,8 @@ const mockQueryBarStore = {
   },
 };
 
+const testOutdatedMessageId = 'crud-outdated-message-id';
+
 function renderCrudToolbar(
   props?: Partial<React.ComponentProps<typeof CrudToolbar>>
 ) {
@@ -61,6 +63,7 @@ function renderCrudToolbar(
       onApplyClicked={noop}
       onResetClicked={noop}
       openExportFileDialog={noop}
+      outdated={false}
       page={0}
       readonly={false}
       refreshDocuments={noop}
@@ -241,6 +244,12 @@ describe('CrudToolbar Component', function () {
     expect(exportSpy.calledOnce).to.be.true;
   });
 
+  it('should not render the outdated message', function () {
+    renderCrudToolbar();
+
+    expect(screen.queryByTestId(testOutdatedMessageId)).to.not.exist;
+  });
+
   describe('when the instance is in a writable state (`isWritable` is true)', function () {
     beforeEach(function () {
       renderCrudToolbar({
@@ -266,6 +275,18 @@ describe('CrudToolbar Component', function () {
       expect(
         screen.getByTestId('crud-add-data-button').getAttribute('disabled')
       ).to.exist;
+    });
+  });
+
+  describe('when the documents are outdated', function () {
+    beforeEach(function () {
+      renderCrudToolbar({
+        outdated: true,
+      });
+    });
+
+    it('should render the outdated message', function () {
+      expect(screen.getByTestId(testOutdatedMessageId)).to.be.visible;
     });
   });
 });

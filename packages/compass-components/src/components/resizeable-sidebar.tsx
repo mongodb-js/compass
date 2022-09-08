@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
   ResizeHandle,
   ResizeDirection,
@@ -33,6 +33,7 @@ const containerStylesDark = css({
   '--item-color': 'white',
   '--item-color-active': '#71F6BA', // TODO: there is no uiColors.green.light1
   '--item-bg-color': uiColors.gray.dark3,
+  '--item-bg-color-hover': uiColors.gray.dark2,
   '--item-bg-color-active': uiColors.black,
 
   color: 'var(--color)',
@@ -51,29 +52,76 @@ const containerStylesLight = css({
   '--item-color': uiColors.gray.dark3,
   '--item-color-active': uiColors.green.dark2,
   '--item-bg-color': uiColors.gray.light3,
+  '--item-bg-color-hover': uiColors.gray.light2,
   '--item-bg-color-active': uiColors.green.light3,
 
   color: 'var(--color)',
   backgroundColor: 'var(--bg-color)',
 });
 
-const initialSidebarWidth = spacing[6] * 4 - spacing[1]; // 252px
-const minSidebarWidth = spacing[4] * 9; // 216px
-
 const ResizableSidebar = ({
-  initialWidth = initialSidebarWidth,
-  minWidth = minSidebarWidth,
+  collapsable = false,
+  expanded = true,
+  setExpanded = () => {
+    return;
+  },
+  initialWidth = spacing[6] * 4,
+  minWidth = 210,
+  collapsedWidth = 48,
   children,
 }: {
+  collapsable?: boolean;
+  expanded?: boolean;
+  setExpanded?: (isExpaned: boolean) => void;
   initialWidth?: number;
   minWidth?: number;
+  collapsedWidth?: number;
   children: JSX.Element;
 }): JSX.Element => {
   const [width, setWidth] = useState(initialWidth);
+  const [prevWidth, setPrevWidth] = useState(initialWidth);
 
   const getMaxSidebarWidth = useCallback(() => {
     return Math.max(minWidth, window.innerWidth - 100);
   }, [minWidth]);
+
+  // Apply bounds to the sidebar width when resizing to ensure it's always
+  // visible and usable to the user.
+  const boundSidebarWidth = useCallback(
+    (attemptedWidth: number) => {
+      const maxWidth = getMaxSidebarWidth();
+
+      return Math.min(maxWidth, Math.max(minWidth, attemptedWidth));
+    },
+    [getMaxSidebarWidth, minWidth]
+  );
+
+  const updateWidth = useCallback(
+    (newWidth: number) => {
+      setWidth(newWidth);
+
+      const expectedExpanded = width > minWidth || !collapsable;
+      if (expanded !== expectedExpanded) {
+        setExpanded(expectedExpanded);
+      }
+
+      // Keep the most recent expanded width in case the sidebar suddenly gets
+      // collapsed (via a button or keyboard shortcut or similar) so that if it
+      // gets similarly expanded later we can restore the width.
+      if (expectedExpanded) {
+        setPrevWidth(newWidth);
+      }
+    },
+    [collapsable, expanded, minWidth, setExpanded, width]
+  );
+
+  const renderedWidth = expanded ? boundSidebarWidth(width) : collapsedWidth;
+
+  useEffect(() => {
+    if (expanded && width === collapsedWidth) {
+      setWidth(prevWidth);
+    }
+  }, [setWidth, prevWidth, expanded, width, collapsedWidth]);
 
   const { theme } = useTheme();
 
@@ -84,17 +132,17 @@ const ResizableSidebar = ({
         theme === Theme.Dark ? containerStylesDark : containerStylesLight
       )}
       style={{
-        minWidth: minWidth,
-        width: width,
+        minWidth: collapsable ? collapsedWidth : minWidth,
+        width: renderedWidth,
         flex: 'none',
       }}
     >
       {children}
       <ResizeHandle
-        onChange={(newWidth) => setWidth(newWidth)}
+        onChange={updateWidth}
         direction={ResizeDirection.RIGHT}
         value={width}
-        minValue={minWidth}
+        minValue={collapsable ? collapsedWidth : minWidth}
         maxValue={getMaxSidebarWidth()}
         title="sidebar"
       />

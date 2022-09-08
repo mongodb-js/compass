@@ -181,6 +181,7 @@ export const DatabaseItem: React.FunctionComponent<
             ? databaseItemLabelNewSpacing
             : databaseItemLabelOldSpacing
         }
+        title={name}
       >
         {name}
       </ItemLabel>

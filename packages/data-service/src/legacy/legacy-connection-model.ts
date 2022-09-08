@@ -1,5 +1,6 @@
 import type { SshTunnelConfig } from '@mongodb-js/ssh-tunnel';
 import type SSHTunnel from '@mongodb-js/ssh-tunnel';
+import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
 import type {
   MongoClient,
   MongoClientOptions,
@@ -151,12 +152,6 @@ export interface LegacyConnectionModelProperties {
   name: string;
   title?: string;
   color?: string;
-}
-
-export interface AmpersandMethodOptions<T> {
-  success: (model: T) => void;
-  error: (model: T, error: Error) => void;
-  validate?: boolean;
 }
 
 export interface LegacyConnectionModel extends LegacyConnectionModelProperties {

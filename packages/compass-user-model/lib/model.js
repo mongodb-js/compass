@@ -1,14 +1,8 @@
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
 const uuid = require('uuid');
-
-let electronApp;
-try {
-  electronApp = require('@electron/remote').app;
-} catch (e) {
-  /* eslint no-console: 0 */
-  console.log('Could not load @electron/remote', e.message);
-}
+const compassUtils = require('@mongodb-js/compass-utils');
+const basepath = (compassUtils.getStoragePaths() || {}).basepath;
 
 // const debug = require('debug')('scout:user');
 
@@ -17,7 +11,7 @@ const User = Model.extend(storageMixin, {
   namespace: 'Users',
   storage: {
     backend: 'disk',
-    basepath: electronApp ? electronApp.getPath('userData') : undefined
+    basepath: basepath
   },
   props: {
     id: {

@@ -1,15 +1,13 @@
 import type { ConnectionInfo } from './connection-info';
 
 import { validate as uuidValidate } from 'uuid';
-import type {
-  AmpersandMethodOptions,
-  LegacyConnectionModel,
-} from './legacy/legacy-connection-model';
+import type { LegacyConnectionModel } from './legacy/legacy-connection-model';
 import {
   convertConnectionInfoToModel,
   convertConnectionModelToInfo,
 } from './legacy/legacy-connection-model';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-DATA-SERVICE');
 
@@ -147,20 +145,4 @@ export class ConnectionStorage {
 
     return connections.find((connection) => id === connection.id);
   }
-}
-
-export function promisifyAmpersandMethod<T>(
-  fn: (options: AmpersandMethodOptions<T>) => void
-): () => Promise<T> {
-  return (...args) =>
-    new Promise((resolve, reject) => {
-      fn(...args, {
-        success: (model: T) => {
-          resolve(model);
-        },
-        error: (model: T, error: Error) => {
-          reject(error);
-        },
-      });
-    });
 }

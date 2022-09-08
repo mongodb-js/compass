@@ -17,12 +17,12 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 const queryOptionStyles = css({
   display: 'flex',
   position: 'relative',
-  alignItems: 'center',
+  alignItems: 'flex-start',
 });
 
 const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
-  padding: `${spacing[2]}px 0`,
+  paddingTop: spacing[1],
   marginRight: spacing[2],
 });
 
@@ -50,17 +50,19 @@ const optionInputWithErrorStyles = css({
   },
 });
 
-const queryOptionLabelContainerStyles = css({
-  whiteSpace: 'nowrap',
+export const queryOptionLabelContainerStyles = css({
+  // Hardcoded height as we want the label not to vertically
+  // center on the input area when it's expanded.
+  height: spacing[4] + spacing[1],
   textTransform: 'capitalize',
-  alignItems: 'center',
   display: 'flex',
-  margin: 0,
+  alignItems: 'center',
 });
 
 type QueryOptionProps = {
   darkMode?: boolean;
   hasError: boolean;
+  id: string;
   onChange: (value: string) => void;
   onApply: () => void;
   placeholder?: string;
@@ -76,6 +78,7 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
   hasError,
   onApply,
   onChange,
+  id,
   placeholder = '',
   queryOption,
   refreshEditorAction,
@@ -93,26 +96,23 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
       className={queryOptionStyles}
       data-testid={`query-bar-option-${queryOption}`}
     >
-      <div
-        className={queryOptionLabelContainerStyles}
-        data-testid="query-bar-option-label"
-      >
-        <Label
-          htmlFor={`query-bar-option-input-${queryOption}`}
-          id={`query-bar-option-input-${queryOption}-label`}
-          className={queryOptionLabelStyles}
-          // We hide the `Filter` label, but keep it in the dom for
-          // screen reader label support.
-          hidden={queryOption === 'filter'}
-        >
-          {queryOption}
-        </Label>
-      </div>
+      {/* The filter label is shown by the query bar. */}
+      {queryOption !== 'filter' && (
+        <div className={queryOptionLabelContainerStyles}>
+          <Label
+            htmlFor={id}
+            id={`query-bar-option-input-${queryOption}-label`}
+            className={queryOptionLabelStyles}
+          >
+            {queryOption}
+          </Label>
+        </div>
+      )}
       <div className={cx(isDocumentEditor && documentEditorOptionStyles)}>
         {isDocumentEditor ? (
           <OptionEditor
             hasError={hasError}
-            id={`query-bar-option-input-${queryOption}`}
+            id={id}
             queryOption={queryOption}
             onApply={onApply}
             onChange={onChange}
@@ -125,7 +125,7 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
         ) : (
           <TextInput
             aria-labelledby={`query-bar-option-input-${queryOption}-label`}
-            id={`query-bar-option-input-${queryOption}`}
+            id={id}
             data-testid="query-bar-option-input"
             className={cx(
               darkMode
