@@ -1,8 +1,8 @@
 const assert = require('assert');
-const { preferences } = require('../');
+const Preferences = require('../');
 
 describe('compass-preferences-model', function() {
   it('should work', function() {
-    assert(preferences);
+    assert(Preferences);
   });
 });

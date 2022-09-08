@@ -1,5 +1,7 @@
 const ipc = require('hadron-ipc');
 const remote = require('@electron/remote');
+const _ = require('lodash');
+const semver = require('semver');
 
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
@@ -41,7 +43,6 @@ const View = require('ampersand-view');
 const async = require('async');
 const webvitals = require('web-vitals');
 
-const { preferences } = require('compass-preferences-model');
 const User = require('compass-user-model');
 
 require('./menu-renderer');
@@ -181,9 +182,10 @@ const Application = View.extend({
       this.queryByHook('layout-container')
     );
 
-    const handleTour = () => {
-      if (preferences.getPreferenceValue('showFeatureTour')) {
-        this.showTour(false);
+    const handleTour = async () => {
+      const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+      if (preferences.showFeatureTour) {
+        await this.showTour(false);
       } else {
         this.tourClosed();
       }
@@ -191,9 +193,10 @@ const Application = View.extend({
 
     handleTour();
   },
-  showTour: function(force) {
+  showTour: async function(force) {
+    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
     const TourView = require('./tour');
-    const tourView = new TourView({ force: force });
+    const tourView = new TourView({ force: force, previousVersion: preferences.previousVersion });
     if (tourView.features.length > 0) {
       tourView.on('close', this.tourClosed.bind(this));
       this.renderSubview(tourView, this.queryByHook('tour-container'));
@@ -202,43 +205,64 @@ const Application = View.extend({
     }
   },
   tourClosed: async function() {
-    await preferences.savePreferences({ showFeatureTour: undefined });
-    if (!preferences.getPreferenceValue('showedNetworkOptIn') && process.env.HADRON_ISOLATED !== 'true') {
+    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+    if (!preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
       ipc.ipcRenderer.emit('window:show-network-optin');
     }
   },
-  fetchUser: function(done) {
-    debug('preferences fetched, now getting user');
-    const currentUserId = preferences.getPreferenceValue('currentUserId');
+  setInitialPreferences: async function() {
+    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
 
-    User.getOrCreate(
-      // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
-      currentUserId || preferences.getPreferenceValue('telemetryAnonymousId'),
-      async function(err, user) {
-        if (err) {
-          return done(err);
-        }
-        this.user.set(user.serialize());
-        this.user.trigger('sync');
+    ipc.call(preferences.trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
 
-        await preferences.savePreferences({ telemetryAnonymousId: user.id });
+    const oldVersion = _.get(preferences, 'lastKnownVersion', '0.0.0');
+    const appVersion = APP_VERSION || '';
 
-        ipc.call('compass:usage:identify', {
-          currentUserId,
-          telemetryAnonymousId: user.id
+    if (semver.lt(oldVersion, appVersion) || process.env.SHOW_TOUR) {
+      preferences.showFeatureTour = oldVersion;
+    }
+    if (semver.neq(oldVersion, appVersion)) {
+      preferences.lastKnownVersion = appVersion;
+    }
+    
+    await ipc.ipcRenderer.invoke('compass:save-preferences', preferences);
+
+    global.hadronApp.preferences = {
+      savePreferences(attributes) {
+        return ipc.ipcRenderer.invoke('compass:save-preferences', attributes);
+      },
+      getPreferences() {
+        return ipc.ipcRenderer.invoke('compass:get-all-preferences');
+      },
+      getConfigurableUserPreferences() {
+        return ipc.ipcRenderer.invoke('compass:get-configurable-user-preferences');
+      },
+      onPreferenceschanged(callback) {
+        ipc.on('compass:preferences-changed', (_, preferences) => {
+          callback(preferences);
         });
-        debug('user fetch successful', user.serialize());
-        done(null, user);
-      }.bind(this)
-    );
+      }
+    }
   },
-  async fetchPreferences() {
-    ipc.call('compass:loading:change-status', {
-      status: 'loading preferences'
+  fetchUser: async function() {
+    debug('preferences fetched, now getting user');
+    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+    
+    // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
+    const user = await User.getOrCreate(preferences.currentUserId || preferences.telemetryAnonymousId);
+    
+    this.user.set(user.serialize());
+    this.user.trigger('sync');
+
+    const savedPreferences = await ipc.ipcRenderer.invoke('compass:save-preferences', { telemetryAnonymousId: user.id });
+
+    ipc.call('compass:usage:identify', {
+      currentUserId: savedPreferences.currentUserId,
+      telemetryAnonymousId: user.id
     });
-    await preferences.fetchPreferences();
-    ipc.call(preferences.getPreferenceValue('trackUsageStatistics') ? 'compass:usage:enabled' : 'compass:usage:disabled');
-    return null;
+    debug('user fetch successful', user.serialize());
+
+    return user;
   }
 });
 
@@ -246,13 +270,14 @@ const state = new Application();
 
 app.extend({
   client: null,
-  init: function() {
+  init: async function() {
+    const preferences = await ipc.ipcRenderer.invoke('compass:get-all-preferences');
+
     async.series(
       [
         // check if migrations are required
         migrateApp.bind(state),
-        // get preferences
-        state.fetchPreferences.bind(state),
+        state.setInitialPreferences.bind(state),
         // get user
         state.fetchUser.bind(state)
       ],
@@ -262,16 +287,18 @@ app.extend({
         }
 
         // Get theme from the preferences and set accordingly.
-        loadTheme(preferences.getPreferenceValue('theme'));
+        loadTheme(preferences.theme);
         ipc.on('app:darkreader-enable', () => {
           enableDarkTheme();
         });
         ipc.on('app:darkreader-disable', () => {
           disableDarkTheme();
         });
-        ipc.on('app:save-theme', async (_, theme) => {
+        ipc.on('app:save-theme', (_, theme) => {
           // Save the new theme on the user's preferences.
-          await preferences.savePreferences({ theme });
+          if (theme) {
+            ipc.ipcRenderer.invoke('compass:save-preferences', { theme });
+          }
         });
 
         Action.pluginActivationCompleted.listen(() => {

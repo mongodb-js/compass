@@ -8,8 +8,6 @@ import {
   trackConnectionFailedEvent,
 } from './telemetry';
 
-const initialHadronApp = (global as any).hadronApp;
-
 const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
   instance: () => {
     return Promise.resolve({
@@ -34,19 +32,17 @@ const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
 };
 
 describe('connection tracking', function () {
-  beforeEach(function () {
-    (global as any).hadronApp = { isFeatureEnabled: () => true };
-  });
-
-  afterEach(function () {
-    (global as any).hadronApp = initialHadronApp;
+  before(function () {
+    (process as any).emit('compass:preferences-changed', {
+      trackUsageStatistics: true,
+    });
   });
 
   it('tracks a new connection attempt event - favorite', async function () {
     const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent({
       favorite: { name: 'example' },
-      lastUsed: null,
+      lastUsed: undefined,
     });
     const [{ properties }] = await trackEvent;
 

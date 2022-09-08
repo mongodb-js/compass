@@ -62,6 +62,7 @@ class Field extends Component {
     path: PropTypes.string,
     types: PropTypes.array,
     fields: PropTypes.array,
+    enableMaps: PropTypes.bool,
   };
 
   constructor(props) {
@@ -119,7 +120,7 @@ class Field extends Component {
    */
   getSemanticType(type) {
     // check if the type represents geo coordinates, if privacy settings allow
-    if (global.hadronApp.isFeatureEnabled('enableMaps')) {
+    if (this.props.enableMaps) {
       const coords = detectCoordinates(type);
       if (coords) {
         type.name = 'Coordinates';

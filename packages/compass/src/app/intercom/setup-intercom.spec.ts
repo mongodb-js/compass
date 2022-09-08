@@ -25,7 +25,7 @@ async function testRunSetupIntercom(
     enableFeedbackPanel: initialEnableFeedbackPanel,
   });
 
-  sinon.spy(preferences, 'getPreferenceValue');
+  sinon.spy(preferences, 'getPreferences');
 
   await setupIntercom(
     user,
@@ -81,7 +81,7 @@ describe('setupIntercom', function () {
           mockUser
         );
 
-        expect(preferences.getPreferenceValue).to.have.been.calledWith(
+        expect(preferences.getPreferences).to.have.been.calledWith(
           'enableFeedbackPanel'
         );
 
@@ -107,7 +107,7 @@ describe('setupIntercom', function () {
           mockUser
         );
 
-        expect(preferences.getPreferenceValue).to.have.been.calledWith(
+        expect(preferences.getPreferences).to.have.been.calledWith(
           'enableFeedbackPanel'
         );
 
@@ -133,14 +133,14 @@ describe('setupIntercom', function () {
         mockUser
       );
 
-      expect(preferences.getPreferenceValue).not.to.have.been.calledWith(
+      expect(preferences.getPreferences).not.to.have.been.calledWith(
         'enableFeedbackPanel'
       );
 
       expect(intercomScript.load).to.not.have.been.called;
 
       preferences.savePreferences({ enableFeedbackPanel: true });
-      expect(preferences.getPreferenceValue).not.to.have.been.calledWith(
+      expect(preferences.getPreferences).not.to.have.been.calledWith(
         'enableFeedbackPanel'
       );
 

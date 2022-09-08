@@ -125,6 +125,14 @@ const configureStore = (options = {}) => {
       };
       this.ns = '';
       this.geoLayers = {};
+
+      if (ipc && typeof ipc.on === 'function') {
+        ipc.on('compass:preferences-changed', (_, preferences) => {
+          this.setState({
+            enableMaps: preferences.enableMaps,
+          });
+        });
+      }
     },
 
     getShareText() {
@@ -156,6 +164,7 @@ const configureStore = (options = {}) => {
         outdated: false,
         isActiveTab: false,
         resultId: resultId(),
+        enableMaps: true,
       };
     },
 

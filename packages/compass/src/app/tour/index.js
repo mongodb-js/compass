@@ -4,7 +4,6 @@ const semver = require('semver');
 const _ = require('lodash');
 const electronApp = require('@electron/remote').app;
 const { track } = require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-TOUR');
-const { preferences } = require('compass-preferences-model');
 
 // const debug = require('debug')('mongodb-compass:tour:index');
 
@@ -54,7 +53,11 @@ var TourView = View.extend({
     },
     timeAtStart: {
       type: 'date'
-    }
+    },
+    previousVersion: {
+      type: 'string',
+      default: '0.0.0'
+    },
   },
   template({features}) {
     const featuresHtml = features
@@ -107,11 +110,6 @@ var TourView = View.extend({
       </div>`;
   },
   derived: {
-    previousVersion: {
-      fn: function() {
-        return preferences.getPreferenceValue('showFeatureTour') || '0.0.0';
-      }
-    },
     title: {
       deps: ['previousVersion'],
       fn: function() {
@@ -154,21 +152,16 @@ var TourView = View.extend({
       return model.features;
     }
 
-    /**
-     * @see https://jira.mongodb.org/browse/INT-1657
-     */
-    var previous = model.previousVersion || '0.0.0';
-
     model.features = _.filter(FEATURES, function(feature) {
       if (model.force && feature.initial) {
         return true;
       }
 
-      if (previous === '0.0.0' && feature.initial) {
+      if (model.previousVersion === '0.0.0' && feature.initial) {
         return true;
       }
 
-      if (previous !== '0.0.0' && semver.gt(feature.version, previous)) {
+      if (model.previousVersion !== '0.0.0' && semver.gt(feature.version, model.previousVersion)) {
         return true;
       }
 

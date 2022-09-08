@@ -46,14 +46,10 @@
     "storage-mixin": "^5.0.0"
   },
   "devDependencies": {
-    "@electron/remote": "^2.0.8",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
-    "lodash.get": "^4.4.2",
     "lodash.isempty": "^4.4.0",
-    "mocha": "^6.0.2",
-    "semver": "^7.3.5"
+    "mocha": "^6.0.2"
   }
 }

@@ -27,7 +27,6 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "compass-preferences-model": "^2.0.0",
     "hadron-ipc": "^3.0.0",
     "hadron-react-buttons": "^6.0.0",
     "react": "^16.14.0"
@@ -100,7 +99,6 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "compass-preferences-model": "^2.0.0",
     "hadron-ipc": "^3.0.0",
     "hadron-react-buttons": "^6.0.0",
     "react": "^16.14.0"

@@ -1,5 +1,4 @@
 import type { CompassBrowser } from '../compass-browser';
-import { preferences } from 'compass-preferences-model';
 
 export async function setFeature(
   browser: CompassBrowser,
@@ -7,8 +6,11 @@ export async function setFeature(
   value: boolean | string
 ): Promise<void> {
   await browser.execute(
-    async (_name, _value) => {
-      await preferences.savePreferences({ [_name]: _value });
+    (_name, _value) => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('electron').ipcRenderer.invoke('compass:save-preferences', {
+        [_name]: _value,
+      });
     },
     name,
     value

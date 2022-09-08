@@ -15,15 +15,11 @@ export type UserPreferences = {
 }
 
 declare class CompassPreferencesModel {
-  fetchPreferences: () => Promise<void>;
-  savePreferences: (preferences: any) => Promise<void>;
-  getPreferenceValue: any;
-  onPreferenceChanged: (preferenceName: string, callback: () => void) => void;
-  getConfigurableUserPreferences: () => Promise<UserPreferences>;
+  constructor(userDataPath: string): void;
+  fetchPreferences(): Promise<any>;
+  savePreferences(preferences: any): Promise<void>;
+  getAllPreferences(): Promise<any>;
+  getConfigurableUserPreferences(): Promise<UserPreferences>;
 }
 
 export default CompassPreferencesModel;
-
-// Export an instance of the class indirectly.
-const preferences = new CompassPreferencesModel();
-export { preferences };

@@ -58,6 +58,7 @@ class Schema extends Component {
       ANALYSIS_STATE_TIMEOUT,
     ]),
     outdated: PropTypes.bool,
+    enableMaps: PropTypes.bool,
     isActiveTab: PropTypes.bool,
     errorMessage: PropTypes.string,
     maxTimeMS: PropTypes.number,
@@ -140,6 +141,7 @@ class Schema extends Component {
         <Field
           key={field.name}
           actions={this.props.actions}
+          enableMaps={this.props.enableMaps}
           localAppRegistry={this.props.store.localAppRegistry}
           {...field}
         />

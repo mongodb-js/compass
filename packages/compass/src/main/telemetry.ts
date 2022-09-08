@@ -137,10 +137,10 @@ class CompassTelemetry {
 
     ipcMain.respondTo(
       'compass:usage:identify',
-      (evt, meta: { currentUserId?: string; telemetryAnonymousId: string }) => {
+      (evt, { currentUserId, telemetryAnonymousId }: { currentUserId?: string; telemetryAnonymousId: string }) => {
         // This always happens after the first enable/disable call.
-        this.currentUserId = meta.currentUserId;
-        this.telemetryAnonymousId = meta.telemetryAnonymousId;
+        this.currentUserId = currentUserId;
+        this.telemetryAnonymousId = telemetryAnonymousId;
         this.identify();
       }
     );

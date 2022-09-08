@@ -4,9 +4,6 @@ import isElectronRenderer from 'is-electron-renderer';
 import createDebug from 'debug';
 import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
-
-import { preferences } from 'compass-preferences-model';
-
 type TrackProps = Record<string, any> | (() => Record<string, any>);
 type TrackFunction = (event: string, properties?: TrackProps) => void;
 
@@ -20,6 +17,17 @@ function emit(
   void ipc?.callQuiet?.(event, data);
   if (typeof process !== 'undefined' && typeof process.emit === 'function') {
     (process as any).emit(event, data);
+  }
+}
+
+function on(ipc: HadronIpcRenderer | null, event: string, callback: any): void {
+  ipc?.on(event, (_, preferences) => {
+    callback(preferences.trackUsageStatistics);
+  });
+  if (typeof process !== 'undefined' && typeof process.on === 'function') {
+    process.on('compass:preferences-changed', (preferences) => {
+      callback(preferences.trackUsageStatistics);
+    });
   }
 }
 
@@ -48,6 +56,11 @@ export function createLoggerAndTelemetry(component: string): {
     },
   } as Writable;
   const writer = new MongoLogWriter('', null, target);
+  let trackUsageStatistics = false;
+
+  on(ipc, 'compass:preferences-changed', (value: boolean) => {
+    trackUsageStatistics = value;
+  });
 
   const track = (...args: [string, TrackProps?]) => {
     void Promise.resolve()
@@ -59,7 +72,7 @@ export function createLoggerAndTelemetry(component: string): {
     event: string,
     properties: TrackProps = {}
   ): Promise<void> => {
-    if (!preferences.getPreferenceValue('trackUsageStatistics')) {
+    if (!trackUsageStatistics) {
       return;
     }
     const data = {

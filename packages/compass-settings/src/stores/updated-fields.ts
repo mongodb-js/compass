@@ -2,8 +2,8 @@ import type { Reducer } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { preferences } from 'compass-preferences-model';
 import type { UserPreferences } from 'compass-preferences-model';
+import ipc from 'hadron-ipc';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
@@ -60,7 +60,7 @@ export const updateSettings = (): ThunkAction<
   return async (dispatch, getState): Promise<void> => {
     const { updatedFields } = getState();
     try {
-      await preferences.savePreferences(updatedFields);
+      await ipc.ipcRenderer.invoke('compass:save-preferences', updatedFields);
       dispatch({
         type: ActionTypes.SettingsUpdated,
       });
