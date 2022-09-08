@@ -1,8 +1,10 @@
 import Preferences from 'compass-preferences-model';
 import { ipcMain } from 'hadron-ipc';
+import electron from 'electron';
 
 const setupPreferences = async() => {
-  const preferences = new Preferences();
+  const userDataPath = electron.app.getPath('userData');
+  const preferences = new Preferences(userDataPath);
 
   await preferences.fetchPreferences();
 
