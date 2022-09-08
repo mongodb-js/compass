@@ -165,6 +165,7 @@ const preferencesProps = {
 
 class Preferences {
   constructor(userDataPath) {
+    // User preferences are stored to disc via the Ampersand model.
     const PreferencesModel = Model.extend(storageMixin, {
       props: preferencesProps,
       extraProperties: 'ignore',
@@ -172,7 +173,7 @@ class Preferences {
       namespace: 'AppPreferences',
       storage: {
         backend: 'disk',
-        basepath: userDataPath
+        basepath: userDataPath // userDataPath of the electron app.
       }
     });
 
@@ -181,11 +182,11 @@ class Preferences {
 
   fetchPreferences() {
     return new Promise((resolve, reject) => {
+      // Fetch user preferences from the Ampersand model.
       this.userPreferencesModel.fetch({
         success: (model) => {
           debug('fetch user preferences is successful', model.serialize());
-          const prefs = this.getAllPreferences();
-          return resolve(prefs);
+          return resolve(this.getAllPreferences());
         },
         error: (model, err) => {
           debug('fetch user preferences failed', err.message);
@@ -198,12 +199,13 @@ class Preferences {
   savePreferences(attributes) {
     return new Promise((resolve, reject) => {
       if (attributes && !isEmpty(attributes)) {
+        // Save user preferences to the Ampersand model.
         this.userPreferencesModel.save(attributes, {
           success: () => {
             return resolve(this.getAllPreferences());
           },
           error: (model, err) => {
-            debug('saving userPreferences error', err);
+            debug('saving user preferences error', err);
             return reject(err);
           }
         });
@@ -212,6 +214,7 @@ class Preferences {
   }
 
   getAllPreferences() {
+    // TODO: merge user, global, and CLI preferences here.
     return this.userPreferencesModel.getAttributes({ props: true, derived: true });
   }
 
@@ -235,6 +238,9 @@ class Preferences {
   }
 }
 
+/**
+ * API to communicate with preferences from the electron renderer process.
+ */
 const preferencesIpc = {
   savePreferences(attributes) {
     if (ipc && ipc.ipcRenderer && typeof ipc.ipcRenderer.invoke === 'function') {
