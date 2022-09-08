@@ -4,6 +4,7 @@ import { promises as fs, rmdirSync } from 'fs';
 import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
@@ -284,11 +285,32 @@ export function removeUserDataDir(): void {
   }
 }
 
-async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+async function getCompassExecutionParameters(): Promise<{
+  testPackagedApp: boolean;
+  binary: string;
+}> {
   const testPackagedApp = ['1', 'true'].includes(
     process.env.TEST_PACKAGED_APP ?? ''
   );
+  const binary = testPackagedApp
+    ? getCompassBinPath(await getCompassBuildMetadata())
+    : require('electron');
+  return { testPackagedApp, binary };
+}
 
+export async function runCompassOnce(args: string[]) {
+  const { binary } = await getCompassExecutionParameters();
+  const { stdout, stderr } = await promisify(execFile)(binary, [
+    COMPASS_PATH,
+    `--user-data-dir=${String(defaultUserDataDir)}`,
+    '--no-sandbox', // See below
+    ...args,
+  ]);
+  debug('Ran compass with args', { args, stdout, stderr });
+}
+
+async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+  const { testPackagedApp, binary } = await getCompassExecutionParameters();
   const nowFormatted = formattedDate();
 
   const isFirstRun = opts.firstRun || !defaultUserDataDir;
@@ -326,9 +348,6 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
   await fs.mkdir(COVERAGE_PATH, { recursive: true });
 
-  const binary = testPackagedApp
-    ? getCompassBinPath(await getCompassBuildMetadata())
-    : require('electron');
   const chromeArgs = [];
 
   if (!testPackagedApp) {
