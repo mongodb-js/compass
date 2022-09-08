@@ -31,7 +31,7 @@ const navigationItem = css({
   position: 'relative',
 
   ':hover': {
-    fontWeight: 'bold',
+    backgroundColor: 'var(--item-bg-color-hover)',
   },
 });
 
