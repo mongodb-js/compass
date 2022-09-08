@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import ipc from 'hadron-ipc';
 
 import {
   Modal,
@@ -66,8 +67,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('hadron-ipc').on('window:show-network-optin', () => {
+    (ipc as any).on('window:show-network-optin', () => {
       onModalOpen();
       setIsOpen(true);
     });
