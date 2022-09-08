@@ -17,6 +17,7 @@ const collectionHeaderActionsStyles = css({
   display: 'flex',
   marginLeft: 'auto',
   alignItems: 'center',
+  overflow: 'hidden',
 });
 
 const collectionHeaderActionsReadonlyStyles = css({
