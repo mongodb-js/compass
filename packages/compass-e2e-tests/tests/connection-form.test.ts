@@ -552,7 +552,7 @@ describe('Connection form', function () {
 
     // edit
     await browser.selectFavorite(favoriteName);
-    await browser.saveFavorite('newFavoriteName', 'color2');
+    await browser.saveFavorite(newFavoriteName, 'color2');
 
     // should now be updated in the sidebar
     await browser
