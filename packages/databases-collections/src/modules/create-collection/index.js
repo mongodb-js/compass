@@ -100,6 +100,55 @@ export const open = (dbName) => ({
   databaseName: dbName
 });
 
+
+export async function handleFLE2Options(ds, options) {
+  if (!options) {
+    return options;
+  }
+
+  if (options.encryptedFields) {
+    try {
+      options.encryptedFields = queryParser(options.encryptedFields);
+    } catch (err) {
+      throw new Error(`Could not parse encryptedFields config: ${err.message}`);
+    }
+
+    if (Object.keys(options.encryptedFields).length === 0) {
+      delete options.encryptedFields;
+    } else if (options.kmsProvider) {
+      // If keys are missing from the encryptedFields config,
+      // generate them as part of the collection creation operation.
+      let keyEncryptionKey;
+      try {
+        keyEncryptionKey = queryParser(options.keyEncryptionKey || '{}');
+      } catch (err) {
+        throw new Error(`Could not parse keyEncryptionKey: ${err.message}`);
+      }
+
+      const fields = options.encryptedFields.fields;
+      if (Array.isArray(fields)) {
+        const keyCreationPromises = [];
+        for (const field of fields) {
+          if (field.keyId) continue;
+          keyCreationPromises.push((async() => {
+            field.keyId = await ds.createDataKey(options.kmsProvider, {
+              masterKey: keyEncryptionKey
+            });
+          })());
+        }
+        await Promise.all(keyCreationPromises);
+      }
+    }
+  } else {
+    delete options.encryptedFields;
+  }
+
+  delete options.kmsProvider;
+  delete options.keyEncryptionKey;
+
+  return options;
+}
+
 export const createCollection = (data, kind = 'Collection') => {
   // Note: This method can also be called from createDatabase(),
   // against a different state.
@@ -152,51 +201,3 @@ export const createCollection = (data, kind = 'Collection') => {
     }
   };
 };
-
-export async function handleFLE2Options(ds, options) {
-  if (!options) {
-    return options;
-  }
-
-  if (options.encryptedFields) {
-    try {
-      options.encryptedFields = queryParser(options.encryptedFields);
-    } catch (err) {
-      throw new Error(`Could not parse encryptedFields config: ${err.message}`);
-    }
-
-    if (Object.keys(options.encryptedFields).length === 0) {
-      delete options.encryptedFields;
-    } else if (options.kmsProvider) {
-      // If keys are missing from the encryptedFields config,
-      // generate them as part of the collection creation operation.
-      let keyEncryptionKey;
-      try {
-        keyEncryptionKey = queryParser(options.keyEncryptionKey || '{}');
-      } catch (err) {
-        throw new Error(`Could not parse keyEncryptionKey: ${err.message}`);
-      }
-
-      const fields = options.encryptedFields.fields;
-      if (Array.isArray(fields)) {
-        const keyCreationPromises = [];
-        for (const field of fields) {
-          if (field.keyId) continue;
-          keyCreationPromises.push((async() => {
-            field.keyId = await ds.createDataKey(options.kmsProvider, {
-              masterKey: keyEncryptionKey
-            });
-          })());
-        }
-        await Promise.all(keyCreationPromises);
-      }
-    }
-  } else {
-    delete options.encryptedFields;
-  }
-
-  delete options.kmsProvider;
-  delete options.keyEncryptionKey;
-
-  return options;
-}

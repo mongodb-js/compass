@@ -4,6 +4,7 @@ import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Accordion,
   Banner,
+  Body,
   Checkbox,
   Label,
   Link,
@@ -147,7 +148,7 @@ function CSFLETab({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Label htmlFor="TODO(COMPASS-5653)">KMS Providers</Label>
+        <Body weight="medium">KMS Providers</Body>
         <Description>
           Specify one or more Key Management Systems to use.
         </Description>
