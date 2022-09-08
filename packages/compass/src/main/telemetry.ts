@@ -105,7 +105,7 @@ class CompassTelemetry {
       try {
         osInfo = await getOsInfo();
       } catch (err: any) {
-        log.error(mongoLogId(1_001_000_134), 'Telemetry', 'Failed to get OS info', { err: err.message });
+        log.error(mongoLogId(1_001_000_147), 'Telemetry', 'Failed to get OS info', { err: err.message });
       }
       this.analytics.identify({
         userId: this.currentUserId,
