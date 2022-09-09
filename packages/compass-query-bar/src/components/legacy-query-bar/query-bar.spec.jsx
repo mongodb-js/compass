@@ -361,9 +361,8 @@ describe('QueryBar [Component]', function () {
           />
         );
 
-        expect(
-          component.find('button[data-testid="query-bar-options-toggle"]')
-        ).to.exist;
+        expect(component.find('button[data-testid="query-bar-options-toggle"]'))
+          .to.exist;
         component
           .find('button[data-testid="query-bar-options-toggle"]')
           .simulate('click');
@@ -405,9 +404,8 @@ describe('QueryBar [Component]', function () {
           />
         );
 
-        expect(
-          component.find('button[data-testid="query-bar-options-toggle"]')
-        ).to.exist;
+        expect(component.find('button[data-testid="query-bar-options-toggle"]'))
+          .to.exist;
         component
           .find('button[data-testid="query-bar-options-toggle"]')
           .simulate('click');
