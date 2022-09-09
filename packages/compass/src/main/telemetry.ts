@@ -82,7 +82,7 @@ class CompassTelemetry {
     });
   }
 
-  private static identify() {
+  private static async identify() {
     log.info(
       mongoLogId(1_001_000_093),
       'Telemetry',
@@ -101,23 +101,22 @@ class CompassTelemetry {
       this.analytics &&
       this.telemetryAnonymousId
     ) {
-      void getOsInfo()
-        .catch(() => ({})) // still identify even if getOsInfo fails
-        .then((osInfo) => {
-          this.analytics?.identify({
-            userId: this.currentUserId,
-            anonymousId: this.telemetryAnonymousId,
-            traits: {
-              ...this._getCommonProperties(),
-              platform: process.platform,
-              arch: process.arch,
-              ...osInfo,
-            },
-          });
-        })
-        .catch(() => {
-          //
-        });
+      let osInfo = {};
+      try {
+        osInfo = await getOsInfo();
+      } catch (err: any) {
+        log.error(mongoLogId(1_001_000_147), 'Telemetry', 'Failed to get OS info', { err: err.message });
+      }
+      this.analytics.identify({
+        userId: this.currentUserId,
+        anonymousId: this.telemetryAnonymousId,
+        traits: {
+          ...this._getCommonProperties(),
+          platform: process.platform,
+          arch: process.arch,
+          ...osInfo,
+        },
+      });
     }
 
     let event: EventInfo | undefined;
@@ -141,7 +140,7 @@ class CompassTelemetry {
         // This always happens after the first enable/disable call.
         this.currentUserId = meta.currentUserId;
         this.telemetryAnonymousId = meta.telemetryAnonymousId;
-        this.identify();
+        void this.identify();
       }
     );
 
@@ -153,7 +152,7 @@ class CompassTelemetry {
       );
       if (this.state !== 'enabled') {
         this.state = 'enabled';
-        this.identify();
+        void this.identify();
       }
     });
 
