@@ -19,7 +19,8 @@
     "depcheck": "depcheck"
   },
   "devDependencies": {
-    "depcheck": "^1.4.1"
+    "depcheck": "^1.4.1",
+    "mongodb-ace-autocompleter": "^1.1.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
