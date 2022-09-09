@@ -298,14 +298,25 @@ async function getCompassExecutionParameters(): Promise<{
   return { testPackagedApp, binary };
 }
 
-export async function runCompassOnce(args: string[]) {
+export async function runCompassOnce(args: string[], timeout = 30_000) {
   const { binary } = await getCompassExecutionParameters();
-  const { stdout, stderr } = await promisify(execFile)(binary, [
+  debug('spawning compass...', {
+    binary,
     COMPASS_PATH,
-    `--user-data-dir=${String(defaultUserDataDir)}`,
-    '--no-sandbox', // See below
-    ...args,
-  ]);
+    defaultUserDataDir,
+    args,
+    timeout,
+  });
+  const { stdout, stderr } = await promisify(execFile)(
+    binary,
+    [
+      COMPASS_PATH,
+      `--user-data-dir=${String(defaultUserDataDir)}`,
+      '--no-sandbox', // See below
+      ...args,
+    ],
+    { timeout }
+  );
   debug('Ran compass with args', { args, stdout, stderr });
 }
 
