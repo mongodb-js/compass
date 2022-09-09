@@ -125,12 +125,15 @@ describe('BSONValue', function () {
     });
   });
 
-  it('should render an info link for encrypted values', async function() {
-    render(<BSONValue
-      type="Binary"
-      value={new Binary('encrypted data', Binary.SUBTYPE_ENCRYPTED)}
-    />);
+  it('should render an info link for encrypted values', async function () {
+    render(
+      <BSONValue
+        type="Binary"
+        value={new Binary('encrypted data', Binary.SUBTYPE_ENCRYPTED)}
+      />
+    );
 
-    expect(await screen.findByTestId('bson-value-in-use-encryption-docs-link')).to.be.visible;
-  })
+    expect(await screen.findByTestId('bson-value-in-use-encryption-docs-link'))
+      .to.be.visible;
+  });
 });
