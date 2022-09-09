@@ -8,6 +8,7 @@ import * as Selectors from '../helpers/selectors';
 describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
+  let originalDisableKeychainUsage: string | undefined;
 
   beforeEach(async function () {
     tmpdir = path.join(
@@ -15,9 +16,22 @@ describe('Connection Import / Export', function () {
       `compass-import-export-${Date.now().toString(32)}-${++i}`
     );
     await fs.mkdir(tmpdir, { recursive: true });
+
+    originalDisableKeychainUsage =
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+    if (process.platform === 'linux' && process.env.CI) {
+      // keytar is not working on Linux in CI, fails with the
+      // error from https://github.com/atom/node-keytar/issues/132.
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
+    }
   });
 
   afterEach(async function () {
+    if (originalDisableKeychainUsage)
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
+        originalDisableKeychainUsage;
+    else delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
+
     await fs.rmdir(tmpdir, { recursive: true });
   });
 
