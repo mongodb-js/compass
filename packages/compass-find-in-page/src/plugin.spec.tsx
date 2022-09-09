@@ -24,13 +24,13 @@ describe('CompassFindInPage [Component]', function () {
     });
 
     it('should contain FindInPageInput', function () {
-      expect(screen.getByTestId('find-in-page')).to.be.visible;
+      expect(screen.getByTestId('find-in-page-form')).to.be.visible;
     });
   });
 
   describe('when the component is rendered and status is disabled', function () {
     it('should not contain FindInPageInput', function () {
-      expect(screen.queryByTestId('find-in-page')).to.not.exist;
+      expect(screen.queryByTestId('find-in-page-form')).to.not.exist;
     });
   });
 });

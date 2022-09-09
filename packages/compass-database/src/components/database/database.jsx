@@ -67,7 +67,7 @@ class Database extends Component {
     return (
       <div className={styles.database}>
         <TabNavBar
-          data-test-id="database-tabs"
+          data-testid="database-tabs"
           aria-label="Database Tabs"
           tabs={this.tabs}
           views={this.views}

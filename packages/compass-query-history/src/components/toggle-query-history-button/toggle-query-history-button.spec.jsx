@@ -20,17 +20,17 @@ describe('ToggleQueryHistoryButton [Component]', function () {
     });
 
     it('renders a button', function () {
-      const node = component.find('[data-test-id="query-history-button"]');
+      const node = component.find('[data-testid="query-history-button"]');
       expect(node).to.have.length(1);
     });
 
     it('the button has the correct classnames', function () {
-      const node = component.find('[data-test-id="query-history-button"]');
+      const node = component.find('[data-testid="query-history-button"]');
       expect(node.hasClass(styles.component)).to.equal(true);
     });
 
     it('renders the correct icon for the button', function () {
-      const node = component.find('[data-test-id="query-history-button-icon"]');
+      const node = component.find('[data-testid="query-history-button-icon"]');
 
       expect(node).to.have.type(FontAwesome);
       expect(node.prop('name')).to.equal('history');

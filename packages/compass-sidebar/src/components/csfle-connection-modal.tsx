@@ -50,7 +50,7 @@ export default function CSFLEConnectionModal({
       open={open}
       trackingId="csfle_connection_modal"
       setOpen={setOpen}
-      data-test-id="csfle-connection-modal"
+      data-testid="csfle-connection-modal"
     >
       <div>
         <ModalTitle>In-Use Encryption Connection Options</ModalTitle>

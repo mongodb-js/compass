@@ -85,7 +85,7 @@ class PreviewFields extends PureComponent {
       return (
         <th
           key={field.path}
-          data-test-id={`preview-field-header-${field.path}`}
+          data-testid={`preview-field-header-${field.path}`}
         >
           <div>
             <input

@@ -60,7 +60,7 @@ function NonGenuineWarningModal({
         <Link
           href={LEARN_MORE_URL}
           target="_blank"
-          data-test-id="non-genuine-warning-modal-learn-more-link"
+          data-testid="non-genuine-warning-modal-learn-more-link"
         >
           Learn more
         </Link>
@@ -69,7 +69,7 @@ function NonGenuineWarningModal({
         <Button
           onClick={onClose}
           variant={ButtonVariant.Primary}
-          data-test-id="continue-button"
+          data-testid="continue-button"
         >
           Continue
         </Button>

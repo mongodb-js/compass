@@ -33,7 +33,7 @@ class DocumentJsonView extends React.Component {
       return (
         <li
           className={LIST_ITEM_CLASS}
-          data-test-id={LIST_ITEM_TEST_ID}
+          data-testid={LIST_ITEM_TEST_ID}
           key={i}
         >
           <JsonEditor

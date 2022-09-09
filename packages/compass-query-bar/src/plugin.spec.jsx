@@ -72,7 +72,7 @@ describe('QueryBar [Plugin]', function () {
 
       // Click the filter button.
       component
-        .find({ 'data-test-id': 'query-bar-apply-filter-button' })
+        .find({ 'data-testid': 'query-bar-apply-filter-button' })
         .props()
         .onClick();
     });
@@ -99,7 +99,7 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .exist;
     });
 
@@ -114,7 +114,7 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .exist;
     });
 
@@ -129,7 +129,7 @@ describe('QueryBar [Plugin]', function () {
           serverVersion="3.4.0"
         />
       );
-      expect(component.find('button[data-test-id="query-history-button"]')).to
+      expect(component.find('button[data-testid="query-history-button"]')).to
         .not.exist;
     });
   });
@@ -199,10 +199,10 @@ describe('QueryBar [Plugin]', function () {
         />
       );
 
-      expect(component.find('button[data-test-id="query-bar-options-toggle"]'))
+      expect(component.find('button[data-testid="query-bar-options-toggle"]'))
         .to.exist;
       component
-        .find('button[data-test-id="query-bar-options-toggle"]')
+        .find('button[data-testid="query-bar-options-toggle"]')
         .simulate('click');
       expect(component.find('OptionEditor[label="filter"]').prop('placeholder'))
         .to.not.be.empty;
@@ -242,10 +242,10 @@ describe('QueryBar [Plugin]', function () {
         />
       );
 
-      expect(component.find('button[data-test-id="query-bar-options-toggle"]'))
+      expect(component.find('button[data-testid="query-bar-options-toggle"]'))
         .to.exist;
       component
-        .find('button[data-test-id="query-bar-options-toggle"]')
+        .find('button[data-testid="query-bar-options-toggle"]')
         .simulate('click');
       expect(
         component.find('OptionEditor[label="filter"]').prop('placeholder')

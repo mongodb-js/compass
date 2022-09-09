@@ -494,7 +494,7 @@ describe('FLE2', function () {
         expect(json).to.include('30303030');
         expect(json).to.include('__safeContent__');
 
-        await browser.hover('[data-test-id="editable-json"]');
+        await browser.hover('[data-testid="editable-json"]');
         await browser.clickVisible('[data-testid="edit-document-button"]');
 
         const newjson = JSON.stringify({
@@ -502,7 +502,7 @@ describe('FLE2', function () {
           phoneNumber: '10101010',
         });
         await browser.setAceValue(
-          '[data-test-id="editable-json"] .ace_editor',
+          '[data-testid="editable-json"] .ace_editor',
           newjson
         );
 

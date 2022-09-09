@@ -126,7 +126,7 @@ class StageEditor extends Component {
     if (this.props.error) {
       return (
         <div
-          data-test-id="stage-editor-error-message"
+          data-testid="stage-editor-error-message"
           className={styles['stage-editor-errormsg']}
           title={this.props.error}>
           {this.props.error}

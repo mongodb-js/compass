@@ -47,12 +47,12 @@ class Saving extends PureComponent {
   renderSaveForm = () => {
     return (
       <form
-        data-test-id="query-history-saving-form"
+        data-testid="query-history-saving-form"
         className={classnames(styles.form)}
         onSubmit={this.handleFormSubmit}
       >
         <input
-          data-test-id="query-history-saving-form-input-name"
+          data-testid="query-history-saving-form-input-name"
           type="text"
           className={classnames(styles['form-input'])}
           placeholder="Favorite Name"
@@ -76,14 +76,14 @@ class Saving extends PureComponent {
       .forEach((key) => delete attributes[key]);
 
     return (
-      <Card className={className} data-test-id="query-history-saving">
+      <Card className={className} data-testid="query-history-saving">
         <CardHeader
           title={this.renderSaveForm()}
-          data-test-id="query-history-saving-header"
+          data-testid="query-history-saving-header"
           actionsVisible
         >
           <button
-            data-test-id="query-history-saving-form-button-save"
+            data-testid="query-history-saving-form-button-save"
             className={classnames(
               'btn',
               'btn-sm',
@@ -96,7 +96,7 @@ class Saving extends PureComponent {
           </button>
 
           <button
-            data-test-id="query-history-saving-form-button-cancel"
+            data-testid="query-history-saving-form-button-cancel"
             className={classnames(
               'btn',
               'btn-sm',
@@ -111,7 +111,7 @@ class Saving extends PureComponent {
 
         <CardBody>
           <Query
-            data-test-id="query-history-saving-query"
+            data-testid="query-history-saving-query"
             attributes={attributes}
           />
         </CardBody>

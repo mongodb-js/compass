@@ -42,7 +42,7 @@ describe('QueryBar [Component]', function () {
             />
           );
           expect(
-            component.find('[data-test-id="query-bar-apply-filter-button"]')
+            component.find('[data-testid="query-bar-apply-filter-button"]')
           ).to.have.text('Apply');
         });
 
@@ -57,7 +57,7 @@ describe('QueryBar [Component]', function () {
             />
           );
           expect(
-            component.find('[data-test-id="query-bar-apply-filter-button"]')
+            component.find('[data-testid="query-bar-apply-filter-button"]')
           ).to.have.text('Analyze');
         });
       });
@@ -267,7 +267,7 @@ describe('QueryBar [Component]', function () {
             serverVersion="3.4.0"
           />
         );
-        expect(component.find('button[data-test-id="query-history-button"]')).to
+        expect(component.find('button[data-testid="query-history-button"]')).to
           .exist;
       });
 
@@ -281,7 +281,7 @@ describe('QueryBar [Component]', function () {
             serverVersion="3.4.0"
           />
         );
-        expect(component.find('button[data-test-id="query-history-button"]')).to
+        expect(component.find('button[data-testid="query-history-button"]')).to
           .exist;
       });
 
@@ -295,7 +295,7 @@ describe('QueryBar [Component]', function () {
             serverVersion="3.4.0"
           />
         );
-        expect(component.find('button[data-test-id="query-history-button"]')).to
+        expect(component.find('button[data-testid="query-history-button"]')).to
           .not.exist;
       });
     });
@@ -362,10 +362,10 @@ describe('QueryBar [Component]', function () {
         );
 
         expect(
-          component.find('button[data-test-id="query-bar-options-toggle"]')
+          component.find('button[data-testid="query-bar-options-toggle"]')
         ).to.exist;
         component
-          .find('button[data-test-id="query-bar-options-toggle"]')
+          .find('button[data-testid="query-bar-options-toggle"]')
           .simulate('click');
         expect(
           component.find('OptionEditor[label="filter"]').prop('placeholder')
@@ -406,10 +406,10 @@ describe('QueryBar [Component]', function () {
         );
 
         expect(
-          component.find('button[data-test-id="query-bar-options-toggle"]')
+          component.find('button[data-testid="query-bar-options-toggle"]')
         ).to.exist;
         component
-          .find('button[data-test-id="query-bar-options-toggle"]')
+          .find('button[data-testid="query-bar-options-toggle"]')
           .simulate('click');
         expect(
           component.find('OptionEditor[label="filter"]').prop('placeholder')

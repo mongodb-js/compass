@@ -29,7 +29,7 @@ class Single extends React.Component {
         </div>
         <div
           className={classnames(styles['topology-single-cluster-type'])}
-          data-test-id="topology-single-cluster-type"
+          data-testid="topology-single-cluster-type"
         >
           {ServerType.humanize(this.props.server.type)}
         </div>
@@ -51,7 +51,7 @@ class Single extends React.Component {
           </div>
           <div
             className={classnames(styles['topology-single-host-address'])}
-            data-test-id="topology-single-host-address"
+            data-testid="topology-single-host-address"
             title={this.props.server.address}
           >
             {this.props.server.address}

@@ -22,8 +22,8 @@ describe('<IconButton />', () => {
     expect(component.props().title).to.equal('title');
   });
 
-  it('sets the data-test-id', () => {
-    expect(component.props()['data-test-id']).to.equal('icon-button-test');
+  it('sets the data-testid', () => {
+    expect(component.props()['data-testid']).to.equal('icon-button-test');
   });
 
   it('sets the child icon class name', () => {

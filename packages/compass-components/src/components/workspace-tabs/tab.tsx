@@ -248,7 +248,7 @@ function UnthemedTab({
       // Catch navigation on the active tab when a user tabs through Compass.
       tabIndex={isSelected ? 0 : -1}
       aria-controls={tabContentId}
-      data-test-id="workspace-tab-button"
+      data-testid="workspace-tab-button"
       title={`${subtitle} - ${title}`}
       {...tabProps}
     >

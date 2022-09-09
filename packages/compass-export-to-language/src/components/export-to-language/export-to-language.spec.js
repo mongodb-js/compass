@@ -21,10 +21,10 @@ describe('ExportToLanguage [Component]', () => {
   });
 
   it('renders the correct root classname', () => {
-    expect(component.find('[data-test-id="export-to-language"]')).to.be.present();
+    expect(component.find('[data-testid="export-to-language"]')).to.be.present();
   });
 
   it('has export modal as a descendant', () => {
-    expect(component.find('[data-test-id="export-to-language"]')).to.have.descendants(ExportModal);
+    expect(component.find('[data-testid="export-to-language"]')).to.have.descendants(ExportModal);
   });
 });
