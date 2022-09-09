@@ -269,6 +269,7 @@ class DocumentList extends React.Component {
         {useNewToolbars ? (
           <CrudToolbar
             activeDocumentView={this.props.view}
+            error={this.props.error}
             count={this.props.count}
             loadingCount={this.props.loadingCount}
             start={this.props.start}
@@ -281,6 +282,7 @@ class DocumentList extends React.Component {
             onApplyClicked={this.onApplyClicked.bind(this)}
             onResetClicked={this.onResetClicked.bind(this)}
             openExportFileDialog={this.props.openExportFileDialog}
+            outdated={this.props.outdated}
             readonly={!this.props.isEditable}
             viewSwitchHandler={this.props.viewChanged}
             isWritable={this.props.isWritable}
