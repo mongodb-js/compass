@@ -29,8 +29,8 @@ describe('<TextButton />', () => {
       expect(component.text()).to.equal('button text');
     });
 
-    it('sets the data-test-id', () => {
-      expect(component.props()['data-test-id']).to.equal('text-button-test');
+    it('sets the data-testid', () => {
+      expect(component.props()['data-testid']).to.equal('text-button-test');
     });
 
     it('sets the title', () => {

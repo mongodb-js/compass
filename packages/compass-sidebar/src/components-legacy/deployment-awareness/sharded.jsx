@@ -37,7 +37,7 @@ class Sharded extends React.Component {
       return (
         <div
           className={classnames(styles['topology-sharded-host-address'])}
-          data-test-id={`topology-sharded-host-address-${i}`}
+          data-testid={`topology-sharded-host-address-${i}`}
           key={i}
           title={server.address}
         >

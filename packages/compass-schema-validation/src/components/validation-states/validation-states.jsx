@@ -154,7 +154,7 @@ class ValidationStates extends Component {
         <ZeroState header={HEADER} subtext={SUBTEXT}>
           <div className={styles['zero-state-action']}>
             <Button
-              data-test-id="add-rule-button"
+              data-testid="add-rule-button"
               disabled={!this.isEditable()}
               onClick={this.props.changeZeroState.bind(this, false)}
               variant={ButtonVariant.Primary}

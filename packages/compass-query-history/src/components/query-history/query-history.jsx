@@ -54,7 +54,7 @@ class QueryHistory extends PureComponent {
       )}
     >
       <FavoriteList
-        data-test-id="query-history-list-favorites"
+        data-testid="query-history-list-favorites"
         ns={this.props.ns}
         actions={this.props.actions}
         zeroStateTitle="Favorite a query to see it saved here!"
@@ -69,7 +69,7 @@ class QueryHistory extends PureComponent {
       )}
     >
       <RecentList
-        data-test-id="query-history-list-recent"
+        data-testid="query-history-list-recent"
         ns={this.props.ns}
         actions={this.props.actions}
         zeroStateTitle="Run a query to see it saved here!"
@@ -89,7 +89,7 @@ class QueryHistory extends PureComponent {
 
     return (
       <div
-        data-test-id="query-history"
+        data-testid="query-history"
         className={onClose ? componentStyle : styles['component-legacy']}
       >
         <div className={innerStyle}>

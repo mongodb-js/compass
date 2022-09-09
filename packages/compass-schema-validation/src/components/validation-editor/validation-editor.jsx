@@ -266,7 +266,7 @@ class ValidationEditor extends Component {
         <div className={classnames(styles['validation-action-container'])}>
           <div
             className={classnames(styles['validation-action-message'])}
-            data-test-id="validation-action-message"
+            data-testid="validation-action-message"
           >
             Validation modified
           </div>
@@ -298,7 +298,7 @@ class ValidationEditor extends Component {
     return (
       <div
         className={classnames(styles['validation-editor'])}
-        data-test-id="validation-editor"
+        data-testid="validation-editor"
       >
         <div className={classnames(styles['validation-editor-content'])}>
           <div className={classnames(styles['validation-options-container'])}>

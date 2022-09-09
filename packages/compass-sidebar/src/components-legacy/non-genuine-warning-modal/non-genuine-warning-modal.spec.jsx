@@ -35,14 +35,14 @@ describe('NonGenuineWarningModal [Component]', function () {
 
     it('renders the continue button', function () {
       expect(
-        component.find('[data-test-id="continue-button"]').hostNodes()
+        component.find('[data-testid="continue-button"]').hostNodes()
       ).to.have.text('Continue');
     });
 
     it('opens the learn more link', function () {
       expect(
         component
-          .find('[data-test-id="non-genuine-warning-modal-learn-more-link"]')
+          .find('[data-testid="non-genuine-warning-modal-learn-more-link"]')
           .hostNodes()
           .props().href
       ).to.equal(
@@ -52,7 +52,7 @@ describe('NonGenuineWarningModal [Component]', function () {
 
     it('closes on continue', function () {
       component
-        .find('[data-test-id="continue-button"]')
+        .find('[data-testid="continue-button"]')
         .hostNodes()
         .simulate('click');
       expect(toggleIsVisibleSpy.calledOnce).to.equal(true);

@@ -18,7 +18,7 @@ describe('<ServerStatsToolbar />', function() {
     });
 
     it('shows a default time of 00:00:00', function() {
-      expect(this.component.find('[data-test-id="server-stats-time"]').text()).to.equal('00:00:00');
+      expect(this.component.find('[data-testid="server-stats-time"]').text()).to.equal('00:00:00');
     });
 
     context('when the eventDispatcher notifies a newXValue', function() {
@@ -29,7 +29,7 @@ describe('<ServerStatsToolbar />', function() {
 
       it('shows the correct time', function() {
         expect(
-          this.component.find('[data-test-id="server-stats-time"]').text()
+          this.component.find('[data-testid="server-stats-time"]').text()
         ).to.equal(d3.time.format.utc('%X')(this.date));
       });
     });

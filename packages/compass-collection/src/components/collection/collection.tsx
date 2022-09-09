@@ -162,7 +162,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           stats={stats}
         />
         <TabNavBar
-          data-test-id="collection-tabs"
+          data-testid="collection-tabs"
           aria-label="Collection Tabs"
           tabs={tabs}
           views={views}

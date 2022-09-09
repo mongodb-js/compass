@@ -70,7 +70,7 @@ class StagePreview extends Component {
               Documents persisted to collection specified by $merge.
             </div>
             <Link
-              data-test-id="go-to-merge-collection"
+              data-testid="go-to-merge-collection"
               as="button"
               className={styles['stage-preview-out-link']}
               onClick={this.onGotoMergeResults}
@@ -116,7 +116,7 @@ class StagePreview extends Component {
               Documents persisted to collection: {decomment(this.props.stage)}.
             </div>
             <Link
-              data-test-id="go-to-out-collection"
+              data-testid="go-to-out-collection"
               as="button"
               className={styles['stage-preview-out-link']}
               onClick={this.onGotoOutResults}
@@ -163,7 +163,7 @@ class StagePreview extends Component {
           className={styles['stage-preview-missing-search-support-icon']}
         />
         <div
-          data-test-id="stage-preview-missing-search-support"
+          data-testid="stage-preview-missing-search-support"
           className={styles['stage-preview-missing-search-support-text']}
         >
           This stage is only available with MongoDB Atlas. Create a free cluster
@@ -233,7 +233,7 @@ class StagePreview extends Component {
           </svg>
         </div>
         <div>
-          <i data-test-id="stage-preview-empty">No Preview Documents</i>
+          <i data-testid="stage-preview-empty">No Preview Documents</i>
         </div>
       </div>
     );

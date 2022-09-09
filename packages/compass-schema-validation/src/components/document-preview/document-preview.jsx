@@ -22,7 +22,7 @@ class DocumentPreview extends Component {
       return (
         <div
           className={styles['document-preview']}
-          data-test-id="document-preview"
+          data-testid="document-preview"
         >
           <div className={styles['document-preview-documents']}>
             <div className={styles['no-documents']}>
@@ -36,7 +36,7 @@ class DocumentPreview extends Component {
     return (
       <div
         className={styles['document-preview']}
-        data-test-id="document-preview"
+        data-testid="document-preview"
       >
         <div className={styles['document-preview-documents']}>
           <div className={styles['document-preview-document-card']}>

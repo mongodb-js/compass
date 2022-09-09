@@ -74,7 +74,7 @@ const InstanceComponent = ({
     return (
       <div className="rtss">
         <TabNavBar
-          data-test-id="instance-tabs"
+          data-testid="instance-tabs"
           aria-label="Instance Tabs"
           tabs={filteredTabs.map((tab) => {
             return tab.name;

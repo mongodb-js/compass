@@ -122,7 +122,7 @@ class CreateIndexForm extends Component<CreateIndexProps> {
   renderIndexOptions() {
     return (
       <div
-        data-test-id="create-index-modal-options"
+        data-testid="create-index-modal-options"
         className={createIndexModalOptionStyles}
       >
         <UniqueIndexCheckbox

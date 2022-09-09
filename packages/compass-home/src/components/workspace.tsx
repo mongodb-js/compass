@@ -51,7 +51,7 @@ export default function Workspace({
   const FindInPage = findInPageRole ? findInPageRole[0].component : null;
 
   return (
-    <div data-test-id="home-view" className={homeViewStyles}>
+    <div data-testid="home-view" className={homeViewStyles}>
       <div className={homePageStyles}>
         {SidebarComponent && <SidebarComponent />}
         <div className={homePageContentStyles}>
