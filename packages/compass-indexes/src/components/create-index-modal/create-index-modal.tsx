@@ -3,13 +3,11 @@ import { connect } from 'react-redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   Modal,
-  Disclaimer,
   css,
   spacing,
   H3,
   ModalFooter,
   Body,
-  uiColors,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -67,17 +65,6 @@ const modalFooterStyles = css({
   flexDirection: 'column',
 });
 
-const collectionHeaderTitleLightStyles = css({
-  color: uiColors.gray.dark1,
-});
-
-const createIndexHeaderTitleDarkStyles = css({
-  color: uiColors.gray.light1,
-});
-
-/**
- * Create index modal.
- */
 function CreateIndexModal({
   isVisible,
   namespace,
@@ -117,16 +104,8 @@ function CreateIndexModal({
       contentClassName={modalContentWrapperStyles}
     >
       <Body className={modalContentStyles}>
-        <H3
-          className={
-            props.darkMode
-              ? createIndexHeaderTitleDarkStyles
-              : collectionHeaderTitleLightStyles
-          }
-        >
-          Create Index
-        </H3>
-        <Disclaimer>{namespace}</Disclaimer>
+        <H3>Create Index</H3>
+        <Body>{namespace}</Body>
         <CreateIndexForm {...props} />
       </Body>
       <ModalFooter className={modalFooterStyles}>

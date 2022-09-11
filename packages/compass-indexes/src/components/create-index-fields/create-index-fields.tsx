@@ -12,6 +12,7 @@ import {
   css,
   Icon,
   uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
 
 import type { IndexField } from '../../modules/create-index/fields';
@@ -270,4 +271,4 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
   }
 }
 
-export default CreateIndexFields;
+export default withTheme(CreateIndexFields);
