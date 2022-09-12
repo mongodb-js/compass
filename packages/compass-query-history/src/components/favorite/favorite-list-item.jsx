@@ -43,7 +43,7 @@ class FavoriteListItem extends PureComponent {
         <CardHeader title={model._name}>
           <button
             title="Copy Query to Clipboard"
-            data-test-id="query-history-button-copy-query"
+            data-testid="query-history-button-copy-query"
             className={classnames(
               'btn',
               'btn-xs',
@@ -58,7 +58,7 @@ class FavoriteListItem extends PureComponent {
 
           <button
             title="Delete Query from Favorites List"
-            data-test-id="query-history-button-delete-fav"
+            data-testid="query-history-button-delete-fav"
             className={classnames(
               'btn',
               'btn-xs',

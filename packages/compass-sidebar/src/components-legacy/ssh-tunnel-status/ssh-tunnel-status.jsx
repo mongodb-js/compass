@@ -29,7 +29,7 @@ class SshTunnelStatus extends Component {
 
     return (
       <div
-        data-test-id="ssh-tunnel-status"
+        data-testid="ssh-tunnel-status"
         className={classnames(styles['ssh-tunnel-status'])}
       >
         <div className={classnames(styles['ssh-tunnel-status-label'])}>

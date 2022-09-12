@@ -46,7 +46,7 @@ class SampleDocuments extends Component {
     return (
       <div
         className={styles['document-container']}
-        data-test-id="matching-documents"
+        data-testid="matching-documents"
       >
         <div className={styles['matching-documents']}>
           <CheckCircle />
@@ -68,7 +68,7 @@ class SampleDocuments extends Component {
     return (
       <div
         className={styles['document-container']}
-        data-test-id="notmatching-documents"
+        data-testid="notmatching-documents"
       >
         <div className={styles['notmatching-documents']}>
           <CrossCircle />

@@ -20,19 +20,19 @@ describe('Query [Component]', function () {
   describe('#rendering', function () {
     it('renders the attributes list', function () {
       const node = component.find(
-        '[data-test-id="query-history-query-attributes"]'
+        '[data-testid="query-history-query-attributes"]'
       );
       expect(node).to.have.type('button');
     });
 
     it('renders the attribute label', function () {
-      const node = component.find('[data-test-id="query-history-query-label"]');
+      const node = component.find('[data-testid="query-history-query-label"]');
       expect(node.hostNodes()).to.contain.text('filter');
     });
 
     it('renders the formatted attributes with a Code component', function () {
       const node = component
-        .find('[data-test-id="query-history-query-code"]')
+        .find('[data-testid="query-history-query-code"]')
         .hostNodes();
       expect(node).to.have.type('pre');
     });

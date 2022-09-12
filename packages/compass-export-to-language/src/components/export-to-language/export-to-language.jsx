@@ -44,7 +44,7 @@ class ExportToLanguage extends PureComponent {
    */
   render() {
     return (
-      <div data-test-id="export-to-language">
+      <div data-testid="export-to-language">
         <ExportModal { ...this.props } />
       </div>
     );

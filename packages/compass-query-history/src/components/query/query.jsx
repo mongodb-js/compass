@@ -57,16 +57,16 @@ class Query extends PureComponent {
 
     return (
       <div
-        data-test-id="query-history-query-attribute"
+        data-testid="query-history-query-attribute"
         className={queryAttributeStyles}
         key={index}
       >
-        <Body data-test-id="query-history-query-label" className={labelStyles}>
+        <Body data-testid="query-history-query-label" className={labelStyles}>
           {attrKey}
         </Body>
         <Code
           className={codeStyles}
-          data-test-id="query-history-query-code"
+          data-testid="query-history-query-code"
           language="javascript"
           copyable={false}
         >
@@ -83,7 +83,7 @@ class Query extends PureComponent {
       <button
         onClick={this.populateQuery}
         className={queryAttributesContainerStyles}
-        data-test-id="query-history-query-attributes"
+        data-testid="query-history-query-attributes"
       >
         {Object.keys(attributes).map(this.renderAttr)}
       </button>

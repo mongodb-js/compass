@@ -177,7 +177,7 @@ describe('Sidebar [Component]', function () {
     });
 
     it('renders a sidebar size toggle', function () {
-      const buttonComponent = component.find('[data-test-id="toggle-sidebar"]');
+      const buttonComponent = component.find('[data-testid="toggle-sidebar"]');
       expect(buttonComponent).to.be.present();
       expect(buttonComponent.find('.fa-caret-left')).to.be.present;
     });
@@ -204,7 +204,7 @@ describe('Sidebar [Component]', function () {
           <Sidebar />
         </Provider>
       );
-      component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+      component.find('[data-testid="toggle-sidebar"]').simulate('click');
       component.update();
     });
 
@@ -214,7 +214,7 @@ describe('Sidebar [Component]', function () {
     });
 
     it('renders a sidebar size toggle', function () {
-      const buttonComponent = component.find('[data-test-id="toggle-sidebar"]');
+      const buttonComponent = component.find('[data-testid="toggle-sidebar"]');
       expect(buttonComponent).to.be.present();
       expect(buttonComponent.find('.fa-caret-right')).to.be.present;
     });
@@ -237,7 +237,7 @@ describe('Sidebar [Component]', function () {
           <Sidebar />
         </Provider>
       );
-      component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+      component.find('[data-testid="toggle-sidebar"]').simulate('click');
       component.update();
     });
 
@@ -247,20 +247,20 @@ describe('Sidebar [Component]', function () {
 
     it('sets the collapsed width to 36', function () {
       expect(
-        component.find('[data-test-id="compass-sidebar-panel"]').prop('style')
+        component.find('[data-testid="compass-sidebar-panel"]').prop('style')
           .width
       ).to.equal(36);
     });
 
     context('when it is expanded again', function () {
       beforeEach(function () {
-        component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+        component.find('[data-testid="toggle-sidebar"]').simulate('click');
         component.update();
       });
 
       it('sets the collapsed width to 250', function () {
         expect(
-          component.find('[data-test-id="compass-sidebar-panel"]').prop('style')
+          component.find('[data-testid="compass-sidebar-panel"]').prop('style')
             .width
         ).to.equal(250);
       });
@@ -282,7 +282,7 @@ describe('Sidebar [Component]', function () {
           />
         </Provider>
       );
-      component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+      component.find('[data-testid="toggle-sidebar"]').simulate('click');
       component.update();
     });
 
@@ -301,7 +301,7 @@ describe('Sidebar [Component]', function () {
         it('updates the width', function () {
           expect(
             component
-              .find('[data-test-id="compass-sidebar-panel"]')
+              .find('[data-testid="compass-sidebar-panel"]')
               .prop('style').width
           ).to.equal(189);
         });
@@ -316,7 +316,7 @@ describe('Sidebar [Component]', function () {
           it('collapses the sidebar', function () {
             expect(
               component
-                .find('[data-test-id="compass-sidebar-panel"]')
+                .find('[data-testid="compass-sidebar-panel"]')
                 .prop('style').width
             ).to.equal(36);
           });
@@ -326,7 +326,7 @@ describe('Sidebar [Component]', function () {
 
     context('when collapsed', function () {
       beforeEach(function () {
-        component.find('[data-test-id="toggle-sidebar"]').simulate('click');
+        component.find('[data-testid="toggle-sidebar"]').simulate('click');
         component.update();
       });
 
@@ -340,7 +340,7 @@ describe('Sidebar [Component]', function () {
         it('updates the width', function () {
           expect(
             component
-              .find('[data-test-id="compass-sidebar-panel"]')
+              .find('[data-testid="compass-sidebar-panel"]')
               .prop('style').width
           ).to.equal(36);
           expect(component.find('[type="range"]').at(0).prop('value')).to.equal(
@@ -358,7 +358,7 @@ describe('Sidebar [Component]', function () {
           it('expands the sidebar', function () {
             expect(
               component
-                .find('[data-test-id="compass-sidebar-panel"]')
+                .find('[data-testid="compass-sidebar-panel"]')
                 .prop('style').width
             ).to.equal(171);
           });

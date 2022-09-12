@@ -56,17 +56,17 @@ describe('<AddFieldButton />', function () {
       });
       it('renders add next field', function () {
         expect(
-          component.find({ 'data-test-id': 'add-field-after' })
+          component.find({ 'data-testid': 'add-field-after' })
         ).to.be.present();
       });
       it('renders add field to object', function () {
         expect(
-          component.find({ 'data-test-id': 'add-child-to-object' })
+          component.find({ 'data-testid': 'add-child-to-object' })
         ).to.be.present();
       });
       it('does not render add array element', function () {
         expect(
-          component.find({ 'data-test-id': 'add-element-to-array' })
+          component.find({ 'data-testid': 'add-element-to-array' })
         ).to.not.be.present();
       });
     });
@@ -93,17 +93,17 @@ describe('<AddFieldButton />', function () {
       });
       it('renders add next field', function () {
         expect(
-          component.find({ 'data-test-id': 'add-field-after' })
+          component.find({ 'data-testid': 'add-field-after' })
         ).to.be.present();
       });
       it('does not render add field to object', function () {
         expect(
-          component.find({ 'data-test-id': 'add-child-to-object' })
+          component.find({ 'data-testid': 'add-child-to-object' })
         ).to.not.be.present();
       });
       it('renders add array element', function () {
         expect(
-          component.find({ 'data-test-id': 'add-element-to-array' })
+          component.find({ 'data-testid': 'add-element-to-array' })
         ).to.be.present();
       });
     });
@@ -130,17 +130,17 @@ describe('<AddFieldButton />', function () {
       });
       it('renders add next field', function () {
         expect(
-          component.find({ 'data-test-id': 'add-field-after' })
+          component.find({ 'data-testid': 'add-field-after' })
         ).to.be.present();
       });
       it('does not render add field to object', function () {
         expect(
-          component.find({ 'data-test-id': 'add-child-to-object' })
+          component.find({ 'data-testid': 'add-child-to-object' })
         ).to.not.be.present();
       });
       it('does not render add array element', function () {
         expect(
-          component.find({ 'data-test-id': 'add-element-to-array' })
+          component.find({ 'data-testid': 'add-element-to-array' })
         ).to.not.be.present();
       });
     });
@@ -180,7 +180,7 @@ describe('<AddFieldButton />', function () {
               />
             );
             const wrapper = component.find({
-              'data-test-id': 'add-field-after',
+              'data-testid': 'add-field-after',
             });
             expect(wrapper).to.be.present();
             wrapper.simulate('click');
@@ -227,7 +227,7 @@ describe('<AddFieldButton />', function () {
               />
             );
             const wrapper = component.find({
-              'data-test-id': 'add-field-after',
+              'data-testid': 'add-field-after',
             });
             expect(wrapper).to.be.present();
             wrapper.simulate('click');
@@ -272,7 +272,7 @@ describe('<AddFieldButton />', function () {
               context={context}
             />
           );
-          const wrapper = component.find({ 'data-test-id': 'add-field-after' });
+          const wrapper = component.find({ 'data-testid': 'add-field-after' });
           expect(wrapper).to.be.present();
           wrapper.simulate('click');
           done();
@@ -329,7 +329,7 @@ describe('<AddFieldButton />', function () {
                 />
               );
               const wrapper = component.find({
-                'data-test-id': 'add-field-after',
+                'data-testid': 'add-field-after',
               });
               expect(wrapper).to.be.present();
               wrapper.simulate('click');
@@ -380,7 +380,7 @@ describe('<AddFieldButton />', function () {
                 />
               );
               const wrapper = component.find({
-                'data-test-id': 'add-field-after',
+                'data-testid': 'add-field-after',
               });
               expect(wrapper).to.be.present();
               wrapper.simulate('click');
@@ -434,7 +434,7 @@ describe('<AddFieldButton />', function () {
                 />
               );
               const wrapper = component.find({
-                'data-test-id': 'add-field-after',
+                'data-testid': 'add-field-after',
               });
               expect(wrapper).to.be.present();
               wrapper.simulate('click');
@@ -485,7 +485,7 @@ describe('<AddFieldButton />', function () {
                 />
               );
               const wrapper = component.find({
-                'data-test-id': 'add-field-after',
+                'data-testid': 'add-field-after',
               });
               expect(wrapper).to.be.present();
               wrapper.simulate('click');
@@ -539,7 +539,7 @@ describe('<AddFieldButton />', function () {
           />
         );
         const wrapper = component.find({
-          'data-test-id': 'add-child-to-object',
+          'data-testid': 'add-child-to-object',
         });
         expect(wrapper).to.be.present();
         wrapper.simulate('click');
@@ -588,7 +588,7 @@ describe('<AddFieldButton />', function () {
           />
         );
         const wrapper = component.find({
-          'data-test-id': 'add-element-to-array',
+          'data-testid': 'add-element-to-array',
         });
         expect(wrapper).to.be.present();
         wrapper.simulate('click');

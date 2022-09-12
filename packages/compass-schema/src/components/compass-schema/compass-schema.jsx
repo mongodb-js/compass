@@ -161,7 +161,7 @@ class Schema extends Component {
           <div>
             <Button
               onClick={this.onApplyClicked.bind(this)}
-              data-test-id="analyze-schema-button"
+              data-testid="analyze-schema-button"
               variant={ButtonVariant.Primary}
               size={ButtonSize.Large}
             >

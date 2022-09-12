@@ -101,12 +101,12 @@ class DropDatabaseModal extends PureComponent {
         <form
           name="drop-database-modal-form"
           onSubmit={this.onFormSubmit}
-          data-test-id="drop-database-modal">
+          data-testid="drop-database-modal">
           <div className="form-group">
             <input
               type="text"
               className="form-control"
-              data-test-id="confirm-drop-database-name"
+              data-testid="confirm-drop-database-name"
               value={this.props.nameConfirmation}
               onChange={this.onNameConfirmationChange}
             />

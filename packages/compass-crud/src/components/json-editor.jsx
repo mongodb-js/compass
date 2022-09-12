@@ -305,7 +305,7 @@ class EditableJson extends React.Component {
    */
   render() {
     return (
-      <div className={this.jsonStyle()} data-test-id={TEST_ID}>
+      <div className={this.jsonStyle()} data-testid={TEST_ID}>
         <div className={CONTENTS}>
           {this.renderJson()}
           {this.renderActions()}

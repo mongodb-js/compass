@@ -100,7 +100,7 @@ class ExportModal extends PureComponent {
       return (
         <div className={classnames(styles['export-to-lang-modal-checkbox-builders'])}>
           <Checkbox defaultChecked={this.props.builders}
-            data-test-id="export-to-lang-checkbox-builders"
+            data-testid="export-to-lang-checkbox-builders"
             onClick={this.buildersHandler}>
             Use Builders
           </Checkbox>
@@ -118,7 +118,7 @@ class ExportModal extends PureComponent {
         bsSize="large"
         onHide={this.closeHandler}
         onShow={this.showHandler}
-        data-test-id="export-to-lang-modal"
+        data-testid="export-to-lang-modal"
         className={classnames(
           // Because this modal is rendered outside of the react root
           // we need to apply the deprecated bootstrap styles here.
@@ -127,20 +127,20 @@ class ExportModal extends PureComponent {
         )}
       >
         <Modal.Header>
-          <Modal.Title data-test-id="export-to-lang-modal-title">
+          <Modal.Title data-testid="export-to-lang-modal-title">
             {`Export ${this.props.mode} To Language`}
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body data-test-id="export-to-lang-modal-body">
+        <Modal.Body data-testid="export-to-lang-modal-body">
           <ExportForm {...this.props} copySuccessChanged={this.copySuccessChanged} from={this.props.mode === 'Query' ? this.props.inputExpression.filter : this.props.inputExpression.aggregation}/>
           <div className={classnames(styles['export-to-lang-modal-checkbox-imports'])}>
-            <Checkbox data-test-id="export-to-lang-checkbox-imports" onClick={this.importsHandler} defaultChecked={this.props.showImports}>
+            <Checkbox data-testid="export-to-lang-checkbox-imports" onClick={this.importsHandler} defaultChecked={this.props.showImports}>
                Include Import Statements
             </Checkbox>
           </div>
           <div className={classnames(styles['export-to-lang-modal-checkbox-driver'])}>
-            <Checkbox data-test-id="export-to-lang-checkbox-driver" onClick={this.driverHandler} defaultChecked={this.props.driver}>
+            <Checkbox data-testid="export-to-lang-checkbox-driver" onClick={this.driverHandler} defaultChecked={this.props.driver}>
               Include Driver Syntax
             </Checkbox>
           </div>
@@ -149,7 +149,7 @@ class ExportModal extends PureComponent {
 
         <Modal.Footer>
           <TextButton
-            data-test-id="export-to-lang-close"
+            data-testid="export-to-lang-close"
             className="btn btn-default btn-sm"
             text="Close"
             clickHandler={this.closeHandler} />

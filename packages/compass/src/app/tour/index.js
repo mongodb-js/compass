@@ -82,12 +82,12 @@ var TourView = View.extend({
       .join('');
 
     return `
-      <div id="tour-out" data-test-id="feature-tour-modal">
+      <div id="tour-out" data-testid="feature-tour-modal">
         <div id="tour-bg"></div>
         <div id="tour">
           <div class="modal-header">
             <h2 data-hook="title"></h2>
-            <button class="tour-close-button" data-test-id="close-tour-button">&times;</button>
+            <button class="tour-close-button" data-testid="close-tour-button">&times;</button>
           </div>
           <div id="animation">
             <img id="animation-gif" src="${features[0].image}" />

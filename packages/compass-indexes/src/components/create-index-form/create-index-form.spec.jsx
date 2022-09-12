@@ -438,8 +438,6 @@ describe('CreateIndexForm Component', function () {
 
         const editor = within(editorWrapper).getByRole('textbox');
 
-        screen.debug(editor);
-
         userEvent.paste(editor, '{}');
 
         expect(collationStringChangedSpy).to.have.been.calledWith('{}');
@@ -508,8 +506,6 @@ describe('CreateIndexForm Component', function () {
 
         const editor = within(editorWrapper).getByRole('textbox');
 
-        screen.debug(editor);
-
         userEvent.paste(editor, '{}');
 
         expect(partialFilterExpressionChangedSpy).to.have.been.calledWith('{}');
@@ -577,8 +573,6 @@ describe('CreateIndexForm Component', function () {
         );
 
         const editor = within(editorWrapper).getByRole('textbox');
-
-        screen.debug(editor);
 
         userEvent.paste(editor, '{}');
 
@@ -722,8 +716,6 @@ describe('CreateIndexForm Component', function () {
         );
 
         const editor = within(editorWrapper).getByRole('textbox');
-
-        screen.debug(editor);
 
         userEvent.paste(editor, '{}');
 

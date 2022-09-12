@@ -297,7 +297,7 @@ class ImportModal extends PureComponent {
         show={this.props.open}
         onHide={this.handleClose}
         backdrop="static"
-        data-test-id="import-modal"
+        data-testid="import-modal"
       >
         <Modal.Header closeButton>
           Import To Collection {this.props.ns}

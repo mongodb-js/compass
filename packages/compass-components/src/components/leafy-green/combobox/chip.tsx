@@ -189,7 +189,7 @@ export const Chip = React.forwardRef<HTMLSpanElement, ChipProps>(
       <span
         role="option"
         aria-selected={isFocused}
-        data-test-id="lg-combobox-chip"
+        data-testid="lg-combobox-chip"
         {...dataProp.prop}
         ref={forwardedRef}
         className={chipWrapperStyle({ darkMode, size })}
