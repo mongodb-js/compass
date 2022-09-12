@@ -3,7 +3,6 @@
 import type { Ref, ReactElement, ReactNode } from 'react';
 import React, { forwardRef, createRef, useState } from 'react';
 
-import PropTypes from 'prop-types';
 import findLast from 'lodash/findLast';
 
 import { uiColors } from '@leafygreen-ui/palette';
@@ -260,11 +259,5 @@ const Pipeline = forwardRef(
 );
 
 Pipeline.displayName = 'Pipeline';
-
-Pipeline.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string,
-  size: PropTypes.oneOf(Object.values(Size)).isRequired,
-};
 
 export default Pipeline;
