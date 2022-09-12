@@ -1,3 +1,5 @@
-const Model = require('./lib/model');
+const Preferences = require('./lib/preferences');
+const { preferencesIpc } = require('./lib/renderer-ipc');
 
-module.exports = Model;
+module.exports = Preferences;
+module.exports.preferencesIpc = preferencesIpc;

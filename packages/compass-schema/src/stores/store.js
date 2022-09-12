@@ -127,16 +127,16 @@ const configureStore = (options = {}) => {
       this.ns = '';
       this.geoLayers = {};
 
-      const enableMapsInit = async () => {
-        const { enableMaps } = await preferencesIpc.getPreferences();
-        this.setState({ enableMaps });
-      };
-      void enableMapsInit();
       preferencesIpc.onPreferencesChanged((prefs) => {
         this.setState({
           enableMaps: prefs.enableMaps,
         });
       });
+    },
+
+    async setEnableMaps() {
+      const { enableMaps } = await preferencesIpc.getPreferences();
+      this.setState({ enableMaps });
     },
 
     getShareText() {

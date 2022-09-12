@@ -1,10 +1,11 @@
 import Preferences from 'compass-preferences-model';
 import { ipcMain } from 'hadron-ipc';
-import electron from 'electron';
+
+import { getStoragePaths } from '@mongodb-js/compass-utils';
+const { basepath } = getStoragePaths() || {};
 
 const setupPreferences = async() => {
-  const userDataPath = electron.app.getPath('userData');
-  const preferences = new Preferences(userDataPath);
+  const preferences = new Preferences(basepath);
 
   await preferences.fetchPreferences();
 
@@ -14,7 +15,7 @@ const setupPreferences = async() => {
     return savedPreferencesValues;
   });
 
-  ipcMain.handle('compass:get-all-preferences', () => {
+  ipcMain.handle('compass:get-preferences', () => {
     return preferences.getAllPreferences();
   });
 

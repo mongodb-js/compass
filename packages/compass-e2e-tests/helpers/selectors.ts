@@ -657,6 +657,7 @@ export const NewPipelineActions = '#new-pipeline-actions';
 export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
 export const SavePipelineMenuButton = '[data-testid="save-menu"]';
 export const SavePipelineMenuContent = '[data-testid="save-menu-content"]';
+export const SavePipelineMenuContentList = `${SavePipelineMenuContent} li'`;
 export const SavePipelineCreateViewAction =
   '[data-testid="save-menu-createView"]';
 export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';

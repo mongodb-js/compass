@@ -1,4 +1,4 @@
-import { preferencesIpc } from './lib';
+import { preferencesIpc } from '.';
 
 export enum THEMES {
   DARK = 'DARK',
@@ -16,8 +16,8 @@ export type UserPreferences = {
   theme: THEMES;
 }
 
-declare class CompassPreferencesModel {
-  constructor(userDataPath: string): void;
+declare class Preferences {
+  constructor(basepath?: string): void;
   fetchPreferences(): Promise<any>;
   savePreferences(attributes: any): Promise<void>;
   getAllPreferences(): Promise<any>;
@@ -26,4 +26,4 @@ declare class CompassPreferencesModel {
 
 export { preferencesIpc };
 
-export default CompassPreferencesModel;
+export default Preferences;

@@ -306,12 +306,19 @@ describe('Collection aggregations tab', function () {
       return text === '(Sample of 100 documents)';
     });
 
-    // open actions
-    await browser.clickVisible(Selectors.SavePipelineMenuButton);
-    const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
-    await menuElement.waitForDisplayed();
-    // select create view
-    await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
+    // Wait until the isCreateViewAvailable prop is changed
+    // and the "Create view" action is available in the Save button menu.
+    await browser.waitUntil(async () => {
+      await browser.clickVisible(Selectors.SavePipelineMenuButton);
+      const test = await browser.$$(Selectors.SavePipelineMenuContentList);
+
+      if (test.length === 3) {
+        await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
+        return true;
+      }
+
+      return false;
+    });
 
     // wait for the modal to appear
     const createViewModal = await browser.$(Selectors.CreateViewModal);

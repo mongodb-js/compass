@@ -38,7 +38,7 @@ global.hadronApp = app;
 /**
  * The main entrypoint for the application!
  */
-const APP_VERSION = remote.app.getVersion();
+const APP_VERSION = remote.app.getVersion() || '';
 
 const View = require('ampersand-view');
 const async = require('async');
@@ -113,6 +113,13 @@ const Application = View.extend({
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
     router: 'object',
+    /**
+     * The previously shown app version.
+     */
+    previousVersion: {
+      type: 'string',
+      default: '0.0.0'
+    }
   },
   children: {
     user: User
@@ -160,7 +167,7 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: function() {
+  render: async function() {
     log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container');
 
     this.el = document.querySelector('#application');
@@ -183,16 +190,15 @@ const Application = View.extend({
       this.queryByHook('layout-container')
     );
 
-    const handleTour = async () => {
-      const { showFeatureTour } = await preferencesIpc.getPreferences();
-      if (showFeatureTour) {
-        await this.showTour(false);
-      } else {
-        this.tourClosed();
-      }
-    };
-
-    handleTour();
+    if (
+      semver.lt(this.previousVersion, APP_VERSION) ||
+      // This is so we can test the tour modal in E2E tests where the version is always the same.
+      process.env.SHOW_TOUR
+    ) {
+      await this.showTour(false);
+    } else {
+      this.tourClosed();
+    }
   },
   showTour: async function(force) {
     const { previousVersion } = await preferencesIpc.getPreferences();
@@ -211,42 +217,38 @@ const Application = View.extend({
       ipc.ipcRenderer.emit('window:show-network-optin');
     }
   },
-  setInitialPreferences: async function() {
-    const { trackUsageStatistics, lastKnownVersion } = await preferencesIpc.getPreferences();
-
-    ipc.call(trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
-
-    const oldVersion = lastKnownVersion || '0.0.0';
-    const appVersion = APP_VERSION || '';
-
-    const preferences = {};
-    if (semver.lt(oldVersion, appVersion) || process.env.SHOW_TOUR) {
-      preferences.showFeatureTour = oldVersion;
-    }
-    if (semver.neq(oldVersion, appVersion)) {
-      preferences.lastKnownVersion = appVersion;
-    }
-    
-    await preferencesIpc.savePreferences(preferences);
-  },
   fetchUser: async function() {
-    debug('preferences fetched, now getting user');
-    const { currentUserId, telemetryAnonymousId } = await preferencesIpc.getPreferences();
+    debug('getting user preferences');
+    const {
+      currentUserId,
+      telemetryAnonymousId,
+      trackUsageStatistics,
+      lastKnownVersion
+    } = await preferencesIpc.getPreferences();
     
     // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
     const user = await User.getOrCreate(currentUserId || telemetryAnonymousId);
+
+    const preferences = { telemetryAnonymousId: user.id };
     
     this.user.set(user.serialize());
     this.user.trigger('sync');
+    debug('user fetch successful', user.serialize());
 
-    const savedPreferences = await preferencesIpc.savePreferences({ telemetryAnonymousId: user.id });
+    this.previousVersion = lastKnownVersion || '0.0.0';
+
+    if (semver.neq(this.previousVersion, APP_VERSION)) {
+      preferences.lastKnownVersion = APP_VERSION;
+    }
+
+    const savedPreferences = await preferencesIpc.savePreferences(preferences);
 
     ipc.call('compass:usage:identify', {
       currentUserId: savedPreferences.currentUserId,
       telemetryAnonymousId: user.id
     });
-    debug('user fetch successful', user.serialize());
-
+    ipc.call(trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
+    
     return user;
   }
 });
@@ -262,7 +264,6 @@ app.extend({
       [
         // check if migrations are required
         migrateApp.bind(state),
-        state.setInitialPreferences.bind(state),
         // get user
         state.fetchUser.bind(state)
       ],

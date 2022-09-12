@@ -162,6 +162,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
+    "@mongodb-js/compass-utils": "^0.1.0",
     "@mongosh/node-runtime-worker-thread": "^1.5.4",
     "clipboard": "^2.0.6",
     "compass-preferences-model": "^2.0.0",

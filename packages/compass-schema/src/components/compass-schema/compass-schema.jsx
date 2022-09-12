@@ -76,6 +76,10 @@ class Schema extends Component {
     this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
   }
 
+  componentDidMount() {
+    this.props.actions.setEnableMaps();
+  }
+
   componentDidUpdate(prevProps) {
     // when the namespace changes and the schema tab is not active, the
     // tab is "display:none" and its width 0. That also means the the minichart
