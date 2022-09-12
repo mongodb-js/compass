@@ -162,7 +162,6 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongodb-js/compass-utils": "^0.1.0",
     "@mongosh/node-runtime-worker-thread": "^1.5.4",
     "clipboard": "^2.0.6",
     "compass-preferences-model": "^2.0.0",
@@ -199,6 +198,7 @@
     "@mongodb-js/compass-serverstats": "^16.0.0",
     "@mongodb-js/compass-shell": "^3.0.0",
     "@mongodb-js/compass-sidebar": "^5.0.0",
+    "@mongodb-js/compass-utils": "^0.1.0",
     "@mongodb-js/eslint-config-compass": "^1.0.0",
     "@mongodb-js/hadron-plugin-manager": "^7.0.0",
     "@mongodb-js/mocha-config-compass": "^1.0.0",

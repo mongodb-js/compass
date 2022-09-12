@@ -310,15 +310,16 @@ describe('Collection aggregations tab', function () {
     // and the "Create view" action is available in the Save button menu.
     await browser.waitUntil(async () => {
       await browser.clickVisible(Selectors.SavePipelineMenuButton);
-      const test = await browser.$$(Selectors.SavePipelineMenuContentList);
+      const savePipelineCreateViewAction = await browser.$(
+        Selectors.SavePipelineCreateViewAction
+      );
+      const savePipelineCreateViewActionExisting =
+        await savePipelineCreateViewAction.isExisting();
 
-      if (test.length === 3) {
-        await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
-        return true;
-      }
-
-      return false;
+      return savePipelineCreateViewActionExisting;
     });
+
+    await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
 
     // wait for the modal to appear
     const createViewModal = await browser.$(Selectors.CreateViewModal);
