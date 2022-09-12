@@ -1,17 +1,15 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import type { GlobalPreferences } from 'compass-preferences-model';
 
 // setupIpc();
-let savedPreferences = {};
-if (!require('hadron-ipc').ipcRenderer) {
-  require('hadron-ipc').ipcRenderer = {
-    invoke: (name: string, preferences?: GlobalPreferences) => {
-      if (name === 'compass:save-preferences') {
-        savedPreferences = { ...savedPreferences, ...preferences };
-      } else if (name === 'test:clear-preferences') {
-        savedPreferences = {};
-      }
-      return Promise.resolve(savedPreferences);
-    },
-  };
-}
+let preferences = {};
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('hadron-ipc').ipcRenderer = {
+  invoke: (name: string, attributes?: GlobalPreferences) => {
+    if (name === 'compass:save-preferences') {
+      preferences = { ...preferences, ...attributes };
+    } else if (name === 'test:clear-preferences') {
+      preferences = {};
+    }
+    return Promise.resolve(preferences);
+  },
+};

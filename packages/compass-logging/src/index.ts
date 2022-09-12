@@ -58,8 +58,8 @@ export function createLoggerAndTelemetry(component: string): {
     event: string,
     properties: TrackProps = {}
   ): Promise<void> => {
-    const preferences = await preferencesIpc.getPreferences();
-    if (!preferences?.trackUsageStatistics) {
+    const { trackUsageStatistics } = await preferencesIpc.getPreferences();
+    if (!trackUsageStatistics) {
       return;
     }
 
