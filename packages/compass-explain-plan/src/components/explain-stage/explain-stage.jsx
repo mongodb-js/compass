@@ -283,7 +283,7 @@ class ExplainStage extends Component {
           {this.state.detailsOpen && (
             <Code
               className={styles['details-output']}
-              copyable={true}
+              copyable={false}
               language="json"
             >
               {JSON.stringify(this.props.details, null, ' ') || '{}'}
