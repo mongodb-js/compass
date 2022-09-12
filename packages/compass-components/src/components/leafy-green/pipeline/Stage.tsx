@@ -2,7 +2,6 @@
 
 import type { ReactNode, Ref, ReactElement } from 'react';
 import React, { forwardRef } from 'react';
-import PropTypes from 'prop-types';
 import { mergeRefs } from 'react-merge-refs';
 import { useInView } from 'react-intersection-observer';
 import { css, cx } from '@leafygreen-ui/emotion';
@@ -180,16 +179,5 @@ const Stage = forwardRef(
 );
 
 Stage.displayName = 'Stage';
-
-Stage.propTypes = {
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-  intersectionNode: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  size: PropTypes.oneOf(Object.values(Size)),
-  threshold: PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.arrayOf(PropTypes.number.isRequired),
-  ]),
-};
 
 export default Stage;
