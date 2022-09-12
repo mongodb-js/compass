@@ -16,6 +16,11 @@ import { LOG_PATH } from '../helpers/compass';
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
+async function refresh(browser: CompassBrowser) {
+  const META = process.platform === 'darwin' ? 'Meta' : 'Control';
+  await browser.keys([META, 'r']);
+}
+
 describe('FLE2', function () {
   describe('server version gte 4.2.20 and not a linux platform', function () {
     const databaseName = 'fle-test';
@@ -161,7 +166,7 @@ describe('FLE2', function () {
         await browser.shellEval(
           `db.getMongo().getDB('${databaseName}').createCollection('default')`
         );
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
       });
 
       it('can create a fle2 collection with encryptedFields', async function () {
@@ -257,7 +262,7 @@ describe('FLE2', function () {
             '"masterKey": { "provider" : "local" }' +
             '})'
         );
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
         plainMongo = await MongoClient.connect(CONNECTION_STRING);
       });
 
@@ -315,7 +320,7 @@ describe('FLE2', function () {
       it('can insert a document with an encrypted field and a non-encrypted field', async function () {
         await browser.shellEval(`db.createCollection('${collectionName}')`);
 
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
 
         await browser.navigateToCollectionTab(
           databaseName,
@@ -541,7 +546,7 @@ describe('FLE2', function () {
           name: 'La La',
         });
 
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
         await browser.navigateToCollectionTab(
           databaseName,
           collectionName,
@@ -621,7 +626,7 @@ describe('FLE2', function () {
           name: 'Second',
         });
 
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
         await browser.navigateToCollectionTab(
           databaseName,
           collectionName,

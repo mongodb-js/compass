@@ -210,23 +210,17 @@ export const SidebarDatabaseAndCollectionList =
 export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
 export const TopologyReplicaSetHostAddress =
-  '[data-testid="topology-replica-set-host-address-0"]';
-export const ReplicaSetType = '[data-testid="topology-replica-set-type"]';
-export const ServerVersionText = '[data-testid="server-version-text"]';
+  '[data-testid="topology-replica-set-host-address-0"]'; // TODO
+export const ReplicaSetType = '[data-testid="topology-replica-set-type"]'; // TODO
+export const ServerVersionText = '[data-testid="server-version-text"]'; // TODO
 export const SidebarTitle = '[data-testid="sidebar-title"]';
 export const SidebarCreateDatabaseButton =
-  '[data-testid="create-database-button"]';
+  '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
 export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
-export const SidebarInstanceRefreshButton =
-  '[data-testid="sidebar-instance-stats-refresh-button"]';
-export const SidebarInstanceRefreshSpinning =
-  '[data-testid="sidebar-instance-stats-refresh-spinning"]';
-export const SidebarInstanceRefreshIdle =
-  '[data-testid="sidebar-instance-stats-refresh-idle"]';
 export const FleConnectionConfigurationBanner =
   '[data-testid="fle-connection-configuration"]';
 export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';

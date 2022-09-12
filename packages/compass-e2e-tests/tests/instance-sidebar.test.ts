@@ -29,7 +29,8 @@ describe('Instance sidebar', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it('contains cluster info', async function () {
+  // TODO: this stuff has been moved to the connection info modal
+  it.skip('contains cluster info', async function () {
     const topologyReplicaSetHostAddressElement = await browser.$(
       Selectors.TopologyReplicaSetHostAddress
     );
