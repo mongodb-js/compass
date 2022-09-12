@@ -21,7 +21,7 @@ import type {
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import {
   QueryOption as QueryOptionComponent,
-  queryOptionLabelContainerStyles,
+  documentEditorLabelContainerStyles,
 } from './query-option';
 import { QueryHistoryButtonPopover } from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
@@ -142,7 +142,7 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-result-id={resultId}
     >
       <div className={queryBarFirstRowStyles}>
-        <div className={queryOptionLabelContainerStyles}>
+        <div className={documentEditorLabelContainerStyles}>
           <Label
             htmlFor={filterQueryOptionId}
             id="query-bar-option-input-filter-label"

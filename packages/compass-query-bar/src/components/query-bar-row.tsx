@@ -11,7 +11,7 @@ import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import { QueryOption as QueryOptionComponent } from './query-option';
 
 const rowStyles = css({
-  alignItems: 'center',
+  alignItems: 'flex-start',
   display: 'flex',
   flexGrow: 1,
   position: 'relative',
