@@ -262,7 +262,7 @@ class EditableDocument extends React.Component {
    */
   render() {
     return (
-      <div className={this.style()} data-test-id={TEST_ID}>
+      <div className={this.style()} data-testid={TEST_ID}>
         <div className={CONTENTS}>
           <div className={ELEMENTS}>{this.renderElements()}</div>
           {this.renderActions()}

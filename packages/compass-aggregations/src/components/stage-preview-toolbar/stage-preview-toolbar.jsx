@@ -79,7 +79,7 @@ class StagePreviewToolbar extends PureComponent {
         if (this.props.stageOperator === OUT && this.props.isValid) {
           return this.getOutText();
         }
-        
+
         const stageInfo = STAGE_SPRINKLE_MAPPINGS[this.props.stageOperator];
 
         let stageInfoButton = null
@@ -108,7 +108,7 @@ class StagePreviewToolbar extends PureComponent {
               Output after {stageInfoButton} stage
             </span>
             {this.renderInfoSprinkle(stageInfo)}
-            <span data-test-id="stage-preview-toolbar-tooltip">(Sample of {this.props.count} {this.getWord()})</span>
+            <span data-testid="stage-preview-toolbar-tooltip">(Sample of {this.props.count} {this.getWord()})</span>
           </div>
         );
       }

@@ -150,7 +150,7 @@ function FindInPageInput({
       <div className={findStyles}>
         <form
           name="find-in-page"
-          data-testid="find-in-page"
+          data-testid="find-in-page-form"
           className={formStyles}
         >
           <TextInput

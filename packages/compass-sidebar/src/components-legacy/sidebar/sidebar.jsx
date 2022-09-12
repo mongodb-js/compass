@@ -140,7 +140,7 @@ class Sidebar extends PureComponent {
           <button
             className={className}
             title="Create Database"
-            data-test-id="create-database-button"
+            data-testid="create-database-button"
             onClick={this.handleCreateDatabaseClick.bind(
               this,
               this.props.instance.isWritable
@@ -176,7 +176,7 @@ class Sidebar extends PureComponent {
           className={classnames(styles['compass-sidebar'], {
             [styles['compass-sidebar-collapsed']]: !isExpanded,
           })}
-          data-test-id="compass-sidebar-panel"
+          data-testid="compass-sidebar-panel"
           style={{ width: renderedWidth }}
         >
           <ResizeHandle
@@ -197,7 +197,7 @@ class Sidebar extends PureComponent {
                 ? this.updateWidth(sidebarWidthCollapsed)
                 : this.updateWidth(prevWidth)
             }
-            data-test-id="toggle-sidebar"
+            data-testid="toggle-sidebar"
           >
             <i className={collapsedButton} />
           </button>
@@ -242,7 +242,7 @@ class Sidebar extends PureComponent {
               )}
             />
             <input
-              data-test-id="sidebar-filter-input"
+              data-testid="sidebar-filter-input"
               ref="filter"
               className={styles['compass-sidebar-search-input']}
               placeholder="Filter your data"

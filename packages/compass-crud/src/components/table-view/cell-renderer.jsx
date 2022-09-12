@@ -219,7 +219,7 @@ class CellRenderer extends React.Component {
       <div className={className}>
         {this.props.value.decrypted && (
           <span
-            data-test-id="hadron-document-element-decrypted-icon"
+            data-testid="hadron-document-element-decrypted-icon"
             title="Encrypted Field"
           >
             <Icon glyph="Key" size="small" />

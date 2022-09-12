@@ -297,7 +297,7 @@ class AddFieldButton extends React.Component {
       // TODO: COMPASS-5847 Fix accessibility issues and remove lint disables.
       /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-      <li onClick={handler} data-test-id={testId}>
+      <li onClick={handler} data-testid={testId}>
         {/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */}
         <span className={DROP_DOWN_OPTION_CLASS}>
           <i className={iconClassName} />

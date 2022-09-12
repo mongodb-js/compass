@@ -388,7 +388,7 @@ class QueryBar extends Component {
         </div>
         <div className={styles['button-group']}>
           <button
-            data-test-id="query-bar-apply-filter-button"
+            data-testid="query-bar-apply-filter-button"
             key="apply-button"
             className={_applyButtonClassName}
             type="button"
@@ -398,7 +398,7 @@ class QueryBar extends Component {
             {buttonLabel}
           </button>
           <button
-            data-test-id="query-bar-reset-filter-button"
+            data-testid="query-bar-reset-filter-button"
             key="reset-button"
             className={_resetButtonClassName}
             type="button"
@@ -411,13 +411,13 @@ class QueryBar extends Component {
               id="query_history_button"
               key="query-history-button"
               className={_queryHistoryClassName}
-              data-test-id="query-history-button"
+              data-testid="query-history-button"
               type="button"
               onClick={this.props.actions.toggleQueryHistory}
               title="Toggle Query History"
             >
               <FontAwesome
-                data-test-id="query-history-button-icon"
+                data-testid="query-history-button-icon"
                 name="history"
               />
             </button>
@@ -444,7 +444,7 @@ class QueryBar extends Component {
     return (
       <div
         className={classnames(styles.component)}
-        data-test-id="query-bar"
+        data-testid="query-bar"
         data-result-id={this.props.resultId}
       >
         <div className={classnames(styles['input-container'])}>

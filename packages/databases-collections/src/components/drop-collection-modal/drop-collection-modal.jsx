@@ -91,13 +91,13 @@ class DropCollectionModal extends PureComponent {
         <form
           name="drop-collection-modal-form"
           onSubmit={this.onFormSubmit}
-          data-test-id="drop-collection-modal"
+          data-testid="drop-collection-modal"
         >
           <div className="form-group">
             <input
               type="text"
               className="form-control"
-              data-test-id="confirm-drop-collection-name"
+              data-testid="confirm-drop-collection-name"
               value={this.props.nameConfirmation}
               onChange={this.onNameConfirmationChange}
             />

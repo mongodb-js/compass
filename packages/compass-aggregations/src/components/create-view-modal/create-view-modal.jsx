@@ -69,7 +69,7 @@ class CreateViewModal extends PureComponent {
         <form
           name="create-view-modal-form"
           onSubmit={this.onFormSubmit.bind(this)}
-          data-test-id="create-view-modal"
+          data-testid="create-view-modal"
         >
           <ModalInput
             id="create-view-name"

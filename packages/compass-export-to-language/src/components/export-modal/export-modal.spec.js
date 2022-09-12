@@ -52,29 +52,29 @@ describe('ExportModal [Component]', () => {
     });
 
     it('renders the title text', () => {
-      expect(component.find('[data-test-id="export-to-lang-modal-title"]')).to.contain.html('Export Query To Language');
+      expect(component.find('[data-testid="export-to-lang-modal-title"]')).to.contain.html('Export Query To Language');
     });
 
     it('renders the root modal', () => {
-      expect(component.find('[data-test-id="export-to-lang-modal"]')).to.be.present();
+      expect(component.find('[data-testid="export-to-lang-modal"]')).to.be.present();
     });
 
     it('renders export form', () => {
-      expect(component.find('[data-test-id="export-to-lang-modal-body"]')).to.have.descendants(ExportForm);
+      expect(component.find('[data-testid="export-to-lang-modal-body"]')).to.have.descendants(ExportForm);
     });
 
     it('renders the close modal button', () => {
-      expect(component.find('[data-test-id="export-to-lang-close"]')).to.be.present();
+      expect(component.find('[data-testid="export-to-lang-close"]')).to.be.present();
     });
 
     it('renders the import checkbox', () => {
-      expect(component.find('[data-test-id="export-to-lang-checkbox-imports"]')).to.be.present();
+      expect(component.find('[data-testid="export-to-lang-checkbox-imports"]')).to.be.present();
     });
     it('renders the driver checkbox', () => {
-      expect(component.find('[data-test-id="export-to-lang-checkbox-driver"]')).to.be.present();
+      expect(component.find('[data-testid="export-to-lang-checkbox-driver"]')).to.be.present();
     });
     it('does not render the builders checkbox on default', () => {
-      expect(component.find('[data-test-id="export-to-lang-checkbox-builders"]')).to.not.be.present();
+      expect(component.find('[data-testid="export-to-lang-checkbox-builders"]')).to.not.be.present();
     });
   });
 
@@ -120,7 +120,7 @@ describe('ExportModal [Component]', () => {
     });
 
     it('calls the click button action', () => {
-      component.find('[data-test-id="export-to-lang-checkbox-imports"]').simulate('click');
+      component.find('[data-testid="export-to-lang-checkbox-imports"]').simulate('click');
       expect(showImportsChangedSpy.calledOnce).to.equal(true);
     });
   });
@@ -167,17 +167,17 @@ describe('ExportModal [Component]', () => {
     });
 
     it('renders the builders checkbox when output is Java and in Query mode', () => {
-      expect(component.find('[data-test-id="export-to-lang-checkbox-builders"]')).to.be.present();
+      expect(component.find('[data-testid="export-to-lang-checkbox-builders"]')).to.be.present();
     });
     it('calls the click button action', () => {
-      component.find('[data-test-id="export-to-lang-checkbox-builders"]').simulate('click');
+      component.find('[data-testid="export-to-lang-checkbox-builders"]').simulate('click');
       expect(buildersChangedSpy.calledOnce).to.equal(true);
     });
     it('hides the builders checkbox when output is Java and in Pipeline mode', () => {
       component.setProps({
         mode: 'Pipeline'
       });
-      expect(component.find('[data-test-id="export-to-lang-checkbox-builders"]')).not.to.be.present();
+      expect(component.find('[data-testid="export-to-lang-checkbox-builders"]')).not.to.be.present();
     });
   });
 
@@ -223,10 +223,10 @@ describe('ExportModal [Component]', () => {
     });
 
     it('renders the driver checkbox when true', () => {
-      expect(component.find('[data-test-id="export-to-lang-checkbox-driver"]')).to.be.present();
+      expect(component.find('[data-testid="export-to-lang-checkbox-driver"]')).to.be.present();
     });
     it('calls the click button action', () => {
-      component.find('[data-test-id="export-to-lang-checkbox-driver"]').simulate('click');
+      component.find('[data-testid="export-to-lang-checkbox-driver"]').simulate('click');
       expect(driverChangedSpy.calledOnce).to.equal(true);
     });
   });

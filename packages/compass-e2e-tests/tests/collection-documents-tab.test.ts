@@ -25,18 +25,18 @@ async function getRecentQueries(
   }
 
   const queryTags = await browser.$$(
-    '[data-test-id="query-history-query-attributes"]'
+    '[data-testid="query-history-query-attributes"]'
   );
   return Promise.all(
     queryTags.map(async (queryTag) => {
       const attributeTags = await queryTag.$$(
-        '[data-test-id="query-history-query-attribute"]'
+        '[data-testid="query-history-query-attribute"]'
       );
       const attributes: RecentQuery = {};
       await Promise.all(
         attributeTags.map(async (attributeTag: Element<'async'>) => {
           const labelTag = await attributeTag.$(
-            '[data-test-id="query-history-query-label"]'
+            '[data-testid="query-history-query-label"]'
           );
           const preTag = await attributeTag.$('pre');
           const key = await labelTag.getText();
@@ -380,13 +380,13 @@ FindIterable<Document> result = collection.find(filter);`);
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/
     );
 
-    await browser.hover('[data-test-id="editable-json"]');
+    await browser.hover('[data-testid="editable-json"]');
     await browser.clickVisible('[data-testid="edit-document-button"]');
 
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
     await browser.setAceValue(
-      '[data-test-id="editable-json"] .ace_editor',
+      '[data-testid="editable-json"] .ace_editor',
       newjson
     );
 
@@ -424,7 +424,7 @@ FindIterable<Document> result = collection.find(filter);`);
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
     );
 
-    await browser.hover('[data-test-id="editable-json"]');
+    await browser.hover('[data-testid="editable-json"]');
     await browser.clickVisible('[data-testid="edit-document-button"]');
 
     const newjson = JSON.stringify({
@@ -433,7 +433,7 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     await browser.setAceValue(
-      '[data-test-id="editable-json"] .ace_editor',
+      '[data-testid="editable-json"] .ace_editor',
       newjson
     );
 

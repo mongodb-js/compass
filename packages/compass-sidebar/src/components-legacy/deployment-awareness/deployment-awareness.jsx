@@ -64,7 +64,7 @@ class DeploymentAwarenessComponent extends React.Component {
     return (
       <div
         className={classnames(styles['deployment-awareness'])}
-        data-test-id="deployment-awareness"
+        data-testid="deployment-awareness"
       >
         {this.renderTopologyInfo()}
       </div>

@@ -83,10 +83,7 @@ class PreviewFields extends PureComponent {
   render() {
     const fields = this.props.fields.map((field) => {
       return (
-        <th
-          key={field.path}
-          data-test-id={`preview-field-header-${field.path}`}
-        >
+        <th key={field.path} data-testid={`preview-field-header-${field.path}`}>
           <div>
             <input
               type="checkbox"

@@ -58,7 +58,7 @@ const SidebarTitle = ({
         [styles['sidebar-title-is-active']]:
           activeNamespace === NO_ACTIVE_NAMESPACE,
       })}
-      data-test-id="sidebar-title"
+      data-testid="sidebar-title"
       onClick={onClick}
     >
       {isSidebarExpanded ? (

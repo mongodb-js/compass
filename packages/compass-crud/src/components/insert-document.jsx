@@ -18,7 +18,7 @@ class InsertDocument extends React.PureComponent {
    */
   render() {
     return (
-      <div className={DOCUMENT} data-test-id="insert-document-modal">
+      <div className={DOCUMENT} data-testid="insert-document-modal">
         <DocumentList.Document value={this.props.doc} editable editing />
       </div>
     );

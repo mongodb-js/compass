@@ -112,7 +112,7 @@ export class ShellHeader extends Component {
       <div className={shellHeaderStyles}>
         <div className={shellHeaderLeftStyles}>
           <button
-            data-test-id="shell-expand-button"
+            data-testid="shell-expand-button"
             className={shellHeaderToggleStyles}
             aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
             onClick={onShellToggleClicked}

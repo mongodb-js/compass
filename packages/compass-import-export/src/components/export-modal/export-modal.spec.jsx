@@ -29,7 +29,7 @@ describe('ExportModal Component', function () {
       state.exportData.count = 0;
       const component = renderModal();
       const elements = component.find(
-        '[data-test-id="export-with-filters-label"]'
+        '[data-testid="export-with-filters-label"]'
       );
       expect(elements).to.have.lengthOf(1);
       expect(elements.first().text()).to.equal(
@@ -41,7 +41,7 @@ describe('ExportModal Component', function () {
       state.exportData.count = 5;
       const component = renderModal();
       const elements = component.find(
-        '[data-test-id="export-with-filters-label"]'
+        '[data-testid="export-with-filters-label"]'
       );
       expect(elements).to.have.lengthOf(1);
       expect(elements.first().text()).to.equal(
@@ -53,7 +53,7 @@ describe('ExportModal Component', function () {
       state.exportData.count = null;
       const component = renderModal();
       const elements = component.find(
-        '[data-test-id="export-with-filters-label"]'
+        '[data-testid="export-with-filters-label"]'
       );
       expect(elements).to.have.lengthOf(1);
       expect(elements.first().text()).to.equal(
@@ -75,8 +75,8 @@ describe('ExportModal Component', function () {
     });
     it('renders modal on export screen', function () {
       const modal = renderModal();
-      expect(modal.find('[data-test-id="cancel-button"]')).to.have.lengthOf(1);
-      expect(modal.find('[data-test-id="export-button"]')).to.have.lengthOf(1);
+      expect(modal.find('[data-testid="cancel-button"]')).to.have.lengthOf(1);
+      expect(modal.find('[data-testid="export-button"]')).to.have.lengthOf(1);
     });
   });
 });

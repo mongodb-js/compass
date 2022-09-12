@@ -79,7 +79,7 @@ describe('RecentListItem [Component]', function () {
 
   describe('#behavior', function () {
     it('should call the saveRecent action when the favorite query button is clicked', function () {
-      const node = component.find('[data-test-id="query-history-button-fav"]');
+      const node = component.find('[data-testid="query-history-button-fav"]');
       node.simulate('click');
 
       expect(actions.saveRecent).to.have.been.calledOnce;
@@ -87,7 +87,7 @@ describe('RecentListItem [Component]', function () {
 
     it('should call the copyQuery action when the copy query button is clicked', function () {
       const node = component.find(
-        '[data-test-id="query-history-button-copy-query"]'
+        '[data-testid="query-history-button-copy-query"]'
       );
       node.simulate('click');
 
@@ -96,7 +96,7 @@ describe('RecentListItem [Component]', function () {
 
     it('should call the deleteRecent action when the copy query button is clicked', function () {
       const node = component.find(
-        '[data-test-id="query-history-button-delete-recent"]'
+        '[data-testid="query-history-button-delete-recent"]'
       );
       node.simulate('click');
 
