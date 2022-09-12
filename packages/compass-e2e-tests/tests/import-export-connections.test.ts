@@ -19,7 +19,7 @@ describe('Connection Import / Export', function () {
 
     originalDisableKeychainUsage =
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-    if (process.platform === 'linux' && process.env.CI) {,
+    if (process.platform === 'linux' && process.env.CI) {
       // keytar is not working on Linux in CI, see
       // https://jira.mongodb.org/browse/COMPASS-6119 for more details.
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE = 'true';
