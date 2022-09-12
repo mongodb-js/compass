@@ -13,6 +13,7 @@ import {
   css,
   spacing,
   useId,
+  WarningSummary,
 } from '@mongodb-js/compass-components';
 
 import { AddDataMenu } from './add-data-menu';
@@ -55,10 +56,15 @@ const exportCollectionButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const OUTDATED_WARNING = `The content is outdated and no longer in sync
+with the current query. Press "Find" again to see the results for
+the current query.`;
+
 type CrudToolbarProps = {
   activeDocumentView: string;
   count?: number;
   end: number;
+  error?: Error;
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
   instanceDescription: string;
@@ -69,6 +75,7 @@ type CrudToolbarProps = {
   onApplyClicked: () => void;
   onResetClicked: () => void;
   openExportFileDialog: () => void;
+  outdated: boolean;
   page: number;
   readonly: boolean;
   refreshDocuments: () => void;
@@ -81,6 +88,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   activeDocumentView,
   count,
   end,
+  error,
   getPage,
   insertDataHandler,
   instanceDescription,
@@ -91,6 +99,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   onApplyClicked,
   onResetClicked,
   openExportFileDialog,
+  outdated,
   page,
   readonly,
   refreshDocuments,
@@ -236,6 +245,12 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           </SegmentedControl>
         </div>
       </div>
+      {outdated && !error && (
+        <WarningSummary
+          data-testid="crud-outdated-message-id"
+          warnings={[OUTDATED_WARNING]}
+        />
+      )}
     </Toolbar>
   );
 };

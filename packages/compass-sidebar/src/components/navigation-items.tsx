@@ -31,7 +31,7 @@ const navigationItem = css({
   position: 'relative',
 
   ':hover': {
-    fontWeight: 'bold',
+    backgroundColor: 'var(--item-bg-color-hover)',
   },
 });
 
@@ -151,8 +151,10 @@ export function NavigationItems({
         actions={databasesActions}
         isActive={currentLocation === 'Databases'}
       />
-      <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
-      <SidebarDatabasesNavigation />
+      {isExpanded && (
+        <DatabaseCollectionFilter changeFilterRegex={changeFilterRegex} />
+      )}
+      {isExpanded && <SidebarDatabasesNavigation />}
     </>
   );
 }

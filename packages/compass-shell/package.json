@@ -40,6 +40,7 @@
   "dependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
     "@mongodb-js/compass-logging": "^1.0.0",
+    "@mongodb-js/compass-utils": "^0.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "@mongosh/node-runtime-worker-thread": "^1.5.4",
     "react": "^16.14.0"
@@ -47,6 +48,7 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.0.0",
     "@mongodb-js/compass-logging": "^1.0.0",
+    "@mongodb-js/compass-utils": "^0.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.0",
     "@mongosh/node-runtime-worker-thread": "^1.5.4",
     "react": "^16.14.0"
@@ -59,7 +61,6 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@electron/remote": "^2.0.8",
     "@hot-loader/react-dom": "^16.9.0",
     "@leafygreen-ui/code": "^9.4.0",
     "@mongosh/browser-repl": "^1.5.4",
@@ -73,7 +74,6 @@
     "core-js": "^3.12.1",
     "cross-env": "^5.0.1",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.25.0",

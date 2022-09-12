@@ -35,7 +35,7 @@ class ErrorBox extends PureComponent {
     const prettyError = getPrettyErrorMessage(this.props.message);
     return (
       <div
-        data-test-id={this.props.dataTestId}
+        data-testid={this.props.dataTestId}
         className={style()}
         dangerouslySetInnerHTML={{ __html: prettyError }}
       />

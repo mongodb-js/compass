@@ -1,0 +1,10 @@
+ignores:
+ - '@mongodb-js/prettier-config-compass'
+ - '@mongodb-js/tsconfig-compass'
+ - '@types/chai'
+ - '@types/sinon-chai'
+ - 'sinon'
+ - 'chai'
+ - 'electron'
+ignore-patterns:
+ - 'dist'

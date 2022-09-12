@@ -40,7 +40,7 @@ describe('ExportForm [Component]', () => {
     });
 
     it('renders parent div', () => {
-      expect(component.find('[data-test-id="export-to-lang"]')).to.be.present();
+      expect(component.find('[data-testid="export-to-lang"]')).to.be.present();
     });
 
     it('renders the headers div', () => {

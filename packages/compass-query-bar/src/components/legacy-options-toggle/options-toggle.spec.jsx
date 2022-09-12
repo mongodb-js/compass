@@ -37,7 +37,7 @@ describe('OptionsToggle [Component]', function () {
         <OptionsToggle actions={actions} expanded={false} />
       );
       expect(
-        component.find('[data-test-id="query-bar-options-toggle-text"]')
+        component.find('[data-testid="query-bar-options-toggle-text"]')
       ).to.have.text('Options');
     });
   });

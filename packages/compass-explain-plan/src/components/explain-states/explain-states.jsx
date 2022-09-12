@@ -160,7 +160,7 @@ class ExplainStates extends Component {
               <Button
                 onClick={this.onExecuteExplainClicked.bind(this)}
                 disabled={!this.props.isEditable}
-                data-test-id="execute-explain-button"
+                data-testid="execute-explain-button"
                 variant={ButtonVariant.Primary}
                 size={ButtonSize.Large}
               >

@@ -29,7 +29,7 @@ class IconButton extends React.Component {
       <button
         type={BUTTON}
         title={this.props.title}
-        data-test-id={this.props.dataTestId}
+        data-testid={this.props.dataTestId}
         className={this.props.className}
         onClick={this.props.clickHandler}>
         <i className={this.props.iconClassName} aria-hidden />

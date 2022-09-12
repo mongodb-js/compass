@@ -28,7 +28,7 @@ class OptionSelector extends React.Component {
 
     const menuItems = [];
     for (const [key, label] of Object.entries(this.props.options)) {
-      menuItems.push(<MenuItem data-test-id={`${this.props.id}-${key}`} key={key} eventKey={key} href="#">{label}</MenuItem>);
+      menuItems.push(<MenuItem data-testid={`${this.props.id}-${key}`} key={key} eventKey={key} href="#">{label}</MenuItem>);
     }
 
     return (

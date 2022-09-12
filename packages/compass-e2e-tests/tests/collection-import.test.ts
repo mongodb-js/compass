@@ -157,7 +157,7 @@ describe('Collection import', function () {
 
     // pick list view
     await browser.clickVisible(
-      '[data-test-id="insert-document-dialog-view-list"]'
+      '[data-testid="insert-document-dialog-view-list"]'
     );
 
     // hover over the generated ObjectId to get the '+' for adding a new field

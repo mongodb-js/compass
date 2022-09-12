@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
-import { css, cx } from '@leafygreen-ui/emotion';
+import { css, cx, spacing } from '../';
+import { Icon, Link } from './leafygreen';
 
 type ValueProps =
   | {
@@ -77,6 +78,11 @@ const nonSelectable = css({
   userSelect: 'none',
 });
 
+const encryptedHelpLinkStyle = css({
+  color: 'inherit',
+  marginLeft: spacing[1],
+});
+
 export const ObjectIdValue: React.FunctionComponent<
   PropsByValueType<'ObjectId'>
 > = ({ value }) => {
@@ -96,11 +102,23 @@ export const ObjectIdValue: React.FunctionComponent<
 export const BinaryValue: React.FunctionComponent<
   PropsByValueType<'Binary'>
 > = ({ value }) => {
-  const { stringifiedValue, title } = useMemo(() => {
+  const { stringifiedValue, title, additionalHints } = useMemo(() => {
     if (value.sub_type === Binary.SUBTYPE_ENCRYPTED) {
       return {
         stringifiedValue: '*********',
         title: 'Encrypted',
+        additionalHints: (
+          <Link
+            className={encryptedHelpLinkStyle}
+            hideExternalIcon={true}
+            href="https://www.mongodb.com/docs/compass/current/in-use-encryption-tutorial/"
+            aria-label="Compass In-Use Encryption documentation"
+            title="Compass In-Use Encryption documentation"
+            data-testid="bson-value-in-use-encryption-docs-link"
+          >
+            <Icon size="small" glyph="QuestionMarkWithCircle"></Icon>
+          </Link>
+        ),
       };
     }
     if (value.sub_type === Binary.SUBTYPE_UUID) {
@@ -134,6 +152,7 @@ export const BinaryValue: React.FunctionComponent<
   return (
     <div className={getStyles('Binary')} title={title ?? stringifiedValue}>
       {stringifiedValue}
+      {additionalHints}
     </div>
   );
 };

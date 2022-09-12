@@ -41,3 +41,6 @@ export * from './reset-connect-form';
 export * from './scroll-to-virtual-item';
 export * from './set-export-filename';
 export * from './set-feature';
+export * from './save-favorite';
+export * from './select-favorite';
+export * from './select-connection-menu-item';

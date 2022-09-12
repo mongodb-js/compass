@@ -1,16 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  css,
   Description,
   Editor,
   EditorVariant,
   Label,
-  Option,
   RadioBox,
   RadioBoxGroup,
-  Select,
-  SelectSize
 } from '@mongodb-js/compass-components';
 
 import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
@@ -56,6 +52,9 @@ const keyEncryptionKeyTemplate = {
   kmip: '/* No KeyEncryptionKey required */\n{}'
 };
 
+const queryableEncryptedFieldsEditorId = 'queryable-encrypted-fields-editor-id';
+const keyEncryptionKeyEditorId = 'key-encryption-key-editor-id';
+
 function FLE2Fields({
   isCapped,
   isTimeSeries,
@@ -77,10 +76,11 @@ function FLE2Fields({
       description="Encrypt a subset of the fields using Queryable Encryption."
     >
       <FieldSet>
-        <Label htmlFor="TODO(COMPASS-5653)">Encrypted fields</Label>
+        <Label htmlFor={queryableEncryptedFieldsEditorId}>Encrypted fields</Label>
         <Description>Indicate which fields should be encrypted and whether they should be queryable.</Description>
         <Editor
           variant={EditorVariant.Shell}
+          id={queryableEncryptedFieldsEditorId}
           name="fle2.encryptedFields"
           value={fle2.encryptedFields}
           data-testid="fle2-encryptedFields"
@@ -124,10 +124,11 @@ function FLE2Fields({
       </FieldSet>
 
       <FieldSet>
-        <Label htmlFor="TODO(COMPASS-5653)">Key Encryption Key</Label>
+        <Label htmlFor={keyEncryptionKeyEditorId}>Key Encryption Key</Label>
         <Description>Specify which key encryption key to use for creating new data encryption keys.</Description>
         <Editor
           variant={EditorVariant.Shell}
+          id={keyEncryptionKeyEditorId}
           name="fle2.keyEncryptionKey"
           defaultValue={keyEncryptionKeyTemplate[fle2.kmsProvider]}
           value={fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]}

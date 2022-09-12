@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   spacing,
-  Label,
+  Body,
   Description,
   Link,
   css,
@@ -29,7 +29,7 @@ function UrlOptions({
 }): React.ReactElement {
   return (
     <div className={urlOptionsContainerStyles} data-testid="url-options">
-      <Label htmlFor={''}>URI Options</Label>
+      <Body weight="medium">URI Options</Body>
       <Description className={urlOptionsTableDescriptionStyles}>
         Add additional MongoDB URI options to customize your connection.&nbsp;
         <Link
