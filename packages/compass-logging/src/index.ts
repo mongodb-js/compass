@@ -47,16 +47,6 @@ export function createLoggerAndTelemetry(component: string): {
     },
   } as Writable;
   const writer = new MongoLogWriter('', null, target);
-  let preferences: any;
-  let trackUsageStatistics = false;
-
-  const trackUsageStatisticsInit = async () => {
-    preferences = await preferencesIpc.getPreferences();
-    trackUsageStatistics = preferences?.trackUsageStatistics;
-  };
-  preferencesIpc.onPreferencesChanged((preferences: any) => {
-    trackUsageStatistics = preferences?.trackUsageStatistics;
-  });
 
   const track = (...args: [string, TrackProps?]) => {
     void Promise.resolve()
@@ -68,11 +58,8 @@ export function createLoggerAndTelemetry(component: string): {
     event: string,
     properties: TrackProps = {}
   ): Promise<void> => {
-    if (!preferences) {
-      await trackUsageStatisticsInit();
-    }
-
-    if (!trackUsageStatistics) {
+    const preferences = await preferencesIpc.getPreferences();
+    if (!preferences?.trackUsageStatistics) {
       return;
     }
 

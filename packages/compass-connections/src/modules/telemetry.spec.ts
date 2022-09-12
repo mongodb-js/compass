@@ -34,9 +34,14 @@ const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
 describe('connection tracking', function () {
   before(function () {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('hadron-ipc').ipcMain.broadcast('compass:preferences-changed', {
+    require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
       trackUsageStatistics: true,
     });
+  });
+
+  after(function () {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('hadron-ipc').ipcRenderer.invoke('test:clear-preferences');
   });
 
   it('tracks a new connection attempt event - favorite', async function () {

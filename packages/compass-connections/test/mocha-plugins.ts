@@ -1,22 +1,15 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // setupIpc();
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-if (!require('hadron-ipc').on) {
-  const callbacks = {};
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+let savedPreferences = {};
+if (!require('hadron-ipc').ipcRenderer) {
   require('hadron-ipc').ipcRenderer = {
-    on: (name: string, callback: CallableFunction) => {
-      if (!callbacks[name]) {
-        callbacks[name] = [];
+    invoke: (name: string, preferences?: any) => {
+      if (name === 'compass:save-preferences') {
+        savedPreferences = { ...savedPreferences, ...preferences };
+      } else if (name === 'test:clear-preferences') {
+        savedPreferences = {};
       }
-      callbacks[name].push(callback);
-    },
-  };
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('hadron-ipc').ipcMain = {
-    broadcast: (name: string, ...args: unknown[]) => {
-      (callbacks[name] ?? []).forEach((callback: CallableFunction) =>
-        callback({}, ...args)
-      );
+      return Promise.resolve(savedPreferences);
     },
   };
 }

@@ -58,7 +58,6 @@ class Schema extends Component {
       ANALYSIS_STATE_TIMEOUT,
     ]),
     outdated: PropTypes.bool,
-    enableMaps: PropTypes.bool,
     isActiveTab: PropTypes.bool,
     errorMessage: PropTypes.string,
     maxTimeMS: PropTypes.number,
@@ -74,10 +73,6 @@ class Schema extends Component {
     this.queryBar = this.queryBarRole.component;
     this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
     this.queryBarActions = appRegistry.getAction(this.queryBarRole.actionName);
-  }
-
-  componentDidMount() {
-    this.props.actions.setEnableMaps();
   }
 
   componentDidUpdate(prevProps) {
@@ -145,7 +140,6 @@ class Schema extends Component {
         <Field
           key={field.name}
           actions={this.props.actions}
-          enableMaps={this.props.enableMaps}
           localAppRegistry={this.props.store.localAppRegistry}
           {...field}
         />

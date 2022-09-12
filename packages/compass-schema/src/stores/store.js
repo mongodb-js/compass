@@ -17,7 +17,6 @@ import { TAB_NAME } from '../constants/plugin';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
-import { preferencesIpc } from 'compass-preferences-model';
 
 const DEFAULT_MAX_TIME_MS = 60000;
 const DEFAULT_SAMPLE_SIZE = 1000;
@@ -126,17 +125,6 @@ const configureStore = (options = {}) => {
       };
       this.ns = '';
       this.geoLayers = {};
-
-      preferencesIpc.onPreferencesChanged((prefs) => {
-        this.setState({
-          enableMaps: prefs.enableMaps,
-        });
-      });
-    },
-
-    async setEnableMaps() {
-      const { enableMaps } = await preferencesIpc.getPreferences();
-      this.setState({ enableMaps });
     },
 
     getShareText() {
@@ -168,7 +156,6 @@ const configureStore = (options = {}) => {
         outdated: false,
         isActiveTab: false,
         resultId: resultId(),
-        enableMaps: true,
       };
     },
 
