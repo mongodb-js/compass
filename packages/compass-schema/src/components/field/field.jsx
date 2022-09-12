@@ -82,6 +82,7 @@ class Field extends Component {
       // Set the active type to the first type in the props.types array.
       types: types,
       activeType: types.length > 0 ? types[0] : null,
+      enableMaps: false,
     };
   }
 

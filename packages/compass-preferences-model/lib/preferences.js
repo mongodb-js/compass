@@ -175,7 +175,7 @@ class Preferences {
       this.userPreferencesModel.fetch({
         success: (model) => {
           debug('fetch user preferences is successful', model.serialize());
-          return resolve(this.getAllPreferences());
+          return resolve(this.getPreferences());
         },
         error: (model, err) => {
           debug('fetch user preferences failed', err.message);
@@ -188,13 +188,13 @@ class Preferences {
   savePreferences(attributes) {
     return new Promise((resolve, reject) => {
       if (!attributes && isEmpty(attributes)) {
-        return resolve(this.getAllPreferences());
+        return resolve(this.getPreferences());
       }
 
       // Save user preferences to the Ampersand model.
       this.userPreferencesModel.save(attributes, {
         success: () => {
-          return resolve(this.getAllPreferences());
+          return resolve(this.getPreferences());
         },
         error: (model, err) => {
           debug('saving user preferences error', err);
@@ -204,14 +204,14 @@ class Preferences {
     });
   }
 
-  getAllPreferences() {
+  getPreferences() {
     // TODO: merge user, global, and CLI preferences here.
     return this.userPreferencesModel.getAttributes({ props: true, derived: true });
   }
 
   async getConfigurableUserPreferences() {
     // Set the defaults and also update showedNetworkOptIn flag.
-    if (!this.getAllPreferences().showedNetworkOptIn) {
+    if (!this.getPreferences().showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
@@ -222,7 +222,7 @@ class Preferences {
         theme: THEMES.LIGHT,
       });
     }
-    const preferences = this.getAllPreferences();
+    const preferences = this.getPreferences();
     return Object.fromEntries(
       Object.entries(preferences).filter(([key]) => preferencesProps[key].ui === true)
     );

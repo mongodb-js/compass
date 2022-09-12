@@ -16,11 +16,13 @@ export type UserPreferences = {
   theme: THEMES;
 }
 
+export type GlobalPreferences = UserPreferences; // TODO: extend with global preferences.
+
 declare class Preferences {
   constructor(basepath?: string): void;
-  fetchPreferences(): Promise<any>;
-  savePreferences(attributes: any): Promise<void>;
-  getAllPreferences(): Promise<any>;
+  fetchPreferences(): Promise<GlobalPreferences>;
+  savePreferences(attributes: GlobalPreferences): Promise<GlobalPreferences>;
+  getPreferences(): Promise<GlobalPreferences>;
   getConfigurableUserPreferences(): Promise<UserPreferences>;
 }
 
