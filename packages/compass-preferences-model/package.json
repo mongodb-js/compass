@@ -51,6 +51,7 @@
     "eslint-config-mongodb-js": "^3.0.1",
     "hadron-ipc": "^3.0.0",
     "lodash.isempty": "^4.4.0",
+    "lodash.pickby": "^4.6.0",
     "mocha": "^6.0.2"
   }
 }

@@ -24,7 +24,7 @@ store.onActivated = () => {
     /**
      * Toggle the autoUpdates preference change.
      */
-    preferencesIpc.onPreferencesChanged('autoUpdates', (autoUpdates) => {
+    preferencesIpc.onPreferenceValueChanged('autoUpdates', (autoUpdates) => {
       store.dispatch(toggleAutoUpdates(autoUpdates));
     });
   } catch (e) {

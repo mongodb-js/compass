@@ -24,6 +24,7 @@ declare class Preferences {
   savePreferences(attributes: Partial<GlobalPreferences>): Promise<GlobalPreferences>;
   getPreferences(): Promise<GlobalPreferences>;
   getConfigurableUserPreferences(): Promise<UserPreferences>;
+  onPreferencesChanged(callback: Callback<Partial<GlobalPreferences>>): void;
 }
 
 export { preferencesIpc };

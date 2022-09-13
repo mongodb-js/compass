@@ -22,7 +22,7 @@ const preferencesIpc = {
     }
     return {};
   },
-  onPreferencesChanged(preferenceName, callback) {
+  onPreferenceValueChanged(preferenceName, callback) {
     const listener = (_, preferences) => {
       if (Object.keys(preferences).includes(preferenceName)) {
         return callback(preferences[preferenceName]);

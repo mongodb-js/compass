@@ -1,6 +1,6 @@
 import Preferences from 'compass-preferences-model';
+import type { GlobalPreferences } from 'compass-preferences-model';
 import { ipcMain } from 'hadron-ipc';
-import { pickBy } from 'lodash';
 
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 const { basepath } = getStoragePaths() || {};
@@ -10,14 +10,12 @@ const setupPreferences = async() => {
 
   await preferences.fetchPreferences();
 
-  ipcMain.handle('compass:save-preferences', async (event, attributes) => {
-    const savedPreferencesValues = await preferences.savePreferences(attributes);
-    const changedPreferencesValues = pickBy(
-      savedPreferencesValues,
-      (value: string | boolean, key: string) => Object.keys(attributes).includes(key)
-    );
+  preferences.onPreferencesChanged((changedPreferencesValues: Partial<GlobalPreferences>) => {
     ipcMain.broadcast('compass:preferences-changed', changedPreferencesValues);
-    return savedPreferencesValues;
+  });
+
+  ipcMain.handle('compass:save-preferences', (event, attributes) => {
+    return preferences.savePreferences(attributes);
   });
 
   ipcMain.handle('compass:get-preferences', () => {

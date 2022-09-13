@@ -1,6 +1,7 @@
 const Model = require('ampersand-model');
 const storageMixin = require('storage-mixin');
 const isEmpty = require('lodash.isempty');
+const pickBy = require('lodash.pickby');
 
 const debug = require('debug')('mongodb-compass:models:preferences');
 
@@ -166,13 +167,14 @@ class Preferences {
       }
     });
 
-    this.userPreferencesModel = new PreferencesModel();
+    this._onPreferencesChangedCallbacks = [];
+    this._userPreferencesModel = new PreferencesModel();
   }
 
   fetchPreferences() {
     return new Promise((resolve, reject) => {
       // Fetch user preferences from the Ampersand model.
-      this.userPreferencesModel.fetch({
+      this._userPreferencesModel.fetch({
         success: (model) => {
           debug('fetch user preferences is successful', model.serialize());
           return resolve(this.getPreferences());
@@ -192,8 +194,14 @@ class Preferences {
       }
 
       // Save user preferences to the Ampersand model.
-      this.userPreferencesModel.save(attributes, {
+      this._userPreferencesModel.save(attributes, {
         success: () => {
+          const savedPreferencesValues = this.getPreferences();
+          const changedPreferencesValues = pickBy(
+            savedPreferencesValues,
+            (value, key) => Object.keys(attributes).includes(key)
+          );
+          this._callOnPreferencesChanged(changedPreferencesValues);
           return resolve(this.getPreferences());
         },
         error: (model, err) => {
@@ -206,7 +214,7 @@ class Preferences {
 
   getPreferences() {
     // TODO: merge user, global, and CLI preferences here.
-    return this.userPreferencesModel.getAttributes({ props: true, derived: true });
+    return this._userPreferencesModel.getAttributes({ props: true, derived: true });
   }
 
   async getConfigurableUserPreferences() {
@@ -226,6 +234,16 @@ class Preferences {
     return Object.fromEntries(
       Object.entries(preferences).filter(([key]) => preferencesProps[key].ui === true)
     );
+  }
+
+  _callOnPreferencesChanged(changedPreferencesValues) {
+    for (const callback of this._onPreferencesChangedCallbacks) {
+      return callback(changedPreferencesValues);
+    }
+  }
+
+  onPreferencesChanged(callback) {
+    this._onPreferencesChangedCallbacks.push(callback);
   }
 }
 
