@@ -204,13 +204,10 @@ describe('QueryBar [Plugin]', function () {
   });
 
   describe('a user is able to provide custom placeholders for the input fields', function () {
-    const queryOptions = [
+    const queryOptionsLayout = [
       'project',
-      'sort',
-      'collation',
-      'skip',
-      'limit',
-      'maxTimeMS',
+      ['sort', 'maxTimeMS'],
+      ['collation', 'skip', 'limit'],
     ];
 
     it('the input fields have a placeholder by default', function () {
@@ -218,7 +215,7 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          queryOptions={queryOptions}
+          queryOptionsLayout={queryOptionsLayout}
           expanded
           serverVersion="3.4.0"
         />
@@ -268,7 +265,7 @@ describe('QueryBar [Plugin]', function () {
         <QueryBarPlugin
           store={store}
           actions={actions}
-          queryOptions={queryOptions}
+          queryOptionsLayout={queryOptionsLayout}
           sortOptionPlaceholder="{ field: -1 }"
           expanded
           serverVersion="3.4.0"
