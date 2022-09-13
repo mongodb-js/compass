@@ -9,6 +9,7 @@ import {
   uiColors,
   withTheme,
   Label,
+  Link,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 import type AppRegistry from 'hadron-app-registry';
@@ -20,10 +21,10 @@ import type {
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import {
   QueryOption as QueryOptionComponent,
-  queryOptionLabelContainerStyles,
+  documentEditorLabelContainerStyles,
 } from './query-option';
-import { QueryOptionsGrid } from './query-options-grid';
 import { QueryHistoryButtonPopover } from './query-history-button-popover';
+import { QueryBarRow } from './query-bar-row';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -55,6 +56,17 @@ const filterLabelStyles = css({
   padding: 0,
 });
 
+const queryOptionsContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  marginTop: spacing[2],
+  padding: `0 ${spacing[2]}px`,
+  gap: spacing[2],
+});
+
+const queryBarDocumentationLink =
+  'https://docs.mongodb.com/compass/current/query/filter/';
+
 type QueryBarProps = {
   buttonLabel?: string;
   darkMode?: boolean;
@@ -65,14 +77,7 @@ type QueryBarProps = {
   onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
   onOpenExportToLanguage: () => void;
   onReset: () => void;
-  queryOptions?: (
-    | 'project'
-    | 'sort'
-    | 'collation'
-    | 'skip'
-    | 'limit'
-    | 'maxTimeMS'
-  )[];
+  queryOptionsLayout?: (QueryOption | QueryOption[])[];
   queryState: 'apply' | 'reset';
   refreshEditorAction: Listenable;
   resultId: string | number;
@@ -94,7 +99,12 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
   onChangeQueryOption,
   onOpenExportToLanguage,
   onReset,
-  queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
+  // Used to specify which query options to show and where they are positioned.
+  queryOptionsLayout = [
+    'project',
+    ['sort', 'maxTimeMS'],
+    ['collation', 'skip', 'limit'],
+  ],
   queryState,
   refreshEditorAction,
   resultId,
@@ -132,13 +142,15 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-result-id={resultId}
     >
       <div className={queryBarFirstRowStyles}>
-        <div className={queryOptionLabelContainerStyles}>
+        <div className={documentEditorLabelContainerStyles}>
           <Label
             htmlFor={filterQueryOptionId}
             id="query-bar-option-input-filter-label"
             className={filterLabelStyles}
           >
-            Filter
+            <Link href={queryBarDocumentationLink} target="_blank">
+              Filter
+            </Link>
           </Label>
           {showQueryHistoryButton && (
             <QueryHistoryButtonPopover
@@ -197,7 +209,7 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
           </Button>
         )}
 
-        {queryOptions && queryOptions.length > 0 && (
+        {queryOptionsLayout && queryOptionsLayout.length > 0 && (
           <MoreOptionsToggle
             aria-controls="additional-query-options-container"
             data-testid="query-bar-options-toggle"
@@ -206,21 +218,27 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
           />
         )}
       </div>
-      {queryOptions && queryOptions.length > 0 && (
-        <div id="additional-query-options-container">
-          {isQueryOptionsExpanded && (
-            <QueryOptionsGrid
-              queryOptions={queryOptions}
-              queryOptionProps={queryOptionProps}
-              onChangeQueryOption={onChangeQueryOption}
-              onApply={onApply}
-              refreshEditorAction={refreshEditorAction}
-              schemaFields={schemaFields}
-              serverVersion={serverVersion}
-            />
-          )}
-        </div>
-      )}
+      {isQueryOptionsExpanded &&
+        queryOptionsLayout &&
+        queryOptionsLayout.length > 0 && (
+          <div
+            className={queryOptionsContainerStyles}
+            id="additional-query-options-container"
+          >
+            {queryOptionsLayout.map((queryOptionRowLayout, rowIndex) => (
+              <QueryBarRow
+                queryOptionsLayout={queryOptionRowLayout}
+                key={`query-bar-row-${rowIndex}`}
+                queryOptionProps={queryOptionProps}
+                onChangeQueryOption={onChangeQueryOption}
+                onApply={onApply}
+                refreshEditorAction={refreshEditorAction}
+                schemaFields={schemaFields}
+                serverVersion={serverVersion}
+              />
+            ))}
+          </div>
+        )}
     </form>
   );
 };
