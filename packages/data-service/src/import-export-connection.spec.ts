@@ -207,7 +207,7 @@ describe('Connection export/import', function () {
       );
     }
   });
-  
+
   it('rejects importing when the passphrase is incorrect', async function () {
     const exported = await exportConnections({
       storage: inStorage,
