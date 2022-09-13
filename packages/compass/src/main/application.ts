@@ -14,6 +14,7 @@ import { setupPreferences } from './setup-preferences';
 const debug = createDebug('mongodb-compass:main:application');
 
 type ExitHandler = () => Promise<unknown>;
+type CompassApplicationMode = 'CLI' | 'GUI';
 
 class CompassApplication {
   private constructor() {
@@ -23,8 +24,14 @@ class CompassApplication {
   private static emitter: EventEmitter = new EventEmitter();
   private static exitHandlers: ExitHandler[] = [];
   private static initPromise: Promise<void> | null = null;
+  private static mode: CompassApplicationMode | null = null;
 
-  private static async _init() {
+  private static async _init(mode: CompassApplicationMode) {
+    if (this.mode !== null && this.mode !== mode) {
+      throw new Error(`Cannot re-initialize Compass in different mode (${mode} vs previous ${this.mode})`);
+    }
+    this.mode = mode;
+
     if (require('electron-squirrel-startup')) {
       debug('electron-squirrel-startup event handled sucessfully');
       return;
@@ -33,6 +40,11 @@ class CompassApplication {
     this.setupUserDirectory();
     await Promise.all([this.setupLogging(), this.setupTelemetry()]);
     await setupPreferences();
+
+    if (mode === 'CLI') {
+      return;
+    }
+
     await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
     await setupCSFLELibrary();
     this.setupJavaScriptArguments();
@@ -41,8 +53,8 @@ class CompassApplication {
     this.setupWindowManager();
   }
 
-  static init(): Promise<void> {
-    return (this.initPromise ??= this._init());
+  static init(mode: CompassApplicationMode): Promise<void> {
+    return (this.initPromise ??= this._init(mode));
   }
 
   private static async setupSecureStore(): Promise<void> {
