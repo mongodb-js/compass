@@ -12,43 +12,51 @@
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
   },
+  "files": [
+    "dist"
+  ],
   "license": "SSPL",
-  "main": "index.js",
-  "compass:main": "index.js",
+  "main": "dist/index.js",
+  "compass:main": "src/index.ts",
   "exports": {
-    "browser": "./browser.js",
-    "require": "./index.js"
+    "import": "./dist/.esm-wrapper.mjs",
+    "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./index.js"
+    ".": "./src/index.ts"
   },
-  "keywords": [
-    "mongodb-js"
-  ],
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "bootstrap": "npm run compile",
+    "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
+    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "eslint": "eslint",
+    "prettier": "prettier",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "depcheck": "depcheck",
+    "check": "npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
     "test-check-ci": "npm run check && npm test",
     "test": "mocha",
-    "check": "npm run lint && npm run depcheck",
-    "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
-    "depcheck": "depcheck",
-    "test-ci": "npm run test"
+    "test-ci": "npm run test",
+    "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
     "ampersand-collection-filterable": "^0.3.0",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-state": "5.0.3",
-    "debug": "^2.2.0",
-    "mongodb-collection-model": "^5.0.0",
-    "mongodb-database-model": "^2.0.0",
-    "mongodb-ns": "^2.4.0",
-    "raf": "^3.4.1",
+    "debug": "^4.2.0",
     "storage-mixin": "^5.0.0"
   },
   "devDependencies": {
+    "@mongodb-js/compass-utils": "^0.1.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.0",
+    "@mongodb-js/mocha-config-compass": "^1.0.0",
+    "@types/lodash.isempty": "^4.4.7",
+    "@types/lodash.pickby": "^4.6.7",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "eslint-config-mongodb-js": "^3.0.1",
     "hadron-ipc": "^3.0.0",
     "lodash.isempty": "^4.4.0",
     "lodash.pickby": "^4.6.0",
