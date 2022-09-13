@@ -25,7 +25,7 @@ export function createMongoClientMock({
 }: Partial<ClientMockOptions> = {}): MongoClient {
   const db = {
     command(spec: any, callback?: Callback<any>) {
-      if (callback) {
+      if (typeof callback === 'function') {
         db.command(spec)!.then(
           (result) => callback(null, result),
           (err) => callback(err, null)
