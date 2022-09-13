@@ -43,9 +43,13 @@ beforeEach(async () => {
   // Drop the databases that get created by tests just in case tests failed to
   // clean them up.
   await Promise.all(
-    ['test', 'my-sidebar-database', 'my-instance-database', 'fle-test', 'db-for-fle'].map((db) =>
-      dropDatabase(client.db(db))
-    )
+    [
+      'test',
+      'my-sidebar-database',
+      'my-instance-database',
+      'fle-test',
+      'db-for-fle',
+    ].map((db) => dropDatabase(client.db(db)))
   );
 });
 
