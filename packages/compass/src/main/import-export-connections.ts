@@ -3,6 +3,9 @@ import type { ExportConnectionOptions, ImportConnectionOptions } from 'mongodb-d
 
 export async function doExportConnections(filename: string, options: ExportConnectionOptions = {}): Promise<void> {
   console.log(`Exporting connections to "${filename}" (${options.passphrase ? 'with' : 'without'} passphrase)`);
+  // For now, we're importing mongodb-data-service dynamically here instead of adding it
+  // and its dependencies to the main process startup sequence, since 99 % of the time
+  // it is not going to be used.
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { exportConnections } = await import('mongodb-data-service');
   const json = await exportConnections(options);
