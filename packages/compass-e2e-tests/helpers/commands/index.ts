@@ -2,8 +2,6 @@ export * from './exists-eventually';
 export * from './click-visible';
 export * from './set-value-visible';
 export * from './wait-for-connection-screen';
-export * from './open-tour-modal';
-export * from './close-tour-modal';
 export * from './close-settings-modal';
 export * from './connect-with-connection-string';
 export * from './connect-with-connection-form';

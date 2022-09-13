@@ -646,9 +646,6 @@ export async function beforeTests(
   const { browser } = compass;
 
   await browser.waitForConnectionScreen();
-  if (process.env.SHOW_TOUR) {
-    await browser.closeTourModal();
-  }
   if (compass.isFirstRun) {
     await browser.closeSettingsModal();
   }

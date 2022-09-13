@@ -237,7 +237,6 @@
     "hadron-auto-update-manager": "^5.0.0",
     "hadron-build": "^25.0.0",
     "hadron-ipc": "^3.0.0",
-    "jquery": "^3.5.0",
     "local-links": "^1.4.0",
     "lodash": "^4.17.21",
     "make-fetch-happen": "^8.0.14",

@@ -3,10 +3,6 @@ export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton =
   '[data-testid="settings-modal"] [aria-label="Close modal"]';
 
-// Feature Tour Modal
-export const FeatureTourModal = '[data-testid="feature-tour-modal"]';
-export const CloseFeatureTourModal = '[data-testid="close-tour-button"]';
-
 // Connection screen
 export const ConnectSection = '[data-testid="connections-disconnected"]';
 export const ConnectButton = '[data-testid="connect-button"]';

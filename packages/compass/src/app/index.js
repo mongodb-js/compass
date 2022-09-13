@@ -84,7 +84,6 @@ var Application = View.extend({
       '  <div data-hook="auto-update"></div>',
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
-      '  <div data-hook="tour-container"></div>',
       '  <div data-hook="license"></div>',
       '</div>'
     ].join('\n');
@@ -125,8 +124,6 @@ var Application = View.extend({
      * @todo: remove when NODE-4281 is merged.
      */
     Number.prototype.unref = () => {};
-
-    ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
 
     function trackPerfEvent({ name, value }) {
       const fullName = {
@@ -184,34 +181,6 @@ var Application = View.extend({
       }),
       this.queryByHook('layout-container')
     );
-
-    const handleTour = () => {
-      if (app.preferences.showFeatureTour) {
-        this.showTour(false);
-      } else {
-        this.tourClosed();
-      }
-    };
-
-    handleTour();
-  },
-  showTour: function(force) {
-    const TourView = require('./tour');
-    const tourView = new TourView({ force: force });
-    if (tourView.features.length > 0) {
-      tourView.on('close', this.tourClosed.bind(this));
-      this.renderSubview(tourView, this.queryByHook('tour-container'));
-    } else {
-      this.tourClosed();
-    }
-  },
-  tourClosed: function() {
-    app.preferences.unset('showFeatureTour');
-    app.preferences.save({}, {success: () => {
-      if (!app.preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
-        ipc.ipcRenderer.emit('window:show-network-optin');
-      }
-    }});
   },
   fetchUser: function(done) {
     debug('preferences fetched, now getting user');
@@ -244,15 +213,6 @@ var Application = View.extend({
       var oldVersion = _.get(prefs, 'lastKnownVersion', '0.0.0');
       var currentVersion = APP_VERSION;
       var save = false;
-      if (
-        semver.lt(oldVersion, currentVersion) ||
-        // this is so we can test the tour modal in E2E tests where the version
-        // is always the same
-        process.env.SHOW_TOUR
-      ) {
-        prefs.showFeatureTour = oldVersion;
-        save = true;
-      }
       if (semver.neq(oldVersion, currentVersion)) {
         prefs.lastKnownVersion = currentVersion;
         save = true;

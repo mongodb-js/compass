@@ -32,16 +32,6 @@ var preferencesProps = {
     required: false
   },
   /**
-   * Stores whether or not the feature tour should be presented to the
-   * user. This is set in the migration step (./migrations/index.js).
-   * @type {Boolean}
-   */
-  showFeatureTour: {
-    type: 'string',
-    required: false,
-    default: undefined
-  },
-  /**
    * Stores whether or not the network opt-in screen has been shown to
    * the user already.
    * @type {String}
