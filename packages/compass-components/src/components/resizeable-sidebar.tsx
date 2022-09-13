@@ -59,13 +59,15 @@ const containerStylesLight = css({
   backgroundColor: 'var(--bg-color)',
 });
 
+export const defaultSidebarWidth = spacing[6] * 4;
+
 const ResizableSidebar = ({
   collapsable = false,
   expanded = true,
   setExpanded = () => {
     return;
   },
-  initialWidth = spacing[6] * 4,
+  initialWidth = defaultSidebarWidth,
   minWidth = 210,
   collapsedWidth = 48,
   children,
