@@ -20,11 +20,22 @@ const queryOptionStyles = css({
   alignItems: 'flex-start',
 });
 
+const documentEditorOptionContainerStyles = css({
+  flexGrow: 1,
+});
+
 const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
   paddingTop: spacing[1],
   marginRight: spacing[2],
 });
+
+const documentEditorQueryOptionLabelStyles = cx(
+  queryOptionLabelStyles,
+  css({
+    minWidth: spacing[5] * 3,
+  })
+);
 
 const documentEditorOptionStyles = css({
   minWidth: spacing[7],
@@ -50,7 +61,7 @@ const optionInputWithErrorStyles = css({
   },
 });
 
-export const queryOptionLabelContainerStyles = css({
+const queryOptionLabelContainerStyles = css({
   // Hardcoded height as we want the label not to vertically
   // center on the input area when it's expanded.
   height: spacing[4] + spacing[1],
@@ -58,6 +69,13 @@ export const queryOptionLabelContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
 });
+
+export const documentEditorLabelContainerStyles = cx(
+  queryOptionLabelContainerStyles,
+  css({
+    minWidth: spacing[5] * 3,
+  })
+);
 
 type QueryOptionProps = {
   darkMode?: boolean;
@@ -93,16 +111,29 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
 
   return (
     <div
-      className={queryOptionStyles}
+      className={cx(
+        queryOptionStyles,
+        isDocumentEditor && documentEditorOptionContainerStyles
+      )}
       data-testid={`query-bar-option-${queryOption}`}
     >
       {/* The filter label is shown by the query bar. */}
       {queryOption !== 'filter' && (
-        <div className={queryOptionLabelContainerStyles}>
+        <div
+          className={
+            isDocumentEditor
+              ? documentEditorLabelContainerStyles
+              : queryOptionLabelContainerStyles
+          }
+        >
           <Label
             htmlFor={id}
             id={`query-bar-option-input-${queryOption}-label`}
-            className={queryOptionLabelStyles}
+            className={
+              isDocumentEditor
+                ? documentEditorQueryOptionLabelStyles
+                : queryOptionLabelStyles
+            }
           >
             {queryOption}
           </Label>
