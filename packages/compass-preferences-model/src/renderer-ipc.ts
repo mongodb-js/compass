@@ -35,6 +35,7 @@ export const preferencesIpc = {
   ) {
     const listener = (_: Event, preferences: GlobalPreferences) => {
       if (Object.keys(preferences).includes(preferenceName)) {
+        // TODO: find a proper type.
         return callback((preferences as any)[preferenceName]);
       }
     };
