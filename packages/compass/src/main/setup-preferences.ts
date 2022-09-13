@@ -14,7 +14,7 @@ const setupPreferences = async() => {
     ipcMain.broadcast('compass:preferences-changed', changedPreferencesValues);
   });
 
-  ipcMain.handle('compass:save-preferences', (event, attributes) => {
+  ipcMain.handle('compass:save-preferences', (event: Event, attributes: Partial<GlobalPreferences>) => {
     return preferences.savePreferences(attributes);
   });
 

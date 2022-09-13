@@ -1,7 +1,6 @@
 ignores:
- - 'ampersand-collection-filterable'
- - 'ampersand-rest-collection'
- - 'ampersand-state'
+  - 'ampersand-collection-filterable'
+  - 'ampersand-rest-collection'
+  - 'ampersand-state'
 ignore-patterns:
- - 'dist'
- 
+  - 'dist'

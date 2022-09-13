@@ -83,7 +83,7 @@ describe('setupIntercom', function () {
   });
 
   describe('when it can be enabled', function () {
-    it('calls intercomScript.load when feedback gets enabled', async function () {
+    it('calls intercomScript.load when feedback gets enabled and intercomScript.unload when feedback gets disabled', async function () {
       await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
         enableFeedbackPanel: true,
       });

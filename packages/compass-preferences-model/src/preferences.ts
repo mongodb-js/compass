@@ -10,6 +10,12 @@ const debug = createDebug('mongodb-compass:models:preferences');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Model = require('ampersand-model');
 
+export enum THEMES {
+  DARK = 'DARK',
+  LIGHT = 'LIGHT',
+  OS_THEME = 'OS_THEME',
+}
+
 export type UserPreferences = {
   showedNetworkOptIn: boolean; // Has the settings dialog has been shown before.
   autoUpdates: boolean;
@@ -26,6 +32,10 @@ export type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<GlobalPreferences>
 ) => void;
 
+export type OnPreferenceValueChangedCallback = (
+  preferenceValue: string | boolean
+) => void;
+
 declare class PreferencesAmpersandModel {
   fetch: () => void;
   save: (
@@ -36,12 +46,6 @@ declare class PreferencesAmpersandModel {
     props?: boolean;
     derived?: boolean;
   }) => UserPreferences;
-}
-
-export enum THEMES {
-  DARK = 'DARK',
-  LIGHT = 'LIGHT',
-  OS_THEME = 'OS_THEME',
 }
 
 const preferencesProps: {
@@ -199,7 +203,7 @@ class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _userPreferencesModel: PreferencesAmpersandModel;
 
-  constructor(basepath: string | null) {
+  constructor(basepath?: string) {
     // User preferences are stored to disc via the Ampersand model.
     const PreferencesModel = Model.extend(storageMixin, {
       props: preferencesProps,
@@ -267,7 +271,7 @@ class Preferences {
     return this.getPreferences();
   }
 
-  getPreferences(): GlobalPreferences {
+  getPreferences() {
     // TODO: merge user, global, and CLI preferences here.
     return (
       this._userPreferencesModel.getAttributes({

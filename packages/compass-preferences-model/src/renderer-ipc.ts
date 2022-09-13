@@ -2,7 +2,7 @@ import ipc from 'hadron-ipc';
 import type {
   GlobalPreferences,
   UserPreferences,
-  OnPreferencesChangedCallback,
+  OnPreferenceValueChangedCallback,
 } from './preferences';
 
 /**
@@ -31,7 +31,7 @@ export const preferencesIpc = {
   },
   onPreferenceValueChanged(
     preferenceName: string,
-    callback: OnPreferencesChangedCallback
+    callback: OnPreferenceValueChangedCallback
   ) {
     const listener = (_: Event, preferences: GlobalPreferences) => {
       if (Object.keys(preferences).includes(preferenceName)) {
