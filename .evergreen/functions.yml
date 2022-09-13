@@ -417,7 +417,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           rm -rf mongodb-crypt && mkdir -p mongodb-crypt
           (cd mongodb-crypt && \
-            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 6.0.0-rc1') | \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 6.0.0') | \
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service

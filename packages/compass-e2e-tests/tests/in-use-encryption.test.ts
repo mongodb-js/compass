@@ -124,10 +124,10 @@ describe('FLE2', function () {
     });
   });
 
-  describe('server version gte 6.0.0-rc0', function () {
+  describe('server version gte 6.0.0', function () {
     before(function () {
       if (
-        semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
+        semver.lt(MONGODB_VERSION, '6.0.0') ||
         process.env.MONGODB_USE_ENTERPRISE !== 'yes'
       ) {
         return this.skip();

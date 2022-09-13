@@ -731,7 +731,7 @@ describe('FLE2', function () {
 
   it('can connect using local KMS', async function () {
     if (
-      semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
+      semver.lt(MONGODB_VERSION, '6.0.0') ||
       process.env.MONGODB_USE_ENTERPRISE !== 'yes'
     ) {
       return this.skip();
