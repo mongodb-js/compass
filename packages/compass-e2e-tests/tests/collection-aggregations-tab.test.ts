@@ -61,7 +61,7 @@ async function getDocuments(browser: CompassBrowser) {
   return parsed;
 }
 
-describe.only('Collection aggregations tab', function () {
+describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
