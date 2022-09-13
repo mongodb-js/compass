@@ -17,9 +17,13 @@ const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 
 async function refresh(browser: CompassBrowser) {
-  const META = process.platform === 'darwin' ? 'Meta' : 'Control';
-  await browser.keys([META, 'r']);
-  await browser.keys([META]); // meta a second time to release it
+  // We refresh immediately after running commands, so there is an opportunity
+  // for race conditions. Ideally we'd wait for something to become true, then
+  // hit refresh, then wait for a transition to occur that will correlate to the
+  // data actually being refreshed and arriving.
+
+  await browser.clickVisible(Selectors.SidebarShowActions);
+  await browser.clickVisible(Selectors.SidebarActionRefresh);
 }
 
 describe('FLE2', function () {
@@ -252,6 +256,7 @@ describe('FLE2', function () {
             }
           }`,
         });
+
         await browser.shellEval(`use ${databaseName}`);
         await browser.shellEval(
           'db.keyvault.insertOne({' +
@@ -264,6 +269,7 @@ describe('FLE2', function () {
             '})'
         );
         await refresh(browser);
+
         plainMongo = await MongoClient.connect(CONNECTION_STRING);
       });
 
@@ -320,7 +326,6 @@ describe('FLE2', function () {
 
       it('can insert a document with an encrypted field and a non-encrypted field', async function () {
         await browser.shellEval(`db.createCollection('${collectionName}')`);
-
         await refresh(browser);
 
         await browser.navigateToCollectionTab(
@@ -382,6 +387,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
         );
+        await refresh(browser);
 
         await browser.navigateToCollectionTab(
           databaseName,
@@ -409,6 +415,7 @@ describe('FLE2', function () {
               coll
             )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
           );
+          await refresh(browser);
 
           await browser.navigateToCollectionTab(
             databaseName,
@@ -469,6 +476,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
         );
+        await refresh(browser);
 
         await browser.navigateToCollectionTab(
           databaseName,
@@ -535,6 +543,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
         );
+        await refresh(browser);
 
         const doc = await plainMongo
           .db(databaseName)
@@ -615,6 +624,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "First" })`
         );
+        await refresh(browser);
 
         const doc = await plainMongo
           .db(databaseName)
@@ -708,6 +718,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
         );
+        await refresh(browser);
 
         await browser.navigateToCollectionTab(
           databaseName,

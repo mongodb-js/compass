@@ -214,6 +214,8 @@ export const TopologyReplicaSetHostAddress =
 export const ReplicaSetType = '[data-testid="topology-replica-set-type"]'; // TODO
 export const ServerVersionText = '[data-testid="server-version-text"]'; // TODO
 export const SidebarTitle = '[data-testid="sidebar-title"]';
+export const SidebarShowActions = '[data-testid="sidebar-title-actions-show-actions"]';
+export const SidebarActionRefresh = '[data-testid="sidebar-title-actions-refresh-data-action"]';
 export const SidebarCreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
 export const CollectionShowActionsButton =
