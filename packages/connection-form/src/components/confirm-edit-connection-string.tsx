@@ -17,6 +17,7 @@ function ConfirmEditConnectionString({
       onConfirm={onConfirm}
       onCancel={onCancel}
       buttonText="Confirm"
+      data-testid="edit-uri-confirmation-modal"
     >
       <div data-testid="edit-uri-note">
         Editing this connection string will reveal your credentials.
