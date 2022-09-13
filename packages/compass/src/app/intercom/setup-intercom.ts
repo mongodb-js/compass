@@ -1,7 +1,6 @@
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
-import type { UserPreferences } from 'compass-preferences-model';
 
 import { preferencesIpc } from 'compass-preferences-model';
 
@@ -74,7 +73,7 @@ export async function setupIntercom(
   const { enableFeedbackPanel } = await preferencesIpc.getPreferences();
   toggleEnableFeedbackPanel(enableFeedbackPanel);
 
-  preferencesIpc.onPreferencesChanged(({ enableFeedbackPanel }: UserPreferences) => {
+  preferencesIpc.onPreferencesChanged('enableFeedbackPanel', (enableFeedbackPanel: boolean) => {
     debug('enableFeedbackPanel changed');
     toggleEnableFeedbackPanel(enableFeedbackPanel);
   });

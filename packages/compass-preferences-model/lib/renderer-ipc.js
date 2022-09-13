@@ -22,9 +22,11 @@ const preferencesIpc = {
     }
     return {};
   },
-  onPreferencesChanged(callback) {
+  onPreferencesChanged(preferenceName, callback) {
     const listener = (_, preferences) => {
-      callback(preferences);
+      if (Object.keys(preferences).includes(preferenceName)) {
+        return callback(preferences[preferenceName]);
+      }
     };
     if (typeof ipc?.ipcRenderer?.on === 'function') {
       ipc.ipcRenderer.on('compass:preferences-changed', listener);

@@ -17,11 +17,15 @@ store.onActivated = () => {
     });
 
     /**
-     * Listen to changes in preferences.
+     * Initialise the autoUpdates preference.
      */
     store.dispatch(initAutoUpdates());
-    preferencesIpc.onPreferencesChanged((preferences) => {
-      store.dispatch(toggleAutoUpdates(preferences));
+
+    /**
+     * Toggle the autoUpdates preference change.
+     */
+    preferencesIpc.onPreferencesChanged('autoUpdates', (autoUpdates) => {
+      store.dispatch(toggleAutoUpdates(autoUpdates));
     });
   } catch (e) {
     // Not in renderer process.

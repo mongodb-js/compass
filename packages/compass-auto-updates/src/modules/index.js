@@ -73,6 +73,11 @@ export const visitReleaseNotes = () => {
   };
 };
 
+/**
+ * The autoUpdates preference value changed.
+ *
+ * @param {Boolean} autoUpdates - The autoUpdates prefernce valuse.
+ */
 const autoUpdatesChanged = (autoUpdates) => {
   if (autoUpdates) {
     ipc.call('app:enable-auto-update');
@@ -82,7 +87,7 @@ const autoUpdatesChanged = (autoUpdates) => {
 };
 
 /**
- * autoUpdates preferences initialised.
+ * Initialise the autoUpdates preference.
  *
  * @returns {Function} The function.
  */
@@ -94,13 +99,13 @@ export const initAutoUpdates = () => {
 };
 
 /**
- * autoUpdates preferences changed.
+ * Toggle the autoUpdates preference change.
  *
- * @param {Object} preferences - The prefernces valuse.
+ * @param {Boolean} autoUpdates - The autoUpdates preference value.
  *
  * @returns {Function} The function.
  */
-export const toggleAutoUpdates = ({ autoUpdates }) => {
+export const toggleAutoUpdates = (autoUpdates) => {
   return () => {
     autoUpdatesChanged(autoUpdates);
   };

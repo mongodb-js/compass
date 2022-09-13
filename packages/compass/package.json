@@ -164,7 +164,6 @@
   "dependencies": {
     "@mongosh/node-runtime-worker-thread": "^1.5.4",
     "clipboard": "^2.0.6",
-    "compass-preferences-model": "^2.0.0",
     "kerberos": "^2.0.0",
     "keytar": "^7.7.0",
     "mongodb-client-encryption": "^2.2.0-alpha.6",
@@ -217,6 +216,7 @@
     "chalk": "^4.1.1",
     "clean-stack": "^2.0.0",
     "cli-ux": "^5.5.1",
+    "compass-preferences-model": "^2.0.0",
     "compass-user-model": "^2.0.0",
     "darkreader": "^4.9.40",
     "debug": "^4.2.0",

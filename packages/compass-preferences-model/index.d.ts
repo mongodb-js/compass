@@ -21,7 +21,7 @@ export type GlobalPreferences = UserPreferences; // TODO: extend with global pre
 declare class Preferences {
   constructor(basepath?: string): void;
   fetchPreferences(): Promise<GlobalPreferences>;
-  savePreferences(attributes: GlobalPreferences): Promise<GlobalPreferences>;
+  savePreferences(attributes: Partial<GlobalPreferences>): Promise<GlobalPreferences>;
   getPreferences(): Promise<GlobalPreferences>;
   getConfigurableUserPreferences(): Promise<UserPreferences>;
 }

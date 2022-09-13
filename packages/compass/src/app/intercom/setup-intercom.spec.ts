@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
+import { EventEmitter } from 'events';
 
 import { setupIntercom } from './setup-intercom';
 import { expect } from 'chai';
@@ -8,7 +9,7 @@ import type { IntercomScript } from './intercom-script';
 
 const setupIpc = () => {
   let preferences = {};
-  require('hadron-ipc').ipcRenderer = {
+  require('hadron-ipc').ipcRenderer = Object.assign(new EventEmitter(), {
     invoke: (name, attributes) => {
       if (name === 'compass:save-preferences') {
         preferences = { ...preferences, ...attributes };
@@ -16,11 +17,8 @@ const setupIpc = () => {
         preferences = {};
       }
       return Promise.resolve(preferences);
-    },
-    on: (name, callback) => {
-      callback(null, preferences);
     }
-  };
+  });
 };
 
 async function testRunSetupIntercom(
@@ -101,7 +99,15 @@ describe('setupIntercom', function () {
         created_at: 1649432549,
         user_id: 'user-123',
       });
-      expect(intercomScript.unload).not.to.have.been.called;
+
+      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+        enableFeedbackPanel: false,
+      });
+      await require('hadron-ipc').ipcRenderer.emit('compass:preferences-changed', {}, {
+        enableFeedbackPanel: false,
+      });
+
+      expect(intercomScript.unload).to.have.been.called;
     });
 
     it('calls intercomScript.unload when feedback gets disabled', async function () {
