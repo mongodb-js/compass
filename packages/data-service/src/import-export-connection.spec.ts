@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import {
   exportConnections,
   importConnections,
@@ -200,6 +199,24 @@ describe('Connection export/import', function () {
       await importConnections(JSON.stringify(tampered), {
         storage: outStorage,
         passphrase: 'p4ssw0rd',
+      });
+      expect.fail('missed exception');
+    } catch (err) {
+      expect(err.message).to.include(
+        'Cannot decrypt due to corrupt data or wrong passphrase'
+      );
+    }
+  });
+  
+  it('rejects importing when the passphrase is incorrect', async function () {
+    const exported = await exportConnections({
+      storage: inStorage,
+      passphrase: 'p4ssw0rd',
+    });
+    try {
+      await importConnections(exported, {
+        storage: outStorage,
+        passphrase: 'wr0ng_p4ssw0rd!',
       });
       expect.fail('missed exception');
     } catch (err) {
