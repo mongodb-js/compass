@@ -753,6 +753,9 @@ export const stageMergeCollectionLink = (stageIndex: number): string => {
 export const stageEditorErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
 };
+export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
+};
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
