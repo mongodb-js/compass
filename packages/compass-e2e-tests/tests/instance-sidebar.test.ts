@@ -29,7 +29,7 @@ describe('Instance sidebar', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it.only('has a connection info modal with connection info', async function () {
+  it('has a connection info modal with connection info', async function () {
     await browser.clickVisible(Selectors.SidebarShowActions);
     await browser.clickVisible(Selectors.SidebarActionClusterInfo);
 
