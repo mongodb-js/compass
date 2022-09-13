@@ -65,7 +65,7 @@ export function ConnectionInfoModal({
   infos: ConnectionInfo[];
 }) {
   return (
-    <Modal open={isVisible} setOpen={close} size="small">
+    <Modal open={isVisible} setOpen={close} size="small" data-testid="connection-info-modal">
       <H3>Connection info</H3>
 
       <dl>

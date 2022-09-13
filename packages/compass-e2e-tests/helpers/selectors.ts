@@ -209,13 +209,10 @@ export const SidebarDatabaseAndCollectionList =
   '[data-testid="databases-and-collections"]';
 export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
-export const TopologyReplicaSetHostAddress =
-  '[data-testid="topology-replica-set-host-address-0"]'; // TODO
-export const ReplicaSetType = '[data-testid="topology-replica-set-type"]'; // TODO
-export const ServerVersionText = '[data-testid="server-version-text"]'; // TODO
 export const SidebarTitle = '[data-testid="sidebar-title"]';
 export const SidebarShowActions = '[data-testid="sidebar-title-actions-show-actions"]';
 export const SidebarActionRefresh = '[data-testid="sidebar-title-actions-refresh-data-action"]';
+export const SidebarActionClusterInfo = '[data-testid="sidebar-title-actions-open-connection-info-action"]';
 export const SidebarCreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
 export const CollectionShowActionsButton =
@@ -228,6 +225,8 @@ export const FleConnectionConfigurationBanner =
 export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
 export const CSFLEConnectionModal = '[data-testid="csfle-connection-modal"]';
 export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
+export const ConnectionInfoModal = '[data-testid="connection-info-modal"]';
+export const ConnectionInfoModalCloseButton = `${ConnectionInfoModal} [aria-label*="Close"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
