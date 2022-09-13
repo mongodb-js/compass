@@ -28,13 +28,6 @@
     ".": "./src/index.ts"
   },
   "types": "./dist/index.d.ts",
-  "mocha": {
-    "extension": [
-      "ts"
-    ],
-    "file": "./test/mocha-plugins.ts",
-    "recursive": true
-  },
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",

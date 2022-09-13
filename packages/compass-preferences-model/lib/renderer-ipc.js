@@ -8,21 +8,21 @@ const preferencesIpc = {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke('compass:save-preferences', attributes);
     }
-    return;
+    return {};
   },
   getPreferences() {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke('compass:get-preferences');
     }
-    return;
+    return {};
   },
   getConfigurableUserPreferences() {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke('compass:get-configurable-user-preferences');
     }
-    return;
+    return {};
   },
-  onPreferencesChanged2(callback) {
+  onPreferencesChanged(callback) {
     const listener = (_, preferences) => {
       callback(preferences);
     };
