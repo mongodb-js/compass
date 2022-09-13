@@ -76,7 +76,7 @@ describe('QueryBar [Plugin]', function () {
       // Set the ace editor input value.
       const aceEditorDomNode = component
         .find('[id="query-bar-option-input-filter"]')
-        .first()
+        .at(3)
         .getDOMNode();
       aceEditorDomNode.env.editor.session.setValue('{a: 3}');
     });
