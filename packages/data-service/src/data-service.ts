@@ -65,7 +65,8 @@ import {
   configuredKMSProviders,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
-import connectMongoClient from './connect-mongo-client';
+import type { CloneableMongoClient } from './connect-mongo-client';
+import connectMongoClient, { createClonedClient } from './connect-mongo-client';
 import type { CollectionInfo, CollectionInfoNameOnly } from './run-command';
 import type {
   Callback,
@@ -768,8 +769,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   // to fetch the right one. _useCRUDClient can be used to control
   // this behavior after connecting, i.e. for disabling and
   // enabling CSFLE on an already-connected DataService instance.
-  private _metadataClient?: MongoClient;
-  private _crudClient?: MongoClient;
+  private _metadataClient?: CloneableMongoClient;
+  private _crudClient?: CloneableMongoClient;
   private _useCRUDClient = true;
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
@@ -1781,7 +1782,17 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
-      callback(null, result!);
+      // Reset the CSFLE-enabled client (if any) to clear
+      // any collection metadata caches that might still be active.
+      this._resetCRUDClient().then(
+        () => {
+          callback(null, result!);
+        },
+        (error: any) => {
+          // @ts-expect-error Callback without result...
+          callback(this._translateMessage(error));
+        }
+      );
     });
   }
 
@@ -2493,6 +2504,28 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     this._isWritable = false;
     this._topologyType = 'Unknown';
     this._isConnecting = false;
+  }
+
+  private async _resetCRUDClient(): Promise<void> {
+    if (this.getCSFLEMode() === 'unavailable') {
+      // No separate client in use, don't do anything
+      return;
+    }
+    const crudClient = this._crudClient;
+    if (!crudClient) {
+      // In disconnected state, don't do anything
+      return;
+    }
+    const newClient = await crudClient[createClonedClient]();
+    if (this._crudClient === crudClient) {
+      this._crudClient = newClient;
+      await crudClient.close();
+    } else {
+      // If _crudClient has changed between start and end of
+      // connection establishment, don't do anything, just
+      // close and discard the new client.
+      await newClient.close();
+    }
   }
 
   private _startLogOp(
