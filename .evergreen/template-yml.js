@@ -103,7 +103,7 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-60x-enterprise',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '>6.0.0-rc0',
+        mongodb_version: '6.x.x',
         mongodb_use_enterprise: 'yes'
       }
     }
