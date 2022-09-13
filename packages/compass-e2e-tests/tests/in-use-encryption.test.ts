@@ -19,6 +19,7 @@ const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
 async function refresh(browser: CompassBrowser) {
   const META = process.platform === 'darwin' ? 'Meta' : 'Control';
   await browser.keys([META, 'r']);
+  await browser.keys([META]); // meta a second time to release it
 }
 
 describe('FLE2', function () {
