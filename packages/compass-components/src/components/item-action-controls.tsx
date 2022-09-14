@@ -1,10 +1,8 @@
 import React, { useRef, forwardRef, useCallback, useState } from 'react';
-import { Icon, IconButton } from '../index';
+import { Icon, IconButton, Menu, MenuItem } from './leafygreen';
 
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-
-import { Menu, MenuItem } from '@leafygreen-ui/menu';
 
 export type ItemAction<Action> = {
   action: Action;
