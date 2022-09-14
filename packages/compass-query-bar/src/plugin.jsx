@@ -13,7 +13,7 @@ function Plugin({
   store,
   ...props
 }) {
-  const useNewQueryBar = process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true';
+  const useNewQueryBar = process?.env?.COMPASS_SHOW_OLD_TOOLBARS !== 'true';
 
   const onApply = useCallback(() => {
     actions.apply();

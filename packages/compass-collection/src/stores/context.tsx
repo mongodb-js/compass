@@ -303,7 +303,7 @@ const setupQueryPlugins = ({
   }
 
   const queryHistoryRole = globalAppRegistry.getRole('Query.QueryHistory')?.[0];
-  if (process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true' && queryHistoryRole) {
+  if (process?.env?.COMPASS_SHOW_OLD_TOOLBARS !== 'true' && queryHistoryRole) {
     localAppRegistry.registerRole('Query.QueryHistory', queryHistoryRole);
     const queryHistoryActions = setupActions(
       queryHistoryRole,

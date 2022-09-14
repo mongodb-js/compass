@@ -115,7 +115,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
             className={schemaToolbarActionBarRightStyles}
             data-testid="schema-document-count"
           >
-            <Body>
+            <Body data-testid="schema-analysis-message">
               This report is based on a sample of&nbsp;<b>{sampleSize}</b>&nbsp;
               {documentsNoun}.
             </Body>
