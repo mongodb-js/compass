@@ -319,7 +319,7 @@ class Preferences {
     );
   }
 
-  async getConfigurableUserPreferences(): Promise<UserPreferences> {
+  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     // Set the defaults and also update showedNetworkOptIn flag.
     if (!this.getPreferences().showedNetworkOptIn) {
       await this.savePreferences({
@@ -338,7 +338,7 @@ class Preferences {
         ([key]) =>
           allPreferencesProps[key as keyof typeof preferences].ui === true
       )
-    ) as UserPreferences;
+    ) as UserConfigurablePreferences;
   }
 
   _callOnPreferencesChanged(
