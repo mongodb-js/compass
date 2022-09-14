@@ -28,12 +28,8 @@ export type UserPreferences = {
 
 export type GlobalPreferences = UserPreferences; // TODO: extend with global preferences.
 
-export type OnPreferencesChangedCallback = (
+type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<GlobalPreferences>
-) => void;
-
-export type OnPreferenceValueChangedCallback = (
-  preferenceValue: string | boolean
 ) => void;
 
 declare class PreferencesAmpersandModel {
@@ -220,7 +216,7 @@ class Preferences {
     this._userPreferencesModel = new PreferencesModel();
   }
 
-  async fetchPreferences() {
+  async fetchPreferences(): Promise<GlobalPreferences> {
     const userPreferencesModel = this._userPreferencesModel;
 
     // Fetch user preferences from the Ampersand model.
@@ -231,6 +227,7 @@ class Preferences {
     try {
       await fetchUserPreferences();
     } catch (err) {
+      // TODO: Log this error with @compass/logging.
       debug('Failed to load preferences, error while fetching models', {
         message: (err as Error).message,
       });
@@ -239,7 +236,9 @@ class Preferences {
     return this.getPreferences();
   }
 
-  async savePreferences(attributes: Partial<GlobalPreferences>) {
+  async savePreferences(
+    attributes: Partial<GlobalPreferences>
+  ): Promise<GlobalPreferences> {
     if (!attributes && isEmpty(attributes)) {
       return this.getPreferences();
     }
@@ -256,6 +255,7 @@ class Preferences {
     try {
       await saveUserPreferences(attributes);
     } catch (err) {
+      // TODO: Log this error with @compass/logging.
       debug('Failed to save preferences, error while saving models', {
         message: (err as Error).message,
       });
@@ -271,7 +271,7 @@ class Preferences {
     return this.getPreferences();
   }
 
-  getPreferences() {
+  getPreferences(): GlobalPreferences {
     // TODO: merge user, global, and CLI preferences here.
     return (
       this._userPreferencesModel.getAttributes({
@@ -281,7 +281,7 @@ class Preferences {
     );
   }
 
-  async getConfigurableUserPreferences() {
+  async getConfigurableUserPreferences(): Promise<UserPreferences> {
     // Set the defaults and also update showedNetworkOptIn flag.
     if (!this.getPreferences().showedNetworkOptIn) {
       await this.savePreferences({
@@ -299,18 +299,18 @@ class Preferences {
       Object.entries(preferences).filter(
         ([key]) => preferencesProps[key].ui === true
       )
-    );
+    ) as UserPreferences;
   }
 
   _callOnPreferencesChanged(
     changedPreferencesValues: Partial<GlobalPreferences>
-  ) {
+  ): void {
     for (const callback of this._onPreferencesChangedCallbacks) {
       return callback(changedPreferencesValues);
     }
   }
 
-  onPreferencesChanged(callback: OnPreferencesChangedCallback) {
+  onPreferencesChanged(callback: OnPreferencesChangedCallback): void {
     this._onPreferencesChangedCallbacks.push(callback);
   }
 }

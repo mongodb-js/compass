@@ -76,7 +76,7 @@ export const visitReleaseNotes = () => {
 /**
  * The autoUpdates preference value changed.
  *
- * @param {Boolean} autoUpdates - The autoUpdates prefernce valuse.
+ * @param {Boolean} autoUpdates - The autoUpdates preference value.
  */
 const autoUpdatesChanged = (autoUpdates) => {
   if (autoUpdates) {

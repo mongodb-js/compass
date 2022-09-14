@@ -1,42 +1,40 @@
 import ipc from 'hadron-ipc';
-import type {
-  GlobalPreferences,
-  UserPreferences,
-  OnPreferenceValueChangedCallback,
-} from './preferences';
+import type { GlobalPreferences, UserPreferences } from './preferences';
 
 /**
  * API to communicate with preferences from the electron renderer process.
  */
 export const preferencesIpc = {
-  savePreferences(attributes: Partial<GlobalPreferences>) {
+  savePreferences(
+    attributes: Partial<GlobalPreferences>
+  ): Promise<GlobalPreferences> {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke('compass:save-preferences', attributes);
     }
-    return {} as UserPreferences;
+    return Promise.resolve({} as GlobalPreferences);
   },
-  getPreferences() {
+  getPreferences(): Promise<GlobalPreferences> {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke('compass:get-preferences');
     }
-    return {} as GlobalPreferences;
+    return Promise.resolve({} as GlobalPreferences);
   },
-  getConfigurableUserPreferences() {
+  getConfigurableUserPreferences(): Promise<UserPreferences> {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke(
         'compass:get-configurable-user-preferences'
       );
     }
-    return {} as UserPreferences;
+    return Promise.resolve({} as UserPreferences);
   },
-  onPreferenceValueChanged(
-    preferenceName: string,
-    callback: OnPreferenceValueChangedCallback
-  ) {
+  onPreferenceValueChanged<K extends keyof GlobalPreferences>(
+    preferenceName: K,
+    callback: (value: GlobalPreferences[K]) => void
+  ): () => void {
     const listener = (_: Event, preferences: GlobalPreferences) => {
       if (Object.keys(preferences).includes(preferenceName)) {
         // TODO: find a proper type.
-        return callback((preferences as any)[preferenceName]);
+        return callback(preferences[preferenceName]);
       }
     };
     if (typeof ipc?.ipcRenderer?.on === 'function') {
