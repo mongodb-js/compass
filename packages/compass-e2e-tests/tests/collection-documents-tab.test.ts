@@ -295,7 +295,7 @@ describe('Collection documents tab', function () {
       Selectors.queryBarActionsMenu('Documents')
     );
     const exportToLanguageButton = await queryBarActionsMenu.$(
-      'a=Export To Language'
+      'a=Export to language'
     );
     await exportToLanguageButton.waitForDisplayed();
     await exportToLanguageButton.click();
