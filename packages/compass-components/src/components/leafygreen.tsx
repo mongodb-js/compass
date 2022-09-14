@@ -48,6 +48,7 @@ import {
 } from '@leafygreen-ui/table';
 import { Tabs as LeafyGreenTabs, Tab } from '@leafygreen-ui/tabs';
 import { default as LeafyGreenTextArea } from '@leafygreen-ui/text-area';
+import { default as LeafyGreenTextInput } from '@leafygreen-ui/text-input';
 import { default as Toast } from '@leafygreen-ui/toast';
 import { default as LeafyGreenToggle } from '@leafygreen-ui/toggle';
 import { default as LeafyGreenTooltip } from '@leafygreen-ui/tooltip';
@@ -125,6 +126,7 @@ const Tabs = withTheme(
   >
 ) as typeof LeafyGreenTabs;
 const TextArea: typeof LeafyGreenTextArea = withTheme(LeafyGreenTextArea);
+const TextInput: typeof LeafyGreenTextInput = withTheme(LeafyGreenTextInput);
 const Toggle = withTheme(
   LeafyGreenToggle as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenToggle>
@@ -176,6 +178,7 @@ export {
   Tab,
   Tabs,
   TextArea,
+  TextInput,
   Toast,
   Toggle,
   Tooltip,
