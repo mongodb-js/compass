@@ -112,8 +112,8 @@ class Toolbar extends React.Component {
     }
 
     const dropdownOptions = {
-      'import-file': 'Import File',
-      'insert-document': 'Insert Document',
+      'import-file': 'Import file',
+      'insert-document': 'Insert document',
     };
     return (
       <OptionWriteSelector

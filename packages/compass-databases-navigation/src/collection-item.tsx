@@ -82,7 +82,7 @@ export const CollectionItem: React.FunctionComponent<
     const actions: ItemAction<Actions>[] = [
       {
         action: 'open-in-new-tab',
-        label: 'Open in New Tab',
+        label: 'Open in new tab',
         icon: 'OpenNewTab',
       },
     ];
@@ -95,24 +95,24 @@ export const CollectionItem: React.FunctionComponent<
       actions.push(
         {
           action: 'drop-collection',
-          label: 'Drop View',
+          label: 'Drop view',
           icon: 'Trash',
         },
         {
           action: 'duplicate-view',
-          label: 'Duplicate View',
+          label: 'Duplicate view',
           icon: 'Copy',
         },
         {
           action: 'modify-view',
-          label: 'Modify View',
+          label: 'Modify view',
           icon: 'Edit',
         }
       );
     } else {
       actions.push({
         action: 'drop-collection',
-        label: 'Drop Collection',
+        label: 'Drop collection',
         icon: 'Trash',
       });
     }

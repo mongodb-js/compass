@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { UserPreferences } from 'compass-preferences-model';
+import type { UserConfigurablePreferences } from 'compass-preferences-model';
 import { preferencesIpc } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
@@ -10,7 +10,7 @@ const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 import { ActionTypes as UpdatedFieldActionTypes } from './updated-fields';
 import type { Actions as UpdatedFieldActions } from './updated-fields';
 
-export type State = Partial<UserPreferences>;
+export type State = Partial<UserConfigurablePreferences>;
 
 const INITIAL_STATE: State = {};
 
@@ -20,7 +20,7 @@ export enum ActionTypes {
 
 type SettingsFetchedAction = {
   type: ActionTypes.SettingsFetched;
-  settings: UserPreferences;
+  settings: UserConfigurablePreferences;
 };
 
 export type Actions = SettingsFetchedAction;

@@ -11,15 +11,11 @@ import {
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/updated-fields';
+import type { UserConfigurablePreferences } from 'compass-preferences-model';
 
 type PrivacySettingsProps = {
   handleChange: (field: PrivacyFields, value: boolean) => void;
-  autoUpdates?: boolean;
-  enableMaps?: boolean;
-  trackErrors?: boolean;
-  trackUsageStatistics?: boolean;
-  enableFeedbackPanel?: boolean;
-};
+} & Pick<Partial<UserConfigurablePreferences>, PrivacyFields>;
 
 type PrivacyFields =
   | 'autoUpdates'

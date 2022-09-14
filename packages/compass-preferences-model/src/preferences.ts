@@ -16,15 +16,31 @@ export enum THEMES {
   OS_THEME = 'OS_THEME',
 }
 
-export type UserPreferences = {
-  showedNetworkOptIn: boolean; // Has the settings dialog has been shown before.
+export type UserConfigurablePreferences = {
+  // User-facing preferences
   autoUpdates: boolean;
   enableMaps: boolean;
   trackErrors: boolean;
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
+  networkTraffic: boolean;
   theme: THEMES;
 };
+
+export type InternalUserPreferences = {
+  // These are internally used preferences that are not configurable
+  // by users.
+  showedNetworkOptIn: boolean; // Has the settings dialog has been shown before.
+  id: string;
+  lastKnownVersion: string;
+  currentUserId: string;
+  telemetryAnonymousId: string;
+};
+
+// UserPreferences contains all preferences stored to disk in the
+// per-user preferences model (currently the Ampersand model).
+export type UserPreferences = UserConfigurablePreferences &
+  InternalUserPreferences;
 
 export type GlobalPreferences = UserPreferences; // TODO: extend with global preferences.
 
@@ -44,15 +60,31 @@ declare class PreferencesAmpersandModel {
   }) => UserPreferences;
 }
 
-const preferencesProps: {
-  [key: string]: {
-    type: string;
-    default?: string | boolean;
-    required: boolean;
-    ui: boolean;
-    cli: boolean;
-    global: boolean;
-  };
+type AmpersandType<T> = T extends string
+  ? 'string'
+  : T extends boolean
+  ? 'boolean'
+  : T extends number
+  ? 'number'
+  : T extends any[]
+  ? 'array'
+  : T extends Date
+  ? 'date'
+  : T extends object
+  ? 'object'
+  : never;
+
+type PreferenceDefinition<K extends keyof GlobalPreferences> = {
+  type: AmpersandType<GlobalPreferences[K]>;
+  default?: GlobalPreferences[K];
+  required: boolean;
+  ui: K extends keyof UserConfigurablePreferences ? true : false;
+  cli: K extends keyof InternalUserPreferences ? false : boolean;
+  global: K extends keyof InternalUserPreferences ? false : boolean;
+};
+
+const modelPreferencesProps: {
+  [K in keyof UserPreferences]: PreferenceDefinition<K>;
 } = {
   /**
    * String identifier for this set of preferences. Default is `General`.
@@ -73,8 +105,8 @@ const preferencesProps: {
     required: false,
     default: '0.0.0',
     ui: false,
-    cli: true,
-    global: true,
+    cli: false,
+    global: false,
   },
   /**
    * Stores whether or not the network opt-in screen has been shown to
@@ -84,9 +116,9 @@ const preferencesProps: {
     type: 'boolean',
     required: true,
     default: false,
-    ui: true,
-    cli: true,
-    global: true,
+    ui: false,
+    cli: false,
+    global: false,
   },
   /**
    * Stores the theme preference for the user.
@@ -195,6 +227,12 @@ const preferencesProps: {
   },
 };
 
+export const allPreferencesProps: {
+  [K in keyof GlobalPreferences]: PreferenceDefinition<K>;
+} = {
+  ...modelPreferencesProps,
+};
+
 class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _userPreferencesModel: PreferencesAmpersandModel;
@@ -202,7 +240,7 @@ class Preferences {
   constructor(basepath?: string) {
     // User preferences are stored to disc via the Ampersand model.
     const PreferencesModel = Model.extend(storageMixin, {
-      props: preferencesProps,
+      props: modelPreferencesProps,
       extraProperties: 'ignore',
       idAttribute: 'id',
       namespace: 'AppPreferences',
@@ -281,7 +319,7 @@ class Preferences {
     );
   }
 
-  async getConfigurableUserPreferences(): Promise<UserPreferences> {
+  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     // Set the defaults and also update showedNetworkOptIn flag.
     if (!this.getPreferences().showedNetworkOptIn) {
       await this.savePreferences({
@@ -297,9 +335,10 @@ class Preferences {
     const preferences = this.getPreferences();
     return Object.fromEntries(
       Object.entries(preferences).filter(
-        ([key]) => preferencesProps[key].ui === true
+        ([key]) =>
+          allPreferencesProps[key as keyof typeof preferences].ui === true
       )
-    ) as UserPreferences;
+    ) as UserConfigurablePreferences;
   }
 
   _callOnPreferencesChanged(
