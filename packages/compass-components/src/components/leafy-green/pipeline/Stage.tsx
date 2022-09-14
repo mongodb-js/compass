@@ -2,7 +2,7 @@
 
 import type { ReactNode, Ref, ReactElement } from 'react';
 import React, { forwardRef } from 'react';
-import { mergeRefs } from 'react-merge-refs';
+import mergeRefs from 'react-merge-refs';
 import { useInView } from 'react-intersection-observer';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
