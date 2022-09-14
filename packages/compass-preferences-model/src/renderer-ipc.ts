@@ -1,5 +1,9 @@
 import ipc from 'hadron-ipc';
-import type { GlobalPreferences, UserPreferences } from './preferences';
+import type {
+  GlobalPreferences,
+  UserConfigurablePreferences,
+  UserPreferences,
+} from './preferences';
 
 /**
  * API to communicate with preferences from the electron renderer process.
@@ -19,7 +23,7 @@ export const preferencesIpc = {
     }
     return Promise.resolve({} as GlobalPreferences);
   },
-  getConfigurableUserPreferences(): Promise<UserPreferences> {
+  getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke(
         'compass:get-configurable-user-preferences'
