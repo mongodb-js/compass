@@ -15,7 +15,7 @@ function buildFetchJqlUrl(jiraApiBaseUrl, jql) {
 }
 
 const releaseVersionJql = (releaseVersion) =>
-  `project = COMPASS AND fixVersion = ${releaseVersion} AND issuetype = Release`;
+  `project = COMPASS AND fixVersion = "${releaseVersion}" AND issuetype = Release`;
 
 async function checkReleaseTicketInProgress(releaseVersion) {
   if (!isGa(releaseVersion)) {
