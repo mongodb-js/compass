@@ -12,7 +12,7 @@ import store from './stores';
  * @returns {React.Component} The rendered component.
  */
 function SidebarPlugin() {
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR !== 'false';
 
   return (
     <Provider store={store}>
