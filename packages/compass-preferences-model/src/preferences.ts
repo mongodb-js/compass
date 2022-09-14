@@ -68,10 +68,10 @@ type AmpersandType<T> = T extends string
   ? 'number'
   : T extends any[]
   ? 'array'
-  : T extends object
-  ? 'object'
   : T extends Date
   ? 'date'
+  : T extends object
+  ? 'object'
   : never;
 
 type PreferenceDefinition<K extends keyof GlobalPreferences> = {
