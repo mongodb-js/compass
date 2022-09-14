@@ -186,6 +186,17 @@ const Application = View.extend({
       }),
       this.queryByHook('layout-container')
     );
+
+    const checkForNetworkOptIn = async () => {
+      const { showedNetworkOptIn } = await preferencesIpc.getPreferences();
+
+      // TODO(COMPASS-6065): Remove `HADRON_ISOLATED` usage.
+      if (!showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
+        ipc.ipcRenderer.emit('window:show-network-optin');
+      }
+    };
+
+    void checkForNetworkOptIn();
   },
   fetchUser: async function() {
     debug('getting user preferences');
