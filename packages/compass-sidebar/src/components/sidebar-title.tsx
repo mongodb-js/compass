@@ -144,7 +144,11 @@ function SidebarTitle({
 
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-    <div className={cx(sidebarTitle)} onClick={onClick}>
+    <div
+      className={cx(sidebarTitle)}
+      data-testid="sidebar-title"
+      onClick={onClick}
+    >
       <TitleLogo />
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (

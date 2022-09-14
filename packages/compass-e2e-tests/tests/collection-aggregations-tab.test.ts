@@ -306,11 +306,19 @@ describe('Collection aggregations tab', function () {
       return text === '(Sample of 100 documents)';
     });
 
-    // open actions
-    await browser.clickVisible(Selectors.SavePipelineMenuButton);
-    const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
-    await menuElement.waitForDisplayed();
-    // select create view
+    // Wait until the isCreateViewAvailable prop is changed
+    // and the "Create view" action is available in the Save button menu.
+    await browser.waitUntil(async () => {
+      await browser.clickVisible(Selectors.SavePipelineMenuButton);
+      const savePipelineCreateViewAction = await browser.$(
+        Selectors.SavePipelineCreateViewAction
+      );
+      const savePipelineCreateViewActionExisting =
+        await savePipelineCreateViewAction.isExisting();
+
+      return savePipelineCreateViewActionExisting;
+    });
+
     await browser.clickVisible(Selectors.SavePipelineCreateViewAction);
 
     // wait for the modal to appear
@@ -355,6 +363,20 @@ describe('Collection aggregations tab', function () {
     // run a projection that will take lots of time
     await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$project');
+
+    await browser.waitUntil(async function () {
+      const textElement = await browser.$(
+        Selectors.stagePreviewToolbarTooltip(0)
+      );
+      const text = await textElement.getText();
+      return text === '(Sample of 0 documents)';
+    });
+
+    const syntaxMessageElement = await browser.$(
+      Selectors.stageEditorSyntaxErrorMessage(0)
+    );
+    await syntaxMessageElement.waitForDisplayed();
+
     await browser.setAceValue(
       Selectors.stageEditor(0),
       `{

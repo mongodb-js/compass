@@ -1,6 +1,6 @@
 import type { ErrorInfo } from 'react';
 import React from 'react';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { Banner } from './leafygreen';
@@ -15,6 +15,7 @@ type State = {
 };
 
 type Props = {
+  className?: string;
   displayName?: string;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   children: React.ReactElement;
@@ -38,12 +39,12 @@ class ErrorBoundary extends React.Component<Props> {
   }
 
   render(): React.ReactNode {
-    const { displayName } = this.props;
+    const { className, displayName } = this.props;
     const { error } = this.state;
 
     if (error) {
       return (
-        <div className={errorContainerStyles}>
+        <div className={cx(errorContainerStyles, className)}>
           <Banner variant="danger">
             An error occurred while rendering
             {displayName ? ` ${displayName}` : ''}: {error.message}

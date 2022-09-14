@@ -92,7 +92,7 @@ function Connections({
   // Use the same theme as Home if the feature flag is activated, otherwise
   // always use Dark. We'll remove this code along with the provider once we
   // remove the feature flag, hopefully soon.
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR !== 'false';
   const expectedTheme = useNewSidebar ? existingTheme.theme : Theme.Dark;
 
   const [theme, setTheme] = useState<ThemeState>({

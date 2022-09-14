@@ -157,7 +157,7 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.hasAnalytics).to.equal(true);
             expect(actual.currentUserId).to.not.exist;
             expect(actual.telemetryAnonymousId).to.be.a('string');
-            expect(actual.state).to.equal('disabled');
+            expect(actual.state).to.equal('waiting-for-user-config');
           },
         },
         {

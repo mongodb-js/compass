@@ -205,29 +205,27 @@ export const SidebarDatabaseAndCollectionList =
   '[data-testid="databases-and-collections"]';
 export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;
 export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
-export const TopologyReplicaSetHostAddress =
-  '[data-testid="topology-replica-set-host-address-0"]';
-export const ReplicaSetType = '[data-testid="topology-replica-set-type"]';
-export const ServerVersionText = '[data-testid="server-version-text"]';
 export const SidebarTitle = '[data-testid="sidebar-title"]';
+export const SidebarShowActions =
+  '[data-testid="sidebar-title-actions-show-actions"]';
+export const SidebarActionRefresh =
+  '[data-testid="sidebar-title-actions-refresh-data-action"]';
+export const SidebarActionClusterInfo =
+  '[data-testid="sidebar-title-actions-open-connection-info-action"]';
 export const SidebarCreateDatabaseButton =
-  '[data-testid="create-database-button"]';
+  '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
 export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
-export const SidebarInstanceRefreshButton =
-  '[data-testid="sidebar-instance-stats-refresh-button"]';
-export const SidebarInstanceRefreshSpinning =
-  '[data-testid="sidebar-instance-stats-refresh-spinning"]';
-export const SidebarInstanceRefreshIdle =
-  '[data-testid="sidebar-instance-stats-refresh-idle"]';
 export const FleConnectionConfigurationBanner =
   '[data-testid="fle-connection-configuration"]';
 export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
 export const CSFLEConnectionModal = '[data-testid="csfle-connection-modal"]';
 export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
+export const ConnectionInfoModal = '[data-testid="connection-info-modal"]';
+export const ConnectionInfoModalCloseButton = `${ConnectionInfoModal} [aria-label*="Close"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -483,7 +481,8 @@ export const collectionHeaderTitle = (
 };
 
 // Documents tab
-export const DocumentListActionBarMessage = '.document-list-action-bar-message';
+export const DocumentListActionBarMessage =
+  '[data-testid="crud-document-count-display"]';
 export const ExportCollectionButton =
   '[data-testid="export-collection-button"]';
 export const DocumentListFetching =
@@ -492,11 +491,10 @@ export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError =
   '[data-testid="documents-content"] .status-row-has-error';
-export const AddDataButton = '#insert-data-dropdown';
+export const AddDataButton = '[data-testid="crud-add-data-button"]';
 export const InsertDocumentOption =
-  '[data-testid="insert-data-dropdown-insert-document"]';
-export const ImportFileOption =
-  '[data-testid="insert-data-dropdown-import-file"]';
+  '[data-testid="crud-add-data-insert-document"]';
+export const ImportFileOption = '[data-testid="crud-add-data-import-file"]';
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
@@ -749,12 +747,15 @@ export const stageMergeCollectionLink = (stageIndex: number): string => {
 export const stageEditorErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
 };
+export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
+};
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
 export const SchemaFieldList = '.schema-field-list';
 export const AnalysisMessage =
-  '[data-testid="schema-content"] .analysis-message';
+  '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
 export const SchemaField = '.schema-field';
 export const SchemaFieldName = '.schema-field-name';
 export const SchemaFieldTypeList = '.schema-field-type-list';
@@ -827,31 +828,31 @@ export const queryBar = (tabName: string): string => {
 };
 export const queryBarOptionInputFilter = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-filter`;
+  return `${tabSelector} [data-testid="query-bar-option-filter"]`;
 };
 export const queryBarOptionInputProject = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-project`;
+  return `${tabSelector} [data-testid="query-bar-option-project"]`;
 };
 export const queryBarOptionInputSort = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-sort`;
+  return `${tabSelector} [data-testid="query-bar-option-sort"]`;
 };
 export const queryBarOptionInputCollation = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-collation`;
+  return `${tabSelector} [data-testid="query-bar-option-collation"]`;
 };
 export const queryBarOptionInputMaxTimeMS = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [id="querybar-option-input-Max Time MS"]`;
+  return `${tabSelector} [data-testid="query-bar-option-maxTimeMS"]`;
 };
 export const queryBarOptionInputSkip = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #querybar-option-input-skip`;
+  return `${tabSelector} [data-testid="query-bar-option-skip"]`;
 };
 export const queryBarOptionInputLimit = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #querybar-option-input-limit`;
+  return `${tabSelector} [data-testid="query-bar-option-limit"]`;
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
@@ -865,13 +866,9 @@ export const queryBarResetFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-reset-filter-button"]`;
 };
-export const queryBarMenuActionsButton = (tabName: string): string => {
+export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions}`;
-};
-export const queryBarActionsMenu = (tabName: string): string => {
-  const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
+  return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
 
 // Workspace tabs at the top

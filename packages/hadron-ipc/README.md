@@ -8,7 +8,7 @@ Simplified wrapper around Electron's IPC events.
 process.env.DEBUG = 'hadron-*';
 
 const ipc = require('hadron-ipc');
-cosnt AppRegistry = require('hadron-app-registry');
+const AppRegistry = require('hadron-app-registry');
 
 const globalAppRegistry = new AppRegistry();
 

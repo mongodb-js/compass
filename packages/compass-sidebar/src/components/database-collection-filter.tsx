@@ -29,6 +29,7 @@ export default function DatabaseCollectionFilter({
 
   return (
     <TextInput
+      data-testid="sidebar-filter-input"
       placeholder="Filter your data"
       type="search"
       aria-label="Databases and Collections filter"

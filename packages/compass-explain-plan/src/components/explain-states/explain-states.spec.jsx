@@ -3,19 +3,19 @@ import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { Banner, Toolbar } from '@mongodb-js/compass-components';
 
 import ExplainStates from '../explain-states';
-import styles from './explain-states.module.less';
+
+class MockQueryBarComponent extends React.Component {
+  render() {
+    return <div id="queryBar">Query Bar</div>;
+  }
+}
 
 describe('ExplainStates [Component]', function () {
   let component;
   const appRegistry = new AppRegistry();
-
-  class QueryBar extends React.Component {
-    render() {
-      return <div id="queryBar">Query Bar</div>;
-    }
-  }
 
   const isEditable = false;
   const explain = {
@@ -39,7 +39,7 @@ describe('ExplainStates [Component]', function () {
 
   beforeEach(function () {
     appRegistry.registerRole('Query.QueryBar', {
-      component: QueryBar,
+      component: MockQueryBarComponent,
       configureStore: () => {},
       configureActions: () => {},
     });
@@ -60,14 +60,19 @@ describe('ExplainStates [Component]', function () {
   });
 
   afterEach(function () {
+    component.unmount();
     component = null;
   });
 
-  it('renders the wrapper div', function () {
-    expect(component.find(`.${styles['controls-container']}`)).to.be.present();
+  it('renders the toolbar', function () {
+    expect(component.find(Toolbar)).to.be.present();
   });
 
   it('renders the read only banner', function () {
-    expect(component.find('StatusRow')).to.be.present();
+    expect(component.find(Banner)).to.be.present();
+  });
+
+  it('renders the query bar', function () {
+    expect(component.find(MockQueryBarComponent)).to.be.present();
   });
 });

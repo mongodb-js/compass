@@ -2,11 +2,10 @@ import type { Reducer } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import type { UserPreferences } from 'compass-preferences-model';
+import { preferencesIpc } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
-
-import { updatePreferences } from '../utils/user-preferences';
-import type { UserPreferences } from '../utils/user-preferences';
 
 export type State = Partial<UserPreferences>;
 
@@ -61,7 +60,7 @@ export const updateSettings = (): ThunkAction<
   return async (dispatch, getState): Promise<void> => {
     const { updatedFields } = getState();
     try {
-      await updatePreferences(updatedFields);
+      await preferencesIpc.savePreferences(updatedFields);
       dispatch({
         type: ActionTypes.SettingsUpdated,
       });
