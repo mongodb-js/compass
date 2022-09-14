@@ -2,12 +2,12 @@ import type { Reducer } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { UserPreferences } from 'compass-preferences-model';
+import type { UserConfigurablePreferences } from 'compass-preferences-model';
 import { preferencesIpc } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
-export type State = Partial<UserPreferences>;
+export type State = Partial<UserConfigurablePreferences>;
 
 const INITIAL_STATE: State = {};
 
@@ -16,17 +16,19 @@ export enum ActionTypes {
   SettingsUpdated = 'compass-settings/settingsUpdated',
 }
 
-type UpdateFieldAction = {
+type UpdateFieldAction<K extends keyof UserConfigurablePreferences> = {
   type: ActionTypes.FieldUpdated;
-  field: string;
-  value: boolean | string;
+  field: K;
+  value: UserConfigurablePreferences[K];
 };
 
 type UpdateSettingsAction = {
   type: ActionTypes.SettingsUpdated;
 };
 
-export type Actions = UpdateFieldAction | UpdateSettingsAction;
+export type Actions =
+  | UpdateFieldAction<keyof UserConfigurablePreferences>
+  | UpdateSettingsAction;
 
 const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
@@ -42,10 +44,10 @@ const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
   }
 };
 
-export const changeFieldValue = (
-  field: keyof UserPreferences,
-  value: string | boolean
-): UpdateFieldAction => ({
+export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
+  field: K,
+  value: UserConfigurablePreferences[K]
+): UpdateFieldAction<K> => ({
   type: ActionTypes.FieldUpdated,
   value,
   field,
