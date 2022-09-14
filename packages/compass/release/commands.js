@@ -9,7 +9,7 @@ const git = require('./git');
 const npm = require('./npm');
 
 const ux = require('./ux');
-const { isReleaseTicketInProgress } = require('./jira');
+const { checkReleaseTicketInProgress } = require('./jira');
 
 async function getPackageJsonVersion() {
   return require(await pkgUp()).version;
@@ -67,7 +67,7 @@ async function startRelease(bumpFn, evergreenProject) {
     return;
   }
 
-  isReleaseTicketInProgress(newSemver);
+  checkReleaseTicketInProgress(newSemver);
 
   cli.info(
     '\n\n',
