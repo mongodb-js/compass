@@ -1,12 +1,6 @@
-ignores: [
-  "ampersand-collection-filterable",
-  "ampersand-rest-collection",
-  "ampersand-state",
-  "mongodb-collection-model",
-  "mongodb-database-model",
-  "mongodb-ns",
-  "raf",
-  "lodash.clone",
-  "lodash.result",
-  "mongodb-compass"
-]
+ignores:
+  - 'ampersand-collection-filterable'
+  - 'ampersand-rest-collection'
+  - 'ampersand-state'
+ignore-patterns:
+  - 'dist'

@@ -1,12 +1,12 @@
-var Model = require('ampersand-model');
-var storageMixin = require('storage-mixin');
-var uuid = require('uuid');
-var compassUtils = require('@mongodb-js/compass-utils');
-var basepath = (compassUtils.getStoragePaths() || {}).basepath;
+const Model = require('ampersand-model');
+const storageMixin = require('storage-mixin');
+const uuid = require('uuid');
+const compassUtils = require('@mongodb-js/compass-utils');
+const basepath = (compassUtils.getStoragePaths() || {}).basepath;
 
-// var debug = require('debug')('scout:user');
+// const debug = require('debug')('scout:user');
 
-var User = Model.extend(storageMixin, {
+const User = Model.extend(storageMixin, {
   idAttribute: 'id',
   namespace: 'Users',
   storage: {
@@ -37,8 +37,8 @@ var User = Model.extend(storageMixin, {
   }
 });
 
-User.getOrCreate = function(id, done) {
-  var user = new User({
+User.getOrCreate = (id) => new Promise((resolve, reject) => {
+  const user = new User({
     id: id || uuid.v4(),
     createdAt: new Date()
   });
@@ -47,12 +47,12 @@ User.getOrCreate = function(id, done) {
       user.save({
         lastUsed: new Date()
       });
-      done(null, user);
+      resolve(user);
     },
     error: function(model, err) {
-      done(err);
+      reject(err);
     }
   });
-};
+});
 
 module.exports = User;

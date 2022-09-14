@@ -209,7 +209,7 @@ class Schema extends Component {
    * @returns {React.Component} The schema view.
    */
   render() {
-    const useNewToolbar = process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true';
+    const useNewToolbar = process?.env?.COMPASS_SHOW_OLD_TOOLBARS !== 'true';
 
     return (
       <div className={styles.root}>

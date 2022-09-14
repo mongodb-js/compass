@@ -1,5 +1,8 @@
 const ipc = require('hadron-ipc');
 const remote = require('@electron/remote');
+const semver = require('semver');
+
+const { preferencesIpc } = require('compass-preferences-model');
 
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
@@ -35,26 +38,22 @@ global.hadronApp = app;
 /**
  * The main entrypoint for the application!
  */
-var APP_VERSION = remote.app.getVersion();
+const APP_VERSION = remote.app.getVersion() || '';
 
-var _ = require('lodash');
-var View = require('ampersand-view');
-var async = require('async');
-var webvitals = require('web-vitals');
+const View = require('ampersand-view');
+const async = require('async');
+const webvitals = require('web-vitals');
 
-var semver = require('semver');
-
-const Preferences = require('compass-preferences-model');
-var User = require('compass-user-model');
+const User = require('compass-user-model');
 
 require('./menu-renderer');
 marky.mark('Migrations');
-var migrateApp = require('./migrations');
+const migrateApp = require('./migrations');
 marky.stop('Migrations');
 
-var React = require('react');
-var ReactDOM = require('react-dom');
-var { Action } = require('@mongodb-js/hadron-plugin-manager');
+const React = require('react');
+const ReactDOM = require('react-dom');
+const { Action } = require('@mongodb-js/hadron-plugin-manager');
 
 const {
   enableDarkTheme,
@@ -77,7 +76,7 @@ const { log, mongoLogId, debug, track } =
 /**
  * The top-level application singleton that brings everything together!
  */
-var Application = View.extend({
+const Application = View.extend({
   template: function() {
     return [
       '<div id="application">',
@@ -113,11 +112,17 @@ var Application = View.extend({
     /**
      * @see http://learn.humanjavascript.com/react-ampersand/creating-a-router-and-pages
      */
-    router: 'object'
+    router: 'object',
+    /**
+     * The previously shown app version.
+     */
+    previousVersion: {
+      type: 'string',
+      default: '0.0.0'
+    }
   },
   children: {
-    user: User,
-    preferences: Preferences
+    user: User
   },
   initialize: function() {
     /**
@@ -162,7 +167,7 @@ var Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: function() {
+  render: async function() {
     log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container');
 
     this.el = document.querySelector('#application');
@@ -185,19 +190,20 @@ var Application = View.extend({
       this.queryByHook('layout-container')
     );
 
-    const handleTour = () => {
-      if (app.preferences.showFeatureTour) {
-        this.showTour(false);
-      } else {
-        this.tourClosed();
-      }
-    };
-
-    handleTour();
+    if (
+      semver.lt(this.previousVersion, APP_VERSION) ||
+      // This is so we can test the tour modal in E2E tests where the version is always the same.
+      process.env.SHOW_TOUR
+    ) {
+      await this.showTour(false);
+    } else {
+      this.tourClosed();
+    }
   },
-  showTour: function(force) {
+  showTour: async function(force) {
+    const { previousVersion } = await preferencesIpc.getPreferences();
     const TourView = require('./tour');
-    const tourView = new TourView({ force: force });
+    const tourView = new TourView({ force, previousVersion });
     if (tourView.features.length > 0) {
       tourView.on('close', this.tourClosed.bind(this));
       this.renderSubview(tourView, this.queryByHook('tour-container'));
@@ -205,90 +211,60 @@ var Application = View.extend({
       this.tourClosed();
     }
   },
-  tourClosed: function() {
-    app.preferences.unset('showFeatureTour');
-    app.preferences.save({}, {success: () => {
-      if (!app.preferences.showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
-        ipc.ipcRenderer.emit('window:show-network-optin');
-      }
-    }});
+  tourClosed: async function() {
+    const { showedNetworkOptIn } = await preferencesIpc.getPreferences();
+    // TODO(COMPASS-6065): Remove `HADRON_ISOLATED` usage.
+    if (!showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
+      ipc.ipcRenderer.emit('window:show-network-optin');
+    }
   },
-  fetchUser: function(done) {
-    debug('preferences fetched, now getting user');
-    User.getOrCreate(
-      // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
-      this.preferences.currentUserId || this.preferences.telemetryAnonymousId,
-      function(err, user) {
-        if (err) {
-          return done(err);
-        }
-        this.user.set(user.serialize());
-        this.user.trigger('sync');
-        this.preferences.save({
-          telemetryAnonymousId: user.id
-        });
-        ipc.call('compass:usage:identify', {
-          currentUserId: this.preferences.currentUserId,
-          telemetryAnonymousId: user.id
-        });
-        debug('user fetch successful', user.serialize());
-        done(null, user);
-      }.bind(this)
-    );
-  },
-  fetchPreferences: function(done) {
-    this.preferences.once('sync', function(prefs) {
-      prefs.trigger('page-refresh');
-      ipc.call(prefs.isFeatureEnabled('trackUsageStatistics') ?
-        'compass:usage:enabled' : 'compass:usage:disabled');
-      var oldVersion = _.get(prefs, 'lastKnownVersion', '0.0.0');
-      var currentVersion = APP_VERSION;
-      var save = false;
-      if (
-        semver.lt(oldVersion, currentVersion) ||
-        // this is so we can test the tour modal in E2E tests where the version
-        // is always the same
-        process.env.SHOW_TOUR
-      ) {
-        prefs.showFeatureTour = oldVersion;
-        save = true;
-      }
-      if (semver.neq(oldVersion, currentVersion)) {
-        prefs.lastKnownVersion = currentVersion;
-        save = true;
-      }
-      if (save) {
-        prefs.save(null, {
-          success: done.bind(null, null),
-          error: done.bind(null, null)
-        });
-      } else {
-        done(null);
-      }
-    });
+  fetchUser: async function() {
+    debug('getting user preferences');
+    const {
+      currentUserId,
+      telemetryAnonymousId,
+      trackUsageStatistics,
+      lastKnownVersion
+    } = await preferencesIpc.getPreferences();
+    
+    // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
+    const user = await User.getOrCreate(currentUserId || telemetryAnonymousId);
 
-    ipc.call('compass:loading:change-status', {
-      status: 'loading preferences'
+    const preferences = { telemetryAnonymousId: user.id };
+    
+    this.user.set(user.serialize());
+    this.user.trigger('sync');
+    debug('user fetch successful', user.serialize());
+
+    this.previousVersion = lastKnownVersion || '0.0.0';
+
+    if (semver.neq(this.previousVersion, APP_VERSION)) {
+      preferences.lastKnownVersion = APP_VERSION;
+    }
+
+    const savedPreferences = await preferencesIpc.savePreferences(preferences);
+
+    ipc.call('compass:usage:identify', {
+      currentUserId: savedPreferences.currentUserId,
+      telemetryAnonymousId: user.id
     });
-    app.preferences.fetch();
+    ipc.call(trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
+    
+    return user;
   }
 });
 
-var state = new Application();
+const state = new Application();
 
 app.extend({
   client: null,
-  isFeatureEnabled: function(feature) {
-    // proxy to preferences for now
-    return this.preferences.isFeatureEnabled(feature);
-  },
-  init: function() {
+  init: async function() {
+    const { theme } = await preferencesIpc.getPreferences();
+
     async.series(
       [
         // check if migrations are required
         migrateApp.bind(state),
-        // get preferences
-        state.fetchPreferences.bind(state),
         // get user
         state.fetchUser.bind(state)
       ],
@@ -298,7 +274,7 @@ app.extend({
         }
 
         // Get theme from the preferences and set accordingly.
-        loadTheme(app.preferences.theme);
+        loadTheme(theme);
         ipc.on('app:darkreader-enable', () => {
           enableDarkTheme();
         });
@@ -307,9 +283,9 @@ app.extend({
         });
         ipc.on('app:save-theme', (_, theme) => {
           // Save the new theme on the user's preferences.
-          app.preferences.save({
-            theme
-          });
+          if (theme) {
+            preferencesIpc.savePreferences({ theme });
+          }
         });
 
         Action.pluginActivationCompleted.listen(() => {
@@ -326,15 +302,9 @@ app.extend({
             process.env.HADRON_PRODUCT_NAME
           );
           ipc.call('compass:loading:change-status', {
-            status: 'loading preferences'
+            status: 'setting up intercom'
           });
-          global.hadronApp.appRegistry.emit(
-            'preferences-loaded',
-            state.preferences
-          );
-
-          setupIntercom(state.preferences, state.user);
-
+          setupIntercom(state.user);
           // signal to main process that app is ready
           ipc.call('window:renderer-ready');
           // catch a data refresh coming from window-manager
@@ -377,12 +347,6 @@ Object.defineProperty(app, 'instance', {
   }
 });
 
-Object.defineProperty(app, 'preferences', {
-  get: function() {
-    return state.preferences;
-  }
-});
-
 Object.defineProperty(app, 'connection', {
   get: function() {
     return state.connection;
@@ -409,5 +373,3 @@ Object.defineProperty(app, 'state', {
 
 require('./reflux-listen-to-external-store');
 app.init();
-// expose app globally for debugging purposes
-window.app = app;
