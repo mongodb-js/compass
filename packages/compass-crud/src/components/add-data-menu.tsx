@@ -115,7 +115,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
           insertDataHandler('import-file');
         }}
       >
-        Import File
+        Import file
       </MenuItem>
       <MenuItem
         data-testid="crud-add-data-insert-document"
@@ -124,7 +124,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
           insertDataHandler('insert-document');
         }}
       >
-        Insert Document
+        Insert document
       </MenuItem>
     </Menu>
   );

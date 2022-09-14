@@ -431,7 +431,7 @@ class QueryBar extends Component {
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <MenuItem onClick={this.props.actions.exportToLanguage}>
-                Export To Language
+                Export to language
               </MenuItem>
             </Dropdown.Menu>
           </Dropdown>
