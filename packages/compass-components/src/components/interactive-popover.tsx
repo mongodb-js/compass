@@ -147,6 +147,8 @@ function InteractivePopover({
           <FocusTrap
             focusTrapOptions={{
               clickOutsideDeactivates: true,
+              checkCanFocusTrap: () =>
+                new Promise((resolve) => setTimeout(resolve)),
             }}
           >
             <div
