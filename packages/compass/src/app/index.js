@@ -26,9 +26,6 @@ EventEmitter.defaultMaxListeners = 100;
 document.addEventListener('dragover', (evt) => evt.preventDefault());
 document.addEventListener('drop', (evt) => evt.preventDefault());
 
-require('bootstrap/js/modal');
-require('bootstrap/js/transition');
-
 /**
  * Set hadron-app as a global so plugins can use it.
  */
