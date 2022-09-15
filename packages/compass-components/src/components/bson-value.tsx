@@ -2,8 +2,10 @@ import React, { useMemo } from 'react';
 import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
-import { css, cx, spacing } from '../';
+
 import { Icon, Link } from './leafygreen';
+import { spacing } from '@leafygreen-ui/tokens';
+import { css, cx } from '@leafygreen-ui/emotion';
 
 type ValueProps =
   | {

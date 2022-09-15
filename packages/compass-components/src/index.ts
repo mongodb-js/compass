@@ -68,11 +68,10 @@ export * as compassUIColors from './compass-ui-colors';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
-export { Variant as ToastVariant } from '@leafygreen-ui/toast';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
 
-export { useToast, ToastArea } from './hooks/use-toast';
+export { useToast, ToastArea, ToastVariant } from './hooks/use-toast';
 
 export { Toggle } from './components/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';

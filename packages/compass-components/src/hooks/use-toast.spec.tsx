@@ -8,7 +8,7 @@ import {
 import { expect } from 'chai';
 import React from 'react';
 
-import { ToastArea, ToastVariant, useToast } from '..';
+import { ToastArea, ToastVariant, useToast } from './use-toast';
 
 const OpenToastButton = ({
   namespace,
