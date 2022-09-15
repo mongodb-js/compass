@@ -48,8 +48,6 @@ declare module 'process' {
          */
         COMPASS_SHOW_OLD_TOOLBARS?: 'true' | 'false';
 
-        COMPASS_SHOW_NEW_SIDEBAR?: 'true' | 'false',
-
         /**
          * Permanent feature flag for debugging.
          */
