@@ -84,7 +84,7 @@ const download = async(url, destDir) => {
   } catch {
     artifactInfo = await getDownloadURL({
       ...downloadOptions,
-      version: '>= 6.0.0-rc8'
+      version: '>= 6.0.0'
     });
   }
 

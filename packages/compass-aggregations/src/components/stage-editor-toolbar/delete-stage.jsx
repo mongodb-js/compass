@@ -35,7 +35,7 @@ class DeleteStage extends PureComponent {
     return (
       <div className={classnames(styles['delete-stage'])}>
         <button
-          data-test-id="delete-stage"
+          data-testid="delete-stage"
           type="button"
           title="Delete Stage"
           className="btn btn-default btn-xs"

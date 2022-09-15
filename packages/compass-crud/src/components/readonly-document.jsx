@@ -62,7 +62,7 @@ class ReadonlyDocument extends React.Component {
    */
   render() {
     return (
-      <div className={BASE} data-test-id={TEST_ID}>
+      <div className={BASE} data-testid={TEST_ID}>
         <div className={CONTENTS}>
           {this.renderElements()}
           {this.renderActions()}

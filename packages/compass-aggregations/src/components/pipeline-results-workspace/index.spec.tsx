@@ -46,7 +46,7 @@ describe('PipelineResultsWorkspace', function () {
     renderPipelineResultsWorkspace({ documents: [{ id: '1' }, { id: '2' }] });
     const container = screen.getByTestId('pipeline-results-workspace');
     expect(
-      container.querySelectorAll('[data-test-id="document-list-item"]')
+      container.querySelectorAll('[data-testid="document-list-item"]')
     ).to.have.lengthOf(2);
   });
 

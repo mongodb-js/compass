@@ -1,6 +1,5 @@
 const $ = require('jquery');
 const View = require('ampersand-view');
-const app = require('hadron-app');
 const semver = require('semver');
 const _ = require('lodash');
 const electronApp = require('@electron/remote').app;
@@ -54,7 +53,11 @@ var TourView = View.extend({
     },
     timeAtStart: {
       type: 'date'
-    }
+    },
+    previousVersion: {
+      type: 'string',
+      default: '0.0.0'
+    },
   },
   template({features}) {
     const featuresHtml = features
@@ -79,12 +82,12 @@ var TourView = View.extend({
       .join('');
 
     return `
-      <div id="tour-out" data-test-id="feature-tour-modal">
+      <div id="tour-out" data-testid="feature-tour-modal">
         <div id="tour-bg"></div>
         <div id="tour">
           <div class="modal-header">
             <h2 data-hook="title"></h2>
-            <button class="tour-close-button" data-test-id="close-tour-button">&times;</button>
+            <button class="tour-close-button" data-testid="close-tour-button">&times;</button>
           </div>
           <div id="animation">
             <img id="animation-gif" src="${features[0].image}" />
@@ -107,12 +110,6 @@ var TourView = View.extend({
       </div>`;
   },
   derived: {
-    previousVersion: {
-      deps: ['app.preferences.showFeatureTour'],
-      fn: function() {
-        return app.preferences.showFeatureTour || '0.0.0';
-      }
-    },
     title: {
       deps: ['previousVersion'],
       fn: function() {
@@ -155,21 +152,16 @@ var TourView = View.extend({
       return model.features;
     }
 
-    /**
-     * @see https://jira.mongodb.org/browse/INT-1657
-     */
-    var previous = model.previousVersion || '0.0.0';
-
     model.features = _.filter(FEATURES, function(feature) {
       if (model.force && feature.initial) {
         return true;
       }
 
-      if (previous === '0.0.0' && feature.initial) {
+      if (model.previousVersion === '0.0.0' && feature.initial) {
         return true;
       }
 
-      if (previous !== '0.0.0' && semver.gt(feature.version, previous)) {
+      if (model.previousVersion !== '0.0.0' && semver.gt(feature.version, model.previousVersion)) {
         return true;
       }
 

@@ -165,8 +165,8 @@ describe('DatabasesNavigationTree', function () {
 
       userEvent.click(showActionsButton);
 
-      expect(screen.getByText('Open in New Tab')).to.exist;
-      expect(screen.getByText('Drop Collection')).to.exist;
+      expect(screen.getByText('Open in new tab')).to.exist;
+      expect(screen.getByText('Drop collection')).to.exist;
     });
 
     it('should show all view actions', function () {
@@ -188,10 +188,10 @@ describe('DatabasesNavigationTree', function () {
 
       userEvent.click(showActionsButton);
 
-      expect(screen.getByText('Open in New Tab')).to.exist;
-      expect(screen.getByText('Drop View')).to.exist;
-      expect(screen.getByText('Duplicate View')).to.exist;
-      expect(screen.getByText('Modify View')).to.exist;
+      expect(screen.getByText('Open in new tab')).to.exist;
+      expect(screen.getByText('Drop view')).to.exist;
+      expect(screen.getByText('Duplicate view')).to.exist;
+      expect(screen.getByText('Modify view')).to.exist;
     });
   });
 
@@ -229,7 +229,7 @@ describe('DatabasesNavigationTree', function () {
 
       const collection = screen.getByTestId('sidebar-collection-bar.bwok');
 
-      expect(within(collection).getByTitle('Open in New Tab')).to.exist;
+      expect(within(collection).getByTitle('Open in new tab')).to.exist;
     });
   });
 
@@ -320,7 +320,7 @@ describe('DatabasesNavigationTree', function () {
         const collection = screen.getByTestId('sidebar-collection-bar.meow');
 
         userEvent.click(within(collection).getByTitle('Show actions'));
-        userEvent.click(screen.getByText('Open in New Tab'));
+        userEvent.click(screen.getByText('Open in new tab'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.meow', 'open-in-new-tab');
       });
@@ -341,7 +341,7 @@ describe('DatabasesNavigationTree', function () {
         const collection = screen.getByTestId('sidebar-collection-bar.meow');
 
         userEvent.click(within(collection).getByTitle('Show actions'));
-        userEvent.click(screen.getByText('Drop Collection'));
+        userEvent.click(screen.getByText('Drop collection'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.meow', 'drop-collection');
       });
@@ -365,7 +365,7 @@ describe('DatabasesNavigationTree', function () {
         const view = screen.getByTestId('sidebar-collection-bar.bwok');
 
         userEvent.click(within(view).getByTitle('Show actions'));
-        userEvent.click(screen.getByText('Duplicate View'));
+        userEvent.click(screen.getByText('Duplicate view'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.bwok', 'duplicate-view');
       });
@@ -387,7 +387,7 @@ describe('DatabasesNavigationTree', function () {
         const view = screen.getByTestId('sidebar-collection-bar.bwok');
 
         userEvent.click(within(view).getByTitle('Show actions'));
-        userEvent.click(screen.getByText('Modify View'));
+        userEvent.click(screen.getByText('Modify view'));
 
         expect(spy).to.be.calledOnceWithExactly('bar.bwok', 'modify-view');
       });

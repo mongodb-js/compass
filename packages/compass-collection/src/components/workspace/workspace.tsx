@@ -275,7 +275,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
     );
 
     return (
-      <div className={workspaceStyles} data-test-id="workspace-tabs">
+      <div className={workspaceStyles} data-testid="workspace-tabs">
         <WorkspaceTabs
           aria-label="Collection Tabs"
           onCreateNewTab={this.onCreateNewTab}

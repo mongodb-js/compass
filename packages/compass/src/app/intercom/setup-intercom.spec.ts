@@ -1,15 +1,27 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
+import { EventEmitter } from 'events';
 
 import { setupIntercom } from './setup-intercom';
 import { expect } from 'chai';
 import type { IntercomScript } from './intercom-script';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const Preferences = require('compass-preferences-model');
+const setupIpc = () => {
+  let preferences = {};
+  require('hadron-ipc').ipcRenderer = Object.assign(new EventEmitter(), {
+    invoke: (name, attributes) => {
+      if (name === 'compass:save-preferences') {
+        preferences = { ...preferences, ...attributes };
+      } else if (name === 'test:clear-preferences') {
+        preferences = {};
+      }
+      return Promise.resolve(preferences);
+    }
+  });
+};
 
 async function testRunSetupIntercom(
-  initialEnableFeedbackPanel: boolean,
   user: {
     id: string;
     createdAt: Date;
@@ -19,20 +31,11 @@ async function testRunSetupIntercom(
     load: sinon.spy(),
     unload: sinon.spy(),
   };
-
-  const preferences = new Preferences({
-    _id: Date.now().toString(),
-    enableFeedbackPanel: initialEnableFeedbackPanel,
-  });
-
-  sinon.spy(preferences, 'isFeatureEnabled');
-
   await setupIntercom(
-    preferences,
     user,
     intercomScript as unknown as IntercomScript
   );
-  return { intercomScript, preferences };
+  return { intercomScript };
 }
 
 const mockUser = {
@@ -43,6 +46,11 @@ const mockUser = {
 describe('setupIntercom', function () {
   let backupEnv;
   let fetchMock: SinonStub;
+
+  before(function () {
+    setupIpc();
+  });
+
   beforeEach(function () {
     backupEnv = {
       HADRON_ISOLATED: process.env.HADRON_ISOLATED,
@@ -75,75 +83,56 @@ describe('setupIntercom', function () {
   });
 
   describe('when it can be enabled', function () {
-    describe('when enableFeedbackPanel is initially enabled', function () {
-      it('calls intercomScript.load right away and calls intercomScript.unload when feedback gets disabled', async function () {
-        const { intercomScript, preferences } = await testRunSetupIntercom(
-          true,
-          mockUser
-        );
-
-        expect(preferences.isFeatureEnabled).to.have.been.calledWith(
-          'enableFeedbackPanel'
-        );
-
-        expect(intercomScript.load).to.have.been.calledWith({
-          app_id: 'appid123',
-          app_name: 'My App Name',
-          app_stage: 'test',
-          app_version: 'v0.0.0-test.123',
-          created_at: 1649432549,
-          user_id: 'user-123',
-        });
-
-        expect(intercomScript.unload).not.to.have.been.called;
-        preferences.set('enableFeedbackPanel', false);
-        expect(intercomScript.unload).to.have.been.called;
+    it('calls intercomScript.load when feedback gets enabled and intercomScript.unload when feedback gets disabled', async function () {
+      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+        enableFeedbackPanel: true,
       });
+      const { intercomScript } = await testRunSetupIntercom(
+        mockUser
+      );
+
+      expect(intercomScript.load).to.have.been.calledWith({
+        app_id: 'appid123',
+        app_name: 'My App Name',
+        app_stage: 'test',
+        app_version: 'v0.0.0-test.123',
+        created_at: 1649432549,
+        user_id: 'user-123',
+      });
+
+      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+        enableFeedbackPanel: false,
+      });
+      await require('hadron-ipc').ipcRenderer.emit('compass:preferences-changed', {}, {
+        enableFeedbackPanel: false,
+      });
+
+      expect(intercomScript.unload).to.have.been.called;
     });
 
-    describe('when enableFeedbackPanel is initially disabled', function () {
-      it('does not call intercomScript.load right away and calls intercomScript.load when feedback gets enabled', async function () {
-        const { intercomScript, preferences } = await testRunSetupIntercom(
-          false,
-          mockUser
-        );
-
-        expect(preferences.isFeatureEnabled).to.have.been.calledWith(
-          'enableFeedbackPanel'
-        );
-
-        expect(intercomScript.load).to.not.have.been.called;
-
-        preferences.set('enableFeedbackPanel', true);
-        expect(intercomScript.load).to.have.been.calledWith({
-          app_id: 'appid123',
-          app_name: 'My App Name',
-          app_stage: 'test',
-          app_version: 'v0.0.0-test.123',
-          created_at: 1649432549,
-          user_id: 'user-123',
-        });
+    it('calls intercomScript.unload when feedback gets disabled', async function () {
+      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+        enableFeedbackPanel: false,
       });
+      const { intercomScript } = await testRunSetupIntercom(
+        mockUser
+      );
+      expect(intercomScript.load).not.to.have.been.called;
+      expect(intercomScript.unload).to.have.been.called;
     });
   });
 
   describe('when cannot be enabled', function () {
     async function expectSetupGetsSkipped() {
-      const { intercomScript, preferences } = await testRunSetupIntercom(
-        true,
+      const { intercomScript } = await testRunSetupIntercom(
         mockUser
-      );
-
-      expect(preferences.isFeatureEnabled).not.to.have.been.calledWith(
-        'enableFeedbackPanel'
       );
 
       expect(intercomScript.load).to.not.have.been.called;
 
-      preferences.set('enableFeedbackPanel', true);
-      expect(preferences.isFeatureEnabled).not.to.have.been.calledWith(
-        'enableFeedbackPanel'
-      );
+      require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+        enableFeedbackPanel: true,
+      });
 
       expect(intercomScript.load).to.not.have.been.called;
     }

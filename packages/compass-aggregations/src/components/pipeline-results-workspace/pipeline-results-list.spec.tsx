@@ -17,7 +17,7 @@ describe('PipelineResultsList', function () {
       <PipelineResultsList documents={[{ id: 1 }, { id: 2 }]} view="document" />
     );
     expect(
-      document.querySelectorAll('[data-test-id="document-list-item"]')
+      document.querySelectorAll('[data-testid="document-list-item"]')
     ).to.have.lengthOf(2);
   });
 
@@ -29,7 +29,7 @@ describe('PipelineResultsList', function () {
       />
     );
     expect(
-      document.querySelectorAll('[data-test-id="document-json-item"]')
+      document.querySelectorAll('[data-testid="document-json-item"]')
     ).to.have.lengthOf(3);
   });
 });

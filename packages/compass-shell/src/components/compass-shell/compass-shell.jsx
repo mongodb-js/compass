@@ -196,7 +196,7 @@ export class CompassShell extends Component {
           hideInfoModal={this.hideInfoModal.bind(this)}
         />
         <div
-          data-test-id="shell-section"
+          data-testid="shell-section"
           className={compassShellStyles}
           style={{ height: renderedHeight }}
           id="content"
@@ -220,7 +220,7 @@ export class CompassShell extends Component {
             showInfoModal={() => this.setState({ showInfoModal: true })}
           />
           <div
-            data-test-id="shell-content"
+            data-testid="shell-content"
             className={cx(
               compassShellContainerStyles, {
                 [compassShellContainerVisibleStyles]: isExpanded

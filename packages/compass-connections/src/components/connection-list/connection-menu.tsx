@@ -61,8 +61,6 @@ function ConnectionMenu({
     <>
       <Menu
         data-testid="connection-menu"
-        align="bottom"
-        justify="start"
         trigger={
           <IconButton
             className={cx(
@@ -81,17 +79,19 @@ function ConnectionMenu({
       >
         <MenuItem
           data-testid="copy-connection-string"
+          glyph={<Icon glyph="Copy" />}
           onClick={() => {
             copyConnectionString(connectionString).finally(() => {
               setMenuIsOpen(false);
             });
           }}
         >
-          Copy Connection String
+          Copy connection string
         </MenuItem>
         {connectionInfo.favorite && (
           <MenuItem
             data-testid="duplicate-connection"
+            glyph={<Icon glyph="Clone" />}
             onClick={() => {
               duplicateConnection(connectionInfo);
               setMenuIsOpen(false);
@@ -102,6 +102,7 @@ function ConnectionMenu({
         )}
         <MenuItem
           data-testid="remove-connection"
+          glyph={<Icon glyph="Trash" />}
           onClick={() => removeConnection(connectionInfo)}
         >
           Remove

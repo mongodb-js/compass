@@ -4,8 +4,8 @@ export const CloseSettingsModalButton =
   '[data-testid="settings-modal"] [aria-label="Close modal"]';
 
 // Feature Tour Modal
-export const FeatureTourModal = '[data-test-id="feature-tour-modal"]';
-export const CloseFeatureTourModal = '[data-test-id="close-tour-button"]';
+export const FeatureTourModal = '[data-testid="feature-tour-modal"]';
+export const CloseFeatureTourModal = '[data-testid="close-tour-button"]';
 
 // Connection screen
 export const ConnectSection = '[data-testid="connections-disconnected"]';
@@ -206,32 +206,30 @@ export const RecentConnections = '[data-testid="recent-connection"]';
 
 // Database-Collection Sidebar
 export const SidebarDatabaseAndCollectionList =
-  '[data-test-id="databases-and-collections"]';
+  '[data-testid="databases-and-collections"]';
 export const SidebarTreeItems = `${SidebarDatabaseAndCollectionList} [role="treeitem"]`;
-export const SidebarFilterInput = '[data-test-id="sidebar-filter-input"]';
-export const TopologyReplicaSetHostAddress =
-  '[data-test-id="topology-replica-set-host-address-0"]';
-export const ReplicaSetType = '[data-test-id="topology-replica-set-type"]';
-export const ServerVersionText = '[data-test-id="server-version-text"]';
-export const SidebarTitle = '[data-test-id="sidebar-title"]';
+export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
+export const SidebarTitle = '[data-testid="sidebar-title"]';
+export const SidebarShowActions =
+  '[data-testid="sidebar-title-actions-show-actions"]';
+export const SidebarActionRefresh =
+  '[data-testid="sidebar-title-actions-refresh-data-action"]';
+export const SidebarActionClusterInfo =
+  '[data-testid="sidebar-title-actions-open-connection-info-action"]';
 export const SidebarCreateDatabaseButton =
-  '[data-test-id="create-database-button"]';
+  '[data-testid="sidebar-navigation-item-actions-open-create-database-action"]';
 export const CollectionShowActionsButton =
   '[data-testid="sidebar-collection-item-actions-show-actions"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
 export const DropCollectionButton = '[data-action="drop-collection"]';
-export const SidebarInstanceRefreshButton =
-  '[data-test-id="sidebar-instance-stats-refresh-button"]';
-export const SidebarInstanceRefreshSpinning =
-  '[data-test-id="sidebar-instance-stats-refresh-spinning"]';
-export const SidebarInstanceRefreshIdle =
-  '[data-test-id="sidebar-instance-stats-refresh-idle"]';
 export const FleConnectionConfigurationBanner =
-  '[data-test-id="fle-connection-configuration"]';
+  '[data-testid="fle-connection-configuration"]';
 export const SetCSFLEEnabledLabel = '[id="set-csfle-enabled"]';
-export const CSFLEConnectionModal = '[data-test-id="csfle-connection-modal"]';
+export const CSFLEConnectionModal = '[data-testid="csfle-connection-modal"]';
 export const CSFLEConnectionModalCloseButton = `${CSFLEConnectionModal} [aria-label*="Close"]`;
+export const ConnectionInfoModal = '[data-testid="connection-info-modal"]';
+export const ConnectionInfoModalCloseButton = `${ConnectionInfoModal} [aria-label*="Close"]`;
 
 export const sidebarDatabase = (dbName: string): string => {
   return `[data-testid="sidebar-database-${dbName}"]`;
@@ -283,7 +281,7 @@ export const CreateDatabaseCancelButton =
 // Drop database modal
 export const DropDatabaseModal = '[data-testid="drop_database_modal"]';
 export const DropDatabaseConfirmName =
-  '[data-test-id="confirm-drop-database-name"]';
+  '[data-testid="confirm-drop-database-name"]';
 export const DropDatabaseDropButton =
   '[data-testid="drop_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
@@ -347,24 +345,24 @@ export const createCollectionCustomCollationFieldMenu = (
 // Drop collection modal
 export const DropCollectionModal = '[data-testid="drop_collection_modal"]';
 export const DropCollectionConfirmName =
-  '[data-test-id="confirm-drop-collection-name"]';
+  '[data-testid="confirm-drop-collection-name"]';
 export const DropCollectionDropButton =
   '[data-testid="drop_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Shell
-export const ShellContent = '[data-test-id="shell-content"]';
-export const ShellExpandButton = '[data-test-id="shell-expand-button"]';
-export const ShellInput = '[data-test-id="shell-content"] .ace_content';
+export const ShellContent = '[data-testid="shell-content"]';
+export const ShellExpandButton = '[data-testid="shell-expand-button"]';
+export const ShellInput = '[data-testid="shell-content"] .ace_content';
 export const ShellOutput =
-  '[data-test-id="shell-content"] [class^=mongosh-shell-output-line] pre';
+  '[data-testid="shell-content"] [class^=mongosh-shell-output-line] pre';
 export const ShellLoader =
-  '[data-test-id="shell-content"] [class~=mongosh-shell-loader-shell-loader]';
+  '[data-testid="shell-content"] [class~=mongosh-shell-loader-shell-loader]';
 
 // Query bar (Find, Schema, Explain Plan)
 export const QueryBarMenuActions = '#query-bar-menu-actions';
 
 // Instance screen
-export const InstanceTabs = '[data-test-id="instance-tabs"]';
+export const InstanceTabs = '[data-testid="instance-tabs"]';
 export const InstanceTab = '.test-tab-nav-bar-tab';
 export const DatabasesTable = '[data-testid="database-grid"]';
 export const InstanceCreateDatabaseButton =
@@ -399,7 +397,7 @@ export const databaseCardClickable = (dbName: string): string => {
 };
 
 // Database screen
-export const DatabaseTabs = '[data-test-id="database-tabs"]';
+export const DatabaseTabs = '[data-testid="database-tabs"]';
 export const DatabaseTab = '.test-tab-nav-bar-tab';
 export const CollectionsGrid = '[data-testid="collection-grid"]';
 export const DatabaseCreateCollectionButton =
@@ -477,7 +475,7 @@ export const collectionTab = (tabName: string, selected?: boolean): string => {
 };
 export const collectionContent = (tabName: string): string => {
   const tn = tabName.toLowerCase().replace(/ /g, '-');
-  return `[data-test-id="${tn}-content"]`;
+  return `[data-testid="${tn}-content"]`;
 };
 export const collectionHeaderTitle = (
   dbName: string,
@@ -487,25 +485,25 @@ export const collectionHeaderTitle = (
 };
 
 // Documents tab
-export const DocumentListActionBarMessage = '.document-list-action-bar-message';
+export const DocumentListActionBarMessage =
+  '[data-testid="crud-document-count-display"]';
 export const ExportCollectionButton =
-  '[data-test-id="export-collection-button"]';
+  '[data-testid="export-collection-button"]';
 export const DocumentListFetching =
-  '[data-test-id="documents-content"] [data-testid="fetching-documents"]';
+  '[data-testid="documents-content"] [data-testid="fetching-documents"]';
 export const DocumentListFetchingStopButton =
-  '[data-test-id="documents-content"] [data-testid="fetching-documents"] button';
+  '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError =
-  '[data-test-id="documents-content"] .status-row-has-error';
-export const AddDataButton = '#insert-data-dropdown';
+  '[data-testid="documents-content"] .status-row-has-error';
+export const AddDataButton = '[data-testid="crud-add-data-button"]';
 export const InsertDocumentOption =
-  '[data-test-id="insert-data-dropdown-insert-document"]';
-export const ImportFileOption =
-  '[data-test-id="insert-data-dropdown-import-file"]';
-export const DocumentListEntry = '[data-test-id="editable-document"]';
-export const DocumentJSONEntry = '[data-test-id="document-json-item"]';
-export const SelectJSONView = '[data-test-id="toolbar-view-json"]';
-export const SelectTableView = '[data-test-id="toolbar-view-table"]';
-export const SelectListView = '[data-test-id="toolbar-view-list"]';
+  '[data-testid="crud-add-data-insert-document"]';
+export const ImportFileOption = '[data-testid="crud-add-data-import-file"]';
+export const DocumentListEntry = '[data-testid="editable-document"]';
+export const DocumentJSONEntry = '[data-testid="document-json-item"]';
+export const SelectJSONView = '[data-testid="toolbar-view-json"]';
+export const SelectTableView = '[data-testid="toolbar-view-table"]';
+export const SelectListView = '[data-testid="toolbar-view-list"]';
 export const CopyDocumentButton = '[data-testid="copy-document-button"]';
 export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
@@ -525,31 +523,31 @@ export const InsertConfirm =
 export const InsertCancel =
   '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
 export const insertCSFLEHasKnownSchemaMsg =
-  '[data-test-id="insert-csfle-has-known-schema"]';
+  '[data-testid="insert-csfle-has-known-schema"]';
 export const incompleteSchemaForClonedDocMsg =
-  '[data-test-id="incomplete-schema-for-cloned-doc"]';
+  '[data-testid="incomplete-schema-for-cloned-doc"]';
 
 // Import File modal
 
-export const ImportModal = '[data-test-id="import-modal"]';
+export const ImportModal = '[data-testid="import-modal"]';
 export const ImportDelimiter = '[id="import-delimiter-select"]';
 export const ImportFileInput = '#import-file_file_input';
-export const FileTypeJSON = '[data-test-id="select-file-type-json"]';
-export const FileTypeCSV = '[data-test-id="select-file-type-csv"]';
+export const FileTypeJSON = '[data-testid="select-file-type-json"]';
+export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
 export const ImportConfirm =
-  '[data-test-id="import-modal"] [data-test-id="import-button"]';
+  '[data-testid="import-modal"] [data-testid="import-button"]';
 export const ImportCancel =
-  '[data-test-id="import-modal"] [data-test-id="cancel-button"]';
+  '[data-testid="import-modal"] [data-testid="cancel-button"]';
 export const ImportDone =
-  '[data-test-id="import-modal"] [data-test-id="done-button"]';
-export const ImportErrorBox = '[data-test-id="import-error-box"]';
+  '[data-testid="import-modal"] [data-testid="done-button"]';
+export const ImportErrorBox = '[data-testid="import-error-box"]';
 
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
-  return `[data-test-id="preview-field-header-${fieldName}"] select`;
+  return `[data-testid="preview-field-header-${fieldName}"] select`;
 };
 
 export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
-  return `[data-test-id="preview-field-header-${fieldName}"] input[type="checkbox"]`;
+  return `[data-testid="preview-field-header-${fieldName}"] input[type="checkbox"]`;
 };
 
 // Hadron document editor
@@ -580,11 +578,11 @@ export const HadronDocumentRevertElement =
 export const HadronDocumentRemoveElement =
   '[data-testid="hadron-document-remove"]';
 export const HadronDocumentElementDecryptedIcon =
-  '[data-test-id="hadron-document-element-decrypted-icon"]';
+  '[data-testid="hadron-document-element-decrypted-icon"]';
 
 // Document list view
 
-export const DocumentListItem = '[data-test-id="document-list-item"]';
+export const DocumentListItem = '[data-testid="document-list-item"]';
 export const documentListDocument = (n: number): string => {
   return `${DocumentListItem}:nth-child(${n}) ${HadronDocument}`;
 };
@@ -597,16 +595,16 @@ export const documentListDocumentValue = (n: number): string => {
 
 // Query bar history
 
-export const QueryBarHistoryButton = '[data-test-id="query-history-button"]';
-export const QueryBarHistory = '[data-test-id="query-history"]';
+export const QueryBarHistoryButton = '[data-testid="query-history-button"]';
+export const QueryBarHistory = '[data-testid="query-history"]';
 
 export const QueryHistoryRecentItem = '[data-testid="recent-query-list-item"]';
 export const QueryHistoryFavoriteAnItemButton =
-  '[data-test-id="query-history-button-fav"]';
+  '[data-testid="query-history-button-fav"]';
 export const QueryHistoryFavoriteItemNameField =
-  '[data-test-id="query-history-saving-form-input-name"]';
+  '[data-testid="query-history-saving-form-input-name"]';
 export const QueryHistorySaveFavoriteItemButton =
-  '[data-test-id="query-history-saving-form-button-save"]';
+  '[data-testid="query-history-saving-form-button-save"]';
 
 export const myQueriesItem = (title: string): string => {
   return `[title="${title}"]`;
@@ -615,7 +613,7 @@ export const myQueriesItem = (title: string): string => {
 export const MyQueriesList = '[data-testid="my-queries-list"]';
 
 // Aggregations tab
-export const StageContainer = '[data-test-id="stage-container"]';
+export const StageContainer = '[data-testid="stage-container"]';
 export const CreateNewPipelineMenuButton = '[data-testid="create-new-menu"]';
 export const CreateNewPipelineMenuContent =
   '[data-testid="create-new-menu-content"]';
@@ -650,7 +648,7 @@ export const AggregationSettingsButton =
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
 export const AggregationSampleSizeInput = '#aggregation-sample-size';
 export const AggregationSettingsApplyButton = '#aggregation-settings-apply';
-export const AddStageButton = '[data-test-id="add-stage"]';
+export const AddStageButton = '[data-testid="add-stage"]';
 export const ExportAggregationToLanguage =
   '[data-testid="pipeline-toolbar-export-button"]';
 export const NewPipelineActions = '#new-pipeline-actions';
@@ -693,13 +691,13 @@ export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };
 export const stagePreviewToolbarTooltip = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="stage-preview-toolbar-tooltip"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-toolbar-tooltip"]`;
 };
 export const atlasOnlyStagePreviewSection = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="stage-preview-missing-search-support"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-missing-search-support"]`;
 };
 export const stagePreviewEmpty = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="stage-preview-empty"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-preview-empty"]`;
 };
 export const stageCollapseButton = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] button[title="Collapse"]`;
@@ -730,45 +728,48 @@ export const stageContent = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] .ace_content`;
 };
 export const stageAdd = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="add-after-stage"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="add-after-stage"]`;
 };
 export const stageToggle = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] #toggle-stage-button`;
 };
 export const stageDelete = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="delete-stage"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="delete-stage"]`;
 };
 export const stageOutSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="save-out-documents"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="save-out-documents"]`;
 };
 export const stageOutCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="go-to-out-collection"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-out-collection"]`;
 };
 export const stageMergeSaveButton = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="save-merge-documents"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="save-merge-documents"]`;
 };
 export const stageMergeCollectionLink = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="go-to-merge-collection"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="go-to-merge-collection"]`;
 };
 export const stageEditorErrorMessage = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [data-test-id="stage-editor-error-message"]`;
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-error-message"]`;
+};
+export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
 };
 
 // Schema tab
-export const AnalyzeSchemaButton = '[data-test-id="analyze-schema-button"]';
+export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
 export const SchemaFieldList = '.schema-field-list';
 export const AnalysisMessage =
-  '[data-test-id="schema-content"] .analysis-message';
+  '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
 export const SchemaField = '.schema-field';
 export const SchemaFieldName = '.schema-field-name';
 export const SchemaFieldTypeList = '.schema-field-type-list';
 
 // Explain Plan tab
-export const ExecuteExplainButton = '[data-test-id="execute-explain-button"]';
-export const ExplainSummary = '[data-test-id="explain-summary"]';
-export const ExplainStage = '[data-test-id="explain-stage"]';
+export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
+export const ExplainSummary = '[data-testid="explain-summary"]';
+export const ExplainStage = '[data-testid="explain-stage"]';
 export const ExplainDocumentsReturnedSummary =
-  '[data-test-id="documents-returned-summary"]';
+  '[data-testid="documents-returned-summary"]';
 
 // Indexes tab
 export const IndexList = '[data-testid="indexes-list"]';
@@ -813,97 +814,93 @@ export const DropIndexModalConfirmButton =
 export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
 
 // Validation tab
-export const AddRuleButton = '[data-test-id="add-rule-button"]';
-export const ValidationEditor = '[data-test-id="validation-editor"]';
+export const AddRuleButton = '[data-testid="add-rule-button"]';
+export const ValidationEditor = '[data-testid="validation-editor"]';
 export const ValidationActionMessage =
-  '[data-test-id="validation-action-message"]';
+  '[data-testid="validation-action-message"]';
 export const UpdateValidationButton =
-  '[data-test-id="update-validation-button"]';
+  '[data-testid="update-validation-button"]';
 export const ValidationMatchingDocumentsPreview =
-  '[data-test-id="validation-content"] [data-test-id="matching-documents"] [data-test-id="document-preview"]';
+  '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
 export const ValidationNotMatchingDocumentsPreview =
-  '[data-test-id="validation-content"] [data-test-id="notmatching-documents"] [data-test-id="document-preview"]';
+  '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
 
 // Find (Documents, Schema and Explain Plan tabs)
 export const queryBar = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar"]`;
+  return `${tabSelector} [data-testid="query-bar"]`;
 };
 export const queryBarOptionInputFilter = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-filter`;
+  return `${tabSelector} [data-testid="query-bar-option-filter"]`;
 };
 export const queryBarOptionInputProject = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-project`;
+  return `${tabSelector} [data-testid="query-bar-option-project"]`;
 };
 export const queryBarOptionInputSort = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-sort`;
+  return `${tabSelector} [data-testid="query-bar-option-sort"]`;
 };
 export const queryBarOptionInputCollation = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #query-bar-option-input-collation`;
+  return `${tabSelector} [data-testid="query-bar-option-collation"]`;
 };
 export const queryBarOptionInputMaxTimeMS = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [id="querybar-option-input-Max Time MS"]`;
+  return `${tabSelector} [data-testid="query-bar-option-maxTimeMS"]`;
 };
 export const queryBarOptionInputSkip = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #querybar-option-input-skip`;
+  return `${tabSelector} [data-testid="query-bar-option-skip"]`;
 };
 export const queryBarOptionInputLimit = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} #querybar-option-input-limit`;
+  return `${tabSelector} [data-testid="query-bar-option-limit"]`;
 };
 export const queryBarApplyFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-apply-filter-button"]`;
+  return `${tabSelector} [data-testid="query-bar-apply-filter-button"]`;
 };
 export const queryBarOptionsToggle = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-options-toggle"]`;
+  return `${tabSelector} [data-testid="query-bar-options-toggle"]`;
 };
 export const queryBarResetFilterButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-test-id="query-bar-reset-filter-button"]`;
+  return `${tabSelector} [data-testid="query-bar-reset-filter-button"]`;
 };
-export const queryBarMenuActionsButton = (tabName: string): string => {
+export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions}`;
-};
-export const queryBarActionsMenu = (tabName: string): string => {
-  const tabSelector = collectionContent(tabName);
-  return `${tabSelector} ${QueryBarMenuActions} + [role="menu"]`;
+  return `${tabSelector} [data-testid="query-bar-open-export-to-language-button"]`;
 };
 
 // Workspace tabs at the top
 export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 
 // Export modal
-export const ExportModal = '[data-test-id="export-modal"]';
+export const ExportModal = '[data-testid="export-modal"]';
 export const ExportModalQueryText =
-  '[data-test-id="export-modal"] [data-test-id="query-viewer-wrapper"] .ace_text-layer';
+  '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"] .ace_text-layer';
 export const ExportModalFullCollectionOption =
-  '[data-test-id="export-modal"] [data-test-id="export-full-collection"]';
+  '[data-testid="export-modal"] [data-testid="export-full-collection"]';
 export const ExportModalSelectFieldsButton =
-  '[data-test-id="export-modal"] [data-test-id="select-fields-button"]';
+  '[data-testid="export-modal"] [data-testid="select-fields-button"]';
 export const ExportModalSelectOutputButton =
-  '[data-test-id="export-modal"] [data-test-id="select-output-button"]';
+  '[data-testid="export-modal"] [data-testid="select-output-button"]';
 export const ExportModalExportButton =
-  '[data-test-id="export-modal"] [data-test-id="export-button"]';
+  '[data-testid="export-modal"] [data-testid="export-button"]';
 export const ExportModalShowFileButton =
-  '[data-test-id="export-modal"] [data-test-id="show-file-button"]';
+  '[data-testid="export-modal"] [data-testid="show-file-button"]';
 export const ExportModalCloseButton =
-  '[data-test-id="export-modal"] [data-test-id="close-button"]';
-export const ExportModalFileText = '[data-test-id="export-modal"] #export-file';
+  '[data-testid="export-modal"] [data-testid="close-button"]';
+export const ExportModalFileText = '[data-testid="export-modal"] #export-file';
 
 export const selectExportFileTypeButton = (
   fileType: string,
   selected?: boolean
 ): string => {
-  const selector = `[data-test-id="export-modal"] [data-test-id="select-file-type-${fileType}"]`;
+  const selector = `[data-testid="export-modal"] [data-testid="select-file-type-${fileType}"]`;
 
   if (selected === true) {
     return `${selector}[aria-selected="true"]`;
@@ -917,25 +914,25 @@ export const selectExportFileTypeButton = (
 };
 
 export const exportModalExportField = (fieldName: string): string => {
-  return `[data-test-id="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
+  return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
 
 // Export to language modal
-export const ExportToLanguageModal = '[data-test-id="export-to-lang-modal"]';
+export const ExportToLanguageModal = '[data-testid="export-to-lang-modal"]';
 export const ExportToLanguageLanguageField =
-  '[data-test-id="select-lang-field"]';
+  '[data-testid="select-lang-field"]';
 export const ExportToLanguageLanguageListbox =
-  '[data-test-id="select-lang-field"] [role="listbox"]';
+  '[data-testid="select-lang-field"] [role="listbox"]';
 export const ExportToLanguageImportsCheckbox =
-  '[data-test-id="export-to-lang-checkbox-imports"]';
+  '[data-testid="export-to-lang-checkbox-imports"]';
 export const ExportToLanguageDriverCheckbox =
-  '[data-test-id="export-to-lang-checkbox-driver"]';
+  '[data-testid="export-to-lang-checkbox-driver"]';
 export const ExportToLanguageBuildersCheckbox =
-  '[data-test-id="export-to-lang-checkbox-builders"]';
+  '[data-testid="export-to-lang-checkbox-builders"]';
 export const ExportToLanguageCopyOutputButton =
-  '[data-test-id="export-to-lang-copy-output"]';
+  '[data-testid="export-to-lang-copy-output"]';
 export const ExportToLanguageCloseButton =
-  '[data-test-id="export-to-lang-modal"] .modal-footer .btn-default';
+  '[data-testid="export-to-lang-modal"] .modal-footer .btn-default';
 export const ExportToLanguageQueryOutput =
   '[data-testid="export-to-lang-query-output-container"]';
 

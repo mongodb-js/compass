@@ -25,18 +25,18 @@ async function getRecentQueries(
   }
 
   const queryTags = await browser.$$(
-    '[data-test-id="query-history-query-attributes"]'
+    '[data-testid="query-history-query-attributes"]'
   );
   return Promise.all(
     queryTags.map(async (queryTag) => {
       const attributeTags = await queryTag.$$(
-        '[data-test-id="query-history-query-attribute"]'
+        '[data-testid="query-history-query-attribute"]'
       );
       const attributes: RecentQuery = {};
       await Promise.all(
         attributeTags.map(async (attributeTag: Element<'async'>) => {
           const labelTag = await attributeTag.$(
-            '[data-test-id="query-history-query-label"]'
+            '[data-testid="query-history-query-label"]'
           );
           const preTag = await attributeTag.$('pre');
           const key = await labelTag.getText();
@@ -122,7 +122,7 @@ describe('Collection documents tab', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
-    expect(text).to.equal('Displaying documents 1 - 1 of 1');
+    expect(text).to.equal('1 - 1 of 1');
 
     const queryExecutedEvent = await telemetryEntry('Query Executed');
     expect(queryExecutedEvent).to.deep.equal({
@@ -152,7 +152,7 @@ describe('Collection documents tab', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
-    expect(text).to.equal('Displaying documents 1 - 20 of 50');
+    expect(text).to.equal('1 - 20 of 50');
     const queryExecutedEvent = await telemetryEntry('Query Executed');
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -209,7 +209,7 @@ describe('Collection documents tab', function () {
     );
 
     const displayText = await documentListActionBarMessageElement.getText();
-    expect(displayText).to.equal('Displaying documents 1 - 1 of 1');
+    expect(displayText).to.equal('1 - 1 of 1');
 
     const queries = await getRecentQueries(browser);
     expect(queries).to.deep.include.members([
@@ -249,7 +249,7 @@ describe('Collection documents tab', function () {
     );
     const documentsMessage =
       await documentListActionBarMessageElement.getText();
-    expect(documentsMessage).to.equal('Displaying documents 1 - 1 of 1');
+    expect(documentsMessage).to.equal('1 - 1 of 1');
 
     await navigateToTab(browser, 'Schema');
 
@@ -288,17 +288,8 @@ describe('Collection documents tab', function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     await browser.clickVisible(
-      Selectors.queryBarMenuActionsButton('Documents')
+      Selectors.queryBarExportToLanguageButton('Documents')
     );
-
-    const queryBarActionsMenu = await browser.$(
-      Selectors.queryBarActionsMenu('Documents')
-    );
-    const exportToLanguageButton = await queryBarActionsMenu.$(
-      'a=Export To Language'
-    );
-    await exportToLanguageButton.waitForDisplayed();
-    await exportToLanguageButton.click();
 
     const text = await browser.exportToLanguage('Java', {
       includeImportStatements: true,
@@ -380,13 +371,13 @@ FindIterable<Document> result = collection.find(filter);`);
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/
     );
 
-    await browser.hover('[data-test-id="editable-json"]');
+    await browser.hover('[data-testid="editable-json"]');
     await browser.clickVisible('[data-testid="edit-document-button"]');
 
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
     await browser.setAceValue(
-      '[data-test-id="editable-json"] .ace_editor',
+      '[data-testid="editable-json"] .ace_editor',
       newjson
     );
 
@@ -424,7 +415,7 @@ FindIterable<Document> result = collection.find(filter);`);
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
     );
 
-    await browser.hover('[data-test-id="editable-json"]');
+    await browser.hover('[data-testid="editable-json"]');
     await browser.clickVisible('[data-testid="edit-document-button"]');
 
     const newjson = JSON.stringify({
@@ -433,7 +424,7 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     await browser.setAceValue(
-      '[data-test-id="editable-json"] .ace_editor',
+      '[data-testid="editable-json"] .ace_editor',
       newjson
     );
 

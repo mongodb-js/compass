@@ -1,15 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ResizableSidebar,
-  useTheme,
-  Theme,
-  ThemeProvider,
   ErrorBoundary,
   WorkspaceContainer,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import type { ThemeState } from '@mongodb-js/compass-components';
 import ConnectionForm from '@mongodb-js/connection-form';
 import type {
   ConnectionInfo,
@@ -87,25 +83,6 @@ function Connections({
     isConnected,
   } = state;
 
-  const existingTheme = useTheme();
-
-  // Use the same theme as Home if the feature flag is activated, otherwise
-  // always use Dark. We'll remove this code along with the provider once we
-  // remove the feature flag, hopefully soon.
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
-  const expectedTheme = useNewSidebar ? existingTheme.theme : Theme.Dark;
-
-  const [theme, setTheme] = useState<ThemeState>({
-    theme: expectedTheme,
-    enabled: true,
-  });
-
-  // If the inherited theme (from Home) changes because the user changed the
-  // theme via the menu, we have to update it here too.
-  if (theme.theme !== expectedTheme) {
-    setTheme({ theme: expectedTheme, enabled: true });
-  }
-
   return (
     <div
       data-testid={
@@ -113,25 +90,23 @@ function Connections({
       }
       className={connectStyles}
     >
-      <ThemeProvider theme={theme}>
-        <ResizableSidebar>
-          <ConnectionList
-            activeConnectionId={activeConnectionId}
-            favoriteConnections={favoriteConnections}
-            recentConnections={recentConnections}
-            createNewConnection={createNewConnection}
-            setActiveConnectionId={setActiveConnectionById}
-            onDoubleClick={(connectionInfo) => {
-              void connect(connectionInfo);
-            }}
-            removeAllRecentsConnections={() => {
-              void removeAllRecentsConnections();
-            }}
-            removeConnection={removeConnection}
-            duplicateConnection={duplicateConnection}
-          />
-        </ResizableSidebar>
-      </ThemeProvider>
+      <ResizableSidebar>
+        <ConnectionList
+          activeConnectionId={activeConnectionId}
+          favoriteConnections={favoriteConnections}
+          recentConnections={recentConnections}
+          createNewConnection={createNewConnection}
+          setActiveConnectionId={setActiveConnectionById}
+          onDoubleClick={(connectionInfo) => {
+            void connect(connectionInfo);
+          }}
+          removeAllRecentsConnections={() => {
+            void removeAllRecentsConnections();
+          }}
+          removeConnection={removeConnection}
+          duplicateConnection={duplicateConnection}
+        />
+      </ResizableSidebar>
       <WorkspaceContainer>
         <div className={formContainerStyles}>
           <ErrorBoundary

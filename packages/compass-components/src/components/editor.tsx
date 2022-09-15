@@ -13,6 +13,8 @@ if (typeof window === 'undefined' && typeof globalThis !== 'undefined') {
 import 'ace-builds';
 import type { IAceEditorProps, IAceOptions } from 'react-ace';
 import AceEditor from 'react-ace';
+// TODO(COMPASS-6117): Re-enable so that we can use ace workers
+// import 'ace-builds/webpack-resolver';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/mode-json';

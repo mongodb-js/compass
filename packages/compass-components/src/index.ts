@@ -30,7 +30,9 @@ import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
 import { CollapsibleFieldSet } from './components/collapsible-field-set';
 import { WorkspaceTabs } from './components/workspace-tabs/workspace-tabs';
-import ResizableSidebar from './components/resizeable-sidebar';
+import ResizableSidebar, {
+  defaultSidebarWidth,
+} from './components/resizeable-sidebar';
 import {
   ItemAction,
   MenuAction,
@@ -102,6 +104,7 @@ export {
   ItemActionControls,
   ItemActionGroup,
   ItemActionMenu,
+  defaultSidebarWidth,
 };
 export {
   useFocusState,

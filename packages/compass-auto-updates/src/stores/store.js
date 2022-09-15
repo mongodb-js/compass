@@ -1,13 +1,13 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer, { updateAvailable } from '../modules';
+import reducer, { updateAvailable, initAutoUpdates, toggleAutoUpdates } from '../modules';
+import { preferencesIpc } from 'compass-preferences-model';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = () => {
   try {
     const ipc = require('hadron-ipc');
-    const preferences = global.hadronApp.preferences;
 
     /**
      * Update available.
@@ -17,14 +17,15 @@ store.onActivated = () => {
     });
 
     /**
-     * Listen to changes in user preferences.
+     * Initialise the autoUpdates preference.
      */
-    preferences.listenToAndRun(preferences, 'change:autoUpdates', () => {
-      if (preferences.isFeatureEnabled('autoUpdates')) {
-        ipc.call('app:enable-auto-update');
-      } else {
-        ipc.call('app:disable-auto-update');
-      }
+    store.dispatch(initAutoUpdates());
+
+    /**
+     * Toggle the autoUpdates preference change.
+     */
+    preferencesIpc.onPreferenceValueChanged('autoUpdates', (autoUpdates) => {
+      store.dispatch(toggleAutoUpdates(autoUpdates));
     });
   } catch (e) {
     // Not in renderer process.

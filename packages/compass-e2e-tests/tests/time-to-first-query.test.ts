@@ -38,7 +38,7 @@ describe('Time to first query', function () {
 
     // search for the document with id == 42 and wait for just one result to appear
     const aceCommentElement = await browser.$(
-      '#query-bar-option-input-filter .ace_scroller'
+      '[data-testid="query-bar-option-filter"] .ace_scroller'
     );
     await aceCommentElement.click();
 
@@ -73,7 +73,7 @@ describe('Time to first query', function () {
 
     // search for the document with id == 42 and wait for just one result to appear
     const aceCommentElement = await browser.$(
-      '#query-bar-option-input-filter .ace_scroller'
+      '[data-testid="query-bar-option-filter"] .ace_scroller'
     );
     await aceCommentElement.click();
 

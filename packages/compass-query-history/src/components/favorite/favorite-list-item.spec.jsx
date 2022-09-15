@@ -80,7 +80,7 @@ describe('FavoriteListItem [Component]', function () {
   describe('#behavior', function () {
     it('should call the copyQuery action when the copy query button is clicked', function () {
       const node = component.find(
-        '[data-test-id="query-history-button-copy-query"]'
+        '[data-testid="query-history-button-copy-query"]'
       );
       node.simulate('click');
 
@@ -89,7 +89,7 @@ describe('FavoriteListItem [Component]', function () {
 
     it('should call the deleteFavorite action when the copy query button is clicked', function () {
       const node = component.find(
-        '[data-test-id="query-history-button-delete-fav"]'
+        '[data-testid="query-history-button-delete-fav"]'
       );
       node.simulate('click');
 

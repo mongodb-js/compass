@@ -32,7 +32,7 @@ describe('ConnectionMenu Component', function () {
     });
 
     it('does not show the menu items', function () {
-      expect(screen.queryByText('Copy Connection String')).to.not.exist;
+      expect(screen.queryByText('Copy connection string')).to.not.exist;
       expect(screen.queryByText('Duplicate')).to.not.exist;
       expect(screen.queryByText('Remove')).to.not.exist;
     });
@@ -51,7 +51,7 @@ describe('ConnectionMenu Component', function () {
       });
 
       it('shows the menu items without the "Duplicate" option', function () {
-        expect(screen.getByText('Copy Connection String')).to.be.visible;
+        expect(screen.getByText('Copy connection string')).to.be.visible;
         expect(screen.queryByText('Duplicate')).to.throw;
         expect(screen.getByText('Remove')).to.be.visible;
       });
@@ -86,7 +86,7 @@ describe('ConnectionMenu Component', function () {
     });
 
     it('does not show the menu items', function () {
-      expect(screen.queryByText('Copy Connection String')).to.not.exist;
+      expect(screen.queryByText('Copy connection string')).to.not.exist;
       expect(screen.queryByText('Duplicate')).to.not.exist;
       expect(screen.queryByText('Remove')).to.not.exist;
     });
@@ -105,7 +105,7 @@ describe('ConnectionMenu Component', function () {
       });
 
       it('shows the menu items', function () {
-        expect(screen.getByText('Copy Connection String')).to.be.visible;
+        expect(screen.getByText('Copy connection string')).to.be.visible;
         expect(screen.getByText('Duplicate')).to.be.visible;
         expect(screen.getByText('Remove')).to.be.visible;
       });
@@ -115,7 +115,7 @@ describe('ConnectionMenu Component', function () {
 
         beforeEach(function () {
           const copyConnectionStringButton = screen.getByText(
-            'Copy Connection String'
+            'Copy connection string'
           );
 
           mockCopyToClipboard = sinon.fake.resolves(null);
@@ -201,7 +201,7 @@ describe('ConnectionMenu Component', function () {
 
         beforeEach(function () {
           const copyConnectionStringButton = screen.getByText(
-            'Copy Connection String'
+            'Copy connection string'
           );
 
           mockCopyToClipboard = sinon.fake.rejects(new Error('Test error'));

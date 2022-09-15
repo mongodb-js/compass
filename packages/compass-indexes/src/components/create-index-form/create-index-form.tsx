@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
-import {
-  css,
-  withTheme,
-  Label,
-  spacing,
-  Accordion,
-} from '@mongodb-js/compass-components';
+import { css, Label, spacing, Accordion } from '@mongodb-js/compass-components';
 
 import CreateIndexFields from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/has-columnstore-indexes-support';
@@ -29,7 +23,6 @@ const createIndexModalOptionStyles = css({
 type IndexField = { name: string; type: string };
 
 export type CreateIndexProps = {
-  darkMode?: boolean;
   fields: IndexField[];
   newIndexField: string | null;
   schemaFields: string[];
@@ -109,7 +102,6 @@ class CreateIndexForm extends Component<CreateIndexProps> {
         removeField={this.props.removeField}
         newIndexField={this.props.newIndexField}
         createNewIndexField={this.props.createNewIndexField}
-        darkMode={this.props.darkMode}
       />
     );
   }
@@ -122,7 +114,7 @@ class CreateIndexForm extends Component<CreateIndexProps> {
   renderIndexOptions() {
     return (
       <div
-        data-test-id="create-index-modal-options"
+        data-testid="create-index-modal-options"
         className={createIndexModalOptionStyles}
       >
         <UniqueIndexCheckbox
@@ -209,4 +201,4 @@ class CreateIndexForm extends Component<CreateIndexProps> {
   }
 }
 
-export default withTheme(CreateIndexForm);
+export default CreateIndexForm;

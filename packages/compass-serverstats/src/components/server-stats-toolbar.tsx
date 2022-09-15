@@ -70,7 +70,7 @@ function UnthemedServerStatsToolbar({
       </Button>
       <div
         className={cx(timeStyles, darkMode ? timeDarkThemeStyles : timeLightThemeStyles)}
-        data-test-id="server-stats-time"
+        data-testid="server-stats-time"
       >{time}</div>
     </Toolbar>
   );
