@@ -8,7 +8,6 @@ import {
 } from '@mongodb-js/compass-components';
 
 import Sidebar from './components/sidebar';
-import LegacySidebar from './components-legacy/sidebar';
 
 import store from './stores';
 
@@ -26,8 +25,6 @@ const errorBoundaryStyles = css({
  * @returns {React.Component} The rendered component.
  */
 function SidebarPlugin() {
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR !== 'false';
-
   return (
     <Provider store={store}>
       <ErrorBoundary
@@ -42,7 +39,7 @@ function SidebarPlugin() {
           );
         }}
       >
-        {useNewSidebar ? <Sidebar /> : <LegacySidebar />}
+        <Sidebar />
       </ErrorBoundary>
     </Provider>
   );
