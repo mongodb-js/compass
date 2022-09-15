@@ -8,14 +8,21 @@ import {
   css,
   spacing,
   Link,
+  Banner,
+  BannerVariant,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/updated-fields';
-import type { UserConfigurablePreferences } from 'compass-preferences-model';
+import type {
+  PreferenceStateInformation,
+  UserConfigurablePreferences,
+} from 'compass-preferences-model';
 
 type PrivacySettingsProps = {
   handleChange: (field: PrivacyFields, value: boolean) => void;
-} & Pick<Partial<UserConfigurablePreferences>, PrivacyFields>;
+  preferenceStates: PreferenceStateInformation;
+  checkboxValues: Pick<UserConfigurablePreferences, PrivacyFields>;
+};
 
 type PrivacyFields =
   | 'autoUpdates'
@@ -94,24 +101,28 @@ const checkboxItems: CheckboxItem[] = [
   },
 ];
 
+const settingStateLabels = {
+  'set-cli': (
+    <Banner variant={BannerVariant.Info} data-testid="set-cli-banner">
+      This setting cannot be modified as it has been set at Compass startup.
+    </Banner>
+  ),
+  'set-global': (
+    <Banner variant={BannerVariant.Info} data-testid="set-global-banner">
+      This setting cannot be modified as it has been set in the global Compass
+      configuration file.
+    </Banner>
+  ),
+  '': <></>,
+};
+
 export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
-  autoUpdates,
-  enableMaps,
-  trackErrors,
-  trackUsageStatistics,
-  enableFeedbackPanel,
+  checkboxValues,
+  preferenceStates,
   handleChange,
 }) => {
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleChange(event.target.name as PrivacyFields, event.target.checked);
-  };
-
-  const checkboxValues: Record<PrivacyFields, boolean> = {
-    autoUpdates: Boolean(autoUpdates),
-    enableMaps: Boolean(enableMaps),
-    trackErrors: Boolean(trackErrors),
-    trackUsageStatistics: Boolean(trackUsageStatistics),
-    enableFeedbackPanel: Boolean(enableFeedbackPanel),
   };
 
   return (
@@ -122,18 +133,24 @@ export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
         the settings below:
       </Body>
 
-      {checkboxItems.map(({ name, label }) => (
-        <Checkbox
-          key={name}
-          className={checkboxStyles}
-          name={name}
-          id={name}
-          data-testid={name}
-          onChange={handleCheckboxChange}
-          label={label}
-          checked={checkboxValues[name]}
-        />
-      ))}
+      <div>
+        {checkboxItems.map(({ name, label }) => (
+          <div data-testid={`setting-${name}`} key={`setting-${name}`}>
+            <Checkbox
+              key={name}
+              className={checkboxStyles}
+              name={name}
+              id={name}
+              data-testid={name}
+              onChange={handleCheckboxChange}
+              label={label}
+              checked={checkboxValues[name]}
+              disabled={!!preferenceStates[name]}
+            />
+            {settingStateLabels[preferenceStates[name] ?? '']}
+          </div>
+        ))}
+      </div>
       <Body>
         With any of these options, none of your personal information or stored
         data will be submitted.
@@ -147,20 +164,15 @@ export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   );
 };
 
-const mapState = ({
-  settings: {
-    autoUpdates,
-    enableMaps,
-    trackErrors,
-    trackUsageStatistics,
-    enableFeedbackPanel,
+const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
+  checkboxValues: {
+    autoUpdates: !!settings.autoUpdates,
+    enableMaps: !!settings.enableMaps,
+    trackErrors: !!settings.trackErrors,
+    trackUsageStatistics: !!settings.trackUsageStatistics,
+    enableFeedbackPanel: !!settings.enableFeedbackPanel,
   },
-}: RootState) => ({
-  autoUpdates,
-  enableMaps,
-  trackErrors,
-  trackUsageStatistics,
-  enableFeedbackPanel,
+  preferenceStates,
 });
 
 const mapDispatch = {

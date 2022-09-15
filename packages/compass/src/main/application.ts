@@ -10,6 +10,7 @@ import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
 import { setupPreferences } from './setup-preferences';
+import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 
 const debug = createDebug('mongodb-compass:main:application');
 
@@ -26,7 +27,7 @@ class CompassApplication {
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
 
-  private static async _init(mode: CompassApplicationMode) {
+  private static async _init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult) {
     if (this.mode !== null && this.mode !== mode) {
       throw new Error(`Cannot re-initialize Compass in different mode (${mode} vs previous ${this.mode})`);
     }
@@ -39,7 +40,7 @@ class CompassApplication {
 
     this.setupUserDirectory();
     await Promise.all([this.setupLogging(), this.setupTelemetry()]);
-    await setupPreferences();
+    await setupPreferences(globalPreferences);
 
     if (mode === 'CLI') {
       return;
@@ -53,8 +54,8 @@ class CompassApplication {
     this.setupWindowManager();
   }
 
-  static init(mode: CompassApplicationMode): Promise<void> {
-    return (this.initPromise ??= this._init(mode));
+  static init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult): Promise<void> {
+    return (this.initPromise ??= this._init(mode, globalPreferences));
   }
 
   private static async setupSecureStore(): Promise<void> {

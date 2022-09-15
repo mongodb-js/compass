@@ -1,8 +1,10 @@
 import '../setup-hadron-distribution';
-import { app } from 'electron';
+import { app, dialog } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
 import { initialize } from '@electron/remote/main';
 import { doImportConnections, doExportConnections } from './import-export-connections';
+import { parseAndValidateGlobalPreferences, getHelpText } from 'compass-preferences-model';
+import chalk from 'chalk';
 
 initialize();
 
@@ -21,34 +23,62 @@ if (process.env.APP_ENV === 'webdriverio') {
 // @ts-expect-error setVersion is not a public method
 app.setVersion(process.env.HADRON_APP_VERSION);
 
-const importExportOptions = {
-  // TODO(COMPASS-6070): Proper command line parsing
-  exportConnections: process.argv.find(s => s.startsWith('--export-connections='))?.slice(21),
-  importConnections: process.argv.find(s => s.startsWith('--import-connections='))?.slice(21),
-  passphrase: process.argv.find(s => s.startsWith('--passphrase='))?.slice(13),
-  // TODO(COMPASS-6066): Set removeSecrets: true if protectConnectionStrings is set.
-  removeSecrets: false,
-  trackingProps: { context: 'CLI' },
-};
-
 void main();
 
 async function main(): Promise<void> {
+  const globalPreferences = await parseAndValidateGlobalPreferences();
+  const { preferenceParseErrors } = globalPreferences;
+  const preferenceParseErrorsString = preferenceParseErrors.join('\n');
+  if (globalPreferences.cli.version) {
+    process.stdout.write(`${app.getName()} ${app.getVersion()}\n`)
+    return app.exit(0);
+  }
+
+  if (globalPreferences.cli.help) {
+    process.stdout.write(getHelpText());
+    return app.exit(0);
+  }
+
+  if (preferenceParseErrors.length > 0) {
+    process.stderr.write(chalk.yellow(preferenceParseErrorsString) + '\n');
+    process.stderr.write('Use --ignore-additional-command-line-flags to allow passing additional options to Chromium/Electron\n');
+  }
+  const errorOutDueToAdditionalCommandLineFlags =
+  preferenceParseErrors.length > 0 &&
+    !globalPreferences.global.ignoreAdditionalCommandLineFlags &&
+    !globalPreferences.cli.ignoreAdditionalCommandLineFlags;
+
+  const importExportOptions = {
+    exportConnections: globalPreferences.cli.exportConnections,
+    importConnections: globalPreferences.cli.importConnections,
+    passphrase: globalPreferences.cli.passphrase,
+    // TODO(COMPASS-6066): Set removeSecrets: true if protectConnectionStrings is set.
+    removeSecrets: false,
+    trackingProps: { context: 'CLI' },
+  };
+
   const { CompassApplication } = await import('./application');
 
   const doImportExport = importExportOptions.exportConnections || importExportOptions.importConnections;
   const mode = doImportExport ? 'CLI' : 'GUI';
   if (mode === 'GUI') {
+    if (errorOutDueToAdditionalCommandLineFlags) {
+      dialog.showErrorBox('Errors while parsing Compass preferences', preferenceParseErrorsString);
+      return app.exit(1);
+    }
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     process.on('uncaughtException', handleUncaughtException);
   } else {
+    if (errorOutDueToAdditionalCommandLineFlags) {
+      return app.exit(1);
+    }
     process.on('uncaughtException', (err) => {
       console.error(err);
       CompassApplication.runExitHandlers().finally(() => app.exit(1));
     });
   }
 
-  await CompassApplication.init(mode);
+  await CompassApplication.init(mode, globalPreferences);
 
   if (mode === 'CLI') {
     let exitCode = 0;

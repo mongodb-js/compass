@@ -1,9 +1,9 @@
 import storageMixin from 'storage-mixin';
-import isEmpty from 'lodash.isempty';
 import pickBy from 'lodash.pickby';
 import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
 import createDebug from 'debug';
+import type { ParsedGlobalPreferencesResult } from './global-config';
 
 const debug = createDebug('mongodb-compass:models:preferences');
 
@@ -42,7 +42,21 @@ export type InternalUserPreferences = {
 export type UserPreferences = UserConfigurablePreferences &
   InternalUserPreferences;
 
-export type GlobalPreferences = UserPreferences; // TODO: extend with global preferences.
+export type CliOnlyPreferences = {
+  exportConnections?: string;
+  importConnections?: string;
+  passphrase?: string;
+  version?: boolean;
+  help?: boolean;
+};
+
+export type NonUserPreferences = {
+  ignoreAdditionalCommandLineFlags?: boolean;
+};
+
+export type GlobalPreferences = UserPreferences &
+  CliOnlyPreferences &
+  NonUserPreferences;
 
 type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<GlobalPreferences>
@@ -60,7 +74,7 @@ declare class PreferencesAmpersandModel {
   }) => UserPreferences;
 }
 
-type AmpersandType<T> = T extends string
+export type AmpersandType<T> = T extends string
   ? 'string'
   : T extends boolean
   ? 'boolean'
@@ -79,13 +93,21 @@ type PreferenceDefinition<K extends keyof GlobalPreferences> = {
   default?: GlobalPreferences[K];
   required: boolean;
   ui: K extends keyof UserConfigurablePreferences ? true : false;
-  cli: K extends keyof InternalUserPreferences ? false : boolean;
-  global: K extends keyof InternalUserPreferences ? false : boolean;
+  cli: K extends keyof InternalUserPreferences
+    ? false
+    : K extends keyof CliOnlyPreferences
+    ? true
+    : boolean;
+  global: K extends keyof InternalUserPreferences
+    ? false
+    : K extends keyof CliOnlyPreferences
+    ? false
+    : boolean;
 };
 
-const modelPreferencesProps: {
+const modelPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
-} = {
+}> = {
   /**
    * String identifier for this set of preferences. Default is `General`.
    */
@@ -227,17 +249,83 @@ const modelPreferencesProps: {
   },
 };
 
-export const allPreferencesProps: {
-  [K in keyof GlobalPreferences]: PreferenceDefinition<K>;
-} = {
-  ...modelPreferencesProps,
+const cliOnlyPreferencesProps: Required<{
+  [K in keyof CliOnlyPreferences]: PreferenceDefinition<K>;
+}> = {
+  exportConnections: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+  },
+  importConnections: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+  },
+  passphrase: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+  },
+  help: {
+    type: 'boolean',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+  },
+  version: {
+    type: 'boolean',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+  },
 };
+
+const nonUserPreferences: Required<{
+  [K in keyof NonUserPreferences]: PreferenceDefinition<K>;
+}> = {
+  ignoreAdditionalCommandLineFlags: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: false,
+    cli: true,
+    global: true,
+  },
+};
+
+export const allPreferencesProps: Required<{
+  [K in keyof GlobalPreferences]: PreferenceDefinition<K>;
+}> = {
+  ...modelPreferencesProps,
+  ...cliOnlyPreferencesProps,
+  ...nonUserPreferences,
+};
+
+export type PreferenceStateInformation = Partial<
+  Record<keyof GlobalPreferences, 'set-cli' | 'set-global'>
+>;
 
 class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _userPreferencesModel: PreferencesAmpersandModel;
+  private _globalPreferences: {
+    cli: Partial<GlobalPreferences>;
+    global: Partial<GlobalPreferences>;
+  };
 
-  constructor(basepath?: string) {
+  constructor(
+    basepath?: string,
+    globalPreferences?: Partial<ParsedGlobalPreferencesResult>
+  ) {
     // User preferences are stored to disc via the Ampersand model.
     const PreferencesModel = Model.extend(storageMixin, {
       props: modelPreferencesProps,
@@ -252,6 +340,11 @@ class Preferences {
 
     this._onPreferencesChangedCallbacks = [];
     this._userPreferencesModel = new PreferencesModel();
+    this._globalPreferences = {
+      cli: {},
+      global: {},
+      ...globalPreferences,
+    };
   }
 
   async fetchPreferences(): Promise<GlobalPreferences> {
@@ -275,17 +368,26 @@ class Preferences {
   }
 
   async savePreferences(
-    attributes: Partial<GlobalPreferences>
+    attributes: Partial<UserPreferences> = {}
   ): Promise<GlobalPreferences> {
-    if (!attributes && isEmpty(attributes)) {
+    const keys = Object.keys(attributes) as (keyof UserPreferences)[];
+    if (keys.length === 0) {
       return this.getPreferences();
+    }
+
+    const invalidKey = keys.find((key) => !modelPreferencesProps[key]);
+    if (invalidKey !== undefined) {
+      // Guard against accidentally saving non-model settings here.
+      throw new Error(
+        `Setting "${invalidKey}" is not part of the preferences model`
+      );
     }
 
     const userPreferencesModel = this._userPreferencesModel;
 
     // Save user preferences to the Ampersand model.
     const saveUserPreferences: (
-      attributes: Partial<GlobalPreferences>
+      attributes: Partial<UserPreferences>
     ) => Promise<void> = promisifyAmpersandMethod(
       userPreferencesModel.save.bind(userPreferencesModel)
     );
@@ -310,13 +412,14 @@ class Preferences {
   }
 
   getPreferences(): GlobalPreferences {
-    // TODO: merge user, global, and CLI preferences here.
-    return (
-      this._userPreferencesModel.getAttributes({
+    return {
+      ...this._userPreferencesModel.getAttributes({
         props: true,
         derived: true,
-      }) || {}
-    );
+      }),
+      ...this._globalPreferences.cli,
+      ...this._globalPreferences.global,
+    };
   }
 
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
@@ -339,6 +442,16 @@ class Preferences {
           allPreferencesProps[key as keyof typeof preferences].ui === true
       )
     ) as UserConfigurablePreferences;
+  }
+
+  getPreferenceStates(): PreferenceStateInformation {
+    const preferenceState: Partial<Record<string, 'set-cli' | 'set-global'>> =
+      {};
+    for (const key of Object.keys(this._globalPreferences.cli))
+      preferenceState[key] = 'set-cli';
+    for (const key of Object.keys(this._globalPreferences.global))
+      preferenceState[key] = 'set-global';
+    return preferenceState;
   }
 
   _callOnPreferencesChanged(

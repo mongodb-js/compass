@@ -17,7 +17,7 @@ describe('Preferences class', function () {
     await fs.rm(tmpdir, { recursive: true });
   });
 
-  it('allows provides default preferences', async function () {
+  it('allows providing default preferences', async function () {
     const preferences = new Preferences(tmpdir);
     const result = await preferences.fetchPreferences();
     expect(result.id).to.equal('General');
@@ -30,6 +30,19 @@ describe('Preferences class', function () {
     const result = await preferences.fetchPreferences();
     expect(result.id).to.equal('General');
     expect(result.enableMaps).to.equal(true);
+  });
+
+  it('forbids saving non-model preferences', async function () {
+    const preferences = new Preferences(tmpdir);
+    try {
+      // @ts-expect-error That this doesn't work is part of the test
+      await preferences.savePreferences({ help: true });
+      expect.fail('missed exception');
+    } catch (err: any) {
+      expect(err.message).to.equal(
+        'Setting "help" is not part of the preferences model'
+      );
+    }
   });
 
   it('stores preferences across instances', async function () {
@@ -54,5 +67,28 @@ describe('Preferences class', function () {
     const result = await preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.enableMaps).to.equal(true);
+  });
+
+  it('allows providing cli- and global-config-provided options', async function () {
+    const preferences = new Preferences(tmpdir, {
+      cli: {
+        enableMaps: false,
+        trackErrors: true,
+      },
+      global: {
+        trackErrors: false,
+      },
+    });
+    const result = await preferences.getConfigurableUserPreferences();
+    expect(result).not.to.have.property('id');
+    expect(result.autoUpdates).to.equal(true);
+    expect(result.enableMaps).to.equal(false);
+    expect(result.trackErrors).to.equal(false); // global takes precedence over cli
+
+    const states = preferences.getPreferenceStates();
+    expect(states).to.deep.equal({
+      trackErrors: 'set-global',
+      enableMaps: 'set-cli',
+    });
   });
 });
