@@ -8,15 +8,16 @@ const placeholderItem = css({
   display: 'flex',
   alignItems: 'center',
   height: COLLECTION_ROW_HEIGHT,
-  paddingLeft: spacing[5],
 });
 
+// Padding should align the placeholder with icon at the start of the item, not
+// with the text after the icon
 const padding = {
   database: css({
-    paddingLeft: spacing[4] + spacing[2],
+    paddingLeft: spacing[3] + spacing[1],
   }),
   collection: css({
-    paddingLeft: spacing[4] + spacing[4] + spacing[1],
+    paddingLeft: spacing[5] + spacing[1],
   }),
 } as const;
 
