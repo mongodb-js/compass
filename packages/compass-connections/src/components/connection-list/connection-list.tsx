@@ -18,28 +18,8 @@ import type { ConnectionInfo } from 'mongodb-data-service';
 import Connection from './connection';
 import ConnectionsTitle from './connections-title';
 
-const legacyNewConnectionButtonContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  background: uiColors.gray.dark2,
-  position: 'relative',
-});
-
 const newConnectionButtonContainerStyles = css({
   padding: spacing[3],
-});
-
-const legacyNewConnectionButtonStyles = css({
-  border: 'none',
-  fontWeight: 'bold',
-  borderRadius: 0,
-  svg: {
-    color: uiColors.white,
-  },
-  ':hover': {
-    border: 'none',
-    boxShadow: 'none',
-  },
 });
 
 const newConnectionButtonStyles = css({
@@ -166,32 +146,21 @@ function ConnectionList({
 
   const { theme } = useTheme();
 
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR !== 'false';
-
   const isExpanded = true; // TODO: https://jira.mongodb.org/browse/COMPASS-5967
 
   return (
     <Fragment>
-      {useNewSidebar && <ConnectionsTitle isExpanded={isExpanded} />}
-      <div
-        className={
-          useNewSidebar
-            ? newConnectionButtonContainerStyles
-            : legacyNewConnectionButtonContainerStyles
-        }
-      >
+      <ConnectionsTitle isExpanded={isExpanded} />
+      <div className={newConnectionButtonContainerStyles}>
         <Button
           className={cx(
-            useNewSidebar
-              ? newConnectionButtonStyles
-              : legacyNewConnectionButtonStyles,
-            useNewSidebar &&
-              (theme === Theme.Dark
-                ? newConnectionButtonStylesDark
-                : newConnectionButtonStylesLight)
+            newConnectionButtonStyles,
+            theme === Theme.Dark
+              ? newConnectionButtonStylesDark
+              : newConnectionButtonStylesLight
           )}
           onClick={createNewConnection}
-          size={useNewSidebar ? 'default' : 'large'}
+          size="default"
           data-testid="new-connection-button"
           rightGlyph={<Icon glyph="Plus" />}
         >

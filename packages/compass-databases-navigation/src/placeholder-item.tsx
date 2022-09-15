@@ -12,34 +12,20 @@ const placeholderItem = css({
 });
 
 const padding = {
-  old: {
-    database: css({
-      // Because we are aligning this with non-leafygreen items on the screen we
-      // have to use custom sizes
-      paddingLeft: spacing[1] + spacing[2],
-    }),
-    collection: css({
-      paddingLeft: spacing[5],
-    }),
-  },
-  new: {
-    database: css({
-      paddingLeft: spacing[4] + spacing[2],
-    }),
-    collection: css({
-      paddingLeft: spacing[4] + spacing[4] + spacing[1],
-    }),
-  },
+  database: css({
+    paddingLeft: spacing[4] + spacing[2],
+  }),
+  collection: css({
+    paddingLeft: spacing[4] + spacing[4] + spacing[1],
+  }),
 } as const;
 
 export const PlaceholderItem: React.FunctionComponent<{
   type?: 'database' | 'collection';
   style?: CSSProperties;
 }> = ({ type = 'collection', style }) => {
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR !== 'false';
-  const variant = useNewSidebar ? 'new' : 'old';
   return (
-    <div className={cx(placeholderItem, padding[variant][type])} style={style}>
+    <div className={cx(placeholderItem, padding[type])} style={style}>
       <Placeholder />
     </div>
   );

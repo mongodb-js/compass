@@ -66,21 +66,10 @@ const ExpandButton: React.FunctionComponent<{
 const databaseItem = css({
   height: DATABASE_ROW_HEIGHT,
   paddingRight: spacing[1],
-});
-
-const databaseItemOldSpacing = css({
-  paddingLeft: spacing[1],
-});
-
-const databaseItemNewSpacing = css({
   paddingLeft: spacing[2],
 });
 
-const databaseItemLabelOldSpacing = css({
-  marginLeft: spacing[1],
-});
-
-const databaseItemLabelNewSpacing = css({
+const databaseItemLabel = css({
   marginLeft: spacing[2],
 });
 
@@ -150,8 +139,6 @@ export const DatabaseItem: React.FunctionComponent<
     ];
   }, []);
 
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR !== 'false';
-
   return (
     <ItemContainer
       id={id}
@@ -163,10 +150,7 @@ export const DatabaseItem: React.FunctionComponent<
       isActive={isActive}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
-      className={cx(
-        databaseItem,
-        useNewSidebar ? databaseItemNewSpacing : databaseItemOldSpacing
-      )}
+      className={databaseItem}
       style={style}
       {...hoverProps}
     >
@@ -174,15 +158,8 @@ export const DatabaseItem: React.FunctionComponent<
         onClick={onExpandButtonClick}
         isExpanded={isExpanded}
       ></ExpandButton>
-      {useNewSidebar && <Icon glyph="Database" size="small"></Icon>}
-      <ItemLabel
-        className={
-          useNewSidebar
-            ? databaseItemLabelNewSpacing
-            : databaseItemLabelOldSpacing
-        }
-        title={name}
-      >
+      <Icon glyph="Database" size="small"></Icon>
+      <ItemLabel className={databaseItemLabel} title={name}>
         {name}
       </ItemLabel>
       {!isReadOnly && (
