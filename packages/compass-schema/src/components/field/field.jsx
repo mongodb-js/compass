@@ -127,7 +127,7 @@ class Field extends Component {
   getSemanticType(type) {
     // check if the type represents geo coordinates, if privacy settings allow
 
-    if (this.enableMaps) {
+    if (this.state.enableMaps) {
       const coords = detectCoordinates(type);
       if (coords) {
         type.name = 'Coordinates';
