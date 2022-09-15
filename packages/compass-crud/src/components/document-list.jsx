@@ -262,7 +262,7 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list.
    */
   render() {
-    const useNewToolbars = process?.env?.COMPASS_SHOW_NEW_TOOLBARS;
+    const useNewToolbars = process?.env?.COMPASS_SHOW_OLD_TOOLBARS !== 'true';
 
     return (
       <div className="compass-documents">

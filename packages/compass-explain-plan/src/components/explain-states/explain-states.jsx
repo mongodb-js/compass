@@ -240,7 +240,7 @@ class ExplainStates extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const useNewToolbars = process?.env?.COMPASS_SHOW_NEW_TOOLBARS;
+    const useNewToolbars = process?.env?.COMPASS_SHOW_OLD_TOOLBARS !== 'true';
     return (
       <>
         {useNewToolbars ? (
@@ -251,6 +251,7 @@ class ExplainStates extends Component {
             showOutdatedWarning={
               this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
             }
+            resultId={this.props.explain.resultId}
             hasExplainResults={!this.checkIfZeroState()}
             showReadonlyWarning={!this.props.isEditable}
             switchToTreeView={this.props.switchToTreeView}

@@ -36,7 +36,7 @@ export const PlaceholderItem: React.FunctionComponent<{
   type?: 'database' | 'collection';
   style?: CSSProperties;
 }> = ({ type = 'collection', style }) => {
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR !== 'false';
   const variant = useNewSidebar ? 'new' : 'old';
   return (
     <div className={cx(placeholderItem, padding[variant][type])} style={style}>

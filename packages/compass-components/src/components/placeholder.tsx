@@ -21,8 +21,8 @@ const move = keyframes({
 });
 
 const placeholder = css({
-  '--gradient-start': uiColors.gray.light3,
-  '--gradient-end': 'rgba(235, 241, 239, 1)',
+  '--gradient-start': uiColors.gray.light2,
+  '--gradient-end': uiColors.gray.light3,
   alignSelf: 'center',
   borderRadius: 3,
   maxWidth: '80%',
@@ -40,8 +40,8 @@ const placeholder = css({
 });
 
 const placeholderDarkMode = css({
-  '--gradient-start': 'rgba(38, 55, 66, 1)',
-  '--gradient-end': 'rgba(47, 64, 74, 1)',
+  '--gradient-start': uiColors.gray.dark2,
+  '--gradient-end': uiColors.gray.dark3,
 });
 
 function getBoundRandom(min: number, max: number) {

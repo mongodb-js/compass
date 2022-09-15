@@ -150,7 +150,7 @@ export const DatabaseItem: React.FunctionComponent<
     ];
   }, []);
 
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
+  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR !== 'false';
 
   return (
     <ItemContainer

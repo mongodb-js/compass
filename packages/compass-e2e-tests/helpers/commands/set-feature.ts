@@ -7,9 +7,10 @@ export async function setFeature(
 ): Promise<void> {
   await browser.execute(
     (_name, _value) => {
-      const preferences = (global as any)?.hadronApp?.preferences;
-      preferences.set(_name, _value);
-      preferences.save();
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('electron').ipcRenderer.invoke('compass:save-preferences', {
+        [_name]: _value,
+      });
     },
     name,
     value
