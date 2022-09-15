@@ -67,7 +67,7 @@ async function startRelease(bumpFn, evergreenProject) {
     return;
   }
 
-  checkReleaseTicketInProgress(newSemver);
+  await checkReleaseTicketInProgress(newSemver);
 
   cli.info(
     '\n\n',
