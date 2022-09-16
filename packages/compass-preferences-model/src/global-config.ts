@@ -148,7 +148,13 @@ export async function parseAndValidateGlobalPreferences(
   const [globalPreferences, file] = await loadGlobalPreferences(
     sources.globalConfigPaths ?? getGlobalConfigPaths()
   );
-  const cliPreferences = parseCliArgs(sources.argv ?? process.argv.slice(2));
+  let argv = sources.argv;
+  if (!argv) {
+    // See https://github.com/electron/electron/issues/4690
+    const argvStartIndex = process.versions.electron && !process.defaultApp ? 1 : 2;
+    argv = process.argv.slice(argvStartIndex);
+  }
+  const cliPreferences = parseCliArgs(argv);
   // TODO(COMPASS-6069): We will handle a positional argument later.
   if (cliPreferences && typeof cliPreferences === 'object') {
     delete (cliPreferences as Record<string, unknown>)._;
