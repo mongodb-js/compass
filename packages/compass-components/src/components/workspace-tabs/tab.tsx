@@ -126,8 +126,8 @@ const tabIconFocusedStyles = css({
 const tabTitleContainerStyles = css({
   marginRight: spacing[1],
   display: 'inline-grid',
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3] - 2, // steal space for the border effect
+  paddingTop: spacing[3] - 2, // steal space for the border effect
+  paddingBottom: spacing[3],
   gridTemplateAreas: `
     'icon tabName'
     'empty namespace'
