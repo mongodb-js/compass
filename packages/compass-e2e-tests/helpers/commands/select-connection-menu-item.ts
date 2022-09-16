@@ -9,6 +9,10 @@ export async function selectConnectionMenuItem(
   const selector = Selectors.sidebarFavorite(favoriteName);
   // It takes some time for the favourites to load
   await browser.$(selector).waitForDisplayed();
+
+  // workaround for weirdness in the ItemActionControls menu opener icon
+  await browser.clickVisible(Selectors.ConnectionsTitle);
+
   await browser.hover(selector);
 
   await browser.clickVisible(Selectors.sidebarFavoriteMenuButton(favoriteName));
