@@ -1,7 +1,7 @@
 import Preferences from './preferences';
 
 export default Preferences;
-export { THEMES } from './preferences';
+export { THEMES, getSettingDescription } from './preferences';
 export type {
   UserPreferences,
   UserConfigurablePreferences,

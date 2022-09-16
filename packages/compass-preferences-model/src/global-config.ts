@@ -179,22 +179,45 @@ export async function parseAndValidateGlobalPreferences(
   return { global, cli, preferenceParseErrors };
 }
 
+function formatSingleOption(
+  key: keyof GlobalPreferences,
+  context: 'cli' | 'global'
+): string {
+  let line = '';
+  const descriptor = allPreferencesProps[key];
+  const addDescription = () => {
+    if (!descriptor.description) return;
+    line = line.padEnd(45);
+    line += descriptor.description.short;
+  };
+
+  if (context === 'cli' && descriptor.cli) {
+    line += `  --${key}`;
+    if (descriptor.global) line += ' (*)';
+    addDescription();
+    line += '\n';
+  }
+  if (context === 'global' && descriptor.global && !descriptor.cli) {
+    line += `  ${key}`;
+    addDescription();
+  }
+  return line;
+}
+
 export function getHelpText(): string {
   let text = 'Available options:\n\n';
-  for (const [key, descriptor] of Object.entries(allPreferencesProps)) {
-    if (descriptor.cli) {
-      text += `  --${key}`;
-      if (descriptor.global) text += ' (*)';
-      text += '\n';
-    }
+  for (const key of Object.keys(
+    allPreferencesProps
+  ) as (keyof GlobalPreferences)[]) {
+    text += formatSingleOption(key, 'cli');
   }
   text +=
     '\n(Options marked with (*) are also configurable through the global configuration file.)\n';
   text += '\nOnly available in the global configuration file:\n\n';
-  for (const [key, descriptor] of Object.entries(allPreferencesProps)) {
-    if (descriptor.global && !descriptor.cli) {
-      text += `  ${key}\n`;
-    }
+  for (const key of Object.keys(
+    allPreferencesProps
+  ) as (keyof GlobalPreferences)[]) {
+    text += formatSingleOption(key, 'global');
   }
   text +=
     '\nThe following global configuration file paths will be searched:\n\n';

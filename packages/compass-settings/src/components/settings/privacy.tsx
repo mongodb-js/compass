@@ -13,6 +13,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/updated-fields';
+import { getSettingDescription } from 'compass-preferences-model';
 import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
@@ -24,12 +25,14 @@ type PrivacySettingsProps = {
   checkboxValues: Pick<UserConfigurablePreferences, PrivacyFields>;
 };
 
-type PrivacyFields =
-  | 'autoUpdates'
-  | 'enableMaps'
-  | 'trackErrors'
-  | 'trackUsageStatistics'
-  | 'enableFeedbackPanel';
+const privacyFields = [
+  'autoUpdates',
+  'enableMaps',
+  'trackErrors',
+  'trackUsageStatistics',
+  'enableFeedbackPanel',
+] as const;
+type PrivacyFields = typeof privacyFields[number];
 
 type CheckboxItem = {
   name: PrivacyFields;
@@ -41,65 +44,18 @@ const checkboxStyles = css({
   marginBottom: spacing[3],
 });
 
-const checkboxItems: CheckboxItem[] = [
-  {
-    name: 'autoUpdates',
+const checkboxItems: CheckboxItem[] = privacyFields.map((name) => {
+  const { short, long } = getSettingDescription(name);
+  return {
+    name,
     label: (
       <>
-        <Label htmlFor="autoUpdates">Enable Automatic Updates</Label>
-        <Description>
-          Allow Compass to periodically check for new updates.
-        </Description>
+        <Label htmlFor={name}>{short}</Label>
+        {long && <Description>{long}</Description>}
       </>
     ),
-  },
-  {
-    name: 'enableMaps',
-    label: (
-      <>
-        <Label htmlFor="enableMaps">Enable Geographic Visualizations</Label>
-        <Description>
-          Allow Compass to make requests to a 3rd party mapping service.
-        </Description>
-      </>
-    ),
-  },
-  {
-    name: 'trackErrors',
-    label: (
-      <>
-        <Label htmlFor="trackErrors">Enable Crash Reports</Label>
-        <Description>
-          Allow Compass to send crash reports containing stack traces and
-          unhandled exceptions.
-        </Description>
-      </>
-    ),
-  },
-  {
-    name: 'trackUsageStatistics',
-    label: (
-      <>
-        <Label htmlFor="trackUsageStatistics">Enable Usage Statistics</Label>
-        <Description>
-          Allow Compass to send anonymous usage statistics.
-        </Description>
-      </>
-    ),
-  },
-  {
-    name: 'enableFeedbackPanel',
-    label: (
-      <>
-        <Label htmlFor="enableFeedbackPanel">Give Product Feedback</Label>
-        <Description>
-          Enables a tool that our Product team can use to occasionally reach out
-          for feedback about Compass.
-        </Description>
-      </>
-    ),
-  },
-];
+  };
+});
 
 const settingStateLabels = {
   'set-cli': (

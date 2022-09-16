@@ -133,8 +133,8 @@ describe('Global config file handling', function () {
   it('can provide help text based on the options definitions', function () {
     const helpText = getHelpText();
     expect(helpText).to.include('Available options:');
-    expect(helpText).to.include('--theme (*)\n');
-    expect(helpText).to.include('--help\n');
+    expect(helpText).to.match(/--theme \(\*\)\s*Compass UI Theme/);
+    expect(helpText).to.match(/--help\s*Show Compass Options/);
     expect(helpText).to.include(
       'Options marked with (*) are also configurable through the global configuration file.'
     );

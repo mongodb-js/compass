@@ -103,6 +103,9 @@ type PreferenceDefinition<K extends keyof GlobalPreferences> = {
     : K extends keyof CliOnlyPreferences
     ? false
     : boolean;
+  description: K extends keyof InternalUserPreferences
+    ? null
+    : { short: string; long?: string };
 };
 
 const modelPreferencesProps: Required<{
@@ -118,6 +121,7 @@ const modelPreferencesProps: Required<{
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Stores the last version compass was run as, e.g. `1.0.5`.
@@ -129,6 +133,7 @@ const modelPreferencesProps: Required<{
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Stores whether or not the network opt-in screen has been shown to
@@ -141,6 +146,7 @@ const modelPreferencesProps: Required<{
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Stores the theme preference for the user.
@@ -152,6 +158,9 @@ const modelPreferencesProps: Required<{
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Compass UI Theme',
+    },
   },
   /**
    * Stores a unique MongoDB ID for the current user.
@@ -165,6 +174,7 @@ const modelPreferencesProps: Required<{
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Stores a unique telemetry anonymous ID (uuid) for the current user.
@@ -176,6 +186,7 @@ const modelPreferencesProps: Required<{
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Master switch to disable all network traffic
@@ -190,6 +201,9 @@ const modelPreferencesProps: Required<{
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: '[Not implemented yet]',
+    },
   },
   /**
    * Switch to enable/disable maps rendering.
@@ -201,6 +215,10 @@ const modelPreferencesProps: Required<{
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Enable Geographic Visualizations',
+      long: 'Allow Compass to make requests to a 3rd party mapping service.',
+    },
   },
   /**
    * Switch to enable/disable error reports.
@@ -212,6 +230,10 @@ const modelPreferencesProps: Required<{
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Enable Crash Reports',
+      long: 'Allow Compass to send crash reports containing stack traces and unhandled exceptions.',
+    },
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
@@ -223,6 +245,10 @@ const modelPreferencesProps: Required<{
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Give Product Feedback',
+      long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
+    },
   },
   /**
    * Switch to enable/disable usage statistics collection
@@ -235,6 +261,10 @@ const modelPreferencesProps: Required<{
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Enable Usage Statistics',
+      long: 'Allow Compass to send anonymous usage statistics.',
+    },
   },
   /**
    * Switch to enable/disable automatic updates.
@@ -246,6 +276,10 @@ const modelPreferencesProps: Required<{
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Enable Automatic Updates',
+      long: 'Allow Compass to periodically check for new updates.',
+    },
   },
 };
 
@@ -258,6 +292,10 @@ const cliOnlyPreferencesProps: Required<{
     ui: false,
     cli: true,
     global: false,
+    description: {
+      short: 'Export Favorite Connections',
+      long: 'Export Compass favorite connections. Can be used with --passphrase.',
+    },
   },
   importConnections: {
     type: 'string',
@@ -265,6 +303,10 @@ const cliOnlyPreferencesProps: Required<{
     ui: false,
     cli: true,
     global: false,
+    description: {
+      short: 'Import Favorite Connections',
+      long: 'Import Compass favorite connections. Can be used with --passphrase.',
+    },
   },
   passphrase: {
     type: 'string',
@@ -272,6 +314,10 @@ const cliOnlyPreferencesProps: Required<{
     ui: false,
     cli: true,
     global: false,
+    description: {
+      short: 'Connection Export/Import Passphrase',
+      long: 'Specify a passphrase for encrypting/decrypting secrets.',
+    },
   },
   help: {
     type: 'boolean',
@@ -279,6 +325,9 @@ const cliOnlyPreferencesProps: Required<{
     ui: false,
     cli: true,
     global: false,
+    description: {
+      short: 'Show Compass Options',
+    },
   },
   version: {
     type: 'boolean',
@@ -286,6 +335,9 @@ const cliOnlyPreferencesProps: Required<{
     ui: false,
     cli: true,
     global: false,
+    description: {
+      short: 'Show Compass Version',
+    },
   },
 };
 
@@ -299,6 +351,10 @@ const nonUserPreferences: Required<{
     ui: false,
     cli: true,
     global: true,
+    description: {
+      short: 'Allow Additional CLI Flags',
+      long: 'Allow specifying command-line flags that Compass does not understand, e.g. Electron or Chromium flags',
+    },
   },
 };
 
@@ -309,6 +365,12 @@ export const allPreferencesProps: Required<{
   ...cliOnlyPreferencesProps,
   ...nonUserPreferences,
 };
+
+export function getSettingDescription(
+  name: Exclude<keyof GlobalPreferences, keyof InternalUserPreferences>
+): { short: string; long?: string } {
+  return allPreferencesProps[name].description;
+}
 
 export type PreferenceStateInformation = Partial<
   Record<keyof GlobalPreferences, 'set-cli' | 'set-global'>
