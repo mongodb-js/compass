@@ -2,10 +2,10 @@ import storageMixin from 'storage-mixin';
 import pickBy from 'lodash.pickby';
 import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
-import createDebug from 'debug';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
-const debug = createDebug('mongodb-compass:models:preferences');
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Model = require('ampersand-model');
@@ -420,10 +420,14 @@ class Preferences {
     try {
       await fetchUserPreferences();
     } catch (err) {
-      // TODO: Log this error with @compass/logging.
-      debug('Failed to load preferences, error while fetching models', {
-        message: (err as Error).message,
-      });
+      log.error(
+        mongoLogId(1_001_000_156),
+        'preferences',
+        'Failed to load preferences, error while fetching models',
+        {
+          error: (err as Error).message,
+        }
+      );
     }
 
     return this.getPreferences();
@@ -457,10 +461,14 @@ class Preferences {
     try {
       await saveUserPreferences(attributes);
     } catch (err) {
-      // TODO: Log this error with @compass/logging.
-      debug('Failed to save preferences, error while saving models', {
-        message: (err as Error).message,
-      });
+      log.error(
+        mongoLogId(1_001_000_157),
+        'preferences',
+        'Failed to save preferences, error while saving models',
+        {
+          error: (err as Error).message,
+        }
+      );
     }
 
     const savedPreferencesValues = this.getPreferences();

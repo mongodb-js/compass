@@ -5,8 +5,10 @@ import { initialize } from '@electron/remote/main';
 import { doImportConnections, doExportConnections } from './import-export-connections';
 import { parseAndValidateGlobalPreferences, getHelpText } from 'compass-preferences-model';
 import chalk from 'chalk';
+import { installEarlyLoggingListener } from './logging';
 
 initialize();
+installEarlyLoggingListener();
 
 // Name and version are setup outside of Application and before anything else so
 // that if uncaught exception happens we already show correct name and version

@@ -7,6 +7,9 @@ import yargsParser from 'yargs-parser';
 import type { AmpersandType, GlobalPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
 
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
+
 function getGlobalConfigPaths(): string[] {
   const paths = [];
 
@@ -38,8 +41,17 @@ async function loadGlobalPreferences(
     try {
       file = await fs.readFile(filename, 'utf8');
       break;
-    } catch (error) {
-      // TODO
+    } catch (error: any) {
+      log[error?.code === 'ENOENT' ? 'info' : 'warn'](
+        mongoLogId(1_001_000_153),
+        'preferences',
+        'Skipping global configuration file due to error',
+        {
+          filename,
+          error: error?.message,
+          code: error?.code,
+        }
+      );
     }
   }
 
@@ -47,14 +59,29 @@ async function loadGlobalPreferences(
     return [{}, '<no global configuration file>'];
   }
 
+  log.info(
+    mongoLogId(1_001_000_154),
+    'preferences',
+    'Loading global configuration file',
+    { filename }
+  );
+
   try {
     if (file.trim().startsWith('{')) {
       config = EJSON.parse(file);
     } else {
       config = yaml.load(file);
     }
-  } catch (error) {
-    // TODO
+  } catch (error: any) {
+    log.error(
+      mongoLogId(1_001_000_155),
+      'preferences',
+      'Invalid global configuration file',
+      {
+        filename,
+        error: error?.message,
+      }
+    );
   }
 
   return [config, filename];
@@ -83,7 +110,16 @@ const yargsOptions: YargsOptions = {
 };
 
 function parseCliArgs(argv: string[]): unknown {
-  return yargsParser(argv, yargsOptions);
+  const result = yargsParser(argv, yargsOptions);
+  log.info(
+    mongoLogId(1_001_000_158),
+    'preferences',
+    'Parsed command line flags',
+    {
+      options: Object.keys(result),
+    }
+  );
+  return result;
 }
 
 function validatePreferences(
@@ -151,7 +187,8 @@ export async function parseAndValidateGlobalPreferences(
   let argv = sources.argv;
   if (!argv) {
     // See https://github.com/electron/electron/issues/4690
-    const argvStartIndex = process.versions.electron && !process.defaultApp ? 1 : 2;
+    const argvStartIndex =
+      process.versions.electron && !process.defaultApp ? 1 : 2;
     argv = process.argv.slice(argvStartIndex);
   }
   const cliPreferences = parseCliArgs(argv);
