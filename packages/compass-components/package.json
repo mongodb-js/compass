@@ -57,7 +57,7 @@
     "@leafygreen-ui/radio-group": "^8.0.3",
     "@leafygreen-ui/segmented-control": "^3.0.0",
     "@leafygreen-ui/select": "^7.0.0",
-    "@leafygreen-ui/table": "^5.0.1",
+    "@leafygreen-ui/table": "^6.0.1",
     "@leafygreen-ui/tabs": "^9.0.0",
     "@leafygreen-ui/text-area": "^6.1.0",
     "@leafygreen-ui/text-input": "^10.1.0",
