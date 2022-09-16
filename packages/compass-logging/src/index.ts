@@ -4,7 +4,10 @@ import isElectronRenderer from 'is-electron-renderer';
 import createDebug from 'debug';
 import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
-import { preferencesIpc } from 'compass-preferences-model';
+
+let preferencesIpc: {
+  getPreferences(): Promise<{ trackUsageStatistics: boolean }>;
+};
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
 type TrackFunction = (event: string, properties?: TrackProps) => void;
@@ -58,6 +61,9 @@ export function createLoggerAndTelemetry(component: string): {
     event: string,
     properties: TrackProps = {}
   ): Promise<void> => {
+    // Avoid circular dependency between compass-logging and compass-preferences-model
+    preferencesIpc ??= (await import('compass-preferences-model'))
+      .preferencesIpc;
     const { trackUsageStatistics } = await preferencesIpc.getPreferences();
     if (!trackUsageStatistics) {
       return;
