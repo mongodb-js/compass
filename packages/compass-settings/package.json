@@ -64,7 +64,7 @@
     "hadron-ipc": "^3.0.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-redux": "^5.1.2",
+    "react-redux": "^8.0.2",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.1"
   },
