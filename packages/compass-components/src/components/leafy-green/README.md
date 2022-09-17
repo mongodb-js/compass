@@ -2,7 +2,7 @@
 
 > Copied from the [Leafy Green][leafy-green-repository] repository components.
 
-This folder hosts temporary patched copies of LG components that requires workaround to work properly in Compass.
+This folder hosts temporary patched copies of LG components that require workaround to work properly in Compass.
 
 ## Components
 
