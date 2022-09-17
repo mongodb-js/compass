@@ -4,7 +4,6 @@ import { css } from '@leafygreen-ui/emotion';
 import { Body } from './leafygreen';
 import { Tooltip } from './tooltip';
 import { mergeProps } from '../utils/merge-props';
-import { Theme, useTheme } from '../hooks/use-theme';
 
 const underline = css({
   backgroundRepeat: 'repeat-x',
@@ -26,7 +25,6 @@ const InlineDefinition: React.FunctionComponent<
     >;
   }
 > = ({ children, definition, tooltipProps, ...props }) => {
-  const theme = useTheme();
   return (
     <Tooltip
       justify="middle"
@@ -46,10 +44,7 @@ const InlineDefinition: React.FunctionComponent<
       }}
       {...tooltipProps}
     >
-      {/* we need to invert the theme here, cause tooltips have dark background with light theme */}
-      <Body darkMode={theme?.theme !== Theme.Dark} className={maxWidth}>
-        {definition}
-      </Body>
+      <Body className={maxWidth}>{definition}</Body>
     </Tooltip>
   );
 };
