@@ -80,18 +80,22 @@ import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 import * as mongodb from 'mongodb';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore no types for 'extension' available
-import { extension } from 'mongodb-client-encryption';
-import type {
-  ClientEncryption as ClientEncryptionType,
-  ClientEncryptionDataKeyProvider,
-  ClientEncryptionCreateDataKeyProviderOptions,
-} from 'mongodb-client-encryption';
-// mongodb-client-encryption only works properly in a packaged
-// environment with dependency injection
-const ClientEncryption: typeof ClientEncryptionType =
-  extension(mongodb).ClientEncryption;
+import type { ClientEncryption as ClientEncryptionType } from 'mongodb-client-encryption';
+
+// TODO: remove try/catch and refactor encryption related types
+// when the Node bundles native binding distributions
+// https://jira.mongodb.org/browse/WRITING-10274
+let ClientEncryption: typeof ClientEncryptionType;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { extension } = require('mongodb-client-encryption');
+
+  // mongodb-client-encryption only works properly in a packaged
+  // environment with dependency injection
+  ClientEncryption = extension(mongodb).ClientEncryption;
+} catch (e) {
+  console.warn(e);
+}
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -2582,8 +2586,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   async createDataKey(
-    provider: ClientEncryptionDataKeyProvider,
-    options?: ClientEncryptionCreateDataKeyProviderOptions
+    provider: any /* ClientEncryptionDataKeyProvider */,
+    options?: any /* ClientEncryptionCreateDataKeyProviderOptions */
   ): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_123),
@@ -2603,7 +2607,13 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return result;
   }
 
-  _getClientEncryption(): ClientEncryptionType {
+  _getClientEncryption(): any {
+    if (!ClientEncryption) {
+      throw new Error(
+        'Cannot get client encryption, because the optional mongodb-client-encryption dependency is not installed'
+      );
+    }
+
     const crudClient = this._initializedClient('CRUD');
     const autoEncryptionOptions = crudClient.options.autoEncryption;
     const { proxyHost, proxyPort, proxyUsername, proxyPassword } =
