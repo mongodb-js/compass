@@ -16,4 +16,4 @@ coverage/
 lib/index.html
 
 scripts/**/*
-!scripts/download-akzidenz.js
+!scripts/download-fonts.js

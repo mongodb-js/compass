@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { default as HadronDocumentType } from 'hadron-document';
 import { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
-import { css, spacing, uiColors } from '../..';
+import { css } from '@leafygreen-ui/emotion';
+import { uiColors } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
 
 type Status =
   | 'Initial'

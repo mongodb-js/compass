@@ -25,7 +25,6 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    "import": "./dist/.esm-wrapper.mjs",
     "require": "./dist/index.js"
   },
   "compass:exports": {
@@ -34,7 +33,7 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
+    "compile": "tsc -p tsconfig.json",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -76,7 +75,6 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "gen-esm-wrapper": "^1.1.0",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
