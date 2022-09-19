@@ -36,7 +36,7 @@ const buttonDarkThemeStyles = css({
   color: uiColors.white,
 });
 const buttonIconContainerStyles = css({
-  padding: 2, // matches the line-height (16 + 4)
+  padding: spacing[1] / 2, // matches the line-height (16 + 4)
   paddingLeft: 0,
 });
 const buttonTextStyles = css({

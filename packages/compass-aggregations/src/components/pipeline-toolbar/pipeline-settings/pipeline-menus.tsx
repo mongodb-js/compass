@@ -26,6 +26,8 @@ function PipelineActionMenu<T extends string>({
   menuItems,
   ['data-testid']: dataTestId,
 }: PipelineActionMenuProp<T>) {
+  // this ref is used by the Menu component to calculate the height and position
+  // of the menu.
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

@@ -60,6 +60,8 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   insertDataHandler,
   isWritable,
 }) => {
+  // this ref is used by the Menu component to calculate the height and position
+  // of the menu.
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
