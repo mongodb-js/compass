@@ -85,8 +85,7 @@ import * as mongodb from 'mongodb';
 let ClientEncryption: any;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const mongodbClientEncryption = require('mongodb-client-encryption');
-  const extension = mongodbClientEncryption.extension;
+  const { extension } = require('mongodb-client-encryption');
 
   // mongodb-client-encryption only works properly in a packaged
   // environment with dependency injection
@@ -2552,8 +2551,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   async createDataKey(
-    provider: any,
-    options?: any
+    provider: any /* ClientEncryptionDataKeyProvider */,
+    options?: any /* ClientEncryptionCreateDataKeyProviderOptions */
   ): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_123),
