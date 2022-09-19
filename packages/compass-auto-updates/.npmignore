@@ -15,4 +15,4 @@ test/
 .zuul.yml
 
 scripts/**/*
-!scripts/download-akzidenz.js
+!scripts/download-fonts.js

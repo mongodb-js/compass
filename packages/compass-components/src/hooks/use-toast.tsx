@@ -6,9 +6,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { ToastVariant } from '..';
-import { css } from '..';
-import { Toast } from '..';
+
+import { ToastVariant, Toast } from '../components/leafygreen';
+import { css } from '@leafygreen-ui/emotion';
+
+export { ToastVariant };
 
 type ToastProperties = {
   title?: React.ReactNode;

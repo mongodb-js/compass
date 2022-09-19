@@ -16,21 +16,21 @@ import {
 
 const { base: redBaseColor } = uiColors.red;
 
-const formItemHorizontalStyles = css({
+const containerStyles = css({
   marginTop: spacing[2],
   marginBottom: spacing[2],
   marginRight: 'auto',
   marginLeft: 'auto',
-  display: 'flex',
 });
 
-const formItemVerticalStyles = css({
-  margin: '5px auto 20px',
+const formItemHorizontalStyles = css({
+  display: 'flex',
 });
 
 const removeFileLineStyles = css({
   display: 'flex',
   flexDirection: 'row',
+  alignItems: 'center',
 });
 
 const removeFileButtonStyles = css({
@@ -39,6 +39,13 @@ const removeFileButtonStyles = css({
 
 const buttonStyles = css({
   width: '100%',
+});
+
+const buttonTextStyle = css({
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+  wordBreak: 'normal',
+  whiteSpace: 'nowrap',
 });
 
 const errorMessageStyles = css({
@@ -123,6 +130,7 @@ function FileInput({
   link,
   description,
   values,
+  className,
 }: {
   id: string;
   label: string;
@@ -140,6 +148,7 @@ function FileInput({
   description?: string;
   showFileOnNewLine?: boolean;
   values?: string[];
+  className?: string;
 }): React.ReactElement {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -188,12 +197,11 @@ function FileInput({
   const applyTheme = global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
 
   return (
-    <div>
+    <div className={cx(containerStyles, className)}>
       <div
-        className={cx(
-          { [formItemHorizontalStyles]: variant === Variant.Horizontal },
-          { [formItemVerticalStyles]: variant === Variant.Vertical }
-        )}
+        className={cx({
+          [formItemHorizontalStyles]: variant === Variant.Horizontal,
+        })}
       >
         <div
           className={cx({
@@ -244,7 +252,7 @@ function FileInput({
           title="Select a file"
           leftGlyph={<Icon glyph="AddFile" title={null} fill="currentColor" />}
         >
-          {buttonText}
+          <span className={buttonTextStyle}>{buttonText}</span>
         </Button>
       </div>
       {showFileOnNewLine &&
@@ -252,7 +260,7 @@ function FileInput({
         values.length > 0 &&
         values.map((value, index) => (
           <div className={removeFileLineStyles} key={value}>
-            {value}
+            <div>{value}</div>
             <IconButton
               className={removeFileButtonStyles}
               aria-label="Remove file"

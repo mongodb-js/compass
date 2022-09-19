@@ -253,9 +253,6 @@ class CompassWindowManager {
       'app:show-info-dialog': showInfoDialog,
       'app:find-in-page': onFindInPage,
       'app:stop-find-in-page': onStopFindInPage,
-      'compass:loading:change-status'(_bw, meta) {
-        ipcMain.broadcast('compass:loading:change-status', meta);
-      },
       'compass:error:fatal'(_bw, meta) {
         ipcMain.broadcast('compass:error:fatal', meta);
       },

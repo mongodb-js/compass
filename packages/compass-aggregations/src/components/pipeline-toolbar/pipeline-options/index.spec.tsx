@@ -17,7 +17,7 @@ describe('PipelineOptions', function () {
     container = screen.getByTestId('pipeline-options');
   });
 
-  it('renders legacy collation toolbar', function () {
-    expect(within(container).getByTestId('legacy-collation-toolbar')).to.exist;
+  it('renders the collation toolbar', function () {
+    expect(within(container).getByTestId('collation-toolbar')).to.exist;
   });
 });

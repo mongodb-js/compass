@@ -48,7 +48,6 @@ const tabsContainerDarkStyles = css({
 
 const tabsListContainerStyles = css({
   padding: 0,
-  paddingLeft: spacing[3],
   paddingRight: spacing[4],
   display: 'flex',
   flexDirection: 'row',

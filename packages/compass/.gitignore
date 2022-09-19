@@ -17,4 +17,5 @@ expansions.yml
 .nvmrc
 .vscode
 src/app/fonts/akzid*
+src/app/fonts/Euclid*
 .compile-cache-mappings.json

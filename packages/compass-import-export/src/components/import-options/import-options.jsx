@@ -2,7 +2,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import { FileInput } from '@mongodb-js/compass-components';
+import { css, FileInput } from '@mongodb-js/compass-components';
 
 import FILE_TYPES from '../../constants/file-types';
 import SelectFileType from '../select-file-type';
@@ -10,6 +10,10 @@ import SelectFileType from '../select-file-type';
 import styles from './import-options.module.less';
 import createStyler from '../../utils/styler.js';
 const style = createStyler(styles, 'import-options');
+
+const fileInputStyles = css({
+  margin: '5px auto 20px',
+});
 
 class ImportOptions extends PureComponent {
   static propTypes = {
@@ -50,6 +54,7 @@ class ImportOptions extends PureComponent {
           id="import-file"
           onChange={this.handleChooseFile.bind(this)}
           values={values}
+          className={fileInputStyles}
           variant="VERTICAL"
         />
         <SelectFileType

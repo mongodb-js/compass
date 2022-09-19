@@ -275,7 +275,7 @@ describe('Collection documents tab', function () {
       Selectors.ExplainDocumentsReturnedSummary
     );
     const explainSummary = await explainSummaryElement.getText();
-    expect(explainSummary.replace(/\s/g, ' ')).to.equal(
+    expect(explainSummary.replace(/\s+/g, ' ')).to.equal(
       'Documents Returned: 1'
     );
 

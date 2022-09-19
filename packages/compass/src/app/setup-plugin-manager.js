@@ -5,7 +5,6 @@ const pkg = require('../../package.json');
 const path = require('path');
 const { AppRegistry } = require('hadron-app-registry');
 const PluginManager = require('@mongodb-js/hadron-plugin-manager');
-const ipc = require('hadron-ipc');
 
 const debug = require('debug')('mongodb-compass:setup-plugin-manager');
 
@@ -41,10 +40,6 @@ const DEV_PLUGINS = path.join(
 );
 
 marky.mark('Loading plugins');
-
-ipc.call('compass:loading:change-status', {
-  status: 'loading plugins'
-});
 
 // eslint-disable-next-line no-nested-ternary
 const COMPASS_PLUGINS = process.env.HADRON_READONLY === 'true'
@@ -111,10 +106,6 @@ PluginManager.Action.pluginActivated.listen(() => {
   if (loadedCount === PLUGIN_COUNT) {
     marky.stop('Loading plugins');
   }
-
-  ipc.call('compass:loading:change-status', {
-    status: `loading plugins ${loadedCount}/${PLUGIN_COUNT}`
-  });
 });
 
 app.pluginManager.activate(app.appRegistry, pkg.apiVersion);
