@@ -2,7 +2,7 @@
   "name": "compass-preferences-model",
   "description": "Compass preferences model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -42,27 +42,27 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-logging": "^1.0.0",
+    "@mongodb-js/compass-logging": "^1.1.0",
     "ampersand-collection-filterable": "^0.3.0",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-state": "5.0.3",
     "bson": "^4.7.0",
     "js-yaml": "^4.1.0",
-    "storage-mixin": "^5.0.0",
+    "storage-mixin": "^5.1.0",
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
-    "@mongodb-js/compass-utils": "^0.1.0",
-    "@mongodb-js/eslint-config-compass": "^1.0.0",
-    "@mongodb-js/mocha-config-compass": "^1.0.0",
+    "@mongodb-js/compass-utils": "^0.1.1",
+    "@mongodb-js/eslint-config-compass": "^1.0.1",
+    "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash.pickby": "^4.6.7",
     "@types/yargs-parser": "21.0.0",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-ipc": "^3.0.0",
+    "hadron-ipc": "^3.1.0",
     "lodash.pickby": "^4.6.0",
     "mocha": "^6.0.2"
   }

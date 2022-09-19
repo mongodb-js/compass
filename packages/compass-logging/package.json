@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -23,7 +23,7 @@
   ],
   "license": "SSPL",
   "peerDependencies": {
-    "hadron-ipc": "^3.0.0"
+    "hadron-ipc": "^3.1.0"
   },
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
@@ -53,17 +53,17 @@
     "mongodb-log-writer": "^1.1.4"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.0",
-    "@mongodb-js/mocha-config-compass": "^1.0.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.1",
+    "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/tsconfig-compass": "^1.0.0",
+    "@mongodb-js/tsconfig-compass": "^1.0.1",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
-    "hadron-ipc": "^3.0.0",
+    "hadron-ipc": "^3.1.0",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
