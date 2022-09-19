@@ -256,9 +256,7 @@ export const sidebarFavoriteButton = (favoriteName: string): string => {
 };
 
 export const sidebarFavoriteMenuButton = (favoriteName: string): string => {
-  return `${sidebarFavorite(
-    favoriteName
-  )}  button[title="Show actions"]`;
+  return `${sidebarFavorite(favoriteName)}  button[title="Show actions"]`;
 };
 
 // Favorite modal
