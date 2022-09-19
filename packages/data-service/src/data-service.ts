@@ -2551,8 +2551,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   async createDataKey(
-    provider: any,
-    options?: any
+    provider: any /* ClientEncryptionDataKeyProvider */,
+    options?: any /* ClientEncryptionCreateDataKeyProviderOptions */
   ): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_123),
