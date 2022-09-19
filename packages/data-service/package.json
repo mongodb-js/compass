@@ -94,7 +94,7 @@
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "storage-mixin": "^5.0.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.3"
   },
   "optionalDependencies": {
     "mongodb-client-encryption": "^2.2.0-alpha.6"
