@@ -63,18 +63,45 @@ const ExpandButton: React.FunctionComponent<{
   );
 };
 
-const databaseItem = css({
+const itemWrapper = css({
+  position: 'relative',
+  width: '100%',
+});
+
+const buttonWrapper = css({
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
   height: DATABASE_ROW_HEIGHT,
   paddingRight: spacing[1],
   paddingLeft: spacing[2],
+
+  ':hover': {
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+});
+
+const buttonWrapperActive = css({
+  paddingRight: spacing[4] + spacing[5],
+  ':hover': {
+    backgroundColor: 'var(--item-bg-color-active)',
+  },
+});
+
+const itemActionControlsWrapper = css({
+  position: 'absolute',
+  top: spacing[1],
+  right: spacing[1],
+});
+
+const databaseItem = css({
+  [`:hover .${buttonWrapper}`]: {
+    paddingRight: spacing[4] + spacing[5],
+  },
 });
 
 const databaseItemLabel = css({
   marginLeft: spacing[2],
-});
-
-const databaseActions = css({
-  marginLeft: 'auto',
 });
 
 export const DatabaseItem: React.FunctionComponent<
@@ -154,25 +181,30 @@ export const DatabaseItem: React.FunctionComponent<
       style={style}
       {...hoverProps}
     >
-      <ExpandButton
-        onClick={onExpandButtonClick}
-        isExpanded={isExpanded}
-      ></ExpandButton>
-      <Icon glyph="Database" size="small"></Icon>
-      <ItemLabel className={databaseItemLabel} title={name}>
-        {name}
-      </ItemLabel>
-      {!isReadOnly && (
-        <ItemActionControls<Actions>
-          className={databaseActions}
-          onAction={onAction}
-          isVisible={isActive || isHovered}
-          data-testid="sidebar-database-item-actions"
-          collapseToMenuThreshold={3}
-          iconSize="small"
-          actions={actions}
-        ></ItemActionControls>
-      )}
+      <div className={itemWrapper}>
+        <div className={cx(buttonWrapper, isActive && buttonWrapperActive)}>
+          <ExpandButton
+            onClick={onExpandButtonClick}
+            isExpanded={isExpanded}
+          ></ExpandButton>
+          <Icon glyph="Database" size="small"></Icon>
+          <ItemLabel className={databaseItemLabel} title={name}>
+            {name}
+          </ItemLabel>
+        </div>
+        {!isReadOnly && (
+          <div className={itemActionControlsWrapper}>
+            <ItemActionControls<Actions>
+              onAction={onAction}
+              isVisible={isActive || isHovered}
+              data-testid="sidebar-database-item-actions"
+              collapseToMenuThreshold={3}
+              iconSize="small"
+              actions={actions}
+            ></ItemActionControls>
+          </div>
+        )}
+      </div>
     </ItemContainer>
   );
 };

@@ -18,6 +18,39 @@ import { changeFilterRegex } from '../modules/databases';
 
 type DatabasesActions = 'open-create-database';
 
+const itemWrapper = css({
+  position: 'relative',
+  width: '100%',
+});
+
+const buttonWrapper = css({
+  display: 'flex',
+  alignItems: 'center',
+
+  paddingLeft: spacing[3],
+  paddingRight: spacing[1],
+
+  width: '100%',
+  height: spacing[5],
+
+  ':hover': {
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+});
+
+const buttonWrapperActive = css({
+  paddingRight: spacing[4],
+  ':hover': {
+    backgroundColor: 'var(--item-bg-color-active)',
+  },
+});
+
+const itemActionControlsWrapper = css({
+  position: 'absolute',
+  top: spacing[1],
+  right: spacing[1],
+});
+
 const navigationItem = css({
   display: 'flex',
   alignItems: 'center',
@@ -26,12 +59,14 @@ const navigationItem = css({
   backgroundColor: 'var(--item-bg-color)',
   border: 'none',
   height: spacing[5],
-  paddingLeft: spacing[3],
-  paddingRight: spacing[1],
   position: 'relative',
 
-  ':hover': {
-    backgroundColor: 'var(--item-bg-color-hover)',
+  svg: {
+    flexShrink: 0,
+  },
+
+  [`:hover .${buttonWrapper}`]: {
+    paddingRight: spacing[4],
   },
 });
 
@@ -40,8 +75,13 @@ const activeNavigationItem = css({
   backgroundColor: 'var(--item-bg-color-active)',
   fontWeight: 'bold',
 
+  ':hover': {
+    backgroundColor: 'transparent',
+  },
+
   // this is copied from leafygreen's own navigation, hence the pixel values
   '::before': {
+    zIndex: 1,
     backgroundColor: 'var(--item-color-active)',
     content: '""',
     position: 'absolute',
@@ -89,22 +129,28 @@ export function NavigationItem<Actions extends string>({
       onClick={onClick}
       {...hoverProps}
     >
-      <Icon glyph={glyph} size="small"></Icon>
-      {isExpanded && <span className={navigationItemLabel}>{label}</span>}
-      {isExpanded && actions && (
-        <ItemActionControls<Actions>
-          iconSize="small"
-          onAction={onAction}
-          data-testid="sidebar-navigation-item-actions"
-          actions={actions}
-          // This is what renders the "create database" action,
-          // the icons here should always be clearly visible,
-          // so we let the icon to inherit the foreground color of
-          // the text
-          isVisible={true}
-          iconClassName={navigationItemActionIcons}
-        ></ItemActionControls>
-      )}
+      <div className={itemWrapper}>
+        <div className={cx(buttonWrapper, isActive && buttonWrapperActive)}>
+          <Icon glyph={glyph} size="small"></Icon>
+          {isExpanded && <span className={navigationItemLabel}>{label}</span>}
+        </div>
+        {isExpanded && actions && (
+          <div className={itemActionControlsWrapper}>
+            <ItemActionControls<Actions>
+              iconSize="small"
+              onAction={onAction}
+              data-testid="sidebar-navigation-item-actions"
+              actions={actions}
+              // This is what renders the "create database" action,
+              // the icons here should always be clearly visible,
+              // so we let the icon to inherit the foreground color of
+              // the text
+              isVisible={true}
+              iconClassName={navigationItemActionIcons}
+            ></ItemActionControls>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

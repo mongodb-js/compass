@@ -4,6 +4,7 @@ import {
   useHoverState,
   spacing,
   css,
+  cx,
   ItemActionControls,
   Icon,
 } from '@mongodb-js/compass-components';
@@ -31,18 +32,45 @@ const CollectionIcon: React.FunctionComponent<{
   return <Icon glyph={glyph} size="small"></Icon>;
 };
 
-const collectionItem = css({
+const itemWrapper = css({
+  position: 'relative',
+  width: '100%',
+});
+
+const buttonWrapper = css({
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
   height: COLLECTION_ROW_HEIGHT,
   paddingRight: spacing[1],
   paddingLeft: spacing[5] + spacing[1],
+
+  ':hover': {
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+});
+
+const buttonWrapperActive = css({
+  paddingRight: spacing[5],
+  ':hover': {
+    backgroundColor: 'var(--item-bg-color-active)',
+  },
+});
+
+const itemActionControlsWrapper = css({
+  position: 'absolute',
+  top: spacing[1],
+  right: spacing[1],
+});
+
+const collectionItem = css({
+  [`:hover .${buttonWrapper}`]: {
+    paddingRight: spacing[5],
+  },
 });
 
 const collectionItemLabel = css({
   marginLeft: spacing[2],
-});
-
-const collectionActions = css({
-  marginLeft: 'auto',
 });
 
 export const CollectionItem: React.FunctionComponent<
@@ -134,18 +162,23 @@ export const CollectionItem: React.FunctionComponent<
       style={style}
       {...hoverProps}
     >
-      <CollectionIcon type={type} />
-      <ItemLabel className={collectionItemLabel} title={name}>
-        {name}
-      </ItemLabel>
-      <ItemActionControls<Actions>
-        className={collectionActions}
-        onAction={onAction}
-        data-testid="sidebar-collection-item-actions"
-        iconSize="small"
-        isVisible={isActive || isHovered}
-        actions={actions}
-      ></ItemActionControls>
+      <div className={itemWrapper}>
+        <div className={cx(buttonWrapper, isActive && buttonWrapperActive)}>
+          <CollectionIcon type={type} />
+          <ItemLabel className={collectionItemLabel} title={name}>
+            {name}
+          </ItemLabel>
+        </div>
+        <div className={itemActionControlsWrapper}>
+          <ItemActionControls<Actions>
+            onAction={onAction}
+            data-testid="sidebar-collection-item-actions"
+            iconSize="small"
+            isVisible={isActive || isHovered}
+            actions={actions}
+          ></ItemActionControls>
+        </div>
+      </div>
     </ItemContainer>
   );
 };

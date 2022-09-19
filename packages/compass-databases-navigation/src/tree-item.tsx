@@ -64,10 +64,6 @@ const itemContainer = css({
   color: 'var(--item-color)',
   backgroundColor: 'var(--item-bg-color)',
 
-  ':hover': {
-    backgroundColor: 'var(--item-bg-color-hover)',
-  },
-
   svg: {
     flexShrink: 0,
   },
@@ -78,8 +74,13 @@ const activeItemContainer = css({
   backgroundColor: 'var(--item-bg-color-active)',
   fontWeight: 'bold',
 
+  ':hover': {
+    backgroundColor: 'transparent',
+  },
+
   // this is copied from leafygreen's own navigation, hence the pixel values
   '::before': {
+    zIndex: 1,
     backgroundColor: 'var(--item-color-active)',
     content: '""',
     position: 'absolute',
