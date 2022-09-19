@@ -79,18 +79,21 @@ import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 import * as mongodb from 'mongodb';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore no types for 'extension' available
-import { extension } from 'mongodb-client-encryption';
-import type {
-  ClientEncryption as ClientEncryptionType,
-  ClientEncryptionDataKeyProvider,
-  ClientEncryptionCreateDataKeyProviderOptions,
-} from 'mongodb-client-encryption';
-// mongodb-client-encryption only works properly in a packaged
-// environment with dependency injection
-const ClientEncryption: typeof ClientEncryptionType =
-  extension(mongodb).ClientEncryption;
+
+// TODO: replace any with proper types when the Node bundles native binding distributions
+// https://jira.mongodb.org/browse/WRITING-10274
+let ClientEncryption: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const mongodbClientEncryption = require('mongodb-client-encryption');
+  const extension = mongodbClientEncryption.extension;
+
+  // mongodb-client-encryption only works properly in a packaged
+  // environment with dependency injection
+  ClientEncryption = extension(mongodb).ClientEncryption;
+} catch (e) {
+  console.warn(e);
+}
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -2549,8 +2552,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   async createDataKey(
-    provider: ClientEncryptionDataKeyProvider,
-    options?: ClientEncryptionCreateDataKeyProviderOptions
+    provider: any,
+    options?: any
   ): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_123),
@@ -2570,7 +2573,11 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return result;
   }
 
-  _getClientEncryption(): ClientEncryptionType {
+  _getClientEncryption(): any {
+    if (!ClientEncryption) {
+      return;
+    }
+
     const crudClient = this._initializedClient('CRUD');
     const autoEncryptionOptions = crudClient.options.autoEncryption;
     const { proxyHost, proxyPort, proxyUsername, proxyPassword } =
