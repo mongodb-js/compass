@@ -85,8 +85,7 @@ import * as mongodb from 'mongodb';
 let ClientEncryption: any;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const mongodbClientEncryption = require('mongodb-client-encryption');
-  const extension = mongodbClientEncryption.extension;
+  const { extension } = require('mongodb-client-encryption');
 
   // mongodb-client-encryption only works properly in a packaged
   // environment with dependency injection
