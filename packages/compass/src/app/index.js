@@ -203,12 +203,12 @@ const Application = View.extend({
       trackUsageStatistics,
       lastKnownVersion
     } = await preferencesIpc.getPreferences();
-    
+
     // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
     const user = await User.getOrCreate(currentUserId || telemetryAnonymousId);
 
     const preferences = { telemetryAnonymousId: user.id };
-    
+
     this.user.set(user.serialize());
     this.user.trigger('sync');
     debug('user fetch successful', user.serialize());
@@ -226,7 +226,7 @@ const Application = View.extend({
       telemetryAnonymousId: user.id
     });
     ipc.call(trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
-    
+
     return user;
   }
 });
@@ -266,21 +266,12 @@ app.extend({
         });
 
         Action.pluginActivationCompleted.listen(() => {
-          ipc.call('compass:loading:change-status', {
-            status: 'activating plugins'
-          });
           global.hadronApp.appRegistry.onActivated();
-          ipc.call('compass:loading:change-status', {
-            status: 'initializing'
-          });
           global.hadronApp.appRegistry.emit(
             'application-initialized',
             APP_VERSION,
             process.env.HADRON_PRODUCT_NAME
           );
-          ipc.call('compass:loading:change-status', {
-            status: 'setting up intercom'
-          });
           setupIntercom(state.user);
           // signal to main process that app is ready
           ipc.call('window:renderer-ready');

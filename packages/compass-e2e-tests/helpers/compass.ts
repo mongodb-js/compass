@@ -9,7 +9,7 @@ import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from 'electron-rebuild';
-import type { ConsoleMessage } from 'puppeteer';
+import type { ConsoleMessageType } from 'puppeteer';
 import {
   run as packageCompass,
   compileAssets,
@@ -59,11 +59,18 @@ interface Coverage {
   renderer: string;
 }
 
+interface RenderLogEntry {
+  timestamp: string;
+  type: ConsoleMessageType;
+  text: string;
+  args: unknown;
+}
+
 export class Compass {
   browser: CompassBrowser;
   isFirstRun: boolean;
   testPackagedApp: boolean;
-  renderLogs: any[]; // TODO
+  renderLogs: RenderLogEntry[];
   logs: LogEntry[];
   logPath?: string;
   userDataPath?: string;
@@ -94,9 +101,10 @@ export class Compass {
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
 
-    page.on('console', (message: any) => {
-      // TODO: why is this a different ConsoleMessage? Different versions of puppeteer?
-      message = message as ConsoleMessage;
+    // TS infers the type of `message` correctly here, which would conflict with
+    // what we get from `import type { ConsoleMessage } from 'puppeteer'`, so we
+    // leave out an explicit type annotation.
+    page.on('console', (message) => {
       const run = async () => {
         // human and machine readable, always UTC
         const timestamp = new Date().toISOString();

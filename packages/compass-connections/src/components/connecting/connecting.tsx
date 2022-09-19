@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { H2, Link, Modal, spacing, css } from '@mongodb-js/compass-components';
+import { H3, Link, Modal, spacing, css } from '@mongodb-js/compass-components';
 
 import ConnectingAnimation from './connecting-animation';
 import ConnectingIllustration from './connecting-illustration';
@@ -70,7 +70,7 @@ function Connecting({
           id="connectingStatusText"
         >
           <ConnectingIllustration />
-          <H2 className={connectingStatusStyles}>{connectingStatusText}</H2>
+          <H3 className={connectingStatusStyles}>{connectingStatusText}</H3>
           <ConnectingAnimation />
           <Link
             as="button"

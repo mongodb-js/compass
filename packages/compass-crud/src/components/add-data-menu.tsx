@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Button,
   Icon,
@@ -28,14 +28,17 @@ type AddDataMenuProps = {
 };
 
 function AddDataButton({
+  refEl,
   disabled,
   onClick,
 }: {
   disabled?: boolean;
   onClick: () => void;
+  refEl?: React.RefObject<HTMLElement>;
 }): React.ReactElement {
   return (
     <Button
+      ref={refEl}
       className={addDataButtonStyles}
       size="xsmall"
       leftGlyph={<Icon glyph="Download" />}
@@ -57,6 +60,9 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   insertDataHandler,
   isWritable,
 }) => {
+  // this ref is used by the Menu component to calculate the height and position
+  // of the menu.
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   if (!isWritable) {
@@ -93,6 +99,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
     <Menu
       open={isOpen}
       setOpen={setIsOpen}
+      refEl={menuTriggerRef}
       justify="start"
       className={menuStyles}
       trigger={({
@@ -103,7 +110,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
         children: React.ReactChildren;
       }) => (
         <>
-          <AddDataButton onClick={() => onClick()} />
+          <AddDataButton refEl={menuTriggerRef} onClick={() => onClick()} />
           {children}
         </>
       )}

@@ -24,7 +24,7 @@ try {
   const osDns = require('os-dns-native');
   resolveOptions.dns = osDns.withNodeFallback;
 } catch (e) {
-  console.error(e);
+  console.warn(e);
 }
 
 /**

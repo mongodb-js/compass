@@ -1,4 +1,4 @@
-import ipc from 'hadron-ipc';
+import hadronIpc from 'hadron-ipc';
 import type {
   GlobalPreferences,
   UserConfigurablePreferences,
@@ -8,7 +8,7 @@ import type {
 /**
  * API to communicate with preferences from the electron renderer process.
  */
-export const preferencesIpc = {
+export const makePreferencesIpc = (ipc: typeof hadronIpc) => ({
   savePreferences(
     attributes: Partial<GlobalPreferences>
   ): Promise<GlobalPreferences> {
@@ -51,4 +51,6 @@ export const preferencesIpc = {
       /** Missing ipc fallback */
     };
   },
-};
+});
+
+export const preferencesIpc = makePreferencesIpc(hadronIpc);

@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import {
   Button,
   FavoriteIcon,
-  H2,
+  H3,
   Icon,
   uiColors,
   compassUIColors,
@@ -172,7 +172,7 @@ function ConnectionList({
           <div className={sectionHeaderIconStyles}>
             <FavoriteIcon />
           </div>
-          <H2
+          <H3
             className={cx(
               sectionHeaderTitleStyles,
               theme === Theme.Dark
@@ -181,7 +181,7 @@ function ConnectionList({
             )}
           >
             Saved connections
-          </H2>
+          </H3>
         </div>
         <ul className={connectionListStyles}>
           {favoriteConnections.map((connectionInfo, index) => (
@@ -216,7 +216,7 @@ function ConnectionList({
           <div className={sectionHeaderIconStyles}>
             <RecentIcon />
           </div>
-          <H2
+          <H3
             data-testid="recents-header"
             className={cx(
               sectionHeaderTitleStyles,
@@ -226,7 +226,7 @@ function ConnectionList({
             )}
           >
             Recents
-          </H2>
+          </H3>
           {recentHeaderHover && (
             <Button
               onClick={removeAllRecentsConnections}
