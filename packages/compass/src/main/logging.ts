@@ -16,8 +16,8 @@ import type { EventEmitter } from 'events';
 const debug = createDebug('mongodb-compass:main:logging');
 
 // Queue up events that happen before logging is initialized.
-const earlyLogEvents: any[] = [];
-const earlyLoggingListener = (ev: any) => earlyLogEvents.push(ev);
+const earlyLogEvents: unknown[] = [];
+const earlyLoggingListener = (ev: unknown) => earlyLogEvents.push(ev);
 function installEarlyLoggingListener() {
   process.on('compass:log', earlyLoggingListener);
 }
@@ -122,7 +122,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
     });
     process.off('compass:log', earlyLoggingListener);
     for (const ev of earlyLogEvents) {
-      process.emit('compass:log' as any, ev);
+      process.emit('compass:log' as any, ev as any);
     }
 
     ipcMain.respondTo('compass:log', (evt, meta) => {
