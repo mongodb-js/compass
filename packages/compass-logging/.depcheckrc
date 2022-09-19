@@ -4,3 +4,4 @@ ignores:
  - "@types/chai"
  - "@types/sinon-chai"
  - "sinon"
+ - "compass-preferences-model"
