@@ -68,6 +68,11 @@ import {
   Label as LeafyGreenLabel,
   Description as LeafyGreenDescription,
 } from '@leafygreen-ui/typography';
+import {
+  Combobox as LeafyGreenCombobox,
+  ComboboxOption,
+  ComboboxGroup,
+} from '@leafygreen-ui/combobox';
 
 // 2. Wrap the components that accept darkMode with Compass' theme.
 
@@ -160,7 +165,7 @@ const Label = withTheme(LeafyGreenLabel) as typeof LeafyGreenLabel;
 const Description = withTheme(
   LeafyGreenDescription
 ) as typeof LeafyGreenDescription;
-
+const Combobox = withTheme(LeafyGreenCombobox);
 // 3. Export the leafygreen components.
 export {
   AtlasLogoMark,
@@ -213,4 +218,7 @@ export {
   Label,
   Link,
   Description,
+  Combobox,
+  ComboboxOption,
+  ComboboxGroup,
 };
