@@ -82,6 +82,18 @@ describe('Global config file handling', function () {
     expect(result.cli).to.deep.equal({ enableMaps: true, theme: '' });
   });
 
+  it('ignores CLI options that should be ignored', async function () {
+    const result = await parseAndValidateGlobalPreferences({
+      globalConfigPaths: [],
+      argv: ['--no-sandbox', '--disable-gpu', '--invalid-option', '--enable-maps=true'],
+    });
+    expect(result).to.deep.equal({
+      global: {},
+      cli: { enableMaps: true },
+      preferenceParseErrors: ['Unknown option "invalidOption" (while validating preferences from: Command line)']
+    })
+  });
+
   it('returns an error for an invalid global config file option', async function () {
     const file = path.join(tmpdir, 'config');
     await fs.writeFile(file, '{ "unknownOption": false }\n');

@@ -192,9 +192,14 @@ export async function parseAndValidateGlobalPreferences(
     argv = process.argv.slice(argvStartIndex);
   }
   const cliPreferences = parseCliArgs(argv);
-  // TODO(COMPASS-6069): We will handle a positional argument later.
   if (cliPreferences && typeof cliPreferences === 'object') {
-    delete (cliPreferences as Record<string, unknown>)._;
+    // Remove positional arguments and common Electron/Chromium flags
+    // that we want to allow.
+    // TODO(COMPASS-6069): We will handle a positional argument later.
+    const ignoreFlags = ['_', 'disableGpu', 'sandbox'];
+    for (const flag of ignoreFlags) {
+      delete (cliPreferences as Record<string, unknown>)[flag];
+    }
   }
 
   const [global, globalErrors] = validatePreferences(
