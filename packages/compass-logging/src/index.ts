@@ -76,7 +76,8 @@ export function createLoggerAndTelemetry(component: string): {
         },
       };
     }
-    const { trackUsageStatistics } = await preferencesIpc?.getPreferences();
+    const { trackUsageStatistics = true } =
+      await preferencesIpc?.getPreferences();
     if (!trackUsageStatistics) {
       return;
     }

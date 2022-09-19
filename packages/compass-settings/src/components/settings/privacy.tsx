@@ -69,7 +69,7 @@ const settingStateLabels = {
       configuration file.
     </Banner>
   ),
-  '': <></>,
+  '': null,
 };
 
 export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({

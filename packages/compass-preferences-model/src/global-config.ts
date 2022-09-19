@@ -97,9 +97,9 @@ function getCliPropNamesByType(type: AmpersandType<any>): string[] {
 }
 
 const yargsOptions: YargsOptions = {
-  string: [...getCliPropNamesByType('string')],
-  boolean: [...getCliPropNamesByType('boolean')],
-  number: [...getCliPropNamesByType('number')],
+  string: getCliPropNamesByType('string'),
+  boolean: getCliPropNamesByType('boolean'),
+  number: getCliPropNamesByType('number'),
   configuration: {
     // It's not a numeric option unless we've explicitly said so above
     'parse-positional-numbers': false,
