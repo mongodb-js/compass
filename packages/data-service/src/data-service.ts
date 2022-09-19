@@ -79,10 +79,12 @@ import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 import * as mongodb from 'mongodb';
+import type { ClientEncryption as ClientEncryptionType } from 'mongodb-client-encryption';
 
-// TODO: replace any with proper types when the Node bundles native binding distributions
+// TODO: remove try/catch and refactor encryption related types
+// when the Node bundles native binding distributions
 // https://jira.mongodb.org/browse/WRITING-10274
-let ClientEncryption: any;
+let ClientEncryption: typeof ClientEncryptionType;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { extension } = require('mongodb-client-encryption');
