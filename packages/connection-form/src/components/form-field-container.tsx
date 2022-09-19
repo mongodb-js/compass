@@ -2,7 +2,7 @@ import { spacing, css, cx } from '@mongodb-js/compass-components';
 import React from 'react';
 
 const formFieldContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[4],
   width: spacing[7] * 6,
 });
 

@@ -133,7 +133,7 @@ export default function Combobox<M extends boolean>({
   const updateSelection = useCallback(
     (value: string | null) => {
       if (isMultiselect(selection)) {
-        const newSelection: SelectValueType<M> = clone(selection);
+        const newSelection = clone(selection);
 
         if (isNull(value)) {
           newSelection.length = 0;

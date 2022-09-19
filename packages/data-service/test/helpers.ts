@@ -1,6 +1,7 @@
 import type { MongoClient } from 'mongodb';
+import type { Callback } from '../src/types';
 
-type ClientMockOptions = {
+export type ClientMockOptions = {
   hosts: [{ host: string; port: number }];
   commands: Partial<{
     connectionStatus: unknown;
@@ -9,17 +10,29 @@ type ClientMockOptions = {
     buildInfo: unknown;
     getParameter: unknown;
     atlasVersion: unknown;
+    listDatabases: unknown;
+    collMod: unknown;
   }>;
   collections: Record<string, string[]>;
+  clientOptions: Record<string, unknown>;
 };
 
 export function createMongoClientMock({
   hosts = [{ host: 'localhost', port: 9999 }],
   commands = {},
   collections = {},
+  clientOptions = {},
 }: Partial<ClientMockOptions> = {}): MongoClient {
   const db = {
-    command(spec: any) {
+    command(spec: any, callback?: Callback<any>) {
+      if (typeof callback === 'function') {
+        db.command(spec)!.then(
+          (result) => callback(null, result),
+          (err) => callback(err, null)
+        );
+        return;
+      }
+
       const cmd = Object.keys(spec).find((key) =>
         [
           'listDatabases',
@@ -29,6 +42,7 @@ export function createMongoClientMock({
           'buildInfo',
           'getParameter',
           'atlasVersion',
+          'collMod',
         ].includes(key)
       );
 
@@ -80,8 +94,12 @@ export function createMongoClientMock({
     },
     options: {
       hosts,
+      ...clientOptions,
+    },
+    close() {
+      /* ignore */
     },
   };
 
-  return client as MongoClient;
+  return client as unknown as MongoClient;
 }

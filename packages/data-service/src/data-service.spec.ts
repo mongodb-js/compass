@@ -14,8 +14,10 @@ import type {
   ConnectionOptions,
 } from './connection-options';
 import EventEmitter from 'events';
+import type { ClientMockOptions } from '../test/helpers';
 import { createMongoClientMock } from '../test/helpers';
 import { AbortController } from '../test/mocks';
+import { createClonedClient } from './connect-mongo-client';
 
 const TEST_DOCS = [
   {
@@ -1584,7 +1586,9 @@ describe('DataService', function () {
   });
 
   context('with mocked client', function () {
-    function createDataServiceWithMockedClient(clientConfig) {
+    function createDataServiceWithMockedClient(
+      clientConfig: Partial<ClientMockOptions>
+    ) {
       const dataService = new DataServiceImpl({
         connectionString: 'mongodb://localhost:27020',
       });
@@ -1882,25 +1886,66 @@ describe('DataService', function () {
       });
     });
 
-    it('allows disabling/enabling the split-client model for CSFLE', function () {
-      const dataService: any = createDataServiceWithMockedClient({});
-      const a = {};
-      const b = {};
-      dataService._crudClient = a;
-      dataService._metadataClient = b;
+    describe('CSFLE split clients', function () {
+      it('allows disabling/enabling the split-client model for CSFLE', function () {
+        const dataService: any = createDataServiceWithMockedClient({});
+        const a = {};
+        const b = {};
+        dataService._crudClient = a;
+        dataService._metadataClient = b;
 
-      expect(dataService._initializedClient('CRUD')).to.equal(a);
-      expect(dataService._initializedClient('META')).to.equal(b);
+        expect(dataService._initializedClient('CRUD')).to.equal(a);
+        expect(dataService._initializedClient('META')).to.equal(b);
 
-      dataService.setCSFLEEnabled(false);
+        dataService.setCSFLEEnabled(false);
 
-      expect(dataService._initializedClient('CRUD')).to.equal(b);
-      expect(dataService._initializedClient('META')).to.equal(b);
+        expect(dataService._initializedClient('CRUD')).to.equal(b);
+        expect(dataService._initializedClient('META')).to.equal(b);
 
-      dataService.setCSFLEEnabled(true);
+        dataService.setCSFLEEnabled(true);
 
-      expect(dataService._initializedClient('CRUD')).to.equal(a);
-      expect(dataService._initializedClient('META')).to.equal(b);
+        expect(dataService._initializedClient('CRUD')).to.equal(a);
+        expect(dataService._initializedClient('META')).to.equal(b);
+      });
+
+      it('resets clients after updateCollection', function (done) {
+        const mockConfig = {
+          commands: {
+            collMod: { ok: 1 },
+          },
+          clientOptions: {
+            autoEncryption: {
+              kmsProviders: {
+                local: { key: 'A'.repeat(128) },
+              },
+            },
+          },
+        };
+        const dataService: any = createDataServiceWithMockedClient(mockConfig);
+        // Ensure that _crudClient and _metadataClient differ
+        const fakeCrudClient = (
+          createDataServiceWithMockedClient(mockConfig) as any
+        )._crudClient;
+        dataService._crudClient = fakeCrudClient;
+
+        const fakeClonedClient = (
+          createDataServiceWithMockedClient(mockConfig) as any
+        )._crudClient;
+        fakeCrudClient[createClonedClient] = sinon
+          .stub()
+          .resolves(fakeClonedClient);
+
+        dataService.updateCollection(
+          'test.test',
+          {
+            validator: { $jsonSchema: {} },
+          },
+          (err) => {
+            expect(dataService._crudClient).to.equal(fakeClonedClient);
+            done(err);
+          }
+        );
+      });
     });
   });
 });

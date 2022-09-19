@@ -1,15 +1,10 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import {
-  ResizeHandle,
-  ResizeDirection,
-  useTheme,
-  Theme,
-  css,
-  cx,
-} from '../index';
 
 import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { Theme, useTheme } from '../hooks/use-theme';
+import { ResizeDirection, ResizeHandle } from './resize-handle';
 
 const containerStyles = css({
   display: 'flex',

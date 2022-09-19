@@ -59,7 +59,6 @@ function DirectConnectionInput({
         </>
       }
       checked={isDirectConnection}
-      bold={false}
     />
   );
 }
