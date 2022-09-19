@@ -45,7 +45,7 @@ const buttonWrapperActive = css({
   },
 });
 
-const itemActionControlsWrapper = css({
+const itemActionControls = css({
   position: 'absolute',
   top: spacing[1],
   right: spacing[1],
@@ -135,20 +135,19 @@ export function NavigationItem<Actions extends string>({
           {isExpanded && <span className={navigationItemLabel}>{label}</span>}
         </div>
         {isExpanded && actions && (
-          <div className={itemActionControlsWrapper}>
-            <ItemActionControls<Actions>
-              iconSize="small"
-              onAction={onAction}
-              data-testid="sidebar-navigation-item-actions"
-              actions={actions}
-              // This is what renders the "create database" action,
-              // the icons here should always be clearly visible,
-              // so we let the icon to inherit the foreground color of
-              // the text
-              isVisible={true}
-              iconClassName={navigationItemActionIcons}
-            ></ItemActionControls>
-          </div>
+          <ItemActionControls<Actions>
+            iconSize="small"
+            onAction={onAction}
+            data-testid="sidebar-navigation-item-actions"
+            actions={actions}
+            // This is what renders the "create database" action,
+            // the icons here should always be clearly visible,
+            // so we let the icon to inherit the foreground color of
+            // the text
+            isVisible={true}
+            iconClassName={navigationItemActionIcons}
+            className={itemActionControls}
+          ></ItemActionControls>
         )}
       </div>
     </div>

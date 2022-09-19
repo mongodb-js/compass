@@ -6,6 +6,7 @@ import {
   css,
   cx,
   mergeProps,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type { Actions } from './constants';
 
@@ -165,3 +166,80 @@ export const ItemLabel: React.FunctionComponent<
     </span>
   );
 };
+
+function iconsPadding(numIcons: number) {
+  return numIcons === 2 ? spacing[4] + spacing[5] : spacing[5];
+}
+
+const itemWrapper = css({
+  position: 'relative',
+  width: '100%',
+});
+
+export const ItemWrapper: React.FunctionComponent<
+  {
+    numIcons?: number;
+  } & React.HTMLProps<HTMLDivElement>
+> = ({ numIcons = 1, className, children }) => {
+  return (
+    <div
+      className={cx(
+        itemWrapper,
+        className,
+        css({
+          [`:hover [data-testid="button-wrapper"]`]: {
+            paddingRight: iconsPadding(numIcons),
+          },
+        })
+      )}
+    >
+      {children}
+    </div>
+  );
+};
+
+const itemButtonWrapper = css({
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+
+  ':hover': {
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+});
+
+const itemButtonWrapperActive = css({
+  ':hover': {
+    backgroundColor: 'var(--item-bg-color-active)',
+  },
+});
+
+export const ItemButtonWrapper: React.FunctionComponent<
+  {
+    numIcons?: number;
+    isActive?: boolean;
+  } & React.HTMLProps<HTMLDivElement>
+> = ({ numIcons = 1, isActive, className, children }) => {
+  return (
+    <div
+      data-testid="button-wrapper"
+      className={cx(
+        itemButtonWrapper,
+        isActive && itemButtonWrapperActive,
+        className,
+        isActive &&
+          css({
+            paddingRight: iconsPadding(numIcons),
+          })
+      )}
+    >
+      {children}
+    </div>
+  );
+};
+
+export const itemActionControlsStyles = css({
+  position: 'absolute',
+  top: spacing[1],
+  right: spacing[1],
+});

@@ -10,7 +10,13 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { DATABASE_ROW_HEIGHT } from './constants';
-import { ItemContainer, ItemLabel } from './tree-item';
+import {
+  ItemContainer,
+  ItemLabel,
+  ItemWrapper,
+  ItemButtonWrapper,
+  itemActionControlsStyles,
+} from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
@@ -63,41 +69,10 @@ const ExpandButton: React.FunctionComponent<{
   );
 };
 
-const itemWrapper = css({
-  position: 'relative',
-  width: '100%',
-});
-
-const buttonWrapper = css({
-  display: 'flex',
-  alignItems: 'center',
-  width: '100%',
+const itemButtonWrapper = css({
   height: DATABASE_ROW_HEIGHT,
   paddingRight: spacing[1],
   paddingLeft: spacing[2],
-
-  ':hover': {
-    backgroundColor: 'var(--item-bg-color-hover)',
-  },
-});
-
-const buttonWrapperActive = css({
-  paddingRight: spacing[4] + spacing[5],
-  ':hover': {
-    backgroundColor: 'var(--item-bg-color-active)',
-  },
-});
-
-const itemActionControlsWrapper = css({
-  position: 'absolute',
-  top: spacing[1],
-  right: spacing[1],
-});
-
-const databaseItem = css({
-  [`:hover .${buttonWrapper}`]: {
-    paddingRight: spacing[4] + spacing[5],
-  },
 });
 
 const databaseItemLabel = css({
@@ -177,12 +152,15 @@ export const DatabaseItem: React.FunctionComponent<
       isActive={isActive}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
-      className={databaseItem}
       style={style}
       {...hoverProps}
     >
-      <div className={itemWrapper}>
-        <div className={cx(buttonWrapper, isActive && buttonWrapperActive)}>
+      <ItemWrapper numIcons={actions.length}>
+        <ItemButtonWrapper
+          className={itemButtonWrapper}
+          numIcons={actions.length}
+          isActive={isActive}
+        >
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}
@@ -191,20 +169,19 @@ export const DatabaseItem: React.FunctionComponent<
           <ItemLabel className={databaseItemLabel} title={name}>
             {name}
           </ItemLabel>
-        </div>
+        </ItemButtonWrapper>
         {!isReadOnly && (
-          <div className={itemActionControlsWrapper}>
-            <ItemActionControls<Actions>
-              onAction={onAction}
-              isVisible={isActive || isHovered}
-              data-testid="sidebar-database-item-actions"
-              collapseToMenuThreshold={3}
-              iconSize="small"
-              actions={actions}
-            ></ItemActionControls>
-          </div>
+          <ItemActionControls<Actions>
+            onAction={onAction}
+            isVisible={isActive || isHovered}
+            data-testid="sidebar-database-item-actions"
+            collapseToMenuThreshold={3}
+            iconSize="small"
+            actions={actions}
+            className={itemActionControlsStyles}
+          ></ItemActionControls>
         )}
-      </div>
+      </ItemWrapper>
     </ItemContainer>
   );
 };
