@@ -409,6 +409,12 @@ class Preferences {
     };
   }
 
+  /**
+   * Load preferences from the user preference storage.
+   * The return value also accounts for preferences set from other sources.
+   *
+   * @returns The currently active set of preferences.
+   */
   async fetchPreferences(): Promise<GlobalPreferences> {
     const userPreferencesModel = this._userPreferencesModel;
 
@@ -433,6 +439,16 @@ class Preferences {
     return this.getPreferences();
   }
 
+  /**
+   * Change preferences in the user's preference storage.
+   * This method validates that the preference is one that is stored in the
+   * underlying storage model. It does *not* validate that the preference
+   * is one that the user is allowed to change, e.g. because it was overridden
+   * through the global config file/command line.
+   *
+   * @param attributes One or more preferences to update.
+   * @returns The currently active set of preferences.
+   */
   async savePreferences(
     attributes: Partial<UserPreferences> = {}
   ): Promise<GlobalPreferences> {
@@ -481,6 +497,11 @@ class Preferences {
     return this.getPreferences();
   }
 
+  /**
+   * Retrieve currently set preferences, accounting for all sources of preferences.
+   *
+   * @returns The currently active set of preferences.
+   */
   getPreferences(): GlobalPreferences {
     return {
       ...this._userPreferencesModel.getAttributes({
@@ -492,9 +513,16 @@ class Preferences {
     };
   }
 
+  /**
+   * Return the subset of preferences that can be edited through the UI.
+   * If this is the first call to this method, this sets the defaults for
+   * user preferences.
+   *
+   * @returns The currently active set of UI-modifiable preferences.
+   */
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     // Set the defaults and also update showedNetworkOptIn flag.
-    if (!this.getPreferences().showedNetworkOptIn) {
+    if (!(await this.fetchPreferences()).showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
@@ -514,6 +542,12 @@ class Preferences {
     ) as UserConfigurablePreferences;
   }
 
+  /**
+   * Report which preferences were set through external sources, i.e.
+   * command line or global configuration file.
+   *
+   * @returns A map of preference names to 'set-cli' or 'set-global' if the preference has been set in the respective source.
+   */
   getPreferenceStates(): PreferenceStateInformation {
     const preferenceState: Partial<Record<string, 'set-cli' | 'set-global'>> =
       {};
@@ -532,6 +566,11 @@ class Preferences {
     }
   }
 
+  /**
+   * Install a listener that is called when preferences have been updated.
+   *
+   * @param callback A function taking the set of updated preferences.
+   */
   onPreferencesChanged(callback: OnPreferencesChangedCallback): void {
     this._onPreferencesChangedCallbacks.push(callback);
   }
