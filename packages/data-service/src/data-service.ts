@@ -2574,7 +2574,9 @@ export class DataServiceImpl extends EventEmitter implements DataService {
 
   _getClientEncryption(): any {
     if (!ClientEncryption) {
-      throw new Error('Cannot get client encryption, because the optional mongodb-client-encryption dependency is not installed');
+      throw new Error(
+        'Cannot get client encryption, because the optional mongodb-client-encryption dependency is not installed'
+      );
     }
 
     const crudClient = this._initializedClient('CRUD');
