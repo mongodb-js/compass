@@ -75,7 +75,7 @@
     "lodash.isempty": "^4.4.0",
     "lodash.isstring": "^4.0.1",
     "mocha": "^8.4.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.10.0",
     "mongodb-data-service": "^22.1.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
