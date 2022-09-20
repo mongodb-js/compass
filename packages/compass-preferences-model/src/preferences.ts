@@ -571,6 +571,11 @@ class Preferences {
     };
   }
 
+  /**
+   * Fetch the stored preference states and values, and apply functions
+   * to derive the actual current states and values based on those,
+   * if one has been provided for the option in question.
+   */
   private _computePreferenceValuesAndStates() {
     const values = this._getStoredValues();
     const states: Partial<Record<string, PreferenceState>> = {};
