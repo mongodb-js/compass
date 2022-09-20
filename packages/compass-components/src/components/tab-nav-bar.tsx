@@ -7,8 +7,6 @@ import { Tabs, Tab } from './leafygreen';
 
 const containerStyles = css({
   flexGrow: 1,
-  flexShrink: 1,
-  flexBasis: 'auto',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
@@ -16,6 +14,7 @@ const containerStyles = css({
 });
 
 const tabsContainerStyles = css({
+  flex: 'none',
   padding: `0 ${spacing[3]}px`,
 });
 
@@ -28,9 +27,10 @@ const tabsContainerLightStyles = css({
 });
 
 const tabStyles = css({
-  height: '100%',
-  width: '100%',
   display: 'flex',
+  flex: 1,
+  minHeight: 0,
+  backgroundColor: 'white'
 });
 
 const hiddenStyles = css({

@@ -10,30 +10,32 @@ import {
   useAppRegistryRole,
 } from '../contexts/app-registry-context';
 
-const homeViewStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'stretch',
+const verticalSplitStyles = css({
+  width: '100vw',
   height: '100vh',
+  display: 'grid',
+  gridTemplateColumns: '1fr',
+  gridTemplateRows: 'auto min-content',
+  overflow: 'hidden',
 });
 
-const homePageStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'stretch',
-  flex: 1,
-  overflow: 'auto',
-  height: '100%',
-  zIndex: 0,
+const horizontalSplitStyles = css({
+  width: '100%',
+  display: 'grid',
+  gridTemplateColumns: 'min-content auto',
+  minHeight: 0,
 });
 
 const homePageContentStyles = css({
-  flexGrow: 1,
-  flexShrink: 1,
-  flexBasis: '600px',
-  order: 2,
-  overflowX: 'hidden',
+  minHeight: 0,
+  overflow: 'hidden',
 });
+
+const sidebarStyles = css({
+  minHeight: 0,
+});
+
+const shellStyles = css({});
 
 export default function Workspace({
   namespace,
@@ -51,20 +53,28 @@ export default function Workspace({
   const FindInPage = findInPageRole ? findInPageRole[0].component : null;
 
   return (
-    <div data-testid="home-view" className={homeViewStyles}>
-      <div className={homePageStyles}>
-        {SidebarComponent && <SidebarComponent />}
-        <div className={homePageContentStyles}>
-          <WorkspaceContent namespace={namespace} />
+    <>
+      <div data-testid="home-view" className={verticalSplitStyles}>
+        <div className={horizontalSplitStyles}>
+          <div className={sidebarStyles}>
+            {SidebarComponent && <SidebarComponent />}
+          </div>
+          <div className={homePageContentStyles}>
+            <WorkspaceContent namespace={namespace} />
+          </div>
         </div>
-        {FindInPage && <FindInPage />}
+        <div className={shellStyles}>
+          {GlobalShellComponent && <GlobalShellComponent />}
+        </div>
       </div>
+
+      {FindInPage && <FindInPage />}
+
       {globalModals &&
         globalModals.map((globalModal, index) => {
           const GlobalModal = globalModal.component;
           return <GlobalModal key={index} />;
         })}
-      {GlobalShellComponent && <GlobalShellComponent />}
-    </div>
+    </>
   );
 }
