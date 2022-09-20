@@ -1,10 +1,8 @@
 import React, { useRef, forwardRef, useCallback, useState } from 'react';
-import { Icon, IconButton } from '../index';
+import { Icon, IconButton, Menu, MenuItem } from './leafygreen';
 
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-
-import { Menu, MenuItem } from '@leafygreen-ui/menu';
 
 export type ItemAction<Action> = {
   action: Action;
@@ -116,6 +114,9 @@ export function ItemActionMenu<Action extends string>({
   isVisible?: boolean;
   'data-testid'?: string;
 }) {
+  // this ref is used by the Menu component to calculate the height and position
+  // of the menu, and by us to give back the focus to the trigger when the menu
+  // is closed (https://jira.mongodb.org/browse/PD-1674).
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

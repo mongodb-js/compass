@@ -65,7 +65,8 @@ import {
   configuredKMSProviders,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
-import connectMongoClient from './connect-mongo-client';
+import type { CloneableMongoClient } from './connect-mongo-client';
+import connectMongoClient, { createClonedClient } from './connect-mongo-client';
 import type { CollectionInfo, CollectionInfoNameOnly } from './run-command';
 import type {
   Callback,
@@ -79,18 +80,22 @@ import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 import * as mongodb from 'mongodb';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore no types for 'extension' available
-import { extension } from 'mongodb-client-encryption';
-import type {
-  ClientEncryption as ClientEncryptionType,
-  ClientEncryptionDataKeyProvider,
-  ClientEncryptionCreateDataKeyProviderOptions,
-} from 'mongodb-client-encryption';
-// mongodb-client-encryption only works properly in a packaged
-// environment with dependency injection
-const ClientEncryption: typeof ClientEncryptionType =
-  extension(mongodb).ClientEncryption;
+import type { ClientEncryption as ClientEncryptionType } from 'mongodb-client-encryption';
+
+// TODO: remove try/catch and refactor encryption related types
+// when the Node bundles native binding distributions
+// https://jira.mongodb.org/browse/WRITING-10274
+let ClientEncryption: typeof ClientEncryptionType;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { extension } = require('mongodb-client-encryption');
+
+  // mongodb-client-encryption only works properly in a packaged
+  // environment with dependency injection
+  ClientEncryption = extension(mongodb).ClientEncryption;
+} catch (e) {
+  console.warn(e);
+}
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -768,8 +773,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   // to fetch the right one. _useCRUDClient can be used to control
   // this behavior after connecting, i.e. for disabling and
   // enabling CSFLE on an already-connected DataService instance.
-  private _metadataClient?: MongoClient;
-  private _crudClient?: MongoClient;
+  private _metadataClient?: CloneableMongoClient;
+  private _crudClient?: CloneableMongoClient;
   private _useCRUDClient = true;
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
@@ -1781,7 +1786,17 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
-      callback(null, result!);
+      // Reset the CSFLE-enabled client (if any) to clear
+      // any collection metadata caches that might still be active.
+      this._resetCRUDClient().then(
+        () => {
+          callback(null, result!);
+        },
+        (error: any) => {
+          // @ts-expect-error Callback without result...
+          callback(this._translateMessage(error));
+        }
+      );
     });
   }
 
@@ -2495,6 +2510,28 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     this._isConnecting = false;
   }
 
+  private async _resetCRUDClient(): Promise<void> {
+    if (this.getCSFLEMode() === 'unavailable') {
+      // No separate client in use, don't do anything
+      return;
+    }
+    const crudClient = this._crudClient;
+    if (!crudClient) {
+      // In disconnected state, don't do anything
+      return;
+    }
+    const newClient = await crudClient[createClonedClient]();
+    if (this._crudClient === crudClient) {
+      this._crudClient = newClient;
+      await crudClient.close();
+    } else {
+      // If _crudClient has changed between start and end of
+      // connection establishment, don't do anything, just
+      // close and discard the new client.
+      await newClient.close();
+    }
+  }
+
   private _startLogOp(
     logId: ReturnType<typeof mongoLogId>,
     op: string,
@@ -2549,8 +2586,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   async createDataKey(
-    provider: ClientEncryptionDataKeyProvider,
-    options?: ClientEncryptionCreateDataKeyProviderOptions
+    provider: any /* ClientEncryptionDataKeyProvider */,
+    options?: any /* ClientEncryptionCreateDataKeyProviderOptions */
   ): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_123),
@@ -2570,7 +2607,13 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return result;
   }
 
-  _getClientEncryption(): ClientEncryptionType {
+  _getClientEncryption(): any {
+    if (!ClientEncryption) {
+      throw new Error(
+        'Cannot get client encryption, because the optional mongodb-client-encryption dependency is not installed'
+      );
+    }
+
     const crudClient = this._initializedClient('CRUD');
     const autoEncryptionOptions = crudClient.options.autoEncryption;
     const { proxyHost, proxyPort, proxyUsername, proxyPassword } =

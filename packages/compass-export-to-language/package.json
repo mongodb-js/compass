@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-export-to-language",
   "productName": "Export To Language plugin",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "apiVersion": "3.0.0",
   "description": "export to language modal",
   "main": "lib/index.js",
@@ -27,11 +27,11 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.0.0",
-    "@mongodb-js/compass-logging": "^1.0.0",
-    "@mongodb-js/mongodb-redux-common": "^2.0.0",
+    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-logging": "^1.1.0",
+    "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson-transpilers": "^2.0.0",
-    "hadron-react-buttons": "^6.0.0",
+    "hadron-react-buttons": "^6.0.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -60,7 +60,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app-registry": "^9.0.0",
+    "hadron-app-registry": "^9.0.1",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.1",
@@ -92,9 +92,9 @@
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
-    "react-redux": "^5.0.6",
+    "react-redux": "^8.0.2",
     "react-select-plus": "^1.2.0",
-    "redux": "^4.1.2",
+    "redux": "^4.2.0",
     "redux-thunk": "^2.3.0",
     "resolve": "^1.15.1",
     "rimraf": "^2.7.1",
@@ -110,11 +110,11 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.0.0",
-    "@mongodb-js/compass-logging": "^1.0.0",
-    "@mongodb-js/mongodb-redux-common": "^2.0.0",
+    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-logging": "^1.1.0",
+    "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson-transpilers": "^2.0.0",
-    "hadron-react-buttons": "^6.0.0",
+    "hadron-react-buttons": "^6.0.1",
     "react": "^16.14.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",

@@ -1,6 +1,7 @@
-import ipc from 'hadron-ipc';
+import hadronIpc from 'hadron-ipc';
 import type {
   GlobalPreferences,
+  PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
 } from './preferences';
@@ -8,9 +9,9 @@ import type {
 /**
  * API to communicate with preferences from the electron renderer process.
  */
-export const preferencesIpc = {
+export const makePreferencesIpc = (ipc: typeof hadronIpc) => ({
   savePreferences(
-    attributes: Partial<GlobalPreferences>
+    attributes: Partial<UserPreferences>
   ): Promise<GlobalPreferences> {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke('compass:save-preferences', attributes);
@@ -29,7 +30,13 @@ export const preferencesIpc = {
         'compass:get-configurable-user-preferences'
       );
     }
-    return Promise.resolve({} as UserPreferences);
+    return Promise.resolve({} as UserConfigurablePreferences);
+  },
+  getPreferenceStates(): Promise<PreferenceStateInformation> {
+    if (typeof ipc?.ipcRenderer?.invoke === 'function') {
+      return ipc.ipcRenderer.invoke('compass:get-preference-states');
+    }
+    return Promise.resolve({});
   },
   onPreferenceValueChanged<K extends keyof GlobalPreferences>(
     preferenceName: K,
@@ -51,4 +58,6 @@ export const preferencesIpc = {
       /** Missing ipc fallback */
     };
   },
-};
+});
+
+export const preferencesIpc = makePreferencesIpc(hadronIpc);

@@ -18,10 +18,12 @@ const PACKAGE_ROOT = process.cwd();
 const CACHE_DIR = path.join(os.tmpdir(), '.akzidenz-font-cache');
 
 const fetch = require('make-fetch-happen').defaults({
-  cacheManager: CACHE_DIR
+  cacheManager: CACHE_DIR,
 });
 
 const AKZIDENZ_CDN_BASE_URL = 'https://d2va9gm4j17fy9.cloudfront.net/fonts/';
+
+const EUCLID_CDN_BASE_URL = 'https://cloud.mongodb.com/static/font/';
 
 const UPDATE_CACHE = process.argv.includes('--update-cache');
 
@@ -53,17 +55,29 @@ const AKZIDENZ_CDN_URLS = [
   'akzidgrostdreg.eot',
   'akzidgrostdreg.svg',
   'akzidgrostdreg.ttf',
-  'akzidgrostdreg.woff'
+  'akzidgrostdreg.woff',
 ].map((filename) => `${AKZIDENZ_CDN_BASE_URL}${filename}`);
 
-const FONTS_DIRECTORY = path.resolve(
-  PACKAGE_ROOT,
-  'src',
-  'app',
-  'fonts'
-);
+const EUCLID_CDN_URLS = [
+  'EuclidCircularA-Semibold-WebXL.woff2',
+  'EuclidCircularA-Semibold-WebXL.woff',
+  'EuclidCircularA-SemiboldItalic-WebXL.woff2',
+  'EuclidCircularA-SemiboldItalic-WebXL.woff',
+  'EuclidCircularA-Medium-WebXL.woff2',
+  'EuclidCircularA-Medium-WebXL.woff',
+  'EuclidCircularA-MediumItalic-WebXL.woff2',
+  'EuclidCircularA-MediumItalic-WebXL.woff',
+  'EuclidCircularA-Regular-WebXL.woff2',
+  'EuclidCircularA-Regular-WebXL.woff',
+  'EuclidCircularA-RegularItalic-WebXL.woff2',
+  'EuclidCircularA-RegularItalic-WebXL.woff',
+].map((filename) => `${EUCLID_CDN_BASE_URL}${filename}`);
 
-const download = async(url, destDir) => {
+const FONTS_URLS = [...EUCLID_CDN_URLS, ...AKZIDENZ_CDN_URLS];
+
+const FONTS_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'app', 'fonts');
+
+const download = async (url, destDir) => {
   const destFileName = path.basename(url);
   const destFilePath = path.join(destDir, destFileName);
 
@@ -82,7 +96,7 @@ const download = async(url, destDir) => {
   }
 };
 
-(async() => {
+(async () => {
   const packageJson = require(path.join(PACKAGE_ROOT, 'package.json'));
 
   if (!UPDATE_CACHE) {
@@ -92,7 +106,7 @@ const download = async(url, destDir) => {
       // We only want to install the fonts when we are in a project which requires
       // fonts to be present
       console.log(
-        'Package %s doesn\'t require fonts to be present, exiting.',
+        "Package %s doesn't require fonts to be present, exiting.",
         packageJson.name
       );
       return;
@@ -104,19 +118,19 @@ const download = async(url, destDir) => {
 
     try {
       await fs.rmdir(CACHE_DIR, { recursive: true });
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+      /* ignore */
+    }
   } else {
     console.log(
       'Downloading %d fonts for package %s to %s',
-      AKZIDENZ_CDN_URLS.length,
+      FONTS_URLS.length,
       packageJson.name,
       FONTS_DIRECTORY
     );
   }
 
-  await Promise.all(
-    AKZIDENZ_CDN_URLS.map((url) => download(url, FONTS_DIRECTORY))
-  );
+  await Promise.all(FONTS_URLS.map((url) => download(url, FONTS_DIRECTORY)));
 })().catch((err) => {
   if (err) {
     console.error(err);

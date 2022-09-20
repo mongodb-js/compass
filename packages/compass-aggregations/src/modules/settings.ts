@@ -1,4 +1,9 @@
+import type { AnyAction, Reducer } from 'redux';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import type { ThunkAction } from 'redux-thunk';
+
+import type { RootState } from '.';
+
 const PREFIX = 'aggregations/settings';
 
 export const TOGGLE_IS_EXPANDED = `${PREFIX}/TOGGLE_IS_EXPANDED`;
@@ -19,7 +24,16 @@ import {
   DEFAULT_LARGE_LIMIT
 } from '../constants';
 
-export const INITIAL_STATE = {
+type State = {
+  isExpanded: boolean,
+  isCommentMode: boolean,
+  isDirty: boolean,
+  sampleSize: number,
+  maxTimeMS: number,
+  limit: number
+};
+
+export const INITIAL_STATE: State = {
   isExpanded: false,
   isCommentMode: true,
   isDirty: false,
@@ -28,7 +42,7 @@ export const INITIAL_STATE = {
   limit: DEFAULT_LARGE_LIMIT // largeLimit
 };
 
-export default function reducer(state = INITIAL_STATE, action) {
+const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   if (action.type === TOGGLE_IS_EXPANDED) {
     const isCollapsing = !state.isExpanded === false;
     if (isCollapsing && state.isDirty === true) {
@@ -89,27 +103,29 @@ export const toggleSettingsIsCommentMode = () => ({
   type: TOGGLE_COMMENT_MODE
 });
 
-export const setSettingsSampleSize = value => ({
+export const setSettingsSampleSize = (value: number) => ({
   type: SET_SAMPLE_SIZE,
   value: value
 });
 
-export const setSettingsMaxTimeMS = value => ({
+export const setSettingsMaxTimeMS = (value: number) => ({
   type: SET_MAX_TIME_MS,
   value: value
 });
 
-export const setSettingsLimit = value => ({
+export const setSettingsLimit = (value: number) => ({
   type: SET_LIMIT,
   value: value
 });
 
-const doApplySettings = (value) => ({
+const doApplySettings = (value: State) => ({
   type: APPLY_SETTINGS,
   settings: value
 });
 
-export const applySettings = (value) => {
+export const applySettings = (
+  value: State
+): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
     dispatch(doApplySettings(value));
     dispatch(
@@ -119,3 +135,5 @@ export const applySettings = (value) => {
     );
   };
 };
+
+export default reducer;
