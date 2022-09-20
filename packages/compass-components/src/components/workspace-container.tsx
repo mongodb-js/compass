@@ -3,12 +3,22 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 
 import { withTheme } from '../hooks/use-theme';
+import { Toolbar } from './toolbar';
+import { ScrollBox } from './scrollbox';
 
 const workspaceContainerStyles = css({
   height: '100%',
   width: '100%',
   display: 'flex',
-  overflow: 'auto',
+  flexDirection: 'column',
+  overflow: 'hidden',
+});
+
+const scrollAreaStyles = css({
+  flex: 1,
+  display: 'flex',
+  height: '100%',
+  width: '100%',
 });
 
 const lightThemeStyles = css({
@@ -22,6 +32,7 @@ const darkThemeStyles = css({
 
 type WorkspaceContainerProps = {
   darkMode?: boolean;
+  toolbar?: React.ReactNode;
   'data-testid'?: string;
 };
 
@@ -29,6 +40,7 @@ function UnthemedWorkspaceContainer({
   className,
   darkMode,
   children,
+  toolbar,
   'data-testid': dataTestId,
   ...props
 }: React.PropsWithChildren<
@@ -44,7 +56,10 @@ function UnthemedWorkspaceContainer({
       data-testid={dataTestId}
       {...props}
     >
-      {children}
+      {toolbar && <Toolbar>{toolbar}</Toolbar>}
+      <div className={scrollAreaStyles}>
+        <ScrollBox>{children}</ScrollBox>
+      </div>
     </div>
   );
 }

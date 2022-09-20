@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { ScrollBox, css } from '@mongodb-js/compass-components';
 import Stage from '../stage';
 import Input from '../input';
 import AddStage from '../add-stage';
@@ -17,13 +16,6 @@ const SortableStage = sortableElement(({ idx, ...props }) => {
 const SortableContainer = sortableContainer(({ children }) => {
   return <div>{children}</div>;
 });
-
-const scrollBoxStyle = css({
-  width: '100%',
-  flexGrow: 1,
-  position: 'relative',
-  overflowY: 'scroll',
-})
 
 /**
  * The pipeline workspace component.
@@ -180,7 +172,6 @@ class PipelineWorkspace extends PureComponent {
   render() {
     const inputDocuments = this.props.inputDocuments;
     return (
-      <ScrollBox className={scrollBoxStyle}>
       <div
         data-testid="pipeline-builder-workspace"
         className={styles['pipeline-workspace-container-container']}
@@ -210,8 +201,7 @@ class PipelineWorkspace extends PureComponent {
             />
           </div>
         </div>
-      </div>
-      </ScrollBox>);
+      </div>);
   }
 }
 

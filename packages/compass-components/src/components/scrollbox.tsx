@@ -4,31 +4,31 @@ import { uiColors } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { transparentize } from 'polished';
 
-const outerShadowContainerStyle = css({
+const scrollboxStyles = css({
   height: '100%',
   width: '100%',
+  display: 'block',
   '::before': {
     content: '""',
     position: 'sticky',
     top: 0,
     display: 'block',
     width: '100%',
-    height: spacing[2],
-    background: `linear-gradient(${uiColors.black} 0%, ${transparentize(
-      50,
+    height: spacing[1],
+    borderTop: `1px solid ${uiColors.gray.light2}`,
+    background: `linear-gradient(${transparentize(
+      0.89,
       uiColors.black
-    )} 100%)`,
-    overflow: 'auto',
+    )} 0%, ${transparentize(1, uiColors.black)} 100%)`,
+    zIndex: 2,
   },
-  '::after': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    display: 'block',
-    width: '100%',
-    height: spacing[2],
-    background: uiColors.white,
-  },
+});
+
+const scrollArea = css({
+  overflow: 'auto',
+  height: '100%',
+  width: '100%',
+  display: 'block',
 });
 
 function ScrollBox({
@@ -39,7 +39,9 @@ function ScrollBox({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cx(className, outerShadowContainerStyle)}>{children}</div>
+    <div className={cx(className, scrollboxStyles)}>
+      <div className={scrollArea}>{children}</div>
+    </div>
   );
 }
 
