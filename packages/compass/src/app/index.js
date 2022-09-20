@@ -15,6 +15,7 @@ window.addEventListener('error', (event) => {
 
 require('./index.less');
 require('../setup-hadron-distribution');
+require('source-code-pro/source-code-pro.css');
 
 const marky = require('marky');
 const EventEmitter = require('events');
