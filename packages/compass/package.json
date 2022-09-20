@@ -255,6 +255,7 @@
     "rimraf": "^3.0.2",
     "semver": "^7.3.5",
     "sinon": "^8.1.1",
+    "source-code-pro": "^2.38.0",
     "storage-mixin": "^5.1.0",
     "tar": "^6.1.11",
     "uuid": "^3.0.0",
