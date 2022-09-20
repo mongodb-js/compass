@@ -26,9 +26,6 @@ EventEmitter.defaultMaxListeners = 100;
 document.addEventListener('dragover', (evt) => evt.preventDefault());
 document.addEventListener('drop', (evt) => evt.preventDefault());
 
-require('bootstrap/js/modal');
-require('bootstrap/js/transition');
-
 /**
  * Set hadron-app as a global so plugins can use it.
  */
@@ -83,7 +80,6 @@ const Application = View.extend({
       '  <div data-hook="auto-update"></div>',
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
-      '  <div data-hook="tour-container"></div>',
       '  <div data-hook="license"></div>',
       '</div>'
     ].join('\n');
@@ -130,8 +126,6 @@ const Application = View.extend({
      * @todo: remove when NODE-4281 is merged.
      */
     Number.prototype.unref = () => {};
-
-    ipc.on('window:show-compass-tour', this.showTour.bind(this, true));
 
     function trackPerfEvent({ name, value }) {
       const fullName = {
@@ -190,33 +184,16 @@ const Application = View.extend({
       this.queryByHook('layout-container')
     );
 
-    if (
-      semver.lt(this.previousVersion, APP_VERSION) ||
-      // This is so we can test the tour modal in E2E tests where the version is always the same.
-      process.env.SHOW_TOUR
-    ) {
-      await this.showTour(false);
-    } else {
-      this.tourClosed();
-    }
-  },
-  showTour: async function(force) {
-    const { previousVersion } = await preferencesIpc.getPreferences();
-    const TourView = require('./tour');
-    const tourView = new TourView({ force, previousVersion });
-    if (tourView.features.length > 0) {
-      tourView.on('close', this.tourClosed.bind(this));
-      this.renderSubview(tourView, this.queryByHook('tour-container'));
-    } else {
-      this.tourClosed();
-    }
-  },
-  tourClosed: async function() {
-    const { showedNetworkOptIn } = await preferencesIpc.getPreferences();
-    // TODO(COMPASS-6065): Remove `HADRON_ISOLATED` usage.
-    if (!showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
-      ipc.ipcRenderer.emit('window:show-network-optin');
-    }
+    const checkForNetworkOptIn = async () => {
+      const { showedNetworkOptIn } = await preferencesIpc.getPreferences();
+
+      // TODO(COMPASS-6065): Remove `HADRON_ISOLATED` usage.
+      if (!showedNetworkOptIn && process.env.HADRON_ISOLATED !== 'true') {
+        ipc.ipcRenderer.emit('window:show-network-optin');
+      }
+    };
+
+    void checkForNetworkOptIn();
   },
   fetchUser: async function() {
     debug('getting user preferences');
