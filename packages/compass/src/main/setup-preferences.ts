@@ -1,12 +1,12 @@
 import Preferences from 'compass-preferences-model';
-import type { GlobalPreferences } from 'compass-preferences-model';
+import type { GlobalPreferences , ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 import { ipcMain } from 'hadron-ipc';
 
 import { getStoragePaths } from '@mongodb-js/compass-utils';
 const { basepath } = getStoragePaths() || {};
 
-const setupPreferences = async() => {
-  const preferences = new Preferences(basepath);
+const setupPreferences = async(globalPreferences: ParsedGlobalPreferencesResult) => {
+  const preferences = new Preferences(basepath, globalPreferences);
 
   await preferences.fetchPreferences();
 
@@ -20,6 +20,10 @@ const setupPreferences = async() => {
 
   ipcMain.handle('compass:get-preferences', () => {
     return preferences.getPreferences();
+  });
+
+  ipcMain.handle('compass:get-preference-states', () => {
+    return preferences.getPreferenceStates();
   });
 
   ipcMain.handle('compass:get-configurable-user-preferences', () => {

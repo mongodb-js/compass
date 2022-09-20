@@ -1,11 +1,11 @@
 import storageMixin from 'storage-mixin';
-import isEmpty from 'lodash.isempty';
 import pickBy from 'lodash.pickby';
 import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
-import createDebug from 'debug';
+import type { ParsedGlobalPreferencesResult } from './global-config';
 
-const debug = createDebug('mongodb-compass:models:preferences');
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Model = require('ampersand-model');
@@ -42,7 +42,21 @@ export type InternalUserPreferences = {
 export type UserPreferences = UserConfigurablePreferences &
   InternalUserPreferences;
 
-export type GlobalPreferences = UserPreferences; // TODO: extend with global preferences.
+export type CliOnlyPreferences = {
+  exportConnections?: string;
+  importConnections?: string;
+  passphrase?: string;
+  version?: boolean;
+  help?: boolean;
+};
+
+export type NonUserPreferences = {
+  ignoreAdditionalCommandLineFlags?: boolean;
+};
+
+export type GlobalPreferences = UserPreferences &
+  CliOnlyPreferences &
+  NonUserPreferences;
 
 type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<GlobalPreferences>
@@ -60,7 +74,7 @@ declare class PreferencesAmpersandModel {
   }) => UserPreferences;
 }
 
-type AmpersandType<T> = T extends string
+export type AmpersandType<T> = T extends string
   ? 'string'
   : T extends boolean
   ? 'boolean'
@@ -79,13 +93,24 @@ type PreferenceDefinition<K extends keyof GlobalPreferences> = {
   default?: GlobalPreferences[K];
   required: boolean;
   ui: K extends keyof UserConfigurablePreferences ? true : false;
-  cli: K extends keyof InternalUserPreferences ? false : boolean;
-  global: K extends keyof InternalUserPreferences ? false : boolean;
+  cli: K extends keyof InternalUserPreferences
+    ? false
+    : K extends keyof CliOnlyPreferences
+    ? true
+    : boolean;
+  global: K extends keyof InternalUserPreferences
+    ? false
+    : K extends keyof CliOnlyPreferences
+    ? false
+    : boolean;
+  description: K extends keyof InternalUserPreferences
+    ? null
+    : { short: string; long?: string };
 };
 
-const modelPreferencesProps: {
+const modelPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
-} = {
+}> = {
   /**
    * String identifier for this set of preferences. Default is `General`.
    */
@@ -96,6 +121,7 @@ const modelPreferencesProps: {
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Stores the last version compass was run as, e.g. `1.0.5`.
@@ -107,6 +133,7 @@ const modelPreferencesProps: {
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Stores whether or not the network opt-in screen has been shown to
@@ -119,6 +146,7 @@ const modelPreferencesProps: {
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Stores the theme preference for the user.
@@ -130,6 +158,9 @@ const modelPreferencesProps: {
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Compass UI Theme',
+    },
   },
   /**
    * Stores a unique MongoDB ID for the current user.
@@ -143,6 +174,7 @@ const modelPreferencesProps: {
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Stores a unique telemetry anonymous ID (uuid) for the current user.
@@ -154,6 +186,7 @@ const modelPreferencesProps: {
     ui: false,
     cli: false,
     global: false,
+    description: null,
   },
   /**
    * Master switch to disable all network traffic
@@ -168,6 +201,9 @@ const modelPreferencesProps: {
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: '[Not implemented yet]',
+    },
   },
   /**
    * Switch to enable/disable maps rendering.
@@ -179,6 +215,10 @@ const modelPreferencesProps: {
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Enable Geographic Visualizations',
+      long: 'Allow Compass to make requests to a 3rd party mapping service.',
+    },
   },
   /**
    * Switch to enable/disable error reports.
@@ -190,6 +230,10 @@ const modelPreferencesProps: {
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Enable Crash Reports',
+      long: 'Allow Compass to send crash reports containing stack traces and unhandled exceptions.',
+    },
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
@@ -201,6 +245,10 @@ const modelPreferencesProps: {
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Give Product Feedback',
+      long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
+    },
   },
   /**
    * Switch to enable/disable usage statistics collection
@@ -213,6 +261,10 @@ const modelPreferencesProps: {
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Enable Usage Statistics',
+      long: 'Allow Compass to send anonymous usage statistics.',
+    },
   },
   /**
    * Switch to enable/disable automatic updates.
@@ -224,20 +276,118 @@ const modelPreferencesProps: {
     ui: true,
     cli: true,
     global: true,
+    description: {
+      short: 'Enable Automatic Updates',
+      long: 'Allow Compass to periodically check for new updates.',
+    },
   },
 };
 
-export const allPreferencesProps: {
-  [K in keyof GlobalPreferences]: PreferenceDefinition<K>;
-} = {
-  ...modelPreferencesProps,
+const cliOnlyPreferencesProps: Required<{
+  [K in keyof CliOnlyPreferences]: PreferenceDefinition<K>;
+}> = {
+  exportConnections: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Export Favorite Connections',
+      long: 'Export Compass favorite connections. Can be used with --passphrase.',
+    },
+  },
+  importConnections: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Import Favorite Connections',
+      long: 'Import Compass favorite connections. Can be used with --passphrase.',
+    },
+  },
+  passphrase: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Connection Export/Import Passphrase',
+      long: 'Specify a passphrase for encrypting/decrypting secrets.',
+    },
+  },
+  help: {
+    type: 'boolean',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Show Compass Options',
+    },
+  },
+  version: {
+    type: 'boolean',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Show Compass Version',
+    },
+  },
 };
+
+const nonUserPreferences: Required<{
+  [K in keyof NonUserPreferences]: PreferenceDefinition<K>;
+}> = {
+  ignoreAdditionalCommandLineFlags: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Allow Additional CLI Flags',
+      long: 'Allow specifying command-line flags that Compass does not understand, e.g. Electron or Chromium flags',
+    },
+  },
+};
+
+export const allPreferencesProps: Required<{
+  [K in keyof GlobalPreferences]: PreferenceDefinition<K>;
+}> = {
+  ...modelPreferencesProps,
+  ...cliOnlyPreferencesProps,
+  ...nonUserPreferences,
+};
+
+export function getSettingDescription(
+  name: Exclude<keyof GlobalPreferences, keyof InternalUserPreferences>
+): { short: string; long?: string } {
+  return allPreferencesProps[name].description;
+}
+
+export type PreferenceStateInformation = Partial<
+  Record<keyof GlobalPreferences, 'set-cli' | 'set-global'>
+>;
 
 class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _userPreferencesModel: PreferencesAmpersandModel;
+  private _globalPreferences: {
+    cli: Partial<GlobalPreferences>;
+    global: Partial<GlobalPreferences>;
+  };
 
-  constructor(basepath?: string) {
+  constructor(
+    basepath?: string,
+    globalPreferences?: Partial<ParsedGlobalPreferencesResult>
+  ) {
     // User preferences are stored to disc via the Ampersand model.
     const PreferencesModel = Model.extend(storageMixin, {
       props: modelPreferencesProps,
@@ -252,8 +402,19 @@ class Preferences {
 
     this._onPreferencesChangedCallbacks = [];
     this._userPreferencesModel = new PreferencesModel();
+    this._globalPreferences = {
+      cli: {},
+      global: {},
+      ...globalPreferences,
+    };
   }
 
+  /**
+   * Load preferences from the user preference storage.
+   * The return value also accounts for preferences set from other sources.
+   *
+   * @returns The currently active set of preferences.
+   */
   async fetchPreferences(): Promise<GlobalPreferences> {
     const userPreferencesModel = this._userPreferencesModel;
 
@@ -265,27 +426,50 @@ class Preferences {
     try {
       await fetchUserPreferences();
     } catch (err) {
-      // TODO: Log this error with @compass/logging.
-      debug('Failed to load preferences, error while fetching models', {
-        message: (err as Error).message,
-      });
+      log.error(
+        mongoLogId(1_001_000_156),
+        'preferences',
+        'Failed to load preferences, error while fetching models',
+        {
+          error: (err as Error).message,
+        }
+      );
     }
 
     return this.getPreferences();
   }
 
+  /**
+   * Change preferences in the user's preference storage.
+   * This method validates that the preference is one that is stored in the
+   * underlying storage model. It does *not* validate that the preference
+   * is one that the user is allowed to change, e.g. because it was overridden
+   * through the global config file/command line.
+   *
+   * @param attributes One or more preferences to update.
+   * @returns The currently active set of preferences.
+   */
   async savePreferences(
-    attributes: Partial<GlobalPreferences>
+    attributes: Partial<UserPreferences> = {}
   ): Promise<GlobalPreferences> {
-    if (!attributes && isEmpty(attributes)) {
+    const keys = Object.keys(attributes) as (keyof UserPreferences)[];
+    if (keys.length === 0) {
       return this.getPreferences();
+    }
+
+    const invalidKey = keys.find((key) => !modelPreferencesProps[key]);
+    if (invalidKey !== undefined) {
+      // Guard against accidentally saving non-model settings here.
+      throw new Error(
+        `Setting "${invalidKey}" is not part of the preferences model`
+      );
     }
 
     const userPreferencesModel = this._userPreferencesModel;
 
     // Save user preferences to the Ampersand model.
     const saveUserPreferences: (
-      attributes: Partial<GlobalPreferences>
+      attributes: Partial<UserPreferences>
     ) => Promise<void> = promisifyAmpersandMethod(
       userPreferencesModel.save.bind(userPreferencesModel)
     );
@@ -293,10 +477,14 @@ class Preferences {
     try {
       await saveUserPreferences(attributes);
     } catch (err) {
-      // TODO: Log this error with @compass/logging.
-      debug('Failed to save preferences, error while saving models', {
-        message: (err as Error).message,
-      });
+      log.error(
+        mongoLogId(1_001_000_157),
+        'preferences',
+        'Failed to save preferences, error while saving models',
+        {
+          error: (err as Error).message,
+        }
+      );
     }
 
     const savedPreferencesValues = this.getPreferences();
@@ -309,19 +497,32 @@ class Preferences {
     return this.getPreferences();
   }
 
+  /**
+   * Retrieve currently set preferences, accounting for all sources of preferences.
+   *
+   * @returns The currently active set of preferences.
+   */
   getPreferences(): GlobalPreferences {
-    // TODO: merge user, global, and CLI preferences here.
-    return (
-      this._userPreferencesModel.getAttributes({
+    return {
+      ...this._userPreferencesModel.getAttributes({
         props: true,
         derived: true,
-      }) || {}
-    );
+      }),
+      ...this._globalPreferences.cli,
+      ...this._globalPreferences.global,
+    };
   }
 
+  /**
+   * Return the subset of preferences that can be edited through the UI.
+   * If this is the first call to this method, this sets the defaults for
+   * user preferences.
+   *
+   * @returns The currently active set of UI-modifiable preferences.
+   */
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     // Set the defaults and also update showedNetworkOptIn flag.
-    if (!this.getPreferences().showedNetworkOptIn) {
+    if (!(await this.fetchPreferences()).showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
@@ -341,6 +542,22 @@ class Preferences {
     ) as UserConfigurablePreferences;
   }
 
+  /**
+   * Report which preferences were set through external sources, i.e.
+   * command line or global configuration file.
+   *
+   * @returns A map of preference names to 'set-cli' or 'set-global' if the preference has been set in the respective source.
+   */
+  getPreferenceStates(): PreferenceStateInformation {
+    const preferenceState: Partial<Record<string, 'set-cli' | 'set-global'>> =
+      {};
+    for (const key of Object.keys(this._globalPreferences.cli))
+      preferenceState[key] = 'set-cli';
+    for (const key of Object.keys(this._globalPreferences.global))
+      preferenceState[key] = 'set-global';
+    return preferenceState;
+  }
+
   _callOnPreferencesChanged(
     changedPreferencesValues: Partial<GlobalPreferences>
   ): void {
@@ -349,6 +566,11 @@ class Preferences {
     }
   }
 
+  /**
+   * Install a listener that is called when preferences have been updated.
+   *
+   * @param callback A function taking the set of updated preferences.
+   */
   onPreferencesChanged(callback: OnPreferencesChangedCallback): void {
     this._onPreferencesChangedCallbacks.push(callback);
   }

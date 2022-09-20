@@ -2,7 +2,10 @@ import type { Reducer } from 'redux';
 import type { RootState } from '.';
 import type { ThunkAction } from 'redux-thunk';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { UserConfigurablePreferences } from 'compass-preferences-model';
+import type {
+  PreferenceStateInformation,
+  UserConfigurablePreferences,
+} from 'compass-preferences-model';
 import { preferencesIpc } from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
@@ -10,9 +13,15 @@ const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 import { ActionTypes as UpdatedFieldActionTypes } from './updated-fields';
 import type { Actions as UpdatedFieldActions } from './updated-fields';
 
-export type State = Partial<UserConfigurablePreferences>;
+export type State = {
+  settings: Partial<UserConfigurablePreferences>;
+  preferenceStates: PreferenceStateInformation;
+};
 
-const INITIAL_STATE: State = {};
+const INITIAL_STATE: State = {
+  settings: {},
+  preferenceStates: {},
+};
 
 export enum ActionTypes {
   SettingsFetched = 'compass-settings/settingsFetched',
@@ -21,6 +30,7 @@ export enum ActionTypes {
 type SettingsFetchedAction = {
   type: ActionTypes.SettingsFetched;
   settings: UserConfigurablePreferences;
+  preferenceStates: PreferenceStateInformation;
 };
 
 export type Actions = SettingsFetchedAction;
@@ -32,12 +42,16 @@ const reducer: Reducer<State, Actions | UpdatedFieldActions> = (
   switch (action.type) {
     case ActionTypes.SettingsFetched:
       return {
-        ...action.settings,
+        settings: action.settings,
+        preferenceStates: action.preferenceStates,
       };
     case UpdatedFieldActionTypes.FieldUpdated:
       return {
         ...state,
-        [action.field]: action.value,
+        settings: {
+          ...state.settings,
+          [action.field]: action.value,
+        },
       };
     default:
       return state;
@@ -52,11 +66,15 @@ export const fetchSettings = (): ThunkAction<
 > => {
   return async (dispatch): Promise<void> => {
     try {
-      const settings = await preferencesIpc.getConfigurableUserPreferences();
+      const [settings, preferenceStates] = await Promise.all([
+        preferencesIpc.getConfigurableUserPreferences(),
+        preferencesIpc.getPreferenceStates(),
+      ]);
 
       dispatch({
         type: ActionTypes.SettingsFetched,
         settings,
+        preferenceStates,
       });
     } catch (e) {
       log.warn(

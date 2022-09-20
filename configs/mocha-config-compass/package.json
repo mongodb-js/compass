@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/mocha-config-compass",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared mocha mocha configuration for Compass packages",
   "license": "SSPL",
   "main": "index.js",
@@ -34,7 +34,7 @@
     "identity-obj-proxy": "^3.0.0",
     "react-16-node-hanging-test-fix": "^1.0.0",
     "sinon-chai": "^3.7.0",
-    "ts-node": "^10.8.2",
+    "ts-node": "^10.9.1",
     "why-is-node-running": "^2.2.2"
   }
 }

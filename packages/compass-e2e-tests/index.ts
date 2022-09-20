@@ -182,7 +182,10 @@ async function main() {
 
   debug('Running E2E tests');
   // mocha.run has a callback and returns a result, so just promisify it manually
-  const { resultLogger, failures } = await new Promise((resolve, reject) => {
+  const { resultLogger, failures } = await new Promise<{
+    resultLogger: ResultLogger;
+    failures: number;
+  }>((resolve, reject) => {
     // eslint-disable-next-line prefer-const
     let resultLogger: ResultLogger;
 
