@@ -29,6 +29,11 @@ void main();
 
 async function main(): Promise<void> {
   const globalPreferences = await parseAndValidateGlobalPreferences();
+
+  if (process.env.HADRON_ISOLATED === 'true') {
+    globalPreferences.hardcoded = { ...globalPreferences.hardcoded, networkTraffic: false };
+  }
+
   const { preferenceParseErrors } = globalPreferences;
   const preferenceParseErrorsString = preferenceParseErrors.join('\n');
   if (globalPreferences.cli.version) {

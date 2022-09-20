@@ -89,25 +89,53 @@ export type AmpersandType<T> = T extends string
   : never;
 
 type PreferenceDefinition<K extends keyof GlobalPreferences> = {
+  /** The type of the preference value, in Ampersand naming */
   type: AmpersandType<GlobalPreferences[K]>;
+  /** An optional default value for the preference */
   default?: GlobalPreferences[K];
+  /** Whether the preference is required in the Ampersand model */
   required: boolean;
+  /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
+  /** Whether the preference can be set on the command line */
   cli: K extends keyof InternalUserPreferences
     ? false
     : K extends keyof CliOnlyPreferences
     ? true
     : boolean;
+  /** Whether the preference can be set in the global config file */
   global: K extends keyof InternalUserPreferences
     ? false
     : K extends keyof CliOnlyPreferences
     ? false
     : boolean;
+  /** A description used for the --help text and the Settings UI */
   description: K extends keyof InternalUserPreferences
     ? null
     : { short: string; long?: string };
+  /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
+  deriveValue?: DeriveValueFunction<GlobalPreferences[K]>;
 };
 
+type DeriveValueFunction<T> = (
+  /** Get a preference's value from the current set of preferences */
+  getValue: <K extends keyof GlobalPreferences>(key: K) => GlobalPreferences[K],
+  /** Get a preference's state from the current set of preferences */
+  getState: <K extends keyof GlobalPreferences>(key: K) => PreferenceState
+) => { value: T; state: PreferenceState };
+
+/** Helper for defining how to derive value/state for networkTraffic-affected preferences */
+function deriveNetworkTrafficOptionState<K extends keyof GlobalPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && v('networkTraffic'),
+    state:
+      s(property) ??
+      s('networkTraffic') ??
+      (v('networkTraffic') ? undefined : 'derived'),
+  });
+}
 const modelPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
@@ -202,7 +230,7 @@ const modelPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: '[Not implemented yet]',
+      short: 'Enable network traffic other than to the MongoDB database',
     },
   },
   /**
@@ -219,6 +247,7 @@ const modelPreferencesProps: Required<{
       short: 'Enable Geographic Visualizations',
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
+    deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
   },
   /**
    * Switch to enable/disable error reports.
@@ -234,6 +263,7 @@ const modelPreferencesProps: Required<{
       short: 'Enable Crash Reports',
       long: 'Allow Compass to send crash reports containing stack traces and unhandled exceptions.',
     },
+    deriveValue: deriveNetworkTrafficOptionState('trackErrors'),
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
@@ -249,6 +279,7 @@ const modelPreferencesProps: Required<{
       short: 'Give Product Feedback',
       long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
     },
+    deriveValue: deriveNetworkTrafficOptionState('enableFeedbackPanel'),
   },
   /**
    * Switch to enable/disable usage statistics collection
@@ -265,6 +296,7 @@ const modelPreferencesProps: Required<{
       short: 'Enable Usage Statistics',
       long: 'Allow Compass to send anonymous usage statistics.',
     },
+    deriveValue: deriveNetworkTrafficOptionState('trackUsageStatistics'),
   },
   /**
    * Switch to enable/disable automatic updates.
@@ -280,6 +312,7 @@ const modelPreferencesProps: Required<{
       short: 'Enable Automatic Updates',
       long: 'Allow Compass to periodically check for new updates.',
     },
+    deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
   },
 };
 
@@ -372,8 +405,15 @@ export function getSettingDescription(
   return allPreferencesProps[name].description;
 }
 
+export type PreferenceState =
+  | 'set-cli'
+  | 'set-global'
+  | 'hardcoded'
+  | 'derived'
+  | undefined;
+
 export type PreferenceStateInformation = Partial<
-  Record<keyof GlobalPreferences, 'set-cli' | 'set-global'>
+  Record<keyof GlobalPreferences, PreferenceState>
 >;
 
 class Preferences {
@@ -382,6 +422,7 @@ class Preferences {
   private _globalPreferences: {
     cli: Partial<GlobalPreferences>;
     global: Partial<GlobalPreferences>;
+    hardcoded: Partial<GlobalPreferences>;
   };
 
   constructor(
@@ -405,8 +446,18 @@ class Preferences {
     this._globalPreferences = {
       cli: {},
       global: {},
+      hardcoded: {},
       ...globalPreferences,
     };
+
+    if (Object.keys(this._globalPreferences.hardcoded).length > 0) {
+      log.info(
+        mongoLogId(1_001_000_159),
+        'preferences',
+        'Created Preferences object with hardcoded options',
+        { options: this._globalPreferences.hardcoded }
+      );
+    }
   }
 
   /**
@@ -444,7 +495,9 @@ class Preferences {
    * This method validates that the preference is one that is stored in the
    * underlying storage model. It does *not* validate that the preference
    * is one that the user is allowed to change, e.g. because it was overridden
-   * through the global config file/command line.
+   * through the global config file/command line, and it does *not* validate
+   * whether the current value of the preference is affected by other
+   * preference values.
    *
    * @param attributes One or more preferences to update.
    * @returns The currently active set of preferences.
@@ -494,7 +547,7 @@ class Preferences {
     );
     this._callOnPreferencesChanged(changedPreferencesValues);
 
-    return this.getPreferences();
+    return savedPreferencesValues;
   }
 
   /**
@@ -503,6 +556,10 @@ class Preferences {
    * @returns The currently active set of preferences.
    */
   getPreferences(): GlobalPreferences {
+    return this._computePreferenceValuesAndStates().values;
+  }
+
+  private _getStoredValues(): GlobalPreferences {
     return {
       ...this._userPreferencesModel.getAttributes({
         props: true,
@@ -510,7 +567,55 @@ class Preferences {
       }),
       ...this._globalPreferences.cli,
       ...this._globalPreferences.global,
+      ...this._globalPreferences.hardcoded,
     };
+  }
+
+  private _computePreferenceValuesAndStates() {
+    const values = this._getStoredValues();
+    const states: Partial<Record<string, PreferenceState>> = {};
+    for (const key of Object.keys(this._globalPreferences.cli))
+      states[key] = 'set-cli';
+    for (const key of Object.keys(this._globalPreferences.global))
+      states[key] = 'set-global';
+    for (const key of Object.keys(this._globalPreferences.hardcoded))
+      states[key] = 'hardcoded';
+
+    const originalValues = { ...values };
+    const originalStates = { ...states };
+
+    function deriveValue<K extends keyof GlobalPreferences>(
+      key: K
+    ): {
+      value: GlobalPreferences[K];
+      state: PreferenceState;
+    } {
+      const descriptor = allPreferencesProps[key];
+      if (!descriptor.deriveValue) {
+        return { value: originalValues[key], state: originalStates[key] };
+      }
+      return (
+        descriptor.deriveValue as DeriveValueFunction<GlobalPreferences[K]>
+      )(
+        // `as unknown` to work around TS bug(?) https://twitter.com/addaleax/status/1572191664252551169
+        (k) =>
+          (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
+        (k) =>
+          (k as unknown) === key ? originalStates[k] : deriveValue(k).state
+      );
+    }
+
+    for (const key of Object.keys(allPreferencesProps)) {
+      // awkward IIFE to make typescript understand that `key` is the *same* key
+      // in each loop iteration
+      (<K extends keyof GlobalPreferences>(key: K) => {
+        const result = deriveValue(key);
+        values[key] = result.value;
+        if (result.state !== undefined) states[key] = result.state;
+      })(key as keyof GlobalPreferences);
+    }
+
+    return { values, states };
   }
 
   /**
@@ -522,7 +627,8 @@ class Preferences {
    */
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     // Set the defaults and also update showedNetworkOptIn flag.
-    if (!(await this.fetchPreferences()).showedNetworkOptIn) {
+    const prefences = await this.fetchPreferences();
+    if (!prefences.showedNetworkOptIn && prefences.networkTraffic) {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
@@ -546,16 +652,10 @@ class Preferences {
    * Report which preferences were set through external sources, i.e.
    * command line or global configuration file.
    *
-   * @returns A map of preference names to 'set-cli' or 'set-global' if the preference has been set in the respective source.
+   * @returns A map of preference names to preference states if the preference has been set in the respective source.
    */
   getPreferenceStates(): PreferenceStateInformation {
-    const preferenceState: Partial<Record<string, 'set-cli' | 'set-global'>> =
-      {};
-    for (const key of Object.keys(this._globalPreferences.cli))
-      preferenceState[key] = 'set-cli';
-    for (const key of Object.keys(this._globalPreferences.global))
-      preferenceState[key] = 'set-global';
-    return preferenceState;
+    return this._computePreferenceValuesAndStates().states;
   }
 
   _callOnPreferencesChanged(

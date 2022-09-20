@@ -175,6 +175,7 @@ export interface GlobalPreferenceSources {
 export interface ParsedGlobalPreferencesResult {
   cli: Partial<GlobalPreferences>;
   global: Partial<GlobalPreferences>;
+  hardcoded?: Partial<GlobalPreferences>;
   preferenceParseErrors: string[];
 }
 
@@ -260,7 +261,9 @@ export function getHelpText(): string {
     text += formatSingleOption(key, 'cli');
   }
   text +=
-    '\n(Options marked with (*) are also configurable through the global configuration file.)\n';
+    '\nOptions marked with (*) are also configurable through the global configuration file.\n';
+  text +=
+    'Boolean options can be negated by using a `--no` prefix, e.g. `--no-network-traffic`.\n';
   text += '\nOnly available in the global configuration file:\n\n';
   for (const key of Object.keys(
     allPreferencesProps

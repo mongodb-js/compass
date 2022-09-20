@@ -146,6 +146,28 @@ describe('Global preferences', function () {
     }
   });
 
+  it('allows setting networkTraffic: false and reflects that in the settings modal', async function () {
+    await fs.writeFile(path.join(tmpdir, 'config'), 'networkTraffic: false\n');
+    // No settings modal opened for Isolated edition
+    const compass = await beforeTests({ noCloseSettingsModal: true });
+    try {
+      const browser = compass.browser;
+      await browser.openSettingsModal();
+      const { disabled, value, bannerText } = await getCheckboxAndBannerState(
+        browser,
+        'enableMaps'
+      );
+      expect(value).to.equal('false');
+      expect(disabled).to.equal(''); // null = missing attribute, '' = set
+      expect(bannerText).to.include(
+        'This setting cannot be modified as it has been set in the global Compass configuration file.'
+      );
+    } finally {
+      await afterTest(compass, this.currentTest);
+      await afterTests(compass, this.currentTest);
+    }
+  });
+
   it('allows showing version information', async function () {
     const { stdout } = await runCompassOnce(['--version']);
     expect(stdout.trim()).to.match(/^MongoDB Compass.*\d$/);
