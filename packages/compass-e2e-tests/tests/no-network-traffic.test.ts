@@ -66,7 +66,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
       // sa_family=AF_UNIX, sun_path="/var/run/nscd/socket"
       // sa_family=AF_INET, sin_port=htons(0), sin_addr=inet_addr("127.0.0.1")
       // sa_family=AF_INET6, sin6_port=htons(80), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "2606:2800:220:1:248:1893:25c8:1946", &sin6_addr), sin6_scope_id=0
-      if (args.includes('AF_UNIX')) continue;
+      if (!args.includes('AF_INET')) continue;
       const match = args.match(
         /sa_family=AF_INET6?.*sin6?_port=htons\((?<port>\d+)\).*inet_(addr\("(?<ipv4>[^"]+)"\)|pton\(AF_INET6,\s*"(?<ipv6>[^"]+)")/
       )?.groups;
