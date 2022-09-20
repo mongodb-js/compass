@@ -12,7 +12,6 @@ import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
 import DocumentJsonView from './document-json-view';
 import DocumentTableView from './document-table-view';
-import LegacyToolbar from './legacy-toolbar';
 import { CrudToolbar } from './crud-toolbar';
 
 import {
@@ -23,10 +22,6 @@ import {
 
 import './index.less';
 import './ag-grid-dist.css';
-
-const OUTDATED_WARNING = `The content is outdated and no longer in sync
-with the current query. Press "Find" again to see the results for
-the current query.`;
 
 // From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L86
 const ERROR_CODE_OPERATION_TIMED_OUT = 50;
@@ -45,19 +40,6 @@ function isOperationTimedOutError(err) {
  * Component for the entire document list.
  */
 class DocumentList extends React.Component {
-  constructor(props) {
-    super(props);
-    if (props.isExportable) {
-      const appRegistry = props.store.localAppRegistry;
-      this.queryBarRole = appRegistry.getRole('Query.QueryBar')[0];
-      this.queryBar = this.queryBarRole.component;
-      this.queryBarStore = appRegistry.getStore(this.queryBarRole.storeName);
-      this.queryBarActions = appRegistry.getAction(
-        this.queryBarRole.actionName
-      );
-    }
-  }
-
   onApplyClicked() {
     this.props.store.refreshDocuments();
   }
@@ -103,14 +85,6 @@ class DocumentList extends React.Component {
     }
 
     return <DocumentJsonView {...this.props} />;
-  }
-
-  renderOutdatedWarning() {
-    if (this.props.error || !this.props.outdated) {
-      return;
-    }
-
-    return <StatusRow style="warning">{OUTDATED_WARNING}</StatusRow>;
   }
 
   /*
@@ -262,49 +236,31 @@ class DocumentList extends React.Component {
    * @returns {React.Component} The document list.
    */
   render() {
-    const useNewToolbars = process?.env?.COMPASS_SHOW_OLD_TOOLBARS !== 'true';
-
     return (
       <div className="compass-documents">
-        {useNewToolbars ? (
-          <CrudToolbar
-            activeDocumentView={this.props.view}
-            error={this.props.error}
-            count={this.props.count}
-            loadingCount={this.props.loadingCount}
-            start={this.props.start}
-            end={this.props.end}
-            page={this.props.page}
-            getPage={this.props.getPage}
-            insertDataHandler={this.handleOpenInsert.bind(this)}
-            localAppRegistry={this.props.store.localAppRegistry}
-            isExportable={this.props.isExportable}
-            onApplyClicked={this.onApplyClicked.bind(this)}
-            onResetClicked={this.onResetClicked.bind(this)}
-            openExportFileDialog={this.props.openExportFileDialog}
-            outdated={this.props.outdated}
-            readonly={!this.props.isEditable}
-            viewSwitchHandler={this.props.viewChanged}
-            isWritable={this.props.isWritable}
-            instanceDescription={this.props.instanceDescription}
-            refreshDocuments={this.props.refreshDocuments}
-            resultId={this.props.resultId}
-          />
-        ) : (
-          <>
-            <div className="controls-container">
-              {this.renderQueryBar()}
-              <LegacyToolbar
-                readonly={!this.props.isEditable}
-                insertHandler={this.handleOpenInsert.bind(this)}
-                viewSwitchHandler={this.props.viewChanged}
-                activeDocumentView={this.props.view}
-                {...this.props}
-              />
-            </div>
-            {this.renderOutdatedWarning()}
-          </>
-        )}
+        <CrudToolbar
+          activeDocumentView={this.props.view}
+          error={this.props.error}
+          count={this.props.count}
+          loadingCount={this.props.loadingCount}
+          start={this.props.start}
+          end={this.props.end}
+          page={this.props.page}
+          getPage={this.props.getPage}
+          insertDataHandler={this.handleOpenInsert.bind(this)}
+          localAppRegistry={this.props.store.localAppRegistry}
+          isExportable={this.props.isExportable}
+          onApplyClicked={this.onApplyClicked.bind(this)}
+          onResetClicked={this.onResetClicked.bind(this)}
+          openExportFileDialog={this.props.openExportFileDialog}
+          outdated={this.props.outdated}
+          readonly={!this.props.isEditable}
+          viewSwitchHandler={this.props.viewChanged}
+          isWritable={this.props.isWritable}
+          instanceDescription={this.props.instanceDescription}
+          refreshDocuments={this.props.refreshDocuments}
+          resultId={this.props.resultId}
+        />
         {this.renderZeroState()}
         {this.renderContent()}
         {this.renderInsertModal()}
