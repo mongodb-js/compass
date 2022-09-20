@@ -36,7 +36,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
       const wrapperFile = path.join(tmpdir, 'wrap.sh');
       await fs.writeFile(
         wrapperFile,
-        `#!/bin/bash\nulimit -c 0; exec strace --follow-forks -e connect --quiet=all --output='${outfile}' '${binary}' "$@"\n`
+        `#!/bin/bash\nulimit -c 0; exec strace -f -e connect -qqq -o '${outfile}' '${binary}' "$@"\n`
       );
       await fs.chmod(wrapperFile, 0o755);
       return wrapperFile;
