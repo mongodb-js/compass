@@ -7,7 +7,6 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { uiColors } from '@leafygreen-ui/palette';
 import { transparentize } from 'polished';
 import { useTheme, Theme } from '../hooks/use-theme';
-import { gray8 } from '../compass-ui-colors';
 
 const borderRadius = spacing[2];
 
@@ -24,7 +23,7 @@ const contentContainerStyles = css({
 
 const contentContainerStylesLight = css({
   borderColor: uiColors.gray.light2,
-  backgroundColor: gray8,
+  backgroundColor: uiColors.gray.light3,
   color: uiColors.gray.dark2,
 });
 

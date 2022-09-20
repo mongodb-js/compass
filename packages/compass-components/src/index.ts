@@ -56,12 +56,6 @@ export {
 
 export { Checkbox } from './components/checkbox';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
-
-export {
-  Combobox,
-  ComboboxOption,
-  ComboboxGroup,
-} from './components/leafy-green/combobox';
 export { uiColors } from '@leafygreen-ui/palette';
 export * as compassFontSizes from './compass-font-sizes';
 export * as compassUIColors from './compass-ui-colors';
@@ -140,3 +134,4 @@ export { Pipeline, Stage } from '@leafygreen-ui/pipeline';
 
 export { default as BSONValue } from './components/bson-value';
 export * as DocumentList from './components/document-list';
+export { ScrollBox } from './components/scrollbox';

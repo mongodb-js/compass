@@ -1,24 +1,29 @@
-import { injectGlobal, css, uiColors, compassUIColors, Theme } from '@mongodb-js/compass-components';
+import {
+  injectGlobal,
+  css,
+  uiColors,
+  Theme,
+} from '@mongodb-js/compass-components';
 
 const globalDefaultThemeStyles = css({
   ':root': {
-    backgroundColor: compassUIColors.gray8,
+    backgroundColor: uiColors.white,
     color: uiColors.gray.dark2,
-  }
+  },
 });
 
 const globalLightThemeStyles = css({
   [`:root[data-theme="${Theme.Light}"]`]: {
-    backgroundColor: compassUIColors.gray8,
+    backgroundColor: uiColors.white,
     color: uiColors.gray.dark2,
-  }
+  },
 });
 
 const globalDarkThemeStyles = css({
   [`:root[data-theme="${Theme.Dark}"]`]: {
     backgroundColor: uiColors.gray.dark3,
     color: uiColors.white,
-  }
+  },
 });
 
 export function injectCompassGlobalThemeStyles(): void {

@@ -11,33 +11,3 @@
   width: 100%;
   flex-grow: 1;
 }
-
-.pipeline-workspace-container-container {
-  flex-grow: 1;
-  width: 100%;
-  position: relative;
-  overflow-y: scroll;
-}
-
-.pipeline-workspace-container-container::before {
-  content: '';
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0;
-  display: block;
-  width: 100%;
-  height: 8px;
-  // Covered by the `::after` until the user scrolls.
-  background: linear-gradient(rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 100%);
-}
-
-.pipeline-workspace-container-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  display: block;
-  width: 100%;
-  height: 32px;
-  // Cover the shadow until the user scrolls.
-  background: linear-gradient(rgba(245, 246, 247,1) 0%, rgba(245, 246, 247,1) 50%, rgba(245, 246, 247,0) 100%);
-}

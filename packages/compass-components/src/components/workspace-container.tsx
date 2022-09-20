@@ -3,7 +3,6 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 
 import { withTheme } from '../hooks/use-theme';
-import { gray8 } from '../compass-ui-colors';
 
 const workspaceContainerStyles = css({
   height: '100%',
@@ -13,7 +12,6 @@ const workspaceContainerStyles = css({
 });
 
 const lightThemeStyles = css({
-  backgroundColor: gray8,
   color: uiColors.gray.dark2,
 });
 
