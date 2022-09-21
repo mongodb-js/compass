@@ -18,65 +18,47 @@ import { changeFilterRegex } from '../modules/databases';
 
 type DatabasesActions = 'open-create-database';
 
-const itemWrapper = css({
-  position: 'relative',
-  width: '100%',
-});
-
-const buttonWrapper = css({
-  display: 'flex',
-  alignItems: 'center',
-
-  paddingLeft: spacing[3],
-  paddingRight: spacing[1],
-
-  width: '100%',
-  height: spacing[5],
-
-  ':hover': {
-    backgroundColor: 'var(--item-bg-color-hover)',
-  },
-});
-
-const buttonWrapperActive = css({
-  paddingRight: spacing[4],
-  ':hover': {
-    backgroundColor: 'var(--item-bg-color-active)',
-  },
-});
-
-const itemActionControls = css({
-  position: 'absolute',
-  top: spacing[1],
-  right: spacing[1],
-});
-
 const navigationItem = css({
-  display: 'flex',
-  alignItems: 'center',
+  //display: 'flex',
+  //alignItems: 'center',
   cursor: 'pointer',
   color: 'var(--item-color)',
-  backgroundColor: 'var(--item-bg-color)',
+  //backgroundColor: 'var(--item-bg-color)',
   border: 'none',
   height: spacing[5],
   position: 'relative',
+
+  '.item-action-controls': {
+    marginLeft: 'auto',
+    marginRight: spacing[1],
+  },
+
+  ':hover .item-background': {
+    display: 'block',
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+
+  '.item-action-controls:hover + .item-background': {
+    display: 'none',
+  },
 
   svg: {
     flexShrink: 0,
   },
 
+  /*
   [`:hover .${buttonWrapper}`]: {
     paddingRight: spacing[4],
   },
+  */
 });
 
 const activeNavigationItem = css({
   color: 'var(--item-color-active)',
-  backgroundColor: 'var(--item-bg-color-active)',
   fontWeight: 'bold',
 
-  ':hover': {
-    backgroundColor: 'transparent',
+  '.item-background, :hover .item-background': {
+    backgroundColor: 'var(--item-bg-color-active)',
   },
 
   // this is copied from leafygreen's own navigation, hence the pixel values
@@ -93,7 +75,35 @@ const activeNavigationItem = css({
   },
 });
 
+const itemWrapper = css({
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  height: spacing[5],
+  zIndex: 1,
+});
+
+const itemBackground = css({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  zIndex: -1,
+});
+
+const itemButtonWrapper = css({
+  display: 'flex',
+  alignItems: 'center',
+  minWidth: 0,
+  paddingLeft: spacing[3],
+  paddingRight: spacing[1],
+});
+
 const navigationItemLabel = css({
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
   marginLeft: spacing[2],
 });
 
@@ -130,7 +140,7 @@ export function NavigationItem<Actions extends string>({
       {...hoverProps}
     >
       <div className={itemWrapper}>
-        <div className={cx(buttonWrapper, isActive && buttonWrapperActive)}>
+        <div className={itemButtonWrapper}>
           <Icon glyph={glyph} size="small"></Icon>
           {isExpanded && <span className={navigationItemLabel}>{label}</span>}
         </div>
@@ -146,9 +156,9 @@ export function NavigationItem<Actions extends string>({
             // the text
             isVisible={true}
             iconClassName={navigationItemActionIcons}
-            className={itemActionControls}
           ></ItemActionControls>
         )}
+        <div className={cx('item-background', itemBackground)} />
       </div>
     </div>
   );

@@ -15,7 +15,6 @@ import {
   ItemLabel,
   ItemWrapper,
   ItemButtonWrapper,
-  itemActionControlsStyles,
 } from './tree-item';
 import type {
   VirtualListItemProps,
@@ -68,6 +67,10 @@ const ExpandButton: React.FunctionComponent<{
     </button>
   );
 };
+
+const databaseItem = css({
+  height: DATABASE_ROW_HEIGHT,
+});
 
 const itemButtonWrapper = css({
   height: DATABASE_ROW_HEIGHT,
@@ -153,14 +156,11 @@ export const DatabaseItem: React.FunctionComponent<
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
       style={style}
+      className={databaseItem}
       {...hoverProps}
     >
-      <ItemWrapper numIcons={actions.length}>
-        <ItemButtonWrapper
-          className={itemButtonWrapper}
-          numIcons={actions.length}
-          isActive={isActive}
-        >
+      <ItemWrapper>
+        <ItemButtonWrapper className={itemButtonWrapper}>
           <ExpandButton
             onClick={onExpandButtonClick}
             isExpanded={isExpanded}
@@ -178,7 +178,6 @@ export const DatabaseItem: React.FunctionComponent<
             collapseToMenuThreshold={3}
             iconSize="small"
             actions={actions}
-            className={itemActionControlsStyles}
           ></ItemActionControls>
         )}
       </ItemWrapper>

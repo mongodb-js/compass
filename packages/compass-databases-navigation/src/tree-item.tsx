@@ -59,11 +59,22 @@ export function useDefaultAction<T>(
 }
 
 const itemContainer = css({
-  display: 'flex',
-  alignItems: 'center',
   cursor: 'pointer',
   color: 'var(--item-color)',
-  backgroundColor: 'var(--item-bg-color)',
+
+  '.item-action-controls': {
+    marginLeft: 'auto',
+    marginRight: spacing[1],
+  },
+
+  ':hover .item-background': {
+    display: 'block',
+    backgroundColor: 'var(--item-bg-color-hover)',
+  },
+
+  '.item-action-controls:hover + .item-background': {
+    display: 'none',
+  },
 
   svg: {
     flexShrink: 0,
@@ -72,11 +83,10 @@ const itemContainer = css({
 
 const activeItemContainer = css({
   color: 'var(--item-color-active)',
-  backgroundColor: 'var(--item-bg-color-active)',
   fontWeight: 'bold',
 
-  ':hover': {
-    backgroundColor: 'transparent',
+  '.item-background, :hover .item-background': {
+    backgroundColor: 'var(--item-bg-color-active)',
   },
 
   // this is copied from leafygreen's own navigation, hence the pixel values
@@ -91,6 +101,33 @@ const activeItemContainer = css({
     width: '4px',
     borderRadius: '0px 6px 6px 0px',
   },
+});
+
+const itemWrapper = css({
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const itemBackground = css({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  zIndex: -1,
+});
+
+const itemButtonWrapper = css({
+  display: 'flex',
+  alignItems: 'center',
+  minWidth: 0,
+});
+
+const itemLabel = css({
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
 });
 
 export const ItemContainer: React.FunctionComponent<
@@ -151,11 +188,26 @@ export const ItemContainer: React.FunctionComponent<
   );
 };
 
-const itemLabel = css({
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-});
+export const ItemWrapper: React.FunctionComponent<
+  React.HTMLProps<HTMLDivElement>
+> = ({ className, children }) => {
+  return (
+    <div className={cx(itemWrapper, className)}>
+      {children}
+      <div className={cx('item-background', itemBackground)} />
+    </div>
+  );
+};
+
+export const ItemButtonWrapper: React.FunctionComponent<
+  React.HTMLProps<HTMLDivElement>
+> = ({ className, children }) => {
+  return (
+    <div className={cx(itemButtonWrapper, className)}>
+      {children}
+    </div>
+  );
+};
 
 export const ItemLabel: React.FunctionComponent<
   React.HTMLProps<HTMLSpanElement>
@@ -166,80 +218,3 @@ export const ItemLabel: React.FunctionComponent<
     </span>
   );
 };
-
-function iconsPadding(numIcons: number) {
-  return numIcons === 2 ? spacing[4] + spacing[5] : spacing[5];
-}
-
-const itemWrapper = css({
-  position: 'relative',
-  width: '100%',
-});
-
-export const ItemWrapper: React.FunctionComponent<
-  {
-    numIcons?: number;
-  } & React.HTMLProps<HTMLDivElement>
-> = ({ numIcons = 1, className, children }) => {
-  return (
-    <div
-      className={cx(
-        itemWrapper,
-        className,
-        css({
-          [`:hover [data-testid="button-wrapper"]`]: {
-            paddingRight: iconsPadding(numIcons),
-          },
-        })
-      )}
-    >
-      {children}
-    </div>
-  );
-};
-
-const itemButtonWrapper = css({
-  display: 'flex',
-  alignItems: 'center',
-  width: '100%',
-
-  ':hover': {
-    backgroundColor: 'var(--item-bg-color-hover)',
-  },
-});
-
-const itemButtonWrapperActive = css({
-  ':hover': {
-    backgroundColor: 'var(--item-bg-color-active)',
-  },
-});
-
-export const ItemButtonWrapper: React.FunctionComponent<
-  {
-    numIcons?: number;
-    isActive?: boolean;
-  } & React.HTMLProps<HTMLDivElement>
-> = ({ numIcons = 1, isActive, className, children }) => {
-  return (
-    <div
-      data-testid="button-wrapper"
-      className={cx(
-        itemButtonWrapper,
-        isActive && itemButtonWrapperActive,
-        className,
-        isActive &&
-          css({
-            paddingRight: iconsPadding(numIcons),
-          })
-      )}
-    >
-      {children}
-    </div>
-  );
-};
-
-export const itemActionControlsStyles = css({
-  position: 'absolute',
-  top: spacing[1],
-  right: spacing[1],
-});

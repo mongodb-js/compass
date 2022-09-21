@@ -14,7 +14,6 @@ import {
   ItemLabel,
   ItemWrapper,
   ItemButtonWrapper,
-  itemActionControlsStyles,
 } from './tree-item';
 import type {
   VirtualListItemProps,
@@ -36,6 +35,10 @@ const CollectionIcon: React.FunctionComponent<{
 
   return <Icon glyph={glyph} size="small"></Icon>;
 };
+
+const collectionItem = css({
+  height: COLLECTION_ROW_HEIGHT,
+});
 
 const itemButtonWrapper = css({
   height: COLLECTION_ROW_HEIGHT,
@@ -133,14 +136,11 @@ export const CollectionItem: React.FunctionComponent<
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
       style={style}
+      className={collectionItem}
       {...hoverProps}
     >
-      <ItemWrapper numIcons={actions.length}>
-        <ItemButtonWrapper
-          className={itemButtonWrapper}
-          numIcons={actions.length}
-          isActive={isActive}
-        >
+      <ItemWrapper>
+        <ItemButtonWrapper className={itemButtonWrapper}>
           <CollectionIcon type={type} />
           <ItemLabel className={collectionItemLabel} title={name}>
             {name}
@@ -152,7 +152,6 @@ export const CollectionItem: React.FunctionComponent<
           iconSize="small"
           isVisible={isActive || isHovered}
           actions={actions}
-          className={itemActionControlsStyles}
         ></ItemActionControls>
       </ItemWrapper>
     </ItemContainer>
