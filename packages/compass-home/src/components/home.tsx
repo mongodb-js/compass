@@ -279,18 +279,29 @@ function ThemedHome(
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
-    theme: (global as any).hadronApp?.theme ?? Theme.Light,
+    theme:
+      process.env.COMPASS_LG_DARKMODE === 'true'
+        ? (global as any).hadronApp?.theme ?? Theme.Light
+        : Theme.Light,
     // useful for quickly testing the new dark sidebar without rebuilding
     //theme: Theme.Dark, enabled: true
   });
 
   function onDarkModeEnabled() {
+    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
+      return;
+    }
+
     setTheme({
       theme: Theme.Dark,
     });
   }
 
   function onDarkModeDisabled() {
+    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
+      return;
+    }
+
     setTheme({
       theme: Theme.Light,
     });
