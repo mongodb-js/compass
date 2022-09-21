@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/tsconfig-compass",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared Compass Typescript configuration",
   "license": "SSPL",
   "files": [
@@ -8,7 +8,7 @@
     "tsconfig.react.json"
   ],
   "peerDependencies": {
-    "typescript": "^4.3.5"
+    "typescript": "^4.8.3"
   },
   "devDependencies": {
     "@mongodb-js/prettier-config-compass": "^1.0.0",

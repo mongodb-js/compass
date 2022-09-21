@@ -11,7 +11,6 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      process.env.SHOW_TOUR = 'true'; // make this work the same in dev and when releasing
       const compass = await beforeTests({ firstRun: true });
       const { browser } = compass;
       try {
@@ -22,13 +21,9 @@ describe('Logging and Telemetry integration', function () {
 
         await browser.shellEval('use test');
         await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
-
-        await browser.openTourModal();
-        await browser.closeTourModal();
       } finally {
         await afterTests(compass);
         await telemetry.stop();
-        delete process.env.SHOW_TOUR;
       }
 
       logs = compass.logs;
@@ -56,17 +51,6 @@ describe('Logging and Telemetry integration', function () {
           .find((entry) => entry.type === 'identify');
         expect(identify.traits.platform).to.equal(process.platform);
         expect(identify.traits.arch).to.match(/^(x64|arm64)$/);
-      });
-
-      it('tracks an event for the welcome tour being closed', function () {
-        const tourClosed = telemetry
-          .events()
-          .find((entry) => entry.event === 'Tour Closed');
-        expect(tourClosed.properties.tab_title).to.equal('Performance Charts.');
-        expect(tourClosed.properties.compass_version).to.be.a('string');
-        expect(tourClosed.properties.compass_version).to.match(/^\d+\.\d+$/);
-        expect(tourClosed.properties.compass_distribution).to.be.a('string');
-        expect(tourClosed.properties.compass_channel).to.be.a('string');
       });
 
       it('tracks an event for shell use', function () {

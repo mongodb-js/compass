@@ -318,9 +318,6 @@ describe('CompassMenu', function () {
             accelerator: 'F1',
           },
           {
-            label: `${app.getName()} &Overview`
-          },
-          {
             label: '&Settings',
             accelerator: 'Command+,',
           },
