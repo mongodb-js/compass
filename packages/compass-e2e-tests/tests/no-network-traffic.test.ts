@@ -49,6 +49,19 @@ describe('networkTraffic: false / Isolated Edition', function () {
     });
     const browser = compass.browser;
 
+    {
+      // TODO: Remove this once we are including https://github.com/mongodb-js/mongosh/pull/1349
+      const exitOnDisconnectFile = path.join(tmpdir, 'exitOnDisconnect.js');
+      await fs.writeFile(
+        exitOnDisconnectFile,
+        'process.once("disconnect", () => process.exit())'
+      );
+      await browser.execute((exitOnDisconnectFile) => {
+        process.env.NODE_OPTIONS ??= '';
+        process.env.NODE_OPTIONS += ` --require "${exitOnDisconnectFile}"`;
+      }, exitOnDisconnectFile);
+    }
+
     try {
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
