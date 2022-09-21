@@ -132,11 +132,37 @@ describe('Preferences class', function () {
     expect(fetchResult.autoUpdates).to.equal(false);
     const saveResult = await preferences.savePreferences({ autoUpdates: true });
     expect(saveResult.autoUpdates).to.equal(false); // (!)
-    expect(calls).to.deep.equal([{ autoUpdates: false }]); // (!)
+    expect(calls).to.have.lengthOf(0); // no updates, networkTraffic overrides change
 
     const preferences2 = new Preferences(tmpdir);
     const fetchResult2 = await preferences2.fetchPreferences();
     expect(fetchResult2.autoUpdates).to.equal(true); // (!)
+  });
+
+  it('includes changes to derived preference values in change listeners', async function () {
+    const preferences = new Preferences(tmpdir);
+    const calls: any[] = [];
+    preferences.onPreferencesChanged((prefs) => calls.push(prefs));
+    await preferences.getConfigurableUserPreferences(); // set defaults
+    await preferences.savePreferences({ networkTraffic: false });
+    expect(calls).to.deep.equal([
+      {
+        showedNetworkOptIn: true,
+        enableMaps: true,
+        trackErrors: true,
+        enableFeedbackPanel: true,
+        trackUsageStatistics: true,
+        autoUpdates: true,
+      },
+      {
+        networkTraffic: false,
+        enableMaps: false,
+        trackErrors: false,
+        enableFeedbackPanel: false,
+        trackUsageStatistics: false,
+        autoUpdates: false,
+      },
+    ]);
   });
 
   it('allows hardcoding some options and derive other option values based on that', async function () {

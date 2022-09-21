@@ -1,5 +1,4 @@
 import storageMixin from 'storage-mixin';
-import pickBy from 'lodash.pickby';
 import { promisifyAmpersandMethod } from '@mongodb-js/compass-utils';
 import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
@@ -506,8 +505,9 @@ class Preferences {
     attributes: Partial<UserPreferences> = {}
   ): Promise<GlobalPreferences> {
     const keys = Object.keys(attributes) as (keyof UserPreferences)[];
+    const originalPreferences = this.getPreferences();
     if (keys.length === 0) {
-      return this.getPreferences();
+      return originalPreferences;
     }
 
     const invalidKey = keys.find((key) => !modelPreferencesProps[key]);
@@ -540,14 +540,18 @@ class Preferences {
       );
     }
 
-    const savedPreferencesValues = this.getPreferences();
-    const changedPreferencesValues = pickBy(
-      savedPreferencesValues,
-      (value, key) => Object.keys(attributes).includes(key)
+    const newPreferences = this.getPreferences();
+    const changedPreferences = Object.fromEntries(
+      Object.entries(newPreferences).filter(
+        ([key, value]) =>
+          value !== originalPreferences[key as keyof GlobalPreferences]
+      )
     );
-    this._callOnPreferencesChanged(changedPreferencesValues);
+    if (Object.keys(changedPreferences).length > 0) {
+      this._callOnPreferencesChanged(changedPreferences);
+    }
 
-    return savedPreferencesValues;
+    return newPreferences;
   }
 
   /**
