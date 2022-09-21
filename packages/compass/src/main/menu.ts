@@ -67,15 +67,6 @@ function quitItem(label: string): MenuItemConstructorOptions {
   };
 }
 
-function compassOverviewItem(): MenuItemConstructorOptions {
-  return {
-    label: `${app.getName()} &Overview`,
-    click() {
-      ipcMain.broadcastFocused('window:show-compass-tour');
-    },
-  };
-}
-
 function networkOptInDialogItem(): MenuItemConstructorOptions {
   return {
     label: '&Settings',
@@ -322,8 +313,6 @@ function helpSubMenu(
 ): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push(helpWindowItem());
-
-  subMenu.push(compassOverviewItem());
 
   if (process.env.HADRON_ISOLATED !== 'true') {
     subMenu.push(networkOptInDialogItem());

@@ -13,6 +13,9 @@ describe('Renderer IPC', function () {
     'compass:get-configurable-user-preferences'() {
       return { getConfigurableUserPreferences: 1 };
     },
+    'compass:get-preference-states'() {
+      return { getPreferenceStates: 1 };
+    },
   };
   const ipcMock = Object.assign(new EventEmitter(), {
     invoke(method: string, ...args: any[]) {
@@ -37,6 +40,12 @@ describe('Renderer IPC', function () {
     expect(await preferencesIpc.getConfigurableUserPreferences()).to.deep.equal(
       { getConfigurableUserPreferences: 1 }
     );
+  });
+
+  it('should be able to call getPreferenceStates', async function () {
+    expect(await preferencesIpc.getPreferenceStates()).to.deep.equal({
+      getPreferenceStates: 1,
+    });
   });
 
   it('should be able to listen with onPreferenceValueChanged', function () {

@@ -9,7 +9,7 @@ import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from 'electron-rebuild';
-import type { ConsoleMessage } from 'puppeteer';
+import type { ConsoleMessageType } from 'puppeteer';
 import {
   run as packageCompass,
   compileAssets,
@@ -59,11 +59,18 @@ interface Coverage {
   renderer: string;
 }
 
+interface RenderLogEntry {
+  timestamp: string;
+  type: ConsoleMessageType;
+  text: string;
+  args: unknown;
+}
+
 export class Compass {
   browser: CompassBrowser;
   isFirstRun: boolean;
   testPackagedApp: boolean;
-  renderLogs: any[]; // TODO
+  renderLogs: RenderLogEntry[];
   logs: LogEntry[];
   logPath?: string;
   userDataPath?: string;
@@ -94,9 +101,10 @@ export class Compass {
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
 
-    page.on('console', (message: any) => {
-      // TODO: why is this a different ConsoleMessage? Different versions of puppeteer?
-      message = message as ConsoleMessage;
+    // TS infers the type of `message` correctly here, which would conflict with
+    // what we get from `import type { ConsoleMessage } from 'puppeteer'`, so we
+    // leave out an explicit type annotation.
+    page.on('console', (message) => {
       const run = async () => {
         // human and machine readable, always UTC
         const timestamp = new Date().toISOString();
@@ -265,6 +273,7 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
+  extraSpawnArgs?: string[];
 }
 
 let defaultUserDataDir: string | undefined;
@@ -311,6 +320,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
     binary,
     [
       COMPASS_PATH,
+      '--ignore-additional-command-line-flags',
       `--user-data-dir=${String(defaultUserDataDir)}`,
       '--no-sandbox', // See below
       ...args,
@@ -318,6 +328,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
     { timeout }
   );
   debug('Ran compass with args', { args, stdout, stderr });
+  return { stdout, stderr };
 }
 
 async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
@@ -370,13 +381,16 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // https://peter.sh/experiments/chromium-command-line-switches/
   // https://www.electronjs.org/docs/latest/api/command-line-switches
   chromeArgs.push(
+    // Allow options such as --user-data-dir to pass through the command line
+    // flag validation code.
+    '--ignore-additional-command-line-flags',
     `--user-data-dir=${defaultUserDataDir}`,
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
     '--media-router=0',
     // Evergren RHEL ci runs everything as root, and chrome will not start as
     // root without this flag
-    '--no-sandbox'
+    '--no-sandbox',
 
     // chomedriver options
     // TODO: cant get this to work
@@ -390,6 +404,8 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     //'--log-level=INFO',
     //'--v=1',
     // --vmodule=pattern
+
+    ...(opts.extraSpawnArgs ?? [])
   );
 
   // https://webdriver.io/docs/options/#webdriver-options
@@ -646,9 +662,6 @@ export async function beforeTests(
   const { browser } = compass;
 
   await browser.waitForConnectionScreen();
-  if (process.env.SHOW_TOUR) {
-    await browser.closeTourModal();
-  }
   if (compass.isFirstRun) {
     await browser.closeSettingsModal();
   }

@@ -12,7 +12,13 @@ describe('PrivacySettings', function () {
 
   beforeEach(function () {
     handleChangeSpy = spy();
-    render(<PrivacySettings handleChange={handleChangeSpy} />);
+    render(
+      <PrivacySettings
+        handleChange={handleChangeSpy}
+        preferenceStates={{}}
+        checkboxValues={{} as any}
+      />
+    );
     container = screen.getByTestId('privacy-settings');
   });
 

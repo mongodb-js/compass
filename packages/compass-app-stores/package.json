@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-app-stores",
   "productName": "App Stores plugin",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "apiVersion": "3.0.0",
   "description": "The external stores repo for compass",
   "main": "lib/index.js",
@@ -27,7 +27,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "mongodb-instance-model": "^12.0.0"
+    "mongodb-instance-model": "^12.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -57,9 +57,9 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "file-loader": "^5.1.0",
     "font-awesome": "^4.7.0",
-    "hadron-app": "^5.0.0",
-    "hadron-app-registry": "^9.0.0",
-    "hadron-react-components": "^6.0.0",
+    "hadron-app": "^5.1.0",
+    "hadron-app-registry": "^9.0.1",
+    "hadron-react-components": "^6.1.0",
     "html-webpack-plugin": "^3.2.0",
     "ignore-loader": "^0.1.2",
     "istanbul-instrumenter-loader": "^3.0.1",
@@ -80,9 +80,9 @@
     "lodash.result": "^4.5.2",
     "mocha": "^5.0.0",
     "mocha-webpack": "^2.0.0-beta.0",
-    "mongodb-collection-model": "^5.0.0",
-    "mongodb-data-service": "^22.0.0",
-    "mongodb-database-model": "^2.0.0",
+    "mongodb-collection-model": "^5.1.0",
+    "mongodb-data-service": "^22.1.0",
+    "mongodb-database-model": "^2.1.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-reflux-store": "^0.0.1",
     "node-loader": "^0.6.0",
@@ -94,7 +94,7 @@
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
-    "redux": "^4.1.2",
+    "redux": "^4.2.0",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "resolve": "^1.15.1",
@@ -102,7 +102,7 @@
     "shebang-loader": "^0.0.1",
     "sinon": "^4.5.0",
     "sinon-chai": "^3.5.0",
-    "storage-mixin": "^5.0.0",
+    "storage-mixin": "^5.1.0",
     "style-loader": "^2.0.0",
     "url-loader": "^3.0.0",
     "uuid": "^3.3.2",
@@ -114,7 +114,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "mongodb-instance-model": "^12.0.0"
+    "mongodb-instance-model": "^12.1.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

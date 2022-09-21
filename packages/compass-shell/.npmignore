@@ -10,7 +10,7 @@ electron/
 karma.conf.js
 mocha-webpack.opts
 scripts/**/*
-!scripts/download-akzidenz.js
+!scripts/download-fonts.js
 src/
 test/
 .zuul.yml

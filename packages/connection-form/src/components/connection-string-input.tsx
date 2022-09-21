@@ -25,6 +25,13 @@ const textAreaContainerStyle = css({
 
 const uriLabelContainerStyles = css({
   flexGrow: 1,
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const editToggleContainerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
 });
 
 const connectionStringStyles = css({
@@ -144,29 +151,31 @@ function ConnectStringInput({
             href="https://docs.mongodb.com/manual/reference/connection-string/"
           />
         </div>
-        <Label
-          className={editToggleLabelStyles}
-          id="edit-connection-string-label"
-          htmlFor="toggle-edit-connection-string"
-        >
-          Edit Connection String
-        </Label>
-        <Toggle
-          className={editToggleStyles}
-          id="toggle-edit-connection-string"
-          data-testid="toggle-edit-connection-string"
-          aria-labelledby="edit-connection-string-label"
-          size="xsmall"
-          type="button"
-          checked={enableEditingConnectionString}
-          onChange={(checked: boolean) => {
-            if (checked) {
-              setShowEditConnectionStringPrompt(true);
-              return;
-            }
-            setEnableEditingConnectionString(false);
-          }}
-        />
+        <div className={editToggleContainerStyles}>
+          <Label
+            className={editToggleLabelStyles}
+            id="edit-connection-string-label"
+            htmlFor="toggle-edit-connection-string"
+          >
+            Edit Connection String
+          </Label>
+          <Toggle
+            className={editToggleStyles}
+            id="toggle-edit-connection-string"
+            data-testid="toggle-edit-connection-string"
+            aria-labelledby="edit-connection-string-label"
+            size="xsmall"
+            type="button"
+            checked={enableEditingConnectionString}
+            onChange={(checked: boolean) => {
+              if (checked) {
+                setShowEditConnectionStringPrompt(true);
+                return;
+              }
+              setEnableEditingConnectionString(false);
+            }}
+          />
+        </div>
       </div>
       <div className={textAreaContainerStyle}>
         <TextArea

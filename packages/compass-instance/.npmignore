@@ -16,4 +16,4 @@ src/
 .nyc_output/
 
 scripts/**/*
-!scripts/download-akzidenz.js
+!scripts/download-fonts.js
