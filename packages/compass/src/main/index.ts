@@ -25,6 +25,8 @@ if (process.env.APP_ENV === 'webdriverio') {
 // @ts-expect-error setVersion is not a public method
 app.setVersion(process.env.HADRON_APP_VERSION);
 
+process.title = `${app.getName()} ${app.getVersion()}`;
+
 void main();
 
 async function main(): Promise<void> {
