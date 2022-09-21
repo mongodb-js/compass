@@ -80,7 +80,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.contains": "^2.4.3",
     "mocha": "^8.4.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.10.0",
     "mongodb-data-service": "^22.1.0",
     "mongodb-query-parser": "^2.4.6",
     "numeral": "^2.0.6",

@@ -30,7 +30,7 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "peerDependencies": {
-    "mongodb": "^4.8.1"
+    "mongodb": "^4.10.0"
   },
   "dependencies": {
     "@mongodb-js/compass-utils": "^0.1.1",
@@ -55,7 +55,7 @@
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1",
     "mock-require": "^3.0.3",
-    "mongodb": "^4.8.1",
+    "mongodb": "^4.10.0",
     "mongodb-runner": "^4.9.0",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.2",
