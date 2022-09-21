@@ -45,12 +45,6 @@ const navigationItem = css({
   svg: {
     flexShrink: 0,
   },
-
-  /*
-  [`:hover .${buttonWrapper}`]: {
-    paddingRight: spacing[4],
-  },
-  */
 });
 
 const activeNavigationItem = css({
