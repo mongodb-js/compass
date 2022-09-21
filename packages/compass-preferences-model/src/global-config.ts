@@ -263,7 +263,7 @@ export function getHelpText(): string {
   text +=
     '\nOptions marked with (*) are also configurable through the global configuration file.\n';
   text +=
-    'Boolean options can be negated by using a `--no` prefix, e.g. `--no-network-traffic`.\n';
+    'Boolean options can be negated by using a `--no` prefix, e.g. `--no-networkTraffic`.\n';
   text += '\nOnly available in the global configuration file:\n\n';
   for (const key of Object.keys(
     allPreferencesProps
