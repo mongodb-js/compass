@@ -23,15 +23,33 @@ const scrollBoxStyles = css({
   minHeight: 0,
 });
 
+const shadowHeight = spacing[2];
+
 const shadowStyles = css({
   position: 'sticky',
   top: 0,
   display: 'block',
   width: '100%',
-  height: spacing[1],
-  borderTop: `1px solid ${uiColors.gray.light2}`,
+  height: shadowHeight,
+  borderTop: `1px solid`,
   zIndex: 2,
   flex: 'none',
+});
+
+const shadowStylesLight = css({
+  borderColor: uiColors.gray.light2,
+  background: `linear-gradient(${transparentize(
+    0.9,
+    uiColors.black
+  )} 0%, ${transparentize(1, uiColors.black)} 100%)`,
+});
+
+const shadowStylesDark = css({
+  borderColor: uiColors.gray.dark2,
+  background: `linear-gradient(${transparentize(
+    0.3,
+    uiColors.black
+  )} 0%, ${transparentize(1, uiColors.black)} 100%)`,
 });
 
 const shadowCoverStyles = css({
@@ -39,7 +57,7 @@ const shadowCoverStyles = css({
   top: 0,
   display: 'block',
   width: '100%',
-  height: spacing[1] + 1,
+  height: shadowHeight + 1,
   zIndex: 3,
   flex: 'none',
 });
@@ -50,18 +68,6 @@ const shadowCoverStylesLight = css({
 
 const shadowCoverStylesDark = css({
   backgroundColor: uiColors.gray.dark3,
-});
-
-const shadowStylesLight = css({
-  borderColor: uiColors.gray.light2,
-  background: `linear-gradient(${transparentize(
-    0.89,
-    uiColors.black
-  )} 0%, ${transparentize(1, uiColors.black)} 100%)`,
-});
-
-const shadowStylesDark = css({
-  borderColor: uiColors.gray.dark2,
 });
 
 const workspaceContentStyles = css({

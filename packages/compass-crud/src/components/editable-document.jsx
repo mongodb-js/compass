@@ -1,7 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import HadronDocument from 'hadron-document';
-import { DocumentList } from '@mongodb-js/compass-components';
+import {
+  Card,
+  css,
+  cx,
+  DocumentList,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 /**
  * The base class.
@@ -27,6 +33,11 @@ const INITIAL_FIELD_LIMIT = 25;
  * The test id.
  */
 const TEST_ID = 'editable-document';
+
+const cardStyle = css({
+  position: 'relative',
+  marginBottom: spacing[4],
+});
 
 /**
  * Component for a single editable document in a list of documents.
@@ -262,13 +273,15 @@ class EditableDocument extends React.Component {
    */
   render() {
     return (
-      <div className={this.style()} data-testid={TEST_ID}>
-        <div className={CONTENTS}>
-          <div className={ELEMENTS}>{this.renderElements()}</div>
-          {this.renderActions()}
+      <Card className={cardStyle}>
+        <div className={this.style()} data-testid={TEST_ID}>
+          <div className={CONTENTS}>
+            <div className={ELEMENTS}>{this.renderElements()}</div>
+            {this.renderActions()}
+          </div>
         </div>
         {this.renderFooter()}
-      </div>
+      </Card>
     );
   }
 }
