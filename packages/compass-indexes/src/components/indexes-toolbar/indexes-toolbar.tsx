@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import {
   Button,
   ErrorSummary,
-  Toolbar,
   Tooltip,
   WarningSummary,
   css,
@@ -67,7 +66,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   );
 
   return (
-    <Toolbar className={toolbarStyles} data-testid="indexes-toolbar">
+    <div className={toolbarStyles} data-testid="indexes-toolbar">
       <div className={toolbarButtonsContainer}>
         <Button
           data-testid="refresh-indexes-button"
@@ -117,6 +116,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       ) : (
         !!errorMessage && <ErrorSummary errors={[errorMessage]} />
       )}
-    </Toolbar>
+    </div>
   );
 };

@@ -4,7 +4,8 @@ const {
   Banner,
   BannerVariant,
   ErrorBoundary,
-  TabNavBar
+  TabNavBar,
+  css
 } = require('@mongodb-js/compass-components');
 const { track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry(
@@ -30,6 +31,13 @@ const NOT_MASTER_ERROR = 'not master and slaveOk=false';
 const RECOMMEND_READ_PREF_MSG = `It is recommended to change your read
  preference in the connection dialog to Primary Preferred or Secondary Preferred
  or provide a replica set name for a full topology connection.`;
+
+const instanceComponentContainerSyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+  height: '100%',
+});
 
 const InstanceComponent = ({
   status,
@@ -72,7 +80,7 @@ const InstanceComponent = ({
 
   if (status === 'ready' || status === 'refreshing') {
     return (
-      <div className="rtss">
+      <div className={instanceComponentContainerSyles}>
         <TabNavBar
           data-testid="instance-tabs"
           aria-label="Instance Tabs"

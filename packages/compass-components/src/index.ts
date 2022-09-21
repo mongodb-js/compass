@@ -18,7 +18,6 @@ import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
 import { Modal } from './components/modal';
 import { ModalTitle } from './components/modal-title';
-import { Toolbar } from './components/toolbar';
 import { MoreOptionsToggle } from './components/more-options-toggle';
 import {
   ErrorSummary,
@@ -88,7 +87,6 @@ export {
   ResizeHandle,
   ResizeDirection,
   ResizableSidebar,
-  Toolbar,
   WarningSummary,
   WorkspaceTabs,
   ItemAction,

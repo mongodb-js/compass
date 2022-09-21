@@ -1,8 +1,11 @@
 import {
   css,
+  cx,
+  LeafyGreenProvider,
   Theme,
   ThemeProvider,
   ToastArea,
+  uiColors,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -21,6 +24,7 @@ import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
+import Settings from '@mongodb-js/compass-settings';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -37,6 +41,22 @@ const homePageStyles = css({
   overflow: 'auto',
   height: '100%',
   zIndex: 0,
+});
+
+const homeContainerStyles = css({
+  height: '100vh',
+  width: '100vw',
+  overflow: 'hidden',
+});
+
+const globalLightThemeStyles = css({
+  backgroundColor: uiColors.white,
+  color: uiColors.gray.dark2,
+});
+
+const globalDarkThemeStyles = css({
+  backgroundColor: uiColors.gray.dark3,
+  color: uiColors.white,
 });
 
 const defaultNS: Namespace = {
@@ -289,11 +309,23 @@ function ThemedHome(
   }, [appRegistry]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <ToastArea>
-        <Home {...props}></Home>
-      </ToastArea>
-    </ThemeProvider>
+    <LeafyGreenProvider>
+      <ThemeProvider theme={theme}>
+        <Settings />
+        <ToastArea>
+          <div
+            className={cx(
+              homeContainerStyles,
+              theme.theme === Theme.Dark
+                ? globalDarkThemeStyles
+                : globalLightThemeStyles
+            )}
+          >
+            <Home {...props}></Home>
+          </div>
+        </ToastArea>
+      </ThemeProvider>
+    </LeafyGreenProvider>
   );
 }
 

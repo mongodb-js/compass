@@ -30,7 +30,6 @@ const tabStyles = css({
   display: 'flex',
   flex: 1,
   minHeight: 0,
-  backgroundColor: 'white'
 });
 
 const hiddenStyles = css({
