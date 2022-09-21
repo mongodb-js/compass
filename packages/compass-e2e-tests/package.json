@@ -55,6 +55,7 @@
     "mongodb-runner": "^4.9.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
+    "ps-list": "^8.1.0",
     "puppeteer": "^15.4.0",
     "resolve-mongodb-srv": "^1.1.2",
     "semver": "^5.7.1",
