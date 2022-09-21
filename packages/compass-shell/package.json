@@ -42,7 +42,7 @@
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/compass-utils": "^0.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
-    "@mongosh/node-runtime-worker-thread": "^1.5.4",
+    "@mongosh/node-runtime-worker-thread": "^1.6.0",
     "react": "^16.14.0"
   },
   "peerDependencies": {
@@ -50,7 +50,7 @@
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/compass-utils": "^0.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
-    "@mongosh/node-runtime-worker-thread": "^1.5.4",
+    "@mongosh/node-runtime-worker-thread": "^1.6.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -63,9 +63,9 @@
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
     "@leafygreen-ui/code": "^12.0.1",
-    "@mongosh/browser-repl": "^1.5.4",
-    "@mongosh/logging": "^1.5.4",
-    "@mongosh/service-provider-core": "^1.5.4",
+    "@mongosh/browser-repl": "^1.6.0",
+    "@mongosh/logging": "^1.6.0",
+    "@mongosh/service-provider-core": "^1.6.0",
     "ace-builds": "^1.4.3",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",

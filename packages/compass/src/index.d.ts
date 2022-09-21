@@ -43,12 +43,6 @@ declare module 'process' {
         COMPASS_LG_DARKMODE?: 'true' | 'false';
 
         /**
-         * Set to false to enable the old toolbars (without leafygreen components).
-         * https://jira.mongodb.org/browse/COMPASS-5484
-         */
-        COMPASS_SHOW_OLD_TOOLBARS?: 'true' | 'false';
-
-        /**
          * Permanent feature flag for debugging.
          */
         COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';
