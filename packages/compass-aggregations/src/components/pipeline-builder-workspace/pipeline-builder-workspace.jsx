@@ -180,7 +180,7 @@ class PipelineWorkspace extends PureComponent {
         }}
       >
         <div className={styles['pipeline-workspace-container']}>
-          <div className={styles['pipeline-workspace']} id="STAGE_LIST">
+          <div className={styles['pipeline-workspace']}>
             {this.renderModifyingViewSourceBanner()}
             <Input
               toggleInputDocumentsCollapsed={
