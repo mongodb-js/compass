@@ -13,7 +13,7 @@ describe('Preferences class', function () {
     await fs.mkdir(tmpdir, { recursive: true });
   });
 
-  after(async function () {
+  afterEach(async function () {
     await fs.rm(tmpdir, { recursive: true });
   });
 
