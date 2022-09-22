@@ -234,7 +234,6 @@ function Connection({
 
   const onAction = useCallback(
     (action) => {
-
       async function copyConnectionString(connectionString: string) {
         try {
           await navigator.clipboard.writeText(connectionString);
