@@ -23,7 +23,7 @@ const scrollBoxStyles = css({
   minHeight: 0,
 });
 
-const shadowHeight = spacing[2];
+const shadowHeight = spacing[1];
 
 const shadowStyles = css({
   position: 'sticky',
@@ -32,7 +32,6 @@ const shadowStyles = css({
   width: '100%',
   height: shadowHeight,
   borderTop: `1px solid`,
-  zIndex: 2,
   flex: 'none',
 });
 
@@ -58,7 +57,6 @@ const shadowCoverStyles = css({
   display: 'block',
   width: '100%',
   height: shadowHeight + 1,
-  zIndex: 3,
   flex: 'none',
 });
 
@@ -124,6 +122,7 @@ function UnthemedWorkspaceContainer({
               theme.theme === Theme.Dark ? shadowStylesDark : shadowStylesLight
             )}
           ></div>
+          {children}
           <div
             className={cx(
               shadowCoverStyles,
@@ -132,7 +131,6 @@ function UnthemedWorkspaceContainer({
                 : shadowCoverStylesLight
             )}
           ></div>
-          {children}
         </div>
       </div>
     </div>
