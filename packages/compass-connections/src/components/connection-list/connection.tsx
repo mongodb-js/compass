@@ -234,7 +234,6 @@ function Connection({
 
   const onAction = useCallback(
     (action) => {
-      console.log(action);
 
       async function copyConnectionString(connectionString: string) {
         try {
