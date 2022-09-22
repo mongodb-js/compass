@@ -103,8 +103,13 @@ function showConnectWindow(
   };
 
   debug('creating new main window:', windowOpts);
+  const { networkTraffic } = compassApp.getPreferences().getPreferences();
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
+  if (networkTraffic !== true) {
+    // https://github.com/electron/electron/issues/22995
+    window.webContents.session.setSpellCheckerDictionaryDownloadURL('http://127.0.0.1:0/');
+  }
 
   enable(window.webContents);
 

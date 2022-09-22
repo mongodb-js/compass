@@ -319,7 +319,7 @@ describe('CompassMenu', function () {
           },
           {
             label: '&Settings',
-            accelerator: 'Command+,',
+            accelerator: 'CmdOrCtrl+,',
           },
           {
             label: '&License'

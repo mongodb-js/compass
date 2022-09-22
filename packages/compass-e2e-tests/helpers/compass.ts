@@ -273,7 +273,9 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
+  noCloseSettingsModal?: boolean;
   extraSpawnArgs?: string[];
+  wrapBinary?: (binary: string) => Promise<string> | string;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -426,6 +428,8 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
       : 100,
   };
 
+  const maybeWrappedBinary = (await opts.wrapBinary?.(binary)) ?? binary;
+
   process.env.APP_ENV = 'webdriverio';
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
@@ -436,7 +440,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
       browserName: 'chrome',
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
-        binary,
+        binary: maybeWrappedBinary,
         args: chromeArgs,
       },
       // more chrome options
@@ -655,14 +659,14 @@ function augmentError(error: Error, stack: string) {
 }
 
 export async function beforeTests(
-  opts?: StartCompassOptions
+  opts: StartCompassOptions = {}
 ): Promise<Compass> {
   const compass = await startCompass(opts);
 
   const { browser } = compass;
 
   await browser.waitForConnectionScreen();
-  if (compass.isFirstRun) {
+  if (compass.isFirstRun && !opts.noCloseSettingsModal) {
     await browser.closeSettingsModal();
   }
 
