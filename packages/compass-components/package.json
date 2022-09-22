@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-components",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "React Components used in Compass",
   "license": "SSPL",
   "main": "lib/index.js",

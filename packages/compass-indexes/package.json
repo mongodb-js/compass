@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-indexes",
   "productName": "Compass Indexes plugin",
   "description": "Collection index management for Compass",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -54,11 +54,11 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.1.1",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson": "^4.4.1",
-    "mongodb-index-model": "^4.0.1",
+    "mongodb-index-model": "^4.0.2",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -66,7 +66,7 @@
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.1",
+    "@mongodb-js/webpack-config-compass": "^1.0.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "chai": "^4.2.0",
@@ -75,13 +75,13 @@
     "electron": "^15.5.7",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.1.0",
+    "hadron-app": "^5.1.1",
     "hadron-app-registry": "^9.0.1",
     "lodash.clonedeep": "^4.5.0",
     "lodash.contains": "^2.4.3",
     "mocha": "^8.4.0",
     "mongodb": "^4.10.0",
-    "mongodb-data-service": "^22.1.0",
+    "mongodb-data-service": "^22.1.1",
     "mongodb-query-parser": "^2.4.6",
     "numeral": "^2.0.6",
     "nyc": "^15.1.0",
@@ -97,11 +97,11 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.1.1",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson": "^4.4.1",
-    "mongodb-index-model": "^4.0.1",
+    "mongodb-index-model": "^4.0.2",
     "react": "^16.14.0"
   }
 }
