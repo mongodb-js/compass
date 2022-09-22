@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
-  "version": "8.1.0",
+  "version": "8.1.1",
   "description": "Renders a component for executing MongoDB queries through a GUI.",
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
@@ -54,9 +54,9 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.1.1",
     "@mongodb-js/compass-logging": "^1.1.0",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.1.1",
     "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   },
@@ -65,7 +65,7 @@
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.1",
+    "@mongodb-js/webpack-config-compass": "^1.0.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "ace-builds": "^1.4.3",
@@ -92,9 +92,9 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.1.1",
     "@mongodb-js/compass-logging": "^1.1.0",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.1.1",
     "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   }

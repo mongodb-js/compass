@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "7.1.0",
+  "version": "7.1.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -57,21 +57,21 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.1.1",
     "@mongodb-js/compass-logging": "^1.1.0",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.1.1",
     "react": "^16.14.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.1.1",
     "@mongodb-js/compass-logging": "^1.1.0",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.1.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -80,7 +80,7 @@
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.1",
+    "@mongodb-js/webpack-config-compass": "^1.0.2",
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
@@ -111,7 +111,7 @@
     "mime-types": "^2.1.24",
     "mocha": "^8.4.0",
     "mongodb": "^4.10.0",
-    "mongodb-data-service": "^22.1.0",
+    "mongodb-data-service": "^22.1.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
     "nyc": "^15.1.0",

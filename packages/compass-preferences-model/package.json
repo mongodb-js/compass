@@ -2,7 +2,7 @@
   "name": "compass-preferences-model",
   "description": "Compass preferences model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
