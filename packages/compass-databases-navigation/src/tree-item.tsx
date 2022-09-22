@@ -202,11 +202,7 @@ export const ItemWrapper: React.FunctionComponent<
 export const ItemButtonWrapper: React.FunctionComponent<
   React.HTMLProps<HTMLDivElement>
 > = ({ className, children }) => {
-  return (
-    <div className={cx(itemButtonWrapper, className)}>
-      {children}
-    </div>
-  );
+  return <div className={cx(itemButtonWrapper, className)}>{children}</div>;
 };
 
 export const ItemLabel: React.FunctionComponent<
