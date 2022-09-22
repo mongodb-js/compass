@@ -21,6 +21,8 @@ const scrollBoxStyles = css({
   flex: 1,
   width: '100%',
   minHeight: 0,
+  position: 'relative',
+  zIndex: 0,
 });
 
 const shadowHeight = spacing[1];
@@ -33,6 +35,7 @@ const shadowStyles = css({
   height: shadowHeight,
   borderTop: `1px solid`,
   flex: 'none',
+  zIndex: 1,
 });
 
 const shadowStylesLight = css({
@@ -58,6 +61,7 @@ const shadowCoverStyles = css({
   width: '100%',
   height: shadowHeight + 1,
   flex: 'none',
+  zIndex: 1,
 });
 
 const shadowCoverStylesLight = css({
