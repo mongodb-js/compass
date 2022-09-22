@@ -56,11 +56,14 @@ const shadowStylesDark = css({
 });
 
 const workspaceContentStyles = css({
-  position: 'relative',
   overflow: 'auto',
   height: '100%',
   width: '100%',
   display: 'block',
+  // make sure that the content never renders over
+  // the shadow
+  position: 'relative',
+  zIndex: 0,
 });
 
 const lightThemeStyles = css({
