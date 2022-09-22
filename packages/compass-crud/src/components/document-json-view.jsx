@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import JsonEditor from './json-editor';
+import { Card, css, spacing } from '@mongodb-js/compass-components';
+
+const cardStyle = css({
+  position: 'relative',
+  marginBottom: spacing[4],
+});
 
 /**
  * The full document list container class.
@@ -31,18 +37,22 @@ class DocumentJsonView extends React.Component {
   renderDocuments() {
     return this.props.docs.map((doc, i) => {
       return (
-        <li className={LIST_ITEM_CLASS} data-testid={LIST_ITEM_TEST_ID} key={i}>
-          <JsonEditor
-            key={doc.uuid}
-            doc={doc}
-            editable={this.props.isEditable}
-            isTimeSeries={this.props.isTimeSeries}
-            copyToClipboard={this.props.copyToClipboard}
-            removeDocument={this.props.removeDocument}
-            replaceDocument={this.props.replaceDocument}
-            updateDocument={this.props.updateDocument}
-            openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-          />
+        <li data-testid={LIST_ITEM_TEST_ID} key={i}>
+          <Card className={cardStyle}>
+            <div className={LIST_ITEM_CLASS}>
+              <JsonEditor
+                key={doc.uuid}
+                doc={doc}
+                editable={this.props.isEditable}
+                isTimeSeries={this.props.isTimeSeries}
+                copyToClipboard={this.props.copyToClipboard}
+                removeDocument={this.props.removeDocument}
+                replaceDocument={this.props.replaceDocument}
+                updateDocument={this.props.updateDocument}
+                openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+              />
+            </div>
+          </Card>
         </li>
       );
     });

@@ -4,7 +4,6 @@ import HadronDocument from 'hadron-document';
 import {
   Card,
   css,
-  cx,
   DocumentList,
   spacing,
 } from '@mongodb-js/compass-components';
