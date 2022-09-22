@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
 import { Theme, useTheme, withTheme } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { transparentize } from 'polished';
+import { useInView } from 'react-intersection-observer';
 
 const workspaceContainerStyles = css({
   height: '100%',
@@ -28,7 +29,7 @@ const scrollBoxStyles = css({
 const shadowHeight = spacing[1];
 
 const shadowStyles = css({
-  position: 'sticky',
+  position: 'absolute',
   top: 0,
   display: 'block',
   width: '100%',
@@ -52,24 +53,6 @@ const shadowStylesDark = css({
     0.3,
     uiColors.black
   )} 0%, ${transparentize(1, uiColors.black)} 100%)`,
-});
-
-const shadowCoverStyles = css({
-  position: 'absolute',
-  top: 0,
-  display: 'block',
-  width: '100%',
-  height: shadowHeight + 1,
-  flex: 'none',
-  zIndex: 1,
-});
-
-const shadowCoverStylesLight = css({
-  backgroundColor: uiColors.white,
-});
-
-const shadowCoverStylesDark = css({
-  backgroundColor: uiColors.gray.dark3,
 });
 
 const workspaceContentStyles = css({
@@ -107,6 +90,12 @@ function UnthemedWorkspaceContainer({
   WorkspaceContainerProps & React.HTMLProps<HTMLDivElement>
 >) {
   const theme = useTheme();
+  const scrollContainer = useRef(null);
+
+  const [scrollDetectionTrigger, triggerStillInView] = useInView({
+    root: scrollContainer.current,
+  });
+
   return (
     <div
       className={cx(
@@ -118,23 +107,18 @@ function UnthemedWorkspaceContainer({
       {...props}
     >
       {toolbar && <div className={toolbarStyles}>{toolbar}</div>}
-      <div className={scrollBoxStyles}>
-        <div className={workspaceContentStyles}>
+      <div className={scrollBoxStyles} ref={scrollContainer}>
+        {triggerStillInView || (
           <div
             className={cx(
               shadowStyles,
               theme.theme === Theme.Dark ? shadowStylesDark : shadowStylesLight
             )}
           ></div>
+        )}
+        <div className={workspaceContentStyles}>
+          <div ref={scrollDetectionTrigger}></div>
           {children}
-          <div
-            className={cx(
-              shadowCoverStyles,
-              theme.theme === Theme.Dark
-                ? shadowCoverStylesDark
-                : shadowCoverStylesLight
-            )}
-          ></div>
         </div>
       </div>
     </div>
