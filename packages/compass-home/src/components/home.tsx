@@ -40,13 +40,16 @@ const homePageStyles = css({
   flex: 1,
   overflow: 'auto',
   height: '100%',
-  zIndex: 0,
 });
 
 const homeContainerStyles = css({
   height: '100vh',
   width: '100vw',
   overflow: 'hidden',
+  // ensure modals and any other overlays will
+  // paint properly above the content
+  position: 'relative',
+  zIndex: 0,
 });
 
 const globalLightThemeStyles = css({
