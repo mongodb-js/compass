@@ -4,7 +4,6 @@ import {
   IconButton,
   css,
   spacing,
-  Toolbar,
   uiColors,
   Body,
   withTheme

@@ -9,7 +9,6 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   SpinLoader,
-  Toolbar,
   css,
   spacing,
   useId,
