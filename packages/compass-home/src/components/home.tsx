@@ -334,6 +334,7 @@ function ThemedHome(
                 ? globalDarkThemeStyles
                 : globalLightThemeStyles
             )}
+            data-theme={theme.theme}
           >
             <Home {...props}></Home>
           </div>
