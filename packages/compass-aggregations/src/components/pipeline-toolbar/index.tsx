@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Toolbar, css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
+import { css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import PipelineHeader from './pipeline-header';
@@ -65,7 +65,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
-    <Toolbar
+    <div
       className={cx(
         containerStyles,
         containerDisplayStyles,
@@ -99,7 +99,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           </div>
         )}
       </>
-    </Toolbar>
+    </div>
   );
 };
 

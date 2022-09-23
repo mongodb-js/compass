@@ -21,16 +21,14 @@ const ERROR_WARNING = 'An error occurred while loading databases';
 
 function NonGenuineZeroState() {
   return (
-    <WorkspaceContainer>
-      <div data-testid="databases-non-genuine-warning" className={styles['databases-non-genuine-warning']}>
-        <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
-        <ZeroState header={HEADER} subtext={SUBTEXT}>
-          <Link className={styles['databases-try-atlas-link']} href={DOCUMENTATION_LINK}>
-            Try MongoDB Atlas
-          </Link>
-        </ZeroState>
-      </div>
-    </WorkspaceContainer>
+    <div data-testid="databases-non-genuine-warning" className={styles['databases-non-genuine-warning']}>
+      <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
+      <ZeroState header={HEADER} subtext={SUBTEXT}>
+        <Link className={styles['databases-try-atlas-link']} href={DOCUMENTATION_LINK}>
+          Try MongoDB Atlas
+        </Link>
+      </ZeroState>
+    </div>
   );
 }
 

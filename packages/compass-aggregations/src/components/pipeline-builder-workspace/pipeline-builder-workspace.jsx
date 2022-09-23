@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-
 import Stage from '../stage';
 import Input from '../input';
 import AddStage from '../add-stage';
@@ -202,8 +201,7 @@ class PipelineWorkspace extends PureComponent {
             />
           </div>
         </div>
-      </div>
-    );
+      </div>);
   }
 }
 

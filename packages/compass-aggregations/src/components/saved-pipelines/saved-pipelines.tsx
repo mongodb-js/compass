@@ -4,7 +4,6 @@ import {
   IconButton,
   css,
   spacing,
-  Toolbar,
   uiColors,
   Body,
   withTheme
@@ -82,7 +81,7 @@ function UnthemedSavedPipelines({
 }: SavedPipelinesProps) {
   return (
     <div className={savedPipelinesStyles}>
-      <Toolbar className={toolbarStyles}>
+      <div className={toolbarStyles}>
         <div className={toolbarContentStyles}>
           <Body
             className={toolbarTitleStyles}
@@ -103,7 +102,7 @@ function UnthemedSavedPipelines({
         >
           <Icon glyph="X" />
         </IconButton>
-      </Toolbar>
+      </div>
       <div className={cardsContainerStyles}>
         {savedPipelines.map((pipeline: Pipeline) => (
           <SavePipelineCard
