@@ -51,9 +51,8 @@ describe('setupIntercom', function () {
     setupIpc();
   });
 
-  beforeEach(function () {
+  beforeEach(async function () {
     backupEnv = {
-      HADRON_ISOLATED: process.env.HADRON_ISOLATED,
       HADRON_METRICS_INTERCOM_APP_ID:
         process.env.HADRON_METRICS_INTERCOM_APP_ID,
       HADRON_PRODUCT_NAME: process.env.HADRON_PRODUCT_NAME,
@@ -64,16 +63,19 @@ describe('setupIntercom', function () {
     process.env.HADRON_PRODUCT_NAME = 'My App Name';
     process.env.HADRON_APP_VERSION = 'v0.0.0-test.123';
     process.env.NODE_ENV = 'test';
-    process.env.HADRON_ISOLATED = 'false';
     process.env.HADRON_METRICS_INTERCOM_APP_ID = 'appid123';
     fetchMock = sinon.stub(window, 'fetch');
     // NOTE: we use 301 since intercom will redirects
     // to the actual location of the widget script
     fetchMock.resolves(new Response('', { status: 301 }));
+
+    await require('hadron-ipc').ipcRenderer.invoke('test:clear-preferences');
+    await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+      enableFeedbackPanel: true,
+    });
   });
 
   afterEach(function () {
-    process.env.HADRON_ISOLATED = backupEnv.HADRON_ISOLATED;
     process.env.HADRON_METRICS_INTERCOM_APP_ID =
       backupEnv.HADRON_METRICS_INTERCOM_APP_ID;
     process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME;
@@ -130,7 +132,7 @@ describe('setupIntercom', function () {
 
       expect(intercomScript.load).to.not.have.been.called;
 
-      require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
         enableFeedbackPanel: true,
       });
 
@@ -138,7 +140,9 @@ describe('setupIntercom', function () {
     }
 
     it('will not enable the script when is compass isolated', async function () {
-      process.env.HADRON_ISOLATED = 'true';
+      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+        enableFeedbackPanel: false,
+      });
       await expectSetupGetsSkipped();
     });
 

@@ -2,7 +2,7 @@
   "name": "mongodb-index-model",
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"

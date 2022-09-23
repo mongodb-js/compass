@@ -12,8 +12,8 @@ import {
 } from '../../constants/process-status';
 
 import styles from './progress-bar.module.less';
-import createStyler from '../../utils/styler.js';
-import formatNumber from '../../utils/format-number.js';
+import createStyler from '../../utils/styler';
+import formatNumber from '../../utils/format-number';
 
 const style = createStyler(styles, 'progress-bar');
 
@@ -133,13 +133,13 @@ class ProgressBar extends PureComponent {
 
     return (
       <div className={style('chart-wrapper')}>
-        {docsTotal && (
+        {!isNaN(docsTotal) && (
           <div className={style()}>
             <div
               className={this.getBarClassName()}
               style={{ width: toPercentage(docsWritten, docsTotal) }}
             />
-            {Boolean(docsProcessed) && (
+            {!isNaN(docsProcessed) && (
               <div
                 className={this.getBarClassName(true)}
                 style={{ width: toPercentage(docsProcessed, docsTotal) }}

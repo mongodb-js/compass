@@ -33,7 +33,7 @@ import {
   setFieldType,
 } from '../../modules/import';
 import styles from './import-modal.module.less';
-import createStyler from '../../utils/styler.js';
+import createStyler from '../../utils/styler';
 import classnames from 'classnames';
 
 const style = createStyler(styles, 'import-modal');
@@ -331,14 +331,16 @@ class ImportModal extends PureComponent {
                 ? Math.max(docsProcessed, guesstimatedDocsTotal)
                 : docsTotal
             }
-            progressLabel={(written, total) =>
-              `${written}\u00a0/\u00a0${isGuesstimated ? '~' : ''}${total}`
-            }
-            progressTitle={(written, total) =>
-              `Imported ${written} out of ${
+            progressLabel={(written, total) => {
+              return `${formatNumber(written)}\u00a0/\u00a0${
+                isGuesstimated ? '~' : ''
+              }${formatNumber(total)}`;
+            }}
+            progressTitle={(written, total) => {
+              return `Imported ${formatNumber(written)} out of ${
                 isGuesstimated ? 'approximately ' : ''
-              }${total} documents`
-            }
+              }${formatNumber(total)} documents`;
+            }}
             message={MESSAGES[status]}
           />
           <ErrorsList errors={errors} />

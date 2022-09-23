@@ -69,6 +69,17 @@ const settingStateLabels = {
       configuration file.
     </Banner>
   ),
+  hardcoded: (
+    <Banner variant={BannerVariant.Info} data-testid="hardcoded-banner">
+      This setting cannot be modified as it is disabled for this Compass
+      edition.
+    </Banner>
+  ),
+  derived: (
+    <Banner variant={BannerVariant.Info} data-testid="derived-banner">
+      This setting cannot be modified as its value is implied by another option.
+    </Banner>
+  ),
   '': null,
 };
 

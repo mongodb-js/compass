@@ -13,7 +13,7 @@ describe('Preferences class', function () {
     await fs.mkdir(tmpdir, { recursive: true });
   });
 
-  after(async function () {
+  afterEach(async function () {
     await fs.rm(tmpdir, { recursive: true });
   });
 
@@ -89,6 +89,108 @@ describe('Preferences class', function () {
     expect(states).to.deep.equal({
       trackErrors: 'set-global',
       enableMaps: 'set-cli',
+    });
+  });
+
+  it('allows providing options that influence the values of other options', async function () {
+    const preferences = new Preferences(tmpdir, {
+      cli: {
+        enableMaps: true,
+      },
+      global: {
+        trackErrors: true,
+        networkTraffic: false,
+      },
+    });
+    const result = await preferences.fetchPreferences();
+    expect(result.autoUpdates).to.equal(false);
+    expect(result.enableMaps).to.equal(false);
+    expect(result.trackErrors).to.equal(false);
+    expect(result.networkTraffic).to.equal(false);
+
+    const states = preferences.getPreferenceStates();
+    expect(states).to.deep.equal({
+      trackErrors: 'set-global',
+      enableFeedbackPanel: 'set-global',
+      autoUpdates: 'set-global',
+      networkTraffic: 'set-global',
+      trackUsageStatistics: 'set-global',
+      enableMaps: 'set-cli',
+    });
+  });
+
+  it('accounts for derived preference values in save calls', async function () {
+    const preferences = new Preferences(tmpdir, {
+      global: {
+        networkTraffic: false,
+      },
+    });
+    const calls: any[] = [];
+    preferences.onPreferencesChanged((prefs) => calls.push(prefs));
+
+    const fetchResult = await preferences.fetchPreferences();
+    expect(fetchResult.autoUpdates).to.equal(false);
+    const saveResult = await preferences.savePreferences({ autoUpdates: true });
+    expect(saveResult.autoUpdates).to.equal(false); // (!)
+    expect(calls).to.have.lengthOf(0); // no updates, networkTraffic overrides change
+
+    const preferences2 = new Preferences(tmpdir);
+    const fetchResult2 = await preferences2.fetchPreferences();
+    expect(fetchResult2.autoUpdates).to.equal(true); // (!)
+  });
+
+  it('includes changes to derived preference values in change listeners', async function () {
+    const preferences = new Preferences(tmpdir);
+    const calls: any[] = [];
+    preferences.onPreferencesChanged((prefs) => calls.push(prefs));
+    await preferences.getConfigurableUserPreferences(); // set defaults
+    await preferences.savePreferences({ networkTraffic: false });
+    expect(calls).to.deep.equal([
+      {
+        showedNetworkOptIn: true,
+        enableMaps: true,
+        trackErrors: true,
+        enableFeedbackPanel: true,
+        trackUsageStatistics: true,
+        autoUpdates: true,
+      },
+      {
+        networkTraffic: false,
+        enableMaps: false,
+        trackErrors: false,
+        enableFeedbackPanel: false,
+        trackUsageStatistics: false,
+        autoUpdates: false,
+      },
+    ]);
+  });
+
+  it('allows hardcoding some options and derive other option values based on that', async function () {
+    const preferences = new Preferences(tmpdir, {
+      cli: {
+        enableMaps: true,
+      },
+      global: {
+        trackErrors: true,
+      },
+      hardcoded: {
+        networkTraffic: false,
+      },
+    });
+    const result = await preferences.fetchPreferences();
+    expect(result.autoUpdates).to.equal(false);
+    expect(result.enableMaps).to.equal(false);
+    expect(result.trackErrors).to.equal(false);
+    expect(result.networkTraffic).to.equal(false);
+
+    const states = preferences.getPreferenceStates();
+    expect(states).to.deep.equal({
+      trackErrors: 'set-global',
+      enableMaps: 'set-cli',
+      enableFeedbackPanel: 'hardcoded',
+      autoUpdates: 'hardcoded',
+      networkTraffic: 'hardcoded',
+      trackUsageStatistics: 'hardcoded',
     });
   });
 });

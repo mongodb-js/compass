@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "description": "The query history sidebar of Compass",
-  "version": "9.1.0",
+  "version": "9.1.1",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -55,20 +55,20 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.1.1",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/compass-utils": "^0.1.1",
     "bson": "^4.4.1",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.1.1",
     "react": "^16.14.0",
     "storage-mixin": "^5.1.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.1.1",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/compass-utils": "^0.1.1",
     "bson": "^4.4.1",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.1.1",
     "react": "^16.14.0",
     "storage-mixin": "^5.1.0"
   },
@@ -77,7 +77,7 @@
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.1",
+    "@mongodb-js/webpack-config-compass": "^1.0.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "ampersand-model": "^8.0.1",
