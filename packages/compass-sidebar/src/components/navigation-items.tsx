@@ -19,26 +19,23 @@ import { changeFilterRegex } from '../modules/databases';
 type DatabasesActions = 'open-create-database';
 
 const navigationItem = css({
-  //display: 'flex',
-  //alignItems: 'center',
   cursor: 'pointer',
   color: 'var(--item-color)',
-  //backgroundColor: 'var(--item-bg-color)',
   border: 'none',
   height: spacing[5],
   position: 'relative',
 
-  '.item-action-controls': {
+  '& .item-action-controls': {
     marginLeft: 'auto',
     marginRight: spacing[1],
   },
 
-  ':hover .item-background': {
+  '&:hover .item-background': {
     display: 'block',
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
-  '.item-action-controls:hover + .item-background': {
+  '& .item-action-controls:hover + .item-background': {
     display: 'none',
   },
 
