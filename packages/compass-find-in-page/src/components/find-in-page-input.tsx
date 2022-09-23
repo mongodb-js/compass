@@ -9,7 +9,6 @@ import {
   cx,
   spacing,
   uiColors,
-  compassUIColors,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
