@@ -62,17 +62,17 @@ const itemContainer = css({
   cursor: 'pointer',
   color: 'var(--item-color)',
 
-  '.item-action-controls': {
+  '& .item-action-controls': {
     marginLeft: 'auto',
     marginRight: spacing[1],
   },
 
-  ':hover .item-background': {
+  '&:hover .item-background': {
     display: 'block',
     backgroundColor: 'var(--item-bg-color-hover)',
   },
 
-  '.item-action-controls:hover + .item-background': {
+  '& .item-action-controls:hover + .item-background': {
     display: 'none',
   },
 
