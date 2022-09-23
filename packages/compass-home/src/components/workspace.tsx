@@ -35,8 +35,6 @@ const sidebarStyles = css({
   minHeight: 0,
 });
 
-const shellStyles = css({});
-
 export default function Workspace({
   namespace,
 }: {
@@ -63,9 +61,7 @@ export default function Workspace({
             <WorkspaceContent namespace={namespace} />
           </div>
         </div>
-        <div className={shellStyles}>
-          {GlobalShellComponent && <GlobalShellComponent />}
-        </div>
+        <div>{GlobalShellComponent && <GlobalShellComponent />}</div>
       </div>
 
       {FindInPage && <FindInPage />}
