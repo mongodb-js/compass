@@ -42,7 +42,7 @@ class ExplainStage extends Component {
   static defaultProps = {
     name: '',
     nReturned: 0,
-    isShard: false,
+    isShard: true,
     totalExecTimeMS: 1,
     curStageExecTimeMS: 0,
     prevStageExecTimeMS: 0,

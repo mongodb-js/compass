@@ -16,7 +16,7 @@ export async function aggregatePipeline({
   signal,
   namespace,
   pipeline,
-  options,
+  options = {},
   skip,
   limit
 }: {
@@ -24,7 +24,7 @@ export async function aggregatePipeline({
   signal: AbortSignal;
   namespace: string;
   pipeline: Document[];
-  options: AggregateOptions;
+  options?: AggregateOptions;
   skip?: number;
   limit?: number;
 }): Promise<Document[]> {
