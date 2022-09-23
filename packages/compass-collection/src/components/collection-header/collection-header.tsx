@@ -33,6 +33,7 @@ const collectionHeaderStyles = css({
 
 const collectionHeaderTitleStyles = css({
   display: 'flex',
+  width: '100%',
   alignItems: 'center',
   padding: `0 ${String(spacing[3])}px`,
   margin: 0,

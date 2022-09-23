@@ -10,7 +10,12 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { DATABASE_ROW_HEIGHT } from './constants';
-import { ItemContainer, ItemLabel } from './tree-item';
+import {
+  ItemContainer,
+  ItemLabel,
+  ItemWrapper,
+  ItemButtonWrapper,
+} from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
@@ -65,16 +70,16 @@ const ExpandButton: React.FunctionComponent<{
 
 const databaseItem = css({
   height: DATABASE_ROW_HEIGHT,
+});
+
+const itemButtonWrapper = css({
+  height: DATABASE_ROW_HEIGHT,
   paddingRight: spacing[1],
   paddingLeft: spacing[2],
 });
 
 const databaseItemLabel = css({
   marginLeft: spacing[2],
-});
-
-const databaseActions = css({
-  marginLeft: 'auto',
 });
 
 export const DatabaseItem: React.FunctionComponent<
@@ -150,29 +155,32 @@ export const DatabaseItem: React.FunctionComponent<
       isActive={isActive}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
-      className={databaseItem}
       style={style}
+      className={databaseItem}
       {...hoverProps}
     >
-      <ExpandButton
-        onClick={onExpandButtonClick}
-        isExpanded={isExpanded}
-      ></ExpandButton>
-      <Icon glyph="Database" size="small"></Icon>
-      <ItemLabel className={databaseItemLabel} title={name}>
-        {name}
-      </ItemLabel>
-      {!isReadOnly && (
-        <ItemActionControls<Actions>
-          className={databaseActions}
-          onAction={onAction}
-          isVisible={isActive || isHovered}
-          data-testid="sidebar-database-item-actions"
-          collapseToMenuThreshold={3}
-          iconSize="small"
-          actions={actions}
-        ></ItemActionControls>
-      )}
+      <ItemWrapper>
+        <ItemButtonWrapper className={itemButtonWrapper}>
+          <ExpandButton
+            onClick={onExpandButtonClick}
+            isExpanded={isExpanded}
+          ></ExpandButton>
+          <Icon glyph="Database" size="small"></Icon>
+          <ItemLabel className={databaseItemLabel} title={name}>
+            {name}
+          </ItemLabel>
+        </ItemButtonWrapper>
+        {!isReadOnly && (
+          <ItemActionControls<Actions>
+            onAction={onAction}
+            isVisible={isActive || isHovered}
+            data-testid="sidebar-database-item-actions"
+            collapseToMenuThreshold={3}
+            iconSize="small"
+            actions={actions}
+          ></ItemActionControls>
+        )}
+      </ItemWrapper>
     </ItemContainer>
   );
 };

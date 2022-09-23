@@ -34,7 +34,7 @@ export default function ConnectionsTitle({
   const { theme } = useTheme();
 
   return (
-    <div className={cx(connectionsTitle)}>
+    <div className={cx(connectionsTitle)} data-testid="connections-title">
       <MongoDBLogo
         color={theme === Theme.Dark ? 'black' : 'white'}
         height={26}
