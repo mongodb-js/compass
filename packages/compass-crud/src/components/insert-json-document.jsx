@@ -41,8 +41,9 @@ class InsertJsonDocument extends Component {
     }
 
     return (
-      <div className={classnames(styles.editor)}>
+      <div className={classnames(styles['editor-container'])}>
         <Editor
+          className={classnames(styles.editor)}
           variant={EditorVariant.EJSON}
           defaultValue={EDITOR_COMMENT}
           text={value}
