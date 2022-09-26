@@ -77,8 +77,10 @@ describe('QueryBar [Plugin]', function () {
       const aceEditorDomNode = component
         .find('[id="query-bar-option-input-filter"]')
         .at(3)
-        .getDOMNode();
-      aceEditorDomNode.env.editor.session.setValue('{a: 3}');
+        .children()
+        .children();
+
+      aceEditorDomNode.getDOMNode().env.editor.session.setValue('{a: 3}');
     });
 
     it('updates the store state to valid', function () {
