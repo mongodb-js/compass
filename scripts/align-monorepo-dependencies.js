@@ -26,7 +26,12 @@ async function main() {
   );
 
   const packageToVersionMap = new Map(
-    packages.map((pkg) => [pkg.name, `^${pkg.version}`])
+    packages.map((pkg) => [
+      pkg.name,
+      /^\d+\.\d+\.\d+-.+/.test(pkg.version)
+        ? `${pkg.version}`
+        : `^${pkg.version}`,
+    ])
   );
 
   for (const pkg of packages) {

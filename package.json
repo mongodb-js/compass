@@ -42,7 +42,8 @@
     "version": "node ./scripts/align-monorepo-dependencies.js --no-commit",
     "where": "node ./scripts/monorepo/where.js",
     "create-workspace": "node ./scripts/create-workspace.js",
-    "update-evergreen-config": "node .evergreen/template-yml.js .evergreen/tasks.in.yml > .evergreen/tasks.yml && node .evergreen/template-yml.js .evergreen/buildvariants.in.yml > .evergreen/buildvariants.yml"
+    "update-evergreen-config": "node .evergreen/template-yml.js .evergreen/tasks.in.yml > .evergreen/tasks.yml && node .evergreen/template-yml.js .evergreen/buildvariants.in.yml > .evergreen/buildvariants.yml",
+    "publish-packages-next": "npx lerna publish \"0.0.0-next-$(git rev-parse HEAD)\" --force-publish --exact --no-git-tag-version --no-private --dist-tag next --pre-dist-tag next --no-verify-access --no-git-reset --yes"
   },
   "repository": {
     "type": "git",
