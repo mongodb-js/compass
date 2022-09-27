@@ -163,7 +163,11 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function() {
-    log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container');
+    const preferences = await preferencesIpc.getPreferences();
+    const getAutoConnectInfo = (await import('./auto-connect')).loadAutoConnectInfo(preferences);
+    log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container', {
+      autoConnectEnabled: !!getAutoConnectInfo
+    });
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
@@ -181,6 +185,7 @@ const Application = View.extend({
       React.createElement(this.homeComponent, {
         appRegistry: app.appRegistry,
         appName: remote.app.getName(),
+        getAutoConnectInfo
       }),
       this.queryByHook('layout-container')
     );

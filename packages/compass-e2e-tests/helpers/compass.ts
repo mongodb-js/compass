@@ -274,6 +274,7 @@ export class Compass {
 interface StartCompassOptions {
   firstRun?: boolean;
   noCloseSettingsModal?: boolean;
+  noWaitForConnectionScreen?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
 }
@@ -409,6 +410,13 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
 
     ...(opts.extraSpawnArgs ?? [])
   );
+
+  // webdriverio automatically prepends '--' to options that do not already have it.
+  // We need the ability to pass positional arguments, though.
+  // https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/launcher.ts#L37-L39
+  (chromeArgs as any).map = function () {
+    return [...this];
+  };
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
@@ -665,7 +673,9 @@ export async function beforeTests(
 
   const { browser } = compass;
 
-  await browser.waitForConnectionScreen();
+  if (!opts.noWaitForConnectionScreen) {
+    await browser.waitForConnectionScreen();
+  }
   if (compass.isFirstRun && !opts.noCloseSettingsModal) {
     await browser.closeSettingsModal();
   }

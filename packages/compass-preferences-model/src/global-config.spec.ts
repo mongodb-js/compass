@@ -32,6 +32,18 @@ describe('Global config file handling', function () {
     });
   });
 
+  it('parses positional command line options', async function () {
+    const result = await parseAndValidateGlobalPreferences({
+      globalConfigPaths: [],
+      argv: ['--no-enable-maps', 'mongodb://localhost/'],
+    });
+    expect(result).to.deep.equal({
+      global: {},
+      cli: { enableMaps: false, positionalArguments: ['mongodb://localhost/'] },
+      preferenceParseErrors: [],
+    });
+  });
+
   it('parses global config files (YAML)', async function () {
     const file = path.join(tmpdir, 'config');
     await fs.writeFile(file, 'enableMaps: false\n');

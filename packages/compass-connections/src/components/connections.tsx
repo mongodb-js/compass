@@ -51,6 +51,7 @@ function Connections({
   onConnected,
   connectionStorage = new ConnectionStorage(),
   appName,
+  getAutoConnectInfo,
   connectFn = connect,
 }: {
   onConnected: (
@@ -59,6 +60,7 @@ function Connections({
   ) => void;
   connectionStorage?: ConnectionStorage;
   appName: string;
+  getAutoConnectInfo?: (() => Promise<ConnectionInfo>) | undefined;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
   const {
@@ -73,7 +75,13 @@ function Connections({
     saveConnection,
     favoriteConnections,
     recentConnections,
-  } = useConnections({ onConnected, connectionStorage, connectFn, appName });
+  } = useConnections({
+    onConnected,
+    connectionStorage,
+    connectFn,
+    appName,
+    getAutoConnectInfo,
+  });
   const {
     activeConnectionId,
     activeConnectionInfo,

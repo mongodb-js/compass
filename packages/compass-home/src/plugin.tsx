@@ -9,17 +9,16 @@ import AppRegistryContext from './contexts/app-registry-context';
 import './index.less';
 
 function Plugin({
-  appName,
   appRegistry,
+  ...homeProps
 }: {
-  appName: string;
   appRegistry: AppRegistry;
-}): React.ReactElement {
+} & React.ComponentProps<typeof Home>): React.ReactElement {
   return (
     <AppRegistryContext.Provider value={appRegistry}>
       <LeafyGreenProvider>
         <Settings />
-        <Home appName={appName} />
+        <Home {...homeProps} />
       </LeafyGreenProvider>
     </AppRegistryContext.Provider>
   );
