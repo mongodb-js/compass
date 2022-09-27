@@ -55,10 +55,12 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
+    "@mongodb-js/compass-components": "^1.1.1",
     "react": "*",
     "react-dom": "*"
   },
   "dependencies": {
+    "@mongodb-js/compass-components": "^1.1.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },

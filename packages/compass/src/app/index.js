@@ -71,6 +71,31 @@ ipc.once('app:launched', function() {
 const { log, mongoLogId, debug, track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-APP');
 
+function shouldShowWelcomeModal(previousVersion, thisVersion) {
+  if (process.env.SHOW_WELCOME === 'false') {
+    // This is so we can have deterministic behaviour in the E2E tests where
+    // any test could otherwise hit the welcome modal
+    console.log("process.env.SHOW_WELCOME === 'false'");
+    return false;
+  }
+
+  if (process.env.SHOW_WELCOME === 'true') {
+    // This is so we can test the welcome modal in E2E tests where the version
+    // is always the same.
+    console.log("process.env.SHOW_WELCOME === 'true'");
+    return true;
+  }
+
+  if (semver.lt(previousVersion, thisVersion)) {
+
+    console.log(previousVersion, '<', thisVersion);
+    return true;
+  }
+
+  console.log(previousVersion, '>=', thisVersion);
+  return false;
+}
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -185,15 +210,10 @@ const Application = View.extend({
       this.queryByHook('layout-container')
     );
 
-    const checkForNetworkOptIn = async () => {
-      const { showedNetworkOptIn, networkTraffic } = await preferencesIpc.getPreferences();
-
-      if (!showedNetworkOptIn && networkTraffic) {
-        ipc.ipcRenderer.emit('window:show-network-optin');
-      }
-    };
-
-    void checkForNetworkOptIn();
+    if (shouldShowWelcomeModal(this.previousVersion, APP_VERSION)) {
+      console.log('showing welcome');
+      ipc.ipcRenderer.emit('window:show-welcome');
+    }
   },
   fetchUser: async function() {
     debug('getting user preferences');

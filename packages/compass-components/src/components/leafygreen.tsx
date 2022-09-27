@@ -25,6 +25,7 @@ import {
   default as LeafyGreenModal,
   Footer as LeafyGreenModalFooter,
 } from '@leafygreen-ui/modal';
+import { default as LeafyGreenMarketingModal } from '@leafygreen-ui/marketing-modal';
 import Popover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import {
@@ -130,6 +131,11 @@ const Modal = withTheme(
     React.ComponentProps<typeof LeafyGreenModal>
   >
 ) as typeof LeafyGreenModal;
+const MarketingModal: typeof LeafyGreenMarketingModal = withTheme(
+  LeafyGreenMarketingModal as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenMarketingModal>
+  >
+) as typeof LeafyGreenMarketingModal;
 const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
   LeafyGreenRadioGroup as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenRadioGroup>
@@ -178,6 +184,7 @@ export {
   MenuSeparator,
   Modal,
   ModalFooter,
+  MarketingModal,
   MongoDBLogoMark,
   MongoDBLogo,
   Popover,
