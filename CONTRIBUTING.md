@@ -1,14 +1,14 @@
 # Contributing
 
 
-## Working With the Monorepo
+## Getting Started
 
 You'll need node `^16` and npm `^8` installed on your machine to work with the repository locally.
 After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
 
 After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
 
-This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
+Compass uses a monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
 
 ## Submitting a Change
 
