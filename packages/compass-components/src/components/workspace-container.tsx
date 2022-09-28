@@ -27,33 +27,30 @@ const scrollBoxStyles = css({
   zIndex: 0,
 });
 
-const shadowHeight = spacing[1];
+const shadowHeight = spacing[4];
 
-const shadowStyles = css({
+const shadowContainerStyles = css({
+  overflow: 'hidden',
   position: 'absolute',
   top: 0,
   display: 'block',
   width: '100%',
-  height: shadowHeight,
-  borderTop: `1px solid`,
+  height: shadowHeight * 2,
   flex: 'none',
   zIndex: 1,
+  pointerEvents: 'none',
 });
 
-const shadowStylesLight = css({
-  borderColor: uiColors.gray.light2,
-  background: `linear-gradient(${transparentize(
-    0.9,
+const shadowStyles = css({
+  height: shadowHeight,
+  borderRadius: spacing[2],
+  boxShadow: `0px 2px ${shadowHeight}px -1px ${transparentize(
+    0.85,
     uiColors.black
-  )} 0%, ${transparentize(1, uiColors.black)} 100%)`,
-});
-
-const shadowStylesDark = css({
-  borderColor: uiColors.gray.dark2,
-  background: `linear-gradient(${transparentize(
-    0.3,
-    uiColors.black
-  )} 0%, ${transparentize(1, uiColors.black)} 100%)`,
+  )}`,
+  width: `calc(100% - ${shadowHeight})`,
+  margin: '0 auto',
+  marginTop: -shadowHeight,
 });
 
 const workspaceContentStyles = css({
@@ -93,7 +90,6 @@ function UnthemedWorkspaceContainer({
 }: React.PropsWithChildren<
   WorkspaceContainerProps & React.HTMLProps<HTMLDivElement>
 >) {
-  const theme = useTheme();
   const scrollContainer = useRef(null);
 
   const [scrollDetectionTrigger, triggerStillInView] = useInView({
@@ -113,12 +109,9 @@ function UnthemedWorkspaceContainer({
       {toolbar && <div className={toolbarStyles}>{toolbar}</div>}
       <div className={scrollBoxStyles} ref={scrollContainer}>
         {triggerStillInView || (
-          <div
-            className={cx(
-              shadowStyles,
-              theme.theme === Theme.Dark ? shadowStylesDark : shadowStylesLight
-            )}
-          ></div>
+          <div className={cx(shadowContainerStyles)}>
+            <div className={shadowStyles}></div>
+          </div>
         )}
         <div className={workspaceContentStyles}>
           <div ref={scrollDetectionTrigger}></div>

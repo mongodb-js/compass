@@ -174,7 +174,6 @@ class PipelineWorkspace extends PureComponent {
     return (
       <div
         data-testid="pipeline-builder-workspace"
-        className={styles['pipeline-workspace-container-container']}
         ref={(ref) => {
           this.stageListContainerRef = ref;
         }}
