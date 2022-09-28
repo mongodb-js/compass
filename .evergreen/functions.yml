@@ -514,7 +514,9 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
+          npm config list
+          echo "Publishing packages as $(npm whoami)"
           git update-index --assume-unchanged .npmrc
           npm run publish-packages-next
 
