@@ -9,7 +9,7 @@ import type { IntercomScript } from './intercom-script';
 
 const setupIpc = () => {
   let preferences = {};
-  require('hadron-ipc').ipcRenderer = Object.assign(new EventEmitter(), {
+  Object.assign(require('hadron-ipc').ipcRenderer, {
     invoke: (name, attributes) => {
       if (name === 'compass:save-preferences') {
         preferences = { ...preferences, ...attributes };
