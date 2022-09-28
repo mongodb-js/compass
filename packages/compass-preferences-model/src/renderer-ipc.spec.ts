@@ -22,7 +22,7 @@ describe('Renderer IPC', function () {
       return Promise.resolve(ipcImpl[method](...args));
     },
   });
-  const preferencesIpc = makePreferencesIpc({ ipcRenderer: ipcMock } as any);
+  const preferencesIpc = makePreferencesIpc(ipcMock as any);
 
   it('should be able to call savePreferences', async function () {
     expect(

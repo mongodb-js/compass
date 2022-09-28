@@ -1,6 +1,8 @@
+import type { HadronIpcRenderer } from 'hadron-ipc';
 import hadronIpc from 'hadron-ipc';
+import type { PreferencesAccess } from '.';
 import type {
-  GlobalPreferences,
+  AllPreferences,
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
@@ -9,55 +11,36 @@ import type {
 /**
  * API to communicate with preferences from the electron renderer process.
  */
-export const makePreferencesIpc = (ipc: typeof hadronIpc) => ({
+export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => ({
   savePreferences(
     attributes: Partial<UserPreferences>
-  ): Promise<GlobalPreferences> {
-    if (typeof ipc?.ipcRenderer?.invoke === 'function') {
-      return ipc.ipcRenderer.invoke('compass:save-preferences', attributes);
-    }
-    return Promise.resolve({} as GlobalPreferences);
+  ): Promise<AllPreferences> {
+    return ipcRenderer.invoke('compass:save-preferences', attributes);
   },
-  getPreferences(): Promise<GlobalPreferences> {
-    if (typeof ipc?.ipcRenderer?.invoke === 'function') {
-      return ipc.ipcRenderer.invoke('compass:get-preferences');
-    }
-    return Promise.resolve({} as GlobalPreferences);
+  getPreferences(): Promise<AllPreferences> {
+    return ipcRenderer.invoke('compass:get-preferences');
   },
   getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
-    if (typeof ipc?.ipcRenderer?.invoke === 'function') {
-      return ipc.ipcRenderer.invoke(
-        'compass:get-configurable-user-preferences'
-      );
-    }
-    return Promise.resolve({} as UserConfigurablePreferences);
+    return ipcRenderer.invoke('compass:get-configurable-user-preferences');
   },
   getPreferenceStates(): Promise<PreferenceStateInformation> {
-    if (typeof ipc?.ipcRenderer?.invoke === 'function') {
-      return ipc.ipcRenderer.invoke('compass:get-preference-states');
-    }
-    return Promise.resolve({});
+    return ipcRenderer.invoke('compass:get-preference-states');
   },
-  onPreferenceValueChanged<K extends keyof GlobalPreferences>(
+  onPreferenceValueChanged<K extends keyof AllPreferences>(
     preferenceName: K,
-    callback: (value: GlobalPreferences[K]) => void
+    callback: (value: AllPreferences[K]) => void
   ): () => void {
-    const listener = (_: Event, preferences: GlobalPreferences) => {
+    const listener = (_: Event, preferences: AllPreferences) => {
       if (Object.keys(preferences).includes(preferenceName)) {
-        // TODO: find a proper type.
         return callback(preferences[preferenceName]);
       }
     };
-    if (typeof ipc?.ipcRenderer?.on === 'function') {
-      ipc.ipcRenderer.on('compass:preferences-changed', listener);
-      return () => {
-        ipc.ipcRenderer.removeListener('compass:preferences-changed', listener);
-      };
-    }
+    ipcRenderer.on('compass:preferences-changed', listener);
     return () => {
-      /** Missing ipc fallback */
+      ipcRenderer.removeListener('compass:preferences-changed', listener);
     };
   },
 });
 
-export const preferencesIpc = makePreferencesIpc(hadronIpc);
+export const preferencesIpc: PreferencesAccess | undefined =
+  hadronIpc.ipcRenderer ? makePreferencesIpc(hadronIpc.ipcRenderer) : undefined;

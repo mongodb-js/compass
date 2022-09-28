@@ -14,7 +14,7 @@ import find from 'lodash.find';
 import Type from '../type';
 import Minichart from '../minichart';
 import detectCoordinates from '../../modules/detect-coordinates';
-import { preferencesIpc } from 'compass-preferences-model';
+import preferences from 'compass-preferences-model';
 
 const toggleCollapseButtonIconStyles = css({
   // flexShrink: 0,
@@ -113,7 +113,7 @@ class Field extends Component {
   }
 
   async componentDidMount() {
-    const { enableMaps } = await preferencesIpc.getPreferences();
+    const { enableMaps } = await preferences.getPreferences();
     this.setState({ enableMaps });
   }
 

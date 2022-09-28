@@ -5,7 +5,7 @@ import createDebug from 'debug';
 import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
-let preferencesIpc: {
+let preferences: {
   getPreferences(): Promise<{ trackUsageStatistics: boolean }>;
 };
 
@@ -67,17 +67,16 @@ export function createLoggerAndTelemetry(component: string): {
     try {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore-error Types from the dependency may not be available in early bootstrap.
-      preferencesIpc ??= (await import('compass-preferences-model'))
-        .preferencesIpc;
+      preferences ??= (await import('compass-preferences-model'))
+        .preferencesAccess;
     } catch {
-      preferencesIpc ??= {
+      preferences ??= {
         getPreferences() {
           return Promise.resolve({ trackUsageStatistics: true });
         },
       };
     }
-    const { trackUsageStatistics = true } =
-      await preferencesIpc?.getPreferences();
+    const { trackUsageStatistics = true } = await preferences?.getPreferences();
     if (!trackUsageStatistics) {
       return;
     }
