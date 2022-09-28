@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "6.1.1",
+  "version": "6.2.0",
   "main": "lib/index.js",
   "compass:main": "src/index.js",
   "compass:exports": {
@@ -35,7 +35,7 @@
     "bootstrap": "npm run compile"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
@@ -52,7 +52,7 @@
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "babel-loader": "^8.2.2",
     "chai": "^4.1.2",
     "chai-enzyme": "1.0.0-beta.0",

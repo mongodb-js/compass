@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-instance",
   "productName": "Instance plugin",
-  "version": "4.1.1",
+  "version": "4.2.0",
   "apiVersion": "3.0.0",
   "description": "compass instance plugin",
   "main": "lib/index.js",
@@ -31,7 +31,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "react": "^16.14.0"
@@ -113,7 +113,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "react": "^16.14.0"

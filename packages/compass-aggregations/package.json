@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-aggregations",
   "productName": "Aggregations plugin",
-  "version": "9.1.1",
+  "version": "9.2.0",
   "apiVersion": "3.0.0",
   "description": "Compass Aggregation Pipeline Builder",
   "main": "dist/index.js",
@@ -34,15 +34,15 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
-    "@mongodb-js/compass-crud": "^13.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-crud": "^13.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/explain-plan-helper": "^1.0.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.1.1",
+    "hadron-react-components": "^6.2.0",
     "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   },
@@ -94,15 +94,15 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
-    "@mongodb-js/compass-crud": "^13.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-crud": "^13.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/explain-plan-helper": "^1.0.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.1.1",
+    "hadron-react-components": "^6.2.0",
     "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   },
