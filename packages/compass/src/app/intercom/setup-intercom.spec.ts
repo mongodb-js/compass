@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
-import { EventEmitter } from 'events';
 
 import { setupIntercom } from './setup-intercom';
 import { expect } from 'chai';
