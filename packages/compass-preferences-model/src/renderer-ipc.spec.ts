@@ -27,7 +27,7 @@ describe('Renderer IPC', function () {
   it('should be able to call savePreferences', async function () {
     expect(
       await preferencesIpc.savePreferences({ enableMaps: true })
-    ).to.deep.equal({ savePreferences: 1, attributes: { enableMaps: true } });
+    ).to.deep.equal({ getPreferences: 1 }); // reports result from updating preferences
   });
 
   it('should be able to call getPreferences', async function () {
