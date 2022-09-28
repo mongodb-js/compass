@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-database",
   "productName": "Database plugin",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "apiVersion": "3.0.0",
   "description": "Compass Database Plugin",
   "main": "lib/index.js",
@@ -27,7 +27,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "react": "^16.14.0"
   },
@@ -104,7 +104,7 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "react": "^16.14.0"
   }
