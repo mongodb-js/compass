@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-serverstats",
   "productName": "Compass Server Stats plugin",
-  "version": "16.1.1",
+  "version": "16.2.0",
   "apiVersion": "3.0.0",
   "description": "Compass Real Time Server Stats Component.",
   "main": "dist/index.js",
@@ -29,12 +29,12 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "hadron-react-buttons": "^6.0.1",
     "react": "^16.14.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "hadron-react-buttons": "^6.0.1",
     "react": "^16.14.0"
   },
