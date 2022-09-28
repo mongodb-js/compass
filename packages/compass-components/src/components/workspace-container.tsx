@@ -41,16 +41,23 @@ const shadowContainerStyles = css({
   pointerEvents: 'none',
 });
 
+const boxShadow = (color: string) => `0px 2px ${shadowHeight}px -1px ${color}`;
+
 const shadowStyles = css({
   height: shadowHeight,
   borderRadius: spacing[2],
-  boxShadow: `0px 2px ${shadowHeight}px -1px ${transparentize(
-    0.85,
-    uiColors.black
-  )}`,
+
   width: `calc(100% - ${shadowHeight})`,
   margin: '0 auto',
   marginTop: -shadowHeight,
+});
+
+const shadowStylesLight = css({
+  boxShadow: boxShadow(transparentize(0.85, uiColors.black)),
+});
+
+const shadowStylesDark = css({
+  boxShadow: boxShadow(transparentize(0.6, '#000000')),
 });
 
 const workspaceContentStyles = css({
@@ -109,8 +116,13 @@ function UnthemedWorkspaceContainer({
       {toolbar && <div className={toolbarStyles}>{toolbar}</div>}
       <div className={scrollBoxStyles} ref={scrollContainer}>
         {triggerStillInView || (
-          <div className={cx(shadowContainerStyles)}>
-            <div className={shadowStyles}></div>
+          <div className={shadowContainerStyles}>
+            <div
+              className={cx(
+                shadowStyles,
+                darkMode ? shadowStylesDark : shadowStylesLight
+              )}
+            ></div>
           </div>
         )}
         <div className={workspaceContentStyles}>
