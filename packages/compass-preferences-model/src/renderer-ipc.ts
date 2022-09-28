@@ -30,10 +30,11 @@ export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
   );
 
   return {
-    savePreferences(
+    async savePreferences(
       attributes: Partial<UserPreferences>
     ): Promise<AllPreferences> {
-      return ipcRenderer.invoke('compass:save-preferences', attributes);
+      await ipcRenderer.invoke('compass:save-preferences', attributes);
+      return await refreshCachedPreferences();
     },
     refreshPreferences(): Promise<AllPreferences> {
       return refreshCachedPreferences();
