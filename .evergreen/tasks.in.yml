@@ -180,6 +180,17 @@ tasks:
           scope: mongodb-compass
       - func: get-all-artifacts
       - func: publish
+  
+  - name: publish-packages-next
+    tags: []
+    depends_on:
+      - name: '.required-for-publish'
+        variant: '*'
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: publish-packages-next
 
   # copied as test-packaged-app-macos due to depends_on variation
   <% for (const task of testPackagedAppVariations) { %>

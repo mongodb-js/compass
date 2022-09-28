@@ -10,6 +10,7 @@ buildvariants:
     run_on: ubuntu1604-large
     tasks:
       - name: publish
+      - name: publish-packages-next
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests

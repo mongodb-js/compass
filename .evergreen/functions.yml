@@ -501,3 +501,20 @@ functions:
       params:
         files:
           - tasks.json
+
+  publish-packages-next:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          NPM_TOKEN: ${devtoolsbot_npm_token}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          git update-index --assume-unchanged .npmrc
+          npm run publish-packages-next
+
