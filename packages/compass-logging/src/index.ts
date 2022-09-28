@@ -6,7 +6,7 @@ import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
 let preferences: {
-  getPreferences(): Promise<{ trackUsageStatistics: boolean }>;
+  getPreferences(): { trackUsageStatistics: boolean };
 };
 
 type TrackProps = Record<string, any> | (() => Record<string, any>);
@@ -72,7 +72,7 @@ export function createLoggerAndTelemetry(component: string): {
     } catch {
       preferences ??= {
         getPreferences() {
-          return Promise.resolve({ trackUsageStatistics: true });
+          return { trackUsageStatistics: true };
         },
       };
     }
