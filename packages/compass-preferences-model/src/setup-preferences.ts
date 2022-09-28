@@ -68,10 +68,10 @@ export const preferencesMain: PreferencesAccess = {
     );
   },
   // eslint-disable-next-line @typescript-eslint/require-await
-  async getPreferences(): Promise<AllPreferences> {
+  async refreshPreferences(): Promise<AllPreferences> {
     return preferencesSingleton?.getPreferences?.() ?? ({} as AllPreferences);
   },
-  getPreferencesSync(): AllPreferences {
+  getPreferences(): AllPreferences {
     return preferencesSingleton?.getPreferences?.() ?? ({} as AllPreferences);
   },
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {

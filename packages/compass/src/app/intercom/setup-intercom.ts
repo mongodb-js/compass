@@ -19,7 +19,7 @@ export async function setupIntercom(
     return;
   }
 
-  const { enableFeedbackPanel } = await preferences.getPreferences();
+  const { enableFeedbackPanel } = preferences.getPreferences();
 
   const intercomAppId = process.env.HADRON_METRICS_INTERCOM_APP_ID;
 

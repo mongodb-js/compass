@@ -104,7 +104,7 @@ function showConnectWindow(
   };
 
   debug('creating new main window:', windowOpts);
-  const { networkTraffic } = preferences.getPreferencesSync!();
+  const { networkTraffic } = preferences.getPreferences();
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
   if (networkTraffic !== true) {

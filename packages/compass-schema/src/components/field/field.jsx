@@ -112,8 +112,8 @@ class Field extends Component {
     return null;
   }
 
-  async componentDidMount() {
-    const { enableMaps } = await preferences.getPreferences();
+  componentDidMount() {
+    const { enableMaps } = preferences.getPreferences();
     this.setState({ enableMaps });
   }
 

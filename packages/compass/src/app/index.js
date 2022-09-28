@@ -163,6 +163,7 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function() {
+    await preferences.refreshPreferences();
     log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container');
 
     this.el = document.querySelector('#application');
@@ -186,7 +187,7 @@ const Application = View.extend({
     );
 
     const checkForNetworkOptIn = async () => {
-      const { showedNetworkOptIn, networkTraffic } = await preferences.getPreferences();
+      const { showedNetworkOptIn, networkTraffic } = preferences.getPreferences();
 
       if (!showedNetworkOptIn && networkTraffic) {
         ipc.ipcRenderer.emit('window:show-network-optin');
@@ -202,7 +203,7 @@ const Application = View.extend({
       telemetryAnonymousId,
       trackUsageStatistics,
       lastKnownVersion
-    } = await preferences.getPreferences();
+    } = preferences.getPreferences();
 
     // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
     const user = await User.getOrCreate(currentUserId || telemetryAnonymousId);
@@ -236,7 +237,7 @@ const state = new Application();
 app.extend({
   client: null,
   init: async function() {
-    const { theme } = await preferences.getPreferences();
+    const { theme } = preferences.getPreferences();
 
     async.series(
       [

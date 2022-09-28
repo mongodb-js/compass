@@ -31,7 +31,8 @@ describe('Renderer IPC', function () {
   });
 
   it('should be able to call getPreferences', async function () {
-    expect(await preferencesIpc.getPreferences()).to.deep.equal({
+    await preferencesIpc.refreshPreferences();
+    expect(preferencesIpc.getPreferences()).to.deep.equal({
       getPreferences: 1,
     });
   });

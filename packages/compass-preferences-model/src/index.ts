@@ -26,8 +26,8 @@ export interface PreferencesAccess {
   savePreferences(
     attributes: Partial<UserPreferences>
   ): Promise<AllPreferences>;
-  getPreferences(): Promise<AllPreferences>;
-  getPreferencesSync?(): AllPreferences; // Main process only! Avoid using.
+  refreshPreferences(): Promise<AllPreferences>;
+  getPreferences(): AllPreferences;
   getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
   getPreferenceStates(): Promise<PreferenceStateInformation>;
   onPreferenceValueChanged<K extends keyof AllPreferences>(

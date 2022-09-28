@@ -93,7 +93,7 @@ const autoUpdatesChanged = (autoUpdates) => {
  */
 export const initAutoUpdates = () => {
   return async() => {
-    const { autoUpdates } = await preferences.getPreferences();
+    const { autoUpdates } = preferences.getPreferences();
     autoUpdatesChanged(autoUpdates);
   };
 };
