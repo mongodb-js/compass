@@ -5,17 +5,20 @@ import sinon from 'sinon';
 import { setupIntercom } from './setup-intercom';
 import { expect } from 'chai';
 import type { IntercomScript } from './intercom-script';
+import preferencesAccess from 'compass-preferences-model';
 
 const setupIpc = () => {
   let preferences = {};
   Object.assign(require('hadron-ipc').ipcRenderer, {
-    invoke: (name, attributes) => {
+    invoke: async(name, attributes) => {
       if (name === 'compass:save-preferences') {
         preferences = { ...preferences, ...attributes };
+        await preferencesAccess.refreshPreferences();
       } else if (name === 'test:clear-preferences') {
         preferences = {};
+        await preferencesAccess.refreshPreferences();
       }
-      return Promise.resolve(preferences);
+      return preferences;
     }
   });
 };
