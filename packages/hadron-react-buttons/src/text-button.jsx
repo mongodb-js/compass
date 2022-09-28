@@ -20,7 +20,7 @@ class TextButton extends React.Component {
       <button
         id={this.props.id}
         className={this.props.className}
-        data-test-id={this.props.dataTestId}
+        data-testid={this.props.dataTestId}
         title={this.props.title}
         type={BUTTON}
         disabled={this.props.disabled}

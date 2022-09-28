@@ -42,14 +42,14 @@ describe('Saving [Component]', function () {
     it('does not render the saving component when the model is null', function () {
       component = shallow(<Saving model={null} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving"]');
+      const node = component.find('[data-testid="query-history-saving"]');
       expect(node).to.have.length(0);
     });
 
     it('renders the correct root element', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving"]');
+      const node = component.find('[data-testid="query-history-saving"]');
 
       expect(node).to.have.length(1);
       expect(node).to.have.type(Card);
@@ -59,7 +59,7 @@ describe('Saving [Component]', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
       const node = component.find(
-        '[data-test-id="query-history-saving-header"]'
+        '[data-testid="query-history-saving-header"]'
       );
 
       expect(node).to.have.length(1);
@@ -70,7 +70,7 @@ describe('Saving [Component]', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
       const node = component.find(
-        '[data-test-id="query-history-saving-header"]'
+        '[data-testid="query-history-saving-header"]'
       );
 
       expect(node.children()).to.have.length(2);
@@ -79,7 +79,7 @@ describe('Saving [Component]', function () {
     it('renders the form', function () {
       component = mount(<Saving model={model} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving-form"]');
+      const node = component.find('[data-testid="query-history-saving-form"]');
 
       expect(node).to.have.length(1);
       expect(node).to.have.type('form');
@@ -88,7 +88,7 @@ describe('Saving [Component]', function () {
     it('the form should have an input', function () {
       component = mount(<Saving model={model} actions={actions} />);
 
-      const node = component.find('[data-test-id="query-history-saving-form"]');
+      const node = component.find('[data-testid="query-history-saving-form"]');
 
       expect(node.children()).to.have.length(1);
       expect(node.childAt(0)).to.have.type('input');
@@ -98,7 +98,7 @@ describe('Saving [Component]', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
       const node = component.find(
-        '[data-test-id="query-history-saving-form-button-save"]'
+        '[data-testid="query-history-saving-form-button-save"]'
       );
 
       expect(node).to.have.length(1);
@@ -109,7 +109,7 @@ describe('Saving [Component]', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
       const node = component.find(
-        '[data-test-id="query-history-saving-form-button-cancel"]'
+        '[data-testid="query-history-saving-form-button-cancel"]'
       );
 
       expect(node).to.have.length(1);
@@ -131,7 +131,7 @@ describe('Saving [Component]', function () {
       component = shallow(<Saving model={model} actions={actions} />);
 
       const node = component.find(
-        '[data-test-id="query-history-saving-form-button-save"]'
+        '[data-testid="query-history-saving-form-button-save"]'
       );
 
       node.simulate('click');
@@ -141,7 +141,7 @@ describe('Saving [Component]', function () {
     it('should cancel the saving of the query as a favorite when the cancel button is clicked', function () {
       component = shallow(<Saving model={model} actions={actions} />);
       const node = component.find(
-        '[data-test-id="query-history-saving-form-button-cancel"]'
+        '[data-testid="query-history-saving-form-button-cancel"]'
       );
 
       node.simulate('click');

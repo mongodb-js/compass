@@ -34,7 +34,7 @@ const hiddenStyles = css({
 });
 
 type TabNavBarProps = {
-  'data-test-id'?: string;
+  'data-testid'?: string;
   'aria-label': string;
   activeTabIndex: number;
   mountAllViews?: boolean;
@@ -50,7 +50,7 @@ type TabNavBarProps = {
  * the tabs in the same location.
  */
 function UnthemedTabNavBar({
-  'data-test-id': dataTestId,
+  'data-testid': dataTestId,
   'aria-label': ariaLabel,
   activeTabIndex,
   darkMode,
@@ -68,7 +68,7 @@ function UnthemedTabNavBar({
         )}
       >
         <Tabs
-          data-test-id={dataTestId}
+          data-testid={dataTestId}
           aria-label={ariaLabel}
           className="test-tab-nav-bar-tabs"
           setSelected={onTabClicked}
@@ -91,7 +91,7 @@ function UnthemedTabNavBar({
                 [hiddenStyles]: idx !== activeTabIndex,
               })}
               key={`tab-content-${tabs[idx]}`}
-              data-test-id={`${tabs[idx]
+              data-testid={`${tabs[idx]
                 .toLowerCase()
                 .replace(/ /g, '-')}-content`}
             >

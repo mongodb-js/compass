@@ -17,6 +17,7 @@ const debug = createDebug('mongodb-compass:menu');
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
 class ThemeState {
   theme: THEMES = THEMES.LIGHT;
+  enabled?: true
 }
 
 function updateTheme({
@@ -66,18 +67,10 @@ function quitItem(label: string): MenuItemConstructorOptions {
   };
 }
 
-function compassOverviewItem(): MenuItemConstructorOptions {
+function settingsDialogItem(): MenuItemConstructorOptions {
   return {
-    label: `${app.getName()} &Overview`,
-    click() {
-      ipcMain.broadcastFocused('window:show-compass-tour');
-    },
-  };
-}
-
-function networkOptInDialogItem(): MenuItemConstructorOptions {
-  return {
-    label: '&Privacy Settings',
+    label: '&Settings',
+    accelerator: 'CmdOrCtrl+,',
     click() {
       ipcMain.broadcastFocused('window:show-network-optin');
     },
@@ -290,15 +283,6 @@ function helpWindowItem(): MenuItemConstructorOptions {
   };
 }
 
-function securityItem(): MenuItemConstructorOptions {
-  return {
-    label: '&Plugins',
-    click() {
-      ipcMain.broadcastFocused('window:show-security-panel');
-    },
-  };
-}
-
 function license(): MenuItemConstructorOptions {
   return {
     label: '&License',
@@ -330,13 +314,8 @@ function helpSubMenu(
   const subMenu = [];
   subMenu.push(helpWindowItem());
 
-  subMenu.push(compassOverviewItem());
+  subMenu.push(settingsDialogItem());
 
-  if (process.env.HADRON_ISOLATED !== 'true') {
-    subMenu.push(networkOptInDialogItem());
-  }
-
-  subMenu.push(securityItem());
   subMenu.push(license());
   subMenu.push(logFile(app));
 
@@ -400,6 +379,14 @@ function viewSubMenu(
         accelerator: 'CmdOrCtrl+R',
         click() {
           ipcMain.broadcast('app:refresh-data');
+        },
+      },
+      separator(),
+      {
+        label: '&Toggle Sidebar',
+        accelerator: 'CmdOrCtrl+Shift+D',
+        click() {
+          ipcMain.broadcast('app:toggle-sidebar');
         },
       },
       separator(),

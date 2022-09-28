@@ -126,8 +126,8 @@ const tabIconFocusedStyles = css({
 const tabTitleContainerStyles = css({
   marginRight: spacing[1],
   display: 'inline-grid',
-  paddingTop: spacing[2],
-  paddingBottom: spacing[1] + spacing[2],
+  paddingTop: spacing[3] - 2, // steal space for the border effect
+  paddingBottom: spacing[3],
   gridTemplateAreas: `
     'icon tabName'
     'empty namespace'
@@ -248,7 +248,7 @@ function UnthemedTab({
       // Catch navigation on the active tab when a user tabs through Compass.
       tabIndex={isSelected ? 0 : -1}
       aria-controls={tabContentId}
-      data-test-id="workspace-tab-button"
+      data-testid="workspace-tab-button"
       title={`${subtitle} - ${title}`}
       {...tabProps}
     >

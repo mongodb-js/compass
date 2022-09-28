@@ -79,7 +79,8 @@ class Stage extends Component {
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
+    newPipelineFromPaste: PropTypes.func.isRequired,
+    isAtlasDeployed: PropTypes.bool
   };
 
   /* eslint complexity: 0 */
@@ -218,7 +219,7 @@ class Stage extends Component {
             runOutStage={this.props.runOutStage}
             gotoOutResults={this.props.gotoOutResults}
             gotoMergeResults={this.props.gotoMergeResults}
-            openLink={this.props.openLink}
+            isAtlasDeployed={this.props.isAtlasDeployed}
           />
         )}
       </div>
@@ -234,7 +235,7 @@ class Stage extends Component {
     const opacity = this.getOpacity();
     return (
       <div
-        data-test-id="stage-container"
+        data-testid="stage-container"
         data-stage-index={this.props.index}
         className={classnames(styles['stage-container'], {
           [styles['stage-container-is-first']]: this.props.index === 0

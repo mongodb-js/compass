@@ -34,7 +34,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
     case 'incomplete-schema-for-cloned-doc':
       return (
         <Banner
-          data-test-id="incomplete-schema-for-cloned-doc"
+          data-testid="incomplete-schema-for-cloned-doc"
           variant={BannerVariant.Danger}
         >
           This insert operation will not encrypt all fields that were encrypted
@@ -47,7 +47,7 @@ function InsertCSFLEWarningBanner({ csfleState }) {
     case 'has-known-schema':
       return (
         <Banner
-          data-test-id="insert-csfle-has-known-schema"
+          data-testid="insert-csfle-has-known-schema"
           variant={BannerVariant.Info}
         >
           This insert operation will encrypt all fields that are specified in

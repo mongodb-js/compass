@@ -1,8 +1,7 @@
-import { AtlasLogoMark, Body, Link } from '@mongodb-js/compass-components';
+import { AtlasLogoMark, Body, Link, Button } from '@mongodb-js/compass-components';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
-import { TextButton } from 'hadron-react-buttons';
 import LoadingOverlay from '../loading-overlay';
 import { OUT, MERGE } from '../../modules/pipeline';
 import decomment from 'decomment';
@@ -29,10 +28,10 @@ class StagePreview extends Component {
     isComplete: PropTypes.bool.isRequired,
     // Can be undefined on the initial render
     isMissingAtlasOnlyStageSupport: PropTypes.bool,
-    openLink: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
-    stage: PropTypes.string
+    stage: PropTypes.string,
+    isAtlasDeployed: PropTypes.bool
   }
 
   /**
@@ -58,14 +57,6 @@ class StagePreview extends Component {
   }
 
   /**
-   * Called when the Atlas Signup CTA link is clicked.
-   */
-  onAtlasSignupCtaClicked = () => {
-    track('Atlas Link Clicked', { screen: 'agg_builder' });
-    this.props.openLink('https://www.mongodb.com/cloud/atlas/lp/search-1?utm_campaign=atlas_search&utm_source=compass&utm_medium=product&utm_content=v1');
-  }
-
-  /**
    * If the stage operator is $merge we have special behaviour.
    *
    * @returns {Component} The component.
@@ -79,7 +70,7 @@ class StagePreview extends Component {
               Documents persisted to collection specified by $merge.
             </div>
             <Link
-              data-test-id="go-to-merge-collection"
+              data-testid="go-to-merge-collection"
               as="button"
               className={styles['stage-preview-out-link']}
               onClick={this.onGotoMergeResults}
@@ -98,6 +89,15 @@ class StagePreview extends Component {
           The $merge operator will cause the pipeline to persist the results to
           the specified location.
         </div>
+        {this.props.isAtlasDeployed && (
+          <Button
+            variant="primary"
+            data-testid="save-merge-documents"
+            onClick={this.onSaveDocuments}
+          >
+            Merge documents
+          </Button>
+        )}
       </div>
     );
   }
@@ -116,7 +116,7 @@ class StagePreview extends Component {
               Documents persisted to collection: {decomment(this.props.stage)}.
             </div>
             <Link
-              data-test-id="go-to-out-collection"
+              data-testid="go-to-out-collection"
               as="button"
               className={styles['stage-preview-out-link']}
               onClick={this.onGotoOutResults}
@@ -136,6 +136,15 @@ class StagePreview extends Component {
           the specified location (collection, S3, or Atlas). If the collection
           exists it will be replaced.
         </div>
+        {this.props.isAtlasDeployed && (
+          <Button
+            variant="primary"
+            data-testid="save-out-documents"
+            onClick={this.onSaveDocuments}
+          >
+            Save documents
+          </Button>
+        )}
       </Body>
     );
   }
@@ -149,17 +158,29 @@ class StagePreview extends Component {
   renderAtlasOnlyStagePreviewSection() {
     return (
       <div className={styles['stage-preview-missing-search-support']}>
-        <AtlasLogoMark size={30} className={styles['stage-preview-missing-search-support-icon']} />
-        <div data-test-id="stage-preview-missing-search-support" className={styles['stage-preview-missing-search-support-text']}>
-          This stage is only available with MongoDB Atlas.
-
-          Create a free cluster or connect to an Atlas cluster to build search indexes and use {this.props.stageOperator} aggregation stage to run fast, relevant search queries.
-        </div>
-        <TextButton
-          text="Create Free Cluster"
-          className="btn btn-xs btn-primary"
-          clickHandler={this.onAtlasSignupCtaClicked}
+        <AtlasLogoMark
+          size={30}
+          className={styles['stage-preview-missing-search-support-icon']}
         />
+        <div
+          data-testid="stage-preview-missing-search-support"
+          className={styles['stage-preview-missing-search-support-text']}
+        >
+          This stage is only available with MongoDB Atlas. Create a free cluster
+          or connect to an Atlas cluster to build search indexes and use{' '}
+          {this.props.stageOperator} aggregation stage to run fast, relevant
+          search queries.
+        </div>
+        <Button
+          href="https://www.mongodb.com/cloud/atlas/lp/search-1?utm_campaign=atlas_search&utm_source=compass&utm_medium=product&utm_content=v1"
+          target="_blank"
+          onClick={() => {
+            track('Atlas Link Clicked', { screen: 'agg_builder' });
+          }}
+          variant="primary"
+        >
+          Create free cluster
+        </Button>
       </div>
     );
   }
@@ -212,7 +233,7 @@ class StagePreview extends Component {
           </svg>
         </div>
         <div>
-          <i data-test-id="stage-preview-empty">No Preview Documents</i>
+          <i data-testid="stage-preview-empty">No Preview Documents</i>
         </div>
       </div>
     );

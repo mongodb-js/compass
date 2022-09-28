@@ -12,7 +12,7 @@
     "test": "test"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "4.14.0",
+  "version": "5.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -44,7 +44,7 @@
     "ampersand-sync": "^5.1.0",
     "async": "^3.2.0",
     "debug": "^4.2.0",
-    "hadron-ipc": "^2.10.0",
+    "hadron-ipc": "^3.1.0",
     "keytar": "^7.7.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.15",
@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",

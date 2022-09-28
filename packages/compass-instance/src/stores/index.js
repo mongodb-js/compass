@@ -1,6 +1,9 @@
-const { createStore } = require('redux');
+const thunk = require('redux-thunk').default;
+const { createStore, applyMiddleware } = require('redux');
+const appRegistry = require('@mongodb-js/mongodb-redux-common/app-registry');
 
 const INITIAL_STATE = {
+  appRegistry: appRegistry.INITIAL_STATE,
   status: 'initial',
   error: null,
   isDataLake: false,
@@ -8,6 +11,11 @@ const INITIAL_STATE = {
 };
 
 function reducer(state = { tabs: [], ...INITIAL_STATE }, action) {
+  // Bit of a hacky way to be able to use the mongodb-redux-common/app-registry
+  // reducer without converting this entire package to the combineReducers()
+  // pattern.
+  state.appRegistry = appRegistry(state.appRegistry, action);
+
   switch (action.type) {
     case 'app-registry-activated':
       return {
@@ -22,7 +30,7 @@ function reducer(state = { tabs: [], ...INITIAL_STATE }, action) {
         isDataLake: action.instance.dataLake.isDataLake,
       };
     case 'reset':
-      return { ...state, ...INITIAL_STATE };
+      return { ...state, ...INITIAL_STATE, appRegistry: state.appRegistry };
     case 'change-tab':
       return { ...state, activeTabId: action.id };
     default:
@@ -30,13 +38,15 @@ function reducer(state = { tabs: [], ...INITIAL_STATE }, action) {
   }
 }
 
-const store = createStore(reducer);
+
+const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = function onActivated(globalAppRegistry) {
   store.dispatch({
     type: 'app-registry-activated',
     appRegistry: globalAppRegistry,
   });
+  store.dispatch(appRegistry.globalAppRegistryActivated(globalAppRegistry));
 
   globalAppRegistry.on('instance-created', ({ instance }) => {
     store.dispatch({ type: 'instance-status-change', instance });

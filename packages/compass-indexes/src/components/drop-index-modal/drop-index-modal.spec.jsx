@@ -1,18 +1,24 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import {
+  render,
+  screen,
+  cleanup,
+  fireEvent,
+  within,
+} from '@testing-library/react';
+
 import { DropIndexModal } from '../drop-index-modal';
 
-describe('DropIndexModal [Component]', function () {
-  let component;
+describe('DropIndexForm [Component]', function () {
   let toggleIsVisibleSpy;
   let toggleInProgressSpy;
   let changeConfirmNameSpy;
   let resetFormSpy;
   let dropIndexSpy;
+  let clearErrorSpy;
 
   beforeEach(function () {
     toggleIsVisibleSpy = sinon.spy();
@@ -20,6 +26,7 @@ describe('DropIndexModal [Component]', function () {
     changeConfirmNameSpy = sinon.spy();
     resetFormSpy = sinon.spy();
     dropIndexSpy = sinon.spy();
+    clearErrorSpy = sinon.spy();
   });
 
   afterEach(function () {
@@ -28,13 +35,13 @@ describe('DropIndexModal [Component]', function () {
     changeConfirmNameSpy = null;
     resetFormSpy = null;
     dropIndexSpy = null;
-    component.unmount();
-    component = null;
+    clearErrorSpy = null;
+    cleanup();
   });
 
-  context('when the modal is visible and names do not match', function () {
+  context('when names do not match', function () {
     beforeEach(function () {
-      component = mount(
+      render(
         <DropIndexModal
           isVisible
           inProgress={false}
@@ -45,51 +52,64 @@ describe('DropIndexModal [Component]', function () {
           changeConfirmName={changeConfirmNameSpy}
           resetForm={resetFormSpy}
           dropIndex={dropIndexSpy}
+          clearError={clearErrorSpy}
         />
       );
     });
 
     it('displays the modal', function () {
-      expect(component.find(ConfirmationModal)).to.be.present();
+      const confirmationModal = screen.getByTestId('drop-index-modal');
+      expect(confirmationModal).to.exist;
     });
 
     it('renders the header text', function () {
-      expect(component.find('h1')).to.have.text('Drop Index');
+      const confirmationModal = screen.getByTestId('drop-index-modal');
+      const header = within(confirmationModal).getByText('Drop Index');
+      expect(header).to.exist;
     });
 
     it('renders the modal form', function () {
-      expect(
-        component.find('[data-test-id="confirm-drop-index-name"]')
-      ).to.be.present();
+      const confirmationModalForm = screen.getByTestId(
+        'confirm-drop-index-name'
+      );
+      expect(confirmationModalForm).to.exist;
     });
 
     context('when changing the confirm index name', function () {
       it('calls the change confirm index name function', function () {
-        component
-          .find('[data-test-id="confirm-drop-index-name"]')
-          .hostNodes()
-          .simulate('change', { target: { value: 'iName' } });
+        const confirmDropIndexName = screen.getByTestId(
+          'confirm-drop-index-name'
+        );
+        fireEvent.change(confirmDropIndexName, { target: { value: 'iName' } });
         expect(changeConfirmNameSpy.calledWith('iName')).to.equal(true);
       });
     });
+
     context('when clicking cancel', function () {
       it('closes the modal', function () {
-        component.find('button').at(1).hostNodes().simulate('click');
+        const confirmationModal = screen.getByTestId('drop-index-modal');
+        const button = within(confirmationModal).getByText('Cancel');
+        expect(button).to.exist;
+        fireEvent.click(button);
         expect(toggleIsVisibleSpy.calledOnce).to.equal(true);
         expect(resetFormSpy.called).to.equal(true);
       });
     });
+
     context('when clicking drop', function () {
       it('does not drop the index', function () {
-        component.find('button').at(0).hostNodes().simulate('click');
+        const confirmationModal = screen.getByTestId('drop-index-modal');
+        const button = within(confirmationModal).getByText('Drop');
+        expect(button).to.exist;
+        fireEvent.click(button);
         expect(dropIndexSpy.called).to.equal(false);
       });
     });
   });
 
-  context('when the modal is visible and names match', function () {
+  context('when names match', function () {
     beforeEach(function () {
-      component = mount(
+      render(
         <DropIndexModal
           isVisible
           inProgress={false}
@@ -100,22 +120,25 @@ describe('DropIndexModal [Component]', function () {
           changeConfirmName={changeConfirmNameSpy}
           resetForm={resetFormSpy}
           dropIndex={dropIndexSpy}
+          clearError={clearErrorSpy}
         />
       );
     });
 
     context('when clicking drop', function () {
       it('drops the index', function () {
-        component.find('button').at(0).hostNodes().simulate('click');
+        const confirmationModal = screen.getByTestId('drop-index-modal');
+        const button = within(confirmationModal).getByText('Drop');
+        expect(button).to.exist;
+        fireEvent.click(button);
         expect(dropIndexSpy.called).to.equal(true);
-        // expect(dropIndexSpy.args[0][0]).to.equal('test name');
       });
     });
   });
 
-  context('when the modal is visible and in progress', function () {
+  context('when in progress', function () {
     beforeEach(function () {
-      component = mount(
+      render(
         <DropIndexModal
           isVisible
           inProgress
@@ -126,19 +149,22 @@ describe('DropIndexModal [Component]', function () {
           changeConfirmName={changeConfirmNameSpy}
           resetForm={resetFormSpy}
           dropIndex={dropIndexSpy}
+          clearError={clearErrorSpy}
         />
       );
     });
 
     it('displays in progress message', function () {
-      expect(component.find('[data-test-id="modal-message"]').text()).to.equal(
-        'Drop in Progress'
+      const inProgressBanner = screen.getByTestId(
+        'drop-index-in-progress-banner-wrapper'
       );
+      expect(inProgressBanner).to.contain.text('Index dropping in progress');
     });
   });
-  context('when the modal is visible and error', function () {
+
+  context('when error', function () {
     beforeEach(function () {
-      component = mount(
+      render(
         <DropIndexModal
           isVisible
           inProgress={false}
@@ -150,37 +176,14 @@ describe('DropIndexModal [Component]', function () {
           changeConfirmName={changeConfirmNameSpy}
           resetForm={resetFormSpy}
           dropIndex={dropIndexSpy}
+          clearError={clearErrorSpy}
         />
       );
     });
 
     it('displays the error message', function () {
-      expect(component.find('[data-test-id="modal-message"]').text()).to.equal(
-        'test error'
-      );
-    });
-  });
-  context('when the modal is not visible', function () {
-    beforeEach(function () {
-      component = mount(
-        <div name="tester">
-          <DropIndexModal
-            isVisible={false}
-            inProgress={false}
-            name="test name"
-            confirmName=""
-            toggleIsVisible={toggleIsVisibleSpy}
-            toggleInProgress={toggleInProgressSpy}
-            changeConfirmName={changeConfirmNameSpy}
-            resetForm={resetFormSpy}
-            dropIndex={dropIndexSpy}
-          />
-        </div>
-      );
-    });
-
-    it('does not display the form', function () {
-      expect(component.find('form')).to.not.be.present();
+      const errorBanner = screen.getByTestId('drop-index-error-banner-wrapper');
+      expect(errorBanner).to.contain.text('test error');
     });
   });
 });

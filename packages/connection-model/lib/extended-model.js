@@ -1,25 +1,8 @@
 const Connection = require('./model');
 const storageMixin = require('storage-mixin');
 const { v4: uuidv4 } = require('uuid');
-
-/**
- * The name of a remote electon application that
- * uses `connection-model` as a dependency.
- */
-let appName;
-let basepath;
-
-try {
-  const electron = require('electron');
-
-  appName = electron.remote ? electron.remote.app.getName() : undefined;
-  basepath = electron.remote
-    ? electron.remote.app.getPath('userData')
-    : undefined;
-} catch (e) {
-  /* eslint no-console: 0 */
-  console.log('Could not load electron', e.message);
-}
+const { getStoragePaths } = require('@mongodb-js/compass-utils');
+const { appName, basepath } = getStoragePaths() || {};
 
 /**
  * Configuration for connecting to a MongoDB Deployment.
@@ -28,7 +11,11 @@ const ExtendedConnection = Connection.extend(storageMixin, {
   idAttribute: '_id',
   namespace: 'Connections',
   storage: {
-    backend: 'splice-disk-ipc',
+    backend:
+      // eslint-disable-next-line no-nested-ternary
+      process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true'
+        ? 'disk' :
+        typeof window === 'undefined' ? 'splice-disk' : 'splice-disk-ipc',
     namespace: 'Connections',
     basepath,
     appName, // Not to be confused with `props.appname` that is being sent to driver

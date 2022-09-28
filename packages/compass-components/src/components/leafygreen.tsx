@@ -25,6 +25,7 @@ import {
   default as LeafyGreenModal,
   Footer as LeafyGreenModalFooter,
 } from '@leafygreen-ui/modal';
+import Popover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import {
   Radio,
@@ -48,25 +49,54 @@ import {
 import { Tabs as LeafyGreenTabs, Tab } from '@leafygreen-ui/tabs';
 import { default as LeafyGreenTextArea } from '@leafygreen-ui/text-area';
 import { default as LeafyGreenTextInput } from '@leafygreen-ui/text-input';
-import { default as Toast } from '@leafygreen-ui/toast';
-import { default as LeafyGreenToggle } from '@leafygreen-ui/toggle';
-import { default as LeafyGreenTooltip } from '@leafygreen-ui/tooltip';
 import {
-  H1,
-  H2,
-  H3,
-  Subtitle,
-  Body,
-  InlineCode,
-  InlineKeyCode,
-  Disclaimer,
-  Overline,
+  default as Toast,
+  Variant as ToastVariant,
+} from '@leafygreen-ui/toast';
+import { default as LeafyGreenToggle } from '@leafygreen-ui/toggle';
+import {
+  H1 as LeafyGreenH1,
+  H2 as LeafyGreenH2,
+  H3 as LeafyGreenH3,
+  Subtitle as LeafyGreenSubtitle,
+  Body as LeafyGreenBody,
+  InlineCode as LeafyGreenInlineCode,
+  InlineKeyCode as LeafyGreenInlineKeyCode,
+  Disclaimer as LeafyGreenDisclaimer,
+  Overline as LeafyGreenOverline,
+  Link as LeafyGreenLink,
   Label as LeafyGreenLabel,
-  Link,
   Description as LeafyGreenDescription,
 } from '@leafygreen-ui/typography';
+import {
+  Combobox as LeafyGreenCombobox,
+  ComboboxOption,
+  ComboboxGroup,
+} from '@leafygreen-ui/combobox';
 
 // 2. Wrap the components that accept darkMode with Compass' theme.
+
+const H1: typeof LeafyGreenH1 = withTheme(LeafyGreenH1) as typeof LeafyGreenH1;
+const H2: typeof LeafyGreenH2 = withTheme(LeafyGreenH2) as typeof LeafyGreenH2;
+const H3: typeof LeafyGreenH3 = withTheme(LeafyGreenH3) as typeof LeafyGreenH3;
+const Subtitle = withTheme(LeafyGreenSubtitle) as typeof LeafyGreenSubtitle;
+const Body = withTheme(LeafyGreenBody) as typeof LeafyGreenBody;
+const InlineCode = withTheme(
+  LeafyGreenInlineCode
+) as typeof LeafyGreenInlineCode;
+const InlineKeyCode = withTheme(
+  LeafyGreenInlineKeyCode
+) as typeof LeafyGreenInlineKeyCode;
+const Disclaimer = withTheme(
+  LeafyGreenDisclaimer
+) as typeof LeafyGreenDisclaimer;
+const Overline = withTheme(LeafyGreenOverline) as typeof LeafyGreenOverline;
+const Link = withTheme(
+  LeafyGreenLink as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenLink>
+  >
+) as typeof LeafyGreenLink;
+
 const Button = withTheme(
   LeafyGreenButton as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenButton>
@@ -131,16 +161,11 @@ const Toggle = withTheme(
     React.ComponentProps<typeof LeafyGreenToggle>
   >
 ) as typeof LeafyGreenToggle;
-const Tooltip = withTheme(
-  LeafyGreenTooltip as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenTooltip>
-  >
-) as typeof LeafyGreenTooltip;
 const Label = withTheme(LeafyGreenLabel) as typeof LeafyGreenLabel;
 const Description = withTheme(
   LeafyGreenDescription
 ) as typeof LeafyGreenDescription;
-
+const Combobox = withTheme(LeafyGreenCombobox);
 // 3. Export the leafygreen components.
 export {
   AtlasLogoMark,
@@ -160,6 +185,7 @@ export {
   ModalFooter,
   MongoDBLogoMark,
   MongoDBLogo,
+  Popover,
   RadioBox,
   RadioBoxGroup,
   Radio,
@@ -178,8 +204,8 @@ export {
   TextArea,
   TextInput,
   Toast,
+  ToastVariant,
   Toggle,
-  Tooltip,
   H1,
   H2,
   H3,
@@ -192,4 +218,7 @@ export {
   Label,
   Link,
   Description,
+  Combobox,
+  ComboboxOption,
+  ComboboxGroup,
 };

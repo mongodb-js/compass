@@ -2,8 +2,6 @@ import type AppRegistry from 'hadron-app-registry';
 
 import React, { useCallback, useRef } from 'react';
 import {
-  Button,
-  Icon,
   SegmentedControl,
   SegmentedControlOption,
   Overline,
@@ -22,7 +20,6 @@ const explainToolbarStyles = css({
   alignItems: 'center',
   gap: spacing[3],
   padding: spacing[3],
-  boxShadow: '0 2px 2px rgb(0 0 0 / 20%)',
   zIndex: 10,
 });
 
@@ -35,12 +32,6 @@ const explainActionsToolbarStyles = css({
   display: 'flex',
   alignItems: 'center',
   width: '100%',
-});
-
-const explainActionsToolbarRightStyles = css({
-  flexGrow: 1,
-  display: 'flex',
-  alignItems: 'center',
   justifyContent: 'flex-end',
   gap: spacing[2],
 });
@@ -57,9 +48,9 @@ type ExplainToolbarProps = {
   localAppRegistry: AppRegistry;
   darkMode?: boolean;
   explainErrorMessage?: string;
-  explainResultId: string;
+  resultId: string;
+  hasExplainResults: boolean;
   onExecuteExplainClicked: (queryBarStoreState: any) => void;
-  onExportToLanguageClicked: () => void;
   showOutdatedWarning: boolean;
   showReadonlyWarning: boolean;
   switchToTreeView: () => void;
@@ -70,10 +61,10 @@ type ExplainToolbarProps = {
 function UnthemedExplainToolbar({
   localAppRegistry,
   darkMode,
-  explainResultId,
+  resultId,
   explainErrorMessage,
+  hasExplainResults,
   onExecuteExplainClicked,
-  onExportToLanguageClicked,
   showOutdatedWarning,
   showReadonlyWarning,
   switchToTreeView,
@@ -89,7 +80,7 @@ function UnthemedExplainToolbar({
     component: React.ComponentType<any>;
     store: any; // Query bar store is not currently typed.
     actions: any; // Query bar actions are not typed.
-  } | null>({
+  }>({
     component: queryBarRole.component,
     store: localAppRegistry.getStore(queryBarRole.storeName!),
     actions: localAppRegistry.getAction(queryBarRole.actionName!),
@@ -106,33 +97,24 @@ function UnthemedExplainToolbar({
     [switchToJSONView, switchToTreeView]
   );
 
-  const QueryBarComponent = queryBarRef.current!.component;
+  const QueryBarComponent = queryBarRef.current.component;
 
   return (
     <Toolbar className={explainToolbarStyles}>
       <div className={explainQueryBarStyles}>
         {
           <QueryBarComponent
-            store={queryBarRef.current!.store}
-            actions={queryBarRef.current!.actions}
+            store={queryBarRef.current.store}
+            actions={queryBarRef.current.actions}
             buttonLabel="Explain"
-            resultId={explainResultId}
+            resultId={resultId}
             onApply={onExecuteExplainClicked}
             onReset={onExecuteExplainClicked}
           />
         }
       </div>
-      <div className={explainActionsToolbarStyles}>
-        <Button
-          variant="primaryOutline"
-          size="xsmall"
-          leftGlyph={<Icon glyph={'Export'} />}
-          onClick={onExportToLanguageClicked}
-          data-testid="explain-toolbar-export-button"
-        >
-          Export to language
-        </Button>
-        <div className={explainActionsToolbarRightStyles}>
+      {hasExplainResults && (
+        <div className={explainActionsToolbarStyles}>
           <Overline
             as="label"
             id={labelId}
@@ -157,7 +139,7 @@ function UnthemedExplainToolbar({
             </SegmentedControlOption>
           </SegmentedControl>
         </div>
-      </div>
+      )}
       {(showOutdatedWarning || showReadonlyWarning) && (
         <WarningSummary
           warnings={[

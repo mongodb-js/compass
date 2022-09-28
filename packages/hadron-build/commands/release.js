@@ -89,9 +89,9 @@ const symlinkExecutable = (CONFIG, done) => {
   if (CONFIG.platform === 'darwin') {
     cli.debug('Ensuring `Contents/MacOS/Electron` is symlinked');
     const cwd = process.cwd();
-    cli.debug('chdir', CONFIG.dest(`${CONFIG.productName}-darwin-x64`, 'Contents', 'MacOS'));
-    process.chdir(CONFIG.dest(`${CONFIG.productName}-darwin-x64`, `${CONFIG.productName}.app`, 'Contents', 'MacOS'));
-
+    const newPath = path.join(CONFIG.appPath, 'Contents', 'MacOS');
+    cli.debug('chdir', newPath);
+    process.chdir(newPath);
     fs.ensureSymlink(CONFIG.productName, 'Electron', function(_err) {
       process.chdir(cwd);
       if (_err) {
@@ -283,8 +283,9 @@ const installDependencies = util.callbackify(async(CONFIG) => {
 
   cli.debug('Production dependencies installed');
 
-  await rebuild({
+  const rebuildConfig = {
     ...CONFIG.rebuild,
+    arch: CONFIG.arch,
     electronVersion: CONFIG.packagerOptions.electronVersion,
     buildPath: appPackagePath,
     // `projectRootPath` is undocumented, but changes modules resolution quite
@@ -299,7 +300,17 @@ const installDependencies = util.callbackify(async(CONFIG) => {
     // rebuild by providing a tag prefix that will make prebuild think that
     // prebuilt files don't exist
     prebuildTagPrefix: 'totally-not-a-real-prefix-to-force-rebuild'
-  });
+  };
+
+  await rebuild(rebuildConfig);
+
+  // We can not force rebuild mongodb-client-encryption locally, but we need to
+  // make sure that the binary is matching the platform we are packaging for and
+  // so let's run rebuild again, but this time providing the tag name package
+  // is using so that prebuild can download the matching version
+  rebuildConfig.prebuildTagPrefix = 'node-v';
+  rebuildConfig.onlyModules = ['mongodb-client-encryption'];
+  await rebuild(rebuildConfig);
 
   cli.debug('Native modules rebuilt against Electron.');
 });

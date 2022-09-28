@@ -4,11 +4,12 @@ import { promises as fs, rmdirSync } from 'fs';
 import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from 'electron-rebuild';
-import type { ConsoleMessage } from 'puppeteer';
+import type { ConsoleMessageType } from 'puppeteer';
 import {
   run as packageCompass,
   compileAssets,
@@ -58,11 +59,18 @@ interface Coverage {
   renderer: string;
 }
 
+interface RenderLogEntry {
+  timestamp: string;
+  type: ConsoleMessageType;
+  text: string;
+  args: unknown;
+}
+
 export class Compass {
   browser: CompassBrowser;
   isFirstRun: boolean;
   testPackagedApp: boolean;
-  renderLogs: any[]; // TODO
+  renderLogs: RenderLogEntry[];
   logs: LogEntry[];
   logPath?: string;
   userDataPath?: string;
@@ -93,9 +101,10 @@ export class Compass {
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
 
-    page.on('console', (message: any) => {
-      // TODO: why is this a different ConsoleMessage? Different versions of puppeteer?
-      message = message as ConsoleMessage;
+    // TS infers the type of `message` correctly here, which would conflict with
+    // what we get from `import type { ConsoleMessage } from 'puppeteer'`, so we
+    // leave out an explicit type annotation.
+    page.on('console', (message) => {
       const run = async () => {
         // human and machine readable, always UTC
         const timestamp = new Date().toISOString();
@@ -264,6 +273,9 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
+  noCloseSettingsModal?: boolean;
+  extraSpawnArgs?: string[];
+  wrapBinary?: (binary: string) => Promise<string> | string;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -284,11 +296,45 @@ export function removeUserDataDir(): void {
   }
 }
 
-async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+async function getCompassExecutionParameters(): Promise<{
+  testPackagedApp: boolean;
+  binary: string;
+}> {
   const testPackagedApp = ['1', 'true'].includes(
     process.env.TEST_PACKAGED_APP ?? ''
   );
+  const binary = testPackagedApp
+    ? getCompassBinPath(await getCompassBuildMetadata())
+    : require('electron');
+  return { testPackagedApp, binary };
+}
 
+export async function runCompassOnce(args: string[], timeout = 30_000) {
+  const { binary } = await getCompassExecutionParameters();
+  debug('spawning compass...', {
+    binary,
+    COMPASS_PATH,
+    defaultUserDataDir,
+    args,
+    timeout,
+  });
+  const { stdout, stderr } = await promisify(execFile)(
+    binary,
+    [
+      COMPASS_PATH,
+      '--ignore-additional-command-line-flags',
+      `--user-data-dir=${String(defaultUserDataDir)}`,
+      '--no-sandbox', // See below
+      ...args,
+    ],
+    { timeout }
+  );
+  debug('Ran compass with args', { args, stdout, stderr });
+  return { stdout, stderr };
+}
+
+async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+  const { testPackagedApp, binary } = await getCompassExecutionParameters();
   const nowFormatted = formattedDate();
 
   const isFirstRun = opts.firstRun || !defaultUserDataDir;
@@ -326,9 +372,6 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
   await fs.mkdir(COVERAGE_PATH, { recursive: true });
 
-  const binary = testPackagedApp
-    ? getCompassBinPath(await getCompassBuildMetadata())
-    : require('electron');
   const chromeArgs = [];
 
   if (!testPackagedApp) {
@@ -340,13 +383,16 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // https://peter.sh/experiments/chromium-command-line-switches/
   // https://www.electronjs.org/docs/latest/api/command-line-switches
   chromeArgs.push(
+    // Allow options such as --user-data-dir to pass through the command line
+    // flag validation code.
+    '--ignore-additional-command-line-flags',
     `--user-data-dir=${defaultUserDataDir}`,
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
     '--media-router=0',
     // Evergren RHEL ci runs everything as root, and chrome will not start as
     // root without this flag
-    '--no-sandbox'
+    '--no-sandbox',
 
     // chomedriver options
     // TODO: cant get this to work
@@ -360,6 +406,8 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     //'--log-level=INFO',
     //'--v=1',
     // --vmodule=pattern
+
+    ...(opts.extraSpawnArgs ?? [])
   );
 
   // https://webdriver.io/docs/options/#webdriver-options
@@ -370,11 +418,18 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
 
   // https://webdriver.io/docs/options/#webdriverio
   const wdioOptions = {
-    waitforTimeout: 10000, // default is 3000ms
-    waitforInterval: 100, // default is 500ms
+    // default is 3000ms
+    waitforTimeout: process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT
+      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT)
+      : 120_000,
+    // default is 500ms
+    waitforInterval: process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL
+      ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL)
+      : 100,
   };
 
-  process.env.COMPASS_CLUSTERED_COLLECTIONS = 'true';
+  const maybeWrappedBinary = (await opts.wrapBinary?.(binary)) ?? binary;
+
   process.env.APP_ENV = 'webdriverio';
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
@@ -385,7 +440,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
       browserName: 'chrome',
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
-        binary,
+        binary: maybeWrappedBinary,
         args: chromeArgs,
       },
       // more chrome options
@@ -604,18 +659,15 @@ function augmentError(error: Error, stack: string) {
 }
 
 export async function beforeTests(
-  opts?: StartCompassOptions
+  opts: StartCompassOptions = {}
 ): Promise<Compass> {
   const compass = await startCompass(opts);
 
   const { browser } = compass;
 
   await browser.waitForConnectionScreen();
-  if (process.env.SHOW_TOUR) {
-    await browser.closeTourModal();
-  }
-  if (compass.isFirstRun) {
-    await browser.closePrivacySettingsModal();
+  if (compass.isFirstRun && !opts.noCloseSettingsModal) {
+    await browser.closeSettingsModal();
   }
 
   return compass;

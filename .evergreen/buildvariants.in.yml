@@ -1,27 +1,4 @@
 buildvariants:
-  - name: macos_gui
-    display_name: MacOS (Test w/ GUI Session)
-    # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
-    run_on: macos-1014-codesign
-    tasks:
-      - name: test-electron
-      # TODO: These tests are not currently running due to keychain access
-      #       missing. We disable this step to not block codesign machine time
-      #       with bootstrap / teardown that does nothing. We should be able to
-      #       enable these tests after https://jira.mongodb.org/browse/BUILD-14458
-      # - name: test-packaged-app-macos
-
-  - name: macos
-    display_name: MacOS (Test and Package)
-    # TODO: Change this to our pool of machines when https://jira.mongodb.org/browse/BUILD-14120 is done
-    run_on: macos-1014
-    tasks:
-      - name: test
-      - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
-
   - name: coverage
     display_name: E2E Coverage
     run_on: ubuntu1604-large
@@ -33,6 +10,7 @@ buildvariants:
     run_on: ubuntu1604-large
     tasks:
       - name: publish
+      - name: publish-packages-next
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests

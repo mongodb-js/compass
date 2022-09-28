@@ -1,16 +1,8 @@
 const Connection = require('./legacy-connection');
 const Collection = require('ampersand-rest-collection');
 const storageMixin = require('storage-mixin');
-
-let appName;
-
-try {
-  const electron = require('electron');
-  appName = electron.remote ? electron.remote.app.getName() : undefined;
-} catch (e) {
-  /* eslint no-console: 0 */
-  console.log('Could not load electron', e.message);
-}
+const { getStoragePaths } = require('@mongodb-js/compass-utils');
+const { appName } = getStoragePaths() || {};
 
 /**
  * Configuration for connecting to a MongoDB Deployment.

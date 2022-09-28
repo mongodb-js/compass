@@ -1,9 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import {
   Body,
-  Button,
   ErrorSummary,
-  Icon,
   Link,
   Toolbar,
   WarningSummary,
@@ -48,10 +46,6 @@ const schemaToolbarActionBarRightStyles = css({
   paddingLeft: spacing[2],
 });
 
-const exportToLanguageButtonStyles = css({
-  flexShrink: 0,
-});
-
 const ERROR_WARNING = 'An error occurred during schema analysis';
 const INCREASE_MAX_TIME_MS_HINT_MESSAGE =
   'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
@@ -69,7 +63,6 @@ type SchemaToolbarProps = {
   isOutdated: boolean;
   localAppRegistry: AppRegistry;
   onAnalyzeSchemaClicked: () => void;
-  onExportToLanguageClicked: (queryState: any) => void;
   onResetClicked: () => void;
   sampleSize: number;
   schemaResultId: string;
@@ -81,7 +74,6 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   isOutdated,
   localAppRegistry,
   onAnalyzeSchemaClicked,
-  onExportToLanguageClicked,
   onResetClicked,
   sampleSize,
   schemaResultId,
@@ -117,25 +109,13 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           onReset={onResetClicked}
         />
       </div>
-      <div className={schemaToolbarActionBarStyles}>
-        <Button
-          className={exportToLanguageButtonStyles}
-          variant="primaryOutline"
-          size="xsmall"
-          leftGlyph={<Icon glyph={'Export'} />}
-          onClick={() =>
-            onExportToLanguageClicked(queryBarRef.current.store.state)
-          }
-          data-testid="schema-toolbar-export-button"
-        >
-          Export to language
-        </Button>
-        {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
+      {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
+        <div className={schemaToolbarActionBarStyles}>
           <div
             className={schemaToolbarActionBarRightStyles}
             data-testid="schema-document-count"
           >
-            <Body>
+            <Body data-testid="schema-analysis-message">
               This report is based on a sample of&nbsp;<b>{sampleSize}</b>&nbsp;
               {documentsNoun}.
             </Body>
@@ -147,8 +127,8 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
               Learn more
             </Link>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       {analysisState === ANALYSIS_STATE_ERROR && (
         <ErrorSummary
           data-testid="schema-toolbar-error-message"

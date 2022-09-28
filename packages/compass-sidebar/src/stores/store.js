@@ -1,31 +1,43 @@
 import { createStore, applyMiddleware } from 'redux';
 import throttle from 'lodash/throttle';
-import reducer from '../modules';
 import thunk from 'redux-thunk';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
-
+import reducer from '../modules';
 import { changeInstance } from '../modules/instance';
+import { changeLocation } from '../modules/location';
 import { changeActiveNamespace, changeDatabases } from '../modules/databases';
 import { reset } from '../modules/reset';
-import { toggleIsWritable } from '../modules/is-writable';
-import { changeDescription } from '../modules/description';
-import { toggleIsDataLake } from '../modules/is-data-lake';
-import { loadDetailsPlugins } from '../modules/details-plugins';
-import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { changeConnectionInfo } from '../modules/connection-info';
+import { changeConnectionOptions } from '../modules/connection-options';
+import { toggleSidebar } from '../modules/is-expanded';
+
+// We use these symbols so that nothing from outside can access these values on
+// the store
+const kInstance = Symbol('instance');
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
-  const onInstanceChange = throttle((instance) => {
+  const onInstanceChangeNow = (instance) => {
     store.dispatch(
       changeInstance({
         refreshingStatus: instance.refreshingStatus,
         databasesStatus: instance.databasesStatus,
         csfleMode: instance.csfleMode,
+        build: instance.build.toJSON(),
+        dataLake: instance.dataLake.toJSON(),
+        genuineMongoDB: instance.genuineMongoDB.toJSON(),
+        topologyDescription: instance.topologyDescription.toJSON(),
+        isWritable: instance.isWritable,
+        env: instance.env,
+        isAtlas: instance.isAtlas,
       })
     );
+  };
+
+  const onInstanceChange = throttle((instance) => {
+    onInstanceChangeNow(instance);
   }, 300);
 
   function getDatabaseInfo(db) {
@@ -54,15 +66,16 @@ store.onActivated = (appRegistry) => {
         }),
       };
     });
+
     store.dispatch(changeDatabases(dbs));
   }, 300);
 
   store.dispatch(globalAppRegistryActivated(appRegistry));
 
-  store.dispatch(loadDetailsPlugins(appRegistry));
-
   appRegistry.on('data-service-connected', (_, dataService, connectionInfo) => {
     store.dispatch(changeConnectionInfo(connectionInfo));
+    const connectionOptions = dataService.getConnectionOptions();
+    store.dispatch(changeConnectionOptions(connectionOptions)); // stores ssh tunnel status
 
     appRegistry.removeAllListeners('sidebar-toggle-csfle-enabled');
     appRegistry.on('sidebar-toggle-csfle-enabled', (enabled) => {
@@ -72,12 +85,24 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('instance-destroyed', () => {
+    store[kInstance].off();
+    store[kInstance].build.off();
+    store[kInstance].dataLake.off();
+    store[kInstance].genuineMongoDB.off();
+    store[kInstance] = null;
     onInstanceChange.cancel();
     onDatabasesChange.cancel();
   });
 
   appRegistry.on('instance-created', ({ instance }) => {
-    onInstanceChange(instance);
+    if (store[kInstance]) {
+      // we should probably throw in this case
+      return;
+    }
+
+    store[kInstance] = instance;
+
+    onInstanceChangeNow(instance);
     onDatabasesChange(instance.databases);
 
     instance.on('change:csfleMode', () => {
@@ -85,7 +110,12 @@ store.onActivated = (appRegistry) => {
     });
 
     instance.on('change:refreshingStatus', () => {
-      onInstanceChange(instance);
+      // This will always fire when we start fetching the instance details which
+      // will cause a 300ms throttle before any instance details can update if
+      // we send it though the throttled update. That's long enough for the
+      // sidebar to display that we're connected to a standalone instance when
+      // we're really connected to dataLake.
+      onInstanceChangeNow(instance);
     });
 
     instance.on('change:databasesStatus', () => {
@@ -93,7 +123,7 @@ store.onActivated = (appRegistry) => {
       onDatabasesChange(instance.databases);
     });
 
-    instance.on('change:databases.status', () => {
+    instance.on('change:databases', () => {
       onDatabasesChange(instance.databases);
     });
 
@@ -101,51 +131,70 @@ store.onActivated = (appRegistry) => {
       onDatabasesChange(instance.databases);
     });
 
-    function onIsGenuineChange(isGenuine) {
-      store.dispatch(toggleIsGenuineMongoDB(!!isGenuine));
-      store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
-    }
+    instance.build.on('change:isEnterprise', () => {
+      onInstanceChange(instance);
+    });
 
-    onIsGenuineChange(instance.genuineMongoDB.isGenuine);
+    instance.build.on('change:version', () => {
+      onInstanceChange(instance);
+    });
+
+    instance.dataLake.on('change:isDataLake', () => {
+      onInstanceChange(instance);
+    });
+
+    instance.dataLake.on('change:version', () => {
+      onInstanceChange(instance);
+    });
+
+    store.dispatch(
+      toggleIsGenuineMongoDBVisible(!instance.genuineMongoDB.isGenuine)
+    );
 
     instance.genuineMongoDB.on('change:isGenuine', (model, isGenuine) => {
-      onIsGenuineChange(isGenuine);
+      onInstanceChange(instance); // isGenuineMongoDB is part of instance state
+      store.dispatch(toggleIsGenuineMongoDBVisible(!isGenuine));
     });
 
-    function onIsDataLakeChange(isDataLake) {
-      store.dispatch(toggleIsDataLake(isDataLake));
-    }
-
-    onIsDataLakeChange(instance.dataLake.isDataLake);
-
-    instance.dataLake.on('change:isDataLake', (model, isDataLake) => {
-      onIsDataLakeChange(isDataLake);
+    instance.on('change:topologyDescription', () => {
+      onInstanceChange(instance);
     });
-  });
 
-  appRegistry.getStore('DeploymentAwareness.WriteStateStore').listen((state) => {
-    store.dispatch(toggleIsWritable(state.isWritable));
-    store.dispatch(changeDescription(state.description));
+    instance.on('change:isWritable', () => {
+      onInstanceChange(instance);
+    });
+
+    instance.on('change:env', () => {
+      onInstanceChange(instance);
+    });
   });
 
   appRegistry.on('select-namespace', ({ namespace }) => {
     store.dispatch(changeActiveNamespace(namespace));
+    store.dispatch(changeLocation('collection'));
   });
 
   appRegistry.on('open-namespace-in-new-tab', ({ namespace }) => {
     store.dispatch(changeActiveNamespace(namespace));
+    store.dispatch(changeLocation('collection'));
   });
 
   appRegistry.on('select-database', (dbName) => {
     store.dispatch(changeActiveNamespace(dbName));
+    store.dispatch(changeLocation('database'));
   });
 
-  appRegistry.on('open-instance-workspace', () => {
+  appRegistry.on('open-instance-workspace', (tabName = null) => {
     store.dispatch(changeActiveNamespace(''));
+    store.dispatch(changeLocation(tabName));
   });
 
   appRegistry.on('data-service-disconnected', () => {
     store.dispatch(reset());
+  });
+
+  appRegistry.on('toggle-sidebar', () => {
+    store.dispatch(toggleSidebar());
   });
 };
 

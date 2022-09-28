@@ -1,3 +1,6 @@
+import { preferencesIpc } from 'compass-preferences-model';
+const ipc = require('hadron-ipc');
+
 const PREFIX = 'auto-updates';
 
 /**
@@ -67,5 +70,43 @@ export const visitReleaseNotes = () => {
   return () => {
     const { shell } = require('electron');
     shell.openExternal(RELEASE_NOTES);
+  };
+};
+
+/**
+ * The autoUpdates preference value changed.
+ *
+ * @param {Boolean} autoUpdates - The autoUpdates preference value.
+ */
+const autoUpdatesChanged = (autoUpdates) => {
+  if (autoUpdates) {
+    ipc.call('app:enable-auto-update');
+  } else {
+    ipc.call('app:disable-auto-update');
+  }
+};
+
+/**
+ * Initialise the autoUpdates preference.
+ *
+ * @returns {Function} The function.
+ */
+export const initAutoUpdates = () => {
+  return async() => {
+    const { autoUpdates } = await preferencesIpc.getPreferences();
+    autoUpdatesChanged(autoUpdates);
+  };
+};
+
+/**
+ * Toggle the autoUpdates preference change.
+ *
+ * @param {Boolean} autoUpdates - The autoUpdates preference value.
+ *
+ * @returns {Function} The function.
+ */
+export const toggleAutoUpdates = (autoUpdates) => {
+  return () => {
+    autoUpdatesChanged(autoUpdates);
   };
 };

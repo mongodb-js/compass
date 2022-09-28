@@ -4,6 +4,7 @@ import {
   ThemeProvider,
   ToastArea,
 } from '@mongodb-js/compass-components';
+import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import ipc from 'hadron-ipc';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
@@ -167,6 +168,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
     dispatch({
       type: 'disconnected',
     });
+    hideCollectionSubMenu();
     updateTitle(appName);
   }, [appName]);
 
@@ -243,7 +245,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   }
 
   return (
-    <div className={homeViewStyles} data-test-id="home-view">
+    <div className={homeViewStyles} data-testid="home-view">
       <div className={homePageStyles}>
         <Connections onConnected={onConnected} appName={appName} />
       </div>
@@ -256,8 +258,10 @@ function ThemedHome(
 ): ReturnType<typeof Home> {
   const appRegistry = useAppRegistryContext();
 
-  const [theme, setTheme] = useState<Theme>({
+  const [theme, setTheme] = useState<ThemeState>({
     theme: (global as any).hadronApp?.theme ?? Theme.Light,
+    // useful for quickly testing the new dark sidebar without rebuilding
+    //theme: Theme.Dark, enabled: true
   });
 
   function onDarkModeEnabled() {

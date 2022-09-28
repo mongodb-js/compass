@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   H3,
   Description,
@@ -7,20 +7,34 @@ import {
   uiColors,
   css,
   cx,
+  useTheme,
+  Theme,
+  ItemActionControls,
+  useHoverState,
+  useToast,
+  ToastVariant,
 } from '@mongodb-js/compass-components';
+
+import type { ItemAction } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 
-import ConnectionMenu from './connection-menu';
 import ConnectionIcon from './connection-icon';
 import { useConnectionColor } from '@mongodb-js/connection-form';
 
-const connectionMenuHiddenStyles = css({
-  visibility: 'hidden',
-});
+const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
-const connectionMenuVisibleStyles = css({
-  visibility: 'visible',
+type Action =
+  | 'copy-connection-string'
+  | 'duplicate-connection'
+  | 'remove-connection';
+
+const itemActionControls = css({
+  position: 'absolute',
+  right: spacing[1],
+  top: spacing[2] + spacing[1],
+  margin: 'auto 0',
+  bottom: 0,
 });
 
 const connectionButtonContainerStyles = css({
@@ -32,15 +46,12 @@ const connectionButtonContainerStyles = css({
       width: spacing[1],
     },
   },
-  [`&:hover .${connectionMenuHiddenStyles}`]: connectionMenuVisibleStyles,
   '&:focus': {
     '&::after': {
       opacity: 1,
       width: spacing[1],
     },
   },
-  [`&:focus-within .${connectionMenuHiddenStyles}`]:
-    connectionMenuVisibleStyles,
   '&:focus-within': {
     '&::after': {
       opacity: 1,
@@ -68,16 +79,27 @@ const connectionButtonStyles = css({
   '&:hover': {
     cursor: 'pointer',
     border: 'none',
-    background: uiColors.gray.dark2,
   },
   '&:focus': {
     border: 'none',
   },
 });
 
+const connectionButtonStylesLight = css({
+  '&:hover': {
+    backgroundColor: uiColors.gray.light2,
+  },
+});
+
+const connectionButtonStylesDark = css({
+  '&:hover': {
+    background: uiColors.gray.dark2,
+  },
+});
+
 const connectionTitleStyles = css({
-  color: uiColors.white,
   fontSize: compassFontSizes.defaultFontSize,
+  fontWeight: 'normal',
   lineHeight: '20px',
   margin: 0,
   flexGrow: 1,
@@ -90,8 +112,6 @@ const connectionTitleStyles = css({
 });
 
 const connectionDescriptionStyles = css({
-  color: uiColors.gray.base,
-  fontWeight: 'bold',
   fontSize: '12px',
   lineHeight: '20px',
   margin: 0,
@@ -126,9 +146,10 @@ function FavoriteColorIndicator({
       className={cx(
         css({
           background: favoriteColorHex,
-          height: '100%',
+          height: 'calc(100% - 4px)',
           width: spacing[2],
           borderRadius: spacing[2],
+          margin: '2px 0',
           marginRight: spacing[2],
           gridArea: 'color',
         }),
@@ -160,28 +181,108 @@ function Connection({
     lastUsed,
   } = connectionInfo;
 
+  const { theme } = useTheme();
+
   const { connectionColorToHex } = useConnectionColor();
   const favoriteColorHex = connectionColorToHex(favorite?.color) ?? '';
 
   const hasColoredBackground = isActive && favoriteColorHex;
-  const titleColor = hasColoredBackground ? uiColors.black : uiColors.white;
+  const normalTitleColor =
+    theme === Theme.Dark ? uiColors.white : uiColors.gray.dark3;
+  const titleColor = hasColoredBackground ? uiColors.black : normalTitleColor;
   const backgroundColor = hasColoredBackground
     ? `${favoriteColorHex} !important`
     : 'none';
 
+  const normalDescriptionColor =
+    theme === Theme.Dark ? uiColors.gray.light1 : uiColors.gray.base;
   const descriptionColor = hasColoredBackground
     ? uiColors.gray.dark3
-    : uiColors.gray.base;
+    : normalDescriptionColor;
 
+  const normalConnectionMenuColor =
+    theme === Theme.Dark ? 'white' : uiColors.gray.base;
   const connectionMenuColor = hasColoredBackground
     ? uiColors.gray.dark3
-    : uiColors.white;
+    : normalConnectionMenuColor;
+
+  const actions = useMemo(() => {
+    const actions: ItemAction<Action>[] = [];
+
+    actions.push({
+      action: 'copy-connection-string',
+      label: 'Copy connection string',
+      icon: 'Copy',
+    });
+
+    actions.push({
+      action: 'duplicate-connection',
+      label: 'Duplicate',
+      icon: 'Clone',
+    });
+
+    actions.push({
+      action: 'remove-connection',
+      label: 'Remove',
+      icon: 'Trash',
+    });
+
+    return actions;
+  }, []);
+
+  const { openToast } = useToast('compass-connections');
+
+  const onAction = useCallback(
+    (action) => {
+      async function copyConnectionString(connectionString: string) {
+        try {
+          await navigator.clipboard.writeText(connectionString);
+          openToast('copy-to-clipboard', {
+            title: 'Success',
+            body: 'Copied to clipboard.',
+            variant: ToastVariant.Success,
+            timeout: TOAST_TIMEOUT_MS,
+          });
+        } catch (err) {
+          openToast('copy-to-clipboard', {
+            title: 'Error',
+            body: 'An error occurred when copying to clipboard. Please try again.',
+            variant: ToastVariant.Warning,
+            timeout: TOAST_TIMEOUT_MS,
+          });
+        }
+      }
+
+      if (action === 'copy-connection-string') {
+        void copyConnectionString(
+          connectionInfo.connectionOptions.connectionString
+        );
+        return;
+      }
+
+      if (action === 'duplicate-connection') {
+        duplicateConnection(connectionInfo);
+        return;
+      }
+
+      if (action === 'remove-connection') {
+        removeConnection(connectionInfo);
+        return;
+      }
+    },
+    [connectionInfo, duplicateConnection, openToast, removeConnection]
+  );
+
+  const [hoverProps, isHovered] = useHoverState();
 
   return (
-    <div className={connectionButtonContainerStyles}>
+    <div className={connectionButtonContainerStyles} {...hoverProps}>
       <button
         className={cx(
           connectionButtonStyles,
+          theme === Theme.Dark
+            ? connectionButtonStylesDark
+            : connectionButtonStylesLight,
           css({ background: backgroundColor })
         )}
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}
@@ -208,7 +309,9 @@ function Connection({
         <Description
           className={cx(
             connectionDescriptionStyles,
-            css({ color: descriptionColor })
+            css({
+              color: descriptionColor,
+            })
           )}
           data-testid={`${
             favorite ? 'favorite' : 'recent'
@@ -217,18 +320,17 @@ function Connection({
           {lastUsed ? lastUsed.toLocaleString('default', dateConfig) : 'Never'}
         </Description>
       </button>
-      <div
-        className={
-          isActive ? connectionMenuVisibleStyles : connectionMenuHiddenStyles
-        }
-      >
-        <ConnectionMenu
-          iconColor={connectionMenuColor}
-          connectionString={connectionInfo.connectionOptions.connectionString}
-          connectionInfo={connectionInfo}
-          duplicateConnection={duplicateConnection}
-          removeConnection={removeConnection}
-        />
+      <div className={itemActionControls}>
+        <ItemActionControls<Action>
+          data-testid="connection-menu"
+          onAction={onAction}
+          iconSize="small"
+          actions={actions}
+          isVisible={isHovered}
+          iconClassName={css({
+            color: connectionMenuColor,
+          })}
+        ></ItemActionControls>
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ class ViewSwitcher extends React.Component {
         <Button
           key={label}
           active={active}
-          data-test-id={dataTestId}
+          data-testid={dataTestId}
           disabled={this.props.disabled}
           onClick={this.props.onClick.bind(this, label)}
           bsSize="xsmall">

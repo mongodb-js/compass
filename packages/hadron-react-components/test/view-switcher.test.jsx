@@ -23,10 +23,10 @@ describe('<ViewSwitcher />', () => {
     expect(component.find('.view-switcher-label').at(0)).to.contain.text('Edit Mode');
   });
 
-  it('sets the data-test-id', () => {
-    expect(component.find('[data-test-id="chart-view-switcher-chart-builder"]').at(0)).
+  it('sets the data-testid', () => {
+    expect(component.find('[data-testid="chart-view-switcher-chart-builder"]').at(0)).
       to.contain.text('Chart Builder');
-    expect(component.find('[data-test-id="chart-view-switcher-json-editor"]').at(0)).
+    expect(component.find('[data-testid="chart-view-switcher-json-editor"]').at(0)).
       to.contain.text('JSON Editor');
   });
 
@@ -72,9 +72,9 @@ describe('<ViewSwitcher />', () => {
     );
 
     it('component contains no text', () => {
-      expect(noLabelComponent.find('[data-test-id="chart-view-switcher-list"]').at(0)).
+      expect(noLabelComponent.find('[data-testid="chart-view-switcher-list"]').at(0)).
         to.have.text('');
-      expect(noLabelComponent.find('[data-test-id="chart-view-switcher-table"]').at(0)).
+      expect(noLabelComponent.find('[data-testid="chart-view-switcher-table"]').at(0)).
         to.have.text('');
     });
   });

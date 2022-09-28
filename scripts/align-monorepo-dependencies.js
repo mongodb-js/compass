@@ -5,7 +5,6 @@ const path = require('path');
 const { runInDir } = require('./run-in-dir');
 const { updatePackageJson } = require('./monorepo/update-package-json');
 const { withProgress } = require('./monorepo/with-progress');
-const semver = require('semver');
 
 const LERNA_BIN = path.resolve(
   __dirname,
@@ -21,27 +20,18 @@ const NO_COMMIT = process.argv.includes('--no-commit');
 
 const NO_PACKAGE_LOCK = process.argv.includes('--no-package-lock');
 
-async function checkNpmVersion() {
-  const version = (await runInDir('npm -v')).stdout.trim();
-  if (semver.lte(version, '7.20.2')) {
-    return true;
-  }
-  throw new Error(
-    "Can't proceed with the update: npm >= 7.20.3 can't install local dependencies from unpublished versions, please install npm@7.20.2 and try again. For more info see https://github.com/npm/cli/issues/3637"
-  );
-}
-
 async function main() {
-  if (!NO_PACKAGE_LOCK) {
-    await checkNpmVersion();
-  }
-
   const packages = JSON.parse(
     (await runInDir(`${LERNA_BIN} list --all --json --toposort`)).stdout
   );
 
   const packageToVersionMap = new Map(
-    packages.map((pkg) => [pkg.name, `^${pkg.version}`])
+    packages.map((pkg) => [
+      pkg.name,
+      /^\d+\.\d+\.\d+-.+/.test(pkg.version)
+        ? `${pkg.version}`
+        : `^${pkg.version}`,
+    ])
   );
 
   for (const pkg of packages) {

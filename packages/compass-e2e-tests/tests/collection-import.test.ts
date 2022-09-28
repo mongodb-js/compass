@@ -21,7 +21,7 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
 
   // wait for the modal to appear and select the file
   const importModal = await browser.$(Selectors.ImportModal);
-  await importModal.waitForDisplayed({ timeout: 10_000 });
+  await importModal.waitForDisplayed();
   await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
   // make sure it auto-selected JSON and then confirm
@@ -34,7 +34,7 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
 
   // wait for the done button to appear and then click it
   const doneButton = await browser.$(Selectors.ImportDone);
-  await doneButton.waitForDisplayed({ timeout: 60_000 });
+  await doneButton.waitForDisplayed();
   await browser.clickVisible(Selectors.ImportDone);
 
   // wait for the modal to go away
@@ -126,7 +126,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === 'Displaying documents 1 - 1 of 1';
+      return text === '1 - 1 of 1';
     });
 
     const result = await getFirstListDocument(browser);
@@ -157,7 +157,7 @@ describe('Collection import', function () {
 
     // pick list view
     await browser.clickVisible(
-      '[data-test-id="insert-document-dialog-view-list"]'
+      '[data-testid="insert-document-dialog-view-list"]'
     );
 
     // hover over the generated ObjectId to get the '+' for adding a new field
@@ -198,7 +198,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === 'Displaying documents 1 - 1 of 1';
+      return text === '1 - 1 of 1';
     });
 
     const result = await getFirstListDocument(browser);
@@ -252,7 +252,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === 'Displaying documents 1 - 20 of 1000';
+      return text === '1 - 20 of 1000';
     });
 
     const result = await getFirstListDocument(browser);
@@ -311,7 +311,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('Displaying documents 1 - 20 of 16116');
+    expect(text).to.equal('1 - 20 of 16116');
 
     const result = await getFirstListDocument(browser);
 
@@ -360,7 +360,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('Displaying documents 1 - 1 of 1');
+    expect(text).to.equal('1 - 1 of 1');
 
     const result = await getFirstListDocument(browser);
 
@@ -407,7 +407,7 @@ describe('Collection import', function () {
 
     // wait for the modal to appear and select the file
     const importModal = await browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed({ timeout: 10_000 });
+    await importModal.waitForDisplayed();
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
     // select file type JSON
@@ -446,7 +446,7 @@ describe('Collection import', function () {
 
     // wait for the modal to appear and select the file
     const importModal = await browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed({ timeout: 10_000 });
+    await importModal.waitForDisplayed();
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // make sure it auto-selected CSV
@@ -484,7 +484,7 @@ describe('Collection import', function () {
 
     // wait for the done button to appear and then click it
     const doneButton = await browser.$(Selectors.ImportDone);
-    await doneButton.waitForDisplayed({ timeout: 60_000 });
+    await doneButton.waitForDisplayed();
 
     await browser.clickVisible(Selectors.ImportDone);
 
@@ -495,7 +495,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('Displaying documents 1 - 20 of 16116');
+    expect(text).to.equal('1 - 20 of 16116');
 
     const result = await getFirstListDocument(browser);
 
@@ -545,7 +545,7 @@ describe('Collection import', function () {
 
     // wait for the modal to appear and select the file
     const importModal = await browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed({ timeout: 10_000 });
+    await importModal.waitForDisplayed();
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // make sure it auto-selected CSV
@@ -580,7 +580,7 @@ describe('Collection import', function () {
 
     // wait for the done button to appear and then click it
     const doneButton = await browser.$(Selectors.ImportDone);
-    await doneButton.waitForDisplayed({ timeout: 60_000 });
+    await doneButton.waitForDisplayed();
 
     await browser.clickVisible(Selectors.ImportDone);
 
@@ -591,7 +591,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('Displaying documents 1 - 1 of 1');
+    expect(text).to.equal('1 - 1 of 1');
 
     const result = await getFirstListDocument(browser);
 
@@ -625,7 +625,7 @@ describe('Collection import', function () {
 
     // wait for the modal to appear and select the file
     const importModal = await browser.$(Selectors.ImportModal);
-    await importModal.waitForDisplayed({ timeout: 10_000 });
+    await importModal.waitForDisplayed();
     await browser.selectFile(Selectors.ImportFileInput, csvPath);
 
     // make sure it auto-selected CSV

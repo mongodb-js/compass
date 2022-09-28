@@ -1,7 +1,7 @@
 {
   "name": "hadron-ipc",
   "description": "Simplified IPC for electron apps.",
-  "version": "2.10.0",
+  "version": "3.1.0",
   "scripts": {
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
     "lint": "eslint \"./{src,lib,test,bin}/**/*.{js,jsx,ts,tsx}\" \"./*.js\" --no-error-on-unmatched-pattern",
@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
+    "electron": "^15.5.7",
     "electron-mocha": "^10.1.0",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",

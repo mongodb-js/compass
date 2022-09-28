@@ -34,7 +34,7 @@ const CompassFindInPage: React.FunctionComponent<CompassFindInPageProps> = ({
   searching,
 }) => {
   return (
-    <div data-test-id="find-in-page">
+    <div data-testid="find-in-page">
       {enabled && (
         <FindInPageInput
           dispatchStopFind={dispatchStopFind}

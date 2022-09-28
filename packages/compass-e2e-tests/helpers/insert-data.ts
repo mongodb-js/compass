@@ -43,9 +43,13 @@ beforeEach(async () => {
   // Drop the databases that get created by tests just in case tests failed to
   // clean them up.
   await Promise.all(
-    ['test', 'my-sidebar-database', 'my-instance-database'].map((db) =>
-      dropDatabase(client.db(db))
-    )
+    [
+      'test',
+      'my-sidebar-database',
+      'my-instance-database',
+      'fle-test',
+      'db-for-fle',
+    ].map((db) => dropDatabase(client.db(db)))
   );
 });
 
@@ -82,4 +86,17 @@ export async function createNumbersCollection(): Promise<void> {
   await db
     .collection('numbers')
     .insertMany([...Array(1000).keys()].map((i) => ({ i, j: 0 })));
+}
+
+export async function createGeospatialCollection(): Promise<void> {
+  const db = client.db('test');
+
+  const lon = () => Math.random() * 360 - 180;
+  const lat = () => Math.random() * 180 - 90;
+
+  await db.collection('geospatial').insertMany(
+    [...Array(1000).keys()].map(() => ({
+      location: { type: 'Point', coordinates: [lon(), lat()] },
+    }))
+  );
 }

@@ -1,49 +1,44 @@
-/**
- * Create index columnstore projection action.
- */
-export const CHANGE_COLUMNSTORE_PROJECTION =
-  'indexes/create-index/columnstore-projection/CHANGE_COLUMNSTORE_PROJECTION';
+import type { AnyAction } from 'redux';
 
-type ColumnstoreProjectionState = string;
+/**
+ * Columnstore projection changed action name.
+ */
+export const COLUMNSTORE_PROJECTION_CHANGED =
+  'indexes/create-index/columnstore-projection/COLUMNSTORE_PROJECTION_CHANGED';
 
 /**
  * The initial state of the columnstore projection.
  */
 export const INITIAL_STATE = '';
 
-type ColumnstoreProjectionAction = {
-  type: typeof CHANGE_COLUMNSTORE_PROJECTION;
-  columnstoreProjection: string;
-};
-
 /**
- * Reducer function for handle state changes to create columnstore projection.
+ * Reducer function for handle the columnstore projection state changes.
  *
- * @param {String} state - The create columnstore projection state.
- * @param {Object} action - The action.
+ * @param state - The columnstore projection state.
+ * @param action - The action.
  *
- * @returns {String} The new state.
+ * @returns The new state.
  */
 export default function reducer(
   state = INITIAL_STATE,
-  action: ColumnstoreProjectionAction
-): ColumnstoreProjectionState {
-  if (action.type === CHANGE_COLUMNSTORE_PROJECTION) {
+  action: AnyAction
+): string {
+  if (action.type === COLUMNSTORE_PROJECTION_CHANGED) {
     return action.columnstoreProjection;
   }
   return state;
 }
 
 /**
- * The change columnstore projection action creator.
+ * Action creator for the columnstore projection changed event.
  *
- * @param {String} columnstoreProjection - The columnstore projection.
+ * @param columnstoreProjection - The columnstore projection.
  *
- * @returns {Object} The action.
+ * @returns The action.
  */
-export const changeColumnstoreProjection = (
+export const columnstoreProjectionChanged = (
   columnstoreProjection: string
-): ColumnstoreProjectionAction => ({
-  type: CHANGE_COLUMNSTORE_PROJECTION,
+): AnyAction => ({
+  type: COLUMNSTORE_PROJECTION_CHANGED,
   columnstoreProjection,
 });

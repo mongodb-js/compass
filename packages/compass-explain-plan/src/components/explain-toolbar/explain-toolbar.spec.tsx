@@ -40,10 +40,10 @@ const renderExplainToolbar = (
   render(
     <ExplainToolbar
       localAppRegistry={localAppRegistry}
-      explainResultId="123"
+      resultId="123"
       explainErrorMessage={undefined}
+      hasExplainResults={false}
       onExecuteExplainClicked={() => {}}
-      onExportToLanguageClicked={() => {}}
       showOutdatedWarning={false}
       showReadonlyWarning={false}
       switchToTreeView={() => {}}
@@ -54,40 +54,34 @@ const renderExplainToolbar = (
   );
 };
 
+const viewTypeSwitcherText = 'Raw Json';
+
 describe('ExplainToolbar', function () {
   afterEach(function () {
     sinon.restore();
   });
 
-  it('calls the click handler when the export to language is clicked', function () {
-    const onExportToLanguageClickedSpy = sinon.spy();
-
+  it('when there are no results it does not show the view switcher', function () {
+    const switchToJSONViewSpy = sinon.spy();
     renderExplainToolbar({
-      onExportToLanguageClicked: onExportToLanguageClickedSpy,
+      hasExplainResults: false,
+      switchToJSONView: switchToJSONViewSpy,
     });
 
-    expect(onExportToLanguageClickedSpy.called).to.be.false;
-    userEvent.click(screen.getByRole('button'));
-
-    expect(onExportToLanguageClickedSpy.calledOnce).to.be.true;
+    expect(screen.queryByText(viewTypeSwitcherText)).to.not.exist;
   });
 
   it('calls to change the view type when a different view type is chosen', function () {
     const switchToJSONViewSpy = sinon.spy();
     renderExplainToolbar({
+      hasExplainResults: true,
       switchToJSONView: switchToJSONViewSpy,
     });
 
     expect(switchToJSONViewSpy.called).to.be.false;
-    userEvent.click(screen.getByText('Raw Json'));
+    userEvent.click(screen.getByText(viewTypeSwitcherText));
 
     expect(switchToJSONViewSpy.calledOnce).to.be.true;
-  });
-
-  it('renders an export to language button', function () {
-    renderExplainToolbar();
-
-    expect(screen.getByText('Export to language')).to.be.visible;
   });
 
   it('renders the query bar role', function () {

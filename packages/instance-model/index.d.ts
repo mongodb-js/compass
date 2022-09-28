@@ -2,6 +2,9 @@ import type Collection from 'mongodb-collection-model';
 import type { DataService } from 'mongodb-data-service';
 import type { Collection as DatabaseCollection } from 'mongodb-database-model';
 
+import { ServerType } from './server-type';
+import { TopologyType } from './topology-type';
+
 interface AuthInfo {
   user: unknown | null;
   roles: unknown[] | null;
@@ -34,6 +37,17 @@ interface DataLake {
   version: string;
 }
 
+interface Server {
+  type: string
+  address: string
+}
+
+interface TopologyDescription {
+  type: string,
+  servers: Server[],
+  setName: string
+}
+
 declare class MongoDBInstanceProps {
   _id: string;
   hostname: string;
@@ -42,10 +56,17 @@ declare class MongoDBInstanceProps {
   statusError: string | null;
   databasesStatus: string;
   databasesStatusError: string | null;
-  refreshingStatus: string;
+  refreshingStatus: 'initial' | 'fetching' | 'refreshing' | 'ready' | 'error';
   refreshingStatusError: string | null;
   isAtlas: boolean;
+  atlasVersion: string;
   isRefreshing: boolean;
+  isTopologyWritable: boolean;
+  singleServerType: string | null;
+  isServerWritable: boolean;
+  isWritable: boolean;
+  description: string;
+  env: string;
   host: HostInfo;
   build: BuildInfo;
   genuineMongoDB: GenuineMongoDB;
@@ -53,6 +74,7 @@ declare class MongoDBInstanceProps {
   auth: AuthInfo;
   databases: DatabaseCollection;
   csfleMode: 'enabled' | 'disabled' | 'unavailable';
+  topologyDescription: TopologyDescription
 }
 
 declare class MongoDBInstance extends MongoDBInstanceProps {
@@ -79,5 +101,4 @@ declare class MongoDBInstance extends MongoDBInstanceProps {
   toJSON(opts?: { derived?: boolean }): this;
 }
 
-export default MongoDBInstance;
-export { MongoDBInstanceProps };
+export { MongoDBInstance, MongoDBInstanceProps, ServerType, TopologyType };

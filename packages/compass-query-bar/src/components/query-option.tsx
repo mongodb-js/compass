@@ -4,9 +4,9 @@ import {
   TextInput,
   css,
   cx,
-  focusRingStyles,
   spacing,
   uiColors,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
@@ -17,29 +17,41 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 const queryOptionStyles = css({
   display: 'flex',
   position: 'relative',
-  alignItems: 'center',
+  alignItems: 'flex-start',
+});
+
+const documentEditorOptionContainerStyles = css({
+  flexGrow: 1,
 });
 
 const queryOptionLabelStyles = css({
   // A bit of vertical padding so users can click the label easier.
-  padding: `${spacing[2]}px 0`,
+  paddingTop: spacing[1],
   marginRight: spacing[2],
 });
 
-const documentEditorOptionStyles = css(
-  {
-    minWidth: spacing[7],
-    display: 'flex',
-    flexGrow: 1,
-  },
-  focusRingStyles
+const documentEditorQueryOptionLabelStyles = cx(
+  queryOptionLabelStyles,
+  css({
+    minWidth: spacing[5] * 3,
+  })
 );
 
-const numericTextInputStyles = css({
+const documentEditorOptionStyles = css({
+  minWidth: spacing[7],
+  display: 'flex',
+  flexGrow: 1,
+});
+
+const numericTextInputLightStyles = css({
   input: {
-    // TODO: Decide border styles for query bar editors.
-    // Remove these commented styles if we want borders.
-    // borderColor: 'transparent',
+    borderColor: 'transparent',
+  },
+});
+
+const numericTextInputDarkStyles = css({
+  input: {
+    borderColor: 'transparent',
   },
 });
 
@@ -50,15 +62,25 @@ const optionInputWithErrorStyles = css({
 });
 
 const queryOptionLabelContainerStyles = css({
-  whiteSpace: 'nowrap',
+  // Hardcoded height as we want the label not to vertically
+  // center on the input area when it's expanded.
+  height: spacing[4] + spacing[1],
   textTransform: 'capitalize',
-  alignItems: 'center',
   display: 'flex',
-  margin: 0,
+  alignItems: 'center',
 });
 
+export const documentEditorLabelContainerStyles = cx(
+  queryOptionLabelContainerStyles,
+  css({
+    minWidth: spacing[5] * 3,
+  })
+);
+
 type QueryOptionProps = {
+  darkMode?: boolean;
   hasError: boolean;
+  id: string;
   onChange: (value: string) => void;
   onApply: () => void;
   placeholder?: string;
@@ -69,10 +91,12 @@ type QueryOptionProps = {
   value?: string;
 };
 
-const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
+const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
+  darkMode,
   hasError,
   onApply,
   onChange,
+  id,
   placeholder = '',
   queryOption,
   refreshEditorAction,
@@ -87,29 +111,39 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
 
   return (
     <div
-      className={queryOptionStyles}
+      className={cx(
+        queryOptionStyles,
+        isDocumentEditor && documentEditorOptionContainerStyles
+      )}
       data-testid={`query-bar-option-${queryOption}`}
     >
-      <div
-        className={queryOptionLabelContainerStyles}
-        data-testid="query-bar-option-label"
-      >
-        <Label
-          htmlFor={`query-bar-option-input-${queryOption}`}
-          id={`query-bar-option-input-${queryOption}-label`}
-          className={queryOptionLabelStyles}
-          // We hide the `Filter` label, but keep it in the dom for
-          // screen reader label support.
-          hidden={queryOption === 'filter'}
+      {/* The filter label is shown by the query bar. */}
+      {queryOption !== 'filter' && (
+        <div
+          className={
+            isDocumentEditor
+              ? documentEditorLabelContainerStyles
+              : queryOptionLabelContainerStyles
+          }
         >
-          {queryOption}
-        </Label>
-      </div>
+          <Label
+            htmlFor={id}
+            id={`query-bar-option-input-${queryOption}-label`}
+            className={
+              isDocumentEditor
+                ? documentEditorQueryOptionLabelStyles
+                : queryOptionLabelStyles
+            }
+          >
+            {queryOption}
+          </Label>
+        </div>
+      )}
       <div className={cx(isDocumentEditor && documentEditorOptionStyles)}>
         {isDocumentEditor ? (
           <OptionEditor
             hasError={hasError}
-            id={`query-bar-option-input-${queryOption}`}
+            id={id}
             queryOption={queryOption}
             onApply={onApply}
             onChange={onChange}
@@ -122,10 +156,12 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
         ) : (
           <TextInput
             aria-labelledby={`query-bar-option-input-${queryOption}-label`}
-            id={`query-bar-option-input-${queryOption}`}
+            id={id}
             data-testid="query-bar-option-input"
             className={cx(
-              numericTextInputStyles,
+              darkMode
+                ? numericTextInputDarkStyles
+                : numericTextInputLightStyles,
               hasError && optionInputWithErrorStyles
             )}
             type="text"
@@ -142,5 +178,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     </div>
   );
 };
+
+const QueryOption = withTheme(UnthemedQueryOption);
 
 export { QueryOption };

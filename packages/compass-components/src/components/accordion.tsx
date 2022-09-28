@@ -12,7 +12,9 @@ const buttonStyles = css({
   fontWeight: 'bold',
   fontSize: defaultFontSize,
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
+  paddingLeft: 0,
+  paddingRight: 0,
   border: 'none',
   background: 'none',
   borderRadius: '6px',
@@ -26,27 +28,28 @@ const buttonStyles = css({
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
 });
+
 const buttonLightThemeStyles = css({
   color: uiColors.gray.dark2,
 });
 const buttonDarkThemeStyles = css({
   color: uiColors.white,
 });
-const buttonIconStyles = css({
-  marginRight: spacing[1],
+const buttonIconContainerStyles = css({
+  padding: spacing[1] / 2, // matches the line-height (16 + 4)
+  paddingLeft: 0,
 });
 const buttonTextStyles = css({
-  alignItems: 'baseline',
-  display: 'flex',
+  textAlign: 'left',
 });
 const buttonHintStyles = css({
   margin: 0,
   marginLeft: spacing[1],
   padding: 0,
+  display: 'inline',
 });
-interface AccordionProps {
+interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
   darkMode?: boolean;
-  'data-testid'?: string;
   text: string | React.ReactNode;
   hintText?: string;
 }
@@ -62,7 +65,7 @@ function UnthemedAccordion({
   return (
     <>
       <button
-        data-testid={props['data-testid']}
+        {...props}
         className={cx(
           darkMode ? buttonDarkThemeStyles : buttonLightThemeStyles,
           buttonStyles
@@ -75,10 +78,10 @@ function UnthemedAccordion({
           setOpen((currentOpen) => !currentOpen);
         }}
       >
-        <Icon
-          className={buttonIconStyles}
-          glyph={open ? 'ChevronDown' : 'ChevronRight'}
-        />
+        <span className={buttonIconContainerStyles}>
+          <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
+        </span>
+
         <div className={buttonTextStyles}>
           {text}
           {hintText && (

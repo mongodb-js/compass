@@ -5,6 +5,10 @@ import createDebug from 'debug';
 import type { Writable } from 'stream';
 import type { HadronIpcRenderer } from 'hadron-ipc';
 
+let preferencesIpc: {
+  getPreferences(): Promise<{ trackUsageStatistics: boolean }>;
+};
+
 type TrackProps = Record<string, any> | (() => Record<string, any>);
 type TrackFunction = (event: string, properties?: TrackProps) => void;
 
@@ -57,12 +61,27 @@ export function createLoggerAndTelemetry(component: string): {
     event: string,
     properties: TrackProps = {}
   ): Promise<void> => {
-    const isTrackingEnabled = (global as any)?.hadronApp?.isFeatureEnabled(
-      'trackUsageStatistics'
-    );
-    if (!isTrackingEnabled) {
+    // Avoid circular dependency between compass-logging and compass-preferences-model
+    // Note that this is mainly a performance optimization, since the main process
+    // telemetry code also checks this preference value, so it is safe to fall back to 'true'.
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore-error Types from the dependency may not be available in early bootstrap.
+      preferencesIpc ??= (await import('compass-preferences-model'))
+        .preferencesIpc;
+    } catch {
+      preferencesIpc ??= {
+        getPreferences() {
+          return Promise.resolve({ trackUsageStatistics: true });
+        },
+      };
+    }
+    const { trackUsageStatistics = true } =
+      await preferencesIpc?.getPreferences();
+    if (!trackUsageStatistics) {
       return;
     }
+
     const data = {
       event,
       properties,

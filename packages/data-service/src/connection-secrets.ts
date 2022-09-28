@@ -32,6 +32,7 @@ export function mergeSecrets(
   const connectionOptions = connectionInfoWithSecrets.connectionOptions;
 
   const uri = new ConnectionString(connectionOptions.connectionString);
+
   const searchParams = uri.typedSearchParams<MongoClientOptions>();
 
   if (secrets.password) {
@@ -49,7 +50,7 @@ export function mergeSecrets(
 
   if (secrets.autoEncryption && connectionOptions.fleOptions?.autoEncryption) {
     _.merge(
-      connectionOptions.fleOptions?.autoEncryption,
+      connectionOptions.fleOptions.autoEncryption,
       secrets.autoEncryption
     );
   }
@@ -160,10 +161,27 @@ export function extractSecrets(connectionInfo: Readonly<ConnectionInfo>): {
       autoEncryption,
       secretPaths
     );
+    // Remove potentially empty KMS provider options objects,
+    // since libmongocrypt assumes that, if a KMS provider options
+    // object is present but empty, the caller will be able
+    // to provide credentials on demand.
+    if (connectionOptions.fleOptions.autoEncryption.kmsProviders)
+      connectionOptions.fleOptions.autoEncryption.kmsProviders =
+        omitPropertiesWhoseValuesAreEmptyObjects(
+          connectionOptions.fleOptions.autoEncryption.kmsProviders
+        );
     if (connectionOptions.fleOptions.storeCredentials) {
       secrets.autoEncryption = _.pick(autoEncryption, secretPaths);
     }
   }
 
   return { connectionInfo: connectionInfoWithoutSecrets, secrets };
+}
+
+function omitPropertiesWhoseValuesAreEmptyObjects<
+  T extends Record<string, Record<string, unknown>>
+>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => Object.keys(value).length > 0)
+  ) as Partial<T>;
 }

@@ -34,8 +34,8 @@ variables:
     EVERGREEN_TASK_URL: https://evergreen.mongodb.com/task/${task_id}
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
-    NODE_JS_VERSION: '14.17.5'
-    NPM_VERSION: '8.3.1'
+    NODE_JS_VERSION: '16.17.0'
+    NPM_VERSION: '8.15.1'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
@@ -67,6 +67,8 @@ variables:
     GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
+    EVERGREEN_BUCKET_NAME: mciuploads
+    EVERGREEN_BUCKET_KEY_PREFIX: ${project}/${revision}_${revision_order_id}
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -159,7 +161,10 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
 
           # Prepare workspaces in provided scope
-          npx lerna run bootstrap --stream --scope "${scope}"
+          npx lerna run bootstrap \
+            --stream \
+            --scope "${scope}" \
+            --include-dependencies
 
   check:
     command: shell.exec
@@ -184,6 +189,9 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
         script: |
           set -e
 
@@ -196,13 +204,7 @@ functions:
           # separately in the test-packaged-app task
           export IGNORE_TESTS="compass-e2e-tests"
 
-          # debug option is not very useful in normal runs, but helpful when
-          # debugging any issues with tests. Set to "mocha*", "hadron*", or
-          # "mongo*" for some helpful output from the test tooling we are using
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
+          npm run --unsafe-perm test-ci -- --stream --ignore="$IGNORE_TESTS"
 
   test-electron:
     - command: shell.exec
@@ -213,6 +215,9 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
         script: |
           set -e
 
@@ -224,10 +229,7 @@ functions:
           # Preparing native addons for electron runtime
           npm run --unsafe-perm electron-rebuild
 
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm test-ci-electron -- --stream
+          npm run --unsafe-perm test-ci-electron -- --stream
 
   apply-compass-target-expansion:
     - command: shell.exec
@@ -280,9 +282,11 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-
+          if [[ "${project}" == "10gen-compass-main" ]]; then
+            export npm_config_dry_run=true
+          fi
           echo "Uploading release assets to S3 and GitHub if needed..."
-          npm run --workspace mongodb-compass upload -- ${target_platform} ${target_arch} ${compass_distribution}
+          npm run --workspace mongodb-compass upload
 
   get-packaged-app:
     - <<: *get-artifact
@@ -306,11 +310,20 @@ functions:
 
           # Unpack the app archive
           if [[ "${app_archive_name}" == *.zip ]]; then
-            mkdir -p "$COMPASS_APP_PATH"
-            unzip "packages/compass/dist/${app_archive_name}" -d "$COMPASS_APP_PATH"
+            COMPASS_OUTDIR="$COMPASS_APP_PATH"
+            if [[ "$IS_OSX" == "true" ]]; then
+              # unzip on macos needs a different path to avoid nesting the .app
+              # inside another .app dir
+              COMPASS_OUTDIR=$(dirname "$COMPASS_APP_PATH")
+            fi
+            echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
+            mkdir -p "$COMPASS_OUTDIR"
+            unzip "packages/compass/dist/${app_archive_name}" -d "$COMPASS_OUTDIR"
           else
-            mkdir -p "packages/compass/dist"
-            tar -xzf "packages/compass/dist/${app_archive_name}" -C "packages/compass/dist"
+            COMPASS_OUTDIR="packages/compass/dist"
+            echo "Unpacking ${app_archive_name} to $COMPASS_OUTDIR ..."
+            mkdir -p "$COMPASS_OUTDIR"
+            tar -xzf "packages/compass/dist/${app_archive_name}" -C "$COMPASS_OUTDIR"
           fi
 
           # Print folder content to confirm that it worked
@@ -325,6 +338,9 @@ functions:
         shell: bash
         env:
           <<: *compass-env
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
         script: |
           set -e
           # Load environment variables
@@ -333,11 +349,7 @@ functions:
 
           echo "Running E2E tests while collecting coverage..."
 
-
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm --workspace compass-e2e-tests test-ci
+          npm run --unsafe-perm --workspace compass-e2e-tests test-ci
 
   test-packaged-app:
     - command: shell.exec
@@ -350,6 +362,9 @@ functions:
           <<: *compass-env
           COMPASS_APP_PATH: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
+          DEBUG: ${debug|}
+          MONGODB_VERSION: ${mongodb_version|}
+          MONGODB_USE_ENTERPRISE: ${mongodb_use_enterprise|}
         script: |
           set -e
           # Load environment variables
@@ -358,10 +373,14 @@ functions:
 
           echo "Running tests against packaged app at $COMPASS_APP_PATH..."
 
-          DEBUG=${debug} \
-            MONGODB_VERSION="${mongodb_version|4.4.x}" \
-            MONGODB_USE_ENTERPRISE="${mongodb_use_enterprise|}" \
-            npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          if [[ "$IS_OSX" == "true" ]]; then
+            echo "Disabling keychain usage in Compass (TODO: https://jira.mongodb.org/browse/BUILD-14458)"
+            export COMPASS_E2E_DISABLE_KEYCHAIN_USAGE="true"
+            echo "Disabling clipboard usage in e2e tests (TODO: https://jira.mongodb.org/browse/BUILD-14780)"
+            export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
+          fi
+
+          npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
 
   test-connectivity:
     - command: shell.exec
@@ -398,7 +417,7 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
           rm -rf mongodb-crypt && mkdir -p mongodb-crypt
           (cd mongodb-crypt && \
-            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 6.0.0-rc1') | \
+            curl -sSfL $(npx -y mongodb-download-url --enterprise --crypt_shared --version '>= 6.0.0') | \
             tar -xvz)
           export COMPASS_CRYPT_LIBRARY_PATH=$(echo $PWD/mongodb-crypt/lib/mongo_*_v1.*)
           npm run test-csfle --workspace mongodb-data-service
@@ -446,8 +465,8 @@ functions:
         content_type: application/x-redhat-package-manager
     - <<: *save-artifact
       params:
-        local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
+        local_file: src/packages/compass/dist/${rhel_tar_filename}
+        remote_file: ${project}/${revision}_${revision_order_id}/${rhel_tar_filename}
         content_type: application/x-gzip
 
   save-ubuntu-artifacts:
@@ -462,52 +481,40 @@ functions:
         remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
         content_type: application/x-gzip
 
-  get-artifacts:
-    - <<: *get-artifact
+  get-all-artifacts:
+    - command: shell.exec
       params:
-        local_file: src/packages/compass/dist/${windows_setup_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_setup_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_msi_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_msi_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_zip_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_zip_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_nupkg_full_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_nupkg_full_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${windows_releases_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${windows_releases_filename}
-
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${osx_dmg_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${osx_dmg_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${osx_zip_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${osx_zip_filename}
-
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${linux_rpm_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_rpm_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${linux_deb_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_deb_filename}
-    - <<: *get-artifact
-      params:
-        local_file: src/packages/compass/dist/${linux_tar_filename}
-        remote_file: ${project}/${revision}_${revision_order_id}/${linux_tar_filename}
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          DEBUG: ${debug}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          echo "Downloading release assets from evergreen bucket..."
+          npm run --workspace mongodb-compass download
 
   generate-tasks:
     - command: generate.tasks
       params:
         files:
           - tasks.json
+
+  publish-packages-next:
+    - command: shell.exec
+      params:
+        working_dir: src
+        shell: bash
+        env:
+          <<: *compass-env
+          NPM_TOKEN: ${devtoolsbot_npm_token}
+        script: |
+          set -e
+          # Load environment variables
+          eval $(.evergreen/print-compass-env.sh)
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          git update-index --assume-unchanged .npmrc
+          npm run publish-packages-next
+

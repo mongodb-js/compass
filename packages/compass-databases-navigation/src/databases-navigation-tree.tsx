@@ -1,9 +1,13 @@
 /* eslint-disable react/prop-types */
 import React, { useCallback, useMemo, memo, useRef } from 'react';
-import { VisuallyHidden } from '@react-aria/visually-hidden';
 import { FixedSizeList as List, areEqual } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { FadeInPlaceholder, css, useId } from '@mongodb-js/compass-components';
+import {
+  FadeInPlaceholder,
+  css,
+  useId,
+  VisuallyHidden,
+} from '@mongodb-js/compass-components';
 import { PlaceholderItem } from './placeholder-item';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
@@ -273,7 +277,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
         aria-labelledby={id}
         className={navigationTree}
         {...rootProps}
-        data-test-id="databases-and-collections"
+        data-testid="databases-and-collections"
       >
         <AutoSizer
           disableWidth={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_WIDTH)}

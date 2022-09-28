@@ -34,8 +34,8 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font: 100% 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font: 100% 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 
   // The color and background styles are overridden by the current theme.
@@ -51,22 +51,14 @@
     width: 100vw;
     height: 100vh;
     display: grid;
-    grid-template-columns: 248px auto;
+    grid-template-columns: 256px auto;
     grid-template-areas: 'sidebar content';
     pointer-events: none;
   }
 
   &-sidebar {
     grid-area: 'sidebar';
-    background: @grayDark3;
-  }
-
-  &-new-connection-button {
-    height: 48px;
-    box-sizing: content-box;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    // These styles are coupled with the actual button from compass-connections.
-    background: @grayDark2;
+    background: #F9FBF7;
   }
 
   &-content {

@@ -1,3 +1,3 @@
-var Model = require('./lib/model');
+const Model = require('./lib/model');
 
 module.exports = Model;

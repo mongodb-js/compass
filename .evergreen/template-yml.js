@@ -3,7 +3,6 @@
 
 const fs = require('fs');
 
-
 function template(input) {
   // PHP-like syntax, except it's JS.
   // foo: <% for (let i = 0; i < 10; i++) { %>
@@ -27,10 +26,9 @@ function template(input) {
 
     i = closing + 2;
   }
-  asJs += '; return result; })()'
+  asJs += '; return result; })()';
   return eval(asJs);
 }
-
 
 const testPackagedAppVariations = [
   {
@@ -105,7 +103,7 @@ const testPackagedAppVariations = [
     name: 'test-packaged-app-60x-enterprise',
     'test-packaged-app': {
       vars: {
-        mongodb_version: '>6.0.0-rc0',
+        mongodb_version: '6.x.x',
         mongodb_use_enterprise: 'yes'
       }
     }
@@ -127,17 +125,36 @@ const buildVariants = [
     name: 'rhel',
     display_name: 'RHEL (Test and Package)',
     run_on: 'rhel76-large'
+  },
+  {
+    name: 'macos',
+    display_name: 'MacOS x64 (Test and Package)',
+    run_on: 'macos-1100-gui',
+    // TODO: Even though these tests are running, they run compass with a
+    //       keychain disabled and clipboard tests skipped
+    //
+    //       https://jira.mongodb.org/browse/BUILD-14458
+    //       https://jira.mongodb.org/browse/BUILD-14780
+    tasks: [{ name: 'test-packaged-app-60x-enterprise' }]
+  },
+  {
+    name: 'macos_arm64',
+    display_name: 'MacOS arm64 (Test and Package)',
+    run_on: 'macos-1100-arm64-gui',
+    tasks: [{ name: 'test-packaged-app-60x-enterprise' }]
   }
 ];
 
 for (const buildVariant of buildVariants) {
+  if (buildVariant.tasks) continue; // Do not generate tasks if already pre-specified
   buildVariant.tasks = [];
   for (const task of testPackagedAppVariations) {
     // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
     // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
     // we can remove this.
     if (
-      (task.name.startsWith('test-packaged-app-5x') || task.name.startsWith('test-packaged-app-60x')) &&
+      (task.name.startsWith('test-packaged-app-5x') ||
+        task.name.startsWith('test-packaged-app-60x')) &&
       buildVariant.name === 'ubuntu'
     ) {
       continue;

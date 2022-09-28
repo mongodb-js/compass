@@ -1,16 +1,25 @@
 /* eslint-disable react/prop-types */
 import React, { useCallback, useMemo } from 'react';
-import { useHoverState, spacing, css } from '@mongodb-js/compass-components';
+import {
+  useHoverState,
+  spacing,
+  css,
+  ItemActionControls,
+  Icon,
+} from '@mongodb-js/compass-components';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
-import { ActionControls } from './item-action-controls';
-import type { NamespaceAction } from './item-action-controls';
-import { ItemContainer, ItemLabel } from './tree-item';
+import {
+  ItemContainer,
+  ItemLabel,
+  ItemWrapper,
+  ItemButtonWrapper,
+} from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
   NamespaceItemProps,
 } from './tree-item';
-import { SmallIcon } from './icon-button';
 import type { Actions } from './constants';
 
 const CollectionIcon: React.FunctionComponent<{
@@ -23,21 +32,22 @@ const CollectionIcon: React.FunctionComponent<{
       ? 'Visibility'
       : 'Folder';
   }, [type]);
-  return <SmallIcon glyph={glyph}></SmallIcon>;
+
+  return <Icon glyph={glyph} size="small"></Icon>;
 };
 
 const collectionItem = css({
   height: COLLECTION_ROW_HEIGHT,
-  paddingLeft: spacing[5] + spacing[1],
+});
+
+const itemButtonWrapper = css({
+  height: COLLECTION_ROW_HEIGHT,
   paddingRight: spacing[1],
+  paddingLeft: spacing[5] + spacing[1],
 });
 
 const collectionItemLabel = css({
   marginLeft: spacing[2],
-});
-
-const collectionActions = css({
-  marginLeft: 'auto',
 });
 
 export const CollectionItem: React.FunctionComponent<
@@ -74,10 +84,10 @@ export const CollectionItem: React.FunctionComponent<
   );
 
   const actions = useMemo(() => {
-    const actions: NamespaceAction[] = [
+    const actions: ItemAction<Actions>[] = [
       {
         action: 'open-in-new-tab',
-        label: 'Open in New Tab',
+        label: 'Open in new tab',
         icon: 'OpenNewTab',
       },
     ];
@@ -90,24 +100,24 @@ export const CollectionItem: React.FunctionComponent<
       actions.push(
         {
           action: 'drop-collection',
-          label: 'Drop View',
+          label: 'Drop view',
           icon: 'Trash',
         },
         {
           action: 'duplicate-view',
-          label: 'Duplicate View',
+          label: 'Duplicate view',
           icon: 'Copy',
         },
         {
           action: 'modify-view',
-          label: 'Modify View',
+          label: 'Modify view',
           icon: 'Edit',
         }
       );
     } else {
       actions.push({
         action: 'drop-collection',
-        label: 'Drop Collection',
+        label: 'Drop collection',
         icon: 'Trash',
       });
     }
@@ -123,23 +133,27 @@ export const CollectionItem: React.FunctionComponent<
       setSize={setSize}
       posInSet={posInSet}
       isActive={isActive}
-      isHovered={isHovered}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
-      className={collectionItem}
       style={style}
+      className={collectionItem}
       {...hoverProps}
     >
-      <CollectionIcon type={type} />
-      <ItemLabel className={collectionItemLabel}>{name}</ItemLabel>
-      <ActionControls
-        className={collectionActions}
-        onAction={onAction}
-        isActive={isActive}
-        isHovered={isHovered}
-        actions={actions}
-        shouldCollapseActionsToMenu
-      ></ActionControls>
+      <ItemWrapper>
+        <ItemButtonWrapper className={itemButtonWrapper}>
+          <CollectionIcon type={type} />
+          <ItemLabel className={collectionItemLabel} title={name}>
+            {name}
+          </ItemLabel>
+        </ItemButtonWrapper>
+        <ItemActionControls<Actions>
+          onAction={onAction}
+          data-testid="sidebar-collection-item-actions"
+          iconSize="small"
+          isVisible={isActive || isHovered}
+          actions={actions}
+        ></ItemActionControls>
+      </ItemWrapper>
     </ItemContainer>
   );
 };

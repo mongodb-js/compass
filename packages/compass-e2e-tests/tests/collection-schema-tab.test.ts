@@ -3,7 +3,10 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/insert-data';
+import {
+  createGeospatialCollection,
+  createNumbersCollection,
+} from '../helpers/insert-data';
 
 const { expect } = chai;
 
@@ -18,8 +21,8 @@ describe('Collection schema tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await createGeospatialCollection();
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
-    await browser.navigateToCollectionTab('test', 'numbers', 'Schema');
   });
 
   after(async function () {
@@ -31,6 +34,7 @@ describe('Collection schema tab', function () {
   });
 
   it('analyzes a schema', async function () {
+    await browser.navigateToCollectionTab('test', 'numbers', 'Schema');
     await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 
     const element = await browser.$(Selectors.SchemaFieldList);
@@ -59,6 +63,39 @@ describe('Collection schema tab', function () {
     );
     expect(fieldTypes).to.deep.equal(['objectid', 'int32', 'int32']);
   });
+
+  for (const enableMaps of [true, false]) {
+    it(`can analyze coordinates for a schema (enableMaps = ${enableMaps})`, async function () {
+      await browser.setFeature('enableMaps', enableMaps);
+      await browser.navigateToCollectionTab('test', 'geospatial', 'Schema');
+      await browser.clickVisible(Selectors.AnalyzeSchemaButton);
+
+      const element = await browser.$(Selectors.SchemaFieldList);
+      await element.waitForDisplayed();
+
+      const schemaFieldNameElement = await browser.$$(
+        Selectors.SchemaFieldName
+      );
+      const fieldNames = (
+        await Promise.all(schemaFieldNameElement.map((el) => el.getText()))
+      ).map((text) => text.trim());
+      expect(fieldNames).to.deep.equal(['_id', 'location']);
+
+      const schemaFieldTypeListElement = await browser.$$(
+        Selectors.SchemaFieldTypeList
+      );
+      const fieldTypes = (
+        await Promise.all(schemaFieldTypeListElement.map((el) => el.getText()))
+      ).map((text) => text.trim());
+      expect(fieldTypes).to.deep.equal([
+        'objectid',
+        enableMaps ? 'coordinates' : 'document',
+      ]);
+      await browser
+        .$('.leaflet-container')
+        .waitForDisplayed({ reverse: !enableMaps });
+    });
+  }
 
   it('analyzes the schema with a query');
   it('can reset the query');

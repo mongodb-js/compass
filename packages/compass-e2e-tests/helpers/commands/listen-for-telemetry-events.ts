@@ -14,17 +14,14 @@ export async function listenForTelemetryEvents(
   }
 
   return async (eventName) => {
-    await browser.waitUntil(
-      async () => {
-        await browser.execute(() => {
-          // eslint-disable-next-line @typescript-eslint/no-var-requires
-          const { ipcRenderer } = require('electron');
-          ipcRenderer.send('compass:usage:flush');
-        });
-        return !!lookupNewEvent(eventName);
-      },
-      { timeout: 20000 }
-    );
+    await browser.waitUntil(async () => {
+      await browser.execute(() => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { ipcRenderer } = require('electron');
+        ipcRenderer.send('compass:usage:flush');
+      });
+      return !!lookupNewEvent(eventName);
+    });
 
     const ev = lookupNewEvent(eventName);
     const properties = { ...ev.properties };

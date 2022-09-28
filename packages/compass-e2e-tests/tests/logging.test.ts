@@ -11,23 +11,19 @@ describe('Logging and Telemetry integration', function () {
 
     before(async function () {
       telemetry = await startTelemetryServer();
-      process.env.SHOW_TOUR = 'true'; // make this work the same in dev and when releasing
       const compass = await beforeTests({ firstRun: true });
       const { browser } = compass;
       try {
+        await browser.setFeature('trackUsageStatistics', true);
         await browser.connectWithConnectionString(
           'mongodb://localhost:27091/test'
         );
 
         await browser.shellEval('use test');
         await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
-
-        await browser.openTourModal();
-        await browser.closeTourModal();
       } finally {
         await afterTests(compass);
         await telemetry.stop();
-        delete process.env.SHOW_TOUR;
       }
 
       logs = compass.logs;
@@ -54,18 +50,7 @@ describe('Logging and Telemetry integration', function () {
           .events()
           .find((entry) => entry.type === 'identify');
         expect(identify.traits.platform).to.equal(process.platform);
-        expect(identify.traits.arch).to.equal(process.arch);
-      });
-
-      it('tracks an event for the welcome tour being closed', function () {
-        const tourClosed = telemetry
-          .events()
-          .find((entry) => entry.event === 'Tour Closed');
-        expect(tourClosed.properties.tab_title).to.equal('Performance Charts.');
-        expect(tourClosed.properties.compass_version).to.be.a('string');
-        expect(tourClosed.properties.compass_version).to.match(/^\d+\.\d+$/);
-        expect(tourClosed.properties.compass_distribution).to.be.a('string');
-        expect(tourClosed.properties.compass_channel).to.be.a('string');
+        expect(identify.traits.arch).to.match(/^(x64|arm64)$/);
       });
 
       it('tracks an event for shell use', function () {
@@ -140,7 +125,7 @@ describe('Logging and Telemetry integration', function () {
           attr: (actual: any) => {
             expect(actual.version).to.be.a('string');
             expect(actual.platform).to.equal(process.platform);
-            expect(actual.arch).to.equal(process.arch);
+            expect(actual.arch).to.match(/^(x64|arm64)$/);
           },
         },
         {
@@ -172,7 +157,7 @@ describe('Logging and Telemetry integration', function () {
             expect(actual.hasAnalytics).to.equal(true);
             expect(actual.currentUserId).to.not.exist;
             expect(actual.telemetryAnonymousId).to.be.a('string');
-            expect(actual.state).to.equal('disabled');
+            expect(actual.state).to.equal('waiting-for-user-config');
           },
         },
         {

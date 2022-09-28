@@ -8,6 +8,7 @@ import {
 
 const collectionHeaderBadgeStyles = css({
   marginLeft: spacing[2],
+  whiteSpace: 'nowrap',
 });
 
 const ClusteredBadge = (): React.ReactElement => (

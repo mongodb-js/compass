@@ -88,12 +88,12 @@ class ExportForm extends PureComponent {
       : '';
 
     return (
-      <form name="export-to-lang" data-test-id="export-to-lang" className="export-to-lang">
+      <form name="export-to-lang" data-testid="export-to-lang" className="export-to-lang">
         <div className={classnames(styles['export-to-lang-headers'])}>
           <p className={classnames(styles['export-to-lang-headers-input'])}>
             {`My ${this.props.mode}:`}
           </p>
-          <div className={classnames(styles['export-to-lang-headers-output'])} data-test-id="select-lang-field">
+          <div className={classnames(styles['export-to-lang-headers-output'])} data-testid="select-lang-field">
             <p className={classnames(styles['export-to-lang-headers-output-title'])}>
               {`Export ${this.props.mode} To:`}
             </p>
@@ -112,7 +112,10 @@ class ExportForm extends PureComponent {
                 iconClassName="fa fa-copy"/>
             </div>
           </div>
-          <div className={classnames(styles['export-to-lang-query-output'])}>
+          <div
+            data-testid="export-to-lang-query-output-container"
+            className={classnames(styles['export-to-lang-query-output'])}
+          >
             <Editor language={this.props.outputLang} value={this.getOutput()}/>
             {outputBubbleDiv}
             <div className={classnames(styles['export-to-lang-copy-output-container'])}>

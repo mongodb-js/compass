@@ -8,17 +8,16 @@ const placeholderItem = css({
   display: 'flex',
   alignItems: 'center',
   height: COLLECTION_ROW_HEIGHT,
-  paddingLeft: spacing[5],
 });
 
+// Padding should align the placeholder with icon at the start of the item, not
+// with the text after the icon
 const padding = {
   database: css({
-    // Because we are aligning this with non-leafygreen items on the screen we
-    // have to use custom sizes
-    paddingLeft: spacing[1] + spacing[2],
+    paddingLeft: spacing[3] + spacing[1],
   }),
   collection: css({
-    paddingLeft: spacing[5],
+    paddingLeft: spacing[5] + spacing[1],
   }),
 } as const;
 
@@ -28,7 +27,7 @@ export const PlaceholderItem: React.FunctionComponent<{
 }> = ({ type = 'collection', style }) => {
   return (
     <div className={cx(placeholderItem, padding[type])} style={style}>
-      <Placeholder darkMode></Placeholder>
+      <Placeholder />
     </div>
   );
 };

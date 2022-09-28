@@ -24,14 +24,14 @@ const darkThemeStyles = css({
 
 type WorkspaceContainerProps = {
   darkMode?: boolean;
-  'data-test-id'?: string;
+  'data-testid'?: string;
 };
 
 function UnthemedWorkspaceContainer({
   className,
   darkMode,
   children,
-  'data-test-id': dataTestId,
+  'data-testid': dataTestId,
   ...props
 }: React.PropsWithChildren<
   WorkspaceContainerProps & React.HTMLProps<HTMLDivElement>
@@ -43,7 +43,7 @@ function UnthemedWorkspaceContainer({
         darkMode ? darkThemeStyles : lightThemeStyles,
         className
       )}
-      data-test-id={dataTestId}
+      data-testid={dataTestId}
       {...props}
     >
       {children}

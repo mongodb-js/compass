@@ -14,22 +14,23 @@ const ROLE = {
   configureStore: configureStore,
   configureActions: configureActions,
   storeName: 'Query.History',
+  actionName: 'Query.History.Actions',
 };
 
 /**
  * Activate all the components in the Query History package.
- * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
+ * @param {Object} appRegistry - The Hadron appRegistry to activate this plugin with.
  **/
 function activate(appRegistry: AppRegistry): void {
-  appRegistry.registerRole('Collection.ScopedModal', ROLE);
+  appRegistry.registerRole('Query.QueryHistory', ROLE);
 }
 
 /**
  * Deactivate all the components in the Query History package.
- * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
+ * @param {Object} appRegistry - The Hadron appRegistry to deactivate this plugin with.
  **/
 function deactivate(appRegistry: AppRegistry): void {
-  appRegistry.deregisterRole('Collection.ScopedModal', ROLE);
+  appRegistry.deregisterRole('Query.QueryHistory', ROLE);
 }
 
 export default QueryHistoryPlugin;

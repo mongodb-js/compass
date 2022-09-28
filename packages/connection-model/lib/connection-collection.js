@@ -3,34 +3,18 @@ const Connection = require('./extended-model');
 const storageMixin = require('storage-mixin');
 const { each } = require('lodash');
 const raf = require('raf');
-
-/**
- * The name of a remote electron application that
- * uses `connection-model` as a dependency.
- */
-let appName;
-let basepath;
-
-try {
-  const electron = require('electron');
-
-  appName = electron.remote ? electron.remote.app.getName() : undefined;
-  basepath = electron.remote
-    ? electron.remote.app.getPath('userData')
-    : undefined;
-} catch (e) {
-  /* eslint no-console: 0 */
-  console.log('Could not load electron', e.message);
-}
+const { getStoragePaths } = require('@mongodb-js/compass-utils');
+const { appName, basepath } = getStoragePaths() || {};
 
 module.exports = Collection.extend(storageMixin, {
   model: Connection,
   namespace: 'Connections',
   storage: {
     backend:
+      // eslint-disable-next-line no-nested-ternary
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true'
-        ? 'disk'
-        : 'splice-disk-ipc',
+        ? 'disk' :
+        typeof window === 'undefined' ? 'splice-disk' : 'splice-disk-ipc',
     appName,
     basepath
   },

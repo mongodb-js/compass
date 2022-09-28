@@ -137,6 +137,13 @@ describe('CompassMenu', function () {
             type: 'separator',
           },
           {
+            accelerator: 'CmdOrCtrl+Shift+D',
+            label: '&Toggle Sidebar',
+          },
+          {
+            type: 'separator'
+          },
+          {
             accelerator: 'CmdOrCtrl+0',
             label: 'Actual Size',
           },
@@ -181,6 +188,13 @@ describe('CompassMenu', function () {
           },
           {
             type: 'separator',
+          },
+          {
+            accelerator: 'CmdOrCtrl+Shift+D',
+            label: '&Toggle Sidebar',
+          },
+          {
+            type: 'separator'
           },
           {
             accelerator: 'CmdOrCtrl+0',
@@ -304,13 +318,8 @@ describe('CompassMenu', function () {
             accelerator: 'F1',
           },
           {
-            label: `${app.getName()} &Overview`
-          },
-          {
-            label: '&Privacy Settings'
-          },
-          {
-            label: '&Plugins'
+            label: '&Settings',
+            accelerator: 'CmdOrCtrl+,',
           },
           {
             label: '&License'

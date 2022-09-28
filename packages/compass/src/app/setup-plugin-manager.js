@@ -1,11 +1,10 @@
 const marky = require('marky');
-const electron = require('electron');
+const remote = require('@electron/remote');
 const app = require('hadron-app');
 const pkg = require('../../package.json');
 const path = require('path');
 const { AppRegistry } = require('hadron-app-registry');
 const PluginManager = require('@mongodb-js/hadron-plugin-manager');
-const ipc = require('hadron-ipc');
 
 const debug = require('debug')('mongodb-compass:setup-plugin-manager');
 
@@ -36,22 +35,16 @@ const PLUGINS_DIR = 'plugins-directory';
  * Location of the dev plugins.
  */
 const DEV_PLUGINS = path.join(
-  electron.remote.app.getPath('home'),
+  remote.app.getPath('home'),
   DISTRIBUTION[PLUGINS_DIR]
 );
 
 marky.mark('Loading plugins');
 
-ipc.call('compass:loading:change-status', {
-  status: 'loading plugins'
-});
-
 // eslint-disable-next-line no-nested-ternary
 const COMPASS_PLUGINS = process.env.HADRON_READONLY === 'true'
   ? require('./plugins/readonly')
-  : process.env.HADRON_ISOLATED === 'true'
-    ? require('./plugins/isolated')
-    : require('./plugins/default');
+  : require('./plugins/default');
 
 const PLUGIN_COUNT = COMPASS_PLUGINS.length;
 
@@ -111,10 +104,6 @@ PluginManager.Action.pluginActivated.listen(() => {
   if (loadedCount === PLUGIN_COUNT) {
     marky.stop('Loading plugins');
   }
-
-  ipc.call('compass:loading:change-status', {
-    status: `loading plugins ${loadedCount}/${PLUGIN_COUNT}`
-  });
 });
 
 app.pluginManager.activate(app.appRegistry, pkg.apiVersion);

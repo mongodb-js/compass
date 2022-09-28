@@ -2,39 +2,39 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { createIndex } from '../create-index';
-import { HANDLE_ERROR, CLEAR_ERROR } from '../error';
+import { ActionTypes as ErrorActionTypes } from '../error';
 import { TOGGLE_IN_PROGRESS } from '../in-progress';
 import { TOGGLE_IS_VISIBLE } from '../is-visible';
-import { RESET } from '../reset';
+import { RESET_FORM } from '../reset-form';
 
 describe('create index module', function () {
   let errorSpy;
-  let progressSpy;
-  let visibleSpy;
-  let resetSpy;
+  let inProgressSpy;
+  let toggleIsvisibleSpy;
+  let resetFormSpy;
   let clearErrorSpy;
   let emitSpy;
   describe('#createIndex', function () {
     beforeEach(function () {
       errorSpy = sinon.spy();
-      progressSpy = sinon.spy();
-      visibleSpy = sinon.spy();
-      resetSpy = sinon.spy();
+      inProgressSpy = sinon.spy();
+      toggleIsvisibleSpy = sinon.spy();
+      resetFormSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
       emitSpy = sinon.spy();
     });
     afterEach(function () {
       errorSpy = null;
-      progressSpy = null;
-      visibleSpy = null;
-      resetSpy = null;
+      inProgressSpy = null;
+      toggleIsvisibleSpy = null;
+      resetFormSpy = null;
       clearErrorSpy = null;
       emitSpy = null;
     });
     it('errors if fields are undefined', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'You must select a field name and type',
         });
         errorSpy();
@@ -48,14 +48,14 @@ describe('create index module', function () {
     it('errors if TTL is not number', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error: 'Bad TTL: "abc"',
         });
         errorSpy();
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        isTtl: true,
+        useTtl: true,
         ttl: 'abc',
       });
       createIndex()(dispatch, state);
@@ -64,7 +64,7 @@ describe('create index module', function () {
     it('errors if PFE is not JSON', function () {
       const dispatch = (res) => {
         expect(res).to.deep.equal({
-          type: HANDLE_ERROR,
+          type: ErrorActionTypes.HandleError,
           error:
             'Bad PartialFilterExpression: SyntaxError: Unexpected token a in JSON at position 0',
         });
@@ -72,7 +72,7 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: 'def' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: 'abc',
       });
       createIndex()(dispatch, state);
@@ -83,18 +83,16 @@ describe('create index module', function () {
         if (typeof res !== 'function') {
           switch (res.type) {
             case TOGGLE_IN_PROGRESS:
-              progressSpy();
+              inProgressSpy();
               break;
-            case RESET:
-              resetSpy();
+            case RESET_FORM:
+              resetFormSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
-              visibleSpy();
-              break;
-            case Function:
+              toggleIsvisibleSpy();
               break;
             default:
               expect(true).to.equal(
@@ -106,14 +104,14 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
-        isBackground: true,
         isUnique: true,
+        isSparse: true,
         name: 'test name',
-        isCustomCollation: true,
-        collation: 'coll',
-        isTtl: true,
+        useCustomCollation: true,
+        collationString: "{locale: 'en'}",
+        useTtl: true,
         ttl: 100,
         appRegistry: {
           emit: emitSpy,
@@ -124,25 +122,27 @@ describe('create index module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: true,
-              collation: 'coll',
+              collation: {
+                locale: 'en',
+              },
               expireAfterSeconds: 100,
               name: 'test name',
               partialFilterExpression: { a: 1 },
               unique: true,
+              sparse: true,
             });
             cb(null);
           },
         },
       });
       createIndex()(dispatch, state);
-      expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
+      expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
-      expect(progressSpy.calledTwice).to.equal(
+      expect(inProgressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'
       );
-      expect(visibleSpy.calledOnce).to.equal(
+      expect(toggleIsvisibleSpy.calledOnce).to.equal(
         true,
         'toggleIsVisible not called'
       );
@@ -153,16 +153,16 @@ describe('create index module', function () {
         if (typeof res !== 'function') {
           switch (res.type) {
             case TOGGLE_IN_PROGRESS:
-              progressSpy();
+              inProgressSpy();
               break;
-            case RESET:
-              resetSpy();
+            case RESET_FORM:
+              resetFormSpy();
               break;
-            case CLEAR_ERROR:
+            case ErrorActionTypes.ClearError:
               clearErrorSpy();
               break;
             case TOGGLE_IS_VISIBLE:
-              visibleSpy();
+              toggleIsvisibleSpy();
               break;
             default:
               expect(true).to.equal(
@@ -174,14 +174,14 @@ describe('create index module', function () {
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: true,
+        usePartialFilterExpression: true,
         partialFilterExpression: '{"a": 1}',
-        isBackground: true,
         isUnique: true,
+        isSparse: false,
         name: '',
-        isCustomCollation: true,
-        collation: 'coll',
-        isTtl: true,
+        useCustomCollation: true,
+        collationString: "{locale: 'en'}",
+        useTtl: true,
         ttl: 100,
         namespace: 'db.coll',
         appRegistry: {
@@ -192,24 +192,26 @@ describe('create index module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: true,
-              collation: 'coll',
+              collation: {
+                locale: 'en',
+              },
               expireAfterSeconds: 100,
               partialFilterExpression: { a: 1 },
               unique: true,
+              sparse: false,
             });
             cb(null);
           },
         },
       });
       createIndex()(dispatch, state);
-      expect(resetSpy.calledOnce).to.equal(true, 'reset not called');
+      expect(resetFormSpy.calledOnce).to.equal(true, 'reset not called');
       expect(clearErrorSpy.calledOnce).to.equal(true, 'clearError not called');
-      expect(progressSpy.calledTwice).to.equal(
+      expect(inProgressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'
       );
-      expect(visibleSpy.calledOnce).to.equal(
+      expect(toggleIsvisibleSpy.calledOnce).to.equal(
         true,
         'toggleIsVisible not called'
       );
@@ -217,30 +219,35 @@ describe('create index module', function () {
     });
     it('handles error in createIndex', function () {
       const dispatch = (res) => {
-        switch (res.type) {
-          case TOGGLE_IN_PROGRESS:
-            progressSpy();
-            break;
-          case HANDLE_ERROR:
-            expect(res).to.deep.equal({
-              type: HANDLE_ERROR,
-              error: 'test err',
-            });
-            errorSpy();
-            break;
-          default:
-            expect(true).to.equal(
-              false,
-              `Unexpected action called ${res.type}`
-            );
+        if (typeof res !== 'function') {
+          switch (res.type) {
+            case TOGGLE_IN_PROGRESS:
+              inProgressSpy();
+              break;
+            case ErrorActionTypes.ClearError:
+              clearErrorSpy();
+              break;
+            case ErrorActionTypes.HandleError:
+              expect(res).to.deep.equal({
+                type: ErrorActionTypes.HandleError,
+                error: { message: 'test err' },
+              });
+              errorSpy();
+              break;
+            default:
+              expect(true).to.equal(
+                false,
+                `Unexpected action called ${res.type}`
+              );
+          }
         }
       };
       const state = () => ({
         fields: [{ name: 'abc', type: '1 (asc)' }],
-        isPartialFilterExpression: false,
-        isTtl: false,
+        usePartialFilterExpression: false,
+        useTtl: false,
         isUnique: false,
-        isBackground: false,
+        isSparse: false,
         name: 'test name',
         namespace: 'db.coll',
         appRegistry: {},
@@ -249,16 +256,16 @@ describe('create index module', function () {
             expect(ns).to.equal('db.coll');
             expect(spec).to.deep.equal({ abc: 1 });
             expect(options).to.deep.equal({
-              background: false,
               name: 'test name',
               unique: false,
+              sparse: false,
             });
             cb({ message: 'test err' });
           },
         },
       });
       createIndex()(dispatch, state);
-      expect(progressSpy.calledTwice).to.equal(
+      expect(inProgressSpy.calledTwice).to.equal(
         true,
         'toggleInProgress not called'
       );

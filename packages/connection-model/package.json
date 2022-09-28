@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "21.19.1",
+  "version": "22.1.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -30,32 +30,32 @@
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "peerDependencies": {
-    "mongodb": "^4.6.0"
+    "mongodb": "^4.10.0"
   },
   "dependencies": {
-    "@mongodb-js/ssh-tunnel": "^1.9.1",
+    "@mongodb-js/compass-utils": "^0.1.1",
+    "@mongodb-js/ssh-tunnel": "^2.0.1",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "debug": "^4.2.0",
     "lodash": "^4.17.15",
-    "mongodb-connection-string-url": "^2.5.2",
+    "mongodb-connection-string-url": "^2.5.3",
     "mongodb3": "npm:mongodb@^3.6.3",
     "os-dns-native": "^1.2.0",
     "raf": "^3.4.1",
-    "resolve-mongodb-srv": "^1.1.1",
+    "resolve-mongodb-srv": "^1.1.2",
     "ssh2": "^0.8.7",
-    "storage-mixin": "^4.14.0"
+    "storage-mixin": "^5.1.0"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "depcheck": "^1.4.1",
-    "electron": "^13.5.1",
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^8.0.1",
     "mock-require": "^3.0.3",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.10.0",
     "mongodb-runner": "^4.9.0",
     "proxyquire": "^2.1.0",
     "sinon": "^9.0.2",

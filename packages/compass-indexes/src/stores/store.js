@@ -9,10 +9,15 @@ import { writeStateChanged } from '../modules/is-writable';
 import { readonlyViewChanged } from '../modules/is-readonly-view';
 import { getDescription } from '../modules/description';
 import { dataServiceConnected } from '../modules/data-service';
-import { loadIndexesFromDb, parseErrorMsg } from '../modules/indexes';
+import { fetchIndexes } from '../modules/indexes';
 import { handleError } from '../modules/error';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
+import {
+  inProgressIndexAdded,
+  inProgressIndexRemoved,
+  inProgressIndexFailed,
+} from '../modules/in-progress-indexes';
 
 /**
  * Handle setting up the data provider.
@@ -23,10 +28,10 @@ import { serverVersionChanged } from '../modules/server-version';
  */
 export const setDataProvider = (store, error, provider) => {
   if (error !== null) {
-    store.dispatch(handleError(parseErrorMsg(error)));
+    store.dispatch(handleError(error));
   } else {
     store.dispatch(dataServiceConnected(provider));
-    store.dispatch(loadIndexesFromDb());
+    store.dispatch(fetchIndexes());
   }
 };
 
@@ -39,8 +44,21 @@ const configureStore = (options = {}) => {
     store.dispatch(localAppRegistryActivated(localAppRegistry));
 
     localAppRegistry.on('refresh-data', () => {
-      store.dispatch(loadIndexesFromDb());
+      store.dispatch(fetchIndexes());
     });
+
+    localAppRegistry.on('in-progress-indexes-added', (index) => {
+      store.dispatch(inProgressIndexAdded(index));
+    });
+
+    localAppRegistry.on('in-progress-indexes-removed', (id) => {
+      store.dispatch(inProgressIndexRemoved(id));
+    });
+
+    localAppRegistry.on('in-progress-indexes-failed', (data) => {
+      store.dispatch(inProgressIndexFailed(data));
+    });
+
     // TODO: could save the version to check for wildcard indexes
   }
 
@@ -48,23 +66,23 @@ const configureStore = (options = {}) => {
     const globalAppRegistry = options.globalAppRegistry;
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-    const deploymentAwarenessStore = globalAppRegistry.getStore(
-      'DeploymentAwareness.WriteStateStore'
-    );
+    const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
+    const instance = instanceStore.getState().instance;
 
-    deploymentAwarenessStore.listen((state) => {
-      store.dispatch(writeStateChanged(state.isWritable));
-      store.dispatch(getDescription(state.description));
+    // set the initial values
+    store.dispatch(writeStateChanged(instance.isWritable));
+    store.dispatch(getDescription(instance.description));
+
+    // these can change later
+    instance.on('change:isWritable', () => {
+      store.dispatch(writeStateChanged(instance.isWritable));
+    });
+    instance.on('change:description', () => {
+      store.dispatch(getDescription(instance.description));
     });
 
-    // Load the initial deployment awareness state.
-    store.dispatch(
-      writeStateChanged(deploymentAwarenessStore.state.isWritable)
-    );
-    store.dispatch(getDescription(deploymentAwarenessStore.state.description));
-
     globalAppRegistry.on('refresh-data', () => {
-      store.dispatch(loadIndexesFromDb());
+      store.dispatch(fetchIndexes());
     });
   }
 

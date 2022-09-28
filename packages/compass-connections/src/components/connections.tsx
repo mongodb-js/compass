@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ResizableSidebar,
   ErrorBoundary,
   WorkspaceContainer,
   spacing,
@@ -14,7 +15,6 @@ import type {
 import { ConnectionStorage, connect } from 'mongodb-data-service';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-import ResizableSidebar from './resizeable-sidebar';
 import FormHelp from './form-help/form-help';
 import Connecting from './connecting/connecting';
 import { useConnections } from '../stores/connections-store';
@@ -46,9 +46,6 @@ const formContainerStyles = css({
   flexWrap: 'wrap',
   gap: spacing[4],
 });
-
-const initialSidebarWidth = spacing[4] * 10 + spacing[2]; // 248px
-const minSidebarWidth = spacing[4] * 9; // 216px
 
 function Connections({
   onConnected,
@@ -93,10 +90,7 @@ function Connections({
       }
       className={connectStyles}
     >
-      <ResizableSidebar
-        minWidth={minSidebarWidth}
-        initialWidth={initialSidebarWidth}
-      >
+      <ResizableSidebar>
         <ConnectionList
           activeConnectionId={activeConnectionId}
           favoriteConnections={favoriteConnections}

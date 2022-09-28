@@ -1,20 +1,14 @@
-const { remote } = require('electron');
 const path = require('path');
+const { getStoragePaths } = require('@mongodb-js/compass-utils');
+const { appName, basepath } = getStoragePaths() || {};
+
 
 export function getUserDataFilePath(filename) {
-  if (!remote) {
-    return;
-  }
-
-  const app = remote.app;
-
-  if (!app) {
-    return;
-  }
+  if (appName === undefined || basepath === undefined) return;
 
   return path.join(
-    app.getPath('userData'),
-    app.getName(),
+    basepath,
+    appName,
     filename
   );
 }

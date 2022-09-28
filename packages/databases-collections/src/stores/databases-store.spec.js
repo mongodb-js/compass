@@ -1,17 +1,29 @@
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
-import Reflux from 'reflux';
-import StateMixin from 'reflux-state-mixin';
-import InstanceModel from 'mongodb-instance-model';
+import { MongoDBInstance, TopologyDescription } from 'mongodb-instance-model';
 import store from './databases-store';
 import { reset } from '../modules/reset';
 
-const WriteStateStore = Reflux.createStore({
-  mixins: [StateMixin.store],
-  getInitialState() {
-    return { isWritable: false };
-  }
+const dbs = [{ _id: 'db1', storage_size: 10, collections: [], index_count: 2 }];
+
+const topologyDescription = new TopologyDescription({
+  type: 'Unknown',
+  servers: [{ type: 'Unknown' }]
 });
+
+const fakeInstance = new MongoDBInstance({
+  _id: '123',
+  databases: dbs,
+  topologyDescription
+});
+
+const fakeAppInstanceStore = {
+  getState: function() {
+    return {
+      instance: fakeInstance
+    };
+  }
+};
 
 describe('Databases [Store]', () => {
   beforeEach(() => {
@@ -24,9 +36,9 @@ describe('Databases [Store]', () => {
 
   describe('#onActivated', () => {
     const appRegistry = new AppRegistry();
-    appRegistry.registerStore('DeploymentAwareness.WriteStateStore', WriteStateStore);
+    appRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
-    before(() => {
+    beforeEach(() => {
       store.onActivated(appRegistry);
     });
 
@@ -35,28 +47,27 @@ describe('Databases [Store]', () => {
     });
 
     context('when the instance store triggers', () => {
-      const dbs = [{ _id: 'db1', storage_size: 10, collections: [], index_count: 2 }];
-      const instance = new InstanceModel({ _id: '123', databases: dbs });
-
       beforeEach(() => {
-        appRegistry.emit('instance-created', {
-          instance,
-        });
+        appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
       it('dispatches the load database action', () => {
         expect(store.getState().databases).to.deep.equal(
-          instance.databases.toJSON()
+          fakeInstance.databases.toJSON()
         );
       });
     });
 
-    context('when write state changes', () => {
+    context('when instance state changes', function() {
       beforeEach(() => {
-        WriteStateStore.setState({ isWritable: true });
+        appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
-      it('dispatches the change write state action', () => {
+      it('dispatches the writeStateChanged action', function() {
+        expect(store.getState().isWritable).to.equal(false);
+
+        fakeInstance.topologyDescription.set({ type: 'ReplicaSetWithPrimary' });
+
         expect(store.getState().isWritable).to.equal(true);
       });
     });

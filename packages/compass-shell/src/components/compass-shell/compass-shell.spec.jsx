@@ -43,7 +43,7 @@ describe('CompassShell', function() {
     });
 
     it('has the shell display none', function() {
-      const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+      const shellDomNode = wrapper.find('[data-testid="shell-content"]').getDOMNode();
       const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
       expect(shellDisplayStyle).to.equal('none');
     });
@@ -83,7 +83,7 @@ describe('CompassShell', function() {
           emitShellPluginOpened={() => {}}
         />);
 
-        wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+        wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
         wrapper.update();
       });
       afterEach(function() {
@@ -93,7 +93,7 @@ describe('CompassShell', function() {
       it('renders the Shell', function() {
         expect(wrapper.find(Shell).prop('runtime')).to.equal(fakeRuntime);
 
-        const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+        const shellDomNode = wrapper.find('[data-testid="shell-content"]').getDOMNode();
         const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
         expect(shellDisplayStyle).to.equal('flex');
       });
@@ -126,7 +126,7 @@ describe('CompassShell', function() {
           }]}
         />);
 
-        wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+        wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
         wrapper.update();
 
         expect(wrapper.find(Shell).prop('initialOutput')).to.deep.equal([{
@@ -153,10 +153,10 @@ describe('CompassShell', function() {
           emitShellPluginOpened={() => {}}
         />);
 
-        wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+        wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
         wrapper.update();
 
-        wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+        wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
         wrapper.update();
       });
       afterEach(function() {
@@ -164,24 +164,24 @@ describe('CompassShell', function() {
       });
 
       it('sets the collapsed height to 32', function() {
-        expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(32);
+        expect(wrapper.find('[data-testid="shell-section"]').prop('style').height).to.equal(32);
       });
 
       context('when it is expanded again', function() {
         it('resumes its previous height', function() {
-          wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+          wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
           wrapper.update();
 
           wrapper.instance().updateHeight(399);
           wrapper.update();
 
-          wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+          wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
           wrapper.update();
 
-          wrapper.find('[data-test-id="shell-expand-button"]').simulate('click');
+          wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
           wrapper.update();
 
-          expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(399);
+          expect(wrapper.find('[data-testid="shell-section"]').prop('style').height).to.equal(399);
         });
       });
     });
@@ -272,7 +272,7 @@ describe('CompassShell', function() {
         });
 
         it('does not collapse the component', function() {
-          const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+          const shellDomNode = wrapper.find('[data-testid="shell-content"]').getDOMNode();
           const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
           expect(shellDisplayStyle).to.equal('flex');
         });
@@ -284,8 +284,8 @@ describe('CompassShell', function() {
           });
 
           it('collapses the shell', function() {
-            expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(32);
-            const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+            expect(wrapper.find('[data-testid="shell-section"]').prop('style').height).to.equal(32);
+            const shellDomNode = wrapper.find('[data-testid="shell-content"]').getDOMNode();
             const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
             expect(shellDisplayStyle).to.equal('none');
           });
@@ -302,11 +302,11 @@ describe('CompassShell', function() {
 
         it('updates the height', function() {
           expect(wrapper.find('[type="range"]').at(0).prop('value')).to.equal(55);
-          expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(32);
+          expect(wrapper.find('[data-testid="shell-section"]').prop('style').height).to.equal(32);
         });
 
         it('does not expand the component', function() {
-          const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+          const shellDomNode = wrapper.find('[data-testid="shell-content"]').getDOMNode();
           const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
           expect(shellDisplayStyle).to.equal('none');
         });
@@ -322,8 +322,8 @@ describe('CompassShell', function() {
           });
 
           it('expands the shell', function() {
-            expect(wrapper.find('[data-test-id="shell-section"]').prop('style').height).to.equal(151);
-            const shellDomNode = wrapper.find('[data-test-id="shell-content"]').getDOMNode();
+            expect(wrapper.find('[data-testid="shell-section"]').prop('style').height).to.equal(151);
+            const shellDomNode = wrapper.find('[data-testid="shell-content"]').getDOMNode();
             const shellDisplayStyle = getComputedStyle(shellDomNode).getPropertyValue('display');
             expect(shellDisplayStyle).to.equal('flex');
           });

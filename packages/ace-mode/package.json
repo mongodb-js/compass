@@ -1,6 +1,6 @@
 {
   "name": "mongodb-ace-mode",
-  "version": "1.8.0",
+  "version": "2.0.1",
   "description": "MongoDB Mode for the ACE Editor",
   "main": "index.js",
   "compass:main": "index.js",
@@ -19,7 +19,8 @@
     "depcheck": "depcheck"
   },
   "devDependencies": {
-    "depcheck": "^1.4.1"
+    "depcheck": "^1.4.1",
+    "mongodb-ace-autocompleter": "^1.1.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {

@@ -6,8 +6,8 @@ import { listFactory } from '../list';
 import styles from './list.module.less';
 
 const ListComponent = listFactory(
-  () => <span data-test-id="mock-item" />,
-  () => <div data-test-id="mock-saving" />
+  () => <span data-testid="mock-item" />,
+  () => <div data-testid="mock-saving" />
 );
 
 describe('listFactory [Component]', function () {
@@ -96,7 +96,7 @@ describe('listFactory [Component]', function () {
             current={items[0]}
           />
         );
-        const node = component.find('[data-test-id="mock-saving"]');
+        const node = component.find('[data-testid="mock-saving"]');
 
         expect(node).to.have.length(1);
       });

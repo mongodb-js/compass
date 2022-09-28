@@ -1,11 +1,11 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Thu Jul 21 2022.
+This document was automatically generated on Wed Sep 28 2022.
 
 ## List of dependencies
 
 Package|Version|License
 -------|-------|-------
-**[@mongosh/node-runtime-worker-thread](#02f32d028a7ac3493c4eea8ba6c60dcff1a126572d96569699ba741b7f35b49b)**|1.5.0|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#15af2bd3c4e8ac5324529caabe5d302ad7a91ec05bc5e17e7dd3e24c7152de76)**|1.6.0|Apache-2.0
 **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
 **[ansi-regex](#f4a8a360dfe3cdd0cbb8fcfa0cff23bb22eafa4225343577912ddf831d670411)**|3.0.0|MIT
 **[aproba](#b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e)**|1.2.0|ISC
@@ -36,7 +36,7 @@ Package|Version|License
 **[inherits](#3eafa9bfb872baf192e837ab771da2e95e983ee682371a2b1c579e518e96f7b4)**|2.0.4|ISC
 **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**|1.3.8|ISC
 **[interruptor](#d6fd68c71b18a07f39270565100f4a6c1351ecdeca77766cde73da8315ff695a)**|1.0.1|Apache-2.0
-**[ip](#5685147aca3b4349b98f73886bea53bac77e33a79e0f28d66abf77beb1dc5289)**|1.1.5|MIT
+**[ip](#33b800e533214fc453224c9f9638baadd7f665810f85320b60145d7348a69e58)**|2.0.0|MIT
 **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**|1.0.1|MIT
 **[is-fullwidth-code-point](#4b36fcbed647fcfb1016159ad5d4b5399c52c3fe258134e06275ab22ed10ceb9)**|1.0.0|MIT
 **[is-fullwidth-code-point](#37e66573b7442d1313698f6e836d77c2b42ea4625ea9f6da41c091c6e5a8f30d)**|2.0.0|MIT
@@ -48,13 +48,13 @@ Package|Version|License
 **[mimic-response](#0c868fd85c36cbce69ede58ff4693b89140b6a529a6794843f4985674d63642e)**|2.1.0|MIT
 **[minimist](#837db6b00930af97755b724568aecf8b139361dc2148c7db77673ba6ae44a44d)**|1.2.6|MIT
 **[mkdirp-classic](#e79cc875152b50c2eb57a97163d99f0155bf4e4af7ba4a7e01c12a17a4a3305c)**|0.5.3|MIT
-**[mongodb-client-encryption](#a091cc6779e7a303fbcad4a63b23d47f132e1ecf39f39faaabc259e1af811960)**|2.2.0-alpha.1|Apache-2.0
+**[mongodb-client-encryption](#d9133b2d4fe5d0339732cf85e863f366ddd48de8f976d9f723a73a58c2a4ca15)**|2.2.1|Apache-2.0
 **[mongodb-compass](#83bc011aa472d9fe55460f83c3fcfc98ca134ed763686df7a4bc080171ccb917)**|0.0.1-dev.0|SSPL
 **[ms](#0a987b2f79ff37005e452a5afa7dacd3042061a7077054d2ba9cabacd88506d2)**|2.1.2|MIT
 **[napi-build-utils](#26912b5ff7632f262d64273f99cd1a869376c5c378960e24501585e35b31054a)**|1.0.2|MIT
 **[node-abi](#d6c15009ff9bc5d151ef2cba39c1bda47f6a2ce4c3094b909f1ef57ca3e39fb0)**|3.8.0|MIT
 **[node-abi](#f58336e4167ecab0de6a7705e16bcc62344dc373d082eb2f438dd6c515380b37)**|2.30.0|MIT
-**[node-abi](#f9220ffc964d80e53e0faef95ec88080bf655ece135656308bdf1b49ee7edf88)**|3.15.0|MIT
+**[node-abi](#2af3a2340ce9d14d5a920d81e4553e9c844889f244b3b310ea23621cf9622a2b)**|3.22.0|MIT
 **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**|4.3.0|MIT
 **[node-addon-api](#29f3bd2e2ca7a2f4abf4ebfbffe6fa9fc1a33b2fb001d918f92a15ffd7dd7507)**|3.2.1|MIT
 **[noop-logger](#3801357bd6e8fba8c0ba570c6fe0f1a09fb837f9355340046f36983ee98fafab)**|0.1.1|MIT
@@ -65,7 +65,7 @@ Package|Version|License
 **[os-dns-native](#ccaac4b6b7b65be11aed2a61b109713be87bd047a65d3f552022671ab10b4872)**|1.2.0|MIT
 **[prebuild-install](#e755204a5da2a0c525c1c306c36568e122273f24c0cac31a68cd274b9401771f)**|7.0.1|MIT
 **[prebuild-install](#a9493a602227065e2247bd0f1087615024e9e96d36d1bd1e70b8db5292f7bdda)**|6.1.2|MIT
-**[prebuild-install](#4191cf6fb835345d4fd2835e2654d6b9c437ecfc8394552ff8a68ad37e8ace01)**|7.1.0|MIT
+**[prebuild-install](#b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d)**|7.1.1|MIT
 **[process-nextick-args](#449a33b1fb1386db92b40df9073f48703b67ff05c4da5043d007fdb90ed76aca)**|2.0.1|MIT
 **[pump](#147f1bd3a6380306e696f0574feda0b1490121a1d12e4500e91ffb6e888ffa3a)**|3.0.0|MIT
 **[rc](#0dd705bd5862b4c60ed88e6b4a6f5ece23c627c97f6928233d32aefdd463c3f7)**|1.2.8|(BSD-2-Clause OR MIT OR Apache-2.0)
@@ -82,7 +82,7 @@ Package|Version|License
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
 **[simple-get](#ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da)**|3.1.0|MIT
 **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**|4.2.0|MIT
-**[socks](#be442b0d268ca721821c446050bbb72fae9939fc8c52474b47d9d904d18f0193)**|2.6.2|MIT
+**[socks](#d248334926a1dc960150cbe3b2ab15fa021e1b8b498cf04f0f32a9a876263e66)**|2.7.0|MIT
 **[string-width](#b0725207ba4a78809dec9436283671608c6a6c89b5f5cc66db6ce6da7bfb0cc0)**|1.0.2|MIT
 **[string-width](#e3ae6ddac7d522ef262f26fbded9f398d3642ba93321363b4634916ce1962b01)**|2.1.1|MIT
 **[strip-ansi](#79e4e45eb767932cbcc94ba2f18534155184857640dee665f4b43ae6d5294646)**|3.0.1|MIT
@@ -100,8 +100,8 @@ Package|Version|License
 
 ## Package details
 
-<a id="02f32d028a7ac3493c4eea8ba6c60dcff1a126572d96569699ba741b7f35b49b"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.5.0)
+<a id="15af2bd3c4e8ac5324529caabe5d302ad7a91ec05bc5e17e7dd3e24c7152de76"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.6.0)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
@@ -1768,9 +1768,9 @@ Authors:
 * Anna Henningsen <anna@addaleax.net>
 
 
-<a id="5685147aca3b4349b98f73886bea53bac77e33a79e0f28d66abf77beb1dc5289"></a>
-### [ip](https://www.npmjs.com/package/ip) (version 1.1.5)
-<!-- initially found at node_modules/ip -->
+<a id="33b800e533214fc453224c9f9638baadd7f665810f85320b60145d7348a69e58"></a>
+### [ip](https://www.npmjs.com/package/ip) (version 2.0.0)
+<!-- initially found at node_modules/socks/node_modules/ip -->
 License tags: MIT
 
 Authors:
@@ -2275,8 +2275,8 @@ Authors:
 * Mathias Buus (@mafintosh)
 
 
-<a id="a091cc6779e7a303fbcad4a63b23d47f132e1ecf39f39faaabc259e1af811960"></a>
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.0-alpha.1)
+<a id="d9133b2d4fe5d0339732cf85e863f366ddd48de8f976d9f723a73a58c2a4ca15"></a>
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 2.2.1)
 <!-- initially found at node_modules/mongodb-client-encryption -->
 > Official client encryption module for the MongoDB Node.js driver
 
@@ -3213,8 +3213,8 @@ Authors:
 * Lukas Geiger
 
 
-<a id="f9220ffc964d80e53e0faef95ec88080bf655ece135656308bdf1b49ee7edf88"></a>
-### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.15.0)
+<a id="2af3a2340ce9d14d5a920d81e4553e9c844889f244b3b310ea23621cf9622a2b"></a>
+### [node-abi](https://www.npmjs.com/package/node-abi) (version 3.22.0)
 <!-- initially found at node_modules/mongodb-client-encryption/node_modules/node-abi -->
 > Get the Node ABI for a given target and runtime, and vice versa.
 
@@ -3734,8 +3734,8 @@ Authors:
 * Lukas Geiger <lukas.geiger94@gmail.com> (https://github.com/lgeiger)
 
 
-<a id="4191cf6fb835345d4fd2835e2654d6b9c437ecfc8394552ff8a68ad37e8ace01"></a>
-### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.0)
+<a id="b3a047e51af19ed4c091ca34a3d59939490120cbc75e67f511fc02d31379c55d"></a>
+### [prebuild-install](https://www.npmjs.com/package/prebuild-install) (version 7.1.1)
 <!-- initially found at node_modules/mongodb-client-encryption/node_modules/prebuild-install -->
 > A command line tool to easily install prebuilt binaries for multiple version of node/iojs on a specific platform
 
@@ -4403,8 +4403,8 @@ Authors:
 * syvita
 
 
-<a id="be442b0d268ca721821c446050bbb72fae9939fc8c52474b47d9d904d18f0193"></a>
-### [socks](https://www.npmjs.com/package/socks) (version 2.6.2)
+<a id="d248334926a1dc960150cbe3b2ab15fa021e1b8b498cf04f0f32a9a876263e66"></a>
+### [socks](https://www.npmjs.com/package/socks) (version 2.7.0)
 <!-- initially found at node_modules/socks -->
 > Fully featured SOCKS proxy client supporting SOCKSv4, SOCKSv4a, and SOCKSv5. Includes Bind and Associate functionality.
 

@@ -50,7 +50,7 @@ class ExplainSummary extends Component {
     const inMemorySort = this.props.inMemorySort ? 'yes' : 'no';
 
     return (
-      <div className={styles['explain-summary']} data-test-id="explain-summary">
+      <div className={styles['explain-summary']} data-testid="explain-summary">
         <h3>Query Performance Summary</h3>
         <FlexBox alignItems="flex-start">
           <div className={styles['summary-stats']}>

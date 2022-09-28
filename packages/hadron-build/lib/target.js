@@ -17,6 +17,7 @@ const execFile = promisify(childProcess.execFile);
 const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-client');
 const tarPack = require('tar-pack').pack;
 const which = require('which');
+const os = require('os');
 const { signtool } = require('./signtool');
 
 async function signLinuxPackage(src) {
@@ -105,7 +106,21 @@ function getPkg(directory) {
   return pkg;
 }
 
+const supportedPlatforms = [
+  { platform: 'darwin', arch: 'x64' },
+  { platform: 'darwin', arch: 'arm64' },
+  { platform: 'linux', arch: 'x64' },
+  { platform: 'win32', arch: 'x64' }
+];
+
+const supportedDistributions = [
+  'compass',
+  'compass-readonly',
+  'compass-isolated'
+];
+
 class Target {
+  // eslint-disable-next-line complexity
   constructor(dir, opts = {}) {
     this.dir = dir || process.cwd();
     this.out = path.join(this.dir, 'dist');
@@ -113,15 +128,17 @@ class Target {
     const pkg = getPkg(dir);
     this.pkg = pkg;
 
+    const distributions = pkg.config.hadron.distributions;
+
     _.defaults(opts, { version: process.env.HADRON_APP_VERSION }, pkg, {
       platform: process.platform,
       arch: process.arch,
-      sign: true
+      sign: true,
+      distribution: process.env.HADRON_DISTRIBUTION || distributions.default
     });
 
-    const distributions = pkg.config.hadron.distributions;
-    this.distribution =
-      process.env.HADRON_DISTRIBUTION || distributions.default;
+    this.distribution = opts.distribution;
+
     const distOpts = _.defaults(
       {
         name: process.env.HADRON_PRODUCT,
@@ -157,20 +174,16 @@ class Target {
 
     this.slug = this.name;
     this.semver = new semver.SemVer(this.version);
-    this.channel = 'stable';
+    this.channel = Target.getChannelFromVersion(this.version);
+    if (this.channel !== 'stable') {
+      this.slug += `-${this.channel}`;
+    }
 
     this.autoUpdateBaseUrl = _.get(pkg, 'config.hadron.endpoint', null);
 
     this.asar = { unpack: [], ...pkg.config.hadron.asar };
     this.rebuild = { ...pkg.config.hadron.rebuild };
     this.macosEntitlements = this.src(pkg.config.hadron.macosEntitlements);
-
-    // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
-    const mtch = this.version.match(/-([a-z]+)(\.\d+)?$/);
-    if (mtch) {
-      this.channel = mtch[1].toLowerCase();
-      this.slug += `-${this.channel}`;
-    }
 
     if (this.channel === 'dev' && process.env.ALPHA) {
       this.version = [
@@ -228,14 +241,29 @@ class Target {
 
     this.resourcesAppDir = path.join(this.resources, 'app');
 
-    debug('target ready', this);
+    debug(
+      'target ready',
+      _.pick(this, [
+        'name',
+        'productName',
+        'version',
+        'platform',
+        'arch',
+        'channel',
+        'assets',
+        'packagerOptions',
+        'installerOptions'
+      ])
+    );
   }
 
   setArchiveName() {
     this.app_archive_name =
       this.osx_zip_filename ||
       this.windows_zip_filename ||
-      this.linux_tar_filename;
+      (process.env.EVERGREEN_BUILD_VARIANT === 'rhel'
+        ? this.rhel_tar_filename
+        : this.linux_tar_filename);
   }
 
   /**
@@ -316,45 +344,39 @@ class Target {
       `-${this.channel}$1`
     );
 
-    /**
-     * TODO (imlucas) Remove these after evergreen.yml updated to use inline templating.
-     */
-    this.windows_msi_label = this.windows_msi_filename = `${this.productName.replace(
-      /\s/g,
-      ''
-    )}.msi`;
-    this.windows_setup_label = this.windows_setup_filename = `${this.productName}Setup.exe`;
-    this.windows_zip_label = this.windows_zip_filename = `${this.productName}-windows.zip`;
-    this.windows_nupkg_full_label = this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
-    this.windows_releases_label = this.windows_releases_filename = `${this.distribution}-RELEASES`;
+    this.windows_setup_label =
+      this.windows_setup_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.exe`;
+    this.windows_msi_label =
+      this.windows_msi_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.msi`;
+    this.windows_zip_label =
+      this.windows_zip_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`;
+    this.windows_releases_label =
+      this.windows_releases_filename = `${this.slug}-RELEASES`;
+    this.windows_nupkg_full_label =
+      this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
 
     this.assets = [
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.exe`,
-        path: this.dest(this.windows_setup_label)
+        name: this.windows_setup_label,
+        path: this.dest(this.windows_setup_label),
+        downloadCenter: true
       },
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.msi`,
-        path: this.dest(this.windows_msi_label)
+        name: this.windows_msi_label,
+        path: this.dest(this.windows_msi_label),
+        downloadCenter: true
       },
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`,
-        path: this.dest(this.windows_zip_label)
+        name: this.windows_zip_label,
+        path: this.dest(this.windows_zip_label),
+        downloadCenter: true
       },
       {
-        name: `${this.slug}-RELEASES`,
+        name: this.windows_releases_label,
         path: this.dest(this.windows_releases_label)
       },
       {
-        name: 'LICENSE',
-        path: this.dest('LICENSE')
-      },
-      {
-        name: 'version',
-        path: this.dest('version')
-      },
-      {
-        name: `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`,
+        name: this.windows_nupkg_full_label,
         path: this.dest(this.windows_nupkg_full_label)
       }
     ];
@@ -410,7 +432,7 @@ class Target {
 
       await fs.promises.rename(
         this.dest('RELEASES'),
-        this.dest(`${this.distribution}-RELEASES`),
+        this.dest(this.windows_releases_label),
       );
 
       const { MSICreator } = require('@mongodb-js/electron-wix-msi');
@@ -443,6 +465,11 @@ class Target {
 
       // sign the MSI
       await signWindowsPackage(this.dest(this.packagerOptions.name + '.msi'));
+
+      await fs.promises.rename(
+        this.dest(this.packagerOptions.name + '.msi'),
+        this.dest(this.windows_msi_label),
+      );
     };
   }
 
@@ -456,14 +483,12 @@ class Target {
       icon: `${this.id}.icns`
     });
 
+    const destDir = `${this.productName}-${this.platform}-${this.arch}`;
+
     // this.resources = OSX_RESOURCES;
-    const OSX_DOT_APP = this.dest(
-      `${this.productName}-darwin-x64`,
-      `${this.productName}.app`
-    );
-    this.appPath = OSX_DOT_APP;
+    this.appPath = this.dest(destDir, `${this.productName}.app`);
     this.resources = this.dest(
-      `${this.productName}-darwin-x64`,
+      destDir,
       `${this.productName}.app`,
       'Contents',
       'Resources'
@@ -481,32 +506,32 @@ class Target {
       this.packagerOptions.appBundleId += `.${this.channel}`;
     }
 
-    this.osx_dmg_label = this.osx_dmg_filename = `${this.productName}.dmg`;
-    this.osx_zip_label = this.osx_zip_filename = `${this.productName}.zip`;
+    this.osx_dmg_label =
+      this.osx_dmg_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.dmg`;
+    this.osx_zip_label =
+      this.osx_zip_filename = `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`;
 
     this.assets = [
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.dmg`,
-        path: this.dest(this.osx_dmg_label)
+        name: this.osx_dmg_label,
+        path: this.dest(this.osx_dmg_label),
+        downloadCenter: true,
       },
       {
-        name: `${this.id}-${this.version}-${this.platform}-${this.arch}.zip`,
+        name: this.osx_zip_label,
         path: this.dest(this.osx_zip_label)
       }
     ];
 
     this.installerOptions = {
-      dmgPath: this.dest(`${this.productName}.dmg`),
+      dmgPath: this.dest(this.osx_dmg_filename),
       title: this.truncatedProductName, // actually names the dmg
       overwrite: true,
       out: this.out,
       icon: this.packagerOptions.icon,
       identity_display: platformSettings.codesign_identity,
       identity: platformSettings.codesign_sha1,
-      appPath: this.dest(
-        `${this.productName}-darwin-x64`,
-        `${this.productName}.app`
-      ),
+      appPath: this.appPath,
       /**
        * Background image for `.dmg`.
        * @see http://npm.im/electron-installer-dmg
@@ -534,32 +559,10 @@ class Target {
           x: 93,
           y: 243,
           type: 'file',
-          path: this.dest(
-            `${this.productName}-darwin-x64`,
-            `${this.productName}.app`
-          )
+          path: this.appPath
         }
       ]
     };
-
-    /**
-     * TODO (imlucas) Auto-generate homebrew cask.
-     *
-     * @see https://github.com/caskroom/homebrew-versions/blob/master/Casks/mongodb-compass-beta.rb
-     * @see https://caskroom.github.io/
-     */
-    // const url = 'https://s3.mysite.com/hadron-#{version}-darwin-x64.dmg';
-    // const caskContents = dedent`cask '${CONFIG.id}' do
-    //   version '1.5.0-beta.0'
-    //   sha256 '${sha_of_dmg_contents}'
-    //
-    //   url "${url}"
-    //   name '${CONFIG.productName}'
-    //   homepage '${product_url_or_homepage_url_from_packagejson}'
-    //
-    //   app '${CONFIG.productName}.app'
-    // end`;
-    // // write caskContents to `${CONFIG.id}.rb` asset
 
     this.createInstaller = async() => {
       if (process.env.MACOS_NOTARY_KEY &&
@@ -567,10 +570,7 @@ class Target {
           process.env.MACOS_NOTARY_CLIENT_URL &&
           process.env.MACOS_NOTARY_API_URL) {
         const appDirectoryName = `${this.productName}.app`;
-        const appPath = this.dest(
-          `${this.productName}-darwin-x64`,
-          appDirectoryName
-        );
+        const appPath = this.appPath;
         debug(`Signing and notarizing "${appPath}"`);
         // https://wiki.corp.mongodb.com/display/BUILD/How+to+use+MacOS+notary+service
         debug(`Downloading the notary client from ${process.env.MACOS_NOTARY_CLIENT_URL} to ${path.resolve('macnotary')}`);
@@ -637,7 +637,7 @@ class Target {
       name: this.productName
     });
 
-    const debianVersion = this.version.replace(/\-/g, '~');
+    const debianVersion = this.version;
     const debianArch = this.arch === 'x64' ? 'amd64' : 'i386';
     const debianSection = _.get(platformSettings, 'deb_section');
     this.linux_deb_filename = `${this.slug}_${debianVersion}_${debianArch}.deb`;
@@ -651,24 +651,27 @@ class Target {
     const rhelArch = this.arch === 'x64' ? 'x86_64' : 'i386';
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
-
-    var isRhel = process.env.EVERGREEN_BUILD_VARIANT === 'rhel';
-    this.linux_tar_filename = `${this.slug}-${this.version}-${
-      isRhel ? 'rhel' : this.platform
-    }-${this.arch}.tar.gz`;
+    this.linux_tar_filename = `${this.slug}-${this.version}-${this.platform}-${this.arch}.tar.gz`;
+    this.rhel_tar_filename = `${this.slug}-${this.version}-rhel-${this.arch}.tar.gz`;
 
     this.assets = [
       {
         name: this.linux_deb_filename,
-        path: this.dest(this.linux_deb_filename)
+        path: this.dest(this.linux_deb_filename),
+        downloadCenter: true
       },
       {
         name: this.linux_rpm_filename,
-        path: this.dest(this.linux_rpm_filename)
+        path: this.dest(this.linux_rpm_filename),
+        downloadCenter: true
       },
       {
         name: this.linux_tar_filename,
         path: this.dest(this.linux_tar_filename)
+      },
+      {
+        name: this.rhel_tar_filename,
+        path: this.dest(this.rhel_tar_filename)
       }
     ];
 
@@ -704,7 +707,6 @@ class Target {
         },
         bin: this.productName,
         requires: [
-          'lsb-core-noarch',
           'libXScrnSaver',
           'gnome-keyring',
           'libsecret',
@@ -743,9 +745,10 @@ class Target {
     const createTarball = () => {
       debug(
         'creating tarball %s -> %s',
-        tar(this.appPath, this.dest(this.linux_tar_filename))
+        this.appPath,
+        this.dest(this.app_archive_name)
       );
-      return tar(this.appPath, this.dest(this.linux_tar_filename));
+      return tar(this.appPath, this.dest(this.app_archive_name));
     };
 
     this.createInstaller = () => {
@@ -775,6 +778,44 @@ class Target {
 
     return res[0];
   }
+
+  static getAssetsForVersion(dir, version) {
+    const configs = supportedDistributions.flatMap((distribution) => {
+      return supportedPlatforms.map((platformConfig) => {
+        return { ...platformConfig, distribution };
+      });
+    });
+
+    const assets = configs.flatMap((config) => {
+      const target = new Target(dir, { ...config, version });
+      return {
+        config: { ...config, version: target.version, channel: target.channel },
+        assets: target.assets
+      };
+    });
+
+    return assets;
+  }
+
+  static getChannelFromVersion(version) {
+    // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
+    const match = version.match(/-([a-z]+)(\.\d+)?$/);
+    if (match) {
+      return match[1].toLowerCase();
+    }
+    return 'stable';
+  }
+
+  static getDownloadLinkForAsset(version, asset) {
+    const channel = Target.getChannelFromVersion(version);
+    const prefix =
+      channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
+    return `https://downloads.mongodb.com/${prefix}/${asset.name}`;
+  }
 }
+
+Target.supportedPlatforms = supportedPlatforms;
+
+Target.supportedDistributions = supportedDistributions;
 
 module.exports = Target;

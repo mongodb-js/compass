@@ -67,9 +67,9 @@ describe('formatters', function () {
 
       it('works for input with Binary data', async function () {
         const binary = new Binary(
-          Buffer.from('56391cc226bc4affbe520f67856c09ec'),
+          Buffer.from('56391cc226bc4affbe520f67856c09ec', 'hex'),
           4
-        );
+        ).toUUID();
 
         const docs = [
           {

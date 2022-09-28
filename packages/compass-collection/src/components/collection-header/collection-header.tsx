@@ -33,11 +33,11 @@ const collectionHeaderStyles = css({
 
 const collectionHeaderTitleStyles = css({
   display: 'flex',
+  width: '100%',
   alignItems: 'center',
-  flex: '1 1 100%',
   padding: `0 ${String(spacing[3])}px`,
   margin: 0,
-  width: '100%',
+  overflow: 'hidden',
 });
 
 const collectionHeaderDBLinkStyles = css({
@@ -51,7 +51,7 @@ const collectionHeaderDBLinkStyles = css({
   },
   backgroundColor: 'transparent',
   border: 'none',
-  display: 'inline',
+  display: 'inline-block',
   padding: 0,
 });
 
@@ -69,12 +69,12 @@ const collectionHeaderNamespaceStyles = css({
   display: 'flex',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
-  textOverflow: 'ellipsis',
 });
 
 const collectionHeaderDBNameStyles = css({
-  display: 'flex',
-  alignItems: 'center',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 });
 
 const collectionHeaderDBNameLightStyles = css({

@@ -215,11 +215,11 @@ class ExportModal extends PureComponent {
         <div className={style('radio')}>
           <label
             className={queryClassName}
-            data-test-id="export-with-filters-label"
+            data-testid="export-with-filters-label"
           >
             <input
               type="radio"
-              data-test-id="export-with-filters"
+              data-testid="export-with-filters"
               value="filter"
               checked={!isFullCollection}
               onChange={this.handleExportOptionSelect}
@@ -230,7 +230,7 @@ class ExportModal extends PureComponent {
         </div>
         <div
           className={queryViewerClassName}
-          data-test-id="query-viewer-wrapper"
+          data-testid="query-viewer-wrapper"
         >
           <QueryViewer
             ns={this.props.ns}
@@ -242,7 +242,7 @@ class ExportModal extends PureComponent {
           <label>
             <input
               type="radio"
-              data-test-id="export-full-collection"
+              data-testid="export-full-collection"
               value="full"
               checked={isFullCollection}
               onChange={this.handleExportOptionSelect}
@@ -376,7 +376,7 @@ class ExportModal extends PureComponent {
         onShow={this.handleShow}
         onHide={this.handleClose}
         backdrop="static"
-        data-test-id="export-modal"
+        data-testid="export-modal"
       >
         <Modal.Header closeButton>
           Export {entityToExport} {this.props.ns}

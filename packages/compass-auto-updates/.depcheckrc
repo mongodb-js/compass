@@ -9,5 +9,6 @@ ignores: [
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",
-  "mongodb-compass"
+  "mongodb-compass",
+  "url-loader"
 ]

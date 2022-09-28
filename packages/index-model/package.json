@@ -2,7 +2,7 @@
   "name": "mongodb-index-model",
   "description": "MongoDB index model.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
-  "version": "3.12.0",
+  "version": "4.0.2",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
@@ -43,7 +43,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^5.0.3",
     "mocha": "^7.1.0",
-    "mongodb": "^4.6.0",
+    "mongodb": "^4.10.0",
     "mongodb-runner": "^4.9.0"
   }
 }

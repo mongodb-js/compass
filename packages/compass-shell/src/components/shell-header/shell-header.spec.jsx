@@ -79,7 +79,7 @@ describe('ShellHeader', function() {
       />);
 
       expect(wrapper.find('button').exists()).to.equal(true);
-      expect(wrapper.find('[data-test-id="shell-expand-button"]')).to.be.present();
+      expect(wrapper.find('[data-testid="shell-expand-button"]')).to.be.present();
     });
   });
 });

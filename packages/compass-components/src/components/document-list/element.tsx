@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Icon, css, cx, uiColors } from '../../index';
+
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
@@ -20,6 +20,9 @@ import { FontAwesomeIcon } from './font-awesome-icon';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { usePrevious } from './use-previous';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { uiColors } from '@leafygreen-ui/palette';
+import { Icon } from '../leafygreen';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -486,7 +489,7 @@ export const HadronElement: React.FunctionComponent<{
         <div className={elementDivider} role="presentation">
           {value.decrypted && (
             <span
-              data-test-id="hadron-document-element-decrypted-icon"
+              data-testid="hadron-document-element-decrypted-icon"
               title="Encrypted Field"
             >
               <Icon glyph="Key" size="small" />

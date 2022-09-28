@@ -7,7 +7,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.14.1",
+  "version": "2.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -31,7 +31,7 @@
     "eslint": "^7.25.0",
     "eslint-config-mongodb-js": "^3.0.1",
     "eslint-plugin-react": "^7.24.0",
-    "hadron-app-registry": "^8.14.1",
+    "hadron-app-registry": "^9.0.1",
     "mocha": "^6.1.2",
     "sinon": "^7.2.7"
   }

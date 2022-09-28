@@ -4,15 +4,20 @@ import type { BrowserWindow } from 'electron';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import createDebug from 'debug';
+import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
+import { setupPreferences } from './setup-preferences';
+import type Preferences from 'compass-preferences-model';
+import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 
 const debug = createDebug('mongodb-compass:main:application');
 
 type ExitHandler = () => Promise<unknown>;
+type CompassApplicationMode = 'CLI' | 'GUI';
 
 class CompassApplication {
   private constructor() {
@@ -22,18 +27,29 @@ class CompassApplication {
   private static emitter: EventEmitter = new EventEmitter();
   private static exitHandlers: ExitHandler[] = [];
   private static initPromise: Promise<void> | null = null;
+  private static mode: CompassApplicationMode | null = null;
+  private static preferences: Preferences;
 
-  private static async _init() {
+  private static async _init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult) {
+    if (this.mode !== null && this.mode !== mode) {
+      throw new Error(`Cannot re-initialize Compass in different mode (${mode} vs previous ${this.mode})`);
+    }
+    this.mode = mode;
+
     if (require('electron-squirrel-startup')) {
       debug('electron-squirrel-startup event handled sucessfully');
       return;
     }
 
     this.setupUserDirectory();
-
+    this.preferences = await setupPreferences(globalPreferences);
     await Promise.all([this.setupLogging(), this.setupTelemetry()]);
-    await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
 
+    if (mode === 'CLI') {
+      return;
+    }
+
+    await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
     await setupCSFLELibrary();
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
@@ -41,8 +57,13 @@ class CompassApplication {
     this.setupWindowManager();
   }
 
-  static init(): Promise<void> {
-    return (this.initPromise ??= this._init());
+  // TODO(COMPASS-6149): Add better way for unified access to preferences across process models
+  static getPreferences(): Preferences {
+    return this.preferences;
+  }
+
+  static init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult): Promise<void> {
+    return (this.initPromise ??= this._init(mode, globalPreferences));
   }
 
   private static async setupSecureStore(): Promise<void> {
@@ -52,22 +73,13 @@ class CompassApplication {
   }
 
   private static setupJavaScriptArguments(): void {
-    // Enable ES6 features
-    app.commandLine.appendSwitch('js-flags', '--harmony');
     // For Linux users with drivers that are avoided by Chromium we disable the
     // GPU check to attempt to bypass the disabled WebGL settings.
     app.commandLine.appendSwitch('ignore-gpu-blacklist', 'true');
   }
 
-  private static async setupAutoUpdate(): Promise<void> {
-    if (process.env.HADRON_ISOLATED !== 'true') {
-      // This is done asyncronously so that webpack can completely remove
-      // autoupdater from the application bundle during compilation
-      const { CompassAutoUpdateManager } = await import(
-        './auto-update-manager'
-      );
-      CompassAutoUpdateManager.init();
-    }
+  private static setupAutoUpdate(): void {
+    CompassAutoUpdateManager.init();
   }
 
   private static setupApplicationMenu(): void {
@@ -117,9 +129,9 @@ class CompassApplication {
     const home = app.getPath('home');
     const appData = process.env.LOCALAPPDATA || process.env.APPDATA;
     const logDir =
-      process.env.MONGODB_COMPASS_TEST_LOG_DIR || process.platform === 'win32'
+      process.env.MONGODB_COMPASS_TEST_LOG_DIR ?? (process.platform === 'win32'
         ? path.join(appData || home, 'mongodb', 'compass')
-        : path.join(home, '.mongodb', 'compass');
+        : path.join(home, '.mongodb', 'compass'));
 
     app.setAppLogsPath(logDir);
 

@@ -1,6 +1,7 @@
-import { remote } from 'electron';
 import Query from './query';
 import storageMixin from 'storage-mixin';
+import { getStoragePaths } from '@mongodb-js/compass-utils';
+const { basepath } = getStoragePaths() || {};
 
 /**
  * A model that represents a recent MongoDB query.
@@ -10,7 +11,7 @@ const RecentQuery = Query.extend(storageMixin, {
   namespace: 'RecentQueries',
   storage: {
     backend: 'disk',
-    basepath: remote ? remote.app.getPath('userData') : undefined,
+    basepath,
   },
 });
 

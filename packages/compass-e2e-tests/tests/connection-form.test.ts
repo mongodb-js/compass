@@ -522,61 +522,37 @@ describe('Connection form', function () {
     const newFavoriteName = 'My Favorite (edited)';
 
     // save
-    await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
-    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-    await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
-    await browser.clickVisible(
-      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color1"]`
-    );
-    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-    expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
-      'Save'
-    );
-    await browser.clickVisible(Selectors.FavoriteSaveButton);
-    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+    await browser.saveFavorite(favoriteName, 'color1');
 
-    // copy the connection string
-    await selectConnectionMenuItem(
-      browser,
-      favoriteName,
-      Selectors.CopyConnectionStringItem
-    );
-    await browser.waitUntil(
-      async () => {
-        return (await clipboard.read()) === 'mongodb://localhost:27017';
-      },
-      { timeoutMsg: 'Expected copy to clipboard to work' }
-    );
+    if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
+      // copy the connection string
+      await browser.selectConnectionMenuItem(
+        favoriteName,
+        Selectors.CopyConnectionStringItem
+      );
+      await browser.waitUntil(
+        async () => {
+          return (await clipboard.read()) === 'mongodb://localhost:27017';
+        },
+        { timeoutMsg: 'Expected copy to clipboard to work' }
+      );
+    }
 
     // duplicate
-    await selectConnectionMenuItem(
-      browser,
+    await browser.selectConnectionMenuItem(
       favoriteName,
       Selectors.DuplicateConnectionItem
     );
 
     // delete the duplicate
-    await selectConnectionMenuItem(
-      browser,
+    await browser.selectConnectionMenuItem(
       `${favoriteName} (copy)`,
       Selectors.RemoveConnectionItem
     );
 
     // edit
-    await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
-    await browser.waitUntil(async () => {
-      const text = await browser.$(Selectors.ConnectionTitle).getText();
-      return text === favoriteName;
-    });
-    await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
-    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-    await browser.$(Selectors.FavoriteNameInput).setValue(newFavoriteName);
-    await browser.clickVisible(
-      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
-    );
-    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-    await browser.clickVisible(Selectors.FavoriteSaveButton);
-    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+    await browser.selectFavorite(favoriteName);
+    await browser.saveFavorite(newFavoriteName, 'color2');
 
     // should now be updated in the sidebar
     await browser
@@ -612,9 +588,7 @@ describe('Connection form', function () {
 
     // Wait for it to connect
     const element = await browser.$(Selectors.MyQueriesList);
-    await element.waitForDisplayed({
-      timeout: 30_000,
-    });
+    await element.waitForDisplayed();
 
     // It should use the new favorite name as the connection name in the top-left corner
     expect(await browser.$(Selectors.SidebarTitle).getText()).to.equal(
@@ -622,18 +596,3 @@ describe('Connection form', function () {
     );
   });
 });
-
-async function selectConnectionMenuItem(
-  browser: CompassBrowser,
-  favoriteName: string,
-  itemSelector: string
-) {
-  const selector = Selectors.sidebarFavorite(favoriteName);
-  // It takes some time for the favourites to load
-  await browser.$(selector).waitForDisplayed({ timeout: 60_000 });
-  await browser.hover(selector);
-
-  await browser.clickVisible(Selectors.sidebarFavoriteMenuButton(favoriteName));
-  await browser.$(Selectors.ConnectionMenu).waitForDisplayed();
-  await browser.clickVisible(itemSelector);
-}

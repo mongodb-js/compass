@@ -1,10 +1,9 @@
-import type React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
-import { FocusState, useFocusState } from './use-focus-hover';
+import { useMemo } from 'react';
 
-export const focusRingStyles = css({
+const focusRingStyles = css({
   position: 'relative',
   outline: 'none',
   '&::after': {
@@ -16,26 +15,112 @@ export const focusRingStyles = css({
     bottom: 3,
     left: 3,
     borderRadius: spacing[1],
-    boxShadow: `0 0 0 0 ${uiColors.focus}`,
+    boxShadow: `0 0 0 0 transparent`,
     transition: 'box-shadow .16s ease-in',
   },
 });
 
-export const focusRingVisibleStyles = css({
+const focusRingVisibleStyles = css({
   '&::after': {
-    boxShadow: `0 0 0 3px ${uiColors.focus}`,
+    boxShadow: `0 0 0 3px ${uiColors.focus} !important`,
     transitionTimingFunction: 'ease-out',
   },
 });
 
-export function useFocusRing<T extends HTMLElement>(): React.HTMLProps<T> {
-  const [focusProps, focusState] = useFocusState();
+const focusRingHoverVisibleStyles = css({
+  '&::after': {
+    boxShadow: `0 0 0 3px ${uiColors.gray.light2}`,
+    transitionTimingFunction: 'ease-out',
+  },
+});
+
+/**
+ * Default focus ring styles. Can be used for simple cases where we want the
+ * default ring with no customization at all (most of the cases in Compass)
+ */
+export const focusRing = css(focusRingStyles, {
+  // It's important that we only show focus ring when the focus is determined by
+  // the browser as "visible". This means that e.g., buttons will only get the
+  // ring around them when navigating application with a keyboard and not just
+  // clicking a button which can be annoying
+  //
+  // https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible
+  '&:focus-visible': focusRingVisibleStyles,
+});
+
+const focusRingOuter = css({
+  '&::after': {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+});
+
+const focusRingWithin = css({
+  '&:focus-within': focusRingVisibleStyles,
+});
+
+const focusRingHover = css({
+  '&:hover': focusRingHoverVisibleStyles,
+});
+
+/**
+ * Provides focus ring styles with a few additional options allowing to override
+ * default style
+ *
+ * @param options
+ * @param options.outer show focus ring outside the component (default: false)
+ * @param options.focusWithin show focus ring on focus within instead of focus visible (default: false)
+ * @param options.hover show focus ring on hover in addition to focus (default: false)
+ * @param options.radius focus ring radius (default: 4px or spacing[1] from leafygreen)
+ * @returns props to apply to the component
+ */
+export function useFocusRing({
+  outer = false,
+  focusWithin = false,
+  hover = false,
+  radius,
+}: {
+  /** show focus ring outside the component (default: false) */
+  outer?: boolean;
+  /** show focus ring on focus within in addition to focus visible (default: false) */
+  focusWithin?: boolean;
+  /** show focus ring on hover in addition to focus (default: false) */
+  hover?: boolean;
+  /** focus ring radius (default: 4px or spacing[1] from leafygreen) */
+  radius?: number;
+} = {}) {
+  const outerClass = useMemo(() => {
+    return outer && focusRingOuter;
+  }, [outer]);
+
+  const radiusClass = useMemo(() => {
+    return (
+      typeof radius === 'number' &&
+      css({
+        '&::after': {
+          borderRadius: radius,
+        },
+      })
+    );
+  }, [radius]);
+
+  const focusWithinClass = useMemo(() => {
+    return focusWithin && focusRingWithin;
+  }, [focusWithin]);
+
+  const hoverClass = useMemo(() => {
+    return hover && focusRingHover;
+  }, [hover]);
 
   return {
-    ...focusProps,
     className: cx(
-      focusRingStyles,
-      focusState === FocusState.FocusVisible && focusRingVisibleStyles
+      focusRing,
+      outerClass,
+      radiusClass,
+      focusWithinClass,
+      hoverClass
     ),
   };
 }
