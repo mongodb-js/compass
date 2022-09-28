@@ -10,6 +10,11 @@ describe('auto connection argument parsing', function () {
     expect(fn).to.equal(undefined);
   });
 
+  it('skips nothing if only webdriverio default positional arguments are provided', function() {
+    const fn = loadAutoConnectInfo({ positionalArguments: ['about:blank'] });
+    expect(fn).to.equal(undefined);
+  });
+
   it('understands a connection string if one has been passed', async function() {
     const connectionString = 'mongodb://localhost/';
     const fn = loadAutoConnectInfo({ positionalArguments: [connectionString] });

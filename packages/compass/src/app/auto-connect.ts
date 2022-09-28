@@ -13,7 +13,8 @@ export function loadAutoConnectInfo(
     positionalArguments = [],
     passphrase,
   } = preferences;
-  if (!file && !positionalArguments.length) {
+  // The about: accounts for webdriverio in the e2e tests appending the argument for every run
+  if (!file && (!positionalArguments.length || positionalArguments.every(arg => arg.startsWith('about:')))) {
     return;
   }
 
