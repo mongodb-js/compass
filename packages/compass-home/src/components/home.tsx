@@ -331,7 +331,12 @@ function ThemedHome(
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   function showSettingsModal() {
-    setIsSettingsOpen(true);
+    async function show() {
+      await preferences.ensureDefaultConfigurableUserPreferences();
+      setIsSettingsOpen(true);
+    }
+
+    void show();
   }
 
   useEffect(() => {
@@ -347,7 +352,7 @@ function ThemedHome(
         await preferences.ensureDefaultConfigurableUserPreferences();
         setIsWelcomeOpen(false);
         if (showSettings) {
-          void showSettingsModal();
+          setIsSettingsOpen(true);
         }
       }
 
