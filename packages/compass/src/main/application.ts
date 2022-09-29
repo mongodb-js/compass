@@ -10,8 +10,7 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
-import { setupPreferences } from './setup-preferences';
-import type Preferences from 'compass-preferences-model';
+import { setupPreferences } from 'compass-preferences-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 
 const debug = createDebug('mongodb-compass:main:application');
@@ -28,7 +27,6 @@ class CompassApplication {
   private static exitHandlers: ExitHandler[] = [];
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
-  private static preferences: Preferences;
 
   private static async _init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult) {
     if (this.mode !== null && this.mode !== mode) {
@@ -42,7 +40,7 @@ class CompassApplication {
     }
 
     this.setupUserDirectory();
-    this.preferences = await setupPreferences(globalPreferences);
+    await setupPreferences(globalPreferences);
     await Promise.all([this.setupLogging(), this.setupTelemetry()]);
 
     if (mode === 'CLI') {
@@ -55,11 +53,6 @@ class CompassApplication {
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
-  }
-
-  // TODO(COMPASS-6149): Add better way for unified access to preferences across process models
-  static getPreferences(): Preferences {
-    return this.preferences;
   }
 
   static init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult): Promise<void> {

@@ -2,7 +2,7 @@ const ipc = require('hadron-ipc');
 const remote = require('@electron/remote');
 const semver = require('semver');
 
-const { preferencesIpc } = require('compass-preferences-model');
+const { preferencesAccess: preferences } = require('compass-preferences-model');
 
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
@@ -163,6 +163,7 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function() {
+    await preferences.refreshPreferences();
     log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container');
 
     this.el = document.querySelector('#application');
@@ -186,7 +187,7 @@ const Application = View.extend({
     );
 
     const checkForNetworkOptIn = async () => {
-      const { showedNetworkOptIn, networkTraffic } = await preferencesIpc.getPreferences();
+      const { showedNetworkOptIn, networkTraffic } = preferences.getPreferences();
 
       if (!showedNetworkOptIn && networkTraffic) {
         ipc.ipcRenderer.emit('window:show-network-optin');
@@ -202,12 +203,12 @@ const Application = View.extend({
       telemetryAnonymousId,
       trackUsageStatistics,
       lastKnownVersion
-    } = await preferencesIpc.getPreferences();
+    } = preferences.getPreferences();
 
     // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
     const user = await User.getOrCreate(currentUserId || telemetryAnonymousId);
 
-    const preferences = { telemetryAnonymousId: user.id };
+    const changedPreferences = { telemetryAnonymousId: user.id };
 
     this.user.set(user.serialize());
     this.user.trigger('sync');
@@ -216,10 +217,10 @@ const Application = View.extend({
     this.previousVersion = lastKnownVersion || '0.0.0';
 
     if (semver.neq(this.previousVersion, APP_VERSION)) {
-      preferences.lastKnownVersion = APP_VERSION;
+      changedPreferences.lastKnownVersion = APP_VERSION;
     }
 
-    const savedPreferences = await preferencesIpc.savePreferences(preferences);
+    const savedPreferences = await preferences.savePreferences(changedPreferences);
 
     ipc.call('compass:usage:identify', {
       currentUserId: savedPreferences.currentUserId,
@@ -236,7 +237,7 @@ const state = new Application();
 app.extend({
   client: null,
   init: async function() {
-    const { theme } = await preferencesIpc.getPreferences();
+    const { theme } = preferences.getPreferences();
 
     async.series(
       [
@@ -261,7 +262,7 @@ app.extend({
         ipc.on('app:save-theme', (_, theme) => {
           // Save the new theme on the user's preferences.
           if (theme) {
-            preferencesIpc.savePreferences({ theme });
+            preferences.savePreferences({ theme });
           }
         });
 
