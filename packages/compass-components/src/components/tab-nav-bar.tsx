@@ -2,22 +2,19 @@ import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { uiColors } from '@leafygreen-ui/palette';
-
-import { WorkspaceContainer } from './workspace-container';
 import { withTheme } from '../hooks/use-theme';
 import { Tabs, Tab } from './leafygreen';
 
 const containerStyles = css({
   flexGrow: 1,
-  flexShrink: 1,
-  flexBasis: 'auto',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
-  overflow: 'auto',
+  overflow: 'hidden',
 });
 
 const tabsContainerStyles = css({
+  flex: 'none',
   padding: `0 ${spacing[3]}px`,
 });
 
@@ -27,6 +24,12 @@ const tabsContainerDarkStyles = css({
 
 const tabsContainerLightStyles = css({
   background: uiColors.white,
+});
+
+const tabStyles = css({
+  display: 'flex',
+  flex: 1,
+  minHeight: 0,
 });
 
 const hiddenStyles = css({
@@ -86,8 +89,9 @@ function UnthemedTabNavBar({
       {views.map(
         (view, idx) =>
           (mountAllViews || idx === activeTabIndex) && (
-            <WorkspaceContainer
+            <div
               className={cx({
+                [tabStyles]: true,
                 [hiddenStyles]: idx !== activeTabIndex,
               })}
               key={`tab-content-${tabs[idx]}`}
@@ -96,7 +100,7 @@ function UnthemedTabNavBar({
                 .replace(/ /g, '-')}-content`}
             >
               {view}
-            </WorkspaceContainer>
+            </div>
           )
       )}
     </div>
