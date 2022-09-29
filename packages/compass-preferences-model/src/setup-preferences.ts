@@ -79,9 +79,7 @@ export const preferencesMain: PreferencesAccess = {
     return preferencesSingleton?.getPreferences?.() ?? ({} as AllPreferences);
   },
   async ensureDefaultConfigurableUserPreferences(): Promise<void> {
-    return (
-      preferencesSingleton?.ensureDefaultConfigurableUserPreferences?.()
-    );
+    return preferencesSingleton?.ensureDefaultConfigurableUserPreferences?.();
   },
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     return (
