@@ -12,7 +12,7 @@ function Plugin({
 }: {
   appName: string;
   appRegistry: AppRegistry;
-  showWelcomeModal: boolean; // TODO: how do we get it here?
+  showWelcomeModal: boolean;
 }): React.ReactElement {
   return (
     <AppRegistryContext.Provider value={appRegistry}>
