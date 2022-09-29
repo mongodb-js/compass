@@ -1,4 +1,4 @@
-import { preferencesIpc } from 'compass-preferences-model';
+import preferences from 'compass-preferences-model';
 const ipc = require('hadron-ipc');
 
 const PREFIX = 'auto-updates';
@@ -93,7 +93,7 @@ const autoUpdatesChanged = (autoUpdates) => {
  */
 export const initAutoUpdates = () => {
   return async() => {
-    const { autoUpdates } = await preferencesIpc.getPreferences();
+    const { autoUpdates } = preferences.getPreferences();
     autoUpdatesChanged(autoUpdates);
   };
 };

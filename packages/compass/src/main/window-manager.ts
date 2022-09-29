@@ -15,6 +15,7 @@ import { app as electronApp, shell, dialog, BrowserWindow } from 'electron';
 import { enable } from '@electron/remote/main';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
+import preferences from 'compass-preferences-model';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
 
@@ -103,7 +104,7 @@ function showConnectWindow(
   };
 
   debug('creating new main window:', windowOpts);
-  const { networkTraffic } = compassApp.getPreferences().getPreferences();
+  const { networkTraffic } = preferences.getPreferences();
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
   if (networkTraffic !== true) {

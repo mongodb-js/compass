@@ -4,7 +4,7 @@ import { EJSON } from 'bson';
 import yaml from 'js-yaml';
 import type { Options as YargsOptions } from 'yargs-parser';
 import yargsParser from 'yargs-parser';
-import type { AmpersandType, GlobalPreferences } from './preferences';
+import type { AmpersandType, AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -131,7 +131,7 @@ function validatePreferences(
   _obj: unknown,
   source: 'cli' | 'global',
   humanReadableSource: string
-): [Partial<GlobalPreferences>, string[]] {
+): [Partial<AllPreferences>, string[]] {
   const errors: string[] = [];
   const error = (message: string) =>
     errors.push(
@@ -142,10 +142,10 @@ function validatePreferences(
     error('Invalid preferences structure');
     _obj = {};
   }
-  const obj = { ...((_obj ?? {}) as Partial<GlobalPreferences>) };
+  const obj = { ...((_obj ?? {}) as Partial<AllPreferences>) };
 
   for (const [key, value] of Object.entries(obj) as [
-    keyof GlobalPreferences,
+    keyof AllPreferences,
     unknown
   ][]) {
     if (!allPreferencesProps[key]) {
@@ -172,7 +172,7 @@ function validatePreferences(
       continue;
     }
   }
-  return [obj as GlobalPreferences, errors];
+  return [obj as AllPreferences, errors];
 }
 
 export interface GlobalPreferenceSources {
@@ -181,9 +181,9 @@ export interface GlobalPreferenceSources {
 }
 
 export interface ParsedGlobalPreferencesResult {
-  cli: Partial<GlobalPreferences>;
-  global: Partial<GlobalPreferences>;
-  hardcoded?: Partial<GlobalPreferences>;
+  cli: Partial<AllPreferences>;
+  global: Partial<AllPreferences>;
+  hardcoded?: Partial<AllPreferences>;
   preferenceParseErrors: string[];
 }
 
@@ -223,7 +223,7 @@ export async function parseAndValidateGlobalPreferences(
   const preferenceParseErrors = [...globalErrors, ...cliErrors];
 
   const globalKeys = Object.keys(global);
-  for (const key of Object.keys(cli) as (keyof GlobalPreferences)[]) {
+  for (const key of Object.keys(cli) as (keyof AllPreferences)[]) {
     if (globalKeys.includes(key) && cli[key] !== global[key]) {
       preferenceParseErrors.push(
         `Cannot override property ${key} that has been set in the global configuration file at ${file}`
@@ -236,7 +236,7 @@ export async function parseAndValidateGlobalPreferences(
 }
 
 function formatSingleOption(
-  key: keyof GlobalPreferences,
+  key: keyof AllPreferences,
   context: 'cli' | 'global'
 ): string {
   let line = '';
@@ -264,7 +264,7 @@ export function getHelpText(): string {
   let text = 'Available options:\n\n';
   for (const key of Object.keys(
     allPreferencesProps
-  ) as (keyof GlobalPreferences)[]) {
+  ) as (keyof AllPreferences)[]) {
     text += formatSingleOption(key, 'cli');
   }
   text +=
@@ -274,7 +274,7 @@ export function getHelpText(): string {
   text += '\nOnly available in the global configuration file:\n\n';
   for (const key of Object.keys(
     allPreferencesProps
-  ) as (keyof GlobalPreferences)[]) {
+  ) as (keyof AllPreferences)[]) {
     text += formatSingleOption(key, 'global');
   }
   text +=

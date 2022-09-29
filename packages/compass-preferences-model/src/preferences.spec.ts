@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import Preferences from './preferences';
+import { Preferences } from './preferences';
 import { expect } from 'chai';
 
 describe('Preferences class', function () {

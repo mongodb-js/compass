@@ -22,16 +22,17 @@ describe('Renderer IPC', function () {
       return Promise.resolve(ipcImpl[method](...args));
     },
   });
-  const preferencesIpc = makePreferencesIpc({ ipcRenderer: ipcMock } as any);
+  const preferencesIpc = makePreferencesIpc(ipcMock as any);
 
   it('should be able to call savePreferences', async function () {
     expect(
       await preferencesIpc.savePreferences({ enableMaps: true })
-    ).to.deep.equal({ savePreferences: 1, attributes: { enableMaps: true } });
+    ).to.deep.equal({ getPreferences: 1 }); // reports result from updating preferences
   });
 
   it('should be able to call getPreferences', async function () {
-    expect(await preferencesIpc.getPreferences()).to.deep.equal({
+    await preferencesIpc.refreshPreferences();
+    expect(preferencesIpc.getPreferences()).to.deep.equal({
       getPreferences: 1,
     });
   });
