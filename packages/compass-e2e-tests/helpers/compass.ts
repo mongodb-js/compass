@@ -434,6 +434,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
   process.env.CHROME_LOG_FILE = chromedriverLogPath;
+  process.env.SHOW_WELCOME = 'false';
 
   const options = {
     capabilities: {
