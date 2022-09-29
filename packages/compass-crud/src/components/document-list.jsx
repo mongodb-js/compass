@@ -124,7 +124,7 @@ class DocumentList extends React.Component {
       return this.renderFetching();
     }
 
-    return <WorkspaceContainer>{this.renderViews()}</WorkspaceContainer>;
+    return this.renderViews();
   }
 
   /**
@@ -238,32 +238,37 @@ class DocumentList extends React.Component {
   render() {
     return (
       <div className="compass-documents">
-        <CrudToolbar
-          activeDocumentView={this.props.view}
-          error={this.props.error}
-          count={this.props.count}
-          loadingCount={this.props.loadingCount}
-          start={this.props.start}
-          end={this.props.end}
-          page={this.props.page}
-          getPage={this.props.getPage}
-          insertDataHandler={this.handleOpenInsert.bind(this)}
-          localAppRegistry={this.props.store.localAppRegistry}
-          isExportable={this.props.isExportable}
-          onApplyClicked={this.onApplyClicked.bind(this)}
-          onResetClicked={this.onResetClicked.bind(this)}
-          openExportFileDialog={this.props.openExportFileDialog}
-          outdated={this.props.outdated}
-          readonly={!this.props.isEditable}
-          viewSwitchHandler={this.props.viewChanged}
-          isWritable={this.props.isWritable}
-          instanceDescription={this.props.instanceDescription}
-          refreshDocuments={this.props.refreshDocuments}
-          resultId={this.props.resultId}
-        />
-        {this.renderZeroState()}
-        {this.renderContent()}
-        {this.renderInsertModal()}
+        <WorkspaceContainer
+          toolbar={
+            <CrudToolbar
+              activeDocumentView={this.props.view}
+              error={this.props.error}
+              count={this.props.count}
+              loadingCount={this.props.loadingCount}
+              start={this.props.start}
+              end={this.props.end}
+              page={this.props.page}
+              getPage={this.props.getPage}
+              insertDataHandler={this.handleOpenInsert.bind(this)}
+              localAppRegistry={this.props.store.localAppRegistry}
+              isExportable={this.props.isExportable}
+              onApplyClicked={this.onApplyClicked.bind(this)}
+              onResetClicked={this.onResetClicked.bind(this)}
+              openExportFileDialog={this.props.openExportFileDialog}
+              outdated={this.props.outdated}
+              readonly={!this.props.isEditable}
+              viewSwitchHandler={this.props.viewChanged}
+              isWritable={this.props.isWritable}
+              instanceDescription={this.props.instanceDescription}
+              refreshDocuments={this.props.refreshDocuments}
+              resultId={this.props.resultId}
+            />
+          }
+        >
+          {this.renderZeroState()}
+          {this.renderContent()}
+          {this.renderInsertModal()}
+        </WorkspaceContainer>
       </div>
     );
   }

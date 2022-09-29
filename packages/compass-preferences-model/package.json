@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.1.0",
+    "@mongodb-js/compass-utils": "^0.1.1",
     "ampersand-collection-filterable": "^0.3.0",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",

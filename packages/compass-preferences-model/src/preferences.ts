@@ -53,12 +53,12 @@ export type NonUserPreferences = {
   ignoreAdditionalCommandLineFlags?: boolean;
 };
 
-export type GlobalPreferences = UserPreferences &
+export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
   NonUserPreferences;
 
 type OnPreferencesChangedCallback = (
-  changedPreferencesValues: Partial<GlobalPreferences>
+  changedPreferencesValues: Partial<AllPreferences>
 ) => void;
 
 declare class PreferencesAmpersandModel {
@@ -87,11 +87,11 @@ export type AmpersandType<T> = T extends string
   ? 'object'
   : never;
 
-type PreferenceDefinition<K extends keyof GlobalPreferences> = {
+type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** The type of the preference value, in Ampersand naming */
-  type: AmpersandType<GlobalPreferences[K]>;
+  type: AmpersandType<AllPreferences[K]>;
   /** An optional default value for the preference */
-  default?: GlobalPreferences[K];
+  default?: AllPreferences[K];
   /** Whether the preference is required in the Ampersand model */
   required: boolean;
   /** Whether the preference can be modified through the Settings UI */
@@ -113,18 +113,18 @@ type PreferenceDefinition<K extends keyof GlobalPreferences> = {
     ? null
     : { short: string; long?: string };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
-  deriveValue?: DeriveValueFunction<GlobalPreferences[K]>;
+  deriveValue?: DeriveValueFunction<AllPreferences[K]>;
 };
 
 type DeriveValueFunction<T> = (
   /** Get a preference's value from the current set of preferences */
-  getValue: <K extends keyof GlobalPreferences>(key: K) => GlobalPreferences[K],
+  getValue: <K extends keyof AllPreferences>(key: K) => AllPreferences[K],
   /** Get a preference's state from the current set of preferences */
-  getState: <K extends keyof GlobalPreferences>(key: K) => PreferenceState
+  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState
 ) => { value: T; state: PreferenceState };
 
 /** Helper for defining how to derive value/state for networkTraffic-affected preferences */
-function deriveNetworkTrafficOptionState<K extends keyof GlobalPreferences>(
+function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
@@ -391,7 +391,7 @@ const nonUserPreferences: Required<{
 };
 
 export const allPreferencesProps: Required<{
-  [K in keyof GlobalPreferences]: PreferenceDefinition<K>;
+  [K in keyof AllPreferences]: PreferenceDefinition<K>;
 }> = {
   ...modelPreferencesProps,
   ...cliOnlyPreferencesProps,
@@ -399,7 +399,7 @@ export const allPreferencesProps: Required<{
 };
 
 export function getSettingDescription(
-  name: Exclude<keyof GlobalPreferences, keyof InternalUserPreferences>
+  name: Exclude<keyof AllPreferences, keyof InternalUserPreferences>
 ): { short: string; long?: string } {
   return allPreferencesProps[name].description;
 }
@@ -412,16 +412,16 @@ export type PreferenceState =
   | undefined;
 
 export type PreferenceStateInformation = Partial<
-  Record<keyof GlobalPreferences, PreferenceState>
+  Record<keyof AllPreferences, PreferenceState>
 >;
 
-class Preferences {
+export class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _userPreferencesModel: PreferencesAmpersandModel;
   private _globalPreferences: {
-    cli: Partial<GlobalPreferences>;
-    global: Partial<GlobalPreferences>;
-    hardcoded: Partial<GlobalPreferences>;
+    cli: Partial<AllPreferences>;
+    global: Partial<AllPreferences>;
+    hardcoded: Partial<AllPreferences>;
   };
 
   constructor(
@@ -465,7 +465,7 @@ class Preferences {
    *
    * @returns The currently active set of preferences.
    */
-  async fetchPreferences(): Promise<GlobalPreferences> {
+  async fetchPreferences(): Promise<AllPreferences> {
     const userPreferencesModel = this._userPreferencesModel;
 
     // Fetch user preferences from the Ampersand model.
@@ -503,7 +503,7 @@ class Preferences {
    */
   async savePreferences(
     attributes: Partial<UserPreferences> = {}
-  ): Promise<GlobalPreferences> {
+  ): Promise<AllPreferences> {
     const keys = Object.keys(attributes) as (keyof UserPreferences)[];
     const originalPreferences = this.getPreferences();
     if (keys.length === 0) {
@@ -544,7 +544,7 @@ class Preferences {
     const changedPreferences = Object.fromEntries(
       Object.entries(newPreferences).filter(
         ([key, value]) =>
-          value !== originalPreferences[key as keyof GlobalPreferences]
+          value !== originalPreferences[key as keyof AllPreferences]
       )
     );
     if (Object.keys(changedPreferences).length > 0) {
@@ -559,11 +559,11 @@ class Preferences {
    *
    * @returns The currently active set of preferences.
    */
-  getPreferences(): GlobalPreferences {
+  getPreferences(): AllPreferences {
     return this._computePreferenceValuesAndStates().values;
   }
 
-  private _getStoredValues(): GlobalPreferences {
+  private _getStoredValues(): AllPreferences {
     return {
       ...this._userPreferencesModel.getAttributes({
         props: true,
@@ -593,19 +593,17 @@ class Preferences {
     const originalValues = { ...values };
     const originalStates = { ...states };
 
-    function deriveValue<K extends keyof GlobalPreferences>(
+    function deriveValue<K extends keyof AllPreferences>(
       key: K
     ): {
-      value: GlobalPreferences[K];
+      value: AllPreferences[K];
       state: PreferenceState;
     } {
       const descriptor = allPreferencesProps[key];
       if (!descriptor.deriveValue) {
         return { value: originalValues[key], state: originalStates[key] };
       }
-      return (
-        descriptor.deriveValue as DeriveValueFunction<GlobalPreferences[K]>
-      )(
+      return (descriptor.deriveValue as DeriveValueFunction<AllPreferences[K]>)(
         // `as unknown` to work around TS bug(?) https://twitter.com/addaleax/status/1572191664252551169
         (k) =>
           (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
@@ -617,11 +615,11 @@ class Preferences {
     for (const key of Object.keys(allPreferencesProps)) {
       // awkward IIFE to make typescript understand that `key` is the *same* key
       // in each loop iteration
-      (<K extends keyof GlobalPreferences>(key: K) => {
+      (<K extends keyof AllPreferences>(key: K) => {
         const result = deriveValue(key);
         values[key] = result.value;
         if (result.state !== undefined) states[key] = result.state;
-      })(key as keyof GlobalPreferences);
+      })(key as keyof AllPreferences);
     }
 
     return { values, states };
@@ -673,7 +671,7 @@ class Preferences {
   }
 
   _callOnPreferencesChanged(
-    changedPreferencesValues: Partial<GlobalPreferences>
+    changedPreferencesValues: Partial<AllPreferences>
   ): void {
     for (const callback of this._onPreferencesChangedCallbacks) {
       return callback(changedPreferencesValues);
@@ -684,10 +682,16 @@ class Preferences {
    * Install a listener that is called when preferences have been updated.
    *
    * @param callback A function taking the set of updated preferences.
+   *
+   * @return A function that can be called to unsubscribe at a later point in time.
    */
-  onPreferencesChanged(callback: OnPreferencesChangedCallback): void {
+  onPreferencesChanged(callback: OnPreferencesChangedCallback): () => void {
     this._onPreferencesChangedCallbacks.push(callback);
+    return () => {
+      const index = this._onPreferencesChangedCallbacks.indexOf(callback);
+      if (index !== -1) {
+        this._onPreferencesChangedCallbacks.splice(index, 1);
+      }
+    };
   }
 }
-
-export default Preferences;

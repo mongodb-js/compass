@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-explain-plan",
   "productName": "Explain Plan plugin",
   "description": "Evaluate the performance of your query",
-  "version": "6.1.1",
+  "version": "6.2.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -54,17 +54,17 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
-    "@mongodb-js/compass-crud": "^13.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-crud": "^13.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/explain-plan-helper": "^1.0.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "hadron-document": "^8.0.1",
-    "hadron-react-components": "^6.1.1",
+    "hadron-react-components": "^6.2.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-field-store": "^8.1.1",
+    "@mongodb-js/compass-field-store": "^8.1.2",
     "@mongodb-js/eslint-config-compass": "^1.0.1",
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
@@ -98,13 +98,13 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
-    "@mongodb-js/compass-crud": "^13.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-crud": "^13.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/explain-plan-helper": "^1.0.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "hadron-document": "^8.0.1",
-    "hadron-react-components": "^6.1.1",
+    "hadron-react-components": "^6.2.0",
     "react": "^16.14.0"
   }
 }

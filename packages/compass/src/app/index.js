@@ -2,15 +2,17 @@ const ipc = require('hadron-ipc');
 const remote = require('@electron/remote');
 const semver = require('semver');
 
-const { preferencesIpc } = require('compass-preferences-model');
+const { preferencesAccess: preferences } = require('compass-preferences-model');
 
 // Setup error reporting to main process before anything else.
 window.addEventListener('error', (event) => {
   event.preventDefault();
-  ipc.call('compass:error:fatal',
-    event.error ?
-      { message: event.error.message, stack: event.error.stack } :
-      { message: event.message, stack: '<no stack available>' });
+  ipc.call(
+    'compass:error:fatal',
+    event.error
+      ? { message: event.error.message, stack: event.error.stack }
+      : { message: event.message, stack: '<no stack available>' }
+  );
 });
 
 require('./index.less');
@@ -53,15 +55,11 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const { Action } = require('@mongodb-js/hadron-plugin-manager');
 
-const {
-  enableDarkTheme,
-  disableDarkTheme,
-  loadTheme
-} = require('./theme');
+const { enableDarkTheme, disableDarkTheme, loadTheme } = require('./theme');
 
 const { setupIntercom } = require('./intercom');
 
-ipc.once('app:launched', function() {
+ipc.once('app:launched', function () {
   console.log('in app:launched');
   if (process.env.NODE_ENV === 'development') {
     require('debug').enable('mon*,had*');
@@ -69,7 +67,9 @@ ipc.once('app:launched', function() {
 });
 
 const { log, mongoLogId, debug, track } =
-  require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-APP');
+  require('@mongodb-js/compass-logging').createLoggerAndTelemetry(
+    'COMPASS-APP'
+  );
 
 function shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic) {
   if (process.env.SHOW_WELCOME === 'false') {
@@ -95,21 +95,21 @@ function shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic) {
  * The top-level application singleton that brings everything together!
  */
 const Application = View.extend({
-  template: function() {
+  template: function () {
     return [
       '<div id="application">',
       '  <div data-hook="auto-update"></div>',
       '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
       '  <div data-hook="license"></div>',
-      '</div>'
+      '</div>',
     ].join('\n');
   },
   props: {
     version: {
       type: 'string',
-      default: APP_VERSION
-    }
+      default: APP_VERSION,
+    },
   },
   session: {
     /**
@@ -135,13 +135,13 @@ const Application = View.extend({
      */
     previousVersion: {
       type: 'string',
-      default: '0.0.0'
-    }
+      default: '0.0.0',
+    },
   },
   children: {
-    user: User
+    user: User,
   },
-  initialize: function() {
+  initialize: function () {
     /**
      * @see NODE-4281
      * @todo: remove when NODE-4281 is merged.
@@ -150,10 +150,10 @@ const Application = View.extend({
 
     function trackPerfEvent({ name, value }) {
       const fullName = {
-        'FCP': 'First Contentful Paint',
-        'LCP': 'Largest Contentful Paint',
-        'FID': 'First Input Delay',
-        'CLS': 'Cumulative Layout Shift'
+        FCP: 'First Contentful Paint',
+        LCP: 'Largest Contentful Paint',
+        FID: 'First Input Delay',
+        CLS: 'Cumulative Layout Shift',
       }[name];
       track(fullName, { value });
     }
@@ -168,7 +168,7 @@ const Application = View.extend({
    * user is choosing which connection, so when the user clicks on Connect,
    * Compass can connect to the MongoDB instance faster.
    */
-  postRender: function() {
+  postRender: function () {
     marky.mark('Pre-loading additional modules required to connect');
     // Seems like this doesn't have as much of an effect as we'd hoped as
     // most of the expense has already occurred. You can see it take 1700ms
@@ -182,8 +182,13 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: function({ showWelcomeModal }) {
-    log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container');
+  render: async function ({ showWelcomeModal }) {
+    await preferences.refreshPreferences();
+    log.info(
+      mongoLogId(1_001_000_092),
+      'Main Window',
+      'Rendering app container'
+    );
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
@@ -205,20 +210,21 @@ const Application = View.extend({
       }),
       this.queryByHook('layout-container')
     );
+    document.querySelector('#loading-placeholder')?.remove();
   },
-  fetchUser: async function() {
+  fetchUser: async function () {
     debug('getting user preferences');
     const {
       currentUserId,
       telemetryAnonymousId,
       trackUsageStatistics,
       lastKnownVersion,
-    } = await preferencesIpc.getPreferences();
+    } = preferences.getPreferences();
 
     // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
     const user = await User.getOrCreate(currentUserId || telemetryAnonymousId);
 
-    const preferences = { telemetryAnonymousId: user.id };
+    const changedPreferences = { telemetryAnonymousId: user.id };
 
     this.user.set(user.serialize());
     this.user.trigger('sync');
@@ -227,40 +233,44 @@ const Application = View.extend({
     this.previousVersion = lastKnownVersion || '0.0.0';
 
     if (semver.neq(this.previousVersion, APP_VERSION)) {
-      preferences.lastKnownVersion = APP_VERSION;
+      changedPreferences.lastKnownVersion = APP_VERSION;
     }
 
-    const savedPreferences = await preferencesIpc.savePreferences(preferences);
+    const savedPreferences = await preferences.savePreferences(
+      changedPreferences
+    );
 
     ipc.call('compass:usage:identify', {
       currentUserId: savedPreferences.currentUserId,
-      telemetryAnonymousId: user.id
+      telemetryAnonymousId: user.id,
     });
-    ipc.call(trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled');
+    ipc.call(
+      trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled'
+    );
 
     return user;
-  }
+  },
 });
 
 const state = new Application();
 
 app.extend({
   client: null,
-  init: async function() {
+  init: async function () {
     const {
       theme,
       showedNetworkOptIn,
       networkTraffic
-    } = await preferencesIpc.getPreferences();
+    } = preferences.getPreferences();
 
     async.series(
       [
         // check if migrations are required
         migrateApp.bind(state),
         // get user
-        state.fetchUser.bind(state)
+        state.fetchUser.bind(state),
       ],
-      function(err) {
+      function (err) {
         if (err) {
           throw err;
         }
@@ -276,7 +286,7 @@ app.extend({
         ipc.on('app:save-theme', (_, theme) => {
           // Save the new theme on the user's preferences.
           if (theme) {
-            preferencesIpc.savePreferences({ theme });
+            preferences.savePreferences({ theme });
           }
         });
 
@@ -314,46 +324,46 @@ app.extend({
         require('./setup-plugin-manager');
       }
     );
-  }
+  },
 });
 
 Object.defineProperty(app, 'autoUpdate', {
-  get: function() {
+  get: function () {
     return state.autoUpdate;
-  }
+  },
 });
 
 Object.defineProperty(app, 'instance', {
-  get: function() {
+  get: function () {
     return state.instance;
   },
-  set: function(instance) {
+  set: function (instance) {
     state.instance = instance;
-  }
+  },
 });
 
 Object.defineProperty(app, 'connection', {
-  get: function() {
+  get: function () {
     return state.connection;
-  }
+  },
 });
 
 Object.defineProperty(app, 'router', {
-  get: function() {
+  get: function () {
     return state.router;
-  }
+  },
 });
 
 Object.defineProperty(app, 'user', {
-  get: function() {
+  get: function () {
     return state.user;
-  }
+  },
 });
 
 Object.defineProperty(app, 'state', {
-  get: function() {
+  get: function () {
     return state;
-  }
+  },
 });
 
 require('./reflux-listen-to-external-store');

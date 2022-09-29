@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Banner } from '@mongodb-js/compass-components';
+import { Banner, WorkspaceContainer } from '@mongodb-js/compass-components';
 
 import Settings from '../settings';
 import RestorePipelineModal from './modals/restore-pipeline-modal';
@@ -262,7 +262,7 @@ class Pipeline extends PureComponent {
           this.props.isFullscreenOn ? styles['pipeline-fullscreen'] : false
         )}
       >
-        {this.renderPipelineToolbar()}
+        <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
         {this.renderModifyingViewSourceError()}
         {this.renderPipelineWorkspace()}
         <PipelineExplain />
@@ -288,6 +288,8 @@ class Pipeline extends PureComponent {
         {confirmImportPipelineModal}
         {savingPipelineModal}
         {confirmNewPipelineModal}
+
+        </WorkspaceContainer>
       </div>
     );
   }

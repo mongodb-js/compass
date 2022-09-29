@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-databases-collections",
   "productName": "Compass Databases and Collections Plugin",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "apiVersion": "3.0.0",
   "description": "Plugin for viewing the list of, creating, and dropping databases and collections",
   "main": "lib/index.js",
@@ -26,10 +26,10 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
-    "@mongodb-js/databases-collections-list": "^1.1.1",
-    "hadron-react-components": "^6.1.1",
+    "@mongodb-js/databases-collections-list": "^1.2.0",
+    "hadron-react-components": "^6.2.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -93,10 +93,10 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
-    "@mongodb-js/databases-collections-list": "^1.1.1",
-    "hadron-react-components": "^6.1.1",
+    "@mongodb-js/databases-collections-list": "^1.2.0",
+    "hadron-react-components": "^6.2.0",
     "react": "^16.14.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",
