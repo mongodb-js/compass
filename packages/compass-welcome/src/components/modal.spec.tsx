@@ -10,7 +10,9 @@ import WelcomeModal from './modal';
 
 describe('WelcomeModal', function () {
   let closeModalSpy: SinonSpy;
-  let renderWelcomeModal;
+  let renderWelcomeModal: (
+    props: Partial<ComponentProps<typeof WelcomeModal>>
+  ) => void;
 
   beforeEach(function () {
     closeModalSpy = spy();
