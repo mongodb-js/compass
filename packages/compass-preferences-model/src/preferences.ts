@@ -23,6 +23,8 @@ export type UserConfigurablePreferences = {
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
   networkTraffic: boolean;
+  readOnly: boolean;
+  enableShell: boolean;
   theme: THEMES;
 };
 
@@ -135,6 +137,20 @@ function deriveNetworkTrafficOptionState<K extends keyof GlobalPreferences>(
       (v('networkTraffic') ? undefined : 'derived'),
   });
 }
+
+/** Helper for defining how to derive value/state for readOnly-affected preferences */
+function deriveReadOnlyOptionState<K extends keyof GlobalPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && v('readOnly'),
+    state:
+      s(property) ??
+      s('readOnly') ??
+      (v('readOnly') ? undefined : 'derived'),
+  });
+}
+
 const modelPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
@@ -231,6 +247,36 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Enable network traffic other than to the MongoDB database',
     },
+  },
+  /**
+   * Removes features that write to the database from the UI.
+   */
+   readOnly: {
+    type: 'boolean',
+    required: true,
+    default: true,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable features that write to the MongoDB database',
+    },
+  },
+  /**
+   * Switch to enable/disable the embedded shell.
+   */
+   enableShell: {
+    type: 'boolean',
+    required: true,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable MongoDB Shell',
+      long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
+    },
+    deriveValue: deriveReadOnlyOptionState('enableShell'),
   },
   /**
    * Switch to enable/disable maps rendering.

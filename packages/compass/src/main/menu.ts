@@ -330,7 +330,7 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
+function collectionSubMenu(menuStateReadOnly: boolean, app: typeof CompassApplication): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -340,7 +340,8 @@ function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
     },
   });
   subMenu.push(separator());
-  if (process.env.HADRON_READONLY !== 'true' && !isReadOnly) {
+  const { readOnly: preferencesReadOnly } = app.getPreferences().getPreferences();
+  if (!preferencesReadOnly && !menuStateReadOnly) {
     subMenu.push({
       label: '&Import Data',
       click() {
@@ -468,7 +469,7 @@ function darwinMenu(
   menu.push(viewSubMenu(themeState, saveThemeAndRefreshMenu));
 
   if (menuState.showCollection) {
-    menu.push(collectionSubMenu(menuState.isReadOnly));
+    menu.push(collectionSubMenu(menuState.isReadOnly, app));
   }
 
   menu.push(windowSubMenu());
