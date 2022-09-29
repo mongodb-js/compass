@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-crud",
   "productName": "Compass CRUD plugin",
-  "version": "13.1.1",
+  "version": "13.2.0",
   "description": "Compass Plugin for CRUD Operations",
   "author": {
     "name": "MongoDB Inc",
@@ -61,13 +61,13 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.2.0",
     "hadron-document": "^8.0.1",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.1.1",
+    "hadron-react-components": "^6.2.0",
     "hadron-type-checker": "^7.0.0",
     "react": "^16.14.0"
   },
@@ -110,13 +110,13 @@
     "webpack": "^4.46.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.1",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.2.0",
     "hadron-document": "^8.0.1",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.1.1",
+    "hadron-react-components": "^6.2.0",
     "hadron-type-checker": "^7.0.0",
     "react": "^16.14.0"
   }

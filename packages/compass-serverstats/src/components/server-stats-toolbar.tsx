@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import d3 from 'd3';
-import { Button, Icon, Toolbar, css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
+import { Button, Icon, css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
@@ -58,7 +58,7 @@ function UnthemedServerStatsToolbar({
   }, [ isPaused ]);
 
   return (
-    <Toolbar
+    <div
       className={serverStatsToolbarStyles}
     >
       <Button
@@ -72,7 +72,7 @@ function UnthemedServerStatsToolbar({
         className={cx(timeStyles, darkMode ? timeDarkThemeStyles : timeLightThemeStyles)}
         data-testid="server-stats-time"
       >{time}</div>
-    </Toolbar>
+    </div>
   );
 }
 

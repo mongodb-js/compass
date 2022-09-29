@@ -4,6 +4,14 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 
 ![Aggregation Pipeline Builder Tab in Compass](packages/compass/compass-screenshot.png)
 
+## Contributing
+
+For contributing, please refer to [CONTRIBUTING.md](CONTRIBUTING.md)
+
+For issues, please create a ticket in our [JIRA Project](https://jira.mongodb.org/browse/COMPASS).
+
+Is there anything else you’d like to see in Compass? Let us know by submitting suggestions in out [feedback forum](https://feedback.mongodb.com/forums/924283-compass).
+
 ## Packages Overview
 
 - [**mongodb-compass**](packages/compass): MongoDB Compass Application
@@ -78,14 +86,6 @@ This repository contains the source code and build tooling used in [MongoDB Comp
 - [**@mongodb-js/mocha-config-compass**](configs/mocha-config-compass): Shared mocha configuration used in Compass packages.
 - [**@mongodb-js/prettier-config-compass**](configs/prettier-config-compass): Shared prettier configurations used in Compass packages.
 - [**@mongodb-js/tsconfig-compass**](configs/tsconfig-compass): Shared basic TypeScript configurations used in Compass packages.
-
-## Contributing
-
-For contributing, please refer to [CONTRIBUTING.md](CONTRIBUTING.md)
-
-For issues, please create a ticket in our [JIRA Project](https://jira.mongodb.org/browse/COMPASS).
-
-Is there anything else you’d like to see in Compass? Let us know by submitting suggestions in out [feedback forum](https://feedback.mongodb.com/forums/924283-compass).
 
 ## License
 

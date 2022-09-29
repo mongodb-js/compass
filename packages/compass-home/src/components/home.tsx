@@ -1,8 +1,11 @@
 import {
   css,
+  cx,
+  LeafyGreenProvider,
   Theme,
   ThemeProvider,
   ToastArea,
+  uiColors,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -21,6 +24,8 @@ import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
+import Settings from '@mongodb-js/compass-settings';
+import { compassUIColors } from '@mongodb-js/compass-components';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -36,7 +41,26 @@ const homePageStyles = css({
   flex: 1,
   overflow: 'auto',
   height: '100%',
+});
+
+const homeContainerStyles = css({
+  height: '100vh',
+  width: '100vw',
+  overflow: 'hidden',
+  // ensure modals and any other overlays will
+  // paint properly above the content
+  position: 'relative',
   zIndex: 0,
+});
+
+const globalLightThemeStyles = css({
+  backgroundColor: compassUIColors.gray8,
+  color: uiColors.gray.dark2,
+});
+
+const globalDarkThemeStyles = css({
+  backgroundColor: uiColors.gray.dark3,
+  color: uiColors.white,
 });
 
 const defaultNS: Namespace = {
@@ -259,18 +283,29 @@ function ThemedHome(
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
-    theme: (global as any).hadronApp?.theme ?? Theme.Light,
+    theme:
+      process.env.COMPASS_LG_DARKMODE === 'true'
+        ? (global as any).hadronApp?.theme ?? Theme.Light
+        : Theme.Light,
     // useful for quickly testing the new dark sidebar without rebuilding
     //theme: Theme.Dark, enabled: true
   });
 
   function onDarkModeEnabled() {
+    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
+      return;
+    }
+
     setTheme({
       theme: Theme.Dark,
     });
   }
 
   function onDarkModeDisabled() {
+    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
+      return;
+    }
+
     setTheme({
       theme: Theme.Light,
     });
@@ -289,11 +324,24 @@ function ThemedHome(
   }, [appRegistry]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <ToastArea>
-        <Home {...props}></Home>
-      </ToastArea>
-    </ThemeProvider>
+    <LeafyGreenProvider>
+      <ThemeProvider theme={theme}>
+        <Settings />
+        <ToastArea>
+          <div
+            className={cx(
+              homeContainerStyles,
+              theme.theme === Theme.Dark
+                ? globalDarkThemeStyles
+                : globalLightThemeStyles
+            )}
+            data-theme={theme.theme}
+          >
+            <Home {...props}></Home>
+          </div>
+        </ToastArea>
+      </ThemeProvider>
+    </LeafyGreenProvider>
   );
 }
 

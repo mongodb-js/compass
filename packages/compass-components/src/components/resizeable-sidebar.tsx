@@ -11,7 +11,6 @@ const containerStyles = css({
   flexDirection: 'column',
   margin: 0,
   padding: 0,
-  maxWidth: '80%',
   height: '100%',
   position: 'relative',
 });
@@ -79,7 +78,7 @@ const ResizableSidebar = ({
   const [prevWidth, setPrevWidth] = useState(initialWidth);
 
   const getMaxSidebarWidth = useCallback(() => {
-    return Math.max(minWidth, window.innerWidth - 100);
+    return Math.max(minWidth, 600);
   }, [minWidth]);
 
   // Apply bounds to the sidebar width when resizing to ensure it's always

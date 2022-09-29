@@ -1,22 +1,24 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import type { SinonStub } from 'sinon';
 import sinon from 'sinon';
-import { EventEmitter } from 'events';
 
 import { setupIntercom } from './setup-intercom';
 import { expect } from 'chai';
 import type { IntercomScript } from './intercom-script';
+import preferencesAccess from 'compass-preferences-model';
 
 const setupIpc = () => {
   let preferences = {};
-  require('hadron-ipc').ipcRenderer = Object.assign(new EventEmitter(), {
-    invoke: (name, attributes) => {
+  Object.assign(require('hadron-ipc').ipcRenderer, {
+    invoke: async(name, attributes) => {
       if (name === 'compass:save-preferences') {
         preferences = { ...preferences, ...attributes };
+        await preferencesAccess.refreshPreferences();
       } else if (name === 'test:clear-preferences') {
         preferences = {};
+        await preferencesAccess.refreshPreferences();
       }
-      return Promise.resolve(preferences);
+      return preferences;
     }
   });
 };

@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer, { updateAvailable, initAutoUpdates, toggleAutoUpdates } from '../modules';
-import { preferencesIpc } from 'compass-preferences-model';
+import preferences from 'compass-preferences-model';
 
 const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -24,7 +24,7 @@ store.onActivated = () => {
     /**
      * Toggle the autoUpdates preference change.
      */
-    preferencesIpc.onPreferenceValueChanged('autoUpdates', (autoUpdates) => {
+    preferences.onPreferenceValueChanged('autoUpdates', (autoUpdates) => {
       store.dispatch(toggleAutoUpdates(autoUpdates));
     });
   } catch (e) {

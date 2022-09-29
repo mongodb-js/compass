@@ -3,7 +3,6 @@ import {
   Body,
   ErrorSummary,
   Link,
-  Toolbar,
   WarningSummary,
   css,
   spacing,
@@ -98,7 +97,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   );
 
   return (
-    <Toolbar className={schemaToolbarStyles}>
+    <div className={schemaToolbarStyles}>
       <div className={schemaQueryBarStyles}>
         <QueryBarComponent
           store={queryBarRef.current.store}
@@ -141,7 +140,7 @@ const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
         <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />
       )}
-    </Toolbar>
+    </div>
   );
 };
 

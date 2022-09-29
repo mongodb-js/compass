@@ -1,7 +1,7 @@
 import './index.less';
 
 import React, { useEffect, useRef } from 'react';
-import { Banner, WorkspaceContainer, css, spacing } from '@mongodb-js/compass-components';
+import { Banner, css, spacing } from '@mongodb-js/compass-components';
 
 import GraphsComponent from './server-stats-graphs-component';
 import { realTimeDispatcher } from '../d3';
@@ -20,10 +20,10 @@ const workspaceContainerStyles = css({
   overflow: 'auto'
 });
 
-const workspaceBackground = '#3D4247';
 
 const workspaceBackgroundStyles = css({
-  background: workspaceBackground
+  background: '#3D4247',
+  overflow: 'hidden',
 });
 
 const workspaceStyles = css({
@@ -32,7 +32,10 @@ const workspaceStyles = css({
   display: 'flex',
   flexWrap: 'wrap',
   justifyContent: 'space-around',
-  flexGrow: 1
+  flexGrow: 1,
+  overflow: 'auto',
+  minHeight: 0,
+  height: '100%',
 });
 
 const mongosWarningStyles = css({
@@ -64,7 +67,7 @@ function PerformanceComponent() {
           </Banner>
         )}
         <DBErrorComponent store={DBErrorStore} />
-        <WorkspaceContainer darkMode className={workspaceBackgroundStyles}>
+        <div className={workspaceBackgroundStyles}>
           <div className={workspaceStyles}>
             <section className="rt__graphs-out">
               <GraphsComponent
@@ -76,7 +79,7 @@ function PerformanceComponent() {
               <ListsComponent interval={REFRESH_STATS_INTERVAL_MS} />
             </section>
           </div>
-        </WorkspaceContainer>
+        </div>
       </div>
     </section>
   );
