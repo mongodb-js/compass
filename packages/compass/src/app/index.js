@@ -71,28 +71,23 @@ ipc.once('app:launched', function() {
 const { log, mongoLogId, debug, track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry('COMPASS-APP');
 
-function shouldShowWelcomeModal(previousVersion, thisVersion) {
+function shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic) {
   if (process.env.SHOW_WELCOME === 'false') {
     // This is so we can have deterministic behaviour in the E2E tests where
     // any test could otherwise hit the welcome modal
-    console.log("process.env.SHOW_WELCOME === 'false'");
     return false;
   }
 
   if (process.env.SHOW_WELCOME === 'true') {
     // This is so we can test the welcome modal in E2E tests where the version
     // is always the same.
-    console.log("process.env.SHOW_WELCOME === 'true'");
     return true;
   }
 
-  if (semver.lt(previousVersion, thisVersion)) {
-
-    console.log(previousVersion, '<', thisVersion);
+  if (!showedNetworkOptIn && networkTraffic) {
     return true;
   }
 
-  console.log(previousVersion, '>=', thisVersion);
   return false;
 }
 
@@ -187,7 +182,7 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: async function() {
+  render: function({ showWelcomeModal }) {
     log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container');
 
     this.el = document.querySelector('#application');
@@ -206,14 +201,10 @@ const Application = View.extend({
       React.createElement(this.homeComponent, {
         appRegistry: app.appRegistry,
         appName: remote.app.getName(),
+        showWelcomeModal
       }),
       this.queryByHook('layout-container')
     );
-
-    if (shouldShowWelcomeModal(this.previousVersion, APP_VERSION)) {
-      console.log('showing welcome');
-      ipc.ipcRenderer.emit('window:show-welcome');
-    }
   },
   fetchUser: async function() {
     debug('getting user preferences');
@@ -221,7 +212,7 @@ const Application = View.extend({
       currentUserId,
       telemetryAnonymousId,
       trackUsageStatistics,
-      lastKnownVersion
+      lastKnownVersion,
     } = await preferencesIpc.getPreferences();
 
     // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
@@ -256,7 +247,11 @@ const state = new Application();
 app.extend({
   client: null,
   init: async function() {
-    const { theme } = await preferencesIpc.getPreferences();
+    const {
+      theme,
+      showedNetworkOptIn,
+      networkTraffic
+    } = await preferencesIpc.getPreferences();
 
     async.series(
       [
@@ -304,7 +299,9 @@ app.extend({
             global.hadronApp.appRegistry.emit('toggle-sidebar')
           );
           // as soon as dom is ready, render and set up the rest
-          state.render();
+          state.render({
+            showWelcomeModal: shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic)
+          });
           marky.stop('Time to Connect rendered');
           state.postRender();
           marky.stop('Time to user can Click Connect');

@@ -24,6 +24,14 @@ export const makePreferencesIpc = (ipc: typeof hadronIpc) => ({
     }
     return Promise.resolve({} as GlobalPreferences);
   },
+  ensureDefaultConfigurableUserPreferences(): Promise<void> {
+    if (typeof ipc?.ipcRenderer?.invoke === 'function') {
+      return ipc.ipcRenderer.invoke(
+        'compass:ensure-default-configurable-user-preferences'
+      );
+    }
+    return Promise.resolve();
+  },
   getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     if (typeof ipc?.ipcRenderer?.invoke === 'function') {
       return ipc.ipcRenderer.invoke(

@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import ipc, { ipcRenderer } from 'hadron-ipc';
+import React, { useCallback } from 'react';
 
 import {
   MarketingModal,
@@ -10,7 +9,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import welcomeImagePath from '../images/welcome.png';
+import WelcomeImage from './welcome-image';
 
 const disclaimer = css({
   marginTop: spacing[3],
@@ -20,34 +19,34 @@ const link = css({
   fontSize: 'inherit',
 });
 
-const WelcomeModal: React.FunctionComponent = () => {
-  const [isOpen, setIsOpen] = useState(false);
+type WelcomeModalProps = {
+  isOpen: boolean;
+  closeModal: (openSettings?: boolean) => void;
+};
 
-  useEffect(() => {
-    (ipc as any).on('window:show-welcome', () => {
-      setIsOpen(true);
-    });
-  }, [setIsOpen]);
-
-  const closeModal = useCallback(() => setIsOpen(false), []);
-
+const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
+  isOpen,
+  closeModal,
+}) => {
   const goToSettings = useCallback(() => {
+    closeModal(true);
+  }, [closeModal]);
+
+  const close = useCallback(() => {
     closeModal();
-    ipcRenderer.emit('window:show-network-optin');
   }, [closeModal]);
 
   return (
     <MarketingModal
+      data-testid="welcome-modal"
       open={isOpen}
-      onClose={closeModal}
-      onButtonClick={closeModal}
+      onClose={close}
+      onButtonClick={close}
       title="Welcome to Compass"
       buttonText="Start"
       showBlob
       blobPosition="top right"
-      graphic={
-        <img src={welcomeImagePath} alt="welcome" width={293} height={209} />
-      }
+      graphic={<WelcomeImage width={156} height={209} />}
       linkText={''}
     >
       <Body>

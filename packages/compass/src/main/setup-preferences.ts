@@ -26,6 +26,10 @@ const setupPreferences = async(globalPreferences: ParsedGlobalPreferencesResult)
     return preferences.getPreferenceStates();
   });
 
+  ipcMain.handle('compass:ensure-default-configurable-user-preferences', () => {
+    return preferences.ensureDefaultConfigurableUserPreferences();
+  });
+
   ipcMain.handle('compass:get-configurable-user-preferences', () => {
     return preferences.getConfigurableUserPreferences();
   });

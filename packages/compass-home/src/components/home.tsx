@@ -6,6 +6,8 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
+import Settings from '@mongodb-js/compass-settings';
+import Welcome from '@mongodb-js/compass-welcome';
 import ipc from 'hadron-ipc';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
@@ -17,6 +19,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+const { preferencesIpc } = require('compass-preferences-model');
 import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
@@ -202,6 +205,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       ipc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
     };
   }, [appRegistry, onDataServiceDisconnected]);
+
   useEffect(() => {
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
@@ -254,8 +258,9 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 }
 
 function ThemedHome(
-  props: React.ComponentProps<typeof Home>
+  props: React.ComponentProps<typeof Home> & { showWelcomeModal: boolean }
 ): ReturnType<typeof Home> {
+  const { showWelcomeModal } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
@@ -288,9 +293,46 @@ function ThemedHome(
     };
   }, [appRegistry]);
 
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  function showSettingsModal() {
+    setIsSettingsOpen(true);
+  }
+
+  useEffect(() => {
+    ipc.ipcRenderer?.on('window:show-settings', showSettingsModal);
+    return function cleanup() {
+      ipc.ipcRenderer?.off('window:show-settings', showSettingsModal);
+    };
+  }, [appRegistry]);
+
+  const closeWelcomeModal = useCallback(
+    (showSettings: boolean) => {
+      async function close() {
+        await preferencesIpc.ensureDefaultConfigurableUserPreferences();
+        setIsWelcomeOpen(false);
+        if (showSettings) {
+          void showSettingsModal();
+        }
+      }
+
+      void close();
+    },
+    [setIsWelcomeOpen]
+  );
+
+  const closeSettingsModal = useCallback(() => {
+    setIsSettingsOpen(false);
+  }, [setIsSettingsOpen]);
+
   return (
     <ThemeProvider theme={theme}>
       <ToastArea>
+        {showWelcomeModal && (
+          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+        )}
+        <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
         <Home {...props}></Home>
       </ToastArea>
     </ThemeProvider>

@@ -628,13 +628,10 @@ class Preferences {
   }
 
   /**
-   * Return the subset of preferences that can be edited through the UI.
    * If this is the first call to this method, this sets the defaults for
    * user preferences.
-   *
-   * @returns The currently active set of UI-modifiable preferences.
    */
-  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
+  async ensureDefaultConfigurableUserPreferences(): Promise<void> {
     // Set the defaults and also update showedNetworkOptIn flag.
     const prefences = await this.fetchPreferences();
     if (!prefences.showedNetworkOptIn && prefences.networkTraffic) {
@@ -648,7 +645,15 @@ class Preferences {
         theme: THEMES.LIGHT,
       });
     }
-    const preferences = this.getPreferences();
+  }
+
+  /**
+   * Return the subset of preferences that can be edited through the UI.
+   *
+   * @returns The currently active set of UI-modifiable preferences.
+   */
+  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
+    const preferences = await this.fetchPreferences();
     return Object.fromEntries(
       Object.entries(preferences).filter(
         ([key]) =>
