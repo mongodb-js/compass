@@ -4,13 +4,18 @@ import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 import * as Selectors from '../helpers/selectors';
+import type { Telemetry } from '../helpers/telemetry';
+import { startTelemetryServer } from '../helpers/telemetry';
 
 describe('Connection Import / Export', function () {
   let tmpdir: string;
   let i = 0;
   let originalDisableKeychainUsage: string | undefined;
+  let telemetry: Telemetry;
 
   beforeEach(async function () {
+    telemetry = await startTelemetryServer();
+
     tmpdir = path.join(
       os.tmpdir(),
       `compass-import-export-${Date.now().toString(32)}-${++i}`
@@ -33,6 +38,8 @@ describe('Connection Import / Export', function () {
     else delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
 
     await fs.rmdir(tmpdir, { recursive: true });
+
+    await telemetry.stop();
   });
 
   for (const variant of ['plaintext', 'encrypted'] as const) {
@@ -59,6 +66,7 @@ describe('Connection Import / Export', function () {
       }
 
       {
+        const existingEventsCount = telemetry.events().length;
         // Export favorite, roughly verify file contents
         await runCompassOnce([
           `--export-connections=${file}`,
@@ -79,12 +87,17 @@ describe('Connection Import / Export', function () {
           );
           expect(conn.connectionSecrets).to.not.exist;
         } else {
-          console.log({ conn });
           expect(conn.connectionOptions.connectionString).to.equal(
             connectionStringWithoutCredentials
           );
           expect(conn.connectionSecrets).to.be.a('string');
         }
+
+        const newEvents = telemetry.events().slice(existingEventsCount);
+        expect(newEvents).to.have.lengthOf(1);
+        expect(newEvents[0].event).to.equal('Connection Exported');
+        expect(newEvents[0].properties.context).to.equal('CLI');
+        expect(newEvents[0].properties.count).to.equal(1);
       }
 
       {
@@ -100,11 +113,18 @@ describe('Connection Import / Export', function () {
       }
 
       {
+        const existingEventsCount = telemetry.events().length;
         // Import favorite
         await runCompassOnce([
           `--import-connections=${file}`,
           ...passphraseArgs,
         ]);
+
+        const newEvents = telemetry.events().slice(existingEventsCount);
+        expect(newEvents).to.have.lengthOf(1);
+        expect(newEvents[0].event).to.equal('Connection Imported');
+        expect(newEvents[0].properties.context).to.equal('CLI');
+        expect(newEvents[0].properties.count).to.equal(1);
       }
 
       {
