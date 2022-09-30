@@ -10,7 +10,6 @@ import type { RootState } from '../../modules';
 
 const containerStyles = css({
   padding: spacing[3],
-  paddingRight: spacing[5],
 });
 
 const containerDisplayStyles = css({
@@ -33,11 +32,13 @@ const headerAndOptionsRowStyles = css({
   border: '1px solid',
   borderRadius: '6px',
   borderColor: uiColors.gray.light2,
-  padding: spacing[2]
+  padding: `${spacing[2]}px ${spacing[2]}px ${spacing[2]}px ${spacing[3]}px`,
+  background: uiColors.white
 });
 
 const headerAndOptionsRowDarkStyles = css({
   borderColor: uiColors.gray.dark2,
+  background: uiColors.gray.dark3,
 });
 
 const settingsRowStyles = css({

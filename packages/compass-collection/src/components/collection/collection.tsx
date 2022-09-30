@@ -26,14 +26,6 @@ const collectionStyles = css({
   width: '100%',
 });
 
-const collectionLightStyles = css({
-  background: uiColors.white,
-});
-
-const collectionDarkStyles = css({
-  backgroundColor: uiColors.gray.dark3,
-});
-
 const collectionContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -138,13 +130,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 
   return (
-    <div
-      className={cx(
-        collectionStyles,
-        darkMode ? collectionDarkStyles : collectionLightStyles
-      )}
-      data-testid="collection"
-    >
+    <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>
         <CollectionHeader
           globalAppRegistry={globalAppRegistry}
@@ -160,6 +146,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           pipeline={pipeline}
           sourceName={sourceName}
           stats={stats}
+          darkMode={darkMode}
         />
         <TabNavBar
           data-testid="collection-tabs"
