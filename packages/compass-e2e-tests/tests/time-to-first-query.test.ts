@@ -8,12 +8,12 @@ describe('Time to first query', function () {
   let compass: Compass | undefined;
 
   beforeEach(async function () {
-    process.env.SHOW_WELCOME = 'false';
+    process.env.COMPASS_SHOW_WELCOME = 'false';
     await createNumbersCollection();
   });
 
   afterEach(async function () {
-    process.env.SHOW_WELCOME = 'false';
+    process.env.COMPASS_SHOW_WELCOME = 'false';
 
     // cleanup outside of the test so that the time it takes to run does not
     // get added to the time it took to run the first query
@@ -27,7 +27,7 @@ describe('Time to first query', function () {
 
   it('can open compass, connect to a database and run a query on a collection (new version)', async function () {
     // make sure we'll get the welcome modal
-    process.env.SHOW_WELCOME = 'true';
+    process.env.COMPASS_SHOW_WELCOME = 'true';
 
     // start compass inside the test so that the time is measured together
     compass = await beforeTests();
