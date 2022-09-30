@@ -25,7 +25,7 @@ describe('Time to first query', function () {
     }
   });
 
-  it('can open compass, connect to a database and run a query on a collection (new version)', async function () {
+  it('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
     // make sure we'll get the welcome modal
     process.env.COMPASS_SHOW_WELCOME = 'true';
 
