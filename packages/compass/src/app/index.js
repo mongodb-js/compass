@@ -72,18 +72,6 @@ const { log, mongoLogId, debug, track } =
   );
 
 function shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic) {
-  if (process.env.COMPASS_SHOW_WELCOME === 'false') {
-    // This is so we can have deterministic behaviour in the E2E tests where
-    // any test could otherwise hit the welcome modal
-    return false;
-  }
-
-  if (process.env.COMPASS_SHOW_WELCOME === 'true') {
-    // This is so we can test the welcome modal in E2E tests where the version
-    // is always the same.
-    return true;
-  }
-
   if (!showedNetworkOptIn && networkTraffic) {
     return true;
   }
@@ -182,8 +170,7 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: async function ({ showWelcomeModal }) {
-    await preferences.refreshPreferences();
+  render: function ({ showWelcomeModal }) {
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -257,6 +244,8 @@ const state = new Application();
 app.extend({
   client: null,
   init: async function () {
+    await preferences.refreshPreferences();
+
     const {
       theme,
       showedNetworkOptIn,

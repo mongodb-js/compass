@@ -29,7 +29,7 @@ export type UserConfigurablePreferences = {
 export type InternalUserPreferences = {
   // These are internally used preferences that are not configurable
   // by users.
-  showedNetworkOptIn: boolean; // Has the settings dialog has been shown before.
+  showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
   lastKnownVersion: string;
   currentUserId: string;
@@ -97,7 +97,9 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
-  cli: K extends keyof InternalUserPreferences
+  cli: K extends 'showedNetworkOptIn'
+    ? boolean
+    : K extends keyof InternalUserPreferences
     ? false
     : K extends keyof CliOnlyPreferences
     ? true
@@ -171,7 +173,7 @@ const modelPreferencesProps: Required<{
     required: true,
     default: false,
     ui: false,
-    cli: false,
+    cli: true,
     global: false,
     description: null,
   },
@@ -631,8 +633,9 @@ export class Preferences {
    */
   async ensureDefaultConfigurableUserPreferences(): Promise<void> {
     // Set the defaults and also update showedNetworkOptIn flag.
-    const prefences = await this.fetchPreferences();
-    if (!prefences.showedNetworkOptIn && prefences.networkTraffic) {
+    const { showedNetworkOptIn, networkTraffic } =
+      await this.fetchPreferences();
+    if (!showedNetworkOptIn && networkTraffic) {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,

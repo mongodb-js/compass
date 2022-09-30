@@ -8,33 +8,26 @@ describe('Time to first query', function () {
   let compass: Compass | undefined;
 
   beforeEach(async function () {
-    process.env.COMPASS_SHOW_WELCOME = 'false';
     await createNumbersCollection();
   });
 
   afterEach(async function () {
-    process.env.COMPASS_SHOW_WELCOME = 'false';
-
     // cleanup outside of the test so that the time it takes to run does not
     // get added to the time it took to run the first query
     if (compass) {
       // even though this is after (not afterEach) currentTest points to the last test
       await afterTest(compass, this.currentTest);
+      await compass.browser.pause(5000);
       await afterTests(compass);
       compass = undefined;
     }
   });
 
   it('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
-    // make sure we'll get the welcome modal
-    process.env.COMPASS_SHOW_WELCOME = 'true';
-
     // start compass inside the test so that the time is measured together
-    compass = await beforeTests();
+    compass = await beforeTests({ firstRun: true });
 
     const { browser } = compass;
-
-    await browser.closeWelcomeModal();
 
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
 
@@ -67,7 +60,12 @@ describe('Time to first query', function () {
 
   it('can open compass, connect to a database and run a query on a collection (second run onwards)', async function () {
     // start compass inside the test so that the time is measured together
-    compass = await beforeTests();
+
+    // TODO: this should work with firstRun left as undefined, but even though the
+    // preferences gets saved to disk, it gets the old value when opening
+    // compass again. The only way to get the saved value in a new compass seems
+    // to be if the whole process is relaunched.
+    compass = await beforeTests({ firstRun: false });
 
     const { browser } = compass;
 

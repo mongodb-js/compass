@@ -402,6 +402,11 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     ...(opts.extraSpawnArgs ?? [])
   );
 
+  if (opts.firstRun === undefined) {
+    // by default make sure we don't get the welcome modal
+    chromeArgs.push('--showed-network-opt-in');
+  }
+
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
     logLevel: 'info',
@@ -426,9 +431,6 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
   process.env.MONGODB_COMPASS_TEST_LOG_DIR = path.join(LOG_PATH, 'app');
   process.env.CHROME_LOG_FILE = chromedriverLogPath;
-  if (!process.env.COMPASS_SHOW_WELCOME) {
-    process.env.COMPASS_SHOW_WELCOME = 'false';
-  }
 
   const options = {
     capabilities: {
@@ -659,6 +661,10 @@ export async function beforeTests(
   const compass = await startCompass(opts);
 
   const { browser } = compass;
+
+  if (opts.firstRun) {
+    await browser.closeWelcomeModal();
+  }
 
   await browser.waitForConnectionScreen();
 
