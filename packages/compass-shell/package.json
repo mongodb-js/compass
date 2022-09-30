@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-shell",
   "productName": "Compass Shell plugin",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "apiVersion": "3.0.0",
   "description": "Compass Shell Plugin",
   "main": "lib/index.js",
@@ -38,16 +38,16 @@
     "access": "public"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.2.0",
-    "@mongodb-js/compass-logging": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.3.0",
+    "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/compass-utils": "^0.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "@mongosh/node-runtime-worker-thread": "^1.6.0",
     "react": "^16.14.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.2.0",
-    "@mongodb-js/compass-logging": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.3.0",
+    "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/compass-utils": "^0.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "@mongosh/node-runtime-worker-thread": "^1.6.0",

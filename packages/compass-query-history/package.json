@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
   "description": "The query history sidebar of Compass",
-  "version": "9.2.0",
+  "version": "9.3.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -55,20 +55,20 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.2.0",
-    "@mongodb-js/compass-logging": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.3.0",
+    "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/compass-utils": "^0.1.1",
     "bson": "^4.4.1",
-    "hadron-react-components": "^6.2.0",
+    "hadron-react-components": "^6.3.0",
     "react": "^16.14.0",
     "storage-mixin": "^5.1.0"
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.2.0",
-    "@mongodb-js/compass-logging": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.3.0",
+    "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/compass-utils": "^0.1.1",
     "bson": "^4.4.1",
-    "hadron-react-components": "^6.2.0",
+    "hadron-react-components": "^6.3.0",
     "react": "^16.14.0",
     "storage-mixin": "^5.1.0"
   },
