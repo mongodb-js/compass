@@ -6,7 +6,7 @@ import {
   css,
   uiColors,
   spacing,
-  Keyline,
+  KeylineCard,
 } from '@mongodb-js/compass-components';
 import sortBy from 'lodash.sortby';
 import get from 'lodash.get';
@@ -193,7 +193,7 @@ class Field extends Component {
 
     // children fields in case of nested array / document
     return (
-      <Keyline className={schemaFieldContainerStyles}>
+      <KeylineCard className={schemaFieldContainerStyles}>
         <div className="schema-field">
           <div className="row">
             <div className="col-sm-4">
@@ -259,7 +259,7 @@ class Field extends Component {
             </div>
           )}
         </div>
-      </Keyline>
+      </KeylineCard>
     );
   }
 }

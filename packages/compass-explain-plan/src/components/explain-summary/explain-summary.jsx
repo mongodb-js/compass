@@ -8,7 +8,7 @@ import INDEX_TYPES from '../../constants/index-types';
 
 import styles from './explain-summary.module.less';
 
-import { Keyline } from '@mongodb-js/compass-components'
+import { KeylineCard } from '@mongodb-js/compass-components'
 
 /**
  * The base url.
@@ -52,7 +52,7 @@ class ExplainSummary extends Component {
     const inMemorySort = this.props.inMemorySort ? 'yes' : 'no';
 
     return (
-      <Keyline>
+      <KeylineCard>
         <div
           className={styles['explain-summary']}
           data-testid="explain-summary"
@@ -96,7 +96,7 @@ class ExplainSummary extends Component {
             </div>
           </FlexBox>
         </div>
-      </Keyline>
+      </KeylineCard>
     );
   }
 }

@@ -39,6 +39,6 @@ function UnthemedKeyline({
   );
 }
 
-const Keyline = withTheme(UnthemedKeyline);
+const KeylineCard = withTheme(UnthemedKeyline);
 
-export { Keyline };
+export { KeylineCard };
