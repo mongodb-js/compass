@@ -49,7 +49,7 @@
     "make-fetch-happen": "^8.0.14",
     "minimatch": "^3.0.4",
     "minimist": "^1.2.5",
-    "mongodb-connection-string-url": "^2.5.3",
+    "mongodb-connection-string-url": "^2.5.4",
     "mongodb-data-service": "^22.1.1",
     "ora": "^5.4.0",
     "pacote": "^11.3.5",
