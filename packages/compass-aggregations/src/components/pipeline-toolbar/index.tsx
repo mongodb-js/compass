@@ -7,6 +7,7 @@ import PipelineOptions from './pipeline-options';
 import PipelineSettings from './pipeline-settings';
 
 import type { RootState } from '../../modules';
+import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
 
 const containerStyles = css({
   padding: spacing[3],
@@ -17,15 +18,10 @@ const containerDisplayStyles = css({
   gap: spacing[3],
   gridTemplateAreas: `
   "headerAndOptionsRow"
+  "settingsRow"
   `,
 });
 
-const displaySettings = css({
-  gridTemplateAreas: `
-  "headerAndOptionsRow"
-  "settingsRow"
-  `
-});
 
 const headerAndOptionsRowStyles = css({
   gridArea: 'headerAndOptionsRow',
@@ -51,7 +47,7 @@ const optionsStyles = css({
 
 type PipelineToolbarProps = {
   darkMode?: boolean;
-  isSettingsVisible: boolean;
+  isBuilderView: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
@@ -59,7 +55,7 @@ type PipelineToolbarProps = {
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   darkMode,
-  isSettingsVisible,
+  isBuilderView,
   showRunButton,
   showExportButton,
   showExplainButton,
@@ -70,7 +66,6 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
       className={cx(
         containerStyles,
         containerDisplayStyles,
-        isSettingsVisible && displaySettings
       )}
       data-testid="pipeline-toolbar"
     >
@@ -94,17 +89,17 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             </div>
           )}
         </div>
-        {isSettingsVisible && (
+        {isBuilderView ? (
           <div className={settingsRowStyles}>
             <PipelineSettings />
           </div>
-        )}
+        ) : <div className={settingsRowStyles}><PipelineResultsHeader /></div>}
       </>
     </div>
   );
 };
 
 const mapState = ({ workspace }: RootState) => ({
-  isSettingsVisible: workspace === 'builder'
+  isBuilderView: workspace === 'builder'
 });
 export default withTheme(connect(mapState)(PipelineToolbar));

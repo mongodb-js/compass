@@ -20,7 +20,8 @@ export enum ActionTypes {
   AggregationFinished = 'compass-aggregations/aggregationFinished',
   AggregationFailed = 'compass-aggregations/aggregationFailed',
   AggregationCancelledByUser = 'compass-aggregations/aggregationCancelledByUser',
-  LastPageReached = 'compass-aggregations/lastPageReached'
+  LastPageReached = 'compass-aggregations/lastPageReached',
+  ResultViewTypeChanged = 'compass-aggregations/resultViewTypeChanged'
 }
 
 type PreviousPageData = {
@@ -56,12 +57,18 @@ type LastPageReachedAction = {
   page: number;
 };
 
+type ResultViewTypeChangedAction = {
+  type : ActionTypes.ResultViewTypeChanged;
+  viewType: 'document' | 'json';
+}
+
 export type Actions =
   | AggregationStartedAction
   | AggregationFinishedAction
   | AggregationFailedAction
   | AggregationCancelledAction
-  | LastPageReachedAction;
+  | LastPageReachedAction
+  | ResultViewTypeChangedAction;
 
 export type State = {
   documents: Document[];
@@ -72,6 +79,7 @@ export type State = {
   abortController?: AbortController;
   error?: string;
   previousPageData?: PreviousPageData;
+  resultsViewType: 'document' | 'json';
 };
 
 export const INITIAL_STATE: State = {
@@ -80,6 +88,7 @@ export const INITIAL_STATE: State = {
   limit: 20,
   isLast: false,
   loading: false,
+  resultsViewType: 'document',
 };
 
 const reducer: Reducer<State, Actions | WorkspaceActions> = (
@@ -140,6 +149,11 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (
         loading: false,
         page: action.page,
       };
+    case ActionTypes.ResultViewTypeChanged:
+      return {
+        ...state,
+        resultsViewType: action.viewType
+      }
     default:
       return state;
   }
@@ -365,5 +379,12 @@ export const exportAggregationResults = (): ThunkAction<
     );
   };
 };
+
+export const changeViewType = (newViewType: 'document' | 'json') => {
+  return {
+    type: ActionTypes.ResultViewTypeChanged,
+    viewType: newViewType,
+  }
+}
 
 export default reducer;
