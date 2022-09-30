@@ -17,7 +17,6 @@ describe('Time to first query', function () {
     if (compass) {
       // even though this is after (not afterEach) currentTest points to the last test
       await afterTest(compass, this.currentTest);
-      await compass.browser.pause(5000);
       await afterTests(compass);
       compass = undefined;
     }
