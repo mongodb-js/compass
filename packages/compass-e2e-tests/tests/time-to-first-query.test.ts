@@ -7,7 +7,14 @@ import { createNumbersCollection } from '../helpers/insert-data';
 describe('Time to first query', function () {
   let compass: Compass | undefined;
 
+  beforeEach(async function () {
+    process.env.SHOW_WELCOME = 'false';
+    await createNumbersCollection();
+  });
+
   afterEach(async function () {
+    process.env.SHOW_WELCOME = 'false';
+
     // cleanup outside of the test so that the time it takes to run does not
     // get added to the time it took to run the first query
     if (compass) {
@@ -18,15 +25,16 @@ describe('Time to first query', function () {
     }
   });
 
-  beforeEach(async function () {
-    await createNumbersCollection();
-  });
-
   it('can open compass, connect to a database and run a query on a collection (new version)', async function () {
+    // make sure we'll get the welcome modal
+    process.env.SHOW_WELCOME = 'true';
+
     // start compass inside the test so that the time is measured together
     compass = await beforeTests();
 
     const { browser } = compass;
+
+    await browser.closeWelcomeModal();
 
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
 
