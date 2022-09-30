@@ -6,6 +6,7 @@ import {
   css,
   uiColors,
   spacing,
+  Keyline,
 } from '@mongodb-js/compass-components';
 import sortBy from 'lodash.sortby';
 import get from 'lodash.get';
@@ -17,8 +18,6 @@ import detectCoordinates from '../../modules/detect-coordinates';
 import preferences from 'compass-preferences-model';
 
 const toggleCollapseButtonIconStyles = css({
-  // flexShrink: 0,
-  // flexGrow: 1,
   color: uiColors.gray.dark2,
 });
 
@@ -48,6 +47,14 @@ const expandCollapseFieldButtonStyles = css({
     outline: 'none',
     boxShadow: `0 0 0 3px ${uiColors.focus}`,
   },
+});
+
+const schemaFieldContainerStyles = css({
+  marginBottom: spacing[2],
+});
+
+const nestedFieldStyles = css({
+  margin: spacing[2],
 });
 
 /**
@@ -186,69 +193,73 @@ class Field extends Component {
 
     // children fields in case of nested array / document
     return (
-      <div className="schema-field">
-        <div className="row">
-          <div className="col-sm-4">
-            <div className="schema-field-name">
-              {nestedDocType ? (
-                <button
-                  className={expandCollapseFieldButtonStyles}
-                  id={fieldAccordionButtonId}
-                  type="button"
-                  aria-label={
-                    this.state.collapsed
-                      ? 'Expand Document Schema'
-                      : 'Collapse Document Schema'
-                  }
-                  aria-expanded={this.state.collapsed ? 'false' : 'true'}
-                  aria-controls={fieldListRegionId}
-                  onClick={this.onToggleCollapseClicked.bind(this)}
-                >
-                  <Icon
-                    className={toggleCollapseButtonIconStyles}
-                    glyph={this.state.collapsed ? 'CaretRight' : 'CaretDown'}
-                  />
-                  &nbsp;
+      <Keyline className={schemaFieldContainerStyles}>
+        <div className="schema-field">
+          <div className="row">
+            <div className="col-sm-4">
+              <div className="schema-field-name">
+                {nestedDocType ? (
+                  <button
+                    className={expandCollapseFieldButtonStyles}
+                    id={fieldAccordionButtonId}
+                    type="button"
+                    aria-label={
+                      this.state.collapsed
+                        ? 'Expand Document Schema'
+                        : 'Collapse Document Schema'
+                    }
+                    aria-expanded={this.state.collapsed ? 'false' : 'true'}
+                    aria-controls={fieldListRegionId}
+                    onClick={this.onToggleCollapseClicked.bind(this)}
+                  >
+                    <Icon
+                      className={toggleCollapseButtonIconStyles}
+                      glyph={this.state.collapsed ? 'CaretRight' : 'CaretDown'}
+                    />
+                    &nbsp;
+                    <Subtitle className={fieldNameStyles}>
+                      {this.props.name}
+                    </Subtitle>
+                  </button>
+                ) : (
                   <Subtitle className={fieldNameStyles}>
                     {this.props.name}
                   </Subtitle>
-                </button>
-              ) : (
-                <Subtitle className={fieldNameStyles}>
-                  {this.props.name}
-                </Subtitle>
-              )}
+                )}
+              </div>
+              <div className="schema-field-type-list">{typeList}</div>
             </div>
-            <div className="schema-field-type-list">{typeList}</div>
-          </div>
-          <div className="col-sm-7 col-sm-offset-1">
-            <Minichart
-              fieldName={this.props.path}
-              type={activeType}
-              nestedDocType={nestedDocType}
-              actions={this.props.actions}
-              localAppRegistry={this.props.localAppRegistry}
-            />
-          </div>
-        </div>
-        {!this.state.collapsed && (
-          <div
-            className="schema-field-list"
-            id={fieldListRegionId}
-            role="region"
-            aria-labelledby={fieldAccordionButtonId}
-          >
-            {get(this.getNestedDocType(), 'fields', []).map((field) => (
-              <Field
-                key={field.name}
+            <div className="col-sm-7 col-sm-offset-1">
+              <Minichart
+                fieldName={this.props.path}
+                type={activeType}
+                nestedDocType={nestedDocType}
                 actions={this.props.actions}
                 localAppRegistry={this.props.localAppRegistry}
-                {...field}
               />
-            ))}
+            </div>
           </div>
-        )}
-      </div>
+
+          {!this.state.collapsed && (
+            <div
+              className="schema-field-list"
+              id={fieldListRegionId}
+              role="region"
+              aria-labelledby={fieldAccordionButtonId}
+            >
+              {get(this.getNestedDocType(), 'fields', []).map((field) => (
+                <div className={nestedFieldStyles} key={field.name}>
+                  <Field
+                    actions={this.props.actions}
+                    localAppRegistry={this.props.localAppRegistry}
+                    {...field}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </Keyline>
     );
   }
 }

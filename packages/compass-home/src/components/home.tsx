@@ -56,7 +56,7 @@ const homeContainerStyles = css({
 });
 
 const globalLightThemeStyles = css({
-  backgroundColor: compassUIColors.gray8,
+  backgroundColor: uiColors.white,
   color: uiColors.gray.dark2,
 });
 

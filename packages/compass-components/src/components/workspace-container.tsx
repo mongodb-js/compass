@@ -72,7 +72,7 @@ const workspaceContentStyles = css({
 });
 
 const lightThemeStyles = css({
-  backgroundColor: gray8,
+  backgroundColor: uiColors.white,
   color: uiColors.gray.dark2,
 });
 

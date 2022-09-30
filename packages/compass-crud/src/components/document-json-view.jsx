@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Keyline } from '@mongodb-js/compass-components';
+
 import JsonEditor from './json-editor';
 
 /**
@@ -32,17 +34,19 @@ class DocumentJsonView extends React.Component {
     return this.props.docs.map((doc, i) => {
       return (
         <li className={LIST_ITEM_CLASS} data-testid={LIST_ITEM_TEST_ID} key={i}>
-          <JsonEditor
-            key={doc.uuid}
-            doc={doc}
-            editable={this.props.isEditable}
-            isTimeSeries={this.props.isTimeSeries}
-            copyToClipboard={this.props.copyToClipboard}
-            removeDocument={this.props.removeDocument}
-            replaceDocument={this.props.replaceDocument}
-            updateDocument={this.props.updateDocument}
-            openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-          />
+          <Keyline>
+            <JsonEditor
+              key={doc.uuid}
+              doc={doc}
+              editable={this.props.isEditable}
+              isTimeSeries={this.props.isTimeSeries}
+              copyToClipboard={this.props.copyToClipboard}
+              removeDocument={this.props.removeDocument}
+              replaceDocument={this.props.replaceDocument}
+              updateDocument={this.props.updateDocument}
+              openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+            />
+          </Keyline>
         </li>
       );
     });
