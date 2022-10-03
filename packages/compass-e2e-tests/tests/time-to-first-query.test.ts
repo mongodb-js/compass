@@ -60,10 +60,6 @@ describe('Time to first query', function () {
   it('can open compass, connect to a database and run a query on a collection (second run onwards)', async function () {
     // start compass inside the test so that the time is measured together
 
-    // TODO: this should work with firstRun left as undefined, but even though the
-    // preferences gets saved to disk, it gets the old value when opening
-    // compass again. The only way to get the saved value in a new compass seems
-    // to be if the whole process is relaunched.
     compass = await beforeTests({ firstRun: false });
 
     const { browser } = compass;

@@ -404,7 +404,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
 
   if (opts.firstRun === undefined) {
     // by default make sure we don't get the welcome modal
-    chromeArgs.push('--showed-network-opt-in');
+    chromeArgs.push('--showed-network-opt-in=true');
   }
 
   // https://webdriver.io/docs/options/#webdriver-options
