@@ -7,6 +7,7 @@ import {
   ButtonVariant,
   Link,
   WarningSummary,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { ZeroState } from 'hadron-react-components';
 import ValidationEditor from '../validation-editor';
@@ -204,11 +205,13 @@ class ValidationStates extends Component {
    */
   render() {
     return (
-      <div className={styles['validation-states']}>
-        {this.renderBanner()}
-        {this.renderZeroState()}
-        {this.renderContent()}
-      </div>
+      <WorkspaceContainer>
+        <div className={styles['validation-states']}>
+          {this.renderBanner()}
+          {this.renderZeroState()}
+          {this.renderContent()}
+        </div>
+      </WorkspaceContainer>
     );
   }
 }

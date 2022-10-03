@@ -5,6 +5,7 @@ import {
   ButtonSize,
   ButtonVariant,
   Link,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import { ZeroState } from 'hadron-react-components';
 import { ZeroGraphic } from '../zero-graphic';
@@ -167,24 +168,27 @@ class ExplainStates extends Component {
    */
   render() {
     return (
-      <>
-        <ExplainToolbar
-          explainErrorMessage={this.props.explain.error?.message}
-          localAppRegistry={this.props.appRegistry.localAppRegistry}
-          onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
-          showOutdatedWarning={
-            this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
-          }
-          resultId={this.props.explain.resultId}
-          hasExplainResults={!this.checkIfZeroState()}
-          showReadonlyWarning={!this.props.isEditable}
-          switchToTreeView={this.props.switchToTreeView}
-          switchToJSONView={this.props.switchToJSONView}
-          viewType={this.props.explain.viewType}
-        />
+      <WorkspaceContainer
+        toolbar={
+          <ExplainToolbar
+            explainErrorMessage={this.props.explain.error?.message}
+            localAppRegistry={this.props.appRegistry.localAppRegistry}
+            onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
+            showOutdatedWarning={
+              this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
+            }
+            resultId={this.props.explain.resultId}
+            hasExplainResults={!this.checkIfZeroState()}
+            showReadonlyWarning={!this.props.isEditable}
+            switchToTreeView={this.props.switchToTreeView}
+            switchToJSONView={this.props.switchToJSONView}
+            viewType={this.props.explain.viewType}
+          />
+        }
+      >
         {this.renderZeroState()}
         {this.renderContent()}
-      </>
+      </WorkspaceContainer>
     );
   }
 }

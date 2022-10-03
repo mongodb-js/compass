@@ -14,7 +14,6 @@ const compassShellStyles = css({
   flexBasis: 'auto',
   position: 'relative',
   flexDirection: 'column',
-  maxHeight: '95%'
 });
 
 const compassShellContainerStyles = css({

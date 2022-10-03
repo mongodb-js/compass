@@ -5,7 +5,6 @@ import {
   Label,
   SegmentedControl,
   SegmentedControlOption,
-  Toolbar as CompassComponentsToolbar,
   css,
   spacing,
   useId,
@@ -99,7 +98,7 @@ function UnthemedToolbar({
   const controlId = useId();
 
   return (
-    <CompassComponentsToolbar className={toolbarStyles}>
+    <div className={toolbarStyles}>
       <div className={toolbarActionStyles}>
         <Label className={titleStyles} id={labelId} htmlFor={controlId}>
           Queries in{' '}
@@ -141,7 +140,7 @@ function UnthemedToolbar({
       >
         <Icon glyph="X" />
       </IconButton>
-    </CompassComponentsToolbar>
+    </div>
   );
 }
 
