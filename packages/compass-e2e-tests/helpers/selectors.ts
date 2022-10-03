@@ -3,6 +3,11 @@ export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton =
   '[data-testid="settings-modal"] [aria-label="Close modal"]';
 
+// Welcome Modal
+export const WelcomeModal = '[data-testid="welcome-modal"]';
+export const CloseWelcomeModalButton =
+  '[data-testid="welcome-modal"] [aria-label="Close modal"]';
+
 // Connection screen
 export const ConnectSection = '[data-testid="connections-disconnected"]';
 export const ConnectButton = '[data-testid="connect-button"]';

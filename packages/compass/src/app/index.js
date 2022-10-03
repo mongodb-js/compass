@@ -71,6 +71,14 @@ const { log, mongoLogId, debug, track } =
     'COMPASS-APP'
   );
 
+function shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic) {
+  if (!showedNetworkOptIn && networkTraffic) {
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -162,8 +170,7 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: async function () {
-    await preferences.refreshPreferences();
+  render: function ({ showWelcomeModal }) {
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -186,21 +193,11 @@ const Application = View.extend({
       React.createElement(this.homeComponent, {
         appRegistry: app.appRegistry,
         appName: remote.app.getName(),
+        showWelcomeModal
       }),
       this.queryByHook('layout-container')
     );
     document.querySelector('#loading-placeholder')?.remove();
-
-    const checkForNetworkOptIn = async () => {
-      const { showedNetworkOptIn, networkTraffic } =
-        preferences.getPreferences();
-
-      if (!showedNetworkOptIn && networkTraffic) {
-        ipc.ipcRenderer.emit('window:show-network-optin');
-      }
-    };
-
-    void checkForNetworkOptIn();
   },
   fetchUser: async function () {
     debug('getting user preferences');
@@ -247,7 +244,13 @@ const state = new Application();
 app.extend({
   client: null,
   init: async function () {
-    const { theme } = preferences.getPreferences();
+    await preferences.refreshPreferences();
+
+    const {
+      theme,
+      showedNetworkOptIn,
+      networkTraffic
+    } = preferences.getPreferences();
 
     async.series(
       [
@@ -295,7 +298,9 @@ app.extend({
             global.hadronApp.appRegistry.emit('toggle-sidebar')
           );
           // as soon as dom is ready, render and set up the rest
-          state.render();
+          state.render({
+            showWelcomeModal: shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic)
+          });
           marky.stop('Time to Connect rendered');
           state.postRender();
           marky.stop('Time to user can Click Connect');
