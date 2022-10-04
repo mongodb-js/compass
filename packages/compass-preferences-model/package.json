@@ -29,6 +29,8 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
+    "clean": "rimraf ./dist",
+    "precompile": "npm run clean",
     "compile": "tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
     "eslint": "eslint",
     "prettier": "prettier",
@@ -63,6 +65,7 @@
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "hadron-ipc": "^3.1.0",
-    "mocha": "^6.0.2"
+    "mocha": "^6.0.2",
+    "rimraf": "^3.0.2"
   }
 }
