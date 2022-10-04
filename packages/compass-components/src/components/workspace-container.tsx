@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
-import { gray8 } from '../compass-ui-colors';
 import { withTheme } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { transparentize } from 'polished';
