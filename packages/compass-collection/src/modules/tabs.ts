@@ -1,10 +1,14 @@
-import type { AnyAction } from 'redux';
+import type { AnyAction, Dispatch } from 'redux';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { Document } from 'mongodb';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
+import type { Aggregation } from '@mongodb-js/compass-aggregations';
+import type { Query } from '@mongodb-js/compass-query-history';
 
 import createContext from '../stores/context';
+import type { ContextProps } from '../stores/context';
 import { appRegistryEmit } from './app-registry';
 
 /**
@@ -77,7 +81,7 @@ export interface WorkspaceTabObject {
   scopedModals: any[];
   sourceName: string;
   editViewName: string;
-  sourceReadonly?: any;
+  sourceReadonly?: Query;
   sourceViewOn?: string;
   localAppRegistry: AppRegistry;
 }
@@ -209,7 +213,7 @@ const doCloseTab = (state: any, action: AnyAction) => {
 
   return state.reduce((newState: any, tab: WorkspaceTabObject, i: number) => {
     if (closeIndex !== i) {
-      // We follow stnadard browser behaviour with tabs on how we
+      // We follow standard browser behavior with tabs on how we
       // handle which tab gets activated if we close the active tab.
       // If the active tab is the last tab, we activate the one before
       // it, otherwise we activate the next tab.
@@ -397,7 +401,23 @@ export const createTab = ({
   sourceViewOn,
   query,
   aggregation,
-}: any): any => ({
+}: Pick<
+  WorkspaceTabObject,
+  | 'id'
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  context: ContextProps;
+  query?: Query;
+  aggregation?: Aggregation;
+}): AnyAction => ({
   type: CREATE_TAB,
   id,
   namespace,
@@ -443,7 +463,21 @@ export const selectNamespace = ({
   context,
   sourceReadonly,
   sourceViewOn,
-}: any): any => ({
+}: Pick<
+  WorkspaceTabObject,
+  | 'id'
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  context: ContextProps;
+}): AnyAction => ({
   type: SELECT_NAMESPACE,
   id,
   namespace,
@@ -466,8 +500,7 @@ export const selectNamespace = ({
  * @returns {Object} The close tab action.
  */
 export const closeTab =
-  (index: number): any =>
-  (dispatch: any, getState: any) => {
+  (index: number) => (dispatch: Dispatch, getState: any) => {
     const { tabs } = getState();
     if (tabs.length === 1) {
       dispatch(appRegistryEmit('all-collection-tabs-closed'));
@@ -604,8 +637,33 @@ export const selectOrCreateTab = ({
   sourceReadonly,
   sourceViewOn,
   sourcePipeline,
-}: any): any => {
-  return (dispatch: any, getState: any) => {
+}: Pick<
+  WorkspaceTabObject,
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  sourcePipeline: Document[];
+}): ThunkAction<
+  void,
+  any, // TODO: RootState types.
+  void,
+  any // TODO: Action types.
+> => {
+  return (
+    dispatch: ThunkDispatch<
+      any, // TODO: RootState types.
+      void,
+      AnyAction
+    >,
+    getState: () => any // TODO: RootState types.
+  ) => {
     const state = getState();
     if (state.tabs.length === 0) {
       dispatch(
@@ -668,8 +726,28 @@ export const createNewTab = ({
   sourcePipeline,
   query,
   aggregation,
-}: any): any => {
-  return (dispatch: any, getState: any) => {
+}: Pick<
+  WorkspaceTabObject,
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  sourcePipeline?: Document[];
+  query?: Query; // TODO: query type
+  aggregation?: Aggregation;
+}): ThunkAction<
+  void,
+  any, // TODO: RootState types.
+  void,
+  any // TODO: Action types.
+> => {
+  return (dispatch: Dispatch, getState: any) => {
     const state = getState();
     const context = createContext({
       state,
@@ -723,8 +801,13 @@ export const replaceTabContent = ({
   sourceReadonly,
   sourceViewOn,
   sourcePipeline,
-}: any): any => {
-  return (dispatch: any, getState: any) => {
+}: any): ThunkAction<
+  void,
+  any, // TODO: RootState types.
+  void,
+  any // TODO: Action types.
+> => {
+  return (dispatch: Dispatch, getState: any) => {
     const state = getState();
     const context = createContext({
       state,

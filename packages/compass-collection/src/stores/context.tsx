@@ -52,7 +52,7 @@ const setupActions = (role: any, localAppRegistry: AppRegistry) => {
   return actions;
 };
 
-type ContextProps = {
+export type ContextProps = {
   tabs?: string[];
   views?: JSX.Element[];
   role?: any;
