@@ -8,7 +8,7 @@ import INDEX_TYPES from '../../constants/index-types';
 
 import styles from './explain-summary.module.less';
 
-import { KeylineCard } from '@mongodb-js/compass-components'
+import { KeylineCard } from '@mongodb-js/compass-components';
 
 /**
  * The base url.

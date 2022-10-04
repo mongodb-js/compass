@@ -2,13 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 import React, { useCallback, useEffect } from 'react';
-import {
-  TabNavBar,
-  css,
-  withTheme,
-  uiColors,
-  cx,
-} from '@mongodb-js/compass-components';
+import { TabNavBar, css } from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
 import type { CollectionStatsObject } from '../../modules/stats';
@@ -71,7 +65,6 @@ type CollectionProps = {
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
-  darkMode,
   namespace,
   isReadonly,
   isTimeSeries,
@@ -146,7 +139,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           pipeline={pipeline}
           sourceName={sourceName}
           stats={stats}
-          darkMode={darkMode}
         />
         <TabNavBar
           data-testid="collection-tabs"
@@ -171,4 +163,4 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 };
 
-export default withTheme(Collection);
+export default Collection;
