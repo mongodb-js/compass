@@ -633,8 +633,7 @@ export class Preferences {
    */
   async ensureDefaultConfigurableUserPreferences(): Promise<void> {
     // Set the defaults and also update showedNetworkOptIn flag.
-    const { showedNetworkOptIn } =
-      await this.fetchPreferences();
+    const { showedNetworkOptIn } = await this.fetchPreferences();
     if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,

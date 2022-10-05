@@ -21,7 +21,12 @@ describe('WelcomeModal', function () {
       props: Partial<ComponentProps<typeof WelcomeModal>> = {}
     ) => {
       render(
-        <WelcomeModal networkTraffic={true} isOpen={false} closeModal={closeModalSpy} {...props} />
+        <WelcomeModal
+          networkTraffic={true}
+          isOpen={false}
+          closeModal={closeModalSpy}
+          {...props}
+        />
       );
     };
   });
