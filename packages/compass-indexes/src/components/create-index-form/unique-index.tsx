@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Checkbox,
-  Label,
-  Description,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Checkbox, Label, css, spacing } from '@mongodb-js/compass-components';
 
 type UniqueIndex = {
   isUnique: boolean;
@@ -32,12 +26,7 @@ const UniqueIndexCheckbox = ({ isUnique, toggleIsUnique }: UniqueIndex) => {
         // LG Checkbox expects a string description, but we use Description component
         // to alight with styles from CollapsibleFieldSet that are used on the same form.
         description={
-          (
-            <Description>
-              A unique index ensures that the indexed fields do not store
-              duplicate values; i.e. enforces uniqueness for the indexed fields.
-            </Description>
-          ) as any
+          'A unique index ensures that the indexed fields do not store duplicate values; i.e. enforces uniqueness for the indexed fields.'
         }
         checked={isUnique}
         id={labelId}

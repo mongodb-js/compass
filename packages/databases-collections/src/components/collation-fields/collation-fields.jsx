@@ -12,7 +12,6 @@ const optionsSelectDropdownStyles = css({
 });
 
 import COLLATION_OPTIONS from '../../constants/collation';
-import FieldSet from '../field-set/field-set';
 
 function CollationOptions(values) {
   const unifiedValues = values.map((elem) => ({
@@ -60,7 +59,7 @@ function CollationFields({
 }) {
   return COLLATION_OPTIONS.map((element) => {
     return (
-      <FieldSet key={element.field}>
+      <fieldset key={element.field}>
         <Select
           id={`collation-field-${element.field}`}
           className={optionsSelectDropdownStyles}
@@ -84,7 +83,7 @@ function CollationFields({
         >
           {CollationOptions(element.values)}
         </Select>
-      </FieldSet>
+      </fieldset>
     );
   });
 }

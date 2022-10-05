@@ -1,15 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TextInput } from '@mongodb-js/compass-components';
+import { TextInput, css, spacing } from '@mongodb-js/compass-components';
 
-import FieldSet from '../field-set/field-set';
+const collectionFieldName = css({
+  margin: `${spacing[3]}px 0`
+});
 
 function CollectionName({
   collectionName,
   onChangeCollectionName
 }) {
   return (
-    <FieldSet>
+    <fieldset className={collectionFieldName}>
       <TextInput
         required
         label="Collection Name"
@@ -18,7 +20,7 @@ function CollectionName({
         value={collectionName}
         spellCheck={false}
       />
-    </FieldSet>
+    </fieldset>
   );
 }
 

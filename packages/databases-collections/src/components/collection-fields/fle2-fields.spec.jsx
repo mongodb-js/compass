@@ -2,10 +2,8 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Checkbox } from '@mongodb-js/compass-components';
 
 import FLE2Fields from './fle2-fields';
-import FieldSet from '../field-set/field-set';
 
 describe('FLE2Fields [Component]', () => {
   context('when isFLE2 prop is true', () => {
@@ -33,7 +31,7 @@ describe('FLE2Fields [Component]', () => {
     });
 
     it('renders the field sets', () => {
-      expect(component.find(FieldSet).length).to.equal(4);
+      expect(component.find('fieldset').length).to.equal(5);
     });
   });
 
@@ -62,11 +60,11 @@ describe('FLE2Fields [Component]', () => {
     });
 
     it('does not render the fields', () => {
-      expect(component.find(FieldSet).length).to.equal(1);
+      expect(component.find('fieldset').length).to.equal(1);
     });
 
     it('has the clustered checkbox enabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(false);
+      expect(component.find('Checkbox').props().disabled).to.equal(false);
     });
   });
 
@@ -131,7 +129,7 @@ describe('FLE2Fields [Component]', () => {
     });
 
     it('has the FLE2 checkbox disabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(true);
+      expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 
@@ -159,7 +157,7 @@ describe('FLE2Fields [Component]', () => {
     });
 
     it('has the FLE2 checkbox disabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(true);
+      expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 });

@@ -6,6 +6,6 @@ module.exports = {
     project: ['./tsconfig-lint.json'],
   },
   rules: {
-    "@mongodb-js/compass/no-leafygreen-outside-compass-components": "off"
-  }
+    '@mongodb-js/compass/no-leafygreen-outside-compass-components': 'off',
+  },
 };

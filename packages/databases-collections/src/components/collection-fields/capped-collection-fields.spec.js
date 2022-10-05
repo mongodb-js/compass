@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-import { Checkbox } from '@mongodb-js/compass-components';
 import { TextInput } from '@mongodb-js/compass-components';
 
 import CappedCollectionFields from './capped-collection-fields';
@@ -29,7 +28,7 @@ describe('CappedCollectionFields [Component]', () => {
     });
 
     it('renders the checkbox disabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(true);
+      expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 
@@ -85,7 +84,7 @@ describe('CappedCollectionFields [Component]', () => {
     });
 
     it('has the capped collection checkbox enabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(false);
+      expect(component.find('Checkbox').props().disabled).to.equal(false);
     });
   });
 
@@ -111,7 +110,7 @@ describe('CappedCollectionFields [Component]', () => {
     });
 
     it('renders the checkbox disabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(true);
+      expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 
@@ -137,7 +136,7 @@ describe('CappedCollectionFields [Component]', () => {
     });
 
     it('renders the checkbox disabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(true);
+      expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 });

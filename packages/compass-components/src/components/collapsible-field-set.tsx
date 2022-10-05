@@ -2,8 +2,6 @@ import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { Link, Checkbox, Label } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
-import { withTheme } from '../hooks/use-theme';
-import { Description } from '@leafygreen-ui/typography';
 
 const infoLinkStyles = css({
   marginLeft: spacing[1],
@@ -14,6 +12,10 @@ const collapsibleFieldsetStyles = css({
   fieldset: {
     paddingLeft: `${spacing[4]}px`,
   },
+  'fieldset fieldset': {
+    paddingLeft: 0,
+    margin: `${spacing[3]}px 0`,
+  },
 });
 
 const checkboxStyles = css({
@@ -21,7 +23,6 @@ const checkboxStyles = css({
 });
 
 export type CollapsibleFieldSetProps = {
-  darkMode?: boolean;
   dataTestId?: string;
   children?: React.ReactElement;
   label: string;
@@ -32,8 +33,7 @@ export type CollapsibleFieldSetProps = {
   toggled?: boolean;
 };
 
-const UnthemedCollapsibleFieldSet = ({
-  darkMode,
+export const CollapsibleFieldSet = ({
   description,
   disabled,
   helpUrl,
@@ -60,7 +60,7 @@ const UnthemedCollapsibleFieldSet = ({
           !description
             ? ''
             : ((
-                <Description>
+                <>
                   {description}
                   {!!helpUrl && (
                     <Link
@@ -71,18 +71,14 @@ const UnthemedCollapsibleFieldSet = ({
                       Learn More
                     </Link>
                   )}
-                </Description>
+                </>
               ) as any) // LG Checkbox expects a string description, but we use Description component to include helpUrl.
         }
         checked={toggled}
         id={labelId}
-        darkMode={darkMode}
         className={checkboxStyles}
       />
       {toggled && <fieldset>{children}</fieldset>}
     </fieldset>
   );
 };
-
-const CollapsibleFieldSet = withTheme(UnthemedCollapsibleFieldSet);
-export { CollapsibleFieldSet };

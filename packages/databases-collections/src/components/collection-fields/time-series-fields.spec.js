@@ -2,10 +2,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Checkbox, Select } from '@mongodb-js/compass-components';
+import { Select } from '@mongodb-js/compass-components';
 
 import TimeSeriesFields from './time-series-fields';
-import FieldSet from '../field-set/field-set';
 
 describe('TimeSeriesFields [Component]', () => {
   context('when isTimeSeries prop is true', () => {
@@ -30,7 +29,7 @@ describe('TimeSeriesFields [Component]', () => {
     });
 
     it('renders the field sets', () => {
-      expect(component.find(FieldSet).length).to.equal(5);
+      expect(component.find('fieldset').length).to.equal(6);
     });
   });
 
@@ -57,11 +56,11 @@ describe('TimeSeriesFields [Component]', () => {
     });
 
     it('does not render the fields', () => {
-      expect(component.find(FieldSet).length).to.equal(1);
+      expect(component.find('fieldset').length).to.equal(1);
     });
 
     it('has the time-series checkbox enabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(false);
+      expect(component.find('Checkbox').props().disabled).to.equal(false);
     });
   });
 
@@ -121,7 +120,7 @@ describe('TimeSeriesFields [Component]', () => {
     });
 
     it('has the time-series checkbox disabled', () => {
-      expect(component.find(Checkbox).props().disabled).to.equal(true);
+      expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 

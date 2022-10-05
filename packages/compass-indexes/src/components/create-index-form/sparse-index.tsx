@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Checkbox,
-  Label,
-  Description,
-  css,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Checkbox, Label, css, spacing } from '@mongodb-js/compass-components';
 
 type SparseIndex = {
   isSparse: boolean;
@@ -31,15 +25,9 @@ const SparseIndexCheckbox = ({ isSparse, toggleIsSparse }: SparseIndex) => {
         label={<Label htmlFor={labelId}>Create sparse index</Label>}
         // LG Checkbox expects a string description, but we use Description component
         // to alight with styles from CollapsibleFieldSet that are used on the same form.
-        description={
-          (
-            <Description>
-              Sparse indexes only contain entries for documents that have the
-              indexed field, even if the index field contains a null value. The
-              index skips over any document that is missing the indexed field.
-            </Description>
-          ) as any
-        }
+        description="Sparse indexes only contain entries for documents that have
+        the indexed field, even if the index field contains a null value. The
+        index skips over any document that is missing the indexed field."
         checked={isSparse}
         id={labelId}
       />

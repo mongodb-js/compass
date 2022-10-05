@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
+
 import CollationFields from '../collation-fields/collation-fields';
-import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 
 const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
