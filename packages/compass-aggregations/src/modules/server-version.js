@@ -1,9 +1,4 @@
 /**
- * Server version changed action.
- */
-export const SERVER_VERSION_CHANGED = 'aggregations/server-version/SERVER_VERSION_CHANGED';
-
-/**
  * The initial state.
  */
 export const INITIAL_STATE = '4.0.0';
@@ -16,21 +11,6 @@ export const INITIAL_STATE = '4.0.0';
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === SERVER_VERSION_CHANGED) {
-    return action.version || state;
-  }
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }
-
-/**
- * Action creator for server version changed events.
- *
- * @param {String} version - The version value.
- *
- * @returns {Object} The server version changed action.
- */
-export const serverVersionChanged = (version) => ({
-  type: SERVER_VERSION_CHANGED,
-  version: version
-});

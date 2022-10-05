@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Pipeline from '../pipeline';
-import { namespaceChanged } from '../../modules/namespace';
 import { nameChanged } from '../../modules/name';
 import { limitChanged } from '../../modules/limit';
 import { largeLimitChanged } from '../../modules/large-limit';
@@ -152,7 +151,6 @@ const mapStateToProps = (state) => ({
 const MappedAggregations = connect(
   mapStateToProps,
   {
-    namespaceChanged,
     nameChanged,
     collationStringChanged,
     toggleInputDocumentsCollapsed,
