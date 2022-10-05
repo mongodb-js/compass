@@ -20,11 +20,13 @@ const link = css({
 });
 
 type WelcomeModalProps = {
+  networkTraffic: boolean;
   isOpen: boolean;
   closeModal: (openSettings?: boolean) => void;
 };
 
 const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
+  networkTraffic,
   isOpen,
   closeModal,
 }) => {
@@ -53,16 +55,18 @@ const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
         Build aggregation pipelines, optimize queries, analyze schemas,
         and&nbsp;more. All with the GUI built by - and for - MongoDB.
       </Body>
-      <Disclaimer className={disclaimer}>
-        To help improve our products, anonymous usage data is collected and sent
-        to MongoDB in accordance with MongoDB&apos;s privacy policy.
-        <br />
-        Manage this behaviour on the Compass{' '}
-        <Link hideExternalIcon className={link} onClick={goToSettings}>
-          Settings
-        </Link>{' '}
-        page.
-      </Disclaimer>
+      {networkTraffic && (
+        <Disclaimer className={disclaimer}>
+          To help improve our products, anonymous usage data is collected and
+          sent to MongoDB in accordance with MongoDB&apos;s privacy policy.
+          <br />
+          Manage this behaviour on the Compass{' '}
+          <Link hideExternalIcon className={link} onClick={goToSettings}>
+            Settings
+          </Link>{' '}
+          page.
+        </Disclaimer>
+      )}
     </MarketingModal>
   );
 };

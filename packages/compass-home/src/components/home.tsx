@@ -6,7 +6,6 @@ import {
   ThemeProvider,
   ToastArea,
   uiColors,
-  compassUIColors,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -56,7 +55,7 @@ const homeContainerStyles = css({
 });
 
 const globalLightThemeStyles = css({
-  backgroundColor: compassUIColors.gray8,
+  backgroundColor: uiColors.white,
   color: uiColors.gray.dark2,
 });
 
@@ -281,9 +280,12 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 }
 
 function ThemedHome(
-  props: React.ComponentProps<typeof Home> & { showWelcomeModal: boolean }
+  props: React.ComponentProps<typeof Home> & {
+    showWelcomeModal: boolean;
+    networkTraffic: boolean;
+  }
 ): ReturnType<typeof Home> {
-  const { showWelcomeModal } = props;
+  const { showWelcomeModal, networkTraffic } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
@@ -291,8 +293,6 @@ function ThemedHome(
       process.env.COMPASS_LG_DARKMODE === 'true'
         ? (global as any).hadronApp?.theme ?? Theme.Light
         : Theme.Light,
-    // useful for quickly testing the new dark sidebar without rebuilding
-    //theme: Theme.Dark, enabled: true
   });
 
   function onDarkModeEnabled() {
@@ -369,7 +369,11 @@ function ThemedHome(
     <LeafyGreenProvider>
       <ThemeProvider theme={theme}>
         {showWelcomeModal && (
-          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          <Welcome
+            isOpen={isWelcomeOpen}
+            closeModal={closeWelcomeModal}
+            networkTraffic={networkTraffic}
+          />
         )}
         <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
         <ToastArea>

@@ -133,3 +133,4 @@ export { Pipeline, Stage } from '@leafygreen-ui/pipeline';
 
 export { default as BSONValue } from './components/bson-value';
 export * as DocumentList from './components/document-list';
+export { KeylineCard } from './components/keyline-card';

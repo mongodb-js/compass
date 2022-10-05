@@ -43,7 +43,7 @@ const queryBarFormDarkStyles = css({
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
-  alignItems: 'flex-start',
+  alignItems: 'center',
   gap: spacing[2],
   paddingLeft: spacing[2],
 });

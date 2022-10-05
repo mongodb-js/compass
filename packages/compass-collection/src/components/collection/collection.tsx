@@ -2,13 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 import React, { useCallback, useEffect } from 'react';
-import {
-  TabNavBar,
-  css,
-  withTheme,
-  uiColors,
-  cx,
-} from '@mongodb-js/compass-components';
+import { TabNavBar, css } from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
 import type { CollectionStatsObject } from '../../modules/stats';
@@ -24,14 +18,6 @@ const collectionStyles = css({
   alignItems: 'stretch',
   height: '100%',
   width: '100%',
-});
-
-const collectionLightStyles = css({
-  background: uiColors.white,
-});
-
-const collectionDarkStyles = css({
-  backgroundColor: uiColors.gray.dark3,
 });
 
 const collectionContainerStyles = css({
@@ -54,7 +40,7 @@ type CollectionProps = {
   isClustered: boolean;
   isFLE: boolean;
   editViewName?: string;
-  sourceReadonly: boolean;
+  sourceReadonly?: boolean;
   sourceViewOn?: string;
   selectOrCreateTab: (options: any) => any;
   pipeline: Document[];
@@ -79,7 +65,6 @@ type CollectionProps = {
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
-  darkMode,
   namespace,
   isReadonly,
   isTimeSeries,
@@ -138,13 +123,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 
   return (
-    <div
-      className={cx(
-        collectionStyles,
-        darkMode ? collectionDarkStyles : collectionLightStyles
-      )}
-      data-testid="collection"
-    >
+    <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>
         <CollectionHeader
           globalAppRegistry={globalAppRegistry}
@@ -184,4 +163,4 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 };
 
-export default withTheme(Collection);
+export default Collection;

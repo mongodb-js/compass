@@ -31,7 +31,7 @@
 
 .schema {
   width: 100%;
-  padding: 15px;
+  padding: 0 16px;
   flex-grow: 1;
   overflow: auto;
 
@@ -74,7 +74,7 @@
     .schema-field {
       // .list-group-item;
       padding: 24px 0 0 0;
-      border-bottom: 3px solid @gray8;
+      margin-bottom: 8px;
       background: @pw;
       transition: all 250ms ease-out;
 
@@ -98,8 +98,7 @@
 
       .schema-field {
         // second level
-        border-bottom: 3px solid @gray8;
-        border-left: 24px solid @gray8;
+        margin-bottom: 4px;
         animation-duration: 250ms;
         position: relative;
         animation-name: fadein;
@@ -116,11 +115,10 @@
         }
 
         &:first-child {
-          border-top: 3px solid @gray8;
           margin-top: 24px;
         }
         &:last-child {
-          border-bottom: 3px solid @gray8;
+          margin-bottom: 4px;
         }
 
         .row {
