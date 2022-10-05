@@ -1,4 +1,5 @@
 import { ObjectId } from 'bson';
+import { CONFIRM_NEW } from './import-pipeline';
 
 /**
  * Id create action.
@@ -19,7 +20,7 @@ export const INITIAL_STATE = '';
  * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === CREATE_ID) {
+  if (action.type === CREATE_ID || action.type === CONFIRM_NEW) {
     return new ObjectId().toHexString();
   }
   return state;

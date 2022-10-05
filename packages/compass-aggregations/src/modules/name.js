@@ -1,7 +1,5 @@
-/**
- * Namespace changed action.
- */
-export const NAME_CHANGED = 'aggregations/name/NAME_CHANGED';
+import { CONFIRM_NEW } from './import-pipeline';
+import { SAVING_PIPELINE_APPLY } from './saving-pipeline';
 
 /**
  * The initial state.
@@ -17,20 +15,11 @@ export const INITIAL_STATE = '';
  * @returns {String} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === NAME_CHANGED) {
+  if (action.type === SAVING_PIPELINE_APPLY) {
     return action.name;
+  }
+  if (action.type === CONFIRM_NEW) {
+    return INITIAL_STATE;
   }
   return state;
 }
-
-/**
- * Action creator for name changed events.
- *
- * @param {String} name - The name value.
- *
- * @returns {Object} The name changed action.
- */
-export const nameChanged = (name) => ({
-  type: NAME_CHANGED,
-  name: name
-});

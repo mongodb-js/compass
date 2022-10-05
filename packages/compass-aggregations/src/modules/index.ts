@@ -66,41 +66,29 @@ import restorePipeline, {
   INITIAL_STATE as RESTORE_PIPELINE_STATE
 } from './restore-pipeline';
 import importPipeline, {
-  INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE,
-  CONFIRM_NEW,
-  createPipeline
+  INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE
 } from './import-pipeline';
 import appRegistry, {
   localAppRegistryEmit,
   globalAppRegistryEmit,
   INITIAL_STATE as APP_REGISTRY_STATE
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-import isOverviewOn, {
-  TOGGLE_OVERVIEW,
-  INITIAL_STATE as OVERVIEW_INITIAL_STATE
-} from './is-overview-on';
 import settings, {
-  APPLY_SETTINGS,
   INITIAL_STATE as SETTINGS_INITIAL_STATE
 } from './settings';
-import isFullscreenOn, {
-  INITIAL_STATE as FULLSCREEN_INITIAL_STATE
-} from './is-fullscreen-on';
 import savingPipeline, {
-  INITIAL_STATE as SAVING_PIPELINE_INITIAL_STATE,
-  SAVING_PIPELINE_APPLY
+  INITIAL_STATE as SAVING_PIPELINE_INITIAL_STATE
 } from './saving-pipeline';
 import outResultsFn, {
   INITIAL_STATE as OUT_RESULTS_FN_INITIAL_STATE
 } from './out-results-fn';
 import projections, {
   INITIAL_STATE as PROJECTIONS_INITIAL_STATE,
-  PROJECTIONS_CHANGED
 } from './projections';
 import isNewPipelineConfirm, {
   INITIAL_STATE as IS_NEW_PIPELINE_CONFIRM_STATE
 } from './is-new-pipeline-confirm';
-import { gatherProjections, generateStage } from './stage';
+import { generateStage } from './stage';
 import updateViewError, {
   INITIAL_STATE as UPDATE_VIEW_ERROR_INITIAL_STATE
 } from './update-view';
@@ -128,7 +116,8 @@ import indexes, {
 } from './indexes';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+
+const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { getDirectory } from '../utils/get-directory';
 import { PipelineStorage } from '../utils/pipeline-storage';
@@ -154,7 +143,6 @@ export const INITIAL_STATE = {
   collationString: COLLATION_STRING_INITIAL_STATE,
   isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
   isReadonly: IS_READONLY_INITIAL_STATE,
-  isOverviewOn: OVERVIEW_INITIAL_STATE,
   comments: COMMENTS_INITIAL_STATE,
   sample: SAMPLE_INITIAL_STATE,
   autoPreview: AUTO_PREVIEW_INITIAL_STATE,
@@ -165,7 +153,6 @@ export const INITIAL_STATE = {
   limit: LIMIT_INITIAL_STATE,
   largeLimit: LARGE_LIMIT_INITIAL_STATE,
   maxTimeMS: MAX_TIME_MS_INITIAL_STATE,
-  isFullscreenOn: FULLSCREEN_INITIAL_STATE,
   savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
   projections: PROJECTIONS_INITIAL_STATE as Projection[],
   outResultsFn: OUT_RESULTS_FN_INITIAL_STATE as null | ((namespace: string) => void),
@@ -206,8 +193,6 @@ export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
  */
 export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
 
-export const NEW_FROM_PASTE = 'aggregations/NEW_FROM_PASTE';
-
 /**
  * The main application reducer.
  *
@@ -238,12 +223,10 @@ const appReducer = combineReducers({
   isAtlasDeployed,
   isReadonly,
   importPipeline,
-  isOverviewOn,
   settings,
   limit,
   largeLimit,
   maxTimeMS,
-  isFullscreenOn,
   savingPipeline,
   projections,
   editViewName,
@@ -377,137 +360,6 @@ const createClonedPipeline = (state: RootState): RootState => ({
 });
 
 /**
- * Confirm importing the new pipeline.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The new state.
- */
-const doConfirmNewFromText = (state: RootState): RootState => {
-  const pipe = createPipeline(state.importPipeline.text);
-  const error = pipe.length > 0 ? pipe[0].syntaxError : null;
-  if (!error) {
-    track('Aggregation Imported From Text', { num_stages: pipe.length });
-  }
-  return {
-    ...state,
-    name: '',
-    collationString: COLLATION_STRING_INITIAL_STATE,
-    id: new ObjectId().toHexString(),
-    pipeline: error ? [] : pipe,
-    importPipeline: {
-      isOpen: error ? true : false,
-      isConfirmationNeeded: false,
-      text: error ? state.importPipeline.text : '',
-      syntaxError: error
-    }
-  };
-};
-
-/**
- * When <StageEditor /> is empty and you paste
- * what could be an aggregation pipeline.
- *
- * @see `newPipelineFromPaste()`
- * @param {Object} state
- * @param {Object} action
- * @returns {Object}
- */
-const doNewFromPastedText = (state: RootState, action: AnyAction): RootState => {
-  const pipe = createPipeline(action.text);
-  const error = pipe.length > 0 ? pipe[0].syntaxError : null;
-  /**
-   * Do nothing if the text is not a valid pipeline.
-   */
-  if (error) {
-    return state;
-  }
-
-  /**
-   * Do nothing if you have more than default first stage.
-   */
-  if (state.pipeline.length > 1) {
-    return state;
-  }
-
-  return {
-    ...state,
-    name: '',
-    collationString: COLLATION_STRING_INITIAL_STATE,
-    id: new ObjectId().toHexString(),
-    pipeline: pipe,
-    importPipeline: {
-      isOpen: false,
-      isConfirmationNeeded: false,
-      text: action.text,
-      syntaxError: error
-    }
-  };
-};
-
-/**
- * Toggles whether agg pipeline builder is in overview mode.
- * @param {Object} state
- * @returns {Object} The new state.
- */
-const doToggleOverview = (state: RootState): RootState => {
-  const newState = {
-    ...state,
-    isOverviewOn: !state.isOverviewOn
-  };
-
-  if (newState.pipeline) {
-    newState.pipeline.forEach((pipe) => {
-      pipe.isExpanded = !newState.isOverviewOn;
-    });
-  }
-
-  if (newState.inputDocuments) {
-    newState.inputDocuments.isExpanded = !newState.isOverviewOn;
-  }
-  return newState;
-};
-
-const doApplySettings = (state: RootState): RootState => {
-  const newState = {
-    ...state,
-    limit: state.settings.sampleSize,
-    largeLimit: state.settings.limit,
-    comments: state.settings.isCommentMode,
-    maxTimeMS: state.settings.maxTimeMS
-  };
-
-  newState.settings.isDirty = false;
-  return newState;
-};
-
-const doApplySavingPipeline = (state: RootState): RootState => {
-  const newState = {
-    ...state,
-    name: state.savingPipeline.name
-  };
-
-  newState.savingPipeline.isOpen = false;
-  return newState;
-};
-
-const doProjectionsChanged = (state: RootState): RootState => {
-  const newState = {
-    ...state,
-    projections: [] as Projection[],
-  };
-
-  newState.pipeline.map((_stage, index) => {
-    _stage.projections = gatherProjections(_stage, null);
-    _stage.projections.map((projection) => {
-      projection.index = index;
-      newState.projections.push(projection);
-    });
-  });
-  return newState;
-};
-
-/**
  * The action to state modifier mappings.
  */
 const MAPPINGS = {
@@ -515,13 +367,7 @@ const MAPPINGS = {
   [RESTORE_PIPELINE]: doRestorePipeline,
   [CLEAR_PIPELINE]: doClearPipeline,
   [NEW_PIPELINE]: createNewPipeline,
-  [CLONE_PIPELINE]: createClonedPipeline,
-  [CONFIRM_NEW]: doConfirmNewFromText,
-  [TOGGLE_OVERVIEW]: doToggleOverview,
-  [APPLY_SETTINGS]: doApplySettings,
-  [SAVING_PIPELINE_APPLY]: doApplySavingPipeline,
-  [PROJECTIONS_CHANGED]: doProjectionsChanged,
-  [NEW_FROM_PASTE]: doNewFromPastedText,
+  [CLONE_PIPELINE]: createClonedPipeline
 };
 
 /**
@@ -533,7 +379,7 @@ const MAPPINGS = {
  * @returns The new state.
  */
 const rootReducer: Reducer<RootState, AnyAction> = (state, action): RootState => {
-  const fn = MAPPINGS[action.type];
+  const fn = (MAPPINGS as any)[action.type];
   return (state && fn) ? fn(state, action) : appReducer(state, action);
 };
 
@@ -586,24 +432,6 @@ export const newPipeline = (): AnyAction => ({
 export const clonePipeline = (): AnyAction => ({
   type: CLONE_PIPELINE
 });
-
-const pipelineActionFromPaste = (text: string): AnyAction => ({
-  type: NEW_FROM_PASTE,
-  text: text
-});
-
-/**
- * Action creator <StageEditor /> calls if empty and you paste
- * what could be an aggregation pipeline.
- * @param {String} text
- * @returns {Object}
- */
-export const newPipelineFromPaste = (text: string): ThunkAction<void, RootState, void, AnyAction> => {
-  return (dispatch) => {
-    dispatch(pipelineActionFromPaste(text));
-    dispatch(globalAppRegistryEmit('compass:aggregations:pipeline-imported'));
-  };
-};
 
 /**
  * Get the delete action.

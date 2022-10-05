@@ -1,7 +1,4 @@
-/**
- * Comments toggled action name.
- */
-export const TOGGLE_COMMENTS = 'aggregations/comments/TOGGLE_COMMENTS';
+import { APPLY_SETTINGS } from './settings';
 
 /**
  * The initial state.
@@ -17,17 +14,8 @@ export const INITIAL_STATE = true;
  * @returns {Boolean} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === TOGGLE_COMMENTS) {
-    return !state;
+  if (action.type === APPLY_SETTINGS) {
+    return action.settings.isCommentMode ?? state
   }
   return state;
 }
-
-/**
- * Action creator for comment toggling.
- *
- * @returns {Object} The toggle comments action.
- */
-export const toggleComments = () => ({
-  type: TOGGLE_COMMENTS
-});
