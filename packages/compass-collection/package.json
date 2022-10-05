@@ -104,7 +104,6 @@
     "redux": "^4.2.0",
     "redux-thunk": "^2.3.0",
     "rimraf": "^3.0.2",
-    "semver": "^5.4.1",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"
   }

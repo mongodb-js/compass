@@ -40,7 +40,7 @@ type CollectionProps = {
   isClustered: boolean;
   isFLE: boolean;
   editViewName?: string;
-  sourceReadonly: boolean;
+  sourceReadonly?: boolean;
   sourceViewOn?: string;
   selectOrCreateTab: (options: any) => any;
   pipeline: Document[];
