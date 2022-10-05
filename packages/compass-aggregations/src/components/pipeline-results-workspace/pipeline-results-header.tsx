@@ -3,10 +3,15 @@ import { css, spacing } from '@mongodb-js/compass-components';
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
+import { connect } from 'react-redux';
+import type { RootState } from '../../modules';
+import { changeViewType } from '../../modules/aggregation';
+import { isEmptyishStage } from '../../modules/stage';
 
 type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
-  resultsView: ResultsViewType;
+  resultsViewType: ResultsViewType;
+  isMergeOrOutPipeline: boolean;
 };
 
 const controlsStyles = css({
@@ -17,13 +22,17 @@ const controlsStyles = css({
 });
 
 export const PipelineResultsHeader: React.FunctionComponent<PipelineResultsHeaderProps> =
-  ({ onChangeResultsView, resultsView }) => {
+  ({ onChangeResultsView, resultsViewType, isMergeOrOutPipeline }) => {
+    if (isMergeOrOutPipeline) {
+      return null;
+    }
+
     return (
       <div data-testid="pipeline-results-header">
         <div className={controlsStyles}>
           <PipelinePagination />
           <PipelineResultsViewControls
-            value={resultsView}
+            value={resultsViewType}
             onChange={onChangeResultsView}
           />
         </div>
@@ -31,4 +40,23 @@ export const PipelineResultsHeader: React.FunctionComponent<PipelineResultsHeade
     );
   };
 
-export default PipelineResultsHeader;
+const mapState = ({
+  pipeline,
+  aggregation: { resultsViewType }
+}: RootState) => {
+  const resultPipeline = pipeline.filter(
+    (stageState) => !isEmptyishStage(stageState)
+  );
+  const lastStage = resultPipeline[resultPipeline.length - 1];
+  return {
+    resultsViewType,
+    isMergeOrOutPipeline: ['$merge', '$out'].includes(lastStage?.stageOperator),
+  };
+};
+
+const mapDispatch = {
+  onChangeResultsView: changeViewType
+};
+
+export default connect(mapState, mapDispatch)(PipelineResultsHeader);
+

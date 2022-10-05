@@ -6,7 +6,6 @@ import {
   ThemeProvider,
   ToastArea,
   uiColors,
-  compassUIColors,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -56,7 +55,7 @@ const homeContainerStyles = css({
 });
 
 const globalLightThemeStyles = css({
-  backgroundColor: compassUIColors.gray8,
+  backgroundColor: uiColors.white,
   color: uiColors.gray.dark2,
 });
 

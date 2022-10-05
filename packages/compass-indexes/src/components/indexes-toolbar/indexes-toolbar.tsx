@@ -24,6 +24,7 @@ const toolbarButtonsContainer = css({
   justifyContent: 'flex-end',
 });
 
+const errorStyles = css({ marginTop: spacing[2] });
 const spinnerStyles = css({ marginRight: spacing[2] });
 
 const createIndexButtonContainerStyles = css({
@@ -111,10 +112,13 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       </div>
       {isReadonlyView ? (
         <WarningSummary
+          className={errorStyles}
           warnings={['Readonly views may not contain indexes.']}
         />
       ) : (
-        !!errorMessage && <ErrorSummary errors={[errorMessage]} />
+        !!errorMessage && (
+          <ErrorSummary className={errorStyles} errors={[errorMessage]} />
+        )
       )}
     </div>
   );
