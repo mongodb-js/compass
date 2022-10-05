@@ -5,7 +5,8 @@ import React, { useCallback, useEffect } from 'react';
 import { TabNavBar, css } from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
-import type { CollectionStatsObject } from '../../modules/stats';
+import { getCollectionStatsInitialState } from '../../modules/stats';
+import type { CollectionStatsMap } from '../../modules/stats';
 
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
 
@@ -61,7 +62,7 @@ type CollectionProps = {
     id: string;
   };
   scopedModals: any[];
-  stats: CollectionStatsObject;
+  stats: CollectionStatsMap;
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
@@ -138,7 +139,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           selectOrCreateTab={selectOrCreateTab}
           pipeline={pipeline}
           sourceName={sourceName}
-          stats={stats}
+          stats={stats[namespace] ?? getCollectionStatsInitialState()}
         />
         <TabNavBar
           data-testid="collection-tabs"

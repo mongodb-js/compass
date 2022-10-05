@@ -2,20 +2,10 @@ import type { AnyAction } from 'redux';
 import type Collection from 'mongodb-collection-model';
 import numeral from 'numeral';
 
-/**
- * The prefix.
- */
-const PREFIX = 'collection';
-
-/**
- * Collection details updated action name.
- */
-export const UPDATE_COLLECTION_DETAILS = `${PREFIX}/stats/UPDATE_COLLECTION_DETAILS`;
-
-/**
- * Collection details reset action name.
- */
-export const RESET_COLLECTION_DETAILS = `${PREFIX}/stats/RESET_COLLECTION_DETAILS`;
+export enum ActionTypes {
+  UpdateCollectionDetails = 'collection/stats/UPDATE_COLLECTION_DETAILS',
+  ResetCollectionDetails = 'collection/stats/RESET_COLLECTION_DETAILS',
+}
 
 /**
  * Invalid stats.
@@ -30,6 +20,27 @@ export interface CollectionStatsObject {
   totalIndexSize: string;
   avgIndexSize: string;
 }
+
+export type CollectionStatsMap = {
+  [namespace: string]: CollectionStatsObject;
+};
+
+type UpdateCollectionDetailsAction = {
+  type: ActionTypes.UpdateCollectionDetails;
+  namespace: string;
+  stats: CollectionStatsObject;
+};
+
+type ResetCollectionDetailsAction = {
+  type: ActionTypes.ResetCollectionDetails;
+  namespace: string;
+};
+
+export type Actions =
+  | UpdateCollectionDetailsAction
+  | ResetCollectionDetailsAction;
+
+type State = CollectionStatsMap;
 
 const avg = (size: number, count: number) => {
   if (count <= 0) {
@@ -50,7 +61,7 @@ const format = (value: any, format = 'a') => {
   return numeral(value).format(precision + format);
 };
 
-export const getInitialState = (): CollectionStatsObject => ({
+export const getCollectionStatsInitialState = (): CollectionStatsObject => ({
   documentCount: INVALID,
   storageSize: INVALID,
   avgDocumentSize: INVALID,
@@ -59,11 +70,14 @@ export const getInitialState = (): CollectionStatsObject => ({
   avgIndexSize: INVALID,
 });
 
-export const resetCollectionDetails = (): { type: string } => {
-  return {
-    type: RESET_COLLECTION_DETAILS,
-  };
-};
+export const getInitialState = (): State => ({});
+
+export const resetCollectionDetails = (
+  namespace: string
+): ResetCollectionDetailsAction => ({
+  type: ActionTypes.ResetCollectionDetails,
+  namespace,
+});
 
 /**
  * Action creator for clearing tabs.
@@ -71,11 +85,9 @@ export const resetCollectionDetails = (): { type: string } => {
  * @returns {Object} The action.
  */
 export const updateCollectionDetails = (
-  collectionModel: Collection
-): {
-  type: string;
-  stats: CollectionStatsObject;
-} => {
+  collectionModel: Collection,
+  namespace: string
+): UpdateCollectionDetailsAction => {
   const {
     document_count,
     index_count,
@@ -85,7 +97,7 @@ export const updateCollectionDetails = (
     storage_size,
     free_storage_size,
   } = collectionModel;
-  let stats = getInitialState();
+  let stats = getCollectionStatsInitialState();
 
   if (!['initial', 'fetching', 'error'].includes(status)) {
     stats = {
@@ -99,7 +111,8 @@ export const updateCollectionDetails = (
   }
 
   return {
-    type: UPDATE_COLLECTION_DETAILS,
+    type: ActionTypes.UpdateCollectionDetails,
+    namespace,
     stats,
   };
 };
@@ -112,16 +125,21 @@ export const updateCollectionDetails = (
  *
  * @returns {any} The new state.
  */
-const reducer = (
-  state = getInitialState(),
-  action: AnyAction
-): CollectionStatsObject => {
-  if (action.type === UPDATE_COLLECTION_DETAILS) {
-    return action.stats;
-  } else if (action.type === RESET_COLLECTION_DETAILS) {
-    return getInitialState();
+const reducer = (state = getInitialState(), action: AnyAction): State => {
+  switch (action.type) {
+    case ActionTypes.UpdateCollectionDetails:
+      return {
+        ...state,
+        [action.namespace]: action.stats,
+      };
+    case ActionTypes.ResetCollectionDetails:
+      return {
+        ...state,
+        [action.namespace]: getCollectionStatsInitialState(),
+      };
+    default:
+      return state;
   }
-  return state;
 };
 
 export default reducer;

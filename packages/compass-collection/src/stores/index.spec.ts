@@ -52,7 +52,22 @@ describe('Collection Store', function () {
         const collection = { ns: 'foo.baz' };
         dispatchSpy.resetHistory();
         instance.emit('change:collections.status', collection, 'ready');
-        expect(dispatchSpy.args).to.deep.equal([]);
+        expect(dispatchSpy.args).to.deep.equal([
+          [
+            {
+              namespace: 'foo.bar',
+              stats: {
+                avgDocumentSize: 'N/A',
+                avgIndexSize: 'N/A',
+                documentCount: 'N/A',
+                indexCount: 'N/A',
+                storageSize: 'N/A',
+                totalIndexSize: 'N/A',
+              },
+              type: 'collection/stats/UPDATE_COLLECTION_DETAILS',
+            },
+          ],
+        ]);
       });
 
       it('responds to instance change:collections.status', function () {
@@ -60,24 +75,17 @@ describe('Collection Store', function () {
 
         const collection = { ns: 'foo.bar' };
 
-        expect(store.getState().stats).to.deep.equal({
-          avgDocumentSize: 'N/A',
-          avgIndexSize: 'N/A',
-          documentCount: 'N/A',
-          indexCount: 'N/A',
-          storageSize: 'N/A',
-          totalIndexSize: 'N/A',
-        });
+        expect(store.getState().stats).to.deep.equal({});
 
         instance.emit(
           'change:collections.status',
           { ...collection, document_count: 1 },
           'ready'
         );
-        expect(store.getState().stats.documentCount).to.equal('1');
+        expect(store.getState().stats['foo.bar'].documentCount).to.equal('1');
 
         instance.emit('change:collections.status', collection, 'error');
-        expect(store.getState().stats.documentCount).to.equal('N/A');
+        expect(store.getState().stats['foo.bar'].documentCount).to.equal('N/A');
       });
 
       it('responds to instance.dataLake change:isDataLake', function () {

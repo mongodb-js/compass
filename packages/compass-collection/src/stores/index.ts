@@ -104,7 +104,7 @@ export type RootState = ReturnType<typeof appReducer>;
  *
  * @returns {Object} The new state.
  */
-const rootReducer = (state: any, action: AnyAction): any => {
+const rootReducer = (state: any, action: AnyAction) => {
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : appReducer(state, action);
 };
@@ -138,15 +138,12 @@ store.onActivated = (appRegistry: AppRegistry) => {
     instance.on(
       'change:collections.status',
       (collectionModel: Collection, status: string) => {
-        const { namespace } = store.getState();
-        if (collectionModel.ns !== namespace) {
-          return;
-        }
+        const { namespace } = store.getState() as RootState;
         if (status === 'ready') {
-          store.dispatch(updateCollectionDetails(collectionModel));
+          store.dispatch(updateCollectionDetails(collectionModel, namespace));
         }
         if (status === 'error') {
-          store.dispatch(resetCollectionDetails());
+          store.dispatch(resetCollectionDetails(namespace));
         }
       }
     );
@@ -199,7 +196,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
       return;
     }
 
-    store.dispatch(updateCollectionDetails(collectionModel as Collection));
+    store.dispatch(updateCollectionDetails(collectionModel as Collection, ns));
 
     store.dispatch(
       createNewTab({
@@ -245,7 +242,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
       return;
     }
 
-    store.dispatch(updateCollectionDetails(collectionModel as Collection));
+    store.dispatch(updateCollectionDetails(collectionModel as Collection, ns));
 
     store.dispatch(
       selectOrCreateTab({
@@ -275,7 +272,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
    *
    * @param {String} namespace - The namespace.
    */
-  appRegistry.on('collection-dropped', (namespace) => {
+  appRegistry.on('collection-dropped', (namespace: string) => {
     store.dispatch(collectionDropped(namespace));
   });
 
@@ -284,7 +281,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
    *
    * @param {String} name - The name.
    */
-  appRegistry.on('database-dropped', (name) => {
+  appRegistry.on('database-dropped', (name: string) => {
     store.dispatch(databaseDropped(name));
   });
 
