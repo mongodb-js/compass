@@ -65,3 +65,12 @@ export async function raceWithAbort<T>(promise: Promise<T>, signal: AbortSignal)
     }
   }
 }
+
+export async function cancellableWait(ms: number, signal: AbortSignal) {
+  await raceWithAbort(
+    new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    }),
+    signal
+  );
+}

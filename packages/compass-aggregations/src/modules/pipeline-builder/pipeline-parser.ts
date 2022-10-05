@@ -1,5 +1,4 @@
 import * as babelParser from '@babel/parser';
-import babelTraverse from '@babel/traverse';
 import babelGenerate from '@babel/generator';
 import * as t from '@babel/types';
 import prettier from 'prettier';
@@ -23,15 +22,18 @@ type StageLike = t.ObjectExpression & {
   properties: [t.ObjectProperty & { key: t.Identifier | t.StringLiteral }];
 };
 
-export function isStageLike(node: t.Node): node is StageLike {
+export function isStageLike(node?: t.Node | null, loose = false): node is StageLike {
   return (
+    !!node &&
     node.type === 'ObjectExpression' &&
     node.properties.length === 1 &&
     node.properties[0].type === 'ObjectProperty' &&
+    node.properties[0].key &&
     ((node.properties[0].key.type === 'Identifier' &&
       node.properties[0].key.name.startsWith('$')) ||
       (node.properties[0].key.type === 'StringLiteral' &&
-        node.properties[0].key.value.startsWith('$')))
+        node.properties[0].key.value.startsWith('$'))) &&
+    (loose || node.properties[0].value != null)
   );
 }
 
@@ -58,7 +60,13 @@ export function getStageOperatorFromNode(node: StageLike): string {
 }
 
 export function getStageValueFromNode(node: StageLike): string {
-  return generate(node.properties[0].value);
+  const stageAst = node.properties[0].value;
+  const stageTrailingComments = node.properties[0].trailingComments;
+  // If the stage value has trailing comments
+  if (stageTrailingComments) {
+    stageAst.trailingComments = (stageAst.trailingComments ?? []).concat(stageTrailingComments)
+  }
+  return generate(stageAst);
 }
 
 export function assertStageNode(node: t.Node): asserts node is StageLike {
@@ -67,7 +75,9 @@ export function assertStageNode(node: t.Node): asserts node is StageLike {
   }
   throw new SyntaxError(
     node.type === 'ObjectExpression'
-      ? 'A pipeline stage specification object must contain exactly one field.'
+      ? (node.properties[0] as t.ObjectProperty | undefined)?.key == null
+        ? 'A pipeline stage specification object must contain exactly one field.'
+        : 'Stage value can not be empty'
       : 'Each element of the pipeline array must be an object'
   );
 }
@@ -141,13 +151,13 @@ function extractStagesFromComments(
   for (const group of groups) {
     const lines: Line[] = Array.isArray(group)
       ? group.map((comment) => {
-          return { value: comment.value, node: comment };
-        })
+        return { value: comment.value, node: comment };
+      })
       : group.value.split('\n').map((line) => {
-          // Block comments usually have every line prepended by a *, we will
-          // try to account for that
-          return { value: line.replace(/^\s*\*/, ''), node: group };
-        });
+        // Block comments usually have every line prepended by a *, we will
+        // try to account for that
+        return { value: line.replace(/^\s*\*/, ''), node: group };
+      });
     const parser = new StageParser();
     let seenComments: t.Comment[] = [];
     for (const line of lines) {
@@ -183,72 +193,55 @@ function extractStagesFromNode(node: t.Expression): t.Expression[] {
   return [...leadingStages, node, ...trailingStages];
 }
 
+type ParseResponse = {
+  root: t.ArrayExpression;
+  stages: t.Expression[];
+};
+
+type ValidateResponse = {
+  root: t.ArrayExpression | null;
+  errors: SyntaxError[];
+};
+
 export class PipelineParser {
-  // Parse source to stages
-  static parse(source: string): {
-    root: t.ArrayExpression;
-    stages: t.Expression[];
-  } {
+  static parse(source: string): ParseResponse {
     const stages: t.Expression[] = [];
+    const root = PipelineParser._parseStringToRoot(source);
+    // Inner comments will only be available here if there is no other
+    // elements in the array, in our case it might mean that all stages
+    // are disabled
+    if (root.elements.length === 0 && root.innerComments?.length) {
+      const [, _stages] = extractStagesFromComments(
+        root.innerComments
+      );
+      stages.push(..._stages);
+    }
+    root.elements.forEach((node) => {
+      stages.push(...extractStagesFromNode(node as t.Expression));
+    });
+    return { root, stages };
+  }
+
+  static _parseStringToRoot(source: string): t.ArrayExpression {
     const root = babelParser.parseExpression(source);
     if (root.type !== 'ArrayExpression') {
       throw new SyntaxError('Pipeline must be an array of aggregation stages');
     }
-    babelTraverse(root, {
-      noScope: true,
-      ArrayExpression: (path) => {
-        if (path.node !== root) {
-          return;
-        }
-        const [comments, stages] = extractStagesFromComments(
-          // Inner comments will only be available here if there is no other
-          // elements in the array, in our case it might mean that all stages
-          // are disabled
-          path.node.innerComments ?? []
-        );
-        path.node.innerComments = path.node.innerComments?.filter((node) => {
-          return !comments.has(node);
-        });
-        stages.push(...stages);
-      },
-      Expression: (path) => {
-        // We only care about direct children of array expression
-        if (path.parent !== root) {
-          return;
-        }
-        stages.push(...extractStagesFromNode(path.node));
-      }
-    });
-    return { root, stages };
+    return root;
   }
+  // todo: usage
   // Validate that source is parseable and all stages look like valid pipeline
   // stages
-  static validate(source: string): {
-    root: t.ArrayExpression | null;
-    errors: SyntaxError[];
-  } {
-    let root: babelParser.ParseResult<t.Expression> | null = null;
+  static validate(source: string): ValidateResponse {
+    let root: t.ArrayExpression | null = null;
     const errors: SyntaxError[] = [];
     try {
-      const _root = babelParser.parseExpression(source);
-      if (_root.type !== 'ArrayExpression') {
-        throw new SyntaxError(
-          'Pipeline must be an array of aggregation stages'
-        );
-      }
-      root = _root;
-      babelTraverse(root, {
-        noScope: true,
-        Expression: (path) => {
-          // We only care about direct children of array expression
-          if (path.parent !== root) {
-            return;
-          }
-          try {
-            assertStageNode(path.node);
-          } catch (e) {
-            errors.push(e as SyntaxError);
-          }
+      root = PipelineParser._parseStringToRoot(source);
+      root.elements.forEach(stage => {
+        try {
+          assertStageNode(stage as t.Expression);
+        } catch (e) {
+          errors.push(e as SyntaxError);
         }
       });
     } catch (e) {

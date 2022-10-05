@@ -1,20 +1,11 @@
 import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
-import { raceWithAbort } from '../../utils/cancellable-promise';
-
-async function cancellableWait(ms: number, signal: AbortSignal) {
-  await raceWithAbort(
-    new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    }),
-    signal
-  );
-}
+import { cancellableWait } from '../../utils/cancellable-promise';
 
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
-  constructor(private dataService: DataService) {}
+  constructor(private dataService: DataService) { }
   async getPreviewForStage(
     idx: number,
     namespace: string,
@@ -27,13 +18,15 @@ export class PipelinePreviewManager {
     const controller = new AbortController();
     this.queue.set(idx, controller);
     await cancellableWait(700, controller.signal);
-    return await aggregatePipeline({
+    const result = await aggregatePipeline({
       dataService: this.dataService,
       signal: controller.signal,
       namespace,
       pipeline,
       options
     });
+    this.queue.delete(idx);
+    return result;
   }
   clearQueue() {
     this.queue.forEach((controller) => {

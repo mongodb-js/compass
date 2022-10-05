@@ -21,9 +21,9 @@ function getStringFromStage(stage: Stage) {
   }`;
   return stage.disabled
     ? stageStr
-        .split('\n')
-        .map((line) => `// ${line}`)
-        .join('\n')
+      .split('\n')
+      .map((line) => `// ${line}`)
+      .join('\n')
     : stageStr;
 }
 
@@ -72,14 +72,16 @@ class Stage {
   }
 }
 
+export const DEFAULT_PIPELINE = '[\n  {}\n]';
+
 export class PipelineBuilder {
   source: string;
   node: t.ArrayExpression | null = null;
   stages: Stage[] = [];
-  syntaxError: SyntaxError | null = null;
+  syntaxError: SyntaxError[] = [];
   private previewManager: PipelinePreviewManager;
   constructor(
-    source = '[\n  {}\n]',
+    source = DEFAULT_PIPELINE,
     { dataService }: { dataService: DataService }
   ) {
     this.previewManager = new PipelinePreviewManager(dataService);
@@ -93,12 +95,11 @@ export class PipelineBuilder {
       this.stages = stages.map((node) => {
         return new Stage(node);
       });
-      // TODO: Make this an array of errors so that we can use ace-editor
-      // annotations and show all the errors
-      this.syntaxError =
-        this.stages.find((stage) => stage.syntaxError)?.syntaxError ?? null;
+      this.syntaxError = this.stages
+        .map((stage) => stage.syntaxError)
+        .filter(Boolean) as SyntaxError[];
     } catch (e) {
-      this.syntaxError = e as SyntaxError;
+      this.syntaxError = [e as SyntaxError];
     }
   }
   stagesToSource() {
@@ -112,15 +113,13 @@ export class PipelineBuilder {
       this.stages.map((stage) => stage.node)
     );
   }
-  resetSource(newVal: string) {
-    this.source = newVal;
+  reset() {
+    this.source = DEFAULT_PIPELINE;
     this.sourceToStages();
   }
   changeSource(newVal: string) {
     this.source = newVal;
-    const { root, errors } = PipelineParser.validate(this.source);
-    this.node = root;
-    this.syntaxError = errors[0] ?? null;
+    this.sourceToStages();
   }
   getStage(idx: number): Stage | undefined {
     return this.stages[idx];
@@ -140,23 +139,28 @@ export class PipelineBuilder {
     return stage;
   }
   getPipelineFromSource(): Document[] {
-    if (this.syntaxError) {
-      throw this.syntaxError;
+    if (this.syntaxError.length > 0) {
+      throw this.syntaxError[0];
     }
     return parseEJSON(this.source, { mode: 'loose' });
   }
   getPipelineFromStages(): Document[] {
-    const error = this.stages.find((stage) => stage.syntaxError);
-    if (error) {
-      throw error;
+    return this._getPipelineFromStages(this.stages);
+  }
+
+  private _getPipelineFromStages(stages: Stage[]): Document[] {
+    const stage = stages.find((stage) => stage.syntaxError);
+    if (stage) {
+      throw stage.syntaxError;
     }
-    const stages = this.stages
+    const _stages = stages
       .map((stage) => {
         return getStringFromStage(stage);
       })
       .join(',\n');
-    return parseEJSON(`[${stages}]`, { mode: 'loose' });
+    return parseEJSON(`[${_stages}\n]`, { mode: 'loose' });
   }
+
   getPreviewForPipeline(namespace: string, options: AggregateOptions) {
     const pipeline = this.getPipelineFromSource();
     return this.previewManager.getPreviewForStage(
@@ -171,10 +175,11 @@ export class PipelineBuilder {
     namespace: string,
     options: AggregateOptions
   ) {
+    const stages = this.stages.slice(0, idx + 1);
     return this.previewManager.getPreviewForStage(
       idx,
       namespace,
-      this.getPipelineFromStages(),
+      this._getPipelineFromStages(stages),
       options
     );
   }
