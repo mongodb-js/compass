@@ -123,7 +123,7 @@ describe('Aggregation Store', function() {
         });
 
         it('resets the app registry', function() {
-          expect(state.appRegistry).to.equal(INITIAL_STATE.appRegistry);
+          expect(state.appRegistry).to.deep.eq(INITIAL_STATE.appRegistry);
         });
 
         it('resets the comments', function() {
@@ -151,11 +151,11 @@ describe('Aggregation Store', function() {
         });
 
         it('resets the data service', function() {
-          expect(state.dataService).to.equal(INITIAL_STATE.dataService);
+          expect(state.dataService).to.deep.eq(INITIAL_STATE.dataService);
         });
 
         it('resets the fields', function() {
-          expect(state.fields).to.equal(INITIAL_STATE.fields);
+          expect(state.fields).to.deep.eq(INITIAL_STATE.fields);
         });
 
         it('resets the input douments', function() {
@@ -229,6 +229,8 @@ describe('Aggregation Store', function() {
         it('resets the rest of the state to initial state', function() {
           // eslint-disable-next-line no-unused-vars
           const { aggregationWorkspaceId, ...state } = store.getState();
+          // eslint-disable-next-line no-unused-vars
+          state.pipeline = state.pipeline.map(({ id, ...stage }) => stage);
           expect(state).to.deep.equal({
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
@@ -248,7 +250,8 @@ describe('Aggregation Store', function() {
             fields: INITIAL_STATE.fields,
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
-            pipeline: INITIAL_STATE.pipeline,
+            // eslint-disable-next-line no-unused-vars
+            pipeline: INITIAL_STATE.pipeline.map(({ id, ...stage }) => stage),
             isModified: INITIAL_STATE.isModified,
             isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
             isReadonly: INITIAL_STATE.isReadonly,
