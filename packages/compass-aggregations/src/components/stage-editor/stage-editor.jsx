@@ -16,16 +16,12 @@ class StageEditor extends Component {
     stageOperator: PropTypes.string,
     error: PropTypes.string,
     syntaxError: PropTypes.string,
-    runStage: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
     serverVersion: PropTypes.string.isRequired,
     fields: PropTypes.array.isRequired,
     stageChanged: PropTypes.func.isRequired,
     isValid: PropTypes.bool.isRequired,
-    setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -45,26 +41,6 @@ class StageEditor extends Component {
       EditorTextCompleter,
       this.getFieldsAndProjections(),
       this.props.stageOperator
-    );
-  }
-
-  /**
-   * Should the component update?
-   *
-   * @param {Object} nextProps - The next properties.
-   *
-   * @returns {Boolean} If the component should update.
-   */
-  shouldComponentUpdate(nextProps) {
-    return (
-      nextProps.stageOperator !== this.props.stageOperator ||
-      nextProps.error !== this.props.error ||
-      nextProps.syntaxError !== this.props.syntaxError ||
-      nextProps.index !== this.props.index ||
-      nextProps.serverVersion !== this.props.serverVersion ||
-      nextProps.fields.length !== this.props.fields.length ||
-      nextProps.projections.length !== this.props.projections.length ||
-      nextProps.isValid !== this.props.isValid
     );
   }
 
@@ -90,12 +66,7 @@ class StageEditor extends Component {
    * @param {String} value - The value of the stage.
    */
   onStageChange = (value) => {
-    if (this.props.stageOperator === null && value && value.charAt(0) === '[') {
-      this.props.newPipelineFromPaste(value);
-      this.props.runStage(0);
-      return;
-    }
-    this.props.stageChanged(value, this.props.index);
+    this.props.stageChanged(this.props.index, value);
   };
 
   /**
@@ -114,6 +85,7 @@ class StageEditor extends Component {
       fields,
       previouslyDefinedProjections
     );
+    console.log({fieldsAndProjections})
     return fieldsAndProjections;
   }
 

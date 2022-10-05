@@ -27,7 +27,30 @@ function getStringFromStage(stage: Stage) {
     : stageStr;
 }
 
-class Stage {
+function createStage({
+  key,
+  value
+}: { key?: string; value?: string } = {}): t.ObjectExpression {
+  return {
+    type: 'ObjectExpression',
+    properties: [
+      {
+        type: 'ObjectProperty',
+        ...(key && { key: { type: 'Identifier', name: key } }),
+        ...(value && { value: babelParser.parseExpression(value) }),
+        computed: false,
+        shorthand: false
+        // NB: This is not a completely valid object property: it might be
+        // missing either `key` or `value`, but for our purposes this is
+        // alright as @babel/generator can handle these values missing, so
+        // converting between text pipeline and stages pipeline will be still
+        // possible
+      } as t.ObjectProperty
+    ]
+  };
+}
+
+export class Stage {
   node: t.Expression;
   disabled = false;
   syntaxError: SyntaxError | null = null;
@@ -50,10 +73,13 @@ class Stage {
   changeValue(newVal: string) {
     this.value = newVal;
     try {
-      if (isStageLike(this.node)) {
+      if (!isStageLike(this.node, true)) {
+        this.node = createStage({ value: newVal });
+      } else {
         this.node.properties[0].value = babelParser.parseExpression(newVal);
-        this.syntaxError = null;
       }
+      assertStageNode(this.node);
+      this.syntaxError = null;
     } catch (e) {
       this.syntaxError = e as SyntaxError;
     }
@@ -61,8 +87,16 @@ class Stage {
 
   changeOperator(newOp: string) {
     this.operator = newOp;
-    if (isStageLike(this.node)) {
-      this.node.properties[0].key = { type: 'Identifier', name: newOp };
+    try {
+      if (!isStageLike(this.node, true)) {
+        this.node = createStage({ key: newOp });
+      } else {
+        this.node.properties[0].key = { type: 'Identifier', name: newOp };
+      }
+      assertStageNode(this.node);
+      this.syntaxError = null;
+    } catch (e) {
+      this.syntaxError = e as SyntaxError;
     }
   }
 
@@ -72,6 +106,8 @@ class Stage {
   }
 }
 
+const DEFAULT_SOURCE = '[\n  {}\n]'
+
 export class PipelineBuilder {
   source: string;
   node: t.ArrayExpression | null = null;
@@ -79,7 +115,7 @@ export class PipelineBuilder {
   syntaxError: SyntaxError | null = null;
   private previewManager: PipelinePreviewManager;
   constructor(
-    source = '[\n  {}\n]',
+    source = DEFAULT_SOURCE,
     { dataService }: { dataService: DataService }
   ) {
     this.previewManager = new PipelinePreviewManager(dataService);
@@ -112,7 +148,7 @@ export class PipelineBuilder {
       this.stages.map((stage) => stage.node)
     );
   }
-  resetSource(newVal: string) {
+  resetSource(newVal = DEFAULT_SOURCE) {
     this.source = newVal;
     this.sourceToStages();
   }
@@ -125,13 +161,13 @@ export class PipelineBuilder {
   getStage(idx: number): Stage | undefined {
     return this.stages[idx];
   }
-  addStage(idx: number): Stage {
+  addStage(after: number = this.stages.length - 1): Stage {
     const stage = new Stage();
-    this.stages.splice(idx, 0, stage);
+    this.stages.splice(after + 1, 0, stage);
     return stage;
   }
-  removeStage(idx: number): Stage {
-    const stage = this.stages.splice(idx, 1);
+  removeStage(at: number): Stage {
+    const stage = this.stages.splice(at, 1);
     return stage[0];
   }
   moveStage(from: number, to: number): Stage {
@@ -145,17 +181,17 @@ export class PipelineBuilder {
     }
     return parseEJSON(this.source, { mode: 'loose' });
   }
-  getPipelineFromStages(): Document[] {
-    const error = this.stages.find((stage) => stage.syntaxError);
+  getPipelineFromStages(stages = this.stages): Document[] {
+    const error = stages.find((stage) => stage.syntaxError);
     if (error) {
       throw error;
     }
-    const stages = this.stages
+    const stagesString = stages
       .map((stage) => {
         return getStringFromStage(stage);
       })
       .join(',\n');
-    return parseEJSON(`[${stages}]`, { mode: 'loose' });
+    return parseEJSON(`[${stagesString}]`, { mode: 'loose' });
   }
   getPreviewForPipeline(namespace: string, options: AggregateOptions) {
     const pipeline = this.getPipelineFromSource();
@@ -174,7 +210,7 @@ export class PipelineBuilder {
     return this.previewManager.getPreviewForStage(
       idx,
       namespace,
-      this.getPipelineFromStages(),
+      this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
       options
     );
   }

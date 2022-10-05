@@ -19,7 +19,6 @@ import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { AggregateOptions, Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { projectionsChanged } from './projections';
-import { setIsModified } from './is-modified';
 import type { AutoPreviewToggledAction } from './auto-preview';
 import { ActionTypes as AutoPreviewActionTypes } from './auto-preview';
 
@@ -555,7 +554,6 @@ export const stageChanged =
       stage: value
     });
     dispatch(projectionsChanged());
-    dispatch(setIsModified(true));
     dispatch(runStage(index));
   };
 

@@ -22,23 +22,14 @@ class ConfirmNewPipeline extends PureComponent {
 
   static propTypes = {
     isNewPipelineConfirm: PropTypes.bool.isRequired,
-    setIsNewPipelineConfirm: PropTypes.func.isRequired,
-    newPipeline: PropTypes.func.isRequired
+    onConfirm: PropTypes.func.isRequired
   }
 
   /**
    * Handles clicks on the `Confirm` button.
    */
   onConfirm = () => {
-    this.props.newPipeline();
-    this.onClose();
-  }
-
-  /**
-   * Closes the current modal.
-   */
-  onClose = () => {
-    this.props.setIsNewPipelineConfirm(false);
+    this.props.onConfirm();
   }
 
   /**

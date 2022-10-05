@@ -11,10 +11,20 @@ import StagePreview from '../stage-preview';
 import StagePreviewToolbar from '../stage-preview-toolbar';
 
 import styles from './stage.module.less';
+import { connect } from 'react-redux';
+import {
+  changeStageOperator,
+  changeStageValue,
+  changeStageCollapsed,
+  changeStageDisabled,
+  addStage,
+  removeStage
+} from '../../modules/pipeline-builder/stage-editor';
+import { openLink } from '../../modules/link';
 
 const DragHandleToolbar = sortableHandle((props) => {
-  return <StageEditorToolbar {...props}></StageEditorToolbar>
-})
+  return <StageEditorToolbar {...props}></StageEditorToolbar>;
+});
 
 const resizeableDirections = {
   top: false,
@@ -60,9 +70,7 @@ class Stage extends Component {
     isMissingAtlasOnlyStageSupport: PropTypes.bool,
     previewDocuments: PropTypes.array.isRequired,
     index: PropTypes.number.isRequired,
-    isCommenting: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
-    runStage: PropTypes.func.isRequired,
     runOutStage: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
     gotoMergeResults: PropTypes.func.isRequired,
@@ -71,41 +79,14 @@ class Stage extends Component {
     stageCollapseToggled: PropTypes.func.isRequired,
     stageAddedAfter: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
-    stageMoved: PropTypes.func.isRequired,
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
-    setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired,
-    isAtlasDeployed: PropTypes.bool
+    autocompleteFields: PropTypes.array.isRequired,
+    isAtlasDeployed: PropTypes.bool,
   };
-
-  /* eslint complexity: 0 */
-  shouldComponentUpdate(nextProps) {
-    const should = (
-      nextProps.stageOperator !== this.props.stageOperator ||
-      nextProps.error !== this.props.error ||
-      nextProps.syntaxError !== this.props.syntaxError ||
-      nextProps.isValid !== this.props.isValid ||
-      nextProps.isEnabled !== this.props.isEnabled ||
-      nextProps.isExpanded !== this.props.isExpanded ||
-      nextProps.isLoading !== this.props.isLoading ||
-      nextProps.isComplete !== this.props.isComplete ||
-      nextProps.isMissingAtlasOnlyStageSupport !== this.props.isMissingAtlasOnlyStageSupport ||
-      nextProps.index !== this.props.index ||
-      nextProps.isCommenting !== this.props.isCommenting ||
-      nextProps.isAutoPreviewing !== this.props.isAutoPreviewing ||
-      nextProps.serverVersion !== this.props.serverVersion ||
-      nextProps.fields.length !== this.props.fields.length ||
-      nextProps.projections.length !== this.props.projections.length ||
-      (this.props.stageOperator === '$out' &&
-        nextProps.stage !== this.props.stage)
-    );
-    return should;
-  }
 
   /**
    * What the current CSS opacity for the Stage HTMLElement should be.
@@ -133,11 +114,8 @@ class Stage extends Component {
           stageOperatorSelected={this.props.stageOperatorSelected}
           stageCollapseToggled={this.props.stageCollapseToggled}
           stageToggled={this.props.stageToggled}
-          runStage={this.props.runStage}
-          isCommenting={this.props.isCommenting}
           stageAddedAfter={this.props.stageAddedAfter}
           stageDeleted={this.props.stageDeleted}
-          setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion}
           isAutoPreviewing={this.props.isAutoPreviewing}
         />
@@ -148,16 +126,13 @@ class Stage extends Component {
             error={this.props.error}
             syntaxError={this.props.syntaxError}
             isValid={this.props.isValid}
-            runStage={this.props.runStage}
             index={this.props.index}
             serverVersion={this.props.serverVersion}
-            setIsModified={this.props.setIsModified}
             isAutoPreviewing={this.props.isAutoPreviewing}
-            fields={this.props.fields}
             stageChanged={this.props.stageChanged}
+            fields={this.props.fields}
             projections={this.props.projections}
-            projectionsChanged={this.props.projectionsChanged}
-            newPipelineFromPaste={this.props.newPipelineFromPaste}
+            autocompleteFields={this.props.autocompleteFields}
           />
         )}
       </>
@@ -252,4 +227,50 @@ class Stage extends Component {
   }
 }
 
-export default Stage;
+export default connect(
+  (state, ownProps) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    return {
+      // Derived from stage state
+      error: stage.serverError?.message,
+      syntaxError: stage.syntaxError?.message,
+      isValid: !stage.syntaxError,
+      isEnabled: !stage.disabled,
+      isExpanded: !stage.collapsed,
+      stage: stage.value ?? '',
+      stageOperator: stage.stageOperator,
+      isLoading: stage.loading,
+      isComplete: Boolean(
+        !stage.loading && !stage.serverError && stage.previewDocs
+      ),
+      previewDocuments: stage.previewDocs ?? [],
+      // TODO: Derive from isAtlas and serverError
+      isMissingAtlasOnlyStageSupport: false,
+      autocompleteFields: [],
+
+      // General plugin state
+      env: state.env,
+      isTimeSeries: state.isTimeSeries,
+      isReadonly: state.isReadonly,
+      sourceName: state.sourceName,
+      index: ownProps.index,
+      isAutoPreviewing: state.autoPreview,
+      serverVersion: state.serverVersion,
+      fields: state.fields,
+      projections: state.projections,
+      isAtlasDeployed: state.isAtlasDeployed
+    };
+  },
+  {
+    runOutStage: () => {},
+    gotoOutResults: () => {},
+    gotoMergeResults: () => {},
+    stageChanged: changeStageValue,
+    stageCollapseToggled: changeStageCollapsed,
+    stageAddedAfter: addStage,
+    stageDeleted: removeStage,
+    stageOperatorSelected: changeStageOperator,
+    stageToggled: changeStageDisabled,
+    openLink: openLink
+  }
+)(React.memo(Stage));

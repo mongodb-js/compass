@@ -5,7 +5,7 @@ import { ObjectId } from 'bson';
 import isEmpty from 'lodash.isempty';
 import fs from 'fs';
 import path from 'path';
-// import * as builder from './pipeline-builder/pipeline-builder'
+import pipelineBuilder from './pipeline-builder';
 
 import dataService, { INITIAL_STATE as DS_INITIAL_STATE } from './data-service';
 import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
@@ -149,14 +149,18 @@ export const INITIAL_STATE = {
   namespace: NS_INITIAL_STATE,
   env: ENV_INITIAL_STATE,
   isTimeSeries: IS_TIME_SERIES_INITIAL_STATE,
+  isReadonly: IS_READONLY_INITIAL_STATE,
+  sourceName: SOURCE_NAME_INITIAL_STATE,
   serverVersion: SV_INITIAL_STATE,
+  isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
+  outResultsFn: OUT_RESULTS_FN_INITIAL_STATE as null | ((namespace: string) => void),
+  isDataLake: DATALAKE_INITIAL_STATE,
+  
   pipeline: PIPELINE_INITIAL_STATE,
   savedPipeline: SP_INITIAL_STATE,
   restorePipeline: RESTORE_PIPELINE_STATE,
   name: NAME_INITIAL_STATE,
   collationString: COLLATION_STRING_INITIAL_STATE,
-  isAtlasDeployed: IS_ATLAS_DEPLOYED_INITIAL_STATE,
-  isReadonly: IS_READONLY_INITIAL_STATE,
   isOverviewOn: OVERVIEW_INITIAL_STATE,
   comments: COMMENTS_INITIAL_STATE,
   sample: SAMPLE_INITIAL_STATE,
@@ -171,16 +175,13 @@ export const INITIAL_STATE = {
   isFullscreenOn: FULLSCREEN_INITIAL_STATE,
   savingPipeline: SAVING_PIPELINE_INITIAL_STATE,
   projections: PROJECTIONS_INITIAL_STATE as Projection[],
-  outResultsFn: OUT_RESULTS_FN_INITIAL_STATE as null | ((namespace: string) => void),
   editViewName: EDIT_VIEW_NAME_INITIAL_STATE,
-  sourceName: SOURCE_NAME_INITIAL_STATE,
   isNewPipelineConfirm: IS_NEW_PIPELINE_CONFIRM_STATE,
   updateViewError: UPDATE_VIEW_ERROR_INITIAL_STATE,
   aggregation: AGGREGATION_INITIAL_STATE,
   workspace: WORKSPACE_INITIAL_STATE,
   countDocuments: COUNT_INITIAL_STATE,
   explain: EXPLAIN_INITIAL_STATE,
-  isDataLake: DATALAKE_INITIAL_STATE,
   indexes: INDEXES_INITIAL_STATE,
 };
 
@@ -221,6 +222,7 @@ export const MODIFY_VIEW = 'aggregations/MODIFY_VIEW';
  * @returns {Function} The reducer function.
  */
 const appReducer = combineReducers({
+  pipelineBuilder,
   appRegistry,
   comments,
   sample,
@@ -275,9 +277,10 @@ export type RootState = ReturnType<typeof appReducer>;
  * @returns {Object} The new state.
  */
 const doNamespaceChanged = (state: RootState, action: AnyAction) => {
-
   const newState = {
     ...INITIAL_STATE,
+    // TODO: handle reset event
+    pipelineBuilder: state.pipelineBuilder,
     aggregationWorkspaceId: state.aggregationWorkspaceId,
     env: state.env,
     isTimeSeries: state.isTimeSeries,
@@ -299,6 +302,8 @@ const doNamespaceChanged = (state: RootState, action: AnyAction) => {
  */
 const doReset = (state: RootState) => ({
   ...INITIAL_STATE,
+  // TODO: handle reset event
+  pipelineBuilder: state.pipelineBuilder,
   aggregationWorkspaceId: state.aggregationWorkspaceId
 });
 
@@ -377,19 +382,22 @@ const doClearPipeline = (state: RootState): RootState => ({
  */
 const createNewPipeline = (state: RootState): RootState => ({
   ...INITIAL_STATE,
-  aggregationWorkspaceId: state.aggregationWorkspaceId,
+  // TODO: handle reset event
   appRegistry: state.appRegistry,
+  dataService: state.dataService,
+  fields: state.fields,
+  inputDocuments: state.inputDocuments,
   namespace: state.namespace,
   env: state.env,
   isTimeSeries: state.isTimeSeries,
   isReadonly: state.isReadonly,
   sourceName: state.sourceName,
-  fields: state.fields,
   serverVersion: state.serverVersion,
-  dataService: state.dataService,
   isAtlasDeployed: state.isAtlasDeployed,
   outResultsFn: state.outResultsFn,
-  inputDocuments: state.inputDocuments
+
+  aggregationWorkspaceId: state.aggregationWorkspaceId,
+  pipelineBuilder: state.pipelineBuilder,
 });
 
 /**
@@ -553,6 +561,7 @@ const doProjectionsChanged = (state: RootState): RootState => {
       newState.projections.push(projection);
     });
   });
+
   return newState;
 };
 

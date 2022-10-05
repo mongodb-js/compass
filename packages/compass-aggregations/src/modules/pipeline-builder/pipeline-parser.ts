@@ -23,15 +23,18 @@ type StageLike = t.ObjectExpression & {
   properties: [t.ObjectProperty & { key: t.Identifier | t.StringLiteral }];
 };
 
-export function isStageLike(node: t.Node): node is StageLike {
+export function isStageLike(node?: t.Node | null, loose = false): node is StageLike {
   return (
+    !!node &&
     node.type === 'ObjectExpression' &&
     node.properties.length === 1 &&
     node.properties[0].type === 'ObjectProperty' &&
+    node.properties[0].key &&
     ((node.properties[0].key.type === 'Identifier' &&
       node.properties[0].key.name.startsWith('$')) ||
       (node.properties[0].key.type === 'StringLiteral' &&
-        node.properties[0].key.value.startsWith('$')))
+        node.properties[0].key.value.startsWith('$'))) &&
+    (loose || node.properties[0].value != null)
   );
 }
 
@@ -67,7 +70,9 @@ export function assertStageNode(node: t.Node): asserts node is StageLike {
   }
   throw new SyntaxError(
     node.type === 'ObjectExpression'
-      ? 'A pipeline stage specification object must contain exactly one field.'
+      ? (node.properties[0] as t.ObjectProperty | undefined)?.key == null
+        ? 'A pipeline stage specification object must contain exactly one field.'
+        : 'Stage value can not be empty'
       : 'Each element of the pipeline array must be an object'
   );
 }

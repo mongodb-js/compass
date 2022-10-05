@@ -21,6 +21,8 @@ import {
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setDataLake } from '../modules/is-datalake';
 import { indexesFetched } from '../modules/indexes';
+import { PipelineBuilder } from '../modules/pipeline-builder';
+import { initPipeline, loadPipeline } from '../modules/pipeline-builder';
 
 /**
  * Refresh the input documents.
@@ -185,7 +187,21 @@ export const setSourceNames = (store, sourceName) => {
  * @returns {Store} The store.
  */
 const configureStore = (options = {}) => {
-  const store = createStore(reducer, applyMiddleware(thunk));
+  const pipelineBuilder = new PipelineBuilder(undefined, {
+    dataService: options.dataProvider.dataProvider
+  })
+
+  console.log({ pipelineBuilder });
+
+  const store = createStore(
+    reducer,
+    applyMiddleware(
+      thunk.withExtraArgument({ 
+        pipelineBuilder
+        // TODO: put pipeline storage here too?
+      })
+    ),
+  );
 
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
@@ -299,7 +315,9 @@ const configureStore = (options = {}) => {
   }
 
   if (options.aggregation) {
-    openPipeline(options.aggregation)(store.dispatch);
+    store.dispatch(loadPipeline(options.aggregation.id));
+  } else {
+    store.dispatch(initPipeline());
   }
 
   if (options.isDataLake) {
