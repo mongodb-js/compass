@@ -109,7 +109,7 @@ type CollectionHeaderProps = {
   isFLE: boolean;
   selectOrCreateTab: (options: any) => any;
   sourceName?: string;
-  sourceReadonly: boolean;
+  sourceReadonly?: boolean;
   sourceViewOn?: string;
   editViewName?: string;
   pipeline: Document[];
