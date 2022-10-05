@@ -34,15 +34,13 @@ class StageCollapser extends PureComponent {
     isExpanded: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
     stageCollapseToggled: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired
   };
 
   /**
    * Called when the collapse icon is toggled.
    */
   onStageCollapseToggled = () => {
-    this.props.stageCollapseToggled(this.props.index);
-    this.props.setIsModified(true);
+    this.props.stageCollapseToggled(this.props.index, this.props.isExpanded);
   };
 
   /**

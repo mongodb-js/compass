@@ -9,9 +9,19 @@ import ModifySourceBanner from '../modify-source-banner';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
 
 import styles from './pipeline-builder-workspace.module.less';
+import { connect } from 'react-redux';
+import {
+  refreshInputDocuments,
+  toggleInputDocumentsCollapsed
+} from '../../modules/input-documents';
+import { openLink } from '../../modules/link';
+import {
+  addStage,
+  moveStage
+} from '../../modules/pipeline-builder/stage-editor';
 
-const SortableStage = sortableElement(({ idx, ...props }) => {
-  return <Stage index={idx} {...props}></Stage>;
+const SortableStage = sortableElement(({ idx }) => {
+  return <Stage index={idx}></Stage>;
 });
 
 const SortableContainer = sortableContainer(({ children }) => {
@@ -26,37 +36,14 @@ class PipelineWorkspace extends PureComponent {
 
   static propTypes = {
     editViewName: PropTypes.string,
-    env: PropTypes.string.isRequired,
-    isTimeSeries: PropTypes.bool.isRequired,
-    isReadonly: PropTypes.bool.isRequired,
-    sourceName: PropTypes.string,
-    pipeline: PropTypes.array.isRequired,
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
     stageAdded: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
-    isCommenting: PropTypes.bool.isRequired,
-    isAutoPreviewing: PropTypes.bool.isRequired,
     inputDocuments: PropTypes.object.isRequired,
-    runStage: PropTypes.func.isRequired,
-    runOutStage: PropTypes.func.isRequired,
-    gotoOutResults: PropTypes.func.isRequired,
-    gotoMergeResults: PropTypes.func.isRequired,
-    serverVersion: PropTypes.string.isRequired,
-    stageChanged: PropTypes.func.isRequired,
-    stageCollapseToggled: PropTypes.func.isRequired,
-    stageAddedAfter: PropTypes.func.isRequired,
-    stageDeleted: PropTypes.func.isRequired,
     stageMoved: PropTypes.func.isRequired,
-    stageOperatorSelected: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired,
-    fields: PropTypes.array.isRequired,
-    isOverviewOn: PropTypes.bool.isRequired,
-    projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired,
-    isAtlasDeployed: PropTypes.bool
+    stagesCount: PropTypes.number.isRequired,
+    isOverviewOn: PropTypes.bool.isRequired
   };
 
   /**
@@ -66,11 +53,8 @@ class PipelineWorkspace extends PureComponent {
    * @param {Number} toIndex - The index to move to.
    */
   onStageMoved = ({ oldIndex, newIndex }) => {
-    if (oldIndex !== newIndex) {
-      this.props.stageMoved(oldIndex, newIndex);
-      this.props.runStage(0, true /* force execute */);
-    }
-  }
+    this.props.stageMoved(oldIndex, newIndex);
+  };
 
   /**
    * Render the modify source banner if neccessary.
@@ -79,62 +63,8 @@ class PipelineWorkspace extends PureComponent {
    */
   renderModifyingViewSourceBanner() {
     if (this.props.editViewName) {
-      return (<ModifySourceBanner editViewName={this.props.editViewName} />);
+      return <ModifySourceBanner editViewName={this.props.editViewName} />;
     }
-  }
-
-  /**
-   * Render a stage.
-   *
-   * @param {Object} stage - The current stage info.
-   * @param {Number} i - The current index.
-   * @param {Function} connectDragSource - The function to render a stage editor toolbar.
-   *
-   * @returns {Component} The component.
-   */
-  renderStage = (stage, i) => {
-    return (<SortableStage
-      key={stage.id}
-      idx={i}
-      index={i}
-      env={this.props.env}
-      isTimeSeries={this.props.isTimeSeries}
-      isReadonly={this.props.isReadonly}
-      sourceName={this.props.sourceName}
-      stage={stage.stage}
-      stageOperator={stage.stageOperator}
-      error={stage.error}
-      syntaxError={stage.syntaxError}
-      isValid={stage.isValid}
-      isEnabled={stage.isEnabled}
-      isLoading={stage.isLoading}
-      isComplete={stage.isComplete}
-      isMissingAtlasOnlyStageSupport={stage.isMissingAtlasOnlyStageSupport}
-      isExpanded={stage.isExpanded}
-      isCommenting={this.props.isCommenting}
-      isAutoPreviewing={this.props.isAutoPreviewing}
-      previewDocuments={stage.previewDocuments}
-      runStage={this.props.runStage}
-      openLink={this.props.openLink}
-      runOutStage={this.props.runOutStage}
-      gotoOutResults={this.props.gotoOutResults}
-      gotoMergeResults={this.props.gotoMergeResults}
-      serverVersion={this.props.serverVersion}
-      stageChanged={this.props.stageChanged}
-      stageCollapseToggled={this.props.stageCollapseToggled}
-      stageAddedAfter={this.props.stageAddedAfter}
-      stageDeleted={this.props.stageDeleted}
-      stageMoved={this.props.stageMoved}
-      stageOperatorSelected={this.props.stageOperatorSelected}
-      stageToggled={this.props.stageToggled}
-      fields={this.props.fields}
-      setIsModified={this.props.setIsModified}
-      isOverviewOn={this.props.isOverviewOn}
-      projections={this.props.projections}
-      projectionsChanged={this.props.projectionsChanged}
-      newPipelineFromPaste={this.props.newPipelineFromPaste}
-      isAtlasDeployed={this.props.isAtlasDeployed}
-    />);
   }
 
   /**
@@ -158,12 +88,14 @@ class PipelineWorkspace extends PureComponent {
         // interactive elements in the handler toolbar component
         distance={10}
       >
-        {this.props.pipeline.map((stage, idx) => {
-          return this.renderStage(stage, idx);
+        {Array.from({ length: this.props.stagesCount }, (_, idx) => {
+          return (
+            <SortableStage key={idx} index={idx} idx={idx}></SortableStage>
+          );
         })}
       </SortableContainer>
     );
-  }
+  };
 
   /**
    * Renders the pipeline workspace.
@@ -196,10 +128,7 @@ class PipelineWorkspace extends PureComponent {
               isOverviewOn={this.props.isOverviewOn}
             />
             {this.renderStageList()}
-            <AddStage
-              stageAdded={this.props.stageAdded}
-              setIsModified={this.props.setIsModified}
-            />
+            <AddStage stageAdded={this.props.stageAdded} />
           </div>
         </div>
       </div>
@@ -207,4 +136,23 @@ class PipelineWorkspace extends PureComponent {
   }
 }
 
-export default PipelineWorkspace;
+const mapState = (state) => {
+  return {
+    editViewName: state.editViewName,
+    inputDocuments: state.inputDocuments,
+    isOverviewOn: state.isOverviewOn,
+    stagesCount: state.pipelineBuilder.stageEditor.stagesCount
+  };
+};
+
+const mapDispatch = {
+  toggleInputDocumentsCollapsed,
+  refreshInputDocuments,
+  openLink,
+  stageAdded() {
+    return addStage();
+  },
+  stageMoved: moveStage
+};
+
+export default connect(mapState, mapDispatch)(React.memo(PipelineWorkspace));

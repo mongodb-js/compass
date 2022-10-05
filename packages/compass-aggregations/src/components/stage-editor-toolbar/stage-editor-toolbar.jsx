@@ -61,9 +61,6 @@ class StageEditorToolbar extends PureComponent {
     stageToggled: PropTypes.func.isRequired,
     stageAddedAfter: PropTypes.func.isRequired,
     stageDeleted: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired,
-    isCommenting: PropTypes.bool.isRequired,
-    runStage: PropTypes.func.isRequired,
     isAutoPreviewing: PropTypes.bool,
   };
 
@@ -81,7 +78,6 @@ class StageEditorToolbar extends PureComponent {
         <StageCollapser
           isExpanded={this.props.isExpanded}
           index={this.props.index}
-          setIsModified={this.props.setIsModified}
           stageCollapseToggled={this.props.stageCollapseToggled}
         />
         <StageOperatorSelect
@@ -92,16 +88,12 @@ class StageEditorToolbar extends PureComponent {
           stageOperator={this.props.stageOperator}
           index={this.props.index}
           isEnabled={this.props.isEnabled}
-          isCommenting={this.props.isCommenting}
           stageOperatorSelected={this.props.stageOperatorSelected}
-          setIsModified={this.props.setIsModified}
           serverVersion={this.props.serverVersion}
         />
         <ToggleStage
           index={this.props.index}
           isEnabled={this.props.isEnabled}
-          runStage={this.props.runStage}
-          setIsModified={this.props.setIsModified}
           stageToggled={this.props.stageToggled}
         />
         <div className={styles['stage-editor-toolbar-right']}>
@@ -112,8 +104,6 @@ class StageEditorToolbar extends PureComponent {
           )}
           <DeleteStage
             index={this.props.index}
-            runStage={this.props.runStage}
-            setIsModified={this.props.setIsModified}
             stageDeleted={this.props.stageDeleted}
           />
           <AddAfterStage

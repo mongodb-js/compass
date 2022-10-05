@@ -24,12 +24,30 @@ export class PipelineStorage {
     ).filter(Boolean);
   }
 
+  async load(id) {
+    return this._loadOne(path.join(getDirectory(), `${id}.json`));
+  }
+
   async _loadOne(filePath) {
     try {
       const [data, stats] = await Promise.all([
         this._getFileData(filePath),
         fs.stat(filePath),
       ]);
+      data.pipelineText ??= `[${data.pipeline
+        .map((stage) => {
+          const stageText = `{ ${stage.stageOperator}:\n${stage.stage} }`;
+          if (stage.isEnabled) {
+            return stageText;
+          }
+          return stageText
+            .split('\n')
+            .map((line) => {
+              return `// ${line}`;
+            })
+            .join('\n');
+        })
+        .join(',\n')}]`;
       return {
         ...data,
         lastModified: stats.mtimeMs,

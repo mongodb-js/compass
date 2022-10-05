@@ -18,11 +18,7 @@ import { exportToLanguage } from '../../modules/export-to-language';
 import { openLink } from '../../modules/link';
 import { toggleOverview } from '../../modules/is-overview-on';
 import { toggleFullscreen } from '../../modules/is-fullscreen-on';
-import {
-  newPipeline,
-  clonePipeline,
-  openCreateView
-} from '../../modules';
+import { clonePipeline, openCreateView } from '../../modules';
 import {
   runStage,
   runOutStage,
@@ -42,7 +38,6 @@ import {
   savedPipelineAdd,
   getSavedPipelines
 } from '../../modules/saved-pipeline';
-import { setIsModified } from '../../modules/is-modified';
 import {
   newPipelineFromPaste,
   restoreSavedPipeline,
@@ -80,6 +75,7 @@ import {
 } from '../../modules/update-view';
 
 import styles from './aggregations.module.less';
+import { resetPipeline } from '../../modules/pipeline-builder';
 
 /**
  * The core aggregations component.
@@ -184,7 +180,7 @@ const MappedAggregations = connect(
     getSavedPipelines,
     restorePipelineModalToggle,
     restoreSavedPipeline,
-    newPipeline,
+    newPipeline: resetPipeline,
     newPipelineFromText,
     closeImport,
     clonePipeline,
@@ -194,7 +190,6 @@ const MappedAggregations = connect(
     openLink,
     openPipelineById,
     applySettings,
-    setIsModified,
     limitChanged,
     largeLimitChanged,
     maxTimeMSChanged,

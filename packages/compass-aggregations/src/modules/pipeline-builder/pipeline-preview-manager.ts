@@ -11,10 +11,8 @@ export class PipelinePreviewManager {
     namespace: string,
     pipeline: Document[],
     options: AggregateOptions = {}
-  ): Promise<Document> {
-    if (this.queue.has(idx)) {
-      this.queue.get(idx)?.abort();
-    }
+  ): Promise<Document[]> {
+    this.queue.get(idx)?.abort();
     const controller = new AbortController();
     this.queue.set(idx, controller);
     await cancellableWait(700, controller.signal);
@@ -22,8 +20,10 @@ export class PipelinePreviewManager {
       dataService: this.dataService,
       signal: controller.signal,
       namespace,
+      // TODO: move pipeline transform logic for previews here
       pipeline,
-      options
+      options,
+      limit: /* TODO: pass from outside */ 10
     });
     this.queue.delete(idx);
     return result;

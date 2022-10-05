@@ -5,6 +5,8 @@ import { spacing } from '@leafygreen-ui/tokens';
 
 import { Banner } from './leafygreen';
 
+process.env.COMPASS_DISABLE_ERROR_BOUNDARY = true;
+
 const errorContainerStyles = css({
   padding: spacing[3],
   width: '100%',

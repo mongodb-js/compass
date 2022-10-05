@@ -66,7 +66,6 @@ class Pipeline extends PureComponent {
     isAutoPreviewing: PropTypes.bool.isRequired,
     isImportPipelineOpen: PropTypes.bool.isRequired,
     isImportConfirmationNeeded: PropTypes.bool.isRequired,
-    setIsModified: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
     gotoMergeResults: PropTypes.func.isRequired,
     name: PropTypes.string,
@@ -171,40 +170,7 @@ class Pipeline extends PureComponent {
     return this.props.workspace === 'results' ? (
       <PipelineResultsWorkspace />
     ) : (
-      <PipelineBuilderWorkspace
-        editViewName={this.props.editViewName}
-        env={this.props.env}
-        isTimeSeries={this.props.isTimeSeries}
-        isReadonly={this.props.isReadonly}
-        sourceName={this.props.sourceName}
-        pipeline={this.props.pipeline}
-        toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
-        refreshInputDocuments={this.props.refreshInputDocuments}
-        stageAdded={this.props.stageAdded}
-        setIsModified={this.props.setIsModified}
-        openLink={this.props.openLink}
-        isCommenting={this.props.isCommenting}
-        isAutoPreviewing={this.props.isAutoPreviewing}
-        inputDocuments={this.props.inputDocuments}
-        runStage={this.props.runStage}
-        runOutStage={this.props.runOutStage}
-        gotoOutResults={this.props.gotoOutResults}
-        gotoMergeResults={this.props.gotoMergeResults}
-        serverVersion={this.props.serverVersion}
-        stageChanged={this.props.stageChanged}
-        stageCollapseToggled={this.props.stageCollapseToggled}
-        stageAddedAfter={this.props.stageAddedAfter}
-        stageDeleted={this.props.stageDeleted}
-        stageMoved={this.props.stageMoved}
-        stageOperatorSelected={this.props.stageOperatorSelected}
-        stageToggled={this.props.stageToggled}
-        fields={this.props.fields}
-        isOverviewOn={this.props.isOverviewOn}
-        projections={this.props.projections}
-        projectionsChanged={this.props.projectionsChanged}
-        newPipelineFromPaste={this.props.newPipelineFromPaste}
-        isAtlasDeployed={this.props.isAtlasDeployed}
-      />
+      <PipelineBuilderWorkspace />
     );
   }
 
@@ -236,8 +202,10 @@ class Pipeline extends PureComponent {
     const confirmNewPipelineModal = (
       <ConfirmNewPipeline
         isNewPipelineConfirm={this.props.isNewPipelineConfirm}
-        setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
-        newPipeline={this.props.newPipeline}
+        onConfirm={() => {
+          this.props.newPipeline();
+          this.props.setIsNewPipelineConfirm(false);
+        }}
       />
     );
 

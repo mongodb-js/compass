@@ -5,7 +5,6 @@ import type { ThunkAction } from 'redux-thunk';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { createId } from './id';
-import { setIsModified } from './is-modified';
 import { getDirectory } from '../utils/get-directory';
 import { PipelineStorage } from '../utils/pipeline-storage';
 import type { Pipeline } from './pipeline';
@@ -85,7 +84,6 @@ export const updatePipelineList = (): ThunkAction<void, RootState, void, AnyActi
         const thisNamespacePipelines = pipelines.filter(
           ({namespace}) => namespace === state.namespace
         );
-        dispatch(setIsModified(false));
         dispatch(savedPipelineAdd(thisNamespacePipelines));
         dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
       })
