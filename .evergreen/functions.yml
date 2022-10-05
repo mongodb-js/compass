@@ -511,7 +511,7 @@ functions:
           <<: *compass-env
           NPM_TOKEN: ${devtoolsbot_npm_token}
         script: |
-          # Skip package publish for nightly builds
+          # Only package publish for commits on the main evergreen project.
           if [[ "${requester}" == "commit" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
             set -e
             # Load environment variables
