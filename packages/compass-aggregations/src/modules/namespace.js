@@ -1,9 +1,3 @@
-
-/**
- * Namespace changed action.
- */
-export const NAMESPACE_CHANGED = 'aggregations/namespace/NAMESPACE_CHANGED';
-
 /**
  * The initial state.
  */
@@ -17,21 +11,6 @@ export const INITIAL_STATE = '';
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === NAMESPACE_CHANGED) {
-    return action.namespace;
-  }
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }
-
-/**
- * Action creator for namespace changed events.
- *
- * @param {String} namespace - The namespace value.
- *
- * @returns {Object} The namespace changed action.
- */
-export const namespaceChanged = (namespace) => ({
-  type: NAMESPACE_CHANGED,
-  namespace: namespace
-});

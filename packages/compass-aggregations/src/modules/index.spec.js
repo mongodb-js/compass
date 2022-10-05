@@ -4,14 +4,12 @@ import reducer, {
   restoreSavedPipeline,
   clonePipeline,
   newPipeline,
-  modifySource,
   makeViewPipeline,
   RESET,
   CLEAR_PIPELINE,
   RESTORE_PIPELINE,
   NEW_PIPELINE,
   CLONE_PIPELINE,
-  MODIFY_VIEW
 } from './';
 import { toggleOverview, TOGGLE_OVERVIEW } from './is-overview-on';
 import { largeLimitChanged, LARGE_LIMIT_CHANGED } from './large-limit';
@@ -77,18 +75,6 @@ describe('root [ module ]', function() {
       expect(maxTimeMSChanged(100)).to.deep.equal({
         type: MAX_TIME_MS_CHANGED,
         maxTimeMS: 100
-      });
-    });
-  });
-
-  describe('#modifySource', function() {
-    it('returns the MODIFY_VIEW action', function() {
-      expect(modifySource('db.testing', [], true, 'db.test')).to.deep.equal({
-        type: MODIFY_VIEW,
-        name: 'db.testing',
-        pipeline: [],
-        isReadonly: true,
-        sourceName: 'db.test'
       });
     });
   });

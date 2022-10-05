@@ -16,8 +16,7 @@ import inputDocuments, {
   INITIAL_STATE as INPUT_INITIAL_STATE
 } from './input-documents';
 import namespace, {
-  INITIAL_STATE as NS_INITIAL_STATE,
-  NAMESPACE_CHANGED
+  INITIAL_STATE as NS_INITIAL_STATE
 } from './namespace';
 import env, {
   INITIAL_STATE as ENV_INITIAL_STATE
@@ -69,8 +68,7 @@ import restorePipeline, {
 import importPipeline, {
   INITIAL_STATE as IMPORT_PIPELINE_INITIAL_STATE,
   CONFIRM_NEW,
-  createPipeline,
-  createPipelineFromView
+  createPipeline
 } from './import-pipeline';
 import appRegistry, {
   localAppRegistryEmit,
@@ -135,7 +133,7 @@ const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 import { getDirectory } from '../utils/get-directory';
 import { PipelineStorage } from '../utils/pipeline-storage';
 
-import type { Pipeline, Projection } from './pipeline';
+import type { Projection } from './pipeline';
 
 /**
  * The intial state of the root reducer.
@@ -209,7 +207,6 @@ export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
 export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
 
 export const NEW_FROM_PASTE = 'aggregations/NEW_FROM_PASTE';
-export const MODIFY_VIEW = 'aggregations/MODIFY_VIEW';
 
 /**
  * The main application reducer.
@@ -264,32 +261,6 @@ const appReducer = combineReducers({
 });
 
 export type RootState = ReturnType<typeof appReducer>;
-
-/**
- * Handle the namespace change.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
- */
-const doNamespaceChanged = (state: RootState, action: AnyAction) => {
-
-  const newState = {
-    ...INITIAL_STATE,
-    aggregationWorkspaceId: state.aggregationWorkspaceId,
-    env: state.env,
-    isTimeSeries: state.isTimeSeries,
-    isReadonly: state.isReadonly,
-    sourceName: state.sourceName,
-    isAtlasDeployed: state.isAtlasDeployed,
-    outResultsFn: state.outResultsFn,
-    serverVersion: state.serverVersion,
-    dataService: state.dataService,
-    appRegistry: state.appRegistry
-  };
-  return appReducer(newState, action);
-};
 
 /**
  * Handle the reset.
@@ -433,25 +404,6 @@ const doConfirmNewFromText = (state: RootState): RootState => {
   };
 };
 
-const doModifyView = (state: RootState, action: AnyAction): RootState => {
-  const pipe = createPipelineFromView(action.pipeline);
-  return {
-    ...state,
-    editViewName: action.name,
-    isReadonly: action.isReadonly,
-    sourceName: action.sourceName,
-    collationString: COLLATION_STRING_INITIAL_STATE,
-    id: new ObjectId().toHexString(),
-    pipeline: pipe,
-    importPipeline: {
-      isOpen: false,
-      isConfirmationNeeded: false,
-      text: '',
-      syntaxError: null
-    }
-  };
-};
-
 /**
  * When <StageEditor /> is empty and you paste
  * what could be an aggregation pipeline.
@@ -559,7 +511,6 @@ const doProjectionsChanged = (state: RootState): RootState => {
  * The action to state modifier mappings.
  */
 const MAPPINGS = {
-  [NAMESPACE_CHANGED]: doNamespaceChanged,
   [RESET]: doReset,
   [RESTORE_PIPELINE]: doRestorePipeline,
   [CLEAR_PIPELINE]: doClearPipeline,
@@ -571,7 +522,6 @@ const MAPPINGS = {
   [SAVING_PIPELINE_APPLY]: doApplySavingPipeline,
   [PROJECTIONS_CHANGED]: doProjectionsChanged,
   [NEW_FROM_PASTE]: doNewFromPastedText,
-  [MODIFY_VIEW]: doModifyView
 };
 
 /**
@@ -738,38 +688,3 @@ export const openCreateView = (): ThunkAction<void, RootState, void, AnyAction> 
     dispatch(localAppRegistryEmit('open-create-view', meta));
   };
 };
-
-/**
- * Action creator for modifying a view.
- *
- * @param {String} viewName - The view name.
- * @param {Array} viewPipeline - The view pipeline.
- * @param {Boolean} readonly - Is read only.
- * @param {String} source - The source name.
- *
- * @returns {Object} The action.
- */
-export const modifyView = (
-  viewName: string,
-  viewPipeline: Pipeline[],
-  readonly: boolean,
-  source: string
-): ThunkAction<void, RootState, void, AnyAction> => {
-  return (dispatch) => {
-    dispatch(modifySource(viewName, viewPipeline, readonly, source));
-    dispatch(runStage(0, true /* force execute */));
-  };
-};
-
-export const modifySource = (
-  viewName: string,
-  viewPipeline: unknown,
-  readonly: boolean,
-  source: string
-) => ({
-  type: MODIFY_VIEW,
-  name: viewName,
-  pipeline: viewPipeline,
-  isReadonly: readonly,
-  sourceName: source
-});
