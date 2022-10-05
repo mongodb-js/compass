@@ -94,7 +94,7 @@ const appReducer = combineReducers({
   namespace,
 });
 
-type RootState = ReturnType<typeof appReducer>;
+export type RootState = ReturnType<typeof appReducer>;
 
 /**
  * The root reducer.

@@ -6,6 +6,7 @@ import {
   css,
   cx,
   mergeProps,
+  spacing,
 } from '@mongodb-js/compass-components';
 import type { Actions } from './constants';
 
@@ -58,14 +59,21 @@ export function useDefaultAction<T>(
 }
 
 const itemContainer = css({
-  display: 'flex',
-  alignItems: 'center',
   cursor: 'pointer',
   color: 'var(--item-color)',
-  backgroundColor: 'var(--item-bg-color)',
 
-  ':hover': {
+  '& .item-action-controls': {
+    marginLeft: 'auto',
+    marginRight: spacing[1],
+  },
+
+  '&:hover .item-background': {
+    display: 'block',
     backgroundColor: 'var(--item-bg-color-hover)',
+  },
+
+  '& .item-action-controls:hover + .item-background': {
+    display: 'none',
   },
 
   svg: {
@@ -75,11 +83,15 @@ const itemContainer = css({
 
 const activeItemContainer = css({
   color: 'var(--item-color-active)',
-  backgroundColor: 'var(--item-bg-color-active)',
   fontWeight: 'bold',
+
+  '.item-background, :hover .item-background': {
+    backgroundColor: 'var(--item-bg-color-active)',
+  },
 
   // this is copied from leafygreen's own navigation, hence the pixel values
   '::before': {
+    zIndex: 1,
     backgroundColor: 'var(--item-color-active)',
     content: '""',
     position: 'absolute',
@@ -89,6 +101,33 @@ const activeItemContainer = css({
     width: '4px',
     borderRadius: '0px 6px 6px 0px',
   },
+});
+
+const itemWrapper = css({
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const itemBackground = css({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  zIndex: -1,
+});
+
+const itemButtonWrapper = css({
+  display: 'flex',
+  alignItems: 'center',
+  minWidth: 0,
+});
+
+const itemLabel = css({
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
 });
 
 export const ItemContainer: React.FunctionComponent<
@@ -149,11 +188,22 @@ export const ItemContainer: React.FunctionComponent<
   );
 };
 
-const itemLabel = css({
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-});
+export const ItemWrapper: React.FunctionComponent<
+  React.HTMLProps<HTMLDivElement>
+> = ({ className, children }) => {
+  return (
+    <div className={cx(itemWrapper, className)}>
+      {children}
+      <div className={cx('item-background', itemBackground)} />
+    </div>
+  );
+};
+
+export const ItemButtonWrapper: React.FunctionComponent<
+  React.HTMLProps<HTMLDivElement>
+> = ({ className, children }) => {
+  return <div className={cx(itemButtonWrapper, className)}>{children}</div>;
+};
 
 export const ItemLabel: React.FunctionComponent<
   React.HTMLProps<HTMLSpanElement>

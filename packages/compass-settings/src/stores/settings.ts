@@ -6,7 +6,7 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
-import { preferencesIpc } from 'compass-preferences-model';
+import preferences from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-SETTINGS');
 
@@ -67,8 +67,8 @@ export const fetchSettings = (): ThunkAction<
   return async (dispatch): Promise<void> => {
     try {
       const [settings, preferenceStates] = await Promise.all([
-        preferencesIpc.getConfigurableUserPreferences(),
-        preferencesIpc.getPreferenceStates(),
+        preferences.getConfigurableUserPreferences(),
+        preferences.getPreferenceStates(),
       ]);
 
       dispatch({

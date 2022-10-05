@@ -10,6 +10,9 @@ describe('Renderer IPC', function () {
     'compass:get-preferences'() {
       return { getPreferences: 1 };
     },
+    'compass:ensure-default-configurable-user-preferences'() {
+      return { ensureDefaultConfigurableUserPreferences: 1 };
+    },
     'compass:get-configurable-user-preferences'() {
       return { getConfigurableUserPreferences: 1 };
     },
@@ -22,18 +25,25 @@ describe('Renderer IPC', function () {
       return Promise.resolve(ipcImpl[method](...args));
     },
   });
-  const preferencesIpc = makePreferencesIpc({ ipcRenderer: ipcMock } as any);
+  const preferencesIpc = makePreferencesIpc(ipcMock as any);
 
   it('should be able to call savePreferences', async function () {
     expect(
       await preferencesIpc.savePreferences({ enableMaps: true })
-    ).to.deep.equal({ savePreferences: 1, attributes: { enableMaps: true } });
+    ).to.deep.equal({ getPreferences: 1 }); // reports result from updating preferences
   });
 
   it('should be able to call getPreferences', async function () {
-    expect(await preferencesIpc.getPreferences()).to.deep.equal({
+    await preferencesIpc.refreshPreferences();
+    expect(preferencesIpc.getPreferences()).to.deep.equal({
       getPreferences: 1,
     });
+  });
+
+  it('should be able to call ensureDefaultConfigurableUserPreferences', async function () {
+    expect(
+      await preferencesIpc.ensureDefaultConfigurableUserPreferences()
+    ).to.deep.equal({ ensureDefaultConfigurableUserPreferences: 1 });
   });
 
   it('should be able to call getConfigurableUserPreferences', async function () {

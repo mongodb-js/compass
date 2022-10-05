@@ -5,7 +5,6 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   Overline,
-  Toolbar,
   css,
   spacing,
   useId,
@@ -100,7 +99,7 @@ function UnthemedExplainToolbar({
   const QueryBarComponent = queryBarRef.current.component;
 
   return (
-    <Toolbar className={explainToolbarStyles}>
+    <div className={explainToolbarStyles}>
       <div className={explainQueryBarStyles}>
         {
           <QueryBarComponent
@@ -149,7 +148,7 @@ function UnthemedExplainToolbar({
         />
       )}
       {explainErrorMessage && <ErrorSummary errors={[explainErrorMessage]} />}
-    </Toolbar>
+    </div>
   );
 }
 

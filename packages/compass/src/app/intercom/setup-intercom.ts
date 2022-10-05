@@ -2,7 +2,7 @@ import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { IntercomMetadata } from './intercom-script';
 import { IntercomScript, buildIntercomScriptUrl } from './intercom-script';
 
-import { preferencesIpc } from 'compass-preferences-model';
+import preferences from 'compass-preferences-model';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-INTERCOM');
 
@@ -19,10 +19,7 @@ export async function setupIntercom(
     return;
   }
 
-  if (process.env.HADRON_ISOLATED === 'true') {
-    debug('Skipping intercom setup on HADRON_ISOLATED');
-    return;
-  }
+  const { enableFeedbackPanel } = preferences.getPreferences();
 
   const intercomAppId = process.env.HADRON_METRICS_INTERCOM_APP_ID;
 
@@ -42,23 +39,27 @@ export async function setupIntercom(
     app_stage: process.env.NODE_ENV,
   };
 
-  // In some environment the network can be firewalled, this is a safeguard to avoid
-  // uncaught errors when injecting the script.
-  debug('testing intercom availability');
+  if (enableFeedbackPanel) {
+    // In some environment the network can be firewalled, this is a safeguard to avoid
+    // uncaught errors when injecting the script.
+    debug('testing intercom availability');
 
-  const intercomWidgetUrl = buildIntercomScriptUrl(metadata.app_id);
+    const intercomWidgetUrl = buildIntercomScriptUrl(metadata.app_id);
 
-  const response = await fetch(intercomWidgetUrl).catch((e) => {
-    debug('fetch failed', e);
-    return null;
-  });
+    const response = await fetch(intercomWidgetUrl).catch((e) => {
+      debug('fetch failed', e);
+      return null;
+    });
 
-  if (!response || response.status >= 400) {
-    debug('intercom unreachable, skipping setup');
-    return;
+    if (!response || response.status >= 400) {
+      debug('intercom unreachable, skipping setup');
+      return;
+    }
+
+    debug('intercom is reachable, proceeding with the setup');
+  } else {
+    debug('not testing intercom connectivity because enableFeedbackPanel == false');
   }
-
-  debug('intercom is reachable, proceeding with the setup');
 
   const toggleEnableFeedbackPanel = (enableFeedbackPanel: boolean) => {
     if (enableFeedbackPanel) {
@@ -70,10 +71,9 @@ export async function setupIntercom(
     }
   };
 
-  const { enableFeedbackPanel } = await preferencesIpc.getPreferences();
   toggleEnableFeedbackPanel(!!enableFeedbackPanel);
 
-  preferencesIpc.onPreferenceValueChanged('enableFeedbackPanel', (enableFeedbackPanel) => {
+  preferences.onPreferenceValueChanged('enableFeedbackPanel', (enableFeedbackPanel) => {
     debug('enableFeedbackPanel changed');
     toggleEnableFeedbackPanel(enableFeedbackPanel);
   });

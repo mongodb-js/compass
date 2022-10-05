@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-schema-validation",
   "productName": "Compass Json Schema Validation plugin",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "description": "Compass plugin for document JSON schema validation",
   "author": {
     "name": "MongoDB Inc",
@@ -54,13 +54,13 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
-    "@mongodb-js/compass-crud": "^13.1.0",
+    "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-crud": "^13.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson": "^4.4.1",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.2.0",
     "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   },
@@ -69,21 +69,21 @@
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.1",
+    "@mongodb-js/webpack-config-compass": "^1.0.2",
     "chai": "^4.2.0",
     "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
     "electron": "^15.5.7",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
-    "hadron-app": "^5.1.0",
+    "hadron-app": "^5.1.1",
     "hadron-app-registry": "^9.0.1",
     "javascript-stringify": "^2.0.1",
     "less": "^3.11.1",
     "lodash": "^4.17.15",
     "mocha": "^8.4.0",
-    "mongodb-data-service": "^22.1.0",
-    "mongodb-instance-model": "^12.1.0",
+    "mongodb-data-service": "^22.1.1",
+    "mongodb-instance-model": "^12.1.1",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
     "nyc": "^15.0.0",
@@ -98,13 +98,13 @@
     "sinon": "^8.1.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
-    "@mongodb-js/compass-crud": "^13.1.0",
+    "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-crud": "^13.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson": "^4.4.1",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.2.0",
     "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   }

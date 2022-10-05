@@ -48,7 +48,9 @@ jobs:
       env:
         NPM_TOKEN: ${{ secrets.DEVTOOLSBOT_NPM_TOKEN }}
       run: |
-        echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+        echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+        npm config list
+        echo "Publishing packages as $(npm whoami)"
         git update-index --assume-unchanged .npmrc
         npm run publish-packages
 

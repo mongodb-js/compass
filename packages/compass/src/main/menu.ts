@@ -67,12 +67,12 @@ function quitItem(label: string): MenuItemConstructorOptions {
   };
 }
 
-function networkOptInDialogItem(): MenuItemConstructorOptions {
+function settingsDialogItem(): MenuItemConstructorOptions {
   return {
     label: '&Settings',
-    accelerator: 'Command+,',
+    accelerator: 'CmdOrCtrl+,',
     click() {
-      ipcMain.broadcastFocused('window:show-network-optin');
+      ipcMain.broadcastFocused('window:show-settings');
     },
   };
 }
@@ -314,9 +314,7 @@ function helpSubMenu(
   const subMenu = [];
   subMenu.push(helpWindowItem());
 
-  if (process.env.HADRON_ISOLATED !== 'true') {
-    subMenu.push(networkOptInDialogItem());
-  }
+  subMenu.push(settingsDialogItem());
 
   subMenu.push(license());
   subMenu.push(logFile(app));

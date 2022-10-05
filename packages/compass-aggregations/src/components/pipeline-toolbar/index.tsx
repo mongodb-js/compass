@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Toolbar, css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
+import { css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import PipelineHeader from './pipeline-header';
@@ -7,10 +7,10 @@ import PipelineOptions from './pipeline-options';
 import PipelineSettings from './pipeline-settings';
 
 import type { RootState } from '../../modules';
+import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
 
 const containerStyles = css({
   padding: spacing[3],
-  paddingRight: spacing[5],
 });
 
 const containerDisplayStyles = css({
@@ -18,26 +18,23 @@ const containerDisplayStyles = css({
   gap: spacing[3],
   gridTemplateAreas: `
   "headerAndOptionsRow"
+  "settingsRow"
   `,
 });
 
-const displaySettings = css({
-  gridTemplateAreas: `
-  "headerAndOptionsRow"
-  "settingsRow"
-  `
-});
 
 const headerAndOptionsRowStyles = css({
   gridArea: 'headerAndOptionsRow',
   border: '1px solid',
   borderRadius: '6px',
   borderColor: uiColors.gray.light2,
-  padding: spacing[2]
+  padding: `${spacing[2]}px ${spacing[2]}px ${spacing[2]}px ${spacing[3]}px`,
+  background: uiColors.white
 });
 
 const headerAndOptionsRowDarkStyles = css({
   borderColor: uiColors.gray.dark2,
+  background: uiColors.gray.dark3,
 });
 
 const settingsRowStyles = css({
@@ -50,7 +47,7 @@ const optionsStyles = css({
 
 type PipelineToolbarProps = {
   darkMode?: boolean;
-  isSettingsVisible: boolean;
+  isBuilderView: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
@@ -58,18 +55,17 @@ type PipelineToolbarProps = {
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   darkMode,
-  isSettingsVisible,
+  isBuilderView,
   showRunButton,
   showExportButton,
   showExplainButton,
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
-    <Toolbar
+    <div
       className={cx(
         containerStyles,
         containerDisplayStyles,
-        isSettingsVisible && displaySettings
       )}
       data-testid="pipeline-toolbar"
     >
@@ -93,17 +89,17 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
             </div>
           )}
         </div>
-        {isSettingsVisible && (
+        {isBuilderView ? (
           <div className={settingsRowStyles}>
             <PipelineSettings />
           </div>
-        )}
+        ) : <div className={settingsRowStyles}><PipelineResultsHeader /></div>}
       </>
-    </Toolbar>
+    </div>
   );
 };
 
 const mapState = ({ workspace }: RootState) => ({
-  isSettingsVisible: workspace === 'builder'
+  isBuilderView: workspace === 'builder'
 });
 export default withTheme(connect(mapState)(PipelineToolbar));

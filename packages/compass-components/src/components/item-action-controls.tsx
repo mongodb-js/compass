@@ -280,7 +280,7 @@ export function ItemActionControls<Action extends string>({
     return (
       <ItemActionMenu
         actions={actions}
-        className={className}
+        className={cx('item-action-controls', className)}
         data-testid={dataTestId}
         iconClassName={iconClassName}
         iconSize={iconSize}
@@ -296,7 +296,7 @@ export function ItemActionControls<Action extends string>({
       isVisible={isVisible}
       actions={actions}
       onAction={onAction}
-      className={className}
+      className={cx('item-action-controls', className)}
       iconSize={iconSize}
       data-testid={dataTestId}
       iconClassName={iconClassName}

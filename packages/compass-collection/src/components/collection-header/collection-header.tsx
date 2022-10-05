@@ -33,6 +33,7 @@ const collectionHeaderStyles = css({
 
 const collectionHeaderTitleStyles = css({
   display: 'flex',
+  width: '100%',
   alignItems: 'center',
   padding: `0 ${String(spacing[3])}px`,
   margin: 0,
@@ -90,6 +91,14 @@ const collectionHeaderCollectionStyles = css({
   textOverflow: 'ellipsis',
 });
 
+const collectionHeaderLightStyles = css({
+  background: uiColors.white,
+});
+
+const collectionHeaderDarkStyles = css({
+  backgroundColor: uiColors.gray.dark3,
+});
+
 const collectionHeaderTitleCollectionLightStyles = css({
   color: uiColors.gray.dark1,
 });
@@ -108,7 +117,7 @@ type CollectionHeaderProps = {
   isFLE: boolean;
   selectOrCreateTab: (options: any) => any;
   sourceName?: string;
-  sourceReadonly: boolean;
+  sourceReadonly?: boolean;
   sourceViewOn?: string;
   editViewName?: string;
   pipeline: Document[];
@@ -163,7 +172,15 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
     const collection = ns.collection;
 
     return (
-      <div className={collectionHeaderStyles} data-testid="collection-header">
+      <div
+        className={cx(
+          collectionHeaderStyles,
+          this.props.darkMode
+            ? collectionHeaderDarkStyles
+            : collectionHeaderLightStyles
+        )}
+        data-testid="collection-header"
+      >
         <div
           title={`${database}.${collection}`}
           className={collectionHeaderTitleStyles}

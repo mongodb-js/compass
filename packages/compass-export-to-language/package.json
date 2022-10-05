@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-export-to-language",
   "productName": "Export To Language plugin",
-  "version": "8.1.0",
+  "version": "8.2.0",
   "apiVersion": "3.0.0",
   "description": "export to language modal",
   "main": "lib/index.js",
@@ -27,7 +27,7 @@
   },
   "license": "SSPL",
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson-transpilers": "^2.0.0",
@@ -110,7 +110,7 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson-transpilers": "^2.0.0",

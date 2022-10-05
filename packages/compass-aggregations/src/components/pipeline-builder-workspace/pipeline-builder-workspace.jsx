@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-
 import Stage from '../stage';
 import Input from '../input';
 import AddStage from '../add-stage';
@@ -175,7 +174,6 @@ class PipelineWorkspace extends PureComponent {
     return (
       <div
         data-testid="pipeline-builder-workspace"
-        className={styles['pipeline-workspace-container-container']}
         ref={(ref) => {
           this.stageListContainerRef = ref;
         }}
@@ -202,8 +200,7 @@ class PipelineWorkspace extends PureComponent {
             />
           </div>
         </div>
-      </div>
-    );
+      </div>);
   }
 }
 

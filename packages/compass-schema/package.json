@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-schema",
   "productName": "Compass Schema plugin",
   "description": "Compass Schema Tab Plugin",
-  "version": "6.1.0",
+  "version": "6.3.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -54,13 +54,13 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "bson": "^4.4.1",
-    "compass-preferences-model": "^2.1.0",
+    "compass-preferences-model": "^2.2.0",
     "hadron-document": "^8.0.1",
     "hadron-ipc": "^3.1.0",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.2.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -68,7 +68,7 @@
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.1",
+    "@mongodb-js/webpack-config-compass": "^1.0.2",
     "@testing-library/react": "^12.1.4",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
@@ -131,13 +131,13 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.1.0",
+    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "bson": "^4.4.1",
-    "compass-preferences-model": "^2.1.0",
+    "compass-preferences-model": "^2.2.0",
     "hadron-document": "^8.0.1",
     "hadron-ipc": "^3.1.0",
-    "hadron-react-components": "^6.1.0",
+    "hadron-react-components": "^6.2.0",
     "react": "^16.14.0"
   }
 }

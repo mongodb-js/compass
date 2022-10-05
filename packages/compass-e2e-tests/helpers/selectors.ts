@@ -3,6 +3,11 @@ export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton =
   '[data-testid="settings-modal"] [aria-label="Close modal"]';
 
+// Welcome Modal
+export const WelcomeModal = '[data-testid="welcome-modal"]';
+export const CloseWelcomeModalButton =
+  '[data-testid="welcome-modal"] [aria-label="Close modal"]';
+
 // Connection screen
 export const ConnectSection = '[data-testid="connections-disconnected"]';
 export const ConnectButton = '[data-testid="connect-button"]';
@@ -190,13 +195,14 @@ export const connectionFormUrlOptionValueInput = (index: number): string => {
 };
 
 // Connection Sidebar
+export const ConnectionsTitle = '[data-testid="connections-title"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
 export const FavoriteConnections = '[data-testid="favorite-connection"]';
 export const ConnectionMenu = '[data-testid="connection-menu"]';
-export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="copy-connection-string"]`;
-export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="duplicate-connection"]`;
-export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="remove-connection"]`;
+export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="connection-menu-copy-connection-string-action"]`;
+export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-duplicate-connection-action"]`;
+export const RemoveConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-remove-connection-action"]`;
 export const RecentConnectionsHeader = '[data-testid="recents-header"]';
 export const RecentConnections = '[data-testid="recent-connection"]';
 
@@ -251,9 +257,7 @@ export const sidebarFavoriteButton = (favoriteName: string): string => {
 };
 
 export const sidebarFavoriteMenuButton = (favoriteName: string): string => {
-  return `${sidebarFavorite(
-    favoriteName
-  )}  button[aria-label="Connection Options Menu"]`;
+  return `${sidebarFavorite(favoriteName)}  button[title="Show actions"]`;
 };
 
 // Favorite modal

@@ -9,7 +9,6 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   SpinLoader,
-  Toolbar,
   css,
   spacing,
   useId,
@@ -141,7 +140,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   );
 
   return (
-    <Toolbar className={crudToolbarStyles}>
+    <div className={crudToolbarStyles}>
       <div className={crudQueryBarStyles}>
         {isExportable && QueryBarComponent && (
           <QueryBarComponent
@@ -251,7 +250,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           warnings={[OUTDATED_WARNING]}
         />
       )}
-    </Toolbar>
+    </div>
   );
 };
 

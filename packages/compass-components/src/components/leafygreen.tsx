@@ -25,6 +25,7 @@ import {
   default as LeafyGreenModal,
   Footer as LeafyGreenModalFooter,
 } from '@leafygreen-ui/modal';
+import { default as LeafyGreenMarketingModal } from '@leafygreen-ui/marketing-modal';
 import Popover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import {
@@ -68,6 +69,11 @@ import {
   Label as LeafyGreenLabel,
   Description as LeafyGreenDescription,
 } from '@leafygreen-ui/typography';
+import {
+  Combobox as LeafyGreenCombobox,
+  ComboboxOption,
+  ComboboxGroup,
+} from '@leafygreen-ui/combobox';
 
 // 2. Wrap the components that accept darkMode with Compass' theme.
 
@@ -130,6 +136,11 @@ const Modal = withTheme(
     React.ComponentProps<typeof LeafyGreenModal>
   >
 ) as typeof LeafyGreenModal;
+const MarketingModal: typeof LeafyGreenMarketingModal = withTheme(
+  LeafyGreenMarketingModal as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenMarketingModal>
+  >
+) as typeof LeafyGreenMarketingModal;
 const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
   LeafyGreenRadioGroup as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenRadioGroup>
@@ -160,7 +171,7 @@ const Label = withTheme(LeafyGreenLabel) as typeof LeafyGreenLabel;
 const Description = withTheme(
   LeafyGreenDescription
 ) as typeof LeafyGreenDescription;
-
+const Combobox = withTheme(LeafyGreenCombobox);
 // 3. Export the leafygreen components.
 export {
   AtlasLogoMark,
@@ -178,6 +189,7 @@ export {
   MenuSeparator,
   Modal,
   ModalFooter,
+  MarketingModal,
   MongoDBLogoMark,
   MongoDBLogo,
   Popover,
@@ -213,4 +225,7 @@ export {
   Label,
   Link,
   Description,
+  Combobox,
+  ComboboxOption,
+  ComboboxGroup,
 };

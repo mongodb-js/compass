@@ -8,6 +8,7 @@ import {
   ButtonVariant,
   CancelLoader,
   Link,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import Field from '../field';
 import ZeroGraphic from '../zero-graphic';
@@ -164,17 +165,22 @@ class Schema extends Component {
   render() {
     return (
       <div className={styles.root}>
-        <SchemaToolbar
-          localAppRegistry={this.props.store.localAppRegistry}
-          onAnalyzeSchemaClicked={this.onApplyClicked.bind(this)}
-          onResetClicked={this.onResetClicked.bind(this)}
-          analysisState={this.props.analysisState}
-          errorMessage={this.props.errorMessage}
-          isOutdated={this.props.outdated}
-          sampleSize={this.props.schema ? this.props.schema.count : 0}
-          schemaResultId={this.props.resultId}
-        />
-        <div className={styles.schema}>{this.renderContent()}</div>
+        <WorkspaceContainer
+          toolbar={
+            <SchemaToolbar
+              localAppRegistry={this.props.store.localAppRegistry}
+              onAnalyzeSchemaClicked={this.onApplyClicked.bind(this)}
+              onResetClicked={this.onResetClicked.bind(this)}
+              analysisState={this.props.analysisState}
+              errorMessage={this.props.errorMessage}
+              isOutdated={this.props.outdated}
+              sampleSize={this.props.schema ? this.props.schema.count : 0}
+              schemaResultId={this.props.resultId}
+            />
+          }
+        >
+          <div className={styles.schema}>{this.renderContent()}</div>
+        </WorkspaceContainer>
       </div>
     );
   }
