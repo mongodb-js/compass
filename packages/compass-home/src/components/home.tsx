@@ -280,9 +280,12 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
 }
 
 function ThemedHome(
-  props: React.ComponentProps<typeof Home> & { showWelcomeModal: boolean }
+  props: React.ComponentProps<typeof Home> & {
+    showWelcomeModal: boolean;
+    networkTraffic: boolean;
+  }
 ): ReturnType<typeof Home> {
-  const { showWelcomeModal } = props;
+  const { showWelcomeModal, networkTraffic } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
@@ -290,8 +293,6 @@ function ThemedHome(
       process.env.COMPASS_LG_DARKMODE === 'true'
         ? (global as any).hadronApp?.theme ?? Theme.Light
         : Theme.Light,
-    // useful for quickly testing the new dark sidebar without rebuilding
-    //theme: Theme.Dark, enabled: true
   });
 
   function onDarkModeEnabled() {
@@ -368,7 +369,11 @@ function ThemedHome(
     <LeafyGreenProvider>
       <ThemeProvider theme={theme}>
         {showWelcomeModal && (
-          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          <Welcome
+            isOpen={isWelcomeOpen}
+            closeModal={closeWelcomeModal}
+            networkTraffic={networkTraffic}
+          />
         )}
         <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
         <ToastArea>

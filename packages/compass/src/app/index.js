@@ -71,14 +71,6 @@ const { log, mongoLogId, debug, track } =
     'COMPASS-APP'
   );
 
-function shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic) {
-  if (!showedNetworkOptIn && networkTraffic) {
-    return true;
-  }
-
-  return false;
-}
-
 /**
  * The top-level application singleton that brings everything together!
  */
@@ -170,7 +162,7 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: function ({ showWelcomeModal }) {
+  render: function ({ showWelcomeModal, networkTraffic }) {
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -193,7 +185,8 @@ const Application = View.extend({
       React.createElement(this.homeComponent, {
         appRegistry: app.appRegistry,
         appName: remote.app.getName(),
-        showWelcomeModal
+        showWelcomeModal,
+        networkTraffic
       }),
       this.queryByHook('layout-container')
     );
@@ -299,7 +292,8 @@ app.extend({
           );
           // as soon as dom is ready, render and set up the rest
           state.render({
-            showWelcomeModal: shouldShowWelcomeModal(showedNetworkOptIn, networkTraffic)
+            showWelcomeModal: !showedNetworkOptIn,
+            networkTraffic
           });
           marky.stop('Time to Connect rendered');
           state.postRender();
