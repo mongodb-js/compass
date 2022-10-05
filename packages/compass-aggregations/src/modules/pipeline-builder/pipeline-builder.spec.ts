@@ -140,27 +140,27 @@ describe('PipelineBuilder', function () {
       expect(stage?.operator).to.equal('$sort');
     });
 
-    it('adds a new stage at a specified index', function () {
+    it('adds a new stage after a specified index', function () {
       builder.addStage(1);
 
       expect(builder.stages.length).to.equal(4);
 
-      let stage = builder.getStage(1);
+      let stage = builder.getStage(2);
       expect(stage?.disabled).to.be.false;
       expect(stage?.operator).to.be.null;
       expect(stage?.value).to.be.null;
       expect(stage?.syntaxError?.message).to.be.equal('A pipeline stage specification object must contain exactly one field.');
 
       // Does not impact a stage before or after it
-      stage = builder.getStage(0);
-      expect(stage?.disabled).to.be.false;
-      expect(stage?.syntaxError).to.be.null;
-      expect(stage?.operator).to.equal('$match');
-
-      stage = builder.getStage(2);
+      stage = builder.getStage(1);
       expect(stage?.disabled).to.be.true;
       expect(stage?.syntaxError).to.be.null;
       expect(stage?.operator).to.equal('$limit');
+
+      stage = builder.getStage(3);
+      expect(stage?.disabled).to.be.false;
+      expect(stage?.syntaxError).to.be.null;
+      expect(stage?.operator).to.equal('$sort');
     });
 
     it('removes a stage', function () {
@@ -202,22 +202,22 @@ describe('PipelineBuilder', function () {
 
     it('adds, moves and removes stage', function () {
 
-      builder.addStage(0); // null, $match, $limit, $sort
-      builder.moveStage(0, 1); // $match, null, $limit, $sort
-      builder.removeStage(3); // $match, null, $limit
+      builder.addStage(0); // $match, null, $limit, $sort
+      builder.moveStage(0, 1); // null, $match, $limit, $sort
+      builder.removeStage(3); // null, $match, $limit
 
       expect(builder.stages.length).to.equal(3);
 
       let stage = builder.getStage(0);
       expect(stage?.disabled).to.be.false;
-      expect(stage?.syntaxError).to.be.null;
-      expect(stage?.operator).to.equal('$match');
-
-      stage = builder.getStage(1);
-      expect(stage?.disabled).to.be.false;
       expect(stage?.operator).to.be.null;
       expect(stage?.value).to.be.null;
       expect(stage?.syntaxError?.message).to.be.equal('A pipeline stage specification object must contain exactly one field.');
+
+      stage = builder.getStage(1);
+      expect(stage?.disabled).to.be.false;
+      expect(stage?.syntaxError).to.be.null;
+      expect(stage?.operator).to.equal('$match');
 
       stage = builder.getStage(2);
       expect(stage?.disabled).to.be.true;

@@ -21,9 +21,9 @@ export class PipelinePreviewManager {
       signal: controller.signal,
       namespace,
       // TODO: move pipeline transform logic for previews here
+      // also add limit to it
       pipeline,
       options,
-      limit: /* TODO: pass from outside */ 10
     });
     this.queue.delete(idx);
     return result;

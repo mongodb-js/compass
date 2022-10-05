@@ -179,16 +179,16 @@ export class PipelineBuilder {
     return parseEJSON(this.source, { mode: 'loose' });
   }
   getPipelineFromStages(stages = this.stages): Document[] {
-    const error = stages.find((stage) => stage.syntaxError);
-    if (error) {
-      throw error;
+    const stage = stages.find((stage) => stage.syntaxError);
+    if (stage) {
+      throw stage.syntaxError;
     }
     const stagesString = stages
       .map((stage) => {
         return getStringFromStage(stage);
       })
       .join(',\n');
-    return parseEJSON(`[${stagesString}]`, { mode: 'loose' });
+    return parseEJSON(`[${stagesString}\n]`, { mode: 'loose' });
   }
 
   getPreviewForPipeline(namespace: string, options: AggregateOptions) {
