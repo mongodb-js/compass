@@ -9,14 +9,20 @@ function Plugin({
   appName,
   appRegistry,
   showWelcomeModal,
+  networkTraffic,
 }: {
   appName: string;
   appRegistry: AppRegistry;
   showWelcomeModal: boolean;
+  networkTraffic: boolean;
 }): React.ReactElement {
   return (
     <AppRegistryContext.Provider value={appRegistry}>
-      <Home appName={appName} showWelcomeModal={showWelcomeModal} />
+      <Home
+        appName={appName}
+        showWelcomeModal={showWelcomeModal}
+        networkTraffic={networkTraffic}
+      />
     </AppRegistryContext.Provider>
   );
 }

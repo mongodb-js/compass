@@ -21,7 +21,12 @@ describe('WelcomeModal', function () {
       props: Partial<ComponentProps<typeof WelcomeModal>> = {}
     ) => {
       render(
-        <WelcomeModal isOpen={false} closeModal={closeModalSpy} {...props} />
+        <WelcomeModal
+          networkTraffic={true}
+          isOpen={false}
+          closeModal={closeModalSpy}
+          {...props}
+        />
       );
     };
   });
@@ -30,13 +35,13 @@ describe('WelcomeModal', function () {
     renderWelcomeModal({ isOpen: true });
 
     const container = screen.queryByTestId('welcome-modal');
-    expect(container).to.exist;
+    expect(container).to.be.visible;
   });
 
   it('closes when clicking the Start button', function () {
     renderWelcomeModal({ isOpen: true });
     const startButton = screen.getByText('Start').closest('button');
-    expect(startButton).to.exist;
+    expect(startButton).to.be.visible;
     userEvent.click(startButton as Element);
     expect(closeModalSpy.calledOnceWith()).to.be.true;
   });
@@ -53,5 +58,11 @@ describe('WelcomeModal', function () {
     const settingsLink = screen.getByText('Settings');
     userEvent.click(settingsLink);
     expect(closeModalSpy.calledOnceWith(true)).to.be.true;
+  });
+
+  it('has no settings link when networkTraffic is false', function () {
+    renderWelcomeModal({ isOpen: true, networkTraffic: false });
+    const settingsLink = screen.queryByText('Settings');
+    expect(settingsLink).to.not.exist;
   });
 });
