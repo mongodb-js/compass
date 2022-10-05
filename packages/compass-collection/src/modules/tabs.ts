@@ -90,7 +90,7 @@ export interface WorkspaceTabObject {
  */
 export const INITIAL_STATE = [];
 
-type TabsState = WorkspaceTabObject[];
+type State = WorkspaceTabObject[];
 
 const showCollectionSubmenu = ({ isReadOnly }: { isReadOnly: boolean }) => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -118,8 +118,8 @@ const doClearTabs = () => {
  *
  * @returns {Object} The new state.
  */
-const doSelectNamespace = (state: TabsState, action: AnyAction) => {
-  return state.reduce((newState: TabsState, tab: WorkspaceTabObject) => {
+const doSelectNamespace = (state: State, action: AnyAction) => {
+  return state.reduce((newState: State, tab: WorkspaceTabObject) => {
     if (tab.isActive) {
       const subTabIndex = action.editViewName ? 1 : 0;
       newState.push({
@@ -159,7 +159,7 @@ const doSelectNamespace = (state: TabsState, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doCreateTab = (state: TabsState, action: AnyAction) => {
+const doCreateTab = (state: State, action: AnyAction) => {
   const newState = state.map((tab: WorkspaceTabObject) => {
     return { ...tab, isActive: false };
   });
@@ -205,36 +205,33 @@ const doCreateTab = (state: TabsState, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doCloseTab = (state: TabsState, action: AnyAction) => {
+const doCloseTab = (state: State, action: AnyAction) => {
   const closeIndex = action.index;
   const activeIndex = state.findIndex((tab: WorkspaceTabObject) => {
     return tab.isActive;
   });
   const numTabs = state.length;
 
-  return state.reduce(
-    (newState: TabsState, tab: WorkspaceTabObject, i: number) => {
-      if (closeIndex !== i) {
-        // We follow standard browser behavior with tabs on how we
-        // handle which tab gets activated if we close the active tab.
-        // If the active tab is the last tab, we activate the one before
-        // it, otherwise we activate the next tab.
-        if (activeIndex === closeIndex) {
-          newState.push({
-            ...tab,
-            isActive: isTabAfterCloseActive(closeIndex, i, numTabs),
-          });
-        } else {
-          newState.push({ ...tab });
-        }
+  return state.reduce((newState: State, tab: WorkspaceTabObject, i: number) => {
+    if (closeIndex !== i) {
+      // We follow standard browser behavior with tabs on how we
+      // handle which tab gets activated if we close the active tab.
+      // If the active tab is the last tab, we activate the one before
+      // it, otherwise we activate the next tab.
+      if (activeIndex === closeIndex) {
+        newState.push({
+          ...tab,
+          isActive: isTabAfterCloseActive(closeIndex, i, numTabs),
+        });
+      } else {
+        newState.push({ ...tab });
       }
-      return newState;
-    },
-    []
-  );
+    }
+    return newState;
+  }, []);
 };
 
-const doCollectionDropped = (state: TabsState, action: AnyAction) => {
+const doCollectionDropped = (state: State, action: AnyAction) => {
   const tabs = state.filter((tab: WorkspaceTabObject) => {
     return tab.namespace !== action.namespace;
   });
@@ -246,7 +243,7 @@ const doCollectionDropped = (state: TabsState, action: AnyAction) => {
   return tabs;
 };
 
-const doDatabaseDropped = (state: TabsState, action: AnyAction) => {
+const doDatabaseDropped = (state: State, action: AnyAction) => {
   const tabs = state.filter((tab: WorkspaceTabObject) => {
     const tabDbName = toNS(tab.namespace).database;
     return tabDbName !== action.name;
@@ -267,7 +264,7 @@ const doDatabaseDropped = (state: TabsState, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doMoveTab = (state: TabsState, action: AnyAction) => {
+const doMoveTab = (state: State, action: AnyAction) => {
   if (action.fromIndex === action.toIndex) return state;
   const newState = state.map((tab: WorkspaceTabObject) => ({ ...tab }));
   newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
@@ -281,7 +278,7 @@ const doMoveTab = (state: TabsState, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doNextTab = (state: TabsState) => {
+const doNextTab = (state: State) => {
   const activeIndex = state.findIndex(
     (tab: WorkspaceTabObject) => tab.isActive
   );
@@ -300,7 +297,7 @@ const doNextTab = (state: TabsState) => {
  *
  * @returns {Object} The new state.
  */
-const doPrevTab = (state: TabsState) => {
+const doPrevTab = (state: State) => {
   const activeIndex = state.findIndex(
     (tab: WorkspaceTabObject) => tab.isActive
   );
@@ -320,7 +317,7 @@ const doPrevTab = (state: TabsState) => {
  *
  * @returns {Object} The new state.
  */
-const doSelectTab = (state: TabsState, action: AnyAction) => {
+const doSelectTab = (state: State, action: AnyAction) => {
   return state.map((tab: WorkspaceTabObject, i: number) => {
     return { ...tab, isActive: action.index === i ? true : false };
   });
@@ -334,7 +331,7 @@ const doSelectTab = (state: TabsState, action: AnyAction) => {
  *
  * @returns {Array} The new state.
  */
-const doChangeActiveSubTab = (state: TabsState, action: AnyAction) => {
+const doChangeActiveSubTab = (state: State, action: AnyAction) => {
   return state.map((tab: WorkspaceTabObject) => {
     const subTab =
       action.id === tab.id ? action.activeSubTab : tab.activeSubTab;
@@ -657,7 +654,7 @@ export const selectOrCreateTab = ({
 }): ThunkAction<void, RootState, void, AnyAction> => {
   return (
     dispatch: ThunkDispatch<RootState, void, AnyAction>,
-    getState: () => RootState // TODO: RootState types.
+    getState: () => RootState
   ) => {
     const state = getState();
     if (state.tabs.length === 0) {
@@ -805,7 +802,7 @@ export const replaceTabContent = ({
 > & {
   sourcePipeline?: Document[];
 }): ThunkAction<void, RootState, void, AnyAction> => {
-  return (dispatch: Dispatch, getState: any) => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const context = createContext({
       state,
