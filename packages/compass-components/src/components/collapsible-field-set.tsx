@@ -8,10 +8,8 @@ const infoLinkStyles = css({
   marginLeft: spacing[1],
 });
 
-const collapsibleFieldsetStyles = css({
-  '> fieldset': {
-    paddingLeft: `${spacing[4]}px`,
-  },
+const fieldsetStyles = css({
+  paddingLeft: `${spacing[4]}px`,
 });
 
 export type CollapsibleFieldSetProps = {
@@ -37,10 +35,7 @@ export const CollapsibleFieldSet = ({
 }: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
   const labelId = dataTestId || 'collapsible-fieldset-props';
   return (
-    <FormFieldContainer
-      className={collapsibleFieldsetStyles}
-      data-testid={`${labelId}-fieldset`}
-    >
+    <FormFieldContainer data-testid={`${labelId}-fieldset`}>
       <Checkbox
         data-testid={labelId}
         onChange={(event) => {
@@ -69,7 +64,7 @@ export const CollapsibleFieldSet = ({
         checked={toggled}
         id={labelId}
       />
-      {toggled && <fieldset>{children}</fieldset>}
+      {toggled && <fieldset className={fieldsetStyles}>{children}</fieldset>}
     </FormFieldContainer>
   );
 };
