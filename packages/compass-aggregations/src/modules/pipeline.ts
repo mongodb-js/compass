@@ -18,10 +18,11 @@ import type { RootState } from '.';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { AggregateOptions, Document } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { projectionsChanged } from './projections';
+import { projectionsChanged, PROJECTIONS_CHANGED } from './projections';
 import { setIsModified } from './is-modified';
 import type { AutoPreviewToggledAction } from './auto-preview';
 import { ActionTypes as AutoPreviewActionTypes } from './auto-preview';
+import { CONFIRM_NEW } from './import-pipeline';
 
 const { track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -473,6 +474,21 @@ const autoPreviewToggled = (state: State, action: AnyAction): State => {
   return state;
 }
 
+const onConfirmNew = (_state: State, action: AnyAction) => {
+  return action.error ? [] : action.pipeline;
+}
+
+const onProjectionsChanged = (state: State, action: AnyAction) => {
+  return copyState(state).map((stage, index) => {
+    stage.projections = action.projections.filter(
+      (projection: { index: number }) => {
+        return projection.index === index;
+      }
+    );
+    return stage;
+  });
+};
+
 /**
  * To not have a huge switch statement in the reducer.
  */
@@ -489,6 +505,8 @@ MAPPINGS[STAGE_COLLAPSE_TOGGLED] = toggleStageCollapse;
 MAPPINGS[STAGE_PREVIEW_UPDATED] = updateStagePreview;
 MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
 MAPPINGS[AutoPreviewActionTypes.AutoPreviewToggled] = autoPreviewToggled;
+MAPPINGS[CONFIRM_NEW] = onConfirmNew;
+MAPPINGS[PROJECTIONS_CHANGED] = onProjectionsChanged;
 
 /**
  * Reducer function for handle state changes to pipeline.

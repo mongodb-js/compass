@@ -186,10 +186,6 @@ describe('Aggregation Store', function() {
           expect(state.collationString).to.equal(INITIAL_STATE.collationString);
         });
 
-        it('resets is overview on', function() {
-          expect(state.isOverviewOn).to.equal(INITIAL_STATE.isOverviewOn);
-        });
-
         it('resets settings', function() {
           expect(state.settings).to.equal(INITIAL_STATE.settings);
         });
@@ -204,10 +200,6 @@ describe('Aggregation Store', function() {
 
         it('resets maxTimeMS', function() {
           expect(state.maxTimeMS).to.equal(INITIAL_STATE.maxTimeMS);
-        });
-
-        it('resets isFullscreenOn', function() {
-          expect(state.isFullscreenOn).to.equal(INITIAL_STATE.isFullscreenOn);
         });
 
         it('resets saving pipeline', function() {
@@ -257,12 +249,10 @@ describe('Aggregation Store', function() {
             isReadonly: INITIAL_STATE.isReadonly,
             importPipeline: INITIAL_STATE.importPipeline,
             collationString: INITIAL_STATE.collationString,
-            isOverviewOn: INITIAL_STATE.isOverviewOn,
             settings: INITIAL_STATE.settings,
             limit: INITIAL_STATE.limit,
             largeLimit: INITIAL_STATE.largeLimit,
             maxTimeMS: INITIAL_STATE.maxTimeMS,
-            isFullscreenOn: INITIAL_STATE.isFullscreenOn,
             savingPipeline: INITIAL_STATE.savingPipeline,
             projections: INITIAL_STATE.projections,
             isNewPipelineConfirm: INITIAL_STATE.isNewPipelineConfirm,

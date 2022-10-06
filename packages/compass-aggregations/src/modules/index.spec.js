@@ -11,9 +11,6 @@ import reducer, {
   NEW_PIPELINE,
   CLONE_PIPELINE,
 } from './';
-import { toggleOverview, TOGGLE_OVERVIEW } from './is-overview-on';
-import { largeLimitChanged, LARGE_LIMIT_CHANGED } from './large-limit';
-import { limitChanged, LIMIT_CHANGED } from './limit';
 import {
   maxTimeMSChanged,
   MAX_TIME_MS_CHANGED
@@ -62,37 +59,11 @@ describe('root [ module ]', function() {
     });
   });
 
-  describe('#toggleOverview', function() {
-    it('returns the TOGGLE_OVERVIEW action', function() {
-      expect(toggleOverview()).to.deep.equal({
-        type: TOGGLE_OVERVIEW
-      });
-    });
-  });
-
   describe('#maxTimeMS', function() {
     it('returns the MAX_TIME_MS_CHANGED action', function() {
       expect(maxTimeMSChanged(100)).to.deep.equal({
         type: MAX_TIME_MS_CHANGED,
         maxTimeMS: 100
-      });
-    });
-  });
-
-  describe('#limit', function() {
-    it('returns the LIMIT_CHANGED action', function() {
-      expect(limitChanged(100)).to.deep.equal({
-        type: LIMIT_CHANGED,
-        limit: 100
-      });
-    });
-  });
-
-  describe('#largeLimit', function() {
-    it('returns the LARGE_LIMIT_CHANGED action', function() {
-      expect(largeLimitChanged(100)).to.deep.equal({
-        type: LARGE_LIMIT_CHANGED,
-        largeLimit: 100
       });
     });
   });
@@ -158,71 +129,6 @@ describe('root [ module ]', function() {
 
       it('updates the name', function() {
         expect(state.name).to.equal('test (copy)');
-      });
-    });
-
-    describe('when the action is TOGGLE_OVERVIEW', function() {
-      describe('#overview', function() {
-        const prevState = {
-          isOverviewOn: false
-        };
-
-        let state;
-
-        it('first toggle turns it on', function() {
-          state = reducer(prevState, toggleOverview());
-          expect(state.isOverviewOn).to.equal(true);
-        });
-
-        it('second toggle turns it back off', function() {
-          state = reducer(state, toggleOverview());
-          expect(state.isOverviewOn).to.equal(false);
-        });
-      });
-
-      describe('#pipeline[].isExpanded', function() {
-        const prevState = {
-          isOverviewOn: false,
-          pipeline: [
-            {
-              isExpanded: true
-            }
-          ]
-        };
-
-        let state;
-
-        it('first toggle collapses the opened stage', function() {
-          state = reducer(prevState, toggleOverview());
-          expect(state.pipeline[0].isExpanded).to.equal(false);
-        });
-
-        it('second toggle expands the stage', function() {
-          state = reducer(state, toggleOverview());
-          expect(state.pipeline[0].isExpanded).to.equal(true);
-        });
-      });
-
-      describe('#inputDocuments.isExpanded', function() {
-        const prevState = {
-          isOverviewOn: false,
-          inputDocuments: {
-            isExpanded: true,
-            documents: []
-          }
-        };
-
-        let state;
-
-        it('first toggle collapses it', function() {
-          state = reducer(prevState, toggleOverview());
-          expect(state.inputDocuments.isExpanded).to.equal(false);
-        });
-
-        it('second toggle expands the stage', function() {
-          state = reducer(state, toggleOverview());
-          expect(state.inputDocuments.isExpanded).to.equal(true);
-        });
       });
     });
   });

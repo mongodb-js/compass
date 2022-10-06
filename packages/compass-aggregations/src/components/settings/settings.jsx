@@ -20,7 +20,6 @@ class Settings extends PureComponent {
     toggleSettingsIsExpanded: PropTypes.func.isRequired,
     toggleSettingsIsCommentMode: PropTypes.func.isRequired,
     setSettingsSampleSize: PropTypes.func.isRequired,
-    setSettingsMaxTimeMS: PropTypes.func.isRequired,
     setSettingsLimit: PropTypes.func.isRequired,
     applySettings: PropTypes.func.isRequired,
     runStage: PropTypes.func.isRequired
@@ -38,10 +37,6 @@ class Settings extends PureComponent {
 
   onSampleSizeChanged(evt) {
     this.props.setSettingsSampleSize(parseInt(evt.currentTarget.value, 10));
-  }
-
-  onMaxTimeoutChanged(evt) {
-    this.props.setSettingsMaxTimeMS(parseInt(evt.currentTarget.value, 10));
   }
 
   onLimitChanged(evt) {

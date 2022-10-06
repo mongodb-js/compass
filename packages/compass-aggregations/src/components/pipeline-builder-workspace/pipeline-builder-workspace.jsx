@@ -51,10 +51,8 @@ class PipelineWorkspace extends PureComponent {
     stageOperatorSelected: PropTypes.func.isRequired,
     stageToggled: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
-    isOverviewOn: PropTypes.bool.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired,
     isAtlasDeployed: PropTypes.bool
   };
 
@@ -128,10 +126,8 @@ class PipelineWorkspace extends PureComponent {
       stageToggled={this.props.stageToggled}
       fields={this.props.fields}
       setIsModified={this.props.setIsModified}
-      isOverviewOn={this.props.isOverviewOn}
       projections={this.props.projections}
       projectionsChanged={this.props.projectionsChanged}
-      newPipelineFromPaste={this.props.newPipelineFromPaste}
       isAtlasDeployed={this.props.isAtlasDeployed}
     />);
   }
@@ -191,7 +187,6 @@ class PipelineWorkspace extends PureComponent {
               isExpanded={inputDocuments.isExpanded}
               openLink={this.props.openLink}
               count={inputDocuments.count}
-              isOverviewOn={this.props.isOverviewOn}
             />
             {this.renderStageList()}
             <AddStage

@@ -12,14 +12,11 @@ export const TOGGLE_COMMENT_MODE = `${PREFIX}/TOGGLE_COMMENT_MODE`;
 
 export const SET_SAMPLE_SIZE = `${PREFIX}/SET_SAMPLE_SIZE`;
 
-export const SET_MAX_TIME_MS = `${PREFIX}/SET_MAX_TIME_MS`;
-
 export const SET_LIMIT = `${PREFIX}/SET_LIMIT`;
 
 export const APPLY_SETTINGS = `${PREFIX}/APPLY_SETTINGS`;
 
 import {
-  DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
   DEFAULT_LARGE_LIMIT
 } from '../constants';
@@ -29,7 +26,6 @@ type State = {
   isCommentMode: boolean,
   isDirty: boolean,
   sampleSize: number,
-  maxTimeMS: number,
   limit: number
 };
 
@@ -38,7 +34,6 @@ export const INITIAL_STATE: State = {
   isCommentMode: true,
   isDirty: false,
   sampleSize: DEFAULT_SAMPLE_SIZE, // limit
-  maxTimeMS: DEFAULT_MAX_TIME_MS,
   limit: DEFAULT_LARGE_LIMIT // largeLimit
 };
 
@@ -72,13 +67,6 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
       isDirty: true
     };
   }
-  if (action.type === SET_MAX_TIME_MS) {
-    return {
-      ...state,
-      maxTimeMS: action.value,
-      isDirty: true
-    };
-  }
 
   if (action.type === SET_LIMIT) {
     return {
@@ -89,8 +77,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   }
 
   if (action.type === APPLY_SETTINGS) {
-    // Note: Handled in root reducer.
-    return state;
+    return { ...state, isDirty: false };
   }
   return state;
 }
@@ -108,29 +95,23 @@ export const setSettingsSampleSize = (value: number) => ({
   value: value
 });
 
-export const setSettingsMaxTimeMS = (value: number) => ({
-  type: SET_MAX_TIME_MS,
-  value: value
-});
-
 export const setSettingsLimit = (value: number) => ({
   type: SET_LIMIT,
   value: value
 });
 
-const doApplySettings = (value: State) => ({
+const doApplySettings = (settings: State) => ({
   type: APPLY_SETTINGS,
-  settings: value
+  settings,
 });
 
-export const applySettings = (
-  value: State
-): ThunkAction<void, RootState, void, AnyAction> => {
+export const applySettings = (): ThunkAction<void, RootState, void, AnyAction> => {
   return (dispatch, getState) => {
-    dispatch(doApplySettings(value));
+    const { settings } = getState();
+    dispatch(doApplySettings(settings));
     dispatch(
       globalAppRegistryEmit('compass:aggregations:settings-applied', {
-        settings: getState().settings
+        settings
       })
     );
   };

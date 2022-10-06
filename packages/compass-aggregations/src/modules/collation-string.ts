@@ -1,5 +1,6 @@
 import type { CollationOptions } from 'mongodb';
 import queryParser from 'mongodb-query-parser';
+import { CONFIRM_NEW } from './import-pipeline';
 
 /**
  * Collation string changed action.
@@ -47,6 +48,9 @@ export default function reducer(
 ): CollationStringState {
   if (action.type === COLLATION_STRING_CHANGED) {
     return getCollationStateFromString(action.value);
+  }
+  if (action.type === CONFIRM_NEW) {
+    return { ...INITIAL_STATE };
   }
   return state;
 }

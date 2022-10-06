@@ -15,7 +15,6 @@ describe('StageEditor [Component]', function() {
   const stageOperator = '$match';
   const isValid = true;
   const projectionsChangedSpy = sinon.spy();
-  const newPipelineFromPasteSpy = sinon.spy();
 
   beforeEach(function() {
     component = mount(
@@ -31,7 +30,6 @@ describe('StageEditor [Component]', function() {
         setIsModified={setIsModifiedSpy}
         stageChanged={spy}
         projectionsChanged={projectionsChangedSpy}
-        newPipelineFromPaste={newPipelineFromPasteSpy}
       />
     );
   });

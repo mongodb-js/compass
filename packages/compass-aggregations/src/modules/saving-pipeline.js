@@ -47,6 +47,11 @@ export default function reducer(state = INITIAL_STATE, action) {
       isOpen: false
     };
   }
+
+  if (action.type === SAVING_PIPELINE_APPLY) {
+    return { ...INITIAL_STATE };
+  }
+
   return state;
 }
 
@@ -69,9 +74,12 @@ export const savingPipelineNameChanged = (name) => ({
  * @param {String} name - The name value.
  * @returns {Object} The apply name action.
  */
-export const savingPipelineApply = () => ({
-  type: SAVING_PIPELINE_APPLY
-});
+export const savingPipelineApply = () => (dispatch, getState) => {
+  dispatch({
+    type: SAVING_PIPELINE_APPLY,
+    name: getState().savingPipeline.name
+  })
+};
 
 /**
  * Action creator for cancel events.
