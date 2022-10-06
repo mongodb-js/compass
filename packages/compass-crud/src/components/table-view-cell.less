@@ -48,7 +48,7 @@
   }
 
   &-is-empty {
-    background-color: #f9fbfa;
+    background-color: @palette__gray--light-3;
     line-height: 26px;
     margin: 1px;
     padding-left: 5px;
@@ -56,7 +56,7 @@
   }
 
   &-is-uneditable {
-    background: #ffffff;
+    background: @palette__white;
   }
 
   &:hover {
@@ -93,30 +93,30 @@
   }
 
   &-is-deleted {
-    background-color: @redLight3;
-    border: 1px solid @redLight2;
+    background-color: @palette__red--light-3;
+    border: 1px solid @palette__red--light-2;
   }
 
   &-is-edited {
-    background-color: @yellowLight3;
-    border: 1px solid @yellowLight2;
+    background-color: @palette__yellow--light-3;
+    border: 1px solid @palette__yellow--light-3;
   }
 
   &-is-added {
-    background-color: @greenLight3;
-    border: 1px solid @greenLight2;
+    background-color: @palette__green--light-3;
+    border: 1px solid @palette__green--light-2;
   }
 
   &-is-invalid {
-    background-color: @redLight2;
-    border: 1px solid @redBase;
+    background-color: @palette__red--light-2;
+    border: 1px solid @palette__red--base;
   }
 
   &-row-number {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #889397;
+    color: @palette__gray--base;
     height: 27px;
   }
 
@@ -125,7 +125,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-align: left;
-    border-right: 0.5px solid #e8edeb;
+    border-right: 0.5px solid @palette__gray--light-2;
 
     &-icon {
       float: right;
@@ -134,7 +134,7 @@
     }
 
     &-subtable-objectid {
-      border-right: 3px solid #c1c7c6;
+      border-right: 3px solid @palette__gray--light-1;
       position: relative;
     }
   }

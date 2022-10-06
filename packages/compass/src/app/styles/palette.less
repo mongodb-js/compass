@@ -1,151 +1,46 @@
-@sidebar-bg: @slate1;
-@sidebar-width: 250px;
+@palette__white: #ffffff;
+@palette__black: #001E2B;
 
-/* MongoDB Color Palette */
-/* commented colors have been deprecated */
-@green0: #00684a; 
-@green1: #00a35c;
-@green2: #00a35c; // Primary green
-@green3: #00a35c; 
-@green4: #71f6ba;
-@green5: #c0fae6; 
-@green6: #e3fcf7;
+@palette__gray--dark-4: #112733;
+@palette__gray--dark-3: #1C2D38;
+@palette__gray--dark-2: #3D4F58;
+@palette__gray--dark-1: #5C6C75;
+@palette__gray--base: #889397;
+@palette__gray--light-1: #C1C7C6;
+@palette__gray--light-2: #E8EDEB;
+@palette__gray--light-3: #F9FBFA;
 
-@gray0: #1c2d38;
-@gray1: #3d4f58;
-@gray2: #5c6c75;
-@gray3: #889397;
-@gray4: #889397;
-@gray5: #c1c7c6;
+@palette__green--dark-3: #023430;
+@palette__green--dark-2: #00684A;
+@palette__green--dark-1: #00A35C;
+@palette__green--base: #00ED64;
+@palette__green--light-1: #71F6BA;
+@palette__green--light-2: #C0FAE6;
+@palette__green--light-3: #E3FCF7;
 
-/* UI Grays */
-@gray6: #e8edeb;
-@gray7: #e8edeb;
-@gray8: #f9fbfa;
-@gray9: #c1c7c6;
-@gray10: #e8edeb;
+@palette__purple--dark-3: #2D0B59;
+@palette__purple--dark-2: #5E0C9E;
+@palette__purple--base: #B45AF2;
+@palette__purple--light-2: #F1D4FD;
+@palette__purple--light-3: #F9EBFF;
 
-@slate0: #3d4f58;
-@slate1: #3d4f58;
-@slate2: #5c6c75;
+@palette__blue--dark-3: #0C2657;
+@palette__blue--dark-2: #083C90;
+@palette__blue--dark-1: #1254B7;
+@palette__blue--base: #016BF8;
+@palette__blue--light-1: #0498EC;
+@palette__blue--light-2: #C3E7FE;
+@palette__blue--light-3: #E1F7FF;
 
-@blue3: #016bf8;
-@blue4: #889397;
-@blue5: #c1c7c6;
+@palette__yellow--dark-3: #4C2100;
+@palette__yellow--dark-2: #944F01;
+@palette__yellow--base: #FFC010;
+@palette__yellow--light-2: #FFEC9E;
+@palette__yellow--light-3: #FEF7DB;
 
-@purple0: #1c2d38;
-@purple1: #5c6c75;
-@purple2: #5c6c75;
-@purple3: #889397;
-@purple4: #c1c7c6;
-@purple5: #c1c7c6;
-
-/* Other Colors */
-@red: #db3030;
-@lightRed: #ffeae5;
-@yellow: @alertOrange;
-@pw: #fff;
-@cautionOrange: @alertOrange;
-@errorBackground: #ffcdc7;
-@greenBg: @green6;
-
-/* Text Colors */
-/* default text color is @gray1 */
-@linkText: #016bf8;
-@linkOnDark: #0498ec;
-@warningText: #ffc010;
-@successText: @green2;
-@errorText: #db3030;
-@mutedText: @gray4;
-@veryMutedText: @gray5;
-@subNavText: #5c6c75;
-
-/*Chart Colors*/
-@chart0: #ffc010;
-@chart1: #0498ec;
-@chart2: #ff6960;
-@chart3: #00a35c;
-@chart4: #ffc010;
-@chart5: #00a35c;
-@chart6: #889397;
-@chart7: #b45af2;
-@chart8: #71f6ba;
-
-@chartAverage: #ffc010;
-@chartTotal: #00a35c;
-
-@chartRestart: #ff6960;
-@chartBecamePrimary: #ffc010;
-@chartBecameSecondary: #944f01;
-
-/* Alert Colors */
-@alertOrange: #ffc010;
-@alertOrangeBg: #fef7db;
-@alertOrangeBorder: #944f01;
-@alertRed: #ff6960;
-@alertRedBg: #ffeae5;
-@alertRedText: #db3030;
-@alertBlue: #0498ec;
-
-/* Semantic Colors */
-
-@inactiveIcon: @gray4;
-
-/* MongoDB Color Palette 2019 */
-@black: #001e2b;
-@grayDark3: #1c2d38;
-@grayDark2: #3d4f58;
-@grayDark1: #5c6c75;
-@grayBase: #889397;
-@grayLight1: #c1c7c6;
-@grayLight2: #e8edeb;
-@grayLight3: #f9fbfa;
-@white: #ffffff;
-
-@greenDark3: #00684a;
-@greenDark2: #00684a;
-@greenBase: #00a35c;
-@greenLight2: #c0fae6;
-@greenLight3: #e3fcf7;
-
-@blueDark3: #0c2657;
-@blueDark2: #1254b7;
-@blueBase: #0498ec;
-@blueLight2: #c3e7fe;
-@blueLight3: #e1f7ff;
-
-@yellowDark3: #4c2100;
-@yellowDark2: #944f01;
-@yellowBase: #ffc010;
-@yellowLight2: #fef7db;
-@yellowLight3: #fef7db;
-
-@redDark3: #5b0000;
-@redDark2: #970606;
-@redBase: #db3030;
-@redLight2: #ffcdc7;
-@redLight3: #ffeae5;
-
-@bluelight2: #c3e7fe;
-@bluebase: #0498ec;
-
-@purple0: #1c2d38;
-@purple1: #5c6c75;
-@purple2: #5c6c75;
-@purple3: #889397;
-@purple4: #c1c7c6;
-@purple5: #c1c7c6;
-
-/* Alert Colors */
-@alertOrange: #ffc010;
-@alertOrangeBg: #fef7db;
-@alertOrangeBorder: #944f01;
-@alertRed: #ff6960;
-@alertRedBg: #ffeae5;
-@alertRedText: #db3030;
-@alertBlue: #0498ec;
-
-/* Semantic Colors */
-
-@inactiveIcon: @gray4;
-
+@palette__red--dark-3: #5B0000;
+@palette__red--dark-2: #970606;
+@palette__red--base: #DB3030;
+@palette__red--light-1: #FF6960;
+@palette__red--light-2: #FFCDC7;
+@palette__red--light-3: #FFEAE5;

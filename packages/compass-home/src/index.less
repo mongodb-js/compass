@@ -1,7 +1,9 @@
-@gray4: #889397;
-@gray7: #e8edeb;
-@gray8: #f9fbfa;
-@gray-base: #000000;
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
+@gray4: @palette__gray--base;
+@gray7: @palette__gray--light-2;
+@gray8: @palette__gray--light-3;
+@gray-base: @palette__black;
 @gray-lighter: lighten(@gray-base, 93.5%); // #eee
 .badge {
   border: 1px solid @gray-lighter;
@@ -15,7 +17,7 @@
   }
   span {
     font-size: 24px;
-    color: @gray4;
+    color: @palette__gray--base;
     font-weight: 200;
     margin-left: 15px;
   }
