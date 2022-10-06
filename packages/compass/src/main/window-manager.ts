@@ -91,7 +91,7 @@ function showConnectWindow(
      */
     icon: process.platform === 'linux' ? COMPASS_ICON : undefined,
     show: !!process.env.DEBUG_MAIN_WINDOW,
-    backgroundColor: '#F5F6F7',
+    backgroundColor: '#f9fbfa',
     ...opts,
     webPreferences: {
       'subpixel-font-scaling': true,

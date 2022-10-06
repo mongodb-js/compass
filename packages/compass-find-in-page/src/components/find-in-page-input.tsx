@@ -21,7 +21,7 @@ const findInPageContainerStyles = css({
   top: 0,
   right: spacing[4],
   width: spacing[6] * 4, // 256px
-  boxShadow: '0px 2px 5px rgba(6, 22, 23, 0.3)',
+  boxShadow: '0px 2px 5px rgba(0, 30, 43, 0.3)',
 });
 
 const containerLightThemeStyles = css({

@@ -15,7 +15,7 @@ function WelcomeImage(props: SVGProps<SVGSVGElement>) {
         </clipPath>
         <style>
           {
-            '.g,.h{fill:none}.i{fill:#e3fcf7}.g,.h,.i,.j,.k,.l,.m,.o,.p{stroke:#000;stroke-linecap:round;stroke-linejoin:round}.j{fill:#ffc010}.k,.o{fill:#fff}.l{fill:#ffe212}.m{fill:#00ed64}.h{stroke-dasharray:0 0 2 2}.o{stroke-width:.8px}'
+            '.g,.h{fill:none}.i{fill:#e3fcf7}.g,.h,.i,.j,.k,.l,.m,.o,.p{stroke:#000;stroke-linecap:round;stroke-linejoin:round}.j{fill:#ffc010}.k,.o{fill:#fff}.l{fill:#ffc010}.m{fill:#00ed64}.h{stroke-dasharray:0 0 2 2}.o{stroke-width:.8px}'
           }
         </style>
       </defs>

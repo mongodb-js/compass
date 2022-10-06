@@ -38,13 +38,13 @@ export const VALUE_COLOR_BY_TYPE: Record<
   >,
   string
 > = {
-  Int32: '#145a32',
-  Double: '#1e8449',
-  Decimal128: '#229954',
-  Date: '#b22222',
-  Boolean: '#A020F0',
-  String: '#4682B4',
-  ObjectId: '#ff4500',
+  Int32: '#00684a',
+  Double: '#00a35c',
+  Decimal128: '#00a35c',
+  Date: '#970606',
+  Boolean: '#b45af2',
+  String: '#0498ec',
+  ObjectId: '#ff6960',
 };
 
 export function hasCustomColor(
