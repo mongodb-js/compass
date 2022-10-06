@@ -5,7 +5,7 @@ color: #889397;
 }
 .ace-mongodb  {
 background: #f9fbfa;
-color: #000;
+color: #000000;
 }
 .ace-mongodb .ace_keyword {
 color: #889397;
