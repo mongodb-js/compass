@@ -1,22 +1,19 @@
 import React from 'react';
-import { Checkbox, Label, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Checkbox,
+  Label,
+  FormFieldContainer,
+} from '@mongodb-js/compass-components';
 
 type UniqueIndex = {
   isUnique: boolean;
   toggleIsUnique: (isUnique: boolean) => void;
 };
 
-const uniqueIndexStyles = css({
-  margin: `${spacing[3]}px 0`,
-  fieldset: {
-    paddingLeft: `${spacing[4]}px`,
-  },
-});
-
 const UniqueIndexCheckbox = ({ isUnique, toggleIsUnique }: UniqueIndex) => {
   const labelId = 'create-index-modal-is-unique-checkbox';
   return (
-    <fieldset className={uniqueIndexStyles}>
+    <FormFieldContainer>
       <Checkbox
         data-testid="create-index-modal-is-unique-checkbox"
         onChange={(event) => {
@@ -31,7 +28,7 @@ const UniqueIndexCheckbox = ({ isUnique, toggleIsUnique }: UniqueIndex) => {
         checked={isUnique}
         id={labelId}
       />
-    </fieldset>
+    </FormFieldContainer>
   );
 };
 

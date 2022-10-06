@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
+  FormFieldContainer,
   CollapsibleFieldSet,
   Description,
   Editor,
@@ -73,7 +74,7 @@ function FLE2Fields({
       helpUrl={HELP_URL_FLE2}
       description="Encrypt a subset of the fields using Queryable Encryption."
     >
-      <fieldset>
+      <FormFieldContainer>
         <Label htmlFor={queryableEncryptedFieldsEditorId}>Encrypted fields</Label>
         <Description>Indicate which fields should be encrypted and whether they should be queryable.</Description>
         <Editor
@@ -84,9 +85,9 @@ function FLE2Fields({
           data-testid="fle2-encryptedFields"
           onChangeText={(newText) => onChangeField('fle2.encryptedFields', newText)}
         />
-      </fieldset>
+      </FormFieldContainer>
 
-      <fieldset>
+      <FormFieldContainer>
         <Label htmlFor="createcollection-radioboxgroup">
           KMS Provider
         </Label>
@@ -119,9 +120,9 @@ function FLE2Fields({
             );
           })}
         </RadioBoxGroup>
-      </fieldset>
+      </FormFieldContainer>
 
-      <fieldset>
+      <FormFieldContainer>
         <Label htmlFor={keyEncryptionKeyEditorId}>Key Encryption Key</Label>
         <Description>Specify which key encryption key to use for creating new data encryption keys.</Description>
         <Editor
@@ -133,7 +134,7 @@ function FLE2Fields({
           data-testid="fle2-keyEncryptionKey"
           onChangeText={(newText) => onChangeField('fle2.keyEncryptionKey', newText)}
         />
-      </fieldset>
+      </FormFieldContainer>
     </CollapsibleFieldSet>
   );
 }

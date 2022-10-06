@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { Select } from '@mongodb-js/compass-components';
+import { FormFieldContainer, Select } from '@mongodb-js/compass-components';
 
 import TimeSeriesFields from './time-series-fields';
 
@@ -28,8 +28,8 @@ describe('TimeSeriesFields [Component]', () => {
       component = null;
     });
 
-    it('renders the field sets', () => {
-      expect(component.find('fieldset').length).to.equal(6);
+    it('renders the form field containers', () => {
+      expect(component.find(FormFieldContainer).length).to.equal(5);
     });
   });
 
@@ -56,7 +56,7 @@ describe('TimeSeriesFields [Component]', () => {
     });
 
     it('does not render the fields', () => {
-      expect(component.find('fieldset').length).to.equal(1);
+      expect(component.find(FormFieldContainer).length).to.equal(1);
     });
 
     it('has the time-series checkbox enabled', () => {

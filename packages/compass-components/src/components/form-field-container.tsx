@@ -1,15 +1,16 @@
-import { spacing, css, cx } from '@mongodb-js/compass-components';
+import { spacing } from '@leafygreen-ui/tokens';
+import { css, cx } from '@leafygreen-ui/emotion';
 import React from 'react';
 
 const formFieldContainerStyles = css({
-  marginTop: spacing[4],
-  width: spacing[7] * 6,
+  margin: `${spacing[4]}px 0`,
 });
 
 function FormFieldContainer({
   className = '',
   children,
 }: {
+  key?: string;
   className?: string;
   children: React.ReactNode;
 }): React.ReactElement {

@@ -3,6 +3,8 @@ import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+import { FormFieldContainer } from '@mongodb-js/compass-components';
+
 import FLE2Fields from './fle2-fields';
 
 describe('FLE2Fields [Component]', () => {
@@ -30,8 +32,8 @@ describe('FLE2Fields [Component]', () => {
       component = null;
     });
 
-    it('renders the field sets', () => {
-      expect(component.find('fieldset').length).to.equal(5);
+    it('renders the form field containers', () => {
+      expect(component.find(FormFieldContainer).length).to.equal(4);
     });
   });
 
@@ -60,7 +62,7 @@ describe('FLE2Fields [Component]', () => {
     });
 
     it('does not render the fields', () => {
-      expect(component.find('fieldset').length).to.equal(1);
+      expect(component.find(FormFieldContainer).length).to.equal(1);
     });
 
     it('has the clustered checkbox enabled', () => {

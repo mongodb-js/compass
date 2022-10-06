@@ -1,5 +1,11 @@
 import React from 'react';
-import { Checkbox, Label, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Checkbox,
+  Label,
+  css,
+  spacing,
+  FormFieldContainer,
+} from '@mongodb-js/compass-components';
 
 type SparseIndex = {
   isSparse: boolean;
@@ -16,7 +22,7 @@ const sparseIndexStyles = css({
 const SparseIndexCheckbox = ({ isSparse, toggleIsSparse }: SparseIndex) => {
   const labelId = 'create-index-modal-is-sparse-checkbox';
   return (
-    <fieldset className={sparseIndexStyles}>
+    <FormFieldContainer className={sparseIndexStyles}>
       <Checkbox
         data-testid="create-index-modal-is-sparse-checkbox"
         onChange={(event) => {
@@ -31,7 +37,7 @@ const SparseIndexCheckbox = ({ isSparse, toggleIsSparse }: SparseIndex) => {
         checked={isSparse}
         id={labelId}
       />
-    </fieldset>
+    </FormFieldContainer>
   );
 };
 

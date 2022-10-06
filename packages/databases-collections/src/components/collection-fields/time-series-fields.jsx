@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Option, TextInput } from '@mongodb-js/compass-components';
+import { FormFieldContainer, Select, Option, TextInput } from '@mongodb-js/compass-components';
 import { css, CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
 
@@ -67,7 +67,7 @@ function TimeSeriesFields({
       helpUrl={HELP_URL_TIME_FIELD}
       description="Time-series collections efficiently store sequences of measurements over a period of time."
     >
-      <fieldset>
+      <FormFieldContainer>
         <TextInput
           value={timeField}
           label="timeField"
@@ -77,9 +77,9 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </fieldset>
+      </FormFieldContainer>
 
-      <fieldset>
+      <FormFieldContainer>
         <TextInput
           label="metaField"
           name="timeSeries.metaField"
@@ -89,9 +89,9 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </fieldset>
+      </FormFieldContainer>
 
-      <fieldset>
+      <FormFieldContainer>
         <Select
           id="timeSeries-granularity"
           className={optionsSelectDropdownStyles}
@@ -113,9 +113,9 @@ function TimeSeriesFields({
             </Option>
           ))}
         </Select>
-      </fieldset>
+      </FormFieldContainer>
 
-      <fieldset>
+      <FormFieldContainer>
         <TextInput
           value={expireAfterSeconds}
           label="expireAfterSeconds"
@@ -126,7 +126,7 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </fieldset>
+      </FormFieldContainer>
     </CollapsibleFieldSet>
   );
 }

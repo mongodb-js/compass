@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TextInput } from '@mongodb-js/compass-components';
+import { TextInput, FormFieldContainer } from '@mongodb-js/compass-components';
 
 function DatabaseName({
   databaseName,
   onChangeDatabaseName
 }) {
   return (
-    <fieldset>
+    <FormFieldContainer>
       <TextInput
         required
         label="Database Name"
@@ -16,7 +16,7 @@ function DatabaseName({
         value={databaseName}
         spellCheck={false}
       />
-    </fieldset>
+    </FormFieldContainer>
   );
 }
 

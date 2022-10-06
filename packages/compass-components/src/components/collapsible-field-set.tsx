@@ -1,25 +1,17 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
-import { Link, Checkbox, Label } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
+import { Link, Checkbox, Label } from './leafygreen';
+import FormFieldContainer from './form-field-container';
 
 const infoLinkStyles = css({
   marginLeft: spacing[1],
 });
 
 const collapsibleFieldsetStyles = css({
-  margin: `${spacing[3]}px 0`,
-  fieldset: {
+  '> fieldset': {
     paddingLeft: `${spacing[4]}px`,
   },
-  'fieldset fieldset': {
-    paddingLeft: 0,
-    margin: `${spacing[3]}px 0`,
-  },
-});
-
-const checkboxStyles = css({
-  padding: `${spacing[2]}px 0`,
 });
 
 export type CollapsibleFieldSetProps = {
@@ -45,7 +37,7 @@ export const CollapsibleFieldSet = ({
 }: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
   const labelId = dataTestId || 'collapsible-fieldset-props';
   return (
-    <fieldset
+    <FormFieldContainer
       className={collapsibleFieldsetStyles}
       data-testid={`${labelId}-fieldset`}
     >
@@ -76,9 +68,8 @@ export const CollapsibleFieldSet = ({
         }
         checked={toggled}
         id={labelId}
-        className={checkboxStyles}
       />
       {toggled && <fieldset>{children}</fieldset>}
-    </fieldset>
+    </FormFieldContainer>
   );
 };

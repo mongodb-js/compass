@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Select, Option, SelectSize } from '@mongodb-js/compass-components';
+import { Select, Option, SelectSize, FormFieldContainer } from '@mongodb-js/compass-components';
 import { css } from '@mongodb-js/compass-components';
 
 const optionsSelectDropdownStyles = css({
@@ -59,7 +59,7 @@ function CollationFields({
 }) {
   return COLLATION_OPTIONS.map((element) => {
     return (
-      <fieldset key={element.field}>
+      <FormFieldContainer key={element.field}>
         <Select
           id={`collation-field-${element.field}`}
           className={optionsSelectDropdownStyles}
@@ -83,7 +83,7 @@ function CollationFields({
         >
           {CollationOptions(element.values)}
         </Select>
-      </fieldset>
+      </FormFieldContainer>
     );
   });
 }
