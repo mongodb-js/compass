@@ -16,15 +16,15 @@ const containerStyles = css({
 });
 
 const containerStylesDark = css({
-  '--color': 'white',
+  '--color': uiColors.white,
   '--bg-color': uiColors.gray.dark3,
 
   '--title-color': uiColors.gray.dark3,
   '--title-bg-color': '#71F6BA', // TODO: there is no uiColors.green.light1,
 
-  '--icon-color': 'white',
+  '--icon-color': uiColors.white,
 
-  '--item-color': 'white',
+  '--item-color': uiColors.white,
   '--item-color-active': '#71F6BA', // TODO: there is no uiColors.green.light1
   '--item-bg-color': uiColors.gray.dark3,
   '--item-bg-color-hover': uiColors.gray.dark2,
@@ -38,7 +38,7 @@ const containerStylesLight = css({
   '--color': uiColors.gray.dark3,
   '--bg-color': uiColors.gray.light3,
 
-  '--title-color': 'white',
+  '--title-color': uiColors.white,
   '--title-bg-color': uiColors.green.dark2,
 
   '--icon-color': uiColors.gray.dark3,
