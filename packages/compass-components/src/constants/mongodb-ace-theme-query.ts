@@ -9,7 +9,7 @@ color: #889397;
 }
 .ace-mongodb-query  {
 background: #ffffff;
-color: #000;
+color: #000000;
 }
 .ace-mongodb-query .ace_placeholder {
 font-family: inherit;

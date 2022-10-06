@@ -77,8 +77,8 @@ class SummaryIndexStat extends Component {
       COLLSCAN: '#944f01',
       COVERED: '#00684a',
       MULTIPLE: '#944f01',
-      INDEX: '#000',
-      UNAVAILABLE: '#000',
+      INDEX: '#000000',
+      UNAVAILABLE: '#000000',
     };
 
     return typeToColor[this.props.indexType];
