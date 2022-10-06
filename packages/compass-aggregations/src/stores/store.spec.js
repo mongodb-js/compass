@@ -9,8 +9,10 @@ import {
   stageToggled,
   stageOperatorSelected
 } from '../modules/pipeline';
-import { INITIAL_STATE } from '../modules/index';
+import rootReducer from '../modules';
 import { expect } from 'chai';
+
+const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
 const fakeAppInstanceStore = {
   getState: function () {
@@ -142,10 +144,6 @@ describe('Aggregation Store', function() {
           expect(state.name).to.equal(INITIAL_STATE.name);
         });
 
-        it('resets restore', function() {
-          expect(state.restorePipeline).to.equal(INITIAL_STATE.restorePipeline);
-        });
-
         it('resets the saved pipeline', function() {
           expect(state.savedPipeline).to.equal(INITIAL_STATE.savedPipeline);
         });
@@ -236,7 +234,6 @@ describe('Aggregation Store', function() {
             autoPreview: INITIAL_STATE.autoPreview,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
-            restorePipeline: INITIAL_STATE.restorePipeline,
             savedPipeline: INITIAL_STATE.savedPipeline,
             dataService: INITIAL_STATE.dataService,
             fields: INITIAL_STATE.fields,

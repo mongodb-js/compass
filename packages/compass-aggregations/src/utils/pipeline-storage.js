@@ -24,6 +24,10 @@ export class PipelineStorage {
     ).filter(Boolean);
   }
 
+  async load(id) {
+    return this._loadOne(path.join(getDirectory(), `${id}.json`));
+  }
+
   async _loadOne(filePath) {
     try {
       const [data, stats] = await Promise.all([
@@ -55,20 +59,22 @@ export class PipelineStorage {
     if (!id) {
       throw new Error('pipelineId is required');
     }
-
-    const filePath = path.join(getDirectory(), `${id}.json`);
-    const data = await this._getFileData(filePath);
-
+    const dir = getDirectory();
+    // If we are creating a new item and none were created before this directory
+    // might be missing
+    await fs.mkdir(dir, { recursive: true });
+    const filePath = path.join(dir, `${id}.json`);
+    const data = await this._loadOne(filePath);
+    const updated = {
+      ...data,
+      ...attributes,
+    };
     await fs.writeFile(
       filePath,
-      JSON.stringify({
-        ...data,
-        ...attributes,
-      }),
+      JSON.stringify(updated, null, 2),
       ENCODING_UTF8
     );
-
-    return this._loadOne(filePath);
+    return updated;
   }
 
   /**

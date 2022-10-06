@@ -1,13 +1,13 @@
-/* eslint complexity: 0 */
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer, { openPipeline } from '../modules';
+import reducer from '../modules';
 import toNS from 'mongodb-ns';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { indexesFetched } from '../modules/indexes';
 import { runStage } from '../modules/pipeline';
 import { createPipelineFromView } from '../modules/import-pipeline';
+import { openPipeline } from '../modules/saved-pipeline';
 
 /**
  * Refresh the input documents.

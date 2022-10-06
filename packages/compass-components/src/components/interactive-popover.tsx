@@ -44,6 +44,10 @@ type InteractivePopoverProps = {
   }) => React.ReactElement;
   open: boolean;
   setOpen: (open: boolean) => void;
+  /**
+   * List of selector to consider contained elements to skip closing on click
+   */
+  containedElements?: string[];
 };
 
 function InteractivePopover({
@@ -52,6 +56,7 @@ function InteractivePopover({
   trigger,
   open,
   setOpen,
+  containedElements = [],
 }: InteractivePopoverProps): React.ReactElement {
   const { theme } = useTheme();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -98,6 +103,16 @@ function InteractivePopover({
         return;
       }
 
+      if (
+        containedElements.some((selector) => {
+          return document
+            .querySelector(selector)
+            ?.contains(event.target as Node);
+        })
+      ) {
+        return;
+      }
+
       onClose();
     };
     window.addEventListener('mousedown', clickEventListener);
@@ -106,7 +121,7 @@ function InteractivePopover({
       window.removeEventListener('mousedown', clickEventListener);
       window.removeEventListener('touchstart', clickEventListener);
     };
-  }, [open, onClose]);
+  }, [open, onClose, containedElements]);
 
   const onPopoverKeyDown = useCallback(
     (evt: KeyboardEvent) => {

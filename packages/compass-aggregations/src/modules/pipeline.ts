@@ -22,7 +22,8 @@ import { projectionsChanged, PROJECTIONS_CHANGED } from './projections';
 import { setIsModified } from './is-modified';
 import type { AutoPreviewToggledAction } from './auto-preview';
 import { ActionTypes as AutoPreviewActionTypes } from './auto-preview';
-import { CONFIRM_NEW } from './import-pipeline';
+import { CONFIRM_NEW, NEW_PIPELINE } from './import-pipeline';
+import { RESTORE_PIPELINE } from './saved-pipeline';
 
 const { track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -123,6 +124,11 @@ export const STAGE_PREVIEW_UPDATED = `${PREFIX}/STAGE_PREVIEW_UPDATED`;
  * Loading stage results action name.
  */
 export const LOADING_STAGE_RESULTS = `${PREFIX}/LOADING_STAGE_RESULTS`;
+
+/**
+ * Clear the pipeline name.
+ */
+export const CLEAR_PIPELINE = 'aggregations/CLEAR_PIPELINE';
 
 /**
  * Limit constant.
@@ -489,6 +495,10 @@ const onProjectionsChanged = (state: State, action: AnyAction) => {
   });
 };
 
+const doClearPipeline = () => INITIAL_STATE;
+
+const restorePipeline = (_state: State, action: AnyAction) => action.restoreState.pipeline
+
 /**
  * To not have a huge switch statement in the reducer.
  */
@@ -507,6 +517,9 @@ MAPPINGS[LOADING_STAGE_RESULTS] = stageResultsLoading;
 MAPPINGS[AutoPreviewActionTypes.AutoPreviewToggled] = autoPreviewToggled;
 MAPPINGS[CONFIRM_NEW] = onConfirmNew;
 MAPPINGS[PROJECTIONS_CHANGED] = onProjectionsChanged;
+MAPPINGS[NEW_PIPELINE] = doClearPipeline;
+MAPPINGS[CLEAR_PIPELINE] = doClearPipeline;
+MAPPINGS[RESTORE_PIPELINE] = restorePipeline;
 
 /**
  * Reducer function for handle state changes to pipeline.
@@ -515,6 +528,13 @@ export default function reducer(state = [emptyStage()], action: AnyAction): Stat
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : state;
 }
+
+/**
+ * The clear pipeline action
+ */
+export const clearPipeline = () => ({
+  type: CLEAR_PIPELINE
+});
 
 /**
  * Action creator for adding a stage.

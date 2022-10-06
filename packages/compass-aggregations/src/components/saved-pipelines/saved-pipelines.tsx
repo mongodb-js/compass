@@ -8,7 +8,6 @@ import {
   Body,
   withTheme
 } from '@mongodb-js/compass-components';
-
 import SavePipelineCard from './save-pipeline-card/save-pipeline-card';
 import type { Pipeline } from '../../modules/pipeline';
 
@@ -62,21 +61,15 @@ const emptyMessageStyles = css({
 
 type SavedPipelinesProps = {
   darkMode?: boolean;
-  deletePipeline: (pipelineId: string) => void;
   namespace: string;
-  onSetShowSavedPipelines: (show: boolean) => void;
-  restorePipelineFrom: (pipelineId: string) => void;
-  restorePipelineModalToggle: (index: number) => void;
+  onToggleSavedPipelines: (show: boolean) => void;
   savedPipelines: Pipeline[];
 }
 
 function UnthemedSavedPipelines({
   darkMode,
   namespace,
-  restorePipelineModalToggle,
-  restorePipelineFrom,
-  deletePipeline,
-  onSetShowSavedPipelines,
+  onToggleSavedPipelines,
   savedPipelines,
 }: SavedPipelinesProps) {
   return (
@@ -97,7 +90,9 @@ function UnthemedSavedPipelines({
         <IconButton
           className={closeButtonStyles}
           data-testid="saved-pipelines-close-button"
-          onClick={() => onSetShowSavedPipelines(false)}
+          onClick={() => {
+            onToggleSavedPipelines(false);
+          }}
           aria-label="Close saved pipelines popover"
         >
           <Icon glyph="X" />
@@ -106,12 +101,9 @@ function UnthemedSavedPipelines({
       <div className={cardsContainerStyles}>
         {savedPipelines.map((pipeline: Pipeline) => (
           <SavePipelineCard
-            restorePipelineModalToggle={restorePipelineModalToggle}
-            restorePipelineFrom={restorePipelineFrom}
-            deletePipeline={deletePipeline}
-            name={pipeline.name}
-            objectID={pipeline.id}
             key={pipeline.id}
+            name={pipeline.name ?? ''}
+            id={pipeline.id}
           />
         ))}
         {savedPipelines.length === 0 && (

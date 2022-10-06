@@ -20,6 +20,7 @@ import {
   DEFAULT_SAMPLE_SIZE,
   DEFAULT_LARGE_LIMIT
 } from '../constants';
+import { NEW_PIPELINE } from './import-pipeline';
 
 type State = {
   isExpanded: boolean,
@@ -41,10 +42,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   if (action.type === TOGGLE_IS_EXPANDED) {
     const isCollapsing = !state.isExpanded === false;
     if (isCollapsing && state.isDirty === true) {
-      return {
-        ...state,
-        ...INITIAL_STATE
-      };
+      return { ...INITIAL_STATE };
     }
     return {
       ...state,
@@ -79,6 +77,11 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   if (action.type === APPLY_SETTINGS) {
     return { ...state, isDirty: false };
   }
+
+  if (action.type === NEW_PIPELINE) {
+    return { ...INITIAL_STATE };
+  }
+
   return state;
 }
 
