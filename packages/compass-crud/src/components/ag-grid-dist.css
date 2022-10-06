@@ -1233,8 +1233,8 @@ ag-grid-aurelia {
  ****************************
 */
 .ag-dnd-ghost {
-  background: #e5e5e5;
-  border: 1px solid #000000;
+  background: #e8edeb;
+  border: 1px solid #001e2b;
   cursor: move;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 14px;
@@ -1642,7 +1642,7 @@ ag-grid-aurelia {
 }
 
 .loading-filter {
-  background-color: #e6e6e6;
+  background-color: #e8edeb;
   height: 100%;
   padding: 5px;
   position: absolute;

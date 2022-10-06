@@ -152,7 +152,7 @@ class ExplainStage extends Component {
     svgClock
       .append('path')
       .attr('class', 'prevArcPath')
-      .style('fill', '#dfdfdf');
+      .style('fill', '#e8edeb');
 
     d3.select(clock)
       .select('.prevArcPath')
@@ -170,7 +170,7 @@ class ExplainStage extends Component {
     svgClock
       .append('path')
       .attr('class', 'currArcPath')
-      .style('fill', '#43B1E5');
+      .style('fill', '#0498ec');
 
     d3.select(clock)
       .select('.currArcPath')

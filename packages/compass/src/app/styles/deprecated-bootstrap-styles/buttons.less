@@ -6,7 +6,7 @@
   font-weight: normal;
   font-size: 15px;
   text-align: center;
-  color: #464C4F;
+  color: #3d4f58;
 
   &:hover {
     cursor: pointer;
@@ -32,38 +32,38 @@
   // COLOR STATES
 
   &-default {
-    background: linear-gradient(180deg, #FFFFFF 0%, #F6F6F6 100%);
-    box-shadow: inset 0 -1px 0 0 #DDDDDD;
-    border: 1px solid #DDDDDD;
+    background: linear-gradient(180deg, #ffffff 0%, #f9fbfa 100%);
+    box-shadow: inset 0 -1px 0 0 #e8edeb;
+    border: 1px solid #e8edeb;
 
     &:hover, &:focus {
-      background: linear-gradient(180deg, #FFFFFF 0%, #EDEDED 100%);
-      box-shadow: inset 0 -1px 0 0 #CACACA, 0 2px 4px 0 rgba(0,0,0,0.1);
-      border: 1px solid #CACACA;
+      background: linear-gradient(180deg, #ffffff 0%, #e8edeb 100%);
+      box-shadow: inset 0 -1px 0 0 #c1c7c6, 0 2px 4px 0 rgba(0, 30, 43,0.1);
+      border: 1px solid #c1c7c6;
     }
 
     &:active,
     &.open {
-      background: linear-gradient(180deg, #EDEDED 0%, #FFFFFF 99.31%);
-      box-shadow: inset 0 2px 2px 0 #CACACA;
+      background: linear-gradient(180deg, #e8edeb 0%, #ffffff 99.31%);
+      box-shadow: inset 0 2px 2px 0 #c1c7c6;
     }
   }
 
   &-primary {
     background: linear-gradient(-180deg, @green2 0%, lighten(@green1, 2.5%) 100%);
-    box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.15);
+    box-shadow: inset 0 -1px 0 0 rgba(0, 30, 43, 0.15);
     border: 1px solid darken(@green1, 2%);
     color: @pw;
 
     &:hover, &:focus {
       background: linear-gradient(-180deg, darken(@green2, 2.5%) 0%, darken(@green1, 2.5%) 100%);
-      box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
+      box-shadow: inset 0 -1px 0 0 rgba(0, 30, 43, 0.3);
       border: 1px solid darken(@green1, 7%);
     }
 
     &:active {
       background: linear-gradient(-180deg, darken(@green1, 2.5%) 0%, darken(@green2, 2.5%) 100%);
-      box-shadow: inset 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+      box-shadow: inset 0 2px 2px 0 rgba(0, 30, 43, 0.2);
       border: 1px solid solid darken(@green1, 7%);
     }
   }
@@ -77,35 +77,35 @@
 
     &:hover, &:focus {
       background: linear-gradient(-180deg, darken(@green2, 2.5%) 0%, darken(@green1, 2.5%) 100%);
-      box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.3);
+      box-shadow: inset 0 -1px 0 0 rgba(0, 30, 43, 0.3);
       border: 1px solid darken(@green1, 7%);
       color: @pw;
     }
 
     &:active {
       background: linear-gradient(-180deg, darken(@green1, 2.5%) 0%, darken(@green2, 2.5%) 100%);
-      box-shadow: inset 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+      box-shadow: inset 0 2px 2px 0 rgba(0, 30, 43, 0.2);
       border: 1px solid solid darken(@green1, 7%);
       color: @pw;
     }
   }
 
   &-alert {
-    background: linear-gradient(180deg, #EF4C4C 0%, #C93434 100%);
-    border: 1px solid #9D2121;
-    box-shadow: inset 0 -1px 0 0 #9D2121;
+    background: linear-gradient(180deg, #ff6960 0%, #db3030 100%);
+    border: 1px solid #970606;
+    box-shadow: inset 0 -1px 0 0 #970606;
     color: white;
 
     &:hover, &:focus {
-      background: linear-gradient(180deg, #CA3535 0%, #901717 100%);
-      box-shadow: inset 0 -1px 0 0 #6F1212;
-      border: 1px solid #6F1313;
+      background: linear-gradient(180deg, #db3030 0%, #970606 100%);
+      box-shadow: inset 0 -1px 0 0 #5b0000;
+      border: 1px solid #5b0000;
       color: white;
     }
 
     &:active {
-      background: linear-gradient(180deg, #C93434 0%, #EF4C4C 100%);
-      box-shadow: inset 0 2px 2px 0 #9D2121;
+      background: linear-gradient(180deg, #db3030 0%, #ff6960 100%);
+      box-shadow: inset 0 2px 2px 0 #970606;
     }
   }
 
@@ -160,19 +160,19 @@
 
   &-crud {
     background-color: transparent;
-    color: #a09f9e;
+    color: #889397;
     border: none;
     text-transform: none;
     font-size: 11px;
     border-radius: 8px;
     padding: 1px 12px;
     &:focus, &:hover {
-      color: #494747;
+      color: #3d4f58;
     }
   }
 
   &-borderless {
-    color: #a06c29;
+    color: #944f01;
     font-weight: bold;
     background-color: transparent;
     border: 0;
@@ -180,9 +180,9 @@
 
   &-edit {
     background: none;
-    color: #a06c29;
-    border: 1px solid #a06c29;
-    box-shadow: inset 0 -1px 0 0 #a06c29;
+    color: #944f01;
+    border: 1px solid #944f01;
+    box-shadow: inset 0 -1px 0 0 #944f01;
 
     &:hover, &:focus {
       box-shadow: none;
@@ -202,9 +202,9 @@
 .view-switcher {
 
   .active {
-    background: linear-gradient(180deg, #EDEDED 0%, #FFFFFF 99.31%);
-    box-shadow: inset 0 2px 2px 0 #CACACA;
-    border: 1px solid #CACACA;
+    background: linear-gradient(180deg, #e8edeb 0%, #ffffff 99.31%);
+    box-shadow: inset 0 2px 2px 0 #c1c7c6;
+    border: 1px solid #c1c7c6;
   }
 
   .btn {

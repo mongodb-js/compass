@@ -16,7 +16,7 @@ function ConnectingIllustration(): React.ReactElement {
       <defs>
         <style>
           {
-            '.cls-1,.cls-17,.cls-18,.cls-22,.cls-26,.cls-36,.cls-4,.cls-9{fill:none;}.cls-2{isolation:isolate;}.cls-3{fill:url(#linear-gradient);}.cls-4{stroke:#fff;}.cls-17,.cls-18,.cls-22,.cls-26,.cls-36,.cls-4,.cls-9{stroke-linecap:round;stroke-linejoin:round;}.cls-5{clip-path:url(#clip-path);}.cls-6{fill:url(#linear-gradient-2);}.cls-7{fill:url(#linear-gradient-3);}.cls-8{fill:#f9fbfa;opacity:0.45;}.cls-9{stroke:#f7a76f;}.cls-10,.cls-11{fill:#fef7e3;}.cls-11{opacity:0.85;}.cls-12{fill:url(#linear-gradient-4);}.cls-13{fill:url(#linear-gradient-5);}.cls-14{fill:url(#linear-gradient-6);}.cls-15{fill:#09804c;}.cls-16{fill:url(#linear-gradient-7);}.cls-17{stroke:#136149;}.cls-18{stroke:#09804c;}.cls-19{fill:url(#linear-gradient-8);}.cls-20{fill:#f7a76f;}.cls-21,.cls-25{mix-blend-mode:soft-light;}.cls-21{fill:url(#linear-gradient-9);}.cls-22{stroke:#83dba7;}.cls-23{fill:#83dba7;}.cls-24{fill:#136149;}.cls-25{fill:url(#linear-gradient-10);}.cls-26{stroke:#86681d;}.cls-27{fill:url(#linear-gradient-11);}.cls-28{fill:#8f221b;}.cls-29{fill:#fcebe2;}.cls-30{fill:#f9d3c5;}.cls-31{opacity:0.55;fill:url(#linear-gradient-12);}.cls-32{opacity:0.25;fill:url(#linear-gradient-13);}.cls-33{fill:#86681d;}.cls-34,.cls-38,.cls-41{fill:#a49437;}.cls-35{fill:url(#linear-gradient-14);}.cls-36{stroke:#ffeb99;}.cls-37{fill:#ffdd49;}.cls-38{opacity:0.24;}.cls-39{fill:url(#linear-gradient-15);}.cls-40{fill:url(#linear-gradient-16);}.cls-41{opacity:0.2;mix-blend-mode:multiply;}'
+            '.cls-1,.cls-17,.cls-18,.cls-22,.cls-26,.cls-36,.cls-4,.cls-9{fill:none;}.cls-2{isolation:isolate;}.cls-3{fill:url(#linear-gradient);}.cls-4{stroke:#fff;}.cls-17,.cls-18,.cls-22,.cls-26,.cls-36,.cls-4,.cls-9{stroke-linecap:round;stroke-linejoin:round;}.cls-5{clip-path:url(#clip-path);}.cls-6{fill:url(#linear-gradient-2);}.cls-7{fill:url(#linear-gradient-3);}.cls-8{fill:#f9fbfa;opacity:0.45;}.cls-9{stroke:#ffcdc7;}.cls-10,.cls-11{fill:#fef7db;}.cls-11{opacity:0.85;}.cls-12{fill:url(#linear-gradient-4);}.cls-13{fill:url(#linear-gradient-5);}.cls-14{fill:url(#linear-gradient-6);}.cls-15{fill:#00684a;}.cls-16{fill:url(#linear-gradient-7);}.cls-17{stroke:#00684a;}.cls-18{stroke:#00684a;}.cls-19{fill:url(#linear-gradient-8);}.cls-20{fill:#ffcdc7;}.cls-21,.cls-25{mix-blend-mode:soft-light;}.cls-21{fill:url(#linear-gradient-9);}.cls-22{stroke:#71f6ba;}.cls-23{fill:#71f6ba;}.cls-24{fill:#00684a;}.cls-25{fill:url(#linear-gradient-10);}.cls-26{stroke:#944f01;}.cls-27{fill:url(#linear-gradient-11);}.cls-28{fill:#970606;}.cls-29{fill:#ffeae5;}.cls-30{fill:#ffcdc7;}.cls-31{opacity:0.55;fill:url(#linear-gradient-12);}.cls-32{opacity:0.25;fill:url(#linear-gradient-13);}.cls-33{fill:#944f01;}.cls-34,.cls-38,.cls-41{fill:#ffc010;}.cls-35{fill:url(#linear-gradient-14);}.cls-36{stroke:#ffec9e;}.cls-37{fill:#ffc010;}.cls-38{opacity:0.24;}.cls-39{fill:url(#linear-gradient-15);}.cls-40{fill:url(#linear-gradient-16);}.cls-41{opacity:0.2;mix-blend-mode:multiply;}'
           }
         </style>
         <linearGradient
@@ -27,9 +27,9 @@ function ConnectingIllustration(): React.ReactElement {
           y2="2.47"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#fef2c8" stopOpacity="0.8" />
-          <stop offset="0.26" stopColor="#c5e4f2" stopOpacity="0.61" />
-          <stop offset="0.91" stopColor="#ffe1ea" stopOpacity="0.34" />
+          <stop offset="0" stopColor="#fef7db" stopOpacity="0.8" />
+          <stop offset="0.26" stopColor="#c3e7fe" stopOpacity="0.61" />
+          <stop offset="0.91" stopColor="#f9ebff" stopOpacity="0.34" />
         </linearGradient>
         <clipPath id="clip-path">
           <polygon
@@ -46,12 +46,12 @@ function ConnectingIllustration(): React.ReactElement {
           gradientTransform="translate(-4814.22 2157.76) rotate(180)"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#c5e4f2" stopOpacity="0" />
-          <stop offset="0.24" stopColor="#c5e4f2" stopOpacity="0.29" />
-          <stop offset="0.51" stopColor="#c5e4f2" stopOpacity="0.59" />
-          <stop offset="0.74" stopColor="#c5e4f2" stopOpacity="0.81" />
-          <stop offset="0.91" stopColor="#c5e4f2" stopOpacity="0.95" />
-          <stop offset="1" stopColor="#c5e4f2" />
+          <stop offset="0" stopColor="#c3e7fe" stopOpacity="0" />
+          <stop offset="0.24" stopColor="#c3e7fe" stopOpacity="0.29" />
+          <stop offset="0.51" stopColor="#c3e7fe" stopOpacity="0.59" />
+          <stop offset="0.74" stopColor="#c3e7fe" stopOpacity="0.81" />
+          <stop offset="0.91" stopColor="#c3e7fe" stopOpacity="0.95" />
+          <stop offset="1" stopColor="#c3e7fe" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-3"
@@ -62,12 +62,12 @@ function ConnectingIllustration(): React.ReactElement {
           gradientTransform="matrix(1, 0, 0, -1, 287, 2157.76)"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#c5e4f2" />
-          <stop offset="0.09" stopColor="#c5e4f2" stopOpacity="0.95" />
-          <stop offset="0.26" stopColor="#c5e4f2" stopOpacity="0.81" />
-          <stop offset="0.49" stopColor="#c5e4f2" stopOpacity="0.59" />
-          <stop offset="0.76" stopColor="#c5e4f2" stopOpacity="0.29" />
-          <stop offset="1" stopColor="#c5e4f2" stopOpacity="0" />
+          <stop offset="0" stopColor="#c3e7fe" />
+          <stop offset="0.09" stopColor="#c3e7fe" stopOpacity="0.95" />
+          <stop offset="0.26" stopColor="#c3e7fe" stopOpacity="0.81" />
+          <stop offset="0.49" stopColor="#c3e7fe" stopOpacity="0.59" />
+          <stop offset="0.76" stopColor="#c3e7fe" stopOpacity="0.29" />
+          <stop offset="1" stopColor="#c3e7fe" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-4"
@@ -94,8 +94,8 @@ function ConnectingIllustration(): React.ReactElement {
           y2="120.11"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0.18" stopColor="#c5e4f2" stopOpacity="0.22" />
-          <stop offset="0.91" stopColor="#ffe1ea" stopOpacity="0.34" />
+          <stop offset="0.18" stopColor="#c3e7fe" stopOpacity="0.22" />
+          <stop offset="0.91" stopColor="#f9ebff" stopOpacity="0.34" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-7"
@@ -105,12 +105,12 @@ function ConnectingIllustration(): React.ReactElement {
           y2="15.42"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#13aa52" />
-          <stop offset="0.49" stopColor="#13ac52" />
-          <stop offset="0.67" stopColor="#11b354" />
-          <stop offset="0.8" stopColor="#0ebe57" />
-          <stop offset="0.9" stopColor="#0acf5b" />
-          <stop offset="0.91" stopColor="#0ad05b" />
+          <stop offset="0" stopColor="#00a35c" />
+          <stop offset="0.49" stopColor="#00a35c" />
+          <stop offset="0.67" stopColor="#00a35c" />
+          <stop offset="0.8" stopColor="#00a35c" />
+          <stop offset="0.9" stopColor="#00ed64" />
+          <stop offset="0.91" stopColor="#00ed64" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-8"
@@ -120,12 +120,12 @@ function ConnectingIllustration(): React.ReactElement {
           y2="88.94"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#cf4a22" />
-          <stop offset="0.15" stopColor="#da6337" />
-          <stop offset="0.37" stopColor="#e7814f" />
-          <stop offset="0.59" stopColor="#f09661" />
-          <stop offset="0.8" stopColor="#f5a36b" />
-          <stop offset="1" stopColor="#f7a76f" />
+          <stop offset="0" stopColor="#db3030" />
+          <stop offset="0.15" stopColor="#ff6960" />
+          <stop offset="0.37" stopColor="#ff6960" />
+          <stop offset="0.59" stopColor="#ff6960" />
+          <stop offset="0.8" stopColor="#ffcdc7" />
+          <stop offset="1" stopColor="#ffcdc7" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-9"
@@ -135,12 +135,12 @@ function ConnectingIllustration(): React.ReactElement {
           y2="76.95"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#f4bde5" />
-          <stop offset="0.11" stopColor="#e4b4d9" />
-          <stop offset="0.31" stopColor="#b99cb8" />
-          <stop offset="0.61" stopColor="#737584" />
-          <stop offset="0.96" stopColor="#15403c" />
-          <stop offset="1" stopColor="#0b3b35" />
+          <stop offset="0" stopColor="#f1d4fd" />
+          <stop offset="0.11" stopColor="#f1d4fd" />
+          <stop offset="0.31" stopColor="#f1d4fd" />
+          <stop offset="0.61" stopColor="#5c6c75" />
+          <stop offset="0.96" stopColor="#023430" />
+          <stop offset="1" stopColor="#023430" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-10"
@@ -150,12 +150,12 @@ function ConnectingIllustration(): React.ReactElement {
           y2="53.85"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#0b3b35" />
-          <stop offset="0.24" stopColor="#0b3b35" stopOpacity="0.96" />
-          <stop offset="0.37" stopColor="#0b3b35" stopOpacity="0.83" />
-          <stop offset="0.48" stopColor="#0b3b35" stopOpacity="0.59" />
-          <stop offset="0.57" stopColor="#0b3b35" stopOpacity="0.27" />
-          <stop offset="0.62" stopColor="#0b3b35" stopOpacity="0" />
+          <stop offset="0" stopColor="#023430" />
+          <stop offset="0.24" stopColor="#023430" stopOpacity="0.96" />
+          <stop offset="0.37" stopColor="#023430" stopOpacity="0.83" />
+          <stop offset="0.48" stopColor="#023430" stopOpacity="0.59" />
+          <stop offset="0.57" stopColor="#023430" stopOpacity="0.27" />
+          <stop offset="0.62" stopColor="#023430" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-11"
@@ -173,13 +173,13 @@ function ConnectingIllustration(): React.ReactElement {
           y2="145.31"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#a63517" />
-          <stop offset="0.2" stopColor="#b03e3c" />
-          <stop offset="0.4" stopColor="#b8455d" />
-          <stop offset="0.52" stopColor="#be4956" />
-          <stop offset="0.71" stopColor="#d05642" />
-          <stop offset="0.92" stopColor="#ed6a23" />
-          <stop offset="1" stopColor="#f97216" />
+          <stop offset="0" stopColor="#970606" />
+          <stop offset="0.2" stopColor="#db3030" />
+          <stop offset="0.4" stopColor="#db3030" />
+          <stop offset="0.52" stopColor="#db3030" />
+          <stop offset="0.71" stopColor="#db3030" />
+          <stop offset="0.92" stopColor="#ff6960" />
+          <stop offset="1" stopColor="#ff6960" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-13"
@@ -198,12 +198,12 @@ function ConnectingIllustration(): React.ReactElement {
           gradientTransform="translate(-14.86 -160.06) rotate(-7.33)"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#86681d" />
-          <stop offset="0.16" stopColor="#b2922d" />
-          <stop offset="0.31" stopColor="#d5b43a" />
-          <stop offset="0.43" stopColor="#ebc942" />
-          <stop offset="0.52" stopColor="#f3d145" />
-          <stop offset="1" stopColor="#ffeb99" />
+          <stop offset="0" stopColor="#944f01" />
+          <stop offset="0.16" stopColor="#ffc010" />
+          <stop offset="0.31" stopColor="#ffc010" />
+          <stop offset="0.43" stopColor="#ffc010" />
+          <stop offset="0.52" stopColor="#ffc010" />
+          <stop offset="1" stopColor="#ffec9e" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-15"
@@ -214,15 +214,15 @@ function ConnectingIllustration(): React.ReactElement {
           gradientTransform="matrix(1, 0, 0, 1, 1.8, -2.48)"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#86681d" />
-          <stop offset="0.02" stopColor="#957622" />
-          <stop offset="0.07" stopColor="#b2922d" />
-          <stop offset="0.12" stopColor="#caa936" />
-          <stop offset="0.17" stopColor="#dcbb3d" />
-          <stop offset="0.24" stopColor="#e9c841" />
-          <stop offset="0.33" stopColor="#f1cf44" />
-          <stop offset="0.52" stopColor="#f3d145" />
-          <stop offset="1" stopColor="#ffeb99" />
+          <stop offset="0" stopColor="#944f01" />
+          <stop offset="0.02" stopColor="#944f01" />
+          <stop offset="0.07" stopColor="#ffc010" />
+          <stop offset="0.12" stopColor="#ffc010" />
+          <stop offset="0.17" stopColor="#ffc010" />
+          <stop offset="0.24" stopColor="#ffc010" />
+          <stop offset="0.33" stopColor="#ffc010" />
+          <stop offset="0.52" stopColor="#ffc010" />
+          <stop offset="1" stopColor="#ffec9e" />
         </linearGradient>
         <linearGradient
           id="linear-gradient-16"
@@ -232,12 +232,12 @@ function ConnectingIllustration(): React.ReactElement {
           y2="101.54"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#86681d" />
-          <stop offset="0.08" stopColor="#9a7b24" />
-          <stop offset="0.26" stopColor="#c0a032" />
-          <stop offset="0.43" stopColor="#dcbb3d" />
-          <stop offset="0.58" stopColor="#edcb43" />
-          <stop offset="0.69" stopColor="#f3d145" />
+          <stop offset="0" stopColor="#944f01" />
+          <stop offset="0.08" stopColor="#944f01" />
+          <stop offset="0.26" stopColor="#ffc010" />
+          <stop offset="0.43" stopColor="#ffc010" />
+          <stop offset="0.58" stopColor="#ffc010" />
+          <stop offset="0.69" stopColor="#ffc010" />
         </linearGradient>
       </defs>
       <g className="cls-2">

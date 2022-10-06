@@ -19,9 +19,9 @@ import debounce from 'lodash.debounce';
 
 // TODO: Disable boxZoom handler for circle lasso.
 //
-// const SELECTED_COLOR = '#F68A1E';
-const UNSELECTED_COLOR = '#43B1E5';
-// const CONTROL_COLOR = '#ed271c';
+// const SELECTED_COLOR = '#ffc010';
+const UNSELECTED_COLOR = '#0498ec';
+// const CONTROL_COLOR = '#db3030';
 
 /**
  * Fetches the tiles from the compass maps-proxy

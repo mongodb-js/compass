@@ -22,7 +22,7 @@ const workspaceContainerStyles = css({
 
 
 const workspaceBackgroundStyles = css({
-  background: '#3D4247',
+  background: '#3d4f58',
   overflow: 'hidden',
 });
 
