@@ -34,14 +34,14 @@
   font-size: 21px;
   font-weight: bold;
   line-height: 1;
-  color: #000000;
-  text-shadow: 0 1px 0 #ffffff;
+  color: @palette__black;
+  text-shadow: 0 1px 0 @palette__white;
   opacity: 0.2;
   filter: alpha(opacity=20);
 }
 .close:hover,
 .close:focus {
-  color: #000000;
+  color: @palette__black;
   text-decoration: none;
   cursor: pointer;
   opacity: 0.5;
@@ -87,8 +87,8 @@ button.close {
 }
 .modal-content {
   position: relative;
-  background-color: #ffffff;
-  border: 1px solid #999;
+  background-color: @palette__white;
+  border: 1px solid @palette__gray--base;
   border: 1px solid rgba(0, 30, 43, 0.2);
   border-radius: 6px;
   box-shadow: 0 3px 9px rgba(0, 30, 43, 0.5);
@@ -102,7 +102,7 @@ button.close {
   bottom: 0;
   left: 0;
   z-index: 1040;
-  background-color: #000000;
+  background-color: @palette__black;
 }
 .modal-backdrop.fade {
   opacity: 0;
@@ -114,7 +114,7 @@ button.close {
 }
 .modal-header {
   padding: 15px;
-  border-bottom: 1px solid #e8edeb;
+  border-bottom: 1px solid @palette__gray--light-2;
   min-height: 16.42857143px;
   font-weight: bold;
 }
@@ -133,7 +133,7 @@ button.close {
 .modal-footer {
   padding: 15px;
   text-align: right;
-  border-top: 1px solid #e8edeb;
+  border-top: 1px solid @palette__gray--light-2;
 }
 .modal-footer .btn + .btn {
   margin-left: 5px;

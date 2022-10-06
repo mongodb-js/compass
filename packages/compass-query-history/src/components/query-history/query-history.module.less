@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 @keyframes slidein {
   from {
     width: 0px;
@@ -12,8 +14,8 @@
   flex-direction: column;
   flex: 1;
   animation: 400ms slidein;
-  background-color: #f9fbfa;
-  border-left: solid 1px #e8edeb;
+  background-color: @palette__gray--light-3;
+  border-left: solid 1px @palette__gray--light-2;
   min-width: 325px;
   max-width: 325px;
   height: 100%;

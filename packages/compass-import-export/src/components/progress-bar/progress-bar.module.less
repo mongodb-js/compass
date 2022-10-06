@@ -4,7 +4,7 @@
   position: relative;
   border-radius: 5px;
   height: 10px;
-  background-color: #e8edeb;
+  background-color: @palette__gray--light-2;
   overflow: hidden;
 
   &-chart-wrapper {
@@ -18,22 +18,22 @@
     transition: width 0.2s linear, background-color 0.2s ease;
     display: block;
     border-radius: 5px;
-    background-color: #0498ec;
+    background-color: @palette__blue--light-1;
 
     &-is-canceled {
-      background-color: #c1c7c6;
+      background-color: @palette__gray--light-1;
     }
 
     &-is-failed {
-      background-color: #db3030;
+      background-color: @palette__red--base;
     }
 
     &-is-completed {
-      background-color: @green2;
+      background-color: @palette__green--dark-1;
     }
 
     &-is-with-errors {
-      background-color: @alertOrange;
+      background-color: @palette__yellow--base;
     }
 
     &-is-secondary {
@@ -51,13 +51,13 @@
       margin-bottom: 0;
 
       &-is-failed {
-        color: #db3030;
+        color: @palette__red--base;
       }
 
       &-cancel {
         margin: 0;
         margin-left: 10px;
-        color: #083c90;
+        color: @palette__blue--dark-2;
         border: none;
         padding: 0;
         background: none;
