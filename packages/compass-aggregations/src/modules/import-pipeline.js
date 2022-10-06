@@ -1,7 +1,9 @@
 import { toJSString } from 'mongodb-query-parser';
 import { emptyStage } from './pipeline';
 import { extractStages } from './extract-stages';
-const debug = require('debug')('mongodb-aggregations:modules:import-pipeline');
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
  * Shell string indent.
@@ -101,11 +103,21 @@ const onCreateNew = (state) => ({
   isConfirmationNeeded: true
 });
 
+const onConfirmNew = (state, { error }) => {
+  return {
+    isOpen: error ? true : false,
+    isConfirmationNeeded: false,
+    text: error ? state.text : '',
+    syntaxError: error
+  };
+};
+
 const MAPPINGS = {
   [NEW_PIPELINE_FROM_TEXT]: onNewPipelineFromText,
   [CLOSE_IMPORT]: onCloseImport,
   [CHANGE_TEXT]: onChangeText,
-  [CREATE_NEW]: onCreateNew
+  [CREATE_NEW]: onCreateNew,
+  [CONFIRM_NEW]: onConfirmNew
 };
 
 /**
@@ -165,9 +177,21 @@ export const createNew = () => ({
  *
  * @returns {Object} The state.
  */
-export const confirmNew = () => ({
-  type: CONFIRM_NEW
-});
+export const confirmNew = () => (dispatch, getState) => {
+  const { importPipeline } = getState();
+  const pipeline = createPipeline(importPipeline.text);
+  const error = pipeline.length > 0 ? pipeline[0].syntaxError : null;
+
+  if (!error) {
+    track('Aggregation Imported From Text', { num_stages: pipeline.length });
+  }
+
+  dispatch({
+    type: CONFIRM_NEW,
+    pipeline,
+    error
+  });
+};
 
 /**
  * Create a pipeline from the provided text.

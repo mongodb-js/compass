@@ -10,6 +10,7 @@ import reducer, {
   INITIAL_STATE
 } from './saving-pipeline';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 
 describe('saving-pipeline module', function() {
   describe('#savingPipelineNameChanged', function() {
@@ -31,8 +32,13 @@ describe('saving-pipeline module', function() {
   });
   describe('#savingPipelineApply', function() {
     it('returns the SAVING_PIPELINE_APPLY action', function() {
-      expect(savingPipelineApply()).to.deep.equal({
-        type: SAVING_PIPELINE_APPLY
+      const dispatchSpy = Sinon.spy()
+      savingPipelineApply()(dispatchSpy, () => ({
+        savingPipeline: { name: 'test' }
+      }));
+      expect(dispatchSpy).to.be.calledOnceWith({
+        type: SAVING_PIPELINE_APPLY,
+        name: 'test'
       });
     });
     describe('#reducer', function() {

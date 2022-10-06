@@ -3,12 +3,16 @@ import reducer, {
   PROJECTIONS_CHANGED
 } from './projections';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 
 describe('projections module', function() {
   describe('#projectionsChanged', function() {
     it('returns the PROJECTIONS_CHANGED action', function() {
-      expect(projectionsChanged([])).to.deep.equal({
-        type: PROJECTIONS_CHANGED
+      const dispatchSpy = Sinon.spy();
+      projectionsChanged()(dispatchSpy, () => ({ pipeline: [] }))
+      expect(dispatchSpy).to.be.calledOnceWith({
+        type: PROJECTIONS_CHANGED,
+        projections: []
       });
     });
   });

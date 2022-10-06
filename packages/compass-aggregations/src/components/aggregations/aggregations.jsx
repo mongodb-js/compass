@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Pipeline from '../pipeline';
-import { nameChanged } from '../../modules/name';
-import { limitChanged } from '../../modules/limit';
-import { largeLimitChanged } from '../../modules/large-limit';
 import { maxTimeMSChanged } from '../../modules/max-time-ms';
 import { collationStringChanged } from '../../modules/collation-string';
-import { toggleComments } from '../../modules/comments';
 import { toggleSample } from '../../modules/sample';
 import { toggleAutoPreview } from '../../modules/auto-preview';
 import {
@@ -15,8 +11,6 @@ import {
 } from '../../modules/input-documents';
 import { exportToLanguage } from '../../modules/export-to-language';
 import { openLink } from '../../modules/link';
-import { toggleOverview } from '../../modules/is-overview-on';
-import { toggleFullscreen } from '../../modules/is-fullscreen-on';
 import {
   newPipeline,
   clonePipeline,
@@ -43,7 +37,6 @@ import {
 } from '../../modules/saved-pipeline';
 import { setIsModified } from '../../modules/is-modified';
 import {
-  newPipelineFromPaste,
   restoreSavedPipeline,
   openPipelineById
 } from '../../modules/index';
@@ -62,7 +55,6 @@ import {
   toggleSettingsIsExpanded,
   toggleSettingsIsCommentMode,
   setSettingsSampleSize,
-  setSettingsMaxTimeMS,
   setSettingsLimit,
   applySettings
 } from '../../modules/settings';
@@ -130,11 +122,9 @@ const mapStateToProps = (state) => ({
   importPipelineText: state.importPipeline.text,
   importPipelineError: state.importPipeline.syntaxError,
   settings: state.settings,
-  isOverviewOn: state.isOverviewOn,
   limit: state.limit,
   largeLimit: state.largeLimit,
   maxTimeMS: state.maxTimeMS,
-  isFullscreenOn: state.isFullscreenOn,
   savingPipeline: state.savingPipeline,
   projections: state.projections,
   editViewName: state.editViewName,
@@ -151,12 +141,9 @@ const mapStateToProps = (state) => ({
 const MappedAggregations = connect(
   mapStateToProps,
   {
-    nameChanged,
     collationStringChanged,
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
-    toggleOverview,
-    toggleComments,
     toggleSample,
     toggleAutoPreview,
     runStage,
@@ -174,7 +161,6 @@ const MappedAggregations = connect(
     toggleSettingsIsExpanded,
     toggleSettingsIsCommentMode,
     setSettingsSampleSize,
-    setSettingsMaxTimeMS,
     setSettingsLimit,
     exportToLanguage,
     saveCurrentPipeline,
@@ -193,16 +179,12 @@ const MappedAggregations = connect(
     openPipelineById,
     applySettings,
     setIsModified,
-    limitChanged,
-    largeLimitChanged,
     maxTimeMSChanged,
-    toggleFullscreen,
     savingPipelineNameChanged,
     savingPipelineApply,
     savingPipelineCancel,
     savingPipelineOpen,
     projectionsChanged,
-    newPipelineFromPaste,
     updateView,
     openCreateView,
     setIsNewPipelineConfirm,

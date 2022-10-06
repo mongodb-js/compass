@@ -24,8 +24,7 @@ class StageEditor extends Component {
     isValid: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
+    projectionsChanged: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -90,11 +89,6 @@ class StageEditor extends Component {
    * @param {String} value - The value of the stage.
    */
   onStageChange = (value) => {
-    if (this.props.stageOperator === null && value && value.charAt(0) === '[') {
-      this.props.newPipelineFromPaste(value);
-      this.props.runStage(0);
-      return;
-    }
     this.props.stageChanged(value, this.props.index);
   };
 

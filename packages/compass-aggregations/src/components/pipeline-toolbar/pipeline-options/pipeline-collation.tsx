@@ -50,11 +50,14 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
   maxTimeMSValue,
   maxTimeMSChanged,
 }) => {
-  const onMaxTimeMSChanged = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    if (maxTimeMSChanged) {
-      maxTimeMSChanged(parseInt(evt.currentTarget.value, 10));
-    }
-  }, [ maxTimeMSChanged]);
+  const onMaxTimeMSChanged = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      if (maxTimeMSChanged) {
+        maxTimeMSChanged(parseInt(evt.currentTarget.value, 10));
+      }
+    },
+    [maxTimeMSChanged]
+  );
 
   return (
     <div
@@ -113,13 +116,11 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
 
 const mapState = ({
   collationString,
-  settings: { maxTimeMS: defaultMaxTimeMSFromSettings, isDirty },
   maxTimeMS,
 }: RootState) => ({
   collationValue: collationString.text,
   collationHasError: !collationString.isValid,
   maxTimeMSValue: maxTimeMS,
-  maxTimeMS: isDirty ? defaultMaxTimeMSFromSettings : maxTimeMS,
 });
 
 const mapDispatch = {
