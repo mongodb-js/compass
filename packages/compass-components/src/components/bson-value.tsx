@@ -39,12 +39,12 @@ export const VALUE_COLOR_BY_TYPE: Record<
   string
 > = {
   Int32: '#00684a',
-  Double: '#00a35c',
-  Decimal128: '#00a35c',
+  Double: '#00684A',
+  Decimal128: '#00684A',
   Date: '#970606',
-  Boolean: '#b45af2',
-  String: '#0498ec',
-  ObjectId: '#ff6960',
+  Boolean: '#5E0C9E',
+  String: '#1254B7',
+  ObjectId: '#DB3030',
 };
 
 export function hasCustomColor(
