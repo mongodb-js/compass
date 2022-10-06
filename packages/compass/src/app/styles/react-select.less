@@ -4,21 +4,21 @@
   &-control {
     height: 32px;
     width: 100%;
-    color: #3d4f58;
+    color: @palette__gray--dark-2;
     border-radius: 3px;
-    border: 1px solid #e8edeb;
-    background: linear-gradient(180deg, #ffffff 0%, #f9fbfa 100%);
-    box-shadow: inset 0 -1px 0 0 #e8edeb;
+    border: 1px solid @palette__gray--light-2;
+    background: linear-gradient(180deg, @palette__white 0%, @palette__gray--light-3 100%);
+    box-shadow: inset 0 -1px 0 0 @palette__gray--light-2;
 
     &:hover {
-      background: linear-gradient(180deg, #ffffff 0%, #e8edeb 100%);
-      box-shadow: inset 0 -1px 0 0 #c1c7c6, 0 2px 4px 0 rgba(0, 30, 43,0.1);
-      border: 1px solid #c1c7c6;
+      background: linear-gradient(180deg, @palette__white 0%, @palette__gray--light-2 100%);
+      box-shadow: inset 0 -1px 0 0 @palette__gray--light-1, 0 2px 4px 0 rgba(0, 30, 43,0.1);
+      border: 1px solid @palette__gray--light-1;
     }
   }
 
   &-arrow {
-      border-color: #999 transparent transparent;
+      border-color: @palette__gray--base transparent transparent;
       border-style: solid;
       border-width: 5px 5px 2.5px;
       margin: 11.5px 0px 11.5px 0px;
@@ -33,7 +33,7 @@
 
   &-menu {
     padding: 2px;
-    background-image: linear-gradient(-180deg, #f9fbfa 0%, #ffffff 100%);
+    background-image: linear-gradient(-180deg, @palette__gray--light-3 0%, @palette__white 100%);
     max-height: 198px;
     overflow-y: auto;
     padding-top: 5px;
@@ -41,9 +41,9 @@
     border-bottom-left-radius: 4px;
 
     &-outer {
-      background-color: #ffffff;
-      border: 1px solid #ccc;
-      border-top-color: #e8edeb;
+      background-color: @palette__white;
+      border: 1px solid @palette__gray--light-1;
+      border-top-color: @palette__gray--light-2;
       border-bottom-right-radius: 4px;
       border-bottom-left-radius: 4px;
       box-shadow: 0 1px 0 rgba(0, 30, 43, 0.06);
@@ -62,7 +62,7 @@
     padding: 3px 8px;
 
     &.is-focused {
-      background: #e8edeb;
+      background: @palette__gray--light-2;
       border-radius: 2px;
       width: 100%;
     }
@@ -75,19 +75,19 @@
   &.is-open > .Select-control {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
-    border: 1px solid #0498ec;
+    border: 1px solid @palette__blue--light-1;
     box-shadow: 0 2px 6px 0 rgba(4, 152, 236,0.30);
   }
 
   &.is-focused > .Select-menu-outer {
-    border: 1px solid #0498ec;
+    border: 1px solid @palette__blue--light-1;
     border-top: none;
     box-shadow: 0 2px 6px 0 rgba(4, 152, 236,0.30);
   }
 
   &.is-searchable.is-open > .Select-control > .Select-multi-value-wrapper > .Select-input {
-    background: #ffffff;
-    border: 1px solid #0498ec;
+    background: @palette__white;
+    border: 1px solid @palette__blue--light-1;
     border-radius: 2px;
     width: 85%;
     margin: 2px;
@@ -100,7 +100,7 @@
 }
 
 .Select-option.is-disabled {
-  color: #c1c7c6;
+  color: @palette__gray--light-1;
   cursor: default;
 }
 
@@ -113,7 +113,7 @@
   box-sizing: border-box;
 }
 .Select.is-disabled > .Select-control {
-  background-color: #ffffff;
+  background-color: @palette__white;
 }
 .Select.is-disabled > .Select-control:hover {
   box-shadow: none;
@@ -133,7 +133,7 @@
 
 .is-open > .Select-control .Select-arrow {
   top: -2px;
-  border-color: transparent transparent #999;
+  border-color: transparent transparent @palette__gray--base;
   border-width: 0 5px 5px;
 }
 .is-searchable.is-focused:not(.is-open) > .Select-control {
@@ -157,7 +157,7 @@
 }
 .has-value.Select--single > .Select-control .Select-value .Select-value-label,
 .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value .Select-value-label {
-  color: #333;
+  color: @palette__gray--dark-3;
 }
 .has-value.Select--single > .Select-control .Select-value a.Select-value-label,
 .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label {
@@ -168,7 +168,7 @@
 .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:hover,
 .has-value.Select--single > .Select-control .Select-value a.Select-value-label:focus,
 .has-value.is-pseudo-focused.Select--single > .Select-control .Select-value a.Select-value-label:focus {
-  color: #016bf8;
+  color: @palette__blue--base;
   outline: none;
   text-decoration: underline;
 }
@@ -215,8 +215,8 @@
   height: 16px;
   box-sizing: border-box;
   border-radius: 50%;
-  border: 2px solid #ccc;
-  border-right-color: #333;
+  border: 2px solid @palette__gray--light-1;
+  border-right-color: @palette__gray--dark-3;
   display: inline-block;
   position: relative;
   vertical-align: middle;
@@ -225,7 +225,7 @@
   -webkit-animation: Select-animation-fadeIn 200ms;
   -o-animation: Select-animation-fadeIn 200ms;
   animation: Select-animation-fadeIn 200ms;
-  color: #999;
+  color: @palette__gray--base;
   cursor: pointer;
   display: table-cell;
   position: relative;
@@ -234,7 +234,7 @@
   width: 17px;
 }
 .Select-clear-zone:hover {
-  color: #db3030;
+  color: @palette__red--base;
 }
 .Select-clear {
   display: inline-block;
@@ -247,7 +247,7 @@
 
 .is-open .Select-arrow,
 .Select-arrow-zone:hover > .Select-arrow {
-  border-top-color: #666;
+  border-top-color: @palette__gray--dark-1;
 }
 .Select--multi .Select-multi-value-wrapper {
   display: inline-block;
@@ -281,7 +281,7 @@
 
 .Select-noresults {
   box-sizing: border-box;
-  color: #889397;
+  color: @palette__gray--base;
   cursor: default;
   display: block;
   padding: 8px 10px;
@@ -295,14 +295,14 @@
   margin-left: 5px;
 }
 .Select--multi .Select-value {
-  background-color: #e1f7ff;
+  background-color: @palette__blue--light-3;
   /* Fallback color for IE 8 */
   background-color: rgba(1, 107, 248, 0.08);
   border-radius: 2px;
-  border: 1px solid #c3e7fe;
+  border: 1px solid @palette__blue--light-2;
   /* Fallback color for IE 8 */
   border: 1px solid rgba(1, 107, 248, 0.24);
-  color: #016bf8;
+  color: @palette__blue--base;
   display: inline-block;
   font-size: 0.9em;
   line-height: 1.4;
@@ -322,7 +322,7 @@
   padding: 2px 5px;
 }
 .Select--multi a.Select-value-label {
-  color: #016bf8;
+  color: @palette__blue--base;
   cursor: pointer;
   text-decoration: none;
 }
@@ -333,36 +333,36 @@
   cursor: pointer;
   border-bottom-left-radius: 2px;
   border-top-left-radius: 2px;
-  border-right: 1px solid #c3e7fe;
+  border-right: 1px solid @palette__blue--light-2;
   /* Fallback color for IE 8 */
   border-right: 1px solid rgba(1, 107, 248, 0.24);
   padding: 1px 5px 3px;
 }
 .Select--multi .Select-value-icon:hover,
 .Select--multi .Select-value-icon:focus {
-  background-color: #c3e7fe;
+  background-color: @palette__blue--light-2;
   /* Fallback color for IE 8 */
   background-color: rgba(1, 107, 248, 0.08);
-  color: #016bf8;
+  color: @palette__blue--base;
 }
 .Select--multi .Select-value-icon:active {
-  background-color: #c3e7fe;
+  background-color: @palette__blue--light-2;
   /* Fallback color for IE 8 */
   background-color: rgba(1, 107, 248, 0.24);
 }
 .Select--multi.is-disabled .Select-value {
-  background-color: #ffffff;
-  border: 1px solid #e8edeb;
-  color: #333;
+  background-color: @palette__white;
+  border: 1px solid @palette__gray--light-2;
+  color: @palette__gray--dark-3;
 }
 .Select--multi.is-disabled .Select-value-icon {
   cursor: not-allowed;
-  border-right: 1px solid #e8edeb;
+  border-right: 1px solid @palette__gray--light-2;
 }
 .Select--multi.is-disabled .Select-value-icon:hover,
 .Select--multi.is-disabled .Select-value-icon:focus,
 .Select--multi.is-disabled .Select-value-icon:active {
-  background-color: #ffffff;
+  background-color: @palette__white;
 }
 @keyframes Select-animation-spin {
   to {

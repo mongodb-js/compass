@@ -3,8 +3,8 @@
 .explain-stage {
   pointer-events: none;
   width: 276px;
-  background: #ffffff;
-  border: 1px solid @gray7;
+  background: @palette__white;
+  border: 1px solid @palette__gray--light-2;
   margin: 0 auto;
   position: absolute;
   border-radius: 3px;
@@ -20,17 +20,17 @@
     font-weight: bold;
     font-size: 14px;
     margin: 0;
-    color: @gray1;
+    color: @palette__gray--dark-2;
   }
 
   &-is-shard {
-    background: @gray8;
-    color: @gray4;
+    background: @palette__gray--light-3;
+    color: @palette__gray--base;
     border: none;
     box-shadow: none;
 
     .stage-header {
-      color: @gray4;
+      color: @palette__gray--base;
       text-align: center;
     }
   }
@@ -43,11 +43,11 @@
   }
 
   ul li span.key {
-    color: @gray4;
+    color: @palette__gray--base;
   }
 
   ul li span.value {
-    color: @gray1;
+    color: @palette__gray--dark-2;
     font-weight: bold;
   }
 
@@ -66,8 +66,8 @@
   }
 
   ul.core li.nReturned .value {
-    color: @pw;
-    background: @chart1;
+    color: @palette__white;
+    background: @palette__blue--light-1;
     font-weight: bold;
     padding: 2px 6px;
     font-size: 12px;
@@ -81,7 +81,7 @@
   }
 
   ul.highlighted li {
-    border-top: 1px solid @gray7;
+    border-top: 1px solid @palette__gray--light-2;
     padding: 11px 0;
   }
 
@@ -94,10 +94,10 @@
   }
 
   .face {
-    background: #ffffff url(../../images/explain-card-clockface.png) -1px -1px
+    background: @palette__white url(../../images/explain-card-clockface.png) -1px -1px
       no-repeat;
     background-size: 48px 48px;
-    border: 1px solid @gray6;
+    border: 1px solid @palette__gray--light-2;
     border-radius: 24px;
     font-size: 10px;
     height: 48px;
@@ -114,16 +114,16 @@
     font-size: 14px;
     font-weight: bold;
     margin-top: 11px;
-    color: @chart1;
+    color: @palette__blue--light-1;
   }
 
   ul li span.value .clock .face {
     font-weight: normal;
-    color: #889397;
+    color: @palette__gray--base;
   }
 
   .details {
-    border-top: 1px solid @gray7;
+    border-top: 1px solid @palette__gray--light-2;
     padding-top: 12px;
   }
 
