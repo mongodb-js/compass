@@ -201,7 +201,7 @@ function Connection({
     : normalDescriptionColor;
 
   const normalConnectionMenuColor =
-    theme === Theme.Dark ? 'white' : uiColors.gray.base;
+    theme === Theme.Dark ? uiColors.white : uiColors.gray.base;
   const connectionMenuColor = hasColoredBackground
     ? uiColors.gray.dark3
     : normalConnectionMenuColor;

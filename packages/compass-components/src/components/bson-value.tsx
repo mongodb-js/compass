@@ -41,10 +41,10 @@ export const VALUE_COLOR_BY_TYPE: Record<
   Int32: '#145a32',
   Double: '#1e8449',
   Decimal128: '#229954',
-  Date: 'firebrick',
-  Boolean: 'purple',
-  String: 'steelblue',
-  ObjectId: 'orangered',
+  Date: '#b22222',
+  Boolean: '#A020F0',
+  String: '#4682B4',
+  ObjectId: '#ff4500',
 };
 
 export function hasCustomColor(
