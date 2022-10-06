@@ -9,9 +9,9 @@ import turfPoint from 'turf-point';
 import turfDestination from 'turf-destination';
 import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
 
-const SELECTED_COLOR = '#F68A1E';
-const UNSELECTED_COLOR = '#43B1E5';
-const CONTROL_COLOR = '#ed271c';
+const SELECTED_COLOR = '#ffc010';
+const UNSELECTED_COLOR = '#0498ec';
+const CONTROL_COLOR = '#db3030';
 
 const API_URL = 'https://compass-maps.mongodb.com/compass/maptile';
 // If no tile server is provided, use this url instead.

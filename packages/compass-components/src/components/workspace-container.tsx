@@ -56,7 +56,7 @@ const shadowStylesLight = css({
 });
 
 const shadowStylesDark = css({
-  boxShadow: boxShadow(transparentize(0.6, '#000000')),
+  boxShadow: boxShadow(transparentize(0.6, '#001e2b')),
 });
 
 const workspaceContentStyles = css({
