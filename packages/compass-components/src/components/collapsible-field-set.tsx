@@ -1,6 +1,7 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
+import { useId } from '@react-aria/utils';
 import { Link, Checkbox, Label } from './leafygreen';
 import FormFieldContainer from './form-field-container';
 
@@ -9,11 +10,11 @@ const infoLinkStyles = css({
 });
 
 const fieldsetStyles = css({
-  paddingLeft: `${spacing[4]}px`,
+  paddingLeft: spacing[4],
 });
 
 export type CollapsibleFieldSetProps = {
-  dataTestId?: string;
+  ['data-testid']?: string;
   children?: React.ReactElement;
   label: string;
   description?: React.ReactElement | string;
@@ -30,19 +31,19 @@ export const CollapsibleFieldSet = ({
   label,
   onToggle,
   toggled,
-  dataTestId,
   children,
+  ...props
 }: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
-  const labelId = dataTestId || 'collapsible-fieldset-props';
+  const checkboxId = useId();
   return (
-    <FormFieldContainer data-testid={`${labelId}-fieldset`}>
+    <FormFieldContainer data-testid={props['data-testid']}>
       <Checkbox
-        data-testid={labelId}
+        data-testid={props['data-testid'] && `${props['data-testid']}-checkbox`}
         onChange={(event) => {
           onToggle(event.target.checked);
         }}
         disabled={disabled}
-        label={<Label htmlFor={labelId}>{label}</Label>}
+        label={<Label htmlFor={checkboxId}>{label}</Label>}
         description={
           !description
             ? ''
@@ -62,7 +63,7 @@ export const CollapsibleFieldSet = ({
               ) as any) // LG Checkbox expects a string description, but we use Description component to include helpUrl.
         }
         checked={toggled}
-        id={labelId}
+        id={checkboxId}
       />
       {toggled && <fieldset className={fieldsetStyles}>{children}</fieldset>}
     </FormFieldContainer>
