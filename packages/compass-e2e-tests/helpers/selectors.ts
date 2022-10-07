@@ -324,7 +324,7 @@ export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
 
 export const CreateCollectionClusteredCheckboxLabel =
-  '[data-testid="clustered-collection-fields"] [data-testid="clustered-collection-fields-label]';
+  '[data-testid="clustered-collection-fields"] [data-testid="clustered-collection-fields-label"]';
 export const CreateCollectionClusteredNameField =
   '[data-testid="clustered-collection-fields"] [name="clusteredIndex.name"]';
 export const CreateCollectionClusteredExpireAfterSeconds =
