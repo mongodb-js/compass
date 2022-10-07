@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import type { AnyAction , Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { ObjectId } from 'bson';
 import isEmpty from 'lodash.isempty';
@@ -11,6 +11,9 @@ import fields, { INITIAL_STATE as FIELDS_INITIAL_STATE } from './fields';
 import editViewName, { INITIAL_STATE as EDIT_VIEW_NAME_INITIAL_STATE } from './edit-view-name';
 import sourceName, { INITIAL_STATE as SOURCE_NAME_INITIAL_STATE } from './source-name';
 
+import pipelineBuilder, {
+  INITIAL_STATE as PIPELINE_BUILDER_INITIAL_STATE
+} from './pipeline-builder';
 
 import inputDocuments, {
   INITIAL_STATE as INPUT_INITIAL_STATE
@@ -166,6 +169,7 @@ export const INITIAL_STATE = {
   explain: EXPLAIN_INITIAL_STATE,
   isDataLake: DATALAKE_INITIAL_STATE,
   indexes: INDEXES_INITIAL_STATE,
+  pipelineBuilder: PIPELINE_BUILDER_INITIAL_STATE,
 };
 
 /**
@@ -241,6 +245,7 @@ const appReducer = combineReducers({
   explain,
   isDataLake,
   indexes,
+  pipelineBuilder,
 });
 
 export type RootState = ReturnType<typeof appReducer>;
