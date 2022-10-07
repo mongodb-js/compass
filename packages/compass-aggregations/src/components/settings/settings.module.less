@@ -1,9 +1,9 @@
 @import (reference) "mongodb-compass/src/app/styles/index.less";
 
 .container {
-  border-left: 1px solid @gray6;
-  box-shadow: 1px 1px 1px @gray6;
-  background: #f8f8f8;
+  border-left: 1px solid @palette__gray--light-2;
+  box-shadow: 1px 1px 1px @palette__gray--light-2;
+  background: @palette__gray--light-3;
   position: absolute;
   width: 580px;
   height: 100%;
@@ -21,15 +21,15 @@
   font-size: 12px;
   line-height: 20px;
   font-weight: bold;
-  color: @gray1;
+  color: @palette__gray--dark-2;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid @gray6;
-  box-shadow: 1px 1px 1px @gray6;
+  border-bottom: 1px solid @palette__gray--light-2;
+  box-shadow: 1px 1px 1px @palette__gray--light-2;
 }
 
 .header-title {
-  color: #424242;
+  color: @palette__gray--dark-2;
   font-size: 12px;
   font-weight: bold;
   flex-grow: 2;
@@ -50,7 +50,7 @@
 .input-group {
   margin: 8px;
   padding: 8px 16px;
-  background-color: #FFFFFF;
+  background-color: @palette__white;
   display: flex;
   align-items: center;
 }
@@ -60,7 +60,7 @@
 
   input {
     border-radius: 3px;
-    border-color: #BFBFBE;
+    border-color: @palette__gray--light-1;
     border-style: solid;
     border-width: 1px;
     padding: 1px;
@@ -70,13 +70,13 @@
 
   input[type="text"], input[type="number"] {
     width: 70px;
-    color: #464C4F;
+    color: @palette__gray--dark-2;
   }
 
   input[type="text"]::placeholder,
   input[type="number"]::placeholder {
     font-size: 13px;
-    color: #AAAAAA;
+    color: @palette__gray--light-1;
   }
 }
 

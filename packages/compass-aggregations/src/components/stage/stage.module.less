@@ -4,16 +4,16 @@
   .stage {
     position: relative;
     margin: 0px 16px 16px 16px;
-    border: 1px solid @gray6;
+    border: 1px solid @palette__gray--light-2;
     border-radius: 4px;
-    box-shadow: 1px 1px 1px @gray6;
-    background: @pw;
+    box-shadow: 1px 1px 1px @palette__gray--light-2;
+    background: @palette__white;
 
     display: flex;
     flex-direction: row;
 
     &-errored {
-      border-color: @redBase;
+      border-color: @palette__red--base;
     }
   }
 }
@@ -37,7 +37,7 @@
   &:hover, &:active {
     div {
       div {
-        background-color: @gray5;
+        background-color: @palette__gray--light-1;
       }
     }
   }

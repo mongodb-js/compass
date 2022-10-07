@@ -12,8 +12,8 @@ const style = createStyler(styles, 'error-box');
  * once we start actually produce ansi.
  */
 const ANSI_TO_HTML_OPTIONS = {
-  fg: '#FFF',
-  bg: '#000',
+  fg: '#ffffff',
+  bg: '#000000',
   newline: true,
   escapeXML: true,
   stream: false,

@@ -13,7 +13,7 @@
     margin-bottom: 5px;
 
     .document {
-      background: #ffffff;
+      background: @palette__white;
     }
 
     &:last-child {
@@ -29,7 +29,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    background-color: @gray8;
+    background-color: @palette__gray--light-3;
     padding-top: 135px;
 
     &-action {
@@ -47,8 +47,8 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    background: #f5f6f7;
-    border-bottom: 1px solid #ebebed;
+    background: @palette__gray--light-3;
+    border-bottom: 1px solid @palette__gray--light-2;
     padding: 5px 15px;
     min-width: max-content;
 
@@ -81,7 +81,7 @@
         font-weight: bold;
         font-size: 11px;
         margin: 8px 0;
-        color: #aaaaaa;
+        color: @palette__gray--light-1;
       }
 
       .btn-group > .btn:nth-child(2) {
@@ -111,7 +111,7 @@
         opacity: 0.5;
 
         &:hover {
-          color: #fbb129;
+          color: @palette__yellow--base;
         }
       }
     }
@@ -121,7 +121,7 @@
 
       &-button {
         padding: 0 7px;
-        color: #006cbc;
+        color: @palette__blue--base;
 
         &-left {
           border-top-right-radius: 0;
@@ -149,7 +149,7 @@
   #insert-data-dropdown {
     display: flex;
     padding: 0 12px;
-    color: @pw;
+    color: @palette__white;
     width: max-content;
 
     .caret {

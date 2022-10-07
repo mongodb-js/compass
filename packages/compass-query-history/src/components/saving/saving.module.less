@@ -1,3 +1,5 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
 .form {
   display: flex;
   flex: 1;
@@ -5,7 +7,7 @@
 
 .form-input {
   flex: 1;
-  border: 1px solid #bebcb9;
+  border: 1px solid @palette__gray--light-1;
   border-radius: 2px;
   height: 28px;
   outline: 0;
@@ -13,7 +15,7 @@
   width: 100%;
 
   &:focus {
-    border-color: #5caeeb;
+    border-color: @palette__blue--light-1;
   }
 }
 

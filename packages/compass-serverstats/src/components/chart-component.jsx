@@ -8,7 +8,7 @@ const chartFn = require('../d3/').realTimeLineChart;
 
 // const debug = require('debug')('mongodb-compass:server-stats:chart-component');
 
-const LINE_COLORS = ['#45BAAB', '#23B1FF', '#6F72FF', '#A33A35', '#FFA900', '#C7E82F'];
+const LINE_COLORS = ['#00a35c', '#0498ec', '#016bf8', '#ff6960', '#b45af2', '#ffec9e'];
 
 /**
  * Represents the component that renders serverStatus charts.
