@@ -1,10 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { connect } from 'react-redux';
-import {
-  deletePipeline,
-  openPipelineById
-} from '../../../modules/saved-pipeline';
+import { deletePipeline, openPipelineById } from '../../modules/saved-pipeline';
 import {
   Body,
   Button,

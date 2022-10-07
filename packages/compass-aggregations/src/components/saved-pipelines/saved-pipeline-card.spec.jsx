@@ -2,13 +2,13 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 
-import SavePipelineCard from './save-pipeline-card';
+import SavedPipelineCard from './saved-pipeline-card';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 
 const store = createStore(() => {});
 
-describe('SavePipelineCard [Component]', function() {
+describe('SavedPipelineCard [Component]', function() {
   context('when the component is rendered', function() {
     let component;
 
@@ -18,7 +18,7 @@ describe('SavePipelineCard [Component]', function() {
     beforeEach(function() {
       component = mount(
         <Provider store={store}>
-          <SavePipelineCard id={objectID} name={name} />
+          <SavedPipelineCard id={objectID} name={name} />
         </Provider>
       );
     });
