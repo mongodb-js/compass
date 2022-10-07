@@ -16,6 +16,7 @@ import _reducer, {
   STAGE_TOGGLED,
   replaceOperatorSnippetTokens,
   INITIAL_STATE,
+  generatePipelineAsString,
 } from './pipeline';
 import sinon from 'sinon';
 import { expect } from 'chai';
@@ -384,6 +385,136 @@ describe('pipeline module', function () {
       it('calls the function with the namespace', function () {
         gotoOutResults('coll')(null, getState);
         expect(spy.calledWith('db.coll')).to.equal(true);
+      });
+    });
+  });
+
+  describe('#generatePipelineAsString', function () {
+    context('when the index is the first', function () {
+      const stage = {
+        isEnabled: true,
+        executor: { $match: { name: 'test' } },
+        enabled: true,
+        stageOperator: '$match',
+        stage: "{name: 'test'}",
+      };
+      const state = { inputDocuments: { count: 10000 }, pipeline: [stage] };
+
+      it('returns the pipeline string with only the current stage', function () {
+        expect(generatePipelineAsString(state, 0)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}]`);
+      });
+    });
+
+    context('when the index has prior stages', function () {
+      const stage0 = {
+        isEnabled: true,
+        executor: { $match: { name: 'test' } },
+        enabled: true,
+        stageOperator: '$match',
+        stage: "{name: 'test'}",
+      };
+      const stage1 = {
+        isEnabled: true,
+        executor: { $project: { name: 1 } },
+        enabled: true,
+        stageOperator: '$project',
+        stage: '{name: 1}',
+      };
+      const stage2 = {
+        isEnabled: true,
+        executor: { $sort: { name: 1 } },
+        enabled: true,
+        stageOperator: '$sort',
+        stage: '{name: 1}',
+      };
+      const state = {
+        inputDocuments: { count: 10000 },
+        pipeline: [stage0, stage1, stage2],
+      };
+
+      it('returns the pipeline string with the current and all previous stages', function () {
+        expect(generatePipelineAsString(state, 2)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}, {
+ $project: {
+  name: 1
+ }
+}, {
+ $sort: {
+  name: 1
+ }
+}]`);
+      });
+    });
+
+    context('when the index has stages after', function () {
+      const stage0 = {
+        isEnabled: true,
+        executor: { $match: { name: 'test' } },
+        enabled: true,
+        stageOperator: '$match',
+        stage: "{name: 'test'}",
+      };
+      const stage1 = {
+        isEnabled: true,
+        executor: { $project: { name: 1 } },
+        enabled: true,
+        stageOperator: '$project',
+        stage: '{name: 1}',
+      };
+      const stage2 = {
+        isEnabled: true,
+        executor: { $sort: { name: 1 } },
+        enabled: true,
+        stageOperator: '$sort',
+        stage: '{name: 1}',
+      };
+      const state = {
+        inputDocuments: { count: 10000 },
+        pipeline: [stage0, stage1, stage2],
+      };
+
+      it('returns the pipeline string with the current and all previous stages', function () {
+        expect(generatePipelineAsString(state, 1)).to.deep.equal(`[{
+ $match: {
+  name: 'test'
+ }
+}, {
+ $project: {
+  name: 1
+ }
+}]`);
+      });
+    });
+
+    context('when a stage is disabled', function () {
+      const stage0 = {
+        isEnabled: false,
+        executor: { $match: { name: 'test' } },
+      };
+      const stage1 = { isEnabled: true, executor: { $project: { name: 1 } } };
+      const stage2 = { isEnabled: true, executor: { $sort: { name: 1 } } };
+      const state = {
+        inputDocuments: { count: 10000 },
+        pipeline: [stage0, stage1, stage2],
+      };
+
+      it('returns pipeline as a string with the current and all previous stages', function () {
+        expect(generatePipelineAsString(state, 2)).to.deep.equal('[{}, {}]');
+      });
+    });
+
+    context('when there are no stages', function () {
+      const state = { inputDocuments: { count: 10000 }, pipeline: [] };
+
+      it('returns an empty pipeline string', function () {
+        expect(generatePipelineAsString(state, 0)).to.deep.equal('[]');
       });
     });
   });
