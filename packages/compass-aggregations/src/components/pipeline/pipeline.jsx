@@ -30,7 +30,6 @@ class Pipeline extends PureComponent {
     env: PropTypes.string.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
-    toggleSample: PropTypes.func.isRequired,
     toggleAutoPreview: PropTypes.func.isRequired,
     pipeline: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,

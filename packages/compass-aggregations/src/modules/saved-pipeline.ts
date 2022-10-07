@@ -184,7 +184,6 @@ export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async
     name,
     namespace,
     comments,
-    sample,
     autoPreview,
     collationString: { text },
     dataService
@@ -195,7 +194,6 @@ export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async
     name,
     namespace,
     comments,
-    sample,
     autoPreview,
     collationString: text,
     pipeline,

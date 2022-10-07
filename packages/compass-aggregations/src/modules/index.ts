@@ -20,7 +20,6 @@ import isReadonly from './is-readonly';
 import maxTimeMS from './max-time-ms';
 import collationString from './collation-string';
 import comments from './comments';
-import sample from './sample';
 import autoPreview from './auto-preview';
 import id from './id';
 import savedPipeline from './saved-pipeline';
@@ -51,7 +50,6 @@ import type { PipelinePreviewManager } from './pipeline-builder/pipeline-preview
 const rootReducer = combineReducers({
   appRegistry,
   comments,
-  sample,
   autoPreview,
   dataService,
   fields,

@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import Pipeline from '../pipeline';
 import { maxTimeMSChanged } from '../../modules/max-time-ms';
 import { collationStringChanged } from '../../modules/collation-string';
-import { toggleSample } from '../../modules/sample';
 import { toggleAutoPreview } from '../../modules/auto-preview';
 import {
   toggleInputDocumentsCollapsed,
@@ -132,7 +131,6 @@ const MappedAggregations = connect(
     collationStringChanged,
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
-    toggleSample,
     toggleAutoPreview,
     runStage,
     runOutStage,
