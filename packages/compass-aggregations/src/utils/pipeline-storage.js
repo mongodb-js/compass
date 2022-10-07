@@ -64,7 +64,9 @@ export class PipelineStorage {
     // might be missing
     await fs.mkdir(dir, { recursive: true });
     const filePath = path.join(dir, `${id}.json`);
-    const data = await this._loadOne(filePath);
+    // lastModified is generated on file load, we don't want to store it
+    // eslint-disable-next-line no-unused-vars
+    const { lastModified, ...data } = (await this._loadOne(filePath)) ?? {};
     const updated = {
       ...data,
       ...attributes,

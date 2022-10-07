@@ -40,31 +40,6 @@ import aggregationWorkspaceId from './aggregation-workspace-id';
 import indexes from './indexes';
 
 /**
- * Reset action constant.
- */
-export const RESET = 'aggregations/reset';
-
-/**
- * Clear the pipeline name.
- */
-export const CLEAR_PIPELINE = 'aggregations/CLEAR_PIPELINE';
-
-/**
- * Restore action constant.
- */
-export const RESTORE_PIPELINE = 'aggregations/RESTORE_PIPELINE';
-
-/**
- * New pipeline action name.
- */
-export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
-
-/**
- * Clone pipeline action name.
- */
-export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
-
-/**
  * The main application reducer.
  *
  * this does not include save state and restore state reducers as those need to
