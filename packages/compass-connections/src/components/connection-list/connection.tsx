@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react';
 import {
   H3,
   Description,
-  compassFontSizes,
   spacing,
   uiColors,
   css,
@@ -98,7 +97,7 @@ const connectionButtonStylesDark = css({
 });
 
 const connectionTitleStyles = css({
-  fontSize: compassFontSizes.defaultFontSize,
+  fontSize: '14px',
   fontWeight: 'normal',
   lineHeight: '20px',
   margin: 0,

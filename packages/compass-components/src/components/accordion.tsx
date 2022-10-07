@@ -5,12 +5,11 @@ import { uiColors } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
 
 import { Description, Icon } from './leafygreen';
-import { defaultFontSize } from '../compass-font-sizes';
 import { withTheme } from '../hooks/use-theme';
 
 const buttonStyles = css({
   fontWeight: 'bold',
-  fontSize: defaultFontSize,
+  fontSize: '14px',
   display: 'flex',
   alignItems: 'flex-start',
   paddingLeft: 0,
