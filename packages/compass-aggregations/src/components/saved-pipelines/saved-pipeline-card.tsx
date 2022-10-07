@@ -60,14 +60,15 @@ const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const onDelete = useCallback(() => {
-    onDeletePipeline(id);
     track('Aggregation Deleted', {
       id,
       screen: 'aggregations'
     });
+    onDeletePipeline(id);
   }, [id, onDeletePipeline]);
 
   const onOpenConfirm = useCallback(() => {
+    track('Aggregation Opened', { id, screen: 'aggregations' });
     setShowConfirmModal(false);
     onOpenPipelineConfirm(id);
   }, [id, onOpenPipelineConfirm]);
