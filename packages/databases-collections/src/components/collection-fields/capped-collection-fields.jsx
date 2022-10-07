@@ -19,7 +19,7 @@ function CappedCollectionFields({
       disabled={isTimeSeries || isClustered || isFLE2}
       onToggle={checked => onChangeIsCapped(checked)}
       label="Capped Collection"
-      dataTestId="capped-collection-fields"
+      data-testid="capped-collection-fields"
       helpUrl={HELP_URL_CAPPED}
       description="Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
     >

@@ -63,7 +63,7 @@ function TimeSeriesFields({
       onToggle={checked => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
-      dataTestId="time-series-fields"
+      data-testid="time-series-fields"
       helpUrl={HELP_URL_TIME_FIELD}
       description="Time-series collections efficiently store sequences of measurements over a period of time."
     >

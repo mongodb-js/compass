@@ -9,12 +9,14 @@ const formFieldContainerStyles = css({
 function FormFieldContainer({
   className = '',
   children,
+  ...props
 }: {
+  ['data-testid']?: string;
   className?: string;
   children: React.ReactNode;
 }): React.ReactElement {
   return (
-    <div className={cx(formFieldContainerStyles, className)}>{children}</div>
+    <div className={cx(formFieldContainerStyles, className)} data-testid={props['data-testid']}>{children}</div>
   );
 }
 

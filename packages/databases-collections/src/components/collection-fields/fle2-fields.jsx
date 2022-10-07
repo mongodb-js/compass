@@ -70,7 +70,7 @@ function FLE2Fields({
       onToggle={checked => onChangeIsFLE2(checked)}
       // Queryable Encryption is the user-facing name of FLE2
       label="Queryable Encryption"
-      dataTestId="fle2-fields"
+      data-testid="fle2-fields"
       helpUrl={HELP_URL_FLE2}
       description="Encrypt a subset of the fields using Queryable Encryption."
     >

@@ -33,7 +33,7 @@ function ClusteredCollectionFields({
       disabled={isTimeSeries || isCapped}
       onToggle={checked => onChangeIsClustered(checked)}
       label="Clustered Collection"
-      dataTestId="clustered-collection-fields"
+      data-testid="clustered-collection-fields"
       helpUrl={HELP_URL_CLUSTERED}
       description="Clustered collections store documents ordered by a user-defined cluster key."
     >

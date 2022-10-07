@@ -25,7 +25,7 @@ function Collation({
         onChangeIsCustomCollation(checked);
       }}
       label="Use Custom Collation"
-      dataTestId="use-custom-collation-fields"
+      data-testid="use-custom-collation-fields"
       toggled={isCustomCollation}
       description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
       helpUrl={HELP_URL_COLLATION}
