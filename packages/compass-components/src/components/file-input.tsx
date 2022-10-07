@@ -79,10 +79,10 @@ const labelIconStyles = css({
   textRendering: 'auto',
   margin: '0 0 0 5px',
   cursor: 'pointer',
-  color: '#c1c7c6',
+  color: palette.gray.light1,
 
   '&:link, &:active': {
-    color: '#c1c7c6',
+    color: palette.gray.light1,
   },
 
   '&:link, &:active, &:hover': {
@@ -90,7 +90,7 @@ const labelIconStyles = css({
   },
 
   '&:hover': {
-    color: '#ffc010',
+    color: palette.yellow.base,
   },
 });
 

@@ -20,12 +20,12 @@ const containerStylesDark = css({
   '--bg-color': palette.gray.dark3,
 
   '--title-color': palette.gray.dark3,
-  '--title-bg-color': '#71f6ba', // TODO: there is no palette.green.light1,
+  '--title-bg-color': palette.green.light1,
 
   '--icon-color': palette.white,
 
   '--item-color': palette.white,
-  '--item-color-active': '#71f6ba', // TODO: there is no palette.green.light1
+  '--item-color-active': palette.green.light1,
   '--item-bg-color': palette.gray.dark3,
   '--item-bg-color-hover': palette.gray.dark2,
   '--item-bg-color-active': palette.black,
