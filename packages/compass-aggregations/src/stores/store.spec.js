@@ -260,6 +260,7 @@ describe('Aggregation Store', function() {
             explain: INITIAL_STATE.explain,
             isDataLake: INITIAL_STATE.isDataLake,
             indexes: INITIAL_STATE.indexes,
+            pipelineBuilder: INITIAL_STATE.pipelineBuilder,
           });
         });
       });

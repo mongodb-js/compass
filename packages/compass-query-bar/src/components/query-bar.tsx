@@ -30,7 +30,7 @@ const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
-  background: 'white',
+  background: uiColors.white,
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[2],

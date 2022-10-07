@@ -29,7 +29,7 @@ color: #5b81a9;
 color: #5b81a9;
 }
 .ace-mongodb .ace_variable.ace_class {
-color: teal;
+color: #008080;
 }
 .ace-mongodb .ace_constant.ace_buildin {
 color: #0086B3;
@@ -38,7 +38,7 @@ color: #0086B3;
 color: #0086B3;
 }
 .ace-mongodb .ace_comment {
-color: #998;
+color: #999988;
 font-style: italic;
 }
 .ace-mongodb .ace_variable.ace_language  {
@@ -48,7 +48,7 @@ color: #0086B3;
 font-weight: normal;
 }
 .ace-mongodb .ace_variable.ace_instance {
-color: teal;
+color: #008080;
 }
 .ace-mongodb .ace_constant.ace_language {
 font-weight: bold;
@@ -60,33 +60,33 @@ color: #999999;
 background: #f5f6f7;
 }
 .ace-mongodb .ace_marker-layer .ace_active-line {
-background: rgb(245, 245, 245);
+background: #f5f5f5;
 }
 .ace-mongodb .ace_marker-layer .ace_selection {
-background: rgb(181, 213, 255);
+background: #b5d5ff;
 }
 .ace-mongodb.ace_multiselect .ace_selection.ace_start {
-box-shadow: 0 0 3px 0px white;
+box-shadow: 0 0 3px 0px #ffffff;
 }
 .ace-mongodb.ace_nobold .ace_line > span {
 font-weight: normal !important;
 }
 .ace-mongodb .ace_marker-layer .ace_step {
-background: rgb(252, 255, 0);
+background: #fcff00;
 }
 .ace-mongodb .ace_marker-layer .ace_stack {
-background: rgb(164, 229, 101);
+background: #a4e565;
 }
 .ace-mongodb .ace_marker-layer .ace_bracket {
 margin: -1px 0 0 -1px;
-border: 1px solid rgb(192, 192, 192);
+border: 1px solid #c0c0c0;
 }
 .ace-mongodb .ace_gutter-active-line {
 background: #f5f6f7;
 }
 .ace-mongodb .ace_marker-layer .ace_selected-word {
-background: rgb(250, 250, 255);
-border: 1px solid rgb(200, 200, 250);
+background: #fafaff;
+border: 1px solid #c8c8fa;
 }
 .ace-mongodb .ace_invisible {
 color: #BFBFBF
@@ -99,7 +99,8 @@ background: #e8e8e8;
   opacity: 0;
 }
 .ace-mongodb .ace_indent-guide {
-background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bLly//BwAmVgd1/w11/gAAAABJRU5ErkJggg==") right repeat-y;
+  background: linear-gradient(to top, transparent 0%, transparent 50%, #bfbfbf 50%, #bfbfbf 100%) right repeat-y;
+  background-size: 1px 2px;
 }`;
 
 function mongodbAceTheme(acequire: any, exports: any) {

@@ -3,6 +3,7 @@ import dataService from './data-service';
 import fields from './fields';
 import editViewName from './edit-view-name';
 import sourceName from './source-name';
+import pipelineBuilder from './pipeline-builder';
 import inputDocuments from './input-documents';
 import namespace from './namespace';
 import env from './env';
@@ -37,6 +38,31 @@ import isDataLake from './is-datalake';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import indexes from './indexes';
+
+/**
+ * Reset action constant.
+ */
+export const RESET = 'aggregations/reset';
+
+/**
+ * Clear the pipeline name.
+ */
+export const CLEAR_PIPELINE = 'aggregations/CLEAR_PIPELINE';
+
+/**
+ * Restore action constant.
+ */
+export const RESTORE_PIPELINE = 'aggregations/RESTORE_PIPELINE';
+
+/**
+ * New pipeline action name.
+ */
+export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
+
+/**
+ * Clone pipeline action name.
+ */
+export const CLONE_PIPELINE = 'aggregations/CLONE_PIPELINE';
 
 /**
  * The main application reducer.
@@ -83,6 +109,7 @@ const rootReducer = combineReducers({
   explain,
   isDataLake,
   indexes,
+  pipelineBuilder,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
