@@ -16,7 +16,12 @@ function FormFieldContainer({
   children: React.ReactNode;
 }): React.ReactElement {
   return (
-    <div className={cx(formFieldContainerStyles, className)} data-testid={props['data-testid']}>{children}</div>
+    <div
+      className={cx(formFieldContainerStyles, className)}
+      data-testid={props['data-testid']}
+    >
+      {children}
+    </div>
   );
 }
 

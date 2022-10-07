@@ -43,7 +43,16 @@ export const CollapsibleFieldSet = ({
           onToggle(event.target.checked);
         }}
         disabled={disabled}
-        label={<Label htmlFor={checkboxId} data-testid={props['data-testid'] && `${props['data-testid']}-label`}>{label}</Label>}
+        label={
+          <Label
+            htmlFor={checkboxId}
+            data-testid={
+              props['data-testid'] && `${props['data-testid']}-label`
+            }
+          >
+            {label}
+          </Label>
+        }
         description={
           !description
             ? ''
