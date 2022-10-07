@@ -5,7 +5,6 @@ import { spacing } from '@leafygreen-ui/tokens';
 import type { glyphs } from '@leafygreen-ui/icon';
 
 import { withTheme } from '../../hooks/use-theme';
-import { smallFontSize } from '../../compass-font-sizes';
 import {
   FocusState,
   useFocusState,
@@ -141,7 +140,7 @@ const tabTitleStyles = css({
   textOverflow: 'ellipsis',
   overflow: 'hidden',
   fontWeight: 'bold',
-  fontSize: smallFontSize,
+  fontSize: '13px',
   gridArea: 'tabName',
 });
 
@@ -169,7 +168,7 @@ const tabSubtitleStyles = css({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
-  fontSize: smallFontSize,
+  fontSize: '13px',
   lineHeight: `${spacing[3]}px`,
   gridArea: 'namespace',
 });
