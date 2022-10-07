@@ -2,13 +2,21 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const ReactDOM = require('react-dom');
+import { palette } from '@mongodb-js/compass-components';
 const Actions = require('../actions');
 const d3 = require('d3');
 const chartFn = require('../d3/').realTimeLineChart;
 
 // const debug = require('debug')('mongodb-compass:server-stats:chart-component');
 
-const LINE_COLORS = ['#00a35c', '#0498ec', '#016bf8', '#ff6960', '#b45af2', '#ffec9e'];
+const LINE_COLORS = [
+  palette.green.dark1,
+  palette.blue.light1,
+  palette.blue.base,
+  palette.red.light1,
+  palette.purple.base,
+  palette.yellow.light2
+];
 
 /**
  * Represents the component that renders serverStatus charts.

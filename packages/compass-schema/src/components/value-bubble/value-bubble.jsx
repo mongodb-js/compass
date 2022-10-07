@@ -26,7 +26,7 @@ const valueBubbleValueStyles = css({
 });
 
 const valueBubbleValueSelectedStyles = css({
-  backgroundColor: '#ffc010', // `@mc-fg-selected` in compass-schema.module.less
+  backgroundColor: palette.yellow.base,
   color: palette.white,
 });
 
