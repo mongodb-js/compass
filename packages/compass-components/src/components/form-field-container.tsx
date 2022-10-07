@@ -10,7 +10,6 @@ function FormFieldContainer({
   className = '',
   children,
 }: {
-  key?: string;
   className?: string;
   children: React.ReactNode;
 }): React.ReactElement {
