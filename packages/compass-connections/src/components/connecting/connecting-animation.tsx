@@ -1,5 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { spacing, css, palette } from '@mongodb-js/compass-components';
+import {
+  spacing,
+  css,
+  palette,
+  transparentize,
+} from '@mongodb-js/compass-components';
 
 const animationContainerStyles = css({
   marginTop: spacing[3],
@@ -41,7 +46,7 @@ const redArrowStyles = css({
 });
 
 const arrowStyles = css({
-  fill: 'rgba(0, 104, 74, 0.3)',
+  fill: transparentize(0.7, palette.green.dark2),
 });
 
 // This function returns the speed at which the needle shoots off in

@@ -11,6 +11,7 @@ import {
   useTheme,
   Theme,
   withTheme,
+  transparentize,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 
@@ -80,7 +81,7 @@ const connectionListSectionStyles = css({
   padding: 0,
   paddingBottom: spacing[3],
   '::-webkit-scrollbar-thumb': {
-    background: 'rgba(193, 199, 198, 0.5)',
+    background: transparentize(0.5, palette.gray.light1),
   },
 });
 

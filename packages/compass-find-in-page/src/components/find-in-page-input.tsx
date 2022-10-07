@@ -9,6 +9,7 @@ import {
   cx,
   spacing,
   palette,
+  transparentize,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
@@ -20,7 +21,7 @@ const findInPageContainerStyles = css({
   top: 0,
   right: spacing[4],
   width: spacing[6] * 4, // 256px
-  boxShadow: '0px 2px 5px rgba(0, 30, 43, 0.3)',
+  boxShadow: `0px 2px 5px ${transparentize(0.7, palette.black)}`,
 });
 
 const containerLightThemeStyles = css({
