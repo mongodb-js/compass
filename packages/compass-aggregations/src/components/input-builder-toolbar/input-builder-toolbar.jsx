@@ -17,7 +17,7 @@ class InputBuilderToolbar extends PureComponent {
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
     isExpanded: PropTypes.bool.isRequired,
-    count: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
+    count: PropTypes.number
   };
 
   /**

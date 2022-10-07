@@ -1,5 +1,5 @@
 import { toJSString } from 'mongodb-query-parser';
-import { emptyStage } from './pipeline';
+import { emptyStage } from '../utils/stage';
 import { extractStages } from './extract-stages';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 

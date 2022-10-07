@@ -111,7 +111,7 @@ class StagePreview extends Component {
     if (this.props.isComplete) {
       if (!this.props.error) {
         return (
-          <Body className={styles['stage-preview-out']}>
+          <Body as="div" className={styles['stage-preview-out']}>
             <div className={styles['stage-preview-out-text']}>
               Documents persisted to collection: {decomment(this.props.stage)}.
             </div>
@@ -130,7 +130,7 @@ class StagePreview extends Component {
     }
 
     return (
-      <Body className={styles['stage-preview-out']}>
+      <Body as="div" className={styles['stage-preview-out']}>
         <div className={styles['stage-preview-out-text']}>
           The $out operator will cause the pipeline to persist the results to
           the specified location (collection, S3, or Atlas). If the collection

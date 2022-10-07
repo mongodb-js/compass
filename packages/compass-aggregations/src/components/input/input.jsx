@@ -14,7 +14,7 @@ class Input extends PureComponent {
     documents: PropTypes.array.isRequired,
     isLoading: PropTypes.bool.isRequired,
     isExpanded: PropTypes.bool.isRequired,
-    count: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
+    count: PropTypes.number
   };
 
   /**

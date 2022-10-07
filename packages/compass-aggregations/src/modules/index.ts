@@ -1,3 +1,4 @@
+import type { Action, AnyAction } from 'redux';
 import { combineReducers } from 'redux';
 import dataService from './data-service';
 import fields from './fields';
@@ -38,6 +39,8 @@ import isDataLake from './is-datalake';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import indexes from './indexes';
+import type { ThunkAction } from 'redux-thunk';
+import type { PipelinePreviewManager } from './pipeline-builder/pipeline-preview-manager';
 
 /**
  * The main application reducer.
@@ -84,9 +87,19 @@ const rootReducer = combineReducers({
   explain,
   isDataLake,
   indexes,
-  pipelineBuilder,
+  pipelineBuilder
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
+
+export type PipelineBuilderThunkAction<
+  R,
+  A extends Action = AnyAction
+> = ThunkAction<
+  R,
+  RootState,
+  { pipelinePreviewManager: PipelinePreviewManager },
+  A
+>;
 
 export default rootReducer;
