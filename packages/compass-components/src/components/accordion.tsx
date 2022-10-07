@@ -24,7 +24,7 @@ const buttonStyles = css({
   },
   '&:focus-visible': {
     outline: 'none',
-    boxShadow: `0 0 0 3px ${palette.focus}`,
+    boxShadow: `0 0 0 3px ${palette.blue.light1}`,
   },
 });
 

@@ -25,7 +25,7 @@ const countButtonStyles = css({
   display: 'inline',
   height: spacing[4] + spacing[1],
   ':focus': {
-    outline: `${spacing[1]}px auto ${palette.focus}`,
+    outline: `${spacing[1]}px auto ${palette.blue.light1}`,
   },
 });
 

@@ -22,7 +22,7 @@ const focusRingStyles = css({
 
 const focusRingVisibleStyles = css({
   '&::after': {
-    boxShadow: `0 0 0 3px ${palette.focus} !important`,
+    boxShadow: `0 0 0 3px ${palette.blue.light1} !important`,
     transitionTimingFunction: 'ease-out',
   },
 });

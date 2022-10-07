@@ -13,7 +13,6 @@ import type {
 } from 'electron';
 import { app as electronApp, shell, dialog, BrowserWindow } from 'electron';
 import { enable } from '@electron/remote/main';
-import { palette } from '@mongodb-js/compass-components';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';

@@ -65,7 +65,7 @@ const selectedTabStyles = css({
 
 const focusedTabStyles = css({
   zIndex: 3, // Show the border over surrounding tabs.
-  borderColor: palette.focus,
+  borderColor: palette.blue.light1,
   '&::after': {
     position: 'absolute',
     content: '""',
@@ -73,7 +73,7 @@ const focusedTabStyles = css({
     right: 0,
     left: 0,
     height: '1px',
-    backgroundColor: palette.focus,
+    backgroundColor: palette.blue.light1,
   },
 });
 
@@ -94,7 +94,7 @@ const selectedTabBottomBorderStyles = css({
 
 const focusedTabBottomBorderStyles = css({
   height: `${spacing[1]}px`,
-  backgroundColor: palette.focus,
+  backgroundColor: palette.blue.light1,
   transition: 'height 150ms ease-out',
 });
 
@@ -119,7 +119,7 @@ const tabIconSelectedDarkThemeStyles = css({
 });
 
 const tabIconFocusedStyles = css({
-  color: palette.focus,
+  color: palette.blue.light1,
 });
 
 const tabTitleContainerStyles = css({
@@ -161,7 +161,7 @@ const tabTitleSelectedLightThemeStyles = css({
 });
 
 const tabTitleFocusedStyles = css({
-  color: palette.focus,
+  color: palette.blue.light1,
 });
 
 const tabSubtitleStyles = css({

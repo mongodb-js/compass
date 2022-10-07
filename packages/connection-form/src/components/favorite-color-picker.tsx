@@ -25,7 +25,7 @@ const colorOptionStyles = css({
   width: spacing[5] + spacing[1],
   height: spacing[5] + spacing[1],
   border: '1px solid transparent',
-  boxShadow: `0 0 0 0 ${palette.focus}`,
+  boxShadow: `0 0 0 0 ${palette.blue.light1}`,
   transition: 'box-shadow .16s ease-in',
   position: 'relative',
   overflow: 'hidden',
@@ -35,7 +35,7 @@ const colorOptionStyles = css({
 });
 
 const activeColorOptionStyles = css({
-  boxShadow: `0 0 0 3px ${palette.focus}`,
+  boxShadow: `0 0 0 3px ${palette.blue.light1}`,
   transitionTimingFunction: 'ease-out',
 });
 

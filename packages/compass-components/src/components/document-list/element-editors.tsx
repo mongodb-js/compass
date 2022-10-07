@@ -29,7 +29,7 @@ const editorReset = css({
 const editorOutline = css({
   '&:focus, &:active': {
     borderRadius: `2px`,
-    boxShadow: `0 0 0 2px ${palette.focus}`,
+    boxShadow: `0 0 0 2px ${palette.blue.light1}`,
   },
 });
 
