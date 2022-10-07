@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import d3 from 'd3';
 import bson from 'bson';
+import { palette } from '@mongodb-js/compass-components';
+
 
 /**
  * Conversion for display in minicharts for non-promoted BSON types.
@@ -89,7 +91,7 @@ class D3Component extends Component {
                 width="2.5"
                 height="4"
                 transform="translate(0,0)"
-                fill="#ffffff"
+                fill={palette.white}
               />
             </pattern>
             <mask id="mask-stripe">

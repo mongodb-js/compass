@@ -13,6 +13,8 @@ import type {
 } from 'electron';
 import { app as electronApp, shell, dialog, BrowserWindow } from 'electron';
 import { enable } from '@electron/remote/main';
+import { palette } from '@mongodb-js/compass-components';
+
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import preferences from 'compass-preferences-model';
@@ -91,7 +93,7 @@ function showConnectWindow(
      */
     icon: process.platform === 'linux' ? COMPASS_ICON : undefined,
     show: !!process.env.DEBUG_MAIN_WINDOW,
-    backgroundColor: '#f9fbfa',
+    backgroundColor: '#ffffff',
     ...opts,
     webPreferences: {
       'subpixel-font-scaling': true,
@@ -109,7 +111,9 @@ function showConnectWindow(
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
   if (networkTraffic !== true) {
     // https://github.com/electron/electron/issues/22995
-    window.webContents.session.setSpellCheckerDictionaryDownloadURL('http://127.0.0.1:0/');
+    window.webContents.session.setSpellCheckerDictionaryDownloadURL(
+      'http://127.0.0.1:0/'
+    );
   }
 
   enable(window.webContents);

@@ -2,7 +2,7 @@
 const React = require('react');
 const PropTypes = require('prop-types');
 const ReactDOM = require('react-dom');
-import { palette } from '@mongodb-js/compass-components';
+const { palette } = require('@mongodb-js/compass-components');
 const Actions = require('../actions');
 const d3 = require('d3');
 const chartFn = require('../d3/').realTimeLineChart;
