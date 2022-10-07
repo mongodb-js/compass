@@ -9,11 +9,10 @@ import { withTheme } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
-import {
-  scrollbarThumbLightTheme,
-  scrollbarThumbDarkTheme,
-} from '../../compass-ui-colors';
 import { Tab } from './tab';
+
+export const scrollbarThumbLightTheme = 'rgba(136, 147, 151, 0.65)';
+export const scrollbarThumbDarkTheme = 'rgba(136, 147, 151, 0.65)';
 
 const tabsContainerStyles = css({
   margin: 0,

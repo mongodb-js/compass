@@ -5,7 +5,6 @@ import {
   H3,
   Icon,
   uiColors,
-  compassUIColors,
   spacing,
   css,
   cx,
@@ -81,7 +80,7 @@ const connectionListSectionStyles = css({
   padding: 0,
   paddingBottom: spacing[3],
   '::-webkit-scrollbar-thumb': {
-    background: compassUIColors.transparentGray,
+    background: 'rgba(193, 199, 198, 0.5)',
   },
 });
 

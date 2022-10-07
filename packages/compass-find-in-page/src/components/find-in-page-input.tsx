@@ -9,7 +9,6 @@ import {
   cx,
   spacing,
   uiColors,
-  compassUIColors,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
@@ -25,7 +24,7 @@ const findInPageContainerStyles = css({
 });
 
 const containerLightThemeStyles = css({
-  background: compassUIColors.gray8,
+  background: uiColors.gray.light3,
   borderColor: uiColors.gray.light2,
 });
 
