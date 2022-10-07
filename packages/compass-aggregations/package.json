@@ -58,6 +58,7 @@
     "@types/decomment": "^0.9.2",
     "@types/lodash.debounce": "^4.0.7",
     "@types/lodash.isempty": "^4.4.6",
+    "@types/prettier": "^2.7.1",
     "@types/semver": "^7.3.9",
     "acorn-loose": "^8.0.2",
     "astring": "^1.7.0",
