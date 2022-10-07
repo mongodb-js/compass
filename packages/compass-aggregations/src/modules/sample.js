@@ -1,3 +1,6 @@
+import { NEW_PIPELINE } from './import-pipeline';
+import { RESTORE_PIPELINE } from './saved-pipeline';
+
 /**
  * Sample toggled action name.
  */
@@ -19,6 +22,12 @@ export const INITIAL_STATE = true;
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === TOGGLE_SAMPLE) {
     return !state;
+  }
+  if (action.type === NEW_PIPELINE) {
+    return INITIAL_STATE;
+  }
+  if (action.type === RESTORE_PIPELINE) {
+    return action.restoreState.sample;
   }
   return state;
 }

@@ -1,10 +1,9 @@
-import type { Reducer } from 'redux';
-
+import type { AnyAction, Reducer } from 'redux';
 import { ActionTypes as AggregationActionTypes, cancelAggregation } from './aggregation';
-import type { Actions as AggregationActions } from './aggregation';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import { cancelCount } from './count-documents';
+import { NEW_PIPELINE } from './import-pipeline';
 
 export type Workspace = 'builder' | 'results';
 
@@ -22,12 +21,14 @@ export type State = Workspace;
 
 export const INITIAL_STATE: State = 'builder';
 
-const reducer: Reducer<State, Actions | AggregationActions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.WorkspaceChanged:
       return action.view;
     case AggregationActionTypes.AggregationStarted:
       return 'results';
+    case NEW_PIPELINE:
+      return INITIAL_STATE;
     default:
       return state;
   }

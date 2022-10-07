@@ -2,15 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Aggregations from './components/aggregations';
 import { Provider } from 'react-redux';
-import configureStore, {
-  refreshInput,
-  setDataProvider,
-  setNamespace,
-  setServerVersion,
-  setFields,
-  setGlobalAppRegistry,
-  setLocalAppRegistry
-} from './stores';
+import configureStore from './stores';
 
 class Plugin extends Component {
   static displayName = 'AggregationsPlugin';
@@ -47,14 +39,4 @@ class Plugin extends Component {
 }
 
 export default Plugin;
-export {
-  Plugin,
-  configureStore,
-  refreshInput,
-  setDataProvider,
-  setNamespace,
-  setServerVersion,
-  setFields,
-  setGlobalAppRegistry,
-  setLocalAppRegistry
-};
+export { Plugin, configureStore };

@@ -9,6 +9,7 @@ import type { RootState } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { mapPipelineToStages } from '../utils/stage';
 import type { IndexInfo } from './indexes';
+import { NEW_PIPELINE } from './import-pipeline';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -101,6 +102,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
         abortController: undefined,
       };
     case ActionTypes.ExplainCancelled:
+    case NEW_PIPELINE:
       return INITIAL_STATE;
     default:
       return state;

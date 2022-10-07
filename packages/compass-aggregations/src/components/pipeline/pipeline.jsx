@@ -4,7 +4,6 @@ import classnames from 'classnames';
 import { Banner, WorkspaceContainer } from '@mongodb-js/compass-components';
 
 import Settings from '../settings';
-import RestorePipelineModal from './modals/restore-pipeline-modal';
 import ImportPipeline from './modals/import-pipeline';
 import ConfirmImportPipeline from './modals/confirm-import-pipeline';
 import SavingPipelineModal from '../saving-pipeline-modal';
@@ -30,12 +29,9 @@ class Pipeline extends PureComponent {
   static propTypes = {
     env: PropTypes.string.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
-    openPipelineById: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
     toggleSample: PropTypes.func.isRequired,
     toggleAutoPreview: PropTypes.func.isRequired,
-    restorePipelineModalToggle: PropTypes.func.isRequired,
-    restorePipeline: PropTypes.object.isRequired,
     pipeline: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
@@ -60,7 +56,6 @@ class Pipeline extends PureComponent {
     fields: PropTypes.array.isRequired,
     isModified: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
-    isSampling: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
     isImportPipelineOpen: PropTypes.bool.isRequired,
     isImportConfirmationNeeded: PropTypes.bool.isRequired,
@@ -92,7 +87,6 @@ class Pipeline extends PureComponent {
     savingPipeline: PropTypes.object.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    openCreateView: PropTypes.func.isRequired,
     isNewPipelineConfirm: PropTypes.bool.isRequired,
     setIsNewPipelineConfirm: PropTypes.func.isRequired,
     inputDocuments: PropTypes.object.isRequired,
@@ -129,24 +123,6 @@ class Pipeline extends PureComponent {
         </div>
       );
     }
-  }
-
-  /**
-   * Render the restore modal if neccessary.
-   *
-   * @returns {Component} The component.
-   */
-  renderRestoreModal() {
-    if (this.props.restorePipeline.isModalVisible) {
-      return (
-        <RestorePipelineModal
-          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
-          openPipelineById={this.props.openPipelineById}
-          restorePipeline={this.props.restorePipeline}
-        />
-      );
-    }
-    return null;
   }
 
   renderPipelineToolbar() {
@@ -270,12 +246,10 @@ class Pipeline extends PureComponent {
           runStage={this.props.runStage}
           settings={this.props.settings}
         />
-        {this.renderRestoreModal()}
         {importPipelineModal}
         {confirmImportPipelineModal}
         {savingPipelineModal}
         {confirmNewPipelineModal}
-
         </WorkspaceContainer>
       </div>
     );

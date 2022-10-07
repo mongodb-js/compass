@@ -1,3 +1,4 @@
+import { NEW_PIPELINE } from './import-pipeline';
 import { gatherProjections } from './stage';
 
 /**
@@ -11,6 +12,9 @@ export const INITIAL_STATE = [];
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === PROJECTIONS_CHANGED) {
     return action.projections;
+  }
+  if (action.type === NEW_PIPELINE) {
+    return INITIAL_STATE;
   }
   return state;
 }
