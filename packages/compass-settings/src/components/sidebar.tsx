@@ -3,7 +3,7 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
+  palette,
   focusRing,
 } from '@mongodb-js/compass-components';
 
@@ -20,12 +20,12 @@ const buttonStyles = css({
 
 const hoverStyles = css({
   '&:hover': {
-    backgroundColor: uiColors.green.light2,
+    backgroundColor: palette.green.light2,
   },
 });
 
 const activeStyles = css({
-  backgroundColor: uiColors.green.light3,
+  backgroundColor: palette.green.light3,
 });
 
 type SidebarProps = {

@@ -1,6 +1,6 @@
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { useMemo } from 'react';
 
 const focusRingStyles = css({
@@ -22,14 +22,14 @@ const focusRingStyles = css({
 
 const focusRingVisibleStyles = css({
   '&::after': {
-    boxShadow: `0 0 0 3px ${uiColors.focus} !important`,
+    boxShadow: `0 0 0 3px ${palette.focus} !important`,
     transitionTimingFunction: 'ease-out',
   },
 });
 
 const focusRingHoverVisibleStyles = css({
   '&::after': {
-    boxShadow: `0 0 0 3px ${uiColors.gray.light2}`,
+    boxShadow: `0 0 0 3px ${palette.gray.light2}`,
     transitionTimingFunction: 'ease-out',
   },
 });

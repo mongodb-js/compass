@@ -4,7 +4,7 @@ import FocusTrap from 'focus-trap-react';
 
 import { Popover } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { transparentize } from 'polished';
 import { useTheme, Theme } from '../hooks/use-theme';
 
@@ -15,22 +15,22 @@ const contentContainerStyles = css({
   height: '100%',
   alignItems: 'center',
   borderRadius: borderRadius,
-  boxShadow: `0px 2px 4px -1px ${transparentize(0.85, uiColors.black)}`,
+  boxShadow: `0px 2px 4px -1px ${transparentize(0.85, palette.black)}`,
   border: `1px solid`,
   overflow: 'hidden',
   width: 'fit-content',
 });
 
 const contentContainerStylesLight = css({
-  borderColor: uiColors.gray.light2,
-  backgroundColor: uiColors.gray.light3,
-  color: uiColors.gray.dark2,
+  borderColor: palette.gray.light2,
+  backgroundColor: palette.gray.light3,
+  color: palette.gray.dark2,
 });
 
 const contentContainerStylesDark = css({
-  borderColor: uiColors.gray.dark2,
-  backgroundColor: uiColors.gray.dark3,
-  color: uiColors.white,
+  borderColor: palette.gray.dark2,
+  backgroundColor: palette.gray.dark3,
+  color: palette.white,
 });
 
 type InteractivePopoverProps = {

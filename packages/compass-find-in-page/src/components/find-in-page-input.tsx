@@ -8,7 +8,7 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
@@ -24,13 +24,13 @@ const findInPageContainerStyles = css({
 });
 
 const containerLightThemeStyles = css({
-  background: uiColors.gray.light3,
-  borderColor: uiColors.gray.light2,
+  background: palette.gray.light3,
+  borderColor: palette.gray.light2,
 });
 
 const containerDarkThemeStyles = css({
-  background: uiColors.gray.dark2,
-  borderColor: uiColors.gray.dark1,
+  background: palette.gray.dark2,
+  borderColor: palette.gray.dark1,
 });
 
 const descriptionStyles = css({
@@ -40,11 +40,11 @@ const descriptionStyles = css({
 });
 
 const descriptionLightThemeStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const descriptionDarkThemeStyles = css({
-  color: uiColors.gray.light2,
+  color: palette.gray.light2,
 });
 
 const findStyles = css({

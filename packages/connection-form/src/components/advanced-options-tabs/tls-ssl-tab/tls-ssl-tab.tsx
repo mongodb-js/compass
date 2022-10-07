@@ -6,7 +6,7 @@ import {
   Label,
   RadioBox,
   RadioBoxGroup,
-  uiColors,
+  palette,
   css,
   cx,
   spacing,
@@ -26,7 +26,7 @@ export const checkboxDescriptionStyles = css({
 });
 
 export const disabledCheckboxDescriptionStyles = css({
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
 });
 
 const TLS_TYPES: {

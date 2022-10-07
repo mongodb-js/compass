@@ -4,7 +4,7 @@ import {
   FavoriteIcon,
   H3,
   Icon,
-  uiColors,
+  palette,
   spacing,
   css,
   cx,
@@ -31,10 +31,10 @@ const newConnectionButtonStyles = css({
 });
 
 const newConnectionButtonStylesLight = css({
-  backgroundColor: uiColors.white,
+  backgroundColor: palette.white,
 });
 const newConnectionButtonStylesDark = css({
-  backgroundColor: uiColors.gray.dark2,
+  backgroundColor: palette.gray.dark2,
 });
 
 const sectionHeaderStyles = css({
@@ -60,7 +60,7 @@ const sectionHeaderTitleStyles = css({
 });
 
 const sectionHeaderTitleStylesLight = css({
-  color: uiColors.gray.dark3,
+  color: palette.gray.dark3,
 });
 
 const sectionHeaderTitleStylesDark = css({
@@ -91,7 +91,7 @@ const connectionListStyles = css({
 });
 
 function UnthemedRecentIcon({ darkMode }: { darkMode?: boolean }) {
-  const color = darkMode ? 'white' : uiColors.gray.dark3;
+  const color = darkMode ? 'white' : palette.gray.dark3;
 
   return (
     <svg

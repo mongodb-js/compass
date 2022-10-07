@@ -4,7 +4,7 @@ import {
   IconButton,
   css,
   spacing,
-  uiColors,
+  palette,
   Body,
   withTheme
 } from '@mongodb-js/compass-components';
@@ -25,11 +25,11 @@ const toolbarTitleStyles = css({
 });
 
 const titleStylesDark = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const titleStylesLight = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 
 const toolbarStyles = css({

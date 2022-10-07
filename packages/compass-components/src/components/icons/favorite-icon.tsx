@@ -1,12 +1,12 @@
 import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { withTheme } from '../../hooks/use-theme';
 
 function UnthemedFavoriteIcon({
   // When it's a favorite, the star is filled in with gold.
   isFavorite = false,
-  favoriteColor = uiColors.yellow.base,
+  favoriteColor = palette.yellow.base,
   darkMode = false,
   showCircle = true,
   size = spacing[4],
@@ -17,7 +17,7 @@ function UnthemedFavoriteIcon({
   showCircle?: boolean;
   size?: number;
 }): React.ReactElement {
-  const stroke = darkMode ? uiColors.white : uiColors.black;
+  const stroke = darkMode ? palette.white : palette.black;
 
   return (
     <svg

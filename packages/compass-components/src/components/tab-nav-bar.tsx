@@ -1,7 +1,7 @@
 import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { withTheme } from '../hooks/use-theme';
 import { Tabs, Tab } from './leafygreen';
 
@@ -19,11 +19,11 @@ const tabsContainerStyles = css({
 });
 
 const tabsContainerDarkStyles = css({
-  background: uiColors.gray.dark3,
+  background: palette.gray.dark3,
 });
 
 const tabsContainerLightStyles = css({
-  background: uiColors.white,
+  background: palette.white,
 });
 
 const tabStyles = css({
