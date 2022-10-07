@@ -8,7 +8,7 @@ import {
   Body,
   withTheme
 } from '@mongodb-js/compass-components';
-import SavePipelineCard from './save-pipeline-card/save-pipeline-card';
+import SavePipelineCard from './saved-pipeline-card';
 import type { Pipeline } from '../../modules/pipeline';
 
 const savedPipelinesStyles = css({
