@@ -19,7 +19,7 @@ const IndexNameCollapsibleFieldSet = ({
       toggled={useIndexName}
       onToggle={toggleUseIndexName}
       label="Index name"
-      dataTestId="create-index-modal-use-index-name-checkbox"
+      data-testid="create-index-modal-use-index-name"
       description="Enter the name of the index to create, or leave blank to have MongoDB create a default name for the index."
     >
       <TextInput

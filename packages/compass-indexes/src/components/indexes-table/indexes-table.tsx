@@ -66,7 +66,7 @@ const tableStyles = css({
     position: 'sticky',
     top: 0,
     background: uiColors.white,
-    zIndex: 1,
+    zIndex: 5,
   },
 });
 

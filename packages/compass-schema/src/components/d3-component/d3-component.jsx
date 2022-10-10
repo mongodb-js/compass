@@ -89,7 +89,7 @@ class D3Component extends Component {
                 width="2.5"
                 height="4"
                 transform="translate(0,0)"
-                fill="white"
+                fill="#ffffff"
               />
             </pattern>
             <mask id="mask-stripe">

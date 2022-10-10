@@ -40,7 +40,7 @@ export default function reducer(
  *
  * @returns {Object} The server version changed action.
  */
-export const serverVersionChanged = (version: string): any => ({
+export const serverVersionChanged = (version: string) => ({
   type: SERVER_VERSION_CHANGED,
   version: version,
 });

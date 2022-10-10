@@ -3,6 +3,11 @@ export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton =
   '[data-testid="settings-modal"] [aria-label="Close modal"]';
 
+// Welcome Modal
+export const WelcomeModal = '[data-testid="welcome-modal"]';
+export const CloseWelcomeModalButton =
+  '[data-testid="welcome-modal"] [aria-label="Close modal"]';
+
 // Connection screen
 export const ConnectSection = '[data-testid="connections-disconnected"]';
 export const ConnectButton = '[data-testid="connect-button"]';
@@ -290,23 +295,23 @@ export const CreateCollectionCreateButton =
 export const CreateCollectionCancelButton =
   '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:last-child';
 export const CreateCollectionCappedCheckboxLabel =
-  '[data-testid="capped-collection-fields"] #toggle-capped-collection-fields-label';
+  '[data-testid="capped-collection-fields"] [data-testid="capped-collection-fields-label"]';
 export const CreateCollectionCappedSizeInput =
   '[data-testid="capped-collection-fields"] [data-testid="capped-size"]';
 export const CreateCollectionCollectionOptionsAccordion =
   '[data-testid="create_collection_modal"] [data-testid="advanced-collection-options"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
-  '[data-testid="use-custom-collation-fields"] #toggle-use-custom-collation-fields-label';
+  '[data-testid="use-custom-collation-fields"] [data-testid="use-custom-collation-fields-label"]';
 
 export const CreateCollectionFLE2CheckboxLabel =
-  '[data-testid="fle2-fields"] #toggle-fle2-fields-label';
+  '[data-testid="fle2-fields"] [data-testid="fle2-fields-label"]';
 export const CreateCollectionFLE2 = '[data-testid="fle2-fields"]';
 export const CollectionListFLE2Badge = '[data-testid="collection-badge-fle2"]';
 export const CollectionHeaderFLE2Badge =
   '[data-testid="collection-header-badge-fle2"]';
 
 export const CreateCollectionTimeseriesCheckboxLabel =
-  '[data-testid="time-series-fields"] #toggle-time-series-fields-label';
+  '[data-testid="time-series-fields"] [data-testid="time-series-fields-label"]';
 export const CreateCollectionTimeseriesTimeField =
   '[data-testid="time-series-fields"] [name="timeSeries.timeField"]';
 export const CreateCollectionTimeseriesMetaField =
@@ -319,7 +324,7 @@ export const CreateCollectionTimeseriesExpireAfterSeconds =
   '[data-testid="time-series-fields"] [name="expireAfterSeconds"]';
 
 export const CreateCollectionClusteredCheckboxLabel =
-  '[data-testid="clustered-collection-fields"] #toggle-clustered-collection-fields-label';
+  '[data-testid="clustered-collection-fields"] [data-testid="clustered-collection-fields-label"]';
 export const CreateCollectionClusteredNameField =
   '[data-testid="clustered-collection-fields"] [name="clusteredIndex.name"]';
 export const CreateCollectionClusteredExpireAfterSeconds =
@@ -776,9 +781,9 @@ export const IndexFieldType = '[data-testid="index-type-field"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
 export const IndexToggleIsWildcard =
-  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] #create-index-modal-use-wildcard-checkbox-label';
+  '[data-testid="create-index-modal-use-wildcard"] [data-testid="create-index-modal-use-wildcard-label"]';
 export const IndexWildcardProjectionEditor =
-  '[data-testid="create-index-modal-use-wildcard-checkbox-fieldset"] .ace_editor';
+  '[data-testid="create-index-modal-use-wildcard"] .ace_editor';
 
 export const CreateIndexButton =
   '[data-testid="open-create-index-modal-button"]';

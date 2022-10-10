@@ -79,7 +79,6 @@ class Stage extends Component {
     setIsModified: PropTypes.func.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired,
     isAtlasDeployed: PropTypes.bool
   };
 
@@ -157,7 +156,6 @@ class Stage extends Component {
             stageChanged={this.props.stageChanged}
             projections={this.props.projections}
             projectionsChanged={this.props.projectionsChanged}
-            newPipelineFromPaste={this.props.newPipelineFromPaste}
           />
         )}
       </>

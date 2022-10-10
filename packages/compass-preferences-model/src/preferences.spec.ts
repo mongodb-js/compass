@@ -64,6 +64,7 @@ describe('Preferences class', function () {
 
   it('can return user-configurable preferences after setting their defaults', async function () {
     const preferences = new Preferences(tmpdir);
+    await preferences.ensureDefaultConfigurableUserPreferences();
     const result = await preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.enableMaps).to.equal(true);
@@ -79,6 +80,7 @@ describe('Preferences class', function () {
         trackErrors: false,
       },
     });
+    await preferences.ensureDefaultConfigurableUserPreferences();
     const result = await preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.autoUpdates).to.equal(true);
@@ -143,6 +145,7 @@ describe('Preferences class', function () {
     const preferences = new Preferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
+    await preferences.ensureDefaultConfigurableUserPreferences();
     await preferences.getConfigurableUserPreferences(); // set defaults
     await preferences.savePreferences({ networkTraffic: false });
     expect(calls).to.deep.equal([

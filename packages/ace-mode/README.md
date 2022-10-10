@@ -20,7 +20,7 @@ npm install --save mongodb-ace-mode
 
 Why? Mental model of operators to functions. (e.g. `$avg: 'a'`, `avg(a)`)
 
-Given: 
+Given:
 
 ```
 max_cpi: {$max: "$trends.icecream_cpi"}
@@ -46,7 +46,7 @@ max_cpi: {$max: "$trends.icecream_cpi"}
 
 Why? Nothing worse than off by one typos... So now really easy to catch because `"field"` and `"$field"` will be styled differently.
 
-Given: 
+Given:
 
 ```
 type: "$type"
@@ -55,7 +55,7 @@ type: "$type"
 ```html
 <div class="ace_line" style="height:15px">
   <span class="ace_identifier">type</span>
-  <span class="ace_punctuation ace_operator">:</span> 
+  <span class="ace_punctuation ace_operator">:</span>
   <span class="ace_string ace_quasi ace_start">"</span>
   <span class="ace_variable ace_parameter">$type</span>
   <span class="ace_punctuation ace_operator">"</span>
@@ -76,12 +76,12 @@ ace_other">$$localType</span>
 
 ```javascript
 /**
- * Gathering stats when items are in an array using 
+ * Gathering stats when items are in an array using
  * $project accumulators.
  */
 
  /**
-  * 1. Default JS highlighter 
+  * 1. Default JS highlighter
   */
 db.icecream_data.aggregate([
   {
@@ -114,7 +114,7 @@ db.icecream_data.aggregate([{
 }]);
 
 /**
- * 3. What if `$` operators same as 2 but with 
+ * 3. What if `$` operators same as 2 but with
  *  "magic" template strings?
  */
 db.icecream_data.aggregate([{
@@ -139,7 +139,7 @@ There are 3 different ways I was thinking about this to get as close to what a d
 
 [The Best Visual Studio Code Dark and Light Themes (Updated Feb 2019)](https://medium.com/@chibicode/the-best-visual-studio-code-dark-and-light-themes-july-2018-edition-a9c2cc9548da)
 
-[OneDark Pro](https://github.com/Binaryify/OneDark-Pro) Most installed by a giant margin 
+[OneDark Pro](https://github.com/Binaryify/OneDark-Pro) Most installed by a giant margin
 
 Pertsonal preference: [Monokai](https://marketplace.visualstudio.com/items?itemName=gerane.Theme-Monokai) Used for more than a decade as Editor of choice has changed (TextMate :arrow_right: SublimeText :arrow_right: Atom :arrow_right: VSCode)
 
@@ -150,7 +150,7 @@ Pertsonal preference: [Monokai](https://marketplace.visualstudio.com/items?itemN
 - https://ace.c9.io/build/kitchen-sink.html
 - https://github.com/ajaxorg/ace/wiki/Creating-or-Extending-an-Edit-Mode
 
-### Basic 
+### Basic
 
 Given:
 
@@ -164,14 +164,14 @@ Want to highlight:
 - `$avg`
 - `"` around `$trends.icecream_cpi` separated
 
-See 
+See
 
 HTML we want looks something like:
 
 ```html
-<div class="ace_line" style="height: 16px; top: 32px;">  
+<div class="ace_line" style="height: 16px; top: 32px;">
   <span class="ace_identifier">average_cpi</span>
-  <span class="ace_punctuation ace_operator">:</span> 
+  <span class="ace_punctuation ace_operator">:</span>
   <span class="ace_paren ace_lparen">{</span>
   <span class="ace_identifier ace_support ace_function">$avg</span>
   <span class="ace_punctuation ace_operator">:</span>
@@ -184,7 +184,7 @@ HTML we want looks something like:
 
 `$avg` Agg Operator:
 - ace_support.ace_function
-- ace_keyword.ace_operator 
+- ace_keyword.ace_operator
 - ace_function
 
 $trends.icecream_cpi Field:
@@ -287,9 +287,9 @@ color: #999999;
   border: 1px solid #eee;
   padding: 10px;
   //background: #f5f6f7;
-  color: #000;
+  color: #000000;
   font-family: Monaco;
-  
+
 }
 .ace-mongodb .ace_keyword {
 color: #999999;

@@ -30,7 +30,7 @@ const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
-  background: 'white',
+  background: uiColors.white,
   border: `1px solid ${uiColors.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[2],
@@ -43,7 +43,7 @@ const queryBarFormDarkStyles = css({
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
-  alignItems: 'flex-start',
+  alignItems: 'center',
   gap: spacing[2],
   paddingLeft: spacing[2],
 });

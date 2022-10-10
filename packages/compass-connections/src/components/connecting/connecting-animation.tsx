@@ -12,12 +12,12 @@ const animationSvgStyles = css({
 });
 
 const shadowStyles = css({
-  fill: '#136149',
+  fill: '#00684a',
   opacity: 0.12,
 });
 
 const ringCircleStyles = css({
-  stroke: '#136149',
+  stroke: '#00684a',
   strokeLinecap: 'round',
   strokeLinejoin: 'round',
   fill: 'none',
@@ -28,20 +28,20 @@ const ringShadowStyles = css(ringCircleStyles, {
 });
 
 const innerCircleStyles = css({
-  fill: '#fef7e3',
+  fill: '#fef7db',
   opacity: 0.85,
 });
 
 const outerCircleStyles = css({
-  fill: '#f7a76f',
+  fill: '#ffcdc7',
 });
 
 const redArrowStyles = css({
-  fill: '#FF5516',
+  fill: '#ff6960',
 });
 
 const arrowStyles = css({
-  fill: 'rgba(9, 128, 76, 0.3)',
+  fill: 'rgba(0, 104, 74, 0.3)',
 });
 
 // This function returns the speed at which the needle shoots off in

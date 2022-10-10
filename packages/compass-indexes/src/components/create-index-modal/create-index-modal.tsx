@@ -103,7 +103,7 @@ function CreateIndexModal({
       className={modalStyles}
       contentClassName={modalContentWrapperStyles}
     >
-      <Body className={modalContentStyles}>
+      <Body as="div" className={modalContentStyles}>
         <H3>Create Index</H3>
         <Body>{namespace}</Body>
         <CreateIndexForm {...props} />

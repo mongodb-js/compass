@@ -82,7 +82,7 @@ class ExplainTree extends Component {
     links
       .enter()
       .append('path')
-      .style({ fill: 'none', stroke: '#dee0e3', 'stroke-width': '6px' })
+      .style({ fill: 'none', stroke: '#e8edeb', 'stroke-width': '6px' })
       .attr('d', elbow);
 
     links.exit().remove();

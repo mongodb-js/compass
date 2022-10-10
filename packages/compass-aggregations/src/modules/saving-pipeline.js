@@ -1,3 +1,8 @@
+import isEmpty from 'lodash.isempty';
+import { NEW_PIPELINE } from './import-pipeline';
+import { generateStage } from './stage';
+import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+
 export const SAVING_PIPELINE_NAME_CHANGED = 'aggregations/saving-pipeline/NAME_CHANGED';
 
 export const SAVING_PIPELINE_APPLY = 'aggregations/saving-pipeline/APPLY';
@@ -47,6 +52,11 @@ export default function reducer(state = INITIAL_STATE, action) {
       isOpen: false
     };
   }
+
+  if (action.type === SAVING_PIPELINE_APPLY || action.type === NEW_PIPELINE) {
+    return { ...INITIAL_STATE };
+  }
+
   return state;
 }
 
@@ -66,12 +76,19 @@ export const savingPipelineNameChanged = (name) => ({
 /**
  * Action creator for apply name events handled in root reducer.
  *
- * @param {String} name - The name value.
  * @returns {Object} The apply name action.
  */
-export const savingPipelineApply = () => ({
-  type: SAVING_PIPELINE_APPLY
-});
+export const savingPipelineApply = () => (dispatch, getState) => {
+  const {
+    name: currentName,
+    savingPipeline: { name }
+  } = getState();
+
+  dispatch({
+    type: SAVING_PIPELINE_APPLY,
+    name: currentName === name ? `${name} (copy)` : name
+  });
+};
 
 /**
  * Action creator for cancel events.
@@ -91,5 +108,40 @@ export const savingPipelineOpen = ({name = '', isSaveAs = false} = {}) => {
     type: SAVING_PIPELINE_OPEN,
     isSaveAs: isSaveAs,
     name: name
+  };
+};
+
+/**
+ * Make view pipeline.
+ *
+ * @param {String} unfilteredPipeline - The unfilteredPipeline.
+ *
+ * @returns {Array} The mapped/filtered view pipeline.
+ */
+export const makeViewPipeline = (unfilteredPipeline) => {
+  return unfilteredPipeline
+    .map((p) => (p.executor || generateStage(p)))
+    // generateStage can return {} under various conditions
+    .filter((stage) => !isEmpty(stage));
+};
+
+/**
+ * Open create view.
+ *
+ * @emits open-create-view {meta: {source, pipeline}}
+ * @see create-view src/stores/create-view.js
+ */
+export const openCreateView = () => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const sourceNs = state.namespace;
+    const sourcePipeline = makeViewPipeline(state.pipeline);
+
+    const meta = {
+      source: sourceNs,
+      pipeline: sourcePipeline
+    };
+
+    dispatch(localAppRegistryEmit('open-create-view', meta));
   };
 };

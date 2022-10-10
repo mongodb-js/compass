@@ -3,11 +3,6 @@ const { Theme } = require('@mongodb-js/compass-components');
 const ipc = require('hadron-ipc');
 const darkreader = require('darkreader');
 const remote = require('@electron/remote');
-const {
-  applyGlobalDarkThemeStyles,
-  applyGlobalLightThemeStyles,
-  injectCompassGlobalThemeStyles
-} = require('./styles/global-theme-styles');
 
 const darkreaderOptions = { brightness: 100, contrast: 90, sepia: 10 };
 
@@ -19,8 +14,6 @@ function enableDarkTheme() {
 
   if (process?.env?.COMPASS_LG_DARKMODE !== 'true') {
     darkreader.enable(darkreaderOptions);
-  } else {
-    applyGlobalDarkThemeStyles();
   }
 }
 
@@ -28,22 +21,16 @@ function disableDarkTheme() {
   global.hadronApp.theme = Theme.Light;
   global.hadronApp.appRegistry?.emit('darkmode-disable');
 
-  if (process?.env?.COMPASS_LG_DARKMODE === 'true') {
-    applyGlobalLightThemeStyles();
+  if (process?.env?.COMPASS_LG_DARKMODE !== 'true') {
+    darkreader.disable();
   }
-
-  darkreader.disable();
 }
 
 function loadTheme(theme) {
-  injectCompassGlobalThemeStyles();
-
   // Update main Compass when we've loaded the theme for setting app menus.
   ipc.call('window:theme-loaded', theme);
 
-  if (theme === THEMES.OS_THEME
-    && remote.nativeTheme.shouldUseDarkColors
-  ) {
+  if (theme === THEMES.OS_THEME && remote.nativeTheme.shouldUseDarkColors) {
     enableDarkTheme();
     return;
   }
@@ -60,5 +47,5 @@ function loadTheme(theme) {
 module.exports = {
   enableDarkTheme,
   disableDarkTheme,
-  loadTheme
+  loadTheme,
 };

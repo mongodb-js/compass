@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  FormFieldContainer,
   Checkbox,
   Description,
   Label,
@@ -10,8 +11,6 @@ import {
   checkboxDescriptionStyles,
   disabledCheckboxDescriptionStyles,
 } from './tls-ssl-tab';
-
-import FormFieldContainer from '../../form-field-container';
 
 function TLSCertificateAuthority({
   tlsCAFile,

@@ -7,21 +7,21 @@
   font-size: 13px;
   font-weight: 200;
 
-  background-color: @gray8;
-  color: #000;
+  background-color: @palette__gray--light-3;
+  color: @palette__black;
   span, div, p {
     display: inline-block;
   }
 
   &-has-warning {
-    background-color: #FEE9C3;
-    border-bottom: 1px solid #F0DAB2;
-    color: #7F6A4E;
+    background-color: @palette__yellow--light-3;
+    border-bottom: 1px solid @palette__yellow--light-3;
+    color: @palette__yellow--dark-2;
   }
 
   &-has-error {
-    background-color: #FBCCCC;
-    border-bottom: 1px solid #EBBABA;
-    color: #A94442;
+    background-color: @palette__red--light-2;
+    border-bottom: 1px solid @palette__red--light-2;
+    color: @palette__red--base;
   }
 }

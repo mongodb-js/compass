@@ -149,7 +149,7 @@ describe('Global preferences', function () {
   it('allows setting networkTraffic: false and reflects that in the settings modal', async function () {
     await fs.writeFile(path.join(tmpdir, 'config'), 'networkTraffic: false\n');
     // No settings modal opened for Isolated edition
-    const compass = await beforeTests({ noCloseSettingsModal: true });
+    const compass = await beforeTests();
     try {
       const browser = compass.browser;
       await browser.openSettingsModal();

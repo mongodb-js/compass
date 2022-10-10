@@ -2,7 +2,6 @@ import React from 'react';
 import {
   ResizableSidebar,
   ErrorBoundary,
-  WorkspaceContainer,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
@@ -107,7 +106,7 @@ function Connections({
           duplicateConnection={duplicateConnection}
         />
       </ResizableSidebar>
-      <WorkspaceContainer>
+      <div>
         <div className={formContainerStyles}>
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {
@@ -133,7 +132,7 @@ function Connections({
           </ErrorBoundary>
           <FormHelp />
         </div>
-      </WorkspaceContainer>
+      </div>
       {(isConnected ||
         (!!connectionAttempt && !connectionAttempt.isClosed())) && (
         <Connecting

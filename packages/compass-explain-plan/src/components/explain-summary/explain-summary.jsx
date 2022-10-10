@@ -8,6 +8,8 @@ import INDEX_TYPES from '../../constants/index-types';
 
 import styles from './explain-summary.module.less';
 
+import { KeylineCard } from '@mongodb-js/compass-components';
+
 /**
  * The base url.
  */
@@ -50,46 +52,51 @@ class ExplainSummary extends Component {
     const inMemorySort = this.props.inMemorySort ? 'yes' : 'no';
 
     return (
-      <div className={styles['explain-summary']} data-testid="explain-summary">
-        <h3>Query Performance Summary</h3>
-        <FlexBox alignItems="flex-start">
-          <div className={styles['summary-stats']}>
-            <SummaryStat
-              dataTestId="documents-returned-summary"
-              dataLink={HELP_URLS.NRETURNED}
-              label="Documents Returned:"
-              value={this.props.nReturned}
-            />
-            <SummaryStat
-              dataLink={HELP_URLS.KEYS_EXAMINED}
-              label="Index Keys Examined:"
-              value={this.props.totalKeysExamined}
-            />
-            <SummaryStat
-              dataLink={HELP_URLS.DOCS_EXAMINED}
-              label="Documents Examined:"
-              value={this.props.totalDocsExamined}
-            />
-          </div>
-          <div className={styles['summary-stats']}>
-            <SummaryStat
-              dataLink={HELP_URLS.EXECUTION_TIME}
-              label="Actual Query Execution Time (ms):"
-              value={this.props.executionTimeMillis}
-            />
-            <SummaryStat
-              dataLink={HELP_URLS.SORT_STAGE}
-              label="Sorted in Memory:"
-              value={inMemorySort}
-            />
-            <SummaryIndexStat
-              dataLink={HELP_URLS.INDEX_USED}
-              indexType={this.props.indexType}
-              index={this.props.index}
-            />
-          </div>
-        </FlexBox>
-      </div>
+      <KeylineCard>
+        <div
+          className={styles['explain-summary']}
+          data-testid="explain-summary"
+        >
+          <h3>Query Performance Summary</h3>
+          <FlexBox alignItems="flex-start">
+            <div className={styles['summary-stats']}>
+              <SummaryStat
+                dataTestId="documents-returned-summary"
+                dataLink={HELP_URLS.NRETURNED}
+                label="Documents Returned:"
+                value={this.props.nReturned}
+              />
+              <SummaryStat
+                dataLink={HELP_URLS.KEYS_EXAMINED}
+                label="Index Keys Examined:"
+                value={this.props.totalKeysExamined}
+              />
+              <SummaryStat
+                dataLink={HELP_URLS.DOCS_EXAMINED}
+                label="Documents Examined:"
+                value={this.props.totalDocsExamined}
+              />
+            </div>
+            <div className={styles['summary-stats']}>
+              <SummaryStat
+                dataLink={HELP_URLS.EXECUTION_TIME}
+                label="Actual Query Execution Time (ms):"
+                value={this.props.executionTimeMillis}
+              />
+              <SummaryStat
+                dataLink={HELP_URLS.SORT_STAGE}
+                label="Sorted in Memory:"
+                value={inMemorySort}
+              />
+              <SummaryIndexStat
+                dataLink={HELP_URLS.INDEX_USED}
+                indexType={this.props.indexType}
+                index={this.props.index}
+              />
+            </div>
+          </FlexBox>
+        </div>
+      </KeylineCard>
     );
   }
 }

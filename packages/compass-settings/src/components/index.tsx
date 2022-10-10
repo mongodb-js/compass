@@ -3,10 +3,13 @@ import SettingsModal from './modal';
 import { Provider } from 'react-redux';
 import store from '../stores';
 
-const WithStore: React.FunctionComponent = () => {
+const WithStore: React.FunctionComponent<{
+  isOpen: boolean;
+  closeModal: () => void;
+}> = ({ isOpen, closeModal }) => {
   return (
     <Provider store={store}>
-      <SettingsModal />
+      <SettingsModal isOpen={isOpen} closeModal={closeModal} />
     </Provider>
   );
 };

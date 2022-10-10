@@ -2,12 +2,10 @@ import reducer, {
   TOGGLE_IS_EXPANDED,
   TOGGLE_COMMENT_MODE,
   SET_SAMPLE_SIZE,
-  SET_MAX_TIME_MS,
   SET_LIMIT,
   toggleSettingsIsExpanded,
   toggleSettingsIsCommentMode,
   setSettingsSampleSize,
-  setSettingsMaxTimeMS,
   setSettingsLimit,
   INITIAL_STATE
 } from './settings';
@@ -104,34 +102,6 @@ describe('settings', function() {
             ...INITIAL_STATE,
             isDirty: true,
             sampleSize: INITIAL_STATE.sampleSize
-          });
-        });
-      });
-    });
-
-    describe('#setSettingsMaxTimeMS', function() {
-      it('returns the action type', function() {
-        expect(setSettingsMaxTimeMS(10000)).to.deep.equal({
-          type: SET_MAX_TIME_MS,
-          value: 10000
-        });
-      });
-      describe('#reducer', function() {
-        let state;
-        it('passes the value and flips isDefault', function() {
-          state = reducer(undefined, setSettingsMaxTimeMS(10000));
-          expect(state).to.deep.equal({
-            ...INITIAL_STATE,
-            isDirty: true,
-            maxTimeMS: 10000
-          });
-        });
-        it('setting the value again back to a default flips it back', function() {
-          state = reducer(state, setSettingsMaxTimeMS(INITIAL_STATE.maxTimeMS));
-          expect(state).to.deep.equal({
-            ...INITIAL_STATE,
-            maxTimeMS: INITIAL_STATE.maxTimeMS,
-            isDirty: true
           });
         });
       });
