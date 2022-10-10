@@ -58,7 +58,6 @@ class CompassTelemetry {
     if (
       !this.telemetryAnonymousId
     ) {
-      console.log('queueing', info)
       this.queuedEvents.push(info);
       return;
     }
