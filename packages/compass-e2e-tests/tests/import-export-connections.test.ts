@@ -97,7 +97,8 @@ describe('Connection Import / Export', function () {
         expect(newEvents).to.have.lengthOf(1);
         expect(newEvents[0].event).to.equal('Connection Exported');
         expect(newEvents[0].properties.context).to.equal('CLI');
-        expect(newEvents[0].properties.count).to.equal(1);
+        // inequality since we may have lingering connections from other test runs
+        expect(newEvents[0].properties.count).to.be.greaterThanOrEqual(1);
       }
 
       {
@@ -124,7 +125,8 @@ describe('Connection Import / Export', function () {
         expect(newEvents).to.have.lengthOf(1);
         expect(newEvents[0].event).to.equal('Connection Imported');
         expect(newEvents[0].properties.context).to.equal('CLI');
-        expect(newEvents[0].properties.count).to.equal(1);
+        // inequality since we may have lingering connections from other test runs
+        expect(newEvents[0].properties.count).to.be.greaterThanOrEqual(1);
       }
 
       {
