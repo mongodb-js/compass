@@ -5,7 +5,6 @@ import d3 from 'd3';
 import bson from 'bson';
 import { palette } from '@mongodb-js/compass-components';
 
-
 /**
  * Conversion for display in minicharts for non-promoted BSON types.
  */
