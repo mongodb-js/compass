@@ -2,6 +2,7 @@ import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import {
+  FormFieldContainer,
   Label,
   RadioBox,
   RadioBoxGroup,
@@ -13,7 +14,6 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions, ReadPreferenceMode } from 'mongodb';
 import { ReadPreference as MongoReadPreference } from 'mongodb';
 
-import FormFieldContainer from '../../form-field-container';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
 import UrlOptions from './url-options';

@@ -1,8 +1,7 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
-import { TextInput } from '@mongodb-js/compass-components';
+import { FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
-import FormFieldContainer from '../../form-field-container';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorMessageByFieldName,

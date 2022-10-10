@@ -1,15 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TextInput } from '@mongodb-js/compass-components';
-
-import FieldSet from '../field-set/field-set';
+import { TextInput, FormFieldContainer } from '@mongodb-js/compass-components';
 
 function CollectionName({
   collectionName,
   onChangeCollectionName
 }) {
   return (
-    <FieldSet>
+    <FormFieldContainer >
       <TextInput
         required
         label="Collection Name"
@@ -18,7 +16,7 @@ function CollectionName({
         value={collectionName}
         spellCheck={false}
       />
-    </FieldSet>
+    </FormFieldContainer>
   );
 }
 

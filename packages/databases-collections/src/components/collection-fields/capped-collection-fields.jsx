@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TextInput } from '@mongodb-js/compass-components';
-
-import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
-import FieldSet from '../field-set/field-set';
+import { CollapsibleFieldSet, FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
 
 const HELP_URL_CAPPED = 'https://docs.mongodb.com/manual/core/capped-collections/';
 
@@ -22,11 +19,11 @@ function CappedCollectionFields({
       disabled={isTimeSeries || isClustered || isFLE2}
       onToggle={checked => onChangeIsCapped(checked)}
       label="Capped Collection"
-      dataTestId="capped-collection-fields"
+      data-testid="capped-collection-fields"
       helpUrl={HELP_URL_CAPPED}
       description="Fixed-size collections that support high-throughput operations that insert and retrieve documents based on insertion order."
     >
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           value={cappedSize}
           label="size"
@@ -36,7 +33,7 @@ function CappedCollectionFields({
           onChange={(e) => onChangeCappedSize(e.target.value)}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
     </CollapsibleFieldSet>
   );
 }

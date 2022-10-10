@@ -71,6 +71,8 @@ export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 import IndexIcon from './components/index-icon';
 
+export { default as FormFieldContainer } from './components/form-field-container';
+
 export {
   Accordion,
   CollapsibleFieldSet,

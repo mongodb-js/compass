@@ -10,6 +10,7 @@ import {
   IconButton,
   spacing,
   css,
+  cx,
   Icon,
   uiColors,
   withTheme,
@@ -95,6 +96,10 @@ const comboboxOptionDarkStyles = css({
   ':hover': {
     backgroundColor: uiColors.gray.dark1,
   },
+});
+
+const comboboxStyles = css({
+  marginTop: '-2px',
 });
 
 const comboboxDarkStyles = css({
@@ -221,7 +226,10 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
             onChange={this.selectFieldName.bind(this, idx)}
             clearable={false}
             darkMode={this.props.darkMode}
-            className={this.props.darkMode ? comboboxDarkStyles : ''}
+            className={cx(
+              comboboxStyles,
+              this.props.darkMode ? comboboxDarkStyles : ''
+            )}
           >
             {this.renderIndexOptions()}
           </Combobox>

@@ -1,9 +1,6 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { TextInput } from '@mongodb-js/compass-components';
-
-import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
-import FieldSet from '../field-set/field-set';
+import { CollapsibleFieldSet, TextInput, FormFieldContainer } from '@mongodb-js/compass-components';
 
 // TODO: change this link to remove v5.3 once clustered-collections is in current
 // see https://jira.mongodb.org/browse/COMPASS-5760
@@ -36,11 +33,11 @@ function ClusteredCollectionFields({
       disabled={isTimeSeries || isCapped}
       onToggle={checked => onChangeIsClustered(checked)}
       label="Clustered Collection"
-      dataTestId="clustered-collection-fields"
+      data-testid="clustered-collection-fields"
       helpUrl={HELP_URL_CLUSTERED}
       description="Clustered collections store documents ordered by a user-defined cluster key."
     >
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           name="clusteredIndex.name"
           value={clusteredIndex.name}
@@ -52,9 +49,9 @@ function ClusteredCollectionFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           value={expireAfterSeconds}
           label="expireAfterSeconds"
@@ -65,7 +62,7 @@ function ClusteredCollectionFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
     </CollapsibleFieldSet>
   );
 }

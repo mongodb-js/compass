@@ -6,6 +6,7 @@ import {
   Banner,
   Body,
   Checkbox,
+  FormFieldContainer,
   Label,
   Link,
   Description,
@@ -31,7 +32,6 @@ import type {
   KMSField,
 } from '../../../utils/csfle-kms-fields';
 import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
-import FormFieldContainer from '../../form-field-container';
 
 const kmsProviderComponentWrapperStyles = css({
   paddingLeft: spacing[3],
