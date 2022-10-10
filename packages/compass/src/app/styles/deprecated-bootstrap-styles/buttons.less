@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .btn {
   height: 32px;
   padding:0 20px 0 20px;
@@ -94,13 +96,13 @@
     background: linear-gradient(180deg, @palette__red--light-1 0%, @palette__red--base 100%);
     border: 1px solid @palette__red--dark-2;
     box-shadow: inset 0 -1px 0 0 @palette__red--dark-2;
-    color: white;
+    color: @palette__white;
 
     &:hover, &:focus {
       background: linear-gradient(180deg, @palette__red--base 0%, @palette__red--dark-2 100%);
       box-shadow: inset 0 -1px 0 0 @palette__red--dark-3;
       border: 1px solid @palette__red--dark-3;
-      color: white;
+      color: @palette__white;
     }
 
     &:active {
