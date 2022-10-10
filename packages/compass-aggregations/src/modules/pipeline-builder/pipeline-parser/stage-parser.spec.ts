@@ -15,28 +15,28 @@ describe('StageParser', function () {
 
     const stages = [
       {
-        useCase: 'stage with object value',
+        usecase: 'stage with object value',
         expression: `{$match: {name: /berlin/i}}`,
         operator: '$match',
         value: `{\n  name: /berlin/i,\n}`,
         isValid: true,
       },
       {
-        useCase: 'stage with array value',
+        usecase: 'stage with array value',
         expression: `{$concatArrays: ['tags1', 'tags2'] }`,
         operator: '$concatArrays',
         value: `["tags1", "tags2"]`,
         isValid: true,
       },
       {
-        useCase: 'stage with scaler numerical value',
+        usecase: 'stage with scaler numerical value',
         expression: `{$count: 20}`,
         operator: '$count',
         value: `20`,
         isValid: true,
       },
       {
-        useCase: 'stage with scaler string value',
+        usecase: 'stage with scaler string value',
         expression: `{$unwind: 'tags'}`,
         operator: '$unwind',
         value: `"tags"`,
@@ -44,7 +44,7 @@ describe('StageParser', function () {
       },
 
       {
-        useCase: 'stage with object value with comments',
+        usecase: 'stage with object value with comments',
         expression: `
           {
             $match: {
@@ -62,7 +62,7 @@ describe('StageParser', function () {
         isValid: true,
       },
       {
-        useCase: 'stage with scaler value with comments',
+        usecase: 'stage with scaler value with comments',
         expression: `{$count: 20 //limits doc count\n }`,
         operator: '$count',
         value: `20 //limits doc count`,
@@ -70,13 +70,13 @@ describe('StageParser', function () {
       },
 
       {
-        useCase: 'object with more then one stage key',
+        usecase: 'object with more then one stage key',
         expression: `{$match: {name: /berlin/i}, $count: 20}`,
         operator: '',
         isValid: false,
       },
       {
-        useCase: 'stage name without $',
+        usecase: 'stage name without $',
         expression: `{match: {name: /berlin/i}, }`,
         operator: '',
         isValid: false,
@@ -127,19 +127,19 @@ describe('StageParser', function () {
     });
 
     it('stage operator from node', function () {
-      stages.filter(x => x.isValid).forEach(({ expression, useCase, operator }) => {
+      stages.filter(x => x.isValid).forEach(({ expression, usecase, operator }) => {
         expect(getStageOperatorFromNode(
           babelParser.parseExpression(expression) as any),
-          useCase
+          usecase
         ).to.equal(operator);
       });
     });
 
     it('stage value from node', function () {
-      stages.filter(x => x.isValid).forEach(({ expression, useCase, value }) => {
+      stages.filter(x => x.isValid).forEach(({ expression, usecase, value }) => {
         expect(getStageValueFromNode(
           babelParser.parseExpression(expression) as any),
-          useCase
+          usecase
         ).to.equal(value);
       });
     });
