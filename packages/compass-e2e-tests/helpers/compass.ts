@@ -670,14 +670,12 @@ export async function beforeTests(
 
   const { browser } = compass;
 
+  if (opts.firstRun) {
+    await browser.closeWelcomeModal();
+  }
   if (!opts.noWaitForConnectionScreen) {
     await browser.waitForConnectionScreen();
   }
-  if (opts.firstRun) {
-    await browser.closeSettingsModal();
-  }
-
-  await browser.waitForConnectionScreen();
 
   return compass;
 }
