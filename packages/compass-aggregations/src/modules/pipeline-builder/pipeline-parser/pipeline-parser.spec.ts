@@ -31,8 +31,7 @@ const pipelines = [
       '[',
       '  {',
       '    $unwind: "users",',
-      '  }',
-      '  // {',
+      '  }, // {',
       '  //   $limit: 20,',
       '  // }',
       '  {',
@@ -40,6 +39,24 @@ const pipelines = [
       '      name: -1,',
       '    },',
       '  },',
+      ']'
+    ].join('\n')
+  },
+  {
+    input: `[{$unwind: "users"},{$limit: 20},\n// {$sort: {name: -1}}\n]`,
+    output: [
+      '[',
+      '  {',
+      '    $unwind: "users",',
+      '  },',
+      '  {',
+      '    $limit: 20,',
+      '  },',
+      '  // {',
+      '  //   $sort: {',
+      '  //     name: -1,',
+      '  //   },',
+      '  // },',
       ']'
     ].join('\n')
   }
