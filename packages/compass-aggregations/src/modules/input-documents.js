@@ -21,15 +21,10 @@ export const UPDATE_INPUT_DOCUMENTS = `${PREFIX}/UPDATE_INPUT_DOCUMENTS`;
 export const LOADING_INPUT_DOCUMENTS = `${PREFIX}/LOADING_INPUT_DOCUMENTS`;
 
 /**
- * N/A contant.
- */
-const NA = 'N/A';
-
-/**
  * The initial state.
  */
 export const INITIAL_STATE = {
-  count: 0,
+  count: null,
   documents: [],
   error: null,
   isExpanded: true,
@@ -124,11 +119,11 @@ export const refreshInputDocuments = () => {
           (err, cursor) => {
             if (err) {
               return dispatch(
-                updateInputDocuments(error ? NA : count, [], err)
+                updateInputDocuments(error ? null : count, [], err)
               );
             }
             cursor.toArray((e, docs) => {
-              dispatch(updateInputDocuments(error ? NA : count, docs, e));
+              dispatch(updateInputDocuments(error ? null : count, docs, e));
               cursor.close();
             });
           }

@@ -1,9 +1,9 @@
 import React from 'react';
+import { FormFieldContainer } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import SchemeInput from './scheme-input';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import FormFieldContainer from '../../form-field-container';
 import HostInput from './host-input';
 import type { ConnectionFormError } from '../../../utils/validation';
 

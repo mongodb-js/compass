@@ -1,3 +1,5 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
 .document-json {
   list-style: none;
   padding: 8px 16px;
@@ -9,22 +11,22 @@
     margin-bottom: 5px;
 
     .json-document-is-editing {
-      box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
+      box-shadow: 2px 5px 8px fade(@palette__black, 20%);
     }
 
     .json-ace-editor {
       padding: 10px 10px 10px 0;
-      background: #ffffff;
+      background: @palette__white;
       overflow: auto;
       flex-basis: auto;
       flex-shrink: 1;
       flex-grow: 1;
 
       .ace-mongodb {
-        background: #ffffff;
+        background: @palette__white;
 
         .ace_gutter {
-          background: #ffffff;
+          background: @palette__white;
           z-index: 0;
         }
       }

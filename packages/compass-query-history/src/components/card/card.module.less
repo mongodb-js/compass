@@ -1,15 +1,17 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
 .component {
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  box-shadow: 0 2px 20px 0 rgba(0, 0, 0, 0.1);
+  background: @palette__white;
+  box-shadow: 0 2px 20px 0 fade(@palette__black, 10%);
   border-radius: 3px;
   border: 1px solid transparent;
-  color: #494747;
+  color: @palette__gray--dark-2;
   max-width: 314px;
 
   &:hover {
-    border-color: #5caeeb;
+    border-color: @palette__blue--light-1;
 
     .component-header-actions {
       display: flex;
@@ -46,7 +48,7 @@
   font-weight: bold;
   font-size: 14px;
   line-height: 1;
-  color: #494747;
+  color: @palette__gray--dark-2;
   white-space: nowrap;
 }
 

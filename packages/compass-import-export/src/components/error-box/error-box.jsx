@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { palette } from '@mongodb-js/compass-components';
 
 import ANSIConverter from 'ansi-to-html';
 
@@ -12,8 +13,8 @@ const style = createStyler(styles, 'error-box');
  * once we start actually produce ansi.
  */
 const ANSI_TO_HTML_OPTIONS = {
-  fg: '#FFF',
-  bg: '#000',
+  fg: palette.white,
+  bg: palette.black,
   newline: true,
   escapeXML: true,
   stream: false,

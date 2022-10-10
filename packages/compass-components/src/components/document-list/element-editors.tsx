@@ -3,11 +3,12 @@ import type { Element as HadronElementType } from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import TypeChecker from 'hadron-type-checker';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import BSONValue, { hasCustomColor, VALUE_COLOR_BY_TYPE } from '../bson-value';
 import { Tooltip } from '../tooltip';
 import { mergeProps } from '../../utils/merge-props';
+import { documentTypography } from './typography';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -28,15 +29,15 @@ const editorReset = css({
 const editorOutline = css({
   '&:focus, &:active': {
     borderRadius: `2px`,
-    boxShadow: `0 0 0 2px ${uiColors.focus}`,
+    boxShadow: `0 0 0 2px ${palette.blue.light1}`,
   },
 });
 
 const editorInvalid = css({
-  backgroundColor: uiColors.red.light2,
-  color: uiColors.red.dark2,
+  backgroundColor: palette.red.light2,
+  color: palette.red.dark2,
   '&:focus, &:active': {
-    boxShadow: `0 0 0 2px ${uiColors.red.dark2}`,
+    boxShadow: `0 0 0 2px ${palette.red.dark2}`,
   },
 });
 
@@ -195,8 +196,9 @@ export const ValueEditor: React.FunctionComponent<{
         longestLineCharLength > 70 ? 2 : 1
       );
       const maxLines = Math.min(minLines, 10);
-      const minHeight = spacing[3] * Math.min(minLines, maxLines);
-      const height = spacing[3] * maxLines;
+      const minHeight =
+        documentTypography.lineHeight * Math.min(minLines, maxLines);
+      const height = documentTypography.lineHeight * maxLines;
 
       return { width, minHeight, height };
     }
@@ -303,7 +305,7 @@ const TYPES = TypeChecker.castableTypes(true);
 const longestTypeNameCharLength = Math.max(...TYPES.map((type) => type.length));
 
 const typeEditor = css({
-  color: uiColors.gray.base,
+  color: palette.gray.base,
   appearance: 'none',
   // Accounting for the margin that `appearance: auto` will add to the shadow
   // dom inside select node

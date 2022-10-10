@@ -10,14 +10,14 @@
   }
 
   &-type {
-    background: @pw;
+    background: @palette__white;
     transition: all 250ms ease-out;
     display: inline-block;
     width: auto;
     max-width: 100%;
     padding: 1px 0 1px 12px;
-    background: @gray7;
-    border: 1px solid @gray7;
+    background: @palette__gray--light-2;
+    border: 1px solid @palette__gray--light-2;
     border-radius: 20px;
     z-index: 3;
     overflow: hidden;
@@ -27,12 +27,12 @@
     text-align: center;
 
     &:hover {
-      background: @pw;
-      border: 1px solid @gray4;
+      background: @palette__white;
+      border: 1px solid @palette__gray--base;
       overflow: auto;
       position: absolute;
       width: auto;
-      box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.1);
+      box-shadow: 0px 2px 0px fade(@palette__black, 10%);
       max-width: 100vw;
     }
 
@@ -45,22 +45,22 @@
         margin-right: 5px;
 
         &:hover {
-          color: @gray0;
+          color: @palette__gray--dark-3;
         }
 
         &-sort {
           margin-left: 2px;
           font-size: 13px;
-          color: @gray5;
+          color: @palette__gray--light-1;
 
           &:hover {
-            color: @gray4;
+            color: @palette__gray--base;
           }
         }
 
         &-type {
-          color: @pw;
-          background-color: @gray5;
+          color: @palette__white;
+          background-color: @palette__gray--light-1;
           border-radius: 20px;
           min-width: 20px;
           padding: 0 8px;
@@ -69,7 +69,7 @@
           margin-left: 2px;
 
           &:hover {
-            color: @gray4;
+            color: @palette__gray--base;
           }
         }
       }

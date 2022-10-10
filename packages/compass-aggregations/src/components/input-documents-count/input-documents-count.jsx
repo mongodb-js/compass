@@ -11,7 +11,7 @@ class InputDocumentsCount extends PureComponent {
   static displayName = 'InputDocumentsCountComponent';
 
   static propTypes = {
-    count: PropTypes.oneOfType([ PropTypes.number, PropTypes.string ]).isRequired
+    count: PropTypes.number
   }
 
   /**
@@ -29,7 +29,7 @@ class InputDocumentsCount extends PureComponent {
       <div className={classnames(styles['input-documents-count'])}>
         <i className={iconClassName} aria-hidden />
         <div className={classnames(styles['input-documents-count-label'])}>
-          {this.props.count} Documents in the Collection
+          {this.props.count ?? 'N/A'} Documents in the Collection
         </div>
       </div>
     );

@@ -7,7 +7,7 @@ import sum from 'lodash.sum';
 import slice from 'lodash.slice';
 import shared from './shared';
 import { hasDistinctValue } from 'mongodb-query-util';
-import { uiColors } from '@mongodb-js/compass-components';
+import { palette } from '@mongodb-js/compass-components';
 
 require('./d3-tip')(d3);
 
@@ -210,7 +210,7 @@ const minicharts_d3fns_few = (localAppRegistry) => {
         .attr('dy', '0.3em')
         .attr('dx', 10)
         .attr('text-anchor', 'start')
-        .attr('fill', uiColors.white);
+        .attr('fill', palette.white);
 
       barEnter
         .append('rect')

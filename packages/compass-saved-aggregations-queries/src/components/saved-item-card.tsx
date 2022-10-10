@@ -8,7 +8,7 @@ import {
   Icon,
   Subtitle,
   spacing,
-  uiColors,
+  palette,
   useFocusState,
   useHoverState,
   mergeProps,
@@ -51,7 +51,7 @@ const NamespacePart: React.FunctionComponent<{
       <Icon
         title={null}
         glyph={type === 'database' ? 'Database' : 'Folder'}
-        color={uiColors.gray.dark1}
+        color={palette.gray.dark1}
         className={namespaceIconStyles}
       ></Icon>
       <span className={namespaceNameStyles}>{name}</span>
@@ -96,7 +96,7 @@ const cardActions = css({
 const cardName = css({
   fontWeight: 'bold',
   // Because leafygreen
-  color: `${uiColors.green.dark1} !important`,
+  color: `${palette.green.dark1} !important`,
   height: spacing[4] * 2,
   marginBottom: spacing[3],
 

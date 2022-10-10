@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
+
 import CollationFields from '../collation-fields/collation-fields';
-import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 
 const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
 
@@ -24,7 +25,7 @@ function Collation({
         onChangeIsCustomCollation(checked);
       }}
       label="Use Custom Collation"
-      dataTestId="use-custom-collation-fields"
+      data-testid="use-custom-collation-fields"
       toggled={isCustomCollation}
       description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
       helpUrl={HELP_URL_COLLATION}

@@ -1,5 +1,5 @@
 import { toJSString } from 'mongodb-query-parser';
-import { emptyStage } from './pipeline';
+import { emptyStage } from '../utils/stage';
 import { extractStages } from './extract-stages';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
@@ -9,6 +9,20 @@ const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
  * Shell string indent.
  */
 const INDENT = '  ';
+
+/**
+ * New pipeline action name.
+ */
+export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
+
+/**
+ * The new pipeline action.
+ *
+ * @returns {Object} The action.
+ */
+export const newPipeline = () => ({
+  type: NEW_PIPELINE
+});
 
 /**
  * Action name prefix.
@@ -112,12 +126,15 @@ const onConfirmNew = (state, { error }) => {
   };
 };
 
+const onNewPipeline = () => ({ ...INITIAL_STATE });
+
 const MAPPINGS = {
   [NEW_PIPELINE_FROM_TEXT]: onNewPipelineFromText,
   [CLOSE_IMPORT]: onCloseImport,
   [CHANGE_TEXT]: onChangeText,
   [CREATE_NEW]: onCreateNew,
-  [CONFIRM_NEW]: onConfirmNew
+  [CONFIRM_NEW]: onConfirmNew,
+  [NEW_PIPELINE]: onNewPipeline
 };
 
 /**

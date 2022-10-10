@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import Pipeline from '../pipeline';
 import { maxTimeMSChanged } from '../../modules/max-time-ms';
 import { collationStringChanged } from '../../modules/collation-string';
-import { toggleSample } from '../../modules/sample';
 import { toggleAutoPreview } from '../../modules/auto-preview';
 import {
   toggleInputDocumentsCollapsed,
@@ -11,11 +10,7 @@ import {
 } from '../../modules/input-documents';
 import { exportToLanguage } from '../../modules/export-to-language';
 import { openLink } from '../../modules/link';
-import {
-  newPipeline,
-  clonePipeline,
-  openCreateView
-} from '../../modules';
+import { clonePipeline } from "../../modules/clone-pipeline";
 import {
   runStage,
   runOutStage,
@@ -33,17 +28,11 @@ import {
 import {
   saveCurrentPipeline,
   savedPipelineAdd,
-  getSavedPipelines
+  getSavedPipelines,
 } from '../../modules/saved-pipeline';
 import { setIsModified } from '../../modules/is-modified';
 import {
-  restoreSavedPipeline,
-  openPipelineById
-} from '../../modules/index';
-import {
-  restorePipelineModalToggle
-} from '../../modules/restore-pipeline';
-import {
+  newPipeline,
   newPipelineFromText,
   closeImport,
   changeText,
@@ -109,12 +98,10 @@ const mapStateToProps = (state) => ({
   sourceName: state.sourceName,
   serverVersion: state.serverVersion,
   pipeline: state.pipeline,
-  restorePipeline: state.restorePipeline,
   name: state.name,
   collationString: state.collationString,
   isModified: state.isModified,
   isCommenting: state.comments,
-  isSampling: state.sample,
   isAtlasDeployed: state.isAtlasDeployed,
   isAutoPreviewing: state.autoPreview,
   isImportPipelineOpen: state.importPipeline.isOpen,
@@ -144,7 +131,6 @@ const MappedAggregations = connect(
     collationStringChanged,
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
-    toggleSample,
     toggleAutoPreview,
     runStage,
     runOutStage,
@@ -166,8 +152,6 @@ const MappedAggregations = connect(
     saveCurrentPipeline,
     savedPipelineAdd,
     getSavedPipelines,
-    restorePipelineModalToggle,
-    restoreSavedPipeline,
     newPipeline,
     newPipelineFromText,
     closeImport,
@@ -176,7 +160,6 @@ const MappedAggregations = connect(
     createNew,
     confirmNew,
     openLink,
-    openPipelineById,
     applySettings,
     setIsModified,
     maxTimeMSChanged,
@@ -186,7 +169,6 @@ const MappedAggregations = connect(
     savingPipelineOpen,
     projectionsChanged,
     updateView,
-    openCreateView,
     setIsNewPipelineConfirm,
     dismissViewError
   }

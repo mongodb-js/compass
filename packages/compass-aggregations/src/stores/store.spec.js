@@ -9,8 +9,10 @@ import {
   stageToggled,
   stageOperatorSelected
 } from '../modules/pipeline';
-import { INITIAL_STATE } from '../modules/index';
+import rootReducer from '../modules';
 import { expect } from 'chai';
+
+const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
 const fakeAppInstanceStore = {
   getState: function () {
@@ -130,20 +132,12 @@ describe('Aggregation Store', function() {
           expect(state.comments).to.equal(INITIAL_STATE.comments);
         });
 
-        it('resets the sample', function() {
-          expect(state.sample).to.equal(INITIAL_STATE.sample);
-        });
-
         it('resets auto preview', function() {
           expect(state.autoPreview).to.equal(INITIAL_STATE.autoPreview);
         });
 
         it('resets the name', function() {
           expect(state.name).to.equal(INITIAL_STATE.name);
-        });
-
-        it('resets restore', function() {
-          expect(state.restorePipeline).to.equal(INITIAL_STATE.restorePipeline);
         });
 
         it('resets the saved pipeline', function() {
@@ -232,11 +226,9 @@ describe('Aggregation Store', function() {
             sourceName: null,
             appRegistry: INITIAL_STATE.appRegistry,
             comments: INITIAL_STATE.comments,
-            sample: INITIAL_STATE.sample,
             autoPreview: INITIAL_STATE.autoPreview,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
-            restorePipeline: INITIAL_STATE.restorePipeline,
             savedPipeline: INITIAL_STATE.savedPipeline,
             dataService: INITIAL_STATE.dataService,
             fields: INITIAL_STATE.fields,

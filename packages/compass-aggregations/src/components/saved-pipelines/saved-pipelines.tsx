@@ -4,13 +4,11 @@ import {
   IconButton,
   css,
   spacing,
-  uiColors,
+  palette,
   Body,
   withTheme
 } from '@mongodb-js/compass-components';
-
-import SavePipelineCard from './save-pipeline-card/save-pipeline-card';
-import type { Pipeline } from '../../modules/pipeline';
+import SavePipelineCard from './saved-pipeline-card';
 
 const savedPipelinesStyles = css({
   width: '400px',
@@ -26,11 +24,11 @@ const toolbarTitleStyles = css({
 });
 
 const titleStylesDark = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const titleStylesLight = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 
 const toolbarStyles = css({
@@ -62,21 +60,15 @@ const emptyMessageStyles = css({
 
 type SavedPipelinesProps = {
   darkMode?: boolean;
-  deletePipeline: (pipelineId: string) => void;
   namespace: string;
-  onSetShowSavedPipelines: (show: boolean) => void;
-  restorePipelineFrom: (pipelineId: string) => void;
-  restorePipelineModalToggle: (index: number) => void;
-  savedPipelines: Pipeline[];
-}
+  onToggleSavedPipelines: (show: boolean) => void;
+  savedPipelines: { id: string; name: string }[];
+};
 
 function UnthemedSavedPipelines({
   darkMode,
   namespace,
-  restorePipelineModalToggle,
-  restorePipelineFrom,
-  deletePipeline,
-  onSetShowSavedPipelines,
+  onToggleSavedPipelines,
   savedPipelines,
 }: SavedPipelinesProps) {
   return (
@@ -97,21 +89,20 @@ function UnthemedSavedPipelines({
         <IconButton
           className={closeButtonStyles}
           data-testid="saved-pipelines-close-button"
-          onClick={() => onSetShowSavedPipelines(false)}
+          onClick={() => {
+            onToggleSavedPipelines(false);
+          }}
           aria-label="Close saved pipelines popover"
         >
           <Icon glyph="X" />
         </IconButton>
       </div>
       <div className={cardsContainerStyles}>
-        {savedPipelines.map((pipeline: Pipeline) => (
+        {savedPipelines.map((pipeline) => (
           <SavePipelineCard
-            restorePipelineModalToggle={restorePipelineModalToggle}
-            restorePipelineFrom={restorePipelineFrom}
-            deletePipeline={deletePipeline}
-            name={pipeline.name}
-            objectID={pipeline.id}
             key={pipeline.id}
+            name={pipeline.name ?? ''}
+            id={pipeline.id}
           />
         ))}
         {savedPipelines.length === 0 && (

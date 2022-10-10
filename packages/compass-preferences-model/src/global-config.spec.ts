@@ -82,6 +82,14 @@ describe('Global config file handling', function () {
     expect(result.cli).to.deep.equal({ enableMaps: true, theme: '' });
   });
 
+  it('knows the expected types of cli options when followed by an extra positional argument', async function () {
+    const result = await parseAndValidateGlobalPreferences({
+      globalConfigPaths: [],
+      argv: ['--showed-network-opt-in', 'about:blank'],
+    });
+    expect(result.cli).to.deep.equal({ showedNetworkOptIn: true });
+  });
+
   it('ignores CLI options that should be ignored', async function () {
     const result = await parseAndValidateGlobalPreferences({
       globalConfigPaths: [],

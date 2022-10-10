@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { map } from 'lodash';
 import d3 from 'd3';
 import { ExplainStage } from '../explain-stage';
+import { palette } from '@mongodb-js/compass-components';
 
 import STAGE_CARD_PROPERTIES from '../../constants/stage-card-properties';
 
@@ -82,7 +83,11 @@ class ExplainTree extends Component {
     links
       .enter()
       .append('path')
-      .style({ fill: 'none', stroke: '#dee0e3', 'stroke-width': '6px' })
+      .style({
+        fill: 'none',
+        stroke: palette.gray.light2,
+        'stroke-width': '6px',
+      })
       .attr('d', elbow);
 
     links.exit().remove();
