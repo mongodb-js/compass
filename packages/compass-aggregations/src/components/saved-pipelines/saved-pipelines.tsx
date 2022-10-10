@@ -9,7 +9,6 @@ import {
   withTheme
 } from '@mongodb-js/compass-components';
 import SavePipelineCard from './saved-pipeline-card';
-import type { Pipeline } from '../../modules/pipeline';
 
 const savedPipelinesStyles = css({
   width: '400px',
@@ -63,8 +62,8 @@ type SavedPipelinesProps = {
   darkMode?: boolean;
   namespace: string;
   onToggleSavedPipelines: (show: boolean) => void;
-  savedPipelines: Pipeline[];
-}
+  savedPipelines: { id: string; name: string }[];
+};
 
 function UnthemedSavedPipelines({
   darkMode,
@@ -99,7 +98,7 @@ function UnthemedSavedPipelines({
         </IconButton>
       </div>
       <div className={cardsContainerStyles}>
-        {savedPipelines.map((pipeline: Pipeline) => (
+        {savedPipelines.map((pipeline) => (
           <SavePipelineCard
             key={pipeline.id}
             name={pipeline.name ?? ''}

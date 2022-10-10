@@ -15,7 +15,6 @@ import PipelineActions from './pipeline-actions';
 import { setShowSavedPipelines } from '../../../modules/saved-pipeline';
 import { SavedPipelines } from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
-import type { Pipeline } from '../../../modules/pipeline';
 
 const containerStyles = css({
   display: 'flex',
@@ -72,7 +71,7 @@ type PipelineHeaderProps = {
   onToggleOptions: () => void;
   isOpenPipelineVisible: boolean;
   isSavedPipelineVisible: boolean;
-  savedPipelines: Pipeline[];
+  savedPipelines: { id: string; name: string }[];
 };
 
 export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({

@@ -8,6 +8,7 @@ import { indexesFetched } from '../modules/indexes';
 import { runStage } from '../modules/pipeline';
 import { createPipelineFromView } from '../modules/import-pipeline';
 import { openPipeline } from '../modules/saved-pipeline';
+import { PipelinePreviewManager } from '../modules/pipeline-builder/pipeline-preview-manager';
 
 /**
  * Refresh the input documents.
@@ -89,7 +90,13 @@ const configureStore = (options = {}) => {
         ? createPipelineFromView(options.sourcePipeline)
         : undefined
     },
-    applyMiddleware(thunk)
+    applyMiddleware(
+      thunk.withExtraArgument({
+        pipelinePreviewManager: new PipelinePreviewManager(
+          options.dataProvider?.dataProvider ?? null
+        )
+      })
+    )
   );
 
   // Set the app registry if preset. This must happen first.
@@ -145,7 +152,7 @@ const configureStore = (options = {}) => {
   } else if (options.editViewName) {
     store.dispatch(runStage(0, true));
   }
-  
+
   if (collection) {
     refreshInput(store);
   }

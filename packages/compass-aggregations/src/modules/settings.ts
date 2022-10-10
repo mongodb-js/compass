@@ -1,8 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import type { ThunkAction } from 'redux-thunk';
-
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 
 const PREFIX = 'aggregations/settings';
 
@@ -108,7 +106,7 @@ const doApplySettings = (settings: State) => ({
   settings,
 });
 
-export const applySettings = (): ThunkAction<void, RootState, void, AnyAction> => {
+export const applySettings = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState) => {
     const { settings } = getState();
     dispatch(doApplySettings(settings));

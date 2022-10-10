@@ -3,7 +3,6 @@ import reducer, {
   SAVED_PIPELINE_ADD
 } from './saved-pipeline';
 import { expect } from 'chai';
-import type { Pipeline } from './pipeline';
 
 describe('saved pipelines module', function() {
   describe('#addSavedPipelines', function() {
@@ -32,7 +31,7 @@ describe('saved pipelines module', function() {
 
     context('action type is add saved pipelines', function() {
       it('returns new state with an additional pipeline item ', function() {
-        const pipelines = [ { name: 'newPipeline' } ] as Pipeline[];
+        const pipelines = [ { id: 'pipeline', name: 'newPipeline', namespace: 'test' } ]
         expect(reducer(undefined, savedPipelineAdd(pipelines))).to.deep.equal({
           pipelines: pipelines,
           isLoaded: true,

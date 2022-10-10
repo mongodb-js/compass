@@ -1,7 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import { ActionTypes as AggregationActionTypes, cancelAggregation } from './aggregation';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { cancelCount } from './count-documents';
 import { NEW_PIPELINE } from './import-pipeline';
 
@@ -34,7 +33,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   }
 };
 
-export const changeWorkspace = (view: Workspace): ThunkAction<void, RootState, void, Actions> => {
+export const changeWorkspace = (view: Workspace): PipelineBuilderThunkAction<void> => {
   return (dispatch) => {
     // As user switches to builder view, we cancel running ops
     if (view === 'builder') {
