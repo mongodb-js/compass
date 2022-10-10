@@ -41,7 +41,8 @@ class CompassApplication {
 
     this.setupUserDirectory();
     await setupPreferencesAndUserModel(globalPreferences);
-    await Promise.all([this.setupLogging(), this.setupTelemetry()]);
+    await this.setupLogging();
+    await this.setupTelemetry();
 
     if (mode === 'CLI') {
       return;

@@ -128,11 +128,7 @@ class CompassTelemetry {
     const { trackUsageStatistics, currentUserId, telemetryAnonymousId } = preferences.getPreferences();
     this.currentUserId = currentUserId;
     this.telemetryAnonymousId = telemetryAnonymousId;
-    if (trackUsageStatistics) {
-      this.state = 'enabled';
-      void this.identify();
-    }
-    preferences.onPreferenceValueChanged('trackUsageStatistics', value => {
+    const onTrackUsageStatisticsChanged = (value: boolean) => {
       if (value && this.state !== 'enabled') {
         log.info(
           mongoLogId(1_001_000_094),
@@ -154,7 +150,9 @@ class CompassTelemetry {
         this.analytics?.flush();
         this.state = 'disabled';
       }
-    });
+    };
+    onTrackUsageStatisticsChanged(trackUsageStatistics); // initial setup with current value
+    preferences.onPreferenceValueChanged('trackUsageStatistics', onTrackUsageStatisticsChanged);
 
     process.on('compass:track', (meta: EventInfo) => {
       this._track(meta);
