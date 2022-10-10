@@ -6,7 +6,7 @@ export async function setFeature(
   value: boolean | string
 ): Promise<void> {
   await browser.execute(
-    async(_name, _value) => {
+    async (_name, _value) => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       await require('electron').ipcRenderer.invoke('compass:save-preferences', {
         [_name]: _value,
