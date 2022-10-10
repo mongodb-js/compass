@@ -25,7 +25,7 @@ const PartialFilterCollapsibleFieldSet = ({
       toggled={usePartialFilterExpression}
       onToggle={toggleUsePartialFilterExpression}
       label="Partial Filter Expression"
-      dataTestId="create-index-modal-is-pfe-checkbox"
+      data-testid="create-index-modal-is-pfe"
       description="Partial indexes only index the documents in a collection that meet a specified filter expression."
     >
       <Editor

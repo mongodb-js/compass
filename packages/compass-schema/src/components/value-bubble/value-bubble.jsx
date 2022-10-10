@@ -7,7 +7,7 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 
 import constants from '../../constants/schema';
@@ -15,9 +15,9 @@ import constants from '../../constants/schema';
 const { DECIMAL_128, DOUBLE, LONG, INT_32 } = constants;
 
 const valueBubbleValueStyles = css({
-  backgroundColor: uiColors.gray.light2,
+  backgroundColor: palette.gray.light2,
   border: '1px solid transparent',
-  color: uiColors.gray.dark2,
+  color: palette.gray.dark2,
   padding: `${spacing[1] / 2} ${spacing[1]}`,
   borderRadius: spacing[1],
   '&:hover': {
@@ -26,8 +26,8 @@ const valueBubbleValueStyles = css({
 });
 
 const valueBubbleValueSelectedStyles = css({
-  backgroundColor: '#F68A1E', // `@mc-fg-selected` in compass-schema.module.less
-  color: uiColors.white,
+  backgroundColor: palette.yellow.base,
+  color: palette.white,
 });
 
 class ValueBubble extends Component {

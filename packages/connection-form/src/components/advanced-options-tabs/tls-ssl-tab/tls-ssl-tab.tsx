@@ -1,12 +1,13 @@
 import React, { useCallback } from 'react';
 import {
+  FormFieldContainer,
   Checkbox,
   Description,
   InlineInfoLink,
   Label,
   RadioBox,
   RadioBoxGroup,
-  uiColors,
+  palette,
   css,
   cx,
   spacing,
@@ -16,7 +17,6 @@ import type { MongoClientOptions } from 'mongodb';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import FormFieldContainer from '../../form-field-container';
 import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
 import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';
@@ -26,7 +26,7 @@ export const checkboxDescriptionStyles = css({
 });
 
 export const disabledCheckboxDescriptionStyles = css({
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
 });
 
 const TLS_TYPES: {

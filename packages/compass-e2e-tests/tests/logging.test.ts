@@ -141,27 +141,6 @@ describe('Logging and Telemetry integration', function () {
         },
         {
           s: 'I',
-          c: 'COMPASS-TELEMETRY',
-          id: 1_001_000_095,
-          ctx: 'Telemetry',
-          msg: 'Disabling Telemetry reporting',
-        },
-        {
-          s: 'I',
-          c: 'COMPASS-TELEMETRY',
-          id: 1_001_000_093,
-          ctx: 'Telemetry',
-          msg: 'Loading telemetry config',
-          attr: (actual: any) => {
-            expect(actual.telemetryCapableEnvironment).to.equal(true);
-            expect(actual.hasAnalytics).to.equal(true);
-            expect(actual.currentUserId).to.not.exist;
-            expect(actual.telemetryAnonymousId).to.be.a('string');
-            expect(actual.state).to.equal('waiting-for-user-config');
-          },
-        },
-        {
-          s: 'I',
           c: 'COMPASS-APP',
           ctx: 'Main Window',
           id: 1_001_000_092,

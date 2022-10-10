@@ -1,7 +1,7 @@
 import './index.less';
 
 import React, { useEffect, useRef } from 'react';
-import { Banner, css, spacing } from '@mongodb-js/compass-components';
+import { Banner, css, spacing, palette } from '@mongodb-js/compass-components';
 
 import GraphsComponent from './server-stats-graphs-component';
 import { realTimeDispatcher } from '../d3';
@@ -22,7 +22,7 @@ const workspaceContainerStyles = css({
 
 
 const workspaceBackgroundStyles = css({
-  background: '#3D4247',
+  background: palette.gray.dark2,
   overflow: 'hidden',
 });
 

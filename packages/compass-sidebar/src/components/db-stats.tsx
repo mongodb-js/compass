@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import {
   css,
-  uiColors,
+  palette,
   spacing,
   useTheme,
   Theme,
@@ -42,19 +42,19 @@ const dbStats = css({
 });
 
 const dbStatNumberDark = css({
-  color: uiColors.green.base,
+  color: palette.green.dark1,
 });
 
 const dbStatNumberLight = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 
 const dbStatNameDark = css({
-  color: uiColors.gray.light2,
+  color: palette.gray.light2,
 });
 
 const dbStatNameLight = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 function DBStat({ name, stat }: { name: string; stat: string | number }) {

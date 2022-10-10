@@ -8,7 +8,7 @@ import type { Document } from 'mongodb';
 import reducer, { runAggregation, fetchNextPage, fetchPrevPage, cancelAggregation, changeViewType } from './aggregation';
 import type { State as AggregateState } from './aggregation';
 import type { RootState } from '.';
-import rootReducer, { INITIAL_STATE } from '../modules';
+import rootReducer from '../modules';
 import configureStore from '../stores/store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 
@@ -39,8 +39,7 @@ class AggregationCursorMock {
 }
 
 const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
-  const mockedState: RootState = {
-    ...INITIAL_STATE,
+  const mockedState = {
     aggregationWorkspaceId: '0',
     aggregation,
   };

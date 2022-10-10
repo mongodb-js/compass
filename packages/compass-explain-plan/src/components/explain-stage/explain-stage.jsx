@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { map, isBoolean, camelCase } from 'lodash';
 import d3 from 'd3';
 import { Button } from 'react-bootstrap';
-import { Code } from '@mongodb-js/compass-components';
+import { Code, palette } from '@mongodb-js/compass-components';
 
 import styles from './explain-stage.module.less';
 
@@ -152,7 +152,7 @@ class ExplainStage extends Component {
     svgClock
       .append('path')
       .attr('class', 'prevArcPath')
-      .style('fill', '#dfdfdf');
+      .style('fill', palette.gray.light2);
 
     d3.select(clock)
       .select('.prevArcPath')
@@ -170,7 +170,7 @@ class ExplainStage extends Component {
     svgClock
       .append('path')
       .attr('class', 'currArcPath')
-      .style('fill', '#43B1E5');
+      .style('fill', palette.blue.light1);
 
     d3.select(clock)
       .select('.currArcPath')

@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import type { glyphs } from '@leafygreen-ui/icon';
 
 import { withTheme } from '../../hooks/use-theme';
-import { smallFontSize } from '../../compass-font-sizes';
 import {
   FocusState,
   useFocusState,
@@ -29,7 +28,7 @@ const tabStyles = css({
   maxWidth: spacing[6] * 3,
   minWidth: spacing[6] * 2,
   position: 'relative',
-  color: uiColors.gray.base,
+  color: palette.gray.base,
   outline: 'none',
 
   '&:hover': {
@@ -43,18 +42,18 @@ const tabStyles = css({
 });
 
 const tabLightThemeStyles = css({
-  background: uiColors.white,
-  borderColor: uiColors.gray.light2,
+  background: palette.white,
+  borderColor: palette.gray.light2,
   '&:hover': {
-    borderColor: uiColors.gray.light1,
+    borderColor: palette.gray.light1,
   },
 });
 
 const tabDarkThemeStyles = css({
-  backgroundColor: uiColors.gray.dark3,
-  borderColor: uiColors.gray.dark2,
+  backgroundColor: palette.gray.dark3,
+  borderColor: palette.gray.dark2,
   '&:hover': {
-    borderColor: uiColors.gray.dark1,
+    borderColor: palette.gray.dark1,
   },
 });
 
@@ -66,7 +65,7 @@ const selectedTabStyles = css({
 
 const focusedTabStyles = css({
   zIndex: 3, // Show the border over surrounding tabs.
-  borderColor: uiColors.focus,
+  borderColor: palette.blue.light1,
   '&::after': {
     position: 'absolute',
     content: '""',
@@ -74,7 +73,7 @@ const focusedTabStyles = css({
     right: 0,
     left: 0,
     height: '1px',
-    backgroundColor: uiColors.focus,
+    backgroundColor: palette.blue.light1,
   },
 });
 
@@ -84,18 +83,18 @@ const tabBottomBorderStyles = css({
   left: '-1px', // Cover border.
   right: '-1px', // Cover border.
   height: 0,
-  backgroundColor: uiColors.green.dark1,
+  backgroundColor: palette.green.dark1,
 });
 
 const selectedTabBottomBorderStyles = css({
   height: `${spacing[1]}px`,
-  backgroundColor: uiColors.green.base,
+  backgroundColor: palette.green.dark1,
   transition: 'height 150ms ease-out',
 });
 
 const focusedTabBottomBorderStyles = css({
   height: `${spacing[1]}px`,
-  backgroundColor: uiColors.focus,
+  backgroundColor: palette.blue.light1,
   transition: 'height 150ms ease-out',
 });
 
@@ -112,15 +111,15 @@ const tabIconStyles = css({
 });
 
 const tabIconSelectedLightThemeStyles = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 
 const tabIconSelectedDarkThemeStyles = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const tabIconFocusedStyles = css({
-  color: uiColors.focus,
+  color: palette.blue.light1,
 });
 
 const tabTitleContainerStyles = css({
@@ -141,53 +140,53 @@ const tabTitleStyles = css({
   textOverflow: 'ellipsis',
   overflow: 'hidden',
   fontWeight: 'bold',
-  fontSize: smallFontSize,
+  fontSize: '13px',
   gridArea: 'tabName',
 });
 
 const tabTitleDarkThemeStyles = css({
-  color: uiColors.gray.base,
+  color: palette.gray.base,
 });
 
 const tabTitleLightThemeStyles = css({
-  color: uiColors.gray.base,
+  color: palette.gray.base,
 });
 
 const tabTitleSelectedDarkThemeStyles = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const tabTitleSelectedLightThemeStyles = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 
 const tabTitleFocusedStyles = css({
-  color: uiColors.focus,
+  color: palette.blue.light1,
 });
 
 const tabSubtitleStyles = css({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
-  fontSize: smallFontSize,
+  fontSize: '13px',
   lineHeight: `${spacing[3]}px`,
   gridArea: 'namespace',
 });
 
 const tabSubtitleLightThemeStyles = css({
-  color: uiColors.gray.base,
+  color: palette.gray.base,
 });
 
 const tabSubtitleDarkThemeStyles = css({
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
 });
 
 const tabSubtitleSelectedLightThemeStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const tabSubtitleSelectedDarkThemeStyles = css({
-  color: uiColors.gray.light2,
+  color: palette.gray.light2,
 });
 
 type IconGlyph = Extract<keyof typeof glyphs, string>;

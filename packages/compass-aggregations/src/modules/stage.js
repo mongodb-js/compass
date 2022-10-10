@@ -69,7 +69,7 @@ export function gatherProjections(state, stage) {
 }
 
 /**
- * @param {import('./pipeline').Pipeline} stage - The stage.
+ * @param {import('./pipeline').StageState} stage - The stage.
  */
 export function validateStage(stage) {
   try {
@@ -129,7 +129,7 @@ export function isEmptyishStage(stageState) {
  * @see {@link https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/#syntax}
  *
  * @param {string} namespace
- * @param {import('../modules/pipeline').Pipeline | null | undefined} stage
+ * @param {import('../modules/pipeline').StageState | null | undefined} stage
  * @returns {string}
  */
 export function getDestinationNamespaceFromStage(namespace, stageState = {}) {

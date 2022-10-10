@@ -4,6 +4,7 @@ import { Menu, MenuItem } from '@leafygreen-ui/menu';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { FontAwesomeIcon } from './font-awesome-icon';
+import { documentTypography } from './typography';
 
 const buttonReset = css({
   margin: 0,
@@ -51,8 +52,8 @@ export const EditActions: React.FunctionComponent<{
 
 const addFieldButton = css({
   display: 'block',
-  width: spacing[3],
-  height: spacing[3],
+  width: documentTypography.lineHeight,
+  height: documentTypography.lineHeight,
   marginLeft: 'auto',
   boxShadow: `inset 0 0 0 1px currentColor`,
   borderRadius: '2px',

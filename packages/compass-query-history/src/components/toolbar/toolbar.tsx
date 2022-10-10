@@ -8,7 +8,7 @@ import {
   css,
   spacing,
   useId,
-  uiColors,
+  palette,
   withTheme,
 } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -27,11 +27,11 @@ const titleStyles = css({
 });
 
 const titleStylesDark = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const titleStylesLight = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 
 const toolbarActionStyles = css({

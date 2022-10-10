@@ -15,7 +15,7 @@ import {
   spacing,
   css,
   cx,
-  uiColors,
+  palette,
   withTheme,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
@@ -47,11 +47,11 @@ const formCardStyles = css({
 });
 
 const formCardDarkThemeStyles = css({
-  background: uiColors.gray.dark3,
+  background: palette.gray.dark3,
 });
 
 const formCardLightThemeStyles = css({
-  background: uiColors.white,
+  background: palette.white,
 });
 
 const descriptionStyles = css({
@@ -107,7 +107,7 @@ const editFavoriteButtonStyles = css({
 
 const favoriteButtonLabelStyles = css({
   paddingTop: spacing[1],
-  color: uiColors.black,
+  color: palette.black,
   fontWeight: 'bold',
   fontSize: 12,
 });

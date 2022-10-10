@@ -14,7 +14,7 @@ function collapsibleFieldSet(toggled: boolean) {
       toggled={toggled}
       onToggle={onToggleSpy}
       label="Test"
-      dataTestId="my-checkbox"
+      data-testid="my-fieldset"
       description="Some description."
     >
       <TextInput
@@ -32,14 +32,14 @@ describe('CollapsibleFieldSet Component', function () {
 
   it('should not display a child input', function () {
     render(collapsibleFieldSet(false));
-    const checkbox = screen.getByTestId('my-checkbox');
+    const checkbox = screen.getByTestId('my-fieldset-checkbox');
     expect(checkbox).to.exist;
     expect(screen.queryByTestId('my-input')).to.not.exist;
   });
 
   it('should display a child input', function () {
     render(collapsibleFieldSet(true));
-    const checkbox = screen.getByTestId('my-checkbox');
+    const checkbox = screen.getByTestId('my-fieldset-checkbox');
     expect(checkbox).to.exist;
     expect(screen.queryByTestId('my-input')).to.exist;
   });

@@ -7,7 +7,7 @@ import {
   css,
   cx,
   useFocusRing,
-  uiColors,
+  palette,
   spacing,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
@@ -23,9 +23,9 @@ const editorStyles = css({
 });
 
 const editorWithErrorStyles = css({
-  borderColor: uiColors.red.base,
+  borderColor: palette.red.base,
   '&:focus-within': {
-    borderColor: uiColors.gray.base,
+    borderColor: palette.gray.base,
   },
 });
 

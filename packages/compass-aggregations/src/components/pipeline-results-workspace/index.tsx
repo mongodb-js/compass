@@ -9,7 +9,7 @@ import {
   ErrorSummary,
   Subtitle,
   Button,
-  uiColors
+  palette
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
@@ -71,7 +71,7 @@ const outResult = css({
 });
 
 const outResultText = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
   textAlign: 'center'
 });
 

@@ -5,7 +5,7 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
+  palette,
   withTheme,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
@@ -57,7 +57,7 @@ const numericTextInputDarkStyles = css({
 
 const optionInputWithErrorStyles = css({
   input: {
-    borderColor: uiColors.red.base,
+    borderColor: palette.red.base,
   },
 });
 

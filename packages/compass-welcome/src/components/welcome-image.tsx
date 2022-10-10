@@ -15,7 +15,7 @@ function WelcomeImage(props: SVGProps<SVGSVGElement>) {
         </clipPath>
         <style>
           {
-            '.g,.h{fill:none}.i{fill:#e3fcf7}.g,.h,.i,.j,.k,.l,.m,.o,.p{stroke:#000;stroke-linecap:round;stroke-linejoin:round}.j{fill:#ffc010}.k,.o{fill:#fff}.l{fill:#ffe212}.m{fill:#00ed64}.h{stroke-dasharray:0 0 2 2}.o{stroke-width:.8px}'
+            '.g,.h{fill:none}.i{fill:#e3fcf7}.g,.h,.i,.j,.k,.l,.m,.o,.p{stroke:#000000;stroke-linecap:round;stroke-linejoin:round}.j{fill:#ffc010}.k,.o{fill:#ffffff}.l{fill:#ffc010}.m{fill:#00ed64}.h{stroke-dasharray:0 0 2 2}.o{stroke-width:.8px}'
           }
         </style>
       </defs>
@@ -300,7 +300,7 @@ function WelcomeImage(props: SVGProps<SVGSVGElement>) {
           d="M85.95 31.95s11.7-3.9 13.37-12.51c2 2.69 2.55 8.58-1.62 12.11-4.27 3.62-8.62 2.14-11.75.4Z"
           style={{
             strokeWidth: 0,
-            stroke: '#000',
+            stroke: '#000000',
             strokeLinecap: 'round',
             strokeLinejoin: 'round',
           }}

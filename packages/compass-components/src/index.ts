@@ -56,9 +56,8 @@ export {
 export { Checkbox } from './components/checkbox';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
-export { uiColors } from '@leafygreen-ui/palette';
-export * as compassFontSizes from './compass-font-sizes';
-export * as compassUIColors from './compass-ui-colors';
+export { palette } from '@leafygreen-ui/palette';
+export { transparentize } from 'polished';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
@@ -71,6 +70,8 @@ export { Toggle } from './components/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 import IndexIcon from './components/index-icon';
+
+export { default as FormFieldContainer } from './components/form-field-container';
 
 export {
   Accordion,

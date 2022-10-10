@@ -4,10 +4,9 @@ import FocusTrap from 'focus-trap-react';
 
 import { Popover } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { transparentize } from 'polished';
 import { useTheme, Theme } from '../hooks/use-theme';
-import { gray8 } from '../compass-ui-colors';
 
 const borderRadius = spacing[2];
 
@@ -16,22 +15,22 @@ const contentContainerStyles = css({
   height: '100%',
   alignItems: 'center',
   borderRadius: borderRadius,
-  boxShadow: `0px 2px 4px -1px ${transparentize(0.85, uiColors.black)}`,
+  boxShadow: `0px 2px 4px -1px ${transparentize(0.85, palette.black)}`,
   border: `1px solid`,
   overflow: 'hidden',
   width: 'fit-content',
 });
 
 const contentContainerStylesLight = css({
-  borderColor: uiColors.gray.light2,
-  backgroundColor: gray8,
-  color: uiColors.gray.dark2,
+  borderColor: palette.gray.light2,
+  backgroundColor: palette.gray.light3,
+  color: palette.gray.dark2,
 });
 
 const contentContainerStylesDark = css({
-  borderColor: uiColors.gray.dark2,
-  backgroundColor: uiColors.gray.dark3,
-  color: uiColors.white,
+  borderColor: palette.gray.dark2,
+  backgroundColor: palette.gray.dark3,
+  color: palette.white,
 });
 
 type InteractivePopoverProps = {
@@ -44,6 +43,10 @@ type InteractivePopoverProps = {
   }) => React.ReactElement;
   open: boolean;
   setOpen: (open: boolean) => void;
+  /**
+   * List of selector to consider contained elements to skip closing on click
+   */
+  containedElements?: string[];
 };
 
 function InteractivePopover({
@@ -52,6 +55,7 @@ function InteractivePopover({
   trigger,
   open,
   setOpen,
+  containedElements = [],
 }: InteractivePopoverProps): React.ReactElement {
   const { theme } = useTheme();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -98,6 +102,16 @@ function InteractivePopover({
         return;
       }
 
+      if (
+        containedElements.some((selector) => {
+          return document
+            .querySelector(selector)
+            ?.contains(event.target as Node);
+        })
+      ) {
+        return;
+      }
+
       onClose();
     };
     window.addEventListener('mousedown', clickEventListener);
@@ -106,7 +120,7 @@ function InteractivePopover({
       window.removeEventListener('mousedown', clickEventListener);
       window.removeEventListener('touchstart', clickEventListener);
     };
-  }, [open, onClose]);
+  }, [open, onClose, containedElements]);
 
   const onPopoverKeyDown = useCallback(
     (evt: KeyboardEvent) => {

@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .rt {
   height: 100%;
 }
@@ -46,8 +48,8 @@
   position: relative;
   width: 100%;
   height: 42px;
-  background-color: #484D51;
-  border-bottom: 3px #3D4247 solid;
+  background-color: @palette__gray--dark-2;
+  border-bottom: 3px @palette__gray--dark-2 solid;
   display: flex;
   flex-direction: row;
   overflow: hidden;
@@ -63,7 +65,7 @@
   font-size: 14px;
   font-weight: 500;
   text-align: center;
-  color: white;
+  color: @palette__white;
   text-anchor: middle;
   padding-left: 150px;
 }
@@ -89,7 +91,7 @@
   padding-left: 40px;
 }
 .rt-lists__headerlabel, .rt-details__headerlabel, .rt-details__closebutton {
-  color: white;
+  color: @palette__white;
   text-transform: uppercase;
   font-size: 11px;
   font-weight: bold;
@@ -101,7 +103,7 @@
 }
 .rt-details__closebutton {
   cursor: pointer;
-  color: #9ca4ab;
+  color: @palette__gray--base;
   margin-top: 20px;
   text-align: right;
 }
@@ -117,7 +119,7 @@
 .rt-lists__load {
   font-weight: 300;
   font-size: 12px;
-  color: white;
+  color: @palette__white;
   position: absolute;
   top: 15px;
   right: 25px;
@@ -127,7 +129,7 @@
 .rt-lists__collection-hot {
   font-weight: 500;
   font-size: 12px; /* collection name */
-  color: white;
+  color: @palette__white;
   position: absolute;
   top: 5px;
   left: 10px;
@@ -140,33 +142,33 @@
   display: flex;
   flex-direction: row;
   align-items: flex-end; /* R/W bars go at bottom */
-  background-color: #4F5357;
+  background-color: @palette__gray--dark-2;
   font-weight: 500;
   font-size: 9px; /* R/W */
-  color: white;
+  color: @palette__white;
 }
 .rt-lists__r { /* R/W bar */
   height: 14px;
   width: 30%;
-  background-color: #5E6266;
+  background-color: @palette__gray--dark-1;
   padding: 2px 0 0 4px;
 }
 .rt-lists__w {
   height: 14px;
   width: 70%;
-  background-color: #777B80;
+  background-color: @palette__gray--dark-1;
   padding: 2px 0 0 4px;
 }
 
 /* SLOW */
 .rt-lists__op {
-  color: white;
+  color: @palette__white;
   text-transform: uppercase;
   font-size: 10px;
   font-weight: 500;
   text-align: center;
   padding: 1px 0 1px 0;
-  background-color: #777B80;
+  background-color: @palette__gray--dark-1;
   border-radius: 2px;
   flex: 0 0 60px;
   position: relative;
@@ -175,7 +177,7 @@
 .rt-lists__collection-slow {
   font-weight: 500;
   font-size: 12px;
-  color: white;
+  color: @palette__white;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -185,7 +187,7 @@
 .rt-lists__time {
   font-weight: 300;
   font-size: 12px;
-  color: white;
+  color: @palette__white;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -199,7 +201,7 @@
   display: block;
   position: relative;
   width: 400px;
-  background-color: #484D51;
+  background-color: @palette__gray--dark-2;
   margin-left: 40px;
   font-size: 10px;
   font-weight: 500;
@@ -207,7 +209,7 @@
 }
 
 .rt-details__opinfo {
-  border-bottom: #9ca4ab 1px solid;
+  border-bottom: @palette__gray--base 1px solid;
   height: 40px;
   display: flex;
   flex-direction: row;
@@ -218,11 +220,11 @@
     margin: 0 5px;
 
     &.rt-details__op {
-      color: white;
+      color: @palette__white;
       text-transform: uppercase;
       text-align: center;
       padding: 1px 0 1px 0;
-      background-color: #777B80;
+      background-color: @palette__gray--dark-1;
       border-radius: 2px;
       flex: 0 0 60px;
       position: relative;
@@ -230,7 +232,7 @@
     }
 
     &.rt-details__collection-slow {
-      color: white;
+      color: @palette__white;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -239,7 +241,7 @@
     }
 
     &.rt-details__time {
-      color: white;
+      color: @palette__white;
       text-align: center;
       white-space: nowrap;
       overflow: hidden;
@@ -267,14 +269,14 @@
 }
 .rt-details__datatype {
   position: absolute;
-  color: #9ca4ab;
+  color: @palette__gray--base;
   text-transform: uppercase;
   font-size: 11px;
   font-weight: bold;
 }
 .rt-details__datatype-val {
   position: absolute;
-  color: white;
+  color: @palette__white;
   font-size: 14px;
   left: 100px;
 }
@@ -282,8 +284,8 @@
   margin-top: 10px;
   font-family: Menlo, monospace;
   position: absolute;
-  color: white;
-  background-color: #3D4247;
+  color: @palette__white;
+  background-color: @palette__gray--dark-2;
   font-size: 12px;
   font-weight: 300;
   left: 20px;
@@ -299,12 +301,12 @@
 .rt-lists__listdiv,
 .rt-details__raw {
   &::-webkit-scrollbar-track {
-    background-color: rgba(0,0,0,.16);
+    background-color: fade(@palette__black, 16%);
     -webkit-border-radius: 3px;
     border-radius: 3px;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: #484D51;
-    border: 1px solid rgba(0,0,0,.4);
+    background-color: @palette__gray--dark-2;
+    border: 1px solid fade(@palette__black, 40%);
   }
 }

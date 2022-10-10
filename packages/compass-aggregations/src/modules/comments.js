@@ -1,7 +1,6 @@
-/**
- * Comments toggled action name.
- */
-export const TOGGLE_COMMENTS = 'aggregations/comments/TOGGLE_COMMENTS';
+import { NEW_PIPELINE } from './import-pipeline';
+import { RESTORE_PIPELINE } from './saved-pipeline';
+import { APPLY_SETTINGS } from './settings';
 
 /**
  * The initial state.
@@ -17,17 +16,14 @@ export const INITIAL_STATE = true;
  * @returns {Boolean} The new state.
  */
 export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === TOGGLE_COMMENTS) {
-    return !state;
+  if (action.type === APPLY_SETTINGS) {
+    return action.settings.isCommentMode ?? state
+  }
+  if (action.type === NEW_PIPELINE) {
+    return INITIAL_STATE;
+  }
+  if (action.type === RESTORE_PIPELINE) {
+    return action.restoreState.comments;
   }
   return state;
 }
-
-/**
- * Action creator for comment toggling.
- *
- * @returns {Object} The toggle comments action.
- */
-export const toggleComments = () => ({
-  type: TOGGLE_COMMENTS
-});

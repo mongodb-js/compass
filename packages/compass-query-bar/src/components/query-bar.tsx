@@ -6,7 +6,7 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
+  palette,
   withTheme,
   Label,
   Link,
@@ -30,15 +30,15 @@ const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
-  background: 'white',
-  border: `1px solid ${uiColors.gray.light2}`,
+  background: palette.white,
+  border: `1px solid ${palette.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[2],
 });
 
 const queryBarFormDarkStyles = css({
-  background: uiColors.gray.dark3,
-  borderColor: uiColors.gray.dark2,
+  background: palette.gray.dark3,
+  borderColor: palette.gray.dark2,
 });
 
 const queryBarFirstRowStyles = css({
