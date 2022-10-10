@@ -211,19 +211,9 @@ describe('StageParser', function () {
         ']}',
       ];
 
-      let counter = 0;
-      let visitedLines = '';
-
-      expect(stageParser.source).to.equal(visitedLines);
-
-      while (counter < 3) {
-        const line = lines[counter];
-        visitedLines += `${line}\n`;
-        const isStageLike = stageParser.push(line);
-        expect(stageParser.source).to.equal(visitedLines);
-        expect(isStageLike).to.be.false;
-        counter++;
-      }
+      stageParser.push(lines[0]);
+      stageParser.push(lines[1]);
+      stageParser.push(lines[2]);
 
       const stage = stageParser.push(lines[3]) as StageLike;
       expect(stageParser.source).to.equal('');
@@ -247,20 +237,10 @@ describe('StageParser', function () {
         '}',
       ];
 
-
-      let counter = 0;
-      let visitedLines = '';
-
-      expect(stageParser.source).to.equal(visitedLines);
-
-      while (counter < 4) {
-        const line = lines[counter];
-        visitedLines += `${line}\n`;
-        const isStageLike = stageParser.push(line);
-        expect(stageParser.source).to.equal(visitedLines);
-        expect(isStageLike).to.be.false;
-        counter++;
-      }
+      stageParser.push(lines[0]);
+      stageParser.push(lines[1]);
+      stageParser.push(lines[2]);
+      stageParser.push(lines[3]);
 
       const stage = stageParser.push(lines[4]) as StageLike;
       expect(stageParser.source).to.equal('');
@@ -281,20 +261,10 @@ describe('StageParser', function () {
         '}',
       ];
 
-
-      let counter = 0;
-      let visitedLines = '';
-
-      expect(stageParser.source).to.equal(visitedLines);
-
-      while (counter < 4) {
-        const line = lines[counter];
-        visitedLines += `${line}\n`;
-        const isStageLike = stageParser.push(line);
-        expect(stageParser.source).to.equal(visitedLines);
-        expect(isStageLike).to.be.false;
-        counter++;
-      }
+      stageParser.push(lines[0]);
+      stageParser.push(lines[1]);
+      stageParser.push(lines[2]);
+      stageParser.push(lines[3]);
 
       const stage = stageParser.push(lines[4]) as StageLike;
       expect(stageParser.source).to.equal('');
@@ -318,19 +288,12 @@ describe('StageParser', function () {
       ];
 
 
-      let counter = 0;
-      let visitedLines = '';
-
-      expect(stageParser.source).to.equal(visitedLines);
-
-      while (counter < 6) {
-        const line = lines[counter];
-        visitedLines += `${line}\n`;
-        const isStageLike = stageParser.push(line);
-        expect(stageParser.source).to.equal(visitedLines);
-        expect(isStageLike).to.be.false;
-        counter++;
-      }
+      stageParser.push(lines[0]);
+      stageParser.push(lines[1]);
+      stageParser.push(lines[2]);
+      stageParser.push(lines[3]);
+      stageParser.push(lines[4]);
+      stageParser.push(lines[5]);
 
       const stage = stageParser.push(lines[6]) as StageLike;
       expect(stageParser.source).to.equal('');
