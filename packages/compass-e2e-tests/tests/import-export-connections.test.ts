@@ -79,7 +79,6 @@ describe('Connection Import / Export', function () {
           );
           expect(conn.connectionSecrets).to.not.exist;
         } else {
-          console.log({ conn });
           expect(conn.connectionOptions.connectionString).to.equal(
             connectionStringWithoutCredentials
           );
