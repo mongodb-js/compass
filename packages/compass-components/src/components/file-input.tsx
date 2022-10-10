@@ -1,7 +1,7 @@
 import React from 'react';
 import path from 'path';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { withTheme } from '../hooks/use-theme';
 
@@ -14,7 +14,7 @@ import {
   Description,
 } from './leafygreen';
 
-const { base: redBaseColor } = uiColors.red;
+const { base: redBaseColor } = palette.red;
 
 const containerStyles = css({
   marginTop: spacing[2],
@@ -58,7 +58,7 @@ const labelHorizontalStyles = css({
 });
 
 const optionalLabelStyles = css({
-  color: uiColors.gray.base,
+  color: palette.gray.base,
   marginTop: spacing[1],
   fontStyle: 'italic',
   fontWeight: 'normal',
@@ -79,10 +79,10 @@ const labelIconStyles = css({
   textRendering: 'auto',
   margin: '0 0 0 5px',
   cursor: 'pointer',
-  color: '#c1c7c6',
+  color: palette.gray.light1,
 
   '&:link, &:active': {
-    color: '#c1c7c6',
+    color: palette.gray.light1,
   },
 
   '&:link, &:active, &:hover': {
@@ -90,16 +90,16 @@ const labelIconStyles = css({
   },
 
   '&:hover': {
-    color: '#ffc010',
+    color: palette.yellow.base,
   },
 });
 
 const disabledDescriptionLightStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const disabledDescriptionDarkStyles = css({
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
 });
 
 export enum Variant {

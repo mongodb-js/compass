@@ -2,7 +2,7 @@ import React from 'react';
 import {
   css,
   spacing,
-  uiColors,
+  palette,
   Accordion,
   IndexIcon,
   Badge,
@@ -26,7 +26,7 @@ const accordianContainerStyles = css({
 });
 
 const shardStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const indexKeyStyles = css({

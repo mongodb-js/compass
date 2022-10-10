@@ -7,7 +7,7 @@ import {
   Cell,
   cx,
   spacing,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 
 import NameField from './name-field';
@@ -65,7 +65,7 @@ const tableStyles = css({
   thead: {
     position: 'sticky',
     top: 0,
-    background: uiColors.white,
+    background: palette.white,
     zIndex: 5,
   },
 });

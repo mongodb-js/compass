@@ -4,7 +4,7 @@ import {
   MongoDBLogoMark,
   css,
   cx,
-  uiColors,
+  palette,
   spacing,
   ItemActionControls,
   useTheme,
@@ -74,16 +74,16 @@ const sidebarTitle = css({
 });
 
 const iconButtonDark = css({
-  color: uiColors.gray.dark3,
+  color: palette.gray.dark3,
   '&:hover': {
-    color: uiColors.white,
+    color: palette.white,
   },
 });
 
 const iconButtonLight = css({
-  color: uiColors.white,
+  color: palette.white,
   '&:hover': {
-    color: uiColors.gray.dark3,
+    color: palette.gray.dark3,
   },
 });
 

@@ -12,7 +12,7 @@ import {
   cx,
   useFocusState,
   FocusState,
-  uiColors,
+  palette,
   mergeProps,
   useDefaultAction,
   ItemActionControls,
@@ -50,7 +50,7 @@ const cardName = css({
   paddingTop: 2,
   paddingBottom: 2,
   // Because leafygreen
-  color: `${uiColors.green.dark1} !important`,
+  color: `${palette.green.dark1} !important`,
   // TS is very confused if fontWeight is not a number even though it's a valid
   // CSS value
   fontWeight: '600 !important' as unknown as number,

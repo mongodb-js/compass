@@ -1,5 +1,5 @@
 const d3 = require('d3');
-const { uiColors } = require('@mongodb-js/compass-components');
+const { palette } = require('@mongodb-js/compass-components');
 
 
 function realTimeMouseOverlay() {
@@ -28,7 +28,7 @@ function realTimeMouseOverlay() {
         .attr('transform', `translate(${basePosition})`);
       overlayGroup.selectAll('line').data([data]).enter()
         .append('line')
-        .attr('stroke', uiColors.white)
+        .attr('stroke', palette.white)
         .attr('class', `${prefix}-line`);
       overlayGroup.selectAll('line')
         .attr('x1', 0).attr('y1', height)
@@ -36,11 +36,11 @@ function realTimeMouseOverlay() {
 
       overlayGroup.selectAll('path').data([data]).enter()
         .append('path')
-        .attr('stroke', uiColors.white)
-        .attr('fill', uiColors.white)
+        .attr('stroke', palette.white)
+        .attr('fill', palette.white)
         .attr('class', `${prefix}-triangle`)
         .attr('d', d3.svg.symbol().type('triangle-down').size(bubbleWidth * 3))
-        .attr('stroke', uiColors.white)
+        .attr('stroke', palette.white)
         .attr('stroke-width', strokeWidth);
 
       // Create mouse target for overlay events
