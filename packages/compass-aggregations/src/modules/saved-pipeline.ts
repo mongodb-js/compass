@@ -2,19 +2,20 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { AnyAction } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
-
 import { createId } from './id';
 import { setIsModified } from './is-modified';
-import { getDirectory } from '../utils/get-directory';
 import { PipelineStorage } from '../utils/pipeline-storage';
-import type { Pipeline } from './pipeline';
 import type { RootState } from '.';
+import type { Pipeline } from './pipeline';
+import { runStage } from './pipeline';
+
+const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const PREFIX = 'aggregations/saved-pipeline';
 
 export const SET_SHOW_SAVED_PIPELINES = `${PREFIX}/SET_SHOW`;
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
+export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE`;
 
 export type SavedPipelineState = {
   pipelines: Pipeline[];
@@ -28,21 +29,25 @@ export const INITIAL_STATE: SavedPipelineState = {
   isListVisible: false
 };
 
-const copyState = (state: SavedPipelineState) => Object.assign({}, state);
-
-const setShowSavedPipelinesList = (state: SavedPipelineState, action: AnyAction) => {
-  const newState = copyState(state);
-  newState.isListVisible = !!action.show;
-  return newState;
+const setShowSavedPipelinesList = (
+  state: SavedPipelineState,
+  action: AnyAction
+) => {
+  return { ...state, isListVisible: !!action.show };
 };
 
 const addSavedPipeline = (state: SavedPipelineState, action: AnyAction) => {
   return { ...state, pipelines: action.pipelines, isLoaded: true };
 };
 
+const doRestoreSavedPipeline = (state: SavedPipelineState) => {
+  return { ...state, isListVisible: false };
+};
+
 const MAPPINGS = {
   [SET_SHOW_SAVED_PIPELINES]: setShowSavedPipelinesList,
-  [SAVED_PIPELINE_ADD]: addSavedPipeline
+  [SAVED_PIPELINE_ADD]: addSavedPipeline,
+  [RESTORE_PIPELINE]: doRestoreSavedPipeline
 };
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
@@ -50,10 +55,17 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   return fn ? fn(state, action) : state;
 }
 
-export const setShowSavedPipelines = (show: boolean) => ({
-  type: SET_SHOW_SAVED_PIPELINES,
-  show
-});
+export const setShowSavedPipelines =
+  (show: boolean): ThunkAction<void, RootState, void, AnyAction> =>
+  (dispatch) => {
+    if (show) {
+      dispatch(getSavedPipelines());
+    }
+    dispatch({
+      type: SET_SHOW_SAVED_PIPELINES,
+      show
+    });
+  };
 
 export const savedPipelineAdd = (pipelines: Pipeline[]) => ({
   type: SAVED_PIPELINE_ADD,
@@ -61,7 +73,7 @@ export const savedPipelineAdd = (pipelines: Pipeline[]) => ({
 });
 
 /**
- * 
+ *
  * @returns {import('redux').AnyAction}
  */
 export const getSavedPipelines = (): ThunkAction<void, RootState, void, AnyAction> => 
@@ -95,6 +107,60 @@ export const updatePipelineList = (): ThunkAction<void, RootState, void, AnyActi
   };
 
 /**
+ * Get the delete action.
+ */
+export const deletePipeline = (
+  pipelineId: string
+): ThunkAction<Promise<void>, RootState, void, AnyAction> => {
+  return async (dispatch) => {
+    const pipelineStorage = new PipelineStorage();
+    await pipelineStorage.delete(pipelineId);
+    dispatch(updatePipelineList());
+  };
+};
+
+/**
+ * Get the restore action.
+ *
+ * @param {Object} restoreState - The state.
+ *
+ * @returns {Object} The action.
+ */
+export const restoreSavedPipeline = (restoreState: unknown): AnyAction => ({
+  type: RESTORE_PIPELINE,
+  restoreState: restoreState
+});
+
+/**
+ * Restore pipeline
+ */
+export const openPipeline = (
+  pipeline: unknown
+): ThunkAction<void, RootState, void, AnyAction> => {
+  return (dispatch) => {
+    dispatch(restoreSavedPipeline(pipeline));
+    dispatch(runStage(0, true /* force execute */));
+  };
+};
+
+/**
+ * Restore pipeline by an ID
+ */
+export const openPipelineById = (
+  id: string
+): ThunkAction<Promise<void>, RootState, void, AnyAction> => {
+  return async (dispatch) => {
+    try {
+      const pipelineStorage = new PipelineStorage();
+      const data = await pipelineStorage.load(id);
+      dispatch(openPipeline(data));
+    } catch (e: unknown) {
+      debug(e);
+    }
+  };
+};
+
+/**
  * Save the current state of your pipeline
  *
  * @returns {import('redux').AnyAction} The action.
@@ -102,13 +168,7 @@ export const updatePipelineList = (): ThunkAction<void, RootState, void, AnyActi
 export const saveCurrentPipeline = (): ThunkAction<void, RootState, void, AnyAction> => async (
   dispatch, getState
 ) => {
-  // We dynamically require these libraries as this file is used in cloud and
-  // we don't want global imports of packages not available on the web.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { promises: fs } = require('fs');
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const path = require('path');
-
+  const pipelineStorage = new PipelineStorage();
   const state = getState();
 
   if (getState().id === '') {
@@ -130,7 +190,7 @@ export const saveCurrentPipeline = (): ThunkAction<void, RootState, void, AnyAct
     dataService
   } = getState();
 
-  const stateRecord = {
+  const savedPipeline = {
     id,
     name,
     namespace,
@@ -144,25 +204,12 @@ export const saveCurrentPipeline = (): ThunkAction<void, RootState, void, AnyAct
       null
   };
 
+  await pipelineStorage.updateAttributes(savedPipeline.id, savedPipeline);
+
   track('Aggregation Saved', {
-    id: stateRecord.id,
+    id: savedPipeline.id,
     num_stages: pipeline.length
   });
 
-  const dirname = getDirectory();
-
-  await fs.mkdir(dirname, { recursive: true });
-
-  const fileName = path.join(dirname, `${stateRecord.id}.json`);
-  const options = { encoding: 'utf8', flag: 'w' };
-
-  await fs.writeFile(fileName, JSON.stringify(stateRecord), options);
-
   dispatch(updatePipelineList());
 };
-
-export const showSavedPipelines = (): ThunkAction<void, RootState, void, AnyAction> => 
-  (dispatch) => {
-    dispatch(getSavedPipelines());
-    dispatch(setShowSavedPipelines(true));
-  };

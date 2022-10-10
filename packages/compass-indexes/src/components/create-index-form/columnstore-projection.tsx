@@ -23,7 +23,7 @@ const ColumnstoreProjectionCollapsibleFieldSet = ({
       toggled={useColumnstoreProjection}
       onToggle={toggleUseColumnstoreProjection}
       label="Columnstore Projection"
-      dataTestId="create-index-modal-use-columnstore-checkbox"
+      data-testid="create-index-modal-use-columnstore"
       description="Columnstore indexes support queries against unknown or arbitrary fields."
     >
       <Editor

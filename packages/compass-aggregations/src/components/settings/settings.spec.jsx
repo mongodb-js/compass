@@ -15,9 +15,7 @@ describe('Settings [Component]', function() {
   let toggleSettingsIsExpandedSpy;
   let toggleSettingsIsCommentModeSpy;
   let setSettingsSampleSizeSpy;
-  let setSettingsMaxTimeMSSpy;
   let setSettingsLimitSpy;
-  let toggleCommentsSpy;
   let runStageSpy;
 
   context('when the component is not atlas deployed', function() {
@@ -26,7 +24,6 @@ describe('Settings [Component]', function() {
       toggleSettingsIsExpandedSpy = sinon.spy();
       toggleSettingsIsCommentModeSpy = sinon.spy();
       setSettingsSampleSizeSpy = sinon.spy();
-      setSettingsMaxTimeMSSpy = sinon.spy();
       setSettingsLimitSpy = sinon.spy();
       runStageSpy = sinon.spy();
 
@@ -37,10 +34,8 @@ describe('Settings [Component]', function() {
         toggleSettingsIsExpanded: toggleSettingsIsExpandedSpy,
         toggleSettingsIsCommentMode: toggleSettingsIsCommentModeSpy,
         setSettingsSampleSize: setSettingsSampleSizeSpy,
-        setSettingsMaxTimeMS: setSettingsMaxTimeMSSpy,
         setSettingsLimit: setSettingsLimitSpy,
         isCommenting: true,
-        toggleComments: toggleCommentsSpy,
         limit: INITIAL_STATE.sampleSize,
         largeLimit: INITIAL_STATE.limit,
         maxTimeMS: INITIAL_STATE.maxTimeMS,
@@ -55,9 +50,7 @@ describe('Settings [Component]', function() {
       toggleSettingsIsExpandedSpy = null;
       toggleSettingsIsCommentModeSpy = null;
       setSettingsSampleSizeSpy = null;
-      setSettingsMaxTimeMSSpy = null;
       setSettingsLimitSpy = null;
-      toggleCommentsSpy = null;
       runStageSpy = null;
     });
 
@@ -105,7 +98,6 @@ describe('Settings [Component]', function() {
       toggleSettingsIsExpandedSpy = sinon.spy();
       toggleSettingsIsCommentModeSpy = sinon.spy();
       setSettingsSampleSizeSpy = sinon.spy();
-      setSettingsMaxTimeMSSpy = sinon.spy();
       setSettingsLimitSpy = sinon.spy();
       runStageSpy = sinon.spy();
 
@@ -115,10 +107,8 @@ describe('Settings [Component]', function() {
         toggleSettingsIsExpanded: toggleSettingsIsExpandedSpy,
         toggleSettingsIsCommentMode: toggleSettingsIsCommentModeSpy,
         setSettingsSampleSize: setSettingsSampleSizeSpy,
-        setSettingsMaxTimeMS: setSettingsMaxTimeMSSpy,
         setSettingsLimit: setSettingsLimitSpy,
         isCommenting: true,
-        toggleComments: toggleCommentsSpy,
         limit: INITIAL_STATE.sampleSize,
         largeLimit: INITIAL_STATE.limit,
         maxTimeMS: INITIAL_STATE.maxTimeMS,
@@ -133,9 +123,7 @@ describe('Settings [Component]', function() {
       toggleSettingsIsExpandedSpy = null;
       toggleSettingsIsCommentModeSpy = null;
       setSettingsSampleSizeSpy = null;
-      setSettingsMaxTimeMSSpy = null;
       setSettingsLimitSpy = null;
-      toggleCommentsSpy = null;
       runStageSpy = null;
     });
 

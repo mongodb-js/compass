@@ -14,7 +14,6 @@ const compassShellStyles = css({
   flexBasis: 'auto',
   position: 'relative',
   flexDirection: 'column',
-  maxHeight: '95%'
 });
 
 const compassShellContainerStyles = css({
@@ -23,7 +22,7 @@ const compassShellContainerStyles = css({
   overflow: 'auto',
   borderTop: `1px solid ${uiColors.gray.dark2}`,
   '*::-webkit-scrollbar-thumb': {
-    background: 'rgba(180, 180, 180, 0.5)'
+    background: 'rgba(193, 199, 198, 0.5)'
   }
 });
 

@@ -7,6 +7,7 @@ import { expect } from 'chai';
 import configureStore from '../../stores/store';
 import { PipelineToolbar } from './index';
 
+
 describe('PipelineToolbar', function () {
   describe('renders with setting row - visible', function () {
     let toolbar: HTMLElement;
@@ -14,7 +15,7 @@ describe('PipelineToolbar', function () {
       render(
         <Provider store={configureStore({})}>
           <PipelineToolbar
-            isSettingsVisible
+            isBuilderView
             showExportButton
             showRunButton
             showExplainButton
@@ -132,7 +133,7 @@ describe('PipelineToolbar', function () {
       render(
         <Provider store={configureStore({})}>
           <PipelineToolbar
-            isSettingsVisible={false}
+            isBuilderView
             showExplainButton
             showExportButton
             showRunButton

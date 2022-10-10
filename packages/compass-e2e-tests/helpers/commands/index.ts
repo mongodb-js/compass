@@ -3,6 +3,7 @@ export * from './click-visible';
 export * from './set-value-visible';
 export * from './wait-for-connection-screen';
 export * from './close-settings-modal';
+export * from './close-welcome-modal';
 export * from './connect-with-connection-string';
 export * from './connect-with-connection-form';
 export * from './disconnect';

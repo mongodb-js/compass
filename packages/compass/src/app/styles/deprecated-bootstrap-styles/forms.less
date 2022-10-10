@@ -5,26 +5,26 @@
   padding: 6px 12px;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #555555;
-  background-color: #fff;
+  color: @palette__gray--dark-2;
+  background-color: @palette__white;
   background-image: none;
-  border: 1px solid #ccc;
+  border: 1px solid @palette__gray--light-1;
   border-radius: 4px;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 30, 43, 0.075);
   transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 }
 .form-control:focus {
-  border-color: #66afe9;
+  border-color: @palette__blue--light-1;
   outline: 0;
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0, 30, 43,.075), 0 0 8px rgba(4, 152, 236, 0.6);
 }
 .form-control::-webkit-input-placeholder {
-  color: #999;
+  color: @palette__gray--base;
 }
 .form-control[disabled],
 .form-control[readonly],
 fieldset[disabled] .form-control {
-  background-color: #eeeeee;
+  background-color: @palette__gray--light-3;
   opacity: 1;
 }
 .form-control[disabled],
@@ -39,10 +39,10 @@ textarea.form-control {
 }
 
 .has-error .form-control {
-  border-color: #a94442;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  border-color: @palette__red--base;
+  box-shadow: inset 0 1px 1px rgba(0, 30, 43, 0.075);
 }
 .has-error .form-control:focus {
-  border-color: #843534;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px #ce8483;
+  border-color: @palette__red--dark-2;
+  box-shadow: inset 0 1px 1px rgba(0, 30, 43, 0.075), 0 0 6px @palette__red--light-1;
 }

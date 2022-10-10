@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import AppRegistry from 'hadron-app-registry';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { Banner, Toolbar } from '@mongodb-js/compass-components';
+import { Banner } from '@mongodb-js/compass-components';
 
 import ExplainStates from '../explain-states';
 
@@ -62,10 +62,6 @@ describe('ExplainStates [Component]', function () {
   afterEach(function () {
     component.unmount();
     component = null;
-  });
-
-  it('renders the toolbar', function () {
-    expect(component.find(Toolbar)).to.be.present();
   });
 
   it('renders the read only banner', function () {

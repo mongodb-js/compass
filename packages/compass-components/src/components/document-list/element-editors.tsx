@@ -8,6 +8,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import BSONValue, { hasCustomColor, VALUE_COLOR_BY_TYPE } from '../bson-value';
 import { Tooltip } from '../tooltip';
 import { mergeProps } from '../../utils/merge-props';
+import { documentTypography } from './typography';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -195,8 +196,9 @@ export const ValueEditor: React.FunctionComponent<{
         longestLineCharLength > 70 ? 2 : 1
       );
       const maxLines = Math.min(minLines, 10);
-      const minHeight = spacing[3] * Math.min(minLines, maxLines);
-      const height = spacing[3] * maxLines;
+      const minHeight =
+        documentTypography.lineHeight * Math.min(minLines, maxLines);
+      const height = documentTypography.lineHeight * maxLines;
 
       return { width, minHeight, height };
     }

@@ -1,10 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Banner } from '@mongodb-js/compass-components';
+import { Banner, WorkspaceContainer } from '@mongodb-js/compass-components';
 
 import Settings from '../settings';
-import RestorePipelineModal from './modals/restore-pipeline-modal';
 import ImportPipeline from './modals/import-pipeline';
 import ConfirmImportPipeline from './modals/confirm-import-pipeline';
 import SavingPipelineModal from '../saving-pipeline-modal';
@@ -30,13 +29,9 @@ class Pipeline extends PureComponent {
   static propTypes = {
     env: PropTypes.string.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
-    openPipelineById: PropTypes.func.isRequired,
     getSavedPipelines: PropTypes.func.isRequired,
-    toggleComments: PropTypes.func.isRequired,
     toggleSample: PropTypes.func.isRequired,
     toggleAutoPreview: PropTypes.func.isRequired,
-    restorePipelineModalToggle: PropTypes.func.isRequired,
-    restorePipeline: PropTypes.object.isRequired,
     pipeline: PropTypes.array.isRequired,
     serverVersion: PropTypes.string.isRequired,
     stageAdded: PropTypes.func.isRequired,
@@ -59,10 +54,8 @@ class Pipeline extends PureComponent {
     importPipelineText: PropTypes.string.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
-    nameChanged: PropTypes.func.isRequired,
     isModified: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
-    isSampling: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
     isImportPipelineOpen: PropTypes.bool.isRequired,
     isImportConfirmationNeeded: PropTypes.bool.isRequired,
@@ -78,20 +71,15 @@ class Pipeline extends PureComponent {
     collationString: PropTypes.object,
     collationStringChanged: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
-    isOverviewOn: PropTypes.bool.isRequired,
-    toggleOverview: PropTypes.func.isRequired,
     settings: PropTypes.object.isRequired,
     toggleSettingsIsExpanded: PropTypes.func.isRequired,
     toggleSettingsIsCommentMode: PropTypes.func.isRequired,
     setSettingsSampleSize: PropTypes.func.isRequired,
-    setSettingsMaxTimeMS: PropTypes.func.isRequired,
     setSettingsLimit: PropTypes.func.isRequired,
     limit: PropTypes.number.isRequired,
     largeLimit: PropTypes.number.isRequired,
     maxTimeMS: PropTypes.number,
     applySettings: PropTypes.func.isRequired,
-    isFullscreenOn: PropTypes.bool.isRequired,
-    toggleFullscreen: PropTypes.func.isRequired,
     savingPipelineNameChanged: PropTypes.func.isRequired,
     savingPipelineApply: PropTypes.func.isRequired,
     savingPipelineCancel: PropTypes.func.isRequired,
@@ -99,8 +87,6 @@ class Pipeline extends PureComponent {
     savingPipeline: PropTypes.object.isRequired,
     projections: PropTypes.array.isRequired,
     projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired,
-    openCreateView: PropTypes.func.isRequired,
     isNewPipelineConfirm: PropTypes.bool.isRequired,
     setIsNewPipelineConfirm: PropTypes.func.isRequired,
     inputDocuments: PropTypes.object.isRequired,
@@ -137,24 +123,6 @@ class Pipeline extends PureComponent {
         </div>
       );
     }
-  }
-
-  /**
-   * Render the restore modal if neccessary.
-   *
-   * @returns {Component} The component.
-   */
-  renderRestoreModal() {
-    if (this.props.restorePipeline.isModalVisible) {
-      return (
-        <RestorePipelineModal
-          restorePipelineModalToggle={this.props.restorePipelineModalToggle}
-          openPipelineById={this.props.openPipelineById}
-          restorePipeline={this.props.restorePipeline}
-        />
-      );
-    }
-    return null;
   }
 
   renderPipelineToolbar() {
@@ -199,10 +167,8 @@ class Pipeline extends PureComponent {
         stageOperatorSelected={this.props.stageOperatorSelected}
         stageToggled={this.props.stageToggled}
         fields={this.props.fields}
-        isOverviewOn={this.props.isOverviewOn}
         projections={this.props.projections}
         projectionsChanged={this.props.projectionsChanged}
-        newPipelineFromPaste={this.props.newPipelineFromPaste}
         isAtlasDeployed={this.props.isAtlasDeployed}
       />
     );
@@ -258,11 +224,10 @@ class Pipeline extends PureComponent {
     return (
       <div
         className={classnames(
-          styles.pipeline,
-          this.props.isFullscreenOn ? styles['pipeline-fullscreen'] : false
+          styles.pipeline
         )}
       >
-        {this.renderPipelineToolbar()}
+        <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
         {this.renderModifyingViewSourceError()}
         {this.renderPipelineWorkspace()}
         <PipelineExplain />
@@ -272,10 +237,8 @@ class Pipeline extends PureComponent {
           toggleSettingsIsExpanded={this.props.toggleSettingsIsExpanded}
           toggleSettingsIsCommentMode={this.props.toggleSettingsIsCommentMode}
           setSettingsSampleSize={this.props.setSettingsSampleSize}
-          setSettingsMaxTimeMS={this.props.setSettingsMaxTimeMS}
           setSettingsLimit={this.props.setSettingsLimit}
           isCommenting={this.props.isCommenting}
-          toggleComments={this.props.toggleComments}
           limit={this.props.limit}
           largeLimit={this.props.largeLimit}
           maxTimeMS={this.props.maxTimeMS}
@@ -283,11 +246,11 @@ class Pipeline extends PureComponent {
           runStage={this.props.runStage}
           settings={this.props.settings}
         />
-        {this.renderRestoreModal()}
         {importPipelineModal}
         {confirmImportPipelineModal}
         {savingPipelineModal}
         {confirmNewPipelineModal}
+        </WorkspaceContainer>
       </div>
     );
   }

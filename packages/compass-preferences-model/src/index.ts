@@ -28,6 +28,7 @@ export interface PreferencesAccess {
   ): Promise<AllPreferences>;
   refreshPreferences(): Promise<AllPreferences>;
   getPreferences(): AllPreferences;
+  ensureDefaultConfigurableUserPreferences(): Promise<void>;
   getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
   getPreferenceStates(): Promise<PreferenceStateInformation>;
   onPreferenceValueChanged<K extends keyof AllPreferences>(

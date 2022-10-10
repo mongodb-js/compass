@@ -1,11 +1,16 @@
 import {
   css,
+  cx,
+  LeafyGreenProvider,
   Theme,
   ThemeProvider,
   ToastArea,
+  uiColors,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
+import Settings from '@mongodb-js/compass-settings';
+import Welcome from '@mongodb-js/compass-welcome';
 import ipc from 'hadron-ipc';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
@@ -17,6 +22,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import preferences from 'compass-preferences-model';
 import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
@@ -36,7 +42,26 @@ const homePageStyles = css({
   flex: 1,
   overflow: 'auto',
   height: '100%',
+});
+
+const homeContainerStyles = css({
+  height: '100vh',
+  width: '100vw',
+  overflow: 'hidden',
+  // ensure modals and any other overlays will
+  // paint properly above the content
+  position: 'relative',
   zIndex: 0,
+});
+
+const globalLightThemeStyles = css({
+  backgroundColor: uiColors.white,
+  color: uiColors.gray.dark2,
+});
+
+const globalDarkThemeStyles = css({
+  backgroundColor: uiColors.gray.dark3,
+  color: uiColors.white,
 });
 
 const defaultNS: Namespace = {
@@ -211,6 +236,7 @@ function Home({
       ipc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
     };
   }, [appRegistry, onDataServiceDisconnected]);
+
   useEffect(() => {
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
@@ -269,23 +295,36 @@ function Home({
 }
 
 function ThemedHome(
-  props: React.ComponentProps<typeof Home>
+  props: React.ComponentProps<typeof Home> & {
+    showWelcomeModal: boolean;
+    networkTraffic: boolean;
+  }
 ): ReturnType<typeof Home> {
+  const { showWelcomeModal, networkTraffic } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
-    theme: (global as any).hadronApp?.theme ?? Theme.Light,
-    // useful for quickly testing the new dark sidebar without rebuilding
-    //theme: Theme.Dark, enabled: true
+    theme:
+      process.env.COMPASS_LG_DARKMODE === 'true'
+        ? (global as any).hadronApp?.theme ?? Theme.Light
+        : Theme.Light,
   });
 
   function onDarkModeEnabled() {
+    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
+      return;
+    }
+
     setTheme({
       theme: Theme.Dark,
     });
   }
 
   function onDarkModeDisabled() {
+    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
+      return;
+    }
+
     setTheme({
       theme: Theme.Light,
     });
@@ -303,12 +342,70 @@ function ThemedHome(
     };
   }, [appRegistry]);
 
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  function showSettingsModal() {
+    async function show() {
+      await preferences.ensureDefaultConfigurableUserPreferences();
+      setIsSettingsOpen(true);
+    }
+
+    void show();
+  }
+
+  useEffect(() => {
+    ipc.ipcRenderer?.on('window:show-settings', showSettingsModal);
+    return function cleanup() {
+      ipc.ipcRenderer?.off('window:show-settings', showSettingsModal);
+    };
+  }, [appRegistry]);
+
+  const closeWelcomeModal = useCallback(
+    (showSettings: boolean) => {
+      async function close() {
+        await preferences.ensureDefaultConfigurableUserPreferences();
+        setIsWelcomeOpen(false);
+        if (showSettings) {
+          setIsSettingsOpen(true);
+        }
+      }
+
+      void close();
+    },
+    [setIsWelcomeOpen]
+  );
+
+  const closeSettingsModal = useCallback(() => {
+    setIsSettingsOpen(false);
+  }, [setIsSettingsOpen]);
+
   return (
-    <ThemeProvider theme={theme}>
-      <ToastArea>
-        <Home {...props}></Home>
-      </ToastArea>
-    </ThemeProvider>
+    <LeafyGreenProvider>
+      <ThemeProvider theme={theme}>
+        {showWelcomeModal && (
+          <Welcome
+            isOpen={isWelcomeOpen}
+            closeModal={closeWelcomeModal}
+            networkTraffic={networkTraffic}
+          />
+        )}
+        <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+        <ToastArea>
+          <div
+            className={cx(
+              homeContainerStyles,
+              theme.theme === Theme.Dark
+                ? globalDarkThemeStyles
+                : globalLightThemeStyles
+            )}
+            data-theme={theme.theme}
+          >
+            <Home {...props}></Home>
+          </div>
+        </ToastArea>
+      </ThemeProvider>
+    </LeafyGreenProvider>
   );
 }
 

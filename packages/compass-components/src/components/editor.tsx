@@ -30,6 +30,7 @@ import 'mongodb-ace-mode';
 import '../constants/mongodb-ace-theme';
 import '../constants/mongodb-ace-theme-query';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
+import { css } from '@leafygreen-ui/emotion';
 
 /**
  * Options for the ACE editor.
@@ -61,6 +62,12 @@ type EditorProps = {
   'data-testid'?: string;
   onChangeText?: (text: string, event?: any) => void;
 } & Omit<IAceEditorProps, 'onChange' | 'value'>;
+
+const editorStyle = css({
+  position: 'relative',
+  width: '100%',
+  zIndex: 0,
+});
 
 function Editor({
   text,
@@ -124,10 +131,11 @@ function Editor({
     />
   );
 
-  // NOTE: we wrap the editor in a div only to add data-testid.
-  // Doing so everywhere caused the styles to break in the query bar,
-  // and so we add the div conditionally based on the data-testid prop.
-  return dataTestId ? <div data-testid={dataTestId}>{editor}</div> : editor;
+  return (
+    <div data-testid={dataTestId} className={editorStyle}>
+      {editor}
+    </div>
+  );
 }
 
 /**

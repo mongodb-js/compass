@@ -21,6 +21,7 @@ const renderPipelineResultsWorkspace = (
         isMergeOrOutPipeline={false}
         onRetry={() => {}}
         onCancel={() => {}}
+        resultsViewType={'document'}
         {...props}
       />
     </Provider>

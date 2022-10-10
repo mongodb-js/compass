@@ -44,7 +44,6 @@ describe('networkTraffic: false / Isolated Edition', function () {
 
     const compass = await beforeTests({
       extraSpawnArgs: ['--no-network-traffic'],
-      noCloseSettingsModal: true,
       wrapBinary,
     });
     const browser = compass.browser;

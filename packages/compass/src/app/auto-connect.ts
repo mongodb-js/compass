@@ -1,11 +1,11 @@
-import type { GlobalPreferences } from 'compass-preferences-model';
+import type { AllPreferences } from 'compass-preferences-model';
 import { importConnections } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
 
 export function loadAutoConnectInfo(
-  preferences: Pick<GlobalPreferences, 'file' | 'positionalArguments' | 'passphrase'>,
+  preferences: Pick<AllPreferences, 'file' | 'positionalArguments' | 'passphrase'>,
   fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
 ): undefined | (() => Promise<ConnectionInfo>) {
   const {

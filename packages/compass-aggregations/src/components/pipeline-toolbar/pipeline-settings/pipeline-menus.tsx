@@ -5,9 +5,8 @@ import { Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
 import type { Dispatch } from 'redux';
 import type { RootState } from '../../../modules';
 import { newPipelineFromText } from '../../../modules/import-pipeline';
-import { openCreateView } from '../../../modules';
 import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
-import { savingPipelineOpen } from '../../../modules/saving-pipeline';
+import { openCreateView, savingPipelineOpen } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 import { VIEWS_MIN_SERVER_VERSION } from '../../../constants';
 

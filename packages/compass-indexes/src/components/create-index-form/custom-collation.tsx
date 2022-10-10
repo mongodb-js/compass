@@ -23,7 +23,7 @@ const CustomCollationCollapsibleFieldSet = ({
       toggled={useCustomCollation}
       onToggle={toggleUseCustomCollation}
       label="Use Custom Collation"
-      dataTestId="create-index-modal-use-custom-collation-checkbox"
+      data-testid="create-index-modal-use-custom-collation"
       description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
     >
       <Editor

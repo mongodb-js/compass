@@ -7,9 +7,11 @@ import reducer, {
   SAVING_PIPELINE_APPLY,
   SAVING_PIPELINE_CANCEL,
   SAVING_PIPELINE_OPEN,
-  INITIAL_STATE
+  INITIAL_STATE,
+  makeViewPipeline
 } from './saving-pipeline';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 
 describe('saving-pipeline module', function() {
   describe('#savingPipelineNameChanged', function() {
@@ -31,8 +33,13 @@ describe('saving-pipeline module', function() {
   });
   describe('#savingPipelineApply', function() {
     it('returns the SAVING_PIPELINE_APPLY action', function() {
-      expect(savingPipelineApply()).to.deep.equal({
-        type: SAVING_PIPELINE_APPLY
+      const dispatchSpy = Sinon.spy()
+      savingPipelineApply()(dispatchSpy, () => ({
+        savingPipeline: { name: 'test' }
+      }));
+      expect(dispatchSpy).to.be.calledOnceWith({
+        type: SAVING_PIPELINE_APPLY,
+        name: 'test'
       });
     });
     describe('#reducer', function() {
@@ -77,6 +84,22 @@ describe('saving-pipeline module', function() {
           })).to.equal(INITIAL_STATE);
         });
       });
+    });
+  });
+  describe('#makeViewPipeline', function() {
+    it('filters out empty stages', function() {
+      const pipeline = [
+        // executor preferred
+        { executor: { a: 1 } },
+
+        // falling back to generateStage()
+        { isEnabled: false}, // !isEnabled
+        {}, // no stageOperator
+        { stage: '' } // stage === ''
+        // leaving out non-blank generated ones for generateStage()'s own unit tests
+      ];
+
+      expect(makeViewPipeline(pipeline)).to.deep.equal([{ a: 1 }]);
     });
   });
 });

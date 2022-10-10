@@ -11,22 +11,21 @@ const containerStyles = css({
   flexDirection: 'column',
   margin: 0,
   padding: 0,
-  maxWidth: '80%',
   height: '100%',
   position: 'relative',
 });
 
 const containerStylesDark = css({
-  '--color': 'white',
+  '--color': uiColors.white,
   '--bg-color': uiColors.gray.dark3,
 
   '--title-color': uiColors.gray.dark3,
-  '--title-bg-color': '#71F6BA', // TODO: there is no uiColors.green.light1,
+  '--title-bg-color': '#71f6ba', // TODO: there is no uiColors.green.light1,
 
-  '--icon-color': 'white',
+  '--icon-color': uiColors.white,
 
-  '--item-color': 'white',
-  '--item-color-active': '#71F6BA', // TODO: there is no uiColors.green.light1
+  '--item-color': uiColors.white,
+  '--item-color-active': '#71f6ba', // TODO: there is no uiColors.green.light1
   '--item-bg-color': uiColors.gray.dark3,
   '--item-bg-color-hover': uiColors.gray.dark2,
   '--item-bg-color-active': uiColors.black,
@@ -39,7 +38,7 @@ const containerStylesLight = css({
   '--color': uiColors.gray.dark3,
   '--bg-color': uiColors.gray.light3,
 
-  '--title-color': 'white',
+  '--title-color': uiColors.white,
   '--title-bg-color': uiColors.green.dark2,
 
   '--icon-color': uiColors.gray.dark3,
@@ -79,7 +78,7 @@ const ResizableSidebar = ({
   const [prevWidth, setPrevWidth] = useState(initialWidth);
 
   const getMaxSidebarWidth = useCallback(() => {
-    return Math.max(minWidth, window.innerWidth - 100);
+    return Math.max(minWidth, 600);
   }, [minWidth]);
 
   // Apply bounds to the sidebar width when resizing to ensure it's always
