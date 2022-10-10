@@ -403,14 +403,17 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     // by default make sure we don't get the welcome modal
     ...(opts.firstRun === undefined ? ['--showed-network-opt-in=true'] : []),
 
-    ...(opts.extraSpawnArgs ?? []),
+    ...(opts.extraSpawnArgs ?? [])
   );
 
   // Electron on Windows interprets its arguments in a weird way where
   // the second positional argument inserted by webdriverio (about:blank)
   // throws it off and won't let it start because it then interprets the first
   // positional argument as an app path.
-  if (process.platform === 'win32' && chromeArgs.some(arg => !arg.startsWith('--'))) {
+  if (
+    process.platform === 'win32' &&
+    chromeArgs.some((arg) => !arg.startsWith('--'))
+  ) {
     chromeArgs.push('--');
   }
 
