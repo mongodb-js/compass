@@ -1,7 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { mapPipelineToStages } from '../utils/stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
@@ -160,12 +159,7 @@ const reducer: Reducer<State, AnyAction> = (
   }
 };
 
-export const runAggregation = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
+export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return (dispatch, getState) => {
     const { pipeline } = getState();
     track('Aggregation Executed', () => ({
@@ -175,10 +169,8 @@ export const runAggregation = (): ThunkAction<
   };
 };
 
-export const fetchPrevPage = (): ThunkAction<
+export const fetchPrevPage = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return async (dispatch, getState) => {
@@ -192,10 +184,8 @@ export const fetchPrevPage = (): ThunkAction<
   };
 };
 
-export const fetchNextPage = (): ThunkAction<
+export const fetchNextPage = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return async (dispatch, getState) => {
@@ -209,10 +199,8 @@ export const fetchNextPage = (): ThunkAction<
   };
 };
 
-export const retryAggregation = (): ThunkAction<
+export const retryAggregation = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return (dispatch, getState) => {
@@ -223,9 +211,7 @@ export const retryAggregation = (): ThunkAction<
   };
 };
 
-export const cancelAggregation = (): ThunkAction<
-  void,
-  RootState,
+export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
@@ -249,7 +235,7 @@ const _abortAggregation = (controller?: AbortController): void => {
 
 const fetchAggregationData = (
   page = 1
-): ThunkAction<Promise<void>, RootState, void, Actions> => {
+): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
       id,
@@ -345,12 +331,7 @@ const fetchAggregationData = (
   };
 };
 
-export const exportAggregationResults = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  Actions
-> => {
+export const exportAggregationResults = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState) => {
     const {
       pipeline,

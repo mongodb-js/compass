@@ -23,7 +23,7 @@ const WildcardProjectionCollapsibleFieldSet = ({
       toggled={useWildcardProjection}
       onToggle={toggleUseWildcardProjection}
       label="Wildcard Projection"
-      dataTestId="create-index-modal-use-wildcard-checkbox"
+      data-testid="create-index-modal-use-wildcard"
       description="Wildcard indexes support queries against unknown or arbitrary fields."
     >
       <Editor

@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import {
+  FormFieldContainer,
   Checkbox,
   Description,
   InlineInfoLink,
@@ -16,7 +17,6 @@ import type { MongoClientOptions } from 'mongodb';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import FormFieldContainer from '../../form-field-container';
 import TLSClientCertificate from './tls-client-certificate';
 import TLSCertificateAuthority from './tls-certificate-authority';
 import type { TLSOptionName, TLS_OPTIONS } from '../../../utils/tls-handler';

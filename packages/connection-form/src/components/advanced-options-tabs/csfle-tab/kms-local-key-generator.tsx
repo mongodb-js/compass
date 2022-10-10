@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import FormFieldContainer from '../../form-field-container';
 import {
+  FormFieldContainer,
   css,
   spacing,
   Banner,

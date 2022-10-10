@@ -1,7 +1,6 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { mapPipelineToStages } from '../utils/stage';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
@@ -73,7 +72,7 @@ const reducer: Reducer<State, AnyAction> = (
   }
 };
 
-export const cancelCount = (): ThunkAction<void, RootState, void, Actions> => {
+export const cancelCount = (): PipelineBuilderThunkAction<void> => {
   return (_dispatch, getState) => {
     const {
       countDocuments: { abortController }
@@ -82,12 +81,7 @@ export const cancelCount = (): ThunkAction<void, RootState, void, Actions> => {
   };
 };
 
-export const countDocuments = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
+export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
       pipeline,

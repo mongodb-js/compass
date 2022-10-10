@@ -1,11 +1,10 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
 import type { ExplainExecuteOptions } from 'mongodb-data-service';
-import type { ThunkAction } from 'redux-thunk';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { mapPipelineToStages } from '../utils/stage';
 import type { IndexInfo } from './indexes';
@@ -109,23 +108,13 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   }
 };
 
-export const closeExplainModal = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  Actions
-> => {
+export const closeExplainModal = (): PipelineBuilderThunkAction<void> => {
   return (dispatch) => {
     dispatch(cancelExplain());
   };
 };
 
-export const cancelExplain = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  Actions
-> => {
+export const cancelExplain = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState) => {
     const { explain: { abortController } } = getState();
     abortController?.abort();
@@ -135,12 +124,7 @@ export const cancelExplain = (): ThunkAction<
   };
 };
 
-export const explainAggregation = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
+export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
       isDataLake,

@@ -9,6 +9,11 @@ class PromiseCancelledError extends Error {
 export const createCancelError = (): Error => {
   return new PromiseCancelledError(OPERATION_CANCELLED_MESSAGE);
 }
+
+export function isCancelError(error: any): error is PromiseCancelledError {
+  return error.name === PROMISE_CANCELLED_ERROR;
+}
+
 /*
  * Return a promise you can race (just like a timeout from timeouts/promises).
  * It will reject if abortSignal triggers before successSignal
@@ -64,4 +69,19 @@ export async function raceWithAbort<T>(promise: Promise<T>, signal: AbortSignal)
       successController.abort();
     }
   }
+}
+
+/**
+ * Returns a promise that waits for a timeout and can be canceled with a signal
+ * 
+ * @param ms Wait time
+ * @param signal Abort signal
+ */
+export async function cancellableWait(ms: number, signal: AbortSignal) {
+  await raceWithAbort(
+    new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    }),
+    signal
+  );
 }

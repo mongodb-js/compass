@@ -4,8 +4,8 @@ import {
   encryptedFieldConfigToText,
   textToEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
-import FormFieldContainer from '../../form-field-container';
 import {
+  FormFieldContainer,
   Editor,
   Label,
   Banner,

@@ -132,10 +132,6 @@ describe('Aggregation Store', function() {
           expect(state.comments).to.equal(INITIAL_STATE.comments);
         });
 
-        it('resets the sample', function() {
-          expect(state.sample).to.equal(INITIAL_STATE.sample);
-        });
-
         it('resets auto preview', function() {
           expect(state.autoPreview).to.equal(INITIAL_STATE.autoPreview);
         });
@@ -230,7 +226,6 @@ describe('Aggregation Store', function() {
             sourceName: null,
             appRegistry: INITIAL_STATE.appRegistry,
             comments: INITIAL_STATE.comments,
-            sample: INITIAL_STATE.sample,
             autoPreview: INITIAL_STATE.autoPreview,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,

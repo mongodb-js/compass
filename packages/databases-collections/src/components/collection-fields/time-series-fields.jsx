@@ -1,10 +1,8 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Option, TextInput } from '@mongodb-js/compass-components';
-import { css } from '@mongodb-js/compass-components';
+import { FormFieldContainer, Select, Option, TextInput } from '@mongodb-js/compass-components';
+import { css, CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
-import FieldSet from '../field-set/field-set';
-import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
 
 const optionsSelectDropdownStyles = css({
   zIndex: 1,
@@ -65,11 +63,11 @@ function TimeSeriesFields({
       onToggle={checked => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
-      dataTestId="time-series-fields"
+      data-testid="time-series-fields"
       helpUrl={HELP_URL_TIME_FIELD}
       description="Time-series collections efficiently store sequences of measurements over a period of time."
     >
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           value={timeField}
           label="timeField"
@@ -79,9 +77,9 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           label="metaField"
           name="timeSeries.metaField"
@@ -91,9 +89,9 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
+      <FormFieldContainer>
         <Select
           id="timeSeries-granularity"
           className={optionsSelectDropdownStyles}
@@ -115,9 +113,9 @@ function TimeSeriesFields({
             </Option>
           ))}
         </Select>
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           value={expireAfterSeconds}
           label="expireAfterSeconds"
@@ -128,7 +126,7 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
     </CollapsibleFieldSet>
   );
 }
