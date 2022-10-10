@@ -9,6 +9,7 @@ import createContext from '../stores/context';
 import type { ContextProps } from '../stores/context';
 import { appRegistryEmit } from './app-registry';
 import type { RootState } from '../stores';
+import { resetCollectionDetails } from './stats';
 
 /**
  * The prefix.
@@ -502,11 +503,23 @@ export const selectNamespace = ({
  */
 export const closeTab =
   (index: number) => (dispatch: Dispatch, getState: () => RootState) => {
-    const { tabs } = getState();
+    const { tabs }: {
+      tabs: WorkspaceTabObject[]
+    } = getState();
     if (tabs.length === 1) {
       dispatch(appRegistryEmit('all-collection-tabs-closed'));
     }
     dispatch({ type: CLOSE_TAB, index: index });
+    // Clear the stats of the closed tab's namespace if it's the last one in use.
+    if (
+      tabs.findIndex(
+        (tab, tabIndex) => (
+          tab.namespace === tabs[index].namespace && tabIndex !== index
+        )
+      ) === -1
+    ) {
+      dispatch(resetCollectionDetails(tabs[index].namespace));
+    }
   };
 
 /**
