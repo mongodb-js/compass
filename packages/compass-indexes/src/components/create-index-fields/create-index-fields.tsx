@@ -12,7 +12,7 @@ import {
   css,
   cx,
   Icon,
-  uiColors,
+  palette,
   withTheme,
 } from '@mongodb-js/compass-components';
 
@@ -88,13 +88,13 @@ const createIndexFieldsButtonsStyles = css({
 });
 
 const comboboxOptionDarkStyles = css({
-  color: uiColors.white,
-  backgroundColor: uiColors.gray.dark2,
+  color: palette.white,
+  backgroundColor: palette.gray.dark2,
   ':first-child': {
-    backgroundColor: uiColors.gray.dark2,
+    backgroundColor: palette.gray.dark2,
   },
   ':hover': {
-    backgroundColor: uiColors.gray.dark1,
+    backgroundColor: palette.gray.dark1,
   },
 });
 
@@ -103,9 +103,9 @@ const comboboxStyles = css({
 });
 
 const comboboxDarkStyles = css({
-  color: uiColors.white,
-  backgroundColor: uiColors.gray.dark2,
-  border: `1px solid ${uiColors.gray.dark2}`,
+  color: palette.white,
+  backgroundColor: palette.gray.dark2,
+  border: `1px solid ${palette.gray.dark2}`,
 });
 
 export type CreateIndexFieldsProps = {

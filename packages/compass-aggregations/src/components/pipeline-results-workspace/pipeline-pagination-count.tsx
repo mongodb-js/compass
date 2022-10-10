@@ -5,7 +5,7 @@ import {
   spacing,
   Body,
   Link,
-  uiColors,
+  palette,
   Tooltip,
   SpinLoader,
 } from '@mongodb-js/compass-components';
@@ -25,7 +25,7 @@ const countButtonStyles = css({
   display: 'inline',
   height: spacing[4] + spacing[1],
   ':focus': {
-    outline: `${spacing[1]}px auto ${uiColors.focus}`,
+    outline: `${spacing[1]}px auto ${palette.blue.light1}`,
   },
 });
 

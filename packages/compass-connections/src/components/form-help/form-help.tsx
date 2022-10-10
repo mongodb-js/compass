@@ -7,7 +7,7 @@ import {
   Body,
   Link,
   spacing,
-  uiColors,
+  palette,
   css,
   cx,
 } from '@mongodb-js/compass-components';
@@ -23,7 +23,7 @@ const formHelpContainerStyles = css({
 });
 
 const atlasContainerStyles = css({
-  backgroundColor: uiColors.green.light3,
+  backgroundColor: palette.green.light3,
   paddingBottom: spacing[4],
 });
 
@@ -47,12 +47,12 @@ const createClusterContainerStyles = css({
 
 const createClusterButtonStyles = css({
   fontWeight: 'bold',
-  background: uiColors.white,
+  background: palette.white,
   '&:hover': {
-    background: uiColors.white,
+    background: palette.white,
   },
   '&:focus': {
-    background: uiColors.white,
+    background: palette.white,
   },
 });
 

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import FontAwesome from 'react-fontawesome';
-import { Icon, IconButton } from '@mongodb-js/compass-components';
+import { Icon, IconButton, palette } from '@mongodb-js/compass-components';
 
 import { IndexDefinitionType } from '../index-definition-type';
 import INDEX_TYPES from '../../constants/index-types';
@@ -45,14 +45,14 @@ class SummaryIndexStat extends Component {
     const greenCheckMark = (
       <FontAwesome
         fixedWidth
-        style={{ color: '#00684a' }}
+        style={{ color: palette.green.dark2 }}
         name="check-circle"
       />
     );
     const yellowWarning = (
       <FontAwesome
         fixedWidth
-        style={{ color: '#ffc010' }}
+        style={{ color: palette.yellow.base }}
         name="exclamation-triangle"
       />
     );
@@ -74,11 +74,11 @@ class SummaryIndexStat extends Component {
    */
   getIndexMessageColor() {
     const typeToColor = {
-      COLLSCAN: '#944f01',
-      COVERED: '#00684a',
-      MULTIPLE: '#944f01',
-      INDEX: '#000000',
-      UNAVAILABLE: '#000000',
+      COLLSCAN: palette.yellow.dark2,
+      COVERED: palette.green.dark2,
+      MULTIPLE: palette.yellow.dark2,
+      INDEX: palette.black,
+      UNAVAILABLE: palette.black,
     };
 
     return typeToColor[this.props.indexType];

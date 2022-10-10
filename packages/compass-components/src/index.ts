@@ -56,8 +56,8 @@ export {
 export { Checkbox } from './components/checkbox';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
-export { uiColors } from '@leafygreen-ui/palette';
-export * as compassUIColors from './compass-ui-colors';
+export { palette } from '@leafygreen-ui/palette';
+export { transparentize } from 'polished';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';

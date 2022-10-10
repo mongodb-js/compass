@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import { css, cx, Label, spacing, TextInput, uiColors } from '@mongodb-js/compass-components';
+import { css, cx, Label, spacing, TextInput, palette } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
@@ -33,7 +33,7 @@ const inputStyles = css({
 
 const inputWithErrorStyles = css({
   input: {
-    borderColor: uiColors.red.base,
+    borderColor: palette.red.base,
   },
 });
 

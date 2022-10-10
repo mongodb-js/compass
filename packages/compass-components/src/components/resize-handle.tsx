@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
+import { palette } from '@leafygreen-ui/palette';
 
 enum ResizeDirection {
   TOP = 'TOP',
@@ -12,7 +13,7 @@ const baseResizerStyles = css({
   padding: 0,
   transition: 'opacity 250ms ease',
   transitionDelay: '0ms',
-  backgroundColor: '#0498ec',
+  backgroundColor: palette.blue.light1,
   opacity: '0',
   outline: 'none',
   zIndex: 100,

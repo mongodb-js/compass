@@ -5,7 +5,7 @@ import {
   Theme,
   ThemeProvider,
   ToastArea,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -55,13 +55,13 @@ const homeContainerStyles = css({
 });
 
 const globalLightThemeStyles = css({
-  backgroundColor: uiColors.white,
-  color: uiColors.gray.dark2,
+  backgroundColor: palette.white,
+  color: palette.gray.dark2,
 });
 
 const globalDarkThemeStyles = css({
-  backgroundColor: uiColors.gray.dark3,
-  color: uiColors.white,
+  backgroundColor: palette.gray.dark3,
+  color: palette.white,
 });
 
 const defaultNS: Namespace = {

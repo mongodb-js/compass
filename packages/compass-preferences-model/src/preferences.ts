@@ -676,7 +676,7 @@ export class Preferences {
     changedPreferencesValues: Partial<AllPreferences>
   ): void {
     for (const callback of this._onPreferencesChangedCallbacks) {
-      return callback(changedPreferencesValues);
+      callback(changedPreferencesValues);
     }
   }
 

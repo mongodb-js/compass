@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .modal-footer:before,
 .modal-footer:after {
   content: " ";
@@ -89,9 +91,9 @@ button.close {
   position: relative;
   background-color: @palette__white;
   border: 1px solid @palette__gray--base;
-  border: 1px solid rgba(0, 30, 43, 0.2);
+  border: 1px solid fade(@palette__black, 20%);
   border-radius: 6px;
-  box-shadow: 0 3px 9px rgba(0, 30, 43, 0.5);
+  box-shadow: 0 3px 9px fade(@palette__black, 50%);
   background-clip: padding-box;
   outline: 0;
 }
@@ -158,7 +160,7 @@ button.close {
     margin: 30px auto;
   }
   .modal-content {
-    box-shadow: 0 5px 15px rgba(0, 30, 43, 0.5);
+    box-shadow: 0 5px 15px fade(@palette__black, 50%);
   }
   .modal-sm {
     width: 300px;

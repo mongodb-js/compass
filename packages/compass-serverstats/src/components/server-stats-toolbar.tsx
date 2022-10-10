@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import d3 from 'd3';
-import { Button, Icon, css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
+import { Button, Icon, css, cx, spacing, palette, withTheme } from '@mongodb-js/compass-components';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
@@ -29,13 +29,13 @@ const timeStyles = css({
 });
 
 const timeLightThemeStyles = css({
-  background: uiColors.gray.light2,
-  color: uiColors.gray.dark1,
+  background: palette.gray.light2,
+  color: palette.gray.dark1,
 });
 
 const timeDarkThemeStyles = css({
-  background: uiColors.gray.dark2,
-  color: uiColors.gray.light2,
+  background: palette.gray.dark2,
+  color: palette.gray.light2,
 });
 
 type TimeScrubEventDispatcher = {

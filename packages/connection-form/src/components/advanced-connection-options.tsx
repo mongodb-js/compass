@@ -1,9 +1,10 @@
 import React from 'react';
 import {
   Accordion,
-  compassUIColors,
   spacing,
   css,
+  transparentize,
+  palette,
 } from '@mongodb-js/compass-components';
 import type { ConnectionOptions } from 'mongodb-data-service';
 
@@ -18,7 +19,7 @@ const disabledOverlayStyles = css({
   bottom: -spacing[1],
   left: -spacing[1],
   right: -spacing[1],
-  backgroundColor: compassUIColors.transparentWhite,
+  backgroundColor: transparentize(0.5, palette.white),
   zIndex: 1,
   cursor: 'not-allowed',
 });

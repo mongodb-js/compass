@@ -3,15 +3,16 @@ import d3 from 'd3';
 import defer from 'lodash.defer';
 import get from 'lodash.get';
 import isEqual from 'lodash.isequal';
+import { palette } from '@mongodb-js/compass-components';
 import shared from './shared';
 import turfDistance from 'turf-distance';
 import turfPoint from 'turf-point';
 import turfDestination from 'turf-destination';
 import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
 
-const SELECTED_COLOR = '#ffc010';
-const UNSELECTED_COLOR = '#0498ec';
-const CONTROL_COLOR = '#db3030';
+const SELECTED_COLOR = palette.yellow.base;
+const UNSELECTED_COLOR = palette.blue.light1;
+const CONTROL_COLOR = palette.red.base;
 
 const API_URL = 'https://compass-maps.mongodb.com/compass/maptile';
 // If no tile server is provided, use this url instead.

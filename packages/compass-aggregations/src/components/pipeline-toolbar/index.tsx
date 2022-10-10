@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
+import { css, cx, spacing, palette, withTheme } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import PipelineHeader from './pipeline-header';
@@ -27,14 +27,14 @@ const headerAndOptionsRowStyles = css({
   gridArea: 'headerAndOptionsRow',
   border: '1px solid',
   borderRadius: '6px',
-  borderColor: uiColors.gray.light2,
+  borderColor: palette.gray.light2,
   padding: `${spacing[2]}px ${spacing[2]}px ${spacing[2]}px ${spacing[3]}px`,
-  background: uiColors.white
+  background: palette.white
 });
 
 const headerAndOptionsRowDarkStyles = css({
-  borderColor: uiColors.gray.dark2,
-  background: uiColors.gray.dark3,
+  borderColor: palette.gray.dark2,
+  background: palette.gray.dark3,
 });
 
 const settingsRowStyles = css({
