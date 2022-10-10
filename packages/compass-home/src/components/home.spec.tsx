@@ -62,7 +62,11 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" />
+          <Home
+            appName="home-testing"
+            showWelcomeModal={false}
+            networkTraffic={true}
+          />
         </AppRegistryContext.Provider>
       );
     });
@@ -83,7 +87,11 @@ describe('Home [Component]', function () {
     ) {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" />
+          <Home
+            appName="home-testing"
+            showWelcomeModal={false}
+            networkTraffic={true}
+          />
         </AppRegistryContext.Provider>
       );
       testAppRegistry.emit('data-service-connected', null, dataService, {
@@ -157,7 +165,11 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" />
+          <Home
+            appName="home-testing"
+            showWelcomeModal={false}
+            networkTraffic={true}
+          />
         </AppRegistryContext.Provider>
       );
     });
@@ -185,7 +197,11 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       const { unmount } = render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" />
+          <Home
+            appName="home-testing"
+            showWelcomeModal={false}
+            networkTraffic={true}
+          />
         </AppRegistryContext.Provider>
       );
       unmount();

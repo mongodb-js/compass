@@ -12,7 +12,7 @@ const baseResizerStyles = css({
   padding: 0,
   transition: 'opacity 250ms ease',
   transitionDelay: '0ms',
-  backgroundColor: '#019EE2',
+  backgroundColor: '#0498ec',
   opacity: '0',
   outline: 'none',
   zIndex: 100,

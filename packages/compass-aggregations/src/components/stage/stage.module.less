@@ -1,56 +1,19 @@
 @import (reference) "mongodb-compass/src/app/styles/index.less";
 
 .stage-container {
-  margin: 0px 10px 0px;
-  padding-bottom: 15px;
-  border-left: 2px solid @gray6;
-  position: relative;
-
-  &:before {
-    position: absolute;
-    left: -3px;
-    top: 10px;
-    content: '';
-    width: 4px;
-    height: 16px;
-    background-color: @gray8;
-  }
-  &:after {
-    position: absolute;
-    left: -7px;
-    top: 12px;
-    content: '';
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid @gray6;
-  }
-
-  &-is-first {
-    &:before {
-      position: absolute;
-      left: -3px;
-      top: 0px;
-      content: '';
-      width: 4px;
-      height: 26px;
-      background-color: @gray8;
-    }
-  }
-
   .stage {
     position: relative;
-    margin: 0px 8px 0px;
-    border: 1px solid @gray6;
+    margin: 0px 16px 16px 16px;
+    border: 1px solid @palette__gray--light-2;
     border-radius: 4px;
-    box-shadow: 1px 1px 1px @gray6;
-    background: @pw;
+    box-shadow: 1px 1px 1px @palette__gray--light-2;
+    background: @palette__white;
 
     display: flex;
     flex-direction: row;
 
     &-errored {
-      border-color: @redBase;
+      border-color: @palette__red--base;
     }
   }
 }
@@ -74,7 +37,7 @@
   &:hover, &:active {
     div {
       div {
-        background-color: @gray5;
+        background-color: @palette__gray--light-1;
       }
     }
   }

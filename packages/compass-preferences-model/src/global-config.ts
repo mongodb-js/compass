@@ -4,6 +4,7 @@ import { EJSON } from 'bson';
 import yaml from 'js-yaml';
 import type { Options as YargsOptions } from 'yargs-parser';
 import yargsParser from 'yargs-parser';
+import { kebabCase } from 'lodash';
 import type { AmpersandType, AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
 
@@ -91,9 +92,13 @@ const cliProps = Object.entries(allPreferencesProps).filter(
   ([, definition]) => definition.cli
 );
 function getCliPropNamesByType(type: AmpersandType<any>): string[] {
-  return cliProps
-    .filter(([, definition]) => definition.type === type)
-    .map(([key]) => key);
+  return [
+    ...new Set(
+      cliProps
+        .filter(([, definition]) => definition.type === type)
+        .flatMap(([key]) => [key, kebabCase(key)])
+    ),
+  ];
 }
 
 const yargsOptions: YargsOptions = {
@@ -106,6 +111,7 @@ const yargsOptions: YargsOptions = {
     'parse-numbers': false,
     // We validate options, so we don't want to keep --export-connections if we get --exportConnections
     'strip-dashed': true,
+    'camel-case-expansion': true,
   },
 };
 

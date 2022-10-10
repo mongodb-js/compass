@@ -32,7 +32,7 @@ const newConnectionButtonStyles = css({
 });
 
 const newConnectionButtonStylesLight = css({
-  backgroundColor: 'white',
+  backgroundColor: uiColors.white,
 });
 const newConnectionButtonStylesDark = css({
   backgroundColor: uiColors.gray.dark2,

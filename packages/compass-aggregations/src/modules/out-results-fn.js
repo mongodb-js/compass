@@ -1,9 +1,4 @@
 /**
- * Out results function changed action.
- */
-export const OUT_RESULTS_FN_CHANGED = 'aggregations/out-results-fn/OUT_RESULTS_FN_CHANGED';
-
-/**
  * The initial state.
  */
 export const INITIAL_STATE = null;
@@ -16,21 +11,6 @@ export const INITIAL_STATE = null;
  *
  * @returns {any} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === OUT_RESULTS_FN_CHANGED) {
-    return action.outResultsFn;
-  }
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }
-
-/**
- * Action creator for out results fn changed events.
- *
- * @param {Function} fn - The out results fn.
- *
- * @returns {Object} The out results fn changed action.
- */
-export const outResultsFnChanged = (fn) => ({
-  type: OUT_RESULTS_FN_CHANGED,
-  outResultsFn: fn
-});

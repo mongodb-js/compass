@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors } from '@leafygreen-ui/palette';
-import { gray8 } from '../compass-ui-colors';
 import { withTheme } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { transparentize } from 'polished';
@@ -57,7 +56,7 @@ const shadowStylesLight = css({
 });
 
 const shadowStylesDark = css({
-  boxShadow: boxShadow(transparentize(0.6, '#000000')),
+  boxShadow: boxShadow(transparentize(0.6, '#001e2b')),
 });
 
 const workspaceContentStyles = css({
@@ -72,7 +71,7 @@ const workspaceContentStyles = css({
 });
 
 const lightThemeStyles = css({
-  backgroundColor: gray8,
+  backgroundColor: uiColors.white,
   color: uiColors.gray.dark2,
 });
 

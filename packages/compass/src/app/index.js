@@ -1,6 +1,5 @@
 const ipc = require('hadron-ipc');
 const remote = require('@electron/remote');
-const semver = require('semver');
 
 const { preferencesAccess: preferences } = require('compass-preferences-model');
 
@@ -162,8 +161,7 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: async function () {
-    await preferences.refreshPreferences();
+  render: function ({ showWelcomeModal, networkTraffic }) {
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -186,58 +184,29 @@ const Application = View.extend({
       React.createElement(this.homeComponent, {
         appRegistry: app.appRegistry,
         appName: remote.app.getName(),
+        showWelcomeModal,
+        networkTraffic
       }),
       this.queryByHook('layout-container')
     );
     document.querySelector('#loading-placeholder')?.remove();
-
-    const checkForNetworkOptIn = async () => {
-      const { showedNetworkOptIn, networkTraffic } =
-        preferences.getPreferences();
-
-      if (!showedNetworkOptIn && networkTraffic) {
-        ipc.ipcRenderer.emit('window:show-network-optin');
-      }
-    };
-
-    void checkForNetworkOptIn();
   },
   fetchUser: async function () {
     debug('getting user preferences');
     const {
-      currentUserId,
       telemetryAnonymousId,
-      trackUsageStatistics,
-      lastKnownVersion,
+      lastKnownVersion
     } = preferences.getPreferences();
 
-    // Check if uuid was stored as currentUserId, if not pass telemetryAnonymousId to fetch a user.
-    const user = await User.getOrCreate(currentUserId || telemetryAnonymousId);
-
-    const changedPreferences = { telemetryAnonymousId: user.id };
+    // The main process ensured that `telemetryAnonymousId` contains the id of the User model
+    const user = await User.getOrCreate(telemetryAnonymousId);
 
     this.user.set(user.serialize());
     this.user.trigger('sync');
     debug('user fetch successful', user.serialize());
 
     this.previousVersion = lastKnownVersion || '0.0.0';
-
-    if (semver.neq(this.previousVersion, APP_VERSION)) {
-      changedPreferences.lastKnownVersion = APP_VERSION;
-    }
-
-    const savedPreferences = await preferences.savePreferences(
-      changedPreferences
-    );
-
-    ipc.call('compass:usage:identify', {
-      currentUserId: savedPreferences.currentUserId,
-      telemetryAnonymousId: user.id,
-    });
-    ipc.call(
-      trackUsageStatistics ? 'compass:usage:enabled' : 'compass:usage:disabled'
-    );
-
+    await preferences.savePreferences({ lastKnownVersion: APP_VERSION });
     return user;
   },
 });
@@ -247,7 +216,13 @@ const state = new Application();
 app.extend({
   client: null,
   init: async function () {
-    const { theme } = preferences.getPreferences();
+    await preferences.refreshPreferences();
+
+    const {
+      theme,
+      showedNetworkOptIn,
+      networkTraffic
+    } = preferences.getPreferences();
 
     async.series(
       [
@@ -295,7 +270,10 @@ app.extend({
             global.hadronApp.appRegistry.emit('toggle-sidebar')
           );
           // as soon as dom is ready, render and set up the rest
-          state.render();
+          state.render({
+            showWelcomeModal: !showedNetworkOptIn,
+            networkTraffic
+          });
           marky.stop('Time to Connect rendered');
           state.postRender();
           marky.stop('Time to user can Click Connect');

@@ -19,7 +19,6 @@ describe('PipelineHeader', function () {
     render(
       <Provider store={configureStore()}>
         <PipelineHeader
-          deletePipeline={() => {}}
           isOpenPipelineVisible
           isSavedPipelineVisible={false}
           isOptionsVisible
@@ -28,11 +27,8 @@ describe('PipelineHeader', function () {
           showRunButton
           showExportButton
           showExplainButton
-          onShowSavedPipelines={onShowSavedPipelinesSpy}
-          onSetShowSavedPipelines={() => {}}
+          onToggleSavedPipelines={onShowSavedPipelinesSpy}
           onToggleOptions={onToggleOptionsSpy}
-          restorePipelineFrom={() => {}}
-          restorePipelineModalToggle={() => {}}
         />
       </Provider>
     );

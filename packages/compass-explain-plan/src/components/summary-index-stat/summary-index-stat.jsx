@@ -45,14 +45,14 @@ class SummaryIndexStat extends Component {
     const greenCheckMark = (
       <FontAwesome
         fixedWidth
-        style={{ color: '#507b32' }}
+        style={{ color: '#00684a' }}
         name="check-circle"
       />
     );
     const yellowWarning = (
       <FontAwesome
         fixedWidth
-        style={{ color: '#fbb129' }}
+        style={{ color: '#ffc010' }}
         name="exclamation-triangle"
       />
     );
@@ -74,11 +74,11 @@ class SummaryIndexStat extends Component {
    */
   getIndexMessageColor() {
     const typeToColor = {
-      COLLSCAN: '#7F6A4E',
-      COVERED: '#507b32',
-      MULTIPLE: '#7F6A4E',
-      INDEX: '#000',
-      UNAVAILABLE: '#000',
+      COLLSCAN: '#944f01',
+      COVERED: '#00684a',
+      MULTIPLE: '#944f01',
+      INDEX: '#000000',
+      UNAVAILABLE: '#000000',
     };
 
     return typeToColor[this.props.indexType];

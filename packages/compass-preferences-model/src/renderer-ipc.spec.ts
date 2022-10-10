@@ -10,6 +10,9 @@ describe('Renderer IPC', function () {
     'compass:get-preferences'() {
       return { getPreferences: 1 };
     },
+    'compass:ensure-default-configurable-user-preferences'() {
+      return { ensureDefaultConfigurableUserPreferences: 1 };
+    },
     'compass:get-configurable-user-preferences'() {
       return { getConfigurableUserPreferences: 1 };
     },
@@ -35,6 +38,12 @@ describe('Renderer IPC', function () {
     expect(preferencesIpc.getPreferences()).to.deep.equal({
       getPreferences: 1,
     });
+  });
+
+  it('should be able to call ensureDefaultConfigurableUserPreferences', async function () {
+    expect(
+      await preferencesIpc.ensureDefaultConfigurableUserPreferences()
+    ).to.deep.equal({ ensureDefaultConfigurableUserPreferences: 1 });
   });
 
   it('should be able to call getConfigurableUserPreferences', async function () {

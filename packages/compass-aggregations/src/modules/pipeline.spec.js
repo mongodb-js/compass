@@ -8,8 +8,6 @@ import _reducer, {
   stageOperatorSelected,
   stagePreviewUpdated,
   stageToggled,
-  generatePipeline,
-  generatePipelineAsString,
   loadingStageResults,
   gotoOutResults,
   STAGE_COLLAPSE_TOGGLED,
@@ -18,22 +16,26 @@ import _reducer, {
   STAGE_TOGGLED,
   replaceOperatorSnippetTokens,
   INITIAL_STATE,
+  generatePipelineAsString,
 } from './pipeline';
-import { generatePipelineStages } from './pipeline';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
-
-const LIMIT_TO_PROCESS = 100000;
-const LIMIT_TO_DISPLAY = 10;
 
 const reducer = (prevState = INITIAL_STATE, action) => {
   if (typeof action === 'function') {
     action(
       (a) => {
-        prevState = reducer(prevState, a)
+        prevState = reducer(prevState, a);
       },
-      () => ({ pipeline: prevState })
+      () => ({ pipeline: prevState }),
+      {
+        pipelinePreviewManager: {
+          getPreviewForStage() {},
+          cancelPreviewForStage() {},
+          clearQueue() {}
+        }
+      }
     );
   }
   return _reducer(prevState, action);
@@ -387,9 +389,7 @@ describe('pipeline module', function () {
     });
   });
 
-  describe('#generatePipeline + #generatePipelineAsString', function () {
-    const limit = { $limit: LIMIT_TO_DISPLAY };
-
+  describe('#generatePipelineAsString', function () {
     context('when the index is the first', function () {
       const stage = {
         isEnabled: true,
@@ -400,12 +400,6 @@ describe('pipeline module', function () {
       };
       const state = { inputDocuments: { count: 10000 }, pipeline: [stage] };
 
-      it('returns the pipeline with only the current stage', function () {
-        expect(generatePipeline(state, 0)).to.deep.equal([
-          stage.executor,
-          limit,
-        ]);
-      });
       it('returns the pipeline string with only the current stage', function () {
         expect(generatePipelineAsString(state, 0)).to.deep.equal(`[{
  $match: {
@@ -442,14 +436,6 @@ describe('pipeline module', function () {
         pipeline: [stage0, stage1, stage2],
       };
 
-      it('returns the pipeline with the current and all previous stages', function () {
-        expect(generatePipeline(state, 2)).to.deep.equal([
-          stage0.executor,
-          stage1.executor,
-          stage2.executor,
-          limit,
-        ]);
-      });
       it('returns the pipeline string with the current and all previous stages', function () {
         expect(generatePipelineAsString(state, 2)).to.deep.equal(`[{
  $match: {
@@ -494,13 +480,6 @@ describe('pipeline module', function () {
         pipeline: [stage0, stage1, stage2],
       };
 
-      it('returns the pipeline with the current and all previous stages', function () {
-        expect(generatePipeline(state, 1)).to.deep.equal([
-          stage0.executor,
-          stage1.executor,
-          limit,
-        ]);
-      });
       it('returns the pipeline string with the current and all previous stages', function () {
         expect(generatePipelineAsString(state, 1)).to.deep.equal(`[{
  $match: {
@@ -526,13 +505,6 @@ describe('pipeline module', function () {
         pipeline: [stage0, stage1, stage2],
       };
 
-      it('returns the pipeline with the current and all previous stages', function () {
-        expect(generatePipeline(state, 2)).to.deep.equal([
-          stage1.executor,
-          stage2.executor,
-          limit,
-        ]);
-      });
       it('returns pipeline as a string with the current and all previous stages', function () {
         expect(generatePipelineAsString(state, 2)).to.deep.equal('[{}, {}]');
       });
@@ -541,268 +513,8 @@ describe('pipeline module', function () {
     context('when there are no stages', function () {
       const state = { inputDocuments: { count: 10000 }, pipeline: [] };
 
-      it('returns an empty pipeline', function () {
-        expect(generatePipeline(state, 0)).to.deep.equal([]);
-      });
       it('returns an empty pipeline string', function () {
         expect(generatePipelineAsString(state, 0)).to.deep.equal('[]');
-      });
-    });
-
-    context('when the collection size is over the max threshold', function () {
-      context('when the pipeline contains a $match', function () {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $match: { name: 'test' } },
-        };
-        const state = {
-          inputDocuments: { count: 1000000 },
-          pipeline: [stage0],
-        };
-
-        it(`sets only the ${LIMIT_TO_DISPLAY} limit on the end`, function () {
-          expect(generatePipeline(state, 0)).to.deep.equal([
-            stage0.executor,
-            limit,
-          ]);
-        });
-      });
-
-      context('when the pipeline contains a $group', function () {
-        context('when the state is sampling', function () {
-          const stage0 = {
-            isEnabled: true,
-            executor: { $group: { name: 'test' } },
-            stageOperator: '$group',
-          };
-          const state = {
-            inputDocuments: { count: 1000000 },
-            pipeline: [stage0],
-            sample: true,
-          };
-
-          it(`sets the ${LIMIT_TO_PROCESS} limit before $group and the ${LIMIT_TO_DISPLAY} limit on the end`, function () {
-            expect(generatePipeline(state, 0)).to.deep.equal([
-              { $limit: LIMIT_TO_PROCESS },
-              stage0.executor,
-              limit,
-            ]);
-          });
-        });
-
-        context('when the state is not sampling', function () {
-          const stage0 = {
-            isEnabled: true,
-            executor: { $group: { name: 'test' } },
-            stageOperator: '$group',
-          };
-          const state = {
-            inputDocuments: { count: 1000000 },
-            pipeline: [stage0],
-            sample: false,
-          };
-
-          it('does not prepend a limit', function () {
-            expect(generatePipeline(state, 0)).to.deep.equal([
-              stage0.executor,
-              limit,
-            ]);
-          });
-        });
-      });
-
-      context('when the pipeline contains a $bucket', function () {
-        context('when the state is sampling', function () {
-          const stage0 = {
-            isEnabled: true,
-            executor: { $bucket: { name: 'test' } },
-            stageOperator: '$bucket',
-          };
-          const state = {
-            inputDocuments: { count: 1000000 },
-            pipeline: [stage0],
-            sample: true,
-          };
-
-          it(`sets the ${LIMIT_TO_PROCESS} limit before $bucket and the ${LIMIT_TO_DISPLAY} limit on the end`, function () {
-            expect(generatePipeline(state, 0)).to.deep.equal([
-              { $limit: LIMIT_TO_PROCESS },
-              stage0.executor,
-              limit,
-            ]);
-          });
-        });
-
-        context('when the state is not sampling', function () {
-          const stage0 = {
-            isEnabled: true,
-            executor: { $bucket: { name: 'test' } },
-            stageOperator: '$bucket',
-          };
-          const state = {
-            inputDocuments: { count: 1000000 },
-            pipeline: [stage0],
-            sample: false,
-          };
-
-          it('does not prepend a limit', function () {
-            expect(generatePipeline(state, 0)).to.deep.equal([
-              stage0.executor,
-              limit,
-            ]);
-          });
-        });
-      });
-
-      context('when the pipeline contains a $bucketAuto', function () {
-        context('when the state is sampling', function () {
-          const stage0 = {
-            isEnabled: true,
-            executor: { $bucketAuto: { name: 'test' } },
-            stageOperator: '$bucketAuto',
-          };
-          const state = {
-            inputDocuments: { count: 1000000 },
-            pipeline: [stage0],
-            sample: true,
-          };
-
-          it(`sets the ${LIMIT_TO_PROCESS} limit before $bucketAuto and the ${LIMIT_TO_DISPLAY} limit on the end`, function () {
-            expect(generatePipeline(state, 0)).to.deep.equal([
-              { $limit: LIMIT_TO_PROCESS },
-              stage0.executor,
-              limit,
-            ]);
-          });
-        });
-
-        context('when the state is not sampling', function () {
-          const stage0 = {
-            isEnabled: true,
-            executor: { $bucketAuto: { name: 'test' } },
-            stageOperator: '$bucketAuto',
-          };
-          const state = {
-            inputDocuments: { count: 1000000 },
-            pipeline: [stage0],
-            sample: false,
-          };
-
-          it('does not prepend a limit', function () {
-            expect(generatePipeline(state, 0)).to.deep.equal([
-              stage0.executor,
-              limit,
-            ]);
-          });
-        });
-      });
-
-      context('when the pipeline contains a $sort', function () {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $sort: { name: 1 } },
-          stageOperator: '$sort',
-        };
-        const state = {
-          inputDocuments: { count: 1000000 },
-          pipeline: [stage0],
-        };
-
-        it(`sets only the ${LIMIT_TO_DISPLAY} limit on the end`, function () {
-          expect(generatePipeline(state, 0)).to.deep.equal([
-            stage0.executor,
-            limit,
-          ]);
-        });
-      });
-    });
-
-    context('when the stage is required to be the first', function () {
-      context('when the stage is $collStats', function () {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $collStats: {} },
-          stageOperator: '$collStats',
-        };
-        const state = { inputDocuments: { count: 10000 }, pipeline: [stage0] };
-
-        it('returns the pipeline with the current and all previous stages', function () {
-          expect(generatePipeline(state, 0)).to.deep.equal([stage0.executor]);
-        });
-      });
-
-      context('when the stage is $currentOp', function () {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $currentOp: {} },
-          stageOperator: '$currentOp',
-        };
-        const state = { inputDocuments: { count: 10000 }, pipeline: [stage0] };
-
-        it('returns the pipeline with the current and all previous stages', function () {
-          expect(generatePipeline(state, 0)).to.deep.equal([stage0.executor]);
-        });
-      });
-
-      context('when the stage is $indexStats', function () {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $collStats: {} },
-          stageOperator: '$indexStats',
-        };
-        const state = { inputDocuments: { count: 10000 }, pipeline: [stage0] };
-
-        it('returns the pipeline with the current and all previous stages', function () {
-          expect(generatePipeline(state, 0)).to.deep.equal([stage0.executor]);
-        });
-      });
-
-      context('when the stage is $listLocalSessions', function () {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $listLocalSessions: {} },
-          stageOperator: '$listLocalSessions',
-        };
-        const state = { inputDocuments: { count: 10000 }, pipeline: [stage0] };
-
-        it('returns the pipeline with the current and all previous stages', function () {
-          expect(generatePipeline(state, 0)).to.deep.equal([stage0.executor]);
-        });
-      });
-
-      context('when the stage is $listSessions', function () {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $listSessions: {} },
-          stageOperator: '$listSessions',
-        };
-        const state = { inputDocuments: { count: 10000 }, pipeline: [stage0] };
-
-        it('returns the pipeline with the current and all previous stages', function () {
-          expect(generatePipeline(state, 0)).to.deep.equal([stage0.executor]);
-        });
-      });
-
-      context('when the stage is $out', function () {
-        const stage0 = {
-          isEnabled: true,
-          executor: { $out: 'testing' },
-          stageOperator: '$out',
-        };
-        const state = { inputDocuments: { count: 10000 }, pipeline: [stage0] };
-
-        it('returns the pipeline with the current, all previous stages and limit', function () {
-          expect(generatePipeline(state, 0)).to.deep.equal([
-            stage0.executor,
-            limit,
-          ]);
-        });
-
-        it('returns the pipeline stages with the current and all previous stages', function () {
-          expect(generatePipelineStages(state, 0)).to.deep.equal([
-            stage0.executor,
-          ]);
-        });
       });
     });
   });

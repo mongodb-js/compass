@@ -1,8 +1,6 @@
 import isString from 'lodash.isstring';
 import semver from 'semver';
-
 import { generateStage } from '../modules/stage';
-import { emptyStage } from '../modules/pipeline';
 import {
   STAGE_OPERATORS,
   ATLAS,
@@ -10,7 +8,32 @@ import {
   VIEW,
   COLLECTION
 } from 'mongodb-ace-autocompleter';
+import { ObjectId } from 'bson';
 
+/**
+ * Generate an empty stage for the pipeline.
+ *
+ * @returns {import('../modules/pipeline').StageState} An empty stage.
+ */
+ export const emptyStage = () => ({
+  id: new ObjectId().toHexString(),
+  stageOperator: '',
+  stage: '',
+  isValid: true,
+  isEnabled: true,
+  isExpanded: true,
+  isLoading: false,
+  isComplete: false,
+  previewDocuments: [],
+  syntaxError: null,
+  error: null,
+  projections: []
+});
+
+/**
+ * 
+ * @returns {import('../modules/pipeline').StageState} Stage with defaults
+ */
 export const generateStageWithDefaults = (props = {}) => {
   return {
     ...emptyStage(),

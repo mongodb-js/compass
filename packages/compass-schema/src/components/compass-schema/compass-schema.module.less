@@ -1,17 +1,17 @@
 @import (reference) 'mongodb-compass/src/app/styles/index.less';
 
 // minicharts
-@mc-blue0: #43b1e5;
+@mc-blue0: @palette__blue--light-1;
 @mc-blue1: lighten(@mc-blue0, 7.5%);
 @mc-blue2: lighten(@mc-blue0, 15%);
 @mc-blue3: lighten(@mc-blue0, 22.5%);
 @mc-blue4: lighten(@mc-blue0, 30%);
 @mc-blue5: lighten(@mc-blue0, 37.5%);
 
-@mc-bg: @gray8;
+@mc-bg: @palette__gray--light-3;
 @mc-fg: @mc-blue0;
-@mc-fg-selected: @chart0;
-@mc-fg-unselected: @gray6;
+@mc-fg-selected: @palette__yellow--base;
+@mc-fg-unselected: @palette__gray--light-2;
 
 .root {
   width: 100%;
@@ -31,7 +31,7 @@
 
 .schema {
   width: 100%;
-  padding: 15px;
+  padding: 0 16px;
   flex-grow: 1;
   overflow: auto;
 
@@ -53,12 +53,12 @@
 
 :global {
   .analysis-message {
-    border-bottom: 1px solid @gray7;
+    border-bottom: 1px solid @palette__gray--light-2;
     font-size: 13px;
     font-weight: 200;
     height: 32px;
     padding: 5px 15px 5px 15px;
-    background: @gray8;
+    background: @palette__gray--light-3;
 
     &-refresh-documents {
       float: right;
@@ -74,8 +74,8 @@
     .schema-field {
       // .list-group-item;
       padding: 24px 0 0 0;
-      border-bottom: 3px solid @gray8;
-      background: @pw;
+      margin-bottom: 8px;
+      background: @palette__white;
       transition: all 250ms ease-out;
 
       .row {
@@ -98,8 +98,7 @@
 
       .schema-field {
         // second level
-        border-bottom: 3px solid @gray8;
-        border-left: 24px solid @gray8;
+        margin-bottom: 4px;
         animation-duration: 250ms;
         position: relative;
         animation-name: fadein;
@@ -116,11 +115,10 @@
         }
 
         &:first-child {
-          border-top: 3px solid @gray8;
           margin-top: 24px;
         }
         &:last-child {
-          border-bottom: 3px solid @gray8;
+          margin-bottom: 4px;
         }
 
         .row {
@@ -211,25 +209,25 @@
       }
 
       &.active > .schema-field-type {
-        background: @gray1;
+        background: @palette__gray--dark-2;
       }
 
       &.active.selected > .schema-field-type {
-        background: @chart0;
+        background: @palette__yellow--base;
       }
 
       .schema-field-type-list
         > .schema-field-wrapper:not(.active)
         > .schema-field-type {
         // nested array subtypes
-        background: @gray5;
+        background: @palette__gray--light-1;
       }
     }
 
     .schema-field-type {
       height: 5px;
       margin-right: 2px;
-      background: @gray5;
+      background: @palette__gray--light-1;
     }
 
     .schema-field-type-label {
@@ -239,7 +237,7 @@
 
     .schema-field-type-undefined > .schema-field-type {
       background: white;
-      border: 1px solid @gray5;
+      border: 1px solid @palette__gray--light-1;
     }
 
     // .schema-field-type-null {
@@ -306,7 +304,7 @@
       grid-template-areas: 'sidebar content';
 
       dt {
-        color: @gray3;
+        color: @palette__gray--base;
       }
       dd {
         overflow: auto;
@@ -338,7 +336,7 @@
 
     circle {
       fill: @mc-fg;
-      stroke: @pw;
+      stroke: @palette__white;
       stroke-width: 1.5px;
 
       &.selected {
@@ -362,7 +360,7 @@
     font-size: 10px;
 
     text {
-      fill: @gray4;
+      fill: @palette__gray--base;
       font-weight: bold;
     }
 
@@ -461,11 +459,11 @@
 
     .legend {
       text {
-        fill: @gray5;
+        fill: @palette__gray--light-1;
       }
 
       line {
-        stroke: @gray7;
+        stroke: @palette__gray--light-2;
       }
       shape-rendering: crispEdges;
     }
@@ -473,13 +471,13 @@
     .axis path,
     .axis line {
       fill: none;
-      stroke: @gray7;
+      stroke: @palette__gray--light-2;
       shape-rendering: crispEdges;
     }
 
     .circle {
       fill: @mc-fg;
-      stroke: @pw;
+      stroke: @palette__white;
       stroke-width: 1.5px;
 
       &.selected {
@@ -511,16 +509,16 @@
       z-index: 1;
     }
     #circle {
-      background-color: rgba(20, 20, 20, 0.1);
+      background-color: rgba(17, 39, 51, 0.1);
       font-family: Helvetica, sans-serif;
-      color: #3b83bd;
+      color: @palette__blue--light-1;
       padding: 5px 8px;
       border-radius: 3px;
       cursor: pointer;
-      border: 1px solid #111;
+      border: 1px solid @palette__gray--dark-4;
     }
     #circle.active {
-      background-color: rgba(250, 250, 250, 0.9);
+      background-color: rgba(255, 255, 255, 0.9);
     }
   }
 
@@ -536,9 +534,13 @@
     left: 25px;
 
     &-button {
-      background-image: linear-gradient(-180deg, #ffffff 0%, #f6f6f6 100%);
-      border: 2px solid #dddddd;
-      box-shadow: inset 0 -1px 0 0 #dddddd;
+      background-image: linear-gradient(
+        -180deg,
+        @palette__white 0%,
+        @palette__gray--light-3 100%
+      );
+      border: 2px solid @palette__gray--light-2;
+      box-shadow: inset 0 -1px 0 0 @palette__gray--light-2;
       border-radius: 5px;
       font-size: 11px;
       padding: 15px 4px;
@@ -559,8 +561,8 @@
     z-index: 5;
     line-height: 1;
     padding: 8px;
-    background: #000;
-    color: #fff;
+    background: @palette__black;
+    color: @palette__white;
     border-radius: 5px;
     pointer-events: none;
     font-size: 12px;
@@ -573,7 +575,7 @@
     font-size: 14px;
     width: 100%;
     line-height: 1;
-    color: #000;
+    color: @palette__black;
     position: absolute;
     pointer-events: none;
   }

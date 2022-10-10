@@ -511,8 +511,8 @@ functions:
           <<: *compass-env
           NPM_TOKEN: ${devtoolsbot_npm_token}
         script: |
-          # Skip package publish for nightly builds
-          if [[ "${requester}" != "ad_hoc" ]]; then
+          # Only package publish for commits on the main evergreen project.
+          if [[ "${requester}" == "commit" ]] && [[ "${project}" == "10gen-compass-main" ]]; then
             set -e
             # Load environment variables
             eval $(.evergreen/print-compass-env.sh)

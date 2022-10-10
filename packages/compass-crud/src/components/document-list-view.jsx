@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { KeylineCard } from '@mongodb-js/compass-components';
+
 import Document from './document';
 
 /**
@@ -36,16 +38,18 @@ class DocumentListView extends React.Component {
           data-testid={LIST_ITEM_TEST_ID}
           key={index}
         >
-          <Document
-            doc={doc}
-            editable={this.props.isEditable}
-            isTimeSeries={this.props.isTimeSeries}
-            copyToClipboard={this.props.copyToClipboard}
-            removeDocument={this.props.removeDocument}
-            replaceDocument={this.props.replaceDocument}
-            updateDocument={this.props.updateDocument}
-            openInsertDocumentDialog={this.props.openInsertDocumentDialog}
-          />
+          <KeylineCard>
+            <Document
+              doc={doc}
+              editable={this.props.isEditable}
+              isTimeSeries={this.props.isTimeSeries}
+              copyToClipboard={this.props.copyToClipboard}
+              removeDocument={this.props.removeDocument}
+              replaceDocument={this.props.replaceDocument}
+              updateDocument={this.props.updateDocument}
+              openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+            />
+          </KeylineCard>
         </li>
       );
     });

@@ -1,15 +1,14 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { mapPipelineToStages } from '../utils/stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { PROMISE_CANCELLED_ERROR } from '../utils/cancellable-promise';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
-import type { Actions as WorkspaceActions } from './workspace';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { NEW_PIPELINE } from './import-pipeline';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -20,7 +19,8 @@ export enum ActionTypes {
   AggregationFinished = 'compass-aggregations/aggregationFinished',
   AggregationFailed = 'compass-aggregations/aggregationFailed',
   AggregationCancelledByUser = 'compass-aggregations/aggregationCancelledByUser',
-  LastPageReached = 'compass-aggregations/lastPageReached'
+  LastPageReached = 'compass-aggregations/lastPageReached',
+  ResultViewTypeChanged = 'compass-aggregations/resultViewTypeChanged'
 }
 
 type PreviousPageData = {
@@ -56,12 +56,18 @@ type LastPageReachedAction = {
   page: number;
 };
 
+type ResultViewTypeChangedAction = {
+  type : ActionTypes.ResultViewTypeChanged;
+  viewType: 'document' | 'json';
+}
+
 export type Actions =
   | AggregationStartedAction
   | AggregationFinishedAction
   | AggregationFailedAction
   | AggregationCancelledAction
-  | LastPageReachedAction;
+  | LastPageReachedAction
+  | ResultViewTypeChangedAction;
 
 export type State = {
   documents: Document[];
@@ -72,6 +78,7 @@ export type State = {
   abortController?: AbortController;
   error?: string;
   previousPageData?: PreviousPageData;
+  resultsViewType: 'document' | 'json';
 };
 
 export const INITIAL_STATE: State = {
@@ -80,14 +87,16 @@ export const INITIAL_STATE: State = {
   limit: 20,
   isLast: false,
   loading: false,
+  resultsViewType: 'document',
 };
 
-const reducer: Reducer<State, Actions | WorkspaceActions> = (
+const reducer: Reducer<State, AnyAction> = (
   state = INITIAL_STATE,
   action
 ) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
+    case NEW_PIPELINE:
       return INITIAL_STATE;
     case ActionTypes.AggregationStarted:
       return {
@@ -140,17 +149,17 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (
         loading: false,
         page: action.page,
       };
+    case ActionTypes.ResultViewTypeChanged:
+      return {
+        ...state,
+        resultsViewType: action.viewType
+      }
     default:
       return state;
   }
 };
 
-export const runAggregation = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
+export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
   return (dispatch, getState) => {
     const { pipeline } = getState();
     track('Aggregation Executed', () => ({
@@ -160,10 +169,8 @@ export const runAggregation = (): ThunkAction<
   };
 };
 
-export const fetchPrevPage = (): ThunkAction<
+export const fetchPrevPage = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return async (dispatch, getState) => {
@@ -177,10 +184,8 @@ export const fetchPrevPage = (): ThunkAction<
   };
 };
 
-export const fetchNextPage = (): ThunkAction<
+export const fetchNextPage = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return async (dispatch, getState) => {
@@ -194,10 +199,8 @@ export const fetchNextPage = (): ThunkAction<
   };
 };
 
-export const retryAggregation = (): ThunkAction<
+export const retryAggregation = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return (dispatch, getState) => {
@@ -208,9 +211,7 @@ export const retryAggregation = (): ThunkAction<
   };
 };
 
-export const cancelAggregation = (): ThunkAction<
-  void,
-  RootState,
+export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
@@ -234,7 +235,7 @@ const _abortAggregation = (controller?: AbortController): void => {
 
 const fetchAggregationData = (
   page = 1
-): ThunkAction<Promise<void>, RootState, void, Actions> => {
+): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
       id,
@@ -330,12 +331,7 @@ const fetchAggregationData = (
   };
 };
 
-export const exportAggregationResults = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  Actions
-> => {
+export const exportAggregationResults = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState) => {
     const {
       pipeline,
@@ -365,5 +361,12 @@ export const exportAggregationResults = (): ThunkAction<
     );
   };
 };
+
+export const changeViewType = (newViewType: 'document' | 'json') => {
+  return {
+    type: ActionTypes.ResultViewTypeChanged,
+    viewType: newViewType,
+  }
+}
 
 export default reducer;

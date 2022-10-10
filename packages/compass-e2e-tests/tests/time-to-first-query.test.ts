@@ -7,6 +7,10 @@ import { createNumbersCollection } from '../helpers/insert-data';
 describe('Time to first query', function () {
   let compass: Compass | undefined;
 
+  beforeEach(async function () {
+    await createNumbersCollection();
+  });
+
   afterEach(async function () {
     // cleanup outside of the test so that the time it takes to run does not
     // get added to the time it took to run the first query
@@ -18,13 +22,9 @@ describe('Time to first query', function () {
     }
   });
 
-  beforeEach(async function () {
-    await createNumbersCollection();
-  });
-
-  it('can open compass, connect to a database and run a query on a collection (new version)', async function () {
+  it('can open compass, connect to a database and run a query on a collection (never seen welcome)', async function () {
     // start compass inside the test so that the time is measured together
-    compass = await beforeTests();
+    compass = await beforeTests({ firstRun: true });
 
     const { browser } = compass;
 
@@ -59,7 +59,8 @@ describe('Time to first query', function () {
 
   it('can open compass, connect to a database and run a query on a collection (second run onwards)', async function () {
     // start compass inside the test so that the time is measured together
-    compass = await beforeTests();
+
+    compass = await beforeTests({ firstRun: false });
 
     const { browser } = compass;
 

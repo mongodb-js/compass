@@ -3,16 +3,16 @@ import { useCallback } from 'react';
 type ColorCode = `color${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
 
 const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
-  color1: '#00A35C', // green.dark1
-  color2: '#71F6BA', // green.light1
-  color3: '#016BF8', // blue.base
-  color4: '#0498EC', // blue.light1
-  color5: '#FFC010', // yellow.base
-  color6: '#EF5752', // red.light1
-  color7: '#B45AF2', // purple.base
-  color8: '#F1D4FD', // purple.light2
+  color1: '#00a35c', // green.dark1
+  color2: '#71f6ba', // green.light1
+  color3: '#016bf8', // blue.base
+  color4: '#0498ec', // blue.light1
+  color5: '#ffc010', // yellow.base
+  color6: '#ff6960', // red.light1
+  color7: '#b45af2', // purple.base
+  color8: '#f1d4fd', // purple.light2
   color9: '#889397', // gray.base
-  color10: '#C1C7C6', // gray.light1
+  color10: '#c1c7c6', // gray.light1
 };
 
 const LEGACY_COLORS_TO_COLOR_CODE_MAP: Record<string, ColorCode> = {

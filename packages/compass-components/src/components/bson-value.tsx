@@ -38,13 +38,15 @@ export const VALUE_COLOR_BY_TYPE: Record<
   >,
   string
 > = {
-  Int32: '#145a32',
-  Double: '#1e8449',
-  Decimal128: '#229954',
-  Date: 'firebrick',
-  Boolean: 'purple',
-  String: 'steelblue',
-  ObjectId: 'orangered',
+  // NOTE: these colors are aligned with the Leafygreen code component
+  // and are not part of the palette
+  Int32: '#016ee9',
+  Double: '#016ee9',
+  Decimal128: '#016ee9',
+  Date: '#016ee9',
+  Boolean: '#CC3887',
+  String: '#12824D',
+  ObjectId: '#D83713',
 };
 
 export function hasCustomColor(

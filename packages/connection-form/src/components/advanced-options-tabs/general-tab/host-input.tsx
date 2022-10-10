@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  FormFieldContainer,
   Label,
   Icon,
   IconButton,
@@ -12,7 +13,6 @@ import type { MongoClientOptions } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 import DirectConnectionInput from './direct-connection-input';
-import FormFieldContainer from '../../form-field-container';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorMessageByFieldNameAndIndex,

@@ -1,26 +1,14 @@
-/* eslint complexity: 0 */
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer, { openPipeline } from '../modules';
+import reducer from '../modules';
 import toNS from 'mongodb-ns';
-import { namespaceChanged } from '../modules/namespace';
-import { dataServiceConnected } from '../modules/data-service';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
-import { serverVersionChanged } from '../modules/server-version';
-import { setIsAtlasDeployed } from '../modules/is-atlas-deployed';
-import { outResultsFnChanged } from '../modules/out-results-fn';
-import { envChanged } from '../modules/env';
-import { isTimeSeriesChanged } from '../modules/is-time-series';
-import { isReadonlyChanged } from '../modules/is-readonly';
-import { sourceNameChanged } from '../modules/source-name';
-import { modifyView } from '../modules';
-import {
-  localAppRegistryActivated,
-  globalAppRegistryActivated
-} from '@mongodb-js/mongodb-redux-common/app-registry';
-import { setDataLake } from '../modules/is-datalake';
 import { indexesFetched } from '../modules/indexes';
+import { runStage } from '../modules/pipeline';
+import { createPipelineFromView } from '../modules/import-pipeline';
+import { openPipeline } from '../modules/saved-pipeline';
+import { PipelinePreviewManager } from '../modules/pipeline-builder/pipeline-preview-manager';
 
 /**
  * Refresh the input documents.
@@ -29,61 +17,6 @@ import { indexesFetched } from '../modules/indexes';
  */
 export const refreshInput = (store) => {
   store.dispatch(refreshInputDocuments());
-};
-
-/**
- * Set if the plugin is deployed in Atlas.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isAtlas - If the plugin is running in Atlas.
- */
-export const setIsAtlas = (store, isAtlas) => {
-  store.dispatch(setIsAtlasDeployed(isAtlas));
-};
-
-/**
- * Set the data provider.
- *
- * @param {Store} store - The store.
- * @param {Error} error - The error (if any) while connecting.
- * @param {Object} provider - The data provider.
- */
-export const setDataProvider = (store, error, provider) => {
-  store.dispatch(dataServiceConnected(error, provider));
-};
-
-/**
- * Set the namespace in the store.
- *
- * @param {Store} store - The store.
- * @param {String} ns - The namespace in "db.collection" format.
- */
-export const setNamespace = (store, ns) => {
-  const namespace = toNS(ns);
-  if (namespace.collection) {
-    store.dispatch(namespaceChanged(ns));
-    refreshInput(store);
-  }
-};
-
-/**
- * Set the $out results custom handler function.
- *
- * @param {Store} store - The store.
- * @param {Function} fn - The function.
- */
-export const setOutResultsFn = (store, fn) => {
-  store.dispatch(outResultsFnChanged(fn));
-};
-
-/**
- * Set the server version.
- *
- * @param {Store} store - The store.
- * @param {String} version - The version.
- */
-export const setServerVersion = (store, version) => {
-  store.dispatch(serverVersionChanged(version));
 };
 
 /**
@@ -105,79 +38,6 @@ export const setIndexes = (store, indexes) => {
 };
 
 /**
- * Set the local app registry.
- *
- * @param {Store} store - The store.
- * @param {AppRegistry} appRegistry - The app registry.
- */
-export const setLocalAppRegistry = (store, appRegistry) => {
-  store.dispatch(localAppRegistryActivated(appRegistry));
-};
-
-/**
- * Set the global app registry.
- *
- * @param {Store} store - The store.
- * @param {AppRegistry} appRegistry - The app registry.
- */
-export const setGlobalAppRegistry = (store, appRegistry) => {
-  store.dispatch(globalAppRegistryActivated(appRegistry));
-};
-
-/**
- * Set the view source.
- *
- * @param {Store} store - The store.
- * @param {String} name - The name.
- * @param {Array} pipeline - The pipeline.
- * @param {Boolean} isReadonly - The isReadonly flag.
- * @param {String} sourceName - The namespace on which created the view.
- */
-export const setViewSource = (store, name, pipeline, isReadonly, sourceName) => {
-  store.dispatch(modifyView(name, pipeline, isReadonly, sourceName));
-};
-
-/**
- * Set the environment.
- *
- * @param {Store} store - The store.
- * @param {String} env - The env. (atlas, adl, on-prem).
- */
-export const setEnv = (store, env) => {
-  store.dispatch(envChanged(env));
-};
-
-/**
- * Set the isTimeSeries flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isTimeSeries - If the collection is a time-series collection.
- */
-export const setIsTimeSeries = (store, isTimeSeries) => {
-  store.dispatch(isTimeSeriesChanged(isTimeSeries));
-};
-
-/**
- * Set the isReadonly flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} isReadonly - If the collection is a read-only collection.
- */
-export const setIsReadonly = (store, isReadonly) => {
-  store.dispatch(isReadonlyChanged(isReadonly));
-};
-
-/**
- * Set the sourceName flag in the store.
- *
- * @param {Store} store - The store.
- * @param {String} sourceName - The view created on the sourceName collection.
- */
-export const setSourceNames = (store, sourceName) => {
-  store.dispatch(sourceNameChanged(sourceName));
-};
-
-/**
  * One method configure store call.
  *
  * @param {Options} options - The options.
@@ -185,12 +45,63 @@ export const setSourceNames = (store, sourceName) => {
  * @returns {Store} The store.
  */
 const configureStore = (options = {}) => {
-  const store = createStore(reducer, applyMiddleware(thunk));
+  const { collection } = toNS(options?.namespace ?? '');
+
+  const store = createStore(
+    reducer,
+    {
+      appRegistry: {
+        localAppRegistry: options.localAppRegistry ?? null,
+        globalAppRegistry: options.globalAppRegistry ?? null
+      },
+      dataService: {
+        error: options.dataProvider?.error ?? null,
+        dataService: options.dataProvider?.dataProvider ?? null
+      },
+      namespace: collection ? options.namespace : undefined,
+      serverVersion: options.serverVersion,
+      isTimeSeries: options.isTimeSeries,
+      isReadonly: options.isReadonly,
+      sourceName: options.sourceName,
+      isDataLake: options.isDataLake,
+      env:
+        // mms specifies options.env whereas we don't currently get this variable when
+        // we use the aggregations plugin inside compass. In that use case we get it
+        // from the instance model above.
+        options.env ??
+        // TODO: for now this is how we get to the env in compass as opposed to in
+        // mms where it comes from options.env. Ideally options.env would be
+        // required so we can always get it from there, but that's something for a
+        // future task. In theory we already know the env by the time this code
+        // executes, so it should be doable.
+        options.globalAppRegistry?.getStore('App.InstanceStore').getState()
+          .instance.env,
+      // options.isAtlasDeployed is only used by mms to change some behaviour in the
+      // aggregations plugin
+      isAtlasDeployed:
+        options.isAtlasDeployed !== null &&
+        options.isAtlasDeployed !== undefined,
+      // options.fields is only used by mms, but always set to [] which is the initial value anyway
+      fields: options.fields ?? [],
+      // options.outResultsFn is only used by mms
+      outResultsFn: options.outResultsFn,
+      editViewName: options.editViewName,
+      pipeline: options.sourcePipeline
+        ? createPipelineFromView(options.sourcePipeline)
+        : undefined
+    },
+    applyMiddleware(
+      thunk.withExtraArgument({
+        pipelinePreviewManager: new PipelinePreviewManager(
+          options.dataProvider?.dataProvider ?? null
+        )
+      })
+    )
+  );
 
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
-    setLocalAppRegistry(store, localAppRegistry);
 
     /**
      * Refresh documents on data refresh.
@@ -216,7 +127,6 @@ const configureStore = (options = {}) => {
 
   if (options.globalAppRegistry) {
     const globalAppRegistry = options.globalAppRegistry;
-    setGlobalAppRegistry(store, globalAppRegistry);
 
     /**
      * Refresh documents on global data refresh.
@@ -231,86 +141,20 @@ const configureStore = (options = {}) => {
         refreshInput(store);
       }
     });
-
-    // TODO: for now this is how we get to the env in compass as opposed to in
-    // mms where it comes from options.env. Ideally options.env would be
-    // required so we can always get it from there, but that's something for a
-    // future task. In theory we already know the env by the time this code
-    // executes, so it should be doable.
-    const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
-    const instance = instanceStore.getState().instance;
-    setEnv(store, instance.env);
   }
 
-  // Set the data provider - this must happen second.
-  if (options.dataProvider) {
-    setDataProvider(
-      store,
-      options.dataProvider.error,
-      options.dataProvider.dataProvider
-    );
-  }
-
-  // options.isAtlasDeployed is only used by mms to change some behaviour in the
-  // aggregations plugin
-  if (options.isAtlasDeployed !== null && options.isAtlasDeployed !== undefined) {
-    setIsAtlas(store, options.isAtlasDeployed);
-  }
-
-  // Set the namespace - must happen third.
-  if (options.namespace) {
-    setNamespace(store, options.namespace);
-  }
-
-  // Setting server version in fields can change in order but must be after
-  // the previous options.
-  if (options.serverVersion) {
-    setServerVersion(store, options.serverVersion);
-  }
-  // options.fields is only used by mms, but always set to [] which is the initial value anyway
-  if (options.fields) {
-    setFields(store, options.fields);
-  }
-  // options.outResultsFn is only used by mms
-  if (options.outResultsFn) {
-    setOutResultsFn(store, options.outResultsFn);
-  }
-
-  if (options.editViewName) {
-    setViewSource(
-      store,
-      options.editViewName,
-      options.sourcePipeline,
-      options.isReadonly,
-      options.sourceName
-    );
-  }
-
-  if (options.isTimeSeries) {
-    setIsTimeSeries(store, options.isTimeSeries);
-  }
-
-  if (options.isReadonly) {
-    setIsReadonly(store, options.isReadonly);
-  }
-
-  if (options.sourceName) {
-    setSourceNames(store, options.sourceName);
-  }
-
+  // If we are loading aggregation, open pipeline (this will kick off preview
+  // fetch when loaded)
   if (options.aggregation) {
-    openPipeline(options.aggregation)(store.dispatch);
+    store.dispatch(openPipeline(options.aggregation));
+    // Otherwise if we are editing a view pipeline, kick off preview fetch right
+    // away
+  } else if (options.editViewName) {
+    store.dispatch(runStage(0, true));
   }
 
-  if (options.isDataLake) {
-    store.dispatch(setDataLake(options.isDataLake));
-  }
-
-  // mms specifies options.env whereas we don't currently get this variable when
-  // we use the aggregations plugin inside compass. In that use case we get it
-  // from the instance model above.
-  if (options.env) {
-    setEnv(store, options.env);
+  if (collection) {
+    refreshInput(store);
   }
 
   return store;

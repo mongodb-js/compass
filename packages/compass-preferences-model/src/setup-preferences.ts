@@ -53,6 +53,10 @@ export async function setupPreferences(
     return preferences.getPreferenceStates();
   });
 
+  ipcMain.handle('compass:ensure-default-configurable-user-preferences', () => {
+    return preferences.ensureDefaultConfigurableUserPreferences();
+  });
+
   ipcMain.handle('compass:get-configurable-user-preferences', () => {
     return preferences.getConfigurableUserPreferences();
   });
@@ -73,6 +77,9 @@ export const preferencesMain: PreferencesAccess = {
   },
   getPreferences(): AllPreferences {
     return preferencesSingleton?.getPreferences?.() ?? ({} as AllPreferences);
+  },
+  async ensureDefaultConfigurableUserPreferences(): Promise<void> {
+    return preferencesSingleton?.ensureDefaultConfigurableUserPreferences?.();
   },
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     return (

@@ -1,9 +1,4 @@
 /**
- * Source name changed action.
- */
-export const SOURCE_NAME_CHANGED = 'aggregations/source-name/SOURCE_NAME_CHANGED';
-
-/**
  * The initial state.
  */
 export const INITIAL_STATE = null;
@@ -16,21 +11,6 @@ export const INITIAL_STATE = null;
  *
  * @returns {any} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === SOURCE_NAME_CHANGED) {
-    return action.sourceName;
-  }
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }
-
-/**
- * Action creator for source name changed events.
- *
- * @param {String} sourceName - The source name value.
- *
- * @returns {Object} The name changed action.
- */
-export const sourceNameChanged = (sourceName) => ({
-  type: SOURCE_NAME_CHANGED,
-  sourceName: sourceName
-});

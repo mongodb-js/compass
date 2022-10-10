@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { ConfirmationModal, TextInput } from '@mongodb-js/compass-components';
+import {
+  ConfirmationModal,
+  FormFieldContainer,
+  TextInput,
+} from '@mongodb-js/compass-components';
 import type { ConnectionFavoriteOptions } from 'mongodb-data-service';
 
-import FormFieldContainer from './form-field-container';
 import { FavoriteColorPicker } from './favorite-color-picker';
 
 function SaveConnectionModal({
