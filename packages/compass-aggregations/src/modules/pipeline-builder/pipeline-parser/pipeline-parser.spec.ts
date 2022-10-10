@@ -3,6 +3,7 @@ import PipelineParser from './pipeline-parser';
 
 const pipelines = [
   {
+    usecase: 'no stage disabled',
     input: `[{$unwind: "users"}]`,
     output: [
       '[',
@@ -13,6 +14,7 @@ const pipelines = [
     ].join('\n')
   },
   {
+    usecase: 'all stages disabled',
     input: `[\n//{$unwind: "users"},\n // {$limit: 20}\n]`,
     output: [
       '[',
@@ -26,6 +28,7 @@ const pipelines = [
     ].join('\n')
   },
   {
+    usecase: 'enabled first and last stage',
     input: `[{$unwind: "users"},\n // {$limit: 20},\n {$sort: {name: -1}}]`,
     output: [
       '[',
@@ -43,6 +46,7 @@ const pipelines = [
     ].join('\n')
   },
   {
+    usecase: 'last stage disabled',
     input: `[{$unwind: "users"},{$limit: 20},\n// {$sort: {name: -1}}\n]`,
     output: [
       '[',
@@ -51,15 +55,31 @@ const pipelines = [
       '  },',
       '  {',
       '    $limit: 20,',
-      '  },',
-      '  // {',
+      '  }, // {',
       '  //   $sort: {',
       '  //     name: -1,',
       '  //   },',
-      '  // },',
+      '  // }',
       ']'
     ].join('\n')
-  }
+  },
+  {
+    usecase: 'only last stage enabled',
+    input: `[// {$match: {}}\n // {$unwind: "users"}, \n {$limit: 20}\n]`,
+    output: [
+      '[',
+      '  // {',
+      '  //   $match: {},',
+      '  // }',
+      '  // {',
+      '  //   $unwind: "users",',
+      '  // }',
+      '  {',
+      '    $limit: 20,',
+      '  },',
+      ']'
+    ].join('\n')
+  },
 ];
 
 describe('PipelineParser', function () {
@@ -114,10 +134,10 @@ describe('PipelineParser', function () {
     });
   });
   it('generates pipeline string', function () {
-    pipelines.forEach(({ input, output }) => {
+    pipelines.forEach(({ input, output, usecase }) => {
       const { root, stages } = PipelineParser.parse(input);
       const generatedPipelineString = PipelineParser.generate(root, stages);
-      expect(generatedPipelineString).to.equal(output);
+      expect(generatedPipelineString, usecase).to.equal(output);
     });
   });
 });

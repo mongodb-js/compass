@@ -150,18 +150,40 @@ export default class PipelineParser {
         return stageToComments(stage);
       });
     } else {
-      root.elements = stages
-        .reduceRight((elements, stage) => {
-          if (!isNodeDisabled(stage)) {
-            elements.push(stage);
-          } else {
-            const prevStage = elements[elements.length - 1];
-            t.addComments(prevStage, 'leading', stageToComments(stage));
-          }
-          return elements;
-        }, [] as t.Expression[])
-        .reverse();
+      root.elements = PipelineParser._getStageNodes(stages);
     }
     return generate(root);
+  }
+
+  static _getStageNodes(stages: t.Expression[]): t.ArrayExpression['elements'] {
+    const elements: t.ArrayExpression['elements'] = [];
+    let unusedComments: t.CommentLine[] = [];
+
+    for (const stage of stages) {
+      if (!isNodeDisabled(stage)) {
+        elements.push(stage);
+        continue;
+      }
+
+      const comments = stageToComments(stage);
+      const prevStage = elements[elements.length - 1];
+      if (!prevStage) {
+        unusedComments = unusedComments.concat(comments);
+        continue;
+      }
+
+      t.addComments(prevStage, 'trailing', comments);
+      if (unusedComments.length) {
+        t.addComments(prevStage, 'leading', unusedComments);
+        unusedComments = [];
+      }
+    }
+
+    const prevStage = elements[elements.length - 1];
+    if (unusedComments.length > 0 && prevStage) {
+      t.addComments(prevStage, 'leading', unusedComments);
+    }
+
+    return elements;
   }
 }
