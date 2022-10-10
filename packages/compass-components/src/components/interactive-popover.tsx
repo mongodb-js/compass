@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import FocusTrap from 'focus-trap-react';
 
-import { Popover } from './leafygreen';
+import { Icon, IconButton, Popover } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
 import { transparentize } from 'polished';
@@ -19,6 +19,7 @@ const contentContainerStyles = css({
   border: `1px solid`,
   overflow: 'hidden',
   width: 'fit-content',
+  // padding: spacing[2],
 });
 
 const contentContainerStylesLight = css({
@@ -33,9 +34,15 @@ const contentContainerStylesDark = css({
   color: palette.white,
 });
 
+// const closeButtonStyles = css({
+//   position: 'absolute',
+//   top: spacing[1],
+//   right: spacing[1],
+// });
+
 type InteractivePopoverProps = {
   className: string;
-  children: (childrenProps: { onClose: () => void }) => React.ReactElement;
+  children: React.ReactElement;
   trigger: (triggerProps: {
     onClick: (event: React.MouseEvent | React.TouchEvent) => void;
     ref: React.RefObject<HTMLButtonElement>;
@@ -189,9 +196,16 @@ function InteractivePopover({
               )}
               ref={popoverContentContainerRef}
             >
-              {children({
-                onClose: onClose,
-              })}
+              {children}
+
+              {/* <IconButton
+                className={closeButtonStyles}
+                data-testid="query-history-button-close-panel"
+                onClick={onClose}
+                aria-label="Close query history"
+              >
+                <Icon glyph="X" />
+              </IconButton> */}
             </div>
           </FocusTrap>
         )}

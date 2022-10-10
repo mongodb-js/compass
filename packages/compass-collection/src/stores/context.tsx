@@ -81,7 +81,6 @@ export type ContextProps = {
   key?: number;
   state?: any;
   isDataLake?: boolean;
-  queryHistoryIndexes?: number[];
   scopedModals?: any[];
   connectionString?: string;
 };
@@ -373,7 +372,6 @@ const createContext = ({
 
   const tabs: string[] = [];
   const views: JSX.Element[] = [];
-  const queryHistoryIndexes: number[] = [];
 
   setupQueryPlugins({
     globalAppRegistry,
@@ -416,11 +414,6 @@ const createContext = ({
 
     // Add the tab.
     tabs.push(role.name);
-
-    // Add to query history indexes if needed.
-    if (role.hasQueryHistory) {
-      queryHistoryIndexes.push(i);
-    }
 
     const tabProps = {
       store,
@@ -478,7 +471,6 @@ const createContext = ({
   return {
     tabs,
     views,
-    queryHistoryIndexes,
     scopedModals,
     localAppRegistry,
     sourcePipeline,

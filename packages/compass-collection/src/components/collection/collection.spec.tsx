@@ -24,7 +24,6 @@ describe('Collection [Component]', function () {
         isFLE={false}
         tabs={[]}
         views={[]}
-        queryHistoryIndexes={[]}
         globalAppRegistry={globalAppRegistry}
         scopedModals={[]}
         localAppRegistry={localAppRegistry}

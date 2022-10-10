@@ -12,16 +12,6 @@ function renderPopover(
 ) {
   const openSpy = sinon.spy();
 
-  const popoverContent = ({ onClose }) => (
-    <>
-      <button onClick={() => {}} data-testid={innerContentTestId}>
-        Action Button
-      </button>
-      <div>inner content</div>
-      <button onClick={onClose}>Close Button</button>
-    </>
-  );
-
   return render(
     <InteractivePopover
       className=""
@@ -37,7 +27,12 @@ function renderPopover(
       )}
       {...props}
     >
-      {popoverContent}
+      <>
+        <button onClick={() => {}} data-testid={innerContentTestId}>
+          Action Button
+        </button>
+        <div>inner content</div>
+      </>
     </InteractivePopover>
   );
 }

@@ -47,7 +47,6 @@ type CollectionProps = {
   sourceName?: string;
   activeSubTab: number;
   id: string;
-  queryHistoryIndexes: number[];
   tabs: string[];
   views: JSX.Element[];
   localAppRegistry: AppRegistry;
@@ -79,7 +78,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   sourceName,
   activeSubTab,
   id,
-  queryHistoryIndexes,
   tabs,
   views,
   localAppRegistry,
@@ -105,9 +103,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
       if (activeSubTab === idx) {
         return;
       }
-      if (!queryHistoryIndexes.includes(idx)) {
-        localAppRegistry.emit('collapse-query-history');
-      }
       localAppRegistry.emit('subtab-changed', name);
       globalAppRegistry.emit('compass:screen:viewed', { screen: name });
       changeActiveSubTab(idx, id);
@@ -115,7 +110,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
     [
       id,
       activeSubTab,
-      queryHistoryIndexes,
       localAppRegistry,
       globalAppRegistry,
       changeActiveSubTab,

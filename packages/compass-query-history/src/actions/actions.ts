@@ -7,8 +7,6 @@ const configureActions = () => {
      */
     'showFavorites',
     'showRecent',
-    'collapse',
-    'toggleCollapse',
     'copyQuery',
     'deleteRecent',
     'deleteFavorite',
