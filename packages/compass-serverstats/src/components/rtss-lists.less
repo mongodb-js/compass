@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .rt {
   height: 100%;
 }
@@ -299,12 +301,12 @@
 .rt-lists__listdiv,
 .rt-details__raw {
   &::-webkit-scrollbar-track {
-    background-color: rgba(0, 30, 43,.16);
+    background-color: fade(@palette__black, 16%);
     -webkit-border-radius: 3px;
     border-radius: 3px;
   }
   &::-webkit-scrollbar-thumb {
     background-color: @palette__gray--dark-2;
-    border: 1px solid rgba(0, 30, 43,.4);
+    border: 1px solid fade(@palette__black, 40%);
   }
 }

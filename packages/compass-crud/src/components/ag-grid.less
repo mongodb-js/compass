@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .ag {
   &-parent {
     font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
@@ -7,17 +9,17 @@
   }
   &-root {
     background-color: @palette__white;
-    box-shadow: 0 0px 6px 0 rgba(0, 30, 43, 0.15);
+    box-shadow: 0 0px 6px 0 fade(@palette__black, 15%);
     border-radius: 0px 3px 3px 3px;
   }
   &-bl-full-height {
     background-color: @palette__white;
-    box-shadow: 0 0px 6px 0 rgba(0, 30, 43, 0.15);
+    box-shadow: 0 0px 6px 0 fade(@palette__black, 15%);
     border-radius: 0px 3px 3px 3px;
   }
   &-header {
     background: @palette__gray--light-3;
-    box-shadow: 0 2px 10px 0 rgba(0, 30, 43, 0.1),
+    box-shadow: 0 2px 10px 0 fade(@palette__black, 10%),
       inset 0 -1px 0 0 @palette__gray--light-1;
     &-cell {
       border: 0;
@@ -46,7 +48,7 @@
         background-color: @palette__gray--light-3;
         border-radius: 3px 3px 0 0;
         border: none;
-        box-shadow: 0 -1px 6px 0 rgba(0, 30, 43, 0.15);
+        box-shadow: 0 -1px 6px 0 fade(@palette__black, 15%);
         cursor: pointer;
         &-active {
           border-left: 5px solid @palette__green--dark-1;

@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .document {
   position: relative;
   text-overflow: ellipsis;
@@ -18,11 +20,11 @@
 
   &-is-deleting {
     box-shadow: 0 0 0 1px @palette__red--light-1,
-      2px 5px 8px rgba(0, 30, 43, 0.2);
+      2px 5px 8px fade(@palette__black, 20%);
   }
 
   &-is-editing {
-    box-shadow: 2px 5px 8px rgba(0, 30, 43, 0.2);
+    box-shadow: 2px 5px 8px fade(@palette__black, 20%);
   }
 
   &:hover {
