@@ -52,6 +52,7 @@
     "ampersand-state": "5.0.3",
     "bson": "^4.7.0",
     "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
     "storage-mixin": "^5.1.0",
     "yargs-parser": "^21.1.1"
   },
