@@ -53,15 +53,13 @@ type CollectionProps = {
   views: JSX.Element[];
   localAppRegistry: AppRegistry;
   globalAppRegistry: AppRegistry;
-  changeActiveSubTab: (
-    activeSubTab: number,
-    id: string
-  ) => {
-    type: string;
-    activeSubTab: number;
-    id: string;
-  };
-  scopedModals: any[];
+  changeActiveSubTab: (activeSubTab: number, id: string) => void;
+  scopedModals: {
+    store: any;
+    component: React.ComponentType<any>;
+    actions: any;
+    key: number | string;
+  }[];
   stats: CollectionStatsMap;
 };
 
@@ -152,7 +150,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
         />
       </div>
       <div className={collectionModalContainerStyles}>
-        {scopedModals.map((modal: any) => (
+        {scopedModals.map((modal) => (
           <modal.component
             store={modal.store}
             actions={modal.actions}

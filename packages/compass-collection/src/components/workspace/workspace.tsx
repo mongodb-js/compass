@@ -109,14 +109,7 @@ type WorkspaceProps = {
     type: string;
     index: number;
   };
-  changeActiveSubTab: (
-    activeSubTab: number,
-    id: string
-  ) => {
-    type: string;
-    activeSubTab: number;
-    id: string;
-  };
+  changeActiveSubTab: (activeSubTab: number, id: string) => void;
   stats: CollectionStatsMap;
 };
 

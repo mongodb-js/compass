@@ -112,8 +112,8 @@ const rootReducer = (state: any, action: AnyAction) => {
 const store: any = createStore(rootReducer, applyMiddleware(thunk));
 
 // We use these symbols so that nothing from outside can access these values on
-// the store
-const kInstance = Symbol('instance');
+// the store. Exported for tests.
+export const kInstance = Symbol('instance');
 
 /**
  * This hook is Compass specific to listen to app registry events.
@@ -138,12 +138,13 @@ store.onActivated = (appRegistry: AppRegistry) => {
     instance.on(
       'change:collections.status',
       (collectionModel: Collection, status: string) => {
-        const { namespace } = store.getState() as RootState;
         if (status === 'ready') {
-          store.dispatch(updateCollectionDetails(collectionModel, namespace));
+          store.dispatch(
+            updateCollectionDetails(collectionModel, collectionModel.ns)
+          );
         }
         if (status === 'error') {
-          store.dispatch(resetCollectionDetails(namespace));
+          store.dispatch(resetCollectionDetails(collectionModel.ns));
         }
       }
     );

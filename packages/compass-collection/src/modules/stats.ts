@@ -1,6 +1,7 @@
 import type { AnyAction } from 'redux';
 import type Collection from 'mongodb-collection-model';
 import numeral from 'numeral';
+import { omit } from 'lodash';
 
 export enum ActionTypes {
   UpdateCollectionDetails = 'collection/stats/UPDATE_COLLECTION_DETAILS',
@@ -133,10 +134,7 @@ const reducer = (state = getInitialState(), action: AnyAction): State => {
         [action.namespace]: action.stats,
       };
     case ActionTypes.ResetCollectionDetails:
-      return {
-        ...state,
-        [action.namespace]: getCollectionStatsInitialState(),
-      };
+      return omit(state, action.namespace);
     default:
       return state;
   }

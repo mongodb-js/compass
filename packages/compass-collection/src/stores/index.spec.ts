@@ -2,10 +2,11 @@ import { expect } from 'chai';
 import { EventEmitter } from 'events';
 import AppRegistry from 'hadron-app-registry';
 import sinon from 'sinon';
-import store, { INITIAL_STATE, reset } from './index';
+import store, { INITIAL_STATE, reset, kInstance } from './index';
 import { dataLakeChanged } from '../modules/is-data-lake';
 import { namespaceChanged } from '../modules/namespace';
 import { serverVersionChanged } from '../modules/server-version';
+import type Collection from 'mongodb-collection-model';
 
 class FakeDataLake extends EventEmitter {
   isDataLake = false;
@@ -55,7 +56,7 @@ describe('Collection Store', function () {
         expect(dispatchSpy.args).to.deep.equal([
           [
             {
-              namespace: 'foo.bar',
+              namespace: 'foo.baz',
               stats: {
                 avgDocumentSize: 'N/A',
                 avgIndexSize: 'N/A',
@@ -85,7 +86,7 @@ describe('Collection Store', function () {
         expect(store.getState().stats['foo.bar'].documentCount).to.equal('1');
 
         instance.emit('change:collections.status', collection, 'error');
-        expect(store.getState().stats['foo.bar'].documentCount).to.equal('N/A');
+        expect(store.getState().stats['foo.bar']).to.equal(undefined);
       });
 
       it('responds to instance.dataLake change:isDataLake', function () {
@@ -122,6 +123,122 @@ describe('Collection Store', function () {
       appRegistry.emit('instance-destroyed');
 
       expect(store.getState()).to.deep.equal(initialState);
+    });
+
+    describe('collection appRegistry events', function () {
+      beforeEach(function () {
+        const mockCollectionModel: Partial<Collection> = {
+          document_count: 1,
+          index_count: 1,
+          index_size: 1,
+          status: 'ready',
+          avg_document_size: 2,
+          storage_size: 2,
+          free_storage_size: 0,
+        };
+
+        const mockInstance = {
+          databases: {
+            get: () => ({
+              collections: {
+                get: () => mockCollectionModel,
+              },
+            }),
+          },
+        };
+
+        sinon.replace(store, kInstance, mockInstance);
+        const mockGetStore: any = () => {};
+        sinon.replace(appRegistry, 'getStore', () => mockGetStore);
+      });
+
+      it('updates collection stats on appRegistry `select-namespace` event', function () {
+        appRegistry.emit('select-namespace', {
+          namespace: 'orange.pineapple',
+        });
+
+        const state = store.getState();
+        expect(state.namespace).to.equal('orange.pineapple');
+        expect(state.stats).to.deep.equal({
+          'orange.pineapple': {
+            avgDocumentSize: '2B',
+            avgIndexSize: '1B',
+            documentCount: '1',
+            indexCount: '1',
+            storageSize: '2B',
+            totalIndexSize: '1B',
+          },
+        });
+      });
+
+      it('updates and removes collection stats on appRegistry `select-namespace` event', function () {
+        appRegistry.emit('select-namespace', {
+          namespace: 'orange.pineapple',
+        });
+
+        appRegistry.emit('select-namespace', {
+          namespace: 'orange.not_pineapple',
+        });
+
+        const state = store.getState();
+        expect(state.namespace).to.equal('orange.not_pineapple');
+        expect(state.stats).to.deep.equal({
+          'orange.not_pineapple': {
+            avgDocumentSize: '2B',
+            avgIndexSize: '1B',
+            documentCount: '1',
+            indexCount: '1',
+            storageSize: '2B',
+            totalIndexSize: '1B',
+          },
+        });
+      });
+
+      it('updates collection stats on appRegistry `open-namespace-in-new-tab` event', function () {
+        appRegistry.emit('open-namespace-in-new-tab', {
+          namespace: 'test123.pineapple',
+        });
+
+        const state = store.getState();
+        expect(state.namespace).to.equal('test123.pineapple');
+        expect(state.stats).to.deep.equal({
+          'test123.pineapple': {
+            avgDocumentSize: '2B',
+            avgIndexSize: '1B',
+            documentCount: '1',
+            indexCount: '1',
+            storageSize: '2B',
+            totalIndexSize: '1B',
+          },
+        });
+
+        appRegistry.emit('open-namespace-in-new-tab', {
+          namespace: 'test123.pineappleNumberTwo',
+        });
+
+        const stateAfterSecondEmit = store.getState();
+        expect(stateAfterSecondEmit.namespace).to.equal(
+          'test123.pineappleNumberTwo'
+        );
+        expect(stateAfterSecondEmit.stats).to.deep.equal({
+          'test123.pineapple': {
+            avgDocumentSize: '2B',
+            avgIndexSize: '1B',
+            documentCount: '1',
+            indexCount: '1',
+            storageSize: '2B',
+            totalIndexSize: '1B',
+          },
+          'test123.pineappleNumberTwo': {
+            avgDocumentSize: '2B',
+            avgIndexSize: '1B',
+            documentCount: '1',
+            indexCount: '1',
+            storageSize: '2B',
+            totalIndexSize: '1B',
+          },
+        });
+      });
     });
   });
 });
