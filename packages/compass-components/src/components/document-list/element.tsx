@@ -319,6 +319,7 @@ export const HadronElement: React.FunctionComponent<{
 }) => {
   const autoFocus = useAutoFocusContext();
   const [expanded, setExpanded] = useState(allExpanded);
+  const addFieldActionsContainerRef = useRef(null);
   const {
     id,
     key,
@@ -401,6 +402,7 @@ export const HadronElement: React.FunctionComponent<{
                 : editingEnabled && !isValid && lineNumberInvalid
             )}
             style={{ minWidth: lineNumberMinWidth }}
+            ref={addFieldActionsContainerRef}
           >
             <div
               className={cx(
@@ -431,6 +433,7 @@ export const HadronElement: React.FunctionComponent<{
                       }
                     : undefined
                 }
+                refEl={addFieldActionsContainerRef}
               ></AddFieldActions>
             </div>
           </div>
