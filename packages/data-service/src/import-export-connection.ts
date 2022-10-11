@@ -21,21 +21,23 @@ const kFileTypeDescription = 'Compass Connections';
 export interface ExportImportConnectionOptions {
   passphrase?: string;
   filter?: (info: ConnectionInfo) => boolean;
-  storage?: Pick<ConnectionStorage, 'save' | 'loadAll'>;
   trackingProps?: object;
 }
 
 export interface ExportConnectionOptions extends ExportImportConnectionOptions {
+  loadConnections?: () => Promise<ConnectionInfo[]> | ConnectionInfo[];
   removeSecrets?: boolean;
 }
 
-export type ImportConnectionOptions = ExportImportConnectionOptions;
+export interface ImportConnectionOptions extends ExportImportConnectionOptions {
+  saveConnections?: (connections: ConnectionInfo[]) => Promise<void> | void;
+}
 
 export async function exportConnections(
   options: ExportConnectionOptions = {}
 ): Promise<string> {
   const {
-    storage = options.storage ?? new ConnectionStorage(),
+    loadConnections = async () => new ConnectionStorage().loadAll(),
     filter = (info) => info.favorite?.name,
     passphrase = '',
     removeSecrets = false,
@@ -48,7 +50,7 @@ export async function exportConnections(
     );
   }
 
-  const allConnections = await storage.loadAll();
+  const allConnections = await loadConnections();
   let exportConnections: ConnectionInfoWithEncryptedData[] = cloneDeep(
     allConnections.filter(filter)
   );
@@ -94,12 +96,19 @@ export async function exportConnections(
 
 class CompassImportError extends Error {}
 
+async function saveConnectionsToDefaultStorage(
+  connections: ConnectionInfo[]
+): Promise<void> {
+  const storage = new ConnectionStorage();
+  await Promise.all(connections.map((conn) => storage.save(conn)));
+}
+
 export async function importConnections(
   connectionList: string,
   options: ImportConnectionOptions = {}
 ): Promise<void> {
   const {
-    storage = options.storage ?? new ConnectionStorage(),
+    saveConnections = saveConnectionsToDefaultStorage,
     filter = () => true,
     passphrase = '',
     trackingProps = {},
@@ -188,9 +197,7 @@ export async function importConnections(
 
   // All validation that we do should have been completed before starting
   // to save connections.
-  for (const info of connections) {
-    await storage.save(info);
-  }
+  await saveConnections(connections);
 
   log.info(
     mongoLogId(1_001_000_150),
