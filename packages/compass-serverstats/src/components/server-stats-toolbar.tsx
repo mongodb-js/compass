@@ -13,13 +13,13 @@ const serverStatsToolbarStyles = css({
 });
 
 const serverStatsToolbarDarkThemeStyles = css({
-  background: uiColors.gray.dark3,
-  color: uiColors.gray.light2,
+  background: palette.gray.dark3,
+  color: palette.gray.light2,
 });
 
 const serverStatsToolbarLightThemeStyles = css({
-  background: uiColors.white,
-  color: uiColors.black,
+  background: palette.white,
+  color: palette.black,
 });
 
 const timeStyles = css({

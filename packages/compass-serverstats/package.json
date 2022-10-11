@@ -30,12 +30,10 @@
   "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
-    "hadron-react-buttons": "^6.0.1",
     "react": "^16.14.0"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
-    "hadron-react-buttons": "^6.0.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
