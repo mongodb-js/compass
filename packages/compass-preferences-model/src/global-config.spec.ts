@@ -99,7 +99,10 @@ describe('Global config file handling', function () {
       globalConfigPaths: [],
       argv: ['--showed-network-opt-in', 'about:blank'],
     });
-    expect(result.cli).to.deep.equal({ showedNetworkOptIn: true });
+    expect(result.cli).to.deep.equal({
+      positionalArguments: ['about:blank'],
+      showedNetworkOptIn: true,
+    });
   });
 
   it('ignores CLI options that should be ignored', async function () {
