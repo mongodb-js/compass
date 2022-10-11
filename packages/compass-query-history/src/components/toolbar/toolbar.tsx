@@ -29,6 +29,7 @@ const toolbarStyles = css({
   display: 'flex',
   flexDirection: 'column',
   padding: spacing[3],
+  paddingRight: spacing[5], // Extra right padding to account for close button.
 });
 
 const viewSwitcherStyles = css({

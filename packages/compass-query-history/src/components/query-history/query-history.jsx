@@ -74,16 +74,9 @@ class QueryHistory extends PureComponent {
     const { ns, showing, actions } = this.props;
 
     return (
-      <div
-        data-testid="query-history"
-        className={componentStyle}
-      >
+      <div data-testid="query-history" className={componentStyle}>
         <div className={innerStyle}>
-          <Toolbar
-            actions={actions}
-            showing={showing}
-            namespace={ns}
-          />
+          <Toolbar actions={actions} showing={showing} namespace={ns} />
 
           {showing === 'favorites' ? this.renderFavorites() : null}
           {showing === 'recent' ? this.renderRecents() : null}

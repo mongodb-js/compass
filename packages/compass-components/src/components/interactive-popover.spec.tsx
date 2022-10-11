@@ -94,4 +94,19 @@ describe('InteractivePopover Component', function () {
     expect(openSpy.calledOnce).to.be.true;
     expect(openSpy.firstCall.firstArg).to.equal(false);
   });
+
+  it('when open and the close is clicked it should call to close', function () {
+    const openSpy = sinon.fake();
+
+    renderPopover({
+      open: true,
+      setOpen: openSpy,
+    });
+    expect(openSpy.calledOnce).to.be.false;
+
+    const button = screen.getByTestId('interactive-popover-close-button');
+    button.click();
+    expect(openSpy.calledOnce).to.be.true;
+    expect(openSpy.firstCall.firstArg).to.equal(false);
+  });
 });

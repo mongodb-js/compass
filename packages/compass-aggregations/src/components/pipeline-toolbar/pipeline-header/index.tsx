@@ -122,7 +122,6 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
         >
           <SavedPipelines
             namespace={namespace}
-            onToggleSavedPipelines={onToggleSavedPipelines}
             savedPipelines={savedPipelines}
           />
         </InteractivePopover>
