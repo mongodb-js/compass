@@ -204,7 +204,7 @@ function InteractivePopover({
                 className={closeButtonStyles}
                 data-testid="interactive-popover-close-button"
                 onClick={onClose}
-                aria-label="Close query history"
+                aria-label="Close"
                 ref={closeButtonRef}
               >
                 <Icon glyph="X" />
