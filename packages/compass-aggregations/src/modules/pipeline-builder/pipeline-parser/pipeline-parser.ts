@@ -139,7 +139,7 @@ export default class PipelineParser {
   }
   // Generate source from stages
   static generate(root: t.ArrayExpression, stages: t.Expression[]): string {
-    const isAllDisabled = stages.every((stage) => {
+    const isAllDisabled = stages.length && stages.every((stage) => {
       return isNodeDisabled(stage);
     });
     // Special case where all stages should be added as inner comments to the

@@ -80,6 +80,15 @@ const pipelines = [
       ']'
     ].join('\n')
   },
+  {
+    usecase: 'pipeline with no stage and only comments',
+    input: `[\n // $match filters data \n]`,
+    output: [
+      '[',
+      '  // $match filters data',
+      ']'
+    ].join('\n')
+  },
 ];
 
 describe('PipelineParser', function () {
