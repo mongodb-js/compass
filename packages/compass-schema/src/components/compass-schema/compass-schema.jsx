@@ -154,9 +154,11 @@ class Schema extends Component {
       return this.renderAnalyzing();
     }
 
-    return <div className={styles.schema}>
-      <div className="schema-field-list">{this.renderFieldList()}</div>
-    </div>;
+    return (
+      <div className={styles.schema}>
+        <div className="schema-field-list">{this.renderFieldList()}</div>
+      </div>
+    );
   }
 
   /**
