@@ -161,12 +161,13 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: function ({ showWelcomeModal, networkTraffic }) {
-    log.info(
-      mongoLogId(1_001_000_092),
-      'Main Window',
-      'Rendering app container'
+  render: async function ({ showWelcomeModal, networkTraffic }) {
+    const getAutoConnectInfo = (await import('./auto-connect')).loadAutoConnectInfo(
+      await preferences.refreshPreferences()
     );
+    log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container', {
+      autoConnectEnabled: !!getAutoConnectInfo
+    });
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
@@ -184,6 +185,7 @@ const Application = View.extend({
       React.createElement(this.homeComponent, {
         appRegistry: app.appRegistry,
         appName: remote.app.getName(),
+        getAutoConnectInfo,
         showWelcomeModal,
         networkTraffic
       }),
