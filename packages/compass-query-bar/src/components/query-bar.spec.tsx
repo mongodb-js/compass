@@ -40,15 +40,16 @@ const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history-component-test-id';
 
+const QueryHistoryMockComponent = () => (
+  <div data-testid={queryHistoryComponentTestId}>
+    <div>Query history</div>
+    <button onClick={() => {}}>Button</button>
+  </div>
+);
 const mockQueryHistoryRole = {
   name: 'Query History',
   // eslint-disable-next-line react/display-name
-  component: () => (
-    <div data-testid={queryHistoryComponentTestId}>
-      <div>Query history</div>
-      <button onClick={() => {}}>Button</button>
-    </div>
-  ),
+  component: QueryHistoryMockComponent,
   configureStore: () => ({}),
   configureActions: () => {},
   storeName: 'Query.History',
@@ -295,6 +296,11 @@ describe('QueryBar Component', function () {
     it('renders the query history popover', function () {
       const queryHistory = screen.getByTestId(queryHistoryComponentTestId);
       expect(queryHistory).to.be.visible;
+
+      // Note: We re-close the query history as it attempts to focus trap after
+      // react-testing-library has unmounted the content which causes an error.
+      const button = screen.getByTestId(queryHistoryButtonId);
+      button.click();
     });
   });
 

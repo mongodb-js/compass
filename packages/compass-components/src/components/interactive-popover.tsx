@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import FocusTrap from 'focus-trap-react';
 
@@ -40,7 +40,7 @@ const closeButtonStyles = css({
   right: spacing[2],
 });
 
-const popoverDelayMS = 150;
+const focusTrapActivateDelayMS = 0;
 
 type InteractivePopoverProps = {
   className: string;
@@ -70,7 +70,6 @@ function InteractivePopover({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const popoverContentContainerRef = useRef<HTMLDivElement>(null);
-  const [isFocusTrapActive, setIsFocusTrapActive] = useState(false);
 
   const onClose = useCallback(() => {
     setOpen(false);
@@ -143,19 +142,6 @@ function InteractivePopover({
     [onClose]
   );
 
-  // Delay activating the focus trap until the popover has mounted.
-  useEffect(() => {
-    const activateFocusTrapTimeout = open
-      ? setTimeout(() => setIsFocusTrapActive(true), popoverDelayMS)
-      : null;
-
-    return () => {
-      if (activateFocusTrapTimeout !== null) {
-        clearTimeout(activateFocusTrapTimeout);
-      }
-    };
-  }, [open]);
-
   useEffect(() => {
     if (!open) {
       return;
@@ -166,6 +152,13 @@ function InteractivePopover({
       document.removeEventListener('keydown', onPopoverKeyDown);
     };
   }, [onPopoverKeyDown, open]);
+
+  // Delay activating the focus trap until the popover has mounted and completed its transition.
+  const delayFocusTrapPromise = useCallback(async function () {
+    await new Promise((resolve) =>
+      setTimeout(resolve, focusTrapActivateDelayMS)
+    );
+  }, []);
 
   return trigger({
     onClick: onClickTrigger,
@@ -183,10 +176,9 @@ function InteractivePopover({
       >
         {open && (
           <FocusTrap
-            active={isFocusTrapActive}
             focusTrapOptions={{
               clickOutsideDeactivates: true,
-              fallbackFocus: closeButtonRef.current ?? undefined,
+              checkCanFocusTrap: delayFocusTrapPromise,
             }}
           >
             <div

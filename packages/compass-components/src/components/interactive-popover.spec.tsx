@@ -10,13 +10,11 @@ const innerContentTestId = 'testing-inner-content';
 function renderPopover(
   props?: Partial<React.ComponentProps<typeof InteractivePopover>>
 ) {
-  const openSpy = sinon.spy();
-
   return render(
     <InteractivePopover
       className=""
       open={false}
-      setOpen={openSpy}
+      setOpen={() => {}}
       trigger={({ onClick, ref, children }) => (
         <>
           <button onClick={onClick} ref={ref}>
