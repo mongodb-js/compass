@@ -100,7 +100,9 @@ describe('Automatically connecting from the command line', function () {
       ],
     });
     const error = await compass.browser.waitForConnectionResult('failure');
-    expect(error).to.include('Server selection timed out');
+    expect(error).to.match(
+      /Server selection timed out|Client network socket disconnected/i
+    );
     await afterTests(compass, this.currentTest);
   });
 
