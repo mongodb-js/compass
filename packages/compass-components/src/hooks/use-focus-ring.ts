@@ -17,6 +17,7 @@ const focusRingStyles = css({
     borderRadius: spacing[1],
     boxShadow: `0 0 0 0 transparent`,
     transition: 'box-shadow .16s ease-in',
+    zIndex: 1,
   },
 });
 
