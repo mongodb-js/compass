@@ -107,13 +107,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
       globalAppRegistry.emit('compass:screen:viewed', { screen: name });
       changeActiveSubTab(idx, id);
     },
-    [
-      id,
-      activeSubTab,
-      localAppRegistry,
-      globalAppRegistry,
-      changeActiveSubTab,
-    ]
+    [id, activeSubTab, localAppRegistry, globalAppRegistry, changeActiveSubTab]
   );
 
   return (
