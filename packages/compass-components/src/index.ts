@@ -73,6 +73,10 @@ import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';
 
+export { FormModal } from './components/form-modal';
+export { ModalHeader } from './components/modal-header';
+export { ModalContent } from './components/modal-content';
+
 export {
   Accordion,
   CollapsibleFieldSet,
