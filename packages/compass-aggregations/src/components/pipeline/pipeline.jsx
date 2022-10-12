@@ -226,10 +226,6 @@ class Pipeline extends PureComponent {
           styles.pipeline
         )}
       >
-        <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
-        {this.renderModifyingViewSourceError()}
-        {this.renderPipelineWorkspace()}
-        <PipelineExplain />
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}
           isExpanded={this.props.settings.isExpanded}
@@ -245,6 +241,10 @@ class Pipeline extends PureComponent {
           runStage={this.props.runStage}
           settings={this.props.settings}
         />
+        <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
+        {this.renderModifyingViewSourceError()}
+        {this.renderPipelineWorkspace()}
+        <PipelineExplain />
         {importPipelineModal}
         {confirmImportPipelineModal}
         {savingPipelineModal}
