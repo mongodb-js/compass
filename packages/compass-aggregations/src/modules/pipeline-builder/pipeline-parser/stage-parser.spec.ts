@@ -198,7 +198,8 @@ describe('StageParser', function () {
       expect(getStageValueFromNode(stage)).to.equal([
         '{',
         '  // stage comment',
-        '  name: "berlin", // filters data on berlin',
+        '  name: "berlin",',
+        '  // filters data on berlin',
         '}',
       ].join('\n'));
     });
@@ -248,7 +249,8 @@ describe('StageParser', function () {
       expect(getStageOperatorFromNode(stage)).to.equal('$limit');
       expect(getStageValueFromNode(stage)).to.equal([
         '// stage comment',
-        '20 // limits data',
+        '20',
+        '// limits data',
       ].join('\n'));
     });
 
@@ -272,7 +274,8 @@ describe('StageParser', function () {
       expect(getStageOperatorFromNode(stage)).to.equal('$unwind');
       expect(getStageValueFromNode(stage)).to.equal([
         '// stage comment',
-        '"tags" // unfolds array',
+        '"tags"',
+        '// unfolds array',
       ].join('\n'));
     });
 
