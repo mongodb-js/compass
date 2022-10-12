@@ -493,8 +493,7 @@ export const DocumentListFetching =
   '[data-testid="documents-content"] [data-testid="fetching-documents"]';
 export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
-export const DocumentListError =
-  '[data-testid="documents-content"] .status-row-has-error';
+export const DocumentListError = '[data-testid="document-list-error-summary"]';
 export const AddDataButton = '[data-testid="crud-add-data-button"]';
 export const InsertDocumentOption =
   '[data-testid="crud-add-data-insert-document"]';

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
-import { StatusRow, ZeroState } from 'hadron-react-components';
+import { ZeroState } from 'hadron-react-components';
 import { TextButton } from 'hadron-react-buttons';
 import {
   CancelLoader,
@@ -22,19 +22,6 @@ import {
 
 import './index.less';
 import './ag-grid-dist.css';
-
-// From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L86
-const ERROR_CODE_OPERATION_TIMED_OUT = 50;
-
-const INCREASE_MAX_TIME_MS_HINT =
-  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
-
-function isOperationTimedOutError(err) {
-  return (
-    err.name === 'MongoServerError' &&
-    err.code?.value === ERROR_CODE_OPERATION_TIMED_OUT
-  );
-}
 
 /**
  * Component for the entire document list.
@@ -110,11 +97,7 @@ class DocumentList extends React.Component {
    */
   renderContent() {
     if (this.props.error) {
-      const errorMessage = isOperationTimedOutError(this.props.error)
-        ? INCREASE_MAX_TIME_MS_HINT
-        : this.props.error.message;
-
-      return <StatusRow style="error">{errorMessage}</StatusRow>;
+      return null;
     }
 
     if (
@@ -148,26 +131,6 @@ class DocumentList extends React.Component {
           ns={this.props.ns}
           updateComment={this.props.updateComment}
           {...this.props.insert}
-        />
-      );
-    }
-  }
-
-  /**
-   * Render the query bar.
-   *
-   * @returns {React.Component} The query bar.
-   */
-  renderQueryBar() {
-    if (this.props.isExportable) {
-      return (
-        <this.queryBar
-          store={this.queryBarStore}
-          actions={this.queryBarActions}
-          buttonLabel="Find"
-          resultId={this.props.resultId}
-          onApply={this.onApplyClicked.bind(this)}
-          onReset={this.onResetClicked.bind(this)}
         />
       );
     }
