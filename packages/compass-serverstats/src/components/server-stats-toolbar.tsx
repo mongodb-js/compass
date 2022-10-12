@@ -12,6 +12,16 @@ const serverStatsToolbarStyles = css({
   padding: spacing[3]
 });
 
+const serverStatsToolbarDarkThemeStyles = css({
+  background: palette.gray.dark3,
+  color: palette.gray.light2,
+});
+
+const serverStatsToolbarLightThemeStyles = css({
+  background: palette.white,
+  color: palette.black,
+});
+
 const timeStyles = css({
   padding: `${spacing[2]}px ${spacing[5]}px`,
   borderRadius: '3px',
@@ -59,7 +69,10 @@ function UnthemedServerStatsToolbar({
 
   return (
     <div
-      className={serverStatsToolbarStyles}
+      className={cx(serverStatsToolbarStyles, darkMode ?
+          serverStatsToolbarDarkThemeStyles :
+          serverStatsToolbarLightThemeStyles
+      )}
     >
       <Button
         onClick={onPlayPauseClicked}

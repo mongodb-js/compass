@@ -5,7 +5,8 @@ import React, { useCallback, useEffect } from 'react';
 import { TabNavBar, css } from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
-import type { CollectionStatsObject } from '../../modules/stats';
+import { getCollectionStatsInitialState } from '../../modules/stats';
+import type { CollectionStatsMap } from '../../modules/stats';
 
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
 
@@ -52,16 +53,14 @@ type CollectionProps = {
   views: JSX.Element[];
   localAppRegistry: AppRegistry;
   globalAppRegistry: AppRegistry;
-  changeActiveSubTab: (
-    activeSubTab: number,
-    id: string
-  ) => {
-    type: string;
-    activeSubTab: number;
-    id: string;
-  };
-  scopedModals: any[];
-  stats: CollectionStatsObject;
+  changeActiveSubTab: (activeSubTab: number, id: string) => void;
+  scopedModals: {
+    store: any;
+    component: React.ComponentType<any>;
+    actions: any;
+    key: number | string;
+  }[];
+  stats: CollectionStatsMap;
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
@@ -138,7 +137,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           selectOrCreateTab={selectOrCreateTab}
           pipeline={pipeline}
           sourceName={sourceName}
-          stats={stats}
+          stats={stats[namespace] ?? getCollectionStatsInitialState()}
         />
         <TabNavBar
           data-testid="collection-tabs"
@@ -151,7 +150,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
         />
       </div>
       <div className={collectionModalContainerStyles}>
-        {scopedModals.map((modal: any) => (
+        {scopedModals.map((modal) => (
           <modal.component
             store={modal.store}
             actions={modal.actions}

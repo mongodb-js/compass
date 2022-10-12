@@ -6,7 +6,6 @@ import type {
 } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
 import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import debugModule from 'debug';
 import { cloneDeep } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -22,7 +21,10 @@ import type { MongoClientOptions } from 'mongodb';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 
 import { ToastVariant, useToast } from '@mongodb-js/compass-components';
-const debug = debugModule('mongodb-compass:connections:connections-store');
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { debug, mongoLogId, log } = createLoggerAndTelemetry(
+  'COMPASS-CONNECTIONS'
+);
 
 export function createNewConnectionInfo(): ConnectionInfo {
   return {
@@ -205,6 +207,7 @@ export function useConnections({
   onConnected,
   connectionStorage,
   appName,
+  getAutoConnectInfo,
   connectFn,
 }: {
   onConnected: (
@@ -212,6 +215,7 @@ export function useConnections({
     dataService: DataService
   ) => void;
   connectionStorage: ConnectionStorage;
+  getAutoConnectInfo?: (() => Promise<ConnectionInfo>) | undefined;
   connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
   appName: string;
 }): {
@@ -219,7 +223,9 @@ export function useConnections({
   recentConnections: ConnectionInfo[];
   favoriteConnections: ConnectionInfo[];
   cancelConnectionAttempt: () => void;
-  connect: (connectionInfo: ConnectionInfo) => Promise<void>;
+  connect: (
+    connectionInfo: ConnectionInfo | (() => Promise<ConnectionInfo>)
+  ) => Promise<void>;
   createNewConnection: () => void;
   saveConnection: (connectionInfo: ConnectionInfo) => Promise<void>;
   setActiveConnectionById: (newConnectionId: string) => void;
@@ -354,6 +360,15 @@ export function useConnections({
     // Load connections after first render.
     void loadConnections(dispatch, connectionStorage);
 
+    if (getAutoConnectInfo) {
+      log.info(
+        mongoLogId(1_001_000_160),
+        'Connection Store',
+        'Performing automatic connection attempt'
+      );
+      void connect(getAutoConnectInfo);
+    }
+
     return () => {
       // When unmounting, clean up any current connection attempts that have
       // not resolved.
@@ -364,9 +379,11 @@ export function useConnections({
         connectingConnectionAttempt.current.cancelConnectionAttempt();
       }
     };
-  }, []);
+  }, [getAutoConnectInfo]);
 
-  const connect = async (connectionInfo: ConnectionInfo) => {
+  const connect = async (
+    getAutoConnectInfo: ConnectionInfo | (() => Promise<ConnectionInfo>)
+  ) => {
     if (connectionAttempt || isConnected) {
       // Ensure we aren't currently connecting.
       return;
@@ -375,18 +392,30 @@ export function useConnections({
     const newConnectionAttempt = createConnectionAttempt(connectFn);
     connectingConnectionAttempt.current = newConnectionAttempt;
 
-    dispatch({
-      type: 'attempt-connect',
-      connectingStatusText: `Connecting to ${getConnectionTitle(
-        connectionInfo
-      )}`,
-      connectionAttempt: newConnectionAttempt,
-    });
-
-    trackConnectionAttemptEvent(connectionInfo);
-    debug('connecting with connectionInfo', connectionInfo);
-
+    let connectionInfo: ConnectionInfo | undefined = undefined;
     try {
+      if (typeof getAutoConnectInfo === 'function') {
+        connectionInfo = await getAutoConnectInfo();
+
+        dispatch({
+          type: 'set-active-connection',
+          connectionInfo,
+        });
+      } else {
+        connectionInfo = getAutoConnectInfo;
+      }
+
+      dispatch({
+        type: 'attempt-connect',
+        connectingStatusText: `Connecting to ${getConnectionTitle(
+          connectionInfo
+        )}`,
+        connectionAttempt: newConnectionAttempt,
+      });
+
+      trackConnectionAttemptEvent(connectionInfo);
+      debug('connecting with connectionInfo', connectionInfo);
+
       const connectionStringWithAppName = setAppNameParamIfMissing(
         connectionInfo.connectionOptions.connectionString,
         appName
@@ -417,8 +446,17 @@ export function useConnections({
       );
     } catch (error) {
       connectingConnectionAttempt.current = undefined;
-      trackConnectionFailedEvent(connectionInfo, error as Error);
-      debug('connect error', error);
+      if (connectionInfo) {
+        trackConnectionFailedEvent(connectionInfo, error as Error);
+      }
+      log.error(
+        mongoLogId(1_001_000_161),
+        'Connection Store',
+        'Error performing connection attempt',
+        {
+          error: (error as Error).message,
+        }
+      );
 
       dispatch({
         type: 'connection-attempt-errored',

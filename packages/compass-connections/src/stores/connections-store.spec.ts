@@ -12,7 +12,7 @@ const noop = (): any => {
 };
 
 function createMockRecents(num: number): ConnectionInfo[] {
-  const mockRecents = [];
+  const mockRecents: ConnectionInfo[] = [];
   for (let i = 0; i < num; i++) {
     mockRecents.push({
       id: `${i}`,
@@ -248,6 +248,31 @@ describe('use-connections hook', function () {
       expect(mockConnectionStorage.delete).not.to.have.been.calledWith(
         mockRecents[mockRecents.length - 1]
       );
+    });
+
+    it('allows connecting to a dynamically provided connection info object', async function () {
+      const onConnected = sinon.spy();
+      const { result } = renderHook(() =>
+        useConnections({
+          onConnected,
+          connectionStorage: mockConnectionStorage,
+          connectFn: () => Promise.resolve({} as any),
+          appName: 'Test App Name',
+        })
+      );
+
+      await result.current.connect(() =>
+        Promise.resolve({
+          id: 'new',
+          connectionOptions: {
+            connectionString: 'mongodb://new-recent',
+          },
+        })
+      );
+
+      await waitFor(() => {
+        expect(onConnected).to.have.been.called;
+      });
     });
   });
 
@@ -542,7 +567,7 @@ describe('use-connections hook', function () {
     it('should set the duplicated connection as current active', function () {
       const originalConnection = hookResult.current.state.connections[0];
       const duplicatedConnection = hookResult.current.state.connections[2];
-      expect(duplicatedConnection.favorite.name).to.equal('turtles (copy)');
+      expect(duplicatedConnection.favorite?.name).to.equal('turtles (copy)');
       expect(duplicatedConnection.id).not.undefined;
       expect(duplicatedConnection.connectionOptions.connectionString).to.equal(
         originalConnection.connectionOptions.connectionString
