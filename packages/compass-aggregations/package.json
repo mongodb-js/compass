@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@babel/generator": "^7.19.5",
-    "@babel/parser": "7.16.0",
+    "@babel/parser": "^7.19.4",
     "@babel/types": "^7.19.4",
     "@electron/remote": "^2.0.8",
     "@mongodb-js/eslint-config-compass": "^1.0.1",

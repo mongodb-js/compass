@@ -61,6 +61,9 @@ export function getStageValueFromNode(node: StageLike): string {
   return generate(stageAst);
 }
 
+/**
+ * Converts a stage ast to line comments.
+ */
 export function stageToComments(stage: t.Expression): t.CommentLine[] {
   return generate(stage)
     .trim()
