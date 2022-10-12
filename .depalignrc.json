@@ -131,6 +131,7 @@
     "less-loader": ["^10.0.1"],
     "babel-loader": ["^7.1.5"],
     "@babel/core": ["7.16.0"],
+    "@babel/parser": ["7.16.0"],
     "js-yaml": ["^3.13.1"]
   }
 }
