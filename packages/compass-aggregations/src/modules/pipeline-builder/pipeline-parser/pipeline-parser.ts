@@ -168,7 +168,7 @@ export default class PipelineParser {
       const comments = stageToComments(stage);
       const prevStage = elements[elements.length - 1];
       if (!prevStage) {
-        unusedComments = unusedComments.concat(comments);
+        unusedComments.push(...comments);
         continue;
       }
 
