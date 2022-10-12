@@ -7,6 +7,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
 import { transparentize } from 'polished';
 import { useTheme, Theme } from '../hooks/use-theme';
+import { useId } from '@react-aria/utils';
 
 const borderRadius = spacing[2];
 
@@ -39,8 +40,6 @@ const closeButtonStyles = css({
   top: spacing[2],
   right: spacing[2],
 });
-
-const focusTrapActivateDelayMS = 0;
 
 type InteractivePopoverProps = {
   className: string;
@@ -153,12 +152,7 @@ function InteractivePopover({
     };
   }, [onPopoverKeyDown, open]);
 
-  // Delay activating the focus trap until the popover has mounted and completed its transition.
-  const delayFocusTrapPromise = useCallback(async function () {
-    await new Promise((resolve) =>
-      setTimeout(resolve, focusTrapActivateDelayMS)
-    );
-  }, []);
+  const closeButtonId = useId('close-button-id');
 
   return trigger({
     onClick: onClickTrigger,
@@ -178,7 +172,8 @@ function InteractivePopover({
           <FocusTrap
             focusTrapOptions={{
               clickOutsideDeactivates: true,
-              checkCanFocusTrap: delayFocusTrapPromise,
+              // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
+              fallbackFocus: `#${closeButtonId}`,
             }}
           >
             <div
@@ -197,6 +192,7 @@ function InteractivePopover({
                 data-testid="interactive-popover-close-button"
                 onClick={onClose}
                 aria-label="Close"
+                id={closeButtonId}
                 ref={closeButtonRef}
               >
                 <Icon glyph="X" />

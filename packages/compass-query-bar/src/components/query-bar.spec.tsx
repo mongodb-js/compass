@@ -296,11 +296,6 @@ describe('QueryBar Component', function () {
     it('renders the query history popover', function () {
       const queryHistory = screen.getByTestId(queryHistoryComponentTestId);
       expect(queryHistory).to.be.visible;
-
-      // Note: We re-close the query history as it attempts to focus trap after
-      // react-testing-library has unmounted the content which causes an error.
-      const button = screen.getByTestId(queryHistoryButtonId);
-      button.click();
     });
   });
 
