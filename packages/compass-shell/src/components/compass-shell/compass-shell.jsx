@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { Shell } from '@mongosh/browser-repl';
-import { ResizeHandle, ResizeDirection, css, cx, palette, transparentize } from '@mongodb-js/compass-components';
+import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
 
 import InfoModal from '../info-modal';
 import ShellHeader from '../shell-header';
@@ -22,7 +22,7 @@ const compassShellContainerStyles = css({
   overflow: 'auto',
   borderTop: `1px solid ${palette.gray.dark2}`,
   '*::-webkit-scrollbar-thumb': {
-    background: transparentize(0.5, palette.gray.light1),
+    background: rgba(palette.gray.light1, 0.5),
   }
 });
 
