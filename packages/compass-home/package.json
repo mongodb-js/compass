@@ -81,6 +81,9 @@
     "sinon": "^8.1.1",
     "xvfb-maybe": "^0.2.1"
   },
+  "optionalPeerDependencies": {
+    "@electron/remote": "^2.0.8"
+  },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",

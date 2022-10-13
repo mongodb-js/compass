@@ -54,7 +54,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const { Action } = require('@mongodb-js/hadron-plugin-manager');
 
-const { enableDarkTheme, disableDarkTheme, loadTheme } = require('./theme');
+const { setupTheme } = require('./theme');
 
 const { setupIntercom } = require('./intercom');
 
@@ -221,7 +221,6 @@ app.extend({
     await preferences.refreshPreferences();
 
     const {
-      theme,
       showedNetworkOptIn,
       networkTraffic
     } = preferences.getPreferences();
@@ -239,19 +238,7 @@ app.extend({
         }
 
         // Get theme from the preferences and set accordingly.
-        loadTheme(theme);
-        ipc.on('app:darkreader-enable', () => {
-          enableDarkTheme();
-        });
-        ipc.on('app:darkreader-disable', () => {
-          disableDarkTheme();
-        });
-        ipc.on('app:save-theme', (_, theme) => {
-          // Save the new theme on the user's preferences.
-          if (theme) {
-            preferences.savePreferences({ theme });
-          }
-        });
+        setupTheme();
 
         Action.pluginActivationCompleted.listen(() => {
           global.hadronApp.appRegistry.onActivated();
