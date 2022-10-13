@@ -1,5 +1,10 @@
 import React from 'react';
-import { css, Banner, spacing, Button } from '@mongodb-js/compass-components';
+import {
+  css,
+  Banner,
+  spacing,
+  ModalFooterButton,
+} from '@mongodb-js/compass-components';
 
 const bannerStyles = css({
   margin: `${spacing[3]}px 0`,
@@ -79,21 +84,21 @@ function CreateIndexActions({
         {renderInProgress()}
       </div>
       <div className={modalFooterActionsStyles}>
-        <Button
+        <ModalFooterButton
           data-testid="create-index-actions-cancel-button"
           onClick={onCancel}
         >
           {inProgress ? 'Close' : 'Cancel'}
-        </Button>
+        </ModalFooterButton>
         {!inProgress && (
-          <Button
+          <ModalFooterButton
             data-testid="create-index-actions-create-index-button"
             onClick={onConfirm}
             variant="primary"
             className={createIndexButtonStyles}
           >
             Create Index
-          </Button>
+          </ModalFooterButton>
         )}
       </div>
     </>

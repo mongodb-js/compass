@@ -3,12 +3,11 @@ import React, { useCallback } from 'react';
 import {
   css,
   Banner,
-  Button,
-  ModalTitle,
+  ModalHeader,
+  ModalContent,
   Modal,
   Link,
   Subtitle,
-  ModalFooter,
   spacing
 } from '@mongodb-js/compass-components';
 
@@ -17,10 +16,6 @@ import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
 const mongoshVersion = `v${
   require('@mongosh/browser-repl/package.json').version
 }`;
-
-const modalContentWrapperStyles = css({
-  padding: 'initial'
-});
 
 const shortcutsTableContainerStyles = css({
   marginTop: spacing[2],
@@ -32,13 +27,6 @@ const shortcutsTitleStyles = css({
   marginTop: spacing[4]
 });
 
-const modalContentStyles = css({
-  padding: spacing[5]
-});
-
-/**
- * Show information on how to use the shell in compass.
- */
 function InfoModal({
   hideInfoModal,
   show
@@ -54,10 +42,10 @@ function InfoModal({
       open={show}
       trackingId="shell_info_modal"
       setOpen={onSetOpen}
-      contentClassName={modalContentWrapperStyles}
+      contentVariant="without-footer"
     >
-      <div className={modalContentStyles}>
-        <ModalTitle>mongosh {mongoshVersion}</ModalTitle>
+      <ModalHeader title={`mongosh ${mongoshVersion}`} />
+      <ModalContent>
         <Banner>
           For more information please visit the&nbsp;
           <Link
@@ -74,14 +62,7 @@ function InfoModal({
         <div className={shortcutsTableContainerStyles}>
           <KeyboardShortcutsTable />
         </div>
-      </div>
-      <ModalFooter>
-        <Button
-          onClick={hideInfoModal}
-        >
-          Close
-        </Button>
-      </ModalFooter>
+      </ModalContent>
     </Modal>
   );
 }

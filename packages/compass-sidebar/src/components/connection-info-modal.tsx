@@ -1,6 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, H3, Body, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Modal,
+  ModalHeader,
+  ModalContent,
+  Body,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { ServerType, TopologyType } from 'mongodb-instance-model';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type { ConnectionOptions } from '../modules/connection-options';
@@ -70,16 +77,18 @@ export function ConnectionInfoModal({
       setOpen={close}
       size="small"
       data-testid="connection-info-modal"
+      contentVariant="without-footer"
     >
-      <H3>Connection info</H3>
-
-      <dl>
-        {infos.map((info, i) => (
-          <Info key={i} term={info.term}>
-            {info.description}
-          </Info>
-        ))}
-      </dl>
+      <ModalHeader title="Connection info" />
+      <ModalContent>
+        <dl>
+          {infos.map((info, i) => (
+            <Info key={i} term={info.term}>
+              {info.description}
+            </Info>
+          ))}
+        </dl>
+      </ModalContent>
     </Modal>
   );
 }

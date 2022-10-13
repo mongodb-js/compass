@@ -45,11 +45,15 @@ function ModalContent({
   children,
 }: ModalContentProps) {
   return (
-    <div className={cx(
-      contentStyle,
-      variantStyle[variant],
-      scroll && css({ overflow: 'auto' })
-  )}>{children}</div>
+    <div
+      className={cx(
+        contentStyle,
+        variantStyle[variant],
+        scroll && css({ overflow: 'auto' })
+      )}
+    >
+      {children}
+    </div>
   );
 }
 

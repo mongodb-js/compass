@@ -5,7 +5,8 @@ import {
   Banner,
   Body,
   Description,
-  ModalTitle,
+  ModalHeader,
+  ModalContent,
   Label,
   Link,
   Toggle,
@@ -51,9 +52,10 @@ export default function CSFLEConnectionModal({
       trackingId="csfle_connection_modal"
       setOpen={setOpen}
       data-testid="csfle-connection-modal"
+      contentVariant="without-footer"
     >
-      <div>
-        <ModalTitle>In-Use Encryption Connection Options</ModalTitle>
+      <ModalHeader title="In-Use Encryption Connection Options" />
+      <ModalContent>
         <Body>
           This connection is configured with In-Use Encryption enabled.
         </Body>
@@ -76,14 +78,15 @@ export default function CSFLEConnectionModal({
           order to make Compass forget KMS credentials, the connection must be
           fully closed.
         </Description>
-      </div>
-      <Banner className={csfleBannerStyles}>
-        In-Use Encryption is an Enterprise/Atlas-only feature of MongoDB.&nbsp;
-        {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
-        <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields">
-          Learn More
-        </Link>
-      </Banner>
+        <Banner className={csfleBannerStyles}>
+          In-Use Encryption is an Enterprise/Atlas-only feature of
+          MongoDB.&nbsp;
+          {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
+          <Link href="https://dochub.mongodb.org/core/rqe-encrypted-fields">
+            Learn More
+          </Link>
+        </Banner>
+      </ModalContent>
     </Modal>
   );
 }

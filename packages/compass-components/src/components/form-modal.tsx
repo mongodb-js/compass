@@ -1,12 +1,11 @@
 import React from 'react';
-import { css } from '@leafygreen-ui/emotion';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { Modal } from './modal';
-import { Button, ModalFooter } from './leafygreen';
-import { Theme, withTheme } from '../hooks/use-theme';
+import { ModalFooter } from './leafygreen';
 
 import { ModalContent } from './modal-content';
 import { ModalHeader } from './modal-header';
+import { ModalFooterButton } from './modal-footer-button';
 
 export const Variant = {
   Default: ButtonVariant.Primary,
@@ -14,33 +13,6 @@ export const Variant = {
 } as const;
 
 export type Variant = typeof Variant[keyof typeof Variant];
-
-const baseModalStyle = css`
-  width: 600px;
-  padding: initial;
-  letter-spacing: 0;
-`;
-
-const buttonStyle = {
-  [Theme.Light]: css`
-    margin: 0 2px;
-    &:first-of-type {
-      margin: 0 0 0 5px;
-    }
-    &:last-of-type {
-      margin: 0 5px 0 0;
-    }
-  `,
-  [Theme.Dark]: css`
-    margin: 0 2px;
-    &:first-of-type {
-      margin: 0 0 0 4px;
-    }
-    &:last-of-type {
-      margin: 0 4px 0 0;
-    }
-  `,
-};
 
 type FormModalProps = React.ComponentProps<typeof Modal> & {
   variant?: Variant;
@@ -54,7 +26,7 @@ type FormModalProps = React.ComponentProps<typeof Modal> & {
   onCancel: () => void;
 };
 
-function UnthemedFormModal({
+function FormModal({
   title,
   subtitle,
   submitButtonText,
@@ -64,19 +36,11 @@ function UnthemedFormModal({
   scroll,
   onSubmit,
   onCancel,
-  darkMode,
   children,
   ...modalProps
 }: FormModalProps) {
-  const theme = darkMode ? Theme.Dark : Theme.Light;
-
   return (
-    <Modal
-      contentClassName={baseModalStyle}
-      setOpen={onCancel}
-      darkMode={darkMode}
-      {...modalProps}
-    >
+    <Modal setOpen={onCancel} contentVariant="with-footer" {...modalProps}>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -84,31 +48,29 @@ function UnthemedFormModal({
         }}
       >
         <ModalHeader title={title} subtitle={subtitle} variant={variant} />
-        <ModalContent variant={variant} scroll={scroll}>{children}</ModalContent>
+        <ModalContent variant={variant} scroll={scroll}>
+          {children}
+        </ModalContent>
         <ModalFooter>
-          <Button
+          <ModalFooterButton
             data-testid="submit-button"
-            className={buttonStyle[theme]}
             variant={variant}
             type="submit"
             disabled={submitDisabled}
           >
             {submitButtonText}
-          </Button>
-          <Button
+          </ModalFooterButton>
+          <ModalFooterButton
             data-testid="cancel-button"
-            className={buttonStyle[theme]}
             onClick={onCancel}
             variant="default"
           >
             {cancelButtonText}
-          </Button>
+          </ModalFooterButton>
         </ModalFooter>
       </form>
     </Modal>
   );
 }
-
-const FormModal = withTheme(UnthemedFormModal);
 
 export { FormModal };

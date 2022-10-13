@@ -17,7 +17,6 @@ import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/confirmation-modal';
 import FileInput from './components/file-input';
 import { Modal } from './components/modal';
-import { ModalTitle } from './components/modal-title';
 import { MoreOptionsToggle } from './components/more-options-toggle';
 import {
   ErrorSummary,
@@ -76,6 +75,7 @@ export { default as FormFieldContainer } from './components/form-field-container
 export { FormModal } from './components/form-modal';
 export { ModalHeader } from './components/modal-header';
 export { ModalContent } from './components/modal-content';
+export { ModalFooterButton } from './components/modal-footer-button';
 
 export {
   Accordion,
@@ -86,7 +86,6 @@ export {
   FileInput,
   IndexIcon,
   Modal,
-  ModalTitle,
   MoreOptionsToggle,
   RadioBoxGroup,
   SpinLoader,

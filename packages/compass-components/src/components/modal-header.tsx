@@ -71,6 +71,7 @@ function UnthemedModalHeader({
           <Icon glyph="Warning" fill={palette.red.base} role="presentation" />
         </div>
       )}
+
       <h1
         className={cx(titleStyle, {
           [css`
