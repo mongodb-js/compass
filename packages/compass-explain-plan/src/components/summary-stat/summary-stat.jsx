@@ -34,6 +34,7 @@ class SummaryStat extends Component {
           <IconButton
             className={styles['summary-stat-info-sprinkle']}
             href={dataLink}
+            target="_blank"
             aria-label="More information on index usage in explain results"
           >
             <Icon glyph="InfoWithCircle" size="small" />
