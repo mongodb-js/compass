@@ -2,6 +2,7 @@ changelog:
   exclude:
     labels:
       - feature flagged
+      - no release notes
   categories:
     - title: New Features
       labels:
