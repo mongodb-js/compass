@@ -7,7 +7,6 @@ import { withTheme } from '../hooks/use-theme';
 const keylineStyles = css({
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: spacing[2],
-  overflow: 'hidden',
 });
 
 const keylineLightThemeStyles = css({
