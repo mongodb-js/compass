@@ -86,7 +86,13 @@ export function createLoggerAndTelemetry(component: string): {
       properties,
     };
     if (typeof properties === 'function') {
-      data.properties = await properties();
+      try {
+        data.properties = await properties();
+      } catch (error) {
+        data.properties = {
+          error_fetching_properties: true,
+        };
+      }
     }
     emit(ipc, 'compass:track', data);
   };
