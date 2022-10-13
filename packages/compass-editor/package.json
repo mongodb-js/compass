@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-editor",
-  "description": "MongoDB ace modes, autocompleters, and themes",
+  "description": "Reusable Compass editor component based on ace-editor with MongoDB-specific ace modes, themes, and autocompleters",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"

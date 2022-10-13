@@ -130,7 +130,7 @@ function Editor({
  *
  * ```
  * render(<Editor data-testid='my-editor' />);
- * Editor.setEditorValue(screen.getByTestId('editor-test-id'), 'my text');
+ * setEditorValue(screen.getByTestId('editor-test-id'), 'my text');
  * ```
  */
 function setEditorValue(element: HTMLElement, value: string): void {
