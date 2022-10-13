@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests } from '../helpers/compass';
+import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -51,6 +51,12 @@ describe('FLE2', function () {
       const sidebar = await browser.$(Selectors.SidebarTitle);
       if (await sidebar.isDisplayed()) {
         await browser.disconnect();
+      }
+    });
+
+    afterEach(async function () {
+      if (compass) {
+        await afterTest(compass, this.currentTest);
       }
     });
 
