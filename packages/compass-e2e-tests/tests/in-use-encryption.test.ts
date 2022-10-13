@@ -443,7 +443,7 @@ describe('FLE2', function () {
           const button = await document.$(Selectors.UpdateDocumentButton);
           await button.click();
           try {
-            // Prmpt failure is required here and so the timeout should be
+            // Prompt failure is required here and so the timeout should be
             // present and smaller than the default one to allow for tests to
             // proceed correctly
             await footer.waitForDisplayed({ reverse: true, timeout: 10000 });
@@ -453,14 +453,18 @@ describe('FLE2', function () {
               (await footer.getText()) ===
                 'Found indexed encrypted fields but could not find __safeContent__'
             ) {
-              return; // This version is affected by SERVER-68065 where updates on unindexed fields in QE are buggy.
+              return; // MongodDB < 6.1 is affected by SERVER-68065 where updates on unindexed fields in QE are buggy.
             }
           }
           await footer.waitForDisplayed({ reverse: true });
 
           await browser.runFindOperation(
             'Documents',
-            "{ phoneNumber: '10101010' }"
+            // Querying on encrypted fields when they are unindexed is not
+            // supported, so we use document _id instead
+            mode === 'unindexed'
+              ? `{ _id: ${result._id} }`
+              : "{ phoneNumber: '10101010' }"
           );
 
           const modifiedResult = await getFirstListDocument(browser);
