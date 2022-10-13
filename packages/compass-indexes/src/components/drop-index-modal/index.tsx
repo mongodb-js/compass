@@ -6,7 +6,7 @@ import {
   Label,
   spacing,
   Banner,
-  ConfirmationModal,
+  FormModal,
   Icon,
   Body,
   TextInput,
@@ -71,11 +71,6 @@ export function DropIndexModal({
   dropIndex,
   clearError,
 }: DropIndexFormProps) {
-  const onFormSubmit = (evt: React.FormEvent) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-  };
-
   const handleClose = () => {
     toggleIsVisible(false);
     resetForm();
@@ -119,12 +114,12 @@ export function DropIndexModal({
   };
 
   return (
-    <ConfirmationModal
+    <FormModal
       title="Drop Index"
       open={isVisible}
-      onConfirm={handleConfirm}
+      onSubmit={handleConfirm}
       onCancel={handleClose}
-      buttonText="Drop"
+      submitButtonText="Drop"
       variant="danger"
       submitDisabled={confirmName !== name}
       trackingId="drop_index_modal"
@@ -137,19 +132,17 @@ export function DropIndexModal({
           <Label htmlFor="confirm-drop-index-name">{name}</Label> to drop
         </Body>
       </div>
-      <form onSubmit={onFormSubmit}>
-        <TextInput
-          id="confirm-drop-index-name"
-          aria-labelledby="Confirm drop index"
-          type="text"
-          data-testid="confirm-drop-index-name"
-          value={confirmName}
-          onChange={(evt) => changeConfirmName(evt.target.value)}
-        />
-        {renderError()}
-        {renderInProgress()}
-      </form>
-    </ConfirmationModal>
+      <TextInput
+        id="confirm-drop-index-name"
+        aria-labelledby="Confirm drop index"
+        type="text"
+        data-testid="confirm-drop-index-name"
+        value={confirmName}
+        onChange={(evt) => changeConfirmName(evt.target.value)}
+      />
+      {renderError()}
+      {renderInProgress()}
+    </FormModal>
   );
 }
 

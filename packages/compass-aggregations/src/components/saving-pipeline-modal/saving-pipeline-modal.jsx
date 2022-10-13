@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal, css, cx, spacing } from '@mongodb-js/compass-components';
 
 /**
  * Saving pipeline modal.
@@ -30,18 +30,6 @@ class SavingPipelineModal extends PureComponent {
   }
 
   /**
-   * Handle the form submission for `Hit Enter` to save.
-   *
-   * @param {Event} evt
-   * @returns {void}
-   */
-  onSubmit(evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-    this.save();
-  }
-
-  /**
    * Calls back to action handlers for changing the name and saving it.
    *
    * If canceling from `Save As...`, the current pipeline is not cloned.
@@ -64,26 +52,24 @@ class SavingPipelineModal extends PureComponent {
   render() {
     const title = this.props.isSaveAs ? 'Save Pipeline As...' : 'Save Pipeline';
     return (
-      <ConfirmationModal
+      <FormModal
         title={title}
         open={this.props.isOpen}
-        onConfirm={this.save.bind(this)}
+        onSubmit={this.save.bind(this)}
         onCancel={this.props.savingPipelineCancel}
-        buttonText="Save"
+        submitButtonText="Save"
         submitDisabled={this.props.name === ''}
         trackingId="save_pipeline_modal"
       >
-        <form onSubmit={this.onSubmit.bind(this)}>
-          <input
-            id="save-pipeline-name"
-            type="text"
-            value={this.props.name}
-            onChange={this.onNameChanged.bind(this)}
-            className="form-control"
-            placeholder="Untitled"
-          />
-        </form>
-      </ConfirmationModal>
+        <input
+          id="save-pipeline-name"
+          type="text"
+          value={this.props.name}
+          onChange={this.onNameChanged.bind(this)}
+          className={cx('form-control', css({ marginTop: spacing[1] }))}
+          placeholder="Untitled"
+        />
+      </FormModal>
     );
   }
 }

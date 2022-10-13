@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Editor, EditorVariant, ConfirmationModal } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant, FormModal } from '@mongodb-js/compass-components';
 
 import styles from './import-pipeline.module.less';
 
@@ -51,12 +51,12 @@ class ImportPipeline extends PureComponent {
    */
   render() {
     return (
-      <ConfirmationModal
+      <FormModal
         title={TITLE}
         open={this.props.isOpen}
-        onConfirm={this.props.createNew}
+        onSubmit={this.props.createNew}
         onCancel={this.props.closeImport}
-        buttonText="Create New"
+        submitButtonText="Create New"
         submitDisabled={this.props.text === ''}
         trackingId="import_pipeline_modal"
       >
@@ -73,7 +73,7 @@ class ImportPipeline extends PureComponent {
           />
         </div>
         {this.renderError()}
-      </ConfirmationModal>
+      </FormModal>
     );
   }
 }

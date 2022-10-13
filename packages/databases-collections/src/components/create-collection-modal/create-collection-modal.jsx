@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal } from '@mongodb-js/compass-components';
 import { Banner } from '@mongodb-js/compass-components';
 
 import { createCollection } from '../../modules/create-collection';
@@ -10,7 +10,6 @@ import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 
 import CollectionFields from '../collection-fields';
-import styles from './create-collection-modal.module.less';
 
 class CreateCollectionModal extends PureComponent {
   static propTypes = {
@@ -60,14 +59,13 @@ class CreateCollectionModal extends PureComponent {
 
   render() {
     return (
-      <ConfirmationModal
+      <FormModal
         title="Create Collection"
         open={this.props.isVisible}
-        onConfirm={this.onConfirm}
+        onSubmit={this.onConfirm}
         onCancel={this.onCancel}
-        buttonText="Create Collection"
+        submitButtonText="Create Collection"
         submitDisabled={!((this.state.data.collection || '').trim())}
-        className={styles['create-collection-modal']}
         trackingId="create_collection_modal"
       >
         <CollectionFields
@@ -78,7 +76,7 @@ class CreateCollectionModal extends PureComponent {
           currentTopologyType={this.props.currentTopologyType}
         />
         {this.renderError()}
-      </ConfirmationModal>
+      </FormModal>
     );
   }
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  ConfirmationModal,
+  FormModal,
   FormFieldContainer,
   TextInput,
 } from '@mongodb-js/compass-components';
@@ -27,19 +27,19 @@ function SaveConnectionModal({
   });
 
   return (
-    <ConfirmationModal
+    <FormModal
       title={
         initialFavoriteInfo ? 'Edit favorite' : 'Save connection to favorites'
       }
       open={open}
-      onConfirm={() => {
+      onSubmit={() => {
         void onSaveClicked({
           ...editingFavorite,
         });
       }}
       submitDisabled={(editingFavorite.name || '').trim() ? false : true}
       onCancel={onCancelClicked}
-      buttonText={saveText}
+      submitButtonText={saveText}
       data-testid="favorite_modal"
     >
       <FormFieldContainer>
@@ -69,7 +69,7 @@ function SaveConnectionModal({
           }}
         />
       </FormFieldContainer>
-    </ConfirmationModal>
+    </FormModal>
   );
 }
 

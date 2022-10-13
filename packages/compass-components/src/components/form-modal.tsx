@@ -48,7 +48,8 @@ type FormModalProps = React.ComponentProps<typeof Modal> & {
   subtitle?: string;
   submitButtonText: string;
   cancelButtonText?: string;
-  submitDisabled?: boolean; // TODO
+  submitDisabled?: boolean;
+  scroll?: boolean;
   onSubmit: () => void;
   onCancel: () => void;
 };
@@ -60,6 +61,7 @@ function UnthemedFormModal({
   cancelButtonText = 'Cancel',
   submitDisabled = false,
   variant = Variant.Default,
+  scroll,
   onSubmit,
   onCancel,
   darkMode,
@@ -82,7 +84,7 @@ function UnthemedFormModal({
         }}
       >
         <ModalHeader title={title} subtitle={subtitle} variant={variant} />
-        <ModalContent variant={variant}>{children}</ModalContent>
+        <ModalContent variant={variant} scroll={scroll}>{children}</ModalContent>
         <ModalFooter>
           <Button
             data-testid="submit-button"
