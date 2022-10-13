@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests } from '../helpers/compass';
+import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -51,6 +51,12 @@ describe('FLE2', function () {
       const sidebar = await browser.$(Selectors.SidebarTitle);
       if (await sidebar.isDisplayed()) {
         await browser.disconnect();
+      }
+    });
+
+    afterEach(async function () {
+      if (compass) {
+        await afterTest(compass, this.currentTest);
       }
     });
 
@@ -443,7 +449,7 @@ describe('FLE2', function () {
           const button = await document.$(Selectors.UpdateDocumentButton);
           await button.click();
           try {
-            // Prmpt failure is required here and so the timeout should be
+            // Prompt failure is required here and so the timeout should be
             // present and smaller than the default one to allow for tests to
             // proceed correctly
             await footer.waitForDisplayed({ reverse: true, timeout: 10000 });
@@ -453,14 +459,18 @@ describe('FLE2', function () {
               (await footer.getText()) ===
                 'Found indexed encrypted fields but could not find __safeContent__'
             ) {
-              return; // This version is affected by SERVER-68065 where updates on unindexed fields in QE are buggy.
+              return; // MongodDB < 6.1 is affected by SERVER-68065 where updates on unindexed fields in QE are buggy.
             }
           }
           await footer.waitForDisplayed({ reverse: true });
 
           await browser.runFindOperation(
             'Documents',
-            "{ phoneNumber: '10101010' }"
+            // Querying on encrypted fields when they are unindexed is not
+            // supported, so we use document _id instead
+            mode === 'unindexed'
+              ? `{ _id: ${result._id} }`
+              : "{ phoneNumber: '10101010' }"
           );
 
           const modifiedResult = await getFirstListDocument(browser);

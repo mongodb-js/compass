@@ -1,14 +1,16 @@
+import { palette } from '@leafygreen-ui/palette';
+
 const mongodbAceThemeCssText = `
 .ace-mongodb .ace_gutter {
-background: #f9fbfa;
-color: #889397;
+background: ${palette.gray.light3};
+color: ${palette.gray.base};
 }
 .ace-mongodb  {
-background: #f9fbfa;
-color: #000000;
+background: ${palette.gray.light3};
+color: ${palette.black};
 }
 .ace-mongodb .ace_keyword {
-color: #889397;
+color: ${palette.gray.base};
 font-weight: normal;
 }
 .ace-mongodb .ace_gutter-cell {
@@ -16,90 +18,90 @@ padding-left: 5px;
 padding-right: 10px;
 }
 .ace-mongodb .ace_string {
-color: #016bf8;
+color: ${palette.blue.base};
 }
 .ace-mongodb .ace_boolean {
-color: #016bf8;
+color: ${palette.blue.base};
 font-weight: normal;
 }
 .ace-mongodb .ace_constant.ace_numeric {
-color: #016bf8;
+color: ${palette.blue.base};
 }
 .ace-mongodb .ace_string.ace_regexp {
-color: #016bf8;
+color: ${palette.blue.base};
 }
 .ace-mongodb .ace_variable.ace_class {
-color: #00684a;
+color: ${palette.green.dark2};
 }
 .ace-mongodb .ace_constant.ace_buildin {
-color: #0498ec;
+color: ${palette.blue.light1};
 }
 .ace-mongodb .ace_support.ace_function {
-color: #0498ec;
+color: ${palette.blue.light1};
 }
 .ace-mongodb .ace_comment {
-color: #889397;
+color: ${palette.gray.base};
 font-style: italic;
 }
 .ace-mongodb .ace_variable.ace_language  {
-color: #0498ec;
+color: ${palette.blue.light1};
 }
 .ace-mongodb .ace_paren {
 font-weight: normal;
 }
 .ace-mongodb .ace_variable.ace_instance {
-color: #00684a;
+color: ${palette.green.dark2};
 }
 .ace-mongodb .ace_constant.ace_language {
 font-weight: bold;
 }
 .ace-mongodb .ace_cursor {
-color: #889397;
+color: ${palette.gray.base};
 }
 .ace-mongodb.ace_focus .ace_marker-layer .ace_active-line {
-background: #f9fbfa;
+background: ${palette.gray.light3};
 }
 .ace-mongodb .ace_marker-layer .ace_active-line {
-background: #f9fbfa;
+background: ${palette.gray.light3};
 }
 .ace-mongodb .ace_marker-layer .ace_selection {
-background: #c3e7fe;
+background: ${palette.blue.light2};
 }
 .ace-mongodb.ace_multiselect .ace_selection.ace_start {
-box-shadow: 0 0 3px 0px #ffffff;
+box-shadow: 0 0 3px 0px ${palette.white};
 }
 .ace-mongodb.ace_nobold .ace_line > span {
 font-weight: normal !important;
 }
 .ace-mongodb .ace_marker-layer .ace_step {
-background: #ffec9e;
+background: ${palette.yellow.light2};
 }
 .ace-mongodb .ace_marker-layer .ace_stack {
-background: #00ed64;
+background: ${palette.green.base};
 }
 .ace-mongodb .ace_marker-layer .ace_bracket {
 margin: -1px 0 0 -1px;
-border: 1px solid #c1c7c6;
+border: 1px solid ${palette.gray.light1};
 }
 .ace-mongodb .ace_gutter-active-line {
-background: #f9fbfa;
+background: ${palette.gray.light3};
 }
 .ace-mongodb .ace_marker-layer .ace_selected-word {
-background: #ffffff;
-border: 1px solid #f1d4fd;
+background: ${palette.white};
+border: 1px solid ${palette.purple.light2};
 }
 .ace-mongodb .ace_invisible {
-color: #c1c7c6
+color: ${palette.gray.light1}
 }
 .ace-mongodb .ace_print-margin {
 width: 1px;
-background: #e8edeb;
+background: ${palette.gray.light2};
 }
 .ace-mongodb .ace_hidden-cursors {
   opacity: 0;
 }
 .ace-mongodb .ace_indent-guide {
-  background: linear-gradient(to top, transparent 0%, transparent 50%, #c1c7c6 50%, #c1c7c6 100%) right repeat-y;
+  background: linear-gradient(to top, transparent 0%, transparent 50%, ${palette.gray.light1} 50%, ${palette.gray.light1} 100%) right repeat-y;
   background-size: 1px 2px;
 }`;
 

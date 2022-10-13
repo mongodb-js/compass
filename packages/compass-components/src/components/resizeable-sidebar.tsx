@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { Theme, useTheme } from '../hooks/use-theme';
@@ -16,38 +16,38 @@ const containerStyles = css({
 });
 
 const containerStylesDark = css({
-  '--color': uiColors.white,
-  '--bg-color': uiColors.gray.dark3,
+  '--color': palette.white,
+  '--bg-color': palette.gray.dark3,
 
-  '--title-color': uiColors.gray.dark3,
-  '--title-bg-color': '#71f6ba', // TODO: there is no uiColors.green.light1,
+  '--title-color': palette.gray.dark3,
+  '--title-bg-color': palette.green.light1,
 
-  '--icon-color': uiColors.white,
+  '--icon-color': palette.white,
 
-  '--item-color': uiColors.white,
-  '--item-color-active': '#71f6ba', // TODO: there is no uiColors.green.light1
-  '--item-bg-color': uiColors.gray.dark3,
-  '--item-bg-color-hover': uiColors.gray.dark2,
-  '--item-bg-color-active': uiColors.black,
+  '--item-color': palette.white,
+  '--item-color-active': palette.green.light1,
+  '--item-bg-color': palette.gray.dark3,
+  '--item-bg-color-hover': palette.gray.dark2,
+  '--item-bg-color-active': palette.black,
 
   color: 'var(--color)',
   backgroundColor: 'var(--bg-color)',
 });
 
 const containerStylesLight = css({
-  '--color': uiColors.gray.dark3,
-  '--bg-color': uiColors.gray.light3,
+  '--color': palette.gray.dark3,
+  '--bg-color': palette.gray.light3,
 
-  '--title-color': uiColors.white,
-  '--title-bg-color': uiColors.green.dark2,
+  '--title-color': palette.white,
+  '--title-bg-color': palette.green.dark2,
 
-  '--icon-color': uiColors.gray.dark3,
+  '--icon-color': palette.gray.dark3,
 
-  '--item-color': uiColors.gray.dark3,
-  '--item-color-active': uiColors.green.dark2,
-  '--item-bg-color': uiColors.gray.light3,
-  '--item-bg-color-hover': uiColors.gray.light2,
-  '--item-bg-color-active': uiColors.green.light3,
+  '--item-color': palette.gray.dark3,
+  '--item-color-active': palette.green.dark2,
+  '--item-bg-color': palette.gray.light3,
+  '--item-bg-color-hover': palette.gray.light2,
+  '--item-bg-color-active': palette.green.light3,
 
   color: 'var(--color)',
   backgroundColor: 'var(--bg-color)',

@@ -2,7 +2,7 @@ import React from 'react';
 import {
   css,
   spacing,
-  uiColors,
+  palette,
   H3,
   Subtitle,
 } from '@mongodb-js/compass-components';
@@ -16,7 +16,7 @@ const containerStyles = css({
 });
 
 const headingStyles = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
   fontWeight: 'normal',
 });
 

@@ -7,6 +7,9 @@ import {
   ItemActionControls,
   spacing,
   Icon,
+  useFocusRing,
+  mergeProps,
+  useDefaultAction,
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -117,19 +120,28 @@ export function NavigationItem<Actions extends string>({
   tabName: string;
   isActive: boolean;
 }) {
-  const [hoverProps] = useHoverState();
-
   const onClick = useCallback(() => {
     onAction('open-instance-workspace', tabName);
   }, [onAction, tabName]);
 
+  const [hoverProps] = useHoverState();
+  const focusRingProps = useFocusRing();
+  const defaultActionProps = useDefaultAction(onClick);
+
+  const navigationItemProps = mergeProps(
+    {
+      className: cx(navigationItem, isActive && activeNavigationItem),
+      ['aria-label']: label,
+      ['aria-current']: isActive,
+      tabIndex: 0,
+    },
+    hoverProps,
+    defaultActionProps,
+    focusRingProps
+  ) as React.HTMLProps<HTMLDivElement>;
+
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-    <div
-      className={cx(navigationItem, isActive && activeNavigationItem)}
-      onClick={onClick}
-      {...hoverProps}
-    >
+    <div {...navigationItemProps}>
       <div className={itemWrapper}>
         <div className={itemButtonWrapper}>
           <Icon glyph={glyph} size="small"></Icon>

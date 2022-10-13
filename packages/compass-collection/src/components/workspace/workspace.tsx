@@ -15,7 +15,7 @@ import {
   changeActiveSubTab,
 } from '../../modules/tabs';
 import type { WorkspaceTabObject } from '../../modules/tabs';
-import type { CollectionStatsObject } from '../../modules/stats';
+import type { CollectionStatsMap } from '../../modules/stats';
 import Collection from '../collection';
 
 const workspaceStyles = css({
@@ -109,15 +109,8 @@ type WorkspaceProps = {
     type: string;
     index: number;
   };
-  changeActiveSubTab: (
-    activeSubTab: number,
-    id: string
-  ) => {
-    type: string;
-    activeSubTab: number;
-    id: string;
-  };
-  stats: CollectionStatsObject;
+  changeActiveSubTab: (activeSubTab: number, id: string) => void;
+  stats: CollectionStatsMap;
 };
 
 /**

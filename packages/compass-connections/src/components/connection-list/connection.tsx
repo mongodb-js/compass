@@ -3,7 +3,7 @@ import {
   H3,
   Description,
   spacing,
-  uiColors,
+  palette,
   css,
   cx,
   useTheme,
@@ -86,13 +86,13 @@ const connectionButtonStyles = css({
 
 const connectionButtonStylesLight = css({
   '&:hover': {
-    backgroundColor: uiColors.gray.light2,
+    backgroundColor: palette.gray.light2,
   },
 });
 
 const connectionButtonStylesDark = css({
   '&:hover': {
-    background: uiColors.gray.dark2,
+    background: palette.gray.dark2,
   },
 });
 
@@ -187,22 +187,22 @@ function Connection({
 
   const hasColoredBackground = isActive && favoriteColorHex;
   const normalTitleColor =
-    theme === Theme.Dark ? uiColors.white : uiColors.gray.dark3;
-  const titleColor = hasColoredBackground ? uiColors.black : normalTitleColor;
+    theme === Theme.Dark ? palette.white : palette.gray.dark3;
+  const titleColor = hasColoredBackground ? palette.black : normalTitleColor;
   const backgroundColor = hasColoredBackground
     ? `${favoriteColorHex} !important`
     : 'none';
 
   const normalDescriptionColor =
-    theme === Theme.Dark ? uiColors.gray.light1 : uiColors.gray.base;
+    theme === Theme.Dark ? palette.gray.light1 : palette.gray.base;
   const descriptionColor = hasColoredBackground
-    ? uiColors.gray.dark3
+    ? palette.gray.dark3
     : normalDescriptionColor;
 
   const normalConnectionMenuColor =
-    theme === Theme.Dark ? uiColors.white : uiColors.gray.base;
+    theme === Theme.Dark ? palette.white : palette.gray.base;
   const connectionMenuColor = hasColoredBackground
-    ? uiColors.gray.dark3
+    ? palette.gray.dark3
     : normalConnectionMenuColor;
 
   const actions = useMemo(() => {

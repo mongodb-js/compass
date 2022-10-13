@@ -21,7 +21,7 @@ import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { usePrevious } from './use-previous';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
 
 function getEditorByType(type: HadronElementType['type']) {
@@ -178,21 +178,21 @@ const hadronElement = css({
   paddingLeft: spacing[2],
   paddingRight: spacing[2],
   '&:hover': {
-    backgroundColor: uiColors.gray.light2,
+    backgroundColor: palette.gray.light2,
   },
 });
 
 const elementInvalid = css({
-  backgroundColor: uiColors.yellow.light3,
+  backgroundColor: palette.yellow.light3,
   '&:hover': {
-    backgroundColor: uiColors.yellow.light2,
+    backgroundColor: palette.yellow.light2,
   },
 });
 
 const elementRemoved = css({
-  backgroundColor: uiColors.red.light3,
+  backgroundColor: palette.red.light3,
   '&:hover': {
-    backgroundColor: uiColors.red.light2,
+    backgroundColor: palette.red.light2,
   },
 });
 
@@ -221,22 +221,22 @@ const lineNumberCount = css({
     counterIncrement: 'line-number',
     content: 'counter(line-number)',
     textAlign: 'end',
-    color: uiColors.gray.base,
+    color: palette.gray.base,
   },
 });
 
 const lineNumberInvalid = css({
-  backgroundColor: uiColors.yellow.base,
+  backgroundColor: palette.yellow.base,
   '&::before': {
-    color: uiColors.yellow.dark2,
+    color: palette.yellow.dark2,
   },
 });
 
 const lineNumberRemoved = css({
-  backgroundColor: uiColors.red.base,
-  color: uiColors.red.light3,
+  backgroundColor: palette.red.base,
+  color: palette.red.light3,
   '&::before': {
-    color: uiColors.red.light3,
+    color: palette.red.light3,
   },
 });
 
@@ -256,7 +256,7 @@ const elementKey = css({
 });
 
 const elementKeyInternal = css({
-  color: uiColors.gray.base,
+  color: palette.gray.base,
 });
 
 const elementDivider = css({

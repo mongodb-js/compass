@@ -5,7 +5,7 @@ import {
   Theme,
   ThemeProvider,
   ToastArea,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -55,13 +55,13 @@ const homeContainerStyles = css({
 });
 
 const globalLightThemeStyles = css({
-  backgroundColor: uiColors.white,
-  color: uiColors.gray.dark2,
+  backgroundColor: palette.white,
+  color: palette.gray.dark2,
 });
 
 const globalDarkThemeStyles = css({
-  backgroundColor: uiColors.gray.dark3,
-  color: uiColors.white,
+  backgroundColor: palette.gray.dark3,
+  color: palette.white,
 });
 
 const defaultNS: Namespace = {
@@ -73,12 +73,14 @@ type State = {
   connectionTitle: string;
   isConnected: boolean;
   namespace: Namespace;
+  hasDisconnectedAtLeastOnce: boolean;
 };
 
-const initialState = {
+const initialState: State = {
   connectionTitle: '',
   isConnected: false,
   namespace: defaultNS,
+  hasDisconnectedAtLeastOnce: false,
 };
 
 type Action =
@@ -105,8 +107,9 @@ function reducer(state: State, action: Action): State {
       };
     case 'disconnected':
       return {
-        // Reset to initial state.
+        // Reset to initial state, but do not automatically connect this time.
         ...initialState,
+        hasDisconnectedAtLeastOnce: true,
       };
     default:
       return state;
@@ -117,16 +120,22 @@ function hideCollectionSubMenu() {
   void ipc.ipcRenderer?.call('window:hide-collection-submenu');
 }
 
-function Home({ appName }: { appName: string }): React.ReactElement | null {
+function Home({
+  appName,
+  getAutoConnectInfo,
+}: {
+  appName: string;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo>;
+}): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectedDataService = useRef<DataService>();
 
-  const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
-    reducer,
-    {
-      ...initialState,
-    }
-  );
+  const [
+    { connectionTitle, isConnected, namespace, hasDisconnectedAtLeastOnce },
+    dispatch,
+  ] = useReducer(reducer, {
+    ...initialState,
+  });
 
   function onDataServiceConnected(
     err: Error | undefined | null,
@@ -273,7 +282,13 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   return (
     <div className={homeViewStyles} data-testid="home-view">
       <div className={homePageStyles}>
-        <Connections onConnected={onConnected} appName={appName} />
+        <Connections
+          onConnected={onConnected}
+          appName={appName}
+          getAutoConnectInfo={
+            hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
+          }
+        />
       </div>
     </div>
   );

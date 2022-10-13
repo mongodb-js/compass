@@ -47,6 +47,9 @@
     "react": "^16.14.0"
   },
   "devDependencies": {
+    "@babel/generator": "^7.19.5",
+    "@babel/parser": "^7.19.4",
+    "@babel/types": "^7.19.4",
     "@electron/remote": "^2.0.8",
     "@mongodb-js/eslint-config-compass": "^1.0.1",
     "@mongodb-js/mocha-config-compass": "^1.0.1",
@@ -56,6 +59,7 @@
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/decomment": "^0.9.2",
+    "@types/prettier": "^2.7.1",
     "@types/semver": "^7.3.9",
     "acorn-loose": "^8.0.2",
     "astring": "^1.7.0",
@@ -77,6 +81,7 @@
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
     "nyc": "^15.1.0",
+    "prettier": "^2.7.1",
     "prop-types": "^15.7.2",
     "re-resizable": "^6.9.0",
     "react-dom": "^16.14.0",

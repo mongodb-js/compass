@@ -12,7 +12,7 @@
 
     &:hover {
       background: linear-gradient(180deg, @palette__white 0%, @palette__gray--light-2 100%);
-      box-shadow: inset 0 -1px 0 0 @palette__gray--light-1, 0 2px 4px 0 rgba(0, 30, 43,0.1);
+      box-shadow: inset 0 -1px 0 0 @palette__gray--light-1, 0 2px 4px 0 fade(@palette__black, 10%);
       border: 1px solid @palette__gray--light-1;
     }
   }
@@ -46,7 +46,7 @@
       border-top-color: @palette__gray--light-2;
       border-bottom-right-radius: 4px;
       border-bottom-left-radius: 4px;
-      box-shadow: 0 1px 0 rgba(0, 30, 43, 0.06);
+      box-shadow: 0 1px 0 fade(@palette__black, 6%);
       box-sizing: border-box;
       margin-top: -1px;
       max-height: 200px;
@@ -76,13 +76,13 @@
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
     border: 1px solid @palette__blue--light-1;
-    box-shadow: 0 2px 6px 0 rgba(4, 152, 236,0.30);
+    box-shadow: 0 2px 6px 0 fade(@palette__blue--light-1, 30%);
   }
 
   &.is-focused > .Select-menu-outer {
     border: 1px solid @palette__blue--light-1;
     border-top: none;
-    box-shadow: 0 2px 6px 0 rgba(4, 152, 236,0.30);
+    box-shadow: 0 2px 6px 0 fade(@palette__blue--light-1, 30%);
   }
 
   &.is-searchable.is-open > .Select-control > .Select-multi-value-wrapper > .Select-input {
@@ -297,11 +297,11 @@
 .Select--multi .Select-value {
   background-color: @palette__blue--light-3;
   /* Fallback color for IE 8 */
-  background-color: rgba(1, 107, 248, 0.08);
+  background-color: fade(@palette__blue--base, 8%);
   border-radius: 2px;
   border: 1px solid @palette__blue--light-2;
   /* Fallback color for IE 8 */
-  border: 1px solid rgba(1, 107, 248, 0.24);
+  border: 1px solid fade(@palette__blue--base, 24%);
   color: @palette__blue--base;
   display: inline-block;
   font-size: 0.9em;
@@ -335,20 +335,20 @@
   border-top-left-radius: 2px;
   border-right: 1px solid @palette__blue--light-2;
   /* Fallback color for IE 8 */
-  border-right: 1px solid rgba(1, 107, 248, 0.24);
+  border-right: 1px solid fade(@palette__blue--base, 24%);
   padding: 1px 5px 3px;
 }
 .Select--multi .Select-value-icon:hover,
 .Select--multi .Select-value-icon:focus {
   background-color: @palette__blue--light-2;
   /* Fallback color for IE 8 */
-  background-color: rgba(1, 107, 248, 0.08);
+  background-color: fade(@palette__blue--base, 8%);
   color: @palette__blue--base;
 }
 .Select--multi .Select-value-icon:active {
   background-color: @palette__blue--light-2;
   /* Fallback color for IE 8 */
-  background-color: rgba(1, 107, 248, 0.24);
+  background-color: fade(@palette__blue--base, 24%);
 }
 .Select--multi.is-disabled .Select-value {
   background-color: @palette__white;

@@ -268,6 +268,7 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
+  noWaitForConnectionScreen?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
 }
@@ -399,13 +400,29 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     //'--v=1',
     // --vmodule=pattern
 
+    // by default make sure we don't get the welcome modal
+    ...(opts.firstRun === undefined ? ['--showed-network-opt-in=true'] : []),
+
     ...(opts.extraSpawnArgs ?? [])
   );
 
-  if (opts.firstRun === undefined) {
-    // by default make sure we don't get the welcome modal
-    chromeArgs.push('--showed-network-opt-in=true');
+  // Electron on Windows interprets its arguments in a weird way where
+  // the second positional argument inserted by webdriverio (about:blank)
+  // throws it off and won't let it start because it then interprets the first
+  // positional argument as an app path.
+  if (
+    process.platform === 'win32' &&
+    chromeArgs.some((arg) => !arg.startsWith('--'))
+  ) {
+    chromeArgs.push('--');
   }
+
+  // webdriverio automatically prepends '--' to options that do not already have it.
+  // We need the ability to pass positional arguments, though.
+  // https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/launcher.ts#L37-L39
+  (chromeArgs as any).map = function () {
+    return [...this];
+  };
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
@@ -665,8 +682,9 @@ export async function beforeTests(
   if (opts.firstRun) {
     await browser.closeWelcomeModal();
   }
-
-  await browser.waitForConnectionScreen();
+  if (!opts.noWaitForConnectionScreen) {
+    await browser.waitForConnectionScreen();
+  }
 
   return compass;
 }

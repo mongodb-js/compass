@@ -51,6 +51,8 @@ export type CliOnlyPreferences = {
 
 export type NonUserPreferences = {
   ignoreAdditionalCommandLineFlags?: boolean;
+  positionalArguments?: string[];
+  file?: string;
 };
 
 export type AllPreferences = UserPreferences &
@@ -390,6 +392,27 @@ const nonUserPreferences: Required<{
       long: 'Allow specifying command-line flags that Compass does not understand, e.g. Electron or Chromium flags',
     },
   },
+  positionalArguments: {
+    type: 'array',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short:
+        'Specify a Connection String or Connection ID to Automatically Connect',
+    },
+  },
+  file: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Specify a List of Connections for Automatically Connecting',
+    },
+  },
 };
 
 export const allPreferencesProps: Required<{
@@ -676,7 +699,7 @@ export class Preferences {
     changedPreferencesValues: Partial<AllPreferences>
   ): void {
     for (const callback of this._onPreferencesChangedCallbacks) {
-      return callback(changedPreferencesValues);
+      callback(changedPreferencesValues);
     }
   }
 
