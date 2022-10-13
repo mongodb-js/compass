@@ -1,9 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
-import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
 import {
-  Editor,
-  EditorVariant,
-  EditorTextCompleter,
   css,
   cx,
   useFocusRing,
@@ -11,12 +7,21 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
-import type { Ace } from 'ace-builds';
+import type { AceEditor, MongoDBCompletion } from '@mongodb-js/compass-editor';
+import {
+  Editor,
+  EditorTextCompleter,
+  QueryAutoCompleter,
+} from '@mongodb-js/compass-editor';
 
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
 
 const editorStyles = css({
+  width: '100%',
   minWidth: spacing[7],
+  // To match ace editor with leafygreen inputs
+  paddingTop: '5px',
+  paddingBottom: '5px',
   border: '1px solid transparent',
   borderRadius: spacing[1],
   overflow: 'visible',
@@ -33,12 +38,11 @@ const editorSettings = {
   useSoftTabs: true,
   minLines: 1,
   maxLines: 10,
-  fontSize: 12,
   highlightActiveLine: false,
   showGutter: false,
 };
 
-function disableEditorCommand(editor: Ace.Editor, name: keyof Ace.CommandMap) {
+function disableEditorCommand(editor: AceEditor, name: string) {
   const command = editor.commands.byName[name];
   command.bindKey = undefined;
   editor.commands.addCommand(command);
@@ -52,7 +56,7 @@ type OptionEditorProps = {
   placeholder?: string;
   queryOption: QueryOptionType;
   refreshEditorAction: Listenable;
-  schemaFields?: string[];
+  schemaFields?: MongoDBCompletion[];
   serverVersion?: string;
   value?: string;
 };
@@ -74,11 +78,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     hover: true,
   });
 
-  const completer = useRef<typeof QueryAutoCompleter>(
+  const completer = useRef<QueryAutoCompleter>(
     new QueryAutoCompleter(serverVersion, EditorTextCompleter, schemaFields)
   );
 
-  const editorRef = useRef<Ace.Editor | undefined>(undefined);
+  const editorRef = useRef<AceEditor | undefined>(undefined);
 
   useEffect(() => {
     const unsubscribeRefreshEditorAction = refreshEditorAction.listen(() => {
@@ -106,7 +110,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const onApplyRef = useRef(onApplyClicked);
   onApplyRef.current = onApplyClicked;
 
-  const onLoadEditor = useCallback((editor: Ace.Editor) => {
+  const onLoadEditor = useCallback((editor: AceEditor) => {
     // Setting the padding is not available as an editor option.
     // https://github.com/ajaxorg/ace/wiki/Configuring-Ace
     editor.renderer.setPadding(spacing[2]);
@@ -134,24 +138,25 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   }, []);
 
   return (
-    <Editor
-      variant={EditorVariant.Shell}
+    <div
       className={cx(
         editorStyles,
         focusRingProps.className,
         hasError && editorWithErrorStyles
       )}
-      theme="mongodb-query"
-      text={value}
-      onChangeText={(value) => onChange(value)}
-      id={id}
-      options={editorSettings}
-      completer={completer.current}
-      placeholder={placeholder}
-      fontSize={12}
-      scrollMargin={[6, 6, 0, 0]}
-      onLoad={onLoadEditor}
-    />
+    >
+      <Editor
+        variant="Shell"
+        className="inline-editor"
+        text={value}
+        onChangeText={onChange}
+        id={id}
+        options={editorSettings}
+        completer={completer.current}
+        placeholder={placeholder}
+        onLoad={onLoadEditor}
+      />
+    </div>
   );
 };
 

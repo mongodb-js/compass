@@ -48,6 +48,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },

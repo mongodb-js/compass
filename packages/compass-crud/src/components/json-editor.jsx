@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { DocumentList } from '@mongodb-js/compass-components';
 import HadronDocument from 'hadron-document';
 
-import { Editor, EditorVariant } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 /**
  * The base class.

@@ -13,6 +13,7 @@ import type { Listenable } from 'reflux';
 import { OptionEditor } from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
+import type { MongoDBCompletion } from '@mongodb-js/compass-editor';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -86,7 +87,7 @@ type QueryOptionProps = {
   placeholder?: string;
   queryOption: QueryOptionType;
   refreshEditorAction: Listenable;
-  schemaFields: string[];
+  schemaFields: MongoDBCompletion[];
   serverVersion: string;
   value?: string;
 };

@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
-import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
+import {
+  Editor,
+  EditorVariant,
+  EditorTextCompleter,
+  StageAutoCompleter
+} from '@mongodb-js/compass-editor';
 
 import styles from './stage-editor.module.less';
 
@@ -122,7 +126,8 @@ class StageEditor extends Component {
         <div
           data-testid="stage-editor-error-message"
           className={styles['stage-editor-errormsg']}
-          title={this.props.error}>
+          title={this.props.error}
+        >
           {this.props.error}
         </div>
       );
@@ -135,7 +140,8 @@ class StageEditor extends Component {
         <div
           data-testid="stage-editor-syntax-error"
           className={styles['stage-editor-syntax-error']}
-          title={this.props.syntaxError}>
+          title={this.props.syntaxError}
+        >
           {this.props.syntaxError}
         </div>
       );
@@ -157,7 +163,7 @@ class StageEditor extends Component {
             variant={EditorVariant.Shell}
             className={styles['stage-editor-ace-editor']}
             name={`aggregations-stage-editor-${this.props.index}`}
-            options={({minLines: 5})}
+            options={{ minLines: 5 }}
             completer={this.completer}
             onLoad={(editor) => {
               this.editor = editor;

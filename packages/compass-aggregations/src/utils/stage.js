@@ -7,7 +7,7 @@ import {
   TIME_SERIES,
   VIEW,
   COLLECTION
-} from 'mongodb-ace-autocompleter';
+} from '@mongodb-js/mongodb-constants';
 import { ObjectId } from 'bson';
 
 /**
