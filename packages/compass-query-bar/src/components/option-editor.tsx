@@ -22,7 +22,7 @@ import type { QueryOption as QueryOptionType } from '../constants/query-option-d
 const editorStyles = css({
   width: '100%',
   minWidth: spacing[7],
-  // To match ace editor with leafygreen inputs
+  // To match ace editor with leafygreen inputs.
   paddingTop: '5px',
   paddingBottom: '5px',
   paddingLeft: '10px',
