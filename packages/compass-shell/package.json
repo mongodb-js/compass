@@ -66,7 +66,6 @@
     "@mongosh/browser-repl": "^1.6.0",
     "@mongosh/logging": "^1.6.0",
     "@mongosh/service-provider-core": "^1.6.0",
-    "ace-builds": "^1.4.3",
     "autoprefixer": "^9.4.6",
     "babel-loader": "^8.2.2",
     "chai": "^4.2.0",

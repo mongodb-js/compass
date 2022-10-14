@@ -4,12 +4,11 @@ import {
   FormFieldContainer,
   CollapsibleFieldSet,
   Description,
-  Editor,
-  EditorVariant,
   Label,
   RadioBox,
   RadioBoxGroup,
 } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 const HELP_URL_FLE2 = 'https://dochub.mongodb.org/core/rqe-encrypted-fields';
 

@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Editor, EditorVariant, ConfirmationModal } from '@mongodb-js/compass-components';
+import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 import styles from './import-pipeline.module.less';
 
@@ -60,15 +61,13 @@ class ImportPipeline extends PureComponent {
         submitDisabled={this.props.text === ''}
         trackingId="import_pipeline_modal"
       >
-        <div className={styles['import-pipeline-note']}>
-          {NOTE}
-        </div>
+        <div className={styles['import-pipeline-note']}>{NOTE}</div>
         <div className={styles['import-pipeline-editor']}>
           <Editor
             variant={EditorVariant.Shell}
             text={this.props.text}
             onChangeText={this.props.changeText}
-            options={({minLines: 10})}
+            options={{ minLines: 10 }}
             name="import-pipeline-editor"
           />
         </div>

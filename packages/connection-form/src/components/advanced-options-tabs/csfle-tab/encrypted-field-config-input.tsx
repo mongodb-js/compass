@@ -6,13 +6,13 @@ import {
 } from '../../../utils/csfle-handler';
 import {
   FormFieldContainer,
-  Editor,
   Label,
   Banner,
   Description,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { Editor } from '@mongodb-js/compass-editor';
 
 const errorContainerStyles = css({
   padding: spacing[3],

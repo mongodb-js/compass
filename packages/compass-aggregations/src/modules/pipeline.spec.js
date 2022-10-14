@@ -20,7 +20,7 @@ import _reducer, {
 } from './pipeline';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
+import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 
 const reducer = (prevState = INITIAL_STATE, action) => {
   if (typeof action === 'function') {
