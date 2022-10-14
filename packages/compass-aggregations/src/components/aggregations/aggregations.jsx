@@ -35,8 +35,6 @@ import {
   newPipeline,
   newPipelineFromText,
   closeImport,
-  changeText,
-  createNew,
   confirmNew
 } from '../../modules/import-pipeline';
 import { setIsNewPipelineConfirm } from '../../modules/is-new-pipeline-confirm';
@@ -104,10 +102,7 @@ const mapStateToProps = (state) => ({
   isCommenting: state.comments,
   isAtlasDeployed: state.isAtlasDeployed,
   isAutoPreviewing: state.autoPreview,
-  isImportPipelineOpen: state.importPipeline.isOpen,
   isImportConfirmationNeeded: state.importPipeline.isConfirmationNeeded,
-  importPipelineText: state.importPipeline.text,
-  importPipelineError: state.importPipeline.syntaxError,
   settings: state.settings,
   limit: state.limit,
   largeLimit: state.largeLimit,
@@ -156,8 +151,6 @@ const MappedAggregations = connect(
     newPipelineFromText,
     closeImport,
     clonePipeline,
-    changeText,
-    createNew,
     confirmNew,
     openLink,
     applySettings,
