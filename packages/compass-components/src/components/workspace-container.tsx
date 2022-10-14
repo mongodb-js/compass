@@ -3,7 +3,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { withTheme } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
-import { transparentize } from 'polished';
+import { rgba } from 'polished';
 import { useInView } from 'react-intersection-observer';
 
 const workspaceContainerStyles = css({
@@ -52,11 +52,11 @@ const shadowStyles = css({
 });
 
 const shadowStylesLight = css({
-  boxShadow: boxShadow(transparentize(0.85, palette.black)),
+  boxShadow: boxShadow(rgba(palette.black, 0.15)),
 });
 
 const shadowStylesDark = css({
-  boxShadow: boxShadow(transparentize(0.6, palette.black)),
+  boxShadow: boxShadow(rgba(palette.black, 0.4)),
 });
 
 const workspaceContentStyles = css({

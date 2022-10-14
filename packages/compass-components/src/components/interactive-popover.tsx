@@ -5,7 +5,7 @@ import FocusTrap from 'focus-trap-react';
 import { Popover } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
-import { transparentize } from 'polished';
+import { rgba } from 'polished';
 import { useTheme, Theme } from '../hooks/use-theme';
 
 const borderRadius = spacing[2];
@@ -15,7 +15,7 @@ const contentContainerStyles = css({
   height: '100%',
   alignItems: 'center',
   borderRadius: borderRadius,
-  boxShadow: `0px 2px 4px -1px ${transparentize(0.85, palette.black)}`,
+  boxShadow: `0px 2px 4px -1px ${rgba(palette.black, 0.15)}`,
   border: `1px solid`,
   overflow: 'hidden',
   width: 'fit-content',
