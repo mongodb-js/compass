@@ -1,5 +1,5 @@
-import React, { useLayoutEffect, useRef } from 'react';
-import { css, useId, fontFamilies } from '@mongodb-js/compass-components';
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import { css, cx, useId, fontFamilies } from '@mongodb-js/compass-components';
 
 import 'ace-builds';
 import type { IAceEditorProps, IAceOptions } from 'react-ace';
@@ -52,6 +52,7 @@ type EditorProps = {
   completer?: unknown;
   'data-testid'?: string;
   onChangeText?: (text: string, event?: any) => void;
+  inline?: boolean;
 } & Omit<IAceEditorProps, 'onChange' | 'value'>;
 
 const editorStyle = css({
@@ -70,6 +71,7 @@ function Editor({
   completer,
   onFocus,
   'data-testid': dataTestId,
+  inline,
   ...aceProps
 }: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
@@ -78,6 +80,9 @@ function Editor({
     ...(typeof readOnly === 'boolean' && { readOnly }),
     ...(variant === 'Shell' && { mode: 'ace/mode/mongodb' }),
     ...(!!completer && { enableLiveAutocompletion: true }),
+    showGutter: !inline,
+    highlightActiveLine: !inline,
+    highlightGutterLine: !inline,
   };
 
   const editorRef = useRef<AceEditor | null>(null);
@@ -91,6 +96,10 @@ function Editor({
   }, [id]);
 
   const editorName = useId();
+
+  const commands = useMemo(() => {
+    return beautify.commands.concat(aceProps.commands ?? []);
+  }, [aceProps.commands]);
 
   return (
     <div data-testid={dataTestId} className={editorStyle}>
@@ -110,10 +119,11 @@ function Editor({
         editorProps={{ $blockScrolling: Infinity }}
         setOptions={setOptions}
         readOnly={readOnly}
-        commands={beautify.commands}
+        {...aceProps}
         // name should be unique since it gets translated to an id
         name={aceProps.name ?? editorName}
-        {...aceProps}
+        commands={commands}
+        className={cx(aceProps.className, inline && 'inline-editor')}
         onFocus={(ev: any) => {
           if (completer) {
             tools.setCompleters([completer]);

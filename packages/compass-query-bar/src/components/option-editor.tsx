@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   css,
   cx,
@@ -22,6 +22,8 @@ const editorStyles = css({
   // To match ace editor with leafygreen inputs
   paddingTop: '5px',
   paddingBottom: '5px',
+  paddingLeft: '10px',
+  paddingRight: '2px',
   border: '1px solid transparent',
   borderRadius: spacing[1],
   overflow: 'visible',
@@ -35,11 +37,8 @@ const editorWithErrorStyles = css({
 });
 
 const editorSettings = {
-  useSoftTabs: true,
   minLines: 1,
   maxLines: 10,
-  highlightActiveLine: false,
-  showGutter: false,
 };
 
 function disableEditorCommand(editor: AceEditor, name: string) {
@@ -61,6 +60,16 @@ type OptionEditorProps = {
   value?: string;
 };
 
+function useQueryCompleter(
+  ...args: ConstructorParameters<typeof QueryAutoCompleter>
+): QueryAutoCompleter {
+  const completer = useRef<QueryAutoCompleter>();
+  if (!completer.current) {
+    completer.current = new QueryAutoCompleter(...args);
+  }
+  return completer.current;
+}
+
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   hasError,
   id,
@@ -78,8 +87,10 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     hover: true,
   });
 
-  const completer = useRef<QueryAutoCompleter>(
-    new QueryAutoCompleter(serverVersion, EditorTextCompleter, schemaFields)
+  const completer = useQueryCompleter(
+    serverVersion,
+    EditorTextCompleter,
+    schemaFields
   );
 
   const editorRef = useRef<AceEditor | undefined>(undefined);
@@ -102,19 +113,26 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     };
   }, [refreshEditorAction]);
 
-  useLayoutEffect(() => {
-    completer.current.update(schemaFields);
-  }, [schemaFields]);
+  useEffect(() => {
+    completer.update(schemaFields);
+  }, [completer, schemaFields]);
 
-  const onApplyClicked = useCallback(() => onApply(), [onApply]);
-  const onApplyRef = useRef(onApplyClicked);
-  onApplyRef.current = onApplyClicked;
+  const commands = useMemo(() => {
+    return [
+      {
+        name: 'executeQuery',
+        bindKey: {
+          win: 'Enter',
+          mac: 'Enter',
+        },
+        exec: () => {
+          onApply();
+        },
+      },
+    ];
+  }, [onApply]);
 
   const onLoadEditor = useCallback((editor: AceEditor) => {
-    // Setting the padding is not available as an editor option.
-    // https://github.com/ajaxorg/ace/wiki/Configuring-Ace
-    editor.renderer.setPadding(spacing[2]);
-
     editorRef.current = editor;
     editorRef.current.setBehavioursEnabled(true);
 
@@ -124,17 +142,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     // these commands enabled and disable them with the `Escape` key.
     disableEditorCommand(editor, 'indent');
     disableEditorCommand(editor, 'outdent');
-
-    editorRef.current.commands.addCommand({
-      name: 'executeQuery',
-      bindKey: {
-        win: 'Enter',
-        mac: 'Enter',
-      },
-      exec: () => {
-        onApplyRef.current();
-      },
-    });
   }, []);
 
   return (
@@ -147,14 +154,15 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     >
       <Editor
         variant="Shell"
-        className="inline-editor"
         text={value}
         onChangeText={onChange}
         id={id}
         options={editorSettings}
-        completer={completer.current}
+        completer={completer}
         placeholder={placeholder}
         onLoad={onLoadEditor}
+        commands={commands}
+        inline
       />
     </div>
   );

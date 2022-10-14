@@ -18,6 +18,8 @@ const mongodbAceThemeCssText = css`
     font-style: inherit !important;
     transform: none;
     opacity: 1;
+    /* To match ace editor text padding */
+    padding: 0 4px !important;
   }
   .ace-mongodb .ace_gutter {
     background: ${palette.gray.light3};
