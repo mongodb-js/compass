@@ -57,26 +57,22 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 
 export const setShowSavedPipelines =
   (show: boolean): PipelineBuilderThunkAction<void> =>
-  (dispatch) => {
-    if (show) {
-      dispatch(getSavedPipelines());
-    }
-    dispatch({
-      type: SET_SHOW_SAVED_PIPELINES,
-      show
-    });
-  };
+    (dispatch) => {
+      if (show) {
+        dispatch(getSavedPipelines());
+      }
+      dispatch({
+        type: SET_SHOW_SAVED_PIPELINES,
+        show
+      });
+    };
 
 export const savedPipelineAdd = (pipelines: SavedPipeline[]) => ({
   type: SAVED_PIPELINE_ADD,
   pipelines
 });
 
-/**
- *
- * @returns {import('redux').AnyAction}
- */
-export const getSavedPipelines = (): PipelineBuilderThunkAction<void> => 
+export const getSavedPipelines = (): PipelineBuilderThunkAction<void> =>
   (dispatch, getState) => {
     if (!getState().savedPipeline.isLoaded) {
       dispatch(updatePipelineList());
@@ -137,7 +133,8 @@ export const restoreSavedPipeline = (restoreState: unknown): AnyAction => ({
 export const openPipeline = (
   pipeline: unknown
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch) => {
+  return (dispatch, _getState, { pipelineBuilder }) => {
+    pipelineBuilder.reset((pipeline as any).pipelineText);
     dispatch(restoreSavedPipeline(pipeline));
     dispatch(runStage(0, true /* force execute */));
   };
@@ -162,8 +159,6 @@ export const openPipelineById = (
 
 /**
  * Save the current state of your pipeline
- *
- * @returns {import('redux').AnyAction} The action.
  */
 export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async (
   dispatch, getState

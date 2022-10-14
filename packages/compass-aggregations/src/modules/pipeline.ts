@@ -1,5 +1,4 @@
 import { ADL, ATLAS, STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
-import { generateStage, generateStageAsString, validateStage } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { emptyStage } from '../utils/stage';
 import toNS from 'mongodb-ns';
@@ -12,8 +11,8 @@ import {
   DEFAULT_SAMPLE_SIZE,
   DEFAULT_LARGE_LIMIT
 } from '../constants';
-import type { PipelineBuilderThunkAction, RootState } from '.';
-import type { AggregateOptions, Document } from 'mongodb';
+import type { PipelineBuilderThunkAction } from '.';
+import type { AggregateOptions, Document, MongoError } from 'mongodb';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { projectionsChanged, PROJECTIONS_CHANGED } from './projections';
 import { setIsModified } from './is-modified';
@@ -226,9 +225,8 @@ const changeStage = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
   newState[action.index].stage = action.stage;
   newState[action.index].isComplete = false;
-  const { isValid, syntaxError } = validateStage(newState[action.index]);
-  newState[action.index].isValid = isValid;
-  newState[action.index].syntaxError = syntaxError;
+  newState[action.index].isValid = !action.syntaxError;
+  newState[action.index].syntaxError = action.syntaxError;
   return newState;
 };
 
@@ -297,44 +295,9 @@ const moveStage = (state: State, action: AnyAction): State => {
  * @returns {Object} The new state.
  */
 const selectStageOperator = (state: State, action: AnyAction): State => {
-  const operatorName = action.stageOperator;
-  const oldStage = state[action.index];
-
-  if (operatorName === oldStage.stageOperator) {
-    return state;
-  }
-
-  // If the value of the existing state operator has not been modified by user,
-  // we can easily replace it or else persist the one user changed
-  let value;
-  if (hasUserChangedStage(oldStage, action.env)) {
-    value = oldStage.stage;
-  }
-  else {
-    value = getStageDefaultValue(operatorName, action.isCommenting, action.env);
-  }
-
   const newState = copyState(state);
-
-  newState[action.index].stageOperator = operatorName;
-  newState[action.index].stage = value;
-  newState[action.index].isExpanded = true;
-  newState[action.index].isComplete = false;
-  newState[action.index].previewDocuments = [];
-  newState[action.index].isMissingAtlasOnlyStageSupport = !!(
-    [SEARCH, SEARCH_META, DOCUMENTS].includes(operatorName) &&
-    action.env !== ADL && action.env !== ATLAS
-  );
-
-  // Re-validate the stage according to the new operator
-  const { isValid, syntaxError } = validateStage(newState[action.index]);
-  newState[action.index].isValid = isValid;
-  newState[action.index].syntaxError = syntaxError;
-
-  // Clear the server error when we change the stage operator because it isn't
-  // relevant anymore
-  newState[action.index].error = null;
-
+  const stage = Object.assign({}, newState[action.index], action.attributes);
+  newState[action.index] = stage;
   return newState;
 };
 
@@ -372,7 +335,7 @@ const hasUserChangedStage = (stage: StageState, env: string): boolean => {
  */
 const toggleStage = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
-  newState[action.index].isEnabled = !newState[action.index].isEnabled;
+  newState[action.index].isEnabled = action.isEnabled;
   return newState;
 };
 
@@ -400,28 +363,8 @@ const toggleStageCollapse = (state: State, action: AnyAction): State => {
  */
 const updateStagePreview = (state: State, action: AnyAction): State => {
   const newState = copyState(state);
-  if (
-    [SEARCH, SEARCH_META, DOCUMENTS].includes(newState[action.index].stageOperator) &&
-    action.env !== ADL && action.env !== ATLAS &&
-    (
-      action.error && (
-        action.error.code === 40324 /* Unrecognized pipeline stage name */ ||
-        action.error.code === 31082 /* The full-text search stage is not enabled */
-      )
-    )
-  ) {
-    newState[action.index].previewDocuments = [];
-    newState[action.index].error = null;
-    newState[action.index].isMissingAtlasOnlyStageSupport = true;
-  } else {
-    newState[action.index].previewDocuments =
-      action.error === null ||
-        action.error === undefined ? action.documents : [];
-    newState[action.index].error = action.error ? action.error.message : null;
-    newState[action.index].isMissingAtlasOnlyStageSupport = false;
-  }
-  newState[action.index].isLoading = false;
-  newState[action.index].isComplete = action.isComplete;
+  const stage = Object.assign({}, newState[action.index], action.attributes);
+  newState[action.index] = stage;
   return newState;
 };
 
@@ -511,8 +454,9 @@ export const clearPipeline = () => ({
  * Action creator for adding a stage.
  */
 export const stageAdded =
-  (): PipelineBuilderThunkAction<void> => (dispatch, getState) => {
+  (): PipelineBuilderThunkAction<void> => (dispatch, getState, { pipelineBuilder }) => {
     const { pipeline } = getState();
+    pipelineBuilder.addStage();
     track('Aggregation Edited', {
       num_stages: pipeline.length,
       stage_action: 'stage_added',
@@ -531,18 +475,19 @@ export const stageAdded =
  */
 export const stageAddedAfter =
   (index: number): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState) => {
-    const { pipeline } = getState();
-    track('Aggregation Edited', {
-      num_stages: pipeline.length,
-      stage_action: 'stage_added',
-      stage_name: null
-    });
-    dispatch({
-      type: STAGE_ADDED_AFTER,
-      index
-    });
-  };
+    (dispatch, getState, { pipelineBuilder }) => {
+      const { pipeline } = getState();
+      pipelineBuilder.addStage(index);
+      track('Aggregation Edited', {
+        num_stages: pipeline.length,
+        stage_action: 'stage_added',
+        stage_name: null
+      });
+      dispatch({
+        type: STAGE_ADDED_AFTER,
+        index
+      });
+    };
 
 /**
  * Action creator for stage changed events.
@@ -554,19 +499,21 @@ export const stageAddedAfter =
  */
 export const stageChanged =
   (
-    value: string | undefined,
+    value: string,
     index: number
   ): PipelineBuilderThunkAction<void> =>
-  (dispatch) => {
-    dispatch({
-      type: STAGE_CHANGED,
-      index: index,
-      stage: value
-    });
-    dispatch(projectionsChanged());
-    dispatch(setIsModified(true));
-    dispatch(runStage(index));
-  };
+    (dispatch, _getState, { pipelineBuilder }) => {
+      const stage = pipelineBuilder.changeStageValue(index, value);
+      dispatch({
+        type: STAGE_CHANGED,
+        index,
+        stage: value,
+        syntaxError: stage.syntaxError?.message
+      });
+      dispatch(projectionsChanged());
+      dispatch(setIsModified(true));
+      dispatch(runStage(index));
+    };
 
 /**
  * Action creator for toggling whether the stage is collapsed.
@@ -589,18 +536,19 @@ export const stageCollapseToggled = (index: number): AnyAction => ({
  */
 export const stageDeleted =
   (index: number): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState) => {
-    const { pipeline } = getState();
-    track('Aggregation Edited', {
-      num_stages: pipeline.length,
-      stage_action: 'stage_removed',
-      stage_name: pipeline[index].stageOperator
-    });
-    dispatch({
-      type: STAGE_DELETED,
-      index
-    });
-  };
+    (dispatch, getState, { pipelineBuilder }) => {
+      const { pipeline } = getState();
+      pipelineBuilder.removeStage(index);
+      track('Aggregation Edited', {
+        num_stages: pipeline.length,
+        stage_action: 'stage_removed',
+        stage_name: pipeline[index].stageOperator
+      });
+      dispatch({
+        type: STAGE_DELETED,
+        index
+      });
+    };
 
 /**
  * Action creator for stage moved events.
@@ -615,20 +563,21 @@ export const stageMoved =
     fromIndex: number,
     toIndex: number
   ): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState) => {
-    if (fromIndex === toIndex) return;
-    const { pipeline } = getState();
-    track('Aggregation Edited', {
-      num_stages: pipeline.length,
-      stage_action: 'stage_reordered',
-      stage_name: pipeline[fromIndex].stageOperator
-    });
-    dispatch({
-      type: STAGE_MOVED,
-      fromIndex: fromIndex,
-      toIndex: toIndex
-    });
-  };
+    (dispatch, getState, { pipelineBuilder }) => {
+      if (fromIndex === toIndex) return;
+      pipelineBuilder.moveStage(fromIndex, toIndex);
+      const { pipeline } = getState();
+      track('Aggregation Edited', {
+        num_stages: pipeline.length,
+        stage_action: 'stage_reordered',
+        stage_name: pipeline[fromIndex].stageOperator
+      });
+      dispatch({
+        type: STAGE_MOVED,
+        fromIndex: fromIndex,
+        toIndex: toIndex
+      });
+    };
 
 /**
  * Action creator for stage operator selected events.
@@ -647,22 +596,42 @@ export const stageOperatorSelected =
     isCommenting: boolean,
     env: string
   ): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState) => {
-    const { pipeline } = getState();
-    if (pipeline[index].stageOperator === stageOperator) return;
-    track('Aggregation Edited', {
-      num_stages: pipeline.length,
-      stage_action: 'stage_renamed',
-      stage_name: stageOperator
-    });
-    dispatch({
-      type: STAGE_OPERATOR_SELECTED,
-      index,
-      stageOperator,
-      isCommenting,
-      env
-    });
-  };
+    (dispatch, getState, { pipelineBuilder }) => {
+      const { pipeline } = getState();
+      const oldStage = pipeline[index];
+      if (pipeline[index].stageOperator === stageOperator) return;
+
+      const { syntaxError } = pipelineBuilder.changeStageOperator(index, stageOperator);
+
+      // If the value of the existing state operator has not been modified by user,
+      // we can easily replace it or else persist the one user changed
+      const stageValue = hasUserChangedStage(oldStage, env)
+        ? oldStage.stage
+        : getStageDefaultValue(stageOperator, isCommenting, env);
+
+      const attributes: Partial<StageState> = {
+        stageOperator,
+        stage: stageValue,
+        isExpanded: true,
+        isComplete: false,
+        previewDocuments: [],
+        isValid: !syntaxError,
+        syntaxError: syntaxError?.message,
+        error: null, // The operator changed and server error is not valid anymore
+        isMissingAtlasOnlyStageSupport: isMissingAtlasOnlyStageSupport(stageOperator, env),
+      };
+
+      track('Aggregation Edited', {
+        num_stages: pipeline.length,
+        stage_action: 'stage_renamed',
+        stage_name: stageOperator
+      });
+      dispatch({
+        type: STAGE_OPERATOR_SELECTED,
+        index,
+        attributes,
+      });
+    };
 
 /**
  * Handles toggling a stage on/off.
@@ -671,30 +640,67 @@ export const stageOperatorSelected =
  *
  * @returns {Object} The stage toggled action.
  */
-export const stageToggled = (index: number): AnyAction => ({
-  type: STAGE_TOGGLED,
-  index: index
-});
+export const stageToggled = (index: number): PipelineBuilderThunkAction<void> =>
+  (dispatch, getState, { pipelineBuilder }) => {
+    const { pipeline } = getState();
+    const isEnabled = pipeline[index].isEnabled;
+    pipelineBuilder.changeStageDisabled(index, isEnabled);
+    dispatch({
+      type: STAGE_TOGGLED,
+      index,
+      isEnabled: !isEnabled
+    });
+  };
 
 /**
  * Update the stage preview section aciton.
  *
- * @param {Array} docs - The documents.
- * @param {Number} index - The index.
- * @param {Error} error - The error.
- * @param {Boolean} isComplete - If the preview is complete.
- * @param {string} env -
+ * @param docs - The documents.
+ * @param index - The index.
+ * @param error - The error.
+ * @param isComplete - If the preview is complete.
+ * @param env -
  *
  * @returns {Object} The action.
  */
-export const stagePreviewUpdated = (docs: unknown[], index: number, error: Error | null, isComplete: boolean, env: string): AnyAction => {
-  return {
-    type: STAGE_PREVIEW_UPDATED,
-    documents: docs,
-    index: index,
-    error: error,
-    isComplete: isComplete,
-    env,
+export const stagePreviewUpdated = (
+  docs: Document[],
+  index: number,
+  error: MongoError | null,
+  isComplete: boolean,
+  env: string
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const { pipeline } = getState();
+    const { stageOperator } = pipeline[index];
+
+    const attributes: Partial<StageState> = {
+      isLoading: false,
+      isComplete,
+      previewDocuments: error ? [] : docs,
+      error: error ? error.message : null,
+      isMissingAtlasOnlyStageSupport: false,
+    };
+
+    if (
+      isMissingAtlasOnlyStageSupport(stageOperator, env) &&
+      (
+        error && (
+          (error).code === 40324 /* Unrecognized pipeline stage name */ ||
+          (error).code === 31082 /* The full-text search stage is not enabled */
+        )
+      )
+    ) {
+      attributes.previewDocuments = [];
+      attributes.error = null;
+      attributes.isMissingAtlasOnlyStageSupport = true;
+    }
+
+    dispatch({
+      type: STAGE_PREVIEW_UPDATED,
+      index: index,
+      attributes,
+    });
   };
 };
 
@@ -710,13 +716,6 @@ export const loadingStageResults = (index: number): AnyAction => ({
   index: index
 });
 
-export const generatePipelineAsString = (state: RootState, index: number) => {
-  return `[${state.pipeline
-    .filter((s, i) => s.isEnabled && i <= index)
-    .map(s => generateStageAsString(s))
-    .join(', ')}]`;
-};
-
 /**
  * Execute the aggregation pipeline at the provided index. The previous execute
  * request will be canceled in cases when another is dispatched while the
@@ -729,9 +728,22 @@ const executeAggregation = (
   index: number,
   force: boolean
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelinePreviewManager }) => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
+    const { pipeline, env } = getState();
+    const stage = pipeline[index];
+
+    const canRunStage = stage.isValid &&
+      stage.isEnabled &&
+      stage.stageOperator &&
+      ![OUT, MERGE].includes(stage.stageOperator);
+
+    if (!canRunStage) {
+      dispatch(stagePreviewUpdated([], index, null, false, env));
+      return;
+    }
+
     const {
-      pipeline,
+      id,
       namespace,
       maxTimeMS,
       collationString,
@@ -740,70 +752,52 @@ const executeAggregation = (
       inputDocuments
     } = getState();
 
-    const stage = pipeline[index];
+    try {
+      dispatch(loadingStageResults(index));
 
-    stage.executor = generateStage(stage);
+      const options: AggregateOptions = {
+        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        collation: collationString.value ?? undefined
+      };
 
-    if (
-      stage.isValid &&
-      stage.isEnabled &&
-      stage.stageOperator &&
-      ![OUT, MERGE].includes(stage.stageOperator)
-    ) {
-      try {
-        dispatch(loadingStageResults(index));
+      const previewOptions = {
+        sampleSize: largeLimit ?? DEFAULT_LARGE_LIMIT,
+        previewSize: limit ?? DEFAULT_SAMPLE_SIZE,
+        totalDocumentCount: inputDocuments.count
+      };
 
-        const previewPipeline = (
-          mapPipelineToStages(pipeline) as Document[]
-        ).slice(0, index + 1);
-
-        const options: AggregateOptions = {
-          maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-          collation: collationString.value ?? undefined
-        };
-
-        const previewOptions = {
-          sampleSize: largeLimit ?? DEFAULT_LARGE_LIMIT,
-          previewSize: limit ?? DEFAULT_SAMPLE_SIZE,
-          totalDocumentCount: inputDocuments.count
-        };
-
-        const previewDocuments =
-          await pipelinePreviewManager.getPreviewForStage(
-            index,
-            namespace,
-            previewPipeline,
-            { ...options, ...previewOptions },
-            force
-          );
-
-        dispatch(
-          stagePreviewUpdated(
-            previewDocuments,
-            index,
-            null,
-            true,
-            getState().env
-          )
+      const previewDocuments =
+        await pipelineBuilder.getPreviewForStage(
+          index,
+          namespace,
+          { ...options, ...previewOptions },
+          force
         );
 
-        dispatch(
-          globalAppRegistryEmit('agg-pipeline-executed', {
-            id: getState().id,
-            numStages: getState().pipeline.length,
-            stageOperators: getState().pipeline.map((s) => s.stageOperator)
-          })
-        );
-      } catch (error) {
-        if (isCancelError(error)) {
-          return;
-        }
-        dispatch(
-          stagePreviewUpdated([], index, error as Error, false, getState().env)
-        );
+      dispatch(
+        stagePreviewUpdated(
+          previewDocuments,
+          index,
+          null,
+          true,
+          env,
+        )
+      );
+
+      dispatch(
+        globalAppRegistryEmit('agg-pipeline-executed', {
+          id,
+          numStages: pipeline.length,
+          stageOperators: pipeline.map((s) => s.stageOperator)
+        })
+      );
+    } catch (error) {
+      if (isCancelError(error)) {
+        return;
       }
-    } else {
-      dispatch(stagePreviewUpdated([], index, null, false, getState().env));
+      dispatch(
+        stagePreviewUpdated([], index, error as MongoError, false, env)
+      );
     }
   };
 };
@@ -875,6 +869,7 @@ export const runOutStage = (
   return async (dispatch, getState) => {
     const {
       id,
+      env,
       dataService: { dataService },
       namespace,
       pipeline,
@@ -897,11 +892,11 @@ export const runOutStage = (
       const cursor = dataService.aggregate(namespace, outPipeline, options);
       const result = await cursor.toArray();
       void cursor.close();
-      dispatch(stagePreviewUpdated(result, index, null, true, getState().env));
+      dispatch(stagePreviewUpdated(result, index, null, true, env));
       dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id }));
     } catch (error) {
       dispatch(
-        stagePreviewUpdated([], index, error as Error, true, getState().env)
+        stagePreviewUpdated([], index, error as MongoError, true, env)
       );
     }
   };
@@ -911,9 +906,8 @@ export const runStage = (
   index: number,
   forceExecute = false
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelinePreviewManager }) => {
+  return (dispatch, getState) => {
     const { id, autoPreview, pipeline } = getState();
-    pipelinePreviewManager.clearQueue(index);
     if (!autoPreview) {
       return;
     }
@@ -925,3 +919,10 @@ export const runStage = (
     }
   };
 };
+
+const isMissingAtlasOnlyStageSupport = (operator: string, env: string): boolean => {
+  return !!(
+    [SEARCH, SEARCH_META, DOCUMENTS].includes(operator) &&
+    env !== ADL && env !== ATLAS
+  );
+}

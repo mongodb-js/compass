@@ -121,6 +121,9 @@ export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceN
     .map(obj => ({ ...obj }))
 };
 
+/**
+ * @param {import('mongodb').Document[]} pipeline
+ */
 export const mapPipelineToStages = (pipeline) => {
   return pipeline
     .map(generateStage)

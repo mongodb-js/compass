@@ -61,23 +61,11 @@ export function gatherProjections(state, stage) {
         value: k,
         score: 1,
         meta: JSON.stringify(projection),
-        version: '0.0.0'
+        version: '0.0.0',
       });
     }
   });
   return projections;
-}
-
-/**
- * @param {import('./pipeline').StageState} stage - The stage.
- */
-export function validateStage(stage) {
-  try {
-    parse(decomment(stage.stage));
-    return { isValid: true, syntaxError: null };
-  } catch (e) {
-    return { isValid: false, syntaxError: PARSE_ERROR };
-  }
 }
 
 /**

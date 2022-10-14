@@ -7,12 +7,31 @@ import { getDirectory } from './get-directory';
 
 const ENCODING_UTF8 = 'utf8';
 
+/**
+ * todo: refactor
+ * @param {import('../modules/pipeline').StageState[]} pipeline
+ * @returns
+ */
+function savedPipelineToText(pipeline) {
+  const stages = pipeline.map(
+    ({ stageOperator, isEnabled, stage: stageValue }) => {
+      const str = `{
+      ${stageOperator ?? ''}:\n${stageValue ?? ''}
+    }`;
+      if (isEnabled) {
+        return str;
+      }
+      return str
+        .split('\n')
+        .map((line) => `// ${line}`)
+        .join('\n');
+    }
+  );
+
+  return `[\n${stages.join(',\n')}\n]`;
+}
+
 export class PipelineStorage {
-  /**
-   *
-   * Loads all saved pipelines from the storage.
-   *
-   */
   async loadAll() {
     const dir = getDirectory();
     const files = (await fs.readdir(dir))
@@ -37,6 +56,7 @@ export class PipelineStorage {
       return {
         ...data,
         lastModified: stats.mtimeMs,
+        pipelineText: data.pipelineText ?? savedPipelineToText(data.pipeline),
       };
     } catch (err) {
       debug(`Failed to load pipeline ${path.basename(filePath)}`, err);

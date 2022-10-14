@@ -31,7 +31,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): boole
 export const toggleAutoPreview = (
   newVal: boolean
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch) => {
+  return (dispatch, _getState, { pipelineBuilder }) => {
     dispatch({
       type: ActionTypes.AutoPreviewToggled,
       value: newVal
@@ -39,6 +39,8 @@ export const toggleAutoPreview = (
 
     if (newVal) {
       dispatch(runStage(0, true /* force execute */));
+    } else {
+      pipelineBuilder.stopPreview();
     }
   };
 };

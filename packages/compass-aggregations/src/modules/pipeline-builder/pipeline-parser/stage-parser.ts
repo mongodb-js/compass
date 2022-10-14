@@ -17,7 +17,7 @@ export function setNodeDisabled(node: t.Node, value: boolean) {
   (node as any)[kDisabled] = value;
 }
 
-function isStageLike(node?: t.Node | null, loose = false): node is StageLike {
+export function isStageLike(node?: t.Node | null, loose = false): node is StageLike {
   return (
     !!node &&
     node.type === 'ObjectExpression' &&
