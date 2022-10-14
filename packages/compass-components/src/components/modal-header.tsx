@@ -74,11 +74,11 @@ function UnthemedModalHeader({
 
       <h1
         className={cx(titleStyle, {
-          [css`
-            font-weight: bold;
-            line-height: 25px;
-            color: ${uiColors.gray.light2};
-          `]: darkMode,
+          [css({
+            fontWeight: 'bold',
+            lineHeight: '25px',
+            color: uiColors.gray.light2,
+          })]: darkMode,
         })}
       >
         {title}
