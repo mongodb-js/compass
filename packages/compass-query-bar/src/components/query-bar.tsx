@@ -44,16 +44,18 @@ const queryBarFormDarkStyles = css({
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
+  // NOTE: To keep the elements in the query bar from re-positioning
+  // vertically when the filter input is multi-line we use
+  // `flex-start` here. It is more brittle as it does require the other elements
+  // to account for their height individually.
   alignItems: 'flex-start',
   gap: spacing[2],
   paddingLeft: spacing[2],
 });
 
 const moreOptionsContainerStyles = css({
-  // In order to keep the elements in the query bar from
-  // re-positioning vertically when the filter input is multi-line
-  // we explicitly offset some elements so we can use `alignItems: 'flex-start'`
-  // on the first row of the query bar.
+  // We explicitly offset this element so we can use
+  // `alignItems: 'flex-start'` on the first row of the query bar.
   paddingTop: 2,
   paddingBottom: 2,
 });
