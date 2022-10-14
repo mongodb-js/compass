@@ -12,6 +12,11 @@ import { default as LeafyGreenButton } from '@leafygreen-ui/button';
 import { default as LeafyGreenCheckbox } from '@leafygreen-ui/checkbox';
 import { default as LeafyGreenCard } from '@leafygreen-ui/card';
 import { default as LeafyGreenCode } from '@leafygreen-ui/code';
+import {
+  Combobox as LeafyGreenCombobox,
+  ComboboxOption,
+  ComboboxGroup,
+} from '@leafygreen-ui/combobox';
 import { default as LeafyGreenConfirmationModal } from '@leafygreen-ui/confirmation-modal';
 import { default as Icon } from '@leafygreen-ui/icon';
 import { default as LeafyGreenIconButton } from '@leafygreen-ui/icon-button';
@@ -26,6 +31,7 @@ import {
   Footer as LeafyGreenModalFooter,
 } from '@leafygreen-ui/modal';
 import { default as LeafyGreenMarketingModal } from '@leafygreen-ui/marketing-modal';
+import { Pipeline as LeafyGreenPipeline, Stage } from '@leafygreen-ui/pipeline';
 import Popover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import {
@@ -69,11 +75,6 @@ import {
   Label as LeafyGreenLabel,
   Description as LeafyGreenDescription,
 } from '@leafygreen-ui/typography';
-import {
-  Combobox as LeafyGreenCombobox,
-  ComboboxOption,
-  ComboboxGroup,
-} from '@leafygreen-ui/combobox';
 
 // 2. Wrap the components that accept darkMode with Compass' theme.
 
@@ -118,6 +119,11 @@ const Code = withTheme(
     React.ComponentProps<typeof LeafyGreenCode>
   >
 ) as typeof LeafyGreenCode;
+const Combobox = withTheme(
+  LeafyGreenCombobox as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenCombobox>
+  >
+);
 const ConfirmationModal: typeof LeafyGreenConfirmationModal = withTheme(
   LeafyGreenConfirmationModal as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenConfirmationModal>
@@ -141,6 +147,7 @@ const MarketingModal: typeof LeafyGreenMarketingModal = withTheme(
     React.ComponentProps<typeof LeafyGreenMarketingModal>
   >
 ) as typeof LeafyGreenMarketingModal;
+const Pipeline = withTheme(LeafyGreenPipeline);
 const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
   LeafyGreenRadioGroup as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenRadioGroup>
@@ -160,8 +167,16 @@ const Tabs = withTheme(
     React.ComponentProps<typeof LeafyGreenTabs>
   >
 ) as typeof LeafyGreenTabs;
-const TextArea: typeof LeafyGreenTextArea = withTheme(LeafyGreenTextArea);
-const TextInput: typeof LeafyGreenTextInput = withTheme(LeafyGreenTextInput);
+const TextArea = withTheme(
+  LeafyGreenTextArea as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenTextArea>
+  >
+);
+const TextInput = withTheme(
+  LeafyGreenTextInput as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenTextInput>
+  >
+);
 const Toggle = withTheme(
   LeafyGreenToggle as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenToggle>
@@ -171,7 +186,7 @@ const Label = withTheme(LeafyGreenLabel) as typeof LeafyGreenLabel;
 const Description = withTheme(
   LeafyGreenDescription
 ) as typeof LeafyGreenDescription;
-const Combobox = withTheme(LeafyGreenCombobox);
+
 // 3. Export the leafygreen components.
 export {
   AtlasLogoMark,
@@ -192,6 +207,7 @@ export {
   MarketingModal,
   MongoDBLogoMark,
   MongoDBLogo,
+  Pipeline,
   Popover,
   RadioBox,
   RadioBoxGroup,
@@ -206,6 +222,7 @@ export {
   TableHeader,
   Row,
   Cell,
+  Stage,
   Tab,
   Tabs,
   TextArea,
