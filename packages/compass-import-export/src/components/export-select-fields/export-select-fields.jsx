@@ -1,17 +1,41 @@
-import { Tooltip } from 'hadron-react-components';
-import { TextButton } from 'hadron-react-buttons';
 import ExportField from '../export-field';
 import styles from './export-select-fields.module.less';
 import { FIELDS } from '../../constants/export-step';
 import React, { PureComponent } from 'react';
 import createStyler from '../../utils/styler.js';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import {
+  Body,
+  Button,
+  Icon,
+  Tooltip,
+  css,
+  palette,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 const style = createStyler(styles, 'export-select-fields');
 
-const fieldInfoSprinkle =
-  'The fields displayed are from a sample of documents in the collection. To ensure all fields are exported, add missing field names.';
+const selectFieldsStyles = css({
+  display: 'flex',
+  gap: spacing[1],
+  alignItems: 'center',
+});
+
+const headerContainerStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  marginBottom: spacing[2],
+});
+
+const infoIconContainerStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const infoIconStyles = css({
+  color: palette.gray.light1,
+});
 
 class ExportSelectFields extends PureComponent {
   static propTypes = {
@@ -117,36 +141,39 @@ class ExportSelectFields extends PureComponent {
         </td>
       </tr>
     );
-    // });
   }
 
   render() {
     if (this.props.exportStep !== FIELDS) return null;
 
-    const addFieldButtonClassname = classnames(
-      'btn',
-      'btn-default',
-      'btn-xs',
-      style('new-field')
-    );
-
     return (
       <div>
-        <div className={style('caption')}>
-          <p>Select Fields</p>
-          <div
-            data-place="top"
-            data-for="field-tooltip"
-            data-tip={fieldInfoSprinkle}
-          >
-            <i className="fa fa-info-circle" />
-            <Tooltip id="field-tooltip" />
+        <div className={headerContainerStyles}>
+          <div className={selectFieldsStyles}>
+            <Body weight="medium">Select Fields</Body>
+            <Tooltip
+              trigger={({ children, ...props }) => (
+                <span {...props} className={infoIconContainerStyles}>
+                  {children}
+                  <Icon glyph="InfoWithCircle" className={infoIconStyles} />
+                </span>
+              )}
+              popoverZIndex={99999}
+            >
+              <Body>
+                The fields displayed are from a sample of documents in the
+                collection. To ensure all fields are exported, add missing field
+                names.
+              </Body>
+            </Tooltip>
           </div>
-          <TextButton
-            text="+ Add Field"
-            className={addFieldButtonClassname}
-            clickHandler={this.addNewFieldButton}
-          />
+          <Button
+            leftGlyph={<Icon glyph="Plus" />}
+            size="xsmall"
+            onClick={this.addNewFieldButton}
+          >
+            Add Field
+          </Button>
         </div>
         <div className={style('field-wrapper')}>
           <table className={style('table')}>
