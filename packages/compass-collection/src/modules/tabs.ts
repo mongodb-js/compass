@@ -76,7 +76,6 @@ export interface WorkspaceTabObject {
   tabs: string[];
   views: JSX.Element[];
   subtab: WorkspaceTabObject;
-  queryHistoryIndexes: number[];
   pipeline: Document[];
   scopedModals: {
     store: any;
@@ -141,7 +140,6 @@ const doSelectNamespace = (state: State, action: AnyAction) => {
         tabs: action.context.tabs,
         views: action.context.views,
         subtab: action.context.subtab,
-        queryHistoryIndexes: action.context.queryHistoryIndexes,
         pipeline: action.context.sourcePipeline,
         scopedModals: action.context.scopedModals,
         sourceName: action.sourceName,
@@ -191,7 +189,6 @@ const doCreateTab = (state: State, action: AnyAction) => {
     tabs: action.context.tabs,
     views: action.context.views,
     subtab: action.context.subtab,
-    queryHistoryIndexes: action.context.queryHistoryIndexes,
     scopedModals: action.context.scopedModals,
     sourceName: action.sourceName,
     pipeline: action.context.sourcePipeline,

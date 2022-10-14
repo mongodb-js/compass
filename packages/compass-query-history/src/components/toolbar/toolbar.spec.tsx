@@ -15,7 +15,6 @@ function renderQueryHistoryToolbar(
       actions={{
         showRecent: sinon.stub(),
         showFavorites: sinon.stub(),
-        collapse: sinon.stub(),
       }}
       namespace={mongodbns('test.test')}
       showing="recent"
@@ -31,7 +30,6 @@ describe('Toolbar [Component]', function () {
     actions = {
       showRecent: sinon.stub(),
       showFavorites: sinon.stub(),
-      collapse: sinon.stub(),
     };
   });
 
@@ -48,11 +46,6 @@ describe('Toolbar [Component]', function () {
       expect(screen.getByRole('tablist')).to.be.visible;
     });
 
-    it('renders a close button', function () {
-      expect(screen.getByTestId('query-history-button-close-panel')).to.be
-        .visible;
-    });
-
     it('renders the namespace', function () {
       expect(screen.getByText('Queries in')).to.be.visible;
       expect(screen.getByText('test.test')).to.be.visible;
@@ -60,17 +53,6 @@ describe('Toolbar [Component]', function () {
   });
 
   describe('#behavior', function () {
-    it('should close the query history side bar when the close button is clicked', function () {
-      renderQueryHistoryToolbar({
-        actions,
-      });
-
-      const button = screen.getByTestId('query-history-button-close-panel');
-
-      userEvent.click(button);
-      expect(actions.collapse).to.have.been.calledOnce;
-    });
-
     describe('when viewing the Recent Queries tab', function () {
       beforeEach(function () {
         renderQueryHistoryToolbar({

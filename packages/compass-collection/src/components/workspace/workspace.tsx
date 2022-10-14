@@ -233,7 +233,6 @@ class Workspace extends PureComponent<WorkspaceProps> {
             tabs={tab.tabs}
             views={tab.views}
             scopedModals={tab.scopedModals}
-            queryHistoryIndexes={tab.queryHistoryIndexes}
             activeSubTab={tab.activeSubTab}
             pipeline={tab.pipeline}
             changeActiveSubTab={this.props.changeActiveSubTab}
