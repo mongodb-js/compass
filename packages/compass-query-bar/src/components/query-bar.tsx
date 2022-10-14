@@ -25,7 +25,7 @@ import {
 } from './query-option';
 import { QueryHistoryButtonPopover } from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
-import type { MongoDBCompletion } from '@mongodb-js/compass-editor';
+import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 
 const queryBarFormStyles = css({
   display: 'flex',
@@ -82,7 +82,7 @@ type QueryBarProps = {
   queryState: 'apply' | 'reset';
   refreshEditorAction: Listenable;
   resultId: string | number;
-  schemaFields: MongoDBCompletion[];
+  schemaFields: CompletionWithServerInfo[];
   serverVersion: string;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;

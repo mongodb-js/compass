@@ -1,5 +1,5 @@
 import type { Ace } from 'ace-builds';
-import type { MongoDBCompletion } from '../types';
+import type { CompletionWithServerInfo } from '../types';
 import { filter, MATCH_COMPLETIONS } from './util';
 
 /**
@@ -9,10 +9,10 @@ class QueryAutoCompleter implements Ace.Completer {
   constructor(
     public version: string,
     public textCompleter: Ace.Completer,
-    public fields: MongoDBCompletion[]
+    public fields: CompletionWithServerInfo[]
   ) {}
 
-  update(fields: MongoDBCompletion[]) {
+  update(fields: CompletionWithServerInfo[]) {
     this.fields = fields;
   }
 

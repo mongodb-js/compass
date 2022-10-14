@@ -24,7 +24,7 @@ type GlobalAce = {
 };
 
 declare global {
-  declare const ace: GlobalAce;
+  const ace: GlobalAce;
 }
 
 export interface HighlightRules {
@@ -43,16 +43,18 @@ export interface HighlightRules {
   >;
 }
 
-export interface WorkerClient {
+interface WorkerClient {
   attachToDocument(doc: Document): void;
 }
 
 export interface AceMode {
-  HighlightRules: new (...args: unknown) => HighlightRules;
+  HighlightRules: new (...args: any[]) => HighlightRules;
   createWorker(session: Ace.EditSession): WorkerClient | null;
 }
 
-export type MongoDBCompletion = Ace.Completion & {
+export type CompletionWithServerInfo = Ace.Completion & {
+  /** Server version that supports the stage */
   version: string;
+  /* Server version that supports using the key in $project stage */
   projectVersion?: string;
 };

@@ -1,10 +1,10 @@
 import { BSON_TYPES, QUERY_OPERATORS } from '@mongodb-js/mongodb-constants';
 import semver from 'semver';
-import type { MongoDBCompletion } from '../types';
+import type { CompletionWithServerInfo } from '../types';
 
 const filter = (
   version: string,
-  entries: MongoDBCompletion[],
+  entries: CompletionWithServerInfo[],
   prefix: string
 ) => {
   const parsedVersion = semver.parse(version);
@@ -22,7 +22,7 @@ const filter = (
 /**
  * The match completions.
  */
-const MATCH_COMPLETIONS = ([] as MongoDBCompletion[]).concat(
+const MATCH_COMPLETIONS = ([] as CompletionWithServerInfo[]).concat(
   QUERY_OPERATORS,
   BSON_TYPES
 );

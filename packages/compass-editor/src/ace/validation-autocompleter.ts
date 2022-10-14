@@ -1,6 +1,6 @@
 import { JSON_SCHEMA, BSON_TYPE_ALIASES } from '@mongodb-js/mongodb-constants';
 import type { Ace } from 'ace-builds';
-import type { MongoDBCompletion } from '../types';
+import type { CompletionWithServerInfo } from '../types';
 import { filter, MATCH_COMPLETIONS } from './util';
 
 /**
@@ -10,14 +10,14 @@ class ValidationAutoCompleter implements Ace.Completer {
   constructor(
     public version: string,
     public textCompleter: Ace.Completer,
-    public fields: MongoDBCompletion[]
+    public fields: CompletionWithServerInfo[]
   ) {
     this.version = version;
     this.textCompleter = textCompleter;
     this.fields = fields;
   }
 
-  update(fields: MongoDBCompletion[]) {
+  update(fields: CompletionWithServerInfo[]) {
     this.fields = fields;
   }
 
@@ -34,7 +34,7 @@ class ValidationAutoCompleter implements Ace.Completer {
     // we want to suggest document fields instead of suggesting operators.
     const currentToken = session.getTokenAt(position.row, position.column);
     if (currentToken?.type === 'string') {
-      const strings = ([] as MongoDBCompletion[]).concat(
+      const strings = ([] as CompletionWithServerInfo[]).concat(
         BSON_TYPE_ALIASES,
         this.fields
       );

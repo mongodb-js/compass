@@ -4,4 +4,4 @@ export { ValidationAutoCompleter } from './ace/validation-autocompleter';
 export { QueryAutoCompleter } from './ace/query-autocompleter';
 export { StageAutoCompleter } from './ace/stage-autocompleter';
 export type AceEditor = Ace.Editor;
-export type { MongoDBCompletion } from './types';
+export type { CompletionWithServerInfo } from './types';

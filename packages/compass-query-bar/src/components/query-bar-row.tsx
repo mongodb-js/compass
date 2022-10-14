@@ -9,6 +9,7 @@ import type {
 } from '../constants/query-option-definition';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import { QueryOption as QueryOptionComponent } from './query-option';
+import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor/dist/types';
 
 const rowStyles = css({
   alignItems: 'flex-start',
@@ -24,7 +25,7 @@ type QueryBarRowProps = {
   onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
   queryOptionProps: QueryBarOptionProps;
   refreshEditorAction: Listenable;
-  schemaFields: string[];
+  schemaFields: CompletionWithServerInfo[];
   serverVersion: string;
 };
 

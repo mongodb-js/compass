@@ -7,7 +7,10 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
-import type { AceEditor, MongoDBCompletion } from '@mongodb-js/compass-editor';
+import type {
+  AceEditor,
+  CompletionWithServerInfo,
+} from '@mongodb-js/compass-editor';
 import {
   Editor,
   EditorTextCompleter,
@@ -55,7 +58,7 @@ type OptionEditorProps = {
   placeholder?: string;
   queryOption: QueryOptionType;
   refreshEditorAction: Listenable;
-  schemaFields?: MongoDBCompletion[];
+  schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
 };

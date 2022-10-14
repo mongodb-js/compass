@@ -8,7 +8,7 @@ import {
 import { filter } from './util';
 import { QueryAutoCompleter } from './query-autocompleter';
 import type { Ace } from 'ace-builds';
-import type { MongoDBCompletion } from '../types';
+import type { CompletionWithServerInfo } from '../types';
 
 /**
  * The proect stage operator.
@@ -33,7 +33,7 @@ const DOLLAR = '$';
 /**
  * The base completions.
  */
-const BASE_COMPLETIONS = ([] as MongoDBCompletion[]).concat(
+const BASE_COMPLETIONS = ([] as CompletionWithServerInfo[]).concat(
   EXPRESSION_OPERATORS,
   CONVERSION_OPERATORS,
   BSON_TYPES
@@ -44,12 +44,12 @@ const BASE_COMPLETIONS = ([] as MongoDBCompletion[]).concat(
  * operators.
  */
 class StageAutoCompleter implements Ace.Completer {
-  variableFields: MongoDBCompletion[];
+  variableFields: CompletionWithServerInfo[];
   queryAutoCompleter: QueryAutoCompleter;
   constructor(
     public version: string,
     public textCompleter: Ace.Completer,
-    public fields: MongoDBCompletion[],
+    public fields: CompletionWithServerInfo[],
     public stageOperator: string | null = null
   ) {
     this.variableFields = this.generateVariableFields(fields);
@@ -76,14 +76,16 @@ class StageAutoCompleter implements Ace.Completer {
     return [];
   }
 
-  update(fields: MongoDBCompletion[], stageOperator: string) {
+  update(fields: CompletionWithServerInfo[], stageOperator: string) {
     this.fields = fields;
     this.variableFields = this.generateVariableFields(fields);
     this.queryAutoCompleter.fields = fields;
     this.stageOperator = stageOperator;
   }
 
-  generateVariableFields(fields: MongoDBCompletion[]): MongoDBCompletion[] {
+  generateVariableFields(
+    fields: CompletionWithServerInfo[]
+  ): CompletionWithServerInfo[] {
     return fields.map((field) => {
       return {
         ...(field.name && { name: `$${field.name.replace(/"/g, '')}` }),

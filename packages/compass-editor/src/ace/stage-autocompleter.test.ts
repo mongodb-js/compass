@@ -9,9 +9,9 @@ import {
   EXPRESSION_OPERATORS,
 } from '@mongodb-js/mongodb-constants';
 import { StageAutoCompleter } from './stage-autocompleter';
-import type { MongoDBCompletion } from '../types';
+import type { CompletionWithServerInfo } from '../types';
 
-const ALL_OPS = ([] as MongoDBCompletion[]).concat(
+const ALL_OPS = ([] as CompletionWithServerInfo[]).concat(
   EXPRESSION_OPERATORS,
   CONVERSION_OPERATORS
 );
