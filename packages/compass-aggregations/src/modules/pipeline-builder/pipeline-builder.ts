@@ -9,10 +9,10 @@ import { PipelineParser, Stage } from './pipeline-parser';
 const DEFAULT_PIPELINE = `[\n{}\n]`;
 
 export class PipelineBuilder {
-  private source: string;
-  private node: t.ArrayExpression | null = null;
-  private stages: Stage[] = [];
-  private syntaxError: SyntaxError[] = [];
+  source: string;
+  node: t.ArrayExpression | null = null;
+  stages: Stage[] = [];
+  syntaxError: SyntaxError[] = [];
   private previewManager: PipelinePreviewManager;
 
   constructor(dataService: DataService) {

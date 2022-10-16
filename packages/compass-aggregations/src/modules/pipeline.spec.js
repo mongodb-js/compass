@@ -16,11 +16,20 @@ import _reducer, {
   STAGE_TOGGLED,
   replaceOperatorSnippetTokens,
   INITIAL_STATE,
-  generatePipelineAsString,
+  STAGE_ADDED,
+  STAGE_ADDED_AFTER,
+  STAGE_CHANGED,
+  STAGE_DELETED,
+  STAGE_MOVED,
+  STAGE_OPERATOR_SELECTED,
+  clearPipeline,
+  CLEAR_PIPELINE,
 } from './pipeline';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
+import { ON_PREM, STAGE_OPERATORS } from 'mongodb-ace-autocompleter';
+import { PipelineBuilder } from './pipeline-builder/pipeline-builder';
+import { mockDataService } from '../../test/mocks/data-service';
 
 const reducer = (prevState = INITIAL_STATE, action) => {
   if (typeof action === 'function') {
@@ -30,11 +39,7 @@ const reducer = (prevState = INITIAL_STATE, action) => {
       },
       () => ({ pipeline: prevState }),
       {
-        pipelinePreviewManager: {
-          getPreviewForStage() {},
-          cancelPreviewForStage() {},
-          clearQueue() {}
-        }
+        pipelineBuilder: new PipelineBuilder(mockDataService()),
       }
     );
   }
@@ -327,53 +332,231 @@ describe('pipeline module', function () {
     });
   });
 
-  describe('#stageCollapseToggled', function () {
-    it('returns the STAGE_COLLAPSE_TOGGLED action', function () {
+  describe('actions', function() {
+    const pipeline = [
+      {
+        stageOperator: '$match',
+        stage: `{name: /berlin/i}`,
+        isEnabled: true,
+      },
+      {
+        stageOperator: '$limit',
+        stage: `20`,
+        isEnabled: true,
+      }
+    ];
+    const pipelineStr = `[{$match: {name: /berlin/i}}, {$limit: 20}]`;
+    const pipelineBuilder = new PipelineBuilder(mockDataService);
+    const getState = () => ({
+      pipeline,
+    });
+    let dispatchSpy;
+    const sandbox = sinon.createSandbox();
+
+    beforeEach(function () {
+      pipelineBuilder.reset(pipelineStr);
+      dispatchSpy = sinon.spy();
+      sandbox.spy(pipelineBuilder);
+    });
+    
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    it('#clearPipeline', function() {
+      expect(clearPipeline()).to.deep.equal({
+        type: CLEAR_PIPELINE,
+      });
+    });
+    
+    it('#stageAdded', function() {
+      stageAdded()(dispatchSpy, getState, { pipelineBuilder });
+      expect(
+        pipelineBuilder.addStage.getCalls()[0].args,
+        'adds a stage in pipeline builder'
+      ).to.deep.equal([]);
+      expect(
+        dispatchSpy.getCalls()[0].args[0],
+        'dispatchs correct action'
+      ).to.deep.equal({
+        type: STAGE_ADDED,
+      });
+    });
+    
+    it('#stageAddedAfter', function() {
+      stageAddedAfter(1)(dispatchSpy, getState, { pipelineBuilder });
+      expect(
+        pipelineBuilder.addStage.getCalls()[0].args,
+        'adds a stage after an index in pipeline builder'
+      ).to.deep.equal([1]);
+      expect(
+        dispatchSpy.getCalls()[0].args[0],
+        'dispatchs correct action'
+      ).to.deep.equal({
+        type: STAGE_ADDED_AFTER,
+        index: 1,
+      });
+    });
+    
+    it('#stageChanged', function() {
+      stageChanged('30', 1)(dispatchSpy, getState, { pipelineBuilder });
+      expect(
+        pipelineBuilder.changeStageValue.getCalls()[0].args,
+        'changes stage value in pipeline builder'
+      ).to.deep.equal([1, '30']);
+      expect(
+        dispatchSpy.getCalls()[0].args[0],
+        'dispatchs correct action'
+      ).to.deep.equal({
+        type: STAGE_CHANGED,
+        index: 1,
+        stage: '30',
+        syntaxError: undefined,
+      });
+    });
+    
+    it('#stageCollapseToggled', function () {
       expect(stageCollapseToggled(0)).to.deep.equal({
         type: STAGE_COLLAPSE_TOGGLED,
         index: 0,
       });
     });
-  });
-
-  describe('#stageToggled', function () {
-    it('returns the STAGE_TOGGLED action', function () {
-      expect(stageToggled(0)).to.deep.equal({
-        type: STAGE_TOGGLED,
+    
+    it('#stageDeleted', function() {
+      stageDeleted(0)(dispatchSpy, getState, { pipelineBuilder });
+      expect(
+        pipelineBuilder.removeStage.getCalls()[0].args,
+        'deletes a stage in pipeline builder'
+      ).to.deep.equal([0]);
+      expect(
+        dispatchSpy.getCalls()[0].args[0],
+        'dispatchs correct action'
+      ).to.deep.equal({
+        type: STAGE_DELETED,
         index: 0,
       });
     });
-  });
-
-  describe('#stagePreviewUpdated', function () {
-    const docs = [];
-    const error = new Error('test');
-
-    it('returns the STAGE_PREVIEW_UPDATED action', function () {
+    
+    it('#stageMoved', function() {
+      stageMoved(1, 0)(dispatchSpy, getState, { pipelineBuilder });
       expect(
-        stagePreviewUpdated(docs, 3, error, true, 'on-prem')
+        pipelineBuilder.moveStage.getCalls()[0].args,
+        'moves a stage in pipeline builder'
+      ).to.deep.equal([1, 0]);
+      expect(
+        dispatchSpy.getCalls()[0].args[0],
+        'dispatchs correct action'
       ).to.deep.equal({
-        type: STAGE_PREVIEW_UPDATED,
-        documents: docs,
-        index: 3,
-        error: error,
-        isComplete: true,
-        env: 'on-prem',
+        type: STAGE_MOVED,
+        fromIndex: 1,
+        toIndex: 0
       });
     });
-  });
-
-  describe('#loadingStageResults', function () {
-    it('returns the LOADING_STAGE_RESULTS action', function () {
+    
+    it('#stageOperatorSelected - same stage operator selected', function() {
+      stageOperatorSelected(0, '$match', false, ON_PREM)(dispatchSpy, getState, { pipelineBuilder });
+      expect(dispatchSpy.callCount).to.equal(0);
+      expect(
+        pipelineBuilder.changeStageOperator.callCount
+      ).to.equal(0);
+    });
+    
+    it('#stageOperatorSelected - different stage operator selected', function() {
+      stageOperatorSelected(0, '$unwind', false, ON_PREM)(dispatchSpy, getState, { pipelineBuilder });
+      expect(
+        pipelineBuilder.changeStageOperator.getCalls()[0].args,
+        'changes stage operator in pipeline builder'
+      ).to.deep.equal([0, '$unwind']);
+      expect(
+        pipelineBuilder.changeStageValue.getCalls()[0].args,
+        'changes stage value in pipeline builder'
+      ).to.deep.equal([0, '{name: /berlin/i}']);
+      expect(
+        dispatchSpy.getCalls()[0].args[0],
+        'dispatchs correct action'
+      ).to.deep.equal({
+        type: STAGE_OPERATOR_SELECTED,
+        index: 0,
+        attributes: {
+          stageOperator: '$unwind',
+          stage: '{name: /berlin/i}',
+          isExpanded: true,
+          isComplete: false,
+          previewDocuments: [],
+          isValid: true,
+          syntaxError: undefined,
+          error: null,
+          isMissingAtlasOnlyStageSupport: false,
+        }
+      });
+    });
+    
+    it('#stageToggled', function() {
+      stageToggled(1)(dispatchSpy, getState, { pipelineBuilder });
+      expect(
+        pipelineBuilder.changeStageDisabled.getCalls()[0].args,
+        'updates stage disabled in pipeline builder'
+      ).to.deep.equal([1, true]);
+      expect(
+        dispatchSpy.getCalls()[0].args[0],
+        'dispatchs correct action'
+      ).to.deep.equal({
+        type: STAGE_TOGGLED,
+        index: 1,
+        isEnabled: false,
+      });
+    });
+    
+    it('#stagePreviewUpdated - with out error', function () {
+      stagePreviewUpdated(
+        [{id: 1}],
+        1,
+        null, // error
+        true, // isComplete
+        'on-prem'
+      )(dispatchSpy, getState);
+      expect(dispatchSpy.getCalls()[0].args[0]).to.deep.equal({
+        type: STAGE_PREVIEW_UPDATED,
+        index: 1,
+        attributes: {
+          isLoading: false,
+          isComplete: true,
+          previewDocuments: [{id: 1}],
+          error: null,
+          isMissingAtlasOnlyStageSupport: false,
+        }
+      });
+    });
+    
+    it('#stagePreviewUpdated - with error', function () {
+      stagePreviewUpdated(
+        [{id: 1}],
+        1,
+        new SyntaxError('Invalid string'), // error
+        true, // isComplete
+        'on-prem'
+      )(dispatchSpy, getState);
+      expect(dispatchSpy.getCalls()[0].args[0]).to.deep.equal({
+        type: STAGE_PREVIEW_UPDATED,
+        index: 1,
+        attributes: {
+          isLoading: false,
+          isComplete: true,
+          previewDocuments: [],
+          error: 'Invalid string',
+          isMissingAtlasOnlyStageSupport: false,
+        }
+      });
+    });
+    
+    it('#loadingStageResults', function () {
       expect(loadingStageResults(2)).to.deep.equal({
         type: LOADING_STAGE_RESULTS,
         index: 2,
       });
     });
-  });
-
-  describe('#gotoOutResults', function () {
-    context('when a custom function exists', function () {
+    
+    it('#gotoOutResults - when a custom function exists', function () {
       const spy = sinon.spy();
       const getState = () => {
         return {
@@ -381,141 +564,11 @@ describe('pipeline module', function () {
           namespace: 'db.coll',
         };
       };
-
-      it('calls the function with the namespace', function () {
-        gotoOutResults('coll')(null, getState);
-        expect(spy.calledWith('db.coll')).to.equal(true);
-      });
-    });
-  });
-
-  describe('#generatePipelineAsString', function () {
-    context('when the index is the first', function () {
-      const stage = {
-        isEnabled: true,
-        executor: { $match: { name: 'test' } },
-        enabled: true,
-        stageOperator: '$match',
-        stage: "{name: 'test'}",
-      };
-      const state = { inputDocuments: { count: 10000 }, pipeline: [stage] };
-
-      it('returns the pipeline string with only the current stage', function () {
-        expect(generatePipelineAsString(state, 0)).to.deep.equal(`[{
- $match: {
-  name: 'test'
- }
-}]`);
-      });
-    });
-
-    context('when the index has prior stages', function () {
-      const stage0 = {
-        isEnabled: true,
-        executor: { $match: { name: 'test' } },
-        enabled: true,
-        stageOperator: '$match',
-        stage: "{name: 'test'}",
-      };
-      const stage1 = {
-        isEnabled: true,
-        executor: { $project: { name: 1 } },
-        enabled: true,
-        stageOperator: '$project',
-        stage: '{name: 1}',
-      };
-      const stage2 = {
-        isEnabled: true,
-        executor: { $sort: { name: 1 } },
-        enabled: true,
-        stageOperator: '$sort',
-        stage: '{name: 1}',
-      };
-      const state = {
-        inputDocuments: { count: 10000 },
-        pipeline: [stage0, stage1, stage2],
-      };
-
-      it('returns the pipeline string with the current and all previous stages', function () {
-        expect(generatePipelineAsString(state, 2)).to.deep.equal(`[{
- $match: {
-  name: 'test'
- }
-}, {
- $project: {
-  name: 1
- }
-}, {
- $sort: {
-  name: 1
- }
-}]`);
-      });
-    });
-
-    context('when the index has stages after', function () {
-      const stage0 = {
-        isEnabled: true,
-        executor: { $match: { name: 'test' } },
-        enabled: true,
-        stageOperator: '$match',
-        stage: "{name: 'test'}",
-      };
-      const stage1 = {
-        isEnabled: true,
-        executor: { $project: { name: 1 } },
-        enabled: true,
-        stageOperator: '$project',
-        stage: '{name: 1}',
-      };
-      const stage2 = {
-        isEnabled: true,
-        executor: { $sort: { name: 1 } },
-        enabled: true,
-        stageOperator: '$sort',
-        stage: '{name: 1}',
-      };
-      const state = {
-        inputDocuments: { count: 10000 },
-        pipeline: [stage0, stage1, stage2],
-      };
-
-      it('returns the pipeline string with the current and all previous stages', function () {
-        expect(generatePipelineAsString(state, 1)).to.deep.equal(`[{
- $match: {
-  name: 'test'
- }
-}, {
- $project: {
-  name: 1
- }
-}]`);
-      });
-    });
-
-    context('when a stage is disabled', function () {
-      const stage0 = {
-        isEnabled: false,
-        executor: { $match: { name: 'test' } },
-      };
-      const stage1 = { isEnabled: true, executor: { $project: { name: 1 } } };
-      const stage2 = { isEnabled: true, executor: { $sort: { name: 1 } } };
-      const state = {
-        inputDocuments: { count: 10000 },
-        pipeline: [stage0, stage1, stage2],
-      };
-
-      it('returns pipeline as a string with the current and all previous stages', function () {
-        expect(generatePipelineAsString(state, 2)).to.deep.equal('[{}, {}]');
-      });
-    });
-
-    context('when there are no stages', function () {
-      const state = { inputDocuments: { count: 10000 }, pipeline: [] };
-
-      it('returns an empty pipeline string', function () {
-        expect(generatePipelineAsString(state, 0)).to.deep.equal('[]');
-      });
+      gotoOutResults('coll')(null, getState);
+      expect(
+        spy.calledWith('db.coll'),
+        'calls the function with the namespace'
+      ).to.equal(true);
     });
   });
 });

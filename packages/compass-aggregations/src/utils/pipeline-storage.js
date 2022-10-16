@@ -56,7 +56,7 @@ export class PipelineStorage {
       return {
         ...data,
         lastModified: stats.mtimeMs,
-        pipelineText: data.pipelineText ?? savedPipelineToText(data.pipeline),
+        pipelineText: data.pipelineText ?? savedPipelineToText(data.pipeline ?? []),
       };
     } catch (err) {
       debug(`Failed to load pipeline ${path.basename(filePath)}`, err);

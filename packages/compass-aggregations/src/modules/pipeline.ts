@@ -609,6 +609,8 @@ export const stageOperatorSelected =
         ? oldStage.stage
         : getStageDefaultValue(stageOperator, isCommenting, env);
 
+      pipelineBuilder.changeStageValue(index, stageValue);
+
       const attributes: Partial<StageState> = {
         stageOperator,
         stage: stageValue,
@@ -698,7 +700,7 @@ export const stagePreviewUpdated = (
 
     dispatch({
       type: STAGE_PREVIEW_UPDATED,
-      index: index,
+      index,
       attributes,
     });
   };
@@ -775,13 +777,7 @@ const executeAggregation = (
         );
 
       dispatch(
-        stagePreviewUpdated(
-          previewDocuments,
-          index,
-          null,
-          true,
-          env,
-        )
+        stagePreviewUpdated(previewDocuments, index, null, true, env)
       );
 
       dispatch(
@@ -921,8 +917,7 @@ export const runStage = (
 };
 
 const isMissingAtlasOnlyStageSupport = (operator: string, env: string): boolean => {
-  return !!(
-    [SEARCH, SEARCH_META, DOCUMENTS].includes(operator) &&
+  return [SEARCH, SEARCH_META, DOCUMENTS].includes(operator) &&
     env !== ADL && env !== ATLAS
-  );
+    ;
 }

@@ -437,7 +437,7 @@ describe('Aggregation Store', function() {
             isLoading: false,
             isComplete: false,
             previewDocuments: [],
-            syntaxError: 'Stage must be a properly formatted document.',
+            syntaxError: 'Stage value can not be empty',
             error: null,
             projections: []
           });
