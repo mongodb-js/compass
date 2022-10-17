@@ -167,7 +167,7 @@ function FindInPageInput({
           className={closeButtonStyles}
           aria-label="Close find box"
           onClick={onClose}
-          onKeyDown={(evt) => {
+          onKeyDown={(evt: React.KeyboardEvent) => {
             // So that enter / space works as a trigger on the button instead of
             // window keydown event handler reacting to Enter press
             evt.stopPropagation();
