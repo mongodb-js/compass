@@ -74,7 +74,11 @@ function UnthemedTabNavBar({
           data-testid={dataTestId}
           aria-label={ariaLabel}
           className="test-tab-nav-bar-tabs"
-          setSelected={onTabClicked}
+          // Note: we cast the (tabIndex: number) => void to React.Dispatch<React.SetStateAction<number>>
+          // here as a result of leafygreen's type strictness.
+          setSelected={
+            onTabClicked as React.Dispatch<React.SetStateAction<number>>
+          }
           selected={activeTabIndex}
         >
           {tabs.map((tab, idx) => (

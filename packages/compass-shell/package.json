@@ -62,7 +62,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
     "@hot-loader/react-dom": "^16.9.0",
-    "@leafygreen-ui/code": "^12.0.1",
+    "@leafygreen-ui/code": "^12.1.1",
     "@mongosh/browser-repl": "^1.6.0",
     "@mongosh/logging": "^1.6.0",
     "@mongosh/service-provider-core": "^1.6.0",
