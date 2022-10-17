@@ -736,7 +736,7 @@ const executeAggregation = (
   index: number,
   force: boolean
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelinePreviewManager }) => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipeline,
       namespace,
@@ -775,8 +775,9 @@ const executeAggregation = (
           totalDocumentCount: inputDocuments.count
         };
 
+        // todo: make pipelineBuilder.previewManager private in COMPASS-6167 cleanup
         const previewDocuments =
-          await pipelinePreviewManager.getPreviewForStage(
+          await pipelineBuilder.previewManager.getPreviewForStage(
             index,
             namespace,
             previewPipeline,
@@ -922,12 +923,12 @@ export const runStage = (
   index: number,
   forceExecute = false
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelinePreviewManager }) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const { id, autoPreview, pipeline } = getState();
-    pipelinePreviewManager.clearQueue(index);
     if (!autoPreview) {
       return;
     }
+    pipelineBuilder.stopPreview(index);
     if (id === '') {
       dispatch(createId());
     }

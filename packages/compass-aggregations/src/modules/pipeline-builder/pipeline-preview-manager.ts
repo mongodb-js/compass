@@ -28,7 +28,7 @@ function getStageOp(doc: Document = {}): string | undefined {
   return Object.keys(doc)[0];
 }
 
-type PreviewOptions = {
+export interface PreviewOptions extends AggregateOptions {
   debounceMs?: number;
   totalDocumentCount?: number;
   sampleSize?: number;
@@ -83,7 +83,7 @@ export class PipelinePreviewManager {
       previewSize,
       totalDocumentCount,
       ...options
-    }: AggregateOptions & PreviewOptions = {},
+    }: PreviewOptions = {},
     force = false
   ): Promise<Document[]> {
     this.queue.get(idx)?.abort();

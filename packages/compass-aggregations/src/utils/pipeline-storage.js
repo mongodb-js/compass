@@ -4,15 +4,20 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { getDirectory } from './get-directory';
+import { stageToString } from '../modules/pipeline-builder/stage';
 
 const ENCODING_UTF8 = 'utf8';
 
+ function savedPipelineToText(pipeline) {
+  const stages = pipeline.map(
+    ({ stageOperator, isEnabled, stage }) => 
+      stageToString(stageOperator, stage, !isEnabled)
+  );
+
+  return `[\n${stages.join(',\n')}\n]`;
+}
+
 export class PipelineStorage {
-  /**
-   *
-   * Loads all saved pipelines from the storage.
-   *
-   */
   async loadAll() {
     const dir = getDirectory();
     const files = (await fs.readdir(dir))
@@ -37,6 +42,7 @@ export class PipelineStorage {
       return {
         ...data,
         lastModified: stats.mtimeMs,
+        pipelineText: data.pipelineText ?? savedPipelineToText(data.pipeline ?? []),
       };
     } catch (err) {
       debug(`Failed to load pipeline ${path.basename(filePath)}`, err);
@@ -79,11 +85,6 @@ export class PipelineStorage {
     return updated;
   }
 
-  /**
-   * Deletes a pipeline from the storage.
-   *
-   * @param {string} id Pipeline ID
-   */
   async delete(id) {
     const file = path.join(getDirectory(), `${id}.json`);
     return fs.unlink(file);

@@ -6,7 +6,7 @@ import StageParser, {
   getStageValueFromNode,
   isNodeDisabled,
   setNodeDisabled,
-  stageToComments,
+  stageToAstComments,
 } from './stage-parser';
 import type { StageLike } from './stage-parser';
 
@@ -146,7 +146,7 @@ describe('StageParser', function () {
 
     it('converts stage to comment', function () {
       const stage = babelParser.parseExpression(`{$match: {name: /berlin/i}}`);
-      const comments = stageToComments(stage);
+      const comments = stageToAstComments(stage);
       comments.forEach(({ type }) => expect(type).to.equal('CommentLine'));
       const value = comments.map(({ value }) => value).join('\n');
       expect(value).to.equal([

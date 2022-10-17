@@ -1,9 +1,8 @@
 import { toJSString } from 'mongodb-query-parser';
-import { emptyStage } from '../utils/stage';
-import { extractStages } from './extract-stages';
+import { emptyStage, mapBuilderStagesToUIStages } from '../utils/stage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
  * Shell string indent.
@@ -190,14 +189,17 @@ export const createNew = () => ({
 });
 
 /**
- * Confirm new action creator.
- *
- * @returns {Object} The state.
+ * @returns {import('.').PipelineBuilderThunkAction<void>}
  */
-export const confirmNew = () => (dispatch, getState) => {
-  const { importPipeline } = getState();
-  const pipeline = createPipeline(importPipeline.text);
-  const error = pipeline.length > 0 ? pipeline[0].syntaxError : null;
+export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
+  const { importPipeline: { text } } = getState();
+
+  pipelineBuilder.reset(text);
+
+  const error = pipelineBuilder.syntaxError[0]?.message
+  const pipeline = error
+    ? []
+    : mapBuilderStagesToUIStages(pipelineBuilder.stages);
 
   if (!error) {
     track('Aggregation Imported From Text', { num_stages: pipeline.length });
@@ -208,29 +210,6 @@ export const confirmNew = () => (dispatch, getState) => {
     pipeline,
     error
   });
-};
-
-/**
- * Create a pipeline from the provided text.
- *
- * @param {String} text - The text.
- *
- * @returns {Array} The pipeline for the builder.
- */
-export const createPipeline = (text) => {
-  try {
-    const stages = extractStages(text);
-    return stages.map((stage) => {
-      return createStage(
-        stage.operator,
-        stage.source,
-        null
-      );
-    });
-  } catch (jsError) {
-    debug(jsError);
-    return [ createStage(null, '', jsError.message) ];
-  }
 };
 
 export const createPipelineFromView = (pipeline) => {

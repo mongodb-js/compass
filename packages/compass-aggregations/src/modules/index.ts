@@ -39,7 +39,7 @@ import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import indexes from './indexes';
 import type { ThunkAction } from 'redux-thunk';
-import type { PipelinePreviewManager } from './pipeline-builder/pipeline-preview-manager';
+import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 
 /**
  * The main application reducer.
@@ -96,7 +96,7 @@ export type PipelineBuilderThunkAction<
 > = ThunkAction<
   R,
   RootState,
-  { pipelinePreviewManager: PipelinePreviewManager },
+  { pipelineBuilder: PipelineBuilder },
   A
 >;
 
