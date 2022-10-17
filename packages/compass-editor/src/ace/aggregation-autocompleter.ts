@@ -14,6 +14,20 @@ const STAGE_OPERATORS = _STAGE_OPERATORS.map((op) => {
   };
 });
 
+const STAGE_OPERATORS_WITH_BLOCK_SNIPPETS = STAGE_OPERATORS.map(
+  (completion) => {
+    const padded = completion.snippet
+      .split('\n')
+      .map((line) => `  ${line}`)
+      .join('\n');
+
+    return {
+      ...completion,
+      snippet: `{\n${padded}\n}`,
+    };
+  }
+);
+
 function type(token: Ace.Token, type: string) {
   return token.type.split('.').includes(type);
 }
@@ -26,8 +40,10 @@ function getPreviousTokenPos(
   if (token?.start === 0) {
     return {
       row: row - 1,
-      column: (session as unknown as { $rowLengthCache: number[] })
-        .$rowLengthCache[row - 1],
+      column:
+        (session as unknown as { $rowLengthCache: number[] }).$rowLengthCache[
+          row - 1
+        ] ?? session.getLine(row - 1).length,
     };
   } else {
     return {
@@ -108,7 +124,11 @@ class AggregationAutoCompleter implements Ace.Completer {
       return callback(null, []);
     }
 
+    const tokens: Ace.Token[] = [];
+
     for (const token of getScopeTokensBefore(session, position)) {
+      tokens.push(token);
+
       if (
         // Quick check for cases where mongodb syntax mode is enabled
         type(token, 'stage_op') ||
@@ -129,8 +149,34 @@ class AggregationAutoCompleter implements Ace.Completer {
       }
     }
 
-    callback(null, filter(this.version, STAGE_OPERATORS, prefix));
+    callback(
+      null,
+      filter(
+        this.version,
+        isInsideBlock(tokens)
+          ? STAGE_OPERATORS
+          : STAGE_OPERATORS_WITH_BLOCK_SNIPPETS,
+        prefix
+      )
+    );
   };
+}
+
+function isInsideBlock(tokens: Ace.Token[]): boolean {
+  for (const token of tokens) {
+    // Skip comments and spaces
+    if (type(token, 'comment') || /^\s+$/.test(token.value)) {
+      continue;
+    }
+    // If we hit the `{` we know we are inside a block
+    if (type(token, 'lparen') && /\{$/.test(token.value)) {
+      return true;
+    }
+    // If we hit anything else, we are probably not inside a block
+    return false;
+  }
+
+  return false;
 }
 
 export { AggregationAutoCompleter };

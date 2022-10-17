@@ -61,6 +61,42 @@ describe('AggregationAutoCompleter', function () {
         });
       });
     });
+
+    context('inside block', function () {
+      it('should not suggest blocks in snippets', function () {
+        const { getCompletions } = setupAggregationCompleter(
+          `[{\n /** comment */ $`
+        );
+        getCompletions(function (err, completions) {
+          expect(
+            completions.every(
+              (completion) => !completion.snippet.startsWith('{')
+            )
+          ).to.eq(
+            true,
+            'Expected every completion to not start with an opening paren'
+          );
+        });
+      });
+    });
+
+    context('outside block', function () {
+      it('should have blocks in snippets', function () {
+        const { getCompletions } = setupAggregationCompleter(
+          `[{ $match: {foo: 1} }, $`
+        );
+        getCompletions(function (err, completions) {
+          expect(
+            completions.every((completion) =>
+              completion.snippet.startsWith('{')
+            )
+          ).to.eq(
+            true,
+            'Expected every completion to start with an opening paren'
+          );
+        });
+      });
+    });
   });
 
   context('when autocompleting inside the stage', function () {
@@ -103,6 +139,8 @@ describe('AggregationAutoCompleter', function () {
       ['[{foo:{bar:1}},{bla', []],
       ['[{foo:{bar:1}},/*{foo:*/{bla', []],
       ['[{foo:{bar:1}},//{foo:\n{bla', []],
+      ['[{foo:{bar:1}},//{foo:\n{bla', []],
+      ['[{foo:{\nbar', ['foo']],
     ];
     cases.forEach(function ([code, expected, pos]) {
       const escapedCode = code.replace(/\n/g, '\\n');
