@@ -5,3 +5,8 @@ declare module 'mongodb-query-parser' {
     const isCollationValid: (collationString: string) => false | null | CollationOptions;
     export { isCollationValid };
 }
+
+declare module '*.module.less' {
+    const styles = Record<string, string>;
+    export default styles;
+}

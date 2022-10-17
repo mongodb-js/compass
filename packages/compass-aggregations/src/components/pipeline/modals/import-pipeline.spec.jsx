@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import ImportPipeline from './import-pipeline';
+import { ImportPipeline } from './import-pipeline';
 import styles from './import-pipeline.module.less';
 
 describe('ImportPipeline [Component]', function() {
@@ -22,7 +22,10 @@ describe('ImportPipeline [Component]', function() {
         createNew={createNewSpy}
         changeText={changeTextSpy}
         text="testing"
-        isOpen />
+        isOpen
+        serverVersion="0.0.0"
+        fields={[]}
+      />
     );
   });
 
