@@ -8,7 +8,7 @@ import { indexesFetched } from '../modules/indexes';
 import { runStage } from '../modules/pipeline';
 import { createPipelineFromView } from '../modules/import-pipeline';
 import { openPipeline } from '../modules/saved-pipeline';
-import { PipelinePreviewManager } from '../modules/pipeline-builder/pipeline-preview-manager';
+import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 
 /**
  * Refresh the input documents.
@@ -92,7 +92,7 @@ const configureStore = (options = {}) => {
     },
     applyMiddleware(
       thunk.withExtraArgument({
-        pipelinePreviewManager: new PipelinePreviewManager(
+        pipelineBuilder: new PipelineBuilder(
           options.dataProvider?.dataProvider ?? null
         )
       })
