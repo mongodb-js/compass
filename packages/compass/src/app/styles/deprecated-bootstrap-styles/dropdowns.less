@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .caret {
   display: inline-block;
   width: 0;
@@ -51,11 +53,16 @@
   text-align: left;
   background-color: @palette__white;
   border: 1px solid @palette__gray--light-1;
-  border: 1px solid rgba(0, 30, 43, 0.15);
+  border: 1px solid fade(@palette__black, 15%);
   border-radius: 4px;
-  box-shadow: 0 6px 12px rgba(0, 30, 43, 0.175);
+  box-shadow: 0 6px 12px fade(@palette__black, 18%);
   background-clip: padding-box;
 }
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background-color: @palette__white;
+}
+
 .dropdown-menu.pull-right {
   right: 0;
   left: auto;

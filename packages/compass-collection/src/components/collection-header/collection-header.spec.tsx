@@ -6,7 +6,7 @@ import { spy } from 'sinon';
 import userEvent from '@testing-library/user-event';
 
 import CollectionHeader from '../collection-header';
-import { getInitialState } from '../../modules/stats';
+import { getCollectionStatsInitialState } from '../../modules/stats';
 
 describe('CollectionHeader [Component]', function () {
   context('when the collection is not readonly', function () {
@@ -25,7 +25,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={getInitialState()}
+          stats={getCollectionStatsInitialState()}
         />
       );
     });
@@ -78,7 +78,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={getInitialState()}
+          stats={getCollectionStatsInitialState()}
         />
       );
     });
@@ -128,7 +128,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={getInitialState()}
+          stats={getCollectionStatsInitialState()}
         />
       );
     });
@@ -164,7 +164,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={getInitialState()}
+          stats={getCollectionStatsInitialState()}
         />
       );
     });
@@ -200,7 +200,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={getInitialState()}
+          stats={getCollectionStatsInitialState()}
         />
       );
     });
@@ -240,7 +240,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={getInitialState()}
+          stats={getCollectionStatsInitialState()}
         />
       );
     });
@@ -278,7 +278,7 @@ describe('CollectionHeader [Component]', function () {
           selectOrCreateTab={selectOrCreateTabSpy}
           sourceReadonly={false}
           pipeline={[]}
-          stats={getInitialState()}
+          stats={getCollectionStatsInitialState()}
         />
       );
 

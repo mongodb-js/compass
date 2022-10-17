@@ -8,8 +8,8 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
-  compassUIColors,
+  palette,
+  rgba,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
@@ -21,17 +21,17 @@ const findInPageContainerStyles = css({
   top: 0,
   right: spacing[4],
   width: spacing[6] * 4, // 256px
-  boxShadow: '0px 2px 5px rgba(0, 30, 43, 0.3)',
+  boxShadow: `0px 2px 5px ${rgba(palette.black, 0.3)}`,
 });
 
 const containerLightThemeStyles = css({
-  background: compassUIColors.gray8,
-  borderColor: uiColors.gray.light2,
+  background: palette.gray.light3,
+  borderColor: palette.gray.light2,
 });
 
 const containerDarkThemeStyles = css({
-  background: uiColors.gray.dark2,
-  borderColor: uiColors.gray.dark1,
+  background: palette.gray.dark2,
+  borderColor: palette.gray.dark1,
 });
 
 const descriptionStyles = css({
@@ -41,11 +41,11 @@ const descriptionStyles = css({
 });
 
 const descriptionLightThemeStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const descriptionDarkThemeStyles = css({
-  color: uiColors.gray.light2,
+  color: palette.gray.light2,
 });
 
 const findStyles = css({
@@ -167,7 +167,7 @@ function FindInPageInput({
           className={closeButtonStyles}
           aria-label="Close find box"
           onClick={onClose}
-          onKeyDown={(evt) => {
+          onKeyDown={(evt: React.KeyboardEvent) => {
             // So that enter / space works as a trigger on the button instead of
             // window keydown event handler reacting to Enter press
             evt.stopPropagation();

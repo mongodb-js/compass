@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   css,
-  uiColors,
+  palette,
   spacing,
   Disclaimer,
   H3,
@@ -18,26 +18,26 @@ const collectionStatsItemStyles = css({
 
 const darkThemeLabelStyles = css({
   textTransform: 'uppercase',
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
   display: 'inline-block',
   fontWeight: 'bold',
 });
 
 const lightThemeLabelStyles = css({
   textTransform: 'uppercase',
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
   display: 'inline-block',
 });
 
 const darkThemeValueStyles = css({
   textTransform: 'lowercase',
-  color: uiColors.green.light2,
+  color: palette.green.light2,
   display: 'inline-block',
 });
 
 const lightThemeValueStyles = css({
   textTransform: 'lowercase',
-  color: uiColors.green.base,
+  color: palette.green.dark1,
   display: 'inline-block',
 });
 

@@ -1,7 +1,7 @@
 import type AppRegistry from 'hadron-app-registry';
 import {
   css,
-  uiColors,
+  palette,
   withTheme,
   Link,
   spacing,
@@ -56,11 +56,11 @@ const collectionHeaderDBLinkStyles = css({
 });
 
 const collectionHeaderDBLinkLightStyles = css({
-  color: uiColors.green.base,
+  color: palette.green.dark1,
 });
 
 const collectionHeaderDBLinkDarkStyles = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const collectionHeaderNamespaceStyles = css({
@@ -78,11 +78,11 @@ const collectionHeaderDBNameStyles = css({
 });
 
 const collectionHeaderDBNameLightStyles = css({
-  color: uiColors.green.base,
+  color: palette.green.dark1,
 });
 
 const collectionHeaderDBNameDarkStyles = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const collectionHeaderCollectionStyles = css({
@@ -92,19 +92,19 @@ const collectionHeaderCollectionStyles = css({
 });
 
 const collectionHeaderLightStyles = css({
-  background: uiColors.white,
+  background: palette.white,
 });
 
 const collectionHeaderDarkStyles = css({
-  backgroundColor: uiColors.gray.dark3,
+  backgroundColor: palette.gray.dark3,
 });
 
 const collectionHeaderTitleCollectionLightStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const collectionHeaderTitleCollectionDarkStyles = css({
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
 });
 
 type CollectionHeaderProps = {

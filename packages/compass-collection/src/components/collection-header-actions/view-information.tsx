@@ -1,7 +1,7 @@
 import {
   css,
   Subtitle,
-  uiColors,
+  palette,
   cx,
   withTheme,
 } from '@mongodb-js/compass-components';
@@ -16,11 +16,11 @@ const collectionHeaderActionsReadonlyStyles = css({
 });
 
 const collectionHeaderActionsReadonlyLightStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const collectionHeaderActionsReadonlyDarkStyles = css({
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
 });
 
 type ViewInformationProps = {

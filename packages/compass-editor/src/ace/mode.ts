@@ -1,17 +1,18 @@
-const {
+import {
   BSON_TYPES,
   ACCUMULATORS,
   EXPRESSION_OPERATORS,
   CONVERSION_OPERATORS,
   QUERY_OPERATORS,
-  STAGE_OPERATORS
-} = require('mongodb-ace-autocompleter');
+  STAGE_OPERATORS,
+} from '@mongodb-js/mongodb-constants';
+import type { AceMode, HighlightRules } from '../types';
 
 // Copied from the original javascript highligher
 // https://github.com/ajaxorg/ace/blob/86d47fa9681e1e82b7bffd3a7ffd5ab0368d1301/src/mode/javascript_highlight_rules.js#L8
 const identifierRe = '[a-zA-Z\\$_\u00a1-\uffff][a-zA-Z\\d\\$_\u00a1-\uffff]*';
 
-function toMapperVal(items) {
+function toMapperVal(items: readonly { value: string }[]): string {
   return items
     .map((item) => {
       return item.value;
@@ -26,7 +27,7 @@ ace.define(
     'exports',
     'module',
     'ace/lib/oop',
-    'ace/mode/javascript_highlight_rules'
+    'ace/mode/javascript_highlight_rules',
   ],
   function (acequire, exports) {
     const oop = acequire('../lib/oop');
@@ -36,7 +37,7 @@ ace.define(
 
     // MongoDB highligher is just javascript highligher with overriden
     // identifier mapper
-    function MongoDBHighlightRules(...args) {
+    function MongoDBHighlightRules(this: HighlightRules, ...args: unknown[]) {
       oop.mixin(this, new JavaScriptHighlightRules(...args));
 
       const keywordMapper = this.createKeywordMapper(
@@ -55,7 +56,7 @@ ace.define(
           // https://github.com/ajaxorg/ace/blob/86d47fa9681e1e82b7bffd3a7ffd5ab0368d1301/src/mode/javascript_highlight_rules.js#L12-L38
           'storage.type': 'const|let|var|function',
           'constant.language': 'null|Infinity|NaN|undefined',
-          'constant.language.boolean': 'true|false'
+          'constant.language.boolean': 'true|false',
         },
         'identifier'
       );
@@ -90,7 +91,7 @@ ace.define(
     'module',
     'ace/lib/oop',
     'ace/mode/javascript',
-    'ace/mode/mongodb_highlight_rules'
+    'ace/mode/mongodb_highlight_rules',
   ],
   function (acequire, exports) {
     const oop = acequire('../lib/oop');
@@ -98,7 +99,7 @@ ace.define(
     const { MongoDBHighlightRules } = acequire('./mongodb_highlight_rules');
     // MongoDB mode is just javascript mode with a slightly modified highligher
     // (see highligher code above for details)
-    function MongoDBMode(...args) {
+    function MongoDBMode(this: AceMode, ...args: unknown[]) {
       oop.mixin(this, new JavaScriptMode(...args));
       this.HighlightRules = MongoDBHighlightRules;
       // We completely disable javascript worker because the one packaged with

@@ -4,7 +4,7 @@ import {
   Subtitle,
   Icon,
   css,
-  uiColors,
+  palette,
   spacing,
   KeylineCard,
 } from '@mongodb-js/compass-components';
@@ -18,7 +18,7 @@ import detectCoordinates from '../../modules/detect-coordinates';
 import preferences from 'compass-preferences-model';
 
 const toggleCollapseButtonIconStyles = css({
-  color: uiColors.gray.dark2,
+  color: palette.gray.dark2,
 });
 
 const fieldNameStyles = css({
@@ -45,7 +45,7 @@ const expandCollapseFieldButtonStyles = css({
   },
   '&:focus-visible': {
     outline: 'none',
-    boxShadow: `0 0 0 3px ${uiColors.focus}`,
+    boxShadow: `0 0 0 3px ${palette.blue.light1}`,
   },
 });
 

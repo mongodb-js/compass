@@ -6,7 +6,7 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
+  palette,
   withTheme,
   Label,
   Link,
@@ -25,27 +25,39 @@ import {
 } from './query-option';
 import { QueryHistoryButtonPopover } from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
+import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 
 const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
-  background: uiColors.white,
-  border: `1px solid ${uiColors.gray.light2}`,
+  background: palette.white,
+  border: `1px solid ${palette.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[2],
 });
 
 const queryBarFormDarkStyles = css({
-  background: uiColors.gray.dark3,
-  borderColor: uiColors.gray.dark2,
+  background: palette.gray.dark3,
+  borderColor: palette.gray.dark2,
 });
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
-  alignItems: 'center',
+  // NOTE: To keep the elements in the query bar from re-positioning
+  // vertically when the filter input is multi-line we use
+  // `flex-start` here. It is more brittle as it does require the other elements
+  // to account for their height individually.
+  alignItems: 'flex-start',
   gap: spacing[2],
   paddingLeft: spacing[2],
+});
+
+const moreOptionsContainerStyles = css({
+  // We explicitly offset this element so we can use
+  // `alignItems: 'flex-start'` on the first row of the query bar.
+  paddingTop: 2,
+  paddingBottom: 2,
 });
 
 const filterContainerStyles = css({
@@ -81,7 +93,7 @@ type QueryBarProps = {
   queryState: 'apply' | 'reset';
   refreshEditorAction: Listenable;
   resultId: string | number;
-  schemaFields: string[];
+  schemaFields: CompletionWithServerInfo[];
   serverVersion: string;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
@@ -210,12 +222,14 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
         )}
 
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
-          <MoreOptionsToggle
-            aria-controls="additional-query-options-container"
-            data-testid="query-bar-options-toggle"
-            isExpanded={isQueryOptionsExpanded}
-            onToggleOptions={toggleExpandQueryOptions}
-          />
+          <div className={moreOptionsContainerStyles}>
+            <MoreOptionsToggle
+              aria-controls="additional-query-options-container"
+              data-testid="query-bar-options-toggle"
+              isExpanded={isQueryOptionsExpanded}
+              onToggleOptions={toggleExpandQueryOptions}
+            />
+          </div>
         )}
       </div>
       {isQueryOptionsExpanded &&

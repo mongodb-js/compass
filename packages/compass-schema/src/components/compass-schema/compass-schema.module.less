@@ -70,13 +70,9 @@
 
 :global {
   .schema-field-list {
-    // .list-group;
     .schema-field {
-      // .list-group-item;
       padding: 24px 0 0 0;
       margin-bottom: 8px;
-      background: @palette__white;
-      transition: all 250ms ease-out;
 
       .row {
         margin-bottom: 24px;
@@ -236,50 +232,15 @@
     }
 
     .schema-field-type-undefined > .schema-field-type {
-      background: white;
+      background: @palette__white;
       border: 1px solid @palette__gray--light-1;
     }
-
-    // .schema-field-type-null {
-    //   background: @series-bg-1;
-    // }
-    // .schema-field-type-number {
-    //   background: @series-bg-2;
-    // }
-    // .schema-field-type-long {
-    //   background: @series-bg-3;
-    // }
-    // .schema-field-type-string {
-    //   background: @series-bg-4;
-    // }
-    // .schema-field-type-boolean {
-    //   background: @series-bg-5;
-    // }
-    // .schema-field-type-undefined {
-    //   background: @series-bg-6;
-    // }
-    // .schema-field-type-date {
-    //   background: @series-bg-7;
-    // }
-    // .schema-field-type-objectid {
-    //   background: @series-bg-8;
-    // }
-    // .schema-field-type-array {
-    //   background: @series-bg-1;
-    // }
-    // .schema-field-type-object {
-    //   background: @series-bg-1;
-    // }
   }
 }
 
 :global {
   .schema-value-list {
-    // TODO .small;
-    // TODO .list-unstyled;
-
     .schema-value-list-item {
-      // TODO .badge;
       display: inline-block;
       margin-left: 5px;
       margin-right: 5px;
@@ -407,7 +368,7 @@
 
       &.few {
         rect {
-          stroke: white;
+          stroke: @palette__white;
           stroke-width: 2px;
         }
 
@@ -443,7 +404,7 @@
         }
 
         text {
-          fill: white;
+          fill: @palette__white;
           font-size: 12px;
         }
       }
@@ -509,7 +470,7 @@
       z-index: 1;
     }
     #circle {
-      background-color: rgba(17, 39, 51, 0.1);
+      background-color: fade(@palette__gray--dark-4, 10%);
       font-family: Helvetica, sans-serif;
       color: @palette__blue--light-1;
       padding: 5px 8px;
@@ -518,7 +479,7 @@
       border: 1px solid @palette__gray--dark-4;
     }
     #circle.active {
-      background-color: rgba(255, 255, 255, 0.9);
+      background-color: fade(@palette__white, 90%);
     }
   }
 

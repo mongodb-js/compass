@@ -55,13 +55,13 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-crud": "^13.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson": "^4.4.1",
     "hadron-react-buttons": "^6.0.1",
     "hadron-react-components": "^6.2.0",
-    "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -99,13 +99,13 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-crud": "^13.2.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "bson": "^4.4.1",
     "hadron-react-buttons": "^6.0.1",
     "hadron-react-components": "^6.2.0",
-    "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   }
 }

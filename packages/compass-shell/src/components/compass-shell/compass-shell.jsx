@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { Shell } from '@mongosh/browser-repl';
-import { ResizeHandle, ResizeDirection, css, cx, uiColors } from '@mongodb-js/compass-components';
+import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
 
 import InfoModal from '../info-modal';
 import ShellHeader from '../shell-header';
 
 const compassShellStyles = css({
-  backgroundColor: uiColors.gray.dark3,
+  backgroundColor: palette.gray.dark3,
   display: 'flex',
   flexBasis: 'auto',
   position: 'relative',
@@ -20,9 +20,9 @@ const compassShellContainerStyles = css({
   flexGrow: 1,
   display: 'none',
   overflow: 'auto',
-  borderTop: `1px solid ${uiColors.gray.dark2}`,
+  borderTop: `1px solid ${palette.gray.dark2}`,
   '*::-webkit-scrollbar-thumb': {
-    background: 'rgba(193, 199, 198, 0.5)'
+    background: rgba(palette.gray.light1, 0.5),
   }
 });
 

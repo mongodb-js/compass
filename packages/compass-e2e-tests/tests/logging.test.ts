@@ -145,6 +145,9 @@ describe('Logging and Telemetry integration', function () {
           ctx: 'Main Window',
           id: 1_001_000_092,
           msg: 'Rendering app container',
+          attr: {
+            autoConnectEnabled: false,
+          },
         },
         {
           s: 'I',

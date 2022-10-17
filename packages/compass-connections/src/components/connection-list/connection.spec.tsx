@@ -110,7 +110,7 @@ describe('Connection Component', function () {
         const favoriteIndicator = screen.getByTestId('connection-icon');
         expect(
           getComputedStyle(favoriteIndicator).getPropertyValue('color')
-        ).to.equal('rgb(33, 49, 60)');
+        ).to.equal('rgb(28, 45, 56)');
       });
     });
   });
@@ -139,7 +139,7 @@ describe('Connection Component', function () {
       expect(favoriteIndicator).to.not.equal(null);
       expect(
         getComputedStyle(favoriteIndicator).getPropertyValue('color')
-      ).to.equal('rgb(33, 49, 60)');
+      ).to.equal('rgb(28, 45, 56)');
     });
 
     it('it shows the connection title as the name', function () {

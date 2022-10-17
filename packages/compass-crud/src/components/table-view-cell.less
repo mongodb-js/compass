@@ -1,3 +1,5 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
 /* Styles for individual cells in the table-view */
 .table-view-cell {
   padding: 0px 5px;
@@ -17,9 +19,9 @@
     border: none;
     border-radius: 50%;
     margin: 4px 5px;
-    background: white;
-    box-shadow: 0 2px 5px 0 rgba(0, 30, 43, 0.15),
-      inset 0 2px 5px 0 rgba(0, 30, 43, 0.05);
+    background: @palette__white;
+    box-shadow: 0 2px 5px 0 fade(@palette__black, 15%),
+      inset 0 2px 5px 0 fade(@palette__black, 5%);
     cursor: pointer;
 
     &-left {

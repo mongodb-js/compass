@@ -5,7 +5,7 @@ import {
   ErrorSummary,
   WarningSummary,
   spacing,
-  uiColors,
+  palette,
   css,
   cx,
 } from '@mongodb-js/compass-components';
@@ -15,7 +15,7 @@ import type {
 } from '../utils/validation';
 
 const formActionStyles = css({
-  borderTop: `1px solid ${uiColors.gray.light2}`,
+  borderTop: `1px solid ${palette.gray.light2}`,
   paddingLeft: spacing[4],
   paddingRight: spacing[4],
 });

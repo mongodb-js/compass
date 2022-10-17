@@ -5,7 +5,7 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
+  palette,
   withTheme,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
@@ -13,6 +13,7 @@ import type { Listenable } from 'reflux';
 import { OptionEditor } from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
+import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -57,7 +58,7 @@ const numericTextInputDarkStyles = css({
 
 const optionInputWithErrorStyles = css({
   input: {
-    borderColor: uiColors.red.base,
+    borderColor: palette.red.base,
   },
 });
 
@@ -86,7 +87,7 @@ type QueryOptionProps = {
   placeholder?: string;
   queryOption: QueryOptionType;
   refreshEditorAction: Listenable;
-  schemaFields: string[];
+  schemaFields: CompletionWithServerInfo[];
   serverVersion: string;
   value?: string;
 };

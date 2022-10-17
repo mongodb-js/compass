@@ -5,7 +5,7 @@ import {
   spacing,
   css,
   cx,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
@@ -35,7 +35,7 @@ const tabWithErrorIndicatorStyles = css({
     width: spacing[2],
     height: spacing[2],
     borderRadius: '50%',
-    backgroundColor: uiColors.red.base,
+    backgroundColor: palette.red.base,
   },
 });
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 
 import { Subtitle, Button } from './leafygreen';
 import { SpinLoader } from './spin-loader';
@@ -16,7 +16,7 @@ const containerStyles = css({
 });
 
 const textStyles = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
   textAlign: 'center',
 });
 

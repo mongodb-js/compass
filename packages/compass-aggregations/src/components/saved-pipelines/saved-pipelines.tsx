@@ -1,10 +1,8 @@
 import React from 'react';
 import {
-  Icon,
-  IconButton,
   css,
   spacing,
-  uiColors,
+  palette,
   Body,
   withTheme
 } from '@mongodb-js/compass-components';
@@ -24,16 +22,11 @@ const toolbarTitleStyles = css({
 });
 
 const titleStylesDark = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const titleStylesLight = css({
-  color: uiColors.green.dark2,
-});
-
-const toolbarStyles = css({
-  display: 'flex',
-  justifyContent: 'space-between',
+  color: palette.green.dark2,
 });
 
 const toolbarContentStyles = css({
@@ -41,12 +34,7 @@ const toolbarContentStyles = css({
   display: 'flex',
   flexDirection: 'column',
   padding: spacing[3],
-});
-
-const closeButtonStyles = css({
-  marginLeft: 'auto',
-  marginTop: spacing[2],
-  marginRight: spacing[2],
+  paddingRight: spacing[5], // Extra right padding to account for close button.
 });
 
 const cardsContainerStyles = css({
@@ -61,41 +49,27 @@ const emptyMessageStyles = css({
 type SavedPipelinesProps = {
   darkMode?: boolean;
   namespace: string;
-  onToggleSavedPipelines: (show: boolean) => void;
   savedPipelines: { id: string; name: string }[];
 };
 
 function UnthemedSavedPipelines({
   darkMode,
   namespace,
-  onToggleSavedPipelines,
   savedPipelines,
 }: SavedPipelinesProps) {
   return (
     <div className={savedPipelinesStyles}>
-      <div className={toolbarStyles}>
-        <div className={toolbarContentStyles}>
-          <Body
-            className={toolbarTitleStyles}
-            id="saved-pipeline-header-title"
-          >
-            Saved Pipelines in <span
-              className={darkMode ? titleStylesDark : titleStylesLight}
-              data-testid="saved-pipeline-header-title-namespace"
-              title={namespace}
-            >{namespace}</span>
-          </Body>
-        </div>
-        <IconButton
-          className={closeButtonStyles}
-          data-testid="saved-pipelines-close-button"
-          onClick={() => {
-            onToggleSavedPipelines(false);
-          }}
-          aria-label="Close saved pipelines popover"
+      <div className={toolbarContentStyles}>
+        <Body
+          className={toolbarTitleStyles}
+          id="saved-pipeline-header-title"
         >
-          <Icon glyph="X" />
-        </IconButton>
+          Saved Pipelines in <span
+            className={darkMode ? titleStylesDark : titleStylesLight}
+            data-testid="saved-pipeline-header-title-namespace"
+            title={namespace}
+          >{namespace}</span>
+        </Body>
       </div>
       <div className={cardsContainerStyles}>
         {savedPipelines.map((pipeline) => (

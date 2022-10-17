@@ -27,6 +27,7 @@
   "license": "SSPL",
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/databases-collections-list": "^1.2.0",
     "hadron-react-components": "^6.2.0",
@@ -94,6 +95,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/databases-collections-list": "^1.2.0",
     "hadron-react-components": "^6.2.0",

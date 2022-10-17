@@ -3,7 +3,7 @@ import {
   css,
   spacing,
   Body,
-  uiColors,
+  palette,
   Link,
   Subtitle,
 } from '@mongodb-js/compass-components';
@@ -75,7 +75,7 @@ const iconStyles = css({
   maxHeight: '80px',
 });
 const titleStyles = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 const subTitleStyles = css({
   marginTop: spacing[2],

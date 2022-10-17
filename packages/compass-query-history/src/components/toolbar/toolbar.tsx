@@ -1,24 +1,14 @@
 import React, { useCallback } from 'react';
 import {
-  Icon,
-  IconButton,
   Label,
   SegmentedControl,
   SegmentedControlOption,
   css,
   spacing,
   useId,
-  uiColors,
+  palette,
   withTheme,
 } from '@mongodb-js/compass-components';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-
-const { track } = createLoggerAndTelemetry('COMPASS-QUERY-HISTORY-UI');
-
-const toolbarStyles = css({
-  display: 'flex',
-  justifyContent: 'space-between',
-});
 
 const titleStyles = css({
   overflow: 'hidden',
@@ -27,41 +17,34 @@ const titleStyles = css({
 });
 
 const titleStylesDark = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const titleStylesLight = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 
-const toolbarActionStyles = css({
+const toolbarStyles = css({
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
   padding: spacing[3],
+  paddingRight: spacing[5], // Extra right padding to account for close button.
 });
 
 const viewSwitcherStyles = css({
   marginTop: spacing[1],
 });
 
-const closeButtonStyles = css({
-  marginLeft: 'auto',
-  marginTop: spacing[2],
-  marginRight: spacing[2],
-});
-
 type ToolbarProps = {
   actions: {
     showRecent: () => void;
     showFavorites: () => void;
-    collapse: () => void;
   }; // Query history actions are not currently typed.
   namespace: {
     ns: string;
   };
   darkMode?: boolean;
-  onClose?: () => void;
   showing: 'recent' | 'favorites';
 };
 
@@ -70,7 +53,6 @@ function UnthemedToolbar({
   darkMode,
   namespace,
   showing,
-  onClose,
 }: ToolbarProps): React.ReactElement {
   const onViewSwitch = useCallback(
     (label: 'recent' | 'favorites') => {
@@ -83,63 +65,42 @@ function UnthemedToolbar({
     [actions]
   );
 
-  const onCollapse = useCallback(() => {
-    actions.collapse();
-  }, [actions]);
-
-  // TODO(COMPASS-5679): After we enable the feature flag,
-  // we can remove the collapsed handler and make `onClose` default required.
-  const onClickClose = useCallback(() => {
-    track('Query History Closed');
-    onClose?.();
-  }, [onClose]);
-
   const labelId = useId();
   const controlId = useId();
 
   return (
     <div className={toolbarStyles}>
-      <div className={toolbarActionStyles}>
-        <Label className={titleStyles} id={labelId} htmlFor={controlId}>
-          Queries in{' '}
-          <span
-            className={darkMode ? titleStylesDark : titleStylesLight}
-            title={namespace.ns}
-          >
-            {namespace.ns}
-          </span>
-        </Label>
-        <SegmentedControl
-          className={viewSwitcherStyles}
-          id={controlId}
-          aria-labelledby={labelId}
-          value={showing}
-          onChange={(value: string) =>
-            onViewSwitch(value as 'recent' | 'favorites')
-          }
+      <Label className={titleStyles} id={labelId} htmlFor={controlId}>
+        Queries in{' '}
+        <span
+          className={darkMode ? titleStylesDark : titleStylesLight}
+          title={namespace.ns}
         >
-          <SegmentedControlOption
-            value="recent"
-            data-testid="past-queries-recent"
-          >
-            Recents
-          </SegmentedControlOption>
-          <SegmentedControlOption
-            value="favorites"
-            data-testid="past-queries-favorites"
-          >
-            Favorites
-          </SegmentedControlOption>
-        </SegmentedControl>
-      </div>
-      <IconButton
-        className={closeButtonStyles}
-        data-testid="query-history-button-close-panel"
-        onClick={onClose ? onClickClose : onCollapse}
-        aria-label="Close query history"
+          {namespace.ns}
+        </span>
+      </Label>
+      <SegmentedControl
+        className={viewSwitcherStyles}
+        id={controlId}
+        aria-labelledby={labelId}
+        value={showing}
+        onChange={(value: string) =>
+          onViewSwitch(value as 'recent' | 'favorites')
+        }
       >
-        <Icon glyph="X" />
-      </IconButton>
+        <SegmentedControlOption
+          value="recent"
+          data-testid="past-queries-recent"
+        >
+          Recents
+        </SegmentedControlOption>
+        <SegmentedControlOption
+          value="favorites"
+          data-testid="past-queries-favorites"
+        >
+          Favorites
+        </SegmentedControlOption>
+      </SegmentedControl>
     </div>
   );
 }
