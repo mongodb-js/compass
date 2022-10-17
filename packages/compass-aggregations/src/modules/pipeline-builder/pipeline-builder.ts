@@ -1,6 +1,6 @@
 import type { DataService } from 'mongodb-data-service';
 import type * as t from '@babel/types';
-import parseEJSON from 'ejson-shell-parser';
+import parseEJSON, { ParseMode } from 'ejson-shell-parser';
 
 import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
@@ -63,7 +63,7 @@ export class PipelineBuilder {
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
     }
-    return parseEJSON(this.source, { mode: 'loose' });
+    return parseEJSON(this.source, { mode: ParseMode.Loose });
   }
   getPreviewForPipeline(namespace: string, options: PreviewOptions) {
     const pipeline = this.getPipelineFromSource();
@@ -120,7 +120,7 @@ export class PipelineBuilder {
     const stagesString = stages
       .map((stage) => stage.toString())
       .join(',\n');
-    return parseEJSON(`[${stagesString}\n]`, { mode: 'loose' });
+    return parseEJSON(`[${stagesString}\n]`, { mode: ParseMode.Loose });
   }
   getPreviewForStage(
     idx: number,
