@@ -13,7 +13,7 @@ import {
 
 const PARSE_ERROR = 'Stage must be a properly formatted document.';
 
-function createStage({
+function createStageNode({
   key,
   value
 }: { key?: string; value?: string } = {}): t.ObjectExpression {
@@ -83,7 +83,7 @@ export default class Stage {
     this.value = value;
     try {
       if (!isStageLike(this.node, true)) {
-        this.node = createStage({ value });
+        this.node = createStageNode({ value });
       } else {
         this.node.properties[0].value = babelParser.parseExpression(value);
       }
@@ -100,7 +100,7 @@ export default class Stage {
     this.operator = operator;
     try {
       if (!isStageLike(this.node, true)) {
-        this.node = createStage({ key: operator });
+        this.node = createStageNode({ key: operator });
       } else {
         this.node.properties[0].key = { type: 'Identifier', name: operator };
       }
