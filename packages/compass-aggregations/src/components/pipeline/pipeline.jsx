@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { Banner, WorkspaceContainer } from '@mongodb-js/compass-components';
 
 import Settings from '../settings';
@@ -46,17 +45,13 @@ class Pipeline extends PureComponent {
     newPipelineFromText: PropTypes.func.isRequired,
     closeImport: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
-    changeText: PropTypes.func.isRequired,
-    createNew: PropTypes.func.isRequired,
     confirmNew: PropTypes.func.isRequired,
     runStage: PropTypes.func.isRequired,
-    importPipelineText: PropTypes.string.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     fields: PropTypes.array.isRequired,
     isModified: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
-    isImportPipelineOpen: PropTypes.bool.isRequired,
     isImportConfirmationNeeded: PropTypes.bool.isRequired,
     setIsModified: PropTypes.func.isRequired,
     gotoOutResults: PropTypes.func.isRequired,
@@ -66,7 +61,6 @@ class Pipeline extends PureComponent {
     editViewName: PropTypes.string,
     updateView: PropTypes.func.isRequired,
     updateViewError: PropTypes.string,
-    importPipelineError: PropTypes.string,
     collationString: PropTypes.object,
     collationStringChanged: PropTypes.func.isRequired,
     openLink: PropTypes.func.isRequired,
@@ -179,16 +173,6 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const importPipelineModal = (
-      <ImportPipeline
-        isOpen={this.props.isImportPipelineOpen}
-        closeImport={this.props.closeImport}
-        changeText={this.props.changeText}
-        createNew={this.props.createNew}
-        error={this.props.importPipelineError}
-        text={this.props.importPipelineText}
-      />
-    );
     const confirmImportPipelineModal = (
       <ConfirmImportPipeline
         isConfirmationNeeded={this.props.isImportConfirmationNeeded}
@@ -221,11 +205,7 @@ class Pipeline extends PureComponent {
     );
 
     return (
-      <div
-        className={classnames(
-          styles.pipeline
-        )}
-      >
+      <div className={styles.pipeline}>
         <Settings
           isAtlasDeployed={this.props.isAtlasDeployed}
           isExpanded={this.props.settings.isExpanded}
@@ -245,7 +225,7 @@ class Pipeline extends PureComponent {
         {this.renderModifyingViewSourceError()}
         {this.renderPipelineWorkspace()}
         <PipelineExplain />
-        {importPipelineModal}
+        <ImportPipeline />
         {confirmImportPipelineModal}
         {savingPipelineModal}
         {confirmNewPipelineModal}
