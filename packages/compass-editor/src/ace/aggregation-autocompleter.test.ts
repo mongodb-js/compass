@@ -8,6 +8,7 @@ import {
 import { setupCompleter, getDefaultPos } from '../../test/completer';
 import { expect } from 'chai';
 import { STAGE_OPERATOR_NAMES } from '@mongodb-js/mongodb-constants';
+import type { CompletionWithServerInfo } from '../types';
 
 const setupAggregationCompleter = setupCompleter.bind(
   null,
@@ -70,7 +71,10 @@ describe('AggregationAutoCompleter', function () {
         getCompletions(function (err, completions) {
           expect(
             completions.every(
-              (completion) => !completion.snippet.startsWith('{')
+              (completion) =>
+                !(completion as CompletionWithServerInfo).snippet?.startsWith(
+                  '{'
+                )
             )
           ).to.eq(
             true,
@@ -88,7 +92,7 @@ describe('AggregationAutoCompleter', function () {
         getCompletions(function (err, completions) {
           expect(
             completions.every((completion) =>
-              completion.snippet.startsWith('{')
+              (completion as CompletionWithServerInfo).snippet?.startsWith('{')
             )
           ).to.eq(
             true,
