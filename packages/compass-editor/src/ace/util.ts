@@ -9,13 +9,12 @@ const filter = (
 ) => {
   const parsedVersion = semver.parse(version);
   return entries.filter((e) => {
-    if (!e.name) return false;
     const cleanVersion = parsedVersion
       ? [parsedVersion.major, parsedVersion.minor, parsedVersion.patch].join(
           '.'
         )
       : version;
-    return e.name.startsWith(prefix) && semver.gte(cleanVersion, e.version);
+    return e.value.startsWith(prefix) && semver.gte(cleanVersion, e.version);
   });
 };
 

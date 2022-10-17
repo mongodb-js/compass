@@ -6,3 +6,7 @@ declare module 'mongodb-query-parser' {
     export { isCollationValid };
 }
 declare module 'ejson-shell-parser';
+declare module '*.module.less' {
+    const styles = Record<string, string>;
+    export default styles;
+}
