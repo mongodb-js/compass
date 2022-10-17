@@ -17,9 +17,9 @@ export class PipelineBuilder {
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
 
-  constructor(dataService: DataService) {
+  constructor(dataService: DataService, source = DEFAULT_PIPELINE) {
     this.previewManager = new PipelinePreviewManager(dataService);
-    this.source = DEFAULT_PIPELINE;
+    this.source = source;
     this.sourceToStages();
   }
 

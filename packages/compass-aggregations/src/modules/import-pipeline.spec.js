@@ -126,26 +126,8 @@ describe('import pipeline module', function() {
 
       expect(dispatchArgs.type).to.equal(CONFIRM_NEW);
       expect(dispatchArgs.error).to.equal(undefined);
-
-      expect(dispatchArgs.pipeline.map(x => ({
-        stageOperator: x.stageOperator,
-        stage: x.stage,
-        isValid: x.isValid,
-        syntaxError: x.syntaxError,
-      }))).to.deep.equal([
-        {
-          stageOperator: '$match',
-          stage: '{\n  name: /berlin/i,\n}',
-          isValid: true,
-          syntaxError: undefined,
-        },
-        {
-          stageOperator: '$limit',
-          stage: '20',
-          isValid: true,
-          syntaxError: undefined,
-        }
-      ])
+      expect(dispatchArgs.stages).to.eq(pipelineBuilder.stages)
+      expect(dispatchArgs.source).to.eq(pipelineBuilder.source)
     });
 
     it('errors on invalid pipeline', function() {
@@ -162,7 +144,7 @@ describe('import pipeline module', function() {
       ).to.deep.equal([text]);
       const dispatchArgs = dispatchSpy.getCalls()[0].args[0];
       expect(dispatchArgs.type).to.equal(CONFIRM_NEW);
-      expect(dispatchArgs.pipeline).to.deep.equal([]);
+      expect(dispatchArgs.stages).to.deep.equal([]);
       expect(dispatchArgs.error).to.not.be.empty;
     });
   });

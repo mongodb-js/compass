@@ -40,6 +40,7 @@ import aggregationWorkspaceId from './aggregation-workspace-id';
 import indexes from './indexes';
 import type { ThunkAction } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
+import type { PipelineStorage } from '../utils/pipeline-storage';
 
 /**
  * The main application reducer.
@@ -96,7 +97,7 @@ export type PipelineBuilderThunkAction<
 > = ThunkAction<
   R,
   RootState,
-  { pipelineBuilder: PipelineBuilder },
+  { pipelineBuilder: PipelineBuilder; pipelineStorage: PipelineStorage },
   A
 >;
 
