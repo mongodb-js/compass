@@ -25,7 +25,7 @@ urlOptions.forEach(({ key, value }) => {
   connectionStringUrl.searchParams.set(key, value);
 });
 
-describe('UrlOptionsTable', function () {
+describe('UrlOptions', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   describe('with SearchParams', function () {
@@ -41,24 +41,13 @@ describe('UrlOptionsTable', function () {
       );
     });
 
-    it('renders view correctly', function () {
-      expect(screen.getByTestId('url-options-table')).to.exist;
-    });
-
     it('should not render options that are not editable, but are in ConnectionString', function () {
-      expect(() => {
-        screen.getByTestId('readPreferences-table-row');
-      }).to.throw;
-      expect(() => {
-        screen.getByTestId('readPreferences-input-field');
-      }).to.throw;
+      expect(screen.queryByTestId('readPreferences-input-field')).to.not.exist;
     });
 
     // eslint-disable-next-line mocha/no-setup-in-describe
     urlOptions.forEach(({ key, value }) => {
-      it(`renders url option in a table row - ${key}`, function () {
-        expect(screen.getByTestId(`${key}-table-row`), `${key} options row`).to
-          .exist;
+      it(`renders url option - ${key}`, function () {
         expect(
           screen.getByTestId(`${key}-input-field`).getAttribute('value')
         ).to.equal(value);
@@ -137,7 +126,6 @@ describe('UrlOptionsTable', function () {
     });
 
     it('should not render a delete button for a new option', function () {
-      expect(screen.getByTestId('new-option-table-row')).to.exist;
       expect(screen.queryByTestId('new-option-delete-button')).to.not.exist;
     });
 
@@ -145,9 +133,6 @@ describe('UrlOptionsTable', function () {
     urlOptions.forEach(({ key }) => {
       it(`should delete an option - ${key}`, function () {
         fireEvent.click(screen.getByTestId(`${key}-delete-button`));
-        expect(() => {
-          screen.getByTestId(`${key}-table-row`);
-        }).to.throw;
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'delete-search-param',
@@ -171,12 +156,7 @@ describe('UrlOptionsTable', function () {
       );
     });
 
-    it('renders view correctly', function () {
-      expect(screen.getByTestId('url-options-table')).to.exist;
-    });
-
-    it('renders new option row and fields', function () {
-      expect(screen.getByTestId('new-option-table-row')).to.exist;
+    it('renders new option fields', function () {
       expect(
         screen.getByTestId('new-option-input-field').getAttribute('value')
       ).to.equal('');

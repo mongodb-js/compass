@@ -117,6 +117,7 @@ export { TabNavBar } from './components/tab-nav-bar';
 export { WorkspaceContainer } from './components/workspace-container';
 export { InlineInfoLink } from './components/inline-info-link';
 export { InteractivePopover } from './components/interactive-popover';
+export { ListEditor } from './components/list-editor';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { VirtualGrid } from './components/virtual-grid';
