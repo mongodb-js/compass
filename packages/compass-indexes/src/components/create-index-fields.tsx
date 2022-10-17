@@ -6,10 +6,9 @@ import {
   ComboboxOption,
   Select,
   Option,
-  IconButton,
   spacing,
   css,
-  Icon,
+  ListEditor,
 } from '@mongodb-js/compass-components';
 
 import type { IndexField } from '../modules/create-index/fields';
@@ -27,53 +26,21 @@ const DEFAULT_FIELD = {
   type: 'Select a type',
 };
 
-const addFieldButtonStyles = css({
-  marginLeft: spacing[1],
-  marginTop: spacing[1],
-});
-
 const createIndexFieldsStyles = css({
   display: 'flex',
-  justifyContent: 'stretch',
-  marginBottom: spacing[2],
-  marginTop: spacing[1],
+  gap: spacing[2],
 });
 
 const createIndexFieldsNameStyles = css({
-  width: +spacing[7] * 3 + +spacing[6],
+  flexGrow: 1,
   textTransform: 'none',
-  marginRight: spacing[2],
   whiteSpace: 'nowrap',
-  input: {
-    outline: 'none',
-    width: '100%',
-  },
 });
 
 const createIndexFieldsTypeStyles = css({
-  width: +spacing[7] * 2 + +spacing[3],
+  flexGrow: 1,
   textTransform: 'none',
-  marginRight: spacing[2],
   whiteSpace: 'nowrap',
-});
-
-const createIndexFieldsTypeSelectStyles = css({
-  zIndex: 1,
-  button: {
-    marginTop: 0,
-  },
-  'button:focus, button:focus-within': {
-    zIndex: 20,
-  },
-});
-
-const createIndexFieldsButtonsStyles = css({
-  display: 'flex',
-  justifyContent: 'end',
-});
-
-const comboboxStyles = css({
-  marginTop: '-2px',
 });
 
 export type CreateIndexFieldsProps = {
@@ -100,16 +67,16 @@ function CreateIndexFields({
   removeField,
   updateFieldName,
   updateFieldType,
-}: CreateIndexFieldsProps) {
+}: CreateIndexFieldsProps): React.ReactElement {
   const serverHasColumnstoreIndexesSupport = useMemo(
     () => hasColumnstoreIndexesSupport(serverVersion),
     [serverVersion]
   );
 
   const onSelectFieldName = useCallback(
-    (idx: number, name: string | null) => {
+    (index: number, name: string | null) => {
       if (name !== null) {
-        updateFieldName(idx, name);
+        updateFieldName(index, name);
       }
     },
     [updateFieldName]
@@ -137,80 +104,62 @@ function CreateIndexFields({
     return options;
   }, [schemaFields, newIndexField]);
 
-  return fields.map((field: IndexField, idx: number) => (
-    <div
-      className={createIndexFieldsStyles}
-      key={idx}
-      data-testid={`create-index-fields-line-${idx}`}
-    >
-      <div
-        className={createIndexFieldsNameStyles}
-        data-testid={`create-index-fields-name-${idx}`}
-      >
-        <Combobox
-          value={field.name}
-          aria-label="Index fields"
-          id={`create-index-modal-field-${idx}`}
-          placeholder={DEFAULT_FIELD.name}
-          onFilter={createNewIndexField}
-          onChange={(fieldName: string | null) =>
-            onSelectFieldName(idx, fieldName)
-          }
-          clearable={false}
-          className={comboboxStyles}
+  return (
+    <ListEditor
+      items={fields}
+      renderItem={(field: IndexField, index: number) => (
+        <div
+          className={createIndexFieldsStyles}
+          data-testid={`create-index-fields-line-${index}`}
         >
-          {comboboxOptions}
-        </Combobox>
-      </div>
-      <div
-        className={createIndexFieldsTypeStyles}
-        data-testid={`create-index-fields-type-${idx}`}
-      >
-        <Select
-          id={`create-index-fields-type-select-${idx}`}
-          className={createIndexFieldsTypeSelectStyles}
-          placeholder={DEFAULT_FIELD.type}
-          onChange={(type) => updateFieldType(idx, type)}
-          usePortal={false}
-          allowDeselect={false}
-          value={field.type}
-          popoverZIndex={999999}
-          aria-labelledby="Field type"
-        >
-          {(serverHasColumnstoreIndexesSupport
-            ? INDEX_TYPES
-            : INDEX_TYPES.filter((elem) => elem !== 'columnstore')
-          ).map((elem) => (
-            <Option key={elem} value={`${elem}`}>
-              {elem}
-            </Option>
-          ))}
-        </Select>
-      </div>
-      <div className={createIndexFieldsButtonsStyles}>
-        <IconButton
-          className={addFieldButtonStyles}
-          aria-label="Add new index field"
-          type="button"
-          data-testid="add-index-field-button"
-          onClick={addField}
-        >
-          <Icon glyph="Plus" />
-        </IconButton>
-        {fields.length > 1 && (
-          <IconButton
-            className={addFieldButtonStyles}
-            aria-label="Remove index field"
-            type="button"
-            data-testid="remove-index-field-button"
-            onClick={() => removeField(idx)}
+          <div
+            className={createIndexFieldsNameStyles}
+            data-testid={`create-index-fields-name-${index}`}
           >
-            <Icon glyph="Minus" />
-          </IconButton>
-        )}
-      </div>
-    </div>
-  ));
+            <Combobox
+              value={field.name}
+              aria-label="Index fields"
+              placeholder={DEFAULT_FIELD.name}
+              onFilter={createNewIndexField}
+              onChange={(fieldName: string | null) =>
+                onSelectFieldName(index, fieldName)
+              }
+              clearable={false}
+            >
+              {comboboxOptions}
+            </Combobox>
+          </div>
+          <div
+            className={createIndexFieldsTypeStyles}
+            data-testid={`create-index-fields-type-${index}`}
+          >
+            <Select
+              id={`create-index-fields-type-select-${index}`}
+              placeholder={DEFAULT_FIELD.type}
+              onChange={(type) => updateFieldType(index, type)}
+              allowDeselect={false}
+              value={field.type}
+              popoverZIndex={999999}
+              aria-labelledby="Field type"
+            >
+              {(serverHasColumnstoreIndexesSupport
+                ? INDEX_TYPES
+                : INDEX_TYPES.filter((elem) => elem !== 'columnstore')
+              ).map((elem) => (
+                <Option key={elem} value={`${elem}`}>
+                  {elem}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        </div>
+      )}
+      onAddItem={addField}
+      onRemoveItem={removeField}
+      addButtonTestId="add-index-field-button"
+      removeButtonTestId="remove-index-field-button"
+    />
+  );
 }
 
 export { CreateIndexFields };

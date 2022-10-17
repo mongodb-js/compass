@@ -36,7 +36,7 @@ import { toggleUseCustomCollation } from '../../modules/create-index/use-custom-
 import { collationStringChanged } from '../../modules/create-index/collation-string';
 import { openLink } from '../../modules/link';
 import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
-import CreateIndexForm from '../create-index-form';
+import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import { toggleUseIndexName } from '../../modules/create-index/use-index-name';
 import type { RootState } from '../../modules/create-index';
