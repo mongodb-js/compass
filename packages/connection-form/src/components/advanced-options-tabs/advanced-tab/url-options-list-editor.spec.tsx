@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 
-import UrlOptionsTable from './url-options-table';
+import UrlOptionsListEditor from './url-options-list-editor';
 
 // Editable url options
 const urlOptions = [
@@ -25,7 +25,7 @@ urlOptions.forEach(({ key, value }) => {
   connectionStringUrl.searchParams.set(key, value);
 });
 
-describe('UrlOptions', function () {
+describe('UrlOptionsListEditor', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;
 
   describe('with SearchParams', function () {
@@ -34,7 +34,7 @@ describe('UrlOptions', function () {
       // add option that's not in Editable url options
       connectionStringUrl.searchParams.set('readPreferences', 'primary');
       render(
-        <UrlOptionsTable
+        <UrlOptionsListEditor
           updateConnectionFormField={updateConnectionFormFieldSpy}
           connectionStringUrl={connectionStringUrl}
         />
@@ -56,14 +56,14 @@ describe('UrlOptions', function () {
 
     it('renders selected key when user select a key', function () {
       fireEvent.click(screen.getByText(/select key/i)); // Click select button
-      fireEvent.click(screen.getByText(/appname/i)); // Select the option
+      fireEvent.click(screen.getAllByText(/appname/i)[0]); // Select the option
 
       // After click, the options list should disappear
       expect(() => {
         screen.getByRole('listbox');
       }).to.throw;
 
-      expect(screen.getByText(/appname/i)).to.exist;
+      expect(screen.getAllByText(/appname/i)[1]).to.be.visible;
 
       expect(
         updateConnectionFormFieldSpy.callCount,
@@ -94,9 +94,9 @@ describe('UrlOptions', function () {
       fireEvent.click(screen.getByText(/select key/i)); // Click select button
       fireEvent.click(screen.getByText(/appname/i)); // Select the option
 
-      fireEvent.click(screen.getByText(/appname/i)); // Click select button with appName option
-      fireEvent.click(screen.getByText(/compressors/i)); // Select the new option
-      expect(screen.getByText(/compressors/i)).to.exist;
+      fireEvent.click(screen.getAllByText(/appname/i)[0]); // Click select button with appName option
+      fireEvent.click(screen.getAllByText(/compressors/i)[0]); // Select the new option
+      expect(screen.getAllByText(/compressors/i)[0]).to.be.visible;
       expect(
         updateConnectionFormFieldSpy.callCount,
         'it calls update when name is selected'
@@ -108,7 +108,7 @@ describe('UrlOptions', function () {
         value: '',
       });
 
-      expect(screen.getByText(/select key/i)).to.exist; // renders an empty new option
+      expect(screen.getByText(/select key/i)).to.be.visible; // Ensure we render an empty new option.
     });
 
     it('should update an option - when value changes', function () {
@@ -130,9 +130,11 @@ describe('UrlOptions', function () {
     });
 
     // eslint-disable-next-line mocha/no-setup-in-describe
-    urlOptions.forEach(({ key }) => {
+    urlOptions.forEach(({ key }, index) => {
       it(`should delete an option - ${key}`, function () {
-        fireEvent.click(screen.getByTestId(`${key}-delete-button`));
+        fireEvent.click(
+          screen.getAllByTestId('connection-url-options-remove-button')[index]
+        );
         expect(updateConnectionFormFieldSpy.callCount).to.equal(1);
         expect(updateConnectionFormFieldSpy.args[0][0]).to.deep.equal({
           type: 'delete-search-param',
@@ -145,7 +147,7 @@ describe('UrlOptions', function () {
   describe('without SearchParams', function () {
     beforeEach(function () {
       render(
-        <UrlOptionsTable
+        <UrlOptionsListEditor
           updateConnectionFormField={updateConnectionFormFieldSpy}
           connectionStringUrl={
             new ConnectionStringUrl(

@@ -1,5 +1,5 @@
-import { ChangeEvent, useCallback } from 'react';
-import React, { useEffect } from 'react';
+import type { ChangeEvent } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   TextInput,
   Select,
@@ -18,7 +18,6 @@ import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form'
 
 const optionInputContainerStyles = css({
   display: 'flex',
-  marginTop: spacing[2],
   gap: spacing[2],
   alignItems: 'center',
 });
@@ -60,7 +59,7 @@ function getUrlOptions(connectionStringUrl: ConnectionStringUrl): UrlOption[] {
   return urlOptions;
 }
 
-function UrlOptionsTable({
+function UrlOptionsListEditor({
   updateConnectionFormField,
   connectionStringUrl,
 }: {
@@ -122,86 +121,81 @@ function UrlOptionsTable({
   );
 
   return (
-    <>
-      <ListEditor
-        items={options}
-        renderItem={(uriOption: Partial<UrlOption>) => (
-          <div className={optionInputContainerStyles}>
-            <Select
-              id="select-key"
-              className={optionSelectStyles}
-              placeholder="Select key"
-              name="name"
-              aria-labelledby={
-                uriOption.name
-                  ? `${uriOption.name} select`
-                  : 'new option select'
-              }
-              onChange={(name, event): void => {
-                event.preventDefault();
-                updateUrlOption(
-                  uriOption.name,
-                  name as UrlOption['name'],
-                  uriOption.value
-                );
-              }}
-              allowDeselect={false}
-              value={uriOption.name ?? ''}
-            >
-              {editableUrlOptions.map(({ title, values }) => (
-                <OptionGroup key={title} label={title}>
-                  {values.map((value) => (
-                    <Option
-                      key={value}
-                      value={value}
-                      // Disable if this option already exists in the search params.
-                      disabled={
-                        connectionStringUrl.searchParams.has(value) &&
-                        uriOption.name !== value
-                      }
-                    >
-                      {value}
-                    </Option>
-                  ))}
-                </OptionGroup>
-              ))}
-            </Select>
-            <TextInput
-              onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                event.preventDefault();
-                updateUrlOption(
-                  uriOption.name,
-                  uriOption.name,
-                  event.target.value
-                );
-              }}
-              data-testid={
-                uriOption.name
-                  ? `${uriOption.name}-input-field`
-                  : 'new-option-input-field'
-              }
-              spellCheck={false}
-              type={'text'}
-              placeholder={'Value'}
-              aria-labelledby="Enter value"
-              value={uriOption.value}
-              className={valueInputStyles}
-            />
-          </div>
-        )}
-        // As this state is dependent on the connection string parameters, we always show an
-        // extra, unnamed/empty url option for users to use.
-        disableAddButton={() => true}
-        onAddItem={() => {
-          /* no-op - this is never shown. */
-        }}
-        disableRemoveButton={(item: Partial<UrlOption>) => !item.name}
-        onRemoveItem={onRemoveUrlOption}
-        addButtonTestId="connection-url-options-add-button"
-        removeButtonTestId="connection-url-options-remove-button"
-      />
-    </>
+    <ListEditor
+      items={options}
+      renderItem={(uriOption: Partial<UrlOption>) => (
+        <div className={optionInputContainerStyles}>
+          <Select
+            id="select-key"
+            className={optionSelectStyles}
+            placeholder="Select key"
+            name="name"
+            aria-labelledby={
+              uriOption.name ? `${uriOption.name} select` : 'new option select'
+            }
+            onChange={(name, event): void => {
+              event.preventDefault();
+              updateUrlOption(
+                uriOption.name,
+                name as UrlOption['name'],
+                uriOption.value
+              );
+            }}
+            allowDeselect={false}
+            value={uriOption.name ?? ''}
+          >
+            {editableUrlOptions.map(({ title, values }) => (
+              <OptionGroup key={title} label={title}>
+                {values.map((value) => (
+                  <Option
+                    key={value}
+                    value={value}
+                    // Disable if this option already exists in the search params.
+                    disabled={
+                      connectionStringUrl.searchParams.has(value) &&
+                      uriOption.name !== value
+                    }
+                  >
+                    {value}
+                  </Option>
+                ))}
+              </OptionGroup>
+            ))}
+          </Select>
+          <TextInput
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              event.preventDefault();
+              updateUrlOption(
+                uriOption.name,
+                uriOption.name,
+                event.target.value
+              );
+            }}
+            data-testid={
+              uriOption.name
+                ? `${uriOption.name}-input-field`
+                : 'new-option-input-field'
+            }
+            spellCheck={false}
+            type={'text'}
+            placeholder={'Value'}
+            aria-labelledby="Enter value"
+            value={uriOption.value}
+            className={valueInputStyles}
+          />
+        </div>
+      )}
+      // As this state is dependent on the connection string parameters, we always show an
+      // extra, unnamed/empty url option for users to use.
+      disableAddButton={() => true}
+      onAddItem={() => {
+        /* no-op - the add item button is never shown. */
+      }}
+      disableRemoveButton={(item: Partial<UrlOption>) => !item.name}
+      onRemoveItem={onRemoveUrlOption}
+      removeButtonTestId="connection-url-options-remove-button"
+    />
   );
 }
 
-export default UrlOptionsTable;
+export default UrlOptionsListEditor;

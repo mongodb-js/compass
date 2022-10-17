@@ -3,7 +3,7 @@ import { expect } from 'chai';
 
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 
-import CreateIndexFields from '../create-index-fields';
+import { CreateIndexFields } from './create-index-fields';
 
 const noop = () => {};
 

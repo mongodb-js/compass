@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { css, Label, spacing, Accordion } from '@mongodb-js/compass-components';
 
-import CreateIndexFields from '../create-index-fields';
+import { CreateIndexFields } from '../create-index-fields';
 import { hasColumnstoreIndexesSupport } from '../../utils/has-columnstore-indexes-support';
 import UniqueIndexCheckbox from './unique-index';
 import TTLCollapsibleFieldSet from './ttl';
