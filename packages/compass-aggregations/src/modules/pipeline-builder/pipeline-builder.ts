@@ -4,7 +4,8 @@ import parseEJSON from 'ejson-shell-parser';
 
 import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
-import { PipelineParser, Stage } from './pipeline-parser';
+import { PipelineParser } from './pipeline-parser';
+import Stage from './stage';
 
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
 

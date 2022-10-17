@@ -9,7 +9,7 @@ import {
   getStageValueFromNode,
   getStageOperatorFromNode,
   isStageLike,
-} from './stage-parser';
+} from './pipeline-parser/stage-parser';
 
 const PARSE_ERROR = 'Stage must be a properly formatted document.';
 

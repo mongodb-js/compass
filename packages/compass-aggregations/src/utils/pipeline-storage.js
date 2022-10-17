@@ -4,7 +4,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { getDirectory } from './get-directory';
-import { stageToString } from '../modules/pipeline-builder/pipeline-parser/stage';
+import { stageToString } from '../modules/pipeline-builder/stage';
 
 const ENCODING_UTF8 = 'utf8';
 
