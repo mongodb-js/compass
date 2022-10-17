@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { withTheme } from '../hooks/use-theme';
 
 // This file exports `@leafygreen-ui` components and wraps some of
@@ -27,11 +25,11 @@ import {
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 
-/*
-function MenuItem(props: React.ComponentProps<typeof LeafyGreenMenuItem>): ReturnType<typeof LeafyGreenMenuItem> {
-  return <LeafyGreenMenuItem type="button" {...props} />;
-}
-*/
+MenuItem.defaultProps = {
+  ...MenuItem.defaultProps,
+  type: 'button',
+};
+
 import {
   default as LeafyGreenModal,
   Footer as LeafyGreenModalFooter,

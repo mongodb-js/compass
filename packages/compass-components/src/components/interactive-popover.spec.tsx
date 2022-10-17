@@ -26,7 +26,11 @@ function renderPopover(
       {...props}
     >
       <>
-        <button type="button" onClick={() => {}} data-testid={innerContentTestId}>
+        <button
+          type="button"
+          onClick={() => {}}
+          data-testid={innerContentTestId}
+        >
           Action Button
         </button>
         <div>inner content</div>

@@ -46,13 +46,7 @@ function ModalContent({
   children,
 }: ModalContentProps) {
   return (
-    <div
-      className={cx(
-        contentStyle,
-        variantStyle[variant],
-        className
-      )}
-    >
+    <div className={cx(contentStyle, variantStyle[variant], className)}>
       {children}
     </div>
   );

@@ -222,7 +222,7 @@ class InsertDocumentDialog extends React.PureComponent {
         submitDisabled={this.hasErrors()}
         trackingId="insert_document_modal"
         data-testid="insert-document-modal"
-        scrollClassName={css({ minHeight: spacing[6]*2})} // make sure there is enough space for the menu
+        scrollClassName={css({ minHeight: spacing[6] * 2 })} // make sure there is enough space for the menu
       >
         <div className="insert-document-views">
           <ViewSwitcher
