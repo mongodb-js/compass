@@ -96,6 +96,7 @@ function CreateIndexActions({
             onClick={onConfirm}
             variant="primary"
             className={createIndexButtonStyles}
+            type="submit"
           >
             Create Index
           </ModalFooterButton>

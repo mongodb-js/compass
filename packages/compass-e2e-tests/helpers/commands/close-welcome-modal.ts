@@ -9,8 +9,9 @@ export async function closeWelcomeModal(
   }
 
   const welcomeModalElement = await browser.$(Selectors.WelcomeModal);
-
   await welcomeModalElement.waitForDisplayed();
+  await browser.screenshot('welcome-modal.png');
+
   await browser.clickVisible(Selectors.CloseWelcomeModalButton);
   await welcomeModalElement.waitForDisplayed({
     reverse: true,

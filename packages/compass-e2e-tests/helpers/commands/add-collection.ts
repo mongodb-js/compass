@@ -32,7 +32,8 @@ type AddCollectionOptions = {
 export async function addCollection(
   browser: CompassBrowser,
   collectionName: string,
-  options?: AddCollectionOptions
+  options?: AddCollectionOptions,
+  screenshotPath?: string
 ): Promise<void> {
   const createModalElement = await browser.$(Selectors.CreateCollectionModal);
   await createModalElement.waitForDisplayed();
@@ -145,6 +146,10 @@ export async function addCollection(
       Selectors.CreateCollectionFLE2,
       options.encryptedFields
     );
+  }
+
+  if (screenshotPath) {
+    await browser.screenshot(screenshotPath);
   }
 
   await browser.clickVisible(Selectors.CreateCollectionCreateButton);

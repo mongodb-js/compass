@@ -40,7 +40,7 @@ function SaveConnectionModal({
       submitDisabled={(editingFavorite.name || '').trim() ? false : true}
       onCancel={onCancelClicked}
       submitButtonText={saveText}
-      data-testid="favorite_modal"
+      data-testid="favorite-modal"
     >
       <FormFieldContainer>
         <TextInput

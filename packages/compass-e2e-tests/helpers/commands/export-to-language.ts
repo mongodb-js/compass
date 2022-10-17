@@ -76,6 +76,8 @@ export async function exportToLanguage(
     text = await clipboard.read();
   }
 
+  await browser.screenshot('export-to-language-modal.png');
+
   // close the modal again
   await browser.clickVisible(Selectors.ExportToLanguageCloseButton);
   await exportModal.waitForDisplayed({ reverse: true });

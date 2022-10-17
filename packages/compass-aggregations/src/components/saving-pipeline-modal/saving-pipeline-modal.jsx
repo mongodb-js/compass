@@ -60,6 +60,7 @@ class SavingPipelineModal extends PureComponent {
         submitButtonText="Save"
         submitDisabled={this.props.name === ''}
         trackingId="save_pipeline_modal"
+        data-testid="save-pipeline-modal"
       >
         <input
           id="save-pipeline-name"

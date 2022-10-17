@@ -71,6 +71,7 @@ function ColorOption({
 }): React.ReactElement {
   return (
     <button
+      type="button"
       style={{ background: hex }}
       className={cx({
         [colorOptionStyles]: true,
@@ -122,6 +123,7 @@ export function FavoriteColorPicker({
       <Label htmlFor="favorite-color-selector">Color</Label>
       <div id="favorite-color-selector">
         <button
+          type="button"
           style={{
             background: 'white',
             borderColor: palette.black,

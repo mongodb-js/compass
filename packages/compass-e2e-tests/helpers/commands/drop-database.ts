@@ -7,10 +7,16 @@ export async function dropDatabase(
 ): Promise<void> {
   const dropModalElement = await browser.$(Selectors.DropDatabaseModal);
   await dropModalElement.waitForDisplayed();
+
   const confirmInput = await browser.$(Selectors.DropDatabaseConfirmName);
   await confirmInput.setValue(dbName);
+
   const confirmButton = await browser.$(Selectors.DropDatabaseDropButton);
   await confirmButton.waitForEnabled();
+
+  await browser.screenshot('drop-database-modal.png');
+
   await confirmButton.click();
+
   await dropModalElement.waitForDisplayed({ reverse: true });
 }

@@ -140,7 +140,7 @@ describe('Collection import', function () {
     });
   });
 
-  it('supports single objects in document view mode', async function () {
+  it.only('supports single objects in document view mode', async function () {
     await browser.navigateToCollectionTab('test', 'json-array', 'Documents');
 
     // browse to the "Insert to Collection" modal

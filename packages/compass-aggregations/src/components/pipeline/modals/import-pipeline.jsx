@@ -59,6 +59,7 @@ class ImportPipeline extends PureComponent {
         submitButtonText="Create New"
         submitDisabled={this.props.text === ''}
         trackingId="import_pipeline_modal"
+        data-testid="import-pipeline-modal"
       >
         <div className={styles['import-pipeline-note']}>
           {NOTE}

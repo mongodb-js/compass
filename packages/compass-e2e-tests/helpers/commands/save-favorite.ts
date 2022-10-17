@@ -9,14 +9,20 @@ export async function saveFavorite(
 ): Promise<void> {
   await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
   await browser.$(Selectors.FavoriteModal).waitForDisplayed();
+
   await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
   await browser.clickVisible(
     `${Selectors.FavoriteColorSelector} [data-testid="color-pick-${color}"]`
   );
+
   await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
   expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
     'Save'
   );
+
+  // TODO: who made it so the modal closes the moment you pick a colour?
+  await browser.screenshot('save-favorite-modal.png');
+
   await browser.clickVisible(Selectors.FavoriteSaveButton);
   await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
 }

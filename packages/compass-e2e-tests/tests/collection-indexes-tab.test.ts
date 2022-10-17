@@ -79,6 +79,8 @@ describe('Collection indexes tab', function () {
     await fieldTypeSelectSpan.waitForDisplayed();
     await fieldTypeSelectSpan.click();
 
+    await browser.screenshot('create-index-modal-basic.png');
+
     await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
     await createModal.waitForDisplayed({ reverse: true });
@@ -99,6 +101,8 @@ describe('Collection indexes tab', function () {
     const confirmInput = await browser.$(Selectors.DropIndexModalConfirmName);
     await confirmInput.waitForDisplayed();
     await confirmInput.setValue('i_text');
+
+    await browser.screenshot('drop-index-modal.png');
 
     await browser.clickVisible(Selectors.DropIndexModalConfirmButton);
 
@@ -160,6 +164,8 @@ describe('Collection indexes tab', function () {
         '{ "fieldA": 1, "fieldB.fieldC": 1 }'
       );
 
+      await browser.screenshot('create-index-modal-wildcard.png');
+
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
       await createModal.waitForDisplayed({ reverse: true });
@@ -213,6 +219,8 @@ describe('Collection indexes tab', function () {
 
       await fieldTypeSelectSpan.waitForDisplayed();
       await fieldTypeSelectSpan.click();
+
+      await browser.screenshot('create-index-modal-columnstore.png');
 
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 

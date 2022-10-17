@@ -41,6 +41,7 @@ function InfoModal({
     <Modal
       open={show}
       trackingId="shell_info_modal"
+      data-testid="shell-info-modal"
       setOpen={onSetOpen}
       contentVariant="without-footer"
     >

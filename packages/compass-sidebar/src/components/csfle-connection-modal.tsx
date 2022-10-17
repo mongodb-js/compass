@@ -49,8 +49,8 @@ export default function CSFLEConnectionModal({
   return (
     <Modal
       open={open}
-      trackingId="csfle_connection_modal"
       setOpen={setOpen}
+      trackingId="csfle_connection_modal"
       data-testid="csfle-connection-modal"
       contentVariant="without-footer"
     >

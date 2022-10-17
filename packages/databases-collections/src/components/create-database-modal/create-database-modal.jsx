@@ -106,6 +106,8 @@ class CreateDatabaseModal extends PureComponent {
           !(this.state.data.database || '').trim()
         )}
         trackingId="create_database_modal"
+        data-testid="create-database-modal"
+
       >
         <CollectionFields
           serverVersion={this.props.serverVersion}

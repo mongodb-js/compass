@@ -43,6 +43,7 @@ function NonGenuineWarningModal({
     <Modal
       open={isVisible}
       trackingId="non_genuine_mongodb_modal"
+      data-testid="non-genuine-mongodb-modal"
       setOpen={onClose}
       contentVariant="with-footer"
     >
