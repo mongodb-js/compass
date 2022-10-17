@@ -775,6 +775,7 @@ const executeAggregation = (
           totalDocumentCount: inputDocuments.count
         };
 
+        // todo: make pipelineBuilder.previewManager private in COMPASS-6167 cleanup
         const previewDocuments =
           await pipelineBuilder.previewManager.getPreviewForStage(
             index,

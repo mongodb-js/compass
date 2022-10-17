@@ -47,7 +47,7 @@ function assertStageValue(value: string) {
 
 export function stageToString(operator: string, value: string, disabled: boolean): string {
   const str = `{
-  ${operator ?? ''}: ${value ?? ''}
+  ${operator}: ${value}
 }`;
 
   if (!disabled) {

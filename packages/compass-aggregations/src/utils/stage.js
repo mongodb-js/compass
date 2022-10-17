@@ -41,6 +41,17 @@ export const generateStageWithDefaults = (props = {}) => {
   };
 };
 
+export const mapBuilderStagesToUIStages = (stages) => {
+  return stages.map(({operator, value, syntaxError}) => {
+    return generateStageWithDefaults({
+      stageOperator: operator,
+      stage: value,
+      isValid: syntaxError ? false : true,
+      syntaxError: syntaxError?.message
+    });
+  });
+};
+
 /**
  * Parse out a namespace from the stage.
  *

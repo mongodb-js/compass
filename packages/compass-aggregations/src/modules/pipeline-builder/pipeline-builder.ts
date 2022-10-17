@@ -14,6 +14,7 @@ export class PipelineBuilder {
   node: t.ArrayExpression | null = null;
   stages: Stage[] = [];
   syntaxError: SyntaxError[] = [];
+  // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
 
   constructor(dataService: DataService) {

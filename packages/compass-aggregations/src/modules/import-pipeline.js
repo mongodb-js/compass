@@ -1,5 +1,5 @@
 import { toJSString } from 'mongodb-query-parser';
-import { emptyStage } from '../utils/stage';
+import { emptyStage, mapBuilderStagesToUIStages } from '../utils/stage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -210,20 +210,6 @@ export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
     pipeline,
     error
   });
-};
-
-/**
- * @param {import('./pipeline-builder/pipeline-parser').Stage[]} stages 
- * @returns {import('./pipeline').StageState}
- */
-const mapBuilderStagesToUIStages = (stages) => {
-  return stages.map(({operator, value, syntaxError}) => ({
-    ...emptyStage(),
-    stageOperator: operator,
-    stage: value,
-    isValid: syntaxError ? false : true,
-    syntaxError: syntaxError?.message
-  }));
 };
 
 export const createPipelineFromView = (pipeline) => {
