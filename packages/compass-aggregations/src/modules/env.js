@@ -1,4 +1,4 @@
-import { ON_PREM } from 'mongodb-ace-autocompleter';
+import { ON_PREM } from '@mongodb-js/mongodb-constants';
 /**
  * The initial state.
  */

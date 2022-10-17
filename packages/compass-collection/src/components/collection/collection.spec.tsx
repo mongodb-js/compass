@@ -22,7 +22,6 @@ function renderCollection(
       isFLE={false}
       tabs={[]}
       views={[]}
-      queryHistoryIndexes={[]}
       globalAppRegistry={globalAppRegistry}
       scopedModals={[]}
       localAppRegistry={localAppRegistry}

@@ -61,15 +61,13 @@ class ImportPipeline extends PureComponent {
         trackingId="import_pipeline_modal"
         data-testid="import-pipeline-modal"
       >
-        <div className={styles['import-pipeline-note']}>
-          {NOTE}
-        </div>
+        <div className={styles['import-pipeline-note']}>{NOTE}</div>
         <div className={styles['import-pipeline-editor']}>
           <Editor
             variant={EditorVariant.Shell}
             text={this.props.text}
             onChangeText={this.props.changeText}
-            options={({minLines: 10})}
+            options={{ minLines: 10 }}
             name="import-pipeline-editor"
           />
         </div>

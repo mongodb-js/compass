@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  Editor,
-  EditorVariant,
-  CollapsibleFieldSet,
-} from '@mongodb-js/compass-components';
+import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 type CustomCollation = {
   useCustomCollation: boolean;

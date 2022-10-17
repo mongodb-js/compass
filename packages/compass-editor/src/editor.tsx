@@ -1,14 +1,5 @@
-import React, { useLayoutEffect, useRef } from 'react';
-import { useId } from '@react-aria/utils';
-
-if (typeof window === 'undefined' && typeof globalThis !== 'undefined') {
-  // ace-builds wants to install itself on `window`, which
-  // is not available when this package is loaded through
-  // (non-Electron) Node.js. That's an atypical case, but it's
-  // easier to account for it here than to handle all cases
-  // in which this package is loaded from Node.js.
-  (globalThis as any).window = {};
-}
+import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import { css, cx, useId, fontFamilies } from '@mongodb-js/compass-components';
 
 import 'ace-builds';
 import type { IAceEditorProps, IAceOptions } from 'react-ace';
@@ -25,12 +16,10 @@ import 'ace-builds/src-noconflict/mode-ruby';
 import 'ace-builds/src-noconflict/mode-rust';
 import 'ace-builds/src-noconflict/mode-golang';
 import 'ace-builds/src-noconflict/mode-php';
-import beautify from 'ace-builds/src-noconflict/ext-beautify';
-import 'mongodb-ace-mode';
-import '../constants/mongodb-ace-theme';
-import '../constants/mongodb-ace-theme-query';
+import './ace/mode';
+import './ace/theme';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import { css } from '@leafygreen-ui/emotion';
+import beautify from 'ace-builds/src-noconflict/ext-beautify';
 
 /**
  * Options for the ACE editor.
@@ -38,12 +27,14 @@ import { css } from '@leafygreen-ui/emotion';
 const DEFAULT_OPTIONS: IAceOptions = {
   enableLiveAutocompletion: false,
   tabSize: 2,
-  fontSize: 11,
   minLines: 10,
   maxLines: Infinity,
   showGutter: true,
   showPrintMargin: false,
   useWorker: false,
+  fontFamily: fontFamilies.code,
+  fontSize: 13,
+  lineHeight: '16px',
 };
 
 const EditorVariant = {
@@ -61,6 +52,7 @@ type EditorProps = {
   completer?: unknown;
   'data-testid'?: string;
   onChangeText?: (text: string, event?: any) => void;
+  inline?: boolean;
 } & Omit<IAceEditorProps, 'onChange' | 'value'>;
 
 const editorStyle = css({
@@ -79,6 +71,7 @@ function Editor({
   completer,
   onFocus,
   'data-testid': dataTestId,
+  inline,
   ...aceProps
 }: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
@@ -87,6 +80,9 @@ function Editor({
     ...(typeof readOnly === 'boolean' && { readOnly }),
     ...(variant === 'Shell' && { mode: 'ace/mode/mongodb' }),
     ...(!!completer && { enableLiveAutocompletion: true }),
+    showGutter: !inline,
+    highlightActiveLine: !inline,
+    highlightGutterLine: !inline,
   };
 
   const editorRef = useRef<AceEditor | null>(null);
@@ -95,45 +91,46 @@ function Editor({
     if (id && editorRef.current) {
       // After initial load, assign the id to the text area used by ace.
       // This is so labels can `htmlFor` the input.
-      editorRef.current.editor.textInput.getElement().id = id;
+      (editorRef.current.editor.textInput as any).getElement().id = id;
     }
   }, [id]);
 
   const editorName = useId();
 
-  const editor = (
-    <AceEditor
-      ref={(ref) => (editorRef.current = ref)}
-      mode={
-        variant === 'Generic'
-          ? undefined
-          : variant === 'EJSON'
-          ? 'json'
-          : 'javascript' // set to 'mongodb' as part of setOptions
-      }
-      theme="mongodb"
-      width="100%"
-      value={text}
-      onChange={onChangeText}
-      editorProps={{ $blockScrolling: Infinity }}
-      setOptions={setOptions}
-      readOnly={readOnly}
-      commands={beautify.commands}
-      // name should be unique since it gets translated to an id
-      name={aceProps.name ?? editorName}
-      {...aceProps}
-      onFocus={(ev: any) => {
-        if (completer) {
-          tools.setCompleters([completer]);
-        }
-        onFocus?.(ev);
-      }}
-    />
-  );
+  const commands = useMemo(() => {
+    return beautify.commands.concat(aceProps.commands ?? []);
+  }, [aceProps.commands]);
 
   return (
     <div data-testid={dataTestId} className={editorStyle}>
-      {editor}
+      <AceEditor
+        ref={(ref) => (editorRef.current = ref)}
+        mode={
+          variant === 'Generic'
+            ? undefined
+            : variant === 'EJSON'
+            ? 'json'
+            : 'javascript' // set to 'mongodb' as part of setOptions
+        }
+        theme="mongodb"
+        width="100%"
+        value={text}
+        onChange={onChangeText}
+        editorProps={{ $blockScrolling: Infinity }}
+        setOptions={setOptions}
+        readOnly={readOnly}
+        {...aceProps}
+        // name should be unique since it gets translated to an id
+        name={aceProps.name ?? editorName}
+        commands={commands}
+        className={cx(aceProps.className, inline && 'inline-editor')}
+        onFocus={(ev: any) => {
+          if (completer) {
+            tools.setCompleters([completer]);
+          }
+          onFocus?.(ev);
+        }}
+      />
     </div>
   );
 }
@@ -155,4 +152,5 @@ function setEditorValue(element: HTMLElement, value: string): void {
 }
 
 const EditorTextCompleter = tools.textCompleter;
+
 export { Editor, EditorVariant, EditorTextCompleter, setEditorValue };

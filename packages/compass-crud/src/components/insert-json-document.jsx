@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { Editor, EditorVariant } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 import styles from './insert-json-document.module.less';
 

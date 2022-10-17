@@ -2,16 +2,18 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import FocusTrap from 'focus-trap-react';
 
-import { Popover } from './leafygreen';
+import { Icon, IconButton, Popover } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
 import { rgba } from 'polished';
 import { useTheme, Theme } from '../hooks/use-theme';
+import { useId } from '@react-aria/utils';
 
 const borderRadius = spacing[2];
 
 const contentContainerStyles = css({
   display: 'flex',
+  flexDirection: 'column',
   height: '100%',
   alignItems: 'center',
   borderRadius: borderRadius,
@@ -33,9 +35,15 @@ const contentContainerStylesDark = css({
   color: palette.white,
 });
 
+const closeButtonStyles = css({
+  position: 'absolute',
+  top: spacing[2],
+  right: spacing[2],
+});
+
 type InteractivePopoverProps = {
   className: string;
-  children: (childrenProps: { onClose: () => void }) => React.ReactElement;
+  children: React.ReactElement;
   trigger: (triggerProps: {
     onClick: (event: React.MouseEvent | React.TouchEvent) => void;
     ref: React.RefObject<HTMLButtonElement>;
@@ -59,6 +67,7 @@ function InteractivePopover({
 }: InteractivePopoverProps): React.ReactElement {
   const { theme } = useTheme();
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const popoverContentContainerRef = useRef<HTMLDivElement>(null);
 
   const onClose = useCallback(() => {
@@ -143,6 +152,8 @@ function InteractivePopover({
     };
   }, [onPopoverKeyDown, open]);
 
+  const closeButtonId = useId('close-button-id');
+
   return trigger({
     onClick: onClickTrigger,
     ref: triggerRef,
@@ -161,23 +172,8 @@ function InteractivePopover({
           <FocusTrap
             focusTrapOptions={{
               clickOutsideDeactivates: true,
-              // TODO(COMPASS-6132):
-              // 1. move the close buttons to be part of the component
-              // 2. remove displayCheck: 'none'
-              // 3. use the close button as `fallbackFocus`
-              //
-              // For context `displayCheck: 'none'` is necessary to make the trap work in JSDOM
-              // and to avoid cases where failure to detect the tabbable element
-              // would result in an exception.
-              //
-              // `displayCheck: 'none'` is not recommended and `fallbackFocus` is a much
-              // better alternative that is also used in leafygreen, as it doesn't need to
-              // disable the detection, still fixes the issues with JSDOM
-              // and accidental race conditions with animations that may be present in the
-              // content won't result in an exception.
-              tabbableOptions: {
-                displayCheck: 'none',
-              },
+              // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
+              fallbackFocus: `#${closeButtonId}`,
             }}
           >
             <div
@@ -189,9 +185,18 @@ function InteractivePopover({
               )}
               ref={popoverContentContainerRef}
             >
-              {children({
-                onClose: onClose,
-              })}
+              {children}
+
+              <IconButton
+                className={closeButtonStyles}
+                data-testid="interactive-popover-close-button"
+                onClick={onClose}
+                aria-label="Close"
+                id={closeButtonId}
+                ref={closeButtonRef}
+              >
+                <Icon glyph="X" />
+              </IconButton>
             </div>
           </FocusTrap>
         )}
