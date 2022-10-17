@@ -3,9 +3,9 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { AnyAction } from 'redux';
 import { createId } from './id';
 import { setIsModified } from './is-modified';
-import { PipelineStorage } from '../utils/pipeline-storage';
 import type { PipelineBuilderThunkAction } from '.';
 import { runStage } from './pipeline';
+import type { StoredPipeline } from '../utils/pipeline-storage';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -15,13 +15,11 @@ export const SET_SHOW_SAVED_PIPELINES = `${PREFIX}/SET_SHOW`;
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE`;
 
-type SavedPipeline = { id: string; name: string, namespace: string };
-
 export type SavedPipelineState = {
-  pipelines: SavedPipeline[];
+  pipelines: StoredPipeline[];
   isLoaded: boolean;
   isListVisible: boolean;
-}
+};
 
 export const INITIAL_STATE: SavedPipelineState = {
   pipelines: [],
@@ -67,15 +65,11 @@ export const setShowSavedPipelines =
     });
   };
 
-export const savedPipelineAdd = (pipelines: SavedPipeline[]) => ({
+export const savedPipelineAdd = (pipelines: StoredPipeline[]) => ({
   type: SAVED_PIPELINE_ADD,
   pipelines
 });
 
-/**
- *
- * @returns {import('redux').AnyAction}
- */
 export const getSavedPipelines = (): PipelineBuilderThunkAction<void> => 
   (dispatch, getState) => {
     if (!getState().savedPipeline.isLoaded) {
@@ -85,15 +79,12 @@ export const getSavedPipelines = (): PipelineBuilderThunkAction<void> =>
 
 /**
  * Update the pipeline list.
- *
- * @returns {Function} The thunk function.
  */
 export const updatePipelineList = (): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState) => {
-    const pipelineStorage = new PipelineStorage();
+  (dispatch, getState, { pipelineStorage }) => {
     const state = getState();
     pipelineStorage.loadAll()
-      .then((pipelines: SavedPipeline[]) => {
+      .then((pipelines: StoredPipeline[]) => {
         const thisNamespacePipelines = pipelines.filter(
           ({ namespace }) => namespace === state.namespace
         );
@@ -112,34 +103,9 @@ export const updatePipelineList = (): PipelineBuilderThunkAction<void> =>
 export const deletePipeline = (
   pipelineId: string
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch) => {
-    const pipelineStorage = new PipelineStorage();
+  return async (dispatch, getState, { pipelineStorage }) => {
     await pipelineStorage.delete(pipelineId);
     dispatch(updatePipelineList());
-  };
-};
-
-/**
- * Get the restore action.
- *
- * @param {Object} restoreState - The state.
- *
- * @returns {Object} The action.
- */
-export const restoreSavedPipeline = (restoreState: unknown): AnyAction => ({
-  type: RESTORE_PIPELINE,
-  restoreState: restoreState
-});
-
-/**
- * Restore pipeline
- */
-export const openPipeline = (
-  pipeline: unknown
-): PipelineBuilderThunkAction<void> => {
-  return (dispatch) => {
-    dispatch(restoreSavedPipeline(pipeline));
-    dispatch(runStage(0, true /* force execute */));
   };
 };
 
@@ -149,11 +115,20 @@ export const openPipeline = (
 export const openPipelineById = (
   id: string
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch) => {
+  return async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
     try {
-      const pipelineStorage = new PipelineStorage();
       const data = await pipelineStorage.load(id);
-      dispatch(openPipeline(data));
+      if (!data) {
+        throw new Error(`Pipeline with id ${id} not found`);
+      }
+      pipelineBuilder.reset(data.pipelineText);
+      dispatch({
+        type: RESTORE_PIPELINE,
+        stages: pipelineBuilder.stages,
+        source: pipelineBuilder.source,
+        restoreState: data
+      });
+      dispatch(runStage(0, true /* force execute */));
     } catch (e: unknown) {
       debug(e);
     }
@@ -162,13 +137,10 @@ export const openPipelineById = (
 
 /**
  * Save the current state of your pipeline
- *
- * @returns {import('redux').AnyAction} The action.
  */
 export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async (
-  dispatch, getState
+  dispatch, getState, { pipelineStorage }
 ) => {
-  const pipelineStorage = new PipelineStorage();
   const state = getState();
 
   if (getState().id === '') {

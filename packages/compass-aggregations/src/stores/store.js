@@ -1,14 +1,16 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from '../modules';
 import toNS from 'mongodb-ns';
+import { toJSString } from 'mongodb-query-parser';
+import reducer from '../modules';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { indexesFetched } from '../modules/indexes';
 import { runStage } from '../modules/pipeline';
-import { createPipelineFromView } from '../modules/import-pipeline';
-import { openPipeline } from '../modules/saved-pipeline';
+import { openPipelineById } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
+import { PipelineStorage } from '../utils/pipeline-storage';
+import { mapBuilderStagesToUIStages } from '../utils/stage';
 
 /**
  * Refresh the input documents.
@@ -46,6 +48,12 @@ export const setIndexes = (store, indexes) => {
  */
 const configureStore = (options = {}) => {
   const { collection } = toNS(options?.namespace ?? '');
+
+  const pipelineBuilder = new PipelineBuilder(
+    options.dataProvider?.dataProvider ?? null,
+    options.sourcePipeline ? toJSString(options.sourcePipeline, '  ') : undefined
+  );
+  const pipelineStorage = new PipelineStorage();
 
   const store = createStore(
     reducer,
@@ -86,15 +94,12 @@ const configureStore = (options = {}) => {
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
       editViewName: options.editViewName,
-      pipeline: options.sourcePipeline
-        ? createPipelineFromView(options.sourcePipeline)
-        : undefined
+      pipeline: mapBuilderStagesToUIStages(pipelineBuilder.stages),
     },
     applyMiddleware(
       thunk.withExtraArgument({
-        pipelineBuilder: new PipelineBuilder(
-          options.dataProvider?.dataProvider ?? null
-        )
+        pipelineBuilder,
+        pipelineStorage
       })
     )
   );
@@ -146,7 +151,7 @@ const configureStore = (options = {}) => {
   // If we are loading aggregation, open pipeline (this will kick off preview
   // fetch when loaded)
   if (options.aggregation) {
-    store.dispatch(openPipeline(options.aggregation));
+    store.dispatch(openPipelineById(options.aggregation.id));
     // Otherwise if we are editing a view pipeline, kick off preview fetch right
     // away
   } else if (options.editViewName) {

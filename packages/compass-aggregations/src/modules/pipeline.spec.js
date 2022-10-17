@@ -43,7 +43,7 @@ describe('pipeline module', function () {
   describe('#reducer', function () {
     context('when the action is undefined', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, { type: 'test' })[0].stage).to.equal('');
+        expect(reducer(undefined, { type: 'test' })[0].stage).to.equal(null);
       });
     });
 

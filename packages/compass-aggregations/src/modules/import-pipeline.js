@@ -1,13 +1,7 @@
-import { toJSString } from 'mongodb-query-parser';
-import { emptyStage, mapBuilderStagesToUIStages } from '../utils/stage';
+import { emptyStage } from '../utils/stage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
-
-/**
- * Shell string indent.
- */
-const INDENT = '  ';
 
 /**
  * New pipeline action name.
@@ -197,28 +191,16 @@ export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
   pipelineBuilder.reset(text);
 
   const error = pipelineBuilder.syntaxError[0]?.message
-  const pipeline = error
-    ? []
-    : mapBuilderStagesToUIStages(pipelineBuilder.stages);
 
   if (!error) {
-    track('Aggregation Imported From Text', { num_stages: pipeline.length });
+    track('Aggregation Imported From Text', { num_stages: pipelineBuilder.stages.length });
   }
 
   dispatch({
     type: CONFIRM_NEW,
-    pipeline,
+    stages: pipelineBuilder.stages,
+    source: pipelineBuilder.source,
     error
-  });
-};
-
-export const createPipelineFromView = (pipeline) => {
-  return pipeline.map((stage) => {
-    return createStage(
-      Object.keys(stage)[0],
-      toJSString(Object.values(stage)[0], INDENT),
-      null
-    );
   });
 };
 

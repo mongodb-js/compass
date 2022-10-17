@@ -5,20 +5,33 @@ const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 import { getDirectory } from './get-directory';
 import { stageToString } from '../modules/pipeline-builder/stage';
+import type { StageState } from '../modules/pipeline';
 
 const ENCODING_UTF8 = 'utf8';
 
- function savedPipelineToText(pipeline) {
-  const stages = pipeline.map(
-    ({ stageOperator, isEnabled, stage }) => 
-      stageToString(stageOperator, stage, !isEnabled)
+export type StoredPipeline = {
+  id: string;
+  name: string;
+  namespace: string;
+  comments: boolean;
+  autoPreview: boolean;
+  collationString: string;
+  pipeline: StageState[];
+  host?: string | null;
+  pipelineText?: string;
+  lastModified?: number;
+};
+
+function savedPipelineToText(pipeline: StoredPipeline['pipeline']): string {
+  const stages = pipeline.map(({ stageOperator, isEnabled, stage }) =>
+    stageToString(stageOperator, stage, !isEnabled)
   );
 
   return `[\n${stages.join(',\n')}\n]`;
 }
 
 export class PipelineStorage {
-  async loadAll() {
+  async loadAll(): Promise<StoredPipeline[]> {
     const dir = getDirectory();
     const files = (await fs.readdir(dir))
       .filter((file) => file.endsWith('.json'))
@@ -26,23 +39,24 @@ export class PipelineStorage {
 
     return (
       await Promise.all(files.map((filePath) => this._loadOne(filePath)))
-    ).filter(Boolean);
+    ).filter(Boolean) as StoredPipeline[];
   }
 
-  async load(id) {
+  async load(id: string): Promise<StoredPipeline | null> {
     return this._loadOne(path.join(getDirectory(), `${id}.json`));
   }
 
-  async _loadOne(filePath) {
+  async _loadOne(filePath: string): Promise<StoredPipeline | null> {
     try {
       const [data, stats] = await Promise.all([
         this._getFileData(filePath),
-        fs.stat(filePath),
+        fs.stat(filePath)
       ]);
       return {
         ...data,
         lastModified: stats.mtimeMs,
-        pipelineText: data.pipelineText ?? savedPipelineToText(data.pipeline ?? []),
+        pipelineText:
+          data.pipelineText ?? savedPipelineToText(data.pipeline ?? [])
       };
     } catch (err) {
       debug(`Failed to load pipeline ${path.basename(filePath)}`, err);
@@ -50,18 +64,18 @@ export class PipelineStorage {
     }
   }
 
-  async _getFileData(filePath) {
+  async _getFileData(filePath: string): Promise<StoredPipeline> {
     const data = await fs.readFile(filePath, ENCODING_UTF8);
     return JSON.parse(data);
   }
 
   /**
    * Updates attributes of an pipeline.
-   *
-   * @param {string} id ID of the pipeline to update
-   * @param {object} attributes Attributes of pipeline to update
    */
-  async updateAttributes(id, attributes) {
+  async updateAttributes(
+    id: string,
+    attributes: Partial<StoredPipeline>
+  ) {
     if (!id) {
       throw new Error('pipelineId is required');
     }
@@ -71,11 +85,11 @@ export class PipelineStorage {
     await fs.mkdir(dir, { recursive: true });
     const filePath = path.join(dir, `${id}.json`);
     // lastModified is generated on file load, we don't want to store it
-    // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { lastModified, ...data } = (await this._loadOne(filePath)) ?? {};
     const updated = {
       ...data,
-      ...attributes,
+      ...attributes
     };
     await fs.writeFile(
       filePath,
@@ -85,7 +99,7 @@ export class PipelineStorage {
     return updated;
   }
 
-  async delete(id) {
+  async delete(id: string) {
     const file = path.join(getDirectory(), `${id}.json`);
     return fs.unlink(file);
   }
