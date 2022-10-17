@@ -922,11 +922,12 @@ export const runStage = (
   index: number,
   forceExecute = false
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const { id, autoPreview, pipeline } = getState();
     if (!autoPreview) {
       return;
     }
+    pipelineBuilder.stopPreview(index);
     if (id === '') {
       dispatch(createId());
     }

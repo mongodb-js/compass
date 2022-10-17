@@ -28,8 +28,8 @@ export class PipelineBuilder {
     this.sourceToStages();
   }
 
-  stopPreview() {
-    this.previewManager.clearQueue();
+  stopPreview(from?: number) {
+    this.previewManager.clearQueue(from);
   }
 
   // Pipeline (as text) specific methods
