@@ -23,6 +23,7 @@ class SelectFileType extends PureComponent {
         <Label>{label}</Label>
         <div className={style()}>
           <Button
+            type="button"
             data-testid="select-file-type-json"
             aria-selected={fileType === FILE_TYPES.JSON}
             className={classnames({

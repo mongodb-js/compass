@@ -17,7 +17,7 @@ function renderPopover(
       setOpen={() => {}}
       trigger={({ onClick, ref, children }) => (
         <>
-          <button onClick={onClick} ref={ref}>
+          <button type="button" onClick={onClick} ref={ref}>
             Trigger Button Text
           </button>
           {children}
@@ -26,7 +26,7 @@ function renderPopover(
       {...props}
     >
       <>
-        <button onClick={() => {}} data-testid={innerContentTestId}>
+        <button type="button" onClick={() => {}} data-testid={innerContentTestId}>
           Action Button
         </button>
         <div>inner content</div>

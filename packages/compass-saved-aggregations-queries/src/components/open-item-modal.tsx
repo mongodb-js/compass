@@ -142,7 +142,7 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
       title="Select a Namespace"
       submitButtonText="Open"
       submitDisabled={isSubmitDisabled}
-      scroll={false} // this is so that the selects can hang over the footer and out of the modal
+      scrollClassName={css({ overflow: 'visible' })} // this is so that the selects can hang over the footer and out of the modal
     >
       <div className={modalContent}>
         <div className={description}>

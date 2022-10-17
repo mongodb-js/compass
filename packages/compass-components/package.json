@@ -45,7 +45,7 @@
     "@leafygreen-ui/leafygreen-provider": "^2.3.2",
     "@leafygreen-ui/logo": "^6.1.2",
     "@leafygreen-ui/marketing-modal": "^3.0.5",
-    "@leafygreen-ui/menu": "^15.0.0",
+    "@leafygreen-ui/menu": "^16.0.0",
     "@leafygreen-ui/modal": "^10.0.0",
     "@leafygreen-ui/palette": "^3.4.0",
     "@leafygreen-ui/pipeline": "^2.1.8",

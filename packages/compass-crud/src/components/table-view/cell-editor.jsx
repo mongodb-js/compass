@@ -529,6 +529,7 @@ class CellEditor extends React.Component {
     }
     return (
       <button
+        type="button"
         className={`${BEM_BASE}-button btn btn-default btn-xs`}
         onMouseDown={this.handleDrillDown.bind(this)}
         ref={(c) => {
@@ -554,6 +555,7 @@ class CellEditor extends React.Component {
     }
     return (
       <button
+        type="button"
         className={`${BEM_BASE}-button btn btn-default btn-xs`}
         onMouseDown={this.handleRemoveField.bind(this)}
         ref={(c) => {

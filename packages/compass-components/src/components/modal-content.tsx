@@ -20,6 +20,7 @@ const contentStyle = css({
   lineHeight: '20px',
   color: palette.black,
   maxHeight: `calc(100vh - ${spacing[6] * 5}px)`,
+  overflow: 'auto',
 
   '&:first-child': {
     paddingTop: spacing[5],
@@ -35,13 +36,13 @@ const variantStyle = {
 
 type ModalContentProps = {
   variant?: Variant;
-  scroll?: boolean;
+  className?: string;
   children: React.ReactNode;
 };
 
 function ModalContent({
   variant = Variant.Default,
-  scroll = true,
+  className,
   children,
 }: ModalContentProps) {
   return (
@@ -49,7 +50,7 @@ function ModalContent({
       className={cx(
         contentStyle,
         variantStyle[variant],
-        scroll && css({ overflow: 'auto' })
+        className
       )}
     >
       {children}

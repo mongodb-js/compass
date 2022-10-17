@@ -21,7 +21,7 @@ type FormModalProps = React.ComponentProps<typeof Modal> & {
   submitButtonText: string;
   cancelButtonText?: string;
   submitDisabled?: boolean;
-  scroll?: boolean;
+  scrollClassName?: string;
   onSubmit: () => void;
   onCancel: () => void;
 };
@@ -33,7 +33,7 @@ function FormModal({
   cancelButtonText = 'Cancel',
   submitDisabled = false,
   variant = Variant.Default,
-  scroll,
+  scrollClassName,
   onSubmit,
   onCancel,
   children,
@@ -48,7 +48,7 @@ function FormModal({
         }}
       >
         <ModalHeader title={title} subtitle={subtitle} variant={variant} />
-        <ModalContent variant={variant} scroll={scroll}>
+        <ModalContent variant={variant} className={scrollClassName}>
           {children}
         </ModalContent>
         <ModalFooter>

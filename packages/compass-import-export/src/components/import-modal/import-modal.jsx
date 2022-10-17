@@ -101,6 +101,7 @@ function ErrorsList({ errors }) {
       </ul>
       {showMoreCount > 0 && (
         <button
+          type="button"
           className={classnames(
             'btn btn-default btn-xs',
             style('show-more-errors-button')

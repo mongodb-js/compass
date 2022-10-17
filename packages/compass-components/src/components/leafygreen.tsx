@@ -1,4 +1,4 @@
-import type React from 'react';
+import React from 'react';
 
 import { withTheme } from '../hooks/use-theme';
 
@@ -21,6 +21,12 @@ import {
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+
+/*
+function MenuItem(props: React.ComponentProps<typeof LeafyGreenMenuItem>): ReturnType<typeof LeafyGreenMenuItem> {
+  return <LeafyGreenMenuItem type="button" {...props} />;
+}
+*/
 import {
   default as LeafyGreenModal,
   Footer as LeafyGreenModalFooter,

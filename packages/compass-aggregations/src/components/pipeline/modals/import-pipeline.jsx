@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Editor, EditorVariant, FormModal } from '@mongodb-js/compass-components';
+import { FormModal } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 import styles from './import-pipeline.module.less';
 
