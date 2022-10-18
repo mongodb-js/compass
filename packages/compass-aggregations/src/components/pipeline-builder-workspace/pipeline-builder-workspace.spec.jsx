@@ -71,10 +71,8 @@ function createPipelineWorkspace({
   stageOperatorSelected = () => {},
   stageToggled = () => {},
   fields = [],
-  isOverviewOn = false,
   projections = [],
   projectionsChanged = () => {},
-  newPipelineFromPaste = () => {},
 } = {}) {
   return (<PipelineBuilderWorkspace
     pipeline={pipeline}
@@ -103,10 +101,8 @@ function createPipelineWorkspace({
     stageOperatorSelected={stageOperatorSelected}
     stageToggled={stageToggled}
     fields={fields}
-    isOverviewOn={isOverviewOn}
     projections={projections}
     projectionsChanged={projectionsChanged}
-    newPipelineFromPaste={newPipelineFromPaste}
   />);
 }
 

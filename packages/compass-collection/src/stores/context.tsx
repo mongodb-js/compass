@@ -1,10 +1,11 @@
 import React from 'react';
+import type { ErrorInfo } from 'react';
 import AppRegistry from 'hadron-app-registry';
-import semver from 'semver';
 import { ErrorBoundary } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
+import type { Role } from 'hadron-app-registry';
 import ConnectionString from 'mongodb-connection-string-url';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
@@ -46,19 +47,25 @@ function getCurrentlyConnectedUri(dataService: DataService) {
  *
  * @returns {Object} The configured actions.
  */
-const setupActions = (role: any, localAppRegistry: AppRegistry) => {
+const setupActions = (role: Role, localAppRegistry: AppRegistry) => {
+  if (!role.actionName || !role.configureActions) {
+    return;
+  }
+
   const actions = role.configureActions();
   localAppRegistry.registerAction(role.actionName, actions);
   return actions;
 };
 
-type ContextProps = {
+export type ContextProps = {
   tabs?: string[];
   views?: JSX.Element[];
-  role?: any;
   globalAppRegistry?: AppRegistry;
   localAppRegistry?: AppRegistry;
-  dataService?: any;
+  dataService?: {
+    error?: Error;
+    dataService: DataService;
+  };
   namespace?: string;
   serverVersion?: string;
   isReadonly?: boolean;
@@ -69,12 +76,11 @@ type ContextProps = {
   sourceName?: string;
   editViewName?: string;
   sourcePipeline?: Document[];
-  query?: any;
-  aggregation?: any;
+  query?: any; // TODO(COMPASS-6162): type query.
+  aggregation?: any; // TODO(COMPASS-6162): type aggregation.
   key?: number;
   state?: any;
   isDataLake?: boolean;
-  queryHistoryIndexes?: number[];
   scopedModals?: any[];
   connectionString?: string;
 };
@@ -120,7 +126,11 @@ const setupStore = ({
   query,
   aggregation,
   connectionString,
-}: ContextWithAppRegistry) => {
+}: ContextWithAppRegistry & { role: Role }) => {
+  if (!role.storeName || !role.configureStore) {
+    return;
+  }
+
   const store = role.configureStore({
     localAppRegistry,
     globalAppRegistry,
@@ -181,8 +191,8 @@ const setupPlugin = ({
   sourceName,
   connectionString,
   key,
-}: ContextWithAppRegistry) => {
-  const actions = role.configureActions();
+}: ContextWithAppRegistry & { role: Role }) => {
+  const actions = role.configureActions?.();
   const store = setupStore({
     role,
     globalAppRegistry,
@@ -240,9 +250,9 @@ const setupScopedModals = ({
 }: ContextWithAppRegistry) => {
   const roles = globalAppRegistry?.getRole('Collection.ScopedModal');
   if (roles) {
-    return roles.map((role: any, i: number) => {
+    return roles.map((role: Role, i: number) => {
       return setupPlugin({
-        role,
+        role: role,
         globalAppRegistry,
         localAppRegistry,
         dataService,
@@ -280,7 +290,7 @@ const setupQueryPlugins = ({
   isFLE,
   query,
   aggregation,
-}: ContextWithAppRegistry): void => {
+}: Omit<ContextWithAppRegistry, 'role'>): void => {
   const queryBarRole = globalAppRegistry.getRole('Query.QueryBar')?.[0];
   if (queryBarRole) {
     localAppRegistry.registerRole('Query.QueryBar', queryBarRole);
@@ -360,21 +370,8 @@ const createContext = ({
   const globalAppRegistry = state.appRegistry;
   const roles = globalAppRegistry.getRole('Collection.Tab') || [];
 
-  // Filter roles for feature support in the server.
-  const filteredRoles = roles.filter((role: any) => {
-    if (
-      ['Indexes', 'Validation', 'Explain Plan'].includes(role.name) &&
-      isDataLake
-    ) {
-      return true;
-    }
-    if (!role.minimumServerVersion) return true;
-    return semver.gte(serverVersion, role.minimumServerVersion);
-  });
-
-  const tabs: any[] = [];
+  const tabs: string[] = [];
   const views: JSX.Element[] = [];
-  const queryHistoryIndexes: number[] = [];
 
   setupQueryPlugins({
     globalAppRegistry,
@@ -393,7 +390,7 @@ const createContext = ({
   // Setup each of the tabs inside the collection tab. They will all get
   // passed the same information and can determine whether they want to
   // use it or not.
-  filteredRoles.forEach((role: any, i: number) => {
+  roles.forEach((role: Role, i: number) => {
     const actions = setupActions(role, localAppRegistry);
     const store = setupStore({
       role,
@@ -418,11 +415,6 @@ const createContext = ({
     // Add the tab.
     tabs.push(role.name);
 
-    // Add to query history indexes if needed.
-    if (role.hasQueryHistory) {
-      queryHistoryIndexes.push(i);
-    }
-
     const tabProps = {
       store,
       actions,
@@ -438,7 +430,7 @@ const createContext = ({
       <ErrorBoundary
         key={i}
         displayName={role.component.displayName}
-        onError={(error, errorInfo) => {
+        onError={(error: Error, errorInfo: ErrorInfo) => {
           log.error(
             mongoLogId(1001000107),
             'Collection Workspace',
@@ -479,7 +471,6 @@ const createContext = ({
   return {
     tabs,
     views,
-    queryHistoryIndexes,
     scopedModals,
     localAppRegistry,
     sourcePipeline,

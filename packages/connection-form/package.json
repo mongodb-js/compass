@@ -48,20 +48,22 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
   "dependencies": {
+    "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@testing-library/react-hooks": "^7.0.2",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.4.0",
-    "mongodb-connection-string-url": "^2.5.3",
+    "mongodb-connection-string-url": "^2.5.4",
     "mongodb-query-parser": "^2.4.6",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },
   "devDependencies": {
-    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/eslint-config-compass": "^1.0.1",
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",

@@ -1,3 +1,5 @@
+import { NEW_PIPELINE } from './import-pipeline';
+
 /**
  * The prefix.
  */
@@ -24,6 +26,9 @@ export const INITIAL_STATE = false;
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SET_IS_NEW_PIPELINE_CONFIRM) {
     return action.isNewPipelineConfirm;
+  }
+  if (action.type === NEW_PIPELINE) {
+    return INITIAL_STATE;
   }
   return state;
 }

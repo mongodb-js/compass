@@ -50,7 +50,7 @@
     "lodash": "^4.17.21",
     "mocha": "^8.4.0",
     "mongodb": "^4.10.0",
-    "mongodb-connection-string-url": "^2.5.3",
+    "mongodb-connection-string-url": "^2.5.4",
     "mongodb-log-writer": "^1.1.4",
     "mongodb-runner": "^4.9.0",
     "nyc": "^15.1.0",

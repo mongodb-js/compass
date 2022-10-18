@@ -5,7 +5,7 @@ import {
   BadgeVariant,
   Icon,
   Link,
-  uiColors,
+  palette,
   spacing,
   focusRing,
 } from '@mongodb-js/compass-components';
@@ -17,7 +17,7 @@ const badgeStyles = css({
 const linkStyles = css(
   {
     lineHeight: 0,
-    color: uiColors.white,
+    color: palette.white,
     span: {
       // LG uses backgroundImage instead of textDecoration
       backgroundImage: 'none !important',

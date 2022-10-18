@@ -1,21 +1,19 @@
 import React from 'react';
 import type AppRegistry from 'hadron-app-registry';
-
 import Home from './components/home';
 import AppRegistryContext from './contexts/app-registry-context';
 
 import './index.less';
 
 function Plugin({
-  appName,
   appRegistry,
+  ...homeProps
 }: {
-  appName: string;
   appRegistry: AppRegistry;
-}): React.ReactElement {
+} & React.ComponentProps<typeof Home>): React.ReactElement {
   return (
     <AppRegistryContext.Provider value={appRegistry}>
-      <Home appName={appName} />
+      <Home {...homeProps} />
     </AppRegistryContext.Provider>
   );
 }

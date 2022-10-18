@@ -1,7 +1,7 @@
 import type AppRegistry from 'hadron-app-registry';
 import {
   css,
-  uiColors,
+  palette,
   withTheme,
   Link,
   spacing,
@@ -56,11 +56,11 @@ const collectionHeaderDBLinkStyles = css({
 });
 
 const collectionHeaderDBLinkLightStyles = css({
-  color: uiColors.green.base,
+  color: palette.green.dark1,
 });
 
 const collectionHeaderDBLinkDarkStyles = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const collectionHeaderNamespaceStyles = css({
@@ -78,11 +78,11 @@ const collectionHeaderDBNameStyles = css({
 });
 
 const collectionHeaderDBNameLightStyles = css({
-  color: uiColors.green.base,
+  color: palette.green.dark1,
 });
 
 const collectionHeaderDBNameDarkStyles = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const collectionHeaderCollectionStyles = css({
@@ -91,12 +91,20 @@ const collectionHeaderCollectionStyles = css({
   textOverflow: 'ellipsis',
 });
 
+const collectionHeaderLightStyles = css({
+  background: palette.white,
+});
+
+const collectionHeaderDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
+});
+
 const collectionHeaderTitleCollectionLightStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const collectionHeaderTitleCollectionDarkStyles = css({
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
 });
 
 type CollectionHeaderProps = {
@@ -109,7 +117,7 @@ type CollectionHeaderProps = {
   isFLE: boolean;
   selectOrCreateTab: (options: any) => any;
   sourceName?: string;
-  sourceReadonly: boolean;
+  sourceReadonly?: boolean;
   sourceViewOn?: string;
   editViewName?: string;
   pipeline: Document[];
@@ -164,7 +172,15 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
     const collection = ns.collection;
 
     return (
-      <div className={collectionHeaderStyles} data-testid="collection-header">
+      <div
+        className={cx(
+          collectionHeaderStyles,
+          this.props.darkMode
+            ? collectionHeaderDarkStyles
+            : collectionHeaderLightStyles
+        )}
+        data-testid="collection-header"
+      >
         <div
           title={`${database}.${collection}`}
           className={collectionHeaderTitleStyles}

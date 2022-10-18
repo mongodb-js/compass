@@ -1,11 +1,15 @@
-import type { AnyAction } from 'redux';
+import type { AnyAction, Dispatch } from 'redux';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type AppRegistry from 'hadron-app-registry';
 import type { Document } from 'mongodb';
 import { ObjectId } from 'bson';
 import toNS from 'mongodb-ns';
 
 import createContext from '../stores/context';
+import type { ContextProps } from '../stores/context';
 import { appRegistryEmit } from './app-registry';
+import type { RootState } from '../stores';
+import { resetCollectionDetails } from './stats';
 
 /**
  * The prefix.
@@ -72,12 +76,16 @@ export interface WorkspaceTabObject {
   tabs: string[];
   views: JSX.Element[];
   subtab: WorkspaceTabObject;
-  queryHistoryIndexes: number[];
   pipeline: Document[];
-  scopedModals: any[];
+  scopedModals: {
+    store: any;
+    component: React.ComponentType<any>;
+    actions: any;
+    key: number | string;
+  }[];
   sourceName: string;
   editViewName: string;
-  sourceReadonly?: any;
+  sourceReadonly?: boolean;
   sourceViewOn?: string;
   localAppRegistry: AppRegistry;
 }
@@ -86,6 +94,8 @@ export interface WorkspaceTabObject {
  * The initial state.
  */
 export const INITIAL_STATE = [];
+
+type State = WorkspaceTabObject[];
 
 const showCollectionSubmenu = ({ isReadOnly }: { isReadOnly: boolean }) => {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -113,8 +123,8 @@ const doClearTabs = () => {
  *
  * @returns {Object} The new state.
  */
-const doSelectNamespace = (state: any, action: AnyAction) => {
-  return state.reduce((newState: any, tab: WorkspaceTabObject) => {
+const doSelectNamespace = (state: State, action: AnyAction) => {
+  return state.reduce((newState: State, tab: WorkspaceTabObject) => {
     if (tab.isActive) {
       const subTabIndex = action.editViewName ? 1 : 0;
       newState.push({
@@ -130,7 +140,6 @@ const doSelectNamespace = (state: any, action: AnyAction) => {
         tabs: action.context.tabs,
         views: action.context.views,
         subtab: action.context.subtab,
-        queryHistoryIndexes: action.context.queryHistoryIndexes,
         pipeline: action.context.sourcePipeline,
         scopedModals: action.context.scopedModals,
         sourceName: action.sourceName,
@@ -154,7 +163,7 @@ const doSelectNamespace = (state: any, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doCreateTab = (state: any, action: AnyAction) => {
+const doCreateTab = (state: State, action: AnyAction) => {
   const newState = state.map((tab: WorkspaceTabObject) => {
     return { ...tab, isActive: false };
   });
@@ -180,7 +189,6 @@ const doCreateTab = (state: any, action: AnyAction) => {
     tabs: action.context.tabs,
     views: action.context.views,
     subtab: action.context.subtab,
-    queryHistoryIndexes: action.context.queryHistoryIndexes,
     scopedModals: action.context.scopedModals,
     sourceName: action.sourceName,
     pipeline: action.context.sourcePipeline,
@@ -200,16 +208,16 @@ const doCreateTab = (state: any, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doCloseTab = (state: any, action: AnyAction) => {
+const doCloseTab = (state: State, action: AnyAction) => {
   const closeIndex = action.index;
   const activeIndex = state.findIndex((tab: WorkspaceTabObject) => {
     return tab.isActive;
   });
   const numTabs = state.length;
 
-  return state.reduce((newState: any, tab: WorkspaceTabObject, i: number) => {
+  return state.reduce((newState: State, tab: WorkspaceTabObject, i: number) => {
     if (closeIndex !== i) {
-      // We follow stnadard browser behaviour with tabs on how we
+      // We follow standard browser behavior with tabs on how we
       // handle which tab gets activated if we close the active tab.
       // If the active tab is the last tab, we activate the one before
       // it, otherwise we activate the next tab.
@@ -226,7 +234,7 @@ const doCloseTab = (state: any, action: AnyAction) => {
   }, []);
 };
 
-const doCollectionDropped = (state: any, action: AnyAction) => {
+const doCollectionDropped = (state: State, action: AnyAction) => {
   const tabs = state.filter((tab: WorkspaceTabObject) => {
     return tab.namespace !== action.namespace;
   });
@@ -238,7 +246,7 @@ const doCollectionDropped = (state: any, action: AnyAction) => {
   return tabs;
 };
 
-const doDatabaseDropped = (state: any, action: AnyAction) => {
+const doDatabaseDropped = (state: State, action: AnyAction) => {
   const tabs = state.filter((tab: WorkspaceTabObject) => {
     const tabDbName = toNS(tab.namespace).database;
     return tabDbName !== action.name;
@@ -259,7 +267,7 @@ const doDatabaseDropped = (state: any, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doMoveTab = (state: any, action: AnyAction) => {
+const doMoveTab = (state: State, action: AnyAction) => {
   if (action.fromIndex === action.toIndex) return state;
   const newState = state.map((tab: WorkspaceTabObject) => ({ ...tab }));
   newState.splice(action.toIndex, 0, newState.splice(action.fromIndex, 1)[0]);
@@ -273,7 +281,7 @@ const doMoveTab = (state: any, action: AnyAction) => {
  *
  * @returns {Object} The new state.
  */
-const doNextTab = (state: any) => {
+const doNextTab = (state: State) => {
   const activeIndex = state.findIndex(
     (tab: WorkspaceTabObject) => tab.isActive
   );
@@ -292,7 +300,7 @@ const doNextTab = (state: any) => {
  *
  * @returns {Object} The new state.
  */
-const doPrevTab = (state: any) => {
+const doPrevTab = (state: State) => {
   const activeIndex = state.findIndex(
     (tab: WorkspaceTabObject) => tab.isActive
   );
@@ -312,7 +320,7 @@ const doPrevTab = (state: any) => {
  *
  * @returns {Object} The new state.
  */
-const doSelectTab = (state: any, action: AnyAction) => {
+const doSelectTab = (state: State, action: AnyAction) => {
   return state.map((tab: WorkspaceTabObject, i: number) => {
     return { ...tab, isActive: action.index === i ? true : false };
   });
@@ -326,7 +334,7 @@ const doSelectTab = (state: any, action: AnyAction) => {
  *
  * @returns {Array} The new state.
  */
-const doChangeActiveSubTab = (state: any, action: AnyAction) => {
+const doChangeActiveSubTab = (state: State, action: AnyAction) => {
   return state.map((tab: WorkspaceTabObject) => {
     const subTab =
       action.id === tab.id ? action.activeSubTab : tab.activeSubTab;
@@ -397,7 +405,23 @@ export const createTab = ({
   sourceViewOn,
   query,
   aggregation,
-}: any): any => ({
+}: Pick<
+  WorkspaceTabObject,
+  | 'id'
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  context: ContextProps;
+  query?: any; // TODO(COMPASS-6162): type query.
+  aggregation?: any; // TODO(COMPASS-6162): type aggregation.
+}): AnyAction => ({
   type: CREATE_TAB,
   id,
   namespace,
@@ -443,7 +467,21 @@ export const selectNamespace = ({
   context,
   sourceReadonly,
   sourceViewOn,
-}: any): any => ({
+}: Pick<
+  WorkspaceTabObject,
+  | 'id'
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  context: ContextProps;
+}): AnyAction => ({
   type: SELECT_NAMESPACE,
   id,
   namespace,
@@ -466,13 +504,25 @@ export const selectNamespace = ({
  * @returns {Object} The close tab action.
  */
 export const closeTab =
-  (index: number): any =>
-  (dispatch: any, getState: any) => {
-    const { tabs } = getState();
+  (index: number) => (dispatch: Dispatch, getState: () => RootState) => {
+    const {
+      tabs,
+    }: {
+      tabs: WorkspaceTabObject[];
+    } = getState();
     if (tabs.length === 1) {
       dispatch(appRegistryEmit('all-collection-tabs-closed'));
     }
     dispatch({ type: CLOSE_TAB, index: index });
+    // Clear the stats of the closed tab's namespace if it's the last one in use.
+    if (
+      tabs.findIndex(
+        (tab, tabIndex) =>
+          tab.namespace === tabs[index].namespace && tabIndex !== index
+      ) === -1
+    ) {
+      dispatch(resetCollectionDetails(tabs[index].namespace));
+    }
   };
 
 /**
@@ -604,8 +654,24 @@ export const selectOrCreateTab = ({
   sourceReadonly,
   sourceViewOn,
   sourcePipeline,
-}: any): any => {
-  return (dispatch: any, getState: any) => {
+}: Pick<
+  WorkspaceTabObject,
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  sourcePipeline: Document[];
+}): ThunkAction<void, RootState, void, AnyAction> => {
+  return (
+    dispatch: ThunkDispatch<RootState, void, AnyAction>,
+    getState: () => RootState
+  ) => {
     const state = getState();
     if (state.tabs.length === 0) {
       dispatch(
@@ -628,7 +694,7 @@ export const selectOrCreateTab = ({
       const activeIndex = state.tabs.findIndex(
         (tab: WorkspaceTabObject) => tab.isActive
       );
-      const activeNamespace = state.tabs[activeIndex].namespace;
+      const activeNamespace: string = state.tabs[activeIndex].namespace;
       if (namespace !== activeNamespace) {
         dispatch(
           replaceTabContent({
@@ -644,6 +710,15 @@ export const selectOrCreateTab = ({
             sourcePipeline,
           })
         );
+        // Clear the stats of the closed tab's namespace if it's the last one in use.
+        if (
+          state.tabs.findIndex(
+            (tab: WorkspaceTabObject, tabIndex: number) =>
+              tab.namespace === activeNamespace && tabIndex !== activeIndex
+          ) === -1
+        ) {
+          dispatch(resetCollectionDetails(activeNamespace));
+        }
       }
     }
   };
@@ -668,8 +743,23 @@ export const createNewTab = ({
   sourcePipeline,
   query,
   aggregation,
-}: any): any => {
-  return (dispatch: any, getState: any) => {
+}: Pick<
+  WorkspaceTabObject,
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  sourcePipeline?: Document[];
+  query?: any; // TODO(COMPASS-6162): type query.
+  aggregation?: any; // TODO(COMPASS-6162): type aggregation.
+}): ThunkAction<void, RootState, void, AnyAction> => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const context = createContext({
       state,
@@ -723,8 +813,21 @@ export const replaceTabContent = ({
   sourceReadonly,
   sourceViewOn,
   sourcePipeline,
-}: any): any => {
-  return (dispatch: any, getState: any) => {
+}: Pick<
+  WorkspaceTabObject,
+  | 'namespace'
+  | 'isReadonly'
+  | 'isTimeSeries'
+  | 'isClustered'
+  | 'isFLE'
+  | 'sourceName'
+  | 'editViewName'
+  | 'sourceReadonly'
+  | 'sourceViewOn'
+> & {
+  sourcePipeline?: Document[];
+}): ThunkAction<void, RootState, void, AnyAction> => {
+  return (dispatch: Dispatch, getState: () => RootState) => {
     const state = getState();
     const context = createContext({
       state,

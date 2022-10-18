@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  Editor,
-  EditorVariant,
-  CollapsibleFieldSet,
-} from '@mongodb-js/compass-components';
+import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 type CustomCollation = {
   useCustomCollation: boolean;
@@ -23,7 +20,7 @@ const CustomCollationCollapsibleFieldSet = ({
       toggled={useCustomCollation}
       onToggle={toggleUseCustomCollation}
       label="Use Custom Collation"
-      dataTestId="create-index-modal-use-custom-collation-checkbox"
+      data-testid="create-index-modal-use-custom-collation"
       description="Collation allows users to specify language-specific rules for string comparison, such as rules for lettercase and accent marks."
     >
       <Editor

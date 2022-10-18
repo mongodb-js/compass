@@ -1,5 +1,8 @@
 import type { CollationOptions } from 'mongodb';
 import queryParser from 'mongodb-query-parser';
+import type { AnyAction } from 'redux';
+import { CONFIRM_NEW, NEW_PIPELINE } from './import-pipeline';
+import { RESTORE_PIPELINE } from './saved-pipeline';
 
 /**
  * Collation string changed action.
@@ -43,10 +46,16 @@ export function getCollationStateFromString(
  */
 export default function reducer(
   state: CollationStringState = INITIAL_STATE,
-  action: CollationStringChangedAction
+  action: AnyAction
 ): CollationStringState {
   if (action.type === COLLATION_STRING_CHANGED) {
-    return getCollationStateFromString(action.value);
+    return getCollationStateFromString(action.value as string);
+  }
+  if (action.type === CONFIRM_NEW || action.type === NEW_PIPELINE) {
+    return { ...INITIAL_STATE };
+  }
+  if (action.type === RESTORE_PIPELINE) {
+    return getCollationStateFromString(action.restoreState.collationString as string);
   }
   return state;
 }

@@ -72,7 +72,7 @@ function settingsDialogItem(): MenuItemConstructorOptions {
     label: '&Settings',
     accelerator: 'CmdOrCtrl+,',
     click() {
-      ipcMain.broadcastFocused('window:show-network-optin');
+      ipcMain.broadcastFocused('window:show-settings');
     },
   };
 }

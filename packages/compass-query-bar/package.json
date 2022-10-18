@@ -55,9 +55,9 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "hadron-react-components": "^6.2.0",
-    "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -68,7 +68,6 @@
     "@mongodb-js/webpack-config-compass": "^1.0.2",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
-    "ace-builds": "^1.4.3",
     "chai": "^4.2.0",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
@@ -93,9 +92,9 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "hadron-react-components": "^6.2.0",
-    "mongodb-ace-autocompleter": "^1.1.1",
     "react": "^16.14.0"
   }
 }

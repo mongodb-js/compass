@@ -4,6 +4,7 @@ import { EJSON } from 'bson';
 import yaml from 'js-yaml';
 import type { Options as YargsOptions } from 'yargs-parser';
 import yargsParser from 'yargs-parser';
+import { kebabCase } from 'lodash';
 import type { AmpersandType, AllPreferences } from './preferences';
 import { allPreferencesProps } from './preferences';
 
@@ -91,9 +92,13 @@ const cliProps = Object.entries(allPreferencesProps).filter(
   ([, definition]) => definition.cli
 );
 function getCliPropNamesByType(type: AmpersandType<any>): string[] {
-  return cliProps
-    .filter(([, definition]) => definition.type === type)
-    .map(([key]) => key);
+  return [
+    ...new Set(
+      cliProps
+        .filter(([, definition]) => definition.type === type)
+        .flatMap(([key]) => [key, kebabCase(key)])
+    ),
+  ];
 }
 
 const yargsOptions: YargsOptions = {
@@ -106,6 +111,7 @@ const yargsOptions: YargsOptions = {
     'parse-numbers': false,
     // We validate options, so we don't want to keep --export-connections if we get --exportConnections
     'strip-dashed': true,
+    'camel-case-expansion': true,
   },
 };
 
@@ -119,6 +125,11 @@ function parseCliArgs(argv: string[]): unknown {
       options: Object.keys(result),
     }
   );
+  if (result._.length > 0) {
+    // Pick a nicer name than '_' for usage in the rest of the preferences code.
+    result.positionalArguments = result._;
+  }
+  delete (result as any)._;
   return result;
 }
 
@@ -153,8 +164,11 @@ function validatePreferences(
       delete obj[key];
       continue;
     }
-    // `typeof` is good enough for everything we need right now, but we can of course expand this check over time
-    if (typeof value !== allPreferencesProps[key].type) {
+    // `typeof` + `isArray` is good enough for everything we need right now, but we can of course expand this check over time
+    if (
+      (Array.isArray(value) ? 'array' : typeof value) !==
+      allPreferencesProps[key].type
+    ) {
       error(
         `Type for option "${key}" mismatches: expected ${
           allPreferencesProps[key].type
@@ -196,8 +210,7 @@ export async function parseAndValidateGlobalPreferences(
   if (cliPreferences && typeof cliPreferences === 'object') {
     // Remove positional arguments and common Electron/Chromium flags
     // that we want to allow.
-    // TODO(COMPASS-6069): We will handle a positional argument later.
-    const ignoreFlags = ['_', 'disableGpu', 'sandbox'];
+    const ignoreFlags = ['disableGpu', 'sandbox'];
     for (const flag of ignoreFlags) {
       delete (cliPreferences as Record<string, unknown>)[flag];
     }

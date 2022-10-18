@@ -40,6 +40,7 @@ const mockQueryBarStore = {
 };
 
 const testOutdatedMessageId = 'crud-outdated-message-id';
+const testErrorMessageId = 'document-list-error-summary';
 
 function renderCrudToolbar(
   props?: Partial<React.ComponentProps<typeof CrudToolbar>>
@@ -287,6 +288,49 @@ describe('CrudToolbar Component', function () {
 
     it('should render the outdated message', function () {
       expect(screen.getByTestId(testOutdatedMessageId)).to.be.visible;
+    });
+
+    it('should not render an error message', function () {
+      expect(screen.queryByTestId(testErrorMessageId)).to.not.exist;
+    });
+  });
+
+  describe('when there is an error', function () {
+    beforeEach(function () {
+      renderCrudToolbar({
+        error: {
+          name: 'test-error',
+          message: 'pineapple 123',
+        },
+      });
+    });
+
+    it('should render the message', function () {
+      expect(screen.getByTestId(testErrorMessageId)).to.be.visible;
+      expect(screen.getByText('pineapple 123')).to.be.visible;
+    });
+  });
+
+  describe('when there is an operation timed out error', function () {
+    beforeEach(function () {
+      renderCrudToolbar({
+        error: {
+          name: 'MongoServerError',
+          message: 'pineapple',
+          code: {
+            value: 50,
+          },
+        },
+      });
+    });
+
+    it('should render the message', function () {
+      expect(screen.queryByText('pineapple')).to.not.exist;
+      expect(
+        screen.getByText(
+          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+        )
+      ).to.be.visible;
     });
   });
 });

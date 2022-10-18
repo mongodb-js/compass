@@ -39,12 +39,6 @@ import {
   ItemActionGroup,
   ItemActionMenu,
 } from './components/item-action-controls';
-export {
-  Editor,
-  EditorVariant,
-  EditorTextCompleter,
-  setEditorValue,
-} from './components/editor';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';
@@ -56,9 +50,8 @@ export {
 export { Checkbox } from './components/checkbox';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
-export { uiColors } from '@leafygreen-ui/palette';
-export * as compassFontSizes from './compass-font-sizes';
-export * as compassUIColors from './compass-ui-colors';
+export { palette } from '@leafygreen-ui/palette';
+export { rgba } from 'polished';
 export { default as Portal } from '@leafygreen-ui/portal';
 export { Size as RadioBoxSize } from '@leafygreen-ui/radio-box-group';
 export { Size as SelectSize } from '@leafygreen-ui/select';
@@ -71,6 +64,8 @@ export { Toggle } from './components/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 import IndexIcon from './components/index-icon';
+
+export { default as FormFieldContainer } from './components/form-field-container';
 
 export {
   Accordion,
@@ -129,7 +124,8 @@ export { mergeProps } from './utils/merge-props';
 export { focusRing, useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
-export { Pipeline, Stage } from '@leafygreen-ui/pipeline';
+export { fontFamilies } from '@leafygreen-ui/tokens';
 
 export { default as BSONValue } from './components/bson-value';
 export * as DocumentList from './components/document-list';
+export { KeylineCard } from './components/keyline-card';

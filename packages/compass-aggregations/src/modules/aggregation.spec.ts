@@ -5,10 +5,10 @@ import { expect } from 'chai';
 import { spy, stub } from 'sinon';
 import type { Document } from 'mongodb';
 
-import reducer, { runAggregation, fetchNextPage, fetchPrevPage, cancelAggregation } from './aggregation';
+import reducer, { runAggregation, fetchNextPage, fetchPrevPage, cancelAggregation, changeViewType } from './aggregation';
 import type { State as AggregateState } from './aggregation';
 import type { RootState } from '.';
-import rootReducer, { INITIAL_STATE } from '../modules';
+import rootReducer from '../modules';
 import configureStore from '../stores/store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 
@@ -39,8 +39,7 @@ class AggregationCursorMock {
 }
 
 const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
-  const mockedState: RootState = {
-    ...INITIAL_STATE,
+  const mockedState = {
     aggregationWorkspaceId: '0',
     aggregation,
   };
@@ -55,6 +54,7 @@ describe('aggregation module', function () {
       limit: 20,
       isLast: false,
       loading: false,
+      resultsViewType: 'document',
     });
   });
 
@@ -95,6 +95,7 @@ describe('aggregation module', function () {
       error: undefined,
       abortController: undefined,
       previousPageData: undefined,
+      resultsViewType: 'document',
     });
   });
 
@@ -106,6 +107,7 @@ describe('aggregation module', function () {
       documents,
       limit: 4,
       page: 2,
+      resultsViewType: 'document'
     });
 
     const aggregateMock = new AggregationCursorMock({
@@ -150,6 +152,7 @@ describe('aggregation module', function () {
       error: undefined,
       abortController: undefined,
       previousPageData: undefined,
+      resultsViewType: 'document',
     });
   });
 
@@ -163,6 +166,7 @@ describe('aggregation module', function () {
         ],
         limit: 4,
         page: 2,
+        resultsViewType: 'document',
       });
 
       const mockDocuments = [{ id: 9 }, { id: 10 }, { id: 11 }, { id: 12 }];
@@ -200,6 +204,7 @@ describe('aggregation module', function () {
         error: undefined,
         abortController: undefined,
         previousPageData: undefined,
+        resultsViewType: 'document',
       });
     });
     it('nextPage -> on last page', async function () {
@@ -211,6 +216,7 @@ describe('aggregation module', function () {
         ],
         limit: 4,
         page: 1,
+        resultsViewType: 'document',
       });
       const aggregateSpy = spy();
       store.dispatch({
@@ -231,6 +237,7 @@ describe('aggregation module', function () {
         ],
         limit: 4,
         page: 2,
+        resultsViewType: 'document',
       });
 
       const mockDocuments = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
@@ -269,6 +276,7 @@ describe('aggregation module', function () {
         error: undefined,
         abortController: undefined,
         previousPageData: undefined,
+        resultsViewType: 'document',
       });
     });
     it('prevPage -> on first page', async function () {
@@ -280,6 +288,7 @@ describe('aggregation module', function () {
         ],
         limit: 4,
         page: 1,
+        resultsViewType: 'document',
       });
       const aggregateSpy = spy();
       store.dispatch({
@@ -291,5 +300,21 @@ describe('aggregation module', function () {
       await store.dispatch(fetchPrevPage() as any);
       expect(aggregateSpy.callCount).to.equal(0);
     });
+  });
+  it('should switch results view type', function () {
+    const store = getMockedStore({
+      isLast: false,
+      loading: false,
+      documents: [
+        { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
+      ],
+      limit: 4,
+      page: 2,
+      resultsViewType: 'document',
+    });
+
+    expect(store.getState().aggregation.resultsViewType).to.equal('document')
+    store.dispatch(changeViewType('json'));
+    expect(store.getState().aggregation.resultsViewType).to.equal('json')
   });
 });

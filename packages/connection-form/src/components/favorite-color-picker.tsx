@@ -4,7 +4,7 @@ import {
   cx,
   Label,
   spacing,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 import {
   CONNECTION_COLOR_CODES,
@@ -25,7 +25,7 @@ const colorOptionStyles = css({
   width: spacing[5] + spacing[1],
   height: spacing[5] + spacing[1],
   border: '1px solid transparent',
-  boxShadow: `0 0 0 0 ${uiColors.focus}`,
+  boxShadow: `0 0 0 0 ${palette.blue.light1}`,
   transition: 'box-shadow .16s ease-in',
   position: 'relative',
   overflow: 'hidden',
@@ -35,19 +35,19 @@ const colorOptionStyles = css({
 });
 
 const activeColorOptionStyles = css({
-  boxShadow: `0 0 0 3px ${uiColors.focus}`,
+  boxShadow: `0 0 0 3px ${palette.blue.light1}`,
   transitionTimingFunction: 'ease-out',
 });
 
 const inActiveColorOptionStyles = css({
   '&:focus, &:hover': {
-    boxShadow: `0 0 0 3px ${uiColors.gray.light1}`,
+    boxShadow: `0 0 0 3px ${palette.gray.light1}`,
   },
 });
 
 const noColorRedBarStyles = css({
   width: 40,
-  borderTop: `3px solid ${uiColors.red.base}`,
+  borderTop: `3px solid ${palette.red.base}`,
   transform: 'rotate(-45deg)',
   position: 'absolute',
   left: -5,
@@ -124,7 +124,7 @@ export function FavoriteColorPicker({
         <button
           style={{
             background: 'white',
-            borderColor: uiColors.black,
+            borderColor: palette.black,
           }}
           className={cx({
             [colorOptionStyles]: true,

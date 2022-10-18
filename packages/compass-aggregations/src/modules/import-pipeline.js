@@ -1,12 +1,21 @@
-import { toJSString } from 'mongodb-query-parser';
-import { emptyStage } from './pipeline';
-import { extractStages } from './extract-stages';
-const debug = require('debug')('mongodb-aggregations:modules:import-pipeline');
+import { emptyStage } from '../utils/stage';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
- * Shell string indent.
+ * New pipeline action name.
  */
-const INDENT = '  ';
+export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
+
+/**
+ * The new pipeline action.
+ *
+ * @returns {Object} The action.
+ */
+export const newPipeline = () => ({
+  type: NEW_PIPELINE
+});
 
 /**
  * Action name prefix.
@@ -101,11 +110,24 @@ const onCreateNew = (state) => ({
   isConfirmationNeeded: true
 });
 
+const onConfirmNew = (state, { error }) => {
+  return {
+    isOpen: error ? true : false,
+    isConfirmationNeeded: false,
+    text: error ? state.text : '',
+    syntaxError: error
+  };
+};
+
+const onNewPipeline = () => ({ ...INITIAL_STATE });
+
 const MAPPINGS = {
   [NEW_PIPELINE_FROM_TEXT]: onNewPipelineFromText,
   [CLOSE_IMPORT]: onCloseImport,
   [CHANGE_TEXT]: onChangeText,
-  [CREATE_NEW]: onCreateNew
+  [CREATE_NEW]: onCreateNew,
+  [CONFIRM_NEW]: onConfirmNew,
+  [NEW_PIPELINE]: onNewPipeline
 };
 
 /**
@@ -161,44 +183,24 @@ export const createNew = () => ({
 });
 
 /**
- * Confirm new action creator.
- *
- * @returns {Object} The state.
+ * @returns {import('.').PipelineBuilderThunkAction<void>}
  */
-export const confirmNew = () => ({
-  type: CONFIRM_NEW
-});
+export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
+  const { importPipeline: { text } } = getState();
 
-/**
- * Create a pipeline from the provided text.
- *
- * @param {String} text - The text.
- *
- * @returns {Array} The pipeline for the builder.
- */
-export const createPipeline = (text) => {
-  try {
-    const stages = extractStages(text);
-    return stages.map((stage) => {
-      return createStage(
-        stage.operator,
-        stage.source,
-        null
-      );
-    });
-  } catch (jsError) {
-    debug(jsError);
-    return [ createStage(null, '', jsError.message) ];
+  pipelineBuilder.reset(text);
+
+  const error = pipelineBuilder.syntaxError[0]?.message
+
+  if (!error) {
+    track('Aggregation Imported From Text', { num_stages: pipelineBuilder.stages.length });
   }
-};
 
-export const createPipelineFromView = (pipeline) => {
-  return pipeline.map((stage) => {
-    return createStage(
-      Object.keys(stage)[0],
-      toJSString(Object.values(stage)[0], INDENT),
-      null
-    );
+  dispatch({
+    type: CONFIRM_NEW,
+    stages: pipelineBuilder.stages,
+    source: pipelineBuilder.source,
+    error
   });
 };
 

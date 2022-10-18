@@ -4,15 +4,15 @@ import {
   encryptedFieldConfigToText,
   textToEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
-import FormFieldContainer from '../../form-field-container';
 import {
-  Editor,
+  FormFieldContainer,
   Label,
   Banner,
   Description,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { Editor } from '@mongodb-js/compass-editor';
 
 const errorContainerStyles = css({
   padding: spacing[3],

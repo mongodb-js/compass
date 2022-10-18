@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Label, Description } from '@mongodb-js/compass-components';
+import { Label, Description, Button } from '@mongodb-js/compass-components';
 
-import { TextButton } from 'hadron-react-buttons';
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 
 import styles from './settings.module.less';
@@ -20,7 +19,6 @@ class Settings extends PureComponent {
     toggleSettingsIsExpanded: PropTypes.func.isRequired,
     toggleSettingsIsCommentMode: PropTypes.func.isRequired,
     setSettingsSampleSize: PropTypes.func.isRequired,
-    setSettingsMaxTimeMS: PropTypes.func.isRequired,
     setSettingsLimit: PropTypes.func.isRequired,
     applySettings: PropTypes.func.isRequired,
     runStage: PropTypes.func.isRequired
@@ -38,10 +36,6 @@ class Settings extends PureComponent {
 
   onSampleSizeChanged(evt) {
     this.props.setSettingsSampleSize(parseInt(evt.currentTarget.value, 10));
-  }
-
-  onMaxTimeoutChanged(evt) {
-    this.props.setSettingsMaxTimeMS(parseInt(evt.currentTarget.value, 10));
   }
 
   onLimitChanged(evt) {
@@ -159,19 +153,8 @@ class Settings extends PureComponent {
         <div className={classnames(styles.header)}>
           <div className={classnames(styles['header-title'])}>Settings</div>
           <div className={classnames(styles['header-btn-group'])}>
-            <TextButton
-              id="aggregations-settings-cancel"
-              className="btn btn-default btn-xs"
-              text="Cancel"
-              clickHandler={this.onCancelClicked.bind(this)}
-            />
-
-            <TextButton
-              id="aggregation-settings-apply"
-              className="btn btn-primary btn-xs"
-              text="Apply"
-              clickHandler={this.onApplyClicked.bind(this)}
-            />
+            <Button id="aggregations-settings-cancel" size="xsmall" onClick={this.onCancelClicked.bind(this)}>Cancel</Button>
+            <Button id="aggregation-settings-apply" size="xsmall" variant="primary" onClick={this.onApplyClicked.bind(this)}>Apply</Button>
           </div>
         </div>
         {this.renderFields()}

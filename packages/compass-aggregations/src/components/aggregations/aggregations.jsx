@@ -1,14 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Pipeline from '../pipeline';
-import { namespaceChanged } from '../../modules/namespace';
-import { nameChanged } from '../../modules/name';
-import { limitChanged } from '../../modules/limit';
-import { largeLimitChanged } from '../../modules/large-limit';
 import { maxTimeMSChanged } from '../../modules/max-time-ms';
 import { collationStringChanged } from '../../modules/collation-string';
-import { toggleComments } from '../../modules/comments';
-import { toggleSample } from '../../modules/sample';
 import { toggleAutoPreview } from '../../modules/auto-preview';
 import {
   toggleInputDocumentsCollapsed,
@@ -16,13 +10,7 @@ import {
 } from '../../modules/input-documents';
 import { exportToLanguage } from '../../modules/export-to-language';
 import { openLink } from '../../modules/link';
-import { toggleOverview } from '../../modules/is-overview-on';
-import { toggleFullscreen } from '../../modules/is-fullscreen-on';
-import {
-  newPipeline,
-  clonePipeline,
-  openCreateView
-} from '../../modules';
+import { clonePipeline } from "../../modules/clone-pipeline";
 import {
   runStage,
   runOutStage,
@@ -40,22 +28,13 @@ import {
 import {
   saveCurrentPipeline,
   savedPipelineAdd,
-  getSavedPipelines
+  getSavedPipelines,
 } from '../../modules/saved-pipeline';
 import { setIsModified } from '../../modules/is-modified';
 import {
-  newPipelineFromPaste,
-  restoreSavedPipeline,
-  openPipelineById
-} from '../../modules/index';
-import {
-  restorePipelineModalToggle
-} from '../../modules/restore-pipeline';
-import {
+  newPipeline,
   newPipelineFromText,
   closeImport,
-  changeText,
-  createNew,
   confirmNew
 } from '../../modules/import-pipeline';
 import { setIsNewPipelineConfirm } from '../../modules/is-new-pipeline-confirm';
@@ -63,7 +42,6 @@ import {
   toggleSettingsIsExpanded,
   toggleSettingsIsCommentMode,
   setSettingsSampleSize,
-  setSettingsMaxTimeMS,
   setSettingsLimit,
   applySettings
 } from '../../modules/settings';
@@ -118,24 +96,17 @@ const mapStateToProps = (state) => ({
   sourceName: state.sourceName,
   serverVersion: state.serverVersion,
   pipeline: state.pipeline,
-  restorePipeline: state.restorePipeline,
   name: state.name,
   collationString: state.collationString,
   isModified: state.isModified,
   isCommenting: state.comments,
-  isSampling: state.sample,
   isAtlasDeployed: state.isAtlasDeployed,
   isAutoPreviewing: state.autoPreview,
-  isImportPipelineOpen: state.importPipeline.isOpen,
   isImportConfirmationNeeded: state.importPipeline.isConfirmationNeeded,
-  importPipelineText: state.importPipeline.text,
-  importPipelineError: state.importPipeline.syntaxError,
   settings: state.settings,
-  isOverviewOn: state.isOverviewOn,
   limit: state.limit,
   largeLimit: state.largeLimit,
   maxTimeMS: state.maxTimeMS,
-  isFullscreenOn: state.isFullscreenOn,
   savingPipeline: state.savingPipeline,
   projections: state.projections,
   editViewName: state.editViewName,
@@ -152,14 +123,9 @@ const mapStateToProps = (state) => ({
 const MappedAggregations = connect(
   mapStateToProps,
   {
-    namespaceChanged,
-    nameChanged,
     collationStringChanged,
     toggleInputDocumentsCollapsed,
     refreshInputDocuments,
-    toggleOverview,
-    toggleComments,
-    toggleSample,
     toggleAutoPreview,
     runStage,
     runOutStage,
@@ -176,37 +142,26 @@ const MappedAggregations = connect(
     toggleSettingsIsExpanded,
     toggleSettingsIsCommentMode,
     setSettingsSampleSize,
-    setSettingsMaxTimeMS,
     setSettingsLimit,
     exportToLanguage,
     saveCurrentPipeline,
     savedPipelineAdd,
     getSavedPipelines,
-    restorePipelineModalToggle,
-    restoreSavedPipeline,
     newPipeline,
     newPipelineFromText,
     closeImport,
     clonePipeline,
-    changeText,
-    createNew,
     confirmNew,
     openLink,
-    openPipelineById,
     applySettings,
     setIsModified,
-    limitChanged,
-    largeLimitChanged,
     maxTimeMSChanged,
-    toggleFullscreen,
     savingPipelineNameChanged,
     savingPipelineApply,
     savingPipelineCancel,
     savingPipelineOpen,
     projectionsChanged,
-    newPipelineFromPaste,
     updateView,
-    openCreateView,
     setIsNewPipelineConfirm,
     dismissViewError
   }

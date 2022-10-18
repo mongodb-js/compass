@@ -3,7 +3,7 @@ import type { default as HadronDocumentType } from 'hadron-document';
 import { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
 import { css } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
 type Status =
@@ -193,6 +193,8 @@ const container = css({
   paddingLeft: spacing[3],
   alignItems: 'center',
   gap: spacing[2],
+  borderBottomLeftRadius: 'inherit',
+  borderBottomRightRadius: 'inherit',
 });
 
 const message = css({
@@ -213,7 +215,7 @@ const button = css({
 function getColorStyles(status: Status): React.CSSProperties {
   switch (status) {
     case 'Editing':
-      return { backgroundColor: uiColors.gray.light2 };
+      return { backgroundColor: palette.gray.light2 };
     case 'ContainsErrors':
     case 'UpdateError':
     case 'UpdateBlocked':
@@ -221,24 +223,24 @@ function getColorStyles(status: Status): React.CSSProperties {
     case 'DeleteError':
     case 'DeleteStart':
       return {
-        backgroundColor: uiColors.red.light2,
-        color: uiColors.red.dark3,
+        backgroundColor: palette.red.light2,
+        color: palette.red.dark3,
       };
     case 'UpdateStart':
       return {
-        backgroundColor: uiColors.blue.light2,
-        color: uiColors.blue.dark3,
+        backgroundColor: palette.blue.light2,
+        color: palette.blue.dark3,
       };
     case 'DeleteSuccess':
     case 'UpdateSuccess':
       return {
-        backgroundColor: uiColors.green.light2,
-        color: uiColors.green.dark3,
+        backgroundColor: palette.green.light2,
+        color: palette.green.dark3,
       };
     default:
       return {
-        backgroundColor: uiColors.yellow.light2,
-        color: uiColors.yellow.dark3,
+        backgroundColor: palette.yellow.light2,
+        color: palette.yellow.dark3,
       };
   }
 }

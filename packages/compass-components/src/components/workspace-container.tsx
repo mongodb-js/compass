@@ -1,10 +1,9 @@
 import React, { useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
-import { gray8 } from '../compass-ui-colors';
+import { palette } from '@leafygreen-ui/palette';
 import { withTheme } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
-import { transparentize } from 'polished';
+import { rgba } from 'polished';
 import { useInView } from 'react-intersection-observer';
 
 const workspaceContainerStyles = css({
@@ -53,11 +52,11 @@ const shadowStyles = css({
 });
 
 const shadowStylesLight = css({
-  boxShadow: boxShadow(transparentize(0.85, uiColors.black)),
+  boxShadow: boxShadow(rgba(palette.black, 0.15)),
 });
 
 const shadowStylesDark = css({
-  boxShadow: boxShadow(transparentize(0.6, '#000000')),
+  boxShadow: boxShadow(rgba(palette.black, 0.4)),
 });
 
 const workspaceContentStyles = css({
@@ -72,13 +71,13 @@ const workspaceContentStyles = css({
 });
 
 const lightThemeStyles = css({
-  backgroundColor: gray8,
-  color: uiColors.gray.dark2,
+  backgroundColor: palette.white,
+  color: palette.gray.dark2,
 });
 
 const darkThemeStyles = css({
-  backgroundColor: uiColors.gray.dark3,
-  color: uiColors.white,
+  backgroundColor: palette.gray.dark3,
+  color: palette.white,
 });
 
 type WorkspaceContainerProps = {

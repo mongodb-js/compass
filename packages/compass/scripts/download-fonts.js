@@ -1,6 +1,6 @@
 /**
  * Because of the hadron-build, compass can't have any references to the
- * external resources and as such it gets its own version for download-akzidenz
+ * external resources and as such it gets its own version for download-fonts
  * for now just to the build doesn't fail.
  */
 
@@ -13,50 +13,15 @@ const { promisify } = require('util');
 
 const PACKAGE_ROOT = process.cwd();
 
-// const MONOREPO_ROOT = path.resolve(__dirname, '..');
-
-const CACHE_DIR = path.join(os.tmpdir(), '.akzidenz-font-cache');
+const CACHE_DIR = path.join(os.tmpdir(), '.compass-fonts-cache');
 
 const fetch = require('make-fetch-happen').defaults({
   cacheManager: CACHE_DIR,
 });
 
-const AKZIDENZ_CDN_BASE_URL = 'https://d2va9gm4j17fy9.cloudfront.net/fonts/';
-
 const EUCLID_CDN_BASE_URL = 'https://cloud.mongodb.com/static/font/';
 
 const UPDATE_CACHE = process.argv.includes('--update-cache');
-
-const AKZIDENZ_CDN_URLS = [
-  'akzidgrostdita.eot',
-  'akzidgrostdita.svg',
-  'akzidgrostdita.ttf',
-  'akzidgrostdita.woff',
-  'akzidgrostdlig.eot',
-  'akzidgrostdlig.svg',
-  'akzidgrostdlig.ttf',
-  'akzidgrostdlig.woff',
-  'akzidgrostdligcnd.eot',
-  'akzidgrostdligcnd.svg',
-  'akzidgrostdligcnd.ttf',
-  'akzidgrostdligcnd.woff',
-  'akzidgrostdligita.eot',
-  'akzidgrostdligita.svg',
-  'akzidgrostdligita.ttf',
-  'akzidgrostdligita.woff',
-  'akzidgrostdmed.eot',
-  'akzidgrostdmed.svg',
-  'akzidgrostdmed.ttf',
-  'akzidgrostdmed.woff',
-  'akzidgrostdmedita.eot',
-  'akzidgrostdmedita.svg',
-  'akzidgrostdmedita.ttf',
-  'akzidgrostdmedita.woff',
-  'akzidgrostdreg.eot',
-  'akzidgrostdreg.svg',
-  'akzidgrostdreg.ttf',
-  'akzidgrostdreg.woff',
-].map((filename) => `${AKZIDENZ_CDN_BASE_URL}${filename}`);
 
 const EUCLID_CDN_URLS = [
   'EuclidCircularA-Semibold-WebXL.woff2',
@@ -73,7 +38,7 @@ const EUCLID_CDN_URLS = [
   'EuclidCircularA-RegularItalic-WebXL.woff',
 ].map((filename) => `${EUCLID_CDN_BASE_URL}${filename}`);
 
-const FONTS_URLS = [...EUCLID_CDN_URLS, ...AKZIDENZ_CDN_URLS];
+const FONTS_URLS = [...EUCLID_CDN_URLS];
 
 const FONTS_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'app', 'fonts');
 
@@ -114,7 +79,7 @@ const download = async (url, destDir) => {
   }
 
   if (UPDATE_CACHE) {
-    console.log('Re-populating akzidenz fonts cache at %s', CACHE_DIR);
+    console.log('Re-populating fonts cache at %s', CACHE_DIR);
 
     try {
       await fs.rmdir(CACHE_DIR, { recursive: true });

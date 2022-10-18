@@ -1,3 +1,5 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
 .button {
   padding: 0 !important;
   width: 24px;
@@ -11,9 +13,9 @@
       margin-top: 25px;
       right: 22px;
       border-radius: 3px;
-      color: white;
+      color: @palette__white;
       padding: 2px 10px 2px 10px;
-      background: rgba(0, 0, 0, 0.75);
+      background: fade(@palette__black, 75%);
       content: 'Copied!';
       text-transform: none;
       font-weight: normal;

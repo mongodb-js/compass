@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import type { Document } from 'mongodb';
 import {
@@ -9,16 +9,13 @@ import {
   ErrorSummary,
   Subtitle,
   Button,
-  uiColors
+  palette
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
-
-import type { ResultsViewType } from './pipeline-results-list';
 import PipelineResultsList from './pipeline-results-list';
 import PipelineEmptyResults from './pipeline-empty-results';
-import PipelineResultsHeader from './pipeline-results-header';
 import {
   getDestinationNamespaceFromStage,
   isEmptyishStage
@@ -31,11 +28,6 @@ const containerStyles = css({
   gridTemplateRows: 'min-content 1fr',
   gridTemplateColumns: '1fr',
   marginBottom: spacing[3],
-});
-
-const headerStyles = css({
-  paddingLeft: spacing[3] + spacing[1],
-  paddingRight: spacing[5] + spacing[1],
 });
 
 const resultsStyles = css({
@@ -79,7 +71,7 @@ const outResult = css({
 });
 
 const outResultText = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
   textAlign: 'center'
 });
 
@@ -114,6 +106,7 @@ type PipelineResultsWorkspaceProps = {
   isEmpty?: boolean;
   isMergeOrOutPipeline?: boolean;
   mergeOrOutDestination?: string | null;
+  resultsViewType: 'document' | 'json';
   onOutClick?: (ns: string) => void;
   onCancel: () => void;
   onRetry: () => void;
@@ -128,13 +121,11 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
     isEmpty,
     isMergeOrOutPipeline,
     mergeOrOutDestination,
+    resultsViewType,
     onOutClick,
     onRetry,
     onCancel
   }) => {
-    const [resultsViewType, setResultsViewType] =
-      useState<ResultsViewType>('document');
-
     let results: React.ReactElement | null = null;
 
     if (isError && error) {
@@ -194,14 +185,6 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
 
     return (
       <div data-testid="pipeline-results-workspace" className={containerStyles}>
-        {!isMergeOrOutPipeline && (
-          <div className={headerStyles}>
-            <PipelineResultsHeader
-              resultsView={resultsViewType}
-              onChangeResultsView={setResultsViewType}
-            />
-          </div>
-        )}
         <div className={resultsStyles}>{results}</div>
       </div>
     );
@@ -210,7 +193,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
 const mapState = ({
   pipeline,
   namespace,
-  aggregation: { documents, loading, error }
+  aggregation: { documents, loading, error, resultsViewType }
 }: RootState) => {
   const resultPipeline = pipeline.filter(
     (stageState) => !isEmptyishStage(stageState)
@@ -223,6 +206,7 @@ const mapState = ({
     error,
     isError: Boolean(error),
     isEmpty: documents.length === 0,
+    resultsViewType: resultsViewType,
     isMergeOrOutPipeline: ['$merge', '$out'].includes(lastStage?.stageOperator),
     mergeOrOutDestination: getDestinationNamespaceFromStage(
       namespace,

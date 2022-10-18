@@ -5,10 +5,12 @@ import {
   Theme,
   ThemeProvider,
   ToastArea,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
+import Settings from '@mongodb-js/compass-settings';
+import Welcome from '@mongodb-js/compass-welcome';
 import ipc from 'hadron-ipc';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
 import { getConnectionTitle } from 'mongodb-data-service';
@@ -20,12 +22,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import preferences from 'compass-preferences-model';
 import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
-import Settings from '@mongodb-js/compass-settings';
-import { compassUIColors } from '@mongodb-js/compass-components';
 
 const homeViewStyles = css({
   display: 'flex',
@@ -54,13 +55,13 @@ const homeContainerStyles = css({
 });
 
 const globalLightThemeStyles = css({
-  backgroundColor: compassUIColors.gray8,
-  color: uiColors.gray.dark2,
+  backgroundColor: palette.white,
+  color: palette.gray.dark2,
 });
 
 const globalDarkThemeStyles = css({
-  backgroundColor: uiColors.gray.dark3,
-  color: uiColors.white,
+  backgroundColor: palette.gray.dark3,
+  color: palette.white,
 });
 
 const defaultNS: Namespace = {
@@ -72,12 +73,14 @@ type State = {
   connectionTitle: string;
   isConnected: boolean;
   namespace: Namespace;
+  hasDisconnectedAtLeastOnce: boolean;
 };
 
-const initialState = {
+const initialState: State = {
   connectionTitle: '',
   isConnected: false,
   namespace: defaultNS,
+  hasDisconnectedAtLeastOnce: false,
 };
 
 type Action =
@@ -104,8 +107,9 @@ function reducer(state: State, action: Action): State {
       };
     case 'disconnected':
       return {
-        // Reset to initial state.
+        // Reset to initial state, but do not automatically connect this time.
         ...initialState,
+        hasDisconnectedAtLeastOnce: true,
       };
     default:
       return state;
@@ -116,16 +120,22 @@ function hideCollectionSubMenu() {
   void ipc.ipcRenderer?.call('window:hide-collection-submenu');
 }
 
-function Home({ appName }: { appName: string }): React.ReactElement | null {
+function Home({
+  appName,
+  getAutoConnectInfo,
+}: {
+  appName: string;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo>;
+}): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectedDataService = useRef<DataService>();
 
-  const [{ connectionTitle, isConnected, namespace }, dispatch] = useReducer(
-    reducer,
-    {
-      ...initialState,
-    }
-  );
+  const [
+    { connectionTitle, isConnected, namespace, hasDisconnectedAtLeastOnce },
+    dispatch,
+  ] = useReducer(reducer, {
+    ...initialState,
+  });
 
   function onDataServiceConnected(
     err: Error | undefined | null,
@@ -226,6 +236,7 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
       ipc.ipcRenderer?.removeListener('app:disconnect', onDisconnect);
     };
   }, [appRegistry, onDataServiceDisconnected]);
+
   useEffect(() => {
     // Setup app registry listeners.
     appRegistry.on('data-service-connected', onDataServiceConnected);
@@ -271,15 +282,25 @@ function Home({ appName }: { appName: string }): React.ReactElement | null {
   return (
     <div className={homeViewStyles} data-testid="home-view">
       <div className={homePageStyles}>
-        <Connections onConnected={onConnected} appName={appName} />
+        <Connections
+          onConnected={onConnected}
+          appName={appName}
+          getAutoConnectInfo={
+            hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
+          }
+        />
       </div>
     </div>
   );
 }
 
 function ThemedHome(
-  props: React.ComponentProps<typeof Home>
+  props: React.ComponentProps<typeof Home> & {
+    showWelcomeModal: boolean;
+    networkTraffic: boolean;
+  }
 ): ReturnType<typeof Home> {
+  const { showWelcomeModal, networkTraffic } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
@@ -287,8 +308,6 @@ function ThemedHome(
       process.env.COMPASS_LG_DARKMODE === 'true'
         ? (global as any).hadronApp?.theme ?? Theme.Light
         : Theme.Light,
-    // useful for quickly testing the new dark sidebar without rebuilding
-    //theme: Theme.Dark, enabled: true
   });
 
   function onDarkModeEnabled() {
@@ -323,10 +342,55 @@ function ThemedHome(
     };
   }, [appRegistry]);
 
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(showWelcomeModal);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  function showSettingsModal() {
+    async function show() {
+      await preferences.ensureDefaultConfigurableUserPreferences();
+      setIsSettingsOpen(true);
+    }
+
+    void show();
+  }
+
+  useEffect(() => {
+    ipc.ipcRenderer?.on('window:show-settings', showSettingsModal);
+    return function cleanup() {
+      ipc.ipcRenderer?.off('window:show-settings', showSettingsModal);
+    };
+  }, [appRegistry]);
+
+  const closeWelcomeModal = useCallback(
+    (showSettings: boolean) => {
+      async function close() {
+        await preferences.ensureDefaultConfigurableUserPreferences();
+        setIsWelcomeOpen(false);
+        if (showSettings) {
+          setIsSettingsOpen(true);
+        }
+      }
+
+      void close();
+    },
+    [setIsWelcomeOpen]
+  );
+
+  const closeSettingsModal = useCallback(() => {
+    setIsSettingsOpen(false);
+  }, [setIsSettingsOpen]);
+
   return (
     <LeafyGreenProvider>
       <ThemeProvider theme={theme}>
-        <Settings />
+        {showWelcomeModal && (
+          <Welcome
+            isOpen={isWelcomeOpen}
+            closeModal={closeWelcomeModal}
+            networkTraffic={networkTraffic}
+          />
+        )}
+        <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
         <ToastArea>
           <div
             className={cx(

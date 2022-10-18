@@ -1,8 +1,6 @@
-@gray4: #a09f9e;
-@gray7: #ebebed;
-@gray8: #f5f6f7;
-@gray-base: #000;
-@gray-lighter: lighten(@gray-base, 93.5%); // #eee
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+@gray-lighter: lighten(@palette__black, 93.5%);
 .badge {
   border: 1px solid @gray-lighter;
 }
@@ -15,7 +13,7 @@
   }
   span {
     font-size: 24px;
-    color: @gray4;
+    color: @palette__gray--base;
     font-weight: 200;
     margin-left: 15px;
   }
@@ -31,12 +29,12 @@
 ::-webkit-scrollbar-track {
   background-color: none;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.16);
+    background-color: fade(@palette__black, 16%);
   }
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: fade(@palette__black, 10%);
   -webkit-border-radius: 10px;
   border-radius: 10px;
 }

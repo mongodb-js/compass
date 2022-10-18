@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import ipc from 'hadron-ipc';
 
 import {
   Modal,
@@ -12,11 +11,10 @@ import {
   focusRing,
 } from '@mongodb-js/compass-components';
 
-import { fetchSettings } from '../stores/settings';
-
 import PrivacySettings from './settings/privacy';
 import Sidebar from './sidebar';
 import { updateSettings } from '../stores/updated-fields';
+import { fetchSettings } from '../stores/settings';
 
 type Settings = {
   name: string;
@@ -24,8 +22,10 @@ type Settings = {
 };
 
 type SettingsModalProps = {
-  onModalOpen: () => void;
+  isOpen: boolean;
+  closeModal: () => void;
   onUpdate: () => void;
+  loadSettings: () => Promise<void>;
 };
 
 const contentStyles = css({
@@ -57,27 +57,36 @@ const footerStyles = css({
 const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
-  onModalOpen,
+  isOpen,
+  closeModal,
   onUpdate,
+  loadSettings,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
+  const [loadingState, setLoadingState] = useState('initial');
+
+  useEffect(() => {
+    async function load() {
+      await loadSettings();
+      setLoadingState('ready');
+    }
+    if (isOpen && loadingState === 'initial') {
+      setLoadingState('loading');
+      void load();
+    }
+  }, [isOpen, loadingState, loadSettings]);
 
   const SettingComponent =
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
 
-  useEffect(() => {
-    (ipc as any).on('window:show-network-optin', () => {
-      onModalOpen();
-      setIsOpen(true);
-    });
-  }, [setIsOpen, onModalOpen]);
-
-  const closeModal = () => setIsOpen(false);
-  const updateSettings = () => {
+  const saveSettings = () => {
     onUpdate();
     closeModal();
   };
+
+  if (loadingState !== 'ready') {
+    return null;
+  }
 
   return (
     <Modal
@@ -119,7 +128,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
         <Button
           data-testid="save-settings-button"
           variant="primary"
-          onClick={updateSettings}
+          onClick={saveSettings}
         >
           Save
         </Button>
@@ -129,6 +138,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 };
 
 export default connect(null, {
-  onModalOpen: fetchSettings,
   onUpdate: updateSettings,
+  loadSettings: fetchSettings,
 })(SettingsModal);

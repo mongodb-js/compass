@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  Editor,
-  EditorVariant,
-  CollapsibleFieldSet,
-} from '@mongodb-js/compass-components';
+import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 type ColumnstoreProjection = {
   useColumnstoreProjection: boolean;
@@ -23,7 +20,7 @@ const ColumnstoreProjectionCollapsibleFieldSet = ({
       toggled={useColumnstoreProjection}
       onToggle={toggleUseColumnstoreProjection}
       label="Columnstore Projection"
-      dataTestId="create-index-modal-use-columnstore-checkbox"
+      data-testid="create-index-modal-use-columnstore"
       description="Columnstore indexes support queries against unknown or arbitrary fields."
     >
       <Editor

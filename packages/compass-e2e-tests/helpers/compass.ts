@@ -68,19 +68,14 @@ interface RenderLogEntry {
 
 export class Compass {
   browser: CompassBrowser;
-  isFirstRun: boolean;
   testPackagedApp: boolean;
   renderLogs: RenderLogEntry[];
   logs: LogEntry[];
   logPath?: string;
   userDataPath?: string;
 
-  constructor(
-    browser: CompassBrowser,
-    { isFirstRun = false, testPackagedApp = false } = {}
-  ) {
+  constructor(browser: CompassBrowser, { testPackagedApp = false } = {}) {
     this.browser = browser;
-    this.isFirstRun = isFirstRun;
     this.testPackagedApp = testPackagedApp;
     this.logs = [];
     this.renderLogs = [];
@@ -273,7 +268,7 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
-  noCloseSettingsModal?: boolean;
+  noWaitForConnectionScreen?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
 }
@@ -336,8 +331,6 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
 async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
   const nowFormatted = formattedDate();
-
-  const isFirstRun = opts.firstRun || !defaultUserDataDir;
 
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
@@ -407,8 +400,29 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     //'--v=1',
     // --vmodule=pattern
 
+    // by default make sure we don't get the welcome modal
+    ...(opts.firstRun === undefined ? ['--showed-network-opt-in=true'] : []),
+
     ...(opts.extraSpawnArgs ?? [])
   );
+
+  // Electron on Windows interprets its arguments in a weird way where
+  // the second positional argument inserted by webdriverio (about:blank)
+  // throws it off and won't let it start because it then interprets the first
+  // positional argument as an app path.
+  if (
+    process.platform === 'win32' &&
+    chromeArgs.some((arg) => !arg.startsWith('--'))
+  ) {
+    chromeArgs.push('--');
+  }
+
+  // webdriverio automatically prepends '--' to options that do not already have it.
+  // We need the ability to pass positional arguments, though.
+  // https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/launcher.ts#L37-L39
+  (chromeArgs as any).map = function () {
+    return [...this];
+  };
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
@@ -467,7 +481,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // @ts-expect-error
   const browser = await remote(options);
 
-  const compass = new Compass(browser, { isFirstRun, testPackagedApp });
+  const compass = new Compass(browser, { testPackagedApp });
 
   await compass.recordLogs();
 
@@ -665,9 +679,11 @@ export async function beforeTests(
 
   const { browser } = compass;
 
-  await browser.waitForConnectionScreen();
-  if (compass.isFirstRun && !opts.noCloseSettingsModal) {
-    await browser.closeSettingsModal();
+  if (opts.firstRun) {
+    await browser.closeWelcomeModal();
+  }
+  if (!opts.noWaitForConnectionScreen) {
+    await browser.waitForConnectionScreen();
   }
 
   return compass;

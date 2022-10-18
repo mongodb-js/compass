@@ -1,3 +1,7 @@
+import type {
+  ExportConnectionOptions,
+  ImportConnectionOptions,
+} from './import-export-connection';
 import {
   exportConnections,
   importConnections,
@@ -20,6 +24,24 @@ class MockConnectionStorage {
   // eslint-disable-next-line @typescript-eslint/require-await
   async loadAll(): Promise<ConnectionInfo[]> {
     return [...this.storage];
+  }
+
+  asExportImportOptions(): Required<
+    Pick<
+      ExportConnectionOptions & ImportConnectionOptions,
+      'loadConnections' | 'saveConnections'
+    >
+  > {
+    return {
+      saveConnections: async (connections: ConnectionInfo[]) => {
+        for (const connection of connections) {
+          await this.save(connection);
+        }
+      },
+      loadConnections: async () => {
+        return this.loadAll();
+      },
+    };
   }
 }
 
@@ -56,10 +78,10 @@ describe('Connection export/import', function () {
 
   it('can export and import connections with default options', async function () {
     const exported = await exportConnections({
-      storage: inStorage,
+      ...inStorage.asExportImportOptions(),
     });
     await importConnections(exported, {
-      storage: outStorage,
+      ...outStorage.asExportImportOptions(),
     });
     expect(await outStorage.loadAll()).to.have.lengthOf(2);
     expect(await outStorage.loadAll()).to.deep.equal(await inStorage.loadAll());
@@ -67,11 +89,11 @@ describe('Connection export/import', function () {
 
   it('can export and import connections without secrets', async function () {
     const exported = await exportConnections({
-      storage: inStorage,
+      ...inStorage.asExportImportOptions(),
       removeSecrets: true,
     });
     await importConnections(exported, {
-      storage: outStorage,
+      ...outStorage.asExportImportOptions(),
     });
     expect(await outStorage.loadAll()).to.have.lengthOf(2);
     const expected = cloneDeep(await inStorage.loadAll());
@@ -85,11 +107,11 @@ describe('Connection export/import', function () {
 
   it('can export and import connections with a passphrase', async function () {
     const exported = await exportConnections({
-      storage: inStorage,
+      ...inStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
     });
     await importConnections(exported, {
-      storage: outStorage,
+      ...outStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
     });
     expect(JSON.parse(exported).connections[0].connectionSecrets).to.be.a(
@@ -104,12 +126,12 @@ describe('Connection export/import', function () {
 
   it('can export and import connections with an export filter', async function () {
     const exported = await exportConnections({
-      storage: inStorage,
+      ...inStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
       filter: (info) => info.id === 'id1',
     });
     await importConnections(exported, {
-      storage: outStorage,
+      ...outStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
     });
     expect(await outStorage.loadAll()).to.have.lengthOf(1);
@@ -120,11 +142,11 @@ describe('Connection export/import', function () {
 
   it('can export and import connections with an import filter', async function () {
     const exported = await exportConnections({
-      storage: inStorage,
+      ...inStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
     });
     await importConnections(exported, {
-      storage: outStorage,
+      ...outStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
       filter: (info) => info.id === 'id1',
     });
@@ -136,7 +158,9 @@ describe('Connection export/import', function () {
 
   it('rejects invalid JSON input', async function () {
     try {
-      await importConnections('sakljdhf', { storage: outStorage });
+      await importConnections('sakljdhf', {
+        ...outStorage.asExportImportOptions(),
+      });
       expect.fail('missed exception');
     } catch (err) {
       expect(err.message).to.include('Could not parse connections list');
@@ -146,7 +170,7 @@ describe('Connection export/import', function () {
   it('rejects files with a different type attribute', async function () {
     try {
       await importConnections('{"type":"Not A Connection List"}', {
-        storage: outStorage,
+        ...outStorage.asExportImportOptions(),
       });
       expect.fail('missed exception');
     } catch (err) {
@@ -160,7 +184,7 @@ describe('Connection export/import', function () {
     try {
       await importConnections(
         '{"type":"Compass Connections","version":123456}',
-        { storage: outStorage }
+        { ...outStorage.asExportImportOptions() }
       );
       expect.fail('missed exception');
     } catch (err) {
@@ -172,13 +196,13 @@ describe('Connection export/import', function () {
 
   it('rejects files with secrets when password is missing', async function () {
     const exported = await exportConnections({
-      storage: inStorage,
+      ...inStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
     });
 
     try {
       await importConnections(exported, {
-        storage: outStorage,
+        ...outStorage.asExportImportOptions(),
       });
       expect.fail('missed exception');
     } catch (err) {
@@ -190,14 +214,14 @@ describe('Connection export/import', function () {
 
   it('rejects files with tampered secrets', async function () {
     const exported = await exportConnections({
-      storage: inStorage,
+      ...inStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
     });
     const tampered = JSON.parse(exported);
     tampered.connections[0].connectionSecrets += 'asdf';
     try {
       await importConnections(JSON.stringify(tampered), {
-        storage: outStorage,
+        ...outStorage.asExportImportOptions(),
         passphrase: 'p4ssw0rd',
       });
       expect.fail('missed exception');
@@ -210,12 +234,12 @@ describe('Connection export/import', function () {
 
   it('rejects importing when the passphrase is incorrect', async function () {
     const exported = await exportConnections({
-      storage: inStorage,
+      ...inStorage.asExportImportOptions(),
       passphrase: 'p4ssw0rd',
     });
     try {
       await importConnections(exported, {
-        storage: outStorage,
+        ...outStorage.asExportImportOptions(),
         passphrase: 'wr0ng_p4ssw0rd!',
       });
       expect.fail('missed exception');

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { spacing, css } from '@mongodb-js/compass-components';
+import { spacing, css, palette, rgba } from '@mongodb-js/compass-components';
 
 const animationContainerStyles = css({
   marginTop: spacing[3],
@@ -12,12 +12,12 @@ const animationSvgStyles = css({
 });
 
 const shadowStyles = css({
-  fill: '#136149',
+  fill: palette.green.dark2,
   opacity: 0.12,
 });
 
 const ringCircleStyles = css({
-  stroke: '#136149',
+  stroke: palette.green.dark2,
   strokeLinecap: 'round',
   strokeLinejoin: 'round',
   fill: 'none',
@@ -28,20 +28,20 @@ const ringShadowStyles = css(ringCircleStyles, {
 });
 
 const innerCircleStyles = css({
-  fill: '#fef7e3',
+  fill: palette.yellow.light3,
   opacity: 0.85,
 });
 
 const outerCircleStyles = css({
-  fill: '#f7a76f',
+  fill: palette.red.light2,
 });
 
 const redArrowStyles = css({
-  fill: '#FF5516',
+  fill: palette.red.light1,
 });
 
 const arrowStyles = css({
-  fill: 'rgba(9, 128, 76, 0.3)',
+  fill: rgba(palette.green.dark2, 0.3),
 });
 
 // This function returns the speed at which the needle shoots off in

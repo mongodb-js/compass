@@ -18,7 +18,6 @@
 @import './palette.less';
 @import './fontawesome.less';
 @import './fonts.less';
-@import './mms-icons.less';
 
 // Tweaks to bootstrap
 @import './message-background.less';
@@ -28,7 +27,6 @@
 @import './hadron-tooltip.less';
 @import './info-sprinkle.less';
 @import './option-selector.less';
-@import './status-row.less';
 
 :root {
   width: 100vw;
@@ -39,8 +37,8 @@
   -webkit-font-smoothing: antialiased;
 
   // The color and background styles are overridden by the current theme.
-  background-color: @gray8;
-  color: @grayDark2;
+  background-color: @palette__gray--light-3;
+  color: @palette__gray--dark-2;
 }
 
 #loading {
@@ -58,12 +56,12 @@
 
   &-sidebar {
     grid-area: 'sidebar';
-    background: #F9FBF7;
+    background: @palette__gray--light-3;
   }
 
   &-content {
     grid-area: 'content';
-    background: @gray8;
+    background: @palette__gray--light-3;
   }
 }
 
@@ -92,7 +90,7 @@
   }
 
   #statusbar {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: fade(@palette__white, 50%);
     position: fixed;
     top: 0;
     left: 0;
@@ -111,7 +109,7 @@
       transition: height 500ms cubic-bezier(0.6, -0.28, 0.735, 0.045);
 
       .progress-bar {
-        background-color: #6ba442;
+        background-color: @palette__green--dark-1;
       }
     }
   }
@@ -120,7 +118,7 @@
 * {
   user-select: text;
   -webkit-user-select: text;
-  outline-color: #019ee2;
+  outline-color: @palette__blue--light-1;
 }
 
 // make all help buttons consistent
@@ -129,10 +127,10 @@ i.syntax-help {
   .fa-icon();
   margin: 0 5px;
   cursor: pointer;
-  color: @gray5;
+  color: @palette__gray--light-1;
 
   &:hover {
-    color: @alertOrange;
+    color: @palette__yellow--base;
   }
   &:before {
     content: @fa-var-info-circle;
@@ -142,8 +140,8 @@ i.syntax-help {
 //action-bar, just a drop-shadow for now but should think about where to put these styles eventually
 .action-bar {
   height: 32px;
-  background: @gray8;
-  border-bottom: 1px solid @gray7;
+  background: @palette__gray--light-3;
+  border-bottom: 1px solid @palette__gray--light-2;
   padding-top: 4px;
   padding-left: 15px;
 }

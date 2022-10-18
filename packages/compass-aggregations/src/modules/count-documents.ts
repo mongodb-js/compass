@@ -1,12 +1,11 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { mapPipelineToStages } from '../utils/stage';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
-import type { Actions as WorkspaceActions } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
+import { NEW_PIPELINE } from './import-pipeline';
 
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
@@ -43,12 +42,13 @@ export const INITIAL_STATE: State = {
   loading: false,
 };
 
-const reducer: Reducer<State, Actions | WorkspaceActions> = (
+const reducer: Reducer<State, AnyAction> = (
   state = INITIAL_STATE,
   action
 ) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
+    case NEW_PIPELINE:
       return INITIAL_STATE;
     case ActionTypes.CountStarted:
       return {
@@ -72,7 +72,7 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (
   }
 };
 
-export const cancelCount = (): ThunkAction<void, RootState, void, Actions> => {
+export const cancelCount = (): PipelineBuilderThunkAction<void> => {
   return (_dispatch, getState) => {
     const {
       countDocuments: { abortController }
@@ -81,12 +81,7 @@ export const cancelCount = (): ThunkAction<void, RootState, void, Actions> => {
   };
 };
 
-export const countDocuments = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
+export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
       pipeline,

@@ -5,6 +5,8 @@ import {
 
 import { generateStage } from './stage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { NEW_PIPELINE } from './import-pipeline';
+
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
@@ -22,8 +24,11 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === ERROR_UPDATING_VIEW) {
     return action.error;
   }
-  if (action.type === DISMISS_VIEW_UPDATE_ERROR) {
-    return null;
+  if (
+    action.type === DISMISS_VIEW_UPDATE_ERROR ||
+    action.type === NEW_PIPELINE
+  ) {
+    return INITIAL_STATE;
   }
   return state;
 }

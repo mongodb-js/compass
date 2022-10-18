@@ -1,44 +1,50 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
-import { QueryAutoCompleter } from 'mongodb-ace-autocompleter';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
-  Editor,
-  EditorVariant,
-  EditorTextCompleter,
   css,
   cx,
   useFocusRing,
-  uiColors,
+  palette,
   spacing,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
-import type { Ace } from 'ace-builds';
+import type {
+  AceEditor,
+  CompletionWithServerInfo,
+} from '@mongodb-js/compass-editor';
+import {
+  Editor,
+  EditorTextCompleter,
+  QueryAutoCompleter,
+} from '@mongodb-js/compass-editor';
 
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
 
 const editorStyles = css({
+  width: '100%',
   minWidth: spacing[7],
+  // To match ace editor with leafygreen inputs.
+  paddingTop: '5px',
+  paddingBottom: '5px',
+  paddingLeft: '10px',
+  paddingRight: '2px',
   border: '1px solid transparent',
   borderRadius: spacing[1],
   overflow: 'visible',
 });
 
 const editorWithErrorStyles = css({
-  borderColor: uiColors.red.base,
+  borderColor: palette.red.base,
   '&:focus-within': {
-    borderColor: uiColors.gray.base,
+    borderColor: palette.gray.base,
   },
 });
 
 const editorSettings = {
-  useSoftTabs: true,
   minLines: 1,
   maxLines: 10,
-  fontSize: 12,
-  highlightActiveLine: false,
-  showGutter: false,
 };
 
-function disableEditorCommand(editor: Ace.Editor, name: keyof Ace.CommandMap) {
+function disableEditorCommand(editor: AceEditor, name: string) {
   const command = editor.commands.byName[name];
   command.bindKey = undefined;
   editor.commands.addCommand(command);
@@ -52,10 +58,24 @@ type OptionEditorProps = {
   placeholder?: string;
   queryOption: QueryOptionType;
   refreshEditorAction: Listenable;
-  schemaFields?: string[];
+  schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
 };
+
+function useQueryCompleter(
+  ...args: ConstructorParameters<typeof QueryAutoCompleter>
+): QueryAutoCompleter {
+  const [version, textCompleter, fields] = args;
+  const completer = useRef<QueryAutoCompleter>();
+  if (!completer.current) {
+    completer.current = new QueryAutoCompleter(version, textCompleter, fields);
+  }
+  useEffect(() => {
+    completer.current?.update(fields);
+  }, [fields]);
+  return completer.current;
+}
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   hasError,
@@ -74,11 +94,13 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     hover: true,
   });
 
-  const completer = useRef<typeof QueryAutoCompleter>(
-    new QueryAutoCompleter(serverVersion, EditorTextCompleter, schemaFields)
+  const completer = useQueryCompleter(
+    serverVersion,
+    EditorTextCompleter,
+    schemaFields
   );
 
-  const editorRef = useRef<Ace.Editor | undefined>(undefined);
+  const editorRef = useRef<AceEditor | undefined>(undefined);
 
   useEffect(() => {
     const unsubscribeRefreshEditorAction = refreshEditorAction.listen(() => {
@@ -98,19 +120,22 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     };
   }, [refreshEditorAction]);
 
-  useLayoutEffect(() => {
-    completer.current.update(schemaFields);
-  }, [schemaFields]);
+  const commands = useMemo(() => {
+    return [
+      {
+        name: 'executeQuery',
+        bindKey: {
+          win: 'Enter',
+          mac: 'Enter',
+        },
+        exec: () => {
+          onApply();
+        },
+      },
+    ];
+  }, [onApply]);
 
-  const onApplyClicked = useCallback(() => onApply(), [onApply]);
-  const onApplyRef = useRef(onApplyClicked);
-  onApplyRef.current = onApplyClicked;
-
-  const onLoadEditor = useCallback((editor: Ace.Editor) => {
-    // Setting the padding is not available as an editor option.
-    // https://github.com/ajaxorg/ace/wiki/Configuring-Ace
-    editor.renderer.setPadding(spacing[2]);
-
+  const onLoadEditor = useCallback((editor: AceEditor) => {
     editorRef.current = editor;
     editorRef.current.setBehavioursEnabled(true);
 
@@ -120,38 +145,29 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     // these commands enabled and disable them with the `Escape` key.
     disableEditorCommand(editor, 'indent');
     disableEditorCommand(editor, 'outdent');
-
-    editorRef.current.commands.addCommand({
-      name: 'executeQuery',
-      bindKey: {
-        win: 'Enter',
-        mac: 'Enter',
-      },
-      exec: () => {
-        onApplyRef.current();
-      },
-    });
   }, []);
 
   return (
-    <Editor
-      variant={EditorVariant.Shell}
+    <div
       className={cx(
         editorStyles,
         focusRingProps.className,
         hasError && editorWithErrorStyles
       )}
-      theme="mongodb-query"
-      text={value}
-      onChangeText={(value) => onChange(value)}
-      id={id}
-      options={editorSettings}
-      completer={completer.current}
-      placeholder={placeholder}
-      fontSize={12}
-      scrollMargin={[6, 6, 0, 0]}
-      onLoad={onLoadEditor}
-    />
+    >
+      <Editor
+        variant="Shell"
+        text={value}
+        onChangeText={onChange}
+        id={id}
+        options={editorSettings}
+        completer={completer}
+        placeholder={placeholder}
+        onLoad={onLoadEditor}
+        commands={commands}
+        inline
+      />
+    </div>
   );
 };
 

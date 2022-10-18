@@ -10,7 +10,7 @@ import { CompassTelemetry } from './telemetry';
 import { CompassWindowManager } from './window-manager';
 import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
-import { setupPreferences } from 'compass-preferences-model';
+import { setupPreferencesAndUserModel } from './setup-preferences-and-user-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 
 const debug = createDebug('mongodb-compass:main:application');
@@ -40,8 +40,9 @@ class CompassApplication {
     }
 
     this.setupUserDirectory();
-    await setupPreferences(globalPreferences);
-    await Promise.all([this.setupLogging(), this.setupTelemetry()]);
+    await setupPreferencesAndUserModel(globalPreferences);
+    await this.setupLogging();
+    await this.setupTelemetry();
 
     if (mode === 'CLI') {
       return;

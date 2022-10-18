@@ -31,7 +31,7 @@ export type UserConfigurablePreferences = {
 export type InternalUserPreferences = {
   // These are internally used preferences that are not configurable
   // by users.
-  showedNetworkOptIn: boolean; // Has the settings dialog has been shown before.
+  showedNetworkOptIn: boolean; // Has the settings dialog been shown before.
   id: string;
   lastKnownVersion: string;
   currentUserId: string;
@@ -53,6 +53,8 @@ export type CliOnlyPreferences = {
 
 export type NonUserPreferences = {
   ignoreAdditionalCommandLineFlags?: boolean;
+  positionalArguments?: string[];
+  file?: string;
 };
 
 export type AllPreferences = UserPreferences &
@@ -99,7 +101,9 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
-  cli: K extends keyof InternalUserPreferences
+  cli: K extends 'showedNetworkOptIn'
+    ? boolean
+    : K extends keyof InternalUserPreferences
     ? false
     : K extends keyof CliOnlyPreferences
     ? true
@@ -187,7 +191,7 @@ const modelPreferencesProps: Required<{
     required: true,
     default: false,
     ui: false,
-    cli: false,
+    cli: true,
     global: false,
     description: null,
   },
@@ -434,6 +438,27 @@ const nonUserPreferences: Required<{
       long: 'Allow specifying command-line flags that Compass does not understand, e.g. Electron or Chromium flags',
     },
   },
+  positionalArguments: {
+    type: 'array',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short:
+        'Specify a Connection String or Connection ID to Automatically Connect',
+    },
+  },
+  file: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Specify a List of Connections for Automatically Connecting',
+    },
+  },
 };
 
 export const allPreferencesProps: Required<{
@@ -672,16 +697,13 @@ export class Preferences {
   }
 
   /**
-   * Return the subset of preferences that can be edited through the UI.
    * If this is the first call to this method, this sets the defaults for
    * user preferences.
-   *
-   * @returns The currently active set of UI-modifiable preferences.
    */
-  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
+  async ensureDefaultConfigurableUserPreferences(): Promise<void> {
     // Set the defaults and also update showedNetworkOptIn flag.
-    const prefences = await this.fetchPreferences();
-    if (!prefences.showedNetworkOptIn && prefences.networkTraffic) {
+    const { showedNetworkOptIn } = await this.fetchPreferences();
+    if (!showedNetworkOptIn) {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
@@ -692,7 +714,15 @@ export class Preferences {
         theme: THEMES.LIGHT,
       });
     }
-    const preferences = this.getPreferences();
+  }
+
+  /**
+   * Return the subset of preferences that can be edited through the UI.
+   *
+   * @returns The currently active set of UI-modifiable preferences.
+   */
+  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
+    const preferences = await this.fetchPreferences();
     return Object.fromEntries(
       Object.entries(preferences).filter(
         ([key]) =>
@@ -715,7 +745,7 @@ export class Preferences {
     changedPreferencesValues: Partial<AllPreferences>
   ): void {
     for (const callback of this._onPreferencesChangedCallbacks) {
-      return callback(changedPreferencesValues);
+      callback(changedPreferencesValues);
     }
   }
 

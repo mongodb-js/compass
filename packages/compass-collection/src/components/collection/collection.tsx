@@ -2,16 +2,11 @@ import type AppRegistry from 'hadron-app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { Document } from 'mongodb';
 import React, { useCallback, useEffect } from 'react';
-import {
-  TabNavBar,
-  css,
-  withTheme,
-  uiColors,
-  cx,
-} from '@mongodb-js/compass-components';
+import { TabNavBar, css } from '@mongodb-js/compass-components';
 
 import CollectionHeader from '../collection-header';
-import type { CollectionStatsObject } from '../../modules/stats';
+import { getCollectionStatsInitialState } from '../../modules/stats';
+import type { CollectionStatsMap } from '../../modules/stats';
 
 const { track } = createLoggerAndTelemetry('COMPASS-COLLECTION-UI');
 
@@ -24,14 +19,6 @@ const collectionStyles = css({
   alignItems: 'stretch',
   height: '100%',
   width: '100%',
-});
-
-const collectionLightStyles = css({
-  background: uiColors.white,
-});
-
-const collectionDarkStyles = css({
-  backgroundColor: uiColors.gray.dark3,
 });
 
 const collectionContainerStyles = css({
@@ -54,32 +41,28 @@ type CollectionProps = {
   isClustered: boolean;
   isFLE: boolean;
   editViewName?: string;
-  sourceReadonly: boolean;
+  sourceReadonly?: boolean;
   sourceViewOn?: string;
   selectOrCreateTab: (options: any) => any;
   pipeline: Document[];
   sourceName?: string;
   activeSubTab: number;
   id: string;
-  queryHistoryIndexes: number[];
   tabs: string[];
   views: JSX.Element[];
   localAppRegistry: AppRegistry;
   globalAppRegistry: AppRegistry;
-  changeActiveSubTab: (
-    activeSubTab: number,
-    id: string
-  ) => {
-    type: string;
-    activeSubTab: number;
-    id: string;
-  };
-  scopedModals: any[];
-  stats: CollectionStatsObject;
+  changeActiveSubTab: (activeSubTab: number, id: string) => void;
+  scopedModals: {
+    store: any;
+    component: React.ComponentType<any>;
+    actions: any;
+    key: number | string;
+  }[];
+  stats: CollectionStatsMap;
 };
 
 const Collection: React.FunctionComponent<CollectionProps> = ({
-  darkMode,
   namespace,
   isReadonly,
   isTimeSeries,
@@ -94,7 +77,6 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   sourceName,
   activeSubTab,
   id,
-  queryHistoryIndexes,
   tabs,
   views,
   localAppRegistry,
@@ -120,31 +102,15 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
       if (activeSubTab === idx) {
         return;
       }
-      if (!queryHistoryIndexes.includes(idx)) {
-        localAppRegistry.emit('collapse-query-history');
-      }
       localAppRegistry.emit('subtab-changed', name);
       globalAppRegistry.emit('compass:screen:viewed', { screen: name });
       changeActiveSubTab(idx, id);
     },
-    [
-      id,
-      activeSubTab,
-      queryHistoryIndexes,
-      localAppRegistry,
-      globalAppRegistry,
-      changeActiveSubTab,
-    ]
+    [id, activeSubTab, localAppRegistry, globalAppRegistry, changeActiveSubTab]
   );
 
   return (
-    <div
-      className={cx(
-        collectionStyles,
-        darkMode ? collectionDarkStyles : collectionLightStyles
-      )}
-      data-testid="collection"
-    >
+    <div className={collectionStyles} data-testid="collection">
       <div className={collectionContainerStyles}>
         <CollectionHeader
           globalAppRegistry={globalAppRegistry}
@@ -159,7 +125,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
           selectOrCreateTab={selectOrCreateTab}
           pipeline={pipeline}
           sourceName={sourceName}
-          stats={stats}
+          stats={stats[namespace] ?? getCollectionStatsInitialState()}
         />
         <TabNavBar
           data-testid="collection-tabs"
@@ -172,7 +138,7 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
         />
       </div>
       <div className={collectionModalContainerStyles}>
-        {scopedModals.map((modal: any) => (
+        {scopedModals.map((modal) => (
           <modal.component
             store={modal.store}
             actions={modal.actions}
@@ -184,4 +150,4 @@ const Collection: React.FunctionComponent<CollectionProps> = ({
   );
 };
 
-export default withTheme(Collection);
+export default Collection;

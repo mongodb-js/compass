@@ -1,28 +1,20 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
-import { Link, Checkbox, Label } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
-import { withTheme } from '../hooks/use-theme';
-import { Description } from '@leafygreen-ui/typography';
+import { useId } from '@react-aria/utils';
+import { Link, Checkbox, Label } from './leafygreen';
+import FormFieldContainer from './form-field-container';
 
 const infoLinkStyles = css({
   marginLeft: spacing[1],
 });
 
-const collapsibleFieldsetStyles = css({
-  margin: `${spacing[3]}px 0`,
-  fieldset: {
-    paddingLeft: `${spacing[4]}px`,
-  },
-});
-
-const checkboxStyles = css({
-  padding: `${spacing[2]}px 0`,
+const fieldsetStyles = css({
+  paddingLeft: spacing[4],
 });
 
 export type CollapsibleFieldSetProps = {
-  darkMode?: boolean;
-  dataTestId?: string;
+  ['data-testid']?: string;
   children?: React.ReactElement;
   label: string;
   description?: React.ReactElement | string;
@@ -32,35 +24,40 @@ export type CollapsibleFieldSetProps = {
   toggled?: boolean;
 };
 
-const UnthemedCollapsibleFieldSet = ({
-  darkMode,
+export const CollapsibleFieldSet = ({
   description,
   disabled,
   helpUrl,
   label,
   onToggle,
   toggled,
-  dataTestId,
   children,
+  ...props
 }: React.PropsWithChildren<CollapsibleFieldSetProps>): React.ReactElement => {
-  const labelId = dataTestId || 'collapsible-fieldset-props';
+  const checkboxId = useId();
   return (
-    <fieldset
-      className={collapsibleFieldsetStyles}
-      data-testid={`${labelId}-fieldset`}
-    >
+    <FormFieldContainer data-testid={props['data-testid']}>
       <Checkbox
-        data-testid={labelId}
+        data-testid={props['data-testid'] && `${props['data-testid']}-checkbox`}
         onChange={(event) => {
           onToggle(event.target.checked);
         }}
         disabled={disabled}
-        label={<Label htmlFor={labelId}>{label}</Label>}
+        label={
+          <Label
+            htmlFor={checkboxId}
+            data-testid={
+              props['data-testid'] && `${props['data-testid']}-label`
+            }
+          >
+            {label}
+          </Label>
+        }
         description={
           !description
             ? ''
             : ((
-                <Description>
+                <>
                   {description}
                   {!!helpUrl && (
                     <Link
@@ -71,18 +68,13 @@ const UnthemedCollapsibleFieldSet = ({
                       Learn More
                     </Link>
                   )}
-                </Description>
+                </>
               ) as any) // LG Checkbox expects a string description, but we use Description component to include helpUrl.
         }
         checked={toggled}
-        id={labelId}
-        darkMode={darkMode}
-        className={checkboxStyles}
+        id={checkboxId}
       />
-      {toggled && <fieldset>{children}</fieldset>}
-    </fieldset>
+      {toggled && <fieldset className={fieldsetStyles}>{children}</fieldset>}
+    </FormFieldContainer>
   );
 };
-
-const CollapsibleFieldSet = withTheme(UnthemedCollapsibleFieldSet);
-export { CollapsibleFieldSet };

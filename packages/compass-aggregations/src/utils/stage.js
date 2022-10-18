@@ -1,21 +1,55 @@
 import isString from 'lodash.isstring';
 import semver from 'semver';
-
 import { generateStage } from '../modules/stage';
-import { emptyStage } from '../modules/pipeline';
 import {
   STAGE_OPERATORS,
   ATLAS,
   TIME_SERIES,
   VIEW,
   COLLECTION
-} from 'mongodb-ace-autocompleter';
+} from '@mongodb-js/mongodb-constants';
+import { ObjectId } from 'bson';
 
+/**
+ * Generate an empty stage for the pipeline.
+ *
+ * @returns {import('../modules/pipeline').StageState} An empty stage.
+ */
+ export const emptyStage = () => ({
+  id: new ObjectId().toHexString(),
+  stageOperator: null,
+  stage: null,
+  isValid: false,
+  isEnabled: true,
+  isExpanded: true,
+  isLoading: false,
+  isComplete: false,
+  previewDocuments: [],
+  syntaxError: 'A pipeline stage specification object must contain exactly one field.',
+  error: null,
+  projections: []
+});
+
+/**
+ * 
+ * @returns {import('../modules/pipeline').StageState} Stage with defaults
+ */
 export const generateStageWithDefaults = (props = {}) => {
   return {
     ...emptyStage(),
     ...props
   };
+};
+
+export const mapBuilderStagesToUIStages = (stages) => {
+  return stages.map(({operator, value, syntaxError}) => {
+    return generateStageWithDefaults({
+      stageOperator: operator,
+      stage: value,
+      isValid: syntaxError ? false : true,
+      syntaxError: syntaxError?.message
+    });
+  });
 };
 
 /**

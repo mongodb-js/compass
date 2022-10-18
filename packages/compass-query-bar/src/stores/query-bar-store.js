@@ -100,13 +100,6 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * Toggle the query history.
-     */
-    toggleQueryHistory() {
-      this.localAppRegistry.emit('toggle-query-history');
-    },
-
-    /**
      * Initialize the query store.
      *
      * @return {Object} the initial store state.

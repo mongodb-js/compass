@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .caret {
   display: inline-block;
   width: 0;
@@ -29,7 +31,7 @@
       text-decoration: none;
 
       &:focus, &:hover, &:active {
-        background: #E7EEEC;
+        background: @palette__gray--light-2;
         border-radius: 2px;
         outline: none;
       }
@@ -49,13 +51,18 @@
   list-style: none;
   font-size: 14px;
   text-align: left;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-color: @palette__white;
+  border: 1px solid @palette__gray--light-1;
+  border: 1px solid fade(@palette__black, 15%);
   border-radius: 4px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px fade(@palette__black, 18%);
   background-clip: padding-box;
 }
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background-color: @palette__white;
+}
+
 .dropdown-menu.pull-right {
   right: 0;
   left: auto;
@@ -64,7 +71,7 @@
   height: 1px;
   margin: 9px 0;
   overflow: hidden;
-  background-color: #e5e5e5;
+  background-color: @palette__gray--light-2;
 }
 .dropdown-menu > li > a {
   display: block;
@@ -72,28 +79,28 @@
   clear: both;
   font-weight: normal;
   line-height: 1.42857143;
-  color: #333333;
+  color: @palette__gray--dark-3;
   white-space: nowrap;
 }
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
   cursor: pointer;
   text-decoration: none;
-  color: #262626;
-  background-color: #f5f5f5;
+  color: @palette__gray--dark-3;
+  background-color: @palette__gray--light-3;
 }
 .dropdown-menu > .active > a,
 .dropdown-menu > .active > a:hover,
 .dropdown-menu > .active > a:focus {
-  color: #fff;
+  color: @palette__white;
   text-decoration: none;
   outline: 0;
-  background-color: #337ab7;
+  background-color: @palette__blue--base;
 }
 .dropdown-menu > .disabled > a,
 .dropdown-menu > .disabled > a:hover,
 .dropdown-menu > .disabled > a:focus {
-  color: #777777;
+  color: @palette__gray--dark-1;
 }
 .dropdown-menu > .disabled > a:hover,
 .dropdown-menu > .disabled > a:focus {
@@ -122,7 +129,7 @@
   padding: 3px 20px;
   font-size: 12px;
   line-height: 1.42857143;
-  color: #777777;
+  color: @palette__gray--dark-1;
   white-space: nowrap;
 }
 .dropdown-backdrop {

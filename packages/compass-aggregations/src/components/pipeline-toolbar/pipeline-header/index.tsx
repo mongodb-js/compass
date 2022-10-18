@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useMemo } from 'react';
 import {
   Body,
   Icon,
@@ -12,20 +12,9 @@ import { connect } from 'react-redux';
 
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
-import {
-  setShowSavedPipelines,
-  showSavedPipelines
-} from '../../../modules/saved-pipeline';
-import {
-  restorePipelineModalToggle,
-  restorePipelineFrom
-} from '../../../modules/restore-pipeline';
+import { setShowSavedPipelines } from '../../../modules/saved-pipeline';
 import { SavedPipelines } from '../../saved-pipelines/saved-pipelines';
-import {
-  deletePipeline,
-} from '../../../modules';
 import type { RootState } from '../../../modules';
-import type { Pipeline } from '../../../modules/pipeline';
 
 const containerStyles = css({
   display: 'flex',
@@ -73,61 +62,42 @@ const savedAggregationsPopoverStyles = css({
 });
 
 type PipelineHeaderProps = {
-  deletePipeline: (pipelineId: string) => void;
   isOptionsVisible: boolean;
   namespace: string;
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
-  onShowSavedPipelines: () => void;
-  onSetShowSavedPipelines: (show: boolean) => void;
+  onToggleSavedPipelines: (show: boolean) => void;
   onToggleOptions: () => void;
   isOpenPipelineVisible: boolean;
   isSavedPipelineVisible: boolean;
-  restorePipelineFrom: (pipelineId: string) => void;
-  restorePipelineModalToggle: (index: number) => void;
-  savedPipelines: Pipeline[];
+  savedPipelines: { id: string; name: string }[];
 };
 
 export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
-  deletePipeline,
   namespace,
-  onShowSavedPipelines,
   showRunButton,
   showExportButton,
   showExplainButton,
   onToggleOptions,
-  onSetShowSavedPipelines,
+  onToggleSavedPipelines,
   isOptionsVisible,
   isOpenPipelineVisible,
   isSavedPipelineVisible,
-  restorePipelineFrom,
-  restorePipelineModalToggle,
   savedPipelines,
 }) => {
-  const savedPipelinesPopover = () => (
-    <SavedPipelines
-      namespace={namespace}
-      restorePipelineModalToggle={restorePipelineModalToggle}
-      restorePipelineFrom={restorePipelineFrom}
-      deletePipeline={deletePipeline}
-      onSetShowSavedPipelines={onSetShowSavedPipelines}
-      savedPipelines={savedPipelines}
-    />
-  );
-
-  const onSetShowSavedPipelinesCallback = useCallback((showSavedPipelines: boolean) => {
-    if (showSavedPipelines) {
-      return onShowSavedPipelines();
-    }
-    onSetShowSavedPipelines(false);
-  }, [ onShowSavedPipelines, onSetShowSavedPipelines ]);
+  const containedElements = useMemo(() => {
+    return ['[data-id="open-pipeline-confirmation-modal"]']
+  }, [])
 
   return (
     <div className={containerStyles} data-testid="pipeline-header">
+      {/* TODO: PipelineHeader component should only be concerned with layout, move the popover to a more appropriate place */}
       {isOpenPipelineVisible && (
         <InteractivePopover
           className={savedAggregationsPopoverStyles}
+          // To prevent popover from closing when confirmation modal is shown
+          containedElements={containedElements}
           trigger={({ onClick, ref, children }) => (
             <div className={pipelineTextAndOpenStyles}>
               <Body weight="medium">Pipeline</Body>
@@ -148,9 +118,12 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
             </div>
           )}
           open={isSavedPipelineVisible}
-          setOpen={onSetShowSavedPipelinesCallback}
+          setOpen={onToggleSavedPipelines}
         >
-          {savedPipelinesPopover}
+          <SavedPipelines
+            namespace={namespace}
+            savedPipelines={savedPipelines}
+          />
         </InteractivePopover>
       )}
       <div className={pipelineStagesStyles}>
@@ -169,21 +142,18 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   );
 };
 
-
 export default connect(
   (state: RootState) => {
     return {
       isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
       isSavedPipelineVisible: state.savedPipeline.isListVisible,
+      // TODO: this component should not be the one connected to the saved
+      // pipelines state as it's not the one using it
       namespace: state.namespace,
-      savedPipelines: state.savedPipeline.pipelines,
+      savedPipelines: state.savedPipeline.pipelines
     };
   },
   {
-    deletePipeline,
-    restorePipelineFrom,
-    restorePipelineModalToggle,
-    onShowSavedPipelines: showSavedPipelines,
-    onSetShowSavedPipelines: setShowSavedPipelines
+    onToggleSavedPipelines: setShowSavedPipelines
   }
 )(PipelineHeader);

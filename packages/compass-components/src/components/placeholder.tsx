@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import React, { useMemo } from 'react';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { withTheme } from '../hooks/use-theme';
 
 // Ratio of showing a highlight passing through the placeholder to background color
@@ -21,8 +21,8 @@ const move = keyframes({
 });
 
 const placeholder = css({
-  '--gradient-start': uiColors.gray.light2,
-  '--gradient-end': uiColors.gray.light3,
+  '--gradient-start': palette.gray.light2,
+  '--gradient-end': palette.gray.light3,
   alignSelf: 'center',
   borderRadius: 3,
   maxWidth: '80%',
@@ -40,8 +40,8 @@ const placeholder = css({
 });
 
 const placeholderDarkMode = css({
-  '--gradient-start': uiColors.gray.dark2,
-  '--gradient-end': uiColors.gray.dark3,
+  '--gradient-start': palette.gray.dark2,
+  '--gradient-end': palette.gray.dark3,
 });
 
 function getBoundRandom(min: number, max: number) {
