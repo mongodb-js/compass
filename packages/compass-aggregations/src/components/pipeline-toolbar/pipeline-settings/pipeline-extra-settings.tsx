@@ -42,59 +42,6 @@ type PipelineExtraSettingsProps = {
   onToggleSettings: () => void;
 };
 
-const AutoPreviewToggle = ({
-  isEnabled,
-  onToggle,
-}: {
-  isEnabled: PipelineExtraSettingsProps['isAutoPreview'];
-  onToggle: PipelineExtraSettingsProps['onToggleAutoPreview'];
-}) => {
-  return (
-    <div className={toggleStyles}>
-      <Toggle
-        id="auto-preview"
-        size="xsmall"
-        aria-label="Toggle Auto Preview"
-        onChange={(checked) => {
-          onToggle(checked);
-        }}
-        data-testid="pipeline-toolbar-preview-toggle"
-        checked={isEnabled}
-      />
-      <Label className={toggleLabelStyles} htmlFor="auto-preview">
-        Auto Preview
-      </Label>
-    </div>
-  );
-};
-
-const PipelineModeControls = ({
-  pipelineMode,
-  onChange,
-}: {
-  pipelineMode: PipelineExtraSettingsProps['pipelineMode'];
-  onChange: PipelineExtraSettingsProps['onChangePipelineMode'];
-}) => {
-  return (
-    <SegmentedControl
-      value={pipelineMode}
-      size={'small'}
-      onChange={(value) => {
-        onChange(value as PipelineMode);
-      }}
-    >
-      <SegmentedControlOption value="builder-ui">
-        <Icon size="small" glyph="CurlyBraces"></Icon>
-        Builder UI
-      </SegmentedControlOption>
-      <SegmentedControlOption value="as-text">
-        <Icon size="small" glyph="Code"></Icon>
-        As Text
-      </SegmentedControlOption>
-    </SegmentedControl>
-  );
-};
-
 export const PipelineExtraSettings: React.FunctionComponent<
   PipelineExtraSettingsProps
 > = ({
@@ -111,15 +58,39 @@ export const PipelineExtraSettings: React.FunctionComponent<
       className={containerStyles}
       data-testid="pipeline-toolbar-extra-settings"
     >
-      <AutoPreviewToggle
-        isEnabled={isAutoPreview}
-        onToggle={onToggleAutoPreview}
-      />
-      {showPipelineAsText && (
-        <PipelineModeControls
-          pipelineMode={pipelineMode}
-          onChange={onChangePipelineMode}
+      <div className={toggleStyles}>
+        <Toggle
+          id="auto-preview"
+          size="xsmall"
+          aria-label="Toggle Auto Preview"
+          onChange={(checked) => {
+            onToggleAutoPreview(checked);
+          }}
+          data-testid="pipeline-toolbar-preview-toggle"
+          checked={isAutoPreview}
         />
+        <Label className={toggleLabelStyles} htmlFor="auto-preview">
+          Auto Preview
+        </Label>
+      </div>
+      {showPipelineAsText && (
+        <SegmentedControl
+          data-testid="pipeline-builder-toggle"
+          value={pipelineMode}
+          size={'small'}
+          onChange={(value) => {
+            onChangePipelineMode(value as PipelineMode);
+          }}
+        >
+          <SegmentedControlOption value="builder-ui">
+            <Icon size="small" glyph="CurlyBraces"></Icon>
+            Builder UI
+          </SegmentedControlOption>
+          <SegmentedControlOption value="as-text">
+            <Icon size="small" glyph="Code"></Icon>
+            As Text
+          </SegmentedControlOption>
+        </SegmentedControl>
       )}
       <IconButton
         aria-label="More Settings"
