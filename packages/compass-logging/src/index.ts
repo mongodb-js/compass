@@ -89,9 +89,18 @@ export function createLoggerAndTelemetry(component: string): {
       try {
         data.properties = await properties();
       } catch (error) {
-        data.properties = {
-          error_fetching_properties: true,
-        };
+        // When an error arises during the fetching of properties,
+        // for instance if we can't fetch host information,
+        // we track a new error indicating the failure.
+        // This is so that we are aware of which events might be misreported.
+        emit(ipc, 'compass:track', {
+          event: 'Error Fetching Attributes',
+          properties: {
+            event_name: event,
+          },
+        });
+
+        return;
       }
     }
     emit(ipc, 'compass:track', data);

@@ -94,9 +94,9 @@ describe('createLoggerAndTelemetry', function () {
 
     expect(trackingLogs).to.deep.equal([
       {
-        event: 'Test Event3',
+        event: 'Error Fetching Attributes',
         properties: {
-          error_fetching_properties: true,
+          event_name: 'Test Event3',
         },
       },
     ]);
