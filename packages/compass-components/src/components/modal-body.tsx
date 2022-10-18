@@ -54,7 +54,7 @@ function ModalBody({
         contentStyle,
         variantStyle[variant],
         className,
-        scroll && css({ overflow: 'visible' }),
+        !scroll && css({ overflow: 'visible' }),
         minHeight !== undefined && css({ minHeight: `{minHeight}px` })
       )}
     >
