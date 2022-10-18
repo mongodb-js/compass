@@ -38,13 +38,12 @@ const createIndexFieldsNameStyles = css({
 });
 
 const createIndexFieldsTypeStyles = css({
-  flexGrow: 1,
+  width: spacing[6] * 2,
   textTransform: 'none',
   whiteSpace: 'nowrap',
 });
 
 export type CreateIndexFieldsProps = {
-  darkMode?: boolean;
   fields: IndexField[];
   schemaFields: string[];
   serverVersion: string;
