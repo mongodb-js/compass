@@ -4,7 +4,7 @@ import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
-import { THEMES } from 'compass-preferences-model';
+import preferences, { THEMES } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
@@ -330,7 +330,7 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(menuStateReadOnly: boolean, app: typeof CompassApplication): MenuItemConstructorOptions {
+function collectionSubMenu(menuStateReadOnly: boolean): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -340,7 +340,7 @@ function collectionSubMenu(menuStateReadOnly: boolean, app: typeof CompassApplic
     },
   });
   subMenu.push(separator());
-  const { readOnly: preferencesReadOnly } = app.getPreferences().getPreferences();
+  const { readOnly: preferencesReadOnly } = preferences.getPreferences();
   if (!preferencesReadOnly && !menuStateReadOnly) {
     subMenu.push({
       label: '&Import Data',
@@ -469,7 +469,7 @@ function darwinMenu(
   menu.push(viewSubMenu(themeState, saveThemeAndRefreshMenu));
 
   if (menuState.showCollection) {
-    menu.push(collectionSubMenu(menuState.isReadOnly, app));
+    menu.push(collectionSubMenu(menuState.isReadOnly));
   }
 
   menu.push(windowSubMenu());

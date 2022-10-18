@@ -139,7 +139,7 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
 }
 
 /** Helper for defining how to derive value/state for readOnly-affected preferences */
-function deriveReadOnlyOptionState<K extends keyof GlobalPreferences>(
+function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
@@ -254,7 +254,7 @@ const modelPreferencesProps: Required<{
    readOnly: {
     type: 'boolean',
     required: true,
-    default: true,
+    default: false,
     ui: true,
     cli: true,
     global: true,

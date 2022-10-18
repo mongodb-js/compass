@@ -4,6 +4,7 @@ import { findIndex, isEmpty, isEqual } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import preferences from 'compass-preferences-model';
 
 import {
   findDocuments,
@@ -329,10 +330,11 @@ const configureStore = (options = {}) => {
      * @returns {Boolean} If the list is editable.
      */
     isListEditable() {
+      const { readOnly: preferencesReadOnly } = preferences.getPreferences();
       return (
         !this.state.isDataLake &&
         !this.state.isReadonly &&
-        process.env.HADRON_READONLY !== 'true'
+        !preferencesReadOnly
       );
     },
 
