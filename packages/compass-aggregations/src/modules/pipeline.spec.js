@@ -21,6 +21,8 @@ import _reducer, {
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
+import { PipelineBuilder } from './pipeline-builder/pipeline-builder';
+import { mockDataService } from '../../test/mocks/data-service';
 
 const reducer = (prevState = INITIAL_STATE, action) => {
   if (typeof action === 'function') {
@@ -30,11 +32,7 @@ const reducer = (prevState = INITIAL_STATE, action) => {
       },
       () => ({ pipeline: prevState }),
       {
-        pipelinePreviewManager: {
-          getPreviewForStage() {},
-          cancelPreviewForStage() {},
-          clearQueue() {}
-        }
+        pipelineBuilder: new PipelineBuilder(mockDataService()),
       }
     );
   }
@@ -45,7 +43,7 @@ describe('pipeline module', function () {
   describe('#reducer', function () {
     context('when the action is undefined', function () {
       it('returns the default state', function () {
-        expect(reducer(undefined, { type: 'test' })[0].stage).to.equal('');
+        expect(reducer(undefined, { type: 'test' })[0].stage).to.equal(null);
       });
     });
 

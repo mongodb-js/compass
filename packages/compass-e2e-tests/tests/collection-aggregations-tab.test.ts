@@ -568,7 +568,7 @@ describe('Collection aggregations tab', function () {
 
     const contentElement = await browser.$(Selectors.stageContent(0));
     expect(await contentElement.getText()).to.equal(`{
-  i: 5
+  i: 5,
 }`);
 
     await browser.waitUntil(async function () {

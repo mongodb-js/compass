@@ -1,6 +1,6 @@
 import * as babelParser from '@babel/parser';
 import * as t from '@babel/types';
-import StageParser, { stageToComments, assertStageNode, isNodeDisabled, setNodeDisabled } from './stage-parser';
+import StageParser, { stageToAstComments, assertStageNode, isNodeDisabled, setNodeDisabled } from './stage-parser';
 import { generate } from './utils';
 
 function commentsToCommentGroups(
@@ -147,7 +147,7 @@ export default class PipelineParser {
     if (isAllDisabled) {
       root.elements = [];
       root.innerComments = stages.flatMap((stage) => {
-        return stageToComments(stage);
+        return stageToAstComments(stage);
       });
     } else {
       root.elements = PipelineParser._getStageNodes(stages);
@@ -165,7 +165,7 @@ export default class PipelineParser {
         continue;
       }
 
-      const comments = stageToComments(stage);
+      const comments = stageToAstComments(stage);
       const prevStage = elements[elements.length - 1];
       if (!prevStage) {
         unusedComments.push(...comments);

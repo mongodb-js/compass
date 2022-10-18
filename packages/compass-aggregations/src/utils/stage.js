@@ -17,15 +17,15 @@ import { ObjectId } from 'bson';
  */
  export const emptyStage = () => ({
   id: new ObjectId().toHexString(),
-  stageOperator: '',
-  stage: '',
-  isValid: true,
+  stageOperator: null,
+  stage: null,
+  isValid: false,
   isEnabled: true,
   isExpanded: true,
   isLoading: false,
   isComplete: false,
   previewDocuments: [],
-  syntaxError: null,
+  syntaxError: 'A pipeline stage specification object must contain exactly one field.',
   error: null,
   projections: []
 });
@@ -39,6 +39,17 @@ export const generateStageWithDefaults = (props = {}) => {
     ...emptyStage(),
     ...props
   };
+};
+
+export const mapBuilderStagesToUIStages = (stages) => {
+  return stages.map(({operator, value, syntaxError}) => {
+    return generateStageWithDefaults({
+      stageOperator: operator,
+      stage: value,
+      isValid: syntaxError ? false : true,
+      syntaxError: syntaxError?.message
+    });
+  });
 };
 
 /**

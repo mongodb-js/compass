@@ -2,7 +2,7 @@ import type { ENVS } from '@mongodb-js/mongodb-constants';
 import { ADL, ATLAS, STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { generateStage, generateStageAsString, validateStage } from './stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { emptyStage } from '../utils/stage';
+import { emptyStage, mapBuilderStagesToUIStages } from '../utils/stage';
 import toNS from 'mongodb-ns';
 import decomment from 'decomment';
 import type { AnyAction } from 'redux';
@@ -452,7 +452,7 @@ const autoPreviewToggled = (state: State, action: AnyAction): State => {
 };
 
 const onConfirmNew = (_state: State, action: AnyAction) => {
-  return action.error ? [] : action.pipeline;
+  return mapBuilderStagesToUIStages(action.stages);
 };
 
 const onProjectionsChanged = (state: State, action: AnyAction) => {
@@ -468,8 +468,9 @@ const onProjectionsChanged = (state: State, action: AnyAction) => {
 
 const doClearPipeline = () => INITIAL_STATE;
 
-const restorePipeline = (_state: State, action: AnyAction) =>
-  action.restoreState.pipeline;
+const restorePipeline = (_state: State, action: AnyAction) => {
+  return mapBuilderStagesToUIStages(action.stages);
+}
 
 /**
  * To not have a huge switch statement in the reducer.
@@ -736,7 +737,7 @@ const executeAggregation = (
   index: number,
   force: boolean
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { pipelinePreviewManager }) => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipeline,
       namespace,
@@ -775,8 +776,9 @@ const executeAggregation = (
           totalDocumentCount: inputDocuments.count
         };
 
+        // todo: make pipelineBuilder.previewManager private in COMPASS-6167 cleanup
         const previewDocuments =
-          await pipelinePreviewManager.getPreviewForStage(
+          await pipelineBuilder.previewManager.getPreviewForStage(
             index,
             namespace,
             previewPipeline,
@@ -922,12 +924,12 @@ export const runStage = (
   index: number,
   forceExecute = false
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState, { pipelinePreviewManager }) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const { id, autoPreview, pipeline } = getState();
-    pipelinePreviewManager.clearQueue(index);
     if (!autoPreview) {
       return;
     }
+    pipelineBuilder.stopPreview(index);
     if (id === '') {
       dispatch(createId());
     }

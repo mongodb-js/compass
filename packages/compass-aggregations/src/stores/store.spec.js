@@ -346,7 +346,7 @@ describe('Aggregation Store', function() {
       it('returns the initial state', function(done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
-          expect(store.getState().pipeline[0].stage).to.equal('');
+          expect(store.getState().pipeline[0].stage).to.equal(null);
           done();
         });
         store.dispatch({ type: 'UNKNOWN' });
