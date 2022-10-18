@@ -50,7 +50,12 @@ declare module 'process' {
         /**
          * (Hopefully) temporary feature flag for Kerberos password support.
          */
-         COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD?: 'true';
+        COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD?: 'true';
+
+        /**
+         * Enables pipeline toggle between stage-by-stage and as-text
+         */
+        COMPASS_ENABLE_AS_TEXT_PIPELINE?: 'true' | 'false';
       }
     }
   }

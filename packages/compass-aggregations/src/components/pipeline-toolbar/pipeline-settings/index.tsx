@@ -11,7 +11,7 @@ const containerStyles = css({
   display: 'grid',
   gap: spacing[2],
   gridTemplateAreas: '"settings extraSettings"',
-  gridTemplateColumns: "1fr min-content",
+  gridTemplateColumns: '1fr auto',
   alignItems: 'center',
   whiteSpace: 'nowrap',
 });
@@ -33,7 +33,9 @@ type PipelineSettingsProps = {
   onExportToLanguage: () => void;
 };
 
-export const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
+export const PipelineSettings: React.FunctionComponent<
+  PipelineSettingsProps
+> = ({
   isSavePipelineEnabled,
   isCreatePipelineEnabled,
   onExportToLanguage,

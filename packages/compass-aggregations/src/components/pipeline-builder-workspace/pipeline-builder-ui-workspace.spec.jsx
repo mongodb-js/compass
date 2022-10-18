@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
-import PipelineBuilderWorkspace from './pipeline-builder-workspace';
+import { PipelineBuilderUIWorkspace } from './pipeline-builder-ui-workspace';
 import Stage from '../stage';
 
 const PIPELINE_1 = [
@@ -74,7 +74,7 @@ function createPipelineWorkspace({
   projections = [],
   projectionsChanged = () => {},
 } = {}) {
-  return (<PipelineBuilderWorkspace
+  return (<PipelineBuilderUIWorkspace
     pipeline={pipeline}
     env={env}
     isTimeSeries={isTimeSeries}
