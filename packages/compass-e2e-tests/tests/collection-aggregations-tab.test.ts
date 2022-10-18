@@ -351,6 +351,10 @@ describe('Collection aggregations tab', function () {
           'Expected `test.my-view-from-pipeline` namespace tab to be visible',
       }
     );
+
+    // TODO: modify view
+    // TODO: duplicate view
+    // TODO: drop view
   });
 
   it('supports maxTimeMS', async function () {

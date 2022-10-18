@@ -13,7 +13,6 @@ export type Variant = typeof Variant[keyof typeof Variant];
 
 const contentStyle = css({
   padding: `0 ${spacing[5]}px`,
-  //paddingBottom: spacing[5],
   paddingBottom: spacing[1], // space needed for the focus ring on the last field
   fontFamily: fontFamilies.default,
   fontSize: '13px',
@@ -34,22 +33,34 @@ const variantStyle = {
   }),
 };
 
-type ModalContentProps = {
+type ModalBodyProps = {
   variant?: Variant;
   className?: string;
+  scroll?: boolean;
+  minHeight?: number;
   children: React.ReactNode;
 };
 
-function ModalContent({
+function ModalBody({
   variant = Variant.Default,
   className,
+  scroll = true,
+  minHeight,
   children,
-}: ModalContentProps) {
+}: ModalBodyProps) {
   return (
-    <div className={cx(contentStyle, variantStyle[variant], className)}>
+    <div
+      className={cx(
+        contentStyle,
+        variantStyle[variant],
+        className,
+        scroll && css({ overflow: 'visible' }),
+        minHeight !== undefined && css({ minHeight: `{minHeight}px` })
+      )}
+    >
       {children}
     </div>
   );
 }
 
-export { ModalContent };
+export { ModalBody };

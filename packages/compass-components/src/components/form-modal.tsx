@@ -3,7 +3,7 @@ import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { Modal } from './modal';
 import { ModalFooter } from './leafygreen';
 
-import { ModalContent } from './modal-content';
+import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
 import { ModalFooterButton } from './modal-footer-button';
 
@@ -21,7 +21,8 @@ type FormModalProps = React.ComponentProps<typeof Modal> & {
   submitButtonText: string;
   cancelButtonText?: string;
   submitDisabled?: boolean;
-  scrollClassName?: string;
+  scroll?: boolean;
+  minBodyHeight?: number;
   onSubmit: () => void;
   onCancel: () => void;
 };
@@ -33,7 +34,8 @@ function FormModal({
   cancelButtonText = 'Cancel',
   submitDisabled = false,
   variant = Variant.Default,
-  scrollClassName,
+  scroll = true,
+  minBodyHeight,
   onSubmit,
   onCancel,
   children,
@@ -48,9 +50,9 @@ function FormModal({
         }}
       >
         <ModalHeader title={title} subtitle={subtitle} variant={variant} />
-        <ModalContent variant={variant} className={scrollClassName}>
+        <ModalBody variant={variant} scroll={scroll} minHeight={minBodyHeight}>
           {children}
-        </ModalContent>
+        </ModalBody>
         <ModalFooter>
           <ModalFooterButton
             data-testid="submit-button"

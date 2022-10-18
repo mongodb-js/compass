@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import {
   Modal,
   ModalHeader,
-  ModalContent,
+  ModalBody,
   Body,
   css,
   spacing,
@@ -80,7 +80,7 @@ export function ConnectionInfoModal({
       contentVariant="without-footer"
     >
       <ModalHeader title="Connection info" />
-      <ModalContent>
+      <ModalBody>
         <dl>
           {infos.map((info, i) => (
             <Info key={i} term={info.term}>
@@ -88,7 +88,7 @@ export function ConnectionInfoModal({
             </Info>
           ))}
         </dl>
-      </ModalContent>
+      </ModalBody>
     </Modal>
   );
 }

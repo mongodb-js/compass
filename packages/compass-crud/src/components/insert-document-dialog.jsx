@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import jsonParse from 'fast-json-parse';
 import { ViewSwitcher } from 'hadron-react-components';
 import { Element } from 'hadron-document';
-import { FormModal, css, spacing } from '@mongodb-js/compass-components';
+import { FormModal, spacing } from '@mongodb-js/compass-components';
 
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
@@ -222,7 +222,7 @@ class InsertDocumentDialog extends React.PureComponent {
         submitDisabled={this.hasErrors()}
         trackingId="insert_document_modal"
         data-testid="insert-document-modal"
-        scrollClassName={css({ minHeight: spacing[6] * 2 })} // make sure there is enough space for the menu
+        minHeight={spacing[6] * 2} // make sure there is enough space for the menu
       >
         <div className="insert-document-views">
           <ViewSwitcher

@@ -6,7 +6,7 @@ import {
   Body,
   Description,
   ModalHeader,
-  ModalContent,
+  ModalBody,
   Label,
   Link,
   Toggle,
@@ -55,7 +55,7 @@ export default function CSFLEConnectionModal({
       contentVariant="without-footer"
     >
       <ModalHeader title="In-Use Encryption Connection Options" />
-      <ModalContent>
+      <ModalBody>
         <Body>
           This connection is configured with In-Use Encryption enabled.
         </Body>
@@ -86,7 +86,7 @@ export default function CSFLEConnectionModal({
             Learn More
           </Link>
         </Banner>
-      </ModalContent>
+      </ModalBody>
     </Modal>
   );
 }

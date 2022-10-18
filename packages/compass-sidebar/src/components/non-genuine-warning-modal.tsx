@@ -6,7 +6,7 @@ import {
   Modal,
   Link,
   ModalHeader,
-  ModalContent,
+  ModalBody,
   ModalFooter,
   spacing,
   Body,
@@ -48,7 +48,7 @@ function NonGenuineWarningModal({
       contentVariant="with-footer"
     >
       <ModalHeader title={MODAL_TITLE} />
-      <ModalContent>
+      <ModalBody>
         <Banner variant={BannerVariant.Warning}>{WARNING_BANNER}</Banner>
         <Body className={modalBodyStyles}>{DESCRIPTION}</Body>
         <Link
@@ -58,7 +58,7 @@ function NonGenuineWarningModal({
         >
           Learn more
         </Link>
-      </ModalContent>
+      </ModalBody>
       <ModalFooter>
         <Button
           onClick={onClose}

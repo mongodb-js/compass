@@ -4,7 +4,7 @@ import {
   Modal,
   CancelLoader,
   ModalHeader,
-  ModalContent,
+  ModalBody,
   ErrorSummary,
   breakpoints,
 } from '@mongodb-js/compass-components';
@@ -97,9 +97,9 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
       contentVariant="without-footer"
     >
       <ModalHeader title="Explain Plan" />
-      <ModalContent>
+      <ModalBody>
       {content}
-      </ModalContent>
+      </ModalBody>
     </Modal>
   );
 };

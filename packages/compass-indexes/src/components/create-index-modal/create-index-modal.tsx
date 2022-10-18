@@ -5,7 +5,7 @@ import {
   Modal,
   css,
   ModalHeader,
-  ModalContent,
+  ModalBody,
   ModalFooter,
 } from '@mongodb-js/compass-components';
 
@@ -86,9 +86,9 @@ function CreateIndexModal({
       contentVariant="with-footer"
     >
       <ModalHeader title="Create Index" subtitle={namespace} />
-      <ModalContent>
+      <ModalBody>
         <CreateIndexForm {...props} />
-      </ModalContent>
+      </ModalBody>
       <ModalFooter className={modalFooterStyles}>
         <CreateIndexActions
           error={error}

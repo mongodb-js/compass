@@ -4,7 +4,7 @@ import {
   css,
   Banner,
   ModalHeader,
-  ModalContent,
+  ModalBody,
   Modal,
   Link,
   Subtitle,
@@ -46,7 +46,7 @@ function InfoModal({
       contentVariant="without-footer"
     >
       <ModalHeader title={`mongosh ${mongoshVersion}`} />
-      <ModalContent>
+      <ModalBody>
         <Banner>
           For more information please visit the&nbsp;
           <Link
@@ -63,7 +63,7 @@ function InfoModal({
         <div className={shortcutsTableContainerStyles}>
           <KeyboardShortcutsTable />
         </div>
-      </ModalContent>
+      </ModalBody>
     </Modal>
   );
 }
