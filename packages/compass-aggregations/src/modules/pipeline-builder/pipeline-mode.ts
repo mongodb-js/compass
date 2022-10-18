@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-
+import { isAction } from '../../utils/is-action';
 export type PipelineMode = 'builder-ui' | 'as-text';
 
 export enum ActionTypes {
@@ -12,12 +12,14 @@ export type PipelineModeToggledAction = {
 };
 
 type State = PipelineMode;
-type Actions = PipelineModeToggledAction;
 
 export const INITIAL_STATE: State = 'builder-ui';
 
-const reducer: Reducer<State, Actions> = (state = INITIAL_STATE, action) => {
-  if (action.type === ActionTypes.PipelineModeToggled) {
+const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
+  if (isAction<PipelineModeToggledAction>(
+    action,
+    ActionTypes.PipelineModeToggled
+  )) {
     return action.mode;
   }
   return state;
