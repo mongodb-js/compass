@@ -2,31 +2,18 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
-  ButtonSize,
   ButtonVariant,
+  EmptyContent,
   Link,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
-import { ZeroState } from 'hadron-react-components';
 import { ZeroGraphic } from '../zero-graphic';
 import { ExplainBody } from '../explain-body';
 
 import INDEX_TYPES from '../../constants/index-types';
 import EXPLAIN_STATES from '../../constants/explain-states';
 
-import styles from './explain-states.module.less';
 import { ExplainToolbar } from '../explain-toolbar/explain-toolbar';
-
-/**
- * Header for zero state.
- */
-const HEADER = 'Evaluate the performance of your query';
-
-/**
- * Additional text for zero state.
- */
-const SUBTEXT =
-  'Explain provides key execution metrics that help diagnose slow queries and optimize index usage.';
 
 /**
  * Link to the explain plan documentation.
@@ -103,33 +90,33 @@ class ExplainStates extends Component {
    * @returns {React.Component} The component.
    */
   renderZeroState() {
-    if (this.checkIfZeroState()) {
-      return (
-        <div key="zero-state" className={styles['zero-state-container']}>
-          <ZeroGraphic />
-          <ZeroState header={HEADER} subtext={SUBTEXT}>
-            <div>
-              <Button
-                onClick={this.onExecuteExplainClicked.bind(this)}
-                disabled={!this.props.isEditable}
-                data-testid="execute-explain-button"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Large}
-              >
-                Execute Explain
-              </Button>
-            </div>
-            <Link
-              className={styles['zero-state-link']}
-              href={DOCUMENTATION_LINK}
-              target="_blank"
-            >
-              Learn more about explain plans
-            </Link>
-          </ZeroState>
-        </div>
-      );
+    if (!this.checkIfZeroState()) {
+      return null;
     }
+
+    return (
+      <EmptyContent
+        icon={ZeroGraphic}
+        title="Evaluate the performance of your query"
+        subTitle="Explain provides key execution metrics that help diagnose slow queries and optimize index usage."
+        callToAction={
+          <Button
+            onClick={this.onExecuteExplainClicked.bind(this)}
+            disabled={!this.props.isEditable}
+            data-testid="execute-explain-button"
+            variant={ButtonVariant.Primary}
+            size="small"
+          >
+            Execute Explain
+          </Button>
+        }
+        callToActionLink={
+          <Link href={DOCUMENTATION_LINK} target="_blank">
+            Learn more about explain plans
+          </Link>
+        }
+      />
+    );
   }
 
   /**
@@ -141,24 +128,6 @@ class ExplainStates extends Component {
     if (!this.checkIfZeroState()) {
       return <ExplainBody key="explain-body" {...this.props} />;
     }
-  }
-
-  /**
-   * Renders QueryBar component.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderQueryBar() {
-    return (
-      <this.queryBar
-        store={this.queryBarStore}
-        actions={this.queryBarActions}
-        buttonLabel="Explain"
-        resultId={this.props.explain.resultId}
-        onApply={this.onExecuteExplainClicked.bind(this)}
-        onReset={this.onExecuteExplainClicked.bind(this)}
-      />
-    );
   }
 
   /**

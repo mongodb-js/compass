@@ -75,7 +75,6 @@
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.10",
     "chai": "^4.3.4",
-    "classnames": "^2.2.6",
     "d3": "^3.5.17",
     "debug": "^3.0.1",
     "depcheck": "^1.4.1",
