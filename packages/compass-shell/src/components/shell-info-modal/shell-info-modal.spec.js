@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import InfoModal from './info-modal';
+import ShellInfoModal from './shell-info-modal';
 
 
 describe('InfoModal [Component]', () => {
@@ -9,7 +9,7 @@ describe('InfoModal [Component]', () => {
 
   beforeEach(() => {
     component = mount(
-      <InfoModal
+      <ShellInfoModal
         show
         hideInfoModal={() => {}}
       />
