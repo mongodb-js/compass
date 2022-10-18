@@ -21,7 +21,7 @@ describe('InfoModal [Component]', () => {
   });
 
   it('renders the title text', () => {
-    const title = component.find('h3').text();
+    const title = component.find('h1').text();
     const hasVersionZero = title.includes('mongosh v0.');
     const hasVersionOne = title.includes('mongosh v1.');
     const titleIsAccurate = hasVersionZero || hasVersionOne;
