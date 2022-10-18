@@ -42,7 +42,7 @@ function FormModal({
   ...modalProps
 }: FormModalProps) {
   return (
-    <Modal setOpen={onCancel} contentVariant="with-footer" {...modalProps}>
+    <Modal setOpen={onCancel} {...modalProps}>
       <form
         onSubmit={(event) => {
           event.preventDefault();

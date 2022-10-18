@@ -3,9 +3,7 @@ import React, { useCallback } from 'react';
 import {
   css,
   Banner,
-  ModalHeader,
-  ModalBody,
-  Modal,
+  InfoModal,
   Link,
   Subtitle,
   spacing
@@ -27,7 +25,7 @@ const shortcutsTitleStyles = css({
   marginTop: spacing[4]
 });
 
-function InfoModal({
+function ShellInfoModal({
   hideInfoModal,
   show
 }) {
@@ -38,39 +36,36 @@ function InfoModal({
   }, [hideInfoModal]);
 
   return (
-    <Modal
+    <InfoModal
       open={show}
+      title={`mongosh ${mongoshVersion}`}
       trackingId="shell_info_modal"
       data-testid="shell-info-modal"
-      setOpen={onSetOpen}
-      contentVariant="without-footer"
+      onClose={onSetOpen}
     >
-      <ModalHeader title={`mongosh ${mongoshVersion}`} />
-      <ModalBody>
-        <Banner>
-          For more information please visit the&nbsp;
-          <Link
-            id="mongosh-info-link"
-            href="https://docs.mongodb.com/compass/beta/embedded-shell/"
-            target="_blank"
-          >MongoDB Shell Documentation</Link>.
-        </Banner>
-        <Subtitle
-          className={shortcutsTitleStyles}
-        >
-          Keyboard Shortcuts
-        </Subtitle>
-        <div className={shortcutsTableContainerStyles}>
-          <KeyboardShortcutsTable />
-        </div>
-      </ModalBody>
-    </Modal>
+      <Banner>
+        For more information please visit the&nbsp;
+        <Link
+          id="mongosh-info-link"
+          href="https://docs.mongodb.com/compass/beta/embedded-shell/"
+          target="_blank"
+        >MongoDB Shell Documentation</Link>.
+      </Banner>
+      <Subtitle
+        className={shortcutsTitleStyles}
+      >
+        Keyboard Shortcuts
+      </Subtitle>
+      <div className={shortcutsTableContainerStyles}>
+        <KeyboardShortcutsTable />
+      </div>
+    </InfoModal>
   );
 }
 
-InfoModal.propTypes = {
+ShellInfoModal.propTypes = {
   hideInfoModal: PropTypes.func.isRequired,
   show: PropTypes.bool.isRequired
 };
 
-export default InfoModal;
+export default ShellInfoModal;

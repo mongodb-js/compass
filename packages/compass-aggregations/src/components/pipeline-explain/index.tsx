@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   css,
-  Modal,
+  InfoModal,
   CancelLoader,
   ModalHeader,
   ModalBody,
@@ -89,18 +89,15 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   }
 
   return (
-    <Modal
+    <InfoModal
+      title="Explain Plan"
       size={modalSize}
-      setOpen={onCloseModal}
+      onClose={onCloseModal}
       open={isModalOpen}
       data-testid="pipeline-explain-modal"
-      contentVariant="without-footer"
     >
-      <ModalHeader title="Explain Plan" />
-      <ModalBody>
       {content}
-      </ModalBody>
-    </Modal>
+    </InfoModal>
   );
 };
 

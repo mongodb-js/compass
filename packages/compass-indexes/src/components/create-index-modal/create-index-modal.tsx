@@ -83,7 +83,6 @@ function CreateIndexModal({
       open={isVisible}
       trackingId="create_index_modal"
       data-testid="create-index-modal"
-      contentVariant="with-footer"
     >
       <ModalHeader title="Create Index" subtitle={namespace} />
       <ModalBody>
