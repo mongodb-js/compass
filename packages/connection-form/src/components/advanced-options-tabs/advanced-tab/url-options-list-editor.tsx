@@ -123,13 +123,16 @@ function UrlOptionsListEditor({
   return (
     <ListEditor
       items={options}
-      renderItem={(uriOption: Partial<UrlOption>) => (
-        <div className={optionInputContainerStyles}>
+      renderItem={(uriOption: Partial<UrlOption>, index: number) => (
+        <div
+          className={optionInputContainerStyles}
+          data-testid={`url-option-entry-${index}`}
+        >
           <Select
             id="select-key"
             className={optionSelectStyles}
             placeholder="Select key"
-            name="name"
+            name="select-url-options-key-name"
             aria-labelledby={
               uriOption.name ? `${uriOption.name} select` : 'new option select'
             }

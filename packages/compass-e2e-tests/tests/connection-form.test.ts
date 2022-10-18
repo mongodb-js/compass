@@ -409,7 +409,7 @@ describe('Connection form', function () {
     ).to.equal(connectionString);
   });
 
-  it('parses and formats a URI with advanced options', async function () {
+  it.only('parses and formats a URI with advanced options', async function () {
     const connectionString =
       'mongodb://localhost:27017/default-db?readPreference=primary&replicaSet=replica-set&connectTimeoutMS=1234&maxPoolSize=100';
     await browser.setValueVisible(
