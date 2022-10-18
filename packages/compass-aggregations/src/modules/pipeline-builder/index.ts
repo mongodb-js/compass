@@ -1,16 +1,11 @@
 import { combineReducers } from 'redux';
+import stageEditor from './stage-editor';
 
-import pipelineMode, {
-  INITIAL_STATE as PIPELINE_MODE_INITIAL_STATE
-} from './pipeline-mode';
-
-
-export const INITIAL_STATE = {
-  pipelineMode: PIPELINE_MODE_INITIAL_STATE,
-};
+import pipelineMode from './pipeline-mode';
 
 const reducer = combineReducers({
-  pipelineMode
+  pipelineMode,
+  stageEditor
 });
 
 export default reducer;

@@ -87,6 +87,9 @@ export class PipelineBuilder {
       this.stages.map((stage) => stage.node)
     );
   }
+  getStage(idx: number): Stage {
+    return this.stages[idx];
+  }
   changeStageOperator(idx: number, operator: string) {
     return this.stages[idx].changeOperator(operator);
   }
@@ -126,7 +129,7 @@ export class PipelineBuilder {
     idx: number,
     namespace: string,
     options: PreviewOptions,
-    force: boolean,
+    force = false,
   ) {
     return this.previewManager.getPreviewForStage(
       idx,
