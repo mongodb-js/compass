@@ -11,18 +11,19 @@ import {
   addStage,
   moveStage,
   removeStage,
+  loadStagePreview,
   mapBuilderStageToStoreStage
 } from './stage-editor';
 import reducer from '../';
 import { PipelineStorage } from '../../utils/pipeline-storage';
+import Sinon from 'sinon';
 
 function createStore(
   pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}, {$out: 'match-and-limit'}]`
 ) {
-  const pipelineBuilder = new PipelineBuilder(
-    {} as DataService,
-    pipelineSource
-  );
+  const pipelineBuilder = Sinon.spy(
+    new PipelineBuilder({} as DataService, pipelineSource)
+  ) as unknown as PipelineBuilder;
   const store = createReduxStore(
     reducer,
     {
@@ -44,7 +45,8 @@ function createStore(
     dispatch: store.dispatch,
     getState() {
       return store.getState().pipelineBuilder.stageEditor;
-    }
+    },
+    pipelineBuilder
   };
 }
 
@@ -67,6 +69,47 @@ describe('stageEditor', function () {
       expect(store.getState().stages[0]).to.have.property(
         'stageOperator',
         '$limit'
+      );
+    });
+
+    it('should set stage value to a snippet when stage was in initial state', function () {
+      // Adding a new empty stage
+      store.dispatch(addStage());
+      store.dispatch(changeStageOperator(3, '$match'));
+      expect(store.getState().stages[3]).to.have.property(
+        'value',
+        `/**
+ * query: The query in MQL.
+ */
+{
+  query
+}`
+      );
+    });
+
+    it('should set stage value to a new snippet if the old snippet was not changed', function () {
+      // Adding a new empty stage
+      store.dispatch(addStage());
+      store.dispatch(changeStageOperator(3, '$match'));
+      store.dispatch(changeStageOperator(3, '$limit'));
+      expect(store.getState().stages[3]).to.have.property(
+        'value',
+        `/**
+ * Provide the number of documents to limit.
+ */
+number`
+      );
+    });
+
+    it('should keep old stage value if stage was changed before switching the operators', function () {
+      // Adding a new empty stage
+      store.dispatch(addStage());
+      store.dispatch(changeStageOperator(3, '$match'));
+      store.dispatch(changeStageValue(3, '{ _id: 1 }'));
+      store.dispatch(changeStageOperator(3, '$limit'));
+      expect(store.getState().stages[3]).to.have.property(
+        'value',
+        '{ _id: 1 }'
       );
     });
   });
@@ -158,6 +201,38 @@ describe('stageEditor', function () {
         'stageOperator',
         '$limit'
       );
+    });
+  });
+
+  describe('loadStagePreview', function () {
+    it('should load preview for valid stage', async function () {
+      await store.dispatch(loadStagePreview(0));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForStage).to.be.calledOnce;
+    });
+
+    it('should not load preview for disabled stage', async function () {
+      store.dispatch(changeStageDisabled(0, true));
+      Sinon.resetHistory();
+      await store.dispatch(loadStagePreview(0));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
+    });
+
+    it('should not load preview for invalid stage', async function () {
+      store.dispatch(changeStageValue(0, '{ foo: '));
+      Sinon.resetHistory();
+      await store.dispatch(loadStagePreview(0));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
+    });
+
+    it('should not load preview for stage if any previous stages are invalid', async function () {
+      store.dispatch(changeStageValue(0, '{ foo: '));
+      Sinon.resetHistory();
+      await store.dispatch(loadStagePreview(2));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
     });
   });
 });

@@ -6,6 +6,14 @@ import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
 import { CONFIRM_NEW } from '../import-pipeline';
+import type { ENVS } from '@mongodb-js/mongodb-constants';
+import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
+import { DEFAULT_MAX_TIME_MS } from '../../constants';
+import type { PreviewOptions } from './pipeline-preview-manager';
+import {
+  DEFAULT_PREVIEW_LIMIT,
+  DEFAULT_SAMPLE_SIZE
+} from './pipeline-preview-manager';
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -102,7 +110,6 @@ export const loadStagePreview = (
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
-      namespace,
       pipelineBuilder: {
         stageEditor: { stages }
       },
@@ -132,7 +139,24 @@ export const loadStagePreview = (
         type: StageEditorActionTypes.StagePreviewFetch,
         id: idx
       });
-      const options = /* TODO */ {};
+
+      const {
+        namespace,
+        maxTimeMS,
+        collationString,
+        limit,
+        largeLimit,
+        inputDocuments
+      } = getState();
+
+      const options: PreviewOptions = {
+        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        collation: collationString.value ?? undefined,
+        sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
+        previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
+        totalDocumentCount: inputDocuments.count
+      };
+
       const previewDocs = await pipelineBuilder.getPreviewForStage(
         idx,
         namespace,
@@ -183,24 +207,86 @@ export const changeStageValue = (
   };
 };
 
+const replaceOperatorSnippetTokens = (str: string): string => {
+  const regex = /\${[0-9]+:?([a-z0-9.()]+)?}/gi;
+  return str.replace(regex, function (_match, replaceWith) {
+    return replaceWith ?? '';
+  });
+};
+
+const ESCAPED_STAGE_OPERATORS = STAGE_OPERATORS.map((stage) => {
+  return {
+    ...stage,
+    comment: replaceOperatorSnippetTokens(stage.comment),
+    snippet: replaceOperatorSnippetTokens(stage.snippet)
+  };
+});
+
+function getStageSnippet(
+  stageOperator: string | null,
+  env: string,
+  shouldAddComment: boolean
+) {
+  const stage = ESCAPED_STAGE_OPERATORS.find((stageOp) => {
+    return (
+      stageOp.value === stageOperator &&
+      (stageOp.env as readonly typeof ENVS[number][]).includes(
+        env as typeof ENVS[number]
+      )
+    );
+  });
+
+  if (!stage) {
+    return `{}`;
+  }
+
+  return [shouldAddComment && stage.comment, stage.snippet ?? `{}`]
+    .filter(Boolean)
+    .join('');
+}
+
 export const changeStageOperator = (
   id: number,
   newVal: string
 ): PipelineBuilderThunkAction<void, ChangeStageOperatorAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const stage = pipelineBuilder.getStage(id);
+
     if (!stage) {
       return;
     }
+
     if (stage.operator === newVal) {
       return;
     }
+
+    const {
+      env,
+      comments,
+      pipelineBuilder: {
+        stageEditor: { stages }
+      }
+    } = getState();
+
+    const currentSnippet = getStageSnippet(
+      stages[id].stageOperator,
+      env,
+      comments
+    );
+
+    const currentOp = stage.operator;
+
     stage.changeOperator(newVal);
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
-    // TODO: Change operator value based on stuff (see stage-operator-select.js)
-    // if (valueNotChangedAndIsCommentOrSomething) {
-    //   dispatch(changeStageValue(id, defaultValueForStage[stage.stageOperator]))
-    // }
+
+    // If there is no stage operator (this is a newly added stage) or current
+    // stage value is identical to the snippet for the current stage operator
+    // change the stage value
+    if (!currentOp || currentSnippet === stages[id].value) {
+      const newValue = getStageSnippet(stage.operator, env, comments);
+      dispatch(changeStageValue(id, newValue));
+    }
+
     dispatch(loadPreviewForStagesFrom(id));
   };
 };
