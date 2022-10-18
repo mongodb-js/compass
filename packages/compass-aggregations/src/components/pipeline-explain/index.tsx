@@ -3,8 +3,6 @@ import {
   css,
   InfoModal,
   CancelLoader,
-  ModalHeader,
-  ModalBody,
   ErrorSummary,
   breakpoints,
 } from '@mongodb-js/compass-components';
