@@ -130,6 +130,11 @@ const mongodbAceThemeCssText = css`
       right repeat-y;
     background-size: 1px 2px;
   }
+  .ace-mongodb .ace_gutter-cell.ace_error {
+    /* To prevent line number overlapping the [x] icon that ace sets as a */
+    /* background image of the element */
+    color: transparent;
+  }
 `;
 
 ace.define(

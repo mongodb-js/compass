@@ -22,8 +22,8 @@ export class StageEditor extends PureComponent {
     stageOperator: PropTypes.string,
     serverVersion: PropTypes.string.isRequired,
     autocompleteFields: PropTypes.array.isRequired,
-    syntaxError: PropTypes.string,
-    serverError: PropTypes.string,
+    syntaxError: PropTypes.object,
+    serverError: PropTypes.object,
   };
 
   static defaultProps = {
@@ -65,7 +65,19 @@ export class StageEditor extends PureComponent {
       // Focus the editor when the stage operator has changed.
       this.editor.focus();
     }
-    // TODO: try showing annotation with syntax error?
+    if (this.props.syntaxError && this.props.syntaxError.loc) {
+      const { line: row, column } = this.props.syntaxError.loc;
+      this.editor?.getSession().setAnnotations([
+        {
+          row: row - 1,
+          column,
+          text: this.props.syntaxError.message,
+          type: 'error'
+        }
+      ]);
+    } else {
+      this.editor?.getSession().setAnnotations([]);
+    }
   }
 
   /**
@@ -89,9 +101,9 @@ export class StageEditor extends PureComponent {
         <div
           data-testid="stage-editor-error-message"
           className={styles['stage-editor-errormsg']}
-          title={this.props.serverError}
+          title={this.props.serverError.message}
         >
-          {this.props.serverError}
+          {this.props.serverError.message}
         </div>
       );
     }
@@ -103,9 +115,9 @@ export class StageEditor extends PureComponent {
         <div
           data-testid="stage-editor-syntax-error"
           className={styles['stage-editor-syntax-error']}
-          title={this.props.syntaxError}
+          title={this.props.syntaxError.message}
         >
-          {this.props.syntaxError}
+          {this.props.syntaxError.message}
         </div>
       );
     }
@@ -146,8 +158,8 @@ export default connect(
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
-      syntaxError: stage.syntaxError?.message,
-      serverError: stage.serverError?.message,
+      syntaxError: stage.syntaxError ?? null,
+      serverError: stage.serverError ?? null,
       serverVersion: state.serverVersion,
       autocompleteFields: state.fields
     };
