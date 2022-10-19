@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { connect } from 'react-redux';
+import { changeStageCollapsed } from '../../modules/pipeline-builder/stage-editor';
 
 import styles from './stage-collapser.module.less';
 
@@ -27,22 +29,18 @@ const ANGLE_DOWN = 'fa fa-angle-down';
 /**
  * Collapse/Expand a stage.
  */
-class StageCollapser extends PureComponent {
-  static displayName = 'StageCollapserComponent';
-
+export class StageCollapser extends PureComponent {
   static propTypes = {
-    isExpanded: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
-    stageCollapseToggled: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired
+    isExpanded: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
   };
 
   /**
    * Called when the collapse icon is toggled.
    */
   onStageCollapseToggled = () => {
-    this.props.stageCollapseToggled(this.props.index);
-    this.props.setIsModified(true);
+    this.props.onChange(this.props.index, this.props.isExpanded);
   };
 
   /**
@@ -67,4 +65,12 @@ class StageCollapser extends PureComponent {
   }
 }
 
-export default StageCollapser;
+export default connect(
+  (state, ownProps) => {
+    return {
+      isExpanded:
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed
+    };
+  },
+  { onChange: changeStageCollapsed }
+)(StageCollapser);

@@ -355,8 +355,9 @@ export const moveStage = (
 };
 
 export type StageEditorState = {
-  stagesCount: number;
+  stageIds: number[];
   stages: {
+    id: number;
     stageOperator: string | null;
     value: string | null;
     syntaxError: SyntaxError | null;
@@ -372,6 +373,7 @@ export function mapBuilderStageToStoreStage(
   stage: Stage
 ): StageEditorState['stages'][number] {
   return {
+    id: stage.id,
     stageOperator: stage.operator,
     value: stage.value,
     syntaxError: stage.syntaxError,
@@ -384,15 +386,16 @@ export function mapBuilderStageToStoreStage(
 }
 
 const reducer: Reducer<StageEditorState> = (
-  state = { stagesCount: 0, stages: [] },
+  state = { stageIds: [], stages: [] },
   action
 ) => {
   if (action.type === RESTORE_PIPELINE || action.type === CONFIRM_NEW) {
+    const stages = action.stages.map((stage: Stage) => {
+      return mapBuilderStageToStoreStage(stage);
+    })
     return {
-      stagesCount: action.stages.length,
-      stages: action.stages.map((stage: Stage) => {
-        return mapBuilderStageToStoreStage(stage);
-      })
+      stageIds: stages.map((stage: Stage) => stage.id),
+      stages,
     };
   }
 
@@ -540,7 +543,7 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(after + 1, 0, mapBuilderStageToStoreStage(action.stage));
     return {
       ...state,
-      stagesCount: stages.length,
+      stageIds: stages.map(stage => stage.id),
       stages
     };
   }
@@ -552,7 +555,7 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(action.at, 1);
     return {
       ...state,
-      stagesCount: stages.length,
+      stageIds: stages.map(stage => stage.id),
       stages
     };
   }
@@ -563,7 +566,8 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(action.to, 0, movedStage);
     return {
       ...state,
-      stages
+      stageIds: stages.map(stage => stage.id),
+      stages,
     };
   }
 

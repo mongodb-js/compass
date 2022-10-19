@@ -1,10 +1,11 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import sinon from 'sinon';
+import { mount } from 'enzyme';
 import { expect } from 'chai';
 
-import StagePreviewToolbar from '../stage-preview-toolbar';
+import { StagePreviewToolbar } from './stage-preview-toolbar';
 import styles from './stage-preview-toolbar.module.less';
+
+
 
 describe('StagePreviewToolbar [Component]', function() {
   context('when the stage is enabled', function() {
@@ -13,10 +14,9 @@ describe('StagePreviewToolbar [Component]', function() {
     beforeEach(function() {
       component = mount(
         <StagePreviewToolbar
-          openLink={sinon.spy()}
           stageOperator="$match"
           isValid
-          count={10}
+          sampleSize={10}
           isEnabled />
       );
     });
@@ -37,13 +37,6 @@ describe('StagePreviewToolbar [Component]', function() {
       expect(component.text()).
         to.include('Output after $match stage');
     });
-
-    it('renders the info sprinkle', function() {
-      expect(component.find('InfoSprinkle')).
-        to.be.present();
-      expect(component.find('InfoSprinkle').prop('helpLink')).
-        to.include('/aggregation/match');
-    });
   });
 
   context('does not break when the stage is invalid', function() {
@@ -57,12 +50,11 @@ describe('StagePreviewToolbar [Component]', function() {
     let component;
 
     beforeEach(function() {
-      component = shallow(
+      component = mount(
         <StagePreviewToolbar
-          openLink={sinon.spy()}
           stageOperator="$monkey"
           isValid
-          count={10}
+          sampleSize={10}
           isEnabled />
       );
     });
@@ -80,23 +72,17 @@ describe('StagePreviewToolbar [Component]', function() {
       expect(component.find('.stage-preview-toolbar-link-invalid')).
         to.have.text('$monkey');
     });
-
-    it('renders the info sprinkle', function() {
-      expect(component.find('InfoSprinkle')).
-        to.not.be.present();
-    });
   });
 
   context('when the stage is not enabled', function() {
     let component;
 
     beforeEach(function() {
-      component = shallow(
+      component = mount(
         <StagePreviewToolbar
-          openLink={sinon.spy()}
           stageOperator="$match"
           isValid
-          count={10}
+          sampleSize={10}
           isEnabled={false} />
       );
     });
@@ -116,12 +102,11 @@ describe('StagePreviewToolbar [Component]', function() {
       let component;
 
       beforeEach(function() {
-        component = shallow(
+        component = mount(
           <StagePreviewToolbar
-            openLink={sinon.spy()}
             stageOperator="$out"
             stageValue="collection"
-            count={0}
+            sampleSize={0}
             isValid
             isEnabled />
         );
@@ -141,12 +126,11 @@ describe('StagePreviewToolbar [Component]', function() {
       let component;
 
       beforeEach(function() {
-        component = shallow(
+        component = mount(
           <StagePreviewToolbar
-            openLink={sinon.spy()}
             stageOperator="$out"
             stageValue="'''" // 3 single quotes.
-            count={0}
+            sampleSize={0}
             isValid
             isEnabled />
         );
@@ -167,12 +151,11 @@ describe('StagePreviewToolbar [Component]', function() {
         let component;
 
         beforeEach(function() {
-          component = shallow(
+          component = mount(
             <StagePreviewToolbar
-              openLink={sinon.spy()}
               stageOperator="$out"
               stageValue="{ s3: 'bucket' }"
-              count={0}
+              sampleSize={0}
               isValid
               isEnabled />
           );
@@ -192,12 +175,11 @@ describe('StagePreviewToolbar [Component]', function() {
         let component;
 
         beforeEach(function() {
-          component = shallow(
+          component = mount(
             <StagePreviewToolbar
-              openLink={sinon.spy()}
               stageOperator="$out"
               stageValue="{ s3: { bucket: 'test' }}"
-              count={0}
+              sampleSize={0}
               isValid
               isEnabled />
           );
@@ -218,12 +200,11 @@ describe('StagePreviewToolbar [Component]', function() {
       let component;
 
       beforeEach(function() {
-        component = shallow(
+        component = mount(
           <StagePreviewToolbar
-            openLink={sinon.spy()}
             stageOperator="$out"
             stageValue="{ atlas: { projectId: 'test' }}"
-            count={0}
+            sampleSize={0}
             isValid
             isEnabled />
         );
@@ -244,11 +225,10 @@ describe('StagePreviewToolbar [Component]', function() {
     let component;
 
     beforeEach(function() {
-      component = shallow(
+      component = mount(
         <StagePreviewToolbar
-          openLink={sinon.spy()}
           stageOperator={null}
-          count={0}
+          sampleSize={0}
           isValid
           isEnabled />
       );

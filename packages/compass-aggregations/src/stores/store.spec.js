@@ -217,6 +217,7 @@ describe('Aggregation Store', function() {
           const { aggregationWorkspaceId, ...state } = store.getState();
           // eslint-disable-next-line no-unused-vars
           state.pipeline = state.pipeline.map(({ id, ...stage }) => stage);
+          state.pipelineBuilder.stageEditor = { stages: [], stageIds: [] };
           expect(state).to.deep.equal({
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',

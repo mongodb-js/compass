@@ -29,7 +29,7 @@ function createStore(
     {
       pipelineBuilder: {
         stageEditor: {
-          stagesCount: pipelineBuilder.stages.length,
+          stageIds: pipelineBuilder.stages.map(stage => stage.id),
           stages: pipelineBuilder.stages.map(mapBuilderStageToStoreStage)
         }
       }

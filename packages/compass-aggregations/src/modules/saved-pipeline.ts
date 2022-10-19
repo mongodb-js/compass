@@ -4,8 +4,8 @@ import type { AnyAction } from 'redux';
 import { createId } from './id';
 import { setIsModified } from './is-modified';
 import type { PipelineBuilderThunkAction } from '.';
-import { runStage } from './pipeline';
 import type { StoredPipeline } from '../utils/pipeline-storage';
+import { loadPreviewForStagesFrom } from './pipeline-builder/stage-editor';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -128,7 +128,7 @@ export const openPipelineById = (
         source: pipelineBuilder.source,
         restoreState: data
       });
-      dispatch(runStage(0, true /* force execute */));
+      dispatch(loadPreviewForStagesFrom(0));
     } catch (e: unknown) {
       debug(e);
     }

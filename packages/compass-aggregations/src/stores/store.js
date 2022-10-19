@@ -11,6 +11,7 @@ import { openPipelineById } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { PipelineStorage } from '../utils/pipeline-storage';
 import { mapBuilderStagesToUIStages } from '../utils/stage';
+import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
 
 /**
  * Refresh the input documents.
@@ -95,6 +96,14 @@ const configureStore = (options = {}) => {
       outResultsFn: options.outResultsFn,
       editViewName: options.editViewName,
       pipeline: mapBuilderStagesToUIStages(pipelineBuilder.stages),
+      pipelineBuilder: {
+        stageEditor: {
+          stages: pipelineBuilder.stages.map((stage) =>
+            mapBuilderStageToStoreStage(stage)
+          ),
+          stageIds: pipelineBuilder.stages.map((stage) => stage.id)
+        }
+      }
     },
     applyMiddleware(
       thunk.withExtraArgument({

@@ -59,7 +59,14 @@ export function stageToString(operator: string, value: string, disabled: boolean
     .join('\n');
 }
 
+let id = 0;
+
+function getId() {
+  return id++;
+}
+
 export default class Stage {
+  id = getId();
   node: t.Expression;
   disabled = false;
   syntaxError: SyntaxError | null = null;

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
   Editor,
@@ -6,34 +6,28 @@ import {
   EditorTextCompleter,
   StageAutoCompleter
 } from '@mongodb-js/compass-editor';
+import { connect } from 'react-redux';
+import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
 
 import styles from './stage-editor.module.less';
 
 /**
  * Edit a single stage in the aggregation pipeline.
  */
-class StageEditor extends Component {
-  static displayName = 'StageEditorComponent';
-
+export class StageEditor extends PureComponent {
   static propTypes = {
-    stage: PropTypes.string,
-    stageOperator: PropTypes.string,
-    error: PropTypes.string,
-    syntaxError: PropTypes.string,
-    runStage: PropTypes.func.isRequired,
     index: PropTypes.number.isRequired,
+    stageValue: PropTypes.string,
+    onChange: PropTypes.func.isRequired,
+    stageOperator: PropTypes.string,
     serverVersion: PropTypes.string.isRequired,
-    fields: PropTypes.array.isRequired,
-    stageChanged: PropTypes.func.isRequired,
-    isValid: PropTypes.bool.isRequired,
-    setIsModified: PropTypes.func.isRequired,
-    projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired
+    autocompleteFields: PropTypes.array.isRequired,
+    syntaxError: PropTypes.string,
+    serverError: PropTypes.string,
   };
 
   static defaultProps = {
-    fields: [],
-    projections: []
+    autocompleteFields: []
   };
 
   /**
@@ -46,44 +40,32 @@ class StageEditor extends Component {
     this.completer = new StageAutoCompleter(
       this.props.serverVersion,
       EditorTextCompleter,
-      this.getFieldsAndProjections(),
+      this.props.autocompleteFields,
       this.props.stageOperator
     );
-  }
-
-  /**
-   * Should the component update?
-   *
-   * @param {Object} nextProps - The next properties.
-   *
-   * @returns {Boolean} If the component should update.
-   */
-  shouldComponentUpdate(nextProps) {
-    return (
-      nextProps.stageOperator !== this.props.stageOperator ||
-      nextProps.error !== this.props.error ||
-      nextProps.syntaxError !== this.props.syntaxError ||
-      nextProps.index !== this.props.index ||
-      nextProps.serverVersion !== this.props.serverVersion ||
-      nextProps.fields.length !== this.props.fields.length ||
-      nextProps.projections.length !== this.props.projections.length ||
-      nextProps.isValid !== this.props.isValid
-    );
+    this.editor = null;
   }
 
   /**
    * @param {Object} prevProps - The previous properties.
    */
   componentDidUpdate(prevProps) {
-    this.completer.update(
-      this.getFieldsAndProjections(),
-      this.props.stageOperator
-    );
-    this.completer.version = this.props.serverVersion;
+    if (
+      this.props.autocompleteFields !== prevProps.autocompleteFields ||
+      this.props.stageOperator !== prevProps.stageOperator ||
+      this.props.serverVersion !== prevProps.serverVersion
+    ) {
+      this.completer.update(
+        this.props.autocompleteFields,
+        this.props.stageOperator,
+        this.props.serverVersion
+      );
+    }
     if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
       // Focus the editor when the stage operator has changed.
       this.editor.focus();
     }
+    // TODO: try showing annotation with syntax error?
   }
 
   /**
@@ -93,27 +75,8 @@ class StageEditor extends Component {
    * @param {String} value - The value of the stage.
    */
   onStageChange = (value) => {
-    this.props.stageChanged(value, this.props.index);
+    this.props.onChange(this.props.index, value);
   };
-
-  /**
-   * Combines all fields and projections into a single array for
-   * auto-completer.
-   * @returns {Array}
-   */
-  getFieldsAndProjections() {
-    const { fields, projections, index } = this.props;
-    const previouslyDefinedProjections = projections.filter(
-      (p) => p.index < index
-    );
-
-    const fieldsAndProjections = [].concat.call(
-      [],
-      fields,
-      previouslyDefinedProjections
-    );
-    return fieldsAndProjections;
-  }
 
   /**
    * Render the error.
@@ -121,21 +84,21 @@ class StageEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderError() {
-    if (this.props.error) {
+    if (this.props.serverError) {
       return (
         <div
           data-testid="stage-editor-error-message"
           className={styles['stage-editor-errormsg']}
-          title={this.props.error}
+          title={this.props.serverError}
         >
-          {this.props.error}
+          {this.props.serverError}
         </div>
       );
     }
   }
 
   renderSyntaxError() {
-    if (!this.props.isValid && this.props.syntaxError) {
+    if (this.props.syntaxError) {
       return (
         <div
           data-testid="stage-editor-syntax-error"
@@ -158,7 +121,7 @@ class StageEditor extends Component {
       <div className={styles['stage-editor-container']}>
         <div className={styles['stage-editor']}>
           <Editor
-            text={this.props.stage}
+            text={this.props.stageValue}
             onChangeText={this.onStageChange}
             variant={EditorVariant.Shell}
             className={styles['stage-editor-ace-editor']}
@@ -177,4 +140,17 @@ class StageEditor extends Component {
   }
 }
 
-export default StageEditor;
+export default connect(
+  (state, ownProps) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    return {
+      stageValue: stage.value,
+      stageOperator: stage.stageOperator,
+      syntaxError: stage.syntaxError?.message,
+      serverError: stage.serverError?.message,
+      serverVersion: state.serverVersion,
+      autocompleteFields: state.fields /* TODO: + projection fields */
+    };
+  },
+  { onChange: changeStageValue }
+)(StageEditor);

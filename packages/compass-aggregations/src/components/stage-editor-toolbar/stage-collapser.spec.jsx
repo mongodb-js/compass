@@ -3,22 +3,20 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import StageCollapser from './stage-collapser';
+import { StageCollapser } from './stage-collapser';
 import styles from './stage-collapser.module.less';
 
 describe('StageCollaper [Component]', function() {
   context('when the stage is expanded', function() {
     let component;
     const spy = sinon.spy();
-    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <StageCollapser
           isExpanded
           index={1}
-          setIsModified={setIsModifiedSpy}
-          stageCollapseToggled={spy} />
+          onChange={spy} />
       );
     });
 
@@ -42,15 +40,13 @@ describe('StageCollaper [Component]', function() {
   context('when the stage is collapsed', function() {
     let component;
     const spy = sinon.spy();
-    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <StageCollapser
           isExpanded={false}
           index={1}
-          setIsModified={setIsModifiedSpy}
-          stageCollapseToggled={spy} />
+          onChange={spy} />
       );
     });
 
@@ -70,15 +66,13 @@ describe('StageCollaper [Component]', function() {
   context('when clicking on the button', function() {
     let component;
     const spy = sinon.spy();
-    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <StageCollapser
           isExpanded={false}
           index={1}
-          setIsModified={setIsModifiedSpy}
-          stageCollapseToggled={spy} />
+          onChange={spy} />
       );
     });
 
@@ -89,7 +83,6 @@ describe('StageCollaper [Component]', function() {
     it('toggles the expansion and sets as modified', function() {
       component.find('button').simulate('click');
       expect(spy.calledWith(1)).to.equal(true);
-      expect(setIsModifiedSpy.calledOnce).to.equal(true);
     });
   });
 });
