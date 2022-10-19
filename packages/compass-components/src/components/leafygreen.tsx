@@ -26,6 +26,12 @@ import {
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+
+MenuItem.defaultProps = {
+  ...MenuItem.defaultProps,
+  type: 'button',
+};
+
 import {
   default as LeafyGreenModal,
   Footer as LeafyGreenModalFooter,
