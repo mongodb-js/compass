@@ -11,13 +11,12 @@ import {
   Button,
   palette
 } from '@mongodb-js/compass-components';
-
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { RootState } from '../../modules';
 import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
 import PipelineResultsList from './pipeline-results-list';
 import PipelineEmptyResults from './pipeline-empty-results';
-import { getDestinationNamespaceFromStage } from '../../modules/stage';
-import { goToNamespace } from '../../modules/pipeline';
+import { getDestinationNamespaceFromStage } from '../../utils/stage';
 import { getStageOperator } from '../../utils/stage';
 
 const containerStyles = css({
@@ -212,7 +211,12 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onCancel: cancelAggregation,
   onRetry: retryAggregation,
-  onOutClick: goToNamespace
+  onOutClick: (namespace: string) => {
+    return globalAppRegistryEmit(
+      'aggregations-open-result-namespace',
+      namespace
+    );
+  }
 };
 
 export default connect(mapState, mapDispatch)(PipelineResultsWorkspace);

@@ -1,6 +1,4 @@
-import isEmpty from 'lodash.isempty';
 import { NEW_PIPELINE } from './import-pipeline';
-import { generateStage } from './stage';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
@@ -110,20 +108,6 @@ export const savingPipelineOpen = ({name = '', isSaveAs = false} = {}) => {
     isSaveAs: isSaveAs,
     name: name
   };
-};
-
-/**
- * Make view pipeline.
- *
- * @param {String} unfilteredPipeline - The unfilteredPipeline.
- *
- * @returns {Array} The mapped/filtered view pipeline.
- */
-export const makeViewPipeline = (unfilteredPipeline) => {
-  return unfilteredPipeline
-    .map((p) => (p.executor || generateStage(p)))
-    // generateStage can return {} under various conditions
-    .filter((stage) => !isEmpty(stage));
 };
 
 /**

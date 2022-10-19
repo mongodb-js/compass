@@ -1,6 +1,5 @@
-import isString from 'lodash.isstring';
 import semver from 'semver';
-import { generateStage } from '../modules/stage';
+import toNS from 'mongodb-ns';
 import {
   STAGE_OPERATORS,
   ATLAS,
@@ -8,70 +7,6 @@ import {
   VIEW,
   COLLECTION
 } from '@mongodb-js/mongodb-constants';
-import { ObjectId } from 'bson';
-
-/**
- * Generate an empty stage for the pipeline.
- *
- * @returns {import('../modules/pipeline').StageState} An empty stage.
- */
- export const emptyStage = () => ({
-  id: new ObjectId().toHexString(),
-  stageOperator: null,
-  stage: null,
-  isValid: false,
-  isEnabled: true,
-  isExpanded: true,
-  isLoading: false,
-  isComplete: false,
-  previewDocuments: [],
-  syntaxError: 'A pipeline stage specification object must contain exactly one field.',
-  error: null,
-  projections: []
-});
-
-/**
- * 
- * @returns {import('../modules/pipeline').StageState} Stage with defaults
- */
-export const generateStageWithDefaults = (props = {}) => {
-  return {
-    ...emptyStage(),
-    ...props
-  };
-};
-
-export const mapBuilderStagesToUIStages = (stages) => {
-  return stages.map(({operator, value, syntaxError}) => {
-    return generateStageWithDefaults({
-      stageOperator: operator,
-      stage: value,
-      isValid: syntaxError ? false : true,
-      syntaxError: syntaxError?.message
-    });
-  });
-};
-
-/**
- * Parse out a namespace from the stage.
- *
- * @param {String} currentDb - The current database.
- * @param {Object} stage - The stage.
- *
- * @returns {String} The namespace.
- */
-export const parseNamespace = (currentDb, stage) => {
-  const s = generateStage(stage);
-  const merge = s.$merge;
-  if (isString(merge)) {
-    return `${currentDb}.${merge}`;
-  }
-  const into = merge.into;
-  if (isString(into)) {
-    return `${currentDb}.${into}`;
-  }
-  return `${into.db || currentDb}.${into.coll}`;
-};
 
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
@@ -132,16 +67,40 @@ export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceN
     .map(obj => ({ ...obj }))
 };
 
-export const mapPipelineToStages = (pipeline) => {
-  return pipeline
-    .map(generateStage)
-    .filter((stage) => Object.keys(stage).length > 0);
-};
-
 /**
  * @param {unknown} stage 
  * @returns {string | undefined}
  */
 export function getStageOperator(stage) {
   return Object.keys(stage ?? {})[0];
+}
+
+/**
+ * Extracts destination collection from $merge and $out operators
+ *
+ * @see {@link https://www.mongodb.com/docs/manual/reference/operator/aggregation/merge/#syntax}
+ * @see {@link https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/#syntax}
+ *
+ * @param {string} namespace
+ * @param {unknown} stage
+ * @returns {string}
+ */
+ export function getDestinationNamespaceFromStage(namespace, stage) {
+  const stageOperator = getStageOperator(stage);
+  const stageValue = stage[stageOperator];
+  const { database } = toNS(namespace);
+  if (stageOperator === '$merge') {
+    const ns = typeof stage === 'string' ? stageValue : stageValue.into;
+    return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
+  }
+  if (stageOperator === '$out') {
+    if (stageValue.s3) {
+      // TODO: Not handled currently and we need some time to figure out how to
+      // handle it so just skipping for now
+      return null;
+    }
+    const ns = stageValue;
+    return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
+  }
+  return null;
 }

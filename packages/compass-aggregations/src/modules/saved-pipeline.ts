@@ -2,7 +2,6 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { AnyAction } from 'redux';
 import { createId } from './id';
-import { setIsModified } from './is-modified';
 import type { PipelineBuilderThunkAction } from '.';
 import type { StoredPipeline } from '../utils/pipeline-storage';
 import { getPipelineFromBuilderState, getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
@@ -89,7 +88,6 @@ export const updatePipelineList = (): PipelineBuilderThunkAction<void> =>
         const thisNamespacePipelines = pipelines.filter(
           ({ namespace }) => namespace === state.namespace
         );
-        dispatch(setIsModified(false));
         dispatch(savedPipelineAdd(thisNamespacePipelines));
         dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
       })

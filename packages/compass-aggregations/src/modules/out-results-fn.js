@@ -1,6 +1,6 @@
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getStagesFromBuilderState } from './pipeline-builder/builder-helpers';
-import { getDestinationNamespaceFromStage } from './stage';
+import { getDestinationNamespaceFromStage } from '../utils/stage';
 
 /**
  * The initial state.
