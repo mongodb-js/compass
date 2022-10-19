@@ -148,9 +148,9 @@ export const ConnectionFormInputReplicaset =
 export const ConnectionFormInputDefaultDatabase =
   '[data-testid="connection-advanced-tab"] [data-testid="default-database"]';
 export const ConnectionFormUrlOptionKeys =
-  '[data-testid="connection-advanced-tab"] button[name="name"]';
+  '[data-testid="url-options"] button[name="select-url-options-key-name"]';
 export const ConnectionFormUrlOptionValues =
-  '[data-testid="connection-advanced-tab"] input[aria-labelledby="Enter value"]';
+  '[data-testid="url-options"] input[aria-labelledby="Enter value"]';
 
 export const advancedOptionsTab = (tabName: string): string => {
   return `${AdvancedOptionsTabs} button[name="${tabName}"]`;
@@ -184,14 +184,10 @@ export const connectionFormReadPreferenceRadio = (value: string): string => {
   return `#read-preferences input[value="${value}"]`;
 };
 export const connectionFormUrlOptionKeyButton = (index: number): string => {
-  return `[data-testid="url-options-table"] tr:nth-child(${
-    index + 1
-  }) button[name="name"]`;
+  return `[data-testid="url-options"] [data-testid="url-option-entry-${index}"] button[name="select-url-options-key-name"]`;
 };
 export const connectionFormUrlOptionValueInput = (index: number): string => {
-  return `[data-testid="url-options-table"] tr:nth-child(${
-    index + 1
-  }) input[aria-labelledby="Enter value"]`;
+  return `[data-testid="url-options"] [data-testid="url-option-entry-${index}"] input`;
 };
 
 // Connection Sidebar
@@ -797,7 +793,7 @@ export const CreateIndexModalFieldTypeSelectButton = (idx: number): string => {
   return `[data-testid="create-index-fields-type-${idx}"] button`;
 };
 export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
-  return `[data-testid="create-index-fields-type-${idx}"] #create-index-fields-type-select-${idx}-menu`;
+  return `#create-index-fields-type-select-${idx}-menu`;
 };
 
 export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;

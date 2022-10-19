@@ -42,6 +42,7 @@ describe('HostInput', function () {
 
     it('does not render a plus button to add more hosts', function () {
       expect(screen.queryByRole('button')).to.not.exist;
+      expect(screen.queryByLabelText('Add')).to.not.exist;
     });
 
     describe('when the host is updated', function () {
@@ -119,7 +120,7 @@ describe('HostInput', function () {
       });
 
       it('does not render the remove host', function () {
-        expect(screen.queryByLabelText('Remove host')).to.not.exist;
+        expect(screen.queryByLabelText('Remove')).to.not.exist;
       });
 
       describe('when the host is changed', function () {
@@ -160,7 +161,7 @@ describe('HostInput', function () {
 
       describe('when the remove host button is clicked', function () {
         beforeEach(function () {
-          const removeHostButton = screen.getAllByLabelText('Remove host')[2];
+          const removeHostButton = screen.getAllByLabelText('Remove')[2];
           fireEvent.click(removeHostButton);
         });
 
@@ -175,7 +176,7 @@ describe('HostInput', function () {
 
       describe('when the add host button is clicked', function () {
         beforeEach(function () {
-          const addHostButton = screen.getAllByLabelText('Add new host')[2];
+          const addHostButton = screen.getAllByLabelText('Add')[2];
           fireEvent.click(addHostButton);
         });
 
