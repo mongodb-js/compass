@@ -340,8 +340,7 @@ function collectionSubMenu(menuStateReadOnly: boolean): MenuItemConstructorOptio
     },
   });
   subMenu.push(separator());
-  const { readOnly: preferencesReadOnly } = preferences.getPreferences();
-  if (!preferencesReadOnly && !menuStateReadOnly) {
+  if (!preferences.getPreferences().readOnly && !menuStateReadOnly) {
     subMenu.push({
       label: '&Import Data',
       click() {

@@ -62,11 +62,10 @@ const configureStore = (options = {}) => {
     const instance = instanceStore.getState().instance;
 
     const changeEditMode = () => {
-      const { readOnly: preferencesReadOnly } = preferences.getPreferences();
       const editMode = {
         collectionTimeSeries: !!options.isTimeSeries,
         collectionReadOnly: options.isReadonly ? true : false,
-        hadronReadOnly: preferencesReadOnly,
+        hadronReadOnly: preferences.getPreferences().readOnly,
         writeStateStoreReadOnly: !instance.isWritable,
         oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
       };

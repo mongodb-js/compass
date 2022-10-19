@@ -330,11 +330,10 @@ const configureStore = (options = {}) => {
      * @returns {Boolean} If the list is editable.
      */
     isListEditable() {
-      const { readOnly: preferencesReadOnly } = preferences.getPreferences();
       return (
         !this.state.isDataLake &&
         !this.state.isReadonly &&
-        !preferencesReadOnly
+        !preferences.getPreferences().readOnly
       );
     },
 

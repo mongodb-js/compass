@@ -28,9 +28,8 @@ function mapStateToProps(state: any) {
       expandedDbList[name] ?? defaultExpanded,
     ])
   );
-  const { readOnly: preferencesReadOnly } = preferences.getPreferences();
   const isReadOnly =
-    preferencesReadOnly ||
+    preferences.getPreferences().readOnly ||
     instance?.dataLake.isDataLake ||
     !instance?.isWritable;
   return {
