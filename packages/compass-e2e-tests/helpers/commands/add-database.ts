@@ -19,10 +19,6 @@ export async function addDatabase(
   );
   await collectionInput.setValue(collectionName);
 
-  if (screenshotPath) {
-    await browser.screenshot(screenshotPath);
-  }
-
   const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
   await createButton.waitForEnabled();
 
