@@ -27,6 +27,9 @@ import {
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
 
+// If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
+// clicking on a menu item will submit that form. This is because it uses a button
+// tag without specifying a type and buttons by default have type="submit".
 MenuItem.defaultProps = {
   ...MenuItem.defaultProps,
   type: 'button',
