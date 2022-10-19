@@ -35,6 +35,9 @@ describe('Instance sidebar', function () {
 
     const modal = await browser.$(Selectors.ConnectionInfoModal);
     await modal.waitForDisplayed();
+
+    await browser.screenshot('connection-info-modal.png');
+
     await browser.clickVisible(Selectors.ConnectionInfoModalCloseButton);
     await modal.waitForDisplayed({ reverse: true });
   });
