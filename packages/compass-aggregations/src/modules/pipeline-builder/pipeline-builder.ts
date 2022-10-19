@@ -90,7 +90,10 @@ export class PipelineBuilder {
   /**
    * Request preview for current pipeline source
    */
-  getPreviewForPipeline(namespace: string, options: PreviewOptions): Promise<Document[]> {
+  getPreviewForPipeline(
+    namespace: string,
+    options: PreviewOptions
+  ): Promise<Document[]> {
     const pipeline = this.getPipelineFromSource();
     return this.previewManager.getPreviewForStage(
       pipeline.length - 1,
@@ -114,7 +117,7 @@ export class PipelineBuilder {
       this.stages.map((stage) => stage.node)
     );
   }
-  
+
   /**
    * Get stage at index
    */
@@ -158,9 +161,7 @@ export class PipelineBuilder {
     if (stage) {
       throw stage.syntaxError;
     }
-    return stages
-      .map((stage) => stage.toString())
-      .join(',\n');
+    return `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
   }
 
   /**
@@ -175,14 +176,9 @@ export class PipelineBuilder {
    * contains errors
    */
   getPipelineFromStages(stages = this.stages): Document[] {
-    const stage = stages.find((stage) => stage.syntaxError);
-    if (stage) {
-      throw stage.syntaxError;
-    }
-    const stagesString = stages
-      .map((stage) => stage.toString())
-      .join(',\n');
-    return parseEJSON(`[${stagesString}\n]`, { mode: ParseMode.Loose });
+    return parseEJSON(this.getPipelineStringFromStages(stages), {
+      mode: ParseMode.Loose
+    });
   }
 
   /**
@@ -192,7 +188,7 @@ export class PipelineBuilder {
     idx: number,
     namespace: string,
     options: PreviewOptions,
-    force = false,
+    force = false
   ): Promise<Document[]> {
     return this.previewManager.getPreviewForStage(
       idx,

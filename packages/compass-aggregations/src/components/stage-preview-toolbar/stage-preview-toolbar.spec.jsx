@@ -16,7 +16,7 @@ describe('StagePreviewToolbar [Component]', function() {
         <StagePreviewToolbar
           stageOperator="$match"
           isValid
-          sampleSize={10}
+          previewSize={10}
           isEnabled />
       );
     });
@@ -54,7 +54,7 @@ describe('StagePreviewToolbar [Component]', function() {
         <StagePreviewToolbar
           stageOperator="$monkey"
           isValid
-          sampleSize={10}
+          previewSize={10}
           isEnabled />
       );
     });
@@ -82,7 +82,7 @@ describe('StagePreviewToolbar [Component]', function() {
         <StagePreviewToolbar
           stageOperator="$match"
           isValid
-          sampleSize={10}
+          previewSize={10}
           isEnabled={false} />
       );
     });
@@ -106,7 +106,7 @@ describe('StagePreviewToolbar [Component]', function() {
           <StagePreviewToolbar
             stageOperator="$out"
             stageValue="collection"
-            sampleSize={0}
+            previewSize={0}
             isValid
             isEnabled />
         );
@@ -130,7 +130,7 @@ describe('StagePreviewToolbar [Component]', function() {
           <StagePreviewToolbar
             stageOperator="$out"
             stageValue="'''" // 3 single quotes.
-            sampleSize={0}
+            previewSize={0}
             isValid
             isEnabled />
         );
@@ -155,7 +155,7 @@ describe('StagePreviewToolbar [Component]', function() {
             <StagePreviewToolbar
               stageOperator="$out"
               stageValue="{ s3: 'bucket' }"
-              sampleSize={0}
+              previewSize={0}
               isValid
               isEnabled />
           );
@@ -179,7 +179,7 @@ describe('StagePreviewToolbar [Component]', function() {
             <StagePreviewToolbar
               stageOperator="$out"
               stageValue="{ s3: { bucket: 'test' }}"
-              sampleSize={0}
+              previewSize={0}
               isValid
               isEnabled />
           );
@@ -204,7 +204,7 @@ describe('StagePreviewToolbar [Component]', function() {
           <StagePreviewToolbar
             stageOperator="$out"
             stageValue="{ atlas: { projectId: 'test' }}"
-            sampleSize={0}
+            previewSize={0}
             isValid
             isEnabled />
         );
@@ -228,7 +228,7 @@ describe('StagePreviewToolbar [Component]', function() {
       component = mount(
         <StagePreviewToolbar
           stageOperator={null}
-          sampleSize={0}
+          previewSize={0}
           isValid
           isEnabled />
       );

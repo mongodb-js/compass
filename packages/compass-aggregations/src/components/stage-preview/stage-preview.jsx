@@ -282,7 +282,8 @@ export default connect(
         40324,
         // The full-text search stage is not enabled
         31082
-      ].includes(stage.serverError.code);
+      ].includes(Number(stage.serverError.code));
+
     return {
       stageOperator: stage.stageOperator,
       stageValue: stage.value,

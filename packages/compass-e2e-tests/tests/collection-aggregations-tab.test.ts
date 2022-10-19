@@ -418,22 +418,6 @@ describe('Collection aggregations tab', function () {
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
-    // make sure it complains that it must be the last stage
-    await browser.waitUntil(
-      async () => {
-        const messageElement = await browser.$(
-          Selectors.stageEditorErrorMessage(1)
-        );
-        await messageElement.waitForDisplayed();
-        const text = await messageElement.getText();
-        return text === '$out can only be the final stage in the pipeline';
-      },
-      {
-        timeoutMsg:
-          'Waited for the error "$out can only be the final stage in the pipeline"',
-      }
-    );
-
     // delete the stage after $out
     await browser.clickVisible(Selectors.stageDelete(1));
 
@@ -481,22 +465,6 @@ describe('Collection aggregations tab', function () {
     await browser.setAceValue(Selectors.stageEditor(1), `{ i: 5 }`);
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
-
-    // make sure it complains that it must be the last stage
-    await browser.waitUntil(
-      async () => {
-        const messageElement = await browser.$(
-          Selectors.stageEditorErrorMessage(1)
-        );
-        await messageElement.waitForDisplayed();
-        const text = await messageElement.getText();
-        return text === '$merge can only be the final stage in the pipeline';
-      },
-      {
-        timeoutMsg:
-          'Waited for the error "$merge can only be the final stage in the pipeline"',
-      }
-    );
 
     // delete the stage after $out
     await browser.clickVisible(Selectors.stageDelete(1));
@@ -737,6 +705,11 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows the explain for a pipeline', async function () {
+    // Set first stage to $match
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$match');
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
     await browser.clickVisible(Selectors.AggregationExplainButton);
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
 

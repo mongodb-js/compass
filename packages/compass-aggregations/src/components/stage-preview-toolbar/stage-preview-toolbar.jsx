@@ -38,7 +38,7 @@ export class StagePreviewToolbar extends PureComponent {
     hasServerError: PropTypes.bool,
     isEnabled: PropTypes.bool,
     isValid: PropTypes.bool,
-    sampleSize: PropTypes.number.isRequired
+    previewSize: PropTypes.number.isRequired
   };
 
   /**
@@ -47,7 +47,7 @@ export class StagePreviewToolbar extends PureComponent {
    * @returns {String} The word.
    */
   getWord() {
-    return this.props.sampleSize === 1 ? 'document' : 'documents';
+    return this.props.previewSize === 1 ? 'document' : 'documents';
   }
 
   getOutText() {
@@ -104,7 +104,7 @@ export class StagePreviewToolbar extends PureComponent {
               Output after {stageInfoButton} stage
             </span>
             {this.renderInfoSprinkle(stageInfo)}
-            <span data-testid="stage-preview-toolbar-tooltip">(Sample of {this.props.sampleSize} {this.getWord()})</span>
+            <span data-testid="stage-preview-toolbar-tooltip">(Sample of {this.props.previewSize} {this.getWord()})</span>
           </div>
         );
       }
@@ -163,6 +163,6 @@ export default connect((state, ownProps) => {
     hasServerError: !!stage.serverError,
     isEnabled: !stage.disabled,
     isValid: !stage.serverError && !stage.syntaxError,
-    sampleSize: state.limit
+    previewSize: stage.previewDocs?.length ?? 0
   };
 }, null)(StagePreviewToolbar);
