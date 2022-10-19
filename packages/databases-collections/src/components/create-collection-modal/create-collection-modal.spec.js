@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal } from '@mongodb-js/compass-components';
 import { Banner } from '@mongodb-js/compass-components';
 
 import { CreateCollectionModal } from '../create-collection-modal';
@@ -36,7 +36,7 @@ describe('CreateCollectionModal [Component]', () => {
     });
 
     it('displays the modal', () => {
-      expect(component.find(ConfirmationModal)).to.be.present();
+      expect(component.find(FormModal)).to.be.present();
     });
 
     it('renders the header text', () => {
