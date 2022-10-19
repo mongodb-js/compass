@@ -2,11 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * The button constant.
- */
-const BUTTON = 'button';
-
-/**
  * Component for a button with an icon.
  */
 class IconButton extends React.Component {
@@ -27,7 +22,7 @@ class IconButton extends React.Component {
   render() {
     return (
       <button
-        type={BUTTON}
+        type="button"
         title={this.props.title}
         data-testid={this.props.dataTestId}
         className={this.props.className}

@@ -47,6 +47,7 @@ class RecentListItem extends PureComponent {
       <Card data-testid="recent-query-list-item" className={className}>
         <CardHeader title={model._lastExecuted.toString()}>
           <button
+            type="button"
             title="Favorite Query"
             data-testid="query-history-button-fav"
             className={classnames(
@@ -61,6 +62,7 @@ class RecentListItem extends PureComponent {
           </button>
 
           <button
+            type="button"
             title="Copy Query to Clipboard"
             data-testid="query-history-button-copy-query"
             className={classnames(
@@ -76,6 +78,7 @@ class RecentListItem extends PureComponent {
           </button>
 
           <button
+            type="button"
             title="Delete Query from Recent List"
             data-testid="query-history-button-delete-recent"
             className={classnames(

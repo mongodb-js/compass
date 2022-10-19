@@ -23,6 +23,7 @@ export const EditActions: React.FunctionComponent<{
       {editing &&
         (onRevert ? (
           <button
+            type="button"
             data-testid="hadron-document-revert"
             className={buttonReset}
             aria-label="Revert changes"
@@ -35,6 +36,7 @@ export const EditActions: React.FunctionComponent<{
           </button>
         ) : onRemove ? (
           <button
+            type="button"
             data-testid="hadron-document-remove"
             className={buttonReset}
             aria-label="Remove field"
@@ -109,6 +111,7 @@ export const AddFieldActions: React.FunctionComponent<{
         return (
           <>
             <button
+              type="button"
               data-testid="hadron-document-add-element"
               className={cx(buttonReset, addFieldButton)}
               onClick={(evt) => {
