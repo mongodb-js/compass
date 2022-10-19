@@ -13,10 +13,10 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../../modules';
-import { stageAdded } from '../../../modules/pipeline';
 import { editPipeline } from '../../../modules/workspace';
 import type { Workspace } from '../../../modules/workspace';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { addStage } from '../../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   display: 'flex',
@@ -42,7 +42,7 @@ type PipelineStagesProps = {
   isResultsMode: boolean;
   stages: string[];
   showAddNewStage: boolean;
-  onStageAdded: () => void;
+  onAddStageClick: () => void;
   onEditPipelineClick: (workspace: Workspace) => void;
 };
 
@@ -50,7 +50,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   isResultsMode,
   stages,
   showAddNewStage,
-  onStageAdded,
+  onAddStageClick,
   onEditPipelineClick,
 }) => {
   return (
@@ -65,7 +65,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
               <Link
                 className={addStageStyles}
                 as="button"
-                onClick={() => onStageAdded()}
+                onClick={() => onAddStageClick()}
                 hideExternalIcon
                 data-testid="pipeline-toolbar-add-stage-button"
               >
@@ -106,7 +106,7 @@ const mapState = (state: RootState) => {
 };
 
 const mapDispatch = {
-  onStageAdded: stageAdded,
+  onAddStageClick: addStage,
   onEditPipelineClick: editPipeline,
 };
 export default connect(mapState, mapDispatch)(React.memo(PipelineStages));

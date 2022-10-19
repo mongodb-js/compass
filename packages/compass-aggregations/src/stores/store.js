@@ -9,7 +9,8 @@ import { indexesFetched } from '../modules/indexes';
 import { openPipelineById } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { PipelineStorage } from '../utils/pipeline-storage';
-import { loadPreviewForStagesFrom, mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
+import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
+import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
 
 /**
  * Refresh the input documents.
@@ -161,7 +162,7 @@ const configureStore = (options = {}) => {
     // Otherwise if we are editing a view pipeline, kick off preview fetch right
     // away
   } else if (options.editViewName) {
-    store.dispatch(loadPreviewForStagesFrom(0));
+    store.dispatch(updatePipelinePreview());
   }
 
   if (collection) {

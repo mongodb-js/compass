@@ -86,7 +86,6 @@ describe('Settings [Component]', function() {
           .simulate('click');
 
         expect(applySettingsSpy.calledOnce).to.equal(true);
-        expect(runStageSpy.calledOnce).to.equal(true);
         expect(toggleSettingsIsExpandedSpy.calledOnce).to.equal(true);
       });
     });

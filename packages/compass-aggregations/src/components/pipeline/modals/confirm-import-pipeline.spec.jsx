@@ -56,7 +56,6 @@ describe('ConfirmImportPipeline [Component]', function() {
     it('calls the action', function() {
       component.find('button').at(0).hostNodes().simulate('click');
       expect(confirmNewSpy.calledOnce).to.equal(true);
-      expect(runStageSpy.calledOnce).to.equal(true);
     });
   });
 });

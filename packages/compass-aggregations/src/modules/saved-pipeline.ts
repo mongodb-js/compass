@@ -5,8 +5,8 @@ import { createId } from './id';
 import { setIsModified } from './is-modified';
 import type { PipelineBuilderThunkAction } from '.';
 import type { StoredPipeline } from '../utils/pipeline-storage';
-import { loadPreviewForStagesFrom } from './pipeline-builder/stage-editor';
 import { getPipelineFromBuilderState, getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -129,7 +129,7 @@ export const openPipelineById = (
         source: pipelineBuilder.source,
         restoreState: data
       });
-      dispatch(loadPreviewForStagesFrom(0));
+      dispatch(updatePipelinePreview());
     } catch (e: unknown) {
       debug(e);
     }

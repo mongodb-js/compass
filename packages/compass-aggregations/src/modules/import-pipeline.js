@@ -1,6 +1,6 @@
 import { emptyStage } from '../utils/stage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { loadPreviewForStagesFrom } from './pipeline-builder/stage-editor';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -201,7 +201,7 @@ export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
   });
 
   if (!error) {
-    dispatch(loadPreviewForStagesFrom(0));
+    dispatch(updatePipelinePreview());
     track('Aggregation Imported From Text', { num_stages: pipelineBuilder.stages.length });
   }
 };

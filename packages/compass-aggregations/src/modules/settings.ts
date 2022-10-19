@@ -19,6 +19,7 @@ import {
   DEFAULT_LARGE_LIMIT
 } from '../constants';
 import { NEW_PIPELINE } from './import-pipeline';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 type State = {
   isExpanded: boolean,
@@ -110,6 +111,7 @@ export const applySettings = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState) => {
     const { settings } = getState();
     dispatch(doApplySettings(settings));
+    dispatch(updatePipelinePreview());
     dispatch(
       globalAppRegistryEmit('compass:aggregations:settings-applied', {
         settings

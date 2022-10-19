@@ -1,5 +1,15 @@
-import type { RootState } from '..';
+import type { PipelineBuilderThunkAction, RootState } from '..';
 import type { PipelineBuilder } from './pipeline-builder';
+import { loadPreviewForStagesFrom } from './stage-editor';
+
+
+export const updatePipelinePreview =
+  (): PipelineBuilderThunkAction<void> => (dispatch, getState) => {
+    if (getState().pipelineBuilder.pipelineMode === 'builder-ui') {
+      dispatch(loadPreviewForStagesFrom(0));
+    }
+    // TODO: dispatch for text editor
+  };
 
 export function getPipelineFromBuilderState(
   state: RootState,

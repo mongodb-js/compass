@@ -16,7 +16,7 @@ const renderPipelineStages = (
       isResultsMode={false}
       stages={[]}
       showAddNewStage={true}
-      onStageAdded={() => {}}
+      onAddStageClick={() => {}}
       onEditPipelineClick={() => {}}
       {...props}
     />
@@ -49,7 +49,7 @@ describe('PipelineStages', function () {
       const onStageAddedSpy = spy();
       const container = renderPipelineStages({
         showAddNewStage: true,
-        onStageAdded: onStageAddedSpy,
+        onAddStageClick: onStageAddedSpy,
       });
       expect(within(container).getByTestId('pipeline-toolbar-add-stage-button'))
         .to.exist;
@@ -73,7 +73,7 @@ describe('PipelineStages', function () {
       container = renderPipelineStages({
         isResultsMode: false,
         stages: ['$group', '$sort'],
-        onStageAdded: onStageAddedSpy,
+        onAddStageClick: onStageAddedSpy,
         onEditPipelineClick: onChangeWorkspaceSpy,
       });
     });
@@ -93,7 +93,7 @@ describe('PipelineStages', function () {
       container = renderPipelineStages({
         isResultsMode: true,
         stages: ['$match', '$project'],
-        onStageAdded: onStageAddedSpy,
+        onAddStageClick: onStageAddedSpy,
         onEditPipelineClick: onChangeWorkspaceSpy,
       });
     });
