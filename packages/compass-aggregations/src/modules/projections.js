@@ -1,3 +1,4 @@
+// TODO: remove this completely
 import { NEW_PIPELINE } from './import-pipeline';
 import { gatherProjections } from './stage';
 

@@ -149,7 +149,7 @@ export default connect(
       syntaxError: stage.syntaxError?.message,
       serverError: stage.serverError?.message,
       serverVersion: state.serverVersion,
-      autocompleteFields: state.fields /* TODO: + projection fields */
+      autocompleteFields: state.fields
     };
   },
   { onChange: changeStageValue }

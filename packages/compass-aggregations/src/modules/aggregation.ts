@@ -2,19 +2,20 @@ import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { mapPipelineToStages } from '../utils/stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { PROMISE_CANCELLED_ERROR } from '../utils/cancellable-promise';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { NEW_PIPELINE } from './import-pipeline';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
 );
 
 export enum ActionTypes {
+  RunAggregation = 'compass-aggeregations/runAggregation',
   AggregationStarted = 'compass-aggregations/aggregationStarted',
   AggregationFinished = 'compass-aggregations/aggregationFinished',
   AggregationFailed = 'compass-aggregations/aggregationFailed',
@@ -27,6 +28,11 @@ type PreviousPageData = {
   page: number;
   isLast: boolean;
   documents: Document[];
+};
+
+type RunAggregation = {
+  type: ActionTypes.RunAggregation;
+  pipeline: Document[];
 };
 
 type AggregationStartedAction = {
@@ -62,6 +68,7 @@ type ResultViewTypeChangedAction = {
 }
 
 export type Actions =
+  | RunAggregation
   | AggregationStartedAction
   | AggregationFinishedAction
   | AggregationFailedAction
@@ -70,6 +77,7 @@ export type Actions =
   | ResultViewTypeChangedAction;
 
 export type State = {
+  pipeline: Document[];
   documents: Document[];
   page: number;
   limit: number;
@@ -82,6 +90,7 @@ export type State = {
 };
 
 export const INITIAL_STATE: State = {
+  pipeline: [],
   documents: [],
   page: 1,
   limit: 20,
@@ -98,6 +107,11 @@ const reducer: Reducer<State, AnyAction> = (
     case WorkspaceActionTypes.WorkspaceChanged:
     case NEW_PIPELINE:
       return INITIAL_STATE;
+    case ActionTypes.RunAggregation:
+      return {
+        ...state,
+        pipeline: action.pipeline,
+      }
     case ActionTypes.AggregationStarted:
       return {
         ...state,
@@ -160,10 +174,14 @@ const reducer: Reducer<State, AnyAction> = (
 };
 
 export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return (dispatch, getState) => {
-    const { pipeline } = getState();
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    dispatch({
+      type: ActionTypes.RunAggregation,
+      pipeline,
+    })
     track('Aggregation Executed', () => ({
-      num_stages: mapPipelineToStages(pipeline).length,
+      num_stages: pipeline.length
     }));
     return dispatch(fetchAggregationData());
   };
@@ -239,11 +257,14 @@ const fetchAggregationData = (
   return async (dispatch, getState) => {
     const {
       id,
-      pipeline,
       namespace,
       maxTimeMS,
       dataService: { dataService },
-      aggregation: { limit, abortController: _abortController },
+      aggregation: {
+        limit,
+        abortController: _abortController,
+        pipeline
+      },
       collationString: { value: collation }
     } = getState();
 
@@ -263,14 +284,12 @@ const fetchAggregationData = (
         abortController
       });
 
-      const nonEmptyStages = mapPipelineToStages(pipeline);
-
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collation ?? undefined
       };
 
-      const lastStage = nonEmptyStages[nonEmptyStages.length - 1] ?? {};
+      const lastStage = pipeline[pipeline.length - 1] ?? {};
 
       const isMergeOrOut = ['$merge', '$out'].includes(
         Object.keys(lastStage)[0]
@@ -280,11 +299,11 @@ const fetchAggregationData = (
         dataService,
         signal,
         namespace,
-        pipeline: nonEmptyStages,
+        pipeline,
         options,
         ...(!isMergeOrOut && {
           skip: (page - 1) * limit,
-          limit,
+          limit
         })
       });
 
@@ -332,16 +351,15 @@ const fetchAggregationData = (
 };
 
 export const exportAggregationResults = (): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const {
-      pipeline,
       namespace,
       maxTimeMS,
       countDocuments: { count },
       collationString: { value: collation }
     } = getState();
 
-    const stages = mapPipelineToStages(pipeline);
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
     const options: AggregateOptions = {
       maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
@@ -353,7 +371,7 @@ export const exportAggregationResults = (): PipelineBuilderThunkAction<void> => 
       globalAppRegistryEmit('open-export', {
         namespace,
         aggregation: {
-          stages,
+          stages: pipeline,
           options
         },
         count,

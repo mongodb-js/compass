@@ -17,7 +17,7 @@ const renderPipelineStages = (
       stages={[]}
       showAddNewStage={true}
       onStageAdded={() => {}}
-      onChangeWorkspace={() => {}}
+      onEditPipelineClick={() => {}}
       {...props}
     />
   );
@@ -74,7 +74,7 @@ describe('PipelineStages', function () {
         isResultsMode: false,
         stages: ['$group', '$sort'],
         onStageAdded: onStageAddedSpy,
-        onChangeWorkspace: onChangeWorkspaceSpy,
+        onEditPipelineClick: onChangeWorkspaceSpy,
       });
     });
     it('renders stages in builder mode', function () {
@@ -94,7 +94,7 @@ describe('PipelineStages', function () {
         isResultsMode: true,
         stages: ['$match', '$project'],
         onStageAdded: onStageAddedSpy,
-        onChangeWorkspace: onChangeWorkspaceSpy,
+        onEditPipelineClick: onChangeWorkspaceSpy,
       });
     });
 

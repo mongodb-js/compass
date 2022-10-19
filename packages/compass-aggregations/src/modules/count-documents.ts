@@ -2,10 +2,10 @@ import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { mapPipelineToStages } from '../utils/stage';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import { NEW_PIPELINE } from './import-pipeline';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
@@ -82,9 +82,8 @@ export const cancelCount = (): PipelineBuilderThunkAction<void> => {
 };
 
 export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
-      pipeline,
       namespace,
       maxTimeMS,
       dataService: { dataService },
@@ -95,6 +94,8 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
       return;
     }
 
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+
     try {
       const abortController = new AbortController();
       const signal = abortController.signal;
@@ -103,7 +104,6 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
         abortController,
       });
 
-      const nonEmptyStages = mapPipelineToStages(pipeline);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collation ?? undefined,
@@ -113,7 +113,7 @@ export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
         dataService,
         signal,
         namespace,
-        pipeline: [...nonEmptyStages, { $count: 'count' }],
+        pipeline: [...pipeline, { $count: 'count' }],
         options,
       });
 

@@ -14,8 +14,9 @@ import {
 
 import type { RootState } from '../../../modules';
 import { stageAdded } from '../../../modules/pipeline';
-import { changeWorkspace } from '../../../modules/workspace';
+import { editPipeline } from '../../../modules/workspace';
 import type { Workspace } from '../../../modules/workspace';
+import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 
 const containerStyles = css({
   display: 'flex',
@@ -42,7 +43,7 @@ type PipelineStagesProps = {
   stages: string[];
   showAddNewStage: boolean;
   onStageAdded: () => void;
-  onChangeWorkspace: (workspace: Workspace) => void;
+  onEditPipelineClick: (workspace: Workspace) => void;
 };
 
 export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
@@ -50,7 +51,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   stages,
   showAddNewStage,
   onStageAdded,
-  onChangeWorkspace,
+  onEditPipelineClick,
 }) => {
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
@@ -85,7 +86,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
           data-testid="pipeline-toolbar-edit-button"
           variant="primaryOutline"
           size="small"
-          onClick={() => onChangeWorkspace('builder')}
+          onClick={() => onEditPipelineClick('builder')}
           leftGlyph={<Icon glyph="Edit" />}
         >
           Edit
@@ -95,17 +96,17 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   );
 };
 
-const mapState = ({ pipeline, workspace }: RootState) => ({
-  stages: pipeline
-    .filter((stage) => stage.isEnabled)
-    .map(({ stageOperator }) => stageOperator)
-    .filter(Boolean),
-  showAddNewStage: pipeline.length === 0,
-  isResultsMode: workspace === 'results',
-});
+const mapState = (state: RootState) => {
+  const stages = getPipelineStageOperatorsFromBuilderState(state);
+  return {
+    stages,
+    showAddNewStage: stages.length === 0,
+    isResultsMode: state.workspace === 'results',
+  };
+};
 
 const mapDispatch = {
   onStageAdded: stageAdded,
-  onChangeWorkspace: changeWorkspace,
+  onEditPipelineClick: editPipeline,
 };
-export default connect(mapState, mapDispatch)(PipelineStages);
+export default connect(mapState, mapDispatch)(React.memo(PipelineStages));
