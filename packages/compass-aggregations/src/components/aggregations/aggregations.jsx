@@ -4,33 +4,15 @@ import Pipeline from '../pipeline';
 import { maxTimeMSChanged } from '../../modules/max-time-ms';
 import { collationStringChanged } from '../../modules/collation-string';
 import { toggleAutoPreview } from '../../modules/auto-preview';
-import {
-  toggleInputDocumentsCollapsed,
-  refreshInputDocuments
-} from '../../modules/input-documents';
 import { exportToLanguage } from '../../modules/export-to-language';
 import { openLink } from '../../modules/link';
 import { clonePipeline } from "../../modules/clone-pipeline";
-import {
-  runStage,
-  runOutStage,
-  gotoOutResults,
-  gotoMergeResults,
-  stageAdded,
-  stageAddedAfter,
-  stageChanged,
-  stageCollapseToggled,
-  stageDeleted,
-  stageMoved,
-  stageOperatorSelected,
-  stageToggled
-} from '../../modules/pipeline';
+import { runStage, runOutStage } from '../../modules/pipeline';
 import {
   saveCurrentPipeline,
   savedPipelineAdd,
   getSavedPipelines,
 } from '../../modules/saved-pipeline';
-import { setIsModified } from '../../modules/is-modified';
 import {
   newPipeline,
   newPipelineFromText,
@@ -51,7 +33,6 @@ import {
   savingPipelineCancel,
   savingPipelineOpen
 } from '../../modules/saving-pipeline';
-import { projectionsChanged } from '../../modules/projections';
 import {
   dismissViewError,
   updateView
@@ -87,18 +68,9 @@ class Aggregations extends Component {
  * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state) => ({
-  fields: state.fields,
-  inputDocuments: state.inputDocuments,
   namespace: state.namespace,
-  env: state.env,
-  isTimeSeries: state.isTimeSeries,
-  isReadonly: state.isReadonly,
-  sourceName: state.sourceName,
-  serverVersion: state.serverVersion,
-  pipeline: state.pipeline,
   name: state.name,
   collationString: state.collationString,
-  isModified: state.isModified,
   isCommenting: state.comments,
   isAtlasDeployed: state.isAtlasDeployed,
   isAutoPreviewing: state.autoPreview,
@@ -108,8 +80,6 @@ const mapStateToProps = (state) => ({
   largeLimit: state.largeLimit,
   maxTimeMS: state.maxTimeMS,
   savingPipeline: state.savingPipeline,
-  projections: state.projections,
-  editViewName: state.editViewName,
   isNewPipelineConfirm: state.isNewPipelineConfirm,
   setIsNewPipelineConfirm: state.setIsNewPipelineConfirm,
   updateViewError: state.updateViewError,
@@ -124,21 +94,9 @@ const MappedAggregations = connect(
   mapStateToProps,
   {
     collationStringChanged,
-    toggleInputDocumentsCollapsed,
-    refreshInputDocuments,
     toggleAutoPreview,
     runStage,
     runOutStage,
-    gotoOutResults,
-    gotoMergeResults,
-    stageAdded,
-    stageAddedAfter,
-    stageChanged,
-    stageCollapseToggled,
-    stageDeleted,
-    stageMoved,
-    stageOperatorSelected,
-    stageToggled,
     toggleSettingsIsExpanded,
     toggleSettingsIsCommentMode,
     setSettingsSampleSize,
@@ -154,13 +112,11 @@ const MappedAggregations = connect(
     confirmNew,
     openLink,
     applySettings,
-    setIsModified,
     maxTimeMSChanged,
     savingPipelineNameChanged,
     savingPipelineApply,
     savingPipelineCancel,
     savingPipelineOpen,
-    projectionsChanged,
     updateView,
     setIsNewPipelineConfirm,
     dismissViewError
