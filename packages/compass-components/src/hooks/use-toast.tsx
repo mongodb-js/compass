@@ -46,7 +46,7 @@ const toastStyles = css({
  * ```
  * const MyButton = () => {
  *   const { openToast } = useToast('namespace');
- *   return <button onClick={() => openToast(
+ *   return <button type="button" onClick={() => openToast(
  *      'myToast1', {title: 'This is a notification'})} />
  * };
  *

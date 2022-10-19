@@ -2,11 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 /**
- * The button constant.
- */
-const BUTTON = 'button';
-
-/**
  * Component for a button with text.
  */
 class TextButton extends React.Component {
@@ -22,7 +17,7 @@ class TextButton extends React.Component {
         className={this.props.className}
         data-testid={this.props.dataTestId}
         title={this.props.title}
-        type={BUTTON}
+        type="button"
         disabled={this.props.disabled}
         style={this.props.style}
         onClick={this.props.clickHandler}>
