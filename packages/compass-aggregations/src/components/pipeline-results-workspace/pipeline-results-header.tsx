@@ -6,6 +6,7 @@ import PipelineResultsViewControls from './pipeline-results-view-controls';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import { changeViewType } from '../../modules/aggregation';
+import { getStageOperator } from '../../utils/stage';
 
 type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
@@ -44,7 +45,7 @@ const mapState = (state: RootState) => {
     aggregation: { resultsViewType, pipeline }
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
-  const stageOperator = Object.keys(lastStage)[0];
+  const stageOperator = getStageOperator(lastStage) ?? '';
   return {
     resultsViewType,
     isMergeOrOutPipeline: ['$merge', '$out'].includes(stageOperator)

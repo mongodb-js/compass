@@ -9,6 +9,7 @@ import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { NEW_PIPELINE } from './import-pipeline';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getStageOperator } from '../utils/stage';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -289,10 +290,10 @@ const fetchAggregationData = (
         collation: collation ?? undefined
       };
 
-      const lastStage = pipeline[pipeline.length - 1] ?? {};
+      const lastStage = pipeline[pipeline.length - 1];
 
       const isMergeOrOut = ['$merge', '$out'].includes(
-        Object.keys(lastStage)[0]
+        getStageOperator(lastStage) ?? ''
       );
 
       const documents = await aggregatePipeline({

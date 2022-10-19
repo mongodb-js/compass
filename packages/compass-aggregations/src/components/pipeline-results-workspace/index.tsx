@@ -18,6 +18,7 @@ import PipelineResultsList from './pipeline-results-list';
 import PipelineEmptyResults from './pipeline-empty-results';
 import { getDestinationNamespaceFromStage } from '../../modules/stage';
 import { goToNamespace } from '../../modules/pipeline';
+import { getStageOperator } from '../../utils/stage';
 
 const containerStyles = css({
   overflow: 'hidden',
@@ -193,7 +194,7 @@ const mapState = (state: RootState) => {
     aggregation: { documents, loading, error, resultsViewType, pipeline },
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
-  const stageOperator = Object.keys(lastStage)[0];
+  const stageOperator = getStageOperator(lastStage) ?? '';
 
   return {
     documents,

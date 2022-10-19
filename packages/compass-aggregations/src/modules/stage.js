@@ -1,6 +1,7 @@
 import mongodbQueryParser from 'mongodb-query-parser';
 import decomment from 'decomment';
 import toNS from 'mongodb-ns';
+import { getStageOperator } from '../utils/stage';
 
 export const PARSE_ERROR = 'Stage must be a properly formatted document.';
 
@@ -133,7 +134,7 @@ export function isEmptyishStage(stageState) {
  * @returns {string}
  */
 export function getDestinationNamespaceFromStage(namespace, stage) {
-  const stageOperator = Object.keys(stage)[0];
+  const stageOperator = getStageOperator(stage);
   const stageValue = stage[stageOperator];
   const { database } = toNS(namespace);
   if (stageOperator === '$merge') {
