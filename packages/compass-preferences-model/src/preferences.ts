@@ -263,7 +263,8 @@ const modelPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Enable features that write to the MongoDB database',
+      short: 'Enable Read-Only',
+      long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
     },
   },
   /**
@@ -708,6 +709,7 @@ export class Preferences {
         autoUpdates: true,
         enableMaps: true,
         trackErrors: true,
+        readOnly: false,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,

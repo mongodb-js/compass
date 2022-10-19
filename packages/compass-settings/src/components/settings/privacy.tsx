@@ -29,6 +29,7 @@ const privacyFields = [
   'autoUpdates',
   'enableMaps',
   'trackErrors',
+  'readOnly',
   'trackUsageStatistics',
   'enableFeedbackPanel',
 ] as const;
@@ -136,6 +137,7 @@ const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
     autoUpdates: !!settings.autoUpdates,
     enableMaps: !!settings.enableMaps,
     trackErrors: !!settings.trackErrors,
+    readOnly: !!settings.readOnly,
     trackUsageStatistics: !!settings.trackUsageStatistics,
     enableFeedbackPanel: !!settings.enableFeedbackPanel,
   },
