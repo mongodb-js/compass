@@ -185,8 +185,10 @@ describe('FLE2', function () {
 
         // open the create collection modal from the button at the top
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
-        await browser.addCollection(collectionName, {
-          encryptedFields: `{
+        await browser.addCollection(
+          collectionName,
+          {
+            encryptedFields: `{
               fields: [{
                 path: 'phoneNumber',
                 keyId: UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a"),
@@ -194,7 +196,9 @@ describe('FLE2', function () {
                 queries: { queryType: 'equality' }
               }]
             }`,
-        });
+          },
+          'add-collection-modal-encryptedfields.png'
+        );
 
         const collectionListFLE2BadgeElement = await browser.$(
           Selectors.CollectionListFLE2Badge
@@ -752,6 +756,8 @@ describe('FLE2', function () {
         await modal.waitForDisplayed();
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
+
+        await browser.screenshot('csfle-connection-modal.png');
 
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
         await modal.waitForDisplayed({ reverse: true });

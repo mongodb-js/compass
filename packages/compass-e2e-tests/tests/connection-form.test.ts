@@ -583,6 +583,9 @@ describe('Connection form', function () {
     );
 
     await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
+
+    await browser.screenshot('save-favorite-modal-new.png');
+
     await browser.clickVisible(Selectors.FavoriteSaveButton);
     await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
 
