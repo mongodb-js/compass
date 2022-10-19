@@ -141,6 +141,7 @@ class Type extends Component {
       <button
         type="button"
         {...tooltipOptions}
+        type="button"
         className={cls}
         style={style}
         onClick={handleClick}

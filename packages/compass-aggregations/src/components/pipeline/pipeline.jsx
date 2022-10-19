@@ -26,20 +26,7 @@ class Pipeline extends PureComponent {
   static displayName = 'PipelineComponent';
 
   static propTypes = {
-    env: PropTypes.string.isRequired,
     isAtlasDeployed: PropTypes.bool.isRequired,
-    getSavedPipelines: PropTypes.func.isRequired,
-    toggleAutoPreview: PropTypes.func.isRequired,
-    pipeline: PropTypes.array.isRequired,
-    serverVersion: PropTypes.string.isRequired,
-    stageAdded: PropTypes.func.isRequired,
-    stageAddedAfter: PropTypes.func.isRequired,
-    stageChanged: PropTypes.func.isRequired,
-    stageCollapseToggled: PropTypes.func.isRequired,
-    stageDeleted: PropTypes.func.isRequired,
-    stageMoved: PropTypes.func.isRequired,
-    stageOperatorSelected: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
     newPipeline: PropTypes.func.isRequired,
     newPipelineFromText: PropTypes.func.isRequired,
@@ -48,17 +35,11 @@ class Pipeline extends PureComponent {
     confirmNew: PropTypes.func.isRequired,
     runStage: PropTypes.func.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
-    fields: PropTypes.array.isRequired,
-    isModified: PropTypes.bool.isRequired,
     isCommenting: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
     isImportConfirmationNeeded: PropTypes.bool.isRequired,
-    setIsModified: PropTypes.func.isRequired,
-    gotoOutResults: PropTypes.func.isRequired,
-    gotoMergeResults: PropTypes.func.isRequired,
     name: PropTypes.string,
     dismissViewError: PropTypes.func.isRequired,
-    editViewName: PropTypes.string,
     updateView: PropTypes.func.isRequired,
     updateViewError: PropTypes.string,
     collationString: PropTypes.object,
@@ -78,25 +59,15 @@ class Pipeline extends PureComponent {
     savingPipelineCancel: PropTypes.func.isRequired,
     savingPipelineOpen: PropTypes.func.isRequired,
     savingPipeline: PropTypes.object.isRequired,
-    projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired,
     isNewPipelineConfirm: PropTypes.bool.isRequired,
     setIsNewPipelineConfirm: PropTypes.func.isRequired,
-    inputDocuments: PropTypes.object.isRequired,
     workspace: PropTypes.string.isRequired,
-    runOutStage: PropTypes.func.isRequired,
-    isTimeSeries: PropTypes.bool.isRequired,
-    isReadonly: PropTypes.bool.isRequired,
-    sourceName: PropTypes.string,
-    toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
-    refreshInputDocuments: PropTypes.func.isRequired,
     showExportButton: PropTypes.bool.isRequired,
     showRunButton: PropTypes.bool.isRequired,
     showExplainButton: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
-    projections: [],
     maxTimeMS: DEFAULT_MAX_TIME_MS,
     limit: DEFAULT_SAMPLE_SIZE,
     largeLimit: DEFAULT_LARGE_LIMIT,
@@ -124,45 +95,6 @@ class Pipeline extends PureComponent {
         showRunButton={this.props.showRunButton}
         showExportButton={this.props.showExportButton}
         showExplainButton={this.props.showExplainButton}
-      />
-    );
-  }
-
-  renderPipelineWorkspace() {
-    return this.props.workspace === 'results' ? (
-      <PipelineResultsWorkspace />
-    ) : (
-      <PipelineBuilderWorkspace
-        editViewName={this.props.editViewName}
-        env={this.props.env}
-        isTimeSeries={this.props.isTimeSeries}
-        isReadonly={this.props.isReadonly}
-        sourceName={this.props.sourceName}
-        pipeline={this.props.pipeline}
-        toggleInputDocumentsCollapsed={this.props.toggleInputDocumentsCollapsed}
-        refreshInputDocuments={this.props.refreshInputDocuments}
-        stageAdded={this.props.stageAdded}
-        setIsModified={this.props.setIsModified}
-        openLink={this.props.openLink}
-        isCommenting={this.props.isCommenting}
-        isAutoPreviewing={this.props.isAutoPreviewing}
-        inputDocuments={this.props.inputDocuments}
-        runStage={this.props.runStage}
-        runOutStage={this.props.runOutStage}
-        gotoOutResults={this.props.gotoOutResults}
-        gotoMergeResults={this.props.gotoMergeResults}
-        serverVersion={this.props.serverVersion}
-        stageChanged={this.props.stageChanged}
-        stageCollapseToggled={this.props.stageCollapseToggled}
-        stageAddedAfter={this.props.stageAddedAfter}
-        stageDeleted={this.props.stageDeleted}
-        stageMoved={this.props.stageMoved}
-        stageOperatorSelected={this.props.stageOperatorSelected}
-        stageToggled={this.props.stageToggled}
-        fields={this.props.fields}
-        projections={this.props.projections}
-        projectionsChanged={this.props.projectionsChanged}
-        isAtlasDeployed={this.props.isAtlasDeployed}
       />
     );
   }
@@ -222,13 +154,17 @@ class Pipeline extends PureComponent {
           settings={this.props.settings}
         />
         <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
-        {this.renderModifyingViewSourceError()}
-        {this.renderPipelineWorkspace()}
-        <PipelineExplain />
-        <ImportPipeline />
-        {confirmImportPipelineModal}
-        {savingPipelineModal}
-        {confirmNewPipelineModal}
+          {this.renderModifyingViewSourceError()}
+          {this.props.workspace === 'results' ? (
+            <PipelineResultsWorkspace />
+          ) : (
+            <PipelineBuilderWorkspace />
+          )}
+          <PipelineExplain />
+          <ImportPipeline />
+          {confirmImportPipelineModal}
+          {savingPipelineModal}
+          {confirmNewPipelineModal}
         </WorkspaceContainer>
       </div>
     );

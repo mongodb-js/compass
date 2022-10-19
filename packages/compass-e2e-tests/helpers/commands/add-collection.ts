@@ -1,7 +1,7 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-type AddCollectionOptions = {
+export type AddCollectionOptions = {
   capped?: {
     size: number;
   };
@@ -32,7 +32,7 @@ type AddCollectionOptions = {
 export async function addCollection(
   browser: CompassBrowser,
   collectionName: string,
-  options?: AddCollectionOptions,
+  collectionOptions?: AddCollectionOptions,
   screenshotPath?: string
 ): Promise<void> {
   const createModalElement = await browser.$(Selectors.CreateCollectionModal);
@@ -43,28 +43,30 @@ export async function addCollection(
   );
   await collectionInput.setValue(collectionName);
 
-  if (options) {
+  if (collectionOptions) {
     await browser.clickVisible(
       Selectors.CreateCollectionCollectionOptionsAccordion
     );
   }
 
-  if (options && options.capped) {
+  if (collectionOptions && collectionOptions.capped) {
     await browser.clickVisible(Selectors.CreateCollectionCappedCheckboxLabel);
 
     const sizeElement = await browser.$(
       Selectors.CreateCollectionCappedSizeInput
     );
     await sizeElement.waitForDisplayed();
-    await sizeElement.setValue(options.capped.size.toString());
+    await sizeElement.setValue(collectionOptions.capped.size.toString());
   }
 
-  if (options && options.customCollation) {
+  if (collectionOptions && collectionOptions.customCollation) {
     await browser.clickVisible(
       Selectors.CreateCollectionCustomCollationCheckboxLabel
     );
 
-    for (const [key, value] of Object.entries(options.customCollation)) {
+    for (const [key, value] of Object.entries(
+      collectionOptions.customCollation
+    )) {
       await browser.clickVisible(
         Selectors.createCollectionCustomCollationFieldButton(key)
       );
@@ -85,7 +87,7 @@ export async function addCollection(
     await localeButton.scrollIntoView();
   }
 
-  if (options && options.timeseries) {
+  if (collectionOptions && collectionOptions.timeseries) {
     await browser.clickVisible(
       Selectors.CreateCollectionTimeseriesCheckboxLabel
     );
@@ -94,13 +96,13 @@ export async function addCollection(
       Selectors.CreateCollectionTimeseriesTimeField
     );
     await timeField.waitForDisplayed();
-    await timeField.setValue(options.timeseries.timeField);
+    await timeField.setValue(collectionOptions.timeseries.timeField);
 
     const metaField = await browser.$(
       Selectors.CreateCollectionTimeseriesMetaField
     );
     await metaField.waitForDisplayed();
-    await metaField.setValue(options.timeseries.metaField);
+    await metaField.setValue(collectionOptions.timeseries.metaField);
 
     await browser.clickVisible(
       Selectors.CreateCollectionTimeseriesGranularityButton
@@ -109,7 +111,9 @@ export async function addCollection(
       Selectors.CreateCollectionTimeseriesGranularityMenu
     );
     await menu.waitForDisplayed();
-    const span = await menu.$(`span=${options.timeseries.granularity}`);
+    const span = await menu.$(
+      `span=${collectionOptions.timeseries.granularity}`
+    );
     await span.waitForDisplayed();
     await span.click();
 
@@ -118,11 +122,11 @@ export async function addCollection(
     );
     await expireField.waitForDisplayed();
     await expireField.setValue(
-      options.timeseries.expireAfterSeconds.toString()
+      collectionOptions.timeseries.expireAfterSeconds.toString()
     );
   }
 
-  if (options && options.clustered) {
+  if (collectionOptions && collectionOptions.clustered) {
     await browser.clickVisible(
       Selectors.CreateCollectionClusteredCheckboxLabel
     );
@@ -131,20 +135,22 @@ export async function addCollection(
       Selectors.CreateCollectionClusteredNameField
     );
     await nameField.waitForDisplayed();
-    await nameField.setValue(options.clustered.name);
+    await nameField.setValue(collectionOptions.clustered.name);
 
     const expireField = await browser.$(
       Selectors.CreateCollectionClusteredExpireAfterSeconds
     );
     await expireField.waitForDisplayed();
-    await expireField.setValue(options.clustered.expireAfterSeconds.toString());
+    await expireField.setValue(
+      collectionOptions.clustered.expireAfterSeconds.toString()
+    );
   }
 
-  if (options && options.encryptedFields) {
+  if (collectionOptions && collectionOptions.encryptedFields) {
     await browser.clickVisible(Selectors.CreateCollectionFLE2CheckboxLabel);
     await browser.setAceValue(
       Selectors.CreateCollectionFLE2,
-      options.encryptedFields
+      collectionOptions.encryptedFields
     );
   }
 

@@ -83,7 +83,9 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.CreateNewEmptyPipelineAction);
     const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
     await modalElement.waitForDisplayed();
+
     await browser.screenshot('confirm-new-pipeline-modal.png');
+
     await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
     await modalElement.waitForDisplayed({ reverse: true });
   });

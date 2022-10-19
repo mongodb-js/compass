@@ -1,18 +1,14 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-type AddDatabaseOptions = {
-  // Intentionally empty. Just here as placeholder to make it the same as addCollection
-};
+import type { AddCollectionOptions } from './add-collection';
 
 export async function addDatabase(
   browser: CompassBrowser,
   dbName: string,
   collectionName: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  options?: AddDatabaseOptions,
+  collectionOptions?: AddCollectionOptions,
   screenshotPath?: string
-  // TODO: options for capped collection, use custom collation and time-series
 ): Promise<void> {
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
@@ -29,6 +25,11 @@ export async function addDatabase(
 
   const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
   await createButton.waitForEnabled();
+
+  if (screenshotPath) {
+    await browser.screenshot(screenshotPath);
+  }
+
   await createButton.click();
   await createModalElement.waitForDisplayed({ reverse: true });
 }

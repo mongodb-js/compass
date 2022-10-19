@@ -20,7 +20,6 @@ export async function saveFavorite(
     'Save'
   );
 
-  // TODO: who made it so the modal closes the moment you pick a colour?
   await browser.screenshot('save-favorite-modal.png');
 
   await browser.clickVisible(Selectors.FavoriteSaveButton);

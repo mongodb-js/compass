@@ -173,9 +173,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
       );
     } else if (isEmpty) {
       results = (
-        <ResultsContainer center>
-          <PipelineEmptyResults />
-        </ResultsContainer>
+        <PipelineEmptyResults />
       );
     } else {
       results = (

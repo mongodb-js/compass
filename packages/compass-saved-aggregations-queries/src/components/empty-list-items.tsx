@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  css,
-  spacing,
-  Body,
-  palette,
-  Link,
-  Subtitle,
-} from '@mongodb-js/compass-components';
+import { EmptyContent, Link } from '@mongodb-js/compass-components';
 
 const QuerySearchIcon = () => {
   return (
@@ -59,63 +52,12 @@ const SearchResultsIcon = () => {
   );
 };
 
-const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  textAlign: 'center',
-  marginLeft: spacing[3],
-  marginRight: spacing[3],
-  marginTop: spacing[7],
-});
-
-const iconStyles = css({
-  flex: 'none',
-  maxWidth: '80px',
-  maxHeight: '80px',
-});
-const titleStyles = css({
-  color: palette.green.dark2,
-});
-const subTitleStyles = css({
-  marginTop: spacing[2],
-  maxWidth: '600px',
-});
-const callToActionStyles = css({
-  marginTop: spacing[5],
-  maxWidth: '600px',
-});
-
-type EmptyContentProps = {
-  icon: React.FunctionComponent;
-  title: string;
-  subTitle?: string;
-  callToAction?: string | JSX.Element;
-};
-
-const EmptyContent: React.FunctionComponent<
-  EmptyContentProps & React.HTMLProps<HTMLDivElement>
-> = ({ icon: Icon, title, subTitle, callToAction }) => {
-  return (
-    <div className={containerStyles}>
-      <div className={iconStyles}>
-        <Icon />
-      </div>
-      <Subtitle className={titleStyles}>{title}</Subtitle>
-      <Body className={subTitleStyles}>{subTitle}</Body>
-      <Body className={callToActionStyles}>{callToAction}</Body>
-    </div>
-  );
-};
-
 export const NoSavedItems: React.FunctionComponent = () => {
   return (
     <EmptyContent
       icon={QuerySearchIcon}
-      title={'No saved queries yet.'}
-      subTitle={
-        "Start saving your aggregations and find queries, you'll see them here."
-      }
+      title="No saved queries yet."
+      subTitle="Start saving your aggregations and find queries, you'll see them here."
       callToAction={
         <div>
           Not sure where to start? &nbsp;
@@ -135,8 +77,8 @@ export const NoSearchResults: React.FunctionComponent = () => {
   return (
     <EmptyContent
       icon={SearchResultsIcon}
-      title={'No results found.'}
-      subTitle={'We can’t find any item matching your search.'}
+      title="No results found."
+      subTitle="We can't find any item matching your search."
     />
   );
 };
