@@ -98,10 +98,6 @@ const comboboxOptionDarkStyles = css({
   },
 });
 
-const comboboxStyles = css({
-  marginTop: '-2px',
-});
-
 const comboboxDarkStyles = css({
   color: palette.white,
   backgroundColor: palette.gray.dark2,
@@ -226,10 +222,7 @@ class CreateIndexFields extends Component<CreateIndexFieldsProps> {
             onChange={this.selectFieldName.bind(this, idx)}
             clearable={false}
             darkMode={this.props.darkMode}
-            className={cx(
-              comboboxStyles,
-              this.props.darkMode ? comboboxDarkStyles : ''
-            )}
+            className={cx(this.props.darkMode ? comboboxDarkStyles : '')}
           >
             {this.renderIndexOptions()}
           </Combobox>
