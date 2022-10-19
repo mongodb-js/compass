@@ -25,7 +25,8 @@ export const enum StageEditorActionTypes {
   StageDisabledChange = 'compass-aggregations/pipeline-builder/stage-editor/StageDisabledChange',
   StageAdded = 'compass-aggregations/pipeline-builder/stage-editor/StageAdded',
   StageRemoved = 'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
-  StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved'
+  StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
+  StagesUpdated = 'compass-aggregations/pipeline-builder/stage-editor/StagesUpdated',
 }
 
 export type StagePreviewFetchAction = {
@@ -85,6 +86,11 @@ export type StageMoveAction = {
   from: number;
   to: number;
 };
+
+export type StagesUpdatedAction = {
+  type: StageEditorActionTypes.StagesUpdated,
+  stages: Stage[];
+}
 
 function canRunStage(stage?: StageEditorState['stages'][number]): boolean {
   if (
@@ -387,7 +393,11 @@ const reducer: Reducer<StageEditorState> = (
   state = { stagesCount: 0, stages: [] },
   action
 ) => {
-  if (action.type === RESTORE_PIPELINE || action.type === CONFIRM_NEW) {
+  if (
+    action.type === RESTORE_PIPELINE ||
+    action.type === CONFIRM_NEW ||
+    isAction<StagesUpdatedAction>(action, StageEditorActionTypes.StagesUpdated)
+  ) {
     return {
       stagesCount: action.stages.length,
       stages: action.stages.map((stage: Stage) => {
