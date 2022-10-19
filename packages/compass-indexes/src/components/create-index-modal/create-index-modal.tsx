@@ -4,9 +4,10 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   Modal,
   css,
-  ModalHeader,
-  ModalBody,
+  spacing,
+  H3,
   ModalFooter,
+  Body,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -42,6 +43,22 @@ import type { RootState } from '../../modules/create-index';
 import { toggleIsSparse } from '../../modules/create-index/is-sparse';
 
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
+
+const modalStyles = css({
+  'div[role=dialog] > :first-child': {
+    minHeight: '50vh',
+    maxHeight: '80vh',
+    overflow: 'scroll',
+  },
+});
+
+const modalContentWrapperStyles = css({
+  padding: 'initial',
+});
+
+const modalContentStyles = css({
+  padding: spacing[5],
+});
 
 const modalFooterStyles = css({
   display: 'flex',
@@ -83,11 +100,14 @@ function CreateIndexModal({
       open={isVisible}
       trackingId="create_index_modal"
       data-testid="create-index-modal"
+      className={modalStyles}
+      contentClassName={modalContentWrapperStyles}
     >
-      <ModalHeader title="Create Index" subtitle={namespace} />
-      <ModalBody>
+      <Body as="div" className={modalContentStyles}>
+        <H3>Create Index</H3>
+        <Body>{namespace}</Body>
         <CreateIndexForm {...props} />
-      </ModalBody>
+      </Body>
       <ModalFooter className={modalFooterStyles}>
         <CreateIndexActions
           error={error}

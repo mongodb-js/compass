@@ -68,9 +68,6 @@ export { default as FormFieldContainer } from './components/form-field-container
 
 export { FormModal } from './components/form-modal';
 export { InfoModal } from './components/info-modal';
-export { ModalHeader } from './components/modal-header';
-export { ModalBody } from './components/modal-body';
-export { ModalFooterButton } from './components/modal-footer-button';
 
 export {
   Accordion,
