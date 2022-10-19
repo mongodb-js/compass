@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
-import { ZeroState } from 'hadron-react-components';
-import { TextButton } from 'hadron-react-buttons';
 import {
+  Button,
   CancelLoader,
+  EmptyContent,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -137,7 +137,7 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * Render ZeroState view when no documents are present.
+   * Render EmptyContent view when no documents are present.
    *
    * @returns {React.Component} The query bar.
    */
@@ -153,42 +153,39 @@ class DocumentList extends React.Component {
       return null;
     }
 
-    let header = 'This collection has no data';
-    let subtext =
-      'It only takes a few seconds to import data from a JSON or CSV file';
-
     if (
       this.props.docs.length === 0 &&
       this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
     ) {
-      header = 'No results';
-      subtext = 'Try to modify your query to get results';
-
       return (
         <div className="document-list-zero-state">
-          <ZeroGraphic />
-          <ZeroState header={header} subtext={subtext} />
+          <EmptyContent
+            icon={ZeroGraphic}
+            title="No results"
+            subTitle="Try to modify your query to get results"
+          />
         </div>
       );
     }
 
-    const editableClass = !this.props.isEditable ? 'disabled' : '';
-
     return (
       <div className="document-list-zero-state">
-        <ZeroGraphic />
-        <ZeroState header={header} subtext={subtext}>
-          <div className="document-list-zero-state-action">
-            <div>
-              <TextButton
-                dataTestId="import-data-button"
-                className={`btn btn-primary btn-lg ${editableClass}`}
-                text="Import Data"
-                clickHandler={this.props.openImportFileDialog}
-              />
-            </div>
-          </div>
-        </ZeroState>
+        <EmptyContent
+          icon={ZeroGraphic}
+          title="This collection has no data"
+          subTitle="It only takes a few seconds to import data from a JSON or CSV file"
+          callToAction={
+            <Button
+              disabled={!this.props.isEditable}
+              onClick={this.props.openImportFileDialog}
+              data-testid="import-data-button"
+              variant="primary"
+              size="small"
+            >
+              Import Data
+            </Button>
+          }
+        />
       </div>
     );
   }
