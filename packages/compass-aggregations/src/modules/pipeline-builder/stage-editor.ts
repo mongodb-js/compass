@@ -1,5 +1,6 @@
 import type { Reducer } from 'redux';
-import type { Document, MongoServerError } from 'mongodb';
+import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { isCancelError } from '../../utils/cancellable-promise';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
@@ -14,11 +15,15 @@ import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE
 } from './pipeline-preview-manager';
+import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
   StagePreviewFetchSuccess = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSuccess',
   StagePreviewFetchError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
+  StageRun = 'compass-aggregations/pipeline-builder/stage-editor/StageRun',
+  StageRunSuccess = 'compass-aggregations/pipeline-builder/stage-editor/StageRunSuccess',
+  StageRunError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
   StageValueChange = 'compass-aggregations/pipeline-builder/stage-editor/StageValueChange',
   StageOperatorChange = 'compass-aggregations/pipeline-builder/stage-editor/StageOperatorChange',
   StageCollapsedChange = 'compass-aggregations/pipeline-builder/stage-editor/StageCollapsedChange',
@@ -41,6 +46,23 @@ export type StagePreviewFetchSuccessAction = {
 
 export type StagePreviewFetchErrorAction = {
   type: StageEditorActionTypes.StagePreviewFetchError;
+  id: number;
+  error: MongoServerError;
+};
+
+export type StageRunAction = {
+  type: StageEditorActionTypes.StageRun;
+  id: number;
+};
+
+export type StageRunSuccessAction = {
+  type: StageEditorActionTypes.StageRunSuccess;
+  id: number;
+  previewDocs: Document[];
+};
+
+export type StageRunErrorAction = {
+  type: StageEditorActionTypes.StageRunError;
   id: number;
   error: MongoServerError;
 };
@@ -86,13 +108,16 @@ export type StageMoveAction = {
   to: number;
 };
 
-function canRunStage(stage?: StageEditorState['stages'][number]): boolean {
+function canRunStage(
+  stage?: StageEditorState['stages'][number],
+  allowOut = false
+): boolean {
   if (
     !stage ||
     stage.value == null ||
     stage.syntaxError ||
     !stage.stageOperator ||
-    ['$out', '$merge'].includes(stage.stageOperator)
+    (!allowOut && ['$out', '$merge'].includes(stage.stageOperator))
   ) {
     return false;
   }
@@ -189,6 +214,69 @@ export const loadPreviewForStagesFrom = (
       .forEach((_, id) => {
         void dispatch(loadStagePreview(from + id));
       });
+  };
+};
+
+export const runStage = (
+  idx: number
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
+    const {
+      id,
+      dataService: { dataService },
+      namespace,
+      maxTimeMS,
+      collationString,
+      pipelineBuilder: {
+        stageEditor: { stages }
+      }
+    } = getState();
+
+    if (!dataService) {
+      return;
+    }
+
+    if (stages[idx].disabled) {
+      return;
+    }
+
+    if (
+      // Only run stage if all previous ones are valid (otherwise it will fail
+      // anyway)
+      !stages.slice(0, idx + 1).every((stage) => {
+        return canRunStage(stage, true);
+      })
+    ) {
+      return;
+    }
+
+    try {
+      dispatch({ type: StageEditorActionTypes.StageRun, id: idx });
+      const pipeline = pipelineBuilder.getPipelineFromStages(
+        pipelineBuilder.stages.slice(0, idx + 1)
+      );
+      const options: AggregateOptions = {
+        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        collation: collationString.value ?? undefined
+      };
+      // We are not handling cancelling, just supporting `aggregatePipeline` interface
+      const { signal } = new AbortController();
+      const result = await aggregatePipeline({
+        dataService,
+        signal,
+        namespace,
+        pipeline,
+        options
+      });
+      dispatch({
+        type: StageEditorActionTypes.StageRunSuccess,
+        id: idx,
+        previewDocs: result
+      });
+      dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: idx }));
+    } catch (error) {
+      dispatch({ type: StageEditorActionTypes.StageRunError, id, error });
+    }
   };
 };
 
@@ -392,10 +480,10 @@ const reducer: Reducer<StageEditorState> = (
   if (action.type === RESTORE_PIPELINE || action.type === CONFIRM_NEW) {
     const stages = action.stages.map((stage: Stage) => {
       return mapBuilderStageToStoreStage(stage);
-    })
+    });
     return {
       stageIds: stages.map((stage: Stage) => stage.id),
-      stages,
+      stages
     };
   }
 
@@ -403,7 +491,8 @@ const reducer: Reducer<StageEditorState> = (
     isAction<StagePreviewFetchAction>(
       action,
       StageEditorActionTypes.StagePreviewFetch
-    )
+    ) ||
+    isAction<StageRunAction>(action, StageEditorActionTypes.StageRun)
   ) {
     return {
       ...state,
@@ -422,6 +511,10 @@ const reducer: Reducer<StageEditorState> = (
     isAction<StagePreviewFetchSuccessAction>(
       action,
       StageEditorActionTypes.StagePreviewFetchSuccess
+    ) ||
+    isAction<StageRunSuccessAction>(
+      action,
+      StageEditorActionTypes.StageRunSuccess
     )
   ) {
     return {
@@ -443,7 +536,8 @@ const reducer: Reducer<StageEditorState> = (
     isAction<StagePreviewFetchErrorAction>(
       action,
       StageEditorActionTypes.StagePreviewFetchError
-    )
+    ) ||
+    isAction<StageRunErrorAction>(action, StageEditorActionTypes.StageRunError)
   ) {
     return {
       ...state,
@@ -471,6 +565,7 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
+          previewDocs: null,
           value: action.stage.value,
           syntaxError: action.stage.syntaxError
         },
@@ -491,6 +586,7 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
+          previewDocs: null,
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError
         },
@@ -511,6 +607,7 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
+          previewDocs: null,
           disabled: action.disabled
         },
         ...state.stages.slice(action.id + 1)
@@ -543,7 +640,7 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(after + 1, 0, mapBuilderStageToStoreStage(action.stage));
     return {
       ...state,
-      stageIds: stages.map(stage => stage.id),
+      stageIds: stages.map((stage) => stage.id),
       stages
     };
   }
@@ -555,7 +652,7 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(action.at, 1);
     return {
       ...state,
-      stageIds: stages.map(stage => stage.id),
+      stageIds: stages.map((stage) => stage.id),
       stages
     };
   }
@@ -566,8 +663,8 @@ const reducer: Reducer<StageEditorState> = (
     stages.splice(action.to, 0, movedStage);
     return {
       ...state,
-      stageIds: stages.map(stage => stage.id),
-      stages,
+      stageIds: stages.map((stage) => stage.id),
+      stages
     };
   }
 

@@ -3,7 +3,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import LoadingOverlay from '../loading-overlay';
-import { OUT, MERGE, runOutStage, gotoOutResults, gotoMergeResults } from '../../modules/pipeline';
+import { OUT, MERGE } from '../../modules/pipeline';
+import { gotoOutResults } from '../../modules/out-results-fn';
+import { runStage } from '../../modules/pipeline-builder/stage-editor';
 import decomment from 'decomment';
 import { connect } from 'react-redux';
 import { ADL, ATLAS } from '@mongodb-js/mongodb-constants';
@@ -295,8 +297,8 @@ export default connect(
     };
   },
   {
-    onRunOutStageClick: runOutStage,
+    onRunOutStageClick: runStage,
     onGoToOutResultsClick: gotoOutResults,
-    onGoToMergeResultsClick: gotoMergeResults
+    onGoToMergeResultsClick: gotoOutResults
   }
 )(StagePreview);

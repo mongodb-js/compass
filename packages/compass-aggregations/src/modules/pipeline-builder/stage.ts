@@ -1,6 +1,7 @@
 import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
 import mongodbQueryParser from 'mongodb-query-parser';
+import parseEJSON, { ParseMode } from 'ejson-shell-parser';
 
 import {
   isNodeDisabled,
@@ -131,5 +132,12 @@ export default class Stage {
       this.value ?? '',
       this.disabled
     );
+  }
+
+  toBSON() {
+    if (this.disabled) {
+      return null;
+    }
+    return parseEJSON(this.toString(), { mode: ParseMode.Loose });
   }
 }

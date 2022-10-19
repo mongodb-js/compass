@@ -2,14 +2,26 @@ import type { PipelineBuilderThunkAction, RootState } from '..';
 import type { PipelineBuilder } from './pipeline-builder';
 import { loadPreviewForStagesFrom } from './stage-editor';
 
-
 export const updatePipelinePreview =
   (): PipelineBuilderThunkAction<void> => (dispatch, getState) => {
     if (getState().pipelineBuilder.pipelineMode === 'builder-ui') {
       dispatch(loadPreviewForStagesFrom(0));
+    } else {
+      // TODO: dispatch for text editor
     }
-    // TODO: dispatch for text editor
   };
+
+export function getStagesFromBuilderState(
+  state: RootState,
+  pipelineBuilder: PipelineBuilder
+) {
+  if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
+    return pipelineBuilder.stages.map((stage) => stage.toBSON());
+  } else {
+    // TODO
+    return [];
+  }
+}
 
 export function getPipelineFromBuilderState(
   state: RootState,
