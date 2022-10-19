@@ -1,4 +1,4 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -114,7 +114,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-export const loadPreviewForPipeline = (
+const loadPreviewForPipeline = (
 ): PipelineBuilderThunkAction<Promise<void>, EditorPreviewFetchAction | EditorPreviewFetchSuccessAction | EditorPreviewFetchErrorAction> => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
@@ -171,9 +171,10 @@ export const loadPreviewForPipeline = (
 
 export const changeEditorValue = (
   value: string
-): PipelineBuilderThunkAction<void, EditorValueChangeAction> => {
+): PipelineBuilderThunkAction<void, AnyAction> => {
   return (dispatch, _getState, { pipelineBuilder }) => {
     pipelineBuilder.changeSource(value);
+    dispatch(loadPreviewForPipeline());
     dispatch({
       type: EditorActionTypes.EditorValueChange,
       pipelineText: value,
