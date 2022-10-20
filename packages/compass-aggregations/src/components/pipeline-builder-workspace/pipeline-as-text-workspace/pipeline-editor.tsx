@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { css, cx, spacing, useFocusRing } from '@mongodb-js/compass-components';
+import { css, cx, spacing } from '@mongodb-js/compass-components';
 import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
@@ -20,22 +20,18 @@ const editorWithErrorStyles = css({
   },
 });
 
-type PipelineTextEditorProps = {
+type PipelineEditorProps = {
   pipelineText: string;
   syntaxErrors: SyntaxError[];
   serverError: MongoServerError | null;
   onChangePipelineText: (value: string) => void;
 };
 
-export const PipelineTextEditor: React.FunctionComponent<
-  PipelineTextEditorProps
-> = ({ pipelineText, syntaxErrors, onChangePipelineText }) => {
-  const focusRingProps = useFocusRing({
-    outer: true,
-    focusWithin: true,
-    hover: true,
-  });
-
+export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
+  pipelineText,
+  syntaxErrors,
+  onChangePipelineText,
+}) => {
   return (
     <Editor
       text={pipelineText}
@@ -43,7 +39,6 @@ export const PipelineTextEditor: React.FunctionComponent<
       variant={EditorVariant.Shell}
       className={cx(
         editorStyles,
-        focusRingProps.className,
         syntaxErrors.length > 0 && editorWithErrorStyles
       )}
       name={'pipeline-as-text-workspace'}
@@ -66,4 +61,4 @@ const mapDispatch = {
   onChangePipelineText: changeEditorValue,
 };
 
-export default connect(mapState, mapDispatch)(PipelineTextEditor);
+export default connect(mapState, mapDispatch)(PipelineEditor);

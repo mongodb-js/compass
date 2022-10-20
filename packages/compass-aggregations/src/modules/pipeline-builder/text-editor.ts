@@ -77,6 +77,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
+      previewDocs: null,
       loading: true,
     };
   }
@@ -174,12 +175,12 @@ export const changeEditorValue = (
 ): PipelineBuilderThunkAction<void, AnyAction> => {
   return (dispatch, _getState, { pipelineBuilder }) => {
     pipelineBuilder.changeSource(value);
-    dispatch(loadPreviewForPipeline());
     dispatch({
       type: EditorActionTypes.EditorValueChange,
       pipelineText: value,
       syntaxErrors: pipelineBuilder.syntaxError
     });
+    dispatch(loadPreviewForPipeline());
   };
 };
 

@@ -40,6 +40,7 @@ import {
   ItemActionMenu,
 } from './components/item-action-controls';
 export { FavoriteIcon } from './components/icons/favorite-icon';
+export { DocumentIcon } from './components/icons/document-icon';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';
 export {
