@@ -21,12 +21,10 @@ export function getStagesFromBuilderState(
   state: RootState,
   pipelineBuilder: PipelineBuilder
 ) {
-  if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
-    return pipelineBuilder.stages.map((stage) => stage.toBSON());
-  } else {
-    // TODO
-    return [];
+  if (state.pipelineBuilder.pipelineMode === 'as-text') {
+    pipelineBuilder.sourceToStages();
   }
+  return pipelineBuilder.stages.map((stage) => stage.toBSON());
 }
 
 export function getPipelineFromBuilderState(
@@ -73,6 +71,6 @@ export function getIsPipelineInvalidFromBuilderState(
       (stage) => !stage.disabled && (stage.syntaxError || stage.serverError)
     );
   }
-  // TODO
-  return false;
+  const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor;
+  return Boolean(serverError || syntaxErrors.length > 0);
 }
