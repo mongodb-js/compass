@@ -6,6 +6,7 @@ import { SaveMenu, CreateMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
+import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 
 const containerStyles = css({
   display: 'grid',
@@ -30,6 +31,7 @@ const extraSettingsStyles = css({
 type PipelineSettingsProps = {
   isSavePipelineEnabled?: boolean;
   isCreatePipelineEnabled?: boolean;
+  isExportToLanguageEnabled?: boolean;
   onExportToLanguage: () => void;
 };
 
@@ -38,6 +40,7 @@ export const PipelineSettings: React.FunctionComponent<
 > = ({
   isSavePipelineEnabled,
   isCreatePipelineEnabled,
+  isExportToLanguageEnabled,
   onExportToLanguage,
 }) => {
   return (
@@ -56,6 +59,7 @@ export const PipelineSettings: React.FunctionComponent<
           leftGlyph={<Icon glyph="Code" />}
           onClick={onExportToLanguage}
           data-testid="pipeline-toolbar-export-button"
+          disabled={!isExportToLanguageEnabled}
         >
           Export to language
         </Button>
@@ -69,9 +73,12 @@ export const PipelineSettings: React.FunctionComponent<
 
 export default connect(
   (state: RootState) => {
+    const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
+
     return {
       isSavePipelineEnabled: !state.editViewName && !state.isAtlasDeployed,
       isCreatePipelineEnabled: !state.editViewName,
+      isExportToLanguageEnabled: !isPipelineInvalid
     };
   },
   {
