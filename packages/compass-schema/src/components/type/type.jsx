@@ -139,8 +139,8 @@ class Type extends Component {
       : '{"top": 10, "left": 0}';
     return (
       <button
-        type="button"
         {...tooltipOptions}
+        type="button"
         className={cls}
         style={style}
         onClick={handleClick}
