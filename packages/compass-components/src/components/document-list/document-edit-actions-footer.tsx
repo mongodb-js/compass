@@ -193,6 +193,8 @@ const container = css({
   paddingLeft: spacing[3],
   alignItems: 'center',
   gap: spacing[2],
+  borderBottomLeftRadius: 'inherit',
+  borderBottomRightRadius: 'inherit',
 });
 
 const message = css({

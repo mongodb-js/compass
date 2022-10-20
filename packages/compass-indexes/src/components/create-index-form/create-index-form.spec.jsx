@@ -13,7 +13,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import CreateIndexForm from '../create-index-form';
+import { CreateIndexForm } from './create-index-form';
 
 describe('CreateIndexForm Component', function () {
   let updateFieldNameSpy;

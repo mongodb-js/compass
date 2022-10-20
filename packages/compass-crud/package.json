@@ -62,6 +62,7 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
@@ -110,6 +111,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",

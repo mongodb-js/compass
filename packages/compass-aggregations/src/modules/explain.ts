@@ -6,9 +6,9 @@ import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { mapPipelineToStages } from '../utils/stage';
 import type { IndexInfo } from './indexes';
 import { NEW_PIPELINE } from './import-pipeline';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -125,10 +125,9 @@ export const cancelExplain = (): PipelineBuilderThunkAction<void> => {
 };
 
 export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch, getState) => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       isDataLake,
-      pipeline: _pipeline,
       namespace,
       maxTimeMS,
       dataService: { dataService },
@@ -139,6 +138,8 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
     if (!dataService) {
       return;
     }
+
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
     try {
       const abortController = new AbortController();
@@ -153,8 +154,6 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
         allowDiskUse: true,
         collation: collation ?? undefined,
       };
-
-      const pipeline = mapPipelineToStages(_pipeline);
       const explainVerbosity = _getExplainVerbosity(pipeline, isDataLake);
       const rawExplain = await dataService.explainAggregate(
         namespace,

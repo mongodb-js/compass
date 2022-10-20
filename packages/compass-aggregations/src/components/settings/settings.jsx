@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
-import { Label, Description } from '@mongodb-js/compass-components';
+import { Label, Description, Button } from '@mongodb-js/compass-components';
 
-import { TextButton } from 'hadron-react-buttons';
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 
 import styles from './settings.module.less';
@@ -49,9 +48,6 @@ class Settings extends PureComponent {
 
     // Update the settings in the state.
     this.props.applySettings();
-
-    // Updated settings used to run all stages in the current pipeline.
-    this.props.runStage(0, true /* force execute */);
 
     // Hide the settings panel.
     this.props.toggleSettingsIsExpanded();
@@ -154,19 +150,8 @@ class Settings extends PureComponent {
         <div className={classnames(styles.header)}>
           <div className={classnames(styles['header-title'])}>Settings</div>
           <div className={classnames(styles['header-btn-group'])}>
-            <TextButton
-              id="aggregations-settings-cancel"
-              className="btn btn-default btn-xs"
-              text="Cancel"
-              clickHandler={this.onCancelClicked.bind(this)}
-            />
-
-            <TextButton
-              id="aggregation-settings-apply"
-              className="btn btn-primary btn-xs"
-              text="Apply"
-              clickHandler={this.onApplyClicked.bind(this)}
-            />
+            <Button id="aggregations-settings-cancel" size="xsmall" onClick={this.onCancelClicked.bind(this)}>Cancel</Button>
+            <Button id="aggregation-settings-apply" size="xsmall" variant="primary" onClick={this.onApplyClicked.bind(this)}>Apply</Button>
           </div>
         </div>
         {this.renderFields()}

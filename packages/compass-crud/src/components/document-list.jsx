@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { ObjectID as ObjectId } from 'bson';
-import { StatusRow, ZeroState } from 'hadron-react-components';
-import { TextButton } from 'hadron-react-buttons';
 import {
+  Button,
   CancelLoader,
+  EmptyContent,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -22,19 +22,6 @@ import {
 
 import './index.less';
 import './ag-grid-dist.css';
-
-// From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L86
-const ERROR_CODE_OPERATION_TIMED_OUT = 50;
-
-const INCREASE_MAX_TIME_MS_HINT =
-  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
-
-function isOperationTimedOutError(err) {
-  return (
-    err.name === 'MongoServerError' &&
-    err.code?.value === ERROR_CODE_OPERATION_TIMED_OUT
-  );
-}
 
 /**
  * Component for the entire document list.
@@ -110,11 +97,7 @@ class DocumentList extends React.Component {
    */
   renderContent() {
     if (this.props.error) {
-      const errorMessage = isOperationTimedOutError(this.props.error)
-        ? INCREASE_MAX_TIME_MS_HINT
-        : this.props.error.message;
-
-      return <StatusRow style="error">{errorMessage}</StatusRow>;
+      return null;
     }
 
     if (
@@ -154,27 +137,7 @@ class DocumentList extends React.Component {
   }
 
   /**
-   * Render the query bar.
-   *
-   * @returns {React.Component} The query bar.
-   */
-  renderQueryBar() {
-    if (this.props.isExportable) {
-      return (
-        <this.queryBar
-          store={this.queryBarStore}
-          actions={this.queryBarActions}
-          buttonLabel="Find"
-          resultId={this.props.resultId}
-          onApply={this.onApplyClicked.bind(this)}
-          onReset={this.onResetClicked.bind(this)}
-        />
-      );
-    }
-  }
-
-  /**
-   * Render ZeroState view when no documents are present.
+   * Render EmptyContent view when no documents are present.
    *
    * @returns {React.Component} The query bar.
    */
@@ -190,42 +153,39 @@ class DocumentList extends React.Component {
       return null;
     }
 
-    let header = 'This collection has no data';
-    let subtext =
-      'It only takes a few seconds to import data from a JSON or CSV file';
-
     if (
       this.props.docs.length === 0 &&
       this.props.status === DOCUMENTS_STATUS_FETCHED_CUSTOM
     ) {
-      header = 'No results';
-      subtext = 'Try to modify your query to get results';
-
       return (
         <div className="document-list-zero-state">
-          <ZeroGraphic />
-          <ZeroState header={header} subtext={subtext} />
+          <EmptyContent
+            icon={ZeroGraphic}
+            title="No results"
+            subTitle="Try to modify your query to get results"
+          />
         </div>
       );
     }
 
-    const editableClass = !this.props.isEditable ? 'disabled' : '';
-
     return (
       <div className="document-list-zero-state">
-        <ZeroGraphic />
-        <ZeroState header={header} subtext={subtext}>
-          <div className="document-list-zero-state-action">
-            <div>
-              <TextButton
-                dataTestId="import-data-button"
-                className={`btn btn-primary btn-lg ${editableClass}`}
-                text="Import Data"
-                clickHandler={this.props.openImportFileDialog}
-              />
-            </div>
-          </div>
-        </ZeroState>
+        <EmptyContent
+          icon={ZeroGraphic}
+          title="This collection has no data"
+          subTitle="It only takes a few seconds to import data from a JSON or CSV file"
+          callToAction={
+            <Button
+              disabled={!this.props.isEditable}
+              onClick={this.props.openImportFileDialog}
+              data-testid="import-data-button"
+              variant="primary"
+              size="small"
+            >
+              Import Data
+            </Button>
+          }
+        />
       </div>
     );
   }

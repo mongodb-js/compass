@@ -2,16 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { debounce } from 'lodash';
-import { ValidationAutoCompleter } from 'mongodb-ace-autocompleter';
 import { TextButton } from 'hadron-react-buttons';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { IconButton, Icon } from '@mongodb-js/compass-components';
 import {
   Editor,
   EditorVariant,
   EditorTextCompleter,
-  IconButton,
-  Icon,
-} from '@mongodb-js/compass-components';
+  ValidationAutoCompleter,
+} from '@mongodb-js/compass-editor';
 
 import { checkValidator } from '../../modules/validation';
 import ValidationSelector from '../validation-selector';

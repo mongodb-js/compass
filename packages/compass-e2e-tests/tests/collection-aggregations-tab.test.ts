@@ -83,6 +83,9 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.CreateNewEmptyPipelineAction);
     const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
     await modalElement.waitForDisplayed();
+
+    await browser.screenshot('confirm-new-pipeline-modal.png');
+
     await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
     await modalElement.waitForDisplayed({ reverse: true });
   });
@@ -330,6 +333,8 @@ describe('Collection aggregations tab', function () {
     const viewNameInput = await browser.$(Selectors.CreateViewNameInput);
     await viewNameInput.setValue('my-view-from-pipeline');
 
+    await browser.screenshot('create-view-modal.png');
+
     // click create button
     const createButton = await browser
       .$(Selectors.CreateViewModal)
@@ -348,6 +353,10 @@ describe('Collection aggregations tab', function () {
           'Expected `test.my-view-from-pipeline` namespace tab to be visible',
       }
     );
+
+    // TODO: modify view
+    // TODO: duplicate view
+    // TODO: drop view
   });
 
   it('supports maxTimeMS', async function () {
@@ -418,22 +427,6 @@ describe('Collection aggregations tab', function () {
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
-    // make sure it complains that it must be the last stage
-    await browser.waitUntil(
-      async () => {
-        const messageElement = await browser.$(
-          Selectors.stageEditorErrorMessage(1)
-        );
-        await messageElement.waitForDisplayed();
-        const text = await messageElement.getText();
-        return text === '$out can only be the final stage in the pipeline';
-      },
-      {
-        timeoutMsg:
-          'Waited for the error "$out can only be the final stage in the pipeline"',
-      }
-    );
-
     // delete the stage after $out
     await browser.clickVisible(Selectors.stageDelete(1));
 
@@ -482,22 +475,6 @@ describe('Collection aggregations tab', function () {
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
-    // make sure it complains that it must be the last stage
-    await browser.waitUntil(
-      async () => {
-        const messageElement = await browser.$(
-          Selectors.stageEditorErrorMessage(1)
-        );
-        await messageElement.waitForDisplayed();
-        const text = await messageElement.getText();
-        return text === '$merge can only be the final stage in the pipeline';
-      },
-      {
-        timeoutMsg:
-          'Waited for the error "$merge can only be the final stage in the pipeline"',
-      }
-    );
-
     // delete the stage after $out
     await browser.clickVisible(Selectors.stageDelete(1));
 
@@ -542,12 +519,18 @@ describe('Collection aggregations tab', function () {
       Selectors.NewPipelineFromTextConfirmButton
     );
     await confirmButton.waitForEnabled();
+
+    await browser.screenshot('new-pipeline-from-text-modal.png');
+
     await confirmButton.click();
 
     await createModal.waitForDisplayed({ reverse: true });
 
     const confirmModal = await browser.$(Selectors.ConfirmImportPipelineModal);
     await confirmModal.waitForDisplayed();
+
+    await browser.screenshot('confirm-import-pipeline-modal.png');
+
     await browser.clickVisible(
       Selectors.ConfirmImportPipelineModalConfirmButton
     );
@@ -555,7 +538,7 @@ describe('Collection aggregations tab', function () {
 
     const contentElement = await browser.$(Selectors.stageContent(0));
     expect(await contentElement.getText()).to.equal(`{
-  i: 5
+  i: 5,
 }`);
 
     await browser.waitUntil(async function () {
@@ -721,6 +704,8 @@ describe('Collection aggregations tab', function () {
     );
     await exportModalShowFileButtonElement.waitForDisplayed();
 
+    await browser.screenshot('export-modal.png');
+
     // Close modal
     await browser.clickVisible(Selectors.ExportModalCloseButton);
     const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -737,6 +722,11 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows the explain for a pipeline', async function () {
+    // Set first stage to $match
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$match');
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
     await browser.clickVisible(Selectors.AggregationExplainButton);
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
 
@@ -745,6 +735,8 @@ describe('Collection aggregations tab', function () {
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
 
     expect(await modal.getText()).to.contain('Query Performance Summary');
+
+    await browser.screenshot('aggregation-explain-modal.png');
 
     await browser.clickVisible(Selectors.AggregationExplainModalCloseButton);
     await modal.waitForDisplayed({ reverse: true });

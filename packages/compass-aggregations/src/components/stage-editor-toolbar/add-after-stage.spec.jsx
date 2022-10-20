@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import AddAfterStage from './add-after-stage';
+import { AddAfterStage } from './add-after-stage';
 import styles from './add-after-stage.module.less';
 
 describe('AddAfterStage [Component]', function() {
@@ -12,7 +12,7 @@ describe('AddAfterStage [Component]', function() {
     const spy = sinon.spy();
 
     beforeEach(function() {
-      component = mount(<AddAfterStage index={1} stageAddedAfter={spy} />);
+      component = mount(<AddAfterStage index={1} onAddStageClick={spy} />);
     });
 
     afterEach(function() {
@@ -36,7 +36,7 @@ describe('AddAfterStage [Component]', function() {
     const spy = sinon.spy();
 
     beforeEach(function() {
-      component = mount(<AddAfterStage index={1} stageAddedAfter={spy} />);
+      component = mount(<AddAfterStage index={1} onAddStageClick={spy} />);
     });
 
     afterEach(function() {

@@ -13,6 +13,7 @@ import {
   spacing,
   useId,
   WarningSummary,
+  ErrorSummary,
 } from '@mongodb-js/compass-components';
 
 import { AddDataMenu } from './add-data-menu';
@@ -59,11 +60,30 @@ const OUTDATED_WARNING = `The content is outdated and no longer in sync
 with the current query. Press "Find" again to see the results for
 the current query.`;
 
+// From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L86
+const ERROR_CODE_OPERATION_TIMED_OUT = 50;
+
+const INCREASE_MAX_TIME_MS_HINT =
+  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
+
+type ErrorWithPossibleCode = Error & {
+  code?: {
+    value: number;
+  };
+};
+
+function isOperationTimedOutError(err: ErrorWithPossibleCode) {
+  return (
+    err.name === 'MongoServerError' &&
+    err.code?.value === ERROR_CODE_OPERATION_TIMED_OUT
+  );
+}
+
 type CrudToolbarProps = {
   activeDocumentView: string;
   count?: number;
   end: number;
-  error?: Error;
+  error?: ErrorWithPossibleCode;
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
   instanceDescription: string;
@@ -244,6 +264,16 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           </SegmentedControl>
         </div>
       </div>
+      {error && (
+        <ErrorSummary
+          data-testid="document-list-error-summary"
+          errors={
+            isOperationTimedOutError(error)
+              ? INCREASE_MAX_TIME_MS_HINT
+              : error.message
+          }
+        />
+      )}
       {outdated && !error && (
         <WarningSummary
           data-testid="crud-outdated-message-id"

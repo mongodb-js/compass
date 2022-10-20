@@ -11,7 +11,6 @@ import env from './env';
 import isTimeSeries from './is-time-series';
 import serverVersion from './server-version';
 import isModified from './is-modified';
-import pipeline from './pipeline';
 import name from './name';
 import limit from './limit';
 import largeLimit from './large-limit';
@@ -39,7 +38,8 @@ import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import indexes from './indexes';
 import type { ThunkAction } from 'redux-thunk';
-import type { PipelinePreviewManager } from './pipeline-builder/pipeline-preview-manager';
+import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
+import type { PipelineStorage } from '../utils/pipeline-storage';
 
 /**
  * The main application reducer.
@@ -59,7 +59,6 @@ const rootReducer = combineReducers({
   isTimeSeries,
   serverVersion,
   savedPipeline,
-  pipeline,
   name,
   collationString,
   id,
@@ -96,7 +95,7 @@ export type PipelineBuilderThunkAction<
 > = ThunkAction<
   R,
   RootState,
-  { pipelinePreviewManager: PipelinePreviewManager },
+  { pipelineBuilder: PipelineBuilder; pipelineStorage: PipelineStorage },
   A
 >;
 

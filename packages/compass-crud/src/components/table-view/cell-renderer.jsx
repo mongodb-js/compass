@@ -241,6 +241,7 @@ class CellRenderer extends React.Component {
     }
     return (
       <button
+        type="button"
         className={`${undoButtonClass}`}
         onClick={this.handleUndo.bind(this)}
       >
@@ -255,6 +256,7 @@ class CellRenderer extends React.Component {
     }
     return (
       <button
+        type="button"
         className={BUTTON_CLASS}
         onClick={this.handleDrillDown.bind(this)}
       >

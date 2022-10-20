@@ -77,6 +77,8 @@ describe('Instance my queries tab', function () {
     const pipelineNameInput = await browser.$(Selectors.SavePipelineNameInput);
     await pipelineNameInput.setValue(savedAggregationName);
 
+    await browser.screenshot('save-pipeline-modal.png');
+
     // click save button
     const createButton = await browser
       .$(Selectors.SavePipelineModal)

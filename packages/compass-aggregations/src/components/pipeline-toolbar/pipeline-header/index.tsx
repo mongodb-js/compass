@@ -86,14 +86,6 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   isSavedPipelineVisible,
   savedPipelines,
 }) => {
-  const savedPipelinesPopover = () => (
-    <SavedPipelines
-      namespace={namespace}
-      onToggleSavedPipelines={onToggleSavedPipelines}
-      savedPipelines={savedPipelines}
-    />
-  );
-
   const containedElements = useMemo(() => {
     return ['[data-id="open-pipeline-confirmation-modal"]']
   }, [])
@@ -128,7 +120,10 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           open={isSavedPipelineVisible}
           setOpen={onToggleSavedPipelines}
         >
-          {savedPipelinesPopover}
+          <SavedPipelines
+            namespace={namespace}
+            savedPipelines={savedPipelines}
+          />
         </InteractivePopover>
       )}
       <div className={pipelineStagesStyles}>

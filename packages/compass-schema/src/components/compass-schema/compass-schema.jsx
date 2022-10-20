@@ -1,12 +1,10 @@
 /* eslint react/no-multi-comp:0 */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ZeroState } from 'hadron-react-components';
 import {
   Button,
-  ButtonSize,
-  ButtonVariant,
   CancelLoader,
+  EmptyContent,
   Link,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
@@ -23,12 +21,6 @@ import {
   ANALYSIS_STATE_TIMEOUT,
 } from '../../constants/analysis-states';
 import { SchemaToolbar } from '../schema-toolbar/schema-toolbar';
-
-const HEADER = 'Explore your schema';
-
-const SUBTEXT =
-  'Quickly visualize your schema to understand the frequency, types and ranges of' +
-  '\xa0fields in your data set.';
 
 const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/';
 
@@ -104,26 +96,26 @@ class Schema extends Component {
   renderInitialScreen() {
     return (
       <div className={styles['schema-zero-state']}>
-        <ZeroGraphic />
-        <ZeroState header={HEADER} subtext={SUBTEXT}>
-          <div>
+        <EmptyContent
+          icon={ZeroGraphic}
+          title="Explore your schema"
+          subTitle="Quickly visualize your schema to understand the frequency, types and ranges of fields in your data set."
+          callToAction={
             <Button
               onClick={this.onApplyClicked.bind(this)}
               data-testid="analyze-schema-button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
+              variant="primary"
+              size="small"
             >
               Analyze Schema
             </Button>
-          </div>
-          <Link
-            className={styles['schema-zero-state-link']}
-            href={DOCUMENTATION_LINK}
-            target="_blank"
-          >
-            Learn more about schema analysis in Compass
-          </Link>
-        </ZeroState>
+          }
+          callToActionLink={
+            <Link href={DOCUMENTATION_LINK} target="_blank">
+              Learn more about schema analysis in Compass
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -154,7 +146,11 @@ class Schema extends Component {
       return this.renderAnalyzing();
     }
 
-    return <div className="schema-field-list">{this.renderFieldList()}</div>;
+    return (
+      <div className={styles.schema}>
+        <div className="schema-field-list">{this.renderFieldList()}</div>
+      </div>
+    );
   }
 
   /**
@@ -179,7 +175,7 @@ class Schema extends Component {
             />
           }
         >
-          <div className={styles.schema}>{this.renderContent()}</div>
+          {this.renderContent()}
         </WorkspaceContainer>
       </div>
     );

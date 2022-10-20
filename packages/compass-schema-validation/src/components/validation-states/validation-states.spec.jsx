@@ -2,8 +2,11 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { ZeroState } from 'hadron-react-components';
-import { Banner, WarningSummary } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  EmptyContent,
+  WarningSummary,
+} from '@mongodb-js/compass-components';
 
 import ValidationStates from '../validation-states';
 import ValidationEditor from '../validation-editor';
@@ -249,7 +252,7 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('does not render the zero state', function () {
-      expect(component.find(ZeroState)).to.not.be.present();
+      expect(component.find(EmptyContent)).to.not.be.present();
     });
   });
 
@@ -269,7 +272,7 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('renders the zero state', function () {
-      expect(component.find(ZeroState)).to.be.present();
+      expect(component.find(EmptyContent)).to.be.present();
     });
   });
 

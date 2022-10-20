@@ -57,6 +57,8 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
     (newShowQueryHistory: boolean) => {
       if (newShowQueryHistory) {
         track('Query History Opened');
+      } else {
+        track('Query History Closed');
       }
 
       setShowQueryHistory(newShowQueryHistory);
@@ -69,14 +71,6 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
   if (!QueryHistoryComponent) {
     return null;
   }
-
-  const popoverContent = ({ onClose }: { onClose: () => void }) => (
-    <QueryHistoryComponent
-      onClose={onClose}
-      store={queryHistoryRef.current?.store}
-      actions={queryHistoryRef.current?.actions}
-    />
-  );
 
   return (
     <InteractivePopover
@@ -103,7 +97,10 @@ export const QueryHistoryButtonPopover: React.FunctionComponent<
       open={showQueryHistory}
       setOpen={onSetShowQueryHistory}
     >
-      {popoverContent}
+      <QueryHistoryComponent
+        store={queryHistoryRef.current?.store}
+        actions={queryHistoryRef.current?.actions}
+      />
     </InteractivePopover>
   );
 };

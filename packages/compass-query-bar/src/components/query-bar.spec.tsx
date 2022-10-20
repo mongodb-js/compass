@@ -40,15 +40,18 @@ const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history-component-test-id';
 
+const QueryHistoryMockComponent = () => (
+  <div data-testid={queryHistoryComponentTestId}>
+    <div>Query history</div>
+    <button type="button" onClick={() => {}}>
+      Button
+    </button>
+  </div>
+);
 const mockQueryHistoryRole = {
   name: 'Query History',
   // eslint-disable-next-line react/display-name
-  component: () => (
-    <div data-testid={queryHistoryComponentTestId}>
-      <div>Query history</div>
-      <button onClick={() => {}}>Button</button>
-    </div>
-  ),
+  component: QueryHistoryMockComponent,
   configureStore: () => ({}),
   configureActions: () => {},
   storeName: 'Query.History',

@@ -4,7 +4,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import type { glyphs } from '@leafygreen-ui/icon';
-import { transparentize } from 'polished';
+import { rgba } from 'polished';
 
 import { withTheme } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
@@ -12,8 +12,8 @@ import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import { Tab } from './tab';
 
-export const scrollbarThumbLightTheme = transparentize(0.35, palette.gray.base);
-export const scrollbarThumbDarkTheme = transparentize(0.35, palette.gray.base);
+export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
+export const scrollbarThumbDarkTheme = rgba(palette.gray.base, 0.65);
 
 const tabsContainerStyles = css({
   margin: 0,

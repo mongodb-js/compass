@@ -1,14 +1,7 @@
-import { toJSString } from 'mongodb-query-parser';
-import { emptyStage } from '../utils/stage';
-import { extractStages } from './extract-stages';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
-const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
-
-/**
- * Shell string indent.
- */
-const INDENT = '  ';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
  * New pipeline action name.
@@ -190,75 +183,24 @@ export const createNew = () => ({
 });
 
 /**
- * Confirm new action creator.
- *
- * @returns {Object} The state.
+ * @returns {import('.').PipelineBuilderThunkAction<void>}
  */
-export const confirmNew = () => (dispatch, getState) => {
-  const { importPipeline } = getState();
-  const pipeline = createPipeline(importPipeline.text);
-  const error = pipeline.length > 0 ? pipeline[0].syntaxError : null;
+export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
+  const { importPipeline: { text } } = getState();
 
-  if (!error) {
-    track('Aggregation Imported From Text', { num_stages: pipeline.length });
-  }
+  pipelineBuilder.reset(text);
+
+  const error = pipelineBuilder.syntaxError[0]?.message
 
   dispatch({
     type: CONFIRM_NEW,
-    pipeline,
+    stages: pipelineBuilder.stages,
+    source: pipelineBuilder.source,
     error
   });
-};
 
-/**
- * Create a pipeline from the provided text.
- *
- * @param {String} text - The text.
- *
- * @returns {Array} The pipeline for the builder.
- */
-export const createPipeline = (text) => {
-  try {
-    const stages = extractStages(text);
-    return stages.map((stage) => {
-      return createStage(
-        stage.operator,
-        stage.source,
-        null
-      );
-    });
-  } catch (jsError) {
-    debug(jsError);
-    return [ createStage(null, '', jsError.message) ];
+  if (!error) {
+    dispatch(updatePipelinePreview());
+    track('Aggregation Imported From Text', { num_stages: pipelineBuilder.stages.length });
   }
-};
-
-export const createPipelineFromView = (pipeline) => {
-  return pipeline.map((stage) => {
-    return createStage(
-      Object.keys(stage)[0],
-      toJSString(Object.values(stage)[0], INDENT),
-      null
-    );
-  });
-};
-
-/**
- * Create a single stage in the pipeline.
- *
- * @param {String} stageOperator - The stage operator.
- * @param {String} stage - The stage.
- * @param {String} syntaxError - The syntax error.
- *
- * @returns {Object} The stage.
- */
-export const createStage = (stageOperator, stage, syntaxError) => {
-  const newStage = emptyStage();
-  return {
-    ...newStage,
-    stageOperator: stageOperator,
-    stage: stage,
-    isValid: syntaxError ? false : true,
-    syntaxError: syntaxError
-  };
 };

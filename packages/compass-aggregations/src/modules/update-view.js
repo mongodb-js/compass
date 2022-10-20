@@ -2,10 +2,9 @@ import toNS from 'mongodb-ns';
 import {
   globalAppRegistryEmit
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-
-import { generateStage } from './stage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { NEW_PIPELINE } from './import-pipeline';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -60,13 +59,16 @@ export const dismissViewError = () => ({
  * @returns {Function} The function.
  */
 export const updateView = () => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     dispatch(dismissViewError());
 
     const state = getState();
     const ds = state.dataService.dataService;
     const viewNamespace = state.editViewName;
-    const viewPipeline = state.pipeline.map((p) => (p.executor || generateStage(p)));
+    const viewPipeline = getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
     const options = {
       viewOn: toNS(state.namespace).collection,
       pipeline: viewPipeline

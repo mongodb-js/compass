@@ -277,6 +277,7 @@ function Connection({
   return (
     <div className={connectionButtonContainerStyles} {...hoverProps}>
       <button
+        type="button"
         className={cx(
           connectionButtonStyles,
           theme === Theme.Dark

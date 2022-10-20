@@ -9,6 +9,7 @@ import createContext from '../stores/context';
 import type { ContextProps } from '../stores/context';
 import { appRegistryEmit } from './app-registry';
 import type { RootState } from '../stores';
+import { resetCollectionDetails } from './stats';
 
 /**
  * The prefix.
@@ -75,9 +76,13 @@ export interface WorkspaceTabObject {
   tabs: string[];
   views: JSX.Element[];
   subtab: WorkspaceTabObject;
-  queryHistoryIndexes: number[];
   pipeline: Document[];
-  scopedModals: any[];
+  scopedModals: {
+    store: any;
+    component: React.ComponentType<any>;
+    actions: any;
+    key: number | string;
+  }[];
   sourceName: string;
   editViewName: string;
   sourceReadonly?: boolean;
@@ -135,7 +140,6 @@ const doSelectNamespace = (state: State, action: AnyAction) => {
         tabs: action.context.tabs,
         views: action.context.views,
         subtab: action.context.subtab,
-        queryHistoryIndexes: action.context.queryHistoryIndexes,
         pipeline: action.context.sourcePipeline,
         scopedModals: action.context.scopedModals,
         sourceName: action.sourceName,
@@ -185,7 +189,6 @@ const doCreateTab = (state: State, action: AnyAction) => {
     tabs: action.context.tabs,
     views: action.context.views,
     subtab: action.context.subtab,
-    queryHistoryIndexes: action.context.queryHistoryIndexes,
     scopedModals: action.context.scopedModals,
     sourceName: action.sourceName,
     pipeline: action.context.sourcePipeline,
@@ -502,11 +505,24 @@ export const selectNamespace = ({
  */
 export const closeTab =
   (index: number) => (dispatch: Dispatch, getState: () => RootState) => {
-    const { tabs } = getState();
+    const {
+      tabs,
+    }: {
+      tabs: WorkspaceTabObject[];
+    } = getState();
     if (tabs.length === 1) {
       dispatch(appRegistryEmit('all-collection-tabs-closed'));
     }
     dispatch({ type: CLOSE_TAB, index: index });
+    // Clear the stats of the closed tab's namespace if it's the last one in use.
+    if (
+      tabs.findIndex(
+        (tab, tabIndex) =>
+          tab.namespace === tabs[index].namespace && tabIndex !== index
+      ) === -1
+    ) {
+      dispatch(resetCollectionDetails(tabs[index].namespace));
+    }
   };
 
 /**
@@ -678,7 +694,7 @@ export const selectOrCreateTab = ({
       const activeIndex = state.tabs.findIndex(
         (tab: WorkspaceTabObject) => tab.isActive
       );
-      const activeNamespace = state.tabs[activeIndex].namespace;
+      const activeNamespace: string = state.tabs[activeIndex].namespace;
       if (namespace !== activeNamespace) {
         dispatch(
           replaceTabContent({
@@ -694,6 +710,15 @@ export const selectOrCreateTab = ({
             sourcePipeline,
           })
         );
+        // Clear the stats of the closed tab's namespace if it's the last one in use.
+        if (
+          state.tabs.findIndex(
+            (tab: WorkspaceTabObject, tabIndex: number) =>
+              tab.namespace === activeNamespace && tabIndex !== activeIndex
+          ) === -1
+        ) {
+          dispatch(resetCollectionDetails(activeNamespace));
+        }
       }
     }
   };
