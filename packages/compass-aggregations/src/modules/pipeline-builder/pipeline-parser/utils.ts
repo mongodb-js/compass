@@ -2,6 +2,13 @@ import babelGenerate from '@babel/generator';
 import type { Node } from '@babel/types';
 import prettier from 'prettier';
 
+export class PipelineParserError extends SyntaxError {
+  loc?: {
+    line: number;
+    column: number;
+  }
+};
+
 export function generate(ast: Node) {
   return prettier
     .format(babelGenerate(ast).code, {

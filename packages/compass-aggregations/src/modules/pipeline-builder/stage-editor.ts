@@ -16,6 +16,7 @@ import {
   DEFAULT_SAMPLE_SIZE
 } from './pipeline-preview-manager';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
+import type { PipelineParserError } from './pipeline-parser/utils';
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -454,7 +455,7 @@ export type StageEditorState = {
     id: number;
     stageOperator: string | null;
     value: string | null;
-    syntaxError: SyntaxError | null;
+    syntaxError: PipelineParserError | null;
     serverError: MongoServerError | null;
     loading: boolean;
     previewDocs: Document[] | null;

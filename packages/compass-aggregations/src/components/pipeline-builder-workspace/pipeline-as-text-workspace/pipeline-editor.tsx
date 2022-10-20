@@ -8,14 +8,14 @@ import {
   AggregationAutoCompleter,
 } from '@mongodb-js/compass-editor';
 import type { AceEditor, AceAnnotation } from '@mongodb-js/compass-editor';
-import { ParseError } from '@babel/parser';
 import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor';
+import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 
 type PipelineEditorProps = {
   pipelineText: string;
-  syntaxErrors: SyntaxError[];
+  syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   serverVersion: string;
   fields: CompletionWithServerInfo[];

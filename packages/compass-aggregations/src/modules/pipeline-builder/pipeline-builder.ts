@@ -6,6 +6,7 @@ import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
+import type { PipelineParserError } from './pipeline-parser/utils';
 
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
 
@@ -13,7 +14,7 @@ export class PipelineBuilder {
   source: string;
   node: t.ArrayExpression | null = null;
   stages: Stage[] = [];
-  syntaxError: SyntaxError[] = [];
+  syntaxError: PipelineParserError[] = [];
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
 
@@ -60,9 +61,9 @@ export class PipelineBuilder {
       });
       this.syntaxError = this.stages
         .map((stage) => stage.syntaxError)
-        .filter(Boolean) as SyntaxError[];
+        .filter(Boolean) as PipelineParserError[];
     } catch (e) {
-      this.syntaxError = [e as SyntaxError];
+      this.syntaxError = [e as PipelineParserError];
     }
   }
 

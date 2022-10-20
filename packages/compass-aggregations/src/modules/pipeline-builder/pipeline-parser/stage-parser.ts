@@ -1,7 +1,7 @@
 import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
 
-import { generate } from './utils';
+import { generate, PipelineParserError } from './utils';
 
 export type StageLike = t.ObjectExpression & {
   properties: [t.ObjectProperty & { key: t.Identifier | t.StringLiteral }];
@@ -36,7 +36,7 @@ export function assertStageNode(node: t.Node): asserts node is StageLike {
   if (isStageLike(node)) {
     return;
   }
-  throw new SyntaxError(
+  throw new PipelineParserError(
     node.type === 'ObjectExpression'
       ? (node.properties[0] as t.ObjectProperty | undefined)?.key == null
         ? 'A pipeline stage specification object must contain exactly one field.'

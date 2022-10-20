@@ -9,6 +9,7 @@ import {
 } from './pipeline-preview-manager';
 import { isCancelError } from '../../utils/cancellable-promise';
 import { isAction } from '../../utils/is-action';
+import type { PipelineParserError } from './pipeline-parser/utils';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetch',
@@ -20,7 +21,7 @@ export const enum EditorActionTypes {
 export type EditorValueChangeAction = {
   type: EditorActionTypes.EditorValueChange;
   pipelineText: string;
-  syntaxErrors: SyntaxError[];
+  syntaxErrors: PipelineParserError[];
 };
 
 type EditorPreviewFetchAction = {
@@ -39,7 +40,7 @@ type EditorPreviewFetchErrorAction = {
 
 export type TextEditorState = {
   pipelineText: string;
-  syntaxErrors: SyntaxError[];
+  syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   loading: boolean;
   previewDocs: Document[] | null;
