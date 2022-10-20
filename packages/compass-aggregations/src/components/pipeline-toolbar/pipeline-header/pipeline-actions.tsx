@@ -14,6 +14,7 @@ import {
 import { updateView } from '../../../modules/update-view';
 import { explainAggregation } from '../../../modules/explain';
 import { getIsPipelineInvalidFromBuilderState, getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { isOutputStage } from '../../../utils/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -125,7 +126,7 @@ const mapState = (state: RootState) => {
     false
   );
   const lastStage = resultPipeline[resultPipeline.length - 1];
-  const isMergeOrOutPipeline = ['$merge', '$out'].includes(lastStage);
+  const isMergeOrOutPipeline = isOutputStage(lastStage);
   const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
   const isStageStateEmpty = resultPipeline.length === 0;
 

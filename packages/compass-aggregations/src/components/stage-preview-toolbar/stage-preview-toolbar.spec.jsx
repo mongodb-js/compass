@@ -1,24 +1,36 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
+import { Provider } from 'react-redux';
+import configureStore from '../../stores/store';
+import StagePreviewToolbar from './stage-preview-toolbar';
+import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 
-import { StagePreviewToolbar } from './stage-preview-toolbar';
 import styles from './stage-preview-toolbar.module.less';
 
-
+function mountStagePreviewToolbar(
+  options = {}
+) {
+  const store = configureStore({
+    sourcePipeline: [{ $match: { _id: 1 } }],
+    namespace: 'test.test',
+    ...options
+  });
+  const wrapper = mount(
+    <Provider store={store}>
+      <StagePreviewToolbar index={0}></StagePreviewToolbar>
+    </Provider>
+  );
+  wrapper.store = store;
+  return wrapper;
+}
 
 describe('StagePreviewToolbar [Component]', function() {
   context('when the stage is enabled', function() {
     let component;
 
     beforeEach(function() {
-      component = mount(
-        <StagePreviewToolbar
-          stageOperator="$match"
-          isValid
-          previewSize={10}
-          isEnabled />
-      );
+      component = mountStagePreviewToolbar();
     });
 
     afterEach(function() {
@@ -30,7 +42,7 @@ describe('StagePreviewToolbar [Component]', function() {
 
     it('renders the stage text', function() {
       expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-        to.include.text('(Sample of 10 documents)');
+        to.include.text('(Sample of 0 documents)');
     });
 
     it('renders the stage text with the right link', function() {
@@ -50,26 +62,23 @@ describe('StagePreviewToolbar [Component]', function() {
     let component;
 
     beforeEach(function() {
-      component = mount(
-        <StagePreviewToolbar
-          stageOperator="$monkey"
-          isValid
-          previewSize={10}
-          isEnabled />
-      );
+      component = mountStagePreviewToolbar({
+        sourcePipeline: [{ $monkey: 1 }]
+      });
     });
 
     afterEach(function() {
+      component.unmount();
       component = null;
     });
 
     it('renders the stage text', function() {
       expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-        to.include.text('(Sample of 10 documents)');
+        to.include.text('(Sample of 0 documents)');
     });
 
     it('renders the stage link', function() {
-      expect(component.find('.stage-preview-toolbar-link-invalid')).
+      expect(component.find('a.stage-preview-toolbar-link')).
         to.have.text('$monkey');
     });
   });
@@ -78,16 +87,12 @@ describe('StagePreviewToolbar [Component]', function() {
     let component;
 
     beforeEach(function() {
-      component = mount(
-        <StagePreviewToolbar
-          stageOperator="$match"
-          isValid
-          previewSize={10}
-          isEnabled={false} />
-      );
+      component = mountStagePreviewToolbar();
+      component.store.dispatch(changeStageDisabled(0, true));
     });
 
     afterEach(function() {
+      component.unmount();
       component = null;
     });
 
@@ -102,47 +107,19 @@ describe('StagePreviewToolbar [Component]', function() {
       let component;
 
       beforeEach(function() {
-        component = mount(
-          <StagePreviewToolbar
-            stageOperator="$out"
-            stageValue="collection"
-            previewSize={0}
-            isValid
-            isEnabled />
-        );
+        component = mountStagePreviewToolbar({
+          sourcePipeline: [{ $out: 'collection' }]
+        });
       });
 
       afterEach(function() {
+        component.unmount();
         component = null;
       });
 
       it('renders the $out stage text', function() {
         expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-          to.have.text('Documents will be saved to the collection: collection');
-      });
-    });
-
-    context('when the value is an invalid string while isValid is true', function() {
-      let component;
-
-      beforeEach(function() {
-        component = mount(
-          <StagePreviewToolbar
-            stageOperator="$out"
-            stageValue="'''" // 3 single quotes.
-            previewSize={0}
-            isValid
-            isEnabled />
-        );
-      });
-
-      afterEach(function() {
-        component = null;
-      });
-
-      it('renders the $out stage text', function() {
-        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-          to.have.text('Unable to parse the destination for the out stage.');
+          to.have.text('Documents will be saved to test.collection.');
       });
     });
 
@@ -151,23 +128,19 @@ describe('StagePreviewToolbar [Component]', function() {
         let component;
 
         beforeEach(function() {
-          component = mount(
-            <StagePreviewToolbar
-              stageOperator="$out"
-              stageValue="{ s3: 'bucket' }"
-              previewSize={0}
-              isValid
-              isEnabled />
-          );
+          component = mountStagePreviewToolbar({
+            sourcePipeline: [{ $out: { s3: 'test' } }]
+          });
         });
 
         afterEach(function() {
+          component.unmount();
           component = null;
         });
 
         it('renders the $out stage text', function() {
           expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-            to.have.text('Documents will be saved to S3.');
+            to.have.text('Documents will be saved to S3 bucket.');
         });
       });
 
@@ -175,23 +148,19 @@ describe('StagePreviewToolbar [Component]', function() {
         let component;
 
         beforeEach(function() {
-          component = mount(
-            <StagePreviewToolbar
-              stageOperator="$out"
-              stageValue="{ s3: { bucket: 'test' }}"
-              previewSize={0}
-              isValid
-              isEnabled />
-          );
+          component = mountStagePreviewToolbar({
+            sourcePipeline: [{ $out: { s3: { bucket: 'test' } } }]
+          });
         });
 
         afterEach(function() {
+          component.unmount();
           component = null;
         });
 
         it('renders the $out stage text', function() {
           expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-            to.have.text('Documents will be saved to S3.');
+            to.have.text('Documents will be saved to S3 bucket.');
         });
       });
     });
@@ -200,17 +169,13 @@ describe('StagePreviewToolbar [Component]', function() {
       let component;
 
       beforeEach(function() {
-        component = mount(
-          <StagePreviewToolbar
-            stageOperator="$out"
-            stageValue="{ atlas: { projectId: 'test' }}"
-            previewSize={0}
-            isValid
-            isEnabled />
-        );
+        component = mountStagePreviewToolbar({
+          sourcePipeline: [{ $out: { atlas: { projectId: 'test' } } }]
+        });
       });
 
       afterEach(function() {
+        component.unmount();
         component = null;
       });
 
@@ -225,22 +190,19 @@ describe('StagePreviewToolbar [Component]', function() {
     let component;
 
     beforeEach(function() {
-      component = mount(
-        <StagePreviewToolbar
-          stageOperator={null}
-          previewSize={0}
-          isValid
-          isEnabled />
-      );
+      component = mountStagePreviewToolbar({
+        sourcePipeline: [{}]
+      });
     });
 
     afterEach(function() {
+      component.unmount();
       component = null;
     });
 
     it('renders the stage text', function() {
       expect(component.find(`.${styles['stage-preview-toolbar']}`)).
-        to.have.text('A sample of the aggregated results from this stage will be shown below');
+        to.have.text('A sample of the aggregated results from this stage will be shown below.');
     });
   });
 });

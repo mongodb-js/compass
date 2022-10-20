@@ -8,7 +8,6 @@ import { newPipelineFromText } from '../../../modules/import-pipeline';
 import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
 import { openCreateView, savingPipelineOpen } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
-import { VIEWS_MIN_SERVER_VERSION } from '../../../constants';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 
 type PipelineActionMenuProp<ActionType extends string> = {
@@ -142,6 +141,8 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
     />
   );
 };
+
+const VIEWS_MIN_SERVER_VERSION = '3.4.0';
 
 const mapSaveMenuState = (state: RootState) => {
   const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
