@@ -948,3 +948,8 @@ export const ConfirmImportPipelineModal =
   '[data-testid="confirm_import_pipeline_modal"]';
 export const ConfirmImportPipelineModalConfirmButton =
   '[data-testid="confirm_import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+export const ShellInfoButton = '[data-testid="shell-info-button"]';
+export const ShellInfoModal = '[data-testid="shell-info-modal"]';
+export const ShellInfoModalCloseButton =
+  '[data-testid="shell-info-modal"] [aria-label*="Close"]';
