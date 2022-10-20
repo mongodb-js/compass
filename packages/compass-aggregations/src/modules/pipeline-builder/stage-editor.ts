@@ -691,15 +691,6 @@ const reducer: Reducer<StageEditorState> = (
     };
   }
 
-  if (isAction<StagesUpdatedAction>(action, StageEditorActionTypes.StagesUpdated)) {
-    const { stages } = action;
-    return {
-      ...state,
-      stageIds: stages.map((stage) => stage.id),
-      stages
-    };
-  }
-
   return state;
 };
 
