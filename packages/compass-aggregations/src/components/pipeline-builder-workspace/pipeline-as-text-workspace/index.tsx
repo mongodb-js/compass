@@ -5,17 +5,15 @@ import PipelineEditor from './pipeline-editor';
 import PipelinePreview from './pipeline-preview';
 
 const containerStyles = css({
-  overflow: 'hidden',
   display: 'flex',
-  flexDirection: 'row',
-  gap: spacing[2],
   marginLeft: spacing[3],
   marginRight: spacing[3],
+  height: '100%',
 
+  // align with stage editor design
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: '4px',
   boxShadow: `1px 1px 1px ${palette.gray.light2}`,
-  height: '100%',
 });
 
 const editorStyles = css({
