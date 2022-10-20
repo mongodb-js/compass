@@ -1,20 +1,21 @@
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import type { PipelineBuilder } from './pipeline-builder';
 import { loadPreviewForStagesFrom } from './stage-editor';
+import { loadPreviewForPipeline } from './text-editor';
 
 export const updatePipelinePreview =
   (): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState, { pipelineBuilder }) => {
-    // Stop unconditionally (we might not start again based on the autoPreview
-    // state and stages validity)
-    pipelineBuilder.stopPreview();
+    (dispatch, getState, { pipelineBuilder }) => {
+      // Stop unconditionally (we might not start again based on the autoPreview
+      // state and stages validity)
+      pipelineBuilder.stopPreview();
 
-    if (getState().pipelineBuilder.pipelineMode === 'builder-ui') {
-      dispatch(loadPreviewForStagesFrom(0));
-    } else {
-      // TODO: dispatch for text editor
-    }
-  };
+      if (getState().pipelineBuilder.pipelineMode === 'builder-ui') {
+        dispatch(loadPreviewForStagesFrom(0));
+      } else {
+        void dispatch(loadPreviewForPipeline());
+      }
+    };
 
 export function getStagesFromBuilderState(
   state: RootState,

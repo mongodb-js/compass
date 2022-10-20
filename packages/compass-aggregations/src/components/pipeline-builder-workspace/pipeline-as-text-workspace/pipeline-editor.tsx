@@ -86,7 +86,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       variant={EditorVariant.Shell}
       name={'pipeline-as-text-workspace'}
       completer={completer}
-      options={{ minLines: 50 }}
+      options={{ minLines: 40 }}
       onLoad={onLoadEditor}
     />
   );

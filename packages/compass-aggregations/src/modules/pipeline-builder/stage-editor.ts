@@ -110,7 +110,7 @@ export type StageMoveAction = {
   to: number;
 };
 
-export type StagesUpdatedAction = {
+type StagesUpdatedAction = {
   type: StageEditorActionTypes.StagesUpdated,
   stages: Stage[];
 }
@@ -449,6 +449,17 @@ export const moveStage = (
   };
 };
 
+export const changeStages = (
+  stages: Stage[]
+): PipelineBuilderThunkAction<void, StagesUpdatedAction> => {
+  return (dispatch) => {
+    dispatch({
+      type: StageEditorActionTypes.StagesUpdated,
+      stages,
+    });
+  };
+}
+
 export type StageEditorState = {
   stageIds: number[];
   stages: {
@@ -672,6 +683,15 @@ const reducer: Reducer<StageEditorState> = (
     const stages = [...state.stages];
     const movedStage = stages.splice(action.from, 1)[0];
     stages.splice(action.to, 0, movedStage);
+    return {
+      ...state,
+      stageIds: stages.map((stage) => stage.id),
+      stages
+    };
+  }
+
+  if (isAction<StagesUpdatedAction>(action, StageEditorActionTypes.StagesUpdated)) {
+    const { stages } = action;
     return {
       ...state,
       stageIds: stages.map((stage) => stage.id),

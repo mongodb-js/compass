@@ -1,4 +1,4 @@
-import type { AnyAction, Reducer } from 'redux';
+import type { Reducer } from 'redux';
 import type { Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -11,14 +11,14 @@ import { isCancelError } from '../../utils/cancellable-promise';
 import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 
-export const enum EditorActionTypes {
+const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetch',
   EditorPreviewFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetchSuccess',
   EditorPreviewFetchError = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetchError',
   EditorValueChange = 'compass-aggregations/pipeline-builder/text-editor/TextEditorValueChange',
 };
 
-export type EditorValueChangeAction = {
+type EditorValueChangeAction = {
   type: EditorActionTypes.EditorValueChange;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
@@ -116,8 +116,13 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-const loadPreviewForPipeline = (
-): PipelineBuilderThunkAction<Promise<void>, EditorPreviewFetchAction | EditorPreviewFetchSuccessAction | EditorPreviewFetchErrorAction> => {
+export const loadPreviewForPipeline = (
+): PipelineBuilderThunkAction<
+  Promise<void>,
+  EditorPreviewFetchAction |
+  EditorPreviewFetchSuccessAction |
+  EditorPreviewFetchErrorAction
+> => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       autoPreview
@@ -173,7 +178,7 @@ const loadPreviewForPipeline = (
 
 export const changeEditorValue = (
   value: string
-): PipelineBuilderThunkAction<void, AnyAction> => {
+): PipelineBuilderThunkAction<void, EditorValueChangeAction> => {
   return (dispatch, _getState, { pipelineBuilder }) => {
     pipelineBuilder.changeSource(value);
     dispatch({
@@ -181,7 +186,6 @@ export const changeEditorValue = (
       pipelineText: value,
       syntaxErrors: pipelineBuilder.syntaxError
     });
-    dispatch(loadPreviewForPipeline());
   };
 };
 

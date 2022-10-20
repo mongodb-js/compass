@@ -2,16 +2,21 @@ import babelGenerate from '@babel/generator';
 import type { Node } from '@babel/types';
 import prettier from 'prettier';
 
+type ErrorLoc = {
+  line: number;
+  column: number;
+}
 export class PipelineParserError extends SyntaxError {
-  loc?: {
-    line: number;
-    column: number;
-  }
+  loc: ErrorLoc | undefined;
 };
 
 export function generate(ast: Node) {
+  return prettify(babelGenerate(ast).code);
+}
+
+export function prettify(code: string) {
   return prettier
-    .format(babelGenerate(ast).code, {
+    .format(code, {
       printWidth: 60,
       // Prettier only understands statements, so we use internal
       // expression parser (it's just babel.parseExpression instead of

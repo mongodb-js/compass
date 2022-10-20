@@ -7,6 +7,7 @@ import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
+import { prettify } from './pipeline-parser/utils';
 
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
 
@@ -162,14 +163,15 @@ export class PipelineBuilder {
     if (stage) {
       throw stage.syntaxError;
     }
-    return `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    return prettify(code);
   }
 
   /**
    * Returns current source of the pipeline
    */
   getPipelineStringFromSource(): string {
-    return this.source;
+    return prettify(this.source);
   }
 
   /**
