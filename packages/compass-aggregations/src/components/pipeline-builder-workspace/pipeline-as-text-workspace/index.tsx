@@ -20,7 +20,6 @@ const containerStyles = css({
 
 const editorStyles = css({
   flex: 1,
-  overflow: 'auto',
   borderRight: `2px solid ${palette.gray.light2}`,
 });
 

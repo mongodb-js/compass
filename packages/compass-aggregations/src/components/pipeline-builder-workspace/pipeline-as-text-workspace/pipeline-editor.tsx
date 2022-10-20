@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
+import { ErrorSummary, css } from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
   Editor,
@@ -12,6 +13,18 @@ import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
+
+const containerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  justifyContent: 'space-between',
+});
+
+const editorContainerStyles = css({
+  height: '100%',
+  overflow: 'scroll',
+});
 
 type PipelineEditorProps = {
   pipelineText: string;
@@ -42,6 +55,7 @@ function useAggregationCompleter(
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   pipelineText,
+  serverError,
   syntaxErrors,
   serverVersion,
   fields,
@@ -80,15 +94,20 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   }, [syntaxErrors, editorRef]);
 
   return (
-    <Editor
-      text={pipelineText}
-      onChangeText={onChangePipelineText}
-      variant={EditorVariant.Shell}
-      name={'pipeline-as-text-workspace'}
-      completer={completer}
-      options={{ minLines: 40 }}
-      onLoad={onLoadEditor}
-    />
+    <div className={containerStyles}>
+      <div className={editorContainerStyles}>
+        <Editor
+          text={pipelineText}
+          onChangeText={onChangePipelineText}
+          variant={EditorVariant.Shell}
+          name={'pipeline-as-text-workspace'}
+          completer={completer}
+          options={{ minLines: 50 }}
+          onLoad={onLoadEditor}
+        />
+      </div>
+      {serverError && <ErrorSummary errors={serverError.message} />}
+    </div>
   );
 };
 
