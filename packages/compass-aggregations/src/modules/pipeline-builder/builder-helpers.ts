@@ -52,10 +52,12 @@ export function getPipelineStringFromBuilderState(
 }
 
 export function getPipelineStageOperatorsFromBuilderState(
-  state: RootState
+  state: RootState,
+  includeDisabled = true
 ): string[] {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages
+      .filter((stage) => includeDisabled || !stage.disabled)
       .map((stage) => stage.stageOperator)
       .filter(Boolean) as string[];
   }
@@ -63,12 +65,14 @@ export function getPipelineStageOperatorsFromBuilderState(
   return [];
 }
 
-export function getIsPipelineValidFromBuilderState(state: RootState): boolean {
+export function getIsPipelineInvalidFromBuilderState(
+  state: RootState
+): boolean {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages.some(
       (stage) => !stage.disabled && (stage.syntaxError || stage.serverError)
     );
   }
   // TODO
-  return true;
+  return false;
 }

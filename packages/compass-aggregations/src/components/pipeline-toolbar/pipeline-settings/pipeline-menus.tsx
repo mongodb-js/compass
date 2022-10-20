@@ -9,8 +9,10 @@ import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
 import { openCreateView, savingPipelineOpen } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 import { VIEWS_MIN_SERVER_VERSION } from '../../../constants';
+import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 
 type PipelineActionMenuProp<ActionType extends string> = {
+  disabled?: boolean;
   onAction: (action: ActionType) => void;
   title: string;
   glyph: string;
@@ -19,6 +21,7 @@ type PipelineActionMenuProp<ActionType extends string> = {
 };
 
 function PipelineActionMenu<T extends string>({
+  disabled,
   onAction,
   title,
   glyph,
@@ -54,6 +57,7 @@ function PipelineActionMenu<T extends string>({
         children: React.ReactChildren;
       }) => (
         <Button
+          disabled={disabled}
           ref={menuTriggerRef}
           data-testid={dataTestId}
           title={title}
@@ -88,14 +92,18 @@ function PipelineActionMenu<T extends string>({
 }
 
 type SaveMenuActions = 'save' | 'saveAs' | 'createView';
+
 type SaveMenuProps = {
+  disabled?: boolean;
   pipelineName: string;
   isCreateViewAvailable: boolean;
   onSave: (name: string) => void;
   onSaveAs: (name: string) => void;
   onCreateView: () => void;
 };
+
 export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
+  disabled,
   pipelineName,
   isCreateViewAvailable,
   onSave,
@@ -114,6 +122,7 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
   };
   return (
     <PipelineActionMenu<SaveMenuActions>
+      disabled={disabled}
       data-testid="save-menu"
       title="Save"
       glyph="Save"
@@ -133,10 +142,19 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
     />
   );
 };
-const mapSaveMenuState = ({ name, serverVersion }: RootState) => ({
-  pipelineName: name,
-  isCreateViewAvailable: semver.gte(serverVersion, VIEWS_MIN_SERVER_VERSION),
-});
+
+const mapSaveMenuState = (state: RootState) => {
+  const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
+  return {
+    disabled: isPipelineInvalid,
+    pipelineName: state.name,
+    isCreateViewAvailable: semver.gte(
+      state.serverVersion,
+      VIEWS_MIN_SERVER_VERSION
+    )
+  };
+};
+
 const mapSaveMenuDispatch = {
   onSave: (name: string) => {
     return name === '' ? savingPipelineOpen() : saveCurrentPipeline();
