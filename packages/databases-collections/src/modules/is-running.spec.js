@@ -5,23 +5,23 @@ import reducer, {
   TOGGLE_IS_RUNNING
 } from './is-running';
 
-describe('drop database is running module', () => {
-  describe('#reducer', () => {
-    context('when an action is provided', () => {
-      it('returns the new state', () => {
+describe('drop database is running module', function() {
+  describe('#reducer', function() {
+    context('when an action is provided', function() {
+      it('returns the new state', function() {
         expect(reducer(undefined, toggleIsRunning(true))).to.equal(true);
       });
     });
 
-    context('when an action is not provided', () => {
-      it('returns the default state', () => {
+    context('when an action is not provided', function() {
+      it('returns the default state', function() {
         expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
       });
     });
   });
 
-  describe('#toggleIsRunning', () => {
-    it('returns the action', () => {
+  describe('#toggleIsRunning', function() {
+    it('returns the action', function() {
       expect(toggleIsRunning(false)).to.deep.equal({
         type: TOGGLE_IS_RUNNING,
         isRunning: false

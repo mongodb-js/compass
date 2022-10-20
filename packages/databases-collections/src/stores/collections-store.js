@@ -48,14 +48,12 @@ store.onActivated = (appRegistry) => {
       throw new Error(`Database ${ns} does not exist`);
     }
 
-    /* eslint-disable chai-friendly/no-unused-expressions */
     // Clean up listeners from previous database model (if exists) and set up
     // new ones
     prevDb?.off('change:collectionsStatus', onDatabaseCollectionStatusChange);
     nextDb.on('change:collectionsStatus', onDatabaseCollectionStatusChange);
     prevDb?.off('change:collections.status', onDatabaseCollectionsChange);
     nextDb.on('change:collections.status', onDatabaseCollectionsChange);
-    /* eslint-enable chai-friendly/no-unused-expressions */
 
     // Cancel any pending collection change handlers as they are definitely from
     // the previous db
