@@ -35,6 +35,12 @@ type PipelineSettingsProps = {
   onExportToLanguage: () => void;
 };
 
+const buttonIconStyles = css({
+  fontSize: 0,
+  // Working around leafygreen color issues
+  color: 'currentColor !important',
+})
+
 export const PipelineSettings: React.FunctionComponent<
   PipelineSettingsProps
 > = ({
@@ -56,11 +62,11 @@ export const PipelineSettings: React.FunctionComponent<
         <Button
           variant="primaryOutline"
           size="xsmall"
-          leftGlyph={<Icon glyph="Code" />}
           onClick={onExportToLanguage}
           data-testid="pipeline-toolbar-export-button"
           disabled={!isExportToLanguageEnabled}
         >
+          <Icon size="small" className={buttonIconStyles} glyph="Code" />
           Export to language
         </Button>
       </div>

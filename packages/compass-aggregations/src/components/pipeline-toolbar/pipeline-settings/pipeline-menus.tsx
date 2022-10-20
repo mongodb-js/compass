@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import semver from 'semver';
-import { Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
+import { css, Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
 import type { Dispatch } from 'redux';
 import type { RootState } from '../../../modules';
 import { newPipelineFromText } from '../../../modules/import-pipeline';
@@ -19,6 +19,12 @@ type PipelineActionMenuProp<ActionType extends string> = {
   menuItems: { title: string; action: ActionType }[];
   ['data-testid']: string;
 };
+
+const buttonIconStyles = css({
+  fontSize: 0,
+  // Working around leafygreen color issues
+  color: 'currentColor !important',
+})
 
 function PipelineActionMenu<T extends string>({
   disabled,
@@ -64,15 +70,15 @@ function PipelineActionMenu<T extends string>({
           aria-label={title}
           variant="primary"
           size="xsmall"
-          leftGlyph={<Icon glyph={glyph} />}
-          rightGlyph={<Icon glyph="CaretDown" />}
           onClick={(evt) => {
             evt.stopPropagation();
             onClick();
           }}
         >
+          <Icon size="small" className={buttonIconStyles} glyph={glyph} />
           {title}
           {children}
+          <Icon size="small" className={buttonIconStyles} glyph="CaretDown" />
         </Button>
       )}
     >
