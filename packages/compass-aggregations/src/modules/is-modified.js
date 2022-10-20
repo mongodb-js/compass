@@ -1,6 +1,7 @@
 import { CLONE_PIPELINE } from './clone-pipeline';
 import { NEW_PIPELINE } from './import-pipeline';
 import { StageEditorActionTypes } from './pipeline-builder/stage-editor';
+import { EditorActionTypes } from './pipeline-builder/text-editor';
 import { SAVED_PIPELINE_ADD } from './saved-pipeline';
 
 /**
@@ -19,7 +20,8 @@ export default function reducer(state = false, action) {
       StageEditorActionTypes.StageDisabledChange,
       StageEditorActionTypes.StageOperatorChange,
       StageEditorActionTypes.StageRemoved,
-      StageEditorActionTypes.StageValueChange
+      StageEditorActionTypes.StageValueChange,
+      EditorActionTypes.EditorValueChange,
     ].includes(action.type)
   ) {
     return true;
