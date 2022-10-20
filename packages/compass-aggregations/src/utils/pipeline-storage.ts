@@ -1,11 +1,10 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
-
 import { getDirectory } from './get-directory';
 import { stageToString } from '../modules/pipeline-builder/stage';
-import type { StageState } from '../modules/pipeline';
+
+const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const ENCODING_UTF8 = 'utf8';
 
@@ -16,16 +15,16 @@ export type StoredPipeline = {
   comments: boolean;
   autoPreview: boolean;
   collationString: string;
-  pipeline: StageState[];
+  pipeline?: { stageOperator: string; isEnabled: boolean; stage: string }[];
   host?: string | null;
   pipelineText?: string;
   lastModified?: number;
 };
 
 function savedPipelineToText(pipeline: StoredPipeline['pipeline']): string {
-  const stages = pipeline.map(({ stageOperator, isEnabled, stage }) =>
+  const stages = pipeline?.map(({ stageOperator, isEnabled, stage }) =>
     stageToString(stageOperator, stage, !isEnabled)
-  );
+  ) ?? [];
 
   return `[\n${stages.join(',\n')}\n]`;
 }
@@ -56,7 +55,7 @@ export class PipelineStorage {
         ...data,
         lastModified: stats.mtimeMs,
         pipelineText:
-          data.pipelineText ?? savedPipelineToText(data.pipeline ?? [])
+          data.pipelineText ?? savedPipelineToText(data.pipeline)
       };
     } catch (err) {
       debug(`Failed to load pipeline ${path.basename(filePath)}`, err);

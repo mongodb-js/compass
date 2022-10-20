@@ -3,25 +3,19 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import DeleteStage from './delete-stage';
+import { DeleteStage } from './delete-stage';
 import styles from './delete-stage.module.less';
 
 describe('DeleteStage [Component]', function() {
   context('when the component is rendered', function() {
     let component;
-    const stage = {};
     const spy = sinon.spy();
-    const setIsModifiedSpy = sinon.spy();
-    const runStageSpy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <DeleteStage
-          stage={stage}
-          runStage={runStageSpy}
           index={1}
-          setIsModified={setIsModifiedSpy}
-          stageDeleted={spy}
+          onStageDeleteClick={spy}
         />
       );
     });
@@ -45,19 +39,13 @@ describe('DeleteStage [Component]', function() {
 
   context('when clicking on the button', function() {
     let component;
-    const stage = {};
     const spy = sinon.spy();
-    const runStageSpy = sinon.spy();
-    const setIsModifiedSpy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <DeleteStage
-          stage={stage}
-          runStage={runStageSpy}
           index={1}
-          setIsModified={setIsModifiedSpy}
-          stageDeleted={spy}
+          onStageDeleteClick={spy}
         />
       );
     });
@@ -69,7 +57,6 @@ describe('DeleteStage [Component]', function() {
     it('toggles the expansion and flags as modified', function() {
       component.find('button').simulate('click');
       expect(spy.calledWith(1)).to.equal(true);
-      expect(setIsModifiedSpy.calledOnce).to.equal(true);
     });
   });
 });

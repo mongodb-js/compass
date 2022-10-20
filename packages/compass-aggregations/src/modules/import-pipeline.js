@@ -1,5 +1,5 @@
-import { emptyStage } from '../utils/stage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -192,34 +192,15 @@ export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
 
   const error = pipelineBuilder.syntaxError[0]?.message
 
-  if (!error) {
-    track('Aggregation Imported From Text', { num_stages: pipelineBuilder.stages.length });
-  }
-
   dispatch({
     type: CONFIRM_NEW,
     stages: pipelineBuilder.stages,
     source: pipelineBuilder.source,
     error
   });
-};
 
-/**
- * Create a single stage in the pipeline.
- *
- * @param {String} stageOperator - The stage operator.
- * @param {String} stage - The stage.
- * @param {String} syntaxError - The syntax error.
- *
- * @returns {Object} The stage.
- */
-export const createStage = (stageOperator, stage, syntaxError) => {
-  const newStage = emptyStage();
-  return {
-    ...newStage,
-    stageOperator: stageOperator,
-    stage: stage,
-    isValid: syntaxError ? false : true,
-    syntaxError: syntaxError
-  };
+  if (!error) {
+    dispatch(updatePipelinePreview());
+    track('Aggregation Imported From Text', { num_stages: pipelineBuilder.stages.length });
+  }
 };
