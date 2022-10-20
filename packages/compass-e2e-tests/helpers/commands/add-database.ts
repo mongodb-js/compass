@@ -18,7 +18,6 @@ export async function addDatabase(
     Selectors.CreateDatabaseCollectionName
   );
   await collectionInput.setValue(collectionName);
-
   const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
   await createButton.waitForEnabled();
 

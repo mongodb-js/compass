@@ -9,12 +9,10 @@ export async function saveFavorite(
 ): Promise<void> {
   await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
   await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-
   await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
   await browser.clickVisible(
     `${Selectors.FavoriteColorSelector} [data-testid="color-pick-${color}"]`
   );
-
   await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
   expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
     'Save'

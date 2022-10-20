@@ -7,10 +7,8 @@ export async function dropCollection(
 ): Promise<void> {
   const dropModalElement = await browser.$(Selectors.DropCollectionModal);
   await dropModalElement.waitForDisplayed();
-
   const confirmInput = await browser.$(Selectors.DropCollectionConfirmName);
   await confirmInput.setValue(collectionName);
-
   const confirmButton = await browser.$(Selectors.DropCollectionDropButton);
   await confirmButton.waitForEnabled();
 
