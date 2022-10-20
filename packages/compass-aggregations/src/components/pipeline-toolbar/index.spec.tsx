@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { expect } from 'chai';
@@ -13,7 +13,9 @@ describe('PipelineToolbar', function () {
     let toolbar: HTMLElement;
     beforeEach(function () {
       render(
-        <Provider store={configureStore({})}>
+        <Provider
+          store={configureStore({ sourcePipeline: [{ $match: { _id: 1 } }] })}
+        >
           <PipelineToolbar
             isBuilderView
             showExportButton
@@ -24,6 +26,8 @@ describe('PipelineToolbar', function () {
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
     });
+
+    afterEach(cleanup);
 
     it('renders toolbar', function () {
       expect(toolbar, 'should render toolbar').to.exist;
