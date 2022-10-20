@@ -6,7 +6,6 @@ import OptionSelector from './option-selector';
 import StoreConnector from './store-connector';
 import Tooltip from './tooltip';
 import ViewSwitcher from './view-switcher';
-import ZeroState from './zero-state';
 
 export {
   FormInput,
@@ -16,6 +15,5 @@ export {
   OptionSelector,
   StoreConnector,
   Tooltip,
-  ViewSwitcher,
-  ZeroState
+  ViewSwitcher
 };

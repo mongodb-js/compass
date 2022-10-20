@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import StagePreview from '../stage-preview';
+import { StagePreview } from './stage-preview';
 import styles from './stage-preview.module.less';
 import loadingStyles from '../loading-overlay/loading-overlay.module.less';
 
@@ -19,9 +19,9 @@ describe('StagePreview [Component]', function() {
           isEnabled
           isComplete
           index={0}
-          runOutStage={sinon.spy()}
-          gotoOutResults={sinon.spy()}
-          gotoMergeResults={sinon.spy()}
+          onRunOutStageClick={sinon.spy()}
+          onGoToOutResultsClick={sinon.spy()}
+          onGoToMergeResultsClick={sinon.spy()}
           isLoading={false} />
       );
     });
@@ -50,9 +50,9 @@ describe('StagePreview [Component]', function() {
           isEnabled
           isComplete
           index={0}
-          runOutStage={sinon.spy()}
-          gotoOutResults={sinon.spy()}
-          gotoMergeResults={sinon.spy()}
+          onRunOutStageClick={sinon.spy()}
+          onGoToOutResultsClick={sinon.spy()}
+          onGoToMergeResultsClick={sinon.spy()}
           isLoading={false} />
       );
     });
@@ -81,11 +81,11 @@ describe('StagePreview [Component]', function() {
             isEnabled
             isComplete={false}
             index={0}
-            runOutStage={sinon.spy()}
-            gotoOutResults={sinon.spy()}
-            gotoMergeResults={sinon.spy()}
+            onRunOutStageClick={sinon.spy()}
+            onGoToOutResultsClick={sinon.spy()}
+            onGoToMergeResultsClick={sinon.spy()}
             isLoading={false}
-            stage=""
+            stageValue=""
             stageOperator="$out" />
         );
       });
@@ -114,15 +114,15 @@ describe('StagePreview [Component]', function() {
       beforeEach(function() {
         component = mount(
           <StagePreview
-            stage="'testing'"
+            stageValue="'testing'"
             documents={[{ name: 'test' }]}
             isValid
             isEnabled
             isComplete
             index={0}
-            runOutStage={sinon.spy()}
-            gotoOutResults={gotoSpy}
-            gotoMergeResults={sinon.spy()}
+            onRunOutStageClick={sinon.spy()}
+            onGoToOutResultsClick={gotoSpy}
+            onGoToMergeResultsClick={sinon.spy()}
             isLoading={false}
             stageOperator="$out" />
         );
@@ -147,13 +147,6 @@ describe('StagePreview [Component]', function() {
       it('renders the link', function() {
         expect(component.find(`.${styles['stage-preview-out-link']}`)).to.be.present();
       });
-
-      context('when clicking on the link', function() {
-        it('correctly decomments the collection name', function() {
-          component.find(`button`).simulate('click');
-          expect(gotoSpy.calledWith('testing')).to.equal(true);
-        });
-      });
     });
   });
 
@@ -170,10 +163,10 @@ describe('StagePreview [Component]', function() {
             isLoading
             index={0}
             isComplete={false}
-            runOutStage={sinon.spy()}
-            gotoOutResults={sinon.spy()}
-            gotoMergeResults={sinon.spy()}
-            stage=""
+            onRunOutStageClick={sinon.spy()}
+            onGoToOutResultsClick={sinon.spy()}
+            onGoToMergeResultsClick={sinon.spy()}
+            stageValue=""
             stageOperator="$out" />
         );
       });
@@ -200,9 +193,9 @@ describe('StagePreview [Component]', function() {
             isLoading
             isComplete={false}
             index={0}
-            runOutStage={sinon.spy()}
-            gotoOutResults={sinon.spy()}
-            gotoMergeResults={sinon.spy()}
+            onRunOutStageClick={sinon.spy()}
+            onGoToOutResultsClick={sinon.spy()}
+            onGoToMergeResultsClick={sinon.spy()}
             stageOperator="$match" />
         );
       });
@@ -236,11 +229,11 @@ describe('StagePreview [Component]', function() {
           isEnabled
           isComplete={false}
           index={0}
-          runOutStage={sinon.spy()}
-          gotoOutResults={sinon.spy()}
-          gotoMergeResults={sinon.spy()}
+          onRunOutStageClick={sinon.spy()}
+          onGoToOutResultsClick={sinon.spy()}
+          onGoToMergeResultsClick={sinon.spy()}
           isLoading={false}
-          stage=""
+          stageValue=""
           stageOperator={stageOperator}
           isAtlasDeployed
         />

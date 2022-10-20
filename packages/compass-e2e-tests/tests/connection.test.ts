@@ -197,6 +197,8 @@ async function assertCannotCreateDb(
     `not authorized on ${dbName} to execute command`
   );
 
+  await browser.screenshot('create-database-modal-error.png');
+
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateDatabaseCancelButton);
   await createModalElement.waitForDisplayed({ reverse: true });
@@ -233,6 +235,8 @@ async function assertCannotCreateCollection(
   expect(await errorElement.getText()).to.contain(
     `not authorized on ${dbName} to execute command`
   );
+
+  await browser.screenshot('create-collection-modal-error.png');
 
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateCollectionCancelButton);

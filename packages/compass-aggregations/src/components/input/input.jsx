@@ -2,12 +2,12 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import InputToolbar from '../input-toolbar';
 import InputWorkspace from '../input-workspace';
+import { connect } from 'react-redux';
+import { refreshInputDocuments, toggleInputDocumentsCollapsed } from '../../modules/input-documents';
 
 import styles from './input.module.less';
 
-class Input extends PureComponent {
-  static displayName = 'InputComponent';
-
+export class Input extends PureComponent {
   static propTypes = {
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired,
     refreshInputDocuments: PropTypes.func.isRequired,
@@ -45,4 +45,17 @@ class Input extends PureComponent {
   }
 }
 
-export default Input;
+export default connect(
+  (state) => {
+    return {
+      documents: state.inputDocuments.documents,
+      isLoading: state.inputDocuments.isLoading,
+      isExpanded: state.inputDocuments.isExpanded,
+      count: state.inputDocuments.count
+    };
+  },
+  {
+    toggleInputDocumentsCollapsed: toggleInputDocumentsCollapsed,
+    refreshInputDocuments: refreshInputDocuments
+  }
+)(Input);

@@ -43,7 +43,9 @@ const queryHistoryComponentTestId = 'query-history-component-test-id';
 const QueryHistoryMockComponent = () => (
   <div data-testid={queryHistoryComponentTestId}>
     <div>Query history</div>
-    <button onClick={() => {}}>Button</button>
+    <button type="button" onClick={() => {}}>
+      Button
+    </button>
   </div>
 );
 const mockQueryHistoryRole = {

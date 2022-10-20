@@ -3,14 +3,14 @@ import { expect } from 'chai';
 
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 
-import CreateIndexFields from '../create-index-fields';
+import { CreateIndexFields } from './create-index-fields';
 
 const noop = () => {};
 
 describe('CreateIndexFields Component', function () {
-  describe('server version 5.0.0', function () {
-    afterEach(cleanup);
+  afterEach(cleanup);
 
+  describe('server version 5.0.0', function () {
     it('renders create index fields component', function () {
       render(
         <CreateIndexFields
@@ -47,8 +47,7 @@ describe('CreateIndexFields Component', function () {
       );
       const select = screen.getByTestId('leafygreen-ui-select-menubutton');
       fireEvent.click(select);
-      const fieldTypes = screen.getByTestId('create-index-fields-type-0');
-      expect(fieldTypes).to.not.contain.html('columnstore');
+      expect(screen.queryByText('columnstore')).to.not.exist;
     });
 
     it('does not render a minus button for a single field', function () {
@@ -135,8 +134,6 @@ describe('CreateIndexFields Component', function () {
   });
 
   describe('server version 7.0.0', function () {
-    afterEach(cleanup);
-
     it('shows columnstore indexes as a selectable index type', function () {
       render(
         <CreateIndexFields
@@ -154,8 +151,7 @@ describe('CreateIndexFields Component', function () {
       );
       const select = screen.getByTestId('leafygreen-ui-select-menubutton');
       fireEvent.click(select);
-      const fieldTypes = screen.getByTestId('create-index-fields-type-0');
-      expect(fieldTypes).to.contain.html('columnstore');
+      expect(screen.getByText('columnstore')).to.be.visible;
     });
   });
 });

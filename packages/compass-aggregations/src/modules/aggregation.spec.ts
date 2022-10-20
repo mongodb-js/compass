@@ -49,6 +49,7 @@ const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
 describe('aggregation module', function () {
   it('should return the initial state', function () {
     expect(reducer(undefined, {} as any)).to.deep.equal({
+      pipeline: [],
       documents: [],
       page: 1,
       limit: 20,
@@ -68,7 +69,8 @@ describe('aggregation module', function () {
 
     const startSessionSpy = spy();
 
-    const store: Store<RootState> = configureStore({});
+    const store: Store<RootState> = configureStore({ sourcePipeline: `[]` });
+
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
       dataService: new class {
@@ -87,6 +89,7 @@ describe('aggregation module', function () {
     expect(toArraySpy.getCalls().map(x => x.args), 'calls toArray with correct args').to.deep.equal([[]]);
 
     expect(store.getState().aggregation).to.deep.equal({
+      pipeline: [],
       documents: mockDocuments,
       isLast: true,
       page: 1,
@@ -102,6 +105,7 @@ describe('aggregation module', function () {
   it('cancels an aggregation', async function () {
     const documents = [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }];
     const store = getMockedStore({
+      pipeline: [],
       isLast: false,
       loading: false,
       documents,
@@ -144,6 +148,7 @@ describe('aggregation module', function () {
     expect(killSessionsSpy.getCalls().map(x => x.args), 'calls killSessions with correct args').to.deep.equal([[]]);
     expect(cursorCloseSpy.getCalls().map(x => x.args), 'calls cursorClose with correct args').to.deep.equal([[]]);
     expect(store.getState().aggregation).to.deep.equal({
+      pipeline: [],
       documents,
       isLast: false,
       page: 2,
@@ -159,6 +164,7 @@ describe('aggregation module', function () {
   describe('paginates data', function () {
     it('nextPage -> not on last page', async function () {
       const store = getMockedStore({
+        pipeline: [],
         isLast: false,
         loading: false,
         documents: [
@@ -196,6 +202,7 @@ describe('aggregation module', function () {
       expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
       expect(store.getState().aggregation).to.deep.equal({
+        pipeline: [],
         documents: mockDocuments,
         isLast: false,
         page: 3,
@@ -209,6 +216,7 @@ describe('aggregation module', function () {
     });
     it('nextPage -> on last page', async function () {
       const store = getMockedStore({
+        pipeline: [],
         isLast: true,
         loading: false,
         documents: [
@@ -230,6 +238,7 @@ describe('aggregation module', function () {
     });
     it('prevPage -> not on first page', async function () {
       const store = getMockedStore({
+        pipeline: [],
         isLast: false,
         loading: false,
         documents: [
@@ -268,6 +277,7 @@ describe('aggregation module', function () {
       expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
 
       expect(store.getState().aggregation).to.deep.equal({
+        pipeline: [],
         documents: mockDocuments,
         isLast: false,
         page: 1,
@@ -281,6 +291,7 @@ describe('aggregation module', function () {
     });
     it('prevPage -> on first page', async function () {
       const store = getMockedStore({
+        pipeline: [],
         isLast: false,
         loading: false,
         documents: [
@@ -303,6 +314,7 @@ describe('aggregation module', function () {
   });
   it('should switch results view type', function () {
     const store = getMockedStore({
+      pipeline: [],
       isLast: false,
       loading: false,
       documents: [

@@ -11,6 +11,9 @@ export async function dropCollection(
   await confirmInput.setValue(collectionName);
   const confirmButton = await browser.$(Selectors.DropCollectionDropButton);
   await confirmButton.waitForEnabled();
+
+  await browser.screenshot('drop-collection-modal.png');
+
   await confirmButton.click();
   await dropModalElement.waitForDisplayed({ reverse: true });
 }
