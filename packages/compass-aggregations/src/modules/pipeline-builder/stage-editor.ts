@@ -17,6 +17,8 @@ import {
 } from './pipeline-preview-manager';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
+import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
+import type { PipelineModeToggledAction } from './pipeline-mode';
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -32,7 +34,6 @@ export const enum StageEditorActionTypes {
   StageAdded = 'compass-aggregations/pipeline-builder/stage-editor/StageAdded',
   StageRemoved = 'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
   StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
-  StagesUpdated = 'compass-aggregations/pipeline-builder/stage-editor/StagesUpdated',
 }
 
 export type StagePreviewFetchAction = {
@@ -109,11 +110,6 @@ export type StageMoveAction = {
   from: number;
   to: number;
 };
-
-type StagesUpdatedAction = {
-  type: StageEditorActionTypes.StagesUpdated,
-  stages: Stage[];
-}
 
 function canRunStage(
   stage?: StageEditorState['stages'][number],
@@ -449,18 +445,6 @@ export const moveStage = (
   };
 };
 
-export const changeStages = (
-  stages: Stage[]
-): PipelineBuilderThunkAction<void, StagesUpdatedAction> => {
-  return (dispatch) => {
-    dispatch({
-      type: StageEditorActionTypes.StagesUpdated,
-      stages,
-    });
-    dispatch(loadPreviewForStagesFrom(0));
-  };
-}
-
 export type StageEditorState = {
   stageIds: number[];
   stages: {
@@ -499,7 +483,7 @@ const reducer: Reducer<StageEditorState> = (
   if (
     action.type === RESTORE_PIPELINE ||
     action.type === CONFIRM_NEW ||
-    isAction<StagesUpdatedAction>(action, StageEditorActionTypes.StagesUpdated)
+    isAction<PipelineModeToggledAction>(action, PipelineModeActionTypes.PipelineModeToggled)
   ) {
     const stages = action.stages.map((stage: Stage) => {
       return mapBuilderStageToStoreStage(stage);

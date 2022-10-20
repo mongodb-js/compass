@@ -10,6 +10,8 @@ import {
 import { isCancelError } from '../../utils/cancellable-promise';
 import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
+import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
+import type { PipelineModeToggledAction } from './pipeline-mode';
 
 const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetch',
@@ -59,6 +61,10 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     isAction<EditorValueChangeAction>(
       action,
       EditorActionTypes.EditorValueChange
+    ) ||
+    isAction<PipelineModeToggledAction>(
+      action,
+      PipelineModeActionTypes.PipelineModeToggled
     )
   ) {
     return {

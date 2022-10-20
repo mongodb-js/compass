@@ -1,8 +1,9 @@
 import type { Reducer } from 'redux';
 import type { PipelineBuilderThunkAction } from '..';
-import { changeEditorValue } from './text-editor';
-import { changeStages } from './stage-editor';
 import { isAction } from '../../utils/is-action';
+import { updatePipelinePreview } from './builder-helpers';
+import type Stage from './stage';
+import type { PipelineParserError } from './pipeline-parser/utils';
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
@@ -13,6 +14,9 @@ export enum ActionTypes {
 export type PipelineModeToggledAction = {
   type: ActionTypes.PipelineModeToggled;
   mode: PipelineMode;
+  pipelineText: string;
+  syntaxErrors: PipelineParserError[];
+  stages: Stage[];
 };
 
 type State = PipelineMode;
@@ -36,19 +40,19 @@ export const changePipelineMode = (
     // Sync the PipelineBuilder
     if (newMode === 'as-text') {
       pipelineBuilder.stagesToSource();
-      dispatch(changeEditorValue(
-        pipelineBuilder.getPipelineStringFromStages()
-      ));
     } else {
       pipelineBuilder.sourceToStages();
-      dispatch(changeStages(pipelineBuilder.stages));
     }
 
-    // Toggle the view (and state)
     dispatch({
       type: ActionTypes.PipelineModeToggled,
       mode: newMode,
+      pipelineText: pipelineBuilder.source,
+      syntaxErrors: pipelineBuilder.syntaxError,
+      stages: pipelineBuilder.stages,
     });
+
+    dispatch(updatePipelinePreview());
   }
 };
 
