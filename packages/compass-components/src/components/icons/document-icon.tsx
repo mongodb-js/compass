@@ -1,8 +1,7 @@
 import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
-import { withTheme } from '../../hooks/use-theme';
 
-function UnthemedDocumentIcon({
+function DocumentIcon({
   size = spacing[4],
 }: {
   size?: number;
@@ -106,7 +105,5 @@ function UnthemedDocumentIcon({
     </svg>
   );
 }
-
-const DocumentIcon = withTheme(UnthemedDocumentIcon);
 
 export { DocumentIcon };

@@ -74,7 +74,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
             type: 'error',
           };
         })
-        .filter(Boolean);
+        .filter(Boolean) as AceAnnotation[];
     }
     editorRef.current?.getSession().setAnnotations(annotations);
   }, [syntaxErrors, editorRef]);
