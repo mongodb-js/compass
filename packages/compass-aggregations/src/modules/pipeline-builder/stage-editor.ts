@@ -457,6 +457,7 @@ export const changeStages = (
       type: StageEditorActionTypes.StagesUpdated,
       stages,
     });
+    dispatch(loadPreviewForStagesFrom(0));
   };
 }
 

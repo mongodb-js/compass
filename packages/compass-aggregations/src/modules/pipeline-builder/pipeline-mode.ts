@@ -3,7 +3,6 @@ import type { PipelineBuilderThunkAction } from '..';
 import { changeEditorValue } from './text-editor';
 import { changeStages } from './stage-editor';
 import { isAction } from '../../utils/is-action';
-import { updatePipelinePreview } from './builder-helpers';
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
@@ -50,9 +49,6 @@ export const changePipelineMode = (
       type: ActionTypes.PipelineModeToggled,
       mode: newMode,
     });
-
-    // Update the preview
-    dispatch(updatePipelinePreview());
   }
 };
 

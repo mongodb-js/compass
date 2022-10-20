@@ -186,6 +186,7 @@ export const changeEditorValue = (
       pipelineText: value,
       syntaxErrors: pipelineBuilder.syntaxError
     });
+    void dispatch(loadPreviewForPipeline());
   };
 };
 
