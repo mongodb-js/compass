@@ -1,7 +1,7 @@
 import React from 'react';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { Modal } from './modal';
-import { ModalFooter } from './leafygreen';
+import { ModalFooter } from '../leafygreen';
 
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';

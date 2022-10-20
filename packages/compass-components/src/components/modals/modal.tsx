@@ -3,7 +3,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-UI');
 
-import { Modal as LeafyGreenModal } from './leafygreen';
+import { Modal as LeafyGreenModal } from '../leafygreen';
 
 const contentStyles = css({
   width: '600px',

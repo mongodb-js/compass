@@ -3,8 +3,8 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors, palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
-import { withTheme } from '../hooks/use-theme';
-import { Body, Icon } from './leafygreen';
+import { withTheme } from '../../hooks/use-theme';
+import { Body, Icon } from '../leafygreen';
 
 export const Variant = {
   Default: ButtonVariant.Primary,

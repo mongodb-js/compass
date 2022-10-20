@@ -4,7 +4,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { Modal } from './modal';
-import { ModalFooter } from './leafygreen';
+import { ModalFooter } from '../leafygreen';
 import { ModalBody } from './modal-body';
 import { ModalHeader } from './modal-header';
 import { ModalFooterButton } from './modal-footer-button';
