@@ -550,14 +550,37 @@ describe('Connection form', function () {
       Selectors.RemoveConnectionItem
     );
 
-    // edit
+    // edit the original
     await browser.selectFavorite(favoriteName);
     await browser.saveFavorite(newFavoriteName, 'color2');
 
-    // should now be updated in the sidebar
+    // it should now be updated in the sidebar
     await browser
       .$(Selectors.sidebarFavorite(newFavoriteName))
       .waitForDisplayed();
+
+    // the edit the connection string toggle should be on (because this is a new connection we just saved)
+    const toggle = await browser.$(Selectors.EditConnectionStringToggle);
+    expect(await toggle.getAttribute('aria-checked')).to.equal('true');
+
+    // toggle the edit connection string toggle twice
+    await browser.clickVisible(Selectors.EditConnectionStringToggle);
+    expect(await toggle.getAttribute('aria-checked')).to.equal('false');
+    await browser.clickVisible(Selectors.EditConnectionStringToggle);
+
+    const confirmModal = await browser.$(Selectors.EditConnectionStringModal);
+    await confirmModal.waitForDisplayed();
+
+    await browser.screenshot('edit-uri-confirmation-modal.png');
+
+    await browser.clickVisible(
+      Selectors.EditConnectionStringModalConfirmButton
+    );
+
+    await confirmModal.waitForDisplayed({ reverse: true });
+
+    // the toggle should now be on
+    expect(await toggle.getAttribute('aria-checked')).to.equal('true');
   });
 
   it('can save & connect', async function () {

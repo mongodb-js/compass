@@ -949,7 +949,16 @@ export const ConfirmImportPipelineModal =
 export const ConfirmImportPipelineModalConfirmButton =
   '[data-testid="confirm_import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
+// Shell info modal
 export const ShellInfoButton = '[data-testid="shell-info-button"]';
 export const ShellInfoModal = '[data-testid="shell-info-modal"]';
 export const ShellInfoModalCloseButton =
   '[data-testid="shell-info-modal"] [aria-label*="Close"]';
+
+// Edit connection string modal
+export const EditConnectionStringToggle =
+  '[data-testid="toggle-edit-connection-string"]';
+export const EditConnectionStringModal =
+  '[data-testid="edit-uri-confirmation-modal"]';
+export const EditConnectionStringModalConfirmButton =
+  '[data-testid="edit-uri-confirmation-modal"] [role=dialog] > div:nth-child(2) button:first-child';
