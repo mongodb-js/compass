@@ -52,18 +52,6 @@ describe('PipelineBuilder', function () {
     expect(stage.syntaxError).to.be.null;
   });
 
-  it('changes stage', function() {
-    pipelineBuilder.changeStageValue(0, '"users"');
-    pipelineBuilder.changeStageOperator(0, '$unwind');
-
-    expect(pipelineBuilder.stages[0].operator).to.equal('$unwind');
-    expect(pipelineBuilder.stages[0].value).to.equal('"users"');
-    expect(pipelineBuilder.stages[0].disabled).to.equal(false);
-    
-    pipelineBuilder.changeStageDisabled(0, true);
-    expect(pipelineBuilder.stages[0].disabled).to.equal(true);
-  });
-
   it('adds stage', function() {
     pipelineBuilder.addStage();
     expect(pipelineBuilder.stages.length).to.equal(2);

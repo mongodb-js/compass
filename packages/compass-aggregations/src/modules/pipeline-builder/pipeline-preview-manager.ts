@@ -2,6 +2,7 @@ import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '../../utils/cancellable-promise';
+import { getStageOperator } from '../../utils/stage';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 
@@ -23,10 +24,6 @@ const REQUIRED_AS_FIRST_STAGE = [
   '$listLocalSessions',
   '$listSessions'
 ];
-
-function getStageOp(doc: Document = {}): string | undefined {
-  return Object.keys(doc)[0];
-}
 
 export interface PreviewOptions extends AggregateOptions {
   debounceMs?: number;
@@ -50,7 +47,7 @@ export function createPreviewAggregation(
           (options.sampleSize ?? DEFAULT_SAMPLE_SIZE)) &&
       // If stage can cause a full scan on the collection, prepend it with a
       // $limit
-      FULL_SCAN_OPS.includes(getStageOp(stage) ?? '')
+      FULL_SCAN_OPS.includes(getStageOperator(stage) ?? '')
     ) {
       stages.push({ $limit: options.sampleSize ?? DEFAULT_SAMPLE_SIZE });
     }
@@ -60,7 +57,7 @@ export function createPreviewAggregation(
     // TODO: super unsure what this is doing, half of these are not even
     // selectable stage operators in UI
     !REQUIRED_AS_FIRST_STAGE.includes(
-      getStageOp(stages[stages.length - 1]) ?? ''
+      getStageOperator(stages[stages.length - 1]) ?? ''
     )
   ) {
     stages.push({ $limit: options.previewSize ?? DEFAULT_PREVIEW_LIMIT });

@@ -819,10 +819,6 @@ const executeAggregation = (
 
 /**
  * Go to the $merge results collection.
- *
- * @param {Number} index - The stage index.
- *
- * @returns {Function} The thunk function.
  */
 export const gotoMergeResults = (
   index: number
@@ -846,17 +842,14 @@ export const gotoMergeResults = (
 
 /**
  * Go to the $out results collection.
- *
- * @param {String} collection - The collection name.
- *
- * @returns {Function} The thunk function.
  */
 export const gotoOutResults = (
-  collection: string
+  index: number
 ): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState) => {
     const state = getState();
     const database = toNS(state.namespace).database;
+    const collection = decomment(state.pipeline[index].stage).replace(/['"]+/g, '');
     const outNamespace = `${database}.${collection.replace(/"/g, '')}`;
     if (state.outResultsFn) {
       state.outResultsFn(outNamespace);

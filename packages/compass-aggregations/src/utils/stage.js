@@ -137,3 +137,11 @@ export const mapPipelineToStages = (pipeline) => {
     .map(generateStage)
     .filter((stage) => Object.keys(stage).length > 0);
 };
+
+/**
+ * @param {unknown} stage 
+ * @returns {string | undefined}
+ */
+export function getStageOperator(stage) {
+  return Object.keys(stage ?? {})[0];
+}

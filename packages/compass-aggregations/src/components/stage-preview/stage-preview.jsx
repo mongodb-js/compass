@@ -1,59 +1,60 @@
 import { AtlasLogoMark, Body, Link, Button } from '@mongodb-js/compass-components';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import LoadingOverlay from '../loading-overlay';
 import { OUT, MERGE } from '../../modules/pipeline';
+import { gotoOutResults } from '../../modules/out-results-fn';
+import { runStage } from '../../modules/pipeline-builder/stage-editor';
 import decomment from 'decomment';
+import { connect } from 'react-redux';
+import { ADL, ATLAS } from '@mongodb-js/mongodb-constants';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import styles from './stage-preview.module.less';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
  * The stage preview component.
  */
-class StagePreview extends Component {
-  static displayName = 'StagePreview';
-
+export class StagePreview extends PureComponent {
   static propTypes = {
-    runOutStage: PropTypes.func.isRequired,
-    gotoOutResults: PropTypes.func.isRequired,
-    gotoMergeResults: PropTypes.func.isRequired,
-    documents: PropTypes.array.isRequired,
-    error: PropTypes.string,
-    isValid: PropTypes.bool.isRequired,
-    isEnabled: PropTypes.bool.isRequired,
-    isLoading: PropTypes.bool.isRequired,
-    isComplete: PropTypes.bool.isRequired,
-    // Can be undefined on the initial render
-    isMissingAtlasOnlyStageSupport: PropTypes.bool,
     index: PropTypes.number.isRequired,
+    onRunOutStageClick: PropTypes.func.isRequired,
+    onGoToOutResultsClick: PropTypes.func.isRequired,
+    onGoToMergeResultsClick: PropTypes.func.isRequired,
     stageOperator: PropTypes.string,
-    stage: PropTypes.string,
-    isAtlasDeployed: PropTypes.bool
+    stageValue: PropTypes.string,
+    isEnabled: PropTypes.bool,
+    isValid: PropTypes.bool,
+    isLoading: PropTypes.bool,
+    documents: PropTypes.array,
+    isComplete: PropTypes.bool,
+    hasServerError: PropTypes.bool,
+    isAtlasDeployed: PropTypes.bool,
+    isMissingAtlasOnlyStageSupport: PropTypes.bool
   }
 
   /**
    * Goto the merge results.
    */
   onGotoMergeResults = () => {
-    this.props.gotoMergeResults(this.props.index);
+    this.props.onGoToMergeResultsClick(this.props.index);
   }
 
   /**
    * Goto the out results.
    */
   onGotoOutResults = () => {
-    const collection = decomment(this.props.stage).replace(/['"]+/g, '');
-    this.props.gotoOutResults(collection);
+    this.props.onGoToOutResultsClick(this.props.index);
   }
 
   /**
    * On the save click, execute the $out or $merge.
    */
   onSaveDocuments = () => {
-    this.props.runOutStage(this.props.index);
+    this.props.onRunOutStageClick(this.props.index);
   }
 
   /**
@@ -63,7 +64,7 @@ class StagePreview extends Component {
    */
   renderMergeSection() {
     if (this.props.isComplete) {
-      if (!this.props.error) {
+      if (!this.props.hasServerError) {
         return (
           <div className={styles['stage-preview-out']}>
             <div className={styles['stage-preview-out-text']}>
@@ -109,11 +110,11 @@ class StagePreview extends Component {
    */
   renderOutSection() {
     if (this.props.isComplete) {
-      if (!this.props.error) {
+      if (!this.props.hasServerError) {
         return (
           <Body as="div" className={styles['stage-preview-out']}>
             <div className={styles['stage-preview-out-text']}>
-              Documents persisted to collection: {decomment(this.props.stage)}.
+              Documents persisted to collection: {decomment(this.props.stageValue)}.
             </div>
             <Link
               data-testid="go-to-out-collection"
@@ -201,7 +202,7 @@ class StagePreview extends Component {
       if (this.props.stageOperator === MERGE) {
         return this.renderMergeSection();
       }
-      if (this.props.documents.length > 0) {
+      if (this.props.documents?.length > 0) {
         const documents = this.props.documents.map((doc, i) => {
           return (
             <div key={i} className={styles['stage-preview-document-card-container']}>
@@ -268,4 +269,37 @@ class StagePreview extends Component {
   }
 }
 
-export default StagePreview;
+export default connect(
+  (state, ownProps) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    const isComplete =
+      Boolean(!stage.loading && !stage.serverError && stage.previewDocs);
+    const isMissingAtlasOnlyStageSupport =
+      ![ADL, ATLAS].includes(state.env) &&
+      stage.serverError &&
+      [
+        // Unrecognized pipeline stage name
+        40324,
+        // The full-text search stage is not enabled
+        31082
+      ].includes(Number(stage.serverError.code));
+
+    return {
+      stageOperator: stage.stageOperator,
+      stageValue: stage.value,
+      isEnabled: !stage.disabled,
+      isValid: !stage.serverError && !stage.syntaxError,
+      isLoading: stage.loading,
+      documents: stage.previewDocs,
+      hasServerError: !!stage.serverError,
+      isAtlasDeployed: state.isAtlasDeployed,
+      isComplete,
+      isMissingAtlasOnlyStageSupport
+    };
+  },
+  {
+    onRunOutStageClick: runStage,
+    onGoToOutResultsClick: gotoOutResults,
+    onGoToMergeResultsClick: gotoOutResults
+  }
+)(StagePreview);

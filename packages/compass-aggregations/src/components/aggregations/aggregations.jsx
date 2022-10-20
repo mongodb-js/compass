@@ -7,7 +7,6 @@ import { toggleAutoPreview } from '../../modules/auto-preview';
 import { exportToLanguage } from '../../modules/export-to-language';
 import { openLink } from '../../modules/link';
 import { clonePipeline } from "../../modules/clone-pipeline";
-import { runStage, runOutStage } from '../../modules/pipeline';
 import {
   saveCurrentPipeline,
   savedPipelineAdd,
@@ -95,8 +94,6 @@ const MappedAggregations = connect(
   {
     collationStringChanged,
     toggleAutoPreview,
-    runStage,
-    runOutStage,
     toggleSettingsIsExpanded,
     toggleSettingsIsCommentMode,
     setSettingsSampleSize,

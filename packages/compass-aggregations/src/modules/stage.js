@@ -1,6 +1,7 @@
 import mongodbQueryParser from 'mongodb-query-parser';
 import decomment from 'decomment';
 import toNS from 'mongodb-ns';
+import { getStageOperator } from '../utils/stage';
 
 export const PARSE_ERROR = 'Stage must be a properly formatted document.';
 
@@ -129,29 +130,24 @@ export function isEmptyishStage(stageState) {
  * @see {@link https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/#syntax}
  *
  * @param {string} namespace
- * @param {import('../modules/pipeline').StageState | null | undefined} stage
+ * @param {unknown} stage
  * @returns {string}
  */
-export function getDestinationNamespaceFromStage(namespace, stageState = {}) {
+export function getDestinationNamespaceFromStage(namespace, stage) {
+  const stageOperator = getStageOperator(stage);
+  const stageValue = stage[stageOperator];
   const { database } = toNS(namespace);
-  const { stage: stageContent, stageOperator } = stageState;
-  let stage;
-  try {
-    stage = parse(stageContent);
-  } catch {
-    stage = {};
-  }
   if (stageOperator === '$merge') {
-    const ns = typeof stage === 'string' ? stage : stage.into;
+    const ns = typeof stage === 'string' ? stageValue : stageValue.into;
     return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
   }
   if (stageOperator === '$out') {
-    if (stage.s3) {
+    if (stageValue.s3) {
       // TODO: Not handled currently and we need some time to figure out how to
       // handle it so just skipping for now
       return null;
     }
-    const ns = stage;
+    const ns = stageValue;
     return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
   }
   return null;

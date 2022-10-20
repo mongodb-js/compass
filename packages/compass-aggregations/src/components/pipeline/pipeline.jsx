@@ -33,7 +33,6 @@ class Pipeline extends PureComponent {
     closeImport: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
     confirmNew: PropTypes.func.isRequired,
-    runStage: PropTypes.func.isRequired,
     exportToLanguage: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
     isAutoPreviewing: PropTypes.bool.isRequired,
@@ -110,7 +109,6 @@ class Pipeline extends PureComponent {
         isConfirmationNeeded={this.props.isImportConfirmationNeeded}
         closeImport={this.props.closeImport}
         isAutoPreviewing={this.props.isAutoPreviewing}
-        runStage={this.props.runStage}
         confirmNew={this.props.confirmNew}
       />
     );
@@ -150,7 +148,6 @@ class Pipeline extends PureComponent {
           largeLimit={this.props.largeLimit}
           maxTimeMS={this.props.maxTimeMS}
           applySettings={this.props.applySettings}
-          runStage={this.props.runStage}
           settings={this.props.settings}
         />
         <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>

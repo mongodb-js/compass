@@ -375,13 +375,14 @@ describe('pipeline module', function () {
       const spy = sinon.spy();
       const getState = () => {
         return {
+          pipeline: [{ stage: 'coll' }],
           outResultsFn: spy,
-          namespace: 'db.coll',
+          namespace: 'db.coll'
         };
       };
 
       it('calls the function with the namespace', function () {
-        gotoOutResults('coll')(null, getState);
+        gotoOutResults(0)(null, getState);
         expect(spy.calledWith('db.coll')).to.equal(true);
       });
     });

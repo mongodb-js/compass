@@ -4,8 +4,9 @@ import type { AnyAction } from 'redux';
 import { createId } from './id';
 import { setIsModified } from './is-modified';
 import type { PipelineBuilderThunkAction } from '.';
-import { runStage } from './pipeline';
 import type { StoredPipeline } from '../utils/pipeline-storage';
+import { getPipelineFromBuilderState, getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -128,7 +129,7 @@ export const openPipelineById = (
         source: pipelineBuilder.source,
         restoreState: data
       });
-      dispatch(runStage(0, true /* force execute */));
+      dispatch(updatePipelinePreview());
     } catch (e: unknown) {
       debug(e);
     }
@@ -139,17 +140,11 @@ export const openPipelineById = (
  * Save the current state of your pipeline
  */
 export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async (
-  dispatch, getState, { pipelineStorage }
+  dispatch, getState, { pipelineBuilder, pipelineStorage }
 ) => {
-  const state = getState();
-
   if (getState().id === '') {
     dispatch(createId());
   }
-
-  const pipeline = state.pipeline.map((stage) => {
-    return { ...stage, previewDocuments: [] };
-  });
 
   const {
     id,
@@ -168,17 +163,19 @@ export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async
     comments,
     autoPreview,
     collationString: text,
-    pipeline,
+    pipelineText: getPipelineStringFromBuilderState(
+      getState(),
+      pipelineBuilder
+    ),
     host:
-      dataService?.dataService?.getConnectionString?.().hosts.join(',') ??
-      null
+      dataService.dataService?.getConnectionString().hosts.join(',') ?? null
   };
 
   await pipelineStorage.updateAttributes(savedPipeline.id, savedPipeline);
 
   track('Aggregation Saved', {
     id: savedPipeline.id,
-    num_stages: pipeline.length
+    num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder).length
   });
 
   dispatch(updatePipelineList());

@@ -2,10 +2,11 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import decomment from 'decomment';
-import { InfoSprinkle } from 'hadron-react-components';
 import { Tooltip } from 'hadron-react-components';
 import { OUT } from '../../modules/pipeline';
-import { Link } from '@mongodb-js/compass-components';
+import { InlineInfoLink, Link } from '@mongodb-js/compass-components';
+import { STAGE_SPRINKLE_MAPPINGS } from '../../constants';
+import { connect } from 'react-redux';
 
 import styles from './stage-preview-toolbar.module.less';
 
@@ -26,24 +27,19 @@ const OUT_ATLAS = 'Documents will be saved to Atlas cluster.';
 const S3_MATCH = /s3:/;
 const ATLAS_MATCH = /atlas:/;
 
-import {
-  STAGE_SPRINKLE_MAPPINGS
-} from '../../constants';
-
 /**
  * The stage preview toolbar component.
  */
-class StagePreviewToolbar extends PureComponent {
-  static displayName = 'StagePreviewToolbar';
+export class StagePreviewToolbar extends PureComponent {
   static propTypes = {
-    error: PropTypes.string,
-    isEnabled: PropTypes.bool.isRequired,
-    isValid: PropTypes.bool.isRequired,
+    index: PropTypes.number.isRequired,
     stageOperator: PropTypes.string,
-    stageValue: PropTypes.any,
-    count: PropTypes.number.isRequired,
-    openLink: PropTypes.func.isRequired
-  }
+    stageValue: PropTypes.string,
+    hasServerError: PropTypes.bool,
+    isEnabled: PropTypes.bool,
+    isValid: PropTypes.bool,
+    previewSize: PropTypes.number.isRequired
+  };
 
   /**
    * Get the word.
@@ -51,7 +47,7 @@ class StagePreviewToolbar extends PureComponent {
    * @returns {String} The word.
    */
   getWord() {
-    return this.props.count === 1 ? 'document' : 'documents';
+    return this.props.previewSize === 1 ? 'document' : 'documents';
   }
 
   getOutText() {
@@ -87,9 +83,9 @@ class StagePreviewToolbar extends PureComponent {
         if (stageInfo) {
           stageInfoButton = (
             <Link
-              as="button"
+              target="_blank"
               className={styles['stage-preview-toolbar-link']}
-              onClick={this.props.openLink.bind(this, stageInfo.link)}
+              href={stageInfo.link}
             >
               {this.props.stageOperator}
             </Link>
@@ -108,7 +104,7 @@ class StagePreviewToolbar extends PureComponent {
               Output after {stageInfoButton} stage
             </span>
             {this.renderInfoSprinkle(stageInfo)}
-            <span data-testid="stage-preview-toolbar-tooltip">(Sample of {this.props.count} {this.getWord()})</span>
+            <span data-testid="stage-preview-toolbar-tooltip">(Sample of {this.props.previewSize} {this.getWord()})</span>
           </div>
         );
       }
@@ -134,11 +130,9 @@ class StagePreviewToolbar extends PureComponent {
           data-tip={stageInfo.tooltip}
           data-for="stage-tooltip"
           data-place="top"
-          data-html="true">
-          <InfoSprinkle
-            onClickHandler={this.props.openLink}
-            helpLink={stageInfo.link}
-          />
+          data-html="true"
+        >
+          <InlineInfoLink aria-label='Learn more' href={stageInfo.link} />
           <Tooltip id="stage-tooltip" />
         </span>
       );
@@ -153,7 +147,7 @@ class StagePreviewToolbar extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['stage-preview-toolbar'], {
-        [styles['stage-preview-toolbar-errored']]: this.props.error
+        [styles['stage-preview-toolbar-errored']]: this.props.hasServerError
       })}>
         {this.getText()}
       </div>
@@ -161,4 +155,14 @@ class StagePreviewToolbar extends PureComponent {
   }
 }
 
-export default StagePreviewToolbar;
+export default connect((state, ownProps) => {
+  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+  return {
+    stageOperator: stage.stageOperator,
+    stageValue: stage.value,
+    hasServerError: !!stage.serverError,
+    isEnabled: !stage.disabled,
+    isValid: !stage.serverError && !stage.syntaxError,
+    previewSize: stage.previewDocs?.length ?? 0
+  };
+}, null)(StagePreviewToolbar);

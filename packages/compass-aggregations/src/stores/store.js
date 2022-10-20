@@ -6,11 +6,11 @@ import reducer from '../modules';
 import { fieldsChanged } from '../modules/fields';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { indexesFetched } from '../modules/indexes';
-import { runStage } from '../modules/pipeline';
 import { openPipelineById } from '../modules/saved-pipeline';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { PipelineStorage } from '../utils/pipeline-storage';
-import { mapBuilderStagesToUIStages } from '../utils/stage';
+import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
+import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
 
 /**
  * Refresh the input documents.
@@ -94,7 +94,14 @@ const configureStore = (options = {}) => {
       // options.outResultsFn is only used by mms
       outResultsFn: options.outResultsFn,
       editViewName: options.editViewName,
-      pipeline: mapBuilderStagesToUIStages(pipelineBuilder.stages),
+      pipelineBuilder: {
+        stageEditor: {
+          stages: pipelineBuilder.stages.map((stage) =>
+            mapBuilderStageToStoreStage(stage)
+          ),
+          stageIds: pipelineBuilder.stages.map((stage) => stage.id)
+        }
+      }
     },
     applyMiddleware(
       thunk.withExtraArgument({
@@ -155,7 +162,7 @@ const configureStore = (options = {}) => {
     // Otherwise if we are editing a view pipeline, kick off preview fetch right
     // away
   } else if (options.editViewName) {
-    store.dispatch(runStage(0, true));
+    store.dispatch(updatePipelinePreview());
   }
 
   if (collection) {
