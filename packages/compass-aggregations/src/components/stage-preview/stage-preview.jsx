@@ -3,7 +3,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
 import LoadingOverlay from '../loading-overlay';
-import { OUT, MERGE } from '../../modules/pipeline';
 import { gotoOutResults } from '../../modules/out-results-fn';
 import { runStage } from '../../modules/pipeline-builder/stage-editor';
 import decomment from 'decomment';
@@ -196,10 +195,10 @@ export class StagePreview extends PureComponent {
       return this.renderAtlasOnlyStagePreviewSection();
     }
     if (this.props.isValid && this.props.isEnabled) {
-      if (this.props.stageOperator === OUT) {
+      if (this.props.stageOperator === '$out') {
         return this.renderOutSection();
       }
-      if (this.props.stageOperator === MERGE) {
+      if (this.props.stageOperator === '$merge') {
         return this.renderMergeSection();
       }
       if (this.props.documents?.length > 0) {
@@ -247,7 +246,10 @@ export class StagePreview extends PureComponent {
    */
   renderLoading() {
     if (this.props.isLoading) {
-      if (this.props.stageOperator === OUT) {
+      if (
+        this.props.stageOperator === '$out' ||
+        this.props.stageOperator === '$merge'
+      ) {
         return (<LoadingOverlay text="Persisting Documents..." />);
       }
       return (<LoadingOverlay text="Loading Preview Documents..." />);

@@ -1,46 +1,29 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import { expect } from 'chai';
-import { PipelineBuilderUIWorkspace } from './pipeline-builder-ui-workspace';
+import { Provider } from 'react-redux';
+import configureStore from '../../stores/store'
+import PipelineBuilderUIWorkspace from './pipeline-builder-ui-workspace';
 import Stage from '../stage';
 
-/* eslint react/prop-types: 0 */
-function createPipelineWorkspace({
-  toggleInputDocumentsCollapsed = () => {},
-  refreshInputDocuments = () => {},
-  openLink = () => {},
-  inputDocuments = {},
-} = {}) {
-  return (<PipelineBuilderUIWorkspace
-    stageIds={[]}
-    inputDocuments={inputDocuments}
-    toggleInputDocumentsCollapsed={toggleInputDocumentsCollapsed}
-    refreshInputDocuments={refreshInputDocuments}
-    openLink={openLink}
-  />);
+function renderPipelineStageEditor(options) {
+  const store = configureStore(options);
+  return mount(
+    <Provider store={store}>
+      <PipelineBuilderUIWorkspace></PipelineBuilderUIWorkspace>
+    </Provider>
+  );
 }
 
-describe('PipelineWorkspace [Component]', function() {
-  it('renders', function() {
-    shallow(createPipelineWorkspace({
-      inputDocuments: {
-        documents: [],
-        isLoading: false,
-        isExpanded: true,
-        count: 0
-      }
-    }));
+describe('PipelineBuilderUIWorkspace [Component]', function () {
+  it('renders', function () {
+    expect(() => renderPipelineStageEditor()).to.not.throw;
   });
 
-  it('renders the stages contained in the pipeline', function() {
-    const wrapper = shallow(createPipelineWorkspace({
-      inputDocuments: {
-        documents: [],
-        isLoading: false,
-        isExpanded: true,
-        count: 0
-      }
-    }));
-    expect(wrapper.find(Stage)).to.have.lengthOf(0);
+  it('renders the stages contained in the pipeline', function () {
+    const wrapper = renderPipelineStageEditor({
+      sourcePipeline: [{$match: {_id: 1}}, {$limit: 10}, {$out: 'out'}]
+    });
+    expect(wrapper.find(Stage)).to.have.lengthOf(3);
   });
 });

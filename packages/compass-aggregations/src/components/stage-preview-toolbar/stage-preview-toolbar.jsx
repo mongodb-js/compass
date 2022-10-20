@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import decomment from 'decomment';
 import { Tooltip } from 'hadron-react-components';
-import { OUT } from '../../modules/pipeline';
 import { InlineInfoLink, Link } from '@mongodb-js/compass-components';
 import { STAGE_SPRINKLE_MAPPINGS } from '../../constants';
 import { connect } from 'react-redux';
@@ -72,7 +71,7 @@ export class StagePreviewToolbar extends PureComponent {
   getText() {
     if (this.props.isEnabled) {
       if (this.props.stageOperator) {
-        if (this.props.stageOperator === OUT && this.props.isValid) {
+        if (this.props.stageOperator === '$out' && this.props.isValid) {
           return this.getOutText();
         }
 
