@@ -4,6 +4,7 @@ import { expect } from 'chai';
 
 import { listFactory } from '../list';
 import styles from './list.module.less';
+import { ZeroGraphic } from '../zero-graphic';
 
 const ListComponent = listFactory(
   () => <span data-testid="mock-item" />,
@@ -48,16 +49,9 @@ describe('listFactory [Component]', function () {
 
       it('renders a zero state title', function () {
         const component = shallow(
-          <ListComponent
-            items={[]}
-            ns={{ ns: 'test' }}
-            actions={{}}
-            zeroStateTitle="Foo"
-          />
+          <ListComponent items={[]} ns={{ ns: 'test' }} actions={{}} />
         );
-        const node = component.find(`.${styles['zeroState-title']}`);
-
-        expect(node.text()).to.have.equal('Foo');
+        expect(component.find(ZeroGraphic)).to.exist;
       });
     });
 
@@ -73,16 +67,9 @@ describe('listFactory [Component]', function () {
 
       it('does not render a zero state title', function () {
         const component = shallow(
-          <ListComponent
-            items={items}
-            ns={{ ns: 'test' }}
-            actions={{}}
-            zeroStateTitle="Foo"
-          />
+          <ListComponent items={items} ns={{ ns: 'test' }} actions={{}} />
         );
-        const node = component.find(`.${styles['zeroState-title']}`);
-
-        expect(node).to.have.length(0);
+        expect(component.find(ZeroGraphic)).to.not.exist;
       });
     });
 

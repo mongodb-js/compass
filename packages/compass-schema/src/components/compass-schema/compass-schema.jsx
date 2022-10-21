@@ -4,12 +4,11 @@ import PropTypes from 'prop-types';
 import {
   Button,
   CancelLoader,
+  DocumentIcon,
   EmptyContent,
   Link,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
-import Field from '../field';
-import ZeroGraphic from '../zero-graphic';
 import get from 'lodash.get';
 
 import styles from './compass-schema.module.less';
@@ -21,6 +20,8 @@ import {
   ANALYSIS_STATE_TIMEOUT,
 } from '../../constants/analysis-states';
 import { SchemaToolbar } from '../schema-toolbar/schema-toolbar';
+import Field from '../field';
+import { ZeroGraphic } from '../zero-graphic';
 
 const DOCUMENTATION_LINK = 'https://docs.mongodb.com/compass/master/schema/';
 
@@ -81,7 +82,19 @@ class Schema extends Component {
       return;
     }
 
-    return get(this.props.schema, 'fields', []).map((field) => {
+    const fields = get(this.props.schema, 'fields', []);
+
+    if (fields.length === 0) {
+      return (
+        <EmptyContent
+          icon={DocumentIcon}
+          title="No results"
+          subTitle="Try modifying your query to get results."
+        />
+      );
+    }
+
+    return fields.map((field) => {
       return (
         <Field
           key={field.name}
@@ -95,28 +108,26 @@ class Schema extends Component {
 
   renderInitialScreen() {
     return (
-      <div className={styles['schema-zero-state']}>
-        <EmptyContent
-          icon={ZeroGraphic}
-          title="Explore your schema"
-          subTitle="Quickly visualize your schema to understand the frequency, types and ranges of fields in your data set."
-          callToAction={
-            <Button
-              onClick={this.onApplyClicked.bind(this)}
-              data-testid="analyze-schema-button"
-              variant="primary"
-              size="small"
-            >
-              Analyze Schema
-            </Button>
-          }
-          callToActionLink={
-            <Link href={DOCUMENTATION_LINK} target="_blank">
-              Learn more about schema analysis in Compass
-            </Link>
-          }
-        />
-      </div>
+      <EmptyContent
+        icon={ZeroGraphic}
+        title="Explore your schema"
+        subTitle="Quickly visualize your schema to understand the frequency, types and ranges of fields in your data set."
+        callToAction={
+          <Button
+            onClick={this.onApplyClicked.bind(this)}
+            data-testid="analyze-schema-button"
+            variant="primary"
+            size="small"
+          >
+            Analyze Schema
+          </Button>
+        }
+        callToActionLink={
+          <Link href={DOCUMENTATION_LINK} target="_blank">
+            Learn more about schema analysis in Compass
+          </Link>
+        }
+      />
     );
   }
 
