@@ -29,7 +29,6 @@ describe('Instance my queries tab', function () {
   });
   beforeEach(async function () {
     await createNumbersCollection();
-    await createNumbersCollection('numbers-copy');
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
   after(async function () {
@@ -113,9 +112,9 @@ describe('Instance my queries tab', function () {
     await confirmRenameButton.click();
     await renameModal.waitForDisplayed({ reverse: true });
 
-    // drop the collection associated with the query to force the open item modal
+    // rename the collection associated with the query to force the open item modal
     await browser.shellEval('use test');
-    await browser.shellEval('db.numbers.drop()');
+    await browser.shellEval('db.numbers.renameCollection("numbers-renamed")');
     await browser.clickVisible(Selectors.SidebarShowActions);
     await browser.clickVisible(Selectors.SidebarActionRefresh);
 
@@ -128,7 +127,7 @@ describe('Instance my queries tab', function () {
     await browser.selectOption(Selectors.OpenSavedItemDatabaseField, 'test');
     await browser.selectOption(
       Selectors.OpenSavedItemCollectionField,
-      'numbers-copy'
+      'numbers-renamed'
     );
     const confirmOpenButton = await browser.$(
       Selectors.OpenSavedItemModalConfirmButton
@@ -142,7 +141,7 @@ describe('Instance my queries tab', function () {
 
     // we should eventually arrive on the collection
     const namespace = await browser.getActiveTabNamespace();
-    expect(namespace).to.equal('test.numbers-copy');
+    expect(namespace).to.equal('test.numbers-renamed');
 
     // back to my queries
     await browser.closeWorkspaceTabs();
