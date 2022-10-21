@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import mongodbns from 'mongodb-ns';
 
-import { Card, CardBody } from '../card';
+import { ZeroGraphic } from '../zero-graphic';
 import styles from './list.module.less';
 
 const factory = (ListItem, Saving) => {
@@ -14,14 +13,12 @@ const factory = (ListItem, Saving) => {
       items: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
         .isRequired,
       actions: PropTypes.object.isRequired,
-      zeroStateTitle: PropTypes.string.isRequired,
       current: PropTypes.object,
       ns: PropTypes.object,
     };
 
     static defaultProps = {
       items: [],
-      zeroStateTitle: '',
       current: null,
       ns: mongodbns(''),
     };
@@ -36,7 +33,7 @@ const factory = (ListItem, Saving) => {
       return (
         <Saving
           key={0}
-          className={classnames(styles.item)}
+          className={styles.item}
           model={current}
           actions={actions}
         />
@@ -44,18 +41,10 @@ const factory = (ListItem, Saving) => {
     };
 
     renderZeroState = (length) => {
-      const { current, zeroStateTitle } = this.props;
+      const { current } = this.props;
 
       if (length === 0 && current === null) {
-        return (
-          <Card>
-            <CardBody className={classnames(styles.zeroState)}>
-              <div className={classnames(styles['zeroState-title'])}>
-                {zeroStateTitle}
-              </div>
-            </CardBody>
-          </Card>
-        );
+        return <ZeroGraphic />;
       }
 
       return null;
@@ -69,17 +58,17 @@ const factory = (ListItem, Saving) => {
         .map((item, index) => (
           <ListItem
             key={index + 1}
-            className={classnames(styles.item)}
+            className={styles.item}
             model={item}
             actions={actions}
           />
         ));
 
       return (
-        <div className={classnames(styles.component)}>
+        <div className={styles.component}>
           {this.renderSaving()}
           {this.renderZeroState(renderItems.length)}
-          <ul className={classnames(styles.items)}>{renderItems}</ul>
+          <ul className={styles.items}>{renderItems}</ul>
         </div>
       );
     }
