@@ -600,9 +600,13 @@ export const QueryHistoryFavoriteItemNameField =
   '[data-testid="query-history-saving-form-input-name"]';
 export const QueryHistorySaveFavoriteItemButton =
   '[data-testid="query-history-saving-form-button-save"]';
+export const SavedItemMenu = '[data-testid="saved-item-actions"]';
+export const SavedItemMenuItemCopy = `${SavedItemMenu} [data-testid="saved-item-actions-copy-action"]`;
+export const SavedItemMenuItemRename = `${SavedItemMenu} [data-testid="saved-item-actions-rename-action"]`;
+export const SavedItemMenuItemDelete = `${SavedItemMenu} [data-testid="saved-item-actions-delete-action"]`;
 
 export const myQueriesItem = (title: string): string => {
-  return `[title="${title}"]`;
+  return `[data-testid="my-queries-content"] [title="${title}"]`;
 };
 
 export const MyQueriesList = '[data-testid="my-queries-list"]';
@@ -786,13 +790,13 @@ export const CreateIndexButton =
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
 
-export const CreateIndexModalFieldNameSelectInput = (idx: number): string => {
+export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
-export const CreateIndexModalFieldTypeSelectButton = (idx: number): string => {
+export const createIndexModalFieldTypeSelectButton = (idx: number): string => {
   return `[data-testid="create-index-fields-type-${idx}"] button`;
 };
-export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
+export const createIndexModalFieldTypeSelectMenu = (idx: number): string => {
   return `#create-index-fields-type-select-${idx}-menu`;
 };
 
@@ -962,3 +966,18 @@ export const EditConnectionStringModal =
   '[data-testid="edit-uri-confirmation-modal"]';
 export const EditConnectionStringModalConfirmButton =
   '[data-testid="edit-uri-confirmation-modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+// Rename saved item
+export const RenameSavedItemModal = '[data-testid="edit-item-modal"]';
+export const RenameSavedItemModalTextInput = `${RenameSavedItemModal} input[name="name"]`;
+export const RenameSavedItemModalSubmit = `${RenameSavedItemModal} button[type="submit"]`;
+
+// Delete saved item
+export const DeleteSavedItemModal = '[data-testid="delete-item-modal"]';
+export const DeleteSavedItemModallConfirmButton = `${DeleteSavedItemModal} [role=dialog] > div:nth-child(2) button:first-child`;
+
+// Open saved item
+export const OpenSavedItemModal = '[data-testid="open-item-modal"]';
+export const OpenSavedItemDatabaseField = `${OpenSavedItemModal} [data-testid="database-select-field"]`;
+export const OpenSavedItemCollectionField = `${OpenSavedItemModal} [data-testid="collection-select-field"]`;
+export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} [role=dialog] > div:nth-child(2) button:first-child`;
