@@ -981,3 +981,11 @@ export const OpenSavedItemModal = '[data-testid="open-item-modal"]';
 export const OpenSavedItemDatabaseField = `${OpenSavedItemModal} [data-testid="database-select-field"]`;
 export const OpenSavedItemCollectionField = `${OpenSavedItemModal} [data-testid="collection-select-field"]`;
 export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} [role=dialog] > div:nth-child(2) button:first-child`;
+
+// Duplicate view modal
+export const DuplicateViewModal = '[data-testid="duplicate-view-modal"]';
+export const DuplicateViewModalTextInput = `${DuplicateViewModal} #create-view-name`;
+export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} [role=dialog] > div:nth-child(2) button:first-child`;
+
+// Modify view
+export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
