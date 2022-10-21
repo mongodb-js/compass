@@ -81,7 +81,9 @@ export function getStageOperator(stage) {
  * Extracts destination collection from $merge and $out operators
  *
  * @see {@link https://www.mongodb.com/docs/manual/reference/operator/aggregation/merge/#syntax}
+ * @see {@link https://www.mongodb.com/docs/atlas/data-federation/supported-unsupported/pipeline/merge/#syntax}
  * @see {@link https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/#syntax}
+ * @see {@link https://www.mongodb.com/docs/atlas/data-federation/supported-unsupported/pipeline/out/#syntax}
  *
  * @param {string} namespace
  * @param {unknown} stage
@@ -93,6 +95,11 @@ export function getStageOperator(stage) {
   const { database } = toNS(namespace);
   if (stageOperator === '$merge') {
     const ns = typeof stage === 'string' ? stageValue : stageValue.into;
+    if (ns.atlas) {
+      // TODO: Not handled currently and we need some time to figure out how to
+      // handle it so just skipping for now
+      return null;
+    }
     return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
   }
   if (stageOperator === '$out') {
@@ -107,17 +114,17 @@ export function getStageOperator(stage) {
   return null;
 }
 
-const OutOperatorNames = new Set(OUT_STAGES.map(stage => stage.value));
+const OUT_OPERATOR_NAMES = new Set(OUT_STAGES.map(stage => stage.value));
 
 /**
  * @param {string} stageOperator 
  * @returns {boolean}
  */
 export function isOutputStage(stageOperator) {
-  return OutOperatorNames.has(stageOperator);
+  return OUT_OPERATOR_NAMES.has(stageOperator);
 }
 
-const StageOperatorsMap = new Map(
+const STAGE_OPERATOS_MAP = new Map(
   STAGE_OPERATORS.map((stage) => [stage.value, stage])
 );
 
@@ -128,7 +135,7 @@ const StageOperatorsMap = new Map(
  * @returns {{ description?: string, link?: string, destination?: string }}
  */
 export function getStageInfo(namespace, stageOperator, stageValue) {
-  const stage = StageOperatorsMap.get(stageOperator);
+  const stage = STAGE_OPERATOS_MAP.get(stageOperator);
   return {
     description: stage?.description,
     link: stageOperator
@@ -146,7 +153,10 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
             if (stage[stageOperator].s3) {
               return 'S3 bucket';
             }
-            if (stage[stageOperator].atlas) {
+            if (
+              stage[stageOperator].atlas ||
+              stage[stageOperator].into?.atlas
+            ) {
               return 'Atlas cluster';
             }
             return getDestinationNamespaceFromStage(namespace, stage);

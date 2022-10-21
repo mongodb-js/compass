@@ -186,6 +186,50 @@ describe('StagePreviewToolbar [Component]', function() {
     });
   });
 
+  context('when the stage operator is $merge', function() {
+    context('when the value is a collection', function() {
+      let component;
+
+      beforeEach(function() {
+        component = mountStagePreviewToolbar({
+          sourcePipeline: [{ $merge: { into: 'collection' } }]
+        });
+      });
+
+      afterEach(function() {
+        component.unmount();
+        component = null;
+      });
+
+      it('renders the $merge stage text', function() {
+        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+          to.have.text('Documents will be saved to test.collection.');
+      });
+    });
+
+    context('when the value is atlas', function() {
+      let component;
+
+      beforeEach(function() {
+        component = mountStagePreviewToolbar({
+          sourcePipeline: [
+            { $merge: { into: { atlas: { projectId: 'test' } } } }
+          ]
+        });
+      });
+
+      afterEach(function() {
+        component.unmount();
+        component = null;
+      });
+
+      it('renders the $merge stage text', function() {
+        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+          to.have.text('Documents will be saved to Atlas cluster.');
+      });
+    });
+  });
+
   context('when there is no stage operator', function() {
     let component;
 
