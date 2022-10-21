@@ -1,7 +1,8 @@
 /**
  * Drop collection name confirmation.
  */
-export const CHANGE_COLLECTION_NAME_CONFIRMATION = 'databases-collections/drop-collection/name/CHANGE_NAME_CONFIRMATION';
+export const CHANGE_COLLECTION_NAME_CONFIRMATION =
+  'databases-collections/drop-collection/name/CHANGE_NAME_CONFIRMATION';
 
 /**
  * The initial state of the collection name confirmation.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeCollectionNameConfirmation = (nameConfirmation) => ({
   type: CHANGE_COLLECTION_NAME_CONFIRMATION,
-  nameConfirmation: nameConfirmation
+  nameConfirmation: nameConfirmation,
 });

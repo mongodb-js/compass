@@ -1,22 +1,24 @@
 import { combineReducers } from 'redux';
 import isRunning, {
   toggleIsRunning,
-  INITIAL_STATE as IS_RUNNING_INITIAL_STATE
+  INITIAL_STATE as IS_RUNNING_INITIAL_STATE,
 } from '../is-running';
 import isVisible, {
-  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
+  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
 } from '../is-visible';
 import name, {
-  INITIAL_STATE as NAME_INITIAL_STATE
+  INITIAL_STATE as NAME_INITIAL_STATE,
 } from '../drop-collection/name';
 import nameConfirmation, {
-  INITIAL_STATE as NAME_CONFIRMATION_INITIAL_STATE
+  INITIAL_STATE as NAME_CONFIRMATION_INITIAL_STATE,
 } from '../drop-collection/name-confirmation';
 import databaseName, {
-  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
+  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE,
 } from '../database-name';
 import error, {
-  clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
+  clearError,
+  handleError,
+  INITIAL_STATE as ERROR_INITIAL_STATE,
 } from '../error';
 import { reset, RESET } from '../reset';
 import dataService from '../data-service';
@@ -36,7 +38,7 @@ const reducer = combineReducers({
   nameConfirmation,
   databaseName,
   error,
-  dataService
+  dataService,
 });
 
 /**
@@ -56,7 +58,7 @@ const rootReducer = (state, action) => {
       name: NAME_INITIAL_STATE,
       nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE,
       databaseName: DATABASE_NAME_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE
+      error: ERROR_INITIAL_STATE,
     };
   } else if (action.type === OPEN) {
     return {
@@ -66,7 +68,7 @@ const rootReducer = (state, action) => {
       databaseName: action.databaseName,
       isRunning: IS_RUNNING_INITIAL_STATE,
       nameConfirmation: NAME_CONFIRMATION_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE
+      error: ERROR_INITIAL_STATE,
     };
   }
   return reducer(state, action);
@@ -98,7 +100,7 @@ const stopWithError = (dispatch, err) => {
 export const open = (collectionName, dbName) => ({
   type: OPEN,
   collectionName: collectionName,
-  databaseName: dbName
+  databaseName: dbName,
 });
 
 /**

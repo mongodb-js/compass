@@ -1,7 +1,8 @@
 /**
  * Drop collection name.
  */
-export const CHANGE_COLLECTION_NAME = 'databases-collections/drop-collection/name/CHANGE_NAME';
+export const CHANGE_COLLECTION_NAME =
+  'databases-collections/drop-collection/name/CHANGE_NAME';
 
 /**
  * The initial state of the collection name.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeCollectionName = (name) => ({
   type: CHANGE_COLLECTION_NAME,
-  name: name
+  name: name,
 });

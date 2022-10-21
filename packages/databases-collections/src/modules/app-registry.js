@@ -37,7 +37,7 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const appRegistryActivated = (appRegistry) => ({
   type: APP_REGISTRY_ACTIVATED,
-  appRegistry: appRegistry
+  appRegistry: appRegistry,
 });
 
 /**

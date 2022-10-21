@@ -1,7 +1,8 @@
 /**
  * Drop database name confirmation.
  */
-export const CHANGE_DATABASE_NAME_CONFIRMATION = 'databases-collections/drop-database/name/CHANGE_NAME_CONFIRMATION';
+export const CHANGE_DATABASE_NAME_CONFIRMATION =
+  'databases-collections/drop-database/name/CHANGE_NAME_CONFIRMATION';
 
 /**
  * The initial state of the database name confirmation.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeDatabaseNameConfirmation = (nameConfirmation) => ({
   type: CHANGE_DATABASE_NAME_CONFIRMATION,
-  nameConfirmation: nameConfirmation
+  nameConfirmation: nameConfirmation,
 });

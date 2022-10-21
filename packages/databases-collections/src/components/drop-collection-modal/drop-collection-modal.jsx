@@ -25,8 +25,8 @@ class DropCollectionModal extends PureComponent {
     error: PropTypes.object,
     changeCollectionNameConfirmation: PropTypes.func.isRequired,
     dropCollection: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
-  }
+    toggleIsVisible: PropTypes.func.isRequired,
+  };
 
   /**
    * Called when the db name confirmation changes.
@@ -35,14 +35,14 @@ class DropCollectionModal extends PureComponent {
    */
   onNameConfirmationChange = (evt) => {
     this.props.changeCollectionNameConfirmation(evt.target.value);
-  }
+  };
 
   /**
    * Hide the modal.
    */
   onHide = () => {
     this.props.toggleIsVisible(false);
-  }
+  };
 
   /**
    * When user hits enter to submit the form we need to prevent the default bhaviour.
@@ -55,7 +55,7 @@ class DropCollectionModal extends PureComponent {
     if (this.props.name === this.props.nameConfirmation) {
       this.props.dropCollection();
     }
-  }
+  };
 
   /**
    * Render the modal dialog.
@@ -78,14 +78,15 @@ class DropCollectionModal extends PureComponent {
         <div>
           <p className={styles['drop-collection-modal-confirm']}>
             <i className="fa fa-exclamation-triangle" aria-hidden="true" />
-              To drop
+            To drop
             <span className={styles['drop-collection-modal-confirm-namespace']}>
               {this.props.name}
             </span>
-              type the collection name
+            type the collection name
             <span className={styles['drop-collection-modal-confirm-name']}>
               {this.props.name}
-            </span>.
+            </span>
+            .
           </p>
         </div>
         <form
@@ -102,14 +103,20 @@ class DropCollectionModal extends PureComponent {
               onChange={this.onNameConfirmationChange}
             />
           </div>
-          {this.props.error ?
-            <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
-            : null
-          }
-          {this.props.isRunning ?
-            <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
-            : null
-          }
+          {this.props.error ? (
+            <ModalStatusMessage
+              icon="times"
+              message={this.props.error.message}
+              type="error"
+            />
+          ) : null}
+          {this.props.isRunning ? (
+            <ModalStatusMessage
+              icon="spinner"
+              message="Drop in Progress"
+              type="in-progress"
+            />
+          ) : null}
         </form>
       </ConfirmationModal>
     );
@@ -128,22 +135,19 @@ const mapStateToProps = (state) => ({
   isVisible: state.isVisible,
   name: state.name,
   nameConfirmation: state.nameConfirmation,
-  error: state.error
+  error: state.error,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedDropCollectionModal = connect(
-  mapStateToProps,
-  {
-    changeCollectionName,
-    changeCollectionNameConfirmation,
-    dropCollection,
-    toggleIsVisible
-  },
-)(DropCollectionModal);
+const MappedDropCollectionModal = connect(mapStateToProps, {
+  changeCollectionName,
+  changeCollectionNameConfirmation,
+  dropCollection,
+  toggleIsVisible,
+})(DropCollectionModal);
 
 export default MappedDropCollectionModal;
 export { DropCollectionModal };

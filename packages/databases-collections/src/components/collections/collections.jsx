@@ -104,8 +104,8 @@ const mapStateToProps = (state) => ({
 });
 
 function createEmit(evtName) {
-  return function(ns) {
-    return function(_dispatch, getState) {
+  return function (ns) {
+    return function (_dispatch, getState) {
       const { appRegistry, databaseName } = getState();
       appRegistry?.emit(evtName, toNS(ns ?? databaseName));
     };

@@ -26,8 +26,8 @@ class DropDatabaseModal extends PureComponent {
     changeDatabaseName: PropTypes.func.isRequired,
     changeDatabaseNameConfirmation: PropTypes.func.isRequired,
     dropDatabase: PropTypes.func.isRequired,
-    toggleIsVisible: PropTypes.func.isRequired
-  }
+    toggleIsVisible: PropTypes.func.isRequired,
+  };
 
   /**
    * Called when the db name changes.
@@ -36,7 +36,7 @@ class DropDatabaseModal extends PureComponent {
    */
   onNameChange = (evt) => {
     this.props.changeDatabaseName(evt.target.value);
-  }
+  };
 
   /**
    * Called when the db name confirmation changes.
@@ -45,14 +45,14 @@ class DropDatabaseModal extends PureComponent {
    */
   onNameConfirmationChange = (evt) => {
     this.props.changeDatabaseNameConfirmation(evt.target.value);
-  }
+  };
 
   /**
    * Hide the modal.
    */
   onHide = () => {
     this.props.toggleIsVisible(false);
-  }
+  };
 
   /**
    * When user hits enter to submit the form we need to prevent the default bhaviour.
@@ -65,7 +65,7 @@ class DropDatabaseModal extends PureComponent {
     if (this.props.name === this.props.nameConfirmation) {
       this.props.dropDatabase();
     }
-  }
+  };
 
   /**
    * Render the modal dialog.
@@ -88,20 +88,22 @@ class DropDatabaseModal extends PureComponent {
         <div>
           <p className={styles['drop-database-modal-confirm']}>
             <i className="fa fa-exclamation-triangle" aria-hidden="true" />
-              To drop
+            To drop
             <span className={styles['drop-database-modal-confirm-namespace']}>
               {this.props.name}
             </span>
-              type the database name
+            type the database name
             <span className={styles['drop-database-modal-confirm-name']}>
               {this.props.name}
-            </span>.
+            </span>
+            .
           </p>
         </div>
         <form
           name="drop-database-modal-form"
           onSubmit={this.onFormSubmit}
-          data-testid="drop-database-modal">
+          data-testid="drop-database-modal"
+        >
           <div className="form-group">
             <input
               type="text"
@@ -111,12 +113,20 @@ class DropDatabaseModal extends PureComponent {
               onChange={this.onNameConfirmationChange}
             />
           </div>
-          {this.props.error ?
-            <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
-            : null}
-          {this.props.isRunning ?
-            <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
-            : null}
+          {this.props.error ? (
+            <ModalStatusMessage
+              icon="times"
+              message={this.props.error.message}
+              type="error"
+            />
+          ) : null}
+          {this.props.isRunning ? (
+            <ModalStatusMessage
+              icon="spinner"
+              message="Drop in Progress"
+              type="in-progress"
+            />
+          ) : null}
         </form>
       </ConfirmationModal>
     );
@@ -135,22 +145,19 @@ const mapStateToProps = (state) => ({
   isVisible: state.isVisible,
   name: state.name,
   nameConfirmation: state.nameConfirmation,
-  error: state.error
+  error: state.error,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedDropDatabaseModal = connect(
-  mapStateToProps,
-  {
-    changeDatabaseName,
-    changeDatabaseNameConfirmation,
-    dropDatabase,
-    toggleIsVisible
-  },
-)(DropDatabaseModal);
+const MappedDropDatabaseModal = connect(mapStateToProps, {
+  changeDatabaseName,
+  changeDatabaseNameConfirmation,
+  dropDatabase,
+  toggleIsVisible,
+})(DropDatabaseModal);
 
 export default MappedDropDatabaseModal;
 export { DropDatabaseModal };

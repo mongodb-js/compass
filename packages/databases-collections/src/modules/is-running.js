@@ -1,7 +1,8 @@
 /**
  * Toggle is running action name.
  */
-export const TOGGLE_IS_RUNNING = 'databases-collections/is-running/TOGGLE_IS_RUNNING';
+export const TOGGLE_IS_RUNNING =
+  'databases-collections/is-running/TOGGLE_IS_RUNNING';
 
 /**
  * The initial state of the is running attribute.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsRunning = (isRunning) => ({
   type: TOGGLE_IS_RUNNING,
-  isRunning: isRunning
+  isRunning: isRunning,
 });

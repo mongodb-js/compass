@@ -20,7 +20,7 @@ export const INITIAL_STATE = {
   error: null,
   dataService: null,
   configuredKMSProviders: [],
-  currentTopologyType: 'Unknown'
+  currentTopologyType: 'Unknown',
 };
 
 /**
@@ -36,16 +36,27 @@ export default function reducer(state = INITIAL_STATE, action) {
     return {
       error: action.error,
       dataService: action.dataService,
-      configuredKMSProviders: action.dataService.configuredKMSProviders ? action.dataService.configuredKMSProviders() : [],
-      currentTopologyType: action.dataService.currentTopologyType ? action.dataService.currentTopologyType() : 'Unknown'
+      configuredKMSProviders: action.dataService.configuredKMSProviders
+        ? action.dataService.configuredKMSProviders()
+        : [],
+      currentTopologyType: action.dataService.currentTopologyType
+        ? action.dataService.currentTopologyType()
+        : 'Unknown',
     };
   }
-  if (action.type === DATA_SERVICE_UPDATED && action.dataService === state.dataService) {
+  if (
+    action.type === DATA_SERVICE_UPDATED &&
+    action.dataService === state.dataService
+  ) {
     return {
       error: state.error,
       dataService: action.dataService,
-      configuredKMSProviders: action.dataService.configuredKMSProviders ? action.dataService.configuredKMSProviders() : [],
-      currentTopologyType: action.dataService.currentTopologyType ? action.dataService.currentTopologyType() : 'Unknown'
+      configuredKMSProviders: action.dataService.configuredKMSProviders
+        ? action.dataService.configuredKMSProviders()
+        : [],
+      currentTopologyType: action.dataService.currentTopologyType
+        ? action.dataService.currentTopologyType()
+        : 'Unknown',
     };
   }
   return state;
@@ -62,7 +73,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 export const dataServiceConnected = (error, dataService) => ({
   type: DATA_SERVICE_CONNECTED,
   error: error,
-  dataService: dataService
+  dataService: dataService,
 });
 
 /**
@@ -74,5 +85,5 @@ export const dataServiceConnected = (error, dataService) => ({
  */
 export const dataServiceUpdated = (dataService) => ({
   type: DATA_SERVICE_UPDATED,
-  dataService: dataService
+  dataService: dataService,
 });

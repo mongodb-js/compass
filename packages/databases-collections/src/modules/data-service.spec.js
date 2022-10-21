@@ -3,56 +3,58 @@ import reducer, {
   dataServiceConnected,
   dataServiceUpdated,
   DATA_SERVICE_CONNECTED,
-  DATA_SERVICE_UPDATED
+  DATA_SERVICE_UPDATED,
 } from './data-service';
 
-describe('data service module', function() {
-  describe('#dataServiceConnected', function() {
-    it('returns the DATA_SERVICE_CONNECTED action', function() {
+describe('data service module', function () {
+  describe('#dataServiceConnected', function () {
+    it('returns the DATA_SERVICE_CONNECTED action', function () {
       expect(dataServiceConnected('test', 'ds')).to.deep.equal({
         type: DATA_SERVICE_CONNECTED,
         error: 'test',
-        dataService: 'ds'
+        dataService: 'ds',
       });
     });
   });
 
-  describe('#dataServiceUpdated', function() {
-    it('returns the DATA_SERVICE_UPDATED action', function() {
+  describe('#dataServiceUpdated', function () {
+    it('returns the DATA_SERVICE_UPDATED action', function () {
       expect(dataServiceUpdated('ds')).to.deep.equal({
         type: DATA_SERVICE_UPDATED,
-        dataService: 'ds'
+        dataService: 'ds',
       });
     });
   });
 
-  describe('#reducer', function() {
-    context('when the action is not data service connected', function() {
-      it('returns the default state', function() {
+  describe('#reducer', function () {
+    context('when the action is not data service connected', function () {
+      it('returns the default state', function () {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           error: null,
           dataService: null,
           configuredKMSProviders: [],
-          currentTopologyType: 'Unknown'
+          currentTopologyType: 'Unknown',
         });
       });
     });
 
-    context('when the action is data service connected', function() {
-      it('returns the new state', function() {
-        expect(reducer(undefined, dataServiceConnected('err', 'ds'))).to.deep.equal({
+    context('when the action is data service connected', function () {
+      it('returns the new state', function () {
+        expect(
+          reducer(undefined, dataServiceConnected('err', 'ds'))
+        ).to.deep.equal({
           error: 'err',
           dataService: 'ds',
           configuredKMSProviders: [],
-          currentTopologyType: 'Unknown'
+          currentTopologyType: 'Unknown',
         });
       });
     });
 
-    context('when the action is data service updated', function() {
-      it('returns the new state', function() {
+    context('when the action is data service updated', function () {
+      it('returns the new state', function () {
         const ds = {
-          currentTopologyType: () => 'Single'
+          currentTopologyType: () => 'Single',
         };
         const state1 = reducer(undefined, dataServiceConnected('err', ds));
         expect(state1.currentTopologyType).to.equal('Single');
@@ -63,7 +65,7 @@ describe('data service module', function() {
           error: 'err',
           dataService: ds,
           configuredKMSProviders: [],
-          currentTopologyType: 'ReplicaSetWithPrimary'
+          currentTopologyType: 'ReplicaSetWithPrimary',
         });
 
         // Ensure that updates for another dataService instance are not
@@ -72,7 +74,7 @@ describe('data service module', function() {
           error: 'err',
           dataService: ds,
           configuredKMSProviders: [],
-          currentTopologyType: 'ReplicaSetWithPrimary'
+          currentTopologyType: 'ReplicaSetWithPrimary',
         });
       });
     });

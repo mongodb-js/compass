@@ -1,7 +1,8 @@
 /**
  * Create database name.
  */
-export const CHANGE_DATABASE_NAME = 'databases-collections/name/CHANGE_DATABASE_NAME';
+export const CHANGE_DATABASE_NAME =
+  'databases-collections/name/CHANGE_DATABASE_NAME';
 
 /**
  * The initial state of the database name.
@@ -34,5 +35,5 @@ export default function reducer(state = INITIAL_STATE, action) {
 export const changeDatabaseName = (name, collections = []) => ({
   type: CHANGE_DATABASE_NAME,
   name,
-  collections
+  collections,
 });
