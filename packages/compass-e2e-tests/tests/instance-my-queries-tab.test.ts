@@ -51,7 +51,7 @@ describe('Instance my queries tab', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it.only('opens a saved query', async function () {
+  it('opens a saved query', async function () {
     const favoriteQueryName = 'list of numbers greater than 10 - query';
     const newFavoriteQueryName = 'my renamed query';
 
@@ -89,18 +89,7 @@ describe('Instance my queries tab', function () {
             .replace(/\n/g, '');
           const isValid =
             text ===
-            `{
-  "collation": null,
-  "filter": {
-    "i": {
-      "$gt": 10
-    }
-  },
-  "limit": 10,
-  "project": null,
-  "skip": null,
-  "sort": null
-}`;
+            '{ "collation": null, "filter": { "i": { "$gt": 10 } }, "limit": 10, "project": null, "skip": null, "sort": null }';
           if (!isValid) {
             console.log(text);
           }
