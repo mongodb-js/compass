@@ -1,4 +1,3 @@
-/* eslint-disable react/no-multi-comp */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -131,7 +130,6 @@ function createEmit(evtName) {
   return function(...args) {
     return function(_dispatch, getState) {
       const { appRegistry } = getState();
-      // eslint-disable-next-line chai-friendly/no-unused-expressions
       appRegistry?.emit(evtName, ...args);
     };
   };
