@@ -16,7 +16,7 @@ import type { RootState } from '../../modules';
 import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
 import PipelineResultsList from './pipeline-results-list';
 import PipelineEmptyResults from './pipeline-empty-results';
-import { getDestinationNamespaceFromStage } from '../../utils/stage';
+import { getDestinationNamespaceFromStage, isOutputStage } from '../../utils/stage';
 import { getStageOperator } from '../../utils/stage';
 
 const containerStyles = css({
@@ -200,7 +200,7 @@ const mapState = (state: RootState) => {
     isError: Boolean(error),
     isEmpty: documents.length === 0,
     resultsViewType: resultsViewType,
-    isMergeOrOutPipeline: ['$merge', '$out'].includes(stageOperator),
+    isMergeOrOutPipeline: isOutputStage(stageOperator),
     mergeOrOutDestination: getDestinationNamespaceFromStage(
       namespace,
       lastStage
