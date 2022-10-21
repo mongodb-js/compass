@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import Settings from './settings.jsx';
+import Settings from './settings';
 import { INITIAL_STATE } from '../../modules/settings';
 
 import styles from './settings.module.less';
