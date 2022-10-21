@@ -11,9 +11,22 @@ async function openMenuForQueryItem(
   favoriteQueryName: string
 ) {
   const titleSelector = Selectors.myQueriesItem(favoriteQueryName);
-  await browser.hover(titleSelector);
+
   const titleElement = await browser.$(titleSelector);
   const parent = await titleElement.parentElement();
+
+  await browser.waitUntil(async () => {
+    await browser.hover(titleSelector);
+    const button = await parent.$('button[title="Show actions"]');
+    if (await button.isDisplayed()) {
+      return true;
+    }
+
+    // go hover somewhere else to give the next attempt a fighting chance
+    await browser.hover(Selectors.SidebarTitle);
+    return false;
+  });
+
   const button = await parent.$('button[title="Show actions"]');
   await button.click();
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
