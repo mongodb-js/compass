@@ -38,7 +38,7 @@ describe('Instance my queries tab', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it('opens a saved query', async function () {
+  it.only('opens a saved query', async function () {
     const favoriteQueryName = 'list of numbers greater than 10 - query';
     const newFavoriteQueryName = 'my renamed query';
 
