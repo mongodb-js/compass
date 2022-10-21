@@ -84,8 +84,10 @@ describe('Instance my queries tab', function () {
     if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
       await browser.waitUntil(
         async () => {
-          const text = await clipboard.read();
-          return (
+          const text = (await clipboard.read())
+            .replace(/\s+/g, ' ')
+            .replace(/\n/g, '');
+          const isValid =
             text ===
             `{
   "collation": null,
@@ -98,8 +100,11 @@ describe('Instance my queries tab', function () {
   "project": null,
   "skip": null,
   "sort": null
-}`
-          );
+}`;
+          if (!isValid) {
+            console.log(text);
+          }
+          return isValid;
         },
         { timeoutMsg: 'Expected copy to clipboard to work' }
       );
