@@ -12,6 +12,7 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
+import { getStageOperatorsFromPipelineSource } from './builder-helpers';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetch',
@@ -23,6 +24,7 @@ export const enum EditorActionTypes {
 type EditorValueChangeAction = {
   type: EditorActionTypes.EditorValueChange;
   pipelineText: string;
+  stageOperators: string[];
   syntaxErrors: PipelineParserError[];
 };
 
@@ -42,6 +44,7 @@ type EditorPreviewFetchErrorAction = {
 
 export type TextEditorState = {
   pipelineText: string;
+  stageOperators: string[];
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   loading: boolean;
@@ -50,6 +53,7 @@ export type TextEditorState = {
 
 const INITIAL_STATE: TextEditorState = {
   pipelineText: '',
+  stageOperators: [],
   syntaxErrors: [],
   serverError: null,
   loading: false,
@@ -69,6 +73,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       pipelineText: action.pipelineText,
+      stageOperators: action.stageOperators,
       loading: false,
       previewDocs: null,
       serverError: null,
@@ -185,11 +190,16 @@ export const loadPreviewForPipeline = (
 export const changeEditorValue = (
   value: string
 ): PipelineBuilderThunkAction<void, EditorValueChangeAction> => {
-  return (dispatch, _getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     pipelineBuilder.changeSource(value);
+    const stageOperators = getStageOperatorsFromPipelineSource(
+      getState(),
+      pipelineBuilder
+    );
     dispatch({
       type: EditorActionTypes.EditorValueChange,
       pipelineText: value,
+      stageOperators,
       syntaxErrors: pipelineBuilder.syntaxError
     });
     void dispatch(loadPreviewForPipeline());

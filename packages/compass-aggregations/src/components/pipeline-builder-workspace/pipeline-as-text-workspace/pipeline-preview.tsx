@@ -99,23 +99,21 @@ const PreviewResults = ({
   );
 };
 
-export const PipelinePreview: React.FunctionComponent<
-  PipelinePreviewProps
-> = ({ isLoading, previewDocs }) => {
-
+export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
+  isLoading,
+  previewDocs,
+}) => {
   const docCount = previewDocs?.length;
   const docText = docCount === 1 ? 'document' : 'documents';
+  const showHeaderBody = !isLoading && docCount && docCount > 0;
 
   return (
     <div className={containerStyles}>
       <div className={previewHeaderStyles}>
         <Overline>Pipeline Output</Overline>
-        {!isLoading && docCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
+        {showHeaderBody && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
       </div>
-      <PreviewResults
-        isLoading={isLoading}
-        previewDocs={previewDocs}
-      />
+      <PreviewResults isLoading={isLoading} previewDocs={previewDocs} />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import type { PipelineBuilderThunkAction } from '..';
 import { isAction } from '../../utils/is-action';
-import { updatePipelinePreview } from './builder-helpers';
+import { updatePipelinePreview, getStageOperatorsFromPipelineSource } from './builder-helpers';
 import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
 
@@ -15,6 +15,7 @@ export type PipelineModeToggledAction = {
   type: ActionTypes.PipelineModeToggled;
   mode: PipelineMode;
   pipelineText: string;
+  stageOperators: string[];
   syntaxErrors: PipelineParserError[];
   stages: Stage[];
 };
@@ -36,7 +37,7 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
 export const changePipelineMode = (
   newMode: PipelineMode
 ): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
-  return (dispatch, _getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     // Sync the PipelineBuilder
     if (newMode === 'as-text') {
       pipelineBuilder.stagesToSource();
@@ -47,6 +48,7 @@ export const changePipelineMode = (
     dispatch({
       type: ActionTypes.PipelineModeToggled,
       mode: newMode,
+      stageOperators: getStageOperatorsFromPipelineSource(getState(), pipelineBuilder),
       pipelineText: pipelineBuilder.source,
       syntaxErrors: pipelineBuilder.syntaxError,
       stages: pipelineBuilder.stages,

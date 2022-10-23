@@ -8,6 +8,10 @@ type ErrorLoc = {
 }
 export class PipelineParserError extends SyntaxError {
   loc: ErrorLoc | undefined;
+  constructor(message: string, loc?: ErrorLoc) {
+    super(message);
+    this.loc = loc;
+  }
 };
 
 export function generate(ast: Node) {

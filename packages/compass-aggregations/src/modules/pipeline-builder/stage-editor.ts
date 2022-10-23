@@ -507,6 +507,7 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
+          serverError: null,
           loading: true
         },
         ...state.stages.slice(action.id + 1)

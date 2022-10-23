@@ -36,13 +36,14 @@ export function assertStageNode(node: t.Node): asserts node is StageLike {
   if (isStageLike(node)) {
     return;
   }
-  throw new PipelineParserError(
-    node.type === 'ObjectExpression'
-      ? (node.properties[0] as t.ObjectProperty | undefined)?.key == null
-        ? 'A pipeline stage specification object must contain exactly one field.'
-        : 'Stage value can not be empty'
-      : 'Each element of the pipeline array must be an object'
-  );
+  const { column, line } = node.loc?.start ?? { line: 1, column: 1 };
+  const message = node.type === 'ObjectExpression'
+    ? (node.properties[0] as t.ObjectProperty | undefined)?.key == null
+      ? 'A pipeline stage specification object must contain exactly one field.'
+      : 'Stage value can not be empty'
+    : 'Each element of the pipeline array must be an object';
+
+  throw new PipelineParserError(message, { column, line });
 }
 
 export function getStageOperatorFromNode(node: StageLike): string {

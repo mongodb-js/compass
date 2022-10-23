@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { connect } from 'react-redux';
-import { ErrorSummary, css } from '@mongodb-js/compass-components';
+import {
+  ErrorSummary,
+  css,
+  WarningSummary,
+} from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
   Editor,
@@ -93,6 +97,9 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     editorRef.current?.getSession().setAnnotations(annotations);
   }, [syntaxErrors, editorRef]);
 
+  // syntaxErrors that don't have loc, show them as warnings
+  const warnings = syntaxErrors.filter((x) => !x.loc).map((x) => x.message);
+
   return (
     <div className={containerStyles}>
       <div className={editorContainerStyles}>
@@ -107,6 +114,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
         />
       </div>
       {serverError && <ErrorSummary errors={serverError.message} />}
+      {warnings.length > 0 && <WarningSummary warnings={warnings} />}
     </div>
   );
 };

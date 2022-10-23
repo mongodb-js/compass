@@ -36,6 +36,7 @@ const toggleLabelStyles = css({
 
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
+  isPipelineModeDisabled: boolean;
   pipelineMode: PipelineMode;
   onToggleAutoPreview: (newVal: boolean) => void;
   onChangePipelineMode: (newVal: PipelineMode) => void;
@@ -46,6 +47,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   PipelineExtraSettingsProps
 > = ({
   isAutoPreview,
+  isPipelineModeDisabled,
   pipelineMode,
   onToggleAutoPreview,
   onChangePipelineMode,
@@ -82,11 +84,11 @@ export const PipelineExtraSettings: React.FunctionComponent<
             onChangePipelineMode(value as PipelineMode);
           }}
         >
-          <SegmentedControlOption value="builder-ui">
+          <SegmentedControlOption disabled={isPipelineModeDisabled} value="builder-ui">
             <Icon size="small" glyph="CurlyBraces"></Icon>
             Builder UI
           </SegmentedControlOption>
-          <SegmentedControlOption value="as-text">
+          <SegmentedControlOption disabled={isPipelineModeDisabled} value="as-text">
             <Icon size="small" glyph="Code"></Icon>
             As Text
           </SegmentedControlOption>
@@ -105,11 +107,17 @@ export const PipelineExtraSettings: React.FunctionComponent<
 
 const mapState = ({
   autoPreview,
-  pipelineBuilder: { pipelineMode },
-}: RootState) => ({
-  isAutoPreview: autoPreview,
-  pipelineMode,
-});
+  pipelineBuilder: { pipelineMode, textEditor, stageEditor },
+}: RootState) => {
+  const isPipelineModeDisabled = pipelineMode === 'as-text'
+    ? textEditor.syntaxErrors.length > 0
+    : stageEditor.stages.some(x => x.syntaxError);
+  return {
+    isAutoPreview: autoPreview,
+    isPipelineModeDisabled,
+    pipelineMode,
+  };
+};
 
 const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
