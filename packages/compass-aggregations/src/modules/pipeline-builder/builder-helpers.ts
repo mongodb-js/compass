@@ -21,10 +21,11 @@ export function getStagesFromBuilderState(
   state: RootState,
   pipelineBuilder: PipelineBuilder
 ) {
-  if (state.pipelineBuilder.pipelineMode === 'as-text') {
-    pipelineBuilder.sourceToStages();
+  if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
+    return pipelineBuilder.stages.map((stage) => stage.toBSON());
+  } else {
+    return pipelineBuilder.getPipelineFromSource();
   }
-  return pipelineBuilder.stages.map((stage) => stage.toBSON());
 }
 
 export function getPipelineFromBuilderState(

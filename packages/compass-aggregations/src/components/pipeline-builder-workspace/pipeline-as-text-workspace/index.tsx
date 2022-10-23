@@ -1,8 +1,10 @@
 import React from 'react';
 import { css, spacing, palette } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
 
 import PipelineEditor from './pipeline-editor';
 import PipelinePreview from './pipeline-preview';
+import type { RootState } from '../../../modules';
 
 const containerStyles = css({
   display: 'flex',
@@ -25,17 +27,33 @@ const resultsStyles = css({
   flex: 1,
 });
 
-export const PipelineAsTextWorkspace = () => {
+type PipelineAsTextWorkspaceProps = {
+  isAutoPreview: boolean;
+}
+
+export const PipelineAsTextWorkspace: React.FunctionComponent<
+  PipelineAsTextWorkspaceProps
+> = ({
+  isAutoPreview
+}) => {
   return (
     <div data-testid="pipeline-as-text-workspace" className={containerStyles}>
       <div className={editorStyles}>
         <PipelineEditor />
       </div>
-      <div className={resultsStyles}>
+      {isAutoPreview && <div className={resultsStyles}>
         <PipelinePreview />
-      </div>
+      </div>}
     </div>
   );
 };
 
-export default PipelineAsTextWorkspace;
+
+const mapState = ({
+  autoPreview
+}: RootState) => ({
+  isAutoPreview: !!autoPreview,
+});
+
+export default connect(mapState)(PipelineAsTextWorkspace);
+

@@ -39,30 +39,17 @@ const documentListStyles = css({
   overflow: 'scroll',
 });
 
-type PipelineAsTextWorkspaceProps = {
+type PipelinePreviewProps = {
   isLoading: boolean;
   previewDocs: Document[] | null;
-  sampleSize: number;
-  isAutoPreview: boolean;
-};
-
-const PreviewHeader = ({ sampleSize }: { sampleSize: number }) => {
-  return (
-    <div className={previewHeaderStyles}>
-      <Overline>Pipeline Output</Overline>
-      <Body>{`Sample of ${sampleSize} documents`}</Body>
-    </div>
-  );
 };
 
 const PreviewResults = ({
   previewDocs,
   isLoading,
-  isAutoPreivew,
 }: {
   previewDocs: Document[] | null;
   isLoading: boolean;
-  isAutoPreivew: boolean;
 }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
@@ -76,7 +63,15 @@ const PreviewResults = ({
     [previewDocs]
   );
 
-  if (!isAutoPreivew) {
+  if (isLoading) {
+    return (
+      <div className={centerStyles}>
+        <SpinLoader size="24px" />
+      </div>
+    );
+  }
+
+  if (!previewDocs) {
     return (
       <div className={centerStyles}>
         <DocumentIcon size={spacing[6]} />
@@ -88,15 +83,7 @@ const PreviewResults = ({
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className={centerStyles}>
-        <SpinLoader size="24px" />
-      </div>
-    );
-  }
-
-  if (!previewDocs || previewDocs.length === 0) {
+  if (previewDocs.length === 0) {
     return (
       <div className={centerStyles}>
         <DocumentIcon size={spacing[6]} />
@@ -112,15 +99,21 @@ const PreviewResults = ({
   );
 };
 
-export const PipelineAsTextWorkspace: React.FunctionComponent<
-  PipelineAsTextWorkspaceProps
-> = ({ isLoading, previewDocs, sampleSize, isAutoPreview }) => {
+export const PipelinePreview: React.FunctionComponent<
+  PipelinePreviewProps
+> = ({ isLoading, previewDocs }) => {
+
+  const docCount = previewDocs?.length;
+  const docText = docCount === 1 ? 'document' : 'documents';
+
   return (
     <div className={containerStyles}>
-      <PreviewHeader sampleSize={sampleSize} />
+      <div className={previewHeaderStyles}>
+        <Overline>Pipeline Output</Overline>
+        {!isLoading && docCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
+      </div>
       <PreviewResults
         isLoading={isLoading}
-        isAutoPreivew={isAutoPreview}
         previewDocs={previewDocs}
       />
     </div>
@@ -131,13 +124,9 @@ const mapState = ({
   pipelineBuilder: {
     textEditor: { loading, previewDocs },
   },
-  settings: { sampleSize },
-  autoPreview,
 }: RootState) => ({
   isLoading: !!loading,
   previewDocs,
-  sampleSize,
-  isAutoPreview: !!autoPreview,
 });
 
-export default connect(mapState)(PipelineAsTextWorkspace);
+export default connect(mapState)(PipelinePreview);
