@@ -101,13 +101,13 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const warnings = syntaxErrors.filter((x) => !x.loc).map((x) => x.message);
 
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="pipeline-as-text-editor">
       <div className={editorContainerStyles}>
         <Editor
           text={pipelineText}
           onChangeText={onChangePipelineText}
           variant={EditorVariant.Shell}
-          name={'pipeline-as-text-workspace'}
+          name={'pipeline-text-editor'}
           completer={completer}
           options={{ minLines: 50 }}
           onLoad={onLoadEditor}
