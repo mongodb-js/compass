@@ -65,15 +65,16 @@ export function getPipelineStageOperatorsFromBuilderState(
 }
 
 export function getIsPipelineInvalidFromBuilderState(
-  state: RootState
+  state: RootState,
+  includeServerErrors = true,
 ): boolean {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages.some(
-      (stage) => !stage.disabled && (stage.syntaxError || stage.serverError)
+      (stage) => !stage.disabled && (stage.syntaxError || (stage.serverError && includeServerErrors))
     );
   }
   const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor;
-  return Boolean(serverError || syntaxErrors.length > 0);
+  return Boolean((serverError && includeServerErrors) || syntaxErrors.length > 0);
 }
 
 export const getStageOperatorsFromPipelineSource = (
@@ -84,7 +85,7 @@ export const getStageOperatorsFromPipelineSource = (
     textEditor: {
       stageOperators: currentStageOperators
     }
-  }} = state;
+  } } = state;
   let stageOperators = currentStageOperators;
   try {
     stageOperators = pipelineBuilder.getPipelineFromSource()

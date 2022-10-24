@@ -10,9 +10,10 @@ import {
 import reducer from '../';
 import Sinon from 'sinon';
 import { toggleAutoPreview } from '../auto-preview';
+import { PipelineStorage } from '../../utils/pipeline-storage';
 
 function createStore(
-  pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}, {$out: 'match-and-limit'}]`
+  pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`
 ) {
   const pipelineBuilder = Sinon.spy(
     new PipelineBuilder({} as DataService, pipelineSource)
@@ -26,7 +27,7 @@ function createStore(
           loading: false,
           previewDocs: null,
           serverError: null,
-          stageOperators: ['$match', '$limit', '$out'],
+          stageOperators: ['$match', '$limit'],
           syntaxErrors: [],
         },
       },
@@ -34,6 +35,7 @@ function createStore(
     applyMiddleware(
       thunk.withExtraArgument({
         pipelineBuilder,
+        pipelineStorage: new PipelineStorage()
       })
     )
   );
@@ -73,6 +75,22 @@ describe('stageEditor', function () {
     it('should not load preview when autoPreview is not enabled', async function () {
       store.dispatch(toggleAutoPreview(false));
       await store.dispatch(loadPreviewForPipeline());
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
+    });
+
+    it('should not load preview when autoPreview is enabled and pipeline contains $out', function () {
+      store.dispatch(toggleAutoPreview(true));
+      const newPipeline = `[{$out: "somewhere"}]`;
+      store.dispatch(changeEditorValue(newPipeline));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
+    });
+
+    it('should not load preview when autoPreview is enabled and pipeline contains $merge', function () {
+      store.dispatch(toggleAutoPreview(true));
+      const newPipeline = `[{$merge: "somewhere"}]`;
+      store.dispatch(changeEditorValue(newPipeline));
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
     });

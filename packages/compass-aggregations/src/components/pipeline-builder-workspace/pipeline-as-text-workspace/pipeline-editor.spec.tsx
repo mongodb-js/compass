@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import configureStore from '../../../stores/store';
 
 import { PipelineEditor } from './pipeline-editor';
+import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelineEditor>> = {}
@@ -42,5 +43,15 @@ describe('PipelineEditor', function () {
     expect(container).to.exist;
 
     expect(within(container).findByText(/Can not use out/)).to.exist;
+  });
+
+  it('renders syntax error', function () {
+    renderPipelineEditor({
+      syntaxErrors: [new PipelineParserError('invalid pipeline')],
+    });
+    const container = screen.getByTestId('pipeline-as-text-editor');
+    expect(container).to.exist;
+
+    expect(within(container).findByText(/invalid pipeline/)).to.exist;
   });
 });

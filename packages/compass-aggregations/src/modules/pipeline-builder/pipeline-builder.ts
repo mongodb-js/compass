@@ -114,19 +114,11 @@ export class PipelineBuilder {
         'Trying to generate source from stages with invalid pipeline'
       );
     }
-    const stageNodes: t.Expression[] = [];
-    const stageErrors: PipelineParserError[] = [];
-    this.stages.forEach(({ node, syntaxError }) => {
-      stageNodes.push(node);
-      if (syntaxError) {
-        stageErrors.push(syntaxError);
-      }
-    })
     this.source = PipelineParser.generate(
       this.node,
-      stageNodes
+      this.stages.map((stage) => stage.node)
     );
-    this.syntaxError = stageErrors;
+    this.validateSource();
   }
 
   /**

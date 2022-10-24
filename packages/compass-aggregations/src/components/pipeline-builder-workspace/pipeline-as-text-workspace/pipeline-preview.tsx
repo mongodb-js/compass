@@ -31,6 +31,8 @@ const centerStyles = css({
   alignItems: 'center',
   justifyContent: 'center',
   height: '100%',
+  padding: spacing[3],
+  textAlign: 'center',
 });
 
 const messageStyles = css({ marginTop: spacing[3] });
@@ -103,17 +105,14 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   isLoading,
   previewDocs,
 }) => {
-  const docCount = previewDocs?.length;
+  const docCount = previewDocs?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
+  const shouldShowCount = !isLoading && docCount > 0;
   return (
     <div className={containerStyles} data-testid="pipeline-as-text-preview">
       <div className={previewHeaderStyles}>
         <Overline>Pipeline Output</Overline>
-        {!isLoading && docCount ? (
-          <Body>{`Sample of ${docCount} ${docText}`}</Body>
-        ) : (
-          <></>
-        )}
+        {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
       </div>
       <PreviewResults isLoading={isLoading} previewDocs={previewDocs} />
     </div>

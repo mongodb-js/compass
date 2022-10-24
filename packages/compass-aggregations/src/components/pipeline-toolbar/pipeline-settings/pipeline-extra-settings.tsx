@@ -15,6 +15,7 @@ import { toggleAutoPreview } from '../../../modules/auto-preview';
 import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
+import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 
 const containerStyles = css({
   display: 'flex',
@@ -111,18 +112,11 @@ export const PipelineExtraSettings: React.FunctionComponent<
   );
 };
 
-const mapState = ({
-  autoPreview,
-  pipelineBuilder: { pipelineMode, textEditor, stageEditor },
-}: RootState) => {
-  const isPipelineModeDisabled =
-    pipelineMode === 'as-text'
-      ? textEditor.syntaxErrors.length > 0
-      : stageEditor.stages.some((x) => x.syntaxError);
+const mapState = (state: RootState) => {
   return {
-    isAutoPreview: autoPreview,
-    isPipelineModeDisabled,
-    pipelineMode,
+    isAutoPreview: state.autoPreview,
+    isPipelineModeDisabled: getIsPipelineInvalidFromBuilderState(state, false),
+    pipelineMode: state.pipelineBuilder.pipelineMode,
   };
 };
 

@@ -13,6 +13,7 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { getStageOperatorsFromPipelineSource } from './builder-helpers';
+import type { PipelineBuilder } from './pipeline-builder';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetch',
@@ -73,6 +74,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
+      serverError: null,
       pipelineText: action.pipelineText,
       stageOperators: action.stageOperators,
       syntaxErrors: action.syntaxErrors,
@@ -126,6 +128,11 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
+function canRunPipeline(pipelineBuilder: PipelineBuilder, stageOperators: string[]) {
+  const containsOutOrMerge = stageOperators.includes('$out') || stageOperators.includes('$merge');
+  return pipelineBuilder.syntaxError.length === 0 && !containsOutOrMerge;
+};
+
 export const loadPreviewForPipeline = (
 ): PipelineBuilderThunkAction<
   Promise<void>,
@@ -135,11 +142,15 @@ export const loadPreviewForPipeline = (
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
-      autoPreview
+      autoPreview,
+      pipelineBuilder: {
+        textEditor: {
+          stageOperators,
+        }
+      }
     } = getState();
 
-    const canRunPipeline = pipelineBuilder.syntaxError.length === 0;
-    if (!autoPreview || !canRunPipeline) {
+    if (!autoPreview || !canRunPipeline(pipelineBuilder, stageOperators)) {
       return;
     }
 

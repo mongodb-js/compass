@@ -4,6 +4,8 @@ import {
   ErrorSummary,
   css,
   WarningSummary,
+  spacing,
+  palette,
 } from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
@@ -26,9 +28,13 @@ const containerStyles = css({
 });
 
 const editorContainerStyles = css({
+  backgroundColor: palette.gray.light3,
   height: '100%',
   overflow: 'scroll',
+  padding: spacing[3],
 });
+
+const errorContainerStyles = css({ margin: spacing[2] });
 
 type PipelineEditorProps = {
   pipelineText: string;
@@ -97,8 +103,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     editorRef.current?.getSession().setAnnotations(annotations);
   }, [syntaxErrors, editorRef]);
 
-  // syntaxErrors that don't have loc, show them as warnings
-  const warnings = syntaxErrors.filter((x) => !x.loc).map((x) => x.message);
+  const showErrorContainer = serverError || syntaxErrors.length > 0;
 
   return (
     <div className={containerStyles} data-testid="pipeline-as-text-editor">
@@ -109,12 +114,18 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           variant={EditorVariant.Shell}
           name={'pipeline-text-editor'}
           completer={completer}
-          options={{ minLines: 50 }}
+          options={{ minLines: 16 }}
           onLoad={onLoadEditor}
         />
       </div>
-      {serverError && <ErrorSummary errors={serverError.message} />}
-      {warnings.length > 0 && <WarningSummary warnings={warnings} />}
+      {showErrorContainer && (
+        <div className={errorContainerStyles}>
+          {serverError && <ErrorSummary errors={serverError.message} />}
+          {syntaxErrors.length > 0 && (
+            <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
+          )}
+        </div>
+      )}
     </div>
   );
 };
