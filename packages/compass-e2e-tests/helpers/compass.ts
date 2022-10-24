@@ -437,7 +437,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     // default is 3000ms
     waitforTimeout: process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT
       ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT)
-      : 120_000,
+      : 60_000, // shorter than the test timeout so the exact line will fail, not the test
     // default is 500ms
     waitforInterval: process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL
       ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL)

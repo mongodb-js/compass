@@ -3,6 +3,10 @@ import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '../../utils/cancellable-promise';
 import { getStageOperator } from '../../utils/stage';
+import {
+  FULL_SCAN_STAGES,
+  REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE
+} from '@mongodb-js/mongodb-constants';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 
@@ -12,18 +16,14 @@ export const DEFAULT_PREVIEW_LIMIT = 10;
  * Ops that must scan the entire results before moving to the
  * next stage.
  */
-const FULL_SCAN_OPS = ['$group', '$groupBy', '$bucket', '$bucketAuto'];
+const FULL_SCAN_OPS = FULL_SCAN_STAGES.map((stage) => stage.value) as string[];
 
 /**
  * Stage operators that are required to be the first stage.
  */
-const REQUIRED_AS_FIRST_STAGE = [
-  '$collStats',
-  '$currentOp',
-  '$indexStats',
-  '$listLocalSessions',
-  '$listSessions'
-];
+const REQUIRED_AS_FIRST_STAGE = _REQUIRED_AS_FIRST_STAGE.map(
+  (stage) => stage.value
+) as string[];
 
 export interface PreviewOptions extends AggregateOptions {
   debounceMs?: number;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -16,11 +16,16 @@ describe('PipelineSettings', function () {
     onExportToLanguageSpy = spy();
     render(
       <Provider store={configureStore()}>
-        <PipelineSettings onExportToLanguage={onExportToLanguageSpy} />
+        <PipelineSettings
+          isExportToLanguageEnabled={true}
+          onExportToLanguage={onExportToLanguageSpy}
+        />
       </Provider>
     );
     container = screen.getByTestId('pipeline-settings');
   });
+
+  afterEach(cleanup);
 
   it('calls onExportToLanguage callback when export to language button is clicked', function () {
     const button = within(container).getByTestId(

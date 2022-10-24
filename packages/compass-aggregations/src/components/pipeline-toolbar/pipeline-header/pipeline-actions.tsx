@@ -13,7 +13,8 @@ import {
 } from '../../../modules/aggregation';
 import { updateView } from '../../../modules/update-view';
 import { explainAggregation } from '../../../modules/explain';
-import { getIsPipelineValidFromBuilderState, getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { getIsPipelineInvalidFromBuilderState, getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { isOutputStage } from '../../../utils/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -120,10 +121,13 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
 };
 
 const mapState = (state: RootState) => {
-  const resultPipeline = getPipelineStageOperatorsFromBuilderState(state);
+  const resultPipeline = getPipelineStageOperatorsFromBuilderState(
+    state,
+    false
+  );
   const lastStage = resultPipeline[resultPipeline.length - 1];
-  const isMergeOrOutPipeline = ['$merge', '$out'].includes(lastStage);
-  const isPipelineInvalid = getIsPipelineValidFromBuilderState(state);
+  const isMergeOrOutPipeline = isOutputStage(lastStage);
+  const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
   const isStageStateEmpty = resultPipeline.length === 0;
 
   return {

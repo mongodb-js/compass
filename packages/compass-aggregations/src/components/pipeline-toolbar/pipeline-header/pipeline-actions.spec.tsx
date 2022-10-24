@@ -1,13 +1,17 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
-
-import { PipelineActions } from './pipeline-actions';
+import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
+import configureStore from '../../../stores/store';
+import { Provider } from 'react-redux';
+import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
 
 describe('PipelineActions', function () {
+  afterEach(cleanup);
+
   describe('options visible', function () {
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
@@ -169,6 +173,72 @@ describe('PipelineActions', function () {
         skipPointerEventsCheck: true,
       });
       expect(onExplainAggregationSpy.calledOnce).to.be.false;
+    });
+  });
+
+  describe('with store', function () {
+    function renderPipelineActions(options = {}) {
+      const store = configureStore(options);
+
+      const component = (
+        <Provider store={store}>
+          <ConnectedPipelineActions
+            showExplainButton={true}
+            showExportButton={true}
+            showRunButton={true}
+            onToggleOptions={() => {}}
+          ></ConnectedPipelineActions>
+        </Provider>
+      );
+
+      const result = render(component);
+      return {
+        ...result,
+        store,
+        rerender: () => {
+          result.rerender(component);
+        }
+      };
+    }
+
+    it('should disable actions when pipeline contains errors', function () {
+      renderPipelineActions();
+
+      expect(
+        screen.getByTestId('pipeline-toolbar-explain-aggregation-button')
+      ).to.have.attribute('disabled');
+
+      expect(
+        screen.getByTestId('pipeline-toolbar-export-aggregation-button')
+      ).to.have.attribute('disabled');
+
+      expect(
+        screen.getByTestId('pipeline-toolbar-run-button')
+      ).to.have.attribute('disabled');
+    });
+
+    it('should disable export button when pipeline is $out / $merge', function () {
+      renderPipelineActions({
+        sourcePipeline: [{ $out: 'foo' }]
+      });
+
+      expect(
+        screen.getByTestId('pipeline-toolbar-export-aggregation-button')
+      ).to.have.attribute('disabled');
+    });
+
+    it('should disable export button when last enabled stage is $out / $merge', function () {
+      const { store, rerender } = renderPipelineActions({
+        sourcePipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }]
+      });
+
+      store.dispatch(changeStageDisabled(1, true));
+
+      rerender();
+
+      expect(
+        screen.getByTestId('pipeline-toolbar-export-aggregation-button')
+      ).to.have.attribute('disabled');
     });
   });
 });

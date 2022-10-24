@@ -169,26 +169,30 @@ export function NavigationItem<Actions extends string>({
 
 export function NavigationItems({
   isExpanded,
+  isReadOnly,
   changeFilterRegex,
   onAction,
   currentLocation,
 }: {
   isExpanded?: boolean;
-  changeFilterRegex: any;
-  onAction: any;
+  isReadOnly: boolean;
+  changeFilterRegex(regex: RegExp | null): void;
+  onAction(actionName: string, ...rest: any[]): void;
   currentLocation: string | null;
 }) {
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [];
 
-    actions.push({
-      action: 'open-create-database',
-      label: 'Create database',
-      icon: 'Plus',
-    });
+    if (!isReadOnly) {
+      actions.push({
+        action: 'open-create-database',
+        label: 'Create database',
+        icon: 'Plus',
+      });
+    }
 
     return actions;
-  }, []);
+  }, [isReadOnly]);
 
   return (
     <>
@@ -217,8 +221,20 @@ export function NavigationItems({
   );
 }
 
-const mapStateToProps = (state: { location: string | null }) => ({
+const mapStateToProps = (state: {
+  location: string | null;
+  instance?: {
+    dataLake: {
+      isDataLake: boolean;
+    };
+    isWritable: boolean;
+  };
+}) => ({
   currentLocation: state.location,
+  isReadOnly:
+    process.env.HADRON_READONLY === 'true' ||
+    state.instance?.dataLake.isDataLake ||
+    !state.instance?.isWritable,
 });
 
 const MappedNavigationItems = connect(mapStateToProps, {

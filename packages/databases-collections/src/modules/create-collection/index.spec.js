@@ -17,13 +17,13 @@ import {
   RESET
 } from '../reset';
 
-describe('create collection module', () => {
-  describe('#reducer', () => {
-    context('when an action is provided', () => {
-      context('when the action is reset', () => {
+describe('create collection module', function() {
+  describe('#reducer', function() {
+    context('when an action is provided', function() {
+      context('when the action is reset', function() {
         const dataService = 'data-service';
 
-        it('returns the reset state', () => {
+        it('returns the reset state', function() {
           expect(reducer(
             { dataService },
             reset()
@@ -39,18 +39,18 @@ describe('create collection module', () => {
     });
   });
 
-  describe('#createCollection', () => {
+  describe('#createCollection', function() {
     let appRegistryEmitSpy;
     const hadronAppBkp = global.hadronApp;
 
-    beforeEach(() => {
+    beforeEach(function() {
       appRegistryEmitSpy = sinon.spy();
       global.hadronApp = {
         appRegistry: {emit: appRegistryEmitSpy}
       };
     });
 
-    afterEach(() => {
+    afterEach(function() {
       global.hadronApp = hadronAppBkp;
     });
 
@@ -71,7 +71,7 @@ describe('create collection module', () => {
       return dispatched;
     };
 
-    it('creates a simple collection', async() => {
+    it('creates a simple collection', async function() {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
@@ -92,7 +92,7 @@ describe('create collection module', () => {
       );
     });
 
-    it('creates a capped collection', async() => {
+    it('creates a capped collection', async function() {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
@@ -123,7 +123,7 @@ describe('create collection module', () => {
       );
     });
 
-    it('creates a time-series collection', async() => {
+    it('creates a time-series collection', async function() {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
@@ -152,7 +152,7 @@ describe('create collection module', () => {
       );
     });
 
-    it('creates a time-series collection with collation', async() => {
+    it('creates a time-series collection with collation', async function() {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
@@ -187,7 +187,7 @@ describe('create collection module', () => {
       );
     });
 
-    it('creates a collection with collation', async() => {
+    it('creates a collection with collation', async function() {
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(null, {})
       );
@@ -216,7 +216,7 @@ describe('create collection module', () => {
       );
     });
 
-    it('handles errors from data service', async() => {
+    it('handles errors from data service', async function() {
       const err = new Error('error');
       const createCollectionSpy = sinon.spy(
         (ns, options, cb) => cb(err)
@@ -235,7 +235,7 @@ describe('create collection module', () => {
       );
     });
 
-    it('handles synchronous exceptions', async() => {
+    it('handles synchronous exceptions', async function() {
       const err = new Error('error');
       const createCollectionSpy = sinon.spy(
         () => { throw err; }
@@ -255,18 +255,18 @@ describe('create collection module', () => {
     });
   });
 
-  describe('#handleFLE2Options', () => {
+  describe('#handleFLE2Options', function() {
     let ds;
     let uuid;
 
-    beforeEach(() => {
+    beforeEach(function() {
       uuid = new UUID().toBinary();
       ds = {
         createDataKey: sinon.stub().resolves(uuid)
       };
     });
 
-    it('parses an encryptedFields config', async() => {
+    it('parses an encryptedFields config', async function() {
       expect(await handleFLE2Options(ds, {
         encryptedFields: ''
       })).to.deep.equal({});
@@ -278,7 +278,7 @@ describe('create collection module', () => {
       })).to.deep.equal({ encryptedFields: { foo: 'bar' } });
     });
 
-    it('rejects unparseable encryptedFields config', async() => {
+    it('rejects unparseable encryptedFields config', async function() {
       try {
         await handleFLE2Options(ds, {
           encryptedFields: '{'
@@ -289,7 +289,7 @@ describe('create collection module', () => {
       }
     });
 
-    it('creates data keys for missing fields if kms and key encryption key are provided', async() => {
+    it('creates data keys for missing fields if kms and key encryption key are provided', async function() {
       expect(await handleFLE2Options(ds, {
         encryptedFields: '{ fields: [{ path: "foo", bsonType: "string" }] }',
         kmsProvider: 'local',
@@ -301,7 +301,7 @@ describe('create collection module', () => {
       });
     });
 
-    it('does not create data keys if encryptedFields.fields is not an array', async() => {
+    it('does not create data keys if encryptedFields.fields is not an array', async function() {
       expect(await handleFLE2Options(ds, {
         encryptedFields: '{ fields: {x: "y"} }',
         kmsProvider: 'local',
@@ -313,7 +313,7 @@ describe('create collection module', () => {
       });
     });
 
-    it('fails when creating data keys fails', async() => {
+    it('fails when creating data keys fails', async function() {
       ds.createDataKey.rejects(new Error('createDataKey failed'));
       try {
         await handleFLE2Options(ds, {

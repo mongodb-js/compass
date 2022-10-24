@@ -25,33 +25,33 @@ const fakeAppInstanceStore = {
   }
 };
 
-describe('Databases [Store]', () => {
-  beforeEach(() => {
+describe('Databases [Store]', function() {
+  beforeEach(function() {
     store.dispatch(reset());
   });
 
-  afterEach(() => {
+  afterEach(function() {
     store.dispatch(reset());
   });
 
-  describe('#onActivated', () => {
+  describe('#onActivated', function() {
     const appRegistry = new AppRegistry();
     appRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
-    beforeEach(() => {
+    beforeEach(function() {
       store.onActivated(appRegistry);
     });
 
-    it('activates the app registry module', () => {
+    it('activates the app registry module', function() {
       expect(store.getState().appRegistry).to.deep.equal(appRegistry);
     });
 
-    context('when the instance store triggers', () => {
-      beforeEach(() => {
+    context('when the instance store triggers', function() {
+      beforeEach(function() {
         appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
-      it('dispatches the load database action', () => {
+      it('dispatches the load database action', function() {
         expect(store.getState().databases).to.deep.equal(
           fakeInstance.databases.toJSON()
         );
@@ -59,7 +59,7 @@ describe('Databases [Store]', () => {
     });
 
     context('when instance state changes', function() {
-      beforeEach(() => {
+      beforeEach(function() {
         appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
