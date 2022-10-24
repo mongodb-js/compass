@@ -117,7 +117,11 @@ export class StageEditor extends PureComponent {
           className={styles['stage-editor-syntax-error']}
           title={this.props.syntaxError.message}
         >
-          {this.props.syntaxError.message}
+          {!this.props.stageOperator
+            ? 'Stage operator is required'
+            : !this.props.stageValue
+            ? 'Stage value can not be empty'
+            : this.props.syntaxError.message}
         </div>
       );
     }

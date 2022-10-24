@@ -142,6 +142,7 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
       title="Select a Namespace"
       buttonText="Open"
       submitDisabled={isSubmitDisabled}
+      data-testid="open-item-modal"
     >
       <div className={modalContent}>
         <div className={description}>
@@ -150,10 +151,10 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
           cluster. Please select another namespace to&nbsp;open saved {itemType}
           .
         </div>
-        <div className={databaseSelect}>
+        <div className={databaseSelect} data-testid="database-select-field">
           <DatabaseSelect name="database" label="Database"></DatabaseSelect>
         </div>
-        <div className={collectionSelect}>
+        <div className={collectionSelect} data-testid="collection-select-field">
           <CollectionSelect
             name="collection"
             label="Collection"

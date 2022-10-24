@@ -67,6 +67,7 @@ class DuplicateViewModal extends PureComponent {
         onCancel={this.onCancel}
         buttonText="Duplicate"
         trackingId="duplicate_view_modal"
+        data-testid="duplicate-view-modal"
       >
         <form
           name="create-view-modal-form"

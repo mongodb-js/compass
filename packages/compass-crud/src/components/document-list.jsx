@@ -4,11 +4,11 @@ import { ObjectID as ObjectId } from 'bson';
 import {
   Button,
   CancelLoader,
+  DocumentIcon,
   EmptyContent,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
-import ZeroGraphic from './zero-graphic';
 import DocumentListView from './document-list-view';
 import DocumentJsonView from './document-json-view';
 import DocumentTableView from './document-table-view';
@@ -160,9 +160,9 @@ class DocumentList extends React.Component {
       return (
         <div className="document-list-zero-state">
           <EmptyContent
-            icon={ZeroGraphic}
+            icon={DocumentIcon}
             title="No results"
-            subTitle="Try to modify your query to get results"
+            subTitle="Try modifying your query to get results."
           />
         </div>
       );
@@ -171,9 +171,9 @@ class DocumentList extends React.Component {
     return (
       <div className="document-list-zero-state">
         <EmptyContent
-          icon={ZeroGraphic}
+          icon={DocumentIcon}
           title="This collection has no data"
-          subTitle="It only takes a few seconds to import data from a JSON or CSV file"
+          subTitle="It only takes a few seconds to import data from a JSON or CSV file."
           callToAction={
             <Button
               disabled={!this.props.isEditable}

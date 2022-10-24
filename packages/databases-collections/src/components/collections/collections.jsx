@@ -107,7 +107,6 @@ function createEmit(evtName) {
   return function(ns) {
     return function(_dispatch, getState) {
       const { appRegistry, databaseName } = getState();
-      // eslint-disable-next-line chai-friendly/no-unused-expressions
       appRegistry?.emit(evtName, toNS(ns ?? databaseName));
     };
   };

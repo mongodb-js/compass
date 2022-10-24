@@ -37,44 +37,44 @@ const fakeAppInstanceStore = {
   }
 };
 
-describe('Collections [Store]', () => {
+describe('Collections [Store]', function() {
   const appRegistry = new AppRegistry();
   appRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
-  beforeEach(() => {
+  beforeEach(function() {
     store.dispatch(reset());
   });
 
-  afterEach(() => {
+  afterEach(function() {
     store.dispatch(reset());
   });
 
-  describe('#onActivated', () => {
-    beforeEach(() => {
+  describe('#onActivated', function() {
+    beforeEach(function() {
       store.onActivated(appRegistry);
     });
 
-    it('activates the app registry module', () => {
+    it('activates the app registry module', function() {
       expect(store.getState().appRegistry).to.deep.equal(appRegistry);
     });
 
-    context('when the instance store triggers', () => {
-      beforeEach(() => {
+    context('when the instance store triggers', function() {
+      beforeEach(function() {
         appRegistry.emit('instance-created', { instance: fakeInstance });
         appRegistry.emit('select-database', 'db1');
       });
 
-      context('when the database name changes', () => {
-        context('when the name is different', () => {
-          beforeEach(() => {
+      context('when the database name changes', function() {
+        context('when the name is different', function() {
+          beforeEach(function() {
             appRegistry.emit('select-database', 'db1');
           });
 
-          it('loads the collections', () => {
+          it('loads the collections', function() {
             expect(store.getState().collections).to.not.be.empty;
           });
 
-          it('sets the database name', () => {
+          it('sets the database name', function() {
             expect(store.getState().databaseName).to.equal('db1');
           });
         });
@@ -82,7 +82,7 @@ describe('Collections [Store]', () => {
     });
 
     context('when instance state changes', function() {
-      beforeEach(() => {
+      beforeEach(function() {
         appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
