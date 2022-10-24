@@ -808,7 +808,7 @@ export const DropIndexModal = '[data-testid="drop-index-modal"]';
 export const DropIndexModalConfirmName =
   '[data-testid="confirm-drop-index-name"]';
 export const DropIndexModalConfirmButton =
-  '[data-testid="drop-index-modal"] [data-testid="submit-button"]';
+  '[data-testid="drop-index-modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 export const DropIndexButton = '[data-testid="index-actions-delete-action"]';
 
@@ -980,12 +980,12 @@ export const DeleteSavedItemModallConfirmButton = `${DeleteSavedItemModal} [role
 export const OpenSavedItemModal = '[data-testid="open-item-modal"]';
 export const OpenSavedItemDatabaseField = `${OpenSavedItemModal} [data-testid="database-select-field"]`;
 export const OpenSavedItemCollectionField = `${OpenSavedItemModal} [data-testid="collection-select-field"]`;
-export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} [role=dialog] > div:nth-child(2) button:first-child`;
+export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[type="submit"]`;
 
 // Duplicate view modal
 export const DuplicateViewModal = '[data-testid="duplicate-view-modal"]';
 export const DuplicateViewModalTextInput = `${DuplicateViewModal} #create-view-name`;
-export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} [role=dialog] > div:nth-child(2) button:first-child`;
+export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} button[type="submit"]`;
 
 // Modify view
 export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
