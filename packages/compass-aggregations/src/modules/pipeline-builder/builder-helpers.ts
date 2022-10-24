@@ -52,12 +52,11 @@ export function getPipelineStringFromBuilderState(
 }
 
 export function getPipelineStageOperatorsFromBuilderState(
-  state: RootState,
-  includeDisabled = true
+  state: RootState
 ): string[] {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages
-      .filter((stage) => includeDisabled || !stage.disabled)
+      .filter((stage) => !stage.disabled)
       .map((stage) => stage.stageOperator)
       .filter(Boolean) as string[];
   }
