@@ -11,9 +11,10 @@ import {
   exportAggregationResults,
   runAggregation,
 } from '../../../modules/aggregation';
-import { isEmptyishStage } from '../../../modules/stage';
 import { updateView } from '../../../modules/update-view';
 import { explainAggregation } from '../../../modules/explain';
+import { getIsPipelineInvalidFromBuilderState, getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { isOutputStage } from '../../../utils/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -119,27 +120,24 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   );
 };
 
-const mapState = ({ pipeline, editViewName, isModified }: RootState) => {
-  const resultPipeline = pipeline.filter(
-    (stageState) => !isEmptyishStage(stageState)
+const mapState = (state: RootState) => {
+  const resultPipeline = getPipelineStageOperatorsFromBuilderState(
+    state,
+    false
   );
   const lastStage = resultPipeline[resultPipeline.length - 1];
-  const isMergeOrOutPipeline = ['$merge', '$out'].includes(
-    lastStage?.stageOperator
-  );
-  const isPipelineInvalid = resultPipeline.some(
-    (stageState) => !stageState.isValid || Boolean(stageState.error)
-  );
-  const isStageStateEmpty = pipeline.length === 0;
+  const isMergeOrOutPipeline = isOutputStage(lastStage);
+  const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
+  const isStageStateEmpty = resultPipeline.length === 0;
 
   return {
     isRunButtonDisabled: isPipelineInvalid || isStageStateEmpty,
     isExplainButtonDisabled: isPipelineInvalid,
     isExportButtonDisabled:
       isMergeOrOutPipeline || isPipelineInvalid || isStageStateEmpty,
-    showUpdateViewButton: Boolean(editViewName),
+    showUpdateViewButton: Boolean(state.editViewName),
     isUpdateViewButtonDisabled:
-      !isModified || isPipelineInvalid || isStageStateEmpty,
+      !state.isModified || isPipelineInvalid || isStageStateEmpty,
   };
 };
 
@@ -150,4 +148,4 @@ const mapDispatch = {
   onExplainAggregation: explainAggregation,
 };
 
-export default connect(mapState, mapDispatch)(PipelineActions);
+export default connect(mapState, mapDispatch)(React.memo(PipelineActions));

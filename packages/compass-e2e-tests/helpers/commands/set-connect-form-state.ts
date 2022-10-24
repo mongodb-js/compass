@@ -23,7 +23,7 @@ export async function setConnectFormState(
     for (let i = 0; i < state.hosts.length; ++i) {
       if (i > 0) {
         await browser.clickVisible(
-          '[data-testid="host-input-container"]:last-child [data-testid="connection-add-host-button"]'
+          '[data-testid="connection-add-host-button"]:last-child'
         );
       }
       await browser.setValueVisible(

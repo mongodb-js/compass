@@ -1,5 +1,5 @@
+// TODO: remove this completely
 import { NEW_PIPELINE } from './import-pipeline';
-import { gatherProjections } from './stage';
 
 /**
  * Handled in the root reducer.
@@ -18,15 +18,3 @@ export default function reducer(state = INITIAL_STATE, action) {
   }
   return state;
 }
-
-export const projectionsChanged = () => (dispatch, getState) => {
-  const projections = getState().pipeline.flatMap((stage, index) => {
-    return gatherProjections(stage, null).map(projection => {
-      return { ...projection, index };
-    });
-  })
-  dispatch({
-    type: PROJECTIONS_CHANGED,
-    projections
-  })
-};

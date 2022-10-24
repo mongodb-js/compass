@@ -1,18 +1,24 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { TextButton } from 'hadron-react-buttons';
+import { connect } from 'react-redux';
+import { addStage } from '../../modules/pipeline-builder/stage-editor';
 
 import styles from './add-stage.module.less';
 
 /**
  * Display a card with an add stage button.
  */
-class AddStage extends PureComponent {
+export class AddStage extends PureComponent {
   static displayName = 'AddStageComponent';
 
   static propTypes = {
-    stageAdded: PropTypes.func.isRequired
-  }
+    onAddStageClick: PropTypes.func.isRequired
+  };
+
+  onClick = () => {
+    this.props.onAddStageClick();
+  };
 
   /**
    * Render the stage component.
@@ -27,7 +33,7 @@ class AddStage extends PureComponent {
             dataTestId="add-stage"
             text="Add Stage"
             className="btn btn-xs btn-default"
-            clickHandler={this.props.stageAdded}
+            clickHandler={this.onClick}
           />
         </div>
       </div>
@@ -35,4 +41,4 @@ class AddStage extends PureComponent {
   }
 }
 
-export default AddStage;
+export default connect(null, { onAddStageClick: addStage })(AddStage);

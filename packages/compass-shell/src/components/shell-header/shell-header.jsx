@@ -112,6 +112,7 @@ export class ShellHeader extends Component {
       <div className={shellHeaderStyles}>
         <div className={shellHeaderLeftStyles}>
           <button
+            type="button"
             data-testid="shell-expand-button"
             className={shellHeaderToggleStyles}
             aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
@@ -131,6 +132,7 @@ export class ShellHeader extends Component {
         <div className={shellHeaderRightStyles}>
           {isExpanded && (
             <IconButton
+              data-testid="shell-info-button"
               className={infoButtonStyles}
               variant="dark"
               aria-label="Shell Info"

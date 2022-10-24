@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select-plus';
-
+import { connect } from 'react-redux';
+import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import SelectOptionWithTooltip from './select-option-with-tooltip/select-option-with-tooltip';
 import { filterStageOperators } from '../../utils/stage';
 
@@ -11,21 +12,13 @@ import styles from './stage-operator-select.module.less';
  * Select from a list of stage operators.
  */
 
-class StageOperatorSelect extends PureComponent {
-  static displayName = 'StageOperatorSelectComponent';
-
+export class StageOperatorSelect extends PureComponent {
   static propTypes = {
-    env: PropTypes.string.isRequired,
-    isTimeSeries: PropTypes.bool.isRequired,
-    isReadonly: PropTypes.bool.isRequired,
-    sourceName: PropTypes.string,
-    stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
-    isEnabled: PropTypes.bool.isRequired,
-    isCommenting: PropTypes.bool.isRequired,
-    stageOperatorSelected: PropTypes.func.isRequired,
-    serverVersion: PropTypes.string.isRequired,
-    setIsModified: PropTypes.func.isRequired
+    stages: PropTypes.array.isRequired,
+    selectedStage: PropTypes.string,
+    onChange: PropTypes.func.isRequired,
+    isDisabled: PropTypes.bool,
   }
 
   /**
@@ -34,13 +27,7 @@ class StageOperatorSelect extends PureComponent {
    * @returns {void}
    */
   onStageOperatorSelected = (name) => {
-    this.props.stageOperatorSelected(
-      this.props.index,
-      name,
-      this.props.isCommenting,
-      this.props.env
-    );
-    this.props.setIsModified(true);
+    this.props.onChange(this.props.index, name);
   }
 
   /**
@@ -49,13 +36,6 @@ class StageOperatorSelect extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const operators = filterStageOperators({
-      serverVersion: this.props.serverVersion,
-      env: this.props.env,
-      isTimeSeries: this.props.isTimeSeries,
-      isReadonly: this.props.isReadonly,
-      sourceName: this.props.sourceName
-    });
     return (
       <div className={styles['stage-operator-select']}>
         <Select
@@ -65,10 +45,10 @@ class StageOperatorSelect extends PureComponent {
           openOnClick
           openOnFocus
           clearable={false}
-          disabled={!this.props.isEnabled}
+          disabled={this.props.isDisabled}
           className={styles['stage-operator-select-control']}
-          options={operators}
-          value={this.props.stageOperator}
+          options={this.props.stages}
+          value={this.props.selectedStage}
           onChange={this.onStageOperatorSelected}
         />
       </div>
@@ -76,4 +56,21 @@ class StageOperatorSelect extends PureComponent {
   }
 }
 
-export default StageOperatorSelect;
+export default connect(
+  (state, ownProps) => {
+    const stages = filterStageOperators({
+      serverVersion: state.serverVersion,
+      env: state.env,
+      isTimeSeries: state.isTimeSeries,
+      isReadonly: state.isReadonly,
+      sourceName: state.sourceName
+    })
+    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    return {
+      stages,
+      selectedStage: stage.stageOperator,
+      isDisabled: stage.disabled
+    };
+  },
+  { onChange: changeStageOperator }
+)(StageOperatorSelect);

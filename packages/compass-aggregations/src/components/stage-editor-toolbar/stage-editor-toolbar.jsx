@@ -8,6 +8,7 @@ import StageGrabber from './stage-grabber';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
 import { Tooltip, Body, Icon } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
 
 import styles from './stage-editor-toolbar.module.less';
 
@@ -43,28 +44,12 @@ StageEditorOutMergeTooltip.propTypes = {
 /**
  * The stage editor toolbar component.
  */
-class StageEditorToolbar extends PureComponent {
-  static displayName = 'StageEditorToolbar';
+export class StageEditorToolbar extends PureComponent {
   static propTypes = {
-    env: PropTypes.string.isRequired,
-    isTimeSeries: PropTypes.bool.isRequired,
-    isReadonly: PropTypes.bool.isRequired,
-    sourceName: PropTypes.string,
-    error: PropTypes.string,
-    isExpanded: PropTypes.bool.isRequired,
-    isEnabled: PropTypes.bool.isRequired,
     stageOperator: PropTypes.string,
     index: PropTypes.number.isRequired,
-    serverVersion: PropTypes.string.isRequired,
-    stageOperatorSelected: PropTypes.func.isRequired,
-    stageCollapseToggled: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired,
-    stageAddedAfter: PropTypes.func.isRequired,
-    stageDeleted: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired,
-    isCommenting: PropTypes.bool.isRequired,
-    runStage: PropTypes.func.isRequired,
     isAutoPreviewing: PropTypes.bool,
+    hasServerError: PropTypes.bool
   };
 
   /**
@@ -75,55 +60,31 @@ class StageEditorToolbar extends PureComponent {
   render() {
     return (
       <div className={classnames(styles['stage-editor-toolbar'], {
-        [styles['stage-editor-toolbar-errored']]: this.props.error
+        [styles['stage-editor-toolbar-errored']]: this.props.hasServerError
       })}>
         <StageGrabber />
-        <StageCollapser
-          isExpanded={this.props.isExpanded}
-          index={this.props.index}
-          setIsModified={this.props.setIsModified}
-          stageCollapseToggled={this.props.stageCollapseToggled}
-        />
-        <StageOperatorSelect
-          env={this.props.env}
-          isTimeSeries={this.props.isTimeSeries}
-          isReadonly={this.props.isReadonly}
-          sourceName={this.props.sourceName}
-          stageOperator={this.props.stageOperator}
-          index={this.props.index}
-          isEnabled={this.props.isEnabled}
-          isCommenting={this.props.isCommenting}
-          stageOperatorSelected={this.props.stageOperatorSelected}
-          setIsModified={this.props.setIsModified}
-          serverVersion={this.props.serverVersion}
-        />
-        <ToggleStage
-          index={this.props.index}
-          isEnabled={this.props.isEnabled}
-          runStage={this.props.runStage}
-          setIsModified={this.props.setIsModified}
-          stageToggled={this.props.stageToggled}
-        />
+        <StageCollapser index={this.props.index} />
+        <StageOperatorSelect index={this.props.index} />
+        <ToggleStage index={this.props.index} />
         <div className={styles['stage-editor-toolbar-right']}>
           {!this.props.isAutoPreviewing && (
             <StageEditorOutMergeTooltip
               stageOperator={this.props.stageOperator}
             ></StageEditorOutMergeTooltip>
           )}
-          <DeleteStage
-            index={this.props.index}
-            runStage={this.props.runStage}
-            setIsModified={this.props.setIsModified}
-            stageDeleted={this.props.stageDeleted}
-          />
-          <AddAfterStage
-            index={this.props.index}
-            stageAddedAfter={this.props.stageAddedAfter}
-          />
+          <DeleteStage index={this.props.index} />
+          <AddAfterStage index={this.props.index} />
         </div>
       </div>
     );
   }
 }
 
-export default StageEditorToolbar;
+export default connect((state, ownProps) => {
+  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+  return {
+    stageOperator: stage.stageOperator,
+    isAutoPreviewing: state.autoPreview,
+    hasServerError: !!stage.serverError,
+  };
+}, null)(StageEditorToolbar);

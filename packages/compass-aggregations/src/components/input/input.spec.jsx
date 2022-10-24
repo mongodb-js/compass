@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import Input from '../input';
+import { Input } from './input';
 import InputToolbar from '../input-toolbar';
 import styles from './input.module.less';
 
@@ -26,7 +26,6 @@ describe('Input [Component]', function() {
           documents={[]}
           isExpanded
           isLoading
-          openLink={sinon.spy()}
           count={0} />
       );
     });
@@ -57,7 +56,6 @@ describe('Input [Component]', function() {
           documents={[]}
           isExpanded={false}
           isLoading
-          openLink={sinon.spy()}
           count={0} />
       );
     });

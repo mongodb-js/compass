@@ -76,10 +76,19 @@ class StageAutoCompleter implements Ace.Completer {
     return [];
   }
 
-  update(fields: CompletionWithServerInfo[], stageOperator: string) {
+  update(
+    fields: CompletionWithServerInfo[],
+    stageOperator: string | null,
+    severVersion?: string
+  ) {
     this.fields = fields;
     this.variableFields = this.generateVariableFields(fields);
-    this.queryAutoCompleter.fields = fields;
+    this.queryAutoCompleter.update(fields);
+    this.stageOperator = stageOperator;
+    this.version = severVersion ?? this.version;
+  }
+
+  updateStageOperator(stageOperator: string | null) {
     this.stageOperator = stageOperator;
   }
 
@@ -105,13 +114,18 @@ class StageAutoCompleter implements Ace.Completer {
     done
   ) => {
     // Empty prefixes do not return results.
-    if (prefix === '') return done(null, []);
+    if (prefix === '') {
+      return done(null, []);
+    }
+    const currentToken = session.getTokenAt(position.row, position.column);
+    if (!currentToken) {
+      return done(null, []);
+    }
     // If the current token is a string with single or double quotes, then
     // we want to use the local text completer instead of suggesting operators.
     // This is so we can suggest user variable names inside the pipeline that they
     // have already typed.
-    const currentToken = session.getTokenAt(position.row, position.column);
-    if (currentToken?.type === 'string') {
+    if (currentToken.type === 'string') {
       if (prefix === DOLLAR) {
         return done(null, this.variableFields);
       }

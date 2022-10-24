@@ -162,6 +162,7 @@ const CardActions: React.FunctionComponent<{
 
   return (
     <ItemActionMenu<SavedItemAction>
+      data-testid="saved-item-actions"
       isVisible={isVisible}
       actions={savedItemActions}
       onAction={onMenuItemClick}

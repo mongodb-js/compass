@@ -1,29 +1,25 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
+import { connect } from 'react-redux';
+import { removeStage } from '../../modules/pipeline-builder/stage-editor';
 
 import styles from './delete-stage.module.less';
 
 /**
  * The delete stage button.
  */
-class DeleteStage extends PureComponent {
-  static displayName = 'DeleteStageComponent';
-
+export class DeleteStage extends PureComponent {
   static propTypes = {
     index: PropTypes.number.isRequired,
-    runStage: PropTypes.func.isRequired,
-    stageDeleted: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired
+    onStageDeleteClick: PropTypes.func.isRequired
   };
 
   /**
    * Handle stage deleted clicks.
    */
   onStageDeleted = () => {
-    this.props.stageDeleted(this.props.index);
-    this.props.setIsModified(true);
-    this.props.runStage(this.props.index, true /* force execute */);
+    this.props.onStageDeleteClick(this.props.index);
   };
 
   /**
@@ -47,4 +43,4 @@ class DeleteStage extends PureComponent {
   }
 }
 
-export default DeleteStage;
+export default connect(null, { onStageDeleteClick: removeStage })(DeleteStage);

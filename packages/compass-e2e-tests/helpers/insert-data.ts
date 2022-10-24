@@ -80,11 +80,11 @@ export async function createDummyCollections(): Promise<void> {
   await Promise.all(promises);
 }
 
-export async function createNumbersCollection(): Promise<void> {
+export async function createNumbersCollection(name?: string): Promise<void> {
   const db = client.db('test');
 
   await db
-    .collection('numbers')
+    .collection(name || 'numbers')
     .insertMany([...Array(1000).keys()].map((i) => ({ i, j: 0 })));
 }
 

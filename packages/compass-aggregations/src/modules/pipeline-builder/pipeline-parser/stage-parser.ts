@@ -17,7 +17,7 @@ export function setNodeDisabled(node: t.Node, value: boolean) {
   (node as any)[kDisabled] = value;
 }
 
-function isStageLike(node?: t.Node | null, loose = false): node is StageLike {
+export function isStageLike(node?: t.Node | null, loose = false): node is StageLike {
   return (
     !!node &&
     node.type === 'ObjectExpression' &&
@@ -64,7 +64,7 @@ export function getStageValueFromNode(node: StageLike): string {
 /**
  * Converts a stage ast to line comments.
  */
-export function stageToComments(stage: t.Expression): t.CommentLine[] {
+export function stageToAstComments(stage: t.Expression): t.CommentLine[] {
   return generate(stage)
     .trim()
     .split('\n')

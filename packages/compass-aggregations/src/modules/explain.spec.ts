@@ -78,7 +78,7 @@ describe('explain module', function () {
   describe('#actions', function () {
     let store: Store<RootState>;
     before(function () {
-      store = configureStore({});
+      store = configureStore({ sourcePipeline: '[]' });
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
         dataService: new class {

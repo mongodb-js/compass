@@ -84,6 +84,7 @@ class ValueBubble extends Component {
       <li className="bubble">
         <Body>
           <button
+            type="button"
             aria-label={`${isValueInQuery ? 'Remove' : 'Add'} ${value} ${
               isValueInQuery ? 'from' : 'to'
             } query`}

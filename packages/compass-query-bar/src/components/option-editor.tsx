@@ -66,10 +66,14 @@ type OptionEditorProps = {
 function useQueryCompleter(
   ...args: ConstructorParameters<typeof QueryAutoCompleter>
 ): QueryAutoCompleter {
+  const [version, textCompleter, fields] = args;
   const completer = useRef<QueryAutoCompleter>();
   if (!completer.current) {
-    completer.current = new QueryAutoCompleter(...args);
+    completer.current = new QueryAutoCompleter(version, textCompleter, fields);
   }
+  useEffect(() => {
+    completer.current?.update(fields);
+  }, [fields]);
   return completer.current;
 }
 
@@ -115,10 +119,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       unsubscribeRefreshEditorAction();
     };
   }, [refreshEditorAction]);
-
-  useEffect(() => {
-    completer.update(schemaFields);
-  }, [completer, schemaFields]);
 
   const commands = useMemo(() => {
     return [

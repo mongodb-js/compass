@@ -25,14 +25,10 @@ class ConfirmImportPipeline extends PureComponent {
     isAutoPreviewing: PropTypes.bool.isRequired,
     closeImport: PropTypes.func.isRequired,
     confirmNew: PropTypes.func.isRequired,
-    runStage: PropTypes.func.isRequired
   }
 
   onConfirm = () => {
     this.props.confirmNew();
-    if (this.props.isAutoPreviewing) {
-      this.props.runStage(0, true /* force execute */);
-    }
   }
 
   /**

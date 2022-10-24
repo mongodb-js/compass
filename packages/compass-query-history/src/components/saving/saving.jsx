@@ -83,6 +83,7 @@ class Saving extends PureComponent {
           actionsVisible
         >
           <button
+            type="button"
             data-testid="query-history-saving-form-button-save"
             className={classnames(
               'btn',
@@ -96,6 +97,7 @@ class Saving extends PureComponent {
           </button>
 
           <button
+            type="button"
             data-testid="query-history-saving-form-button-cancel"
             className={classnames(
               'btn',

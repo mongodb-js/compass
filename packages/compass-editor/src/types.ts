@@ -53,6 +53,12 @@ export interface AceMode {
 }
 
 export type CompletionWithServerInfo = Ace.Completion & {
+  type?: string | undefined;
+  /** Code snippet inserted when completion is selected */
+  snippet?: string;
+  exactMatch?: number | undefined;
+  docHTML?: string | undefined;
+} & {
   /** Server version that supports the stage */
   version: string;
   /* Server version that supports using the key in $project stage */
