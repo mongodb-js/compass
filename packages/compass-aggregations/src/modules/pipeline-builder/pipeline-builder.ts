@@ -12,7 +12,9 @@ import { prettify } from './pipeline-parser/utils';
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
 
 export class PipelineBuilder {
-  source: string;
+  private _source: string = DEFAULT_PIPELINE;
+  /* Pipeline representation of parsable source */
+  private pipeline: Document[] = [];
   node: t.ArrayExpression | null = null;
   stages: Stage[] = [];
   syntaxError: PipelineParserError[] = [];
@@ -25,13 +27,32 @@ export class PipelineBuilder {
     this.sourceToStages();
   }
 
+  set source(source: string) {
+    this._source = source;
+    this.parseSourceToPipeline();
+  }
+
+  get source() {
+    return this._source;
+  }
+
+  private parseSourceToPipeline() {
+    try {
+      this.pipeline = parseEJSON(this.source, { mode: ParseMode.Loose });
+    } catch (e) {
+      // After setting source, its either validated or mapped to stages
+      // where the whole parsing takes places and errors are handled.
+    }
+  }
+
   /**
    * Completely reset pipeline state with provided source
    */
   reset(source = DEFAULT_PIPELINE) {
-    this.source = source;
+    this.pipeline = [];
     this.stages = [];
     this.syntaxError = [];
+    this.source = source;
     this.sourceToStages();
   }
 
@@ -86,7 +107,7 @@ export class PipelineBuilder {
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
     }
-    return parseEJSON(this.source, { mode: ParseMode.Loose });
+    return this.pipeline;
   }
 
   /**
