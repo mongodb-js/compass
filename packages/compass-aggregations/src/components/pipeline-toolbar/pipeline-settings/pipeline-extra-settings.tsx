@@ -84,11 +84,17 @@ export const PipelineExtraSettings: React.FunctionComponent<
             onChangePipelineMode(value as PipelineMode);
           }}
         >
-          <SegmentedControlOption disabled={isPipelineModeDisabled} value="builder-ui">
+          <SegmentedControlOption
+            disabled={isPipelineModeDisabled}
+            value="builder-ui"
+          >
             <Icon size="small" glyph="CurlyBraces"></Icon>
             Builder UI
           </SegmentedControlOption>
-          <SegmentedControlOption disabled={isPipelineModeDisabled} value="as-text">
+          <SegmentedControlOption
+            disabled={isPipelineModeDisabled}
+            value="as-text"
+          >
             <Icon size="small" glyph="Code"></Icon>
             As Text
           </SegmentedControlOption>
@@ -109,9 +115,10 @@ const mapState = ({
   autoPreview,
   pipelineBuilder: { pipelineMode, textEditor, stageEditor },
 }: RootState) => {
-  const isPipelineModeDisabled = pipelineMode === 'as-text'
-    ? textEditor.syntaxErrors.length > 0
-    : stageEditor.stages.some(x => x.syntaxError);
+  const isPipelineModeDisabled =
+    pipelineMode === 'as-text'
+      ? textEditor.syntaxErrors.length > 0
+      : stageEditor.stages.some((x) => x.syntaxError);
   return {
     isAutoPreview: autoPreview,
     isPipelineModeDisabled,

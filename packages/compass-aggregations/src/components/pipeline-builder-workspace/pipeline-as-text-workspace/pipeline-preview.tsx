@@ -109,8 +109,10 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
     <div className={containerStyles} data-testid="pipeline-as-text-preview">
       <div className={previewHeaderStyles}>
         <Overline>Pipeline Output</Overline>
-        {!isLoading && docCount && (
+        {!isLoading && docCount ? (
           <Body>{`Sample of ${docCount} ${docText}`}</Body>
+        ) : (
+          <></>
         )}
       </div>
       <PreviewResults isLoading={isLoading} previewDocs={previewDocs} />

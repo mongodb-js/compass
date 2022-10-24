@@ -72,11 +72,9 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     )
   ) {
     return {
+      ...state,
       pipelineText: action.pipelineText,
       stageOperators: action.stageOperators,
-      loading: true,
-      previewDocs: null,
-      serverError: null,
       syntaxErrors: action.syntaxErrors,
     };
   }
@@ -90,6 +88,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       previewDocs: null,
+      serverError: null,
       loading: true,
     };
   }
