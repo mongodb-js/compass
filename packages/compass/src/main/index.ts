@@ -36,6 +36,10 @@ async function main(): Promise<void> {
     globalPreferences.hardcoded = { ...globalPreferences.hardcoded, networkTraffic: false };
   }
 
+  if (process.env.HADRON_READONLY === 'true') {
+    globalPreferences.hardcoded = { ...globalPreferences.hardcoded, readOnly: true };
+  }
+
   const { preferenceParseErrors } = globalPreferences;
   const preferenceParseErrorsString = preferenceParseErrors.join('\n');
   if (globalPreferences.cli.version) {

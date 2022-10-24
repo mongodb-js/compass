@@ -59,6 +59,7 @@
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/connection-form": "^1.2.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
+    "compass-preferences-model": "^2.2.0",
     "mongodb-data-service": "^22.1.1",
     "mongodb-instance-model": "^12.1.1",
     "react": "^16.14.0"
@@ -69,6 +70,7 @@
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/connection-form": "^1.2.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
+    "compass-preferences-model": "^2.2.0",
     "mongodb-data-service": "^22.1.1",
     "mongodb-instance-model": "^12.1.1",
     "react": "^16.14.0"

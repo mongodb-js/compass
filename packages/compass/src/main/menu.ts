@@ -330,7 +330,7 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(menuStateReadOnly: boolean): MenuItemConstructorOptions {
+function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -340,7 +340,7 @@ function collectionSubMenu(menuStateReadOnly: boolean): MenuItemConstructorOptio
     },
   });
   subMenu.push(separator());
-  if (!preferences.getPreferences().readOnly && !menuStateReadOnly) {
+  if (!preferences.getPreferences().readOnly && !menuReadOnly) {
     subMenu.push({
       label: '&Import Data',
       click() {

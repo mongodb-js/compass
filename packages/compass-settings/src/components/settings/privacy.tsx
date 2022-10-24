@@ -30,6 +30,7 @@ const privacyFields = [
   'enableMaps',
   'trackErrors',
   'readOnly',
+  'enableShell',
   'trackUsageStatistics',
   'enableFeedbackPanel',
 ] as const;
@@ -138,6 +139,7 @@ const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
     enableMaps: !!settings.enableMaps,
     trackErrors: !!settings.trackErrors,
     readOnly: !!settings.readOnly,
+    enableShell: !!settings.enableShell,
     trackUsageStatistics: !!settings.trackUsageStatistics,
     enableFeedbackPanel: !!settings.enableFeedbackPanel,
   },

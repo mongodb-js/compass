@@ -147,11 +147,9 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
-    value: v(property) && v('readOnly'),
+    value: v(property) && !v('readOnly'),
     state:
-      s(property) ??
-      s('readOnly') ??
-      (v('readOnly') ? undefined : 'derived'),
+      s(property) ?? s('readOnly') ?? (v('readOnly') ? undefined : 'derived'),
   });
 }
 
@@ -255,7 +253,7 @@ const modelPreferencesProps: Required<{
   /**
    * Removes features that write to the database from the UI.
    */
-   readOnly: {
+  readOnly: {
     type: 'boolean',
     required: true,
     default: false,
@@ -270,7 +268,7 @@ const modelPreferencesProps: Required<{
   /**
    * Switch to enable/disable the embedded shell.
    */
-   enableShell: {
+  enableShell: {
     type: 'boolean',
     required: true,
     default: false,
@@ -709,7 +707,7 @@ export class Preferences {
         autoUpdates: true,
         enableMaps: true,
         trackErrors: true,
-        readOnly: false,
+        enableShell: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,

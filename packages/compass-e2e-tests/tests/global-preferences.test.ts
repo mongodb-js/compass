@@ -10,6 +10,7 @@ import path from 'path';
 import os from 'os';
 import * as Selectors from '../helpers/selectors';
 import type { CompassBrowser } from '../helpers/compass-browser';
+import { createNumbersCollection } from '../helpers/insert-data';
 
 async function getCheckboxAndBannerState(
   browser: CompassBrowser,
@@ -162,6 +163,26 @@ describe('Global preferences', function () {
       expect(bannerText).to.include(
         'This setting cannot be modified as it has been set in the global Compass configuration file.'
       );
+    } finally {
+      await afterTest(compass, this.currentTest);
+      await afterTests(compass, this.currentTest);
+    }
+  });
+
+  it('allows setting readOnly: true and reflects that on the crud view', async function () {
+    await fs.writeFile(path.join(tmpdir, 'config'), 'readOnly: true\n');
+    // No settings modal opened for Isolated edition
+    const compass = await beforeTests();
+    try {
+      const browser = compass.browser;
+      await createNumbersCollection();
+      await browser.connectWithConnectionString(
+        'mongodb://localhost:27091/test'
+      );
+      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
+      const addDataButton = await browser.$(Selectors.AddDataButton);
+      const isAddDataButtonExisting = await addDataButton.isExisting();
+      expect(isAddDataButtonExisting).to.be.equal(false);
     } finally {
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);
