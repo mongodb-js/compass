@@ -2,24 +2,25 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import { Tooltip } from 'hadron-react-components';
+import { connect } from 'react-redux';
+import { addStage } from '../../modules/pipeline-builder/stage-editor';
+
 import styles from './add-after-stage.module.less';
 
 /**
  * The add after stage button.
  */
-class AddAfterStage extends PureComponent {
-  static displayName = 'AddAfterStageComponent';
-
+export class AddAfterStage extends PureComponent {
   static propTypes = {
     index: PropTypes.number.isRequired,
-    stageAddedAfter: PropTypes.func.isRequired
+    onAddStageClick: PropTypes.func.isRequired
   };
 
   /**
    * Handle stage add after clicks.
    */
   onStageAddedAfter = () => {
-    this.props.stageAddedAfter(this.props.index);
+    this.props.onAddStageClick(this.props.index);
   };
 
   /**
@@ -48,4 +49,4 @@ class AddAfterStage extends PureComponent {
   }
 }
 
-export default AddAfterStage;
+export default connect(null, { onAddStageClick: addStage })(AddAfterStage);

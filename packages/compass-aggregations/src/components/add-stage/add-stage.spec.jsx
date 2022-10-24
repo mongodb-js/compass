@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import AddStage from '.';
+import { AddStage } from './add-stage';
 import styles from './add-stage.module.less';
 
 describe('AddStage [Component]', function() {
@@ -11,7 +11,7 @@ describe('AddStage [Component]', function() {
 
   beforeEach(function() {
     component = mount(
-      <AddStage stageAdded={spy} />
+      <AddStage onAddStageClick={spy} />
     );
   });
 

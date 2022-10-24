@@ -11,7 +11,6 @@ import env from './env';
 import isTimeSeries from './is-time-series';
 import serverVersion from './server-version';
 import isModified from './is-modified';
-import pipeline from './pipeline';
 import name from './name';
 import limit from './limit';
 import largeLimit from './large-limit';
@@ -60,7 +59,6 @@ const rootReducer = combineReducers({
   isTimeSeries,
   serverVersion,
   savedPipeline,
-  pipeline,
   name,
   collationString,
   id,

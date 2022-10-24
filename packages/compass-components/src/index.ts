@@ -39,7 +39,9 @@ import {
   ItemActionGroup,
   ItemActionMenu,
 } from './components/item-action-controls';
+export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
+export { NoSavedItemsIcon } from './components/icons/no-saved-items-icon';
 export { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 export { Variant as BannerVariant } from '@leafygreen-ui/banner';
 export {
@@ -112,11 +114,13 @@ export { InlineDefinition } from './components/inline-definition';
 import type { glyphs } from '@leafygreen-ui/icon';
 export type IconGlyph = Extract<keyof typeof glyphs, string>;
 
+export { EmptyContent } from './components/empty-content';
 export { ErrorBoundary } from './components/error-boundary';
 export { TabNavBar } from './components/tab-nav-bar';
 export { WorkspaceContainer } from './components/workspace-container';
 export { InlineInfoLink } from './components/inline-info-link';
 export { InteractivePopover } from './components/interactive-popover';
+export { ListEditor } from './components/list-editor';
 export { Placeholder } from './components/placeholder';
 export { useDOMRect } from './hooks/use-dom-rect';
 export { VirtualGrid } from './components/virtual-grid';

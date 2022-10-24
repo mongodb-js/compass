@@ -5,23 +5,23 @@ import reducer, {
   CHANGE_COLLECTION_NAME
 } from '../drop-collection/name';
 
-describe('drop collection name module', () => {
-  describe('#reducer', () => {
-    context('when an action is provided', () => {
-      it('returns the new state', () => {
+describe('drop collection name module', function() {
+  describe('#reducer', function() {
+    context('when an action is provided', function() {
+      it('returns the new state', function() {
         expect(reducer(undefined, changeCollectionName('testing'))).to.equal('testing');
       });
     });
 
-    context('when an action is not provided', () => {
-      it('returns the default state', () => {
+    context('when an action is not provided', function() {
+      it('returns the default state', function() {
         expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
       });
     });
   });
 
-  describe('#changeCollectionName', () => {
-    it('returns the action', () => {
+  describe('#changeCollectionName', function() {
+    it('returns the action', function() {
       expect(changeCollectionName('test')).to.deep.equal({
         type: CHANGE_COLLECTION_NAME,
         name: 'test'

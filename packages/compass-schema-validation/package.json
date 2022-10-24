@@ -62,7 +62,6 @@
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.2.0",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.2.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -107,7 +106,6 @@
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.2.0",
     "hadron-react-buttons": "^6.0.1",
-    "hadron-react-components": "^6.2.0",
     "react": "^16.14.0"
   }
 }

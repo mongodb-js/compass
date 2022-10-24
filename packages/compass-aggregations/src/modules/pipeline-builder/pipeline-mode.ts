@@ -1,5 +1,6 @@
 import type { Reducer } from 'redux';
 import { isAction } from '../../utils/is-action';
+
 export type PipelineMode = 'builder-ui' | 'as-text';
 
 export enum ActionTypes {

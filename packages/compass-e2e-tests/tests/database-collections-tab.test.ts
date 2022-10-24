@@ -91,7 +91,11 @@ describe('Database collections tab', function () {
     // open the create collection modal from the button at the top
     await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
 
-    await browser.addCollection(collectionName);
+    await browser.addCollection(
+      collectionName,
+      undefined,
+      'add-collection-modal-basic.png'
+    );
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -132,11 +136,15 @@ describe('Database collections tab', function () {
     // open the create collection modal from the button at the top
     await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
 
-    await browser.addCollection(collectionName, {
-      capped: {
-        size: 1000,
+    await browser.addCollection(
+      collectionName,
+      {
+        capped: {
+          size: 1000,
+        },
       },
-    });
+      'add-collection-modal-capped.png'
+    );
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -156,19 +164,23 @@ describe('Database collections tab', function () {
     // open the create collection modal from the button at the top
     await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
 
-    await browser.addCollection(collectionName, {
-      customCollation: {
-        locale: 'af - Afrikaans',
-        strength: 3,
-        caseLevel: false,
-        caseFirst: 'lower',
-        numericOrdering: false,
-        alternate: 'non-ignorable',
-        maxVariable: 'punct',
-        backwards: false,
-        normalization: false,
+    await browser.addCollection(
+      collectionName,
+      {
+        customCollation: {
+          locale: 'af - Afrikaans',
+          strength: 3,
+          caseLevel: false,
+          caseFirst: 'lower',
+          numericOrdering: false,
+          alternate: 'non-ignorable',
+          maxVariable: 'punct',
+          backwards: false,
+          normalization: false,
+        },
       },
-    });
+      'add-collection-modal-custom-collation.png'
+    );
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -194,14 +206,18 @@ describe('Database collections tab', function () {
     // open the create collection modal from the button at the top
     await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
 
-    await browser.addCollection(collectionName, {
-      timeseries: {
-        timeField: 'time',
-        metaField: 'meta',
-        granularity: 'minutes',
-        expireAfterSeconds: 60,
+    await browser.addCollection(
+      collectionName,
+      {
+        timeseries: {
+          timeField: 'time',
+          metaField: 'meta',
+          granularity: 'minutes',
+          expireAfterSeconds: 60,
+        },
       },
-    });
+      'add-collection-modal-timeseries.png'
+    );
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -228,12 +244,16 @@ describe('Database collections tab', function () {
     // open the create collection modal from the button at the top
     await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
 
-    await browser.addCollection(collectionName, {
-      clustered: {
-        name: indexName,
-        expireAfterSeconds: 60,
+    await browser.addCollection(
+      collectionName,
+      {
+        clustered: {
+          name: indexName,
+          expireAfterSeconds: 60,
+        },
       },
-    });
+      'add-collection-modal-clustered.png'
+    );
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(

@@ -1,14 +1,5 @@
 import AppRegistry from 'hadron-app-registry';
 import configureStore from './';
-import {
-  stageChanged,
-  stageCollapseToggled,
-  stageDeleted,
-  stageAdded,
-  stageAddedAfter,
-  stageToggled,
-  stageOperatorSelected
-} from '../modules/pipeline';
 import rootReducer from '../modules';
 import { expect } from 'chai';
 
@@ -160,10 +151,6 @@ describe('Aggregation Store', function() {
           expect(state.serverVersion).to.equal(INITIAL_STATE.serverVersion);
         });
 
-        it('resets the pipeline with a new id', function() {
-          expect(state.pipeline[0].id).to.not.equal(INITIAL_STATE.pipeline[0].id);
-        });
-
         it('resets is modified', function() {
           expect(state.isModified).to.equal(INITIAL_STATE.isModified);
         });
@@ -216,7 +203,8 @@ describe('Aggregation Store', function() {
           // eslint-disable-next-line no-unused-vars
           const { aggregationWorkspaceId, ...state } = store.getState();
           // eslint-disable-next-line no-unused-vars
-          state.pipeline = state.pipeline.map(({ id, ...stage }) => stage);
+          state.pipelineBuilder.stageEditor = { stages: [], stageIds: [] };
+          delete state.pipeline;
           expect(state).to.deep.equal({
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
@@ -234,8 +222,6 @@ describe('Aggregation Store', function() {
             fields: INITIAL_STATE.fields,
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
-            // eslint-disable-next-line no-unused-vars
-            pipeline: INITIAL_STATE.pipeline.map(({ id, ...stage }) => stage),
             isModified: INITIAL_STATE.isModified,
             isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
             isReadonly: INITIAL_STATE.isReadonly,
@@ -331,122 +317,6 @@ describe('Aggregation Store', function() {
             }
           ]
         });
-      });
-    });
-  });
-
-  describe('#dispatch', function() {
-    let store;
-
-    beforeEach(function() {
-      store = configureStore();
-    });
-
-    context('when the action is unknown', function() {
-      it('returns the initial state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline[0].stage).to.equal(null);
-          done();
-        });
-        store.dispatch({ type: 'UNKNOWN' });
-      });
-    });
-
-    context('when the action is STAGE_CHANGED', function() {
-      const stage = '{ $match: {}}';
-
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline[0].stage).to.equal(stage);
-          done();
-        });
-        store.dispatch(stageChanged(stage, 0));
-      });
-    });
-
-    context('when the action is STAGE_DELETED', function() {
-      it('deletes the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline).to.deep.equal([]);
-          done();
-        });
-        store.dispatch(stageDeleted(0));
-      });
-    });
-
-    context('when the action is STAGE_ADDED', function() {
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline.length).to.equal(2);
-          done();
-        });
-        store.dispatch(stageAdded());
-      });
-    });
-
-    context('when the action is STAGE_ADDED_AFTER', function() {
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline.length).to.equal(2);
-          done();
-        });
-        store.dispatch(stageAddedAfter(0));
-      });
-    });
-
-    context('when the action is STAGE_TOGGLED', function() {
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline[0].isEnabled).to.equal(false);
-          done();
-        });
-        store.dispatch(stageToggled(0));
-      });
-    });
-
-    context('when the action is STAGE_COLLAPSE_TOGGLED', function() {
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline[0].isExpanded).to.equal(false);
-          done();
-        });
-        store.dispatch(stageCollapseToggled(0));
-      });
-    });
-
-    context('when the action is STAGE_OPERATOR_SELECTED', function() {
-      it('clears the error', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          const pipeline = store.getState().pipeline[0];
-          delete pipeline.id;
-          expect(pipeline).to.deep.equal({
-            stageOperator: '$match',
-            stage: '{\n  query\n}',
-            isMissingAtlasOnlyStageSupport: false,
-            isValid: false,
-            isEnabled: true,
-            isExpanded: true,
-            isLoading: false,
-            isComplete: false,
-            previewDocuments: [],
-            syntaxError: 'Stage must be a properly formatted document.',
-            error: null,
-            projections: []
-          });
-          done();
-        });
-
-        store.getState().pipeline[0].error = 'foo';
-
-        store.dispatch(stageOperatorSelected(0, '$match', false, 'on-prem'));
       });
     });
   });

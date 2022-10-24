@@ -45,3 +45,7 @@ export * from './select-favorite';
 export * from './select-connection-menu-item';
 export * from './open-settings-modal';
 export * from './wait-for-connection-result';
+export * from './screenshot';
+export * from './show-shell';
+export * from './hide-shell';
+export * from './select-option';

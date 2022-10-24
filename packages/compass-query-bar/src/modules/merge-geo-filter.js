@@ -1,12 +1,9 @@
 import { intersection, isPlainObject } from 'lodash';
+import { QUERY_OPERATORS } from '@mongodb-js/mongodb-constants';
 
-// https://docs.mongodb.com/manual/reference/operator/query-geospatial/
-const GEOSPATIAL_QUERY_OPERATORS = [
-  '$geoIntersects',
-  '$geoWithin',
-  '$near',
-  '$nearSphere',
-];
+const GEOSPATIAL_QUERY_OPERATORS = QUERY_OPERATORS.filter(
+  (op) => op.geospatial
+).map((op) => op.value);
 
 function isGeoCondition(value) {
   // Checking if value matches something like { $geoXXX: YYY }

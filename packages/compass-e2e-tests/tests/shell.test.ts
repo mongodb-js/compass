@@ -3,8 +3,9 @@ import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
+import * as Selectors from '../helpers/selectors';
 
-describe.skip('Shell', function () {
+describe('Shell', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -26,6 +27,18 @@ describe.skip('Shell', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it('can be opened, collapsed and resized');
-  it('supports running commands');
+  it('has an info modal', async function () {
+    await browser.showShell();
+    await browser.clickVisible(Selectors.ShellInfoButton);
+
+    const infoModalElement = await browser.$(Selectors.ShellInfoModal);
+    await infoModalElement.waitForDisplayed();
+
+    await browser.screenshot('shell-info-modal.png');
+
+    await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
+    await infoModalElement.waitForDisplayed({ reverse: true });
+
+    await browser.hideShell();
+  });
 });

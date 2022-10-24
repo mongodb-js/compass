@@ -444,6 +444,7 @@ export const HadronElement: React.FunctionComponent<{
         <div className={elementExpand}>
           {expandable && (
             <button
+              type="button"
               className={buttonReset}
               aria-pressed={expanded}
               aria-label={

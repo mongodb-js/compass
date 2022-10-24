@@ -61,6 +61,66 @@ async function getDocuments(browser: CompassBrowser) {
   return parsed;
 }
 
+async function chooseCollectionAction(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string,
+  actionName: string
+) {
+  // search for the view in the sidebar
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+  const sidebarFilterInputElement = await browser.$(
+    Selectors.SidebarFilterInput
+  );
+  await sidebarFilterInputElement.setValue(collectionName);
+
+  const collectionSelector = Selectors.sidebarCollection(
+    dbName,
+    collectionName
+  );
+
+  // scroll to the collection if necessary
+  await browser.scrollToVirtualItem(
+    Selectors.SidebarDatabaseAndCollectionList,
+    collectionSelector,
+    'tree'
+  );
+
+  const collectionElement = await browser.$(collectionSelector);
+  await collectionElement.waitForDisplayed();
+
+  // hover over the collection
+  await browser.hover(collectionSelector);
+
+  await browser.screenshot(`choose-collection-action-${actionName}.png`);
+
+  // click the show collections button
+  // NOTE: This assumes it is currently closed
+  await browser.clickVisible(Selectors.CollectionShowActionsButton);
+
+  const actionSelector = `[role="menuitem"][data-action="${actionName}"]`;
+
+  const actionButton = await browser.$(actionSelector);
+
+  // click the action
+  await browser.clickVisible(actionSelector);
+
+  // make sure the menu closed
+  await actionButton.waitForDisplayed({ reverse: true });
+}
+
+async function waitForTab(browser: CompassBrowser, namespace: string) {
+  await browser.waitUntil(
+    async function () {
+      const ns = await browser.getActiveTabNamespace();
+      return ns === namespace;
+    },
+    {
+      timeoutMsg: `Expected \`${namespace}\` namespace tab to be visible`,
+    }
+  );
+}
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -83,6 +143,9 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.CreateNewEmptyPipelineAction);
     const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
     await modalElement.waitForDisplayed();
+
+    await browser.screenshot('confirm-new-pipeline-modal.png');
+
     await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
     await modalElement.waitForDisplayed({ reverse: true });
   });
@@ -330,6 +393,8 @@ describe('Collection aggregations tab', function () {
     const viewNameInput = await browser.$(Selectors.CreateViewNameInput);
     await viewNameInput.setValue('my-view-from-pipeline');
 
+    await browser.screenshot('create-view-modal.png');
+
     // click create button
     const createButton = await browser
       .$(Selectors.CreateViewModal)
@@ -338,15 +403,51 @@ describe('Collection aggregations tab', function () {
     await createButton.click();
 
     // wait until the active tab is the view that we just created
-    await browser.waitUntil(
-      async function () {
-        const ns = await browser.getActiveTabNamespace();
-        return ns === 'test.my-view-from-pipeline';
-      },
-      {
-        timeoutMsg:
-          'Expected `test.my-view-from-pipeline` namespace tab to be visible',
-      }
+    await waitForTab(browser, 'test.my-view-from-pipeline');
+
+    // choose Duplicate view
+    await chooseCollectionAction(
+      browser,
+      'test',
+      'my-view-from-pipeline',
+      'duplicate-view'
+    );
+    const duplicateModal = await browser.$(Selectors.DuplicateViewModal);
+
+    // wait for the modal, fill out the modal, confirm
+    await duplicateModal.waitForDisplayed();
+    await browser
+      .$(Selectors.DuplicateViewModalTextInput)
+      .setValue('duplicated-view');
+    const confirmDuplicateButton = await browser.$(
+      Selectors.DuplicateViewModalConfirmButton
+    );
+    confirmDuplicateButton.waitForEnabled();
+
+    await browser.screenshot('duplicate-view-modal.png');
+
+    await confirmDuplicateButton.click();
+    await duplicateModal.waitForDisplayed({ reverse: true });
+
+    // wait for the active tab to become the newly duplicated view
+    await waitForTab(browser, 'test.duplicated-view');
+
+    // now select modify view of the non-duplicate
+    await chooseCollectionAction(
+      browser,
+      'test',
+      'my-view-from-pipeline',
+      'modify-view'
+    );
+
+    // wait for the active tab to become the numbers collection (because that's what the pipeline representing the view is for)
+    await waitForTab(browser, 'test.numbers');
+
+    // make sure we're on the aggregations tab, in edit mode
+    const modifyBanner = await browser.$(Selectors.ModifySourceBanner);
+    await modifyBanner.waitForDisplayed();
+    expect(await modifyBanner.getText()).to.equal(
+      'MODIFYING PIPELINE BACKING "TEST.MY-VIEW-FROM-PIPELINE"'
     );
   });
 
@@ -418,22 +519,6 @@ describe('Collection aggregations tab', function () {
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
-    // make sure it complains that it must be the last stage
-    await browser.waitUntil(
-      async () => {
-        const messageElement = await browser.$(
-          Selectors.stageEditorErrorMessage(1)
-        );
-        await messageElement.waitForDisplayed();
-        const text = await messageElement.getText();
-        return text === '$out can only be the final stage in the pipeline';
-      },
-      {
-        timeoutMsg:
-          'Waited for the error "$out can only be the final stage in the pipeline"',
-      }
-    );
-
     // delete the stage after $out
     await browser.clickVisible(Selectors.stageDelete(1));
 
@@ -482,22 +567,6 @@ describe('Collection aggregations tab', function () {
 
     await waitForAnyText(browser, await browser.$(Selectors.stageContent(1)));
 
-    // make sure it complains that it must be the last stage
-    await browser.waitUntil(
-      async () => {
-        const messageElement = await browser.$(
-          Selectors.stageEditorErrorMessage(1)
-        );
-        await messageElement.waitForDisplayed();
-        const text = await messageElement.getText();
-        return text === '$merge can only be the final stage in the pipeline';
-      },
-      {
-        timeoutMsg:
-          'Waited for the error "$merge can only be the final stage in the pipeline"',
-      }
-    );
-
     // delete the stage after $out
     await browser.clickVisible(Selectors.stageDelete(1));
 
@@ -542,12 +611,18 @@ describe('Collection aggregations tab', function () {
       Selectors.NewPipelineFromTextConfirmButton
     );
     await confirmButton.waitForEnabled();
+
+    await browser.screenshot('new-pipeline-from-text-modal.png');
+
     await confirmButton.click();
 
     await createModal.waitForDisplayed({ reverse: true });
 
     const confirmModal = await browser.$(Selectors.ConfirmImportPipelineModal);
     await confirmModal.waitForDisplayed();
+
+    await browser.screenshot('confirm-import-pipeline-modal.png');
+
     await browser.clickVisible(
       Selectors.ConfirmImportPipelineModalConfirmButton
     );
@@ -721,6 +796,8 @@ describe('Collection aggregations tab', function () {
     );
     await exportModalShowFileButtonElement.waitForDisplayed();
 
+    await browser.screenshot('export-modal.png');
+
     // Close modal
     await browser.clickVisible(Selectors.ExportModalCloseButton);
     const exportModalElement = await browser.$(Selectors.ExportModal);
@@ -737,6 +814,11 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows the explain for a pipeline', async function () {
+    // Set first stage to $match
+    await browser.focusStageOperator(0);
+    await browser.selectStageOperator(0, '$match');
+    await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
     await browser.clickVisible(Selectors.AggregationExplainButton);
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
 
@@ -745,6 +827,8 @@ describe('Collection aggregations tab', function () {
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
 
     expect(await modal.getText()).to.contain('Query Performance Summary');
+
+    await browser.screenshot('aggregation-explain-modal.png');
 
     await browser.clickVisible(Selectors.AggregationExplainModalCloseButton);
     await modal.waitForDisplayed({ reverse: true });

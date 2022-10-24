@@ -81,6 +81,7 @@ class Query extends PureComponent {
 
     return (
       <button
+        type="button"
         onClick={this.populateQuery}
         className={queryAttributesContainerStyles}
         data-testid="query-history-query-attributes"

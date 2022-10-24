@@ -24,7 +24,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.WorkspaceChanged:
       return action.view;
-    case AggregationActionTypes.AggregationStarted:
+    case AggregationActionTypes.RunAggregation:
       return 'results';
     case NEW_PIPELINE:
       return INITIAL_STATE;
@@ -33,16 +33,13 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   }
 };
 
-export const changeWorkspace = (view: Workspace): PipelineBuilderThunkAction<void> => {
+export const editPipeline = (): PipelineBuilderThunkAction<void> => {
   return (dispatch) => {
-    // As user switches to builder view, we cancel running ops
-    if (view === 'builder') {
-      dispatch(cancelAggregation());
-      dispatch(cancelCount());
-    }
+    dispatch(cancelAggregation());
+    dispatch(cancelCount());
     dispatch({
       type: ActionTypes.WorkspaceChanged,
-      view,
+      view: 'builder',
     });
   };
 };

@@ -1,7 +1,7 @@
 import type { AnyAction } from "redux";
 import type { PipelineBuilderThunkAction } from ".";
 import { NEW_PIPELINE } from './import-pipeline';
-import { runStage } from "./pipeline";
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 
 export enum ActionTypes {
@@ -31,16 +31,11 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): boole
 export const toggleAutoPreview = (
   newVal: boolean
 ): PipelineBuilderThunkAction<void> => {
-  return (dispatch, _getState, { pipelineBuilder }) => {
+  return (dispatch) => {
     dispatch({
       type: ActionTypes.AutoPreviewToggled,
       value: newVal
     });
-
-    if (newVal) {
-      dispatch(runStage(0, true /* force execute */));
-    } else {
-      pipelineBuilder.stopPreview();
-    }
+    dispatch(updatePipelinePreview());
   };
 };

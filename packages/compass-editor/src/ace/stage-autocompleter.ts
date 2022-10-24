@@ -76,11 +76,16 @@ class StageAutoCompleter implements Ace.Completer {
     return [];
   }
 
-  update(fields: CompletionWithServerInfo[], stageOperator: string | null) {
+  update(
+    fields: CompletionWithServerInfo[],
+    stageOperator: string | null,
+    severVersion?: string
+  ) {
     this.fields = fields;
     this.variableFields = this.generateVariableFields(fields);
     this.queryAutoCompleter.update(fields);
     this.stageOperator = stageOperator;
+    this.version = severVersion ?? this.version;
   }
 
   updateStageOperator(stageOperator: string | null) {

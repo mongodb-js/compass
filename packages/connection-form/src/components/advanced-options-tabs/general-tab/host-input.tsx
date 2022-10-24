@@ -2,11 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   FormFieldContainer,
   Label,
-  Icon,
-  IconButton,
   TextInput,
-  spacing,
-  css,
+  ListEditor,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -18,27 +15,6 @@ import {
   errorMessageByFieldNameAndIndex,
   fieldNameHasError,
 } from '../../../utils/validation';
-
-const hostInputContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'row',
-  width: '100%',
-  marginBottom: spacing[2],
-  marginTop: spacing[1],
-});
-
-const hostInputStyles = css({
-  flexGrow: 1,
-});
-
-const hostActionButtonStyles = css({
-  marginLeft: spacing[1],
-  marginTop: spacing[1],
-});
-
-const inputFieldStyles = css({
-  width: '50%',
-});
 
 function HostInput({
   errors,
@@ -82,21 +58,17 @@ function HostInput({
 
   return (
     <>
-      <FormFieldContainer className={inputFieldStyles}>
+      <FormFieldContainer>
         <Label
           htmlFor="connection-host-input-0"
           id="connection-host-input-label"
         >
           {isSRV ? 'Hostname' : 'Host'}
         </Label>
-        {hosts.map((host, index) => (
-          <div
-            className={hostInputContainerStyles}
-            key={`host-${index}`}
-            data-testid="host-input-container"
-          >
+        <ListEditor
+          items={hosts}
+          renderItem={(host: string, index: number) => (
             <TextInput
-              className={hostInputStyles}
               type="text"
               data-testid={`connection-host-input-${index}`}
               id={`connection-host-input-${index}`}
@@ -110,40 +82,24 @@ function HostInput({
               value={`${host}`}
               onChange={(e) => onHostChange(e, index)}
             />
-            {!isSRV && (
-              <IconButton
-                className={hostActionButtonStyles}
-                aria-label="Add new host"
-                type="button"
-                data-testid="connection-add-host-button"
-                onClick={() =>
-                  updateConnectionFormField({
-                    type: 'add-new-host',
-                    fieldIndexToAddAfter: index,
-                  })
-                }
-              >
-                <Icon glyph="Plus" />
-              </IconButton>
-            )}
-            {!isSRV && hosts.length > 1 && (
-              <IconButton
-                className={hostActionButtonStyles}
-                aria-label="Remove host"
-                type="button"
-                data-testid="connection-remove-host-button"
-                onClick={() =>
-                  updateConnectionFormField({
-                    type: 'remove-host',
-                    fieldIndexToRemove: index,
-                  })
-                }
-              >
-                <Icon glyph="Minus" />
-              </IconButton>
-            )}
-          </div>
-        ))}
+          )}
+          disableAddButton={() => isSRV}
+          disableRemoveButton={() => isSRV || hosts.length <= 1}
+          onAddItem={(indexBefore) =>
+            updateConnectionFormField({
+              type: 'add-new-host',
+              fieldIndexToAddAfter: indexBefore,
+            })
+          }
+          onRemoveItem={(index: number) =>
+            updateConnectionFormField({
+              type: 'remove-host',
+              fieldIndexToRemove: index,
+            })
+          }
+          addButtonTestId="connection-add-host-button"
+          removeButtonTestId="connection-remove-host-button"
+        />
       </FormFieldContainer>
       {showDirectConnectionInput && (
         <FormFieldContainer>

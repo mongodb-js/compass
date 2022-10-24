@@ -353,6 +353,7 @@ class AddFieldButton extends React.Component {
     }
     return (
       <button
+        type="button"
         className={this.divClassName()}
         onClick={this.handleClick.bind(this)}
         onKeyPress={this.handleKeyPress.bind(this)}
