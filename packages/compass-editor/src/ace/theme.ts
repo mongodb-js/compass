@@ -135,6 +135,10 @@ const mongodbAceThemeCssText = css`
     /* background image of the element */
     color: transparent;
   }
+  .ace-mongodb .ace_scroller.ace_scroll-left {
+    /* Hide ace's default left box shadow when scrolled. */
+    box-shadow: none;
+  }
 `;
 
 ace.define(
