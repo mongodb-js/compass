@@ -1,12 +1,48 @@
 import React, { useCallback, useMemo } from 'react';
-import { Checkbox, Label, Description, Button, TextInput } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Button,
+  Checkbox,
+  Description,
+  Label,
+  TextInput,
+  css,
+  palette,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 
 import styles from './settings.module.less';
 
+const aggregationCommentModeId = 'aggregation-comment-mode';
+const aggregationCommentModeDescriptionId = 'aggregation-comment-mode-description';
+const aggregationCommentModeLabelId = 'aggregation-comment-mode-label';
 
-type SettingsProp = {
+const aggregationSampleSizeId = 'aggregation-sample-size';
+const aggregationSampleSizeDescriptionId = 'aggregation-sample-size-description';
+const aggregationSampleSizeLabelId = 'aggregation-sample-size-label';
+
+const aggregationLimitId = 'aggregation-limit';
+const aggregationLimitDescriptionId = 'aggregation-limit-description';
+const aggregationLimitLabelId = 'aggregation-limit-label';
+
+const headerStyles = css({
+  display: 'flex',
+  padding: `${spacing[1]}px ${spacing[2]}px`,
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  borderBottom: `1px solid ${palette.gray.light2}`,
+  boxShadow: `1px 1px 1px ${palette.gray.light2}`
+});
+
+const headerButtonGroupStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+});
+
+type SettingsProps = {
   isAtlasDeployed: boolean;
   isCommenting: boolean;
   isExpanded: boolean;
@@ -26,18 +62,6 @@ type SettingsProp = {
   applySettings: () => void;
 };
 
-const aggregationCommentModeId = 'aggregation-comment-mode';
-const aggregationCommentModeDescriptionId = 'aggregation-comment-mode-description';
-const aggregationCommentModeLabelId = 'aggregation-comment-mode-label';
-
-const aggregationSampleSizeId = 'aggregation-sample-size';
-const aggregationSampleSizeDescriptionId = 'aggregation-sample-size-description';
-const aggregationSampleSizeLabelId = 'aggregation-sample-size-label';
-
-const aggregationLimitId = 'aggregation-limit';
-const aggregationLimitDescriptionId = 'aggregation-limit-description';
-const aggregationLimitLabelId = 'aggregation-limit-label';
-
 function Settings({
   isAtlasDeployed,
   isCommenting,
@@ -50,7 +74,7 @@ function Settings({
   setSettingsSampleSize,
   toggleSettingsIsCommentMode,
   toggleSettingsIsExpanded,
-}: SettingsProp) {
+}: SettingsProps) {
   const onSampleSizeChanged = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
     setSettingsSampleSize(parseInt(evt.currentTarget.value, 10));
   }, [ setSettingsSampleSize ]);
@@ -77,16 +101,15 @@ function Settings({
     () => settings.isDirty ? settings.sampleSize : limit, [ settings, limit ]
   );
 
-  // TODO: move this up a level?
   if (!isExpanded) {
     return null;
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles['header-title']}>Settings</div>
-        <div className={styles['header-btn-group']}>
+      <div className={headerStyles}>
+        <Body weight="medium">Settings</Body>
+        <div className={headerButtonGroupStyles}>
           <Button
             id="aggregations-settings-cancel"
             size="xsmall"
