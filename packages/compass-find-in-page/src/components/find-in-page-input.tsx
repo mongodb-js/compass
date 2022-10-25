@@ -9,7 +9,7 @@ import {
   cx,
   spacing,
   palette,
-  transparentize,
+  rgba,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
@@ -21,7 +21,7 @@ const findInPageContainerStyles = css({
   top: 0,
   right: spacing[4],
   width: spacing[6] * 4, // 256px
-  boxShadow: `0px 2px 5px ${transparentize(0.7, palette.black)}`,
+  boxShadow: `0px 2px 5px ${rgba(palette.black, 0.3)}`,
 });
 
 const containerLightThemeStyles = css({
@@ -167,7 +167,7 @@ function FindInPageInput({
           className={closeButtonStyles}
           aria-label="Close find box"
           onClick={onClose}
-          onKeyDown={(evt) => {
+          onKeyDown={(evt: React.KeyboardEvent) => {
             // So that enter / space works as a trigger on the button instead of
             // window keydown event handler reacting to Enter press
             evt.stopPropagation();

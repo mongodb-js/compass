@@ -1,15 +1,20 @@
-/* eslint-disable react/no-multi-comp */
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { ZeroState } from 'hadron-react-components';
-import { Banner, BannerVariant, Link, WorkspaceContainer } from '@mongodb-js/compass-components';
+import { Banner, BannerVariant, EmptyContent, Link, css, spacing } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
 
-import styles from './databases.module.less';
+import { ZeroGraphic } from '../zero-graphic';
 
-const HEADER = 'Unable to display databases and collections';
-const SUBTEXT =
+const errorContainerStyles = css({
+  padding: spacing[3],
+});
+
+const nonGenuineErrorContainerStyles = css({
+  width: '100%',
+});
+
+const NON_GENUINE_SUBTEXT =
   'This server or service appears to be emulating' +
   ' MongoDB. Some documented MongoDB features may work differently, may be' +
   ' entirely missing or incomplete, or may have unexpectedly different' +
@@ -21,13 +26,17 @@ const ERROR_WARNING = 'An error occurred while loading databases';
 
 function NonGenuineZeroState() {
   return (
-    <div data-testid="databases-non-genuine-warning" className={styles['databases-non-genuine-warning']}>
-      <div className="zero-graphic zero-graphic-non-genuine-mongodb" />
-      <ZeroState header={HEADER} subtext={SUBTEXT}>
-        <Link className={styles['databases-try-atlas-link']} href={DOCUMENTATION_LINK}>
-          Try MongoDB Atlas
-        </Link>
-      </ZeroState>
+    <div className={nonGenuineErrorContainerStyles} data-testid="databases-non-genuine-warning">
+      <EmptyContent
+        icon={ZeroGraphic}
+        title="Unable to display databases and collections"
+        subTitle={NON_GENUINE_SUBTEXT}
+        callToActionLink={
+          <Link href={DOCUMENTATION_LINK}>
+            Try MongoDB Atlas
+          </Link>
+        }
+      />
     </div>
   );
 }
@@ -65,7 +74,7 @@ class Databases extends PureComponent {
 
     if (databasesStatus.status === 'error') {
       return (
-        <div className={styles['databases-error']}>
+        <div className={errorContainerStyles}>
           <Banner variant={BannerVariant.Danger}>
             {ERROR_WARNING}: {databasesStatus.error}
           </Banner>
@@ -108,7 +117,6 @@ function createEmit(evtName) {
   return function(...args) {
     return function(_dispatch, getState) {
       const { appRegistry } = getState();
-      // eslint-disable-next-line chai-friendly/no-unused-expressions
       appRegistry?.emit(evtName, ...args);
     };
   };

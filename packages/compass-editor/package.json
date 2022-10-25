@@ -1,0 +1,73 @@
+{
+  "name": "@mongodb-js/compass-editor",
+  "description": "Reusable Compass editor component based on ace-editor with MongoDB-specific ace modes, themes, and autocompleters",
+  "author": {
+    "name": "MongoDB Inc",
+    "email": "compass@mongodb.com"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "bugs": {
+    "url": "https://jira.mongodb.org/projects/COMPASS/issues",
+    "email": "compass@mongodb.com"
+  },
+  "homepage": "https://github.com/mongodb-js/compass",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mongodb-js/compass.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "SSPL",
+  "main": "dist/index.js",
+  "compass:main": "src/index.ts",
+  "compass:exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "bootstrap": "npm run compile",
+    "prepublishOnly": "npm run compile",
+    "compile": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
+    "eslint": "eslint",
+    "prettier": "prettier",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
+    "depcheck": "depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
+    "check-ci": "npm run check",
+    "test": "mocha",
+    "test-cov": "nyc -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
+    "test-watch": "npm run test -- --watch",
+    "test-ci": "npm run test-cov",
+    "reformat": "npm run prettier -- --write ."
+  },
+  "devDependencies": {
+    "@mongodb-js/eslint-config-compass": "^1.0.1",
+    "@mongodb-js/mocha-config-compass": "^1.0.1",
+    "@mongodb-js/prettier-config-compass": "^1.0.0",
+    "@mongodb-js/tsconfig-compass": "^1.0.1",
+    "@types/chai": "^4.2.21",
+    "@types/mocha": "^9.0.0",
+    "@types/sinon-chai": "^3.2.5",
+    "chai": "^4.3.6",
+    "depcheck": "^1.4.1",
+    "eslint": "^7.25.0",
+    "mocha": "^8.4.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.7.1",
+    "sinon": "^9.2.3",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "@mongodb-js/compass-components": "^1.2.0",
+    "@mongodb-js/mongodb-constants": "^0.1.4",
+    "ace-builds": "^1.11.2",
+    "react": "^16.14.0",
+    "react-ace": "^9.5.0",
+    "semver": "^7.3.8"
+  }
+}

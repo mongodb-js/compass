@@ -2,6 +2,11 @@ import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '../../utils/cancellable-promise';
+import { getStageOperator } from '../../utils/stage';
+import {
+  FULL_SCAN_STAGES,
+  REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE
+} from '@mongodb-js/mongodb-constants';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 
@@ -11,24 +16,16 @@ export const DEFAULT_PREVIEW_LIMIT = 10;
  * Ops that must scan the entire results before moving to the
  * next stage.
  */
-const FULL_SCAN_OPS = ['$group', '$groupBy', '$bucket', '$bucketAuto'];
+const FULL_SCAN_OPS = FULL_SCAN_STAGES.map((stage) => stage.value) as string[];
 
 /**
  * Stage operators that are required to be the first stage.
  */
-const REQUIRED_AS_FIRST_STAGE = [
-  '$collStats',
-  '$currentOp',
-  '$indexStats',
-  '$listLocalSessions',
-  '$listSessions'
-];
+const REQUIRED_AS_FIRST_STAGE = _REQUIRED_AS_FIRST_STAGE.map(
+  (stage) => stage.value
+) as string[];
 
-function getStageOp(doc: Document = {}): string | undefined {
-  return Object.keys(doc)[0];
-}
-
-type PreviewOptions = {
+export interface PreviewOptions extends AggregateOptions {
   debounceMs?: number;
   totalDocumentCount?: number;
   sampleSize?: number;
@@ -50,7 +47,7 @@ export function createPreviewAggregation(
           (options.sampleSize ?? DEFAULT_SAMPLE_SIZE)) &&
       // If stage can cause a full scan on the collection, prepend it with a
       // $limit
-      FULL_SCAN_OPS.includes(getStageOp(stage) ?? '')
+      FULL_SCAN_OPS.includes(getStageOperator(stage) ?? '')
     ) {
       stages.push({ $limit: options.sampleSize ?? DEFAULT_SAMPLE_SIZE });
     }
@@ -60,7 +57,7 @@ export function createPreviewAggregation(
     // TODO: super unsure what this is doing, half of these are not even
     // selectable stage operators in UI
     !REQUIRED_AS_FIRST_STAGE.includes(
-      getStageOp(stages[stages.length - 1]) ?? ''
+      getStageOperator(stages[stages.length - 1]) ?? ''
     )
   ) {
     stages.push({ $limit: options.previewSize ?? DEFAULT_PREVIEW_LIMIT });
@@ -83,7 +80,7 @@ export class PipelinePreviewManager {
       previewSize,
       totalDocumentCount,
       ...options
-    }: AggregateOptions & PreviewOptions = {},
+    }: PreviewOptions = {},
     force = false
   ): Promise<Document[]> {
     this.queue.get(idx)?.abort();

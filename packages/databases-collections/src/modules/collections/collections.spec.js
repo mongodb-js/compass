@@ -26,13 +26,13 @@ const DEEZER = {
   collation: { locale: 'us' },
 };
 
-describe('collections module', () => {
-  describe('#reducer', () => {
-    context('when an action is provided', () => {
-      context('when the action is LOAD_COLLECTIONS', () => {
+describe('collections module', function() {
+  describe('#reducer', function() {
+    context('when an action is provided', function() {
+      context('when the action is LOAD_COLLECTIONS', function() {
         const collections = [SPOTIFY, SOUNDCLOUD, DEEZER];
 
-        it('returns the mapped databases list', () => {
+        it('returns the mapped databases list', function() {
           expect(
             reducer(undefined, setCollections(collections))
           ).to.deep.equal(collections);

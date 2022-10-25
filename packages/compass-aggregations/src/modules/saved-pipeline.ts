@@ -2,10 +2,10 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { AnyAction } from 'redux';
 import { createId } from './id';
-import { setIsModified } from './is-modified';
-import { PipelineStorage } from '../utils/pipeline-storage';
 import type { PipelineBuilderThunkAction } from '.';
-import { runStage } from './pipeline';
+import type { StoredPipeline } from '../utils/pipeline-storage';
+import { getPipelineFromBuilderState, getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -15,13 +15,11 @@ export const SET_SHOW_SAVED_PIPELINES = `${PREFIX}/SET_SHOW`;
 export const SAVED_PIPELINE_ADD = `${PREFIX}/ADD`;
 export const RESTORE_PIPELINE = `${PREFIX}/RESTORE_PIPELINE`;
 
-type SavedPipeline = { id: string; name: string, namespace: string };
-
 export type SavedPipelineState = {
-  pipelines: SavedPipeline[];
+  pipelines: StoredPipeline[];
   isLoaded: boolean;
   isListVisible: boolean;
-}
+};
 
 export const INITIAL_STATE: SavedPipelineState = {
   pipelines: [],
@@ -67,15 +65,11 @@ export const setShowSavedPipelines =
     });
   };
 
-export const savedPipelineAdd = (pipelines: SavedPipeline[]) => ({
+export const savedPipelineAdd = (pipelines: StoredPipeline[]) => ({
   type: SAVED_PIPELINE_ADD,
   pipelines
 });
 
-/**
- *
- * @returns {import('redux').AnyAction}
- */
 export const getSavedPipelines = (): PipelineBuilderThunkAction<void> => 
   (dispatch, getState) => {
     if (!getState().savedPipeline.isLoaded) {
@@ -85,19 +79,15 @@ export const getSavedPipelines = (): PipelineBuilderThunkAction<void> =>
 
 /**
  * Update the pipeline list.
- *
- * @returns {Function} The thunk function.
  */
 export const updatePipelineList = (): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState) => {
-    const pipelineStorage = new PipelineStorage();
+  (dispatch, getState, { pipelineStorage }) => {
     const state = getState();
     pipelineStorage.loadAll()
-      .then((pipelines: SavedPipeline[]) => {
+      .then((pipelines: StoredPipeline[]) => {
         const thisNamespacePipelines = pipelines.filter(
           ({ namespace }) => namespace === state.namespace
         );
-        dispatch(setIsModified(false));
         dispatch(savedPipelineAdd(thisNamespacePipelines));
         dispatch(globalAppRegistryEmit('agg-pipeline-saved', { name: state.name }));
       })
@@ -112,34 +102,9 @@ export const updatePipelineList = (): PipelineBuilderThunkAction<void> =>
 export const deletePipeline = (
   pipelineId: string
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch) => {
-    const pipelineStorage = new PipelineStorage();
+  return async (dispatch, getState, { pipelineStorage }) => {
     await pipelineStorage.delete(pipelineId);
     dispatch(updatePipelineList());
-  };
-};
-
-/**
- * Get the restore action.
- *
- * @param {Object} restoreState - The state.
- *
- * @returns {Object} The action.
- */
-export const restoreSavedPipeline = (restoreState: unknown): AnyAction => ({
-  type: RESTORE_PIPELINE,
-  restoreState: restoreState
-});
-
-/**
- * Restore pipeline
- */
-export const openPipeline = (
-  pipeline: unknown
-): PipelineBuilderThunkAction<void> => {
-  return (dispatch) => {
-    dispatch(restoreSavedPipeline(pipeline));
-    dispatch(runStage(0, true /* force execute */));
   };
 };
 
@@ -149,11 +114,20 @@ export const openPipeline = (
 export const openPipelineById = (
   id: string
 ): PipelineBuilderThunkAction<Promise<void>> => {
-  return async (dispatch) => {
+  return async (dispatch, getState, { pipelineBuilder, pipelineStorage }) => {
     try {
-      const pipelineStorage = new PipelineStorage();
       const data = await pipelineStorage.load(id);
-      dispatch(openPipeline(data));
+      if (!data) {
+        throw new Error(`Pipeline with id ${id} not found`);
+      }
+      pipelineBuilder.reset(data.pipelineText);
+      dispatch({
+        type: RESTORE_PIPELINE,
+        stages: pipelineBuilder.stages,
+        source: pipelineBuilder.source,
+        restoreState: data
+      });
+      dispatch(updatePipelinePreview());
     } catch (e: unknown) {
       debug(e);
     }
@@ -162,22 +136,13 @@ export const openPipelineById = (
 
 /**
  * Save the current state of your pipeline
- *
- * @returns {import('redux').AnyAction} The action.
  */
 export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async (
-  dispatch, getState
+  dispatch, getState, { pipelineBuilder, pipelineStorage }
 ) => {
-  const pipelineStorage = new PipelineStorage();
-  const state = getState();
-
   if (getState().id === '') {
     dispatch(createId());
   }
-
-  const pipeline = state.pipeline.map((stage) => {
-    return { ...stage, previewDocuments: [] };
-  });
 
   const {
     id,
@@ -196,17 +161,19 @@ export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async
     comments,
     autoPreview,
     collationString: text,
-    pipeline,
+    pipelineText: getPipelineStringFromBuilderState(
+      getState(),
+      pipelineBuilder
+    ),
     host:
-      dataService?.dataService?.getConnectionString?.().hosts.join(',') ??
-      null
+      dataService.dataService?.getConnectionString().hosts.join(',') ?? null
   };
 
   await pipelineStorage.updateAttributes(savedPipeline.id, savedPipeline);
 
   track('Aggregation Saved', {
     id: savedPipeline.id,
-    num_stages: pipeline.length
+    num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder).length
   });
 
   dispatch(updatePipelineList());

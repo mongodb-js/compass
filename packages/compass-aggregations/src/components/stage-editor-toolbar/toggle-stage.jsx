@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Toggle, css, spacing } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
+import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 
 const toggleStyle = css({
   marginLeft: spacing[1]
@@ -9,24 +11,18 @@ const toggleStyle = css({
 /**
  * The toggle stage button.
  */
-class ToggleStage extends PureComponent {
-  static displayName = 'ToggleStageComponent';
-
+export class ToggleStage extends PureComponent {
   static propTypes = {
-    isEnabled: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
-    runStage: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired
+    isEnabled: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
   };
 
   /**
    * Handle stage toggled clicks.
    */
-  onStageToggled = () => {
-    this.props.stageToggled(this.props.index);
-    this.props.setIsModified(true);
-    this.props.runStage(this.props.index, true /* force execute */);
+  onStageToggled = (newVal) => {
+    this.props.onChange(this.props.index, !newVal);
   };
 
   /**
@@ -51,4 +47,12 @@ class ToggleStage extends PureComponent {
   }
 }
 
-export default ToggleStage;
+export default connect(
+  (state, ownProps) => {
+    return {
+      isEnabled:
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].disabled
+    };
+  },
+  { onChange: changeStageDisabled }
+)(ToggleStage);

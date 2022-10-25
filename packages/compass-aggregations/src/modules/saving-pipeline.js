@@ -1,7 +1,6 @@
-import isEmpty from 'lodash.isempty';
 import { NEW_PIPELINE } from './import-pipeline';
-import { generateStage } from './stage';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 export const SAVING_PIPELINE_NAME_CHANGED = 'aggregations/saving-pipeline/NAME_CHANGED';
 
@@ -112,30 +111,19 @@ export const savingPipelineOpen = ({name = '', isSaveAs = false} = {}) => {
 };
 
 /**
- * Make view pipeline.
- *
- * @param {String} unfilteredPipeline - The unfilteredPipeline.
- *
- * @returns {Array} The mapped/filtered view pipeline.
- */
-export const makeViewPipeline = (unfilteredPipeline) => {
-  return unfilteredPipeline
-    .map((p) => (p.executor || generateStage(p)))
-    // generateStage can return {} under various conditions
-    .filter((stage) => !isEmpty(stage));
-};
-
-/**
  * Open create view.
  *
  * @emits open-create-view {meta: {source, pipeline}}
  * @see create-view src/stores/create-view.js
  */
 export const openCreateView = () => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const state = getState();
     const sourceNs = state.namespace;
-    const sourcePipeline = makeViewPipeline(state.pipeline);
+    const sourcePipeline = getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
 
     const meta = {
       source: sourceNs,

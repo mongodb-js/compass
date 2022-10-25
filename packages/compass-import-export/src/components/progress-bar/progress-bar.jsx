@@ -89,6 +89,7 @@ class ProgressBar extends PureComponent {
 
     return (
       <button
+        type="button"
         className={classnames(style('status-message-cancel'))}
         onClick={this.handleCancel}
       >

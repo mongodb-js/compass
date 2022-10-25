@@ -1,6 +1,5 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { SavedPipelines } from './saved-pipelines';
@@ -15,14 +14,12 @@ describe('SavedPipelines [Component]', function() {
   context('when the component is rendered', function() {
     let component;
     const savedPipelines = [];
-    const spy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <Provider store={store}>
           <SavedPipelines
             savedPipelines={savedPipelines}
-            onToggleSavedPipelines={spy}
             namespace="test.test123"
           />
         </Provider>
@@ -39,24 +36,10 @@ describe('SavedPipelines [Component]', function() {
       ).to.contain.text('Saved Pipelines');
     });
 
-    it('renders the close button', function() {
-      expect(
-        component.find('button[data-testid="saved-pipelines-close-button"]')
-      ).to.be.present();
-    });
-
     it('renders an empty state', function() {
       expect(
         component.find(emptyStateTestId)
       ).to.be.present();
-    });
-
-    it('it calls to close when the close button is clicked', function() {
-      expect(spy.calledOnce).to.equal(false);
-      component.find(
-        'button'
-      ).at(0).hostNodes().simulate('click');
-      expect(spy.calledOnce).to.equal(true);
     });
 
     it('renders the namespace', function () {
@@ -73,14 +56,12 @@ describe('SavedPipelines [Component]', function() {
       name: 'test name',
       id: 'test id'
     }];
-    const spy = sinon.spy();
 
     beforeEach(function() {
       component = mount(
         <Provider store={store}>
           <SavedPipelines
             savedPipelines={savedPipelines}
-            onToggleSavedPipelines={spy}
           />
         </Provider>
       );

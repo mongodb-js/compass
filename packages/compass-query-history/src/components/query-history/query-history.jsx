@@ -8,8 +8,6 @@ import { Toolbar } from '../toolbar/toolbar';
 import { RecentList } from '../recent';
 import { FavoriteList } from '../favorite';
 
-// Stores
-import styles from './query-history.module.less';
 import { css } from '@mongodb-js/compass-components';
 
 const componentStyle = css({
@@ -34,16 +32,11 @@ class QueryHistory extends PureComponent {
     actions: PropTypes.object.isRequired,
     store: PropTypes.object.isRequired,
     showing: PropTypes.oneOf(['recent', 'favorites']),
-    // TODO(COMPASS-5679): After we enable the toolbars feature flag,
-    // we can remove the collapsed boolean and make `onClose` required.
-    onClose: PropTypes.func,
-    collapsed: PropTypes.bool,
     ns: PropTypes.object,
   };
 
   static defaultProps = {
     showing: 'recent',
-    collapsed: true,
     ns: mongodbns(''),
   };
 
@@ -57,7 +50,6 @@ class QueryHistory extends PureComponent {
         data-testid="query-history-list-favorites"
         ns={this.props.ns}
         actions={this.props.actions}
-        zeroStateTitle="Favorite a query to see it saved here!"
       />
     </StoreConnector>
   );
@@ -72,33 +64,17 @@ class QueryHistory extends PureComponent {
         data-testid="query-history-list-recent"
         ns={this.props.ns}
         actions={this.props.actions}
-        zeroStateTitle="Run a query to see it saved here!"
       />
     </StoreConnector>
   );
 
   render() {
-    const { collapsed, ns, showing, onClose, actions } = this.props;
-
-    if (!onClose && collapsed) {
-      // TODO(COMPASS-5679): After we enable the toolbars feature flag,
-      // we can remove the collapsed boolean and make `onClose` required.
-      // And remove this condition.
-      return null;
-    }
+    const { ns, showing, actions } = this.props;
 
     return (
-      <div
-        data-testid="query-history"
-        className={onClose ? componentStyle : styles['component-legacy']}
-      >
+      <div data-testid="query-history" className={componentStyle}>
         <div className={innerStyle}>
-          <Toolbar
-            actions={actions}
-            showing={showing}
-            onClose={onClose}
-            namespace={ns}
-          />
+          <Toolbar actions={actions} showing={showing} namespace={ns} />
 
           {showing === 'favorites' ? this.renderFavorites() : null}
           {showing === 'recent' ? this.renderRecents() : null}

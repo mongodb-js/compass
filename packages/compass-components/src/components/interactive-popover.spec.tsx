@@ -10,26 +10,14 @@ const innerContentTestId = 'testing-inner-content';
 function renderPopover(
   props?: Partial<React.ComponentProps<typeof InteractivePopover>>
 ) {
-  const openSpy = sinon.spy();
-
-  const popoverContent = ({ onClose }) => (
-    <>
-      <button onClick={() => {}} data-testid={innerContentTestId}>
-        Action Button
-      </button>
-      <div>inner content</div>
-      <button onClick={onClose}>Close Button</button>
-    </>
-  );
-
   return render(
     <InteractivePopover
       className=""
       open={false}
-      setOpen={openSpy}
+      setOpen={() => {}}
       trigger={({ onClick, ref, children }) => (
         <>
-          <button onClick={onClick} ref={ref}>
+          <button type="button" onClick={onClick} ref={ref}>
             Trigger Button Text
           </button>
           {children}
@@ -37,7 +25,16 @@ function renderPopover(
       )}
       {...props}
     >
-      {popoverContent}
+      <>
+        <button
+          type="button"
+          onClick={() => {}}
+          data-testid={innerContentTestId}
+        >
+          Action Button
+        </button>
+        <div>inner content</div>
+      </>
     </InteractivePopover>
   );
 }
@@ -95,6 +92,21 @@ describe('InteractivePopover Component', function () {
     expect(openSpy.calledOnce).to.be.false;
 
     const button = screen.getByText('Trigger Button Text');
+    button.click();
+    expect(openSpy.calledOnce).to.be.true;
+    expect(openSpy.firstCall.firstArg).to.equal(false);
+  });
+
+  it('when open and the close is clicked it should call to close', function () {
+    const openSpy = sinon.fake();
+
+    renderPopover({
+      open: true,
+      setOpen: openSpy,
+    });
+    expect(openSpy.calledOnce).to.be.false;
+
+    const button = screen.getByTestId('interactive-popover-close-button');
     button.click();
     expect(openSpy.calledOnce).to.be.true;
     expect(openSpy.firstCall.firstArg).to.equal(false);

@@ -7,33 +7,33 @@ import reducer, {
   HANDLE_ERROR
 } from './error';
 
-describe('handle error name module', () => {
+describe('handle error name module', function() {
   const error = new Error('testing');
 
-  describe('#reducer', () => {
-    context('when an action is provided', () => {
-      context('when the action is handle error', () => {
-        it('returns the new state', () => {
+  describe('#reducer', function() {
+    context('when an action is provided', function() {
+      context('when the action is handle error', function() {
+        it('returns the new state', function() {
           expect(reducer(undefined, handleError(error))).to.equal(error);
         });
       });
 
-      context('when the action is clear error', () => {
-        it('returns null', () => {
+      context('when the action is clear error', function() {
+        it('returns null', function() {
           expect(reducer(undefined, clearError())).to.equal(null);
         });
       });
     });
 
-    context('when an action is not provided', () => {
-      it('returns the default state', () => {
+    context('when an action is not provided', function() {
+      it('returns the default state', function() {
         expect(reducer(undefined, {})).to.equal(INITIAL_STATE);
       });
     });
   });
 
-  describe('#handleError', () => {
-    it('returns the action', () => {
+  describe('#handleError', function() {
+    it('returns the action', function() {
       expect(handleError(error)).to.deep.equal({
         type: HANDLE_ERROR,
         error: error
@@ -41,8 +41,8 @@ describe('handle error name module', () => {
     });
   });
 
-  describe('#clearError', () => {
-    it('returns the action', () => {
+  describe('#clearError', function() {
+    it('returns the action', function() {
       expect(clearError()).to.deep.equal({
         type: CLEAR_ERROR
       });

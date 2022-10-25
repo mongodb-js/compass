@@ -55,6 +55,7 @@ function InfoModal({
       trackingId="shell_info_modal"
       setOpen={onSetOpen}
       contentClassName={modalContentWrapperStyles}
+      data-testid="shell-info-modal"
     >
       <div className={modalContentStyles}>
         <ModalTitle>mongosh {mongoshVersion}</ModalTitle>

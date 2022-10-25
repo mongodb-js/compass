@@ -97,7 +97,6 @@
     "prop-types": "^15.7.2",
     "react-dom": "^16.14.0",
     "react-fontawesome": "^1.6.1",
-    "react-tooltip": "^3.11.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^3.0.2",

@@ -33,6 +33,7 @@ class BreadcrumbComponent extends React.PureComponent {
     return (
       <div className={`${BEM_BASE}-container`}>
         <button
+          type="button"
           onClick={this.onHomeClicked.bind(this)}
           className={`${BEM_BASE}-tab`}
         >
@@ -47,6 +48,7 @@ class BreadcrumbComponent extends React.PureComponent {
           displayName = displayName.concat(name);
           return (
             <button
+              type="button"
               key={i}
               onClick={() => this.onTabClicked(i)}
               className={this.getPathClassName(i)}

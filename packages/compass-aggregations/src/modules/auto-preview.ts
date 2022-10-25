@@ -1,7 +1,7 @@
 import type { AnyAction } from "redux";
 import type { PipelineBuilderThunkAction } from ".";
 import { NEW_PIPELINE } from './import-pipeline';
-import { runStage } from "./pipeline";
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 
 export enum ActionTypes {
@@ -36,9 +36,6 @@ export const toggleAutoPreview = (
       type: ActionTypes.AutoPreviewToggled,
       value: newVal
     });
-
-    if (newVal) {
-      dispatch(runStage(0, true /* force execute */));
-    }
+    dispatch(updatePipelinePreview());
   };
 };

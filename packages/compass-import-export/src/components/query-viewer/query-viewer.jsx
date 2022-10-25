@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import getShellJS from '../../utils/get-shell-js';
-import { Editor, EditorVariant } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 import styles from './query-viewer.module.less';
 
