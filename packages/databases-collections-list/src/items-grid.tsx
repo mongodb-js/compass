@@ -75,6 +75,7 @@ interface RenderItem<T> {
 }
 
 type ItemsGridProps<T> = {
+  isReadonly: boolean;
   itemType: 'collection' | 'database';
   itemGridWidth: number;
   itemGridHeight: number;
@@ -127,6 +128,7 @@ const GridControls = () => {
 };
 
 export const ItemsGrid = <T extends Item>({
+  isReadonly,
   itemType,
   itemGridWidth,
   itemGridHeight,
@@ -145,7 +147,11 @@ export const ItemsGrid = <T extends Item>({
     },
     [itemType]
   );
-  const createControls = useCreateControls(itemType, onCreateItemClick);
+  const createControls = useCreateControls(
+    isReadonly,
+    itemType,
+    onCreateItemClick
+  );
   const [sortControls, sortState] = useSortControls(sortBy);
   const [viewTypeControls, viewType] = useViewTypeControls({
     onChange: onViewTypeChange,

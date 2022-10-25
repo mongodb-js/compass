@@ -9,7 +9,6 @@ import {
   useAppRegistryComponent,
   useAppRegistryRole,
 } from '../contexts/app-registry-context';
-import preferences from 'compass-preferences-model';
 
 const verticalSplitStyles = css({
   width: '100vw',
@@ -62,11 +61,7 @@ export default function Workspace({
             <WorkspaceContent namespace={namespace} />
           </div>
         </div>
-        <div>
-          {!preferences.getPreferences().readOnly && GlobalShellComponent && (
-            <GlobalShellComponent />
-          )}
-        </div>
+        <div>{GlobalShellComponent && <GlobalShellComponent />}</div>
       </div>
 
       {FindInPage && <FindInPage />}

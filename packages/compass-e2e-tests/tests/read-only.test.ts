@@ -3,28 +3,11 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { expect } from 'chai';
-import type { CompassBrowser } from '../helpers/compass-browser';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { getCheckboxAndBannerState } from '../helpers/get-checkbox-and-banner-state';
 
-async function getCheckboxAndBannerState(
-  browser: CompassBrowser,
-  setting: string
-) {
-  const settingSelector = `${Selectors.SettingsModal} [data-testid="setting-${setting}"]`;
-  const checkbox = await browser.$(`${settingSelector} input[type="checkbox"]`);
-  const disabled = await checkbox.getAttribute('disabled');
-  const value = await checkbox.getAttribute('aria-checked'); // .getValue() always returns 'on'?
-  const banner = await browser.$(
-    `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"]`
-  );
-  const bannerText = (await banner.isExisting())
-    ? await banner.getText()
-    : null;
-  return { disabled, value, bannerText };
-}
-
-describe.only('readOnly: true / Read-Only Edition', function () {
+describe('readOnly: true / Read-Only Edition', function () {
   let tmpdir: string;
   let i = 0;
 

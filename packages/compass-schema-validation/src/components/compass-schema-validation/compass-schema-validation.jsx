@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { pick } from 'lodash';
 import ValidationStates from '../validation-states';
 import {
   validatorChanged,
@@ -42,17 +41,22 @@ class CompassSchemaValidation extends Component {
  *
  * @returns {Object} The mapped properties.
  */
-const mapStateToProps = (state) =>
-  pick(state, [
-    'serverVersion',
-    'validation',
-    'fields',
-    'namespace',
-    'sampleDocuments',
-    'isZeroState',
-    'isLoaded',
-    'editMode',
-  ]);
+const mapStateToProps = (state) => ({
+  serverVersion: state.serverVersion,
+  validation: state.validation,
+  fields: state.fields,
+  namespace: state.namespace,
+  sampleDocuments: state.sampleDocuments,
+  isZeroState: state.isZeroState,
+  isLoaded: state.isLoaded,
+  editMode: state.editMode,
+  isEditable:
+    !state.editMode.collectionReadOnly &&
+    !state.editMode.collectionTimeSeries &&
+    !state.editMode.preferencesReadonly &&
+    !state.editMode.writeStateStoreReadOnly &&
+    !state.editMode.oldServerReadOnly,
+});
 
 /**
  * Connect the redux store to the component (dispatch).

@@ -1,16 +1,39 @@
-/**
- * The initial state.
- */
-export const INITIAL_STATE = false;
+import preferences from 'compass-preferences-model';
 
 /**
- * The reducer.
- *
- * @param {Boolean} state The state.
- * @param {Object} action The action.
- *
- * @returns {Boolean} The state.
+ * The readonly changed action name.
  */
-export default function reducer(state = INITIAL_STATE) {
+export const READONLY_CHANGED =
+ 'aggregations/is-readonly/READONLY_CHANGED';
+
+/**
+ * The initial state of the is readonly attribute.
+ */
+export const INITIAL_STATE = !!preferences.getPreferences().readOnly;
+
+/**
+ * Reducer function doesn't do anything since we're based on process.
+ *
+ * @param state - The state.
+ * @param action - The action.
+ *
+ * @returns he state.
+ */
+export default function reducer(state = INITIAL_STATE, action) {
+  if (action.type === READONLY_CHANGED) {
+    return action.isReadonly;
+  }
   return state;
 }
+
+/**
+ * Action creator for readonly changed events.
+ *
+ * @param isReadonly - Is the readonly.
+ *
+ * @returns The readonly view changed action.
+ */
+export const readonlyChanged = (isReadonly) => ({
+  type: READONLY_CHANGED,
+  isReadonly,
+});

@@ -43,6 +43,7 @@
     "@mongodb-js/compass-utils": "^0.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "@mongosh/node-runtime-worker-thread": "^1.6.0",
+    "compass-preferences-model": "^2.0.0",
     "react": "^16.14.0"
   },
   "peerDependencies": {
@@ -51,6 +52,7 @@
     "@mongodb-js/compass-utils": "^0.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",
     "@mongosh/node-runtime-worker-thread": "^1.6.0",
+    "compass-preferences-model": "^2.0.0",
     "react": "^16.14.0"
   },
   "devDependencies": {

@@ -5,7 +5,6 @@ import type { Actions } from '@mongodb-js/compass-databases-navigation';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import toNS from 'mongodb-ns';
 import { toggleDatabaseExpanded } from '../modules/databases';
-import preferences from 'compass-preferences-model';
 
 function mapStateToProps(state: any) {
   // TODO: type state
@@ -17,6 +16,7 @@ function mapStateToProps(state: any) {
       activeNamespace,
     },
     instance,
+    isReadonly,
   } = state;
   const status = instance?.databasesStatus;
   const isReady =
@@ -29,9 +29,7 @@ function mapStateToProps(state: any) {
     ])
   );
   const isReadOnly =
-    preferences.getPreferences().readOnly ||
-    instance?.dataLake.isDataLake ||
-    !instance?.isWritable;
+    isReadonly || instance?.dataLake.isDataLake || !instance?.isWritable;
   return {
     isReady,
     isReadOnly,

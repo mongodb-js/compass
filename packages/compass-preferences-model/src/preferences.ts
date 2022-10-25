@@ -149,7 +149,7 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   return (v, s) => ({
     value: v(property) && !v('readOnly'),
     state:
-      s(property) ?? s('readOnly') ?? (v('readOnly') ? undefined : 'derived'),
+      s(property) ?? s('readOnly') ?? (v('readOnly') ? 'derived' : undefined),
   });
 }
 
@@ -261,7 +261,7 @@ const modelPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Enable Read-Only',
+      short: 'Set Read-Only Mode',
       long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
     },
   },

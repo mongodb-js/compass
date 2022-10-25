@@ -18,6 +18,8 @@ import {
   inProgressIndexRemoved,
   inProgressIndexFailed,
 } from '../modules/in-progress-indexes';
+import { readonlyChanged } from '../modules/is-readonly';
+import preferences from 'compass-preferences-model';
 
 /**
  * Handle setting up the data provider.
@@ -98,6 +100,10 @@ const configureStore = (options = {}) => {
     const isReadonlyView = options.isReadonly;
     store.dispatch(readonlyViewChanged(isReadonlyView));
   }
+
+  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+    store.dispatch(readonlyChanged(readOnly));
+  });
 
   if (options.dataProvider) {
     setDataProvider(

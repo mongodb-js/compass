@@ -68,6 +68,7 @@ class Collections extends PureComponent {
       <CollectionsList
         key={databaseName}
         collections={collections}
+        isReadonly={isReadonly}
         {...actions}
       />
     );

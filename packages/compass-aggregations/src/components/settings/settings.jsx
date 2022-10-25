@@ -21,7 +21,7 @@ class Settings extends PureComponent {
     setSettingsSampleSize: PropTypes.func.isRequired,
     setSettingsLimit: PropTypes.func.isRequired,
     applySettings: PropTypes.func.isRequired,
-    runStage: PropTypes.func.isRequired
+    runStage: PropTypes.func
   };
 
   onCancelClicked(evt) {

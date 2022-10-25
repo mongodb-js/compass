@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { Shell } from '@mongosh/browser-repl';
 import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
 
+import { INITIAL_STATE as READONLY_INITIAL_STATE } from '../../modules/is-readonly';
+
 import InfoModal from '../info-modal';
 import ShellHeader from '../shell-header';
 
@@ -51,7 +53,8 @@ export class CompassShell extends Component {
     emitShellPluginOpened: PropTypes.func,
     runtime: PropTypes.object,
     shellOutput: PropTypes.array,
-    historyStorage: PropTypes.object
+    historyStorage: PropTypes.object,
+    isReadonly: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -181,7 +184,7 @@ export class CompassShell extends Component {
       showInfoModal
     } = this.state;
 
-    if (!this.props.runtime || !this.state.initialHistory) {
+    if (this.props.isReadonly || !this.props.runtime || !this.state.initialHistory) {
       return (<div />);
     }
 
@@ -250,6 +253,7 @@ export default connect(
         state.appRegistry.globalAppRegistry.emit('compass:compass-shell:opened');
       }
     },
-    runtime: state.runtime ? state.runtime.runtime : null
+    runtime: state.runtime ? state.runtime.runtime : null,
+    isReadonly: state.isReadonly ? state.isReadonly : READONLY_INITIAL_STATE
   })
 )(CompassShell);

@@ -93,7 +93,7 @@ class Databases extends PureComponent {
         : {}
     );
 
-    return <DatabasesList databases={databases} {...actions} />;
+    return <DatabasesList databases={databases} isReadonly={isReadonly} {...actions} />;
   }
 }
 

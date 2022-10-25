@@ -119,17 +119,6 @@ export const setIsReadonly = (store, isReadonly) => {
 };
 
 /**
- * Set the isPreferencesReadonly flag in the store.
- *
- * @param {Store} store - The store.
- */
-export const setIsPreferencesReadonly = (store) => {
-  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    store.setState({ isPreferencesReadonly: readOnly });
-  });
-};
-
-/**
  * Set the isTimeSeries flag in the store.
  *
  * @param {Store} store - The store.
@@ -167,6 +156,21 @@ export const setGlobalAppRegistry = (store, appRegistry) => {
  */
 export const setLocalAppRegistry = (store, appRegistry) => {
   store.localAppRegistry = appRegistry;
+};
+
+/**
+ * Determine if the document list is editable.
+ *
+ * @param {Object} opts - The options to determine if the list is editable.
+ *
+ * @returns {Boolean} If the list is editable.
+ */
+export const isListEditable = ({
+  isDataLake,
+  isReadonly,
+  isPreferencesReadonly,
+}) => {
+  return !isDataLake && !isReadonly && !isPreferencesReadonly;
 };
 
 /**
@@ -304,7 +308,11 @@ const configureStore = (options = {}) => {
      */
     onCollectionChanged(ns) {
       const nsobj = toNS(ns);
-      const editable = this.isListEditable();
+      const editable = isListEditable({
+        isDataLake: store.state.isDataLake,
+        isReadonly: store.state.isDataLake,
+        isPreferencesReadonly: preferences.getPreferences().readOnly,
+      });
       this.setState({
         ns: ns,
         collection: nsobj.collection,
@@ -334,19 +342,6 @@ const configureStore = (options = {}) => {
       ) {
         this.setState({ outdated: true });
       }
-    },
-
-    /**
-     * Determine if the document list is editable.
-     *
-     * @returns {Boolean} If the list is editable.
-     */
-    isListEditable() {
-      return (
-        !this.state.isDataLake &&
-        !this.state.isReadonly &&
-        !this.state.isPreferencesReadonly
-      );
     },
 
     /**
@@ -1218,7 +1213,13 @@ const configureStore = (options = {}) => {
           status: this.isInitialQuery(query)
             ? DOCUMENTS_STATUS_FETCHED_INITIAL
             : DOCUMENTS_STATUS_FETCHED_CUSTOM,
-          isEditable: this.hasProjection(query) ? false : this.isListEditable(),
+          isEditable: this.hasProjection(query)
+            ? false
+            : isListEditable({
+                isDataLake: store.state.isDataLake,
+                isReadonly: store.state.isDataLake,
+                isPreferencesReadonly: preferences.getPreferences().readOnly,
+              }),
           error: null,
           docs: docs.map((doc) => new HadronDocument(doc)),
           page: 0,
@@ -1374,7 +1375,15 @@ const configureStore = (options = {}) => {
     setIsReadonly(store, options.isReadonly);
   }
 
-  setIsPreferencesReadonly(store);
+  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+    store.setState({
+      isEditable: isListEditable({
+        isDataLake: store.state.isDataLake,
+        isReadonly: store.state.isDataLake,
+        isPreferencesReadonly: readOnly,
+      }),
+    });
+  });
 
   if (options.namespace) {
     setNamespace(store, options.namespace);

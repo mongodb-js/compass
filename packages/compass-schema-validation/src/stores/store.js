@@ -24,12 +24,6 @@ export const setDataProvider = (store, error, dataProvider) => {
   store.dispatch(dataServiceConnected(error, dataProvider));
 };
 
-export const setHadronReadOnly = (store) => {
-  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    store.dispatch(editModeChanged({ hadronReadOnly: readOnly }));
-  });
-};
-
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
  */
@@ -65,28 +59,38 @@ const configureStore = (options = {}) => {
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
     const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
-    const instance = instanceStore.getState().instance;
+    const { instance } = instanceStore.getState();
 
-    const changeEditMode = () => {
-      const editMode = {
-        collectionTimeSeries: !!options.isTimeSeries,
-        collectionReadOnly: options.isReadonly ? true : false,
-        hadronReadOnly: !!preferences.getPreferences().readOnly,
-        writeStateStoreReadOnly: !instance.isWritable,
-        oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
-      };
-      store.dispatch(editModeChanged(editMode));
+    const setEditMode = () => {
+      store.dispatch(
+        editModeChanged({
+          collectionTimeSeries: !!options.isTimeSeries,
+          collectionReadOnly: options.isReadonly ? true : false,
+          preferencesReadonly: preferences.getPreferences().readOnly,
+          writeStateStoreReadOnly: !instance.isWritable,
+          oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
+        })
+      );
     };
 
     // set the initial value
-    changeEditMode();
+    setEditMode();
 
-    // set hadronReadOnly if readOnly value has cganged in Compass settings.
-    setHadronReadOnly(store);
+    preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+      store.dispatch(
+        editModeChanged({
+          preferencesReadonly: readOnly,
+        })
+      );
+    });
 
     // isWritable can change later
     instance.on('change:isWritable', () => {
-      changeEditMode();
+      store.dispatch(
+        editModeChanged({
+          writeStateStoreReadOnly: !instance.isWritable,
+        })
+      );
     });
 
     store.dispatch(serverVersionChanged(instance.build.version));

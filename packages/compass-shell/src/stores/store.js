@@ -4,6 +4,8 @@ import { setupRuntime } from '../modules/runtime';
 import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import preferences from 'compass-preferences-model';
+import { readonlyChanged } from '../modules/is-readonly';
 
 const { log, debug, track } = createLoggerAndTelemetry('COMPASS-SHELL');
 
@@ -18,6 +20,10 @@ export default class CompassShellStore {
     debug('activated');
 
     this.globalAppRegistry = appRegistry;
+
+    preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+      this.reduxStore.dispatch(readonlyChanged(readOnly));
+    });
 
     appRegistry.on('data-service-connected', this.onDataServiceConnected);
 

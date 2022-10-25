@@ -120,18 +120,8 @@ export const fetchIndexes = (): ThunkAction<
   LoadIndexesAction | RefreshFinishedAction | HandleErrorAction
 > => {
   return (dispatch, getState) => {
-    const {
-      isReadonly,
-      dataService,
-      namespace,
-      sortColumn,
-      sortOrder,
-      inProgressIndexes,
-    } = getState();
-
-    if (isReadonly) {
-      return _handleIndexesChanged(dispatch, []);
-    }
+    const { dataService, namespace, sortColumn, sortOrder, inProgressIndexes } =
+      getState();
 
     if (!dataService || !dataService.isConnected()) {
       dispatch({ type: RefreshActionTypes.RefreshFinished });

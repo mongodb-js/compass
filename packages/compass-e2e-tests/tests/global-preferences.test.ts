@@ -9,25 +9,8 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import * as Selectors from '../helpers/selectors';
-import type { CompassBrowser } from '../helpers/compass-browser';
 import { createNumbersCollection } from '../helpers/insert-data';
-
-async function getCheckboxAndBannerState(
-  browser: CompassBrowser,
-  setting: string
-) {
-  const settingSelector = `${Selectors.SettingsModal} [data-testid="setting-${setting}"]`;
-  const checkbox = await browser.$(`${settingSelector} input[type="checkbox"]`);
-  const disabled = await checkbox.getAttribute('disabled');
-  const value = await checkbox.getAttribute('aria-checked'); // .getValue() always returns 'on'?
-  const banner = await browser.$(
-    `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"]`
-  );
-  const bannerText = (await banner.isExisting())
-    ? await banner.getText()
-    : null;
-  return { disabled, value, bannerText };
-}
+import { getCheckboxAndBannerState } from '../helpers/get-checkbox-and-banner-state';
 
 describe('Global preferences', function () {
   let tmpdir: string;
@@ -149,7 +132,6 @@ describe('Global preferences', function () {
 
   it('allows setting networkTraffic: false and reflects that in the settings modal', async function () {
     await fs.writeFile(path.join(tmpdir, 'config'), 'networkTraffic: false\n');
-    // No settings modal opened for Isolated edition
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
@@ -171,7 +153,6 @@ describe('Global preferences', function () {
 
   it('allows setting readOnly: true and reflects that on the crud view', async function () {
     await fs.writeFile(path.join(tmpdir, 'config'), 'readOnly: true\n');
-    // No settings modal opened for Isolated edition
     const compass = await beforeTests();
     try {
       const browser = compass.browser;

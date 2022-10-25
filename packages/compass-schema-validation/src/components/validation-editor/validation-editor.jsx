@@ -103,7 +103,8 @@ class ValidationEditor extends Component {
       nextProps.validation.syntaxError !== this.props.validation.syntaxError ||
       nextProps.validation.isChanged !== this.props.validation.isChanged ||
       nextProps.serverVersion !== this.props.serverVersion ||
-      nextProps.fields.length !== this.props.fields.length
+      nextProps.fields.length !== this.props.fields.length ||
+      nextProps.isEditable !== this.props.isEditable
     );
   }
 
@@ -260,7 +261,7 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderActionsPanel() {
-    if (this.props.validation.isChanged) {
+    if (this.props.validation.isChanged && this.props.isEditable) {
       return (
         <div className={classnames(styles['validation-action-container'])}>
           <div

@@ -11,6 +11,8 @@ import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { PipelineStorage } from '../utils/pipeline-storage';
 import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
+import { readonlyChanged } from '../modules/is-readonly';
+import preferences from 'compass-preferences-model';
 
 /**
  * Refresh the input documents.
@@ -69,7 +71,7 @@ const configureStore = (options = {}) => {
       namespace: collection ? options.namespace : undefined,
       serverVersion: options.serverVersion,
       isTimeSeries: options.isTimeSeries,
-      isReadonly: options.isReadonly,
+      isReadonly: options.isReadonly || preferences.getPreferences().readOnly,
       sourceName: options.sourceName,
       isDataLake: options.isDataLake,
       env:
@@ -134,6 +136,10 @@ const configureStore = (options = {}) => {
 
     localAppRegistry.on('indexes-changed', (ixs) => {
       setIndexes(store, ixs);
+    });
+
+    preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+      store.dispatch(readonlyChanged(readOnly));
     });
   }
 

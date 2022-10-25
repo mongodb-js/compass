@@ -1,15 +1,15 @@
 import React from 'react';
 import { Button } from '@mongodb-js/compass-components';
 import { createButton } from './items-grid';
-import preferences from 'compass-preferences-model';
 
 export type ItemType = 'database' | 'collection';
 
 export function useCreateControls(
+  isReadonly: boolean,
   itemType: ItemType,
   onCreateClick?: () => void
 ): React.ReactElement | null {
-  if (preferences.getPreferences().readOnly || !onCreateClick) {
+  if (isReadonly || !onCreateClick) {
     return null;
   }
 

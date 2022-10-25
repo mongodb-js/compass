@@ -52,22 +52,8 @@ class ValidationStates extends Component {
     zeroStateChanged: PropTypes.func.isRequired,
     editMode: PropTypes.object.isRequired,
     serverVersion: PropTypes.string,
+    isEditable: PropTypes.bool,
   };
-
-  /**
-   * Checks if the validation is editable.
-   *
-   * @returns {Boolean} True if it is editable.
-   */
-  isEditable() {
-    return (
-      !this.props.editMode.collectionReadOnly &&
-      !this.props.editMode.collectionTimeSeries &&
-      !this.props.editMode.hadronReadOnly &&
-      !this.props.editMode.writeStateStoreReadOnly &&
-      !this.props.editMode.oldServerReadOnly
-    );
-  }
 
   /**
    * Renders the banner if the validation is not editable.
@@ -75,50 +61,48 @@ class ValidationStates extends Component {
    * @returns {React.Component} The component.
    */
   renderBanner() {
-    if (!this.isEditable()) {
-      if (this.props.editMode.collectionTimeSeries) {
-        return (
-          <WarningSummary
-            warnings={READ_ONLY_WARNING.collectionTimeSeries}
-            data-testid="collection-validation-warning"
-          />
-        );
-      }
+    if (this.props.editMode.collectionTimeSeries) {
+      return (
+        <WarningSummary
+          warnings={READ_ONLY_WARNING.collectionTimeSeries}
+          data-testid="collection-validation-warning"
+        />
+      );
+    }
 
-      if (this.props.editMode.collectionReadOnly) {
-        return (
-          <WarningSummary
-            warnings={READ_ONLY_WARNING.collectionReadOnly}
-            data-testid="collection-validation-warning"
-          />
-        );
-      }
+    if (this.props.editMode.collectionReadOnly) {
+      return (
+        <WarningSummary
+          warnings={READ_ONLY_WARNING.collectionReadOnly}
+          data-testid="collection-validation-warning"
+        />
+      );
+    }
 
-      if (this.props.editMode.writeStateStoreReadOnly) {
-        return (
-          <WarningSummary
-            warnings={READ_ONLY_WARNING.writeStateStoreReadOnly}
-            data-testid="collection-validation-warning"
-          />
-        );
-      }
+    if (this.props.editMode.writeStateStoreReadOnly) {
+      return (
+        <WarningSummary
+          warnings={READ_ONLY_WARNING.writeStateStoreReadOnly}
+          data-testid="collection-validation-warning"
+        />
+      );
+    }
 
-      if (this.props.editMode.oldServerReadOnly) {
-        return (
-          <Banner variant="warning">
-            <div data-testid="old-server-read-only">
-              {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
-              <Link
-                className={styles['upgrade-link']}
-                target="_blank"
-                href={DOC_UPGRADE_REVISION}
-              >
-                upgrade to MongoDB 3.2.
-              </Link>
-            </div>
-          </Banner>
-        );
-      }
+    if (this.props.editMode.oldServerReadOnly) {
+      return (
+        <Banner variant="warning">
+          <div data-testid="old-server-read-only">
+            {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
+            <Link
+              className={styles['upgrade-link']}
+              target="_blank"
+              href={DOC_UPGRADE_REVISION}
+            >
+              upgrade to MongoDB 3.2.
+            </Link>
+          </div>
+        </Banner>
+      );
     }
   }
 
@@ -145,7 +129,7 @@ class ValidationStates extends Component {
         callToAction={
           <Button
             data-testid="add-rule-button"
-            disabled={!this.isEditable()}
+            disabled={!this.props.isEditable()}
             onClick={this.props.changeZeroState.bind(this, false)}
             variant={ButtonVariant.Primary}
             size="small"
@@ -178,7 +162,7 @@ class ValidationStates extends Component {
 
     return (
       <div className={styles['content-container']}>
-        <ValidationEditor {...this.props} isEditable={this.isEditable()} />
+        <ValidationEditor {...this.props} />
         <SampleDocuments {...this.props} />
       </div>
     );
