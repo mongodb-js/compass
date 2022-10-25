@@ -1,3 +1,4 @@
+import remote from '@electron/remote';
 import {
   css,
   cx,
@@ -300,18 +301,11 @@ function ThemedHome(
     networkTraffic: boolean;
   }
 ): ReturnType<typeof Home> {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  let remote: typeof import('@electron/remote') | undefined;
-  try {
-    remote = require('@electron/remote');
-  } catch {
-    /* ignore */
-  }
   const { showWelcomeModal, networkTraffic } = props;
   const appRegistry = useAppRegistryContext();
   const getCurrentTheme = () =>
     preferences.getPreferences().lgDarkmode &&
-    remote?.nativeTheme?.shouldUseDarkColors
+    remote.nativeTheme.shouldUseDarkColors
       ? Theme.Dark
       : Theme.Light;
 
