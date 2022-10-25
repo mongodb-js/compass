@@ -76,7 +76,7 @@ const PreviewResults = ({
   if (!previewDocs) {
     return (
       <div className={centerStyles}>
-        <DocumentIcon size={spacing[6]} />
+        <DocumentIcon />
         <Body className={messageStyles}>
           Preview results to see a sample of the aggregated results from this
           pipeline.
@@ -88,7 +88,7 @@ const PreviewResults = ({
   if (previewDocs.length === 0) {
     return (
       <div className={centerStyles}>
-        <DocumentIcon size={spacing[6]} />
+        <DocumentIcon />
         <Body className={messageStyles}>No preview documents</Body>
       </div>
     );
