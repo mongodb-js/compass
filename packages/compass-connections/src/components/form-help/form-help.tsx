@@ -55,7 +55,6 @@ const createClusterButtonStyles = css({
 });
 
 const createClusterButtonLightModeStyles = css({
-  fontWeight: 'bold',
   background: palette.white,
   '&:hover': {
     background: palette.white,
