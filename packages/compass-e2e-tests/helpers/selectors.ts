@@ -346,6 +346,7 @@ export const DropCollectionDropButton =
   '[data-testid="drop_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // Shell
+export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';

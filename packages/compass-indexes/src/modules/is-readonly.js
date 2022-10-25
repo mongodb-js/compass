@@ -3,7 +3,7 @@ import preferences from 'compass-preferences-model';
 /**
  * The initial state of the is readonly attribute.
  */
-export const INITIAL_STATE = preferences.getPreferences().readOnly;
+export const INITIAL_STATE = !!preferences.getPreferences().readOnly;
 
 /**
  * Reducer function doesn't do anything since we're based on process.
