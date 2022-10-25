@@ -2,6 +2,8 @@
 export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton =
   '[data-testid="settings-modal"] [aria-label="Close modal"]';
+export const ReadOnlyCheckbox = '[data-testid="readOnly"]';
+export const SaveSettingsButton = '[data-testid="save-settings-button"]';
 
 // Welcome Modal
 export const WelcomeModal = '[data-testid="welcome-modal"]';

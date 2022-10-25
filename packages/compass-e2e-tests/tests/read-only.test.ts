@@ -58,20 +58,36 @@ describe('readOnly: true / Read-Only Edition', function () {
     }
   });
 
-  it('does not show plus icon on the siderbar to create a database', async function () {
-    const compass = await beforeTests({
-      extraSpawnArgs: ['--read-only'],
-    });
+  it('shows and hides the plus icon on the siderbar to create a database', async function () {
+    const compass = await beforeTests();
     try {
       const browser = compass.browser;
+      await browser.setFeature('readOnly', false);
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
       );
 
-      const sidebarCreateDatabaseButton = await browser.$(
+      let sidebarCreateDatabaseButton = await browser.$(
         Selectors.SidebarCreateDatabaseButton
       );
-      const isSidebarCreateDatabaseButtonExisting =
+      let isSidebarCreateDatabaseButtonExisting =
+        await sidebarCreateDatabaseButton.isExisting();
+      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(true);
+
+      await browser.openSettingsModal();
+      const settingsModal = await browser.$(Selectors.SettingsModal);
+      await settingsModal.waitForDisplayed();
+
+      await browser.clickParent(Selectors.ReadOnlyCheckbox);
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // wait for the modal to go away
+      await settingsModal.waitForDisplayed({ reverse: true });
+
+      sidebarCreateDatabaseButton = await browser.$(
+        Selectors.SidebarCreateDatabaseButton
+      );
+      isSidebarCreateDatabaseButtonExisting =
         await sidebarCreateDatabaseButton.isExisting();
       expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(false);
     } finally {
@@ -80,12 +96,11 @@ describe('readOnly: true / Read-Only Edition', function () {
     }
   });
 
-  it('does not show plus icon on the siderbar to create a collection', async function () {
-    const compass = await beforeTests({
-      extraSpawnArgs: ['--read-only'],
-    });
+  it('shows and hides the plus icon on the siderbar to create a collection', async function () {
+    const compass = await beforeTests();
     try {
       const browser = compass.browser;
+      await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
@@ -101,10 +116,27 @@ describe('readOnly: true / Read-Only Edition', function () {
       await dbElement.waitForDisplayed();
       await browser.hover(Selectors.sidebarDatabase(dbName));
 
-      const sidebarCreateCollectionButton = await browser.$(
+      let sidebarCreateCollectionButton = await browser.$(
         Selectors.CreateCollectionButton
       );
-      const isSidebarCreateCollectionButtonExisting =
+      let isSidebarCreateCollectionButtonExisting =
+        await sidebarCreateCollectionButton.isExisting();
+      expect(isSidebarCreateCollectionButtonExisting).to.be.equal(true);
+
+      await browser.openSettingsModal();
+      const settingsModal = await browser.$(Selectors.SettingsModal);
+      await settingsModal.waitForDisplayed();
+
+      await browser.clickParent(Selectors.ReadOnlyCheckbox);
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // wait for the modal to go away
+      await settingsModal.waitForDisplayed({ reverse: true });
+
+      sidebarCreateCollectionButton = await browser.$(
+        Selectors.SidebarCreateDatabaseButton
+      );
+      isSidebarCreateCollectionButtonExisting =
         await sidebarCreateCollectionButton.isExisting();
       expect(isSidebarCreateCollectionButtonExisting).to.be.equal(false);
     } finally {
@@ -113,22 +145,38 @@ describe('readOnly: true / Read-Only Edition', function () {
     }
   });
 
-  it('does not show create database button on instance tab', async function () {
-    const compass = await beforeTests({
-      extraSpawnArgs: ['--read-only'],
-    });
+  it('shows and hides the create database button on instance tab', async function () {
+    const compass = await beforeTests();
     try {
       const browser = compass.browser;
+      await browser.setFeature('readOnly', false);
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
       );
 
       await browser.navigateToInstanceTab('Databases');
 
-      const instanceCreateDatabaseButton = await browser.$(
+      let instanceCreateDatabaseButton = await browser.$(
         Selectors.InstanceCreateDatabaseButton
       );
-      const isInstanceCreateDatabaseButtonExisting =
+      let isInstanceCreateDatabaseButtonExisting =
+        await instanceCreateDatabaseButton.isExisting();
+      expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(true);
+
+      await browser.openSettingsModal();
+      const settingsModal = await browser.$(Selectors.SettingsModal);
+      await settingsModal.waitForDisplayed();
+
+      await browser.clickParent(Selectors.ReadOnlyCheckbox);
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // wait for the modal to go away
+      await settingsModal.waitForDisplayed({ reverse: true });
+
+      instanceCreateDatabaseButton = await browser.$(
+        Selectors.SidebarCreateDatabaseButton
+      );
+      isInstanceCreateDatabaseButtonExisting =
         await instanceCreateDatabaseButton.isExisting();
       expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(false);
     } finally {
@@ -137,20 +185,34 @@ describe('readOnly: true / Read-Only Edition', function () {
     }
   });
 
-  it('does not show create collection button on instance tab', async function () {
-    const compass = await beforeTests({
-      extraSpawnArgs: ['--read-only'],
-    });
+  it('shows and hides the create collection button on instance tab', async function () {
+    const compass = await beforeTests();
     try {
       const browser = compass.browser;
+      await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
       );
 
       await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
-      const addDataButton = await browser.$(Selectors.AddDataButton);
-      const isAddDataButtonExisting = await addDataButton.isExisting();
+
+      let addDataButton = await browser.$(Selectors.AddDataButton);
+      let isAddDataButtonExisting = await addDataButton.isExisting();
+      expect(isAddDataButtonExisting).to.be.equal(true);
+
+      await browser.openSettingsModal();
+      const settingsModal = await browser.$(Selectors.SettingsModal);
+      await settingsModal.waitForDisplayed();
+
+      await browser.clickParent(Selectors.ReadOnlyCheckbox);
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // wait for the modal to go away
+      await settingsModal.waitForDisplayed({ reverse: true });
+
+      addDataButton = await browser.$(Selectors.SidebarCreateDatabaseButton);
+      isAddDataButtonExisting = await addDataButton.isExisting();
       expect(isAddDataButtonExisting).to.be.equal(false);
     } finally {
       await afterTest(compass, this.currentTest);
@@ -158,7 +220,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     }
   });
 
-  it('does not show mongodb shell', async function () {
+  it('hides mongodb shell', async function () {
     const compass = await beforeTests({
       extraSpawnArgs: ['--read-only'],
     });
@@ -167,6 +229,8 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
       );
+
+      await browser.screenshot('shell.png');
 
       const shellSection = await browser.$(Selectors.ShellSection);
       const isShellSectionExisting = await shellSection.isExisting();
