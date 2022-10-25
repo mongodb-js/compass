@@ -99,7 +99,7 @@ const mongodbAceThemeCssText = css`
     background: ${palette.green.base};
   }
   .ace-mongodb .ace_marker-layer .ace_bracket {
-    margin: -1px 0 0 -1px;
+    margin: 0px;
     border: 1px solid ${palette.gray.light1};
   }
   .ace-mongodb .ace_gutter-active-line {
