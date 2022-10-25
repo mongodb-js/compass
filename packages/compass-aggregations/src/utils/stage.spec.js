@@ -118,27 +118,14 @@ describe('utils', function() {
     });
 
     context('when is not a read-only distribution of Compass', function() {
-      let envBkp;
-      beforeEach(function() {
-        envBkp = process.env.HADRON_READONLY;
-      });
-
-      afterEach(function() {
-        process.env.HADRON_READONLY = envBkp;
-      });
-
-      it('returns output stages if process.env.HADRON_READONLY === "false"', function() {
-        process.env.HADRON_READONLY = 'false';
-
-        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+      it('returns output stages if isReadonly is false', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', isReadonly: false })
           .filter((o) => (['$out', '$merge'].includes(o.name)));
 
         expect(searchStages.length).to.be.equal(2);
       });
 
-      it('returns output stages if process.env.HADRON_READONLY is undefined', function() {
-        process.env.HADRON_READONLY = undefined;
-
+      it('returns output stages if isReadonly is undefined', function() {
         const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
           .filter((o) => (['$out', '$merge'].includes(o.name)));
 
@@ -147,19 +134,8 @@ describe('utils', function() {
     });
 
     context('when is a read-only distribution of Compass', function() {
-      let envBkp;
-      beforeEach(function() {
-        envBkp = process.env.HADRON_READONLY;
-      });
-
-      afterEach(function() {
-        process.env.HADRON_READONLY = envBkp;
-      });
-
-      it('filters out output stages if process.env.HADRON_READONLY === "true"', function() {
-        process.env.HADRON_READONLY = 'true';
-
-        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+      it('filters out output stages if isReadonly is true', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', isReadonly: true })
           .filter((o) => (['$out', '$merge'].includes(o.name)));
 
         expect(searchStages.length).to.be.equal(0);

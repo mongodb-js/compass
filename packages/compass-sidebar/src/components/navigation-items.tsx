@@ -11,6 +11,7 @@ import {
   mergeProps,
   useDefaultAction,
 } from '@mongodb-js/compass-components';
+import preferences from 'compass-preferences-model';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
 
@@ -232,7 +233,7 @@ const mapStateToProps = (state: {
 }) => ({
   currentLocation: state.location,
   isReadOnly:
-    process.env.HADRON_READONLY === 'true' ||
+    preferences.getPreferences().readOnly ||
     state.instance?.dataLake.isDataLake ||
     !state.instance?.isWritable,
 });

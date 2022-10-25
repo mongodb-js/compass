@@ -78,6 +78,7 @@
     "eslint": "^7.25.0",
     "hadron-app": "^5.1.1",
     "hadron-app-registry": "^9.0.1",
+    "hadron-ipc": "^3.1.0",
     "javascript-stringify": "^2.0.1",
     "less": "^3.11.1",
     "lodash": "^4.17.15",

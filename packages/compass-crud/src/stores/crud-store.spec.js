@@ -214,6 +214,7 @@ describe('store', function () {
         isDataLake: false,
         isEditable: true,
         isReadonly: false,
+        isPreferencesReadonly: false,
         isTimeSeries: false,
         isWritable: false,
         ns: '',
@@ -404,7 +405,6 @@ describe('store', function () {
 
     context('when running in a readonly context', function () {
       beforeEach(function () {
-        process.env.HADRON_READONLY = 'true';
         actions = configureActions();
         store = configureStore({
           localAppRegistry: localAppRegistry,
@@ -414,16 +414,13 @@ describe('store', function () {
             error: null,
             dataProvider: dataService,
           },
-          actions: actions,
+          actions,
         });
         store.state.table.path = ['test-path'];
         store.state.table.types = ['test-types'];
         store.state.table.doc = {};
         store.state.table.editParams = {};
-      });
-
-      afterEach(function () {
-        process.env.HADRON_READONLY = 'false';
+        store.state.isPreferencesReadonly = true;
       });
 
       it('resets the state for the new readonly collection', async function () {

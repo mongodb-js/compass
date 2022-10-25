@@ -119,6 +119,17 @@ export const setIsReadonly = (store, isReadonly) => {
 };
 
 /**
+ * Set the isPreferencesReadonly flag in the store.
+ *
+ * @param {Store} store - The store.
+ */
+export const setIsPreferencesReadonly = (store) => {
+  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+    store.setState({ isPreferencesReadonly: readOnly });
+  });
+};
+
+/**
  * Set the isTimeSeries flag in the store.
  *
  * @param {Store} store - The store.
@@ -195,6 +206,7 @@ const configureStore = (options = {}) => {
         query: this.getInitialQueryState(),
         isDataLake: false,
         isReadonly: false,
+        isPreferencesReadonly: !!preferences.getPreferences().readOnly,
         isTimeSeries: false,
         status: DOCUMENTS_STATUS_INITIAL,
         debouncingLoad: false,
@@ -333,7 +345,7 @@ const configureStore = (options = {}) => {
       return (
         !this.state.isDataLake &&
         !this.state.isReadonly &&
-        !preferences.getPreferences().readOnly
+        !this.state.isPreferencesReadonly
       );
     },
 
@@ -1361,6 +1373,8 @@ const configureStore = (options = {}) => {
   if (options.isReadonly !== null && options.isReadonly !== undefined) {
     setIsReadonly(store, options.isReadonly);
   }
+
+  setIsPreferencesReadonly(store);
 
   if (options.namespace) {
     setNamespace(store, options.namespace);

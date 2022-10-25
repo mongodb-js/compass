@@ -24,6 +24,12 @@ export const setDataProvider = (store, error, dataProvider) => {
   store.dispatch(dataServiceConnected(error, dataProvider));
 };
 
+export const setHadronReadOnly = (store) => {
+  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+    store.dispatch(editModeChanged({ hadronReadOnly: readOnly }));
+  });
+};
+
 /**
  * The store has a combined pipeline reducer plus the thunk middleware.
  */
@@ -65,7 +71,7 @@ const configureStore = (options = {}) => {
       const editMode = {
         collectionTimeSeries: !!options.isTimeSeries,
         collectionReadOnly: options.isReadonly ? true : false,
-        hadronReadOnly: preferences.getPreferences().readOnly,
+        hadronReadOnly: !!preferences.getPreferences().readOnly,
         writeStateStoreReadOnly: !instance.isWritable,
         oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
       };
@@ -74,6 +80,9 @@ const configureStore = (options = {}) => {
 
     // set the initial value
     changeEditMode();
+
+    // set hadronReadOnly if readOnly value has cganged in Compass settings.
+    setHadronReadOnly(store);
 
     // isWritable can change later
     instance.on('change:isWritable', () => {

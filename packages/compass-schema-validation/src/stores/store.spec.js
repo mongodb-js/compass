@@ -306,16 +306,29 @@ describe('Schema Validation Store', function () {
     });
 
     context('when running in a readonly context', function () {
-      beforeEach(function () {
-        process.env.HADRON_READONLY = 'true';
+      beforeEach(async function () {
         store = configureStore({
           namespace: 'db.coll',
           globalAppRegistry: globalAppRegistry,
         });
+        await require('hadron-ipc').ipcRenderer.invoke(
+          'compass:save-preferences',
+          {
+            readOnly: true,
+          }
+        );
+        require('hadron-ipc').ipcRenderer.emit(
+          'compass:preferences-changed',
+          {},
+          {
+            readOnly: true,
+          }
+        );
       });
 
       afterEach(function () {
-        process.env.HADRON_READONLY = 'false';
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        require('hadron-ipc').ipcRenderer.invoke('test:clear-preferences');
       });
 
       it('sets hadronReadOnly property as true', function () {
