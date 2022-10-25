@@ -14,7 +14,7 @@ export const DEFAULT_PIPELINE = `[\n{}\n]`;
 export class PipelineBuilder {
   private _source: string = DEFAULT_PIPELINE;
   /* Pipeline representation of parsable source */
-  private pipeline: Document[] = [];
+  pipeline: Document[] = [];
   node: t.ArrayExpression | null = null;
   stages: Stage[] = [];
   syntaxError: PipelineParserError[] = [];

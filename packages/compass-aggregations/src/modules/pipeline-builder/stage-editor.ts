@@ -6,7 +6,7 @@ import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
-import { CONFIRM_NEW } from '../import-pipeline';
+import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import type { ENVS } from '@mongodb-js/mongodb-constants';
 import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -483,6 +483,7 @@ const reducer: Reducer<StageEditorState> = (
   if (
     action.type === RESTORE_PIPELINE ||
     action.type === CONFIRM_NEW ||
+    action.type === NEW_PIPELINE ||
     isAction<PipelineModeToggledAction>(action, PipelineModeActionTypes.PipelineModeToggled)
   ) {
     const stages = action.stages.map((stage: Stage) => {

@@ -12,8 +12,10 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import { getStageOperatorsFromPipelineSource } from './builder-helpers';
 import type { PipelineBuilder } from './pipeline-builder';
+import { getStageOperator } from '../../utils/stage';
+import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
+import { RESTORE_PIPELINE } from '../saved-pipeline';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetch',
@@ -25,7 +27,7 @@ export const enum EditorActionTypes {
 type EditorValueChangeAction = {
   type: EditorActionTypes.EditorValueChange;
   pipelineText: string;
-  stageOperators: string[];
+  pipeline: Document[];
   syntaxErrors: PipelineParserError[];
 };
 
@@ -70,14 +72,20 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     isAction<PipelineModeToggledAction>(
       action,
       PipelineModeActionTypes.PipelineModeToggled
-    )
+    ) ||
+    action.type === RESTORE_PIPELINE ||
+    action.type === CONFIRM_NEW ||
+    action.type === NEW_PIPELINE
   ) {
+    const stageOperators = action.pipeline.length > 0
+      ? action.pipeline.map(getStageOperator).filter(Boolean) as string[]
+      : state.stageOperators;
     return {
       ...state,
       serverError: null,
       previewDocs: null,
       pipelineText: action.pipelineText,
-      stageOperators: action.stageOperators,
+      stageOperators,
       syntaxErrors: action.syntaxErrors,
     };
   }
@@ -201,16 +209,12 @@ export const loadPreviewForPipeline = (
 export const changeEditorValue = (
   value: string
 ): PipelineBuilderThunkAction<void, EditorValueChangeAction> => {
-  return (dispatch, getState, { pipelineBuilder }) => {
+  return (dispatch, _getState, { pipelineBuilder }) => {
     pipelineBuilder.changeSource(value);
-    const stageOperators = getStageOperatorsFromPipelineSource(
-      getState(),
-      pipelineBuilder
-    );
     dispatch({
       type: EditorActionTypes.EditorValueChange,
       pipelineText: value,
-      stageOperators,
+      pipeline: pipelineBuilder.pipeline,
       syntaxErrors: pipelineBuilder.syntaxError
     });
     void dispatch(loadPreviewForPipeline());
