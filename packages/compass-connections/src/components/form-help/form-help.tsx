@@ -10,6 +10,7 @@ import {
   palette,
   css,
   cx,
+  withTheme,
 } from '@mongodb-js/compass-components';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -22,15 +23,19 @@ const formHelpContainerStyles = css({
   display: 'inline-block',
 });
 
+const sectionContainerStyles = css({
+  margin: 0,
+  padding: spacing[4],
+  paddingBottom: 0,
+});
+
 const atlasContainerStyles = css({
   backgroundColor: palette.green.light3,
   paddingBottom: spacing[4],
 });
 
-const sectionContainerStyles = css({
-  margin: 0,
-  padding: spacing[4],
-  paddingBottom: 0,
+const atlasContainerDarkModeStyles = css({
+  backgroundColor: palette.green.dark3,
 });
 
 const titleStyles = css({
@@ -47,6 +52,10 @@ const createClusterContainerStyles = css({
 
 const createClusterButtonStyles = css({
   fontWeight: 'bold',
+});
+
+const createClusterButtonLightModeStyles = css({
+  fontWeight: 'bold',
   background: palette.white,
   '&:hover': {
     background: palette.white,
@@ -56,34 +65,51 @@ const createClusterButtonStyles = css({
   },
 });
 
+function AtlasHelpSection({ darkMode }: { darkMode?: boolean }) {
+  return (
+    <div
+      className={cx(
+        sectionContainerStyles,
+        atlasContainerStyles,
+        darkMode && atlasContainerDarkModeStyles
+      )}
+    >
+      <Subtitle className={titleStyles}>
+        New to Compass and don&apos;t have a cluster?
+      </Subtitle>
+      <Body className={descriptionStyles}>
+        If you don&apos;t already have a cluster, you can create one for free
+        using{' '}
+        <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
+          MongoDB Atlas
+        </Link>
+      </Body>
+      <div className={createClusterContainerStyles}>
+        <Button
+          data-testid="atlas-cta-link"
+          className={cx(
+            createClusterButtonStyles,
+            !darkMode && createClusterButtonLightModeStyles
+          )}
+          onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
+          variant={ButtonVariant.PrimaryOutline}
+          href="https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product"
+          target="_blank"
+          size={ButtonSize.Small}
+        >
+          CREATE FREE CLUSTER
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+const ThemedAtlasHelpSection = withTheme(AtlasHelpSection);
+
 function FormHelp(): React.ReactElement {
   return (
     <div className={formHelpContainerStyles}>
-      <div className={cx(sectionContainerStyles, atlasContainerStyles)}>
-        <Subtitle className={titleStyles}>
-          New to Compass and don&apos;t have a cluster?
-        </Subtitle>
-        <Body className={descriptionStyles}>
-          If you don&apos;t already have a cluster, you can create one for free
-          using{' '}
-          <Link href="https://www.mongodb.com/cloud/atlas" target="_blank">
-            MongoDB Atlas
-          </Link>
-        </Body>
-        <div className={createClusterContainerStyles}>
-          <Button
-            data-testid="atlas-cta-link"
-            className={createClusterButtonStyles}
-            onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
-            variant={ButtonVariant.PrimaryOutline}
-            href="https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product"
-            target="_blank"
-            size={ButtonSize.Small}
-          >
-            CREATE FREE CLUSTER
-          </Button>
-        </div>
-      </div>
+      <ThemedAtlasHelpSection />
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
           How do I find my connection string in Atlas?
