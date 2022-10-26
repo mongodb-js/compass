@@ -67,7 +67,7 @@ describe('ExportToLanguage Store', function () {
         appRegistry.emit('open-aggregation-export-to-language', agg);
       });
 
-      it('adds input expression to the state', function (done) {
+      it.only('adds input expression to the state', function (done) {
         unsubscribe = subscribeCheck(store, agg, (s) => (
           s.inputExpression.aggregation === agg
         ), done);
