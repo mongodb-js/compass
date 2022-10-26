@@ -14,16 +14,16 @@ import {
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 
 const aggregationCommentModeId = 'aggregation-comment-mode';
-const aggregationCommentModeDescriptionId = 'aggregation-comment-mode-description';
-const aggregationCommentModeLabelId = 'aggregation-comment-mode-label';
+const aggregationCommentModeDescriptionId = 'aggregation-settings-comment-mode-description';
+const aggregationCommentModeLabelId = 'aggregation-settings-comment-mode-label';
 
 const aggregationSampleSizeId = 'aggregation-sample-size';
-const aggregationSampleSizeDescriptionId = 'aggregation-sample-size-description';
-const aggregationSampleSizeLabelId = 'aggregation-sample-size-label';
+const aggregationSampleSizeDescriptionId = 'aggregation-settings-sample-size-description';
+const aggregationSampleSizeLabelId = 'aggregation-settings-sample-size-label';
 
 const aggregationLimitId = 'aggregation-limit';
-const aggregationLimitDescriptionId = 'aggregation-limit-description';
-const aggregationLimitLabelId = 'aggregation-limit-label';
+const aggregationLimitDescriptionId = 'aggregation-settings-limit-description';
+const aggregationLimitLabelId = 'aggregation-settings-limit-label';
 
 const headerStyles = css({
   display: 'flex',

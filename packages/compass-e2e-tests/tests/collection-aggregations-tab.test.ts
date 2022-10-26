@@ -241,7 +241,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AggregationSettingsButton);
 
     // turn off comment mode
-    await browser.clickVisible(Selectors.AggregationCommentModeCheckbox);
+    await browser.clickParent(Selectors.AggregationCommentModeCheckbox);
 
     // set number of preview documents to 100
     const sampleSizeElement = await browser.$(
