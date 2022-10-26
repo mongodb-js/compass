@@ -15,6 +15,7 @@ import { toggleAutoPreview } from '../../../modules/auto-preview';
 import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
+import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 
 const containerStyles = css({
   display: 'flex',
@@ -36,6 +37,7 @@ const toggleLabelStyles = css({
 
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
+  isPipelineModeDisabled: boolean;
   pipelineMode: PipelineMode;
   onToggleAutoPreview: (newVal: boolean) => void;
   onChangePipelineMode: (newVal: PipelineMode) => void;
@@ -46,6 +48,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   PipelineExtraSettingsProps
 > = ({
   isAutoPreview,
+  isPipelineModeDisabled,
   pipelineMode,
   onToggleAutoPreview,
   onChangePipelineMode,
@@ -82,11 +85,17 @@ export const PipelineExtraSettings: React.FunctionComponent<
             onChangePipelineMode(value as PipelineMode);
           }}
         >
-          <SegmentedControlOption value="builder-ui">
+          <SegmentedControlOption
+            disabled={isPipelineModeDisabled}
+            value="builder-ui"
+          >
             <Icon size="small" glyph="CurlyBraces"></Icon>
             Builder UI
           </SegmentedControlOption>
-          <SegmentedControlOption value="as-text">
+          <SegmentedControlOption
+            disabled={isPipelineModeDisabled}
+            value="as-text"
+          >
             <Icon size="small" glyph="Code"></Icon>
             As Text
           </SegmentedControlOption>
@@ -103,13 +112,13 @@ export const PipelineExtraSettings: React.FunctionComponent<
   );
 };
 
-const mapState = ({
-  autoPreview,
-  pipelineBuilder: { pipelineMode },
-}: RootState) => ({
-  isAutoPreview: autoPreview,
-  pipelineMode,
-});
+const mapState = (state: RootState) => {
+  return {
+    isAutoPreview: state.autoPreview,
+    isPipelineModeDisabled: getIsPipelineInvalidFromBuilderState(state, false),
+    pipelineMode: state.pipelineBuilder.pipelineMode,
+  };
+};
 
 const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,

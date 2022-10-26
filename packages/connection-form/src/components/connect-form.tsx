@@ -11,6 +11,7 @@ import {
   FavoriteIcon,
   Icon,
   IconButton,
+  Overline,
   H3,
   spacing,
   css,
@@ -107,9 +108,6 @@ const editFavoriteButtonStyles = css({
 
 const favoriteButtonLabelStyles = css({
   paddingTop: spacing[1],
-  color: palette.black,
-  fontWeight: 'bold',
-  fontSize: 12,
 });
 
 const connectionStringErrorStyles = css({
@@ -246,7 +244,9 @@ function ConnectForm({
                       isFavorite={!!initialConnectionInfo.favorite}
                       size={spacing[5]}
                     />
-                    <span className={favoriteButtonLabelStyles}>FAVORITE</span>
+                    <Overline className={favoriteButtonLabelStyles}>
+                      FAVORITE
+                    </Overline>
                   </div>
                 </IconButton>
               )}

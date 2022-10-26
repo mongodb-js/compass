@@ -7,7 +7,7 @@ import { expect } from 'chai';
 
 import { CompassShell } from './compass-shell';
 import ShellHeader from '../shell-header';
-import InfoModal from '../info-modal';
+import ShellInfoModal from '../shell-info-modal';
 
 function updateAndWaitAsync(wrapper) {
   wrapper.update();
@@ -107,7 +107,7 @@ describe('CompassShell', function() {
       });
 
       it('renders the info modal component', function() {
-        expect(wrapper.find(InfoModal)).to.be.present();
+        expect(wrapper.find(ShellInfoModal)).to.be.present();
       });
 
       it('renders the Shell with an output change handler', function() {

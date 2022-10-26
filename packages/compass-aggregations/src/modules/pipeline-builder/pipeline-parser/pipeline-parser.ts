@@ -2,6 +2,7 @@ import * as babelParser from '@babel/parser';
 import * as t from '@babel/types';
 import StageParser, { stageToAstComments, assertStageNode, isNodeDisabled, setNodeDisabled } from './stage-parser';
 import { generate } from './utils';
+import { PipelineParserError } from './utils';
 
 function commentsToCommentGroups(
   comments: t.Comment[]
@@ -88,7 +89,7 @@ type ParseResponse = {
 
 type ValidateResponse = {
   root: t.ArrayExpression | null;
-  errors: SyntaxError[];
+  errors: PipelineParserError[];
 };
 
 export default class PipelineParser {
@@ -113,7 +114,7 @@ export default class PipelineParser {
   static _parseStringToRoot(source: string): t.ArrayExpression {
     const root = babelParser.parseExpression(source);
     if (root.type !== 'ArrayExpression') {
-      throw new SyntaxError('Pipeline must be an array of aggregation stages');
+      throw new PipelineParserError('Pipeline must be an array of aggregation stages');
     }
     return root;
   }
@@ -122,18 +123,18 @@ export default class PipelineParser {
   // stages
   static validate(source: string): ValidateResponse {
     let root: t.ArrayExpression | null = null;
-    const errors: SyntaxError[] = [];
+    const errors: PipelineParserError[] = [];
     try {
       root = PipelineParser._parseStringToRoot(source);
       root.elements.forEach(stage => {
         try {
           assertStageNode(stage as t.Expression);
         } catch (e) {
-          errors.push(e as SyntaxError);
+          errors.push(e as PipelineParserError);
         }
       });
     } catch (e) {
-      errors.push(e as SyntaxError);
+      errors.push(e as PipelineParserError);
     }
     return { root, errors };
   }

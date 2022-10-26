@@ -1,5 +1,10 @@
 import type { Reducer } from 'redux';
+import type { Document } from 'mongodb';
+import type { PipelineBuilderThunkAction } from '..';
 import { isAction } from '../../utils/is-action';
+import { updatePipelinePreview } from './builder-helpers';
+import type Stage from './stage';
+import type { PipelineParserError } from './pipeline-parser/utils';
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
@@ -10,6 +15,10 @@ export enum ActionTypes {
 export type PipelineModeToggledAction = {
   type: ActionTypes.PipelineModeToggled;
   mode: PipelineMode;
+  pipelineText: string;
+  pipeline: Document[] | null;
+  syntaxErrors: PipelineParserError[];
+  stages: Stage[];
 };
 
 type State = PipelineMode;
@@ -26,9 +35,28 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-export const changePipelineMode = (mode: PipelineMode): PipelineModeToggledAction => ({
-  type: ActionTypes.PipelineModeToggled,
-  mode,
-});
+export const changePipelineMode = (
+  newMode: PipelineMode
+): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    // Sync the PipelineBuilder
+    if (newMode === 'as-text') {
+      pipelineBuilder.stagesToSource();
+    } else {
+      pipelineBuilder.sourceToStages();
+    }
+
+    dispatch({
+      type: ActionTypes.PipelineModeToggled,
+      mode: newMode,
+      pipelineText: pipelineBuilder.source,
+      pipeline: pipelineBuilder.pipeline,
+      syntaxErrors: pipelineBuilder.syntaxError,
+      stages: pipelineBuilder.stages,
+    });
+
+    dispatch(updatePipelinePreview());
+  }
+};
 
 export default reducer;

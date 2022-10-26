@@ -11,6 +11,7 @@ import {
   getStageOperatorFromNode,
   isStageLike,
 } from './pipeline-parser/stage-parser';
+import { PipelineParserError } from './pipeline-parser/utils';
 
 const PARSE_ERROR = 'Stage must be a properly formatted document.';
 
@@ -42,7 +43,7 @@ function assertStageValue(value: string) {
   // empty string if input is not a valid query
   const parsed = (mongodbQueryParser as any)(value);
   if (parsed === '') {
-    throw new Error(PARSE_ERROR);
+    throw new PipelineParserError(PARSE_ERROR);
   }
 }
 
@@ -70,7 +71,7 @@ export default class Stage {
   id = getId();
   node: t.Expression;
   disabled = false;
-  syntaxError: SyntaxError | null = null;
+  syntaxError: PipelineParserError | null = null;
   operator: string | null = null;
   value: string | null = null;
   constructor(
@@ -83,7 +84,7 @@ export default class Stage {
       this.operator = getStageOperatorFromNode(node);
       this.value = getStageValueFromNode(node);
     } catch (e) {
-      this.syntaxError = e as SyntaxError;
+      this.syntaxError = e as PipelineParserError;
     }
   }
 
@@ -99,7 +100,7 @@ export default class Stage {
       assertStageValue(value);
       this.syntaxError = null;
     } catch (e) {
-      this.syntaxError = e as SyntaxError;
+      this.syntaxError = e as PipelineParserError;
     }
     return this;
   }
@@ -115,7 +116,7 @@ export default class Stage {
       assertStageNode(this.node);
       this.syntaxError = null;
     } catch (e) {
-      this.syntaxError = e as SyntaxError;
+      this.syntaxError = e as PipelineParserError;
     }
     return this;
   }

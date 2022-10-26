@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Shell } from '@mongosh/browser-repl';
 import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
 
-import InfoModal from '../info-modal';
+import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
 
 const compassShellStyles = css({
@@ -190,7 +190,7 @@ export class CompassShell extends Component {
 
     return (
       <Fragment>
-        <InfoModal
+        <ShellInfoModal
           show={showInfoModal}
           hideInfoModal={this.hideInfoModal.bind(this)}
         />

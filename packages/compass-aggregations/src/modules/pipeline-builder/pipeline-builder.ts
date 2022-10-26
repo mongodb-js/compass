@@ -6,14 +6,18 @@ import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
+import { PipelineParserError } from './pipeline-parser/utils';
+import { prettify } from './pipeline-parser/utils';
 
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
 
 export class PipelineBuilder {
-  source: string;
+  private _source: string = DEFAULT_PIPELINE;
+  /* Pipeline representation of parsable source */
+  pipeline: Document[] | null = null;
   node: t.ArrayExpression | null = null;
   stages: Stage[] = [];
-  syntaxError: SyntaxError[] = [];
+  syntaxError: PipelineParserError[] = [];
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
 
@@ -23,13 +27,32 @@ export class PipelineBuilder {
     this.sourceToStages();
   }
 
+  set source(source: string) {
+    this._source = source;
+    this.parseSourceToPipeline();
+  }
+
+  get source() {
+    return this._source;
+  }
+
+  private parseSourceToPipeline() {
+    try {
+      const pipeline = parseEJSON(this.source, { mode: ParseMode.Loose });
+      this.pipeline = typeof pipeline === 'string' ? null : pipeline;
+    } catch (e) {
+      this.pipeline = null;
+    }
+  }
+
   /**
    * Completely reset pipeline state with provided source
    */
   reset(source = DEFAULT_PIPELINE) {
-    this.source = source;
+    this.pipeline = [];
     this.stages = [];
     this.syntaxError = [];
+    this.source = source;
     this.sourceToStages();
   }
 
@@ -60,9 +83,9 @@ export class PipelineBuilder {
       });
       this.syntaxError = this.stages
         .map((stage) => stage.syntaxError)
-        .filter(Boolean) as SyntaxError[];
+        .filter(Boolean) as PipelineParserError[];
     } catch (e) {
-      this.syntaxError = [e as SyntaxError];
+      this.syntaxError = [e as PipelineParserError];
     }
   }
 
@@ -84,7 +107,10 @@ export class PipelineBuilder {
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
     }
-    return parseEJSON(this.source, { mode: ParseMode.Loose });
+    if (!this.pipeline) {
+      throw new PipelineParserError('Invalid pipeline');
+    }
+    return this.pipeline;
   }
 
   /**
@@ -116,6 +142,7 @@ export class PipelineBuilder {
       this.node,
       this.stages.map((stage) => stage.node)
     );
+    this.validateSource();
   }
 
   /**
@@ -161,14 +188,15 @@ export class PipelineBuilder {
     if (stage) {
       throw stage.syntaxError;
     }
-    return `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    return prettify(code);
   }
 
   /**
    * Returns current source of the pipeline
    */
   getPipelineStringFromSource(): string {
-    return this.source;
+    return prettify(this.source);
   }
 
   /**
