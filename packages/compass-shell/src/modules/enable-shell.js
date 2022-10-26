@@ -7,7 +7,7 @@ export const ENABLE_SHELL_CHANGED =
 /**
  * The initial state of the enableShell attribute.
  */
-export const INITIAL_STATE = false;
+export const INITIAL_STATE = true;
 
 /**
  * Reducer function.
