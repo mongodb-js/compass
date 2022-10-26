@@ -1,5 +1,6 @@
 if (typeof window === 'undefined') {
-  require('global-jsdom')(undefined, { pretendToBeVisual: true });
+  require('global-jsdom')(undefined, { pretendToBeVisual: true, runScripts: 'dangerously' });
+  console.log('window', window, window === 'undefined');
 }
 
 if (!globalThis.DOMRectReadOnly) {
