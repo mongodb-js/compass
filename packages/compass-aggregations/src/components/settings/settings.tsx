@@ -13,8 +13,6 @@ import {
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 
-import styles from './settings.module.less';
-
 const aggregationCommentModeId = 'aggregation-comment-mode';
 const aggregationCommentModeDescriptionId = 'aggregation-comment-mode-description';
 const aggregationCommentModeLabelId = 'aggregation-comment-mode-label';
@@ -41,6 +39,36 @@ const headerButtonGroupStyles = css({
   alignItems: 'center',
   gap: spacing[2],
 });
+
+const containerStyles = css({
+  borderLeft: `1px solid ${palette.gray.light2}`,
+  boxShadow: `1px 1px 1px ${palette.gray.light2}`,
+  background: palette.gray.light3,
+  position: 'absolute',
+  width: '580px',
+  height: '100%',
+  top: '0',
+  right: '0px',
+  transition: 'right 0.20s ease-in-out',
+  fontSize: '1em',
+  zIndex: 500,
+});
+
+const inputGroupStyles = css({
+  margin: spacing[2],
+  padding: `${spacing[2]}px ${spacing[3]}px`,
+  backgroundColor: palette.white,
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const inputControlStyles = css({
+  minWidth: spacing[7],
+  input: { textAlign: 'right', cssFloat: 'right' },
+  'input[type="text"], input[type="number"]': { width: spacing[7] },
+});
+
+const inputMetaStyles = css({ flexGrow: 1, p: { marginTop: spacing[2] } });
 
 type SettingsProps = {
   isAtlasDeployed: boolean;
@@ -106,7 +134,7 @@ function Settings({
   }
 
   return (
-    <div className={styles.container}>
+    <div className={containerStyles}>
       <div className={headerStyles}>
         <Body weight="medium">Settings</Body>
         <div className={headerButtonGroupStyles}>
@@ -123,83 +151,81 @@ function Settings({
           >Apply</Button>
         </div>
       </div>
-      <div className={styles.body}>
-        <div className={styles['input-group']}>
-          <div className={styles['input-meta']}>
-            <Label
-              htmlFor={aggregationCommentModeId}
-              id={aggregationCommentModeLabelId}
-            >Comment Mode</Label>
-            <Description id={aggregationCommentModeDescriptionId}>
-              When enabled, adds helper comments to each stage. Only applies to
-              new stages.
-            </Description>
-          </div>
-          <div className={styles['input-control']}>
-            <Checkbox
-              id={aggregationCommentModeId}
-              aria-labelledby={aggregationCommentModeLabelId}
-              aria-describedby={aggregationCommentModeDescriptionId}
-              type="checkbox"
-              checked={commentModeChecked}
-              onChange={toggleSettingsIsCommentMode}
-            />
-          </div>
+      <div className={inputGroupStyles}>
+        <div className={inputMetaStyles}>
+          <Label
+            htmlFor={aggregationCommentModeId}
+            id={aggregationCommentModeLabelId}
+          >Comment Mode</Label>
+          <Description id={aggregationCommentModeDescriptionId}>
+            When enabled, adds helper comments to each stage. Only applies to
+            new stages.
+          </Description>
         </div>
-        <div className={styles['input-group']}>
-          <div className={styles['input-meta']}>
+        <div className={inputControlStyles}>
+          <Checkbox
+            id={aggregationCommentModeId}
+            aria-labelledby={aggregationCommentModeLabelId}
+            aria-describedby={aggregationCommentModeDescriptionId}
+            type="checkbox"
+            checked={commentModeChecked}
+            onChange={toggleSettingsIsCommentMode}
+          />
+        </div>
+      </div>
+      <div className={inputGroupStyles}>
+        <div className={inputMetaStyles}>
+          <Label
+            htmlFor={aggregationSampleSizeId}
+            id={aggregationSampleSizeLabelId}
+          >Number of Preview Documents</Label>
+          <Description id={aggregationSampleSizeDescriptionId}>Specify the number of documents to show in the preview.</Description>
+        </div>
+        <div className={inputControlStyles}>
+          <TextInput
+            id={aggregationSampleSizeId}
+            aria-labelledby={aggregationSampleSizeLabelId}
+            aria-describedby={aggregationSampleSizeDescriptionId}
+            type="number"
+            min="0"
+            placeholder={`${DEFAULT_SAMPLE_SIZE}`}
+            value={`${sampleSize}`}
+            onChange={onSampleSizeChanged}
+          />
+        </div>
+      </div>
+      {!isAtlasDeployed && (
+        <div className={inputGroupStyles}>
+          <div className={inputMetaStyles}>
             <Label
-              htmlFor={aggregationSampleSizeId}
-              id={aggregationSampleSizeLabelId}
-            >Number of Preview Documents</Label>
-            <Description id={aggregationSampleSizeDescriptionId}>Specify the number of documents to show in the preview.</Description>
+              htmlFor={aggregationLimitId}
+              id={aggregationLimitLabelId}
+            >Limit</Label>
+            <div id={aggregationLimitDescriptionId}>
+              <Description>
+                Limits input documents before $group, $bucket, and $bucketAuto
+                stages. Set a limit to make the preview run faster.
+              </Description>
+              <Description>
+                Note: this setting is only applied for the document previews, it
+                is not applied when the pipeline is run.
+              </Description>
+            </div>
           </div>
-          <div className={styles['input-control']}>
+          <div className={inputControlStyles}>
             <TextInput
-              id={aggregationSampleSizeId}
-              aria-labelledby={aggregationSampleSizeLabelId}
-              aria-describedby={aggregationSampleSizeDescriptionId}
+              id={aggregationLimitId}
+              aria-labelledby={aggregationLimitLabelId}
+              aria-describedby={aggregationLimitDescriptionId}
               type="number"
               min="0"
-              placeholder={`${DEFAULT_SAMPLE_SIZE}`}
-              value={`${sampleSize}`}
-              onChange={onSampleSizeChanged}
+              placeholder={`${DEFAULT_LARGE_LIMIT}`}
+              value={`${aggregationLimit}`}
+              onChange={onLimitChanged}
             />
           </div>
         </div>
-        {!isAtlasDeployed && (
-          <div className={styles['input-group']}>
-            <div className={styles['input-meta']}>
-              <Label
-                htmlFor={aggregationLimitId}
-                id={aggregationLimitLabelId}
-              >Limit</Label>
-              <div id={aggregationLimitDescriptionId}>
-                <Description>
-                  Limits input documents before $group, $bucket, and $bucketAuto
-                  stages. Set a limit to make the preview run faster.
-                </Description>
-                <Description>
-                  Note: this setting is only applied for the document previews, it
-                  is not applied when the pipeline is run.
-                </Description>
-              </div>
-            </div>
-            <div className={styles['input-control']}>
-              <TextInput
-                id={aggregationLimitId}
-                aria-labelledby={aggregationLimitLabelId}
-                aria-describedby={aggregationLimitDescriptionId}
-                type="number"
-                min="0"
-                placeholder={`${DEFAULT_LARGE_LIMIT}`}
-                value={`${aggregationLimit}`}
-                onChange={onLimitChanged}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
