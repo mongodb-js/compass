@@ -4,6 +4,7 @@ import type { Telemetry } from '../helpers/telemetry';
 import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import { expect } from 'chai';
 
 describe('Shell', function () {
   let compass: Compass;
@@ -30,17 +31,39 @@ describe('Shell', function () {
   });
 
   it('has an info modal', async function () {
+    await browser.setFeature('enableShell', true);
+
     await browser.showShell();
     await browser.clickVisible(Selectors.ShellInfoButton);
 
     const infoModalElement = await browser.$(Selectors.ShellInfoModal);
     await infoModalElement.waitForDisplayed();
 
-    await browser.screenshot('shell-info-modal.png');
-
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
     await infoModalElement.waitForDisplayed({ reverse: true });
 
     await browser.hideShell();
+  });
+
+  it('shows and hides shell based on settings', async function () {
+    await browser.setFeature('enableShell', true);
+
+    let shellSection = await browser.$(Selectors.ShellSection);
+    let isShellSectionExisting = await shellSection.isExisting();
+    expect(isShellSectionExisting).to.be.equal(true);
+
+    await browser.openSettingsModal();
+    const settingsModal = await browser.$(Selectors.SettingsModal);
+    await settingsModal.waitForDisplayed();
+
+    await browser.clickParent(Selectors.SettingsCheckbox('enableShell'));
+    await browser.clickVisible(Selectors.SaveSettingsButton);
+
+    // wait for the modal to go away
+    await settingsModal.waitForDisplayed({ reverse: true });
+
+    shellSection = await browser.$(Selectors.ShellSection);
+    isShellSectionExisting = await shellSection.isExisting();
+    expect(isShellSectionExisting).to.be.equal(false);
   });
 });

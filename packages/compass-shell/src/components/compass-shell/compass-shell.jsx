@@ -5,8 +5,6 @@ import { connect } from 'react-redux';
 import { Shell } from '@mongosh/browser-repl';
 import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
 
-import { INITIAL_STATE as PREFERENCES_READONLY_INITIAL_STATE } from '../../modules/preferences-readonly';
-
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
 
@@ -55,6 +53,7 @@ export class CompassShell extends Component {
     shellOutput: PropTypes.array,
     historyStorage: PropTypes.object,
     preferencesReadOnly: PropTypes.bool,
+    enableShell: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -184,7 +183,7 @@ export class CompassShell extends Component {
       showInfoModal
     } = this.state;
 
-    if (this.props.preferencesReadOnly || !this.props.runtime || !this.state.initialHistory) {
+    if (this.props.preferencesReadOnly || !this.props.enableShell || !this.props.runtime || !this.state.initialHistory) {
       return (<div />);
     }
 
@@ -254,6 +253,7 @@ export default connect(
       }
     },
     runtime: state.runtime ? state.runtime.runtime : null,
-    preferencesReadOnly: state.preferencesReadOnly ? state.preferencesReadOnly : PREFERENCES_READONLY_INITIAL_STATE
+    preferencesReadOnly: state.preferencesReadOnly ? state.preferencesReadOnly : false,
+    enableShell: state.enableShell ? state.enableShell : false
   })
 )(CompassShell);
