@@ -1,10 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  cx,
-  MenuAction,
-  Theme,
-  useTheme,
-} from '@mongodb-js/compass-components';
+import type { MenuAction } from '@mongodb-js/compass-components';
+import { cx, Theme, useTheme } from '@mongodb-js/compass-components';
 import {
   Card,
   css,
