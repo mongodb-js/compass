@@ -3,6 +3,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
+import { Styles } from 'polished/lib/types/style';
 
 export const Variant = {
   Default: ButtonVariant.Primary,
@@ -48,15 +49,19 @@ function ModalBody({
   minHeight,
   children,
 }: ModalBodyProps) {
+  const style: React.CSSProperties = {};
+
+  if (minHeight) {
+    style.minHeight = `${minHeight}px`;
+  }
+  if (scroll === false) {
+    style.overflow = 'visible';
+  }
+
   return (
     <div
-      className={cx(
-        contentStyle,
-        variantStyle[variant],
-        className,
-        !scroll && css({ overflow: 'visible' }),
-        minHeight !== undefined && css({ minHeight: `{minHeight}px` })
-      )}
+      className={cx(contentStyle, variantStyle[variant], className)}
+      style={style}
     >
       {children}
     </div>
