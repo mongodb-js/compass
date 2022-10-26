@@ -1,7 +1,13 @@
 import './index.less';
 
 import React, { useEffect, useRef } from 'react';
-import { Banner, css, spacing, palette } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  css,
+  spacing,
+  palette,
+  useScrollbars
+} from '@mongodb-js/compass-components';
 
 import GraphsComponent from './server-stats-graphs-component';
 import { realTimeDispatcher } from '../d3';
@@ -57,8 +63,10 @@ function PerformanceComponent() {
     };
   }, []);
 
+  const { className: scrollbarsClassName } = useScrollbars();
+
   return (
-    <section className="rt-perf">
+    <section className={`rt-perf ${scrollbarsClassName}`}>
       <ServerStatsToolbar eventDispatcher={eventDispatcher.current} />
       <div className={workspaceContainerStyles}>
         {ServerStatsStore.isMongos && (

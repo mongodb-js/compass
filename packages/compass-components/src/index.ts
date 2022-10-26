@@ -107,6 +107,7 @@ export {
   ThemeState,
   ThemeProvider,
 } from './hooks/use-theme';
+export { scrollbarDarkModeStyles, useScrollbars } from './hooks/use-scrollbars';
 export {
   ContentWithFallback,
   FadeInPlaceholder,

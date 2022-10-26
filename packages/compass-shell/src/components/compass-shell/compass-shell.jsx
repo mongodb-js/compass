@@ -3,7 +3,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { Shell } from '@mongosh/browser-repl';
-import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
+import {
+  ResizeHandle,
+  ResizeDirection,
+  css,
+  cx,
+  palette,
+  scrollbarDarkModeStyles
+} from '@mongodb-js/compass-components';
 
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
@@ -21,10 +28,11 @@ const compassShellContainerStyles = css({
   display: 'none',
   overflow: 'auto',
   borderTop: `1px solid ${palette.gray.dark2}`,
-  '*::-webkit-scrollbar-thumb': {
-    background: rgba(palette.gray.light1, 0.5),
-  }
-});
+  // TODO(COMPASS-6206): After this package is on the new config
+  // we can start using a darkMode ThemeProvider in this component
+  // so we can do things like `useScrollbars()` without explicity
+  // using these scrollbar styles.
+}, scrollbarDarkModeStyles);
 
 const compassShellContainerVisibleStyles = css({
   display: 'flex'

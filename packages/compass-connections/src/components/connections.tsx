@@ -44,6 +44,7 @@ const formContainerStyles = css({
   flexDirection: 'row',
   flexWrap: 'wrap',
   gap: spacing[4],
+  overflow: 'auto',
 });
 
 function Connections({
@@ -114,7 +115,7 @@ function Connections({
           duplicateConnection={duplicateConnection}
         />
       </ResizableSidebar>
-      <div>
+      <>
         <div className={formContainerStyles}>
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {
@@ -140,7 +141,7 @@ function Connections({
           </ErrorBoundary>
           <FormHelp />
         </div>
-      </div>
+      </>
       {(isConnected ||
         (!!connectionAttempt && !connectionAttempt.isClosed())) && (
         <Connecting

@@ -80,9 +80,6 @@ const connectionListSectionStyles = css({
   overflowY: 'auto',
   padding: 0,
   paddingBottom: spacing[3],
-  '::-webkit-scrollbar-thumb': {
-    background: rgba(palette.gray.light1, 0.5),
-  },
 });
 
 const connectionListStyles = css({

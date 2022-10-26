@@ -6,6 +6,7 @@ import {
   ThemeProvider,
   ToastArea,
   palette,
+  useScrollbars,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -129,6 +130,7 @@ function Home({
 }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectedDataService = useRef<DataService>();
+  const { className: scrollbarsClassName } = useScrollbars();
 
   const [
     { connectionTitle, isConnected, namespace, hasDisconnectedAtLeastOnce },
@@ -273,14 +275,17 @@ function Home({
 
   if (isConnected) {
     return (
-      <div className="with-global-bootstrap-styles">
+      <div className={`with-global-bootstrap-styles ${scrollbarsClassName}`}>
         <Workspace namespace={namespace} />
       </div>
     );
   }
 
   return (
-    <div className={homeViewStyles} data-testid="home-view">
+    <div
+      className={cx(homeViewStyles, scrollbarsClassName)}
+      data-testid="home-view"
+    >
       <div className={homePageStyles}>
         <Connections
           onConnected={onConnected}
