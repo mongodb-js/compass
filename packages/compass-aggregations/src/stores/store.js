@@ -1,4 +1,5 @@
 import { createStore, applyMiddleware } from 'redux';
+import preferences from 'compass-preferences-model';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
@@ -12,7 +13,6 @@ import { PipelineStorage } from '../utils/pipeline-storage';
 import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
 import { preferencesReadOnlyChanged } from '../modules/preferences-readonly';
-import preferences from 'compass-preferences-model';
 
 /**
  * Refresh the input documents.

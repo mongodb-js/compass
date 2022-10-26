@@ -39,8 +39,6 @@ import {
 
 import styles from './aggregations.module.less';
 
-import preferences from 'compass-preferences-model';
-
 /**
  * The core aggregations component.
  */
