@@ -6,7 +6,7 @@ import { ResizeHandle } from '@mongodb-js/compass-components';
 
 import { CompassShell } from './compass-shell';
 import ShellHeader from '../shell-header';
-import InfoModal from '../info-modal';
+import ShellInfoModal from '../shell-info-modal';
 
 function updateAndWaitAsync(wrapper) {
   wrapper.update();
@@ -101,7 +101,7 @@ describe('CompassShell', () => {
       });
 
       it('renders the info modal component', () => {
-        expect(wrapper.find(InfoModal)).to.be.present();
+        expect(wrapper.find(ShellInfoModal)).to.be.present();
       });
 
       it('renders the Shell with an output change handler', () => {

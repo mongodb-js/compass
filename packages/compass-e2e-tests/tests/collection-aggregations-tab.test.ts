@@ -92,8 +92,6 @@ async function chooseCollectionAction(
   // hover over the collection
   await browser.hover(collectionSelector);
 
-  await browser.screenshot(`choose-collection-action-${actionName}.png`);
-
   // click the show collections button
   // NOTE: This assumes it is currently closed
   await browser.clickVisible(Selectors.CollectionShowActionsButton);

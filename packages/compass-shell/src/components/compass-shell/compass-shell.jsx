@@ -7,7 +7,7 @@ import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-
 
 import { INITIAL_STATE as READONLY_INITIAL_STATE } from '../../modules/is-readonly';
 
-import InfoModal from '../info-modal';
+import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
 
 const compassShellStyles = css({
@@ -193,7 +193,7 @@ export class CompassShell extends Component {
 
     return (
       <Fragment>
-        <InfoModal
+        <ShellInfoModal
           show={showInfoModal}
           hideInfoModal={this.hideInfoModal.bind(this)}
         />

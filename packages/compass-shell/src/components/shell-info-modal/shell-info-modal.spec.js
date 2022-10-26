@@ -1,7 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import InfoModal from './info-modal';
+import ShellInfoModal from './shell-info-modal';
 
 
 describe('InfoModal [Component]', () => {
@@ -9,7 +9,7 @@ describe('InfoModal [Component]', () => {
 
   beforeEach(() => {
     component = mount(
-      <InfoModal
+      <ShellInfoModal
         show
         hideInfoModal={() => {}}
       />
@@ -21,7 +21,7 @@ describe('InfoModal [Component]', () => {
   });
 
   it('renders the title text', () => {
-    const title = component.find('h3').text();
+    const title = component.find('h1').text();
     const hasVersionZero = title.includes('mongosh v0.');
     const hasVersionOne = title.includes('mongosh v1.');
     const titleIsAccurate = hasVersionZero || hasVersionOne;

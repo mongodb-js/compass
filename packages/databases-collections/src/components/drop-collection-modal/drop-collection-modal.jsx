@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ModalStatusMessage } from 'hadron-react-components';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal } from '@mongodb-js/compass-components';
 
 import { changeCollectionName } from '../../modules/drop-collection/name';
 import { changeCollectionNameConfirmation } from '../../modules/drop-collection/name-confirmation';
@@ -64,16 +64,16 @@ class DropCollectionModal extends PureComponent {
    */
   render() {
     return (
-      <ConfirmationModal
+      <FormModal
         title="Drop Collection"
         open={this.props.isVisible}
-        onConfirm={this.props.dropCollection}
+        onSubmit={this.props.dropCollection}
         onCancel={this.onHide}
-        buttonText="Drop Collection"
+        submitButtonText="Drop Collection"
         variant="danger"
         submitDisabled={this.props.name !== this.props.nameConfirmation}
-        className={styles['drop-collection-modal']}
         trackingId="drop_collection_modal"
+        data-testid="drop-collection-modal"
       >
         <div>
           <p className={styles['drop-collection-modal-confirm']}>
@@ -88,30 +88,24 @@ class DropCollectionModal extends PureComponent {
             </span>.
           </p>
         </div>
-        <form
-          name="drop-collection-modal-form"
-          onSubmit={this.onFormSubmit}
-          data-testid="drop-collection-modal"
-        >
-          <div className="form-group">
-            <input
-              type="text"
-              className="form-control"
-              data-testid="confirm-drop-collection-name"
-              value={this.props.nameConfirmation}
-              onChange={this.onNameConfirmationChange}
-            />
-          </div>
-          {this.props.error ?
-            <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
-            : null
-          }
-          {this.props.isRunning ?
-            <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
-            : null
-          }
-        </form>
-      </ConfirmationModal>
+        <div className="form-group">
+          <input
+            type="text"
+            className="form-control"
+            data-testid="confirm-drop-collection-name"
+            value={this.props.nameConfirmation}
+            onChange={this.onNameConfirmationChange}
+          />
+        </div>
+        {this.props.error ?
+          <ModalStatusMessage icon="times" message={this.props.error.message} type="error" />
+          : null
+        }
+        {this.props.isRunning ?
+          <ModalStatusMessage icon="spinner" message="Drop in Progress" type="in-progress" />
+          : null
+        }
+      </FormModal>
     );
   }
 }
