@@ -2,24 +2,12 @@ import React, { useCallback } from 'react';
 import {
   css,
   Banner,
-  Button,
-  Modal,
+  InfoModal,
   Link,
-  ModalFooter,
-  ModalTitle,
   spacing,
   Body,
-  ButtonVariant,
   BannerVariant,
 } from '@mongodb-js/compass-components';
-
-const modalContentWrapperStyles = css({
-  padding: 'initial',
-});
-
-const modalContentStyles = css({
-  padding: spacing[5],
-});
 
 const modalBodyStyles = css({
   marginTop: spacing[3],
@@ -47,34 +35,25 @@ function NonGenuineWarningModal({
   }, [toggleIsVisible]);
 
   return (
-    <Modal
+    <InfoModal
+      title={MODAL_TITLE}
       open={isVisible}
       trackingId="non_genuine_mongodb_modal"
-      setOpen={onClose}
-      contentClassName={modalContentWrapperStyles}
+      data-testid="non-genuine-mongodb-modal"
+      showCloseButton={true}
+      closeButtonText="Continue"
+      onClose={onClose}
     >
-      <div className={modalContentStyles}>
-        <ModalTitle>{MODAL_TITLE}</ModalTitle>
-        <Banner variant={BannerVariant.Warning}>{WARNING_BANNER}</Banner>
-        <Body className={modalBodyStyles}>{DESCRIPTION}</Body>
-        <Link
-          href={LEARN_MORE_URL}
-          target="_blank"
-          data-testid="non-genuine-warning-modal-learn-more-link"
-        >
-          Learn more
-        </Link>
-      </div>
-      <ModalFooter>
-        <Button
-          onClick={onClose}
-          variant={ButtonVariant.Primary}
-          data-testid="continue-button"
-        >
-          Continue
-        </Button>
-      </ModalFooter>
-    </Modal>
+      <Banner variant={BannerVariant.Warning}>{WARNING_BANNER}</Banner>
+      <Body className={modalBodyStyles}>{DESCRIPTION}</Body>
+      <Link
+        href={LEARN_MORE_URL}
+        target="_blank"
+        data-testid="non-genuine-warning-modal-learn-more-link"
+      >
+        Learn more
+      </Link>
+    </InfoModal>
   );
 }
 
