@@ -3,7 +3,6 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
-import { Styles } from 'polished/lib/types/style';
 
 export const Variant = {
   Default: ButtonVariant.Primary,
