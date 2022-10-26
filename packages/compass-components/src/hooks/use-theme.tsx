@@ -1,4 +1,3 @@
-import preferences from 'compass-preferences-model';
 import React, { createContext, useContext } from 'react';
 
 enum Theme {
@@ -8,11 +7,12 @@ enum Theme {
 
 type ThemeState = {
   theme: Theme;
-  enabled?: true;
+  enabled: boolean;
 };
 
 const ThemeContext = createContext<ThemeState>({
   theme: Theme.Light,
+  enabled: false,
 });
 
 const ThemeProvider = ({
@@ -50,8 +50,7 @@ const withTheme = function <
   ) => {
     const theme = useTheme();
 
-    const applyTheme =
-      theme.enabled === true || preferences.getPreferences().lgDarkmode;
+    const applyTheme = theme.enabled === true;
 
     return (
       <WrappedComponent

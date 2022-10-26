@@ -4,7 +4,6 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { withTheme } from '../hooks/use-theme';
-import preferences from 'compass-preferences-model';
 
 import {
   Button,
@@ -195,8 +194,6 @@ function FileInput({
     );
   };
 
-  const applyTheme = preferences.getPreferences().lgDarkmode;
-
   return (
     <div className={cx(containerStyles, className)}>
       <div
@@ -212,7 +209,7 @@ function FileInput({
           <Label htmlFor={`${id}_file_input`} disabled={disabled}>
             <span
               className={cx({
-                [applyTheme && darkMode
+                [darkMode
                   ? disabledDescriptionDarkStyles
                   : disabledDescriptionLightStyles]: disabled,
               })}

@@ -1,4 +1,4 @@
-import remote from '@electron/remote';
+import * as remote from '@electron/remote';
 import {
   css,
   cx,
@@ -311,11 +311,15 @@ function ThemedHome(
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),
+    enabled: !!preferences.getPreferences().lgDarkmode,
   });
 
   useEffect(() => {
     const listener = () => {
-      setTheme({ theme: getCurrentTheme() });
+      setTheme({
+        theme: getCurrentTheme(),
+        enabled: !!preferences.getPreferences().lgDarkmode,
+      });
     };
 
     const unsubscribeLgDarkmodeListener = preferences.onPreferenceValueChanged(
