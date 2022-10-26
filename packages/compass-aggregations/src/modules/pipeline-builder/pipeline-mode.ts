@@ -16,7 +16,7 @@ export type PipelineModeToggledAction = {
   type: ActionTypes.PipelineModeToggled;
   mode: PipelineMode;
   pipelineText: string;
-  pipeline: Document[];
+  pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
   stages: Stage[];
 };
