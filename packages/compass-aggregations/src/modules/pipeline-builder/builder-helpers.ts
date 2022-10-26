@@ -1,5 +1,4 @@
 import type { PipelineBuilderThunkAction, RootState } from '..';
-import { getStageOperator } from '../../utils/stage';
 import type { PipelineBuilder } from './pipeline-builder';
 import { loadPreviewForStagesFrom } from './stage-editor';
 import { loadPreviewForPipeline } from './text-editor';
@@ -74,24 +73,4 @@ export function getIsPipelineInvalidFromBuilderState(
   }
   const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor;
   return Boolean((serverError && includeServerErrors) || syntaxErrors.length > 0);
-}
-
-export const getStageOperatorsFromPipelineSource = (
-  state: RootState,
-  pipelineBuilder: PipelineBuilder
-) => {
-  const { pipelineBuilder: {
-    textEditor: {
-      stageOperators: currentStageOperators
-    }
-  } } = state;
-  let stageOperators = currentStageOperators;
-  try {
-    stageOperators = pipelineBuilder.getPipelineFromSource()
-      .map(getStageOperator)
-      .filter(Boolean) as string[];
-  } catch (e) {
-    // ignore
-  }
-  return stageOperators;
 }

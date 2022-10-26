@@ -27,7 +27,7 @@ export const enum EditorActionTypes {
 type EditorValueChangeAction = {
   type: EditorActionTypes.EditorValueChange;
   pipelineText: string;
-  pipeline: Document[];
+  pipeline: Document[] | null;
   syntaxErrors: PipelineParserError[];
 };
 
@@ -77,7 +77,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     action.type === CONFIRM_NEW ||
     action.type === NEW_PIPELINE
   ) {
-    const stageOperators = action.pipeline.length > 0
+    const stageOperators = action.pipeline
       ? action.pipeline.map(getStageOperator).filter(Boolean) as string[]
       : state.stageOperators;
     return {

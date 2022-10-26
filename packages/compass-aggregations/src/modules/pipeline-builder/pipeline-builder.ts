@@ -6,7 +6,7 @@ import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
-import type { PipelineParserError } from './pipeline-parser/utils';
+import { PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
@@ -14,7 +14,7 @@ export const DEFAULT_PIPELINE = `[\n{}\n]`;
 export class PipelineBuilder {
   private _source: string = DEFAULT_PIPELINE;
   /* Pipeline representation of parsable source */
-  pipeline: Document[] = [];
+  pipeline: Document[] | null = null;
   node: t.ArrayExpression | null = null;
   stages: Stage[] = [];
   syntaxError: PipelineParserError[] = [];
@@ -38,10 +38,10 @@ export class PipelineBuilder {
 
   private parseSourceToPipeline() {
     try {
-      this.pipeline = parseEJSON(this.source, { mode: ParseMode.Loose });
+      const pipeline = parseEJSON(this.source, { mode: ParseMode.Loose });
+      this.pipeline = typeof pipeline === 'string' ? null : pipeline;
     } catch (e) {
-      // After setting source, its either validated or mapped to stages
-      // where the whole parsing takes places and errors are handled.
+      this.pipeline = null;
     }
   }
 
@@ -106,6 +106,9 @@ export class PipelineBuilder {
   getPipelineFromSource(): Document[] {
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
+    }
+    if (!this.pipeline) {
+      throw new PipelineParserError('Invalid pipeline');
     }
     return this.pipeline;
   }
