@@ -30,6 +30,7 @@ type IndexesProps = {
   isWritable: boolean;
   isReadonly: boolean;
   isReadonlyView: boolean;
+  preferencesReadOnly: boolean;
   description?: string;
   error: string | null;
   localAppRegistry: AppRegistry;
@@ -44,6 +45,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   isWritable,
   isReadonly,
   isReadonlyView,
+  preferencesReadOnly,
   description,
   error,
   localAppRegistry,
@@ -65,6 +67,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isWritable={isWritable}
         isReadonly={isReadonly}
         isReadonlyView={isReadonlyView}
+        preferencesReadOnly={preferencesReadOnly}
         errorMessage={error}
         localAppRegistry={localAppRegistry}
         isRefreshing={isRefreshing}
@@ -76,7 +79,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
           {({ height }) => (
             <IndexesTable
               indexes={indexes}
-              canDeleteIndex={isWritable && !isReadonly}
+              canDeleteIndex={isWritable && !isReadonly && !preferencesReadOnly}
               onSortTable={sortIndexes}
               onDeleteIndex={deleteIndex}
               // Preserve the (table and card bottom) paddings
@@ -94,6 +97,7 @@ const mapState = ({
   isWritable,
   isReadonly,
   isReadonlyView,
+  preferencesReadOnly,
   description,
   error,
   isRefreshing,
@@ -103,6 +107,7 @@ const mapState = ({
   isWritable,
   isReadonly,
   isReadonlyView,
+  preferencesReadOnly,
   description,
   error,
   localAppRegistry: (appRegistry as any).localAppRegistry,

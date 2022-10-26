@@ -94,6 +94,7 @@ export const updateView = () => {
         const metadata = {
           namespace: viewNamespace,
           isReadonly: true,
+          preferencesReadOnly: state.preferencesReadOnly,
           sourceName: state.namespace,
           editViewName: null,
           sourceReadonly: state.isReadonly,

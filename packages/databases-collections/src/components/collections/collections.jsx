@@ -18,6 +18,7 @@ class Collections extends PureComponent {
     collectionsStatus: PropTypes.object.isRequired,
     databaseName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
+    preferencesReadOnly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isDataLake: PropTypes.bool.isRequired,
     onCollectionClick: PropTypes.func.isRequired,
@@ -40,6 +41,7 @@ class Collections extends PureComponent {
       collectionsStatus,
       databaseName,
       isReadonly,
+      preferencesReadOnly,
       isWritable,
       isDataLake,
       onCollectionClick,
@@ -56,10 +58,11 @@ class Collections extends PureComponent {
         </div>
       );
     }
-
+    
+    const editable = !isReadonly && !preferencesReadOnly;
     const actions = Object.assign(
       { onCollectionClick },
-      !isReadonly && isWritable && !isDataLake
+      editable && isWritable && !isDataLake
         ? { onDeleteCollectionClick, onCreateCollectionClick }
         : {}
     );
@@ -68,7 +71,7 @@ class Collections extends PureComponent {
       <CollectionsList
         key={databaseName}
         collections={collections}
-        isReadonly={isReadonly}
+        isEditable={editable}
         {...actions}
       />
     );
@@ -99,6 +102,7 @@ const mapStateToProps = (state) => ({
   collectionsStatus: state.collectionsStatus,
   databaseName: state.databaseName,
   isReadonly: state.isReadonly,
+  preferencesReadOnly: state.preferencesReadOnly,
   isWritable: state.isWritable,
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,

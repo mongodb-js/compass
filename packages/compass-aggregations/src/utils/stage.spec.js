@@ -7,6 +7,7 @@ describe('utils', function() {
       env: 'on-prem',
       isTimeSeries: false,
       isReadonly: false,
+      preferencesReadOnly: false,
       sourceName: null,
       serverVersion: '4.2.0'
     };
@@ -134,8 +135,8 @@ describe('utils', function() {
     });
 
     context('when is a read-only distribution of Compass', function() {
-      it('filters out output stages if isReadonly is true', function() {
-        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', isReadonly: true })
+      it('filters out output stages if isEditable is true', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', preferencesReadOnly: true })
           .filter((o) => (['$out', '$merge'].includes(o.name)));
 
         expect(searchStages.length).to.be.equal(0);

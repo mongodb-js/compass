@@ -1,40 +1,12 @@
-import type { AnyAction } from 'redux';
-
-import preferences from 'compass-preferences-model';
-
-/**
- * The readonly changed action name.
- */
-export const READONLY_CHANGED = 'indexes/is-readonly/READONLY_CHANGED';
-
 /**
  * The initial state of the is readonly attribute.
  */
-export const INITIAL_STATE = !!preferences.getPreferences().readOnly;
+export const INITIAL_STATE =
+  process.env.HADRON_READONLY === 'true' ? true : false;
 
 /**
  * Reducer function doesn't do anything since we're based on process.
- *
- * @param state - The state.
- * @param action - The action.
- *
- * @returns the state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction) {
-  if (action.type === READONLY_CHANGED) {
-    return action.isReadonly;
-  }
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }
-
-/**
- * Action creator for readonly changed events.
- *
- * @param isReadonly - Is the readonly.
- *
- * @returns The readonly view changed action.
- */
-export const readonlyChanged = (isReadonly: boolean) => ({
-  type: READONLY_CHANGED,
-  isReadonly,
-});

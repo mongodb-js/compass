@@ -20,9 +20,9 @@ import connectionOptions, {
 } from './connection-options';
 import location, { INITIAL_STATE as LOCATION_IS } from './location';
 import isExpanded, { INITIAL_STATE as IS_EXPANDED_IS } from './is-expanded';
-import isReadonly, {
-  INITIAL_STATE as READONLY_INITIAL_STATE,
-} from './is-readonly';
+import preferencesReadOnly, {
+  INITIAL_STATE as PREFERENCES_READONLY_INITIAL_STATE,
+} from './preferences-readonly';
 
 /**
  * The reducer.
@@ -37,7 +37,7 @@ const reducer = combineReducers({
   isGenuineMongoDBVisible,
   location,
   isExpanded,
-  isReadonly,
+  preferencesReadOnly,
 });
 
 /**
@@ -60,7 +60,7 @@ const rootReducer = (state, action) => {
       isGenuineMongoDBVisible: IS_VISIBLE_IS,
       location: LOCATION_IS,
       isExpanded: IS_EXPANDED_IS,
-      isReadonly: READONLY_INITIAL_STATE,
+      preferencesReadOnly: PREFERENCES_READONLY_INITIAL_STATE,
     };
   }
   return reducer(state, action);

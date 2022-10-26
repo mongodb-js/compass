@@ -46,6 +46,7 @@ class Databases extends PureComponent {
     databases: PropTypes.array.isRequired,
     databasesStatus: PropTypes.object.isRequired,
     isReadonly: PropTypes.bool.isRequired,
+    preferencesReadOnly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
     isDataLake: PropTypes.bool.isRequired,
@@ -64,6 +65,7 @@ class Databases extends PureComponent {
       databases,
       databasesStatus,
       isReadonly,
+      preferencesReadOnly,
       isWritable,
       isDataLake,
       isGenuineMongoDB,
@@ -86,14 +88,15 @@ class Databases extends PureComponent {
       return <NonGenuineZeroState />;
     }
 
+    const editable = !isReadonly && !preferencesReadOnly;
     const actions = Object.assign(
       { onDatabaseClick },
-      !isReadonly && isWritable && !isDataLake
+      editable && isWritable && !isDataLake
         ? { onDeleteDatabaseClick, onCreateDatabaseClick }
         : {}
     );
 
-    return <DatabasesList databases={databases} isReadonly={isReadonly} {...actions} />;
+    return <DatabasesList databases={databases} isEditable={editable} {...actions} />;
   }
 }
 
@@ -108,6 +111,7 @@ const mapStateToProps = (state) => ({
   databases: state.databases,
   databasesStatus: state.databasesStatus,
   isReadonly: state.isReadonly,
+  preferencesReadOnly: state.preferencesReadOnly,
   isWritable: state.isWritable,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isDataLake: state.isDataLake,

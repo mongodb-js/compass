@@ -5,7 +5,6 @@ import os from 'os';
 import { expect } from 'chai';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
-import { getCheckboxAndBannerState } from '../helpers/get-checkbox-and-banner-state';
 
 describe('readOnly: true / Read-Only Edition', function () {
   let tmpdir: string;
@@ -21,41 +20,6 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   afterEach(async function () {
     await fs.rmdir(tmpdir, { recursive: true });
-  });
-
-  it('allows setting preferences through the CLI', async function () {
-    const compass = await beforeTests({
-      extraSpawnArgs: ['--read-only'],
-    });
-    try {
-      const browser = compass.browser;
-      await browser.openSettingsModal();
-      {
-        const { disabled, value, bannerText } = await getCheckboxAndBannerState(
-          browser,
-          'readOnly'
-        );
-        expect(value).to.equal('true');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
-        expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set at Compass startup.'
-        );
-      }
-      {
-        const { disabled, value, bannerText } = await getCheckboxAndBannerState(
-          browser,
-          'enableShell'
-        );
-        expect(value).to.equal('false');
-        expect(disabled).to.equal(''); // null = missing attribute, '' = set
-        expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set at Compass startup.'
-        );
-      }
-    } finally {
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
-    }
   });
 
   it('shows and hides the plus icon on the siderbar to create a database', async function () {
@@ -134,7 +98,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed({ reverse: true });
 
       sidebarCreateCollectionButton = await browser.$(
-        Selectors.SidebarCreateDatabaseButton
+        Selectors.CreateCollectionButton
       );
       isSidebarCreateCollectionButtonExisting =
         await sidebarCreateCollectionButton.isExisting();
@@ -220,29 +184,11 @@ describe('readOnly: true / Read-Only Edition', function () {
     }
   });
 
-  it('hides mongodb shell', async function () {
-    const compass = await beforeTests({
-      extraSpawnArgs: ['--read-only'],
-    });
-    try {
-      const browser = compass.browser;
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
-
-      const shellSection = await browser.$(Selectors.ShellSection);
-      const isShellSectionExisting = await shellSection.isExisting();
-      expect(isShellSectionExisting).to.be.equal(false);
-    } finally {
-      await afterTest(compass, this.currentTest);
-      await afterTests(compass, this.currentTest);
-    }
-  });
-
   it('shows and hides the $out aggregation stage', async function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
+      await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
@@ -320,9 +266,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       // wait for the modal to go away
       await settingsModal.waitForDisplayed({ reverse: true });
 
-      createIndexButton = await browser.$(
-        Selectors.SidebarCreateDatabaseButton
-      );
+      createIndexButton = await browser.$(Selectors.CreateIndexButton);
       isCreateIndexButtonExisting = await createIndexButton.isExisting();
       expect(isCreateIndexButtonExisting).to.be.equal(false);
 
@@ -354,8 +298,6 @@ describe('readOnly: true / Read-Only Edition', function () {
         Selectors.ValidationEditor,
         '{ $jsonSchema: {} }'
       );
-
-      await browser.screenshot('jsonSchema.png');
 
       let updateValidationButton = await browser.$(
         Selectors.UpdateValidationButton

@@ -9,6 +9,9 @@ import databasesStatus, {
 import isReadonly, {
   INITIAL_STATE as READONLY_INITIAL_STATE
 } from '../is-readonly';
+import preferencesReadOnly, {
+  INITIAL_STATE as PREFERENCES_READONLY_INITIAL_STATE
+} from '../preferences-readonly';
 import isWritable, {
   INITIAL_STATE as WRITABLE_INITIAL_STATE
 } from '../is-writable';
@@ -28,6 +31,7 @@ const reducer = combineReducers({
   databases,
   databasesStatus,
   isReadonly,
+  preferencesReadOnly,
   isWritable,
   isGenuineMongoDB,
   isDataLake,
@@ -48,6 +52,7 @@ const rootReducer = (state, action) => {
       databases: DATABASES_INITIAL_STATE,
       databasesStatus: DATABASES_STATUS_STATE,
       isReadonly: READONLY_INITIAL_STATE,
+      preferencesReadOnly: PREFERENCES_READONLY_INITIAL_STATE,
       isWritable: WRITABLE_INITIAL_STATE,
       isGenuineMongoDB: GENUINE_INITIAL_STATE,
       isDataLake: DATA_LAKE_INITIAL_STATE,

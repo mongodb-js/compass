@@ -16,7 +16,7 @@ function mapStateToProps(state: any) {
       activeNamespace,
     },
     instance,
-    isReadonly,
+    preferencesReadOnly,
   } = state;
   const status = instance?.databasesStatus;
   const isReady =
@@ -29,7 +29,9 @@ function mapStateToProps(state: any) {
     ])
   );
   const isReadOnly =
-    isReadonly || instance?.dataLake.isDataLake || !instance?.isWritable;
+    preferencesReadOnly ||
+    instance?.dataLake.isDataLake ||
+    !instance?.isWritable;
   return {
     isReady,
     isReadOnly,

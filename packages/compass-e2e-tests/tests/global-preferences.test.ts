@@ -8,9 +8,8 @@ import {
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/insert-data';
 import { getCheckboxAndBannerState } from '../helpers/get-checkbox-and-banner-state';
+import * as Selectors from '../helpers/selectors';
 
 describe('Global preferences', function () {
   let tmpdir: string;
@@ -151,19 +150,40 @@ describe('Global preferences', function () {
     }
   });
 
-  it('allows setting readOnly: true and reflects that on the crud view', async function () {
-    await fs.writeFile(path.join(tmpdir, 'config'), 'readOnly: true\n');
-    const compass = await beforeTests();
+  it('allows setting readOnly: true and reflects that in the settings modal', async function () {
+    const compass = await beforeTests({
+      extraSpawnArgs: ['--read-only'],
+    });
     try {
       const browser = compass.browser;
-      await createNumbersCollection();
-      await browser.connectWithConnectionString(
-        'mongodb://localhost:27091/test'
-      );
-      await browser.navigateToCollectionTab('test', 'numbers', 'Documents');
-      const addDataButton = await browser.$(Selectors.AddDataButton);
-      const isAddDataButtonExisting = await addDataButton.isExisting();
-      expect(isAddDataButtonExisting).to.be.equal(false);
+      await browser.openSettingsModal();
+      {
+        const { disabled, value, bannerText } = await getCheckboxAndBannerState(
+          browser,
+          'readOnly'
+        );
+        expect(value).to.equal('true');
+        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(bannerText).to.include(
+          'This setting cannot be modified as it has been set at Compass startup.'
+        );
+      }
+      {
+        const { disabled, value, bannerText } = await getCheckboxAndBannerState(
+          browser,
+          'enableShell'
+        );
+        expect(value).to.equal('false');
+        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(bannerText).to.include(
+          'This setting cannot be modified as it has been set at Compass startup.'
+        );
+      }
+      {
+        const shellSection = await browser.$(Selectors.ShellSection);
+        const isShellSectionExisting = await shellSection.isExisting();
+        expect(isShellSectionExisting).to.be.equal(false);
+      }
     } finally {
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);

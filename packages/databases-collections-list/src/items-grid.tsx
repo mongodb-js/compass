@@ -75,7 +75,7 @@ interface RenderItem<T> {
 }
 
 type ItemsGridProps<T> = {
-  isReadonly: boolean;
+  isEditable: boolean;
   itemType: 'collection' | 'database';
   itemGridWidth: number;
   itemGridHeight: number;
@@ -128,7 +128,7 @@ const GridControls = () => {
 };
 
 export const ItemsGrid = <T extends Item>({
-  isReadonly,
+  isEditable,
   itemType,
   itemGridWidth,
   itemGridHeight,
@@ -148,7 +148,7 @@ export const ItemsGrid = <T extends Item>({
     [itemType]
   );
   const createControls = useCreateControls(
-    isReadonly,
+    isEditable,
     itemType,
     onCreateItemClick
   );

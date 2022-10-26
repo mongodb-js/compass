@@ -53,7 +53,7 @@ const mapStateToProps = (state) => ({
   isEditable:
     !state.editMode.collectionReadOnly &&
     !state.editMode.collectionTimeSeries &&
-    !state.editMode.preferencesReadonly &&
+    !state.editMode.preferencesReadOnly &&
     !state.editMode.writeStateStoreReadOnly &&
     !state.editMode.oldServerReadOnly,
 });

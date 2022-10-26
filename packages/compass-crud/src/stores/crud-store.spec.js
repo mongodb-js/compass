@@ -214,7 +214,7 @@ describe('store', function () {
         isDataLake: false,
         isEditable: true,
         isReadonly: false,
-        isPreferencesReadonly: false,
+        preferencesReadOnly: false,
         isTimeSeries: false,
         isWritable: false,
         ns: '',
@@ -420,7 +420,7 @@ describe('store', function () {
         store.state.table.types = ['test-types'];
         store.state.table.doc = {};
         store.state.table.editParams = {};
-        store.state.isPreferencesReadonly = true;
+        store.state.preferencesReadOnly = true;
       });
 
       it('resets the state for the new readonly collection', async function () {

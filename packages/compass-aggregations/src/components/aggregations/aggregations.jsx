@@ -39,6 +39,8 @@ import {
 
 import styles from './aggregations.module.less';
 
+import preferences from 'compass-preferences-model';
+
 /**
  * The core aggregations component.
  */
@@ -84,6 +86,7 @@ const mapStateToProps = (state) => ({
   updateViewError: state.updateViewError,
   workspace: state.workspace,
   isReadonly: state.isReadonly,
+  preferencesReadOnly: state.preferencesReadOnly,
 });
 
 /**

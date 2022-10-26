@@ -22,13 +22,13 @@ const DATABASE_CARD_HEIGHT = 154;
 const DATABASE_CARD_LIST_HEIGHT = 118;
 
 const DatabasesList: React.FunctionComponent<{
-  isReadonly: boolean;
+  isEditable: boolean;
   databases: Database[];
   onDatabaseClick(id: string): void;
   onDeleteDatabaseClick?: (id: string) => void;
   onCreateDatabaseClick?: () => void;
 }> = ({
-  isReadonly,
+  isEditable,
   databases,
   onDatabaseClick,
   onCreateDatabaseClick,
@@ -36,7 +36,7 @@ const DatabasesList: React.FunctionComponent<{
 }) => {
   return (
     <ItemsGrid
-      isReadonly={isReadonly}
+      isEditable={isEditable}
       items={databases}
       itemType="database"
       itemGridWidth={DATABASE_CARD_WIDTH}

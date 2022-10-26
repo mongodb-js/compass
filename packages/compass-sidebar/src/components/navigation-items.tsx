@@ -229,11 +229,11 @@ const mapStateToProps = (state: {
     };
     isWritable: boolean;
   };
-  isReadonly: boolean;
+  preferencesReadOnly: boolean;
 }) => ({
   currentLocation: state.location,
   isReadOnly:
-    state.isReadonly ||
+    state.preferencesReadOnly ||
     state.instance?.dataLake.isDataLake ||
     !state.instance?.isWritable,
 });

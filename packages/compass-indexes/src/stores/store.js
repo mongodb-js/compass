@@ -18,7 +18,7 @@ import {
   inProgressIndexRemoved,
   inProgressIndexFailed,
 } from '../modules/in-progress-indexes';
-import { readonlyChanged } from '../modules/is-readonly';
+import { preferencesReadOnlyChanged } from '../modules/preferences-readonly';
 import preferences from 'compass-preferences-model';
 
 /**
@@ -39,6 +39,13 @@ export const setDataProvider = (store, error, provider) => {
 
 const configureStore = (options = {}) => {
   const store = createStore(reducer, applyMiddleware(thunk));
+
+  store.dispatch(
+    preferencesReadOnlyChanged(!!preferences.getPreferences().readOnly)
+  );
+  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+    store.dispatch(preferencesReadOnlyChanged(readOnly));
+  });
 
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
@@ -100,10 +107,6 @@ const configureStore = (options = {}) => {
     const isReadonlyView = options.isReadonly;
     store.dispatch(readonlyViewChanged(isReadonlyView));
   }
-
-  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    store.dispatch(readonlyChanged(readOnly));
-  });
 
   if (options.dataProvider) {
     setDataProvider(

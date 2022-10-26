@@ -12,7 +12,7 @@ import { changeConnectionInfo } from '../modules/connection-info';
 import { changeConnectionOptions } from '../modules/connection-options';
 import { toggleSidebar } from '../modules/is-expanded';
 import preferences from 'compass-preferences-model';
-import { readonlyChanged } from '../modules/is-readonly';
+import { preferencesReadOnlyChanged } from '../modules/preferences-readonly';
 
 // We use these symbols so that nothing from outside can access these values on
 // the store
@@ -21,8 +21,11 @@ const kInstance = Symbol('instance');
 const store = createStore(reducer, applyMiddleware(thunk));
 
 store.onActivated = (appRegistry) => {
+  store.dispatch(
+    preferencesReadOnlyChanged(!!preferences.getPreferences().readOnly)
+  );
   preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    store.dispatch(readonlyChanged(readOnly));
+    store.dispatch(preferencesReadOnlyChanged(readOnly));
   });
 
   const onInstanceChangeNow = (instance) => {

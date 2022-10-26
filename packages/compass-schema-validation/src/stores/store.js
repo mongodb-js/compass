@@ -61,12 +61,12 @@ const configureStore = (options = {}) => {
     const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
     const { instance } = instanceStore.getState();
 
-    const setEditMode = () => {
+    const setEditMode = (preferencesReadOnly) => {
       store.dispatch(
         editModeChanged({
           collectionTimeSeries: !!options.isTimeSeries,
           collectionReadOnly: options.isReadonly ? true : false,
-          preferencesReadonly: preferences.getPreferences().readOnly,
+          preferencesReadOnly,
           writeStateStoreReadOnly: !instance.isWritable,
           oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
         })
@@ -74,14 +74,9 @@ const configureStore = (options = {}) => {
     };
 
     // set the initial value
-    setEditMode();
-
+    setEditMode(!!preferences.getPreferences().readOnly);
     preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-      store.dispatch(
-        editModeChanged({
-          preferencesReadonly: readOnly,
-        })
-      );
+      setEditMode(readOnly);
     });
 
     // isWritable can change later

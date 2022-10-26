@@ -10,7 +10,7 @@ import { writeStateChanged } from '../modules/is-writable';
 import { toggleIsDataLake } from '../modules/is-data-lake';
 import { reset } from '../modules/reset';
 import { collectionsReducer } from '../modules';
-import { readonlyChanged } from '../modules/is-readonly';
+import { preferencesReadOnlyChanged } from '../modules/preferences-readonly';
 import preferences from 'compass-preferences-model';
 
 const store = createStore(collectionsReducer, applyMiddleware(thunk));
@@ -23,8 +23,9 @@ store.onActivated = (appRegistry) => {
     }
   }, 300);
 
+  store.dispatch(preferencesReadOnlyChanged(!!preferences.getPreferences().readOnly));
   preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    store.dispatch(readonlyChanged(readOnly));
+    store.dispatch(preferencesReadOnlyChanged(readOnly));
   });
 
   const onDatabaseCollectionStatusChange = (dbModel) => {

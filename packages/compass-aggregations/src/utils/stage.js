@@ -27,11 +27,11 @@ export function isAtlasOnly(operatorEnv) {
   return operatorEnv?.every(env => env === ATLAS);
 }
 
-function disallowOutputStagesOnCompassReadonly(operator, isReadonly) {
+function disallowOutputStagesOnCompassReadonly(operator, isEditable) {
   if (operator?.outputStage) {
     // NOTE: this should be innocuous in Data Explorer / Web
     // and just always return `false`
-    return !isReadonly;
+    return isEditable;
   }
 
   return true;
@@ -48,7 +48,7 @@ function disallowOutputStagesOnCompassReadonly(operator, isReadonly) {
  *
  * @returns {Array} Stage operators supported by the current version of the server.
  */
-export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceName, isReadonly }) => {
+export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceName, isReadonly, preferencesReadOnly }) => {
   const namespaceType =
     isTimeSeries ? TIME_SERIES :
 
@@ -57,8 +57,9 @@ export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceN
     sourceName ? VIEW :
     COLLECTION;
 
+  const isEditable = !isReadonly && !preferencesReadOnly;
   return STAGE_OPERATORS
-    .filter((op) => disallowOutputStagesOnCompassReadonly(op, isReadonly))
+    .filter((op) => disallowOutputStagesOnCompassReadonly(op, isEditable))
     .filter((op) => supportsVersion(op, serverVersion))
     .filter((op) => supportsNamespace(op, namespaceType))
 

@@ -17,6 +17,7 @@ const renderIndexesToolbar = (
       errorMessage={null}
       isReadonly={false}
       isReadonlyView={false}
+      preferencesReadOnly={false}
       isWritable={true}
       localAppRegistry={appRegistry}
       writeStateDescription={undefined}
@@ -69,6 +70,18 @@ describe('IndexesToolbar Component', function () {
     beforeEach(function () {
       renderIndexesToolbar({
         isReadonly: true,
+      });
+    });
+
+    it('should not render the create index button', function () {
+      expect(screen.queryByText('Create Index')).to.not.exist;
+    });
+  });
+
+  describe('when it is preferences ReadOnly', function () {
+    beforeEach(function () {
+      renderIndexesToolbar({
+        preferencesReadOnly: true,
       });
     });
 

@@ -12,6 +12,9 @@ import databaseName, {
 import isReadonly, {
   INITIAL_STATE as READONLY_INITIAL_STATE
 } from '../is-readonly';
+import preferencesReadOnly, {
+  INITIAL_STATE as PREFERENCES_READONLY_INITIAL_STATE
+} from '../preferences-readonly';
 import isWritable, {
   INITIAL_STATE as WRITABLE_INITIAL_STATE
 } from '../is-writable';
@@ -29,6 +32,7 @@ const reducer = combineReducers({
   collections,
   collectionsStatus,
   isReadonly,
+  preferencesReadOnly,
   isWritable,
   isDataLake,
 });
@@ -49,6 +53,7 @@ const rootReducer = (state, action) => {
       collections: COLLECTIONS_INITIAL_STATE,
       collectionsStatus: COLLECTIONS_STATUS_STATE,
       isReadonly: READONLY_INITIAL_STATE,
+      preferencesReadOnly: PREFERENCES_READONLY_INITIAL_STATE,
       isWritable: WRITABLE_INITIAL_STATE,
       isDataLake: DATA_LAKE_INITIAL_STATE
     };

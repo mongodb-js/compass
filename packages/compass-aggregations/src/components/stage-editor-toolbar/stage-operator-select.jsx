@@ -63,6 +63,7 @@ export default connect(
       env: state.env,
       isTimeSeries: state.isTimeSeries,
       isReadonly: state.isReadonly,
+      preferencesReadOnly: state.preferencesReadOnly,
       sourceName: state.sourceName
     })
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];

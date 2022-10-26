@@ -121,7 +121,7 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
-          preferencesReadonly: false,
+          preferencesReadOnly: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: true,
         });
@@ -136,7 +136,7 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
-          preferencesReadonly: false,
+          preferencesReadOnly: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: false,
         });
@@ -331,9 +331,9 @@ describe('Schema Validation Store', function () {
         require('hadron-ipc').ipcRenderer.invoke('test:clear-preferences');
       });
 
-      it('sets preferencesReadonly property as true', function () {
+      it('sets preferencesReadOnly property as true', function () {
         expect(store.getState().editMode).to.have.property(
-          'preferencesReadonly',
+          'preferencesReadOnly',
           true
         );
       });

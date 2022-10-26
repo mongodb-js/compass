@@ -168,9 +168,9 @@ export const setLocalAppRegistry = (store, appRegistry) => {
 export const isListEditable = ({
   isDataLake,
   isReadonly,
-  isPreferencesReadonly,
+  preferencesReadOnly,
 }) => {
-  return !isDataLake && !isReadonly && !isPreferencesReadonly;
+  return !isDataLake && !isReadonly && !preferencesReadOnly;
 };
 
 /**
@@ -210,7 +210,7 @@ const configureStore = (options = {}) => {
         query: this.getInitialQueryState(),
         isDataLake: false,
         isReadonly: false,
-        isPreferencesReadonly: !!preferences.getPreferences().readOnly,
+        preferencesReadOnly: false,
         isTimeSeries: false,
         status: DOCUMENTS_STATUS_INITIAL,
         debouncingLoad: false,
@@ -314,7 +314,7 @@ const configureStore = (options = {}) => {
         isEditable: isListEditable({
           isDataLake: store.state.isDataLake,
           isReadonly: store.state.isReadonly,
-          isPreferencesReadonly: store.state.isPreferencesReadonly,
+          preferencesReadOnly: store.state.preferencesReadOnly,
         }),
         table: this.getInitialTableState(),
         query: this.getInitialQueryState(),
@@ -1217,7 +1217,7 @@ const configureStore = (options = {}) => {
             : isListEditable({
                 isDataLake: store.state.isDataLake,
                 isReadonly: store.state.isReadonly,
-                isPreferencesReadonly: store.state.isPreferencesReadonly,
+                preferencesReadOnly: store.state.preferencesReadOnly,
               }),
           error: null,
           docs: docs.map((doc) => new HadronDocument(doc)),
@@ -1321,6 +1321,21 @@ const configureStore = (options = {}) => {
     },
   });
 
+  const setIsEditable = (preferencesReadOnly) => {
+    store.setState({
+      isEditable: isListEditable({
+        isDataLake: store.state.isDataLake,
+        isReadonly: store.state.isReadonly,
+        preferencesReadOnly,
+      }),
+    });
+  };
+
+  setIsEditable(!!preferences.getPreferences().readOnly);
+  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+    setIsEditable(readOnly);
+  });
+
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
@@ -1373,16 +1388,6 @@ const configureStore = (options = {}) => {
   if (options.isReadonly !== null && options.isReadonly !== undefined) {
     setIsReadonly(store, options.isReadonly);
   }
-
-  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    store.setState({
-      isEditable: isListEditable({
-        isDataLake: store.state.isDataLake,
-        isReadonly: store.state.isReadonly,
-        isPreferencesReadonly: readOnly,
-      }),
-    });
-  });
 
   if (options.namespace) {
     setNamespace(store, options.namespace);

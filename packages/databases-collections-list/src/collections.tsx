@@ -76,13 +76,13 @@ function collectionPropertyToBadge({
 }
 
 const CollectionsList: React.FunctionComponent<{
-  isReadonly: boolean;
+  isEditable: boolean;
   collections: Collection[];
   onCollectionClick(id: string): void;
   onDeleteCollectionClick?: (id: string) => void;
   onCreateCollectionClick?: () => void;
 }> = ({
-  isReadonly,
+  isEditable,
   collections,
   onCollectionClick,
   onCreateCollectionClick,
@@ -90,7 +90,7 @@ const CollectionsList: React.FunctionComponent<{
 }) => {
   return (
     <ItemsGrid
-      isReadonly={isReadonly}
+      isEditable={isEditable}
       items={collections}
       itemType="collection"
       itemGridWidth={COLLECTION_CARD_WIDTH}

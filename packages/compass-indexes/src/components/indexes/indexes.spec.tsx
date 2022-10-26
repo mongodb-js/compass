@@ -15,6 +15,7 @@ const renderIndexes = (
       isWritable={true}
       isReadonly={false}
       isReadonlyView={false}
+      preferencesReadOnly={false}
       description={undefined}
       error={null}
       localAppRegistry={appRegistry}

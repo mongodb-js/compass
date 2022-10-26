@@ -11,7 +11,7 @@ import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { PipelineStorage } from '../utils/pipeline-storage';
 import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
-import { readonlyChanged } from '../modules/is-readonly';
+import { preferencesReadOnlyChanged } from '../modules/preferences-readonly';
 import preferences from 'compass-preferences-model';
 
 /**
@@ -71,7 +71,8 @@ const configureStore = (options = {}) => {
       namespace: collection ? options.namespace : undefined,
       serverVersion: options.serverVersion,
       isTimeSeries: options.isTimeSeries,
-      isReadonly: options.isReadonly || !!preferences.getPreferences().readOnly,
+      isReadonly: options.isReadonly,
+      preferencesReadOnly: false,
       sourceName: options.sourceName,
       isDataLake: options.isDataLake,
       env:
@@ -113,6 +114,11 @@ const configureStore = (options = {}) => {
     )
   );
 
+  store.dispatch(preferencesReadOnlyChanged(!!preferences.getPreferences().readOnly));
+  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
+    store.dispatch(preferencesReadOnlyChanged(readOnly));
+  });
+
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
@@ -136,10 +142,6 @@ const configureStore = (options = {}) => {
 
     localAppRegistry.on('indexes-changed', (ixs) => {
       setIndexes(store, ixs);
-    });
-
-    preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-      store.dispatch(readonlyChanged(readOnly));
     });
   }
 

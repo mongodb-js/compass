@@ -10,7 +10,7 @@ import { toggleIsGenuineMongoDB } from '../modules/is-genuine-mongodb';
 import { toggleIsDataLake } from '../modules/is-data-lake';
 import { reset } from '../modules/reset';
 import { databasesReducer } from '../modules';
-import { readonlyChanged } from '../modules/is-readonly';
+import { preferencesReadOnlyChanged } from '../modules/preferences-readonly';
 import preferences from 'compass-preferences-model';
 
 const store = createStore(databasesReducer, applyMiddleware(thunk));
@@ -20,8 +20,9 @@ store.onActivated = (appRegistry) => {
     store.dispatch(setDatabases(dbs.toJSON()));
   }, 300);
 
+  store.dispatch(preferencesReadOnlyChanged(!!preferences.getPreferences().readOnly));
   preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    store.dispatch(readonlyChanged(readOnly));
+    store.dispatch(preferencesReadOnlyChanged(readOnly));
   });
 
   appRegistry.on('instance-destroyed', () => {
