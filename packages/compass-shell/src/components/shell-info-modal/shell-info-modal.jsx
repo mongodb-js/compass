@@ -29,11 +29,9 @@ function ShellInfoModal({
   hideInfoModal,
   show
 }) {
-  const onSetOpen = useCallback((open) => {
-    if (!open) {
-      hideInfoModal();
-    }
-  }, [hideInfoModal]);
+  const onClose = useCallback(() => {
+    hideInfoModal();
+  }, [ hideInfoModal ]);
 
   return (
     <InfoModal
@@ -41,7 +39,7 @@ function ShellInfoModal({
       title={`mongosh ${mongoshVersion}`}
       trackingId="shell_info_modal"
       data-testid="shell-info-modal"
-      onClose={onSetOpen}
+      onClose={onClose}
     >
       <Banner>
         For more information please visit the&nbsp;
