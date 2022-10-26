@@ -52,6 +52,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
+        collectionTimeSeries: false,
         preferencesReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: true,
@@ -122,6 +123,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: true,
+        collectionTimeSeries: false,
         preferencesReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
@@ -160,6 +162,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
+        collectionTimeSeries: false,
         preferencesReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
@@ -181,6 +184,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
+        collectionTimeSeries: false,
         preferencesReadOnly: true,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
@@ -202,6 +206,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
+        collectionTimeSeries: false,
         preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
@@ -240,6 +245,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
+        collectionTimeSeries: false,
         preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
@@ -260,6 +266,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
+        collectionTimeSeries: false,
         preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
@@ -280,6 +287,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
+        collectionTimeSeries: false,
         preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
@@ -300,6 +308,7 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
+        collectionTimeSeries: false,
         preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
