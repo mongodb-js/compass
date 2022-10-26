@@ -29,6 +29,49 @@ const checkboxStyles = css({
   marginBottom: spacing[3],
 });
 
+function LightThemePreview() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      fill="none"
+      viewBox="0 0 171 119"
+    >
+      <rect width="171" height="119" fill="#fff" rx="6" />
+      <rect width="42" height="119" fill="#F9FBFA" rx="6" />
+      <rect width="117" height="7" x="48" y="34" fill="#F9FBFA" rx="3.5" />
+      <rect width="28" height="7" x="48" y="21" fill="#F9FBFA" rx="3.5" />
+      <rect width="28" height="7" x="82" y="21" fill="#F9FBFA" rx="3.5" />
+      <rect width="28" height="7" x="116" y="21" fill="#F9FBFA" rx="3.5" />
+      <rect width="117" height="7" x="48" y="47" fill="#F9FBFA" rx="3.5" />
+      <rect width="117" height="7" x="48" y="60" fill="#F9FBFA" rx="3.5" />
+      <rect width="117" height="7" x="48" y="73" fill="#F9FBFA" rx="3.5" />
+      <rect width="170" height="118" x=".5" y=".5" stroke="#E8EDEB" rx="5.5" />
+    </svg>
+  );
+}
+
+function DarkThemePreview() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      fill="none"
+      viewBox="0 0 171 119"
+    >
+      <rect width="171" height="119" fill="#3D4F58" rx="6" />
+      <rect width="42" height="119" fill="#1C2D38" rx="6" />
+      <rect width="117" height="7" x="48" y="34" fill="#1C2D38" rx="3.5" />
+      <rect width="28" height="7" x="48" y="21" fill="#1C2D38" rx="3.5" />
+      <rect width="28" height="7" x="82" y="21" fill="#1C2D38" rx="3.5" />
+      <rect width="28" height="7" x="116" y="21" fill="#1C2D38" rx="3.5" />
+      <rect width="117" height="7" x="48" y="47" fill="#1C2D38" rx="3.5" />
+      <rect width="117" height="7" x="48" y="60" fill="#1C2D38" rx="3.5" />
+      <rect width="117" height="7" x="48" y="73" fill="#1C2D38" rx="3.5" />
+    </svg>
+  );
+}
+
 export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
   themeValue,
   preferenceStates,
@@ -84,6 +127,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           value="LIGHT"
           disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
         >
+          <LightThemePreview />
           Light Theme
         </RadioBox>
         <RadioBox
@@ -92,6 +136,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           value="DARK"
           disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
         >
+          <DarkThemePreview />
           Dark Theme
         </RadioBox>
       </RadioBoxGroup>
