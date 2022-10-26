@@ -71,7 +71,7 @@ const configureStore = (options = {}) => {
       namespace: collection ? options.namespace : undefined,
       serverVersion: options.serverVersion,
       isTimeSeries: options.isTimeSeries,
-      isReadonly: options.isReadonly || preferences.getPreferences().readOnly,
+      isReadonly: options.isReadonly || !!preferences.getPreferences().readOnly,
       sourceName: options.sourceName,
       isDataLake: options.isDataLake,
       env:

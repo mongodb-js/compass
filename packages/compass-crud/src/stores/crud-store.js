@@ -308,15 +308,14 @@ const configureStore = (options = {}) => {
      */
     onCollectionChanged(ns) {
       const nsobj = toNS(ns);
-      const editable = isListEditable({
-        isDataLake: store.state.isDataLake,
-        isReadonly: store.state.isDataLake,
-        isPreferencesReadonly: preferences.getPreferences().readOnly,
-      });
       this.setState({
         ns: ns,
         collection: nsobj.collection,
-        isEditable: editable,
+        isEditable: isListEditable({
+          isDataLake: store.state.isDataLake,
+          isReadonly: store.state.isReadonly,
+          isPreferencesReadonly: store.state.isPreferencesReadonly,
+        }),
         table: this.getInitialTableState(),
         query: this.getInitialQueryState(),
       });
@@ -1217,8 +1216,8 @@ const configureStore = (options = {}) => {
             ? false
             : isListEditable({
                 isDataLake: store.state.isDataLake,
-                isReadonly: store.state.isDataLake,
-                isPreferencesReadonly: preferences.getPreferences().readOnly,
+                isReadonly: store.state.isReadonly,
+                isPreferencesReadonly: store.state.isPreferencesReadonly,
               }),
           error: null,
           docs: docs.map((doc) => new HadronDocument(doc)),
@@ -1379,7 +1378,7 @@ const configureStore = (options = {}) => {
     store.setState({
       isEditable: isListEditable({
         isDataLake: store.state.isDataLake,
-        isReadonly: store.state.isDataLake,
+        isReadonly: store.state.isReadonly,
         isPreferencesReadonly: readOnly,
       }),
     });

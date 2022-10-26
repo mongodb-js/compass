@@ -18,7 +18,7 @@ export const INITIAL_STATE = !!preferences.getPreferences().readOnly;
  * @param state - The state.
  * @param action - The action.
  *
- * @returns he state.
+ * @returns the state.
  */
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
   if (action.type === READONLY_CHANGED) {
