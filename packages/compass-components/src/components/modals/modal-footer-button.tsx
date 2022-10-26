@@ -1,5 +1,5 @@
 import React from 'react';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import type { ButtonProps } from '@leafygreen-ui/button';
 import { Button } from '../leafygreen';
 import { Theme, useTheme, withTheme } from '../../hooks/use-theme';
@@ -27,7 +27,7 @@ const buttonStyle = {
 
 function UnthemedModalFooterButton({ className, ...props }: ButtonProps) {
   const { theme } = useTheme();
-  return <Button {...props} className={css(className, buttonStyle[theme])} />;
+  return <Button {...props} className={cx(className, buttonStyle[theme])} />;
 }
 
 const ModalFooterButton = withTheme(UnthemedModalFooterButton);
