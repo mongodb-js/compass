@@ -9,7 +9,7 @@ import FontAwesome from 'react-fontawesome';
 import { Tooltip } from 'hadron-react-components';
 import TypeChecker from 'hadron-type-checker';
 import { ElementEditor as initEditors } from 'hadron-document';
-import Types from './types';
+import TypesDropdown from './types-dropdown';
 import AddFieldButton from './add-field-button';
 
 const EMPTY_TYPE = {
@@ -459,7 +459,7 @@ class CellEditor extends React.Component {
           this.nodeIndex = 3;
         }}
       >
-        <Types
+        <TypesDropdown
           element={this.element}
           version={this.props.version}
           className={`${BEM_BASE}-types btn btn-default btn-xs`}
