@@ -91,7 +91,6 @@ describe('Preferences class', function () {
     expect(states).to.deep.equal({
       trackErrors: 'set-global',
       enableMaps: 'set-cli',
-      enableShell: 'derived',
     });
   });
 
@@ -202,7 +201,6 @@ describe('Preferences class', function () {
       autoUpdates: 'hardcoded',
       networkTraffic: 'hardcoded',
       trackUsageStatistics: 'hardcoded',
-      enableShell: 'derived',
     });
   });
 });
