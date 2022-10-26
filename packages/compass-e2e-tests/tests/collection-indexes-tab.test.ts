@@ -57,20 +57,20 @@ describe('Collection indexes tab', function () {
     await createModal.waitForDisplayed();
 
     const fieldNameSelect = await browser.$(
-      Selectors.CreateIndexModalFieldNameSelectInput(0)
+      Selectors.createIndexModalFieldNameSelectInput(0)
     );
 
     await browser.setValueVisible(fieldNameSelect, 'i');
     await browser.keys(['Enter']);
 
     const fieldTypeSelect = await browser.$(
-      Selectors.CreateIndexModalFieldTypeSelectButton(0)
+      Selectors.createIndexModalFieldTypeSelectButton(0)
     );
     await fieldTypeSelect.waitForDisplayed();
     await fieldTypeSelect.click();
 
     const fieldTypeSelectMenu = await browser.$(
-      Selectors.CreateIndexModalFieldTypeSelectMenu(0)
+      Selectors.createIndexModalFieldTypeSelectMenu(0)
     );
     await fieldTypeSelectMenu.waitForDisplayed();
 
@@ -124,7 +124,7 @@ describe('Collection indexes tab', function () {
 
       // Select i filed name from Combobox.
       const fieldNameSelect = await browser.$(
-        Selectors.CreateIndexModalFieldNameSelectInput(0)
+        Selectors.createIndexModalFieldNameSelectInput(0)
       );
 
       await browser.setValueVisible(fieldNameSelect, '$**');
@@ -132,14 +132,14 @@ describe('Collection indexes tab', function () {
 
       // Select text filed type from Select.
       const fieldTypeSelect = await browser.$(
-        Selectors.CreateIndexModalFieldTypeSelectButton(0)
+        Selectors.createIndexModalFieldTypeSelectButton(0)
       );
       await fieldTypeSelect.waitForDisplayed();
 
       await fieldTypeSelect.click();
 
       const fieldTypeSelectMenu = await browser.$(
-        Selectors.CreateIndexModalFieldTypeSelectMenu(0)
+        Selectors.createIndexModalFieldTypeSelectMenu(0)
       );
       await fieldTypeSelectMenu.waitForDisplayed();
 
@@ -194,7 +194,7 @@ describe('Collection indexes tab', function () {
 
       // Select i filed name from Combobox.
       const fieldNameSelect = await browser.$(
-        Selectors.CreateIndexModalFieldNameSelectInput(0)
+        Selectors.createIndexModalFieldNameSelectInput(0)
       );
 
       await browser.setValueVisible(fieldNameSelect, '$**');
@@ -202,14 +202,14 @@ describe('Collection indexes tab', function () {
 
       // Select text filed type from Select.
       const fieldTypeSelect = await browser.$(
-        Selectors.CreateIndexModalFieldTypeSelectButton(0)
+        Selectors.createIndexModalFieldTypeSelectButton(0)
       );
       await fieldTypeSelect.waitForDisplayed();
 
       await fieldTypeSelect.click();
 
       const fieldTypeSelectMenu = await browser.$(
-        Selectors.CreateIndexModalFieldTypeSelectMenu(0)
+        Selectors.createIndexModalFieldTypeSelectMenu(0)
       );
       await fieldTypeSelectMenu.waitForDisplayed();
 

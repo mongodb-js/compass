@@ -50,7 +50,6 @@ class QueryHistory extends PureComponent {
         data-testid="query-history-list-favorites"
         ns={this.props.ns}
         actions={this.props.actions}
-        zeroStateTitle="Favorite a query to see it saved here!"
       />
     </StoreConnector>
   );
@@ -65,7 +64,6 @@ class QueryHistory extends PureComponent {
         data-testid="query-history-list-recent"
         ns={this.props.ns}
         actions={this.props.actions}
-        zeroStateTitle="Run a query to see it saved here!"
       />
     </StoreConnector>
   );

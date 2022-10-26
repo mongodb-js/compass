@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import { ModalInput, ModalStatusMessage } from 'hadron-react-components';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal } from '@mongodb-js/compass-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
@@ -41,12 +41,6 @@ class DuplicateViewModal extends PureComponent {
     this.props.changeViewName(evt.target.value);
   };
 
-  onFormSubmit = (evt) => {
-    evt.preventDefault();
-    evt.stopPropagation();
-    this.props.createView();
-  };
-
   onCancel = () => {
     this.props.toggleIsVisible(false);
   };
@@ -58,21 +52,15 @@ class DuplicateViewModal extends PureComponent {
    */
   render() {
     return (
-      // TODO: leafygreen doesn't allow to use confirmation modal for forms, we
-      // should fix that https://jira.mongodb.org/browse/COMPASS-5522
-      <ConfirmationModal
+      <FormModal
         title={TITLE}
         open={this.props.isVisible}
-        onConfirm={this.props.createView}
+        onSubmit={this.props.createView}
         onCancel={this.onCancel}
-        buttonText="Duplicate"
+        submitButtonText="Duplicate"
         trackingId="duplicate_view_modal"
+        data-testid="duplicate-view-modal"
       >
-        <form
-          name="create-view-modal-form"
-          onSubmit={this.onFormSubmit.bind(this)}
-          data-testid="create-view-modal"
-        >
           <ModalInput
             id="create-view-name"
             name="Enter a View Name"
@@ -93,8 +81,7 @@ class DuplicateViewModal extends PureComponent {
               type="in-progress"
             />
           ) : null}
-        </form>
-      </ConfirmationModal>
+      </FormModal>
     );
   }
 }
