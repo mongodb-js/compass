@@ -129,7 +129,7 @@ class ValidationStates extends Component {
         callToAction={
           <Button
             data-testid="add-rule-button"
-            disabled={!this.props.isEditable()}
+            disabled={!this.props.isEditable}
             onClick={this.props.changeZeroState.bind(this, false)}
             variant={ButtonVariant.Primary}
             size="small"

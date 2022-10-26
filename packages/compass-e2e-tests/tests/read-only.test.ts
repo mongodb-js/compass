@@ -230,11 +230,184 @@ describe('readOnly: true / Read-Only Edition', function () {
         'mongodb://localhost:27091/test'
       );
 
-      await browser.screenshot('shell.png');
-
       const shellSection = await browser.$(Selectors.ShellSection);
       const isShellSectionExisting = await shellSection.isExisting();
       expect(isShellSectionExisting).to.be.equal(false);
+    } finally {
+      await afterTest(compass, this.currentTest);
+      await afterTests(compass, this.currentTest);
+    }
+  });
+
+  it('shows and hides the $out aggregation stage', async function () {
+    const compass = await beforeTests();
+    try {
+      const browser = compass.browser;
+      await createNumbersCollection();
+      await browser.connectWithConnectionString(
+        'mongodb://localhost:27091/test'
+      );
+
+      // Some tests navigate away from the numbers collection aggregations tab
+      await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
+
+      // sanity check to make sure there's only one
+      const stageContainers = await browser.$$(Selectors.StageContainer);
+      expect(stageContainers).to.have.lengthOf(1);
+
+      await browser.focusStageOperator(0);
+
+      let stageOperatorOptionsElements = await browser.$$(
+        Selectors.stageOperatorOptions(0)
+      );
+      let options = await Promise.all(
+        stageOperatorOptionsElements.map((element) => element.getText())
+      );
+
+      expect(options).to.include('$match');
+      expect(options).to.include('$out');
+
+      await browser.openSettingsModal();
+      const settingsModal = await browser.$(Selectors.SettingsModal);
+      await settingsModal.waitForDisplayed();
+
+      await browser.clickParent(Selectors.ReadOnlyCheckbox);
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // wait for the modal to go away
+      await settingsModal.waitForDisplayed({ reverse: true });
+
+      await browser.focusStageOperator(0);
+
+      stageOperatorOptionsElements = await browser.$$(
+        Selectors.stageOperatorOptions(0)
+      );
+      options = await Promise.all(
+        stageOperatorOptionsElements.map((element) => element.getText())
+      );
+
+      expect(options).to.include('$match');
+      expect(options).to.not.include('$out');
+    } finally {
+      await afterTest(compass, this.currentTest);
+      await afterTests(compass, this.currentTest);
+    }
+  });
+
+  it('shows and hides the create index button', async function () {
+    const compass = await beforeTests();
+    try {
+      const browser = compass.browser;
+      await browser.setFeature('readOnly', false);
+      await createNumbersCollection();
+      await browser.connectWithConnectionString(
+        'mongodb://localhost:27091/test'
+      );
+
+      await browser.navigateToCollectionTab('test', 'numbers', 'Indexes');
+
+      let createIndexButton = await browser.$(Selectors.CreateIndexButton);
+      let isCreateIndexButtonExisting = await createIndexButton.isExisting();
+      expect(isCreateIndexButtonExisting).to.be.equal(true);
+
+      await browser.openSettingsModal();
+      const settingsModal = await browser.$(Selectors.SettingsModal);
+      await settingsModal.waitForDisplayed();
+
+      await browser.clickParent(Selectors.ReadOnlyCheckbox);
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // wait for the modal to go away
+      await settingsModal.waitForDisplayed({ reverse: true });
+
+      createIndexButton = await browser.$(
+        Selectors.SidebarCreateDatabaseButton
+      );
+      isCreateIndexButtonExisting = await createIndexButton.isExisting();
+      expect(isCreateIndexButtonExisting).to.be.equal(false);
+
+      const indexList = await browser.$(Selectors.IndexList);
+      const isIndexListExisting = await indexList.isExisting();
+      expect(isIndexListExisting).to.be.equal(true);
+    } finally {
+      await afterTest(compass, this.currentTest);
+      await afterTests(compass, this.currentTest);
+    }
+  });
+
+  it('enables and disables validation actions', async function () {
+    const compass = await beforeTests();
+    try {
+      const browser = compass.browser;
+      await browser.setFeature('readOnly', false);
+      await createNumbersCollection();
+      await browser.connectWithConnectionString(
+        'mongodb://localhost:27091/test'
+      );
+
+      await browser.navigateToCollectionTab('test', 'numbers', 'Validation');
+      await browser.clickVisible(Selectors.AddRuleButton);
+      const element = await browser.$(Selectors.ValidationEditor);
+      await element.waitForDisplayed();
+
+      await browser.setAceValue(
+        Selectors.ValidationEditor,
+        '{ $jsonSchema: {} }'
+      );
+
+      await browser.screenshot('jsonSchema.png');
+
+      let updateValidationButton = await browser.$(
+        Selectors.UpdateValidationButton
+      );
+      let isUpdateValidationButtonExisting =
+        await updateValidationButton.isExisting();
+      expect(isUpdateValidationButtonExisting).to.be.equal(true);
+
+      let validationActionSelector = await browser.$(
+        Selectors.ValidationActionSelector
+      );
+      let validationActionSelectorDisabled =
+        await validationActionSelector.getAttribute('disabled');
+      expect(validationActionSelectorDisabled).to.equal(null);
+
+      let validationLevelSelector = await browser.$(
+        Selectors.ValidationLevelSelector
+      );
+      let validationLevelSelectorDisabled =
+        await validationLevelSelector.getAttribute('disabled');
+      expect(validationLevelSelectorDisabled).to.equal(null);
+
+      await browser.openSettingsModal();
+      const settingsModal = await browser.$(Selectors.SettingsModal);
+      await settingsModal.waitForDisplayed();
+
+      await browser.clickParent(Selectors.ReadOnlyCheckbox);
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // wait for the modal to go away
+      await settingsModal.waitForDisplayed({ reverse: true });
+
+      validationActionSelector = await browser.$(
+        Selectors.ValidationActionSelector
+      );
+      validationActionSelectorDisabled =
+        await validationActionSelector.getAttribute('disabled');
+      expect(validationActionSelectorDisabled).to.equal(''); // null = missing attribute, '' = set
+
+      validationLevelSelector = await browser.$(
+        Selectors.ValidationLevelSelector
+      );
+      validationLevelSelectorDisabled =
+        await validationLevelSelector.getAttribute('disabled');
+      expect(validationLevelSelectorDisabled).to.equal(''); // null = missing attribute, '' = set
+
+      updateValidationButton = await browser.$(
+        Selectors.UpdateValidationButton
+      );
+      isUpdateValidationButtonExisting =
+        await updateValidationButton.isExisting();
+      expect(isUpdateValidationButtonExisting).to.be.equal(false);
     } finally {
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);

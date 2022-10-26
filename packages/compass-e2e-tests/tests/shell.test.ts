@@ -14,7 +14,9 @@ describe('Shell', function () {
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
+  });
 
+  beforeEach(async function () {
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
 
