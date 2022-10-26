@@ -34,6 +34,12 @@ const titleStyle = css({
   color: palette.black,
 });
 
+const titleStyleDark = css({
+  fontWeight: 'bold',
+  lineHeight: '25px',
+  color: uiColors.gray.light2,
+});
+
 const warningIconStyles = css({
   width: '32px',
   height: '32px',
@@ -72,17 +78,7 @@ function UnthemedModalHeader({
         </div>
       )}
 
-      <h1
-        className={cx(titleStyle, {
-          [css({
-            fontWeight: 'bold',
-            lineHeight: '25px',
-            color: uiColors.gray.light2,
-          })]: darkMode,
-        })}
-      >
-        {title}
-      </h1>
+      <h1 className={cx(titleStyle, darkMode && titleStyleDark)}>{title}</h1>
       {subtitle && <Body>{subtitle}</Body>}
     </div>
   );
