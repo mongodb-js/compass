@@ -8,8 +8,25 @@ import {
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import { getCheckboxAndBannerState } from '../helpers/get-checkbox-and-banner-state';
 import * as Selectors from '../helpers/selectors';
+import type { CompassBrowser } from '../helpers/compass-browser';
+
+async function getCheckboxAndBannerState(
+  browser: CompassBrowser,
+  setting: string
+) {
+  const settingSelector = `${Selectors.SettingsModal} [data-testid="setting-${setting}"]`;
+  const checkbox = await browser.$(`${settingSelector} input[type="checkbox"]`);
+  const disabled = await checkbox.getAttribute('disabled');
+  const value = await checkbox.getAttribute('aria-checked'); // .getValue() always returns 'on'?
+  const banner = await browser.$(
+    `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"]`
+  );
+  const bannerText = (await banner.isExisting())
+    ? await banner.getText()
+    : null;
+  return { disabled, value, bannerText };
+}
 
 describe('Global preferences', function () {
   let tmpdir: string;
@@ -38,6 +55,8 @@ describe('Global preferences', function () {
     });
     try {
       const browser = compass.browser;
+      await browser.setFeature('enableMaps', true);
+      await browser.setFeature('trackUsageStatistics', true);
       await browser.openSettingsModal();
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
@@ -70,6 +89,8 @@ describe('Global preferences', function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
+      await browser.setFeature('enableMaps', true);
+      await browser.setFeature('trackUsageStatistics', true);
       await browser.openSettingsModal();
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
@@ -102,6 +123,8 @@ describe('Global preferences', function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
+      await browser.setFeature('enableMaps', true);
+      await browser.setFeature('trackUsageStatistics', true);
       await browser.openSettingsModal();
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
