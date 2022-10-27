@@ -1,3 +1,4 @@
+import CompassCompoennts from '@mongodb-js/compass-components';
 import { inputExpressionChanged } from '../modules/input-expression';
 import { modalOpenChanged } from '../modules/modal-open';
 import { modeChanged } from '../modules/mode';
