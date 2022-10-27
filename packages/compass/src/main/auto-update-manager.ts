@@ -370,12 +370,7 @@ class CompassAutoUpdateManager {
     preferences.onPreferenceValueChanged('autoUpdates', (enabled) => {
       if (enabled) {
         track('Autoupdate Enabled');
-        // Do not kick off update check immediately, wait a little before that so
-        // that we 1) don't waste time checking on the application start 2) don't
-        // show the popup while the app is loading
-        void wait(this.autoUpdateOptions.initialUpdateDelay).then(() => {
-          this.setState(AutoUpdateManagerState.CheckingForUpdates);
-        });
+        this.setState(AutoUpdateManagerState.CheckingForUpdates);
       } else {
         track('Autoupdate Disabled');
         this.setState(AutoUpdateManagerState.Disabled);
