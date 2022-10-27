@@ -102,7 +102,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           data-testid="use-os-theme"
           label={
             <>
-              <Label htmlFor="use-os-theme">Sync with OS</Label>
+              <Label htmlFor="use-os-theme">Sync with OS (Preview)</Label>
               <Description>
                 Automatically switch between light and dark themes based on your
                 OS settings
@@ -137,7 +137,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
         >
           <DarkThemePreview />
-          Dark Theme
+          Dark Theme (Preview)
         </RadioBox>
       </RadioBoxGroup>
     </div>
