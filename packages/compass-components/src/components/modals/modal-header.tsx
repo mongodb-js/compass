@@ -77,8 +77,13 @@ function UnthemedModalHeader({
           <Icon glyph="Warning" fill={palette.red.base} role="presentation" />
         </div>
       )}
-
-      <h1 className={cx(titleStyle, darkMode && titleStyleDark)}>{title}</h1>
+      <h1
+        className={cx(titleStyle, darkMode && titleStyleDark)}
+        data-testid="modal-title"
+        id="modal-title"
+      >
+        {title}
+      </h1>
       {subtitle && <Body>{subtitle}</Body>}
     </div>
   );
