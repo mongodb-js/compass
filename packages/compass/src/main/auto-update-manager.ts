@@ -71,7 +71,7 @@ const checkForUpdates: StateUpdateAction = async function checkForUpdates(
 
 const disableAutoUpdates: StateUpdateAction = function disableAutoUpdates() {
   log.info(
-    mongoLogId(1_001_000_148),
+    mongoLogId(1_001_000_149),
     'AutoUpdateManager',
     'Disabling auto updates'
   );
@@ -289,7 +289,7 @@ class CompassAutoUpdateManager {
         return JSON.parse(result.body);
       } catch (err) {
         log.warn(
-          mongoLogId(1_001_000_146),
+          mongoLogId(1_001_000_150),
           'AutoUpdateManager',
           'Failed to parse update info',
           { error: (err as Error).message }
@@ -298,7 +298,7 @@ class CompassAutoUpdateManager {
       }
     } catch (err) {
       log.warn(
-        mongoLogId(1_001_000_141),
+        mongoLogId(1_001_000_151),
         'AutoUpdateManager',
         'Failed to check for update',
         { error: (err as Error).message }
