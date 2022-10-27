@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Modal,
-  H3,
-  TextInput,
-  spacing,
-  Button,
-  css,
-} from '@mongodb-js/compass-components';
+import { FormModal, TextInput } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import type { RootState } from '../stores';
@@ -20,23 +13,6 @@ type EditItemModalProps = {
   onSubmit(id: string, attributes: UpdateItemAttributes): void;
   onCancel: () => void;
 };
-
-const formTitleStyles = css({
-  marginBottom: spacing[3],
-  lineHeight: '25px',
-  fontWeight: 'bold',
-  fontSize: '24px',
-});
-
-const formFooterStyles = css({
-  marginTop: spacing[5],
-  display: 'flex',
-  justifyContent: 'flex-end',
-});
-
-const cancelButtonStyles = css({
-  marginRight: spacing[2],
-});
 
 const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
   isModalOpen,
@@ -60,37 +36,25 @@ const EditItemModal: React.FunctionComponent<EditItemModalProps> = ({
   };
 
   return (
-    <Modal setOpen={onCancel} open={isModalOpen} data-testid="edit-item-modal">
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          onSubmitForm();
+    <FormModal
+      open={isModalOpen}
+      onCancel={onCancel}
+      onSubmit={onSubmitForm}
+      submitButtonText="Update"
+      submitDisabled={isSubmitDisabled()}
+      title={`Rename ${item?.type ?? ''}`}
+      data-testid="edit-item-modal"
+    >
+      <TextInput
+        aria-label="Name"
+        label="Name"
+        name="name"
+        value={name}
+        onChange={(event) => {
+          setName(event.target.value);
         }}
-      >
-        <H3 className={formTitleStyles}>{`Rename ${item?.type ?? ''}`}</H3>
-        <TextInput
-          aria-label="Name"
-          label="Name"
-          name="name"
-          value={name}
-          onChange={(event) => {
-            setName(event.target.value);
-          }}
-        />
-        <div className={formFooterStyles}>
-          <Button
-            className={cancelButtonStyles}
-            variant="default"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-          <Button disabled={isSubmitDisabled()} variant="primary" type="submit">
-            Update
-          </Button>
-        </div>
-      </form>
-    </Modal>
+      />
+    </FormModal>
   );
 };
 

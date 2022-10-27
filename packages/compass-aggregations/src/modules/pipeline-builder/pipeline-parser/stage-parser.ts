@@ -1,7 +1,7 @@
 import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
 
-import { generate } from './utils';
+import { generate, PipelineParserError } from './utils';
 
 export type StageLike = t.ObjectExpression & {
   properties: [t.ObjectProperty & { key: t.Identifier | t.StringLiteral }];
@@ -36,13 +36,13 @@ export function assertStageNode(node: t.Node): asserts node is StageLike {
   if (isStageLike(node)) {
     return;
   }
-  throw new SyntaxError(
-    node.type === 'ObjectExpression'
-      ? (node.properties[0] as t.ObjectProperty | undefined)?.key == null
-        ? 'A pipeline stage specification object must contain exactly one field.'
-        : 'Stage value can not be empty'
-      : 'Each element of the pipeline array must be an object'
-  );
+  const message = node.type === 'ObjectExpression'
+    ? (node.properties[0] as t.ObjectProperty | undefined)?.key == null
+      ? 'A pipeline stage specification object must contain exactly one field.'
+      : 'Stage value can not be empty'
+    : 'Each element of the pipeline array must be an object';
+
+  throw new PipelineParserError(message, node.loc?.start);
 }
 
 export function getStageOperatorFromNode(node: StageLike): string {

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  ConfirmationModal,
+  FormModal,
   Option,
   Select,
   css,
@@ -135,13 +135,14 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
   onSubmit,
 }) => {
   return (
-    <ConfirmationModal
+    <FormModal
       open={isModalOpen}
       onCancel={onClose}
-      onConfirm={onSubmit}
+      onSubmit={onSubmit}
       title="Select a Namespace"
-      buttonText="Open"
+      submitButtonText="Open"
       submitDisabled={isSubmitDisabled}
+      scroll={false} // this is so that the selects can hang over the footer and out of the modal
       data-testid="open-item-modal"
     >
       <div className={modalContent}>
@@ -161,7 +162,7 @@ const OpenItemModal: React.FunctionComponent<OpenItemModalProps> = ({
           ></CollectionSelect>
         </div>
       </div>
-    </ConfirmationModal>
+    </FormModal>
   );
 };
 

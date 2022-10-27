@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import {
   Modal,
-  ModalTitle,
+  H3,
   css,
   spacing,
   Button,
@@ -99,9 +99,13 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       setOpen={closeModal}
       data-testid="settings-modal"
     >
-      <ModalTitle id="settings-tablist" data-testid="settings-modal-title">
+      <H3
+        id="settings-tablist"
+        data-testid="settings-modal-title"
+        className={css({ marginBottom: spacing[4] })}
+      >
         Settings
-      </ModalTitle>
+      </H3>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar

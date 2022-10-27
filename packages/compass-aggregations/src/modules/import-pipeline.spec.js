@@ -127,7 +127,7 @@ describe('import pipeline module', function() {
       expect(dispatchArgs.type).to.equal(CONFIRM_NEW);
       expect(dispatchArgs.error).to.equal(undefined);
       expect(dispatchArgs.stages).to.eq(pipelineBuilder.stages)
-      expect(dispatchArgs.source).to.eq(pipelineBuilder.source)
+      expect(dispatchArgs.pipelineText).to.eq(pipelineBuilder.source)
     });
 
     it('errors on invalid pipeline', function() {

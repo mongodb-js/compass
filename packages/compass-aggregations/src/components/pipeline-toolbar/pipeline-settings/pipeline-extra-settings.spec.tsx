@@ -13,6 +13,7 @@ const renderPipelineExtraSettings = (
   return render(
     <PipelineExtraSettings
       isAutoPreview={true}
+      isPipelineModeDisabled={true}
       pipelineMode={'builder-ui'}
       onToggleAutoPreview={() => {}}
       onChangePipelineMode={() => {}}

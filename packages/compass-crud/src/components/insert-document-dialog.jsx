@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import jsonParse from 'fast-json-parse';
 import { ViewSwitcher } from 'hadron-react-components';
 import { Element } from 'hadron-document';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal, spacing } from '@mongodb-js/compass-components';
 
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
@@ -212,15 +212,17 @@ class InsertDocumentDialog extends React.PureComponent {
     const currentView = this.props.jsonView ? 'JSON' : 'List';
 
     return (
-      <ConfirmationModal
+      <FormModal
         title={`Insert to Collection ${this.props.ns}`}
         className="insert-document-dialog"
         open={this.props.isOpen}
-        onConfirm={this.handleInsert.bind(this)}
+        onSubmit={this.handleInsert.bind(this)}
         onCancel={this.props.closeInsertDocumentDialog}
-        buttonText="Insert"
+        submitButtonText="Insert"
         submitDisabled={this.hasErrors()}
         trackingId="insert_document_modal"
+        data-testid="insert-document-modal"
+        minBodyHeight={spacing[6] * 2} // make sure there is enough space for the menu
       >
         <div className="insert-document-views">
           <ViewSwitcher
@@ -242,7 +244,7 @@ class InsertDocumentDialog extends React.PureComponent {
           mode={this.hasErrors() ? 'error' : this.state.mode}
         />
         <InsertCSFLEWarningBanner csfleState={this.props.csfleState} />
-      </ConfirmationModal>
+      </FormModal>
     );
   }
 }
