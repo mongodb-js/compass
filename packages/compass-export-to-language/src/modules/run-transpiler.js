@@ -4,6 +4,7 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { transpiledExpressionChanged } from './transpiled-expression';
 import { importsChanged } from './imports';
 import { errorChanged } from './error';
+import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 
 export const runTranspiler = (input) => {
   return (dispatch, getState) => {
@@ -22,7 +23,7 @@ export const runTranspiler = (input) => {
             options: {
               collection: ns.collection,
               database: ns.database,
-              uri: state.uri,
+              uri: maybeProtectConnectionString(state.uri),
             },
           },
           input

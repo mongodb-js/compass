@@ -56,6 +56,7 @@
     "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-editor": "^0.1.0",
     "@testing-library/react-hooks": "^7.0.2",
+    "compass-preferences-model": "^2.2.0",
     "lodash": "^4.17.21",
     "mongodb-build-info": "^1.4.0",
     "mongodb-connection-string-url": "^2.5.4",

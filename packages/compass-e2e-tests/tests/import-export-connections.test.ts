@@ -42,13 +42,17 @@ describe('Connection Import / Export', function () {
     await telemetry.stop();
   });
 
-  for (const variant of ['plaintext', 'encrypted'] as const) {
+  for (const variant of ['plaintext', 'encrypted', 'protected'] as const) {
     it(`can export and import connections through the CLI, ${variant}`, async function () {
       const file = path.join(tmpdir, 'file');
       const favoriteName = 'Fav for export';
       const passphrase = 'pässwörd';
       const passphraseArgs =
-        variant === 'encrypted' ? [`--passphrase=${passphrase}`] : [];
+        variant === 'encrypted'
+          ? [`--passphrase=${passphrase}`]
+          : variant === 'protected'
+          ? ['--protectConnectionStrings']
+          : [];
       const connectionString = 'mongodb://foo:bar@host:1234/';
       const connectionStringWithoutCredentials = 'mongodb://foo@host:1234/';
 
@@ -71,6 +75,7 @@ describe('Connection Import / Export', function () {
         await runCompassOnce([
           `--export-connections=${file}`,
           ...passphraseArgs,
+          '--trackUsageStatistics',
         ]);
 
         const contents = JSON.parse(await fs.readFile(file, 'utf8'));
@@ -85,12 +90,15 @@ describe('Connection Import / Export', function () {
           expect(conn.connectionOptions.connectionString).to.equal(
             connectionString
           );
-          expect(conn.connectionSecrets).to.not.exist;
         } else {
           expect(conn.connectionOptions.connectionString).to.equal(
             connectionStringWithoutCredentials
           );
+        }
+        if (variant === 'encrypted') {
           expect(conn.connectionSecrets).to.be.a('string');
+        } else {
+          expect(conn.connectionSecrets).to.not.exist;
         }
 
         const newEvents = telemetry.events().slice(existingEventsCount);
@@ -119,6 +127,7 @@ describe('Connection Import / Export', function () {
         await runCompassOnce([
           `--import-connections=${file}`,
           ...passphraseArgs,
+          '--trackUsageStatistics',
         ]);
 
         const newEvents = telemetry.events().slice(existingEventsCount);
@@ -142,7 +151,11 @@ describe('Connection Import / Export', function () {
         );
         expect(
           await browser.$(Selectors.ConnectionStringInput).getValue()
-        ).to.equal(connectionString);
+        ).to.equal(
+          variant === 'protected'
+            ? connectionStringWithoutCredentials
+            : connectionString
+        );
         await browser.selectFavorite(favoriteName);
         await browser.selectConnectionMenuItem(
           favoriteName,
