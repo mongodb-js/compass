@@ -8,7 +8,8 @@ import { preferencesAccess as preferences } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
-import { CompassTelemetry } from './telemetry';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-APP-MENU');
 
 type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 
@@ -444,11 +445,8 @@ class CompassMenu {
     });
 
     preferences.onPreferenceValueChanged('theme', newTheme => {
-      CompassTelemetry.track({
-        event: 'Theme Changed',
-        properties: {
-          theme: newTheme
-        }
+      track('Theme Changed', {
+        theme: newTheme
       });
 
       this.refreshMenu();
