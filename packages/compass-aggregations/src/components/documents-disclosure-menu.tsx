@@ -32,7 +32,7 @@ export const DocumentsDisclosureMenu: React.FunctionComponent<{
       align="bottom"
       justify="start"
       trigger={
-        <Button size="xsmall">
+        <Button size="xsmall" aria-label="Output Options">
           Output Options <Icon glyph="CaretDown" />
         </Button>
       }
@@ -41,14 +41,16 @@ export const DocumentsDisclosureMenu: React.FunctionComponent<{
         active={option === 'expanded'}
         data-action="expanded"
         onClick={onMenuItemClick}
-      >
+        aria-label="Expand all fields"
+        >
         Expand all fields
       </MenuItem>
       <MenuItem
         active={option === 'collapsed'}
         data-action="collapsed"
         onClick={onMenuItemClick}
-      >
+        aria-label="Collapse all fields"
+        >
         Collapse all fields
       </MenuItem>
     </Menu>

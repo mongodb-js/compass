@@ -6,6 +6,7 @@ export const Document: React.ComponentClass<{
   doc: Doc;
   editable?: boolean;
   isTimeSeries?: boolean;
+  isExpanded?: boolean;
   removeDocument?: () => void;
   replaceDocument?: () => void;
   updateDocument?: () => void;
@@ -17,6 +18,7 @@ type ListViewProps = {
   docs: Doc[];
   isEditable?: boolean;
   isTimeSeries?: boolean;
+  isExpanded?: boolean;
   removeDocument?: (doc: HadronDocument) => void;
   replaceDocument?: (doc: HadronDocument) => void;
   updateDocument?: (doc: HadronDocument) => void;

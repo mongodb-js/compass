@@ -23,7 +23,7 @@ const PipelineResultsList: React.FunctionComponent<{
     () => ({
       docs: documents.map((doc) => new HadronDocument(doc)),
       isEditable: false,
-      expandAll: allDocsExpanded,
+      isExpanded: allDocsExpanded,
       copyToClipboard(doc) {
         const str = doc.toEJSON();
         void navigator.clipboard.writeText(str);

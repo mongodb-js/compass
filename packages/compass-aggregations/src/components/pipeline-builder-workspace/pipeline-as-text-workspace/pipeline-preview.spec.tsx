@@ -19,12 +19,6 @@ const renderPipelineEditor = (
   );
 };
 
-const clickButtonWithText = (text: string) => {
-  userEvent.click(screen.getByText(text), undefined, {
-    skipPointerEventsCheck: true
-  });
-}
-
 describe('PipelinePreview', function () {
   it('renders editor workspace', function () {
     renderPipelineEditor({});
@@ -92,8 +86,8 @@ describe('PipelinePreview', function () {
     expect(() => within(docList).getByText(/document/)).to.throw;
 
     // Expand the whole document
-    clickButtonWithText('Output Options');
-    clickButtonWithText('Expand all fields');
+    userEvent.click(screen.getByLabelText('Output Options'));
+    userEvent.click(screen.getByLabelText('Expand all fields'));
 
     expect(within(docList).getByText(/_id/)).to.exist;
     expect(within(docList).getByText(/score/)).to.exist;
@@ -104,8 +98,8 @@ describe('PipelinePreview', function () {
     expect(within(docList).getByText(/document/)).to.exist;
 
     // Collapse the whole document
-    clickButtonWithText('Output Options');
-    clickButtonWithText('Collapse all fields');
+    userEvent.click(screen.getByLabelText('Output Options'));
+    userEvent.click(screen.getByLabelText('Collapse all fields'));
 
     expect(within(docList).getByText(/_id/)).to.exist;
     expect(within(docList).getByText(/score/)).to.exist;
