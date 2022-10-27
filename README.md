@@ -20,7 +20,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 
 - [**@mongodb-js/compass-aggregations**](packages/compass-aggregations): Compass Aggregation Pipeline Builder
 - [**@mongodb-js/compass-app-stores**](packages/compass-app-stores): The external stores repo for compass
-- [**@mongodb-js/compass-auto-updates**](packages/compass-auto-updates): Compass Auto Updates Plugin
 - [**@mongodb-js/compass-collection**](packages/compass-collection): Compass Collection Plugin
 - [**@mongodb-js/compass-connections**](packages/compass-connections): Connection Screen
 - [**@mongodb-js/compass-crud**](packages/compass-crud): Compass Plugin for CRUD Operations

@@ -175,7 +175,6 @@
     "@electron/remote": "^2.0.8",
     "@mongodb-js/compass-aggregations": "^9.2.0",
     "@mongodb-js/compass-app-stores": "^6.1.2",
-    "@mongodb-js/compass-auto-updates": "^4.2.0",
     "@mongodb-js/compass-collection": "^4.2.0",
     "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-crud": "^13.2.0",
