@@ -1,0 +1,202 @@
+import { setTimeout as wait } from 'timers/promises';
+import { expect } from 'chai';
+import Sinon from 'sinon';
+import {
+  AutoUpdateManagerState,
+  CompassAutoUpdateManager,
+} from './auto-update-manager';
+import autoUpdater from './auto-updater';
+import { app, dialog } from 'electron';
+
+CompassAutoUpdateManager.autoUpdateOptions = {
+  endpoint: 'http://example.com',
+  platform: 'darwin',
+  arch: 'x64',
+  product: 'compass',
+  channel: 'dev',
+  version: '0.0.0',
+  updateCheckInterval: 0,
+  initialUpdateDelay: 0,
+};
+
+function setStateAndWaitForUpdate(
+  initial: AutoUpdateManagerState,
+  setTo: AutoUpdateManagerState,
+  expected: AutoUpdateManagerState,
+  timeout = 5_000
+): Promise<true> {
+  return new Promise((resolve, reject) => {
+    let resolved = false;
+    function resolveWhenState(newState) {
+      if (newState === expected) {
+        resolved = true;
+        CompassAutoUpdateManager.off('new-state', resolveWhenState);
+        CompassAutoUpdateManager['currentActionAbortController'].abort();
+        resolve(true);
+      }
+    }
+    CompassAutoUpdateManager['state'] = initial;
+    CompassAutoUpdateManager.setState(setTo, {});
+    CompassAutoUpdateManager.on('new-state', resolveWhenState);
+    void wait(timeout).then(() => {
+      if (resolved) {
+        return;
+      }
+      CompassAutoUpdateManager.off('new-state', resolveWhenState);
+      reject(
+        new Error(
+          `Expected state to be "${expected}" got "${CompassAutoUpdateManager['state']}"`
+        )
+      );
+    });
+  });
+}
+
+describe('CompassAutoUpdateManager', function () {
+  const sandbox = Sinon.createSandbox();
+
+  afterEach(function () {
+    sandbox.restore();
+    CompassAutoUpdateManager['state'] = AutoUpdateManagerState.Initial;
+  });
+
+  it('should not allow undefined state transitions', function () {
+    const initialState = CompassAutoUpdateManager['state'];
+    CompassAutoUpdateManager.setState(AutoUpdateManagerState.ReadyToUpdate);
+    expect(CompassAutoUpdateManager['state']).to.eq(initialState);
+    CompassAutoUpdateManager.setState(AutoUpdateManagerState.Restarting);
+    expect(CompassAutoUpdateManager['state']).to.eq(initialState);
+    CompassAutoUpdateManager.setState(AutoUpdateManagerState.NoUpdateAvailable);
+    expect(CompassAutoUpdateManager['state']).to.eq(initialState);
+  });
+
+  describe('when checking for update', function () {
+    beforeEach(function () {
+      sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+        return new Promise(() => {});
+      });
+      sandbox.stub(autoUpdater);
+    });
+
+    it('should check for update and transition to update not available if backend returned nothing', async function () {
+      const stub = sandbox
+        .stub(CompassAutoUpdateManager, 'checkForUpdate')
+        .callsFake(() => {
+          return Promise.resolve(null);
+        });
+
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.Initial,
+          AutoUpdateManagerState.CheckingForUpdates,
+          AutoUpdateManagerState.NoUpdateAvailable
+        )
+      ).to.eq(true);
+
+      expect(stub).to.be.calledOnce;
+    });
+
+    it('should transition to update available if update is available', async function () {
+      const stub = Sinon.stub(
+        CompassAutoUpdateManager,
+        'checkForUpdate'
+      ).callsFake(() => {
+        return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+      });
+
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.Initial,
+          AutoUpdateManagerState.CheckingForUpdates,
+          AutoUpdateManagerState.UpdateAvailable
+        )
+      ).to.eq(true);
+
+      expect(stub).to.be.calledOnce;
+    });
+  });
+
+  describe('when showing update available dialog to the user', function () {
+    beforeEach(function () {
+      sandbox.stub(autoUpdater);
+    });
+
+    it('should start downloading update if user confirms update install', async function () {
+      const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+        return Promise.resolve({ response: 0, checkboxChecked: false });
+      });
+
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.CheckingForUpdates,
+          AutoUpdateManagerState.UpdateAvailable,
+          AutoUpdateManagerState.DownloadingUpdate
+        )
+      ).to.eq(true);
+
+      expect(stub).to.be.calledOnce;
+    });
+
+    it('should transition to update dismissed if user cancels the update', async function () {
+      const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+        return Promise.resolve({ response: 1, checkboxChecked: false });
+      });
+
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.CheckingForUpdates,
+          AutoUpdateManagerState.UpdateAvailable,
+          AutoUpdateManagerState.UpdateDismissed
+        )
+      ).to.eq(true);
+
+      expect(stub).to.be.calledOnce;
+    });
+  });
+
+  describe('when update is downloaded and ready to install', function () {
+    beforeEach(function () {
+      sandbox.stub(autoUpdater);
+    });
+
+    it('should restart the app if user confirms', async function () {
+      const showBoxStub = sandbox
+        .stub(dialog, 'showMessageBox')
+        .callsFake(() => {
+          return Promise.resolve({ response: 0, checkboxChecked: false });
+        });
+      const relaunchStub = sandbox.stub(app, 'relaunch').callsFake(() => {});
+      const exitStub = sandbox.stub(app, 'exit').callsFake(() => {});
+
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.DownloadingUpdate,
+          AutoUpdateManagerState.ReadyToUpdate,
+          AutoUpdateManagerState.Restarting
+        )
+      ).to.eq(true);
+
+      expect(showBoxStub).to.be.calledOnce;
+      expect(relaunchStub).to.be.calledOnce;
+      expect(exitStub).to.be.calledOnce;
+    });
+
+    it('should transition to restart dismissed if user does not confirm restart', async function () {
+      const showBoxStub = sandbox
+        .stub(dialog, 'showMessageBox')
+        .callsFake(() => {
+          return Promise.resolve({ response: 1, checkboxChecked: false });
+        });
+
+      expect(
+        await setStateAndWaitForUpdate(
+          AutoUpdateManagerState.DownloadingUpdate,
+          AutoUpdateManagerState.ReadyToUpdate,
+          AutoUpdateManagerState.RestartDismissed
+        )
+      ).to.eq(true);
+
+      expect(showBoxStub).to.be.calledOnce;
+    });
+  });
+});

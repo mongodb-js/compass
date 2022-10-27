@@ -60,7 +60,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**electron-license**](packages/electron-license): Tools for electron apps to work with licenses
 - [**hadron-app**](packages/hadron-app): Hadron Application Singleton
 - [**hadron-app-registry**](packages/hadron-app-registry): Hadron App Registry
-- [**hadron-auto-update-manager**](packages/hadron-auto-update-manager): Atoms AutoUpdateManager class as a standalone module.
 - [**hadron-build**](packages/hadron-build): Tooling for Hadron apps.
 - [**hadron-document**](packages/hadron-document): Hadron Document
 - [**hadron-ipc**](packages/hadron-ipc): Simplified IPC for electron apps.
