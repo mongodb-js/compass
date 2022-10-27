@@ -95,7 +95,13 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           <div className={settingsRowStyles}>
             <PipelineSettings />
           </div>
-        ) : <div className={settingsRowStyles}><PipelineResultsHeader onChangeAllDocsExpanded={onChangeAllDocsExpanded}/></div>}
+        ) : (
+          <div className={settingsRowStyles}>
+            <PipelineResultsHeader
+              onChangeAllDocsExpanded={onChangeAllDocsExpanded}
+            />
+          </div>
+        )}
       </>
     </div>
   );
