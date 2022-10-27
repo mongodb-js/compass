@@ -1,4 +1,3 @@
-import * as remote from '@electron/remote';
 import {
   css,
   cx,
@@ -28,6 +27,14 @@ import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let remote: typeof import('@electron/remote') | undefined;
+try {
+  remote = require('@electron/remote');
+} catch {
+  /* no electron, eg. mocha tests */
+}
 
 const homeViewStyles = css({
   display: 'flex',
@@ -295,6 +302,13 @@ function Home({
   );
 }
 
+function getCurrentTheme(): Theme {
+  return preferences.getPreferences().lgDarkmode &&
+    remote?.nativeTheme?.shouldUseDarkColors
+    ? Theme.Dark
+    : Theme.Light;
+}
+
 function ThemedHome(
   props: React.ComponentProps<typeof Home> & {
     showWelcomeModal: boolean;
@@ -303,11 +317,6 @@ function ThemedHome(
 ): ReturnType<typeof Home> {
   const { showWelcomeModal, networkTraffic } = props;
   const appRegistry = useAppRegistryContext();
-  const getCurrentTheme = () =>
-    preferences.getPreferences().lgDarkmode &&
-    remote.nativeTheme.shouldUseDarkColors
-      ? Theme.Dark
-      : Theme.Light;
 
   const [theme, setTheme] = useState<ThemeState>({
     theme: getCurrentTheme(),
