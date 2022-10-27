@@ -43,7 +43,7 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
     <div
       data-testid="settings-modal-sidebar"
       role="tablist"
-      aria-labelledby="settings-tablist"
+      aria-labelledby="modal-title"
     >
       {items.map((item) => (
         <button
