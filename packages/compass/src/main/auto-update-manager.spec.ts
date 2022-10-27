@@ -97,7 +97,7 @@ describe('CompassAutoUpdateManager', function () {
     });
 
     it('should transition to update available if update is available', async function () {
-      const stub = Sinon.stub(
+      const stub = sandbox.stub(
         CompassAutoUpdateManager,
         'checkForUpdate'
       ).callsFake(() => {
@@ -113,6 +113,29 @@ describe('CompassAutoUpdateManager', function () {
       ).to.eq(true);
 
       expect(stub).to.be.calledOnce;
+    });
+
+    it('should abort checking and go to disabled when autoupdate is disabled', async function () {
+      const stub = sandbox.stub(
+        CompassAutoUpdateManager,
+        'checkForUpdate'
+      ).callsFake(() => {
+        return wait(100, { from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+      });
+
+      CompassAutoUpdateManager.setState(
+        AutoUpdateManagerState.CheckingForUpdates
+      );
+      CompassAutoUpdateManager.setState(AutoUpdateManagerState.Disabled);
+
+      await wait(1000);
+
+      // Check for update returned existing update, but as we disabled in the
+      // meantime the state is still disabled and wasn't transitioned
+      expect(stub).to.be.calledOnce;
+      expect(CompassAutoUpdateManager['state']).to.eq(
+        AutoUpdateManagerState.Disabled
+      );
     });
   });
 
@@ -151,6 +174,29 @@ describe('CompassAutoUpdateManager', function () {
       ).to.eq(true);
 
       expect(stub).to.be.calledOnce;
+    });
+
+    it('should ignore user input and go to disabled when autoupdate is disabled', async function () {
+      const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+        return wait(100, { response: 0, checkboxChecked: false });
+      });
+
+      CompassAutoUpdateManager['state'] =
+        AutoUpdateManagerState.CheckingForUpdates;
+      CompassAutoUpdateManager.setState(
+        AutoUpdateManagerState.UpdateAvailable,
+        {}
+      );
+      CompassAutoUpdateManager.setState(AutoUpdateManagerState.Disabled);
+
+      await wait(1000);
+
+      // Message box returned install update, but as we disabled in the meantime
+      // the state is still disabled and wasn't transitioned
+      expect(stub).to.be.calledOnce;
+      expect(CompassAutoUpdateManager['state']).to.eq(
+        AutoUpdateManagerState.Disabled
+      );
     });
   });
 

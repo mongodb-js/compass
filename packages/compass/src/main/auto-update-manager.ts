@@ -26,6 +26,15 @@ const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
  *                                  Ready to update → Restart dismissed
  *                                   ↓
  *                                  Restarting
+ *
+ * Autoupdate manager can freely switch between disabled, checking for updates,
+ * and update not available states.
+ *
+ * After update is found and user confirmed the update, there is no way to stop
+ * the process anymore (because `autoUpdater.checkForUpdates` method will check
+ * for updates and automatically install them right away) so starting from
+ * downloading state update process can not be interrupted by anything, even
+ * disabling autoupdates in settings.
  */
 export const enum AutoUpdateManagerState {
   Initial = 'initial',
@@ -58,10 +67,13 @@ const checkForUpdates: StateUpdateAction = async function checkForUpdates(
     'AutoUpdateManager',
     'Checking for updates ...'
   );
+
   const updateInfo = await updateManager.checkForUpdate();
+
   if (this.aborted) {
     return;
   }
+
   if (updateInfo) {
     updateManager.setState(AutoUpdateManagerState.UpdateAvailable, updateInfo);
   } else {
@@ -108,10 +120,10 @@ const STATE_UPDATE: Partial<
     [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
   },
   [AutoUpdateManagerState.CheckingForUpdates]: {
-    [AutoUpdateManagerState.UpdateAvailable]: async (
+    [AutoUpdateManagerState.UpdateAvailable]: async function (
       updateManager,
       updateInfo: { from: string; to: string }
-    ) => {
+    ) {
       log.info(mongoLogId(1001000127), 'AutoUpdateManager', 'Update available');
 
       const answer = await dialog.showMessageBox({
@@ -122,6 +134,10 @@ const STATE_UPDATE: Partial<
         buttons: ['Install', 'Ask me later'],
         cancelId: 1,
       });
+
+      if (this.aborted) {
+        return;
+      }
 
       if (answer.response === 0) {
         updateManager.setState(
@@ -175,12 +191,13 @@ const STATE_UPDATE: Partial<
     [AutoUpdateManagerState.UpdateDismissed]: (_updateManager, updateInfo) => {
       track('Autoupdate Dismissed', { update_version: updateInfo.to });
     },
+    [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
   },
   [AutoUpdateManagerState.DownloadingUpdate]: {
-    [AutoUpdateManagerState.ReadyToUpdate]: async (
+    [AutoUpdateManagerState.ReadyToUpdate]: async function (
       updateManager,
       updateInfo: { from: string; to: string }
-    ) => {
+    ) {
       log.info(
         mongoLogId(1001000128),
         'AutoUpdateManager',
@@ -189,6 +206,7 @@ const STATE_UPDATE: Partial<
           releaseVersion: updateInfo.to,
         }
       );
+
       const answer = await dialog.showMessageBox({
         icon: COMPASS_ICON,
         title: 'Restart to finish the update',
@@ -198,6 +216,11 @@ const STATE_UPDATE: Partial<
         buttons: ['Restart', 'Close'],
         cancelId: 1,
       });
+
+      if (this.aborted) {
+        return;
+      }
+
       if (answer.response === 0) {
         updateManager.setState(AutoUpdateManagerState.Restarting, updateInfo);
       } else {
