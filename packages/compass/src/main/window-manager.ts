@@ -17,6 +17,7 @@ import { enable } from '@electron/remote/main';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import preferences from 'compass-preferences-model';
+import { setupTheme } from './theme';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
 
@@ -224,6 +225,8 @@ async function onAppReady(compassApp: typeof CompassApplication) {
       // noop
     }
   }
+
+  setupTheme();
 
   showConnectWindow(compassApp);
 }
