@@ -11,6 +11,7 @@ import { ADL, ATLAS } from '@mongodb-js/mongodb-constants';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
 import styles from './stage-preview.module.less';
+import { MERGE_STAGE_PREVIEW_TEXT, OUT_STAGE_PREVIEW_TEXT } from '../../utils/stage';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -86,8 +87,7 @@ export class StagePreview extends PureComponent {
     return (
       <div className={styles['stage-preview-out']}>
         <div className={styles['stage-preview-out-text']}>
-          The $merge operator will cause the pipeline to persist the results to
-          the specified location.
+          {MERGE_STAGE_PREVIEW_TEXT}
         </div>
         {this.props.isAtlasDeployed && (
           <Button
@@ -132,9 +132,7 @@ export class StagePreview extends PureComponent {
     return (
       <Body as="div" className={styles['stage-preview-out']}>
         <div className={styles['stage-preview-out-text']}>
-          The $out operator will cause the pipeline to persist the results to
-          the specified location (collection, S3, or Atlas). If the collection
-          exists it will be replaced.
+          {OUT_STAGE_PREVIEW_TEXT}
         </div>
         {this.props.isAtlasDeployed && (
           <Button
