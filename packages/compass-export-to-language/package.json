@@ -24,13 +24,13 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
+  "compass:main": "src/index.js",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.js"
   },
   "scripts": {
     "prepublishOnly": "npm run compile",
