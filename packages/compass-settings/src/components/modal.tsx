@@ -2,12 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
 import {
-  Modal,
-  ModalTitle,
+  FormModal,
   css,
   spacing,
-  Button,
-  ModalFooter,
   focusRing,
 } from '@mongodb-js/compass-components';
 
@@ -45,15 +42,6 @@ const settingsStyles = css(
   focusRing
 );
 
-const footerStyles = css({
-  display: 'flex',
-  justifyContent: 'flex-end',
-  flexDirection: 'row',
-  gap: spacing[2],
-  paddingRight: 0,
-  paddingBottom: 0,
-});
-
 const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
@@ -89,15 +77,15 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   }
 
   return (
-    <Modal
+    <FormModal
       size="large"
+      title="Settings"
       open={isOpen}
-      setOpen={closeModal}
+      submitButtonText="Save"
+      onSubmit={saveSettings}
+      onCancel={closeModal}
       data-testid="settings-modal"
     >
-      <ModalTitle id="settings-tablist" data-testid="settings-modal-title">
-        Settings
-      </ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar
@@ -117,23 +105,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           {SettingComponent && <SettingComponent />}
         </div>
       </div>
-      <ModalFooter className={footerStyles}>
-        <Button
-          data-testid="cancel-settings-button"
-          variant="default"
-          onClick={closeModal}
-        >
-          Cancel
-        </Button>
-        <Button
-          data-testid="save-settings-button"
-          variant="primary"
-          onClick={saveSettings}
-        >
-          Save
-        </Button>
-      </ModalFooter>
-    </Modal>
+    </FormModal>
   );
 };
 

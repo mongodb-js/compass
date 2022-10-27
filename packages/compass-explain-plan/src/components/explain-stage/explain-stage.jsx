@@ -273,6 +273,7 @@ class ExplainStage extends Component {
         </ul>
         <div className={styles.details}>
           <Button
+            type="button"
             bsSize="xsmall"
             bsStyle="default"
             className={this.state.detailsOpen ? 'active' : ''}

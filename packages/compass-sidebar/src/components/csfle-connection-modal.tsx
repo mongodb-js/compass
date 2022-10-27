@@ -5,11 +5,10 @@ import {
   Banner,
   Body,
   Description,
-  ModalTitle,
   Label,
   Link,
   Toggle,
-  Modal,
+  InfoModal,
 } from '@mongodb-js/compass-components';
 
 const toggleStyles = css({
@@ -45,38 +44,38 @@ export default function CSFLEConnectionModal({
     [setConnectionIsCSFLEEnabled]
   );
 
+  const onClose = useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
+
   return (
-    <Modal
+    <InfoModal
+      title="In-Use Encryption Connection Options"
       open={open}
+      onClose={onClose}
       trackingId="csfle_connection_modal"
-      setOpen={setOpen}
       data-testid="csfle-connection-modal"
     >
-      <div>
-        <ModalTitle>In-Use Encryption Connection Options</ModalTitle>
-        <Body>
-          This connection is configured with In-Use Encryption enabled.
-        </Body>
-        <div className={toggleContainerStyles}>
-          <Toggle
-            className={toggleStyles}
-            id="set-csfle-enabled"
-            aria-labelledby="set-csfle-enabled-label"
-            size="small"
-            type="button"
-            checked={csfleMode === 'enabled'}
-            onChange={onChange}
-          />
-          <Label id="set-csfle-enabled-label" htmlFor="set-csfle-enabled">
-            Enable In-Use Encryption for this connection
-          </Label>
-        </div>
-        <Description>
-          Disabling In-Use Encryption only affects how Compass accesses data. In
-          order to make Compass forget KMS credentials, the connection must be
-          fully closed.
-        </Description>
+      <Body>This connection is configured with In-Use Encryption enabled.</Body>
+      <div className={toggleContainerStyles}>
+        <Toggle
+          className={toggleStyles}
+          id="set-csfle-enabled"
+          aria-labelledby="set-csfle-enabled-label"
+          size="small"
+          type="button"
+          checked={csfleMode === 'enabled'}
+          onChange={onChange}
+        />
+        <Label id="set-csfle-enabled-label" htmlFor="set-csfle-enabled">
+          Enable In-Use Encryption for this connection
+        </Label>
       </div>
+      <Description>
+        Disabling In-Use Encryption only affects how Compass accesses data. In
+        order to make Compass forget KMS credentials, the connection must be
+        fully closed.
+      </Description>
       <Banner className={csfleBannerStyles}>
         In-Use Encryption is an Enterprise/Atlas-only feature of MongoDB.&nbsp;
         {/* TODO(COMPASS-5925): Use generic In-Use Encryption URL */}
@@ -84,6 +83,6 @@ export default function CSFLEConnectionModal({
           Learn More
         </Link>
       </Banner>
-    </Modal>
+    </InfoModal>
   );
 }

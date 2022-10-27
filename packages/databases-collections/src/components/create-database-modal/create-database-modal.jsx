@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Banner, ConfirmationModal, Link } from '@mongodb-js/compass-components';
+import { FormModal, Banner, Link } from '@mongodb-js/compass-components';
 
 import { createDatabase } from '../../modules/create-database';
 import { clearError } from '../../modules/error';
@@ -95,18 +95,19 @@ class CreateDatabaseModal extends PureComponent {
     const hasCollectionName = !!(this.state.data.collection || '').trim();
 
     return (
-      <ConfirmationModal
+      <FormModal
         title="Create Database"
         open={this.props.isVisible}
-        onConfirm={this.onConfirm}
+        onSubmit={this.onConfirm}
         onCancel={this.onCancel}
-        buttonText="Create Database"
+        submitButtonText="Create Database"
         submitDisabled={(
           !hasCollectionName ||
           !(this.state.data.database || '').trim()
         )}
-        className={styles['create-database-modal']}
         trackingId="create_database_modal"
+        data-testid="create-database-modal"
+
       >
         <CollectionFields
           serverVersion={this.props.serverVersion}
@@ -117,7 +118,7 @@ class CreateDatabaseModal extends PureComponent {
         />
         {!hasCollectionName && this.renderCollectionNameRequiredNotice()}
         {this.renderError()}
-      </ConfirmationModal>
+      </FormModal>
     );
   }
 }

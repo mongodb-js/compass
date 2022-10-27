@@ -55,9 +55,9 @@ describe('ImportPipeline [Component]', function() {
     });
   });
 
-  context('when clicking on the confirm import button', function() {
+  context('when submitting the form', function() {
     it('calls the action', function() {
-      component.find('button').at(0).hostNodes().simulate('click');
+      component.find('form').at(0).hostNodes().simulate('submit');
       expect(createNewSpy.calledOnce).to.equal(true);
     });
   });
