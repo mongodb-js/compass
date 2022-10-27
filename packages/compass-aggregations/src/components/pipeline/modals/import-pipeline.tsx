@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal } from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
   Editor,
@@ -60,14 +60,15 @@ export const ImportPipeline: React.FunctionComponent<{
   );
 
   return (
-    <ConfirmationModal
+    <FormModal
       title="New Pipeline From Plain Text"
       open={isOpen}
-      onConfirm={createNew}
+      onSubmit={createNew}
       onCancel={closeImport}
-      buttonText="Create New"
+      submitButtonText="Create New"
       submitDisabled={text === ''}
       trackingId="import_pipeline_modal"
+      data-testid="import-pipeline-modal"
     >
       <div className={styles['import-pipeline-note']}>
         Supports MongoDB Shell syntax. Pasting a pipeline will create a new
@@ -84,7 +85,7 @@ export const ImportPipeline: React.FunctionComponent<{
         />
       </div>
       {error && <div className={styles['import-pipeline-error']}>{error}</div>}
-    </ConfirmationModal>
+    </FormModal>
   );
 };
 

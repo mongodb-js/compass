@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal } from '@mongodb-js/compass-components';
 import { ModalInput, ModalStatusMessage } from 'hadron-react-components';
 
 import { createView } from '../../modules/create-view';
@@ -58,41 +58,36 @@ class CreateViewModal extends PureComponent {
    */
   render() {
     return (
-      <ConfirmationModal
+      <FormModal
         title={this.props.isDuplicating ? 'Duplicate View' : 'Create a View'}
         open={this.props.isVisible}
-        onConfirm={this.props.createView}
+        onSubmit={this.props.createView}
         onCancel={this.onCancel}
-        buttonText="Create"
+        submitButtonText="Create"
         trackingId="create_view_modal"
+        data-testid="create-view-modal"
       >
-        <form
-          name="create-view-modal-form"
-          onSubmit={this.onFormSubmit.bind(this)}
-          data-testid="create-view-modal"
-        >
-          <ModalInput
-            id="create-view-name"
-            name="Enter a View Name"
-            value={this.props.name || ''}
-            onChangeHandler={this.onNameChange}
+        <ModalInput
+          id="create-view-name"
+          name="Enter a View Name"
+          value={this.props.name || ''}
+          onChangeHandler={this.onNameChange}
+        />
+        {this.props.error ? (
+          <ModalStatusMessage
+            icon="times"
+            message={this.props.error.message}
+            type="error"
           />
-          {this.props.error ? (
-            <ModalStatusMessage
-              icon="times"
-              message={this.props.error.message}
-              type="error"
-            />
-          ) : null}
-          {this.props.isRunning ? (
-            <ModalStatusMessage
-              icon="spinner"
-              message="Create in Progress"
-              type="in-progress"
-            />
-          ) : null}
-        </form>
-      </ConfirmationModal>
+        ) : null}
+        {this.props.isRunning ? (
+          <ModalStatusMessage
+            icon="spinner"
+            message="Create in Progress"
+            type="in-progress"
+          />
+        ) : null}
+      </FormModal>
     );
   }
 }

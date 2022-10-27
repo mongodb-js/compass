@@ -84,6 +84,7 @@ const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
         }}
         buttonText="Open Pipeline"
         trackingId="restore_pipeline_modal"
+        data-testid="restore-pipeline-modal"
       >
         Opening this project will abandon <b>unsaved</b> changes to the current
         pipeline you are building.
