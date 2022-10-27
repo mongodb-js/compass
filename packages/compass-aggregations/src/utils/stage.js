@@ -10,6 +10,15 @@ import {
 } from '@mongodb-js/mongodb-constants';
 import parseEJSON, { ParseMode } from 'ejson-shell-parser';
 
+export const OUT_STAGE_PREVIEW_TEXT =
+  'The $out operator will cause the pipeline to persist ' +
+  'the results to the specified location (collection, S3, or Atlas). ' +
+  'If the collection exists it will be replaced.';
+
+export const MERGE_STAGE_PREVIEW_TEXT =
+  'The $merge operator will cause the pipeline to persist the results to ' +
+  'the specified location.';
+
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
   return semver.gte(versionWithoutPrerelease, operator?.version);

@@ -12,6 +12,8 @@ import type { RootState } from '../../../modules';
 import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
+import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { OutStagePreview, MergeStagePreview } from './pipeline-stages-preview';
 
 const containerStyles = css({
   display: 'flex',
@@ -43,15 +45,21 @@ const documentListStyles = css({
 
 type PipelinePreviewProps = {
   isLoading: boolean;
+  isMergeStage: boolean;
+  isOutStage: boolean;
   previewDocs: Document[] | null;
 };
 
 const PreviewResults = ({
   previewDocs,
   isLoading,
+  isMergeStage,
+  isOutStage,
 }: {
   previewDocs: Document[] | null;
   isLoading: boolean;
+  isMergeStage: boolean;
+  isOutStage: boolean;
 }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
@@ -69,6 +77,22 @@ const PreviewResults = ({
     return (
       <div className={centerStyles}>
         <SpinLoader size="24px" />
+      </div>
+    );
+  }
+
+  if (isOutStage) {
+    return (
+      <div className={centerStyles}>
+        <OutStagePreview />
+      </div>
+    );
+  }
+
+  if (isMergeStage) {
+    return (
+      <div className={centerStyles}>
+        <MergeStagePreview />
       </div>
     );
   }
@@ -103,6 +127,8 @@ const PreviewResults = ({
 
 export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   isLoading,
+  isMergeStage,
+  isOutStage,
   previewDocs,
 }) => {
   const docCount = previewDocs?.length ?? 0;
@@ -114,18 +140,25 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
         <Overline>Pipeline Output</Overline>
         {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
       </div>
-      <PreviewResults isLoading={isLoading} previewDocs={previewDocs} />
+      <PreviewResults
+        isLoading={isLoading}
+        isMergeStage={isMergeStage}
+        isOutStage={isOutStage}
+        previewDocs={previewDocs}
+      />
     </div>
   );
 };
 
-const mapState = ({
-  pipelineBuilder: {
-    textEditor: { loading, previewDocs },
-  },
-}: RootState) => ({
-  isLoading: !!loading,
-  previewDocs,
-});
+const mapState = (state: RootState) => {
+  const pipeline = getPipelineStageOperatorsFromBuilderState(state);
+  const lastStage = pipeline[pipeline.length - 1] ?? '';
+  return {
+    isLoading: !!state.pipelineBuilder.textEditor.loading,
+    previewDocs: state.pipelineBuilder.textEditor.previewDocs,
+    isMergeStage: lastStage === '$merge',
+    isOutStage: lastStage === '$out',
+  };
+};
 
 export default connect(mapState)(PipelinePreview);

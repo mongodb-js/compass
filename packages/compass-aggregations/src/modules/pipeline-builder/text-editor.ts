@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
 import type { Document, MongoServerError } from 'mongodb';
-import type { PipelineBuilderThunkAction } from '..';
+import type { PipelineBuilderThunkAction, RootState } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
@@ -137,12 +137,32 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-function canRunPipeline(pipelineBuilder: PipelineBuilder, stageOperators: string[]) {
-  const containsOutOrMerge = stageOperators.includes('$out') || stageOperators.includes('$merge');
-  return pipelineBuilder.syntaxError.length === 0 && !containsOutOrMerge;
+function canRunPipeline(
+  pipelineBuilder: PipelineBuilder,
+  state: RootState,
+  ignoreOutMergeCheck = false,
+) {
+  const {
+    autoPreview,
+    pipelineBuilder: { textEditor: {
+      stageOperators
+    } },
+  } = state;
+
+  if (!autoPreview || pipelineBuilder.syntaxError.length > 0) {
+    return false;
+  }
+
+  if (ignoreOutMergeCheck) {
+    return true;
+  }
+
+  const lastStage = stageOperators[stageOperators.length - 1] ?? '';
+  return !['$out', '$merge'].includes(lastStage);
 };
 
 export const loadPreviewForPipeline = (
+  ignoreOutMergeCheck = false
 ): PipelineBuilderThunkAction<
   Promise<void>,
   EditorPreviewFetchAction |
@@ -150,16 +170,8 @@ export const loadPreviewForPipeline = (
   EditorPreviewFetchErrorAction
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
-    const {
-      autoPreview,
-      pipelineBuilder: {
-        textEditor: {
-          stageOperators,
-        }
-      }
-    } = getState();
-
-    if (!autoPreview || !canRunPipeline(pipelineBuilder, stageOperators)) {
+    const state = getState();
+    if (!canRunPipeline(pipelineBuilder, state, ignoreOutMergeCheck)) {
       return;
     }
 
@@ -175,14 +187,15 @@ export const loadPreviewForPipeline = (
         limit,
         largeLimit,
         inputDocuments
-      } = getState();
+      } = state;
 
       const options: PreviewOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count
+        totalDocumentCount: inputDocuments.count,
+        isOutOrMerge: ignoreOutMergeCheck
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
@@ -218,6 +231,13 @@ export const changeEditorValue = (
       syntaxErrors: pipelineBuilder.syntaxError
     });
     void dispatch(loadPreviewForPipeline());
+  };
+};
+
+export const runPipelineWithOutputStage = (
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch) => {
+    void dispatch(loadPreviewForPipeline(true));
   };
 };
 
