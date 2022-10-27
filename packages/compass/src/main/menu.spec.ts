@@ -2,6 +2,7 @@ import EventEmitter from 'events';
 import { BrowserWindow, ipcMain, Menu, app } from 'electron';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import preferences from 'compass-preferences-model';
 
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
@@ -115,6 +116,7 @@ describe('CompassMenu', function () {
 
     it('should generate a view menu template without theme on darwin', function () {
       sinon.stub(process, 'platform').value('darwin');
+      sinon.stub(preferences, 'getPreferences').returns({ theme: 'LIGHT' } as any);
 
       expect(
         serializable(
@@ -168,6 +170,7 @@ describe('CompassMenu', function () {
 
     it('should generate a view menu template with theme on non darwin', function () {
       sinon.stub(process, 'platform').value('linux');
+      sinon.stub(preferences, 'getPreferences').returns({ theme: 'LIGHT' } as any);
 
       expect(
         serializable(
@@ -240,6 +243,7 @@ describe('CompassMenu', function () {
 
     it('should generate the about and theme options on darwin', function () {
       sinon.stub(process, 'platform').value('darwin');
+      sinon.stub(preferences, 'getPreferences').returns({ theme: 'LIGHT' } as any);
 
       expect(
         serializable(

@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import PrivacySettings from './settings/privacy';
+import ThemeSettings from './settings/theme';
 import Sidebar from './sidebar';
 import { updateSettings } from '../stores/updated-fields';
 import { fetchSettings } from '../stores/settings';
@@ -42,7 +43,10 @@ const settingsStyles = css(
   focusRing
 );
 
-const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
+const settings: Settings[] = [
+  { name: 'Privacy', component: PrivacySettings },
+  { name: 'Theme', component: ThemeSettings },
+];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,

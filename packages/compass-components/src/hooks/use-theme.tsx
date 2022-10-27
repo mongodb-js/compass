@@ -7,11 +7,12 @@ enum Theme {
 
 type ThemeState = {
   theme: Theme;
-  enabled?: true;
+  enabled: boolean;
 };
 
 const ThemeContext = createContext<ThemeState>({
   theme: Theme.Light,
+  enabled: false,
 });
 
 const ThemeProvider = ({
@@ -49,9 +50,7 @@ const withTheme = function <
   ) => {
     const theme = useTheme();
 
-    const applyTheme =
-      theme.enabled === true ||
-      global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
+    const applyTheme = theme.enabled === true;
 
     return (
       <WrappedComponent
