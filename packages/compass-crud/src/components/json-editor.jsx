@@ -56,7 +56,9 @@ class EditableJson extends React.Component {
    */
   componentDidMount() {
     this.subscribeToDocumentEvents(this.props.doc);
-    this.editor.getSession().foldAll(2);
+    if (!this.props.expandAll) {
+      this.editor.getSession().foldAll(2);
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -327,6 +329,7 @@ EditableJson.propTypes = {
   updateDocument: PropTypes.func.isRequired,
   openInsertDocumentDialog: PropTypes.func.isRequired,
   copyToClipboard: PropTypes.func.isRequired,
+  expandAll: PropTypes.bool,
 };
 
 export default EditableJson;

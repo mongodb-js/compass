@@ -45,6 +45,7 @@ class DocumentJsonView extends React.Component {
               replaceDocument={this.props.replaceDocument}
               updateDocument={this.props.updateDocument}
               openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+              expandAll={this.props.expandAll}
             />
           </KeylineCard>
         </li>
@@ -71,6 +72,7 @@ DocumentJsonView.propTypes = {
   updateDocument: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func,
   copyToClipboard: PropTypes.func,
+  expandAll: PropTypes.bool,
 };
 
 DocumentJsonView.displayName = 'DocumentJsonView';

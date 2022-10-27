@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, spacing } from '@mongodb-js/compass-components';
+import { css, Overline, spacing } from '@mongodb-js/compass-components';
 import type { ResultsViewType } from './pipeline-results-list';
 import PipelinePagination from './pipeline-pagination';
 import PipelineResultsViewControls from './pipeline-results-view-controls';
@@ -22,7 +22,7 @@ const containerStyles = css({
   alignItems: 'center',
 });
 
-const controlsStyles = css({
+const groupStyles = css({
   display: 'flex',
   gap: spacing[2],
 });
@@ -32,25 +32,28 @@ export const PipelineResultsHeader: React.FunctionComponent<PipelineResultsHeade
     if (isMergeOrOutPipeline) {
       return null;
     }
-
-    const disclosureControls =
-      process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true'
-      ? <DocumentsDisclosureMenu onChange={(val) => onChangeAllDocsExpanded(val === 'expanded')} />
-      : <div />;
-
-    return (
-      <div className={containerStyles} data-testid="pipeline-results-header">
-        {disclosureControls}
-        <div className={controlsStyles}>
-          <PipelinePagination />
-          <PipelineResultsViewControls
-            value={resultsViewType}
-            onChange={onChangeResultsView}
+  return (
+    <div className={containerStyles} data-testid="pipeline-results-header">
+      {process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' ? (
+        <div className={groupStyles}>
+          <Overline>All Results</Overline>
+          <DocumentsDisclosureMenu
+            onChange={(val) => onChangeAllDocsExpanded(val === 'expanded')}
           />
         </div>
+      ) : (
+        <div />
+      )}
+      <div className={groupStyles}>
+        <PipelinePagination />
+        <PipelineResultsViewControls
+          value={resultsViewType}
+          onChange={onChangeResultsView}
+        />
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 const mapState = (state: RootState) => {
   const {
