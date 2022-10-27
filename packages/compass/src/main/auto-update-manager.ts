@@ -194,7 +194,7 @@ const STATE_UPDATE: Partial<
         title: 'Restart to finish the update',
         message: `Restart Compass to finish installing ${updateInfo.to}`,
         detail:
-          'Closing this window without restarting may cause things to not work as intended.',
+          'Closing this window without restarting may cause some of the features to not work as intended.',
         buttons: ['Restart', 'Close'],
         cancelId: 1,
       });
