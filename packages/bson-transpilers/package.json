@@ -43,7 +43,6 @@
   "dependencies": {
     "antlr4": "4.7.2",
     "bson": "^4.4.1",
-    "context-eval": "^0.1.0",
     "js-yaml": "^3.13.1"
   },
   "bugs": {

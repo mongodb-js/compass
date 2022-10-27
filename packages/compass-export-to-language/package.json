@@ -42,10 +42,9 @@
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
     "prettier": "prettier",
-    "lint-and-prettier": "npm run eslint . && npm run prettier -- --check .",
-    "lint-without-prettier": "npm run eslint .",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
-    "check": "npm run typecheck && npm run lint-without-prettier && npm run depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
@@ -55,7 +54,6 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-editor": "*",
     "@mongodb-js/compass-logging": "*",
     "@mongodb-js/mongodb-redux-common": "*",
@@ -64,7 +62,6 @@
     "react": "*"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.2.0",
     "@mongodb-js/compass-editor": "^0.1.0",
     "@mongodb-js/compass-logging": "^1.1.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.1",

@@ -25,7 +25,7 @@ describe('ExportForm [Component]', function () {
           copyToClipboard={copyToClipboardSpy}
           imports=""
           showImports={false}
-          inputExpression={{filter: '{x: 1}'}}
+          inputExpression={{ filter: '{x: 1}' }}
           transpiledExpression="{\n\'x\': 1\n}"
           mode="Query"
           outputLang="python"
@@ -33,7 +33,8 @@ describe('ExportForm [Component]', function () {
           from="{x: 1}"
           outputLangChanged={outputLangChangedSpy}
           copySuccessChanged={copySuccessChangedSpy}
-          runTranspiler={runTranspilerSpy} />
+          runTranspiler={runTranspilerSpy}
+        />
       );
     });
 
@@ -46,7 +47,9 @@ describe('ExportForm [Component]', function () {
     });
 
     it('renders the headers div', function () {
-      expect(component.find(`.${styles['export-to-lang-headers']}`)).to.be.present();
+      expect(
+        component.find(`.${styles['export-to-lang-headers']}`)
+      ).to.be.present();
     });
 
     it('renders headers input text', function () {
@@ -124,7 +127,7 @@ describe('ExportForm [Component]', function () {
           copyToClipboard={copyToClipboardSpy}
           imports=""
           showImports={false}
-          inputExpression={{filter: '{x: 1}'}}
+          inputExpression={{ filter: '{x: 1}' }}
           transpiledExpression="{\n'x': 1\n}"
           mode="Query"
           outputLang="python"
@@ -132,7 +135,8 @@ describe('ExportForm [Component]', function () {
           from="{x: 1}"
           outputLangChanged={outputLangChangedSpy}
           copySuccessChanged={copySuccessChangedSpy}
-          runTranspiler={runTranspilerSpy} />
+          runTranspiler={runTranspilerSpy}
+        />
       );
     });
 
@@ -158,9 +162,7 @@ describe('ExportForm [Component]', function () {
         .find('.fa-copy')
         .simulate('click');
       expect(copyToClipboardSpy.calledTwice).to.equal(true);
-      expect(copyToClipboardSpy.getCall(1).args[0]).to.deep.equal(
-        '{x: 1}'
-      );
+      expect(copyToClipboardSpy.getCall(1).args[0]).to.deep.equal('{x: 1}');
       expect(copySuccessChangedSpy.calledTwice).to.equal(true);
     });
   });
@@ -180,7 +182,7 @@ describe('ExportForm [Component]', function () {
           copyToClipboard={copyToClipboardSpy}
           imports=""
           showImports={false}
-          inputExpression={{filter: '{x: 1}'}}
+          inputExpression={{ filter: '{x: 1}' }}
           transpiledExpression="{\n\'x\': 1\n}"
           mode="Query"
           outputLang="python"
@@ -188,7 +190,8 @@ describe('ExportForm [Component]', function () {
           from="{x: 1}"
           outputLangChanged={outputLangChangedSpy}
           copySuccessChanged={copySuccessChangedSpy}
-          runTranspiler={runTranspilerSpy} />
+          runTranspiler={runTranspilerSpy}
+        />
       );
     });
 

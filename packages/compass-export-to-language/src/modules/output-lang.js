@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const outputLangChanged = (outputLang) => ({
   type: OUTPUT_LANG_CHANGED,
-  outputLang
+  outputLang,
 });

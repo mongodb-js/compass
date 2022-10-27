@@ -34,7 +34,7 @@ class ExportToLanguage extends PureComponent {
     errorChanged: PropTypes.func.isRequired,
     modalOpenChanged: PropTypes.func.isRequired,
     copySuccessChanged: PropTypes.func.isRequired,
-    runTranspiler: PropTypes.func.isRequired
+    runTranspiler: PropTypes.func.isRequired,
   };
 
   /**
@@ -45,7 +45,7 @@ class ExportToLanguage extends PureComponent {
   render() {
     return (
       <div data-testid="export-to-language">
-        <ExportModal { ...this.props } />
+        <ExportModal {...this.props} />
       </div>
     );
   }
@@ -71,25 +71,22 @@ const mapStateToProps = (state) => ({
   mode: state.mode,
   outputLang: state.outputLang,
   error: state.error,
-  uri: state.uri
+  uri: state.uri,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedExportToLanguage = connect(
-  mapStateToProps,
-  {
-    showImportsChanged,
-    buildersChanged,
-    driverChanged,
-    outputLangChanged,
-    errorChanged,
-    modalOpenChanged,
-    copySuccessChanged,
-    runTranspiler
-  },
-)(ExportToLanguage);
+const MappedExportToLanguage = connect(mapStateToProps, {
+  showImportsChanged,
+  buildersChanged,
+  driverChanged,
+  outputLangChanged,
+  errorChanged,
+  modalOpenChanged,
+  copySuccessChanged,
+  runTranspiler,
+})(ExportToLanguage);
 
 export default MappedExportToLanguage;

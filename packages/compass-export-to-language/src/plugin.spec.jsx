@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import ExportToLanguagePlugin from './plugin';
 import configureStore from './stores';
 
-describe('ExportToLanguage [Plugin]', function() {
+describe('ExportToLanguage [Plugin]', function () {
   let component;
   let store;
 
@@ -21,7 +21,7 @@ describe('ExportToLanguage [Plugin]', function() {
     done();
   });
 
-  it('should contain a <Provider /> with a store prop', function() {
+  it('should contain a <Provider /> with a store prop', function () {
     expect(component.find(Provider).first().props('store')).to.be.an('object');
   });
 });

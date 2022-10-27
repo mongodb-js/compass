@@ -12,7 +12,7 @@ describe('Editor [Component]', function () {
 
   beforeEach(function () {
     component = mount(
-      <Editor language="python" value="transpiledExpression"/>
+      <Editor language="python" value="transpiledExpression" />
     );
   });
 
@@ -29,6 +29,8 @@ describe('Editor [Component]', function () {
   });
 
   it('renders the editor with value', function () {
-    expect(component.find(AceEditor)).prop('value').to.be.equal('transpiledExpression');
+    expect(component.find(AceEditor))
+      .prop('value')
+      .to.be.equal('transpiledExpression');
   });
 });

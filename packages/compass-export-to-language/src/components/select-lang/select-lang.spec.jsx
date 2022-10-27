@@ -12,7 +12,9 @@ describe('SelectLang [Component]', function () {
   context('when the component is rendered', function () {
     let component;
 
-    const query = {filter: { category_code: 'smooth jazz', release_year: 2009 }};
+    const query = {
+      filter: { category_code: 'smooth jazz', release_year: 2009 },
+    };
     const outputLangChangedSpy = sinon.spy();
     const runTranspilerSpy = sinon.spy();
     const outputLang = 'python';
@@ -25,7 +27,7 @@ describe('SelectLang [Component]', function () {
       { value: 'ruby', label: 'Ruby' },
       { value: 'go', label: 'Go' },
       { value: 'rust', label: 'Rust' },
-      { value: 'php', label: 'PHP' }
+      { value: 'php', label: 'PHP' },
     ];
 
     beforeEach(function () {
@@ -34,7 +36,8 @@ describe('SelectLang [Component]', function () {
           outputLangChanged={outputLangChangedSpy}
           outputLang={outputLang}
           runTranspiler={runTranspilerSpy}
-          inputExpression={query}/>
+          inputExpression={query}
+        />
       );
     });
 
@@ -47,7 +50,9 @@ describe('SelectLang [Component]', function () {
     });
 
     it('renders headers input text', function () {
-      expect(component.find(Select)).prop('options').to.deep.equal(langOutputOptions);
+      expect(component.find(Select))
+        .prop('options')
+        .to.deep.equal(langOutputOptions);
     });
 
     it('value of the select box is python', function () {
@@ -58,7 +63,9 @@ describe('SelectLang [Component]', function () {
   context('when clicking on copy button', function () {
     let component;
 
-    const query = {filer: { category_code: 'smooth jazz', release_year: 2009 }};
+    const query = {
+      filer: { category_code: 'smooth jazz', release_year: 2009 },
+    };
     const outputLangChangedSpy = sinon.spy();
     const runTranspilerSpy = sinon.spy();
     const outputLang = 'python';
@@ -69,7 +76,8 @@ describe('SelectLang [Component]', function () {
           outputLangChanged={outputLangChangedSpy}
           outputLang={outputLang}
           runTranspiler={runTranspilerSpy}
-          inputExpression={query}/>
+          inputExpression={query}
+        />
       );
     });
 
