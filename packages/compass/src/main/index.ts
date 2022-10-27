@@ -35,6 +35,9 @@ async function main(): Promise<void> {
   if (process.env.HADRON_ISOLATED === 'true') {
     globalPreferences.hardcoded = { ...globalPreferences.hardcoded, networkTraffic: false };
   }
+  if (process.env.COMPASS_LG_DARKMODE === 'true') {
+    globalPreferences.hardcoded = { ...globalPreferences.hardcoded, lgDarkmode: true };
+  }
 
   const { preferenceParseErrors } = globalPreferences;
   const preferenceParseErrorsString = preferenceParseErrors.join('\n');

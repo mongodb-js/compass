@@ -3,10 +3,8 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import Settings from './settings.jsx';
+import Settings from './settings';
 import { INITIAL_STATE } from '../../modules/settings';
-
-import styles from './settings.module.less';
 
 describe('Settings [Component]', function() {
   let state;
@@ -62,7 +60,7 @@ describe('Settings [Component]', function() {
     it('is rendered when isExpanded=true', function() {
       const props = { ...state, isExpanded: true };
       component = mount(<Settings {...props} />);
-      expect(component.find(`.${styles.container}`)).to.be.present();
+      expect(component.text()).to.contain('Settings');
     });
 
     describe('When opened', function() {

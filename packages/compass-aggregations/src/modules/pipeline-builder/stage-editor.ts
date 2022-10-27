@@ -6,7 +6,7 @@ import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
-import { CONFIRM_NEW } from '../import-pipeline';
+import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import type { ENVS } from '@mongodb-js/mongodb-constants';
 import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
@@ -16,6 +16,9 @@ import {
   DEFAULT_SAMPLE_SIZE
 } from './pipeline-preview-manager';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
+import type { PipelineParserError } from './pipeline-parser/utils';
+import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
+import type { PipelineModeToggledAction } from './pipeline-mode';
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -30,7 +33,7 @@ export const enum StageEditorActionTypes {
   StageDisabledChange = 'compass-aggregations/pipeline-builder/stage-editor/StageDisabledChange',
   StageAdded = 'compass-aggregations/pipeline-builder/stage-editor/StageAdded',
   StageRemoved = 'compass-aggregations/pipeline-builder/stage-editor/StageRemoved',
-  StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved'
+  StageMoved = 'compass-aggregations/pipeline-builder/stage-editor/StageMoved',
 }
 
 export type StagePreviewFetchAction = {
@@ -448,7 +451,7 @@ export type StageEditorState = {
     id: number;
     stageOperator: string | null;
     value: string | null;
-    syntaxError: SyntaxError | null;
+    syntaxError: PipelineParserError | null;
     serverError: MongoServerError | null;
     loading: boolean;
     previewDocs: Document[] | null;
@@ -477,7 +480,12 @@ const reducer: Reducer<StageEditorState> = (
   state = { stageIds: [], stages: [] },
   action
 ) => {
-  if (action.type === RESTORE_PIPELINE || action.type === CONFIRM_NEW) {
+  if (
+    action.type === RESTORE_PIPELINE ||
+    action.type === CONFIRM_NEW ||
+    action.type === NEW_PIPELINE ||
+    isAction<PipelineModeToggledAction>(action, PipelineModeActionTypes.PipelineModeToggled)
+  ) {
     const stages = action.stages.map((stage: Stage) => {
       return mapBuilderStageToStoreStage(stage);
     });
@@ -500,6 +508,7 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
+          serverError: null,
           loading: true
         },
         ...state.stages.slice(action.id + 1)

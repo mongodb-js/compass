@@ -19,6 +19,7 @@ class ViewSwitcher extends React.Component {
       const shownLabel = this.props.showLabels ? label : '';
       return (
         <Button
+          type="button"
           key={label}
           active={active}
           data-testid={dataTestId}

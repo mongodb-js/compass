@@ -194,8 +194,6 @@ function FileInput({
     );
   };
 
-  const applyTheme = global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
-
   return (
     <div className={cx(containerStyles, className)}>
       <div
@@ -211,7 +209,7 @@ function FileInput({
           <Label htmlFor={`${id}_file_input`} disabled={disabled}>
             <span
               className={cx({
-                [applyTheme && darkMode
+                [darkMode
                   ? disabledDescriptionDarkStyles
                   : disabledDescriptionLightStyles]: disabled,
               })}

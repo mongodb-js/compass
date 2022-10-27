@@ -124,7 +124,9 @@ export const openPipelineById = (
       dispatch({
         type: RESTORE_PIPELINE,
         stages: pipelineBuilder.stages,
-        source: pipelineBuilder.source,
+        pipelineText: pipelineBuilder.source,
+        pipeline: pipelineBuilder.pipeline,
+        syntaxErrors: pipelineBuilder.syntaxError,
         restoreState: data
       });
       dispatch(updatePipelinePreview());
