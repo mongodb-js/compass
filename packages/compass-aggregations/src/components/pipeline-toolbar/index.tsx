@@ -51,6 +51,7 @@ type PipelineToolbarProps = {
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
+  onChangeAllDocsExpanded: (val: boolean) => void;
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
@@ -59,6 +60,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   showRunButton,
   showExportButton,
   showExplainButton,
+  onChangeAllDocsExpanded,
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
@@ -93,7 +95,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
           <div className={settingsRowStyles}>
             <PipelineSettings />
           </div>
-        ) : <div className={settingsRowStyles}><PipelineResultsHeader /></div>}
+        ) : <div className={settingsRowStyles}><PipelineResultsHeader onChangeAllDocsExpanded={onChangeAllDocsExpanded}/></div>}
       </>
     </div>
   );

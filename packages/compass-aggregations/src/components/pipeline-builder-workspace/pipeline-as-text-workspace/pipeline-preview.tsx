@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Body,
@@ -12,6 +12,8 @@ import type { RootState } from '../../../modules';
 import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
+import { DocumentsDisclosureMenu } from '../../documents-disclosure-menu';
+import type { DocumentsDisclosureOption } from '../../documents-disclosure-menu';
 
 const containerStyles = css({
   display: 'flex',
@@ -20,9 +22,11 @@ const containerStyles = css({
 });
 
 const previewHeaderStyles = css({
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
-  paddingLeft: spacing[3],
+  padding: spacing[3],
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
 });
 
 const centerStyles = css({
@@ -38,7 +42,10 @@ const centerStyles = css({
 const messageStyles = css({ marginTop: spacing[3] });
 
 const documentListStyles = css({
-  overflow: 'scroll',
+  overflow: 'auto',
+  '.document-list': {
+    paddingRight: spacing[2],
+  }
 });
 
 type PipelinePreviewProps = {
@@ -49,20 +56,23 @@ type PipelinePreviewProps = {
 const PreviewResults = ({
   previewDocs,
   isLoading,
+  isExpanded,
 }: {
   previewDocs: Document[] | null;
   isLoading: boolean;
+  isExpanded: boolean;
 }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
       docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
       isEditable: false,
+      expandAll: isExpanded,
       copyToClipboard(doc) {
         const str = doc.toEJSON();
         void navigator.clipboard.writeText(str);
       },
     }),
-    [previewDocs]
+    [previewDocs, isExpanded]
   );
 
   if (isLoading) {
@@ -105,16 +115,22 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   isLoading,
   previewDocs,
 }) => {
+  const [disclosureOption, setDisclosureOption] = useState<DocumentsDisclosureOption>('collapsed');
+  const isExpanded = disclosureOption === 'expanded';
+
   const docCount = previewDocs?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
   return (
     <div className={containerStyles} data-testid="pipeline-as-text-preview">
       <div className={previewHeaderStyles}>
-        <Overline>Pipeline Output</Overline>
-        {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
+        <div>
+          <Overline>Pipeline Output</Overline>
+          {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
+        </div>
+        <DocumentsDisclosureMenu onChange={setDisclosureOption} />
       </div>
-      <PreviewResults isLoading={isLoading} previewDocs={previewDocs} />
+      <PreviewResults isExpanded={isExpanded} isLoading={isLoading} previewDocs={previewDocs} />
     </div>
   );
 };

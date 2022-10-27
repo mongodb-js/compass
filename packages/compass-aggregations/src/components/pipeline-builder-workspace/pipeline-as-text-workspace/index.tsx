@@ -19,12 +19,12 @@ const containerStyles = css({
 });
 
 const editorStyles = css({
-  flex: 1,
+  width: '50%',
   borderRight: `2px solid ${palette.gray.light2}`,
 });
 
 const resultsStyles = css({
-  flex: 1,
+  width: '50%',
 });
 
 type PipelineAsTextWorkspaceProps = {

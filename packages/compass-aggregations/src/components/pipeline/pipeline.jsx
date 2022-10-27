@@ -72,6 +72,14 @@ class Pipeline extends PureComponent {
     largeLimit: DEFAULT_LARGE_LIMIT,
   };
 
+  state = {
+    allDocsExpanded: false,
+  }
+
+  onChangeAllDocsExpanded = (allDocsExpanded) => {
+    this.setState({ allDocsExpanded });
+  }
+
   renderModifyingViewSourceError() {
     if (this.props.updateViewError) {
       return (
@@ -94,6 +102,7 @@ class Pipeline extends PureComponent {
         showRunButton={this.props.showRunButton}
         showExportButton={this.props.showExportButton}
         showExplainButton={this.props.showExplainButton}
+        onChangeAllDocsExpanded={this.onChangeAllDocsExpanded}
       />
     );
   }
@@ -153,7 +162,7 @@ class Pipeline extends PureComponent {
         <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
           {this.renderModifyingViewSourceError()}
           {this.props.workspace === 'results' ? (
-            <PipelineResultsWorkspace />
+            <PipelineResultsWorkspace allDocsExpanded={this.state.allDocsExpanded}/>
           ) : (
             <PipelineBuilderWorkspace />
           )}

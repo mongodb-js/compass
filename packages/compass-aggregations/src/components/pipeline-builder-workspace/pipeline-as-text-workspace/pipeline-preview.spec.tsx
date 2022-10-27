@@ -1,8 +1,9 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
+import userEvent from '@testing-library/user-event';
 
 import configureStore from '../../../stores/store';
 
@@ -17,6 +18,12 @@ const renderPipelineEditor = (
     </Provider>
   );
 };
+
+const clickButtonWithText = (text: string) => {
+  userEvent.click(screen.getByText(text), undefined, {
+    skipPointerEventsCheck: true
+  });
+}
 
 describe('PipelinePreview', function () {
   it('renders editor workspace', function () {
@@ -51,4 +58,61 @@ describe('PipelinePreview', function () {
       container.querySelectorAll('[data-testid="document-list-item"]')
     ).to.have.lengthOf(2);
   });
+
+  it('renders disclosure menu', function() {
+
+    const previewDocs = [
+      {
+        _id: 1,
+        score: [
+          { number: 1 },
+          {
+            another: {
+              deep: {
+                nested: {
+                  document: '1'
+                }
+              }
+            }
+          }
+        ],
+      }
+    ];
+    renderPipelineEditor({ previewDocs });
+
+    const docList = screen.getByTestId('document-list-item');
+
+    // By default we don't expand nested props of a document
+    expect(within(docList).getByText(/_id/)).to.exist;
+    expect(within(docList).getByText(/score/)).to.exist;
+    expect(() => within(docList).getByText(/number/)).to.throw;
+    expect(() => within(docList).getByText(/another/)).to.throw;
+    expect(() => within(docList).getByText(/deep/)).to.throw;
+    expect(() => within(docList).getByText(/nested/)).to.throw;
+    expect(() => within(docList).getByText(/document/)).to.throw;
+
+    // Expand the whole document
+    clickButtonWithText('Output Options');
+    clickButtonWithText('Expand all fields');
+
+    expect(within(docList).getByText(/_id/)).to.exist;
+    expect(within(docList).getByText(/score/)).to.exist;
+    expect(within(docList).getByText(/number/)).to.exist;
+    expect(within(docList).getByText(/another/)).to.exist;
+    expect(within(docList).getByText(/deep/)).to.exist;
+    expect(within(docList).getByText(/nested/)).to.exist;
+    expect(within(docList).getByText(/document/)).to.exist;
+
+    // Collapse the whole document
+    clickButtonWithText('Output Options');
+    clickButtonWithText('Collapse all fields');
+
+    expect(within(docList).getByText(/_id/)).to.exist;
+    expect(within(docList).getByText(/score/)).to.exist;
+    expect(() => within(docList).getByText(/number/)).to.throw;
+    expect(() => within(docList).getByText(/another/)).to.throw;
+    expect(() => within(docList).getByText(/deep/)).to.throw;
+    expect(() => within(docList).getByText(/nested/)).to.throw;
+    expect(() => within(docList).getByText(/document/)).to.throw;
+  })
 });

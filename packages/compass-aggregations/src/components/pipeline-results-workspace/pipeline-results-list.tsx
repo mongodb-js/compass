@@ -16,18 +16,20 @@ const containerStyles = css({
 
 const PipelineResultsList: React.FunctionComponent<{
   documents: Document[];
+  allDocsExpanded: boolean;
   view: ResultsViewType;
-}> = ({ documents, view }) => {
+}> = ({ documents, allDocsExpanded, view }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
       docs: documents.map((doc) => new HadronDocument(doc)),
       isEditable: false,
+      expandAll: allDocsExpanded,
       copyToClipboard(doc) {
         const str = doc.toEJSON();
         void navigator.clipboard.writeText(str);
       },
     }),
-    [documents]
+    [documents, allDocsExpanded]
   );
 
   if (documents.length === 0) {

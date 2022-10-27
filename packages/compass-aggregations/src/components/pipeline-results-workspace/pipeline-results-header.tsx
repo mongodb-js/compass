@@ -7,28 +7,40 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import { changeViewType } from '../../modules/aggregation';
 import { getStageOperator, isOutputStage } from '../../utils/stage';
+import { DocumentsDisclosureMenu } from '../documents-disclosure-menu';
 
 type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
   resultsViewType: ResultsViewType;
   isMergeOrOutPipeline: boolean;
+  onChangeAllDocsExpanded: (val: boolean) => void;
 };
+
+const containerStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+});
 
 const controlsStyles = css({
   display: 'flex',
   gap: spacing[2],
-  justifyContent: 'flex-end',
-  alignItems: 'center',
 });
 
 export const PipelineResultsHeader: React.FunctionComponent<PipelineResultsHeaderProps> =
-  ({ onChangeResultsView, resultsViewType, isMergeOrOutPipeline }) => {
+  ({ onChangeResultsView, resultsViewType, isMergeOrOutPipeline, onChangeAllDocsExpanded }) => {
     if (isMergeOrOutPipeline) {
       return null;
     }
 
+    const disclosureControls =
+      process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true'
+      ? <DocumentsDisclosureMenu onChange={(val) => onChangeAllDocsExpanded(val === 'expanded')} />
+      : <div />;
+
     return (
-      <div data-testid="pipeline-results-header">
+      <div className={containerStyles} data-testid="pipeline-results-header">
+        {disclosureControls}
         <div className={controlsStyles}>
           <PipelinePagination />
           <PipelineResultsViewControls
