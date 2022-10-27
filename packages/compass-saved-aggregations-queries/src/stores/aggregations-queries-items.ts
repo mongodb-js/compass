@@ -3,7 +3,7 @@ import toNS from 'mongodb-ns';
 import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
 import type { Query } from '@mongodb-js/compass-query-history';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
-import type { Aggregation } from '@mongodb-js/compass-aggregations';
+import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 import type { Actions as DeleteItemActions } from './delete-item';
@@ -33,7 +33,7 @@ export type Item = {
     }
   | {
       type: 'aggregation';
-      aggregation: Omit<Aggregation, 'lastModified'>;
+      aggregation: Omit<StoredPipeline, 'lastModified'>;
     }
 );
 
@@ -76,7 +76,7 @@ const reducer: Reducer<State, Actions | EditItemActions | DeleteItemActions> = (
       const updatedItem =
         item.type === 'query'
           ? mapQueryToItem(action.payload as Query)
-          : mapAggregationToItem(action.payload as Aggregation);
+          : mapAggregationToItem(action.payload as StoredPipeline);
       return {
         ...state,
         items: [...state.items.filter((x) => x.id !== action.id), updatedItem],
@@ -118,11 +118,11 @@ const getQueryItems = async (): Promise<Item[]> => {
   return queries.map(mapQueryToItem);
 };
 
-const mapAggregationToItem = (aggregation: Aggregation): Item => {
+const mapAggregationToItem = (aggregation: StoredPipeline): Item => {
   const { database, collection } = toNS(aggregation.namespace);
   return {
     id: aggregation.id,
-    lastModified: aggregation.lastModified,
+    lastModified: aggregation.lastModified ?? 0,
     name: aggregation.name,
     database,
     collection,
