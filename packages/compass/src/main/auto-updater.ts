@@ -28,9 +28,6 @@ class LinuxAutoUpdater extends EventEmitter implements AutoUpdater {
     got(this.feedURLOptions.url)
       .then((res) => {
         debug('got response %j', res);
-        setTimeout(() => {
-          this.emit('update-downloaded');
-        }, 10_000);
       })
       .catch((err) => {
         console.log(err);
