@@ -2,7 +2,8 @@
 export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton =
   '[data-testid="settings-modal"] [aria-label="Close modal"]';
-export const SaveSettingsButton = '[data-testid="save-settings-button"]';
+export const SaveSettingsButton =
+  '[data-testid="settings-modal"] [data-testid="submit-button"]';
 
 export const SettingsCheckbox = (settingName: string): string => {
   return `[data-testid="${settingName}"]`;
