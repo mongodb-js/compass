@@ -160,11 +160,15 @@ describe('FLE2', function () {
         compass = await beforeTests();
         browser = compass.browser;
 
+        await browser.setFeature('enableShell', true);
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
           fleKey: 'A'.repeat(128),
         });
+
+        const shellSection = await browser.$(Selectors.ShellSection);
+        await shellSection.waitForDisplayed();
       });
 
       after(async function () {
@@ -174,7 +178,6 @@ describe('FLE2', function () {
       });
 
       beforeEach(async function () {
-        await browser.setFeature('enableShell', true);
         await browser.shellEval(
           `db.getMongo().getDB('${databaseName}').createCollection('default')`
         );
@@ -241,6 +244,7 @@ describe('FLE2', function () {
       });
 
       beforeEach(async function () {
+        await browser.setFeature('enableShell', true);
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
@@ -268,7 +272,9 @@ describe('FLE2', function () {
           }`,
         });
 
-        await browser.setFeature('enableShell', true);
+        const shellSection = await browser.$(Selectors.ShellSection);
+        await shellSection.waitForDisplayed();
+
         await browser.shellEval(`use ${databaseName}`);
         await browser.shellEval(
           'db.keyvault.insertOne({' +

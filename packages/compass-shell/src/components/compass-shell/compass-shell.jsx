@@ -52,7 +52,6 @@ export class CompassShell extends Component {
     runtime: PropTypes.object,
     shellOutput: PropTypes.array,
     historyStorage: PropTypes.object,
-    preferencesReadOnly: PropTypes.bool,
     enableShell: PropTypes.bool,
   };
 
@@ -183,7 +182,7 @@ export class CompassShell extends Component {
       showInfoModal
     } = this.state;
 
-    if (this.props.preferencesReadOnly || !this.props.enableShell || !this.props.runtime || !this.state.initialHistory) {
+    if (!this.props.enableShell || !this.props.runtime || !this.state.initialHistory) {
       return (<div />);
     }
 
@@ -253,7 +252,6 @@ export default connect(
       }
     },
     runtime: state.runtime ? state.runtime.runtime : null,
-    preferencesReadOnly: state.preferencesReadOnly ? state.preferencesReadOnly : false,
     enableShell: state.enableShell ? state.enableShell : false
   })
 )(CompassShell);
