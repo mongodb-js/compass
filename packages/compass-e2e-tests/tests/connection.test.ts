@@ -253,6 +253,7 @@ describe('Connection screen', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+    await browser.setFeature('enableShell', true);
   });
 
   after(function () {
@@ -616,6 +617,7 @@ describe('SRV connectivity', function () {
   it('resolves SRV connection string using OS DNS APIs', async function () {
     const compass = await beforeTests();
     const browser = compass.browser;
+    await browser.setFeature('enableShell', true);
 
     try {
       // Does not actually succeed at connecting, but that’s fine for us here
@@ -677,6 +679,7 @@ describe('System CA access', function () {
   it('allows using the system certificate store for connections', async function () {
     const compass = await beforeTests();
     const browser = compass.browser;
+    await browser.setFeature('enableShell', true);
 
     try {
       await browser.connectWithConnectionForm({
@@ -727,6 +730,7 @@ describe('FLE2', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+    await browser.setFeature('enableShell', true);
   });
 
   after(async function () {

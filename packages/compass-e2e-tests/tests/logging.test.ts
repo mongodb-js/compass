@@ -13,6 +13,7 @@ describe('Logging and Telemetry integration', function () {
       telemetry = await startTelemetryServer();
       const compass = await beforeTests({ firstRun: true });
       const { browser } = compass;
+      await browser.setFeature('enableShell', true);
       try {
         await browser.setFeature('trackUsageStatistics', true);
         await browser.connectWithConnectionString(

@@ -39,6 +39,7 @@ describe('Instance my queries tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
+    await browser.setFeature('enableShell', true);
   });
   beforeEach(async function () {
     await createNumbersCollection();

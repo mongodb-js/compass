@@ -174,6 +174,7 @@ describe('FLE2', function () {
       });
 
       beforeEach(async function () {
+        await browser.setFeature('enableShell', true);
         await browser.shellEval(
           `db.getMongo().getDB('${databaseName}').createCollection('default')`
         );
@@ -267,6 +268,7 @@ describe('FLE2', function () {
           }`,
         });
 
+        await browser.setFeature('enableShell', true);
         await browser.shellEval(`use ${databaseName}`);
         await browser.shellEval(
           'db.keyvault.insertOne({' +
