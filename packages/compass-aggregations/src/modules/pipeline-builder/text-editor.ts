@@ -1,5 +1,6 @@
 import type { Reducer } from 'redux';
-import type { Document, MongoServerError } from 'mongodb';
+import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
@@ -13,9 +14,10 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import type { PipelineBuilder } from './pipeline-builder';
-import { getStageOperator } from '../../utils/stage';
+import { getStageOperator, isOutputStage } from '../../utils/stage';
 import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
+import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetch',
@@ -140,29 +142,15 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
 function canRunPipeline(
   pipelineBuilder: PipelineBuilder,
   state: RootState,
-  ignoreOutMergeCheck = false,
 ) {
   const {
     autoPreview,
-    pipelineBuilder: { textEditor: {
-      stageOperators
-    } },
   } = state;
 
-  if (!autoPreview || pipelineBuilder.syntaxError.length > 0) {
-    return false;
-  }
-
-  if (ignoreOutMergeCheck) {
-    return true;
-  }
-
-  const lastStage = stageOperators[stageOperators.length - 1] ?? '';
-  return !['$out', '$merge'].includes(lastStage);
+  return autoPreview && pipelineBuilder.syntaxError.length === 0;
 };
 
 export const loadPreviewForPipeline = (
-  ignoreOutMergeCheck = false
 ): PipelineBuilderThunkAction<
   Promise<void>,
   EditorPreviewFetchAction |
@@ -171,7 +159,7 @@ export const loadPreviewForPipeline = (
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const state = getState();
-    if (!canRunPipeline(pipelineBuilder, state, ignoreOutMergeCheck)) {
+    if (!canRunPipeline(pipelineBuilder, state)) {
       return;
     }
 
@@ -195,7 +183,6 @@ export const loadPreviewForPipeline = (
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: inputDocuments.count,
-        isOutOrMerge: ignoreOutMergeCheck
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
@@ -235,9 +222,57 @@ export const changeEditorValue = (
 };
 
 export const runPipelineWithOutputStage = (
-): PipelineBuilderThunkAction<void> => {
-  return (dispatch) => {
-    void dispatch(loadPreviewForPipeline(true));
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
+    const state = getState();
+    const {
+      dataService: { dataService },
+      namespace,
+      maxTimeMS,
+      collationString,
+      pipelineBuilder: {
+        textEditor: {
+          stageOperators
+        }
+      }
+    } = state;
+
+    if (!dataService) {
+      return;
+    }
+
+    if (!canRunPipeline(pipelineBuilder, state)) {
+      return;
+    }
+    // out or merge is always last stage
+    const lastStage = stageOperators[stageOperators.length - 1] ?? '';
+    if (!isOutputStage(lastStage)) {
+      return;
+    }
+
+    try {
+      dispatch({ type: EditorActionTypes.EditorPreviewFetch });
+      const pipeline = pipelineBuilder.getPipelineFromSource();
+      const options: AggregateOptions = {
+        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        collation: collationString.value ?? undefined
+      };
+      const { signal } = new AbortController();
+      const result = await aggregatePipeline({
+        dataService,
+        signal,
+        namespace,
+        pipeline,
+        options
+      });
+      dispatch({
+        type: EditorActionTypes.EditorPreviewFetchSuccess,
+        previewDocs: result
+      });
+      dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
+    } catch (error) {
+      dispatch({ type: EditorActionTypes.EditorPreviewFetchError, error });
+    }
   };
 };
 

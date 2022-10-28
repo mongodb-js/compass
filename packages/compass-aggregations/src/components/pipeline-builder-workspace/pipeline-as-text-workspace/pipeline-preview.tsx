@@ -13,7 +13,7 @@ import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
-import { OutStagePreview, MergeStagePreview } from './pipeline-stages-preview';
+import { OutStageBanner, MergeStageBanner } from './pipeline-stages-preview';
 
 const containerStyles = css({
   display: 'flex',
@@ -53,13 +53,9 @@ type PipelinePreviewProps = {
 const PreviewResults = ({
   previewDocs,
   isLoading,
-  isMergeStage,
-  isOutStage,
 }: {
   previewDocs: Document[] | null;
   isLoading: boolean;
-  isMergeStage: boolean;
-  isOutStage: boolean;
 }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
@@ -77,22 +73,6 @@ const PreviewResults = ({
     return (
       <div className={centerStyles}>
         <SpinLoader size="24px" />
-      </div>
-    );
-  }
-
-  if (isOutStage) {
-    return (
-      <div className={centerStyles}>
-        <OutStagePreview />
-      </div>
-    );
-  }
-
-  if (isMergeStage) {
-    return (
-      <div className={centerStyles}>
-        <MergeStagePreview />
       </div>
     );
   }
@@ -142,10 +122,10 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
       </div>
       <PreviewResults
         isLoading={isLoading}
-        isMergeStage={isMergeStage}
-        isOutStage={isOutStage}
         previewDocs={previewDocs}
       />
+      {isOutStage && <OutStageBanner />}
+      {isMergeStage && <MergeStageBanner />}
     </div>
   );
 };

@@ -1,19 +1,39 @@
 import React from 'react';
-import { Body, Button, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Button,
+  Banner,
+  BannerVariant,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
 import { runPipelineWithOutputStage } from '../../../modules/pipeline-builder/text-editor';
-import { MERGE_STAGE_PREVIEW_TEXT, OUT_STAGE_PREVIEW_TEXT } from '../../../utils/stage';
+import {
+  MERGE_STAGE_PREVIEW_TEXT,
+  OUT_STAGE_PREVIEW_TEXT,
+} from '../../../utils/stage';
 import { gotoOutResults } from '../../../modules/out-results-fn';
 
-const container = css({
-  display: 'flex',
-  gap: spacing[3],
-  flexDirection: 'column',
+const bannerStyles = css({
+  margin: spacing[2],
   alignItems: 'center',
+  display: 'flex',
 });
 
-const PipelineStagePreview = ({
+const contentStyles = css({
+  display: 'flex',
+  gap: spacing[3],
+  alignItems: 'center',
+  justifyContent: 'space-between',
+});
+
+const actionButtonStyles = css({
+  flexShrink: 0,
+});
+
+const PipelineStageBanner = ({
   text,
   showActionButton,
   actionButtonText,
@@ -25,14 +45,21 @@ const PipelineStagePreview = ({
   onClickActionButton: () => void;
 }) => {
   return (
-    <div className={container}>
-      <Body>{text}</Body>
-      {showActionButton && (
-        <Button variant="primary" onClick={onClickActionButton}>
-          {actionButtonText}
-        </Button>
-      )}
-    </div>
+    <Banner variant={BannerVariant.Info} className={bannerStyles}>
+      <div className={contentStyles}>
+        <Body>{text}</Body>
+        {showActionButton && (
+          <Button
+            className={actionButtonStyles}
+            size="xsmall"
+            variant="default"
+            onClick={onClickActionButton}
+          >
+            {actionButtonText}
+          </Button>
+        )}
+      </div>
+    </Banner>
   );
 };
 
@@ -51,7 +78,7 @@ const OutStage = ({
 }) => {
   if (isComplete) {
     return (
-      <PipelineStagePreview
+      <PipelineStageBanner
         text={'Documents persisted to collection specified by $out.'}
         showActionButton={isAtlas}
         actionButtonText={'Go to collection'}
@@ -61,7 +88,7 @@ const OutStage = ({
   }
 
   return (
-    <PipelineStagePreview
+    <PipelineStageBanner
       text={OUT_STAGE_PREVIEW_TEXT}
       showActionButton={isAtlas}
       actionButtonText={'Save documents'}
@@ -85,7 +112,7 @@ const MergeStage = ({
 }) => {
   if (isComplete) {
     return (
-      <PipelineStagePreview
+      <PipelineStageBanner
         text={'Documents persisted to collection specified by $merge.'}
         showActionButton={isAtlas}
         actionButtonText={'Go to collection'}
@@ -95,7 +122,7 @@ const MergeStage = ({
   }
 
   return (
-    <PipelineStagePreview
+    <PipelineStageBanner
       text={MERGE_STAGE_PREVIEW_TEXT}
       showActionButton={isAtlas}
       actionButtonText={'Merge documents'}
@@ -105,7 +132,7 @@ const MergeStage = ({
 };
 
 const mapState = ({
-  isAtlasDeployed,
+  // isAtlasDeployed,
   pipelineBuilder: {
     textEditor: { loading, serverError, previewDocs, stageOperators },
   },
@@ -114,12 +141,12 @@ const mapState = ({
   return {
     isAtlas: true,
     isComplete: !loading && !serverError && previewDocs !== null,
-    stageIndex: stageOperators.length - 1,
+    stageIndex: stageOperators.length - 1, // $out or $merge is always last.
   };
 };
 const mapDispatch = {
   onSaveCollection: runPipelineWithOutputStage,
   onOpenCollection: (index: number) => gotoOutResults(index),
 };
-export const OutStagePreview = connect(mapState, mapDispatch)(OutStage);
-export const MergeStagePreview = connect(mapState, mapDispatch)(MergeStage);
+export const OutStageBanner = connect(mapState, mapDispatch)(OutStage);
+export const MergeStageBanner = connect(mapState, mapDispatch)(MergeStage);

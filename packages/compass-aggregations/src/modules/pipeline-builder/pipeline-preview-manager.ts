@@ -30,19 +30,15 @@ export interface PreviewOptions extends AggregateOptions {
   totalDocumentCount?: number;
   sampleSize?: number;
   previewSize?: number;
-  isOutOrMerge?: boolean;
 };
 
 export function createPreviewAggregation(
   pipeline: Document[],
   options: Pick<
     PreviewOptions,
-    'sampleSize' | 'previewSize' | 'totalDocumentCount' | 'isOutOrMerge'
+    'sampleSize' | 'previewSize' | 'totalDocumentCount'
   > = {}
 ) {
-  if(options.isOutOrMerge) {
-    return pipeline
-  }
   const stages = [];
   for (const stage of pipeline) {
     if (
@@ -83,7 +79,6 @@ export class PipelinePreviewManager {
       sampleSize,
       previewSize,
       totalDocumentCount,
-      isOutOrMerge,
       ...options
     }: PreviewOptions = {},
     force = false
@@ -101,8 +96,7 @@ export class PipelinePreviewManager {
       pipeline: createPreviewAggregation(pipeline, {
         sampleSize,
         previewSize,
-        totalDocumentCount,
-        isOutOrMerge
+        totalDocumentCount
       }),
       options
     });
