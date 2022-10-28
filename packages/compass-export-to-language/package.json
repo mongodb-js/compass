@@ -93,7 +93,6 @@
     "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-redux": "^8.0.2",
-    "react-select-plus": "^1.2.0",
     "redux": "^4.2.0",
     "redux-thunk": "^2.3.0",
     "rimraf": "^3.0.2",
