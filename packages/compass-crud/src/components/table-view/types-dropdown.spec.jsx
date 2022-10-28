@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 import { Element } from 'hadron-document';
 
@@ -40,6 +40,7 @@ describe('TypesDropdown', function () {
 
   afterEach(function () {
     global.hadronApp = hadronAppBkp;
+    cleanup();
   });
 
   it('should render a dropdown with types', function () {
