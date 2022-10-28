@@ -54,6 +54,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
+    "@mongodb-js/compass-components": "*",
     "@mongodb-js/compass-editor": "*",
     "@mongodb-js/compass-logging": "*",
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.1.0",
