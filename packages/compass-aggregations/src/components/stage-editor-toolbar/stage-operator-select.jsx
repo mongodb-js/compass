@@ -12,7 +12,7 @@ const descriptionWidth = spacing[5] * 10;
 const stageNameWidth = spacing[4] * 8;
 
 const comboboxStyles = css({
-  marginLeft: 8,
+  marginLeft: spacing[2],
   width: inputWidth,
   '& [role="combobox"]': {
     height: spacing[4] - 2 // match with xs controls
