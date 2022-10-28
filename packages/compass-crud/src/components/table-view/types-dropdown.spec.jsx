@@ -6,7 +6,7 @@ import { Element } from 'hadron-document';
 import app from 'hadron-app';
 import TypesDropdown from './types-dropdown';
 
-const SELECTABLE_TYPES = [
+const selectableTypes = [
   'Array',
   'Binary',
   'Boolean',
@@ -51,7 +51,7 @@ describe('TypesDropdown', function () {
     expect(screen.getByText('Int32')).to.exist;
   });
 
-  SELECTABLE_TYPES.forEach((type) => {
+  selectableTypes.forEach((type) => {
     it(`allows to select ${type}`, function () {
       fireEvent.click(screen.getByTestId('table-view-types-dropdown-select')); // Click select button
       expect(screen.getByText(type)).to.exist;
