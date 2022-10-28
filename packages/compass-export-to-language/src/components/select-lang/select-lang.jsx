@@ -1,9 +1,11 @@
 import React, { PureComponent } from 'react';
-import Select from 'react-select-plus';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
+import { css, Option, Select, spacing } from '@mongodb-js/compass-components';
 
-import styles from './select-lang.module.less';
+const selectStyles = css({
+  width: spacing[7] * 2,
+  marginTop: spacing[2],
+});
 
 class SelectLang extends PureComponent {
   static displayName = 'SelectLangComponent';
@@ -19,7 +21,7 @@ class SelectLang extends PureComponent {
 
   // save state, and pass in the currently selected lang
   handleOutputSelect = (outputLang) => {
-    this.props.outputLangChanged(outputLang.value);
+    this.props.outputLangChanged(outputLang);
     this.props.runTranspiler(this.props.inputExpression);
   };
 
@@ -39,15 +41,24 @@ class SelectLang extends PureComponent {
 
     return (
       <Select
-        name="select-lang"
-        className={classnames(styles['select-lang'])}
-        searchable={false}
-        clearable={false}
-        placeholder="Python"
-        value={selectedOutputValue}
+        aria-label={'Select a language'}
+        allowDeselect={false}
+        placeholder={'Select a language'}
+        className={selectStyles}
+        size="small"
+        data-testid="export-to-language-select-lang"
         onChange={this.handleOutputSelect}
-        options={langOuputOptions}
-      />
+        value={selectedOutputValue}
+        clearable={false}
+        name="select-lang"
+        popoverZIndex={9999}
+      >
+        {langOuputOptions.map((option) => (
+          <Option key={option.value} value={option.value}>
+            {option.label}
+          </Option>
+        ))}
+      </Select>
     );
   }
 }
