@@ -77,6 +77,85 @@ const pipelines = [
   // $match filters data
 ]`
   },
+  {
+    usecase: 'COMPASS-6426: comments are correctly added to the corresponding stages',
+    input: `[
+  // {
+  //   $match: {
+  //     name: {
+  //       $in: [/ber/i, /bas/i],
+  //     },
+  //     bathrooms: {
+  //       $gte: 2,
+  //     },
+  //   },
+  // },
+  // {
+  //   where: {
+  //     name: 'berlin',
+  //   },
+  // }
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      bathrooms: 1,
+    },
+  },
+  // You gotta be kidding me?
+  {
+    // Fixed the bug
+    $sort: {
+      bathrooms: -1,
+    },
+  },
+  {
+    $skip: 1,
+  },
+  {
+    // This should not go away!
+    $limit: 8,
+  },
+]`,
+  output: `[
+  // {
+  //   $match: {
+  //     name: {
+  //       $in: [/ber/i, /bas/i],
+  //     },
+  //     bathrooms: {
+  //       $gte: 2,
+  //     },
+  //   },
+  // }
+  // {
+  //   where: {
+  //     name: 'berlin',
+  //   },
+  // }
+  {
+    $project: {
+      _id: 1,
+      name: 1,
+      bathrooms: 1,
+    },
+  },
+  // You gotta be kidding me?
+  {
+    // Fixed the bug
+    $sort: {
+      bathrooms: -1,
+    },
+  },
+  {
+    $skip: 1,
+  },
+  {
+    // This should not go away!
+    $limit: 8,
+  },
+]`
+  }
 ];
 
 describe('PipelineParser', function () {
@@ -130,11 +209,13 @@ describe('PipelineParser', function () {
       errors.forEach(x => expect(x).to.be.instanceOf(SyntaxError));
     });
   });
-  it('generates pipeline string', function () {
+  describe('generates pipeline string', function () {
     pipelines.forEach(({ input, output, usecase }) => {
-      const { root, stages } = PipelineParser.parse(input);
-      const generatedPipelineString = PipelineParser.generate(root, stages);
-      expect(generatedPipelineString, usecase).to.equal(output);
+      it(usecase, function () {
+        const { root, stages } = PipelineParser.parse(input);
+        const generatedPipelineString = PipelineParser.generate(root, stages);
+        expect(generatedPipelineString).to.equal(output);
+      });
     });
   });
 });

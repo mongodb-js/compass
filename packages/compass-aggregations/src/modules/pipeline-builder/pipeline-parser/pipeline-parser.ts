@@ -1,6 +1,11 @@
 import * as babelParser from '@babel/parser';
-import * as t from '@babel/types';
-import StageParser, { stageToAstComments, assertStageNode, isNodeDisabled, setNodeDisabled } from './stage-parser';
+import type * as t from '@babel/types';
+import StageParser, {
+  stageToAstComments,
+  assertStageNode,
+  isNodeDisabled,
+  setNodeDisabled
+} from './stage-parser';
 import { generate } from './utils';
 import { PipelineParserError } from './utils';
 
@@ -161,28 +166,35 @@ export default class PipelineParser {
     let unusedComments: t.CommentLine[] = [];
 
     for (const stage of stages) {
-      if (!isNodeDisabled(stage)) {
-        elements.push(stage);
-        continue;
-      }
-
-      const comments = stageToAstComments(stage);
-      const prevStage = elements[elements.length - 1];
-      if (!prevStage) {
+      // If node is disabled, store the node as comments for later use
+      if (isNodeDisabled(stage)) {
+        const comments = stageToAstComments(stage);
         unusedComments.push(...comments);
         continue;
       }
 
-      t.addComments(prevStage, 'trailing', comments);
+      // If node is enabled and there are some comments in the stack, attach
+      // them as as leading comments to the stage
       if (unusedComments.length) {
-        t.addComments(prevStage, 'leading', unusedComments);
+        stage.leadingComments = [
+          ...unusedComments,
+          ...(stage.leadingComments ?? [])
+        ];
         unusedComments = [];
       }
+
+      elements.push(stage);
     }
 
-    const prevStage = elements[elements.length - 1];
-    if (unusedComments.length > 0 && prevStage) {
-      t.addComments(prevStage, 'leading', unusedComments);
+    const lastStage = elements[elements.length - 1];
+
+    // If we still have some comments left after we went through all stages, add
+    // them as trailing comments to the last stage
+    if (lastStage && unusedComments.length > 0) {
+      lastStage.trailingComments = [
+        ...(lastStage.trailingComments ?? []),
+        ...unusedComments
+      ];
     }
 
     return elements;
