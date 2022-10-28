@@ -243,11 +243,7 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
             filter: item.query.filter,
           });
         } else {
-          const stages = item.aggregation.pipeline
-            .filter((p) => p.stageOperator && p.stage)
-            .map((p) => `${p.stageOperator}: ${p.stage}`)
-            .join(' ');
-          return JSON.stringify(stages);
+          return item.aggregation.pipelineText;
         }
       }
 
