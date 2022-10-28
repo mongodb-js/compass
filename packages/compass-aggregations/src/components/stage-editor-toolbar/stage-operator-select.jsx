@@ -15,7 +15,7 @@ const comboboxStyles = css({
   marginLeft: spacing[2],
   width: inputWidth,
   '& [role="combobox"]': {
-    height: spacing[4] - 2 // match with xs controls
+    height: spacing[4] - 2 // match other xs controls
   }
 });
 
