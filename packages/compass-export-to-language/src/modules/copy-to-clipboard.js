@@ -40,5 +40,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const copyToClipboardFnChanged = (copyToClipboard) => ({
   type: COPY_TO_CLIPBOARD_FN_CHANGED,
-  copyToClipboard
+  copyToClipboard,
 });
