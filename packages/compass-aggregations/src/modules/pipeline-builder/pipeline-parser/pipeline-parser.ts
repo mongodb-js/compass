@@ -45,7 +45,9 @@ function extractStagesFromComments(
   for (const group of groups) {
     const lines: Line[] = Array.isArray(group)
       ? group.map((comment) => {
-        return { value: comment.value, node: comment };
+        // Line comments usually have one space at the beginning, normalizing it
+        // here makes it easier to better format the code later
+        return { value: comment.value.replace(/^\s/, ''), node: comment };
       })
       : group.value.split('\n').map((line) => {
         // Block comments usually have every line prepended by a *, we will

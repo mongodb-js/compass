@@ -9,6 +9,7 @@ import StageParser, {
   stageToAstComments,
 } from './stage-parser';
 import type { StageLike } from './stage-parser';
+import { generate } from './utils';
 
 describe('StageParser', function () {
   describe('Stage node helpers', function () {
@@ -372,11 +373,67 @@ describe('StageParser', function () {
 
       let isStage = stageParser.push(lines[3]);
       expect(isStage).to.be.false;
-      expect(stageParser.source).to.equal(`${lines[3]}\n`);
+      expect(stageParser.source).to.equal(`// ${lines[3]}\n`);
 
       isStage = stageParser.push(lines[4]);
       expect(isStage).to.be.false;
-      expect(stageParser.source).to.equal(`${lines[3]}\n${lines[4]}\n`);
+      expect(stageParser.source).to.equal(`// ${lines[3]}\n// ${lines[4]}\n`);
+    });
+
+    it('should treat non-stage-like object expressions as comments', function () {
+      const code = `{
+  foo: 1
+},
+{
+  $match: { _id: 1 }
+}`;
+
+      let stage;
+
+      code.split('\n').forEach((line) => {
+        const maybeStage = stageParser.push(line);
+        if (maybeStage) {
+          stage = maybeStage;
+        }
+      });
+
+      expect(generate(stage)).to.eq(`// {
+//   foo: 1
+// },
+{
+  $match: {
+    _id: 1,
+  },
+}`);
+    });
+
+    it('should parse stages that start and end at the same line', function () {
+      const code = `{
+  $match: { _id: 1 }
+}, {
+  $limit: 10
+}`;
+
+      const stages: StageLike[] = [];
+
+      code.split('\n').forEach((line) => {
+        const maybeStage = stageParser.push(line);
+        if (maybeStage) {
+          stages.push(maybeStage);
+        }
+      });
+
+      expect(stages).to.have.lengthOf(2);
+
+      expect(generate(stages[0])).to.eq(`{
+  $match: {
+    _id: 1,
+  },
+}`);
+
+      expect(generate(stages[1])).to.eq(`{
+  $limit: 10,
+}`);
     });
   });
 });
