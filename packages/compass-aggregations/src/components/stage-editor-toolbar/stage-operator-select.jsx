@@ -8,8 +8,9 @@ import { Combobox, ComboboxOption, css, spacing } from '@mongodb-js/compass-comp
 import { isAtlasOnly } from '../../utils/stage';
 
 const inputWidth = spacing[7] * 2;
-const descriptionWidth = spacing[5] * 10;
+const descriptionWidth = spacing[5] * 14;
 const stageNameWidth = spacing[4] * 8;
+const dropdownWidth = stageNameWidth + descriptionWidth;
 
 const comboboxStyles = css({
   marginLeft: spacing[2],
@@ -32,8 +33,8 @@ function comboboxOptionStyles(stage) {
 
 const portalStyles = css({
   '> div': {
-    width: stageNameWidth + descriptionWidth,
-    left: descriptionWidth + spacing[2] // realigns the dropdown with the input
+    width: dropdownWidth,
+    marginLeft: (dropdownWidth / 2) - (inputWidth / 2) // realigns the dropdown with the input
   },
 });
 
