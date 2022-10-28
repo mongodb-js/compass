@@ -388,7 +388,7 @@ describe('StageParser', function () {
   $match: { _id: 1 }
 }`;
 
-      let stage;
+      let stage: any;
 
       code.split('\n').forEach((line) => {
         const maybeStage = stageParser.push(line);
