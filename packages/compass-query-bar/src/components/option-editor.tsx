@@ -12,7 +12,7 @@ import type {
   CompletionWithServerInfo,
 } from '@mongodb-js/compass-editor';
 import {
-  Editor,
+  InlineEditor,
   EditorTextCompleter,
   QueryAutoCompleter,
 } from '@mongodb-js/compass-editor';
@@ -38,11 +38,6 @@ const editorWithErrorStyles = css({
     borderColor: palette.gray.base,
   },
 });
-
-const editorSettings = {
-  minLines: 1,
-  maxLines: 10,
-};
 
 function disableEditorCommand(editor: AceEditor, name: string) {
   const command = editor.commands.byName[name];
@@ -155,17 +150,15 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         hasError && editorWithErrorStyles
       )}
     >
-      <Editor
+      <InlineEditor
         variant="Shell"
         text={value}
         onChangeText={onChange}
         id={id}
-        options={editorSettings}
         completer={completer}
         placeholder={placeholder}
         onLoad={onLoadEditor}
         commands={commands}
-        inline
       />
     </div>
   );

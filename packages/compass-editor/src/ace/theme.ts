@@ -1,4 +1,4 @@
-import { palette } from '@mongodb-js/compass-components';
+import { palette, spacing } from '@mongodb-js/compass-components';
 
 // To trick vscode into formatting and autocompleting the string
 const css = String.raw;
@@ -7,6 +7,7 @@ const mongodbAceThemeCssText = css`
   .ace-mongodb.ace_editor {
     background: ${palette.gray.light3};
     color: ${palette.black};
+    line-height: ${spacing[3]}px;
   }
   .inline-editor.ace-mongodb.ace_editor {
     background: transparent;
