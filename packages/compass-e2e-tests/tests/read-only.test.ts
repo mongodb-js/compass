@@ -109,7 +109,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     }
   });
 
-  it('shows and hides the create database button on instance tab', async function () {
+  it('shows and hides the create database button on the instance tab', async function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
@@ -138,7 +138,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed({ reverse: true });
 
       instanceCreateDatabaseButton = await browser.$(
-        Selectors.SidebarCreateDatabaseButton
+        Selectors.InstanceCreateDatabaseButton
       );
       isInstanceCreateDatabaseButtonExisting =
         await instanceCreateDatabaseButton.isExisting();
@@ -149,7 +149,48 @@ describe('readOnly: true / Read-Only Edition', function () {
     }
   });
 
-  it('shows and hides the create collection button on instance tab', async function () {
+  it('shows and hides the create collection button on the instance tab', async function () {
+    const compass = await beforeTests();
+    try {
+      const browser = compass.browser;
+      await browser.setFeature('readOnly', false);
+      await createNumbersCollection();
+      await browser.connectWithConnectionString(
+        'mongodb://localhost:27091/test'
+      );
+
+      await browser.navigateToDatabaseTab('test', 'Collections');
+
+      let databaseCreateCollectionButton = await browser.$(
+        Selectors.DatabaseCreateCollectionButton
+      );
+      let isDatabaseCreateCollectionButtonExisting =
+        await databaseCreateCollectionButton.isExisting();
+      expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(true);
+
+      await browser.openSettingsModal();
+      const settingsModal = await browser.$(Selectors.SettingsModal);
+      await settingsModal.waitForDisplayed();
+
+      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // wait for the modal to go away
+      await settingsModal.waitForDisplayed({ reverse: true });
+
+      databaseCreateCollectionButton = await browser.$(
+        Selectors.SidebarCreateDatabaseButton
+      );
+      isDatabaseCreateCollectionButtonExisting =
+        await databaseCreateCollectionButton.isExisting();
+      expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(false);
+    } finally {
+      await afterTest(compass, this.currentTest);
+      await afterTests(compass, this.currentTest);
+    }
+  });
+
+  it('shows and hides the add data button on the documents tab', async function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
