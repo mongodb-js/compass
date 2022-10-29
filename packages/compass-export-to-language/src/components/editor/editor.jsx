@@ -10,12 +10,12 @@ class ExportToLanguageEditor extends PureComponent {
 
   static propTypes = {
     language: PropTypes.string,
-    value: PropTypes.string.isRequired
+    value: PropTypes.string.isRequired,
   };
 
   static defaultProps = {
-    language: 'javascript'
-  }
+    language: 'javascript',
+  };
 
   componentDidMount() {
     this.setLanguageMode();
@@ -33,7 +33,7 @@ class ExportToLanguageEditor extends PureComponent {
     if (this.props.language === 'php') {
       this.editor.session.setMode({
         path: `ace/mode/${this.props.language}`,
-        inline: true
+        inline: true,
       });
     } else {
       this.editor.session.setMode(`ace/mode/${this.props.language}`);
@@ -49,13 +49,16 @@ class ExportToLanguageEditor extends PureComponent {
           variant={EditorVariant.Generic}
           mode={this.props.language}
           text={this.props.value}
-          options={({
+          options={{
             minLines: 5,
             highlightActiveLine: false,
-            highlightGutterLine: false
-          })}
+            highlightGutterLine: false,
+          }}
           readOnly
-          onLoad={(editor) => { this.editor = editor; }}/>
+          onLoad={(editor) => {
+            this.editor = editor;
+          }}
+        />
       </div>
     );
   }
