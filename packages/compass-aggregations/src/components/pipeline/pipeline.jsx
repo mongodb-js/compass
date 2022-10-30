@@ -73,12 +73,12 @@ class Pipeline extends PureComponent {
   };
 
   state = {
-    allDocsExpanded: false,
-  }
+    resultsDisclosureOption: 'collapsed',
+  };
 
-  onChangeAllDocsExpanded = (allDocsExpanded) => {
-    this.setState({ allDocsExpanded });
-  }
+  onChangeDisclosureOption = (resultsDisclosureOption) => {
+    this.setState({ resultsDisclosureOption });
+  };
 
   renderModifyingViewSourceError() {
     if (this.props.updateViewError) {
@@ -102,7 +102,8 @@ class Pipeline extends PureComponent {
         showRunButton={this.props.showRunButton}
         showExportButton={this.props.showExportButton}
         showExplainButton={this.props.showExplainButton}
-        onChangeAllDocsExpanded={this.onChangeAllDocsExpanded}
+        onChangeDisclosureOption={this.onChangeDisclosureOption}
+        resultsDisclosureOption={this.state.resultsDisclosureOption}
       />
     );
   }
@@ -162,7 +163,11 @@ class Pipeline extends PureComponent {
         <WorkspaceContainer toolbar={this.renderPipelineToolbar()}>
           {this.renderModifyingViewSourceError()}
           {this.props.workspace === 'results' ? (
-            <PipelineResultsWorkspace allDocsExpanded={this.state.allDocsExpanded}/>
+            <PipelineResultsWorkspace
+              allDocsExpanded={
+                this.state.resultsDisclosureOption === 'expanded'
+              }
+            />
           ) : (
             <PipelineBuilderWorkspace />
           )}

@@ -8,12 +8,14 @@ import type { RootState } from '../../modules';
 import { changeViewType } from '../../modules/aggregation';
 import { getStageOperator, isOutputStage } from '../../utils/stage';
 import { DocumentsDisclosureMenu } from '../documents-disclosure-menu';
+import type { DocumentsDisclosureOption } from '../documents-disclosure-menu';
 
 type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
   resultsViewType: ResultsViewType;
   isMergeOrOutPipeline: boolean;
-  onChangeAllDocsExpanded: (val: boolean) => void;
+  onChangeDisclosureOption: (val: DocumentsDisclosureOption) => void;
+  resultsDisclosureOption: DocumentsDisclosureOption;
 };
 
 const containerStyles = css({
@@ -27,18 +29,26 @@ const groupStyles = css({
   gap: spacing[2],
 });
 
-export const PipelineResultsHeader: React.FunctionComponent<PipelineResultsHeaderProps> =
-  ({ onChangeResultsView, resultsViewType, isMergeOrOutPipeline, onChangeAllDocsExpanded }) => {
-    if (isMergeOrOutPipeline) {
-      return null;
-    }
+export const PipelineResultsHeader: React.FunctionComponent<
+  PipelineResultsHeaderProps
+> = ({
+  onChangeResultsView,
+  resultsViewType,
+  isMergeOrOutPipeline,
+  onChangeDisclosureOption,
+  resultsDisclosureOption,
+}) => {
+  if (isMergeOrOutPipeline) {
+    return null;
+  }
   return (
     <div className={containerStyles} data-testid="pipeline-results-header">
       {process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' ? (
         <div className={groupStyles}>
           <Overline>All Results</Overline>
           <DocumentsDisclosureMenu
-            onChange={(val) => onChangeAllDocsExpanded(val === 'expanded')}
+            option={resultsDisclosureOption}
+            onChangeOption={onChangeDisclosureOption}
           />
         </div>
       ) : (

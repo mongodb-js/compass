@@ -17,7 +17,8 @@ describe('PipelineToolbar', function () {
           store={configureStore({ sourcePipeline: [{ $match: { _id: 1 } }] })}
         >
           <PipelineToolbar
-            onChangeAllDocsExpanded={() => {}}
+            onChangeDisclosureOption={() => {}}
+            resultsDisclosureOption="collapsed"
             isBuilderView
             showExportButton
             showRunButton
@@ -138,7 +139,8 @@ describe('PipelineToolbar', function () {
       render(
         <Provider store={configureStore({})}>
           <PipelineToolbar
-            onChangeAllDocsExpanded={() => {}}
+            onChangeDisclosureOption={() => {}}
+            resultsDisclosureOption="collapsed"
             isBuilderView
             showExplainButton
             showExportButton

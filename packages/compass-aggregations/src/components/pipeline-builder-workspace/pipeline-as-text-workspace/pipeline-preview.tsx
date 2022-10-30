@@ -25,7 +25,6 @@ const previewHeaderStyles = css({
   padding: spacing[3],
   display: 'flex',
   flexDirection: 'row',
-  justifyContent: 'space-between',
   alignItems: 'flex-start',
 });
 
@@ -43,9 +42,13 @@ const messageStyles = css({ marginTop: spacing[3] });
 
 const documentListStyles = css({
   overflow: 'auto',
-  '.document-list': {
-    paddingRight: spacing[2],
-  }
+});
+
+const disclosureMenuStyles = css({
+  marginTop: 0,
+  marginRight: 0,
+  marginBottom: 'auto',
+  marginLeft: 'auto',
 });
 
 type PipelinePreviewProps = {
@@ -115,7 +118,8 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   isLoading,
   previewDocs,
 }) => {
-  const [disclosureOption, setDisclosureOption] = useState<DocumentsDisclosureOption>('collapsed');
+  const [disclosureOption, setDisclosureOption] =
+    useState<DocumentsDisclosureOption>('collapsed');
   const isExpanded = disclosureOption === 'expanded';
 
   const docCount = previewDocs?.length ?? 0;
@@ -128,9 +132,18 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
           <Overline>Pipeline Output</Overline>
           {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
         </div>
-        <DocumentsDisclosureMenu onChange={setDisclosureOption} />
+        <div className={disclosureMenuStyles}>
+          <DocumentsDisclosureMenu
+            option={disclosureOption}
+            onChangeOption={setDisclosureOption}
+          />
+        </div>
       </div>
-      <PreviewResults isExpanded={isExpanded} isLoading={isLoading} previewDocs={previewDocs} />
+      <PreviewResults
+        isExpanded={isExpanded}
+        isLoading={isLoading}
+        previewDocs={previewDocs}
+      />
     </div>
   );
 };
