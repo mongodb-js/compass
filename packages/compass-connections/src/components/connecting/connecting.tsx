@@ -11,6 +11,7 @@ const showModalDelayMS = 250;
 const modalContentStyles = css({
   textAlign: 'center',
   padding: spacing[3],
+  paddingBottom: spacing[5],
 });
 
 const connectingStatusStyles = css({
