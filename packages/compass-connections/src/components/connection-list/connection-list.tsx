@@ -16,7 +16,6 @@ import {
 import type { ConnectionInfo } from 'mongodb-data-service';
 
 import Connection from './connection';
-import ConnectionsTitle from './connections-title';
 
 const newConnectionButtonContainerStyles = css({
   padding: spacing[3],
@@ -39,7 +38,7 @@ const newConnectionButtonStylesDark = css({
 });
 
 const sectionHeaderStyles = css({
-  marginTop: spacing[4],
+  marginTop: spacing[2],
   marginBottom: spacing[3],
   paddingLeft: spacing[3],
   paddingRight: spacing[2],
@@ -146,11 +145,8 @@ function ConnectionList({
 
   const { theme } = useTheme();
 
-  const isExpanded = true; // TODO: https://jira.mongodb.org/browse/COMPASS-5967
-
   return (
     <Fragment>
-      <ConnectionsTitle isExpanded={isExpanded} />
       <div className={newConnectionButtonContainerStyles}>
         <Button
           className={cx(
