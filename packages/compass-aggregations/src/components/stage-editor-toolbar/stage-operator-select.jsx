@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import { filterStageOperators } from '../../utils/stage';
 
-import { Combobox, ComboboxOption, css, spacing } from '@mongodb-js/compass-components';
+import { Combobox, ComboboxOption, css, cx, spacing } from '@mongodb-js/compass-components';
 import { isAtlasOnly } from '../../utils/stage';
 
 const inputWidth = spacing[7] * 2;
@@ -59,8 +59,14 @@ export const StageOperatorSelect = ({
     clearable={false}
     data-testid="stage-operator-combobox"
     className={comboboxStyles}
-    portalClassName={portalStyles}>
+    portalClassName={cx(
+      portalStyles,
+      // used for testing since at the moment is not possible to identify
+      // the listbox container or the single ComboboxOptions with testIds
+      `mongodb-compass-stage-operator-combobox-portal-${index}`
+    )}>
       {stages.map((stage, index) => <ComboboxOption
+          data-testid={`combobox-option-stage-${stage.name}`}
           key={`combobox-option-stage-${index}`}
           value={stage.name}
           className={optionStyleByStageName[stage.name]}

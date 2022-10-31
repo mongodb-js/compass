@@ -8,6 +8,7 @@ export async function focusStageOperator(
   await browser.clickVisible(Selectors.stageCollapseButton(index));
   await browser.clickVisible(Selectors.stageExpandButton(index));
   await browser.keys(['Tab']);
+  await browser.keys(['Enter']); // show the list of stages
   const stageSelectorElement = await browser.$(
     Selectors.stageSelectControlInput(index, true)
   );
