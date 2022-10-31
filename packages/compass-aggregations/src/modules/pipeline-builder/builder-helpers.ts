@@ -1,3 +1,4 @@
+import type { Document } from 'mongodb';
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import type { PipelineBuilder } from './pipeline-builder';
 import { loadPreviewForStagesFrom } from './stage-editor';
@@ -22,7 +23,7 @@ export function getStagesFromBuilderState(
   pipelineBuilder: PipelineBuilder
 ) {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
-    return pipelineBuilder.stages.map((stage) => stage.toBSON());
+    return pipelineBuilder.stages.map((stage) => stage.toBSON() as Document);
   } else {
     return pipelineBuilder.getPipelineFromSource();
   }

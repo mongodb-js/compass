@@ -132,13 +132,18 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   pipelineBuilder: {
-    textEditor: { pipelineText, serverError, syntaxErrors },
+    textEditor: {
+      pipelineText,
+      serverError: pipelineServerError,
+      syntaxErrors,
+    },
+    outputStage: { serverError: outputServerError },
   },
   serverVersion,
   fields,
 }: RootState) => ({
   pipelineText,
-  serverError,
+  serverError: pipelineServerError ?? outputServerError,
   syntaxErrors,
   serverVersion,
   fields,
