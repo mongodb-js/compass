@@ -12,8 +12,8 @@ import type { RootState } from '../../../modules';
 import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
-import { DocumentsDisclosureMenu } from '../../documents-disclosure-menu';
-import type { DocumentsDisclosureOption } from '../../documents-disclosure-menu';
+import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
+import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 
 const containerStyles = css({
   display: 'flex',
@@ -118,9 +118,9 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   isLoading,
   previewDocs,
 }) => {
-  const [disclosureOption, setDisclosureOption] =
-    useState<DocumentsDisclosureOption>('collapsed');
-  const isExpanded = disclosureOption === 'expanded';
+  const [pipelineOutputOption, setPipelineOutputOption] =
+    useState<PipelineOutputOption>('collapse');
+  const isExpanded = pipelineOutputOption === 'expand';
 
   const docCount = previewDocs?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -133,9 +133,9 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
           {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
         </div>
         <div className={disclosureMenuStyles}>
-          <DocumentsDisclosureMenu
-            option={disclosureOption}
-            onChangeOption={setDisclosureOption}
+          <PipelineOutputOptionsMenu
+            option={pipelineOutputOption}
+            onChangeOption={setPipelineOutputOption}
           />
         </div>
       </div>

@@ -73,11 +73,11 @@ class Pipeline extends PureComponent {
   };
 
   state = {
-    resultsDisclosureOption: 'collapsed',
+    pipelineOutputOption: 'collapse',
   };
 
-  onChangeDisclosureOption = (resultsDisclosureOption) => {
-    this.setState({ resultsDisclosureOption });
+  onChangePipelineOutputOption = (pipelineOutputOption) => {
+    this.setState({ pipelineOutputOption });
   };
 
   renderModifyingViewSourceError() {
@@ -102,8 +102,8 @@ class Pipeline extends PureComponent {
         showRunButton={this.props.showRunButton}
         showExportButton={this.props.showExportButton}
         showExplainButton={this.props.showExplainButton}
-        onChangeDisclosureOption={this.onChangeDisclosureOption}
-        resultsDisclosureOption={this.state.resultsDisclosureOption}
+        onChangePipelineOutputOption={this.onChangePipelineOutputOption}
+        pipelineOutputOption={this.state.pipelineOutputOption}
       />
     );
   }
@@ -164,9 +164,7 @@ class Pipeline extends PureComponent {
           {this.renderModifyingViewSourceError()}
           {this.props.workspace === 'results' ? (
             <PipelineResultsWorkspace
-              allDocsExpanded={
-                this.state.resultsDisclosureOption === 'expanded'
-              }
+              allDocsExpanded={this.state.pipelineOutputOption === 'expand'}
             />
           ) : (
             <PipelineBuilderWorkspace />

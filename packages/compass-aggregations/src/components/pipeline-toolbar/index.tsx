@@ -8,7 +8,7 @@ import PipelineSettings from './pipeline-settings';
 
 import type { RootState } from '../../modules';
 import PipelineResultsHeader from '../pipeline-results-workspace/pipeline-results-header';
-import type { DocumentsDisclosureOption } from '../documents-disclosure-menu';
+import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 
 const containerStyles = css({
   padding: spacing[3],
@@ -52,8 +52,8 @@ type PipelineToolbarProps = {
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
-  onChangeDisclosureOption: (val: DocumentsDisclosureOption) => void;
-  resultsDisclosureOption: DocumentsDisclosureOption;
+  onChangePipelineOutputOption: (val: PipelineOutputOption) => void;
+  pipelineOutputOption: PipelineOutputOption;
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
@@ -62,8 +62,8 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   showRunButton,
   showExportButton,
   showExplainButton,
-  onChangeDisclosureOption,
-  resultsDisclosureOption,
+  onChangePipelineOutputOption,
+  pipelineOutputOption,
 }) => {
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
@@ -101,8 +101,8 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
         ) : (
           <div className={settingsRowStyles}>
             <PipelineResultsHeader
-              onChangeDisclosureOption={onChangeDisclosureOption}
-              resultsDisclosureOption={resultsDisclosureOption}
+              onChangePipelineOutputOption={onChangePipelineOutputOption}
+              pipelineOutputOption={pipelineOutputOption}
             />
           </div>
         )}

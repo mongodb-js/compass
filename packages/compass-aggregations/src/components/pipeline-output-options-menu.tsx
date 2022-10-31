@@ -1,17 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import { Menu, MenuItem, Button, Icon } from '@mongodb-js/compass-components';
 
-export type DocumentsDisclosureOption = 'expanded' | 'collapsed';
+export type PipelineOutputOption = 'expand' | 'collapse';
 
-export const DocumentsDisclosureMenu: React.FunctionComponent<{
-  option: DocumentsDisclosureOption;
-  onChangeOption: (option: DocumentsDisclosureOption) => void;
+export const PipelineOutputOptionsMenu: React.FunctionComponent<{
+  option: PipelineOutputOption;
+  onChangeOption: (option: PipelineOutputOption) => void;
 }> = ({ option, onChangeOption }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const onMenuItemClick = useCallback(
     (evt) => {
       const newOption = evt.currentTarget.dataset
-        .action as DocumentsDisclosureOption;
+        .action as PipelineOutputOption;
       evt.stopPropagation();
       setIsMenuOpen(false);
       onChangeOption(newOption);
@@ -31,16 +31,16 @@ export const DocumentsDisclosureMenu: React.FunctionComponent<{
       }
     >
       <MenuItem
-        active={option === 'expanded'}
-        data-action="expanded"
+        active={option === 'expand'}
+        data-action="expand"
         onClick={onMenuItemClick}
         aria-label="Expand all fields"
       >
         Expand all fields
       </MenuItem>
       <MenuItem
-        active={option === 'collapsed'}
-        data-action="collapsed"
+        active={option === 'collapse'}
+        data-action="collapse"
         onClick={onMenuItemClick}
         aria-label="Collapse all fields"
       >

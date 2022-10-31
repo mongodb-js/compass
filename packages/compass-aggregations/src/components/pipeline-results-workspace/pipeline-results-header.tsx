@@ -7,15 +7,15 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import { changeViewType } from '../../modules/aggregation';
 import { getStageOperator, isOutputStage } from '../../utils/stage';
-import { DocumentsDisclosureMenu } from '../documents-disclosure-menu';
-import type { DocumentsDisclosureOption } from '../documents-disclosure-menu';
+import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
+import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 
 type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
   resultsViewType: ResultsViewType;
   isMergeOrOutPipeline: boolean;
-  onChangeDisclosureOption: (val: DocumentsDisclosureOption) => void;
-  resultsDisclosureOption: DocumentsDisclosureOption;
+  onChangePipelineOutputOption: (val: PipelineOutputOption) => void;
+  pipelineOutputOption: PipelineOutputOption;
 };
 
 const containerStyles = css({
@@ -35,8 +35,8 @@ export const PipelineResultsHeader: React.FunctionComponent<
   onChangeResultsView,
   resultsViewType,
   isMergeOrOutPipeline,
-  onChangeDisclosureOption,
-  resultsDisclosureOption,
+  onChangePipelineOutputOption,
+  pipelineOutputOption,
 }) => {
   if (isMergeOrOutPipeline) {
     return null;
@@ -46,9 +46,9 @@ export const PipelineResultsHeader: React.FunctionComponent<
       {process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' ? (
         <div className={groupStyles}>
           <Overline>All Results</Overline>
-          <DocumentsDisclosureMenu
-            option={resultsDisclosureOption}
-            onChangeOption={onChangeDisclosureOption}
+          <PipelineOutputOptionsMenu
+            option={pipelineOutputOption}
+            onChangeOption={onChangePipelineOutputOption}
           />
         </div>
       ) : (
