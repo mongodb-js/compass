@@ -1,4 +1,4 @@
-import SelectFileType from '../select-file-type';
+import { SelectFileType } from '../select-file-type';
 import { IconTextButton } from 'hadron-react-buttons';
 import toNS from 'mongodb-ns';
 import fileSaveDialog from '../../utils/file-save-dialog';

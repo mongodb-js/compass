@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { css, FileInput } from '@mongodb-js/compass-components';
 
 import FILE_TYPES from '../../constants/file-types';
-import SelectFileType from '../select-file-type';
+import { SelectFileType } from '../select-file-type';
 
 import styles from './import-options.module.less';
 import createStyler from '../../utils/styler.js';
