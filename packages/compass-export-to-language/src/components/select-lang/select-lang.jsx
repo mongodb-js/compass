@@ -51,7 +51,6 @@ class SelectLang extends PureComponent {
         value={selectedOutputValue}
         clearable={false}
         name="select-lang"
-        usePortal={false}
         popoverZIndex={9999}
       >
         {langOuputOptions.map((option) => (
