@@ -149,7 +149,9 @@ function setEditorValue(element: HTMLElement, value: string): void {
   if (!container) {
     throw new Error('Cannot find editor container');
   }
-  (window as any).ace.edit(container.id).setValue(value);
+  (window as any).ace
+    .edit(element.querySelector(`#${container.id}`))
+    .setValue(value);
 }
 
 const EditorTextCompleter = tools.textCompleter;

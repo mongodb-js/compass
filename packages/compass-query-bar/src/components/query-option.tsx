@@ -153,6 +153,7 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
             schemaFields={schemaFields}
             serverVersion={serverVersion}
             value={value}
+            data-testid={`query-bar-option-${queryOption}-input`}
           />
         ) : (
           <TextInput

@@ -56,6 +56,7 @@ type OptionEditorProps = {
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
+  ['data-testid']?: string;
 };
 
 function useQueryCompleter(
@@ -82,6 +83,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   schemaFields = [],
   serverVersion = '3.6.0',
   value = '',
+  ['data-testid']: dataTestId,
 }) => {
   const focusRingProps = useFocusRing({
     outer: true,
@@ -159,6 +161,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         placeholder={placeholder}
         onLoad={onLoadEditor}
         commands={commands}
+        data-testid={dataTestId}
       />
     </div>
   );
