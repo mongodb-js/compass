@@ -53,8 +53,7 @@ describe('PipelinePreview', function () {
     ).to.have.lengthOf(2);
   });
 
-  it('renders disclosure menu', function() {
-
+  it('renders pipeline output menu', function () {
     const previewDocs = [
       {
         _id: 1,
@@ -64,13 +63,13 @@ describe('PipelinePreview', function () {
             another: {
               deep: {
                 nested: {
-                  document: '1'
-                }
-              }
-            }
-          }
+                  document: '1',
+                },
+              },
+            },
+          },
         ],
-      }
+      },
     ];
     renderPipelineEditor({ previewDocs });
 
@@ -108,5 +107,5 @@ describe('PipelinePreview', function () {
     expect(() => within(docList).getByText(/deep/)).to.throw;
     expect(() => within(docList).getByText(/nested/)).to.throw;
     expect(() => within(docList).getByText(/document/)).to.throw;
-  })
+  });
 });

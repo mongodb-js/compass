@@ -44,7 +44,7 @@ const documentListStyles = css({
   overflow: 'auto',
 });
 
-const disclosureMenuStyles = css({
+const pipelineOutputMenuStyles = css({
   marginTop: 0,
   marginRight: 0,
   marginBottom: 'auto',
@@ -132,7 +132,7 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
           <Overline>Pipeline Output</Overline>
           {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
         </div>
-        <div className={disclosureMenuStyles}>
+        <div className={pipelineOutputMenuStyles}>
           <PipelineOutputOptionsMenu
             option={pipelineOutputOption}
             onChangeOption={setPipelineOutputOption}
