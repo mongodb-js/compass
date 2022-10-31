@@ -6,6 +6,8 @@ import {
   BannerVariant,
   css,
   spacing,
+  SpinLoader,
+  Icon,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
@@ -33,31 +35,55 @@ const actionButtonStyles = css({
   flexShrink: 0,
 });
 
-const PipelineStageBanner = ({
+type OutputStageProps = {
+  isAtlas: boolean;
+  isLoading: boolean;
+  isComplete: boolean;
+  stageIndex: number;
+  onSaveCollection: () => void;
+  onOpenCollection: (index: number) => void;
+};
+
+const ActionButton = ({
+  isLoading,
+  onClick,
   text,
-  showActionButton,
-  actionButtonText,
-  onClickActionButton,
 }: {
   text: string;
-  showActionButton: boolean;
-  actionButtonText: string;
-  onClickActionButton: () => void;
+  isLoading: boolean;
+  onClick: () => void;
+}) => {
+  const icon = isLoading ? (
+    <SpinLoader title="Loading" />
+  ) : (
+    <Icon glyph="Plus" />
+  );
+  return (
+    <Button
+      disabled={isLoading}
+      className={actionButtonStyles}
+      size="xsmall"
+      variant="default"
+      onClick={onClick}
+      leftGlyph={icon}
+    >
+      {text}
+    </Button>
+  );
+};
+
+const PipelineStageBanner = ({
+  text,
+  actionButton,
+}: {
+  text: string;
+  actionButton: JSX.Element | null;
 }) => {
   return (
     <Banner variant={BannerVariant.Info} className={bannerStyles}>
       <div className={contentStyles}>
         <Body>{text}</Body>
-        {showActionButton && (
-          <Button
-            className={actionButtonStyles}
-            size="xsmall"
-            variant="default"
-            onClick={onClickActionButton}
-          >
-            {actionButtonText}
-          </Button>
-        )}
+        {actionButton}
       </div>
     </Banner>
   );
@@ -65,24 +91,22 @@ const PipelineStageBanner = ({
 
 const OutStage = ({
   isAtlas,
+  isLoading,
   isComplete,
   stageIndex,
   onSaveCollection,
   onOpenCollection,
-}: {
-  isAtlas: boolean;
-  isComplete: boolean;
-  stageIndex: number;
-  onSaveCollection: () => void;
-  onOpenCollection: (index: number) => void;
-}) => {
-  if (isComplete) {
+}: OutputStageProps) => {
+  if (isComplete && isAtlas) {
     return (
       <PipelineStageBanner
         text={'Documents persisted to collection specified by $out.'}
-        showActionButton={isAtlas}
-        actionButtonText={'Go to collection'}
-        onClickActionButton={() => onOpenCollection(stageIndex)}
+        actionButton={
+          <ActionButton
+            text="Go to collection"
+            onClick={() => onOpenCollection(stageIndex)}
+          />
+        }
       />
     );
   }
@@ -90,43 +114,54 @@ const OutStage = ({
   return (
     <PipelineStageBanner
       text={OUT_STAGE_PREVIEW_TEXT}
-      showActionButton={isAtlas}
-      actionButtonText={'Save documents'}
-      onClickActionButton={onSaveCollection}
+      actionButton={
+        isAtlas ? (
+          <ActionButton
+            isLoading={isLoading}
+            text="Save documents"
+            onClick={onSaveCollection}
+          />
+        ) : null
+      }
     />
   );
 };
 
 const MergeStage = ({
   isAtlas,
+  isLoading,
   isComplete,
   stageIndex,
   onSaveCollection,
   onOpenCollection,
-}: {
-  isAtlas: boolean;
-  isComplete: boolean;
-  stageIndex: number;
-  onSaveCollection: () => void;
-  onOpenCollection: (index: number) => void;
-}) => {
-  if (isComplete) {
+}: OutputStageProps) => {
+  if (isComplete && isAtlas) {
     return (
       <PipelineStageBanner
         text={'Documents persisted to collection specified by $merge.'}
-        showActionButton={isAtlas}
-        actionButtonText={'Go to collection'}
-        onClickActionButton={() => onOpenCollection(stageIndex)}
+        actionButton={
+          <ActionButton
+            isLoading={isLoading}
+            text="Go to collection"
+            onClick={() => onOpenCollection(stageIndex)}
+          />
+        }
       />
     );
   }
 
   return (
     <PipelineStageBanner
-      text={MERGE_STAGE_PREVIEW_TEXT}
-      showActionButton={isAtlas}
-      actionButtonText={'Merge documents'}
-      onClickActionButton={onSaveCollection}
+      text={OUT_STAGE_PREVIEW_TEXT}
+      actionButton={
+        isAtlas ? (
+          <ActionButton
+            isLoading={isLoading}
+            text="Merge documents"
+            onClick={onSaveCollection}
+          />
+        ) : null
+      }
     />
   );
 };
@@ -134,13 +169,16 @@ const MergeStage = ({
 const mapState = ({
   // isAtlasDeployed,
   pipelineBuilder: {
-    textEditor: { loading, serverError, previewDocs, stageOperators },
+    textEditor: {
+      stageOperators,
+      outputStage: { isComplete, isLoading },
+    },
   },
 }: RootState) => {
-  console.log({ previewDocs });
   return {
     isAtlas: true,
-    isComplete: !loading && !serverError && previewDocs !== null,
+    isComplete,
+    isLoading,
     stageIndex: stageOperators.length - 1, // $out or $merge is always last.
   };
 };

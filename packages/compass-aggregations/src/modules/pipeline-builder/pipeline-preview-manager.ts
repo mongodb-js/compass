@@ -2,7 +2,7 @@ import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '../../utils/cancellable-promise';
-import { getStageOperator } from '../../utils/stage';
+import { getStageOperator, isOutputStage } from '../../utils/stage';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE
@@ -30,21 +30,32 @@ export interface PreviewOptions extends AggregateOptions {
   totalDocumentCount?: number;
   sampleSize?: number;
   previewSize?: number;
+  filterOutputStage?: boolean;
+};
+
+const getLastStageOperator = (pipeline: Document[]): string => {
+  return getStageOperator(pipeline[pipeline.length - 1]) ?? ''
 };
 
 export function createPreviewAggregation(
   pipeline: Document[],
   options: Pick<
     PreviewOptions,
-    'sampleSize' | 'previewSize' | 'totalDocumentCount'
+    'sampleSize' | 'previewSize' | 'totalDocumentCount' | 'filterOutputStage'
   > = {}
 ) {
+  const _pipeline = [...pipeline];
+  if (options.filterOutputStage) {
+    const isOutput = isOutputStage(getLastStageOperator(_pipeline));
+    isOutput && _pipeline.splice(_pipeline.length - 1, 1);
+  }
+
   const stages = [];
-  for (const stage of pipeline) {
+  for (const stage of _pipeline) {
     if (
       (!options.totalDocumentCount ||
         options.totalDocumentCount >
-          (options.sampleSize ?? DEFAULT_SAMPLE_SIZE)) &&
+        (options.sampleSize ?? DEFAULT_SAMPLE_SIZE)) &&
       // If stage can cause a full scan on the collection, prepend it with a
       // $limit
       FULL_SCAN_OPS.includes(getStageOperator(stage) ?? '')
@@ -57,7 +68,7 @@ export function createPreviewAggregation(
     // TODO: super unsure what this is doing, half of these are not even
     // selectable stage operators in UI
     !REQUIRED_AS_FIRST_STAGE.includes(
-      getStageOperator(stages[stages.length - 1]) ?? ''
+      getLastStageOperator(stages)
     )
   ) {
     stages.push({ $limit: options.previewSize ?? DEFAULT_PREVIEW_LIMIT });
@@ -67,7 +78,7 @@ export function createPreviewAggregation(
 
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
-  constructor(private dataService: DataService) {}
+  constructor(private dataService: DataService) { }
   /**
    * Request aggregation results with a default debounce
    */
@@ -79,6 +90,7 @@ export class PipelinePreviewManager {
       sampleSize,
       previewSize,
       totalDocumentCount,
+      filterOutputStage,
       ...options
     }: PreviewOptions = {},
     force = false
@@ -96,7 +108,8 @@ export class PipelinePreviewManager {
       pipeline: createPreviewAggregation(pipeline, {
         sampleSize,
         previewSize,
-        totalDocumentCount
+        totalDocumentCount,
+        filterOutputStage,
       }),
       options
     });

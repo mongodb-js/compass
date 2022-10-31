@@ -14,7 +14,7 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import type { PipelineBuilder } from './pipeline-builder';
-import { getStageOperator, isOutputStage } from '../../utils/stage';
+import { getStageOperator } from '../../utils/stage';
 import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
@@ -24,6 +24,9 @@ export const enum EditorActionTypes {
   EditorPreviewFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetchSuccess',
   EditorPreviewFetchError = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetchError',
   EditorValueChange = 'compass-aggregations/pipeline-builder/text-editor/TextEditorValueChange',
+  EditorOutputStageFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorOutputStageFetch',
+  EditorOutputStageFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor/TextEditorOutputStageFetchSuccess',
+  EditorOutputStageFetchError = 'compass-aggregations/pipeline-builder/text-editor/TextEditorOutputStageFetchError',
 };
 
 type EditorValueChangeAction = {
@@ -47,6 +50,19 @@ type EditorPreviewFetchErrorAction = {
   serverError: MongoServerError;
 };
 
+type EditorOutputStageFetchAction = {
+  type: EditorActionTypes.EditorOutputStageFetch;
+};
+
+type EditorOutputStageFetchSuccessAction = {
+  type: EditorActionTypes.EditorOutputStageFetchSuccess;
+};
+
+type EditorOutputStageFetchErrorAction = {
+  type: EditorActionTypes.EditorOutputStageFetchError;
+  serverError: MongoServerError;
+};
+
 export type TextEditorState = {
   pipelineText: string;
   stageOperators: string[];
@@ -54,6 +70,11 @@ export type TextEditorState = {
   serverError: MongoServerError | null;
   loading: boolean;
   previewDocs: Document[] | null;
+  outputStage: {
+    isLoading: boolean,
+    serverError: MongoServerError | null,
+    isComplete: boolean;
+  }
 };
 
 const INITIAL_STATE: TextEditorState = {
@@ -63,6 +84,11 @@ const INITIAL_STATE: TextEditorState = {
   serverError: null,
   loading: false,
   previewDocs: null,
+  outputStage: {
+    isLoading: false, //todo: align loading <-> isLoading
+    isComplete: false,
+    serverError: null,
+  },
 };
 
 const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
@@ -136,18 +162,62 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     };
   }
 
+  if (
+    isAction<EditorOutputStageFetchAction>(
+      action,
+      EditorActionTypes.EditorOutputStageFetch
+    )
+  ) {
+    return {
+      ...state,
+      outputStage: {
+        isLoading: true,
+        isComplete: false,
+        serverError: null,
+      }
+    };
+  }
+
+  if (
+    isAction<EditorOutputStageFetchSuccessAction>(
+      action,
+      EditorActionTypes.EditorOutputStageFetchSuccess
+    )
+  ) {
+    return {
+      ...state,
+      outputStage: {
+        isLoading: false,
+        isComplete: true,
+        serverError: null,
+      }
+    };
+  }
+
+  if (
+    isAction<EditorOutputStageFetchErrorAction>(
+      action,
+      EditorActionTypes.EditorOutputStageFetchError
+    )
+  ) {
+    return {
+      ...state,
+      outputStage: {
+        isLoading: false,
+        isComplete: false,
+        serverError: action.serverError,
+      }
+    };
+  }
+
   return state;
 };
 
 function canRunPipeline(
-  pipelineBuilder: PipelineBuilder,
-  state: RootState,
+  autoPreview: boolean,
+  syntaxErrors: PipelineParserError[],
 ) {
-  const {
-    autoPreview,
-  } = state;
-
-  return autoPreview && pipelineBuilder.syntaxError.length === 0;
+  return autoPreview && syntaxErrors.length === 0;
 };
 
 export const loadPreviewForPipeline = (
@@ -158,8 +228,17 @@ export const loadPreviewForPipeline = (
   EditorPreviewFetchErrorAction
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
-    const state = getState();
-    if (!canRunPipeline(pipelineBuilder, state)) {
+    const {
+      autoPreview,
+      namespace,
+      maxTimeMS,
+      collationString,
+      limit,
+      largeLimit,
+      inputDocuments
+    } = getState();
+
+    if (!canRunPipeline(autoPreview, pipelineBuilder.syntaxError)) {
       return;
     }
 
@@ -168,21 +247,13 @@ export const loadPreviewForPipeline = (
         type: EditorActionTypes.EditorPreviewFetch,
       });
 
-      const {
-        namespace,
-        maxTimeMS,
-        collationString,
-        limit,
-        largeLimit,
-        inputDocuments
-      } = state;
-
       const options: PreviewOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: inputDocuments.count,
+        filterOutputStage: true, // For preview we ignore $out/$merge stage.
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
@@ -226,39 +297,36 @@ export const runPipelineWithOutputStage = (
   return async (dispatch, getState, { pipelineBuilder }) => {
     const state = getState();
     const {
+      autoPreview,
+      isAtlasDeployed,
       dataService: { dataService },
       namespace,
       maxTimeMS,
       collationString,
-      pipelineBuilder: {
-        textEditor: {
-          stageOperators
-        }
-      }
     } = state;
 
+
+    // if (!dataService || !isAtlasDeployed) {
     if (!dataService) {
       return;
     }
 
-    if (!canRunPipeline(pipelineBuilder, state)) {
-      return;
-    }
-    // out or merge is always last stage
-    const lastStage = stageOperators[stageOperators.length - 1] ?? '';
-    if (!isOutputStage(lastStage)) {
+    if (!canRunPipeline(autoPreview, pipelineBuilder.syntaxError)) {
       return;
     }
 
     try {
-      dispatch({ type: EditorActionTypes.EditorPreviewFetch });
+      dispatch({ type: EditorActionTypes.EditorOutputStageFetch });
+      await new Promise(resolve => {
+        setTimeout(resolve, 2000);
+      })
       const pipeline = pipelineBuilder.getPipelineFromSource();
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined
       };
       const { signal } = new AbortController();
-      const result = await aggregatePipeline({
+      await aggregatePipeline({
         dataService,
         signal,
         namespace,
@@ -266,12 +334,14 @@ export const runPipelineWithOutputStage = (
         options
       });
       dispatch({
-        type: EditorActionTypes.EditorPreviewFetchSuccess,
-        previewDocs: result
+        type: EditorActionTypes.EditorOutputStageFetchSuccess,
       });
       dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
     } catch (error) {
-      dispatch({ type: EditorActionTypes.EditorPreviewFetchError, error });
+      dispatch({
+        type: EditorActionTypes.EditorOutputStageFetchError,
+        error
+      });
     }
   };
 };
