@@ -902,9 +902,9 @@ export const exportModalExportField = (fieldName: string): string => {
 // Export to language modal
 export const ExportToLanguageModal = '[data-testid="export-to-lang-modal"]';
 export const ExportToLanguageLanguageField =
-  '[data-testid="select-lang-field"]';
-export const ExportToLanguageLanguageListbox =
-  '[data-testid="select-lang-field"] [role="listbox"]';
+  '[data-testid="export-to-language-select-lang"]';
+export const exportToLanguageLanguageOption = (language: string) =>
+  `[data-testid="export-to-language-select-lang-${language}"]`;
 export const ExportToLanguageImportsCheckbox =
   '[data-testid="export-to-lang-checkbox-imports"]';
 export const ExportToLanguageDriverCheckbox =

@@ -347,7 +347,7 @@ describe('Collection aggregations tab', function () {
 
     // export to language
     await browser.clickVisible(Selectors.ExportAggregationToLanguage);
-    const text = await browser.exportToLanguage('Ruby');
+    const text = await browser.exportToLanguage('ruby');
     expect(text).to.equal(`[
   {
     '$match' => {

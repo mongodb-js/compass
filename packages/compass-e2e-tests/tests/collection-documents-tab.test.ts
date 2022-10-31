@@ -291,7 +291,7 @@ describe('Collection documents tab', function () {
       Selectors.queryBarExportToLanguageButton('Documents')
     );
 
-    const text = await browser.exportToLanguage('Java', {
+    const text = await browser.exportToLanguage('java', {
       includeImportStatements: true,
       includeDriverSyntax: true,
       useBuilders: true,

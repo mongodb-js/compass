@@ -123,7 +123,6 @@ class ExportForm extends PureComponent {
           </p>
           <div
             className={classnames(styles['export-to-lang-headers-output'])}
-            data-testid="select-lang-field"
           >
             <p
               className={classnames(

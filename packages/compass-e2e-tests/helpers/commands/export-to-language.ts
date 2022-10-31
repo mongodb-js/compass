@@ -18,9 +18,9 @@ export async function exportToLanguage(
 
   // pick the language
   await browser.clickVisible(Selectors.ExportToLanguageLanguageField);
-  const listBox = await browser.$(Selectors.ExportToLanguageLanguageListbox);
-  await listBox.waitForDisplayed();
-  const languageElement = await listBox.$(`div=${language}`);
+  const languageElement = await browser.$(
+    Selectors.exportToLanguageLanguageOption(language)
+  );
   await languageElement.waitForDisplayed();
   await languageElement.click();
 

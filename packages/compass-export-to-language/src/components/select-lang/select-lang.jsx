@@ -51,10 +51,14 @@ class SelectLang extends PureComponent {
         value={selectedOutputValue}
         clearable={false}
         name="select-lang"
+        usePortal={false}
         popoverZIndex={9999}
       >
         {langOuputOptions.map((option) => (
-          <Option key={option.value} value={option.value}>
+          <Option
+            key={option.value}
+            value={option.value}
+            data-testid={`export-to-language-select-lang-${option.value}`}>
             {option.label}
           </Option>
         ))}
