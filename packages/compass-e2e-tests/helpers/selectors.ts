@@ -490,10 +490,10 @@ export const DocumentListFetching =
 export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError = '[data-testid="document-list-error-summary"]';
-export const AddDataButton = '[data-testid="crud-add-data-button"]';
+export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
 export const InsertDocumentOption =
-  '[data-testid="crud-add-data-insert-document"]';
-export const ImportFileOption = '[data-testid="crud-add-data-import-file"]';
+  '[data-testid="crud-add-data-insert-document-action"]';
+export const ImportFileOption = '[data-testid="crud-add-data-import-file-action"]';
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
@@ -618,9 +618,9 @@ export const CreateNewPipelineMenuButton = '[data-testid="create-new-menu"]';
 export const CreateNewPipelineMenuContent =
   '[data-testid="create-new-menu-content"]';
 export const CreateNewEmptyPipelineAction =
-  '[data-testid="create-new-menu-createPipleine"]';
+  '[data-testid="create-new-menu-createPipeline"]';
 export const CreateNewPipelineFromTextAction =
-  '[data-testid="create-new-menu-createPipleineFromText"]';
+  '[data-testid="create-new-menu-createPipelineFromText"]';
 export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';
