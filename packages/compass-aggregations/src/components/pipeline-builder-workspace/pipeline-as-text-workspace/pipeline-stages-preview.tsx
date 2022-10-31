@@ -11,7 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
-import { runPipelineWithOutputStage } from '../../../modules/pipeline-builder/text-editor';
+import { runPipelineWithOutputStage } from '../../../modules/pipeline-builder/text-editor-output-stage';
 import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
@@ -152,7 +152,7 @@ const MergeStage = ({
 
   return (
     <PipelineStageBanner
-      text={OUT_STAGE_PREVIEW_TEXT}
+      text={MERGE_STAGE_PREVIEW_TEXT}
       actionButton={
         isAtlas ? (
           <ActionButton
@@ -167,16 +167,14 @@ const MergeStage = ({
 };
 
 const mapState = ({
-  // isAtlasDeployed,
+  isAtlasDeployed,
   pipelineBuilder: {
-    textEditor: {
-      stageOperators,
-      outputStage: { isComplete, isLoading },
-    },
+    textEditor: { stageOperators },
+    outputStage: { isComplete, isLoading },
   },
 }: RootState) => {
   return {
-    isAtlas: true,
+    isAtlas: isAtlasDeployed,
     isComplete,
     isLoading,
     stageIndex: stageOperators.length - 1, // $out or $merge is always last.
