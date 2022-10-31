@@ -83,7 +83,7 @@ function ImportErrorList({ errors }: { errors: Error[] }) {
           className={showMoreErrorsButtonStyles}
           size="xsmall"
           onClick={increaseVisibleErrorsCount}
-          leftGlyph={<Icon glyph="ChevronDown" />}
+          leftGlyph={<Icon glyph="ArrowDown" />}
         >
           Show {showMoreCount} more errors
         </Button>
