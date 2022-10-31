@@ -585,7 +585,7 @@ export const setDelimiter = (delimiter) => {
  * @param {Boolean} stopOnErrors To stop or not to stop
  * @api public
  * @see utils/collection-stream.js
- * @see https://docs.mongodb.com/manual/reference/program/mongoimport/#cmdoption-mongoimport-stoponerror
+ * @see https://www.mongodb.com/docs/database-tools/mongoimport/#std-option-mongoimport.--stopOnError
  */
 export const setStopOnErrors = (stopOnErrors) => ({
   type: SET_STOP_ON_ERRORS,
@@ -598,7 +598,7 @@ export const setStopOnErrors = (stopOnErrors) => ({
  *
  * @param {Boolean} ignoreBlanks
  * @api public
- * @see https://docs.mongodb.com/manual/reference/program/mongoimport/#cmdoption-mongoimport-ignoreblanks
+ * @see https://www.mongodb.com/docs/database-tools/mongoimport/#std-option-mongoimport.--ignoreBlanks
  * @todo lucas: Standardize as `setIgnoreBlanks`?
  */
 export const setIgnoreBlanks = (ignoreBlanks) => ({
