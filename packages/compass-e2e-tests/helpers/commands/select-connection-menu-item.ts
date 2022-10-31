@@ -11,7 +11,7 @@ export async function selectConnectionMenuItem(
   await browser.$(selector).waitForDisplayed();
 
   // workaround for weirdness in the ItemActionControls menu opener icon
-  await browser.clickVisible(Selectors.ConnectionsTitle);
+  await browser.clickVisible(Selectors.SidebarNewConnectionButton);
 
   await browser.hover(selector);
 
