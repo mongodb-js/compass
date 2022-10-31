@@ -58,6 +58,7 @@
     "react": "^16.14.0"
   },
   "devDependencies": {
+    "@electron/remote": "^2.0.8",
     "@mongodb-js/eslint-config-compass": "^1.0.1",
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",

@@ -9,7 +9,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import {
   localAppRegistryActivated,
-  globalAppRegistryActivated
+  globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import reducer from '../modules';
 
@@ -46,12 +46,15 @@ const configureStore = (options = {}) => {
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
     store.dispatch(localAppRegistryActivated(localAppRegistry));
-    localAppRegistry.on('open-aggregation-export-to-language', (aggregation) => {
-      store.dispatch(modeChanged('Pipeline'));
-      store.dispatch(modalOpenChanged(true));
-      store.dispatch(runTranspiler({ aggregation: aggregation }));
-      store.dispatch(inputExpressionChanged({ aggregation: aggregation }));
-    });
+    localAppRegistry.on(
+      'open-aggregation-export-to-language',
+      (aggregation) => {
+        store.dispatch(modeChanged('Pipeline'));
+        store.dispatch(modalOpenChanged(true));
+        store.dispatch(runTranspiler({ aggregation: aggregation }));
+        store.dispatch(inputExpressionChanged({ aggregation: aggregation }));
+      }
+    );
 
     localAppRegistry.on('open-query-export-to-language', (queryStrings) => {
       const query = {};
@@ -65,7 +68,7 @@ const configureStore = (options = {}) => {
           'collation',
           'skip',
           'limit',
-          'maxTimeMS'
+          'maxTimeMS',
         ].forEach((k) => {
           if (!queryStrings[k] || queryStrings[k] === '') {
             if (k === 'filter') {
@@ -92,7 +95,6 @@ const configureStore = (options = {}) => {
   if (options.namespace) {
     setNamespace(store, options.namespace);
   }
-
 
   if (options.copyToClipboardFn) {
     store.dispatch(copyToClipboardFnChanged(options.copyToClipboardFn));

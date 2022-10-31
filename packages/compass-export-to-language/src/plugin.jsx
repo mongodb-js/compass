@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 class Plugin extends Component {
   static displayName = 'ExportToLanguagePlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.

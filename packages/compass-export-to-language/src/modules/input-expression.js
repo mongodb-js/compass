@@ -11,7 +11,7 @@ export const INPUT_EXPRESSION_CHANGED = `${PREFIX}/INPUT_EXPRESSION_CHANGED`;
 /**
  * The initial state.
  */
-export const INITIAL_STATE = {filter: ''};
+export const INITIAL_STATE = { filter: '' };
 
 /**
  * Reducer function for handle state changes to inputExpression.
@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const inputExpressionChanged = (inputExpression) => ({
   type: INPUT_EXPRESSION_CHANGED,
-  inputExpression
+  inputExpression,
 });

@@ -33,13 +33,18 @@ class ExportModal extends PureComponent {
     outputLangChanged: PropTypes.func.isRequired,
     copySuccessChanged: PropTypes.func.isRequired,
     modalOpenChanged: PropTypes.func.isRequired,
-    runTranspiler: PropTypes.func.isRequired
+    runTranspiler: PropTypes.func.isRequired,
   };
 
   showHandler = () => {
-    track(this.props.mode === 'Query' ? 'Query Export Opened' : 'Aggregation Export Opened', {
-      ...this.stageCountForTelemetry()
-    });
+    track(
+      this.props.mode === 'Query'
+        ? 'Query Export Opened'
+        : 'Aggregation Export Opened',
+      {
+        ...this.stageCountForTelemetry(),
+      }
+    );
     track('Screen', { name: 'export_to_language_modal' });
   };
 
@@ -68,7 +73,9 @@ class ExportModal extends PureComponent {
 
     try {
       return {
-        num_stages: countAggregationStagesInString(this.props.inputExpression.aggregation)
+        num_stages: countAggregationStagesInString(
+          this.props.inputExpression.aggregation
+        ),
       };
     } catch (ignore) {
       // Things like [{ $match: { x: NumberInt(10) } }] do not evaluate in any kind of context
@@ -89,7 +96,7 @@ class ExportModal extends PureComponent {
         with_import_statements: this.props.showImports,
         with_builders: this.props.builders,
         with_drivers_syntax: this.props.driver,
-        ...this.stageCountForTelemetry()
+        ...this.stageCountForTelemetry(),
       });
     }
     this.props.copySuccessChanged(field);
@@ -98,10 +105,16 @@ class ExportModal extends PureComponent {
   renderBuilderCheckbox = () => {
     if (this.props.outputLang === 'java' && this.props.mode === 'Query') {
       return (
-        <div className={classnames(styles['export-to-lang-modal-checkbox-builders'])}>
-          <Checkbox defaultChecked={this.props.builders}
+        <div
+          className={classnames(
+            styles['export-to-lang-modal-checkbox-builders']
+          )}
+        >
+          <Checkbox
+            defaultChecked={this.props.builders}
             data-testid="export-to-lang-checkbox-builders"
-            onClick={this.buildersHandler}>
+            onClick={this.buildersHandler}
+          >
             Use Builders
           </Checkbox>
         </div>
@@ -133,14 +146,38 @@ class ExportModal extends PureComponent {
         </Modal.Header>
 
         <Modal.Body data-testid="export-to-lang-modal-body">
-          <ExportForm {...this.props} copySuccessChanged={this.copySuccessChanged} from={this.props.mode === 'Query' ? this.props.inputExpression.filter : this.props.inputExpression.aggregation}/>
-          <div className={classnames(styles['export-to-lang-modal-checkbox-imports'])}>
-            <Checkbox data-testid="export-to-lang-checkbox-imports" onClick={this.importsHandler} defaultChecked={this.props.showImports}>
-               Include Import Statements
+          <ExportForm
+            {...this.props}
+            copySuccessChanged={this.copySuccessChanged}
+            from={
+              this.props.mode === 'Query'
+                ? this.props.inputExpression.filter
+                : this.props.inputExpression.aggregation
+            }
+          />
+          <div
+            className={classnames(
+              styles['export-to-lang-modal-checkbox-imports']
+            )}
+          >
+            <Checkbox
+              data-testid="export-to-lang-checkbox-imports"
+              onClick={this.importsHandler}
+              defaultChecked={this.props.showImports}
+            >
+              Include Import Statements
             </Checkbox>
           </div>
-          <div className={classnames(styles['export-to-lang-modal-checkbox-driver'])}>
-            <Checkbox data-testid="export-to-lang-checkbox-driver" onClick={this.driverHandler} defaultChecked={this.props.driver}>
+          <div
+            className={classnames(
+              styles['export-to-lang-modal-checkbox-driver']
+            )}
+          >
+            <Checkbox
+              data-testid="export-to-lang-checkbox-driver"
+              onClick={this.driverHandler}
+              defaultChecked={this.props.driver}
+            >
               Include Driver Syntax
             </Checkbox>
           </div>
@@ -152,7 +189,8 @@ class ExportModal extends PureComponent {
             data-testid="export-to-lang-close"
             className="btn btn-default btn-sm"
             text="Close"
-            clickHandler={this.closeHandler} />
+            clickHandler={this.closeHandler}
+          />
         </Modal.Footer>
       </Modal>
     );
