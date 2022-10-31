@@ -19,10 +19,10 @@ const BASE_URL = 'https://docs.mongodb.com/master/reference/explain-results/';
  * Help urls.
  */
 const HELP_URLS = {
-  NRETURNED: `${BASE_URL}#explain.executionStats.nReturned`,
-  KEYS_EXAMINED: `${BASE_URL}#explain.executionStats.totalKeysExamined`,
-  DOCS_EXAMINED: `${BASE_URL}#explain.executionStats.totalDocsExamined`,
-  EXECUTION_TIME: `${BASE_URL}#explain.executionStats.executionTimeMillis`,
+  NRETURNED: `${BASE_URL}#mongodb-data-explain.executionStats.nReturned`,
+  KEYS_EXAMINED: `${BASE_URL}#mongodb-data-explain.executionStats.totalKeysExamined`,
+  DOCS_EXAMINED: `${BASE_URL}#mongodb-data-explain.executionStats.totalDocsExamined`,
+  EXECUTION_TIME: `${BASE_URL}#mongodb-data-explain.executionStats.executionTimeMillis`,
   SORT_STAGE: `${BASE_URL}#sort-stage`,
   INDEX_USED: `${BASE_URL}#collection-scan`,
 };

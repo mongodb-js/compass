@@ -10,7 +10,7 @@ function mongodbServerErrorToJSError({ index, code, errmsg, op, errInfo }) {
   e.code = code;
   e.op = op;
   e.errInfo = errInfo;
-  // https://docs.mongodb.com/manual/reference/method/BulkWriteResult/#BulkWriteResult.writeErrors
+  // https://www.mongodb.com/docs/manual/reference/method/BulkWriteResult/#mongodb-data-BulkWriteResult.writeErrors
   e.name = index && op ? 'WriteError' : 'WriteConcernError';
   return e;
 }
