@@ -77,7 +77,8 @@ class EditableJson extends React.Component {
 
     if (
       prevState.editing !== this.state.editing &&
-      this.state.editing === false
+      this.state.editing === false &&
+      !this.props.isExpanded
     ) {
       this.editor.getSession().foldAll(2);
     }
