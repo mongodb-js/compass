@@ -40,7 +40,11 @@ const centerStyles = css({
 const messageStyles = css({ marginTop: spacing[3] });
 
 const documentListStyles = css({
-  overflow: 'scroll',
+  overflow: 'auto',
+});
+
+const outputStageStyles = css({
+  marginTop: 'auto',
 });
 
 type PipelinePreviewProps = {
@@ -120,12 +124,11 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
         <Overline>Pipeline Output</Overline>
         {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
       </div>
-      <PreviewResults
-        isLoading={isLoading}
-        previewDocs={previewDocs}
-      />
-      {isOutStage && <OutStageBanner />}
-      {isMergeStage && <MergeStageBanner />}
+      <PreviewResults isLoading={isLoading} previewDocs={previewDocs} />
+      <div className={outputStageStyles}>
+        {isOutStage && <OutStageBanner />}
+        {isMergeStage && <MergeStageBanner />}
+      </div>
     </div>
   );
 };

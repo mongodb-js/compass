@@ -20,7 +20,7 @@ import {
 } from '../../../utils/stage';
 
 const bannerStyles = css({
-  margin: spacing[2],
+  margin: spacing[3],
   alignItems: 'center',
   display: 'flex',
 });

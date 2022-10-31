@@ -158,7 +158,7 @@ export const gotoOutputStageCollection = (
         }
       }
     } = getState();
-    // $out or $merge is always last.
+    // $out or $merge is always last stage
     const lastStageIndex = stageOperators.length - 1;
     dispatch(gotoOutResults(lastStageIndex));
   };
