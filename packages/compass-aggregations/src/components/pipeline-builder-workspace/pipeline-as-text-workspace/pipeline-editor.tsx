@@ -134,16 +134,15 @@ const mapState = ({
   pipelineBuilder: {
     textEditor: {
       pipelineText,
-      serverError: pipelineServerError,
+      serverError,
       syntaxErrors,
     },
-    outputStage: { serverError: outputServerError },
   },
   serverVersion,
   fields,
 }: RootState) => ({
   pipelineText,
-  serverError: pipelineServerError ?? outputServerError,
+  serverError,
   syntaxErrors,
   serverVersion,
   fields,

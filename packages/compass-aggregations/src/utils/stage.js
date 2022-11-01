@@ -103,12 +103,12 @@ export function getStageOperator(stage) {
   const stageValue = stage[stageOperator];
   const { database } = toNS(namespace);
   if (stageOperator === '$merge') {
-    if (stageValue.atlas) {
+    const ns = typeof stageValue === 'string' ? stageValue : stageValue.into;
+    if (ns.atlas) {
       // TODO: Not handled currently and we need some time to figure out how to
       // handle it so just skipping for now
       return null;
     }
-    const ns = typeof stageValue === 'string' ? stageValue : stageValue.into;
     return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
   }
   if (stageOperator === '$out') {

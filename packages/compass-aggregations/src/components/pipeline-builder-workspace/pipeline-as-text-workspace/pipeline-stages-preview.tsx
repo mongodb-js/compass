@@ -15,7 +15,7 @@ import type { RootState } from '../../../modules';
 import {
   runPipelineWithOutputStage,
   gotoOutputStageCollection,
-} from '../../../modules/pipeline-builder/text-editor-output-stage';
+} from '../../../modules/pipeline-builder/text-editor';
 import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
@@ -126,7 +126,9 @@ export const OutputStagePreview = ({
 const mapState = ({
   isAtlasDeployed,
   pipelineBuilder: {
-    outputStage: { isComplete, isLoading },
+    textEditor: {
+      outputStage: { isComplete, isLoading }
+    },
   },
 }: RootState) => {
   return {
