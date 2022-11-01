@@ -58,14 +58,7 @@ function ImportErrorList({ errors }: { errors: Error[] }) {
   }, []);
 
   if (normalizedErrorMessages.length === 0) {
-    return (
-      <div className={containerStyles}>
-        <ErrorBox
-          dataTestId="import-error-box"
-          message={normalizedErrorMessages[0]}
-        />
-      </div>
-    );
+    return null;
   }
 
   return (
