@@ -7,8 +7,6 @@ import {
   RadioBoxGroup,
 } from '@mongodb-js/compass-components';
 
-import FILE_TYPES from '../constants/file-types';
-
 const selectFileTypeLabelId = 'select-file-type-label';
 const radioBoxGroupId = 'radio-box-group-id';
 
@@ -40,15 +38,15 @@ function SelectFileType({
       >
         <RadioBox
           data-testid="select-file-type-json"
-          value={FILE_TYPES.JSON}
-          checked={fileType === FILE_TYPES.JSON}
+          value="json"
+          checked={fileType === 'json'}
         >
           JSON
         </RadioBox>
         <RadioBox
           data-testid="select-file-type-csv"
-          value={FILE_TYPES.CSV}
-          checked={fileType === FILE_TYPES.CSV}
+          value="csv"
+          checked={fileType === 'csv'}
         >
           CSV
         </RadioBox>
