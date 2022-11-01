@@ -7,6 +7,8 @@ import {
   css,
   spacing,
   SpinLoader,
+  ButtonVariant,
+  ButtonSize,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type { RootState } from '../../../modules';
@@ -37,6 +39,7 @@ const actionButtonStyles = css({
 });
 
 type OutputStageProps = {
+  stageOperator: '$out' | '$merge';
   isAtlas: boolean;
   isLoading: boolean;
   isComplete: boolean;
@@ -44,28 +47,10 @@ type OutputStageProps = {
   onOpenCollection: () => void;
 };
 
-const ActionButton = ({
-  isLoading,
-  onClick,
-  text,
-}: {
-  text: string;
-  isLoading?: boolean;
-  onClick: () => void;
-}) => {
-  const icon = isLoading ? <SpinLoader title="Loading" /> : undefined;
-  return (
-    <Button
-      disabled={isLoading}
-      className={actionButtonStyles}
-      size="xsmall"
-      variant="default"
-      onClick={onClick}
-      leftGlyph={icon}
-    >
-      {text}
-    </Button>
-  );
+const buttonProps = {
+  className: actionButtonStyles,
+  size: ButtonSize.XSmall,
+  variant: ButtonVariant.Default,
 };
 
 const PipelineStageBanner = ({
@@ -85,7 +70,8 @@ const PipelineStageBanner = ({
   );
 };
 
-const OutStage = ({
+const OutputStagePreview = ({
+  stageOperator,
   isAtlas,
   isLoading,
   isComplete,
@@ -95,58 +81,34 @@ const OutStage = ({
   if (isComplete && isAtlas) {
     return (
       <PipelineStageBanner
-        text={'Documents persisted to collection specified by $out.'}
+        text={`Documents persisted to collection specified by ${stageOperator}.`}
         actionButton={
-          <ActionButton text="Go to collection" onClick={onOpenCollection} />
+          <Button {...buttonProps} onClick={onOpenCollection}>
+            Go to collection
+          </Button>
         }
       />
     );
   }
 
+  const icon = isLoading ? <SpinLoader title="Loading" /> : undefined;
   return (
     <PipelineStageBanner
-      text={OUT_STAGE_PREVIEW_TEXT}
-      actionButton={
-        isAtlas ? (
-          <ActionButton
-            isLoading={isLoading}
-            text="Save documents"
-            onClick={onSaveCollection}
-          />
-        ) : null
+      text={
+        stageOperator === '$out'
+          ? OUT_STAGE_PREVIEW_TEXT
+          : MERGE_STAGE_PREVIEW_TEXT
       }
-    />
-  );
-};
-
-const MergeStage = ({
-  isAtlas,
-  isLoading,
-  isComplete,
-  onSaveCollection,
-  onOpenCollection,
-}: OutputStageProps) => {
-  if (isComplete && isAtlas) {
-    return (
-      <PipelineStageBanner
-        text={'Documents persisted to collection specified by $merge.'}
-        actionButton={
-          <ActionButton text="Go to collection" onClick={onOpenCollection} />
-        }
-      />
-    );
-  }
-
-  return (
-    <PipelineStageBanner
-      text={MERGE_STAGE_PREVIEW_TEXT}
       actionButton={
         isAtlas ? (
-          <ActionButton
-            isLoading={isLoading}
-            text="Merge documents"
+          <Button
+            {...buttonProps}
+            disabled={isLoading}
             onClick={onSaveCollection}
-          />
+            leftGlyph={icon}
+          >
+            Save documents
+          </Button>
         ) : null
       }
     />
@@ -169,5 +131,7 @@ const mapDispatch = {
   onSaveCollection: runPipelineWithOutputStage,
   onOpenCollection: gotoOutputStageCollection,
 };
-export const OutStageBanner = connect(mapState, mapDispatch)(OutStage);
-export const MergeStageBanner = connect(mapState, mapDispatch)(MergeStage);
+export const OutputStageBanner = connect(
+  mapState,
+  mapDispatch
+)(OutputStagePreview);
