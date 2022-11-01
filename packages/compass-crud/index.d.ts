@@ -15,7 +15,6 @@ export const Document: React.ComponentClass<{
 }>;
 
 type ListViewProps = {
-  docs: Doc[];
   isEditable?: boolean;
   isTimeSeries?: boolean;
   isExpanded?: boolean;
@@ -26,5 +25,9 @@ type ListViewProps = {
   copyToClipboard?: (doc: HadronDocument) => void;
 };
 
-export const DocumentListView: React.ComponentClass<ListViewProps>;
-export const DocumentJsonView: React.ComponentClass<ListViewProps>;
+export const DocumentListView: React.ComponentClass<ListViewProps & {
+  docs: Doc[];
+}>;
+export const DocumentJsonView: React.ComponentClass<ListViewProps & {
+  docs: HadronDocument[];
+}>;

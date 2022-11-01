@@ -19,12 +19,12 @@ const PipelineResultsList: React.FunctionComponent<{
   allDocsExpanded: boolean;
   view: ResultsViewType;
 }> = ({ documents, allDocsExpanded, view }) => {
-  const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
+  const listProps = useMemo(
     () => ({
       docs: documents.map((doc) => new HadronDocument(doc)),
       isEditable: false,
       isExpanded: allDocsExpanded,
-      copyToClipboard(doc) {
+      copyToClipboard(doc: HadronDocument) {
         const str = doc.toEJSON();
         void navigator.clipboard.writeText(str);
       },
