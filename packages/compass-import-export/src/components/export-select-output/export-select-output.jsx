@@ -88,7 +88,7 @@ class ExportSelectOutput extends PureComponent {
         <form onSubmit={this.handleOnSubmit} className={style('form')}>
           <SelectFileType
             fileType={this.props.fileType}
-            label="Select Export File Type"
+            label="Export File Type"
             onSelected={this.props.selectExportFileType}
           />
           <FormGroup controlId="export-file">

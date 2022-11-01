@@ -60,7 +60,7 @@ class ImportOptions extends PureComponent {
         <SelectFileType
           fileType={this.props.fileType}
           onSelected={this.props.selectImportFileType}
-          label="Select Input File Type"
+          label="Input File Type"
         />
         <fieldset>
           <legend className={style('legend')}>Options</legend>

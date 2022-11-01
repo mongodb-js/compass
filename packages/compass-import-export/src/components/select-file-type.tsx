@@ -33,6 +33,7 @@ function SelectFileType({
       </Label>
       <RadioBoxGroup
         aria-labelledby={selectFileTypeLabelId}
+        data-testid="select-file-type"
         id={radioBoxGroupId}
         onChange={onFileTypeChanged}
       >
