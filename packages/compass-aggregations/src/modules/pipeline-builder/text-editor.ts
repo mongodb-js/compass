@@ -108,7 +108,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       : state.stageOperators;
     return {
       ...state,
-      outputStage:{
+      outputStage: {
         isLoading: false,
         isComplete: false,
       },
@@ -295,68 +295,68 @@ export const changeEditorValue = (
 };
 
 export const runPipelineWithOutputStage = (
-  ): PipelineBuilderThunkAction<Promise<void>> => {
-    return async (dispatch, getState, { pipelineBuilder }) => {
-      const {
-        autoPreview,
-        isAtlasDeployed,
-        dataService: { dataService },
+): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
+    const {
+      autoPreview,
+      isAtlasDeployed,
+      dataService: { dataService },
+      namespace,
+      maxTimeMS,
+      collationString,
+    } = getState();
+
+
+    if (!dataService || !isAtlasDeployed) {
+      return;
+    }
+
+    if (!canRunPipeline(autoPreview, pipelineBuilder.syntaxError)) {
+      return;
+    }
+
+    try {
+      dispatch({ type: EditorActionTypes.OutputStageFetchStarted });
+      const pipeline = pipelineBuilder.getPipelineFromSource();
+      const options: AggregateOptions = {
+        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        collation: collationString.value ?? undefined
+      };
+      const { signal } = new AbortController();
+      await aggregatePipeline({
+        dataService,
+        signal,
         namespace,
-        maxTimeMS,
-        collationString,
-      } = getState();
-  
-  
-      if (!dataService || !isAtlasDeployed) {
-        return;
-      }
-  
-      if (!canRunPipeline(autoPreview, pipelineBuilder.syntaxError)) {
-        return;
-      }
-  
-      try {
-        dispatch({ type: EditorActionTypes.OutputStageFetchStarted });
-        const pipeline = pipelineBuilder.getPipelineFromSource();
-        const options: AggregateOptions = {
-          maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-          collation: collationString.value ?? undefined
-        };
-        const { signal } = new AbortController();
-        await aggregatePipeline({
-          dataService,
-          signal,
-          namespace,
-          pipeline,
-          options
-        });
-        dispatch({
-          type: EditorActionTypes.OutputStageFetchSucceded,
-        });
-        dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
-      } catch (error) {
-        dispatch({
-          type: EditorActionTypes.OutputStageFetchFailed,
-          serverError: error,
-        });
-      }
-    };
+        pipeline,
+        options
+      });
+      dispatch({
+        type: EditorActionTypes.OutputStageFetchSucceded,
+      });
+      dispatch(globalAppRegistryEmit('agg-pipeline-out-executed'));
+    } catch (error) {
+      dispatch({
+        type: EditorActionTypes.OutputStageFetchFailed,
+        serverError: error,
+      });
+    }
   };
-  
-  export const gotoOutputStageCollection = (
-  ): PipelineBuilderThunkAction<void> => {
-    return (dispatch, getState) => {
-      const {
-        pipelineBuilder: {
-          textEditor: {
-            stageOperators
-          }
+};
+
+export const gotoOutputStageCollection = (
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    const {
+      pipelineBuilder: {
+        textEditor: {
+          stageOperators
         }
-      } = getState();
-      // $out or $merge is always last stage
-      const lastStageIndex = stageOperators.length - 1;
-      dispatch(gotoOutResults(lastStageIndex));
-    };
+      }
+    } = getState();
+    // $out or $merge is always last stage
+    const lastStageIndex = stageOperators.length - 1;
+    dispatch(gotoOutResults(lastStageIndex));
   };
+};
 
 export default reducer;

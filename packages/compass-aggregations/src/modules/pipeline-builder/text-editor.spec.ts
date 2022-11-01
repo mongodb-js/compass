@@ -29,6 +29,10 @@ function createStore(
           serverError: null,
           stageOperators: ['$match', '$limit'],
           syntaxErrors: [],
+          outputStage: {
+            isLoading: false,
+            isComplete: false,
+          },
         },
       },
     },
