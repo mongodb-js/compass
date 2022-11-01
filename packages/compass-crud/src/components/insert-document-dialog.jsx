@@ -243,6 +243,7 @@ class InsertDocumentDialog extends React.PureComponent {
               aria-label="E-JSON View"
               value="JSON"
               onClick={(evt) => {
+                // We override the `onClick` functionality to prevent form submission.
                 // The value changing occurs in the `onChange` in the `SegmentedControl`.
                 evt.preventDefault();
               }}
@@ -255,6 +256,7 @@ class InsertDocumentDialog extends React.PureComponent {
               aria-label="Document list"
               value="List"
               onClick={(evt) => {
+                // We override the `onClick` functionality to prevent form submission.
                 // The value changing occurs in the `onChange` in the `SegmentedControl`.
                 evt.preventDefault();
               }}
