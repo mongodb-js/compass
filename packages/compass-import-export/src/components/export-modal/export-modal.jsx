@@ -6,7 +6,7 @@ import { Modal, FormGroup } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 import ExportSelectOutput from '../export-select-output';
 import ExportSelectFields from '../export-select-fields';
-import QueryViewer from '../query-viewer';
+import { QueryViewer } from '../query-viewer';
 import ErrorBox from '../error-box';
 
 import revealFile from '../../utils/reveal-file';
@@ -232,11 +232,7 @@ class ExportModal extends PureComponent {
           className={queryViewerClassName}
           data-testid="query-viewer-wrapper"
         >
-          <QueryViewer
-            ns={this.props.ns}
-            query={this.props.query ?? {}}
-            disabled={isFullCollection}
-          />
+          <QueryViewer ns={this.props.ns} query={this.props.query ?? {}} />
         </div>
         <div className={style('radio')}>
           <label>
