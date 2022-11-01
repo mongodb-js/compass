@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const copySuccessChanged = (copySuccess) => ({
   type: COPY_SUCCESS_CHANGED,
-  copySuccess
+  copySuccess,
 });

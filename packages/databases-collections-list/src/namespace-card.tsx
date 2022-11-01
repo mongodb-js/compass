@@ -16,6 +16,8 @@ import {
   mergeProps,
   useDefaultAction,
   ItemActionControls,
+  useTheme,
+  Theme,
 } from '@mongodb-js/compass-components';
 import type {
   BadgeVariant,
@@ -42,6 +44,14 @@ const cardNameWrapper = css({
   minWidth: 0,
 });
 
+const cardNameDark = css({
+  color: palette.green.light2,
+});
+
+const cardNameLight = css({
+  color: palette.green.dark2,
+});
+
 const cardName = css({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
@@ -49,8 +59,6 @@ const cardName = css({
   // To make container 28px to match leafygreen buttons
   paddingTop: 2,
   paddingBottom: 2,
-  // Because leafygreen
-  color: `${palette.green.dark1} !important`,
   // TS is very confused if fontWeight is not a number even though it's a valid
   // CSS value
   fontWeight: '600 !important' as unknown as number,
@@ -59,9 +67,16 @@ const cardName = css({
 const CardName: React.FunctionComponent<{ children: string }> = ({
   children,
 }) => {
+  const theme = useTheme();
   return (
     <div title={children} className={cardNameWrapper}>
-      <Subtitle as="div" className={cardName}>
+      <Subtitle
+        as="div"
+        className={cx(
+          cardName,
+          theme.theme === Theme.Dark ? cardNameDark : cardNameLight
+        )}
+      >
         {children}
       </Subtitle>
     </div>

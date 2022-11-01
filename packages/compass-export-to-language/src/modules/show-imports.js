@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const showImportsChanged = (showImports) => ({
   type: SHOW_IMPORTS_CHANGED,
-  showImports
+  showImports,
 });

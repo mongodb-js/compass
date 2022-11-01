@@ -1,3 +1,4 @@
+import type AppRegistry from 'hadron-app-registry';
 import AggregationsPlugin from './plugin';
 import configureStore from './stores';
 import { Aggregations } from './components/aggregations';
@@ -16,7 +17,9 @@ const ROLE = {
   component: AggregationsPlugin,
   order: 2,
   configureStore: configureStore,
-  configureActions: () => {},
+  configureActions: () => {
+    // noop
+  },
   storeName: 'Aggregations.Store',
   actionName: 'Aggregations.Actions'
 };
@@ -29,7 +32,9 @@ const CREATE_ROLE = {
   component: CreateViewPlugin,
   configureStore: configureCreateViewStore,
   storeName: 'Aggregations.CreateViewStore',
-  configureActions: () => {},
+  configureActions: () => {
+    // noop
+  },
   actionName: 'Aggregations.Actions'
 };
 
@@ -46,7 +51,7 @@ const DUPLICATE_ROLE = {
 
  * @param {Object} appRegistry - The Hadron appRegisrty to activate this plugin with.
  **/
-const activate = (appRegistry) => {
+const activate = (appRegistry: AppRegistry) => {
   appRegistry.registerRole('Collection.Tab', ROLE);
   appRegistry.registerRole('Collection.ScopedModal', CREATE_ROLE);
   appRegistry.registerRole('Global.Modal', DUPLICATE_ROLE);
@@ -58,7 +63,7 @@ const activate = (appRegistry) => {
 
  * @param {Object} appRegistry - The Hadron appRegisrty to deactivate this plugin with.
  **/
-const deactivate = (appRegistry) => {
+const deactivate = (appRegistry: AppRegistry) => {
   appRegistry.deregisterRole('Collection.Tab', ROLE);
   appRegistry.deregisterRole('Collection.ScopedModal', CREATE_ROLE);
   appRegistry.deregisterRole('Global.Modal', DUPLICATE_ROLE);
@@ -77,4 +82,5 @@ export {
   configureCreateViewStore,
   PipelineStorage,
 };
+export { StoredPipeline } from './utils/pipeline-storage';
 export { default as metadata } from '../package.json';

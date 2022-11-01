@@ -40,10 +40,12 @@ describe('PipelineStorage', function () {
       {
         id: 1234567,
         name: 'hello',
+        namespace: 'db.hello',
       },
       {
         id: 7654321,
         name: 'world',
+        namespace: 'db.hello',
       },
     ];
     createPipeline(tmpDir, data[0]);
@@ -116,6 +118,7 @@ describe('PipelineStorage', function () {
     const data = {
       id: 1234567890,
       name: 'hello',
+      namespace: 'airbnb.users',
     };
     createPipeline(tmpDir, data);
 

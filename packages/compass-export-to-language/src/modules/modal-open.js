@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const modalOpenChanged = (modalOpen) => ({
   type: MODAL_OPEN_CHANGED,
-  modalOpen
+  modalOpen,
 });

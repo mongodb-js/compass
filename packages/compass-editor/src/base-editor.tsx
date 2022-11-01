@@ -1,5 +1,10 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { css, cx, useId, fontFamilies } from '@mongodb-js/compass-components';
+import {
+  css,
+  useId,
+  fontFamilies,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 
 import 'ace-builds';
 import type { IAceEditorProps, IAceOptions } from 'react-ace';
@@ -16,10 +21,9 @@ import 'ace-builds/src-noconflict/mode-ruby';
 import 'ace-builds/src-noconflict/mode-rust';
 import 'ace-builds/src-noconflict/mode-golang';
 import 'ace-builds/src-noconflict/mode-php';
-import './ace/mode';
-import './ace/theme';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
 import beautify from 'ace-builds/src-noconflict/ext-beautify';
+import './ace';
 
 /**
  * Options for the ACE editor.
@@ -32,9 +36,14 @@ const DEFAULT_OPTIONS: IAceOptions = {
   showGutter: true,
   showPrintMargin: false,
   useWorker: false,
+  // NB: font styles have to be set through ace options, setting them through
+  // the theme (or just css) has no effect on the ace editor. This is especially
+  // important for font size that ace uses for multiple internal calculations.
+  // At the same time line-height, that is also used internally, can not be set
+  // through options and needs to be provided as a style on the container
+  // element
   fontFamily: fontFamilies.code,
   fontSize: 13,
-  lineHeight: '16px',
 };
 
 const EditorVariant = {
@@ -43,17 +52,20 @@ const EditorVariant = {
   Generic: 'Generic',
 } as const;
 
-type EditorProps = {
+export type EditorProps = {
   variant: keyof typeof EditorVariant;
   text?: string;
   id?: string;
-  options?: Omit<IAceOptions, 'readOnly'>;
+  options?: Omit<
+    IAceOptions,
+    'readOnly' | 'fontFamily' | 'fontSize' | 'enableLiveAutocompletion'
+  >;
   readOnly?: boolean;
   completer?: unknown;
   'data-testid'?: string;
   onChangeText?: (text: string, event?: any) => void;
-  inline?: boolean;
-} & Omit<IAceEditorProps, 'onChange' | 'value'>;
+  darkMode?: boolean;
+} & Omit<IAceEditorProps, 'onChange' | 'value' | 'theme'>;
 
 const editorStyle = css({
   position: 'relative',
@@ -61,17 +73,19 @@ const editorStyle = css({
   zIndex: 0,
 });
 
-function Editor({
+function BaseEditor({
   text,
   variant,
   options,
   readOnly,
   id,
+  name,
+  commands: _commands,
   onChangeText,
   completer,
-  onFocus,
   'data-testid': dataTestId,
-  inline,
+  onFocus,
+  darkMode: _darkMode,
   ...aceProps
 }: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
@@ -80,12 +94,21 @@ function Editor({
     ...(typeof readOnly === 'boolean' && { readOnly }),
     ...(variant === 'Shell' && { mode: 'ace/mode/mongodb' }),
     ...(!!completer && { enableLiveAutocompletion: true }),
-    showGutter: !inline,
-    highlightActiveLine: !inline,
-    highlightGutterLine: !inline,
   };
 
   const editorRef = useRef<AceEditor | null>(null);
+  const providerDarkMode = useDarkMode();
+  const darkMode = _darkMode ?? providerDarkMode;
+
+  useLayoutEffect(() => {
+    if (!editorRef.current) {
+      return;
+    }
+    // See comment in theme.ts for why we are using a second theme for dark mode
+    editorRef.current.editor.setTheme(
+      `ace/theme/${darkMode ? 'mongodb-dark' : 'mongodb'}`
+    );
+  }, [darkMode]);
 
   useLayoutEffect(() => {
     if (id && editorRef.current) {
@@ -98,13 +121,13 @@ function Editor({
   const editorName = useId();
 
   const commands = useMemo(() => {
-    return beautify.commands.concat(aceProps.commands ?? []);
-  }, [aceProps.commands]);
+    return beautify.commands.concat(_commands ?? []);
+  }, [_commands]);
 
   return (
     <div data-testid={dataTestId} className={editorStyle}>
       <AceEditor
-        ref={(ref) => (editorRef.current = ref)}
+        ref={editorRef}
         mode={
           variant === 'Generic'
             ? undefined
@@ -112,24 +135,22 @@ function Editor({
             ? 'json'
             : 'javascript' // set to 'mongodb' as part of setOptions
         }
-        theme="mongodb"
         width="100%"
         value={text}
         onChange={onChangeText}
         editorProps={{ $blockScrolling: Infinity }}
         setOptions={setOptions}
         readOnly={readOnly}
-        {...aceProps}
         // name should be unique since it gets translated to an id
-        name={aceProps.name ?? editorName}
+        name={name ?? editorName}
         commands={commands}
-        className={cx(aceProps.className, inline && 'inline-editor')}
         onFocus={(ev: any) => {
           if (completer) {
             tools.setCompleters([completer]);
           }
           onFocus?.(ev);
         }}
+        {...aceProps}
       />
     </div>
   );
@@ -148,9 +169,17 @@ function setEditorValue(element: HTMLElement, value: string): void {
   if (!container) {
     throw new Error('Cannot find editor container');
   }
-  (window as any).ace.edit(container.id).setValue(value);
+  (window as any).ace
+    .edit(element.querySelector(`#${container.id}`))
+    .setValue(value);
 }
 
 const EditorTextCompleter = tools.textCompleter;
 
-export { Editor, EditorVariant, EditorTextCompleter, setEditorValue };
+// TODO: Editor export should become an Editor with a CodeFrame after COMPASS-6243
+export {
+  BaseEditor as Editor,
+  EditorVariant,
+  EditorTextCompleter,
+  setEditorValue,
+};

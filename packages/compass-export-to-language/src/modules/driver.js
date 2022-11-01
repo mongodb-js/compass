@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const driverChanged = (driver) => ({
   type: DRIVER_CHANGED,
-  driver
+  driver,
 });

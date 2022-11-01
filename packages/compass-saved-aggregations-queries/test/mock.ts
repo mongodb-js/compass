@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Query } from '@mongodb-js/compass-query-history';
-import type { Aggregation } from '@mongodb-js/compass-aggregations';
+import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
 
 type UpdateAttributes = Record<string, unknown>;
 interface FavoriteQueryStorage {
@@ -13,16 +12,16 @@ interface FavoriteQueryStorage {
 
 interface PipelineStorageClass {
   new (): {
-    loadAll(): Promise<Aggregation[]>;
+    loadAll(): Promise<StoredPipeline[]>;
     updateAttributes(
       id: string,
       attributes: UpdateAttributes
-    ): Promise<Aggregation>;
+    ): Promise<StoredPipeline>;
     delete(id: string): Promise<void>;
   };
 }
 
-export function createCompassAggregationsMock(aggregations: Aggregation[]): {
+export function createCompassAggregationsMock(aggregations: StoredPipeline[]): {
   PipelineStorage: PipelineStorageClass;
 } {
   let data = [...aggregations];
@@ -34,7 +33,7 @@ export function createCompassAggregationsMock(aggregations: Aggregation[]): {
       updateAttributes(
         id: string,
         attributes: UpdateAttributes
-      ): Promise<Aggregation> {
+      ): Promise<StoredPipeline> {
         const index = data.findIndex((x) => x.id === id);
         if (index >= 0) {
           data[index] = {
@@ -46,7 +45,7 @@ export function createCompassAggregationsMock(aggregations: Aggregation[]): {
         throw new Error('Can not find pipeline');
       }
       delete(id: string): Promise<void> {
-        data = data.filter((x: Aggregation) => x.id !== id);
+        data = data.filter((x: StoredPipeline) => x.id !== id);
         return Promise.resolve();
       }
     },
@@ -85,7 +84,7 @@ export function createCompassQueryHistoryMock(queries: Query[]): {
 }
 
 export function createProxyquireMockForQueriesAndAggregationsPlugins(
-  pipelines: Aggregation[],
+  pipelines: StoredPipeline[],
   queries: Query[]
 ): unknown {
   return {

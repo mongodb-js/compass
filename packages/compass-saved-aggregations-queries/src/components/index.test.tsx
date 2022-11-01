@@ -10,7 +10,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
 import type { Query } from '@mongodb-js/compass-query-history';
-import type { Aggregation } from '@mongodb-js/compass-aggregations';
+import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
 
 import { createProxyquireMockForQueriesAndAggregationsPlugins } from '../../test/mock';
 import { queries, pipelines } from '../../test/fixtures';
@@ -78,7 +78,7 @@ describe('AggregationsQueriesList', function () {
             name: 'Aggregation',
             namespace: 'foo.bar',
             lastModified: 0,
-          } as Aggregation,
+          } as StoredPipeline,
         ],
         []
       ) as any),
@@ -155,13 +155,14 @@ describe('AggregationsQueriesList', function () {
               name: 'My Aggregation',
               namespace: 'foo.bar',
               lastModified: 0,
-              pipeline: [
-                {
-                  stageOperator: '$match',
-                  stage: '{\n  "field": 42\n}',
-                },
-              ],
-            } as Aggregation,
+              pipelineText: `[
+  {
+    $match: {
+      "field": 42
+    }
+  }
+]`,
+            },
           ],
           []
         ) as any),

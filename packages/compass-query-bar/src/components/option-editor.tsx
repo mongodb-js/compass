@@ -12,7 +12,7 @@ import type {
   CompletionWithServerInfo,
 } from '@mongodb-js/compass-editor';
 import {
-  Editor,
+  InlineEditor,
   EditorTextCompleter,
   QueryAutoCompleter,
 } from '@mongodb-js/compass-editor';
@@ -39,11 +39,6 @@ const editorWithErrorStyles = css({
   },
 });
 
-const editorSettings = {
-  minLines: 1,
-  maxLines: 10,
-};
-
 function disableEditorCommand(editor: AceEditor, name: string) {
   const command = editor.commands.byName[name];
   command.bindKey = undefined;
@@ -61,6 +56,7 @@ type OptionEditorProps = {
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
+  ['data-testid']?: string;
 };
 
 function useQueryCompleter(
@@ -87,6 +83,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   schemaFields = [],
   serverVersion = '3.6.0',
   value = '',
+  ['data-testid']: dataTestId,
 }) => {
   const focusRingProps = useFocusRing({
     outer: true,
@@ -155,17 +152,16 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         hasError && editorWithErrorStyles
       )}
     >
-      <Editor
+      <InlineEditor
         variant="Shell"
         text={value}
         onChangeText={onChange}
         id={id}
-        options={editorSettings}
         completer={completer}
         placeholder={placeholder}
         onLoad={onLoadEditor}
         commands={commands}
-        inline
+        data-testid={dataTestId}
       />
     </div>
   );

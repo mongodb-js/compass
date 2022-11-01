@@ -5,17 +5,20 @@
   "apiVersion": "3.0.0",
   "description": "Compass Aggregation Pipeline Builder",
   "main": "dist/index.js",
-  "compass:main": "src/index.js",
+  "compass:main": "src/index.ts",
+  "types": "dist/src/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.ts"
   },
   "scripts": {
+    "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
+    "postcompile": "tsc --emitDeclarationOnly",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "analyze": "npm run webpack -- --mode production --analyze",
