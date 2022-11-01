@@ -1,5 +1,10 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { css, useId, fontFamilies } from '@mongodb-js/compass-components';
+import {
+  css,
+  useId,
+  fontFamilies,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 
 import 'ace-builds';
 import type { IAceEditorProps, IAceOptions } from 'react-ace';
@@ -16,10 +21,9 @@ import 'ace-builds/src-noconflict/mode-ruby';
 import 'ace-builds/src-noconflict/mode-rust';
 import 'ace-builds/src-noconflict/mode-golang';
 import 'ace-builds/src-noconflict/mode-php';
-import './ace/mode';
-import './ace/theme';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
 import beautify from 'ace-builds/src-noconflict/ext-beautify';
+import './ace';
 
 /**
  * Options for the ACE editor.
@@ -52,12 +56,16 @@ export type EditorProps = {
   variant: keyof typeof EditorVariant;
   text?: string;
   id?: string;
-  options?: Omit<IAceOptions, 'readOnly' | 'fontFamily' | 'fontSize'>;
+  options?: Omit<
+    IAceOptions,
+    'readOnly' | 'fontFamily' | 'fontSize' | 'enableLiveAutocompletion'
+  >;
   readOnly?: boolean;
   completer?: unknown;
   'data-testid'?: string;
   onChangeText?: (text: string, event?: any) => void;
-} & Omit<IAceEditorProps, 'onChange' | 'value'>;
+  darkMode?: boolean;
+} & Omit<IAceEditorProps, 'onChange' | 'value' | 'theme'>;
 
 const editorStyle = css({
   position: 'relative',
@@ -77,6 +85,7 @@ function BaseEditor({
   completer,
   'data-testid': dataTestId,
   onFocus,
+  darkMode: _darkMode,
   ...aceProps
 }: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
@@ -88,6 +97,18 @@ function BaseEditor({
   };
 
   const editorRef = useRef<AceEditor | null>(null);
+  const providerDarkMode = useDarkMode();
+  const darkMode = _darkMode ?? providerDarkMode;
+
+  useLayoutEffect(() => {
+    if (!editorRef.current) {
+      return;
+    }
+    // See comment in theme.ts for why we are using a second theme for dark mode
+    editorRef.current.editor.setTheme(
+      `ace/theme/${darkMode ? 'mongodb-dark' : 'mongodb'}`
+    );
+  }, [darkMode]);
 
   useLayoutEffect(() => {
     if (id && editorRef.current) {
@@ -114,7 +135,6 @@ function BaseEditor({
             ? 'json'
             : 'javascript' // set to 'mongodb' as part of setOptions
         }
-        theme="mongodb"
         width="100%"
         value={text}
         onChange={onChangeText}
