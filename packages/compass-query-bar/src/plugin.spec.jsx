@@ -7,6 +7,7 @@ import AppRegistry from 'hadron-app-registry';
 import QueryBarPlugin from './plugin';
 import configureStore from './stores';
 import configureActions from './actions';
+import { setEditorValue } from '@mongodb-js/compass-editor';
 
 const mockQueryHistoryRole = {
   name: 'Query History',
@@ -73,14 +74,12 @@ describe('QueryBar [Plugin]', function () {
 
       component = mount(<QueryBarPlugin store={store} actions={actions} />);
 
-      // Set the ace editor input value.
-      const aceEditorDomNode = component
-        .find('[id="query-bar-option-input-filter"]')
-        .at(3)
-        .children()
-        .children();
-
-      aceEditorDomNode.getDOMNode().env.editor.session.setValue('{a: 3}');
+      setEditorValue(
+        component
+          .find('div[data-testid="query-bar-option-filter-input"]')
+          .getDOMNode(),
+        '{a: 3}'
+      );
     });
 
     it('updates the store state to valid', function () {
