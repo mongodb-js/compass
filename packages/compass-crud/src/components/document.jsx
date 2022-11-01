@@ -35,7 +35,7 @@ const Document = (props) => {
   }
 
   if (editable) {
-    return <EditableDocument {...props} doc={doc} />;
+    return <EditableDocument {...props} doc={doc} expandAll={isExpanded} />;
   }
 
   return (

@@ -75,10 +75,15 @@ class EditableJson extends React.Component {
       });
     }
 
+    if (prevProps.isExpanded !== this.props.isExpanded) {
+      this.props.isExpanded
+        ? this.editor.getSession().unfold()
+        : this.editor.getSession().foldAll(2);
+    }
+
     if (
       prevState.editing !== this.state.editing &&
-      this.state.editing === false &&
-      !this.props.isExpanded
+      this.state.editing === false
     ) {
       this.editor.getSession().foldAll(2);
     }
