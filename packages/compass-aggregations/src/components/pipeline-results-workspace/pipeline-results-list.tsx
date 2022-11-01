@@ -23,13 +23,12 @@ const PipelineResultsList: React.FunctionComponent<{
     () => ({
       docs: documents.map((doc) => new HadronDocument(doc)),
       isEditable: false,
-      isExpanded: allDocsExpanded,
       copyToClipboard(doc: HadronDocument) {
         const str = doc.toEJSON();
         void navigator.clipboard.writeText(str);
       },
     }),
-    [documents, allDocsExpanded]
+    [documents]
   );
 
   if (documents.length === 0) {
@@ -41,7 +40,7 @@ const PipelineResultsList: React.FunctionComponent<{
 
   return (
     <div className={containerStyles}>
-      <DocumentView {...listProps}></DocumentView>
+      <DocumentView {...listProps} isExpanded={allDocsExpanded}></DocumentView>
     </div>
   );
 };

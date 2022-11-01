@@ -69,13 +69,12 @@ const PreviewResults = ({
     () => ({
       docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
       isEditable: false,
-      isExpanded,
       copyToClipboard(doc) {
         const str = doc.toEJSON();
         void navigator.clipboard.writeText(str);
       },
     }),
-    [previewDocs, isExpanded]
+    [previewDocs]
   );
 
   if (isLoading) {
@@ -109,7 +108,7 @@ const PreviewResults = ({
 
   return (
     <div className={documentListStyles}>
-      <DocumentListView {...listProps} />
+      <DocumentListView {...listProps} isExpanded={isExpanded} />
     </div>
   );
 };
