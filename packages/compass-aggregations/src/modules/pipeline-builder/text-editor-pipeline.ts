@@ -176,7 +176,6 @@ export const loadPreviewForPipeline = (
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: inputDocuments.count,
-        filterOutputStage: true, // For preview we ignore $out/$merge stage.
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(

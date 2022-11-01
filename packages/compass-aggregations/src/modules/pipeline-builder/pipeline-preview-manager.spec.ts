@@ -139,34 +139,27 @@ describe('PipelinePreviewManager', function () {
       ]);
     });
 
-    it('should filter output stage that is at the end of pipeline when specified', function () {
+    it('should throw when last stage is output stage', function () {
       const pipeline = [
         { $match: {} },
         { $sort: {} },
         { $out: 'test' },
       ];
       expect(
-        createPreviewAggregation(pipeline, {
-          filterOutputStage: true
-        })
-      ).to.deep.eq([
-        { $match: {} },
-        { $sort: {} },
-        { $limit: DEFAULT_PREVIEW_LIMIT }
-      ]);
+        () => {
+          createPreviewAggregation(pipeline)
+        }
+      ).to.throw;
     });
 
-    it('should not filter output stages that are not at the end of pipeline when specified', function () {
+    it('should not throw when output stage is not at the end of pipeline', function () {
       const pipeline = [
         { $match: {} },
         { $out: 'test' },
         { $sort: {} },
-        { $out: 'test' },
       ];
       expect(
-        createPreviewAggregation(pipeline, {
-          filterOutputStage: true
-        })
+        createPreviewAggregation(pipeline)
       ).to.deep.eq([
         { $match: {} },
         { $out: 'test' },

@@ -2,7 +2,7 @@ import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '../../utils/cancellable-promise';
-import { getStageOperator, isOutputStage } from '../../utils/stage';
+import { getStageOperator, getLastStageOperator, isLastStageOutputStage } from '../../utils/stage';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE
@@ -30,28 +30,21 @@ export interface PreviewOptions extends AggregateOptions {
   totalDocumentCount?: number;
   sampleSize?: number;
   previewSize?: number;
-  filterOutputStage?: boolean;
-};
-
-const getLastStageOperator = (pipeline: Document[]): string => {
-  return getStageOperator(pipeline[pipeline.length - 1]) ?? ''
 };
 
 export function createPreviewAggregation(
   pipeline: Document[],
   options: Pick<
     PreviewOptions,
-    'sampleSize' | 'previewSize' | 'totalDocumentCount' | 'filterOutputStage'
+    'sampleSize' | 'previewSize' | 'totalDocumentCount'
   > = {}
 ) {
-  const _pipeline = [...pipeline];
-  if (options.filterOutputStage) {
-    const isOutput = isOutputStage(getLastStageOperator(_pipeline));
-    isOutput && _pipeline.splice(_pipeline.length - 1, 1);
+  if (isLastStageOutputStage(pipeline)) {
+    throw new Error('Cannot preview pipeline with last stage as output stage');
   }
 
   const stages = [];
-  for (const stage of _pipeline) {
+  for (const stage of pipeline) {
     if (
       (!options.totalDocumentCount ||
         options.totalDocumentCount >
@@ -90,7 +83,6 @@ export class PipelinePreviewManager {
       sampleSize,
       previewSize,
       totalDocumentCount,
-      filterOutputStage,
       ...options
     }: PreviewOptions = {},
     force = false
@@ -109,7 +101,6 @@ export class PipelinePreviewManager {
         sampleSize,
         previewSize,
         totalDocumentCount,
-        filterOutputStage,
       }),
       options
     });

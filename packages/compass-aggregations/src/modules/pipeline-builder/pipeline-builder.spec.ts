@@ -117,4 +117,20 @@ describe('PipelineBuilder', function () {
     mock.restore();
   });
 
+  it('gets preview for pipeline with output stage', async function() {
+    const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
+    pipelineBuilder.reset(pipeline);
+
+    const mock = sinon.mock(pipelineBuilder.previewManager);
+    mock.expects('getPreviewForStage')
+      .withArgs(1, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
+      .returns([{_id: 1}, {_id: 2}]);
+
+    const data = await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {});
+    expect(data).to.deep.equal([{_id: 1}, {_id: 2}]);
+
+    mock.verify();
+    mock.restore();
+  });
+
 });
