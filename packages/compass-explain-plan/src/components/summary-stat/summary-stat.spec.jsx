@@ -8,7 +8,7 @@ import styles from './summary-stat.module.less';
 describe('SummaryStat [Component]', function () {
   let component;
   const dataLink =
-    'https://docs.mongodb.com/master/reference/explain-results/#explain.executionStats.nReturned';
+    'https://www.mongodb.com/docs/upcoming/reference/explain-results/#mongodb-data-explain.executionStats.nReturned';
   const label = 'Documents Returned:';
 
   beforeEach(function () {
