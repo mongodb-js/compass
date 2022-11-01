@@ -56,12 +56,18 @@ const buttonProps = {
 const PipelineStageBanner = ({
   text,
   actionButton,
+  'data-testid': dataTestId,
 }: {
   text: string;
   actionButton: JSX.Element | null;
+  'data-testid'?: string;
 }) => {
   return (
-    <Banner variant={BannerVariant.Info} className={bannerStyles}>
+    <Banner
+      data-testid={dataTestId}
+      variant={BannerVariant.Info}
+      className={bannerStyles}
+    >
       <div className={contentStyles}>
         <Body>{text}</Body>
         {actionButton}
@@ -70,7 +76,7 @@ const PipelineStageBanner = ({
   );
 };
 
-const OutputStagePreview = ({
+export const OutputStagePreview = ({
   stageOperator,
   isAtlas,
   isLoading,
@@ -81,6 +87,7 @@ const OutputStagePreview = ({
   if (isComplete && isAtlas) {
     return (
       <PipelineStageBanner
+        data-testid={`${stageOperator}-is-complete-banner`}
         text={`Documents persisted to collection specified by ${stageOperator}.`}
         actionButton={
           <Button {...buttonProps} onClick={onOpenCollection}>
@@ -94,6 +101,7 @@ const OutputStagePreview = ({
   const icon = isLoading ? <SpinLoader title="Loading" /> : undefined;
   return (
     <PipelineStageBanner
+      data-testid={`${stageOperator}-preview-banner`}
       text={
         stageOperator === '$out'
           ? OUT_STAGE_PREVIEW_TEXT

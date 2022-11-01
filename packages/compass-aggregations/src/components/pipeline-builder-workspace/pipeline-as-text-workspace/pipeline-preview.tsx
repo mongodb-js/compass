@@ -13,7 +13,7 @@ import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
-import { OutputStageBanner } from './stages-preview';
+import { OutputStageBanner } from './pipeline-stages-preview';
 
 const containerStyles = css({
   display: 'flex',
@@ -125,7 +125,7 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
         {shouldShowCount && <Body>{`Sample of ${docCount} ${docText}`}</Body>}
       </div>
       <PreviewResults isLoading={isLoading} previewDocs={previewDocs} />
-      <div className={outputStageStyles}>
+      <div className={outputStageStyles} data-testid="output-stage-preview">
         {isOutStage && <OutputStageBanner stageOperator="$out" />}
         {isMergeStage && <OutputStageBanner stageOperator="$merge" />}
       </div>
