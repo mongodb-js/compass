@@ -117,4 +117,11 @@ describe('PipelineBuilder', function () {
     mock.restore();
   });
 
+  it('should handle leading and trailing stages of the pipeline', function () {
+    pipelineBuilder.reset(`// leading comment\n[{$match: {_id: 1}}]`);
+    expect(pipelineBuilder.syntaxError).to.have.lengthOf(0);
+
+    pipelineBuilder.reset(`[{$match: {_id: 1}}]\n// trailing comment`);
+    expect(pipelineBuilder.syntaxError).to.have.lengthOf(0);
+  });
 });
