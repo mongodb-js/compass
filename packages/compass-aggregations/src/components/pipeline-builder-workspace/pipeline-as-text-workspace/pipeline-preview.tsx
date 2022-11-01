@@ -136,9 +136,10 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
 const mapState = (state: RootState) => {
   const pipeline = getPipelineStageOperatorsFromBuilderState(state);
   const lastStage = pipeline[pipeline.length - 1] ?? '';
+  const { isLoading, previewDocs } = state.pipelineBuilder.textEditor.pipeline;
   return {
-    isLoading: !!state.pipelineBuilder.textEditor.loading,
-    previewDocs: state.pipelineBuilder.textEditor.previewDocs,
+    isLoading,
+    previewDocs,
     isMergeStage: lastStage === '$merge',
     isOutStage: lastStage === '$out',
   };

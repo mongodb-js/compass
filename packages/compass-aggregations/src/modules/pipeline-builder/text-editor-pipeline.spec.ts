@@ -6,8 +6,8 @@ import { PipelineBuilder } from './pipeline-builder';
 import {
   changeEditorValue,
   loadPreviewForPipeline,
-} from './text-editor';
-import reducer from '../';
+} from './text-editor-pipeline';
+import reducer from '..';
 import Sinon from 'sinon';
 import { toggleAutoPreview } from '../auto-preview';
 import { PipelineStorage } from '../../utils/pipeline-storage';
@@ -23,15 +23,18 @@ function createStore(
     {
       pipelineBuilder: {
         textEditor: {
-          pipelineText: pipelineBuilder.getPipelineStringFromSource(),
-          loading: false,
-          previewDocs: null,
-          serverError: null,
-          stageOperators: ['$match', '$limit'],
-          syntaxErrors: [],
+          pipeline: {
+            pipelineText: pipelineBuilder.getPipelineStringFromSource(),
+            isLoading: false,
+            previewDocs: null,
+            serverError: null,
+            stageOperators: ['$match', '$limit'],
+            syntaxErrors: [],
+          },
           outputStage: {
             isLoading: false,
             isComplete: false,
+            serverError: null,
           },
         },
       },
@@ -63,9 +66,10 @@ describe('stageEditor', function () {
     it('should change text pipeline value', function () {
       const newPipeline = `[{$match: {_id: 1}}]`;
       store.dispatch(changeEditorValue(newPipeline));
-      expect(store.getState().pipelineText).to.equal(newPipeline);
-      expect(store.getState().stageOperators).to.deep.equal(['$match']);
-      expect(store.getState().syntaxErrors).to.deep.equal([]);
+      const pipeline = store.getState().pipeline;
+      expect(pipeline.pipelineText).to.equal(newPipeline);
+      expect(pipeline.stageOperators).to.deep.equal(['$match']);
+      expect(pipeline.syntaxErrors).to.deep.equal([]);
     });
   });
 

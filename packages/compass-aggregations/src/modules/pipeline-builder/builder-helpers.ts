@@ -1,8 +1,7 @@
-import type { Document } from 'mongodb';
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import type { PipelineBuilder } from './pipeline-builder';
 import { loadPreviewForStagesFrom } from './stage-editor';
-import { loadPreviewForPipeline } from './text-editor';
+import { loadPreviewForPipeline } from './text-editor-pipeline';
 
 export const updatePipelinePreview =
   (): PipelineBuilderThunkAction<void> =>
@@ -23,7 +22,7 @@ export function getStagesFromBuilderState(
   pipelineBuilder: PipelineBuilder
 ) {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
-    return pipelineBuilder.stages.map((stage) => stage.toBSON() as Document);
+    return pipelineBuilder.stages.map((stage) => stage.toBSON());
   } else {
     return pipelineBuilder.getPipelineFromSource();
   }
@@ -60,7 +59,7 @@ export function getPipelineStageOperatorsFromBuilderState(
       .map((stage) => stage.stageOperator)
       .filter(Boolean) as string[];
   }
-  return state.pipelineBuilder.textEditor.stageOperators;
+  return state.pipelineBuilder.textEditor.pipeline.stageOperators;
 }
 
 export function getIsPipelineInvalidFromBuilderState(
@@ -72,6 +71,6 @@ export function getIsPipelineInvalidFromBuilderState(
       (stage) => !stage.disabled && (stage.syntaxError || (stage.serverError && includeServerErrors))
     );
   }
-  const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor;
+  const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor.pipeline;
   return Boolean((serverError && includeServerErrors) || syntaxErrors.length > 0);
 }
