@@ -101,7 +101,6 @@ const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
 export const runPipelineWithOutputStage = (
 ): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState, { pipelineBuilder }) => {
-    const state = getState();
     const {
       autoPreview,
       isAtlasDeployed,
@@ -109,7 +108,7 @@ export const runPipelineWithOutputStage = (
       namespace,
       maxTimeMS,
       collationString,
-    } = state;
+    } = getState();
 
 
     if (!dataService || !isAtlasDeployed) {

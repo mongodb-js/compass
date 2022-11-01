@@ -79,20 +79,20 @@ describe('stageEditor', function () {
       expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
     });
 
-    it('should not load preview when autoPreview is enabled and pipeline contains $out', function () {
+    it('should load preview when autoPreview is enabled and pipeline contains $out', function () {
       store.dispatch(toggleAutoPreview(true));
       const newPipeline = `[{$out: "somewhere"}]`;
       store.dispatch(changeEditorValue(newPipeline));
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
+      expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
     });
 
-    it('should not load preview when autoPreview is enabled and pipeline contains $merge', function () {
+    it('should load preview when autoPreview is enabled and pipeline contains $merge', function () {
       store.dispatch(toggleAutoPreview(true));
       const newPipeline = `[{$merge: "somewhere"}]`;
       store.dispatch(changeEditorValue(newPipeline));
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
+      expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
     });
   });
 });

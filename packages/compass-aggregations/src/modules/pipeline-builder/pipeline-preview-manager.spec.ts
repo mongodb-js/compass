@@ -138,5 +138,41 @@ describe('PipelinePreviewManager', function () {
         { $limit: DEFAULT_PREVIEW_LIMIT }
       ]);
     });
+
+    it('should filter output stage that is at the end of pipeline when specified', function () {
+      const pipeline = [
+        { $match: {} },
+        { $sort: {} },
+        { $out: 'test' },
+      ];
+      expect(
+        createPreviewAggregation(pipeline, {
+          filterOutputStage: true
+        })
+      ).to.deep.eq([
+        { $match: {} },
+        { $sort: {} },
+        { $limit: DEFAULT_PREVIEW_LIMIT }
+      ]);
+    });
+
+    it('should not filter output stages that are not at the end of pipeline when specified', function () {
+      const pipeline = [
+        { $match: {} },
+        { $out: 'test' },
+        { $sort: {} },
+        { $out: 'test' },
+      ];
+      expect(
+        createPreviewAggregation(pipeline, {
+          filterOutputStage: true
+        })
+      ).to.deep.eq([
+        { $match: {} },
+        { $out: 'test' },
+        { $sort: {} },
+        { $limit: DEFAULT_PREVIEW_LIMIT }
+      ]);
+    });
   });
 });
