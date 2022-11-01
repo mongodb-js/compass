@@ -19,6 +19,10 @@ export async function selectStageOperator(
   await browser.setValueVisible(inputSelector, stageOperator);
   await browser.keys(['Enter']);
 
+  // click the textarea to focus the stage (this should happen automatically,
+  // but flakes very often in CI)
+  await browser.$(textareaSelector).click();
+
   // the "select" should now blur and the ace textarea become focused
   await browser.waitUntil(async () => {
     const textareaElement = await browser.$(textareaSelector);
