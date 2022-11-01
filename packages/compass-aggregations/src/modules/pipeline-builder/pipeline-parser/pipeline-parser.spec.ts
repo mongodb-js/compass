@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import PipelineParser from './pipeline-parser';
-import Stage from '../stage'
+import Stage from '../stage';
 
 const pipelines = [
   {
@@ -48,11 +48,12 @@ const pipelines = [
   },
   {
     usecase: 'enabled first and last stage',
-    input: `[{$unwind: "users"},\n // {$limit: 20},\n {$sort: {name: -1}}]`,
+    input: `[{$unwind: "users"},\n // {$limit: 20},\n {$sort: {name: -1}}\n// trailing comment\n]`,
     output: `[
   {
     $unwind: "users",
-  }, // {
+  },
+  // {
   //   $limit: 20,
   // }
   {
@@ -60,6 +61,7 @@ const pipelines = [
       name: -1,
     },
   },
+  // trailing comment
 ]`,
     pipeline: [
       {
@@ -93,7 +95,8 @@ const pipelines = [
   },
   {
     $limit: 20,
-  }, // {
+  },
+  // {
   //   $sort: {
   //     name: -1,
   //   },
@@ -478,7 +481,7 @@ describe('PipelineParser', function () {
         const { root, stages } = PipelineParser.parse(input);
         expect(stages).to.have.lengthOf(pipeline.length);
         stages.forEach((node, index) => {
-          const stage = new Stage(node)
+          const stage = new Stage(node);
           expect(
             stage.disabled,
             `expected ${stage.operator} stage to be ${
@@ -488,7 +491,7 @@ describe('PipelineParser', function () {
           expect(stage.toBSON()).to.deep.eq(
             stage.disabled ? null : pipeline[index].stage
           );
-        })
+        });
         const generatedPipelineString = PipelineParser.generate(root, stages);
         expect(generatedPipelineString).to.equal(output);
       });

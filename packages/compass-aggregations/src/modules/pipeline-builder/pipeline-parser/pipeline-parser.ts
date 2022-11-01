@@ -185,6 +185,17 @@ export default class PipelineParser {
         unusedComments = [];
       }
 
+      const previousLine =
+        (elements[elements.length - 1]?.loc?.end.line ?? 0) + 1;
+
+      // We are "normalizing" source loc by setting every element location to
+      // start and end at the same line that doesn't overlap with other elements
+      // to force babel / prettier code formatter into putting every stage and
+      // comment on a separate line to allow parser to format comments corrently
+      // and avoid leading comments of a stage overlap with the end of the
+      // previous stage
+      adjustStageLoc(stage, previousLine);
+
       elements.push(stage);
     }
 
@@ -197,8 +208,31 @@ export default class PipelineParser {
         ...(lastStage.trailingComments ?? []),
         ...unusedComments
       ];
+      const firstComment = lastStage.trailingComments[0];
+      // Special handling for last element: now that all the comments are added,
+      // we are adjusting source loc for the first comment to push all trailing
+      // comments to the new line similar to what we already did to stages above
+      if (firstComment) {
+        firstComment.loc = getLineOnlySourceLocation(
+          (lastStage.loc?.end.line ?? 0) + 1
+        );
+      }
     }
 
     return elements;
+  }
+}
+
+function getLineOnlySourceLocation(line: number) {
+  return { start: { line, column: 0 }, end: { line, column: 0 } };
+}
+
+function adjustStageLoc(stage: t.Node, line: number) {
+  for (const comment of stage.leadingComments ?? []) {
+    comment.loc = getLineOnlySourceLocation(++line);
+  }
+  stage.loc = getLineOnlySourceLocation(++line);
+  for (const comment of stage.trailingComments ?? []) {
+    comment.loc = getLineOnlySourceLocation(++line);
   }
 }
