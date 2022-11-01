@@ -31,6 +31,11 @@ function useTheme(): ThemeState {
   return useContext(ThemeContext);
 }
 
+export function useDarkMode(): boolean | undefined {
+  const theme = useTheme();
+  return theme.enabled === true ? theme?.theme === Theme.Dark : undefined;
+}
+
 interface WithThemeProps {
   darkMode?: boolean;
 }
@@ -48,15 +53,12 @@ const withTheme = function <
       React.ComponentType<ComponentProps & WithThemeProps>
     >
   ) => {
-    const theme = useTheme();
-
-    const applyTheme = theme.enabled === true;
-
+    const darkMode = useDarkMode();
     return (
       <WrappedComponent
         // Set the darkMode before the props so that the props can
         // override the theme if needed.
-        darkMode={applyTheme ? theme?.theme === Theme.Dark : undefined}
+        darkMode={darkMode}
         ref={ref}
         {...props}
       />
