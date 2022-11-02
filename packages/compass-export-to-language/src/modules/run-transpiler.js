@@ -32,8 +32,7 @@ export const runTranspiler = (input) => {
           useBuilders
         );
       } else {
-        const toCompile =
-          state.mode === 'Query' ? input.filter : input.aggregation;
+        const toCompile = state.mode === 'Query' ? input.filter : input.aggregation;
         output = compiler.shell[outputLang].compile(
           toCompile,
           useBuilders,
