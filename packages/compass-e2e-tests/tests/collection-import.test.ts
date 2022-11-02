@@ -27,7 +27,7 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   // make sure it auto-selected JSON and then confirm
   const fileTypeJSON = await browser.$(Selectors.FileTypeJSON);
   await browser.waitUntil(async () => {
-    const selected = await fileTypeJSON.getAttribute('aria-selected');
+    const selected = await fileTypeJSON.getAttribute('aria-checked');
     return selected === 'true';
   });
   await browser.clickVisible(Selectors.ImportConfirm);
@@ -411,11 +411,11 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
     // select file type JSON
+    await browser.clickParent(Selectors.FileTypeJSON);
+
     const fileTypeJSON = await browser.$(Selectors.FileTypeJSON);
-    await fileTypeJSON.waitForDisplayed();
-    await fileTypeJSON.click();
     await browser.waitUntil(async () => {
-      const selected = await fileTypeJSON.getAttribute('aria-selected');
+      const selected = await fileTypeJSON.getAttribute('aria-checked');
       return selected === 'true';
     });
     await browser.clickVisible(Selectors.ImportConfirm);
@@ -452,7 +452,7 @@ describe('Collection import', function () {
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
     await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-selected');
+      const selected = await fileTypeCSV.getAttribute('aria-checked');
       return selected === 'true';
     });
 
@@ -551,7 +551,7 @@ describe('Collection import', function () {
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
     await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-selected');
+      const selected = await fileTypeCSV.getAttribute('aria-checked');
       return selected === 'true';
     });
 
@@ -631,7 +631,7 @@ describe('Collection import', function () {
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
     await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-selected');
+      const selected = await fileTypeCSV.getAttribute('aria-checked');
       return selected === 'true';
     });
 
