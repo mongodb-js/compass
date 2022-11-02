@@ -177,7 +177,7 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
 
 /**
  * @param {import('mongodb').Document[]} pipeline
- * @returns boolean
+ * @returns {string}
  */
  export const getLastStageOperator = (pipeline) => {
   const lastStage = pipeline[pipeline.length - 1];
