@@ -186,7 +186,7 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
 
 /**
  * @param {import('mongodb').Document[]} pipeline
- * @returns boolean
+ * @returns {boolean}
  */
 export const isLastStageOutputStage = (pipeline) => {
   return isOutputStage(getLastStageOperator(pipeline));
