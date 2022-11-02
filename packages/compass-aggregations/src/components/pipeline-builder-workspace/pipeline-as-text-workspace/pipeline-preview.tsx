@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Body,
@@ -12,6 +12,8 @@ import type { RootState } from '../../../modules';
 import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
+import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
+import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { OutputStageBanner } from './pipeline-stages-preview';
 
@@ -22,9 +24,10 @@ const containerStyles = css({
 });
 
 const previewHeaderStyles = css({
-  paddingTop: spacing[3],
-  paddingBottom: spacing[3],
-  paddingLeft: spacing[3],
+  padding: spacing[3],
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'flex-start',
 });
 
 const centerStyles = css({
@@ -43,6 +46,12 @@ const documentListStyles = css({
   overflow: 'auto',
 });
 
+const pipelineOutputMenuStyles = css({
+  marginTop: 0,
+  marginRight: 0,
+  marginBottom: 'auto',
+  marginLeft: 'auto',
+});
 const outputStageStyles = css({
   marginTop: 'auto',
 });
@@ -57,9 +66,11 @@ type PipelinePreviewProps = {
 const PreviewResults = ({
   previewDocs,
   isLoading,
+  isExpanded,
 }: {
   previewDocs: Document[] | null;
   isLoading: boolean;
+  isExpanded: boolean;
 }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
@@ -104,7 +115,7 @@ const PreviewResults = ({
 
   return (
     <div className={documentListStyles}>
-      <DocumentListView {...listProps} />
+      <DocumentListView {...listProps} isExpanded={isExpanded} />
     </div>
   );
 };
@@ -115,6 +126,10 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   isOutStage,
   previewDocs,
 }) => {
+  const [pipelineOutputOption, setPipelineOutputOption] =
+    useState<PipelineOutputOption>('collapse');
+  const isExpanded = pipelineOutputOption === 'expand';
+
   const docCount = previewDocs?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
@@ -122,10 +137,22 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   return (
     <div className={containerStyles} data-testid="pipeline-as-text-preview">
       <div className={previewHeaderStyles}>
-        <Overline>Pipeline Output</Overline>
-        {shouldShowCount && <Body>Sample of ${docCount} ${docText}</Body>}
+        <div>
+          <Overline>Pipeline Output</Overline>
+          {shouldShowCount && <Body>Sample of ${docCount} ${docText}</Body>}
+        </div>
+        <div className={pipelineOutputMenuStyles}>
+          <PipelineOutputOptionsMenu
+            option={pipelineOutputOption}
+            onChangeOption={setPipelineOutputOption}
+          />
+        </div>
       </div>
-      <PreviewResults isLoading={isLoading} previewDocs={previewDocs} />
+      <PreviewResults
+        isExpanded={isExpanded}
+        isLoading={isLoading}
+        previewDocs={previewDocs}
+      />
       <div className={outputStageStyles} data-testid="output-stage-preview">
         <OutputStageBanner stageOperator={stageOperator} />
       </div>

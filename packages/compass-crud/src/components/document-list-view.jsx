@@ -48,6 +48,7 @@ class DocumentListView extends React.Component {
               replaceDocument={this.props.replaceDocument}
               updateDocument={this.props.updateDocument}
               openInsertDocumentDialog={this.props.openInsertDocumentDialog}
+              isExpanded={this.props.isExpanded}
             />
           </KeylineCard>
         </li>
@@ -74,6 +75,7 @@ DocumentListView.propTypes = {
   updateDocument: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func,
   copyToClipboard: PropTypes.func,
+  isExpanded: PropTypes.bool,
 };
 
 DocumentListView.displayName = 'DocumentListView';
