@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import { FavoriteQueryStorage } from '@mongodb-js/compass-query-history';
 import { PipelineStorage } from '@mongodb-js/compass-aggregations';
 import type { Query } from '@mongodb-js/compass-query-history';
-import type { Aggregation } from '@mongodb-js/compass-aggregations';
+import type { StoredPipeline } from '@mongodb-js/compass-aggregations';
 import type { ThunkAction } from 'redux-thunk';
 import type { RootState } from '.';
 
@@ -36,7 +36,7 @@ type EditItemCancelledAction = {
 type EditItemUpdatedAction = {
   type: ActionTypes.EditItemUpdated;
   id: string;
-  payload: Query | Aggregation;
+  payload: Query | StoredPipeline;
 };
 
 export type Actions =
@@ -106,7 +106,7 @@ const updateAggregation = (id: string, attributes: UpdateItemAttributes) => {
   const pipelineStorage = new PipelineStorage();
   return pipelineStorage.updateAttributes(id, {
     name: attributes.name,
-  });
+  }) as Promise<StoredPipeline>;
 };
 
 export default reducer;

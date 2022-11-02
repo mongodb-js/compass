@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const modeChanged = (mode) => ({
   type: MODE_CHANGED,
-  mode
+  mode,
 });

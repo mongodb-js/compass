@@ -42,7 +42,7 @@ const dbStats = css({
 });
 
 const dbStatNumberDark = css({
-  color: palette.green.dark1,
+  color: palette.green.light2,
 });
 
 const dbStatNumberLight = css({

@@ -1,19 +1,23 @@
 import type { DataService } from 'mongodb-data-service';
 import type * as t from '@babel/types';
-import parseEJSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
+import { parseEJSON, PipelineParserError } from './pipeline-parser/utils';
+import { prettify } from './pipeline-parser/utils';
+import { isLastStageOutputStage } from '../../utils/stage';
 
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
 
 export class PipelineBuilder {
-  source: string;
+  private _source: string = DEFAULT_PIPELINE;
+  /* Pipeline representation of parsable source */
+  pipeline: Document[] | null = null;
   node: t.ArrayExpression | null = null;
   stages: Stage[] = [];
-  syntaxError: SyntaxError[] = [];
+  syntaxError: PipelineParserError[] = [];
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
 
@@ -23,13 +27,31 @@ export class PipelineBuilder {
     this.sourceToStages();
   }
 
+  set source(source: string) {
+    this._source = source;
+    this.parseSourceToPipeline();
+  }
+
+  get source() {
+    return this._source;
+  }
+
+  private parseSourceToPipeline() {
+    try {
+      this.pipeline = parseEJSON(this.source);
+    } catch (e) {
+      this.pipeline = null;
+    }
+  }
+
   /**
    * Completely reset pipeline state with provided source
    */
   reset(source = DEFAULT_PIPELINE) {
-    this.source = source;
+    this.pipeline = [];
     this.stages = [];
     this.syntaxError = [];
+    this.source = source;
     this.sourceToStages();
   }
 
@@ -60,9 +82,9 @@ export class PipelineBuilder {
       });
       this.syntaxError = this.stages
         .map((stage) => stage.syntaxError)
-        .filter(Boolean) as SyntaxError[];
+        .filter(Boolean) as PipelineParserError[];
     } catch (e) {
-      this.syntaxError = [e as SyntaxError];
+      this.syntaxError = [e as PipelineParserError];
     }
   }
 
@@ -84,7 +106,10 @@ export class PipelineBuilder {
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
     }
-    return parseEJSON(this.source, { mode: ParseMode.Loose });
+    if (this.pipeline === null) {
+      throw new PipelineParserError('Invalid pipeline');
+    }
+    return this.pipeline;
   }
 
   /**
@@ -92,9 +117,14 @@ export class PipelineBuilder {
    */
   getPreviewForPipeline(
     namespace: string,
-    options: PreviewOptions
+    options: PreviewOptions,
+    filterOutputStage = false,
   ): Promise<Document[]> {
-    const pipeline = this.getPipelineFromSource();
+    // For preview we ignore $out/$merge stage.
+    const pipeline = [...this.getPipelineFromSource()];
+    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+      pipeline.pop();
+    }
     return this.previewManager.getPreviewForStage(
       pipeline.length - 1,
       namespace,
@@ -116,6 +146,7 @@ export class PipelineBuilder {
       this.node,
       this.stages.map((stage) => stage.node)
     );
+    this.validateSource();
   }
 
   /**
@@ -161,14 +192,15 @@ export class PipelineBuilder {
     if (stage) {
       throw stage.syntaxError;
     }
-    return `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    return prettify(code);
   }
 
   /**
    * Returns current source of the pipeline
    */
   getPipelineStringFromSource(): string {
-    return this.source;
+    return prettify(this.source);
   }
 
   /**
@@ -176,9 +208,7 @@ export class PipelineBuilder {
    * contains errors
    */
   getPipelineFromStages(stages = this.stages): Document[] {
-    return parseEJSON(this.getPipelineStringFromStages(stages), {
-      mode: ParseMode.Loose
-    });
+    return parseEJSON(this.getPipelineStringFromStages(stages));
   }
 
   /**

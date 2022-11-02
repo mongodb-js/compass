@@ -14,14 +14,7 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
 async function selectExportFileTypeCSV(browser: CompassBrowser) {
-  // select csv (unselected at first, selected by the end)
-  await browser.clickVisible(
-    Selectors.selectExportFileTypeButton('csv', false)
-  );
-  const selectExportFileTypeButtonElement = await browser.$(
-    Selectors.selectExportFileTypeButton('csv', true)
-  );
-  await selectExportFileTypeButtonElement.waitForDisplayed();
+  await browser.clickParent(Selectors.FileTypeCSV);
 }
 
 describe('Collection export', function () {

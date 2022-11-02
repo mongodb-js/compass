@@ -8,6 +8,7 @@ const Document = (props) => {
   const {
     editable,
     isTimeSeries,
+    isExpanded,
     copyToClipboard,
     openInsertDocumentDialog,
     doc: _doc,
@@ -28,15 +29,22 @@ const Document = (props) => {
         doc={doc}
         copyToClipboard={copyToClipboard}
         openInsertDocumentDialog={openInsertDocumentDialog}
+        expandAll={isExpanded}
       />
     );
   }
 
   if (editable) {
-    return <EditableDocument {...props} doc={doc} />;
+    return <EditableDocument {...props} doc={doc} expandAll={isExpanded} />;
   }
 
-  return <ReadonlyDocument doc={doc} copyToClipboard={copyToClipboard} />;
+  return (
+    <ReadonlyDocument
+      doc={doc}
+      copyToClipboard={copyToClipboard}
+      expandAll={isExpanded}
+    />
+  );
 };
 
 Document.propTypes = {
@@ -48,6 +56,7 @@ Document.propTypes = {
   updateDocument: PropTypes.func,
   openInsertDocumentDialog: PropTypes.func,
   copyToClipboard: PropTypes.func,
+  isExpanded: PropTypes.bool,
 };
 
 export default Document;

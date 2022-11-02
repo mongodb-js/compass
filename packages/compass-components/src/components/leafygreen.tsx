@@ -1,5 +1,3 @@
-import type React from 'react';
-
 import { withTheme } from '../hooks/use-theme';
 
 // This file exports `@leafygreen-ui` components and wraps some of

@@ -177,6 +177,18 @@ function validatePreferences(
       delete obj[key];
       continue;
     }
+    if (
+      allPreferencesProps[key].values &&
+      !(allPreferencesProps[key].values as unknown[])?.includes(value)
+    ) {
+      error(
+        `Value for option "${key}" is not allowed: expected one of [${String(
+          allPreferencesProps[key].values?.join(', ')
+        )}], received ${String(value)}`
+      );
+      delete obj[key];
+      continue;
+    }
   }
   return [obj as AllPreferences, errors];
 }

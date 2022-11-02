@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const transpiledExpressionChanged = (transpiledExpression) => ({
   type: TRANSPILED_EXPRESSION_CHANGED,
-  transpiledExpression
+  transpiledExpression,
 });

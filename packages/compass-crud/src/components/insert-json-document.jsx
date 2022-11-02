@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 
 import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
@@ -41,9 +40,9 @@ class InsertJsonDocument extends Component {
     }
 
     return (
-      <div className={classnames(styles['editor-container'])}>
+      <div className={styles['editor-container']}>
         <Editor
-          className={classnames(styles.editor)}
+          className={styles.editor}
           variant={EditorVariant.EJSON}
           defaultValue={EDITOR_COMMENT}
           text={value}

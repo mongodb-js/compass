@@ -17,6 +17,8 @@ describe('PipelineToolbar', function () {
           store={configureStore({ sourcePipeline: [{ $match: { _id: 1 } }] })}
         >
           <PipelineToolbar
+            onChangePipelineOutputOption={() => {}}
+            pipelineOutputOption="collapse"
             isBuilderView
             showExportButton
             showRunButton
@@ -137,6 +139,8 @@ describe('PipelineToolbar', function () {
       render(
         <Provider store={configureStore({})}>
           <PipelineToolbar
+            onChangePipelineOutputOption={() => {}}
+            pipelineOutputOption="collapse"
             isBuilderView
             showExplainButton
             showExportButton

@@ -9,11 +9,8 @@ const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const Model = require('ampersand-model');
 
-export enum THEMES {
-  DARK = 'DARK',
-  LIGHT = 'LIGHT',
-  OS_THEME = 'OS_THEME',
-}
+export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
+export type THEMES = typeof THEMES_VALUES[number];
 
 export type UserConfigurablePreferences = {
   // User-facing preferences
@@ -23,6 +20,7 @@ export type UserConfigurablePreferences = {
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
   networkTraffic: boolean;
+  protectConnectionStrings?: boolean;
   theme: THEMES;
 };
 
@@ -55,9 +53,14 @@ export type NonUserPreferences = {
   file?: string;
 };
 
+export type FeatureFlags = {
+  lgDarkmode?: boolean;
+};
+
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
-  NonUserPreferences;
+  NonUserPreferences &
+  FeatureFlags;
 
 type OnPreferencesChangedCallback = (
   changedPreferencesValues: Partial<AllPreferences>
@@ -96,12 +99,12 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   default?: AllPreferences[K];
   /** Whether the preference is required in the Ampersand model */
   required: boolean;
+  /** An exhaustive list of possible values for this preference (also an Ampersand feature) */
+  values?: readonly AllPreferences[K][];
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
-  cli: K extends 'showedNetworkOptIn'
-    ? boolean
-    : K extends keyof InternalUserPreferences
+  cli: K extends keyof Omit<InternalUserPreferences, 'showedNetworkOptIn'>
     ? false
     : K extends keyof CliOnlyPreferences
     ? true
@@ -113,7 +116,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
     ? false
     : boolean;
   /** A description used for the --help text and the Settings UI */
-  description: K extends keyof InternalUserPreferences
+  description: K extends keyof InternalUserPreferences | FeatureFlags
     ? null
     : { short: string; long?: string };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
@@ -185,7 +188,8 @@ const modelPreferencesProps: Required<{
   theme: {
     type: 'string',
     required: true,
-    default: THEMES.LIGHT,
+    default: 'LIGHT',
+    values: THEMES_VALUES,
     ui: true,
     cli: true,
     global: true,
@@ -317,6 +321,21 @@ const modelPreferencesProps: Required<{
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
   },
+  /**
+   * Switch to hide credentials in connection strings from users.
+   */
+  protectConnectionStrings: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Protect Connection String Secrets',
+      long: 'Hide credentials in connection strings from users.',
+    },
+  },
 };
 
 const cliOnlyPreferencesProps: Required<{
@@ -415,12 +434,35 @@ const nonUserPreferences: Required<{
   },
 };
 
+const featureFlagsProps: Required<{
+  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
+}> = {
+  /**
+   * Currently Compass uses `darkreader` to globally change the views of
+   * Compass to a dark theme. Turning on this feature flag stops darkreader
+   * from being used and instead components which have darkMode
+   * support will listen to the theme to change their styles.
+   */
+  lgDarkmode: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Use leafygreen dark mode instead of darkreader',
+    },
+  },
+};
+
 export const allPreferencesProps: Required<{
   [K in keyof AllPreferences]: PreferenceDefinition<K>;
 }> = {
   ...modelPreferencesProps,
   ...cliOnlyPreferencesProps,
   ...nonUserPreferences,
+  ...featureFlagsProps,
 };
 
 export function getSettingDescription(
@@ -665,7 +707,7 @@ export class Preferences {
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,
-        theme: THEMES.LIGHT,
+        theme: 'LIGHT',
       });
     }
   }

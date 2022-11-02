@@ -11,6 +11,7 @@ import {
   FavoriteIcon,
   Icon,
   IconButton,
+  Overline,
   H3,
   spacing,
   css,
@@ -26,6 +27,7 @@ import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
+import { usePreference } from 'compass-preferences-model';
 
 const formContainerStyles = css({
   margin: 0,
@@ -107,9 +109,6 @@ const editFavoriteButtonStyles = css({
 
 const favoriteButtonLabelStyles = css({
   paddingTop: spacing[1],
-  color: palette.black,
-  fontWeight: 'bold',
-  fontSize: 12,
 });
 
 const connectionStringErrorStyles = css({
@@ -133,11 +132,12 @@ function ConnectForm({
 }): React.ReactElement {
   const [
     {
-      enableEditingConnectionString,
+      enableEditingConnectionString: _enableEditingConnectionString,
       isDirty,
       errors,
       warnings,
       connectionOptions,
+      allowEditingIfProtected,
     },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
@@ -146,6 +146,11 @@ function ConnectForm({
 
   const [saveConnectionModal, setSaveConnectionModal] =
     useState<SaveConnectionModalState>('hidden');
+  const protectConnectionStrings =
+    !!usePreference('protectConnectionStrings', React) &&
+    !allowEditingIfProtected;
+  const enableEditingConnectionString =
+    _enableEditingConnectionString && !protectConnectionStrings;
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'
@@ -246,7 +251,9 @@ function ConnectForm({
                       isFavorite={!!initialConnectionInfo.favorite}
                       size={spacing[5]}
                     />
-                    <span className={favoriteButtonLabelStyles}>FAVORITE</span>
+                    <Overline className={favoriteButtonLabelStyles}>
+                      FAVORITE
+                    </Overline>
                   </div>
                 </IconButton>
               )}
@@ -258,6 +265,7 @@ function ConnectForm({
                 }
                 onSubmit={() => onSubmitForm()}
                 updateConnectionFormField={updateConnectionFormField}
+                protectConnectionStrings={protectConnectionStrings}
               />
               {connectionStringInvalidError && (
                 <Banner
@@ -267,12 +275,14 @@ function ConnectForm({
                   {connectionStringInvalidError.message}
                 </Banner>
               )}
-              <AdvancedConnectionOptions
-                errors={connectionStringInvalidError ? [] : errors}
-                disabled={!!connectionStringInvalidError}
-                updateConnectionFormField={updateConnectionFormField}
-                connectionOptions={connectionOptions}
-              />
+              {!protectConnectionStrings && (
+                <AdvancedConnectionOptions
+                  errors={connectionStringInvalidError ? [] : errors}
+                  disabled={!!connectionStringInvalidError}
+                  updateConnectionFormField={updateConnectionFormField}
+                  connectionOptions={connectionOptions}
+                />
+              )}
             </div>
             <div className={formFooterStyles}>
               <ConnectFormActions

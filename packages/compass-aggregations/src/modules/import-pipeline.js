@@ -9,15 +9,6 @@ const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 export const NEW_PIPELINE = 'aggregations/NEW_PIPELINE';
 
 /**
- * The new pipeline action.
- *
- * @returns {Object} The action.
- */
-export const newPipeline = () => ({
-  type: NEW_PIPELINE
-});
-
-/**
  * Action name prefix.
  */
 const PREFIX = 'aggregations/import-pipeline';
@@ -183,6 +174,26 @@ export const createNew = () => ({
 });
 
 /**
+ * Confirm new pipeline action
+ * 
+ * @returns {import('.').PipelineBuilderThunkAction<void>}
+ */
+ export const newPipeline = () => (
+  dispatch,
+  _getState,
+  { pipelineBuilder }
+) => {
+  pipelineBuilder.reset();
+  dispatch({
+    type: NEW_PIPELINE,
+    stages: pipelineBuilder.stages,
+    pipelineText: pipelineBuilder.source,
+    pipeline: pipelineBuilder.pipeline,
+    syntaxErrors: pipelineBuilder.syntaxError,
+  });
+};
+
+/**
  * @returns {import('.').PipelineBuilderThunkAction<void>}
  */
 export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
@@ -195,8 +206,10 @@ export const confirmNew = () => (dispatch, getState, { pipelineBuilder }) => {
   dispatch({
     type: CONFIRM_NEW,
     stages: pipelineBuilder.stages,
-    source: pipelineBuilder.source,
-    error
+    pipelineText: pipelineBuilder.source,
+    pipeline: pipelineBuilder.pipeline,
+    syntaxErrors: pipelineBuilder.syntaxError,
+    error,
   });
 
   if (!error) {

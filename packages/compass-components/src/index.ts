@@ -14,10 +14,9 @@ export {
   cache,
 } from '@leafygreen-ui/emotion';
 import CancelLoader from './components/cancel-loader';
-import ConfirmationModal from './components/confirmation-modal';
+import ConfirmationModal from './components/modals/confirmation-modal';
 import FileInput from './components/file-input';
-import { Modal } from './components/modal';
-import { ModalTitle } from './components/modal-title';
+import { Modal } from './components/modals/modal';
 import { MoreOptionsToggle } from './components/more-options-toggle';
 import {
   ErrorSummary,
@@ -69,6 +68,9 @@ import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';
 
+export { FormModal } from './components/modals/form-modal';
+export { InfoModal } from './components/modals/info-modal';
+
 export {
   Accordion,
   CollapsibleFieldSet,
@@ -78,7 +80,6 @@ export {
   FileInput,
   IndexIcon,
   Modal,
-  ModalTitle,
   MoreOptionsToggle,
   RadioBoxGroup,
   SpinLoader,
@@ -102,6 +103,7 @@ export {
 export {
   withTheme,
   useTheme,
+  useDarkMode,
   Theme,
   ThemeState,
   ThemeProvider,
