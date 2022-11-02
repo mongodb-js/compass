@@ -26,8 +26,6 @@ const documentEditorOptionContainerStyles = css({
 });
 
 const queryOptionLabelStyles = css({
-  // A bit of vertical padding so users can click the label easier.
-  paddingTop: spacing[1],
   marginRight: spacing[2],
 });
 
@@ -153,6 +151,7 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
             schemaFields={schemaFields}
             serverVersion={serverVersion}
             value={value}
+            data-testid={`query-bar-option-${queryOption}-input`}
           />
         ) : (
           <TextInput
