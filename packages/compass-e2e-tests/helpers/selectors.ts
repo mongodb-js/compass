@@ -685,7 +685,7 @@ export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [role="option"]`;
+  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="option"]`;
 };
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
@@ -709,14 +709,14 @@ export const stageSelectControlInput = (
   stageIndex: number,
   expanded?: boolean
 ): string => {
-  const selector = `[data-stage-index="${stageIndex}"] .Select-control input`; // [role="combobox"]
+  const selector = `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"]`; // [role="combobox"]
 
   if (expanded === true) {
-    return `${selector}[aria-expanded="true"]`;
+    return `${selector} [aria-expanded="true"]`;
   }
 
   if (expanded === false) {
-    return `${selector}[aria-expanded="false"]`;
+    return `${selector} [aria-expanded="false"]`;
   }
 
   return selector;
