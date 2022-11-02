@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const buildersChanged = (builders) => ({
   type: BUILDERS_CHANGED,
-  builders
+  builders,
 });

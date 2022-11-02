@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import type { MenuAction } from '@mongodb-js/compass-components';
+import { cx, Theme, useTheme } from '@mongodb-js/compass-components';
 import {
   Card,
   css,
@@ -93,10 +94,16 @@ const cardActions = css({
   marginLeft: 'auto',
 });
 
+const cardNameDark = css({
+  color: palette.green.light2,
+});
+
+const cardNameLight = css({
+  color: palette.green.dark2,
+});
+
 const cardName = css({
   fontWeight: 'bold',
-  // Because leafygreen
-  color: `${palette.green.dark1} !important`,
   height: spacing[4] * 2,
   marginBottom: spacing[3],
 
@@ -162,6 +169,7 @@ const CardActions: React.FunctionComponent<{
 
   return (
     <ItemActionMenu<SavedItemAction>
+      data-testid="saved-item-actions"
       isVisible={isVisible}
       actions={savedItemActions}
       onAction={onMenuItemClick}
@@ -200,6 +208,7 @@ export const SavedItemCard: React.FunctionComponent<
   );
 
   const formattedDate = useFormattedDate(lastModified);
+  const theme = useTheme();
 
   return (
     // @ts-expect-error the error here is caused by passing children to Card
@@ -224,7 +233,14 @@ export const SavedItemCard: React.FunctionComponent<
           ></CardActions>
         </div>
       </div>
-      <Subtitle as="div" className={cardName} title={name}>
+      <Subtitle
+        as="div"
+        className={cx(
+          cardName,
+          theme.theme === Theme.Dark ? cardNameDark : cardNameLight
+        )}
+        title={name}
+      >
         {name}
       </Subtitle>
       <div className={namespaceGroup}>

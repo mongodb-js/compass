@@ -61,6 +61,64 @@ async function getDocuments(browser: CompassBrowser) {
   return parsed;
 }
 
+async function chooseCollectionAction(
+  browser: CompassBrowser,
+  dbName: string,
+  collectionName: string,
+  actionName: string
+) {
+  // search for the view in the sidebar
+  await browser.clickVisible(Selectors.SidebarFilterInput);
+  const sidebarFilterInputElement = await browser.$(
+    Selectors.SidebarFilterInput
+  );
+  await sidebarFilterInputElement.setValue(collectionName);
+
+  const collectionSelector = Selectors.sidebarCollection(
+    dbName,
+    collectionName
+  );
+
+  // scroll to the collection if necessary
+  await browser.scrollToVirtualItem(
+    Selectors.SidebarDatabaseAndCollectionList,
+    collectionSelector,
+    'tree'
+  );
+
+  const collectionElement = await browser.$(collectionSelector);
+  await collectionElement.waitForDisplayed();
+
+  // hover over the collection
+  await browser.hover(collectionSelector);
+
+  // click the show collections button
+  // NOTE: This assumes it is currently closed
+  await browser.clickVisible(Selectors.CollectionShowActionsButton);
+
+  const actionSelector = `[role="menuitem"][data-action="${actionName}"]`;
+
+  const actionButton = await browser.$(actionSelector);
+
+  // click the action
+  await browser.clickVisible(actionSelector);
+
+  // make sure the menu closed
+  await actionButton.waitForDisplayed({ reverse: true });
+}
+
+async function waitForTab(browser: CompassBrowser, namespace: string) {
+  await browser.waitUntil(
+    async function () {
+      const ns = await browser.getActiveTabNamespace();
+      return ns === namespace;
+    },
+    {
+      timeoutMsg: `Expected \`${namespace}\` namespace tab to be visible`,
+    }
+  );
+}
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -241,7 +299,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AggregationSettingsButton);
 
     // turn off comment mode
-    await browser.clickVisible(Selectors.AggregationCommentModeCheckbox);
+    await browser.clickParent(Selectors.AggregationCommentModeCheckbox);
 
     // set number of preview documents to 100
     const sampleSizeElement = await browser.$(
@@ -343,20 +401,52 @@ describe('Collection aggregations tab', function () {
     await createButton.click();
 
     // wait until the active tab is the view that we just created
-    await browser.waitUntil(
-      async function () {
-        const ns = await browser.getActiveTabNamespace();
-        return ns === 'test.my-view-from-pipeline';
-      },
-      {
-        timeoutMsg:
-          'Expected `test.my-view-from-pipeline` namespace tab to be visible',
-      }
+    await waitForTab(browser, 'test.my-view-from-pipeline');
+
+    // choose Duplicate view
+    await chooseCollectionAction(
+      browser,
+      'test',
+      'my-view-from-pipeline',
+      'duplicate-view'
+    );
+    const duplicateModal = await browser.$(Selectors.DuplicateViewModal);
+
+    // wait for the modal, fill out the modal, confirm
+    await duplicateModal.waitForDisplayed();
+    await browser
+      .$(Selectors.DuplicateViewModalTextInput)
+      .setValue('duplicated-view');
+    const confirmDuplicateButton = await browser.$(
+      Selectors.DuplicateViewModalConfirmButton
+    );
+    confirmDuplicateButton.waitForEnabled();
+
+    await browser.screenshot('duplicate-view-modal.png');
+
+    await confirmDuplicateButton.click();
+    await duplicateModal.waitForDisplayed({ reverse: true });
+
+    // wait for the active tab to become the newly duplicated view
+    await waitForTab(browser, 'test.duplicated-view');
+
+    // now select modify view of the non-duplicate
+    await chooseCollectionAction(
+      browser,
+      'test',
+      'my-view-from-pipeline',
+      'modify-view'
     );
 
-    // TODO: modify view
-    // TODO: duplicate view
-    // TODO: drop view
+    // wait for the active tab to become the numbers collection (because that's what the pipeline representing the view is for)
+    await waitForTab(browser, 'test.numbers');
+
+    // make sure we're on the aggregations tab, in edit mode
+    const modifyBanner = await browser.$(Selectors.ModifySourceBanner);
+    await modifyBanner.waitForDisplayed();
+    expect(await modifyBanner.getText()).to.equal(
+      'MODIFYING PIPELINE BACKING "TEST.MY-VIEW-FROM-PIPELINE"'
+    );
   });
 
   it('supports maxTimeMS', async function () {

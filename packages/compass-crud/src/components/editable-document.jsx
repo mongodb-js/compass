@@ -42,7 +42,7 @@ class EditableDocument extends React.Component {
     this.state = {
       editing: false,
       deleting: false,
-      expandAll: false,
+      expandAll: props.expandAll ?? false,
     };
 
     this.boundHandleCancel = this.handleCancel.bind(this);
@@ -74,6 +74,9 @@ class EditableDocument extends React.Component {
           this.setState({ editing: false, deleting: false });
         });
       }
+    }
+    if (prevProps.expandAll !== this.props.expandAll) {
+      this.setState({ expandAll: this.props.expandAll });
     }
   }
 
@@ -278,6 +281,7 @@ EditableDocument.displayName = 'EditableDocument';
 EditableDocument.propTypes = {
   doc: PropTypes.object.isRequired,
   editable: PropTypes.bool,
+  expandAll: PropTypes.bool,
   removeDocument: PropTypes.func.isRequired,
   replaceDocument: PropTypes.func.isRequired,
   updateDocument: PropTypes.func.isRequired,

@@ -1,7 +1,13 @@
 import * as babelParser from '@babel/parser';
-import * as t from '@babel/types';
-import StageParser, { stageToAstComments, assertStageNode, isNodeDisabled, setNodeDisabled } from './stage-parser';
+import type * as t from '@babel/types';
+import StageParser, {
+  stageToAstComments,
+  assertStageNode,
+  isNodeDisabled,
+  setNodeDisabled
+} from './stage-parser';
 import { generate } from './utils';
+import { PipelineParserError } from './utils';
 
 function commentsToCommentGroups(
   comments: t.Comment[]
@@ -39,7 +45,9 @@ function extractStagesFromComments(
   for (const group of groups) {
     const lines: Line[] = Array.isArray(group)
       ? group.map((comment) => {
-        return { value: comment.value, node: comment };
+        // Line comments usually have one space at the beginning, normalizing it
+        // here makes it easier to better format the code later
+        return { value: comment.value.replace(/^\s/, ''), node: comment };
       })
       : group.value.split('\n').map((line) => {
         // Block comments usually have every line prepended by a *, we will
@@ -88,7 +96,7 @@ type ParseResponse = {
 
 type ValidateResponse = {
   root: t.ArrayExpression | null;
-  errors: SyntaxError[];
+  errors: PipelineParserError[];
 };
 
 export default class PipelineParser {
@@ -113,7 +121,7 @@ export default class PipelineParser {
   static _parseStringToRoot(source: string): t.ArrayExpression {
     const root = babelParser.parseExpression(source);
     if (root.type !== 'ArrayExpression') {
-      throw new SyntaxError('Pipeline must be an array of aggregation stages');
+      throw new PipelineParserError('Pipeline must be an array of aggregation stages');
     }
     return root;
   }
@@ -122,18 +130,18 @@ export default class PipelineParser {
   // stages
   static validate(source: string): ValidateResponse {
     let root: t.ArrayExpression | null = null;
-    const errors: SyntaxError[] = [];
+    const errors: PipelineParserError[] = [];
     try {
       root = PipelineParser._parseStringToRoot(source);
       root.elements.forEach(stage => {
         try {
           assertStageNode(stage as t.Expression);
         } catch (e) {
-          errors.push(e as SyntaxError);
+          errors.push(e as PipelineParserError);
         }
       });
     } catch (e) {
-      errors.push(e as SyntaxError);
+      errors.push(e as PipelineParserError);
     }
     return { root, errors };
   }
@@ -160,30 +168,71 @@ export default class PipelineParser {
     let unusedComments: t.CommentLine[] = [];
 
     for (const stage of stages) {
-      if (!isNodeDisabled(stage)) {
-        elements.push(stage);
-        continue;
-      }
-
-      const comments = stageToAstComments(stage);
-      const prevStage = elements[elements.length - 1];
-      if (!prevStage) {
+      // If node is disabled, store the node as comments for later use
+      if (isNodeDisabled(stage)) {
+        const comments = stageToAstComments(stage);
         unusedComments.push(...comments);
         continue;
       }
 
-      t.addComments(prevStage, 'trailing', comments);
+      // If node is enabled and there are some comments in the stack, attach
+      // them as as leading comments to the stage
       if (unusedComments.length) {
-        t.addComments(prevStage, 'leading', unusedComments);
+        stage.leadingComments = [
+          ...unusedComments,
+          ...(stage.leadingComments ?? [])
+        ];
         unusedComments = [];
+      }
+
+      const previousLine =
+        (elements[elements.length - 1]?.loc?.end.line ?? 0) + 1;
+
+      // We are "normalizing" source loc by setting every element location to
+      // start and end at the same line that doesn't overlap with other elements
+      // to force babel / prettier code formatter into putting every stage and
+      // comment on a separate line to allow parser to format comments corrently
+      // and avoid leading comments of a stage overlap with the end of the
+      // previous stage
+      adjustStageLoc(stage, previousLine);
+
+      elements.push(stage);
+    }
+
+    const lastStage = elements[elements.length - 1];
+
+    // If we still have some comments left after we went through all stages, add
+    // them as trailing comments to the last stage
+    if (lastStage && unusedComments.length > 0) {
+      lastStage.trailingComments = [
+        ...(lastStage.trailingComments ?? []),
+        ...unusedComments
+      ];
+      const firstComment = lastStage.trailingComments[0];
+      // Special handling for last element: now that all the comments are added,
+      // we are adjusting source loc for the first comment to push all trailing
+      // comments to the new line similar to what we already did to stages above
+      if (firstComment) {
+        firstComment.loc = getLineOnlySourceLocation(
+          (lastStage.loc?.end.line ?? 0) + 1
+        );
       }
     }
 
-    const prevStage = elements[elements.length - 1];
-    if (unusedComments.length > 0 && prevStage) {
-      t.addComments(prevStage, 'leading', unusedComments);
-    }
-
     return elements;
+  }
+}
+
+function getLineOnlySourceLocation(line: number) {
+  return { start: { line, column: 0 }, end: { line, column: 0 } };
+}
+
+function adjustStageLoc(stage: t.Node, line: number) {
+  for (const comment of stage.leadingComments ?? []) {
+    comment.loc = getLineOnlySourceLocation(++line);
+  }
+  stage.loc = getLineOnlySourceLocation(++line);
+  for (const comment of stage.trailingComments ?? []) {
+    comment.loc = getLineOnlySourceLocation(++line);
   }
 }

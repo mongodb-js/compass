@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, cx, spacing, Card } from '@mongodb-js/compass-components';
+import { css, cx, spacing, KeylineCard } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 
@@ -59,7 +59,7 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
           />
         </div>
       )}
-      <Card className={cardStyles} data-testid="pipeline-explain-results-json">
+      <KeylineCard className={cardStyles} data-testid="pipeline-explain-results-json">
         <Document
           doc={plan}
           editable={false}
@@ -69,7 +69,7 @@ export const ExplainResults: React.FunctionComponent<ExplainResultsProps> = ({
             );
           }}
         />
-      </Card>
+      </KeylineCard>
     </div>
   );
 };

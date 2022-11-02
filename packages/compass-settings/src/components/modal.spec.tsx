@@ -53,7 +53,7 @@ describe('SettingsModal', function () {
     await waitFor(() => {
       const container = screen.getByTestId('settings-modal');
       expect(container).to.exist;
-      expect(within(container).getByTestId('settings-modal-title')).to.exist;
+      expect(within(container).getByTestId('modal-title')).to.exist;
     });
   });
 
@@ -63,7 +63,7 @@ describe('SettingsModal', function () {
 
     await waitFor(() => {
       const container = screen.getByTestId('settings-modal');
-      const saveButton = within(container).getByTestId('save-settings-button');
+      const saveButton = within(container).getByTestId('submit-button');
       expect(saveButton).to.exist;
 
       userEvent.click(saveButton);

@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const errorChanged = (error) => ({
   type: ERROR_CHANGED,
-  error
+  error,
 });

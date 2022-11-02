@@ -2,9 +2,16 @@ import { pull } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import jsonParse from 'fast-json-parse';
-import { ViewSwitcher } from 'hadron-react-components';
 import { Element } from 'hadron-document';
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  css,
+  FormModal,
+  Icon,
+  SegmentedControl,
+  SegmentedControlOption,
+  spacing,
+} from '@mongodb-js/compass-components';
 
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
@@ -16,6 +23,18 @@ import InsertDocumentFooter from './insert-document-footer';
  */
 const INSERT_INVALID_MESSAGE =
   'Insert not permitted while document contains errors.';
+
+const documentViewId = 'insert-document-view';
+
+const toolbarStyles = css({
+  marginTop: spacing[2],
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
+const documentViewContainer = css({
+  marginTop: spacing[3],
+});
 
 /**
  * Component for the insert document dialog.
@@ -156,23 +175,6 @@ class InsertDocumentDialog extends React.PureComponent {
   }
 
   /**
-   * Render the document component.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderDocument() {
-    if (this.props.doc) {
-      return (
-        <InsertDocument
-          doc={this.props.doc}
-          version={this.props.version}
-          tz={this.props.tz}
-        />
-      );
-    }
-  }
-
-  /**
    * Render the document or json editor.
    *
    * @returns {React.Component} The component.
@@ -181,16 +183,19 @@ class InsertDocumentDialog extends React.PureComponent {
     if (!this.props.jsonView) {
       if (this.hasManyDocuments()) {
         return (
-          <div className="view-not-supported">
-            <p>
-              This view is not supported for multiple documents. To specify data
-              types and use other functionality of this view, please insert
-              documents one at a time.
-            </p>
-          </div>
+          <Banner variant="warning">
+            This view is not supported for multiple documents. To specify data
+            types and use other functionality of this view, please insert
+            documents one at a time.
+          </Banner>
         );
       }
-      return this.renderDocument();
+
+      if (!this.props.doc) {
+        return;
+      }
+
+      return <InsertDocument doc={this.props.doc} />;
     }
 
     return (
@@ -212,29 +217,57 @@ class InsertDocumentDialog extends React.PureComponent {
     const currentView = this.props.jsonView ? 'JSON' : 'List';
 
     return (
-      <ConfirmationModal
+      <FormModal
         title={`Insert to Collection ${this.props.ns}`}
         className="insert-document-dialog"
         open={this.props.isOpen}
-        onConfirm={this.handleInsert.bind(this)}
+        onSubmit={this.handleInsert.bind(this)}
         onCancel={this.props.closeInsertDocumentDialog}
-        buttonText="Insert"
+        submitButtonText="Insert"
         submitDisabled={this.hasErrors()}
         trackingId="insert_document_modal"
+        data-testid="insert-document-modal"
+        minBodyHeight={spacing[6] * 2} // make sure there is enough space for the menu
       >
-        <div className="insert-document-views">
-          <ViewSwitcher
-            dataTestId="insert-document-dialog-view"
+        <div className={toolbarStyles}>
+          <SegmentedControl
             label="View"
-            buttonLabels={['JSON', 'List']}
-            showLabels={false}
-            iconClassNames={['curly-bracket', 'fa fa-list-ul']}
-            activeButton={currentView}
-            disabled={this.hasErrors()}
-            onClick={this.switchInsertDocumentView.bind(this)}
-          />
+            size="small"
+            value={currentView}
+            aria-controls={documentViewId}
+            onChange={this.switchInsertDocumentView.bind(this)}
+          >
+            <SegmentedControlOption
+              disabled={this.hasErrors()}
+              data-testid="insert-document-dialog-view-json"
+              aria-label="E-JSON View"
+              value="JSON"
+              onClick={(evt) => {
+                // We override the `onClick` functionality to prevent form submission.
+                // The value changing occurs in the `onChange` in the `SegmentedControl`.
+                evt.preventDefault();
+              }}
+            >
+              <Icon glyph="CurlyBraces" />
+            </SegmentedControlOption>
+            <SegmentedControlOption
+              disabled={this.hasErrors()}
+              data-testid="insert-document-dialog-view-list"
+              aria-label="Document list"
+              value="List"
+              onClick={(evt) => {
+                // We override the `onClick` functionality to prevent form submission.
+                // The value changing occurs in the `onChange` in the `SegmentedControl`.
+                evt.preventDefault();
+              }}
+            >
+              <Icon glyph="Menu" />
+            </SegmentedControlOption>
+          </SegmentedControl>
         </div>
-        {this.renderDocumentOrJsonView()}
+        <div className={documentViewContainer} id={documentViewId}>
+          {this.renderDocumentOrJsonView()}
+        </div>
         <InsertDocumentFooter
           message={
             this.hasErrors() ? INSERT_INVALID_MESSAGE : this.state.message
@@ -242,7 +275,7 @@ class InsertDocumentDialog extends React.PureComponent {
           mode={this.hasErrors() ? 'error' : this.state.mode}
         />
         <InsertCSFLEWarningBanner csfleState={this.props.csfleState} />
-      </ConfirmationModal>
+      </FormModal>
     );
   }
 }

@@ -25,7 +25,7 @@ class ExportForm extends PureComponent {
     from: PropTypes.string.isRequired,
     outputLangChanged: PropTypes.func.isRequired,
     copySuccessChanged: PropTypes.func.isRequired,
-    runTranspiler: PropTypes.func.isRequired
+    runTranspiler: PropTypes.func.isRequired,
   };
 
   getInput() {
@@ -41,89 +41,134 @@ class ExportForm extends PureComponent {
     if (error) {
       return '';
     }
-    return showImports && imports !== '' ?
-      `${imports}\n\n${this.props.transpiledExpression}` :
-      transpiledExpression;
+    return showImports && imports !== ''
+      ? `${imports}\n\n${this.props.transpiledExpression}`
+      : transpiledExpression;
   }
 
   copyOutputHandler = (evt) => {
     evt.preventDefault();
     this.props.copyToClipboard(this.getOutput());
     this.props.copySuccessChanged('output');
-    setTimeout(() => { this.props.copySuccessChanged(null); }, 2500);
+    setTimeout(() => {
+      this.props.copySuccessChanged(null);
+    }, 2500);
   };
 
   copyInputHandler = (evt) => {
     evt.preventDefault();
     this.props.copyToClipboard(this.props.from);
     this.props.copySuccessChanged('input');
-    setTimeout(() => { this.props.copySuccessChanged(null); }, 2500);
+    setTimeout(() => {
+      this.props.copySuccessChanged(null);
+    }, 2500);
   };
 
   render() {
     const copyOutputButtonStyle = classnames({
-      [ styles['export-to-lang-query-output-copy'] ]: true,
+      [styles['export-to-lang-query-output-copy']]: true,
       'btn-sm': true,
       'btn-primary': true,
-      'btn': true
+      btn: true,
     });
     const copyInputButtonStyle = classnames({
-      [ styles['export-to-lang-query-input-copy'] ]: true,
+      [styles['export-to-lang-query-input-copy']]: true,
       'btn-sm': true,
       'btn-primary': true,
-      'btn': true
+      btn: true,
     });
 
+    const errorDiv = this.props.error ? (
+      <Alert
+        bsStyle="danger"
+        className={classnames(styles['export-to-lang-query-input-error'])}
+      >
+        {this.props.error}
+      </Alert>
+    ) : (
+      ''
+    );
 
-    const errorDiv = this.props.error
-      ? <Alert bsStyle="danger" className={classnames(styles['export-to-lang-query-input-error'])} children={this.props.error}/>
-      : '';
+    const outputBubbleDiv =
+      this.props.copySuccess === 'output' ? (
+        <div
+          className={classnames(styles['export-to-lang-query-output-bubble'])}
+        >
+          Copied!
+        </div>
+      ) : (
+        ''
+      );
 
-    const outputBubbleDiv = this.props.copySuccess === 'output'
-      ? <div className={classnames(styles['export-to-lang-query-output-bubble'])}>Copied!</div>
-      : '';
-
-    const inputBubbleDiv = this.props.copySuccess === 'input'
-      ? <div className={classnames(styles['export-to-lang-query-input-bubble'])}>Copied!</div>
-      : '';
+    const inputBubbleDiv =
+      this.props.copySuccess === 'input' ? (
+        <div
+          className={classnames(styles['export-to-lang-query-input-bubble'])}
+        >
+          Copied!
+        </div>
+      ) : (
+        ''
+      );
 
     return (
-      <form name="export-to-lang" data-testid="export-to-lang" className="export-to-lang">
+      <form
+        name="export-to-lang"
+        data-testid="export-to-lang"
+        className="export-to-lang"
+      >
         <div className={classnames(styles['export-to-lang-headers'])}>
           <p className={classnames(styles['export-to-lang-headers-input'])}>
             {`My ${this.props.mode}:`}
           </p>
-          <div className={classnames(styles['export-to-lang-headers-output'])} data-testid="select-lang-field">
-            <p className={classnames(styles['export-to-lang-headers-output-title'])}>
+          <div
+            className={classnames(styles['export-to-lang-headers-output'])}
+            data-testid="select-lang-field"
+          >
+            <p
+              className={classnames(
+                styles['export-to-lang-headers-output-title']
+              )}
+            >
               {`Export ${this.props.mode} To:`}
             </p>
-            <SelectLang {...this.props}/>
+            <SelectLang {...this.props} />
           </div>
         </div>
         <div className={classnames(styles['export-to-lang-query'])}>
           <div className={classnames(styles['export-to-lang-query-input'])}>
             <Editor value={this.getInput()} />
             {inputBubbleDiv}
-            <div className={classnames(styles['export-to-lang-copy-input-container'])}>
+            <div
+              className={classnames(
+                styles['export-to-lang-copy-input-container']
+              )}
+            >
               <IconTextButton
                 dataTestId="export-to-lang-copy-input"
                 clickHandler={this.copyInputHandler}
                 className={copyInputButtonStyle}
-                iconClassName="fa fa-copy"/>
+                iconClassName="fa fa-copy"
+              />
             </div>
           </div>
           <div
             data-testid="export-to-lang-query-output-container"
             className={classnames(styles['export-to-lang-query-output'])}
           >
-            <Editor language={this.props.outputLang} value={this.getOutput()}/>
+            <Editor language={this.props.outputLang} value={this.getOutput()} />
             {outputBubbleDiv}
-            <div className={classnames(styles['export-to-lang-copy-output-container'])}>
+            <div
+              className={classnames(
+                styles['export-to-lang-copy-output-container']
+              )}
+            >
               <IconTextButton
                 dataTestId="export-to-lang-copy-output"
                 clickHandler={this.copyOutputHandler}
                 className={copyOutputButtonStyle}
-                iconClassName="fa fa-copy"/>
+                iconClassName="fa fa-copy"
+              />
             </div>
           </div>
         </div>

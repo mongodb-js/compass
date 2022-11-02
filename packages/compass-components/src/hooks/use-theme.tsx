@@ -7,11 +7,12 @@ enum Theme {
 
 type ThemeState = {
   theme: Theme;
-  enabled?: true;
+  enabled: boolean;
 };
 
 const ThemeContext = createContext<ThemeState>({
   theme: Theme.Light,
+  enabled: false,
 });
 
 const ThemeProvider = ({
@@ -28,6 +29,11 @@ const ThemeProvider = ({
 
 function useTheme(): ThemeState {
   return useContext(ThemeContext);
+}
+
+export function useDarkMode(): boolean | undefined {
+  const theme = useTheme();
+  return theme.enabled === true ? theme?.theme === Theme.Dark : undefined;
 }
 
 interface WithThemeProps {
@@ -47,17 +53,12 @@ const withTheme = function <
       React.ComponentType<ComponentProps & WithThemeProps>
     >
   ) => {
-    const theme = useTheme();
-
-    const applyTheme =
-      theme.enabled === true ||
-      global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
-
+    const darkMode = useDarkMode();
     return (
       <WrappedComponent
         // Set the darkMode before the props so that the props can
         // override the theme if needed.
-        darkMode={applyTheme ? theme?.theme === Theme.Dark : undefined}
+        darkMode={darkMode}
         ref={ref}
         {...props}
       />

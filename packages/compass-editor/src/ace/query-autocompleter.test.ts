@@ -54,6 +54,7 @@ describe('QueryAutoCompleter', function () {
                 score: 1,
                 meta: 'query',
                 version: '2.2.0',
+                geospatial: false,
               },
               {
                 name: '$and',
@@ -61,6 +62,7 @@ describe('QueryAutoCompleter', function () {
                 score: 1,
                 meta: 'query',
                 version: '2.2.0',
+                geospatial: false,
               },
             ]);
           });

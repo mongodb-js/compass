@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const uriChanged = (uri) => ({
   type: URI_CHANGED,
-  uri
+  uri,
 });

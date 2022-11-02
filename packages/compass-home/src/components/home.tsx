@@ -28,6 +28,14 @@ import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let remote: typeof import('@electron/remote') | undefined;
+try {
+  remote = require('@electron/remote');
+} catch {
+  /* no electron, eg. mocha tests */
+}
+
 const homeViewStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -294,6 +302,13 @@ function Home({
   );
 }
 
+function getCurrentTheme(): Theme {
+  return preferences.getPreferences().lgDarkmode &&
+    remote?.nativeTheme?.shouldUseDarkColors
+    ? Theme.Dark
+    : Theme.Light;
+}
+
 function ThemedHome(
   props: React.ComponentProps<typeof Home> & {
     showWelcomeModal: boolean;
@@ -304,41 +319,28 @@ function ThemedHome(
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
-    theme:
-      process.env.COMPASS_LG_DARKMODE === 'true'
-        ? (global as any).hadronApp?.theme ?? Theme.Light
-        : Theme.Light,
+    theme: getCurrentTheme(),
+    enabled: !!preferences.getPreferences().lgDarkmode,
   });
 
-  function onDarkModeEnabled() {
-    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
-      return;
-    }
-
-    setTheme({
-      theme: Theme.Dark,
-    });
-  }
-
-  function onDarkModeDisabled() {
-    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
-      return;
-    }
-
-    setTheme({
-      theme: Theme.Light,
-    });
-  }
-
   useEffect(() => {
-    // Setup app registry listeners.
-    appRegistry.on('darkmode-enable', onDarkModeEnabled);
-    appRegistry.on('darkmode-disable', onDarkModeDisabled);
+    const listener = () => {
+      setTheme({
+        theme: getCurrentTheme(),
+        enabled: !!preferences.getPreferences().lgDarkmode,
+      });
+    };
+
+    const unsubscribeLgDarkmodeListener = preferences.onPreferenceValueChanged(
+      'lgDarkmode',
+      listener
+    );
+    remote?.nativeTheme?.on('updated', listener);
 
     return () => {
-      // Clean up the app registry listeners.
-      appRegistry.removeListener('darkmode-enable', onDarkModeEnabled);
-      appRegistry.removeListener('darkmode-disable', onDarkModeDisabled);
+      // Cleanup preference listeners.
+      unsubscribeLgDarkmodeListener();
+      remote?.nativeTheme?.off('updated', listener);
     };
   }, [appRegistry]);
 

@@ -257,45 +257,45 @@ export const sidebarFavoriteMenuButton = (favoriteName: string): string => {
 };
 
 // Favorite modal
-export const FavoriteModal = '[data-testid="favorite_modal"]';
+export const FavoriteModal = '[data-testid="favorite-modal"]';
 export const FavoriteNameInput = '[data-testid="favorite-name-input"]';
 export const FavoriteColorSelector = '#favorite-color-selector';
 export const FavoriteSaveButton =
-  '[data-testid="favorite_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="favorite-modal"] [data-testid="submit-button"]';
 
 // Create database modal
-export const CreateDatabaseModal = '[data-testid="create_database_modal"]';
+export const CreateDatabaseModal = '[data-testid="create-database-modal"]';
 export const CreateDatabaseDatabaseName = '[data-testid="database-name"]';
 export const CreateDatabaseCollectionName = '[data-testid="collection-name"]';
 export const CreateDatabaseErrorMessage =
-  '[data-testid="create_database_modal"] [role="alert"]';
+  '[data-testid="create-database-modal"] [role="alert"]';
 export const CreateDatabaseCreateButton =
-  '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="create-database-modal"] [data-testid="submit-button"]';
 export const CreateDatabaseCancelButton =
-  '[data-testid="create_database_modal"] [role=dialog] > div:nth-child(2) button:last-child';
+  '[data-testid="create-database-modal"] [data-testid="cancel-button"]';
 
 // Drop database modal
-export const DropDatabaseModal = '[data-testid="drop_database_modal"]';
+export const DropDatabaseModal = '[data-testid="drop-database-modal"]';
 export const DropDatabaseConfirmName =
   '[data-testid="confirm-drop-database-name"]';
 export const DropDatabaseDropButton =
-  '[data-testid="drop_database_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="drop-database-modal"] [data-testid="submit-button"]';
 
 // Create collection modal
-export const CreateCollectionModal = '[data-testid="create_collection_modal"]';
+export const CreateCollectionModal = '[data-testid="create-collection-modal"]';
 export const CreateCollectionCollectionName = '[data-testid="collection-name"]';
 export const CreateCollectionErrorMessage =
-  '[data-testid="create_collection_modal"] [role="alert"]';
+  '[data-testid="create-collection-modal"] [role="alert"]';
 export const CreateCollectionCreateButton =
-  '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="create-collection-modal"] [data-testid="submit-button"]';
 export const CreateCollectionCancelButton =
-  '[data-testid="create_collection_modal"] [role=dialog] > div:nth-child(2) button:last-child';
+  '[data-testid="create-collection-modal"] [data-testid="cancel-button"]';
 export const CreateCollectionCappedCheckboxLabel =
   '[data-testid="capped-collection-fields"] [data-testid="capped-collection-fields-label"]';
 export const CreateCollectionCappedSizeInput =
   '[data-testid="capped-collection-fields"] [data-testid="capped-size"]';
 export const CreateCollectionCollectionOptionsAccordion =
-  '[data-testid="create_collection_modal"] [data-testid="advanced-collection-options"]';
+  '[data-testid="create-collection-modal"] [data-testid="advanced-collection-options"]';
 export const CreateCollectionCustomCollationCheckboxLabel =
   '[data-testid="use-custom-collation-fields"] [data-testid="use-custom-collation-fields-label"]';
 
@@ -339,11 +339,11 @@ export const createCollectionCustomCollationFieldMenu = (
 };
 
 // Drop collection modal
-export const DropCollectionModal = '[data-testid="drop_collection_modal"]';
+export const DropCollectionModal = '[data-testid="drop-collection-modal"]';
 export const DropCollectionConfirmName =
   '[data-testid="confirm-drop-collection-name"]';
 export const DropCollectionDropButton =
-  '[data-testid="drop_collection_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="drop-collection-modal"] [data-testid="submit-button"]';
 
 // Shell
 export const ShellContent = '[data-testid="shell-content"]';
@@ -509,14 +509,15 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 
 // Insert Document modal
 
-export const InsertDialog = '.insert-document-dialog';
+export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
-  '[data-testid="insert_document_modal"] .document-footer.document-footer-is-error .document-footer-message';
-export const InsertJSONEditor = '.insert-document-dialog .ace_editor';
+  '[data-testid="insert-document-modal"] .document-footer.document-footer-is-error .document-footer-message';
+export const InsertJSONEditor =
+  '[data-testid="insert-document-modal"] .ace_editor';
 export const InsertConfirm =
-  '.insert-document-dialog [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
 export const InsertCancel =
-  '.insert-document-dialog [role=dialog] > div:nth-child(2) button:last-child';
+  '[data-testid="insert-document-modal"] [data-testid="cancel-button"]';
 export const insertCSFLEHasKnownSchemaMsg =
   '[data-testid="insert-csfle-has-known-schema"]';
 export const incompleteSchemaForClonedDocMsg =
@@ -600,9 +601,13 @@ export const QueryHistoryFavoriteItemNameField =
   '[data-testid="query-history-saving-form-input-name"]';
 export const QueryHistorySaveFavoriteItemButton =
   '[data-testid="query-history-saving-form-button-save"]';
+export const SavedItemMenu = '[data-testid="saved-item-actions"]';
+export const SavedItemMenuItemCopy = `${SavedItemMenu} [data-testid="saved-item-actions-copy-action"]`;
+export const SavedItemMenuItemRename = `${SavedItemMenu} [data-testid="saved-item-actions-rename-action"]`;
+export const SavedItemMenuItemDelete = `${SavedItemMenu} [data-testid="saved-item-actions-delete-action"]`;
 
 export const myQueriesItem = (title: string): string => {
-  return `[title="${title}"]`;
+  return `[data-testid="my-queries-content"] [title="${title}"]`;
 };
 
 export const MyQueriesList = '[data-testid="my-queries-list"]';
@@ -672,11 +677,11 @@ export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
 export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [aria-label*="Close"]`;
 
 // Create view from pipeline modal
-export const CreateViewModal = '[data-testid="create_view_modal"]';
+export const CreateViewModal = '[data-testid="create-view-modal"]';
 export const CreateViewNameInput = '#create-view-name';
 
 // Save aggregation from pipeline modal
-export const SavePipelineModal = '[data-testid="save_pipeline_modal"]';
+export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
@@ -786,19 +791,18 @@ export const CreateIndexButton =
 // Indexes modal
 export const CreateIndexModal = '[data-testid="create-index-modal"]';
 
-export const CreateIndexModalFieldNameSelectInput = (idx: number): string => {
+export const createIndexModalFieldNameSelectInput = (idx: number): string => {
   return `[data-testid="create-index-fields-name-${idx}"] input`;
 };
-export const CreateIndexModalFieldTypeSelectButton = (idx: number): string => {
+export const createIndexModalFieldTypeSelectButton = (idx: number): string => {
   return `[data-testid="create-index-fields-type-${idx}"] button`;
 };
-export const CreateIndexModalFieldTypeSelectMenu = (idx: number): string => {
+export const createIndexModalFieldTypeSelectMenu = (idx: number): string => {
   return `#create-index-fields-type-select-${idx}-menu`;
 };
 
 export const CreateIndexErrorMessage = `${CreateIndexModal} [role="alert"]`;
-export const CreateIndexCancelButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:first-child`;
-export const CreateIndexConfirmButton = `${CreateIndexModal} [role=dialog] > div:nth-child(2) button:last-child`;
+export const CreateIndexConfirmButton = `${CreateIndexModal} [data-testid="create-index-actions-create-index-button"]`;
 
 export const DropIndexModal = '[data-testid="drop-index-modal"]';
 export const DropIndexModalConfirmName =
@@ -876,7 +880,7 @@ export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 // Export modal
 export const ExportModal = '[data-testid="export-modal"]';
 export const ExportModalQueryText =
-  '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"] .ace_text-layer';
+  '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"]';
 export const ExportModalFullCollectionOption =
   '[data-testid="export-modal"] [data-testid="export-full-collection"]';
 export const ExportModalSelectFieldsButton =
@@ -890,23 +894,6 @@ export const ExportModalShowFileButton =
 export const ExportModalCloseButton =
   '[data-testid="export-modal"] [data-testid="close-button"]';
 export const ExportModalFileText = '[data-testid="export-modal"] #export-file';
-
-export const selectExportFileTypeButton = (
-  fileType: string,
-  selected?: boolean
-): string => {
-  const selector = `[data-testid="export-modal"] [data-testid="select-file-type-${fileType}"]`;
-
-  if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
-  }
-
-  if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
-  }
-
-  return selector;
-};
 
 export const exportModalExportField = (fieldName: string): string => {
   return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
@@ -933,18 +920,55 @@ export const ExportToLanguageQueryOutput =
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =
-  '[data-testid="confirm_new_pipeline_modal"]';
+  '[data-testid="confirm-new-pipeline-modal"]';
 export const ConfirmNewPipelineModalConfirmButton =
-  '[data-testid="confirm_new_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="confirm-new-pipeline-modal"] [role=dialog] > div:nth-child(2) button:first-child';
 
 // New pipeline from text modal
-export const NewPipelineFromTextModal = '[data-testid="import_pipeline_modal"]';
+export const NewPipelineFromTextModal = '[data-testid="import-pipeline-modal"]';
 export const NewPipelineFromTextEditor = '#import-pipeline-editor';
 export const NewPipelineFromTextConfirmButton =
-  '[data-testid="import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="import-pipeline-modal"] [data-testid="submit-button"]';
 
 // Confirm import pipeline modal
 export const ConfirmImportPipelineModal =
-  '[data-testid="confirm_import_pipeline_modal"]';
+  '[data-testid="confirm-import-pipeline-modal"]';
 export const ConfirmImportPipelineModalConfirmButton =
-  '[data-testid="confirm_import_pipeline_modal"] [role=dialog] > div:nth-child(2) button:first-child';
+  '[data-testid="confirm-import-pipeline-modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+// Shell info modal
+export const ShellInfoButton = '[data-testid="shell-info-button"]';
+export const ShellInfoModal = '[data-testid="shell-info-modal"]';
+export const ShellInfoModalCloseButton =
+  '[data-testid="shell-info-modal"] [aria-label*="Close"]';
+
+// Edit connection string modal
+export const EditConnectionStringToggle =
+  '[data-testid="toggle-edit-connection-string"]';
+export const EditConnectionStringModal =
+  '[data-testid="edit-uri-confirmation-modal"]';
+export const EditConnectionStringModalConfirmButton =
+  '[data-testid="edit-uri-confirmation-modal"] [role=dialog] > div:nth-child(2) button:first-child';
+
+// Rename saved item
+export const RenameSavedItemModal = '[data-testid="edit-item-modal"]';
+export const RenameSavedItemModalTextInput = `${RenameSavedItemModal} input[name="name"]`;
+export const RenameSavedItemModalSubmit = `${RenameSavedItemModal} button[type="submit"]`;
+
+// Delete saved item
+export const DeleteSavedItemModal = '[data-testid="delete-item-modal"]';
+export const DeleteSavedItemModallConfirmButton = `${DeleteSavedItemModal} [role=dialog] > div:nth-child(2) button:first-child`;
+
+// Open saved item
+export const OpenSavedItemModal = '[data-testid="open-item-modal"]';
+export const OpenSavedItemDatabaseField = `${OpenSavedItemModal} [data-testid="database-select-field"]`;
+export const OpenSavedItemCollectionField = `${OpenSavedItemModal} [data-testid="collection-select-field"]`;
+export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[type="submit"]`;
+
+// Duplicate view modal
+export const DuplicateViewModal = '[data-testid="duplicate-view-modal"]';
+export const DuplicateViewModalTextInput = `${DuplicateViewModal} #create-view-name`;
+export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} button[type="submit"]`;
+
+// Modify view
+export const ModifySourceBanner = '[data-testid="modify-source-banner"]';

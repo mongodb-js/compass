@@ -16,7 +16,7 @@ import type { RootState } from '../../modules';
 import { cancelAggregation, retryAggregation } from '../../modules/aggregation';
 import PipelineResultsList from './pipeline-results-list';
 import PipelineEmptyResults from './pipeline-empty-results';
-import { getDestinationNamespaceFromStage } from '../../utils/stage';
+import { getDestinationNamespaceFromStage, isOutputStage } from '../../utils/stage';
 import { getStageOperator } from '../../utils/stage';
 
 const containerStyles = css({
@@ -99,6 +99,7 @@ type PipelineResultsWorkspaceProps = {
   documents: Document[];
   isLoading?: boolean;
   isError?: boolean;
+  allDocsExpanded?: boolean;
   error?: string | null;
   isEmpty?: boolean;
   isMergeOrOutPipeline?: boolean;
@@ -113,6 +114,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
   ({
     documents,
     isLoading,
+    allDocsExpanded,
     error,
     isError,
     isEmpty,
@@ -174,7 +176,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
       );
     } else {
       results = (
-        <PipelineResultsList documents={documents} view={resultsViewType} />
+        <PipelineResultsList documents={documents} allDocsExpanded={allDocsExpanded} view={resultsViewType} />
       );
     }
 
@@ -200,7 +202,7 @@ const mapState = (state: RootState) => {
     isError: Boolean(error),
     isEmpty: documents.length === 0,
     resultsViewType: resultsViewType,
-    isMergeOrOutPipeline: ['$merge', '$out'].includes(stageOperator),
+    isMergeOrOutPipeline: isOutputStage(stageOperator),
     mergeOrOutDestination: getDestinationNamespaceFromStage(
       namespace,
       lastStage

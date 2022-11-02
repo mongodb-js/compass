@@ -132,7 +132,7 @@ export const toggleDatabaseExpanded = (id, force) => (dispatch, getState) => {
 /**
  * The change filterRegex action creator.
  *
- * @param {String} filterRegex - The filterRegex.
+ * @param {RegExp | null} filterRegex - The filterRegex.
  *
  * @returns {Object} The action.
  */

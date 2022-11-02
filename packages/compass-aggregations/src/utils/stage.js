@@ -5,8 +5,19 @@ import {
   ATLAS,
   TIME_SERIES,
   VIEW,
-  COLLECTION
+  COLLECTION,
+  OUT_STAGES
 } from '@mongodb-js/mongodb-constants';
+import { parseEJSON } from '../modules/pipeline-builder/pipeline-parser/utils';
+
+export const OUT_STAGE_PREVIEW_TEXT =
+  'The $out operator will cause the pipeline to persist ' +
+  'the results to the specified location (collection, S3, or Atlas). ' +
+  'If the collection exists it will be replaced.';
+
+export const MERGE_STAGE_PREVIEW_TEXT =
+  'The $merge operator will cause the pipeline to persist the results to ' +
+  'the specified location.';
 
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
@@ -79,10 +90,12 @@ export function getStageOperator(stage) {
  * Extracts destination collection from $merge and $out operators
  *
  * @see {@link https://www.mongodb.com/docs/manual/reference/operator/aggregation/merge/#syntax}
+ * @see {@link https://www.mongodb.com/docs/atlas/data-federation/supported-unsupported/pipeline/merge/#syntax}
  * @see {@link https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/#syntax}
+ * @see {@link https://www.mongodb.com/docs/atlas/data-federation/supported-unsupported/pipeline/out/#syntax}
  *
  * @param {string} namespace
- * @param {unknown} stage
+ * @param {import('mongodb').Document} stage
  * @returns {string}
  */
  export function getDestinationNamespaceFromStage(namespace, stage) {
@@ -90,11 +103,16 @@ export function getStageOperator(stage) {
   const stageValue = stage[stageOperator];
   const { database } = toNS(namespace);
   if (stageOperator === '$merge') {
-    const ns = typeof stage === 'string' ? stageValue : stageValue.into;
+    const ns = typeof stageValue === 'string' ? stageValue : stageValue.into;
+    if (ns.atlas) {
+      // TODO: Not handled currently and we need some time to figure out how to
+      // handle it so just skipping for now
+      return null;
+    }
     return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
   }
   if (stageOperator === '$out') {
-    if (stageValue.s3) {
+    if (stageValue.s3 || stageValue.atlas) {
       // TODO: Not handled currently and we need some time to figure out how to
       // handle it so just skipping for now
       return null;
@@ -104,3 +122,72 @@ export function getStageOperator(stage) {
   }
   return null;
 }
+
+const OUT_OPERATOR_NAMES = new Set(OUT_STAGES.map(stage => stage.value));
+
+/**
+ * @param {string} stageOperator 
+ * @returns {boolean}
+ */
+export function isOutputStage(stageOperator) {
+  return OUT_OPERATOR_NAMES.has(stageOperator);
+}
+
+const STAGE_OPERATOS_MAP = new Map(
+  STAGE_OPERATORS.map((stage) => [stage.value, stage])
+);
+
+/**
+ * @param {string} namespace 
+ * @param {string | undefined | null} stageOperator 
+ * @param {string | undefined | null} stageValue 
+ * @returns {{ description?: string, link?: string, destination?: string }}
+ */
+export function getStageInfo(namespace, stageOperator, stageValue) {
+  const stage = STAGE_OPERATOS_MAP.get(stageOperator);
+  return {
+    description: stage?.description,
+    link: stageOperator
+      ? `https://www.mongodb.com/docs/manual/reference/operator/aggregation/${stageOperator.replace(
+          /^\$/,
+          ''
+        )}`
+      : null,
+    destination: isOutputStage(stageOperator)
+      ? (() => {
+          try {
+            const stage = parseEJSON(`{${stageOperator}: ${stageValue}}`);
+            if (stage[stageOperator].s3) {
+              return 'S3 bucket';
+            }
+            if (
+              stage[stageOperator].atlas ||
+              stage[stageOperator].into?.atlas
+            ) {
+              return 'Atlas cluster';
+            }
+            return getDestinationNamespaceFromStage(namespace, stage);
+          } catch {
+            return null;
+          }
+        })()
+      : null
+  };
+}
+
+/**
+ * @param {import('mongodb').Document[]} pipeline
+ * @returns {string}
+ */
+ export const getLastStageOperator = (pipeline) => {
+  const lastStage = pipeline[pipeline.length - 1];
+  return getStageOperator(lastStage) ?? ''
+};
+
+/**
+ * @param {import('mongodb').Document[]} pipeline
+ * @returns {boolean}
+ */
+export const isLastStageOutputStage = (pipeline) => {
+  return isOutputStage(getLastStageOperator(pipeline));
+};

@@ -2,16 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
 import {
-  Modal,
-  ModalTitle,
+  FormModal,
   css,
   spacing,
-  Button,
-  ModalFooter,
   focusRing,
 } from '@mongodb-js/compass-components';
 
 import PrivacySettings from './settings/privacy';
+import ThemeSettings from './settings/theme';
 import Sidebar from './sidebar';
 import { updateSettings } from '../stores/updated-fields';
 import { fetchSettings } from '../stores/settings';
@@ -45,16 +43,10 @@ const settingsStyles = css(
   focusRing
 );
 
-const footerStyles = css({
-  display: 'flex',
-  justifyContent: 'flex-end',
-  flexDirection: 'row',
-  gap: spacing[2],
-  paddingRight: 0,
-  paddingBottom: 0,
-});
-
-const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
+const settings: Settings[] = [
+  { name: 'Privacy', component: PrivacySettings },
+  { name: 'Theme', component: ThemeSettings },
+];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,
@@ -89,15 +81,15 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   }
 
   return (
-    <Modal
+    <FormModal
       size="large"
+      title="Settings"
       open={isOpen}
-      setOpen={closeModal}
+      submitButtonText="Save"
+      onSubmit={saveSettings}
+      onCancel={closeModal}
       data-testid="settings-modal"
     >
-      <ModalTitle id="settings-tablist" data-testid="settings-modal-title">
-        Settings
-      </ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar
@@ -117,23 +109,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           {SettingComponent && <SettingComponent />}
         </div>
       </div>
-      <ModalFooter className={footerStyles}>
-        <Button
-          data-testid="cancel-settings-button"
-          variant="default"
-          onClick={closeModal}
-        >
-          Cancel
-        </Button>
-        <Button
-          data-testid="save-settings-button"
-          variant="primary"
-          onClick={saveSettings}
-        >
-          Save
-        </Button>
-      </ModalFooter>
-    </Modal>
+    </FormModal>
   );
 };
 

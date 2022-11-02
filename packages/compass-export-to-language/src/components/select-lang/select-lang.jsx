@@ -14,14 +14,14 @@ class SelectLang extends PureComponent {
     outputLangChanged: PropTypes.func.isRequired,
     inputExpression: PropTypes.object.isRequired,
     outputLang: PropTypes.string.isRequired,
-    runTranspiler: PropTypes.func.isRequired
-  }
+    runTranspiler: PropTypes.func.isRequired,
+  };
 
   // save state, and pass in the currently selected lang
   handleOutputSelect = (outputLang) => {
     this.props.outputLangChanged(outputLang.value);
     this.props.runTranspiler(this.props.inputExpression);
-  }
+  };
 
   render() {
     const selectedOutputValue = this.props.outputLang || '';
@@ -32,9 +32,9 @@ class SelectLang extends PureComponent {
       { value: 'csharp', label: 'C#' },
       { value: 'python', label: 'Python 3' },
       { value: 'ruby', label: 'Ruby' },
-      { value: 'go', label: 'Go'},
+      { value: 'go', label: 'Go' },
       { value: 'rust', label: 'Rust' },
-      { value: 'php', label: 'PHP' }
+      { value: 'php', label: 'PHP' },
     ];
 
     return (
@@ -46,7 +46,8 @@ class SelectLang extends PureComponent {
         placeholder="Python"
         value={selectedOutputValue}
         onChange={this.handleOutputSelect}
-        options={langOuputOptions}/>
+        options={langOuputOptions}
+      />
     );
   }
 }

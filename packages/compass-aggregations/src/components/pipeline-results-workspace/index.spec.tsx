@@ -16,6 +16,7 @@ const renderPipelineResultsWorkspace = (
       <PipelineResultsWorkspace
         documents={[]}
         isLoading={false}
+        allDocsExpanded={false}
         isError={false}
         isEmpty={false}
         isMergeOrOutPipeline={false}

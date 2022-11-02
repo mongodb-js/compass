@@ -1,20 +1,21 @@
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import type { PipelineBuilder } from './pipeline-builder';
 import { loadPreviewForStagesFrom } from './stage-editor';
+import { loadPreviewForPipeline } from './text-editor-pipeline';
 
 export const updatePipelinePreview =
   (): PipelineBuilderThunkAction<void> =>
-  (dispatch, getState, { pipelineBuilder }) => {
-    // Stop unconditionally (we might not start again based on the autoPreview
-    // state and stages validity)
-    pipelineBuilder.stopPreview();
+    (dispatch, getState, { pipelineBuilder }) => {
+      // Stop unconditionally (we might not start again based on the autoPreview
+      // state and stages validity)
+      pipelineBuilder.stopPreview();
 
-    if (getState().pipelineBuilder.pipelineMode === 'builder-ui') {
-      dispatch(loadPreviewForStagesFrom(0));
-    } else {
-      // TODO: dispatch for text editor
-    }
-  };
+      if (getState().pipelineBuilder.pipelineMode === 'builder-ui') {
+        dispatch(loadPreviewForStagesFrom(0));
+      } else {
+        void dispatch(loadPreviewForPipeline());
+      }
+    };
 
 export function getStagesFromBuilderState(
   state: RootState,
@@ -23,8 +24,7 @@ export function getStagesFromBuilderState(
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return pipelineBuilder.stages.map((stage) => stage.toBSON());
   } else {
-    // TODO
-    return [];
+    return pipelineBuilder.getPipelineFromSource();
   }
 }
 
@@ -55,19 +55,22 @@ export function getPipelineStageOperatorsFromBuilderState(
 ): string[] {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages
+      .filter((stage) => !stage.disabled)
       .map((stage) => stage.stageOperator)
       .filter(Boolean) as string[];
   }
-  // TODO
-  return [];
+  return state.pipelineBuilder.textEditor.pipeline.stageOperators;
 }
 
-export function getIsPipelineValidFromBuilderState(state: RootState): boolean {
+export function getIsPipelineInvalidFromBuilderState(
+  state: RootState,
+  includeServerErrors = true,
+): boolean {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages.some(
-      (stage) => !stage.disabled && (stage.syntaxError || stage.serverError)
+      (stage) => !stage.disabled && (stage.syntaxError || (stage.serverError && includeServerErrors))
     );
   }
-  // TODO
-  return true;
+  const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor.pipeline;
+  return Boolean((serverError && includeServerErrors) || syntaxErrors.length > 0);
 }
