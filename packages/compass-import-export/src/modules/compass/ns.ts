@@ -1,3 +1,5 @@
+import type { AnyAction } from 'redux';
+
 /**
  * Action for the ns changing.
  */
@@ -8,14 +10,7 @@ const NS_CHANGED = 'import-export/ns/NS_CHANGED';
  */
 const INITIAL_STATE = '';
 
-/**
- * Create a ns changed action.
- *
- * @param {String} ns - The namespace.
- *
- * @returns {Object} The action.
- */
-const nsChanged = (ns) => ({ type: NS_CHANGED, ns });
+const nsChanged = (ns: string) => ({ type: NS_CHANGED, ns });
 
 /**
  * Handle ns changes on the state.
@@ -25,7 +20,7 @@ const nsChanged = (ns) => ({ type: NS_CHANGED, ns });
  *
  * @returns {String} The state.
  */
-const reducer = (state = INITIAL_STATE, action) => {
+const reducer = (state = INITIAL_STATE, action: AnyAction) => {
   if (action.type === NS_CHANGED) {
     return action.ns;
   }

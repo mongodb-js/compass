@@ -6,7 +6,7 @@ import ProgressBar from '../progress-bar';
 import { FILETYPE } from '../../constants/export-step';
 import styles from './export-select-output.module.less';
 import React, { PureComponent } from 'react';
-import createStyler from '../../utils/styler.js';
+import createStyler from '../../utils/styler';
 import PropTypes from 'prop-types';
 import { FormGroup, InputGroup, FormControl } from 'react-bootstrap';
 import {
