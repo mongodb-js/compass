@@ -13,7 +13,7 @@ import {
   Checkbox,
   Banner,
   spacing,
-  SelectSize
+  SelectSize,
 } from '@mongodb-js/compass-components';
 import { modalOpenChanged } from '../modules/modal-open';
 
@@ -126,12 +126,12 @@ function runTranspiler({
 }
 
 const bannerStyles = css({
-  marginBottom: spacing[3]
+  marginBottom: spacing[3],
 });
 
 const editorsStyles = css({
   display: 'flex',
-  gap: spacing[3]
+  gap: spacing[3],
 });
 
 const editorStyles = css({
@@ -149,7 +149,7 @@ const outputHeadingStyles = css({
 });
 
 const selectStyles = css({
-  width: spacing[6]*2,
+  width: spacing[6] * 2,
 });
 
 const codeStyles = css({
@@ -160,7 +160,7 @@ const codeStyles = css({
 const checkboxStyles = css({
   marginTop: spacing[2],
   // prevent an extra couple of pixels that always causes the modal to scroll unnecessarily
-  overflow: 'hidden'
+  overflow: 'hidden',
 });
 
 function outputLanguageToCodeLanguage(language: OutputLanguage) {
@@ -179,13 +179,7 @@ const ExportToLanguageModal: React.FunctionComponent<
   ExportToLanguageState & {
     modalOpenChanged: (isOpen: boolean) => void;
   }
-> = ({
-  modalOpen,
-  modalOpenChanged,
-  inputExpression,
-  uri,
-  namespace,
-}) => {
+> = ({ modalOpen, modalOpenChanged, inputExpression, uri, namespace }) => {
   const [outputLanguage, setOutputLanguage] =
     useState<OutputLanguage>('python');
   const [includeImports, setIncludeImports] = useState<boolean>(false);
@@ -225,7 +219,10 @@ const ExportToLanguageModal: React.FunctionComponent<
 
   const includeUseBuilders = outputLanguage === 'java' && mode === 'Query';
 
-  const input = 'aggregation' in inputExpression ? inputExpression.aggregation : inputExpression.filter;
+  const input =
+    'aggregation' in inputExpression
+      ? inputExpression.aggregation
+      : inputExpression.filter;
 
   return (
     <InfoModal
@@ -233,12 +230,20 @@ const ExportToLanguageModal: React.FunctionComponent<
       onClose={onClose}
       title={`Export ${mode} To Language`}
       size="large"
-
     >
-      {errorMessage && <Banner variant="danger" className={bannerStyles}>{errorMessage}</Banner>}
+      {errorMessage && (
+        <Banner variant="danger" className={bannerStyles}>
+          {errorMessage}
+        </Banner>
+      )}
       <div className={editorsStyles}>
         <div className={editorStyles}>
-          <Body data-testid="export-to-language-export-from" className={editorHeadingStyles}>My {mode}:</Body>
+          <Body
+            data-testid="export-to-language-export-from"
+            className={editorHeadingStyles}
+          >
+            My {mode}:
+          </Body>
           <Code
             className={codeStyles}
             data-testid="export-to-language-input"
@@ -250,7 +255,12 @@ const ExportToLanguageModal: React.FunctionComponent<
         </div>
         <div className={editorStyles}>
           <div className={outputHeadingStyles}>
-            <Body id="export-to-language-export-to" className={editorHeadingStyles}>Export {mode} to:</Body>
+            <Body
+              id="export-to-language-export-to"
+              className={editorHeadingStyles}
+            >
+              Export {mode} to:
+            </Body>
             <Select
               className={selectStyles}
               aria-labelledby="export-to-language-export-to"
