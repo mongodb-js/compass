@@ -10,6 +10,15 @@ import {
 } from '@mongodb-js/mongodb-constants';
 import { parseEJSON } from '../modules/pipeline-builder/pipeline-parser/utils';
 
+export const OUT_STAGE_PREVIEW_TEXT =
+  'The $out operator will cause the pipeline to persist ' +
+  'the results to the specified location (collection, S3, or Atlas). ' +
+  'If the collection exists it will be replaced.';
+
+export const MERGE_STAGE_PREVIEW_TEXT =
+  'The $merge operator will cause the pipeline to persist the results to ' +
+  'the specified location.';
+
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
   return semver.gte(versionWithoutPrerelease, operator?.version);
@@ -86,7 +95,7 @@ export function getStageOperator(stage) {
  * @see {@link https://www.mongodb.com/docs/atlas/data-federation/supported-unsupported/pipeline/out/#syntax}
  *
  * @param {string} namespace
- * @param {unknown} stage
+ * @param {import('mongodb').Document} stage
  * @returns {string}
  */
  export function getDestinationNamespaceFromStage(namespace, stage) {
@@ -94,7 +103,7 @@ export function getStageOperator(stage) {
   const stageValue = stage[stageOperator];
   const { database } = toNS(namespace);
   if (stageOperator === '$merge') {
-    const ns = typeof stage === 'string' ? stageValue : stageValue.into;
+    const ns = typeof stageValue === 'string' ? stageValue : stageValue.into;
     if (ns.atlas) {
       // TODO: Not handled currently and we need some time to figure out how to
       // handle it so just skipping for now
@@ -165,3 +174,20 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
       : null
   };
 }
+
+/**
+ * @param {import('mongodb').Document[]} pipeline
+ * @returns {string}
+ */
+ export const getLastStageOperator = (pipeline) => {
+  const lastStage = pipeline[pipeline.length - 1];
+  return getStageOperator(lastStage) ?? ''
+};
+
+/**
+ * @param {import('mongodb').Document[]} pipeline
+ * @returns {boolean}
+ */
+export const isLastStageOutputStage = (pipeline) => {
+  return isOutputStage(getLastStageOperator(pipeline));
+};
