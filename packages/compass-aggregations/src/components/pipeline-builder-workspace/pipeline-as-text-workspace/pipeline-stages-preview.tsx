@@ -39,7 +39,7 @@ const actionButtonStyles = css({
 });
 
 type OutputStageProps = {
-  stageOperator: '$out' | '$merge';
+  stageOperator: '$out' | '$merge' | null;
   isAtlas: boolean;
   isLoading: boolean;
   isComplete: boolean;
@@ -84,6 +84,9 @@ export const OutputStagePreview = ({
   onSaveCollection,
   onOpenCollection,
 }: OutputStageProps) => {
+  if (!stageOperator) {
+    return null;
+  }
   if (isComplete && isAtlas) {
     return (
       <PipelineStageBanner

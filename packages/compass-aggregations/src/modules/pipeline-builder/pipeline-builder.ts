@@ -117,12 +117,13 @@ export class PipelineBuilder {
    */
   getPreviewForPipeline(
     namespace: string,
-    options: PreviewOptions
+    options: PreviewOptions,
+    filterOutputStage = false,
   ): Promise<Document[]> {
     // For preview we ignore $out/$merge stage.
     const pipeline = [...this.getPipelineFromSource()];
-    if (isLastStageOutputStage(pipeline)) {
-      pipeline.splice(pipeline.length - 1, 1);
+    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+      pipeline.pop();
     }
     return this.previewManager.getPreviewForStage(
       pipeline.length - 1,

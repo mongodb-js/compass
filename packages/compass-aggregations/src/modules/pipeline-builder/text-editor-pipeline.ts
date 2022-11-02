@@ -180,7 +180,8 @@ export const loadPreviewForPipeline = (
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
         namespace,
-        options
+        options,
+        true, // Filter output stage
       );
 
       dispatch({

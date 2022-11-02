@@ -117,7 +117,7 @@ describe('PipelineBuilder', function () {
     mock.restore();
   });
 
-  it('gets preview for pipeline with output stage', async function() {
+  it('gets preview for pipeline with output stage when filtering it out', async function() {
     const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
     pipelineBuilder.reset(pipeline);
 
@@ -126,11 +126,20 @@ describe('PipelineBuilder', function () {
       .withArgs(1, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
       .returns([{_id: 1}, {_id: 2}]);
 
-    const data = await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {});
+    const data = await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {}, true);
     expect(data).to.deep.equal([{_id: 1}, {_id: 2}]);
 
     mock.verify();
     mock.restore();
+  });
+
+  it('throws when previewing a pipeline with output stage and not fitlering it out', function() {
+    const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
+    pipelineBuilder.reset(pipeline);
+
+    expect(async () => {
+      await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {})
+    }).to.throw;
   });
 
   it('should handle leading and trailing stages of the pipeline', function () {
