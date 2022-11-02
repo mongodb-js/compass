@@ -105,6 +105,7 @@ export {
 export {
   withTheme,
   useTheme,
+  useDarkMode,
   Theme,
   ThemeState,
   ThemeProvider,

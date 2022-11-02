@@ -59,6 +59,7 @@ export interface ConnectFormState {
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
   isDirty: boolean;
+  allowEditingIfProtected: boolean;
 }
 
 type Action =
@@ -192,13 +193,16 @@ function buildStateFromConnectionInfo(
   const [, errors] = parseConnectionString(
     initialConnectionInfo.connectionOptions.connectionString
   );
+  // Only enable connection string editing (and in particular, doing so in
+  // protected connection strings mode) when it's the default connection
+  // string and the connection has not been connected to (saved recent/favorite).
+  const isNewDefaultConnection =
+    initialConnectionInfo.connectionOptions.connectionString ===
+      defaultConnectionString && !initialConnectionInfo.lastUsed;
   return {
     errors: errors,
-    // Only enable connection string editing when it's the default connection
-    // string and the connection has not been connected to (saved recent/favorite).
-    enableEditingConnectionString:
-      initialConnectionInfo.connectionOptions.connectionString ===
-        defaultConnectionString && !initialConnectionInfo.lastUsed,
+    enableEditingConnectionString: isNewDefaultConnection,
+    allowEditingIfProtected: isNewDefaultConnection,
     warnings: errors?.length
       ? []
       : validateConnectionOptionsWarnings(
@@ -638,6 +642,7 @@ function setInitialState({
       enableEditingConnectionString,
       warnings,
       connectionOptions,
+      allowEditingIfProtected,
     } = buildStateFromConnectionInfo(initialConnectionInfo);
 
     dispatch({
@@ -648,6 +653,7 @@ function setInitialState({
         warnings,
         connectionOptions,
         isDirty: false,
+        allowEditingIfProtected,
       },
     });
   }, [initialConnectionInfo]);

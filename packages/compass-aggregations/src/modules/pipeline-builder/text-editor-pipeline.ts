@@ -12,19 +12,18 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import type { PipelineBuilder } from './pipeline-builder';
 import { getStageOperator } from '../../utils/stage';
 import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 
 export const enum EditorActionTypes {
-  EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetch',
-  EditorPreviewFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetchSuccess',
-  EditorPreviewFetchError = 'compass-aggregations/pipeline-builder/text-editor/TextEditorPreviewFetchError',
-  EditorValueChange = 'compass-aggregations/pipeline-builder/text-editor/TextEditorValueChange',
+  EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
+  EditorPreviewFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchSuccess',
+  EditorPreviewFetchError = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchError',
+  EditorValueChange = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorValueChange',
 };
 
-type EditorValueChangeAction = {
+export type EditorValueChangeAction = {
   type: EditorActionTypes.EditorValueChange;
   pipelineText: string;
   pipeline: Document[] | null;
@@ -50,7 +49,7 @@ export type TextEditorState = {
   stageOperators: string[];
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
-  loading: boolean;
+  isLoading: boolean;
   previewDocs: Document[] | null;
 };
 
@@ -59,7 +58,7 @@ const INITIAL_STATE: TextEditorState = {
   stageOperators: [],
   syntaxErrors: [],
   serverError: null,
-  loading: false,
+  isLoading: false,
   previewDocs: null,
 };
 
@@ -100,7 +99,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       ...state,
       previewDocs: null,
       serverError: null,
-      loading: true,
+      isLoading: true,
     };
   }
 
@@ -114,7 +113,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       ...state,
       serverError: null,
       syntaxErrors: [],
-      loading: false,
+      isLoading: false,
       previewDocs: action.previewDocs,
     };
   }
@@ -129,7 +128,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       ...state,
       serverError: action.serverError,
       syntaxErrors: [],
-      loading: false,
+      isLoading: false,
       previewDocs: null,
     };
   }
@@ -137,9 +136,11 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-function canRunPipeline(pipelineBuilder: PipelineBuilder, stageOperators: string[]) {
-  const containsOutOrMerge = stageOperators.includes('$out') || stageOperators.includes('$merge');
-  return pipelineBuilder.syntaxError.length === 0 && !containsOutOrMerge;
+export function canRunPipeline(
+  autoPreview: boolean,
+  syntaxErrors: PipelineParserError[],
+) {
+  return autoPreview && syntaxErrors.length === 0;
 };
 
 export const loadPreviewForPipeline = (
@@ -152,14 +153,15 @@ export const loadPreviewForPipeline = (
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       autoPreview,
-      pipelineBuilder: {
-        textEditor: {
-          stageOperators,
-        }
-      }
+      namespace,
+      maxTimeMS,
+      collationString,
+      limit,
+      largeLimit,
+      inputDocuments
     } = getState();
 
-    if (!autoPreview || !canRunPipeline(pipelineBuilder, stageOperators)) {
+    if (!canRunPipeline(autoPreview, pipelineBuilder.syntaxError)) {
       return;
     }
 
@@ -168,26 +170,18 @@ export const loadPreviewForPipeline = (
         type: EditorActionTypes.EditorPreviewFetch,
       });
 
-      const {
-        namespace,
-        maxTimeMS,
-        collationString,
-        limit,
-        largeLimit,
-        inputDocuments
-      } = getState();
-
       const options: PreviewOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count
+        totalDocumentCount: inputDocuments.count,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForPipeline(
         namespace,
-        options
+        options,
+        true, // Filter output stage
       );
 
       dispatch({
@@ -220,6 +214,5 @@ export const changeEditorValue = (
     void dispatch(loadPreviewForPipeline());
   };
 };
-
 
 export default reducer;

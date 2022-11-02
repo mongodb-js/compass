@@ -1,8 +1,5 @@
 import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
-import mongodbQueryParser from 'mongodb-query-parser';
-import parseEJSON, { ParseMode } from 'ejson-shell-parser';
-
 import {
   isNodeDisabled,
   setNodeDisabled,
@@ -11,9 +8,8 @@ import {
   getStageOperatorFromNode,
   isStageLike,
 } from './pipeline-parser/stage-parser';
-import { PipelineParserError } from './pipeline-parser/utils';
-
-const PARSE_ERROR = 'Stage must be a properly formatted document.';
+import type { PipelineParserError } from './pipeline-parser/utils';
+import { parseEJSON } from './pipeline-parser/utils';
 
 function createStageNode({
   key,
@@ -36,15 +32,6 @@ function createStageNode({
       } as t.ObjectProperty
     ]
   };
-}
-
-function assertStageValue(value: string) {
-  // mongodbQueryParser will either throw or return an
-  // empty string if input is not a valid query
-  const parsed = (mongodbQueryParser as any)(value);
-  if (parsed === '') {
-    throw new PipelineParserError(PARSE_ERROR);
-  }
 }
 
 export function stageToString(operator: string, value: string, disabled: boolean): string {
@@ -97,7 +84,6 @@ export default class Stage {
         this.node.properties[0].value = babelParser.parseExpression(value);
       }
       assertStageNode(this.node);
-      assertStageValue(value);
       this.syntaxError = null;
     } catch (e) {
       this.syntaxError = e as PipelineParserError;
@@ -139,6 +125,6 @@ export default class Stage {
     if (this.disabled) {
       return null;
     }
-    return parseEJSON(this.toString(), { mode: ParseMode.Loose });
+    return parseEJSON(this.toString());
   }
 }

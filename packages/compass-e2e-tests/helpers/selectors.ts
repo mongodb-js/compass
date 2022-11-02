@@ -880,7 +880,7 @@ export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 // Export modal
 export const ExportModal = '[data-testid="export-modal"]';
 export const ExportModalQueryText =
-  '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"] .ace_text-layer';
+  '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"]';
 export const ExportModalFullCollectionOption =
   '[data-testid="export-modal"] [data-testid="export-full-collection"]';
 export const ExportModalSelectFieldsButton =
