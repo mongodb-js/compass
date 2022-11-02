@@ -8,7 +8,7 @@ import FILE_TYPES from '../../constants/file-types';
 import { SelectFileType } from '../select-file-type';
 
 import styles from './import-options.module.less';
-import createStyler from '../../utils/styler.js';
+import createStyler from '../../utils/styler';
 const style = createStyler(styles, 'import-options');
 
 const fileInputStyles = css({

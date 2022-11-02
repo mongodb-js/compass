@@ -1,5 +1,9 @@
 export default function fileOpenDialog() {
-  const { dialog, getCurrentWindow } = require('@electron/remote');
+  const {
+    dialog,
+    getCurrentWindow,
+  }: // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/consistent-type-imports
+  typeof import('@electron/remote') = require('@electron/remote');
 
   const filters = [
     { name: 'All Files', extensions: ['*'] },
