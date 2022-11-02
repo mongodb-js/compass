@@ -43,7 +43,7 @@ const DEFAULT_HEIGHT = (() => {
   return height;
 })();
 
-const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1024;
+const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1025;
 const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
 
 /**
