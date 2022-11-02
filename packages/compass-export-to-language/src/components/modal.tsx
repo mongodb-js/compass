@@ -12,6 +12,7 @@ import {
   Checkbox,
   Banner,
   spacing,
+  FormFieldContainer
 } from '@mongodb-js/compass-components';
 import type { Language } from '@mongodb-js/compass-components';
 import { modalOpenChanged } from '../modules/modal-open';
@@ -170,10 +171,6 @@ const outputStyles = css({
   height: spacing[6]*2,
 });
 
-const firstCheckboxStyles = css({
-  marginTop: spacing[4],
-});
-
 const checkboxStyles = css({
   marginTop: spacing[2],
   // prevent an extra couple of pixels that always causes the modal to scroll unnecessarily
@@ -200,27 +197,6 @@ function codeLanguageToOutputLanguage(language: string) {
 
   return language;
 }
-
-/*
-
-            <Select
-              className={selectStyles}
-              aria-labelledby="export-to-language-export-to-label"
-              size={SelectSize.XSmall}
-              value={outputLanguage}
-              onChange={(value) => setOutputLanguage(value as OutputLanguage)}
-              allowDeselect={false}
-            >
-              <Option value="csharp">C#</Option>
-              <Option value="go">Go</Option>
-              <Option value="java">Java</Option>
-              <Option value="javascript">Node</Option>
-              <Option value="php">PHP</Option>
-              <Option value="python">Python</Option>
-              <Option value="ruby">Ruby</Option>
-              <Option value="rust">Rust</Option>
-            </Select>
-*/
 
 const ExportToLanguageModal: React.FunctionComponent<
   ExportToLanguageState & {
@@ -283,7 +259,7 @@ const ExportToLanguageModal: React.FunctionComponent<
           {errorMessage}
         </Banner>
       )}
-      <div className={editorsStyles}>
+      <FormFieldContainer className={editorsStyles}>
         <div className={editorStyles}>
           <Label
             data-testid="export-to-language-export-from"
@@ -322,9 +298,9 @@ const ExportToLanguageModal: React.FunctionComponent<
             {transpiledExpression || ''}
           </Code>
         </div>
-      </div>
+      </FormFieldContainer>
       <Checkbox
-        className={cx(checkboxStyles, firstCheckboxStyles)}
+        className={checkboxStyles}
         data-testid="export-to-language-include-imports"
         onChange={() => setIncludeImports(!includeImports)}
         label="Include Import Statements"
