@@ -66,6 +66,7 @@
   },
   "devDependencies": {
     "@mongodb-js/compass-components": "^1.3.0",
+    "@mongodb-js/compass-maybe-protect-connection-string": "^0.1.0",
     "@mongodb-js/eslint-config-compass": "^1.0.1",
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",

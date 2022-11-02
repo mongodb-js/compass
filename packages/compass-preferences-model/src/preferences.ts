@@ -20,6 +20,7 @@ export type UserConfigurablePreferences = {
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
   networkTraffic: boolean;
+  protectConnectionStrings?: boolean;
   theme: THEMES;
 };
 
@@ -319,6 +320,21 @@ const modelPreferencesProps: Required<{
       long: 'Allow Compass to periodically check for new updates.',
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
+  },
+  /**
+   * Switch to hide credentials in connection strings from users.
+   */
+  protectConnectionStrings: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Protect Connection String Secrets',
+      long: 'Hide credentials in connection strings from users.',
+    },
   },
 };
 

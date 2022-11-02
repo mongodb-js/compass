@@ -1,7 +1,11 @@
+import preferences from 'compass-preferences-model';
 import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
 import compiler from 'bson-transpilers';
 import configureStore from './';
+import { uriChanged } from '../modules/uri';
+import { driverChanged } from '../modules/driver';
+import sinon from 'sinon';
 
 const subscribeCheck = (s, pipeline, check, done) => {
   const unsubscribe = s.subscribe(function () {
@@ -89,6 +93,38 @@ describe('ExportToLanguage Store', function () {
         );
         appRegistry.emit('open-aggregation-export-to-language', agg);
       });
+
+      for (const protectConnectionStrings of [false, true]) {
+        context(
+          `when protect connection strings is ${protectConnectionStrings}`,
+          function () {
+            let sandbox;
+            beforeEach(function () {
+              sandbox = sinon.createSandbox();
+              sandbox
+                .stub(preferences, 'getPreferences')
+                .returns({ protectConnectionStrings });
+            });
+            afterEach(function () {
+              return sandbox.restore();
+            });
+
+            it('showes/hides the connection string as appropriate', function (done) {
+              unsubscribe = subscribeCheck(
+                store,
+                agg,
+                (s) =>
+                  s.transpiledExpression.includes('foo:bar') ===
+                  !protectConnectionStrings,
+                done
+              );
+              store.dispatch(uriChanged('mongodb://foo:bar@mongodb.net'));
+              store.dispatch(driverChanged(true));
+              appRegistry.emit('open-aggregation-export-to-language', agg);
+            });
+          }
+        );
+      }
     });
 
     describe('when query opens export to language with imperfect fields', function () {
