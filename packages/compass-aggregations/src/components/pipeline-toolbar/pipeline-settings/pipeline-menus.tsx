@@ -47,13 +47,16 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
   };
   const actions = useMemo(
     () =>
-      [
-        ...saveMenuActions,
-        isCreateViewAvailable && {
-          action: 'createView',
-          label: 'Create view',
-        },
-      ].filter(Boolean) as MenuAction<SaveMenuActions>[],
+      saveMenuActions.concat(
+        isCreateViewAvailable
+          ? [
+              {
+                action: 'createView',
+                label: 'Create view',
+              },
+            ]
+          : []
+      ),
     [isCreateViewAvailable]
   );
   return (

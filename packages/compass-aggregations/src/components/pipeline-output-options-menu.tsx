@@ -4,8 +4,8 @@ import type { MenuAction } from '@mongodb-js/compass-components';
 
 export type PipelineOutputOption = 'expand' | 'collapse';
 const pipelineOptionsActions: MenuAction<PipelineOutputOption>[] = [
-  { action: 'collapse', label: 'Collapse' },
-  { action: 'expand', label: 'Expand' },
+  { action: 'collapse', label: 'Collapse all fields' },
+  { action: 'expand', label: 'Expand all fields' },
 ];
 
 export const PipelineOutputOptionsMenu: React.FunctionComponent<{
