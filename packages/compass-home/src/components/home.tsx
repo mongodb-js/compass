@@ -6,6 +6,7 @@ import {
   ThemeProvider,
   ToastArea,
   palette,
+  Body,
 } from '@mongodb-js/compass-components';
 import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -385,27 +386,29 @@ function ThemedHome(
   return (
     <LeafyGreenProvider>
       <ThemeProvider theme={theme}>
-        {showWelcomeModal && (
-          <Welcome
-            isOpen={isWelcomeOpen}
-            closeModal={closeWelcomeModal}
-            networkTraffic={networkTraffic}
-          />
-        )}
-        <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
-        <ToastArea>
-          <div
-            className={cx(
-              homeContainerStyles,
-              theme.theme === Theme.Dark
-                ? globalDarkThemeStyles
-                : globalLightThemeStyles
-            )}
-            data-theme={theme.theme}
-          >
-            <Home {...props}></Home>
-          </div>
-        </ToastArea>
+        <Body as="div">
+          {showWelcomeModal && (
+            <Welcome
+              isOpen={isWelcomeOpen}
+              closeModal={closeWelcomeModal}
+              networkTraffic={networkTraffic}
+            />
+          )}
+          <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+          <ToastArea>
+            <div
+              className={cx(
+                homeContainerStyles,
+                theme.theme === Theme.Dark
+                  ? globalDarkThemeStyles
+                  : globalLightThemeStyles
+              )}
+              data-theme={theme.theme}
+            >
+              <Home {...props}></Home>
+            </div>
+          </ToastArea>
+        </Body>
       </ThemeProvider>
     </LeafyGreenProvider>
   );
