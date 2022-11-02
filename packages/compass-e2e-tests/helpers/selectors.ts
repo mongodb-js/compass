@@ -493,7 +493,8 @@ export const DocumentListError = '[data-testid="document-list-error-summary"]';
 export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
 export const InsertDocumentOption =
   '[data-testid="crud-add-data-insert-document-action"]';
-export const ImportFileOption = '[data-testid="crud-add-data-import-file-action"]';
+export const ImportFileOption =
+  '[data-testid="crud-add-data-import-file-action"]';
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';

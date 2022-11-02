@@ -320,7 +320,7 @@ export function DropdownMenuButton<Action extends string>({
   usePortal?: boolean;
   iconSize?: ItemActionButtonSize;
   isVisible?: boolean;
-  activeAction: Action;
+  activeAction?: Action;
   'data-testid'?: string;
   buttonText: string;
   buttonProps: ButtonProps;
