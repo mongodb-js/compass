@@ -133,13 +133,17 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   const docCount = previewDocs?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
-  const stageOperator = isMergeStage ? '$merge' : isOutStage ? '$out' : null
+  const stageOperator = isMergeStage ? '$merge' : isOutStage ? '$out' : null;
   return (
     <div className={containerStyles} data-testid="pipeline-as-text-preview">
       <div className={previewHeaderStyles}>
         <div>
           <Overline>Pipeline Output</Overline>
-          {shouldShowCount && <Body>Sample of ${docCount} ${docText}</Body>}
+          {shouldShowCount && (
+            <Body>
+              Sample of {docCount} {docText}
+            </Body>
+          )}
         </div>
         <div className={pipelineOutputMenuStyles}>
           <PipelineOutputOptionsMenu
