@@ -16,7 +16,7 @@ const containerStyles = css({
 
 const PipelineResultsList: React.FunctionComponent<{
   documents: Document[];
-  allDocsExpanded: boolean;
+  allDocsExpanded?: boolean;
   view: ResultsViewType;
 }> = ({ documents, allDocsExpanded, view }) => {
   const listProps = useMemo(

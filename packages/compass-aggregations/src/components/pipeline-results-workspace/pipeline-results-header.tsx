@@ -20,13 +20,19 @@ type PipelineResultsHeaderProps = {
 
 const containerStyles = css({
   display: 'flex',
-  justifyContent: 'space-between',
   alignItems: 'center',
+  gap: spacing[2],
 });
 
-const groupStyles = css({
+const pipelineOptionsStyles = css({
   display: 'flex',
   gap: spacing[2],
+});
+
+const pipelinePaginationStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+  marginLeft: 'auto',
 });
 
 export const PipelineResultsHeader: React.FunctionComponent<
@@ -43,18 +49,16 @@ export const PipelineResultsHeader: React.FunctionComponent<
   }
   return (
     <div className={containerStyles} data-testid="pipeline-results-header">
-      {process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' ? (
-        <div className={groupStyles}>
+      {process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' && (
+        <div className={pipelineOptionsStyles}>
           <Overline>All Results</Overline>
           <PipelineOutputOptionsMenu
             option={pipelineOutputOption}
             onChangeOption={onChangePipelineOutputOption}
           />
         </div>
-      ) : (
-        <div />
       )}
-      <div className={groupStyles}>
+      <div className={pipelinePaginationStyles}>
         <PipelinePagination />
         <PipelineResultsViewControls
           value={resultsViewType}

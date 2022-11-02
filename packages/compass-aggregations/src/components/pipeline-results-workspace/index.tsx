@@ -99,7 +99,7 @@ type PipelineResultsWorkspaceProps = {
   documents: Document[];
   isLoading?: boolean;
   isError?: boolean;
-  allDocsExpanded: boolean;
+  allDocsExpanded?: boolean;
   error?: string | null;
   isEmpty?: boolean;
   isMergeOrOutPipeline?: boolean;
