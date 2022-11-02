@@ -6,18 +6,33 @@ import jsBeautify from 'js-beautify';
 import {
   InfoModal,
   css,
-  Body,
-  Select,
-  Option,
+  cx,
+  Label,
   Code,
   Checkbox,
   Banner,
   spacing,
-  SelectSize,
 } from '@mongodb-js/compass-components';
+import type { Language } from '@mongodb-js/compass-components';
 import { modalOpenChanged } from '../modules/modal-open';
 
 // TODO: bring back the tracking that the old export modal had around opening the modal and copying the text
+
+type LanguageOption = {
+  displayName: string;
+  language: Language;
+}
+
+const languageOptions: LanguageOption[] = [
+  { displayName: 'Java', language: 'java' },
+  { displayName: 'Javascript', language: 'javascript' },
+  { displayName: 'C#', language: 'cs' },
+  { displayName: 'Python', language: 'python' },
+  { displayName: 'Ruby', language: 'ruby' },
+  { displayName: 'Go', language: 'go' },
+  { displayName: 'Rust', language: 'rust' },
+  { displayName: 'PHP', language: 'php' }
+];
 
 type AggregationExpression = {
   aggregation: string;
@@ -131,7 +146,7 @@ const bannerStyles = css({
 
 const editorsStyles = css({
   display: 'flex',
-  gap: spacing[3],
+  gap: spacing[4],
 });
 
 const editorStyles = css({
@@ -140,21 +155,23 @@ const editorStyles = css({
 
 const editorHeadingStyles = css({
   marginBottom: spacing[2],
-  flex: 1,
-});
-
-const outputHeadingStyles = css({
-  display: 'flex',
-  gap: spacing[2],
-});
-
-const selectStyles = css({
-  width: spacing[6] * 2,
+  display: 'block',
 });
 
 const codeStyles = css({
-  height: '250px',
   alignItems: 'start',
+});
+
+const inputStyles = css({
+  height: `${spacing[6]*2 + 40}px`,
+});
+
+const outputStyles = css({
+  height: spacing[6]*2,
+});
+
+const firstCheckboxStyles = css({
+  marginTop: spacing[4],
 });
 
 const checkboxStyles = css({
@@ -165,15 +182,45 @@ const checkboxStyles = css({
 
 function outputLanguageToCodeLanguage(language: OutputLanguage) {
   if (language === 'csharp') {
-    return 'cs';
+    return 'C#';
   }
 
-  if (['', 'rust'].includes(language)) {
-    return 'none';
+  if (language === 'php') {
+    return 'PHP';
+  }
+
+  return language[0].toUpperCase()+language.slice(1);
+}
+
+function codeLanguageToOutputLanguage(language: string) {
+
+  if (language === 'cs') {
+    return 'csharp';
   }
 
   return language;
 }
+
+/*
+
+            <Select
+              className={selectStyles}
+              aria-labelledby="export-to-language-export-to-label"
+              size={SelectSize.XSmall}
+              value={outputLanguage}
+              onChange={(value) => setOutputLanguage(value as OutputLanguage)}
+              allowDeselect={false}
+            >
+              <Option value="csharp">C#</Option>
+              <Option value="go">Go</Option>
+              <Option value="java">Java</Option>
+              <Option value="javascript">Node</Option>
+              <Option value="php">PHP</Option>
+              <Option value="python">Python</Option>
+              <Option value="ruby">Ruby</Option>
+              <Option value="rust">Rust</Option>
+            </Select>
+*/
 
 const ExportToLanguageModal: React.FunctionComponent<
   ExportToLanguageState & {
@@ -238,14 +285,16 @@ const ExportToLanguageModal: React.FunctionComponent<
       )}
       <div className={editorsStyles}>
         <div className={editorStyles}>
-          <Body
+          <Label
             data-testid="export-to-language-export-from"
+            htmlFor="export-to-language-input"
             className={editorHeadingStyles}
           >
-            My {mode}:
-          </Body>
+            My {mode}
+          </Label>
           <Code
-            className={codeStyles}
+            className={cx(codeStyles, inputStyles)}
+            id="export-to-language-input"
             data-testid="export-to-language-input"
             language="javascript"
             copyable={true}
@@ -254,70 +303,54 @@ const ExportToLanguageModal: React.FunctionComponent<
           </Code>
         </div>
         <div className={editorStyles}>
-          <div className={outputHeadingStyles}>
-            <Body
-              id="export-to-language-export-to"
-              className={editorHeadingStyles}
-            >
-              Export {mode} to:
-            </Body>
-            <Select
-              className={selectStyles}
-              aria-labelledby="export-to-language-export-to"
-              size={SelectSize.XSmall}
-              value={outputLanguage}
-              onChange={(value) => setOutputLanguage(value as OutputLanguage)}
-              allowDeselect={false}
-            >
-              <Option value="csharp">C#</Option>
-              <Option value="go">Go</Option>
-              <Option value="java">Java</Option>
-              <Option value="javascript">Node</Option>
-              <Option value="php">PHP</Option>
-              <Option value="python">Python</Option>
-              <Option value="ruby">Ruby</Option>
-              <Option value="rust">Rust</Option>
-            </Select>
-          </div>
+          <Label
+            data-testid="export-to-language-export-to-label"
+            htmlFor="export-to-language-output"
+            className={editorHeadingStyles}
+          >
+            Exported {mode}
+          </Label>
           <Code
-            className={codeStyles}
+            className={cx(codeStyles, outputStyles)}
+            id="export-to-language-output"
             data-testid="export-to-language-output"
+            languageOptions={languageOptions}
+            onChange={(option: LanguageOption) => setOutputLanguage(codeLanguageToOutputLanguage(option.language) as OutputLanguage)}
             language={outputLanguageToCodeLanguage(outputLanguage)}
             copyable={true}
           >
             {transpiledExpression || ''}
           </Code>
-
-          <Checkbox
-            className={checkboxStyles}
-            data-testid="export-to-language-include-imports"
-            onChange={() => setIncludeImports(!includeImports)}
-            label="Include Import Statements"
-            checked={includeImports}
-            bold={false}
-          />
-
-          <Checkbox
-            className={checkboxStyles}
-            data-testid="export-to-language-include-drivers"
-            onChange={() => setIncludeDrivers(!includeDrivers)}
-            label="Include Driver Syntax"
-            checked={includeDrivers}
-            bold={false}
-          />
-
-          {includeUseBuilders && (
-            <Checkbox
-              className={checkboxStyles}
-              data-testid="export-to-language-use-builders"
-              onChange={() => setUseBuilders(!useBuilders)}
-              label="Use Builders"
-              checked={useBuilders}
-              bold={false}
-            />
-          )}
         </div>
       </div>
+      <Checkbox
+        className={cx(checkboxStyles, firstCheckboxStyles)}
+        data-testid="export-to-language-include-imports"
+        onChange={() => setIncludeImports(!includeImports)}
+        label="Include Import Statements"
+        checked={includeImports}
+        bold={false}
+      />
+
+      <Checkbox
+        className={checkboxStyles}
+        data-testid="export-to-language-include-drivers"
+        onChange={() => setIncludeDrivers(!includeDrivers)}
+        label="Include Driver Syntax"
+        checked={includeDrivers}
+        bold={false}
+      />
+
+      {includeUseBuilders && (
+        <Checkbox
+          className={checkboxStyles}
+          data-testid="export-to-language-use-builders"
+          onChange={() => setUseBuilders(!useBuilders)}
+          label="Use Builders"
+          checked={useBuilders}
+          bold={false}
+        />
+      )}
     </InfoModal>
   );
 };
