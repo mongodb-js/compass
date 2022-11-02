@@ -17,7 +17,7 @@ import {
 import type { AceEditor, AceAnnotation } from '@mongodb-js/compass-editor';
 import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
-import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor';
+import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 
 const containerStyles = css({
@@ -132,13 +132,20 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   pipelineBuilder: {
-    textEditor: { pipelineText, serverError, syntaxErrors },
+    textEditor: {
+      pipeline: {
+        pipelineText,
+        serverError: pipelineServerError,
+        syntaxErrors,
+      },
+      outputStage: { serverError: outputStageServerError },
+    },
   },
   serverVersion,
   fields,
 }: RootState) => ({
   pipelineText,
-  serverError,
+  serverError: pipelineServerError ?? outputStageServerError,
   syntaxErrors,
   serverVersion,
   fields,
