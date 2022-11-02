@@ -4,6 +4,8 @@ import type HadronDocumentType from 'hadron-document';
 
 const insertDocumentStyles = css({
   // We give it a good amount of spacing for dropdown menus.
+  // TODO(COMPASS-6271): We'll use portals in the document editing Menu
+  // so we don't need special padding here.
   paddingBottom: spacing[7],
 });
 
