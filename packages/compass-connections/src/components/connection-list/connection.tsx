@@ -233,7 +233,7 @@ function Connection({
   const { openToast } = useToast('compass-connections');
 
   const onAction = useCallback(
-    (action) => {
+    (action: Action) => {
       async function copyConnectionString(connectionString: string) {
         try {
           await navigator.clipboard.writeText(connectionString);
