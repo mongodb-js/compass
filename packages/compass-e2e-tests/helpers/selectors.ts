@@ -490,9 +490,9 @@ export const DocumentListFetching =
 export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError = '[data-testid="document-list-error-summary"]';
-export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
+export const AddDataButton = '[data-testid="crud-add-data-button"]';
 export const InsertDocumentOption =
-  '[data-testid="crud-add-data-insert-document-action"]';
+  '[data-testid="crud-add-data-insert-document"]';
 export const ImportFileOption =
   '[data-testid="crud-add-data-import-file-action"]';
 export const DocumentListEntry = '[data-testid="editable-document"]';
@@ -643,6 +643,7 @@ export const AggregationRestultsPrevPageButton =
 export const AggregationResultsCancelButton =
   '[data-testid="pipeline-results-loader-button"]';
 export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
+
 export const AggregationSettingsButton =
   '[data-testid="pipeline-toolbar-settings-button"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
@@ -661,6 +662,7 @@ export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';
 export const AggregationAutoPreviewToggle =
   '[data-testid="pipeline-toolbar-preview-toggle"]';
 export const AggregationErrorBanner = '[data-testid="pipeline-results-error"]';
+
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
