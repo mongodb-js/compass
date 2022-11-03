@@ -92,8 +92,16 @@ describe('PipelinePreview', function () {
     expect(() => within(docList).getByText(/document/)).to.throw;
 
     // Expand the whole document
-    userEvent.click(screen.getByLabelText('Output Options'));
-    userEvent.click(screen.getByLabelText('Expand all fields'));
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /output options/i,
+      })
+    );
+    userEvent.click(
+      screen.getByRole('menuitem', {
+        name: /expand all fields/i,
+      })
+    );
 
     expect(within(docList).getByText(/_id/)).to.exist;
     expect(within(docList).getByText(/score/)).to.exist;
@@ -104,8 +112,16 @@ describe('PipelinePreview', function () {
     expect(within(docList).getByText(/document/)).to.exist;
 
     // Collapse the whole document
-    userEvent.click(screen.getByLabelText('Output Options'));
-    userEvent.click(screen.getByLabelText('Collapse all fields'));
+    userEvent.click(
+      screen.getByRole('button', {
+        name: /output options/i,
+      })
+    );
+    userEvent.click(
+      screen.getByRole('menuitem', {
+        name: /collapse all fields/i,
+      })
+    );
 
     expect(within(docList).getByText(/_id/)).to.exist;
     expect(within(docList).getByText(/score/)).to.exist;

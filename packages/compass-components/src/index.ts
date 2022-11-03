@@ -37,6 +37,7 @@ import {
   ItemActionControls,
   ItemActionGroup,
   ItemActionMenu,
+  DropdownMenuButton,
 } from './components/item-action-controls';
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
@@ -93,6 +94,7 @@ export {
   ItemActionControls,
   ItemActionGroup,
   ItemActionMenu,
+  DropdownMenuButton,
   defaultSidebarWidth,
 };
 export {
