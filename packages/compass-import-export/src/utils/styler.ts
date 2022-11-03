@@ -11,7 +11,7 @@
  * @example
  * ```jsx
  * import styles from './progress-bar.module.less;
- * import createStyler from './styler.js';
+ * import createStyler from './styler';
  * const style = createStyler('progress-bar');
  *
  * const render = (props) => {
@@ -25,7 +25,7 @@
  * };
  * ```
  */
-export default function styler(styles, prefix) {
+export default function styler(styles: Record<string, string>, prefix: string) {
   // eslint-disable-next-line camelcase
   return function get_style_for_component(what = '') {
     const k = `${prefix}${what !== '' ? '-' + what : ''}`;

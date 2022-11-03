@@ -1,7 +1,9 @@
 import util from 'util';
-import dotnotation from '../utils/dotnotation';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { isInternalFieldPath } from 'hadron-document';
+import type { DataService } from 'mongodb-data-service';
+
+import dotnotation from '../utils/dotnotation';
 
 const { log, mongoLogId } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'
@@ -10,11 +12,11 @@ const { log, mongoLogId } = createLoggerAndTelemetry(
 const DEFAULT_SAMPLE_SIZE = 50;
 const ENABLED = 1;
 
-function extractFieldsFromDocument(doc) {
+function extractFieldsFromDocument(doc: Record<string, unknown>) {
   return Object.keys(dotnotation.serialize(doc));
 }
 
-function truncateFieldToDepth(field, depth) {
+function truncateFieldToDepth(field: string, depth?: number) {
   if (!depth) {
     return field;
   }
@@ -23,11 +25,19 @@ function truncateFieldToDepth(field, depth) {
 }
 
 export async function loadFields(
-  dataService,
-  ns,
-  { filter, sampleSize } = {},
+  dataService: DataService,
+  ns: string,
+  {
+    filter,
+    sampleSize,
+  }:
+    | {
+        filter?: Record<string, unknown>;
+        sampleSize?: number;
+      }
+    | undefined = {},
   driverOptions = {}
-) {
+): Promise<Record<string, number>> {
   const find = util.promisify(dataService.find.bind(dataService));
   sampleSize = sampleSize || DEFAULT_SAMPLE_SIZE;
 
@@ -51,7 +61,14 @@ export async function loadFields(
   return Object.fromEntries(allFields.map((field) => [field, ENABLED]));
 }
 
-export function getSelectableFields(fields, { maxDepth } = {}) {
+export function getSelectableFields(
+  fields: Record<string, number>,
+  {
+    maxDepth,
+  }: {
+    maxDepth?: number;
+  } = {}
+) {
   const selectableFields = Object.keys(fields).map((field) =>
     truncateFieldToDepth(field, maxDepth)
   );

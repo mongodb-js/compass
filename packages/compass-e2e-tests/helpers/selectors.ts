@@ -895,23 +895,6 @@ export const ExportModalCloseButton =
   '[data-testid="export-modal"] [data-testid="close-button"]';
 export const ExportModalFileText = '[data-testid="export-modal"] #export-file';
 
-export const selectExportFileTypeButton = (
-  fileType: string,
-  selected?: boolean
-): string => {
-  const selector = `[data-testid="export-modal"] [data-testid="select-file-type-${fileType}"]`;
-
-  if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
-  }
-
-  if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
-  }
-
-  return selector;
-};
-
 export const exportModalExportField = (fieldName: string): string => {
   return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };

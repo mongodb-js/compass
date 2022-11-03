@@ -1,4 +1,4 @@
-import SelectFileType from '../select-file-type';
+import { SelectFileType } from '../select-file-type';
 import { IconTextButton } from 'hadron-react-buttons';
 import toNS from 'mongodb-ns';
 import fileSaveDialog from '../../utils/file-save-dialog';
@@ -6,7 +6,7 @@ import ProgressBar from '../progress-bar';
 import { FILETYPE } from '../../constants/export-step';
 import styles from './export-select-output.module.less';
 import React, { PureComponent } from 'react';
-import createStyler from '../../utils/styler.js';
+import createStyler from '../../utils/styler';
 import PropTypes from 'prop-types';
 import { FormGroup, InputGroup, FormControl } from 'react-bootstrap';
 import {
@@ -88,7 +88,7 @@ class ExportSelectOutput extends PureComponent {
         <form onSubmit={this.handleOnSubmit} className={style('form')}>
           <SelectFileType
             fileType={this.props.fileType}
-            label="Select Export File Type"
+            label="Export File Type"
             onSelected={this.props.selectExportFileType}
           />
           <FormGroup controlId="export-file">

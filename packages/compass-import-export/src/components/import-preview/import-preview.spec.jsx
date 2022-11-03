@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 
 import ImportPreview from '.';
-import createStyler from '../../utils/styler.js';
+import createStyler from '../../utils/styler';
 import styles from './import-preview.module.less';
 
 let onFieldCheckedChangedSpy;

@@ -362,8 +362,12 @@ const fetchDocumentCount = async (dataService, ns, query) => {
 /**
  * Open the export modal.
  *
- * @param {number} [count] - optional pre supplied count to shortcut and
+ * @param {Object} options
+ * @property {Object | null} query
+ * @property {number} count - optional pre supplied count to shortcut and
  * avoid a possibly expensive re-count.
+ * @property {Object | null} aggregation
+ * @property {string} namespace
  *
  * Counts the documents to be exported given the current query on modal open to
  * provide user with accurate export data

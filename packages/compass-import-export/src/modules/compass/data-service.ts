@@ -1,12 +1,20 @@
+import type { DataService } from 'mongodb-data-service';
+import type { AnyAction } from 'redux';
+
 /**
  * Action for the dataService connection.
  */
 export const DATA_SERVICE_CONNECTED = 'import-export/ns/DATA_SERVICE_CONNECTED';
 
+type State = {
+  dataService: DataService;
+  error?: Error;
+} | null;
+
 /**
  * The initial dataService state.
  */
-const INITIAL_STATE = null;
+const INITIAL_STATE: State = null;
 
 /**
  * Create a ns changed action.
@@ -17,7 +25,10 @@ const INITIAL_STATE = null;
  *
  * @returns {Object} The action.
  */
-export const dataServiceConnected = (error, dataService) => {
+export const dataServiceConnected = (
+  error: Error | undefined,
+  dataService: DataService
+) => {
   return {
     type: DATA_SERVICE_CONNECTED,
     error: error,
@@ -33,7 +44,7 @@ export const dataServiceConnected = (error, dataService) => {
  *
  * @returns {String} The state.
  */
-const reducer = (state = INITIAL_STATE, action) => {
+const reducer = (state: State = INITIAL_STATE, action: AnyAction) => {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,
