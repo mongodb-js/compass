@@ -615,13 +615,13 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 
 // Aggregations tab
 export const StageContainer = '[data-testid="stage-container"]';
-export const CreateNewPipelineMenuButton =
-  '[data-testid="create-new-menu-show-actions"]';
-export const CreateNewPipelineMenuContent = '[data-testid="create-new-menu"]';
+export const CreateNewPipelineMenuButton = '[data-testid="create-new-menu"]';
+export const CreateNewPipelineMenuContent =
+  '[data-testid="create-new-menu-content"]';
 export const CreateNewEmptyPipelineAction =
-  '[data-testid="create-new-menu-createPipeline-action"]';
+  '[data-testid="create-new-menu-createPipleine"]';
 export const CreateNewPipelineFromTextAction =
-  '[data-testid="create-new-menu-createPipelineFromText-action"]';
+  '[data-testid="create-new-menu-createPipleineFromText"]';
 export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';
@@ -643,7 +643,6 @@ export const AggregationRestultsPrevPageButton =
 export const AggregationResultsCancelButton =
   '[data-testid="pipeline-results-loader-button"]';
 export const AggregationEmptyResults = '[data-testid="pipeline-empty-results"]';
-
 export const AggregationSettingsButton =
   '[data-testid="pipeline-toolbar-settings-button"]';
 export const AggregationCommentModeCheckbox = '#aggregation-comment-mode';
@@ -654,22 +653,23 @@ export const ExportAggregationToLanguage =
   '[data-testid="pipeline-toolbar-export-button"]';
 export const NewPipelineActions = '#new-pipeline-actions';
 export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
-export const SavePipelineMenuButton = '[data-testid="save-menu-show-actions"]';
-export const SavePipelineMenuContent = '[data-testid="save-menu"]';
+export const SavePipelineMenuButton = '[data-testid="save-menu"]';
+export const SavePipelineMenuContent = '[data-testid="save-menu-content"]';
 export const SavePipelineCreateViewAction =
-  '[data-testid="save-menu-createView-action"]';
-export const SavePipelineSaveAsAction =
-  '[data-testid="save-menu-saveAs-action"]';
+  '[data-testid="save-menu-createView"]';
+export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';
 export const AggregationAutoPreviewToggle =
   '[data-testid="pipeline-toolbar-preview-toggle"]';
 export const AggregationErrorBanner = '[data-testid="pipeline-results-error"]';
-
 export const RunPipelineButton = `[data-testid="pipeline-toolbar-run-button"]`;
 export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`;
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
 export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
 
 // New Aggregation Toolbar Specific
+export const AggregationToolbarCreateMenu = '[data-testid="create-new-menu"]';
+export const AggregationToolbarCreateNewPipeline =
+  '[data-testid="create-new-menu-content"]  > li:nth-child(1)';
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
