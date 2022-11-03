@@ -210,7 +210,11 @@ describe('CrudToolbar Component', function () {
       readonly: false,
     });
 
-    expect(screen.queryByText(addDataText)).to.be.visible;
+    expect(
+      screen.getByRole('button', {
+        name: new RegExp(addDataText, 'i'),
+      })
+    ).to.be.visible;
   });
 
   it('should render the start and end count', function () {
