@@ -25,7 +25,6 @@ import {
 import './index.less';
 import './ag-grid-dist.css';
 
-
 const listAndJsonStyles = css({
   padding: spacing[3],
   paddingTop: 0,

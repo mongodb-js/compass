@@ -917,7 +917,7 @@ class DocumentTableView extends React.Component {
   render() {
     return (
       <div className="document-table-view-container">
-        <div className={cx("ag-parent", this.props.className)}>
+        <div className={cx('ag-parent', this.props.className)}>
           <BreadcrumbComponent
             collection={this.collection}
             pathChanged={this.props.pathChanged}
