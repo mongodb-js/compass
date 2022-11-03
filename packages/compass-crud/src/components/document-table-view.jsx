@@ -42,7 +42,9 @@ class DocumentTableView extends React.Component {
           handleClone: this.handleClone,
           path: [],
         },
-        onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
+        suppressDragLeaveHidesColumns: true,
+        singleClickEdit: true,
+        onCellClicked: this.onCellClicked.bind(this),
         getRowHeight({ data: { isFooter } }) {
           // deafult row style expects 28, "footer" row with leafygreen
           // components needs to be 38 (minimum button height + padding)
@@ -144,7 +146,7 @@ class DocumentTableView extends React.Component {
    *     node {RowNode} - the RowNode for the row in question
    *     data {*} - the user provided data for the row in question
    */
-  onCellDoubleClicked(event) {
+  onCellClicked(event) {
     this.addFooter(event.node, event.data, 'editing');
   }
 
