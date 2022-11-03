@@ -44,6 +44,7 @@ const messageStyles = css({ marginTop: spacing[3] });
 
 const documentListStyles = css({
   overflow: 'auto',
+  padding: spacing[3]
 });
 
 const pipelineOutputMenuStyles = css({
@@ -114,9 +115,11 @@ const PreviewResults = ({
   }
 
   return (
-    <div className={documentListStyles}>
-      <DocumentListView {...listProps} isExpanded={isExpanded} />
-    </div>
+    <DocumentListView
+      {...listProps}
+      isExpanded={isExpanded}
+      className={documentListStyles}
+    />
   );
 };
 
