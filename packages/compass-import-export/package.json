@@ -85,6 +85,7 @@
     "@types/chai-as-promised": "^7.1.4",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
+    "@types/progress-stream": "^2.0.2",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",

@@ -7,14 +7,14 @@ import type { AnyAction } from 'redux';
 export const DATA_SERVICE_CONNECTED = 'import-export/ns/DATA_SERVICE_CONNECTED';
 
 type State = {
-  dataService: DataService;
+  dataService?: DataService;
   error?: Error;
-} | null;
+};
 
 /**
  * The initial dataService state.
  */
-const INITIAL_STATE: State = null;
+const INITIAL_STATE: State = {};
 
 /**
  * Create a ns changed action.
@@ -44,7 +44,7 @@ export const dataServiceConnected = (
  *
  * @returns {String} The state.
  */
-const reducer = (state: State = INITIAL_STATE, action: AnyAction) => {
+const reducer = (state: State = INITIAL_STATE, action: AnyAction): State => {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,

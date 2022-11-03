@@ -1,5 +1,4 @@
 import { SelectFileType } from '../select-file-type';
-import { IconTextButton } from 'hadron-react-buttons';
 import toNS from 'mongodb-ns';
 import fileSaveDialog from '../../utils/file-save-dialog';
 import ProgressBar from '../progress-bar';
@@ -17,7 +16,7 @@ import {
   UNSPECIFIED,
   COMPLETED_WITH_ERRORS,
 } from '../../constants/process-status';
-import { Label } from '@mongodb-js/compass-components';
+import { Button, Icon, Label } from '@mongodb-js/compass-components';
 
 const style = createStyler(styles, 'export-select-output');
 
@@ -95,13 +94,13 @@ class ExportSelectOutput extends PureComponent {
             <Label htmlFor="select-export-file-output">Output</Label>
             <InputGroup bsClass={style('browse-group')}>
               <FormControl type="text" value={this.props.fileName} readOnly />
-              <IconTextButton
-                text="Browse"
+              <Button
                 id="select-export-file-output"
-                iconClassName="fa fa-folder-open-o"
-                clickHandler={this.handleChooseFile}
-                className={'btn btn-default btn-sm'}
-              />
+                leftGlyph={<Icon glyph="Save" />}
+                onClick={this.handleChooseFile}
+              >
+                Browse
+              </Button>
             </InputGroup>
           </FormGroup>
         </form>

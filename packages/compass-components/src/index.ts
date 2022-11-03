@@ -16,7 +16,6 @@ export {
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/modals/confirmation-modal';
 import FileInput from './components/file-input';
-import { Modal } from './components/modals/modal';
 import { MoreOptionsToggle } from './components/more-options-toggle';
 import {
   ErrorSummary,
@@ -68,6 +67,9 @@ import IndexIcon from './components/index-icon';
 
 export { default as FormFieldContainer } from './components/form-field-container';
 
+export { Modal } from './components/modals/modal';
+export { ModalBody } from './components/modals/modal-body';
+export { ModalHeader } from './components/modals/modal-header';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 
@@ -79,7 +81,6 @@ export {
   ErrorSummary,
   FileInput,
   IndexIcon,
-  Modal,
   MoreOptionsToggle,
   RadioBoxGroup,
   SpinLoader,

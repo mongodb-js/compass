@@ -1,16 +1,16 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import { expect } from 'chai';
 
-import store from '../../stores/export-store';
+import store from '../stores/export-store';
 import ExportModal from './export-modal';
 
 function renderModal() {
-  return mount(<ExportModal store={store} />);
+  render(<ExportModal store={store} />);
 }
 
 describe('ExportModal Component', function () {
-  let state;
+  let state: any;
 
   describe('Export Query', function () {
     beforeEach(function () {
@@ -27,36 +27,30 @@ describe('ExportModal Component', function () {
 
     it('should render zero results', function () {
       state.exportData.count = 0;
-      const component = renderModal();
-      const elements = component.find(
-        '[data-testid="export-with-filters-label"]'
-      );
-      expect(elements).to.have.lengthOf(1);
-      expect(elements.first().text()).to.equal(
+      renderModal();
+      const filterLabel = screen.getByTestId('export-option-filters');
+      expect(filterLabel).to.be.visible;
+      expect(filterLabel.textContent).to.contain(
         'Export query with filters — 0 results (Recommended)'
       );
     });
 
     it('should render 5 results', function () {
       state.exportData.count = 5;
-      const component = renderModal();
-      const elements = component.find(
-        '[data-testid="export-with-filters-label"]'
-      );
-      expect(elements).to.have.lengthOf(1);
-      expect(elements.first().text()).to.equal(
+      renderModal();
+      const filterLabel = screen.getByTestId('export-option-filters');
+      expect(filterLabel).to.be.visible;
+      expect(filterLabel.textContent).to.contain(
         'Export query with filters — 5 results (Recommended)'
       );
     });
 
     it('should render "null count" results', function () {
       state.exportData.count = null;
-      const component = renderModal();
-      const elements = component.find(
-        '[data-testid="export-with-filters-label"]'
-      );
-      expect(elements).to.have.lengthOf(1);
-      expect(elements.first().text()).to.equal(
+      renderModal();
+      const filterLabel = screen.getByTestId('export-option-filters');
+      expect(filterLabel).to.be.visible;
+      expect(filterLabel.textContent).to.contain(
         'Export query with filters (Recommended)'
       );
     });
@@ -74,9 +68,9 @@ describe('ExportModal Component', function () {
       };
     });
     it('renders modal on export screen', function () {
-      const modal = renderModal();
-      expect(modal.find('[data-testid="cancel-button"]')).to.have.lengthOf(1);
-      expect(modal.find('[data-testid="export-button"]')).to.have.lengthOf(1);
+      renderModal();
+      expect(screen.getByTestId('cancel-button')).be.visible;
+      expect(screen.getByTestId('export-button')).be.visible;
     });
   });
 });

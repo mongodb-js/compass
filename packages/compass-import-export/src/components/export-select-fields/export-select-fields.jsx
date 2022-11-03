@@ -26,6 +26,7 @@ const headerContainerStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
   marginBottom: spacing[2],
+  marginTop: spacing[3],
 });
 
 const infoIconContainerStyles = css({
