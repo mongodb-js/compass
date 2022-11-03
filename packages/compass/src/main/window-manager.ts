@@ -43,6 +43,9 @@ const DEFAULT_HEIGHT = (() => {
   return height;
 })();
 
+// We set the min width to 1025 so that the screensize breakpoints of leafygreen
+// components are not hit. The breakpoints make the styles of the Select component
+// change significantly at widths of 1024 and less.
 const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1025;
 const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
 
