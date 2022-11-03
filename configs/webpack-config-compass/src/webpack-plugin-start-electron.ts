@@ -200,7 +200,7 @@ export class WebpackPluginStartElectron {
     process.stdin.on('keypress', (str: string) => {
       // We are in the raw mode and have to handle some default keys ourselves
       if (str === /* ctrl+c */ '\x03') {
-        this.electronProcess?.emit('SIGINT');
+        this.electronProcess?.kill('SIGINT');
         (process as any).emit('SIGINT');
         return;
       }
