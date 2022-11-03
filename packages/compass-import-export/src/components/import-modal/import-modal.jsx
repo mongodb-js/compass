@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
 
-import fileOpenDialog from '../../utils/file-open-dialog';
 import {
   FINISHED_STATUSES,
   COMPLETED_STATUSES,
@@ -238,7 +237,6 @@ class ImportModal extends PureComponent {
             setStopOnErrors={this.props.setStopOnErrors}
             ignoreBlanks={this.props.ignoreBlanks}
             setIgnoreBlanks={this.props.setIgnoreBlanks}
-            fileOpenDialog={fileOpenDialog}
           />
           {this.renderImportPreview()}
           <ProgressBar

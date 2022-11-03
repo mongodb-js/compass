@@ -15,7 +15,12 @@ export {
 } from '@leafygreen-ui/emotion';
 import CancelLoader from './components/cancel-loader';
 import ConfirmationModal from './components/modals/confirmation-modal';
-import FileInput from './components/file-input';
+import FileInput, {
+  ElectronFileDialogOptions,
+  ElectronShowFileDialogProvider,
+  createElectronFileInputBackend,
+  FileInputBackend,
+} from './components/file-input';
 import { MoreOptionsToggle } from './components/more-options-toggle';
 import {
   ErrorSummary,
@@ -81,6 +86,7 @@ export {
   ConfirmationModal,
   ErrorSummary,
   FileInput,
+  FileInputBackend,
   IndexIcon,
   MoreOptionsToggle,
   RadioBoxGroup,
@@ -97,6 +103,9 @@ export {
   ItemActionMenu,
   DropdownMenuButton,
   defaultSidebarWidth,
+  ElectronFileDialogOptions,
+  ElectronShowFileDialogProvider,
+  createElectronFileInputBackend,
 };
 export {
   useFocusState,

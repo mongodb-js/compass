@@ -207,7 +207,7 @@ type ExportModalProps = {
   open?: boolean;
   error?: Error | null;
   count: number | null;
-  fileType?: string;
+  fileType: 'json' | 'csv';
   fileName: string;
   ns: string; // Namespace
   query: ExportQueryType | null;
