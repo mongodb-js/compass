@@ -882,7 +882,7 @@ export const ExportModal = '[data-testid="export-modal"]';
 export const ExportModalQueryText =
   '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"]';
 export const ExportModalFullCollectionOption =
-  '[data-testid="export-modal"] [data-testid="export-full-collection"]';
+  '[data-testid="export-modal"] [id="radio-group-1-2"]';
 export const ExportModalSelectFieldsButton =
   '[data-testid="export-modal"] [data-testid="select-fields-button"]';
 export const ExportModalSelectOutputButton =

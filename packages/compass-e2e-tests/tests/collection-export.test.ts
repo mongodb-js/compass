@@ -135,7 +135,11 @@ describe('Collection export', function () {
 )`);
 
     // export the entire collection
-    await browser.clickVisible(Selectors.ExportModalFullCollectionOption);
+    const fullCollectionRadio = await browser
+      .$(Selectors.ExportModalFullCollectionOption)
+      .parentElement();
+    await fullCollectionRadio.waitForExist();
+    await fullCollectionRadio.click();
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // export all fields
@@ -193,7 +197,11 @@ describe('Collection export', function () {
     await exportModal.waitForDisplayed();
 
     // export the entire collection
-    await browser.clickVisible(Selectors.ExportModalFullCollectionOption);
+    const fullCollectionRadio = await browser
+      .$(Selectors.ExportModalFullCollectionOption)
+      .parentElement();
+    await fullCollectionRadio.waitForExist();
+    await fullCollectionRadio.click();
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // de-select _id to just export the i field
@@ -331,7 +339,11 @@ describe('Collection export', function () {
 )`);
 
     // export the entire collection
-    await browser.clickVisible(Selectors.ExportModalFullCollectionOption);
+    const fullCollectionRadio = await browser
+      .$(Selectors.ExportModalFullCollectionOption)
+      .parentElement();
+    await fullCollectionRadio.waitForExist();
+    await fullCollectionRadio.click();
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // export all fields
@@ -386,7 +398,11 @@ describe('Collection export', function () {
     await exportModal.waitForDisplayed();
 
     // export the entire collection
-    await browser.clickVisible(Selectors.ExportModalFullCollectionOption);
+    const fullCollectionRadio = await browser
+      .$(Selectors.ExportModalFullCollectionOption)
+      .parentElement();
+    await fullCollectionRadio.waitForExist();
+    await fullCollectionRadio.click();
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // de-select _id to just export the i field
