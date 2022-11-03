@@ -19,7 +19,7 @@ const fetch = require('make-fetch-happen').defaults({
   cacheManager: CACHE_DIR,
 });
 
-const EUCLID_CDN_BASE_URL = 'https://cloud.mongodb.com/static/font/';
+const FONT_CDN_BASE_URL = 'https://cloud.mongodb.com/static/font/';
 
 const UPDATE_CACHE = process.argv.includes('--update-cache');
 
@@ -36,9 +36,13 @@ const EUCLID_CDN_URLS = [
   'EuclidCircularA-Regular-WebXL.woff',
   'EuclidCircularA-RegularItalic-WebXL.woff2',
   'EuclidCircularA-RegularItalic-WebXL.woff',
-].map((filename) => `${EUCLID_CDN_BASE_URL}${filename}`);
+].map((filename) => `${FONT_CDN_BASE_URL}${filename}`);
+const MONGODB_FONT_CDN_URLS = [
+  'MongoDBValueSerif-Regular.woff2',
+  'MongoDBValueSerif-Regular.woff',
+].map((filename) => `${FONT_CDN_BASE_URL}${filename}`);
 
-const FONTS_URLS = [...EUCLID_CDN_URLS];
+const FONTS_URLS = [...EUCLID_CDN_URLS, ...MONGODB_FONT_CDN_URLS];
 
 const FONTS_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'app', 'fonts');
 

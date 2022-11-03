@@ -33,7 +33,7 @@ import {
 } from '../../modules/export';
 
 import styles from './export-modal.module.less';
-import createStyler from '../../utils/styler.js';
+import createStyler from '../../utils/styler';
 const style = createStyler(styles, 'export-modal');
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';

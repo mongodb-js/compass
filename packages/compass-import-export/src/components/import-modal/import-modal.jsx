@@ -19,7 +19,7 @@ import ProgressBar from '../progress-bar';
 import ImportPreview from '../import-preview';
 import ImportOptions from '../import-options';
 import FILE_TYPES from '../../constants/file-types';
-import formatNumber from '../../utils/format-number.js';
+import formatNumber from '../../utils/format-number';
 import {
   startImport,
   cancelImport,

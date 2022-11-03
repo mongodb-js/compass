@@ -1,18 +1,23 @@
 import React from 'react';
-import getShellJS from '../utils/get-shell-js';
+import { getQueryAsShellJSString } from '../utils/get-shell-js';
 import { Code } from '@mongodb-js/compass-components';
 
 export function QueryViewer({
   query,
   ns,
 }: {
-  query?: Record<string, unknown>;
+  query: {
+    filter?: Record<string, unknown>;
+    project?: Record<string, unknown>;
+    limit?: number;
+    skip?: number;
+  };
   ns: string;
 }) {
   return (
     <div>
       <Code copyable={false} language="js">
-        {getShellJS(ns, query)}
+        {getQueryAsShellJSString(ns, query)}
       </Code>
     </div>
   );
