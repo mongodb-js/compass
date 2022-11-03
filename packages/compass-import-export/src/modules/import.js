@@ -612,7 +612,6 @@ export const setIgnoreBlanks = (ignoreBlanks) => ({
 
 /**
  * Open the import modal.
- * @api public
  */
 export const openImport = (namespace) => (dispatch) => {
   track('Import Opened');

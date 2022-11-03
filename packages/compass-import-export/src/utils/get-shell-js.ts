@@ -1,15 +1,9 @@
 import { stringify } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
 
-export function getQueryAsShellJSString(
-  ns: string,
-  spec: {
-    filter?: Record<string, unknown>;
-    project?: Record<string, unknown>;
-    limit?: number;
-    skip?: number;
-  }
-) {
+import type { ExportQueryType } from '../modules/export';
+
+export function getQueryAsShellJSString(ns: string, spec: ExportQueryType) {
   let ret = `db.${toNS(ns).collection}.find(\n`;
   ret += `  ${stringify(spec.filter ? spec.filter : {}) || ''}`;
   if (spec.project) {
