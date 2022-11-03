@@ -24,7 +24,6 @@ const containerStyles = css({
   display: 'grid',
   gridTemplateRows: 'min-content 1fr',
   gridTemplateColumns: '1fr',
-  marginBottom: spacing[3],
 });
 
 const resultsStyles = css({

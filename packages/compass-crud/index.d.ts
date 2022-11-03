@@ -15,6 +15,7 @@ export const Document: React.ComponentClass<{
 }>;
 
 type ListViewProps = {
+  className?: string;
   isEditable?: boolean;
   isTimeSeries?: boolean;
   isExpanded?: boolean;

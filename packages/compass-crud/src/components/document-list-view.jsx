@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { KeylineCard } from '@mongodb-js/compass-components';
+import { KeylineCard, cx } from '@mongodb-js/compass-components';
 
 import Document from './document';
 
@@ -62,7 +62,11 @@ class DocumentListView extends React.Component {
    * @returns {React.Component} The component.
    */
   render() {
-    return <ol className={LIST_CLASS}>{this.renderDocuments()}</ol>;
+    return (
+      <ol className={cx(LIST_CLASS, this.props.className)}>
+        {this.renderDocuments()}
+      </ol>
+    );
   }
 }
 
@@ -76,6 +80,7 @@ DocumentListView.propTypes = {
   openInsertDocumentDialog: PropTypes.func,
   copyToClipboard: PropTypes.func,
   isExpanded: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 DocumentListView.displayName = 'DocumentListView';
