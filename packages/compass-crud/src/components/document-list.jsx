@@ -4,9 +4,11 @@ import { ObjectID as ObjectId } from 'bson';
 import {
   Button,
   CancelLoader,
+  css,
   DocumentIcon,
   EmptyContent,
   WorkspaceContainer,
+  spacing,
 } from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
 import DocumentListView from './document-list-view';
@@ -22,6 +24,19 @@ import {
 
 import './index.less';
 import './ag-grid-dist.css';
+
+const listAndJsonStyles = css({
+  padding: spacing[3],
+  paddingTop: 0,
+});
+
+// Table has its own scrollable container.
+const tableStyles = css({
+  paddingTop: 0,
+  paddingRight: spacing[3],
+  paddingBottom: spacing[5], // avoid double scroll
+  paddingLeft: spacing[3],
+});
 
 /**
  * Component for the entire document list.
@@ -66,12 +81,12 @@ class DocumentList extends React.Component {
     }
 
     if (this.props.view === 'List') {
-      return <DocumentListView {...this.props} />;
+      return <DocumentListView {...this.props} className={listAndJsonStyles} />;
     } else if (this.props.view === 'Table') {
-      return <DocumentTableView {...this.props} />;
+      return <DocumentTableView {...this.props} className={tableStyles} />;
     }
 
-    return <DocumentJsonView {...this.props} />;
+    return <DocumentJsonView {...this.props} className={listAndJsonStyles} />;
   }
 
   /*
