@@ -93,7 +93,7 @@ class ExportForm extends PureComponent {
           <p className={classnames(styles['export-to-lang-headers-input'])}>
             {`My ${this.props.mode}:`}
           </p>
-          <div className={classnames(styles['export-to-lang-headers-output'])} data-test-id="select-lang-field">
+          <div className={classnames(styles['export-to-lang-headers-output'])}>
             <p className={classnames(styles['export-to-lang-headers-output-title'])}>
               {`Export ${this.props.mode} To:`}
             </p>

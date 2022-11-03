@@ -297,7 +297,7 @@ describe('Collection documents tab', function () {
     await exportToLanguageButton.waitForDisplayed();
     await exportToLanguageButton.click();
 
-    const text = await browser.exportToLanguage('Java', {
+    const text = await browser.exportToLanguage('java', {
       includeImportStatements: true,
       includeDriverSyntax: true,
       useBuilders: true,

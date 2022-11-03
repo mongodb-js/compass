@@ -1,88 +1,73 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { expect } from 'chai';
+import Sinon from 'sinon';
 
 import SelectLang from '../select-lang';
-import Select from 'react-select-plus';
 
-import styles from './select-lang.module.less';
+const selectTestId = 'export-to-language-select-lang';
 
-describe('SelectLang [Component]', () => {
-  context('when the component is rendered', () => {
-    let component;
+const outputLang = 'python';
 
-    const query = {filter: { category_code: 'smooth jazz', release_year: 2009 }};
-    const outputLangChangedSpy = sinon.spy();
-    const runTranspilerSpy = sinon.spy();
-    const outputLang = 'python';
+const selectableLanguages = [
+  'Java',
+  'Node',
+  'C#',
+  // 'Python 3', // Already selected
+  'Ruby',
+  'Go',
+  'Rust',
+  'PHP',
+];
 
-    const langOutputOptions = [
-      { value: 'java', label: 'Java' },
-      { value: 'javascript', label: 'Node' },
-      { value: 'csharp', label: 'C#' },
-      { value: 'python', label: 'Python 3' },
-      { value: 'ruby', label: 'Ruby' },
-      { value: 'go', label: 'Go' },
-      { value: 'rust', label: 'Rust' },
-      { value: 'php', label: 'PHP' }
-    ];
+const query = {
+  filter: { category_code: 'smooth jazz', release_year: 2009 },
+};
 
-    beforeEach(() => {
-      component = mount(
-        <SelectLang
-          outputLangChanged={outputLangChangedSpy}
-          outputLang={outputLang}
-          runTranspiler={runTranspilerSpy}
-          inputExpression={query}/>
-      );
-    });
+describe('SelectLang', function() {
+  let outputLangChangedSpy;
+  let runTranspilerSpy;
 
-    afterEach(() => {
-      component = null;
-    });
+  beforeEach(function() {
+    outputLangChangedSpy = Sinon.spy();
+    runTranspilerSpy = Sinon.spy();
+    render(
+      <SelectLang
+        outputLangChanged={outputLangChangedSpy}
+        outputLang={outputLang}
+        runTranspiler={runTranspilerSpy}
+        inputExpression={query}
+      />
+    );
+  });
 
-    it('renders the headers div', () => {
-      expect(component.find(`.${styles['select-lang']}`)).to.be.present();
-    });
+  afterEach(cleanup);
 
-    it('renders headers input text', () => {
-      expect(component.find(Select)).prop('options').to.deep.equal(langOutputOptions);
-    });
+  it('should render a select', function() {
+    expect(screen.getByTestId(selectTestId)).to.exist;
+  });
 
-    it('value of the select box is python', () => {
-      expect(component.find(Select).props().value).to.equal('python');
+  it('should show the initial type', function() {
+    expect(screen.getByText('Python 3')).to.exist;
+  });
+
+  selectableLanguages.forEach((lang) => {
+    it(`allows to select ${lang}`, function() {
+      fireEvent.click(screen.getByTestId(selectTestId)); // Click select button
+      expect(screen.getByText(lang)).to.exist;
     });
   });
 
-  context('when clicking on copy button', () => {
-    let component;
-
-    const query = {filer: { category_code: 'smooth jazz', release_year: 2009 }};
-    const outputLangChangedSpy = sinon.spy();
-    const runTranspilerSpy = sinon.spy();
-    const outputLang = 'python';
-
-    beforeEach(() => {
-      component = shallow(
-        <SelectLang
-          outputLangChanged={outputLangChangedSpy}
-          outputLang={outputLang}
-          runTranspiler={runTranspilerSpy}
-          inputExpression={query}/>
-      );
+  describe('when a lang is selected', function() {
+    beforeEach(function() {
+      fireEvent.click(screen.getByTestId(selectTestId)); // Click select button
+      fireEvent.click(screen.getByText('Ruby')); // Click item
     });
 
-    afterEach(() => {
-      component = null;
-    });
-
-    it('calls the run query method', () => {
-      component.find(Select).simulate('change', { target: { value: 'java' } });
-      expect(runTranspilerSpy.calledOnce).to.equal(true);
-    });
-
-    it('calls the set output lang method', () => {
-      component.simulate('click');
-      expect(outputLangChangedSpy.calledOnce).to.equal(true);
+    it('sets the output language and then reruns the transpiler', function() {
+      expect(outputLangChangedSpy).to.have.been.calledBefore(runTranspilerSpy);
+      expect(outputLangChangedSpy).to.have.been.calledOnceWithExactly('ruby');
+      expect(runTranspilerSpy).to.have.been.calledOnceWithExactly(query);
     });
   });
 });
