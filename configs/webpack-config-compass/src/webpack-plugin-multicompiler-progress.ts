@@ -4,6 +4,7 @@ import { ProgressPlugin } from 'webpack';
 import type { SingleBar } from 'cli-progress';
 import { MultiBar } from 'cli-progress';
 import chalk from 'chalk';
+import { SyncHook } from 'tapable';
 
 const multibar = new MultiBar({
   format: `{name} [{bar}] {percentage}% | {msg} ${chalk.gray('{additional}')}`,
@@ -47,6 +48,8 @@ function progressHandler(
     ) as number[])
   );
 
+  msg = msg || (percentage >= 1 ? 'done' : '');
+
   const payload = {
     name: name.padEnd(padEndName),
     msg: msg.padStart(padStartMsg),
@@ -54,13 +57,31 @@ function progressHandler(
   };
 
   if (bars.has(name)) {
-    const bar = bars.get(name);
-    bar?.update(percentage, payload);
+    const bar = bars.get(name)!;
+    bar.update(percentage, payload);
   } else {
     const bar = multibar.create(1, percentage, payload);
+    const hooks = WebpackPluginMulticompilerProgress.getCompilerHooks(compiler);
+    bar.on('stop', () => {
+      process.nextTick(() => {
+        hooks.done.call();
+      });
+    });
+    multibar.on('stop', () => {
+      process.nextTick(() => {
+        hooks.allDone.call();
+      });
+    });
     bars.set(name, bar);
   }
 }
+
+interface Hooks {
+  done: SyncHook<[]>;
+  allDone: SyncHook<[]>;
+}
+
+const compilerHooks = new WeakMap<Compiler, Hooks>();
 
 export class WebpackPluginMulticompilerProgress
   implements WebpackPluginInstance
@@ -93,5 +114,17 @@ export class WebpackPluginMulticompilerProgress
       },
     });
     plugin.apply(compiler);
+  }
+
+  static getCompilerHooks(compiler: Compiler) {
+    if (compilerHooks.has(compiler)) {
+      return compilerHooks.get(compiler)!;
+    }
+    const hooks: Hooks = {
+      done: new SyncHook(),
+      allDone: new SyncHook(),
+    };
+    compilerHooks.set(compiler, hooks);
+    return hooks;
   }
 }

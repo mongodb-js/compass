@@ -1,4 +1,4 @@
-import type { Compiler } from 'webpack';
+import type { Compiler, Stats } from 'webpack';
 import { pathToFileURL } from 'url';
 import { EnvironmentPlugin } from 'webpack';
 import path from 'path';
@@ -7,6 +7,7 @@ import { spawn } from 'child_process';
 import { once } from 'events';
 import electronBinaryPath from 'electron';
 import readline from 'readline';
+import { WebpackPluginMulticompilerProgress } from './webpack-plugin-multicompiler-progress';
 
 export class WebpackPluginStartElectron {
   private opts!: {
@@ -17,16 +18,20 @@ export class WebpackPluginStartElectron {
   private electronProcess: ChildProcess | null = null;
 
   private mainCompiler?: Compiler;
+  private mainStats?: Stats;
+  private mainReady = false;
 
   private rendererCompiler?: Compiler;
+  private rendererStats?: Stats;
+  private rendererReady = false;
 
   private static instance?: WebpackPluginStartElectron;
 
   private appPath: string | null = null;
-  private mainReady = false;
-  private rendererReady = false;
 
   private logger!: ReturnType<Compiler['getInfrastructureLogger']>;
+
+  private firstRun = true;
 
   constructor(
     opts: {
@@ -50,9 +55,12 @@ export class WebpackPluginStartElectron {
   }
 
   apply(compiler: Compiler): void {
+    // Default stats are too noisy, we will handle them on our own
+    compiler.options.stats = 'none';
+
     this.logger = compiler.getInfrastructureLogger(
       'webpack-plugin-start-electron'
-    );
+    ) as any;
 
     if (compiler.options.target === 'electron-renderer') {
       this.rendererCompiler = compiler;
@@ -116,18 +124,60 @@ export class WebpackPluginStartElectron {
       // and will try to start the app
       this.mainCompiler.hooks.afterDone.tap(
         'WebpackPluginStartElectron',
-        () => {
+        (stats) => {
+          if (!this.firstRun) {
+            this.printStats(stats);
+          }
+          this.mainStats = stats;
           this.mainReady = true;
-          this.startElectron();
         }
       );
       this.rendererCompiler.hooks.afterDone.tap(
         'WebpackPluginStartElectron',
-        () => {
+        (stats) => {
+          if (!this.firstRun) {
+            this.printStats(stats);
+          }
+          this.rendererStats = stats;
           this.rendererReady = true;
+        }
+      );
+
+      WebpackPluginMulticompilerProgress.getCompilerHooks(compiler).allDone.tap(
+        'WebpackPluginStartElectron',
+        () => {
+          this.printStats(this.mainStats!);
+          this.printStats(this.rendererStats!);
+          this.firstRun = false;
           this.startElectron();
         }
       );
+    }
+  }
+
+  private printStats(stats: Stats) {
+    const target = stats.compilation.options.target as string;
+    const log = stats.hasErrors()
+      ? this.logger.error.bind(this.logger)
+      : stats.hasWarnings()
+      ? this.logger.warn.bind(this.logger)
+      : this.logger.info.bind(this.logger);
+
+    log(
+      `Compiled ${target} with ${stats.compilation.warnings.length} warning(s) and ${stats.compilation.errors.length} error(s)`
+    );
+
+    // TODO: pretty print errors and warnings. Add hotkey to dump detailed error / warning info
+
+    // if (stats.hasErrors()) {
+    //   stats.compilation.errors.forEach((error) => {
+    //     console.log(error.message);
+    //   });
+    // }
+
+    if (stats.hasErrors() || stats.hasWarnings()) {
+      log();
+      log('To print more details about errors and warnings, press Ctrl+D');
     }
   }
 

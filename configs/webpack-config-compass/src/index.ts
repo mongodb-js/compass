@@ -186,6 +186,9 @@ export function createElectronRendererConfig(
     isServe(opts)
       ? {
           devServer: {
+            https: false,
+            static: false,
+            host: 'localhost',
             magicHtml: false,
             port: opts.devServerPort,
             devMiddleware: {
@@ -199,7 +202,6 @@ export function createElectronRendererConfig(
                 warnings: false,
               },
             },
-            https: false,
             hot: opts.hot,
           },
           plugins: [
