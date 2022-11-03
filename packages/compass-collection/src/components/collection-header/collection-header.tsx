@@ -5,7 +5,7 @@ import {
   withTheme,
   Link,
   spacing,
-  H3,
+  Subtitle,
   cx,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
@@ -22,9 +22,8 @@ import ClusteredBadge from './clustered-badge';
 import FLEBadge from './fle-badge';
 
 const collectionHeaderStyles = css({
-  paddingTop: spacing[3],
-  paddingBottom: spacing[1],
-  height: +spacing[6] + +spacing[2],
+  paddingTop: spacing[2],
+  height: spacing[4] * 2,
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
@@ -192,16 +191,16 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
               hideExternalIcon={true}
               onClick={() => this.handleDBClick(database)}
             >
-              <H3
+              <Subtitle
                 className={cx(
                   collectionHeaderDBNameStyles,
                   this.props.darkMode ? dbLinkDarkStyles : dbLinkLightStyles
                 )}
               >
                 {database}
-              </H3>
+              </Subtitle>
             </Link>
-            <H3
+            <Subtitle
               data-testid="collection-header-title-collection"
               className={cx(
                 collectionHeaderCollectionStyles,
@@ -211,7 +210,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
               )}
             >
               {`.${collection}`}
-            </H3>
+            </Subtitle>
           </div>
           {this.props.isReadonly && <ReadOnlyBadge />}
           {this.props.isTimeSeries && <TimeSeriesBadge />}

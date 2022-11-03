@@ -4,8 +4,8 @@ import {
   palette,
   spacing,
   Disclaimer,
-  H3,
   withTheme,
+  Subtitle,
 } from '@mongodb-js/compass-components';
 
 const collectionStatsItemStyles = css({
@@ -56,12 +56,12 @@ const CollectionStatsItem: React.FunctionComponent<
 > = ({ darkMode, dataTestId, label, value }: CollectionStatsItemProps) => {
   return (
     <div className={collectionStatsItemStyles} data-testid={dataTestId}>
-      <H3
+      <Subtitle
         className={darkMode ? darkThemeValueStyles : lightThemeValueStyles}
         data-testid={`${dataTestId}-value`}
       >
         {value}
-      </H3>
+      </Subtitle>
       <Disclaimer
         className={darkMode ? darkThemeLabelStyles : lightThemeLabelStyles}
         data-testid={`${dataTestId}-label`}

@@ -75,12 +75,6 @@ describe('WorkspaceTabs', function () {
       );
     });
 
-    it('should render all of the tab namespaces', function () {
-      expect(screen.getByText('mock-tab-1')).to.be.visible;
-      expect(screen.getByText('mock-tab-2')).to.be.visible;
-      expect(screen.getByText('mock-tab-3')).to.be.visible;
-    });
-
     it('should render all of the tab subtitles', function () {
       expect(screen.getByText('Documents - 1')).to.be.visible;
       expect(screen.getByText('Documents - 2')).to.be.visible;

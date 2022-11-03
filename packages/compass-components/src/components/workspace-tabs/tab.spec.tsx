@@ -35,10 +35,6 @@ describe('Tab', function () {
       expect(await screen.findByText('test.collection')).to.be.visible;
     });
 
-    it('should render the title', async function () {
-      expect(await screen.findByText('docs')).to.be.visible;
-    });
-
     it('should render the icon', async function () {
       expect(await screen.findByTestId('workspace-tab-icon-Folder')).to.be
         .visible;

@@ -125,51 +125,19 @@ const tabIconFocusedStyles = css({
 const tabTitleContainerStyles = css({
   marginRight: spacing[1],
   display: 'inline-grid',
-  paddingTop: spacing[3] - 2, // steal space for the border effect
-  paddingBottom: spacing[3],
+  paddingTop: spacing[2] - 2, // steal space for the border effect
+  paddingBottom: spacing[2],
   gridTemplateAreas: `
-    'icon tabName'
-    'empty namespace'
+    'icon namespace'
   `,
   columnGap: spacing[2],
   rowGap: 0,
-});
-
-const tabTitleStyles = css({
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-  overflow: 'hidden',
-  fontWeight: 'bold',
-  fontSize: '13px',
-  gridArea: 'tabName',
-});
-
-const tabTitleDarkThemeStyles = css({
-  color: palette.gray.base,
-});
-
-const tabTitleLightThemeStyles = css({
-  color: palette.gray.base,
-});
-
-const tabTitleSelectedDarkThemeStyles = css({
-  color: palette.green.light2,
-});
-
-const tabTitleSelectedLightThemeStyles = css({
-  color: palette.green.dark2,
-});
-
-const tabTitleFocusedStyles = css({
-  color: palette.blue.light1,
 });
 
 const tabSubtitleStyles = css({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   overflow: 'hidden',
-  fontSize: '13px',
-  lineHeight: `${spacing[3]}px`,
   gridArea: 'namespace',
 });
 
@@ -264,20 +232,6 @@ function UnthemedTab({
           glyph={iconGlyph}
           data-testid={`workspace-tab-icon-${iconGlyph}`}
         />
-        <div
-          className={cx(
-            tabTitleStyles,
-            darkMode ? tabTitleDarkThemeStyles : tabTitleLightThemeStyles,
-            {
-              [darkMode
-                ? tabTitleSelectedDarkThemeStyles
-                : tabTitleSelectedLightThemeStyles]: isSelected,
-              [tabTitleFocusedStyles]: isFocused,
-            }
-          )}
-        >
-          {title}
-        </div>
         <Body
           className={cx(
             tabSubtitleStyles,
