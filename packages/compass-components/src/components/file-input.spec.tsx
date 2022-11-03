@@ -1,6 +1,7 @@
 import React from 'react';
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { setImmediate as tick } from 'timers/promises';
 
 import {
   render,
@@ -10,7 +11,10 @@ import {
   waitFor,
 } from '@testing-library/react';
 
-import FileInput, { Variant } from './file-input';
+import FileInput, {
+  createElectronFileInputBackend,
+  Variant,
+} from './file-input';
 
 describe('FileInput', function () {
   let spy;
@@ -308,6 +312,182 @@ describe('FileInput', function () {
     it('calls onChange with the file removed', function () {
       expect(spy.callCount).to.equal(1);
       expect(spy.firstCall.args[0]).to.deep.equal(['another/file/path']);
+    });
+  });
+
+  describe('createElectronFileInputBackend', function () {
+    function createFakeElectron() {
+      const fakeWindow = {};
+      const fakeElectron = {
+        getCurrentWindow: sinon.stub().returns(fakeWindow),
+        dialog: {
+          showSaveDialog: sinon.stub(),
+          showOpenDialog: sinon.stub(),
+        },
+      };
+      return { fakeElectron, fakeWindow };
+    }
+
+    it('allows using electron-style APIs for file updates', async function () {
+      const { fakeElectron, fakeWindow } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(fakeElectron, 'save');
+      const listener = sinon.stub();
+      const unsubscribe = backend.onFilesChosen(listener);
+
+      fakeElectron.dialog.showSaveDialog.resolves({
+        canceled: false,
+        filePath: 'filepath',
+      });
+      backend.openFileChooser({ multi: false, accept: '.json' });
+      expect(fakeElectron.dialog.showOpenDialog).to.not.have.been.called;
+      expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledOnceWith(
+        fakeWindow,
+        {
+          properties: [],
+          filters: [{ name: '.json file', extensions: ['json'] }],
+        }
+      );
+      expect(listener).to.not.have.been.called;
+      await tick();
+      expect(listener).to.been.calledOnceWith(['filepath']);
+
+      unsubscribe();
+      backend.openFileChooser({ multi: false, accept: '.json' });
+
+      await tick();
+      expect(listener).to.have.been.calledOnce;
+      expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledTwice;
+    });
+
+    it('can partially handle browser-compatible accept values', function () {
+      const { fakeElectron, fakeWindow } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(fakeElectron, 'save');
+
+      fakeElectron.dialog.showSaveDialog.resolves({
+        canceled: true,
+      });
+      backend.openFileChooser({
+        multi: false,
+        accept: '.json, .csv, application/octet-stream',
+      });
+      expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledWith(
+        fakeWindow,
+        {
+          properties: [],
+          filters: [
+            { name: '.json file', extensions: ['json'] },
+            { name: '.csv file', extensions: ['csv'] },
+          ],
+        }
+      );
+    });
+
+    it('does not override existing file filters', function () {
+      const { fakeElectron, fakeWindow } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(fakeElectron, 'save', {
+        filters: [{ name: 'CSV file', extensions: ['csv'] }],
+      });
+
+      fakeElectron.dialog.showSaveDialog.resolves({
+        canceled: true,
+      });
+      backend.openFileChooser({
+        multi: false,
+        accept: '.json, .csv, application/octet-stream',
+      });
+      expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledWith(
+        fakeWindow,
+        {
+          properties: [],
+          filters: [
+            { name: 'CSV file', extensions: ['csv'] },
+            { name: '.json file', extensions: ['json'] },
+          ],
+        }
+      );
+    });
+
+    it('handles multi:false', function () {
+      const { fakeElectron, fakeWindow } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(fakeElectron, 'save', {
+        properties: ['multi'],
+      });
+
+      fakeElectron.dialog.showSaveDialog.resolves({
+        canceled: true,
+      });
+      backend.openFileChooser({ multi: false });
+      expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledWith(
+        fakeWindow,
+        {
+          properties: [],
+          filters: [],
+        }
+      );
+    });
+
+    it('handles multi:true', function () {
+      const { fakeElectron, fakeWindow } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(fakeElectron, 'save');
+
+      fakeElectron.dialog.showSaveDialog.resolves({
+        canceled: true,
+      });
+      backend.openFileChooser({ multi: true });
+      expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledWith(
+        fakeWindow,
+        {
+          properties: ['multi'],
+          filters: [],
+        }
+      );
+    });
+
+    it('can call showOpenDialog if requested', async function () {
+      const { fakeElectron, fakeWindow } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(fakeElectron, 'open');
+      const listener = sinon.stub();
+      backend.onFilesChosen(listener);
+
+      fakeElectron.dialog.showOpenDialog.resolves({
+        canceled: false,
+        filePaths: ['a', 'b'],
+      });
+      backend.openFileChooser({ multi: false });
+      expect(fakeElectron.dialog.showSaveDialog).to.not.have.been.called;
+      expect(fakeElectron.dialog.showOpenDialog).to.have.been.calledWith(
+        fakeWindow,
+        {
+          properties: [],
+          filters: [],
+        }
+      );
+      expect(listener).to.not.have.been.called;
+      await tick();
+      expect(listener).to.been.calledOnceWith(['a', 'b']);
+    });
+
+    it('does not call the listener if the user canceled the request', async function () {
+      const { fakeElectron } = createFakeElectron();
+
+      const backend = createElectronFileInputBackend(fakeElectron, 'save');
+      const listener = sinon.stub();
+      backend.onFilesChosen(listener);
+
+      fakeElectron.dialog.showSaveDialog.resolves({
+        canceled: true,
+        filePaths: ['a', 'b'],
+      });
+      backend.openFileChooser({ multi: false });
+      expect(listener).to.not.have.been.called;
+      await tick();
+      expect(listener).to.not.have.been.called;
     });
   });
 });
