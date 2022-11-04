@@ -226,7 +226,6 @@ describe('Collection aggregations tab', function () {
 
   // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
   it('supports creating an aggregation', async function () {
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
 
@@ -244,7 +243,6 @@ describe('Collection aggregations tab', function () {
       this.skip();
     }
 
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$search');
 
     await browser.waitUntil(async function () {
@@ -257,7 +255,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows empty preview', async function () {
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$addFields');
 
     await browser.waitUntil(async function () {
@@ -275,7 +272,6 @@ describe('Collection aggregations tab', function () {
     await collationInput.setValue('{ locale: "af" }');
 
     // select $match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     // check that it included the comment by default
     const contentElement0 = await browser.$(Selectors.stageContent(0));
@@ -312,7 +308,6 @@ describe('Collection aggregations tab', function () {
 
     // add a $project
     await browser.clickVisible(Selectors.AddStageButton);
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$project');
 
     // delete it
@@ -320,7 +315,6 @@ describe('Collection aggregations tab', function () {
 
     // add a $project
     await browser.clickVisible(Selectors.AddStageButton);
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$project');
 
     // check that it has no comment
@@ -460,7 +454,6 @@ describe('Collection aggregations tab', function () {
     await sampleSizeElement.setValue('1');
 
     // run a projection that will take lots of time
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$project');
 
     await browser.waitUntil(async function () {
@@ -503,7 +496,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports $out as the last stage', async function () {
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$out');
     await browser.setAceValue(Selectors.stageEditor(0), "'my-out-collection'");
 
@@ -546,7 +538,6 @@ describe('Collection aggregations tab', function () {
       return this.skip();
     }
 
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$merge');
     await browser.setAceValue(
       Selectors.stageEditor(0),
@@ -642,7 +633,6 @@ describe('Collection aggregations tab', function () {
 
   it('supports running and editing aggregation', async function () {
     // Set first stage to match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
@@ -684,7 +674,6 @@ describe('Collection aggregations tab', function () {
 
   it('supports paginating aggregation results', async function () {
     // Set first stage to $match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gte: 5 } }');
 
@@ -734,7 +723,6 @@ describe('Collection aggregations tab', function () {
     }`;
 
     // Set first stage to a very slow $addFields
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$addFields');
     await browser.setAceValue(Selectors.stageEditor(0), slowQuery);
 
@@ -756,7 +744,6 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
 
     // Set first stage to an invalid $project stage to trigger server error
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$project');
     await browser.setAceValue(Selectors.stageEditor(0), '{}');
 
@@ -774,7 +761,6 @@ describe('Collection aggregations tab', function () {
 
   it('supports exporting aggregation results', async function () {
     // Set first stage to $match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
@@ -813,7 +799,6 @@ describe('Collection aggregations tab', function () {
 
   it('shows the explain for a pipeline', async function () {
     // Set first stage to $match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
