@@ -74,7 +74,7 @@ const checkboxStyles = css({
   overflow: 'hidden',
 });
 
-function outputLanguageToCodeLanguage(language: OutputLanguage) {
+export function outputLanguageToCodeLanguage(language: OutputLanguage) {
   if (language === 'csharp') {
     return 'C#';
   }
@@ -90,7 +90,7 @@ function outputLanguageToCodeLanguage(language: OutputLanguage) {
   return (language as string)[0].toUpperCase() + (language as string).slice(1);
 }
 
-function codeLanguageToOutputLanguage(language: string): OutputLanguage {
+export function codeLanguageToOutputLanguage(language: string): OutputLanguage {
   if (language === 'cs') {
     return 'csharp';
   }
@@ -159,6 +159,7 @@ const ExportToLanguageModal: React.FunctionComponent<
           {errorMessage}
         </Banner>
       )}
+
       <FormFieldContainer className={editorsStyles}>
         <div className={editorStyles}>
           <Label
@@ -205,6 +206,7 @@ const ExportToLanguageModal: React.FunctionComponent<
           </Code>
         </div>
       </FormFieldContainer>
+
       <Checkbox
         className={checkboxStyles}
         data-testid="export-to-language-include-imports"
