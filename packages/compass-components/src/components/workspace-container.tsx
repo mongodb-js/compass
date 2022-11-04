@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { css, cx } from '@leafygreen-ui/emotion';
+import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { withTheme } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -28,6 +28,15 @@ const scrollBoxStyles = css({
 
 const shadowHeight = spacing[4];
 
+const fadeIn = keyframes({
+  from: {
+    opacity: 0,
+  },
+  to: {
+    opacity: 1,
+  },
+});
+
 const shadowContainerStyles = css({
   overflow: 'hidden',
   position: 'absolute',
@@ -38,6 +47,11 @@ const shadowContainerStyles = css({
   flex: 'none',
   zIndex: 1,
   pointerEvents: 'none',
+  // Animation prevents possible flicker when in-view trigger that is
+  // responsible for showing the shadow very quickly switches between being
+  // hidden to being visible again (that is the case where we don't unmount
+  // collection tabs and just use display: none to hide them)
+  animation: `${fadeIn} .1s linear`,
 });
 
 const boxShadow = (color: string) => `0px 2px ${shadowHeight}px -1px ${color}`;
@@ -100,6 +114,10 @@ function UnthemedWorkspaceContainer({
 
   const [scrollDetectionTrigger, triggerStillInView] = useInView({
     root: scrollContainer.current,
+    // Prevents flicker on initial mount: when this component mounts we know for
+    // sure that trigger in view as the trigger is at the very top of the
+    // container
+    initialInView: true,
   });
 
   return (
