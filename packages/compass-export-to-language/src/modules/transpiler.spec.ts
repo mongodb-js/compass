@@ -1,4 +1,6 @@
 import { expect } from 'chai';
+import preferences from 'compass-preferences-model';
+import sinon from 'sinon';
 import { getInputExpressionMode, runTranspiler } from './transpiler';
 
 describe('transpiler', function () {
@@ -39,7 +41,7 @@ describe('transpiler', function () {
         includeImports: false,
         includeDrivers: false,
         useBuilders: false,
-        uri: 'uri',
+        uri: 'mongodb://foo:bar@mongodb.net',
         namespace: 'namespace',
       };
 
@@ -99,7 +101,7 @@ const filter = {
 };
 
 const client = await MongoClient.connect(
-  'uri',
+  'mongodb://foo:bar@mongodb.net',
   { useNewUrlParser: true, useUnifiedTopology: true }
 );
 const coll = client.db('namespace').collection('');
@@ -123,7 +125,7 @@ await client.close();`);
 Bson filter = new Document("foo", 1L);
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
-        "uri"
+        "mongodb://foo:bar@mongodb.net"
     )
 );
 MongoDatabase database = mongoClient.getDatabase("namespace");
@@ -157,12 +159,71 @@ import org.bson.Document;
 Bson filter = eq("foo", 1L);
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
-        "uri"
+        "mongodb://foo:bar@mongodb.net"
     )
 );
 MongoDatabase database = mongoClient.getDatabase("namespace");
 MongoCollection<Document> collection = database.getCollection("");
 FindIterable<Document> result = collection.find(filter);`);
     });
+
+    for (const protectConnectionStrings of [false, true]) {
+      context(
+        `when protect connection strings is ${protectConnectionStrings}`,
+        function () {
+          beforeEach(function () {
+            sinon.stub(preferences, 'getPreferences').returns({
+              protectConnectionStrings,
+              autoUpdates: false,
+              enableMaps: false,
+              trackErrors: false,
+              trackUsageStatistics: false,
+              enableFeedbackPanel: false,
+              networkTraffic: false,
+              theme: 'DARK',
+              showedNetworkOptIn: false,
+              id: '',
+              lastKnownVersion: '',
+              currentUserId: '',
+              telemetryAnonymousId: '',
+            });
+          });
+          afterEach(function () {
+            return sinon.restore();
+          });
+
+          it('showes/hides the connection string as appropriate', function () {
+            const uri = protectConnectionStrings
+              ? 'mongodb://<credentials>@mongodb.net/'
+              : 'mongodb://foo:bar@mongodb.net';
+
+            expect(
+              runTranspiler({
+                ...defaults,
+                outputLanguage: 'javascript',
+                inputExpression: queryExpression,
+                includeDrivers: true,
+              })
+            ).to.equal(`/*
+ * Requires the MongoDB Node.js Driver
+ * https://mongodb.github.io/node-mongodb-native
+ */
+
+const filter = {
+  'foo': 1
+};
+
+const client = await MongoClient.connect(
+  '${uri}',
+  { useNewUrlParser: true, useUnifiedTopology: true }
+);
+const coll = client.db('namespace').collection('');
+const cursor = coll.find(filter);
+const result = await cursor.toArray();
+await client.close();`);
+          });
+        }
+      );
+    }
   });
 });
