@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import jsBeautify from 'js-beautify';
 import {
@@ -20,6 +20,10 @@ import {
 import type { OutputLanguage } from '../modules/languages';
 import { getInputExpressionMode, runTranspiler } from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
+
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
+const { track } = createLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
 
 // TODO: bring back the tracking that the old export modal had around opening the modal and copying the text
 
@@ -79,6 +83,21 @@ const checkboxStyles = css({
   overflow: 'hidden',
 });
 
+function stageCountForTelemetry(inputExpression: InputExpression) {
+  if (!('aggregation' in inputExpression)) {
+    return {};
+  }
+
+  try {
+    return {
+      num_stages: countAggregationStagesInString(inputExpression.aggregation),
+    };
+  } catch (ignore) {
+    // Things like [{ $match: { x: NumberInt(10) } }] do not evaluate in any kind of context
+    return { num_stages: -1 };
+  }
+}
+
 const ExportToLanguageModal: React.FunctionComponent<
   ExportToLanguageState & {
     modalOpenChanged: (isOpen: boolean) => void;
@@ -127,6 +146,32 @@ const ExportToLanguageModal: React.FunctionComponent<
     'aggregation' in inputExpression
       ? inputExpression.aggregation
       : inputExpression.filter;
+
+  const [wasOpen, setWasOpen] = useState(false);
+
+  useEffect(() => {
+    if (modalOpen && !wasOpen) {
+      track(
+        mode === 'Query' ? 'Query Export Opened' : 'Aggregation Export Opened',
+        {
+          ...stageCountForTelemetry(inputExpression),
+        }
+      );
+      track('Screen', { name: 'export_to_language_modal' });
+    }
+
+    setWasOpen(modalOpen);
+  }, [modalOpen, wasOpen, mode, inputExpression]);
+
+  function trackCopiedOutput() {
+    track(mode === 'Query' ? 'Query Exported' : 'Aggregation Exported', {
+      language: outputLanguage,
+      with_import_statements: includeImports,
+      with_drivers_syntax: includeDrivers,
+      with_builders: useBuilders,
+      ...stageCountForTelemetry(inputExpression),
+    });
+  }
 
   return (
     <InfoModal
@@ -182,6 +227,7 @@ const ExportToLanguageModal: React.FunctionComponent<
             }
             language={outputLanguageToCodeLanguage(outputLanguage)}
             copyable={true}
+            onCopy={trackCopiedOutput}
           >
             {transpiledExpression || ''}
           </Code>
