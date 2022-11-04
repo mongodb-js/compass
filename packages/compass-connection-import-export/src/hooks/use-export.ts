@@ -24,17 +24,32 @@ const INITIAL_STATE: Readonly<ExportConnectionsState> = Object.freeze({
   removeSecrets: false,
 });
 
-export function useExportConnections({
-  finish,
-  favoriteConnections,
-  open,
-  trackingProps,
-}: {
-  finish: (result: ImportExportResult) => void;
-  favoriteConnections: ConnectionInfo[];
-  open: boolean;
-  trackingProps?: Record<string, unknown>;
-}, exportConnections = dataServiceExportConnections): {
+function connectionInfosToConnectionShortInfos(
+  infos: Pick<ConnectionInfo, 'favorite' | 'id'>[],
+  existingShortInfoList?: ConnectionShortInfo[]
+): ConnectionShortInfo[] {
+  return infos.map((conn) => ({
+    id: conn.id,
+    name: conn.favorite?.name ?? '',
+    selected:
+      existingShortInfoList?.find(({ id }) => id === conn.id)?.selected ?? true,
+  }));
+}
+
+export function useExportConnections(
+  {
+    finish,
+    favoriteConnections,
+    open,
+    trackingProps,
+  }: {
+    finish: (result: ImportExportResult) => void;
+    favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
+    open: boolean;
+    trackingProps?: Record<string, unknown>;
+  },
+  exportConnections = dataServiceExportConnections
+): {
   onCancel: () => void;
   onSubmit: () => void;
   onChangeFilename: (filename: string) => void;
@@ -43,38 +58,37 @@ export function useExportConnections({
   onChangeRemoveSecrets: (evt: React.ChangeEvent<HTMLInputElement>) => void;
   state: ExportConnectionsState;
 } {
-  const propsConnectionList = favoriteConnections.map((conn) => ({
-    id: conn.id,
-    name: conn.favorite?.name ?? '',
-    selected: true,
-  }));
-
   const [state, setState] = useState<ExportConnectionsState>(INITIAL_STATE);
   useEffect(() => setState(INITIAL_STATE), [open]);
   const { passphrase, filename, connectionList, removeSecrets } = state;
 
-  if (
-    state.connectionList.map(({ id }) => id).join(',') !==
-    propsConnectionList.map(({ id }) => id).join(',')
-  ) {
-    setState((prevState) => ({
-      ...prevState,
-      connectionList: propsConnectionList,
-    }));
-  }
+  useEffect(() => {
+    if (
+      favoriteConnections.map(({ id }) => id).join(',') !==
+      state.connectionList.map(({ id }) => id).join(',')
+    ) {
+      setState((prevState) => ({
+        ...prevState,
+        connectionList: connectionInfosToConnectionShortInfos(
+          favoriteConnections,
+          state.connectionList
+        ),
+      }));
+    }
+  }, [favoriteConnections, state.connectionList]);
 
   const protectConnectionStrings = !!usePreference(
     'protectConnectionStrings',
     React
   );
-  if (protectConnectionStrings) {
-    setState((prevState) => ({ ...prevState, removeSecrets: true }));
-  }
+  useEffect(() => {
+    if (protectConnectionStrings) {
+      setState((prevState) => ({ ...prevState, removeSecrets: true }));
+    }
+  }, [protectConnectionStrings]);
 
-  const { onChangeConnectionList, onCancel } = useImportExportConnectionsCommon(
-    setState,
-    finish
-  );
+  const { onChangeConnectionList, onChangePassphrase, onCancel } =
+    useImportExportConnectionsCommon(setState, finish);
 
   const onSubmit = useCallback(() => {
     setState((prevState) => ({ ...prevState, inProgress: true }));
@@ -110,13 +124,6 @@ export function useExportConnections({
       ...prevState,
       filename,
       ...(filename !== prevState.filename && { error: '' }),
-    }));
-  }, []);
-
-  const onChangePassphrase = useCallback((passphrase: string) => {
-    setState((prevState) => ({
-      ...prevState,
-      passphrase,
     }));
   }, []);
 

@@ -42,7 +42,14 @@ export function useImportExportConnectionsCommon<S>(
     []
   );
 
-  return { onCancel, onChangeConnectionList };
+  const onChangePassphrase = useCallback((passphrase: string) => {
+    setState((prevState) => ({
+      ...prevState,
+      passphrase,
+    }));
+  }, []);
+
+  return { onCancel, onChangeConnectionList, onChangePassphrase };
 }
 
 export function makeConnectionInfoFilter(

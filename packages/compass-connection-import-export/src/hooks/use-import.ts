@@ -24,12 +24,13 @@ const INITIAL_STATE: Readonly<ImportConnectionsState> = Object.freeze({
   fileContents: '',
 });
 
-async function loadFile({
-  filename,
-  passphrase,
-}: Pick<ImportConnectionsState, 'filename' | 'passphrase'>, importConnections: typeof dataServiceImportConnections): Promise<
-  Partial<ImportConnectionsState>
-> {
+async function loadFile(
+  {
+    filename,
+    passphrase,
+  }: Pick<ImportConnectionsState, 'filename' | 'passphrase'>,
+  importConnections: typeof dataServiceImportConnections
+): Promise<Partial<ImportConnectionsState>> {
   if (!filename) {
     return INITIAL_STATE;
   }
@@ -50,6 +51,9 @@ async function loadFile({
         }
       },
     });
+    if (connectionList.length === 0) {
+      throw new Error('File does not contain any connections');
+    }
     return {
       fileContents,
       connectionList,
@@ -65,15 +69,18 @@ async function loadFile({
   }
 }
 
-export function useImportConnections({
-  finish,
-  open,
-  trackingProps,
-}: {
-  finish: (result: ImportExportResult) => void;
-  open: boolean;
-  trackingProps?: Record<string, unknown>;
-}, importConnections = dataServiceImportConnections): {
+export function useImportConnections(
+  {
+    finish,
+    open,
+    trackingProps,
+  }: {
+    finish: (result: ImportExportResult) => void;
+    open: boolean;
+    trackingProps?: Record<string, unknown>;
+  },
+  importConnections = dataServiceImportConnections
+): {
   onCancel: () => void;
   onSubmit: () => void;
   onChangeFilename: (filename: string) => void;
@@ -85,10 +92,8 @@ export function useImportConnections({
   useEffect(() => setState(INITIAL_STATE), [open]);
   const { passphrase, filename, fileContents, connectionList } = state;
 
-  const { onChangeConnectionList, onCancel } = useImportExportConnectionsCommon(
-    setState,
-    finish
-  );
+  const { onChangeConnectionList, onChangePassphrase, onCancel } =
+    useImportExportConnectionsCommon(setState, finish);
 
   const onSubmit = useCallback(() => {
     setState((prevState) => ({ ...prevState, inProgress: true }));
@@ -114,50 +119,31 @@ export function useImportConnections({
     })();
   }, [connectionList, fileContents, passphrase, finish]);
 
-  function afterChangeFilenameOrPassphrase({
-    filename,
-    passphrase,
-  }: {
-    filename: string;
-    passphrase: string;
-  }) {
-    void loadFile({ filename, passphrase }, importConnections).then((stateUpdate) => {
-      setState((prevState) => {
-        if (
-          filename === prevState.filename &&
-          passphrase === prevState.passphrase
-        )
-          return { ...prevState, ...stateUpdate };
-        return prevState;
-      });
-    });
-  }
+  useEffect(() => {
+    void loadFile({ filename, passphrase }, importConnections).then(
+      (stateUpdate) => {
+        setState((prevState) => {
+          if (
+            filename === prevState.filename &&
+            passphrase === prevState.passphrase
+          )
+            return { ...prevState, ...stateUpdate };
+          return prevState;
+        });
+      }
+    );
+  }, [filename, passphrase]);
 
-  const onChangeFilename = useCallback(
-    (filename: string) => {
-      setState((prevState) => ({
-        ...prevState,
-        filename,
-        ...(filename !== prevState.filename && {
-          error: '',
-          passphraseRequired: false,
-        }),
-      }));
-      afterChangeFilenameOrPassphrase({ filename, passphrase });
-    },
-    [passphrase]
-  );
-
-  const onChangePassphrase = useCallback(
-    (passphrase: string) => {
-      setState((prevState) => ({
-        ...prevState,
-        passphrase,
-      }));
-      afterChangeFilenameOrPassphrase({ filename, passphrase });
-    },
-    [filename]
-  );
+  const onChangeFilename = useCallback((filename: string) => {
+    setState((prevState) => ({
+      ...prevState,
+      filename,
+      ...(filename !== prevState.filename && {
+        error: '',
+        passphraseRequired: false,
+      }),
+    }));
+  }, []);
 
   return {
     onCancel,

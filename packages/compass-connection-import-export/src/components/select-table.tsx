@@ -14,9 +14,9 @@ type SelectItem = {
 
 type SelectTableProps<T extends SelectItem> = {
   items: T[];
-  columns: [key: string & keyof T, label: string][];
-  disabled: boolean;
+  columns: [key: string & keyof T, label: string | JSX.Element][];
   onChange: (newList: T[]) => void;
+  disabled?: boolean;
   className?: string;
 };
 
@@ -86,7 +86,12 @@ export function SelectTable<T extends SelectItem>(
               />
             </Cell>
             {columns.map(([name]) => (
-              <Cell key={`item-${name}`}>{item[name]}</Cell>
+              <Cell
+                key={`item-${name}`}
+                data-testid={`item-${item.id}-${name}`}
+              >
+                {item[name]}
+              </Cell>
             ))}
           </Row>
         )}
