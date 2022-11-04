@@ -1,15 +1,7 @@
 import toNS from 'mongodb-ns';
 import compiler from 'bson-transpilers';
 
-export type OutputLanguage =
-  | 'java'
-  | 'javascript'
-  | 'csharp'
-  | 'python'
-  | 'ruby'
-  | 'go'
-  | 'rust'
-  | 'php';
+import type { OutputLanguage } from './languages';
 
 type AggregationExpression = {
   aggregation: string;

@@ -13,8 +13,13 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Language } from '@mongodb-js/compass-components';
 import { modalOpenChanged } from '../modules/modal-open';
+import {
+  outputLanguageToCodeLanguage,
+  codeLanguageToOutputLanguage,
+} from '../modules/languages';
+import type { OutputLanguage } from '../modules/languages';
 import { getInputExpressionMode, runTranspiler } from '../modules/transpiler';
-import type { InputExpression, OutputLanguage } from '../modules/transpiler';
+import type { InputExpression } from '../modules/transpiler';
 
 // TODO: bring back the tracking that the old export modal had around opening the modal and copying the text
 
@@ -73,30 +78,6 @@ const checkboxStyles = css({
   // prevent an extra couple of pixels that always causes the modal to scroll unnecessarily
   overflow: 'hidden',
 });
-
-export function outputLanguageToCodeLanguage(language: OutputLanguage) {
-  if (language === 'csharp') {
-    return 'C#';
-  }
-
-  if (language === 'javascript') {
-    return 'Node';
-  }
-
-  if (language === 'php') {
-    return 'PHP';
-  }
-
-  return (language as string)[0].toUpperCase() + (language as string).slice(1);
-}
-
-export function codeLanguageToOutputLanguage(language: string): OutputLanguage {
-  if (language === 'cs') {
-    return 'csharp';
-  }
-
-  return language as OutputLanguage;
-}
 
 const ExportToLanguageModal: React.FunctionComponent<
   ExportToLanguageState & {
