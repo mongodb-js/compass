@@ -1,65 +1,42 @@
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import toNS from 'mongodb-ns';
-import compiler from 'bson-transpilers';
 import jsBeautify from 'js-beautify';
 import {
   InfoModal,
   css,
-  cx,
   Label,
   Code,
   Checkbox,
   Banner,
   spacing,
-  FormFieldContainer
+  FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import type { Language } from '@mongodb-js/compass-components';
 import { modalOpenChanged } from '../modules/modal-open';
+import { getInputExpressionMode, runTranspiler } from '../modules/transpiler';
+import type { InputExpression, OutputLanguage } from '../modules/transpiler';
 
 // TODO: bring back the tracking that the old export modal had around opening the modal and copying the text
 
 type LanguageOption = {
   displayName: string;
   language: Language;
-}
+};
 
 const languageOptions: LanguageOption[] = [
   { displayName: 'Java', language: 'java' },
-  { displayName: 'Javascript', language: 'javascript' },
+  { displayName: 'Node', language: 'javascript' },
   { displayName: 'C#', language: 'cs' },
   { displayName: 'Python', language: 'python' },
   { displayName: 'Ruby', language: 'ruby' },
   { displayName: 'Go', language: 'go' },
   { displayName: 'Rust', language: 'rust' },
-  { displayName: 'PHP', language: 'php' }
+  { displayName: 'PHP', language: 'php' },
 ];
 
-type AggregationExpression = {
-  aggregation: string;
-};
-
-type QueryExpression = {
-  filter: string;
-  project?: string;
-  sort?: string;
-  collation?: string;
-  skip?: string;
-  limit?: string;
-  maxTimeMS?: string;
-};
-
-type InputExpression = AggregationExpression | QueryExpression;
-
-type OutputLanguage =
-  | 'java'
-  | 'javascript'
-  | 'csharp'
-  | 'python'
-  | 'ruby'
-  | 'go'
-  | 'rust'
-  | 'php';
+const shellLanguageOptions: LanguageOption[] = [
+  { displayName: 'Shell', language: 'javascript' },
+];
 
 type ExportToLanguageState = {
   modalOpen: boolean;
@@ -67,79 +44,6 @@ type ExportToLanguageState = {
   uri: string;
   namespace: string;
 };
-
-function getInputExpressionMode(inputExpression: InputExpression) {
-  if ('filter' in inputExpression) {
-    return 'Query';
-  }
-  return 'Pipeline';
-}
-
-type RunTranspilerOptions = {
-  inputExpression: InputExpression;
-  outputLanguage: OutputLanguage;
-  includeImports: boolean;
-  includeDrivers: boolean;
-  useBuilders: boolean;
-  uri: string;
-  namespace: string;
-};
-
-function runTranspiler({
-  inputExpression,
-  outputLanguage,
-  includeImports,
-  includeDrivers,
-  useBuilders,
-  uri,
-  namespace,
-}: RunTranspilerOptions) {
-  const mode = getInputExpressionMode(inputExpression);
-
-  useBuilders =
-    useBuilders && !(outputLanguage === 'java' && mode === 'Pipeline');
-
-  let output = '';
-
-  if (includeImports) {
-    output += compiler.shell[outputLanguage].getImports(includeDrivers);
-    output += '\n\n';
-  }
-
-  if (includeDrivers) {
-    const ns = toNS(namespace);
-    const toCompile = Object.assign(
-      {
-        options: {
-          collection: ns.collection,
-          database: ns.database,
-          uri,
-        },
-      },
-      inputExpression
-    );
-    output += compiler.shell[outputLanguage].compileWithDriver(
-      toCompile,
-      useBuilders
-    );
-    return output;
-  }
-
-  // TODO: what should we do about the fact that compile() ignores everything
-  // except 'filter' for queries? (ie. projection, sort, etc) whereas
-  // compileWithDriver() takes all that into account?
-  const toCompile =
-    'aggregation' in inputExpression
-      ? inputExpression.aggregation
-      : inputExpression.filter;
-  output += compiler.shell[outputLanguage].compile(
-    toCompile,
-    useBuilders,
-    false
-  );
-
-  return output;
-}
 
 const bannerStyles = css({
   marginBottom: spacing[3],
@@ -161,14 +65,7 @@ const editorHeadingStyles = css({
 
 const codeStyles = css({
   alignItems: 'start',
-});
-
-const inputStyles = css({
-  height: `${spacing[6]*2 + 40}px`,
-});
-
-const outputStyles = css({
-  height: spacing[6]*2,
+  height: `${spacing[6] * 4 - spacing[5]}px`,
 });
 
 const checkboxStyles = css({
@@ -182,20 +79,23 @@ function outputLanguageToCodeLanguage(language: OutputLanguage) {
     return 'C#';
   }
 
+  if (language === 'javascript') {
+    return 'Node';
+  }
+
   if (language === 'php') {
     return 'PHP';
   }
 
-  return language[0].toUpperCase()+language.slice(1);
+  return (language as string)[0].toUpperCase() + (language as string).slice(1);
 }
 
-function codeLanguageToOutputLanguage(language: string) {
-
+function codeLanguageToOutputLanguage(language: string): OutputLanguage {
   if (language === 'cs') {
     return 'csharp';
   }
 
-  return language;
+  return language as OutputLanguage;
 }
 
 const ExportToLanguageModal: React.FunctionComponent<
@@ -269,13 +169,17 @@ const ExportToLanguageModal: React.FunctionComponent<
             My {mode}
           </Label>
           <Code
-            className={cx(codeStyles, inputStyles)}
+            className={codeStyles}
             id="export-to-language-input"
             data-testid="export-to-language-input"
-            language="javascript"
+            languageOptions={shellLanguageOptions}
+            onChange={() => {
+              return;
+            }}
+            language="Shell"
             copyable={true}
           >
-            {jsBeautify(input, null, 2)}
+            {mode === 'Query' ? jsBeautify(input, null, 2) : input}
           </Code>
         </div>
         <div className={editorStyles}>
@@ -287,11 +191,13 @@ const ExportToLanguageModal: React.FunctionComponent<
             Exported {mode}
           </Label>
           <Code
-            className={cx(codeStyles, outputStyles)}
+            className={codeStyles}
             id="export-to-language-output"
             data-testid="export-to-language-output"
             languageOptions={languageOptions}
-            onChange={(option: LanguageOption) => setOutputLanguage(codeLanguageToOutputLanguage(option.language) as OutputLanguage)}
+            onChange={(option: LanguageOption) =>
+              setOutputLanguage(codeLanguageToOutputLanguage(option.language))
+            }
             language={outputLanguageToCodeLanguage(outputLanguage)}
             copyable={true}
           >
