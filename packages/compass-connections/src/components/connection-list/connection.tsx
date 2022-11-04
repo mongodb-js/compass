@@ -20,6 +20,7 @@ import { getConnectionTitle } from 'mongodb-data-service';
 
 import ConnectionIcon from './connection-icon';
 import { useConnectionColor } from '@mongodb-js/connection-form';
+import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -254,7 +255,9 @@ function Connection({
 
       if (action === 'copy-connection-string') {
         void copyConnectionString(
-          connectionInfo.connectionOptions.connectionString
+          maybeProtectConnectionString(
+            connectionInfo.connectionOptions.connectionString
+          )
         );
         return;
       }

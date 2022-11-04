@@ -1,5 +1,6 @@
 import toNS from 'mongodb-ns';
 import compiler from 'bson-transpilers';
+import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 
 import type { OutputLanguage } from './languages';
 
@@ -65,7 +66,7 @@ export function runTranspiler({
         options: {
           collection: ns.collection,
           database: ns.database,
-          uri,
+          uri: maybeProtectConnectionString(uri),
         },
       },
       inputExpression

@@ -27,6 +27,7 @@ import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
+import { usePreference } from 'compass-preferences-model';
 
 const formContainerStyles = css({
   margin: 0,
@@ -131,11 +132,12 @@ function ConnectForm({
 }): React.ReactElement {
   const [
     {
-      enableEditingConnectionString,
+      enableEditingConnectionString: _enableEditingConnectionString,
       isDirty,
       errors,
       warnings,
       connectionOptions,
+      allowEditingIfProtected,
     },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
@@ -144,6 +146,11 @@ function ConnectForm({
 
   const [saveConnectionModal, setSaveConnectionModal] =
     useState<SaveConnectionModalState>('hidden');
+  const protectConnectionStrings =
+    !!usePreference('protectConnectionStrings', React) &&
+    !allowEditingIfProtected;
+  const enableEditingConnectionString =
+    _enableEditingConnectionString && !protectConnectionStrings;
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'
@@ -258,6 +265,7 @@ function ConnectForm({
                 }
                 onSubmit={() => onSubmitForm()}
                 updateConnectionFormField={updateConnectionFormField}
+                protectConnectionStrings={protectConnectionStrings}
               />
               {connectionStringInvalidError && (
                 <Banner
@@ -267,12 +275,14 @@ function ConnectForm({
                   {connectionStringInvalidError.message}
                 </Banner>
               )}
-              <AdvancedConnectionOptions
-                errors={connectionStringInvalidError ? [] : errors}
-                disabled={!!connectionStringInvalidError}
-                updateConnectionFormField={updateConnectionFormField}
-                connectionOptions={connectionOptions}
-              />
+              {!protectConnectionStrings && (
+                <AdvancedConnectionOptions
+                  errors={connectionStringInvalidError ? [] : errors}
+                  disabled={!!connectionStringInvalidError}
+                  updateConnectionFormField={updateConnectionFormField}
+                  connectionOptions={connectionOptions}
+                />
+              )}
             </div>
             <div className={formFooterStyles}>
               <ConnectFormActions

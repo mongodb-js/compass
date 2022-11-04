@@ -1,9 +1,9 @@
-import React, { PureComponent, useMemo, useState, useCallback } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import { TextButton } from 'hadron-react-buttons';
-import fileOpenDialog from '../../utils/file-open-dialog';
+
 import {
   FINISHED_STATUSES,
   COMPLETED_STATUSES,
@@ -15,11 +15,10 @@ import {
   UNSPECIFIED,
 } from '../../constants/process-status';
 import ProgressBar from '../progress-bar';
-import ErrorBox from '../error-box';
 import ImportPreview from '../import-preview';
 import ImportOptions from '../import-options';
 import FILE_TYPES from '../../constants/file-types';
-import formatNumber from '../../utils/format-number.js';
+import formatNumber from '../../utils/format-number';
 import {
   startImport,
   cancelImport,
@@ -32,11 +31,7 @@ import {
   toggleIncludeField,
   setFieldType,
 } from '../../modules/import';
-import styles from './import-modal.module.less';
-import createStyler from '../../utils/styler';
-import classnames from 'classnames';
-
-const style = createStyler(styles, 'import-modal');
+import { ImportErrorList } from '../import-error-list/import-error-list';
 
 /**
  * Progress messages.
@@ -49,79 +44,6 @@ const MESSAGES = {
   [FAILED]: 'Failed to import with the following error:',
   [UNSPECIFIED]: '',
 };
-
-const SHOW_MORE_STEP = 10;
-
-const DEFAULT_VISIBLE_ERRORS_COUNT = 3;
-
-function ErrorsList({ errors }) {
-  const [visibleErrorsCount, setVisibleErrorsCount] = useState(
-    DEFAULT_VISIBLE_ERRORS_COUNT
-  );
-
-  const normalizedErrorMessages = useMemo(() => {
-    // BulkWrite and WriteErrors can have identical messages, we want to leave
-    // only unique errors for display. We also reversing to show recent errors
-    // higher in the list
-    return [...new Set(errors.map((err) => err.message))].reverse();
-  }, [errors]);
-
-  const showMoreCount = useMemo(() => {
-    return formatNumber(
-      Math.min(
-        SHOW_MORE_STEP,
-        normalizedErrorMessages.length - visibleErrorsCount
-      )
-    );
-  }, [normalizedErrorMessages.length, visibleErrorsCount]);
-
-  const increaseVisibleErrorsCount = useCallback(() => {
-    setVisibleErrorsCount((currCount) => currCount + SHOW_MORE_STEP);
-  });
-
-  if (normalizedErrorMessages.length === 0) {
-    return (
-      <div className={style('errors')}>
-        <ErrorBox
-          dataTestId="import-error-box"
-          message={normalizedErrorMessages[0]}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className={style('errors')}>
-      <ul className={style('errors-list')}>
-        {normalizedErrorMessages.slice(0, visibleErrorsCount).map((message) => (
-          <li key={message} className={style('errors-list-item')}>
-            <ErrorBox dataTestId="import-error-box" message={message} />
-          </li>
-        ))}
-      </ul>
-      {showMoreCount > 0 && (
-        <button
-          type="button"
-          className={classnames(
-            'btn btn-default btn-xs',
-            style('show-more-errors-button')
-          )}
-          onClick={increaseVisibleErrorsCount}
-        >
-          <i className="fa fa-arrow-down" aria-hidden="true" />
-          <span className={style('show-more-errors-button-text')}>
-            Show {showMoreCount} more errors
-          </span>
-        </button>
-      )}
-    </div>
-  );
-}
-
-ErrorsList.propTypes = {
-  errors: PropTypes.array,
-};
-
 class ImportModal extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
@@ -315,7 +237,6 @@ class ImportModal extends PureComponent {
             setStopOnErrors={this.props.setStopOnErrors}
             ignoreBlanks={this.props.ignoreBlanks}
             setIgnoreBlanks={this.props.setIgnoreBlanks}
-            fileOpenDialog={fileOpenDialog}
           />
           {this.renderImportPreview()}
           <ProgressBar
@@ -344,7 +265,7 @@ class ImportModal extends PureComponent {
             }}
             message={MESSAGES[status]}
           />
-          <ErrorsList errors={errors} />
+          <ImportErrorList errors={errors} />
         </Modal.Body>
         <Modal.Footer>
           {this.renderCancelButton()}

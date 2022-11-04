@@ -480,6 +480,13 @@ exports.run = (argv, done) => {
         .then(() => cb())
         .catch(cb);
     },
+    task('copy npmrc from root', ({ dir }, done) => {
+      fs.cp(
+        path.resolve(dir, '..', '..', '.npmrc'),
+        path.resolve(dir, '.npmrc'),
+        done
+      );
+    }),
     task('compile application assets with webpack', compileAssets),
     task('create branded application', createBrandedApplication),
     task('create executable symlink', symlinkExecutable),
@@ -497,10 +504,19 @@ exports.run = (argv, done) => {
   ].filter(Boolean));
 
   return async.series(tasks, (_err) => {
-    if (_err) {
-      return done(_err);
+    try {
+      if (_err) {
+        return done(_err);
+      }
+      done(null, target);
+    } finally {
+      // clean up copied npmrc
+      fs.rm(path.resolve(target.dir, '.npmrc'), (err) => {
+        if (err) {
+          cli.warn(err.message);
+        }
+      });
     }
-    done(null, target);
   });
 };
 

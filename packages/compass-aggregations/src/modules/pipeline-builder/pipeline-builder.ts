@@ -7,6 +7,7 @@ import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
 import { parseEJSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
+import { isLastStageOutputStage } from '../../utils/stage';
 
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
 
@@ -116,9 +117,14 @@ export class PipelineBuilder {
    */
   getPreviewForPipeline(
     namespace: string,
-    options: PreviewOptions
+    options: PreviewOptions,
+    filterOutputStage = false,
   ): Promise<Document[]> {
-    const pipeline = this.getPipelineFromSource();
+    // For preview we ignore $out/$merge stage.
+    const pipeline = [...this.getPipelineFromSource()];
+    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+      pipeline.pop();
+    }
     return this.previewManager.getPreviewForStage(
       pipeline.length - 1,
       namespace,

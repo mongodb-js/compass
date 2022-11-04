@@ -1,47 +1,26 @@
 import React from 'react';
 
-import {
-  MongoDBLogo,
-  css,
-  cx,
-  spacing,
-  Subtitle,
-  useTheme,
-  Theme,
-} from '@mongodb-js/compass-components';
+import { css, spacing, Subtitle } from '@mongodb-js/compass-components';
 
-const connectionsTitle = css({
+const containerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  color: 'var(--title-color)',
   backgroundColor: 'var(--title-bg-color)',
 
   height: spacing[6],
   padding: spacing[3] + spacing[1],
 });
 
-const connectionsTitleText = css({
+const connectionsTitleStyles = css({
   color: 'var(--title-color)',
-  marginTop: spacing[1],
-  marginLeft: spacing[1],
+  fontFamily: 'MongoDB Value Serif',
+  fontWeight: 'normal',
 });
 
-export default function ConnectionsTitle({
-  isExpanded,
-}: {
-  isExpanded: boolean;
-}) {
-  const { theme } = useTheme();
-
+export default function ConnectionsTitle() {
   return (
-    <div className={cx(connectionsTitle)} data-testid="connections-title">
-      <MongoDBLogo
-        color={theme === Theme.Dark ? 'black' : 'white'}
-        height={26}
-      />
-      {isExpanded && (
-        <Subtitle className={connectionsTitleText}>Compass</Subtitle>
-      )}
+    <div className={containerStyles} data-testid="connections-title">
+      <Subtitle className={connectionsTitleStyles}>Compass</Subtitle>
     </div>
   );
 }

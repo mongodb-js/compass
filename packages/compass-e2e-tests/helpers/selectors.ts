@@ -490,10 +490,11 @@ export const DocumentListFetching =
 export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError = '[data-testid="document-list-error-summary"]';
-export const AddDataButton = '[data-testid="crud-add-data-button"]';
+export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
 export const InsertDocumentOption =
-  '[data-testid="crud-add-data-insert-document"]';
-export const ImportFileOption = '[data-testid="crud-add-data-import-file"]';
+  '[data-testid="crud-add-data-insert-document-action"]';
+export const ImportFileOption =
+  '[data-testid="crud-add-data-import-file-action"]';
 export const DocumentListEntry = '[data-testid="editable-document"]';
 export const DocumentJSONEntry = '[data-testid="document-json-item"]';
 export const SelectJSONView = '[data-testid="toolbar-view-json"]';
@@ -614,13 +615,13 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 
 // Aggregations tab
 export const StageContainer = '[data-testid="stage-container"]';
-export const CreateNewPipelineMenuButton = '[data-testid="create-new-menu"]';
-export const CreateNewPipelineMenuContent =
-  '[data-testid="create-new-menu-content"]';
+export const CreateNewPipelineMenuButton =
+  '[data-testid="create-new-menu-show-actions"]';
+export const CreateNewPipelineMenuContent = '[data-testid="create-new-menu"]';
 export const CreateNewEmptyPipelineAction =
-  '[data-testid="create-new-menu-createPipleine"]';
+  '[data-testid="create-new-menu-createPipeline-action"]';
 export const CreateNewPipelineFromTextAction =
-  '[data-testid="create-new-menu-createPipleineFromText"]';
+  '[data-testid="create-new-menu-createPipelineFromText-action"]';
 export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';
@@ -653,11 +654,12 @@ export const ExportAggregationToLanguage =
   '[data-testid="pipeline-toolbar-export-button"]';
 export const NewPipelineActions = '#new-pipeline-actions';
 export const NewPipelineActionsMenu = `${NewPipelineActions} + [role="menu"]`;
-export const SavePipelineMenuButton = '[data-testid="save-menu"]';
-export const SavePipelineMenuContent = '[data-testid="save-menu-content"]';
+export const SavePipelineMenuButton = '[data-testid="save-menu-show-actions"]';
+export const SavePipelineMenuContent = '[data-testid="save-menu"]';
 export const SavePipelineCreateViewAction =
-  '[data-testid="save-menu-createView"]';
-export const SavePipelineSaveAsAction = '[data-testid="save-menu-saveAs"]';
+  '[data-testid="save-menu-createView-action"]';
+export const SavePipelineSaveAsAction =
+  '[data-testid="save-menu-saveAs-action"]';
 export const AggregationAutoPreviewToggle =
   '[data-testid="pipeline-toolbar-preview-toggle"]';
 export const AggregationErrorBanner = '[data-testid="pipeline-results-error"]';
@@ -668,9 +670,6 @@ export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collec
 export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
 
 // New Aggregation Toolbar Specific
-export const AggregationToolbarCreateMenu = '[data-testid="create-new-menu"]';
-export const AggregationToolbarCreateNewPipeline =
-  '[data-testid="create-new-menu-content"]  > li:nth-child(1)';
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
@@ -880,7 +879,7 @@ export const CloseWorkspaceTab = '[data-testid="close-workspace-tab"]';
 // Export modal
 export const ExportModal = '[data-testid="export-modal"]';
 export const ExportModalQueryText =
-  '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"] .ace_text-layer';
+  '[data-testid="export-modal"] [data-testid="query-viewer-wrapper"]';
 export const ExportModalFullCollectionOption =
   '[data-testid="export-modal"] [data-testid="export-full-collection"]';
 export const ExportModalSelectFieldsButton =
@@ -893,24 +892,8 @@ export const ExportModalShowFileButton =
   '[data-testid="export-modal"] [data-testid="show-file-button"]';
 export const ExportModalCloseButton =
   '[data-testid="export-modal"] [data-testid="close-button"]';
-export const ExportModalFileText = '[data-testid="export-modal"] #export-file';
-
-export const selectExportFileTypeButton = (
-  fileType: string,
-  selected?: boolean
-): string => {
-  const selector = `[data-testid="export-modal"] [data-testid="select-file-type-${fileType}"]`;
-
-  if (selected === true) {
-    return `${selector}[aria-selected="true"]`;
-  }
-
-  if (selected === false) {
-    return `${selector}[aria-selected="false"]`;
-  }
-
-  return selector;
-};
+export const ExportModalFileInput =
+  '[data-testid="export-modal"] #export-file_file_input';
 
 export const exportModalExportField = (fieldName: string): string => {
   return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;

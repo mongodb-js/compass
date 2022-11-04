@@ -13,6 +13,7 @@ import HeaderComponent from './table-view/header-cell-renderer';
 import CellEditor from './table-view/cell-editor';
 
 import './document-table-view.less';
+import { cx } from '@mongodb-js/compass-components';
 
 const MIXED = 'Mixed';
 
@@ -916,7 +917,7 @@ class DocumentTableView extends React.Component {
   render() {
     return (
       <div className="document-table-view-container">
-        <div className="ag-parent">
+        <div className={cx('ag-parent', this.props.className)}>
           <BreadcrumbComponent
             collection={this.collection}
             pathChanged={this.props.pathChanged}
@@ -958,6 +959,7 @@ DocumentTableView.propTypes = {
   store: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired,
   tz: PropTypes.string.isRequired,
+  className: PropTypes.string,
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

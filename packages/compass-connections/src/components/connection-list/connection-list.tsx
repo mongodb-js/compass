@@ -146,11 +146,9 @@ function ConnectionList({
 
   const { theme } = useTheme();
 
-  const isExpanded = true; // TODO: https://jira.mongodb.org/browse/COMPASS-5967
-
   return (
     <Fragment>
-      <ConnectionsTitle isExpanded={isExpanded} />
+      <ConnectionsTitle />
       <div className={newConnectionButtonContainerStyles}>
         <Button
           className={cx(
