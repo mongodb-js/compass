@@ -57,8 +57,7 @@ export function runTranspiler({
 }: RunTranspilerOptions) {
   const mode = getInputExpressionMode(inputExpression);
 
-  useBuilders =
-    useBuilders && !(outputLanguage === 'java' && mode === 'Pipeline');
+  useBuilders = useBuilders && outputLanguage === 'java' && mode == 'Query';
 
   let output = '';
 
