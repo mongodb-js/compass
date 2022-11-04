@@ -206,7 +206,7 @@ const ExportToLanguageModal: React.FunctionComponent<
             language="Shell"
             copyable={true}
           >
-            {mode === 'Query' ? jsBeautify(input, null, 2) : input}
+            {mode === 'Query' ? jsBeautify(input, { indent_size: 2 }) : input}
           </Code>
         </div>
         <div className={editorStyles}>

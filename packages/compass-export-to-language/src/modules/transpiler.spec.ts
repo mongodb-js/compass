@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import preferences from 'compass-preferences-model';
 import sinon from 'sinon';
 import { getInputExpressionMode, runTranspiler } from './transpiler';
+import type { InputExpression } from './transpiler';
 
 describe('transpiler', function () {
   describe('getInputExpressionMode', function () {
@@ -31,19 +32,19 @@ describe('transpiler', function () {
   });
 
   describe('runTranspiler', function () {
-    let defaults;
-    let queryExpression;
-    let aggregationExpression;
+    let defaults: any;
+    let queryExpression: InputExpression;
+    let aggregationExpression: InputExpression;
 
     beforeEach(function () {
       defaults = {
-        outputLanguage: 'python' as const,
+        outputLanguage: 'python',
         includeImports: false,
         includeDrivers: false,
         useBuilders: false,
         uri: 'mongodb://foo:bar@mongodb.net',
         namespace: 'namespace',
-      };
+      } as const;
 
       queryExpression = { filter: '{ foo: 1 }' };
       aggregationExpression = { aggregation: '[{ $match: { foo: 1 }}]' };
