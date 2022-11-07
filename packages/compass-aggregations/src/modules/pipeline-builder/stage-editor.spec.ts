@@ -234,5 +234,16 @@ number`
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
     });
+
+    it('should cancel preview for stage when new stage state is invalid', function () {
+      store.dispatch(changeStageValue(0, '{ foo: 1 }'));
+      Sinon.resetHistory();
+      store.dispatch(changeStageValue(0, '{ foo: '));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.cancelPreviewForStage).to.have.been
+        .calledThrice; // Three times for three stages in the pipeline
+    });
   });
 });

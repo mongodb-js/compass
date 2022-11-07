@@ -72,6 +72,7 @@ export function createPreviewAggregation(
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
   constructor(private dataService: DataService) {}
+
   /**
    * Request aggregation results with a default debounce
    */
@@ -100,7 +101,7 @@ export class PipelinePreviewManager {
       pipeline: createPreviewAggregation(pipeline, {
         sampleSize,
         previewSize,
-        totalDocumentCount,
+        totalDocumentCount
       }),
       options
     });
