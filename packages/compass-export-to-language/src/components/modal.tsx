@@ -58,12 +58,12 @@ const bannerStyles = css({
   marginBottom: spacing[3],
 });
 
-const editorsStyles = css({
+const formFieldContainerStyles = css({
   display: 'flex',
   gap: spacing[4],
 });
 
-const editorStyles = css({
+const fieldStyles = css({
   flex: '1 1 0px',
 });
 
@@ -175,6 +175,7 @@ const ExportToLanguageModal: React.FunctionComponent<
 
   return (
     <InfoModal
+      data-testid="export-to-language-modal"
       open={modalOpen}
       onClose={onClose}
       title={`Export ${mode} To Language`}
@@ -186,8 +187,11 @@ const ExportToLanguageModal: React.FunctionComponent<
         </Banner>
       )}
 
-      <FormFieldContainer className={editorsStyles}>
-        <div className={editorStyles}>
+      <FormFieldContainer className={formFieldContainerStyles}>
+        <div
+          className={fieldStyles}
+          data-testid="export-to-language-input-field"
+        >
           <Label
             data-testid="export-to-language-export-from"
             htmlFor="export-to-language-input"
@@ -209,7 +213,10 @@ const ExportToLanguageModal: React.FunctionComponent<
             {mode === 'Query' ? jsBeautify(input, { indent_size: 2 }) : input}
           </Code>
         </div>
-        <div className={editorStyles}>
+        <div
+          className={fieldStyles}
+          data-testid="export-to-language-output-field"
+        >
           <Label
             data-testid="export-to-language-export-to-label"
             htmlFor="export-to-language-output"

@@ -900,23 +900,22 @@ export const exportModalExportField = (fieldName: string): string => {
 };
 
 // Export to language modal
-export const ExportToLanguageModal = '[data-testid="export-to-lang-modal"]';
+export const ExportToLanguageModal = '[data-testid="export-to-language-modal"]';
 export const ExportToLanguageLanguageField =
-  '[data-testid="select-lang-field"]';
+  '[data-testid="export-to-language-output-field"] button[aria-labelledby="Language Picker"]';
 export const ExportToLanguageLanguageListbox =
-  '[data-testid="select-lang-field"] [role="listbox"]';
+  'ul[aria-labelledby="Language Picker"]';
 export const ExportToLanguageImportsCheckbox =
-  '[data-testid="export-to-lang-checkbox-imports"]';
+  '[data-testid="export-to-language-include-imports"]';
 export const ExportToLanguageDriverCheckbox =
-  '[data-testid="export-to-lang-checkbox-driver"]';
+  '[data-testid="export-to-language-include-drivers"]';
 export const ExportToLanguageBuildersCheckbox =
-  '[data-testid="export-to-lang-checkbox-builders"]';
+  '[data-testid="export-to-language-use-builders"]';
 export const ExportToLanguageCopyOutputButton =
-  '[data-testid="export-to-lang-copy-output"]';
-export const ExportToLanguageCloseButton =
-  '[data-testid="export-to-lang-modal"] .modal-footer .btn-default';
+  '[data-testid="export-to-language-output-field"] [aria-label="Copy"]';
+export const ExportToLanguageCloseButton = `${ExportToLanguageModal} [data-testid=close-button]`;
 export const ExportToLanguageQueryOutput =
-  '[data-testid="export-to-lang-query-output-container"]';
+  '[data-testid="export-to-language-output"]';
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =

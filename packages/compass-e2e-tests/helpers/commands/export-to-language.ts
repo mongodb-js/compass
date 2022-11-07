@@ -17,10 +17,10 @@ export async function exportToLanguage(
   await exportModal.waitForDisplayed();
 
   // pick the language
-  await browser.clickVisible(Selectors.ExportToLanguageLanguageField);
+  await browser.$(Selectors.ExportToLanguageLanguageField).click();
   const listBox = await browser.$(Selectors.ExportToLanguageLanguageListbox);
   await listBox.waitForDisplayed();
-  const languageElement = await listBox.$(`div=${language}`);
+  const languageElement = await listBox.$(`[value="${language}"]`);
   await languageElement.waitForDisplayed();
   await languageElement.click();
 
@@ -28,9 +28,9 @@ export async function exportToLanguage(
     const importsCheckbox = await browser.$(
       Selectors.ExportToLanguageImportsCheckbox
     );
-    await importsCheckbox.waitForDisplayed();
+    const importsLabel = await importsCheckbox.parentElement();
     if (!(await importsCheckbox.isSelected())) {
-      await importsCheckbox.click();
+      await importsLabel.click();
     }
   }
 
@@ -39,9 +39,9 @@ export async function exportToLanguage(
     const driverCheckbox = await browser.$(
       Selectors.ExportToLanguageDriverCheckbox
     );
-    await driverCheckbox.waitForDisplayed();
+    const driverLabel = await driverCheckbox.parentElement();
     if (!(await driverCheckbox.isSelected())) {
-      await driverCheckbox.click();
+      await driverLabel.click();
     }
   }
 
@@ -50,26 +50,16 @@ export async function exportToLanguage(
     const buildersCheckbox = await browser.$(
       Selectors.ExportToLanguageBuildersCheckbox
     );
-    await buildersCheckbox.waitForDisplayed();
+    const buildersLabel = await buildersCheckbox.parentElement();
     if (!(await buildersCheckbox.isSelected())) {
-      await buildersCheckbox.click();
+      await buildersLabel.click();
     }
   }
 
   let text = '';
 
   if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE === 'true') {
-    text = await browser.execute((_selector) => {
-      const aceEditorContainer = document.querySelector(
-        `${_selector} .ace_editor`
-      );
-      if (!aceEditorContainer) {
-        throw new Error(
-          `Cannot find ace-editor container for selector ${_selector}`
-        );
-      }
-      return (window as any).ace.edit(aceEditorContainer.id).getValue();
-    }, Selectors.ExportToLanguageQueryOutput);
+    text = await browser.$(Selectors.ExportToLanguageQueryOutput).getText();
   } else {
     // copy the text to and from the clipboard so we can return it later
     await browser.clickVisible(Selectors.ExportToLanguageCopyOutputButton);

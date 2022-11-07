@@ -50,7 +50,15 @@ export function runTranspiler({
 }: RunTranspilerOptions) {
   const mode = getInputExpressionMode(inputExpression);
 
-  useBuilders = useBuilders && outputLanguage === 'java' && mode == 'Query';
+  useBuilders = useBuilders && outputLanguage === 'java' && mode === 'Query';
+
+  console.log({
+    outputLanguage,
+    mode,
+    includeImports,
+    includeDrivers,
+    useBuilders,
+  });
 
   let output = '';
 
