@@ -1,5 +1,4 @@
 import type { CompassBrowser } from '../compass-browser';
-import delay from '../delay';
 import * as Selectors from '../selectors';
 import { focusStageOperator } from './focus-stage-operator';
 
