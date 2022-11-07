@@ -24,17 +24,15 @@ export async function selectStageOperator(
     return isFocused === false;
   });
 
-  // click the textarea to focus the stage (this should happen automatically,
-  // but flakes very often in CI)
-  await browser.$(textareaSelector).click();
+  const stageSelectorListBoxElement = await browser.$(
+    Selectors.stagePickerListBox(index)
+  );
+
+  await stageSelectorListBoxElement.waitForDisplayed({ reverse: true });
 
   await browser.waitUntil(async () => {
     const textareaElement = await browser.$(textareaSelector);
     const isFocused = await textareaElement.isFocused();
     return isFocused === true;
   });
-
-  // NOTE: even if the focus moved away from the combobox interactions are still
-  // targeting the combobox
-  await delay(1000);
 }
