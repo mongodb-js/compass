@@ -118,8 +118,6 @@ export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
   onCreatePipeline,
   onCreatePipelineFromText,
 }) => {
-  console.log(process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE)
-
   if (process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true') {
     return (
       <Button
