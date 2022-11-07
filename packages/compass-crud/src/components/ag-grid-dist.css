@@ -898,6 +898,7 @@ ag-grid-aurelia {
   height: 100%;
   position: absolute;
   vertical-align: bottom;
+  user-select: none;
 }
 
 .ag-header-group-cell-label {
@@ -1235,7 +1236,7 @@ ag-grid-aurelia {
 .ag-dnd-ghost {
   background: #e8edeb;
   border: 1px solid #001e2b;
-  cursor: move;
+  cursor: grabbing;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 1.4;
