@@ -353,6 +353,7 @@ class AddFieldButton extends React.Component {
     }
     return (
       <button
+        data-testid="table-view-cell-editor-add-field-button"
         type="button"
         className={this.divClassName()}
         onClick={this.handleClick.bind(this)}
