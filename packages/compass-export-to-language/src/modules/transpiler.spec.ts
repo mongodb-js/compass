@@ -77,7 +77,7 @@ describe('transpiler', function () {
           inputExpression: queryExpression,
           includeImports: true,
         })
-      ).to.equal(`
+      ).to.equal(`use mongodb::bson::doc;
 
 doc! {
     "foo": 1
@@ -144,7 +144,8 @@ FindIterable<Document> result = collection.find(filter);`);
         useBuilders: true,
       }).replace(/\s+$/gm, ''); // remove spaces at the end of lines
 
-      expect(output).to.equal(`import org.bson.Document;
+      expect(output).to
+        .equal(`import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;

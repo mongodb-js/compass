@@ -62,11 +62,6 @@ export function runTranspiler({
 
   let output = '';
 
-  if (includeImports) {
-    output += compiler.shell[outputLanguage].getImports(includeDrivers);
-    output += '\n\n';
-  }
-
   if (includeDrivers) {
     const ns = toNS(namespace);
     const toCompile = Object.assign(
@@ -79,25 +74,31 @@ export function runTranspiler({
       },
       inputExpression
     );
-    output += compiler.shell[outputLanguage].compileWithDriver(
+    output = compiler.shell[outputLanguage].compileWithDriver(
       toCompile,
       useBuilders
     );
-    return output;
+  } else {
+    // TODO: what should we do about the fact that compile() ignores everything
+    // except 'filter' for queries? (ie. projection, sort, etc) whereas
+    // compileWithDriver() takes all that into account?
+    const toCompile =
+      'aggregation' in inputExpression
+        ? inputExpression.aggregation
+        : inputExpression.filter;
+    output = compiler.shell[outputLanguage].compile(
+      toCompile,
+      useBuilders,
+      false
+    );
   }
 
-  // TODO: what should we do about the fact that compile() ignores everything
-  // except 'filter' for queries? (ie. projection, sort, etc) whereas
-  // compileWithDriver() takes all that into account?
-  const toCompile =
-    'aggregation' in inputExpression
-      ? inputExpression.aggregation
-      : inputExpression.filter;
-  output += compiler.shell[outputLanguage].compile(
-    toCompile,
-    useBuilders,
-    false
-  );
+  if (includeImports) {
+    // bson-transpilers appears to be stateful, so getImports() has to be called after compile()
+    const imports = compiler.shell[outputLanguage].getImports(includeDrivers);
+    console.log({ imports });
+    output = `${imports as string}\n\n${output}`;
+  }
 
   return output;
 }

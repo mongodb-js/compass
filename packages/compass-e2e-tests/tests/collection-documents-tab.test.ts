@@ -297,7 +297,7 @@ describe('Collection documents tab', function () {
       useBuilders: true,
     });
 
-    expect(text).to.equal(`import org.bson.Document;
+    expect(text).to.equal(`import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.FindIterable;
