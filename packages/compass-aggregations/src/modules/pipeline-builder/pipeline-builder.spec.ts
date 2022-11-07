@@ -54,7 +54,7 @@ describe('PipelineBuilder', function () {
 
   it('adds stage', function() {
     pipelineBuilder.addStage();
-    expect(pipelineBuilder.stages.length).to.equal(2);
+    expect(pipelineBuilder.stages.length).to.equal(1);
   });
 
   it('adds stage after index', function() {

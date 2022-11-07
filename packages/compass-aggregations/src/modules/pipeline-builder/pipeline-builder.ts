@@ -9,7 +9,7 @@ import { parseEJSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 import { isLastStageOutputStage } from '../../utils/stage';
 
-export const DEFAULT_PIPELINE = `[\n{}\n]`;
+export const DEFAULT_PIPELINE = `[]`;
 
 export class PipelineBuilder {
   private _source: string = DEFAULT_PIPELINE;
