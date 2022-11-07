@@ -6,6 +6,8 @@ import {
   WarningSummary,
   spacing,
   palette,
+  Button,
+  Icon,
 } from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
@@ -21,20 +23,41 @@ import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 
 const containerStyles = css({
+  position: 'relative',
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  justifyContent: 'space-between',
+  backgroundColor: palette.gray.light3,
+  paddingTop: spacing[3],
+  paddingBottom: spacing[2],
+  gap: spacing[2],
 });
 
 const editorContainerStyles = css({
-  backgroundColor: palette.gray.light3,
-  height: '100%',
+  flex: '1 1 100%',
   overflow: 'scroll',
-  padding: spacing[3],
 });
 
-const errorContainerStyles = css({ margin: spacing[2] });
+const editorContainerActionsStyles = css({
+  position: 'absolute',
+  top: spacing[3],
+  right: spacing[3],
+  display: 'flex',
+  gap: spacing[2],
+  // Above editor
+  zIndex: 1,
+});
+
+const editorContainerActionButtonStyles = css({
+  flex: 'none',
+})
+
+const errorContainerStyles = css({
+  flex: 'none',
+  marginTop: 'auto',
+  marginLeft: spacing[2],
+  marginRight: spacing[2],
+});
 
 type PipelineEditorProps = {
   pipelineText: string;
@@ -107,6 +130,30 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
   return (
     <div className={containerStyles} data-testid="pipeline-as-text-editor">
+      <div className={editorContainerActionsStyles}>
+        <Button
+          size="xsmall"
+          aria-label="Copy pipeline"
+          title="Copy pipeline (Ctrl+Shift+C)"
+          onClick={() => {
+            editorRef.current?.execCommand('copy-all');
+          }}
+          className={editorContainerActionButtonStyles}
+        >
+          <Icon title={null} glyph="Copy"></Icon>
+        </Button>
+        <Button
+          size="xsmall"
+          aria-label="Format pipeline"
+          title="Format pipeline (Ctrl+Shift+B)"
+          onClick={() => {
+            editorRef.current?.execCommand('prettify');
+          }}
+          className={editorContainerActionButtonStyles}
+        >
+          <Icon title={null} glyph="Checkmark"></Icon>
+        </Button>
+      </div>
       <div className={editorContainerStyles}>
         <Editor
           text={pipelineText}

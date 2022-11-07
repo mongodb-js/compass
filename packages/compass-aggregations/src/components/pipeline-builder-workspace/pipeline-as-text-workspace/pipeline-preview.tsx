@@ -54,6 +54,7 @@ const pipelineOutputMenuStyles = css({
   marginLeft: 'auto',
 });
 const outputStageStyles = css({
+  margin: spacing[2],
   marginTop: 'auto',
 });
 

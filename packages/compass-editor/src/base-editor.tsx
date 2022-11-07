@@ -7,7 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import 'ace-builds';
-import type { IAceEditorProps, IAceOptions } from 'react-ace';
+import type { IAceEditorProps, IAceOptions, ICommand } from 'react-ace';
 import AceEditor from 'react-ace';
 // TODO(COMPASS-6117): Re-enable so that we can use ace workers
 // import 'ace-builds/webpack-resolver';
@@ -22,8 +22,8 @@ import 'ace-builds/src-noconflict/mode-rust';
 import 'ace-builds/src-noconflict/mode-golang';
 import 'ace-builds/src-noconflict/mode-php';
 import tools from 'ace-builds/src-noconflict/ext-language_tools';
-import beautify from 'ace-builds/src-noconflict/ext-beautify';
 import './ace';
+import { prettify } from './prettify';
 
 /**
  * Options for the ACE editor.
@@ -73,6 +73,39 @@ const editorStyle = css({
   zIndex: 0,
 });
 
+const defaultCommands: ICommand[] = [
+  {
+    name: 'prettify',
+    exec(editor) {
+      try {
+        const code = prettify(editor.getValue());
+        const currentSelection = editor.selection.toJSON();
+        editor.session.doc.setValue(code);
+        // Setting value moves cursor to the end of the editor, we will try to
+        // set it back to where it was setting selection directly (using
+        // `moveCursorTo` method can select text which is not desireable)
+        editor.selection.fromJSON(currentSelection);
+      } catch {
+        // failed to parse, do nothing
+      }
+    },
+    bindKey: {
+      win: 'Ctrl-Shift-B',
+      mac: 'Ctrl-Shift-B',
+    },
+  },
+  {
+    name: 'copy-all',
+    exec(editor) {
+      void navigator.clipboard.writeText(editor.getValue());
+    },
+    bindKey: {
+      win: 'Ctrl-Shift-C',
+      mac: 'Ctrl-Shift-C',
+    },
+  },
+];
+
 function BaseEditor({
   text,
   variant,
@@ -121,7 +154,7 @@ function BaseEditor({
   const editorName = useId();
 
   const commands = useMemo(() => {
-    return beautify.commands.concat(_commands ?? []);
+    return defaultCommands.concat(_commands ?? []);
   }, [_commands]);
 
   return (
@@ -137,7 +170,10 @@ function BaseEditor({
         }
         width="100%"
         value={text}
-        onChange={onChangeText}
+        onChange={(...args) => {
+          console.log('on change');
+          onChangeText?.(...args);
+        }}
         editorProps={{ $blockScrolling: Infinity }}
         setOptions={setOptions}
         readOnly={readOnly}
