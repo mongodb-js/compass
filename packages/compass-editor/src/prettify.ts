@@ -3,7 +3,10 @@ import parserBabel from 'prettier/parser-babel';
 
 export function prettify(
   code: string,
-  parser: 'javascript-expression' | 'javascript' | 'json' = 'javascript-expression'
+  parser:
+    | 'javascript-expression'
+    | 'javascript'
+    | 'json' = 'javascript-expression'
 ) {
   return prettier
     .format(code, {
