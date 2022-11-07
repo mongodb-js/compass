@@ -29,8 +29,8 @@ const extraSettingsStyles = css({
 });
 
 type PipelineSettingsProps = {
-  isSavePipelineEnabled?: boolean;
-  isCreatePipelineEnabled?: boolean;
+  isSavePipelineDisplayed?: boolean;
+  isCreatePipelineDisplayed?: boolean;
   isExportToLanguageEnabled?: boolean;
   onExportToLanguage: () => void;
 };
@@ -38,21 +38,21 @@ type PipelineSettingsProps = {
 export const PipelineSettings: React.FunctionComponent<
   PipelineSettingsProps
 > = ({
-  isSavePipelineEnabled,
-  isCreatePipelineEnabled,
+  isSavePipelineDisplayed,
+  isCreatePipelineDisplayed,
   isExportToLanguageEnabled,
   onExportToLanguage,
 }) => {
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
       <div className={settingsStyles}>
-        {isSavePipelineEnabled && (
+        {isSavePipelineDisplayed && (
           <>
             <PipelineName />
             <SaveMenu />
           </>
         )}
-        {isCreatePipelineEnabled && <CreateMenu />}
+        {isCreatePipelineDisplayed && <CreateMenu />}
         <Button
           variant="primaryOutline"
           size="xsmall"
@@ -73,12 +73,11 @@ export const PipelineSettings: React.FunctionComponent<
 
 export default connect(
   (state: RootState) => {
-    const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
-
+    const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
     return {
-      isSavePipelineEnabled: !state.editViewName && !state.isAtlasDeployed,
-      isCreatePipelineEnabled: !state.editViewName,
-      isExportToLanguageEnabled: !isPipelineInvalid
+      isSavePipelineDisplayed: !state.editViewName && !state.isAtlasDeployed,
+      isCreatePipelineDisplayed: !state.editViewName,
+      isExportToLanguageEnabled: !hasSyntaxErrors
     };
   },
   {

@@ -78,9 +78,9 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
 const VIEWS_MIN_SERVER_VERSION = '3.4.0';
 
 const mapSaveMenuState = (state: RootState) => {
-  const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
+  const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
   return {
-    disabled: isPipelineInvalid,
+    disabled: hasSyntaxErrors,
     pipelineName: state.name,
     isCreateViewAvailable: semver.gte(
       state.serverVersion,

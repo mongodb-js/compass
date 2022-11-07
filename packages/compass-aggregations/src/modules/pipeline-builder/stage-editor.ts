@@ -616,6 +616,7 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
+          serverError: null,
           previewDocs: null,
           disabled: action.disabled
         },
