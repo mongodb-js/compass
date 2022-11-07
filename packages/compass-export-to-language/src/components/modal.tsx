@@ -25,8 +25,6 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { countAggregationStagesInString } from '../modules/count-aggregation-stages-in-string';
 const { track } = createLoggerAndTelemetry('COMPASS-EXPORT-TO-LANGUAGE-UI');
 
-// TODO: bring back the tracking that the old export modal had around opening the modal and copying the text
-
 type LanguageOption = {
   displayName: string;
   language: Language;
