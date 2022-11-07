@@ -78,7 +78,13 @@ const defaultCommands: ICommand[] = [
     name: 'prettify',
     exec(editor) {
       try {
-        const code = prettify(editor.getValue());
+        // @ts-expect-error $id property of the mode exists, but is not
+        // provided in react-ace d.ts file
+        const mode: string = editor.session.getMode().$id;
+        const format = mode.endsWith('/json')
+          ? 'json'
+          : 'javascript-expression';
+        const code = prettify(editor.getValue(), format);
         const currentSelection = editor.selection.toJSON();
         editor.session.doc.setValue(code);
         // Setting value moves cursor to the end of the editor, we will try to
