@@ -2,6 +2,8 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
+// TODO: Change to @mongosh/browser-repl/shell when plugin is updated to the
+// new config, webpack@4 doesn't support `exports` resolution
 import { Shell } from '@mongosh/browser-repl';
 import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
 

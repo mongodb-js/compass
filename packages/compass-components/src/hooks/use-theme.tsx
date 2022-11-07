@@ -31,9 +31,12 @@ function useTheme(): ThemeState {
   return useContext(ThemeContext);
 }
 
-export function useDarkMode(): boolean | undefined {
+export function useDarkMode(forceDarkMode?: boolean): boolean | undefined {
   const theme = useTheme();
-  return theme.enabled === true ? theme?.theme === Theme.Dark : undefined;
+  return (
+    forceDarkMode ??
+    (theme.enabled === true ? theme?.theme === Theme.Dark : undefined)
+  );
 }
 
 interface WithThemeProps {

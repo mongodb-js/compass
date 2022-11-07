@@ -93,12 +93,14 @@ function BaseEditor({
     ...options,
     ...(typeof readOnly === 'boolean' && { readOnly }),
     ...(variant === 'Shell' && { mode: 'ace/mode/mongodb' }),
-    ...(!!completer && { enableLiveAutocompletion: true }),
+    ...(!!completer && {
+      enableLiveAutocompletion: true,
+      enableBasicAutocompletion: true,
+    }),
   };
 
   const editorRef = useRef<AceEditor | null>(null);
-  const providerDarkMode = useDarkMode();
-  const darkMode = _darkMode ?? providerDarkMode;
+  const darkMode = useDarkMode(_darkMode);
 
   useLayoutEffect(() => {
     if (!editorRef.current) {
