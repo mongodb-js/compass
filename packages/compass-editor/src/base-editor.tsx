@@ -170,10 +170,7 @@ function BaseEditor({
         }
         width="100%"
         value={text}
-        onChange={(...args) => {
-          console.log('on change');
-          onChangeText?.(...args);
-        }}
+        onChange={onChangeText}
         editorProps={{ $blockScrolling: Infinity }}
         setOptions={setOptions}
         readOnly={readOnly}
