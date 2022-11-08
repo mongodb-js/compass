@@ -63,6 +63,9 @@ const INITIAL_STATE: TextEditorState = {
 };
 
 const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
+  // NB: Anything that this action handling reacts to should probably be also
+  // accounted for in text-editor-output-stage slice. If you are changing this
+  // code, don't forget to change the other reducer
   if (
     isAction<EditorValueChangeAction>(
       action,
