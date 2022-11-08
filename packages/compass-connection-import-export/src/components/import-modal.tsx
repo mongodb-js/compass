@@ -11,6 +11,7 @@ import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
 import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
+import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import';
 
 const TOAST_TIMEOUT_MS = 5000;
@@ -47,6 +48,8 @@ export function ImportConnectionsModal({
     },
     [afterImport, openToast, setOpen]
   );
+
+  useOpenModalThroughIpc(open, setOpen, 'compass:open-import-connections');
 
   const {
     onSubmit,

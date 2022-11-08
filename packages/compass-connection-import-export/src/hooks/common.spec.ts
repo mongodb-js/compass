@@ -4,9 +4,11 @@ import {
   useImportExportConnectionsCommon,
   COMMON_INITIAL_STATE,
   makeConnectionInfoFilter,
+  useOpenModalThroughIpc,
 } from './common';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useState } from 'react';
+import EventEmitter from 'events';
 
 describe('common utilities', function () {
   describe('useImportExportConnectionsCommon', function () {
@@ -63,6 +65,34 @@ describe('common utilities', function () {
       expect(filter({ id: 'id1' })).to.equal(true);
       expect(filter({ id: 'id2' })).to.equal(false);
       expect(filter({ id: 'none' })).to.equal(false);
+    });
+  });
+
+  describe('useOpenModalThroughIpc', function () {
+    it("allows modifying a modal's state through ipc events", function () {
+      const fakeIpc = new EventEmitter();
+      const event = 'test:open-modal';
+
+      const { result } = renderHook(() => {
+        const [open, setOpen] = useState(false);
+        useOpenModalThroughIpc(open, setOpen, event, fakeIpc as any);
+        return { open, setOpen };
+      });
+
+      expect(result.current.open).to.equal(false);
+      expect(fakeIpc.listenerCount(event)).to.equal(1);
+
+      act(() => {
+        fakeIpc.emit(event);
+      });
+      expect(result.current.open).to.equal(true);
+      expect(fakeIpc.listenerCount(event)).to.equal(0);
+
+      act(() => {
+        result.current.setOpen(false);
+      });
+      expect(result.current.open).to.equal(false);
+      expect(fakeIpc.listenerCount(event)).to.equal(1);
     });
   });
 });

@@ -12,6 +12,7 @@ import { FileInput } from './file-input';
 import { Passphrase } from './passphrase';
 import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
+import { useOpenModalThroughIpc } from '../hooks/common';
 import { useExportConnections } from '../hooks/use-export';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { usePreference } from 'compass-preferences-model';
@@ -51,6 +52,8 @@ export function ExportConnectionsModal({
     },
     [afterExport, openToast, setOpen]
   );
+
+  useOpenModalThroughIpc(open, setOpen, 'compass:open-export-connections');
 
   const protectConnectionStrings = !!usePreference(
     'protectConnectionStrings',

@@ -1,5 +1,6 @@
 import type { ConnectionInfo } from 'mongodb-data-service';
 import type { Dispatch, SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { useCallback } from 'react';
 
 export type ImportExportResult = 'canceled' | 'succeeded';
@@ -58,4 +59,34 @@ export function makeConnectionInfoFilter(
   return (info: Pick<ConnectionInfo, 'id'>) => {
     return !!connectionList.find((item) => item.id === info.id)?.selected;
   };
+}
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let ipc_: import('hadron-ipc').HadronIpcRenderer | Record<string, never>;
+export function useOpenModalThroughIpc(
+  open: boolean,
+  setOpen: (newValue: boolean) => void,
+  ipcEvent: string,
+  ipcForTesting: typeof ipc_ | undefined = undefined
+): void {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    ipc_ ??= require('hadron-ipc').ipcRenderer;
+  } catch (err) {
+    ipc_ ??= {};
+    console.warn('could not load hadron-ipc', err);
+  }
+  const ipc = ipcForTesting ?? ipc_;
+
+  useEffect(() => {
+    if (ipc.on && !open) {
+      const listener = () => {
+        setOpen(true);
+      };
+      ipc.on(ipcEvent, listener);
+      return () => {
+        ipc.off(ipcEvent, listener);
+      };
+    }
+  }, [open, setOpen]);
 }
