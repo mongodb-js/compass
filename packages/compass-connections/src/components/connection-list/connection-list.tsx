@@ -192,7 +192,11 @@ function ConnectionList({
         </Button>
       </div>
       <div className={connectionListSectionStyles}>
-        <div className={sectionHeaderStyles} {...favoriteHoverProps}>
+        <div
+          className={sectionHeaderStyles}
+          {...favoriteHoverProps}
+          data-testid="favorite-connections-list-header"
+        >
           <div className={sectionHeaderIconStyles}>
             <FavoriteIcon />
           </div>
@@ -242,6 +246,7 @@ function ConnectionList({
         <div
           className={cx(sectionHeaderStyles, recentHeaderStyles)}
           {...recentHoverProps}
+          data-testid="recent-connections-list-header"
         >
           <div className={sectionHeaderIconStyles}>
             <RecentIcon />

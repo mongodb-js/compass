@@ -174,13 +174,13 @@ function Connections({
         open={showImportConnectionsModal}
         setOpen={setShowImportConnectionsModal}
         afterImport={reloadConnections}
-        trackingProps={{context: 'connectionsList'}}
+        trackingProps={{ context: 'connectionsList' }}
       />
       <ExportConnectionsModal
         open={showExportConnectionsModal}
         setOpen={setShowExportConnectionsModal}
         favoriteConnections={favoriteConnections}
-        trackingProps={{context: 'connectionsList'}}
+        trackingProps={{ context: 'connectionsList' }}
       />
     </div>
   );
