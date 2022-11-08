@@ -91,6 +91,7 @@ export function ExportConnectionsModal({
         !filename ||
         connectionList.every((item) => !item.selected)
       }
+      data-testid="connection-export-modal"
     >
       <SelectTable
         className={tableStyles}
@@ -115,6 +116,7 @@ export function ExportConnectionsModal({
           label="Remove Secrets"
           description="Omit secrets such as passwords and access tokens"
           onChange={onChangeRemoveSecrets}
+          data-testid="connection-export-remove-secrets"
         />
       </FormFieldContainer>
       <FormFieldContainer>

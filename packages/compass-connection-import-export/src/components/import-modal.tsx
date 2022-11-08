@@ -72,6 +72,7 @@ export function ImportConnectionsModal({
       title="Import saved connections"
       submitButtonText="Import"
       submitDisabled={inProgress || !!error || !filename}
+      data-testid="connection-import-modal"
     >
       <FormFieldContainer>
         <FileInput
