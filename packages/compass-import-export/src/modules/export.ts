@@ -10,10 +10,10 @@ import type { Options as ProgressStreamOptions } from 'progress-stream';
 
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
-import FILE_TYPES from '../constants/file-types';
 import { globalAppRegistryEmit, nsChanged } from './compass';
 import { loadFields, getSelectableFields } from './load-fields';
 import { CursorExporter } from './cursor-exporter';
+import type { AcceptedFileType } from '../constants/file-types';
 import type { ProcessStatus } from '../constants/process-status';
 import type { ExportStep } from '../constants/export-step';
 import type { RootExportState } from '../stores/export-store';
@@ -72,7 +72,7 @@ type State = {
   isOpen?: boolean;
   error?: Error | null;
   count: number | null;
-  fileType: 'json' | 'csv';
+  fileType: AcceptedFileType;
   fileName: string;
   ns: string; // Namespace
   query: ExportQueryType | null;
@@ -100,7 +100,7 @@ const INITIAL_STATE: State = {
   fields: {},
   allFields: {},
   fileName: '',
-  fileType: FILE_TYPES.JSON,
+  fileType: 'json',
   status: PROCESS_STATUS.UNSPECIFIED,
   exportedDocsCount: 0,
   count: 0,
@@ -275,7 +275,7 @@ export const toggleFullCollection = () => ({
 /**
  * Select the file type of the export.
  */
-export const selectExportFileType = (fileType: 'csv' | 'json') => ({
+export const selectExportFileType = (fileType: AcceptedFileType) => ({
   type: SELECT_FILE_TYPE,
   fileType: fileType,
 });

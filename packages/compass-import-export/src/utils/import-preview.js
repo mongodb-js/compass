@@ -37,15 +37,12 @@ export const createPeekStream = function (
 /**
  * Collects 10 parsed documents from createPeekStream().
  *
- * @option {Number} MAX_SIZE The number of documents/rows we want to preview [Default `10`]
+ * @param {Object} options
+ * @param {Number} [options.MAX_SIZE] The number of documents/rows we want to preview [Default `10`]
+ * @param {string} options.fileType
  * @returns {stream.Writable}
  */
-export default function ({
-  MAX_SIZE = 10,
-  fileType,
-  // delimiter
-  // fileIsMultilineJSON
-} = {}) {
+export function createPreviewWritable({ MAX_SIZE = 10, fileType } = {}) {
   return new Writable({
     objectMode: true,
     write: function (doc, encoding, next) {

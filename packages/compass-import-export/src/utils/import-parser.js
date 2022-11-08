@@ -140,10 +140,11 @@ export const createProgressStream = function (fileSize, onProgress) {
 /**
  * Convenience for creating the right parser transform stream in a single call.
  *
- * @param {String} fileName
- * @param {String} fileType `csv` or `json`
- * @param {String} delimiter See `createCSVParser()`
- * @param {Boolean} fileIsMultilineJSON
+ * @param {Object} options
+ * @param {String} options.fileName
+ * @param {String} options.fileType `csv` or `json`
+ * @param {String} options.delimiter See `createCSVParser()`
+ * @param {Boolean} options.fileIsMultilineJSON
  * @returns {stream.Transform}
  */
 function createParser({
