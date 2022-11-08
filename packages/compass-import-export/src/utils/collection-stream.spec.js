@@ -29,19 +29,15 @@ describe('collection-stream', function () {
   describe('_executeBatch', function () {
     it('insert documents as bulk to regular collection', async function () {
       const dataService = {
-        _collection: function () {
-          return {
-            bulkWrite: () =>
-              Promise.resolve({
-                nInserted: 3,
-                nMatched: 0,
-                nModified: 0,
-                nRemoved: 0,
-                nUpserted: 0,
-                ok: 1,
-              }),
-          };
-        },
+        bulkWrite: () =>
+          Promise.resolve({
+            nInserted: 3,
+            nMatched: 0,
+            nModified: 0,
+            nRemoved: 0,
+            nUpserted: 0,
+            ok: 1,
+          }),
       };
 
       const stats = await runImport(dataService, false);
@@ -53,19 +49,17 @@ describe('collection-stream', function () {
 
     it('insert documents one by one to FLE2 collection', async function () {
       const dataService = {
-        _collection: function () {
-          return {
-            bulkWrite: () =>
-              new Promise((resolve, reject) => {
-                const error = new Error(
-                  'Only single insert batches are supported in FLE2'
-                );
-                error.code = 6371202;
+        bulkWrite: () =>
+          new Promise((resolve, reject) => {
+            const error = new Error(
+              'Only single insert batches are supported in FLE2'
+            );
+            error.code = 6371202;
 
-                reject(error);
-              }),
-            insertOne: () => Promise.resolve({ acknowledged: true }),
-          };
+            reject(error);
+          }),
+        insertOne: (ns, doc, options, callback) => {
+          callback(null, { acknowledged: true });
         },
       };
 
@@ -79,28 +73,23 @@ describe('collection-stream', function () {
     it('insert documents to FLE2 collection even one is failed', async function () {
       let i = 0;
       const dataService = {
-        _collection: function () {
-          return {
-            bulkWrite: () =>
-              new Promise((resolve, reject) => {
-                const error = new Error(
-                  'Only single insert batches are supported in FLE2'
-                );
-                error.code = 6371202;
+        bulkWrite: () =>
+          new Promise((resolve, reject) => {
+            const error = new Error(
+              'Only single insert batches are supported in FLE2'
+            );
+            error.code = 6371202;
 
-                reject(error);
-              }),
-            insertOne: () =>
-              new Promise((resolve, reject) => {
-                i += 1;
+            reject(error);
+          }),
+        insertOne: (ns, doc, options, callback) => {
+          i += 1;
 
-                if (i === 2) {
-                  return reject(new Error('foo'));
-                } else {
-                  return resolve({ acknowledged: true });
-                }
-              }),
-          };
+          if (i === 2) {
+            callback(new Error('foo'));
+          } else {
+            callback(null, { acknowledged: true });
+          }
         },
       };
 
@@ -114,28 +103,23 @@ describe('collection-stream', function () {
     it('stops on error when inserting to FLE2 collection', async function () {
       let i = 0;
       const dataService = {
-        _collection: function () {
-          return {
-            bulkWrite: () =>
-              new Promise((resolve, reject) => {
-                const error = new Error(
-                  'Only single insert batches are supported in FLE2'
-                );
-                error.code = 6371202;
+        bulkWrite: () =>
+          new Promise((resolve, reject) => {
+            const error = new Error(
+              'Only single insert batches are supported in FLE2'
+            );
+            error.code = 6371202;
 
-                reject(error);
-              }),
-            insertOne: () =>
-              new Promise((resolve, reject) => {
-                i += 1;
+            reject(error);
+          }),
+        insertOne: (ns, doc, options, callback) => {
+          i += 1;
 
-                if (i === 2) {
-                  return reject(new Error('foo'));
-                } else {
-                  return resolve({ acknowledged: true });
-                }
-              }),
-          };
+          if (i === 2) {
+            callback(new Error('foo'));
+          } else {
+            callback(null, { acknowledged: true });
+          }
         },
       };
 
