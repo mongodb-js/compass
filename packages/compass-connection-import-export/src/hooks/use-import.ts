@@ -119,19 +119,27 @@ export function useImportConnections(
     })();
   }, [connectionList, fileContents, passphrase, finish]);
 
+  const LOAD_CONNECTIONS_FILE_DEBOUNCE_DELAY = 100;
   useEffect(() => {
-    void loadFile({ filename, passphrase }, importConnections).then(
-      (stateUpdate) => {
-        setState((prevState) => {
-          if (
-            filename === prevState.filename &&
-            passphrase === prevState.passphrase
-          )
-            return { ...prevState, ...stateUpdate };
-          return prevState;
-        });
-      }
-    );
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    timer = setTimeout(() => {
+      timer = undefined;
+      void loadFile({ filename, passphrase }, importConnections).then(
+        (stateUpdate) => {
+          setState((prevState) => {
+            if (
+              filename === prevState.filename &&
+              passphrase === prevState.passphrase
+            )
+              return { ...prevState, ...stateUpdate };
+            return prevState;
+          });
+        }
+      );
+    }, LOAD_CONNECTIONS_FILE_DEBOUNCE_DELAY);
+    return () => {
+      if (timer !== undefined) clearTimeout(timer);
+    };
   }, [filename, passphrase]);
 
   const onChangeFilename = useCallback((filename: string) => {
