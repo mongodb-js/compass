@@ -18,6 +18,7 @@ import { RESTORE_PIPELINE } from '../saved-pipeline';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
+  EditorPreviewFetchSkipped = 'compass-aggregations/pipeline-builder/text-editor-pipeline/EditorPreviewFetchSkipped',
   EditorPreviewFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchSuccess',
   EditorPreviewFetchError = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchError',
   EditorValueChange = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorValueChange',
@@ -32,6 +33,10 @@ export type EditorValueChangeAction = {
 
 type EditorPreviewFetchAction = {
   type: EditorActionTypes.EditorPreviewFetch;
+};
+
+type EditorPreviewFetchSkippedAction = {
+  type: EditorActionTypes.EditorPreviewFetchSkipped;
 };
 
 type EditorPreviewFetchSuccessAction = {
@@ -86,6 +91,20 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       pipelineText: action.pipelineText,
       stageOperators,
       syntaxErrors: action.syntaxErrors,
+    };
+  }
+
+  if (
+    isAction<EditorPreviewFetchSkippedAction>(
+      action,
+      EditorActionTypes.EditorPreviewFetchSkipped
+    )
+  ) {
+    return {
+      ...state,
+      serverError: null,
+      previewDocs: null,
+      isLoading: false
     };
   }
 
@@ -148,7 +167,8 @@ export const loadPreviewForPipeline = (
   Promise<void>,
   EditorPreviewFetchAction |
   EditorPreviewFetchSuccessAction |
-  EditorPreviewFetchErrorAction
+  EditorPreviewFetchErrorAction |
+  EditorPreviewFetchSkippedAction
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
@@ -161,7 +181,14 @@ export const loadPreviewForPipeline = (
       inputDocuments
     } = getState();
 
+    // Ignoring the state of the stage, always try to stop current preview fetch
+    pipelineBuilder.cancelPreviewForPipeline();
+
     if (!canRunPipeline(autoPreview, pipelineBuilder.syntaxError)) {
+      dispatch({
+        type: EditorActionTypes.EditorPreviewFetchSkipped
+      })
+
       return;
     }
 

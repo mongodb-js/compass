@@ -11,6 +11,11 @@ import { isLastStageOutputStage } from '../../utils/stage';
 
 export const DEFAULT_PIPELINE = `[\n{}\n]`;
 
+// For stages we use real stage id to store pipeline fetching abort controller
+// reference in the queue. For whole pipeline we use special, otherwise
+// unreachable number, to store the reference
+const FULL_PIPELINE_PREVIEW_ID = Infinity;
+
 export class PipelineBuilder {
   private _source: string = DEFAULT_PIPELINE;
   /* Pipeline representation of parsable source */
@@ -60,6 +65,10 @@ export class PipelineBuilder {
    */
   stopPreview(from?: number): void {
     this.previewManager.clearQueue(from);
+  }
+
+  cancelPreviewForStage(id: number): void {
+    this.previewManager.cancelPreviewForStage(id);
   }
 
   /**
@@ -126,11 +135,15 @@ export class PipelineBuilder {
       pipeline.pop();
     }
     return this.previewManager.getPreviewForStage(
-      pipeline.length - 1,
+      FULL_PIPELINE_PREVIEW_ID,
       namespace,
       pipeline,
       options
     );
+  }
+
+  cancelPreviewForPipeline() {
+    this.previewManager.cancelPreviewForStage(FULL_PIPELINE_PREVIEW_ID);
   }
 
   /**
