@@ -96,7 +96,6 @@ export function runTranspiler({
   if (includeImports) {
     // bson-transpilers appears to be stateful, so getImports() has to be called after compile()
     const imports = compiler.shell[outputLanguage].getImports(includeDrivers);
-    console.log({ imports });
     output = `${imports as string}\n\n${output}`;
   }
 
