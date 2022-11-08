@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment } from 'react';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import {
   Button,
@@ -126,6 +126,19 @@ export type ConnectionInfoFavorite = ConnectionInfo &
 
 type FavoriteAction = 'import-favorites' | 'export-favorites';
 
+const favoriteActions: ItemAction<FavoriteAction>[] = [
+  {
+    action: 'import-favorites',
+    label: 'Import saved connections',
+    icon: 'Download',
+  },
+  {
+    action: 'export-favorites',
+    label: 'Export saved connections',
+    icon: 'Export',
+  },
+];
+
 function ConnectionList({
   activeConnectionId,
   recentConnections,
@@ -153,24 +166,6 @@ function ConnectionList({
   const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
 
   const { theme } = useTheme();
-
-  const favoriteActions = useMemo(() => {
-    const actions: ItemAction<FavoriteAction>[] = [];
-
-    actions.push({
-      action: 'import-favorites',
-      label: 'Import saved connections',
-      icon: 'Download',
-    });
-
-    actions.push({
-      action: 'export-favorites',
-      label: 'Export saved connections',
-      icon: 'Export',
-    });
-
-    return actions;
-  }, []);
 
   return (
     <Fragment>

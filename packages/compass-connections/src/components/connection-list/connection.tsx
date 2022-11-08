@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import {
   H3,
   Description,
@@ -159,6 +159,26 @@ function FavoriteColorIndicator({
   );
 }
 
+const actions: ItemAction<Action>[] = [
+  {
+    action: 'copy-connection-string',
+    label: 'Copy connection string',
+    icon: 'Copy',
+  },
+
+  {
+    action: 'duplicate-connection',
+    label: 'Duplicate',
+    icon: 'Clone',
+  },
+
+  {
+    action: 'remove-connection',
+    label: 'Remove',
+    icon: 'Trash',
+  },
+];
+
 function Connection({
   isActive,
   connectionInfo,
@@ -205,30 +225,6 @@ function Connection({
   const connectionMenuColor = hasColoredBackground
     ? palette.gray.dark3
     : normalConnectionMenuColor;
-
-  const actions = useMemo(() => {
-    const actions: ItemAction<Action>[] = [];
-
-    actions.push({
-      action: 'copy-connection-string',
-      label: 'Copy connection string',
-      icon: 'Copy',
-    });
-
-    actions.push({
-      action: 'duplicate-connection',
-      label: 'Duplicate',
-      icon: 'Clone',
-    });
-
-    actions.push({
-      action: 'remove-connection',
-      label: 'Remove',
-      icon: 'Trash',
-    });
-
-    return actions;
-  }, []);
 
   const { openToast } = useToast('compass-connections');
 
