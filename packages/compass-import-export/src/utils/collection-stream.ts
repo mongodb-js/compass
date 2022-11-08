@@ -145,13 +145,10 @@ export class WritableCollectionStream extends Writable {
     this.batch = [];
 
     let result: BulkOpResult;
-    // TODO: How is this error used?
-    let error;
 
     try {
       result = await this.dataService.bulkWrite(
         this.ns,
-        // TODO: Why does this type error without any usage? Are we using an old insert format?
         documents.map(
           (doc: any): AnyBulkWriteOperation<Document> => ({ insertOne: doc })
         ),
@@ -220,10 +217,6 @@ export class WritableCollectionStream extends Writable {
     };
 
     this.emit('progress', progressStats);
-
-    if (this.stopOnErrors) {
-      return callback(error);
-    }
 
     return callback();
   }
