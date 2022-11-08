@@ -77,7 +77,7 @@ const codeStyles = css({
 
 const checkboxStyles = css({
   marginTop: spacing[2],
-  width: 'auto'
+  width: 'auto', // don't overflow and cause extra scrollbars
 });
 
 function stageCountForTelemetry(inputExpression: InputExpression) {
