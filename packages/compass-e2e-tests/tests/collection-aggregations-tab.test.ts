@@ -147,7 +147,8 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
     await modalElement.waitForDisplayed({ reverse: true });
 
-    await browser.clickVisible(Selectors.AddStageButton)
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
     // sanity check to make sure there's only one stage
     const stageContainers = await browser.$$(Selectors.StageContainer);
     expect(stageContainers).to.have.lengthOf(1);
