@@ -77,8 +77,7 @@ const codeStyles = css({
 
 const checkboxStyles = css({
   marginTop: spacing[2],
-  // prevent an extra couple of pixels that always causes the modal to scroll unnecessarily
-  overflow: 'hidden',
+  width: 'auto'
 });
 
 function stageCountForTelemetry(inputExpression: InputExpression) {
