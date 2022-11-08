@@ -9,7 +9,7 @@ import { parseEJSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 import { isLastStageOutputStage } from '../../utils/stage';
 
-export const DEFAULT_PIPELINE = `[\n{}\n]`;
+export const DEFAULT_PIPELINE = `[]`;
 
 // For stages we use real stage id to store pipeline fetching abort controller
 // reference in the queue. For whole pipeline we use special, otherwise
