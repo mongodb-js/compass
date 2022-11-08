@@ -1,9 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
+  Badge,
   Banner,
   css,
   FormFieldContainer,
   FormModal,
+  spacing,
   ToastVariant,
   useToast,
 } from '@mongodb-js/compass-components';
@@ -13,22 +15,31 @@ import { SelectTable } from './select-table';
 import type { ImportExportResult } from '../hooks/common';
 import { useOpenModalThroughIpc } from '../hooks/common';
 import { useImportConnections } from '../hooks/use-import';
+import type { ConnectionInfo } from 'mongodb-data-service';
 
 const TOAST_TIMEOUT_MS = 5000;
 
 const tableStyles = css({
-  maxHeight: '30vh',
+  maxHeight: '24vh',
   overflow: 'auto',
 });
+
+const existingFavoriteBadgeStyles = css({
+  marginLeft: spacing[2],
+});
+
+const selectTableColumns = [['displayName', 'Connection Name']] as const;
 
 export function ImportConnectionsModal({
   open,
   setOpen,
+  favoriteConnections,
   afterImport,
   trackingProps,
 }: {
   open: boolean;
   setOpen: (newOpen: boolean) => void;
+  favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
   afterImport?: () => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
@@ -65,7 +76,35 @@ export function ImportConnectionsModal({
       filename,
       passphrase,
     },
-  } = useImportConnections({ finish, open, trackingProps });
+  } = useImportConnections({
+    finish,
+    open,
+    favoriteConnections,
+    trackingProps,
+  });
+
+  const [displayConnectionList, hasSelectedDuplicates] = useMemo(() => {
+    return [
+      connectionList.map((conn) => ({
+        ...conn,
+        displayName: (
+          <>
+            {conn.name}&nbsp;
+            {conn.isExistingFavorite && (
+              <Badge
+                className={existingFavoriteBadgeStyles}
+                variant={conn.selected ? 'yellow' : 'lightgray'}
+                data-testid={`existing-favorite-badge-${conn.id}`}
+              >
+                Existing Favorite
+              </Badge>
+            )}
+          </>
+        ),
+      })),
+      connectionList.some((conn) => conn.isExistingFavorite && conn.selected),
+    ];
+  }, [connectionList]);
 
   return (
     <FormModal
@@ -100,15 +139,21 @@ export function ImportConnectionsModal({
       {connectionList.length > 0 && (
         <SelectTable
           className={tableStyles}
-          items={connectionList}
-          columns={[['name', 'Connection Name']]}
+          items={displayConnectionList}
+          columns={selectTableColumns}
           disabled={inProgress}
           onChange={onChangeConnectionList}
         />
       )}
-      {error && !passphraseRequired && (
+      {(error && !passphraseRequired && (
         <Banner variant="danger">Error: {error}</Banner>
-      )}
+      )) ||
+        (hasSelectedDuplicates && (
+          <Banner variant="warning">
+            Some connections are already saved and will be overwritten by
+            importing them
+          </Banner>
+        ))}
     </FormModal>
   );
 }

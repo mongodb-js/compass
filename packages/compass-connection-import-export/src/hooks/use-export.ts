@@ -15,7 +15,7 @@ import type {
 } from './common';
 import { usePreference } from 'compass-preferences-model';
 
-type ExportConnectionsState = CommonImportExportState & {
+type ExportConnectionsState = CommonImportExportState<ConnectionShortInfo> & {
   removeSecrets: boolean;
 };
 

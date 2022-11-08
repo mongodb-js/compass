@@ -11,15 +11,17 @@ export type ConnectionShortInfo = {
   selected: boolean;
 };
 
-export type CommonImportExportState = {
+export type CommonImportExportState<
+  ConnectionInfoType extends ConnectionShortInfo
+> = {
   filename: string;
   passphrase: string;
-  connectionList: ConnectionShortInfo[];
+  connectionList: ConnectionInfoType[];
   error: string;
   inProgress: boolean;
 };
 
-export const COMMON_INITIAL_STATE: Readonly<CommonImportExportState> =
+export const COMMON_INITIAL_STATE: Readonly<CommonImportExportState<never>> =
   Object.freeze({
     filename: '',
     passphrase: '',

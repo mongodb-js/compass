@@ -14,7 +14,9 @@ type SelectItem = {
 
 type SelectTableProps<T extends SelectItem> = {
   items: T[];
-  columns: [key: string & keyof T, label: string | JSX.Element][];
+  columns: ReadonlyArray<
+    readonly [key: string & keyof T, label: string | JSX.Element]
+  >;
   onChange: (newList: T[]) => void;
   disabled?: boolean;
   className?: string;

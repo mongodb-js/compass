@@ -26,6 +26,7 @@ describe('useImportConnections', function () {
     UseImportConnectionsResult
   >;
   let result: RenderResult<UseImportConnectionsResult>;
+  let rerender: (props: Partial<UseImportConnectionsProps>) => void;
   let tmpdir: string;
   let exampleFile: string;
 
@@ -38,6 +39,7 @@ describe('useImportConnections', function () {
     defaultProps = {
       finish,
       open: true,
+      favoriteConnections: [],
       trackingProps: { context: 'Tests' },
     };
     renderHookResult = renderHook(
@@ -48,7 +50,7 @@ describe('useImportConnections', function () {
         );
       }
     );
-    result = renderHookResult.result;
+    ({ result, rerender } = renderHookResult);
     tmpdir = path.join(
       os.tmpdir(),
       `compass-export-connections-ui-${Date.now()}-${Math.floor(
@@ -89,7 +91,7 @@ describe('useImportConnections', function () {
 
     expect(importConnections).to.have.been.calledOnce;
     expect(result.current.state.connectionList).to.deep.equal([
-      { id: 'id1', name: 'name1', selected: true },
+      { id: 'id1', name: 'name1', selected: true, isExistingFavorite: false },
     ]);
   });
 
@@ -134,6 +136,49 @@ describe('useImportConnections', function () {
     expect(result.current.state.error).to.equal('');
     expect(result.current.state.passphraseRequired).to.equal(true);
     expect(result.current.state.connectionList).to.have.lengthOf(1);
+  });
+
+  it('does not select existing favorites by default', async function () {
+    importConnections.callsFake((contents: string, options: any) => {
+      expect(contents).to.equal(exampleFileContents);
+      expect(options.passphrase).to.equal('');
+      options.saveConnections([
+        {
+          id: 'id1',
+          favorite: { name: 'name1' },
+        },
+        {
+          id: 'id2',
+          favorite: { name: 'name2' },
+        },
+      ]);
+    });
+
+    rerender({
+      favoriteConnections: [{ id: 'id1', favorite: { name: 'name1' } }],
+    });
+    act(() => {
+      result.current.onChangeFilename(exampleFile);
+    });
+
+    await renderHookResult.waitForValueToChange(
+      () => result.current.state.connectionList.length
+    );
+    expect(result.current.state.connectionList).to.deep.equal([
+      { id: 'id1', name: 'name1', selected: false, isExistingFavorite: true },
+      { id: 'id2', name: 'name2', selected: true, isExistingFavorite: false },
+    ]);
+
+    rerender({
+      favoriteConnections: [
+        { id: 'id1', favorite: { name: 'name1' } },
+        { id: 'id2', favorite: { name: 'name2' } },
+      ],
+    });
+    expect(result.current.state.connectionList).to.deep.equal([
+      { id: 'id1', name: 'name1', selected: false, isExistingFavorite: true },
+      { id: 'id2', name: 'name2', selected: true, isExistingFavorite: true },
+    ]);
   });
 
   it('handles actual import', async function () {

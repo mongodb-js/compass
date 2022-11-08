@@ -23,6 +23,8 @@ const tableStyles = css({
   overflow: 'auto',
 });
 
+const selectTableColumns = [['name', 'Connection Name']] as const;
+
 export function ExportConnectionsModal({
   open,
   setOpen,
@@ -32,7 +34,7 @@ export function ExportConnectionsModal({
 }: {
   open: boolean;
   setOpen: (newOpen: boolean) => void;
-  favoriteConnections: ConnectionInfo[];
+  favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
   afterExport?: () => void;
   trackingProps?: Record<string, unknown>;
 }): React.ReactElement {
@@ -99,7 +101,7 @@ export function ExportConnectionsModal({
       <SelectTable
         className={tableStyles}
         items={connectionList}
-        columns={[['name', 'Connection Name']]}
+        columns={selectTableColumns}
         disabled={inProgress}
         onChange={onChangeConnectionList}
       />

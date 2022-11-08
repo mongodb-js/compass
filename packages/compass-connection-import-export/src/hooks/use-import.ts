@@ -13,7 +13,11 @@ import type {
   CommonImportExportState,
 } from './common';
 
-type ImportConnectionsState = CommonImportExportState & {
+type ConnectionImportInfo = ConnectionShortInfo & {
+  isExistingFavorite: boolean;
+};
+
+type ImportConnectionsState = CommonImportExportState<ConnectionImportInfo> & {
   passphraseRequired: boolean;
   fileContents: string;
 };
@@ -28,7 +32,10 @@ async function loadFile(
   {
     filename,
     passphrase,
-  }: Pick<ImportConnectionsState, 'filename' | 'passphrase'>,
+    favoriteConnectionIds,
+  }: Pick<ImportConnectionsState, 'filename' | 'passphrase'> & {
+    favoriteConnectionIds: string[];
+  },
   importConnections: typeof dataServiceImportConnections
 ): Promise<Partial<ImportConnectionsState>> {
   if (!filename) {
@@ -36,16 +43,18 @@ async function loadFile(
   }
   try {
     const fileContents = await fs.readFile(filename, 'utf8');
-    const connectionList: ConnectionShortInfo[] = [];
+    const connectionList: ConnectionImportInfo[] = [];
     await importConnections(fileContents, {
       passphrase,
       saveConnections(list: ConnectionInfo[]) {
         for (const info of list) {
           if (info.favorite?.name) {
+            const isExistingFavorite = favoriteConnectionIds.includes(info.id);
             connectionList.push({
               name: info.favorite.name,
               id: info.id,
-              selected: true,
+              selected: !isExistingFavorite,
+              isExistingFavorite,
             });
           }
         }
@@ -72,10 +81,12 @@ async function loadFile(
 export function useImportConnections(
   {
     finish,
+    favoriteConnections,
     open,
     trackingProps,
   }: {
     finish: (result: ImportExportResult) => void;
+    favoriteConnections: Pick<ConnectionInfo, 'favorite' | 'id'>[];
     open: boolean;
     trackingProps?: Record<string, unknown>;
   },
@@ -91,6 +102,19 @@ export function useImportConnections(
   const [state, setState] = useState<ImportConnectionsState>(INITIAL_STATE);
   useEffect(() => setState(INITIAL_STATE), [open]);
   const { passphrase, filename, fileContents, connectionList } = state;
+
+  const favoriteConnectionIds = favoriteConnections.map(({ id }) => id);
+  useEffect(() => {
+    // If `favoriteConnections` changes, update the list of connections
+    // that are displayed in our table.
+    setState((prevState) => ({
+      ...prevState,
+      connectionList: state.connectionList.map((conn) => ({
+        ...conn,
+        isExistingFavorite: favoriteConnectionIds.includes(conn.id),
+      })),
+    }));
+  }, [favoriteConnectionIds.join(',')]);
 
   const { onChangeConnectionList, onChangePassphrase, onCancel } =
     useImportExportConnectionsCommon(setState, finish);
@@ -124,25 +148,26 @@ export function useImportConnections(
     let timer: ReturnType<typeof setTimeout> | undefined;
     timer = setTimeout(() => {
       timer = undefined;
-      void loadFile({ filename, passphrase }, importConnections).then(
-        (stateUpdate) => {
-          setState((prevState) => {
-            if (
-              // Only update the state if filename and passphrase haven't changed
-              // while loading the connections list
-              filename === prevState.filename &&
-              passphrase === prevState.passphrase
-            )
-              return { ...prevState, ...stateUpdate };
-            return prevState;
-          });
-        }
-      );
+      void loadFile(
+        { filename, passphrase, favoriteConnectionIds },
+        importConnections
+      ).then((stateUpdate) => {
+        setState((prevState) => {
+          if (
+            // Only update the state if filename and passphrase haven't changed
+            // while loading the connections list
+            filename === prevState.filename &&
+            passphrase === prevState.passphrase
+          )
+            return { ...prevState, ...stateUpdate };
+          return prevState;
+        });
+      });
     }, LOAD_CONNECTIONS_FILE_DEBOUNCE_DELAY);
     return () => {
       if (timer !== undefined) clearTimeout(timer);
     };
-  }, [filename, passphrase]);
+  }, [filename, passphrase, favoriteConnectionIds.join(',')]);
 
   const onChangeFilename = useCallback((filename: string) => {
     setState((prevState) => ({
