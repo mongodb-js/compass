@@ -71,9 +71,6 @@ export function runTranspiler({
       useBuilders
     );
   } else {
-    // TODO: what should we do about the fact that compile() ignores everything
-    // except 'filter' for queries? (ie. projection, sort, etc) whereas
-    // compileWithDriver() takes all that into account?
     const toCompile =
       'aggregation' in inputExpression
         ? inputExpression.aggregation
