@@ -146,6 +146,12 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
     await modalElement.waitForDisplayed({ reverse: true });
+
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+    // sanity check to make sure there's only one stage
+    const stageContainers = await browser.$$(Selectors.StageContainer);
+    expect(stageContainers).to.have.lengthOf(1);
   });
 
   after(async function () {
@@ -157,10 +163,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
-    // sanity check to make sure there's only one
-    const stageContainers = await browser.$$(Selectors.StageContainer);
-    expect(stageContainers).to.have.lengthOf(1);
-
     await browser.focusStageOperator(0);
 
     const stageOperatorOptionsElements = await browser.$$(

@@ -28,8 +28,10 @@ function createStore(
             isLoading: false,
             previewDocs: null,
             serverError: null,
-            stageOperators: ['$match', '$limit'],
-            syntaxErrors: [],
+            stageOperators: pipelineBuilder.stages.map(stage => {
+              return Object.keys(stage)[0];
+            }),
+            syntaxErrors: pipelineBuilder.syntaxError,
           },
           outputStage: {
             isLoading: false,
@@ -101,6 +103,17 @@ describe('stageEditor', function () {
       store.dispatch(changeEditorValue(newPipeline));
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
+    });
+
+    it('should cancel preview for stage when new stage state is invalid', function () {
+      store.dispatch(changeEditorValue('[{$match: {foo: 1}}]'));
+      Sinon.resetHistory();
+      store.dispatch(changeEditorValue('[{$match: {foo: 1'));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.cancelPreviewForPipeline).to.have.been
+        .calledOnce;
     });
   });
 });

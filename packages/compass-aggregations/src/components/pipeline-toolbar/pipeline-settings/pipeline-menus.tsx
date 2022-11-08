@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import semver from 'semver';
-import { Icon, DropdownMenuButton } from '@mongodb-js/compass-components';
+import { Icon, DropdownMenuButton, Button } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import type { Dispatch } from 'redux';
 import type { RootState } from '../../../modules';
@@ -78,9 +78,9 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
 const VIEWS_MIN_SERVER_VERSION = '3.4.0';
 
 const mapSaveMenuState = (state: RootState) => {
-  const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
+  const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
   return {
-    disabled: isPipelineInvalid,
+    disabled: hasSyntaxErrors,
     pipelineName: state.name,
     isCreateViewAvailable: semver.gte(
       state.serverVersion,
@@ -118,6 +118,19 @@ export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
   onCreatePipeline,
   onCreatePipelineFromText,
 }) => {
+  if (process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true') {
+    return (
+      <Button
+        size="xsmall"
+        variant="primary"
+        leftGlyph={<Icon glyph="Plus" />}
+        onClick={onCreatePipeline}
+      >
+        Create new
+      </Button>
+    );
+  }
+
   const onAction = (action: CreateMenuActions) => {
     switch (action) {
       case 'createPipeline':

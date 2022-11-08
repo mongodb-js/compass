@@ -73,7 +73,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
           checked={isAutoPreview}
         />
         <Label className={toggleLabelStyles} htmlFor="auto-preview">
-          Auto Preview
+          Preview
         </Label>
       </div>
       {showPipelineAsText && (
@@ -90,14 +90,14 @@ export const PipelineExtraSettings: React.FunctionComponent<
             value="builder-ui"
           >
             <Icon size="small" glyph="CurlyBraces"></Icon>
-            Builder UI
+            Stages
           </SegmentedControlOption>
           <SegmentedControlOption
             disabled={isPipelineModeDisabled}
             value="as-text"
           >
             <Icon size="small" glyph="Code"></Icon>
-            As Text
+            Text
           </SegmentedControlOption>
         </SegmentedControl>
       )}
