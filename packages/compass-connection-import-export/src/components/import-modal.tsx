@@ -89,7 +89,7 @@ export function ImportConnectionsModal({
         ...conn,
         displayName: (
           <>
-            {conn.name}&nbsp;
+            {conn.name}
             {conn.isExistingFavorite && (
               <Badge
                 className={existingFavoriteBadgeStyles}

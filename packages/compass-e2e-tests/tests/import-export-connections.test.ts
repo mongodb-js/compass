@@ -17,15 +17,7 @@ describe('Connection Import / Export', function () {
   let originalDisableKeychainUsage: string | undefined;
   let telemetry: Telemetry;
 
-  beforeEach(async function () {
-    telemetry = await startTelemetryServer();
-
-    tmpdir = path.join(
-      os.tmpdir(),
-      `compass-import-export-${Date.now().toString(32)}-${++i}`
-    );
-    await fs.mkdir(tmpdir, { recursive: true });
-
+  before(function () {
     originalDisableKeychainUsage =
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
     if (process.platform === 'linux' && process.env.CI) {
@@ -35,15 +27,27 @@ describe('Connection Import / Export', function () {
     }
   });
 
+  beforeEach(async function () {
+    telemetry = await startTelemetryServer();
+
+    tmpdir = path.join(
+      os.tmpdir(),
+      `compass-import-export-${Date.now().toString(32)}-${++i}`
+    );
+    await fs.mkdir(tmpdir, { recursive: true });
+  });
+
   afterEach(async function () {
+    await fs.rmdir(tmpdir, { recursive: true });
+
+    await telemetry.stop();
+  });
+
+  after(function () {
     if (originalDisableKeychainUsage)
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE =
         originalDisableKeychainUsage;
     else delete process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
-
-    await fs.rmdir(tmpdir, { recursive: true });
-
-    await telemetry.stop();
   });
 
   const connectionString = 'mongodb://foo:bar@host:1234/';
@@ -317,7 +321,7 @@ describe('Connection Import / Export', function () {
           }
           // Wait until the favorite is listed in the import connection list
           const favoriteNameTableCell = browser.$(
-            `${Selectors.ImportConnectionsModal} [data-testid="item-${favoriteIdForImport}-name"]`
+            `${Selectors.ImportConnectionsModal} [data-testid="item-${favoriteIdForImport}-displayName"]`
           );
           await favoriteNameTableCell.waitForDisplayed();
           expect(await favoriteNameTableCell.getText()).to.equal(
