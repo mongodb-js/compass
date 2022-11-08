@@ -128,6 +128,8 @@ export function useImportConnections(
         (stateUpdate) => {
           setState((prevState) => {
             if (
+              // Only update the state if filename and passphrase haven't changed
+              // while loading the connections list
               filename === prevState.filename &&
               passphrase === prevState.passphrase
             )

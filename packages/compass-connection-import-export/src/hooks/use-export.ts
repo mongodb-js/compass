@@ -63,6 +63,8 @@ export function useExportConnections(
   const { passphrase, filename, connectionList, removeSecrets } = state;
 
   useEffect(() => {
+    // If `favoriteConnections` changes, update the list of connections
+    // that are displayed in our table.
     if (
       favoriteConnections.map(({ id }) => id).join(',') !==
       state.connectionList.map(({ id }) => id).join(',')
