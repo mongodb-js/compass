@@ -6,7 +6,6 @@ import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
 import { EditorActionTypes, canRunPipeline } from './text-editor-pipeline';
 import type { EditorValueChangeAction } from './text-editor-pipeline';
-
 import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
@@ -159,14 +158,12 @@ export const gotoOutputStageCollection = (
     const {
       pipelineBuilder: {
         textEditor: {
-          pipeline: {
-            stageOperators
-          }
+          pipeline: { pipeline }
         }
       }
     } = getState();
     // $out or $merge is always last stage
-    const lastStageIndex = stageOperators.length - 1;
+    const lastStageIndex = pipeline.length - 1;
     dispatch(gotoOutResults(lastStageIndex));
   };
 };

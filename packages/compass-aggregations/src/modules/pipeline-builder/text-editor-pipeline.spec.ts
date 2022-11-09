@@ -28,9 +28,7 @@ function createStore(
             isLoading: false,
             previewDocs: null,
             serverError: null,
-            stageOperators: pipelineBuilder.stages.map(stage => {
-              return Object.keys(stage)[0];
-            }),
+            pipeline: pipelineBuilder.pipeline ?? [],
             syntaxErrors: pipelineBuilder.syntaxError,
           },
           outputStage: {
@@ -70,7 +68,7 @@ describe('stageEditor', function () {
       store.dispatch(changeEditorValue(newPipeline));
       const pipeline = store.getState().pipeline;
       expect(pipeline.pipelineText).to.equal(newPipeline);
-      expect(pipeline.stageOperators).to.deep.equal(['$match']);
+      expect(pipeline.pipeline).to.deep.equal([{ $match: { _id: 1 } }]);
       expect(pipeline.syntaxErrors).to.deep.equal([]);
     });
   });
