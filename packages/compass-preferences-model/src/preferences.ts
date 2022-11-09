@@ -369,7 +369,7 @@ const modelPreferencesProps: Required<{
   /**
    * Switch to hide credentials in connection strings from users.
    */
-    protectConnectionStrings: {
+  protectConnectionStrings: {
     type: 'boolean',
     required: false,
     default: false,
