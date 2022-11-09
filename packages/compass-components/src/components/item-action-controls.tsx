@@ -18,6 +18,7 @@ export type MenuAction<Action> = {
 };
 
 const ItemActionButtonSize = {
+  XSmall: 'xsmall',
   Small: 'small',
   Default: 'default',
 } as const;
@@ -47,11 +48,20 @@ const iconContainerStyle = css({
 
 // Using important here because leafygreen / emotion applies styles in the order
 // that doesn't allow our styles override theirs
-const iconButtonSmallStyle = css({
-  flex: 'none',
-  width: `${spacing[4]}px !important`,
-  height: `${spacing[4]}px !important`,
-});
+const buttonSizeStyle: Record<ItemActionButtonSize, string | undefined> = {
+  default: undefined,
+  small: css({
+    flex: 'none',
+    width: `${spacing[4]}px !important`,
+    height: `${spacing[4]}px !important`,
+  }),
+  xsmall: css({
+    flex: 'none',
+    // aligns with other xsmall components
+    width: `${20}px !important`,
+    height: `${20}px !important`,
+  }),
+};
 
 function actionTestId<Action extends string>(
   dataTestId: string | undefined,
@@ -78,17 +88,14 @@ const ItemActionButton = forwardRef<
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error leafygreen confuses TS a lot here
       ref={ref}
-      className={cx(
-        size === ItemActionButtonSize.Small ? iconButtonSmallStyle : '',
-        className
-      )}
+      className={cx(buttonSizeStyle[size], className)}
       aria-label={label}
       title={title}
       onClick={onClick}
       {...rest}
     >
       <span role="presentation" className={iconContainerStyle}>
-        <Icon size={size} glyph={glyph}></Icon>
+        <Icon size={size === 'xsmall' ? 12 : size} glyph={glyph}></Icon>
       </span>
       {/* Only here to make leafygreen menus work */}
       {children}

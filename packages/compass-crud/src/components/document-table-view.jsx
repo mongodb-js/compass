@@ -14,7 +14,7 @@ import CellEditor from './table-view/cell-editor';
 
 import './document-table-view.less';
 import './table-view/ag-grid-dist.css';
-import { cx } from '@mongodb-js/compass-components';
+import { cx, spacing } from '@mongodb-js/compass-components';
 
 const MIXED = 'Mixed';
 
@@ -879,7 +879,8 @@ class DocumentTableView extends React.Component {
       },
       editable: false,
       pinned: 'right',
-      width: 100,
+      // button group width + padding (8 * 2)
+      width: spacing[7] + spacing[3],
     });
 
     /* Return the updated column definitions */
