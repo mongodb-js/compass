@@ -252,7 +252,9 @@ describe('Collection aggregations tab', function () {
         Selectors.atlasOnlyStagePreviewSection(0)
       );
       const text = await textElement.getText();
-      return text.includes('This stage is only available with MongoDB Atlas.');
+      return text.includes(
+        'The $search stage is only available with MongoDB Atlas.'
+      );
     });
   });
 

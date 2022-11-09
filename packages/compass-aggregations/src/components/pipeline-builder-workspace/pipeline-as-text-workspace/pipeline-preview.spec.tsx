@@ -20,6 +20,8 @@ const renderPipelineEditor = (
         isOutStage={false}
         isLoading={false}
         previewDocs={null}
+        isMissingAtlasSupport={false}
+        atlasOperator=""
         {...props}
       />
     </Provider>
@@ -149,4 +151,15 @@ describe('PipelinePreview', function () {
     ).to.have.lengthOf(3);
     expect(within(container).getByTestId('output-stage-preview')).to.exist;
   });
+
+  it('renders atlas stage preview', function() {
+    renderPipelineEditor(
+      {
+        isMissingAtlasSupport: true,
+        atlasOperator: '$search',
+      }
+    );
+    const container = screen.getByTestId('pipeline-as-text-preview');
+    expect(within(container).getByTestId('atlas-only-stage-preview')).to.exist;
+  })
 });
