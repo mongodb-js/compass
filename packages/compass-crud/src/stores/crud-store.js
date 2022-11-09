@@ -119,7 +119,7 @@ export const setIsReadonly = (store, isReadonly) => {
 };
 
 /**
- * Set the setPreferencesReadOnly flag in the store.
+ * Set the preferencesReadOnly flag in the store.
  *
  * @param {Store} store - The store.
  * @param {Boolean} setPreferencesReadOnly - If Compass is readonly.
@@ -129,7 +129,7 @@ export const setPreferencesReadOnly = (store, preferencesReadOnly) => {
 };
 
 /**
- * Determine if Compass is editable.
+ * Set the isEditable flag in the store.
  *
  * @param {Store} store - The store.
  */
@@ -327,7 +327,7 @@ const configureStore = (options = {}) => {
     },
 
     /**
-     * Set if Compass is readonly.
+     * Set if the collection is readonly.
      *
      * @param {Boolean} isEditable - If Compass is readonly
      */
