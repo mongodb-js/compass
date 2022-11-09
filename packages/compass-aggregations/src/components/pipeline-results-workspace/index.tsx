@@ -24,7 +24,6 @@ const containerStyles = css({
   display: 'grid',
   gridTemplateRows: 'min-content 1fr',
   gridTemplateColumns: '1fr',
-  marginBottom: spacing[3],
 });
 
 const resultsStyles = css({
@@ -99,6 +98,7 @@ type PipelineResultsWorkspaceProps = {
   documents: Document[];
   isLoading?: boolean;
   isError?: boolean;
+  allDocsExpanded?: boolean;
   error?: string | null;
   isEmpty?: boolean;
   isMergeOrOutPipeline?: boolean;
@@ -113,6 +113,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
   ({
     documents,
     isLoading,
+    allDocsExpanded,
     error,
     isError,
     isEmpty,
@@ -174,7 +175,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<PipelineResultsWo
       );
     } else {
       results = (
-        <PipelineResultsList documents={documents} view={resultsViewType} />
+        <PipelineResultsList documents={documents} allDocsExpanded={allDocsExpanded} view={resultsViewType} />
       );
     }
 

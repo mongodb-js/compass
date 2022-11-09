@@ -44,13 +44,14 @@ async function main(): Promise<void> {
   }
 
   const { preferenceParseErrors } = globalPreferences;
+  const preferences = { ...globalPreferences.cli, ...globalPreferences.global, ...globalPreferences.hardcoded };
   const preferenceParseErrorsString = preferenceParseErrors.join('\n');
-  if (globalPreferences.cli.version) {
+  if (preferences.version) {
     process.stdout.write(`${app.getName()} ${app.getVersion()}\n`)
     return app.exit(0);
   }
 
-  if (globalPreferences.cli.help) {
+  if (preferences.help) {
     process.stdout.write(getHelpText());
     return app.exit(0);
   }
@@ -61,15 +62,13 @@ async function main(): Promise<void> {
   }
   const errorOutDueToAdditionalCommandLineFlags =
   preferenceParseErrors.length > 0 &&
-    !globalPreferences.global.ignoreAdditionalCommandLineFlags &&
-    !globalPreferences.cli.ignoreAdditionalCommandLineFlags;
+    !preferences.ignoreAdditionalCommandLineFlags;
 
   const importExportOptions = {
-    exportConnections: globalPreferences.cli.exportConnections,
-    importConnections: globalPreferences.cli.importConnections,
-    passphrase: globalPreferences.cli.passphrase,
-    // TODO(COMPASS-6066): Set removeSecrets: true if protectConnectionStrings is set.
-    removeSecrets: false,
+    exportConnections: preferences.exportConnections,
+    importConnections: preferences.importConnections,
+    passphrase: preferences.passphrase,
+    removeSecrets: !!preferences.protectConnectionStrings,
     trackingProps: { context: 'CLI' },
   };
 

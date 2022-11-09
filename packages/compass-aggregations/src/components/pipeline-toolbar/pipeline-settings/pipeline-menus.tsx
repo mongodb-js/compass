@@ -1,97 +1,20 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import semver from 'semver';
-import { Button, Icon, Menu, MenuItem } from '@mongodb-js/compass-components';
+import { Icon, DropdownMenuButton } from '@mongodb-js/compass-components';
+import type { MenuAction } from '@mongodb-js/compass-components';
 import type { Dispatch } from 'redux';
 import type { RootState } from '../../../modules';
 import { newPipelineFromText } from '../../../modules/import-pipeline';
 import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
-import { openCreateView, savingPipelineOpen } from '../../../modules/saving-pipeline';
+import {
+  openCreateView,
+  savingPipelineOpen,
+} from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 
-type PipelineActionMenuProp<ActionType extends string> = {
-  disabled?: boolean;
-  onAction: (action: ActionType) => void;
-  title: string;
-  glyph: string;
-  menuItems: { title: string; action: ActionType }[];
-  ['data-testid']: string;
-};
-
-function PipelineActionMenu<T extends string>({
-  disabled,
-  onAction,
-  title,
-  glyph,
-  menuItems,
-  ['data-testid']: dataTestId,
-}: PipelineActionMenuProp<T>) {
-  // this ref is used by the Menu component to calculate the height and position
-  // of the menu.
-  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const onMenuItemClick = useCallback(
-    (evt) => {
-      evt.stopPropagation();
-      setIsMenuOpen(false);
-      onAction(evt.currentTarget.dataset.action);
-    },
-    [onAction]
-  );
-
-  return (
-    <Menu
-      data-testid={`${dataTestId}-content`}
-      open={isMenuOpen}
-      refEl={menuTriggerRef}
-      setOpen={setIsMenuOpen}
-      justify="start"
-      trigger={({
-        onClick,
-        children,
-      }: {
-        onClick(): void;
-        children: React.ReactChildren;
-      }) => (
-        <Button
-          disabled={disabled}
-          ref={menuTriggerRef}
-          data-testid={dataTestId}
-          title={title}
-          aria-label={title}
-          variant="primary"
-          size="xsmall"
-          leftGlyph={<Icon glyph={glyph} />}
-          rightGlyph={<Icon glyph="CaretDown" />}
-          onClick={(evt) => {
-            evt.stopPropagation();
-            onClick();
-          }}
-        >
-          {title}
-          {children}
-        </Button>
-      )}
-    >
-      {menuItems.map((item) => (
-        <MenuItem
-          key={item.title}
-          data-action={item.action}
-          data-testid={`${dataTestId}-${item.action}`}
-          onClick={onMenuItemClick}
-          aria-label={item.title}
-        >
-          {item.title}
-        </MenuItem>
-      ))}
-    </Menu>
-  );
-}
-
 type SaveMenuActions = 'save' | 'saveAs' | 'createView';
-
 type SaveMenuProps = {
   disabled?: boolean;
   pipelineName: string;
@@ -100,7 +23,10 @@ type SaveMenuProps = {
   onSaveAs: (name: string) => void;
   onCreateView: () => void;
 };
-
+const saveMenuActions: MenuAction<SaveMenuActions>[] = [
+  { action: 'save', label: 'Save' },
+  { action: 'saveAs', label: 'Save as' },
+];
 export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
   disabled,
   pipelineName,
@@ -119,40 +45,47 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
         return onCreateView();
     }
   };
+  const actions = useMemo(
+    () =>
+      saveMenuActions.concat(
+        isCreateViewAvailable
+          ? [
+              {
+                action: 'createView',
+                label: 'Create view',
+              },
+            ]
+          : []
+      ),
+    [isCreateViewAvailable]
+  );
   return (
-    <PipelineActionMenu<SaveMenuActions>
-      disabled={disabled}
+    <DropdownMenuButton<SaveMenuActions>
       data-testid="save-menu"
-      title="Save"
-      glyph="Save"
+      actions={actions}
       onAction={onAction}
-      menuItems={
-        [
-          { action: 'save', title: 'Save' },
-          { action: 'saveAs', title: 'Save as' },
-          isCreateViewAvailable && {
-            action: 'createView',
-            title: 'Create view',
-          },
-        ].filter(
-          Boolean
-        ) as PipelineActionMenuProp<SaveMenuActions>['menuItems']
-      }
-    />
+      buttonText="Save"
+      buttonProps={{
+        size: 'xsmall',
+        variant: 'primary',
+        leftGlyph: <Icon glyph="Save" />,
+        disabled,
+      }}
+    ></DropdownMenuButton>
   );
 };
 
 const VIEWS_MIN_SERVER_VERSION = '3.4.0';
 
 const mapSaveMenuState = (state: RootState) => {
-  const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
+  const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
   return {
-    disabled: isPipelineInvalid,
+    disabled: hasSyntaxErrors,
     pipelineName: state.name,
     isCreateViewAvailable: semver.gte(
       state.serverVersion,
       VIEWS_MIN_SERVER_VERSION
-    )
+    ),
   };
 };
 
@@ -172,34 +105,39 @@ export const SaveMenu = connect(
   mapSaveMenuDispatch
 )(SaveMenuComponent);
 
-type CreateMenuActions = 'createPipleine' | 'createPipleineFromText';
+type CreateMenuActions = 'createPipeline' | 'createPipelineFromText';
 type CreateMenuProps = {
   onCreatePipeline: () => void;
   onCreatePipelineFromText: () => void;
 };
+const createMenuActions: MenuAction<CreateMenuActions>[] = [
+  { action: 'createPipeline', label: 'Pipeline' },
+  { action: 'createPipelineFromText', label: 'Pipeline from text' },
+];
 export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
   onCreatePipeline,
   onCreatePipelineFromText,
 }) => {
   const onAction = (action: CreateMenuActions) => {
     switch (action) {
-      case 'createPipleine':
+      case 'createPipeline':
         return onCreatePipeline();
-      case 'createPipleineFromText':
+      case 'createPipelineFromText':
         return onCreatePipelineFromText();
     }
   };
   return (
-    <PipelineActionMenu<CreateMenuActions>
+    <DropdownMenuButton<CreateMenuActions>
       data-testid="create-new-menu"
-      title="Create new"
-      glyph="Plus"
+      actions={createMenuActions}
       onAction={onAction}
-      menuItems={[
-        { action: 'createPipleine', title: 'Pipeline' },
-        { action: 'createPipleineFromText', title: 'Pipeline from text' },
-      ]}
-    />
+      buttonText="Create new"
+      buttonProps={{
+        size: 'xsmall',
+        variant: 'primary',
+        leftGlyph: <Icon glyph="Plus" />,
+      }}
+    ></DropdownMenuButton>
   );
 };
 const mapCreateMenuDispatch = (dispatch: Dispatch) => ({

@@ -1,15 +1,20 @@
 import type { DataService } from 'mongodb-data-service';
 import type * as t from '@babel/types';
-import parseEJSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
-import { PipelineParserError } from './pipeline-parser/utils';
+import { parseEJSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
+import { isLastStageOutputStage } from '../../utils/stage';
 
-export const DEFAULT_PIPELINE = `[\n{}\n]`;
+export const DEFAULT_PIPELINE = `[]`;
+
+// For stages we use real stage id to store pipeline fetching abort controller
+// reference in the queue. For whole pipeline we use special, otherwise
+// unreachable number, to store the reference
+const FULL_PIPELINE_PREVIEW_ID = Infinity;
 
 export class PipelineBuilder {
   private _source: string = DEFAULT_PIPELINE;
@@ -38,8 +43,7 @@ export class PipelineBuilder {
 
   private parseSourceToPipeline() {
     try {
-      const pipeline = parseEJSON(this.source, { mode: ParseMode.Loose });
-      this.pipeline = typeof pipeline === 'string' ? null : pipeline;
+      this.pipeline = parseEJSON(this.source);
     } catch (e) {
       this.pipeline = null;
     }
@@ -61,6 +65,10 @@ export class PipelineBuilder {
    */
   stopPreview(from?: number): void {
     this.previewManager.clearQueue(from);
+  }
+
+  cancelPreviewForStage(id: number): void {
+    this.previewManager.cancelPreviewForStage(id);
   }
 
   /**
@@ -107,7 +115,7 @@ export class PipelineBuilder {
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
     }
-    if (!this.pipeline) {
+    if (this.pipeline === null) {
       throw new PipelineParserError('Invalid pipeline');
     }
     return this.pipeline;
@@ -118,15 +126,24 @@ export class PipelineBuilder {
    */
   getPreviewForPipeline(
     namespace: string,
-    options: PreviewOptions
+    options: PreviewOptions,
+    filterOutputStage = false,
   ): Promise<Document[]> {
-    const pipeline = this.getPipelineFromSource();
+    // For preview we ignore $out/$merge stage.
+    const pipeline = [...this.getPipelineFromSource()];
+    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+      pipeline.pop();
+    }
     return this.previewManager.getPreviewForStage(
-      pipeline.length - 1,
+      FULL_PIPELINE_PREVIEW_ID,
       namespace,
       pipeline,
       options
     );
+  }
+
+  cancelPreviewForPipeline() {
+    this.previewManager.cancelPreviewForStage(FULL_PIPELINE_PREVIEW_ID);
   }
 
   /**
@@ -204,9 +221,7 @@ export class PipelineBuilder {
    * contains errors
    */
   getPipelineFromStages(stages = this.stages): Document[] {
-    return parseEJSON(this.getPipelineStringFromStages(stages), {
-      mode: ParseMode.Loose
-    });
+    return parseEJSON(this.getPipelineStringFromStages(stages));
   }
 
   /**

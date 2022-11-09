@@ -41,7 +41,12 @@ class ReadonlyDocument extends React.Component {
    * @returns {Array} The elements.
    */
   renderElements() {
-    return <DocumentList.Document value={this.props.doc} />;
+    return (
+      <DocumentList.Document
+        value={this.props.doc}
+        expanded={this.props.expandAll}
+      />
+    );
   }
 
   renderActions() {

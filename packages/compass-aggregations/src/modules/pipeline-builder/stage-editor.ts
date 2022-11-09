@@ -22,6 +22,7 @@ import type { PipelineModeToggledAction } from './pipeline-mode';
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
+  StagePreviewFetchSkipped = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSkipped',
   StagePreviewFetchSuccess = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSuccess',
   StagePreviewFetchError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
   StageRun = 'compass-aggregations/pipeline-builder/stage-editor/StageRun',
@@ -38,6 +39,11 @@ export const enum StageEditorActionTypes {
 
 export type StagePreviewFetchAction = {
   type: StageEditorActionTypes.StagePreviewFetch;
+  id: number;
+};
+
+export type StagePreviewFetchSkippedAction = {
+  type: StageEditorActionTypes.StagePreviewFetchSkipped;
   id: number;
 };
 
@@ -135,6 +141,7 @@ export const loadStagePreview = (
   | StagePreviewFetchAction
   | StagePreviewFetchSuccessAction
   | StagePreviewFetchErrorAction
+  | StagePreviewFetchSkippedAction
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
@@ -144,21 +151,23 @@ export const loadStagePreview = (
       autoPreview
     } = getState();
 
-    if (!autoPreview) {
-      return;
-    }
+    // Ignoring the state of the stage, always try to stop current preview fetch
+    pipelineBuilder.cancelPreviewForStage(idx);
 
-    if (stages[idx].disabled) {
-      return;
-    }
-
-    if (
+    const canFetchPreviewForStage =
+      autoPreview &&
+      !stages[idx].disabled &&
       // Only run stage if all previous ones are valid (otherwise it will fail
       // anyway)
-      !stages.slice(0, idx + 1).every((stage) => {
+      stages.slice(0, idx + 1).every((stage) => {
         return canRunStage(stage);
-      })
-    ) {
+      });
+
+    if (!canFetchPreviewForStage) {
+      dispatch({
+        type: StageEditorActionTypes.StagePreviewFetchSkipped,
+        id: idx
+      });
       return;
     }
 
@@ -290,6 +299,9 @@ export const changeStageValue = (
   return (dispatch, getState, { pipelineBuilder }) => {
     const stage = pipelineBuilder.getStage(id);
     if (!stage) {
+      return;
+    }
+    if (stage.value === newVal) {
       return;
     }
     stage.changeValue(newVal);
@@ -517,6 +529,27 @@ const reducer: Reducer<StageEditorState> = (
   }
 
   if (
+    isAction<StagePreviewFetchSkippedAction>(
+      action,
+      StageEditorActionTypes.StagePreviewFetchSkipped
+    )
+  ) {
+    return {
+      ...state,
+      stages: [
+        ...state.stages.slice(0, action.id),
+        {
+          ...state.stages[action.id],
+          loading: false,
+          previewDocs: null,
+          serverError: null
+        },
+        ...state.stages.slice(action.id + 1)
+      ]
+    };
+  }
+
+  if (
     isAction<StagePreviewFetchSuccessAction>(
       action,
       StageEditorActionTypes.StagePreviewFetchSuccess
@@ -616,6 +649,7 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
+          serverError: null,
           previewDocs: null,
           disabled: action.disabled
         },

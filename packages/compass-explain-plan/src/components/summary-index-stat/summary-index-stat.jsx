@@ -77,7 +77,7 @@ class SummaryIndexStat extends Component {
       COLLSCAN: palette.yellow.dark2,
       COVERED: palette.green.dark2,
       MULTIPLE: palette.yellow.dark2,
-      INDEX: palette.black,
+      INDEX: palette.gray.dark1,
       UNAVAILABLE: palette.black,
     };
 
@@ -104,10 +104,7 @@ class SummaryIndexStat extends Component {
           <span className={styles['summary-index-stat-index-icon']}>
             {this.getIndexMessageIcon()}
           </span>
-          <span
-            className={styles['summary-index-stat-index-message']}
-            style={{ color: this.getIndexMessageColor() }}
-          >
+          <span style={{ color: this.getIndexMessageColor() }}>
             {this.getIndexMessageText()}
           </span>
           {this.props.index ? (

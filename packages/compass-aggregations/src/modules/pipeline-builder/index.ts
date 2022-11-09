@@ -1,12 +1,16 @@
 import { combineReducers } from 'redux';
 import stageEditor from './stage-editor';
-import textEditor from './text-editor';
+import pipeline from './text-editor-pipeline';
 import pipelineMode from './pipeline-mode';
+import outputStage from './text-editor-output-stage';
 
 const reducer = combineReducers({
   pipelineMode,
   stageEditor,
-  textEditor,
+  textEditor: combineReducers({
+    pipeline,
+    outputStage,
+  })
 });
 
 export default reducer;

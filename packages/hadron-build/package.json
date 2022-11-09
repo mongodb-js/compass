@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps.",
-  "version": "25.1.0",
+  "version": "25.2.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",

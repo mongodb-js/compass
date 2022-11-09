@@ -33,13 +33,13 @@ const LEVEL_OPTIONS = { off: 'Off', moderate: 'Moderate', strict: 'Strict' };
  * URL to validation action documentation.
  */
 const ACTION_HELP_URL =
-  'https://docs.mongodb.com/manual/reference/command/collMod/#validationAction';
+  'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationAction';
 
 /**
  * URL to validation level documentation.
  */
 const LEVEL_HELP_URL =
-  'https://docs.mongodb.com/manual/reference/command/collMod/#validationLevel';
+  'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationLevel';
 
 /**
  * The validation editor component.
