@@ -1,7 +1,7 @@
 export type AcceptedFileType = 'csv' | 'json';
 
 const FILE_TYPES: {
-  [AcceptedFileType: string]: string;
+  [fileType: string]: AcceptedFileType;
 } = {
   CSV: 'csv',
   JSON: 'json',
