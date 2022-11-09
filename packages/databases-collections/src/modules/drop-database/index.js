@@ -6,9 +6,6 @@ import isRunning, {
 import isVisible, {
   INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
 } from '../is-visible';
-import name, {
-  INITIAL_STATE as NAME_INITIAL_STATE
-} from '../drop-database/name';
 import nameConfirmation, {
   INITIAL_STATE as NAME_CONFIRMATION_INITIAL_STATE
 } from '../drop-database/name-confirmation';
@@ -23,13 +20,14 @@ import dataService from '../data-service';
  */
 const OPEN = 'databases-collections/drop-database/OPEN';
 
+const NAME_INITIAL_STATE = '';
+
 /**
  * The main reducer.
  */
 const reducer = combineReducers({
   isRunning,
   isVisible,
-  name,
   nameConfirmation,
   error,
   dataService

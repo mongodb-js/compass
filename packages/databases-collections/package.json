@@ -50,7 +50,6 @@
     "@mongodb-js/compass-editor": "^0.2.0",
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/databases-collections-list": "^1.3.0",
-    "hadron-react-components": "^6.3.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -90,7 +89,6 @@
     "@mongodb-js/compass-editor": "^0.2.0",
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/databases-collections-list": "^1.3.0",
-    "hadron-react-components": "^6.3.0",
     "react": "^16.14.0"
   }
 }
