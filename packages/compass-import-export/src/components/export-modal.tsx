@@ -378,10 +378,6 @@ function ExportModal({
 
 /**
  * Map the state of the store to component properties.
- *
- * @param {Object} state - The state.
- *
- * @returns {Object} The mapped properties.
  */
 const mapStateToProps = (state: RootExportState) => {
   return {
