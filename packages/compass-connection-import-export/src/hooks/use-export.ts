@@ -87,7 +87,7 @@ export function useExportConnections(
     if (protectConnectionStrings) {
       setState((prevState) => ({ ...prevState, removeSecrets: true }));
     }
-  }, [protectConnectionStrings]);
+  }, [protectConnectionStrings, state.removeSecrets]);
 
   const { onChangeConnectionList, onChangePassphrase, onCancel } =
     useImportExportConnectionsCommon(setState, finish);
@@ -136,7 +136,7 @@ export function useExportConnections(
         removeSecrets: evt.target.checked || protectConnectionStrings,
       }));
     },
-    []
+    [protectConnectionStrings]
   );
 
   return {
