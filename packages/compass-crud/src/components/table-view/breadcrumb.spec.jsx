@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 
-import { getActions, notCalledExcept } from '../../test/aggrid-helper';
+import { getActions, notCalledExcept } from '../../../test/aggrid-helper';
 import BreadcrumbComponent from './breadcrumb';
 
 describe('<BreadcrumbComponent />', function () {

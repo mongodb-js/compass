@@ -12,8 +12,8 @@ import {
   getColumnApi,
   getContext,
   notCalledExcept,
-} from '../../test/aggrid-helper';
-import AddFieldButton from './table-view/add-field-button';
+} from '../../../test/aggrid-helper';
+import AddFieldButton from './add-field-button';
 
 describe('<AddFieldButton />', function () {
   before(function () {

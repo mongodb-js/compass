@@ -23,7 +23,6 @@ import {
 } from '../constants/documents-statuses';
 
 import './index.less';
-import './ag-grid-dist.css';
 
 const listAndJsonStyles = css({
   padding: spacing[3],
