@@ -27,14 +27,15 @@ class ImportOptions extends PureComponent {
     setStopOnErrors: PropTypes.func,
     ignoreBlanks: PropTypes.bool,
     setIgnoreBlanks: PropTypes.func,
-    fileOpenDialog: PropTypes.func,
   };
 
   /**
    * Handle choosing a file from the file dialog.
    */
   handleChooseFile = (files) => {
-    this.props.selectImportFileName(files[0]);
+    if (files.length > 0) {
+      this.props.selectImportFileName(files[0]);
+    }
   };
 
   handleOnSubmit = (evt) => {

@@ -2,6 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 import { createStore, applyMiddleware } from 'redux';
 import type { Store, AnyAction } from 'redux';
 import thunk from 'redux-thunk';
+import type { DataService } from 'mongodb-data-service';
 
 import reducer from '../modules';
 import {
@@ -24,14 +25,27 @@ const store = Object.assign(_store, {
   onActivated(globalAppRegistry: AppRegistry) {
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
-    globalAppRegistry.on('data-service-connected', (err, dataService) => {
-      store.dispatch(dataServiceConnected(err, dataService));
-    });
+    globalAppRegistry.on(
+      'data-service-connected',
+      (err: Error | undefined, dataService: DataService) => {
+        store.dispatch(dataServiceConnected(err, dataService));
+      }
+    );
 
     globalAppRegistry.on(
       'open-export',
       ({ namespace, query, count, aggregation }) => {
-        store.dispatch(openExport({ namespace, query, count, aggregation }));
+        // TODO: Once we update our redux usage to use `configureStore` from `@reduxjs/toolkit`
+        // we should be able to remove this type cast as the thunk action will
+        // be properly accepted in the store dispatch typing.
+        store.dispatch(
+          openExport({
+            namespace,
+            query,
+            count,
+            aggregation,
+          }) as unknown as AnyAction
+        );
       }
     );
   },

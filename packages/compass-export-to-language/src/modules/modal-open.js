@@ -32,7 +32,7 @@ export default function reducer(state = INITIAL_STATE, action) {
 /**
  * Action creator for modalOpen changed events.
  *
- * @param {String} modalOpen - The modalOpen value.
+ * @param {Boolean} modalOpen - The modalOpen value.
  *
  * @returns {Object} The modalOpen changed action.
  */

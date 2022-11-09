@@ -7,11 +7,7 @@ import { css, spacing } from '@mongodb-js/compass-components';
 export type ResultsViewType = 'document' | 'json';
 
 const containerStyles = css({
-  ol: {
-    padding: 0,
-  },
-  marginLeft: spacing[3],
-  marginRight: spacing[3],
+  padding: spacing[3],
 });
 
 const PipelineResultsList: React.FunctionComponent<{
@@ -39,9 +35,11 @@ const PipelineResultsList: React.FunctionComponent<{
     view === 'document' ? DocumentListView : DocumentJsonView;
 
   return (
-    <div className={containerStyles}>
-      <DocumentView {...listProps} isExpanded={allDocsExpanded}></DocumentView>
-    </div>
+      <DocumentView
+        {...listProps}
+        isExpanded={allDocsExpanded}
+        className={containerStyles}
+      />
   );
 };
 

@@ -684,7 +684,7 @@ export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [role="option"]`;
+  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="option"]`;
 };
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
@@ -704,21 +704,11 @@ export const stageCollapseButton = (stageIndex: number): string => {
 export const stageExpandButton = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
 };
-export const stageSelectControlInput = (
-  stageIndex: number,
-  expanded?: boolean
-): string => {
-  const selector = `[data-stage-index="${stageIndex}"] .Select-control input`; // [role="combobox"]
-
-  if (expanded === true) {
-    return `${selector}[aria-expanded="true"]`;
-  }
-
-  if (expanded === false) {
-    return `${selector}[aria-expanded="false"]`;
-  }
-
-  return selector;
+export const stagePickerComboboxInput = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
+};
+export const stagePickerListBox = (stageIndex: number): string => {
+  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="listbox"]`;
 };
 export const stageTextarea = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] .ace_editor textarea`; // .ace_text-input
@@ -892,30 +882,30 @@ export const ExportModalShowFileButton =
   '[data-testid="export-modal"] [data-testid="show-file-button"]';
 export const ExportModalCloseButton =
   '[data-testid="export-modal"] [data-testid="close-button"]';
-export const ExportModalFileText = '[data-testid="export-modal"] #export-file';
+export const ExportModalFileInput =
+  '[data-testid="export-modal"] #export-file_file_input';
 
 export const exportModalExportField = (fieldName: string): string => {
   return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
 
 // Export to language modal
-export const ExportToLanguageModal = '[data-testid="export-to-lang-modal"]';
+export const ExportToLanguageModal = '[data-testid="export-to-language-modal"]';
 export const ExportToLanguageLanguageField =
-  '[data-testid="select-lang-field"]';
+  '[data-testid="export-to-language-output-field"] button[aria-labelledby="Language Picker"]';
 export const ExportToLanguageLanguageListbox =
-  '[data-testid="select-lang-field"] [role="listbox"]';
+  'ul[aria-labelledby="Language Picker"]';
 export const ExportToLanguageImportsCheckbox =
-  '[data-testid="export-to-lang-checkbox-imports"]';
+  '[data-testid="export-to-language-include-imports"]';
 export const ExportToLanguageDriverCheckbox =
-  '[data-testid="export-to-lang-checkbox-driver"]';
+  '[data-testid="export-to-language-include-drivers"]';
 export const ExportToLanguageBuildersCheckbox =
-  '[data-testid="export-to-lang-checkbox-builders"]';
+  '[data-testid="export-to-language-use-builders"]';
 export const ExportToLanguageCopyOutputButton =
-  '[data-testid="export-to-lang-copy-output"]';
-export const ExportToLanguageCloseButton =
-  '[data-testid="export-to-lang-modal"] .modal-footer .btn-default';
+  '[data-testid="export-to-language-output-field"] [aria-label="Copy"]';
+export const ExportToLanguageCloseButton = `${ExportToLanguageModal} [data-testid=close-button]`;
 export const ExportToLanguageQueryOutput =
-  '[data-testid="export-to-lang-query-output-container"]';
+  '[data-testid="export-to-language-output"]';
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =

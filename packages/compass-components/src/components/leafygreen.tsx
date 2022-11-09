@@ -9,7 +9,7 @@ import { default as Banner } from '@leafygreen-ui/banner';
 import { default as LeafyGreenButton } from '@leafygreen-ui/button';
 import { default as LeafyGreenCheckbox } from '@leafygreen-ui/checkbox';
 import { default as LeafyGreenCard } from '@leafygreen-ui/card';
-import { default as LeafyGreenCode } from '@leafygreen-ui/code';
+import { default as LeafyGreenCode, Language } from '@leafygreen-ui/code';
 import {
   Combobox as LeafyGreenCombobox,
   ComboboxOption,
@@ -208,6 +208,7 @@ export {
   ConfirmationModal,
   Icon,
   IconButton,
+  Language,
   Menu,
   MenuItem,
   MenuSeparator,

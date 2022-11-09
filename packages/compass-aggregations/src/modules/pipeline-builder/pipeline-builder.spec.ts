@@ -54,7 +54,7 @@ describe('PipelineBuilder', function () {
 
   it('adds stage', function() {
     pipelineBuilder.addStage();
-    expect(pipelineBuilder.stages.length).to.equal(2);
+    expect(pipelineBuilder.stages.length).to.equal(1);
   });
 
   it('adds stage after index', function() {
@@ -89,7 +89,7 @@ describe('PipelineBuilder', function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
     pipelineBuilder.reset(pipeline);
 
-    const mock = sinon.mock(pipelineBuilder.previewManager);
+    const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock.expects('getPreviewForStage')
       .withArgs(1, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {}, true)
       .returns([{_id: 1}]);
@@ -105,9 +105,9 @@ describe('PipelineBuilder', function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
     pipelineBuilder.reset(pipeline);
 
-    const mock = sinon.mock(pipelineBuilder.previewManager);
+    const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock.expects('getPreviewForStage')
-      .withArgs(1, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
+      .withArgs(Infinity, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
       .returns([{_id: 1}, {_id: 2}]);
 
     const data = await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {});
@@ -121,9 +121,9 @@ describe('PipelineBuilder', function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
     pipelineBuilder.reset(pipeline);
 
-    const mock = sinon.mock(pipelineBuilder.previewManager);
+    const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock.expects('getPreviewForStage')
-      .withArgs(1, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
+      .withArgs(Infinity, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
       .returns([{_id: 1}, {_id: 2}]);
 
     const data = await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {}, true);

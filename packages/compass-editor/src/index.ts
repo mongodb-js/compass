@@ -8,3 +8,4 @@ export type AceEditor = Ace.Editor;
 export type AceAnnotation = Ace.Annotation;
 export type { CompletionWithServerInfo } from './types';
 export { InlineEditor } from './inline-editor';
+export { prettify } from './prettify';

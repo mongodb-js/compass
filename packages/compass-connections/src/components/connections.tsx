@@ -44,6 +44,8 @@ const formContainerStyles = css({
   flexDirection: 'row',
   flexWrap: 'wrap',
   gap: spacing[4],
+  overflow: 'auto',
+  height: '100%',
 });
 
 function Connections({

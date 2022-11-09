@@ -5,6 +5,14 @@ export const COMPLETED_WITH_ERRORS = 'COMPLETED_WITH_ERRORS';
 export const FAILED = 'FAILED';
 export const UNSPECIFIED = 'UNSPECIFIED';
 
+export type ProcessStatus =
+  | 'STARTED'
+  | 'CANCELED'
+  | 'COMPLETED'
+  | 'COMPLETED_WITH_ERRORS'
+  | 'FAILED'
+  | 'UNSPECIFIED';
+
 /**
  * Process status constants.
  */
@@ -15,7 +23,7 @@ export const PROCESS_STATUS = {
   FAILED,
   UNSPECIFIED,
   COMPLETED_WITH_ERRORS,
-};
+} as const;
 
 /**
  * The finished statuses.

@@ -5,7 +5,6 @@
     font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
     font-size: 11px;
     height: 100%;
-    padding: 15px 15px 40px 15px;
   }
   &-root {
     background-color: @palette__white;
@@ -25,6 +24,11 @@
       border: 0;
       line-height: 25px;
       padding-left: 7px;
+
+      &:hover {
+        background-color: @palette__gray--light-2;
+        cursor: grab;
+      }
     }
     &-container {
       position: static;

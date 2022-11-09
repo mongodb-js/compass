@@ -16,7 +16,7 @@ import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form'
 type IdentityFormKeys = keyof SSHConnectionOptions;
 
 type FileInputField = {
-  name: string;
+  name: IdentityFormKeys;
   label: string;
   type: 'file';
   optional?: boolean;
@@ -25,7 +25,7 @@ type FileInputField = {
   state: 'error' | 'none';
 };
 type TextInputField = {
-  name: string;
+  name: IdentityFormKeys;
   label: string;
   type: 'text' | 'number' | 'password';
   optional?: boolean;
@@ -117,7 +117,7 @@ function SshTunnelIdentity({
                   id={name}
                   dataTestId={name}
                   onChange={(files: string[]) => {
-                    formFieldChanged(name as IdentityFormKeys, files[0]);
+                    formFieldChanged(name, files[0]);
                   }}
                   label={label}
                   error={Boolean(errorMessage)}
@@ -135,7 +135,7 @@ function SshTunnelIdentity({
                   onChange={({
                     target: { value },
                   }: ChangeEvent<HTMLInputElement>) => {
-                    formFieldChanged(name as IdentityFormKeys, value);
+                    formFieldChanged(name, value);
                   }}
                   name={name}
                   data-testid={name}

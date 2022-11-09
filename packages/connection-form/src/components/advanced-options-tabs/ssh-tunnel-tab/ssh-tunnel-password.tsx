@@ -35,7 +35,7 @@ function SshTunnelPassword({
   );
 
   const fields: {
-    name: string;
+    name: PasswordFormKeys;
     label: string;
     type: 'text' | 'number' | 'password';
     optional: boolean;
@@ -90,7 +90,7 @@ function SshTunnelPassword({
               onChange={({
                 target: { value },
               }: ChangeEvent<HTMLInputElement>) => {
-                formFieldChanged(name as PasswordFormKeys, value);
+                formFieldChanged(name, value);
               }}
               name={name}
               data-testid={name}
