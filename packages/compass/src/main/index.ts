@@ -38,7 +38,6 @@ async function main(): Promise<void> {
   if (process.env.COMPASS_LG_DARKMODE === 'true') {
     globalPreferences.hardcoded = { ...globalPreferences.hardcoded, lgDarkmode: true };
   }
-
   if (process.env.HADRON_READONLY === 'true') {
     globalPreferences.hardcoded = { ...globalPreferences.hardcoded, readOnly: true };
   }

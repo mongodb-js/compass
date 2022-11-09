@@ -238,6 +238,9 @@ describe('readOnly: true / Read-Only Edition', function () {
       // Some tests navigate away from the numbers collection aggregations tab
       await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
 
+      await browser.clickVisible(Selectors.AddStageButton);
+      await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+
       // sanity check to make sure there's only one
       const stageContainers = await browser.$$(Selectors.StageContainer);
       expect(stageContainers).to.have.lengthOf(1);
