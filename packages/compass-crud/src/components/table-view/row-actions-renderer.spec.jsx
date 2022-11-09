@@ -8,8 +8,8 @@ import {
   getApi,
   getContext,
   notCalledExcept,
-} from '../../test/aggrid-helper';
-import RowActionsRenderer from './table-view/row-actions-renderer';
+} from '../../../test/aggrid-helper';
+import RowActionsRenderer from './row-actions-renderer';
 
 describe('<RowActionsRenderer />', function () {
   const api = getApi();

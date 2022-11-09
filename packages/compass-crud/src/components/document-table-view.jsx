@@ -4,7 +4,7 @@ import { AgGridReact } from 'ag-grid-react';
 import { map } from 'lodash';
 import HadronDocument from 'hadron-document';
 import mongodbns from 'mongodb-ns';
-import BreadcrumbComponent from './breadcrumb';
+import BreadcrumbComponent from './table-view/breadcrumb';
 import CellRenderer from './table-view/cell-renderer';
 import RowNumberRenderer from './table-view/row-number-renderer';
 import FullWidthCellRenderer from './table-view/full-width-cell-renderer';
@@ -13,6 +13,7 @@ import HeaderComponent from './table-view/header-cell-renderer';
 import CellEditor from './table-view/cell-editor';
 
 import './document-table-view.less';
+import './table-view/ag-grid-dist.css';
 import { cx } from '@mongodb-js/compass-components';
 
 const MIXED = 'Mixed';

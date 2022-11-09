@@ -11,8 +11,8 @@ import {
   getActions,
   getContext,
   notCalledExcept,
-} from '../../test/aggrid-helper';
-import FullWidthCellRenderer from './table-view/full-width-cell-renderer';
+} from '../../../test/aggrid-helper';
+import FullWidthCellRenderer from './full-width-cell-renderer';
 
 describe('<FullWidthCellRenderer />', function () {
   before(function () {
