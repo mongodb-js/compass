@@ -52,7 +52,7 @@ const MESSAGES = {
   [COMPLETED_WITH_ERRORS]: 'Import completed with following errors:',
   [FAILED]: 'Failed to import with the following error:',
   [UNSPECIFIED]: '',
-};
+} as const;
 
 const closeButtonStyles = css({
   marginRight: spacing[2],
@@ -100,7 +100,6 @@ type ImportModalProps = {
   }[];
   values: Document[];
   toggleIncludeField: (path: string) => void;
-  // TODO: Better typing for bsonType?
   setFieldType: (path: string, bsonType: string) => void;
   previewLoaded: boolean;
 };
@@ -142,9 +141,6 @@ function ImportModal({
     cancelImport();
   }, [cancelImport]);
 
-  /**
-   * Handle clicking the close button.
-   */
   const handleClose = useCallback(() => {
     handleCancel();
     closeImport();
