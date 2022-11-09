@@ -306,7 +306,7 @@ describe('QueryBar Component', function () {
       renderQueryBar();
     });
 
-    it('should allow tabbing through the input to the apply button COMPASS-4900', function () {
+    it('should not allow tabbing through the input to the apply button', function () {
       const queryHistoryButton = screen.getByTestId(queryHistoryButtonId);
       const applyButton = screen.getByTestId('query-bar-apply-filter-button');
 
@@ -315,9 +315,9 @@ describe('QueryBar Component', function () {
       userEvent.tab();
       userEvent.tab();
 
-      expect(applyButton.ownerDocument.activeElement === applyButton).to.equal(
-        true
-      );
+      expect(
+        applyButton.ownerDocument.activeElement === screen.getByRole('textbox')
+      ).to.equal(true);
     });
   });
 });
