@@ -3,7 +3,7 @@ import {
   Button,
   css,
   spacing,
-  AtlasLogoMark,
+  AtlasLogo,
   Body,
 } from '@mongodb-js/compass-components';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -35,14 +35,15 @@ export const AtlastStagePreivew = ({
       className={atlasContainerStyles}
       data-testid="atlas-only-stage-preview"
     >
-      <AtlasLogoMark size={30} />
+      <AtlasLogo />
       <Body
         data-testid="stage-preview-missing-search-support"
         className={atlasTextStyles}
       >
-        This stage is only available with MongoDB Atlas. Create a free cluster
-        or connect to an Atlas cluster to build search indexes and use{' '}
-        {stageOperator} aggregation stage to run fast, relevant search queries.
+        The {stageOperator} stage is only available with MongoDB Atlas. Create a
+        free cluster or connect to an Atlas cluster to build search indexes and
+        use {stageOperator} aggregation stage to run fast, relevant search
+        queries.
       </Body>
       <Button
         href={ATLAS_LINK}

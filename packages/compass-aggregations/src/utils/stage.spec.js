@@ -1,4 +1,4 @@
-import { filterStageOperators, getAtlasOnlyOperators } from './stage';
+import { filterStageOperators, findAtlasOperator } from './stage';
 import { expect } from 'chai';
 
 describe('utils', function() {
@@ -166,20 +166,17 @@ describe('utils', function() {
       });
     });
   });
-  context('getAtlasOnlyOperators', function() {
-    it('returns atlas only stage operators', function() {
+  context('findAtlasOperator', function() {
+    it('returns atlas only stage operator', function() {
       expect(
-        getAtlasOnlyOperators(['$search', '$match', '$out', '$searchMeta'])
-      ).to.deep.equal([
-        '$search',
-        '$searchMeta',
-      ]);
+        findAtlasOperator(['$search', '$match', '$out', '$searchMeta'])
+      ).to.deep.equal('$search');
     });
 
-    it('returns empty list when operators do not have atlas operator', function() {
+    it('returns undefined when operators do not have atlas operator', function() {
       expect(
-        getAtlasOnlyOperators(['$project', '$match', '$out'])
-      ).to.deep.equal([]);
+        findAtlasOperator(['$project', '$match', '$out'])
+      ).to.deep.equal(undefined);
     })
   })
 });

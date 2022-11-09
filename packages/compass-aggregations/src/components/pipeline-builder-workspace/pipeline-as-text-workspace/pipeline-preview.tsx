@@ -19,7 +19,7 @@ import { OutputStageBanner } from './pipeline-stages-preview';
 import { AtlastStagePreivew } from './../../atlas-stage-preview';
 import {
   isMissingAtlasStageSupport,
-  getAtlasOnlyOperators,
+  findAtlasOperator,
 } from '../../../utils/stage';
 
 const containerStyles = css({
@@ -196,7 +196,7 @@ const mapState = (state: RootState) => {
     state.env,
     serverError
   );
-  const atlasOperator = getAtlasOnlyOperators(stageOperators)[0] ?? '';
+  const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   return {
     isLoading,
     previewDocs,

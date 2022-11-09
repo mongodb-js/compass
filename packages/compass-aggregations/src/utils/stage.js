@@ -216,9 +216,9 @@ export const isLastStageOutputStage = (pipeline) => {
 };
 
 /**
- * Return a list of atlas only operators
+ * Returns the atlas operator
  * @param {string[]} operators 
  */
-export const getAtlasOnlyOperators = (operators) => {
-  return operators.filter((operator) => ATLAS_ONLY_OPERATOR_NAMES.has(operator));
+export const findAtlasOperator = (operators) => {
+  return operators.find((operator) => ATLAS_ONLY_OPERATOR_NAMES.has(operator));
 };
