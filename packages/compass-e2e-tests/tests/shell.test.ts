@@ -27,6 +27,7 @@ describe('Shell', function () {
   });
 
   it('has an info modal', async function () {
+    await browser.setFeature('readOnly', false);
     await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
 
@@ -43,6 +44,7 @@ describe('Shell', function () {
   });
 
   it('shows and hides shell based on settings', async function () {
+    await browser.setFeature('readOnly', false);
     await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
 
