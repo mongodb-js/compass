@@ -232,6 +232,7 @@ export function useConnections({
   removeAllRecentsConnections: () => Promise<void>;
   duplicateConnection: (connectioInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
+  reloadConnections: () => void;
 } {
   const { openToast } = useToast('compass-connections');
 
@@ -567,6 +568,9 @@ export function useConnections({
           return conn.favorite;
         }),
       });
+    },
+    reloadConnections() {
+      void loadConnections(dispatch, connectionStorage);
     },
   };
 }

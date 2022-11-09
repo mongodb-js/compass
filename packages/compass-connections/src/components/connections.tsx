@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import {
+  ImportConnectionsModal,
+  ExportConnectionsModal,
+} from '@mongodb-js/compass-connection-import-export';
 import {
   ResizableSidebar,
   ErrorBoundary,
@@ -76,6 +80,7 @@ function Connections({
     saveConnection,
     favoriteConnections,
     recentConnections,
+    reloadConnections,
   } = useConnections({
     onConnected,
     connectionStorage,
@@ -91,6 +96,22 @@ function Connections({
     connectingStatusText,
     isConnected,
   } = state;
+
+  const [showExportConnectionsModal, setShowExportConnectionsModal] =
+    useState(false);
+  const [showImportConnectionsModal, setShowImportConnectionsModal] =
+    useState(false);
+
+  const openConnectionImportExportModal = useCallback(
+    (action: 'export-favorites' | 'import-favorites') => {
+      if (action === 'export-favorites') {
+        setShowExportConnectionsModal(true);
+      } else {
+        setShowImportConnectionsModal(true);
+      }
+    },
+    []
+  );
 
   return (
     <div
@@ -114,6 +135,7 @@ function Connections({
           }}
           removeConnection={removeConnection}
           duplicateConnection={duplicateConnection}
+          openConnectionImportExportModal={openConnectionImportExportModal}
         />
       </ResizableSidebar>
       <div>
@@ -150,6 +172,19 @@ function Connections({
           onCancelConnectionClicked={cancelConnectionAttempt}
         />
       )}
+      <ImportConnectionsModal
+        open={showImportConnectionsModal}
+        setOpen={setShowImportConnectionsModal}
+        favoriteConnections={favoriteConnections}
+        afterImport={reloadConnections}
+        trackingProps={{ context: 'connectionsList' }}
+      />
+      <ExportConnectionsModal
+        open={showExportConnectionsModal}
+        setOpen={setShowExportConnectionsModal}
+        favoriteConnections={favoriteConnections}
+        trackingProps={{ context: 'connectionsList' }}
+      />
     </div>
   );
 }

@@ -209,6 +209,7 @@ describe('Connection export/import', function () {
       expect(err.message).to.include(
         'Input file contains encrypted secrets but no passphrase was provided'
       );
+      expect(err.passphraseRequired).to.equal(true);
     }
   });
 
