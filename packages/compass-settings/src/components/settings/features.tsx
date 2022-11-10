@@ -60,7 +60,7 @@ export const FeaturesSettings: React.FunctionComponent<
     <div data-testid="features-settings">
       <Body>
         To enhance the user experience, Compass can enable or disable particular
-        featues. Please choose from the settings below:
+        features. Please choose from the settings below:
       </Body>
 
       <div>

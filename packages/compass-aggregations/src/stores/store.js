@@ -72,7 +72,7 @@ const configureStore = (options = {}) => {
       serverVersion: options.serverVersion,
       isTimeSeries: options.isTimeSeries,
       isReadonly: options.isReadonly,
-      preferencesReadOnly: false,
+      preferencesReadOnly: options.preferencesReadOnly,
       sourceName: options.sourceName,
       isDataLake: options.isDataLake,
       env:
