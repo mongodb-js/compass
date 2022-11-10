@@ -72,7 +72,6 @@ function UnthemedToolbar({
   const labelId = useId();
   const controlId = useId();
 
-  console.log({ showing });
   return (
     <div className={toolbarStyles}>
       <Label className={titleStyles} id={labelId} htmlFor={controlId}>
