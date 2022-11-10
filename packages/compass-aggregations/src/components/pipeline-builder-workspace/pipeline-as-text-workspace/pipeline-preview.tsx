@@ -192,9 +192,9 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
 };
 
 const mapState = (state: RootState) => {
-  const pipeline = getPipelineStageOperatorsFromBuilderState(state);
-  const lastStage = pipeline[pipeline.length - 1] ?? '';
-  const { isLoading, previewDocs, serverError, stageOperators } =
+  const stageOperators = getPipelineStageOperatorsFromBuilderState(state);
+  const lastStage = stageOperators[stageOperators.length - 1] ?? '';
+  const { isLoading, previewDocs, serverError } =
     state.pipelineBuilder.textEditor.pipeline;
   const isMissingAtlasSupport = isMissingAtlasStageSupport(
     state.env,
