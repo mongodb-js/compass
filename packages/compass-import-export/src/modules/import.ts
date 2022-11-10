@@ -25,12 +25,13 @@
 
 import { promisify } from 'util';
 import fs from 'fs';
-const checkFileExists = promisify(fs.exists);
-const getFileStats = promisify(fs.stat);
 
 import stream from 'stream';
 import stripBomStream from 'strip-bom-stream';
 import mime from 'mime-types';
+
+import type { AnyAction, Dispatch } from 'redux';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
@@ -39,14 +40,26 @@ import { globalAppRegistryEmit, nsChanged } from './compass';
 import detectImportFile from '../utils/detect-import-file';
 import { createCollectionWriteStream } from '../utils/collection-stream';
 import createParser, { createProgressStream } from '../utils/import-parser';
-import createPreviewWritable, {
+import {
   createPeekStream,
+  createPreviewWritable,
 } from '../utils/import-preview';
 
 import createImportSizeGuesstimator from '../utils/import-size-guesstimator';
 import { transformProjectedTypesStream } from '../utils/import-apply-types-and-projection';
 
+import type { ProcessStatus } from '../constants/process-status';
+import type { RootImportState } from '../stores/import-store';
+import type { AcceptedFileType } from '../constants/file-types';
+import type {
+  CollectionStreamProgress,
+  WritableCollectionStream,
+} from '../utils/collection-stream';
+
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
+const checkFileExists = promisify(fs.exists);
+const getFileStats = promisify(fs.stat);
 
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
   'COMPASS-IMPORT-EXPORT-UI'
@@ -74,12 +87,47 @@ export const SET_IGNORE_BLANKS = `${PREFIX}/SET_IGNORE_BLANKS`;
 export const TOGGLE_INCLUDE_FIELD = `${PREFIX}/TOGGLE_INCLUDE_FIELD`;
 export const SET_FIELD_TYPE = `${PREFIX}/SET_FIELD_TYPE`;
 
+type FieldType = {
+  path: string;
+  checked: boolean;
+  type?: string; // Only on csv imports.
+};
+
+type State = {
+  isOpen?: boolean;
+  errors: Error[];
+  fileType: AcceptedFileType | '';
+  fileName: string;
+  fileIsMultilineJSON: boolean;
+  useHeaderLines: boolean;
+  status: ProcessStatus;
+
+  fileStats: null | fs.Stats;
+  docsTotal: number;
+  docsProcessed: number;
+  docsWritten: number;
+  guesstimatedDocsTotal: number;
+  guesstimatedDocsProcessed: number;
+  delimiter: string;
+  stopOnErrors: boolean;
+
+  ignoreBlanks: boolean;
+  fields: FieldType[];
+  values: null[];
+  previewLoaded: boolean;
+  exclude: string[];
+  transform: [string, string | undefined][];
+
+  source?: fs.ReadStream;
+  dest?: WritableCollectionStream;
+};
+
 /**
  * ## Initial state.
  *
  * @api private
  */
-export const INITIAL_STATE = {
+export const INITIAL_STATE: State = {
   isOpen: false,
   errors: [],
   fileName: '',
@@ -121,51 +169,44 @@ export const INITIAL_STATE = {
  * @param {Number} docsWritten
  * @api private
  */
-export const onGuesstimatedProgress = (docsProcessed, docsTotal) => ({
+export const onGuesstimatedProgress = (
+  docsProcessed: number,
+  docsTotal: number
+) => ({
   type: GUESSTIMATED_PROGRESS,
   guesstimatedDocsProcessed: docsProcessed,
   guesstimatedDocsTotal: docsTotal,
 });
 
-export const onProgress = ({ docsWritten, docsProcessed, errors }) => ({
+export const onProgress = ({
+  docsWritten,
+  docsProcessed,
+  errors,
+}: CollectionStreamProgress) => ({
   type: PROGRESS,
   docsWritten,
   docsProcessed,
   errors,
 });
 
-/**
- * @param {stream.Readable} source
- * @param {stream.Readable} dest
- * @api private
- */
-export const onStarted = (source, dest) => ({
+export const onStarted = (
+  source: fs.ReadStream,
+  dest: WritableCollectionStream
+) => ({
   type: STARTED,
   source: source,
   dest: dest,
 });
 
-/**
- * @param {Number} docsWritten
- * @api private
- */
-export const onFinished = (docsWritten, docsTotal) => ({
+export const onFinished = (docsWritten: number, docsTotal: number) => ({
   type: FINISHED,
   docsWritten,
   docsTotal,
 });
 
-/**
- * @param {Error} error
- * @api private
- */
-export const onFailed = (error) => ({ type: FAILED, error });
+export const onFailed = (error: Error) => ({ type: FAILED, error });
 
-/**
- * @param {Number} guesstimatedDocsTotal
- * @api private
- */
-export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal) => ({
+export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal: number) => ({
   type: SET_GUESSTIMATED_TOTAL,
   guesstimatedDocsTotal: guesstimatedDocsTotal,
 });
@@ -178,7 +219,10 @@ export const onGuesstimatedDocsTotal = (guesstimatedDocsTotal) => ({
  * @api public
  */
 export const startImport = () => {
-  return (dispatch, getState) => {
+  return (
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
+    getState: () => RootImportState
+  ) => {
     const state = getState();
     const {
       ns,
@@ -189,7 +233,7 @@ export const startImport = () => {
       fileName,
       fileType,
       fileIsMultilineJSON,
-      fileStats: { size },
+      fileStats,
       delimiter,
       ignoreBlanks: ignoreBlanks_,
       stopOnErrors,
@@ -197,6 +241,7 @@ export const startImport = () => {
       transform,
     } = importData;
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
+    const fileSize = fileStats?.size || 0;
 
     log.info(
       mongoLogId(1001000080),
@@ -207,7 +252,7 @@ export const startImport = () => {
         fileName,
         fileType,
         fileIsMultilineJSON,
-        fileSize: size,
+        fileSize,
         delimiter,
         ignoreBlanks,
         stopOnErrors,
@@ -232,21 +277,36 @@ export const startImport = () => {
       ignoreBlanks,
     });
 
-    const dest = createCollectionWriteStream(dataService, ns, stopOnErrors);
+    const dest = createCollectionWriteStream(dataService!, ns, stopOnErrors);
 
-    dest.on('progress', (stats, errors) => {
-      dispatch(onProgress(stats, errors));
+    dest.on('progress', (stats: CollectionStreamProgress) => {
+      dispatch(onProgress(stats));
     });
 
-    const progress = createProgressStream(size, function (err, info) {
-      if (err) return;
-      dispatch(onGuesstimatedProgress(info.transferred, info.length));
-    });
+    const progress = createProgressStream(
+      fileSize,
+      function (
+        err: Error | undefined,
+        info: {
+          percentage: number;
+          transferred: number;
+          length: number;
+          remaining: number;
+          eta: number;
+          runtime: number;
+          delta: number;
+          speed: number;
+        }
+      ) {
+        if (err) return;
+        dispatch(onGuesstimatedProgress(info.transferred, info.length));
+      }
+    );
 
     const importSizeGuesstimator = createImportSizeGuesstimator(
       source,
-      size,
-      function (err, guesstimatedTotalDocs) {
+      fileSize,
+      function (err: Error | undefined, guesstimatedTotalDocs: number) {
         if (err) return;
         progress.setLength(guesstimatedTotalDocs);
         dispatch(onGuesstimatedDocsTotal(guesstimatedTotalDocs));
@@ -261,7 +321,7 @@ export const startImport = () => {
       fileName,
       fileType,
       fileIsMultilineJSON,
-      size,
+      fileSize,
       delimiter,
       ignoreBlanks,
       stopOnErrors,
@@ -321,7 +381,7 @@ export const startImport = () => {
 
         const payload = {
           ns,
-          size,
+          size: fileSize,
           fileType,
           docsWritten: dest.docsWritten,
           fileIsMultilineJSON,
@@ -345,7 +405,10 @@ export const startImport = () => {
  * @api public
  */
 export const cancelImport = () => {
-  return (dispatch, getState) => {
+  return (
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
+    getState: () => RootImportState
+  ) => {
     const { importData } = getState();
     const { source, dest } = importData;
 
@@ -367,18 +430,14 @@ export const cancelImport = () => {
  *
  * `loadPreviewDocs()` is only called internally when any state used
  * for specifying import parsing is modified.
- *
- * @param {String} fileName
- * @param {String} fileType
- * @api private
  */
 const loadPreviewDocs = (
-  fileName,
-  fileType,
-  delimiter,
-  fileIsMultilineJSON
-) => {
-  return (dispatch) => {
+  fileName: string,
+  fileType: 'json' | 'csv' | '',
+  delimiter: string,
+  fileIsMultilineJSON: boolean
+): ThunkAction<void, RootImportState, void, AnyAction> => {
+  return (dispatch: Dispatch): void => {
     debug('loading preview', {
       fileName,
       fileType,
@@ -399,8 +458,6 @@ const loadPreviewDocs = (
 
     const dest = createPreviewWritable({
       fileType,
-      delimiter,
-      fileIsMultilineJSON,
     });
 
     stream.pipeline(
@@ -408,7 +465,7 @@ const loadPreviewDocs = (
       stripBOM,
       createPeekStream(fileType, delimiter, fileIsMultilineJSON),
       dest,
-      function (err) {
+      function (err: Error | null) {
         if (err) {
           log.error(
             mongoLogId(1001000097),
@@ -439,7 +496,7 @@ const loadPreviewDocs = (
  * @param {String} path Dot notation path of the field.
  * @api public
  */
-export const toggleIncludeField = (path) => ({
+export const toggleIncludeField = (path: string) => ({
   type: TOGGLE_INCLUDE_FIELD,
   path: path,
 });
@@ -457,9 +514,8 @@ export const toggleIncludeField = (path) => ({
  * // `{stats: {flufiness: 100}}`
  * setFieldType('stats.flufiness', 'Int32');
  * ```
- * @api public
  */
-export const setFieldType = (path, bsonType) => {
+export const setFieldType = (path: string, bsonType: string) => {
   return {
     type: SET_FIELD_TYPE,
     path: path,
@@ -469,65 +525,66 @@ export const setFieldType = (path, bsonType) => {
 
 /**
  * Gather file metadata quickly when the user specifies `fileName`
- * @param {String} fileName
- * @api public
  * @see utils/detect-import-file.js
  */
-export const selectImportFileName = (fileName) => {
-  return (dispatch, getState) => {
+export const selectImportFileName = (fileName: string) => {
+  return async (
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
+    getState: () => RootImportState
+  ) => {
     let fileStats = {};
-    checkFileExists(fileName)
-      .then((exists) => {
-        if (!exists) {
-          throw new Error(`File ${fileName} not found`);
-        }
-        return getFileStats(fileName);
-      })
-      .then((stats) => {
-        fileStats = {
-          ...stats,
-          type: mime.lookup(fileName),
-        };
-        return promisify(detectImportFile)(fileName);
-      })
-      .then((detected) => {
-        debug('get detection results');
-        dispatch({
-          type: FILE_SELECTED,
-          fileName: fileName,
-          fileStats: fileStats,
-          fileIsMultilineJSON: detected.fileIsMultilineJSON,
-          fileType: detected.fileType,
-        });
+    try {
+      const exists = await checkFileExists(fileName);
+      if (!exists) {
+        throw new Error(`File ${fileName} not found`);
+      }
+      const stats = await getFileStats(fileName);
 
-        /**
-         * TODO: lucas: @see utils/detect-import-file.js for future delimiter detection.
-         */
-        const delimiter = getState().importData.delimiter;
-        dispatch(
-          loadPreviewDocs(
-            fileName,
-            detected.fileType,
-            delimiter,
-            detected.fileIsMultilineJSON
-          )
-        );
-      })
-      .catch((err) => {
-        debug('dispatching error', err.stack);
-        dispatch(onFailed(err));
+      fileStats = {
+        ...stats,
+        type: mime.lookup(fileName),
+      };
+      const detected = (await promisify(detectImportFile)(fileName)) as {
+        fileName: string;
+        fileIsMultilineJSON: boolean;
+        fileType: AcceptedFileType;
+      };
+      debug('get detection results');
+      dispatch({
+        type: FILE_SELECTED,
+        fileName: fileName,
+        fileStats: fileStats,
+        fileIsMultilineJSON: detected.fileIsMultilineJSON,
+        fileType: detected.fileType,
       });
+
+      /**
+       * TODO: lucas: @see utils/detect-import-file.js for future delimiter detection.
+       */
+      const delimiter = getState().importData.delimiter;
+      dispatch(
+        loadPreviewDocs(
+          fileName,
+          detected.fileType,
+          delimiter,
+          detected.fileIsMultilineJSON
+        )
+      );
+    } catch (err: any) {
+      debug('dispatching error', err?.stack);
+      dispatch(onFailed(err));
+    }
   };
 };
 
 /**
  * The user has manually selected the `fileType` of the import.
- *
- * @param {String} fileType
- * @api public
  */
-export const selectImportFileType = (fileType) => {
-  return (dispatch, getState) => {
+export const selectImportFileType = (fileType: 'json' | 'csv') => {
+  return (
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
+    getState: () => RootImportState
+  ) => {
     const { previewLoaded, fileName, delimiter, fileIsMultilineJSON } =
       getState().importData;
 
@@ -547,12 +604,12 @@ export const selectImportFileType = (fileType) => {
 
 /**
  * Set the tabular delimiter.
- * @param {String} delimiter One of `,` for csv, `\t` for csv
- *
- * @api public
  */
-export const setDelimiter = (delimiter) => {
-  return (dispatch, getState) => {
+export const setDelimiter = (delimiter: string) => {
+  return (
+    dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
+    getState: () => RootImportState
+  ) => {
     const { previewLoaded, fileName, fileType, fileIsMultilineJSON } =
       getState().importData;
     dispatch({
@@ -582,12 +639,10 @@ export const setDelimiter = (delimiter) => {
  * by the user attempting to resume from a previous import without
  * removing all documents sucessfully imported.
  *
- * @param {Boolean} stopOnErrors To stop or not to stop
- * @api public
  * @see utils/collection-stream.js
  * @see https://www.mongodb.com/docs/database-tools/mongoimport/#std-option-mongoimport.--stopOnError
  */
-export const setStopOnErrors = (stopOnErrors) => ({
+export const setStopOnErrors = (stopOnErrors: boolean) => ({
   type: SET_STOP_ON_ERRORS,
   stopOnErrors: stopOnErrors,
 });
@@ -596,12 +651,9 @@ export const setStopOnErrors = (stopOnErrors) => ({
  * Any `value` that is `''` will not have this field set in the final
  * document written to mongo.
  *
- * @param {Boolean} ignoreBlanks
- * @api public
  * @see https://www.mongodb.com/docs/database-tools/mongoimport/#std-option-mongoimport.--ignoreBlanks
- * @todo lucas: Standardize as `setIgnoreBlanks`?
  */
-export const setIgnoreBlanks = (ignoreBlanks) => ({
+export const setIgnoreBlanks = (ignoreBlanks: boolean) => ({
   type: SET_IGNORE_BLANKS,
   ignoreBlanks: ignoreBlanks,
 });
@@ -613,11 +665,13 @@ export const setIgnoreBlanks = (ignoreBlanks) => ({
 /**
  * Open the import modal.
  */
-export const openImport = (namespace) => (dispatch) => {
-  track('Import Opened');
-  dispatch(nsChanged(namespace));
-  dispatch({ type: OPEN });
-};
+export const openImport =
+  (namespace: string) =>
+  (dispatch: ThunkDispatch<RootImportState, void, AnyAction>) => {
+    track('Import Opened');
+    dispatch(nsChanged(namespace));
+    dispatch({ type: OPEN });
+  };
 
 /**
  * Close the import modal.
@@ -629,14 +683,8 @@ export const closeImport = () => ({
 
 /**
  * The import module reducer.
- *
- * @param {Object} state - The state.
- * @param {Object} action - The action.
- *
- * @returns {Object} The state.
  */
-// eslint-disable-next-line complexity
-const reducer = (state = INITIAL_STATE, action) => {
+const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
   debug('reducer handling action', action.type);
   if (action.type === FILE_SELECTED) {
     return {
@@ -702,8 +750,8 @@ const reducer = (state = INITIAL_STATE, action) => {
     };
 
     newState.transform = newState.fields
-      .filter((field) => field.checked)
-      .map((field) => [field.path, field.type]);
+      .filter((field: FieldType) => field.checked)
+      .map((field: FieldType) => [field.path, field.type]);
 
     return newState;
   }
@@ -827,9 +875,9 @@ const reducer = (state = INITIAL_STATE, action) => {
 
   if (action.type === FINISHED) {
     const isComplete = state.status !== PROCESS_STATUS.CANCELED;
-    const hasErrors = state.errors.length > 0;
+    const hasErrors = (state.errors || []).length > 0;
 
-    let status = state.stats;
+    let status = state.status;
 
     if (isComplete && hasErrors) {
       status = PROCESS_STATUS.COMPLETED_WITH_ERRORS;

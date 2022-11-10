@@ -122,7 +122,23 @@ function connectSubMenu(
   nonDarwin: boolean,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const subMenu: MenuTemplate = [connectItem(app), disconnectItem()];
+  const subMenu: MenuTemplate = [
+    connectItem(app),
+    disconnectItem(),
+    separator(),
+    {
+      label: '&Import saved connections',
+      click() {
+        ipcMain.broadcastFocused('compass:open-import-connections');
+      },
+    },
+    {
+      label: '&Export saved connections',
+      click() {
+        ipcMain.broadcastFocused('compass:open-export-connections');
+      },
+    }
+  ];
 
   if (nonDarwin) {
     subMenu.push(separator());

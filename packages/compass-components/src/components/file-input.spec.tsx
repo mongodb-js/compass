@@ -344,7 +344,7 @@ describe('FileInput', function () {
       expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledOnceWith(
         fakeWindow,
         {
-          properties: [],
+          properties: ['openFile'],
           filters: [{ name: '.json file', extensions: ['json'] }],
         }
       );
@@ -375,7 +375,7 @@ describe('FileInput', function () {
       expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledWith(
         fakeWindow,
         {
-          properties: [],
+          properties: ['openFile'],
           filters: [
             { name: '.json file', extensions: ['json'] },
             { name: '.csv file', extensions: ['csv'] },
@@ -401,7 +401,7 @@ describe('FileInput', function () {
       expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledWith(
         fakeWindow,
         {
-          properties: [],
+          properties: ['openFile'],
           filters: [
             { name: 'CSV file', extensions: ['csv'] },
             { name: '.json file', extensions: ['json'] },
@@ -414,7 +414,7 @@ describe('FileInput', function () {
       const { fakeElectron, fakeWindow } = createFakeElectron();
 
       const backend = createElectronFileInputBackend(fakeElectron, 'save', {
-        properties: ['multi'],
+        properties: ['multiSelect'],
       });
 
       fakeElectron.dialog.showSaveDialog.resolves({
@@ -424,7 +424,7 @@ describe('FileInput', function () {
       expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledWith(
         fakeWindow,
         {
-          properties: [],
+          properties: ['openFile'],
           filters: [],
         }
       );
@@ -442,7 +442,7 @@ describe('FileInput', function () {
       expect(fakeElectron.dialog.showSaveDialog).to.have.been.calledWith(
         fakeWindow,
         {
-          properties: ['multi'],
+          properties: ['openFile', 'multiSelect'],
           filters: [],
         }
       );
@@ -464,7 +464,7 @@ describe('FileInput', function () {
       expect(fakeElectron.dialog.showOpenDialog).to.have.been.calledWith(
         fakeWindow,
         {
-          properties: [],
+          properties: ['openFile'],
           filters: [],
         }
       );

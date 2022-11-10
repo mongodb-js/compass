@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { Button, css, Icon, spacing } from '@mongodb-js/compass-components';
 
-import ErrorBox from '../error-box';
-import formatNumber from '../../utils/format-number';
+import ErrorBox from './error-box';
+import formatNumber from '../utils/format-number';
 
 const containerStyles = css({
   marginTop: spacing[1],

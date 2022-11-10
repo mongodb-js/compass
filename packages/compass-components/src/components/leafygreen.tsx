@@ -19,6 +19,7 @@ import { default as LeafyGreenConfirmationModal } from '@leafygreen-ui/confirmat
 import { default as Icon } from '@leafygreen-ui/icon';
 import { default as LeafyGreenIconButton } from '@leafygreen-ui/icon-button';
 import {
+  AtlasLogo,
   AtlasLogoMark,
   MongoDBLogoMark,
   MongoDBLogo,
@@ -196,6 +197,7 @@ const Description = withTheme(
 
 // 3. Export the leafygreen components.
 export {
+  AtlasLogo,
   AtlasLogoMark,
   Badge,
   Banner,

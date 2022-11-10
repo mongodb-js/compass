@@ -364,10 +364,16 @@ export function createElectronFileInputBackend<ElectronWindow>(
           : defaultOptions;
 
       let properties = [...(defaultOpts.properties ?? [])];
+      if (
+        !properties.includes('openFile') &&
+        !properties.includes('openDirectory')
+      ) {
+        properties.push('openFile');
+      }
       if (options.multi) {
-        if (!properties.includes('multi')) properties.push('multi');
+        if (!properties.includes('multiSelect')) properties.push('multiSelect');
       } else {
-        properties = properties.filter((prop) => prop !== 'multi');
+        properties = properties.filter((prop) => prop !== 'multiSelect');
       }
 
       const filters = [...(defaultOpts.filters ?? [])];

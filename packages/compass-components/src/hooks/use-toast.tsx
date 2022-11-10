@@ -127,6 +127,7 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
             <Toast
               className={toastStyles}
               key={id}
+              data-testid={`toast-${id}`}
               title={title}
               body={body}
               variant={variant}

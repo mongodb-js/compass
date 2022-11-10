@@ -61,17 +61,6 @@ export class PipelineBuilder {
   }
 
   /**
-   * Cancel preview requests that are currently inflight starting from index
-   */
-  stopPreview(from?: number): void {
-    this.previewManager.clearQueue(from);
-  }
-
-  cancelPreviewForStage(id: number): void {
-    this.previewManager.cancelPreviewForStage(id);
-  }
-
-  /**
    * Change the pipeline source and validate it
    */
   changeSource(source: string): void {
@@ -119,31 +108,6 @@ export class PipelineBuilder {
       throw new PipelineParserError('Invalid pipeline');
     }
     return this.pipeline;
-  }
-
-  /**
-   * Request preview for current pipeline source
-   */
-  getPreviewForPipeline(
-    namespace: string,
-    options: PreviewOptions,
-    filterOutputStage = false,
-  ): Promise<Document[]> {
-    // For preview we ignore $out/$merge stage.
-    const pipeline = [...this.getPipelineFromSource()];
-    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
-      pipeline.pop();
-    }
-    return this.previewManager.getPreviewForStage(
-      FULL_PIPELINE_PREVIEW_ID,
-      namespace,
-      pipeline,
-      options
-    );
-  }
-
-  cancelPreviewForPipeline() {
-    this.previewManager.cancelPreviewForStage(FULL_PIPELINE_PREVIEW_ID);
   }
 
   /**
@@ -225,6 +189,27 @@ export class PipelineBuilder {
   }
 
   /**
+   * Cancel preview requests that are currently inflight starting from index
+   */
+  stopPreview(from?: number): void {
+    this.previewManager.clearQueue(from);
+  }
+
+  /**
+   * Cancel preview for a specific stage at index
+   */
+  cancelPreviewForStage(id: number): void {
+    this.previewManager.cancelPreviewForStage(id);
+  }
+
+  /**
+   * Cancel preview for the whole pipeline
+   */
+  cancelPreviewForPipeline() {
+    this.cancelPreviewForStage(FULL_PIPELINE_PREVIEW_ID);
+  }
+
+  /**
    * Request preview documents for pipeline stage at provided index
    */
   getPreviewForStage(
@@ -239,6 +224,59 @@ export class PipelineBuilder {
       this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
       options,
       force
+    );
+  }
+
+  /**
+   * Returns true if previous preview request was done for the same pipeline for
+   * a specific stage
+   */
+  isLastStagePreviewEqual(
+    idx: number,
+    pipeline: Document[] = this.getPipelineFromStages(
+      this.stages.slice(0, idx + 1)
+    )
+  ) {
+    return this.previewManager.isLastPipelineEqual(idx, pipeline);
+  }
+
+  /**
+   * Request preview for current pipeline source
+   */
+  getPreviewForPipeline(
+    namespace: string,
+    options: PreviewOptions,
+    filterOutputStage = false
+  ): Promise<Document[]> {
+    // For preview we ignore $out/$merge stage.
+    const pipeline = [...this.getPipelineFromSource()];
+    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+      pipeline.pop();
+    }
+    return this.previewManager.getPreviewForStage(
+      FULL_PIPELINE_PREVIEW_ID,
+      namespace,
+      pipeline,
+      options
+    );
+  }
+
+  /**
+   * Returns true if previous preview request was done for the same pipeline for
+   * the whole pipeline
+   */
+  isLastPipelinePreviewEqual(
+    pipeline: Document[] = this.getPipelineFromSource(),
+    filterOutputStage = false
+  ) {
+    pipeline = [...pipeline];
+    // For preview we ignore $out/$merge stage.
+    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+      pipeline.pop();
+    }
+    return this.previewManager.isLastPipelineEqual(
+      FULL_PIPELINE_PREVIEW_ID,
+      pipeline
     );
   }
 }

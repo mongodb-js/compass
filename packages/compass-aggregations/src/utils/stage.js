@@ -1,6 +1,7 @@
 import semver from 'semver';
 import toNS from 'mongodb-ns';
 import {
+  ADL,
   STAGE_OPERATORS,
   ATLAS,
   TIME_SERIES,
@@ -125,6 +126,11 @@ export function getStageOperator(stage) {
 }
 
 const OUT_OPERATOR_NAMES = new Set(OUT_STAGES.map(stage => stage.value));
+const ATLAS_ONLY_OPERATOR_NAMES = new Set(
+  STAGE_OPERATORS
+    .filter((stage) => isAtlasOnly(stage.env))
+    .map((stage) => stage.value)
+  );
 
 /**
  * @param {string} stageOperator 
@@ -191,4 +197,29 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
  */
 export const isLastStageOutputStage = (pipeline) => {
   return isOutputStage(getLastStageOperator(pipeline));
+};
+
+/**
+ * @param {string} env
+ * @param {import('mongodb').MongoServerError | null} serverError
+ */
+ export const isMissingAtlasStageSupport = (env, serverError) => {
+  return !!(
+    ![ADL, ATLAS].includes(env) &&
+    serverError &&
+    [
+      // Unrecognized pipeline stage name
+      40324,
+      // The full-text search stage is not enabled
+      31082,
+    ].includes(Number(serverError.code))
+  );
+};
+
+/**
+ * Returns the atlas operator
+ * @param {string[]} operators 
+ */
+export const findAtlasOperator = (operators) => {
+  return operators.find((operator) => ATLAS_ONLY_OPERATOR_NAMES.has(operator));
 };
