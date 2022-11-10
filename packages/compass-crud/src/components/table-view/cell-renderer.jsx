@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BSONValue, Icon } from '@mongodb-js/compass-components';
+import { BSONValue, Icon, IconButton, css, cx } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 
 /**
@@ -56,6 +56,9 @@ const DELETED = 'is-deleted';
  * The button button.
  */
 const BUTTON_CLASS = 'table-view-cell-circle-button';
+
+
+const buttonStyles = css({display: 'inline'});
 
 /**
  * The custom cell renderer that renders a cell in the table view.
@@ -158,6 +161,7 @@ class CellRenderer extends React.Component {
   }
 
   handleDrillDown(event) {
+    console.log(event);
     event.stopPropagation();
     this.props.drillDown(this.props.node.data.hadronDocument, this.element);
   }
@@ -222,7 +226,7 @@ class CellRenderer extends React.Component {
             data-testid="hadron-document-element-decrypted-icon"
             title="Encrypted Field"
           >
-            <Icon glyph="Key" size="small" />
+            <Icon glyph="Key" size="small" className={buttonStyles} />
           </span>
         )}
         {element}
@@ -255,13 +259,17 @@ class CellRenderer extends React.Component {
       return null;
     }
     return (
-      <button
-        type="button"
-        className={BUTTON_CLASS}
-        onClick={this.handleDrillDown.bind(this)}
-      >
-        <span className={'fa fa-expand'} aria-hidden />
-      </button>
+      <IconButton
+        size='small'
+        className={cx(BUTTON_CLASS, buttonStyles)}
+        onClick={this.handleDrillDown.bind(this)}><Icon glyph='OpenNewTab' size={12}></Icon></IconButton>
+      // <button
+      //   type="button"
+      //   className={BUTTON_CLASS}
+      //   onClick={this.handleDrillDown.bind(this)}
+      // >
+      //   <span className={'fa fa-expand'} aria-hidden />
+      // </button>
     );
   }
 

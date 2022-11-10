@@ -1,4 +1,5 @@
 import React, {
+  Fragment,
   useCallback,
   useEffect,
   useMemo,
@@ -307,6 +308,8 @@ export const HadronElement: React.FunctionComponent<{
   onEditStart?: (id: string, field: 'key' | 'value' | 'type') => void;
   allExpanded: boolean;
   lineNumberSize: number;
+  valueOnly?: boolean;
+  hideControlsWhileNotEditing?: boolean;
   onAddElement(el: HadronElementType): void;
 }> = ({
   value: element,
@@ -316,6 +319,8 @@ export const HadronElement: React.FunctionComponent<{
   allExpanded,
   lineNumberSize,
   onAddElement,
+  hideControlsWhileNotEditing = false,
+  valueOnly = false,
 }) => {
   const autoFocus = useAutoFocusContext();
   const [expanded, setExpanded] = useState(allExpanded);
@@ -370,6 +375,11 @@ export const HadronElement: React.FunctionComponent<{
     className: cx(elementKey, internal && elementKeyInternal),
   };
 
+  const shouldHideControls = useMemo(
+    () => hideControlsWhileNotEditing && !editingEnabled,
+    [hideControlsWhileNotEditing, editingEnabled]
+  );
+
   return (
     <>
       <div
@@ -379,7 +389,7 @@ export const HadronElement: React.FunctionComponent<{
         data-id={element.uuid}
         {...elementProps}
       >
-        {editable && (
+        {editable && !shouldHideControls && (
           <div className={elementActions}>
             <div className={cx(actions, shouldShowActions && actionsVisible)}>
               <EditActions
@@ -390,7 +400,7 @@ export const HadronElement: React.FunctionComponent<{
             </div>
           </div>
         )}
-        {editable && (
+        {editable && !shouldHideControls && (
           <div
             className={cx(
               elementLineNumber,
@@ -435,58 +445,67 @@ export const HadronElement: React.FunctionComponent<{
             </div>
           </div>
         )}
-        <div
-          className={elementSpacer}
-          style={{ width: (editable ? spacing[2] : 0) + spacing[3] * level }}
-        >
-          {/* spacer for nested documents */}
-        </div>
-        <div className={elementExpand}>
-          {expandable && (
-            <button
-              type="button"
-              className={buttonReset}
-              aria-pressed={expanded}
-              aria-label={
-                expanded ? 'Collapse field items' : 'Expand field items'
-              }
-              onClick={(evt) => {
-                evt.stopPropagation();
-                toggleExpanded();
-              }}
-            >
-              <FontAwesomeIcon
-                icon={expanded ? 'expanded' : 'collapsed'}
-              ></FontAwesomeIcon>
-            </button>
-          )}
-        </div>
-        <div {...keyProps} data-testid="hadron-document-element-key">
-          {key.editable ? (
-            <KeyEditor
-              value={key.value}
-              valid={key.valid}
-              validationMessage={key.validationMessage}
-              onChange={(newVal) => {
-                key.change(newVal);
-              }}
-              // This autofocus will only trigger after user deliberately
-              // double-clicked on a field and so auto focusing the input is
-              // expected in this case
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus.type === 'key'}
-              editing={editingEnabled}
-              onEditStart={() => {
-                onEditStart?.(element.uuid, 'key');
-              }}
-            ></KeyEditor>
-          ) : (
-            <span>{key.value}</span>
-          )}
-        </div>
-        <div className={elementDivider} role="presentation">
-          :&nbsp;
-        </div>
+        {!shouldHideControls && (
+          <div
+            className={elementSpacer}
+            style={{ width: (editable ? spacing[2] : 0) + spacing[3] * level }}
+          >
+            {/* spacer for nested documents */}
+          </div>
+        )}
+        {!shouldHideControls && (
+          <div className={elementExpand}>
+            {expandable && (
+              <button
+                type="button"
+                className={buttonReset}
+                aria-pressed={expanded}
+                aria-label={
+                  expanded ? 'Collapse field items' : 'Expand field items'
+                }
+                onClick={(evt) => {
+                  evt.stopPropagation();
+                  toggleExpanded();
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={expanded ? 'expanded' : 'collapsed'}
+                ></FontAwesomeIcon>
+              </button>
+            )}
+          </div>
+        )}
+        {!valueOnly && (
+          <Fragment>
+            <div {...keyProps} data-testid="hadron-document-element-key">
+              {key.editable ? (
+                <KeyEditor
+                  value={key.value}
+                  valid={key.valid}
+                  validationMessage={key.validationMessage}
+                  onChange={(newVal) => {
+                    key.change(newVal);
+                  }}
+                  // This autofocus will only trigger after user deliberately
+                  // double-clicked on a field and so auto focusing the input is
+                  // expected in this case
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
+                  autoFocus={autoFocus?.id === id && autoFocus.type === 'key'}
+                  editing={editingEnabled}
+                  onEditStart={() => {
+                    onEditStart?.(element.uuid, 'key');
+                  }}
+                ></KeyEditor>
+              ) : (
+                <span>{key.value}</span>
+              )}
+            </div>
+            <div className={elementDivider} role="presentation">
+              :&nbsp;
+            </div>
+          </Fragment>
+        )}
+
         <div className={elementDivider} role="presentation">
           {value.decrypted && (
             <span
