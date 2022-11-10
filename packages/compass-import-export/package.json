@@ -98,7 +98,7 @@
     "csv-parser": "^2.3.1",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
+    "electron": "^18.3.7",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.2",
     "eslint": "^7.25.0",

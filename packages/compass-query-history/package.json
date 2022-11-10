@@ -85,7 +85,7 @@
     "chai": "^4.1.2",
     "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
+    "electron": "^18.3.7",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.2",

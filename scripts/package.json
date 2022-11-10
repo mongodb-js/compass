@@ -40,7 +40,7 @@
     "@mongodb-js/devtools-docker-test-envs": "^1.2.4",
     "@mongodb-js/webpack-config-compass": "^1.0.3",
     "chalk": "^4.1.1",
-    "electron": "^15.5.7",
+    "electron": "^18.3.7",
     "find-up": "^5.0.0",
     "glob": "^7.1.6",
     "jsdom": "^16.7.0",

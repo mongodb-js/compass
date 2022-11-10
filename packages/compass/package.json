@@ -223,7 +223,7 @@
     "debug": "^4.2.0",
     "decompress": "^4.2.1",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
+    "electron": "^18.3.7",
     "electron-devtools-installer": "^3.2.0",
     "electron-mocha": "^10.1.0",
     "electron-rebuild": "^3.2.7",

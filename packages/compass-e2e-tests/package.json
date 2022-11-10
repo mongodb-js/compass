@@ -41,7 +41,7 @@
     "cross-spawn": "^7.0.3",
     "debug": "^4.2.0",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
+    "electron": "^18.3.7",
     "electron-rebuild": "^3.2.7",
     "eslint": "^7.25.0",
     "fast-glob": "^3.2.7",
