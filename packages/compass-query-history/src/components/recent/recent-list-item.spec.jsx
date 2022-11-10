@@ -24,7 +24,6 @@ describe('RecentListItem [Component]', function () {
 
   beforeEach(function () {
     actions = {
-      saveRecent: sinon.stub(),
       copyQuery: sinon.stub(),
       deleteRecent: sinon.stub(),
     };
@@ -74,33 +73,6 @@ describe('RecentListItem [Component]', function () {
 
       expect(queryAttributes).to.not.have.property('_name');
       expect(queryAttributes).to.not.have.property('_dateSaved');
-    });
-  });
-
-  describe('#behavior', function () {
-    it('should call the saveRecent action when the favorite query button is clicked', function () {
-      const node = component.find('[data-testid="query-history-button-fav"]');
-      node.simulate('click');
-
-      expect(actions.saveRecent).to.have.been.calledOnce;
-    });
-
-    it('should call the copyQuery action when the copy query button is clicked', function () {
-      const node = component.find(
-        '[data-testid="query-history-button-copy-query"]'
-      );
-      node.simulate('click');
-
-      expect(actions.copyQuery).to.have.been.calledOnce;
-    });
-
-    it('should call the deleteRecent action when the copy query button is clicked', function () {
-      const node = component.find(
-        '[data-testid="query-history-button-delete-recent"]'
-      );
-      node.simulate('click');
-
-      expect(actions.deleteRecent).to.have.been.calledOnce;
     });
   });
 });

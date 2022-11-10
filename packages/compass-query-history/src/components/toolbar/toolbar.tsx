@@ -8,12 +8,18 @@ import {
   useId,
   palette,
   withTheme,
+  Icon,
 } from '@mongodb-js/compass-components';
 
 const titleStyles = css({
+  display: 'block',
+  flexShrink: 0,
+  fontSize: '16px',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
+  lineHeight: `${spacing[4]}px`,
+  marginBottom: spacing[3],
 });
 
 const titleStylesDark = css({
@@ -25,10 +31,8 @@ const titleStylesLight = css({
 });
 
 const toolbarStyles = css({
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column',
   padding: spacing[3],
+  paddingBottom: 0, // each item has top margin
   paddingRight: spacing[5], // Extra right padding to account for close button.
 });
 
@@ -68,6 +72,7 @@ function UnthemedToolbar({
   const labelId = useId();
   const controlId = useId();
 
+  console.log({ showing });
   return (
     <div className={toolbarStyles}>
       <Label className={titleStyles} id={labelId} htmlFor={controlId}>
@@ -92,12 +97,14 @@ function UnthemedToolbar({
           value="recent"
           data-testid="past-queries-recent"
         >
+          <Icon glyph="Clock" />
           Recents
         </SegmentedControlOption>
         <SegmentedControlOption
           value="favorites"
           data-testid="past-queries-favorites"
         >
+          <Icon glyph="Favorite" />
           Favorites
         </SegmentedControlOption>
       </SegmentedControl>
