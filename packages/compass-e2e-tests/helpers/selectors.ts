@@ -195,6 +195,10 @@ export const ConnectionsTitle = '[data-testid="connections-title"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
 export const FavoriteConnections = '[data-testid="favorite-connection"]';
+export const FavoriteConnectionsHeader =
+  '[data-testid="favorite-connections-list-header"]';
+export const FavoriteConnectionsMenuButton = `${FavoriteConnectionsHeader} button[title="Show actions"]`;
+export const FavoriteConnectionsMenu = '[data-testid="favorites-menu"]';
 export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="connection-menu-copy-connection-string-action"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-duplicate-connection-action"]`;
@@ -546,6 +550,30 @@ export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
 export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] input[type="checkbox"]`;
 };
+
+// Connection import/export modals
+export const ExportConnectionsModalOpen =
+  '[data-testid="favorites-menu-export-favorites-action"]';
+export const ExportConnectionsModal = '[data-testid="connection-export-modal"]';
+export const ExportConnectionsSubmit = `${ExportConnectionsModal} [data-testid="submit-button"]`;
+export const ExportConnectionsPassphrase =
+  '[data-testid="conn-import-export-passphrase-input"]';
+export const ExportConnectionsRemoveSecrets =
+  '[data-testid="connection-export-remove-secrets"]';
+export const ExportConnectionsSucceededToast =
+  '[data-testid="toast-compass-connection-import-export--export-succeeded"]';
+export const ImportConnectionsModalOpen =
+  '[data-testid="favorites-menu-import-favorites-action"]';
+export const ImportConnectionsModal = '[data-testid="connection-import-modal"]';
+export const ImportConnectionsPassphrase =
+  '[data-testid="conn-import-export-passphrase-input"]';
+export const ImportConnectionsSucceededToast =
+  '[data-testid="toast-compass-connection-import-export--import-succeeded"]';
+export const ImportConnectionsSubmit = `${ImportConnectionsModal} [data-testid="submit-button"]`;
+export const ExportImportConnectionsFileInput =
+  '#conn-import-export-file-input_file_input';
+export const closeToastButton = (toastSelector: string) =>
+  `${toastSelector} [aria-label="Close Message"]`;
 
 // Hadron document editor
 

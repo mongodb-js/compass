@@ -1,4 +1,4 @@
-import { AtlasLogoMark, Body, Link, Button } from '@mongodb-js/compass-components';
+import { Body, Link, Button } from '@mongodb-js/compass-components';
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Document } from '@mongodb-js/compass-crud';
@@ -7,13 +7,13 @@ import { gotoOutResults } from '../../modules/out-results-fn';
 import { runStage } from '../../modules/pipeline-builder/stage-editor';
 import decomment from 'decomment';
 import { connect } from 'react-redux';
-import { ADL, ATLAS } from '@mongodb-js/mongodb-constants';
-import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-
+import { AtlastStagePreivew } from './../atlas-stage-preview';
 import styles from './stage-preview.module.less';
-import { MERGE_STAGE_PREVIEW_TEXT, OUT_STAGE_PREVIEW_TEXT } from '../../utils/stage';
-
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+import {
+  isMissingAtlasStageSupport,
+  MERGE_STAGE_PREVIEW_TEXT,
+  OUT_STAGE_PREVIEW_TEXT,
+} from '../../utils/stage';
 
 /**
  * The stage preview component.
@@ -156,29 +156,7 @@ export class StagePreview extends PureComponent {
   renderAtlasOnlyStagePreviewSection() {
     return (
       <div className={styles['stage-preview-missing-search-support']}>
-        <AtlasLogoMark
-          size={30}
-          className={styles['stage-preview-missing-search-support-icon']}
-        />
-        <div
-          data-testid="stage-preview-missing-search-support"
-          className={styles['stage-preview-missing-search-support-text']}
-        >
-          This stage is only available with MongoDB Atlas. Create a free cluster
-          or connect to an Atlas cluster to build search indexes and use{' '}
-          {this.props.stageOperator} aggregation stage to run fast, relevant
-          search queries.
-        </div>
-        <Button
-          href="https://www.mongodb.com/cloud/atlas/lp/search-1?utm_campaign=atlas_search&utm_source=compass&utm_medium=product&utm_content=v1"
-          target="_blank"
-          onClick={() => {
-            track('Atlas Link Clicked', { screen: 'agg_builder' });
-          }}
-          variant="primary"
-        >
-          Create free cluster
-        </Button>
+        <AtlastStagePreivew stageOperator={this.props.stageOperator} />
       </div>
     );
   }
@@ -274,15 +252,10 @@ export default connect(
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
     const isComplete =
       Boolean(!stage.loading && !stage.serverError && stage.previewDocs);
-    const isMissingAtlasOnlyStageSupport =
-      ![ADL, ATLAS].includes(state.env) &&
-      stage.serverError &&
-      [
-        // Unrecognized pipeline stage name
-        40324,
-        // The full-text search stage is not enabled
-        31082
-      ].includes(Number(stage.serverError.code));
+    const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
+      state.env,
+      stage.serverError
+    );
 
     return {
       stageOperator: stage.stageOperator,
@@ -294,7 +267,7 @@ export default connect(
       hasServerError: !!stage.serverError,
       isAtlasDeployed: state.isAtlasDeployed,
       isComplete,
-      isMissingAtlasOnlyStageSupport
+      isMissingAtlasOnlyStageSupport,
     };
   },
   {

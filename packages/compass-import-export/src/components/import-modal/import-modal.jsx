@@ -31,7 +31,7 @@ import {
   toggleIncludeField,
   setFieldType,
 } from '../../modules/import';
-import { ImportErrorList } from '../import-error-list/import-error-list';
+import { ImportErrorList } from '../import-error-list';
 
 /**
  * Progress messages.

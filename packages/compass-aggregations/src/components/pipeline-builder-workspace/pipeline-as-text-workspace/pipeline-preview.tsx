@@ -16,6 +16,11 @@ import { PipelineOutputOptionsMenu } from '../../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../../pipeline-output-options-menu';
 import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { OutputStageBanner } from './pipeline-stages-preview';
+import { AtlastStagePreivew } from './../../atlas-stage-preview';
+import {
+  isMissingAtlasStageSupport,
+  findAtlasOperator,
+} from '../../../utils/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -62,6 +67,8 @@ type PipelinePreviewProps = {
   isLoading: boolean;
   isMergeStage: boolean;
   isOutStage: boolean;
+  isMissingAtlasSupport: boolean;
+  atlasOperator: string;
   previewDocs: Document[] | null;
 };
 
@@ -69,10 +76,14 @@ const PreviewResults = ({
   previewDocs,
   isLoading,
   isExpanded,
+  isMissingAtlasSupport,
+  atlasOperator,
 }: {
   previewDocs: Document[] | null;
   isLoading: boolean;
   isExpanded: boolean;
+  isMissingAtlasSupport: boolean;
+  atlasOperator: string;
 }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
@@ -90,6 +101,14 @@ const PreviewResults = ({
     return (
       <div className={centerStyles}>
         <SpinLoader size="24px" />
+      </div>
+    );
+  }
+
+  if (isMissingAtlasSupport) {
+    return (
+      <div className={centerStyles}>
+        <AtlastStagePreivew stageOperator={atlasOperator} />
       </div>
     );
   }
@@ -128,7 +147,9 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   isLoading,
   isMergeStage,
   isOutStage,
+  isMissingAtlasSupport,
   previewDocs,
+  atlasOperator,
 }) => {
   const [pipelineOutputOption, setPipelineOutputOption] =
     useState<PipelineOutputOption>('collapse');
@@ -159,6 +180,8 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
       <PreviewResults
         isExpanded={isExpanded}
         isLoading={isLoading}
+        isMissingAtlasSupport={isMissingAtlasSupport}
+        atlasOperator={atlasOperator}
         previewDocs={previewDocs}
       />
       <div className={outputStageStyles} data-testid="output-stage-preview">
@@ -169,14 +192,22 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
 };
 
 const mapState = (state: RootState) => {
-  const pipeline = getPipelineStageOperatorsFromBuilderState(state);
-  const lastStage = pipeline[pipeline.length - 1] ?? '';
-  const { isLoading, previewDocs } = state.pipelineBuilder.textEditor.pipeline;
+  const stageOperators = getPipelineStageOperatorsFromBuilderState(state);
+  const lastStage = stageOperators[stageOperators.length - 1] ?? '';
+  const { isLoading, previewDocs, serverError } =
+    state.pipelineBuilder.textEditor.pipeline;
+  const isMissingAtlasSupport = isMissingAtlasStageSupport(
+    state.env,
+    serverError
+  );
+  const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   return {
     isLoading,
     previewDocs,
     isMergeStage: lastStage === '$merge',
     isOutStage: lastStage === '$out',
+    isMissingAtlasSupport,
+    atlasOperator,
   };
 };
 
