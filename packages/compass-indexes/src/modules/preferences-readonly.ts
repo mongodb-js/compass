@@ -9,7 +9,7 @@ export const PREFERENCES_READONLY_CHANGED =
 /**
  * The initial state of the preferencesReadOnly attribute.
  */
-export const INITIAL_STATE = false;
+export const INITIAL_STATE = true;
 
 /**
  * Reducer function.

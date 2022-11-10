@@ -41,6 +41,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
       await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -90,6 +91,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
       await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -130,6 +132,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
       await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -171,6 +174,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
       await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -209,6 +213,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
       await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -261,6 +266,18 @@ describe('readOnly: true / Read-Only Edition', function () {
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
 
+      await browser.waitUntil(async () => {
+        await browser.clickVisible(Selectors.FeaturesSettingsButton);
+
+        const featuresSettingsContent = await browser.$(
+          Selectors.FeaturesSettingsContent
+        );
+        const isFeaturesSettingsContentExisting =
+          await featuresSettingsContent.isExisting();
+
+        return isFeaturesSettingsContentExisting;
+      });
+
       await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
@@ -303,6 +320,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
       await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -367,6 +385,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
       await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);

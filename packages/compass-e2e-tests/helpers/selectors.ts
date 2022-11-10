@@ -1,12 +1,12 @@
 // Settings Modal
 export const SettingsModal = '[data-testid="settings-modal"]';
-export const CloseSettingsModalButton =
-  '[data-testid="settings-modal"] [aria-label="Close modal"]';
-export const SaveSettingsButton =
-  '[data-testid="settings-modal"] [data-testid="submit-button"]';
+export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;
+export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"]`;
+export const FeaturesSettingsButton = `${SettingsModal} [data-testid="sidebar-Features-item"]`;
+export const FeaturesSettingsContent = `${SettingsModal} [data-testid="features-settings"]`;
 
 export const SettingsCheckbox = (settingName: string): string => {
-  return `[data-testid="${settingName}"]`;
+  return `${SettingsModal} [data-testid="${settingName}"]`;
 };
 
 // Welcome Modal

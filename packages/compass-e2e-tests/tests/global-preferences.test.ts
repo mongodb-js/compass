@@ -180,6 +180,7 @@ describe('Global preferences', function () {
     try {
       const browser = compass.browser;
       await browser.openSettingsModal();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
           browser,

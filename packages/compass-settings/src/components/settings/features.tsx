@@ -7,7 +7,6 @@ import {
   Description,
   css,
   spacing,
-  Link,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/updated-fields';
@@ -18,23 +17,17 @@ import type {
 } from 'compass-preferences-model';
 import { settingStateLabels } from './state-labels';
 
-type PrivacySettingsProps = {
-  handleChange: (field: PrivacyFields, value: boolean) => void;
+type FeaturesSettingsProps = {
+  handleChange: (field: FeaturesFields, value: boolean) => void;
   preferenceStates: PreferenceStateInformation;
-  checkboxValues: Pick<UserConfigurablePreferences, PrivacyFields>;
+  checkboxValues: Pick<UserConfigurablePreferences, FeaturesFields>;
 };
 
-const privacyFields = [
-  'autoUpdates',
-  'enableMaps',
-  'trackErrors',
-  'trackUsageStatistics',
-  'enableFeedbackPanel',
-] as const;
-type PrivacyFields = typeof privacyFields[number];
+const featuresFields = ['readOnly', 'enableShell'] as const;
+type FeaturesFields = typeof featuresFields[number];
 
 type CheckboxItem = {
-  name: PrivacyFields;
+  name: FeaturesFields;
   label: JSX.Element;
 };
 
@@ -43,7 +36,7 @@ const checkboxStyles = css({
   marginBottom: spacing[3],
 });
 
-const checkboxItems: CheckboxItem[] = privacyFields.map((name) => {
+const checkboxItems: CheckboxItem[] = featuresFields.map((name) => {
   const { short, long } = getSettingDescription(name);
   return {
     name,
@@ -56,21 +49,18 @@ const checkboxItems: CheckboxItem[] = privacyFields.map((name) => {
   };
 });
 
-export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
-  checkboxValues,
-  preferenceStates,
-  handleChange,
-}) => {
+export const FeaturesSettings: React.FunctionComponent<
+  FeaturesSettingsProps
+> = ({ checkboxValues, preferenceStates, handleChange }) => {
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    handleChange(event.target.name as PrivacyFields, event.target.checked);
+    handleChange(event.target.name as FeaturesFields, event.target.checked);
   };
 
   return (
-    <div data-testid="privacy-settings">
+    <div data-testid="features-settings">
       <Body>
-        To enhance the user experience, Compass can integrate with 3rd party
-        services, which requires external network requests. Please choose from
-        the settings below:
+        To enhance the user experience, Compass can enable or disable particular
+        featues. Please choose from the settings below:
       </Body>
 
       <div>
@@ -91,26 +81,14 @@ export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
           </div>
         ))}
       </div>
-      <Body>
-        With any of these options, none of your personal information or stored
-        data will be submitted.
-        <br />
-        Learn more:&nbsp;
-        <Link href="https://www.mongodb.com/legal/privacy-policy">
-          MongoDB Privacy Policy
-        </Link>
-      </Body>
     </div>
   );
 };
 
 const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
   checkboxValues: {
-    autoUpdates: !!settings.autoUpdates,
-    enableMaps: !!settings.enableMaps,
-    trackErrors: !!settings.trackErrors,
-    trackUsageStatistics: !!settings.trackUsageStatistics,
-    enableFeedbackPanel: !!settings.enableFeedbackPanel,
+    readOnly: !!settings.readOnly,
+    enableShell: !!settings.enableShell,
   },
   preferenceStates,
 });
@@ -119,4 +97,4 @@ const mapDispatch = {
   handleChange: changeFieldValue,
 };
 
-export default connect(mapState, mapDispatch)(PrivacySettings);
+export default connect(mapState, mapDispatch)(FeaturesSettings);
