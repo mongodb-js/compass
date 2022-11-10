@@ -36,6 +36,7 @@ import { reset, RESET } from '../create-view/reset';
 import appRegistry, {
   globalAppRegistryEmit
 } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { mapPipelineModeToEditorViewType } from '../pipeline-builder/builder-helpers';
 
 const parseNs = require('mongodb-ns');
 
@@ -157,7 +158,10 @@ export const createView = () => {
           return stopWithError(dispatch, e);
         }
         debug('View created!');
-        track('Aggregation Saved As View', { num_stages: viewPipeline.length });
+        track('Aggregation Saved As View', {
+          num_stages: viewPipeline.length,
+          editor_view_type: mapPipelineModeToEditorViewType(state.pipelineBuilder.pipelineMode),
+        });
         dispatch(
           globalAppRegistryEmit(
             'compass:aggregations:create-view',
