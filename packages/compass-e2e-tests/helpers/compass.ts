@@ -70,14 +70,19 @@ interface RenderLogEntry {
 export class Compass {
   browser: CompassBrowser;
   testPackagedApp: boolean;
+  needsCloseWelcomeModal: boolean;
   renderLogs: RenderLogEntry[];
   logs: LogEntry[];
   logPath?: string;
   userDataPath?: string;
 
-  constructor(browser: CompassBrowser, { testPackagedApp = false } = {}) {
+  constructor(
+    browser: CompassBrowser,
+    { testPackagedApp = false, needsCloseWelcomeModal = false } = {}
+  ) {
     this.browser = browser;
     this.testPackagedApp = testPackagedApp;
+    this.needsCloseWelcomeModal = needsCloseWelcomeModal;
     this.logs = [];
     this.renderLogs = [];
 
@@ -332,6 +337,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
 async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
   const nowFormatted = formattedDate();
+  let needsCloseWelcomeModal: boolean;
 
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
@@ -340,6 +346,12 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     // windows seems to be weird about us deleting and recreating this dir, so
     // just make a new one for next time
     defaultUserDataDir = undefined;
+    needsCloseWelcomeModal = true;
+  } else {
+    // Need to close the welcome modal if firstRun is undefined or true, because
+    // in those cases we do not pass --showed-network-opt-in=true, but only
+    // if Compass hasn't been run before (i.e. defaultUserDataDir is defined)
+    needsCloseWelcomeModal = !defaultUserDataDir && opts.firstRun !== false;
   }
 
   // Calculate the userDataDir once so it will be the same between runs. That
@@ -402,8 +414,8 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     //'--v=1',
     // --vmodule=pattern
 
-    // by default make sure we don't get the welcome modal
-    ...(opts.firstRun === undefined ? ['--showed-network-opt-in=true'] : []),
+    // by default make sure we get the welcome modal
+    ...(opts.firstRun === false ? ['--showed-network-opt-in=true'] : []),
 
     ...(opts.extraSpawnArgs ?? [])
   );
@@ -483,7 +495,10 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // @ts-expect-error
   const browser = await remote(options);
 
-  const compass = new Compass(browser, { testPackagedApp });
+  const compass = new Compass(browser, {
+    testPackagedApp,
+    needsCloseWelcomeModal,
+  });
 
   await compass.recordLogs();
 
@@ -681,7 +696,7 @@ export async function beforeTests(
 
   const { browser } = compass;
 
-  if (opts.firstRun) {
+  if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
   }
   if (!opts.noWaitForConnectionScreen) {
