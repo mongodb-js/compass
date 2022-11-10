@@ -4,6 +4,7 @@ import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { parseRecord } from './parse-record';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -21,6 +22,7 @@ export type UserConfigurablePreferences = {
   enableFeedbackPanel: boolean;
   networkTraffic: boolean;
   protectConnectionStrings?: boolean;
+  forceConnectionOptions?: [key: string, value: string][];
   theme: THEMES;
 };
 
@@ -92,6 +94,11 @@ export type AmpersandType<T> = T extends string
   ? 'object'
   : never;
 
+type PostProcessFunction<T> = (
+  input: unknown,
+  error: (message: string) => void
+) => T;
+
 type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** The type of the preference value, in Ampersand naming */
   type: AmpersandType<AllPreferences[K]>;
@@ -121,6 +128,8 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
     : { short: string; long?: string };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
+  /** A method for cleaning up/normalizing input from the command line or global config file */
+  customPostProcess?: PostProcessFunction<AllPreferences[K]>;
 };
 
 type DeriveValueFunction<T> = (
@@ -335,6 +344,22 @@ const modelPreferencesProps: Required<{
       short: 'Protect Connection String Secrets',
       long: 'Hide credentials in connection strings from users.',
     },
+  },
+  /**
+   * Override certain connection string properties.
+   */
+  forceConnectionOptions: {
+    type: 'array',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Override Connection String Properties',
+      long: 'Force connection string properties to take specific values',
+    },
+    customPostProcess: parseRecord,
   },
 };
 
