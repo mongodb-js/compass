@@ -241,12 +241,21 @@ const STATE_UPDATE: Partial<
   },
   [AutoUpdateManagerState.ReadyToUpdate]: {
     [AutoUpdateManagerState.Restarting]: (_updateManager, updateInfo) => {
+      log.info(
+        mongoLogId(1_001_000_166),
+        'AutoUpdateManager',
+        'Restart accepted'
+      );
       track('Application Restart Accepted', { update_version: updateInfo.to });
       app.relaunch();
       app.exit();
     },
-    [AutoUpdateManagerState.RestartDismissed]: (_updateManager, updateInfo) => {
-      track('Application Restart Dismissed', { update_version: updateInfo.to });
+    [AutoUpdateManagerState.RestartDismissed]: () => {
+      log.info(
+        mongoLogId(1_001_000_165),
+        'AutoUpdateManager',
+        'Restart dismissed'
+      );
     },
   },
 };
