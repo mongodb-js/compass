@@ -13,7 +13,6 @@ import {
   globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import semver from 'semver';
-import preferences from 'compass-preferences-model';
 
 /**
  * The lowest supported version.
@@ -61,12 +60,11 @@ const configureStore = (options = {}) => {
     const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
     const { instance } = instanceStore.getState();
 
-    const setEditMode = (preferencesReadOnly) => {
+    const setEditMode = () => {
       store.dispatch(
         editModeChanged({
           collectionTimeSeries: !!options.isTimeSeries,
           collectionReadOnly: options.isReadonly ? true : false,
-          preferencesReadOnly,
           writeStateStoreReadOnly: !instance.isWritable,
           oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
         })
@@ -74,10 +72,7 @@ const configureStore = (options = {}) => {
     };
 
     // set the initial value
-    setEditMode(!!preferences.getPreferences().readOnly);
-    preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-      setEditMode(readOnly);
-    });
+    setEditMode();
 
     // isWritable can change later
     instance.on('change:isWritable', () => {

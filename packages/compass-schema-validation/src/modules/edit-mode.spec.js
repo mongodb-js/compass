@@ -8,7 +8,6 @@ describe('edit-mode module', function () {
       const editMode = {
         collectionReadOnly: true,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
@@ -28,7 +27,6 @@ describe('edit-mode module', function () {
           expect(reducer(undefined, { type: 'test' })).to.deep.equal({
             collectionReadOnly: false,
             collectionTimeSeries: false,
-            preferencesReadOnly: false,
             writeStateStoreReadOnly: false,
             oldServerReadOnly: false,
           });
@@ -41,7 +39,6 @@ describe('edit-mode module', function () {
         const editMode = {
           collectionReadOnly: false,
           collectionTimeSeries: false,
-          preferencesReadOnly: false,
           writeStateStoreReadOnly: false,
           oldServerReadOnly: true,
         };

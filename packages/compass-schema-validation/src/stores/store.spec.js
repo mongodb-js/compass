@@ -121,7 +121,6 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
-          preferencesReadOnly: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: true,
         });
@@ -136,7 +135,6 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
-          preferencesReadOnly: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: false,
         });
@@ -302,40 +300,6 @@ describe('Schema Validation Store', function () {
           done();
         });
         store.dispatch(validationLevelChanged(validationLevel));
-      });
-    });
-
-    context('when running in a readonly context', function () {
-      beforeEach(async function () {
-        store = configureStore({
-          namespace: 'db.coll',
-          globalAppRegistry: globalAppRegistry,
-        });
-        await require('hadron-ipc').ipcRenderer.invoke(
-          'compass:save-preferences',
-          {
-            readOnly: true,
-          }
-        );
-        require('hadron-ipc').ipcRenderer.emit(
-          'compass:preferences-changed',
-          {},
-          {
-            readOnly: true,
-          }
-        );
-      });
-
-      afterEach(function () {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        require('hadron-ipc').ipcRenderer.invoke('test:clear-preferences');
-      });
-
-      it('sets preferencesReadOnly property as true', function () {
-        expect(store.getState().editMode).to.have.property(
-          'preferencesReadOnly',
-          true
-        );
       });
     });
   });

@@ -3,6 +3,7 @@ import { css, Card, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { withPreferences } from 'compass-preferences-model';
 
 import { sortIndexes, dropFailedIndex } from '../../modules/indexes';
 import type {
@@ -30,7 +31,6 @@ type IndexesProps = {
   isWritable: boolean;
   isReadonly: boolean;
   isReadonlyView: boolean;
-  preferencesReadOnly: boolean;
   description?: string;
   error: string | null;
   localAppRegistry: AppRegistry;
@@ -38,6 +38,7 @@ type IndexesProps = {
   sortIndexes: (name: SortColumn, direction: SortDirection) => void;
   refreshIndexes: () => void;
   dropFailedIndex: (id: string) => void;
+  readOnly?: boolean;
 };
 
 export const Indexes: React.FunctionComponent<IndexesProps> = ({
@@ -45,7 +46,6 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   isWritable,
   isReadonly,
   isReadonlyView,
-  preferencesReadOnly,
   description,
   error,
   localAppRegistry,
@@ -53,6 +53,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
   sortIndexes,
   refreshIndexes,
   dropFailedIndex,
+  readOnly, // preferences readOnly.
 }) => {
   const deleteIndex = (index: IndexDefinition) => {
     if (index.extra.status === 'failed') {
@@ -67,7 +68,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
         isWritable={isWritable}
         isReadonly={isReadonly}
         isReadonlyView={isReadonlyView}
-        preferencesReadOnly={preferencesReadOnly}
+        readOnly={readOnly}
         errorMessage={error}
         localAppRegistry={localAppRegistry}
         isRefreshing={isRefreshing}
@@ -79,7 +80,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
           {({ height }) => (
             <IndexesTable
               indexes={indexes}
-              canDeleteIndex={isWritable && !isReadonly && !preferencesReadOnly}
+              canDeleteIndex={isWritable && !isReadonly && !readOnly}
               onSortTable={sortIndexes}
               onDeleteIndex={deleteIndex}
               // Preserve the (table and card bottom) paddings
@@ -97,7 +98,6 @@ const mapState = ({
   isWritable,
   isReadonly,
   isReadonlyView,
-  preferencesReadOnly,
   description,
   error,
   isRefreshing,
@@ -107,7 +107,6 @@ const mapState = ({
   isWritable,
   isReadonly,
   isReadonlyView,
-  preferencesReadOnly,
   description,
   error,
   localAppRegistry: (appRegistry as any).localAppRegistry,
@@ -120,4 +119,7 @@ const mapDispatch = {
   dropFailedIndex,
 };
 
-export default connect(mapState, mapDispatch)(Indexes);
+export default connect(
+  mapState,
+  mapDispatch
+)(withPreferences(Indexes, ['readOnly'], React));

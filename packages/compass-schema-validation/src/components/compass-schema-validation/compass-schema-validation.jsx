@@ -11,6 +11,7 @@ import {
 import { namespaceChanged } from '../../modules/namespace';
 import { fetchSampleDocuments } from '../../modules/sample-documents';
 import { changeZeroState, zeroStateChanged } from '../../modules/zero-state';
+import { withPreferences } from 'compass-preferences-model';
 
 import styles from './compass-schema-validation.module.less';
 
@@ -50,12 +51,6 @@ const mapStateToProps = (state) => ({
   isZeroState: state.isZeroState,
   isLoaded: state.isLoaded,
   editMode: state.editMode,
-  isEditable:
-    !state.editMode.collectionReadOnly &&
-    !state.editMode.collectionTimeSeries &&
-    !state.editMode.preferencesReadOnly &&
-    !state.editMode.writeStateStoreReadOnly &&
-    !state.editMode.oldServerReadOnly,
 });
 
 /**
@@ -71,7 +66,7 @@ const MappedCompassSchemaValidation = connect(mapStateToProps, {
   validationLevelChanged,
   zeroStateChanged,
   changeZeroState,
-})(CompassSchemaValidation);
+})(withPreferences(CompassSchemaValidation, ['readOnly'], React));
 
 export default MappedCompassSchemaValidation;
 export { CompassSchemaValidation };

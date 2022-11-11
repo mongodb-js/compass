@@ -52,7 +52,7 @@ class ValidationStates extends Component {
     zeroStateChanged: PropTypes.func.isRequired,
     editMode: PropTypes.object.isRequired,
     serverVersion: PropTypes.string,
-    isEditable: PropTypes.bool,
+    readOnly: PropTypes.bool,
   };
 
   /**
@@ -106,6 +106,16 @@ class ValidationStates extends Component {
     }
   }
 
+  isEditable() {
+    return (
+      !this.props.editMode.collectionReadOnly &&
+      !this.props.editMode.collectionTimeSeries &&
+      !this.props.editMode.writeStateStoreReadOnly &&
+      !this.props.editMode.oldServerReadOnly &&
+      !this.props.readOnly
+    );
+  }
+
   /**
    * Renders the schema validation zero state.
    *
@@ -129,7 +139,7 @@ class ValidationStates extends Component {
         callToAction={
           <Button
             data-testid="add-rule-button"
-            disabled={!this.props.isEditable}
+            disabled={!this.isEditable()}
             onClick={this.props.changeZeroState.bind(this, false)}
             variant={ButtonVariant.Primary}
             size="small"
@@ -162,7 +172,7 @@ class ValidationStates extends Component {
 
     return (
       <div className={styles['content-container']}>
-        <ValidationEditor {...this.props} />
+        <ValidationEditor {...this.props} isEditable={this.isEditable()} />
         <SampleDocuments {...this.props} />
       </div>
     );

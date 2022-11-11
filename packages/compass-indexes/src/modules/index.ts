@@ -9,9 +9,6 @@ import isWritable, {
 import isReadonly, {
   INITIAL_STATE as READONLY_INITIAL_STATE,
 } from './is-readonly';
-import preferencesReadOnly, {
-  INITIAL_STATE as PREFERENCES_READONLY_INITIAL_STATE,
-} from './preferences-readonly';
 import isReadonlyView, {
   INITIAL_STATE as READONLY_VIEW_INITIAL_STATE,
 } from './is-readonly-view';
@@ -42,7 +39,6 @@ const reducer = combineReducers({
   isWritable,
   isReadonly,
   isReadonlyView,
-  preferencesReadOnly,
   description,
   appRegistry,
   dataService,
@@ -64,7 +60,6 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
       isWritable: WRITABLE_INITIAL_STATE,
       isReadonly: READONLY_INITIAL_STATE,
       isReadonlyView: READONLY_VIEW_INITIAL_STATE,
-      preferencesReadOnly: PREFERENCES_READONLY_INITIAL_STATE,
       description: DESCRIPTION_INITIAL_STATE,
       indexes: INDEXES_INITIAL_STATE,
       serverVersion: SV_INITIAL_STATE,

@@ -53,11 +53,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: false,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: true,
       };
-
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = false;
       props.serverVersion = '3.1.0';
@@ -89,10 +88,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionTimeSeries: true,
         collectionReadOnly: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -124,10 +123,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: true,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -163,10 +162,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: false,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -185,10 +184,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: false,
         collectionTimeSeries: false,
-        preferencesReadOnly: true,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
+      props.readOnly = true;
       props.isZeroState = false;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -207,10 +206,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: false,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = false;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -246,10 +245,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: false,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = false;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -267,10 +266,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: false,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = true;
       props.serverVersion = '3.2.0';
@@ -288,10 +287,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: false,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = false;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -309,10 +308,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionReadOnly: false,
         collectionTimeSeries: false,
-        preferencesReadOnly: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = false;
       props.isLoaded = true;
       props.serverVersion = '3.2.0';

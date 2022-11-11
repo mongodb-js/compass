@@ -17,7 +17,7 @@ const renderIndexesToolbar = (
       errorMessage={null}
       isReadonly={false}
       isReadonlyView={false}
-      preferencesReadOnly={false}
+      readOnly={false}
       isWritable={true}
       localAppRegistry={appRegistry}
       writeStateDescription={undefined}
@@ -81,7 +81,7 @@ describe('IndexesToolbar Component', function () {
   describe('when it is preferences ReadOnly', function () {
     beforeEach(function () {
       renderIndexesToolbar({
-        preferencesReadOnly: true,
+        readOnly: true,
       });
     });
 
