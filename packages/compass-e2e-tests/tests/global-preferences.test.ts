@@ -55,8 +55,6 @@ describe('Global preferences', function () {
     });
     try {
       const browser = compass.browser;
-      await browser.setFeature('enableMaps', true);
-      await browser.setFeature('trackUsageStatistics', true);
       await browser.openSettingsModal();
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
@@ -89,8 +87,6 @@ describe('Global preferences', function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
-      await browser.setFeature('enableMaps', true);
-      await browser.setFeature('trackUsageStatistics', true);
       await browser.openSettingsModal();
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
@@ -123,8 +119,6 @@ describe('Global preferences', function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
-      await browser.setFeature('enableMaps', true);
-      await browser.setFeature('trackUsageStatistics', true);
       await browser.openSettingsModal();
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(

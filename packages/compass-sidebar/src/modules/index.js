@@ -60,7 +60,6 @@ const rootReducer = (state, action) => {
       isGenuineMongoDBVisible: IS_VISIBLE_IS,
       location: LOCATION_IS,
       isExpanded: IS_EXPANDED_IS,
-      preferencesReadOnly: PREFERENCES_READONLY_INITIAL_STATE,
     };
   }
   return reducer(state, action);

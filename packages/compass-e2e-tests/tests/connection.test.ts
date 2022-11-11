@@ -265,12 +265,7 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection string', async function () {
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -279,14 +274,9 @@ describe('Connection screen', function () {
   });
 
   it('can connect using connection form', async function () {
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm({
       hosts: ['localhost:27091'],
     });
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -302,13 +292,7 @@ describe('Connection screen', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ATLAS_HOST ?? ''
     );
-
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm(atlasConnectionOptions);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -334,13 +318,7 @@ describe('Connection screen', function () {
         sslConnection: 'ON',
         tlsCertificateKeyFile: certPath,
       };
-
-      await browser.setFeature('enableShell', true);
       await browser.connectWithConnectionForm(atlasConnectionOptions);
-
-      const shellSection = await browser.$(Selectors.ShellSection);
-      await shellSection.waitForDisplayed();
-
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
         true
@@ -366,13 +344,7 @@ describe('Connection screen', function () {
       awsSecretAccessKey:
         process.env.E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY ?? '',
     };
-
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm(atlasConnectionOptions);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -402,13 +374,7 @@ describe('Connection screen', function () {
       awsSecretAccessKey: secret,
       awsSessionToken: token,
     };
-
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm(atlasConnectionOptions);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -427,13 +393,7 @@ describe('Connection screen', function () {
     const withSRV = `mongodb+srv://${username}:${password}@${host}`;
 
     const connectionString = await resolveMongodbSrv(withSRV);
-
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString(connectionString);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -459,13 +419,7 @@ describe('Connection screen', function () {
     parsedString.searchParams.delete('replicaSet');
 
     const connectionString = parsedString.toString();
-
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString(connectionString);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -482,7 +436,6 @@ describe('Connection screen', function () {
     const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
     const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
 
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm({
       scheme: 'MONGODB_SRV',
       authMethod: 'DEFAULT',
@@ -492,9 +445,6 @@ describe('Connection screen', function () {
       sslConnection: 'ON',
       useSystemCA: true,
     });
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
 
     // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
     const result = await browser.shellEval(
@@ -513,13 +463,7 @@ describe('Connection screen', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_SERVERLESS_HOST ?? ''
     );
-
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm(atlasConnectionOptions);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -540,12 +484,7 @@ describe('Connection screen', function () {
     atlasConnectionOptions.sslConnection = 'ON';
     atlasConnectionOptions.defaultAuthSource = 'admin';
 
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm(atlasConnectionOptions);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -561,13 +500,7 @@ describe('Connection screen', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ANALYTICS_NODE_HOST ?? ''
     );
-
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm(atlasConnectionOptions);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -583,13 +516,7 @@ describe('Connection screen', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_FREE_TIER_HOST ?? ''
     );
-
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm(atlasConnectionOptions);
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -602,14 +529,9 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString(
       process.env.E2E_TESTS_ATLAS_READWRITEANY_STRING ?? ''
     );
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -624,14 +546,9 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString(
       process.env.E2E_TESTS_ATLAS_READANYDATABASE_STRING ?? ''
     );
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -649,14 +566,9 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString(
       process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
     );
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -673,14 +585,9 @@ describe('Connection screen', function () {
       return this.skip();
     }
 
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionString(
       process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? ''
     );
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -762,17 +669,11 @@ describe('System CA access', function () {
     const browser = compass.browser;
 
     try {
-      await browser.setFeature('enableShell', true);
-
       await browser.connectWithConnectionForm({
         hosts: ['localhost:27091'],
         sslConnection: 'DEFAULT',
         useSystemCA: true,
       });
-
-      const shellSection = await browser.$(Selectors.ShellSection);
-      await shellSection.waitForDisplayed();
-
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
         true
@@ -830,7 +731,6 @@ describe('FLE2', function () {
       return this.skip();
     }
 
-    await browser.setFeature('enableShell', true);
     await browser.connectWithConnectionForm({
       hosts: ['localhost:27091'],
       fleKeyVaultNamespace: 'alena.keyvault',
@@ -847,10 +747,6 @@ describe('FLE2', function () {
         }
       }`,
     });
-
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
-
     const result = await browser.shellEval('db.getName()', true);
     expect(result).to.be.equal('test');
   });

@@ -22,11 +22,11 @@ describe('readOnly: true / Read-Only Edition', function () {
     await fs.rmdir(tmpdir, { recursive: true });
   });
 
-  it('shows and hides the plus icon on the siderbar to create a database', async function () {
+  it('hides and shows the plus icon on the siderbar to create a database', async function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
-      await browser.setFeature('readOnly', false);
+      await browser.setFeature('readOnly', true);
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
       );
@@ -36,7 +36,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       );
       let isSidebarCreateDatabaseButtonExisting =
         await sidebarCreateDatabaseButton.isExisting();
-      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(true);
+      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(false);
 
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -54,7 +54,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       );
       isSidebarCreateDatabaseButtonExisting =
         await sidebarCreateDatabaseButton.isExisting();
-      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(false);
+      expect(isSidebarCreateDatabaseButtonExisting).to.be.equal(true);
     } finally {
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);

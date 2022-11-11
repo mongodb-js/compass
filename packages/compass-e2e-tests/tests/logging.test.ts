@@ -3,7 +3,6 @@ import { beforeTests, afterTests } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry, LogEntry } from '../helpers/telemetry';
-import * as Selectors from '../helpers/selectors';
 
 describe('Logging and Telemetry integration', function () {
   describe('after running an example path through Compass', function () {
@@ -16,15 +15,9 @@ describe('Logging and Telemetry integration', function () {
       const { browser } = compass;
 
       try {
-        await browser.setFeature('enableShell', true);
-        await browser.setFeature('trackUsageStatistics', true);
         await browser.connectWithConnectionString(
           'mongodb://localhost:27091/test'
         );
-
-        const shellSection = await browser.$(Selectors.ShellSection);
-        await shellSection.waitForDisplayed();
-
         await browser.shellEval('use test');
         await browser.shellEval('db.runCommand({ connectionStatus: 1 })');
       } finally {

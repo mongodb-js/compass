@@ -66,7 +66,6 @@ describe('Collection schema tab', function () {
 
   for (const enableMaps of [true, false]) {
     it(`can analyze coordinates for a schema (enableMaps = ${enableMaps})`, async function () {
-      await browser.setFeature('enableMaps', enableMaps);
       await browser.navigateToCollectionTab('test', 'geospatial', 'Schema');
       await browser.clickVisible(Selectors.AnalyzeSchemaButton);
 

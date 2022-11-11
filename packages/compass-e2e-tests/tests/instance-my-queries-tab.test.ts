@@ -41,11 +41,8 @@ describe('Instance my queries tab', function () {
     browser = compass.browser;
   });
   beforeEach(async function () {
-    await browser.setFeature('enableShell', true);
     await createNumbersCollection();
     await browser.connectWithConnectionString('mongodb://localhost:27091/test');
-    const shellSection = await browser.$(Selectors.ShellSection);
-    await shellSection.waitForDisplayed();
   });
   after(async function () {
     await afterTests(compass, this.currentTest);
