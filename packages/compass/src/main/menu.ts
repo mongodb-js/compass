@@ -468,11 +468,7 @@ class CompassMenu {
       this.refreshMenu();
     });
 
-    preferences.onPreferenceValueChanged('readOnly', newReadOnly => {
-      track('Read-Only Changed', {
-        readOnly: newReadOnly
-      });
-
+    preferences.onPreferenceValueChanged('readOnly', () => {
       this.refreshMenu();
     });
 
