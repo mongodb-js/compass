@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { beforeTests, afterTests } from '../helpers/compass';
+import * as Selectors from '../helpers/selectors';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -86,6 +87,21 @@ describe('Automatically connecting from the command line', function () {
       noWaitForConnectionScreen: true,
     });
     await compass.browser.waitForConnectionResult('success');
+    await afterTests(compass, this.currentTest);
+  });
+
+  it('does not store the connection information as a recent connection', async function () {
+    const compass = await beforeTests({
+      extraSpawnArgs: [connectionStringSuccess],
+      noWaitForConnectionScreen: true,
+      firstRun: true,
+    });
+    const browser = compass.browser;
+    await browser.waitForConnectionResult('success');
+    await browser.disconnect();
+    await browser
+      .$(Selectors.RecentConnections)
+      .waitForDisplayed({ reverse: true });
     await afterTests(compass, this.currentTest);
   });
 
