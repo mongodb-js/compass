@@ -58,9 +58,9 @@ const QueryAttributes: React.FunctionComponent<{
   attributes: QueryAttributes;
 }> = ({ attributes }) => {
   return (
-    <div>
+    <div data-testid="query-history-query-attributes">
       {Object.entries(attributes).map(([key, value], index) => (
-        <div key={index}>
+        <div key={index} data-testid="query-history-query-attribute">
           <Body
             data-testid="query-history-query-label"
             className={queryLabelStyles}
