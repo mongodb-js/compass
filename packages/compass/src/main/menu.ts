@@ -1,55 +1,21 @@
 import type { MenuItemConstructorOptions } from 'electron';
-import { BrowserWindow, Menu, app, dialog, shell, nativeTheme } from 'electron';
+import { BrowserWindow, Menu, app, dialog, shell } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
-import { THEMES } from 'compass-preferences-model';
+import { preferencesAccess as preferences } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
-import { CompassTelemetry } from './telemetry';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-APP-MENU');
 
 type MenuTemplate = MenuItemConstructorOptions | MenuItemConstructorOptions[];
 
 const debug = createDebug('mongodb-compass:menu');
 
 const COMPASS_HELP = 'https://docs.mongodb.com/compass/';
-class ThemeState {
-  theme: THEMES = THEMES.LIGHT;
-  enabled?: true
-}
-
-function updateTheme({
-  theme
-}: ThemeState) {
-  try {
-    if (theme === THEMES.OS_THEME) {
-      if (nativeTheme.shouldUseDarkColors) {
-        ipcMain.broadcast('app:darkreader-enable');
-      } else {
-        ipcMain.broadcast('app:darkreader-disable');
-      }
-      return;
-    }
-
-    if (theme === THEMES.DARK) {
-      ipcMain.broadcast('app:darkreader-enable');
-      return;
-    }
-
-    ipcMain.broadcast('app:darkreader-disable');
-  } catch (e) {
-    // TODO: Seems like sometimes we are broadcasting theme update too fast
-    // causing ipc.send to fail with "Render frame was disposed before
-    // WebFrameMain could be accessed" error.
-    //
-    // This is a workaround that just swallows the issue and allows app not to
-    // break while trying to switch the theme. We should inspect the
-    // implementation and do a better fix in the scope of https://jira.mongodb.org/browse/COMPASS-5606
-    debug('Failed to broadcast theme change', e);
-  }
-}
 
 function separator(): MenuItemConstructorOptions {
   return {
@@ -77,71 +43,30 @@ function settingsDialogItem(): MenuItemConstructorOptions {
   };
 }
 
-function trackThemeChanged(
-  newTheme: THEMES
-) {
-  CompassTelemetry.track({
-    event: 'Theme Changed',
-    properties: {
-      theme: newTheme
-    }
-  });
+function themeSubmenuItems(): MenuItemConstructorOptions[] {
+  const currentTheme = preferences.getPreferences().theme;
+  return ([
+    ['OS_THEME', 'Use OS Theme (Preview)'],
+    ['DARK', 'Dark Theme (Preview)'],
+    ['LIGHT', 'Light Theme']
+  ] as const).map(([theme, label]) => ({
+    label,
+    click: function() {
+      void preferences.savePreferences({ theme });
+    },
+    type: 'checkbox',
+    checked: theme === currentTheme
+  }));
 }
 
-function themeSubmenuItems(
-  themeState: ThemeState,
-  saveThemeAndRefreshMenu: (theme: ThemeState) => void
-): MenuItemConstructorOptions[] {
-  return [{
-      label: 'Use OS Theme (Preview)',
-      click: function() {
-        themeState.theme = THEMES.OS_THEME;
-        trackThemeChanged(themeState.theme);
-        updateTheme(themeState);
-        saveThemeAndRefreshMenu(themeState);
-      },
-      type: 'checkbox',
-      checked: themeState.theme === THEMES.OS_THEME
-    },
-    {
-      label: 'Dark Theme (Preview)',
-      click: function() {
-        themeState.theme = THEMES.DARK;
-        trackThemeChanged(themeState.theme);
-        updateTheme(themeState);
-        saveThemeAndRefreshMenu(themeState);
-      },
-      type: 'checkbox',
-      checked: themeState.theme === THEMES.DARK
-    },
-    {
-      label: 'Light Theme',
-      click: function() {
-        themeState.theme = THEMES.LIGHT;
-        trackThemeChanged(themeState.theme);
-        updateTheme(themeState);
-        saveThemeAndRefreshMenu(themeState);
-      },
-      type: 'checkbox',
-      checked: themeState.theme === THEMES.LIGHT
-    },
-  ];
-}
-
-function themeMenuItem(
-  themeState: ThemeState,
-  saveThemeAndRefreshMenu: (theme: ThemeState) => void
-): MenuItemConstructorOptions {
+function themeMenuItem(): MenuItemConstructorOptions {
   return {
     label: 'Theme',
-    submenu: themeSubmenuItems(themeState, saveThemeAndRefreshMenu)
+    submenu: themeSubmenuItems()
   };
 }
 
-function darwinCompassSubMenu(
-  themeState: ThemeState,
-  saveThemeAndRefreshMenu: (theme: ThemeState) => void
-): MenuItemConstructorOptions {
+function darwinCompassSubMenu(): MenuItemConstructorOptions {
   return {
     label: app.getName(),
     submenu: [
@@ -150,7 +75,7 @@ function darwinCompassSubMenu(
         role: 'about',
       },
       separator(),
-      themeMenuItem(themeState, saveThemeAndRefreshMenu),
+      themeMenuItem(),
       separator(),
       {
         label: 'Hide',
@@ -197,7 +122,23 @@ function connectSubMenu(
   nonDarwin: boolean,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const subMenu: MenuTemplate = [connectItem(app), disconnectItem()];
+  const subMenu: MenuTemplate = [
+    connectItem(app),
+    disconnectItem(),
+    separator(),
+    {
+      label: '&Import saved connections',
+      click() {
+        ipcMain.broadcastFocused('compass:open-import-connections');
+      },
+    },
+    {
+      label: '&Export saved connections',
+      click() {
+        ipcMain.broadcastFocused('compass:open-export-connections');
+      },
+    }
+  ];
 
   if (nonDarwin) {
     subMenu.push(separator());
@@ -360,10 +301,7 @@ function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
   };
 }
 
-function viewSubMenu(
-  themeState: ThemeState,
-  saveThemeAndRefreshMenu: (theme: ThemeState) => void
-): MenuItemConstructorOptions {
+function viewSubMenu(): MenuItemConstructorOptions {
   return {
     label: '&View',
     submenu: [
@@ -416,7 +354,7 @@ function viewSubMenu(
         process.platform === 'darwin'
           ? []
           : [
-            themeMenuItem(themeState, saveThemeAndRefreshMenu),
+            themeMenuItem(),
             separator()
           ]
       ),
@@ -457,15 +395,13 @@ function windowSubMenu(): MenuItemConstructorOptions {
 // menus
 function darwinMenu(
   menuState: WindowMenuState,
-  themeState: ThemeState,
-  saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu: MenuTemplate = [darwinCompassSubMenu(themeState, saveThemeAndRefreshMenu)];
+  const menu: MenuTemplate = [darwinCompassSubMenu()];
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());
-  menu.push(viewSubMenu(themeState, saveThemeAndRefreshMenu));
+  menu.push(viewSubMenu());
 
   if (menuState.showCollection) {
     menu.push(collectionSubMenu(menuState.isReadOnly));
@@ -479,11 +415,9 @@ function darwinMenu(
 
 function nonDarwinMenu(
   menuState: WindowMenuState,
-  themeState: ThemeState,
-  saveThemeAndRefreshMenu: (theme: ThemeState) => void,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu = [connectSubMenu(true, app), viewSubMenu(themeState, saveThemeAndRefreshMenu)];
+  const menu = [connectSubMenu(true, app), viewSubMenu()];
 
   if (menuState.showCollection) {
     menu.push(collectionSubMenu(menuState.isReadOnly));
@@ -514,8 +448,6 @@ class CompassMenu {
 
   private static initCalled = false;
 
-  private static themeState = new ThemeState();
-
   private static _init(app: typeof CompassApplication): void {
     this.app = app;
 
@@ -528,19 +460,12 @@ class CompassMenu {
       'window:hide-collection-submenu': this.hideCollection.bind(this),
     });
 
-    ipcMain.respondTo({
-      'window:theme-loaded': (_, theme) => {
-        if (this.themeState.theme !== theme) {
-          this.themeState.theme = theme;
-          this.saveThemeAndRefreshMenu({
-            theme
-          });
-        }
-      },
-    });
+    preferences.onPreferenceValueChanged('theme', newTheme => {
+      track('Theme Changed', {
+        theme: newTheme
+      });
 
-    nativeTheme.on('updated', () => {
-      updateTheme(this.themeState);
+      this.refreshMenu();
     });
 
     void this.setupDockMenu();
@@ -638,12 +563,12 @@ class CompassMenu {
     }
 
     if (process.platform === 'darwin') {
-      return darwinMenu(menuState, this.themeState, this.saveThemeAndRefreshMenu, this.app);
+      return darwinMenu(menuState, this.app);
     }
-    return nonDarwinMenu(menuState, this.themeState, this.saveThemeAndRefreshMenu, this.app);
+    return nonDarwinMenu(menuState, this.app);
   }
 
-  private static saveThemeAndRefreshMenu = (themeState: ThemeState) => {
+  private static refreshMenu = () => {
     const currentWindowMenuId = this.currentWindowMenuLoaded;
     if (!currentWindowMenuId) {
       // Nothing to refresh.
@@ -651,9 +576,6 @@ class CompassMenu {
 
       return;
     }
-
-    // Tell the active window to save the chosen theme.
-    ipcMain.broadcastFocused('app:save-theme', themeState.theme);
 
     debug(`WINDOW ${currentWindowMenuId} refreshing menu`);
 

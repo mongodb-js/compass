@@ -17,6 +17,7 @@ import { enable } from '@electron/remote/main';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import preferences from 'compass-preferences-model';
+import { setupTheme } from './theme';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
 
@@ -42,7 +43,10 @@ const DEFAULT_HEIGHT = (() => {
   return height;
 })();
 
-const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1024;
+// We set the min width to 1025 so that the screensize breakpoints of leafygreen
+// components are not hit. The breakpoints make the styles of the Select component
+// change significantly at widths of 1024 and less.
+const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1025;
 const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
 
 /**
@@ -224,6 +228,8 @@ async function onAppReady(compassApp: typeof CompassApplication) {
       // noop
     }
   }
+
+  setupTheme();
 
   showConnectWindow(compassApp);
 }

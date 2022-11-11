@@ -43,6 +43,7 @@ export * from './set-feature';
 export * from './save-favorite';
 export * from './select-favorite';
 export * from './select-connection-menu-item';
+export * from './select-favorites-menu-item';
 export * from './open-settings-modal';
 export * from './wait-for-connection-result';
 export * from './screenshot';

@@ -26,6 +26,7 @@ import NonGenuineMarker from './non-genuine-marker';
 import { updateAndSaveConnectionInfo } from '../modules/connection-info';
 import { toggleIsGenuineMongoDBVisible } from '../modules/is-genuine-mongodb-visible';
 import { setIsExpanded } from '../modules/is-expanded';
+import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -97,7 +98,9 @@ export function Sidebar({
 
       if (action === 'copy-connection-string') {
         void copyConnectionString(
-          connectionInfo.connectionOptions.connectionString
+          maybeProtectConnectionString(
+            connectionInfo.connectionOptions.connectionString
+          )
         );
         return;
       }

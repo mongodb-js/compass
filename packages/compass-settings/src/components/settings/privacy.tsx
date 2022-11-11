@@ -8,8 +8,6 @@ import {
   css,
   spacing,
   Link,
-  Banner,
-  BannerVariant,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/updated-fields';
@@ -18,6 +16,7 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
+import { settingStateLabels } from './state-labels';
 
 type PrivacySettingsProps = {
   handleChange: (field: PrivacyFields, value: boolean) => void;
@@ -56,32 +55,6 @@ const checkboxItems: CheckboxItem[] = privacyFields.map((name) => {
     ),
   };
 });
-
-const settingStateLabels = {
-  'set-cli': (
-    <Banner variant={BannerVariant.Info} data-testid="set-cli-banner">
-      This setting cannot be modified as it has been set at Compass startup.
-    </Banner>
-  ),
-  'set-global': (
-    <Banner variant={BannerVariant.Info} data-testid="set-global-banner">
-      This setting cannot be modified as it has been set in the global Compass
-      configuration file.
-    </Banner>
-  ),
-  hardcoded: (
-    <Banner variant={BannerVariant.Info} data-testid="hardcoded-banner">
-      This setting cannot be modified as it is disabled for this Compass
-      edition.
-    </Banner>
-  ),
-  derived: (
-    <Banner variant={BannerVariant.Info} data-testid="derived-banner">
-      This setting cannot be modified as its value is implied by another option.
-    </Banner>
-  ),
-  '': null,
-};
 
 export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
   checkboxValues,

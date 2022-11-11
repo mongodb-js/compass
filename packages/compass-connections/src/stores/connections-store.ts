@@ -232,6 +232,7 @@ export function useConnections({
   removeAllRecentsConnections: () => Promise<void>;
   duplicateConnection: (connectioInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
+  reloadConnections: () => void;
 } {
   const { openToast } = useToast('compass-connections');
 
@@ -310,9 +311,15 @@ export function useConnections({
   }
 
   const onConnectSuccess = useCallback(
-    async (connectionInfo: ConnectionInfo, dataService: DataService) => {
+    async (
+      connectionInfo: ConnectionInfo,
+      dataService: DataService,
+      shouldSaveConnectionInfo: boolean
+    ) => {
       try {
         onConnected(connectionInfo, dataService);
+
+        if (!shouldSaveConnectionInfo) return;
 
         // if a connection has been saved already we only want to update the lastUsed
         // attribute, otherwise we are going to save the entire connection info.
@@ -347,13 +354,7 @@ export function useConnections({
         );
       }
     },
-    [
-      onConnected,
-      connectionStorage,
-      saveConnectionInfo,
-      removeConnection,
-      recentConnections,
-    ]
+    [onConnected, connectionStorage, saveConnectionInfo, removeConnection]
   );
 
   useEffect(() => {
@@ -393,6 +394,7 @@ export function useConnections({
     connectingConnectionAttempt.current = newConnectionAttempt;
 
     let connectionInfo: ConnectionInfo | undefined = undefined;
+    let shouldSaveConnectionInfo = false;
     try {
       if (typeof getAutoConnectInfo === 'function') {
         connectionInfo = await getAutoConnectInfo();
@@ -403,6 +405,7 @@ export function useConnections({
         });
       } else {
         connectionInfo = getAutoConnectInfo;
+        shouldSaveConnectionInfo = true;
       }
 
       dispatch({
@@ -437,7 +440,11 @@ export function useConnections({
         type: 'connection-attempt-succeeded',
       });
 
-      void onConnectSuccess(connectionInfo, newConnectionDataService);
+      void onConnectSuccess(
+        connectionInfo,
+        newConnectionDataService,
+        shouldSaveConnectionInfo
+      );
 
       trackNewConnectionEvent(connectionInfo, newConnectionDataService);
       debug(
@@ -567,6 +574,9 @@ export function useConnections({
           return conn.favorite;
         }),
       });
+    },
+    reloadConnections() {
+      void loadConnections(dispatch, connectionStorage);
     },
   };
 }

@@ -10,7 +10,7 @@ export interface CursorExporterOpts {
   type: 'csv' | 'json';
   columns: Array<string> | boolean;
   output: stream.Writable;
-  totalNumberOfDocuments?: number;
+  totalNumberOfDocuments?: number | null;
 }
 export class CursorExporter extends EventEmitter {
   private _cursor: AbstractCursor;

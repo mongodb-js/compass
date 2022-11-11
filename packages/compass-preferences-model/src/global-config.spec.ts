@@ -91,7 +91,7 @@ describe('Global config file handling', function () {
       globalConfigPaths: [],
       argv: ['--enable-maps=true', '--theme'],
     });
-    expect(result.cli).to.deep.equal({ enableMaps: true, theme: '' });
+    expect(result.cli).to.deep.equal({ enableMaps: true });
   });
 
   it('knows the expected types of cli options when followed by an extra positional argument', async function () {

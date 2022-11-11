@@ -21,6 +21,7 @@ export {
   getHelpText,
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
+export { usePreference, withPreferences } from './react';
 
 export interface PreferencesAccess {
   savePreferences(

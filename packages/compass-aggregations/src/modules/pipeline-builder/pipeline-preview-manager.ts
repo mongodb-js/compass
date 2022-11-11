@@ -2,11 +2,12 @@ import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { cancellableWait } from '../../utils/cancellable-promise';
-import { getStageOperator } from '../../utils/stage';
+import { getStageOperator, getLastStageOperator, isLastStageOutputStage } from '../../utils/stage';
 import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE
 } from '@mongodb-js/mongodb-constants';
+import isEqual from 'lodash/isEqual';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 
@@ -39,12 +40,16 @@ export function createPreviewAggregation(
     'sampleSize' | 'previewSize' | 'totalDocumentCount'
   > = {}
 ) {
+  if (isLastStageOutputStage(pipeline)) {
+    throw new Error('Cannot preview pipeline with last stage as output stage');
+  }
+
   const stages = [];
   for (const stage of pipeline) {
     if (
       (!options.totalDocumentCount ||
         options.totalDocumentCount >
-          (options.sampleSize ?? DEFAULT_SAMPLE_SIZE)) &&
+        (options.sampleSize ?? DEFAULT_SAMPLE_SIZE)) &&
       // If stage can cause a full scan on the collection, prepend it with a
       // $limit
       FULL_SCAN_OPS.includes(getStageOperator(stage) ?? '')
@@ -57,7 +62,7 @@ export function createPreviewAggregation(
     // TODO: super unsure what this is doing, half of these are not even
     // selectable stage operators in UI
     !REQUIRED_AS_FIRST_STAGE.includes(
-      getStageOperator(stages[stages.length - 1]) ?? ''
+      getLastStageOperator(stages)
     )
   ) {
     stages.push({ $limit: options.previewSize ?? DEFAULT_PREVIEW_LIMIT });
@@ -67,7 +72,9 @@ export function createPreviewAggregation(
 
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
+  private lastPipeline = new Map<number, Document[]>();
   constructor(private dataService: DataService) {}
+
   /**
    * Request aggregation results with a default debounce
    */
@@ -89,6 +96,7 @@ export class PipelinePreviewManager {
     if (!force) {
       await cancellableWait(options.debounceMs ?? 700, controller.signal);
     }
+    this.lastPipeline.set(idx, pipeline);
     const result = await aggregatePipeline({
       dataService: this.dataService,
       signal: controller.signal,
@@ -104,11 +112,16 @@ export class PipelinePreviewManager {
     return result;
   }
 
+  isLastPipelineEqual(idx: number, pipeline: Document[]): boolean {
+    return isEqual(pipeline, this.lastPipeline.get(idx));
+  }
+
   /**
    * Cancel aggregation request by id
    */
   cancelPreviewForStage(idx: number): boolean {
     this.queue.get(idx)?.abort();
+    this.lastPipeline.delete(idx);
     return this.queue.delete(idx);
   }
 
@@ -119,6 +132,7 @@ export class PipelinePreviewManager {
     for (const [idx, controller] of Array.from(this.queue.entries())) {
       if (idx >= from) {
         controller.abort();
+        this.lastPipeline.delete(idx);
         this.queue.delete(idx);
       }
     }

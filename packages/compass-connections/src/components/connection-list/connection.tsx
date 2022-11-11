@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import {
   H3,
   Description,
@@ -20,6 +20,7 @@ import { getConnectionTitle } from 'mongodb-data-service';
 
 import ConnectionIcon from './connection-icon';
 import { useConnectionColor } from '@mongodb-js/connection-form';
+import { maybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
 
 const TOAST_TIMEOUT_MS = 5000; // 5 seconds.
 
@@ -158,6 +159,26 @@ function FavoriteColorIndicator({
   );
 }
 
+const actions: ItemAction<Action>[] = [
+  {
+    action: 'copy-connection-string',
+    label: 'Copy connection string',
+    icon: 'Copy',
+  },
+
+  {
+    action: 'duplicate-connection',
+    label: 'Duplicate',
+    icon: 'Clone',
+  },
+
+  {
+    action: 'remove-connection',
+    label: 'Remove',
+    icon: 'Trash',
+  },
+];
+
 function Connection({
   isActive,
   connectionInfo,
@@ -205,34 +226,10 @@ function Connection({
     ? palette.gray.dark3
     : normalConnectionMenuColor;
 
-  const actions = useMemo(() => {
-    const actions: ItemAction<Action>[] = [];
-
-    actions.push({
-      action: 'copy-connection-string',
-      label: 'Copy connection string',
-      icon: 'Copy',
-    });
-
-    actions.push({
-      action: 'duplicate-connection',
-      label: 'Duplicate',
-      icon: 'Clone',
-    });
-
-    actions.push({
-      action: 'remove-connection',
-      label: 'Remove',
-      icon: 'Trash',
-    });
-
-    return actions;
-  }, []);
-
   const { openToast } = useToast('compass-connections');
 
   const onAction = useCallback(
-    (action) => {
+    (action: Action) => {
       async function copyConnectionString(connectionString: string) {
         try {
           await navigator.clipboard.writeText(connectionString);
@@ -254,7 +251,9 @@ function Connection({
 
       if (action === 'copy-connection-string') {
         void copyConnectionString(
-          connectionInfo.connectionOptions.connectionString
+          maybeProtectConnectionString(
+            connectionInfo.connectionOptions.connectionString
+          )
         );
         return;
       }
