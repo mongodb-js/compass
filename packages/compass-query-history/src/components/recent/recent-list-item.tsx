@@ -65,11 +65,21 @@ function SaveForm({ saveFavorite, onCancel }: SaveFormProps) {
         onChange={(event) => {
           setName(event.target.value);
         }}
+        data-testid="recent-query-save-favorite-name"
       />
-      <Button className={submitButtonStyles} type="submit" variant="primary">
+      <Button
+        data-testid="recent-query-save-favorite-submit"
+        className={submitButtonStyles}
+        type="submit"
+        variant="primary"
+      >
         Save
       </Button>
-      <Button type="button" onClick={onCancel}>
+      <Button
+        data-testid="recent-query-save-favorite-cancel"
+        type="button"
+        onClick={onCancel}
+      >
         Cancel
       </Button>
     </form>
@@ -154,7 +164,7 @@ export default function RecentListItem({
         <Icon glyph="Copy" />
       </IconButton>
       <IconButton
-        data-testid="query-history-button-delete-fav"
+        data-testid="query-history-button-delete-recent"
         aria-label="Delete Query from Favorites List"
         title="Delete Query from Favorites List"
         onClick={deleteRecent}

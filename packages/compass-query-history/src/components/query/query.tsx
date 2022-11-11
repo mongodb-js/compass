@@ -33,7 +33,12 @@ const QueryHeading: React.FunctionComponent<{
 }> = ({ title, children }) => {
   return (
     <div className={queryHeadingStyles}>
-      <Body className={queryHeadingTextStyles}>{title}</Body>
+      <Body
+        className={queryHeadingTextStyles}
+        data-testid="query-history-query-title"
+      >
+        {title}
+      </Body>
       {children}
     </div>
   );
@@ -116,6 +121,7 @@ export const Query: React.FunctionComponent<{
       ) : (
         <QueryHeading title={title}>
           <div
+            data-testid="query-history-query-hoveritems"
             className={cx(
               childrenStyles,
               isHovered ? childrenHoveredStyles : undefined
