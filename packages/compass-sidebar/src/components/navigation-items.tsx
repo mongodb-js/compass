@@ -11,6 +11,7 @@ import {
   mergeProps,
   useDefaultAction,
 } from '@mongodb-js/compass-components';
+import { withPreferences } from 'compass-preferences-model';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
 
@@ -169,17 +170,22 @@ export function NavigationItem<Actions extends string>({
 
 export function NavigationItems({
   isExpanded,
-  isReadOnly,
+  isDataLake,
+  isWritable,
   changeFilterRegex,
   onAction,
   currentLocation,
+  readOnly,
 }: {
   isExpanded?: boolean;
-  isReadOnly: boolean;
+  isDataLake?: boolean;
+  isWritable?: boolean;
   changeFilterRegex(regex: RegExp | null): void;
   onAction(actionName: string, ...rest: any[]): void;
   currentLocation: string | null;
+  readOnly?: boolean;
 }) {
+  const isReadOnly = readOnly || isDataLake || !isWritable;
   const databasesActions = useMemo(() => {
     const actions: ItemAction<DatabasesActions>[] = [];
 
@@ -229,17 +235,14 @@ const mapStateToProps = (state: {
     };
     isWritable: boolean;
   };
-  preferencesReadOnly: boolean;
 }) => ({
   currentLocation: state.location,
-  isReadOnly:
-    state.preferencesReadOnly ||
-    state.instance?.dataLake.isDataLake ||
-    !state.instance?.isWritable,
+  isDataLake: state.instance?.dataLake.isDataLake,
+  isWritable: state.instance?.isWritable,
 });
 
 const MappedNavigationItems = connect(mapStateToProps, {
   changeFilterRegex,
-})(NavigationItems);
+})(withPreferences(NavigationItems, ['readOnly'], React));
 
 export default MappedNavigationItems;

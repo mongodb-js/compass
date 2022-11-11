@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Banner, BannerVariant, EmptyContent, Link, css, spacing } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
+import { withPreferences } from 'compass-preferences-model';
 
 import { ZeroGraphic } from '../zero-graphic';
 
@@ -46,13 +47,13 @@ class Databases extends PureComponent {
     databases: PropTypes.array.isRequired,
     databasesStatus: PropTypes.object.isRequired,
     isReadonly: PropTypes.bool.isRequired,
-    preferencesReadOnly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isGenuineMongoDB: PropTypes.bool.isRequired,
     isDataLake: PropTypes.bool.isRequired,
     onDatabaseClick: PropTypes.func.isRequired,
     onDeleteDatabaseClick: PropTypes.func.isRequired,
     onCreateDatabaseClick: PropTypes.func.isRequired,
+    readOnly: PropTypes.bool,
   };
 
   /**
@@ -65,7 +66,7 @@ class Databases extends PureComponent {
       databases,
       databasesStatus,
       isReadonly,
-      preferencesReadOnly,
+      readOnly,
       isWritable,
       isDataLake,
       isGenuineMongoDB,
@@ -88,7 +89,7 @@ class Databases extends PureComponent {
       return <NonGenuineZeroState />;
     }
 
-    const editable = !isReadonly && !preferencesReadOnly;
+    const editable = !isReadonly && !readOnly;
     const actions = Object.assign(
       { onDatabaseClick },
       editable && isWritable && !isDataLake
@@ -111,7 +112,6 @@ const mapStateToProps = (state) => ({
   databases: state.databases,
   databasesStatus: state.databasesStatus,
   isReadonly: state.isReadonly,
-  preferencesReadOnly: state.preferencesReadOnly,
   isWritable: state.isWritable,
   isGenuineMongoDB: state.isGenuineMongoDB,
   isDataLake: state.isDataLake,
@@ -139,7 +139,7 @@ const mapDispatchToProps = {
 const ConnectedDatabases = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Databases);
+)(withPreferences(Databases, ['readOnly'], React));
 
 export default ConnectedDatabases;
 export { Databases };

@@ -1,3 +1,4 @@
+import React from 'react';
 import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
 import DatabasesNavigationTree from '@mongodb-js/compass-databases-navigation';
@@ -5,6 +6,7 @@ import type { Actions } from '@mongodb-js/compass-databases-navigation';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import toNS from 'mongodb-ns';
 import { toggleDatabaseExpanded } from '../modules/databases';
+import { withPreferences } from 'compass-preferences-model';
 
 function mapStateToProps(state: any) {
   // TODO: type state
@@ -16,7 +18,6 @@ function mapStateToProps(state: any) {
       activeNamespace,
     },
     instance,
-    preferencesReadOnly,
   } = state;
   const status = instance?.databasesStatus;
   const isReady =
@@ -28,13 +29,12 @@ function mapStateToProps(state: any) {
       expandedDbList[name] ?? defaultExpanded,
     ])
   );
-  const isReadOnly =
-    preferencesReadOnly ||
-    instance?.dataLake.isDataLake ||
-    !instance?.isWritable;
+  const isDataLake = instance?.dataLake.isDataLake;
+  const isWritable = instance?.isWritable;
   return {
     isReady,
-    isReadOnly,
+    isDataLake,
+    isWritable,
     activeNamespace,
     databases: filteredDatabases,
     expanded,
@@ -79,4 +79,4 @@ const onNamespaceAction = (namespace: string, action: Actions) => {
 export default connect(mapStateToProps, {
   onDatabaseExpand: toggleDatabaseExpanded,
   onNamespaceAction,
-})(DatabasesNavigationTree);
+})(withPreferences(DatabasesNavigationTree, ['readOnly'], React));

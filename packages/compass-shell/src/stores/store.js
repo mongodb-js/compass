@@ -5,7 +5,6 @@ import { globalAppRegistryActivated } from '@mongodb-js/mongodb-redux-common/app
 import { setupLoggerAndTelemetry } from '@mongosh/logging';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import preferences from 'compass-preferences-model';
-import { enableShellChanged } from '../modules/enable-shell';
 
 const { log, debug, track } = createLoggerAndTelemetry('COMPASS-SHELL');
 
@@ -20,13 +19,6 @@ export default class CompassShellStore {
     debug('activated');
 
     this.globalAppRegistry = appRegistry;
-
-    const { enableShell } = preferences.getPreferences();
-
-    this.reduxStore.dispatch(enableShellChanged(!!enableShell));
-    preferences.onPreferenceValueChanged('enableShell', (changedEnableShell) => {
-      this.reduxStore.dispatch(enableShellChanged(changedEnableShell));
-    });
 
     appRegistry.on('data-service-connected', this.onDataServiceConnected);
 

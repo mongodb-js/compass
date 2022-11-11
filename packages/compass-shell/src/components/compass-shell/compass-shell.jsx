@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withPreferences } from 'compass-preferences-model';
 
 import { Shell } from '@mongosh/browser-repl';
 import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
@@ -252,6 +253,5 @@ export default connect(
       }
     },
     runtime: state.runtime ? state.runtime.runtime : null,
-    enableShell: state.enableShell ? state.enableShell : false
   })
-)(CompassShell);
+)(withPreferences(CompassShell, ['enableShell'], React));

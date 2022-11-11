@@ -5,6 +5,7 @@ import { CollectionsList } from '@mongodb-js/databases-collections-list';
 import toNS from 'mongodb-ns';
 import { Banner, BannerVariant } from '@mongodb-js/compass-components';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { withPreferences } from 'compass-preferences-model';
 
 import styles from './collections.module.less';
 
@@ -18,12 +19,12 @@ class Collections extends PureComponent {
     collectionsStatus: PropTypes.object.isRequired,
     databaseName: PropTypes.string.isRequired,
     isReadonly: PropTypes.bool.isRequired,
-    preferencesReadOnly: PropTypes.bool.isRequired,
     isWritable: PropTypes.bool.isRequired,
     isDataLake: PropTypes.bool.isRequired,
     onCollectionClick: PropTypes.func.isRequired,
     onDeleteCollectionClick: PropTypes.func.isRequired,
     onCreateCollectionClick: PropTypes.func.isRequired,
+    readOnly: PropTypes.bool,
   };
 
   componentDidMount() {
@@ -41,7 +42,7 @@ class Collections extends PureComponent {
       collectionsStatus,
       databaseName,
       isReadonly,
-      preferencesReadOnly,
+      readOnly,
       isWritable,
       isDataLake,
       onCollectionClick,
@@ -59,7 +60,7 @@ class Collections extends PureComponent {
       );
     }
     
-    const editable = !isReadonly && !preferencesReadOnly;
+    const editable = !isReadonly && !readOnly;
     const actions = Object.assign(
       { onCollectionClick },
       editable && isWritable && !isDataLake
@@ -102,7 +103,6 @@ const mapStateToProps = (state) => ({
   collectionsStatus: state.collectionsStatus,
   databaseName: state.databaseName,
   isReadonly: state.isReadonly,
-  preferencesReadOnly: state.preferencesReadOnly,
   isWritable: state.isWritable,
   isDataLake: state.isDataLake,
   isGenuineMongoDB: state.isGenuineMongoDB,
@@ -130,7 +130,7 @@ const mapDispatchToProps = {
 const ConnectedCollections = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Collections);
+)(withPreferences(Collections, ['readOnly'], React));
 
 export default ConnectedCollections;
 export { Collections };
