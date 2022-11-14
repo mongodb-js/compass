@@ -38,7 +38,7 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
 export const changePipelineMode = (
   newMode: PipelineMode
 ): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
-  return (dispatch, _getState, { pipelineBuilder }) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     // Sync the PipelineBuilder
     if (newMode === 'as-text') {
       pipelineBuilder.stagesToSource();
