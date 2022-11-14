@@ -9,14 +9,13 @@ import {
   Label,
   useId,
   spacing,
+  useFormattedDate,
 } from '@mongodb-js/compass-components';
 import { Query } from '../query/query';
 import type { QueryAttributes } from '../query/query';
 
 type RecentModel = {
-  _lastExecuted: {
-    toString: () => string;
-  };
+  _lastExecuted: Date;
   getAttributes: (arg0: { props: true }) => QueryAttributes;
 };
 
@@ -135,9 +134,11 @@ export default function RecentListItem({
     setShowSave(false);
   };
 
+  const lastExecuted = useFormattedDate(model._lastExecuted.getTime());
+
   return (
     <Query
-      title={model._lastExecuted.toString()}
+      title={lastExecuted}
       attributes={attributes}
       runQuery={runQuery}
       data-testid="recent-query-list-item"
