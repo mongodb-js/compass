@@ -122,6 +122,26 @@ describe('Automatically connecting from the command line', function () {
     await afterTests(compass, this.currentTest);
   });
 
+  it('fails with invalid auth', async function () {
+    const compass = await beforeTests({
+      extraSpawnArgs: [
+        '--file',
+        path.join(tmpdir, 'exported.json'),
+        '--passphrase',
+        'p4ssw0rd',
+        '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
+        '--username=doesnotexist',
+        '--password=asdf/',
+      ],
+    });
+    const error = await compass.browser.waitForConnectionResult('failure');
+    expect(error).to.include('Authentication failed');
+    const connectFormState = await compass.browser.getConnectFormState();
+    expect(connectFormState.defaultUsername).to.equal('doesnotexist');
+    expect(connectFormState.defaultPassword).to.equal('asdf/');
+    await afterTests(compass, this.currentTest);
+  });
+
   it('fails with an invalid connection string', async function () {
     const compass = await beforeTests({
       extraSpawnArgs: [

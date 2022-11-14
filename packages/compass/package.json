@@ -243,6 +243,7 @@
     "mocha": "^8.4.0",
     "mongodb": "^4.10.0",
     "mongodb-connection-model": "^22.1.2",
+    "mongodb-connection-string-url": "^2.5.4",
     "mongodb-data-service": "^22.2.0",
     "mongodb-download-url": "^1.2.2",
     "mongodb-instance-model": "^12.2.0",

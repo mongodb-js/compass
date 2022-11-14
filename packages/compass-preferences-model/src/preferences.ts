@@ -53,6 +53,8 @@ export type NonUserPreferences = {
   ignoreAdditionalCommandLineFlags?: boolean;
   positionalArguments?: string[];
   file?: string;
+  username?: string;
+  password?: string;
 };
 
 export type FeatureFlags = {
@@ -455,6 +457,26 @@ const nonUserPreferences: Required<{
     global: true,
     description: {
       short: 'Specify a List of Connections for Automatically Connecting',
+    },
+  },
+  username: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Specify a Username for Automatically Connecting',
+    },
+  },
+  password: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Specify a Password for Automatically Connecting',
     },
   },
 };
