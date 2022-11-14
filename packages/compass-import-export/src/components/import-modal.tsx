@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
@@ -137,6 +137,7 @@ function ImportModal({
   setFieldType,
   previewLoaded,
 }: ImportModalProps) {
+  const modalBodyRef = useRef<HTMLDivElement>(null);
   const handleCancel = useCallback(() => {
     cancelImport();
   }, [cancelImport]);
@@ -159,6 +160,15 @@ function ImportModal({
     [status]
   );
 
+  useEffect(() => {
+    // When the errors change and there are now errors, we auto scroll
+    // to the end of the modal body to ensure folks see the new errors.
+    if (isOpen && errors && modalBodyRef.current) {
+      const contentDiv = modalBodyRef.current;
+      contentDiv.scrollTop = contentDiv.scrollHeight;
+    }
+  }, [errors, isOpen]);
+
   return (
     <Modal
       open={isOpen}
@@ -167,7 +177,7 @@ function ImportModal({
       trackingId="import_modal"
     >
       <ModalHeader title="Import" subtitle={`To Collection ${ns}`} />
-      <ModalBody>
+      <ModalBody ref={modalBodyRef}>
         <ImportOptions
           delimiter={delimiter}
           setDelimiter={setDelimiter}
@@ -234,7 +244,7 @@ function ImportModal({
               disabled={!fileName || status === STARTED}
               variant="primary"
             >
-              {status === STARTED ? 'Importing...' : 'Import'}
+              {status === STARTED ? 'Importing\u2026' : 'Import'}
             </Button>
             <Button
               className={closeButtonStyles}
