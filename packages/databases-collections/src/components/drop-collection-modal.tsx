@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -11,10 +11,9 @@ import {
   TextInput
 } from '@mongodb-js/compass-components';
 
-import { changeCollectionName } from '../modules/drop-collection/name';
-import { changeCollectionNameConfirmation } from '../modules/drop-collection/name-confirmation';
-import { dropCollection } from '../modules/drop-collection';
+import { dropCollection } from '../modules/drop-collection/drop-collection';
 import { toggleIsVisible } from '../modules/is-visible';
+import type { RootState } from '../modules/drop-collection/drop-collection';
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -26,9 +25,7 @@ type DropCollectionModalProps = {
   isRunning: boolean;
   isVisible: boolean;
   name: string;
-  nameConfirmation: string;
-  error?: Error;
-  changeCollectionNameConfirmation: (name: string) => void;
+  error: Error | null;
   dropCollection: () => void;
   toggleIsVisible: (isVisible: boolean) => void;
 };
@@ -37,12 +34,11 @@ function DropCollectionModal({
   isRunning,
   isVisible,
   name,
-  nameConfirmation,
   error,
-  changeCollectionNameConfirmation,
   dropCollection,
   toggleIsVisible,
 }: DropCollectionModalProps) {
+  const [ nameConfirmation, changeCollectionNameConfirmation ] = useState('');
   const onNameConfirmationChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
     changeCollectionNameConfirmation(evt.target.value);
   }, [ changeCollectionNameConfirmation ]);
@@ -94,17 +90,10 @@ function DropCollectionModal({
 /**
  * Map the store state to properties to pass to the components.
  */
-const mapStateToProps = (state: {
-  isRunning: boolean;
-  isVisible: boolean;
-  name: string;
-  nameConfirmation: string;
-  error?: Error;
-}) => ({
+const mapStateToProps = (state: RootState) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
   name: state.name,
-  nameConfirmation: state.nameConfirmation,
   error: state.error
 });
 
@@ -115,8 +104,6 @@ const mapStateToProps = (state: {
 const MappedDropCollectionModal = connect(
   mapStateToProps,
   {
-    changeCollectionName,
-    changeCollectionNameConfirmation,
     dropCollection,
     toggleIsVisible
   },

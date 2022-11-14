@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -11,9 +11,9 @@ import {
   TextInput
 } from '@mongodb-js/compass-components';
 
-import { changeDatabaseNameConfirmation } from '../modules/drop-database/name-confirmation';
-import { dropDatabase } from '../modules/drop-database';
+import { dropDatabase } from '../modules/drop-database/drop-database';
 import { toggleIsVisible } from '../modules/is-visible';
+import type { RootState } from '../modules/drop-database/drop-database';
 
 const progressContainerStyles = css({
   display: 'flex',
@@ -25,9 +25,7 @@ type DropDatabaseModalProps = {
   isRunning: boolean;
   isVisible: boolean;
   name: string;
-  nameConfirmation: string;
-  error?: Error;
-  changeDatabaseNameConfirmation: (name: string) => void;
+  error: Error | null;
   dropDatabase: () => void;
   toggleIsVisible: (isVisible: boolean) => void;
 };
@@ -39,12 +37,11 @@ function DropDatabaseModal({
   isRunning,
   isVisible,
   name,
-  nameConfirmation,
   error,
-  changeDatabaseNameConfirmation,
   dropDatabase,
   toggleIsVisible,
 }: DropDatabaseModalProps) {
+  const [ nameConfirmation, changeDatabaseNameConfirmation ] = useState('');
   const onNameConfirmationChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
     changeDatabaseNameConfirmation(evt.target.value);
   }, [ changeDatabaseNameConfirmation ]);
@@ -96,17 +93,10 @@ function DropDatabaseModal({
 /**
  * Map the store state to properties to pass to the components.
  */
-const mapStateToProps = (state: {
-  isRunning: boolean;
-  isVisible: boolean;
-  name: string;
-  nameConfirmation: string;
-  error?: Error;
-}) => ({
+const mapStateToProps = (state: RootState) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
   name: state.name,
-  nameConfirmation: state.nameConfirmation,
   error: state.error
 });
 
@@ -117,7 +107,6 @@ const mapStateToProps = (state: {
 const MappedDropDatabaseModal = connect(
   mapStateToProps,
   {
-    changeDatabaseNameConfirmation,
     dropDatabase,
     toggleIsVisible
   },
