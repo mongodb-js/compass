@@ -53,9 +53,6 @@ function DropDatabaseModal({
     toggleIsVisible(false);
   }, [ toggleIsVisible ]);
 
-  /**
-   * When user hits enter to submit the form we prevent the default behaviour.
-   */
   const onFormSubmit = useCallback(() => {
     if (name === nameConfirmation) {
       dropDatabase();
@@ -70,7 +67,7 @@ function DropDatabaseModal({
       onCancel={onHide}
       submitButtonText="Drop Database"
       variant="danger"
-      submitDisabled={name !== nameConfirmation}
+      submitDisabled={name !== nameConfirmation || isRunning}
       trackingId="drop_database_modal"
       data-testid="drop-database-modal"
     >

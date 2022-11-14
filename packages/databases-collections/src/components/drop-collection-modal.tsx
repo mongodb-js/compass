@@ -51,9 +51,6 @@ function DropCollectionModal({
     toggleIsVisible(false);
   }, [ toggleIsVisible ]);
 
-  /**
-   * When user hits enter to submit the form we prevent the default behaviour.
-   */
   const onFormSubmit = useCallback(() => {
     if (name === nameConfirmation) {
       dropCollection();
@@ -68,7 +65,7 @@ function DropCollectionModal({
       onCancel={onHide}
       submitButtonText="Drop Collection"
       variant="danger"
-      submitDisabled={name !== nameConfirmation}
+      submitDisabled={name !== nameConfirmation || isRunning}
       trackingId="drop_collection_modal"
       data-testid="drop-collection-modal"
     >
