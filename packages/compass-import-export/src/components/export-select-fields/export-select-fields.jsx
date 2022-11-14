@@ -8,9 +8,7 @@ import {
   Body,
   Button,
   Icon,
-  Tooltip,
   css,
-  palette,
   spacing,
 } from '@mongodb-js/compass-components';
 
@@ -24,18 +22,14 @@ const selectFieldsStyles = css({
 
 const headerContainerStyles = css({
   display: 'flex',
-  justifyContent: 'space-between',
-  marginBottom: spacing[2],
+  flexDirection: 'column',
+  marginBottom: spacing[3],
   marginTop: spacing[3],
+  gap: spacing[2],
 });
 
-const infoIconContainerStyles = css({
+const checkboxContainerStyle = css({
   display: 'flex',
-  alignItems: 'center',
-});
-
-const infoIconStyles = css({
-  color: palette.gray.light1,
 });
 
 class ExportSelectFields extends PureComponent {
@@ -152,41 +146,37 @@ class ExportSelectFields extends PureComponent {
         <div className={headerContainerStyles}>
           <div className={selectFieldsStyles}>
             <Body weight="medium">Select Fields</Body>
-            <Tooltip
-              trigger={({ children, ...props }) => (
-                <span {...props} className={infoIconContainerStyles}>
-                  {children}
-                  <Icon glyph="InfoWithCircle" className={infoIconStyles} />
-                </span>
-              )}
-              popoverZIndex={99999}
-            >
-              <Body>
-                The fields displayed are from a sample of documents in the
-                collection. To ensure all fields are exported, add missing field
-                names.
-              </Body>
-            </Tooltip>
           </div>
-          <Button
-            leftGlyph={<Icon glyph="Plus" />}
-            size="xsmall"
-            onClick={this.addNewFieldButton}
-          >
-            Add Field
-          </Button>
+          <Body>
+            The fields displayed are from a sample of documents in the
+            collection. To ensure all fields are exported, add missing field
+            names.
+          </Body>
+          <div>
+            <Button
+              variant="primary"
+              leftGlyph={<Icon glyph="Plus" />}
+              size="xsmall"
+              onClick={this.addNewFieldButton}
+            >
+              Add new field
+            </Button>
+          </div>
         </div>
+
         <div className={style('field-wrapper')}>
           <table className={style('table')}>
             <thead>
               <tr>
                 <th>
-                  <input
-                    type="checkbox"
-                    name="Select All"
-                    checked={this.isEveryFieldChecked()}
-                    onChange={this.handleHeaderCheckboxChange}
-                  />
+                  <div className={checkboxContainerStyle}>
+                    <input
+                      type="checkbox"
+                      name="Select All"
+                      checked={this.isEveryFieldChecked()}
+                      onChange={this.handleHeaderCheckboxChange}
+                    />
+                  </div>
                 </th>
                 <th>&nbsp;</th>
                 <th colSpan="2" className={style('field-name')}>
