@@ -1,5 +1,6 @@
 import type { PipelineBuilderThunkAction, RootState } from '..';
 import type { PipelineBuilder } from './pipeline-builder';
+import type { PipelineMode } from './pipeline-mode';
 import { loadPreviewForStagesFrom } from './stage-editor';
 import { loadPreviewForPipeline } from './text-editor-pipeline';
 
@@ -73,4 +74,9 @@ export function getIsPipelineInvalidFromBuilderState(
   }
   const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor.pipeline;
   return Boolean((serverError && includeServerErrors) || syntaxErrors.length > 0);
+}
+
+export type EditorViewType = 'stage' | 'text';
+export function mapPipelineModeToEditorViewType(mode: PipelineMode): EditorViewType {
+  return mode === 'builder-ui' ? 'stage' : 'text';
 }

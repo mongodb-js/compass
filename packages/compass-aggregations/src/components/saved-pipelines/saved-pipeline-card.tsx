@@ -12,12 +12,18 @@ import {
   KeylineCard,
   spacing
 } from '@mongodb-js/compass-components';
+import type { RootState } from '../../modules';
+import {
+  type EditorViewType,
+  mapPipelineModeToEditorViewType,
+} from '../../modules/pipeline-builder/builder-helpers';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 type SavePipelineCardProps = {
   id: string;
   name: string;
+  editor_view_type: EditorViewType;
   onOpenPipelineConfirm: (id: string) => void;
   onDeletePipeline: (id: string) => void;
 };
@@ -51,6 +57,7 @@ const button = css({
 const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
   id,
   name,
+  editor_view_type,
   onOpenPipelineConfirm,
   onDeletePipeline
 }) => {
@@ -59,16 +66,21 @@ const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
   const onDelete = useCallback(() => {
     track('Aggregation Deleted', {
       id,
-      screen: 'aggregations'
+      editor_view_type,
+      screen: 'aggregations',
     });
     onDeletePipeline(id);
-  }, [id, onDeletePipeline]);
+  }, [id, editor_view_type, onDeletePipeline]);
 
   const onOpenConfirm = useCallback(() => {
-    track('Aggregation Opened', { id, screen: 'aggregations' });
+    track('Aggregation Opened', {
+      id,
+      editor_view_type,
+      screen: 'aggregations',
+    });
     setShowConfirmModal(false);
     onOpenPipelineConfirm(id);
-  }, [id, onOpenPipelineConfirm]);
+  }, [id, editor_view_type, onOpenPipelineConfirm]);
 
   return (
     <>
@@ -123,7 +135,14 @@ const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
   );
 };
 
-export default connect(null, {
-  onOpenPipelineConfirm: openPipelineById,
-  onDeletePipeline: deletePipeline
-})(SavePipelineCard);
+export default connect(
+  (state: RootState) => ({
+    editor_view_type: mapPipelineModeToEditorViewType(
+      state.pipelineBuilder.pipelineMode
+    ),
+  }),
+  {
+    onOpenPipelineConfirm: openPipelineById,
+    onDeletePipeline: deletePipeline,
+  }
+)(SavePipelineCard);
