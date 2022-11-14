@@ -17,7 +17,7 @@ export function applyForceConnectionOptions(
     url.searchParams.delete(key);
   }
   for (const [key, value] of forceConnectionOptions) {
-    if (isSpecialKey(key)) url[key] = value;
+    if (isSpecialKey(key)) url[key] = encodeURIComponent(value);
     else url.searchParams.append(key, value);
   }
 

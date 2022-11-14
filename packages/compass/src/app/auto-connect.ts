@@ -10,8 +10,8 @@ function applyUsernameAndPassword(
   { username, password }: Pick<AllPreferences, 'username' | 'password'>
 ): ConnectionInfo {
   const connectionString = new ConnectionString(connectionInfo.connectionOptions.connectionString);
-  if (username) connectionString.username = username;
-  if (password) connectionString.password = password;
+  if (username) connectionString.username = encodeURIComponent(username);
+  if (password) connectionString.password = encodeURIComponent(password);
   return {
     ...connectionInfo,
     connectionOptions: {
