@@ -19,6 +19,8 @@ import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -380,6 +382,12 @@ export const changeStageOperator = (
     const currentOp = stage.operator;
 
     stage.changeOperator(newVal);
+    track('Aggregation Edited', {
+      num_stages: stages.length,
+      stage_action: 'stage_renamed',
+      stage_name: stage.operator,
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
 
     // If there is no stage operator (this is a newly added stage) or current
@@ -429,6 +437,11 @@ export const addStage = (
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const stage = pipelineBuilder.addStage(after);
+    track('Aggregation Edited', {
+      num_stages: getState().pipelineBuilder.stageEditor.stages.length,
+      stage_action: 'stage_added',
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageAdded, after, stage });
   };
 };
@@ -437,7 +450,14 @@ export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
-    pipelineBuilder.removeStage(at);
+    const num_stages = getState().pipelineBuilder.stageEditor.stages.length;
+    const stage = pipelineBuilder.removeStage(at);
+    track('Aggregation Edited', {
+      num_stages,
+      stage_action: 'stage_deleted',
+      stage_name: stage.operator,
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
     dispatch(loadPreviewForStagesFrom(at));
   };
@@ -451,6 +471,13 @@ export const moveStage = (
     if (from === to) {
       return;
     }
+    const pipeline = getState().pipelineBuilder.stageEditor.stages;
+    track('Aggregation Edited', {
+      num_stages: pipeline.length,
+      stage_action: 'stage_reordered',
+      stage_name: pipeline[from].stageOperator,
+      editor_view_type: 'stage',
+    });
     pipelineBuilder.moveStage(from, to);
     dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
     dispatch(loadPreviewForStagesFrom(Math.min(from, to)));
