@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Banner, BannerVariant, EmptyContent, Link, css, spacing } from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
+import { withPreferences } from 'compass-preferences-model';
 
 import { ZeroGraphic } from '../zero-graphic';
 
@@ -52,6 +53,7 @@ class Databases extends PureComponent {
     onDatabaseClick: PropTypes.func.isRequired,
     onDeleteDatabaseClick: PropTypes.func.isRequired,
     onCreateDatabaseClick: PropTypes.func.isRequired,
+    readOnly: PropTypes.bool,
   };
 
   /**
@@ -64,6 +66,7 @@ class Databases extends PureComponent {
       databases,
       databasesStatus,
       isReadonly,
+      readOnly,
       isWritable,
       isDataLake,
       isGenuineMongoDB,
@@ -86,14 +89,15 @@ class Databases extends PureComponent {
       return <NonGenuineZeroState />;
     }
 
+    const editable = !isReadonly && !readOnly;
     const actions = Object.assign(
       { onDatabaseClick },
-      !isReadonly && isWritable && !isDataLake
+      editable && isWritable && !isDataLake
         ? { onDeleteDatabaseClick, onCreateDatabaseClick }
         : {}
     );
 
-    return <DatabasesList databases={databases} {...actions} />;
+    return <DatabasesList databases={databases} isEditable={editable} {...actions} />;
   }
 }
 
@@ -135,7 +139,7 @@ const mapDispatchToProps = {
 const ConnectedDatabases = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Databases);
+)(withPreferences(Databases, ['readOnly'], React));
 
 export default ConnectedDatabases;
 export { Databases };

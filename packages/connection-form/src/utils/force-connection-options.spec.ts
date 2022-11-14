@@ -40,6 +40,17 @@ describe('applyForceConnectionOptions', function () {
     });
   });
 
+  it('url-encodes username and password', function () {
+    options.connectionString = 'mongodb://a:b@localhost/';
+    prefs.forceConnectionOptions = [
+      ['username', 'user'],
+      ['password', 's%22'], // this only makes a difference in already-url-encoded cases
+    ];
+    expect(applyForceConnectionOptions(options)).to.deep.equal({
+      connectionString: 'mongodb://user:s%2522@localhost/',
+    });
+  });
+
   it('can set connection string options', function () {
     prefs.forceConnectionOptions = [['readPreference', 'secondary']];
     expect(applyForceConnectionOptions(options)).to.deep.equal({

@@ -4,7 +4,7 @@ import type { AnyAction } from 'redux';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
 import type { StoredPipeline } from '../utils/pipeline-storage';
-import { getPipelineFromBuilderState, getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getPipelineFromBuilderState, getPipelineStringFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -175,7 +175,8 @@ export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async
 
   track('Aggregation Saved', {
     id: savedPipeline.id,
-    num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder).length
+    num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder).length,
+    editor_view_type: mapPipelineModeToEditorViewType(getState().pipelineBuilder.pipelineMode)
   });
 
   dispatch(updatePipelineList());

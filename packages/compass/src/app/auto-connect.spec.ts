@@ -3,8 +3,20 @@ import sinon from 'sinon';
 import { loadAutoConnectInfo } from './auto-connect';
 import { exportConnections } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
+import { ipcRenderer } from 'hadron-ipc';
 
 describe('auto connection argument parsing', function () {
+  let sandbox: sinon.SinonSandbox;
+
+  beforeEach(function() {
+    sandbox = sinon.createSandbox();
+    sandbox.stub(ipcRenderer, 'call').resolves(true);
+  })
+
+  afterEach(function() {
+    sandbox.restore();
+  })
+
   it('skips nothing if no file and no positional arguments are provided', function() {
     const fn = loadAutoConnectInfo({});
     expect(fn).to.equal(undefined);
@@ -176,5 +188,15 @@ describe('auto connection argument parsing', function () {
     const fn = loadAutoConnectInfo({ file: 'filename', passphrase: 'p4ssw0rd' }, fakeFs);
     const info = await fn?.();
     expect(info).to.deep.equal(connectionInfo);
+  });
+
+  it('applies username and password if requested', async function() {
+    const connectionString = 'mongodb://localhost/';
+    const fn = loadAutoConnectInfo({ positionalArguments: [connectionString], username: 'user', password: 's€cr!t' });
+    const info = await fn?.();
+    expect(info?.id).to.be.a('string');
+    expect(info?.connectionOptions).to.deep.equal({
+      connectionString: 'mongodb://user:s%E2%82%ACcr!t@localhost/'
+    });
   });
 });
