@@ -3,11 +3,16 @@ import { importConnections } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
+import { ipcRenderer } from 'hadron-ipc';
+
+async function shouldWindowAutoConnect(): Promise<boolean> {
+  return await ipcRenderer.call('compass:should-window-auto-connect');
+}
 
 export function loadAutoConnectInfo(
   preferences: Pick<AllPreferences, 'file' | 'positionalArguments' | 'passphrase'>,
   fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
-): undefined | (() => Promise<ConnectionInfo>) {
+): undefined | (() => Promise<ConnectionInfo | undefined>) {
   const {
     file,
     positionalArguments = [],
@@ -20,7 +25,11 @@ export function loadAutoConnectInfo(
 
   // Return an async function here rather than just loading the ConnectionInfo so that errors
   // from importing the connection end up being treated like connection failures.
-  return async (): Promise<ConnectionInfo> => {
+  return async (): Promise<ConnectionInfo | undefined> => {
+    if (!await shouldWindowAutoConnect()) {
+      return undefined;
+    }
+
     if (file) {
       const fileContents = await fs.readFile(file, 'utf8');
       const connections: ConnectionInfo[] = [];

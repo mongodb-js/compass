@@ -128,12 +128,16 @@ function hideCollectionSubMenu() {
   void ipc.ipcRenderer?.call('window:hide-collection-submenu');
 }
 
+function notifyMainProcessOfDisconnect() {
+  void ipc.ipcRenderer?.call('compass:disconnected');
+}
+
 function Home({
   appName,
   getAutoConnectInfo,
 }: {
   appName: string;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo>;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectedDataService = useRef<DataService>();
@@ -211,6 +215,7 @@ function Home({
       type: 'disconnected',
     });
     hideCollectionSubMenu();
+    notifyMainProcessOfDisconnect();
     updateTitle(appName);
   }, [appName]);
 

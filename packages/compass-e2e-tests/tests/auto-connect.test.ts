@@ -143,4 +143,40 @@ describe('Automatically connecting from the command line', function () {
     expect(error).to.include('ENOENT');
     await afterTests(compass, this.currentTest);
   });
+
+  it('enters auto-connect mode again if the window is hard reloaded', async function () {
+    const compass = await beforeTests({
+      extraSpawnArgs: [connectionStringSuccess],
+      noWaitForConnectionScreen: true,
+    });
+    const { browser } = compass;
+    await browser.waitForConnectionResult('success');
+    await browser.execute(() => {
+      location.reload();
+    });
+    await browser.waitForConnectionResult('success');
+    await browser.disconnect();
+    await browser.execute(() => {
+      location.reload();
+    });
+    await browser.waitForConnectionScreen();
+    await afterTests(compass, this.currentTest);
+  });
+
+  it('does not enter auto-connect mode in new windows', async function () {
+    const compass = await beforeTests({
+      extraSpawnArgs: [connectionStringSuccess],
+      noWaitForConnectionScreen: true,
+    });
+    const { browser } = compass;
+    await browser.waitForConnectionResult('success');
+    await browser.execute(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('electron').ipcRenderer.call('test:show-connect-window');
+    });
+    // Switch to the window that does not include the connection host in its title
+    await browser.switchWindow(/^(?!.*localhost)/);
+    await browser.waitForConnectionScreen();
+    await afterTests(compass, this.currentTest);
+  });
 });
