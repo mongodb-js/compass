@@ -7,8 +7,11 @@ import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
 import { moveStage } from '../../modules/pipeline-builder/stage-editor';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import styles from './pipeline-builder-ui-workspace.module.less';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const SortableStage = sortableElement(({ idx, ...props }) => {
   return <Stage index={idx} {...props}></Stage>;
@@ -87,12 +90,31 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
 const mapState = (state) => {
   return {
     stageIds: state.pipelineBuilder.stageEditor.stageIds,
-    editViewName: state.editViewName
+    editViewName: state.editViewName,
+    stageOperators: state.pipelineBuilder.stageEditor.stages.map(
+      (stage) => stage.stageOperator
+    ),
+  };
+};
+
+export default connect(
+  mapState,
+  { moveStage },
+  (stateProps, dispatchProps, ownProps) => {
+    const { stageOperators, ...restOfStageProps } = stateProps;
+    const { moveStage } = dispatchProps;
+    return {
+      ...ownProps,
+      ...restOfStageProps,
+      onStageMoveEnd: (fromIndex, toIndex) => {
+        track('Aggregation Edited', {
+          num_stages: stageOperators.length,
+          stage_action: 'stage_reordered',
+          stage_name: stageOperators[fromIndex],
+          editor_view_type: 'stage', // Its always stage view for this component
+        });
+        moveStage(fromIndex, toIndex);
+      },
+    };
   }
-};
-
-const mapDispatch = {
-  onStageMoveEnd: moveStage
-};
-
-export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);
+)(PipelineBuilderUIWorkspace);

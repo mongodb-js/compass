@@ -15,7 +15,10 @@ import { toggleAutoPreview } from '../../../modules/auto-preview';
 import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
-import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { getIsPipelineInvalidFromBuilderState, getPipelineStageOperatorsFromBuilderState, mapPipelineModeToEditorViewType } from '../../../modules/pipeline-builder/builder-helpers';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
   display: 'flex',
@@ -113,17 +116,34 @@ export const PipelineExtraSettings: React.FunctionComponent<
 };
 
 const mapState = (state: RootState) => {
+  const num_stages = getPipelineStageOperatorsFromBuilderState(state).length;
   return {
     isAutoPreview: state.autoPreview,
     isPipelineModeDisabled: getIsPipelineInvalidFromBuilderState(state, false),
     pipelineMode: state.pipelineBuilder.pipelineMode,
+    num_stages,
   };
 };
 
 const mapDispatch = {
   onToggleAutoPreview: toggleAutoPreview,
-  onChangePipelineMode: changePipelineMode,
   onToggleSettings: toggleSettingsIsExpanded,
+  changePipelineMode,
 };
 
-export default connect(mapState, mapDispatch)(PipelineExtraSettings);
+export default connect(mapState, mapDispatch, (stateProps, dispatchProps, ownProps) => {
+  const { num_stages, ...restOfStateProps } = stateProps
+  const { changePipelineMode, ...restOfDispatchProps } = dispatchProps
+  return {
+    ...ownProps,
+    ...restOfStateProps,
+    ...restOfDispatchProps,
+    onChangePipelineMode: (newVal: PipelineMode) => {
+      track('Editor Type Changed', {
+        num_stages,
+        editor_view_type: mapPipelineModeToEditorViewType(newVal),
+      });
+      changePipelineMode(newVal);
+    },
+  };
+})(PipelineExtraSettings);

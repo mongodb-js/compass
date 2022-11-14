@@ -1,11 +1,14 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import { filterStageOperators } from '../../utils/stage';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { Combobox, ComboboxOption, css, cx, spacing } from '@mongodb-js/compass-components';
 import { isAtlasOnly } from '../../utils/stage';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const inputWidth = spacing[7] * 2;
 const descriptionWidth = spacing[5] * 14;
@@ -44,17 +47,13 @@ export const StageOperatorSelect = ({
   selectedStage,
   stages
 }) => {
-  const onStageOperatorSelected = useCallback((name) => {
-    onChange(index, name);
-  }, [onChange, index]);
-
   const optionStyleByStageName = useMemo(() => {
     return Object.fromEntries(stages.map((stage) => [stage.name, comboboxOptionStyles(stage)]))
   }, [stages])
 
   return <Combobox value={selectedStage}
     aria-label="Select a stage operator"
-    onChange={onStageOperatorSelected}
+    onChange={onChange}
     size="default"
     clearable={false}
     data-testid="stage-operator-combobox"
@@ -91,13 +90,33 @@ export default connect(
       isTimeSeries: state.isTimeSeries,
       isReadonly: state.isReadonly,
       sourceName: state.sourceName
-    })
-    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    });
+    const pipeline = state.pipelineBuilder.stageEditor.stages;
+    const stage = pipeline[ownProps.index];
     return {
       stages,
       selectedStage: stage.stageOperator,
-      isDisabled: stage.disabled
+      isDisabled: stage.disabled,
+      num_stages: pipeline.length,
     };
   },
-  { onChange: changeStageOperator }
+  { changeStageOperator },
+  (stateProps, dispatchProps, ownProps) => {
+    const { num_stages, ...restOfStateProps } = stateProps;
+    const { changeStageOperator } = dispatchProps;
+    const { index } = ownProps;
+    return {
+      ...restOfStateProps,
+      ...ownProps,
+      onChange: (name) => {
+        track('Aggregation Edited', {
+          num_stages,
+          stage_action: 'stage_renamed',
+          stage_name: name,
+          editor_view_type: 'stage', // Its always stage view for this component
+        });
+        changeStageOperator(index, name);
+      },
+    };
+  }
 )(StageOperatorSelect);
