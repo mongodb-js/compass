@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { connect } from 'react-redux';
 import { deletePipeline, openPipelineById } from '../../modules/saved-pipeline';
@@ -12,16 +12,20 @@ import {
   KeylineCard,
   spacing
 } from '@mongodb-js/compass-components';
-import { RootState } from '../../modules';
-import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
+import type { RootState } from '../../modules';
+import {
+  type EditorViewType,
+  mapPipelineModeToEditorViewType,
+} from '../../modules/pipeline-builder/builder-helpers';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 type SavePipelineCardProps = {
   id: string;
   name: string;
-  onOpenPipelineConfirm: () => void;
-  onDeletePipeline: () => void;
+  editor_view_type: EditorViewType;
+  onOpenPipelineConfirm: (id: string) => void;
+  onDeletePipeline: (id: string) => void;
 };
 
 const cardOuter = css({
@@ -53,15 +57,30 @@ const button = css({
 const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
   id,
   name,
+  editor_view_type,
   onOpenPipelineConfirm,
   onDeletePipeline
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const onOpenConfirm = () => {
+  const onDelete = useCallback(() => {
+    track('Aggregation Deleted', {
+      id,
+      editor_view_type,
+      screen: 'aggregations',
+    });
+    onDeletePipeline(id);
+  }, [id, editor_view_type, onDeletePipeline]);
+
+  const onOpenConfirm = useCallback(() => {
+    track('Aggregation Opened', {
+      id,
+      editor_view_type,
+      screen: 'aggregations',
+    });
     setShowConfirmModal(false);
-    onOpenPipelineConfirm();
-  };
+    onOpenPipelineConfirm(id);
+  }, [id, editor_view_type, onOpenPipelineConfirm]);
 
   return (
     <>
@@ -104,7 +123,7 @@ const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
             <Button
               className={button}
               size="xsmall"
-              onClick={onDeletePipeline}
+              onClick={onDelete}
               aria-label="Delete"
             >
               <Icon size="small" glyph="Trash"></Icon>
@@ -117,43 +136,13 @@ const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
 };
 
 export default connect(
-  (state: RootState) => {
-    return {
-      editor_view_type: mapPipelineModeToEditorViewType(
-        state.pipelineBuilder.pipelineMode
-      ),
-    };
-  },
+  (state: RootState) => ({
+    editor_view_type: mapPipelineModeToEditorViewType(
+      state.pipelineBuilder.pipelineMode
+    ),
+  }),
   {
     onOpenPipelineConfirm: openPipelineById,
     onDeletePipeline: deletePipeline,
-  },
-  (
-    mapProps,
-    dispatchProps,
-    ownProps: Pick<SavePipelineCardProps, 'id' | 'name'>
-  ): SavePipelineCardProps => {
-    const { editor_view_type } = mapProps;
-    const { onDeletePipeline, onOpenPipelineConfirm } = dispatchProps;
-    const { id } = ownProps;
-    return {
-      ...ownProps,
-      onDeletePipeline: () => {
-        track('Aggregation Deleted', {
-          id,
-          screen: 'aggregations',
-          editor_view_type,
-        });
-        onDeletePipeline(id);
-      },
-      onOpenPipelineConfirm: () => {
-        track('Aggregation Opened', {
-          id,
-          screen: 'aggregations',
-          editor_view_type,
-        });
-        onOpenPipelineConfirm(id);
-      },
-    };
   }
 )(SavePipelineCard);

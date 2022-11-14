@@ -81,6 +81,7 @@ export function getIsPipelineInvalidFromBuilderState(
   return Boolean((serverError && includeServerErrors) || syntaxErrors.length > 0);
 }
 
-export function mapPipelineModeToEditorViewType(mode: PipelineMode): 'stage' | 'text' {
+export type EditorViewType = 'stage' | 'text';
+export function mapPipelineModeToEditorViewType(mode: PipelineMode): EditorViewType {
   return mode === 'builder-ui' ? 'stage' : 'text';
 }

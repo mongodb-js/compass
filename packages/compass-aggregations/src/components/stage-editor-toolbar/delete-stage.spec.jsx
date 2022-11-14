@@ -55,9 +55,8 @@ describe('DeleteStage [Component]', function() {
     });
 
     it('calls delete handler when clicked', function() {
-      expect(spy.calledOnce).to.equal(false);
       component.find('button').simulate('click');
-      expect(spy.calledOnce).to.equal(true);
+      expect(spy.calledWith(1)).to.equal(true);
     });
   });
 });
