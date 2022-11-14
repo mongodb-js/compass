@@ -61,7 +61,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
-    "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   },
   "dependencies": {
@@ -69,7 +68,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
-    "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -121,7 +119,6 @@
     "prettier": "^2.7.1",
     "progress-stream": "^2.0.0",
     "prop-types": "^15.7.2",
-    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
