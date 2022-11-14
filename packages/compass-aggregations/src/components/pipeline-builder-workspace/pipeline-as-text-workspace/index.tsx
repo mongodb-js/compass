@@ -1,9 +1,11 @@
 import React from 'react';
 import { css, spacing, palette } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+import { Resizable } from 're-resizable';
 
 import PipelineEditor from './pipeline-editor';
 import PipelinePreview from './pipeline-preview';
+import ResizeHandle from '../../resize-handle';
 import type { RootState } from '../../../modules';
 
 const containerStyles = css({
@@ -18,44 +20,60 @@ const containerStyles = css({
   boxShadow: `1px 1px 1px ${palette.gray.light2}`,
 });
 
-const editorStyles = css({
+const noPreviewEditorStyles = css({
   flex: 1,
-  minWidth: '50%',
-  borderRight: `2px solid ${palette.gray.light2}`,
+  width: '100%',
 });
 
 const resultsStyles = css({
   flex: 1,
-  minWidth: '50%',
 });
 
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
-}
+};
+
+const containerDataTestId = 'pipeline-as-text-workspace';
 
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
-> = ({
-  isAutoPreview
-}) => {
-  return (
-    <div data-testid="pipeline-as-text-workspace" className={containerStyles}>
-      <div className={editorStyles}>
-        <PipelineEditor />
+> = ({ isAutoPreview }) => {
+  if (!isAutoPreview) {
+    return (
+      <div data-testid={containerDataTestId} className={containerStyles}>
+        <div className={noPreviewEditorStyles}>
+          <PipelineEditor />
+        </div>
       </div>
-      {isAutoPreview && <div className={resultsStyles}>
+    );
+  }
+  return (
+    <div data-testid={containerDataTestId} className={containerStyles}>
+      <Resizable
+        defaultSize={{
+          width: '50%',
+          height: '100%',
+        }}
+        minWidth="300px"
+        maxWidth="70%"
+        enable={{
+          right: true,
+        }}
+        handleComponent={{
+          right: <ResizeHandle />,
+        }}
+      >
+        <PipelineEditor />
+      </Resizable>
+      <div className={resultsStyles}>
         <PipelinePreview />
-      </div>}
+      </div>
     </div>
   );
 };
 
-
-const mapState = ({
-  autoPreview
-}: RootState) => ({
+const mapState = ({ autoPreview }: RootState) => ({
   isAutoPreview: !!autoPreview,
 });
 
 export default connect(mapState)(PipelineAsTextWorkspace);
-
