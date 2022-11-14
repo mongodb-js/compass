@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { cx, Theme, useTheme } from '@mongodb-js/compass-components';
 import {
@@ -15,9 +15,9 @@ import {
   mergeProps,
   FocusState,
   ItemActionMenu,
+  useFormattedDate
 } from '@mongodb-js/compass-components';
 import type { Item } from '../stores/aggregations-queries-items';
-import { formatDate } from '../utlis/format-date';
 
 export type Action = 'open' | 'delete' | 'copy' | 'rename';
 
@@ -130,23 +130,7 @@ const lastModifiedLabel = css({
   fontStyle: 'italic',
 });
 
-function useFormattedDate(timestamp: number) {
-  const [formattedDate, setFormattedDate] = useState(() =>
-    formatDate(timestamp)
-  );
 
-  useEffect(() => {
-    setFormattedDate(formatDate(timestamp));
-    const interval = setInterval(() => {
-      setFormattedDate(formatDate(timestamp));
-    }, 1000 * 60);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [timestamp]);
-
-  return formattedDate;
-}
 
 type SavedItemAction = 'copy' | 'rename' | 'delete';
 const savedItemActions: MenuAction<SavedItemAction>[] = [
