@@ -149,10 +149,12 @@ describe('Preferences class', function () {
     const preferences = new Preferences(tmpdir, {
       cli: {
         enableMaps: true,
+        enableShell: true,
       },
       global: {
         trackErrors: true,
         networkTraffic: false,
+        readOnly: true,
       },
     });
     const result = await preferences.fetchPreferences();
@@ -160,6 +162,8 @@ describe('Preferences class', function () {
     expect(result.enableMaps).to.equal(false);
     expect(result.trackErrors).to.equal(false);
     expect(result.networkTraffic).to.equal(false);
+    expect(result.readOnly).to.equal(true);
+    expect(result.enableShell).to.equal(false);
 
     const states = preferences.getPreferenceStates();
     expect(states).to.deep.equal({
@@ -169,6 +173,8 @@ describe('Preferences class', function () {
       networkTraffic: 'set-global',
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
+      enableShell: 'set-cli',
+      readOnly: 'set-global',
     });
   });
 
@@ -207,6 +213,7 @@ describe('Preferences class', function () {
         enableFeedbackPanel: true,
         trackUsageStatistics: true,
         autoUpdates: true,
+        enableShell: true,
       },
       {
         networkTraffic: false,

@@ -83,6 +83,7 @@ const mapStateToProps = (state) => ({
   setIsNewPipelineConfirm: state.setIsNewPipelineConfirm,
   updateViewError: state.updateViewError,
   workspace: state.workspace,
+  isReadonly: state.isReadonly,
 });
 
 /**

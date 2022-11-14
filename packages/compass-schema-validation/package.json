@@ -60,6 +60,7 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
+    "compass-preferences-model": "^2.3.0",
     "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   },
@@ -77,6 +78,7 @@
     "eslint": "^7.25.0",
     "hadron-app": "^5.2.0",
     "hadron-app-registry": "^9.0.2",
+    "hadron-ipc": "^3.1.0",
     "javascript-stringify": "^2.0.1",
     "less": "^3.11.1",
     "lodash": "^4.17.15",
@@ -103,6 +105,7 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
+    "compass-preferences-model": "^2.3.0",
     "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   }

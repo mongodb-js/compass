@@ -21,6 +21,8 @@ export type UserConfigurablePreferences = {
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
   networkTraffic: boolean;
+  readOnly: boolean;
+  enableShell: boolean;
   protectConnectionStrings?: boolean;
   forceConnectionOptions?: [key: string, value: string][];
   theme: THEMES;
@@ -151,6 +153,18 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
       (v('networkTraffic') ? undefined : 'derived'),
   });
 }
+
+/** Helper for defining how to derive value/state for readOnly-affected preferences */
+function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && !v('readOnly'),
+    state:
+      s(property) ?? s('readOnly') ?? (v('readOnly') ? 'derived' : undefined),
+  });
+}
+
 const modelPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
@@ -248,6 +262,37 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Enable network traffic other than to the MongoDB database',
     },
+  },
+  /**
+   * Removes features that write to the database from the UI.
+   */
+  readOnly: {
+    type: 'boolean',
+    required: true,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Set Read-Only Mode',
+      long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
+    },
+  },
+  /**
+   * Switch to enable/disable the embedded shell.
+   */
+  enableShell: {
+    type: 'boolean',
+    required: true,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable MongoDB Shell',
+      long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
+    },
+    deriveValue: deriveReadOnlyOptionState('enableShell'),
   },
   /**
    * Switch to enable/disable maps rendering.
@@ -740,6 +785,7 @@ export class Preferences {
         autoUpdates: true,
         enableMaps: true,
         trackErrors: true,
+        enableShell: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,
