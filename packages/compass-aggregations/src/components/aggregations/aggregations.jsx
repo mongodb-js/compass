@@ -84,7 +84,6 @@ const mapStateToProps = (state) => ({
   updateViewError: state.updateViewError,
   workspace: state.workspace,
   isReadonly: state.isReadonly,
-  preferencesReadOnly: state.preferencesReadOnly,
 });
 
 /**

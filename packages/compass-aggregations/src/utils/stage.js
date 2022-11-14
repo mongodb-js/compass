@@ -39,8 +39,6 @@ export function isAtlasOnly(operatorEnv) {
 
 function disallowOutputStagesOnCompassReadonly(operator, isEditable) {
   if (operator?.outputStage) {
-    // NOTE: this should be innocuous in Data Explorer / Web
-    // and just always return `false`
     return isEditable;
   }
 

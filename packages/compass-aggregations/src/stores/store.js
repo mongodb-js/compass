@@ -114,6 +114,7 @@ const configureStore = (options = {}) => {
     )
   );
 
+  // TODO: Refactor how we access readOnly in stores https://jira.mongodb.org/browse/COMPASS-6300
   store.dispatch(preferencesReadOnlyChanged(!!preferences.getPreferences().readOnly));
   preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
     store.dispatch(preferencesReadOnlyChanged(readOnly));

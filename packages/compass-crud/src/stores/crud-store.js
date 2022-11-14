@@ -1428,6 +1428,7 @@ const configureStore = (options = {}) => {
     }
   }
 
+  // TODO: Refactor how we access readOnly in stores https://jira.mongodb.org/browse/COMPASS-6300
   setPreferencesReadOnly(store, !!preferences.getPreferences().readOnly);
   setIsEditable(store);
 
