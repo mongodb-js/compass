@@ -4,6 +4,7 @@ import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { parseRecord } from './parse-record';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -23,6 +24,7 @@ export type UserConfigurablePreferences = {
   readOnly: boolean;
   enableShell: boolean;
   protectConnectionStrings?: boolean;
+  forceConnectionOptions?: [key: string, value: string][];
   theme: THEMES;
 };
 
@@ -94,6 +96,11 @@ export type AmpersandType<T> = T extends string
   ? 'object'
   : never;
 
+type PostProcessFunction<T> = (
+  input: unknown,
+  error: (message: string) => void
+) => T;
+
 type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** The type of the preference value, in Ampersand naming */
   type: AmpersandType<AllPreferences[K]>;
@@ -123,6 +130,8 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
     : { short: string; long?: string };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
+  /** A method for cleaning up/normalizing input from the command line or global config file */
+  customPostProcess?: PostProcessFunction<AllPreferences[K]>;
 };
 
 type DeriveValueFunction<T> = (
@@ -381,6 +390,22 @@ const modelPreferencesProps: Required<{
       long: 'Hide credentials in connection strings from users.',
     },
   },
+  /**
+   * Override certain connection string properties.
+   */
+  forceConnectionOptions: {
+    type: 'array',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Override Connection String Properties',
+      long: 'Force connection string properties to take specific values',
+    },
+    customPostProcess: parseRecord,
+  },
 };
 
 const cliOnlyPreferencesProps: Required<{
@@ -578,6 +603,7 @@ export class Preferences {
    * @returns The currently active set of preferences.
    */
   async fetchPreferences(): Promise<AllPreferences> {
+    const originalPreferences = this.getPreferences();
     const userPreferencesModel = this._userPreferencesModel;
 
     // Fetch user preferences from the Ampersand model.
@@ -598,7 +624,10 @@ export class Preferences {
       );
     }
 
-    return this.getPreferences();
+    const newPreferences = this.getPreferences();
+    this._afterPreferencesUpdate(originalPreferences, newPreferences);
+
+    return newPreferences;
   }
 
   /**
@@ -617,7 +646,7 @@ export class Preferences {
     attributes: Partial<UserPreferences> = {}
   ): Promise<AllPreferences> {
     const keys = Object.keys(attributes) as (keyof UserPreferences)[];
-    const originalPreferences = this.getPreferences();
+    const originalPreferences = await this.fetchPreferences();
     if (keys.length === 0) {
       return originalPreferences;
     }
@@ -653,6 +682,15 @@ export class Preferences {
     }
 
     const newPreferences = this.getPreferences();
+    this._afterPreferencesUpdate(originalPreferences, newPreferences);
+
+    return newPreferences;
+  }
+
+  _afterPreferencesUpdate(
+    originalPreferences: AllPreferences,
+    newPreferences: AllPreferences
+  ): void {
     const changedPreferences = Object.fromEntries(
       Object.entries(newPreferences).filter(
         ([key, value]) =>
@@ -662,8 +700,6 @@ export class Preferences {
     if (Object.keys(changedPreferences).length > 0) {
       this._callOnPreferencesChanged(changedPreferences);
     }
-
-    return newPreferences;
   }
 
   /**
