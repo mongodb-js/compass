@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { BSONValue, Icon } from '@mongodb-js/compass-components';
+import {
+  BSONValue,
+  css,
+  Icon,
+  IconButton,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 
 /**
@@ -56,6 +62,17 @@ const DELETED = 'is-deleted';
  * The button button.
  */
 const BUTTON_CLASS = 'table-view-cell-circle-button';
+
+const cellContainerStyle = css({
+  display: 'flex',
+  alignItems: 'center',
+  flexDirection: 'row',
+  gap: spacing[1],
+});
+
+const decrypdedIconStyles = css({
+  display: 'flex',
+});
 
 /**
  * The custom cell renderer that renders a cell in the table view.
@@ -217,36 +234,40 @@ class CellRenderer extends React.Component {
 
     return (
       <div className={className}>
-        {this.props.value.decrypted && (
-          <span
-            data-testid="hadron-document-element-decrypted-icon"
-            title="Encrypted Field"
-          >
-            <Icon glyph="Key" size="small" />
-          </span>
-        )}
-        {element}
+        <div className={cellContainerStyle}>
+          {this.props.value.decrypted && (
+            <span
+              data-testid="hadron-document-element-decrypted-icon"
+              title="Encrypted Field"
+              className={decrypdedIconStyles}
+            >
+              <Icon glyph="Key" size="small" />
+            </span>
+          )}
+          {element}
+        </div>
       </div>
     );
   }
 
   renderUndo(canUndo, canExpand) {
-    let undoButtonClass = `${BUTTON_CLASS}`;
+    let undoButtonClass = `${BUTTON_CLASS} ${BUTTON_CLASS}-undo`;
     if (canUndo && canExpand) {
-      undoButtonClass = `${undoButtonClass} ${undoButtonClass}-left`;
+      undoButtonClass = `${undoButtonClass} ${BUTTON_CLASS}-left`;
     }
 
     if (!canUndo) {
       return null;
     }
     return (
-      <button
-        type="button"
-        className={`${undoButtonClass}`}
+      <IconButton
+        className={undoButtonClass}
+        size="small"
+        aria-label="Expand"
         onClick={this.handleUndo.bind(this)}
       >
-        <span className={'fa fa-rotate-left'} aria-hidden />
-      </button>
+        <Icon glyph="Undo"></Icon>
+      </IconButton>
     );
   }
 
@@ -255,13 +276,16 @@ class CellRenderer extends React.Component {
       return null;
     }
     return (
-      <button
-        type="button"
-        className={BUTTON_CLASS}
-        onClick={this.handleDrillDown.bind(this)}
-      >
-        <span className={'fa fa-expand'} aria-hidden />
-      </button>
+      <span>
+        <IconButton
+          className={BUTTON_CLASS}
+          size="small"
+          aria-label="Expand"
+          onClick={this.handleDrillDown.bind(this)}
+        >
+          <Icon glyph="OpenNewTab" size={11} />
+        </IconButton>
+      </span>
     );
   }
 

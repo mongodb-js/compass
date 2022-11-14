@@ -13,7 +13,7 @@ import {
 import InsertDocumentDialog from './insert-document-dialog';
 import DocumentListView from './document-list-view';
 import DocumentJsonView from './document-json-view';
-import DocumentTableView from './document-table-view';
+import DocumentTableView from './table-view/document-table-view';
 import { CrudToolbar } from './crud-toolbar';
 
 import {

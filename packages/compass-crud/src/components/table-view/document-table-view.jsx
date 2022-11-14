@@ -4,16 +4,16 @@ import { AgGridReact } from 'ag-grid-react';
 import { map } from 'lodash';
 import HadronDocument from 'hadron-document';
 import mongodbns from 'mongodb-ns';
-import BreadcrumbComponent from './table-view/breadcrumb';
-import CellRenderer from './table-view/cell-renderer';
-import RowNumberRenderer from './table-view/row-number-renderer';
-import FullWidthCellRenderer from './table-view/full-width-cell-renderer';
-import RowActionsRenderer from './table-view/row-actions-renderer';
-import HeaderComponent from './table-view/header-cell-renderer';
-import CellEditor from './table-view/cell-editor';
+import BreadcrumbComponent from './breadcrumb';
+import CellRenderer from './cell-renderer';
+import RowNumberRenderer from './row-number-renderer';
+import FullWidthCellRenderer from './full-width-cell-renderer';
+import RowActionsRenderer from './row-actions-renderer';
+import HeaderComponent from './header-cell-renderer';
+import CellEditor from './cell-editor';
 
 import './document-table-view.less';
-import './table-view/ag-grid-dist.css';
+import './ag-grid-dist.css';
 import { cx, spacing } from '@mongodb-js/compass-components';
 
 const MIXED = 'Mixed';
@@ -45,8 +45,8 @@ class DocumentTableView extends React.Component {
           path: [],
         },
         suppressDragLeaveHidesColumns: true,
-        singleClickEdit: true,
-        onCellClicked: this.onCellClicked.bind(this),
+        // singleClickEdit: true,
+        onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
         getRowHeight({ data: { isFooter } }) {
           // deafult row style expects 28, "footer" row with leafygreen
           // components needs to be 38 (minimum button height + padding)
@@ -148,7 +148,7 @@ class DocumentTableView extends React.Component {
    *     node {RowNode} - the RowNode for the row in question
    *     data {*} - the user provided data for the row in question
    */
-  onCellClicked(event) {
+  onCellDoubleClicked(event) {
     this.addFooter(event.node, event.data, 'editing');
   }
 
