@@ -3,9 +3,26 @@ import { importConnections } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
+import { ConnectionString } from 'mongodb-connection-string-url';
+
+function applyUsernameAndPassword(
+  connectionInfo: Readonly<ConnectionInfo>,
+  { username, password }: Pick<AllPreferences, 'username' | 'password'>
+): ConnectionInfo {
+  const connectionString = new ConnectionString(connectionInfo.connectionOptions.connectionString);
+  if (username) connectionString.username = encodeURIComponent(username);
+  if (password) connectionString.password = encodeURIComponent(password);
+  return {
+    ...connectionInfo,
+    connectionOptions: {
+      ...connectionInfo.connectionOptions,
+      connectionString: connectionString.toString()
+    }
+  };
+}
 
 export function loadAutoConnectInfo(
-  preferences: Pick<AllPreferences, 'file' | 'positionalArguments' | 'passphrase'>,
+  preferences: Pick<AllPreferences, 'file' | 'positionalArguments' | 'passphrase' | 'username' | 'password'>,
   fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
 ): undefined | (() => Promise<ConnectionInfo>) {
   const {
@@ -48,14 +65,14 @@ export function loadAutoConnectInfo(
           `Could not find connection with id '${id}' in connection file '${file}'`
         );
       }
-      return connectionInfo;
+      return applyUsernameAndPassword(connectionInfo, preferences);
     } else {
-      return {
+      return applyUsernameAndPassword({
         connectionOptions: {
           connectionString: positionalArguments[0],
         },
         id: new UUID().toString(),
-      };
+      }, preferences);
     }
   };
 }

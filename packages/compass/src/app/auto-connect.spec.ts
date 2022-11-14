@@ -177,4 +177,14 @@ describe('auto connection argument parsing', function () {
     const info = await fn?.();
     expect(info).to.deep.equal(connectionInfo);
   });
+
+  it('applies username and password if requested', async function() {
+    const connectionString = 'mongodb://localhost/';
+    const fn = loadAutoConnectInfo({ positionalArguments: [connectionString], username: 'user', password: 's€cr!t' });
+    const info = await fn?.();
+    expect(info?.id).to.be.a('string');
+    expect(info?.connectionOptions).to.deep.equal({
+      connectionString: 'mongodb://user:s%E2%82%ACcr!t@localhost/'
+    });
+  });
 });
