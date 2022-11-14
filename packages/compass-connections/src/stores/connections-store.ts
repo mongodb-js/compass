@@ -17,7 +17,6 @@ import {
   trackConnectionFailedEvent,
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
-import type { MongoClientOptions } from 'mongodb';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 
 import { ToastVariant, useToast } from '@mongodb-js/compass-components';
@@ -37,33 +36,6 @@ export function createNewConnectionInfo(): ConnectionInfo {
 
 function ensureWellFormedConnectionString(connectionString: string) {
   new ConnectionString(connectionString);
-}
-
-function setAppNameParamIfMissing(
-  connectionString: string,
-  appName: string
-): string {
-  let connectionStringUrl;
-
-  try {
-    connectionStringUrl = new ConnectionString(connectionString, {
-      looseValidation: true,
-    });
-  } catch (e) {
-    //
-  }
-
-  if (!connectionStringUrl) {
-    return connectionString;
-  }
-
-  const searchParams =
-    connectionStringUrl.typedSearchParams<MongoClientOptions>();
-  if (!searchParams.has('appName')) {
-    searchParams.set('appName', appName);
-  }
-
-  return connectionStringUrl.href;
 }
 
 type State = {
@@ -419,16 +391,12 @@ export function useConnections({
       trackConnectionAttemptEvent(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
 
-      const connectionStringWithAppName = setAppNameParamIfMissing(
-        connectionInfo.connectionOptions.connectionString,
-        appName
+      const newConnectionDataService = await newConnectionAttempt.connect(
+        adjustConnectionOptionsBeforeConnect(
+          connectionInfo.connectionOptions,
+          appName
+        )
       );
-      const newConnectionDataService = await newConnectionAttempt.connect({
-        ...adjustConnectionOptionsBeforeConnect(
-          connectionInfo.connectionOptions
-        ),
-        connectionString: connectionStringWithAppName,
-      });
       connectingConnectionAttempt.current = undefined;
 
       if (!newConnectionDataService || newConnectionAttempt.isClosed()) {
