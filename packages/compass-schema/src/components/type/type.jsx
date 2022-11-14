@@ -4,6 +4,8 @@ import sortBy from 'lodash.sortby';
 import find from 'lodash.find';
 import numeral from 'numeral';
 import ReactTooltip from 'react-tooltip';
+import { Disclaimer } from '@mongodb-js/compass-components';
+
 import TOOLTIP_IDS from '../../constants/schema';
 
 // const debug = require('debug')('mongodb-compass:schema:type');
@@ -116,7 +118,9 @@ class Type extends Component {
     };
     const subtypes = this._getArraySubTypes();
     const label = (
-      <span className="schema-field-type-label">{this.props.name}</span>
+      <Disclaimer className="schema-field-type-label">
+        {this.props.name}
+      </Disclaimer>
     );
     // show integer accuracy by default, but show one decimal point accuracy
     // when less than 1% or greater than 99% but no 0% or 100%
