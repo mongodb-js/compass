@@ -41,6 +41,7 @@ type IndexesToolbarProps = {
   isRefreshing: boolean;
   writeStateDescription?: string;
   onRefreshIndexes: () => void;
+  readOnly?: boolean;
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
@@ -52,12 +53,13 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   isRefreshing,
   writeStateDescription,
   onRefreshIndexes,
+  readOnly, // preferences readOnly.
 }) => {
   const onClickCreateIndex = useCallback(() => {
     localAppRegistry.emit('toggle-create-index-modal', true);
   }, [localAppRegistry]);
-
-  const showCreateIndexButton = !isReadonly && !isReadonlyView && !errorMessage;
+  const showCreateIndexButton =
+    !isReadonly && !isReadonlyView && !readOnly && !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>
       <SpinLoader title="Refreshing Indexes" />

@@ -180,6 +180,7 @@ describe('use-connections hook', function () {
       await waitFor(() => {
         expect(onConnected).to.have.been.called;
       });
+      expect(saveSpy).to.have.been.calledOnce;
     });
 
     it(`truncates recents to ${maxRecents}`, async function () {
@@ -273,6 +274,7 @@ describe('use-connections hook', function () {
       await waitFor(() => {
         expect(onConnected).to.have.been.called;
       });
+      expect(saveSpy).to.not.have.been.called;
     });
   });
 

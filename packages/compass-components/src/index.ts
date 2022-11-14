@@ -142,6 +142,7 @@ export { mergeProps } from './utils/merge-props';
 export { focusRing, useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
+export { useFormattedDate } from './hooks/use-formatted-date';
 export { fontFamilies } from '@leafygreen-ui/tokens';
 
 export { default as BSONValue } from './components/bson-value';

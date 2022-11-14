@@ -7,7 +7,7 @@ import queryParser from 'mongodb-query-parser';
  * @param {Object} value - The value to format.
  * @returns {Object}
  */
-const formatQuery = (value) => queryParser.toJSString(value);
+const formatQuery = (value: any): string => queryParser.toJSString(value);
 
 export default formatQuery;
 export { formatQuery };

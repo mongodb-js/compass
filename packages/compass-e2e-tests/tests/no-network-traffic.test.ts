@@ -17,7 +17,7 @@ describe('networkTraffic: false / Isolated Edition', function () {
   beforeEach(async function () {
     tmpdir = path.join(
       os.tmpdir(),
-      `compass-global-preferences-${Date.now().toString(32)}-${++i}`
+      `compass-no-network-traffic-${Date.now().toString(32)}-${++i}`
     );
     await fs.mkdir(tmpdir, { recursive: true });
   });

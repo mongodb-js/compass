@@ -16,7 +16,8 @@ function renderNavigationItems(
         onAction={() => {
           /* noop */
         }}
-        isReadOnly={false}
+        isDataLake={false}
+        isWritable={true}
         changeFilterRegex={() => {
           /* noop */
         }}
@@ -43,7 +44,7 @@ describe('NavigationItems [Component]', function () {
   describe('when rendered read only', function () {
     beforeEach(function () {
       renderNavigationItems({
-        isReadOnly: true,
+        readOnly: true,
       });
     });
 

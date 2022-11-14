@@ -8,7 +8,7 @@ import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { NEW_PIPELINE } from './import-pipeline';
-import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
 import { getStageOperator } from '../utils/stage';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
@@ -182,7 +182,8 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
       pipeline,
     })
     track('Aggregation Executed', () => ({
-      num_stages: pipeline.length
+      num_stages: pipeline.length,
+      editor_view_type: mapPipelineModeToEditorViewType(getState().pipelineBuilder.pipelineMode),
     }));
     return dispatch(fetchAggregationData());
   };

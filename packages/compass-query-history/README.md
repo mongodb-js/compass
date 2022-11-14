@@ -53,7 +53,6 @@ For completeness, below is a list of directories present in this module:
     - `deleteRecent` - delete a recent query.
     - `deleteFavorite` - delete a favorite query.
     - `addRecent` - add a recent query, this is triggered from the `onQueryChanged` lifecycle method.
-    - `saveRecent` - move a recent query into the saving state.
     - `saveFavorite` - the user has added a name to the query being saved and pressed 'save'.
     - `cancelSave` - the user has pressed 'cancel' on the currently being saved query.
     - `runQuery` - the user has clicked on the query card and wants to populate the query bar with the contents of this saved query. This action is listened to by Compass.

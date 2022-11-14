@@ -61,6 +61,7 @@ function ConnectFormActions({
       {warnings.length > 0 && (
         <div className={formActionItemStyles}>
           <WarningSummary
+            data-testid="connection-warnings-summary"
             warnings={warnings.map((warning) => warning.message)}
           />
         </div>

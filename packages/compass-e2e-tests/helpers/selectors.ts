@@ -1,7 +1,13 @@
 // Settings Modal
 export const SettingsModal = '[data-testid="settings-modal"]';
-export const CloseSettingsModalButton =
-  '[data-testid="settings-modal"] [aria-label="Close modal"]';
+export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;
+export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"]`;
+export const FeaturesSettingsButton = `${SettingsModal} [data-testid="sidebar-Features-item"]`;
+export const FeaturesSettingsContent = `${SettingsModal} [data-testid="features-settings"]`;
+
+export const SettingsCheckbox = (settingName: string): string => {
+  return `${SettingsModal} [data-testid="${settingName}"]`;
+};
 
 // Welcome Modal
 export const WelcomeModal = '[data-testid="welcome-modal"]';
@@ -350,6 +356,7 @@ export const DropCollectionDropButton =
   '[data-testid="drop-collection-modal"] [data-testid="submit-button"]';
 
 // Shell
+export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
@@ -627,9 +634,9 @@ export const QueryHistoryRecentItem = '[data-testid="recent-query-list-item"]';
 export const QueryHistoryFavoriteAnItemButton =
   '[data-testid="query-history-button-fav"]';
 export const QueryHistoryFavoriteItemNameField =
-  '[data-testid="query-history-saving-form-input-name"]';
+  '[data-testid="recent-query-save-favorite-name"]';
 export const QueryHistorySaveFavoriteItemButton =
-  '[data-testid="query-history-saving-form-button-save"]';
+  '[data-testid="recent-query-save-favorite-submit"]';
 export const SavedItemMenu = '[data-testid="saved-item-actions"]';
 export const SavedItemMenuItemCopy = `${SavedItemMenu} [data-testid="saved-item-actions-copy-action"]`;
 export const SavedItemMenuItemRename = `${SavedItemMenu} [data-testid="saved-item-actions-rename-action"]`;
@@ -840,6 +847,8 @@ export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
+export const ValidationActionSelector = '[id="validation-action-selector"]';
+export const ValidationLevelSelector = '[id="validation-level-selector"]';
 
 // Find (Documents, Schema and Explain Plan tabs)
 export const queryBar = (tabName: string): string => {

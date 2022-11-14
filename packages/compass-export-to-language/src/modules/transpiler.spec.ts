@@ -188,7 +188,7 @@ FindIterable<Document> result = collection.find(filter);`);
               lastKnownVersion: '',
               currentUserId: '',
               telemetryAnonymousId: '',
-            });
+            } as any);
           });
           afterEach(function () {
             return sinon.restore();

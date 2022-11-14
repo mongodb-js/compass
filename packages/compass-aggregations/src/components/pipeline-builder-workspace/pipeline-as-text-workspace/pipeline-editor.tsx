@@ -127,10 +127,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       </div>
       {showErrorContainer && (
         <div className={errorContainerStyles}>
-          {serverError && <ErrorSummary errors={serverError.message} />}
-          {syntaxErrors.length > 0 && (
+          {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
-          )}
+          ) : serverError ? (
+            <ErrorSummary errors={serverError.message} />
+          ) : null}
         </div>
       )}
     </div>
