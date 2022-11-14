@@ -6,18 +6,8 @@ import numeral from 'numeral';
 import ReactTooltip from 'react-tooltip';
 import { Disclaimer } from '@mongodb-js/compass-components';
 
-import TOOLTIP_IDS from '../../constants/schema';
+const schemaTooltipClass = 'schema-probability-percent';
 
-// const debug = require('debug')('mongodb-compass:schema:type');
-
-/**
- * The full schema component class.
- */
-const TYPE_CLASS = 'schema-field-wrapper';
-
-/**
- * Component for the entire document list.
- */
 class Type extends Component {
   static displayName = 'TypeComponent';
 
@@ -106,7 +96,7 @@ class Type extends Component {
    */
   render() {
     const type = this.props.name.toLowerCase();
-    let cls = `${TYPE_CLASS} schema-field-type-${type}`;
+    let cls = `schema-field-wrapper schema-field-type-${type}`;
     if (this.props.activeType === this.props.self) {
       cls += ' active';
     }
@@ -133,7 +123,7 @@ class Type extends Component {
       this.props.probability
     ).format(format)})`;
     const tooltipOptions = {
-      'data-for': TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT,
+      'data-for': schemaTooltipClass,
       'data-tip': tooltipText,
       'data-effect': 'solid',
       'data-border': true,
@@ -149,7 +139,7 @@ class Type extends Component {
         style={style}
         onClick={handleClick}
       >
-        <ReactTooltip id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT} />
+        <ReactTooltip id={schemaTooltipClass} />
         {this.props.showSubTypes ? label : null}
         <div className="schema-field-type" />
         {subtypes}
