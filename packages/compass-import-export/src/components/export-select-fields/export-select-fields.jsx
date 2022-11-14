@@ -10,6 +10,7 @@ import {
   Icon,
   css,
   spacing,
+  Label,
 } from '@mongodb-js/compass-components';
 
 const style = createStyler(styles, 'export-select-fields');
@@ -145,7 +146,7 @@ class ExportSelectFields extends PureComponent {
       <div>
         <div className={headerContainerStyles}>
           <div className={selectFieldsStyles}>
-            <Body weight="medium">Select Fields</Body>
+            <Label>Select Fields</Label>
           </div>
           <Body>
             The fields displayed are from a sample of documents in the
