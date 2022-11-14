@@ -41,11 +41,7 @@ const DEV_PLUGINS = path.join(
 
 marky.mark('Loading plugins');
 
-// eslint-disable-next-line no-nested-ternary
-const COMPASS_PLUGINS = process.env.HADRON_READONLY === 'true'
-  ? require('./plugins/readonly')
-  : require('./plugins/default');
-
+const COMPASS_PLUGINS = require('./plugins/default');
 const PLUGIN_COUNT = COMPASS_PLUGINS.length;
 
 /**

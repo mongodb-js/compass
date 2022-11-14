@@ -5,10 +5,11 @@ import { createButton } from './items-grid';
 export type ItemType = 'database' | 'collection';
 
 export function useCreateControls(
+  isEditable: boolean,
   itemType: ItemType,
   onCreateClick?: () => void
 ): React.ReactElement | null {
-  if (!onCreateClick) {
+  if (!isEditable || !onCreateClick) {
     return null;
   }
 

@@ -271,7 +271,7 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
+function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -281,7 +281,7 @@ function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
     },
   });
   subMenu.push(separator());
-  if (process.env.HADRON_READONLY !== 'true' && !isReadOnly) {
+  if (!preferences.getPreferences().readOnly && !menuReadOnly) {
     subMenu.push({
       label: '&Import Data',
       click() {
@@ -465,6 +465,10 @@ class CompassMenu {
         theme: newTheme
       });
 
+      this.refreshMenu();
+    });
+
+    preferences.onPreferenceValueChanged('readOnly', () => {
       this.refreshMenu();
     });
 
