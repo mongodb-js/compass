@@ -54,12 +54,63 @@ describe('Preferences class', function () {
     expect(result.enableMaps).to.equal(true);
   });
 
-  it('notifies callers of preferences changes', async function () {
+  it('notifies callers of preferences changes after savePreferences', async function () {
     const preferences = new Preferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
     await preferences.savePreferences({ enableMaps: true });
     expect(calls).to.deep.equal([{ enableMaps: true }]);
+  });
+
+  it('notifies callers of preferences changes after fetchPreferences', async function () {
+    const calls: any[] = [];
+
+    const preferences1 = new Preferences(tmpdir);
+    preferences1.onPreferencesChanged((prefs) => calls.push(1, prefs));
+    await preferences1.fetchPreferences();
+    const preferences2 = new Preferences(tmpdir);
+    preferences2.onPreferencesChanged((prefs) => calls.push(2, prefs));
+    await preferences2.fetchPreferences();
+
+    await preferences1.savePreferences({ enableMaps: true });
+    await preferences2.fetchPreferences();
+
+    expect(calls).to.deep.equal([
+      1,
+      { enableMaps: true },
+      2,
+      { enableMaps: true },
+    ]);
+  });
+
+  it('handles concurrent modifications to different preferences', async function () {
+    const calls: any[] = [];
+
+    const preferences1 = new Preferences(tmpdir);
+    preferences1.onPreferencesChanged((prefs) => calls.push(1, prefs));
+    await preferences1.fetchPreferences();
+    const preferences2 = new Preferences(tmpdir);
+    preferences2.onPreferencesChanged((prefs) => calls.push(2, prefs));
+    await preferences2.fetchPreferences();
+
+    await preferences1.savePreferences({ enableMaps: true });
+    await preferences2.savePreferences({ autoUpdates: true });
+    const result1 = await preferences1.fetchPreferences();
+    const result2 = await preferences2.fetchPreferences();
+    expect(result1).to.deep.equal(result2);
+    expect(result1.enableMaps).to.equal(true);
+    expect(result1.autoUpdates).to.equal(true);
+
+    expect(calls).to.deep.equal([
+      1,
+      { enableMaps: true },
+      2,
+      { enableMaps: true },
+      2,
+      { autoUpdates: true },
+      1,
+      { autoUpdates: true },
+    ]);
   });
 
   it('can return user-configurable preferences after setting their defaults', async function () {

@@ -558,6 +558,7 @@ export class Preferences {
    * @returns The currently active set of preferences.
    */
   async fetchPreferences(): Promise<AllPreferences> {
+    const originalPreferences = this.getPreferences();
     const userPreferencesModel = this._userPreferencesModel;
 
     // Fetch user preferences from the Ampersand model.
@@ -578,7 +579,10 @@ export class Preferences {
       );
     }
 
-    return this.getPreferences();
+    const newPreferences = this.getPreferences();
+    this._afterPreferencesUpdate(originalPreferences, newPreferences);
+
+    return newPreferences;
   }
 
   /**
@@ -597,7 +601,7 @@ export class Preferences {
     attributes: Partial<UserPreferences> = {}
   ): Promise<AllPreferences> {
     const keys = Object.keys(attributes) as (keyof UserPreferences)[];
-    const originalPreferences = this.getPreferences();
+    const originalPreferences = await this.fetchPreferences();
     if (keys.length === 0) {
       return originalPreferences;
     }
@@ -633,6 +637,15 @@ export class Preferences {
     }
 
     const newPreferences = this.getPreferences();
+    this._afterPreferencesUpdate(originalPreferences, newPreferences);
+
+    return newPreferences;
+  }
+
+  _afterPreferencesUpdate(
+    originalPreferences: AllPreferences,
+    newPreferences: AllPreferences
+  ): void {
     const changedPreferences = Object.fromEntries(
       Object.entries(newPreferences).filter(
         ([key, value]) =>
@@ -642,8 +655,6 @@ export class Preferences {
     if (Object.keys(changedPreferences).length > 0) {
       this._callOnPreferencesChanged(changedPreferences);
     }
-
-    return newPreferences;
   }
 
   /**
