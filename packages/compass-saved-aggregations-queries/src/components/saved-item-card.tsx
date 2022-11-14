@@ -15,7 +15,7 @@ import {
   mergeProps,
   FocusState,
   ItemActionMenu,
-  useFormattedDate
+  useFormattedDate,
 } from '@mongodb-js/compass-components';
 import type { Item } from '../stores/aggregations-queries-items';
 
@@ -129,8 +129,6 @@ const namespaceGroup = css({
 const lastModifiedLabel = css({
   fontStyle: 'italic',
 });
-
-
 
 type SavedItemAction = 'copy' | 'rename' | 'delete';
 const savedItemActions: MenuAction<SavedItemAction>[] = [
