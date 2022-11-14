@@ -64,8 +64,8 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the plus icon on the siderbar to create a collection', async function () {
     const compass = await beforeTests();
+    const browser = compass.browser;
     try {
-      const browser = compass.browser;
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
@@ -107,6 +107,7 @@ describe('readOnly: true / Read-Only Edition', function () {
         await sidebarCreateCollectionButton.isExisting();
       expect(isSidebarCreateCollectionButtonExisting).to.be.equal(false);
     } finally {
+      await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);
     }
@@ -114,8 +115,8 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the create database button on the instance tab', async function () {
     const compass = await beforeTests();
+    const browser = compass.browser;
     try {
-      const browser = compass.browser;
       await browser.setFeature('readOnly', false);
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
@@ -148,6 +149,7 @@ describe('readOnly: true / Read-Only Edition', function () {
         await instanceCreateDatabaseButton.isExisting();
       expect(isInstanceCreateDatabaseButtonExisting).to.be.equal(false);
     } finally {
+      await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);
     }
@@ -155,8 +157,8 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the create collection button on the instance tab', async function () {
     const compass = await beforeTests();
+    const browser = compass.browser;
     try {
-      const browser = compass.browser;
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
@@ -190,6 +192,7 @@ describe('readOnly: true / Read-Only Edition', function () {
         await databaseCreateCollectionButton.isExisting();
       expect(isDatabaseCreateCollectionButtonExisting).to.be.equal(false);
     } finally {
+      await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);
     }
@@ -197,8 +200,8 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the add data button on the documents tab', async function () {
     const compass = await beforeTests();
+    const browser = compass.browser;
     try {
-      const browser = compass.browser;
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
@@ -226,6 +229,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       isAddDataButtonExisting = await addDataButton.isExisting();
       expect(isAddDataButtonExisting).to.be.equal(false);
     } finally {
+      await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);
     }
@@ -233,8 +237,8 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the $out aggregation stage', async function () {
     const compass = await beforeTests();
+    const browser = compass.browser;
     try {
-      const browser = compass.browser;
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
@@ -297,6 +301,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       expect(options).to.include('$match');
       expect(options).to.not.include('$out');
     } finally {
+      await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);
     }
@@ -304,9 +309,8 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('shows and hides the create index button', async function () {
     const compass = await beforeTests();
+    const browser = compass.browser;
     try {
-      const browser = compass.browser;
-      await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
         'mongodb://localhost:27091/test'
@@ -337,6 +341,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       const isIndexListExisting = await indexList.isExisting();
       expect(isIndexListExisting).to.be.equal(true);
     } finally {
+      await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);
     }
@@ -344,8 +349,8 @@ describe('readOnly: true / Read-Only Edition', function () {
 
   it('enables and disables validation actions', async function () {
     const compass = await beforeTests();
+    const browser = compass.browser;
     try {
-      const browser = compass.browser;
       await browser.setFeature('readOnly', false);
       await createNumbersCollection();
       await browser.connectWithConnectionString(
@@ -415,6 +420,7 @@ describe('readOnly: true / Read-Only Edition', function () {
         await updateValidationButton.isExisting();
       expect(isUpdateValidationButtonExisting).to.be.equal(false);
     } finally {
+      await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);
       await afterTests(compass, this.currentTest);
     }
