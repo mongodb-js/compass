@@ -111,10 +111,7 @@ class ValidationStates extends Component {
         <Banner variant="warning">
           <div data-testid="old-server-read-only">
             {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
-            <Link
-              target="_blank"
-              href={DOC_UPGRADE_REVISION}
-            >
+            <Link target="_blank" href={DOC_UPGRADE_REVISION}>
               upgrade to MongoDB 3.2.
             </Link>
           </div>

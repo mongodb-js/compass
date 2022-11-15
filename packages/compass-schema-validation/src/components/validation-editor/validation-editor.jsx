@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { debounce } from 'lodash';
 import { TextButton } from 'hadron-react-buttons';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { IconButton, Icon } from '@mongodb-js/compass-components';
+import { css } from '@mongodb-js/compass-components';
 import {
   Editor,
   EditorVariant,
@@ -13,33 +13,16 @@ import {
 } from '@mongodb-js/compass-editor';
 
 import { checkValidator } from '../../modules/validation';
-import ValidationSelector from '../validation-selector';
+
+import { ActionSelector, LevelSelector } from '../validation-selectors';
 
 import styles from './validation-editor.module.less';
 
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
-/**
- * Validation actions options.
- */
-const ACTION_OPTIONS = { warn: 'Warning', error: 'Error' };
-
-/**
- * Validation level options.
- */
-const LEVEL_OPTIONS = { off: 'Off', moderate: 'Moderate', strict: 'Strict' };
-
-/**
- * URL to validation action documentation.
- */
-const ACTION_HELP_URL =
-  'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationAction';
-
-/**
- * URL to validation level documentation.
- */
-const LEVEL_HELP_URL =
-  'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationLevel';
+const validationOptionsStyles = css({
+  display: 'flex',
+});
 
 /**
  * The validation editor component.
@@ -165,29 +148,15 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderActionSelector() {
+    const { validation, isEditable, validationActionChanged } = this.props;
+    const { validationAction } = validation;
+
     return (
-      <div className={styles['validation-option']}>
-        <ValidationSelector
-          id="validation-action-selector"
-          bsSize="xs"
-          options={ACTION_OPTIONS}
-          title={ACTION_OPTIONS[this.props.validation.validationAction]}
-          label={
-            <>
-              <span>Validation Action</span>
-              <IconButton
-                href={ACTION_HELP_URL}
-                target="_blank"
-                aria-label="More information on validation actions"
-              >
-                <Icon glyph="InfoWithCircle" size="small" />
-              </IconButton>
-            </>
-          }
-          disabled={!this.props.isEditable}
-          onSelect={this.props.validationActionChanged}
-        />
-      </div>
+      <ActionSelector
+        isEditable={isEditable}
+        validationActionChanged={validationActionChanged}
+        validationAction={validationAction}
+      />
     );
   }
 
@@ -197,29 +166,15 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderLevelSelector() {
+    const { validation, isEditable, validationLevelChanged } = this.props;
+    const { validationLevel } = validation;
+
     return (
-      <div className={styles['validation-option']}>
-        <ValidationSelector
-          id="validation-level-selector"
-          bsSize="xs"
-          options={LEVEL_OPTIONS}
-          title={LEVEL_OPTIONS[this.props.validation.validationLevel]}
-          label={
-            <>
-              <span>Validation Level</span>
-              <IconButton
-                href={LEVEL_HELP_URL}
-                target="_blank"
-                aria-label="More information on validation levels"
-              >
-                <Icon glyph="InfoWithCircle" size="small" />
-              </IconButton>
-            </>
-          }
-          disabled={!this.props.isEditable}
-          onSelect={this.props.validationLevelChanged}
-        />
-      </div>
+      <LevelSelector
+        isEditable={isEditable}
+        validationLevelChanged={validationLevelChanged}
+        validationLevel={validationLevel}
+      />
     );
   }
 
@@ -300,7 +255,7 @@ class ValidationEditor extends Component {
         data-testid="validation-editor"
       >
         <div className={classnames(styles['validation-editor-content'])}>
-          <div className={classnames(styles['validation-options-container'])}>
+          <div className={validationOptionsStyles}>
             {this.renderActionSelector()}
             {this.renderLevelSelector()}
           </div>
