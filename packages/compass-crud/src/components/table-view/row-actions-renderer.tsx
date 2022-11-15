@@ -24,21 +24,24 @@ const RowActionsRenderer: React.FunctionComponent<RowActionsRendererProps> = ({
   value,
   isEditable,
 }) => {
-  const rowActions: (ItemAction<RowAction> & ItemAction<'edit'>)[] =
-    useMemo(() => {
-      const edit = { action: 'edit', label: 'Edit Document', icon: 'Edit' };
+  const rowActions: ItemAction<RowAction>[] = useMemo(() => {
+    const edit: ItemAction<RowAction> = {
+      action: 'edit',
+      label: 'Edit Document',
+      icon: 'Edit',
+    };
 
-      if (nested) {
-        return [edit];
-      }
+    if (nested) {
+      return [edit];
+    }
 
-      return [
-        edit,
-        { action: 'copy', label: 'Copy Document', icon: 'Copy' },
-        { action: 'clone', label: 'Clone Document', icon: 'Clone' },
-        { action: 'remove', label: 'Delete Document', icon: 'Trash' },
-      ];
-    }, [nested]);
+    return [
+      edit,
+      { action: 'copy', label: 'Copy Document', icon: 'Copy' },
+      { action: 'clone', label: 'Clone Document', icon: 'Clone' },
+      { action: 'remove', label: 'Delete Document', icon: 'Trash' },
+    ];
+  }, [nested]);
 
   const onAction = useCallback(
     (action: RowAction) => {
@@ -77,7 +80,6 @@ const RowActionsRenderer: React.FunctionComponent<RowActionsRendererProps> = ({
           data-testid="table-view-row-actions"
           actions={rowActions}
           onAction={onAction}
-          buttonType="button"
           iconSize="xsmall"
         ></ItemActionGroup>
       </div>
