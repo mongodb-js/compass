@@ -14,11 +14,6 @@ import {
 const BEM_BASE = 'table-view-cell-editor-button';
 
 /**
- * The menu class.
- */
-const MENU_CLASS = `${BEM_BASE}-menu`;
-
-/**
  * The default text.
  */
 const DEFAULT_TEXT = 'Add field after ';
@@ -77,38 +72,7 @@ class AddFieldButton extends React.Component {
       : `${BEM_BASE} btn btn-default btn-xs`;
   }
 
-  /**
-   * Handle click on the add field button.
-   */
-  handleClick() {
-    if (this.empty || this.props.value.isParentEditable()) {
-      this.setState({ menu: !this.state.menu });
-    }
-  }
-
-  /**
-   * Handle key press for enter on the add field button.
-   *
-   * @param {Object} event    The DOM event
-   */
-  handleKeyPress(event) {
-    if (event.key === 'Enter' && this.props.value.isParentEditable()) {
-      this.setState({ menu: !this.state.menu });
-    }
-  }
-
-  /**
-   * Handle clicking outside the element.
-   */
-  handleClickOutside() {
-    this.setState({ menu: false });
-  }
-
-  /**
-   * When clicking on a hotspot we append or remove on the parent.
-   */
   handleAddFieldClick() {
-    this.setState({ menu: false });
     let parent = this.props.node.data.hadronDocument;
     let editOnly = false;
 
@@ -148,7 +112,7 @@ class AddFieldButton extends React.Component {
    * When clicking on an expandable element to append a child.
    */
   handleAddChildClick() {
-    this.setState({ menu: false });
+
     const newElement = this.props.value.insertEnd('$new', '');
 
     const edit = {
@@ -194,17 +158,6 @@ class AddFieldButton extends React.Component {
       return parent.currentType === 'Array';
     }
     return false;
-  }
-
-  /**
-   * Class name for the menu.
-   *
-   * @returns {String} The class name.
-   */
-  menuClassName() {
-    return this.state.menu
-      ? `${MENU_CLASS} ${MENU_CLASS}-is-visible dropdown-menu`
-      : `${MENU_CLASS} dropdown-menu`;
   }
 
   /**
@@ -338,8 +291,10 @@ class AddFieldButton extends React.Component {
     if (this.empty && this.isParentArray()) {
       return null;
     }
+
     return (
       <Menu
+        usePortal={false}
         align="bottom"
         justify="start"
         trigger={({ children, onClick, ...props }) => {
