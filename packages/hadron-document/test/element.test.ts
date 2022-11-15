@@ -496,7 +496,8 @@ describe('Element', function () {
     context(
       'when the key is _id and the value is a nested object',
       function () {
-        const element = new Element('_id', {});
+        const doc = new Document({});
+        const element = new Element('_id', {}, doc);
         element.insertEnd('subkey', {});
         element.get('subkey')?.insertEnd('subsubkey', 'test value');
         context('#isValueEditable', function () {
@@ -532,12 +533,97 @@ describe('Element', function () {
         });
       }
     );
+
+    // COMPASS-6040 regression test.
+    context('when the key is _id and it is not at the top level', function () {
+      const doc = new Document({});
+      const element = new Element('root', {}, doc);
+      element.insertEnd('subkey', {});
+      element.get('subkey')?.insertEnd('_id', 'test value');
+      context('#isValueEditable', function () {
+        it('top level element returns false', function () {
+          expect(element.isValueEditable()).to.equal(true);
+        });
+        it('sub element returns true', function () {
+          expect(element.get('subkey')?.isValueEditable()).to.equal(true);
+        });
+        it('sub sub element returns true', function () {
+          expect(element.get('subkey')?.get('_id')?.isValueEditable()).to.equal(
+            true
+          );
+        });
+      });
+      context('#isKeyEditable', function () {
+        it('top level element returns true', function () {
+          expect(element.isKeyEditable()).to.equal(true);
+          expect(element.isParentEditable()).to.equal(true);
+        });
+        it('sub element returns true', function () {
+          expect(element.get('subkey')?.isKeyEditable()).to.equal(true);
+          expect(element.get('subkey')?.isParentEditable()).to.equal(true);
+        });
+        it('sub sub _id element returns true', function () {
+          expect(element.get('subkey')?.get('_id')?.isKeyEditable()).to.equal(
+            true
+          );
+          expect(
+            element.get('subkey')?.get('_id')?.isParentEditable()
+          ).to.equal(true);
+        });
+      });
+    });
+
+    context('when the key is something not _id', function () {
+      const element = new Element('test', {});
+      element.insertEnd('subkey', {});
+      element.get('subkey')?.insertEnd('subsubkey', 'test value');
+      context('#isValueEditable', function () {
+        it('top level element returns true', function () {
+          expect(element.isValueEditable()).to.equal(true);
+        });
+        it('sub element returns true', function () {
+          expect(element.get('subkey')?.isValueEditable()).to.equal(true);
+        });
+        it('sub sub element returns true', function () {
+          expect(
+            element.get('subkey')?.get('subsubkey')?.isValueEditable()
+          ).to.equal(true);
+        });
+      });
+      context('#isKeyEditable', function () {
+        it('top level element returns true', function () {
+          expect(element.isKeyEditable()).to.equal(true);
+          expect(element.isParentEditable()).to.equal(true);
+        });
+        it('sub element returns true', function () {
+          expect(element.get('subkey')?.isKeyEditable()).to.equal(true);
+          expect(element.get('subkey')?.isParentEditable()).to.equal(true);
+        });
+        it('sub sub element returns true', function () {
+          expect(
+            element.get('subkey')?.get('subsubkey')?.isKeyEditable()
+          ).to.equal(true);
+          expect(
+            element.get('subkey')?.get('subsubkey')?.isParentEditable()
+          ).to.equal(true);
+        });
+      });
+    });
   });
 
   describe('#isValueEditable', function () {
     context('when the key is _id', function () {
-      context('when the element is not added', function () {
+      context('when the element is not added with no parent', function () {
         const element = new Element('_id', 'test');
+
+        it('returns true', function () {
+          expect(element.isValueEditable()).to.equal(true);
+        });
+      });
+
+      context('when the element is not added with a parent', function () {
+        const doc = new Document({});
+        const element = new Element('_id', 'test', doc);
 
         it('returns false', function () {
           expect(element.isValueEditable()).to.equal(false);
