@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
-import outsideClickable from 'react-click-outside';
-import { BSONValue } from '@mongodb-js/compass-components';
+import {
+  BSONValue,
+  Button,
+  Icon,
+  Menu,
+  MenuItem,
+} from '@mongodb-js/compass-components';
 
 /**
  * The BEM base style name for the element.
@@ -15,44 +19,34 @@ const BEM_BASE = 'table-view-cell-editor-button';
 const MENU_CLASS = `${BEM_BASE}-menu`;
 
 /**
- * The drop down option class.
- */
-const DROP_DOWN_OPTION_CLASS = `${MENU_CLASS}-option`;
-
-/**
- * The field name class.
- */
-const FIELD_NAME_CLASS = `${MENU_CLASS}-field`;
-
-/**
  * The default text.
  */
-const DEFAULT_TEXT = 'Add Field After ';
+const DEFAULT_TEXT = 'Add field after ';
 
 /**
  * Object text.
  */
-const OBJECT_TEXT = 'Add Field To ';
+const OBJECT_TEXT = 'Add field to ';
 
 /**
  * Array text.
  */
-const ARRAY_TEXT = 'Add Array Element To ';
+const ARRAY_TEXT = 'Add array element to ';
 
 /**
  * Array element text.
  */
-const ARRAY_ELEMENT_TEXT = 'Add Array Element After ';
+const ARRAY_ELEMENT_TEXT = 'Add array element after ';
 
 /**
  * Add child icon.
  */
-const ADD_CHILD_ICON = 'fa fa-level-down fa-rotate-90';
+const ADD_CHILD_ICON = 'Relationship';
 
 /**
  * Add field icon.
  */
-const ADD_FIELD_ICON = 'fa fa-plus-square-o';
+const ADD_FIELD_ICON = 'Plus';
 
 /**
  * Add field button component.
@@ -285,26 +279,22 @@ class AddFieldButton extends React.Component {
   /**
    * Render a single menu item.
    *
-   * @param {String} iconClassName - The icon class name.
+   * @param {String} glyph - The icon class name.
    * @param {String} text - The text.
    * @param {Function} handler - The click handler.
    * @param {String} testId - The test id.
    *
    * @returns {Component} the menu item component
    */
-  renderMenuItem(iconClassName, text, handler, testId) {
+  renderMenuItem(glyph, text, handler, testId) {
     return (
-      // TODO: COMPASS-5847 Fix accessibility issues and remove lint disables.
-      /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-      // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-      <li onClick={handler} data-testid={testId}>
-        {/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */}
-        <span className={DROP_DOWN_OPTION_CLASS}>
-          <i className={iconClassName} />
-          {text}
-          <span className={FIELD_NAME_CLASS}>{this.renderIdentifier()}</span>
-        </span>
-      </li>
+      <MenuItem
+        data-testid={testId}
+        onClick={handler}
+        glyph={glyph ? <Icon glyph={glyph} /> : undefined}
+      >
+        {text} &quot;{this.renderIdentifier()}&quot;
+      </MenuItem>
     );
   }
 
@@ -331,14 +321,11 @@ class AddFieldButton extends React.Component {
    */
   renderMenu() {
     return (
-      <ul
-        className={this.menuClassName()}
-        style={{ left: `${this.props.displace}px` }}
-      >
+      <>
         {this.renderObjectItem()}
         {this.renderArrayItem()}
         {this.renderDefaultItem()}
-      </ul>
+      </>
     );
   }
 
@@ -352,18 +339,25 @@ class AddFieldButton extends React.Component {
       return null;
     }
     return (
-      <button
-        data-testid="table-view-cell-editor-add-field-button"
-        type="button"
-        className={this.divClassName()}
-        onClick={this.handleClick.bind(this)}
-        onKeyPress={this.handleKeyPress.bind(this)}
-        onBlur={this.handleClickOutside.bind(this)}
-        ref={this.props.buttonRef}
+      <Menu
+        align="bottom"
+        justify="start"
+        trigger={({ children, onClick, ...props }) => {
+          return (
+            <Button
+              size="xsmall"
+              data-testid="table-view-cell-editor-add-field-button"
+              onClick={onClick}
+              {...props}
+            >
+              <Icon glyph="PlusWithCircle" size={11}></Icon>
+              {children}
+            </Button>
+          );
+        }}
       >
-        <FontAwesome name="plus-square-o" className={`${BEM_BASE}-icon`} />
         {this.renderMenu()}
-      </button>
+      </Menu>
     );
   }
 }
@@ -383,4 +377,4 @@ AddFieldButton.propTypes = {
   buttonRef: PropTypes.any.isRequired,
 };
 
-export default outsideClickable(AddFieldButton);
+export default AddFieldButton;

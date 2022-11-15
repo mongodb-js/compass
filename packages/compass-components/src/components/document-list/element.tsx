@@ -16,7 +16,6 @@ import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
 import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
-import { FontAwesomeIcon } from './font-awesome-icon';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { usePrevious } from './use-previous';
@@ -163,7 +162,7 @@ function useHadronElement(el: HadronElementType) {
     internal: el.isInternalField(),
   };
 }
-const buttonReset = css({
+const expandButton = css({
   margin: 0,
   padding: 0,
   border: 'none',
@@ -171,12 +170,14 @@ const buttonReset = css({
   '&:hover': {
     cursor: 'pointer',
   },
+  display: 'flex',
 });
 
 const hadronElement = css({
   display: 'flex',
   paddingLeft: spacing[2],
   paddingRight: spacing[2],
+  marginTop: 1,
   '&:hover': {
     backgroundColor: palette.gray.light2,
   },
@@ -199,6 +200,7 @@ const elementRemoved = css({
 const elementActions = css({
   flex: 'none',
   width: spacing[3],
+  position: 'relative',
 });
 
 const elementLineNumber = css({
@@ -247,6 +249,8 @@ const elementSpacer = css({
 const elementExpand = css({
   width: spacing[3],
   flex: 'none',
+  display: 'flex',
+  alignItems: 'center',
 });
 
 const elementKey = css({
@@ -445,7 +449,7 @@ export const HadronElement: React.FunctionComponent<{
           {expandable && (
             <button
               type="button"
-              className={buttonReset}
+              className={expandButton}
               aria-pressed={expanded}
               aria-label={
                 expanded ? 'Collapse field items' : 'Expand field items'
@@ -455,9 +459,10 @@ export const HadronElement: React.FunctionComponent<{
                 toggleExpanded();
               }}
             >
-              <FontAwesomeIcon
-                icon={expanded ? 'expanded' : 'collapsed'}
-              ></FontAwesomeIcon>
+              <Icon
+                size={11}
+                glyph={expanded ? 'CaretDown' : 'CaretRight'}
+              ></Icon>
             </button>
           )}
         </div>

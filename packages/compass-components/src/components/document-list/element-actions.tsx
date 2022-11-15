@@ -3,7 +3,7 @@ import type { TypeCastTypes } from 'hadron-type-checker';
 import { Menu, MenuItem } from '@leafygreen-ui/menu';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { FontAwesomeIcon } from './font-awesome-icon';
+import { Icon } from '../leafygreen';
 import { documentTypography } from './typography';
 
 const buttonReset = css({
@@ -11,7 +11,16 @@ const buttonReset = css({
   padding: 0,
   border: 'none',
   background: 'none',
+  cursor: 'pointer',
 });
+
+const editActionIconStyle = css({
+  position: 'absolute',
+  top: 2,
+  right: 0,
+});
+
+const editActionIconSize = 11;
 
 export const EditActions: React.FunctionComponent<{
   onRemove?: (() => void) | null;
@@ -27,25 +36,35 @@ export const EditActions: React.FunctionComponent<{
             data-testid="hadron-document-revert"
             className={buttonReset}
             aria-label="Revert changes"
+            title="Revert changes"
             onClick={(evt) => {
               evt.stopPropagation();
               onRevert();
             }}
           >
-            <FontAwesomeIcon icon="revert"></FontAwesomeIcon>
+            <Icon
+              size={editActionIconSize}
+              className={editActionIconStyle}
+              glyph="Undo"
+            ></Icon>
           </button>
         ) : onRemove ? (
           <button
             type="button"
             data-testid="hadron-document-remove"
             className={buttonReset}
+            title="Remove field"
             aria-label="Remove field"
             onClick={(evt) => {
               evt.stopPropagation();
               onRemove();
             }}
           >
-            <FontAwesomeIcon icon="remove"></FontAwesomeIcon>
+            <Icon
+              size={editActionIconSize}
+              glyph="Trash"
+              className={editActionIconStyle}
+            ></Icon>
           </button>
         ) : null)}
     </>
@@ -113,6 +132,7 @@ export const AddFieldActions: React.FunctionComponent<{
             <button
               type="button"
               data-testid="hadron-document-add-element"
+              title="Add field"
               className={cx(buttonReset, addFieldButton)}
               onClick={(evt) => {
                 evt.stopPropagation();
@@ -134,11 +154,11 @@ export const AddFieldActions: React.FunctionComponent<{
             setIsOpen(false);
             onAddFieldToElement();
           }}
+          glyph={<Icon glyph="Relationship"></Icon>}
           className={menuItem}
         >
           <div>
-            <FontAwesomeIcon icon="addChild"></FontAwesomeIcon>&nbsp;Add{' '}
-            {type === 'Array' ? 'item' : 'field'} to <b>{keyName}</b>
+            Add {type === 'Array' ? 'item' : 'field'} to &quot;{keyName}&quot;
           </div>
         </MenuItem>
       )}
@@ -148,11 +168,12 @@ export const AddFieldActions: React.FunctionComponent<{
           setIsOpen(false);
           onAddFieldAfterElement();
         }}
+        glyph={<Icon glyph="Plus"></Icon>}
         className={menuItem}
       >
         <div>
-          <FontAwesomeIcon icon="addSibling"></FontAwesomeIcon>&nbsp;Add{' '}
-          {parentType === 'Array' ? 'item' : 'field'} after <b>{keyName}</b>
+          Add {parentType === 'Array' ? 'item' : 'field'} after &quot;{keyName}
+          &quot;
         </div>
       </MenuItem>
     </Menu>

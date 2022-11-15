@@ -9,6 +9,7 @@ import BSONValue, { hasCustomColor, VALUE_COLOR_BY_TYPE } from '../bson-value';
 import { Tooltip } from '../tooltip';
 import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
+import { Icon } from '../leafygreen';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -311,16 +312,29 @@ const typeEditor = css({
   // dom inside select node
   paddingLeft: spacing[1],
   width: `calc(${longestTypeNameCharLength}ch + ${spacing[4]}px)`,
-  '&:hover, &:focus, &:focus-within, &:active': {
-    appearance: 'auto',
-    paddingLeft: 0,
+  '&:hover': {
     color: 'inherit',
+    cursor: 'pointer',
   },
 });
 
 const typeEditorActive = css({
   appearance: 'auto',
   paddingLeft: 0,
+});
+
+const typeEditorChevron = css({
+  position: 'absolute',
+  right: 4,
+  top: 2,
+  pointerEvents: 'none',
+  display: 'none',
+});
+
+const typeEditorContainer = css({
+  [`&:hover .${typeEditorChevron}`]: { display: 'block' },
+  position: 'relative',
+  cursor: 'pointer',
 });
 
 export const TypeEditor: React.FunctionComponent<{
@@ -333,33 +347,39 @@ export const TypeEditor: React.FunctionComponent<{
   return (
     <>
       {editing && (
-        // This rule is deprecated
-        // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/main/docs/rules/no-onchange.md#deprecated-no-onchange
-        // eslint-disable-next-line jsx-a11y/no-onchange
-        <select
-          value={type}
-          data-testid="hadron-document-type-editor"
-          // See ./element.tsx
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus={autoFocus}
-          onChange={(evt) => {
-            onChange(evt.currentTarget.value as HadronElementType['type']);
-          }}
-          className={cx(
-            editorReset,
-            editorOutline,
-            typeEditor,
-            visuallyActive && typeEditorActive
-          )}
-        >
-          {TYPES.map((type) => {
-            return (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            );
-          })}
-        </select>
+        <div className={typeEditorContainer}>
+          {/* This rule is deprecated https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/main/docs/rules/no-onchange.md#deprecated-no-onchange */}
+          {/* eslint-disable-next-line jsx-a11y/no-onchange */}
+          <select
+            value={type}
+            data-testid="hadron-document-type-editor"
+            // See ./element.tsx
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus={autoFocus}
+            onChange={(evt) => {
+              onChange(evt.currentTarget.value as HadronElementType['type']);
+            }}
+            className={cx(
+              editorReset,
+              editorOutline,
+              typeEditor,
+              visuallyActive && typeEditorActive
+            )}
+          >
+            {TYPES.map((type) => {
+              return (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              );
+            })}
+          </select>
+          <Icon
+            glyph="ChevronDown"
+            size={11}
+            className={typeEditorChevron}
+          ></Icon>
+        </div>
       )}
     </>
   );

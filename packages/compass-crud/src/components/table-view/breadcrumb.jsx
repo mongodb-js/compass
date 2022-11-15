@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
+import { Icon } from '@mongodb-js/compass-components';
 
 const BEM_BASE = 'ag-header-breadcrumb';
 const ICON_TYPE = { Array: '[ ]', Object: '{ }' };
@@ -37,7 +37,7 @@ class BreadcrumbComponent extends React.PureComponent {
           onClick={this.onHomeClicked.bind(this)}
           className={`${BEM_BASE}-tab`}
         >
-          <FontAwesome name="home" className={`${BEM_BASE}-home-icon`} />
+          <Icon glyph='Home' size={11} className={`${BEM_BASE}-home-icon`}></Icon>
           {this.props.collection}
         </button>
         {this.props.path.map((name, i) => {

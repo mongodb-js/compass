@@ -5,12 +5,19 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
 import { Tooltip } from 'hadron-react-components';
 import TypeChecker from 'hadron-type-checker';
 import { ElementEditor as initEditors } from 'hadron-document';
 import TypesDropdown from './types-dropdown';
 import AddFieldButton from './add-field-button';
+import {
+  Button,
+  css,
+  cx,
+  Icon,
+  spacing,
+  TextInput,
+} from '@mongodb-js/compass-components';
 
 const EMPTY_TYPE = {
   Array: [],
@@ -53,6 +60,19 @@ const VALUE_CLASS = 'editable-element-value';
  * Invalid type class.
  */
 const INVALID = `${VALUE_CLASS}-is-invalid-type`;
+
+const textInputSizeHackStyle = css({
+  width: spacing[6] * 2,
+  '& input': {
+    height: 22,
+  },
+});
+
+const actionsStyle = css({
+  marginLeft: spacing[1],
+  display: 'flex',
+  gap: spacing[1] / 2,
+});
 
 /**
  * The custom cell editor for the table view.
@@ -418,24 +438,19 @@ class CellEditor extends React.Component {
   renderFieldName() {
     if (this.newField && this.element.currentKey === '$new') {
       return (
-        <div className={`${BEM_BASE}-input ${BEM_BASE}-input-field`}>
-          <span className={`${BEM_BASE}-input-field-inner`}>
-            <input
-              type="text"
-              data-testid="table-view-cell-editor-fieldname-input"
-              onChange={this.handleFieldNameChange.bind(this)}
-              onClick={() => {
-                this.nodeIndex = 1;
-              }}
-              className={this.styleField(true)}
-              value={this.state.fieldName}
-              ref={(c) => {
-                this.fieldNameNode = c;
-              }}
-              placeholder="Field Name"
-            />
-          </span>
-        </div>
+        <TextInput
+          className={cx(textInputSizeHackStyle, css({marginRight: spacing[2] / 2}))}
+          data-testid="table-view-cell-editor-fieldname-input"
+          onClick={() => {
+            this.nodeIndex = 1;
+          }}
+          value={this.state.fieldName}
+          ref={(c) => {
+            this.fieldNameNode = c;
+          }}
+          placeholder="Field Name"
+          onChange={this.handleFieldNameChange.bind(this)}
+        ></TextInput>
       );
     }
     return null;
@@ -483,9 +498,9 @@ class CellEditor extends React.Component {
     if (!showInput) {
       return null;
     }
-    const length = 100; // TODO: styles
+
     return (
-      <div className={`${BEM_BASE}-input`}>
+      <div>
         <span className={this.wrapperStyle()}>
           <Tooltip
             id={this.element.uuid}
@@ -495,16 +510,13 @@ class CellEditor extends React.Component {
               return this.element.invalidTypeMessage;
             }}
           />
-          <input
+          <TextInput
+            className={textInputSizeHackStyle}
             data-testid="table-view-cell-editor-value-input"
-            data-tip=""
-            data-for={this.element.uuid}
+            size="xsmall"
             ref={(c) => {
               this.inputNode = c;
             }}
-            type="text"
-            style={{ width: `${length}px` }}
-            className={this.styleValue()}
             onChange={this.handleInputChange.bind(this)}
             onClick={() => {
               this.nodeIndex = 2;
@@ -512,7 +524,7 @@ class CellEditor extends React.Component {
             onPaste={this.handlePaste.bind(this)}
             value={this.editor().value(true)}
             placeholder="Value"
-          />
+          ></TextInput>
         </span>
       </div>
     );
@@ -530,17 +542,16 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <button
-        type="button"
+      <Button
         data-testid="table-view-cell-editor-expand-button"
-        className={`${BEM_BASE}-button btn btn-default btn-xs`}
-        onMouseDown={this.handleDrillDown.bind(this)}
+        size="xsmall"
+        onClick={this.handleDrillDown.bind(this)}
         ref={(c) => {
           this.expandNode = c;
         }}
       >
-        <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`} />
-      </button>
+        <Icon glyph="OpenNewTab" size={11}></Icon>
+      </Button>
     );
   }
 
@@ -557,17 +568,16 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <button
-        type="button"
+      <Button
         data-testid="table-view-cell-editor-remove-field-button"
-        className={`${BEM_BASE}-button btn btn-default btn-xs`}
-        onMouseDown={this.handleRemoveField.bind(this)}
+        size="xsmall"
+        onClick={this.handleRemoveField.bind(this)}
         ref={(c) => {
           this.removeNode = c;
         }}
       >
-        <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`} />
-      </button>
+        <Icon glyph="Trash" size={11}></Icon>
+      </Button>
     );
   }
 
@@ -598,7 +608,7 @@ class CellEditor extends React.Component {
 
     const displace = 87 * showTypes + 130 * showInput + 23 * showExpand;
     return (
-      <span className={`${BEM_BASE}-actions`}>
+      <span className={cx(`${BEM_BASE}-actions`, actionsStyle)}>
         {this.renderExpand(showExpand)}
         <span
           onClick={() => {
