@@ -22,7 +22,7 @@ describe('FeaturesSettings', function () {
     container = screen.getByTestId('features-settings');
   });
 
-  ['readOnly', 'enableShell'].forEach((option) => {
+  ['readOnly', 'enableShell', 'protectConnectionStrings'].forEach((option) => {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });
