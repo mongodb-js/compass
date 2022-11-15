@@ -286,7 +286,7 @@ const modelPreferencesProps: Required<{
   enableShell: {
     type: 'boolean',
     required: true,
-    default: false,
+    default: true,
     ui: true,
     cli: true,
     global: true,
@@ -807,7 +807,6 @@ export class Preferences {
         autoUpdates: true,
         enableMaps: true,
         trackErrors: true,
-        enableShell: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,
