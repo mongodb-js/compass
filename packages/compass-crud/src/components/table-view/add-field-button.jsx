@@ -46,7 +46,7 @@ const ADD_CHILD_ICON = 'Relationship';
 /**
  * Add field icon.
  */
-const ADD_FIELD_ICON = 'Plus';
+const ADD_FIELD_ICON = 'PlusWithCircle';
 
 /**
  * Add field button component.
@@ -293,7 +293,7 @@ class AddFieldButton extends React.Component {
         onClick={handler}
         glyph={glyph ? <Icon glyph={glyph} /> : undefined}
       >
-        {text} &quot;{this.renderIdentifier()}&quot;
+        {text} <b>{this.renderIdentifier()}</b>
       </MenuItem>
     );
   }
@@ -350,7 +350,7 @@ class AddFieldButton extends React.Component {
               onClick={onClick}
               {...props}
             >
-              <Icon glyph="PlusWithCircle" size={11}></Icon>
+              <Icon glyph="Plus" size={11}></Icon>
               {children}
             </Button>
           );

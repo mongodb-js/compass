@@ -158,7 +158,7 @@ export const AddFieldActions: React.FunctionComponent<{
           className={menuItem}
         >
           <div>
-            Add {type === 'Array' ? 'item' : 'field'} to &quot;{keyName}&quot;
+            Add {type === 'Array' ? 'item' : 'field'} to <b>{keyName}</b>
           </div>
         </MenuItem>
       )}
@@ -168,12 +168,11 @@ export const AddFieldActions: React.FunctionComponent<{
           setIsOpen(false);
           onAddFieldAfterElement();
         }}
-        glyph={<Icon glyph="Plus"></Icon>}
+        glyph={<Icon glyph="PlusWithCircle"></Icon>}
         className={menuItem}
       >
         <div>
-          Add {parentType === 'Array' ? 'item' : 'field'} after &quot;{keyName}
-          &quot;
+          Add {parentType === 'Array' ? 'item' : 'field'} after <b>{keyName}</b>
         </div>
       </MenuItem>
     </Menu>
