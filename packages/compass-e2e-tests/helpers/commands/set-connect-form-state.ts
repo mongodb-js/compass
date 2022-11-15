@@ -94,7 +94,6 @@ export async function setConnectFormState(
       state.kerberosServiceRealm
     );
   }
-  /* TODO(COMPASS-5950):
   if (state.kerberosServiceRealm) {
     await browser.clickParent(Selectors.ConnectionFormGssApiPasswordCheckbox);
   }
@@ -104,7 +103,6 @@ export async function setConnectFormState(
       state.kerberosPassword
     );
   }
-  */
 
   // LDAP
   if (state.ldapUsername && state.ldapPassword) {

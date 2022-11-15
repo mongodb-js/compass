@@ -22,7 +22,12 @@ describe('FeaturesSettings', function () {
     container = screen.getByTestId('features-settings');
   });
 
-  ['readOnly', 'enableShell', 'protectConnectionStrings'].forEach((option) => {
+  [
+    'readOnly',
+    'enableShell',
+    'protectConnectionStrings',
+    'showKerberosPasswordField',
+  ].forEach((option) => {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });

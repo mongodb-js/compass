@@ -154,46 +154,45 @@ function AuthenticationGSSAPI({
         />
       </FormFieldContainer>
       {showKerberosPasswordField && (
-          <>
-            <FormFieldContainer>
-              <Checkbox
-                data-testid="gssapi-password-checkbox"
-                checked={showPassword}
-                label="Provide password directly"
-                onChange={({ target: { checked } }) => {
-                  if (!checked) {
-                    updateConnectionFormField({
-                      type: 'update-password',
-                      password: '',
-                    });
-                  }
+        <>
+          <FormFieldContainer>
+            <Checkbox
+              data-testid="gssapi-password-checkbox"
+              checked={showPassword}
+              label="Provide password directly"
+              onChange={({ target: { checked } }) => {
+                if (!checked) {
+                  updateConnectionFormField({
+                    type: 'update-password',
+                    password: '',
+                  });
+                }
 
-                  setShowPassword(checked);
+                setShowPassword(checked);
+              }}
+            />
+          </FormFieldContainer>
+          {showPassword && (
+            <FormFieldContainer>
+              <TextInput
+                onChange={({
+                  target: { value },
+                }: React.ChangeEvent<HTMLInputElement>) => {
+                  updateConnectionFormField({
+                    type: 'update-password',
+                    password: value,
+                  });
                 }}
+                data-testid="gssapi-password-input"
+                label="Password"
+                value={password}
+                type="password"
+                optional
               />
             </FormFieldContainer>
-            {showPassword && (
-              <FormFieldContainer>
-                <TextInput
-                  onChange={({
-                    target: { value },
-                  }: React.ChangeEvent<HTMLInputElement>) => {
-                    updateConnectionFormField({
-                      type: 'update-password',
-                      password: value,
-                    });
-                  }}
-                  data-testid="gssapi-password-input"
-                  label="Password"
-                  value={password}
-                  type="password"
-                  optional
-                />
-              </FormFieldContainer>
-            )}
-          </>
-        )
-      }
+          )}
+        </>
+      )}
     </>
   );
 }
