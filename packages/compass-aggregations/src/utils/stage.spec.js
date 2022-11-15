@@ -158,15 +158,15 @@ describe('utils', function() {
   });
 
   context('getDestinationNamespaceFromStage', function() {
-    it('returns null when stage is not defined', () => {
+    it('returns null when stage is not defined', function() {
       expect(getDestinationNamespaceFromStage('airbnb.users')).to.equal(null);
     });
-    it('handles $out stage with scaler value', () => {
+    it('handles $out stage with scaler value', function() {
       expect(getDestinationNamespaceFromStage('airbnb.users', {
         $out: 'users_out'
       })).to.equal('airbnb.users_out');
     });
-    it('handles $out stage with db and coll in object', () => {
+    it('handles $out stage with db and coll in object', function() {
       expect(getDestinationNamespaceFromStage('airbnb.users', {
         $out: {
           db: 'another',
@@ -174,14 +174,14 @@ describe('utils', function() {
         }
       })).to.equal('another.users_out');
     });
-    it('does not handle $out s3 yet', () => {
+    it('does not handle $out s3 yet', function() {
       expect(getDestinationNamespaceFromStage('airbnb.users', {
         $out: {
           s3: {}
         }
       })).to.equal(null);
     });
-    it('does not handle $out atlas yet', () => {
+    it('does not handle $out atlas yet', function() {
       expect(getDestinationNamespaceFromStage('airbnb.users', {
         $out: {
           atlas: {}
@@ -189,12 +189,12 @@ describe('utils', function() {
       })).to.equal(null);
     });
 
-    it('handles $merge stage with scaler value', () => {
+    it('handles $merge stage with scaler value', function() {
       expect(getDestinationNamespaceFromStage('airbnb.users', {
         $merge: 'users_merge'
       })).to.equal('airbnb.users_merge');
     });
-    it('handles $merge stage with db and coll in object', () => {
+    it('handles $merge stage with db and coll in object', function() {
       expect(getDestinationNamespaceFromStage('airbnb.users', {
         $merge: {
           into: {
@@ -204,7 +204,7 @@ describe('utils', function() {
         }
       })).to.equal('another.users_merge');
     });
-    it('does not handle $merge atlas yet', () => {
+    it('does not handle $merge atlas yet', function() {
       expect(getDestinationNamespaceFromStage('airbnb.users', {
         $merge: {
           into: {
