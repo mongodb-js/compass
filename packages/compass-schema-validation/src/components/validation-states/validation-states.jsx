@@ -112,7 +112,6 @@ class ValidationStates extends Component {
           <div data-testid="old-server-read-only">
             {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
             <Link
-              className={styles['upgrade-link']}
               target="_blank"
               href={DOC_UPGRADE_REVISION}
             >
