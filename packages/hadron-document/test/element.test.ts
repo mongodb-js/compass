@@ -534,7 +534,7 @@ describe('Element', function () {
       }
     );
 
-    // COMPASS-6040 regression test.
+    // COMPASS-6160 regression test.
     context('when the key is _id and it is not at the top level', function () {
       const doc = new Document({});
       const element = new Element('root', {}, doc);
