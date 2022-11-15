@@ -23,7 +23,11 @@ type FeaturesSettingsProps = {
   checkboxValues: Pick<UserConfigurablePreferences, FeaturesFields>;
 };
 
-const featuresFields = ['readOnly', 'enableShell'] as const;
+const featuresFields = [
+  'readOnly',
+  'enableShell',
+  'protectConnectionStrings',
+] as const;
 type FeaturesFields = typeof featuresFields[number];
 
 type CheckboxItem = {
@@ -89,6 +93,7 @@ const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
   checkboxValues: {
     readOnly: !!settings.readOnly,
     enableShell: !!settings.enableShell,
+    protectConnectionStrings: !!settings.protectConnectionStrings,
   },
   preferenceStates,
 });
