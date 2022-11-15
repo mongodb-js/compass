@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
-import { Tooltip } from 'hadron-react-components';
 import { connect } from 'react-redux';
 import { addStage } from '../../modules/pipeline-builder/stage-editor';
 
@@ -31,19 +29,17 @@ export class AddAfterStage extends PureComponent {
   render() {
     return (
       <div
-        className={classnames(styles['add-after-stage'])}
-        data-tip="Add stage below"
-        data-place="top"
-        data-for="add-after-stage">
+        className={styles['add-after-stage']}
+      >
         <button
           data-testid="add-after-stage"
           type="button"
-          title="Add After Stage"
+          title="Add Stage Below"
           className="btn btn-default btn-xs"
-          onClick={this.onStageAddedAfter}>
+          onClick={this.onStageAddedAfter}
+        >
           +
         </button>
-        <Tooltip id="add-after-stage" />
       </div>
     );
   }

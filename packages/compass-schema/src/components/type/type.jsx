@@ -3,10 +3,14 @@ import PropTypes from 'prop-types';
 import sortBy from 'lodash.sortby';
 import find from 'lodash.find';
 import numeral from 'numeral';
-import ReactTooltip from 'react-tooltip';
-import { Disclaimer } from '@mongodb-js/compass-components';
+import { Disclaimer, css } from '@mongodb-js/compass-components';
 
-const schemaTooltipClass = 'schema-probability-percent';
+const fieldTypeLabelStyles = css({
+  textTransform: 'lowercase',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
 
 class Type extends Component {
   static displayName = 'TypeComponent';
@@ -107,11 +111,7 @@ class Type extends Component {
       width: percentage,
     };
     const subtypes = this._getArraySubTypes();
-    const label = (
-      <Disclaimer className="schema-field-type-label">
-        {this.props.name}
-      </Disclaimer>
-    );
+
     // show integer accuracy by default, but show one decimal point accuracy
     // when less than 1% or greater than 99% but no 0% or 100%
     const format =
@@ -119,27 +119,18 @@ class Type extends Component {
       (this.props.probability > 0 && this.props.probability < 0.01)
         ? '0.0%'
         : '0%';
-    const tooltipText = `${this.props.name} (${numeral(
-      this.props.probability
-    ).format(format)})`;
-    const tooltipOptions = {
-      'data-for': schemaTooltipClass,
-      'data-tip': tooltipText,
-      'data-effect': 'solid',
-      'data-border': true,
-    };
-    tooltipOptions['data-offset'] = this.props.showSubTypes
-      ? '{"top": -25, "left": 0}'
-      : '{"top": 10, "left": 0}';
+    const labelText = `${this.props.name}${
+      this.props.probability !== 1
+        ? ` (${numeral(this.props.probability).format(format)})`
+        : ''
+    }`;
+    const label = (
+      <Disclaimer className={fieldTypeLabelStyles} title={labelText}>
+        {labelText}
+      </Disclaimer>
+    );
     return (
-      <button
-        {...tooltipOptions}
-        type="button"
-        className={cls}
-        style={style}
-        onClick={handleClick}
-      >
-        <ReactTooltip id={schemaTooltipClass} />
+      <button type="button" className={cls} style={style} onClick={handleClick}>
         {this.props.showSubTypes ? label : null}
         <div className="schema-field-type" />
         {subtypes}
