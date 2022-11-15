@@ -9,6 +9,5 @@ export const RESET = 'databases-collections/reset';
  * @return {Object} The action creator.
  */
 export const reset = () => ({
-  type: RESET
+  type: RESET,
 });
-

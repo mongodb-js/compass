@@ -6,11 +6,11 @@ import { FormFieldContainer, Select } from '@mongodb-js/compass-components';
 
 import TimeSeriesFields from './time-series-fields';
 
-describe('TimeSeriesFields [Component]', function() {
-  context('when isTimeSeries prop is true', function() {
+describe('TimeSeriesFields [Component]', function () {
+  context('when isTimeSeries prop is true', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <TimeSeriesFields
           isTimeSeries
@@ -24,19 +24,19 @@ describe('TimeSeriesFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the form field containers', function() {
+    it('renders the form field containers', function () {
       expect(component.find(FormFieldContainer).length).to.equal(5);
     });
   });
 
-  context('when isTimeSeries prop is false', function() {
+  context('when isTimeSeries prop is false', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <TimeSeriesFields
           isTimeSeries={false}
@@ -51,24 +51,24 @@ describe('TimeSeriesFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('does not render the fields', function() {
+    it('does not render the fields', function () {
       expect(component.find(FormFieldContainer).length).to.equal(1);
     });
 
-    it('has the time-series checkbox enabled', function() {
+    it('has the time-series checkbox enabled', function () {
       expect(component.find('Checkbox').props().disabled).to.equal(false);
     });
   });
 
-  describe('when the time series checkbox is clicked', function() {
+  describe('when the time series checkbox is clicked', function () {
     let component;
     let onChangeSpy;
 
-    beforeEach(function() {
+    beforeEach(function () {
       onChangeSpy = sinon.spy();
       component = mount(
         <TimeSeriesFields
@@ -81,27 +81,28 @@ describe('TimeSeriesFields [Component]', function() {
           expireAfterSeconds=""
         />
       );
-      component.find('input[type="checkbox"]').at(0).simulate(
-        'change', { target: { checked: true } }
-      );
+      component
+        .find('input[type="checkbox"]')
+        .at(0)
+        .simulate('change', { target: { checked: true } });
       component.update();
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
       onChangeSpy = null;
     });
 
-    it('calls the onchange with time series collection on', function() {
+    it('calls the onchange with time series collection on', function () {
       expect(onChangeSpy.callCount).to.equal(1);
       expect(onChangeSpy.firstCall.args[0]).to.deep.equal(true);
     });
   });
 
-  describe('when the isCapped prop is true', function() {
+  describe('when the isCapped prop is true', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <TimeSeriesFields
           isTimeSeries={false}
@@ -115,21 +116,21 @@ describe('TimeSeriesFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('has the time-series checkbox disabled', function() {
+    it('has the time-series checkbox disabled', function () {
       expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 
-  context('when rendered', function() {
+  context('when rendered', function () {
     let component;
     let onChangeSpy;
     let onChangeFieldSpy;
 
-    beforeEach(function() {
+    beforeEach(function () {
       onChangeSpy = sinon.spy();
       onChangeFieldSpy = sinon.spy();
 
@@ -146,26 +147,24 @@ describe('TimeSeriesFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
       onChangeSpy = null;
       onChangeFieldSpy = null;
     });
 
-    describe('when a granularity is chosen', function() {
-      beforeEach(function() {
+    describe('when a granularity is chosen', function () {
+      beforeEach(function () {
         component.find(Select).at(0).props().onChange('hours');
         component.update();
       });
 
-      it('calls the onchange with granularity set', function() {
+      it('calls the onchange with granularity set', function () {
         expect(onChangeFieldSpy.callCount).to.equal(1);
         expect(onChangeFieldSpy.firstCall.args[0]).to.deep.equal(
           'timeSeries.granularity'
         );
-        expect(onChangeFieldSpy.firstCall.args[1]).to.deep.equal(
-          'hours'
-        );
+        expect(onChangeFieldSpy.firstCall.args[1]).to.deep.equal('hours');
       });
     });
   });
