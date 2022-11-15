@@ -399,7 +399,7 @@ class CellEditor extends React.Component {
         <TextInput
           className={cx(
             textInputSizeHackStyle,
-            css({ marginRight: spacing[2] / 2 })
+            css({ marginRight: spacing[1] })
           )}
           data-testid="table-view-cell-editor-fieldname-input"
           value={this.state.fieldName}
