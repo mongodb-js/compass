@@ -196,13 +196,17 @@ describe('Automatically connecting from the command line', function () {
     });
 
     // Switch to the other window
-    const currentWindow = await browser.getWindowHandle();
+    let currentWindow = await browser.getWindowHandle();
     let allWindows: string[] = [];
     await browser.waitUntil(async function () {
       allWindows = await browser.getWindowHandles();
-      return allWindows.length >= 2;
+      if (allWindows.length < 2) return false;
+      currentWindow = allWindows.find((w) => w !== currentWindow) as string;
+      await browser.switchToWindow(currentWindow);
+
+      const connectScreenElement = await browser.$(Selectors.ConnectSection);
+      return await connectScreenElement.isDisplayed();
     });
-    await browser.switchToWindow(allWindows.find(w => w !== currentWindow) as string);
 
     await browser.waitForConnectionScreen();
     await afterTests(compass, this.currentTest);
