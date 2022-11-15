@@ -14,17 +14,12 @@ const testField = {
 };
 
 describe('ImportPreview [Component]', function () {
-  let onFieldCheckedChangedSpy;
-  let setFieldTypeSpy;
+  let onFieldCheckedChangedSpy: sinon.SinonSpy;
+  let setFieldTypeSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onFieldCheckedChangedSpy = sinon.spy();
     setFieldTypeSpy = sinon.spy();
-  });
-
-  afterEach(function () {
-    onFieldCheckedChangedSpy = null;
-    setFieldTypeSpy = null;
   });
 
   describe('not loaded', function () {
@@ -100,7 +95,7 @@ describe('ImportPreview [Component]', function () {
       );
     });
 
-    it('should not render', function () {
+    it('should render', function () {
       expect(screen.queryByText(testText)).to.be.visible;
     });
   });

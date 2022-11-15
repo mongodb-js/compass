@@ -6,7 +6,7 @@ import { expect } from 'chai';
 import { SelectFieldType } from './select-field-type';
 
 describe('SelectFieldType [Component]', function () {
-  let onSelectFieldTypeChangedSpy;
+  let onSelectFieldTypeChangedSpy: sinon.SinonSpy;
 
   beforeEach(function () {
     onSelectFieldTypeChangedSpy = sinon.spy();
@@ -16,10 +16,6 @@ describe('SelectFieldType [Component]', function () {
         onChange={onSelectFieldTypeChangedSpy}
       />
     );
-  });
-
-  afterEach(function () {
-    onSelectFieldTypeChangedSpy = null;
   });
 
   it('should render the select', function () {

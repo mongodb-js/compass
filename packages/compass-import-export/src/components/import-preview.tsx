@@ -60,7 +60,7 @@ function ImportPreview({
     type: string;
     checked: boolean;
   }[];
-  values: Document[][];
+  values: Document[];
   onFieldCheckedChanged: (fieldPath: string, checked: boolean) => void;
   setFieldType: (fieldPath: string, fieldType: string) => void;
   loaded: boolean;
@@ -79,7 +79,7 @@ function ImportPreview({
   }
 
   return (
-    <div>
+    <>
       <Body weight="medium">Specify Fields and Types</Body>
       <Table
         data={values}
@@ -156,7 +156,7 @@ function ImportPreview({
           </Row>
         )}
       </Table>
-    </div>
+    </>
   );
 }
 

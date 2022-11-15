@@ -99,6 +99,8 @@ type FieldFromJSON = {
 };
 type FieldType = FieldFromJSON | FieldFromCSV;
 
+export type CSVDelimiter = ',' | '\t' | ';' | ' ';
+
 type State = {
   isOpen: boolean;
   errors: Error[];
@@ -114,12 +116,12 @@ type State = {
   docsWritten: number;
   guesstimatedDocsTotal: number;
   guesstimatedDocsProcessed: number;
-  delimiter: string;
+  delimiter: CSVDelimiter;
   stopOnErrors: boolean;
 
   ignoreBlanks: boolean;
   fields: FieldType[];
-  values: Document[][];
+  values: Document[];
   previewLoaded: boolean;
   exclude: string[];
   transform: [string, string | undefined][];
@@ -440,7 +442,7 @@ export const cancelImport = () => {
 const loadPreviewDocs = (
   fileName: string,
   fileType: 'json' | 'csv' | '',
-  delimiter: string,
+  delimiter: CSVDelimiter,
   fileIsMultilineJSON: boolean
 ): ThunkAction<void, RootImportState, void, AnyAction> => {
   return (dispatch: Dispatch): void => {
@@ -611,7 +613,7 @@ export const selectImportFileType = (fileType: 'json' | 'csv') => {
 /**
  * Set the tabular delimiter.
  */
-export const setDelimiter = (delimiter: string) => {
+export const setDelimiter = (delimiter: CSVDelimiter) => {
   return (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState

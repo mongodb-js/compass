@@ -42,7 +42,7 @@ import {
 } from '../modules/import';
 import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
-import type { FieldFromCSV } from '../modules/import';
+import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 
 /**
  * Progress messages.
@@ -74,8 +74,8 @@ type ImportModalProps = {
    */
   selectImportFileType: (fileType: AcceptedFileType) => void;
   selectImportFileName: (fileName: string) => void;
-  setDelimiter: (delimeter: string) => void;
-  delimiter: string;
+  setDelimiter: (delimeter: CSVDelimiter) => void;
+  delimiter: CSVDelimiter;
   fileType: AcceptedFileType | '';
   fileName: string;
   stopOnErrors: boolean;
@@ -100,7 +100,7 @@ type ImportModalProps = {
     checked: boolean;
     type?: string; // Only on csv imports.
   }[];
-  values: Document[][];
+  values: Document[];
   toggleIncludeField: (path: string) => void;
   setFieldType: (path: string, bsonType: string) => void;
   previewLoaded: boolean;

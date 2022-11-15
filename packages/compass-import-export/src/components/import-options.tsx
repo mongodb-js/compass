@@ -11,6 +11,7 @@ import {
 
 import type { AcceptedFileType } from '../constants/file-types';
 import { SelectFileType } from './select-file-type';
+import type { CSVDelimiter } from '../modules/import';
 
 const formStyles = css({
   paddingTop: spacing[3],
@@ -24,10 +25,8 @@ const checkboxStyles = css({
   margin: `${spacing[2]}px 0`,
 });
 
-type CsvDelimiters = ',' | '\t' | ';' | ' ';
-
 const delimeters: {
-  value: CsvDelimiters;
+  value: CSVDelimiter;
   label: string;
 }[] = [
   {
@@ -51,8 +50,8 @@ const delimeters: {
 type ImportOptionsProps = {
   selectImportFileType: (fileType: AcceptedFileType) => void;
   selectImportFileName: (fileName: string) => void;
-  setDelimiter: (delimeter: string) => void;
-  delimiter: string;
+  setDelimiter: (delimeter: CSVDelimiter) => void;
+  delimiter: CSVDelimiter;
   fileType: AcceptedFileType | '';
   fileName: string;
   stopOnErrors: boolean;
@@ -114,7 +113,9 @@ function ImportOptions({
             className={delimiterSelectStyles}
             label="Delimeter"
             id="import-delimiter-select"
-            onChange={setDelimiter}
+            onChange={(delimiter: string) =>
+              setDelimiter(delimiter as CSVDelimiter)
+            }
             value={delimiter}
             allowDeselect={false}
             size="small"
