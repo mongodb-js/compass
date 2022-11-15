@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { debounce } from 'lodash';
-import { TextButton } from 'hadron-react-buttons';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { css } from '@mongodb-js/compass-components';
+import {
+  css,
+  Card,
+  Button,
+  Body,
+  spacing,
+  Banner,
+} from '@mongodb-js/compass-components';
 import {
   Editor,
   EditorVariant,
@@ -16,12 +21,33 @@ import { checkValidator } from '../../modules/validation';
 
 import { ActionSelector, LevelSelector } from '../validation-selectors';
 
-import styles from './validation-editor.module.less';
-
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
 const validationOptionsStyles = css({
   display: 'flex',
+});
+
+const hrStyles = css({
+  marginTop: '13px',
+  marginBottom: '16px',
+});
+
+const actionsStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  marginTop: spacing[3],
+});
+
+const editorStyles = css({
+  padding: '10px 0',
+});
+
+const modifiedMessageStyles = css({
+  flex: 1,
+});
+
+const buttonStyles = css({
+  marginLeft: spacing[2],
 });
 
 /**
@@ -184,29 +210,22 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderValidationMessage() {
-    if (this.hasErrors()) {
-      let message = '';
-      let colorStyle = '';
-
-      if (this.props.validation.syntaxError) {
-        message = this.props.validation.syntaxError.message;
-        colorStyle = styles['validation-message-container-syntax-error'];
-      } else if (this.props.validation.error) {
-        colorStyle = styles['validation-message-container-error'];
-        message = this.props.validation.error.message;
-      }
-
-      return (
-        <div
-          className={classnames({
-            [styles['validation-message-container']]: true,
-            [colorStyle]: true,
-          })}
-        >
-          <div className={styles['validation-message']}>{message}</div>
-        </div>
-      );
+    if (!this.hasErrors()) {
+      return;
     }
+
+    let message = '';
+    let variant = 'default';
+
+    if (this.props.validation.syntaxError) {
+      message = this.props.validation.syntaxError.message;
+      variant = 'danger';
+    } else if (this.props.validation.error) {
+      message = this.props.validation.error.message;
+      variant = 'warning';
+    }
+
+    return <Banner variant={variant}>{message}</Banner>;
   }
 
   /**
@@ -215,32 +234,34 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderActionsPanel() {
-    if (this.props.validation.isChanged) {
-      return (
-        <div className={classnames(styles['validation-action-container'])}>
-          <div
-            className={classnames(styles['validation-action-message'])}
-            data-testid="validation-action-message"
-          >
-            Validation modified
-          </div>
-          <TextButton
-            dataTestId="cancel-validation-button"
-            className={`btn btn-default btn-xs ${classnames(styles.cancel)}`}
-            text="Cancel"
-            clickHandler={this.props.cancelValidation}
-          />
-          <TextButton
-            dataTestId="update-validation-button"
-            className={`btn btn-primary btn-xs ${
-              this.hasErrors() ? 'disabled' : ''
-            }`}
-            text="Update"
-            clickHandler={this.onValidatorSave.bind(this)}
-          />
-        </div>
-      );
+    if (!this.props.validation.isChanged) {
+      return;
     }
+
+    return (
+      <div className={actionsStyles}>
+        <Body className={modifiedMessageStyles}>Validation modified</Body>
+        <Button
+          type="button"
+          className={buttonStyles}
+          variant="default"
+          data-testid="cancel-validation-button"
+          onClick={this.props.cancelValidation}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          className={buttonStyles}
+          variant="primary"
+          data-testid="update-validation-button"
+          onClick={this.onValidatorSave.bind(this)}
+          disabled={this.hasErrors()}
+        >
+          Update
+        </Button>
+      </div>
+    );
   }
 
   /**
@@ -250,32 +271,27 @@ class ValidationEditor extends Component {
    */
   render() {
     return (
-      <div
-        className={classnames(styles['validation-editor'])}
-        data-testid="validation-editor"
-      >
-        <div className={classnames(styles['validation-editor-content'])}>
-          <div className={validationOptionsStyles}>
-            {this.renderActionSelector()}
-            {this.renderLevelSelector()}
-          </div>
-          <hr />
-          <div className={classnames(styles['brace-editor-container'])}>
-            <Editor
-              variant={EditorVariant.Shell}
-              text={this.props.validation.validator}
-              onChangeText={(text) => this.onValidatorChange(text)}
-              options={{
-                highlightActiveLine: false,
-              }}
-              readOnly={!this.props.isEditable}
-              completer={this.completer}
-            />
-          </div>
-          {this.renderValidationMessage()}
+      <Card data-testid="validation-editor">
+        <div className={validationOptionsStyles}>
+          {this.renderActionSelector()}
+          {this.renderLevelSelector()}
         </div>
+        <hr className={hrStyles} />
+        <div className={editorStyles}>
+          <Editor
+            variant={EditorVariant.Shell}
+            text={this.props.validation.validator}
+            onChangeText={(text) => this.onValidatorChange(text)}
+            options={{
+              highlightActiveLine: false,
+            }}
+            readOnly={!this.props.isEditable}
+            completer={this.completer}
+          />
+        </div>
+        {this.renderValidationMessage()}
         {this.renderActionsPanel()}
-      </div>
+      </Card>
     );
   }
 }
