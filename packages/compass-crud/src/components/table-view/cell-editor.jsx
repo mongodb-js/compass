@@ -397,7 +397,10 @@ class CellEditor extends React.Component {
     if (this.newField && this.element.currentKey === '$new') {
       return (
         <TextInput
-          className={cx(textInputSizeHackStyle, css({marginRight: spacing[2] / 2}))}
+          className={cx(
+            textInputSizeHackStyle,
+            css({ marginRight: spacing[2] / 2 })
+          )}
           data-testid="table-view-cell-editor-fieldname-input"
           value={this.state.fieldName}
           placeholder="Field Name"

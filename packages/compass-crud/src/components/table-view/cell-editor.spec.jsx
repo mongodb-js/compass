@@ -13,8 +13,9 @@ import {
   getColumnApi,
   getContext,
   notCalledExcept,
-} from '../../test/aggrid-helper';
-import CellEditor from './table-view/cell-editor';
+} from '../../../test/aggrid-helper';
+
+import CellEditor from './cell-editor';
 
 describe('<CellEditor />', function () {
   before(function () {

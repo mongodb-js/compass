@@ -9,8 +9,8 @@ import {
   getActions,
   notCalledExcept,
   getContext,
-} from '../../test/aggrid-helper';
-import CellRenderer from './table-view/cell-renderer';
+} from '../../../test/aggrid-helper';
+import CellRenderer from './cell-renderer';
 
 describe('<CellRenderer />', function () {
   describe('#render', function () {

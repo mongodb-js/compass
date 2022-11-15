@@ -37,7 +37,11 @@ class BreadcrumbComponent extends React.PureComponent {
           onClick={this.onHomeClicked.bind(this)}
           className={`${BEM_BASE}-tab`}
         >
-          <Icon glyph='Home' size={11} className={`${BEM_BASE}-home-icon`}></Icon>
+          <Icon
+            glyph="Home"
+            size={11}
+            className={`${BEM_BASE}-home-icon`}
+          ></Icon>
           {this.props.collection}
         </button>
         {this.props.path.map((name, i) => {
