@@ -1,22 +1,22 @@
 import { combineReducers } from 'redux';
 import appRegistry from '../app-registry';
 import collections, {
-  INITIAL_STATE as COLLECTIONS_INITIAL_STATE
+  INITIAL_STATE as COLLECTIONS_INITIAL_STATE,
 } from './collections';
 import collectionsStatus, {
-  INITIAL_STATE as COLLECTIONS_STATUS_STATE
+  INITIAL_STATE as COLLECTIONS_STATUS_STATE,
 } from './status';
 import databaseName, {
-  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
+  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE,
 } from '../database-name';
 import isReadonly, {
-  INITIAL_STATE as READONLY_INITIAL_STATE
+  INITIAL_STATE as READONLY_INITIAL_STATE,
 } from '../is-readonly';
 import isWritable, {
-  INITIAL_STATE as WRITABLE_INITIAL_STATE
+  INITIAL_STATE as WRITABLE_INITIAL_STATE,
 } from '../is-writable';
 import isDataLake, {
-  INITIAL_STATE as DATA_LAKE_INITIAL_STATE
+  INITIAL_STATE as DATA_LAKE_INITIAL_STATE,
 } from '../is-data-lake';
 import { RESET } from '../reset';
 
@@ -50,7 +50,7 @@ const rootReducer = (state, action) => {
       collectionsStatus: COLLECTIONS_STATUS_STATE,
       isReadonly: READONLY_INITIAL_STATE,
       isWritable: WRITABLE_INITIAL_STATE,
-      isDataLake: DATA_LAKE_INITIAL_STATE
+      isDataLake: DATA_LAKE_INITIAL_STATE,
     };
   }
   return reducer(state, action);

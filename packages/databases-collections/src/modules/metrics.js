@@ -1,4 +1,4 @@
-export const prepareMetrics = async(collection) => {
+export const prepareMetrics = async (collection) => {
   if (!collection.options) {
     return {};
   }
@@ -8,6 +8,6 @@ export const prepareMetrics = async(collection) => {
   return {
     isCapped: !!collectionOptions.capped,
     hasCustomCollation: !!collectionOptions.collation,
-    collectionType: collectionOptions.timeseries ? 'time-series' : 'collection'
+    collectionType: collectionOptions.timeseries ? 'time-series' : 'collection',
   };
 };

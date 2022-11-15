@@ -1,7 +1,14 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Banner, BannerVariant, EmptyContent, Link, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  BannerVariant,
+  EmptyContent,
+  Link,
+  css,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { DatabasesList } from '@mongodb-js/databases-collections-list';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -27,15 +34,16 @@ const ERROR_WARNING = 'An error occurred while loading databases';
 
 function NonGenuineZeroState() {
   return (
-    <div className={nonGenuineErrorContainerStyles} data-testid="databases-non-genuine-warning">
+    <div
+      className={nonGenuineErrorContainerStyles}
+      data-testid="databases-non-genuine-warning"
+    >
       <EmptyContent
         icon={ZeroGraphic}
         title="Unable to display databases and collections"
         subTitle={NON_GENUINE_SUBTEXT}
         callToActionLink={
-          <Link href={DOCUMENTATION_LINK}>
-            Try MongoDB Atlas
-          </Link>
+          <Link href={DOCUMENTATION_LINK}>Try MongoDB Atlas</Link>
         }
       />
     </div>
@@ -97,7 +105,9 @@ class Databases extends PureComponent {
         : {}
     );
 
-    return <DatabasesList databases={databases} isEditable={editable} {...actions} />;
+    return (
+      <DatabasesList databases={databases} isEditable={editable} {...actions} />
+    );
   }
 }
 
@@ -118,8 +128,8 @@ const mapStateToProps = (state) => ({
 });
 
 function createEmit(evtName) {
-  return function(...args) {
-    return function(_dispatch, getState) {
+  return function (...args) {
+    return function (_dispatch, getState) {
       const { appRegistry } = getState();
       appRegistry?.emit(evtName, ...args);
     };
