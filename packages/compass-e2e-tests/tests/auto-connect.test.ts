@@ -194,12 +194,16 @@ describe('Automatically connecting from the command line', function () {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('electron').ipcRenderer.call('test:show-connect-window');
     });
+
+    // Switch to the other window
+    const currentWindow = await browser.getWindowHandle();
+    let allWindows: string[] = [];
     await browser.waitUntil(async function () {
-      // Switch to the window that does not include the connection host in its title
-      await browser.switchWindow(/^(?!.*localhost)/);
-      const title = await browser.execute(() => document.title);
-      return !title.includes('localhost');
+      allWindows = await browser.getWindowHandles();
+      return allWindows.length >= 2;
     });
+    await browser.switchToWindow(allWindows.find(w => w !== currentWindow) as string);
+
     await browser.waitForConnectionScreen();
     await afterTests(compass, this.currentTest);
   });
