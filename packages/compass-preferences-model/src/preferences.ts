@@ -405,7 +405,7 @@ const modelPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Show Kerberos Password Field',
-      long: 'Shows the field in those rare situations in which Kerberos requires a password.',
+      long: 'Show a password field for Kerberos authentication. Typically only useful when attempting to authenticate as another user than the current system user.',
     },
   },
   /**
