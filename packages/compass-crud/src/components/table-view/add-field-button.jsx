@@ -374,7 +374,6 @@ AddFieldButton.propTypes = {
   node: PropTypes.any.isRequired,
   addColumn: PropTypes.func.isRequired,
   drillDown: PropTypes.func.isRequired,
-  buttonRef: PropTypes.any.isRequired,
 };
 
 export default AddFieldButton;

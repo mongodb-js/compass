@@ -141,23 +141,6 @@ class CellEditor extends React.Component {
     if (this.props.eGridCell) {
       this.props.eGridCell.addEventListener('keydown', this.onKeyDown);
     }
-    this.nodes = [
-      this.fieldNameNode,
-      this.inputNode,
-      this.typesNode,
-      this.expandNode,
-      this.addFieldNode,
-      this.removeNode,
-    ];
-    this.nodeIndex = 1;
-    this.maxNodes = this.nodes.length - 1;
-    while (this.nodes[this.maxNodes] === undefined) {
-      this.maxNodes--;
-    }
-    this.minNodes = 0;
-    while (this.nodes[this.minNodes] === undefined) {
-      this.minNodes++;
-    }
   }
 
   componentWillUnmount() {
@@ -177,31 +160,6 @@ class CellEditor extends React.Component {
     event.stopPropagation();
     if (event.keyCode === 27 || event.keyCode === 13) {
       this.props.api.stopEditing();
-    }
-    if (event.shiftKey && event.keyCode === 9) {
-      event.preventDefault();
-      while (this.nodeIndex > -1 && this.nodes[this.nodeIndex] === undefined) {
-        this.nodeIndex--;
-      }
-      const node = this.nodes[this.nodeIndex];
-      if (this.nodeIndex <= this.minNodes || node === undefined) {
-        this.props.api.tabToPreviousCell();
-      } else {
-        node.focus();
-        this.nodeIndex--;
-      }
-    } else if (event.keyCode === 9) {
-      event.preventDefault();
-      while (this.nodeIndex < 6 && this.nodes[this.nodeIndex] === undefined) {
-        this.nodeIndex++;
-      }
-      const node = this.nodes[this.nodeIndex];
-      if (this.nodeIndex > this.maxNodes || node === undefined) {
-        this.props.api.tabToNextCell();
-      } else {
-        node.focus();
-        this.nodeIndex++;
-      }
     }
   }
 
@@ -441,13 +399,7 @@ class CellEditor extends React.Component {
         <TextInput
           className={cx(textInputSizeHackStyle, css({marginRight: spacing[2] / 2}))}
           data-testid="table-view-cell-editor-fieldname-input"
-          onClick={() => {
-            this.nodeIndex = 1;
-          }}
           value={this.state.fieldName}
-          ref={(c) => {
-            this.fieldNameNode = c;
-          }}
           placeholder="Field Name"
           onChange={this.handleFieldNameChange.bind(this)}
         ></TextInput>
@@ -471,17 +423,11 @@ class CellEditor extends React.Component {
       <div
         className={`${BEM_BASE}-input-types`}
         onBlur={this.handleTypeChange.bind(this)}
-        onClick={() => {
-          this.nodeIndex = 3;
-        }}
       >
         <TypesDropdown
           element={this.element}
           version={this.props.version}
           className={`${BEM_BASE}-types btn btn-default btn-xs`}
-          buttonRef={(c) => {
-            this.typesNode = c;
-          }}
         />
       </div>
     );
@@ -514,13 +460,7 @@ class CellEditor extends React.Component {
             className={textInputSizeHackStyle}
             data-testid="table-view-cell-editor-value-input"
             size="xsmall"
-            ref={(c) => {
-              this.inputNode = c;
-            }}
             onChange={this.handleInputChange.bind(this)}
-            onClick={() => {
-              this.nodeIndex = 2;
-            }}
             onPaste={this.handlePaste.bind(this)}
             value={this.editor().value(true)}
             placeholder="Value"
@@ -546,9 +486,6 @@ class CellEditor extends React.Component {
         data-testid="table-view-cell-editor-expand-button"
         size="xsmall"
         onClick={this.handleDrillDown.bind(this)}
-        ref={(c) => {
-          this.expandNode = c;
-        }}
       >
         <Icon glyph="OpenNewTab" size={11}></Icon>
       </Button>
@@ -572,9 +509,6 @@ class CellEditor extends React.Component {
         data-testid="table-view-cell-editor-remove-field-button"
         size="xsmall"
         onClick={this.handleRemoveField.bind(this)}
-        ref={(c) => {
-          this.removeNode = c;
-        }}
       >
         <Icon glyph="Trash" size={11}></Icon>
       </Button>
@@ -610,18 +544,11 @@ class CellEditor extends React.Component {
     return (
       <span className={cx(`${BEM_BASE}-actions`, actionsStyle)}>
         {this.renderExpand(showExpand)}
-        <span
-          onClick={() => {
-            this.nodeIndex = 5;
-          }}
-        >
+        <span>
           <AddFieldButton
             {...this.props}
             addColumn={this.onAddField.bind(this)}
             displace={displace}
-            buttonRef={(c) => {
-              this.addFieldNode = c;
-            }}
           />
         </span>
         {this.renderRemoveField()}
