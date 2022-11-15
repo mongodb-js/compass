@@ -1,21 +1,26 @@
 import React, { useCallback } from 'react';
 import type { ChangeEvent } from 'react';
 import {
-  FormFieldContainer,
   Label,
   RadioBox,
   RadioBoxGroup,
+  css,
+  spacing,
 } from '@mongodb-js/compass-components';
 
 const selectFileTypeLabelId = 'select-file-type-label';
 const radioBoxGroupId = 'radio-box-group-id';
+
+const containerStyles = css({
+  margin: `${spacing[3]}px 0`,
+});
 
 function SelectFileType({
   fileType,
   onSelected,
   label,
 }: {
-  fileType: 'json' | 'csv';
+  fileType: 'json' | 'csv' | '';
   onSelected: (fileType: 'json' | 'csv') => void;
   label: string;
 }) {
@@ -27,7 +32,7 @@ function SelectFileType({
   );
 
   return (
-    <FormFieldContainer>
+    <div className={containerStyles}>
       <Label htmlFor={radioBoxGroupId} id={selectFileTypeLabelId}>
         {label}
       </Label>
@@ -52,7 +57,7 @@ function SelectFileType({
           CSV
         </RadioBox>
       </RadioBoxGroup>
-    </FormFieldContainer>
+    </div>
   );
 }
 
