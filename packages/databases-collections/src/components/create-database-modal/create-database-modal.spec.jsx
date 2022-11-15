@@ -8,14 +8,14 @@ import { Banner } from '@mongodb-js/compass-components';
 import { CreateDatabaseModal } from '../create-database-modal';
 import CollectionFields from '../collection-fields';
 
-describe('CreateDatabaseModal [Component]', function() {
-  context('when the modal is visible', function() {
+describe('CreateDatabaseModal [Component]', function () {
+  context('when the modal is visible', function () {
     let component;
     let toggleIsVisibleSpy;
     let createDatabaseSpy;
     let clearErrorSpy;
 
-    beforeEach(function() {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       createDatabaseSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
@@ -24,7 +24,7 @@ describe('CreateDatabaseModal [Component]', function() {
         <CreateDatabaseModal
           isVisible
           isRunning={false}
-          error={{message: 'A testing error occurred.'}}
+          error={{ message: 'A testing error occurred.' }}
           createDatabase={createDatabaseSpy}
           toggleIsVisible={toggleIsVisibleSpy}
           clearError={clearErrorSpy}
@@ -32,34 +32,34 @@ describe('CreateDatabaseModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       createDatabaseSpy = null;
       component = null;
     });
 
-    it('displays the modal', function() {
+    it('displays the modal', function () {
       expect(component.find(FormModal)).to.be.present();
     });
 
-    it('renders the header text', function() {
+    it('renders the header text', function () {
       expect(component.text()).to.include('Create Database');
     });
 
-    it('renders the modal form', function() {
+    it('renders the modal form', function () {
       expect(component.find(CollectionFields)).to.be.present();
     });
 
-    it('renders the error message and info message', function() {
+    it('renders the error message and info message', function () {
       expect(component.find(Banner)).to.have.length(2);
     });
   });
 
-  context('when a collection name has been entered', function() {
+  context('when a collection name has been entered', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <CreateDatabaseModal
           isVisible
@@ -72,29 +72,29 @@ describe('CreateDatabaseModal [Component]', function() {
 
       component.setState({
         data: {
-          collection: 'aa'
-        }
+          collection: 'aa',
+        },
       });
 
       component.update();
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('does not render a message', function() {
+    it('does not render a message', function () {
       expect(component.find(Banner)).to.have.length(0);
     });
   });
 
-  context('when the modal is not visible', function() {
+  context('when the modal is not visible', function () {
     let component;
     let toggleIsVisibleSpy;
     let createDatabaseSpy;
     let clearErrorSpy;
 
-    beforeEach(function() {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       createDatabaseSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
@@ -110,14 +110,14 @@ describe('CreateDatabaseModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       createDatabaseSpy = null;
       component = null;
     });
 
-    it('does not display the form', function() {
+    it('does not display the form', function () {
       expect(component.find(CollectionFields)).to.not.be.present();
     });
   });

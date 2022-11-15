@@ -25,7 +25,10 @@ export const INITIAL_STATE = null;
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction): AppRegistry | null {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): AppRegistry | null {
   if (action.type === APP_REGISTRY_ACTIVATED) {
     return action.appRegistry;
   }
@@ -37,20 +40,35 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): AppRe
  */
 export const appRegistryActivated = (appRegistry: AppRegistry) => ({
   type: APP_REGISTRY_ACTIVATED,
-  appRegistry: appRegistry
+  appRegistry: appRegistry,
 });
 
 /**
  * Emit an event to the app registry.
  */
-export const appRegistryEmit = (name: string, ...metadata: any): ThunkAction<void, {
-  appRegistry: AppRegistry | null
-}, void, AnyAction> => {
-  return (dispatch: ThunkDispatch<{
-    appRegistry: AppRegistry | null
-  }, void, AnyAction>, getState: () => {
-    appRegistry: AppRegistry | null
-  }) => {
+export const appRegistryEmit = (
+  name: string,
+  ...metadata: any
+): ThunkAction<
+  void,
+  {
+    appRegistry: AppRegistry | null;
+  },
+  void,
+  AnyAction
+> => {
+  return (
+    dispatch: ThunkDispatch<
+      {
+        appRegistry: AppRegistry | null;
+      },
+      void,
+      AnyAction
+    >,
+    getState: () => {
+      appRegistry: AppRegistry | null;
+    }
+  ) => {
     const state = getState();
     if (state.appRegistry) {
       state.appRegistry.emit(name, ...metadata);

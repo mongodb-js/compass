@@ -2,10 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TextInput, FormFieldContainer } from '@mongodb-js/compass-components';
 
-function DatabaseName({
-  databaseName,
-  onChangeDatabaseName
-}) {
+function DatabaseName({ databaseName, onChangeDatabaseName }) {
   return (
     <FormFieldContainer>
       <TextInput
@@ -22,7 +19,7 @@ function DatabaseName({
 
 DatabaseName.propTypes = {
   databaseName: PropTypes.string.isRequired,
-  onChangeDatabaseName: PropTypes.func.isRequired
+  onChangeDatabaseName: PropTypes.func.isRequired,
 };
 
 export default DatabaseName;

@@ -25,7 +25,10 @@ export const INITIAL_STATE: State = null;
 /**
  * Reducer function for handle state changes to errors.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction): State {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): State {
   if (action.type === HANDLE_ERROR) {
     return action.error;
   } else if (action.type === CLEAR_ERROR) {
@@ -39,7 +42,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): State
  */
 export const handleError = (error: Error) => ({
   type: HANDLE_ERROR,
-  error: error
+  error: error,
 });
 
 /**
@@ -48,5 +51,5 @@ export const handleError = (error: Error) => ({
  * @returns {Object} The action.
  */
 export const clearError = () => ({
-  type: CLEAR_ERROR
+  type: CLEAR_ERROR,
 });

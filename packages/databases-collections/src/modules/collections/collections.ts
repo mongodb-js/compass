@@ -26,7 +26,10 @@ export const INITIAL_STATE: Collection[] = [];
  *
  * @returns {Array} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction): Collection[] {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): Collection[] {
   switch (action.type) {
     case SET_COLLECTIONS:
     case CHANGE_DATABASE_NAME:
@@ -41,5 +44,5 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): Colle
  */
 export const setCollections = (collections: Collection[]) => ({
   type: SET_COLLECTIONS,
-  collections: collections
+  collections: collections,
 });
