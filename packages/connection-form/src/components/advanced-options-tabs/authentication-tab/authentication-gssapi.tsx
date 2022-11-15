@@ -7,6 +7,7 @@ import {
   RadioBox,
   Checkbox,
 } from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model';
 
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
@@ -54,6 +55,11 @@ function AuthenticationGSSAPI({
     authMechanismProperties.get('CANONICALIZE_HOST_NAME') || 'none';
 
   const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  const showKerberosPasswordField = !!usePreference(
+    'showKerberosPasswordField',
+    React
+  );
 
   useEffect(() => {
     if (!showPassword && password.length) {
@@ -147,13 +153,7 @@ function AuthenticationGSSAPI({
           optional
         />
       </FormFieldContainer>
-      {
-        /* There are situations in which Kerberos requires a password.
-         However, this is rare enough that the decision was made to
-         only show this field if a feature flag is enabled before
-         Compass startup.
-         TODO(COMPASS-5950): Turn this into a Compass setting. */
-        process.env.COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD && (
+      {showKerberosPasswordField && (
           <>
             <FormFieldContainer>
               <Checkbox
