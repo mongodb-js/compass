@@ -45,7 +45,6 @@ class DocumentTableView extends React.Component {
           path: [],
         },
         suppressDragLeaveHidesColumns: true,
-        // singleClickEdit: true,
         onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
         getRowHeight({ data: { isFooter } }) {
           // deafult row style expects 28, "footer" row with leafygreen
