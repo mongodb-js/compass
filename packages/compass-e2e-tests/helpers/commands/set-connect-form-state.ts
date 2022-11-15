@@ -94,7 +94,7 @@ export async function setConnectFormState(
       state.kerberosServiceRealm
     );
   }
-  if (state.kerberosServiceRealm) {
+  if (state.kerberosProvidePassword) {
     await browser.clickParent(Selectors.ConnectionFormGssApiPasswordCheckbox);
   }
   if (state.kerberosPassword) {
