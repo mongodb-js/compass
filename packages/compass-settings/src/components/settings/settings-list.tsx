@@ -107,6 +107,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
   const handleChangeEvent = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target;
+      // @ts-expect-error this fails unless there are actual numeric settings defined
       handleChange(name, value === '' ? (required ? 0 : undefined) : +value);
     },
     [name, handleChange, required]
