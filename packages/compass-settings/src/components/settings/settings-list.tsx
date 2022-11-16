@@ -11,39 +11,124 @@ import {
   Description,
   css,
   spacing,
+  TextInput,
 } from '@mongodb-js/compass-components';
 
 type KeysMatching<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: P;
 };
-// Currently, only boolean options are supported in the UI.
+// Currently, only boolean and numeric options are supported in the UI.
 type BooleanPreferences = KeysMatching<
   UserConfigurablePreferences,
   boolean | undefined
 >;
-type SupportedPreferences = BooleanPreferences;
+type NumericPreferences = KeysMatching<
+  UserConfigurablePreferences,
+  number | undefined
+>;
+type SupportedPreferences = BooleanPreferences | NumericPreferences;
 
-const checkboxStyles = css({
+const inputStyles = css({
   marginTop: spacing[3],
   marginBottom: spacing[3],
 });
 
+type HandleChange<PreferenceName extends SupportedPreferences> = <
+  N extends PreferenceName
+>(
+  field: N,
+  value: UserConfigurablePreferences[N]
+) => void;
+
 export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
   fields: readonly PreferenceName[];
-  handleChange: <N extends PreferenceName>(
-    field: N,
-    value: UserConfigurablePreferences[N]
-  ) => void;
+  handleChange: HandleChange<PreferenceName>;
   preferenceStates: PreferenceStateInformation;
   currentValues: Partial<Pick<UserConfigurablePreferences, PreferenceName>>;
 };
 
 function SettingLabel({ name }: { name: SupportedPreferences }) {
-  const { short, long } = getSettingDescription(name);
+  const { short, long } = getSettingDescription(name).description;
   return (
     <>
-      <Label htmlFor={name}>{short}</Label>
+      <Label htmlFor={name} id={`${name}-label`}>
+        {short}
+      </Label>
       {long && <Description>{long}</Description>}
+    </>
+  );
+}
+
+function BooleanSetting<PreferenceName extends BooleanPreferences>({
+  name,
+  handleChange,
+  value,
+  disabled,
+}: {
+  name: PreferenceName;
+  handleChange: HandleChange<PreferenceName>;
+  value: boolean;
+  disabled: boolean;
+}) {
+  const handleCheckboxChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      handleChange(name, event.target.checked);
+    },
+    [name, handleChange]
+  );
+
+  return (
+    <Checkbox
+      key={name}
+      className={inputStyles}
+      name={name}
+      id={name}
+      data-testid={name}
+      onChange={handleCheckboxChange}
+      label={<SettingLabel name={name} />}
+      checked={value}
+      disabled={disabled}
+    />
+  );
+}
+function NumericSetting<PreferenceName extends NumericPreferences>({
+  name,
+  handleChange,
+  value,
+  disabled,
+  required,
+}: {
+  name: PreferenceName;
+  handleChange: HandleChange<PreferenceName>;
+  value: number | undefined;
+  disabled: boolean;
+  required: boolean;
+}) {
+  const handleChangeEvent = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = event.target;
+      handleChange(name, value === '' ? (required ? 0 : undefined) : +value);
+    },
+    [name, handleChange, required]
+  );
+
+  return (
+    <>
+      <SettingLabel name={name} />
+      <TextInput
+        className={inputStyles}
+        aria-labelledby={`${name}-label`}
+        id={name}
+        name={name}
+        data-testid={name}
+        type="text"
+        inputMode="numeric"
+        pattern={required ? '[0-9]+' : '[0-9]*'}
+        value={value === undefined ? (required ? '0' : '') : `${value}`}
+        onChange={handleChangeEvent}
+        disabled={disabled}
+        optional={!required}
+      />
     </>
   );
 }
@@ -54,31 +139,41 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
   handleChange,
   currentValues,
 }: SettingsListProps<PreferenceName>) {
-  const handleCheckboxChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      handleChange(event.target.name as PreferenceName, event.target.checked);
-    },
-    [handleChange]
-  );
-
   return (
     <div>
-      {fields.map((name) => (
-        <div data-testid={`setting-${name}`} key={`setting-${name}`}>
-          <Checkbox
-            key={name}
-            className={checkboxStyles}
-            name={name}
-            id={name}
-            data-testid={name}
-            onChange={handleCheckboxChange}
-            label={<SettingLabel name={name} />}
-            checked={!!currentValues[name]}
-            disabled={!!preferenceStates[name]}
-          />
-          {settingStateLabels[preferenceStates[name] ?? '']}
-        </div>
-      ))}
+      {fields.map((name) => {
+        const { type, required } = getSettingDescription(name);
+        if (type !== 'boolean' && type !== 'number') {
+          throw new Error(
+            `do not know how to render type ${
+              type as string
+            } for preference ${name}`
+          );
+        }
+        return (
+          <div data-testid={`setting-${name}`} key={`setting-${name}`}>
+            {type === 'boolean' ? (
+              <BooleanSetting
+                name={name as BooleanPreferences & PreferenceName}
+                handleChange={handleChange}
+                value={!!currentValues[name]}
+                disabled={!!preferenceStates[name]}
+              />
+            ) : type === 'number' ? (
+              <NumericSetting
+                name={name as NumericPreferences}
+                handleChange={handleChange}
+                value={
+                  currentValues[name as NumericPreferences & PreferenceName]
+                }
+                required={required}
+                disabled={!!preferenceStates[name]}
+              />
+            ) : null}
+            {settingStateLabels[preferenceStates[name] ?? '']}
+          </div>
+        );
+      })}
     </div>
   );
 }
