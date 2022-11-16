@@ -53,4 +53,25 @@ describe('Stage', function () {
     stage.changeValue('{ _id: 1');
     expect(stage.toString()).to.equal(`{\n  $match: { _id: 1\n}`);
   })
+
+  it('attaches trailing comments to the value', function () {
+    const ast = babelParser.parseExpression(
+      `{ $match: { _id: 1 } /* trailing comment */ }`
+    );
+    const stage = new Stage(ast);
+
+    expect(stage.value).to.eq(`{
+  _id: 1,
+} /* trailing comment */`);
+
+    stage.changeValue(`{
+  _id: 1,
+} /* new comment */`);
+
+    expect(stage.toString()).to.eq(`{
+  $match: {
+    _id: 1,
+  } /* new comment */,
+}`);
+  });
 });
