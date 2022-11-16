@@ -47,4 +47,10 @@ describe('Stage', function () {
     stage.changeDisabled(true);
     expect(stage.toString()).to.equal(`// {\n//   $match: {}\n// }`);
   });
+  
+  it('can stringify stage with syntax errors', function() {
+    stage.changeOperator('$match');
+    stage.changeValue('{ _id: 1');
+    expect(stage.toString()).to.equal(`{\n  $match: { _id: 1\n}`);
+  })
 });

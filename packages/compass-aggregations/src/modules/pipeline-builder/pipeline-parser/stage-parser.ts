@@ -1,5 +1,6 @@
 import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
+import type Stage from '../stage';
 
 import { generate, PipelineParserError } from './utils';
 
@@ -64,8 +65,8 @@ export function getStageValueFromNode(node: StageLike): string {
 /**
  * Converts a stage ast to line comments.
  */
-export function stageToAstComments(stage: t.Expression): t.CommentLine[] {
-  return generate(stage)
+export function stageToAstComments(stage: Stage): t.CommentLine[] {
+  return stage.toString()
     .trim()
     .split('\n')
     .map((line: string) => {
