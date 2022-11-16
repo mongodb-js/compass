@@ -16,7 +16,7 @@ describe('FeaturesSettings', function () {
       <FeaturesSettings
         handleChange={handleChangeSpy}
         preferenceStates={{}}
-        checkboxValues={{} as any}
+        currentValues={{} as any}
       />
     );
     container = screen.getByTestId('features-settings');
