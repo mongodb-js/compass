@@ -27,6 +27,7 @@ const featuresFields = [
   'readOnly',
   'enableShell',
   'protectConnectionStrings',
+  'showKerberosPasswordField',
 ] as const;
 type FeaturesFields = typeof featuresFields[number];
 
@@ -94,6 +95,7 @@ const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
     readOnly: !!settings.readOnly,
     enableShell: !!settings.enableShell,
     protectConnectionStrings: !!settings.protectConnectionStrings,
+    showKerberosPasswordField: !!settings.showKerberosPasswordField,
   },
   preferenceStates,
 });

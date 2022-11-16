@@ -62,7 +62,6 @@ export async function getConnectFormState(
       browser,
       Selectors.ConnectionFormInputGssApiServiceRealm
     ),
-    /* TODO(COMPASS-5950):
     kerberosProvidePassword: getCheckboxValue(
       browser,
       Selectors.ConnectionFormGssApiPasswordCheckbox
@@ -70,8 +69,7 @@ export async function getConnectFormState(
     kerberosPassword: getValue(
       browser,
       Selectors.ConnectionFormInputGssApiPassword
-    ),*/
-
+    ),
     // LDAP
     ldapUsername: getValue(browser, Selectors.ConnectionFormInputPlainUsername),
     ldapPassword: getValue(browser, Selectors.ConnectionFormInputPlainPassword),
