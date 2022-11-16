@@ -58,13 +58,6 @@ const { setupTheme } = require('./theme');
 
 const { setupIntercom } = require('./intercom');
 
-ipc.once('app:launched', function () {
-  console.log('in app:launched');
-  if (process.env.NODE_ENV === 'development') {
-    require('debug').enable('mon*,had*');
-  }
-});
-
 const { log, mongoLogId, debug, track } =
   require('@mongodb-js/compass-logging').createLoggerAndTelemetry(
     'COMPASS-APP'

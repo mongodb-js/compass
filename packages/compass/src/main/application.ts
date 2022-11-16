@@ -3,7 +3,6 @@ import { EventEmitter } from 'events';
 import type { BrowserWindow } from 'electron';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
-import createDebug from 'debug';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
@@ -12,11 +11,20 @@ import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
 import { setupPreferencesAndUserModel } from './setup-preferences-and-user-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
+import preferences from 'compass-preferences-model';
 
-const debug = createDebug('mongodb-compass:main:application');
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
+const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
+
+const launchConnection = (file?: string, positionalArguments?: string) => {
+  if (file) return 'JSON_file';
+  if (positionalArguments) return 'string';
+  return 'none';
+}
 
 class CompassApplication {
   private constructor() {
@@ -54,6 +62,34 @@ class CompassApplication {
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
+
+    const {
+      protectConnectionStrings,
+      readOnly,
+      file,
+      positionalArguments,
+      autoUpdates,
+      // TODO: COMPASS-6063
+      // maxTimeMS,
+    } = preferences.getPreferences();
+
+    debug('application launched');
+    track('Application Launched', {
+      context: mode,
+      launch_connection: launchConnection(file, positionalArguments),
+      protected: protectConnectionStrings,
+      readOnly,
+      autoUpdates,
+      // TODO: COMPASS-6063
+      // maxTimeMS,
+      has_global_config: !!Object.keys(globalPreferences.global).length,
+      has_cli_config: !!Object.keys(globalPreferences.cli).length,
+    });
+
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('debug').enable('mon*,had*');
+    }
   }
 
   static init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult): Promise<void> {
