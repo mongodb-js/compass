@@ -118,6 +118,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
       <SettingLabel name={name} />
       <TextInput
         className={inputStyles}
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         aria-labelledby={`${name}-label`}
         id={name}
         name={name}
