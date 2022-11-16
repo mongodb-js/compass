@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Body,
   BSONValue,
+  Button,
   Card,
   Cell,
   css,
+  cx,
   DocumentList,
   palette,
   Popover,
@@ -81,8 +83,12 @@ const DocumentTableView: React.FunctionComponent<DocumentTableViewProps> = ({
   const rows = useMemo(
     () =>
       docs.map((doc, i) => ({
-        index: i,
+        index: i + 1,
         doc,
+        isModified: columns.reduce(
+          (acc, curr) => !!(acc && doc.get(curr.key)?.isRevertable()),
+          false
+        ),
         cells: columns.map(({ key }) => {
           return {
             key: key,
@@ -93,25 +99,40 @@ const DocumentTableView: React.FunctionComponent<DocumentTableViewProps> = ({
     [columns, docs]
   );
 
-  const headers = useMemo(
-    () =>
-      columns.map(({ key, type }) => {
-        return (
-          <TableHeader
-            className={headerStyle}
-            label={<ColumnHeader name={key} type={type} />}
-            key={key}
-          />
-        );
-      }),
-    [columns]
-  );
+  const headers = useMemo(() => {
+    const headerDefs = [
+      { key: '#', type: '' },
+      ...columns,
+      { key: '', type: '' },
+    ];
+    return headerDefs.map(({ key, type }, i) => {
+      return (
+        <TableHeader
+          className={cx(
+            headerStyle,
+            i === 0 || i === headerDefs.length - 1
+              ? css({
+                  position: 'sticky',
+                  left: 0,
+                  backgroundColor: 'inherit',
+                })
+              : ''
+          )}
+          label={<ColumnHeader name={key} type={type} />}
+          key={key}
+        />
+      );
+    });
+  }, [columns]);
 
   return (
     <div>
-      <Table data={rows} columns={headers}>
+      <Table className={css({ width: '100%' })} data={rows} columns={headers}>
         {({ datum: row }) => (
           <Row key={row.index} data-testid={`row-${row.index}`}>
+            <Cell className={css({ position: 'sticky', left: 0 })}>
+              {row.index}
+            </Cell>
             {row.cells.map(({ element, key }) => (
               <Cell key={key}>
                 {element && (
@@ -119,6 +140,14 @@ const DocumentTableView: React.FunctionComponent<DocumentTableViewProps> = ({
                 )}
               </Cell>
             ))}
+            <Cell className={css({ position: 'sticky', right: 0 })}>
+              {row.doc.isModified() && (
+                <>
+                  <Button>Update</Button>
+                  <Button>Cancel</Button>
+                </>
+              )}
+            </Cell>
           </Row>
         )}
       </Table>
@@ -158,6 +187,8 @@ const TableCellContent = ({ element }: { element: Element }) => {
       role="cell"
       className={textStyle}
     >
+      {element.isRevertable() ? 'Modified' : ''}
+
       <BSONValue
         type={element.currentType}
         value={element.currentValue}
