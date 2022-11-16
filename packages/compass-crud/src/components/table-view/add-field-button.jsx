@@ -112,7 +112,6 @@ class AddFieldButton extends React.Component {
    * When clicking on an expandable element to append a child.
    */
   handleAddChildClick() {
-
     const newElement = this.props.value.insertEnd('$new', '');
 
     const edit = {

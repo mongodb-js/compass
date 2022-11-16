@@ -17,7 +17,7 @@ import {
 
 import CellEditor from './cell-editor';
 
-describe('<CellEditor />', function () {
+describe.skip('<CellEditor />', function () {
   before(function () {
     global.hadronApp = app;
     global.hadronApp.appRegistry = new AppRegistry();

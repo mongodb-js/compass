@@ -12,7 +12,7 @@ import {
 } from '../../../test/aggrid-helper';
 import CellRenderer from './cell-renderer';
 
-describe('<CellRenderer />', function () {
+describe.skip('<CellRenderer />', function () {
   describe('#render', function () {
     let component;
     let rowNode;

@@ -1,17 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
-import AppRegistry from 'hadron-app-registry';
-import app from 'hadron-app';
 
-import {
-  render,
-  cleanup,
-  screen,
-  fireEvent,
-  waitFor,
-} from '@testing-library/react';
-
-import sinon from 'sinon';
+import { render, cleanup, screen, fireEvent } from '@testing-library/react';
 
 import {
   getNode,
@@ -20,7 +10,6 @@ import {
   getActions,
   getColumnApi,
   getContext,
-  notCalledExcept,
 } from '../../../test/aggrid-helper';
 import AddFieldButton from './add-field-button';
 
@@ -46,7 +35,7 @@ function renderButtonAndOpenMenu(props) {
   );
 }
 
-describe.only('<AddFieldButton />', function () {
+describe('<AddFieldButton />', function () {
   afterEach(cleanup);
 
   it('renders actions for an object', function () {
@@ -80,7 +69,7 @@ describe.only('<AddFieldButton />', function () {
   });
 });
 
-// TODO:
+// TODO: must be converted from enzyme
 // describe('add next field', function () {
 //       describe('at the top level', function () {
 //         describe('when current element is empty', function () {
@@ -534,4 +523,3 @@ describe.only('<AddFieldButton />', function () {
 //         });
 //       });
 //     });
-
