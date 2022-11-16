@@ -4,11 +4,14 @@ import { debounce } from 'lodash';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   css,
+  cx,
   Card,
   Button,
   Body,
   spacing,
   Banner,
+  palette,
+  useDarkMode
 } from '@mongodb-js/compass-components';
 import {
   Editor,
@@ -41,6 +44,16 @@ const actionsStyles = css({
 const editorStyles = css({
   padding: '10px 0',
 });
+
+const editorStylesLight = css({
+  backgroundColor: palette.gray.light3,
+  borderLeft: `3px solid ${palette.gray.light2}`
+})
+
+const editorStylesDark = css({
+  backgroundColor: palette.gray.dark3,
+  borderLeft: `3px solid ${palette.gray.dark2}`
+})
 
 const modifiedMessageStyles = css({
   flex: 1,
@@ -270,6 +283,10 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    // TODO
+    //const darkMode = useDarkMode();
+    const darkMode = false;
+
     return (
       <Card data-testid="validation-editor">
         <div className={validationOptionsStyles}>
@@ -277,7 +294,7 @@ class ValidationEditor extends Component {
           {this.renderLevelSelector()}
         </div>
         <hr className={hrStyles} />
-        <div className={editorStyles}>
+        <div className={cx(editorStyles, darkMode ? editorStylesDark : editorStylesLight)}>
           <Editor
             variant={EditorVariant.Shell}
             text={this.props.validation.validator}
