@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
+import { Body } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
 import styles from './document-preview.module.less';
@@ -25,9 +27,7 @@ class DocumentPreview extends Component {
           data-testid="document-preview"
         >
           <div className={styles['document-preview-documents']}>
-            <div className={styles['no-documents']}>
-              <i>No Preview Documents</i>
-            </div>
+            <Body className={styles['no-documents']}>No Preview Documents</Body>
           </div>
         </div>
       );

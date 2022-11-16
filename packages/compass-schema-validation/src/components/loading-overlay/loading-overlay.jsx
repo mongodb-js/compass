@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import styles from './loading-overlay.module.less';
+import { SpinLoader } from '@mongodb-js/compass-components';
 
 /**
  * The loading overlay component.
@@ -23,7 +24,7 @@ class LoadingOverlay extends PureComponent {
     return (
       <div className={classnames(styles['loading-overlay'])}>
         <div className={classnames(styles['loading-overlay-box'])}>
-          <i className="fa fa-circle-o-notch fa-spin" aria-hidden />
+          <SpinLoader />
           <div className={classnames(styles['loading-overlay-box-text'])}>
             {this.props.text}
           </div>
