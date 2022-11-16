@@ -136,6 +136,15 @@ const Application = View.extend({
     webvitals.getCLS(trackPerfEvent);
   },
   /**
+   * Enable all debug output for the development mode.
+   */
+  preRender: function () {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('debug').enable('mon*,had*');
+    }
+  },
+  /**
    * Pre-load into the require cache a bunch of expensive modules while the
    * user is choosing which connection, so when the user clicks on Connect,
    * Compass can connect to the MongoDB instance faster.
@@ -193,7 +202,7 @@ const Application = View.extend({
       lastKnownVersion
     } = preferences.getPreferences();
 
-    // The main process ensured that `telemetryAnonymousId` contains the id of the User model
+    // The main process ensured that `telemetryAnonymousId` contains the id of the User model.
     const user = await User.getOrCreate(telemetryAnonymousId);
 
     this.user.set(user.serialize());
@@ -220,9 +229,9 @@ app.extend({
 
     async.series(
       [
-        // check if migrations are required
+        // Check if migrations are required.
         migrateApp.bind(state),
-        // get user
+        // Get user.
         state.fetchUser.bind(state),
       ],
       function (err) {
@@ -234,6 +243,7 @@ app.extend({
         setupTheme();
 
         Action.pluginActivationCompleted.listen(() => {
+          state.preRender();
           global.hadronApp.appRegistry.onActivated();
           global.hadronApp.appRegistry.emit(
             'application-initialized',
@@ -241,17 +251,17 @@ app.extend({
             process.env.HADRON_PRODUCT_NAME
           );
           setupIntercom(state.user);
-          // signal to main process that app is ready
+          // Signal to main process that app is ready.
           ipc.call('window:renderer-ready');
-          // catch a data refresh coming from window-manager
+          // Catch a data refresh coming from window-manager.
           ipc.on('app:refresh-data', () =>
             global.hadronApp.appRegistry.emit('refresh-data')
           );
-          // catch a toggle sidebar coming from window-manager
+          // Catch a toggle sidebar coming from window-manager.
           ipc.on('app:toggle-sidebar', () =>
             global.hadronApp.appRegistry.emit('toggle-sidebar')
           );
-          // as soon as dom is ready, render and set up the rest
+          // As soon as dom is ready, render and set up the rest.
           state.render({
             showWelcomeModal: !showedNetworkOptIn,
             networkTraffic

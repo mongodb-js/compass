@@ -15,15 +15,25 @@ import preferences from 'compass-preferences-model';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
+const DEFAULT_MAX_TIME_MS = 60000;
+
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
 
-const launchConnection = (file?: string, positionalArguments?: string) => {
+const getContext = (mode: CompassApplicationMode) => {
+  return (mode === 'CLI') ? 'terminal' : 'desktop_app';
+}
+
+const getLaunchConnectionSource = (file?: string, positionalArguments?: string) => {
   if (file) return 'JSON_file';
   if (positionalArguments) return 'string';
   return 'none';
+}
+
+const hasConfig = (source: 'global' | 'cli', globalPreferences: ParsedGlobalPreferencesResult) => {
+  return !!Object.keys(globalPreferences[source]).length;
 }
 
 class CompassApplication {
@@ -68,28 +78,21 @@ class CompassApplication {
       readOnly,
       file,
       positionalArguments,
-      autoUpdates,
       // TODO: COMPASS-6063
       // maxTimeMS,
     } = preferences.getPreferences();
 
     debug('application launched');
     track('Application Launched', {
-      context: mode,
-      launch_connection: launchConnection(file, positionalArguments),
+      context: getContext(mode),
+      launch_connection: getLaunchConnectionSource(file, positionalArguments),
       protected: protectConnectionStrings,
       readOnly,
-      autoUpdates,
-      // TODO: COMPASS-6063
-      // maxTimeMS,
-      has_global_config: !!Object.keys(globalPreferences.global).length,
-      has_cli_config: !!Object.keys(globalPreferences.cli).length,
+      // TODO: replace with maxTimeMS from preferences COMPASS-6063.
+      maxTimeMS: DEFAULT_MAX_TIME_MS,
+      global_config: hasConfig('global', globalPreferences),
+      cli_args: hasConfig('cli', globalPreferences),
     });
-
-    if (process.env.NODE_ENV === 'development') {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      require('debug').enable('mon*,had*');
-    }
   }
 
   static init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult): Promise<void> {
