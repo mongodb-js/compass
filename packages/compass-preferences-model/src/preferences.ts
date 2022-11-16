@@ -573,10 +573,15 @@ export const allPreferencesProps: Required<{
   ...featureFlagsProps,
 };
 
-export function getSettingDescription(
-  name: Exclude<keyof AllPreferences, keyof InternalUserPreferences>
-): { short: string; long?: string } {
-  return allPreferencesProps[name].description;
+export function getSettingDescription<
+  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
+>(
+  name: Name
+): Pick<PreferenceDefinition<Name>, 'description' | 'type' | 'required'> {
+  const { description, type, required } = allPreferencesProps[
+    name
+  ] as PreferenceDefinition<Name>;
+  return { description, type, required };
 }
 
 export type PreferenceState =
