@@ -1,3 +1,4 @@
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import fs from 'fs';
 import { promisify } from 'util';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -587,6 +588,7 @@ const getExportSource = (
 ) => {
   if (exportData.aggregation) {
     const { stages, options } = exportData.aggregation;
+    options.maxTimeMS = capMaxTimeMSAtPreferenceLimit(options.maxTimeMS);
     return {
       columns: true,
       source: dataService.aggregate(ns, stages, options),
