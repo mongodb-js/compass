@@ -187,7 +187,7 @@ export function useConnections({
     dataService: DataService
   ) => void;
   connectionStorage: ConnectionStorage;
-  getAutoConnectInfo?: (() => Promise<ConnectionInfo>) | undefined;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
   appName: string;
 }): {
@@ -355,7 +355,9 @@ export function useConnections({
   }, [getAutoConnectInfo]);
 
   const connect = async (
-    getAutoConnectInfo: ConnectionInfo | (() => Promise<ConnectionInfo>)
+    getAutoConnectInfo:
+      | ConnectionInfo
+      | (() => Promise<ConnectionInfo | undefined>)
   ) => {
     if (connectionAttempt || isConnected) {
       // Ensure we aren't currently connecting.
@@ -370,6 +372,10 @@ export function useConnections({
     try {
       if (typeof getAutoConnectInfo === 'function') {
         connectionInfo = await getAutoConnectInfo();
+        if (!connectionInfo) {
+          connectingConnectionAttempt.current = undefined;
+          return;
+        }
 
         dispatch({
           type: 'set-active-connection',

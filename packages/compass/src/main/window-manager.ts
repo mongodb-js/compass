@@ -18,6 +18,7 @@ import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import preferences from 'compass-preferences-model';
 import { setupTheme } from './theme';
+import { shouldWindowAutoConnect, onCompassDisconnect } from './auto-connect';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
 
@@ -254,6 +255,9 @@ class CompassWindowManager {
       'compass:log'(_bw, meta) {
         ipcMain.broadcast('compass:log', meta);
       },
+      'compass:disconnected': onCompassDisconnect,
+      'compass:should-window-auto-connect': shouldWindowAutoConnect,
+      'test:show-connect-window': () => showConnectWindow(compassApp)
     });
 
     await showConnectWindowWhenReady(compassApp);
