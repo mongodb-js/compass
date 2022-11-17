@@ -251,8 +251,6 @@ app.extend({
             process.env.HADRON_PRODUCT_NAME
           );
           setupIntercom(state.user);
-          // Signal to main process that app is ready.
-          ipc.call('window:renderer-ready');
           // Catch a data refresh coming from window-manager.
           ipc.on('app:refresh-data', () =>
             global.hadronApp.appRegistry.emit('refresh-data')

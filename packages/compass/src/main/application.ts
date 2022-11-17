@@ -15,15 +15,13 @@ import preferences from 'compass-preferences-model';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-const DEFAULT_MAX_TIME_MS = 60000;
-
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
 
-const getContext = (mode: CompassApplicationMode) => {
-  return (mode === 'CLI') ? 'terminal' : 'desktop_app';
+const getContext = () => {
+  return (process.stdin.isTTY || process.stdout.isTTY || process.stderr.isTTY) ? 'terminal' : 'desktop_app';
 }
 
 const getLaunchConnectionSource = (file?: string, positionalArguments?: string) => {
@@ -72,27 +70,7 @@ class CompassApplication {
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
-
-    const {
-      protectConnectionStrings,
-      readOnly,
-      file,
-      positionalArguments,
-      // TODO: COMPASS-6063
-      // maxTimeMS,
-    } = preferences.getPreferences();
-
-    debug('application launched');
-    track('Application Launched', {
-      context: getContext(mode),
-      launch_connection: getLaunchConnectionSource(file, positionalArguments),
-      protected: protectConnectionStrings,
-      readOnly,
-      // TODO: replace with maxTimeMS from preferences COMPASS-6063.
-      maxTimeMS: DEFAULT_MAX_TIME_MS,
-      global_config: hasConfig('global', globalPreferences),
-      cli_args: hasConfig('cli', globalPreferences),
-    });
+    this.trackApplicationLaunched(globalPreferences);
   }
 
   static init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult): Promise<void> {
@@ -121,6 +99,31 @@ class CompassApplication {
 
   private static setupWindowManager(): void {
     void CompassWindowManager.init(this);
+  }
+
+  private static trackApplicationLaunched(
+    globalPreferences: ParsedGlobalPreferencesResult
+  ): void {
+    const {
+      protectConnectionStrings,
+      readOnly,
+      file,
+      positionalArguments,
+      // TODO: COMPASS-6063
+      // maxTimeMS,
+    } = preferences.getPreferences();
+
+    debug('application launched');
+    track('Application Launched', {
+      context: getContext(),
+      launch_connection: getLaunchConnectionSource(file, positionalArguments),
+      protected: protectConnectionStrings,
+      readOnly,
+      // TODO: replace with maxTimeMS from preferences COMPASS-6063.
+      maxTimeMS: undefined,
+      global_config: hasConfig('global', globalPreferences),
+      cli_args: hasConfig('cli', globalPreferences),
+    });
   }
 
   private static setupLifecycleListeners(): void {
