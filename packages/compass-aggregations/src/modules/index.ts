@@ -16,7 +16,6 @@ import limit from './limit';
 import largeLimit from './large-limit';
 import isAtlasDeployed from './is-atlas-deployed';
 import isReadonly from './is-readonly';
-import preferencesReadOnly from './preferences-readonly';
 import maxTimeMS from './max-time-ms';
 import collationString from './collation-string';
 import comments from './comments';
@@ -66,7 +65,6 @@ const rootReducer = combineReducers({
   isModified,
   isAtlasDeployed,
   isReadonly,
-  preferencesReadOnly,
   importPipeline,
   settings,
   limit,

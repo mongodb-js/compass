@@ -1,5 +1,4 @@
 import { createStore, applyMiddleware } from 'redux';
-import preferences from 'compass-preferences-model';
 import thunk from 'redux-thunk';
 import toNS from 'mongodb-ns';
 import { toJSString } from 'mongodb-query-parser';
@@ -12,7 +11,6 @@ import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { PipelineStorage } from '../utils/pipeline-storage';
 import { mapBuilderStageToStoreStage } from '../modules/pipeline-builder/stage-editor';
 import { updatePipelinePreview } from '../modules/pipeline-builder/builder-helpers';
-import { preferencesReadOnlyChanged } from '../modules/preferences-readonly';
 
 /**
  * Refresh the input documents.
@@ -72,7 +70,6 @@ const configureStore = (options = {}) => {
       serverVersion: options.serverVersion,
       isTimeSeries: options.isTimeSeries,
       isReadonly: options.isReadonly,
-      preferencesReadOnly: !!options.preferencesReadOnly,
       sourceName: options.sourceName,
       isDataLake: options.isDataLake,
       env:
@@ -113,12 +110,6 @@ const configureStore = (options = {}) => {
       })
     )
   );
-
-  // TODO: Refactor how we access readOnly in stores https://jira.mongodb.org/browse/COMPASS-6300
-  store.dispatch(preferencesReadOnlyChanged(!!preferences.getPreferences().readOnly));
-  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    store.dispatch(preferencesReadOnlyChanged(readOnly));
-  });
 
   // Set the app registry if preset. This must happen first.
   if (options.localAppRegistry) {

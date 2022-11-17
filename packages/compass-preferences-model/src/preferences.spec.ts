@@ -22,6 +22,7 @@ describe('Preferences class', function () {
     const result = await preferences.fetchPreferences();
     expect(result.id).to.equal('General');
     expect(result.enableMaps).to.equal(false);
+    expect(result.enableShell).to.equal(true);
   });
 
   it('allows saving preferences', async function () {
@@ -119,6 +120,7 @@ describe('Preferences class', function () {
     const result = await preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.enableMaps).to.equal(true);
+    expect(result.enableShell).to.equal(true);
   });
 
   it('allows providing cli- and global-config-provided options', async function () {
@@ -205,6 +207,7 @@ describe('Preferences class', function () {
     await preferences.ensureDefaultConfigurableUserPreferences();
     await preferences.getConfigurableUserPreferences(); // set defaults
     await preferences.savePreferences({ networkTraffic: false });
+    await preferences.savePreferences({ readOnly: true });
     expect(calls).to.deep.equal([
       {
         showedNetworkOptIn: true,
@@ -213,7 +216,6 @@ describe('Preferences class', function () {
         enableFeedbackPanel: true,
         trackUsageStatistics: true,
         autoUpdates: true,
-        enableShell: true,
       },
       {
         networkTraffic: false,
@@ -222,6 +224,10 @@ describe('Preferences class', function () {
         enableFeedbackPanel: false,
         trackUsageStatistics: false,
         autoUpdates: false,
+      },
+      {
+        readOnly: true,
+        enableShell: false,
       },
     ]);
   });
