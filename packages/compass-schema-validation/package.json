@@ -70,7 +70,6 @@
     "@mongodb-js/tsconfig-compass": "^1.0.1",
     "@mongodb-js/webpack-config-compass": "^1.0.3",
     "chai": "^4.2.0",
-    "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
     "electron": "^15.5.7",
     "enzyme": "^3.11.0",
