@@ -17,7 +17,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import ExportSelectOutput from './export-select-output';
-import ExportSelectFields from './export-select-fields';
+import { ExportSelectFields } from './export-select-fields';
 import ErrorBox from './error-box';
 import revealFile from '../utils/reveal-file';
 import formatNumber from '../utils/format-number';
@@ -220,7 +220,7 @@ type ExportModalProps = {
   cancelExport: () => void;
   exportStep: ExportStep;
   sampleFields: () => void;
-  updateSelectedFields: (selectedfields: Record<string, number>) => void;
+  updateSelectedFields: (selectedFields: Record<string, number>) => void;
   isFullCollection: boolean;
   changeExportStep: (step: ExportStep) => void;
   toggleFullCollection: () => void;
@@ -323,11 +323,12 @@ function ExportModal({
             toggleFullCollection={toggleFullCollection}
           />
         )}
-        <ExportSelectFields
-          fields={fields}
-          exportStep={exportStep}
-          updateSelectedFields={updateSelectedFields}
-        />
+        {exportStep === FIELDS && (
+          <ExportSelectFields
+            fields={fields}
+            updateSelectedFields={updateSelectedFields}
+          />
+        )}
         <ExportSelectOutput
           count={count}
           status={status}
