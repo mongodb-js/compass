@@ -940,15 +940,6 @@ describe('Collection aggregations tab', function () {
       expect(await preview.getText()).to.include(
         'The $search stage is only available with MongoDB Atlas'
       );
-
-      const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
-      const text = await errors.getText();
-
-      const noAtlas = text.includes(
-        "Unrecognized pipeline stage name: '$search'"
-      );
-      const atlasWithSearchDisabled = text.includes('$search not enabled!');
-      expect(noAtlas || atlasWithSearchDisabled).to.be.true;
     });
 
     it('previews atlas operators - $searchMeta', async function () {
@@ -968,14 +959,6 @@ describe('Collection aggregations tab', function () {
       expect(await preview.getText()).to.include(
         'The $searchMeta stage is only available with MongoDB Atlas'
       );
-
-      const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
-      const text = await errors.getText();
-      const noAtlas = text.includes(
-        "Unrecognized pipeline stage name: '$searchMeta'"
-      );
-      const atlasWithSearchDisabled = text.includes('$search not enabled!');
-      expect(noAtlas || atlasWithSearchDisabled).to.be.true;
     });
 
     it('shows syntax error when pipeline is invalid', async function () {
