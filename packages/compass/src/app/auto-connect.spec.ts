@@ -3,8 +3,20 @@ import sinon from 'sinon';
 import { loadAutoConnectInfo } from './auto-connect';
 import { exportConnections } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
+import { ipcRenderer } from 'hadron-ipc';
 
 describe('auto connection argument parsing', function () {
+  let sandbox: sinon.SinonSandbox;
+
+  beforeEach(function() {
+    sandbox = sinon.createSandbox();
+    sandbox.stub(ipcRenderer, 'call').resolves(true);
+  })
+
+  afterEach(function() {
+    sandbox.restore();
+  })
+
   it('skips nothing if no file and no positional arguments are provided', function() {
     const fn = loadAutoConnectInfo({});
     expect(fn).to.equal(undefined);

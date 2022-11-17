@@ -9,3 +9,4 @@ export type AceAnnotation = Ace.Annotation;
 export type { CompletionWithServerInfo } from './types';
 export { InlineEditor } from './inline-editor';
 export { prettify } from './prettify';
+export type { FormatOptions } from './prettify';
