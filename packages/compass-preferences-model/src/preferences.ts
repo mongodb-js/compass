@@ -169,6 +169,17 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   });
 }
 
+/** Helper for defining how to derive value/state for protectConnectionStrings-affected preferences */
+function deriveProtectConnectionStringsOptionState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && !v('protectConnectionStrings'),
+    state:
+      s(property) ?? s('protectConnectionStrings') ?? (v('protectConnectionStrings') ? 'derived' : undefined),
+  });
+}
+
 const modelPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
@@ -408,6 +419,7 @@ const modelPreferencesProps: Required<{
       short: 'Enable DevTools',
       long: `Enable the Chromium Developer Tools that can be used to debug Electron's process`,
     },
+    deriveValue: deriveProtectConnectionStringsOptionState('enableDevTools'),
   },
   /**
    * Switch to show the Kerberos password field in the connection form.
