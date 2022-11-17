@@ -3,11 +3,33 @@ import { importConnections } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
+import { ipcRenderer } from 'hadron-ipc';
+import { ConnectionString } from 'mongodb-connection-string-url';
+
+async function shouldWindowAutoConnect(): Promise<boolean> {
+  return await ipcRenderer.call('compass:should-window-auto-connect');
+}
+
+function applyUsernameAndPassword(
+  connectionInfo: Readonly<ConnectionInfo>,
+  { username, password }: Pick<AllPreferences, 'username' | 'password'>
+): ConnectionInfo {
+  const connectionString = new ConnectionString(connectionInfo.connectionOptions.connectionString);
+  if (username) connectionString.username = encodeURIComponent(username);
+  if (password) connectionString.password = encodeURIComponent(password);
+  return {
+    ...connectionInfo,
+    connectionOptions: {
+      ...connectionInfo.connectionOptions,
+      connectionString: connectionString.toString()
+    }
+  };
+}
 
 export function loadAutoConnectInfo(
-  preferences: Pick<AllPreferences, 'file' | 'positionalArguments' | 'passphrase'>,
+  preferences: Pick<AllPreferences, 'file' | 'positionalArguments' | 'passphrase' | 'username' | 'password'>,
   fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
-): undefined | (() => Promise<ConnectionInfo>) {
+): undefined | (() => Promise<ConnectionInfo | undefined>) {
   const {
     file,
     positionalArguments = [],
@@ -20,7 +42,11 @@ export function loadAutoConnectInfo(
 
   // Return an async function here rather than just loading the ConnectionInfo so that errors
   // from importing the connection end up being treated like connection failures.
-  return async (): Promise<ConnectionInfo> => {
+  return async (): Promise<ConnectionInfo | undefined> => {
+    if (!await shouldWindowAutoConnect()) {
+      return undefined;
+    }
+
     if (file) {
       const fileContents = await fs.readFile(file, 'utf8');
       const connections: ConnectionInfo[] = [];
@@ -48,14 +74,14 @@ export function loadAutoConnectInfo(
           `Could not find connection with id '${id}' in connection file '${file}'`
         );
       }
-      return connectionInfo;
+      return applyUsernameAndPassword(connectionInfo, preferences);
     } else {
-      return {
+      return applyUsernameAndPassword({
         connectionOptions: {
           connectionString: positionalArguments[0],
         },
         id: new UUID().toString(),
-      };
+      }, preferences);
     }
   };
 }

@@ -52,33 +52,10 @@ class ValidationStates extends Component {
     zeroStateChanged: PropTypes.func.isRequired,
     editMode: PropTypes.object.isRequired,
     serverVersion: PropTypes.string,
+    readOnly: PropTypes.bool,
   };
 
-  /**
-   * Checks if the validation is editable.
-   *
-   * @returns {Boolean} True if it is editable.
-   */
-  isEditable() {
-    return (
-      !this.props.editMode.collectionReadOnly &&
-      !this.props.editMode.collectionTimeSeries &&
-      !this.props.editMode.hadronReadOnly &&
-      !this.props.editMode.writeStateStoreReadOnly &&
-      !this.props.editMode.oldServerReadOnly
-    );
-  }
-
-  /**
-   * Renders the banner if the validation is not editable.
-   *
-   * @returns {React.Component} The component.
-   */
   renderBanner() {
-    if (this.isEditable()) {
-      return;
-    }
-
     if (this.props.editMode.collectionTimeSeries) {
       return (
         <WarningSummary
@@ -111,13 +88,27 @@ class ValidationStates extends Component {
         <Banner variant="warning">
           <div data-testid="old-server-read-only">
             {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
-            <Link target="_blank" href={DOC_UPGRADE_REVISION}>
+            <Link
+              className={styles['upgrade-link']}
+              target="_blank"
+              href={DOC_UPGRADE_REVISION}
+            >
               upgrade to MongoDB 3.2.
             </Link>
           </div>
         </Banner>
       );
     }
+  }
+
+  isEditable() {
+    return (
+      !this.props.editMode.collectionReadOnly &&
+      !this.props.editMode.collectionTimeSeries &&
+      !this.props.editMode.writeStateStoreReadOnly &&
+      !this.props.editMode.oldServerReadOnly &&
+      !this.props.readOnly
+    );
   }
 
   /**

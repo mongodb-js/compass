@@ -148,22 +148,24 @@ function validatePreferences(
     error('Invalid preferences structure');
     _obj = {};
   }
-  const obj = { ...((_obj ?? {}) as Partial<AllPreferences>) };
+  const obj: Partial<AllPreferences> = {};
 
-  for (const [key, value] of Object.entries(obj) as [
+  for (const [key, rawValue] of Object.entries(_obj ?? {}) as [
     keyof AllPreferences,
     unknown
   ][]) {
     if (!allPreferencesProps[key]) {
       error(`Unknown option "${key}"`);
-      delete obj[key];
       continue;
     }
     if (!allPreferencesProps[key][source]) {
       error(`Setting option "${key}" not allowed in this context`);
-      delete obj[key];
       continue;
     }
+    // Some options need to be brought into the right format in order to be used
+    // as an option value, e.g. an object into an array of key-value pairs
+    const process = allPreferencesProps[key].customPostProcess;
+    const value = process ? process(rawValue, error) : rawValue;
     // `typeof` + `isArray` is good enough for everything we need right now, but we can of course expand this check over time
     if (
       (Array.isArray(value) ? 'array' : typeof value) !==
@@ -174,7 +176,6 @@ function validatePreferences(
           allPreferencesProps[key].type
         }, received ${typeof value}`
       );
-      delete obj[key];
       continue;
     }
     if (
@@ -186,11 +187,11 @@ function validatePreferences(
           allPreferencesProps[key].values?.join(', ')
         )}], received ${String(value)}`
       );
-      delete obj[key];
       continue;
     }
+    obj[key] = value as any;
   }
-  return [obj as AllPreferences, errors];
+  return [obj, errors];
 }
 
 export interface GlobalPreferenceSources {
@@ -220,8 +221,7 @@ export async function parseAndValidateGlobalPreferences(
   }
   const cliPreferences = parseCliArgs(argv);
   if (cliPreferences && typeof cliPreferences === 'object') {
-    // Remove positional arguments and common Electron/Chromium flags
-    // that we want to allow.
+    // Remove common Electron/Chromium flags that we want to allow.
     const ignoreFlags = ['disableGpu', 'sandbox'];
     for (const flag of ignoreFlags) {
       delete (cliPreferences as Record<string, unknown>)[flag];

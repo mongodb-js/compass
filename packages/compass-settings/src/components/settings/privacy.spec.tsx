@@ -16,7 +16,7 @@ describe('PrivacySettings', function () {
       <PrivacySettings
         handleChange={handleChangeSpy}
         preferenceStates={{}}
-        checkboxValues={{} as any}
+        currentValues={{} as any}
       />
     );
     container = screen.getByTestId('privacy-settings');

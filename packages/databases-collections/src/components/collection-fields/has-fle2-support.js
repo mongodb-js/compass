@@ -2,7 +2,11 @@ import semver from 'semver';
 
 const MIN_FLE2_SERVER_VERSION = '6.0.0-alpha0';
 
-export default function hasFLE2Support(serverVersion, currentTopologyType, configuredKMSProviders) {
+export default function hasFLE2Support(
+  serverVersion,
+  currentTopologyType,
+  configuredKMSProviders
+) {
   if (currentTopologyType === 'Single') {
     return false;
   }

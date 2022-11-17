@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
@@ -41,13 +41,10 @@ type ModalBodyProps = {
   children: React.ReactNode;
 };
 
-function ModalBody({
-  variant = Variant.Default,
-  className,
-  scroll = true,
-  minHeight,
-  children,
-}: ModalBodyProps) {
+const ModalBody = forwardRef<HTMLDivElement, ModalBodyProps>(function ModalBody(
+  { variant = Variant.Default, className, scroll = true, minHeight, children },
+  ref
+) {
   const style: React.CSSProperties = {};
 
   if (minHeight) {
@@ -61,10 +58,11 @@ function ModalBody({
     <div
       className={cx(contentStyle, variantStyle[variant], className)}
       style={style}
+      ref={ref}
     >
       {children}
     </div>
   );
-}
+});
 
 export { ModalBody };

@@ -118,6 +118,20 @@ export const setIsReadonly = (store, isReadonly) => {
 };
 
 /**
+ * Set the isEditable flag in the store.
+ *
+ * @param {Store} store - The store.
+ */
+export const setIsEditable = (store, hasProjection) => {
+  const isEditable = isListEditable({
+    isDataLake: store.state.isDataLake,
+    isReadonly: store.state.isReadonly,
+    hasProjection,
+  });
+  store.onIsEditableChanged(isEditable);
+};
+
+/**
  * Set the isTimeSeries flag in the store.
  *
  * @param {Store} store - The store.
@@ -155,6 +169,17 @@ export const setGlobalAppRegistry = (store, appRegistry) => {
  */
 export const setLocalAppRegistry = (store, appRegistry) => {
   store.localAppRegistry = appRegistry;
+};
+
+/**
+ * Determine if the document list is editable.
+ *
+ * @param {Object} opts - The options to determine if the list is editable.
+ *
+ * @returns {Boolean} If the list is editable.
+ */
+export const isListEditable = ({ isDataLake, isReadonly, hasProjection }) => {
+  return !hasProjection && !isDataLake && !isReadonly;
 };
 
 /**
@@ -275,6 +300,15 @@ const configureStore = (options = {}) => {
     },
 
     /**
+     * Set if the collection is readonly.
+     *
+     * @param {Boolean} isEditable - If Compass is readonly
+     */
+    onIsEditableChanged(isEditable) {
+      this.setState({ isEditable });
+    },
+
+    /**
      * Set if the collection is a time-series collection.
      *
      * @param {Boolean} isTimeSeries - If the collection is time-series.
@@ -291,11 +325,9 @@ const configureStore = (options = {}) => {
      */
     onCollectionChanged(ns) {
       const nsobj = toNS(ns);
-      const editable = this.isListEditable();
       this.setState({
         ns: ns,
         collection: nsobj.collection,
-        isEditable: editable,
         table: this.getInitialTableState(),
         query: this.getInitialQueryState(),
       });
@@ -321,19 +353,6 @@ const configureStore = (options = {}) => {
       ) {
         this.setState({ outdated: true });
       }
-    },
-
-    /**
-     * Determine if the document list is editable.
-     *
-     * @returns {Boolean} If the list is editable.
-     */
-    isListEditable() {
-      return (
-        !this.state.isDataLake &&
-        !this.state.isReadonly &&
-        process.env.HADRON_READONLY !== 'true'
-      );
     },
 
     /**
@@ -1201,11 +1220,12 @@ const configureStore = (options = {}) => {
       try {
         const [shardKeys, docs] = await Promise.all(promises);
 
+        setIsEditable(store, this.hasProjection(query));
+
         Object.assign(stateChanges, {
           status: this.isInitialQuery(query)
             ? DOCUMENTS_STATUS_FETCHED_INITIAL
             : DOCUMENTS_STATUS_FETCHED_CUSTOM,
-          isEditable: this.hasProjection(query) ? false : this.isListEditable(),
           error: null,
           docs: docs.map((doc) => new HadronDocument(doc)),
           page: 0,
@@ -1325,21 +1345,21 @@ const configureStore = (options = {}) => {
     const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
     const instance = instanceStore.getState().instance;
 
-    const initialState = {
+    const instanceState = {
       isWritable: instance.isWritable,
       instanceDescription: instance.description,
       version: instance.build.version,
     };
     if (instance.dataLake.isDataLake) {
-      initialState.isDataLake = true;
-      initialState.isEditable = false;
+      instanceState.isDataLake = true;
     }
-    store.setState(initialState);
+    store.setState(instanceState);
 
     // these can change later
     instance.on('change:isWritable', () => {
       store.setState({ isWritable: instance.isWritable });
     });
+
     instance.on('change:description', () => {
       store.setState({ instanceDescription: instance.description });
     });

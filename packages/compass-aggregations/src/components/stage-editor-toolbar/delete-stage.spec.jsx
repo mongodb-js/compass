@@ -54,7 +54,7 @@ describe('DeleteStage [Component]', function() {
       component = null;
     });
 
-    it('toggles the expansion and flags as modified', function() {
+    it('calls delete handler when clicked', function() {
       component.find('button').simulate('click');
       expect(spy.calledWith(1)).to.equal(true);
     });

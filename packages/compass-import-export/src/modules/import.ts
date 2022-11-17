@@ -32,6 +32,7 @@ import mime from 'mime-types';
 
 import type { AnyAction, Dispatch } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { Document } from 'mongodb';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
@@ -94,7 +95,7 @@ type FieldType = {
 };
 
 type State = {
-  isOpen?: boolean;
+  isOpen: boolean;
   errors: Error[];
   fileType: AcceptedFileType | '';
   fileName: string;
@@ -113,7 +114,7 @@ type State = {
 
   ignoreBlanks: boolean;
   fields: FieldType[];
-  values: null[];
+  values: Document[];
   previewLoaded: boolean;
   exclude: string[];
   transform: [string, string | undefined][];

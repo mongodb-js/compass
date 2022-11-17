@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Resizable } from 're-resizable';
 import { sortableHandle } from 'react-sortable-hoc';
 import { connect } from 'react-redux';
-import ResizeHandle from '../resize-handle/resize-handle';
+import ResizeHandle from '../resize-handle';
 import StageEditorToolbar from '../stage-editor-toolbar';
 import StageEditor from '../stage-editor';
 import StagePreview from '../stage-preview';

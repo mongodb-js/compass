@@ -8,6 +8,7 @@ import {
   focusRing,
 } from '@mongodb-js/compass-components';
 
+import FeaturesSettings from './settings/features';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
 import Sidebar from './sidebar';
@@ -45,6 +46,7 @@ const settingsStyles = css(
 
 const settings: Settings[] = [
   { name: 'Privacy', component: PrivacySettings },
+  { name: 'Features', component: FeaturesSettings },
   { name: 'Theme', component: ThemeSettings },
 ];
 
