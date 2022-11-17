@@ -459,7 +459,7 @@ describe('Collection aggregations tab', function () {
         const maxTimeMSElement = await browser.$(
           Selectors.AggregationMaxTimeMSInput
         );
-        await maxTimeMSElement.setValue('1');
+        await maxTimeMSElement.setValue('1000');
       }
 
       let maxTimeMSBefore;
@@ -473,7 +473,7 @@ describe('Collection aggregations tab', function () {
 
         await browser.setValueVisible(
           Selectors.SettingsInputElement('maxTimeMS'),
-          '1'
+          '1000'
         );
         await browser.clickVisible(Selectors.SaveSettingsButton);
       }
@@ -499,7 +499,7 @@ describe('Collection aggregations tab', function () {
         `{
       foo: {
         $function: {
-          body: 'function() { sleep(1000) }',
+          body: 'function() { sleep(10000) }',
           args: [],
           lang: 'js'
         }
