@@ -84,6 +84,8 @@ function showConnectWindow(
 ): BrowserWindow {
   const url = opts.url ?? DEFAULT_URL;
 
+  const { enableDevTools } = preferences.getPreferences();
+
   const windowOpts = {
     width: Number(DEFAULT_WIDTH),
     height: Number(DEFAULT_HEIGHT),
@@ -137,16 +139,8 @@ function showConnectWindow(
 
   void window.loadURL(url);
 
-  /**
-   * Open devtools for this window when it's opened.
-   *
-   * @example DEVTOOLS=1 npm start
-   * @see scripts/start.js
-   */
-  if (process.env.DEVTOOLS) {
-    window.webContents.openDevTools({
-      mode: 'detach',
-    });
+  if (!enableDevTools) {
+    window.webContents.closeDevTools();
   }
 
   /**

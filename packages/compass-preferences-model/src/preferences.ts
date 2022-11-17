@@ -26,6 +26,7 @@ export type UserConfigurablePreferences = {
   protectConnectionStrings?: boolean;
   forceConnectionOptions?: [key: string, value: string][];
   showKerberosPasswordField?: boolean;
+  enableDevTools?: boolean;
   theme: THEMES;
 };
 
@@ -391,6 +392,21 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Protect Connection String Secrets',
       long: 'Hide credentials in connection strings from users.',
+    },
+  },
+  /**
+   * Switch to enable DevTools in Electron.
+   */
+   enableDevTools: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable DevTools',
+      long: `Enable the Chromium Developer Tools that can be used to debug Electron's process`,
     },
   },
   /**
