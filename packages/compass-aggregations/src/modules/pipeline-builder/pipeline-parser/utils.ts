@@ -3,6 +3,7 @@ import type { Node } from '@babel/types';
 import _parseEJSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
+import type { FormatOptions } from '@mongodb-js/compass-editor';
 
 type ErrorLoc = {
   line: number;
@@ -16,8 +17,12 @@ export class PipelineParserError extends SyntaxError {
   }
 };
 
-export function generate(ast: Node) {
-  return prettify(babelGenerate(ast).code);
+export function generate(ast: Node, formatOptions?: FormatOptions) {
+  return prettify(
+    babelGenerate(ast).code,
+    'javascript-expression',
+    formatOptions,
+  );
 }
 
 /**
