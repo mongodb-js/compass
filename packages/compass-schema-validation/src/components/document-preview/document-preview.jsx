@@ -10,11 +10,14 @@ import {
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
+import { LoadingOverlay } from '../loading-overlay';
+
 const previewStyles = css({
   display: 'flex',
   height: spacing[6] * 3,
   padding: 0,
   overflow: 'auto',
+  position: 'relative',
 });
 
 const noPreviewStyles = css({
@@ -34,7 +37,10 @@ const noPreviewTextStyles = css({
 class DocumentPreview extends Component {
   static displayName = 'DocumentPreview';
 
-  static propTypes = { document: PropTypes.object };
+  static propTypes = {
+    document: PropTypes.object,
+    isLoading: PropTypes.bool,
+  };
 
   /**
    * Renders the document preview.
@@ -50,7 +56,9 @@ class DocumentPreview extends Component {
         )}
         data-testid="document-preview"
       >
-        {this.props.document ? (
+        {this.props.isLoading ? (
+          <LoadingOverlay />
+        ) : this.props.document ? (
           <Document doc={this.props.document} editable={false} />
         ) : (
           <Body className={noPreviewTextStyles}>No Preview Documents</Body>

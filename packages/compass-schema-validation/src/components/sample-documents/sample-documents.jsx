@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import DocumentPreview from '../document-preview';
-import LoadingOverlay from '../loading-overlay';
 
 import {
   Icon,
@@ -20,7 +19,6 @@ const sampleDocumentsStyles = css({
   marginTop: spacing[4],
   display: 'flex',
   gap: spacing[3],
-  position: 'relative',
 });
 
 const sampleDocumentStyles = css({
@@ -77,7 +75,7 @@ class SampleDocuments extends Component {
    * @returns {React.Component} The component.
    */
   renderMatchingDocuments() {
-    const title = 'Sample Document That Passed Validation';
+    const title = 'Sample document that passed validation';
 
     return (
       <div className={sampleDocumentStyles} data-testid="matching-documents">
@@ -85,7 +83,10 @@ class SampleDocuments extends Component {
           <Icon glyph="InfoWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>{title}</Body>
         </div>
-        <DocumentPreview document={this.props.sampleDocuments.matching} />
+        <DocumentPreview
+          document={this.props.sampleDocuments.matching}
+          isLoading={this.props.sampleDocuments.isLoading}
+        />
       </div>
     );
   }
@@ -96,7 +97,7 @@ class SampleDocuments extends Component {
    * @returns {React.Component} The component.
    */
   renderNotMatchingDocuments() {
-    const title = 'Sample Document That Failed Validation';
+    const title = 'Sample document that failed falidation';
 
     return (
       <div className={sampleDocumentStyles} data-testid="notmatching-documents">
@@ -104,7 +105,10 @@ class SampleDocuments extends Component {
           <Icon glyph="XWithCircle" size="small" />
           <Body className={documentHeadingTextStyles}>{title}</Body>
         </div>
-        <DocumentPreview document={this.props.sampleDocuments.notmatching} />
+        <DocumentPreview
+          document={this.props.sampleDocuments.notmatching}
+          isLoading={this.props.sampleDocuments.isLoading}
+        />
       </div>
     );
   }
@@ -117,9 +121,6 @@ class SampleDocuments extends Component {
   render() {
     return (
       <div className={sampleDocumentsStyles}>
-        {this.props.sampleDocuments.isLoading ? (
-          <LoadingOverlay text="Sampling Documents&hellip;" />
-        ) : null}
         {this.renderMatchingDocuments()}
         {this.renderNotMatchingDocuments()}
       </div>
