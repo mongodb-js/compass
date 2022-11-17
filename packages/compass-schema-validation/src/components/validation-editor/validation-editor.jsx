@@ -5,13 +5,13 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   css,
   cx,
-  Card,
   Button,
   Body,
   spacing,
   Banner,
   palette,
-  useDarkMode
+  withTheme,
+  KeylineCard,
 } from '@mongodb-js/compass-components';
 import {
   Editor,
@@ -26,13 +26,12 @@ import { ActionSelector, LevelSelector } from '../validation-selectors';
 
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
-const validationOptionsStyles = css({
-  display: 'flex',
+const validationEditorStyles = css({
+  padding: spacing[3],
 });
 
-const hrStyles = css({
-  marginTop: '13px',
-  marginBottom: '16px',
+const validationOptionsStyles = css({
+  display: 'flex',
 });
 
 const actionsStyles = css({
@@ -43,17 +42,18 @@ const actionsStyles = css({
 
 const editorStyles = css({
   padding: '10px 0',
+  marginTop: spacing[3],
 });
 
 const editorStylesLight = css({
   backgroundColor: palette.gray.light3,
-  borderLeft: `3px solid ${palette.gray.light2}`
-})
+  borderLeft: `3px solid ${palette.gray.light2}`,
+});
 
 const editorStylesDark = css({
   backgroundColor: palette.gray.dark3,
-  borderLeft: `3px solid ${palette.gray.dark2}`
-})
+  borderLeft: `3px solid ${palette.gray.dark2}`,
+});
 
 const modifiedMessageStyles = css({
   flex: 1,
@@ -66,7 +66,7 @@ const buttonStyles = css({
 /**
  * The validation editor component.
  */
-class ValidationEditor extends Component {
+class UnthemedValidationEditor extends Component {
   static displayName = 'ValidationEditor';
 
   static propTypes = {
@@ -87,6 +87,7 @@ class ValidationEditor extends Component {
       error: PropTypes.object,
     }),
     isEditable: PropTypes.bool.isRequired,
+    darkMode: PropTypes.bool.isRequired,
   };
 
   /**
@@ -283,34 +284,43 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    // TODO
-    //const darkMode = useDarkMode();
-    const darkMode = false;
+    const { darkMode, isEditable, validation } = this.props;
+
+    console.log({ darkMode });
 
     return (
-      <Card data-testid="validation-editor">
+      <KeylineCard
+        data-testid="validation-editor"
+        className={validationEditorStyles}
+      >
         <div className={validationOptionsStyles}>
           {this.renderActionSelector()}
           {this.renderLevelSelector()}
         </div>
-        <hr className={hrStyles} />
-        <div className={cx(editorStyles, darkMode ? editorStylesDark : editorStylesLight)}>
+        <div
+          className={cx(
+            editorStyles,
+            darkMode ? editorStylesDark : editorStylesLight
+          )}
+        >
           <Editor
             variant={EditorVariant.Shell}
-            text={this.props.validation.validator}
+            text={validation.validator}
             onChangeText={(text) => this.onValidatorChange(text)}
             options={{
               highlightActiveLine: false,
             }}
-            readOnly={!this.props.isEditable}
+            readOnly={!isEditable}
             completer={this.completer}
           />
         </div>
         {this.renderValidationMessage()}
         {this.renderActionsPanel()}
-      </Card>
+      </KeylineCard>
     );
   }
 }
+
+const ValidationEditor = withTheme(UnthemedValidationEditor);
 
 export default ValidationEditor;

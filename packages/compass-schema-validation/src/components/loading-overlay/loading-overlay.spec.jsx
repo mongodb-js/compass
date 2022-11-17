@@ -21,8 +21,8 @@ describe('LoadingOverlay [Component]', function () {
       expect(component.find(`.${styles['loading-overlay']}`)).to.be.present();
     });
 
-    it('renders the icon', function () {
-      expect(component.find('.fa.fa-circle-o-notch.fa-spin')).to.be.present();
+    it('renders the SpinLoader', function () {
+      expect(component.find('SpinLoader')).to.be.present();
     });
 
     it('renders the text', function () {

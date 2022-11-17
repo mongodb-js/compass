@@ -60,7 +60,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
-    "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -87,7 +86,6 @@
     "mongodb-query-parser": "^2.4.6",
     "nyc": "^15.0.0",
     "prop-types": "^15.7.2",
-    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
@@ -103,7 +101,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
-    "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   }
 }

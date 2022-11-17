@@ -4,7 +4,6 @@ import DocumentPreview from '../document-preview';
 import LoadingOverlay from '../loading-overlay';
 
 import {
-  Card,
   Icon,
   Body,
   css,
@@ -18,9 +17,10 @@ import {
  */
 
 const sampleDocumentsStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[4],
   display: 'flex',
   gap: spacing[3],
+  position: 'relative',
 });
 
 const sampleDocumentStyles = css({
@@ -31,6 +31,7 @@ const documentHeadingStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[1],
+  marginBottom: spacing[3],
 });
 
 const matchingStyles = css({
@@ -115,13 +116,13 @@ class SampleDocuments extends Component {
    */
   render() {
     return (
-      <Card className={sampleDocumentsStyles}>
+      <div className={sampleDocumentsStyles}>
         {this.props.sampleDocuments.isLoading ? (
           <LoadingOverlay text="Sampling Documents&hellip;" />
         ) : null}
         {this.renderMatchingDocuments()}
         {this.renderNotMatchingDocuments()}
-      </Card>
+      </div>
     );
   }
 }

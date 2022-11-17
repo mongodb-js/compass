@@ -1,10 +1,32 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { Body } from '@mongodb-js/compass-components';
+import {
+  Body,
+  KeylineCard,
+  css,
+  cx,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
-import styles from './document-preview.module.less';
+const previewStyles = css({
+  display: 'flex',
+  height: spacing[6] * 3,
+  padding: 0,
+  overflow: 'auto',
+});
+
+const noPreviewStyles = css({
+  alignItems: 'center',
+});
+
+const noPreviewTextStyles = css({
+  padding: spacing[3],
+  textAlign: 'center',
+  fontStyle: 'italic',
+  width: '100%',
+});
 
 /**
  * The document preview component.
@@ -20,30 +42,20 @@ class DocumentPreview extends Component {
    * @returns {React.Component} The component.
    */
   render() {
-    if (!this.props.document) {
-      return (
-        <div
-          className={styles['document-preview']}
-          data-testid="document-preview"
-        >
-          <div className={styles['document-preview-documents']}>
-            <Body className={styles['no-documents']}>No Preview Documents</Body>
-          </div>
-        </div>
-      );
-    }
-
     return (
-      <div
-        className={styles['document-preview']}
+      <KeylineCard
+        className={cx(
+          previewStyles,
+          this.props.document ? undefined : noPreviewStyles
+        )}
         data-testid="document-preview"
       >
-        <div className={styles['document-preview-documents']}>
-          <div className={styles['document-preview-document-card']}>
-            <Document doc={this.props.document} editable={false} />
-          </div>
-        </div>
-      </div>
+        {this.props.document ? (
+          <Document doc={this.props.document} editable={false} />
+        ) : (
+          <Body className={noPreviewTextStyles}>No Preview Documents</Body>
+        )}
+      </KeylineCard>
     );
   }
 }

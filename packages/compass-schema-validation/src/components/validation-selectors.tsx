@@ -58,6 +58,7 @@ export function ActionSelector({
         value={validationAction}
         allowDeselect={false}
         className={selectStyles}
+        size="small"
       >
         <Option value="warn">Warning</Option>
         <Option value="error">Error</Option>
@@ -97,6 +98,7 @@ export function LevelSelector({
         value={validationLevel}
         allowDeselect={false}
         className={selectStyles}
+        size="small"
       >
         <Option value="off">Off</Option>
         <Option value="moderate">Moderate</Option>
