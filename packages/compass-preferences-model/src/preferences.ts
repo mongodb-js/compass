@@ -170,13 +170,15 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
 }
 
 /** Helper for defining how to derive value/state for protectConnectionStrings-affected preferences */
-function deriveProtectConnectionStringsOptionState<K extends keyof AllPreferences>(
-  property: K
-): DeriveValueFunction<boolean> {
+function deriveProtectConnectionStringsOptionState<
+  K extends keyof AllPreferences
+>(property: K): DeriveValueFunction<boolean> {
   return (v, s) => ({
     value: v(property) && !v('protectConnectionStrings'),
     state:
-      s(property) ?? s('protectConnectionStrings') ?? (v('protectConnectionStrings') ? 'derived' : undefined),
+      s(property) ??
+      s('protectConnectionStrings') ??
+      (v('protectConnectionStrings') ? 'derived' : undefined),
   });
 }
 
@@ -408,7 +410,7 @@ const modelPreferencesProps: Required<{
   /**
    * Switch to enable DevTools in Electron.
    */
-   enableDevTools: {
+  enableDevTools: {
     type: 'boolean',
     required: false,
     default: false,
