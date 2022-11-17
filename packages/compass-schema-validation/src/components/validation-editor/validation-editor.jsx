@@ -255,7 +255,12 @@ class UnthemedValidationEditor extends Component {
 
     return (
       <div className={actionsStyles}>
-        <Body className={modifiedMessageStyles} data-testid="validation-action-message">Validation modified</Body>
+        <Body
+          className={modifiedMessageStyles}
+          data-testid="validation-action-message"
+        >
+          Validation modified
+        </Body>
         <Button
           type="button"
           className={buttonStyles}

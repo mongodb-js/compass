@@ -158,14 +158,43 @@ export class Compass {
     // We can pull the own property names straight from browser, but brings up a
     // lot of things we're not interested. So this is just a list of the public
     // interface methods.
-    const props = Object.getOwnPropertyNames(browserProto).concat('$$', '$',
-    'addCommand', 'call', 'custom$$', 'custom$', 'debug', 'deleteCookies',
-    'execute', 'executeAsync', 'getCookies', 'getPuppeteer', 'getWindowSize',
-    'keys', 'mock', 'mockClearAll', 'mockRestoreAll', 'newWindow',
-    'overwriteCommand', 'pause', 'react$$', 'react$', 'reloadSession',
-    'savePDF', 'saveRecordingScreen', 'saveScreenshot', 'setCookies',
-    'setTimeout', 'setWindowSize', 'switchWindow', 'throttle', 'touchAction',
-    'uploadFile', 'url', 'waitUntil');
+    const props = Object.getOwnPropertyNames(browserProto).concat(
+      '$$',
+      '$',
+      'addCommand',
+      'call',
+      'custom$$',
+      'custom$',
+      'debug',
+      'deleteCookies',
+      'execute',
+      'executeAsync',
+      'getCookies',
+      'getPuppeteer',
+      'getWindowSize',
+      'keys',
+      'mock',
+      'mockClearAll',
+      'mockRestoreAll',
+      'newWindow',
+      'overwriteCommand',
+      'pause',
+      'react$$',
+      'react$',
+      'reloadSession',
+      'savePDF',
+      'saveRecordingScreen',
+      'saveScreenshot',
+      'setCookies',
+      'setTimeout',
+      'setWindowSize',
+      'switchWindow',
+      'throttle',
+      'touchAction',
+      'uploadFile',
+      'url',
+      'waitUntil'
+    );
 
     for (const prop of props) {
       // disable emit logging for now because it is very noisy
@@ -173,7 +202,10 @@ export class Compass {
         continue;
       }
 
-      const protoDescriptor = Object.getOwnPropertyDescriptor(browserProto, prop);
+      const protoDescriptor = Object.getOwnPropertyDescriptor(
+        browserProto,
+        prop
+      );
       const browserDescriptor = Object.getOwnPropertyDescriptor(browser, prop);
       const descriptor = protoDescriptor || browserDescriptor;
       if (!descriptor || typeof descriptor.value !== 'function') {
@@ -216,7 +248,11 @@ export class Compass {
         return result;
       };
 
-      Object.defineProperty(protoDescriptor ? browserProto : browser, prop, descriptor);
+      Object.defineProperty(
+        protoDescriptor ? browserProto : browser,
+        prop,
+        descriptor
+      );
     }
   }
 

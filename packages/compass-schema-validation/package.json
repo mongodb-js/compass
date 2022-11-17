@@ -61,7 +61,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.3.0",
-  "react": "^16.14.0"
+    "react": "^16.14.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.1",

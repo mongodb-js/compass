@@ -367,9 +367,19 @@ describe('readOnly: true / Read-Only Edition', function () {
         '{ $jsonSchema: {} }'
       );
 
-      expect(await (browser.$(Selectors.UpdateValidationButton).isExisting())).to.be.equal(true);
-      expect(await (browser.$(Selectors.ValidationActionSelector).getAttribute('aria-disabled'))).to.equal('false');
-      expect(await (browser.$(Selectors.ValidationLevelSelector).getAttribute('aria-disabled'))).to.equal('false');
+      expect(
+        await browser.$(Selectors.UpdateValidationButton).isExisting()
+      ).to.be.equal(true);
+      expect(
+        await browser
+          .$(Selectors.ValidationActionSelector)
+          .getAttribute('aria-disabled')
+      ).to.equal('false');
+      expect(
+        await browser
+          .$(Selectors.ValidationLevelSelector)
+          .getAttribute('aria-disabled')
+      ).to.equal('false');
 
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
@@ -382,9 +392,19 @@ describe('readOnly: true / Read-Only Edition', function () {
       // wait for the modal to go away
       await settingsModal.waitForDisplayed({ reverse: true });
 
-      expect(await (browser.$(Selectors.ValidationActionSelector).getAttribute('aria-disabled'))).to.equal('true');
-      expect(await (browser.$(Selectors.ValidationLevelSelector).getAttribute('aria-disabled'))).to.equal('true');
-      expect(await (browser.$(Selectors.UpdateValidationButton).isExisting())).to.be.equal(false);
+      expect(
+        await browser
+          .$(Selectors.ValidationActionSelector)
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+      expect(
+        await browser
+          .$(Selectors.ValidationLevelSelector)
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+      expect(
+        await browser.$(Selectors.UpdateValidationButton).isExisting()
+      ).to.be.equal(false);
     } finally {
       await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);
