@@ -12,9 +12,11 @@ const selectStyles = css({
 });
 
 function SelectFieldType({
+  fieldPath,
   selectedType,
   onChange,
 }: {
+  fieldPath: string;
   selectedType: string;
   onChange: (type: string) => void;
 }) {
@@ -22,6 +24,7 @@ function SelectFieldType({
     <Select
       // NOTE: Leafygreen gives an error with only aria-label for select.
       aria-labelledby=""
+      id={`import-preview-field-type-select-menu-${fieldPath}`}
       className={selectStyles}
       aria-label="Field type"
       value={selectedType}

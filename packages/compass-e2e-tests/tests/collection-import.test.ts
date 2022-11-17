@@ -50,18 +50,28 @@ async function selectFieldType(
     Selectors.importPreviewFieldHeaderSelect(fieldName)
   );
   await selectElement.waitForDisplayed();
-  await selectElement.scrollIntoView();
-  await selectElement.selectByAttribute('value', fieldType);
+  await selectElement.click();
+
+  const fieldTypeSelectMenu = await browser.$(
+    Selectors.importPreviewFieldHeaderSelectMenu(fieldName)
+  );
+  await fieldTypeSelectMenu.waitForDisplayed();
+
+  const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(`span=${fieldType}`);
+
+  await fieldTypeSelectSpan.waitForDisplayed();
+  await fieldTypeSelectSpan.click();
 }
 
 async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
   const checkboxElement = await browser.$(
     Selectors.importPreviewFieldHeaderCheckbox(fieldName)
   );
-  await checkboxElement.waitForDisplayed();
-  await checkboxElement.scrollIntoView();
+  const checkboxLabel = await checkboxElement.parentElement();
+  await checkboxLabel.waitForDisplayed();
+  await checkboxLabel.scrollIntoView();
   expect(await checkboxElement.isSelected()).to.be.true;
-  await checkboxElement.click();
+  await checkboxLabel.click();
   expect(await checkboxElement.isSelected()).to.be.false;
 }
 

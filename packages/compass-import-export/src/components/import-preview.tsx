@@ -94,6 +94,7 @@ function ImportPreview({
                 <Checkbox
                   aria-labelledby={`toggle-import-field-${field.path}`}
                   id={`toggle-import-field-checkbox-${field.path}`}
+                  data-testid={`toggle-import-field-checkbox-${field.path}`}
                   aria-label={
                     field.checked
                       ? `${field.path} values will be imported`
@@ -118,6 +119,7 @@ function ImportPreview({
                     <span title={field.path}>{field.path}</span>
                   </Label>
                   <SelectFieldType
+                    fieldPath={field.path}
                     selectedType={field.type}
                     onChange={(newType: string) =>
                       setFieldType(field.path, newType)

@@ -12,6 +12,7 @@ describe('SelectFieldType [Component]', function () {
     onSelectFieldTypeChangedSpy = sinon.spy();
     render(
       <SelectFieldType
+        fieldPath="test"
         selectedType="string"
         onChange={onSelectFieldTypeChangedSpy}
       />
