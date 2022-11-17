@@ -52,6 +52,7 @@ export function ActionSelector({
         <Icon glyph="InfoWithCircle" size="small" />
       </IconButton>
       <Select
+        data-testid="validation-action-selector"
         aria-labelledby={labelId}
         disabled={!isEditable}
         onChange={validationActionChanged}
@@ -92,6 +93,7 @@ export function LevelSelector({
         <Icon glyph="InfoWithCircle" size="small" />
       </IconButton>
       <Select
+        data-testid="validation-level-selector"
         aria-labelledby={labelId}
         disabled={!isEditable}
         onChange={validationLevelChanged}

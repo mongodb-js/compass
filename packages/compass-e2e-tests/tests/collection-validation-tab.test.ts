@@ -6,7 +6,7 @@ import { createNumbersCollection } from '../helpers/insert-data';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 
-describe.only('Collection validation tab', function () {
+describe('Collection validation tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 

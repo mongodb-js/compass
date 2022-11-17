@@ -255,7 +255,7 @@ class UnthemedValidationEditor extends Component {
 
     return (
       <div className={actionsStyles}>
-        <Body className={modifiedMessageStyles}>Validation modified</Body>
+        <Body className={modifiedMessageStyles} data-testid="validation-action-message">Validation modified</Body>
         <Button
           type="button"
           className={buttonStyles}
@@ -286,8 +286,6 @@ class UnthemedValidationEditor extends Component {
    */
   render() {
     const { darkMode, isEditable, validation } = this.props;
-
-    console.log({ darkMode });
 
     return (
       <KeylineCard
