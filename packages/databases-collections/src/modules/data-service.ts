@@ -21,34 +21,48 @@ type State = {
   error: null | Error;
   dataService: DataService | null;
   configuredKMSProviders: string[];
-  currentTopologyType: TopologyType
+  currentTopologyType: TopologyType;
 };
 
 export const INITIAL_STATE: State = {
   error: null,
   dataService: null,
   configuredKMSProviders: [],
-  currentTopologyType: 'Unknown'
+  currentTopologyType: 'Unknown',
 };
 
 /**
  * Reducer function for handling data service connected actions.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction): State {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): State {
   if (action.type === DATA_SERVICE_CONNECTED) {
     return {
       error: action.error,
       dataService: action.dataService,
-      configuredKMSProviders: action.dataService.configuredKMSProviders ? action.dataService.configuredKMSProviders() : [],
-      currentTopologyType: action.dataService.currentTopologyType ? action.dataService.currentTopologyType() : 'Unknown'
+      configuredKMSProviders: action.dataService.configuredKMSProviders
+        ? action.dataService.configuredKMSProviders()
+        : [],
+      currentTopologyType: action.dataService.currentTopologyType
+        ? action.dataService.currentTopologyType()
+        : 'Unknown',
     };
   }
-  if (action.type === DATA_SERVICE_UPDATED && action.dataService === state.dataService) {
+  if (
+    action.type === DATA_SERVICE_UPDATED &&
+    action.dataService === state.dataService
+  ) {
     return {
       error: state.error,
       dataService: action.dataService,
-      configuredKMSProviders: action.dataService.configuredKMSProviders ? action.dataService.configuredKMSProviders() : [],
-      currentTopologyType: action.dataService.currentTopologyType ? action.dataService.currentTopologyType() : 'Unknown'
+      configuredKMSProviders: action.dataService.configuredKMSProviders
+        ? action.dataService.configuredKMSProviders()
+        : [],
+      currentTopologyType: action.dataService.currentTopologyType
+        ? action.dataService.currentTopologyType()
+        : 'Unknown',
     };
   }
   return state;
@@ -57,10 +71,13 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): State
 /**
  * Action creator for data service connected events.
  */
-export const dataServiceConnected = (error: Error | null, dataService: DataService) => ({
+export const dataServiceConnected = (
+  error: Error | null,
+  dataService: DataService
+) => ({
   type: DATA_SERVICE_CONNECTED,
   error: error,
-  dataService: dataService
+  dataService: dataService,
 });
 
 /**
@@ -68,5 +85,5 @@ export const dataServiceConnected = (error: Error | null, dataService: DataServi
  */
 export const dataServiceUpdated = (dataService: DataService) => ({
   type: DATA_SERVICE_UPDATED,
-  dataService: dataService
+  dataService: dataService,
 });

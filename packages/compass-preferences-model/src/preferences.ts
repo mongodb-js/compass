@@ -25,6 +25,7 @@ export type UserConfigurablePreferences = {
   enableShell: boolean;
   protectConnectionStrings?: boolean;
   forceConnectionOptions?: [key: string, value: string][];
+  showKerberosPasswordField?: boolean;
   theme: THEMES;
 };
 
@@ -286,7 +287,7 @@ const modelPreferencesProps: Required<{
   enableShell: {
     type: 'boolean',
     required: true,
-    default: false,
+    default: true,
     ui: true,
     cli: true,
     global: true,
@@ -390,6 +391,21 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Protect Connection String Secrets',
       long: 'Hide credentials in connection strings from users.',
+    },
+  },
+  /**
+   * Switch to show the Kerberos password field in the connection form.
+   */
+  showKerberosPasswordField: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Kerberos Password Field',
+      long: 'Show a password field for Kerberos authentication. Typically only useful when attempting to authenticate as another user than the current system user.',
     },
   },
   /**
@@ -557,10 +573,15 @@ export const allPreferencesProps: Required<{
   ...featureFlagsProps,
 };
 
-export function getSettingDescription(
-  name: Exclude<keyof AllPreferences, keyof InternalUserPreferences>
-): { short: string; long?: string } {
-  return allPreferencesProps[name].description;
+export function getSettingDescription<
+  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
+>(
+  name: Name
+): Pick<PreferenceDefinition<Name>, 'description' | 'type' | 'required'> {
+  const { description, type, required } = allPreferencesProps[
+    name
+  ] as PreferenceDefinition<Name>;
+  return { description, type, required };
 }
 
 export type PreferenceState =
@@ -807,7 +828,6 @@ export class Preferences {
         autoUpdates: true,
         enableMaps: true,
         trackErrors: true,
-        enableShell: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,

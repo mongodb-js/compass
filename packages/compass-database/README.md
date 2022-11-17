@@ -7,7 +7,7 @@
 ### Scripts
 
 `link-plugin`: Links the Compass plugin and Compass for development along with React to ensure the
-  plugin and Compass are using the same React instance.
+plugin and Compass are using the same React instance.
 
 ```shell
 COMPASS_HOME=/path/to/my/compass npm run link-plugin
@@ -47,8 +47,8 @@ If you want faster compiler time when you commit/push, switch it to `false.`
 ```js
 const config = {
   target: 'electron-renderer',
-  devtool: 'source-map'
-}
+  devtool: 'source-map',
+};
 ```
 
 #### Directory Structure

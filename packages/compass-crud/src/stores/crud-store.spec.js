@@ -214,7 +214,6 @@ describe('store', function () {
         isDataLake: false,
         isEditable: true,
         isReadonly: false,
-        preferencesReadOnly: false,
         isTimeSeries: false,
         isWritable: false,
         ns: '',
@@ -384,43 +383,6 @@ describe('store', function () {
         store.state.table.types = ['test-types'];
         store.state.table.doc = {};
         store.state.table.editParams = {};
-      });
-
-      it('resets the state for the new readonly collection', async function () {
-        const listener = waitForState(store, (state) => {
-          expect(state.table.path).to.deep.equal([]);
-          expect(state.table.types).to.deep.equal([]);
-          expect(state.table.doc).to.equal(null);
-          expect(state.table.editParams).to.equal(null);
-          expect(state.collection).to.equal('another');
-          expect(state.isEditable).to.equal(false);
-          expect(state.ns).to.equal('compass-crud.another');
-        });
-
-        store.onCollectionChanged('compass-crud.another');
-
-        await listener;
-      });
-    });
-
-    context('when running in a readonly context', function () {
-      beforeEach(function () {
-        actions = configureActions();
-        store = configureStore({
-          localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry,
-          namespace: 'compass-crud.another',
-          dataProvider: {
-            error: null,
-            dataProvider: dataService,
-          },
-          actions,
-        });
-        store.state.table.path = ['test-path'];
-        store.state.table.types = ['test-types'];
-        store.state.table.doc = {};
-        store.state.table.editParams = {};
-        store.state.preferencesReadOnly = true;
       });
 
       it('resets the state for the new readonly collection', async function () {

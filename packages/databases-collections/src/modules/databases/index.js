@@ -1,22 +1,22 @@
 import { combineReducers } from 'redux';
 import appRegistry from '../app-registry';
 import databases, {
-  INITIAL_STATE as DATABASES_INITIAL_STATE
+  INITIAL_STATE as DATABASES_INITIAL_STATE,
 } from './databases';
 import databasesStatus, {
-  INITIAL_STATE as DATABASES_STATUS_STATE
+  INITIAL_STATE as DATABASES_STATUS_STATE,
 } from './status';
 import isReadonly, {
-  INITIAL_STATE as READONLY_INITIAL_STATE
+  INITIAL_STATE as READONLY_INITIAL_STATE,
 } from '../is-readonly';
 import isWritable, {
-  INITIAL_STATE as WRITABLE_INITIAL_STATE
+  INITIAL_STATE as WRITABLE_INITIAL_STATE,
 } from '../is-writable';
 import isGenuineMongoDB, {
-  INITIAL_STATE as GENUINE_INITIAL_STATE
+  INITIAL_STATE as GENUINE_INITIAL_STATE,
 } from '../is-genuine-mongodb';
 import isDataLake, {
-  INITIAL_STATE as DATA_LAKE_INITIAL_STATE
+  INITIAL_STATE as DATA_LAKE_INITIAL_STATE,
 } from '../is-data-lake';
 import { RESET } from '../reset';
 

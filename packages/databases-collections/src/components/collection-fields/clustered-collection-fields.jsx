@@ -1,12 +1,18 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { CollapsibleFieldSet, TextInput, FormFieldContainer } from '@mongodb-js/compass-components';
+import {
+  CollapsibleFieldSet,
+  TextInput,
+  FormFieldContainer,
+} from '@mongodb-js/compass-components';
 
 // TODO: change this link to remove v5.3 once clustered-collections is in current
 // see https://jira.mongodb.org/browse/COMPASS-5760
-const HELP_URL_CLUSTERED = 'https://www.mongodb.com/docs/v5.3/core/clustered-collections/';
+const HELP_URL_CLUSTERED =
+  'https://www.mongodb.com/docs/v5.3/core/clustered-collections/';
 
-const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +
+const EXPIRE_AFTER_SECONDS_DESCRIPTION =
+  'The expireAfterSeconds field enables ' +
   'automatic deletion of documents older than the specified number of seconds. ' +
   'The _id field must be a date or an array that contains date values.';
 
@@ -17,7 +23,7 @@ function ClusteredCollectionFields({
   clusteredIndex,
   onChangeIsClustered,
   onChangeField,
-  expireAfterSeconds
+  expireAfterSeconds,
 }) {
   const onInputChange = useCallback(
     (e) => {
@@ -31,7 +37,7 @@ function ClusteredCollectionFields({
     <CollapsibleFieldSet
       toggled={isClustered}
       disabled={isTimeSeries || isCapped}
-      onToggle={checked => onChangeIsClustered(checked)}
+      onToggle={(checked) => onChangeIsClustered(checked)}
       label="Clustered Collection"
       data-testid="clustered-collection-fields"
       helpUrl={HELP_URL_CLUSTERED}

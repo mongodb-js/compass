@@ -5,11 +5,11 @@ import { TextInput } from '@mongodb-js/compass-components';
 
 import CappedCollectionFields from './capped-collection-fields';
 
-describe('CappedCollectionFields [Component]', function() {
-  context('when isTimeSeries prop is true', function() {
+describe('CappedCollectionFields [Component]', function () {
+  context('when isTimeSeries prop is true', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <CappedCollectionFields
           isTimeSeries
@@ -23,19 +23,19 @@ describe('CappedCollectionFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the checkbox disabled', function() {
+    it('renders the checkbox disabled', function () {
       expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 
-  context('when isCapped prop is true', function() {
+  context('when isCapped prop is true', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <CappedCollectionFields
           isTimeSeries={false}
@@ -49,19 +49,19 @@ describe('CappedCollectionFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the inputs ', function() {
+    it('renders the inputs ', function () {
       expect(component.find(TextInput).length).to.equal(1);
     });
   });
 
-  context('when isTimeSeries prop is false', function() {
+  context('when isTimeSeries prop is false', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <CappedCollectionFields
           isTimeSeries={false}
@@ -75,23 +75,23 @@ describe('CappedCollectionFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('does not render the fields', function() {
+    it('does not render the fields', function () {
       expect(component.find(TextInput).length).to.equal(0);
     });
 
-    it('has the capped collection checkbox enabled', function() {
+    it('has the capped collection checkbox enabled', function () {
       expect(component.find('Checkbox').props().disabled).to.equal(false);
     });
   });
 
-  context('when isClustered prop is true', function() {
+  context('when isClustered prop is true', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <CappedCollectionFields
           isTimeSeries={false}
@@ -105,19 +105,19 @@ describe('CappedCollectionFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the checkbox disabled', function() {
+    it('renders the checkbox disabled', function () {
       expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
 
-  context('when isFLE2 prop is true', function() {
+  context('when isFLE2 prop is true', function () {
     let component;
 
-    beforeEach(function() {
+    beforeEach(function () {
       component = mount(
         <CappedCollectionFields
           isTimeSeries={false}
@@ -131,11 +131,11 @@ describe('CappedCollectionFields [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       component = null;
     });
 
-    it('renders the checkbox disabled', function() {
+    it('renders the checkbox disabled', function () {
       expect(component.find('Checkbox').props().disabled).to.equal(true);
     });
   });
