@@ -231,7 +231,7 @@ describe('Collection documents tab', function () {
 
         await browser.setValueVisible(
           Selectors.SettingsInputElement('maxTimeMS'),
-          '1000'
+          '1'
         );
         await browser.clickVisible(Selectors.SaveSettingsButton);
       }
@@ -241,7 +241,7 @@ describe('Collection documents tab', function () {
         'Documents',
         '{ $where: function() { return sleep(10000) || true; } }',
         {
-          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1000' } : {}),
+          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
           waitForResult: false,
         }
       );
