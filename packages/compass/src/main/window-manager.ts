@@ -84,8 +84,6 @@ function showConnectWindow(
 ): BrowserWindow {
   const url = opts.url ?? DEFAULT_URL;
 
-  const { enableDevTools } = preferences.getPreferences();
-
   const windowOpts = {
     width: Number(DEFAULT_WIDTH),
     height: Number(DEFAULT_HEIGHT),
@@ -138,10 +136,6 @@ function showConnectWindow(
   void showWindowWhenReady(window);
 
   void window.loadURL(url);
-
-  if (!enableDevTools) {
-    window.webContents.closeDevTools();
-  }
 
   /**
    * Open all external links in the system's web browser.

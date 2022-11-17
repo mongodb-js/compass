@@ -417,7 +417,7 @@ const modelPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Enable DevTools',
-      long: `Enable the Chromium Developer Tools that can be used to debug Electron's process`,
+      long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
     },
     deriveValue: deriveProtectConnectionStringsOptionState('enableDevTools'),
   },
