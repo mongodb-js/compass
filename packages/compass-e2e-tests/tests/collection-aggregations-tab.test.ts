@@ -119,6 +119,14 @@ async function waitForTab(browser: CompassBrowser, namespace: string) {
   );
 }
 
+async function switchPipelineMode(
+  browser: CompassBrowser,
+  mode: 'as-text' | 'builder-ui'
+) {
+  await browser.clickVisible(Selectors.aggregationPipelineModeToggle(mode));
+  await browser.waitForAnimations(Selectors.AggregationBuilderWorkspace);
+}
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -819,6 +827,191 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AggregationExplainModalCloseButton);
     await modal.waitForDisplayed({ reverse: true });
+  });
+
+  describe.only('aggregation builder in text mode', function () {
+    const initialEnableTextModeValue =
+      process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE;
+
+    before(async function () {
+      process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = 'true';
+      compass = await beforeTests();
+      browser = compass.browser;
+    });
+
+    after(async function () {
+      process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = initialEnableTextModeValue;
+      await afterTests(compass, this.currentTest);
+    });
+
+    it('toggles pipeline mode', async function () {
+      // Select operator
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+      await switchPipelineMode(browser, 'as-text');
+      const textContent = await browser.$(Selectors.AggregationAsTextEditor);
+      expect(await textContent.getText()).to.contain(`[
+  {
+    $match: {
+      i: 5,
+    },
+  },
+]`);
+
+      await switchPipelineMode(browser, 'builder-ui');
+      const stageContent = await browser.$(Selectors.stageContent(0));
+      expect(await stageContent.getText()).to.equal(`{
+  i: 5,
+}`);
+    });
+
+    it('runs pipeline in text mode when changed', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$count: "count"}]'
+      );
+
+      const docsPreview = await browser.$(
+        Selectors.AggregationAsTextPreviewDocument
+      );
+      await docsPreview.waitForDisplayed();
+      const text = (await docsPreview.getText())
+        .replace(/\n/g, ' ')
+        .replace(/\s+?:/g, ':')
+        .replace(/\s+/g, ' ');
+      expect(text).to.contain('count: 1000');
+    });
+
+    it('previews $out stage', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$out: "somewhere"}]'
+      );
+
+      const preview = await browser.$(Selectors.AggregationAsTextPreviewOut);
+      await preview.waitForDisplayed();
+      const text = await preview.getText();
+      expect(text).to.contain(
+        'The $out operator will cause the pipeline to persist the results to the specified location'
+      );
+    });
+
+    it('previews $merge stage', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$merge: "somewhere"}]'
+      );
+
+      const preview = await browser.$(Selectors.AggregationAsTextPreviewMerge);
+      await preview.waitForDisplayed();
+      const text = await preview.getText();
+      expect(text).to.contain(
+        'The $merge operator will cause the pipeline to persist the results to the specified location'
+      );
+    });
+
+    it('previews atlas operators - $search', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$search: {}}]'
+      );
+
+      const preview = await browser.$(
+        Selectors.AggregationAsTextPreviewAtlasOperator
+      );
+      await preview.waitForDisplayed();
+      expect(await preview.getText()).to.include(
+        'The $search stage is only available with MongoDB Atlas'
+      );
+
+      const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
+      expect(await errors.getText()).to.include(
+        "Unrecognized pipeline stage name: '$search'"
+      );
+    });
+
+    it('previews atlas operators - $searchMeta', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$searchMeta: {}}]'
+      );
+
+      const preview = await browser.$(
+        Selectors.AggregationAsTextPreviewAtlasOperator
+      );
+      await preview.waitForDisplayed();
+      expect(await preview.getText()).to.include(
+        'The $searchMeta stage is only available with MongoDB Atlas'
+      );
+
+      const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
+      expect(await errors.getText()).to.include(
+        "Unrecognized pipeline stage name: '$searchMeta'"
+      );
+    });
+
+    it('shows syntax error when pipeline is invalid', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$out: "somewhere"]'
+      );
+
+      const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
+      expect(await errors.getText()).to.include('Unexpected token');
+    });
+
+    it('disables mode toggle when pipeline is invalid', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$out: "somewhere"]'
+      );
+      const toggle = await browser.$(
+        Selectors.aggregationPipelineModeToggle('builder-ui')
+      );
+      await toggle.waitForEnabled({ reverse: true });
+    });
+
+    it('hides preview when disabled', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      let preview = await browser.$(Selectors.AggregationAsTextPreview);
+      await preview.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
+
+      await preview.waitForDisplayed({ reverse: true });
+    });
   });
 
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them

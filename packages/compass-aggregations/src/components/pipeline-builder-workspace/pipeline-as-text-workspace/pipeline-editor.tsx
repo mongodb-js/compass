@@ -120,13 +120,14 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           onChangeText={onChangePipelineText}
           variant={EditorVariant.Shell}
           name={'pipeline-text-editor'}
+          data-testid={'pipeline-text-editor'}
           completer={completer}
           options={{ minLines: 16 }}
           onLoad={onLoadEditor}
         />
       </div>
       {showErrorContainer && (
-        <div className={errorContainerStyles}>
+        <div className={errorContainerStyles} data-testid="pipeline-as-text-error-container">
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (

@@ -663,6 +663,10 @@ export const AggregationCollationInput = '[data-testid="collation-string"]';
 export const AggregationMaxTimeMSInput = '[data-testid="max-time-ms"]';
 export const AggregationBuilderWorkspace =
   '[data-testid="pipeline-builder-workspace"]';
+export const AggregationBuilderUIWorkspace =
+  '[data-testid="pipeline-builder-ui-workspace"]';
+export const AggregationAsTextWorkspace =
+  '[data-testid="pipeline-as-text-workspace"]';
 export const AggregationResultsWorkspace =
   '[data-testid="pipeline-results-workspace"]';
 export const AggregationResultsDocumentListSwitchButton =
@@ -778,6 +782,26 @@ export const stageEditorErrorMessage = (stageIndex: number): string => {
 export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
 };
+
+export const aggregationPipelineModeToggle = (
+  mode: 'builder-ui' | 'as-text'
+): string => {
+  return `[data-testid="pipeline-builder-toggle-${mode}"] button`;
+};
+
+export const AggregationAsTextEditor = '[data-testid="pipeline-text-editor"]';
+export const AggregationAsTextErrorContainer =
+  '[data-testid="pipeline-as-text-error-container"]';
+export const AggregationAsTextPreview =
+  '[data-testid="pipeline-as-text-preview"]';
+export const AggregationAsTextPreviewDocument =
+  '[data-testid="readonly-document"]';
+export const AggregationAsTextPreviewOut =
+  '[data-testid="$out-preview-banner"]';
+export const AggregationAsTextPreviewMerge =
+  '[data-testid="$merge-preview-banner"]';
+export const AggregationAsTextPreviewAtlasOperator =
+  '[data-testid="stage-preview-missing-search-support"]';
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';

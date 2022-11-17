@@ -87,6 +87,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
         >
           <SegmentedControlOption
             disabled={isPipelineModeDisabled}
+            data-testid="pipeline-builder-toggle-builder-ui"
             value="builder-ui"
           >
             <Icon size="small" glyph="CurlyBraces"></Icon>
@@ -94,6 +95,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
           </SegmentedControlOption>
           <SegmentedControlOption
             disabled={isPipelineModeDisabled}
+            data-testid="pipeline-builder-toggle-as-text"
             value="as-text"
           >
             <Icon size="small" glyph="Code"></Icon>
