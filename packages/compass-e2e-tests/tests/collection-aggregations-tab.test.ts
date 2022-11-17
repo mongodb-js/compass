@@ -1012,7 +1012,7 @@ describe('Collection aggregations tab', function () {
       await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
       await switchPipelineMode(browser, 'as-text');
 
-      let preview = await browser.$(Selectors.AggregationAsTextPreview);
+      const preview = await browser.$(Selectors.AggregationAsTextPreview);
       await preview.waitForDisplayed();
 
       await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
