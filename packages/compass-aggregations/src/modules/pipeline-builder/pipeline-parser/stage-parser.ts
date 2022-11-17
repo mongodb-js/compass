@@ -53,13 +53,19 @@ export function getStageOperatorFromNode(node: StageLike): string {
 }
 
 export function getStageValueFromNode(node: StageLike): string {
-  const stageAst = node.properties[0].value;
-  const stageTrailingComments = node.properties[0].trailingComments;
-  // If the stage value has trailing comments
-  if (stageTrailingComments) {
-    stageAst.trailingComments = (stageAst.trailingComments ?? []).concat(stageTrailingComments)
+  const stagePropertyNode = node.properties[0];
+  const stageValueNode = stagePropertyNode.value;
+  // If the stage property has trailing comments move them to the stage value so
+  // that they are visible in the editor and delete them from the propery itself
+  // to avoid duplication when we generate source from node
+  if (stagePropertyNode.trailingComments) {
+    stageValueNode.trailingComments = [
+      ...(stageValueNode.trailingComments ?? []),
+      ...(stagePropertyNode.trailingComments ?? [])
+    ];
+    delete stagePropertyNode.trailingComments;
   }
-  return generate(stageAst);
+  return generate(stageValueNode);
 }
 
 /**
