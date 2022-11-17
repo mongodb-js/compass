@@ -99,6 +99,9 @@ export function getStageOperator(stage) {
  * @returns {string}
  */
  export function getDestinationNamespaceFromStage(namespace, stage) {
+  if (!stage) {
+    return null;
+  }
   const stageOperator = getStageOperator(stage);
   const stageValue = stage[stageOperator];
   const { database } = toNS(namespace);

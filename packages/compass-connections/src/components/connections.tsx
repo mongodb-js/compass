@@ -65,7 +65,7 @@ function Connections({
   ) => void;
   connectionStorage?: ConnectionStorage;
   appName: string;
-  getAutoConnectInfo?: (() => Promise<ConnectionInfo>) | undefined;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
   const {

@@ -8,7 +8,7 @@ import {
   FormModal,
   spacing,
   SpinLoader,
-  TextInput
+  TextInput,
 } from '@mongodb-js/compass-components';
 
 import { dropCollection } from '../modules/drop-collection/drop-collection';
@@ -38,20 +38,23 @@ function DropCollectionModal({
   dropCollection,
   toggleIsVisible,
 }: DropCollectionModalProps) {
-  const [ nameConfirmation, changeCollectionNameConfirmation ] = useState('');
-  const onNameConfirmationChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    changeCollectionNameConfirmation(evt.target.value);
-  }, [ changeCollectionNameConfirmation ]);
+  const [nameConfirmation, changeCollectionNameConfirmation] = useState('');
+  const onNameConfirmationChange = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      changeCollectionNameConfirmation(evt.target.value);
+    },
+    [changeCollectionNameConfirmation]
+  );
 
   const onHide = useCallback(() => {
     toggleIsVisible(false);
-  }, [ toggleIsVisible ]);
+  }, [toggleIsVisible]);
 
   const onFormSubmit = useCallback(() => {
     if (name === nameConfirmation) {
       dropCollection();
     }
-  }, [ name, nameConfirmation, dropCollection]);
+  }, [name, nameConfirmation, dropCollection]);
 
   return (
     <FormModal
@@ -73,14 +76,11 @@ function DropCollectionModal({
           onChange={onNameConfirmationChange}
         />
       </FormFieldContainer>
-      {error && (
-        <Banner
-          variant="danger"
-        >{error.message}</Banner>
-      )}
+      {error && <Banner variant="danger">{error.message}</Banner>}
       {isRunning && (
         <Body className={progressContainerStyles}>
-          <SpinLoader /><span>Dropping Collection&hellip;</span>
+          <SpinLoader />
+          <span>Dropping Collection&hellip;</span>
         </Body>
       )}
     </FormModal>
@@ -94,20 +94,17 @@ const mapStateToProps = (state: RootState) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
   name: state.name,
-  error: state.error
+  error: state.error,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedDropCollectionModal = connect(
-  mapStateToProps,
-  {
-    dropCollection,
-    toggleIsVisible
-  },
-)(DropCollectionModal);
+const MappedDropCollectionModal = connect(mapStateToProps, {
+  dropCollection,
+  toggleIsVisible,
+})(DropCollectionModal);
 
 export default MappedDropCollectionModal;
 export { DropCollectionModal };

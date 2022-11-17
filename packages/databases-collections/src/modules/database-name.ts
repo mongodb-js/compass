@@ -3,7 +3,8 @@ import type { AnyAction } from 'redux';
 /**
  * Create database name.
  */
-export const CHANGE_DATABASE_NAME = 'databases-collections/name/CHANGE_DATABASE_NAME';
+export const CHANGE_DATABASE_NAME =
+  'databases-collections/name/CHANGE_DATABASE_NAME';
 
 /**
  * The initial state of the database name.
@@ -13,7 +14,10 @@ export const INITIAL_STATE = '';
 /**
  * Reducer function for handle state changes to create database name.
  */
-export default function reducer(state = INITIAL_STATE, action: AnyAction): string {
+export default function reducer(
+  state = INITIAL_STATE,
+  action: AnyAction
+): string {
   if (action.type === CHANGE_DATABASE_NAME) {
     return action.name;
   }
@@ -26,5 +30,5 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): strin
 export const changeDatabaseName = (name: string, collections = []) => ({
   type: CHANGE_DATABASE_NAME,
   name,
-  collections
+  collections,
 });

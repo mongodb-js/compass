@@ -4,7 +4,6 @@ import { findIndex, isEmpty, isEqual } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
-import preferences from 'compass-preferences-model';
 
 import {
   findDocuments,
@@ -119,16 +118,6 @@ export const setIsReadonly = (store, isReadonly) => {
 };
 
 /**
- * Set the preferencesReadOnly flag in the store.
- *
- * @param {Store} store - The store.
- * @param {Boolean} setPreferencesReadOnly - If Compass is readonly.
- */
-export const setPreferencesReadOnly = (store, preferencesReadOnly) => {
-  store.onPreferencesReadOnlyChanged(preferencesReadOnly);
-};
-
-/**
  * Set the isEditable flag in the store.
  *
  * @param {Store} store - The store.
@@ -137,7 +126,6 @@ export const setIsEditable = (store, hasProjection) => {
   const isEditable = isListEditable({
     isDataLake: store.state.isDataLake,
     isReadonly: store.state.isReadonly,
-    preferencesReadOnly: store.state.preferencesReadOnly,
     hasProjection,
   });
   store.onIsEditableChanged(isEditable);
@@ -190,13 +178,8 @@ export const setLocalAppRegistry = (store, appRegistry) => {
  *
  * @returns {Boolean} If the list is editable.
  */
-export const isListEditable = ({
-  isDataLake,
-  isReadonly,
-  preferencesReadOnly,
-  hasProjection,
-}) => {
-  return !hasProjection && !isDataLake && !isReadonly && !preferencesReadOnly;
+export const isListEditable = ({ isDataLake, isReadonly, hasProjection }) => {
+  return !hasProjection && !isDataLake && !isReadonly;
 };
 
 /**
@@ -236,7 +219,6 @@ const configureStore = (options = {}) => {
         query: this.getInitialQueryState(),
         isDataLake: false,
         isReadonly: false,
-        preferencesReadOnly: false,
         isTimeSeries: false,
         status: DOCUMENTS_STATUS_INITIAL,
         debouncingLoad: false,
@@ -315,15 +297,6 @@ const configureStore = (options = {}) => {
      */
     onReadonlyChanged(isReadonly) {
       this.setState({ isReadonly });
-    },
-
-    /**
-     * Set if Compass is readonly.
-     *
-     * @param {Boolean} preferencesReadOnly - If Compass is readonly.
-     */
-    onPreferencesReadOnlyChanged(preferencesReadOnly) {
-      this.setState({ preferencesReadOnly });
     },
 
     /**
@@ -1427,15 +1400,6 @@ const configureStore = (options = {}) => {
       store.refreshDocuments();
     }
   }
-
-  // TODO: Refactor how we access readOnly in stores https://jira.mongodb.org/browse/COMPASS-6300
-  setPreferencesReadOnly(store, !!preferences.getPreferences().readOnly);
-  setIsEditable(store);
-
-  preferences.onPreferenceValueChanged('readOnly', (readOnly) => {
-    setPreferencesReadOnly(store, readOnly);
-    setIsEditable(store);
-  });
 
   const gridStore = configureGridStore(options);
   store.gridStore = gridStore;

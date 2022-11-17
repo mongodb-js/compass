@@ -8,7 +8,7 @@ import {
   FormModal,
   spacing,
   SpinLoader,
-  TextInput
+  TextInput,
 } from '@mongodb-js/compass-components';
 
 import { dropDatabase } from '../modules/drop-database/drop-database';
@@ -41,20 +41,23 @@ function DropDatabaseModal({
   dropDatabase,
   toggleIsVisible,
 }: DropDatabaseModalProps) {
-  const [ nameConfirmation, changeDatabaseNameConfirmation ] = useState('');
-  const onNameConfirmationChange = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
-    changeDatabaseNameConfirmation(evt.target.value);
-  }, [ changeDatabaseNameConfirmation ]);
+  const [nameConfirmation, changeDatabaseNameConfirmation] = useState('');
+  const onNameConfirmationChange = useCallback(
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      changeDatabaseNameConfirmation(evt.target.value);
+    },
+    [changeDatabaseNameConfirmation]
+  );
 
   const onHide = useCallback(() => {
     toggleIsVisible(false);
-  }, [ toggleIsVisible ]);
+  }, [toggleIsVisible]);
 
   const onFormSubmit = useCallback(() => {
     if (name === nameConfirmation) {
       dropDatabase();
     }
-  }, [ name, nameConfirmation, dropDatabase]);
+  }, [name, nameConfirmation, dropDatabase]);
 
   return (
     <FormModal
@@ -76,14 +79,11 @@ function DropDatabaseModal({
           onChange={onNameConfirmationChange}
         />
       </FormFieldContainer>
-      {error && (
-        <Banner
-          variant="danger"
-        >{error.message}</Banner>
-      )}
+      {error && <Banner variant="danger">{error.message}</Banner>}
       {isRunning && (
         <Body className={progressContainerStyles}>
-          <SpinLoader /><span>Dropping Database&hellip;</span>
+          <SpinLoader />
+          <span>Dropping Database&hellip;</span>
         </Body>
       )}
     </FormModal>
@@ -97,20 +97,17 @@ const mapStateToProps = (state: RootState) => ({
   isRunning: state.isRunning,
   isVisible: state.isVisible,
   name: state.name,
-  error: state.error
+  error: state.error,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedDropDatabaseModal = connect(
-  mapStateToProps,
-  {
-    dropDatabase,
-    toggleIsVisible
-  },
-)(DropDatabaseModal);
+const MappedDropDatabaseModal = connect(mapStateToProps, {
+  dropDatabase,
+  toggleIsVisible,
+})(DropDatabaseModal);
 
 export default MappedDropDatabaseModal;
 export { DropDatabaseModal };

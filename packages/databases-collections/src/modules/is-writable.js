@@ -1,7 +1,8 @@
 /**
  * Write state changed action name.
  */
-export const WRITE_STATE_CHANGED = 'databases-collections/is-writable/WRITE_STATE_CHANGED';
+export const WRITE_STATE_CHANGED =
+  'databases-collections/is-writable/WRITE_STATE_CHANGED';
 
 /**
  * The initial state of the is writable attribute.
@@ -32,5 +33,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const writeStateChanged = (state) => ({
   type: WRITE_STATE_CHANGED,
-  isWritable: state.isWritable
+  isWritable: state.isWritable,
 });

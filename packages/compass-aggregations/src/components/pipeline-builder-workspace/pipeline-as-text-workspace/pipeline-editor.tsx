@@ -29,11 +29,12 @@ const containerStyles = css({
   paddingTop: spacing[3],
   paddingBottom: spacing[2],
   gap: spacing[2],
+  marginRight: spacing[1],
 });
 
 const editorContainerStyles = css({
   flex: '1 1 100%',
-  overflow: 'scroll',
+  overflow: 'auto',
 });
 
 const errorContainerStyles = css({
