@@ -829,7 +829,7 @@ describe('Collection aggregations tab', function () {
     await modal.waitForDisplayed({ reverse: true });
   });
 
-  describe.only('aggregation builder in text mode', function () {
+  describe('aggregation builder in text mode', function () {
     const initialEnableTextModeValue =
       process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE;
 
@@ -942,9 +942,13 @@ describe('Collection aggregations tab', function () {
       );
 
       const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
-      expect(await errors.getText()).to.include(
+      const text = await errors.getText();
+
+      const noAtlas = text.includes(
         "Unrecognized pipeline stage name: '$search'"
       );
+      const atlasWithSearchDisabled = text.includes('$search not enabled!');
+      expect(noAtlas || atlasWithSearchDisabled).to.be.true;
     });
 
     it('previews atlas operators - $searchMeta', async function () {
@@ -966,9 +970,12 @@ describe('Collection aggregations tab', function () {
       );
 
       const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
-      expect(await errors.getText()).to.include(
+      const text = await errors.getText();
+      const noAtlas = text.includes(
         "Unrecognized pipeline stage name: '$searchMeta'"
       );
+      const atlasWithSearchDisabled = text.includes('$search not enabled!');
+      expect(noAtlas || atlasWithSearchDisabled).to.be.true;
     });
 
     it('shows syntax error when pipeline is invalid', async function () {
