@@ -42,18 +42,16 @@ export const changePipelineMode = (
   newMode: PipelineMode
 ): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
+    if (newMode === getState().pipelineBuilder.pipelineMode) {
+      return;
+    }
+
     // Sync the PipelineBuilder
     if (newMode === 'as-text') {
       pipelineBuilder.stagesToSource();
     } else {
       pipelineBuilder.sourceToStages();
     }
-
-    const num_stages = getPipelineFromBuilderState(getState(), pipelineBuilder).length;
-    track('Editor Type Changed', {
-      num_stages,
-      editor_view_type: mapPipelineModeToEditorViewType(newMode),
-    });
 
     dispatch({
       type: ActionTypes.PipelineModeToggled,
@@ -64,8 +62,18 @@ export const changePipelineMode = (
       stages: pipelineBuilder.stages,
     });
 
+    const num_stages = getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    ).length;
+
+    track('Editor Type Changed', {
+      num_stages,
+      editor_view_type: mapPipelineModeToEditorViewType(newMode)
+    });
+
     dispatch(updatePipelinePreview());
-  }
+  };
 };
 
 export default reducer;

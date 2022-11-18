@@ -47,4 +47,31 @@ describe('Stage', function () {
     stage.changeDisabled(true);
     expect(stage.toString()).to.equal(`// {\n//   $match: {}\n// }`);
   });
+  
+  it('can stringify stage with syntax errors', function() {
+    stage.changeOperator('$match');
+    stage.changeValue('{ _id: 1');
+    expect(stage.toString()).to.equal(`{\n  $match: { _id: 1\n}`);
+  })
+
+  it('attaches trailing comments to the value', function () {
+    const ast = babelParser.parseExpression(
+      `{ $match: { _id: 1 } /* trailing comment */ }`
+    );
+    const stage = new Stage(ast);
+
+    expect(stage.value).to.eq(`{
+  _id: 1,
+} /* trailing comment */`);
+
+    stage.changeValue(`{
+  _id: 1,
+} /* new comment */`);
+
+    expect(stage.toString()).to.eq(`{
+  $match: {
+    _id: 1,
+  } /* new comment */,
+}`);
+  });
 });

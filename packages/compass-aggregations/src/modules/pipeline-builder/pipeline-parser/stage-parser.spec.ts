@@ -10,6 +10,7 @@ import StageParser, {
 } from './stage-parser';
 import type { StageLike } from './stage-parser';
 import { generate } from './utils';
+import Stage from '../stage';
 
 describe('StageParser', function () {
   describe('Stage node helpers', function () {
@@ -146,8 +147,8 @@ describe('StageParser', function () {
     });
 
     it('converts stage to comment', function () {
-      const stage = babelParser.parseExpression(`{$match: {name: /berlin/i}}`);
-      const comments = stageToAstComments(stage);
+      const stageNode = babelParser.parseExpression(`{$match: {name: /berlin/i}}`);
+      const comments = stageToAstComments(new Stage(stageNode));
       comments.forEach(({ type }) => expect(type).to.equal('CommentLine'));
       const value = comments.map(({ value }) => value).join('\n');
       expect(value).to.equal([

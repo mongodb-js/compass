@@ -584,7 +584,9 @@ export class Element extends EventEmitter {
   _isKeyLegallyEditable(): boolean {
     return (
       this.isParentEditable() &&
-      (this.isAdded() || (this.currentKey !== ID && !this.isInternalField()))
+      (this.isAdded() ||
+        ((this.currentKey !== ID || !this.parent?.isRoot()) &&
+          !this.isInternalField()))
     );
   }
 
