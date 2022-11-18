@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 
+import { Icon } from '@mongodb-js/compass-components';
+
 import styles from './index-definition-type.module.less';
 
 /**
@@ -24,17 +26,13 @@ class IndexDefinitionType extends Component {
   renderDirection(field) {
     if (field.value === 1) {
       return (
-        <span className={styles['index-definition-type-pair-field-sort']}>
-          <i className="fa fa-arrow-circle-up fa-lg" />
-        </span>
+       <Icon glyph="ArrowUp" size="small" />
       );
     }
 
     if (field.value === -1) {
       return (
-        <span className={styles['index-definition-type-pair-field-sort']}>
-          <i className="fa fa-arrow-circle-down fa-lg" />
-        </span>
+       <Icon glyph="ArrowDown" size="small" />
       );
     }
 
