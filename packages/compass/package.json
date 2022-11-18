@@ -135,7 +135,7 @@
     "test-electron": "npm run test-main && npm run test-renderer",
     "test-main": "xvfb-maybe electron-mocha --no-sandbox \"./src/main/**/*.spec.*\"  \"./src/main/**/*.test.*\"",
     "test-renderer": "xvfb-maybe electron-mocha --no-sandbox --config ./.mocharc.renderer.js \"./src/app/**/*.spec.*\"",
-    "check": "npm run lint && npm run depcheck",
+    "check": "npm run typecheck && npm run lint && npm run depcheck",
     "prewebpack": "rimraf ./build",
     "webpack": "webpack-compass",
     "compile": "npm run webpack -- --mode production",
@@ -152,6 +152,7 @@
     "depcheck": "depcheck",
     "test-ci": "npm run test-release-tasks",
     "test-ci-electron": "npm run test-electron",
+    "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "posttest-ci": "node ../../scripts/killall-mongo.js"
   },
   "repository": {
