@@ -11,6 +11,7 @@ import {
 } from './settings';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import preferences from 'compass-preferences-model';
+import ipc from 'hadron-ipc';
 
 describe('Settings store actions', function () {
   let sinonSandbox: sinon.SinonSandbox;
@@ -21,6 +22,9 @@ describe('Settings store actions', function () {
   beforeEach(async function () {
     sinonSandbox = sinon.createSandbox();
     // Replace the global preferences object with a sandbox for each test
+    if (ipc.ipcRenderer) {
+      sinonSandbox.stub(ipc.ipcRenderer, 'invoke').resolves(undefined);
+    }
     const globalPreferencesSandbox = await preferences.createSandbox();
     for (const key of Object.keys(
       globalPreferencesSandbox
