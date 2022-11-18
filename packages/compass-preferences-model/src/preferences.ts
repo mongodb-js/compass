@@ -158,6 +158,29 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
   });
 }
 
+/** Helper for defining how to derive value/state for feature-restricting preferences */
+function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  // TODO: COMPASS-6063
+  // Check maxTimeMS as restricting option,
+  return (v, s) => ({
+    value:
+      v(property) &&
+      v('enableShell') &&
+      !v('protectConnectionStrings') &&
+      !v('readOnly'),
+    state:
+      s(property) ??
+      s('protectConnectionStrings') ??
+      (v('protectConnectionStrings') ? 'derived' : undefined) ??
+      s('readOnly') ??
+      (v('readOnly') ? 'derived' : undefined) ??
+      s('enableShell') ??
+      (v('enableShell') ? undefined : 'derived'),
+  });
+}
+
 /** Helper for defining how to derive value/state for readOnly-affected preferences */
 function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   property: K
@@ -166,19 +189,6 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
     value: v(property) && !v('readOnly'),
     state:
       s(property) ?? s('readOnly') ?? (v('readOnly') ? 'derived' : undefined),
-  });
-}
-
-/** Helper for defining how to derive value/state for protectConnectionStrings-affected preferences */
-function deriveProtectConnectionStringsOptionState<
-  K extends keyof AllPreferences
->(property: K): DeriveValueFunction<boolean> {
-  return (v, s) => ({
-    value: v(property) && !v('protectConnectionStrings'),
-    state:
-      s(property) ??
-      s('protectConnectionStrings') ??
-      (v('protectConnectionStrings') ? 'derived' : undefined),
   });
 }
 
@@ -421,7 +431,7 @@ const modelPreferencesProps: Required<{
       short: 'Enable DevTools',
       long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
     },
-    deriveValue: deriveProtectConnectionStringsOptionState('enableDevTools'),
+    deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
   },
   /**
    * Switch to show the Kerberos password field in the connection form.

@@ -12,7 +12,8 @@ const featuresFields = [
   'enableShell',
   'protectConnectionStrings',
   'showKerberosPasswordField',
-  // 'maxTimeMS',
+  // TODO: COMPASS-6063
+  // maxTimeMS,
   'enableDevTools',
 ] as const;
 type FeaturesFields = typeof featuresFields[number];
