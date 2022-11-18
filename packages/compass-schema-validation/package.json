@@ -61,7 +61,6 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.3.0",
-    "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -71,7 +70,6 @@
     "@mongodb-js/tsconfig-compass": "^1.0.1",
     "@mongodb-js/webpack-config-compass": "^1.0.3",
     "chai": "^4.2.0",
-    "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
     "electron": "^15.5.7",
     "enzyme": "^3.11.0",
@@ -89,7 +87,6 @@
     "mongodb-query-parser": "^2.4.6",
     "nyc": "^15.0.0",
     "prop-types": "^15.7.2",
-    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
@@ -106,7 +103,6 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.3.0",
-    "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   }
 }

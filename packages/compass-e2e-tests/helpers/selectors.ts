@@ -847,8 +847,10 @@ export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
-export const ValidationActionSelector = '[id="validation-action-selector"]';
-export const ValidationLevelSelector = '[id="validation-level-selector"]';
+export const ValidationActionSelector =
+  '[data-testid="validation-action-selector"]';
+export const ValidationLevelSelector =
+  '[data-testid="validation-level-selector"]';
 
 // Find (Documents, Schema and Explain Plan tabs)
 export const queryBar = (tabName: string): string => {
