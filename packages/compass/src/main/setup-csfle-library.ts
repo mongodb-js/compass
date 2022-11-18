@@ -25,21 +25,27 @@ export async function setupCSFLELibrary(): Promise<void> {
     // This is not a loop so that the require() parts receive literal strings
     // in order for webpack to process them properly
     try {
-      const candidate = processPath(require('../deps/csfle/bin/mongo_crypt_v1.dll'));
+      const candidate = processPath(
+        require('../deps/csfle/bin/mongo_crypt_v1.dll')
+      );
       await fs.access(candidate);
       cryptSharedLibPath = candidate;
     } catch (err: any) {
       errors.push(err);
     }
     try {
-      const candidate = processPath(require('../deps/csfle/lib/mongo_crypt_v1.so'));
+      const candidate = processPath(
+        require('../deps/csfle/lib/mongo_crypt_v1.so')
+      );
       await fs.access(candidate);
       cryptSharedLibPath = candidate;
     } catch (err: any) {
       errors.push(err);
     }
     try {
-      const candidate = processPath(require('../deps/csfle/lib/mongo_crypt_v1.dylib'));
+      const candidate = processPath(
+        require('../deps/csfle/lib/mongo_crypt_v1.dylib')
+      );
       await fs.access(candidate);
       cryptSharedLibPath = candidate;
     } catch (err: any) {
@@ -47,14 +53,24 @@ export async function setupCSFLELibrary(): Promise<void> {
     }
   }
   if (!cryptSharedLibPath) {
-    log.error(mongoLogId(1_001_000_124), 'AutoEncryption', 'No MongoDB Crypt library available', {
-      errors: errors.map(err => err.message)
-    });
+    log.error(
+      mongoLogId(1_001_000_124),
+      'AutoEncryption',
+      'No MongoDB Crypt library available',
+      {
+        errors: errors.map((err) => err.message),
+      }
+    );
   } else {
-    log.info(mongoLogId(1_001_000_125), 'AutoEncryption', 'Found MongoDB Crypt library', {
-      cryptSharedLibPath,
-      externalOverride: process.env.COMPASS_CRYPT_LIBRARY_PATH
-    });
+    log.info(
+      mongoLogId(1_001_000_125),
+      'AutoEncryption',
+      'Found MongoDB Crypt library',
+      {
+        cryptSharedLibPath,
+        externalOverride: process.env.COMPASS_CRYPT_LIBRARY_PATH,
+      }
+    );
     process.env.COMPASS_CRYPT_LIBRARY_PATH ??= cryptSharedLibPath;
   }
 }

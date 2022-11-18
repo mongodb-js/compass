@@ -148,12 +148,15 @@
     "evergreen-expansions": "hadron-build info --format=yaml --flatten > expansions.yml",
     "build-info": "hadron-build info",
     "jsx": "babel ./src --out-dir ./lib",
-    "lint": "eslint .",
+    "eslint": "eslint",
+    "prettier": "prettier",
+    "lint": "npm run eslint . && npm run prettier -- --check .",
     "depcheck": "depcheck",
     "test-ci": "npm run test-release-tasks",
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
-    "posttest-ci": "node ../../scripts/killall-mongo.js"
+    "posttest-ci": "node ../../scripts/killall-mongo.js",
+    "reformat": "npm run prettier -- --write ."
   },
   "repository": {
     "type": "git",

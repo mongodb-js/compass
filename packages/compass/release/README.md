@@ -12,19 +12,19 @@ Run `npm run test-release-tasks` to run the tests in this folder.
 
 ### `checkout`
 
-``` sh
+```sh
 npm run release checkout <MAJOR.MINOR>
 ```
 
-Only runnable from main. Checks out (creating it if not existing)  a `MAJOR.MINOR-releases` branch.
+Only runnable from main. Checks out (creating it if not existing) a `MAJOR.MINOR-releases` branch.
 
-``` sh
+```sh
 npm run release checkout 1.22
 ```
 
 ### `beta`
 
-``` sh
+```sh
 npm run release beta
 ```
 
@@ -38,7 +38,7 @@ The new prerelease version is calculated according to the branch name and previo
 
 ### `ga`
 
-``` sh
+```sh
 npm run release ga
 ```
 
@@ -52,7 +52,7 @@ The new version is calculated according to the branch name and previous version 
 
 ### `wait`
 
-``` sh
+```sh
 npm run release wait
 ```
 
@@ -60,7 +60,7 @@ Only runnable from a release branch. It waits for all the assets of a release to
 
 ### `changelog`
 
-``` sh
+```sh
 npm run release changelog
 ```
 

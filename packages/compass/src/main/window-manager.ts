@@ -245,7 +245,7 @@ class CompassWindowManager {
       },
       'compass:disconnected': onCompassDisconnect,
       'compass:should-window-auto-connect': shouldWindowAutoConnect,
-      'test:show-connect-window': () => showConnectWindow(compassApp)
+      'test:show-connect-window': () => showConnectWindow(compassApp),
     });
 
     await showConnectWindowWhenReady(compassApp);
