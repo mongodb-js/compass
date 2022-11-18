@@ -12,7 +12,7 @@ const pluginActivationCompleted = require('@mongodb-js/hadron-plugin-manager')
  * @param  {String}   storeKey      The registry key for the store
  * @param  {Function} callback      Callback to attach
  */
-Reflux.StoreMethods.listenToExternalStore = function(storeKey, callback) {
+Reflux.StoreMethods.listenToExternalStore = function (storeKey, callback) {
   this.listenTo(pluginActivationCompleted, () => {
     const store = app.appRegistry.getStore(storeKey);
     this.listenTo(store, callback);

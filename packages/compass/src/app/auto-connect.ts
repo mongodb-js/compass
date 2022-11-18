@@ -14,36 +14,41 @@ function applyUsernameAndPassword(
   connectionInfo: Readonly<ConnectionInfo>,
   { username, password }: Pick<AllPreferences, 'username' | 'password'>
 ): ConnectionInfo {
-  const connectionString = new ConnectionString(connectionInfo.connectionOptions.connectionString);
+  const connectionString = new ConnectionString(
+    connectionInfo.connectionOptions.connectionString
+  );
   if (username) connectionString.username = encodeURIComponent(username);
   if (password) connectionString.password = encodeURIComponent(password);
   return {
     ...connectionInfo,
     connectionOptions: {
       ...connectionInfo.connectionOptions,
-      connectionString: connectionString.toString()
-    }
+      connectionString: connectionString.toString(),
+    },
   };
 }
 
 export function loadAutoConnectInfo(
-  preferences: Pick<AllPreferences, 'file' | 'positionalArguments' | 'passphrase' | 'username' | 'password'>,
+  preferences: Pick<
+    AllPreferences,
+    'file' | 'positionalArguments' | 'passphrase' | 'username' | 'password'
+  >,
   fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
 ): undefined | (() => Promise<ConnectionInfo | undefined>) {
-  const {
-    file,
-    positionalArguments = [],
-    passphrase,
-  } = preferences;
+  const { file, positionalArguments = [], passphrase } = preferences;
   // The about: accounts for webdriverio in the e2e tests appending the argument for every run
-  if (!file && (!positionalArguments.length || positionalArguments.every(arg => arg.startsWith('about:')))) {
+  if (
+    !file &&
+    (!positionalArguments.length ||
+      positionalArguments.every((arg) => arg.startsWith('about:')))
+  ) {
     return;
   }
 
   // Return an async function here rather than just loading the ConnectionInfo so that errors
   // from importing the connection end up being treated like connection failures.
   return async (): Promise<ConnectionInfo | undefined> => {
-    if (!await shouldWindowAutoConnect()) {
+    if (!(await shouldWindowAutoConnect())) {
       return undefined;
     }
 
@@ -76,12 +81,15 @@ export function loadAutoConnectInfo(
       }
       return applyUsernameAndPassword(connectionInfo, preferences);
     } else {
-      return applyUsernameAndPassword({
-        connectionOptions: {
-          connectionString: positionalArguments[0],
+      return applyUsernameAndPassword(
+        {
+          connectionOptions: {
+            connectionString: positionalArguments[0],
+          },
+          id: new UUID().toString(),
         },
-        id: new UUID().toString(),
-      }, preferences);
+        preferences
+      );
     }
   };
 }

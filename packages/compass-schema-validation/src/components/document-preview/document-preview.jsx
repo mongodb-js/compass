@@ -1,8 +1,35 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+
+import {
+  Body,
+  KeylineCard,
+  css,
+  cx,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
-import styles from './document-preview.module.less';
+import { LoadingOverlay } from '../loading-overlay';
+
+const previewStyles = css({
+  display: 'flex',
+  height: spacing[6] * 3,
+  padding: 0,
+  overflow: 'auto',
+  position: 'relative',
+});
+
+const noPreviewStyles = css({
+  alignItems: 'center',
+});
+
+const noPreviewTextStyles = css({
+  padding: spacing[3],
+  textAlign: 'center',
+  fontStyle: 'italic',
+  width: '100%',
+});
 
 /**
  * The document preview component.
@@ -10,7 +37,10 @@ import styles from './document-preview.module.less';
 class DocumentPreview extends Component {
   static displayName = 'DocumentPreview';
 
-  static propTypes = { document: PropTypes.object };
+  static propTypes = {
+    document: PropTypes.object,
+    isLoading: PropTypes.bool,
+  };
 
   /**
    * Renders the document preview.
@@ -18,32 +48,22 @@ class DocumentPreview extends Component {
    * @returns {React.Component} The component.
    */
   render() {
-    if (!this.props.document) {
-      return (
-        <div
-          className={styles['document-preview']}
-          data-testid="document-preview"
-        >
-          <div className={styles['document-preview-documents']}>
-            <div className={styles['no-documents']}>
-              <i>No Preview Documents</i>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     return (
-      <div
-        className={styles['document-preview']}
+      <KeylineCard
+        className={cx(
+          previewStyles,
+          this.props.document ? undefined : noPreviewStyles
+        )}
         data-testid="document-preview"
       >
-        <div className={styles['document-preview-documents']}>
-          <div className={styles['document-preview-document-card']}>
-            <Document doc={this.props.document} editable={false} />
-          </div>
-        </div>
-      </div>
+        {this.props.isLoading ? (
+          <LoadingOverlay />
+        ) : this.props.document ? (
+          <Document doc={this.props.document} editable={false} />
+        ) : (
+          <Body className={noPreviewTextStyles}>No Preview Documents</Body>
+        )}
+      </KeylineCard>
     );
   }
 }

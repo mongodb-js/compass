@@ -16,6 +16,6 @@ module.exports = {
       }
 
       return { type: 'port', val };
-    }
-  }
+    },
+  },
 };

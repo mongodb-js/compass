@@ -10,7 +10,7 @@ import {
 } from './pipeline-parser/stage-parser';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { generate } from './pipeline-parser/utils';
-import { parseEJSON } from './pipeline-parser/utils';
+import { parseShellBSON } from './pipeline-parser/utils';
 
 function createStageNode({
   key,
@@ -149,6 +149,6 @@ export default class Stage {
     if (this.disabled) {
       return null;
     }
-    return parseEJSON(this.toString());
+    return parseShellBSON(this.toString());
   }
 }

@@ -1,7 +1,9 @@
 function getMajorMinor(versionString) {
   const match = versionString.match(/^\d+.\d+/);
   if (!match) {
-    throw new Error(`'${versionString}' is not matching with a semver major and minor`);
+    throw new Error(
+      `'${versionString}' is not matching with a semver major and minor`
+    );
   }
 
   return match[0].split('.').map((num) => parseInt(num, 10));
@@ -30,5 +32,5 @@ module.exports = {
   sameMajorAndMinor,
   getReleaseChannel,
   extractFromString,
-  isGa
+  isGa,
 };

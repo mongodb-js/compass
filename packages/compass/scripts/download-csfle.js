@@ -15,19 +15,14 @@ const PACKAGE_ROOT = process.cwd();
 const CACHE_DIR = path.join(os.tmpdir(), '.compass-csfle-library-cache');
 
 const fetch = require('make-fetch-happen').defaults({
-  cacheManager: CACHE_DIR
+  cacheManager: CACHE_DIR,
 });
 
 const UPDATE_CACHE = process.argv.includes('--update-cache');
 
-const CSFLE_DIRECTORY = path.resolve(
-  PACKAGE_ROOT,
-  'src',
-  'deps',
-  'csfle'
-);
+const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
 
-const download = async(url, destDir) => {
+const download = async (url, destDir) => {
   const destFileName = path.basename(url);
   const destFilePath = path.join(destDir, destFileName);
 
@@ -48,7 +43,7 @@ const download = async(url, destDir) => {
   return destFilePath;
 };
 
-(async() => {
+(async () => {
   const packageJson = require(path.join(PACKAGE_ROOT, 'package.json'));
 
   if (UPDATE_CACHE) {
@@ -56,17 +51,16 @@ const download = async(url, destDir) => {
 
     try {
       await fs.rmdir(CACHE_DIR, { recursive: true });
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+      /* ignore */
+    }
   } else {
-    console.log(
-      'Downloading csfle library for package %s',
-      packageJson.name
-    );
+    console.log('Downloading csfle library for package %s', packageJson.name);
   }
 
   const downloadOptions = {
     enterprise: true,
-    crypt_shared: true
+    crypt_shared: true,
   };
   if (process.platform === 'linux') {
     // The CSFLE shared library is built for different distros,
@@ -84,11 +78,16 @@ const download = async(url, destDir) => {
   } catch {
     artifactInfo = await getDownloadURL({
       ...downloadOptions,
-      version: '>= 6.0.0'
+      version: '>= 6.0.0',
     });
   }
 
-  console.log('Downloading csfle artifact', artifactInfo, 'to', CSFLE_DIRECTORY);
+  console.log(
+    'Downloading csfle artifact',
+    artifactInfo,
+    'to',
+    CSFLE_DIRECTORY
+  );
   await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
   const artifactPath = await download(artifactInfo.url, CSFLE_DIRECTORY);
 
@@ -100,8 +99,9 @@ const download = async(url, destDir) => {
     await promisify(pipeline)(
       createReadStream(artifactPath),
       tar.x({
-        C: CSFLE_DIRECTORY
-      }));
+        C: CSFLE_DIRECTORY,
+      })
+    );
   }
 })().catch((err) => {
   if (err) {
