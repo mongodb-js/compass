@@ -154,8 +154,7 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
     value: v(property) && v('networkTraffic'),
     state:
       s(property) ??
-      s('networkTraffic') ??
-      (v('networkTraffic') ? undefined : 'derived'),
+      (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
   });
 }
 
@@ -172,10 +171,12 @@ function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
       !v('readOnly'),
     state:
       s(property) ??
-      (v('protectConnectionStrings') ? 'derived' : undefined) ??
-      (v('readOnly') ? 'derived' : undefined) ??
-      (v('enableShell') ? undefined : 'derived') ??
-      (v('maxTimeMS') ? 'derived' : undefined),
+      (v('protectConnectionStrings')
+        ? s('protectConnectionStrings') ?? 'derived'
+        : undefined) ??
+      (v('readOnly') ? s('readOnly') ?? 'derived' : undefined) ??
+      (v('enableShell') ? undefined : s('enableShell') ?? 'derived') ??
+      (v('maxTimeMS') ? s('maxTimeMS') ?? 'derived' : undefined),
   });
 }
 
@@ -185,7 +186,8 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
     value: v(property) && !v('readOnly'),
-    state: s(property) ?? (v('readOnly') ? 'derived' : undefined),
+    state:
+      s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
   });
 }
 

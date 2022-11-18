@@ -193,7 +193,7 @@ describe('Global preferences', function () {
         expect(value).to.equal('false');
         expect(disabled).to.equal(''); // null = missing attribute, '' = set
         expect(bannerText).to.include(
-          'This setting cannot be modified as its value is implied by another option.'
+          'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
       }
       {
