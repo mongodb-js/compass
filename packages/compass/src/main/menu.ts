@@ -348,17 +348,9 @@ function viewSubMenu(): MenuItemConstructorOptions {
       click() {
         ipcMain.broadcast('window:zoom-out');
       },
-<<<<<<< HEAD
     },
     separator(),
-    ...(
-      process.platform === 'darwin'
-        ? []
-        : [
-          themeMenuItem(),
-          separator()
-        ]
-    ),
+    ...(process.platform === 'darwin' ? [] : [themeMenuItem(), separator()]),
   ];
 
   if (preferences.getPreferences().enableDevTools) {
@@ -367,16 +359,6 @@ function viewSubMenu(): MenuItemConstructorOptions {
       accelerator: 'Alt+CmdOrCtrl+I',
       click() {
         BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools();
-=======
-      separator(),
-      ...(process.platform === 'darwin' ? [] : [themeMenuItem(), separator()]),
-      {
-        label: '&Toggle DevTools',
-        accelerator: 'Alt+CmdOrCtrl+I',
-        click() {
-          BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools();
-        },
->>>>>>> origin/main
       },
     });
   }
@@ -490,12 +472,15 @@ class CompassMenu {
       this.refreshMenu();
     });
 
-    preferences.onPreferenceValueChanged('enableDevTools', (enableDevTools: boolean) => {
-      this.refreshMenu();
-      if (!enableDevTools) {
-        BrowserWindow.getFocusedWindow()?.webContents.closeDevTools();
+    preferences.onPreferenceValueChanged(
+      'enableDevTools',
+      (enableDevTools: boolean) => {
+        this.refreshMenu();
+        if (!enableDevTools) {
+          BrowserWindow.getFocusedWindow()?.webContents.closeDevTools();
+        }
       }
-    });
+    );
 
     void this.setupDockMenu();
   }

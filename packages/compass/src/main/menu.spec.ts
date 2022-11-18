@@ -243,7 +243,9 @@ describe('CompassMenu', function () {
 
     it('should generate a view menu template with toggle devtools', function () {
       sinon.stub(process, 'platform').value('linux');
-      sinon.stub(preferences, 'getPreferences').returns({ enableDevTools: true } as any);
+      sinon
+        .stub(preferences, 'getPreferences')
+        .returns({ enableDevTools: true } as any);
 
       expect(
         serializable(
@@ -270,7 +272,7 @@ describe('CompassMenu', function () {
             label: '&Toggle Sidebar',
           },
           {
-            type: 'separator'
+            type: 'separator',
           },
           {
             accelerator: 'CmdOrCtrl+0',
@@ -289,19 +291,23 @@ describe('CompassMenu', function () {
           },
           {
             label: 'Theme',
-            submenu: [{
-              checked: false,
-              label: 'Use OS Theme (Preview)',
-              type: 'checkbox',
-            }, {
-              checked: false,
-              label: 'Dark Theme (Preview)',
-              type: 'checkbox',
-            }, {
-              checked: false,
-              label: 'Light Theme',
-              type: 'checkbox',
-            }]
+            submenu: [
+              {
+                checked: false,
+                label: 'Use OS Theme (Preview)',
+                type: 'checkbox',
+              },
+              {
+                checked: false,
+                label: 'Dark Theme (Preview)',
+                type: 'checkbox',
+              },
+              {
+                checked: false,
+                label: 'Light Theme',
+                type: 'checkbox',
+              },
+            ],
           },
           {
             type: 'separator',
