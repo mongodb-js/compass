@@ -165,7 +165,7 @@ function Connections({
           <FormHelp />
         </div>
       </div>
-      {(!!connectionAttempt && !connectionAttempt.isClosed()) && (
+      {!!connectionAttempt && !connectionAttempt.isClosed() && (
         <Connecting
           connectingStatusText={connectingStatusText}
           onCancelConnectionClicked={cancelConnectionAttempt}
