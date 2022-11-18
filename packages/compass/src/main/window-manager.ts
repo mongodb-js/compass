@@ -58,9 +58,6 @@ const DEFAULT_URL =
   process.env.COMPASS_INDEX_RENDERER_URL ||
   pathToFileURL(path.join(__dirname, 'index.html')).toString();
 
-// track if app was launched, @see `renderer ready` handler below
-let appLaunched = false;
-
 async function showWindowWhenReady(bw: BrowserWindow) {
   await once(bw, 'ready-to-show');
   bw.show();
@@ -147,22 +144,6 @@ function showConnectWindow(
   });
 
   return window;
-}
-
-/**
- * can't use webContents `did-finish-load` event here because
- * metrics aren't set up at that point. renderer app sends custom event
- * `window:renderer-ready` when metrics are set up. If first app launch,
- * send back `app:launched` message at that point.
- *
- * @param {Object} sender   original sender of the event
- */
-function rendererReady(bw: BrowserWindow) {
-  if (!appLaunched) {
-    appLaunched = true;
-    debug('sending `app:launched` msg back');
-    bw.webContents.send('app:launched');
-  }
 }
 
 /**
@@ -253,7 +234,6 @@ class CompassWindowManager {
     });
 
     ipcMain.respondTo({
-      'window:renderer-ready': rendererReady,
       'app:show-info-dialog': showInfoDialog,
       'app:find-in-page': onFindInPage,
       'app:stop-find-in-page': onStopFindInPage,
