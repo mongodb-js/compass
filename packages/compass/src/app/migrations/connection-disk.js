@@ -23,15 +23,14 @@ const ConnectionDisk = Connection.extend(storageMixin, {
     backend: 'disk',
     namespace: 'Connections',
     appName: appName,
-    basepath
+    basepath,
   },
-  serialize: function() {
+  serialize: function () {
     return Connection.prototype.serialize.call(this, {
-      all: true
+      all: true,
     });
   },
-  validate: function() {
-  }
+  validate: function () {},
 });
 
 module.exports = ConnectionDisk;
