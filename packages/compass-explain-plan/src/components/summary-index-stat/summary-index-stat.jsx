@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
 import { Icon, IconButton, palette } from '@mongodb-js/compass-components';
 
 import { IndexDefinitionType } from '../index-definition-type';
@@ -43,17 +42,17 @@ class SummaryIndexStat extends Component {
    */
   getIndexMessageIcon() {
     const greenCheckMark = (
-      <FontAwesome
-        fixedWidth
+      <Icon
+        glyph="CheckmarkWithCircle"
         style={{ color: palette.green.dark2 }}
-        name="check-circle"
+        size="small"
       />
     );
     const yellowWarning = (
-      <FontAwesome
-        fixedWidth
+      <Icon
+        glyph="Warning"
         style={{ color: palette.yellow.base }}
-        name="exclamation-triangle"
+        size="small"
       />
     );
     const typeToIcon = {
