@@ -2,7 +2,7 @@ import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
 import type Stage from '../stage';
 
-import { generate, parseEJSON, PipelineParserError } from './utils';
+import { generate, parseShellBSON, PipelineParserError } from './utils';
 
 export type StageLike = t.ObjectExpression & {
   properties: [t.ObjectProperty & { key: t.Identifier | t.StringLiteral }];
@@ -24,7 +24,7 @@ export function isValidStageNode(node?: t.ObjectExpression): boolean {
       // TODO: either export ejson-shell-parser logic that validates the AST or
       // move the logic in this package to avoid generating source from ast
       // before validating it again
-      parseEJSON(generate(node));
+      parseShellBSON(generate(node));
       return true;
     } catch (err) {
       return false;
