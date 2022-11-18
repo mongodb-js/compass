@@ -25,8 +25,8 @@ export type UserConfigurablePreferences = {
   enableShell: boolean;
   protectConnectionStrings?: boolean;
   forceConnectionOptions?: [key: string, value: string][];
-  showKerberosPasswordField?: boolean;
-  enableDevTools?: boolean;
+  showKerberosPasswordField: boolean;
+  enableDevTools: boolean;
   theme: THEMES;
   maxTimeMS?: number;
 };

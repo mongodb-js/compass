@@ -465,7 +465,7 @@ class CompassMenu {
       'window:hide-collection-submenu': this.hideCollection.bind(this),
     });
 
-    preferences.onPreferenceValueChanged('theme', newTheme => {
+    preferences.onPreferenceValueChanged('theme', (newTheme: boolean) => {
       track('Theme Changed', {
         theme: newTheme
       });
@@ -479,9 +479,7 @@ class CompassMenu {
 
     preferences.onPreferenceValueChanged('enableDevTools', (enableDevTools: boolean) => {
       this.refreshMenu();
-      if (enableDevTools) {
-        BrowserWindow.getFocusedWindow()?.webContents.openDevTools();
-      } else {
+      if (!enableDevTools) {
         BrowserWindow.getFocusedWindow()?.webContents.closeDevTools();
       }
     });
