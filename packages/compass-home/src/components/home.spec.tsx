@@ -97,9 +97,12 @@ describe('Home [Component]', function () {
       testAppRegistry.emit('data-service-connected', null, dataService, {
         connectionOptions,
       });
-      await waitFor(
-        () =>
-          expect(screen.queryByTestId('connections-disconnected')).to.not.exist
+      await waitFor(() =>
+        expect(
+          screen
+            .queryAllByTestId('home-view')
+            .map((el) => el.getAttribute('data-hidden'))
+        ).to.include('true')
       );
     }
 

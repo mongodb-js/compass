@@ -43,6 +43,10 @@ const homeViewStyles = css({
   height: '100vh',
 });
 
+const hiddenStyles = css({
+  display: 'none',
+});
+
 const homePageStyles = css({
   display: 'flex',
   flexDirection: 'row',
@@ -161,17 +165,17 @@ function Home({
     });
   }
 
-  function onConnected(
-    connectionInfo: ConnectionInfo,
-    dataService: DataService
-  ) {
-    appRegistry.emit(
-      'data-service-connected',
-      null, // No error connecting.
-      dataService,
-      connectionInfo
-    );
-  }
+  const onConnected = useCallback(
+    (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      appRegistry.emit(
+        'data-service-connected',
+        null, // No error connecting.
+        dataService,
+        connectionInfo
+      );
+    },
+    [appRegistry]
+  );
 
   function onSelectDatabase(ns: string) {
     hideCollectionSubMenu();
@@ -284,26 +288,31 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
-  if (isConnected) {
-    return (
-      <div className="with-global-bootstrap-styles">
-        <Workspace namespace={namespace} />
-      </div>
-    );
-  }
-
   return (
-    <div className={homeViewStyles} data-testid="home-view">
-      <div className={homePageStyles}>
-        <Connections
-          onConnected={onConnected}
-          appName={appName}
-          getAutoConnectInfo={
-            hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
-          }
-        />
+    <>
+      {isConnected && (
+        <div className="with-global-bootstrap-styles">
+          <Workspace namespace={namespace} />
+        </div>
+      )}
+      {/* Hide <Connections> but keep it in scope if connected so that the connection
+          import/export functionality can still be used through the application menu */}
+      <div
+        className={isConnected ? hiddenStyles : homeViewStyles}
+        data-hidden={isConnected}
+        data-testid="home-view"
+      >
+        <div className={homePageStyles}>
+          <Connections
+            onConnected={onConnected}
+            appName={appName}
+            getAutoConnectInfo={
+              hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
+            }
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
