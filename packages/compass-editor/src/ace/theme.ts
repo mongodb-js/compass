@@ -2,6 +2,9 @@ import { palette, spacing } from '@mongodb-js/compass-components';
 
 const mongodbAceThemeCssClass = 'ace-mongodb';
 
+const errorColor = encodeURIComponent(palette.red.base);
+const errorColorDarkMode = encodeURIComponent(palette.red.light1);
+
 // To trick vscode into formatting and autocompleting the string
 const css = String.raw;
 
@@ -118,9 +121,20 @@ const mongodbAceThemeCssText = css`
     background: inherit;
   }
   .ace-mongodb .ace_gutter-cell {
-    /* gutter left padding has to account for error annotation size */
-    padding-left: 20px;
-    padding-right: 10px;
+    /* gutter left padding has to account for error annotation icon size */
+    padding-left: ${spacing[3]}px;
+  }
+  .ace-mongodb .ace_gutter-cell.ace_error {
+    /* leafygreen XWithCircle */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${errorColor}' fill-rule='evenodd' d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm1.414-9.828a1 1 0 1 1 1.414 1.414L9.414 8l1.414 1.414a1 1 0 1 1-1.414 1.414L8 9.414l-1.414 1.414a1 1 0 1 1-1.414-1.414L6.586 8 5.172 6.586a1 1 0 0 1 1.414-1.414L8 6.586l1.414-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E%0A");
+    /* leafygreen small icon size */
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: ${spacing[1] / 2}px center;
+  }
+  /* To change svg foll color, we have to completely replace the background url, this can't be done with css custom properties */
+  .ace_dark.ace-mongodb .ace_gutter-cell.ace_error {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${errorColorDarkMode}' fill-rule='evenodd' d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm1.414-9.828a1 1 0 1 1 1.414 1.414L9.414 8l1.414 1.414a1 1 0 1 1-1.414 1.414L8 9.414l-1.414 1.414a1 1 0 1 1-1.414-1.414L6.586 8 5.172 6.586a1 1 0 0 1 1.414-1.414L8 6.586l1.414-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E%0A");
   }
   .ace-mongodb .ace_keyword {
     color: var(--keyword-color);
