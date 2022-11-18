@@ -459,7 +459,7 @@ describe('Collection aggregations tab', function () {
         const maxTimeMSElement = await browser.$(
           Selectors.AggregationMaxTimeMSInput
         );
-        await maxTimeMSElement.setValue('1');
+        await maxTimeMSElement.setValue('100');
       }
 
       let maxTimeMSBefore;
@@ -479,7 +479,7 @@ describe('Collection aggregations tab', function () {
       }
 
       // run a projection that will take lots of time
-      await browser.selectStageOperator(0, '$project');
+      await browser.selectStageOperator(0, '$match');
 
       await browser.waitUntil(async function () {
         const textElement = await browser.$(
@@ -490,19 +490,24 @@ describe('Collection aggregations tab', function () {
       });
 
       const syntaxMessageElement = await browser.$(
-        Selectors.stageEditorSyntaxErrorMessage(0)
+        Selectors.stageEditorErrorMessage(0)
       );
       await syntaxMessageElement.waitForDisplayed();
 
+      // 100 x sleep(100) = 10s total execution time
+      // This works better than a $project with sleep(10000),
+      // where the DB may not interrupt the sleep() call if it
+      // has already started.
       await browser.setAceValue(
         Selectors.stageEditor(0),
         `{
-      foo: {
-        $function: {
-          body: 'function() { sleep(10000) }',
-          args: [],
-          lang: 'js'
-        }
+      $expr: {
+        $and: [${[...Array(100).keys()]
+          .map(
+            () =>
+              `{ $function: { body: 'function() { sleep(100) }', args: [], lang: 'js' } }`
+          )
+          .join(',')}]
       }
     }`
       );
