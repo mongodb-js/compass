@@ -637,11 +637,12 @@ export function getSettingDescription<
   return { description, type, required };
 }
 
+/* Identifies a source from which the preference was set */
 export type PreferenceState =
-  | 'set-cli'
-  | 'set-global'
+  | 'set-cli' // Can be set directly or derived from a preference set via cli args.
+  | 'set-global' // Can be set directly or derived from a preference set via global config.
   | 'hardcoded'
-  | 'derived'
+  | 'derived' // Derived from a preference set by a user via setting UI.
   | undefined;
 
 export type PreferenceStateInformation = Partial<

@@ -142,13 +142,12 @@ describe('Preferences class', function () {
 
     const states = preferences.getPreferenceStates();
     expect(states).to.deep.equal({
-      enableDevTools: 'derived',
       trackErrors: 'set-global',
       enableMaps: 'set-cli',
     });
   });
 
-  it('allows providing options that influence the values of other options', async function () {
+  it('allows providing true options that influence the values of other options', async function () {
     const preferences = new Preferences(tmpdir, {
       cli: {
         enableMaps: true,
@@ -173,11 +172,28 @@ describe('Preferences class', function () {
       trackErrors: 'set-global',
       enableFeedbackPanel: 'set-global',
       autoUpdates: 'set-global',
-      enableDevTools: 'derived',
+      enableDevTools: 'set-global',
       networkTraffic: 'set-global',
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
       enableShell: 'set-cli',
+      readOnly: 'set-global',
+    });
+  });
+
+  it('allows providing false options that should not influence the values of other options', async function () {
+    const preferences = new Preferences(tmpdir, {
+      global: {
+        readOnly: false,
+      },
+    });
+    const result = await preferences.fetchPreferences();
+    expect(result.readOnly).to.equal(false);
+    expect(result.enableShell).to.equal(true);
+
+    const states = preferences.getPreferenceStates();
+
+    expect(states).to.deep.equal({
       readOnly: 'set-global',
     });
   });
@@ -258,7 +274,6 @@ describe('Preferences class', function () {
       enableMaps: 'set-cli',
       enableFeedbackPanel: 'hardcoded',
       autoUpdates: 'hardcoded',
-      enableDevTools: 'derived',
       networkTraffic: 'hardcoded',
       trackUsageStatistics: 'hardcoded',
     });
