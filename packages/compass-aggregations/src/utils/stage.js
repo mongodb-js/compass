@@ -9,7 +9,7 @@ import {
   COLLECTION,
   OUT_STAGES
 } from '@mongodb-js/mongodb-constants';
-import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
+import { parseEJSON } from '../modules/pipeline-builder/pipeline-parser/utils';
 
 export const OUT_STAGE_PREVIEW_TEXT =
   'The $out operator will cause the pipeline to persist ' +
@@ -164,7 +164,7 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
     destination: isOutputStage(stageOperator)
       ? (() => {
           try {
-            const stage = parseShellBSON(`{${stageOperator}: ${stageValue}}`);
+            const stage = parseEJSON(`{${stageOperator}: ${stageValue}}`);
             if (stage[stageOperator].s3) {
               return 'S3 bucket';
             }

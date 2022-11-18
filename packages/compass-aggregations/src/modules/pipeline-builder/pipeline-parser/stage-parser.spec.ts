@@ -95,51 +95,36 @@ describe('StageParser', function () {
       expect(isNodeDisabled(node)).to.be.false;
     });
 
-    describe('assertStageNode', function () {
-      stages
-        .filter((x) => x.isValid)
-        .forEach(({ expression }) => {
-          it(`asserting stage ${expression} should not throw`, function () {
-            expect(() => {
-              assertStageNode(babelParser.parseExpression(expression));
-            }).to.not.throw();
-          });
-        });
-
-      const invalidStages = [
+    it('asserts stage node', function () {
+      const data = [
         {
           expression: `[]`,
-          errorMessage: 'Each element of the pipeline array must be an object'
+          errorMessage: 'Each element of the pipeline array must be an object',
         },
         {
           expression: `'name'`,
-          errorMessage: 'Each element of the pipeline array must be an object'
+          errorMessage: 'Each element of the pipeline array must be an object',
         },
         {
           expression: `{}`,
-          errorMessage:
-            'A pipeline stage specification object must contain exactly one field.'
+          errorMessage: 'A pipeline stage specification object must contain exactly one field.',
         },
         {
           expression: `{match: {}}`,
-          errorMessage: "Unrecognized pipeline stage name: 'match'"
+          errorMessage: 'Stage value can not be empty',
         },
-        {
-          expression: `{$match: {query}}`,
-          errorMessage: 'Stage value is invalid'
-        },
-        {
-          expression: `{$match: {_id: Math.random()}}`,
-          errorMessage: 'Stage value is invalid'
-        }
       ];
+      data.forEach(({ expression, errorMessage }) => {
+        try {
+          assertStageNode(babelParser.parseExpression(expression))
+        } catch (e) {
+          expect(e).to.be.instanceOf(SyntaxError);
+          expect((e as SyntaxError).message).to.equal(errorMessage);
+        }
+      });
 
-      invalidStages.forEach(({ expression, errorMessage }) => {
-        it(`assertings stage ${expression} should throw`, function () {
-          expect(() => {
-            assertStageNode(babelParser.parseExpression(expression));
-          }).to.throw(errorMessage);
-        });
+      stages.filter(x => x.isValid).forEach(({ expression }) => {
+        assertStageNode(babelParser.parseExpression(expression));
       });
     });
 
