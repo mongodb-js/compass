@@ -100,12 +100,14 @@ class SummaryIndexStat extends Component {
           <Icon glyph="InfoWithCircle" size="small" />
         </IconButton>
         <div className={this.props.index && styles['summary-index-stat-index']}>
-          <span className={styles['summary-index-stat-index-icon']}>
-            {this.getIndexMessageIcon()}
-          </span>
-          <span style={{ color: this.getIndexMessageColor() }}>
-            {this.getIndexMessageText()}
-          </span>
+          <div>
+            <span className={styles['summary-index-stat-index-icon']}>
+              {this.getIndexMessageIcon()}
+            </span>
+            <span style={{ color: this.getIndexMessageColor() }}>
+              {this.getIndexMessageText()}
+            </span>
+          </div>
           {this.props.index ? (
             <IndexDefinitionType index={this.props.index} />
           ) : null}
