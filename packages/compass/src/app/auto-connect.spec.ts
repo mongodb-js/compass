@@ -76,7 +76,7 @@ describe('auto connection argument parsing', function () {
     try {
       await fn?.();
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal("No connection id specified and connection file 'filename' contained 2 entries");
     }
   });
@@ -101,7 +101,7 @@ describe('auto connection argument parsing', function () {
     try {
       await fn?.();
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal("Could not find connection with id '0000000-0000-0000-0000-000000000000' in connection file 'filename'");
     }
   });
@@ -141,7 +141,7 @@ describe('auto connection argument parsing', function () {
     try {
       await fn?.();
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal("No connection id specified and connection file 'filename' contained 0 entries");
     }
   });
@@ -165,7 +165,7 @@ describe('auto connection argument parsing', function () {
     try {
       await fn?.();
       expect.fail('missed exception');
-    } catch (err) {
+    } catch (err: any) {
       expect(err.message).to.equal("Input file contains encrypted secrets but no passphrase was provided");
     }
   });

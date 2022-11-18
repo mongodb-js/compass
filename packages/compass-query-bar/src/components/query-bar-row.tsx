@@ -7,7 +7,6 @@ import type {
   QueryBarRowLayout,
   QueryBarOptionProps,
 } from '../constants/query-option-definition';
-import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import { QueryOption as QueryOptionComponent } from './query-option';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor/dist/types';
 
@@ -49,10 +48,7 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
             onChangeQueryOption(queryOptionsLayout, value)
           }
           onApply={onApply}
-          placeholder={
-            queryOptionProps[`${queryOptionsLayout}Placeholder`] ||
-            OPTION_DEFINITION[queryOptionsLayout].placeholder
-          }
+          placeholder={queryOptionProps[`${queryOptionsLayout}Placeholder`]}
           id={`query-bar-option-input-${queryOptionsLayout}`}
           refreshEditorAction={refreshEditorAction}
           schemaFields={schemaFields}
@@ -67,10 +63,7 @@ export const QueryBarRow: React.FunctionComponent<QueryBarRowProps> = ({
             queryOption={optionName}
             onChange={(value: string) => onChangeQueryOption(optionName, value)}
             onApply={onApply}
-            placeholder={
-              queryOptionProps[`${optionName}Placeholder`] ||
-              OPTION_DEFINITION[optionName].placeholder
-            }
+            placeholder={queryOptionProps[`${optionName}Placeholder`]}
             id={`query-bar-option-input-${optionName}`}
             refreshEditorAction={refreshEditorAction}
             schemaFields={schemaFields}

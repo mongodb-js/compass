@@ -28,6 +28,7 @@ export type UserConfigurablePreferences = {
   showKerberosPasswordField?: boolean;
   enableDevTools?: boolean;
   theme: THEMES;
+  maxTimeMS?: number;
 };
 
 export type InternalUserPreferences = {
@@ -162,22 +163,14 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
 function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
-  // TODO: COMPASS-6063
-  // Check maxTimeMS as restricting option,
   return (v, s) => ({
-    value:
-      v(property) &&
-      v('enableShell') &&
-      !v('protectConnectionStrings') &&
-      !v('readOnly'),
+    value: v(property) && !v('protectConnectionStrings') && !v('readOnly'),
     state:
       s(property) ??
-      s('protectConnectionStrings') ??
       (v('protectConnectionStrings') ? 'derived' : undefined) ??
-      s('readOnly') ??
       (v('readOnly') ? 'derived' : undefined) ??
-      s('enableShell') ??
-      (v('enableShell') ? undefined : 'derived'),
+      (v('enableShell') ? 'derived' : undefined) ??
+      (v('maxTimeMS') ? 'derived' : undefined),
   });
 }
 
@@ -187,8 +180,7 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
     value: v(property) && !v('readOnly'),
-    state:
-      s(property) ?? s('readOnly') ?? (v('readOnly') ? 'derived' : undefined),
+    state: s(property) ?? (v('readOnly') ? 'derived' : undefined),
   });
 }
 
@@ -463,6 +455,20 @@ const modelPreferencesProps: Required<{
       long: 'Force connection string properties to take specific values',
     },
     customPostProcess: parseRecord,
+  },
+  /**
+   * Set an upper limit for maxTimeMS for operations started by Compass.
+   */
+  maxTimeMS: {
+    type: 'number',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Upper Limit for maxTimeMS for Compass Database Operations',
+    },
   },
 };
 

@@ -24,9 +24,9 @@ const getContext = () => {
   return (process.stdin.isTTY || process.stdout.isTTY || process.stderr.isTTY) ? 'terminal' : 'desktop_app';
 }
 
-const getLaunchConnectionSource = (file?: string, positionalArguments?: string) => {
+const getLaunchConnectionSource = (file?: string, positionalArguments?: string[]) => {
   if (file) return 'JSON_file';
-  if (positionalArguments) return 'string';
+  if (positionalArguments?.length) return 'string';
   return 'none';
 }
 
@@ -109,8 +109,7 @@ class CompassApplication {
       readOnly,
       file,
       positionalArguments,
-      // TODO: COMPASS-6063
-      // maxTimeMS,
+      maxTimeMS,
     } = preferences.getPreferences();
 
     debug('application launched');
@@ -119,8 +118,7 @@ class CompassApplication {
       launch_connection: getLaunchConnectionSource(file, positionalArguments),
       protected: protectConnectionStrings,
       readOnly,
-      // TODO: replace with maxTimeMS from preferences COMPASS-6063.
-      maxTimeMS: undefined,
+      maxTimeMS,
       global_config: hasConfig('global', globalPreferences),
       cli_args: hasConfig('cli', globalPreferences),
     });

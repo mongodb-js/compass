@@ -142,6 +142,7 @@ describe('Preferences class', function () {
 
     const states = preferences.getPreferenceStates();
     expect(states).to.deep.equal({
+      enableDevTools: 'derived',
       trackErrors: 'set-global',
       enableMaps: 'set-cli',
     });
@@ -172,6 +173,7 @@ describe('Preferences class', function () {
       trackErrors: 'set-global',
       enableFeedbackPanel: 'set-global',
       autoUpdates: 'set-global',
+      enableDevTools: 'derived',
       networkTraffic: 'set-global',
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
@@ -256,6 +258,7 @@ describe('Preferences class', function () {
       enableMaps: 'set-cli',
       enableFeedbackPanel: 'hardcoded',
       autoUpdates: 'hardcoded',
+      enableDevTools: 'derived',
       networkTraffic: 'hardcoded',
       trackUsageStatistics: 'hardcoded',
     });

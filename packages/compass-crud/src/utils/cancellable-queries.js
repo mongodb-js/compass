@@ -1,4 +1,5 @@
 import createLogger from '@mongodb-js/compass-logging';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const { log, mongoLogId, debug } = createLogger('cancellable-queries');
 
@@ -45,7 +46,11 @@ export async function countDocuments(
     throw new Error(OPERATION_CANCELLED_MESSAGE);
   }
 
-  const opts = { session, maxTimeMS, hint };
+  const opts = {
+    session,
+    maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),
+    hint,
+  };
 
   let $match;
   if (filter && Object.keys(filter).length > 0) {

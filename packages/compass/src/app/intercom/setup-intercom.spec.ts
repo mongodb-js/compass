@@ -10,7 +10,7 @@ import preferences from 'compass-preferences-model';
 const setupIpc = () => {
   let savedPreferences = {};
   Object.assign(require('hadron-ipc').ipcRenderer, {
-    invoke: async(name, attributes) => {
+    invoke: async(name: string, attributes: any) => {
       if (name === 'compass:save-preferences') {
         savedPreferences = { ...savedPreferences, ...attributes };
         await preferences.refreshPreferences();
@@ -46,7 +46,7 @@ const mockUser = {
 };
 
 describe('setupIntercom', function () {
-  let backupEnv;
+  let backupEnv: Partial<typeof process.env>;
   let fetchMock: SinonStub;
 
   before(function () {
@@ -62,7 +62,7 @@ describe('setupIntercom', function () {
       NODE_ENV: process.env.NODE_ENV,
     };
 
-    process.env.HADRON_PRODUCT_NAME = 'My App Name';
+    process.env.HADRON_PRODUCT_NAME = 'My App Name' as any;
     process.env.HADRON_APP_VERSION = 'v0.0.0-test.123';
     process.env.NODE_ENV = 'test';
     process.env.HADRON_METRICS_INTERCOM_APP_ID = 'appid123';
@@ -80,8 +80,8 @@ describe('setupIntercom', function () {
   afterEach(function () {
     process.env.HADRON_METRICS_INTERCOM_APP_ID =
       backupEnv.HADRON_METRICS_INTERCOM_APP_ID;
-    process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME;
-    process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION;
+    process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME as any;
+    process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION as any;
     process.env.NODE_ENV = backupEnv.NODE_ENV;
     fetchMock.restore();
   });

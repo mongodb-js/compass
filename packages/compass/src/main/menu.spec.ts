@@ -7,7 +7,7 @@ import preferences from 'compass-preferences-model';
 import type { CompassApplication } from './application';
 import type { CompassMenu as _CompassMenu } from './menu';
 
-function serializable(obj) {
+function serializable<T>(obj: T): T {
   try {
     return JSON.parse(JSON.stringify(obj));
   } catch {
