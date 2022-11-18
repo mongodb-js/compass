@@ -6,7 +6,7 @@ import type { SinonSpy } from 'sinon';
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 
-import WelcomeModal from './modal';
+import { WelcomeModal } from './modal';
 
 describe('WelcomeModal', function () {
   let closeModalSpy: SinonSpy;
