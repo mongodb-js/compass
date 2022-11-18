@@ -5,5 +5,5 @@ async function version(v) {
 }
 
 module.exports = {
-  version
+  version,
 };

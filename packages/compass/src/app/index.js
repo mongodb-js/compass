@@ -164,12 +164,17 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function () {
-    const getAutoConnectInfo = (await import('./auto-connect')).loadAutoConnectInfo(
-      await preferences.refreshPreferences()
+    const getAutoConnectInfo = (
+      await import('./auto-connect')
+    ).loadAutoConnectInfo(await preferences.refreshPreferences());
+    log.info(
+      mongoLogId(1_001_000_092),
+      'Main Window',
+      'Rendering app container',
+      {
+        autoConnectEnabled: !!getAutoConnectInfo,
+      }
     );
-    log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container', {
-      autoConnectEnabled: !!getAutoConnectInfo
-    });
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
@@ -195,10 +200,8 @@ const Application = View.extend({
   },
   fetchUser: async function () {
     debug('getting user preferences');
-    const {
-      telemetryAnonymousId,
-      lastKnownVersion
-    } = preferences.getPreferences();
+    const { telemetryAnonymousId, lastKnownVersion } =
+      preferences.getPreferences();
 
     // The main process ensured that `telemetryAnonymousId` contains the id of the User model.
     const user = await User.getOrCreate(telemetryAnonymousId);
