@@ -4,6 +4,5 @@ ignores:
     '@mongodb-js/tsconfig-compass',
     '@wdio/types',
     'mongodb-compass',
-    'ps-list',
-    'compass-preferences-model'
+    'ps-list'
   ]

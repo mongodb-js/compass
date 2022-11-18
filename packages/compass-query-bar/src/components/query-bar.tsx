@@ -18,7 +18,6 @@ import type {
   QueryOption,
   QueryBarOptionProps,
 } from '../constants/query-option-definition';
-import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import {
   QueryOption as QueryOptionComponent,
   documentEditorLabelContainerStyles,
@@ -178,10 +177,7 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
             id={filterQueryOptionId}
             onChange={(value: string) => onChangeQueryOption('filter', value)}
             onApply={onApply}
-            placeholder={
-              queryOptionProps.filterPlaceholder ||
-              OPTION_DEFINITION.filter.placeholder
-            }
+            placeholder={queryOptionProps.filterPlaceholder}
             refreshEditorAction={refreshEditorAction}
             schemaFields={schemaFields}
             serverVersion={serverVersion}

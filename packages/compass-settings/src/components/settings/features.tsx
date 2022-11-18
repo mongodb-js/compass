@@ -12,7 +12,7 @@ const featuresFields = [
   'enableShell',
   'protectConnectionStrings',
   'showKerberosPasswordField',
-  // 'maxTimeMS',
+  'maxTimeMS',
 ] as const;
 type FeaturesFields = typeof featuresFields[number];
 type FeaturesSettingsProps = Omit<SettingsListProps<FeaturesFields>, 'fields'>;

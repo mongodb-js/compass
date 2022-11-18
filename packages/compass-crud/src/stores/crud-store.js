@@ -1,6 +1,6 @@
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
-import { findIndex, isEmpty, isEqual } from 'lodash';
+import { omit, findIndex, isEmpty, isEqual } from 'lodash';
 import StateMixin from 'reflux-state-mixin';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -20,6 +20,7 @@ import {
   DOCUMENTS_STATUS_FETCHED_CUSTOM,
   DOCUMENTS_STATUS_FETCHED_PAGINATION,
 } from '../constants/documents-statuses';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 import configureGridStore from './grid-store';
 
@@ -674,7 +675,7 @@ const configureStore = (options = {}) => {
         sort,
         projection,
         collation,
-        maxTimeMS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),
         promoteValues: false,
         bsonRegExp: true,
       };
@@ -1114,16 +1115,17 @@ const configureStore = (options = {}) => {
       }
 
       const fetchShardingKeysOptions = {
-        maxTimeMS: query.maxTimeMS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
         session: this.dataService.startSession('CRUD'),
       };
 
       const countOptions = {
         skip: query.skip,
-        maxTimeMS:
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(
           query.maxTimeMS > COUNT_MAX_TIME_MS_CAP
             ? COUNT_MAX_TIME_MS_CAP
-            : query.maxTimeMS,
+            : query.maxTimeMS
+        ),
         session: this.dataService.startSession('CRUD'),
       };
 
@@ -1137,7 +1139,7 @@ const configureStore = (options = {}) => {
         skip: query.skip,
         limit: NUM_PAGE_DOCS,
         collation: query.collation,
-        maxTimeMS: query.maxTimeMS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
         promoteValues: false,
         bsonRegExp: true,
         session: this.dataService.startSession('CRUD'),
@@ -1152,8 +1154,8 @@ const configureStore = (options = {}) => {
       log.info(mongoLogId(1001000073), 'Documents', 'Refreshing documents', {
         ns,
         withFilter: !isEmpty(query.filter),
-        findOptions,
-        countOptions,
+        findOptions: omit(findOptions, 'session'),
+        countOptions: omit(countOptions, 'session'),
       });
 
       const abortController = new AbortController();

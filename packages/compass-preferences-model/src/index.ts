@@ -22,6 +22,7 @@ export {
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
 export { usePreference, withPreferences } from './react';
+export { capMaxTimeMSAtPreferenceLimit } from './utils';
 
 export interface PreferencesAccess {
   savePreferences(

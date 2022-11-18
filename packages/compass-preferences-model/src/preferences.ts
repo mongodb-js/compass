@@ -27,6 +27,7 @@ export type UserConfigurablePreferences = {
   forceConnectionOptions?: [key: string, value: string][];
   showKerberosPasswordField?: boolean;
   theme: THEMES;
+  maxTimeMS?: number;
 };
 
 export type InternalUserPreferences = {
@@ -423,6 +424,20 @@ const modelPreferencesProps: Required<{
       long: 'Force connection string properties to take specific values',
     },
     customPostProcess: parseRecord,
+  },
+  /**
+   * Set an upper limit for maxTimeMS for operations started by Compass.
+   */
+  maxTimeMS: {
+    type: 'number',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Upper Limit for maxTimeMS for Compass Database Operations',
+    },
   },
 };
 
