@@ -164,12 +164,17 @@ function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
   return (v, s) => ({
-    value: v(property) && !v('protectConnectionStrings') && !v('readOnly'),
+    value:
+      v(property) &&
+      v('enableShell') &&
+      !v('maxTimeMS') &&
+      !v('protectConnectionStrings') &&
+      !v('readOnly'),
     state:
       s(property) ??
       (v('protectConnectionStrings') ? 'derived' : undefined) ??
       (v('readOnly') ? 'derived' : undefined) ??
-      (v('enableShell') ? 'derived' : undefined) ??
+      (v('enableShell') ? undefined : 'derived') ??
       (v('maxTimeMS') ? 'derived' : undefined),
   });
 }
