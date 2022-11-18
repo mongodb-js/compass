@@ -45,7 +45,7 @@ export const globalAppRegistryEmit = (name: string, ...args: unknown[]) => ({
  *
  * @returns {String} The state.
  */
-const reducer = (state: State = INITIAL_STATE, action: AnyAction) => {
+const reducer = (state: State = INITIAL_STATE, action: AnyAction): State => {
   if (action.type === GLOBAL_APP_REGISTRY_ACTIVATED) {
     return action.appRegistry;
   }

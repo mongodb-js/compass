@@ -7,6 +7,7 @@ import {
   FULL_SCAN_STAGES,
   REQUIRED_AS_FIRST_STAGE as _REQUIRED_AS_FIRST_STAGE
 } from '@mongodb-js/mongodb-constants';
+import isEqual from 'lodash/isEqual';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 
@@ -71,7 +72,9 @@ export function createPreviewAggregation(
 
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
+  private lastPipeline = new Map<number, Document[]>();
   constructor(private dataService: DataService) {}
+
   /**
    * Request aggregation results with a default debounce
    */
@@ -93,6 +96,7 @@ export class PipelinePreviewManager {
     if (!force) {
       await cancellableWait(options.debounceMs ?? 700, controller.signal);
     }
+    this.lastPipeline.set(idx, pipeline);
     const result = await aggregatePipeline({
       dataService: this.dataService,
       signal: controller.signal,
@@ -100,7 +104,7 @@ export class PipelinePreviewManager {
       pipeline: createPreviewAggregation(pipeline, {
         sampleSize,
         previewSize,
-        totalDocumentCount,
+        totalDocumentCount
       }),
       options
     });
@@ -108,11 +112,16 @@ export class PipelinePreviewManager {
     return result;
   }
 
+  isLastPipelineEqual(idx: number, pipeline: Document[]): boolean {
+    return isEqual(pipeline, this.lastPipeline.get(idx));
+  }
+
   /**
    * Cancel aggregation request by id
    */
   cancelPreviewForStage(idx: number): boolean {
     this.queue.get(idx)?.abort();
+    this.lastPipeline.delete(idx);
     return this.queue.delete(idx);
   }
 
@@ -123,6 +132,7 @@ export class PipelinePreviewManager {
     for (const [idx, controller] of Array.from(this.queue.entries())) {
       if (idx >= from) {
         controller.abort();
+        this.lastPipeline.delete(idx);
         this.queue.delete(idx);
       }
     }

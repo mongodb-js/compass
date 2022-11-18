@@ -67,7 +67,7 @@ class UniqueMiniChart extends Component {
             </IconButton>
           </dt>
           <dd>
-            <ul className="list-inline">{randomValueList}</ul>
+            <ul>{randomValueList}</ul>
           </dd>
         </dl>
       </div>

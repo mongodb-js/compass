@@ -4,18 +4,10 @@ import sortBy from 'lodash.sortby';
 import find from 'lodash.find';
 import numeral from 'numeral';
 import ReactTooltip from 'react-tooltip';
-import TOOLTIP_IDS from '../../constants/schema';
+import { Disclaimer } from '@mongodb-js/compass-components';
 
-// const debug = require('debug')('mongodb-compass:schema:type');
+const schemaTooltipClass = 'schema-probability-percent';
 
-/**
- * The full schema component class.
- */
-const TYPE_CLASS = 'schema-field-wrapper';
-
-/**
- * Component for the entire document list.
- */
 class Type extends Component {
   static displayName = 'TypeComponent';
 
@@ -104,7 +96,7 @@ class Type extends Component {
    */
   render() {
     const type = this.props.name.toLowerCase();
-    let cls = `${TYPE_CLASS} schema-field-type-${type}`;
+    let cls = `schema-field-wrapper schema-field-type-${type}`;
     if (this.props.activeType === this.props.self) {
       cls += ' active';
     }
@@ -116,7 +108,9 @@ class Type extends Component {
     };
     const subtypes = this._getArraySubTypes();
     const label = (
-      <span className="schema-field-type-label">{this.props.name}</span>
+      <Disclaimer className="schema-field-type-label">
+        {this.props.name}
+      </Disclaimer>
     );
     // show integer accuracy by default, but show one decimal point accuracy
     // when less than 1% or greater than 99% but no 0% or 100%
@@ -129,7 +123,7 @@ class Type extends Component {
       this.props.probability
     ).format(format)})`;
     const tooltipOptions = {
-      'data-for': TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT,
+      'data-for': schemaTooltipClass,
       'data-tip': tooltipText,
       'data-effect': 'solid',
       'data-border': true,
@@ -145,7 +139,7 @@ class Type extends Component {
         style={style}
         onClick={handleClick}
       >
-        <ReactTooltip id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT} />
+        <ReactTooltip id={schemaTooltipClass} />
         {this.props.showSubTypes ? label : null}
         <div className="schema-field-type" />
         {subtypes}

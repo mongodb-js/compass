@@ -22,7 +22,6 @@ import {
 } from '../../../utils/stage';
 
 const bannerStyles = css({
-  margin: spacing[3],
   alignItems: 'center',
   display: 'flex',
 });

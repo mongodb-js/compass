@@ -20,7 +20,7 @@ const nsChanged = (ns: string) => ({ type: NS_CHANGED, ns });
  *
  * @returns {String} The state.
  */
-const reducer = (state = INITIAL_STATE, action: AnyAction) => {
+const reducer = (state = INITIAL_STATE, action: AnyAction): string => {
   if (action.type === NS_CHANGED) {
     return action.ns;
   }

@@ -9,7 +9,7 @@ import FontAwesome from 'react-fontawesome';
 import { Tooltip } from 'hadron-react-components';
 import TypeChecker from 'hadron-type-checker';
 import { ElementEditor as initEditors } from 'hadron-document';
-import Types from './types';
+import TypesDropdown from './types-dropdown';
 import AddFieldButton from './add-field-button';
 
 const EMPTY_TYPE = {
@@ -422,6 +422,7 @@ class CellEditor extends React.Component {
           <span className={`${BEM_BASE}-input-field-inner`}>
             <input
               type="text"
+              data-testid="table-view-cell-editor-fieldname-input"
               onChange={this.handleFieldNameChange.bind(this)}
               onClick={() => {
                 this.nodeIndex = 1;
@@ -459,7 +460,7 @@ class CellEditor extends React.Component {
           this.nodeIndex = 3;
         }}
       >
-        <Types
+        <TypesDropdown
           element={this.element}
           version={this.props.version}
           className={`${BEM_BASE}-types btn btn-default btn-xs`}
@@ -495,6 +496,7 @@ class CellEditor extends React.Component {
             }}
           />
           <input
+            data-testid="table-view-cell-editor-value-input"
             data-tip=""
             data-for={this.element.uuid}
             ref={(c) => {
@@ -530,6 +532,7 @@ class CellEditor extends React.Component {
     return (
       <button
         type="button"
+        data-testid="table-view-cell-editor-expand-button"
         className={`${BEM_BASE}-button btn btn-default btn-xs`}
         onMouseDown={this.handleDrillDown.bind(this)}
         ref={(c) => {
@@ -556,6 +559,7 @@ class CellEditor extends React.Component {
     return (
       <button
         type="button"
+        data-testid="table-view-cell-editor-remove-field-button"
         className={`${BEM_BASE}-button btn btn-default btn-xs`}
         onMouseDown={this.handleRemoveField.bind(this)}
         ref={(c) => {

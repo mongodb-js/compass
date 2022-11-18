@@ -5,7 +5,7 @@ import {
   DEFAULT_PIPELINE,
   PipelineBuilder
 } from './pipeline-builder';
-
+import Stage from './stage';
 
 describe('PipelineBuilder', function () {
   const pipelineBuilder = new PipelineBuilder(mockDataService());
@@ -54,7 +54,7 @@ describe('PipelineBuilder', function () {
 
   it('adds stage', function() {
     pipelineBuilder.addStage();
-    expect(pipelineBuilder.stages.length).to.equal(2);
+    expect(pipelineBuilder.stages.length).to.equal(1);
   });
 
   it('adds stage after index', function() {
@@ -89,7 +89,7 @@ describe('PipelineBuilder', function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
     pipelineBuilder.reset(pipeline);
 
-    const mock = sinon.mock(pipelineBuilder.previewManager);
+    const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock.expects('getPreviewForStage')
       .withArgs(1, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {}, true)
       .returns([{_id: 1}]);
@@ -105,9 +105,9 @@ describe('PipelineBuilder', function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}]`;
     pipelineBuilder.reset(pipeline);
 
-    const mock = sinon.mock(pipelineBuilder.previewManager);
+    const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock.expects('getPreviewForStage')
-      .withArgs(1, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
+      .withArgs(Infinity, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
       .returns([{_id: 1}, {_id: 2}]);
 
     const data = await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {});
@@ -121,9 +121,9 @@ describe('PipelineBuilder', function () {
     const pipeline = `[{$match: {}}, {$unwind: "users"}, {$out: "test"}]`;
     pipelineBuilder.reset(pipeline);
 
-    const mock = sinon.mock(pipelineBuilder.previewManager);
+    const mock = sandbox.mock(pipelineBuilder.previewManager);
     mock.expects('getPreviewForStage')
-      .withArgs(1, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
+      .withArgs(Infinity, 'airbnb.listings', [{$match: {}}, {$unwind: "users"}], {})
       .returns([{_id: 1}, {_id: 2}]);
 
     const data = await pipelineBuilder.getPreviewForPipeline('airbnb.listings', {}, true);
@@ -149,4 +149,70 @@ describe('PipelineBuilder', function () {
     pipelineBuilder.reset(`[{$match: {_id: 1}}]\n// trailing comment`);
     expect(pipelineBuilder.syntaxError).to.have.lengthOf(0);
   });
+
+  describe('stagesToSource', function() {
+    it('converts stages to source', function() {
+      const stages = [
+        new Stage(),
+        new Stage(),
+        new Stage(),
+      ]
+      
+      stages[0].changeOperator('$match');
+      stages[0].changeValue('{ _id: 1 }');
+
+      stages[1].changeOperator('$limit');
+      stages[1].changeValue('10');
+
+      stages[2].changeOperator('$out');
+      stages[2].changeValue('"test-out"');
+
+      pipelineBuilder.stages = stages;
+
+      pipelineBuilder.stagesToSource();
+
+      expect(pipelineBuilder.source).to.eq(`[
+  {
+    $match: {
+      _id: 1,
+    },
+  },
+  {
+    $limit: 10,
+  },
+  {
+    $out: "test-out",
+  },
+]`);
+    });
+
+    it('throws if enabled stages has syntax errors', function () {
+      const stages = [new Stage()];
+
+      stages[0].changeOperator('$match');
+      stages[0].changeValue('{ _id: 1');
+
+      pipelineBuilder.stages = stages;
+
+      expect(() => pipelineBuilder.stagesToSource()).to.throw();
+    });
+
+    it('converts stages to source if stages with syntax errors are disabled', function() {
+      const stages = [new Stage()];
+
+      stages[0].changeOperator('$match');
+      stages[0].changeValue('{ _id: 1');
+      stages[0].changeDisabled(true);
+
+      pipelineBuilder.stages = stages;
+
+      pipelineBuilder.stagesToSource();
+
+      expect(pipelineBuilder.source).to.eq(`[
+  // {
+  //   $match: { _id: 1
+  // }
+]`);
+    })
+  })
 });

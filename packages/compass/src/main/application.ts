@@ -3,7 +3,6 @@ import { EventEmitter } from 'events';
 import type { BrowserWindow } from 'electron';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
-import createDebug from 'debug';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
@@ -12,11 +11,28 @@ import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
 import { setupPreferencesAndUserModel } from './setup-preferences-and-user-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
+import preferences from 'compass-preferences-model';
 
-const debug = createDebug('mongodb-compass:main:application');
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
+const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
+
+const getContext = () => {
+  return (process.stdin.isTTY || process.stdout.isTTY || process.stderr.isTTY) ? 'terminal' : 'desktop_app';
+}
+
+const getLaunchConnectionSource = (file?: string, positionalArguments?: string) => {
+  if (file) return 'JSON_file';
+  if (positionalArguments) return 'string';
+  return 'none';
+}
+
+const hasConfig = (source: 'global' | 'cli', globalPreferences: ParsedGlobalPreferencesResult) => {
+  return !!Object.keys(globalPreferences[source]).length;
+}
 
 class CompassApplication {
   private constructor() {
@@ -54,6 +70,7 @@ class CompassApplication {
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
+    this.trackApplicationLaunched(globalPreferences);
   }
 
   static init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult): Promise<void> {
@@ -82,6 +99,31 @@ class CompassApplication {
 
   private static setupWindowManager(): void {
     void CompassWindowManager.init(this);
+  }
+
+  private static trackApplicationLaunched(
+    globalPreferences: ParsedGlobalPreferencesResult
+  ): void {
+    const {
+      protectConnectionStrings,
+      readOnly,
+      file,
+      positionalArguments,
+      // TODO: COMPASS-6063
+      // maxTimeMS,
+    } = preferences.getPreferences();
+
+    debug('application launched');
+    track('Application Launched', {
+      context: getContext(),
+      launch_connection: getLaunchConnectionSource(file, positionalArguments),
+      protected: protectConnectionStrings,
+      readOnly,
+      // TODO: replace with maxTimeMS from preferences COMPASS-6063.
+      maxTimeMS: undefined,
+      global_config: hasConfig('global', globalPreferences),
+      cli_args: hasConfig('cli', globalPreferences),
+    });
   }
 
   private static setupLifecycleListeners(): void {

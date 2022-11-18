@@ -2,12 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { TextInput, FormFieldContainer } from '@mongodb-js/compass-components';
 
-function CollectionName({
-  collectionName,
-  onChangeCollectionName
-}) {
+function CollectionName({ collectionName, onChangeCollectionName }) {
   return (
-    <FormFieldContainer >
+    <FormFieldContainer>
       <TextInput
         required
         label="Collection Name"
@@ -22,7 +19,7 @@ function CollectionName({
 
 CollectionName.propTypes = {
   collectionName: PropTypes.string.isRequired,
-  onChangeCollectionName: PropTypes.func.isRequired
+  onChangeCollectionName: PropTypes.func.isRequired,
 };
 
 export default CollectionName;

@@ -1,12 +1,9 @@
 @import (reference) 'mongodb-compass/src/app/styles/palette.less';
 
 .document-list {
-  padding: 0 16px;
   list-style: none;
   position: relative;
   width: 100%;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
 
   &-item {
     position: relative;
@@ -14,97 +11,7 @@
 
     &:last-child {
       margin-bottom: 0;
-      padding-bottom: 16px;
       border-bottom: 0 solid transparent;
-    }
-  }
-
-  &-action-bar {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background: @palette__gray--light-3;
-    border-bottom: 1px solid @palette__gray--light-2;
-    padding: 5px 15px;
-    min-width: max-content;
-
-    &-container {
-      display: flex;
-
-      .document-list-action-bar-export-collection {
-        padding: 0 5px;
-      }
-    }
-
-    &-insert-data-title {
-      display: flex;
-
-      .fa-download {
-        margin-top: 3px;
-      }
-
-      div {
-        padding: 0 5px;
-      }
-    }
-
-    &-message {
-      margin-left: 8px;
-      .info-sprinkle {
-        margin-right: 5px;
-        margin-left: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        position: relative;
-        top: 1px;
-        opacity: 0.5;
-
-        &:hover {
-          color: @palette__yellow--base;
-        }
-      }
-    }
-
-    &-pagination {
-      margin: 0 5px;
-
-      &-button {
-        padding: 0 7px;
-        color: @palette__blue--base;
-
-        &-left {
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0;
-        }
-
-        &-right {
-          border-top-left-radius: 0;
-          border-bottom-left-radius: 0;
-        }
-      }
-    }
-
-    &-refresh {
-      i {
-        margin-right: 5px;
-      }
-    }
-  }
-}
-
-.option-selector {
-  margin-right: 5px;
-
-  #insert-data-dropdown {
-    display: flex;
-    padding: 0 12px;
-    color: @palette__white;
-    width: max-content;
-
-    .caret {
-      position: relative;
-      top: 7px;
     }
   }
 }

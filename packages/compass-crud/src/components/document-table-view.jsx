@@ -13,6 +13,7 @@ import HeaderComponent from './table-view/header-cell-renderer';
 import CellEditor from './table-view/cell-editor';
 
 import './document-table-view.less';
+import { cx } from '@mongodb-js/compass-components';
 
 const MIXED = 'Mixed';
 
@@ -42,7 +43,9 @@ class DocumentTableView extends React.Component {
           handleClone: this.handleClone,
           path: [],
         },
-        onCellDoubleClicked: this.onCellDoubleClicked.bind(this),
+        suppressDragLeaveHidesColumns: true,
+        singleClickEdit: true,
+        onCellClicked: this.onCellClicked.bind(this),
         getRowHeight({ data: { isFooter } }) {
           // deafult row style expects 28, "footer" row with leafygreen
           // components needs to be 38 (minimum button height + padding)
@@ -144,7 +147,7 @@ class DocumentTableView extends React.Component {
    *     node {RowNode} - the RowNode for the row in question
    *     data {*} - the user provided data for the row in question
    */
-  onCellDoubleClicked(event) {
+  onCellClicked(event) {
     this.addFooter(event.node, event.data, 'editing');
   }
 
@@ -916,7 +919,7 @@ class DocumentTableView extends React.Component {
   render() {
     return (
       <div className="document-table-view-container">
-        <div className="ag-parent">
+        <div className={cx('ag-parent', this.props.className)}>
           <BreadcrumbComponent
             collection={this.collection}
             pathChanged={this.props.pathChanged}
@@ -958,6 +961,7 @@ DocumentTableView.propTypes = {
   store: PropTypes.object.isRequired,
   table: PropTypes.object.isRequired,
   tz: PropTypes.string.isRequired,
+  className: PropTypes.string,
 };
 
 DocumentTableView.displayName = 'DocumentTableView';

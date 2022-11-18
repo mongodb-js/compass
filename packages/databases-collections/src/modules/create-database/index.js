@@ -2,14 +2,12 @@ import { combineReducers } from 'redux';
 import dataService from '../data-service';
 import serverVersion from '../server-version';
 import isRunning, {
-  INITIAL_STATE as IS_RUNNING_INITIAL_STATE
+  INITIAL_STATE as IS_RUNNING_INITIAL_STATE,
 } from '../is-running';
 import isVisible, {
-  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
+  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
 } from '../is-visible';
-import error, {
-  INITIAL_STATE as ERROR_INITIAL_STATE
-} from '../error';
+import error, { INITIAL_STATE as ERROR_INITIAL_STATE } from '../error';
 import { RESET } from '../reset';
 import { createCollection } from '../create-collection';
 
@@ -26,7 +24,7 @@ const reducer = combineReducers({
   isVisible,
   error,
   serverVersion,
-  dataService
+  dataService,
 });
 
 /**
@@ -43,14 +41,14 @@ const rootReducer = (state, action) => {
       ...state,
       isRunning: IS_RUNNING_INITIAL_STATE,
       isVisible: IS_VISIBLE_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE
+      error: ERROR_INITIAL_STATE,
     };
   } else if (action.type === OPEN) {
     return {
       ...state,
       isVisible: true,
       isRunning: IS_RUNNING_INITIAL_STATE,
-      error: ERROR_INITIAL_STATE
+      error: ERROR_INITIAL_STATE,
     };
   }
   return reducer(state, action);
@@ -64,7 +62,7 @@ export default rootReducer;
  * @returns {Object} The action.
  */
 export const open = () => ({
-  type: OPEN
+  type: OPEN,
 });
 
 export const createDatabase = (data) => {

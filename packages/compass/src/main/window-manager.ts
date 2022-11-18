@@ -18,6 +18,7 @@ import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import preferences from 'compass-preferences-model';
 import { setupTheme } from './theme';
+import { shouldWindowAutoConnect, onCompassDisconnect } from './auto-connect';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
 
@@ -43,7 +44,10 @@ const DEFAULT_HEIGHT = (() => {
   return height;
 })();
 
-const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1024;
+// We set the min width to 1025 so that the screensize breakpoints of leafygreen
+// components are not hit. The breakpoints make the styles of the Select component
+// change significantly at widths of 1024 and less.
+const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1025;
 const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
 
 /**
@@ -53,9 +57,6 @@ const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
 const DEFAULT_URL =
   process.env.COMPASS_INDEX_RENDERER_URL ||
   pathToFileURL(path.join(__dirname, 'index.html')).toString();
-
-// track if app was launched, @see `renderer ready` handler below
-let appLaunched = false;
 
 async function showWindowWhenReady(bw: BrowserWindow) {
   await once(bw, 'ready-to-show');
@@ -158,22 +159,6 @@ function showConnectWindow(
 }
 
 /**
- * can't use webContents `did-finish-load` event here because
- * metrics aren't set up at that point. renderer app sends custom event
- * `window:renderer-ready` when metrics are set up. If first app launch,
- * send back `app:launched` message at that point.
- *
- * @param {Object} sender   original sender of the event
- */
-function rendererReady(bw: BrowserWindow) {
-  if (!appLaunched) {
-    appLaunched = true;
-    debug('sending `app:launched` msg back');
-    bw.webContents.send('app:launched');
-  }
-}
-
-/**
  * @param {Object} _bw - Current BrowserWindow
  * @param {String} message - Message to be set by MessageBox
  * @param {String} detail - Details to be shown in MessageBox
@@ -261,7 +246,6 @@ class CompassWindowManager {
     });
 
     ipcMain.respondTo({
-      'window:renderer-ready': rendererReady,
       'app:show-info-dialog': showInfoDialog,
       'app:find-in-page': onFindInPage,
       'app:stop-find-in-page': onStopFindInPage,
@@ -271,6 +255,9 @@ class CompassWindowManager {
       'compass:log'(_bw, meta) {
         ipcMain.broadcast('compass:log', meta);
       },
+      'compass:disconnected': onCompassDisconnect,
+      'compass:should-window-auto-connect': shouldWindowAutoConnect,
+      'test:show-connect-window': () => showConnectWindow(compassApp)
     });
 
     await showConnectWindowWhenReady(compassApp);

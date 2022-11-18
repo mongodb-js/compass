@@ -1,7 +1,13 @@
 // Settings Modal
 export const SettingsModal = '[data-testid="settings-modal"]';
-export const CloseSettingsModalButton =
-  '[data-testid="settings-modal"] [aria-label="Close modal"]';
+export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;
+export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"]`;
+export const FeaturesSettingsButton = `${SettingsModal} [data-testid="sidebar-Features-item"]`;
+export const FeaturesSettingsContent = `${SettingsModal} [data-testid="features-settings"]`;
+
+export const SettingsCheckbox = (settingName: string): string => {
+  return `${SettingsModal} [data-testid="${settingName}"]`;
+};
 
 // Welcome Modal
 export const WelcomeModal = '[data-testid="welcome-modal"]';
@@ -195,6 +201,10 @@ export const ConnectionsTitle = '[data-testid="connections-title"]';
 export const SidebarNewConnectionButton =
   '[data-testid="new-connection-button"]';
 export const FavoriteConnections = '[data-testid="favorite-connection"]';
+export const FavoriteConnectionsHeader =
+  '[data-testid="favorite-connections-list-header"]';
+export const FavoriteConnectionsMenuButton = `${FavoriteConnectionsHeader} button[title="Show actions"]`;
+export const FavoriteConnectionsMenu = '[data-testid="favorites-menu"]';
 export const ConnectionMenu = '[data-testid="connection-menu"]';
 export const CopyConnectionStringItem = `${ConnectionMenu} [data-testid="connection-menu-copy-connection-string-action"]`;
 export const DuplicateConnectionItem = `${ConnectionMenu} [data-testid="connection-menu-duplicate-connection-action"]`;
@@ -346,6 +356,7 @@ export const DropCollectionDropButton =
   '[data-testid="drop-collection-modal"] [data-testid="submit-button"]';
 
 // Shell
+export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
@@ -547,6 +558,30 @@ export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
   return `[data-testid="preview-field-header-${fieldName}"] input[type="checkbox"]`;
 };
 
+// Connection import/export modals
+export const ExportConnectionsModalOpen =
+  '[data-testid="favorites-menu-export-favorites-action"]';
+export const ExportConnectionsModal = '[data-testid="connection-export-modal"]';
+export const ExportConnectionsSubmit = `${ExportConnectionsModal} [data-testid="submit-button"]`;
+export const ExportConnectionsPassphrase =
+  '[data-testid="conn-import-export-passphrase-input"]';
+export const ExportConnectionsRemoveSecrets =
+  '[data-testid="connection-export-remove-secrets"]';
+export const ExportConnectionsSucceededToast =
+  '[data-testid="toast-compass-connection-import-export--export-succeeded"]';
+export const ImportConnectionsModalOpen =
+  '[data-testid="favorites-menu-import-favorites-action"]';
+export const ImportConnectionsModal = '[data-testid="connection-import-modal"]';
+export const ImportConnectionsPassphrase =
+  '[data-testid="conn-import-export-passphrase-input"]';
+export const ImportConnectionsSucceededToast =
+  '[data-testid="toast-compass-connection-import-export--import-succeeded"]';
+export const ImportConnectionsSubmit = `${ImportConnectionsModal} [data-testid="submit-button"]`;
+export const ExportImportConnectionsFileInput =
+  '#conn-import-export-file-input_file_input';
+export const closeToastButton = (toastSelector: string) =>
+  `${toastSelector} [aria-label="Close Message"]`;
+
 // Hadron document editor
 
 export const HadronDocument = '[data-testid="hadron-document"]';
@@ -599,9 +634,9 @@ export const QueryHistoryRecentItem = '[data-testid="recent-query-list-item"]';
 export const QueryHistoryFavoriteAnItemButton =
   '[data-testid="query-history-button-fav"]';
 export const QueryHistoryFavoriteItemNameField =
-  '[data-testid="query-history-saving-form-input-name"]';
+  '[data-testid="recent-query-save-favorite-name"]';
 export const QueryHistorySaveFavoriteItemButton =
-  '[data-testid="query-history-saving-form-button-save"]';
+  '[data-testid="recent-query-save-favorite-submit"]';
 export const SavedItemMenu = '[data-testid="saved-item-actions"]';
 export const SavedItemMenuItemCopy = `${SavedItemMenu} [data-testid="saved-item-actions-copy-action"]`;
 export const SavedItemMenuItemRename = `${SavedItemMenu} [data-testid="saved-item-actions-rename-action"]`;
@@ -684,7 +719,7 @@ export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
 export const stageOperatorOptions = (stageIndex: number): string => {
-  return `[data-stage-index="${stageIndex}"] [role="option"]`;
+  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="option"]`;
 };
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
@@ -704,21 +739,11 @@ export const stageCollapseButton = (stageIndex: number): string => {
 export const stageExpandButton = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] button[title="Expand"]`;
 };
-export const stageSelectControlInput = (
-  stageIndex: number,
-  expanded?: boolean
-): string => {
-  const selector = `[data-stage-index="${stageIndex}"] .Select-control input`; // [role="combobox"]
-
-  if (expanded === true) {
-    return `${selector}[aria-expanded="true"]`;
-  }
-
-  if (expanded === false) {
-    return `${selector}[aria-expanded="false"]`;
-  }
-
-  return selector;
+export const stagePickerComboboxInput = (stageIndex: number): string => {
+  return `[data-stage-index="${stageIndex}"] [data-testid="stage-operator-combobox"] [role="combobox"] input`;
+};
+export const stagePickerListBox = (stageIndex: number): string => {
+  return `.mongodb-compass-stage-operator-combobox-portal-${stageIndex} [role="listbox"]`;
 };
 export const stageTextarea = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] .ace_editor textarea`; // .ace_text-input
@@ -822,6 +847,8 @@ export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
+export const ValidationActionSelector = '[id="validation-action-selector"]';
+export const ValidationLevelSelector = '[id="validation-level-selector"]';
 
 // Find (Documents, Schema and Explain Plan tabs)
 export const queryBar = (tabName: string): string => {
@@ -892,30 +919,30 @@ export const ExportModalShowFileButton =
   '[data-testid="export-modal"] [data-testid="show-file-button"]';
 export const ExportModalCloseButton =
   '[data-testid="export-modal"] [data-testid="close-button"]';
-export const ExportModalFileText = '[data-testid="export-modal"] #export-file';
+export const ExportModalFileInput =
+  '[data-testid="export-modal"] #export-file_file_input';
 
 export const exportModalExportField = (fieldName: string): string => {
   return `[data-testid="export-modal"] input[type="checkbox"][name="${fieldName}"]`;
 };
 
 // Export to language modal
-export const ExportToLanguageModal = '[data-testid="export-to-lang-modal"]';
+export const ExportToLanguageModal = '[data-testid="export-to-language-modal"]';
 export const ExportToLanguageLanguageField =
-  '[data-testid="select-lang-field"]';
+  '[data-testid="export-to-language-output-field"] button[aria-labelledby="Language Picker"]';
 export const ExportToLanguageLanguageListbox =
-  '[data-testid="select-lang-field"] [role="listbox"]';
+  'ul[aria-labelledby="Language Picker"]';
 export const ExportToLanguageImportsCheckbox =
-  '[data-testid="export-to-lang-checkbox-imports"]';
+  '[data-testid="export-to-language-include-imports"]';
 export const ExportToLanguageDriverCheckbox =
-  '[data-testid="export-to-lang-checkbox-driver"]';
+  '[data-testid="export-to-language-include-drivers"]';
 export const ExportToLanguageBuildersCheckbox =
-  '[data-testid="export-to-lang-checkbox-builders"]';
+  '[data-testid="export-to-language-use-builders"]';
 export const ExportToLanguageCopyOutputButton =
-  '[data-testid="export-to-lang-copy-output"]';
-export const ExportToLanguageCloseButton =
-  '[data-testid="export-to-lang-modal"] .modal-footer .btn-default';
+  '[data-testid="export-to-language-output-field"] [aria-label="Copy"]';
+export const ExportToLanguageCloseButton = `${ExportToLanguageModal} [data-testid=close-button]`;
 export const ExportToLanguageQueryOutput =
-  '[data-testid="export-to-lang-query-output-container"]';
+  '[data-testid="export-to-language-output"]';
 
 // Confirm new pipeline modal
 export const ConfirmNewPipelineModal =

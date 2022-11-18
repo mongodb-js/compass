@@ -19,9 +19,12 @@ import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
+  StagePreviewFetchSkipped = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSkipped',
   StagePreviewFetchSuccess = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchSuccess',
   StagePreviewFetchError = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetchError',
   StageRun = 'compass-aggregations/pipeline-builder/stage-editor/StageRun',
@@ -38,6 +41,11 @@ export const enum StageEditorActionTypes {
 
 export type StagePreviewFetchAction = {
   type: StageEditorActionTypes.StagePreviewFetch;
+  id: number;
+};
+
+export type StagePreviewFetchSkippedAction = {
+  type: StageEditorActionTypes.StagePreviewFetchSkipped;
   id: number;
 };
 
@@ -135,6 +143,7 @@ export const loadStagePreview = (
   | StagePreviewFetchAction
   | StagePreviewFetchSuccessAction
   | StagePreviewFetchErrorAction
+  | StagePreviewFetchSkippedAction
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
@@ -144,21 +153,23 @@ export const loadStagePreview = (
       autoPreview
     } = getState();
 
-    if (!autoPreview) {
-      return;
-    }
+    // Ignoring the state of the stage, always try to stop current preview fetch
+    pipelineBuilder.cancelPreviewForStage(idx);
 
-    if (stages[idx].disabled) {
-      return;
-    }
-
-    if (
+    const canFetchPreviewForStage =
+      autoPreview &&
+      !stages[idx].disabled &&
       // Only run stage if all previous ones are valid (otherwise it will fail
       // anyway)
-      !stages.slice(0, idx + 1).every((stage) => {
+      stages.slice(0, idx + 1).every((stage) => {
         return canRunStage(stage);
-      })
-    ) {
+      });
+
+    if (!canFetchPreviewForStage) {
+      dispatch({
+        type: StageEditorActionTypes.StagePreviewFetchSkipped,
+        id: idx
+      });
       return;
     }
 
@@ -292,6 +303,9 @@ export const changeStageValue = (
     if (!stage) {
       return;
     }
+    if (stage.value === newVal) {
+      return;
+    }
     stage.changeValue(newVal);
     dispatch({ type: StageEditorActionTypes.StageValueChange, id, stage });
     dispatch(loadPreviewForStagesFrom(id));
@@ -368,6 +382,12 @@ export const changeStageOperator = (
     const currentOp = stage.operator;
 
     stage.changeOperator(newVal);
+    track('Aggregation Edited', {
+      num_stages: stages.length,
+      stage_action: 'stage_renamed',
+      stage_name: stage.operator,
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
 
     // If there is no stage operator (this is a newly added stage) or current
@@ -417,6 +437,11 @@ export const addStage = (
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const stage = pipelineBuilder.addStage(after);
+    track('Aggregation Edited', {
+      num_stages: getState().pipelineBuilder.stageEditor.stages.length,
+      stage_action: 'stage_added',
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageAdded, after, stage });
   };
 };
@@ -425,7 +450,14 @@ export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
-    pipelineBuilder.removeStage(at);
+    const num_stages = getState().pipelineBuilder.stageEditor.stages.length;
+    const stage = pipelineBuilder.removeStage(at);
+    track('Aggregation Edited', {
+      num_stages,
+      stage_action: 'stage_deleted',
+      stage_name: stage.operator,
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
     dispatch(loadPreviewForStagesFrom(at));
   };
@@ -439,6 +471,13 @@ export const moveStage = (
     if (from === to) {
       return;
     }
+    const pipeline = getState().pipelineBuilder.stageEditor.stages;
+    track('Aggregation Edited', {
+      num_stages: pipeline.length,
+      stage_action: 'stage_reordered',
+      stage_name: pipeline[from].stageOperator,
+      editor_view_type: 'stage',
+    });
     pipelineBuilder.moveStage(from, to);
     dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
     dispatch(loadPreviewForStagesFrom(Math.min(from, to)));
@@ -510,6 +549,27 @@ const reducer: Reducer<StageEditorState> = (
           ...state.stages[action.id],
           serverError: null,
           loading: true
+        },
+        ...state.stages.slice(action.id + 1)
+      ]
+    };
+  }
+
+  if (
+    isAction<StagePreviewFetchSkippedAction>(
+      action,
+      StageEditorActionTypes.StagePreviewFetchSkipped
+    )
+  ) {
+    return {
+      ...state,
+      stages: [
+        ...state.stages.slice(0, action.id),
+        {
+          ...state.stages[action.id],
+          loading: false,
+          previewDocs: null,
+          serverError: null
         },
         ...state.stages.slice(action.id + 1)
       ]
@@ -616,6 +676,7 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
+          serverError: null,
           previewDocs: null,
           disabled: action.disabled
         },

@@ -61,7 +61,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
-    "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   },
   "dependencies": {
@@ -69,7 +68,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "bson": "^4.4.1",
     "hadron-document": "^8.0.1",
-    "hadron-react-buttons": "^6.0.2",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -84,7 +82,9 @@
     "@types/chai": "^4.2.21",
     "@types/chai-as-promised": "^7.1.4",
     "@types/chai-dom": "^0.0.10",
+    "@types/mime-types": "^2.1.1",
     "@types/mocha": "^9.0.0",
+    "@types/progress-stream": "^2.0.2",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
@@ -106,7 +106,7 @@
     "lodash": "^4.17.21",
     "lodash.throttle": "^4.1.1",
     "marky": "^1.2.1",
-    "mime-types": "^2.1.24",
+    "mime-types": "^2.1.35",
     "mocha": "^8.4.0",
     "mongodb": "^4.10.0",
     "mongodb-data-service": "^22.2.0",
@@ -119,7 +119,6 @@
     "prettier": "^2.7.1",
     "progress-stream": "^2.0.0",
     "prop-types": "^15.7.2",
-    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",

@@ -1,76 +1,130 @@
-import React, { PureComponent } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select-plus';
 import { connect } from 'react-redux';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
-import SelectOptionWithTooltip from './select-option-with-tooltip/select-option-with-tooltip';
 import { filterStageOperators } from '../../utils/stage';
 
-import styles from './stage-operator-select.module.less';
+import { Combobox, ComboboxOption, css, cx, spacing } from '@mongodb-js/compass-components';
+import { isAtlasOnly } from '../../utils/stage';
+import _ from 'lodash';
+import { usePreference } from 'compass-preferences-model';
 
-/**
- * Select from a list of stage operators.
- */
+const inputWidth = spacing[7] * 2;
+const descriptionWidth = spacing[5] * 14;
+const stageNameWidth = spacing[4] * 8;
+const dropdownWidth = stageNameWidth + descriptionWidth;
 
-export class StageOperatorSelect extends PureComponent {
-  static propTypes = {
-    index: PropTypes.number.isRequired,
-    stages: PropTypes.array.isRequired,
-    selectedStage: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    isDisabled: PropTypes.bool,
+const comboboxStyles = css({
+  marginLeft: spacing[2],
+  width: inputWidth,
+  '& [role="combobox"]': {
+    height: spacing[4] - 2 // match other xs controls
   }
+});
 
-  /**
-   * Called when the stage operator is selected.
-   * @param {String} name The name of the stage operator.
-   * @returns {void}
-   */
-  onStageOperatorSelected = (name) => {
-    this.props.onChange(this.props.index, name);
-  }
+function comboboxOptionStyles(stage) {
+  return css({
+    '&::after': {
+      content: JSON.stringify(
+        (isAtlasOnly(stage.env) ? 'Atlas only. ' : '') +
+        stage.description),
+      width: descriptionWidth
+    },
+  });
+}
 
-  /**
-   * Render the stage operator select component.
-   *
-   * @returns {Component} The component.
-   */
-  render() {
-    return (
-      <div className={styles['stage-operator-select']}>
-        <Select
-          optionComponent={SelectOptionWithTooltip}
-          simpleValue
-          searchable
-          openOnClick
-          openOnFocus
-          clearable={false}
-          disabled={this.props.isDisabled}
-          className={styles['stage-operator-select-control']}
-          options={this.props.stages}
-          value={this.props.selectedStage}
-          onChange={this.onStageOperatorSelected}
-        />
-      </div>
-    );
-  }
+const portalStyles = css({
+  '> div': {
+    width: dropdownWidth,
+    marginLeft: (dropdownWidth / 2) - (inputWidth / 2) // realigns the dropdown with the input
+  },
+});
+
+export const StageOperatorSelect = ({
+  onChange,
+  index,
+  selectedStage,
+  stages
+}) => {
+  const onStageOperatorSelected = useCallback((name) => {
+    onChange(index, name);
+  }, [onChange, index]);
+
+  const optionStyleByStageName = useMemo(() => {
+    return Object.fromEntries(stages.map((stage) => [stage.name, comboboxOptionStyles(stage)]))
+  }, [stages])
+
+  return <Combobox value={selectedStage}
+    aria-label="Select a stage operator"
+    onChange={onStageOperatorSelected}
+    size="default"
+    clearable={false}
+    data-testid="stage-operator-combobox"
+    className={comboboxStyles}
+    portalClassName={cx(
+      portalStyles,
+      // used for testing since at the moment is not possible to identify
+      // the listbox container or the single ComboboxOptions with testIds
+      `mongodb-compass-stage-operator-combobox-portal-${index}`
+    )}>
+      {stages.map((stage, index) => <ComboboxOption
+          data-testid={`combobox-option-stage-${stage.name}`}
+          key={`combobox-option-stage-${index}`}
+          value={stage.name}
+          className={optionStyleByStageName[stage.name]}
+          displayName={stage.name} />
+      )}
+  </Combobox>;
+};
+
+StageOperatorSelect.propTypes = {
+  index: PropTypes.number.isRequired,
+  stages: PropTypes.array.isRequired,
+  selectedStage: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  isDisabled: PropTypes.bool,
+};
+
+function EnvAwareStageOperatorSelect({
+  envInfo: { serverVersion, env, isTimeSeries, isReadonly, sourceName },
+  stage,
+  onChange,
+  index
+}) {
+  const preferencesReadOnly = usePreference('readOnly', React);
+  const stages = useMemo(() => {
+    return filterStageOperators({
+      serverVersion,
+      env,
+      isTimeSeries,
+      isReadonly,
+      preferencesReadOnly,
+      sourceName
+    });
+  }, [serverVersion, env, isTimeSeries, isReadonly, preferencesReadOnly, sourceName])
+
+  return <StageOperatorSelect
+    index={index}
+    stages={stages}
+    selectedStage={stage.stageOperator}
+    isDisabled={stage.disabled}
+    onChange={onChange}
+    />
+}
+
+EnvAwareStageOperatorSelect.propTypes = {
+  index: PropTypes.number.isRequired,
+  envInfo: PropTypes.object.isRequired,
+  stage: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
 }
 
 export default connect(
   (state, ownProps) => {
-    const stages = filterStageOperators({
-      serverVersion: state.serverVersion,
-      env: state.env,
-      isTimeSeries: state.isTimeSeries,
-      isReadonly: state.isReadonly,
-      sourceName: state.sourceName
-    })
-    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
     return {
-      stages,
-      selectedStage: stage.stageOperator,
-      isDisabled: stage.disabled
+      envInfo: _.pick(state, ['serverVersion', 'env', 'isTimeSeries', 'isReadonly', 'sourceName']),
+      stage: state.pipelineBuilder.stageEditor.stages[ownProps.index]
     };
   },
   { onChange: changeStageOperator }
-)(StageOperatorSelect);
+)(EnvAwareStageOperatorSelect);

@@ -127,17 +127,14 @@ const mapState = (state: RootState) => {
   const resultPipeline = getPipelineStageOperatorsFromBuilderState(state);
   const lastStage = resultPipeline[resultPipeline.length - 1];
   const isMergeOrOutPipeline = isOutputStage(lastStage);
-  const isPipelineInvalid = getIsPipelineInvalidFromBuilderState(state);
-  const isStageStateEmpty = resultPipeline.length === 0;
+  const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
 
   return {
-    isRunButtonDisabled: isPipelineInvalid || isStageStateEmpty,
-    isExplainButtonDisabled: isPipelineInvalid,
-    isExportButtonDisabled:
-      isMergeOrOutPipeline || isPipelineInvalid || isStageStateEmpty,
+    isRunButtonDisabled: hasSyntaxErrors,
+    isExplainButtonDisabled: hasSyntaxErrors,
+    isExportButtonDisabled: isMergeOrOutPipeline || hasSyntaxErrors,
     showUpdateViewButton: Boolean(state.editViewName),
-    isUpdateViewButtonDisabled:
-      !state.isModified || isPipelineInvalid || isStageStateEmpty,
+    isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors
   };
 };
 

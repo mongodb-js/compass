@@ -12,12 +12,12 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import { getStageOperator } from '../../utils/stage';
 import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
+  EditorPreviewFetchSkipped = 'compass-aggregations/pipeline-builder/text-editor-pipeline/EditorPreviewFetchSkipped',
   EditorPreviewFetchSuccess = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchSuccess',
   EditorPreviewFetchError = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetchError',
   EditorValueChange = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorValueChange',
@@ -34,6 +34,10 @@ type EditorPreviewFetchAction = {
   type: EditorActionTypes.EditorPreviewFetch;
 };
 
+type EditorPreviewFetchSkippedAction = {
+  type: EditorActionTypes.EditorPreviewFetchSkipped;
+};
+
 type EditorPreviewFetchSuccessAction = {
   type: EditorActionTypes.EditorPreviewFetchSuccess;
   previewDocs: Document[];
@@ -46,7 +50,7 @@ type EditorPreviewFetchErrorAction = {
 
 export type TextEditorState = {
   pipelineText: string;
-  stageOperators: string[];
+  pipeline: Document[];
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   isLoading: boolean;
@@ -55,7 +59,7 @@ export type TextEditorState = {
 
 const INITIAL_STATE: TextEditorState = {
   pipelineText: '',
-  stageOperators: [],
+  pipeline: [],
   syntaxErrors: [],
   serverError: null,
   isLoading: false,
@@ -63,11 +67,10 @@ const INITIAL_STATE: TextEditorState = {
 };
 
 const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
+  // NB: Anything that this action handling reacts to should probably be also
+  // accounted for in text-editor-output-stage slice. If you are changing this
+  // code, don't forget to change the other reducer
   if (
-    isAction<EditorValueChangeAction>(
-      action,
-      EditorActionTypes.EditorValueChange
-    ) ||
     isAction<PipelineModeToggledAction>(
       action,
       PipelineModeActionTypes.PipelineModeToggled
@@ -76,16 +79,48 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     action.type === CONFIRM_NEW ||
     action.type === NEW_PIPELINE
   ) {
-    const stageOperators = action.pipeline
-      ? action.pipeline.map(getStageOperator).filter(Boolean) as string[]
-      : state.stageOperators;
+    // On editor switch or reset, reset the parsed pipeline completely
+    const pipeline = action.pipeline ?? [];
+
     return {
       ...state,
       serverError: null,
       previewDocs: null,
       pipelineText: action.pipelineText,
-      stageOperators,
+      pipeline,
       syntaxErrors: action.syntaxErrors,
+    };
+  }
+
+  if (
+    isAction<EditorValueChangeAction>(
+      action,
+      EditorActionTypes.EditorValueChange
+    )
+  ) {
+    // On pipeline text change we preserve the previous pipeline in the state
+    // if parsing of the current pipeline text failed
+    const pipeline = action.pipeline ?? state.pipeline;
+
+    return {
+      ...state,
+      pipelineText: action.pipelineText,
+      pipeline,
+      syntaxErrors: action.syntaxErrors,
+    };
+  }
+
+  if (
+    isAction<EditorPreviewFetchSkippedAction>(
+      action,
+      EditorActionTypes.EditorPreviewFetchSkipped
+    )
+  ) {
+    return {
+      ...state,
+      serverError: null,
+      previewDocs: null,
+      isLoading: false
     };
   }
 
@@ -112,7 +147,6 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       serverError: null,
-      syntaxErrors: [],
       isLoading: false,
       previewDocs: action.previewDocs,
     };
@@ -127,7 +161,6 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       serverError: action.serverError,
-      syntaxErrors: [],
       isLoading: false,
       previewDocs: null,
     };
@@ -148,7 +181,8 @@ export const loadPreviewForPipeline = (
   Promise<void>,
   EditorPreviewFetchAction |
   EditorPreviewFetchSuccessAction |
-  EditorPreviewFetchErrorAction
+  EditorPreviewFetchErrorAction |
+  EditorPreviewFetchSkippedAction
 > => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
@@ -158,10 +192,26 @@ export const loadPreviewForPipeline = (
       collationString,
       limit,
       largeLimit,
-      inputDocuments
+      inputDocuments,
+      pipelineBuilder: {
+        textEditor: {
+          pipeline: { pipeline }
+        }
+      }
     } = getState();
 
+    if (pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
+      return;
+    }
+
+    // Ignoring the state of the stage, always try to stop current preview fetch
+    pipelineBuilder.cancelPreviewForPipeline();
+
     if (!canRunPipeline(autoPreview, pipelineBuilder.syntaxError)) {
+      dispatch({
+        type: EditorActionTypes.EditorPreviewFetchSkipped
+      })
+
       return;
     }
 
@@ -201,16 +251,30 @@ export const loadPreviewForPipeline = (
 };
 
 export const changeEditorValue = (
-  value: string
+  newValue: string
 ): PipelineBuilderThunkAction<void, EditorValueChangeAction> => {
-  return (dispatch, _getState, { pipelineBuilder }) => {
-    pipelineBuilder.changeSource(value);
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const {
+      pipelineBuilder: {
+        textEditor: {
+          pipeline: { pipelineText }
+        }
+      }
+    } = getState();
+
+    if (pipelineText === newValue) {
+      return;
+    }
+
+    pipelineBuilder.changeSource(newValue);
+
     dispatch({
       type: EditorActionTypes.EditorValueChange,
-      pipelineText: value,
+      pipelineText: newValue,
       pipeline: pipelineBuilder.pipeline,
       syntaxErrors: pipelineBuilder.syntaxError
     });
+
     void dispatch(loadPreviewForPipeline());
   };
 };

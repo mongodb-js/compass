@@ -9,7 +9,7 @@ import { default as Banner } from '@leafygreen-ui/banner';
 import { default as LeafyGreenButton } from '@leafygreen-ui/button';
 import { default as LeafyGreenCheckbox } from '@leafygreen-ui/checkbox';
 import { default as LeafyGreenCard } from '@leafygreen-ui/card';
-import { default as LeafyGreenCode } from '@leafygreen-ui/code';
+import { default as LeafyGreenCode, Language } from '@leafygreen-ui/code';
 import {
   Combobox as LeafyGreenCombobox,
   ComboboxOption,
@@ -19,6 +19,7 @@ import { default as LeafyGreenConfirmationModal } from '@leafygreen-ui/confirmat
 import { default as Icon } from '@leafygreen-ui/icon';
 import { default as LeafyGreenIconButton } from '@leafygreen-ui/icon-button';
 import {
+  AtlasLogo,
   AtlasLogoMark,
   MongoDBLogoMark,
   MongoDBLogo,
@@ -196,6 +197,7 @@ const Description = withTheme(
 
 // 3. Export the leafygreen components.
 export {
+  AtlasLogo,
   AtlasLogoMark,
   Badge,
   Banner,
@@ -206,6 +208,7 @@ export {
   ConfirmationModal,
   Icon,
   IconButton,
+  Language,
   Menu,
   MenuItem,
   MenuSeparator,

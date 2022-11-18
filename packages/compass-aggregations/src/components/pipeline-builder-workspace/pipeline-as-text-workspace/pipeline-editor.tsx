@@ -21,20 +21,28 @@ import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 
 const containerStyles = css({
+  position: 'relative',
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  justifyContent: 'space-between',
+  backgroundColor: palette.gray.light3,
+  paddingTop: spacing[3],
+  paddingBottom: spacing[2],
+  gap: spacing[2],
+  marginRight: spacing[1],
 });
 
 const editorContainerStyles = css({
-  backgroundColor: palette.gray.light3,
-  height: '100%',
-  overflow: 'scroll',
-  padding: spacing[3],
+  flex: '1 1 100%',
+  overflow: 'auto',
 });
 
-const errorContainerStyles = css({ margin: spacing[2] });
+const errorContainerStyles = css({
+  flex: 'none',
+  marginTop: 'auto',
+  marginLeft: spacing[2],
+  marginRight: spacing[2],
+});
 
 type PipelineEditorProps = {
   pipelineText: string;
@@ -120,10 +128,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       </div>
       {showErrorContainer && (
         <div className={errorContainerStyles}>
-          {serverError && <ErrorSummary errors={serverError.message} />}
-          {syntaxErrors.length > 0 && (
+          {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
-          )}
+          ) : serverError ? (
+            <ErrorSummary errors={serverError.message} />
+          ) : null}
         </div>
       )}
     </div>

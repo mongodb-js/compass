@@ -1,16 +1,10 @@
-import preferences from 'compass-preferences-model';
 import AppRegistry from 'hadron-app-registry';
 import { expect } from 'chai';
-import compiler from 'bson-transpilers';
 import configureStore from './';
-import { uriChanged } from '../modules/uri';
-import { driverChanged } from '../modules/driver';
-import sinon from 'sinon';
 
 const subscribeCheck = (s, pipeline, check, done) => {
   const unsubscribe = s.subscribe(function () {
     try {
-      expect(s.getState().error).to.equal(null);
       if (check(s.getState())) {
         unsubscribe();
         done();
@@ -23,13 +17,15 @@ const subscribeCheck = (s, pipeline, check, done) => {
 };
 
 describe('ExportToLanguage Store', function () {
-  const appRegistry = new AppRegistry();
+  const localAppRegistry = new AppRegistry();
+  const globalAppRegistry = new AppRegistry();
   let unsubscribe;
   let store;
 
   beforeEach(function () {
     store = configureStore({
-      localAppRegistry: appRegistry,
+      localAppRegistry: localAppRegistry,
+      globalAppRegistry: globalAppRegistry,
       namespace: 'db.coll',
       connectionString: 'mongodb://localhost/',
     });
@@ -61,17 +57,7 @@ describe('ExportToLanguage Store', function () {
 }`;
       it('opens the aggregation modal', function (done) {
         unsubscribe = subscribeCheck(store, agg, (s) => s.modalOpen, done);
-        appRegistry.emit('open-aggregation-export-to-language', agg);
-      });
-
-      it('sets mode to Pipeline', function (done) {
-        unsubscribe = subscribeCheck(
-          store,
-          agg,
-          (s) => s.mode === 'Pipeline',
-          done
-        );
-        appRegistry.emit('open-aggregation-export-to-language', agg);
+        localAppRegistry.emit('open-aggregation-export-to-language', agg);
       });
 
       it('adds input expression to the state', function (done) {
@@ -81,50 +67,8 @@ describe('ExportToLanguage Store', function () {
           (s) => s.inputExpression.aggregation === agg,
           done
         );
-        appRegistry.emit('open-aggregation-export-to-language', agg);
+        localAppRegistry.emit('open-aggregation-export-to-language', agg);
       });
-
-      it('triggers run transpiler command', function (done) {
-        unsubscribe = subscribeCheck(
-          store,
-          agg,
-          (s) => s.transpiledExpression === compiler.shell.python.compile(agg),
-          done
-        );
-        appRegistry.emit('open-aggregation-export-to-language', agg);
-      });
-
-      for (const protectConnectionStrings of [false, true]) {
-        context(
-          `when protect connection strings is ${protectConnectionStrings}`,
-          function () {
-            let sandbox;
-            beforeEach(function () {
-              sandbox = sinon.createSandbox();
-              sandbox
-                .stub(preferences, 'getPreferences')
-                .returns({ protectConnectionStrings });
-            });
-            afterEach(function () {
-              return sandbox.restore();
-            });
-
-            it('showes/hides the connection string as appropriate', function (done) {
-              unsubscribe = subscribeCheck(
-                store,
-                agg,
-                (s) =>
-                  s.transpiledExpression.includes('foo:bar') ===
-                  !protectConnectionStrings,
-                done
-              );
-              store.dispatch(uriChanged('mongodb://foo:bar@mongodb.net'));
-              store.dispatch(driverChanged(true));
-              appRegistry.emit('open-aggregation-export-to-language', agg);
-            });
-          }
-        );
-      }
     });
 
     describe('when query opens export to language with imperfect fields', function () {
@@ -137,7 +81,7 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: "'filterString'" }),
           done
         );
-        appRegistry.emit('open-query-export-to-language', {
+        localAppRegistry.emit('open-query-export-to-language', {
           project: '',
           maxTimeMS: '',
           sort: '',
@@ -161,7 +105,7 @@ describe('ExportToLanguage Store', function () {
             }),
           done
         );
-        appRegistry.emit('open-query-export-to-language', {
+        localAppRegistry.emit('open-query-export-to-language', {
           filter: "'filterString'",
           project: '',
           sort: '',
@@ -181,7 +125,7 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: '{}' }),
           done
         );
-        appRegistry.emit('open-query-export-to-language', {
+        localAppRegistry.emit('open-query-export-to-language', {
           project: '',
           maxTimeMS: '',
           sort: '',
@@ -201,7 +145,7 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: '{}' }),
           done
         );
-        appRegistry.emit('open-query-export-to-language', {
+        localAppRegistry.emit('open-query-export-to-language', {
           maxTimeMS: null,
           sort: null,
         });
@@ -216,7 +160,7 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: '{x: 1, y: 2}' }),
           done
         );
-        appRegistry.emit('open-query-export-to-language', '{x: 1, y: 2}');
+        localAppRegistry.emit('open-query-export-to-language', '{x: 1, y: 2}');
       });
 
       it('treats a empty string as a default filter', function (done) {
@@ -228,7 +172,7 @@ describe('ExportToLanguage Store', function () {
             JSON.stringify({ filter: '{}' }),
           done
         );
-        appRegistry.emit('open-query-export-to-language', '');
+        localAppRegistry.emit('open-query-export-to-language', '');
       });
 
       it('handles default filter with other args', function (done) {
@@ -243,7 +187,7 @@ describe('ExportToLanguage Store', function () {
             }),
           done
         );
-        appRegistry.emit('open-query-export-to-language', {
+        localAppRegistry.emit('open-query-export-to-language', {
           filter: '',
           project: '',
           sort: '{x: 1}',
@@ -270,17 +214,7 @@ describe('ExportToLanguage Store', function () {
       };
       it('opens the query modal', function (done) {
         unsubscribe = subscribeCheck(store, query, (s) => s.modalOpen, done);
-        appRegistry.emit('open-query-export-to-language', query);
-      });
-
-      it('sets mode to Query', function (done) {
-        unsubscribe = subscribeCheck(
-          store,
-          query,
-          (s) => s.mode === 'Query',
-          done
-        );
-        appRegistry.emit('open-query-export-to-language', query);
+        localAppRegistry.emit('open-query-export-to-language', query);
       });
 
       it('adds input expression to the state', function (done) {
@@ -290,19 +224,7 @@ describe('ExportToLanguage Store', function () {
           (s) => JSON.stringify(s.inputExpression) === JSON.stringify(query),
           done
         );
-        appRegistry.emit('open-query-export-to-language', query);
-      });
-
-      it('triggers run transpiler command', function (done) {
-        unsubscribe = subscribeCheck(
-          store,
-          query,
-          (s) =>
-            s.transpiledExpression ===
-            compiler.shell.python.compile(query.filter),
-          done
-        );
-        appRegistry.emit('open-query-export-to-language', query);
+        localAppRegistry.emit('open-query-export-to-language', query);
       });
     });
   });

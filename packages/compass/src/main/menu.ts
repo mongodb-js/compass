@@ -122,7 +122,23 @@ function connectSubMenu(
   nonDarwin: boolean,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions {
-  const subMenu: MenuTemplate = [connectItem(app), disconnectItem()];
+  const subMenu: MenuTemplate = [
+    connectItem(app),
+    disconnectItem(),
+    separator(),
+    {
+      label: '&Import saved connections',
+      click() {
+        ipcMain.broadcastFocused('compass:open-import-connections');
+      },
+    },
+    {
+      label: '&Export saved connections',
+      click() {
+        ipcMain.broadcastFocused('compass:open-export-connections');
+      },
+    }
+  ];
 
   if (nonDarwin) {
     subMenu.push(separator());
@@ -255,7 +271,7 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
+function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -265,7 +281,7 @@ function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
     },
   });
   subMenu.push(separator());
-  if (process.env.HADRON_READONLY !== 'true' && !isReadOnly) {
+  if (!preferences.getPreferences().readOnly && !menuReadOnly) {
     subMenu.push({
       label: '&Import Data',
       click() {
@@ -449,6 +465,10 @@ class CompassMenu {
         theme: newTheme
       });
 
+      this.refreshMenu();
+    });
+
+    preferences.onPreferenceValueChanged('readOnly', () => {
       this.refreshMenu();
     });
 

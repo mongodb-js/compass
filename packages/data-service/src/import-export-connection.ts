@@ -21,7 +21,7 @@ const kFileTypeDescription = 'Compass Connections';
 export interface ExportImportConnectionOptions {
   passphrase?: string;
   filter?: (info: ConnectionInfo) => boolean;
-  trackingProps?: object;
+  trackingProps?: Record<string, unknown> | undefined;
 }
 
 export interface ExportConnectionOptions extends ExportImportConnectionOptions {
@@ -41,7 +41,7 @@ export async function exportConnections(
     filter = (info) => info.favorite?.name,
     passphrase = '',
     removeSecrets = false,
-    trackingProps = {},
+    trackingProps = undefined,
   } = options;
 
   if (passphrase && removeSecrets) {
@@ -64,10 +64,12 @@ export async function exportConnections(
       count: exportConnections.length,
     }
   );
-  track('Connection Exported', {
-    ...trackingProps,
-    count: exportConnections.length,
-  });
+  if (trackingProps !== undefined) {
+    track('Connection Exported', {
+      ...trackingProps,
+      count: exportConnections.length,
+    });
+  }
 
   if (passphrase || removeSecrets) {
     const encrypter = new Encrypter(passphrase);
@@ -94,7 +96,12 @@ export async function exportConnections(
   return EJSON.stringify(exportResult, undefined, 2, { relaxed: false });
 }
 
-class CompassImportError extends Error {}
+class CompassImportError extends Error {
+  constructor(message: string, extraProperties?: Record<string, unknown>) {
+    super(message);
+    Object.assign(this, extraProperties);
+  }
+}
 
 async function saveConnectionsToDefaultStorage(
   connections: ConnectionInfo[]
@@ -111,7 +118,7 @@ export async function importConnections(
     saveConnections = saveConnectionsToDefaultStorage,
     filter = () => true,
     passphrase = '',
-    trackingProps = {},
+    trackingProps = undefined,
   } = options;
 
   let connections: ConnectionInfo[];
@@ -144,10 +151,12 @@ export async function importConnections(
         count: parsed.connections.length,
       }
     );
-    track('Connection Imported', {
-      ...trackingProps,
-      count: parsed.connections.length,
-    });
+    if (trackingProps !== undefined) {
+      track('Connection Imported', {
+        ...trackingProps,
+        count: parsed.connections.length,
+      });
+    }
 
     let decrypter: Decrypter;
     connections = await Promise.all(
@@ -156,7 +165,8 @@ export async function importConnections(
         if (connectionSecrets) {
           if (!passphrase) {
             throw new CompassImportError(
-              'Input file contains encrypted secrets but no passphrase was provided'
+              'Input file contains encrypted secrets but no passphrase was provided',
+              { passphraseRequired: true }
             );
           }
           decrypter ??= new Decrypter(passphrase);
