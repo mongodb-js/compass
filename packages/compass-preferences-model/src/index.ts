@@ -36,6 +36,7 @@ export interface PreferencesAccess {
     preferenceName: K,
     callback: (value: AllPreferences[K]) => void
   ): () => void;
+  createSandbox(): Promise<PreferencesAccess>;
 }
 
 export const preferencesAccess: PreferencesAccess =

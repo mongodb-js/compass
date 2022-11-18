@@ -5,6 +5,7 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
+  PreferenceSandboxProperties,
 } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
@@ -60,43 +61,46 @@ export async function setupPreferences(
   ipcMain.handle('compass:get-configurable-user-preferences', () => {
     return preferences.getConfigurableUserPreferences();
   });
+
+  ipcMain.handle('compass:get-preference-sandbox-properties', () => {
+    return preferences.getPreferenceSandboxProperties();
+  });
 }
 
-export const preferencesMain: PreferencesAccess = {
+const makePreferenceMain = (preferences: () => Preferences | undefined) => ({
   async savePreferences(
     attributes: Partial<UserPreferences>
   ): Promise<AllPreferences> {
     return (
-      preferencesSingleton?.savePreferences?.(attributes) ??
-      ({} as AllPreferences)
+      preferences()?.savePreferences?.(attributes) ?? ({} as AllPreferences)
     );
   },
   // eslint-disable-next-line @typescript-eslint/require-await
   async refreshPreferences(): Promise<AllPreferences> {
-    return preferencesSingleton?.getPreferences?.() ?? ({} as AllPreferences);
+    return preferences()?.getPreferences?.() ?? ({} as AllPreferences);
   },
   getPreferences(): AllPreferences {
-    return preferencesSingleton?.getPreferences?.() ?? ({} as AllPreferences);
+    return preferences()?.getPreferences?.() ?? ({} as AllPreferences);
   },
   async ensureDefaultConfigurableUserPreferences(): Promise<void> {
-    return preferencesSingleton?.ensureDefaultConfigurableUserPreferences?.();
+    return preferences()?.ensureDefaultConfigurableUserPreferences?.();
   },
   async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
     return (
-      preferencesSingleton?.getConfigurableUserPreferences?.() ??
+      preferences()?.getConfigurableUserPreferences?.() ??
       ({} as UserConfigurablePreferences)
     );
   },
   // eslint-disable-next-line @typescript-eslint/require-await
   async getPreferenceStates(): Promise<PreferenceStateInformation> {
-    return preferencesSingleton?.getPreferenceStates() ?? {};
+    return preferences()?.getPreferenceStates() ?? {};
   },
   onPreferenceValueChanged<K extends keyof AllPreferences>(
     preferenceName: K,
     callback: (value: AllPreferences[K]) => void
   ): () => void {
     return (
-      preferencesSingleton?.onPreferencesChanged?.(
+      preferences()?.onPreferencesChanged?.(
         (preferences: Partial<AllPreferences>) => {
           if (Object.keys(preferences).includes(preferenceName)) {
             return callback((preferences as AllPreferences)[preferenceName]);
@@ -108,4 +112,17 @@ export const preferencesMain: PreferencesAccess = {
       })
     );
   },
-};
+  async createSandbox(): Promise<PreferencesAccess> {
+    const props = await preferences()?.getPreferenceSandboxProperties();
+    return createSandboxAccessFromProps(props);
+  },
+});
+export async function createSandboxAccessFromProps(
+  props: PreferenceSandboxProperties | undefined
+): Promise<PreferencesAccess> {
+  const sandbox = await Preferences.CreateSandbox(props);
+  return makePreferenceMain(() => sandbox);
+}
+export const preferencesMain: PreferencesAccess = makePreferenceMain(
+  () => preferencesSingleton
+);
