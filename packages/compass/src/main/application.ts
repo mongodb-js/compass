@@ -24,9 +24,9 @@ const getContext = () => {
   return (process.stdin.isTTY || process.stdout.isTTY || process.stderr.isTTY) ? 'terminal' : 'desktop_app';
 }
 
-const getLaunchConnectionSource = (file?: string, positionalArguments?: string) => {
+const getLaunchConnectionSource = (file?: string, positionalArguments?: string[]) => {
   if (file) return 'JSON_file';
-  if (positionalArguments) return 'string';
+  if (positionalArguments?.length) return 'string';
   return 'none';
 }
 
