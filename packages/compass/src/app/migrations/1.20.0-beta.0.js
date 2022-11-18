@@ -47,7 +47,7 @@ const MAPPINGS = {
   ssh_tunnel_username: 'sshTunnelUsername',
   ssh_tunnel_password: 'sshTunnelPassword',
   ssh_tunnel_identity_file: 'sshTunnelIdentityFile',
-  ssh_tunnel_passphrase: 'sshTunnelPassphrase'
+  ssh_tunnel_passphrase: 'sshTunnelPassphrase',
 };
 
 /**
@@ -82,27 +82,30 @@ const mapAttributes = (attributes) => {
 const moveToDiskStorage = (done) => {
   debug('migration: moveToDiskStorage');
   const connections = new ConnectionIndexedDBCollection();
-  connections.once('sync', function() {
+  connections.once('sync', function () {
     if (connections.length > 0) {
       let callCount = 0;
-      connections.each(function(connection) {
+      connections.each(function (connection) {
         const newAttributes = mapAttributes(connection.attributes);
         const newConnection = new Connection(newAttributes);
-        const valid = newConnection.save({}, {
-          success: () => {
-            callCount += 1;
-            if (callCount === connections.length) {
-              done(null);
-            }
-          },
-          error: () => {
-            callCount += 1;
-            if (callCount === connections.length) {
-              done(null);
-            }
+        const valid = newConnection.save(
+          {},
+          {
+            success: () => {
+              callCount += 1;
+              if (callCount === connections.length) {
+                done(null);
+              }
+            },
+            error: () => {
+              callCount += 1;
+              if (callCount === connections.length) {
+                done(null);
+              }
+            },
           }
-        });
-        if (!valid && (callCount === connections.length)) {
+        );
+        if (!valid && callCount === connections.length) {
           callCount += 1;
           done(null);
         }
@@ -115,7 +118,7 @@ const moveToDiskStorage = (done) => {
 };
 
 module.exports = (previousVersion, currentVersion, callback) => {
-  moveToDiskStorage(function(err) {
+  moveToDiskStorage(function (err) {
     if (err) {
       debug('encountered an error in the migration', err);
       return callback(null);

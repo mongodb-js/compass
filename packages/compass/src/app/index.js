@@ -164,12 +164,17 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function ({ showWelcomeModal, networkTraffic }) {
-    const getAutoConnectInfo = (await import('./auto-connect')).loadAutoConnectInfo(
-      await preferences.refreshPreferences()
+    const getAutoConnectInfo = (
+      await import('./auto-connect')
+    ).loadAutoConnectInfo(await preferences.refreshPreferences());
+    log.info(
+      mongoLogId(1_001_000_092),
+      'Main Window',
+      'Rendering app container',
+      {
+        autoConnectEnabled: !!getAutoConnectInfo,
+      }
     );
-    log.info(mongoLogId(1_001_000_092), 'Main Window', 'Rendering app container', {
-      autoConnectEnabled: !!getAutoConnectInfo
-    });
 
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
@@ -189,7 +194,7 @@ const Application = View.extend({
         appName: remote.app.getName(),
         getAutoConnectInfo,
         showWelcomeModal,
-        networkTraffic
+        networkTraffic,
       }),
       this.queryByHook('layout-container')
     );
@@ -197,10 +202,8 @@ const Application = View.extend({
   },
   fetchUser: async function () {
     debug('getting user preferences');
-    const {
-      telemetryAnonymousId,
-      lastKnownVersion
-    } = preferences.getPreferences();
+    const { telemetryAnonymousId, lastKnownVersion } =
+      preferences.getPreferences();
 
     // The main process ensured that `telemetryAnonymousId` contains the id of the User model.
     const user = await User.getOrCreate(telemetryAnonymousId);
@@ -222,10 +225,7 @@ app.extend({
   init: async function () {
     await preferences.refreshPreferences();
 
-    const {
-      showedNetworkOptIn,
-      networkTraffic
-    } = preferences.getPreferences();
+    const { showedNetworkOptIn, networkTraffic } = preferences.getPreferences();
 
     async.series(
       [
@@ -262,7 +262,7 @@ app.extend({
           // As soon as dom is ready, render and set up the rest.
           state.render({
             showWelcomeModal: !showedNetworkOptIn,
-            networkTraffic
+            networkTraffic,
           });
           marky.stop('Time to Connect rendered');
           state.postRender();
