@@ -49,9 +49,7 @@ describe('FeaturesSettings', function () {
     });
   });
 
-  [
-    // 'maxTimeMS',
-  ].forEach((option) => {
+  ['maxTimeMS'].forEach((option) => {
     it(`renders ${option}`, function () {
       expect(within(container).getByTestId(option)).to.exist;
     });

@@ -53,7 +53,7 @@ describe('Shell', function () {
     await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-    await browser.clickParent(Selectors.SettingsCheckbox('enableShell'));
+    await browser.clickParent(Selectors.SettingsInputElement('enableShell'));
     await browser.clickVisible(Selectors.SaveSettingsButton);
 
     // wait for the modal to go away

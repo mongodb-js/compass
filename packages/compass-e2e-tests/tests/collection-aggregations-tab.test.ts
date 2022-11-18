@@ -447,57 +447,88 @@ describe('Collection aggregations tab', function () {
     );
   });
 
-  it('supports maxTimeMS', async function () {
-    // open settings
-    await browser.clickVisible(Selectors.AggregationAdditionalOptionsButton);
+  for (const maxTimeMSMode of ['ui', 'preference'] as const) {
+    it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
+      if (maxTimeMSMode === 'ui') {
+        // open settings
+        await browser.clickVisible(
+          Selectors.AggregationAdditionalOptionsButton
+        );
 
-    // set maxTimeMS
-    const sampleSizeElement = await browser.$(
-      Selectors.AggregationMaxTimeMSInput
-    );
-    await sampleSizeElement.setValue('1');
+        // set maxTimeMS
+        const maxTimeMSElement = await browser.$(
+          Selectors.AggregationMaxTimeMSInput
+        );
+        await maxTimeMSElement.setValue('100');
+      }
 
-    // run a projection that will take lots of time
-    await browser.selectStageOperator(0, '$project');
+      let maxTimeMSBefore;
+      if (maxTimeMSMode === 'preference') {
+        maxTimeMSBefore = await browser.getFeature('maxTimeMS');
 
-    await browser.waitUntil(async function () {
-      const textElement = await browser.$(
-        Selectors.stagePreviewToolbarTooltip(0)
+        await browser.openSettingsModal();
+        const settingsModal = await browser.$(Selectors.SettingsModal);
+        await settingsModal.waitForDisplayed();
+        await browser.clickVisible(Selectors.FeaturesSettingsButton);
+
+        await browser.setValueVisible(
+          Selectors.SettingsInputElement('maxTimeMS'),
+          '1'
+        );
+        await browser.clickVisible(Selectors.SaveSettingsButton);
+      }
+
+      // run a projection that will take lots of time
+      await browser.selectStageOperator(0, '$match');
+
+      await browser.waitUntil(async function () {
+        const textElement = await browser.$(
+          Selectors.stagePreviewToolbarTooltip(0)
+        );
+        const text = await textElement.getText();
+        return text === '(Sample of 0 documents)';
+      });
+
+      const syntaxMessageElement = await browser.$(
+        Selectors.stageEditorErrorMessage(0)
       );
-      const text = await textElement.getText();
-      return text === '(Sample of 0 documents)';
-    });
+      await syntaxMessageElement.waitForDisplayed();
 
-    const syntaxMessageElement = await browser.$(
-      Selectors.stageEditorSyntaxErrorMessage(0)
-    );
-    await syntaxMessageElement.waitForDisplayed();
-
-    await browser.setAceValue(
-      Selectors.stageEditor(0),
-      `{
-      foo: {
-        $function: {
-          body: 'function() { sleep(1000) }',
-          args: [],
-          lang: 'js'
-        }
+      // 100 x sleep(100) = 10s total execution time
+      // This works better than a $project with sleep(10000),
+      // where the DB may not interrupt the sleep() call if it
+      // has already started.
+      await browser.setAceValue(
+        Selectors.stageEditor(0),
+        `{
+      $expr: {
+        $and: [${[...Array(100).keys()]
+          .map(
+            () =>
+              `{ $function: { body: 'function() { sleep(100) }', args: [], lang: 'js' } }`
+          )
+          .join(',')}]
       }
     }`
-    );
+      );
 
-    // make sure we got the timeout error
-    const messageElement = await browser.$(
-      Selectors.stageEditorErrorMessage(0)
-    );
-    await messageElement.waitForDisplayed();
-    // The exact error we get depends on the version of mongodb
-    /*
+      // make sure we got the timeout error
+      const messageElement = await browser.$(
+        Selectors.stageEditorErrorMessage(0)
+      );
+      await messageElement.waitForDisplayed();
+      // The exact error we get depends on the version of mongodb
+      /*
     expect(await messageElement.getText()).to.include(
       'operation exceeded time limit'
     );
     */
-  });
+
+      if (maxTimeMSMode === 'preference') {
+        await browser.setFeature('maxTimeMS', maxTimeMSBefore);
+      }
+    });
+  }
 
   it('supports $out as the last stage', async function () {
     await browser.selectStageOperator(0, '$out');

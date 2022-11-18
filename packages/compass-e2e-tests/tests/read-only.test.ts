@@ -43,7 +43,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -94,7 +94,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -136,7 +136,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -179,7 +179,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -219,7 +219,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -283,7 +283,7 @@ describe('readOnly: true / Read-Only Edition', function () {
         return isFeaturesSettingsContentExisting;
       });
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -327,7 +327,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -393,7 +393,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away

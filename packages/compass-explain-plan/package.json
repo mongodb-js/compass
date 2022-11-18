@@ -59,6 +59,7 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/explain-plan-helper": "^1.0.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
+    "compass-preferences-model": "^2.3.0",
     "hadron-document": "^8.0.1",
     "react": "^16.14.0"
   },
@@ -102,6 +103,7 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/explain-plan-helper": "^1.0.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
+    "compass-preferences-model": "^2.3.0",
     "hadron-document": "^8.0.1",
     "react": "^16.14.0"
   }

@@ -5,7 +5,7 @@ export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"
 export const FeaturesSettingsButton = `${SettingsModal} [data-testid="sidebar-Features-item"]`;
 export const FeaturesSettingsContent = `${SettingsModal} [data-testid="features-settings"]`;
 
-export const SettingsCheckbox = (settingName: string): string => {
+export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
 };
 
