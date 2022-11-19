@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Body } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
-import { changeFieldValue } from '../../stores/updated-fields';
+import { changeFieldValue } from '../../stores/settings';
 import type { SettingsListProps } from './settings-list';
 import { SettingsList } from './settings-list';
 import { pick } from '../../utils/pick';

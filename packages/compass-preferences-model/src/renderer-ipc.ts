@@ -3,10 +3,12 @@ import hadronIpc from 'hadron-ipc';
 import type { PreferencesAccess } from '.';
 import type {
   AllPreferences,
+  PreferenceSandboxProperties,
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
 } from './preferences';
+import { createSandboxAccessFromProps } from './setup-preferences';
 
 /**
  * API to communicate with preferences from the electron renderer process.
@@ -66,6 +68,11 @@ export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
       return () => {
         ipcRenderer.removeListener('compass:preferences-changed', listener);
       };
+    },
+    async createSandbox(): Promise<PreferencesAccess> {
+      const props: PreferenceSandboxProperties | undefined =
+        await ipcRenderer.invoke('compass:get-preference-sandbox-properties');
+      return createSandboxAccessFromProps(props);
     },
   };
 };
