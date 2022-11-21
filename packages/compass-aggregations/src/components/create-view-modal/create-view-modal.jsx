@@ -2,12 +2,18 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { FormModal } from '@mongodb-js/compass-components';
-import { ModalInput, ModalStatusMessage } from 'hadron-react-components';
+import { Banner, Body, FormModal, SpinLoader, css, spacing } from '@mongodb-js/compass-components';
+import { ModalInput } from 'hadron-react-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
 import { toggleIsVisible } from '../../modules/create-view/is-visible';
+
+const progressContainerStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+  alignItems: 'center',
+});
 
 class CreateViewModal extends PureComponent {
   static displayName = 'CreateViewModalComponent';
@@ -74,18 +80,17 @@ class CreateViewModal extends PureComponent {
           onChangeHandler={this.onNameChange}
         />
         {this.props.error ? (
-          <ModalStatusMessage
-            icon="times"
-            message={this.props.error.message}
-            type="error"
-          />
+          <Banner
+            variant='danger'
+          >
+            {this.props.error.message}
+          </Banner>
         ) : null}
         {this.props.isRunning ? (
-          <ModalStatusMessage
-            icon="spinner"
-            message="Create in Progress"
-            type="in-progress"
-          />
+          <Body className={progressContainerStyles}>
+            <SpinLoader />
+            <span>Creating view&hellip;</span>
+          </Body>
         ) : null}
       </FormModal>
     );
