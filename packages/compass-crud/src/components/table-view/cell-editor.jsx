@@ -5,12 +5,19 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
 import { Tooltip } from 'hadron-react-components';
 import TypeChecker from 'hadron-type-checker';
 import { ElementEditor as initEditors } from 'hadron-document';
 import TypesDropdown from './types-dropdown';
 import AddFieldButton from './add-field-button';
+import {
+  Button,
+  css,
+  cx,
+  Icon,
+  spacing,
+  TextInput,
+} from '@mongodb-js/compass-components';
 
 const EMPTY_TYPE = {
   Array: [],
@@ -53,6 +60,19 @@ const VALUE_CLASS = 'editable-element-value';
  * Invalid type class.
  */
 const INVALID = `${VALUE_CLASS}-is-invalid-type`;
+
+const textInputSizeHackStyle = css({
+  width: spacing[6] * 2,
+  '& input': {
+    height: 22,
+  },
+});
+
+const actionsStyle = css({
+  marginLeft: spacing[1],
+  display: 'flex',
+  gap: spacing[1] / 2,
+});
 
 /**
  * The custom cell editor for the table view.
@@ -121,23 +141,6 @@ class CellEditor extends React.Component {
     if (this.props.eGridCell) {
       this.props.eGridCell.addEventListener('keydown', this.onKeyDown);
     }
-    this.nodes = [
-      this.fieldNameNode,
-      this.inputNode,
-      this.typesNode,
-      this.expandNode,
-      this.addFieldNode,
-      this.removeNode,
-    ];
-    this.nodeIndex = 1;
-    this.maxNodes = this.nodes.length - 1;
-    while (this.nodes[this.maxNodes] === undefined) {
-      this.maxNodes--;
-    }
-    this.minNodes = 0;
-    while (this.nodes[this.minNodes] === undefined) {
-      this.minNodes++;
-    }
   }
 
   componentWillUnmount() {
@@ -157,31 +160,6 @@ class CellEditor extends React.Component {
     event.stopPropagation();
     if (event.keyCode === 27 || event.keyCode === 13) {
       this.props.api.stopEditing();
-    }
-    if (event.shiftKey && event.keyCode === 9) {
-      event.preventDefault();
-      while (this.nodeIndex > -1 && this.nodes[this.nodeIndex] === undefined) {
-        this.nodeIndex--;
-      }
-      const node = this.nodes[this.nodeIndex];
-      if (this.nodeIndex <= this.minNodes || node === undefined) {
-        this.props.api.tabToPreviousCell();
-      } else {
-        node.focus();
-        this.nodeIndex--;
-      }
-    } else if (event.keyCode === 9) {
-      event.preventDefault();
-      while (this.nodeIndex < 6 && this.nodes[this.nodeIndex] === undefined) {
-        this.nodeIndex++;
-      }
-      const node = this.nodes[this.nodeIndex];
-      if (this.nodeIndex > this.maxNodes || node === undefined) {
-        this.props.api.tabToNextCell();
-      } else {
-        node.focus();
-        this.nodeIndex++;
-      }
     }
   }
 
@@ -418,24 +396,16 @@ class CellEditor extends React.Component {
   renderFieldName() {
     if (this.newField && this.element.currentKey === '$new') {
       return (
-        <div className={`${BEM_BASE}-input ${BEM_BASE}-input-field`}>
-          <span className={`${BEM_BASE}-input-field-inner`}>
-            <input
-              type="text"
-              data-testid="table-view-cell-editor-fieldname-input"
-              onChange={this.handleFieldNameChange.bind(this)}
-              onClick={() => {
-                this.nodeIndex = 1;
-              }}
-              className={this.styleField(true)}
-              value={this.state.fieldName}
-              ref={(c) => {
-                this.fieldNameNode = c;
-              }}
-              placeholder="Field Name"
-            />
-          </span>
-        </div>
+        <TextInput
+          className={cx(
+            textInputSizeHackStyle,
+            css({ marginRight: spacing[1] })
+          )}
+          data-testid="table-view-cell-editor-fieldname-input"
+          value={this.state.fieldName}
+          placeholder="Field Name"
+          onChange={this.handleFieldNameChange.bind(this)}
+        ></TextInput>
       );
     }
     return null;
@@ -456,17 +426,11 @@ class CellEditor extends React.Component {
       <div
         className={`${BEM_BASE}-input-types`}
         onBlur={this.handleTypeChange.bind(this)}
-        onClick={() => {
-          this.nodeIndex = 3;
-        }}
       >
         <TypesDropdown
           element={this.element}
           version={this.props.version}
           className={`${BEM_BASE}-types btn btn-default btn-xs`}
-          buttonRef={(c) => {
-            this.typesNode = c;
-          }}
         />
       </div>
     );
@@ -483,9 +447,9 @@ class CellEditor extends React.Component {
     if (!showInput) {
       return null;
     }
-    const length = 100; // TODO: styles
+
     return (
-      <div className={`${BEM_BASE}-input`}>
+      <div>
         <span className={this.wrapperStyle()}>
           <Tooltip
             id={this.element.uuid}
@@ -495,24 +459,15 @@ class CellEditor extends React.Component {
               return this.element.invalidTypeMessage;
             }}
           />
-          <input
+          <TextInput
+            className={textInputSizeHackStyle}
             data-testid="table-view-cell-editor-value-input"
-            data-tip=""
-            data-for={this.element.uuid}
-            ref={(c) => {
-              this.inputNode = c;
-            }}
-            type="text"
-            style={{ width: `${length}px` }}
-            className={this.styleValue()}
+            size="xsmall"
             onChange={this.handleInputChange.bind(this)}
-            onClick={() => {
-              this.nodeIndex = 2;
-            }}
             onPaste={this.handlePaste.bind(this)}
             value={this.editor().value(true)}
             placeholder="Value"
-          />
+          ></TextInput>
         </span>
       </div>
     );
@@ -530,17 +485,13 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <button
-        type="button"
+      <Button
         data-testid="table-view-cell-editor-expand-button"
-        className={`${BEM_BASE}-button btn btn-default btn-xs`}
-        onMouseDown={this.handleDrillDown.bind(this)}
-        ref={(c) => {
-          this.expandNode = c;
-        }}
+        size="xsmall"
+        onClick={this.handleDrillDown.bind(this)}
       >
-        <FontAwesome name="expand" className={`${BEM_BASE}-button-icon`} />
-      </button>
+        <Icon glyph="OpenNewTab" size={11}></Icon>
+      </Button>
     );
   }
 
@@ -557,17 +508,13 @@ class CellEditor extends React.Component {
       return null;
     }
     return (
-      <button
-        type="button"
+      <Button
         data-testid="table-view-cell-editor-remove-field-button"
-        className={`${BEM_BASE}-button btn btn-default btn-xs`}
-        onMouseDown={this.handleRemoveField.bind(this)}
-        ref={(c) => {
-          this.removeNode = c;
-        }}
+        size="xsmall"
+        onClick={this.handleRemoveField.bind(this)}
       >
-        <FontAwesome name="trash" className={`${BEM_BASE}-button-icon`} />
-      </button>
+        <Icon glyph="Trash" size={11}></Icon>
+      </Button>
     );
   }
 
@@ -598,20 +545,13 @@ class CellEditor extends React.Component {
 
     const displace = 87 * showTypes + 130 * showInput + 23 * showExpand;
     return (
-      <span className={`${BEM_BASE}-actions`}>
+      <span className={cx(`${BEM_BASE}-actions`, actionsStyle)}>
         {this.renderExpand(showExpand)}
-        <span
-          onClick={() => {
-            this.nodeIndex = 5;
-          }}
-        >
+        <span>
           <AddFieldButton
             {...this.props}
             addColumn={this.onAddField.bind(this)}
             displace={displace}
-            buttonRef={(c) => {
-              this.addFieldNode = c;
-            }}
           />
         </span>
         {this.renderRemoveField()}
