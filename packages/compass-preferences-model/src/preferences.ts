@@ -649,6 +649,13 @@ export type PreferenceStateInformation = Partial<
   Record<keyof AllPreferences, PreferenceState>
 >;
 
+export type PreferenceSandboxProperties = string;
+// Internal to the Preferences class, so PreferenceSandboxProperties is an opaque string
+type PreferenceSandboxPropertiesImpl = {
+  user: UserPreferences;
+  global: Partial<ParsedGlobalPreferencesResult>;
+};
+
 export class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _userPreferencesModel: PreferencesAmpersandModel;
@@ -660,18 +667,27 @@ export class Preferences {
 
   constructor(
     basepath?: string,
-    globalPreferences?: Partial<ParsedGlobalPreferencesResult>
+    globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
+    isSandbox?: boolean
   ) {
-    // User preferences are stored to disc via the Ampersand model.
-    const PreferencesModel = Model.extend(storageMixin, {
+    const ampersandModelDefinition = {
       props: modelPreferencesProps,
       extraProperties: 'ignore',
       idAttribute: 'id',
+    };
+    // User preferences are stored to disk via the Ampersand model,
+    // or not stored externally at all if that was requested.
+    const PreferencesModel = Model.extend(storageMixin, {
+      ...ampersandModelDefinition,
       namespace: 'AppPreferences',
-      storage: {
-        backend: 'disk',
-        basepath,
-      },
+      storage: isSandbox
+        ? {
+            backend: 'null',
+          }
+        : {
+            backend: 'disk',
+            basepath,
+          },
     });
 
     this._onPreferencesChangedCallbacks = [];
@@ -691,6 +707,27 @@ export class Preferences {
         { options: this._globalPreferences.hardcoded }
       );
     }
+  }
+
+  // Returns a value that can be passed to Preferences.CreateSandbox()
+  getPreferenceSandboxProperties(): Promise<PreferenceSandboxProperties> {
+    const value: PreferenceSandboxPropertiesImpl = {
+      user: this._getUserPreferenceModelValues(),
+      global: this._globalPreferences,
+    };
+    return Promise.resolve(JSON.stringify(value));
+  }
+
+  // Create a
+  static async CreateSandbox(
+    props: PreferenceSandboxProperties | undefined
+  ): Promise<Preferences> {
+    const { user, global } = props
+      ? (JSON.parse(props) as PreferenceSandboxPropertiesImpl)
+      : { user: {}, global: {} };
+    const instance = new Preferences(undefined, global, true);
+    await instance.savePreferences(user);
+    return instance;
   }
 
   /**
@@ -808,12 +845,16 @@ export class Preferences {
     return this._computePreferenceValuesAndStates().values;
   }
 
+  private _getUserPreferenceModelValues(): UserPreferences {
+    return this._userPreferencesModel.getAttributes({
+      props: true,
+      derived: true,
+    });
+  }
+
   private _getStoredValues(): AllPreferences {
     return {
-      ...this._userPreferencesModel.getAttributes({
-        props: true,
-        derived: true,
-      }),
+      ...this._getUserPreferenceModelValues(),
       ...this._globalPreferences.cli,
       ...this._globalPreferences.global,
       ...this._globalPreferences.hardcoded,

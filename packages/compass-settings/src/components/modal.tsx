@@ -12,8 +12,8 @@ import FeaturesSettings from './settings/features';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
 import Sidebar from './sidebar';
-import { updateSettings } from '../stores/updated-fields';
-import { fetchSettings } from '../stores/settings';
+import { saveSettings, fetchSettings } from '../stores/settings';
+import type { RootState } from '../stores';
 
 type Settings = {
   name: string;
@@ -23,8 +23,10 @@ type Settings = {
 type SettingsModalProps = {
   isOpen: boolean;
   closeModal: () => void;
-  onUpdate: () => void;
-  loadSettings: () => Promise<void>;
+  onSave: () => void;
+  fetchSettings: () => Promise<void>;
+  loadingState: 'loading' | 'ready';
+  hasChangedSettings: boolean;
 };
 
 const contentStyles = css({
@@ -53,28 +55,24 @@ const settings: Settings[] = [
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,
   closeModal,
-  onUpdate,
-  loadSettings,
+  onSave,
+  fetchSettings,
+  loadingState,
+  hasChangedSettings,
 }) => {
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
-  const [loadingState, setLoadingState] = useState('initial');
 
   useEffect(() => {
-    async function load() {
-      await loadSettings();
-      setLoadingState('ready');
+    if (isOpen) {
+      void fetchSettings();
     }
-    if (isOpen && loadingState === 'initial') {
-      setLoadingState('loading');
-      void load();
-    }
-  }, [isOpen, loadingState, loadSettings]);
+  }, [isOpen, fetchSettings]);
 
   const SettingComponent =
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
 
   const saveSettings = () => {
-    onUpdate();
+    onSave();
     closeModal();
   };
 
@@ -89,6 +87,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       open={isOpen}
       submitButtonText="Save"
       onSubmit={saveSettings}
+      submitDisabled={!hasChangedSettings}
       onCancel={closeModal}
       data-testid="settings-modal"
     >
@@ -115,7 +114,15 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   );
 };
 
-export default connect(null, {
-  onUpdate: updateSettings,
-  loadSettings: fetchSettings,
-})(SettingsModal);
+export default connect(
+  (state: RootState) => {
+    return {
+      loadingState: state.settings.loadingState,
+      hasChangedSettings: state.settings.updatedFields.length > 0,
+    };
+  },
+  {
+    onSave: saveSettings,
+    fetchSettings,
+  }
+)(SettingsModal);

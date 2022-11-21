@@ -163,7 +163,7 @@ const Application = View.extend({
    * start showing status indicators as
    * quickly as possible.
    */
-  render: async function ({ showWelcomeModal, networkTraffic }) {
+  render: async function () {
     const getAutoConnectInfo = (
       await import('./auto-connect')
     ).loadAutoConnectInfo(await preferences.refreshPreferences());
@@ -193,8 +193,6 @@ const Application = View.extend({
         appRegistry: app.appRegistry,
         appName: remote.app.getName(),
         getAutoConnectInfo,
-        showWelcomeModal,
-        networkTraffic,
       }),
       this.queryByHook('layout-container')
     );
@@ -224,8 +222,6 @@ app.extend({
   client: null,
   init: async function () {
     await preferences.refreshPreferences();
-
-    const { showedNetworkOptIn, networkTraffic } = preferences.getPreferences();
 
     async.series(
       [
@@ -260,10 +256,7 @@ app.extend({
             global.hadronApp.appRegistry.emit('toggle-sidebar')
           );
           // As soon as dom is ready, render and set up the rest.
-          state.render({
-            showWelcomeModal: !showedNetworkOptIn,
-            networkTraffic,
-          });
+          state.render();
           marky.stop('Time to Connect rendered');
           state.postRender();
           marky.stop('Time to user can Click Connect');
