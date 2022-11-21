@@ -350,11 +350,9 @@ describe('<CellEditor />', function () {
           expect(wrapper.find('.fa-trash')).to.be.present();
         });
 
-        it('does not render other options', function () {
+        it('renders other options', function () {
           const wrapper = component.find('.table-view-cell-editor');
-          expect(
-            wrapper.find('.table-view-cell-editor-input')
-          ).to.not.be.present();
+          expect(wrapper.find('.table-view-cell-editor-input')).to.be.present();
           expect(
             wrapper.find('.table-view-cell-editor-input-field-inner')
           ).to.not.be.present();

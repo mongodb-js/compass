@@ -6,6 +6,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import EXPLAIN_STATES from '../constants/explain-states';
 import EXPLAIN_VIEWS from '../constants/explain-views';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const { track } = createLoggerAndTelemetry('COMPASS-EXPLAIN-UI');
 
@@ -308,7 +309,7 @@ export const fetchExplainPlan = (query) => {
       projection: query.project,
       skip: query.skip,
       limit: query.limit,
-      maxTimeMS: query.maxTimeMS,
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
     };
     let explain = state.explain;
 

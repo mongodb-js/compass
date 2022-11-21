@@ -2,9 +2,7 @@ const execa = require('execa');
 const chalk = require('chalk');
 
 function separator(message) {
-  return chalk.yellow(
-    chalk.bold(message)
-  );
+  return chalk.yellow(chalk.bold(message));
 }
 
 function manualAction(...message) {
@@ -12,7 +10,11 @@ function manualAction(...message) {
     '👉\t',
     separator('MANUAL ACTION REQUIRED!: '),
     '\n',
-    ...message.join('').split('\n').map((m) => `\t${m}`).join('\n')
+    ...message
+      .join('')
+      .split('\n')
+      .map((m) => `\t${m}`)
+      .join('\n'),
   ].join('');
 }
 
@@ -29,7 +31,7 @@ function waitForEnter() {
     return;
   }
 
-  execa.sync('read _ ', {shell: true, stdin: 'inherit'});
+  execa.sync('read _ ', { shell: true, stdin: 'inherit' });
 }
 
 module.exports = {
@@ -37,6 +39,5 @@ module.exports = {
   manualAction,
   link,
   command,
-  waitForEnter
+  waitForEnter,
 };
-

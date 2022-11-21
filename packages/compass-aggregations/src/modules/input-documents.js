@@ -1,3 +1,4 @@
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 const debug = require('debug')('mongodb-aggregations:modules:input-document');
 
 /**
@@ -104,7 +105,7 @@ export const refreshInputDocuments = () => {
     const ns = state.namespace;
 
     const options = {
-      maxTimeMS: state.settings.maxTimeMS
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(state.settings.maxTimeMS)
     };
 
     const exampleDocumentsPipeline = [{ $limit: state.settings.sampleSize }];

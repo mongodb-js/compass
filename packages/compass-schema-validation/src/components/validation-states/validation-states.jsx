@@ -55,11 +55,6 @@ class ValidationStates extends Component {
     readOnly: PropTypes.bool,
   };
 
-  /**
-   * Renders the banner if the validation is not editable.
-   *
-   * @returns {React.Component} The component.
-   */
   renderBanner() {
     if (this.props.editMode.collectionTimeSeries) {
       return (

@@ -5,7 +5,7 @@ import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
-import { parseEJSON, PipelineParserError } from './pipeline-parser/utils';
+import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 import { isLastStageOutputStage } from '../../utils/stage';
 
@@ -43,7 +43,7 @@ export class PipelineBuilder {
 
   private parseSourceToPipeline() {
     try {
-      this.pipeline = parseEJSON(this.source);
+      this.pipeline = parseShellBSON(this.source);
     } catch (e) {
       this.pipeline = null;
     }
@@ -186,7 +186,7 @@ export class PipelineBuilder {
    * contains errors
    */
   getPipelineFromStages(stages = this.stages): Document[] {
-    return parseEJSON(this.getPipelineStringFromStages(stages));
+    return parseShellBSON(this.getPipelineStringFromStages(stages));
   }
 
   /**

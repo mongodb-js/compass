@@ -316,11 +316,12 @@ function getCurrentTheme(): Theme {
 
 function ThemedHome(
   props: React.ComponentProps<typeof Home> & {
-    showWelcomeModal: boolean;
-    networkTraffic: boolean;
+    showWelcomeModal?: boolean;
   }
 ): ReturnType<typeof Home> {
-  const { showWelcomeModal, networkTraffic } = props;
+  const {
+    showWelcomeModal = !preferences.getPreferences().showedNetworkOptIn,
+  } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
@@ -391,11 +392,7 @@ function ThemedHome(
     <LeafyGreenProvider>
       <ThemeProvider theme={theme}>
         {showWelcomeModal && (
-          <Welcome
-            isOpen={isWelcomeOpen}
-            closeModal={closeWelcomeModal}
-            networkTraffic={networkTraffic}
-          />
+          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
         )}
         <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
         <ToastArea>

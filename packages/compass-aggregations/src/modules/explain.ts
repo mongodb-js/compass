@@ -9,6 +9,7 @@ import { DEFAULT_MAX_TIME_MS } from '../constants';
 import type { IndexInfo } from './indexes';
 import { NEW_PIPELINE } from './import-pipeline';
 import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -151,7 +152,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
       });
 
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS ?? DEFAULT_MAX_TIME_MS),
         allowDiskUse: true,
         collation: collation ?? undefined,
       };
