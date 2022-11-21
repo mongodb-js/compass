@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import type { DataService } from 'mongodb-data-service';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
 import { PipelineBuilder } from './pipeline-builder';
