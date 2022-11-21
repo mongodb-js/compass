@@ -45,7 +45,6 @@ type State = {
   connectionAttempt: ConnectionAttempt | null;
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
-  isConnected: boolean;
 };
 
 export function defaultConnectionsState(): State {
@@ -56,7 +55,6 @@ export function defaultConnectionsState(): State {
     connections: [],
     connectionAttempt: null,
     connectionErrorMessage: null,
-    isConnected: false,
   };
 }
 
@@ -113,7 +111,6 @@ export function connectionsReducer(state: State, action: Action): State {
       return {
         ...state,
         connectionAttempt: null,
-        isConnected: true,
         connectionErrorMessage: null,
       };
     case 'connection-attempt-errored':
@@ -177,6 +174,7 @@ async function loadConnections(
 const MAX_RECENT_CONNECTIONS_LENGTH = 10;
 export function useConnections({
   onConnected,
+  isConnected,
   connectionStorage,
   appName,
   getAutoConnectInfo,
@@ -186,6 +184,7 @@ export function useConnections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
+  isConnected: boolean;
   connectionStorage: ConnectionStorage;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
@@ -212,8 +211,7 @@ export function useConnections({
     connectionsReducer,
     defaultConnectionsState()
   );
-  const { activeConnectionId, isConnected, connectionAttempt, connections } =
-    state;
+  const { activeConnectionId, connectionAttempt, connections } = state;
 
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
 

@@ -13,6 +13,7 @@ const featuresFields = [
   'protectConnectionStrings',
   'showKerberosPasswordField',
   'maxTimeMS',
+  'enableDevTools',
 ] as const;
 type FeaturesFields = typeof featuresFields[number];
 type FeaturesSettingsProps = Omit<SettingsListProps<FeaturesFields>, 'fields'>;

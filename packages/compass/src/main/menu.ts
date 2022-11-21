@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
 import { preferencesAccess as preferences } from 'compass-preferences-model';
+import type { THEMES } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
@@ -304,63 +305,68 @@ function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
 }
 
 function viewSubMenu(): MenuItemConstructorOptions {
+  const subMenu = [
+    {
+      label: '&Reload',
+      accelerator: 'CmdOrCtrl+Shift+R',
+      click() {
+        BrowserWindow.getFocusedWindow()?.reload();
+      },
+    },
+    {
+      label: '&Reload Data',
+      accelerator: 'CmdOrCtrl+R',
+      click() {
+        ipcMain.broadcast('app:refresh-data');
+      },
+    },
+    separator(),
+    {
+      label: '&Toggle Sidebar',
+      accelerator: 'CmdOrCtrl+Shift+D',
+      click() {
+        ipcMain.broadcast('app:toggle-sidebar');
+      },
+    },
+    separator(),
+    {
+      label: 'Actual Size',
+      accelerator: 'CmdOrCtrl+0',
+      click() {
+        ipcMain.broadcast('window:zoom-reset');
+      },
+    },
+    {
+      label: 'Zoom In',
+      accelerator: 'CmdOrCtrl+=',
+      click() {
+        ipcMain.broadcast('window:zoom-in');
+      },
+    },
+    {
+      label: 'Zoom Out',
+      accelerator: 'CmdOrCtrl+-',
+      click() {
+        ipcMain.broadcast('window:zoom-out');
+      },
+    },
+    separator(),
+    ...(process.platform === 'darwin' ? [] : [themeMenuItem(), separator()]),
+  ];
+
+  if (preferences.getPreferences().enableDevTools) {
+    subMenu.push({
+      label: '&Toggle DevTools',
+      accelerator: 'Alt+CmdOrCtrl+I',
+      click() {
+        BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools();
+      },
+    });
+  }
+
   return {
     label: '&View',
-    submenu: [
-      {
-        label: '&Reload',
-        accelerator: 'CmdOrCtrl+Shift+R',
-        click() {
-          BrowserWindow.getFocusedWindow()?.reload();
-        },
-      },
-      {
-        label: '&Reload Data',
-        accelerator: 'CmdOrCtrl+R',
-        click() {
-          ipcMain.broadcast('app:refresh-data');
-        },
-      },
-      separator(),
-      {
-        label: '&Toggle Sidebar',
-        accelerator: 'CmdOrCtrl+Shift+D',
-        click() {
-          ipcMain.broadcast('app:toggle-sidebar');
-        },
-      },
-      separator(),
-      {
-        label: 'Actual Size',
-        accelerator: 'CmdOrCtrl+0',
-        click() {
-          ipcMain.broadcast('window:zoom-reset');
-        },
-      },
-      {
-        label: 'Zoom In',
-        accelerator: 'CmdOrCtrl+=',
-        click() {
-          ipcMain.broadcast('window:zoom-in');
-        },
-      },
-      {
-        label: 'Zoom Out',
-        accelerator: 'CmdOrCtrl+-',
-        click() {
-          ipcMain.broadcast('window:zoom-out');
-        },
-      },
-      separator(),
-      ...(process.platform === 'darwin' ? [] : [themeMenuItem(), separator()]),
-      {
-        label: '&Toggle DevTools',
-        accelerator: 'Alt+CmdOrCtrl+I',
-        click() {
-          BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools();
-        },
-      },
-    ],
+    submenu: subMenu,
   };
 }
 
@@ -455,7 +461,7 @@ class CompassMenu {
       'window:hide-collection-submenu': this.hideCollection.bind(this),
     });
 
-    preferences.onPreferenceValueChanged('theme', (newTheme) => {
+    preferences.onPreferenceValueChanged('theme', (newTheme: THEMES) => {
       track('Theme Changed', {
         theme: newTheme,
       });
@@ -466,6 +472,16 @@ class CompassMenu {
     preferences.onPreferenceValueChanged('readOnly', () => {
       this.refreshMenu();
     });
+
+    preferences.onPreferenceValueChanged(
+      'enableDevTools',
+      (enableDevTools: boolean) => {
+        this.refreshMenu();
+        if (!enableDevTools) {
+          BrowserWindow.getFocusedWindow()?.webContents.closeDevTools();
+        }
+      }
+    );
 
     void this.setupDockMenu();
   }
