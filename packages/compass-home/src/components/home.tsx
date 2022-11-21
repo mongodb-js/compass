@@ -370,7 +370,7 @@ function ThemedHome(
   }, [appRegistry]);
 
   const closeWelcomeModal = useCallback(
-    (showSettings: boolean) => {
+    (showSettings: boolean | undefined) => {
       async function close() {
         await preferences.ensureDefaultConfigurableUserPreferences();
         setIsWelcomeOpen(false);

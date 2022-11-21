@@ -89,7 +89,7 @@ const PreviewResults = ({
     () => ({
       docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
       isEditable: false,
-      copyToClipboard(doc) {
+      copyToClipboard(doc: HadronDocument) {
         const str = doc.toEJSON();
         void navigator.clipboard.writeText(str);
       },
