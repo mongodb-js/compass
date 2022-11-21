@@ -14,12 +14,11 @@ describe('Collection explain plan tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
-    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
   });
 
   beforeEach(async function () {
     await createNumbersCollection();
+    await browser.connectWithConnectionString('mongodb://localhost:27091/test');
     await browser.navigateToCollectionTab('test', 'numbers', 'Explain Plan');
   });
 
