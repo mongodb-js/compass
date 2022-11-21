@@ -135,18 +135,6 @@ function showConnectWindow(
   void window.loadURL(url);
 
   /**
-   * Open devtools for this window when it's opened.
-   *
-   * @example DEVTOOLS=1 npm start
-   * @see scripts/start.js
-   */
-  if (process.env.DEVTOOLS) {
-    window.webContents.openDevTools({
-      mode: 'detach',
-    });
-  }
-
-  /**
    * Open all external links in the system's web browser.
    * TODO: https://jira.mongodb.org/browse/COMPASS-5187
    */

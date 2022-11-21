@@ -71,6 +71,7 @@ describe('Settings store actions', function () {
       expect(state.settings.readOnly).to.equal(true);
       expect(state.settings.enableShell).to.equal(false);
       expect(state.preferenceStates).to.deep.equal({
+        enableDevTools: 'derived',
         enableShell: 'derived',
       });
       expect(state.updatedFields).to.deep.equal(['readOnly']);

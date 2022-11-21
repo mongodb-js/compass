@@ -162,10 +162,6 @@ describe('CompassMenu', function () {
           {
             type: 'separator',
           },
-          {
-            accelerator: 'Alt+CmdOrCtrl+I',
-            label: '&Toggle DevTools',
-          },
         ],
       });
     });
@@ -233,6 +229,81 @@ describe('CompassMenu', function () {
               },
               {
                 checked: true,
+                label: 'Light Theme',
+                type: 'checkbox',
+              },
+            ],
+          },
+          {
+            type: 'separator',
+          },
+        ],
+      });
+    });
+
+    it('should generate a view menu template with toggle devtools', function () {
+      sinon.stub(process, 'platform').value('linux');
+      sinon
+        .stub(preferences, 'getPreferences')
+        .returns({ enableDevTools: true } as any);
+
+      expect(
+        serializable(
+          // Contains functions, so we can't easily deep equal it without
+          // converting to serializable format
+          CompassMenu.getTemplate(0).find((item) => item.label === '&View')
+        )
+      ).to.deep.eq({
+        label: '&View',
+        submenu: [
+          {
+            accelerator: 'CmdOrCtrl+Shift+R',
+            label: '&Reload',
+          },
+          {
+            accelerator: 'CmdOrCtrl+R',
+            label: '&Reload Data',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            accelerator: 'CmdOrCtrl+Shift+D',
+            label: '&Toggle Sidebar',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            accelerator: 'CmdOrCtrl+0',
+            label: 'Actual Size',
+          },
+          {
+            accelerator: 'CmdOrCtrl+=',
+            label: 'Zoom In',
+          },
+          {
+            accelerator: 'CmdOrCtrl+-',
+            label: 'Zoom Out',
+          },
+          {
+            type: 'separator',
+          },
+          {
+            label: 'Theme',
+            submenu: [
+              {
+                checked: false,
+                label: 'Use OS Theme (Preview)',
+                type: 'checkbox',
+              },
+              {
+                checked: false,
+                label: 'Dark Theme (Preview)',
+                type: 'checkbox',
+              },
+              {
+                checked: false,
                 label: 'Light Theme',
                 type: 'checkbox',
               },
