@@ -42,8 +42,7 @@
   },
   "dependencies": {
     "lodash.isfunction": "^3.0.8",
-    "react-bootstrap": "^0.32.0",
-    "react-tooltip": "^3.11.1"
+    "react-bootstrap": "^0.32.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",

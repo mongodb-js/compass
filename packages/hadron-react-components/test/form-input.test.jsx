@@ -54,20 +54,5 @@ describe('<FormInput />', () => {
         expect(component.find('.form-control')).to.have.value('test');
       });
     });
-
-    context('when a link handler is provided', () => {
-      const spy = sinon.spy();
-      const component = shallow(
-        <FormInput
-          label="Test"
-          name="testing"
-          linkHandler={spy}
-          changeHandler={changeHandler} />
-      );
-
-      it('renders the info sprinkle', () => {
-        expect(component.find('i.help')).to.be.present();
-      });
-    });
   });
 });

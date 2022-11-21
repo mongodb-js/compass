@@ -15,7 +15,6 @@ ignores: [
   "karma-webpack",
   "mongodb-reflux-store",
   "nyc",
-  "react-tooltip",
   "resolve",
   "webpack-bundle-analyzer",
   "webpack-cli",

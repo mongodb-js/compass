@@ -115,7 +115,6 @@
     "react-dom": "^16.14.0",
     "react-leaflet": "2.4.0",
     "react-leaflet-draw": "0.19.0",
-    "react-tooltip": "^3.11.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^2.6.1",
