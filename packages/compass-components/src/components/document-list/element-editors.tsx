@@ -365,7 +365,9 @@ export const TypeEditor: React.FunctionComponent<{
               typeEditor,
               visuallyActive && typeEditorActive
             )}
-            onClick={e => {e.stopPropagation();}}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             {TYPES.map((type) => {
               return (
