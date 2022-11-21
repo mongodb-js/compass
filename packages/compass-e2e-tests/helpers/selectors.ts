@@ -538,7 +538,8 @@ export const incompleteSchemaForClonedDocMsg =
 // Import File modal
 
 export const ImportModal = '[data-testid="import-modal"]';
-export const ImportDelimiter = '[id="import-delimiter-select"]';
+export const ImportDelimiterSelect = '[data-testid="import-delimiter-select"]';
+export const ImportDelimiterMenu = '[id="import-delimiter-select-menu"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
@@ -551,11 +552,16 @@ export const ImportDone =
 export const ImportErrorBox = '[data-testid="import-error-box"]';
 
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
-  return `[data-testid="preview-field-header-${fieldName}"] select`;
+  return `[data-testid="preview-field-header-${fieldName}"] button`;
+};
+export const importPreviewFieldHeaderSelectMenu = (
+  fieldName: string
+): string => {
+  return `[id="import-preview-field-type-select-menu-${fieldName}-menu"]`;
 };
 
 export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
-  return `[data-testid="preview-field-header-${fieldName}"] input[type="checkbox"]`;
+  return `[data-testid="preview-field-header-${fieldName}"] [data-testid="toggle-import-field-checkbox-${fieldName}"]`;
 };
 
 // Connection import/export modals

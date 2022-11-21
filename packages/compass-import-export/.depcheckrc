@@ -10,4 +10,3 @@ ignores:
  - "@testing-library/react"
  - "@testing-library/user-event"
  - "@types/chai-as-promised"
- - "enzyme-adapter-react-16"
