@@ -63,8 +63,8 @@ const enterToAddStyles = css({
 });
 
 type ExportSelectFieldsProps = {
-  fields: Record<string, number>;
-  updateSelectedFields: (selectedFields: Record<string, number>) => void;
+  fields: Record<string, boolean>;
+  updateSelectedFields: (selectedFields: Record<string, boolean>) => void;
 };
 
 function ExportSelectFields({
@@ -81,7 +81,7 @@ function ExportSelectFields({
   const fieldKeys = useMemo(() => Object.keys(fields), [fields]);
 
   const isEveryFieldChecked = useMemo(() => {
-    return Object.keys(fields).every((f) => fields[f] === 1);
+    return Object.keys(fields).every((f) => fields[f]);
   }, [fields]);
 
   const onAddNewFieldButtonClicked = useCallback(() => {
@@ -94,7 +94,7 @@ function ExportSelectFields({
   const handleFieldCheckboxChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       const newFields = Object.assign({}, fields);
-      newFields[`${evt.target.name}`] ^= 1; // Flip 1/0 to its opposite.
+      newFields[`${evt.target.name}`] = !newFields[`${evt.target.name}`];
       updateSelectedFields(newFields);
     },
     [updateSelectedFields, fields]
@@ -104,9 +104,9 @@ function ExportSelectFields({
     const newFields = Object.assign({}, fields);
 
     if (isEveryFieldChecked) {
-      Object.keys(newFields).map((f) => (newFields[f] = 0));
+      Object.keys(newFields).map((f) => (newFields[f] = false));
     } else {
-      Object.keys(newFields).map((f) => (newFields[f] = 1));
+      Object.keys(newFields).map((f) => (newFields[f] = true));
     }
 
     updateSelectedFields(newFields);

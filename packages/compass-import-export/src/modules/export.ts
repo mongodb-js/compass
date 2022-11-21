@@ -66,7 +66,7 @@ const FULL_QUERY: ExportQueryType = {
   filter: {},
 };
 
-type ExportFieldsType = Record<string, number>;
+type ExportFieldsType = Record<string, boolean>;
 
 type State = {
   isOpen?: boolean;
@@ -572,7 +572,7 @@ export const startExport =
         all_docs: exportData.isFullCollection,
         file_type: exportData.fileType,
         all_fields: Object.values(exportData.fields).every(
-          (checked) => checked === 1
+          (checked) => checked
         ),
         number_of_docs: numDocsToExport,
         success: exportSucceded,
@@ -617,13 +617,13 @@ const getQueryExportSource = async (
     : count;
   // filter out only the fields we want to include in our export data
   const projection = Object.fromEntries(
-    Object.entries(fields).filter((keyAndValue) => keyAndValue[1] === 1)
+    Object.entries(fields).filter((keyAndValue) => keyAndValue[1])
   );
   if (
     Object.keys(projection).length > 0 &&
-    (undefined === fields._id || fields._id === 0)
+    (undefined === fields._id || !fields._id)
   ) {
-    projection._id = 0;
+    projection._id = false;
   }
   log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
     ns,

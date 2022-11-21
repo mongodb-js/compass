@@ -136,7 +136,7 @@ function ExportModalNextButton({
   startExport,
 }: {
   exportStep: ExportStep;
-  fields: Record<string, number>;
+  fields: Record<string, boolean>;
   fileName: string;
   status: ProcessStatus;
   handleChangeModalStatus: (step: ExportStep) => void;
@@ -212,7 +212,7 @@ type ExportModalProps = {
   ns: string; // Namespace
   query: ExportQueryType | null;
   status: ProcessStatus;
-  fields: Record<string, number>;
+  fields: Record<string, boolean>;
   exportedDocsCount?: number;
   progress: number;
   startExport: () => void;
@@ -220,7 +220,7 @@ type ExportModalProps = {
   cancelExport: () => void;
   exportStep: ExportStep;
   sampleFields: () => void;
-  updateSelectedFields: (selectedFields: Record<string, number>) => void;
+  updateSelectedFields: (selectedFields: Record<string, boolean>) => void;
   isFullCollection: boolean;
   changeExportStep: (step: ExportStep) => void;
   toggleFullCollection: () => void;

@@ -37,7 +37,7 @@ export async function loadFields(
       }
     | undefined = {},
   driverOptions = {}
-): Promise<Record<string, number>> {
+): Promise<Record<string, boolean>> {
   const find = util.promisify(dataService.find.bind(dataService));
   sampleSize = sampleSize || DEFAULT_SAMPLE_SIZE;
 
@@ -62,20 +62,20 @@ export async function loadFields(
 }
 
 export function getSelectableFields(
-  fields: Record<string, number>,
+  fields: Record<string, boolean>,
   {
     maxDepth,
   }: {
     maxDepth?: number;
   } = {}
-) {
+): { [k: string]: boolean } {
   const selectableFields = Object.keys(fields).map((field) =>
     truncateFieldToDepth(field, maxDepth)
   );
   return Object.fromEntries(
     selectableFields.map((field) => {
       const enabled = !isInternalFieldPath(field);
-      return [field, +enabled];
+      return [field, enabled];
     })
   );
 }
