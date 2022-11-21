@@ -305,6 +305,7 @@ function Home({
         <div className={homePageStyles}>
           <Connections
             onConnected={onConnected}
+            isConnected={isConnected}
             appName={appName}
             getAutoConnectInfo={
               hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
@@ -378,7 +379,7 @@ function ThemedHome(
   }, [appRegistry]);
 
   const closeWelcomeModal = useCallback(
-    (showSettings: boolean) => {
+    (showSettings?: boolean) => {
       async function close() {
         await preferences.ensureDefaultConfigurableUserPreferences();
         setIsWelcomeOpen(false);

@@ -162,7 +162,7 @@ describe('Collection aggregations tab', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it('supports the right stages for the environment', async function () {
+  it.skip('supports the right stages for the environment', async function () {
     await browser.focusStageOperator(0);
 
     const stageOperatorOptionsElements = await browser.$$(

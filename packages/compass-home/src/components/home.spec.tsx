@@ -72,7 +72,7 @@ describe('Home [Component]', function () {
     });
 
     it('renders the connect screen', function () {
-      expect(screen.getByTestId('connections-disconnected')).to.be.visible;
+      expect(screen.getByTestId('connections-wrapper')).to.be.visible;
     });
 
     it('does not render the sidebar', function () {
@@ -153,8 +153,7 @@ describe('Home [Component]', function () {
         });
 
         it('renders the new connect form', function () {
-          expect(screen.queryByTestId('connections-disconnected')).to.be
-            .visible;
+          expect(screen.queryByTestId('connections-wrapper')).to.be.visible;
         });
 
         it('calls to disconnect the data service', function () {
