@@ -7,6 +7,7 @@ import {
   DocumentIcon,
   spacing,
   Overline,
+  WarningSummary,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../../modules';
 import type { Document } from 'mongodb';
@@ -26,10 +27,12 @@ const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
+  padding: spacing[3],
+  paddingBottom: spacing[1],
+  gap: spacing[2],
 });
 
 const previewHeaderStyles = css({
-  padding: spacing[3],
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'flex-start',
@@ -41,7 +44,6 @@ const centerStyles = css({
   alignItems: 'center',
   justifyContent: 'center',
   height: '100%',
-  padding: spacing[3],
   textAlign: 'center',
 });
 
@@ -49,7 +51,6 @@ const messageStyles = css({ marginTop: spacing[3] });
 
 const documentListStyles = css({
   overflow: 'auto',
-  padding: spacing[3]
 });
 
 const pipelineOutputMenuStyles = css({
@@ -59,7 +60,7 @@ const pipelineOutputMenuStyles = css({
   marginLeft: 'auto',
 });
 const outputStageStyles = css({
-  margin: spacing[2],
+  marginBottom: spacing[2],
   marginTop: 'auto',
 });
 
@@ -70,6 +71,7 @@ type PipelinePreviewProps = {
   isMissingAtlasSupport: boolean;
   atlasOperator: string;
   previewDocs: Document[] | null;
+  isPreviewStale: boolean;
 };
 
 const PreviewResults = ({
@@ -78,12 +80,14 @@ const PreviewResults = ({
   isExpanded,
   isMissingAtlasSupport,
   atlasOperator,
+  isPreviewStale,
 }: {
   previewDocs: Document[] | null;
   isLoading: boolean;
   isExpanded: boolean;
   isMissingAtlasSupport: boolean;
   atlasOperator: string;
+  isPreviewStale: boolean;
 }) => {
   const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
     () => ({
@@ -135,11 +139,18 @@ const PreviewResults = ({
   }
 
   return (
-    <DocumentListView
-      {...listProps}
-      isExpanded={isExpanded}
-      className={documentListStyles}
-    />
+    <>
+      {isPreviewStale && (
+        <WarningSummary
+          warnings={["Output outdated and no longer in sync."]}
+        />
+      )}
+      <DocumentListView
+        {...listProps}
+        isExpanded={isExpanded}
+        className={documentListStyles}
+      />
+    </>
   );
 };
 
@@ -150,6 +161,7 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   isMissingAtlasSupport,
   previewDocs,
   atlasOperator,
+  isPreviewStale,
 }) => {
   const [pipelineOutputOption, setPipelineOutputOption] =
     useState<PipelineOutputOption>('collapse');
@@ -183,6 +195,7 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
         isMissingAtlasSupport={isMissingAtlasSupport}
         atlasOperator={atlasOperator}
         previewDocs={previewDocs}
+        isPreviewStale={isPreviewStale}
       />
       <div className={outputStageStyles} data-testid="output-stage-preview">
         <OutputStageBanner stageOperator={stageOperator} />
@@ -194,7 +207,7 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
 const mapState = (state: RootState) => {
   const stageOperators = getPipelineStageOperatorsFromBuilderState(state);
   const lastStage = stageOperators[stageOperators.length - 1] ?? '';
-  const { isLoading, previewDocs, serverError } =
+  const { isLoading, previewDocs, serverError, isPreviewStale } =
     state.pipelineBuilder.textEditor.pipeline;
   const isMissingAtlasSupport = isMissingAtlasStageSupport(
     state.env,
@@ -208,6 +221,7 @@ const mapState = (state: RootState) => {
     isOutStage: lastStage === '$out',
     isMissingAtlasSupport,
     atlasOperator,
+    isPreviewStale,
   };
 };
 

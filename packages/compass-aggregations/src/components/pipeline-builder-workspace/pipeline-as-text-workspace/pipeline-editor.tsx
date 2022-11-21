@@ -40,8 +40,9 @@ const editorContainerStyles = css({
 const errorContainerStyles = css({
   flex: 'none',
   marginTop: 'auto',
-  marginLeft: spacing[2],
-  marginRight: spacing[2],
+  marginLeft: spacing[3],
+  marginRight: spacing[3],
+  marginBottom: spacing[2],
 });
 
 type PipelineEditorProps = {

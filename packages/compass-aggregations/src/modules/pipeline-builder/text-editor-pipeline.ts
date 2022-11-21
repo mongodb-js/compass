@@ -55,6 +55,7 @@ export type TextEditorState = {
   serverError: MongoServerError | null;
   isLoading: boolean;
   previewDocs: Document[] | null;
+  isPreviewStale: boolean;
 };
 
 const INITIAL_STATE: TextEditorState = {
@@ -64,6 +65,7 @@ const INITIAL_STATE: TextEditorState = {
   serverError: null,
   isLoading: false,
   previewDocs: null,
+  isPreviewStale: false,
 };
 
 const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
@@ -89,6 +91,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       pipelineText: action.pipelineText,
       pipeline,
       syntaxErrors: action.syntaxErrors,
+      isPreviewStale: false,
     };
   }
 
@@ -119,7 +122,6 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       serverError: null,
-      previewDocs: null,
       isLoading: false
     };
   }
@@ -132,7 +134,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      previewDocs: null,
+      isPreviewStale: false,
       serverError: null,
       isLoading: true,
     };
@@ -149,6 +151,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       serverError: null,
       isLoading: false,
       previewDocs: action.previewDocs,
+      isPreviewStale: false,
     };
   }
 
@@ -162,7 +165,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       ...state,
       serverError: action.serverError,
       isLoading: false,
-      previewDocs: null,
+      isPreviewStale: true,
     };
   }
 
