@@ -14,7 +14,6 @@ describe('Collection explain plan tab', function () {
   before(async function () {
     compass = await beforeTests();
     browser = compass.browser;
-
   });
 
   beforeEach(async function () {
