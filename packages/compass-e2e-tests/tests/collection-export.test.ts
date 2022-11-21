@@ -205,7 +205,11 @@ describe('Collection export', function () {
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // de-select _id to just export the i field
-    await browser.clickVisible(Selectors.exportModalExportField('_id'));
+    const idFieldCheckbox = await browser
+      .$(Selectors.exportModalExportField('_id'))
+      .parentElement();
+    await idFieldCheckbox.waitForExist();
+    await idFieldCheckbox.click();
     await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
     // CSV file type
@@ -406,8 +410,16 @@ describe('Collection export', function () {
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // de-select _id to just export the i field
-    await browser.clickVisible(Selectors.exportModalExportField('_id'));
-    await browser.clickVisible(Selectors.exportModalExportField('j'));
+    const idFieldCheckbox = await browser
+      .$(Selectors.exportModalExportField('_id'))
+      .parentElement();
+    await idFieldCheckbox.waitForExist();
+    await idFieldCheckbox.click();
+    const jFieldCheckbox = await browser
+      .$(Selectors.exportModalExportField('j'))
+      .parentElement();
+    await jFieldCheckbox.waitForExist();
+    await jFieldCheckbox.click();
     await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
     // go with the default file type (JSON)

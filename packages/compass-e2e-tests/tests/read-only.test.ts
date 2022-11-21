@@ -43,7 +43,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -94,7 +94,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -136,7 +136,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -179,7 +179,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -219,7 +219,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -283,7 +283,7 @@ describe('readOnly: true / Read-Only Edition', function () {
         return isFeaturesSettingsContentExisting;
       });
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -327,7 +327,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
@@ -367,58 +367,44 @@ describe('readOnly: true / Read-Only Edition', function () {
         '{ $jsonSchema: {} }'
       );
 
-      let updateValidationButton = await browser.$(
-        Selectors.UpdateValidationButton
-      );
-      let isUpdateValidationButtonExisting =
-        await updateValidationButton.isExisting();
-      expect(isUpdateValidationButtonExisting).to.be.equal(true);
-
-      let validationActionSelector = await browser.$(
-        Selectors.ValidationActionSelector
-      );
-      let validationActionSelectorDisabled =
-        await validationActionSelector.getAttribute('disabled');
-      expect(validationActionSelectorDisabled).to.equal(null);
-
-      let validationLevelSelector = await browser.$(
-        Selectors.ValidationLevelSelector
-      );
-      let validationLevelSelectorDisabled =
-        await validationLevelSelector.getAttribute('disabled');
-      expect(validationLevelSelectorDisabled).to.equal(null);
+      expect(
+        await browser.$(Selectors.UpdateValidationButton).isExisting()
+      ).to.be.equal(true);
+      expect(
+        await browser
+          .$(Selectors.ValidationActionSelector)
+          .getAttribute('aria-disabled')
+      ).to.equal('false');
+      expect(
+        await browser
+          .$(Selectors.ValidationLevelSelector)
+          .getAttribute('aria-disabled')
+      ).to.equal('false');
 
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
       await browser.clickVisible(Selectors.FeaturesSettingsButton);
 
-      await browser.clickParent(Selectors.SettingsCheckbox('readOnly'));
+      await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
       // wait for the modal to go away
       await settingsModal.waitForDisplayed({ reverse: true });
 
-      validationActionSelector = await browser.$(
-        Selectors.ValidationActionSelector
-      );
-      validationActionSelectorDisabled =
-        await validationActionSelector.getAttribute('disabled');
-      expect(validationActionSelectorDisabled).to.equal(''); // null = missing attribute, '' = set
-
-      validationLevelSelector = await browser.$(
-        Selectors.ValidationLevelSelector
-      );
-      validationLevelSelectorDisabled =
-        await validationLevelSelector.getAttribute('disabled');
-      expect(validationLevelSelectorDisabled).to.equal(''); // null = missing attribute, '' = set
-
-      updateValidationButton = await browser.$(
-        Selectors.UpdateValidationButton
-      );
-      isUpdateValidationButtonExisting =
-        await updateValidationButton.isExisting();
-      expect(isUpdateValidationButtonExisting).to.be.equal(false);
+      expect(
+        await browser
+          .$(Selectors.ValidationActionSelector)
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+      expect(
+        await browser
+          .$(Selectors.ValidationLevelSelector)
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+      expect(
+        await browser.$(Selectors.UpdateValidationButton).isExisting()
+      ).to.be.equal(false);
     } finally {
       await browser.setFeature('readOnly', false);
       await afterTest(compass, this.currentTest);

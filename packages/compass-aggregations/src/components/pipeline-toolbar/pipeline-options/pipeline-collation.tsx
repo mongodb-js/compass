@@ -7,6 +7,7 @@ import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
 import { maxTimeMSChanged } from '../../../modules/max-time-ms';
 import { DEFAULT_MAX_TIME_MS } from '../../../constants';
+import { usePreference } from 'compass-preferences-model';
 
 const pipelineOptionsContainerStyles = css({
   paddingTop: spacing[1],
@@ -58,6 +59,7 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
     },
     [maxTimeMSChanged]
   );
+  const maxTimeMSLimit = usePreference('maxTimeMS', React);
 
   return (
     <div
@@ -103,11 +105,13 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
         id={maxTimeMSInputId}
         data-testid="max-time-ms"
         className={inputStyles}
-        placeholder={`${DEFAULT_MAX_TIME_MS}`}
+        placeholder={`${Math.min(DEFAULT_MAX_TIME_MS, maxTimeMSLimit || Infinity)}`}
         type="number"
         min="0"
+        max={maxTimeMSLimit}
         sizeVariant="small"
         value={`${maxTimeMSValue ?? ''}`}
+        state={(maxTimeMSValue && maxTimeMSLimit && maxTimeMSValue > maxTimeMSLimit) ? 'error' : 'none'}
         onChange={onMaxTimeMSChanged}
       />
     </div>

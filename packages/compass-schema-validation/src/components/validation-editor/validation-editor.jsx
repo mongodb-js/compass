@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { debounce } from 'lodash';
-import { TextButton } from 'hadron-react-buttons';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { IconButton, Icon } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  Button,
+  Body,
+  spacing,
+  Banner,
+  palette,
+  withTheme,
+  KeylineCard,
+} from '@mongodb-js/compass-components';
 import {
   Editor,
   EditorVariant,
@@ -13,38 +21,52 @@ import {
 } from '@mongodb-js/compass-editor';
 
 import { checkValidator } from '../../modules/validation';
-import ValidationSelector from '../validation-selector';
 
-import styles from './validation-editor.module.less';
+import { ActionSelector, LevelSelector } from '../validation-selectors';
 
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-VALIDATION-UI');
 
-/**
- * Validation actions options.
- */
-const ACTION_OPTIONS = { warn: 'Warning', error: 'Error' };
+const validationEditorStyles = css({
+  padding: spacing[3],
+});
 
-/**
- * Validation level options.
- */
-const LEVEL_OPTIONS = { off: 'Off', moderate: 'Moderate', strict: 'Strict' };
+const validationOptionsStyles = css({
+  display: 'flex',
+});
 
-/**
- * URL to validation action documentation.
- */
-const ACTION_HELP_URL =
-  'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationAction';
+const actionsStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  marginTop: spacing[3],
+});
 
-/**
- * URL to validation level documentation.
- */
-const LEVEL_HELP_URL =
-  'https://www.mongodb.com/docs/manual/reference/command/collMod/#mongodb-collflag-validationLevel';
+const editorStyles = css({
+  padding: '10px 0',
+  marginTop: spacing[3],
+});
+
+const editorStylesLight = css({
+  backgroundColor: palette.gray.light3,
+  borderLeft: `3px solid ${palette.gray.light2}`,
+});
+
+const editorStylesDark = css({
+  backgroundColor: palette.gray.dark3,
+  borderLeft: `3px solid ${palette.gray.dark2}`,
+});
+
+const modifiedMessageStyles = css({
+  flex: 1,
+});
+
+const buttonStyles = css({
+  marginLeft: spacing[2],
+});
 
 /**
  * The validation editor component.
  */
-class ValidationEditor extends Component {
+class UnthemedValidationEditor extends Component {
   static displayName = 'ValidationEditor';
 
   static propTypes = {
@@ -65,6 +87,7 @@ class ValidationEditor extends Component {
       error: PropTypes.object,
     }),
     isEditable: PropTypes.bool.isRequired,
+    darkMode: PropTypes.bool.isRequired,
   };
 
   /**
@@ -166,29 +189,15 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderActionSelector() {
+    const { validation, isEditable, validationActionChanged } = this.props;
+    const { validationAction } = validation;
+
     return (
-      <div className={styles['validation-option']}>
-        <ValidationSelector
-          id="validation-action-selector"
-          bsSize="xs"
-          options={ACTION_OPTIONS}
-          title={ACTION_OPTIONS[this.props.validation.validationAction]}
-          label={
-            <>
-              <span>Validation Action</span>
-              <IconButton
-                href={ACTION_HELP_URL}
-                target="_blank"
-                aria-label="More information on validation actions"
-              >
-                <Icon glyph="InfoWithCircle" size="small" />
-              </IconButton>
-            </>
-          }
-          disabled={!this.props.isEditable}
-          onSelect={this.props.validationActionChanged}
-        />
-      </div>
+      <ActionSelector
+        isEditable={isEditable}
+        validationActionChanged={validationActionChanged}
+        validationAction={validationAction}
+      />
     );
   }
 
@@ -198,29 +207,15 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderLevelSelector() {
+    const { validation, isEditable, validationLevelChanged } = this.props;
+    const { validationLevel } = validation;
+
     return (
-      <div className={styles['validation-option']}>
-        <ValidationSelector
-          id="validation-level-selector"
-          bsSize="xs"
-          options={LEVEL_OPTIONS}
-          title={LEVEL_OPTIONS[this.props.validation.validationLevel]}
-          label={
-            <>
-              <span>Validation Level</span>
-              <IconButton
-                href={LEVEL_HELP_URL}
-                target="_blank"
-                aria-label="More information on validation levels"
-              >
-                <Icon glyph="InfoWithCircle" size="small" />
-              </IconButton>
-            </>
-          }
-          disabled={!this.props.isEditable}
-          onSelect={this.props.validationLevelChanged}
-        />
-      </div>
+      <LevelSelector
+        isEditable={isEditable}
+        validationLevelChanged={validationLevelChanged}
+        validationLevel={validationLevel}
+      />
     );
   }
 
@@ -230,29 +225,22 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderValidationMessage() {
-    if (this.hasErrors()) {
-      let message = '';
-      let colorStyle = '';
-
-      if (this.props.validation.syntaxError) {
-        message = this.props.validation.syntaxError.message;
-        colorStyle = styles['validation-message-container-syntax-error'];
-      } else if (this.props.validation.error) {
-        colorStyle = styles['validation-message-container-error'];
-        message = this.props.validation.error.message;
-      }
-
-      return (
-        <div
-          className={classnames({
-            [styles['validation-message-container']]: true,
-            [colorStyle]: true,
-          })}
-        >
-          <div className={styles['validation-message']}>{message}</div>
-        </div>
-      );
+    if (!this.hasErrors()) {
+      return;
     }
+
+    let message = '';
+    let variant = 'default';
+
+    if (this.props.validation.syntaxError) {
+      message = this.props.validation.syntaxError.message;
+      variant = 'danger';
+    } else if (this.props.validation.error) {
+      message = this.props.validation.error.message;
+      variant = 'warning';
+    }
+
+    return <Banner variant={variant}>{message}</Banner>;
   }
 
   /**
@@ -261,32 +249,39 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderActionsPanel() {
-    if (this.props.validation.isChanged && this.props.isEditable) {
-      return (
-        <div className={classnames(styles['validation-action-container'])}>
-          <div
-            className={classnames(styles['validation-action-message'])}
-            data-testid="validation-action-message"
-          >
-            Validation modified
-          </div>
-          <TextButton
-            dataTestId="cancel-validation-button"
-            className={`btn btn-default btn-xs ${classnames(styles.cancel)}`}
-            text="Cancel"
-            clickHandler={this.props.cancelValidation}
-          />
-          <TextButton
-            dataTestId="update-validation-button"
-            className={`btn btn-primary btn-xs ${
-              this.hasErrors() ? 'disabled' : ''
-            }`}
-            text="Update"
-            clickHandler={this.onValidatorSave.bind(this)}
-          />
-        </div>
-      );
+    if (!(this.props.validation.isChanged && this.props.isEditable)) {
+      return;
     }
+
+    return (
+      <div className={actionsStyles}>
+        <Body
+          className={modifiedMessageStyles}
+          data-testid="validation-action-message"
+        >
+          Validation modified
+        </Body>
+        <Button
+          type="button"
+          className={buttonStyles}
+          variant="default"
+          data-testid="cancel-validation-button"
+          onClick={this.props.cancelValidation}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          className={buttonStyles}
+          variant="primary"
+          data-testid="update-validation-button"
+          onClick={this.onValidatorSave.bind(this)}
+          disabled={this.hasErrors()}
+        >
+          Update
+        </Button>
+      </div>
+    );
   }
 
   /**
@@ -295,35 +290,41 @@ class ValidationEditor extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const { darkMode, isEditable, validation } = this.props;
+
     return (
-      <div
-        className={classnames(styles['validation-editor'])}
+      <KeylineCard
         data-testid="validation-editor"
+        className={validationEditorStyles}
       >
-        <div className={classnames(styles['validation-editor-content'])}>
-          <div className={classnames(styles['validation-options-container'])}>
-            {this.renderActionSelector()}
-            {this.renderLevelSelector()}
-          </div>
-          <hr />
-          <div className={classnames(styles['brace-editor-container'])}>
-            <Editor
-              variant={EditorVariant.Shell}
-              text={this.props.validation.validator}
-              onChangeText={(text) => this.onValidatorChange(text)}
-              options={{
-                highlightActiveLine: false,
-              }}
-              readOnly={!this.props.isEditable}
-              completer={this.completer}
-            />
-          </div>
-          {this.renderValidationMessage()}
+        <div className={validationOptionsStyles}>
+          {this.renderActionSelector()}
+          {this.renderLevelSelector()}
         </div>
+        <div
+          className={cx(
+            editorStyles,
+            darkMode ? editorStylesDark : editorStylesLight
+          )}
+        >
+          <Editor
+            variant={EditorVariant.Shell}
+            text={validation.validator}
+            onChangeText={(text) => this.onValidatorChange(text)}
+            options={{
+              highlightActiveLine: false,
+            }}
+            readOnly={!isEditable}
+            completer={this.completer}
+          />
+        </div>
+        {this.renderValidationMessage()}
         {this.renderActionsPanel()}
-      </div>
+      </KeylineCard>
     );
   }
 }
+
+const ValidationEditor = withTheme(UnthemedValidationEditor);
 
 export default ValidationEditor;

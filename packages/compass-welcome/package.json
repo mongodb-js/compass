@@ -56,10 +56,12 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.3.0",
+    "compass-preferences-model": "^2.3.0",
     "react": "*"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.3.0",
+    "compass-preferences-model": "^2.3.0",
     "react": "^16.14.0"
   },
   "devDependencies": {

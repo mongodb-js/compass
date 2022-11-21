@@ -91,7 +91,7 @@ describe('Connections Component', function () {
     it('renders atlas cta button', function () {
       const button = screen.getByTestId('atlas-cta-link');
       expect(button.getAttribute('href')).to.equal(
-        'https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product'
+        'https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1'
       );
     });
 

@@ -1,7 +1,8 @@
 import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
+import type Stage from '../stage';
 
-import { generate, PipelineParserError } from './utils';
+import { generate, parseShellBSON, PipelineParserError } from './utils';
 
 export type StageLike = t.ObjectExpression & {
   properties: [t.ObjectProperty & { key: t.Identifier | t.StringLiteral }];
@@ -17,32 +18,72 @@ export function setNodeDisabled(node: t.Node, value: boolean) {
   (node as any)[kDisabled] = value;
 }
 
-export function isStageLike(node?: t.Node | null, loose = false): node is StageLike {
-  return (
-    !!node &&
-    node.type === 'ObjectExpression' &&
-    node.properties.length === 1 &&
-    node.properties[0].type === 'ObjectProperty' &&
-    node.properties[0].key &&
-    ((node.properties[0].key.type === 'Identifier' &&
-      node.properties[0].key.name.startsWith('$')) ||
-      (node.properties[0].key.type === 'StringLiteral' &&
-        node.properties[0].key.value.startsWith('$'))) &&
-    (loose || node.properties[0].value != null)
-  );
+export function isValidStageNode(node?: t.ObjectExpression): boolean {
+  if (node) {
+    try {
+      // TODO: either export ejson-shell-parser logic that validates the AST or
+      // move the logic in this package to avoid generating source from ast
+      // before validating it again
+      parseShellBSON(generate(node));
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+  return false;
 }
 
-export function assertStageNode(node: t.Node): asserts node is StageLike {
-  if (isStageLike(node)) {
-    return;
+export function isStageLike(
+  node?: t.Node | null,
+  loose = false
+): node is StageLike {
+  try {
+    assertStageNode(node, loose);
+    return true;
+  } catch {
+    return false;
   }
-  const message = node.type === 'ObjectExpression'
-    ? (node.properties[0] as t.ObjectProperty | undefined)?.key == null
-      ? 'A pipeline stage specification object must contain exactly one field.'
-      : 'Stage value can not be empty'
-    : 'Each element of the pipeline array must be an object';
+}
 
-  throw new PipelineParserError(message, node.loc?.start);
+function getKeyName(node: t.ObjectProperty['key']): string | null {
+  return node.type === 'Identifier'
+    ? node.name
+    : node.type === 'StringLiteral'
+    ? node.value
+    : null;
+}
+
+export function assertStageNode(
+  node?: t.Node | null,
+  loose = false
+): asserts node is StageLike {
+  let error: string | null = null;
+  let causedBy = node;
+
+  if (!node || node.type !== 'ObjectExpression') {
+    error = 'Each element of the pipeline array must be an object';
+  } else if (
+    node.properties.length !== 1 ||
+    node.properties[0].type !== 'ObjectProperty' ||
+    node.properties[0].key == null
+  ) {
+    error =
+      'A pipeline stage specification object must contain exactly one field.';
+    causedBy = node.properties[0] ?? causedBy;
+  } else if (!getKeyName(node.properties[0].key)?.startsWith('$')) {
+    const key = getKeyName(node.properties[0].key) ?? '';
+    error = `Unrecognized pipeline stage name${key ? `: '${key}'` : ''}`;
+    causedBy = node.properties[0].key;
+  } else if (!loose && node.properties[0].value == null) {
+    error = 'Stage value can not be empty';
+  } else if (!loose && !isValidStageNode(node)) {
+    error = 'Stage value is invalid';
+    causedBy = node.properties[0].value;
+  }
+
+  if (error) {
+    throw new PipelineParserError(error, causedBy?.loc?.start);
+  }
 }
 
 export function getStageOperatorFromNode(node: StageLike): string {
@@ -52,24 +93,34 @@ export function getStageOperatorFromNode(node: StageLike): string {
 }
 
 export function getStageValueFromNode(node: StageLike): string {
-  const stageAst = node.properties[0].value;
-  const stageTrailingComments = node.properties[0].trailingComments;
-  // If the stage value has trailing comments
-  if (stageTrailingComments) {
-    stageAst.trailingComments = (stageAst.trailingComments ?? []).concat(stageTrailingComments)
+  const stagePropertyNode = node.properties[0];
+  const stageValueNode = stagePropertyNode.value;
+  // If the stage property has trailing comments move them to the stage value so
+  // that they are visible in the editor and delete them from the propery itself
+  // to avoid duplication when we generate source from node
+  if (stagePropertyNode.trailingComments) {
+    stageValueNode.trailingComments = [
+      ...(stageValueNode.trailingComments ?? []),
+      ...(stagePropertyNode.trailingComments ?? [])
+    ];
+    delete stagePropertyNode.trailingComments;
   }
-  return generate(stageAst);
+  return generate(stageValueNode);
 }
 
 /**
  * Converts a stage ast to line comments.
  */
-export function stageToAstComments(stage: t.Expression): t.CommentLine[] {
-  return generate(stage)
+export function stageToAstComments(stage: Stage): t.CommentLine[] {
+  return stage
+    .toString()
     .trim()
     .split('\n')
     .map((line: string) => {
-      return { type: 'CommentLine', value: ` ${line.replace(/^\s*\/\/\s/, '')}` };
+      return {
+        type: 'CommentLine',
+        value: ` ${line.replace(/^\s*\/\/\s/, '')}`
+      };
     });
 }
 

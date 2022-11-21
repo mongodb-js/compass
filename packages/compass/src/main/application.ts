@@ -3,7 +3,6 @@ import { EventEmitter } from 'events';
 import type { BrowserWindow } from 'electron';
 import { app } from 'electron';
 import { ipcMain } from 'hadron-ipc';
-import createDebug from 'debug';
 import { CompassAutoUpdateManager } from './auto-update-manager';
 import { CompassLogging } from './logging';
 import { CompassTelemetry } from './telemetry';
@@ -12,11 +11,36 @@ import { CompassMenu } from './menu';
 import { setupCSFLELibrary } from './setup-csfle-library';
 import { setupPreferencesAndUserModel } from './setup-preferences-and-user-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
+import preferences from 'compass-preferences-model';
 
-const debug = createDebug('mongodb-compass:main:application');
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+
+const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
 type ExitHandler = () => Promise<unknown>;
 type CompassApplicationMode = 'CLI' | 'GUI';
+
+const getContext = () => {
+  return process.stdin.isTTY || process.stdout.isTTY || process.stderr.isTTY
+    ? 'terminal'
+    : 'desktop_app';
+};
+
+const getLaunchConnectionSource = (
+  file?: string,
+  positionalArguments?: string[]
+) => {
+  if (file) return 'JSON_file';
+  if (positionalArguments?.length) return 'string';
+  return 'none';
+};
+
+const hasConfig = (
+  source: 'global' | 'cli',
+  globalPreferences: ParsedGlobalPreferencesResult
+) => {
+  return !!Object.keys(globalPreferences[source]).length;
+};
 
 class CompassApplication {
   private constructor() {
@@ -28,9 +52,14 @@ class CompassApplication {
   private static initPromise: Promise<void> | null = null;
   private static mode: CompassApplicationMode | null = null;
 
-  private static async _init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult) {
+  private static async _init(
+    mode: CompassApplicationMode,
+    globalPreferences: ParsedGlobalPreferencesResult
+  ) {
     if (this.mode !== null && this.mode !== mode) {
-      throw new Error(`Cannot re-initialize Compass in different mode (${mode} vs previous ${this.mode})`);
+      throw new Error(
+        `Cannot re-initialize Compass in different mode (${mode} vs previous ${this.mode})`
+      );
     }
     this.mode = mode;
 
@@ -54,9 +83,13 @@ class CompassApplication {
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
     this.setupWindowManager();
+    this.trackApplicationLaunched(globalPreferences);
   }
 
-  static init(mode: CompassApplicationMode, globalPreferences: ParsedGlobalPreferencesResult): Promise<void> {
+  static init(
+    mode: CompassApplicationMode,
+    globalPreferences: ParsedGlobalPreferencesResult
+  ): Promise<void> {
     return (this.initPromise ??= this._init(mode, globalPreferences));
   }
 
@@ -82,6 +115,29 @@ class CompassApplication {
 
   private static setupWindowManager(): void {
     void CompassWindowManager.init(this);
+  }
+
+  private static trackApplicationLaunched(
+    globalPreferences: ParsedGlobalPreferencesResult
+  ): void {
+    const {
+      protectConnectionStrings,
+      readOnly,
+      file,
+      positionalArguments,
+      maxTimeMS,
+    } = preferences.getPreferences();
+
+    debug('application launched');
+    track('Application Launched', {
+      context: getContext(),
+      launch_connection: getLaunchConnectionSource(file, positionalArguments),
+      protected: protectConnectionStrings,
+      readOnly,
+      maxTimeMS,
+      global_config: hasConfig('global', globalPreferences),
+      cli_args: hasConfig('cli', globalPreferences),
+    });
   }
 
   private static setupLifecycleListeners(): void {
@@ -123,7 +179,8 @@ class CompassApplication {
     const home = app.getPath('home');
     const appData = process.env.LOCALAPPDATA || process.env.APPDATA;
     const logDir =
-      process.env.MONGODB_COMPASS_TEST_LOG_DIR ?? (process.platform === 'win32'
+      process.env.MONGODB_COMPASS_TEST_LOG_DIR ??
+      (process.platform === 'win32'
         ? path.join(appData || home, 'mongodb', 'compass')
         : path.join(home, '.mongodb', 'compass'));
 
