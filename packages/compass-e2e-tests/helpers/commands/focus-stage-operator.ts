@@ -11,7 +11,13 @@ export async function focusStageOperator(
   await browser.waitUntil(async () => {
     const inputElement = await browser.$(comboboxInputSelector);
     const isFocused = await inputElement.isFocused();
-    return isFocused === true;
+    if (isFocused === true) {
+      return true;
+    } else {
+      // try to click again
+      await inputElement.click();
+      return false;
+    }
   });
 
   const stageSelectorListBoxElement = await browser.$(

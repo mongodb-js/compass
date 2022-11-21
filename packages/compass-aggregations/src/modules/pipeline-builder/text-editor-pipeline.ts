@@ -14,6 +14,7 @@ import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
@@ -224,7 +225,7 @@ export const loadPreviewForPipeline = (
       });
 
       const options: PreviewOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS ?? DEFAULT_MAX_TIME_MS),
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,

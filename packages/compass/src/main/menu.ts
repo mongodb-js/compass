@@ -45,24 +45,26 @@ function settingsDialogItem(): MenuItemConstructorOptions {
 
 function themeSubmenuItems(): MenuItemConstructorOptions[] {
   const currentTheme = preferences.getPreferences().theme;
-  return ([
-    ['OS_THEME', 'Use OS Theme (Preview)'],
-    ['DARK', 'Dark Theme (Preview)'],
-    ['LIGHT', 'Light Theme']
-  ] as const).map(([theme, label]) => ({
+  return (
+    [
+      ['OS_THEME', 'Use OS Theme (Preview)'],
+      ['DARK', 'Dark Theme (Preview)'],
+      ['LIGHT', 'Light Theme'],
+    ] as const
+  ).map(([theme, label]) => ({
     label,
-    click: function() {
+    click: function () {
       void preferences.savePreferences({ theme });
     },
     type: 'checkbox',
-    checked: theme === currentTheme
+    checked: theme === currentTheme,
   }));
 }
 
 function themeMenuItem(): MenuItemConstructorOptions {
   return {
     label: 'Theme',
-    submenu: themeSubmenuItems()
+    submenu: themeSubmenuItems(),
   };
 }
 
@@ -137,7 +139,7 @@ function connectSubMenu(
       click() {
         ipcMain.broadcastFocused('compass:open-export-connections');
       },
-    }
+    },
   ];
 
   if (nonDarwin) {
@@ -350,14 +352,7 @@ function viewSubMenu(): MenuItemConstructorOptions {
         },
       },
       separator(),
-      ...(
-        process.platform === 'darwin'
-          ? []
-          : [
-            themeMenuItem(),
-            separator()
-          ]
-      ),
+      ...(process.platform === 'darwin' ? [] : [themeMenuItem(), separator()]),
       {
         label: '&Toggle DevTools',
         accelerator: 'Alt+CmdOrCtrl+I',
@@ -460,9 +455,9 @@ class CompassMenu {
       'window:hide-collection-submenu': this.hideCollection.bind(this),
     });
 
-    preferences.onPreferenceValueChanged('theme', newTheme => {
+    preferences.onPreferenceValueChanged('theme', (newTheme) => {
       track('Theme Changed', {
-        theme: newTheme
+        theme: newTheme,
       });
 
       this.refreshMenu();
@@ -586,9 +581,12 @@ class CompassMenu {
     const template = this.getTemplate(currentWindowMenuId);
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
-  }
+  };
 
-  private static showCollection(_bw: BrowserWindow, { isReadOnly }: { isReadOnly: boolean }) {
+  private static showCollection(
+    _bw: BrowserWindow,
+    { isReadOnly }: { isReadOnly: boolean }
+  ) {
     this.updateMenu({ showCollection: true, isReadOnly });
   }
 

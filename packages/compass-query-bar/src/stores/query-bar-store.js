@@ -44,6 +44,7 @@ import {
 } from '../constants/query-bar-store';
 import configureQueryChangedStore from './query-changed-store';
 
+import preferences from 'compass-preferences-model';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-QUERY-BAR-UI');
 
@@ -398,6 +399,13 @@ const configureStore = (options = {}) => {
         // Things like { i: $} confuses queryParser and ultimately it sets
         // filter to '' whereas it has to be a {} (if valid) or false (if
         // invalid). Should probably be fixed in mongodb-query-parser, though.
+        return false;
+      }
+      if (
+        label === 'maxTimeMS' &&
+        input &&
+        input > preferences.getPreferences().maxTimeMS
+      ) {
         return false;
       }
       return validated;

@@ -1,5 +1,5 @@
 import * as babelParser from '@babel/parser';
-import type * as t from '@babel/types';
+import * as t from '@babel/types';
 import {
   isNodeDisabled,
   setNodeDisabled,
@@ -9,7 +9,8 @@ import {
   isStageLike,
 } from './pipeline-parser/stage-parser';
 import type { PipelineParserError } from './pipeline-parser/utils';
-import { parseEJSON } from './pipeline-parser/utils';
+import { generate } from './pipeline-parser/utils';
+import { parseShellBSON } from './pipeline-parser/utils';
 
 function createStageNode({
   key,
@@ -32,20 +33,6 @@ function createStageNode({
       } as t.ObjectProperty
     ]
   };
-}
-
-export function stageToString(operator: string, value: string, disabled: boolean): string {
-  const str = `{
-  ${operator}: ${value}
-}`;
-
-  if (!disabled) {
-    return str;
-  }
-
-  return str.split('\n')
-    .map((line) => `// ${line}`)
-    .join('\n');
 }
 
 let id = 0;
@@ -114,17 +101,54 @@ export default class Stage {
   }
 
   toString() {
-    return stageToString(
-      this.operator ?? '',
-      this.value ?? '',
-      this.disabled
-    );
+    let str = ''
+
+    if (!this.syntaxError) {
+      str = generate(this.node);
+    } else {
+      // In cases where stage contains syntax errors, we will not be able to just
+      // generate the source from node. Instead we will create a template and use
+      // current stage value and operator source to populate it while trying to
+      // preserve stage comments
+      const template = t.objectExpression([
+        t.objectProperty(
+          t.identifier('$$_STAGE_OPERATOR'),
+          t.identifier('$$_STAGE_VALUE')
+        )
+      ]);
+  
+      template.leadingComments = this.node.leadingComments;
+      template.trailingComments = this.node.trailingComments;
+  
+      if (t.isObjectExpression(this.node)) {
+        template.properties[0].leadingComments =
+          this.node.properties[0].leadingComments;
+        template.properties[0].trailingComments =
+          this.node.properties[0].trailingComments;
+      }
+  
+      str = generate(template, {
+        // To avoid trailing comma after the stage value placeholder
+        trailingComma: 'none'
+      })
+        .replace('$$_STAGE_OPERATOR', this.operator ?? '')
+        .replace('$$_STAGE_VALUE', this.value ?? '');
+    }
+
+    if (!this.disabled) {
+      return str;
+    }
+
+    return str
+      .split('\n')
+      .map((line) => (/^\s*\/\//.test(line) ? line : `// ${line}`))
+      .join('\n');
   }
 
   toBSON() {
     if (this.disabled) {
       return null;
     }
-    return parseEJSON(this.toString());
+    return parseShellBSON(this.toString());
   }
 }

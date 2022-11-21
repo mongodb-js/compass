@@ -10,7 +10,7 @@ import preferences from 'compass-preferences-model';
 const setupIpc = () => {
   let savedPreferences = {};
   Object.assign(require('hadron-ipc').ipcRenderer, {
-    invoke: async(name, attributes) => {
+    invoke: async (name: string, attributes: any) => {
       if (name === 'compass:save-preferences') {
         savedPreferences = { ...savedPreferences, ...attributes };
         await preferences.refreshPreferences();
@@ -19,24 +19,16 @@ const setupIpc = () => {
         await preferences.refreshPreferences();
       }
       return savedPreferences;
-    }
+    },
   });
 };
 
-async function testRunSetupIntercom(
-  user: {
-    id: string;
-    createdAt: Date;
-  }
-) {
+async function testRunSetupIntercom(user: { id: string; createdAt: Date }) {
   const intercomScript = {
     load: sinon.spy(),
     unload: sinon.spy(),
   };
-  await setupIntercom(
-    user,
-    intercomScript as unknown as IntercomScript
-  );
+  await setupIntercom(user, intercomScript as unknown as IntercomScript);
   return { intercomScript };
 }
 
@@ -46,7 +38,7 @@ const mockUser = {
 };
 
 describe('setupIntercom', function () {
-  let backupEnv;
+  let backupEnv: Partial<typeof process.env>;
   let fetchMock: SinonStub;
 
   before(function () {
@@ -62,7 +54,7 @@ describe('setupIntercom', function () {
       NODE_ENV: process.env.NODE_ENV,
     };
 
-    process.env.HADRON_PRODUCT_NAME = 'My App Name';
+    process.env.HADRON_PRODUCT_NAME = 'My App Name' as any;
     process.env.HADRON_APP_VERSION = 'v0.0.0-test.123';
     process.env.NODE_ENV = 'test';
     process.env.HADRON_METRICS_INTERCOM_APP_ID = 'appid123';
@@ -80,20 +72,21 @@ describe('setupIntercom', function () {
   afterEach(function () {
     process.env.HADRON_METRICS_INTERCOM_APP_ID =
       backupEnv.HADRON_METRICS_INTERCOM_APP_ID;
-    process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME;
-    process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION;
+    process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME as any;
+    process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION as any;
     process.env.NODE_ENV = backupEnv.NODE_ENV;
     fetchMock.restore();
   });
 
   describe('when it can be enabled', function () {
     it('calls intercomScript.load when feedback gets enabled and intercomScript.unload when feedback gets disabled', async function () {
-      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
-        enableFeedbackPanel: true,
-      });
-      const { intercomScript } = await testRunSetupIntercom(
-        mockUser
+      await require('hadron-ipc').ipcRenderer.invoke(
+        'compass:save-preferences',
+        {
+          enableFeedbackPanel: true,
+        }
       );
+      const { intercomScript } = await testRunSetupIntercom(mockUser);
 
       expect(intercomScript.load).to.have.been.calledWith({
         app_id: 'appid123',
@@ -104,23 +97,31 @@ describe('setupIntercom', function () {
         user_id: 'user-123',
       });
 
-      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
-        enableFeedbackPanel: false,
-      });
-      await require('hadron-ipc').ipcRenderer.emit('compass:preferences-changed', {}, {
-        enableFeedbackPanel: false,
-      });
+      await require('hadron-ipc').ipcRenderer.invoke(
+        'compass:save-preferences',
+        {
+          enableFeedbackPanel: false,
+        }
+      );
+      await require('hadron-ipc').ipcRenderer.emit(
+        'compass:preferences-changed',
+        {},
+        {
+          enableFeedbackPanel: false,
+        }
+      );
 
       expect(intercomScript.unload).to.have.been.called;
     });
 
     it('calls intercomScript.unload when feedback gets disabled', async function () {
-      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
-        enableFeedbackPanel: false,
-      });
-      const { intercomScript } = await testRunSetupIntercom(
-        mockUser
+      await require('hadron-ipc').ipcRenderer.invoke(
+        'compass:save-preferences',
+        {
+          enableFeedbackPanel: false,
+        }
       );
+      const { intercomScript } = await testRunSetupIntercom(mockUser);
       expect(intercomScript.load).not.to.have.been.called;
       expect(intercomScript.unload).to.have.been.called;
     });
@@ -128,23 +129,27 @@ describe('setupIntercom', function () {
 
   describe('when cannot be enabled', function () {
     async function expectSetupGetsSkipped() {
-      const { intercomScript } = await testRunSetupIntercom(
-        mockUser
-      );
+      const { intercomScript } = await testRunSetupIntercom(mockUser);
 
       expect(intercomScript.load).to.not.have.been.called;
 
-      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
-        enableFeedbackPanel: true,
-      });
+      await require('hadron-ipc').ipcRenderer.invoke(
+        'compass:save-preferences',
+        {
+          enableFeedbackPanel: true,
+        }
+      );
 
       expect(intercomScript.load).to.not.have.been.called;
     }
 
     it('will not enable the script when is compass isolated', async function () {
-      await require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
-        enableFeedbackPanel: false,
-      });
+      await require('hadron-ipc').ipcRenderer.invoke(
+        'compass:save-preferences',
+        {
+          enableFeedbackPanel: false,
+        }
+      );
       await expectSetupGetsSkipped();
     });
 

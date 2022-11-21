@@ -2,10 +2,11 @@ import { expect } from 'chai';
 import os from 'os';
 import { promises as fs } from 'fs';
 
+import type { OsInfo } from './get-os-info';
 import { getOsInfo } from './get-os-info';
 
 describe('get-os-info', function () {
-  let osInfo;
+  let osInfo: OsInfo;
   beforeEach(async function () {
     osInfo = await getOsInfo();
   });
@@ -37,10 +38,10 @@ describe('get-os-info', function () {
         .map((l) => l.split('='));
 
       const distroId = releaseKv
-        .find(([k]) => k === 'ID')[1]
+        .find(([k]) => k === 'ID')?.[1]
         .replace(/["']/g, '');
       const distroVer = releaseKv
-        .find(([k]) => k === 'VERSION_ID')[1]
+        .find(([k]) => k === 'VERSION_ID')?.[1]
         .replace(/["']/g, '');
 
       // check that we test against actual values and not just an empty string

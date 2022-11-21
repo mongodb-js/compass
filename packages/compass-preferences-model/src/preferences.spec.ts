@@ -260,4 +260,36 @@ describe('Preferences class', function () {
       trackUsageStatistics: 'hardcoded',
     });
   });
+
+  it('can create sandbox preferences instances that do not affect the main preference instance', async function () {
+    const mainPreferences = new Preferences(tmpdir, {
+      cli: {
+        enableMaps: true,
+      },
+      global: {
+        trackErrors: true,
+      },
+    });
+    await mainPreferences.savePreferences({ trackUsageStatistics: true });
+    const sandbox = await Preferences.CreateSandbox(
+      await mainPreferences.getPreferenceSandboxProperties()
+    );
+
+    await sandbox.savePreferences({ readOnly: true });
+    expect((await sandbox.fetchPreferences()).readOnly).to.equal(true);
+    expect((await mainPreferences.fetchPreferences()).readOnly).to.equal(false);
+
+    const mainPreferencesStates = mainPreferences.getPreferenceStates();
+    expect(mainPreferencesStates).to.deep.equal({
+      trackErrors: 'set-global',
+      enableMaps: 'set-cli',
+    });
+
+    const sandboxPreferencesStates = sandbox.getPreferenceStates();
+    expect(sandboxPreferencesStates).to.deep.equal({
+      trackErrors: 'set-global',
+      enableMaps: 'set-cli',
+      enableShell: 'derived',
+    });
+  });
 });

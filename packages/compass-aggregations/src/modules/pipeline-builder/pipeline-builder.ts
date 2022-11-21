@@ -5,7 +5,7 @@ import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
-import { parseEJSON, PipelineParserError } from './pipeline-parser/utils';
+import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
 import { isLastStageOutputStage } from '../../utils/stage';
 
@@ -43,7 +43,7 @@ export class PipelineBuilder {
 
   private parseSourceToPipeline() {
     try {
-      this.pipeline = parseEJSON(this.source);
+      this.pipeline = parseShellBSON(this.source);
     } catch (e) {
       this.pipeline = null;
     }
@@ -119,10 +119,7 @@ export class PipelineBuilder {
         'Trying to generate source from stages with invalid pipeline'
       );
     }
-    this.source = PipelineParser.generate(
-      this.node,
-      this.stages.map((stage) => stage.node)
-    );
+    this.source = PipelineParser.generate(this.node, this.stages);
     this.validateSource();
   }
 
@@ -165,9 +162,13 @@ export class PipelineBuilder {
    * errors
    */
   getPipelineStringFromStages(stages = this.stages): string {
-    const stage = stages.find((stage) => stage.syntaxError);
-    if (stage) {
-      throw stage.syntaxError;
+    const enabledStageWithError = stages.find(
+      (stage) => !stage.disabled && stage.syntaxError
+    );
+    // We don't care if disabled stages have errors because they will be
+    // converted to commented out code anyway
+    if (enabledStageWithError) {
+      throw enabledStageWithError.syntaxError;
     }
     const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
     return prettify(code);
@@ -185,7 +186,7 @@ export class PipelineBuilder {
    * contains errors
    */
   getPipelineFromStages(stages = this.stages): Document[] {
-    return parseEJSON(this.getPipelineStringFromStages(stages));
+    return parseShellBSON(this.getPipelineStringFromStages(stages));
   }
 
   /**

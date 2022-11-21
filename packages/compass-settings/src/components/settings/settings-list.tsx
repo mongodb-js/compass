@@ -107,7 +107,6 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
   const handleChangeEvent = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target;
-      // @ts-expect-error this fails unless there are actual numeric settings defined
       handleChange(name, value === '' ? (required ? 0 : undefined) : +value);
     },
     [name, handleChange, required]
@@ -118,7 +117,6 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
       <SettingLabel name={name} />
       <TextInput
         className={inputStyles}
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         aria-labelledby={`${name}-label`}
         id={name}
         name={name}
