@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
 import { preferencesAccess as preferences } from 'compass-preferences-model';
+import type { THEMES } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
@@ -460,7 +461,7 @@ class CompassMenu {
       'window:hide-collection-submenu': this.hideCollection.bind(this),
     });
 
-    preferences.onPreferenceValueChanged('theme', (newTheme: boolean) => {
+    preferences.onPreferenceValueChanged('theme', (newTheme: THEMES) => {
       track('Theme Changed', {
         theme: newTheme,
       });
