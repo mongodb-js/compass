@@ -3,8 +3,12 @@ import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { map, isBoolean, camelCase } from 'lodash';
 import d3 from 'd3';
-import { Button } from 'react-bootstrap';
-import { Code, palette } from '@mongodb-js/compass-components';
+import {
+  Button,
+  Code,
+  Subtitle,
+  palette,
+} from '@mongodb-js/compass-components';
 
 import styles from './explain-stage.module.less';
 
@@ -94,12 +98,9 @@ class ExplainStage extends Component {
       }
 
       return (
-        <li
-          key={camelCase(name)}
-          className={classnames(styles['key-value-pair'])}
-        >
-          <span className={classnames(styles.key)}>{name}</span>
-          <span className={classnames(styles.value)}>{value}</span>
+        <li key={camelCase(name)} className={styles['key-value-pair']}>
+          <span className={styles.key}>{name}</span>
+          <span className={styles.value}>{value}</span>
         </li>
       );
     });
@@ -206,9 +207,9 @@ class ExplainStage extends Component {
           left,
         }}
       >
-        <h3 className={classnames(styles['stage-header'])}>
+        <Subtitle className={styles['stage-header']}>
           {this.props.name}
-        </h3>
+        </Subtitle>
       </div>
     );
   }
@@ -227,24 +228,22 @@ class ExplainStage extends Component {
     return (
       <div
         data-testid="explain-stage"
-        className={classnames(styles['explain-stage'])}
+        className={styles['explain-stage']}
         style={{
           zIndex: this.state.detailsOpen ? this.getNewZIndex() : 'initial',
           top,
           left,
         }}
       >
-        <h3 className={classnames(styles['stage-header'])}>
+        <Subtitle className={styles['stage-header']}>
           {this.props.name}
-        </h3>
-        <ul className={classnames(styles.core)}>
+        </Subtitle>
+        <ul className={styles.core}>
           <li
             className={classnames(styles['key-value-pair'], styles.nReturned)}
           >
-            <span className={classnames(styles.key)}>nReturned</span>
-            <span className={classnames(styles.value)}>
-              {this.props.nReturned}
-            </span>
+            <span className={styles.key}>nReturned</span>
+            <span className={styles.value}>{this.props.nReturned}</span>
           </li>
           <li
             className={classnames(
@@ -252,15 +251,15 @@ class ExplainStage extends Component {
               styles['exec-time']
             )}
           >
-            <span className={classnames(styles.key)}>Execution Time</span>
-            <span className={classnames(styles.value)}>
+            <span className={styles.key}>Execution Time</span>
+            <span className={styles.value}>
               <div
-                className={classnames(styles.clock)}
+                className={styles.clock}
                 ref={(inst) => {
                   clock = inst;
                 }}
               >
-                <div className={classnames(styles.face)}>
+                <div className={styles.face}>
                   <span>{deltaExecTime}</span>
                   ms
                 </div>
@@ -268,15 +267,12 @@ class ExplainStage extends Component {
             </span>
           </li>
         </ul>
-        <ul className={classnames(styles.highlighted)}>
-          {this.getHighlightSections()}
-        </ul>
+        <ul className={styles.highlighted}>{this.getHighlightSections()}</ul>
         <div className={styles.details}>
           <Button
             type="button"
-            bsSize="xsmall"
-            bsStyle="default"
-            className={this.state.detailsOpen ? 'active' : ''}
+            size="xsmall"
+            variant="default"
             onClick={this.detailsButtonClicked.bind(this)}
           >
             Details
