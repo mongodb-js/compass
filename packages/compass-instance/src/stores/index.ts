@@ -52,7 +52,13 @@ function reducer(
         isDataLake: action.instance.dataLake.isDataLake,
       };
     case 'reset':
-      return { ...state, ...INITIAL_STATE, appRegistry: state.appRegistry };
+      return {
+        ...state,
+        ...INITIAL_STATE,
+        appRegistry: state.appRegistry,
+        tabs:
+          state.appRegistry.globalAppRegistry?.getRole('Instance.Tab') ?? [],
+      };
     case 'change-tab':
       return { ...state, activeTabId: action.id };
     default:
