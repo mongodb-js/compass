@@ -46,11 +46,9 @@ async function selectFieldType(
   fieldName: string,
   fieldType: string
 ) {
-  const selectElement = await browser.$(
+  await browser.clickVisible(
     Selectors.importPreviewFieldHeaderSelect(fieldName)
   );
-  await selectElement.waitForDisplayed();
-  await selectElement.click();
 
   const fieldTypeSelectMenu = await browser.$(
     Selectors.importPreviewFieldHeaderSelectMenu(fieldName)
@@ -58,9 +56,14 @@ async function selectFieldType(
   await fieldTypeSelectMenu.waitForDisplayed();
 
   const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(`span=${fieldType}`);
-
   await fieldTypeSelectSpan.waitForDisplayed();
   await fieldTypeSelectSpan.click();
+
+  // Wait so that the menu animation can complete.
+  // Without this clicking multiple select menus bugs out.
+  await fieldTypeSelectMenu.waitForDisplayed({
+    reverse: true,
+  });
 }
 
 async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
@@ -565,10 +568,21 @@ describe('Collection import', function () {
       return selected === 'true';
     });
 
-    const selectImportDelimiter = await browser.$(Selectors.ImportDelimiter);
-    await selectImportDelimiter.waitForDisplayed();
-    await selectImportDelimiter.scrollIntoView();
-    await selectImportDelimiter.selectByAttribute('value', ';');
+    const importDelimiterSelectButton = await browser.$(
+      Selectors.ImportDelimiterSelect
+    );
+    await importDelimiterSelectButton.waitForDisplayed();
+    await importDelimiterSelectButton.click();
+
+    const importDelimiterSelectMenu = await browser.$(
+      Selectors.ImportDelimiterMenu
+    );
+    await importDelimiterSelectMenu.waitForDisplayed();
+    const delimiterSelectSpan = await importDelimiterSelectMenu.$(
+      'span=semicolon'
+    );
+    await delimiterSelectSpan.waitForDisplayed();
+    await delimiterSelectSpan.click();
 
     // pick some types
     const typeMapping = {

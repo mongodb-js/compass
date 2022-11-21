@@ -538,7 +538,8 @@ export const incompleteSchemaForClonedDocMsg =
 // Import File modal
 
 export const ImportModal = '[data-testid="import-modal"]';
-export const ImportDelimiter = '[id="import-delimiter-select"]';
+export const ImportDelimiterSelect = '[data-testid="import-delimiter-select"]';
+export const ImportDelimiterMenu = '[id="import-delimiter-select-menu"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';

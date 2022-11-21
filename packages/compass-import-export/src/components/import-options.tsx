@@ -113,6 +113,7 @@ function ImportOptions({
             className={delimiterSelectStyles}
             label="Delimeter"
             id="import-delimiter-select"
+            data-testid="import-delimiter-select"
             onChange={(delimiter: string) =>
               setDelimiter(delimiter as CSVDelimiter)
             }
