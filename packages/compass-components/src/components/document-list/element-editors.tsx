@@ -379,7 +379,7 @@ export const TypeEditor: React.FunctionComponent<{
           </select>
           <Icon
             glyph="ChevronDown"
-            size={11}
+            size="xsmall"
             className={typeEditorChevron}
           ></Icon>
         </div>

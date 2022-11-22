@@ -460,7 +460,7 @@ export const HadronElement: React.FunctionComponent<{
               }}
             >
               <Icon
-                size={11}
+                size="xsmall"
                 glyph={expanded ? 'CaretDown' : 'CaretRight'}
               ></Icon>
             </button>

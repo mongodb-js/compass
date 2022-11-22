@@ -39,7 +39,7 @@ class BreadcrumbComponent extends React.PureComponent {
         >
           <Icon
             glyph="Home"
-            size={11}
+            size="xsmall"
             className={`${BEM_BASE}-home-icon`}
           ></Icon>
           {this.props.collection}

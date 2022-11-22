@@ -513,7 +513,7 @@ class CellEditor extends React.Component {
         size="xsmall"
         onClick={this.handleRemoveField.bind(this)}
       >
-        <Icon glyph="Trash" size={11}></Icon>
+        <Icon glyph="Trash" size="xsmall"></Icon>
       </Button>
     );
   }
