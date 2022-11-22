@@ -16,6 +16,7 @@ const renderPipelineEditor = (
   render(
     <Provider store={configureStore(storeOptions)}>
       <PipelinePreview
+        isPreviewStale={false}
         isMergeStage={false}
         isOutStage={false}
         isLoading={false}
@@ -161,5 +162,23 @@ describe('PipelinePreview', function () {
     );
     const container = screen.getByTestId('pipeline-as-text-preview');
     expect(within(container).getByTestId('atlas-only-stage-preview')).to.exist;
-  })
+  });
+
+  describe('stale preview', function () {
+    const staleMessage = /Output outdated and no longer in sync./;
+    it('does not render stale banner when preview docs is null', function() {
+      renderPipelineEditor({ isPreviewStale: true, previewDocs: null });
+      expect(screen.queryByText(staleMessage)).to.not.exist;
+    });
+    
+    it('does not render stale banner when preview docs is empty', function() {
+      renderPipelineEditor({ isPreviewStale: true, previewDocs: [] });
+      expect(screen.queryByText(staleMessage)).to.not.exist;
+    });
+
+    it('renders stale banner when preview is stale', function () {
+      renderPipelineEditor({ isPreviewStale: true, previewDocs: [{_id: 1}] });
+      expect(screen.getByText(staleMessage)).to.exist;
+    });
+  });
 });

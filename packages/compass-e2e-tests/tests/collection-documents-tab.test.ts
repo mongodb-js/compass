@@ -481,7 +481,9 @@ FindIterable<Document> result = collection.find(filter);`);
     const value = await document.$('[col-id="j"] .element-value');
     await value.doubleClick();
 
-    const input = await document.$('[col-id="j"] input.editable-element-value');
+    const input = await document.$(
+      '[col-id="j"] [data-testid="table-view-cell-editor-value-input"]'
+    );
     await input.setValue('-100');
 
     const footer = await browser.$(Selectors.DocumentFooterMessage);
