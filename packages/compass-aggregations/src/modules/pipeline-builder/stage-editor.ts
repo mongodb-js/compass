@@ -386,6 +386,7 @@ export const changeStageOperator = (
       num_stages: stages.length,
       stage_action: 'stage_renamed',
       stage_name: stage.operator,
+      stage_index: id + 1,
       editor_view_type: 'stage',
     });
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
@@ -440,6 +441,7 @@ export const addStage = (
     track('Aggregation Edited', {
       num_stages: getState().pipelineBuilder.stageEditor.stages.length,
       stage_action: 'stage_added',
+      stage_index: stage.id + 1,
       editor_view_type: 'stage',
     });
     dispatch({ type: StageEditorActionTypes.StageAdded, after, stage });
@@ -456,6 +458,7 @@ export const removeStage = (
       num_stages,
       stage_action: 'stage_deleted',
       stage_name: stage.operator,
+      stage_index: at + 1,
       editor_view_type: 'stage',
     });
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
@@ -476,6 +479,7 @@ export const moveStage = (
       num_stages: pipeline.length,
       stage_action: 'stage_reordered',
       stage_name: pipeline[from].stageOperator,
+      stage_index: from + 1,
       editor_view_type: 'stage',
     });
     pipelineBuilder.moveStage(from, to);
