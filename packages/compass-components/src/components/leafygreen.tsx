@@ -201,7 +201,7 @@ const Icon = ({
   size,
   ...rest
 }: Omit<React.ComponentProps<typeof LeafyGreenIcon>, 'size'> & {
-  size: LeafyGreenIconSize | 'xsmall' | number;
+  size?: LeafyGreenIconSize | 'xsmall' | number;
 }) => {
   size = size === 'xsmall' ? 11 : size;
   return <LeafyGreenIcon size={size} {...rest} />;
