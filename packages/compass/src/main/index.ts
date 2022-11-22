@@ -37,7 +37,9 @@ void main();
 
 async function main(): Promise<void> {
   if ((await import('electron-squirrel-startup')).default) {
-    process.stderr.write('electron-squirrel-startup event handled sucessfully\n');
+    process.stderr.write(
+      'electron-squirrel-startup event handled sucessfully\n'
+    );
     return;
   }
 
