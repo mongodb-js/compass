@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { FormModal, css, cx, spacing } from '@mongodb-js/compass-components';
+import { FormModal, TextInput } from '@mongodb-js/compass-components';
 
 /**
  * Saving pipeline modal.
@@ -62,13 +62,12 @@ class SavingPipelineModal extends PureComponent {
         trackingId="save_pipeline_modal"
         data-testid="save-pipeline-modal"
       >
-        <input
+        <TextInput
           id="save-pipeline-name"
-          type="text"
           value={this.props.name}
           onChange={this.onNameChanged.bind(this)}
-          className={cx('form-control', css({ marginTop: spacing[1] }))}
-          placeholder="Untitled"
+          label="Name"
+          name="name"
         />
       </FormModal>
     );
