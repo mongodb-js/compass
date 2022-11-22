@@ -654,6 +654,7 @@ class DocumentTableView extends React.Component {
         drillDown: this.props.drillDown,
         parentType: '',
         tz: this.props.tz,
+        darkMode: this.props.darkMode,
       },
       editable: false,
       cellEditorFramework: CellEditor,
@@ -721,6 +722,7 @@ class DocumentTableView extends React.Component {
         drillDown: this.props.drillDown,
         parentType: parentType,
         tz: this.props.tz,
+        darkMode: this.props.darkMode,
       },
 
       editable: function (params) {

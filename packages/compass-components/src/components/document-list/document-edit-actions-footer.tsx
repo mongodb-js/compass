@@ -245,7 +245,7 @@ function getColorStyles(
       };
     default:
       return {
-        backgroundColor: darkMode ? palette.yellow.base : palette.yellow.light2,
+        backgroundColor: palette.yellow.light2,
         color: palette.yellow.dark3,
       };
   }
