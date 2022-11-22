@@ -490,7 +490,7 @@ class CellEditor extends React.Component {
         size="xsmall"
         onClick={this.handleDrillDown.bind(this)}
       >
-        <Icon glyph="OpenNewTab" size={11}></Icon>
+        <Icon glyph="OpenNewTab" size="xsmall"></Icon>
       </Button>
     );
   }
