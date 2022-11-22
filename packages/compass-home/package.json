@@ -6,6 +6,7 @@
   "description": "Home",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
+  "types": "dist/src/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
@@ -18,6 +19,7 @@
     "precompile": "npm run clean",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
+    "postcompile": "tsc --emitDeclarationOnly",
     "compile": "npm run webpack -- --mode production",
     "prettier": "prettier",
     "test": "mocha",
