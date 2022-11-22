@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { ImportPipeline } from './import-pipeline';
-import styles from './import-pipeline.module.less';
 
 describe('ImportPipeline [Component]', function() {
   let component;
@@ -43,7 +42,7 @@ describe('ImportPipeline [Component]', function() {
   });
 
   it('renders the note text', function() {
-    expect(component.find(`.${styles['import-pipeline-note']}`)).to.have.text(
+    expect(component.find('Banner')).to.have.text(
       'Supports MongoDB Shell syntax. Pasting a pipeline will create a new pipeline.'
     );
   });

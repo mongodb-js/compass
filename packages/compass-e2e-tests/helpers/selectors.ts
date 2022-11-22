@@ -722,7 +722,7 @@ export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [a
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create-view-modal"]';
-export const CreateViewNameInput = '#create-view-name';
+export const CreateViewNameInput = `${CreateViewModal} [data-testid="create-view-name"]`;
 
 // Save aggregation from pipeline modal
 export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
@@ -1025,7 +1025,7 @@ export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[typ
 
 // Duplicate view modal
 export const DuplicateViewModal = '[data-testid="duplicate-view-modal"]';
-export const DuplicateViewModalTextInput = `${DuplicateViewModal} #create-view-name`;
+export const DuplicateViewModalTextInput = `${DuplicateViewModal} [data-testid="create-view-name"]`;
 export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} button[type="submit"]`;
 
 // Modify view

@@ -2,8 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Banner, Body, FormModal, SpinLoader, css, spacing } from '@mongodb-js/compass-components';
-import { ModalInput } from 'hadron-react-components';
+import { Banner, Body, FormModal, SpinLoader, css, spacing, TextInput } from '@mongodb-js/compass-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
@@ -73,11 +72,12 @@ class CreateViewModal extends PureComponent {
         trackingId="create_view_modal"
         data-testid="create-view-modal"
       >
-        <ModalInput
-          id="create-view-name"
-          name="Enter a View Name"
+        <TextInput
+          data-testid="create-view-name"
           value={this.props.name || ''}
-          onChangeHandler={this.onNameChange}
+          onChange={this.onNameChange}
+          label="Name"
+          name="name"
         />
         {this.props.error ? (
           <Banner
