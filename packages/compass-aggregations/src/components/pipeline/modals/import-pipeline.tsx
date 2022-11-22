@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { FormModal, Banner } from '@mongodb-js/compass-components';
+import { FormModal, Banner, css, spacing } from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
   Editor,
@@ -15,6 +15,10 @@ import {
 import type { RootState } from '../../../modules';
 import styles from './import-pipeline.module.less';
 import { connect } from 'react-redux';
+
+const bannerStyles = css({
+  marginBottom: spacing[3]
+});
 
 function useAggregationCompleter(
   ...args: ConstructorParameters<typeof AggregationAutoCompleter>
@@ -70,7 +74,7 @@ export const ImportPipeline: React.FunctionComponent<{
       trackingId="import_pipeline_modal"
       data-testid="import-pipeline-modal"
     >
-      <Banner>
+      <Banner className={bannerStyles}>
         Supports MongoDB Shell syntax. Pasting a pipeline will create a new
         pipeline.
       </Banner>
