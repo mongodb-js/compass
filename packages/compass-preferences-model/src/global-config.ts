@@ -130,6 +130,10 @@ function parseCliArgs(argv: string[]): unknown {
     result.positionalArguments = result._;
   }
   delete (result as any)._;
+  for (const key of Object.keys(result)) {
+    // Remove command line flags added by the Windows .exe installer.
+    if (key.startsWith('squirrel')) delete (result as any)[key];
+  }
   return result;
 }
 
@@ -221,10 +225,12 @@ export async function parseAndValidateGlobalPreferences(
   }
   const cliPreferences = parseCliArgs(argv);
   if (cliPreferences && typeof cliPreferences === 'object') {
-    // Remove common Electron/Chromium flags that we want to allow.
-    const ignoreFlags = ['disableGpu', 'sandbox'];
-    for (const flag of ignoreFlags) {
-      delete (cliPreferences as Record<string, unknown>)[flag];
+    // Remove common Electron/Chromium/Installer flags that we want to allow.
+    const ignoreFlags = /^(disableGpu$|sandbox$|squirrel)/;
+    for (const key of Object.keys(cliPreferences)) {
+      if (key.match(ignoreFlags)) {
+        delete (cliPreferences as Record<string, unknown>)[key];
+      }
     }
   }
 
