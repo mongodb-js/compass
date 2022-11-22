@@ -178,7 +178,6 @@ FindIterable<Document> result = collection.find(filter);`);
               protectConnectionStrings,
               autoUpdates: false,
               enableMaps: false,
-              trackErrors: false,
               trackUsageStatistics: false,
               enableFeedbackPanel: false,
               networkTraffic: false,
