@@ -8,7 +8,8 @@ import {
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
-
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 import styles from './stage-editor.module.less';
 
 /**
@@ -24,6 +25,7 @@ export class StageEditor extends PureComponent {
     autocompleteFields: PropTypes.array.isRequired,
     syntaxError: PropTypes.object,
     serverError: PropTypes.object,
+    num_stages: PropTypes.number.isRequired,
   };
 
   static defaultProps = {
@@ -44,6 +46,7 @@ export class StageEditor extends PureComponent {
       this.props.stageOperator
     );
     this.editor = null;
+    this.initialValue = props.stageValue;
   }
 
   /**
@@ -72,8 +75,8 @@ export class StageEditor extends PureComponent {
           row: row - 1,
           column,
           text: this.props.syntaxError.message,
-          type: 'error'
-        }
+          type: 'error',
+        },
       ]);
     } else {
       this.editor?.getSession().setAnnotations([]);
@@ -88,6 +91,20 @@ export class StageEditor extends PureComponent {
    */
   onStageChange = (value) => {
     this.props.onChange(this.props.index, value);
+  };
+
+  onBlur = () => {
+    const value = this.editor?.getValue();
+    if (value !== this.initialValue) {
+      track('Aggregation Edited', {
+        num_stages: this.props.num_stages,
+        stage_index: this.props.index + 1,
+        stage_action: 'stage_content_changed',
+        stage_name: this.props.stageOperator,
+        editor_view_type: 'stage',
+      });
+      this.initialValue = value;
+    }
   };
 
   /**
@@ -147,6 +164,7 @@ export class StageEditor extends PureComponent {
             onLoad={(editor) => {
               this.editor = editor;
             }}
+            onBlur={this.onBlur}
           />
         </div>
         {this.renderSyntaxError()}
@@ -158,14 +176,17 @@ export class StageEditor extends PureComponent {
 
 export default connect(
   (state, ownProps) => {
-    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    const stages = state.pipelineBuilder.stageEditor.stages;
+    const stage = stages[ownProps.index];
+    const num_stages = stages.length;
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
       syntaxError: stage.syntaxError ?? null,
       serverError: stage.serverError ?? null,
       serverVersion: state.serverVersion,
-      autocompleteFields: state.fields
+      autocompleteFields: state.fields,
+      num_stages,
     };
   },
   { onChange: changeStageValue }
