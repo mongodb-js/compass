@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DocumentList } from '@mongodb-js/compass-components';
+import {
+  DocumentList,
+  Theme,
+  ThemeProvider,
+} from '@mongodb-js/compass-components';
 
 /**
  * The custom full-width cell renderer that renders the update/cancel bar
@@ -92,30 +96,37 @@ class FullWidthCellRenderer extends React.Component {
 
   render() {
     return (
-      <DocumentList.DocumentEditActionsFooter
-        doc={this.doc}
-        editing={this.state.mode === 'editing'}
-        deleting={this.state.mode === 'deleting'}
-        onUpdate={(force) => {
-          this.props.api.stopEditing();
-          if (force) {
-            this.props.replaceDocument(this.doc);
-          } else {
-            this.props.updateDocument(this.doc);
-          }
+      <ThemeProvider
+        theme={{
+          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
+          enabled: true,
         }}
-        onDelete={() => {
-          this.props.api.stopEditing();
-          this.props.removeDocument(this.doc);
-        }}
-        onCancel={() => {
-          if (this.state.mode === 'editing') {
-            this.handleCancelUpdate();
-          } else {
-            this.handleCancelRemove();
-          }
-        }}
-      />
+      >
+        <DocumentList.DocumentEditActionsFooter
+          doc={this.doc}
+          editing={this.state.mode === 'editing'}
+          deleting={this.state.mode === 'deleting'}
+          onUpdate={(force) => {
+            this.props.api.stopEditing();
+            if (force) {
+              this.props.replaceDocument(this.doc);
+            } else {
+              this.props.updateDocument(this.doc);
+            }
+          }}
+          onDelete={() => {
+            this.props.api.stopEditing();
+            this.props.removeDocument(this.doc);
+          }}
+          onCancel={() => {
+            if (this.state.mode === 'editing') {
+              this.handleCancelUpdate();
+            } else {
+              this.handleCancelRemove();
+            }
+          }}
+        />
+      </ThemeProvider>
     );
   }
 }
@@ -130,6 +141,7 @@ FullWidthCellRenderer.propTypes = {
   replaceDocument: PropTypes.func.isRequired,
   replaceDoc: PropTypes.func.isRequired,
   cleanCols: PropTypes.func.isRequired,
+  darkMode: PropTypes.bool,
 };
 
 FullWidthCellRenderer.displayName = 'FullWidthCellRenderer';

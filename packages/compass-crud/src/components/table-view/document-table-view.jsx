@@ -14,7 +14,7 @@ import CellEditor from './cell-editor';
 
 import './document-table-view.less';
 import './ag-grid-dist.css';
-import { cx, spacing } from '@mongodb-js/compass-components';
+import { cx, spacing, withTheme } from '@mongodb-js/compass-components';
 
 const MIXED = 'Mixed';
 
@@ -76,6 +76,7 @@ class DocumentTableView extends React.Component {
         removeDocument: this.props.removeDocument,
         replaceDocument: this.props.replaceDocument,
         updateDocument: this.props.updateDocument,
+        darkMode: this.props.darkMode,
       },
       getRowNodeId: function (data) {
         const fid = data.isFooter ? '1' : '0';
@@ -761,6 +762,7 @@ class DocumentTableView extends React.Component {
         elementMarkRemoved: this.props.elementMarkRemoved,
         drillDown: this.props.drillDown,
         tz: this.props.tz,
+        darkMode: this.props.darkMode,
       },
     };
   }
@@ -919,7 +921,12 @@ class DocumentTableView extends React.Component {
    */
   render() {
     return (
-      <div className="document-table-view-container">
+      <div
+        className={cx(
+          'document-table-view-container',
+          this.props.darkMode && 'document-table-view-container-darkmode'
+        )}
+      >
         <div className={cx('ag-parent', this.props.className)}>
           <BreadcrumbComponent
             collection={this.collection}
@@ -963,8 +970,9 @@ DocumentTableView.propTypes = {
   table: PropTypes.object.isRequired,
   tz: PropTypes.string.isRequired,
   className: PropTypes.string,
+  darkMode: PropTypes.bool,
 };
 
 DocumentTableView.displayName = 'DocumentTableView';
 
-export default DocumentTableView;
+export default withTheme(DocumentTableView);

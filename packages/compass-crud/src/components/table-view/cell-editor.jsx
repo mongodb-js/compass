@@ -17,6 +17,8 @@ import {
   Icon,
   spacing,
   TextInput,
+  Theme,
+  ThemeProvider,
 } from '@mongodb-js/compass-components';
 
 const EMPTY_TYPE = {
@@ -571,12 +573,19 @@ class CellEditor extends React.Component {
       this.element.currentType === 'Array';
 
     return (
-      <div className={BEM_BASE}>
-        {this.renderFieldName()}
-        {this.renderInput(showInput)}
-        {this.renderTypes(showTypes)}
-        {this.renderActions(showTypes, showInput, showExpand)}
-      </div>
+      <ThemeProvider
+        theme={{
+          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
+          enabled: true,
+        }}
+      >
+        <div className={BEM_BASE}>
+          {this.renderFieldName()}
+          {this.renderInput(showInput)}
+          {this.renderTypes(showTypes)}
+          {this.renderActions(showTypes, showInput, showExpand)}
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -600,6 +609,7 @@ CellEditor.propTypes = {
   drillDown: PropTypes.func.isRequired,
   eGridCell: PropTypes.any,
   tz: PropTypes.string.isRequired,
+  darkMode: PropTypes.bool,
 };
 
 CellEditor.displayName = 'CellEditor';
