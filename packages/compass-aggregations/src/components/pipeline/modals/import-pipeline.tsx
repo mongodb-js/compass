@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { FormModal } from '@mongodb-js/compass-components';
+import { FormModal, Banner } from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
   Editor,
@@ -70,10 +70,10 @@ export const ImportPipeline: React.FunctionComponent<{
       trackingId="import_pipeline_modal"
       data-testid="import-pipeline-modal"
     >
-      <div className={styles['import-pipeline-note']}>
+      <Banner>
         Supports MongoDB Shell syntax. Pasting a pipeline will create a new
         pipeline.
-      </div>
+      </Banner>
       <div className={styles['import-pipeline-editor']}>
         <Editor
           variant={EditorVariant.Shell}
