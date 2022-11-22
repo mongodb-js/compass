@@ -37,7 +37,7 @@ const PipelineResultsList: React.FunctionComponent<{
   return (
       <DocumentView
         {...listProps}
-        isExpanded={allDocsExpanded}
+        isExpanded={!!allDocsExpanded}
         className={containerStyles}
       />
   );

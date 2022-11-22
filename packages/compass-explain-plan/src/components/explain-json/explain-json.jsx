@@ -35,6 +35,7 @@ class ExplainJSON extends Component {
           <Document
             copyToClipboard={this.copyToClipboard}
             doc={doc}
+            editable={false}
             expandAll
           />
         </ol>
