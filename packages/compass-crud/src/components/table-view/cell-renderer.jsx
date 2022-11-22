@@ -327,6 +327,8 @@ class CellRenderer extends React.Component {
     }
 
     return (
+      // this is needed cause ag-grid renders this component outside
+      // of the context chain
       <ThemeProvider
         theme={{
           theme: this.props.darkMode ? Theme.Dark : Theme.Light,
