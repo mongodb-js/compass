@@ -167,15 +167,16 @@ export class PipelineBuilder {
    * errors
    */
   getPipelineStringFromStages(stages = this.stages): string {
+    const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    // We don't care if disabled stages have errors because they will be
+    // converted to commented out code anyway, but we will not be able to
+    // prettify the code if some stages contain syntax errors
     const enabledStageWithError = stages.find(
       (stage) => !stage.disabled && stage.syntaxError
     );
-    // We don't care if disabled stages have errors because they will be
-    // converted to commented out code anyway
     if (enabledStageWithError) {
-      throw enabledStageWithError.syntaxError;
+      return code;
     }
-    const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
     return prettify(code);
   }
 
@@ -183,6 +184,10 @@ export class PipelineBuilder {
    * Returns current source of the pipeline
    */
   getPipelineStringFromSource(): string {
+    // Can't prettify a string when it contains syntax errors
+    if (this.syntaxError.length > 0) {
+      return this.source;
+    }
     return prettify(this.source);
   }
 

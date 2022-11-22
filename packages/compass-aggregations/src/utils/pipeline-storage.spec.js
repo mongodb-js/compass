@@ -58,8 +58,8 @@ describe('PipelineStorage', function () {
     expect(aggregations[0]).to.have.property('lastModified');
     expect(aggregations[1]).to.have.property('lastModified');
 
-    expect(aggregations[0].pipelineText).to.equal('[\n\n]');
-    expect(aggregations[1].pipelineText).to.equal('[\n\n]');
+    expect(aggregations[0].pipelineText).to.equal('[]');
+    expect(aggregations[1].pipelineText).to.equal('[]');
 
     // Remove lastModified
     aggregations.map((x) => {
