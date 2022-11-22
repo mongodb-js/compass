@@ -96,7 +96,11 @@ export class StageEditor extends PureComponent {
 
   onBlur = () => {
     const value = this.editor?.getValue();
-    if (value !== this.initialValue) {
+    if (
+      this.initialValue !== undefined &&
+      value !== undefined &&
+      value !== this.initialValue
+    ) {
       track('Aggregation Edited', {
         num_stages: this.props.num_stages,
         stage_index: this.props.index + 1,
