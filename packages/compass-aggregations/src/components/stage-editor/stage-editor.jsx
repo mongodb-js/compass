@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/compass-editor';
 import { connect } from 'react-redux';
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
+
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 import styles from './stage-editor.module.less';
@@ -75,8 +76,8 @@ export class StageEditor extends PureComponent {
           row: row - 1,
           column,
           text: this.props.syntaxError.message,
-          type: 'error',
-        },
+          type: 'error'
+        }
       ]);
     } else {
       this.editor?.getSession().setAnnotations([]);
