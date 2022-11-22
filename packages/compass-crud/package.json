@@ -67,7 +67,6 @@
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.3.0",
     "hadron-document": "^8.0.1",
-    "hadron-react-buttons": "^6.0.2",
     "hadron-react-components": "^6.3.0",
     "hadron-type-checker": "^7.0.0",
     "react": "^16.14.0"
@@ -101,9 +100,7 @@
     "mongodb-runner": "^4.9.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
-    "react-click-outside": "^3.0.1",
     "react-dom": "^16.14.0",
-    "react-fontawesome": "^1.6.1",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^3.0.0",
@@ -117,7 +114,6 @@
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.3.0",
     "hadron-document": "^8.0.1",
-    "hadron-react-buttons": "^6.0.2",
     "hadron-react-components": "^6.3.0",
     "hadron-type-checker": "^7.0.0",
     "react": "^16.14.0"

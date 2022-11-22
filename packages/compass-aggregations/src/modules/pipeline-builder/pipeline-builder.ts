@@ -44,6 +44,11 @@ export class PipelineBuilder {
   private parseSourceToPipeline() {
     try {
       this.pipeline = parseShellBSON(this.source);
+      // parseShellBSON will parse various values, not all of them are valid
+      // aggregation pipelines
+      if (!Array.isArray(this.pipeline)) {
+        throw new Error('Pipeline should be an array');
+      }
     } catch (e) {
       this.pipeline = null;
     }

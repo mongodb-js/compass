@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 import d3 from 'd3';
@@ -101,7 +100,7 @@ class ExplainTree extends Component {
   render() {
     return (
       <div
-        className={classnames(styles['explain-tree'])}
+        className={styles['explain-tree']}
         style={{ height: this.props.height, width: this.props.width }}
         ref={(inst) => {
           tree = inst;

@@ -20,7 +20,7 @@ async function getCheckboxAndBannerState(
   const disabled = await checkbox.getAttribute('disabled');
   const value = await checkbox.getAttribute('aria-checked'); // .getValue() always returns 'on'?
   const banner = await browser.$(
-    `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"]`
+    `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"], ${settingSelector} [data-testid="derived-banner"]`
   );
   const bannerText = (await banner.isExisting())
     ? await banner.getText()
@@ -168,9 +168,8 @@ describe('Global preferences', function () {
   });
 
   it('allows setting readOnly: true and reflects that in the settings modal', async function () {
-    const compass = await beforeTests({
-      extraSpawnArgs: ['--read-only'],
-    });
+    await fs.writeFile(path.join(tmpdir, 'config'), 'readOnly: true\n');
+    const compass = await beforeTests();
     try {
       const browser = compass.browser;
       await browser.openSettingsModal();
@@ -183,7 +182,7 @@ describe('Global preferences', function () {
         expect(value).to.equal('true');
         expect(disabled).to.equal(''); // null = missing attribute, '' = set
         expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set at Compass startup.'
+          'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
       }
       {
@@ -194,7 +193,7 @@ describe('Global preferences', function () {
         expect(value).to.equal('false');
         expect(disabled).to.equal(''); // null = missing attribute, '' = set
         expect(bannerText).to.include(
-          'This setting cannot be modified as it has been set at Compass startup.'
+          'This setting cannot be modified as it has been set in the global Compass configuration file.'
         );
       }
       {

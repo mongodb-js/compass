@@ -3,7 +3,6 @@ import { mount } from 'enzyme';
 import { expect } from 'chai';
 
 import IndexDefinitionType from '../index-definition-type';
-import styles from './index-definition-type.module.less';
 
 describe('IndexDefinitionType [Component]', function () {
   let component;
@@ -18,8 +17,6 @@ describe('IndexDefinitionType [Component]', function () {
   });
 
   it('renders the correct root classname', function () {
-    expect(
-      component.find(`.${styles['index-definition-type']}`)
-    ).to.be.present();
+    expect(component.find('IndexDefinitionType')).to.be.present();
   });
 });

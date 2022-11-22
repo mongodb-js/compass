@@ -28,12 +28,27 @@ describe('PipelineBuilder', function () {
     expect(pipelineBuilder.source, 'resets to default value').to.deep.equal(DEFAULT_PIPELINE);
   });
 
-  it('changes source', function() {
-    const source = `[{$match: {name: /berlin/i}}]`;
-    pipelineBuilder.changeSource(source);
+  describe('changeSource', function () {
+    const tests = [
+      { source: `{}`, pipeline: null },
+      { source: `123`, pipeline: null },
+      { source: `true`, pipeline: null },
+      { source: `MinKey()`, pipeline: null },
+      { source: `function abc() {}`, pipeline: null },
+      { source: `[{$match: {_id: Math.random()}}]`, pipeline: null },
+      { source: `[{$match: {_id: 1}}]`, pipeline: [{ $match: { _id: 1 } }] },
+    ];
 
-    expect(pipelineBuilder.syntaxError.length).to.equal(0);
-    expect(pipelineBuilder.source).to.equal(source);
+    tests.forEach(({ source, pipeline }) => {
+      it(`should change source value to ${source}`, function () {
+        pipelineBuilder.changeSource(source);
+        expect(pipelineBuilder.source).to.eq(source);
+        expect(pipelineBuilder.pipeline).to.deep.eq(pipeline);
+        expect(pipelineBuilder.syntaxError).to.have.lengthOf(
+          pipeline === null ? 1 : 0
+        );
+      });
+    });
   });
 
   it('converts source to stages', function() {
