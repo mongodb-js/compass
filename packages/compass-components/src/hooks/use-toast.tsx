@@ -121,28 +121,26 @@ export const ToastArea: React.FunctionComponent = ({ children }) => {
   useEffect(() => {
     return () => {
       toastStateRef.current?.clear();
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <ToastContext.Provider value={toastActions}>
       <>{children}</>
       <>
-        {toasts.map(
-          ([id, { title, body, variant, progress }]) => (
-            <Toast
-              className={toastStyles}
-              key={id}
-              data-testid={`toast-${id}`}
-              title={title}
-              body={body}
-              variant={variant}
-              progress={progress}
-              open={true}
-              close={() => closeToast(id)}
-            />
-          )
-        )}
+        {toasts.map(([id, { title, body, variant, progress }]) => (
+          <Toast
+            className={toastStyles}
+            key={id}
+            data-testid={`toast-${id}`}
+            title={title}
+            body={body}
+            variant={variant}
+            progress={progress}
+            open={true}
+            close={() => closeToast(id)}
+          />
+        ))}
       </>
     </ToastContext.Provider>
   );
