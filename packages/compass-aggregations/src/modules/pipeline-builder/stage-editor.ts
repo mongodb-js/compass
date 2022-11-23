@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { isCancelError } from '../../utils/cancellable-promise';
+import { isCancelError } from '@mongodb-js/compass-utils';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
