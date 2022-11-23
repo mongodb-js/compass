@@ -500,6 +500,7 @@ export type StageEditorState = {
     previewDocs: Document[] | null;
     collapsed: boolean;
     disabled: boolean;
+    empty: boolean;
   }[];
 };
 
@@ -515,7 +516,8 @@ export function mapBuilderStageToStoreStage(
     serverError: null,
     loading: false,
     previewDocs: null,
-    collapsed: false
+    collapsed: false,
+    empty: stage.isEmpty,
   };
 }
 
@@ -640,7 +642,8 @@ const reducer: Reducer<StageEditorState> = (
           ...state.stages[action.id],
           previewDocs: null,
           value: action.stage.value,
-          syntaxError: action.stage.syntaxError
+          syntaxError: action.stage.syntaxError,
+          empty: action.stage.isEmpty,
         },
         ...state.stages.slice(action.id + 1)
       ]
@@ -661,7 +664,8 @@ const reducer: Reducer<StageEditorState> = (
           ...state.stages[action.id],
           previewDocs: null,
           stageOperator: action.stage.operator,
-          syntaxError: action.stage.syntaxError
+          syntaxError: action.stage.syntaxError,
+          empty: action.stage.isEmpty,
         },
         ...state.stages.slice(action.id + 1)
       ]

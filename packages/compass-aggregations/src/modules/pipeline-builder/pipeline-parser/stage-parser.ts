@@ -53,15 +53,26 @@ function getKeyName(node: t.ObjectProperty['key']): string | null {
     : null;
 }
 
+export const enum StageAssertionErrorCodes {
+  InvalidStage,
+  NotObjectExpression,
+  NoStageOperator,
+  UnrecognizedStageName,
+  NoStageValue,
+  InvalidStageValue,
+}
+
 export function assertStageNode(
   node?: t.Node | null,
   loose = false
 ): asserts node is StageLike {
   let error: string | null = null;
+  let errorCode: number = StageAssertionErrorCodes.InvalidStage;
   let causedBy = node;
 
   if (!node || node.type !== 'ObjectExpression') {
     error = 'Each element of the pipeline array must be an object';
+    errorCode = StageAssertionErrorCodes.NotObjectExpression;
   } else if (
     node.properties.length !== 1 ||
     node.properties[0].type !== 'ObjectProperty' ||
@@ -69,20 +80,25 @@ export function assertStageNode(
   ) {
     error =
       'A pipeline stage specification object must contain exactly one field.';
+    errorCode = StageAssertionErrorCodes.NoStageOperator;
     causedBy = node.properties[0] ?? causedBy;
   } else if (!getKeyName(node.properties[0].key)?.startsWith('$')) {
     const key = getKeyName(node.properties[0].key) ?? '';
     error = `Unrecognized pipeline stage name${key ? `: '${key}'` : ''}`;
+    errorCode = StageAssertionErrorCodes.UnrecognizedStageName;
     causedBy = node.properties[0].key;
   } else if (!loose && node.properties[0].value == null) {
     error = 'Stage value can not be empty';
+    errorCode = StageAssertionErrorCodes.NoStageValue;
+    causedBy = node.properties[0].key;
   } else if (!loose && !isValidStageNode(node)) {
     error = 'Stage value is invalid';
+    errorCode = StageAssertionErrorCodes.InvalidStageValue;
     causedBy = node.properties[0].value;
   }
 
   if (error) {
-    throw new PipelineParserError(error, causedBy?.loc?.start);
+    throw new PipelineParserError(error, causedBy?.loc?.start, errorCode);
   }
 }
 

@@ -187,8 +187,8 @@ export default connect(
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
-      syntaxError: stage.syntaxError ?? null,
-      serverError: stage.serverError ?? null,
+      syntaxError: !stage.empty ? (stage.syntaxError ?? null) : null,
+      serverError: !stage.empty ? (stage.serverError ?? null) : null,
       serverVersion: state.serverVersion,
       autocompleteFields: state.fields,
       num_stages,

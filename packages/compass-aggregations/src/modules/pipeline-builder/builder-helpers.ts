@@ -74,7 +74,10 @@ export function getIsPipelineInvalidFromBuilderState(
 ): boolean {
   if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
     return state.pipelineBuilder.stageEditor.stages.some(
-      (stage) => !stage.disabled && (stage.syntaxError || (stage.serverError && includeServerErrors))
+      (stage) =>
+        !stage.empty &&
+        !stage.disabled &&
+        (stage.syntaxError || (stage.serverError && includeServerErrors))
     );
   }
   const { serverError, syntaxErrors } = state.pipelineBuilder.textEditor.pipeline;
