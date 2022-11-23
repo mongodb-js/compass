@@ -24,9 +24,9 @@
           ]
         },
         {
-          "name": "MongoDB Compass Protocol",
+          "name": "MongoDB+SRV Protocol",
           "schemes": [
-            "compass"
+            "mongodb+srv"
           ]
         }
       ],
@@ -265,7 +265,8 @@
     "storage-mixin": "^5.1.0",
     "tar": "^6.1.11",
     "uuid": "^3.0.0",
-    "web-vitals": "^2.1.2"
+    "web-vitals": "^2.1.2",
+    "winreg-ts": "^1.0.4"
   },
   "optionalDependencies": {
     "macos-export-certificate-and-key": "^1.1.1",

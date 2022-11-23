@@ -15,6 +15,8 @@ import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 import preferences from 'compass-preferences-model';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { setupTheme } from './theme';
+import { setupProtocolHandlers } from './protocol-handling';
 
 const { debug, track } = createLoggerAndTelemetry('COMPASS-MAIN');
 
@@ -65,9 +67,20 @@ class CompassApplication {
     this.mode = mode;
 
     this.setupUserDirectory();
+    // need to happen after setupUserDirectory
     await setupPreferencesAndUserModel(globalPreferences);
     await this.setupLogging();
+    // need to happen after setupPreferencesAndUserModel
     await this.setupTelemetry();
+    await setupProtocolHandlers(
+      process.argv.includes('--squirrel-uninstall') ? 'uninstall' : 'install'
+    );
+
+    // needs to happen after setupProtocolHandlers
+    if ((await import('electron-squirrel-startup')).default) {
+      debug('electron-squirrel-startup event handled sucessfully\n');
+      return;
+    }
 
     if (mode === 'CLI') {
       return;
@@ -75,6 +88,7 @@ class CompassApplication {
 
     await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
     await setupCSFLELibrary();
+    setupTheme();
     this.setupJavaScriptArguments();
     this.setupLifecycleListeners();
     this.setupApplicationMenu();
