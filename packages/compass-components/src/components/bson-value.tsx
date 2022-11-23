@@ -27,7 +27,10 @@ type PropsByValueType<V extends ValueTypes> = Omit<
   'type'
 >;
 
-const VALUE_COLOR_BY_THEME_AND_TYPE: Record<Theme, Partial<Record<TypeCastTypes, string>>> = {
+const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
+  Theme,
+  Partial<Record<ValueTypes, string>>
+> = {
   [Theme.Dark]: {
     Int32: variantColors.dark[9],
     Double: variantColors.dark[9],
@@ -60,12 +63,16 @@ const bsonValuePrewrap = css({
 
 export const BSONValueContainer: React.FunctionComponent<
   React.HTMLProps<HTMLDivElement> & {
-    type: ValueTypes | string;
+    type?: ValueTypes;
     chidren?: React.ReactChildren;
   }
 > = ({ type, children, className, ...props }) => {
   const { theme } = useTheme();
   const textColorStyle = useMemo(() => {
+    if (!type) {
+      return '';
+    }
+
     const color = VALUE_COLOR_BY_THEME_AND_TYPE[theme]?.[type];
 
     if (!color) {
@@ -83,7 +90,9 @@ export const BSONValueContainer: React.FunctionComponent<
         bsonValue,
         type === 'String' && bsonValuePrewrap,
         textColorStyle,
-        `element-value element-value-is-${type.toLowerCase()}`
+        `element-value element-value-is-${
+          type ? type.toLowerCase() : 'unknown'
+        }`
       )}
     >
       {children}
@@ -302,7 +311,7 @@ export const SymbolValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <BSONValueContainer type="Symbol" title={stringifiedValue}>
+    <BSONValueContainer type="BSONSymbol" title={stringifiedValue}>
       {stringifiedValue}
     </BSONValueContainer>
   );
@@ -311,13 +320,13 @@ export const SymbolValue: React.FunctionComponent<
 export const UnknownValue: React.FunctionComponent<{
   type: string;
   value: unknown;
-}> = ({ type, value }) => {
+}> = ({ value }) => {
   const stringifiedValue = useMemo(() => {
     return String(value);
   }, [value]);
 
   return (
-    <BSONValueContainer type={type} title={stringifiedValue}>
+    <BSONValueContainer title={stringifiedValue}>
       {stringifiedValue}
     </BSONValueContainer>
   );
