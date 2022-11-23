@@ -1,11 +1,16 @@
-declare class AbortError extends Error {
-  name: 'AbortError';
+class AbortError extends Error {
+  constructor() {
+    super('This operation was aborted');
+  }
+
+  name = 'AbortError';
 }
 
 export const createCancelError = (): AbortError => {
   const controller = new AbortController();
   controller.abort();
-  return controller.signal.reason;
+  // .reason is not supported in all electron versions, so use AbortError as a fallback
+  return controller.signal.reason ?? new AbortError();
 };
 
 export function isCancelError(error: any): error is AbortError {
@@ -21,7 +26,7 @@ function abortablePromise(
   successSignal: AbortSignal
 ) {
   if (abortSignal.aborted) {
-    return Promise.reject(abortSignal.reason);
+    return Promise.reject(abortSignal.reason ?? createCancelError());
   }
 
   let reject: (reason: unknown) => void;
@@ -60,7 +65,7 @@ export async function raceWithAbort<T>(
   signal: AbortSignal
 ): Promise<T> {
   if (signal.aborted) {
-    return Promise.reject(signal.reason);
+    return Promise.reject(signal.reason ?? createCancelError());
   }
   const successController = new AbortController();
   const abortPromise = abortablePromise(signal, successController.signal);
