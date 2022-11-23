@@ -3,9 +3,129 @@ import { cx } from '@mongodb-js/compass-components';
 import { css, spacing } from '@mongodb-js/compass-components';
 import { Button, Icon } from '@mongodb-js/compass-components';
 import type { Ace } from 'ace-builds';
-import React, { useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { EditorProps as BaseEditorProps } from './base-editor';
 import { BaseEditor } from './base-editor';
+
+const actionButtonStyle = css({
+  flex: 'none',
+});
+
+const actionButtonContentStyle = css({
+  position: 'relative',
+});
+
+const actionButtonIconContainerStyle = css({
+  opacity: 1,
+  // leafygreen icon small size
+  width: 14,
+  height: 14,
+  transition: 'opacity .2s linear',
+});
+
+const actionButtonIconContainerHiddenStyle = css({
+  opacity: 0,
+});
+
+const actionButtonClickResultIconStyle = css({
+  position: 'absolute',
+  // leafygreen icon small size
+  width: 14,
+  height: 14,
+  top: 0,
+  pointerEvents: 'none',
+  opacity: 1,
+  transition: 'opacity .2s linear',
+});
+
+const actionButtonClickResultIconHiddenStyle = css({
+  opacity: 0,
+});
+
+const ActionButton: React.FunctionComponent<{
+  icon: string | React.ReactNode;
+  label: string;
+  onClick: (
+    ...args: Parameters<React.MouseEventHandler<HTMLButtonElement>>
+  ) => boolean | void;
+}> = ({ label, icon, onClick }) => {
+  const [clickResult, setClickResult] = useState<'success' | 'error'>(
+    'success'
+  );
+  const [clickResultVisible, setClickResultVisible] = useState(false);
+
+  const onButtonClick = useCallback(
+    (...args: Parameters<React.MouseEventHandler<HTMLButtonElement>>) => {
+      const result = onClick(...args);
+      if (typeof result === 'boolean') {
+        setClickResult(result ? 'success' : 'error');
+        setClickResultVisible(true);
+      }
+    },
+    [onClick]
+  );
+
+  useEffect(() => {
+    if (!clickResultVisible) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setClickResultVisible(false);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [clickResultVisible]);
+
+  return (
+    <Button
+      size="xsmall"
+      aria-label={label}
+      title={label}
+      onClick={onButtonClick}
+      className={actionButtonStyle}
+    >
+      <div className={actionButtonContentStyle}>
+        <div
+          className={cx(
+            actionButtonIconContainerStyle,
+            clickResultVisible && actionButtonIconContainerHiddenStyle
+          )}
+        >
+          {typeof icon === 'string' ? (
+            <Icon
+              size="small"
+              role="presentation"
+              title={null}
+              glyph={icon}
+            ></Icon>
+          ) : (
+            icon
+          )}
+        </div>
+        <div
+          className={cx(
+            actionButtonClickResultIconStyle,
+            !clickResultVisible && actionButtonClickResultIconHiddenStyle
+          )}
+        >
+          <Icon
+            size="small"
+            glyph={clickResult === 'success' ? 'Checkmark' : 'X'}
+          ></Icon>
+        </div>
+      </div>
+    </Button>
+  );
+};
 
 type CustomActionItem = {
   icon: IconGlyph;
@@ -64,10 +184,6 @@ const actionsContainerStyle = css({
   gap: spacing[2],
 });
 
-const actionButtonStyle = css({
-  flex: 'none',
-});
-
 const MultilineEditor: React.FunctionComponent<EditorProps> = ({
   copyable = true,
   formattable = true,
@@ -82,58 +198,40 @@ const MultilineEditor: React.FunctionComponent<EditorProps> = ({
   const actions = useMemo(() => {
     return [
       copyable && (
-        <Button
-          size="xsmall"
-          aria-label="Copy"
-          title="Copy"
+        <ActionButton
+          label="Copy"
+          icon="Copy"
           onClick={() => {
             editorRef.current?.execCommand('copy-all');
+            return true;
           }}
-          className={actionButtonStyle}
-        >
-          <Icon
-            size="small"
-            role="presentation"
-            title={null}
-            glyph="Copy"
-          ></Icon>
-        </Button>
+        ></ActionButton>
       ),
       formattable && (
-        <Button
-          size="xsmall"
-          aria-label="Format"
-          title="Format"
+        <ActionButton
+          label="Format"
+          icon={
+            <FormatIcon
+              size={/* leafygreen small */ 14}
+              role="presentation"
+            ></FormatIcon>
+          }
           onClick={() => {
             editorRef.current?.execCommand('prettify');
+            return true;
           }}
-          className={actionButtonStyle}
-        >
-          <FormatIcon
-            size={/* leafygreen small */ 14}
-            role="presentation"
-          ></FormatIcon>
-        </Button>
+        ></ActionButton>
       ),
       ...customActions.map((action) => {
         return (
-          <Button
+          <ActionButton
             key={action.action}
-            size="xsmall"
-            aria-label={action.label}
-            title={action.label}
+            icon={action.icon}
+            label={action.label}
             onClick={() => {
               onAction?.(editorRef.current, action.action);
             }}
-            className={actionButtonStyle}
-          >
-            <Icon
-              size="small"
-              role="presentation"
-              title={null}
-              glyph={action.icon}
-            ></Icon>
-          </Button>
+          ></ActionButton>
         );
       }),
     ];
