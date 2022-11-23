@@ -49,7 +49,7 @@ describe('ImportPipeline [Component]', function() {
 
   context('when clicking on the cancel button', function() {
     it('calls the action', function() {
-      component.find('button').at(1).hostNodes().simulate('click');
+      component.find('button[data-testid="cancel-button"]').hostNodes().simulate('click');
       expect(closeImportSpy.calledOnce).to.equal(true);
     });
   });

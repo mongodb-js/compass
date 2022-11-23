@@ -265,6 +265,8 @@ class EditableJson extends React.Component {
     return (
       <div className="json-ace-editor">
         <Editor
+          copyable={false}
+          formattable={false}
           variant={EditorVariant.EJSON}
           text={this.state.value}
           onChangeText={this.handleOnChange.bind(this)}
