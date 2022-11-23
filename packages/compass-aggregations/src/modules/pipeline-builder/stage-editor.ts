@@ -20,6 +20,7 @@ import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { isOutputStage } from '../../utils/stage';
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
@@ -123,17 +124,14 @@ function canRunStage(
   stage?: StageEditorState['stages'][number],
   allowOut = false
 ): boolean {
-  if (
-    !stage ||
-    stage.value == null ||
-    stage.syntaxError ||
-    !stage.stageOperator ||
-    (!allowOut && ['$out', '$merge'].includes(stage.stageOperator))
-  ) {
-    return false;
-  }
-
-  return true;
+  return (
+    !!stage &&
+    (stage.disabled ||
+      (!stage.syntaxError &&
+        !!stage.value &&
+        !!stage.stageOperator &&
+        (allowOut || !isOutputStage(stage.stageOperator))))
+  );
 }
 
 export const loadStagePreview = (
