@@ -27,7 +27,7 @@ type PropsByValueType<V extends ValueTypes> = Omit<
   'type'
 >;
 
-const VALUE_COLOR_BY_THEME_AND_TYPE: Record<Theme, Record<string, string>> = {
+const VALUE_COLOR_BY_THEME_AND_TYPE: Record<Theme, Partial<Record<TypeCastTypes, string>>> = {
   [Theme.Dark]: {
     Int32: variantColors.dark[9],
     Double: variantColors.dark[9],
