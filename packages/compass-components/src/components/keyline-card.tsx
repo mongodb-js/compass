@@ -29,8 +29,8 @@ function UnthemedKeyline({
   return (
     <div
       className={cx(
-        darkMode ? keylineDarkThemeStyles : keylineLightThemeStyles,
         keylineStyles,
+        darkMode ? keylineDarkThemeStyles : keylineLightThemeStyles,
         className
       )}
       {...props}
