@@ -1856,7 +1856,7 @@ describe('store', function () {
             // the operation should fail
             expect(state.status).to.equal('error');
             expect(state.error.message).to.equal(
-              'The operation was cancelled.'
+              'This operation was aborted'
             );
             expect(state.abortController).to.be.null;
             expect(state.sessions).to.be.null;
@@ -1981,7 +1981,7 @@ describe('store', function () {
 
       await promise;
       expect(store.state.error.message).to.equal(
-        'The operation was cancelled.'
+        'This operation was aborted'
       );
 
       expect(fetchSpy.called).to.be.true;

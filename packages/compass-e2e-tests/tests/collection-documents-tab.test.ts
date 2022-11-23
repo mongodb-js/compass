@@ -199,7 +199,7 @@ describe('Collection documents tab', function () {
     await documentListErrorElement.waitForDisplayed();
 
     const errorText = await documentListErrorElement.getText();
-    expect(errorText).to.equal('The operation was cancelled.');
+    expect(errorText).to.equal('This operation was aborted');
 
     // execute another (small, fast) query
     await browser.runFindOperation('Documents', '{ i: 5 }');
