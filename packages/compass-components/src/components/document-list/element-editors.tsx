@@ -5,11 +5,12 @@ import TypeChecker from 'hadron-type-checker';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import BSONValue, { hasCustomColor, VALUE_COLOR_BY_TYPE } from '../bson-value';
+import BSONValue, { BSONValueContainer } from '../bson-value';
 import { Tooltip } from '../tooltip';
 import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
 import { Icon } from '../leafygreen';
+import { useDarkMode } from '../../hooks/use-theme';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -35,11 +36,19 @@ const editorOutline = css({
 });
 
 const editorInvalid = css({
-  backgroundColor: palette.red.light2,
-  color: palette.red.dark2,
   '&:focus, &:active': {
     boxShadow: `0 0 0 2px ${palette.red.dark2}`,
   },
+});
+
+const editorInvalidLightMode = css({
+  backgroundColor: palette.red.light2,
+  color: palette.red.dark2,
+});
+
+const editorInvalidDarkMode = css({
+  backgroundColor: palette.red.dark2,
+  color: palette.red.light2,
 });
 
 export const KeyEditor: React.FunctionComponent<{
@@ -59,6 +68,7 @@ export const KeyEditor: React.FunctionComponent<{
   autoFocus,
   onEditStart,
 }) => {
+  const darkMode = useDarkMode();
   const width = `${Math.max(value.length, 1)}ch`;
 
   return (
@@ -102,7 +112,11 @@ export const KeyEditor: React.FunctionComponent<{
                     maxWidth,
                     editorReset,
                     editorOutline,
-                    !valid && editorInvalid
+                    !valid && editorInvalid,
+                    !valid &&
+                      (darkMode
+                        ? editorInvalidDarkMode
+                        : editorInvalidLightMode)
                   )}
                   style={{ width }}
                   spellCheck="false"
@@ -146,13 +160,8 @@ const editorTextarea = css({
   // 2ch for `"` around the textarea
   maxWidth: 'calc(100% - 2ch)',
   verticalAlign: 'top',
+  color: 'inherit',
 });
-
-const valueContainer = css({});
-
-function getCustomColorStyle(type: string): string {
-  return hasCustomColor(type) ? css({ color: VALUE_COLOR_BY_TYPE[type] }) : '';
-}
 
 export const ValueEditor: React.FunctionComponent<{
   editing?: boolean;
@@ -235,8 +244,9 @@ export const ValueEditor: React.FunctionComponent<{
             return (
               <div className={className}>
                 {type === 'String' ? (
-                  <div
-                    className={cx(textareaContainer, getCustomColorStyle(type))}
+                  <BSONValueContainer
+                    type="String"
+                    className={cx(textareaContainer)}
                   >
                     <textarea
                       data-testid="hadron-document-value-editor"
@@ -257,7 +267,7 @@ export const ValueEditor: React.FunctionComponent<{
                       style={inputStyle}
                       {...(mergedProps as React.HTMLProps<HTMLTextAreaElement>)}
                     ></textarea>
-                  </div>
+                  </BSONValueContainer>
                 ) : (
                   <input
                     type="text"
@@ -291,7 +301,6 @@ export const ValueEditor: React.FunctionComponent<{
         // users won't be able to interact with it anyway
         <div
           data-testid="hadron-document-clickable-value"
-          className={valueContainer}
           onDoubleClick={onEditStart}
         >
           <BSONValue type={type as any} value={originalValue}></BSONValue>

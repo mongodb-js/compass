@@ -376,4 +376,58 @@ class DocumentList extends React.Component<DocumentListProps> {
     tz: 'UTC',
   } as const;
 }
-export default withTheme<DocumentListProps>(DocumentList);
+
+DocumentList.displayName = 'DocumentList';
+
+DocumentList.propTypes = {
+  closeInsertDocumentDialog: PropTypes.func,
+  toggleInsertDocumentView: PropTypes.func.isRequired,
+  toggleInsertDocument: PropTypes.func.isRequired,
+  count: PropTypes.number,
+  start: PropTypes.number,
+  end: PropTypes.number,
+  page: PropTypes.number,
+  getPage: PropTypes.func,
+  error: PropTypes.object,
+  insert: PropTypes.object,
+  insertDocument: PropTypes.func,
+  insertMany: PropTypes.func,
+  isEditable: PropTypes.bool.isRequired,
+  isExportable: PropTypes.bool.isRequired,
+  isTimeSeries: PropTypes.bool,
+  store: PropTypes.object.isRequired,
+  openInsertDocumentDialog: PropTypes.func,
+  openImportFileDialog: PropTypes.func,
+  openExportFileDialog: PropTypes.func,
+  refreshDocuments: PropTypes.func,
+  removeDocument: PropTypes.func,
+  replaceDocument: PropTypes.func,
+  updateDocument: PropTypes.func,
+  updateJsonDoc: PropTypes.func,
+  version: PropTypes.string.isRequired,
+  view: PropTypes.string.isRequired,
+  viewChanged: PropTypes.func.isRequired,
+  docs: PropTypes.array,
+  ns: PropTypes.string,
+  tz: PropTypes.string,
+  updateComment: PropTypes.func.isRequired,
+  status: PropTypes.string,
+  debouncingLoad: PropTypes.bool,
+  loadingCount: PropTypes.bool,
+  outdated: PropTypes.bool,
+  resultId: PropTypes.number,
+  isWritable: PropTypes.bool,
+  instanceDescription: PropTypes.string,
+  darkMode: PropTypes.bool,
+};
+
+DocumentList.defaultProps = {
+  error: null,
+  view: 'List',
+  version: '3.4.0',
+  isEditable: true,
+  insert: {},
+  tz: 'UTC',
+};
+
+export default withTheme(DocumentList);
