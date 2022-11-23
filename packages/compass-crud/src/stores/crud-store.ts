@@ -9,12 +9,7 @@ import { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 
-import {
-  findDocuments,
-  countDocuments,
-  fetchShardingKeys,
-  OPERATION_CANCELLED_MESSAGE,
-} from '../utils';
+import { findDocuments, countDocuments, fetchShardingKeys } from '../utils';
 
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
@@ -37,6 +32,7 @@ import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
+import { isCancelError } from '@mongodb-js/compass-utils';
 export type BSONObject = TypeCastMap['Object'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -1344,9 +1340,9 @@ class CrudStoreImpl
       .then((count) => this.setState({ count, loadingCount: false }))
       .catch((err) => {
         // countDocuments already swallows all db errors and returns null. The
-        // only known error it can throw is OPERATION_CANCELLED_MESSAGE. If
+        // only known error it can throw is PromiseCancelledError. If
         // something new does appear we probably shouldn't swallow it.
-        if (err.message !== OPERATION_CANCELLED_MESSAGE) {
+        if (isCancelError(err)) {
           throw err;
         }
         this.setState({ loadingCount: false });

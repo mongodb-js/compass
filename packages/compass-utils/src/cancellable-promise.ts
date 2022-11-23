@@ -1,24 +1,26 @@
 export const PROMISE_CANCELLED_ERROR = 'PromiseCancelledError';
-
 const OPERATION_CANCELLED_MESSAGE = 'The operation was cancelled.';
 
 class PromiseCancelledError extends Error {
   name = PROMISE_CANCELLED_ERROR;
 }
 
-export const createCancelError = (): Error => {
+export const createCancelError = (): PromiseCancelledError => {
   return new PromiseCancelledError(OPERATION_CANCELLED_MESSAGE);
-}
+};
 
 export function isCancelError(error: any): error is PromiseCancelledError {
-  return error.name === PROMISE_CANCELLED_ERROR;
+  return error?.name === PROMISE_CANCELLED_ERROR;
 }
 
 /*
  * Return a promise you can race (just like a timeout from timeouts/promises).
  * It will reject if abortSignal triggers before successSignal
-*/
-function abortablePromise(abortSignal: AbortSignal, successSignal: AbortSignal) {
+ */
+function abortablePromise(
+  abortSignal: AbortSignal,
+  successSignal: AbortSignal
+) {
   if (abortSignal.aborted) {
     return Promise.reject(createCancelError());
   }
@@ -53,8 +55,11 @@ function abortablePromise(abortSignal: AbortSignal, successSignal: AbortSignal) 
  * We need a promise that will reject as soon as the operation is aborted since
  * closing the cursor isn't enough to immediately make the cursor method's
  * promise reject.
-*/
-export async function raceWithAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+ */
+export async function raceWithAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal
+): Promise<T> {
   if (signal.aborted) {
     return Promise.reject(createCancelError());
   }
@@ -73,7 +78,7 @@ export async function raceWithAbort<T>(promise: Promise<T>, signal: AbortSignal)
 
 /**
  * Returns a promise that waits for a timeout and can be canceled with a signal
- * 
+ *
  * @param ms Wait time
  * @param signal Abort signal
  */

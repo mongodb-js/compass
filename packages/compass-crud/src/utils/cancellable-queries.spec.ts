@@ -5,7 +5,6 @@ import Connection from 'mongodb-connection-model';
 import { connect, convertConnectionModelToInfo } from 'mongodb-data-service';
 
 import {
-  OPERATION_CANCELLED_MESSAGE,
   findDocuments,
   countDocuments,
   fetchShardingKeys,
@@ -20,6 +19,7 @@ const CONNECTION = new Connection({
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import { createCancelError } from '@mongodb-js/compass-utils';
 chai.use(chaiAsPromised);
 
 function delay(ms) {
@@ -144,7 +144,7 @@ describe('cancellable-queries', function () {
       abortController.abort();
       await expect(promise).to.be.rejectedWith(
         Error,
-        OPERATION_CANCELLED_MESSAGE
+        createCancelError().message
       );
 
       // kill the session
@@ -234,7 +234,7 @@ describe('cancellable-queries', function () {
       abortController.abort();
       await expect(promise).to.be.rejectedWith(
         Error,
-        OPERATION_CANCELLED_MESSAGE
+        createCancelError().message
       );
 
       // kill the session
@@ -271,7 +271,7 @@ describe('cancellable-queries', function () {
       abortController.abort();
       await expect(promise).to.be.rejectedWith(
         Error,
-        OPERATION_CANCELLED_MESSAGE
+        createCancelError().message
       );
 
       // kill the session

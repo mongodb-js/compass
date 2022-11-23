@@ -3,7 +3,7 @@ import type { DataService } from 'mongodb-data-service';
 import createLogger from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLogger('compass-aggregations');
 
-import { raceWithAbort, createCancelError } from './cancellable-promise';
+import { raceWithAbort, createCancelError } from '@mongodb-js/compass-utils';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const defaultOptions = {
