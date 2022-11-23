@@ -1,0 +1,16 @@
+export const DOCUMENTS_STATUS_INITIAL = 'initial' as const;
+export const DOCUMENTS_STATUS_FETCHING = 'fetching' as const;
+export const DOCUMENTS_STATUS_ERROR = 'error' as const;
+export const DOCUMENTS_STATUS_FETCHED_INITIAL = 'fetchedInitial' as const;
+export const DOCUMENTS_STATUS_FETCHED_CUSTOM = 'fetchedCustom' as const;
+export const DOCUMENTS_STATUS_FETCHED_PAGINATION = 'fetchedPagination' as const;
+
+export const DOCUMENTS_STATUSES_ALL = [
+  DOCUMENTS_STATUS_INITIAL,
+  DOCUMENTS_STATUS_FETCHING,
+  DOCUMENTS_STATUS_ERROR,
+  DOCUMENTS_STATUS_FETCHED_INITIAL,
+  DOCUMENTS_STATUS_FETCHED_CUSTOM,
+  DOCUMENTS_STATUS_FETCHED_PAGINATION,
+] as const;
+export type DOCUMENTS_STATUSES = typeof DOCUMENTS_STATUSES_ALL[number];

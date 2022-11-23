@@ -7,7 +7,7 @@ import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE
 } from './pipeline-preview-manager';
-import { isCancelError } from '../../utils/cancellable-promise';
+import { isCancelError } from '@mongodb-js/compass-utils';
 import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
