@@ -2,11 +2,7 @@ import createLogger from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { DataService } from 'mongodb-data-service';
 import type { BSONObject } from '../stores/crud-store';
-import {
-  createCancelError,
-  isCancelError,
-  raceWithAbort,
-} from '@mongodb-js/compass-utils';
+import { isCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId, debug } = createLogger('cancellable-queries');
 
@@ -22,7 +18,7 @@ export async function findDocuments(
   } & Omit<Parameters<typeof dataService.fetch>[2], 'sort'>
 ): Promise<BSONObject[]> {
   if (signal.aborted) {
-    throw createCancelError();
+    throw signal.reason;
   }
 
   const cursor = dataService.fetch(ns, filter, options);
@@ -58,7 +54,7 @@ export async function countDocuments(
   >[2]
 ): Promise<number> {
   if (signal.aborted) {
-    throw createCancelError();
+    throw signal.reason;
   }
 
   const opts = {
@@ -129,7 +125,7 @@ export async function fetchShardingKeys(
 ): Promise<BSONObject> {
   // best practise is to first check if the signal wasn't already aborted
   if (signal.aborted) {
-    throw createCancelError();
+    throw signal.reason;
   }
 
   const cursor = dataService.fetch(

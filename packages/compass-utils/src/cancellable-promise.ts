@@ -1,16 +1,15 @@
-export const PROMISE_CANCELLED_ERROR = 'PromiseCancelledError';
-const OPERATION_CANCELLED_MESSAGE = 'The operation was cancelled.';
-
-class PromiseCancelledError extends Error {
-  name = PROMISE_CANCELLED_ERROR;
+declare class AbortError extends Error {
+  name: 'AbortError';
 }
 
-export const createCancelError = (): PromiseCancelledError => {
-  return new PromiseCancelledError(OPERATION_CANCELLED_MESSAGE);
+export const createCancelError = (): AbortError => {
+  const controller = new AbortController();
+  controller.abort();
+  return controller.signal.reason;
 };
 
-export function isCancelError(error: any): error is PromiseCancelledError {
-  return error?.name === PROMISE_CANCELLED_ERROR;
+export function isCancelError(error: any): error is AbortError {
+  return error?.name === 'AbortError';
 }
 
 /*
@@ -22,7 +21,7 @@ function abortablePromise(
   successSignal: AbortSignal
 ) {
   if (abortSignal.aborted) {
-    return Promise.reject(createCancelError());
+    return Promise.reject(abortSignal.reason);
   }
 
   let reject: (reason: unknown) => void;
@@ -61,7 +60,7 @@ export async function raceWithAbort<T>(
   signal: AbortSignal
 ): Promise<T> {
   if (signal.aborted) {
-    return Promise.reject(createCancelError());
+    return Promise.reject(signal.reason);
   }
   const successController = new AbortController();
   const abortPromise = abortablePromise(signal, successController.signal);

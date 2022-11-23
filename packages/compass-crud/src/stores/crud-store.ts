@@ -1340,7 +1340,7 @@ class CrudStoreImpl
       .then((count) => this.setState({ count, loadingCount: false }))
       .catch((err) => {
         // countDocuments already swallows all db errors and returns null. The
-        // only known error it can throw is PromiseCancelledError. If
+        // only known error it can throw is AbortError. If
         // something new does appear we probably shouldn't swallow it.
         if (isCancelError(err)) {
           throw err;
