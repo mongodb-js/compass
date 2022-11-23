@@ -311,9 +311,6 @@ class UnthemedValidationEditor extends Component {
             variant={EditorVariant.Shell}
             text={validation.validator}
             onChangeText={(text) => this.onValidatorChange(text)}
-            options={{
-              highlightActiveLine: false,
-            }}
             readOnly={!isEditable}
             completer={this.completer}
           />

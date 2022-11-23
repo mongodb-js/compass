@@ -6,6 +6,9 @@ import {
   Icon,
   IconButton,
   spacing,
+  Theme,
+  ThemeProvider,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 
@@ -283,7 +286,7 @@ class CellRenderer extends React.Component {
           aria-label="Expand"
           onClick={this.handleDrillDown.bind(this)}
         >
-          <Icon glyph="OpenNewTab" size={11} />
+          <Icon glyph="OpenNewTab" size="xsmall" />
         </IconButton>
       </span>
     );
@@ -324,21 +327,25 @@ class CellRenderer extends React.Component {
     }
 
     return (
-      // TODO: COMPASS-5847 Fix accessibility issues and remove lint disables.
-      /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-      /* eslint-disable jsx-a11y/interactive-supports-focus */
-      // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-      <div
-        className={className}
-        onClick={this.handleClicked.bind(this)}
-        role="button"
+      // this is needed cause ag-grid renders this component outside
+      // of the context chain
+      <ThemeProvider
+        theme={{
+          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
+          enabled: true,
+        }}
       >
-        {/* eslint-enable jsx-a11y/interactive-supports-focus */}
-        {/* eslint-enable jsx-a11y/no-noninteractive-element-interactions */}
-        {this.renderUndo(canUndo, canExpand)}
-        {this.renderExpand(canExpand)}
-        {element}
-      </div>
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
+        <div
+          className={className}
+          onClick={this.handleClicked.bind(this)}
+          role="button"
+        >
+          {this.renderUndo(canUndo, canExpand)}
+          {this.renderExpand(canExpand)}
+          {element}
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -355,8 +362,9 @@ CellRenderer.propTypes = {
   elementTypeChanged: PropTypes.func.isRequired,
   drillDown: PropTypes.func.isRequired,
   tz: PropTypes.string.isRequired,
+  darkMode: PropTypes.bool,
 };
 
 CellRenderer.displayName = 'CellRenderer';
 
-export default CellRenderer;
+export default withTheme(CellRenderer);

@@ -304,7 +304,7 @@ class AddFieldButton extends React.Component {
               onClick={onClick}
               {...props}
             >
-              <Icon glyph="Plus" size={11}></Icon>
+              <Icon glyph="Plus" size="xsmall"></Icon>
               {children}
             </Button>
           );

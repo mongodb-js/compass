@@ -78,6 +78,9 @@ export const PipelineExtraSettings: React.FunctionComponent<
       </div>
       {showPipelineAsText && (
         <SegmentedControl
+          // SegmentedControl is not working correctly otherwise
+          // https://jira.mongodb.org/browse/LG-2597
+          key={pipelineMode}
           data-testid="pipeline-builder-toggle"
           value={pipelineMode}
           size={'small'}

@@ -9,6 +9,7 @@ import {
   EmptyContent,
   WorkspaceContainer,
   spacing,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import InsertDocumentDialog from './insert-document-dialog';
 import DocumentListView from './document-list-view';
@@ -82,7 +83,14 @@ class DocumentList extends React.Component {
     if (this.props.view === 'List') {
       return <DocumentListView {...this.props} className={listAndJsonStyles} />;
     } else if (this.props.view === 'Table') {
-      return <DocumentTableView {...this.props} className={tableStyles} />;
+      return (
+        <DocumentTableView
+          // ag-grid would not refresh the theme for the elements that it renders directly otherwise (ie. CellEditor, CellRenderer ...)
+          key={this.props.darkMode ? 'dark' : 'light'}
+          {...this.props}
+          className={tableStyles}
+        />
+      );
     }
 
     return <DocumentJsonView {...this.props} className={listAndJsonStyles} />;
@@ -289,6 +297,7 @@ DocumentList.propTypes = {
   resultId: PropTypes.number,
   isWritable: PropTypes.bool,
   instanceDescription: PropTypes.string,
+  darkMode: PropTypes.bool,
 };
 
 DocumentList.defaultProps = {
@@ -300,4 +309,4 @@ DocumentList.defaultProps = {
   tz: 'UTC',
 };
 
-export default DocumentList;
+export default withTheme(DocumentList);

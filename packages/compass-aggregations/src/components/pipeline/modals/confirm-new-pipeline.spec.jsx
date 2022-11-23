@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import ConfirmNewPipeline from './confirm-new-pipeline';
-import styles from './confirm-new-pipeline.module.less';
 
 describe('ConfirmNewPipeline [Component]', function() {
   let component;
@@ -37,7 +36,7 @@ describe('ConfirmNewPipeline [Component]', function() {
   });
 
   it('renders the note text', function() {
-    expect(component.find(`.${styles['confirm-new-pipeline-note']}`)).to.have.text(
+    expect(component).to.contain.text(
       'Creating this pipeline will abandon unsaved changes to the current pipeline.'
     );
   });

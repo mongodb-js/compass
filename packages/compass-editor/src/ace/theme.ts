@@ -5,6 +5,9 @@ const mongodbAceThemeCssClass = 'ace-mongodb';
 const errorColor = encodeURIComponent(palette.red.base);
 const errorColorDarkMode = encodeURIComponent(palette.red.light1);
 
+const foldColor = encodeURIComponent(palette.black);
+const foldColorDarkMode = encodeURIComponent(palette.white);
+
 // To trick vscode into formatting and autocompleting the string
 const css = String.raw;
 
@@ -127,7 +130,6 @@ const mongodbAceThemeCssText = css`
   .ace-mongodb .ace_gutter-cell.ace_error {
     /* leafygreen XWithCircle */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${errorColor}' fill-rule='evenodd' d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm1.414-9.828a1 1 0 1 1 1.414 1.414L9.414 8l1.414 1.414a1 1 0 1 1-1.414 1.414L8 9.414l-1.414 1.414a1 1 0 1 1-1.414-1.414L6.586 8 5.172 6.586a1 1 0 0 1 1.414-1.414L8 6.586l1.414-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E%0A");
-    /* leafygreen small icon size */
     background-size: 12px;
     background-repeat: no-repeat;
     background-position: ${spacing[1] / 2}px center;
@@ -135,6 +137,23 @@ const mongodbAceThemeCssText = css`
   /* To change svg foll color, we have to completely replace the background url, this can't be done with css custom properties */
   .ace_dark.ace-mongodb .ace_gutter-cell.ace_error {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${errorColorDarkMode}' fill-rule='evenodd' d='M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm1.414-9.828a1 1 0 1 1 1.414 1.414L9.414 8l1.414 1.414a1 1 0 1 1-1.414 1.414L8 9.414l-1.414 1.414a1 1 0 1 1-1.414-1.414L6.586 8 5.172 6.586a1 1 0 0 1 1.414-1.414L8 6.586l1.414-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E%0A");
+  }
+  .ace-mongodb .ace_fold-widget {
+    /* leafygreen CaretDown */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${foldColor}' d='M8.679 10.796a.554.554 0 0 1-.858 0L4.64 6.976C4.32 6.594 4.582 6 5.069 6h6.362c.487 0 .748.594.43.976l-3.182 3.82z'/%3E%3C/svg%3E%0A");
+    background-size: 12px;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .ace_dark.ace-mongodb .ace_fold-widget {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${foldColorDarkMode}' d='M8.679 10.796a.554.554 0 0 1-.858 0L4.64 6.976C4.32 6.594 4.582 6 5.069 6h6.362c.487 0 .748.594.43.976l-3.182 3.82z'/%3E%3C/svg%3E%0A");
+  }
+  .ace-mongodb .ace_fold-widget.ace_closed {
+    /* leafygreen CaretRight */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${foldColor}' d='M10.796 7.321a.554.554 0 0 1 0 .858l-3.82 3.181c-.382.319-.976.058-.976-.429V4.57c0-.487.594-.748.976-.43l3.82 3.182z'/%3E%3C/svg%3E%0A");
+  }
+  .ace_dark.ace-mongodb .ace_fold-widget.ace_closed {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='${foldColorDarkMode}' d='M10.796 7.321a.554.554 0 0 1 0 .858l-3.82 3.181c-.382.319-.976.058-.976-.429V4.57c0-.487.594-.748.976-.43l3.82 3.182z'/%3E%3C/svg%3E%0A");
   }
   .ace-mongodb .ace_keyword {
     color: var(--keyword-color);

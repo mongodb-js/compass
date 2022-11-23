@@ -1,5 +1,6 @@
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { openToast, ToastVariant } from '@mongodb-js/compass-components';
 import type { AnyAction } from 'redux';
 import { createId } from './id';
 import type { PipelineBuilderThunkAction } from '.';
@@ -130,6 +131,18 @@ export const openPipelineById = (
         restoreState: data
       });
       dispatch(updatePipelinePreview());
+      if (pipelineBuilder.syntaxError.length > 0) {
+        let shortName = data.name.slice(0, 20);
+        if (shortName.length < data.name.length) {
+          shortName += '…';
+        }
+        openToast('restore-pipeline-with-errors', {
+          title: 'Can\'t parse pipeline source to stages',
+          body: `Loaded pipeline "${shortName}" contains syntax errors`,
+          variant: ToastVariant.Warning,
+          timeout: 10000
+        });
+      }
     } catch (e: unknown) {
       debug(e);
     }
@@ -173,9 +186,18 @@ export const saveCurrentPipeline = (): PipelineBuilderThunkAction<void> => async
 
   await pipelineStorage.updateAttributes(savedPipeline.id, savedPipeline);
 
+  const stagesLength = (() => {
+    try {
+      return getPipelineFromBuilderState(getState(), pipelineBuilder).length;
+    } catch {
+      // For the case where pipeline contains syntax errors
+      return undefined;
+    }
+  })();
+
   track('Aggregation Saved', {
     id: savedPipeline.id,
-    num_stages: getPipelineFromBuilderState(getState(), pipelineBuilder).length,
+    num_stages: stagesLength,
     editor_view_type: mapPipelineModeToEditorViewType(getState().pipelineBuilder.pipelineMode)
   });
 

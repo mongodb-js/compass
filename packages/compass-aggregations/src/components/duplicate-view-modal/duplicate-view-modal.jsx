@@ -2,8 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { ModalInput } from 'hadron-react-components';
-import { Body, FormModal, SpinLoader, css, spacing, Banner } from '@mongodb-js/compass-components';
+import { Body, FormModal, SpinLoader, css, spacing, Banner, TextInput } from '@mongodb-js/compass-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
@@ -67,11 +66,12 @@ class DuplicateViewModal extends PureComponent {
         trackingId="duplicate_view_modal"
         data-testid="duplicate-view-modal"
       >
-        <ModalInput
-          id="create-view-name"
-          name="Enter a View Name"
+        <TextInput
+          data-testid="create-view-name"
           value={this.props.name || ''}
-          onChangeHandler={this.onNameChange}
+          onChange={this.onNameChange}
+          label="Name"
+          name="name"
         />
         {this.props.error ? (
           <Banner

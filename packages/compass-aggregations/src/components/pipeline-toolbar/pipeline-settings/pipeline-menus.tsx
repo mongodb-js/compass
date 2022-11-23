@@ -12,7 +12,6 @@ import {
   savingPipelineOpen,
 } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
-import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 
 type SaveMenuActions = 'save' | 'saveAs' | 'createView';
 type SaveMenuProps = {
@@ -78,9 +77,7 @@ export const SaveMenuComponent: React.FunctionComponent<SaveMenuProps> = ({
 const VIEWS_MIN_SERVER_VERSION = '3.4.0';
 
 const mapSaveMenuState = (state: RootState) => {
-  const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
   return {
-    disabled: hasSyntaxErrors,
     pipelineName: state.name,
     isCreateViewAvailable: semver.gte(
       state.serverVersion,

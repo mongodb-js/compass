@@ -17,6 +17,8 @@ import {
   Icon,
   spacing,
   TextInput,
+  Theme,
+  ThemeProvider,
 } from '@mongodb-js/compass-components';
 
 const EMPTY_TYPE = {
@@ -490,7 +492,7 @@ class CellEditor extends React.Component {
         size="xsmall"
         onClick={this.handleDrillDown.bind(this)}
       >
-        <Icon glyph="OpenNewTab" size={11}></Icon>
+        <Icon glyph="OpenNewTab" size="xsmall"></Icon>
       </Button>
     );
   }
@@ -513,7 +515,7 @@ class CellEditor extends React.Component {
         size="xsmall"
         onClick={this.handleRemoveField.bind(this)}
       >
-        <Icon glyph="Trash" size={11}></Icon>
+        <Icon glyph="Trash" size="xsmall"></Icon>
       </Button>
     );
   }
@@ -571,12 +573,21 @@ class CellEditor extends React.Component {
       this.element.currentType === 'Array';
 
     return (
-      <div className={BEM_BASE}>
-        {this.renderFieldName()}
-        {this.renderInput(showInput)}
-        {this.renderTypes(showTypes)}
-        {this.renderActions(showTypes, showInput, showExpand)}
-      </div>
+      // this is needed cause ag-grid renders this component outside
+      // of the context chain
+      <ThemeProvider
+        theme={{
+          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
+          enabled: true,
+        }}
+      >
+        <div className={BEM_BASE}>
+          {this.renderFieldName()}
+          {this.renderInput(showInput)}
+          {this.renderTypes(showTypes)}
+          {this.renderActions(showTypes, showInput, showExpand)}
+        </div>
+      </ThemeProvider>
     );
   }
 }
@@ -600,6 +611,7 @@ CellEditor.propTypes = {
   drillDown: PropTypes.func.isRequired,
   eGridCell: PropTypes.any,
   tz: PropTypes.string.isRequired,
+  darkMode: PropTypes.bool,
 };
 
 CellEditor.displayName = 'CellEditor';
