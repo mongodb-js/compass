@@ -20,8 +20,6 @@ const editActionIconStyle = css({
   right: 0,
 });
 
-const editActionIconSize = 11;
-
 export const EditActions: React.FunctionComponent<{
   onRemove?: (() => void) | null;
   onRevert?: (() => void) | null;
@@ -43,7 +41,7 @@ export const EditActions: React.FunctionComponent<{
             }}
           >
             <Icon
-              size={editActionIconSize}
+              size="xsmall"
               className={editActionIconStyle}
               glyph="Undo"
             ></Icon>
@@ -61,7 +59,7 @@ export const EditActions: React.FunctionComponent<{
             }}
           >
             <Icon
-              size={editActionIconSize}
+              size="xsmall"
               glyph="Trash"
               className={editActionIconStyle}
             ></Icon>

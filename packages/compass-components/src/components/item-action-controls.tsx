@@ -95,7 +95,7 @@ const ItemActionButton = forwardRef<
       {...rest}
     >
       <span role="presentation" className={iconContainerStyle}>
-        <Icon size={size === 'xsmall' ? 12 : size} glyph={glyph}></Icon>
+        <Icon size={size} glyph={glyph}></Icon>
       </span>
       {/* Only here to make leafygreen menus work */}
       {children}

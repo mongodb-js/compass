@@ -283,7 +283,7 @@ class CellRenderer extends React.Component {
           aria-label="Expand"
           onClick={this.handleDrillDown.bind(this)}
         >
-          <Icon glyph="OpenNewTab" size={11} />
+          <Icon glyph="OpenNewTab" size="xsmall" />
         </IconButton>
       </span>
     );
