@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { DocumentList } from '@mongodb-js/compass-components';
+import {
+  DocumentList,
+  Theme,
+  ThemeProvider,
+} from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { CellEditorProps } from './cell-editor';
 import type { GridActions } from '../../stores/grid-store';
@@ -17,6 +21,7 @@ export type FullWidthCellRendererProps = Pick<
   replaceDocument: CrudActions['replaceDocument'];
   removeDocument: CrudActions['removeDocument'];
   updateDocument: CrudActions['updateDocument'];
+  darkMode?: boolean;
 };
 
 type FullWidthCellRendererState = {
@@ -120,32 +125,42 @@ class FullWidthCellRenderer extends React.Component<
 
   render() {
     return (
-      <DocumentList.DocumentEditActionsFooter
-        doc={this.doc}
-        editing={this.state.mode === 'editing'}
-        deleting={this.state.mode === 'deleting'}
-        onUpdate={(force) => {
-          this.props.api.stopEditing();
-          if (force) {
-            this.props.replaceDocument(this.doc);
-          } else {
-            this.props.updateDocument(this.doc);
-          }
+      // this is needed cause ag-grid renders this component outside
+      // of the context chain
+      <ThemeProvider
+        theme={{
+          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
+          enabled: true,
         }}
-        onDelete={() => {
-          this.props.api.stopEditing();
-          this.props.removeDocument(this.doc);
-        }}
-        onCancel={() => {
-          if (this.state.mode === 'editing') {
-            this.handleCancelUpdate();
-          } else {
-            this.handleCancelRemove();
-          }
-        }}
-      />
+      >
+        <DocumentList.DocumentEditActionsFooter
+          doc={this.doc}
+          editing={this.state.mode === 'editing'}
+          deleting={this.state.mode === 'deleting'}
+          onUpdate={(force) => {
+            this.props.api.stopEditing();
+            if (force) {
+              this.props.replaceDocument(this.doc);
+            } else {
+              this.props.updateDocument(this.doc);
+            }
+          }}
+          onDelete={() => {
+            this.props.api.stopEditing();
+            this.props.removeDocument(this.doc);
+          }}
+          onCancel={() => {
+            if (this.state.mode === 'editing') {
+              this.handleCancelUpdate();
+            } else {
+              this.handleCancelRemove();
+            }
+          }}
+        />
+      </ThemeProvider>
     );
   }
+
   static propTypes = {
     api: PropTypes.any,
     data: PropTypes.any,
@@ -156,6 +171,7 @@ class FullWidthCellRenderer extends React.Component<
     replaceDocument: PropTypes.func.isRequired,
     replaceDoc: PropTypes.func.isRequired,
     cleanCols: PropTypes.func.isRequired,
+    darkMode: PropTypes.bool,
   };
 
   static displayName = 'FullWidthCellRenderer';

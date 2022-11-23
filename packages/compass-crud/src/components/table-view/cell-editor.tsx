@@ -21,6 +21,8 @@ import {
   Icon,
   spacing,
   TextInput,
+  Theme,
+  ThemeProvider,
 } from '@mongodb-js/compass-components';
 import type {
   ColumnApi,
@@ -105,6 +107,7 @@ export type CellEditorProps = Omit<ICellEditorParams, 'node' | 'context'> & {
   elementMarkRemoved: GridActions['elementMarkRemoved'];
   drillDown: CrudActions['drillDown'];
   tz: string;
+  darkMode?: boolean;
 };
 
 type CellEditorState = {
@@ -601,12 +604,21 @@ class CellEditor
       this.element?.currentType === 'Array';
 
     return (
-      <div className={BEM_BASE}>
-        {this.renderFieldName()}
-        {this.renderInput(!!showInput)}
-        {this.renderTypes(!!showTypes)}
-        {this.renderActions(!!showTypes, !!showInput, !!showExpand)}
-      </div>
+      // this is needed cause ag-grid renders this component outside of
+      // the regular context
+      <ThemeProvider
+        theme={{
+          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
+          enabled: true,
+        }}
+      >
+        <div className={BEM_BASE}>
+          {this.renderFieldName()}
+          {this.renderInput(!!showInput)}
+          {this.renderTypes(!!showTypes)}
+          {this.renderActions(!!showTypes, !!showInput, !!showExpand)}
+        </div>
+      </ThemeProvider>
     );
   }
 
@@ -627,6 +639,7 @@ class CellEditor
     drillDown: PropTypes.func.isRequired,
     eGridCell: PropTypes.any,
     tz: PropTypes.string.isRequired,
+    darkMode: PropTypes.bool,
   };
 
   static displayName = 'CellEditor';

@@ -9,6 +9,7 @@ import {
   EmptyContent,
   WorkspaceContainer,
   spacing,
+  withTheme,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -68,6 +69,7 @@ export type DocumentListProps = {
   status: DOCUMENTS_STATUSES;
   debouncingLoad?: boolean;
   viewChanged: CrudToolbarProps['viewSwitchHandler'];
+  darkMode?: boolean;
 } & Omit<DocumentListViewProps, 'className'> &
   Omit<DocumentTableViewProps, 'className'> &
   Omit<DocumentJsonViewProps, 'className'> &
@@ -149,7 +151,14 @@ class DocumentList extends React.Component<DocumentListProps> {
     if (this.props.view === 'List') {
       return <DocumentListView {...this.props} className={listAndJsonStyles} />;
     } else if (this.props.view === 'Table') {
-      return <DocumentTableView {...this.props} className={tableStyles} />;
+      return (
+        <DocumentTableView
+          // ag-grid would not refresh the theme for the elements that it renders directly otherwise (ie. CellEditor, CellRenderer ...)
+          key={this.props.darkMode ? 'dark' : 'light'}
+          {...this.props}
+          className={tableStyles}
+        />
+      );
     }
 
     return <DocumentJsonView {...this.props} className={listAndJsonStyles} />;
@@ -355,7 +364,8 @@ class DocumentList extends React.Component<DocumentListProps> {
     resultId: PropTypes.number,
     isWritable: PropTypes.bool,
     instanceDescription: PropTypes.string,
-  };
+    darkMode: PropTypes.bool,
+  } as any;
 
   static defaultProps = {
     error: null,
@@ -366,4 +376,4 @@ class DocumentList extends React.Component<DocumentListProps> {
     tz: 'UTC',
   } as const;
 }
-export default DocumentList;
+export default withTheme<DocumentListProps>(DocumentList);

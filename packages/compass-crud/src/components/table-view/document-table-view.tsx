@@ -17,7 +17,7 @@ import CellEditor from './cell-editor';
 
 import './document-table-view.less';
 import './ag-grid-dist.css';
-import { cx, spacing } from '@mongodb-js/compass-components';
+import { cx, spacing, withTheme } from '@mongodb-js/compass-components';
 import type {
   BSONObject,
   CrudActions,
@@ -70,6 +70,7 @@ export type DocumentTableViewProps = {
   table: TableState;
   tz: string;
   className?: string;
+  darkMode?: boolean;
 };
 
 export type GridContext = {
@@ -143,6 +144,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         removeDocument: this.props.removeDocument,
         replaceDocument: this.props.replaceDocument,
         updateDocument: this.props.updateDocument,
+        darkMode: this.props.darkMode,
       },
       getRowNodeId: function (data) {
         const fid = data.isFooter ? '1' : '0';
@@ -740,6 +742,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         drillDown: this.props.drillDown,
         parentType: '',
         tz: this.props.tz,
+        darkMode: this.props.darkMode,
       },
       editable: false,
       cellEditorFramework: CellEditor,
@@ -812,6 +815,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         drillDown: this.props.drillDown,
         parentType: parentType,
         tz: this.props.tz,
+        darkMode: this.props.darkMode,
       },
 
       editable: function (params) {
@@ -853,6 +857,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         elementMarkRemoved: this.props.elementMarkRemoved,
         drillDown: this.props.drillDown,
         tz: this.props.tz,
+        darkMode: this.props.darkMode,
       },
     };
   };
@@ -1010,7 +1015,12 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   render() {
     return (
-      <div className="document-table-view-container">
+      <div
+        className={cx(
+          'document-table-view-container',
+          this.props.darkMode && 'document-table-view-container-darkmode'
+        )}
+      >
         <div className={cx('ag-parent', this.props.className)}>
           <BreadcrumbComponent
             collection={this.collection}
@@ -1025,36 +1035,37 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
   }
 
   static propTypes = {
-    addColumn: PropTypes.func,
-    cleanCols: PropTypes.func,
+    addColumn: PropTypes.func.isRequired,
+    cleanCols: PropTypes.func.isRequired,
     docs: PropTypes.array.isRequired,
     drillDown: PropTypes.func.isRequired,
-    elementAdded: PropTypes.func,
-    elementMarkRemoved: PropTypes.func,
-    elementRemoved: PropTypes.func,
-    elementTypeChanged: PropTypes.func,
+    elementAdded: PropTypes.func.isRequired,
+    elementMarkRemoved: PropTypes.func.isRequired,
+    elementRemoved: PropTypes.func.isRequired,
+    elementTypeChanged: PropTypes.func.isRequired,
     error: PropTypes.object,
     isEditable: PropTypes.bool.isRequired,
     ns: PropTypes.string.isRequired,
     version: PropTypes.string.isRequired,
     openInsertDocumentDialog: PropTypes.func,
     pathChanged: PropTypes.func.isRequired,
-    removeColumn: PropTypes.func,
-    copyToClipboard: PropTypes.func,
-    renameColumn: PropTypes.func,
-    replaceDoc: PropTypes.func,
-    resetColumns: PropTypes.func,
-    removeDocument: PropTypes.func,
-    replaceDocument: PropTypes.func,
-    updateDocument: PropTypes.func,
-    start: PropTypes.number,
-    store: PropTypes.object.isRequired,
-    table: PropTypes.object.isRequired,
+    removeColumn: PropTypes.func.isRequired,
+    copyToClipboard: PropTypes.func.isRequired,
+    renameColumn: PropTypes.func.isRequired,
+    replaceDoc: PropTypes.func.isRequired,
+    resetColumns: PropTypes.func.isRequired,
+    removeDocument: PropTypes.func.isRequired,
+    replaceDocument: PropTypes.func.isRequired,
+    updateDocument: PropTypes.func.isRequired,
+    start: PropTypes.number.isRequired,
+    store: PropTypes.object.isRequired as any,
+    table: PropTypes.object.isRequired as any,
     tz: PropTypes.string.isRequired,
     className: PropTypes.string,
+    darkMode: PropTypes.bool,
   };
 
   static displayName = 'DocumentTableView';
 }
 
-export default DocumentTableView;
+export default withTheme(DocumentTableView);
