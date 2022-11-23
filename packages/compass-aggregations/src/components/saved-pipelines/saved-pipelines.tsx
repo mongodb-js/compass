@@ -12,6 +12,7 @@ const savedPipelinesStyles = css({
   width: '400px',
   display: 'flex',
   flexDirection: 'column',
+  height: '100%'
 });
 
 const toolbarTitleStyles = css({
@@ -38,7 +39,8 @@ const toolbarContentStyles = css({
 });
 
 const cardsContainerStyles = css({
-  overflowY: 'scroll',
+  overflowY: 'auto',
+  flex: 1
 });
 
 const emptyMessageStyles = css({
