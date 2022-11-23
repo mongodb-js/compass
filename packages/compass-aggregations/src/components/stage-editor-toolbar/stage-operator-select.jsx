@@ -14,11 +14,21 @@ const descriptionWidth = spacing[5] * 14;
 const stageNameWidth = spacing[4] * 8;
 const dropdownWidth = stageNameWidth + descriptionWidth;
 
+const inputHeight = spacing[4] - 2; // match other xs controls
 const comboboxStyles = css({
   marginLeft: spacing[2],
+  marginRight: spacing[2],
   width: inputWidth,
   '& [role="combobox"]': {
-    height: spacing[4] - 2 // match other xs controls
+    padding: 0,
+    paddingLeft: spacing[1],
+    height: inputHeight,
+    '& > div': {
+      minHeight: inputHeight,
+    },
+    '& input': {
+      height: inputHeight - 2
+    }
   }
 });
 
@@ -58,6 +68,7 @@ export const StageOperatorSelect = ({
     aria-label="Select a stage operator"
     onChange={onStageOperatorSelected}
     size="default"
+    multiselect={false}
     clearable={false}
     data-testid="stage-operator-combobox"
     className={comboboxStyles}
