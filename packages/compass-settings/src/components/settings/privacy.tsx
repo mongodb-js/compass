@@ -10,7 +10,6 @@ import { pick } from '../../utils/pick';
 const privacyFields = [
   'autoUpdates',
   'enableMaps',
-  'trackErrors',
   'trackUsageStatistics',
   'enableFeedbackPanel',
 ] as const;

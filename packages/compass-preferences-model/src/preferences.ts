@@ -17,7 +17,6 @@ export type UserConfigurablePreferences = {
   // User-facing preferences
   autoUpdates: boolean;
   enableMaps: boolean;
-  trackErrors: boolean;
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
   networkTraffic: boolean;
@@ -335,22 +334,6 @@ const modelPreferencesProps: Required<{
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
-  },
-  /**
-   * Switch to enable/disable error reports.
-   */
-  trackErrors: {
-    type: 'boolean',
-    required: true,
-    default: false,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable Crash Reports',
-      long: 'Allow Compass to send crash reports containing stack traces and unhandled exceptions.',
-    },
-    deriveValue: deriveNetworkTrafficOptionState('trackErrors'),
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
@@ -922,7 +905,6 @@ export class Preferences {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
-        trackErrors: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,

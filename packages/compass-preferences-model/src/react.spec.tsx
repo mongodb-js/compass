@@ -30,7 +30,7 @@ describe('React integration', function () {
     const callbacks: any = {};
     sandbox.stub(preferences, 'getPreferences').returns({
       enableMaps: true,
-      trackErrors: true,
+      trackUsageStatistics: true,
       enableFeedbackPanel: true,
     } as Partial<AllPreferences> as any);
     sandbox
@@ -46,7 +46,7 @@ describe('React integration', function () {
 
     const WrappedComponent = withPreferences(
       TestComponent,
-      ['enableMaps', 'trackErrors'],
+      ['enableMaps', 'trackUsageStatistics'],
       React
     );
 
@@ -55,32 +55,32 @@ describe('React integration', function () {
     expect(JSON.parse(String(contents.textContent))).to.deep.equal({
       outerProp: 42,
       enableMaps: true,
-      trackErrors: true,
+      trackUsageStatistics: true,
     });
 
-    expect(callbacks.trackErrors).to.have.lengthOf(1);
-    callbacks.trackErrors[0](false);
+    expect(callbacks.trackUsageStatistics).to.have.lengthOf(1);
+    callbacks.trackUsageStatistics[0](false);
 
     expect(JSON.parse(String(contents.textContent))).to.deep.equal({
       outerProp: 42,
       enableMaps: true,
-      trackErrors: false,
+      trackUsageStatistics: false,
     });
 
     cleanup();
-    expect(callbacks.trackErrors).to.have.lengthOf(0);
+    expect(callbacks.trackUsageStatistics).to.have.lengthOf(0);
   });
 
   it('works with class components', function () {
     sandbox.stub(preferences, 'getPreferences').returns({
       enableMaps: true,
-      trackErrors: true,
+      trackUsageStatistics: true,
       enableFeedbackPanel: true,
     } as Partial<AllPreferences> as any);
 
     const WrappedComponent = withPreferences(
       TestComponentClass,
-      ['enableMaps', 'trackErrors'],
+      ['enableMaps', 'trackUsageStatistics'],
       React
     );
 
@@ -89,7 +89,7 @@ describe('React integration', function () {
     expect(JSON.parse(String(contents.textContent))).to.deep.equal({
       outerProp: 42,
       enableMaps: true,
-      trackErrors: true,
+      trackUsageStatistics: true,
     });
   });
 });
