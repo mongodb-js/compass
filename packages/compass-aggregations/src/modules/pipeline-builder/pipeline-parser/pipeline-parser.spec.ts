@@ -497,4 +497,33 @@ describe('PipelineParser', function () {
       });
     });
   });
+
+  it('parses correctly when a pipeline with disabled stages is added another stage', function () {
+
+    const pipeline = `[
+      // { $match: { name: /berlin/i } },
+      // { $unwind: "users" },
+    ]`;
+
+    const { root, stages: nodes } = PipelineParser.parse(pipeline);
+    const stages = nodes.map(node => new Stage(node));
+    stages.push(new Stage());
+    stages[2].changeOperator('$limit');
+    stages[2].changeValue('20');
+
+    const newPipeline = PipelineParser.generate(root, stages);
+    expect(newPipeline).to.equal(`[
+  // {
+  //   $match: {
+  //     name: /berlin/i,
+  //   },
+  // }
+  // {
+  //   $unwind: "users",
+  // }
+  {
+    $limit: 20,
+  },
+]`);
+  });
 });
