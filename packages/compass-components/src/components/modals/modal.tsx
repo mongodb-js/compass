@@ -4,6 +4,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-UI');
 
 import { Modal as LeafyGreenModal } from '../leafygreen';
+import { Body } from '@leafygreen-ui/typography';
 
 const contentStyles = css({
   width: '600px',
@@ -14,6 +15,7 @@ const contentStyles = css({
 function Modal({
   trackingId,
   contentClassName,
+  children,
   ...props
 }: React.ComponentProps<typeof LeafyGreenModal> & {
   trackingId?: string;
@@ -27,7 +29,9 @@ function Modal({
     <LeafyGreenModal
       contentClassName={cx(contentStyles, contentClassName)}
       {...props}
-    />
+    >
+      <Body as="div">{children}</Body>
+    </LeafyGreenModal>
   );
 }
 
