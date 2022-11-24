@@ -1,3 +1,4 @@
+import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow } from 'electron';
