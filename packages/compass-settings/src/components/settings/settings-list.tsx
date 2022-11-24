@@ -107,10 +107,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
   const handleChangeEvent = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const { value } = event.target;
-      handleChange(
-        name,
-        value === '' ? (required ? 0 : undefined) : +value
-      );
+      handleChange(name, value === '' ? (required ? 0 : undefined) : +value);
     },
     [name, handleChange, required]
   );
