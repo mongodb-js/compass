@@ -106,8 +106,9 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
 }) {
   const handleChangeEvent = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = event.target;
-      handleChange(name, value === '' ? (required ? 0 : undefined) : +value);
+      const { value: rawValue } = event.target;
+      const value = rawValue.replace(/[^0-9]/g, '');
+      handleChange(name, value === '' || isNaN(+value) ? (required ? 0 : undefined) : +value);
     },
     [name, handleChange, required]
   );
