@@ -4,7 +4,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-UI');
 
 import { Modal as LeafyGreenModal } from '../leafygreen';
-import { Body } from '@leafygreen-ui/typography';
+import { Body } from '../leafygreen';
 
 const contentStyles = css({
   width: '600px',

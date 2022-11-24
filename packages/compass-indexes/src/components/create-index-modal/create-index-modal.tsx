@@ -3,11 +3,9 @@ import { connect } from 'react-redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   Modal,
-  css,
-  spacing,
-  H3,
   ModalFooter,
-  Body,
+  ModalHeader,
+  ModalBody,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -44,27 +42,6 @@ import { toggleIsSparse } from '../../modules/create-index/is-sparse';
 
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
-const modalStyles = css({
-  'div[role=dialog] > :first-child': {
-    minHeight: '50vh',
-    maxHeight: '80vh',
-    overflow: 'scroll',
-  },
-});
-
-const modalContentWrapperStyles = css({
-  padding: 'initial',
-});
-
-const modalContentStyles = css({
-  padding: spacing[5],
-});
-
-const modalFooterStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-});
-
 function CreateIndexModal({
   isVisible,
   namespace,
@@ -100,15 +77,14 @@ function CreateIndexModal({
       open={isVisible}
       trackingId="create_index_modal"
       data-testid="create-index-modal"
-      className={modalStyles}
-      contentClassName={modalContentWrapperStyles}
     >
-      <Body as="div" className={modalContentStyles}>
-        <H3>Create Index</H3>
-        <Body>{namespace}</Body>
+      <ModalHeader title="Create Index" subtitle={namespace} />
+
+      <ModalBody>
         <CreateIndexForm {...props} />
-      </Body>
-      <ModalFooter className={modalFooterStyles}>
+      </ModalBody>
+
+      <ModalFooter>
         <CreateIndexActions
           error={error}
           clearError={clearError}

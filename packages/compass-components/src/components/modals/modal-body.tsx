@@ -1,6 +1,5 @@
 import React, { forwardRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { palette } from '@leafygreen-ui/palette';
 import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { useDarkMode } from '../../hooks/use-theme';
@@ -18,7 +17,6 @@ const contentStyle = css({
   fontFamily: fontFamilies.default,
   fontSize: '13px',
   lineHeight: '20px',
-  color: palette.black,
   maxHeight: `calc(100vh - ${spacing[6] * 5}px)`,
   overflow: 'auto',
 
@@ -34,6 +32,8 @@ const variantStyle = {
   }),
 };
 
+// Leafygreen adds an upper border
+// to the footer in dark mode
 const darkModeStyle = css({
   paddingBottom: spacing[3],
 });
