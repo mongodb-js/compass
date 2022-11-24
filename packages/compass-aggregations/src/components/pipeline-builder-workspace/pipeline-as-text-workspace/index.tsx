@@ -27,6 +27,7 @@ const noPreviewEditorStyles = css({
 
 const resultsStyles = css({
   flex: 1,
+  overflowX: 'hidden',
 });
 
 type PipelineAsTextWorkspaceProps = {
