@@ -43,7 +43,7 @@ export class PipelineBuilder {
 
   // COMPASS-6319: We deliberately ignore all empty stages for all operations
   // related to parsing / generating / validating pipeline. This does mean that
-  // we loose user input in some cases, but we consider this acceptable
+  // we lose user input in some cases, but we consider this acceptable
   private get nonEmptyStages() {
     return this.stages.filter((stage) => !stage.isEmpty);
   }
