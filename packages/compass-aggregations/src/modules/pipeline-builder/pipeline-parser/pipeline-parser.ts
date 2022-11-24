@@ -107,9 +107,12 @@ export default class PipelineParser {
     // elements in the array, in our case it might mean that all stages
     // are disabled
     if (root.elements.length === 0 && root.innerComments?.length) {
-      const [, _stages] = extractStagesFromComments(
+      const [visited, _stages] = extractStagesFromComments(
         root.innerComments
       );
+      root.innerComments = root.innerComments?.filter((node) => {
+        return !visited.has(node);
+      });
       stages.push(..._stages);
     }
     root.elements.forEach((node) => {
