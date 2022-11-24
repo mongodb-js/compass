@@ -63,11 +63,6 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    if (require('electron-squirrel-startup')) {
-      debug('electron-squirrel-startup event handled sucessfully');
-      return;
-    }
-
     this.setupUserDirectory();
     await setupPreferencesAndUserModel(globalPreferences);
     await this.setupLogging();

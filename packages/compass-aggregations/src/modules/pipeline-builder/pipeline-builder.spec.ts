@@ -228,6 +228,13 @@ describe('PipelineBuilder', function () {
   //   $match: { _id: 1
   // }
 ]`);
-    })
+    });
+
+    it('ignores empty stages', function () {
+      const stages = [new Stage(), new Stage(), new Stage()];
+      pipelineBuilder.stages = stages;
+      pipelineBuilder.stagesToSource();
+      expect(pipelineBuilder.source).to.eq('[]');
+    });
   })
 });

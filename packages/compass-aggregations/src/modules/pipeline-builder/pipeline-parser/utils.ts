@@ -10,10 +10,8 @@ type ErrorLoc = {
   column: number;
 }
 export class PipelineParserError extends SyntaxError {
-  loc: ErrorLoc | undefined;
-  constructor(message: string, loc?: ErrorLoc) {
+  constructor(message: string, public loc?: ErrorLoc, public code?: number) {
     super(message);
-    this.loc = loc;
   }
 };
 

@@ -28,7 +28,7 @@ const containerStyles = css({
   flexDirection: 'column',
   height: '100%',
   padding: spacing[3],
-  paddingBottom: spacing[1],
+  paddingBottom: spacing[2],
   gap: spacing[2],
 });
 
@@ -59,8 +59,8 @@ const pipelineOutputMenuStyles = css({
   marginBottom: 'auto',
   marginLeft: 'auto',
 });
+
 const outputStageStyles = css({
-  marginBottom: spacing[2],
   marginTop: 'auto',
 });
 
@@ -89,7 +89,9 @@ const PreviewResults = ({
   atlasOperator: string;
   isPreviewStale: boolean;
 }) => {
-  const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
+  const listProps: Omit<React.ComponentProps<typeof DocumentListView>,
+  'isExpanded' |
+  'className'> = useMemo(
     () => ({
       docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
       isEditable: false,

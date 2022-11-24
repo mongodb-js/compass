@@ -7,6 +7,7 @@ import {
   getStageValueFromNode,
   getStageOperatorFromNode,
   isStageLike,
+  StageAssertionErrorCodes,
 } from './pipeline-parser/stage-parser';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { generate } from './pipeline-parser/utils';
@@ -62,6 +63,24 @@ export default class Stage {
     }
   }
 
+  /**
+   * Returns true if both operator and value are empty / missing, false
+   * otherwise
+   */
+  get isEmpty(): boolean {
+    // To be able to set operator or value for the Stage, we should be able to
+    // parse it, to avoid marking stages with parse errors (or errors that are
+    // not related to stage operator missing) we check for a specific error code
+    // before checking for empty
+    if (
+      this.syntaxError &&
+      this.syntaxError.code !== StageAssertionErrorCodes.NoStageOperator
+    ) {
+      return false;
+    }
+    return !this.operator?.trim() && !this.value?.trim();
+  }
+
   changeValue(value: string) {
     this.value = value;
     try {
@@ -101,7 +120,7 @@ export default class Stage {
   }
 
   toString() {
-    let str = ''
+    let str = '';
 
     if (!this.syntaxError) {
       str = generate(this.node);
@@ -110,23 +129,31 @@ export default class Stage {
       // generate the source from node. Instead we will create a template and use
       // current stage value and operator source to populate it while trying to
       // preserve stage comments
-      const template = t.objectExpression([
-        t.objectProperty(
-          t.identifier('$$_STAGE_OPERATOR'),
-          t.identifier('$$_STAGE_VALUE')
-        )
-      ]);
-  
+      const template = t.objectExpression(
+        !this.isEmpty
+          ? [
+              t.objectProperty(
+                t.identifier('$$_STAGE_OPERATOR'),
+                t.identifier('$$_STAGE_VALUE')
+              )
+            ]
+          : []
+      );
+
       template.leadingComments = this.node.leadingComments;
       template.trailingComments = this.node.trailingComments;
-  
-      if (t.isObjectExpression(this.node)) {
+
+      if (
+        t.isObjectExpression(this.node) &&
+        this.node.properties[0] &&
+        template.properties[0]
+      ) {
         template.properties[0].leadingComments =
           this.node.properties[0].leadingComments;
         template.properties[0].trailingComments =
           this.node.properties[0].trailingComments;
       }
-  
+
       str = generate(template, {
         // To avoid trailing comma after the stage value placeholder
         trailingComma: 'none'

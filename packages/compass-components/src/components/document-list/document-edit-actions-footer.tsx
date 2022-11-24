@@ -5,6 +5,7 @@ import { Button } from '../leafygreen';
 import { css } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
+import { useDarkMode } from '../../hooks/use-theme';
 
 type Status =
   | 'Initial'
@@ -212,10 +213,15 @@ const button = css({
   flex: 'none',
 });
 
-function getColorStyles(status: Status): React.CSSProperties {
+function getColorStyles(
+  status: Status,
+  darkMode?: boolean
+): React.CSSProperties {
   switch (status) {
     case 'Editing':
-      return { backgroundColor: palette.gray.light2 };
+      return {
+        backgroundColor: darkMode ? palette.black : palette.gray.light2,
+      };
     case 'ContainsErrors':
     case 'UpdateError':
     case 'UpdateBlocked':
@@ -223,8 +229,8 @@ function getColorStyles(status: Status): React.CSSProperties {
     case 'DeleteError':
     case 'DeleteStart':
       return {
-        backgroundColor: palette.red.light2,
-        color: palette.red.dark3,
+        backgroundColor: darkMode ? palette.red.dark3 : palette.red.light2,
+        color: darkMode ? palette.red.light2 : palette.red.dark3,
       };
     case 'UpdateStart':
       return {
@@ -272,6 +278,8 @@ const EditActionsFooter: React.FunctionComponent<{
     errorMessage,
   } = useHadronDocumentStatus(doc, editing, deleting);
 
+  const darkMode = useDarkMode();
+
   // Allow props to override event based status of the document (helpful for
   // JSON editor where changing the document text doesn't really generate any
   // changes of the HadronDocument)
@@ -290,7 +298,7 @@ const EditActionsFooter: React.FunctionComponent<{
   return (
     <div
       className={container}
-      style={getColorStyles(status)}
+      style={getColorStyles(status, darkMode)}
       data-testid="document-footer"
       data-status={status}
     >
