@@ -83,7 +83,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   fields,
   onChangePipelineText,
 }) => {
-  const editorInitialValueRef = useRef<string | undefined>(undefined);
+  const editorInitialValueRef = useRef<string>(pipelineText);
   const editorRef = useRef<AceEditor | undefined>(undefined);
   const completer = useAggregationCompleter(
     serverVersion,
@@ -91,14 +91,9 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     fields
   );
 
-  useEffect(() => {
-    editorInitialValueRef.current = pipelineText;
-  }, []);
-
   const onBlurEditor = useCallback(() => {
     const value = editorRef.current?.getValue();
     if (
-      editorInitialValueRef.current !== undefined &&
       value !== undefined &&
       value !== editorInitialValueRef.current
     ) {
