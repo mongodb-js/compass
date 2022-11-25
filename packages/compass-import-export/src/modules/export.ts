@@ -506,7 +506,6 @@ export const startExport =
         totalNumberOfDocuments: numDocsToExport,
       });
 
-      let times = 0;
       const throttledProgress = throttle(
         ({
           percentage,
@@ -515,7 +514,6 @@ export const startExport =
           percentage: number;
           transferred: number;
         }) => {
-          debug(++times, percentage, transferred);
           dispatch(onProgress(percentage, transferred));
         },
         250
