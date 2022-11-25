@@ -17,7 +17,7 @@ const { DECIMAL_128, DOUBLE, LONG, INT_32 } = constants;
 const valueBubbleValueStyles = css({
   backgroundColor: palette.gray.light2,
   border: '1px solid transparent',
-  color: palette.gray.dark2,
+  color: palette.gray.dark3,
   padding: `${spacing[1] / 2} ${spacing[1]}`,
   borderRadius: spacing[1],
   '&:hover': {
@@ -27,7 +27,7 @@ const valueBubbleValueStyles = css({
 
 const valueBubbleValueSelectedStyles = css({
   backgroundColor: palette.yellow.base,
-  color: palette.gray.dark2,
+  color: palette.gray.dark3,
 });
 
 class ValueBubble extends Component {
