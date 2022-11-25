@@ -46,7 +46,7 @@ const settingsStyles = css(
     marginLeft: spacing[6] * 3,
     padding: `0 ${spacing[2]}px 0 ${spacing[3]}px`,
   },
-  focusRing,
+  focusRing
 );
 
 const settings: Settings[] = [

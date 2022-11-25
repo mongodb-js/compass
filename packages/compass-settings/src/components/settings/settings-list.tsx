@@ -159,25 +159,25 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
         return (
           <div data-testid={`setting-${name}`} key={`setting-${name}`}>
             <FormFieldContainer className={fieldContainerStyles}>
-            {type === 'boolean' ? (
-              <BooleanSetting
-                name={name as BooleanPreferences & PreferenceName}
-                handleChange={handleChange}
-                value={!!currentValues[name]}
-                disabled={!!preferenceStates[name]}
-              />
-            ) : type === 'number' ? (
-              <NumericSetting
-                name={name as NumericPreferences}
-                handleChange={handleChange}
-                value={
-                  currentValues[name as NumericPreferences & PreferenceName]
-                }
-                required={required}
-                disabled={!!preferenceStates[name]}
-              />
-            ) : null}
-            {settingStateLabels[preferenceStates[name] ?? '']}
+              {type === 'boolean' ? (
+                <BooleanSetting
+                  name={name as BooleanPreferences & PreferenceName}
+                  handleChange={handleChange}
+                  value={!!currentValues[name]}
+                  disabled={!!preferenceStates[name]}
+                />
+              ) : type === 'number' ? (
+                <NumericSetting
+                  name={name as NumericPreferences}
+                  handleChange={handleChange}
+                  value={
+                    currentValues[name as NumericPreferences & PreferenceName]
+                  }
+                  required={required}
+                  disabled={!!preferenceStates[name]}
+                />
+              ) : null}
+              {settingStateLabels[preferenceStates[name] ?? '']}
             </FormFieldContainer>
           </div>
         );

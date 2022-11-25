@@ -17,9 +17,9 @@ const generalFields = [
 type GeneralFields = typeof generalFields[number];
 type GeneralSettingsProps = Omit<SettingsListProps<GeneralFields>, 'fields'>;
 
-export const GeneralSettings: React.FunctionComponent<
-GeneralSettingsProps
-> = ({ ...props }) => {
+export const GeneralSettings: React.FunctionComponent<GeneralSettingsProps> = ({
+  ...props
+}) => {
   return (
     <div data-testid="general-settings">
       <div>

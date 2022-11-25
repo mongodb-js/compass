@@ -139,7 +139,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
             <DarkThemePreview />
             Dark Theme (Preview)
           </RadioBox>
-        </RadioBoxGroup>  
+        </RadioBoxGroup>
       </FormFieldContainer>
     </div>
   );
