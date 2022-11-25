@@ -6,7 +6,8 @@ import {
   CompassAutoUpdateManager,
 } from './auto-update-manager';
 import autoUpdater from './auto-updater';
-import { app, dialog, BrowserWindow, DownloadItem } from 'electron';
+import type { DownloadItem } from 'electron';
+import { app, dialog } from 'electron';
 import os from 'os';
 import dl from 'electron-dl';
 
@@ -29,7 +30,7 @@ function setStateAndWaitForUpdate(
 ): Promise<true> {
   return new Promise((resolve, reject) => {
     let resolved = false;
-    function resolveWhenState(newState) {
+    function resolveWhenState(newState: any) {
       if (newState === expected) {
         resolved = true;
         CompassAutoUpdateManager.off('new-state', resolveWhenState);
