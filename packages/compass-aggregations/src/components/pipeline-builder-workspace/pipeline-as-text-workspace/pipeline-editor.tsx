@@ -74,11 +74,6 @@ function useAggregationCompleter(
   return completer.current;
 }
 
-// We track the editor changes only onBlur to avoid too many events.
-// On mount of component, we set the initial value of the editor in
-// initialPipelineText and once onBlur is triggered, we update it.
-// Note: Not storing this in component state to avoid re-render.
-let initialPipelineText: string | undefined = undefined;
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   num_stages,
   pipelineText,
@@ -88,6 +83,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   fields,
   onChangePipelineText,
 }) => {
+  const editorInitialValueRef = useRef<string | undefined>(undefined);
   const editorRef = useRef<AceEditor | undefined>(undefined);
   const completer = useAggregationCompleter(
     serverVersion,
@@ -96,23 +92,23 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   );
 
   useEffect(() => {
-    initialPipelineText = pipelineText;
+    editorInitialValueRef.current = pipelineText;
   }, []);
 
   const onBlurEditor = useCallback(() => {
     const value = editorRef.current?.getValue();
     if (
-      initialPipelineText !== undefined &&
+      editorInitialValueRef.current !== undefined &&
       value !== undefined &&
-      value !== initialPipelineText
+      value !== editorInitialValueRef.current
     ) {
       track('Aggregation Edited', {
         num_stages,
         editor_view_type: 'text',
       });
-      initialPipelineText = value;
+      editorInitialValueRef.current = value;
     }
-  }, [editorRef, num_stages]);
+  }, [editorRef, editorInitialValueRef, num_stages]);
 
   const onLoadEditor = useCallback((editor: AceEditor) => {
     editorRef.current = editor;
