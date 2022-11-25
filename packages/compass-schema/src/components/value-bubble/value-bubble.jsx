@@ -27,7 +27,7 @@ const valueBubbleValueStyles = css({
 
 const valueBubbleValueSelectedStyles = css({
   backgroundColor: palette.yellow.base,
-  color: palette.white,
+  color: palette.gray.dark2,
 });
 
 class ValueBubble extends Component {
