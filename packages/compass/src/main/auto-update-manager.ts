@@ -55,7 +55,7 @@ async function promptForUpdate(
 
   const answer = await dialog.showMessageBox({
     ...commonOptions,
-    detail: `Compass ${to} is available. You are currently using a build of Compass that is not optimized for M1/M2 processors. Would you like to download the optimized arm64 version of Compass ${to} now?`,
+    detail: `Compass ${to} is available. You are currently using a build of Compass that is not optimized for M1/M2 processors. Would you like to download the version of Compass ${to} optimized for M1/M2 processors now?`,
     buttons: [
       'Download Compass for M1/M2 (Recommended)',
       'Update current installation',
