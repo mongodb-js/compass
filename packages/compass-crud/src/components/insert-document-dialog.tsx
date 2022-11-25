@@ -314,6 +314,7 @@ class InsertDocumentDialog extends React.PureComponent<
         </div>
         {message && (
           <Banner
+            data-testid="insert-document-banner"
             dismissable={false}
             variant={variant}
             className={bannerStyles}
