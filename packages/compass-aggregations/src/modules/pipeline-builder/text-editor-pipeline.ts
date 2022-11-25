@@ -7,13 +7,14 @@ import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE
 } from './pipeline-preview-manager';
-import { isCancelError } from '../../utils/cancellable-promise';
+import { isCancelError } from '@mongodb-js/compass-utils';
 import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
 import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 export const enum EditorActionTypes {
   EditorPreviewFetch = 'compass-aggregations/pipeline-builder/text-editor-pipeline/TextEditorPreviewFetch',
@@ -55,6 +56,7 @@ export type TextEditorState = {
   serverError: MongoServerError | null;
   isLoading: boolean;
   previewDocs: Document[] | null;
+  isPreviewStale: boolean;
 };
 
 const INITIAL_STATE: TextEditorState = {
@@ -64,6 +66,7 @@ const INITIAL_STATE: TextEditorState = {
   serverError: null,
   isLoading: false,
   previewDocs: null,
+  isPreviewStale: false,
 };
 
 const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
@@ -89,6 +92,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       pipelineText: action.pipelineText,
       pipeline,
       syntaxErrors: action.syntaxErrors,
+      isPreviewStale: false,
     };
   }
 
@@ -119,7 +123,6 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       serverError: null,
-      previewDocs: null,
       isLoading: false
     };
   }
@@ -132,7 +135,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
   ) {
     return {
       ...state,
-      previewDocs: null,
+      isPreviewStale: false,
       serverError: null,
       isLoading: true,
     };
@@ -149,6 +152,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       serverError: null,
       isLoading: false,
       previewDocs: action.previewDocs,
+      isPreviewStale: false,
     };
   }
 
@@ -162,7 +166,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       ...state,
       serverError: action.serverError,
       isLoading: false,
-      previewDocs: null,
+      isPreviewStale: true,
     };
   }
 
@@ -221,7 +225,7 @@ export const loadPreviewForPipeline = (
       });
 
       const options: PreviewOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS ?? DEFAULT_MAX_TIME_MS),
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,

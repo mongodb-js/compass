@@ -44,6 +44,18 @@ describe('Global config file handling', function () {
     });
   });
 
+  it('ignores startup with --squirrel-firstrun', async function () {
+    const result = await parseAndValidateGlobalPreferences({
+      globalConfigPaths: [],
+      argv: ['--squirrel-firstrun'],
+    });
+    expect(result).to.deep.equal({
+      global: {},
+      cli: {},
+      preferenceParseErrors: [],
+    });
+  });
+
   it('parses global config files (YAML)', async function () {
     const file = path.join(tmpdir, 'config');
     await fs.writeFile(file, 'enableMaps: false\n');
@@ -53,6 +65,33 @@ describe('Global config file handling', function () {
     });
     expect(result).to.deep.equal({
       global: { enableMaps: false },
+      cli: {},
+      preferenceParseErrors: [],
+    });
+  });
+
+  it('parses complex global config files (YAML)', async function () {
+    const file = path.join(tmpdir, 'config');
+    await fs.writeFile(
+      file,
+      `
+forceConnectionOptions:
+- readPreference: secondary
+- readPreferenceTags: nodeType:ANALYTICS
+- readPreferenceTags: nodeType:READ_ONLY`
+    );
+    const result = await parseAndValidateGlobalPreferences({
+      globalConfigPaths: [file],
+      argv: [],
+    });
+    expect(result).to.deep.equal({
+      global: {
+        forceConnectionOptions: [
+          ['readPreference', 'secondary'],
+          ['readPreferenceTags', 'nodeType:ANALYTICS'],
+          ['readPreferenceTags', 'nodeType:READ_ONLY'],
+        ],
+      },
       cli: {},
       preferenceParseErrors: [],
     });

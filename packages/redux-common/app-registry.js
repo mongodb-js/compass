@@ -24,10 +24,10 @@ const INITIAL_STATE = {
 /**
  * Reducer function for handle state changes to the app registry.
  *
- * @param {String} state - The app registry state.
+ * @param {Object} state - The app registry state.
  * @param {Object} action - The action.
  *
- * @returns {String} The new state.
+ * @returns {Object} The new state.
  */
 const reducer = (state = INITIAL_STATE, action) => {
   if (action.type === LOCAL_APP_REGISTRY_ACTIVATED) {

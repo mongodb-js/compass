@@ -246,17 +246,17 @@ describe('QueryBar [Plugin]', function () {
       ).to.not.be.empty;
       expect(
         component
-          .find('UnthemedQueryOption[queryOption="maxTimeMS"]')
+          .find('TextInput#query-bar-option-input-maxTimeMS')
           .prop('placeholder')
       ).to.not.be.empty;
       expect(
         component
-          .find('UnthemedQueryOption[queryOption="skip"]')
+          .find('TextInput#query-bar-option-input-skip')
           .prop('placeholder')
       ).to.not.be.empty;
       expect(
         component
-          .find('UnthemedQueryOption[queryOption="limit"]')
+          .find('TextInput#query-bar-option-input-limit')
           .prop('placeholder')
       ).to.not.be.empty;
     });

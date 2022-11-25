@@ -6,11 +6,11 @@ import { Select } from '@mongodb-js/compass-components';
 
 import Collation from '.';
 
-describe('CollationFields [Component]', function() {
+describe('CollationFields [Component]', function () {
   let component;
   let changeCollationOptionSpy;
 
-  beforeEach(function() {
+  beforeEach(function () {
     changeCollationOptionSpy = sinon.spy();
     component = mount(
       <Collation
@@ -20,12 +20,12 @@ describe('CollationFields [Component]', function() {
     );
   });
 
-  afterEach(function() {
+  afterEach(function () {
     changeCollationOptionSpy = null;
     component = null;
   });
 
-  it('renders the collation option dropdowns', function() {
+  it('renders the collation option dropdowns', function () {
     expect(component.find(Select)).to.have.length(9);
   });
 });

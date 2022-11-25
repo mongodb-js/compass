@@ -4,7 +4,7 @@ import { Resizable } from 're-resizable';
 
 import InputBuilder from '../input-builder';
 import InputPreview from '../input-preview';
-import ResizeHandle from '../resize-handle/resize-handle';
+import ResizeHandle from '../resize-handle';
 
 import styles from './input-workspace.module.less';
 

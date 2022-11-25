@@ -38,5 +38,5 @@ export default reducer;
  */
 export const toggleIsDataLake = (isDataLake) => ({
   type: TOGGLE_IS_DATA_LAKE,
-  isDataLake: isDataLake
+  isDataLake: isDataLake,
 });

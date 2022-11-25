@@ -55,9 +55,7 @@ class CompassTelemetry {
   private static _track(info: EventInfo) {
     const commonProperties = this._getCommonProperties();
 
-    if (
-      !this.telemetryAnonymousId
-    ) {
+    if (!this.telemetryAnonymousId) {
       this.queuedEvents.push(info);
       return;
     }
@@ -104,7 +102,12 @@ class CompassTelemetry {
       try {
         osInfo = await getOsInfo();
       } catch (err: any) {
-        log.error(mongoLogId(1_001_000_147), 'Telemetry', 'Failed to get OS info', { err: err.message });
+        log.error(
+          mongoLogId(1_001_000_147),
+          'Telemetry',
+          'Failed to get OS info',
+          { err: err.message }
+        );
       }
       this.analytics.identify({
         userId: this.currentUserId,
@@ -125,7 +128,8 @@ class CompassTelemetry {
   }
 
   private static _init(app: typeof CompassApplication) {
-    const { trackUsageStatistics, currentUserId, telemetryAnonymousId } = preferences.getPreferences();
+    const { trackUsageStatistics, currentUserId, telemetryAnonymousId } =
+      preferences.getPreferences();
     this.currentUserId = currentUserId;
     this.telemetryAnonymousId = telemetryAnonymousId;
     const onTrackUsageStatisticsChanged = (value: boolean) => {
@@ -152,7 +156,10 @@ class CompassTelemetry {
       }
     };
     onTrackUsageStatisticsChanged(trackUsageStatistics); // initial setup with current value
-    preferences.onPreferenceValueChanged('trackUsageStatistics', onTrackUsageStatisticsChanged);
+    preferences.onPreferenceValueChanged(
+      'trackUsageStatistics',
+      onTrackUsageStatisticsChanged
+    );
 
     process.on('compass:track', (meta: EventInfo) => {
       this._track(meta);

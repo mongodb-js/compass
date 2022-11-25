@@ -6,7 +6,13 @@ import SavedPipelineCard from './saved-pipeline-card';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 
-const store = createStore(() => {});
+const store = createStore(() => {
+  return {
+    pipelineBuilder: {
+      pipelineMode: 'builder-ui'
+    }
+  }
+});
 
 describe('SavedPipelineCard [Component]', function() {
   context('when the component is rendered', function() {

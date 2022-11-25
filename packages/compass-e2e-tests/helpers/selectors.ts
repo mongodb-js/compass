@@ -1,7 +1,13 @@
 // Settings Modal
 export const SettingsModal = '[data-testid="settings-modal"]';
-export const CloseSettingsModalButton =
-  '[data-testid="settings-modal"] [aria-label="Close modal"]';
+export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;
+export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"]`;
+export const FeaturesSettingsButton = `${SettingsModal} [data-testid="sidebar-Features-item"]`;
+export const FeaturesSettingsContent = `${SettingsModal} [data-testid="features-settings"]`;
+
+export const SettingsInputElement = (settingName: string): string => {
+  return `${SettingsModal} [data-testid="${settingName}"]`;
+};
 
 // Welcome Modal
 export const WelcomeModal = '[data-testid="welcome-modal"]';
@@ -9,7 +15,7 @@ export const CloseWelcomeModalButton =
   '[data-testid="welcome-modal"] [aria-label="Close modal"]';
 
 // Connection screen
-export const ConnectSection = '[data-testid="connections-disconnected"]';
+export const ConnectSection = '[data-testid="connections-wrapper"]';
 export const ConnectButton = '[data-testid="connect-button"]';
 export const ConnectionFormSaveAndConnectButton =
   '[data-testid="save-and-connect-button"]';
@@ -350,6 +356,7 @@ export const DropCollectionDropButton =
   '[data-testid="drop-collection-modal"] [data-testid="submit-button"]';
 
 // Shell
+export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
@@ -531,7 +538,8 @@ export const incompleteSchemaForClonedDocMsg =
 // Import File modal
 
 export const ImportModal = '[data-testid="import-modal"]';
-export const ImportDelimiter = '[id="import-delimiter-select"]';
+export const ImportDelimiterSelect = '[data-testid="import-delimiter-select"]';
+export const ImportDelimiterMenu = '[id="import-delimiter-select-menu"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
@@ -544,11 +552,16 @@ export const ImportDone =
 export const ImportErrorBox = '[data-testid="import-error-box"]';
 
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
-  return `[data-testid="preview-field-header-${fieldName}"] select`;
+  return `[data-testid="preview-field-header-${fieldName}"] button`;
+};
+export const importPreviewFieldHeaderSelectMenu = (
+  fieldName: string
+): string => {
+  return `[id="import-preview-field-type-select-menu-${fieldName}-menu"]`;
 };
 
 export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
-  return `[data-testid="preview-field-header-${fieldName}"] input[type="checkbox"]`;
+  return `[data-testid="preview-field-header-${fieldName}"] [data-testid="toggle-import-field-checkbox-${fieldName}"]`;
 };
 
 // Connection import/export modals
@@ -627,9 +640,9 @@ export const QueryHistoryRecentItem = '[data-testid="recent-query-list-item"]';
 export const QueryHistoryFavoriteAnItemButton =
   '[data-testid="query-history-button-fav"]';
 export const QueryHistoryFavoriteItemNameField =
-  '[data-testid="query-history-saving-form-input-name"]';
+  '[data-testid="recent-query-save-favorite-name"]';
 export const QueryHistorySaveFavoriteItemButton =
-  '[data-testid="query-history-saving-form-button-save"]';
+  '[data-testid="recent-query-save-favorite-submit"]';
 export const SavedItemMenu = '[data-testid="saved-item-actions"]';
 export const SavedItemMenuItemCopy = `${SavedItemMenu} [data-testid="saved-item-actions-copy-action"]`;
 export const SavedItemMenuItemRename = `${SavedItemMenu} [data-testid="saved-item-actions-rename-action"]`;
@@ -656,6 +669,10 @@ export const AggregationCollationInput = '[data-testid="collation-string"]';
 export const AggregationMaxTimeMSInput = '[data-testid="max-time-ms"]';
 export const AggregationBuilderWorkspace =
   '[data-testid="pipeline-builder-workspace"]';
+export const AggregationBuilderUIWorkspace =
+  '[data-testid="pipeline-builder-ui-workspace"]';
+export const AggregationAsTextWorkspace =
+  '[data-testid="pipeline-as-text-workspace"]';
 export const AggregationResultsWorkspace =
   '[data-testid="pipeline-results-workspace"]';
 export const AggregationResultsDocumentListSwitchButton =
@@ -705,7 +722,7 @@ export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [a
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create-view-modal"]';
-export const CreateViewNameInput = '#create-view-name';
+export const CreateViewNameInput = `${CreateViewModal} [data-testid="create-view-name"]`;
 
 // Save aggregation from pipeline modal
 export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
@@ -771,6 +788,26 @@ export const stageEditorErrorMessage = (stageIndex: number): string => {
 export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
 };
+
+export const aggregationPipelineModeToggle = (
+  mode: 'builder-ui' | 'as-text'
+): string => {
+  return `[data-testid="pipeline-builder-toggle-${mode}"] button`;
+};
+
+export const AggregationAsTextEditor = '[data-testid="pipeline-text-editor"]';
+export const AggregationAsTextErrorContainer =
+  '[data-testid="pipeline-as-text-error-container"]';
+export const AggregationAsTextPreview =
+  '[data-testid="pipeline-as-text-preview"]';
+export const AggregationAsTextPreviewDocument =
+  '[data-testid="readonly-document"]';
+export const AggregationAsTextPreviewOut =
+  '[data-testid="$out-preview-banner"]';
+export const AggregationAsTextPreviewMerge =
+  '[data-testid="$merge-preview-banner"]';
+export const AggregationAsTextPreviewAtlasOperator =
+  '[data-testid="stage-preview-missing-search-support"]';
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
@@ -840,6 +877,10 @@ export const ValidationMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="matching-documents"] [data-testid="document-preview"]';
 export const ValidationNotMatchingDocumentsPreview =
   '[data-testid="validation-content"] [data-testid="notmatching-documents"] [data-testid="document-preview"]';
+export const ValidationActionSelector =
+  '[data-testid="validation-action-selector"]';
+export const ValidationLevelSelector =
+  '[data-testid="validation-level-selector"]';
 
 // Find (Documents, Schema and Explain Plan tabs)
 export const queryBar = (tabName: string): string => {
@@ -984,7 +1025,7 @@ export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[typ
 
 // Duplicate view modal
 export const DuplicateViewModal = '[data-testid="duplicate-view-modal"]';
-export const DuplicateViewModalTextInput = `${DuplicateViewModal} #create-view-name`;
+export const DuplicateViewModalTextInput = `${DuplicateViewModal} [data-testid="create-view-name"]`;
 export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} button[type="submit"]`;
 
 // Modify view

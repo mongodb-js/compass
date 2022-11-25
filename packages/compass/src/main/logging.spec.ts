@@ -2,11 +2,10 @@ import { expect } from 'chai';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import rimraf from 'rimraf';
 import { extractPartialLogFile } from './logging';
 
 describe('extractPartialLogFile', function () {
-  let tmpdir;
+  let tmpdir: string;
 
   beforeEach(async function () {
     tmpdir = path.join(
@@ -17,8 +16,8 @@ describe('extractPartialLogFile', function () {
     await fs.mkdir(tmpdir, { recursive: true });
   });
 
-  afterEach(function (done) {
-    rimraf(tmpdir, done);
+  afterEach(async function () {
+    await fs.rm(tmpdir, { recursive: true });
   });
 
   it('should read an incomplete log file and write a decompressed version of it to a tmp file', async function () {

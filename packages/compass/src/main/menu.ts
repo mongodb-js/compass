@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import createDebug from 'debug';
 import { preferencesAccess as preferences } from 'compass-preferences-model';
+import type { THEMES } from 'compass-preferences-model';
 
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
@@ -45,24 +46,26 @@ function settingsDialogItem(): MenuItemConstructorOptions {
 
 function themeSubmenuItems(): MenuItemConstructorOptions[] {
   const currentTheme = preferences.getPreferences().theme;
-  return ([
-    ['OS_THEME', 'Use OS Theme (Preview)'],
-    ['DARK', 'Dark Theme (Preview)'],
-    ['LIGHT', 'Light Theme']
-  ] as const).map(([theme, label]) => ({
+  return (
+    [
+      ['OS_THEME', 'Use OS Theme (Preview)'],
+      ['DARK', 'Dark Theme (Preview)'],
+      ['LIGHT', 'Light Theme'],
+    ] as const
+  ).map(([theme, label]) => ({
     label,
-    click: function() {
+    click: function () {
       void preferences.savePreferences({ theme });
     },
     type: 'checkbox',
-    checked: theme === currentTheme
+    checked: theme === currentTheme,
   }));
 }
 
 function themeMenuItem(): MenuItemConstructorOptions {
   return {
     label: 'Theme',
-    submenu: themeSubmenuItems()
+    submenu: themeSubmenuItems(),
   };
 }
 
@@ -137,7 +140,7 @@ function connectSubMenu(
       click() {
         ipcMain.broadcastFocused('compass:open-export-connections');
       },
-    }
+    },
   ];
 
   if (nonDarwin) {
@@ -271,7 +274,7 @@ function helpSubMenu(
   };
 }
 
-function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
+function collectionSubMenu(menuReadOnly: boolean): MenuItemConstructorOptions {
   const subMenu = [];
   subMenu.push({
     label: '&Share Schema as JSON',
@@ -281,7 +284,7 @@ function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
     },
   });
   subMenu.push(separator());
-  if (process.env.HADRON_READONLY !== 'true' && !isReadOnly) {
+  if (!preferences.getPreferences().readOnly && !menuReadOnly) {
     subMenu.push({
       label: '&Import Data',
       click() {
@@ -302,70 +305,68 @@ function collectionSubMenu(isReadOnly: boolean): MenuItemConstructorOptions {
 }
 
 function viewSubMenu(): MenuItemConstructorOptions {
+  const subMenu = [
+    {
+      label: '&Reload',
+      accelerator: 'CmdOrCtrl+Shift+R',
+      click() {
+        BrowserWindow.getFocusedWindow()?.reload();
+      },
+    },
+    {
+      label: '&Reload Data',
+      accelerator: 'CmdOrCtrl+R',
+      click() {
+        ipcMain.broadcast('app:refresh-data');
+      },
+    },
+    separator(),
+    {
+      label: '&Toggle Sidebar',
+      accelerator: 'CmdOrCtrl+Shift+D',
+      click() {
+        ipcMain.broadcast('app:toggle-sidebar');
+      },
+    },
+    separator(),
+    {
+      label: 'Actual Size',
+      accelerator: 'CmdOrCtrl+0',
+      click() {
+        ipcMain.broadcast('window:zoom-reset');
+      },
+    },
+    {
+      label: 'Zoom In',
+      accelerator: 'CmdOrCtrl+=',
+      click() {
+        ipcMain.broadcast('window:zoom-in');
+      },
+    },
+    {
+      label: 'Zoom Out',
+      accelerator: 'CmdOrCtrl+-',
+      click() {
+        ipcMain.broadcast('window:zoom-out');
+      },
+    },
+    separator(),
+    ...(process.platform === 'darwin' ? [] : [themeMenuItem(), separator()]),
+  ];
+
+  if (preferences.getPreferences().enableDevTools) {
+    subMenu.push({
+      label: '&Toggle DevTools',
+      accelerator: 'Alt+CmdOrCtrl+I',
+      click() {
+        BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools();
+      },
+    });
+  }
+
   return {
     label: '&View',
-    submenu: [
-      {
-        label: '&Reload',
-        accelerator: 'CmdOrCtrl+Shift+R',
-        click() {
-          BrowserWindow.getFocusedWindow()?.reload();
-        },
-      },
-      {
-        label: '&Reload Data',
-        accelerator: 'CmdOrCtrl+R',
-        click() {
-          ipcMain.broadcast('app:refresh-data');
-        },
-      },
-      separator(),
-      {
-        label: '&Toggle Sidebar',
-        accelerator: 'CmdOrCtrl+Shift+D',
-        click() {
-          ipcMain.broadcast('app:toggle-sidebar');
-        },
-      },
-      separator(),
-      {
-        label: 'Actual Size',
-        accelerator: 'CmdOrCtrl+0',
-        click() {
-          ipcMain.broadcast('window:zoom-reset');
-        },
-      },
-      {
-        label: 'Zoom In',
-        accelerator: 'CmdOrCtrl+=',
-        click() {
-          ipcMain.broadcast('window:zoom-in');
-        },
-      },
-      {
-        label: 'Zoom Out',
-        accelerator: 'CmdOrCtrl+-',
-        click() {
-          ipcMain.broadcast('window:zoom-out');
-        },
-      },
-      separator(),
-      ...(
-        process.platform === 'darwin'
-          ? []
-          : [
-            themeMenuItem(),
-            separator()
-          ]
-      ),
-      {
-        label: '&Toggle DevTools',
-        accelerator: 'Alt+CmdOrCtrl+I',
-        click() {
-          BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools();
-        },
-      },
-    ],
+    submenu: subMenu,
   };
 }
 
@@ -460,13 +461,27 @@ class CompassMenu {
       'window:hide-collection-submenu': this.hideCollection.bind(this),
     });
 
-    preferences.onPreferenceValueChanged('theme', newTheme => {
+    preferences.onPreferenceValueChanged('theme', (newTheme: THEMES) => {
       track('Theme Changed', {
-        theme: newTheme
+        theme: newTheme,
       });
 
       this.refreshMenu();
     });
+
+    preferences.onPreferenceValueChanged('readOnly', () => {
+      this.refreshMenu();
+    });
+
+    preferences.onPreferenceValueChanged(
+      'enableDevTools',
+      (enableDevTools: boolean) => {
+        this.refreshMenu();
+        if (!enableDevTools) {
+          BrowserWindow.getFocusedWindow()?.webContents.closeDevTools();
+        }
+      }
+    );
 
     void this.setupDockMenu();
   }
@@ -582,9 +597,12 @@ class CompassMenu {
     const template = this.getTemplate(currentWindowMenuId);
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
-  }
+  };
 
-  private static showCollection(_bw: BrowserWindow, { isReadOnly }: { isReadOnly: boolean }) {
+  private static showCollection(
+    _bw: BrowserWindow,
+    { isReadOnly }: { isReadOnly: boolean }
+  ) {
     this.updateMenu({ showCollection: true, isReadOnly });
   }
 

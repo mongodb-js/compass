@@ -178,7 +178,6 @@ FindIterable<Document> result = collection.find(filter);`);
               protectConnectionStrings,
               autoUpdates: false,
               enableMaps: false,
-              trackErrors: false,
               trackUsageStatistics: false,
               enableFeedbackPanel: false,
               networkTraffic: false,
@@ -188,7 +187,7 @@ FindIterable<Document> result = collection.find(filter);`);
               lastKnownVersion: '',
               currentUserId: '',
               telemetryAnonymousId: '',
-            });
+            } as any);
           });
           afterEach(function () {
             return sinon.restore();

@@ -25,6 +25,7 @@
   ],
   "main": "dist/index.js",
   "compass:main": "src/index.js",
+  "types": "dist/src/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
@@ -33,10 +34,12 @@
     ".": "./src/index.js"
   },
   "scripts": {
+    "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
+    "postcompile": "tsc --emitDeclarationOnly",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
@@ -60,7 +63,7 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
-    "hadron-react-buttons": "^6.0.2",
+    "compass-preferences-model": "^2.3.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -70,13 +73,13 @@
     "@mongodb-js/tsconfig-compass": "^1.0.1",
     "@mongodb-js/webpack-config-compass": "^1.0.3",
     "chai": "^4.2.0",
-    "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
     "electron": "^15.5.7",
     "enzyme": "^3.11.0",
     "eslint": "^7.25.0",
     "hadron-app": "^5.2.0",
     "hadron-app-registry": "^9.0.2",
+    "hadron-ipc": "^3.1.0",
     "javascript-stringify": "^2.0.1",
     "less": "^3.11.1",
     "lodash": "^4.17.15",
@@ -87,7 +90,6 @@
     "mongodb-query-parser": "^2.4.6",
     "nyc": "^15.0.0",
     "prop-types": "^15.7.2",
-    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
@@ -103,7 +105,7 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
     "bson": "^4.4.1",
-    "hadron-react-buttons": "^6.0.2",
+    "compass-preferences-model": "^2.3.0",
     "react": "^16.14.0"
   }
 }

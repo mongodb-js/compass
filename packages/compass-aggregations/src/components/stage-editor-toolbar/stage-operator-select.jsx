@@ -6,6 +6,8 @@ import { filterStageOperators } from '../../utils/stage';
 
 import { Combobox, ComboboxOption, css, cx, spacing } from '@mongodb-js/compass-components';
 import { isAtlasOnly } from '../../utils/stage';
+import _ from 'lodash';
+import { usePreference } from 'compass-preferences-model';
 
 const inputWidth = spacing[7] * 2;
 const descriptionWidth = spacing[5] * 14;
@@ -83,21 +85,46 @@ StageOperatorSelect.propTypes = {
   isDisabled: PropTypes.bool,
 };
 
+function EnvAwareStageOperatorSelect({
+  envInfo: { serverVersion, env, isTimeSeries, isReadonly, sourceName },
+  stage,
+  onChange,
+  index
+}) {
+  const preferencesReadOnly = usePreference('readOnly', React);
+  const stages = useMemo(() => {
+    return filterStageOperators({
+      serverVersion,
+      env,
+      isTimeSeries,
+      isReadonly,
+      preferencesReadOnly,
+      sourceName
+    });
+  }, [serverVersion, env, isTimeSeries, isReadonly, preferencesReadOnly, sourceName])
+
+  return <StageOperatorSelect
+    index={index}
+    stages={stages}
+    selectedStage={stage.stageOperator}
+    isDisabled={stage.disabled}
+    onChange={onChange}
+    />
+}
+
+EnvAwareStageOperatorSelect.propTypes = {
+  index: PropTypes.number.isRequired,
+  envInfo: PropTypes.object.isRequired,
+  stage: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired,
+}
+
 export default connect(
   (state, ownProps) => {
-    const stages = filterStageOperators({
-      serverVersion: state.serverVersion,
-      env: state.env,
-      isTimeSeries: state.isTimeSeries,
-      isReadonly: state.isReadonly,
-      sourceName: state.sourceName
-    })
-    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
     return {
-      stages,
-      selectedStage: stage.stageOperator,
-      isDisabled: stage.disabled
+      envInfo: _.pick(state, ['serverVersion', 'env', 'isTimeSeries', 'isReadonly', 'sourceName']),
+      stage: state.pipelineBuilder.stageEditor.stages[ownProps.index]
     };
   },
   { onChange: changeStageOperator }
-)(StageOperatorSelect);
+)(EnvAwareStageOperatorSelect);

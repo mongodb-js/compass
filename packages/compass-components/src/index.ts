@@ -64,7 +64,13 @@ export { Size as SelectSize } from '@leafygreen-ui/select';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
 
-export { useToast, ToastArea, ToastVariant } from './hooks/use-toast';
+export {
+  useToast,
+  openToast,
+  closeToast,
+  ToastArea,
+  ToastVariant,
+} from './hooks/use-toast';
 
 export { Toggle } from './components/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
@@ -142,6 +148,7 @@ export { mergeProps } from './utils/merge-props';
 export { focusRing, useFocusRing } from './hooks/use-focus-ring';
 export { useDefaultAction } from './hooks/use-default-action';
 export { useSortControls, useSortedItems } from './hooks/use-sort';
+export { useFormattedDate } from './hooks/use-formatted-date';
 export { fontFamilies } from '@leafygreen-ui/tokens';
 
 export { default as BSONValue } from './components/bson-value';

@@ -12,6 +12,7 @@ const containerStyles = css({
   gap: spacing[2],
   padding: spacing[3],
   textAlign: 'center',
+  marginTop: spacing[3], // same spacing as query item
 });
 
 const iconContainerStyles = css({

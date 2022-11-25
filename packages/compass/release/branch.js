@@ -44,8 +44,10 @@ function lt(releaseBranch, version) {
   const [branchMajor, branchMinor] = getMajorMinor(releaseBranch);
   const [versionMajor, versionMinor] = getMajorMinor(version);
 
-  return branchMajor < versionMajor ||
-    (branchMajor === versionMajor && branchMinor < versionMinor);
+  return (
+    branchMajor < versionMajor ||
+    (branchMajor === versionMajor && branchMinor < versionMinor)
+  );
 }
 
 module.exports = {
@@ -55,6 +57,5 @@ module.exports = {
   getFirstBeta,
   getFirstGa,
   hasVersion,
-  lt
+  lt,
 };
-

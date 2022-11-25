@@ -10,14 +10,16 @@ const coll = {
   size: 200,
   index_count: 1,
   index_size: 15,
-  collation: { locale: 'se' }
+  collation: { locale: 'se' },
 };
 
-const dbs = [{ _id: 'db1', storage_size: 10, collections: [ coll ], index_count: 2 }];
+const dbs = [
+  { _id: 'db1', storage_size: 10, collections: [coll], index_count: 2 },
+];
 
 const topologyDescription = new TopologyDescription({
   type: 'Unknown',
-  servers: [{ type: 'Unknown' }]
+  servers: [{ type: 'Unknown' }],
 });
 
 const fakeInstance = new MongoDBInstance({
@@ -25,68 +27,68 @@ const fakeInstance = new MongoDBInstance({
   databases: dbs,
   topologyDescription,
   dataLake: {
-    isDataLake: false
-  }
+    isDataLake: false,
+  },
 });
 
 const fakeAppInstanceStore = {
-  getState: function() {
+  getState: function () {
     return {
-      instance: fakeInstance
+      instance: fakeInstance,
     };
-  }
+  },
 };
 
-describe('Collections [Store]', function() {
+describe('Collections [Store]', function () {
   const appRegistry = new AppRegistry();
   appRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
-  beforeEach(function() {
+  beforeEach(function () {
     store.dispatch(reset());
   });
 
-  afterEach(function() {
+  afterEach(function () {
     store.dispatch(reset());
   });
 
-  describe('#onActivated', function() {
-    beforeEach(function() {
+  describe('#onActivated', function () {
+    beforeEach(function () {
       store.onActivated(appRegistry);
     });
 
-    it('activates the app registry module', function() {
+    it('activates the app registry module', function () {
       expect(store.getState().appRegistry).to.deep.equal(appRegistry);
     });
 
-    context('when the instance store triggers', function() {
-      beforeEach(function() {
+    context('when the instance store triggers', function () {
+      beforeEach(function () {
         appRegistry.emit('instance-created', { instance: fakeInstance });
         appRegistry.emit('select-database', 'db1');
       });
 
-      context('when the database name changes', function() {
-        context('when the name is different', function() {
-          beforeEach(function() {
+      context('when the database name changes', function () {
+        context('when the name is different', function () {
+          beforeEach(function () {
             appRegistry.emit('select-database', 'db1');
           });
 
-          it('loads the collections', function() {
+          it('loads the collections', function () {
             expect(store.getState().collections).to.not.be.empty;
           });
 
-          it('sets the database name', function() {
+          it('sets the database name', function () {
             expect(store.getState().databaseName).to.equal('db1');
           });
         });
       });
     });
 
-    context('when instance state changes', function() {
-      beforeEach(function() {
+    context('when instance state changes', function () {
+      beforeEach(function () {
         appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
-      it('dispatches the writeStateChanged action', function() {
+      it('dispatches the writeStateChanged action', function () {
         expect(store.getState().isWritable).to.equal(false);
 
         fakeInstance.topologyDescription.set({ type: 'ReplicaSetWithPrimary' });
@@ -94,7 +96,7 @@ describe('Collections [Store]', function() {
         expect(store.getState().isWritable).to.equal(true);
       });
 
-      it('dispatches the toggleIsDataLake action', function() {
+      it('dispatches the toggleIsDataLake action', function () {
         expect(store.getState().isDataLake).to.equal(false);
 
         fakeInstance.dataLake.set({ isDataLake: true });

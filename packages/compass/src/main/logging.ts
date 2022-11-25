@@ -74,7 +74,7 @@ async function setupLogging(compassApp: typeof CompassApplication) {
         platform: os.platform(),
         arch: os.arch(),
         ...osReleaseInfo,
-        pendingEarlyLogEventCount: earlyLogEvents.length
+        pendingEarlyLogEventCount: earlyLogEvents.length,
       }
     );
 
@@ -240,7 +240,7 @@ class CompassLogging {
   }
 
   static init(app: typeof CompassApplication): Promise<void> {
-    return this.initPromise ??= this._init(app);
+    return (this.initPromise ??= this._init(app));
   }
 }
 

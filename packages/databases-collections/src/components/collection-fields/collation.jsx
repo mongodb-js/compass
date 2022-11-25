@@ -5,7 +5,8 @@ import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
 import CollationFields from '../collation-fields/collation-fields';
 
-const HELP_URL_COLLATION = 'https://docs.mongodb.com/master/reference/collation/';
+const HELP_URL_COLLATION =
+  'https://docs.mongodb.com/master/reference/collation/';
 
 /**
  * The collation component. This is used in creating collections,
@@ -17,11 +18,11 @@ function Collation({
   collation,
   isCustomCollation,
   onChangeCollationOption,
-  onChangeIsCustomCollation
+  onChangeIsCustomCollation,
 }) {
   return (
     <CollapsibleFieldSet
-      onToggle={checked => {
+      onToggle={(checked) => {
         onChangeIsCustomCollation(checked);
       }}
       label="Use Custom Collation"
@@ -38,12 +39,11 @@ function Collation({
   );
 }
 
-
 Collation.propTypes = {
   collation: PropTypes.object.isRequired,
   isCustomCollation: PropTypes.bool.isRequired,
   onChangeCollationOption: PropTypes.func.isRequired,
-  onChangeIsCustomCollation: PropTypes.func.isRequired
+  onChangeIsCustomCollation: PropTypes.func.isRequired,
 };
 
 export default Collation;

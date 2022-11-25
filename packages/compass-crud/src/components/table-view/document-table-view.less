@@ -1,0 +1,399 @@
+@import (reference) 'mongodb-compass/src/app/styles/index.less';
+
+:root {
+  --compass-ag-grid-background: @palette__white;
+  --compass-ag-grid-header-background: @palette__gray--light-3;
+  --compass-ag-grid-header-background-hover: @palette__gray--light-2;
+  --compass-ag-grid-background-hover: @palette__gray--light-3;
+  --compass-ag-grid-shadow: fade(@palette__black, 15%);
+  --compass-ag-grid-border: @palette__gray--light-2;
+  --compass-ag-grid-shadow-inset: @palette__gray--light-1;
+  --compass-ag-grid-breadcrumb-active-border: @palette__green--dark-1;
+  --compass-ag-grid-full-width-row-border: @palette__blue--light-1;
+  --compass-ag-grid-full-width-row-size: 2px;
+  --compass-ag-grid-empty-cell-background: @palette__gray--light-3;
+  --compass-ag-grid-header-border: @palette__gray--light-1;
+  --compass-ag-grid-cell-editor-background: @palette__white;
+  --compass-ag-grid-cell-editor-border: @palette__gray--light-1;
+  --compass-ag-grid-deleted-cell-background: @palette__red--light-3;
+  --compass-ag-grid-deleted-cell-border: @palette__red--light-2;
+  --compass-ag-grid-edited-cell-background: @palette__yellow--light-3;
+  --compass-ag-grid-edited-cell-border: @palette__yellow--light-3;
+  --compass-ag-grid-added-cell-background: @palette__green--light-3;
+  --compass-ag-grid-added-cell-border: @palette__green--light-2;
+  --compass-ag-grid-invalid-cell-background: @palette__red--light-2;
+  --compass-ag-grid-invalid-cell-border: @palette__red--base;
+}
+
+.document-table-view-container {
+  &-darkmode {
+    --compass-ag-grid-background: @palette__gray--dark-3;
+    --compass-ag-grid-header-background: @palette__gray--dark-2;
+    --compass-ag-grid-header-background-hover: @palette__gray--dark-1;
+    --compass-ag-grid-background-hover: @palette__gray--dark-2;
+    --compass-ag-grid-shadow: fade(@palette__black, 15%);
+    --compass-ag-grid-border: @palette__gray--dark-2;
+    --compass-ag-grid-shadow-inset: @palette__gray--dark-1;
+    --compass-ag-grid-breadcrumb-active-border: @palette__green--dark-1;
+    --compass-ag-grid-full-width-row-border: transparent;
+    --compass-ag-grid-full-width-row-size: 0;
+    --compass-ag-grid-empty-cell-background: @palette__black;
+    --compass-ag-grid-header-border: @palette__gray--dark-2;
+    --compass-ag-grid-cell-editor-background: @palette__gray--dark-3;
+    --compass-ag-grid-cell-editor-border: @palette__gray--dark-2;
+    --compass-ag-grid-deleted-cell-background: @palette__red--dark-3;
+    --compass-ag-grid-deleted-cell-border: @palette__red--dark-2;
+    --compass-ag-grid-edited-cell-background: @palette__yellow--dark-3;
+    --compass-ag-grid-edited-cell-border: @palette__yellow--dark-3;
+    --compass-ag-grid-added-cell-background: @palette__green--dark-3;
+    --compass-ag-grid-added-cell-border: @palette__green--dark-2;
+    --compass-ag-grid-invalid-cell-background: @palette__red--dark-2;
+    --compass-ag-grid-invalid-cell-border: @palette__red--base;
+  }
+
+  width: 100%;
+  height: 100%;
+
+  .ag {
+    &-dnd-ghost {
+      background: var(--compass-ag-grid-background);
+      border-color: var(--compass-ag-grid-border);
+    }
+
+    &-parent {
+      font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+      font-size: 11px;
+      height: 100%;
+    }
+
+    &-root {
+      background-color: var(--compass-ag-grid-background);
+      box-shadow: 0 0px 6px 0 var(--compass-ag-grid-shadow);
+      border-radius: 0px 3px 3px 3px;
+    }
+    &-bl-full-height {
+      background-color: var(--compass-ag-grid-background);
+      box-shadow: 0 0px 6px 0 var(--compass-ag-grid-shadow);
+      border-radius: 0px 3px 3px 3px;
+    }
+    &-header {
+      background: var(--compass-ag-grid-header-background);
+      box-shadow: 0 2px 10px 0 var(--compass-ag-grid-shadow),
+        inset 0 -1px 0 0 var(--compass-ag-grid-shadow-inset);
+      &-cell {
+        border: 0;
+        line-height: 25px;
+        padding-left: 7px;
+
+        &:hover {
+          background-color: var(--compass-ag-grid-header-background-hover);
+          cursor: grab;
+        }
+      }
+      &-container {
+        position: static;
+      }
+      &-breadcrumb {
+        &-home-icon {
+          margin-right: 5px;
+          vertical-align: text-top;
+        }
+        &-container {
+          display: flex;
+        }
+        &-tab {
+          height: 25px;
+          padding: 4px 10px;
+          font-weight: bold;
+          font-size: 12px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          display: block;
+          white-space: nowrap;
+          background-color: var(--compass-ag-grid-header-background);
+          border-radius: 3px 3px 0 0;
+          border: none;
+          box-shadow: 0 -1px 6px 0 var(--compass-ag-grid-shadow);
+          cursor: pointer;
+          &-active {
+            border-left: 5px solid
+              var(--compass-ag-grid-breadcrumb-active-border);
+          }
+        }
+      }
+      &-viewport {
+        margin-right: 0 !important;
+      }
+    }
+    &-row {
+      box-sizing: border-box;
+      background-color: var(--compass-ag-grid-background);
+      &-hover {
+        background-color: var(--compass-ag-grid-background-hover);
+        .table-view-cell,
+        .table-view-cell-row-number,
+        .table-view-cell-is-empty,
+        .table-view-cell-is-uneditable {
+          background-color: var(--compass-ag-grid-background-hover);
+        }
+        .ag-cell-first-right-pinned {
+          z-index: 4;
+        }
+        .table-view-row-actions-panel {
+          visibility: visible;
+        }
+      }
+
+      &-focus {
+        background-color: var(--compass-ag-grid-background);
+      }
+    }
+    &-full-width-row {
+      background: var(--compass-ag-grid-background);
+      border-bottom: var(--compass-ag-grid-full-width-row-size) solid
+        var(--compass-ag-grid-full-width-row-border);
+    }
+    &-cell {
+      border-right: 0.5px solid var(--compass-ag-grid-border);
+      border-bottom: 0.5px solid var(--compass-ag-grid-border);
+      position: absolute;
+
+      outline: 0;
+      &-focus {
+        overflow: visible !important;
+      }
+      &-subtable-objectid {
+        border-right: 3px solid var(--compass-ag-grid-border);
+        border-bottom: 0;
+        .table-view-cell {
+          border-bottom: 0.5px solid var(--compass-ag-grid-border);
+        }
+      }
+    }
+    &-popup-editor {
+      outline: 0;
+    }
+    &-pinned-right {
+      &-header {
+        width: 0 !important;
+      }
+      &-cols {
+        &-container {
+          margin-top: 1px;
+          border-left: 1px solid var(--compass-ag-grid-border);
+          .ag {
+            &-row {
+              border: 0;
+              background: transparent;
+            }
+            &-cell {
+              border: 0;
+              overflow: visible;
+            }
+          }
+        }
+      }
+    }
+    &-pinned-left {
+      &-header {
+        position: relative;
+      }
+    }
+    &-body-viewport {
+      width: 100%;
+    }
+  }
+  .table-view-row-actions {
+    position: absolute;
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    height: 28px;
+    z-index: 100;
+    margin-top: -1px;
+
+    &-panel {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      background: var(--compass-ag-grid-background);
+      border-bottom: 0.5px solid var(--compass-ag-grid-border);
+      padding: 0 8px;
+    }
+  }
+
+  .table-view-cell {
+    padding: 0px 5px;
+    margin: 1px;
+    line-height: 26px;
+
+    &-circle-button {
+      position: absolute;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      right: 4px;
+      top: 4px;
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 50%;
+      background: var(--compass-ag-grid-background);
+      box-shadow: 0 2px 5px 0 var(--compass-ag-grid-shadow);
+      cursor: pointer;
+
+      &-undo {
+        top: 2px;
+      }
+
+      &-left {
+        right: 20px;
+      }
+    }
+
+    .editable-element {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      height: 100%;
+      cursor: text;
+
+      .element-value {
+        &-is-string {
+          white-space: nowrap;
+        }
+
+        &-is-objectid {
+          &::before,
+          &::after {
+            content: '';
+          }
+        }
+      }
+    }
+
+    &-is-empty {
+      background-color: var(--compass-ag-grid-empty-cell-background);
+      line-height: 26px;
+      margin: 1px;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    &-is-uneditable {
+      background: var(--compass-ag-grid-background);
+    }
+
+    &:hover {
+      .table-view-cell-circle-button {
+        opacity: 1;
+      }
+    }
+
+    &-is-deleted,
+    &-is-edited,
+    &-is-added,
+    &-is-invalid,
+    &-is-uneditable {
+      height: 24px;
+      line-height: 24px;
+      margin: 2px 1px;
+      padding-left: 5px;
+      overflow-y: hidden;
+
+      .table-view-cell-circle-button {
+        margin-top: 2px;
+      }
+
+      .editable-element {
+        min-height: 24px;
+        z-index: 1;
+      }
+
+      &:hover {
+        .table-view-cell-circle-button {
+          opacity: 1;
+        }
+      }
+    }
+
+    &-is-deleted {
+      background-color: var(--compass-ag-grid-deleted-cell-background);
+      border: 1px solid var(--compass-ag-grid-deleted-cell-border);
+    }
+
+    &-is-edited {
+      background-color: var(--compass-ag-grid-edited-cell-background);
+      border: 1px solid var(--compass-ag-grid-edited-cell-border);
+    }
+
+    &-is-added {
+      background-color: var(--compass-ag-grid-added-cell-background);
+      border: 1px solid var(--compass-ag-grid-added-cell-border);
+    }
+
+    &-is-invalid {
+      background-color: var(--compass-ag-grid-invalid-cell-background);
+      border: 1px solid var(--compass-ag-grid-invalid-cell-border);
+    }
+
+    &-row-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--compass-ag-grid-row-number-text);
+      height: 27px;
+    }
+
+    &-header {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      text-align: left;
+      border-right: 0.5px solid var(--compass-ag-grid-border);
+      user-select: none;
+
+      & > * {
+        user-select: none;
+      }
+
+      &-icon {
+        float: right;
+        line-height: 25px;
+        margin-right: 5px;
+      }
+
+      &-subtable-objectid {
+        border-right: 3px solid var(--compass-ag-grid-header-border);
+        position: relative;
+      }
+    }
+  }
+
+  .table-view-cell-editor {
+    position: absolute;
+    z-index: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    background: var(--compass-ag-grid-cell-editor-background);
+    border: 1px solid var(--compass-ag-grid-cell-editor-border);
+    border-radius: 2px;
+    box-shadow: 0 2px 6px 0 var(--compass-ag-grid-shadow);
+    outline: 0;
+    padding: 1px 5px;
+    margin-top: -2px;
+    margin-left: -8px;
+
+    &-types {
+      margin-left: 3px;
+    }
+
+    &-actions {
+      display: flex;
+    }
+  }
+}

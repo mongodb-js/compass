@@ -43,6 +43,10 @@ const homeViewStyles = css({
   height: '100vh',
 });
 
+const hiddenStyles = css({
+  display: 'none',
+});
+
 const homePageStyles = css({
   display: 'flex',
   flexDirection: 'row',
@@ -128,12 +132,16 @@ function hideCollectionSubMenu() {
   void ipc.ipcRenderer?.call('window:hide-collection-submenu');
 }
 
+function notifyMainProcessOfDisconnect() {
+  void ipc.ipcRenderer?.call('compass:disconnected');
+}
+
 function Home({
   appName,
   getAutoConnectInfo,
 }: {
   appName: string;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo>;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectedDataService = useRef<DataService>();
@@ -157,17 +165,17 @@ function Home({
     });
   }
 
-  function onConnected(
-    connectionInfo: ConnectionInfo,
-    dataService: DataService
-  ) {
-    appRegistry.emit(
-      'data-service-connected',
-      null, // No error connecting.
-      dataService,
-      connectionInfo
-    );
-  }
+  const onConnected = useCallback(
+    (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      appRegistry.emit(
+        'data-service-connected',
+        null, // No error connecting.
+        dataService,
+        connectionInfo
+      );
+    },
+    [appRegistry]
+  );
 
   function onSelectDatabase(ns: string) {
     hideCollectionSubMenu();
@@ -211,6 +219,7 @@ function Home({
       type: 'disconnected',
     });
     hideCollectionSubMenu();
+    notifyMainProcessOfDisconnect();
     updateTitle(appName);
   }, [appName]);
 
@@ -279,26 +288,32 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
-  if (isConnected) {
-    return (
-      <div className="with-global-bootstrap-styles">
-        <Workspace namespace={namespace} />
-      </div>
-    );
-  }
-
   return (
-    <div className={homeViewStyles} data-testid="home-view">
-      <div className={homePageStyles}>
-        <Connections
-          onConnected={onConnected}
-          appName={appName}
-          getAutoConnectInfo={
-            hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
-          }
-        />
+    <>
+      {isConnected && (
+        <div className="with-global-bootstrap-styles">
+          <Workspace namespace={namespace} />
+        </div>
+      )}
+      {/* Hide <Connections> but keep it in scope if connected so that the connection
+          import/export functionality can still be used through the application menu */}
+      <div
+        className={isConnected ? hiddenStyles : homeViewStyles}
+        data-hidden={isConnected}
+        data-testid="home-view"
+      >
+        <div className={homePageStyles}>
+          <Connections
+            onConnected={onConnected}
+            isConnected={isConnected}
+            appName={appName}
+            getAutoConnectInfo={
+              hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
+            }
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -311,11 +326,12 @@ function getCurrentTheme(): Theme {
 
 function ThemedHome(
   props: React.ComponentProps<typeof Home> & {
-    showWelcomeModal: boolean;
-    networkTraffic: boolean;
+    showWelcomeModal?: boolean;
   }
 ): ReturnType<typeof Home> {
-  const { showWelcomeModal, networkTraffic } = props;
+  const {
+    showWelcomeModal = !preferences.getPreferences().showedNetworkOptIn,
+  } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
@@ -364,7 +380,7 @@ function ThemedHome(
   }, [appRegistry]);
 
   const closeWelcomeModal = useCallback(
-    (showSettings: boolean) => {
+    (showSettings?: boolean) => {
       async function close() {
         await preferences.ensureDefaultConfigurableUserPreferences();
         setIsWelcomeOpen(false);
@@ -386,11 +402,7 @@ function ThemedHome(
     <LeafyGreenProvider>
       <ThemeProvider theme={theme}>
         {showWelcomeModal && (
-          <Welcome
-            isOpen={isWelcomeOpen}
-            closeModal={closeWelcomeModal}
-            networkTraffic={networkTraffic}
-          />
+          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
         )}
         <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
         <ToastArea>

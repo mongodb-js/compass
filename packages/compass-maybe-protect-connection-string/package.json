@@ -51,7 +51,7 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "compass-preferences-model": "^2.2.0",
+    "compass-preferences-model": "^2.3.0",
     "mongodb-connection-string-url": "^2.5.4"
   },
   "devDependencies": {

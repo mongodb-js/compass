@@ -8,7 +8,7 @@ import INDEX_TYPES from '../../constants/index-types';
 
 import styles from './explain-summary.module.less';
 
-import { KeylineCard } from '@mongodb-js/compass-components';
+import { KeylineCard, Subtitle } from '@mongodb-js/compass-components';
 
 /**
  * The base url.
@@ -57,7 +57,7 @@ class ExplainSummary extends Component {
           className={styles['explain-summary']}
           data-testid="explain-summary"
         >
-          <h3>Query Performance Summary</h3>
+          <Subtitle>Query Performance Summary</Subtitle>
           <FlexBox alignItems="flex-start">
             <div className={styles['summary-stats']}>
               <SummaryStat

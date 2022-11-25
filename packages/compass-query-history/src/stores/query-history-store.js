@@ -85,7 +85,7 @@ const configureStore = (options = {}) => {
     const favoriteListStore = localAppRegistry.getStore(FAVORITE_LIST_STORE);
     const recentListStore = localAppRegistry.getStore(RECENT_LIST_STORE);
 
-    if (!favoriteListStore.saveRecent) {
+    if (!favoriteListStore.saveFavorite) {
       localAppRegistry.registerStore(
         FAVORITE_LIST_STORE,
         configureFavoriteListStore(options)

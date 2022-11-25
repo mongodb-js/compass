@@ -24,6 +24,7 @@
   "license": "SSPL",
   "main": "dist/index.js",
   "compass:main": "src/index.js",
+  "types": "dist/src/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
@@ -32,10 +33,12 @@
     ".": "./src/index.js"
   },
   "scripts": {
+    "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
+    "postcompile": "tsc --emitDeclarationOnly",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
@@ -60,6 +63,7 @@
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.1.0",
     "@mongodb-js/connection-form": "^1.3.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
+    "compass-preferences-model": "^2.3.0",
     "mongodb-data-service": "^22.2.0",
     "mongodb-instance-model": "^12.2.0",
     "react": "^16.14.0"
@@ -71,6 +75,7 @@
     "@mongodb-js/compass-maybe-protect-connection-string": "^0.1.0",
     "@mongodb-js/connection-form": "^1.3.0",
     "@mongodb-js/mongodb-redux-common": "^2.0.2",
+    "compass-preferences-model": "^2.3.0",
     "mongodb-data-service": "^22.2.0",
     "mongodb-instance-model": "^12.2.0",
     "react": "^16.14.0"

@@ -25,6 +25,7 @@
   ],
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
+  "types": "dist/src/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
@@ -33,10 +34,12 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
+    "postcompile": "tsc --emitDeclarationOnly",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
@@ -58,6 +61,7 @@
     "@mongodb-js/compass-editor": "^0.2.0",
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-constants": "^0.1.4",
+    "compass-preferences-model": "^2.3.0",
     "hadron-react-components": "^6.3.0",
     "react": "^16.14.0"
   },
@@ -96,6 +100,7 @@
     "@mongodb-js/compass-editor": "^0.2.0",
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-constants": "^0.1.4",
+    "compass-preferences-model": "^2.3.0",
     "hadron-react-components": "^6.3.0",
     "react": "^16.14.0"
   }

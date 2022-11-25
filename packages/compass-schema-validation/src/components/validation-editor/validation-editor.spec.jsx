@@ -6,7 +6,6 @@ import AppRegistry from 'hadron-app-registry';
 import hadronApp from 'hadron-app';
 
 import ValidationEditor from '../validation-editor';
-import styles from './validation-editor.module.less';
 
 describe('ValidationEditor [Component]', function () {
   context('when it is an editable mode', function () {
@@ -57,7 +56,7 @@ describe('ValidationEditor [Component]', function () {
     });
 
     it('renders the wrapper div', function () {
-      expect(component.find(`.${styles['validation-editor']}`)).to.be.present();
+      expect(component.find('ValidationEditor')).to.be.present();
       expect(component.find('ReactAce').props().readOnly).to.be.equal(false);
     });
   });

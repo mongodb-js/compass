@@ -18,6 +18,7 @@ import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import preferences from 'compass-preferences-model';
 import { setupTheme } from './theme';
+import { shouldWindowAutoConnect, onCompassDisconnect } from './auto-connect';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
 
@@ -56,9 +57,6 @@ const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
 const DEFAULT_URL =
   process.env.COMPASS_INDEX_RENDERER_URL ||
   pathToFileURL(path.join(__dirname, 'index.html')).toString();
-
-// track if app was launched, @see `renderer ready` handler below
-let appLaunched = false;
 
 async function showWindowWhenReady(bw: BrowserWindow) {
   await once(bw, 'ready-to-show');
@@ -137,18 +135,6 @@ function showConnectWindow(
   void window.loadURL(url);
 
   /**
-   * Open devtools for this window when it's opened.
-   *
-   * @example DEVTOOLS=1 npm start
-   * @see scripts/start.js
-   */
-  if (process.env.DEVTOOLS) {
-    window.webContents.openDevTools({
-      mode: 'detach',
-    });
-  }
-
-  /**
    * Open all external links in the system's web browser.
    * TODO: https://jira.mongodb.org/browse/COMPASS-5187
    */
@@ -158,22 +144,6 @@ function showConnectWindow(
   });
 
   return window;
-}
-
-/**
- * can't use webContents `did-finish-load` event here because
- * metrics aren't set up at that point. renderer app sends custom event
- * `window:renderer-ready` when metrics are set up. If first app launch,
- * send back `app:launched` message at that point.
- *
- * @param {Object} sender   original sender of the event
- */
-function rendererReady(bw: BrowserWindow) {
-  if (!appLaunched) {
-    appLaunched = true;
-    debug('sending `app:launched` msg back');
-    bw.webContents.send('app:launched');
-  }
 }
 
 /**
@@ -264,7 +234,6 @@ class CompassWindowManager {
     });
 
     ipcMain.respondTo({
-      'window:renderer-ready': rendererReady,
       'app:show-info-dialog': showInfoDialog,
       'app:find-in-page': onFindInPage,
       'app:stop-find-in-page': onStopFindInPage,
@@ -274,6 +243,9 @@ class CompassWindowManager {
       'compass:log'(_bw, meta) {
         ipcMain.broadcast('compass:log', meta);
       },
+      'compass:disconnected': onCompassDisconnect,
+      'compass:should-window-auto-connect': shouldWindowAutoConnect,
+      'test:show-connect-window': () => showConnectWindow(compassApp),
     });
 
     await showConnectWindowWhenReady(compassApp);

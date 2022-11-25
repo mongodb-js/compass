@@ -1,15 +1,49 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import CheckCircle from '../check-circle';
-import CrossCircle from '../cross-circle';
 import DocumentPreview from '../document-preview';
-import LoadingOverlay from '../loading-overlay';
 
-import styles from './sample-documents.module.less';
+import {
+  Icon,
+  Body,
+  css,
+  cx,
+  spacing,
+  palette,
+} from '@mongodb-js/compass-components';
 
 /**
  * The Sample Documents editor component.
  */
+
+const sampleDocumentsStyles = css({
+  marginTop: spacing[4],
+  display: 'flex',
+  gap: spacing[3],
+});
+
+const sampleDocumentStyles = css({
+  flex: 1,
+});
+
+const documentHeadingStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+  marginBottom: spacing[3],
+});
+
+const matchingStyles = css({
+  color: palette.green.dark2,
+});
+
+const notMatchingStyles = css({
+  color: palette.red.dark2,
+});
+
+const documentHeadingTextStyles = css({
+  fontWeight: 'bold',
+  color: 'inherit',
+});
 class SampleDocuments extends Component {
   static displayName = 'SampleDocuments';
 
@@ -41,18 +75,18 @@ class SampleDocuments extends Component {
    * @returns {React.Component} The component.
    */
   renderMatchingDocuments() {
-    const title = 'Sample Document That Passed Validation';
+    const title = 'Sample document that passed validation';
 
     return (
-      <div
-        className={styles['document-container']}
-        data-testid="matching-documents"
-      >
-        <div className={styles['matching-documents']}>
-          <CheckCircle />
-          <span className={styles['matching-documents-title']}>{title}</span>
+      <div className={sampleDocumentStyles} data-testid="matching-documents">
+        <div className={cx(documentHeadingStyles, matchingStyles)}>
+          <Icon glyph="InfoWithCircle" size="small" />
+          <Body className={documentHeadingTextStyles}>{title}</Body>
         </div>
-        <DocumentPreview document={this.props.sampleDocuments.matching} />
+        <DocumentPreview
+          document={this.props.sampleDocuments.matching}
+          isLoading={this.props.sampleDocuments.isLoading}
+        />
       </div>
     );
   }
@@ -63,18 +97,18 @@ class SampleDocuments extends Component {
    * @returns {React.Component} The component.
    */
   renderNotMatchingDocuments() {
-    const title = 'Sample Document That Failed Validation';
+    const title = 'Sample document that failed falidation';
 
     return (
-      <div
-        className={styles['document-container']}
-        data-testid="notmatching-documents"
-      >
-        <div className={styles['notmatching-documents']}>
-          <CrossCircle />
-          <span className={styles['matching-documents-title']}>{title}</span>
+      <div className={sampleDocumentStyles} data-testid="notmatching-documents">
+        <div className={cx(documentHeadingStyles, notMatchingStyles)}>
+          <Icon glyph="XWithCircle" size="small" />
+          <Body className={documentHeadingTextStyles}>{title}</Body>
         </div>
-        <DocumentPreview document={this.props.sampleDocuments.notmatching} />
+        <DocumentPreview
+          document={this.props.sampleDocuments.notmatching}
+          isLoading={this.props.sampleDocuments.isLoading}
+        />
       </div>
     );
   }
@@ -86,14 +120,9 @@ class SampleDocuments extends Component {
    */
   render() {
     return (
-      <div className={styles['sample-documents']}>
-        <div className={styles['sample-documents-content']}>
-          {this.props.sampleDocuments.isLoading ? (
-            <LoadingOverlay text="Sampling Document..." />
-          ) : null}
-          {this.renderMatchingDocuments()}
-          {this.renderNotMatchingDocuments()}
-        </div>
+      <div className={sampleDocumentsStyles}>
+        {this.renderMatchingDocuments()}
+        {this.renderNotMatchingDocuments()}
       </div>
     );
   }

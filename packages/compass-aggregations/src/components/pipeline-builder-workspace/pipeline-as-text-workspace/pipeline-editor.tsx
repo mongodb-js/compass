@@ -29,18 +29,19 @@ const containerStyles = css({
   paddingTop: spacing[3],
   paddingBottom: spacing[2],
   gap: spacing[2],
+  marginRight: spacing[1],
 });
 
 const editorContainerStyles = css({
   flex: '1 1 100%',
-  overflow: 'scroll',
+  overflow: 'hidden',
 });
 
 const errorContainerStyles = css({
   flex: 'none',
   marginTop: 'auto',
-  marginLeft: spacing[2],
-  marginRight: spacing[2],
+  marginLeft: spacing[3],
+  marginRight: spacing[3],
 });
 
 type PipelineEditorProps = {
@@ -120,13 +121,14 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           onChangeText={onChangePipelineText}
           variant={EditorVariant.Shell}
           name={'pipeline-text-editor'}
+          data-testid={'pipeline-text-editor'}
           completer={completer}
           options={{ minLines: 16 }}
           onLoad={onLoadEditor}
         />
       </div>
       {showErrorContainer && (
-        <div className={errorContainerStyles}>
+        <div className={errorContainerStyles} data-testid="pipeline-as-text-error-container">
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (

@@ -766,6 +766,9 @@ export interface DataService {
    * helper class.
    */
   createDataKey(provider: string, options?: unknown): Promise<Document>;
+
+  getCSFLEMode(): 'enabled' | 'disabled' | 'unavailable';
+  getCSFLECollectionTracker(): CSFLECollectionTracker;
 }
 
 export class DataServiceImpl extends EventEmitter implements DataService {

@@ -52,6 +52,8 @@ import type {
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
 } from '../utils/csfle-handler';
+import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
+import { applyForceConnectionOptions } from '../utils/force-connection-options';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -666,7 +668,18 @@ function setInitialState({
 }
 
 export function adjustConnectionOptionsBeforeConnect(
-  connectionOptions: Readonly<ConnectionOptions>
+  connectionOptions: Readonly<ConnectionOptions>,
+  defaultAppName?: string
 ): ConnectionOptions {
-  return adjustCSFLEParams(cloneDeep(connectionOptions));
+  const transformers: ((
+    connectionOptions: Readonly<ConnectionOptions>
+  ) => ConnectionOptions)[] = [
+    adjustCSFLEParams,
+    setAppNameParamIfMissing(defaultAppName),
+    applyForceConnectionOptions,
+  ];
+  for (const transformer of transformers) {
+    connectionOptions = transformer(connectionOptions);
+  }
+  return connectionOptions;
 }

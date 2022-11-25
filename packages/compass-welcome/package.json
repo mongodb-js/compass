@@ -25,6 +25,7 @@
   "license": "SSPL",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
@@ -33,10 +34,12 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
+    "postcompile": "tsc --emitDeclarationOnly",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
@@ -56,10 +59,12 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.3.0",
+    "compass-preferences-model": "^2.3.0",
     "react": "*"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.3.0",
+    "compass-preferences-model": "^2.3.0",
     "react": "^16.14.0"
   },
   "devDependencies": {

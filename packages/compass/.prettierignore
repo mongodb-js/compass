@@ -1,0 +1,5 @@
+.nyc_output
+dist
+coverage
+build
+src/deps

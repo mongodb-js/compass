@@ -11,7 +11,6 @@ const configureActions = () => {
     'deleteRecent',
     'deleteFavorite',
     'addRecent',
-    'saveRecent',
     'saveFavorite',
     'cancelSave',
     'runQuery',

@@ -2,9 +2,13 @@ import type { Reducer } from 'redux';
 import type { Document } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '..';
 import { isAction } from '../../utils/is-action';
-import { updatePipelinePreview } from './builder-helpers';
+import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType, updatePipelinePreview } from './builder-helpers';
 import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { RESTORE_PIPELINE } from '../saved-pipeline';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export type PipelineMode = 'builder-ui' | 'as-text';
 
@@ -32,6 +36,15 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
   )) {
     return action.mode;
   }
+  if (action.type === RESTORE_PIPELINE) {
+    if (
+      process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' &&
+      // Force as-text editor mode if loaded pipeline contains syntax errors
+      action.syntaxErrors.length > 0
+    ) {
+      return 'as-text';
+    }
+  }
   return state;
 };
 
@@ -39,6 +52,10 @@ export const changePipelineMode = (
   newMode: PipelineMode
 ): PipelineBuilderThunkAction<void, PipelineModeToggledAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
+    if (newMode === getState().pipelineBuilder.pipelineMode) {
+      return;
+    }
+
     // Sync the PipelineBuilder
     if (newMode === 'as-text') {
       pipelineBuilder.stagesToSource();
@@ -55,8 +72,18 @@ export const changePipelineMode = (
       stages: pipelineBuilder.stages,
     });
 
+    const num_stages = getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    ).length;
+
+    track('Editor Type Changed', {
+      num_stages,
+      editor_view_type: mapPipelineModeToEditorViewType(newMode)
+    });
+
     dispatch(updatePipelinePreview());
-  }
+  };
 };
 
 export default reducer;

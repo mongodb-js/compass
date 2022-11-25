@@ -32,6 +32,7 @@ import mime from 'mime-types';
 
 import type { AnyAction, Dispatch } from 'redux';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { Document } from 'mongodb';
 
 import PROCESS_STATUS from '../constants/process-status';
 import FILE_TYPES from '../constants/file-types';
@@ -87,14 +88,21 @@ export const SET_IGNORE_BLANKS = `${PREFIX}/SET_IGNORE_BLANKS`;
 export const TOGGLE_INCLUDE_FIELD = `${PREFIX}/TOGGLE_INCLUDE_FIELD`;
 export const SET_FIELD_TYPE = `${PREFIX}/SET_FIELD_TYPE`;
 
-type FieldType = {
+export type FieldFromCSV = {
   path: string;
   checked: boolean;
-  type?: string; // Only on csv imports.
+  type: string; // Only on csv imports.
 };
+type FieldFromJSON = {
+  path: string;
+  checked: boolean;
+};
+type FieldType = FieldFromJSON | FieldFromCSV;
+
+export type CSVDelimiter = ',' | '\t' | ';' | ' ';
 
 type State = {
-  isOpen?: boolean;
+  isOpen: boolean;
   errors: Error[];
   fileType: AcceptedFileType | '';
   fileName: string;
@@ -108,12 +116,12 @@ type State = {
   docsWritten: number;
   guesstimatedDocsTotal: number;
   guesstimatedDocsProcessed: number;
-  delimiter: string;
+  delimiter: CSVDelimiter;
   stopOnErrors: boolean;
 
   ignoreBlanks: boolean;
   fields: FieldType[];
-  values: null[];
+  values: Document[];
   previewLoaded: boolean;
   exclude: string[];
   transform: [string, string | undefined][];
@@ -434,7 +442,7 @@ export const cancelImport = () => {
 const loadPreviewDocs = (
   fileName: string,
   fileType: 'json' | 'csv' | '',
-  delimiter: string,
+  delimiter: CSVDelimiter,
   fileIsMultilineJSON: boolean
 ): ThunkAction<void, RootImportState, void, AnyAction> => {
   return (dispatch: Dispatch): void => {
@@ -605,7 +613,7 @@ export const selectImportFileType = (fileType: 'json' | 'csv') => {
 /**
  * Set the tabular delimiter.
  */
-export const setDelimiter = (delimiter: string) => {
+export const setDelimiter = (delimiter: CSVDelimiter) => {
   return (
     dispatch: ThunkDispatch<RootImportState, void, AnyAction>,
     getState: () => RootImportState
@@ -749,9 +757,9 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       exclude: [],
     };
 
-    newState.transform = newState.fields
-      .filter((field: FieldType) => field.checked)
-      .map((field: FieldType) => [field.path, field.type]);
+    newState.transform = (newState.fields as FieldFromCSV[])
+      .filter((field) => field.checked)
+      .map((field) => [field.path, field.type]);
 
     return newState;
   }
@@ -776,7 +784,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       return field;
     });
 
-    newState.transform = newState.fields.map((field) => [
+    newState.transform = (newState.fields as FieldFromCSV[]).map((field) => [
       field.path,
       field.type,
     ]);
@@ -796,7 +804,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
       ...state,
     };
 
-    newState.fields = newState.fields.map((field) => {
+    newState.fields = (newState.fields as FieldFromCSV[]).map((field) => {
       if (field.path === action.path) {
         // If a user changes a field type, automatically check it for them
         // so they don't need an extra click or forget to click it an get frustrated
@@ -813,7 +821,7 @@ const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
 
     newState.transform = newState.fields
       .filter((field) => field.checked)
-      .map((field) => [field.path, field.type]);
+      .map((field) => [field.path, (field as FieldFromCSV).type]);
 
     return newState;
   }

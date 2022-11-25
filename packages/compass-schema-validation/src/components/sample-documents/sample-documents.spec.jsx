@@ -3,26 +3,24 @@ import { mount } from 'enzyme';
 import { expect } from 'chai';
 
 import SampleDocuments from '../sample-documents';
-import styles from './sample-documents.module.less';
 
 describe('SampleDocuments [Component]', function () {
-  let component;
-
-  beforeEach(function () {
+  it('renders matching and non-matching documents', function () {
     const sampleDocuments = {
       matching: {},
       notmatching: {},
       isLoading: false,
     };
 
-    component = mount(<SampleDocuments sampleDocuments={sampleDocuments} />);
-  });
+    const component = mount(
+      <SampleDocuments sampleDocuments={sampleDocuments} />
+    );
 
-  afterEach(function () {
-    component = null;
-  });
-
-  it('renders the wrapper div', function () {
-    expect(component.find(`.${styles['sample-documents']}`)).to.be.present();
+    expect(
+      component.find('[data-testid="matching-documents"]')
+    ).to.be.present();
+    expect(
+      component.find('[data-testid="notmatching-documents"]')
+    ).to.be.present();
   });
 });

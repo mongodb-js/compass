@@ -5,7 +5,7 @@ import {
   DEFAULT_PIPELINE,
   PipelineBuilder
 } from './pipeline-builder';
-
+import Stage from './stage';
 
 describe('PipelineBuilder', function () {
   const pipelineBuilder = new PipelineBuilder(mockDataService());
@@ -28,12 +28,27 @@ describe('PipelineBuilder', function () {
     expect(pipelineBuilder.source, 'resets to default value').to.deep.equal(DEFAULT_PIPELINE);
   });
 
-  it('changes source', function() {
-    const source = `[{$match: {name: /berlin/i}}]`;
-    pipelineBuilder.changeSource(source);
+  describe('changeSource', function () {
+    const tests = [
+      { source: `{}`, pipeline: null },
+      { source: `123`, pipeline: null },
+      { source: `true`, pipeline: null },
+      { source: `MinKey()`, pipeline: null },
+      { source: `function abc() {}`, pipeline: null },
+      { source: `[{$match: {_id: Math.random()}}]`, pipeline: null },
+      { source: `[{$match: {_id: 1}}]`, pipeline: [{ $match: { _id: 1 } }] },
+    ];
 
-    expect(pipelineBuilder.syntaxError.length).to.equal(0);
-    expect(pipelineBuilder.source).to.equal(source);
+    tests.forEach(({ source, pipeline }) => {
+      it(`should change source value to ${source}`, function () {
+        pipelineBuilder.changeSource(source);
+        expect(pipelineBuilder.source).to.eq(source);
+        expect(pipelineBuilder.pipeline).to.deep.eq(pipeline);
+        expect(pipelineBuilder.syntaxError).to.have.lengthOf(
+          pipeline === null ? 1 : 0
+        );
+      });
+    });
   });
 
   it('converts source to stages', function() {
@@ -149,4 +164,77 @@ describe('PipelineBuilder', function () {
     pipelineBuilder.reset(`[{$match: {_id: 1}}]\n// trailing comment`);
     expect(pipelineBuilder.syntaxError).to.have.lengthOf(0);
   });
+
+  describe('stagesToSource', function() {
+    it('converts stages to source', function() {
+      const stages = [
+        new Stage(),
+        new Stage(),
+        new Stage(),
+      ]
+      
+      stages[0].changeOperator('$match');
+      stages[0].changeValue('{ _id: 1 }');
+
+      stages[1].changeOperator('$limit');
+      stages[1].changeValue('10');
+
+      stages[2].changeOperator('$out');
+      stages[2].changeValue('"test-out"');
+
+      pipelineBuilder.stages = stages;
+
+      pipelineBuilder.stagesToSource();
+
+      expect(pipelineBuilder.source).to.eq(`[
+  {
+    $match: {
+      _id: 1,
+    },
+  },
+  {
+    $limit: 10,
+  },
+  {
+    $out: "test-out",
+  },
+]`);
+    });
+
+    it('throws if enabled stages has syntax errors', function () {
+      const stages = [new Stage()];
+
+      stages[0].changeOperator('$match');
+      stages[0].changeValue('{ _id: 1');
+
+      pipelineBuilder.stages = stages;
+
+      expect(() => pipelineBuilder.stagesToSource()).to.throw();
+    });
+
+    it('converts stages to source if stages with syntax errors are disabled', function() {
+      const stages = [new Stage()];
+
+      stages[0].changeOperator('$match');
+      stages[0].changeValue('{ _id: 1');
+      stages[0].changeDisabled(true);
+
+      pipelineBuilder.stages = stages;
+
+      pipelineBuilder.stagesToSource();
+
+      expect(pipelineBuilder.source).to.eq(`[
+  // {
+  //   $match: { _id: 1
+  // }
+]`);
+    });
+
+    it('ignores empty stages', function () {
+      const stages = [new Stage(), new Stage(), new Stage()];
+      pipelineBuilder.stages = stages;
+      pipelineBuilder.stagesToSource();
+      expect(pipelineBuilder.source).to.eq('[]');
+    });
+  })
 });

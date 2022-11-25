@@ -1,11 +1,8 @@
-import path from 'path'
+import path from 'path';
 import { nativeImage } from 'electron';
 import compassIconPath from '../app/images/compass-dialog-icon.png';
 
-const COMPASS_ICON = path.join(
-  __dirname,
-  compassIconPath
-);
+const COMPASS_ICON = path.join(__dirname, compassIconPath);
 
 /**
  * Convenience for getting the app icon to customize native UI components

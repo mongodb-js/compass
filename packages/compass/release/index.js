@@ -1,9 +1,5 @@
 /* eslint-disable no-console */
-const {
-  releaseBeta,
-  releaseGa,
-  releaseCheckout,
-} = require('./commands');
+const { releaseBeta, releaseGa, releaseCheckout } = require('./commands');
 
 function usage() {
   console.info(`Compass release CLI scripts.
@@ -57,7 +53,7 @@ main(process.argv.slice(2))
   .then(() => {
     process.exit(0);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });
@@ -99,4 +95,3 @@ function runHelpCommand(args) {
 
   return usage();
 }
-

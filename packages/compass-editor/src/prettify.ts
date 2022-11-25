@@ -1,12 +1,16 @@
 import prettier from 'prettier/standalone';
 import parserBabel from 'prettier/parser-babel';
+import type { Options as PrettierFormatOptions } from 'prettier';
+
+export type FormatOptions = Omit<PrettierFormatOptions, 'plugin' | 'parser'>;
 
 export function prettify(
   code: string,
   parser:
     | 'javascript-expression'
     | 'javascript'
-    | 'json' = 'javascript-expression'
+    | 'json' = 'javascript-expression',
+  formatOptions: FormatOptions = {}
 ) {
   return prettier
     .format(code, {
@@ -23,6 +27,7 @@ export function prettify(
           : parser === 'json'
           ? 'json'
           : 'babel',
+      ...formatOptions,
     })
     .trim();
 }

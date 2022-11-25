@@ -1,7 +1,7 @@
 import type { Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { isCancelError } from '../../utils/cancellable-promise';
+import { isCancelError } from '@mongodb-js/compass-utils';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import type { PipelineBuilderThunkAction } from '../';
 import { isAction } from '../../utils/is-action';
@@ -19,6 +19,9 @@ import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { isOutputStage } from '../../utils/stage';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 export const enum StageEditorActionTypes {
   StagePreviewFetch = 'compass-aggregations/pipeline-builder/stage-editor/StagePreviewFetch',
@@ -121,17 +124,14 @@ function canRunStage(
   stage?: StageEditorState['stages'][number],
   allowOut = false
 ): boolean {
-  if (
-    !stage ||
-    stage.value == null ||
-    stage.syntaxError ||
-    !stage.stageOperator ||
-    (!allowOut && ['$out', '$merge'].includes(stage.stageOperator))
-  ) {
-    return false;
-  }
-
-  return true;
+  return (
+    !!stage &&
+    (stage.disabled ||
+      (!stage.syntaxError &&
+        !!stage.value &&
+        !!stage.stageOperator &&
+        (allowOut || !isOutputStage(stage.stageOperator))))
+  );
 }
 
 export const loadStagePreview = (
@@ -380,6 +380,13 @@ export const changeStageOperator = (
     const currentOp = stage.operator;
 
     stage.changeOperator(newVal);
+    track('Aggregation Edited', {
+      num_stages: stages.length,
+      stage_action: 'stage_renamed',
+      stage_name: stage.operator,
+      stage_index: id + 1,
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
 
     // If there is no stage operator (this is a newly added stage) or current
@@ -429,6 +436,12 @@ export const addStage = (
 ): PipelineBuilderThunkAction<void, StageAddAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
     const stage = pipelineBuilder.addStage(after);
+    track('Aggregation Edited', {
+      num_stages: getState().pipelineBuilder.stageEditor.stages.length,
+      stage_action: 'stage_added',
+      stage_index: stage.id + 1,
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageAdded, after, stage });
   };
 };
@@ -437,7 +450,15 @@ export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {
   return (dispatch, getState, { pipelineBuilder }) => {
-    pipelineBuilder.removeStage(at);
+    const num_stages = getState().pipelineBuilder.stageEditor.stages.length;
+    const stage = pipelineBuilder.removeStage(at);
+    track('Aggregation Edited', {
+      num_stages,
+      stage_action: 'stage_deleted',
+      stage_name: stage.operator,
+      stage_index: at + 1,
+      editor_view_type: 'stage',
+    });
     dispatch({ type: StageEditorActionTypes.StageRemoved, at });
     dispatch(loadPreviewForStagesFrom(at));
   };
@@ -451,6 +472,14 @@ export const moveStage = (
     if (from === to) {
       return;
     }
+    const pipeline = getState().pipelineBuilder.stageEditor.stages;
+    track('Aggregation Edited', {
+      num_stages: pipeline.length,
+      stage_action: 'stage_reordered',
+      stage_name: pipeline[from].stageOperator,
+      stage_index: from + 1,
+      editor_view_type: 'stage',
+    });
     pipelineBuilder.moveStage(from, to);
     dispatch({ type: StageEditorActionTypes.StageMoved, from, to });
     dispatch(loadPreviewForStagesFrom(Math.min(from, to)));
@@ -469,6 +498,7 @@ export type StageEditorState = {
     previewDocs: Document[] | null;
     collapsed: boolean;
     disabled: boolean;
+    empty: boolean;
   }[];
 };
 
@@ -484,7 +514,8 @@ export function mapBuilderStageToStoreStage(
     serverError: null,
     loading: false,
     previewDocs: null,
-    collapsed: false
+    collapsed: false,
+    empty: stage.isEmpty,
   };
 }
 
@@ -609,7 +640,8 @@ const reducer: Reducer<StageEditorState> = (
           ...state.stages[action.id],
           previewDocs: null,
           value: action.stage.value,
-          syntaxError: action.stage.syntaxError
+          syntaxError: action.stage.syntaxError,
+          empty: action.stage.isEmpty,
         },
         ...state.stages.slice(action.id + 1)
       ]
@@ -630,7 +662,8 @@ const reducer: Reducer<StageEditorState> = (
           ...state.stages[action.id],
           previewDocs: null,
           stageOperator: action.stage.operator,
-          syntaxError: action.stage.syntaxError
+          syntaxError: action.stage.syntaxError,
+          empty: action.stage.isEmpty,
         },
         ...state.stages.slice(action.id + 1)
       ]

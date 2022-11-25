@@ -4,6 +4,7 @@ import type { AmpersandMethodOptions } from '@mongodb-js/compass-utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { parseRecord } from './parse-record';
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-PREFERENCES');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -16,12 +17,17 @@ export type UserConfigurablePreferences = {
   // User-facing preferences
   autoUpdates: boolean;
   enableMaps: boolean;
-  trackErrors: boolean;
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
   networkTraffic: boolean;
+  readOnly: boolean;
+  enableShell: boolean;
   protectConnectionStrings?: boolean;
+  forceConnectionOptions?: [key: string, value: string][];
+  showKerberosPasswordField: boolean;
+  enableDevTools: boolean;
   theme: THEMES;
+  maxTimeMS?: number;
 };
 
 export type InternalUserPreferences = {
@@ -51,6 +57,8 @@ export type NonUserPreferences = {
   ignoreAdditionalCommandLineFlags?: boolean;
   positionalArguments?: string[];
   file?: string;
+  username?: string;
+  password?: string;
 };
 
 export type FeatureFlags = {
@@ -92,6 +100,11 @@ export type AmpersandType<T> = T extends string
   ? 'object'
   : never;
 
+type PostProcessFunction<T> = (
+  input: unknown,
+  error: (message: string) => void
+) => T;
+
 type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** The type of the preference value, in Ampersand naming */
   type: AmpersandType<AllPreferences[K]>;
@@ -121,6 +134,8 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
     : { short: string; long?: string };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
+  /** A method for cleaning up/normalizing input from the command line or global config file */
+  customPostProcess?: PostProcessFunction<AllPreferences[K]>;
 };
 
 type DeriveValueFunction<T> = (
@@ -138,10 +153,43 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
     value: v(property) && v('networkTraffic'),
     state:
       s(property) ??
-      s('networkTraffic') ??
-      (v('networkTraffic') ? undefined : 'derived'),
+      (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
   });
 }
+
+/** Helper for defining how to derive value/state for feature-restricting preferences */
+function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value:
+      v(property) &&
+      v('enableShell') &&
+      !v('maxTimeMS') &&
+      !v('protectConnectionStrings') &&
+      !v('readOnly'),
+    state:
+      s(property) ??
+      (v('protectConnectionStrings')
+        ? s('protectConnectionStrings') ?? 'derived'
+        : undefined) ??
+      (v('readOnly') ? s('readOnly') ?? 'derived' : undefined) ??
+      (v('enableShell') ? undefined : s('enableShell') ?? 'derived') ??
+      (v('maxTimeMS') ? s('maxTimeMS') ?? 'derived' : undefined),
+  });
+}
+
+/** Helper for defining how to derive value/state for readOnly-affected preferences */
+function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value: v(property) && !v('readOnly'),
+    state:
+      s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
+  });
+}
+
 const modelPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
 }> = {
@@ -241,6 +289,37 @@ const modelPreferencesProps: Required<{
     },
   },
   /**
+   * Removes features that write to the database from the UI.
+   */
+  readOnly: {
+    type: 'boolean',
+    required: true,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Set Read-Only Mode',
+      long: 'Limit Compass strictly to read operations, with all write and delete capabilities removed.',
+    },
+  },
+  /**
+   * Switch to enable/disable the embedded shell.
+   */
+  enableShell: {
+    type: 'boolean',
+    required: true,
+    default: true,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable MongoDB Shell',
+      long: 'Allow Compass to interacting with MongoDB deployments via the embedded shell.',
+    },
+    deriveValue: deriveReadOnlyOptionState('enableShell'),
+  },
+  /**
    * Switch to enable/disable maps rendering.
    */
   enableMaps: {
@@ -255,22 +334,6 @@ const modelPreferencesProps: Required<{
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
-  },
-  /**
-   * Switch to enable/disable error reports.
-   */
-  trackErrors: {
-    type: 'boolean',
-    required: true,
-    default: false,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable Crash Reports',
-      long: 'Allow Compass to send crash reports containing stack traces and unhandled exceptions.',
-    },
-    deriveValue: deriveNetworkTrafficOptionState('trackErrors'),
   },
   /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
@@ -334,6 +397,67 @@ const modelPreferencesProps: Required<{
     description: {
       short: 'Protect Connection String Secrets',
       long: 'Hide credentials in connection strings from users.',
+    },
+  },
+  /**
+   * Switch to enable DevTools in Electron.
+   */
+  enableDevTools: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable DevTools',
+      long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
+    },
+    deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
+  },
+  /**
+   * Switch to show the Kerberos password field in the connection form.
+   */
+  showKerberosPasswordField: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Kerberos Password Field',
+      long: 'Show a password field for Kerberos authentication. Typically only useful when attempting to authenticate as another user than the current system user.',
+    },
+  },
+  /**
+   * Override certain connection string properties.
+   */
+  forceConnectionOptions: {
+    type: 'array',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Override Connection String Properties',
+      long: 'Force connection string properties to take specific values',
+    },
+    customPostProcess: parseRecord,
+  },
+  /**
+   * Set an upper limit for maxTimeMS for operations started by Compass.
+   */
+  maxTimeMS: {
+    type: 'number',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Upper Limit for maxTimeMS for Compass Database Operations',
     },
   },
 };
@@ -432,6 +556,26 @@ const nonUserPreferences: Required<{
       short: 'Specify a List of Connections for Automatically Connecting',
     },
   },
+  username: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Specify a Username for Automatically Connecting',
+    },
+  },
+  password: {
+    type: 'string',
+    required: false,
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Specify a Password for Automatically Connecting',
+    },
+  },
 };
 
 const featureFlagsProps: Required<{
@@ -465,22 +609,35 @@ export const allPreferencesProps: Required<{
   ...featureFlagsProps,
 };
 
-export function getSettingDescription(
-  name: Exclude<keyof AllPreferences, keyof InternalUserPreferences>
-): { short: string; long?: string } {
-  return allPreferencesProps[name].description;
+export function getSettingDescription<
+  Name extends Exclude<keyof AllPreferences, keyof InternalUserPreferences>
+>(
+  name: Name
+): Pick<PreferenceDefinition<Name>, 'description' | 'type' | 'required'> {
+  const { description, type, required } = allPreferencesProps[
+    name
+  ] as PreferenceDefinition<Name>;
+  return { description, type, required };
 }
 
+/* Identifies a source from which the preference was set */
 export type PreferenceState =
-  | 'set-cli'
-  | 'set-global'
+  | 'set-cli' // Can be set directly or derived from a preference set via cli args.
+  | 'set-global' // Can be set directly or derived from a preference set via global config.
   | 'hardcoded'
-  | 'derived'
+  | 'derived' // Derived from a preference set by a user via setting UI.
   | undefined;
 
 export type PreferenceStateInformation = Partial<
   Record<keyof AllPreferences, PreferenceState>
 >;
+
+export type PreferenceSandboxProperties = string;
+// Internal to the Preferences class, so PreferenceSandboxProperties is an opaque string
+type PreferenceSandboxPropertiesImpl = {
+  user: UserPreferences;
+  global: Partial<ParsedGlobalPreferencesResult>;
+};
 
 export class Preferences {
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
@@ -493,18 +650,27 @@ export class Preferences {
 
   constructor(
     basepath?: string,
-    globalPreferences?: Partial<ParsedGlobalPreferencesResult>
+    globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
+    isSandbox?: boolean
   ) {
-    // User preferences are stored to disc via the Ampersand model.
-    const PreferencesModel = Model.extend(storageMixin, {
+    const ampersandModelDefinition = {
       props: modelPreferencesProps,
       extraProperties: 'ignore',
       idAttribute: 'id',
+    };
+    // User preferences are stored to disk via the Ampersand model,
+    // or not stored externally at all if that was requested.
+    const PreferencesModel = Model.extend(storageMixin, {
+      ...ampersandModelDefinition,
       namespace: 'AppPreferences',
-      storage: {
-        backend: 'disk',
-        basepath,
-      },
+      storage: isSandbox
+        ? {
+            backend: 'null',
+          }
+        : {
+            backend: 'disk',
+            basepath,
+          },
     });
 
     this._onPreferencesChangedCallbacks = [];
@@ -526,6 +692,27 @@ export class Preferences {
     }
   }
 
+  // Returns a value that can be passed to Preferences.CreateSandbox()
+  getPreferenceSandboxProperties(): Promise<PreferenceSandboxProperties> {
+    const value: PreferenceSandboxPropertiesImpl = {
+      user: this._getUserPreferenceModelValues(),
+      global: this._globalPreferences,
+    };
+    return Promise.resolve(JSON.stringify(value));
+  }
+
+  // Create a
+  static async CreateSandbox(
+    props: PreferenceSandboxProperties | undefined
+  ): Promise<Preferences> {
+    const { user, global } = props
+      ? (JSON.parse(props) as PreferenceSandboxPropertiesImpl)
+      : { user: {}, global: {} };
+    const instance = new Preferences(undefined, global, true);
+    await instance.savePreferences(user);
+    return instance;
+  }
+
   /**
    * Load preferences from the user preference storage.
    * The return value also accounts for preferences set from other sources.
@@ -533,6 +720,7 @@ export class Preferences {
    * @returns The currently active set of preferences.
    */
   async fetchPreferences(): Promise<AllPreferences> {
+    const originalPreferences = this.getPreferences();
     const userPreferencesModel = this._userPreferencesModel;
 
     // Fetch user preferences from the Ampersand model.
@@ -553,7 +741,10 @@ export class Preferences {
       );
     }
 
-    return this.getPreferences();
+    const newPreferences = this.getPreferences();
+    this._afterPreferencesUpdate(originalPreferences, newPreferences);
+
+    return newPreferences;
   }
 
   /**
@@ -572,7 +763,7 @@ export class Preferences {
     attributes: Partial<UserPreferences> = {}
   ): Promise<AllPreferences> {
     const keys = Object.keys(attributes) as (keyof UserPreferences)[];
-    const originalPreferences = this.getPreferences();
+    const originalPreferences = await this.fetchPreferences();
     if (keys.length === 0) {
       return originalPreferences;
     }
@@ -608,6 +799,15 @@ export class Preferences {
     }
 
     const newPreferences = this.getPreferences();
+    this._afterPreferencesUpdate(originalPreferences, newPreferences);
+
+    return newPreferences;
+  }
+
+  _afterPreferencesUpdate(
+    originalPreferences: AllPreferences,
+    newPreferences: AllPreferences
+  ): void {
     const changedPreferences = Object.fromEntries(
       Object.entries(newPreferences).filter(
         ([key, value]) =>
@@ -617,8 +817,6 @@ export class Preferences {
     if (Object.keys(changedPreferences).length > 0) {
       this._callOnPreferencesChanged(changedPreferences);
     }
-
-    return newPreferences;
   }
 
   /**
@@ -630,12 +828,16 @@ export class Preferences {
     return this._computePreferenceValuesAndStates().values;
   }
 
+  private _getUserPreferenceModelValues(): UserPreferences {
+    return this._userPreferencesModel.getAttributes({
+      props: true,
+      derived: true,
+    });
+  }
+
   private _getStoredValues(): AllPreferences {
     return {
-      ...this._userPreferencesModel.getAttributes({
-        props: true,
-        derived: true,
-      }),
+      ...this._getUserPreferenceModelValues(),
       ...this._globalPreferences.cli,
       ...this._globalPreferences.global,
       ...this._globalPreferences.hardcoded,
@@ -703,7 +905,6 @@ export class Preferences {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
-        trackErrors: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,

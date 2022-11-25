@@ -11,7 +11,7 @@ import {
   RadioBox,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
-import { changeFieldValue } from '../../stores/updated-fields';
+import { changeFieldValue } from '../../stores/settings';
 import type {
   PreferenceStateInformation,
   THEMES,

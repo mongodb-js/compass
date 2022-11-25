@@ -71,7 +71,7 @@ const configureStore = (options = {}) => {
       });
 
       /* Ignore duplicate queries */
-      const existingQuery = this.state.items.find((item) =>
+      const existingQuery = filtered.find((item) =>
         _.isEqual(comparableQuery(item), recent)
       );
       if (existingQuery) {

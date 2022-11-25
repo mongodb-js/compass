@@ -1,9 +1,9 @@
 import * as babelParser from '@babel/parser';
 import type * as t from '@babel/types';
+import type Stage from '../stage';
 import StageParser, {
   stageToAstComments,
   assertStageNode,
-  isNodeDisabled,
   setNodeDisabled
 } from './stage-parser';
 import { generate } from './utils';
@@ -145,10 +145,11 @@ export default class PipelineParser {
     }
     return { root, errors };
   }
+
   // Generate source from stages
-  static generate(root: t.ArrayExpression, stages: t.Expression[]): string {
+  static generate(root: t.ArrayExpression, stages: Stage[]): string {
     const isAllDisabled = stages.length && stages.every((stage) => {
-      return isNodeDisabled(stage);
+      return stage.disabled;
     });
     // Special case where all stages should be added as inner comments to the
     // array expression
@@ -163,24 +164,26 @@ export default class PipelineParser {
     return generate(root);
   }
 
-  static _getStageNodes(stages: t.Expression[]): t.ArrayExpression['elements'] {
-    const elements: t.ArrayExpression['elements'] = [];
+  static _getStageNodes(stages: Stage[]): t.Expression[] {
+    const elements: t.Expression[] = [];
     let unusedComments: t.CommentLine[] = [];
 
     for (const stage of stages) {
       // If node is disabled, store the node as comments for later use
-      if (isNodeDisabled(stage)) {
+      if (stage.disabled) {
         const comments = stageToAstComments(stage);
         unusedComments.push(...comments);
         continue;
       }
 
+      const stageNode = stage.node;
+
       // If node is enabled and there are some comments in the stack, attach
       // them as as leading comments to the stage
       if (unusedComments.length) {
-        stage.leadingComments = [
+        stageNode.leadingComments = [
           ...unusedComments,
-          ...(stage.leadingComments ?? [])
+          ...(stageNode.leadingComments ?? [])
         ];
         unusedComments = [];
       }
@@ -194,9 +197,9 @@ export default class PipelineParser {
       // comment on a separate line to allow parser to format comments corrently
       // and avoid leading comments of a stage overlap with the end of the
       // previous stage
-      adjustStageLoc(stage, previousLine);
+      adjustStageLoc(stageNode, previousLine);
 
-      elements.push(stage);
+      elements.push(stageNode);
     }
 
     const lastStage = elements[elements.length - 1];

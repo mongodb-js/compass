@@ -58,7 +58,9 @@ export async function setupIntercom(
 
     debug('intercom is reachable, proceeding with the setup');
   } else {
-    debug('not testing intercom connectivity because enableFeedbackPanel == false');
+    debug(
+      'not testing intercom connectivity because enableFeedbackPanel == false'
+    );
   }
 
   const toggleEnableFeedbackPanel = (enableFeedbackPanel: boolean) => {
@@ -73,8 +75,11 @@ export async function setupIntercom(
 
   toggleEnableFeedbackPanel(!!enableFeedbackPanel);
 
-  preferences.onPreferenceValueChanged('enableFeedbackPanel', (enableFeedbackPanel) => {
-    debug('enableFeedbackPanel changed');
-    toggleEnableFeedbackPanel(enableFeedbackPanel);
-  });
+  preferences.onPreferenceValueChanged(
+    'enableFeedbackPanel',
+    (enableFeedbackPanel) => {
+      debug('enableFeedbackPanel changed');
+      toggleEnableFeedbackPanel(enableFeedbackPanel);
+    }
+  );
 }

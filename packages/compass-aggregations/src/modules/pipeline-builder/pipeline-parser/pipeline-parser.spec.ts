@@ -478,10 +478,10 @@ describe('PipelineParser', function () {
   describe('generates pipeline string', function () {
     pipelines.forEach(({ input, output, pipeline, usecase }) => {
       it(usecase, function () {
-        const { root, stages } = PipelineParser.parse(input);
+        const { root, stages: nodes } = PipelineParser.parse(input);
+        const stages = nodes.map(node => new Stage(node));
         expect(stages).to.have.lengthOf(pipeline.length);
-        stages.forEach((node, index) => {
-          const stage = new Stage(node);
+        stages.forEach((stage, index) => {
           expect(
             stage.disabled,
             `expected ${stage.operator} stage to be ${

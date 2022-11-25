@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -135,7 +135,7 @@ function ConnectForm({
       enableEditingConnectionString: _enableEditingConnectionString,
       isDirty,
       errors,
-      warnings,
+      warnings: _warnings,
       connectionOptions,
       allowEditingIfProtected,
     },
@@ -151,6 +151,21 @@ function ConnectForm({
     !allowEditingIfProtected;
   const enableEditingConnectionString =
     _enableEditingConnectionString && !protectConnectionStrings;
+
+  const forceConnectionOptions = usePreference('forceConnectionOptions', React);
+  const warnings = useMemo(() => {
+    if (!forceConnectionOptions?.length) return _warnings;
+    const overriddenKeys = forceConnectionOptions.map(([key]) => key);
+    return [
+      ..._warnings,
+      // Do not include values here, only keys, since values might contain sensitive information/credentials
+      {
+        message: `Some connection options have been overridden through settings: ${overriddenKeys.join(
+          ', '
+        )}`,
+      },
+    ];
+  }, [_warnings, forceConnectionOptions]);
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'

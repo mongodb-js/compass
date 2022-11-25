@@ -3,20 +3,15 @@ import { shallow } from 'enzyme';
 import { expect } from 'chai';
 
 import DocumentPreview from '../document-preview';
-import styles from './document-preview.module.less';
 
 describe('DocumentPreview [Component]', function () {
-  let component;
-
-  beforeEach(function () {
-    component = shallow(<DocumentPreview document={{}} />);
+  it('renders a Document if there is a document', function () {
+    const component = shallow(<DocumentPreview document={{}} />);
+    expect(component.find('Document')).to.be.present();
   });
 
-  afterEach(function () {
-    component = null;
-  });
-
-  it('renders the wrapper div', function () {
-    expect(component.find(`.${styles['document-preview']}`)).to.be.present();
+  it('renders No Preview Documents if there is no document', function () {
+    const component = shallow(<DocumentPreview />);
+    expect(component).to.have.text('No Preview Documents');
   });
 });

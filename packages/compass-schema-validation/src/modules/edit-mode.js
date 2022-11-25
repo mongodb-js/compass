@@ -8,7 +8,7 @@ export const EDIT_MODE_CHANGED = 'validation/namespace/EDIT_MODE_CHANGED';
  */
 export const INITIAL_STATE = {
   collectionReadOnly: false,
-  hadronReadOnly: false,
+  collectionTimeSeries: false,
   writeStateStoreReadOnly: false,
   oldServerReadOnly: false,
 };

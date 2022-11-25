@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getDirectory } from './get-directory';
-import { stageToString } from '../modules/pipeline-builder/stage';
+import { prettify } from '@mongodb-js/compass-editor';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -21,12 +21,34 @@ export type StoredPipeline = {
   lastModified: number;
 };
 
+function stageToString(operator: string, value: string, disabled: boolean): string {
+  const str = `{
+  ${operator}: ${value}
+}`;
+
+  if (!disabled) {
+    return str;
+  }
+
+  return str.split('\n')
+    .map((line) => `// ${line}`)
+    .join('\n');
+}
+
 function savedPipelineToText(pipeline: StoredPipeline['pipeline']): string {
   const stages = pipeline?.map(({ stageOperator, isEnabled, stage }) =>
     stageToString(stageOperator, stage, !isEnabled)
   ) ?? [];
 
-  return `[\n${stages.join(',\n')}\n]`;
+  const source = `[\n${stages.join(',\n')}\n]`;
+
+  try {
+    return prettify(source);
+  } catch {
+    // In case there are syntax errors in the source and we couldn't prettify it
+    // before loading
+    return source;
+  }
 }
 
 function hasAllRequiredKeys(pipeline?: any): pipeline is StoredPipeline {

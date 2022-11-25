@@ -92,7 +92,7 @@ function AtlasHelpSection({ darkMode }: { darkMode?: boolean }) {
           )}
           onClick={() => track('Atlas Link Clicked', { screen: 'connect' })}
           variant={ButtonVariant.PrimaryOutline}
-          href="https://www.mongodb.com/cloud/atlas/lp/general/try?utm_source=compass&utm_medium=product"
+          href="https://www.mongodb.com/cloud/atlas/lp/try4?utm_source=compass&utm_medium=product&utm_content=v1"
           target="_blank"
           size={ButtonSize.Small}
         >

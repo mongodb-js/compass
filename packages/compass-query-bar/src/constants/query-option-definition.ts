@@ -1,3 +1,8 @@
+import type { TextInput } from '@mongodb-js/compass-components';
+import type { ComponentProps } from 'react';
+import React from 'react';
+import { usePreference } from 'compass-preferences-model';
+
 export type QueryOption =
   | 'filter'
   | 'project'
@@ -14,6 +19,7 @@ export const OPTION_DEFINITION: {
     placeholder: string;
     link: string;
     label?: string;
+    extraTextInputProps?: () => Partial<ComponentProps<typeof TextInput>>;
   };
 } = {
   filter: {
@@ -58,6 +64,16 @@ export const OPTION_DEFINITION: {
     type: 'numeric',
     placeholder: '60000',
     link: 'https://docs.mongodb.com/manual/reference/method/cursor.maxTimeMS/',
+    extraTextInputProps() {
+      const preferenceMaxTimeMS = usePreference('maxTimeMS', React);
+      const props: { max?: number; placeholder?: string } = {
+        max: preferenceMaxTimeMS,
+      };
+      if (preferenceMaxTimeMS !== undefined && preferenceMaxTimeMS < 60000) {
+        props.placeholder = String(preferenceMaxTimeMS);
+      }
+      return props;
+    },
   },
 };
 

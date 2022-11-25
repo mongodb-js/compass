@@ -29,6 +29,7 @@ describe('CompassShell', () => {
       wrapper = mount(<CompassShell
         runtime={fakeRuntime}
         emitShellPluginOpened={emitShellOpenedSpy}
+        enableShell
       />);
     });
 
@@ -75,6 +76,7 @@ describe('CompassShell', () => {
         wrapper = mount(<CompassShell
           runtime={fakeRuntime}
           emitShellPluginOpened={() => {}}
+          enableShell
         />);
 
         wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
@@ -118,6 +120,7 @@ describe('CompassShell', () => {
             type: 'output',
             value: 'pineapple'
           }]}
+          enableShell
         />);
 
         wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
@@ -132,7 +135,7 @@ describe('CompassShell', () => {
 
     context('when historyStorage is not present', () => {
       it('passes an empty history to the Shell', () => {
-        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
+        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded enableShell />);
 
         expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
       });
@@ -145,6 +148,7 @@ describe('CompassShell', () => {
         wrapper = mount(<CompassShell
           runtime={fakeRuntime}
           emitShellPluginOpened={() => {}}
+          enableShell
         />);
 
         wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
@@ -198,6 +202,7 @@ describe('CompassShell', () => {
         runtime={{}}
         historyStorage={fakeStorage}
         isExpanded
+        enableShell
       />);
 
       await updateAndWaitAsync(wrapper);
@@ -210,6 +215,7 @@ describe('CompassShell', () => {
         runtime={{}}
         historyStorage={fakeStorage}
         isExpanded
+        enableShell
       />);
 
       await updateAndWaitAsync(wrapper);
@@ -246,6 +252,7 @@ describe('CompassShell', () => {
       wrapper = mount(<CompassShell
         runtime={fakeRuntime}
         emitShellPluginOpened={onOpenShellSpy}
+        enableShell
       />);
     });
     afterEach(() => {
