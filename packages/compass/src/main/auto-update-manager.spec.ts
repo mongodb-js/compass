@@ -206,6 +206,7 @@ describe('CompassAutoUpdateManager', function () {
           return [{ model: 'Apple' }] as os.CpuInfo[];
         });
         sandbox.stub(process, 'platform').get(() => 'darwin');
+        sandbox.stub(process, 'arch').get(() => 'x64');
       });
 
       it('should start downloading installer if user selects recommended options', async function () {
