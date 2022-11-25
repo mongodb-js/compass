@@ -7,7 +7,7 @@ import {
 } from './auto-update-manager';
 import autoUpdater from './auto-updater';
 import type { DownloadItem } from 'electron';
-import { app, dialog } from 'electron';
+import { dialog } from 'electron';
 import os from 'os';
 import dl from 'electron-dl';
 
@@ -274,8 +274,6 @@ describe('CompassAutoUpdateManager', function () {
         .callsFake(() => {
           return Promise.resolve({ response: 0, checkboxChecked: false });
         });
-      const relaunchStub = sandbox.stub(app, 'relaunch').callsFake(() => {});
-      const exitStub = sandbox.stub(app, 'exit').callsFake(() => {});
 
       expect(
         await setStateAndWaitForUpdate(
@@ -286,8 +284,7 @@ describe('CompassAutoUpdateManager', function () {
       ).to.eq(true);
 
       expect(showBoxStub).to.be.calledOnce;
-      expect(relaunchStub).to.be.calledOnce;
-      expect(exitStub).to.be.calledOnce;
+      expect(autoUpdater.quitAndInstall).to.be.calledOnce;
     });
 
     it('should transition to restart dismissed if user does not confirm restart', async function () {
