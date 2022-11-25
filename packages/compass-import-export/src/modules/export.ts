@@ -1,3 +1,4 @@
+import throttle from 'lodash/throttle';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import fs from 'fs';
 import { promisify } from 'util';
@@ -6,8 +7,6 @@ import type { AnyAction, Dispatch } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import createProgressStream from 'progress-stream';
-import type { Options as ProgressStreamOptions } from 'progress-stream';
 
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
@@ -498,17 +497,6 @@ export const startExport =
     );
     try {
       const dest = fs.createWriteStream(exportData.fileName);
-      const progress = createProgressStream({
-        objectMode: true,
-        length: numDocsToExport ?? undefined,
-        time: 250 /* ms */,
-      } as ProgressStreamOptions & {
-        // This doesn't exist in the typings (v2.0.2) but is used in the package.
-        objectMode: boolean;
-      });
-      progress.on('progress', function (info) {
-        dispatch(onProgress(info.percentage, info.transferred));
-      });
       debug('executing pipeline');
       const exporter = new CursorExporter({
         cursor: source,
@@ -518,13 +506,29 @@ export const startExport =
         totalNumberOfDocuments: numDocsToExport,
       });
 
+      let times = 0;
+      const throttledProgress = throttle(
+        ({
+          percentage,
+          transferred,
+        }: {
+          percentage: number;
+          transferred: number;
+        }) => {
+          debug(++times, percentage, transferred);
+          dispatch(onProgress(percentage, transferred));
+        },
+        250
+      );
+
       exporter.on('progress', function (transferred) {
         let percent = 0;
         if (numDocsToExport !== null && numDocsToExport > 0) {
           percent = (transferred * 100) / numDocsToExport;
         }
         numDocsActuallyExported = transferred;
-        progress.emit('progress', {
+
+        throttledProgress({
           percentage: percent,
           transferred,
         });
