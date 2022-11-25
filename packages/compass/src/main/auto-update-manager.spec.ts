@@ -6,7 +6,9 @@ import {
   CompassAutoUpdateManager,
 } from './auto-update-manager';
 import autoUpdater from './auto-updater';
-import { app, dialog } from 'electron';
+import { app, dialog, BrowserWindow, DownloadItem } from 'electron';
+import os from 'os';
+import dl from 'electron-dl';
 
 CompassAutoUpdateManager.autoUpdateOptions = {
   endpoint: 'http://example.com',
@@ -97,12 +99,11 @@ describe('CompassAutoUpdateManager', function () {
     });
 
     it('should transition to update available if update is available', async function () {
-      const stub = sandbox.stub(
-        CompassAutoUpdateManager,
-        'checkForUpdate'
-      ).callsFake(() => {
-        return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
-      });
+      const stub = sandbox
+        .stub(CompassAutoUpdateManager, 'checkForUpdate')
+        .callsFake(() => {
+          return Promise.resolve({ from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+        });
 
       expect(
         await setStateAndWaitForUpdate(
@@ -116,12 +117,11 @@ describe('CompassAutoUpdateManager', function () {
     });
 
     it('should abort checking and go to disabled when autoupdate is disabled', async function () {
-      const stub = sandbox.stub(
-        CompassAutoUpdateManager,
-        'checkForUpdate'
-      ).callsFake(() => {
-        return wait(100, { from: '0.0.0', to: '1.0.0', name: '1.0.0' });
-      });
+      const stub = sandbox
+        .stub(CompassAutoUpdateManager, 'checkForUpdate')
+        .callsFake(() => {
+          return wait(100, { from: '0.0.0', to: '1.0.0', name: '1.0.0' });
+        });
 
       CompassAutoUpdateManager.setState(
         AutoUpdateManagerState.CheckingForUpdates
@@ -197,6 +197,67 @@ describe('CompassAutoUpdateManager', function () {
       expect(CompassAutoUpdateManager['state']).to.eq(
         AutoUpdateManagerState.Disabled
       );
+    });
+
+    describe('when arch is mismatched on darwin', function () {
+      beforeEach(function () {
+        sandbox.stub(os, 'cpus').callsFake(() => {
+          return [{ model: 'Apple' }] as os.CpuInfo[];
+        });
+        sandbox.stub(process, 'platform').get(() => 'darwin');
+      });
+
+      it('should start downloading installer if user selects recommended options', async function () {
+        sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+          return Promise.resolve({ response: 0, checkboxChecked: false });
+        });
+
+        const stub = sandbox.stub(dl, 'download').callsFake(() => {
+          return Promise.resolve({} as DownloadItem);
+        });
+
+        expect(
+          await setStateAndWaitForUpdate(
+            AutoUpdateManagerState.CheckingForUpdates,
+            AutoUpdateManagerState.UpdateAvailable,
+            AutoUpdateManagerState.ManualDownload
+          )
+        ).to.eq(true);
+
+        expect(stub).to.be.calledOnce;
+      });
+
+      it('should start downloading update if user confirms update install', async function () {
+        const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+          return Promise.resolve({ response: 1, checkboxChecked: false });
+        });
+
+        expect(
+          await setStateAndWaitForUpdate(
+            AutoUpdateManagerState.CheckingForUpdates,
+            AutoUpdateManagerState.UpdateAvailable,
+            AutoUpdateManagerState.DownloadingUpdate
+          )
+        ).to.eq(true);
+
+        expect(stub).to.be.calledOnce;
+      });
+
+      it('should transition to update dismissed if user cancels the update', async function () {
+        const stub = sandbox.stub(dialog, 'showMessageBox').callsFake(() => {
+          return Promise.resolve({ response: 2, checkboxChecked: false });
+        });
+
+        expect(
+          await setStateAndWaitForUpdate(
+            AutoUpdateManagerState.CheckingForUpdates,
+            AutoUpdateManagerState.UpdateAvailable,
+            AutoUpdateManagerState.UpdateDismissed
+          )
+        ).to.eq(true);
+
+        expect(stub).to.be.calledOnce;
+      });
     });
   });
 

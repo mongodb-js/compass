@@ -228,6 +228,7 @@
     "depcheck": "^1.4.1",
     "electron": "^15.5.7",
     "electron-devtools-installer": "^3.2.0",
+    "electron-dl": "^3.5.0",
     "electron-mocha": "^10.1.0",
     "electron-rebuild": "^3.2.7",
     "electron-squirrel-startup": "^1.0.0",

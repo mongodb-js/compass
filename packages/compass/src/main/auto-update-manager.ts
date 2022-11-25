@@ -1,25 +1,84 @@
 import { EventEmitter } from 'events';
+import os from 'os';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { FeedURLOptions } from 'electron';
-import { app, dialog } from 'electron';
+import { app, dialog, BrowserWindow } from 'electron';
 import { setTimeout as wait } from 'timers/promises';
 import autoUpdater from './auto-updater';
 import preferences from 'compass-preferences-model';
 import got from 'got';
+import dl from 'electron-dl';
+import type { CompassApplication } from './application';
 
 const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
   'COMPASS-AUTO-UPDATES'
 );
 
+function getSystemArch() {
+  return process.platform === 'darwin'
+    ? os.cpus().some((cpu) => {
+        // process.arch / os.arch() will return the arch for which the node
+        // binary was compiled. Checking if one of the CPUs has Apple in its
+        // name is the way to check (there is slight difference between the
+        // earliest models naming and a current one, so we check only for
+        // Apple in the name)
+        return /Apple/.test(cpu.model);
+      })
+      ? 'arm64'
+      : 'x64'
+    : process.arch;
+}
+
+async function promptForUpdate(
+  from: string,
+  to: string
+): Promise<'download' | 'update' | 'cancel'> {
+  const isMismatchedArchDarwin =
+    process.platform === 'darwin' && getSystemArch() !== process.arch;
+  const commonOptions = {
+    icon: COMPASS_ICON,
+    title: 'New version available',
+    message: 'A new version of Compass is available to install',
+  };
+
+  if (!isMismatchedArchDarwin) {
+    const answer = await dialog.showMessageBox({
+      ...commonOptions,
+      detail: `Compass ${to} is available. You are currently using ${from}. Would you like to download and install it now?`,
+      buttons: ['Install', 'Ask me later'],
+      cancelId: 1,
+    });
+
+    return answer.response === 0 ? 'update' : 'cancel';
+  }
+
+  const answer = await dialog.showMessageBox({
+    ...commonOptions,
+    detail: `Compass ${to} is available. You are currently using a build of Compass that is not optimized for M1/M2 processors. Would you like to download the optimized arm64 version of Compass ${to} now?`,
+    buttons: [
+      'Download Compass for M1/M2 (Recommended)',
+      'Update current installation',
+      'Ask me later',
+    ],
+    cancelId: 2,
+  });
+
+  return answer.response === 0
+    ? 'download'
+    : answer.response === 1
+    ? 'update'
+    : 'cancel';
+}
+
 /**
  * AutoUpdateManager is implemented as a state machine with the following flow:
  *
- *     Disabled  ←  Idle
- *       ↓↑          ↓
+ *     Disabled  ←  Idle      Manual check
+ *       ↓↑          ↓          ↓
  *    [      Checking for updates      ]
  *       ↓↑          ↓↑              ↓
- *     Disabled ← Not available    Available → Update dismissed
+ *     Disabled ← Not available    Available → Update dismissed / Manual download (special case for apple silicon)
  *                                   ↓
  *                                  Downloading
  *                                   ↓
@@ -39,10 +98,12 @@ const { log, mongoLogId, debug, track } = createLoggerAndTelemetry(
 export const enum AutoUpdateManagerState {
   Initial = 'initial',
   Disabled = 'disabled',
+  ManualCheck = 'manual-check',
   CheckingForUpdates = 'checking-for-updates',
   NoUpdateAvailable = 'no-update-available',
   UpdateAvailable = 'update-available',
   UpdateDismissed = 'update-dismissed',
+  ManualDownload = 'manual-download',
   DownloadingUpdate = 'downloading-update',
   DownloadingError = 'downloading-error',
   ReadyToUpdate = 'ready-to-update',
@@ -59,8 +120,13 @@ type StateUpdateAction = (
   ...args: any[]
 ) => void | Promise<void>;
 
+const manualCheck: StateUpdateAction = function (updateManager) {
+  updateManager.setState(AutoUpdateManagerState.CheckingForUpdates, true);
+};
+
 const checkForUpdates: StateUpdateAction = async function checkForUpdates(
-  updateManager
+  updateManager,
+  isManualCheck = false
 ) {
   log.info(
     mongoLogId(1001000135),
@@ -78,6 +144,12 @@ const checkForUpdates: StateUpdateAction = async function checkForUpdates(
     updateManager.setState(AutoUpdateManagerState.UpdateAvailable, updateInfo);
   } else {
     updateManager.setState(AutoUpdateManagerState.NoUpdateAvailable);
+    if (isManualCheck) {
+      void dialog.showMessageBox({
+        icon: COMPASS_ICON,
+        message: 'There are currently no updates available.',
+      });
+    }
   }
 };
 
@@ -111,13 +183,19 @@ const STATE_UPDATE: Partial<
   [AutoUpdateManagerState.Initial]: {
     [AutoUpdateManagerState.CheckingForUpdates]: checkForUpdates,
     [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
+    [AutoUpdateManagerState.ManualCheck]: manualCheck,
+  },
+  [AutoUpdateManagerState.ManualCheck]: {
+    [AutoUpdateManagerState.CheckingForUpdates]: checkForUpdates,
   },
   [AutoUpdateManagerState.Disabled]: {
     [AutoUpdateManagerState.CheckingForUpdates]: checkForUpdates,
+    [AutoUpdateManagerState.ManualCheck]: manualCheck,
   },
   [AutoUpdateManagerState.NoUpdateAvailable]: {
     [AutoUpdateManagerState.CheckingForUpdates]: checkForUpdates,
     [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
+    [AutoUpdateManagerState.ManualCheck]: manualCheck,
   },
   [AutoUpdateManagerState.CheckingForUpdates]: {
     [AutoUpdateManagerState.UpdateAvailable]: async function (
@@ -126,30 +204,32 @@ const STATE_UPDATE: Partial<
     ) {
       log.info(mongoLogId(1001000127), 'AutoUpdateManager', 'Update available');
 
-      const answer = await dialog.showMessageBox({
-        icon: COMPASS_ICON,
-        title: 'New version available',
-        message: 'A new version of Compass is available to install',
-        detail: `Compass ${updateInfo.to} is available – you are currently using ${updateInfo.from}. Would you like to download and install it now?`,
-        buttons: ['Install', 'Ask me later'],
-        cancelId: 1,
-      });
+      const answer = await promptForUpdate(updateInfo.from, updateInfo.to);
 
       if (this.aborted) {
         return;
       }
 
-      if (answer.response === 0) {
+      if (answer === 'update') {
         updateManager.setState(
           AutoUpdateManagerState.DownloadingUpdate,
           updateInfo
         );
-      } else {
+        return;
+      }
+
+      if (answer === 'download') {
         updateManager.setState(
-          AutoUpdateManagerState.UpdateDismissed,
+          AutoUpdateManagerState.ManualDownload,
           updateInfo
         );
+        return;
       }
+
+      updateManager.setState(
+        AutoUpdateManagerState.UpdateDismissed,
+        updateInfo
+      );
     },
     [AutoUpdateManagerState.NoUpdateAvailable]: async function (updateManager) {
       log.info(
@@ -164,6 +244,7 @@ const STATE_UPDATE: Partial<
       updateManager.setState(AutoUpdateManagerState.CheckingForUpdates);
     },
     [AutoUpdateManagerState.Disabled]: disableAutoUpdates,
+    [AutoUpdateManagerState.ManualCheck]: manualCheck,
   },
   [AutoUpdateManagerState.UpdateAvailable]: {
     [AutoUpdateManagerState.DownloadingUpdate]: function (
@@ -187,6 +268,24 @@ const STATE_UPDATE: Partial<
       // updates in the options will not do anything
       autoUpdater.setFeedURL(updateManager.getFeedURLOptions());
       autoUpdater.checkForUpdates();
+    },
+    [AutoUpdateManagerState.ManualDownload]: function (
+      _updateManager,
+      updateInfo: { from: string; to: string }
+    ) {
+      log.info(
+        mongoLogId(1_001_000_167),
+        'AutoUpdateManager',
+        'Manual download'
+      );
+      track('Autoupdate Accepted', {
+        update_version: updateInfo.to,
+        manual_download: true,
+      });
+      const url = `https://downloads.mongodb.com/compass/${
+        process.env.HADRON_PRODUCT
+      }-${updateInfo.to}-${process.platform}-${getSystemArch()}.dmg`;
+      void dl.download(BrowserWindow.getAllWindows()[0], url);
     },
     [AutoUpdateManagerState.UpdateDismissed]: (_updateManager, updateInfo) => {
       track('Autoupdate Dismissed', { update_version: updateInfo.to });
@@ -257,6 +356,18 @@ const STATE_UPDATE: Partial<
         'Restart dismissed'
       );
     },
+  },
+  [AutoUpdateManagerState.ManualDownload]: {
+    [AutoUpdateManagerState.ManualCheck]: manualCheck,
+  },
+  [AutoUpdateManagerState.UpdateDismissed]: {
+    [AutoUpdateManagerState.ManualCheck]: manualCheck,
+  },
+  [AutoUpdateManagerState.RestartDismissed]: {
+    [AutoUpdateManagerState.ManualCheck]: manualCheck,
+  },
+  [AutoUpdateManagerState.DownloadingError]: {
+    [AutoUpdateManagerState.ManualCheck]: manualCheck,
   },
 };
 
@@ -367,7 +478,10 @@ class CompassAutoUpdateManager {
     );
   }
 
-  private static _init(options: Partial<AutoUpdateManagerOptions> = {}): void {
+  private static _init(
+    compassApp: typeof CompassApplication,
+    options: Partial<AutoUpdateManagerOptions> = {}
+  ): void {
     log.info(mongoLogId(1001000130), 'AutoUpdateManager', 'Initializing');
 
     const product = API_PRODUCT[process.env.HADRON_PRODUCT];
@@ -409,6 +523,10 @@ class CompassAutoUpdateManager {
       }
     });
 
+    compassApp.on('check-for-updates', () => {
+      this.setState(AutoUpdateManagerState.ManualCheck);
+    });
+
     log.info(
       mongoLogId(1001000133),
       'AutoUpdateManager',
@@ -428,10 +546,13 @@ class CompassAutoUpdateManager {
     }
   }
 
-  static init(options: Partial<AutoUpdateManagerOptions> = {}): void {
+  static init(
+    compassApp: typeof CompassApplication,
+    options: Partial<AutoUpdateManagerOptions> = {}
+  ): void {
     if (!this.initCalled) {
       this.initCalled = true;
-      this._init(options);
+      this._init(compassApp, options);
     }
   }
 
