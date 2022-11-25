@@ -346,8 +346,7 @@ const STATE_UPDATE: Partial<
         'Restart accepted'
       );
       track('Application Restart Accepted', { update_version: updateInfo.to });
-      app.relaunch();
-      app.exit();
+      autoUpdater.quitAndInstall();
     },
     [AutoUpdateManagerState.RestartDismissed]: () => {
       log.info(
