@@ -17,7 +17,6 @@ import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banne
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertJsonDocument from './insert-json-document';
 import InsertDocument from './insert-document';
-import InsertDocumentFooter from './insert-document-footer';
 
 /**
  * The insert invalid message.
@@ -34,6 +33,10 @@ const toolbarStyles = css({
 });
 
 const documentViewContainer = css({
+  marginTop: spacing[3],
+});
+
+const bannerStyles = css({
   marginTop: spacing[3],
 });
 
@@ -252,6 +255,11 @@ class InsertDocumentDialog extends React.PureComponent<
   render() {
     const currentView = this.props.jsonView ? 'JSON' : 'List';
 
+    const message = this.hasErrors()
+      ? INSERT_INVALID_MESSAGE
+      : this.state.message;
+    const variant = this.hasErrors() ? 'danger' : 'info';
+
     return (
       <FormModal
         title={`Insert to Collection ${this.props.ns}`}
@@ -304,12 +312,15 @@ class InsertDocumentDialog extends React.PureComponent<
         <div className={documentViewContainer} id={documentViewId}>
           {this.renderDocumentOrJsonView()}
         </div>
-        <InsertDocumentFooter
-          message={
-            this.hasErrors() ? INSERT_INVALID_MESSAGE : this.state.message
-          }
-          mode={this.hasErrors() ? 'error' : this.state.mode}
-        />
+        {message && (
+          <Banner
+            dismissable={false}
+            variant={variant}
+            className={bannerStyles}
+          >
+            {message}
+          </Banner>
+        )}
         <InsertCSFLEWarningBanner csfleState={this.props.csfleState} />
       </FormModal>
     );
