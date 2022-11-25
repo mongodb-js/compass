@@ -12,6 +12,7 @@ import {
   css,
   spacing,
   TextInput,
+  FormFieldContainer,
 } from '@mongodb-js/compass-components';
 
 type KeysMatching<T, V> = keyof {
@@ -31,6 +32,13 @@ type SupportedPreferences = BooleanPreferences | NumericPreferences;
 const inputStyles = css({
   marginTop: spacing[3],
   marginBottom: spacing[3],
+});
+
+const fieldContainerStyles = css({
+  margin: `${spacing[3]}px 0`,
+  fieldset: {
+    paddingLeft: `${spacing[4]}px`,
+  },
 });
 
 type HandleChange<PreferenceName extends SupportedPreferences> = <
@@ -140,7 +148,7 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
   currentValues,
 }: SettingsListProps<PreferenceName>) {
   return (
-    <div>
+    <>
       {fields.map((name) => {
         const { type, required } = getSettingDescription(name);
         if (type !== 'boolean' && type !== 'number') {
@@ -152,6 +160,7 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
         }
         return (
           <div data-testid={`setting-${name}`} key={`setting-${name}`}>
+            <FormFieldContainer className={fieldContainerStyles}>
             {type === 'boolean' ? (
               <BooleanSetting
                 name={name as BooleanPreferences & PreferenceName}
@@ -171,9 +180,10 @@ export function SettingsList<PreferenceName extends SupportedPreferences>({
               />
             ) : null}
             {settingStateLabels[preferenceStates[name] ?? '']}
+            </FormFieldContainer>
           </div>
         );
       })}
-    </div>
+    </>
   );
 }

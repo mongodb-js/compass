@@ -8,7 +8,7 @@ import {
   focusRing,
 } from '@mongodb-js/compass-components';
 
-import FeaturesSettings from './settings/features';
+import GeneralSettings from './settings/general';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
 import Sidebar from './sidebar';
@@ -31,26 +31,28 @@ type SettingsModalProps = {
 
 const contentStyles = css({
   display: 'flex',
-  minHeight: '400px',
+  height: spacing[7] * 5,
   paddingTop: spacing[2],
 });
 
 const sideNavStyles = css({
-  width: '20%',
+  position: 'absolute',
+  width: spacing[6] * 3,
 });
 
 const settingsStyles = css(
   {
     width: '80%',
-    paddingLeft: spacing[4],
+    marginLeft: spacing[6] * 3,
+    padding: `0 ${spacing[2]}px 0 ${spacing[3]}px`,
   },
-  focusRing
+  focusRing,
 );
 
 const settings: Settings[] = [
-  { name: 'Privacy', component: PrivacySettings },
-  { name: 'Features', component: FeaturesSettings },
+  { name: 'General', component: GeneralSettings },
   { name: 'Theme', component: ThemeSettings },
+  { name: 'Privacy', component: PrivacySettings },
 ];
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
@@ -91,6 +93,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       submitDisabled={!hasChangedSettings}
       onCancel={closeModal}
       data-testid="settings-modal"
+      minBodyHeight={spacing[6] * 2}
     >
       <div className={contentStyles}>
         <div className={sideNavStyles}>
