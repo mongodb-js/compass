@@ -45,7 +45,7 @@ async function modifyProtocolHandlers(
   protocols?: ProtocolsList
 ): Promise<void> {
   log.info(
-    mongoLogId(1_001_000_163),
+    mongoLogId(1_001_000_169),
     'Protocol handling',
     'Modifying protocol handlers',
     {
@@ -113,7 +113,7 @@ async function setupWin32ProtocolHandlers(
       }
     } catch (err: any) {
       log.error(
-        mongoLogId(1_001_000_162),
+        mongoLogId(1_001_000_168),
         'Protocol handling',
         'Could not modify win32 registry for protocol scheme',
         {
