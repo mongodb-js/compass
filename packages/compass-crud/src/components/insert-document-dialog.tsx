@@ -258,7 +258,7 @@ class InsertDocumentDialog extends React.PureComponent<
     const message = this.hasErrors()
       ? INSERT_INVALID_MESSAGE
       : this.state.message;
-    const variant = this.hasErrors() ? 'danger' : 'info';
+    const variant = this.state.mode === 'progress' ? 'info' : 'danger';
 
     return (
       <FormModal
