@@ -9,6 +9,7 @@ import {
 import {
   parseAndValidateGlobalPreferences,
   getHelpText,
+  getExampleConfigFile,
 } from 'compass-preferences-model';
 import chalk from 'chalk';
 import { installEarlyLoggingListener } from './logging';
@@ -78,6 +79,11 @@ async function main(): Promise<void> {
 
   if (preferences.help) {
     process.stdout.write(getHelpText());
+    return app.exit(0);
+  }
+
+  if (preferences.showExampleConfig) {
+    process.stdout.write(getExampleConfigFile());
     return app.exit(0);
   }
 
