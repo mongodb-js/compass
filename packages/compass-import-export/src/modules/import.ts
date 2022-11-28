@@ -693,7 +693,6 @@ export const closeImport = () => ({
  * The import module reducer.
  */
 const reducer = (state = INITIAL_STATE, action: AnyAction): State => {
-  debug('reducer handling action', action.type);
   if (action.type === FILE_SELECTED) {
     return {
       ...state,
