@@ -1,6 +1,6 @@
 {
   "name": "mongodb-collection-model",
-  "description": "MongoDB collection model.",
+  "description": "MongoDB collection model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "5.2.0",
   "bugs": {

@@ -1,6 +1,6 @@
 {
   "name": "hadron-auto-update-manager",
-  "description": "Atoms AutoUpdateManager class as a standalone module.",
+  "description": "Atoms AutoUpdateManager class as a standalone module",
   "version": "5.1.1",
   "scripts": {
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",

@@ -3,7 +3,7 @@
   "productName": "Compass Server Stats plugin",
   "version": "16.3.0",
   "apiVersion": "3.0.0",
-  "description": "Compass Real Time Server Stats Component.",
+  "description": "Compass Real Time",
   "main": "dist/index.js",
   "compass:main": "src/index.js",
   "exports": {

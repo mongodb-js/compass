@@ -1,6 +1,6 @@
 {
   "name": "mongodb-instance-model",
-  "description": "MongoDB instance model.",
+  "description": "MongoDB instance model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "12.2.0",
   "bugs": {

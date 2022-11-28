@@ -1,6 +1,7 @@
 {
   "name": "@mongodb-js/compass-sidebar",
   "productName": "Sidebar plugin",
+  "description": "The sidebar of Compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"

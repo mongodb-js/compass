@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-databases-collections",
   "productName": "Compass Databases and Collections Plugin",
-  "description": "Plugin for viewing the list of, creating, and dropping databases and collections",
+  "description": "View the list of, create, and drop databases and collections",
   "version": "1.3.0",
   "license": "SSPL",
   "homepage": "https://github.com/mongodb-js/compass",

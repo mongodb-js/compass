@@ -1,6 +1,6 @@
 {
   "name": "hadron-build",
-  "description": "Tooling for Hadron apps.",
+  "description": "Tooling for Hadron apps",
   "version": "25.2.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",

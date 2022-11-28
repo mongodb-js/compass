@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-query-bar",
   "productName": "Query Bar plugin",
   "version": "8.3.0",
-  "description": "Renders a component for executing MongoDB queries through a GUI.",
+  "description": "Renders a component for executing MongoDB queries through a GUI",
   "homepage": "https://github.com/mongodb-js/compass",
   "license": "SSPL",
   "author": {

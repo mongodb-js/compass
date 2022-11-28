@@ -1,6 +1,6 @@
 {
   "name": "mongodb-index-model",
-  "description": "MongoDB index model.",
+  "description": "MongoDB index model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "4.0.2",
   "bugs": {
