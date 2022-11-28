@@ -4,10 +4,11 @@ import { css, cx, palette, withTheme } from '@mongodb-js/compass-components';
 import type { AceEditor } from '@mongodb-js/compass-editor';
 import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
+const minEditorHeight = 280;
+
 const editorContainerStyles = css({
-  // NOTE: This height is coupled with the min-height of the .editor.
   padding: '10px 10px 10px 0',
-  height: '300px',
+  height: `${minEditorHeight + 20}px`,
   overflow: 'auto',
   flexBasis: 'auto',
   flexShrink: 1,
@@ -25,8 +26,7 @@ const editorContainerStylesDark = css({
 });
 
 const editorStyles = css({
-  // NOTE: this height is coupled with the padding and height of the .editor-container.
-  minHeight: '280px',
+  minHeight: `${minEditorHeight}px`,
 });
 
 /**
