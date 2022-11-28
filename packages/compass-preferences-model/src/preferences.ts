@@ -28,6 +28,7 @@ export type UserConfigurablePreferences = {
   enableDevTools: boolean;
   theme: THEMES;
   maxTimeMS?: number;
+  installURLHandlers: boolean;
 };
 
 export type InternalUserPreferences = {
@@ -51,6 +52,7 @@ export type CliOnlyPreferences = {
   passphrase?: string;
   version?: boolean;
   help?: boolean;
+  showExampleConfig?: boolean;
 };
 
 export type NonUserPreferences = {
@@ -136,6 +138,11 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
   /** A method for cleaning up/normalizing input from the command line or global config file */
   customPostProcess?: PostProcessFunction<AllPreferences[K]>;
+  /** Specify that this option should not be listed in --help output */
+  omitFromHelp?: K extends keyof (UserConfigurablePreferences &
+    CliOnlyPreferences)
+    ? false
+    : boolean;
 };
 
 type DeriveValueFunction<T> = (
@@ -229,6 +236,7 @@ const modelPreferencesProps: Required<{
     cli: true,
     global: false,
     description: null,
+    omitFromHelp: true,
   },
   /**
    * Stores the theme preference for the user.
@@ -460,6 +468,21 @@ const modelPreferencesProps: Required<{
       short: 'Upper Limit for maxTimeMS for Compass Database Operations',
     },
   },
+  /**
+   * Do not handle mongodb:// and mongodb+srv:// URLs via Compass
+   */
+  installURLHandlers: {
+    type: 'boolean',
+    required: true,
+    default: true,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Install Compass as URL Protocol Handler',
+      long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
+    },
+  },
 };
 
 const cliOnlyPreferencesProps: Required<{
@@ -518,6 +541,16 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Show Compass Version',
     },
   },
+  showExampleConfig: {
+    type: 'boolean',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Show Example Config File',
+    },
+  },
 };
 
 const nonUserPreferences: Required<{
@@ -545,6 +578,7 @@ const nonUserPreferences: Required<{
       short:
         'Specify a Connection String or Connection ID to Automatically Connect',
     },
+    omitFromHelp: true,
   },
   file: {
     type: 'string',

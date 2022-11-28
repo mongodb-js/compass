@@ -10,7 +10,6 @@ app.myObject = "testing";
 ## Included peerDependencies
 
 - hadron-app-registry
-- hadron-auto-update-manager
 - hadron-ipc
 - hadron-package-manager
 

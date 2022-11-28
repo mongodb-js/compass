@@ -32,6 +32,7 @@ type SettingsModalProps = {
 const contentStyles = css({
   display: 'flex',
   minHeight: '400px',
+  paddingTop: spacing[2],
 });
 
 const sideNavStyles = css({
@@ -41,7 +42,7 @@ const sideNavStyles = css({
 const settingsStyles = css(
   {
     width: '80%',
-    paddingLeft: spacing[2],
+    paddingLeft: spacing[4],
   },
   focusRing
 );

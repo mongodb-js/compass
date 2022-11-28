@@ -208,13 +208,15 @@ describe('Global preferences', function () {
   });
 
   it('allows showing version information', async function () {
-    const { stdout } = await runCompassOnce(['--version']);
+    const { stdout, stderr } = await runCompassOnce(['--version']);
     expect(stdout.trim()).to.match(/^MongoDB Compass.*\d$/);
+    expect(stderr).to.not.include('DeprecationWarning');
   });
 
   it('allows showing usage information', async function () {
-    const { stdout } = await runCompassOnce(['--help']);
+    const { stdout, stderr } = await runCompassOnce(['--help']);
     expect(stdout).to.include('Available options');
+    expect(stderr).to.not.include('DeprecationWarning');
   });
 
   it('redacts command line options after parsing', async function () {

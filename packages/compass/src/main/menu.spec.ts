@@ -342,6 +342,9 @@ describe('CompassMenu', function () {
             role: 'about',
           },
           {
+            label: 'Check for updates…',
+          },
+          {
             type: 'separator',
           },
           {
@@ -423,6 +426,9 @@ describe('CompassMenu', function () {
           },
           {
             label: `&About ${app.getName()}`,
+          },
+          {
+            label: 'Check for updates…',
           },
         ],
       });
