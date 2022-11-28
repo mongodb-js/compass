@@ -582,5 +582,69 @@ describe('PipelineParser', function () {
   },
 ]`);
     });
+    it('stage with leading and trailing comments', function () {
+
+      const pipeline = `[
+        // Some comment that should be preserved.
+        // { $match: { name: /berlin/i } },
+        // Followed by something.
+        // Followed by something else.
+      ]`;
+
+      const { root, stages: nodes } = PipelineParser.parse(pipeline);
+      const stages = nodes.map(node => new Stage(node));
+      stages.push(new Stage());
+      stages[1].changeOperator('$skip');
+      stages[1].changeValue('10');
+
+      const newPipeline = PipelineParser.generate(root, stages);
+      expect(newPipeline).to.equal(`[
+  // Some comment that should be preserved.
+  // {
+  //   $match: {
+  //     name: /berlin/i,
+  //   },
+  // }
+  // Followed by something.
+  // Followed by something else.
+  {
+    $skip: 10,
+  },
+]`);
+    });
+    it('stages with leading and trailing comments', function () {
+
+      const pipeline = `[
+        // Some comment that should be preserved.
+        // { $match: { name: /berlin/i } },
+        // Followed by something.
+        // { $limit: 20 },
+        // Followed by something else.
+      ]`;
+
+      const { root, stages: nodes } = PipelineParser.parse(pipeline);
+      const stages = nodes.map(node => new Stage(node));
+      stages.push(new Stage());
+      stages[2].changeOperator('$skip');
+      stages[2].changeValue('10');
+
+      const newPipeline = PipelineParser.generate(root, stages);
+      expect(newPipeline).to.equal(`[
+  // Some comment that should be preserved.
+  // {
+  //   $match: {
+  //     name: /berlin/i,
+  //   },
+  // }
+  // Followed by something.
+  // {
+  //   $limit: 20,
+  // }
+  // Followed by something else.
+  {
+    $skip: 10,
+  },
+]`);
+    });
   });
 });
