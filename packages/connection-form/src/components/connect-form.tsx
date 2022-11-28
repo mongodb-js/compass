@@ -274,6 +274,7 @@ function ConnectForm({
               )}
               <ConnectionStringInput
                 connectionString={connectionOptions.connectionString}
+                // password={connectionOptions.connectionString}
                 enableEditingConnectionString={enableEditingConnectionString}
                 setEnableEditingConnectionString={
                   setEnableEditingConnectionString
