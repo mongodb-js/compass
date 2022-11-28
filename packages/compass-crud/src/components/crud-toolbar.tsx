@@ -79,11 +79,11 @@ function isOperationTimedOutError(err: ErrorWithPossibleCode) {
   );
 }
 
-type CrudToolbarProps = {
+export type CrudToolbarProps = {
   activeDocumentView: string;
   count?: number;
   end: number;
-  error?: ErrorWithPossibleCode;
+  error?: ErrorWithPossibleCode | null;
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
   instanceDescription: string;

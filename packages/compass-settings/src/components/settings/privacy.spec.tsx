@@ -25,7 +25,6 @@ describe('PrivacySettings', function () {
   [
     'autoUpdates',
     'enableMaps',
-    'trackErrors',
     'trackUsageStatistics',
     'enableFeedbackPanel',
   ].forEach((option) => {

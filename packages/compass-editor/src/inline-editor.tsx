@@ -1,17 +1,16 @@
-import { cx } from '@mongodb-js/compass-components';
 import React from 'react';
 import type { EditorProps } from './base-editor';
-import { Editor } from './base-editor';
+import { BaseEditor } from './base-editor';
 
-type InlineEditorProps = EditorProps &
-  Omit<
+type InlineEditorProps = Omit<EditorProps, 'options' | 'editorClassName'> & {
+  options?: Omit<
     EditorProps['options'],
     'showGutter' | 'highlightActiveLine' | 'highlightGutterLine' | 'minLines'
   >;
+};
 
 const InlineEditor: React.FunctionComponent<InlineEditorProps> = ({
   options,
-  className,
   ...props
 }) => {
   const inlineEditorOptions = {
@@ -23,11 +22,11 @@ const InlineEditor: React.FunctionComponent<InlineEditorProps> = ({
     highlightGutterLine: false,
   };
   return (
-    <Editor
+    <BaseEditor
       options={inlineEditorOptions}
-      className={cx('inline-editor', className)}
+      editorClassName="inline-editor"
       {...props}
-    ></Editor>
+    ></BaseEditor>
   );
 };
 

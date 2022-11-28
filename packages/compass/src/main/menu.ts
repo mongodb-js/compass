@@ -69,13 +69,21 @@ function themeMenuItem(): MenuItemConstructorOptions {
   };
 }
 
-function darwinCompassSubMenu(): MenuItemConstructorOptions {
+function darwinCompassSubMenu(
+  compassApp: typeof CompassApplication
+): MenuItemConstructorOptions {
   return {
     label: app.getName(),
     submenu: [
       {
         label: `About ${app.getName()}`,
         role: 'about',
+      },
+      {
+        label: 'Check for updates…',
+        click() {
+          compassApp.emit('check-for-updates');
+        },
       },
       separator(),
       themeMenuItem(),
@@ -266,6 +274,12 @@ function helpSubMenu(
   if (process.platform !== 'darwin') {
     subMenu.push(separator());
     subMenu.push(nonDarwinAboutItem());
+    subMenu.push({
+      label: 'Check for updates…',
+      click() {
+        app.emit('check-for-updates');
+      },
+    });
   }
 
   return {
@@ -398,7 +412,7 @@ function darwinMenu(
   menuState: WindowMenuState,
   app: typeof CompassApplication
 ): MenuItemConstructorOptions[] {
-  const menu: MenuTemplate = [darwinCompassSubMenu()];
+  const menu: MenuTemplate = [darwinCompassSubMenu(app)];
 
   menu.push(connectSubMenu(false, app));
   menu.push(editSubMenu());

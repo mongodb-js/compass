@@ -234,35 +234,6 @@ And then finally
 
 ##### Windows Auto Update Log
 
-```javascript
-const server = 'hadron.mongodb.com';
-const dialog = require('electron').dialog;
-const AutoUpdateManager = require('hadron-auto-update-manager');
-
-const autoUpdater = new AutoUpdateManager({
-  endpoint: `https://${server}`
-});
-
-autoUpdater.on('update-available', (event, releaseNotes, releaseVersion) => {
-  dialog.showMessageBox({
-    type: 'question',
-    buttons: ['Not Right Now', 'Restart and Install Update'],
-    title: 'New Version Available',
-    message: `Would you like to install ${productName} v${releaseVersion}?`,
-    detail: releaseNotes,
-    callback: (res) => {
-      if (res === 1) {
-        autoUpdater.install();
-      }
-    }
-  });
-});
-
-autoUpdater.check();
-```
-
-When `hadron-auto-update-manager#check()` called:
-
 ```
 2016-06-24 12:33:00> Program: Starting Squirrel Updater: --download https://${server}/update?version=${version}&platform=win32&arch=x64
 2016-06-24 12:33:00> Program: Fetching update information, downloading from https://${server}/update?version=${version}&platform=win32&arch=x64
@@ -299,10 +270,6 @@ Which assets are generated depends on the target platform.
 - `.tar.gz`: Convenience for easy automation on unix
 - `-linux-${arch}.zip`: Convenience for easy automation on win32-x64
 
-## Auto Update
-
-- `hadron-auto-update-manager`: https://github.com/mongodb-js/hadron-auto-update-manager
-
 ### macOS
 
 - Works out of the box
@@ -314,8 +281,7 @@ Which assets are generated depends on the target platform.
 
 ### Linux
 
-- Not currently supported. Waiting for upstream to do it. [hadron-auto-update-manager](https://github.com/mongodb-js/hadron-auto-update-manager) contains a noop polyfill for linux though.
-
+- Not currently supported. Waiting for upstream to do it
 
 ## Todo
 

@@ -41,6 +41,13 @@ export class PipelineBuilder {
     return this._source;
   }
 
+  // COMPASS-6319: We deliberately ignore all empty stages for all operations
+  // related to parsing / generating / validating pipeline. This does mean that
+  // we lose user input in some cases, but we consider this acceptable
+  private get nonEmptyStages() {
+    return this.stages.filter((stage) => !stage.isEmpty);
+  }
+
   private parseSourceToPipeline() {
     try {
       this.pipeline = parseShellBSON(this.source);
@@ -124,7 +131,7 @@ export class PipelineBuilder {
         'Trying to generate source from stages with invalid pipeline'
       );
     }
-    this.source = PipelineParser.generate(this.node, this.stages);
+    this.source = PipelineParser.generate(this.node, this.nonEmptyStages);
     this.validateSource();
   }
 
@@ -166,16 +173,17 @@ export class PipelineBuilder {
    * Returns current pipeline stages as string. Throws if stages contain syntax
    * errors
    */
-  getPipelineStringFromStages(stages = this.stages): string {
+  getPipelineStringFromStages(stages = this.nonEmptyStages): string {
+    const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    // We don't care if disabled stages have errors because they will be
+    // converted to commented out code anyway, but we will not be able to
+    // prettify the code if some stages contain syntax errors
     const enabledStageWithError = stages.find(
       (stage) => !stage.disabled && stage.syntaxError
     );
-    // We don't care if disabled stages have errors because they will be
-    // converted to commented out code anyway
     if (enabledStageWithError) {
-      throw enabledStageWithError.syntaxError;
+      return code;
     }
-    const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
     return prettify(code);
   }
 
@@ -183,6 +191,10 @@ export class PipelineBuilder {
    * Returns current source of the pipeline
    */
   getPipelineStringFromSource(): string {
+    // Can't prettify a string when it contains syntax errors
+    if (this.syntaxError.length > 0) {
+      return this.source;
+    }
     return prettify(this.source);
   }
 
@@ -190,7 +202,7 @@ export class PipelineBuilder {
    * Get runnable pipeline from current pipeline stages. Will throw if pipeline
    * contains errors
    */
-  getPipelineFromStages(stages = this.stages): Document[] {
+  getPipelineFromStages(stages = this.nonEmptyStages): Document[] {
     return parseShellBSON(this.getPipelineStringFromStages(stages));
   }
 

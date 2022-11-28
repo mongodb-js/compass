@@ -26,6 +26,7 @@
   "license": "SSPL",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
+  "types": "dist/src/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
@@ -40,6 +41,7 @@
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
     "precompile": "rimraf dist",
+    "postcompile": "tsc --emitDeclarationOnly",
     "eslint": "eslint",
     "prettier": "prettier",
     "lint": "npm run eslint . && npm run prettier -- --check .",

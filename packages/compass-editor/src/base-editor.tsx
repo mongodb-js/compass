@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import { cx } from '@mongodb-js/compass-components';
 import {
   css,
   useId,
@@ -65,6 +66,7 @@ export type EditorProps = {
   'data-testid'?: string;
   onChangeText?: (text: string, event?: any) => void;
   darkMode?: boolean;
+  editorClassName?: string;
 } & Omit<IAceEditorProps, 'onChange' | 'value' | 'theme'>;
 
 const editorStyle = css({
@@ -125,6 +127,8 @@ function BaseEditor({
   'data-testid': dataTestId,
   onFocus,
   darkMode: _darkMode,
+  className,
+  editorClassName,
   ...aceProps
 }: EditorProps): React.ReactElement {
   const setOptions: IAceOptions = {
@@ -164,7 +168,7 @@ function BaseEditor({
   }, [_commands]);
 
   return (
-    <div data-testid={dataTestId} className={editorStyle}>
+    <div data-testid={dataTestId} className={cx(editorStyle, className)}>
       <AceEditor
         ref={editorRef}
         mode={
@@ -189,6 +193,7 @@ function BaseEditor({
           }
           onFocus?.(ev);
         }}
+        className={editorClassName}
         {...aceProps}
       />
     </div>
@@ -215,10 +220,4 @@ function setEditorValue(element: HTMLElement, value: string): void {
 
 const EditorTextCompleter = tools.textCompleter;
 
-// TODO: Editor export should become an Editor with a CodeFrame after COMPASS-6243
-export {
-  BaseEditor as Editor,
-  EditorVariant,
-  EditorTextCompleter,
-  setEditorValue,
-};
+export { BaseEditor, EditorVariant, EditorTextCompleter, setEditorValue };

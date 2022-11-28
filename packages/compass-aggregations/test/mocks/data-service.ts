@@ -3,7 +3,7 @@ import Sinon from 'sinon';
 
 export const mockDataService = function (
   options: {
-    data: unknown[];
+    data: unknown[] | (() => unknown[]);
   } = { data: [] }
 ) {
   const dataService = {
@@ -13,7 +13,11 @@ export const mockDataService = function (
     aggregate() {
       return new (class {
         toArray() {
-          return Promise.resolve(options.data);
+          return Promise.resolve(
+            typeof options.data === 'function'
+              ? options.data()
+              : options.data
+          );
         }
         close() {
           // noop

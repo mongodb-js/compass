@@ -1,3 +1,4 @@
+import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow } from 'electron';
@@ -63,11 +64,6 @@ class CompassApplication {
     }
     this.mode = mode;
 
-    if (require('electron-squirrel-startup')) {
-      debug('electron-squirrel-startup event handled sucessfully');
-      return;
-    }
-
     this.setupUserDirectory();
     await setupPreferencesAndUserModel(globalPreferences);
     await this.setupLogging();
@@ -106,7 +102,7 @@ class CompassApplication {
   }
 
   private static setupAutoUpdate(): void {
-    CompassAutoUpdateManager.init();
+    CompassAutoUpdateManager.init(this);
   }
 
   private static setupApplicationMenu(): void {
@@ -221,6 +217,10 @@ class CompassApplication {
     handler: (bw: BrowserWindow) => void
   ): typeof CompassApplication;
   static on(
+    event: 'check-for-updates',
+    handler: () => void
+  ): typeof CompassApplication;
+  static on(
     event: string,
     handler: (...args: unknown[]) => void
   ): typeof CompassApplication {
@@ -231,6 +231,7 @@ class CompassApplication {
   static emit(event: 'show-connect-window'): boolean;
   static emit(event: 'show-log-file-dialog'): boolean;
   static emit(event: 'new-window', bw: BrowserWindow): boolean;
+  static emit(event: 'check-for-updates'): boolean;
   static emit(event: string, ...args: unknown[]): boolean {
     return this.emitter.emit(event, ...args);
   }

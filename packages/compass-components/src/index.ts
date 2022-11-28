@@ -64,7 +64,13 @@ export { Size as SelectSize } from '@leafygreen-ui/select';
 export { useId } from '@react-aria/utils';
 export { VisuallyHidden } from '@react-aria/visually-hidden';
 
-export { useToast, ToastArea, ToastVariant } from './hooks/use-toast';
+export {
+  useToast,
+  openToast,
+  closeToast,
+  ToastArea,
+  ToastVariant,
+} from './hooks/use-toast';
 
 export { Toggle } from './components/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
