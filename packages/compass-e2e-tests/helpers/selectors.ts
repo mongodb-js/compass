@@ -523,7 +523,7 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 
 export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
-  '[data-testid="insert-document-banner"]';
+  '[data-testid="insert-document-banner"][data-variant="danger"]';
 export const InsertJSONEditor =
   '[data-testid="insert-document-modal"] .ace_editor';
 export const InsertConfirm =
