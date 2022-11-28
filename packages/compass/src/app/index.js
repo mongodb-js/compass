@@ -164,9 +164,10 @@ const Application = View.extend({
    * quickly as possible.
    */
   render: async function () {
-    const getAutoConnectInfo = (
+    await preferences.refreshPreferences();
+    const getAutoConnectInfo = await (
       await import('./auto-connect')
-    ).loadAutoConnectInfo(await preferences.refreshPreferences());
+    ).loadAutoConnectInfo();
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',

@@ -28,6 +28,7 @@ export type UserConfigurablePreferences = {
   enableDevTools: boolean;
   theme: THEMES;
   maxTimeMS?: number;
+  installURLHandlers: boolean;
 };
 
 export type InternalUserPreferences = {
@@ -458,6 +459,21 @@ const modelPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Upper Limit for maxTimeMS for Compass Database Operations',
+    },
+  },
+  /**
+   * Do not handle mongodb:// and mongodb+srv:// URLs via Compass
+   */
+  installURLHandlers: {
+    type: 'boolean',
+    required: true,
+    default: true,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Install Compass as URL Protocol Handler',
+      long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
     },
   },
 };
