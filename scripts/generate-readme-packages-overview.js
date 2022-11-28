@@ -42,7 +42,9 @@ function printPackageDescriptionLine(
   packageRelativePath,
   packageDescription
 ) {
-  console.log(`- [**${packageName}**](${packageRelativePath}): ${packageDescription}`);
+  console.log(
+    `- [**${packageName}**](${packageRelativePath}): ${packageDescription}`
+  );
 }
 
 async function main() {
@@ -51,38 +53,33 @@ async function main() {
   const packages = await getPackages();
 
   const packageInfos = [];
-  for (const {
-    location
-  } of packages) {
-    const packageJson = require(path.join(
-      location,
-      'package.json'
-    ));
+  for (const { location } of packages) {
+    const packageJson = require(path.join(location, 'package.json'));
 
     const packageRelativePath = location.substring(rootDir.length + 1);
 
     // Main Compass package
     if (packageRelativePath === 'packages/compass') {
-      printPackageDescriptionLine(packageJson.name, packageRelativePath, packageJson.description);
+      printPackageDescriptionLine(
+        packageJson.name,
+        packageRelativePath,
+        packageJson.description
+      );
       continue;
     }
 
     packageInfos.push({
       name: packageJson.name,
       relativePath: packageRelativePath,
-      description: packageJson.description
-    })
+      description: packageJson.description,
+    });
   }
 
   // Alphabetize
   packageInfos.sort((a, b) => a.name.localeCompare(b.name));
 
   console.log('\n### Compass Plugins\n');
-  for (const {
-    name,
-    relativePath,
-    description
-  } of packageInfos) {
+  for (const { name, relativePath, description } of packageInfos) {
     if (
       relativePath.startsWith('packages/') &&
       pluginNames.includes(name) &&
@@ -93,25 +90,14 @@ async function main() {
   }
 
   console.log('\n### Shared Libraries and Build Tools\n');
-  for (const {
-    name,
-    relativePath,
-    description
-  } of packageInfos) {
-    if (
-      relativePath.startsWith('packages/') &&
-      !pluginNames.includes(name)
-    ) {
+  for (const { name, relativePath, description } of packageInfos) {
+    if (relativePath.startsWith('packages/') && !pluginNames.includes(name)) {
       printPackageDescriptionLine(name, relativePath, description);
     }
   }
 
   console.log('\n### Shared Configuration Files\n');
-  for (const {
-    name,
-    relativePath,
-    description
-  } of packageInfos) {
+  for (const { name, relativePath, description } of packageInfos) {
     if (relativePath.startsWith('configs/')) {
       printPackageDescriptionLine(name, relativePath, description);
     }
