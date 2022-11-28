@@ -5,8 +5,6 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-// @ts-expect-error no types available
-import { Tooltip } from 'hadron-react-components';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import TypeChecker from 'hadron-type-checker';
 import type { Editor, Element } from 'hadron-document';
@@ -483,14 +481,6 @@ class CellEditor
     return (
       <div>
         <span className={this.wrapperStyle()}>
-          <Tooltip
-            id={this.element?.uuid}
-            className="editable-element-value-tooltip"
-            border
-            getContent={() => {
-              return this.element?.invalidTypeMessage;
-            }}
-          />
           <TextInput
             className={textInputSizeHackStyle}
             data-testid="table-view-cell-editor-value-input"
