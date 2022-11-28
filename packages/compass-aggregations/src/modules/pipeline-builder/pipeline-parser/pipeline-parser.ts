@@ -99,47 +99,29 @@ type ValidateResponse = {
   errors: PipelineParserError[];
 };
 
-function getOrphanComments(comments: t.Comment[], visitedComments: Set<t.Comment>): t.Comment[] {
-  return comments.filter((comment) => !visitedComments.has(comment));
-}
-
-function getDisabledStagesFromEmptyPipeline(root: t.ArrayExpression) {
-  // Inner comments will only be available here if there is no other
-  // elements in the array, in our case it might mean that all stages
-  // are disabled
-  const isPipelineWithAllDisabledStages = root.elements.length === 0 && root.innerComments?.length;
-  if (!isPipelineWithAllDisabledStages) {
-    return [];
-  }
-
-  const innerComments = root.innerComments as t.Comment[];
-  const [visitedComments, stages] = extractStagesFromComments(innerComments);
-  // As all the stages are disabled and if we have comments that're
-  // at the end of the list, we need to make sure to attach them
-  // to the last stage as trailing comments.
-  const hasOrphanComments = stages.length > 0 && !visitedComments.has(innerComments[innerComments.length - 1]);
-  if (!hasOrphanComments) {
-    root.innerComments = innerComments.filter((node) => {
-      return !visitedComments.has(node);
-    });
-    return stages;
-  }
-
-  const lastStage = stages[stages.length - 1];
-  const orphanComments = getOrphanComments(innerComments, visitedComments);
-  lastStage.trailingComments = orphanComments;
-  adjustStageLoc(lastStage, (lastStage?.loc?.end.line ?? 0) + 1);
-  root.innerComments = [];
-  stages[stages.length - 1] = lastStage;
-
-  return stages;
-}
-
 export default class PipelineParser {
   static parse(source: string): ParseResponse {
     const stages: t.Expression[] = [];
     const root = PipelineParser._parseStringToRoot(source);
-    stages.push(...getDisabledStagesFromEmptyPipeline(root));
+    // Inner comments will only be available here if there is no other
+    // elements in the array, in our case it might mean that all stages
+    // are disabled
+    if (root.elements.length === 0 && root.innerComments?.length) {
+      const [visited, _stages] = extractStagesFromComments(
+        root.innerComments
+      );
+      if (_stages.length !== 0) {
+        const lastStage = _stages[_stages.length - 1];
+        // Attach all leftover comments to the last stage
+        lastStage.trailingComments = root.innerComments.filter(node => {
+          return !visited.has(node);
+        });
+        adjustStageLoc(lastStage, (lastStage?.loc?.end.line ?? 0) + 1);
+        // Delete all inner comments from the root node (they are all part of stages now)
+        delete root.innerComments;
+      }
+      stages.push(..._stages);
+    }
     root.elements.forEach((node) => {
       stages.push(...extractStagesFromNode(node as t.Expression));
     });
