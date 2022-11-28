@@ -8,6 +8,7 @@ import {
   ModalHeader,
   css,
   spacing,
+  FormFieldContainer,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 
@@ -23,8 +24,8 @@ import {
 } from '../constants/process-status';
 import type { ProcessStatus } from '../constants/process-status';
 import ProgressBar from './progress-bar';
-import ImportPreview from './import-preview';
-import ImportOptions from './import-options';
+import { ImportPreview } from './import-preview';
+import { ImportOptions } from './import-options';
 import type { AcceptedFileType } from '../constants/file-types';
 import formatNumber from '../utils/format-number';
 import {
@@ -41,6 +42,7 @@ import {
 } from '../modules/import';
 import { ImportErrorList } from './import-error-list';
 import type { RootImportState } from '../stores/import-store';
+import type { CSVDelimiter, FieldFromCSV } from '../modules/import';
 
 /**
  * Progress messages.
@@ -72,8 +74,8 @@ type ImportModalProps = {
    */
   selectImportFileType: (fileType: AcceptedFileType) => void;
   selectImportFileName: (fileName: string) => void;
-  setDelimiter: (delimeter: string) => void;
-  delimiter: string;
+  setDelimiter: (delimeter: CSVDelimiter) => void;
+  delimiter: CSVDelimiter;
   fileType: AcceptedFileType | '';
   fileName: string;
   stopOnErrors: boolean;
@@ -191,13 +193,15 @@ function ImportModal({
           setIgnoreBlanks={setIgnoreBlanks}
         />
         {fileType === 'csv' && (
-          <ImportPreview
-            loaded={previewLoaded}
-            onFieldCheckedChanged={toggleIncludeField}
-            setFieldType={setFieldType}
-            values={values}
-            fields={fields}
-          />
+          <FormFieldContainer>
+            <ImportPreview
+              loaded={previewLoaded}
+              onFieldCheckedChanged={toggleIncludeField}
+              setFieldType={setFieldType}
+              values={values}
+              fields={fields as FieldFromCSV[]}
+            />
+          </FormFieldContainer>
         )}
         <ProgressBar
           status={status}

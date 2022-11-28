@@ -6,6 +6,7 @@ import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType, updatePip
 import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { RESTORE_PIPELINE } from '../saved-pipeline';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -34,6 +35,15 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     ActionTypes.PipelineModeToggled
   )) {
     return action.mode;
+  }
+  if (action.type === RESTORE_PIPELINE) {
+    if (
+      process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' &&
+      // Force as-text editor mode if loaded pipeline contains syntax errors
+      action.syntaxErrors.length > 0
+    ) {
+      return 'as-text';
+    }
   }
   return state;
 };

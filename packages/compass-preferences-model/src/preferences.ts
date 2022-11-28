@@ -17,7 +17,6 @@ export type UserConfigurablePreferences = {
   // User-facing preferences
   autoUpdates: boolean;
   enableMaps: boolean;
-  trackErrors: boolean;
   trackUsageStatistics: boolean;
   enableFeedbackPanel: boolean;
   networkTraffic: boolean;
@@ -25,9 +24,11 @@ export type UserConfigurablePreferences = {
   enableShell: boolean;
   protectConnectionStrings?: boolean;
   forceConnectionOptions?: [key: string, value: string][];
-  showKerberosPasswordField?: boolean;
+  showKerberosPasswordField: boolean;
+  enableDevTools: boolean;
   theme: THEMES;
   maxTimeMS?: number;
+  installURLHandlers: boolean;
 };
 
 export type InternalUserPreferences = {
@@ -51,6 +52,7 @@ export type CliOnlyPreferences = {
   passphrase?: string;
   version?: boolean;
   help?: boolean;
+  showExampleConfig?: boolean;
 };
 
 export type NonUserPreferences = {
@@ -136,6 +138,11 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
   /** A method for cleaning up/normalizing input from the command line or global config file */
   customPostProcess?: PostProcessFunction<AllPreferences[K]>;
+  /** Specify that this option should not be listed in --help output */
+  omitFromHelp?: K extends keyof (UserConfigurablePreferences &
+    CliOnlyPreferences)
+    ? false
+    : boolean;
 };
 
 type DeriveValueFunction<T> = (
@@ -153,8 +160,29 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
     value: v(property) && v('networkTraffic'),
     state:
       s(property) ??
-      s('networkTraffic') ??
-      (v('networkTraffic') ? undefined : 'derived'),
+      (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
+  });
+}
+
+/** Helper for defining how to derive value/state for feature-restricting preferences */
+function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (v, s) => ({
+    value:
+      v(property) &&
+      v('enableShell') &&
+      !v('maxTimeMS') &&
+      !v('protectConnectionStrings') &&
+      !v('readOnly'),
+    state:
+      s(property) ??
+      (v('protectConnectionStrings')
+        ? s('protectConnectionStrings') ?? 'derived'
+        : undefined) ??
+      (v('readOnly') ? s('readOnly') ?? 'derived' : undefined) ??
+      (v('enableShell') ? undefined : s('enableShell') ?? 'derived') ??
+      (v('maxTimeMS') ? s('maxTimeMS') ?? 'derived' : undefined),
   });
 }
 
@@ -165,7 +193,7 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   return (v, s) => ({
     value: v(property) && !v('readOnly'),
     state:
-      s(property) ?? s('readOnly') ?? (v('readOnly') ? 'derived' : undefined),
+      s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
   });
 }
 
@@ -208,6 +236,7 @@ const modelPreferencesProps: Required<{
     cli: true,
     global: false,
     description: null,
+    omitFromHelp: true,
   },
   /**
    * Stores the theme preference for the user.
@@ -315,22 +344,6 @@ const modelPreferencesProps: Required<{
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
   },
   /**
-   * Switch to enable/disable error reports.
-   */
-  trackErrors: {
-    type: 'boolean',
-    required: true,
-    default: false,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Enable Crash Reports',
-      long: 'Allow Compass to send crash reports containing stack traces and unhandled exceptions.',
-    },
-    deriveValue: deriveNetworkTrafficOptionState('trackErrors'),
-  },
-  /**
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
    */
   enableFeedbackPanel: {
@@ -395,6 +408,22 @@ const modelPreferencesProps: Required<{
     },
   },
   /**
+   * Switch to enable DevTools in Electron.
+   */
+  enableDevTools: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable DevTools',
+      long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
+    },
+    deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
+  },
+  /**
    * Switch to show the Kerberos password field in the connection form.
    */
   showKerberosPasswordField: {
@@ -437,6 +466,21 @@ const modelPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Upper Limit for maxTimeMS for Compass Database Operations',
+    },
+  },
+  /**
+   * Do not handle mongodb:// and mongodb+srv:// URLs via Compass
+   */
+  installURLHandlers: {
+    type: 'boolean',
+    required: true,
+    default: true,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Install Compass as URL Protocol Handler',
+      long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
     },
   },
 };
@@ -497,6 +541,16 @@ const cliOnlyPreferencesProps: Required<{
       short: 'Show Compass Version',
     },
   },
+  showExampleConfig: {
+    type: 'boolean',
+    required: false,
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Show Example Config File',
+    },
+  },
 };
 
 const nonUserPreferences: Required<{
@@ -524,6 +578,7 @@ const nonUserPreferences: Required<{
       short:
         'Specify a Connection String or Connection ID to Automatically Connect',
     },
+    omitFromHelp: true,
   },
   file: {
     type: 'string',
@@ -599,11 +654,12 @@ export function getSettingDescription<
   return { description, type, required };
 }
 
+/* Identifies a source from which the preference was set */
 export type PreferenceState =
-  | 'set-cli'
-  | 'set-global'
+  | 'set-cli' // Can be set directly or derived from a preference set via cli args.
+  | 'set-global' // Can be set directly or derived from a preference set via global config.
   | 'hardcoded'
-  | 'derived'
+  | 'derived' // Derived from a preference set by a user via setting UI.
   | undefined;
 
 export type PreferenceStateInformation = Partial<
@@ -883,7 +939,6 @@ export class Preferences {
       await this.savePreferences({
         autoUpdates: true,
         enableMaps: true,
-        trackErrors: true,
         trackUsageStatistics: true,
         enableFeedbackPanel: true,
         showedNetworkOptIn: true,

@@ -13,6 +13,10 @@ const featuresFields = [
   'protectConnectionStrings',
   'showKerberosPasswordField',
   'maxTimeMS',
+  'enableDevTools',
+  ...(['darwin', 'win32'].includes(process.platform)
+    ? (['installURLHandlers'] as const)
+    : []),
 ] as const;
 type FeaturesFields = typeof featuresFields[number];
 type FeaturesSettingsProps = Omit<SettingsListProps<FeaturesFields>, 'fields'>;

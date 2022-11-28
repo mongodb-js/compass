@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 
+import { Badge, Icon } from '@mongodb-js/compass-components';
+
 import styles from './index-definition-type.module.less';
 
 /**
@@ -23,23 +25,15 @@ class IndexDefinitionType extends Component {
    */
   renderDirection(field) {
     if (field.value === 1) {
-      return (
-        <span className={styles['index-definition-type-pair-field-sort']}>
-          <i className="fa fa-arrow-circle-up fa-lg" />
-        </span>
-      );
+      return <Icon glyph="ArrowUp" size="small" />;
     }
 
     if (field.value === -1) {
-      return (
-        <span className={styles['index-definition-type-pair-field-sort']}>
-          <i className="fa fa-arrow-circle-down fa-lg" />
-        </span>
-      );
+      return <Icon glyph="ArrowDown" size="small" />;
     }
 
     return (
-      <span className={styles['index-definition-type-pair-field-type']}>
+      <span>
         {field.value._bsontype
           ? this.renderBsonValue(field.value)
           : field.value}
@@ -77,19 +71,15 @@ class IndexDefinitionType extends Component {
    */
   render() {
     const fields = map(this.props.index.fields.serialize(), (field) => (
-      <span key={field.field} className={styles['index-definition-type-pair']}>
+      <div key={field.field} className={styles['index-definition-type-pair']}>
         <span className={styles['index-definition-type-pair-field']}>
           {field.field}
           {this.renderDirection(field)}
         </span>
-      </span>
+      </div>
     ));
 
-    return (
-      <div className={styles['index-definition']}>
-        <p className={styles['index-definition-type']}>{fields}</p>
-      </div>
-    );
+    return <Badge>{fields}</Badge>;
   }
 }
 

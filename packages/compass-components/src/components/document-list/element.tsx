@@ -16,13 +16,13 @@ import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
 import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
-import { FontAwesomeIcon } from './font-awesome-icon';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { usePrevious } from './use-previous';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
+import { useDarkMode } from '../../hooks/use-theme';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -163,7 +163,7 @@ function useHadronElement(el: HadronElementType) {
     internal: el.isInternalField(),
   };
 }
-const buttonReset = css({
+const expandButton = css({
   margin: 0,
   padding: 0,
   border: 'none',
@@ -171,34 +171,60 @@ const buttonReset = css({
   '&:hover': {
     cursor: 'pointer',
   },
+  display: 'flex',
 });
 
 const hadronElement = css({
   display: 'flex',
   paddingLeft: spacing[2],
   paddingRight: spacing[2],
+  marginTop: 1,
+});
+
+const hadronElementLightMode = css({
   '&:hover': {
     backgroundColor: palette.gray.light2,
   },
 });
 
-const elementInvalid = css({
+const hadronElementDarkMode = css({
+  '&:hover': {
+    backgroundColor: palette.black,
+  },
+});
+
+const elementInvalidLightMode = css({
   backgroundColor: palette.yellow.light3,
   '&:hover': {
     backgroundColor: palette.yellow.light2,
   },
 });
 
-const elementRemoved = css({
+const elementRemovedLightMode = css({
   backgroundColor: palette.red.light3,
   '&:hover': {
     backgroundColor: palette.red.light2,
   },
 });
 
+const elementInvalidDarkMode = css({
+  backgroundColor: palette.yellow.dark3,
+  '&:hover': {
+    backgroundColor: palette.yellow.dark2,
+  },
+});
+
+const elementRemovedDarkMode = css({
+  backgroundColor: palette.red.dark3,
+  '&:hover': {
+    backgroundColor: palette.red.dark2,
+  },
+});
+
 const elementActions = css({
   flex: 'none',
   width: spacing[3],
+  position: 'relative',
 });
 
 const elementLineNumber = css({
@@ -225,18 +251,33 @@ const lineNumberCount = css({
   },
 });
 
-const lineNumberInvalid = css({
+const lineNumberInvalidLightMode = css({
   backgroundColor: palette.yellow.base,
   '&::before': {
     color: palette.yellow.dark2,
   },
 });
 
-const lineNumberRemoved = css({
+const lineNumberRemovedLightMode = css({
   backgroundColor: palette.red.base,
   color: palette.red.light3,
   '&::before': {
     color: palette.red.light3,
+  },
+});
+
+const lineNumberInvalidDarkMode = css({
+  backgroundColor: palette.yellow.dark2,
+  '&::before': {
+    color: palette.yellow.base,
+  },
+});
+
+const lineNumberRemovedDarkMode = css({
+  backgroundColor: palette.red.light3,
+  color: palette.red.base,
+  '&::before': {
+    color: palette.red.base,
   },
 });
 
@@ -247,6 +288,8 @@ const elementSpacer = css({
 const elementExpand = css({
   width: spacing[3],
   flex: 'none',
+  display: 'flex',
+  alignItems: 'center',
 });
 
 const elementKey = css({
@@ -317,6 +360,7 @@ export const HadronElement: React.FunctionComponent<{
   lineNumberSize,
   onAddElement,
 }) => {
+  const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
   const [expanded, setExpanded] = useState(allExpanded);
   const {
@@ -358,9 +402,17 @@ export const HadronElement: React.FunctionComponent<{
   const isValid = key.valid && value.valid;
   const shouldShowActions = editingEnabled;
 
+  const elementRemoved: string = darkMode
+    ? elementRemovedDarkMode
+    : elementRemovedLightMode;
+  const elementInvalid: string = darkMode
+    ? elementInvalidDarkMode
+    : elementInvalidLightMode;
+
   const elementProps = {
     className: cx(
       hadronElement,
+      darkMode ? hadronElementDarkMode : hadronElementLightMode,
       removed ? elementRemoved : editingEnabled && !isValid && elementInvalid
     ),
     onClick: onLineClick,
@@ -370,6 +422,12 @@ export const HadronElement: React.FunctionComponent<{
     className: cx(elementKey, internal && elementKeyInternal),
   };
 
+  const lineNumberRemoved = darkMode
+    ? lineNumberRemovedDarkMode
+    : lineNumberRemovedLightMode;
+  const lineNumberInvalid = darkMode
+    ? lineNumberInvalidDarkMode
+    : lineNumberInvalidLightMode;
   return (
     <>
       <div
@@ -445,7 +503,7 @@ export const HadronElement: React.FunctionComponent<{
           {expandable && (
             <button
               type="button"
-              className={buttonReset}
+              className={expandButton}
               aria-pressed={expanded}
               aria-label={
                 expanded ? 'Collapse field items' : 'Expand field items'
@@ -455,9 +513,10 @@ export const HadronElement: React.FunctionComponent<{
                 toggleExpanded();
               }}
             >
-              <FontAwesomeIcon
-                icon={expanded ? 'expanded' : 'collapsed'}
-              ></FontAwesomeIcon>
+              <Icon
+                size="xsmall"
+                glyph={expanded ? 'CaretDown' : 'CaretRight'}
+              ></Icon>
             </button>
           )}
         </div>

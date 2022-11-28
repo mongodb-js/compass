@@ -17,10 +17,29 @@ import { enable } from '@electron/remote/main';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import preferences from 'compass-preferences-model';
-import { setupTheme } from './theme';
-import { shouldWindowAutoConnect, onCompassDisconnect } from './auto-connect';
+import {
+  getWindowAutoConnectPreferences,
+  onCompassDisconnect,
+  registerMongoDbUrlForBrowserWindow,
+} from './auto-connect';
 
 const debug = createDebug('mongodb-compass:electron:window-manager');
+
+const earlyOpenUrls: string[] = [];
+function earlyOpenUrlListener(
+  event: { preventDefault: () => void },
+  url: string
+) {
+  event.preventDefault();
+  earlyOpenUrls.push(url);
+}
+export function installEarlyOpenUrlListener(): void {
+  electronApp.on('open-url', earlyOpenUrlListener);
+}
+
+export function uninstallEarlyOpenUrlListener(): void {
+  electronApp.off('open-url', earlyOpenUrlListener);
+}
 
 /**
  * Constants for window sizes on multiple platforms
@@ -77,9 +96,15 @@ async function showWindowWhenReady(bw: BrowserWindow) {
  */
 function showConnectWindow(
   compassApp: typeof CompassApplication,
-  opts: Partial<BrowserWindowConstructorOptions & { url: string }> = {}
+  opts: Partial<
+    BrowserWindowConstructorOptions & {
+      rendererUrl: string;
+      mongodbUrl: string;
+    }
+  > = {}
 ): BrowserWindow {
-  const url = opts.url ?? DEFAULT_URL;
+  const rendererUrl = opts.rendererUrl ?? DEFAULT_URL;
+  const mongodbUrl = opts.rendererUrl;
 
   const windowOpts = {
     width: Number(DEFAULT_WIDTH),
@@ -110,6 +135,9 @@ function showConnectWindow(
   const { networkTraffic } = preferences.getPreferences();
 
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
+  if (mongodbUrl) {
+    registerMongoDbUrlForBrowserWindow(window, mongodbUrl);
+  }
   if (networkTraffic !== true) {
     // https://github.com/electron/electron/issues/22995
     window.webContents.session.setSpellCheckerDictionaryDownloadURL(
@@ -128,23 +156,11 @@ function showConnectWindow(
 
   window.once('closed', onWindowClosed);
 
-  debug(`Loading page ${url} in main window`);
+  debug(`Loading page ${rendererUrl} in main window`);
 
   void showWindowWhenReady(window);
 
-  void window.loadURL(url);
-
-  /**
-   * Open devtools for this window when it's opened.
-   *
-   * @example DEVTOOLS=1 npm start
-   * @see scripts/start.js
-   */
-  if (process.env.DEVTOOLS) {
-    window.webContents.openDevTools({
-      mode: 'detach',
-    });
-  }
+  void window.loadURL(rendererUrl);
 
   /**
    * Open all external links in the system's web browser.
@@ -197,7 +213,7 @@ const onStopFindInPage = (
  * those API's.
  */
 
-async function onAppReady(compassApp: typeof CompassApplication) {
+async function onAppReady() {
   // install development tools (devtron, react tools) if in development mode
   if (process.env.NODE_ENV === 'development') {
     debug('Activating Compass specific devtools...');
@@ -210,17 +226,6 @@ async function onAppReady(compassApp: typeof CompassApplication) {
       // noop
     }
   }
-
-  setupTheme();
-
-  showConnectWindow(compassApp);
-}
-
-async function showConnectWindowWhenReady(
-  compassApp: typeof CompassApplication
-): Promise<void> {
-  await electronApp.whenReady();
-  await onAppReady(compassApp);
 }
 
 class CompassWindowManager {
@@ -256,11 +261,13 @@ class CompassWindowManager {
         ipcMain.broadcast('compass:log', meta);
       },
       'compass:disconnected': onCompassDisconnect,
-      'compass:should-window-auto-connect': shouldWindowAutoConnect,
+      'compass:get-window-auto-connect-preferences':
+        getWindowAutoConnectPreferences,
       'test:show-connect-window': () => showConnectWindow(compassApp),
     });
 
-    await showConnectWindowWhenReady(compassApp);
+    await electronApp.whenReady();
+    await onAppReady();
 
     // Start listening to the macOS activate event only after first Compass window
     // is shown. Otherwise activate can happen on application start and cause
@@ -270,6 +277,18 @@ class CompassWindowManager {
         showConnectWindow(compassApp);
       }
     });
+    uninstallEarlyOpenUrlListener();
+    electronApp.on('open-url', (evt, url) => {
+      evt.preventDefault();
+      showConnectWindow(compassApp, { mongodbUrl: url });
+    });
+
+    showConnectWindow(compassApp, { mongodbUrl: earlyOpenUrls.shift() });
+    // Handle the very unlikely case that multiple open-url events arrived before
+    // this point by opening.
+    for (const url of earlyOpenUrls) {
+      showConnectWindow(compassApp, { mongodbUrl: url });
+    }
   }
 
   static init(app: typeof CompassApplication): Promise<void> {

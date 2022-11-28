@@ -25,6 +25,7 @@
   ],
   "main": "dist/index.js",
   "compass:main": "src/index.js",
+  "types": "dist/src/index.d.ts",
   "exports": {
     "browser": "./dist/browser.js",
     "require": "./dist/index.js"
@@ -33,10 +34,12 @@
     ".": "./src/index.js"
   },
   "scripts": {
+    "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
+    "postcompile": "tsc --emitDeclarationOnly",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc -p tsconfig-lint.json --noEmit",
     "eslint": "eslint",
@@ -87,9 +90,7 @@
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prop-types": "^15.7.2",
-    "react-bootstrap": "^0.32.1",
     "react-dom": "^16.14.0",
-    "react-fontawesome": "^1.6.1",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
     "redux-thunk": "^2.3.0",

@@ -19,6 +19,8 @@ import type { RootState } from '../../../modules';
 import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const containerStyles = css({
   position: 'relative',
@@ -34,17 +36,18 @@ const containerStyles = css({
 
 const editorContainerStyles = css({
   flex: '1 1 100%',
-  overflow: 'auto',
+  overflow: 'hidden',
 });
 
 const errorContainerStyles = css({
   flex: 'none',
   marginTop: 'auto',
-  marginLeft: spacing[2],
-  marginRight: spacing[2],
+  marginLeft: spacing[3],
+  marginRight: spacing[3],
 });
 
 type PipelineEditorProps = {
+  num_stages: number;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
@@ -72,6 +75,7 @@ function useAggregationCompleter(
 }
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
+  num_stages,
   pipelineText,
   serverError,
   syntaxErrors,
@@ -79,12 +83,27 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   fields,
   onChangePipelineText,
 }) => {
+  const editorInitialValueRef = useRef<string>(pipelineText);
   const editorRef = useRef<AceEditor | undefined>(undefined);
   const completer = useAggregationCompleter(
     serverVersion,
     EditorTextCompleter,
     fields
   );
+
+  const onBlurEditor = useCallback(() => {
+    const value = editorRef.current?.getValue();
+    if (
+      value !== undefined &&
+      value !== editorInitialValueRef.current
+    ) {
+      track('Aggregation Edited', {
+        num_stages,
+        editor_view_type: 'text',
+      });
+      editorInitialValueRef.current = value;
+    }
+  }, [editorRef, editorInitialValueRef, num_stages]);
 
   const onLoadEditor = useCallback((editor: AceEditor) => {
     editorRef.current = editor;
@@ -121,13 +140,15 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           onChangeText={onChangePipelineText}
           variant={EditorVariant.Shell}
           name={'pipeline-text-editor'}
+          data-testid={'pipeline-text-editor'}
           completer={completer}
           options={{ minLines: 16 }}
           onLoad={onLoadEditor}
+          onBlur={onBlurEditor}
         />
       </div>
       {showErrorContainer && (
-        <div className={errorContainerStyles}>
+        <div className={errorContainerStyles} data-testid="pipeline-as-text-error-container">
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (
@@ -143,6 +164,7 @@ const mapState = ({
   pipelineBuilder: {
     textEditor: {
       pipeline: {
+        pipeline,
         pipelineText,
         serverError: pipelineServerError,
         syntaxErrors,
@@ -153,6 +175,7 @@ const mapState = ({
   serverVersion,
   fields,
 }: RootState) => ({
+  num_stages: pipeline.length,
   pipelineText,
   serverError: pipelineServerError ?? outputStageServerError,
   syntaxErrors,

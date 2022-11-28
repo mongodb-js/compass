@@ -54,6 +54,7 @@ const formContainerStyles = css({
 
 function Connections({
   onConnected,
+  isConnected,
   connectionStorage = new ConnectionStorage(),
   appName,
   getAutoConnectInfo,
@@ -63,6 +64,7 @@ function Connections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
+  isConnected: boolean;
   connectionStorage?: ConnectionStorage;
   appName: string;
   getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
@@ -83,6 +85,7 @@ function Connections({
     reloadConnections,
   } = useConnections({
     onConnected,
+    isConnected,
     connectionStorage,
     connectFn,
     appName,
@@ -94,7 +97,6 @@ function Connections({
     connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
-    isConnected,
   } = state;
 
   const [showExportConnectionsModal, setShowExportConnectionsModal] =
@@ -114,12 +116,7 @@ function Connections({
   );
 
   return (
-    <div
-      data-testid={
-        isConnected ? 'connections-connected' : 'connections-disconnected'
-      }
-      className={connectStyles}
-    >
+    <div data-testid="connections-wrapper" className={connectStyles}>
       <ResizableSidebar>
         <ConnectionList
           activeConnectionId={activeConnectionId}
@@ -165,8 +162,7 @@ function Connections({
           <FormHelp />
         </div>
       </div>
-      {(isConnected ||
-        (!!connectionAttempt && !connectionAttempt.isClosed())) && (
+      {!!connectionAttempt && !connectionAttempt.isClosed() && (
         <Connecting
           connectingStatusText={connectingStatusText}
           onCancelConnectionClicked={cancelConnectionAttempt}

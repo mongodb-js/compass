@@ -1,3 +1,4 @@
+import throttle from 'lodash/throttle';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import fs from 'fs';
 import { promisify } from 'util';
@@ -6,8 +7,6 @@ import type { AnyAction, Dispatch } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import createProgressStream from 'progress-stream';
-import type { Options as ProgressStreamOptions } from 'progress-stream';
 
 import PROCESS_STATUS from '../constants/process-status';
 import EXPORT_STEP from '../constants/export-step';
@@ -67,7 +66,7 @@ const FULL_QUERY: ExportQueryType = {
   filter: {},
 };
 
-type ExportFieldsType = Record<string, number>;
+type ExportFieldsType = Record<string, boolean>;
 
 type State = {
   isOpen?: boolean;
@@ -498,17 +497,6 @@ export const startExport =
     );
     try {
       const dest = fs.createWriteStream(exportData.fileName);
-      const progress = createProgressStream({
-        objectMode: true,
-        length: numDocsToExport ?? undefined,
-        time: 250 /* ms */,
-      } as ProgressStreamOptions & {
-        // This doesn't exist in the typings (v2.0.2) but is used in the package.
-        objectMode: boolean;
-      });
-      progress.on('progress', function (info) {
-        dispatch(onProgress(info.percentage, info.transferred));
-      });
       debug('executing pipeline');
       const exporter = new CursorExporter({
         cursor: source,
@@ -518,13 +506,27 @@ export const startExport =
         totalNumberOfDocuments: numDocsToExport,
       });
 
+      const throttledProgress = throttle(
+        ({
+          percentage,
+          transferred,
+        }: {
+          percentage: number;
+          transferred: number;
+        }) => {
+          dispatch(onProgress(percentage, transferred));
+        },
+        250
+      );
+
       exporter.on('progress', function (transferred) {
         let percent = 0;
         if (numDocsToExport !== null && numDocsToExport > 0) {
           percent = (transferred * 100) / numDocsToExport;
         }
         numDocsActuallyExported = transferred;
-        progress.emit('progress', {
+
+        throttledProgress({
           percentage: percent,
           transferred,
         });
@@ -573,7 +575,7 @@ export const startExport =
         all_docs: exportData.isFullCollection,
         file_type: exportData.fileType,
         all_fields: Object.values(exportData.fields).every(
-          (checked) => checked === 1
+          (checked) => checked
         ),
         number_of_docs: numDocsToExport,
         success: exportSucceded,
@@ -619,13 +621,13 @@ const getQueryExportSource = async (
     : count;
   // filter out only the fields we want to include in our export data
   const projection = Object.fromEntries(
-    Object.entries(fields).filter((keyAndValue) => keyAndValue[1] === 1)
+    Object.entries(fields).filter((keyAndValue) => keyAndValue[1])
   );
   if (
     Object.keys(projection).length > 0 &&
-    (undefined === fields._id || fields._id === 0)
+    (undefined === fields._id || !fields._id)
   ) {
-    projection._id = 0;
+    projection._id = false;
   }
   log.info(mongoLogId(1001000083), 'Export', 'Start reading from collection', {
     ns,

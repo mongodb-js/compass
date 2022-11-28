@@ -371,8 +371,8 @@ describe('Connections Component', function () {
         expect(onConnectedSpy.called).to.equal(false);
       });
 
-      it('should have the disabled connect test id', function () {
-        expect(screen.getByTestId('connections-disconnected')).to.be.visible;
+      it('should have the connections-wrapper test id', function () {
+        expect(screen.getByTestId('connections-wrapper')).to.be.visible;
       });
 
       it('should call the connect function with the connection options to connect', function () {

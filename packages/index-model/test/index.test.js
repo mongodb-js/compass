@@ -4,14 +4,11 @@ var IndexCollection = require('../').Collection;
 var _ = require('lodash');
 
 var INDEX_FIXTURE = require('./fixture');
-var INDEX_BUGSNAG_FIXTURE = require('./fixture-bugsnag');
 
 describe('mongodb-index-model', function() {
   var indexes;
-  var bugsnagIndexes;
   before(function() {
     indexes = new IndexCollection(INDEX_FIXTURE, {parse: true});
-    bugsnagIndexes = new IndexCollection(INDEX_BUGSNAG_FIXTURE, {parse: true});
   });
 
   context('IndexModel', function() {
@@ -264,33 +261,6 @@ describe('mongodb-index-model', function() {
     it('should accept numbers as index field values', function() {
       assert.equal(indexes.get('seniors', 'name').fields.at(0).field, 'name');
       assert.equal(indexes.get('seniors', 'name').fields.at(0).value, 1);
-    });
-
-    context('when created via a v3.4.x mongod and mongoshell', function() {
-      it('should accept Infinity index field values', function() {
-        assert.equal(bugsnagIndexes.get('a_Infinity', 'name').fields.at(0).field, 'a');
-        assert.equal(bugsnagIndexes.get('a_Infinity', 'name').fields.at(0).value, Infinity);
-      });
-
-      it('should accept numbers less than -1 as index field values', function() {
-        assert.equal(bugsnagIndexes.get('a_-2', 'name').fields.at(0).field, 'a');
-        assert.equal(bugsnagIndexes.get('a_-2', 'name').fields.at(0).value, -2);
-      });
-
-      it('should accept floats as index field values', function() {
-        assert.equal(bugsnagIndexes.get('a_0.1', 'name').fields.at(0).field, 'a');
-        assert.equal(bugsnagIndexes.get('a_0.1', 'name').fields.at(0).value, 0.1);
-      });
-    });
-
-    context('when created via a v3.2.x mongod and mongoshell', function() {
-      // See https://jira.mongodb.org/browse/COMPASS-406
-      // See https://app.bugsnag.com/mongodb/mongodb-compass/errors/581ea54b07b7add195ad49ce?event_id=585a8ea91c8db711005c6cb2
-      // See https://jira.mongodb.org/browse/SERVER-11064
-      it('should accept boolean true as index field values', function() {
-        assert.equal(bugsnagIndexes.get('b_true', 'name').fields.at(0).field, 'b');
-        assert.equal(bugsnagIndexes.get('b_true', 'name').fields.at(0).value, true);
-      });
     });
 
     it('should accept dotted field names', function() {

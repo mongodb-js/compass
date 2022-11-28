@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { getDirectory } from './get-directory';
+import { prettify } from '@mongodb-js/compass-editor';
 
 const { debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -39,7 +40,15 @@ function savedPipelineToText(pipeline: StoredPipeline['pipeline']): string {
     stageToString(stageOperator, stage, !isEnabled)
   ) ?? [];
 
-  return `[\n${stages.join(',\n')}\n]`;
+  const source = `[\n${stages.join(',\n')}\n]`;
+
+  try {
+    return prettify(source);
+  } catch {
+    // In case there are syntax errors in the source and we couldn't prettify it
+    // before loading
+    return source;
+  }
 }
 
 function hasAllRequiredKeys(pipeline?: any): pipeline is StoredPipeline {

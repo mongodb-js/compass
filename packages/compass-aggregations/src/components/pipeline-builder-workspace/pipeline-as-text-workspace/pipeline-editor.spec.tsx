@@ -22,6 +22,7 @@ const renderPipelineEditor = (
         serverVersion="4.2"
         fields={[]}
         onChangePipelineText={() => {}}
+        num_stages={1}
         {...props}
       />
     </Provider>

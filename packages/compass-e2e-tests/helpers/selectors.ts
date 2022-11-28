@@ -15,7 +15,7 @@ export const CloseWelcomeModalButton =
   '[data-testid="welcome-modal"] [aria-label="Close modal"]';
 
 // Connection screen
-export const ConnectSection = '[data-testid="connections-disconnected"]';
+export const ConnectSection = '[data-testid="connections-wrapper"]';
 export const ConnectButton = '[data-testid="connect-button"]';
 export const ConnectionFormSaveAndConnectButton =
   '[data-testid="save-and-connect-button"]';
@@ -523,7 +523,7 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 
 export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
-  '[data-testid="insert-document-modal"] .document-footer.document-footer-is-error .document-footer-message';
+  '[data-testid="insert-document-banner"][data-variant="danger"]';
 export const InsertJSONEditor =
   '[data-testid="insert-document-modal"] .ace_editor';
 export const InsertConfirm =
@@ -538,7 +538,8 @@ export const incompleteSchemaForClonedDocMsg =
 // Import File modal
 
 export const ImportModal = '[data-testid="import-modal"]';
-export const ImportDelimiter = '[id="import-delimiter-select"]';
+export const ImportDelimiterSelect = '[data-testid="import-delimiter-select"]';
+export const ImportDelimiterMenu = '[id="import-delimiter-select-menu"]';
 export const ImportFileInput = '#import-file_file_input';
 export const FileTypeJSON = '[data-testid="select-file-type-json"]';
 export const FileTypeCSV = '[data-testid="select-file-type-csv"]';
@@ -551,11 +552,16 @@ export const ImportDone =
 export const ImportErrorBox = '[data-testid="import-error-box"]';
 
 export const importPreviewFieldHeaderSelect = (fieldName: string): string => {
-  return `[data-testid="preview-field-header-${fieldName}"] select`;
+  return `[data-testid="preview-field-header-${fieldName}"] button`;
+};
+export const importPreviewFieldHeaderSelectMenu = (
+  fieldName: string
+): string => {
+  return `[id="import-preview-field-type-select-menu-${fieldName}-menu"]`;
 };
 
 export const importPreviewFieldHeaderCheckbox = (fieldName: string): string => {
-  return `[data-testid="preview-field-header-${fieldName}"] input[type="checkbox"]`;
+  return `[data-testid="preview-field-header-${fieldName}"] [data-testid="toggle-import-field-checkbox-${fieldName}"]`;
 };
 
 // Connection import/export modals
@@ -663,6 +669,10 @@ export const AggregationCollationInput = '[data-testid="collation-string"]';
 export const AggregationMaxTimeMSInput = '[data-testid="max-time-ms"]';
 export const AggregationBuilderWorkspace =
   '[data-testid="pipeline-builder-workspace"]';
+export const AggregationBuilderUIWorkspace =
+  '[data-testid="pipeline-builder-ui-workspace"]';
+export const AggregationAsTextWorkspace =
+  '[data-testid="pipeline-as-text-workspace"]';
 export const AggregationResultsWorkspace =
   '[data-testid="pipeline-results-workspace"]';
 export const AggregationResultsDocumentListSwitchButton =
@@ -712,7 +722,7 @@ export const AggregationExplainModalCloseButton = `${AggregationExplainModal} [a
 
 // Create view from pipeline modal
 export const CreateViewModal = '[data-testid="create-view-modal"]';
-export const CreateViewNameInput = '#create-view-name';
+export const CreateViewNameInput = `${CreateViewModal} [data-testid="create-view-name"]`;
 
 // Save aggregation from pipeline modal
 export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
@@ -778,6 +788,26 @@ export const stageEditorErrorMessage = (stageIndex: number): string => {
 export const stageEditorSyntaxErrorMessage = (stageIndex: number): string => {
   return `[data-stage-index="${stageIndex}"] [data-testid="stage-editor-syntax-error"]`;
 };
+
+export const aggregationPipelineModeToggle = (
+  mode: 'builder-ui' | 'as-text'
+): string => {
+  return `[data-testid="pipeline-builder-toggle-${mode}"] button`;
+};
+
+export const AggregationAsTextEditor = '[data-testid="pipeline-text-editor"]';
+export const AggregationAsTextErrorContainer =
+  '[data-testid="pipeline-as-text-error-container"]';
+export const AggregationAsTextPreview =
+  '[data-testid="pipeline-as-text-preview"]';
+export const AggregationAsTextPreviewDocument =
+  '[data-testid="readonly-document"]';
+export const AggregationAsTextPreviewOut =
+  '[data-testid="$out-preview-banner"]';
+export const AggregationAsTextPreviewMerge =
+  '[data-testid="$merge-preview-banner"]';
+export const AggregationAsTextPreviewAtlasOperator =
+  '[data-testid="stage-preview-missing-search-support"]';
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
@@ -995,7 +1025,7 @@ export const OpenSavedItemModalConfirmButton = `${OpenSavedItemModal} button[typ
 
 // Duplicate view modal
 export const DuplicateViewModal = '[data-testid="duplicate-view-modal"]';
-export const DuplicateViewModalTextInput = `${DuplicateViewModal} #create-view-name`;
+export const DuplicateViewModalTextInput = `${DuplicateViewModal} [data-testid="create-view-name"]`;
 export const DuplicateViewModalConfirmButton = `${DuplicateViewModal} button[type="submit"]`;
 
 // Modify view

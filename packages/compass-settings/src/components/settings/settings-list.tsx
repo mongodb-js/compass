@@ -121,9 +121,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
         id={name}
         name={name}
         data-testid={name}
-        type="text"
-        inputMode="numeric"
-        pattern={required ? '[0-9]+' : '[0-9]*'}
+        type="number"
         value={value === undefined ? (required ? '0' : '') : `${value}`}
         onChange={handleChangeEvent}
         disabled={disabled}

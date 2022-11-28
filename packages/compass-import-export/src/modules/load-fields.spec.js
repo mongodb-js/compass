@@ -134,7 +134,7 @@ describe('getSelectableFields', function () {
       const fields = getSelectableFields(allFields, { maxDepth });
 
       expect(fields).to.deep.equal({
-        [expected]: 1,
+        [expected]: true,
       });
     }
   });
@@ -145,9 +145,9 @@ describe('getSelectableFields', function () {
     const fields = getSelectableFields(allFields, { maxDepth: 2 });
 
     expect(fields).to.deep.equal({
-      a: 1,
-      __safeContent__: 0,
-      '__safeContent__.0': 0,
+      a: true,
+      __safeContent__: false,
+      '__safeContent__.0': false,
     });
   });
 });
