@@ -30,7 +30,7 @@ SecureBackend.clear = function(namespace, done) {
   Promise.resolve()
     .then(function() { return require('keytar').findCredentials(serviceName); })
     .catch(function(err) {
-      log.error(mongoLogId(1001000168), 'keychain', 'Error calling findCredentials', { err: err.message }); // !dupedLogId
+      log.error(mongoLogId(1001000175), 'keychain', 'Error calling findCredentials', { err: err.message }); // !dupedLogId
       throw err;
     })
     .then(function(accounts) {
@@ -50,7 +50,7 @@ SecureBackend.clear = function(namespace, done) {
               return accountName;
             })
             .catch(function(err) {
-              log.error(mongoLogId(1001000169), 'keychain', 'Error calling deletePassword', { err: err.message }); // !dupedLogId
+              log.error(mongoLogId(1001000176), 'keychain', 'Error calling deletePassword', { err: err.message }); // !dupedLogId
               debug('Failed to delete', accountName, err);
               throw err;
             });

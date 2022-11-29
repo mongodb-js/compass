@@ -16,7 +16,7 @@ if (process && process.type === 'browser') {
     return Promise.resolve()
       .then(function() { return require('keytar').findCredentials(meta.serviceName); })
       .catch(function(err) {
-        log.error(mongoLogId(1001000168), 'keychain', 'Error calling findCredentials', { err: err.message });
+        log.error(mongoLogId(1001000175), 'keychain', 'Error calling findCredentials', { err: err.message });
         throw err;
       })
       .then(function(accounts) {
@@ -30,7 +30,7 @@ if (process && process.type === 'browser') {
                 return accountName;
               })
               .catch(function(err) {
-                log.error(mongoLogId(1001000169), 'keychain', 'Error calling deletePassword', { err: err.message });
+                log.error(mongoLogId(1001000176), 'keychain', 'Error calling deletePassword', { err: err.message });
                 throw err;
               });
           })
