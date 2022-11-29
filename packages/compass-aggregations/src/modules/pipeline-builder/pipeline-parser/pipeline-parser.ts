@@ -116,7 +116,7 @@ export default class PipelineParser {
         lastStage.trailingComments = root.innerComments.filter(node => {
           return !visited.has(node);
         });
-        adjustStageLoc(lastStage, (lastStage?.loc?.end.line ?? 0) + 1);
+        adjustAllStagesLoc(_stages);
         // Delete all inner comments from the root node (they are all part of stages now)
         delete root.innerComments;
       }
@@ -248,4 +248,10 @@ function adjustStageLoc(stage: t.Node, line: number) {
   for (const comment of stage.trailingComments ?? []) {
     comment.loc = getLineOnlySourceLocation(++line);
   }
+}
+
+function adjustAllStagesLoc(stages: t.Expression[]) {
+  stages.forEach((stage, idx) => {
+    adjustStageLoc(stage, stages[idx - 1]?.loc?.end.line ?? 0);
+  });
 }
