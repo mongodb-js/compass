@@ -3,7 +3,7 @@ import { Tooltip, Body } from '@mongodb-js/compass-components';
 
 const NO_USAGE_STATS =
   'Either the server does not support the $indexStats command' +
-  'or the user is not authorized to execute it.';
+  ' or the user is not authorized to execute it.';
 
 export const getUsageTooltip = (usage?: number): string => {
   return !usage
