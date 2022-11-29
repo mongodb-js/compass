@@ -98,6 +98,13 @@ module.exports = (_env, args) => {
     merge(mainConfig, {
       cache,
       externals,
+      resolve: {
+        ...mainConfig.resolve,
+        alias: {
+          ...mainConfig.resolve?.alias,
+          'mongodb/proxy': require.resolve('@gribnoysup/mongodb-browser/proxy'),
+        },
+      },
       plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
     merge(rendererConfig, {
@@ -106,6 +113,13 @@ module.exports = (_env, args) => {
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
+      resolve: {
+        ...rendererConfig.resolve,
+        alias: {
+          ...rendererConfig.resolve?.alias,
+          mongodb: '@gribnoysup/mongodb-browser',
+        },
+      },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         // Not a part of common config because mostly a Compass thing that we

@@ -13,6 +13,7 @@ import { setupCSFLELibrary } from './setup-csfle-library';
 import { setupPreferencesAndUserModel } from './setup-preferences-and-user-model';
 import type { ParsedGlobalPreferencesResult } from 'compass-preferences-model';
 import preferences from 'compass-preferences-model';
+import { createWebSocketProxy } from 'mongodb/proxy';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
@@ -85,6 +86,8 @@ class CompassApplication {
     if (mode === 'CLI') {
       return;
     }
+
+    createWebSocketProxy();
 
     await Promise.all([this.setupAutoUpdate(), this.setupSecureStore()]);
     await setupCSFLELibrary();

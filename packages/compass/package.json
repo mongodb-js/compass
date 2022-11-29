@@ -178,6 +178,7 @@
   },
   "devDependencies": {
     "@electron/remote": "^2.0.8",
+    "@gribnoysup/mongodb-browser": "^1.0.0",
     "@mongodb-js/compass-aggregations": "^9.4.0",
     "@mongodb-js/compass-app-stores": "^6.3.0",
     "@mongodb-js/compass-collection": "^4.4.0",

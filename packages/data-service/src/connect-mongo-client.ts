@@ -6,7 +6,7 @@ import type SSHTunnel from '@mongodb-js/ssh-tunnel';
 import EventEmitter from 'events';
 import { redactConnectionOptions, redactConnectionString } from './redact';
 import _ from 'lodash';
-
+import { promises as fs } from 'fs';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { ConnectionOptions } from './connection-options';
 import {
@@ -14,6 +14,7 @@ import {
   openSshTunnel,
   waitForTunnelError,
 } from './ssh-tunnel';
+import ConnectionString from 'mongodb-connection-string-url';
 
 const { debug, log } = createLoggerAndTelemetry('COMPASS-CONNECT');
 
@@ -37,6 +38,8 @@ export default async function connectMongoClientCompass(
     'connectMongoClient invoked',
     redactConnectionOptions(connectionOptions)
   );
+
+  console.log({connectionOptions});
 
   const url = connectionOptions.connectionString;
   const options: DevtoolsConnectOptions = {
@@ -84,9 +87,54 @@ export default async function connectMongoClientCompass(
     // Deep clone because of https://jira.mongodb.org/browse/NODE-4124,
     // the options here are being mutated.
     const connectOptions = _.cloneDeep({ ...options, ...overrideOptions });
+
+    const _url = new ConnectionString(url);
+
+    const requiresReadFileOptions: DevtoolsConnectOptions = {};
+
+    const optionsMap = {
+      sslCA: 'ca',
+      // sslCRT: 'crl',
+      sslCert: 'cert',
+      sslKey: 'key',
+      tlsCAFile: 'ca',
+      tlsCertificateFile: 'cert',
+      tlsCertificateKeyFile: 'key',
+    } as const;
+
+    const searchParams = _url.typedSearchParams<DevtoolsConnectOptions>();
+
+    // Something driver does when file paths are passed to the MongoClient
+    if (searchParams.has('tlsCertificateKeyFile') && !searchParams.has('tlsCertificateFile')) {
+      searchParams.set(
+        'tlsCertificateFile',
+        searchParams.get('tlsCertificateKeyFile')
+      );
+    }
+
+    for (const key of Object.keys(optionsMap) as (keyof typeof optionsMap)[]) {
+      if (_url.typedSearchParams<DevtoolsConnectOptions>().has(key)) {
+        const file = searchParams.get(key);
+        if (file) {
+          // mongodb-browser can't use fs, so we are doing the conversion that
+          // driver usually handles on its own to handle that case
+          requiresReadFileOptions[optionsMap[key]] = await fs.readFile(
+            file,
+            'ascii'
+          );
+        }
+        searchParams.delete(key);
+      }
+    }
+
+    console.log(_url.toString(), {
+      ...connectOptions,
+      ...requiresReadFileOptions,
+    });
+
     const client = await connectMongoClient(
-      url,
-      connectOptions,
+      _url.toString(),
+      { ...connectOptions, ...requiresReadFileOptions },
       connectLogger,
       CompassMongoClient
     );
