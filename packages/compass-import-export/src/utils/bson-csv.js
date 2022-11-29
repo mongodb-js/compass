@@ -20,9 +20,6 @@
  * 3. etc.
  */
 import bson from 'bson';
-import { createDebug } from './logger';
-
-const debug = createDebug('bson-csv');
 
 const BOOLEAN_TRUE = ['1', 'true', 'TRUE', true];
 const BOOLEAN_FALSE = ['0', 'false', 'FALSE', 'null', '', 'NULL', false];
@@ -230,7 +227,6 @@ export const serialize = function (doc) {
        * does instead of hex string/EJSON: https://github.com/mongodb/mongo-tools-common/blob/master/json/csv_format.go
        */
 
-      debug('serialize', { isBSON, type, value });
       // BSON values
       if (isBSON) {
         output[newKey] = valueToString(value);
