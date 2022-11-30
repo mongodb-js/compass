@@ -35,7 +35,7 @@ describe('UsageField', function () {
     it('returns correct tooltip', function () {
       expect(getUsageTooltip()).to.equal(
         'Either the server does not support the $indexStats command' +
-          'or the user is not authorized to execute it.'
+          ' or the user is not authorized to execute it.'
       );
       expect(getUsageTooltip(30)).to.equal(
         '30 index hits since index creation or last server restart'

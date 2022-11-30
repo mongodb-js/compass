@@ -30,7 +30,7 @@ describe('PipelinePreviewManager', function () {
     expect(result[0]).to.have.property('status', 'rejected');
     expect(result[0]).to.have.nested.property(
       'reason.name',
-      'PromiseCancelledError'
+      'AbortError'
     );
   });
 

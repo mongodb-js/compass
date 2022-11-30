@@ -98,10 +98,11 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
 
 const mapState = (state: RootState) => {
   const stages = getPipelineStageOperatorsFromBuilderState(state);
+  const isResultsMode = state.workspace === 'results';
   return {
     stages,
-    showAddNewStage: stages.length === 0,
-    isResultsMode: state.workspace === 'results',
+    showAddNewStage: !isResultsMode && stages.length === 0,
+    isResultsMode,
   };
 };
 

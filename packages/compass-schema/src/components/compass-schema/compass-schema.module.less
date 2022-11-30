@@ -189,16 +189,17 @@
         cursor: default;
       }
 
-      &.active > .schema-field-type {
+      &.active > div > .schema-field-type {
         background: @palette__gray--dark-2;
       }
 
-      &.active.selected > .schema-field-type {
+      &.active.selected > div > .schema-field-type {
         background: @palette__yellow--base;
       }
 
       .schema-field-type-list
         > .schema-field-wrapper:not(.active)
+        > div
         > .schema-field-type {
         // nested array subtypes
         background: @palette__gray--light-1;
@@ -211,11 +212,7 @@
       background: @palette__gray--light-1;
     }
 
-    .schema-field-type-label {
-      text-transform: lowercase;
-    }
-
-    .schema-field-type-undefined > .schema-field-type {
+    .schema-field-type-undefined > div > .schema-field-type {
       background: @palette__white;
       border: 1px solid @palette__gray--light-1;
     }

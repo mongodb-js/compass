@@ -230,9 +230,18 @@ number`
     it('should not load preview for stage if any previous stages are invalid', async function () {
       store.dispatch(changeStageValue(0, '{ foo: '));
       Sinon.resetHistory();
-      await store.dispatch(loadStagePreview(2));
+      await store.dispatch(loadStagePreview(1));
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForStage).not.to.be.called;
+    });
+
+    it('should load preview for stage if invalid previous stages are disabled', async function () {
+      store.dispatch(changeStageValue(0, '{ foo: '));
+      store.dispatch(changeStageDisabled(0, true));
+      Sinon.resetHistory();
+      await store.dispatch(loadStagePreview(1));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(store.pipelineBuilder.getPreviewForStage).to.be.called;
     });
 
     it('should cancel preview for stage when new stage state is invalid', function () {

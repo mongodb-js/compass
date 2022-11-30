@@ -19,6 +19,7 @@ export { setupPreferences };
 export {
   parseAndValidateGlobalPreferences,
   getHelpText,
+  getExampleConfigFile,
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
 export { usePreference, withPreferences } from './react';

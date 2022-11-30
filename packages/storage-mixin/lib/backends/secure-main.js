@@ -1,4 +1,5 @@
-const debug = require('debug')('mongodb-storage-mixin:backends:secure-main');
+const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
+const { debug, mongoLogId, log } = createLoggerAndTelemetry('COMPASS-STORAGE-MIXIN');
 
 if (process && process.type === 'browser') {
   const ipc = require('hadron-ipc');
@@ -12,7 +13,12 @@ if (process && process.type === 'browser') {
   ipc.respondTo('storage-mixin:clear', (evt, meta) => {
     debug('Clearing all secure values for', meta.serviceName);
 
-    return (require('keytar').findCredentials(meta.serviceName))
+    return Promise.resolve()
+      .then(function() { return require('keytar').findCredentials(meta.serviceName); })
+      .catch(function(err) {
+        log.error(mongoLogId(1001000175), 'keychain', 'Error calling findCredentials', { err: err.message });
+        throw err;
+      })
       .then(function(accounts) {
         return Promise.all(
           accounts.map(function(entry) {
@@ -24,7 +30,7 @@ if (process && process.type === 'browser') {
                 return accountName;
               })
               .catch(function(err) {
-                debug('Failed to delete', accountName, err);
+                log.error(mongoLogId(1001000176), 'keychain', 'Error calling deletePassword', { err: err.message });
                 throw err;
               });
           })
@@ -59,7 +65,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch((err) => {
-        debug('Error removing password', err);
+        log.error(mongoLogId(1001000170), 'keychain', 'Error calling deletePassword', { err: err.message });
       });
   });
 
@@ -79,7 +85,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch(function(err) {
-        debug('Error updating password', err);
+        log.error(mongoLogId(1001000171), 'keychain', 'Error calling setPassword', { err: err.message });
       });
   });
 
@@ -99,7 +105,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch(function(err) {
-        debug('Error creating password', err);
+        log.error(mongoLogId(1001000172), 'keychain', 'Error calling setPassword', { err: err.message });
       });
   });
 
@@ -121,7 +127,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch(function(err) {
-        debug('Error finding one', err);
+        log.error(mongoLogId(1001000173), 'keychain', 'Error calling getPassword', { err: err.message });
       });
   });
 
@@ -144,7 +150,7 @@ if (process && process.type === 'browser') {
         });
       })
       .catch(function(err) {
-        debug('Error finding', err);
+        log.error(mongoLogId(1001000174), 'keychain', 'Error calling findCredentials', { err: err.message });
       });
   });
 }

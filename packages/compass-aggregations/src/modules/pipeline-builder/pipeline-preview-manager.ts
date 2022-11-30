@@ -1,7 +1,7 @@
 import type { DataService } from 'mongodb-data-service';
 import type { AggregateOptions, Document } from 'mongodb';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
-import { cancellableWait } from '../../utils/cancellable-promise';
+import { cancellableWait } from '@mongodb-js/compass-utils';
 import { getStageOperator, getLastStageOperator, isLastStageOutputStage } from '../../utils/stage';
 import {
   FULL_SCAN_STAGES,

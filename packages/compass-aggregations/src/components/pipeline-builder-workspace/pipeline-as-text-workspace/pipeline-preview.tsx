@@ -89,7 +89,9 @@ const PreviewResults = ({
   atlasOperator: string;
   isPreviewStale: boolean;
 }) => {
-  const listProps: React.ComponentProps<typeof DocumentListView> = useMemo(
+  const listProps: Omit<React.ComponentProps<typeof DocumentListView>,
+  'isExpanded' |
+  'className'> = useMemo(
     () => ({
       docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
       isEditable: false,

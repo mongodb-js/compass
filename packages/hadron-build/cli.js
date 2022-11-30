@@ -2,7 +2,6 @@
 /**
  * TODO (imlucas) Switch from yargs to http://npm.im/commander
  */
-
 const cli = require('mongodb-js-cli')('hadron-build');
 const yargs = require('yargs')
   .wrap(120)
