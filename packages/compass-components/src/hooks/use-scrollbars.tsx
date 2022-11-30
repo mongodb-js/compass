@@ -102,6 +102,12 @@ export function useScrollbars() {
   const theme = useTheme();
 
   const scrollbarStylesClass = useMemo(() => {
+    if (!isElectronRenderer) {
+      // When we're not in an electron environment, like compass-aggregations
+      // in cloud, we don't apply the scrollbar styles.
+      return undefined;
+    }
+
     return getScrollbarClassForTheme(theme);
   }, [theme]);
 

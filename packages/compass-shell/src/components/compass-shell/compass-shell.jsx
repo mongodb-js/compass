@@ -23,7 +23,9 @@ const compassShellStyles = css({
   flexBasis: 'auto',
   position: 'relative',
   flexDirection: 'column',
-}, getScrollbarClassForTheme(Theme.Dark));
+}, getScrollbarClassForTheme({
+  theme: Theme.Dark
+}));
 
 const compassShellContainerStyles = css({
   flexGrow: 1,
