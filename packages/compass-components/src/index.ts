@@ -119,6 +119,10 @@ export {
   FocusState,
 } from './hooks/use-focus-hover';
 export {
+  getScrollbarClassForTheme,
+  useScrollbars,
+} from './hooks/use-scrollbars';
+export {
   withTheme,
   useTheme,
   useDarkMode,

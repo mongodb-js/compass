@@ -1,5 +1,6 @@
 import React from 'react';
 import { withTheme } from '../hooks/use-theme';
+import { withPortalScrollbars } from '../hooks/use-scrollbars';
 
 // This file exports `@leafygreen-ui` components and wraps some of
 // them with a listener to Compass' theme in the react context.
@@ -26,7 +27,11 @@ import {
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
-import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
+import {
+  Menu as LeafyGreenMenu,
+  MenuSeparator,
+  MenuItem,
+} from '@leafygreen-ui/menu';
 
 // If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
 // clicking on a menu item will submit that form. This is because it uses a button
@@ -42,7 +47,7 @@ import {
 } from '@leafygreen-ui/modal';
 import { default as LeafyGreenMarketingModal } from '@leafygreen-ui/marketing-modal';
 import { Pipeline as LeafyGreenPipeline, Stage } from '@leafygreen-ui/pipeline';
-import Popover from '@leafygreen-ui/popover';
+import { default as LeafyGreenPopover } from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import {
   Radio,
@@ -130,9 +135,11 @@ const Code = withTheme(
   >
 ) as typeof LeafyGreenCode;
 const Combobox = withTheme(
-  LeafyGreenCombobox as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenCombobox>
-  >
+  withPortalScrollbars(
+    LeafyGreenCombobox as React.ComponentType<
+      React.ComponentProps<typeof LeafyGreenCombobox>
+    >
+  )
 );
 const ConfirmationModal: typeof LeafyGreenConfirmationModal = withTheme(
   LeafyGreenConfirmationModal as React.ComponentType<
@@ -157,7 +164,19 @@ const MarketingModal: typeof LeafyGreenMarketingModal = withTheme(
     React.ComponentProps<typeof LeafyGreenMarketingModal>
   >
 ) as typeof LeafyGreenMarketingModal;
+const Menu: typeof LeafyGreenMenu = withTheme(
+  withPortalScrollbars(
+    LeafyGreenMenu as React.ComponentType<
+      React.ComponentProps<typeof LeafyGreenMenu>
+    >
+  )
+) as typeof LeafyGreenMenu;
 const Pipeline = withTheme(LeafyGreenPipeline);
+const Popover = withPortalScrollbars(
+  LeafyGreenPopover as React.ComponentType<
+    React.ComponentProps<typeof LeafyGreenPopover>
+  >
+) as typeof LeafyGreenPopover;
 const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
   LeafyGreenRadioGroup as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenRadioGroup>
@@ -167,9 +186,11 @@ const SegmentedControl = withTheme(
   LeafyGreenSegmentedControl
 ) as typeof LeafyGreenSegmentedControl;
 const Select: typeof LeafyGreenSelect = withTheme(
-  LeafyGreenSelect as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenSelect>
-  >
+  withPortalScrollbars(
+    LeafyGreenSelect as React.ComponentType<
+      React.ComponentProps<typeof LeafyGreenSelect>
+    >
+  )
 ) as typeof LeafyGreenSelect;
 const Table = withTheme(LeafyGreenTable) as typeof LeafyGreenTable;
 const Tabs = withTheme(

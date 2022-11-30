@@ -4,6 +4,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-UI');
 
 import { Modal as LeafyGreenModal } from '../leafygreen';
+import { withContentScrollbars } from '../../hooks/use-scrollbars';
 
 const contentStyles = css({
   width: '600px',
@@ -31,4 +32,6 @@ function Modal({
   );
 }
 
-export { Modal };
+const ModalWithScrollbars = withContentScrollbars(Modal);
+
+export { ModalWithScrollbars as Modal };

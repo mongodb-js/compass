@@ -1,4 +1,5 @@
 import {
+  getScrollbarClassForTheme,
   css,
   cx,
   LeafyGreenProvider,
@@ -23,6 +24,7 @@ import React, {
   useState,
 } from 'react';
 import preferences from 'compass-preferences-model';
+
 import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
@@ -401,23 +403,25 @@ function ThemedHome(
   return (
     <LeafyGreenProvider>
       <ThemeProvider theme={theme}>
-        {showWelcomeModal && (
-          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-        )}
-        <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
-        <ToastArea>
-          <div
-            className={cx(
-              homeContainerStyles,
-              theme.theme === Theme.Dark
-                ? globalDarkThemeStyles
-                : globalLightThemeStyles
-            )}
-            data-theme={theme.theme}
-          >
-            <Home {...props}></Home>
-          </div>
-        </ToastArea>
+        <div className={getScrollbarClassForTheme(theme)}>
+          {showWelcomeModal && (
+            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          )}
+          <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+          <ToastArea>
+            <div
+              className={cx(
+                homeContainerStyles,
+                theme.theme === Theme.Dark
+                  ? globalDarkThemeStyles
+                  : globalLightThemeStyles
+              )}
+              data-theme={theme.theme}
+            >
+              <Home {...props}></Home>
+            </div>
+          </ToastArea>
+        </div>
       </ThemeProvider>
     </LeafyGreenProvider>
   );
