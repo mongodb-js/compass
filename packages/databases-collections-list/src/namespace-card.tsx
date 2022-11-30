@@ -27,6 +27,7 @@ import type {
 import { NamespaceParam } from './namespace-param';
 import type { ItemType } from './use-create';
 import type { ViewType } from './use-view-type';
+import { usePreference } from 'compass-preferences-model';
 
 const cardTitleGroup = css({
   display: 'flex',
@@ -203,6 +204,7 @@ export const NamespaceItemCard: React.FunctionComponent<
   viewType,
   ...props
 }) => {
+  const readOnly = usePreference('readOnly', React);
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
 
@@ -210,15 +212,18 @@ export const NamespaceItemCard: React.FunctionComponent<
     onItemClick(id);
   }, [onItemClick, id]);
 
+  const hasDeleteHandler = !!onItemDeleteClick;
   const cardActions: ItemAction<NamespaceAction>[] = useMemo(() => {
-    return [
-      {
-        action: 'delete',
-        label: `Delete ${type}`,
-        icon: 'Trash',
-      },
-    ];
-  }, [type]);
+    return readOnly || !hasDeleteHandler
+      ? []
+      : [
+          {
+            action: 'delete',
+            label: `Delete ${type}`,
+            icon: 'Trash',
+          },
+        ];
+  }, [type, readOnly, hasDeleteHandler]);
 
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
@@ -248,11 +253,9 @@ export const NamespaceItemCard: React.FunctionComponent<
   );
 
   const isButtonVisible =
-    onItemDeleteClick &&
-    ([FocusState.FocusVisible, FocusState.FocusWithinVisible].includes(
+    [FocusState.FocusVisible, FocusState.FocusWithinVisible].includes(
       focusState
-    ) ||
-      isHovered);
+    ) || isHovered;
 
   return (
     // @ts-expect-error the error here is caused by passing children to Card
@@ -272,7 +275,7 @@ export const NamespaceItemCard: React.FunctionComponent<
 
         <ItemActionControls
           data-testid="namespace-card-actions"
-          isVisible={isButtonVisible}
+          isVisible={isButtonVisible && cardActions.length > 0}
           actions={cardActions}
           onAction={onAction}
           className={cardActionContainer}

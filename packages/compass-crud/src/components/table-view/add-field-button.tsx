@@ -11,11 +11,6 @@ import type { CellEditorProps } from './cell-editor';
 import type { Element } from 'hadron-document';
 
 /**
- * The BEM base style name for the element.
- */
-const BEM_BASE = 'table-view-cell-editor-button';
-
-/**
  * The default text.
  */
 const DEFAULT_TEXT = 'Add field after ';
@@ -83,17 +78,6 @@ class AddFieldButton extends React.Component<
     if (props.value === undefined) {
       this.empty = true;
     }
-  }
-
-  /**
-   * Class name for add field button div.
-   *
-   * @returns {String} The class name.
-   */
-  divClassName() {
-    return this.state.menu
-      ? `${BEM_BASE} ${BEM_BASE}-is-selected btn btn-default btn-xs`
-      : `${BEM_BASE} btn btn-default btn-xs`;
   }
 
   handleAddFieldClick() {
