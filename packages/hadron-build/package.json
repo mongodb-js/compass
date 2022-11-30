@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
-  "description": "Tooling for Hadron apps",
-  "version": "25.2.0",
+  "description": "Tooling for Hadron apps like Compass",
+  "version": "25.3.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",
     "test": "mocha -R spec",
@@ -71,10 +71,10 @@
     "sinon-chai": "^3.4.0"
   },
   "optionalDependencies": {
-    "electron-installer-debian": "^3.0.0",
+    "electron-installer-debian": "^3.1.0",
     "electron-installer-dmg": "^4.0.0",
     "electron-installer-redhat": "^2.0.0",
-    "electron-winstaller": "^5.0.0"
+    "electron-winstaller": "^5.1.0"
   },
   "license": "SSPL",
   "bugs": {

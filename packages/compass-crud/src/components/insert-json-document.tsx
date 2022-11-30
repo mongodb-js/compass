@@ -1,10 +1,33 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 
+import { css, cx, palette, withTheme } from '@mongodb-js/compass-components';
 import type { AceEditor } from '@mongodb-js/compass-editor';
 import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
-import styles from './insert-json-document.module.less';
+const minEditorHeight = 280;
+
+const editorContainerStyles = css({
+  padding: '10px 10px 10px 0',
+  height: `${minEditorHeight + 20}px`,
+  overflow: 'auto',
+  flexBasis: 'auto',
+  flexShrink: 1,
+  flexGrow: 1,
+});
+
+const editorContainerStylesLight = css({
+  backgroundColor: palette.gray.light3,
+  borderLeft: `3px solid ${palette.gray.light2}`,
+});
+
+const editorContainerStylesDark = css({
+  backgroundColor: palette.gray.dark3,
+  borderLeft: `3px solid ${palette.gray.dark2}`,
+});
+
+const editorStyles = css({
+  minHeight: `${minEditorHeight}px`,
+});
 
 /**
  * The comment block.
@@ -12,13 +35,14 @@ import styles from './insert-json-document.module.less';
 const EDITOR_COMMENT = '/** \n* Paste one or more documents here\n*/\n';
 
 type InsertJsonDocumentProps = {
+  darkMode?: boolean;
   jsonDoc: string;
   isCommentNeeded: boolean;
   updateComment: (value: boolean) => void;
   updateJsonDoc: (value: string) => void;
 };
 
-class InsertJsonDocument extends Component<InsertJsonDocumentProps> {
+class UnstyledInsertJsonDocument extends Component<InsertJsonDocumentProps> {
   editor?: AceEditor;
 
   componentDidMount() {
@@ -43,6 +67,7 @@ class InsertJsonDocument extends Component<InsertJsonDocumentProps> {
   }
 
   render() {
+    const darkMode = this.props.darkMode;
     let value = this.props.jsonDoc;
 
     if (this.props.isCommentNeeded) {
@@ -50,9 +75,14 @@ class InsertJsonDocument extends Component<InsertJsonDocumentProps> {
     }
 
     return (
-      <div className={styles['editor-container']}>
+      <div
+        className={cx(
+          editorContainerStyles,
+          darkMode ? editorContainerStylesDark : editorContainerStylesLight
+        )}
+      >
         <Editor
-          className={styles.editor}
+          className={editorStyles}
           variant={EditorVariant.EJSON}
           defaultValue={EDITOR_COMMENT}
           text={value}
@@ -68,15 +98,10 @@ class InsertJsonDocument extends Component<InsertJsonDocumentProps> {
       </div>
     );
   }
-
-  static displayName = 'InsertJsonDocumentComponent';
-
-  static propTypes = {
-    updateJsonDoc: PropTypes.func,
-    jsonDoc: PropTypes.string,
-    isCommentNeeded: PropTypes.bool,
-    updateComment: PropTypes.func,
-  };
 }
+
+const InsertJsonDocument = withTheme(
+  UnstyledInsertJsonDocument
+) as typeof UnstyledInsertJsonDocument;
 
 export default InsertJsonDocument;

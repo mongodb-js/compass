@@ -210,6 +210,8 @@ export interface ParsedGlobalPreferencesResult {
   preferenceParseErrors: string[];
 }
 
+// See https://github.com/electron/electron/issues/4690
+const argvStartIndex = process.versions.electron && !process.defaultApp ? 1 : 2;
 export async function parseAndValidateGlobalPreferences(
   sources: GlobalPreferenceSources = {}
 ): Promise<ParsedGlobalPreferencesResult> {
@@ -218,9 +220,6 @@ export async function parseAndValidateGlobalPreferences(
   );
   let argv = sources.argv;
   if (!argv) {
-    // See https://github.com/electron/electron/issues/4690
-    const argvStartIndex =
-      process.versions.electron && !process.defaultApp ? 1 : 2;
     argv = process.argv.slice(argvStartIndex);
   }
   const cliPreferences = parseCliArgs(argv);
@@ -263,8 +262,10 @@ function formatSingleOption(
   key: keyof AllPreferences,
   context: 'cli' | 'global'
 ): string {
-  let line = '';
   const descriptor = allPreferencesProps[key];
+  if (descriptor.omitFromHelp) return '';
+  let line = '';
+
   const addDescription = () => {
     if (!descriptor.description) return;
     line = line.padEnd(45);
@@ -303,9 +304,53 @@ export function getHelpText(): string {
   }
   text +=
     '\nThe following global configuration file paths will be searched:\n\n';
-  for (const path of getGlobalConfigPaths()) {
+  const globalConfigPaths = getGlobalConfigPaths();
+  for (const path of globalConfigPaths) {
     text += `  ${path}\n`;
+  }
+  if (globalConfigPaths.length > 0) {
+    text += '\nIf no global configuration file exists, running Compass as\n';
+    text += `  ${escapeShell(process.execPath)}${
+      argvStartIndex >= 2 ? ' ' + escapeShell(process.argv[1]) : ''
+    } `;
+    text += `--show-example-config > ${escapeShell(globalConfigPaths[0])}\n`;
+    text += 'can be used to install one.\n';
   }
   text += '\nSee the MongoDB Compass documentation for more details.\n';
   return text;
+}
+
+// Naive shell escape function; not usable as a secure general-purpose escaping mechanism.
+function escapeShell(str: string): string {
+  const quote = process.platform === 'win32' ? '"' : "'";
+  return /^[-_a-zA-Z0-9./\\]+$/.test(str) ? str : `${quote}${str}${quote}`;
+}
+
+export function getExampleConfigFile(): string {
+  return `\
+# Compass supports a number of configuration options.
+# Run Compass with --help for a full list.
+
+# Set this option to disable outgoing network traffic, other than to the
+# database that Compass connects to.
+# networkTraffic: false
+
+# Set this option to disable editing or deleting database contents in Compass.
+# readOnly: true
+
+# Set this option to provide an upper limit for the timeout of long-running
+# database operations in Compass.
+# maxTimeMS: 10000
+
+# Set this option to disable running Compass in developer mode.
+# Note that enabling any of the options above will already imply this.
+# enableDevTools: false
+
+# Specify a set of connection options that cannot be overwritten by the user
+# when starting Compass or through the connection form.
+# forceConnectionOptions:
+# - readPreference: secondary
+# - readPreferenceTags: nodeType:ANALYTICS
+# - readPreferenceTags: nodeType:READ_ONLY
+`;
 }

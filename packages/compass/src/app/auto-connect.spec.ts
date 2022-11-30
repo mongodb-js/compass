@@ -17,19 +17,21 @@ describe('auto connection argument parsing', function () {
     sandbox.restore();
   });
 
-  it('skips nothing if no file and no positional arguments are provided', function () {
-    const fn = loadAutoConnectInfo({});
-    expect(fn).to.equal(undefined);
-  });
-
-  it('skips nothing if only webdriverio default positional arguments are provided', function () {
-    const fn = loadAutoConnectInfo({ positionalArguments: ['about:blank'] });
+  it('skips connecting if shouldAutoConnect is false', async function () {
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({ shouldAutoConnect: false })
+    );
     expect(fn).to.equal(undefined);
   });
 
   it('understands a connection string if one has been passed', async function () {
     const connectionString = 'mongodb://localhost/';
-    const fn = loadAutoConnectInfo({ positionalArguments: [connectionString] });
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({
+        shouldAutoConnect: true,
+        positionalArguments: [connectionString],
+      })
+    );
     const info = await fn?.();
     expect(info?.id).to.be.a('string');
     expect(info?.connectionOptions).to.deep.equal({
@@ -51,7 +53,10 @@ describe('auto connection argument parsing', function () {
       },
     });
     const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = loadAutoConnectInfo({ file: 'filename' }, fakeFs);
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({ shouldAutoConnect: true, file: 'filename' }),
+      fakeFs
+    );
     const info = await fn?.();
     expect(info).to.deep.equal(connectionInfo);
   });
@@ -72,7 +77,10 @@ describe('auto connection argument parsing', function () {
       },
     });
     const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = loadAutoConnectInfo({ file: 'filename' }, fakeFs);
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({ shouldAutoConnect: true, file: 'filename' }),
+      fakeFs
+    );
     try {
       await fn?.();
       expect.fail('missed exception');
@@ -99,11 +107,12 @@ describe('auto connection argument parsing', function () {
       },
     });
     const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = loadAutoConnectInfo(
-      {
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({
+        shouldAutoConnect: true,
         file: 'filename',
         positionalArguments: ['0000000-0000-0000-0000-000000000000'],
-      },
+      }),
       fakeFs
     );
     try {
@@ -132,11 +141,12 @@ describe('auto connection argument parsing', function () {
       },
     });
     const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = loadAutoConnectInfo(
-      {
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({
+        shouldAutoConnect: true,
         file: 'filename',
         positionalArguments: ['9036dd5f-719b-46d1-b812-7e6348e1e9c9'],
-      },
+      }),
       fakeFs
     );
     const info = await fn?.();
@@ -153,7 +163,10 @@ describe('auto connection argument parsing', function () {
       },
     });
     const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = loadAutoConnectInfo({ file: 'filename' }, fakeFs);
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({ shouldAutoConnect: true, file: 'filename' }),
+      fakeFs
+    );
     try {
       await fn?.();
       expect.fail('missed exception');
@@ -179,7 +192,10 @@ describe('auto connection argument parsing', function () {
       passphrase: 'p4ssw0rd',
     });
     const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = loadAutoConnectInfo({ file: 'filename' }, fakeFs);
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({ shouldAutoConnect: true, file: 'filename' }),
+      fakeFs
+    );
     try {
       await fn?.();
       expect.fail('missed exception');
@@ -205,8 +221,12 @@ describe('auto connection argument parsing', function () {
       passphrase: 'p4ssw0rd',
     });
     const fakeFs = { readFile: sinon.stub().resolves(fileContents) };
-    const fn = loadAutoConnectInfo(
-      { file: 'filename', passphrase: 'p4ssw0rd' },
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({
+        shouldAutoConnect: true,
+        file: 'filename',
+        passphrase: 'p4ssw0rd',
+      }),
       fakeFs
     );
     const info = await fn?.();
@@ -215,11 +235,14 @@ describe('auto connection argument parsing', function () {
 
   it('applies username and password if requested', async function () {
     const connectionString = 'mongodb://localhost/';
-    const fn = loadAutoConnectInfo({
-      positionalArguments: [connectionString],
-      username: 'user',
-      password: 's€cr!t',
-    });
+    const fn = await loadAutoConnectInfo(
+      sandbox.stub().resolves({
+        shouldAutoConnect: true,
+        positionalArguments: [connectionString],
+        username: 'user',
+        password: 's€cr!t',
+      })
+    );
     const info = await fn?.();
     expect(info?.id).to.be.a('string');
     expect(info?.connectionOptions).to.deep.equal({

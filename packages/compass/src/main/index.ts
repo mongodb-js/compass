@@ -9,12 +9,15 @@ import {
 import {
   parseAndValidateGlobalPreferences,
   getHelpText,
+  getExampleConfigFile,
 } from 'compass-preferences-model';
 import chalk from 'chalk';
 import { installEarlyLoggingListener } from './logging';
+import { installEarlyOpenUrlListener } from './window-manager';
 
 initialize();
 installEarlyLoggingListener();
+installEarlyOpenUrlListener();
 
 // Name and version are setup outside of Application and before anything else so
 // that if uncaught exception happens we already show correct name and version
@@ -36,13 +39,6 @@ process.title = `${app.getName()} ${app.getVersion()}`;
 void main();
 
 async function main(): Promise<void> {
-  if ((await import('electron-squirrel-startup')).default) {
-    process.stderr.write(
-      'electron-squirrel-startup event handled sucessfully\n'
-    );
-    return;
-  }
-
   const globalPreferences = await parseAndValidateGlobalPreferences();
 
   if (process.env.HADRON_ISOLATED === 'true') {
@@ -78,6 +74,11 @@ async function main(): Promise<void> {
 
   if (preferences.help) {
     process.stdout.write(getHelpText());
+    return app.exit(0);
+  }
+
+  if (preferences.showExampleConfig) {
+    process.stdout.write(getExampleConfigFile());
     return app.exit(0);
   }
 
