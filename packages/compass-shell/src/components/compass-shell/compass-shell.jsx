@@ -12,7 +12,6 @@ import {
   cx,
   getScrollbarClassForTheme,
   palette,
-  rgba
 } from '@mongodb-js/compass-components';
 
 import ShellInfoModal from '../shell-info-modal';
@@ -31,9 +30,6 @@ const compassShellContainerStyles = css({
   display: 'none',
   overflow: 'auto',
   borderTop: `1px solid ${palette.gray.dark2}`,
-  '*::-webkit-scrollbar-thumb': {
-    background: rgba(palette.gray.light1, 0.5),
-  }
 });
 
 const compassShellContainerVisibleStyles = css({
