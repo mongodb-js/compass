@@ -16,6 +16,7 @@ import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { usePreference } from 'compass-preferences-model';
 
 const containerStyles = css({
   display: 'flex',
@@ -54,8 +55,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onChangePipelineMode,
   onToggleSettings,
 }) => {
-  const showPipelineAsText =
-    process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true';
+  const showPipelineAsText = usePreference('enableTextAsPipeline', React);
   return (
     <div
       className={containerStyles}

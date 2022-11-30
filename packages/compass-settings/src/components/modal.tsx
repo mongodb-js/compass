@@ -11,6 +11,9 @@ import {
 import GeneralSettings from './settings/general';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
+import FeatureFlagSettings, {
+  useShouldShowFeatureFlagsSettings,
+} from './settings/featureflags';
 import Sidebar from './sidebar';
 import { saveSettings, fetchSettings } from '../stores/settings';
 import type { RootState } from '../stores';
@@ -49,12 +52,6 @@ const settingsStyles = css(
   focusRing
 );
 
-const settings: Settings[] = [
-  { name: 'General', component: GeneralSettings },
-  { name: 'Theme', component: ThemeSettings },
-  { name: 'Privacy', component: PrivacySettings },
-];
-
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,
   closeModal,
@@ -63,6 +60,16 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   loadingState,
   hasChangedSettings,
 }) => {
+  const settings: Settings[] = [
+    { name: 'General', component: GeneralSettings },
+    { name: 'Theme', component: ThemeSettings },
+    { name: 'Privacy', component: PrivacySettings },
+  ];
+
+  if (useShouldShowFeatureFlagsSettings()) {
+    settings.push({ name: 'Experimental', component: FeatureFlagSettings });
+  }
+
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
 
   useEffect(() => {
