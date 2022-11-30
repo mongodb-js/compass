@@ -74,7 +74,7 @@ type ImportModalProps = {
    */
   selectImportFileType: (fileType: AcceptedFileType) => void;
   selectImportFileName: (fileName: string) => void;
-  setDelimiter: (delimeter: CSVDelimiter) => void;
+  setDelimiter: (delimiter: CSVDelimiter) => void;
   delimiter: CSVDelimiter;
   fileType: AcceptedFileType | '';
   fileName: string;

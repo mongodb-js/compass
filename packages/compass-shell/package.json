@@ -108,7 +108,6 @@
     "react-dom": "^16.14.0",
     "react-hot-loader": "^4.13.0",
     "react-redux": "^8.0.2",
-    "react-tooltip": "^3.11.1",
     "redux": "^4.2.0",
     "resolve": "^1.15.1",
     "rimraf": "^2.6.1",
