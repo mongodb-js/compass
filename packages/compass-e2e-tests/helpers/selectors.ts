@@ -2,8 +2,8 @@
 export const SettingsModal = '[data-testid="settings-modal"]';
 export const CloseSettingsModalButton = `${SettingsModal} [aria-label="Close modal"]`;
 export const SaveSettingsButton = `${SettingsModal} [data-testid="submit-button"]`;
-export const FeaturesSettingsButton = `${SettingsModal} [data-testid="sidebar-Features-item"]`;
-export const FeaturesSettingsContent = `${SettingsModal} [data-testid="features-settings"]`;
+export const GeneralSettingsButton = `${SettingsModal} [data-testid="sidebar-General-item"]`;
+export const GeneralSettingsContent = `${SettingsModal} [data-testid="general-settings"]`;
 
 export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
