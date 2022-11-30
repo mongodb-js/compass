@@ -1,6 +1,6 @@
 {
   "name": "compass-preferences-model",
-  "description": "Compass preferences model.",
+  "description": "Compass preferences model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "2.4.0",
   "bugs": {

@@ -1,6 +1,6 @@
 # compass-user-model [![][npm_img]][npm_url]
 
-> MongoDB user model.
+> MongoDB user model
 
 ## Example
 

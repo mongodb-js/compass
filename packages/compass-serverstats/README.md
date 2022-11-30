@@ -1,6 +1,6 @@
 # compass-serverstats [![][npm_img]][npm_url]
 
-> Compass Real Time Server Stats Component.
+> Compass Real Time Server Stats Component
 
 ## Installation
 

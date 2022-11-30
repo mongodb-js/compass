@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-settings",
-  "description": "settings for compass",
+  "description": "Settings for compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"

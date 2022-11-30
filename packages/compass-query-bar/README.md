@@ -1,6 +1,6 @@
 # Compass Query Bar
 
-> Renders a component for executing MongoDB queries through a GUI.
+> Renders a component for executing MongoDB queries through a GUI
 
 ## Usage
 

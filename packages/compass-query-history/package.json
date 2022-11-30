@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-query-history",
   "productName": "Query History plugin",
-  "description": "The query history sidebar of Compass",
+  "description": "Load and manage saved queries in Compass",
   "version": "9.4.0",
   "author": {
     "name": "MongoDB Inc",

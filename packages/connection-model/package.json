@@ -1,6 +1,6 @@
 {
   "name": "mongodb-connection-model",
-  "description": "MongoDB connection model.",
+  "description": "MongoDB connection model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "bugs": {
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
