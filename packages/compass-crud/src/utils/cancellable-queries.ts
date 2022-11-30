@@ -84,18 +84,9 @@ export async function countDocuments(
   }
   stages.push({ $count: 'count' });
 
-  // The cursor will be replaced if we try after an error due to the index
-  // specified in the hint not existing.
-  const cursor = dataService.aggregate(ns, stages, opts);
-
-  const abort = () => {
-    void cursor.close();
-  };
-  signal.addEventListener('abort', abort, { once: true });
-
   let result;
   try {
-    const array = await raceWithAbort(cursor.toArray(), signal);
+    const array = await dataService.aggregate(ns, stages, opts, { abortSignal: signal });
     // the collection could be empty
     result = array.length ? array[0].count : 0;
   } catch (err: any) {
@@ -110,9 +101,6 @@ export async function countDocuments(
     // The UI will just have to deal with null.
     result = null;
   }
-
-  signal.removeEventListener('abort', abort);
-
   return result;
 }
 

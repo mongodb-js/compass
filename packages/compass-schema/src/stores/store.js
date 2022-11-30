@@ -5,7 +5,7 @@ import toNS from 'mongodb-ns';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { intersection } from 'lodash';
 import { addLayer, generateGeoQuery } from '../modules/geo';
-import createSchemaAnalysis from '../modules/schema-analysis';
+import { analyzeSchema } from '../modules/schema-analysis';
 import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_COMPLETE,
@@ -157,6 +157,7 @@ const configureStore = (options = {}) => {
         outdated: false,
         isActiveTab: false,
         resultId: resultId(),
+        abortController: undefined,
       };
     },
 
@@ -233,17 +234,7 @@ const configureStore = (options = {}) => {
     },
 
     async stopAnalysis() {
-      if (!this.schemaAnalysis) {
-        return;
-      }
-
-      try {
-        await this.schemaAnalysis.terminate();
-      } catch (err) {
-        debug('failed to terminate schema analysis. ignoring ...', err);
-      } finally {
-        this.schemaAnalysis = null;
-      }
+      this.state.abortController?.abort();
     },
 
     _calculateDepthByPath(input, paths) {
@@ -309,10 +300,6 @@ const configureStore = (options = {}) => {
     },
 
     startAnalysis: async function () {
-      if (this.schemaAnalysis) {
-        return;
-      }
-
       const query = this.query || {};
 
       const sampleSize = query.limit
@@ -329,27 +316,28 @@ const configureStore = (options = {}) => {
         maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
       };
 
-      const schemaAnalysis = createSchemaAnalysis(
-        this.dataService,
-        this.ns,
-        samplingOptions,
-        driverOptions
-      );
-
-      this.schemaAnalysis = schemaAnalysis;
-
       try {
         debug('analysis started');
+        
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
 
         this.setState({
           analysisState: ANALYSIS_STATE_ANALYZING,
           errorMessage: '',
           outdated: false,
           schema: null,
+          abortController
         });
 
         const analysisStartTime = Date.now();
-        const schema = await schemaAnalysis.getResult();
+        const schema = await analyzeSchema(
+          this.dataService,
+          abortSignal,
+          this.ns,
+          samplingOptions,
+          driverOptions,
+        );
         const analysisTime = Date.now() - analysisStartTime;
 
         this.setState({
@@ -367,7 +355,7 @@ const configureStore = (options = {}) => {
         debug('analysis error catched', err);
         this.setState({ ...getErrorState(err), resultId: resultId() });
       } finally {
-        this.schemaAnalysis = null;
+        this.setState({ abortController: undefined });
       }
     },
 

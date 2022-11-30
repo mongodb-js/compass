@@ -1,10 +1,7 @@
 import type { AggregateOptions, Document } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
-import createLogger from '@mongodb-js/compass-logging';
-const { log, mongoLogId } = createLogger('compass-aggregations');
-
-import { createCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
+import { createCancelError } from '@mongodb-js/compass-utils';
 
 const defaultOptions = {
   promoteValues: false,
@@ -32,37 +29,19 @@ export async function aggregatePipeline({
   if (signal.aborted) {
     return Promise.reject(signal.reason ?? createCancelError());
   }
-  const session = dataService.startSession('CRUD');
-  const allOptions = { ...defaultOptions, ...options, session };
-  allOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(allOptions.maxTimeMS);
-  const cursor = dataService.aggregate(
+  const allOptions = {
+    ...defaultOptions,
+    ...options,
+    maxTimeMS: capMaxTimeMSAtPreferenceLimit(options.maxTimeMS),
+  };
+  return dataService.aggregate(
     namespace,
     pipeline
       .concat(skip ? [{ $skip: skip }] : [])
       .concat(limit ? [{ $limit: limit }] : []),
-    allOptions
+    allOptions,
+    {
+      abortSignal: signal
+    }
   );
-  const abort = () => {
-    Promise.all([
-      cursor.close(),
-      dataService.killSessions(session)
-    ]).catch((err) => {
-      log.warn(
-        mongoLogId(1001000105),
-        'Aggregations',
-        'Attempting to kill the session failed',
-        { error: err.message }
-      );
-    });
-  };
-  signal.addEventListener('abort', abort, { once: true });
-  let result;
-  try {
-    result = await raceWithAbort(cursor.toArray(), signal);
-  } finally {
-    signal.removeEventListener('abort', abort);
-    result = result || [];
-  }
-
-  return result;
 }

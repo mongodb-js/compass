@@ -149,8 +149,11 @@ type AbortSignal = {
   removeEventListener: (type: string, listener: (event: any) => void) => void;
 };
 
-export type ExplainExecuteOptions = {
+export type ExecutionOptions = {
   abortSignal?: AbortSignal;
+};
+
+export type ExplainExecuteOptions = ExecutionOptions & {
   explainVerbosity?: keyof typeof mongodb.ExplainVerbosity;
 };
 
@@ -440,24 +443,27 @@ export interface DataService {
    * @param ns - The namespace to search on.
    * @param pipeline - The aggregation pipeline.
    * @param options - The aggregation options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options?: AggregateOptions
-  ): AggregationCursor;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options: AggregateOptions | undefined,
-    callback: Callback<AggregationCursor>
-  ): void;
+     aggregate(
+      ns: string,
+      pipeline: Document[],
+      options: AggregateOptions,
+      executionOptions?: ExecutionOptions,
+    ): Promise<Document[]>;
+
+  /**
+   * Returns an aggregation cursor on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param pipeline - The aggregation pipeline.
+   * @param options - The aggregation options.
+   */
+     aggregateCursor(
+      ns: string,
+      pipeline: Document[],
+      options: AggregateOptions,
+    ): AggregationCursor;
 
   /**
    * Find documents for the provided filter and options on the collection.
@@ -731,8 +737,9 @@ export interface DataService {
   sample(
     ns: string,
     args?: { query?: Filter<Document>; size?: number; fields?: Document },
-    options?: AggregateOptions
-  ): AggregationCursor;
+    options?: AggregateOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]>;
 
   /**
    * Create a ClientSession that can be passed to commands.
@@ -1496,44 +1503,36 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     });
   }
 
+  aggregateCursor(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions,
+  ): AggregationCursor {
+    return this._collection(ns, 'CRUD').aggregate(pipeline, options);
+  }
+
   aggregate(
     ns: string,
     pipeline: Document[],
-    options?: AggregateOptions
-  ): AggregationCursor;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options: AggregateOptions | undefined,
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options?: AggregateOptions | Callback<AggregationCursor>,
-    callback?: Callback<AggregationCursor>
-  ): AggregationCursor | void {
+    options: AggregateOptions,
+    executionOptions?: ExecutionOptions,
+  ): Promise<Document[]> {
     log.info(mongoLogId(1_001_000_041), this._logCtx(), 'Running aggregation', {
       ns,
       stages: pipeline.map((stage) => Object.keys(stage)[0]),
     });
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    const cursor = this._collection(ns, 'CRUD').aggregate(pipeline, options);
-    // async when a callback is provided
-    if (isFunction(callback)) {
-      process.nextTick(callback, null, cursor);
-      return;
-    }
-    // otherwise return cursor
-    return cursor;
+
+    let cursor: AggregationCursor;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        cursor = this.aggregateCursor(ns, pipeline, {...options, session});
+        const results = await cursor.toArray();
+        cursor.close();
+        return results;
+      },
+      () => cursor?.close(),
+      executionOptions?.abortSignal
+    );
   }
 
   find(
@@ -1662,9 +1661,11 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       mongodb.ExplainVerbosity.queryPlanner;
     let cursor: AggregationCursor;
     return this.cancellableOperation(
-      (session?: ClientSession) => {
-        cursor = this.aggregate(ns, pipeline, { ...options, session });
-        return cursor.explain(verbosity);
+      async (session?: ClientSession) => {
+        cursor = this.aggregateCursor(ns, pipeline, {...options, session});
+        const results = await cursor.explain(verbosity);
+        cursor.close();
+        return results;
       },
       () => cursor?.close(),
       executionOptions?.abortSignal
@@ -2023,8 +2024,9 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       size,
       fields,
     }: { query?: Filter<Document>; size?: number; fields?: Document } = {},
-    options: AggregateOptions = {}
-  ): AggregationCursor {
+    options: AggregateOptions = {},
+    executionOptions?: ExecutionOptions,
+  ): Promise<Document[]> {
     const pipeline = [];
     if (query && Object.keys(query).length > 0) {
       pipeline.push({
@@ -2048,7 +2050,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return this.aggregate(ns, pipeline, {
       allowDiskUse: true,
       ...options,
-    });
+    }, executionOptions);
   }
 
   startSession(clientType: ClientType): CompassClientSession {
