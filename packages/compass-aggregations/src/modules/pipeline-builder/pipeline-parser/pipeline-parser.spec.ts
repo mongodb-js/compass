@@ -497,4 +497,154 @@ describe('PipelineParser', function () {
       });
     });
   });
+  describe('parses and generates pipeline with disabled stages - COMPASS-6313', function () {
+    it('when another stage is added', function () {
+
+      const pipeline = `[
+        // { $match: { name: /berlin/i } },
+        // { $unwind: "users" },
+      ]`;
+
+      const { root, stages: nodes } = PipelineParser.parse(pipeline);
+      const stages = nodes.map(node => new Stage(node));
+      stages.push(new Stage());
+      stages[2].changeOperator('$limit');
+      stages[2].changeValue('20');
+
+      const newPipeline = PipelineParser.generate(root, stages);
+      expect(newPipeline).to.equal(`[
+  // {
+  //   $match: {
+  //     name: /berlin/i,
+  //   },
+  // }
+  // {
+  //   $unwind: "users",
+  // }
+  {
+    $limit: 20,
+  },
+]`);
+    });
+    it('stage with leading comments', function () {
+
+      const pipeline = `[
+        // Some comment that should be preserved.
+        // { $match: { name: /berlin/i } },
+      ]`;
+
+      const { root, stages: nodes } = PipelineParser.parse(pipeline);
+      const stages = nodes.map(node => new Stage(node));
+      stages.push(new Stage());
+      stages[1].changeOperator('$skip');
+      stages[1].changeValue('10');
+
+      const newPipeline = PipelineParser.generate(root, stages);
+      expect(newPipeline).to.equal(`[
+  // Some comment that should be preserved.
+  // {
+  //   $match: {
+  //     name: /berlin/i,
+  //   },
+  // }
+  {
+    $skip: 10,
+  },
+]`);
+    });
+    it('stage with trailing comments', function () {
+
+      const pipeline = `[
+        // { $match: { name: /berlin/i } },
+        // Some comment that should be preserved.
+        // Followed by something.
+        // Followed by something else.
+      ]`;
+
+      const { root, stages: nodes } = PipelineParser.parse(pipeline);
+      const stages = nodes.map(node => new Stage(node));
+      stages.push(new Stage());
+      stages[1].changeOperator('$skip');
+      stages[1].changeValue('10');
+
+      const newPipeline = PipelineParser.generate(root, stages);
+      expect(newPipeline).to.equal(`[
+  // {
+  //   $match: {
+  //     name: /berlin/i,
+  //   },
+  // }
+  // Some comment that should be preserved.
+  // Followed by something.
+  // Followed by something else.
+  {
+    $skip: 10,
+  },
+]`);
+    });
+    it('stage with leading and trailing comments', function () {
+
+      const pipeline = `[
+        // Some comment that should be preserved.
+        // { $match: { name: /berlin/i } },
+        // Followed by something.
+        // Followed by something else.
+      ]`;
+
+      const { root, stages: nodes } = PipelineParser.parse(pipeline);
+      const stages = nodes.map(node => new Stage(node));
+      stages.push(new Stage());
+      stages[1].changeOperator('$skip');
+      stages[1].changeValue('10');
+
+      const newPipeline = PipelineParser.generate(root, stages);
+      expect(newPipeline).to.equal(`[
+  // Some comment that should be preserved.
+  // {
+  //   $match: {
+  //     name: /berlin/i,
+  //   },
+  // }
+  // Followed by something.
+  // Followed by something else.
+  {
+    $skip: 10,
+  },
+]`);
+    });
+    it('stages with leading and trailing comments', function () {
+
+      const pipeline = `[
+        // Some comment that should be preserved.
+        // { $match: { name: /berlin/i } },
+        // Followed by something.
+        // { $limit: 20 },
+        // Followed by something else.
+      ]`;
+
+      const { root, stages: nodes } = PipelineParser.parse(pipeline);
+      const stages = nodes.map(node => new Stage(node));
+      stages.push(new Stage());
+      stages[2].changeOperator('$skip');
+      stages[2].changeValue('10');
+
+      const newPipeline = PipelineParser.generate(root, stages);
+      expect(newPipeline).to.equal(`[
+  // Some comment that should be preserved.
+  // {
+  //   $match: {
+  //     name: /berlin/i,
+  //   },
+  // }
+  // Followed by something.
+  // {
+  //   $limit: 20,
+  // }
+  // Followed by something else.
+  {
+    $skip: 10,
+  },
+]`);
+    });
+  });
 });
