@@ -42,7 +42,7 @@ import {
 import { default as LeafyGreenMarketingModal } from '@leafygreen-ui/marketing-modal';
 import { Pipeline as LeafyGreenPipeline, Stage } from '@leafygreen-ui/pipeline';
 import Popover from '@leafygreen-ui/popover';
-import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
+import { RadioBox, RadioBoxGroup as LeafyGreenRadioBoxGroup } from '@leafygreen-ui/radio-box-group';
 import {
   Radio,
   RadioGroup as LeafyGreenRadioGroup,
@@ -157,6 +157,7 @@ const MarketingModal: typeof LeafyGreenMarketingModal = withTheme(
   >
 ) as typeof LeafyGreenMarketingModal;
 const Pipeline = withTheme(LeafyGreenPipeline);
+const RadioBoxGroup = withTheme(LeafyGreenRadioBoxGroup) as typeof LeafyGreenRadioBoxGroup;
 const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
   LeafyGreenRadioGroup as React.ComponentType<
     React.ComponentProps<typeof LeafyGreenRadioGroup>

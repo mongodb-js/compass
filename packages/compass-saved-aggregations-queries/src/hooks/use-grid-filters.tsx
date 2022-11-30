@@ -81,7 +81,6 @@ function useSearchFilter(): [React.ReactElement, string] {
         className={searchInputStyles}
         aria-label="Search"
         type="search"
-        label={null}
         placeholder="Search"
         value={search}
         onChange={(e) => {
