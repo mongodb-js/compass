@@ -92,15 +92,11 @@ export function getScrollbarClassForTheme(theme: ThemeState) {
 }
 
 /**
- * This function provides styles for overflowing content scrollbars.
- * If you're inside of an area that will be on a different
- * background color than the rest of Compass, this is useful to have.
+ * Provide styles for overflowing content scrollbars.
  * It takes the theme from the theme context (closest ThemeProvider).
  *
  * We customize scrollbars so that they look similar on all devices.
  * Without custom scrollbars, windows looks a bit wild.
- *
- * @returns props to apply to the component
  **/
 export function useScrollbars() {
   const theme = useTheme();
