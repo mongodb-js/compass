@@ -107,9 +107,19 @@ export default class PipelineParser {
     // elements in the array, in our case it might mean that all stages
     // are disabled
     if (root.elements.length === 0 && root.innerComments?.length) {
-      const [, _stages] = extractStagesFromComments(
+      const [visited, _stages] = extractStagesFromComments(
         root.innerComments
       );
+      if (_stages.length !== 0) {
+        const lastStage = _stages[_stages.length - 1];
+        // Attach all leftover comments to the last stage
+        lastStage.trailingComments = root.innerComments.filter(node => {
+          return !visited.has(node);
+        });
+        adjustAllStagesLoc(_stages);
+        // Delete all inner comments from the root node (they are all part of stages now)
+        delete root.innerComments;
+      }
       stages.push(..._stages);
     }
     root.elements.forEach((node) => {
@@ -238,4 +248,10 @@ function adjustStageLoc(stage: t.Node, line: number) {
   for (const comment of stage.trailingComments ?? []) {
     comment.loc = getLineOnlySourceLocation(++line);
   }
+}
+
+function adjustAllStagesLoc(stages: t.Expression[]) {
+  stages.forEach((stage, idx) => {
+    adjustStageLoc(stage, stages[idx - 1]?.loc?.end.line ?? 0);
+  });
 }

@@ -39,6 +39,7 @@
     "test-ci-electron": "npm run test-electron"
   },
   "dependencies": {
+    "@mongodb-js/compass-logging": "^1.1.1",
     "ampersand-model": "^8.0.1",
     "ampersand-rest-collection": "^6.0.0",
     "ampersand-sync": "^5.1.0",

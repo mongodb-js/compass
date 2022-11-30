@@ -13,6 +13,9 @@ const generalFields = [
   'showKerberosPasswordField',
   'maxTimeMS',
   'enableDevTools',
+  ...(['darwin', 'win32'].includes(process.platform)
+    ? (['installURLHandlers'] as const)
+    : []),
 ] as const;
 type GeneralFields = typeof generalFields[number];
 type GeneralSettingsProps = Omit<SettingsListProps<GeneralFields>, 'fields'>;
