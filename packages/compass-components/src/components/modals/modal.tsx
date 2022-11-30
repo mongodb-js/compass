@@ -30,7 +30,6 @@ function Modal({
   return (
     <LeafyGreenModal
       className={cx(scrollbarStyles, className)}
-      // contentClassName={cx(scrollbarStyles, contentStyles, contentClassName)}
       contentClassName={cx(contentStyles, contentClassName)}
       {...props}
     />

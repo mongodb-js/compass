@@ -82,7 +82,11 @@ const scrollbarDarkModeStyles = css(
 );
 
 export function getScrollbarClassForTheme(theme: ThemeState) {
-  return theme?.theme === Theme.Dark
+  if (!theme.enabled) {
+    return scrollbarLightModeStyles;
+  }
+
+  return theme.theme === Theme.Dark
     ? scrollbarDarkModeStyles
     : scrollbarLightModeStyles;
 }
@@ -133,9 +137,6 @@ export const withPortalScrollbars = <
     // When we're not in an electron environment, like compass-aggregations
     // in cloud, we don't apply the scrollbar styles.
     const appliedClassName = isElectronRenderer ? className : undefined;
-
-    // TODO
-    // https://codesandbox.io/s/mystifying-rain-h6t2rz?file=/src/App.tsx
 
     return (
       <WrappedComponent
