@@ -4,7 +4,16 @@ import { connect } from 'react-redux';
 import { withPreferences } from 'compass-preferences-model';
 
 import { Shell } from '@mongosh/browser-repl';
-import { ResizeHandle, ResizeDirection, css, cx, palette, rgba } from '@mongodb-js/compass-components';
+import {
+  ResizeHandle,
+  ResizeDirection,
+  Theme,
+  css,
+  cx,
+  getScrollbarClassForTheme,
+  palette,
+  rgba
+} from '@mongodb-js/compass-components';
 
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
@@ -15,7 +24,7 @@ const compassShellStyles = css({
   flexBasis: 'auto',
   position: 'relative',
   flexDirection: 'column',
-});
+}, getScrollbarClassForTheme(Theme.Dark));
 
 const compassShellContainerStyles = css({
   flexGrow: 1,
@@ -223,9 +232,8 @@ export class CompassShell extends Component {
           <div
             data-testid="shell-content"
             className={cx(
-              compassShellContainerStyles, {
-                [compassShellContainerVisibleStyles]: isExpanded
-              }
+              compassShellContainerStyles,
+              isExpanded && compassShellContainerVisibleStyles,
             )}
           >
             <Shell
