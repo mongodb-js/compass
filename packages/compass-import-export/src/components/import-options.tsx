@@ -25,7 +25,7 @@ const checkboxStyles = css({
   margin: `${spacing[2]}px 0`,
 });
 
-const delimeters: {
+const delimiters: {
   value: CSVDelimiter;
   label: string;
 }[] = [
@@ -50,7 +50,7 @@ const delimeters: {
 type ImportOptionsProps = {
   selectImportFileType: (fileType: AcceptedFileType) => void;
   selectImportFileName: (fileName: string) => void;
-  setDelimiter: (delimeter: CSVDelimiter) => void;
+  setDelimiter: (delimiter: CSVDelimiter) => void;
   delimiter: CSVDelimiter;
   fileType: AcceptedFileType | '';
   fileName: string;
@@ -111,7 +111,7 @@ function ImportOptions({
         <>
           <Select
             className={delimiterSelectStyles}
-            label="Delimeter"
+            label="Delimiter"
             id="import-delimiter-select"
             data-testid="import-delimiter-select"
             onChange={(delimiter: string) =>
@@ -121,7 +121,7 @@ function ImportOptions({
             allowDeselect={false}
             size="small"
           >
-            {delimeters.map(({ value, label }) => (
+            {delimiters.map(({ value, label }) => (
               <Option key={value} value={value}>
                 {label}
               </Option>
