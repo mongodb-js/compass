@@ -1,7 +1,7 @@
 import {
-  getScrollbarClassForTheme,
   css,
   cx,
+  getScrollbarClassForTheme,
   LeafyGreenProvider,
   Theme,
   ThemeProvider,

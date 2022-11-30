@@ -128,37 +128,13 @@ export const withPortalScrollbars = <
     // in cloud, we don't apply the scrollbar styles.
     const appliedClassName = isElectronRenderer ? className : undefined;
 
+    // TODO
+    // https://codesandbox.io/s/mystifying-rain-h6t2rz?file=/src/App.tsx
+
     return (
       <WrappedComponent
+        {...props}
         portalClassName={cx(appliedClassName, props.portalClassName)}
-        {...props}
-      />
-    );
-  };
-
-  return ComponentWithScrollbars;
-};
-
-interface WithContentClassName {
-  contentClassName?: string;
-}
-
-export const withContentScrollbars = <
-  ComponentProps extends WithContentClassName
->(
-  WrappedComponent: React.ComponentType<ComponentProps & WithContentClassName>
-) => {
-  const ComponentWithScrollbars = (props: ComponentProps) => {
-    const { className } = useScrollbars();
-
-    // When we're not in an electron environment, like compass-aggregations
-    // in cloud, we don't apply the scrollbar styles.
-    const appliedClassName = isElectronRenderer ? className : undefined;
-
-    return (
-      <WrappedComponent
-        contentClassName={cx(appliedClassName, props.contentClassName)}
-        {...props}
       />
     );
   };

@@ -4,7 +4,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 const { track } = createLoggerAndTelemetry('COMPASS-UI');
 
 import { Modal as LeafyGreenModal } from '../leafygreen';
-import { withContentScrollbars } from '../../hooks/use-scrollbars';
+import { useScrollbars } from '../../hooks/use-scrollbars';
 
 const contentStyles = css({
   width: '600px',
@@ -15,10 +15,13 @@ const contentStyles = css({
 function Modal({
   trackingId,
   contentClassName,
+  className,
   ...props
 }: React.ComponentProps<typeof LeafyGreenModal> & {
   trackingId?: string;
 }): React.ReactElement {
+  const { className: scrollbarStyles } = useScrollbars();
+
   useEffect(() => {
     if (props.open && trackingId) {
       track('Screen', { name: trackingId });
@@ -26,12 +29,12 @@ function Modal({
   }, [props.open, trackingId]);
   return (
     <LeafyGreenModal
+      className={cx(scrollbarStyles, className)}
+      // contentClassName={cx(scrollbarStyles, contentStyles, contentClassName)}
       contentClassName={cx(contentStyles, contentClassName)}
       {...props}
     />
   );
 }
 
-const ModalWithScrollbars = withContentScrollbars(Modal);
-
-export { ModalWithScrollbars as Modal };
+export { Modal };
