@@ -12,10 +12,6 @@ import configureStore from '../stores/store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
 import { createCancelError } from '@mongodb-js/compass-utils';
 
-const wait = (): Promise<void> => {
-  return new Promise(resolve => setImmediate(resolve));
-};
-
 const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
   const mockedState = {
     aggregationWorkspaceId: '0',
@@ -129,8 +125,6 @@ describe('aggregation module', function () {
 
       await store.dispatch(fetchNextPage() as any);
 
-      await wait();
-
       expect(store.getState().aggregation).to.deep.equal({
         pipeline: [],
         documents: mockDocuments,
@@ -191,8 +185,6 @@ describe('aggregation module', function () {
       });
 
       await store.dispatch(fetchPrevPage() as any);
-
-      await wait();
 
       expect(store.getState().aggregation).to.deep.equal({
         pipeline: [],

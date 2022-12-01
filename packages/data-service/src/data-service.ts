@@ -456,7 +456,7 @@ export interface DataService {
   aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options: AggregateOptions
+    options?: AggregateOptions
   ): AggregationCursor;
 
   /**
@@ -1498,7 +1498,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options: AggregateOptions
+    options: AggregateOptions = {}
   ): AggregationCursor {
     log.info(mongoLogId(1_001_000_041), this._logCtx(), 'Running aggregation', {
       ns,
