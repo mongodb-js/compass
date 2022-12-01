@@ -18,6 +18,7 @@ const mongodbNotaryServiceClient = require('@mongodb-js/mongodb-notary-service-c
 const tarPack = require('tar-pack').pack;
 const which = require('which');
 const os = require('os');
+const plist = require('plist');
 const { signtool } = require('./signtool');
 
 async function signLinuxPackage(src) {
@@ -565,12 +566,28 @@ class Target {
     };
 
     this.createInstaller = async() => {
+      const appDirectoryName = `${this.productName}.app`;
+      const appPath = this.appPath;
+
+      {
+        const plistFilePath = path.join(appPath, 'Contents', 'Info.plist');
+        const plistContents = plist.parse(await fs.promises.readFile(plistFilePath, 'utf8'));
+
+        plistContents.CFBundleURLTypes =
+        _.get(this.pkg, 'config.hadron.protocols', [])
+          .map(protocol => ({
+            CFBundleTypeRole: 'Editor',
+            CFBundleURLIconFile: platformSettings.icon,
+            CFBundleURLName: protocol.name,
+            CFBundleURLSchemes: protocol.schemes
+          }));
+        await fs.promises.writeFile(plistFilePath, plist.build(plistContents));
+      }
+
       if (process.env.MACOS_NOTARY_KEY &&
           process.env.MACOS_NOTARY_SECRET &&
           process.env.MACOS_NOTARY_CLIENT_URL &&
           process.env.MACOS_NOTARY_API_URL) {
-        const appDirectoryName = `${this.productName}.app`;
-        const appPath = this.appPath;
         debug(`Signing and notarizing "${appPath}"`);
         // https://wiki.corp.mongodb.com/display/BUILD/How+to+use+MacOS+notary+service
         debug(`Downloading the notary client from ${process.env.MACOS_NOTARY_CLIENT_URL} to ${path.resolve('macnotary')}`);
@@ -682,6 +699,10 @@ class Target {
       }. All Rights Reserved.`;
     }
 
+    const mimeType =
+      _.get(this.pkg, 'config.hadron.protocols', [])
+        .flatMap(protocol => protocol.schemes)
+        .map(scheme => `x-scheme-handler/${scheme}`);
     this.installerOptions = {
       deb: {
         src: this.appPath,
@@ -692,7 +713,8 @@ class Target {
         version: debianVersion,
         bin: this.productName,
         section: debianSection,
-        depends: ['libsecret-1-0', 'gnome-keyring', 'libgconf-2-4']
+        depends: ['libsecret-1-0', 'gnome-keyring', 'libgconf-2-4'],
+        mimeType
       },
       rpm: {
         src: this.appPath,
@@ -713,7 +735,8 @@ class Target {
           'GConf2'
         ],
         categories: rhelCategories,
-        license: license
+        license: license,
+        mimeType
       }
     };
 

@@ -8,13 +8,13 @@ import { Banner } from '@mongodb-js/compass-components';
 import { CreateCollectionModal } from '../create-collection-modal';
 import CollectionFields from '../collection-fields';
 
-describe('CreateCollectionModal [Component]', function() {
-  context('when the modal is visible', function() {
+describe('CreateCollectionModal [Component]', function () {
+  context('when the modal is visible', function () {
     let component;
     let toggleIsVisibleSpy;
     let clearErrorSpy;
 
-    beforeEach(function() {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
 
@@ -22,43 +22,43 @@ describe('CreateCollectionModal [Component]', function() {
         <CreateCollectionModal
           isVisible
           isRunning={false}
-          error={{message: 'A testing error occurred.'}}
+          error={{ message: 'A testing error occurred.' }}
           toggleIsVisible={toggleIsVisibleSpy}
           clearError={clearErrorSpy}
         />
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       component = null;
     });
 
-    it('displays the modal', function() {
+    it('displays the modal', function () {
       expect(component.find(FormModal)).to.be.present();
     });
 
-    it('renders the header text', function() {
+    it('renders the header text', function () {
       expect(component.text()).to.include('Create Collection');
     });
 
-    it('renders the modal form', function() {
+    it('renders the modal form', function () {
       expect(component.find(CollectionFields)).to.be.present();
     });
 
-    it('renders the error message', function() {
+    it('renders the error message', function () {
       expect(component.find(Banner)).to.be.present();
       expect(component.find(Banner)).to.have.length(1);
     });
   });
 
-  context('when the modal is not visible', function() {
+  context('when the modal is not visible', function () {
     let component;
     let toggleIsVisibleSpy;
     let clearErrorSpy;
 
-    beforeEach(function() {
+    beforeEach(function () {
       toggleIsVisibleSpy = sinon.spy();
       clearErrorSpy = sinon.spy();
 
@@ -72,13 +72,13 @@ describe('CreateCollectionModal [Component]', function() {
       );
     });
 
-    afterEach(function() {
+    afterEach(function () {
       clearErrorSpy = null;
       toggleIsVisibleSpy = null;
       component = null;
     });
 
-    it('does not display the form', function() {
+    it('does not display the form', function () {
       expect(component.find(CollectionFields)).to.not.be.present();
     });
   });

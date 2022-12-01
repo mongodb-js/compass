@@ -64,7 +64,11 @@ const moveToDiskStorage = (done) => {
       if (savedPipelines) {
         const tasks = savedPipelines.map((pipeline) => {
           return (callback) => {
-            const fileName = path.join(userDataDir, FS_DIR, `${pipeline.id}.json`);
+            const fileName = path.join(
+              userDataDir,
+              FS_DIR,
+              `${pipeline.id}.json`
+            );
             const options = { encoding: 'utf8', flag: 'w' };
             fs.writeFile(fileName, JSON.stringify(pipeline), options, () => {
               callback(null);
@@ -77,7 +81,7 @@ const moveToDiskStorage = (done) => {
             callback();
           });
         };
-        asyncr.series([ ensureDirectory ].concat(tasks), () => {
+        asyncr.series([ensureDirectory].concat(tasks), () => {
           done();
         });
       } else {
@@ -88,7 +92,7 @@ const moveToDiskStorage = (done) => {
 };
 
 module.exports = (previousVersion, currentVersion, callback) => {
-  moveToDiskStorage(function(err) {
+  moveToDiskStorage(function (err) {
     if (err) {
       debug('encountered an error in the migration', err);
       return callback(null);

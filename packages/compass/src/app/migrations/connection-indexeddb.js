@@ -12,13 +12,13 @@ const ConnectionIndexedDB = Connection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'local',
-    appName: appName
+    appName: appName,
   },
-  serialize: function() {
+  serialize: function () {
     return Connection.prototype.serialize.call(this, {
-      all: true
+      all: true,
     });
-  }
+  },
 });
 
 module.exports = ConnectionIndexedDB;
@@ -28,7 +28,7 @@ module.exports.ConnectionIndexedDBCollection = Collection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend: 'local',
-    appName: appName
+    appName: appName,
   },
-  mainIndex: '_id'
+  mainIndex: '_id',
 });

@@ -15,7 +15,7 @@ import find from 'lodash.find';
 import Type from '../type';
 import Minichart from '../minichart';
 import detectCoordinates from '../../modules/detect-coordinates';
-import preferences from 'compass-preferences-model';
+import { withPreferences } from 'compass-preferences-model';
 
 const toggleCollapseButtonIconStyles = css({
   color: palette.gray.dark2,
@@ -70,6 +70,7 @@ class Field extends Component {
     path: PropTypes.string,
     types: PropTypes.array,
     fields: PropTypes.array,
+    enableMaps: PropTypes.boolean,
   };
 
   constructor(props) {
@@ -89,7 +90,6 @@ class Field extends Component {
       // Set the active type to the first type in the props.types array.
       types: types,
       activeType: types.length > 0 ? types[0] : null,
-      enableMaps: false,
     };
   }
 
@@ -119,11 +119,6 @@ class Field extends Component {
     return null;
   }
 
-  componentDidMount() {
-    const { enableMaps } = preferences.getPreferences();
-    this.setState({ enableMaps });
-  }
-
   /**
    * tests type for semantic interpretations, like geo coordinates, and
    * replaces type information like name and values if there's a match.
@@ -134,7 +129,7 @@ class Field extends Component {
   getSemanticType(type) {
     // check if the type represents geo coordinates, if privacy settings allow
 
-    if (this.state.enableMaps) {
+    if (this.props.enableMaps) {
       const coords = detectCoordinates(type);
       if (coords) {
         type.name = 'Coordinates';
@@ -264,4 +259,4 @@ class Field extends Component {
   }
 }
 
-export default Field;
+export default withPreferences(Field, ['enableMaps'], React);

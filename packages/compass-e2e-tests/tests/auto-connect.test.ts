@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { beforeTests, afterTests } from '../helpers/compass';
+import * as Selectors from '../helpers/selectors';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
@@ -89,6 +90,21 @@ describe('Automatically connecting from the command line', function () {
     await afterTests(compass, this.currentTest);
   });
 
+  it('does not store the connection information as a recent connection', async function () {
+    const compass = await beforeTests({
+      extraSpawnArgs: [connectionStringSuccess],
+      noWaitForConnectionScreen: true,
+      firstRun: true,
+    });
+    const browser = compass.browser;
+    await browser.waitForConnectionResult('success');
+    await browser.disconnect();
+    await browser
+      .$(Selectors.RecentConnections)
+      .waitForDisplayed({ reverse: true });
+    await afterTests(compass, this.currentTest);
+  });
+
   it('fails with an unreachable URL', async function () {
     const compass = await beforeTests({
       extraSpawnArgs: [
@@ -103,6 +119,26 @@ describe('Automatically connecting from the command line', function () {
     expect(error).to.match(
       /Server selection timed out|Client network socket disconnected/i
     );
+    await afterTests(compass, this.currentTest);
+  });
+
+  it('fails with invalid auth', async function () {
+    const compass = await beforeTests({
+      extraSpawnArgs: [
+        '--file',
+        path.join(tmpdir, 'exported.json'),
+        '--passphrase',
+        'p4ssw0rd',
+        '54dba8d8-fe31-463b-bfd8-7147517ce3ab',
+        '--username=doesnotexist',
+        '--password=asdf/',
+      ],
+    });
+    const error = await compass.browser.waitForConnectionResult('failure');
+    expect(error).to.include('Authentication failed');
+    const connectFormState = await compass.browser.getConnectFormState();
+    expect(connectFormState.defaultUsername).to.equal('doesnotexist');
+    expect(connectFormState.defaultPassword).to.equal('asdf/');
     await afterTests(compass, this.currentTest);
   });
 
@@ -125,6 +161,57 @@ describe('Automatically connecting from the command line', function () {
     });
     const error = await compass.browser.waitForConnectionResult('failure');
     expect(error).to.include('ENOENT');
+    await afterTests(compass, this.currentTest);
+  });
+
+  it('enters auto-connect mode again if the window is hard reloaded', async function () {
+    if (process.platform === 'win32' && (process.env.ci || process.env.CI)) {
+      return this.skip(); // Doesn't work on Windows, but only in CI
+    }
+    const compass = await beforeTests({
+      extraSpawnArgs: [connectionStringSuccess],
+      noWaitForConnectionScreen: true,
+    });
+    const { browser } = compass;
+    await browser.waitForConnectionResult('success');
+    await browser.execute(() => {
+      location.reload();
+    });
+    await browser.waitForConnectionResult('success');
+    await browser.disconnect();
+    await browser.execute(() => {
+      location.reload();
+    });
+    await browser.waitForConnectionScreen();
+    await afterTests(compass, this.currentTest);
+  });
+
+  it('does not enter auto-connect mode in new windows', async function () {
+    const compass = await beforeTests({
+      extraSpawnArgs: [connectionStringSuccess],
+      noWaitForConnectionScreen: true,
+    });
+    const { browser } = compass;
+    await browser.waitForConnectionResult('success');
+    await browser.execute(() => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require('electron').ipcRenderer.call('test:show-connect-window');
+    });
+
+    // Switch to the other window
+    let currentWindow = await browser.getWindowHandle();
+    let allWindows: string[] = [];
+    await browser.waitUntil(async function () {
+      allWindows = await browser.getWindowHandles();
+      if (allWindows.length < 2) return false;
+      currentWindow = allWindows.find((w) => w !== currentWindow) as string;
+      await browser.switchToWindow(currentWindow);
+
+      const connectScreenElement = await browser.$(Selectors.ConnectSection);
+      return await connectScreenElement.isDisplayed();
+    });
+
+    await browser.waitForConnectionScreen();
     await afterTests(compass, this.currentTest);
   });
 });

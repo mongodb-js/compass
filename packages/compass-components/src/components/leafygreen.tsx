@@ -1,3 +1,4 @@
+import React from 'react';
 import { withTheme } from '../hooks/use-theme';
 
 // This file exports `@leafygreen-ui` components and wraps some of
@@ -9,16 +10,18 @@ import { default as Banner } from '@leafygreen-ui/banner';
 import { default as LeafyGreenButton } from '@leafygreen-ui/button';
 import { default as LeafyGreenCheckbox } from '@leafygreen-ui/checkbox';
 import { default as LeafyGreenCard } from '@leafygreen-ui/card';
-import { default as LeafyGreenCode } from '@leafygreen-ui/code';
+import { default as LeafyGreenCode, Language } from '@leafygreen-ui/code';
 import {
   Combobox as LeafyGreenCombobox,
   ComboboxOption,
   ComboboxGroup,
 } from '@leafygreen-ui/combobox';
 import { default as LeafyGreenConfirmationModal } from '@leafygreen-ui/confirmation-modal';
-import { default as Icon } from '@leafygreen-ui/icon';
+import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
+import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
 import { default as LeafyGreenIconButton } from '@leafygreen-ui/icon-button';
 import {
+  AtlasLogo,
   AtlasLogoMark,
   MongoDBLogoMark,
   MongoDBLogo,
@@ -194,8 +197,19 @@ const Description = withTheme(
   LeafyGreenDescription
 ) as typeof LeafyGreenDescription;
 
+const Icon = ({
+  size,
+  ...rest
+}: Omit<React.ComponentProps<typeof LeafyGreenIcon>, 'size'> & {
+  size?: LeafyGreenIconSize | 'xsmall' | number;
+}) => {
+  size = size === 'xsmall' ? 12 : size;
+  return <LeafyGreenIcon size={size} {...rest} />;
+};
+
 // 3. Export the leafygreen components.
 export {
+  AtlasLogo,
   AtlasLogoMark,
   Badge,
   Banner,
@@ -206,6 +220,7 @@ export {
   ConfirmationModal,
   Icon,
   IconButton,
+  Language,
   Menu,
   MenuItem,
   MenuSeparator,

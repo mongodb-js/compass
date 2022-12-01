@@ -96,7 +96,6 @@ describe('Collection documents tab', function () {
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
-    await browser.setFeature('trackUsageStatistics', true);
   });
 
   beforeEach(async function () {
@@ -200,7 +199,7 @@ describe('Collection documents tab', function () {
     await documentListErrorElement.waitForDisplayed();
 
     const errorText = await documentListErrorElement.getText();
-    expect(errorText).to.equal('The operation was cancelled.');
+    expect(errorText).to.equal('This operation was aborted');
 
     // execute another (small, fast) query
     await browser.runFindOperation('Documents', '{ i: 5 }');
@@ -219,27 +218,49 @@ describe('Collection documents tab', function () {
     ]);
   });
 
-  it('supports maxTimeMS', async function () {
-    // execute a query that will take a long time, but set a maxTimeMS shorter than that
-    await browser.runFindOperation(
-      'Documents',
-      '{ $where: function() { return sleep(10000) || true; } }',
-      {
-        maxTimeMS: '1000',
-        waitForResult: false,
+  for (const maxTimeMSMode of ['ui', 'preference'] as const) {
+    it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
+      let maxTimeMSBefore;
+      if (maxTimeMSMode === 'preference') {
+        maxTimeMSBefore = await browser.getFeature('maxTimeMS');
+
+        await browser.openSettingsModal();
+        const settingsModal = await browser.$(Selectors.SettingsModal);
+        await settingsModal.waitForDisplayed();
+        await browser.clickVisible(Selectors.FeaturesSettingsButton);
+
+        await browser.setValueVisible(
+          Selectors.SettingsInputElement('maxTimeMS'),
+          '1'
+        );
+        await browser.clickVisible(Selectors.SaveSettingsButton);
       }
-    );
 
-    const documentListErrorElement = await browser.$(
-      Selectors.DocumentListError
-    );
-    await documentListErrorElement.waitForDisplayed();
+      // execute a query that will take a long time, but set a maxTimeMS shorter than that
+      await browser.runFindOperation(
+        'Documents',
+        '{ $where: function() { return sleep(10000) || true; } }',
+        {
+          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
+          waitForResult: false,
+        }
+      );
 
-    const errorText = await documentListErrorElement.getText();
-    expect(errorText).to.include(
-      'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
-    );
-  });
+      const documentListErrorElement = await browser.$(
+        Selectors.DocumentListError
+      );
+      await documentListErrorElement.waitForDisplayed();
+
+      const errorText = await documentListErrorElement.getText();
+      expect(errorText).to.include(
+        'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+      );
+
+      if (maxTimeMSMode === 'preference') {
+        await browser.setFeature('maxTimeMS', maxTimeMSBefore);
+      }
+    });
+  }
 
   it('keeps the query when navigating to schema and explain', async function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
@@ -460,7 +481,9 @@ FindIterable<Document> result = collection.find(filter);`);
     const value = await document.$('[col-id="j"] .element-value');
     await value.doubleClick();
 
-    const input = await document.$('[col-id="j"] input.editable-element-value');
+    const input = await document.$(
+      '[col-id="j"] [data-testid="table-view-cell-editor-value-input"]'
+    );
     await input.setValue('-100');
 
     const footer = await browser.$(Selectors.DocumentFooterMessage);

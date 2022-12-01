@@ -12,14 +12,16 @@ import { SettingsModal } from './modal';
 
 describe('SettingsModal', function () {
   let closeModalSpy: SinonSpy;
-  let loadSettingsSpy: SinonSpy;
-  let onUpdateSpy: SinonSpy;
-  let renderSettingsModal;
+  let fetchSettingsSpy: SinonSpy;
+  let onSaveSpy: SinonSpy;
+  let renderSettingsModal: (
+    props?: Partial<ComponentProps<typeof SettingsModal>>
+  ) => void;
 
   beforeEach(function () {
     closeModalSpy = spy();
-    loadSettingsSpy = stub().resolves();
-    onUpdateSpy = spy();
+    fetchSettingsSpy = stub().resolves();
+    onSaveSpy = spy();
 
     renderSettingsModal = (
       props: Partial<ComponentProps<typeof SettingsModal>> = {}
@@ -29,8 +31,10 @@ describe('SettingsModal', function () {
           <SettingsModal
             isOpen={false}
             closeModal={closeModalSpy}
-            loadSettings={loadSettingsSpy}
-            onUpdate={onUpdateSpy}
+            fetchSettings={fetchSettingsSpy}
+            onSave={onSaveSpy}
+            loadingState="ready"
+            hasChangedSettings={false}
             {...props}
           />
         </Provider>
@@ -39,9 +43,9 @@ describe('SettingsModal', function () {
   });
 
   it('renders nothing until it is open and loaded', function () {
-    renderSettingsModal();
+    renderSettingsModal({ loadingState: 'loading' });
 
-    expect(loadSettingsSpy.called).to.be.false;
+    expect(fetchSettingsSpy.called).to.be.false;
     const container = screen.queryByTestId('settings-modal');
     expect(container).to.not.exist;
   });
@@ -49,25 +53,25 @@ describe('SettingsModal', function () {
   it('renders eventually once open and loaded', async function () {
     renderSettingsModal({ isOpen: true });
 
-    expect(loadSettingsSpy.calledOnce).to.be.true;
+    expect(fetchSettingsSpy.calledOnce).to.be.true;
     await waitFor(() => {
       const container = screen.getByTestId('settings-modal');
       expect(container).to.exist;
-      expect(within(container).getByTestId('settings-modal-title')).to.exist;
+      expect(within(container).getByTestId('modal-title')).to.exist;
     });
   });
 
   it('modal footer actions', async function () {
-    renderSettingsModal({ isOpen: true });
-    expect(onUpdateSpy.callCount).to.equal(0);
+    renderSettingsModal({ isOpen: true, hasChangedSettings: true });
+    expect(onSaveSpy.callCount).to.equal(0);
 
     await waitFor(() => {
       const container = screen.getByTestId('settings-modal');
-      const saveButton = within(container).getByTestId('save-settings-button');
+      const saveButton = within(container).getByTestId('submit-button');
       expect(saveButton).to.exist;
 
       userEvent.click(saveButton);
-      expect(onUpdateSpy.calledOnce).to.be.true;
+      expect(onSaveSpy.calledOnce).to.be.true;
     });
   });
 

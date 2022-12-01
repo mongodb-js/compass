@@ -7,7 +7,6 @@ import { expect } from 'chai';
 import configureStore from '../../stores/store';
 import { PipelineToolbar } from './index';
 
-
 describe('PipelineToolbar', function () {
   describe('renders with setting row - visible', function () {
     let toolbar: HTMLElement;
@@ -17,6 +16,8 @@ describe('PipelineToolbar', function () {
           store={configureStore({ sourcePipeline: [{ $match: { _id: 1 } }] })}
         >
           <PipelineToolbar
+            onChangePipelineOutputOption={() => {}}
+            pipelineOutputOption="collapse"
             isBuilderView
             showExportButton
             showRunButton
@@ -88,11 +89,13 @@ describe('PipelineToolbar', function () {
         'shows untitled as default name'
       ).to.equal('untitled');
 
-      expect(within(settings).getByTestId('save-menu'), 'shows save menu').to
-        .exist;
+      expect(
+        within(settings).getByTestId('save-menu-show-actions'),
+        'shows save menu'
+      ).to.exist;
 
       expect(
-        within(settings).getByTestId('create-new-menu'),
+        within(settings).getByTestId('create-new-menu-show-actions'),
         'shows create-new menu'
       ).to.exist;
       expect(
@@ -113,16 +116,16 @@ describe('PipelineToolbar', function () {
     it('renders menus', function () {
       const settings = within(toolbar).getByTestId('pipeline-settings');
 
-      userEvent.click(within(settings).getByTestId('save-menu'));
-      const saveMenuContent = screen.getByTestId('save-menu-content');
+      userEvent.click(within(settings).getByTestId('save-menu-show-actions'));
+      const saveMenuContent = screen.getByTestId('save-menu');
       expect(saveMenuContent.childNodes[0].textContent).to.equal('Save');
       expect(saveMenuContent.childNodes[1].textContent).to.equal('Save as');
       expect(saveMenuContent.childNodes[2].textContent).to.equal('Create view');
 
-      userEvent.click(within(settings).getByTestId('create-new-menu'));
-      const createNewMenuContent = screen.getByTestId(
-        'create-new-menu-content'
+      userEvent.click(
+        within(settings).getByTestId('create-new-menu-show-actions')
       );
+      const createNewMenuContent = screen.getByTestId('create-new-menu');
       expect(createNewMenuContent.childNodes[0].textContent).to.equal(
         'Pipeline'
       );
@@ -137,6 +140,8 @@ describe('PipelineToolbar', function () {
       render(
         <Provider store={configureStore({})}>
           <PipelineToolbar
+            onChangePipelineOutputOption={() => {}}
+            pipelineOutputOption="collapse"
             isBuilderView
             showExplainButton
             showExportButton

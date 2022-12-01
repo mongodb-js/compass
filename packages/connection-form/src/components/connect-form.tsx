@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -27,6 +27,7 @@ import ConnectFormActions from './connect-form-actions';
 import { useConnectForm } from '../hooks/use-connect-form';
 import { validateConnectionOptionsErrors } from '../utils/validation';
 import SaveConnectionModal from './save-connection-modal';
+import { usePreference } from 'compass-preferences-model';
 
 const formContainerStyles = css({
   margin: 0,
@@ -131,11 +132,12 @@ function ConnectForm({
 }): React.ReactElement {
   const [
     {
-      enableEditingConnectionString,
+      enableEditingConnectionString: _enableEditingConnectionString,
       isDirty,
       errors,
-      warnings,
+      warnings: _warnings,
       connectionOptions,
+      allowEditingIfProtected,
     },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
@@ -144,6 +146,26 @@ function ConnectForm({
 
   const [saveConnectionModal, setSaveConnectionModal] =
     useState<SaveConnectionModalState>('hidden');
+  const protectConnectionStrings =
+    !!usePreference('protectConnectionStrings', React) &&
+    !allowEditingIfProtected;
+  const enableEditingConnectionString =
+    _enableEditingConnectionString && !protectConnectionStrings;
+
+  const forceConnectionOptions = usePreference('forceConnectionOptions', React);
+  const warnings = useMemo(() => {
+    if (!forceConnectionOptions?.length) return _warnings;
+    const overriddenKeys = forceConnectionOptions.map(([key]) => key);
+    return [
+      ..._warnings,
+      // Do not include values here, only keys, since values might contain sensitive information/credentials
+      {
+        message: `Some connection options have been overridden through settings: ${overriddenKeys.join(
+          ', '
+        )}`,
+      },
+    ];
+  }, [_warnings, forceConnectionOptions]);
 
   const connectionStringInvalidError = errors.find(
     (error) => error.fieldName === 'connectionString'
@@ -258,6 +280,7 @@ function ConnectForm({
                 }
                 onSubmit={() => onSubmitForm()}
                 updateConnectionFormField={updateConnectionFormField}
+                protectConnectionStrings={protectConnectionStrings}
               />
               {connectionStringInvalidError && (
                 <Banner
@@ -267,12 +290,14 @@ function ConnectForm({
                   {connectionStringInvalidError.message}
                 </Banner>
               )}
-              <AdvancedConnectionOptions
-                errors={connectionStringInvalidError ? [] : errors}
-                disabled={!!connectionStringInvalidError}
-                updateConnectionFormField={updateConnectionFormField}
-                connectionOptions={connectionOptions}
-              />
+              {!protectConnectionStrings && (
+                <AdvancedConnectionOptions
+                  errors={connectionStringInvalidError ? [] : errors}
+                  disabled={!!connectionStringInvalidError}
+                  updateConnectionFormField={updateConnectionFormField}
+                  connectionOptions={connectionOptions}
+                />
+              )}
             </div>
             <div className={formFooterStyles}>
               <ConnectFormActions

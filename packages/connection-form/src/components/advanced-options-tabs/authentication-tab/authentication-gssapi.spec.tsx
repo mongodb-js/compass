@@ -3,6 +3,7 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
+import preferences from 'compass-preferences-model';
 
 import AuthenticationGssapi from './authentication-gssapi';
 import type { ConnectionFormError } from '../../../utils/validation';
@@ -171,15 +172,17 @@ describe('AuthenticationGssapi Component', function () {
   });
 
   describe('Kerberos password support', function () {
-    let oldEnvValue;
+    let sandbox: sinon.SinonSandbox;
 
     before(function () {
-      oldEnvValue = process.env.COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD;
-      process.env.COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD = 'true';
+      sandbox = sinon.createSandbox();
+      sandbox
+        .stub(preferences, 'getPreferences')
+        .returns({ showKerberosPasswordField: true } as any);
     });
 
     after(function () {
-      process.env.COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD = oldEnvValue;
+      return sandbox.restore();
     });
 
     describe('when password is not in the connection string', function () {

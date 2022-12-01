@@ -130,6 +130,10 @@ function parseCliArgs(argv: string[]): unknown {
     result.positionalArguments = result._;
   }
   delete (result as any)._;
+  for (const key of Object.keys(result)) {
+    // Remove command line flags added by the Windows .exe installer.
+    if (key.startsWith('squirrel')) delete (result as any)[key];
+  }
   return result;
 }
 
@@ -148,22 +152,24 @@ function validatePreferences(
     error('Invalid preferences structure');
     _obj = {};
   }
-  const obj = { ...((_obj ?? {}) as Partial<AllPreferences>) };
+  const obj: Partial<AllPreferences> = {};
 
-  for (const [key, value] of Object.entries(obj) as [
+  for (const [key, rawValue] of Object.entries(_obj ?? {}) as [
     keyof AllPreferences,
     unknown
   ][]) {
     if (!allPreferencesProps[key]) {
       error(`Unknown option "${key}"`);
-      delete obj[key];
       continue;
     }
     if (!allPreferencesProps[key][source]) {
       error(`Setting option "${key}" not allowed in this context`);
-      delete obj[key];
       continue;
     }
+    // Some options need to be brought into the right format in order to be used
+    // as an option value, e.g. an object into an array of key-value pairs
+    const process = allPreferencesProps[key].customPostProcess;
+    const value = process ? process(rawValue, error) : rawValue;
     // `typeof` + `isArray` is good enough for everything we need right now, but we can of course expand this check over time
     if (
       (Array.isArray(value) ? 'array' : typeof value) !==
@@ -174,11 +180,22 @@ function validatePreferences(
           allPreferencesProps[key].type
         }, received ${typeof value}`
       );
-      delete obj[key];
       continue;
     }
+    if (
+      allPreferencesProps[key].values &&
+      !(allPreferencesProps[key].values as unknown[])?.includes(value)
+    ) {
+      error(
+        `Value for option "${key}" is not allowed: expected one of [${String(
+          allPreferencesProps[key].values?.join(', ')
+        )}], received ${String(value)}`
+      );
+      continue;
+    }
+    obj[key] = value as any;
   }
-  return [obj as AllPreferences, errors];
+  return [obj, errors];
 }
 
 export interface GlobalPreferenceSources {
@@ -193,6 +210,8 @@ export interface ParsedGlobalPreferencesResult {
   preferenceParseErrors: string[];
 }
 
+// See https://github.com/electron/electron/issues/4690
+const argvStartIndex = process.versions.electron && !process.defaultApp ? 1 : 2;
 export async function parseAndValidateGlobalPreferences(
   sources: GlobalPreferenceSources = {}
 ): Promise<ParsedGlobalPreferencesResult> {
@@ -201,18 +220,16 @@ export async function parseAndValidateGlobalPreferences(
   );
   let argv = sources.argv;
   if (!argv) {
-    // See https://github.com/electron/electron/issues/4690
-    const argvStartIndex =
-      process.versions.electron && !process.defaultApp ? 1 : 2;
     argv = process.argv.slice(argvStartIndex);
   }
   const cliPreferences = parseCliArgs(argv);
   if (cliPreferences && typeof cliPreferences === 'object') {
-    // Remove positional arguments and common Electron/Chromium flags
-    // that we want to allow.
-    const ignoreFlags = ['disableGpu', 'sandbox'];
-    for (const flag of ignoreFlags) {
-      delete (cliPreferences as Record<string, unknown>)[flag];
+    // Remove common Electron/Chromium/Installer flags that we want to allow.
+    const ignoreFlags = /^(disableGpu$|sandbox$|squirrel)/;
+    for (const key of Object.keys(cliPreferences)) {
+      if (key.match(ignoreFlags)) {
+        delete (cliPreferences as Record<string, unknown>)[key];
+      }
     }
   }
 
@@ -245,8 +262,10 @@ function formatSingleOption(
   key: keyof AllPreferences,
   context: 'cli' | 'global'
 ): string {
-  let line = '';
   const descriptor = allPreferencesProps[key];
+  if (descriptor.omitFromHelp) return '';
+  let line = '';
+
   const addDescription = () => {
     if (!descriptor.description) return;
     line = line.padEnd(45);
@@ -285,9 +304,53 @@ export function getHelpText(): string {
   }
   text +=
     '\nThe following global configuration file paths will be searched:\n\n';
-  for (const path of getGlobalConfigPaths()) {
+  const globalConfigPaths = getGlobalConfigPaths();
+  for (const path of globalConfigPaths) {
     text += `  ${path}\n`;
+  }
+  if (globalConfigPaths.length > 0) {
+    text += '\nIf no global configuration file exists, running Compass as\n';
+    text += `  ${escapeShell(process.execPath)}${
+      argvStartIndex >= 2 ? ' ' + escapeShell(process.argv[1]) : ''
+    } `;
+    text += `--show-example-config > ${escapeShell(globalConfigPaths[0])}\n`;
+    text += 'can be used to install one.\n';
   }
   text += '\nSee the MongoDB Compass documentation for more details.\n';
   return text;
+}
+
+// Naive shell escape function; not usable as a secure general-purpose escaping mechanism.
+function escapeShell(str: string): string {
+  const quote = process.platform === 'win32' ? '"' : "'";
+  return /^[-_a-zA-Z0-9./\\]+$/.test(str) ? str : `${quote}${str}${quote}`;
+}
+
+export function getExampleConfigFile(): string {
+  return `\
+# Compass supports a number of configuration options.
+# Run Compass with --help for a full list.
+
+# Set this option to disable outgoing network traffic, other than to the
+# database that Compass connects to.
+# networkTraffic: false
+
+# Set this option to disable editing or deleting database contents in Compass.
+# readOnly: true
+
+# Set this option to provide an upper limit for the timeout of long-running
+# database operations in Compass.
+# maxTimeMS: 10000
+
+# Set this option to disable running Compass in developer mode.
+# Note that enabling any of the options above will already imply this.
+# enableDevTools: false
+
+# Specify a set of connection options that cannot be overwritten by the user
+# when starting Compass or through the connection form.
+# forceConnectionOptions:
+# - readPreference: secondary
+# - readPreferenceTags: nodeType:ANALYTICS
+# - readPreferenceTags: nodeType:READ_ONLY
+`;
 }

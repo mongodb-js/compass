@@ -70,14 +70,19 @@ interface RenderLogEntry {
 export class Compass {
   browser: CompassBrowser;
   testPackagedApp: boolean;
+  needsCloseWelcomeModal: boolean;
   renderLogs: RenderLogEntry[];
   logs: LogEntry[];
   logPath?: string;
   userDataPath?: string;
 
-  constructor(browser: CompassBrowser, { testPackagedApp = false } = {}) {
+  constructor(
+    browser: CompassBrowser,
+    { testPackagedApp = false, needsCloseWelcomeModal = false } = {}
+  ) {
     this.browser = browser;
     this.testPackagedApp = testPackagedApp;
+    this.needsCloseWelcomeModal = needsCloseWelcomeModal;
     this.logs = [];
     this.renderLogs = [];
 
@@ -150,15 +155,63 @@ export class Compass {
     const debugClient = debug.extend('webdriver:client');
     const browserProto = Object.getPrototypeOf(browser);
 
-    for (const prop of Object.getOwnPropertyNames(browserProto)) {
+    // We can pull the own property names straight from browser, but brings up a
+    // lot of things we're not interested. So this is just a list of the public
+    // interface methods.
+    const props = Object.getOwnPropertyNames(browserProto).concat(
+      '$$',
+      '$',
+      'addCommand',
+      'call',
+      'custom$$',
+      'custom$',
+      'debug',
+      'deleteCookies',
+      'execute',
+      'executeAsync',
+      'getCookies',
+      'getPuppeteer',
+      'getWindowSize',
+      'keys',
+      'mock',
+      'mockClearAll',
+      'mockRestoreAll',
+      'newWindow',
+      'overwriteCommand',
+      'pause',
+      'react$$',
+      'react$',
+      'reloadSession',
+      'savePDF',
+      'saveRecordingScreen',
+      'saveScreenshot',
+      'setCookies',
+      'setTimeout',
+      'setWindowSize',
+      'switchWindow',
+      'throttle',
+      'touchAction',
+      'uploadFile',
+      'url',
+      'waitUntil'
+    );
+
+    for (const prop of props) {
       // disable emit logging for now because it is very noisy
       if (prop.includes('.') || prop === 'emit') {
         continue;
       }
-      const descriptor = Object.getOwnPropertyDescriptor(browserProto, prop);
+
+      const protoDescriptor = Object.getOwnPropertyDescriptor(
+        browserProto,
+        prop
+      );
+      const browserDescriptor = Object.getOwnPropertyDescriptor(browser, prop);
+      const descriptor = protoDescriptor || browserDescriptor;
       if (!descriptor || typeof descriptor.value !== 'function') {
         continue;
       }
+
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
         debugClient(
@@ -179,7 +232,10 @@ export class Compass {
           throw error;
         }
 
-        if (result && result.then) {
+        // Many of the webdriverio browser methods are chainable, so rather just
+        // return their objects as is. They are also promises, but resolving
+        // them will mess with the chainability.
+        if (protoDescriptor && result && result.then) {
           // If the result looks like a promise, resolve it and look for errors
           return result.catch((error: Error) => {
             augmentError(error, stack);
@@ -187,10 +243,16 @@ export class Compass {
           });
         }
 
-        // return the synchronous result
+        // return the synchronous result for our browser commands or possibly
+        // chainable thing as is for builtin browser commands
         return result;
       };
-      Object.defineProperty(browserProto, prop, descriptor);
+
+      Object.defineProperty(
+        protoDescriptor ? browserProto : browser,
+        prop,
+        descriptor
+      );
     }
   }
 
@@ -332,6 +394,7 @@ export async function runCompassOnce(args: string[], timeout = 30_000) {
 async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   const { testPackagedApp, binary } = await getCompassExecutionParameters();
   const nowFormatted = formattedDate();
+  let needsCloseWelcomeModal: boolean;
 
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
@@ -340,6 +403,12 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     // windows seems to be weird about us deleting and recreating this dir, so
     // just make a new one for next time
     defaultUserDataDir = undefined;
+    needsCloseWelcomeModal = true;
+  } else {
+    // Need to close the welcome modal if firstRun is undefined or true, because
+    // in those cases we do not pass --showed-network-opt-in=true, but only
+    // if Compass hasn't been run before (i.e. defaultUserDataDir is defined)
+    needsCloseWelcomeModal = !defaultUserDataDir && opts.firstRun !== false;
   }
 
   // Calculate the userDataDir once so it will be the same between runs. That
@@ -402,8 +471,8 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     //'--v=1',
     // --vmodule=pattern
 
-    // by default make sure we don't get the welcome modal
-    ...(opts.firstRun === undefined ? ['--showed-network-opt-in=true'] : []),
+    // by default make sure we get the welcome modal
+    ...(opts.firstRun === false ? ['--showed-network-opt-in=true'] : []),
 
     ...(opts.extraSpawnArgs ?? [])
   );
@@ -483,7 +552,10 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // @ts-expect-error
   const browser = await remote(options);
 
-  const compass = new Compass(browser, { testPackagedApp });
+  const compass = new Compass(browser, {
+    testPackagedApp,
+    needsCloseWelcomeModal,
+  });
 
   await compass.recordLogs();
 
@@ -681,7 +753,7 @@ export async function beforeTests(
 
   const { browser } = compass;
 
-  if (opts.firstRun) {
+  if (compass.needsCloseWelcomeModal) {
     await browser.closeWelcomeModal();
   }
   if (!opts.noWaitForConnectionScreen) {

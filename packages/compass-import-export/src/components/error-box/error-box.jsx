@@ -5,7 +5,7 @@ import { palette } from '@mongodb-js/compass-components';
 import ANSIConverter from 'ansi-to-html';
 
 import styles from './error-box.module.less';
-import createStyler from '../../utils/styler.js';
+import createStyler from '../../utils/styler';
 const style = createStyler(styles, 'error-box');
 
 /**

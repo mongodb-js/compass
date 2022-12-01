@@ -3,12 +3,12 @@ import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { PROMISE_CANCELLED_ERROR } from '../utils/cancellable-promise';
+import { isCancelError } from '@mongodb-js/compass-utils'
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { NEW_PIPELINE } from './import-pipeline';
-import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
 import { getStageOperator } from '../utils/stage';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
@@ -182,7 +182,8 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
       pipeline,
     })
     track('Aggregation Executed', () => ({
-      num_stages: pipeline.length
+      num_stages: pipeline.length,
+      editor_view_type: mapPipelineModeToEditorViewType(getState().pipelineBuilder.pipelineMode),
     }));
     return dispatch(fetchAggregationData());
   };
@@ -324,7 +325,7 @@ const fetchAggregationData = (
       }
     } catch (e) {
       // User cancel is handled in cancelAggregation
-      if ((e as Error).name === PROMISE_CANCELLED_ERROR) {
+      if (isCancelError(e)) {
         return;
       }
       // Server errors are surfaced to the user

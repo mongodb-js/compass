@@ -3,7 +3,8 @@ import type { DataService } from 'mongodb-data-service';
 import createLogger from '@mongodb-js/compass-logging';
 const { log, mongoLogId } = createLogger('compass-aggregations');
 
-import { raceWithAbort, createCancelError } from './cancellable-promise';
+import { createCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const defaultOptions = {
   promoteValues: false,
@@ -29,15 +30,17 @@ export async function aggregatePipeline({
   limit?: number;
 }): Promise<Document[]> {
   if (signal.aborted) {
-    return Promise.reject(createCancelError());
+    return Promise.reject(signal.reason ?? createCancelError());
   }
   const session = dataService.startSession('CRUD');
+  const allOptions = { ...defaultOptions, ...options, session };
+  allOptions.maxTimeMS = capMaxTimeMSAtPreferenceLimit(allOptions.maxTimeMS);
   const cursor = dataService.aggregate(
     namespace,
     pipeline
       .concat(skip ? [{ $skip: skip }] : [])
       .concat(limit ? [{ $limit: limit }] : []),
-    { ...defaultOptions, ...options, session }
+    allOptions
   );
   const abort = () => {
     Promise.all([

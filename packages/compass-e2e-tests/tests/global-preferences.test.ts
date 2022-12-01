@@ -20,7 +20,7 @@ async function getCheckboxAndBannerState(
   const disabled = await checkbox.getAttribute('disabled');
   const value = await checkbox.getAttribute('aria-checked'); // .getValue() always returns 'on'?
   const banner = await browser.$(
-    `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"]`
+    `${settingSelector} [data-testid="set-cli-banner"], ${settingSelector} [data-testid="set-global-banner"], ${settingSelector} [data-testid="derived-banner"]`
   );
   const bannerText = (await banner.isExisting())
     ? await banner.getText()
@@ -148,7 +148,6 @@ describe('Global preferences', function () {
 
   it('allows setting networkTraffic: false and reflects that in the settings modal', async function () {
     await fs.writeFile(path.join(tmpdir, 'config'), 'networkTraffic: false\n');
-    // No settings modal opened for Isolated edition
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
@@ -168,14 +167,56 @@ describe('Global preferences', function () {
     }
   });
 
+  it('allows setting readOnly: true and reflects that in the settings modal', async function () {
+    await fs.writeFile(path.join(tmpdir, 'config'), 'readOnly: true\n');
+    const compass = await beforeTests();
+    try {
+      const browser = compass.browser;
+      await browser.openSettingsModal();
+      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      {
+        const { disabled, value, bannerText } = await getCheckboxAndBannerState(
+          browser,
+          'readOnly'
+        );
+        expect(value).to.equal('true');
+        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(bannerText).to.include(
+          'This setting cannot be modified as it has been set in the global Compass configuration file.'
+        );
+      }
+      {
+        const { disabled, value, bannerText } = await getCheckboxAndBannerState(
+          browser,
+          'enableShell'
+        );
+        expect(value).to.equal('false');
+        expect(disabled).to.equal(''); // null = missing attribute, '' = set
+        expect(bannerText).to.include(
+          'This setting cannot be modified as it has been set in the global Compass configuration file.'
+        );
+      }
+      {
+        const shellSection = await browser.$(Selectors.ShellSection);
+        const isShellSectionExisting = await shellSection.isExisting();
+        expect(isShellSectionExisting).to.be.equal(false);
+      }
+    } finally {
+      await afterTest(compass, this.currentTest);
+      await afterTests(compass, this.currentTest);
+    }
+  });
+
   it('allows showing version information', async function () {
-    const { stdout } = await runCompassOnce(['--version']);
+    const { stdout, stderr } = await runCompassOnce(['--version']);
     expect(stdout.trim()).to.match(/^MongoDB Compass.*\d$/);
+    expect(stderr).to.not.include('DeprecationWarning');
   });
 
   it('allows showing usage information', async function () {
-    const { stdout } = await runCompassOnce(['--help']);
+    const { stdout, stderr } = await runCompassOnce(['--help']);
     expect(stdout).to.include('Available options');
+    expect(stderr).to.not.include('DeprecationWarning');
   });
 
   it('redacts command line options after parsing', async function () {

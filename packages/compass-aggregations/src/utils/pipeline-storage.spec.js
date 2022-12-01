@@ -40,10 +40,12 @@ describe('PipelineStorage', function () {
       {
         id: 1234567,
         name: 'hello',
+        namespace: 'db.hello',
       },
       {
         id: 7654321,
         name: 'world',
+        namespace: 'db.hello',
       },
     ];
     createPipeline(tmpDir, data[0]);
@@ -56,8 +58,8 @@ describe('PipelineStorage', function () {
     expect(aggregations[0]).to.have.property('lastModified');
     expect(aggregations[1]).to.have.property('lastModified');
 
-    expect(aggregations[0].pipelineText).to.equal('[\n\n]');
-    expect(aggregations[1].pipelineText).to.equal('[\n\n]');
+    expect(aggregations[0].pipelineText).to.equal('[]');
+    expect(aggregations[1].pipelineText).to.equal('[]');
 
     // Remove lastModified
     aggregations.map((x) => {
@@ -116,6 +118,7 @@ describe('PipelineStorage', function () {
     const data = {
       id: 1234567890,
       name: 'hello',
+      namespace: 'airbnb.users',
     };
     createPipeline(tmpDir, data);
 

@@ -35,6 +35,7 @@ describe('CompassShell', function() {
       wrapper = mount(<CompassShell
         runtime={fakeRuntime}
         emitShellPluginOpened={emitShellOpenedSpy}
+        enableShell
       />);
     });
 
@@ -81,6 +82,7 @@ describe('CompassShell', function() {
         wrapper = mount(<CompassShell
           runtime={fakeRuntime}
           emitShellPluginOpened={() => {}}
+          enableShell
         />);
 
         wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
@@ -124,6 +126,7 @@ describe('CompassShell', function() {
             type: 'output',
             value: 'pineapple'
           }]}
+          enableShell
         />);
 
         wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
@@ -138,7 +141,7 @@ describe('CompassShell', function() {
 
     context('when historyStorage is not present', function() {
       it('passes an empty history to the Shell', function() {
-        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded />);
+        const wrapper = shallow(<CompassShell runtime={fakeRuntime} isExpanded enableShell />);
 
         expect(wrapper.find(Shell).prop('initialHistory')).to.deep.equal([]);
       });
@@ -151,6 +154,7 @@ describe('CompassShell', function() {
         wrapper = mount(<CompassShell
           runtime={fakeRuntime}
           emitShellPluginOpened={() => {}}
+          enableShell
         />);
 
         wrapper.find('[data-testid="shell-expand-button"]').simulate('click');
@@ -204,6 +208,7 @@ describe('CompassShell', function() {
         runtime={{}}
         historyStorage={fakeStorage}
         isExpanded
+        enableShell
       />);
 
       await updateAndWaitAsync(wrapper);
@@ -216,6 +221,7 @@ describe('CompassShell', function() {
         runtime={{}}
         historyStorage={fakeStorage}
         isExpanded
+        enableShell
       />);
 
       await updateAndWaitAsync(wrapper);
@@ -252,6 +258,7 @@ describe('CompassShell', function() {
       wrapper = mount(<CompassShell
         runtime={fakeRuntime}
         emitShellPluginOpened={onOpenShellSpy}
+        enableShell
       />);
     });
     afterEach(function() {

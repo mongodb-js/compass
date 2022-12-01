@@ -1,15 +1,20 @@
 import type { DataService } from 'mongodb-data-service';
 import type * as t from '@babel/types';
-import parseEJSON, { ParseMode } from 'ejson-shell-parser';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
-import { PipelineParserError } from './pipeline-parser/utils';
+import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
+import { isLastStageOutputStage } from '../../utils/stage';
 
-export const DEFAULT_PIPELINE = `[\n{}\n]`;
+export const DEFAULT_PIPELINE = `[]`;
+
+// For stages we use real stage id to store pipeline fetching abort controller
+// reference in the queue. For whole pipeline we use special, otherwise
+// unreachable number, to store the reference
+const FULL_PIPELINE_PREVIEW_ID = Infinity;
 
 export class PipelineBuilder {
   private _source: string = DEFAULT_PIPELINE;
@@ -36,10 +41,21 @@ export class PipelineBuilder {
     return this._source;
   }
 
+  // COMPASS-6319: We deliberately ignore all empty stages for all operations
+  // related to parsing / generating / validating pipeline. This does mean that
+  // we lose user input in some cases, but we consider this acceptable
+  private get nonEmptyStages() {
+    return this.stages.filter((stage) => !stage.isEmpty);
+  }
+
   private parseSourceToPipeline() {
     try {
-      const pipeline = parseEJSON(this.source, { mode: ParseMode.Loose });
-      this.pipeline = typeof pipeline === 'string' ? null : pipeline;
+      this.pipeline = parseShellBSON(this.source);
+      // parseShellBSON will parse various values, not all of them are valid
+      // aggregation pipelines
+      if (!Array.isArray(this.pipeline)) {
+        throw new Error('Pipeline should be an array');
+      }
     } catch (e) {
       this.pipeline = null;
     }
@@ -54,13 +70,6 @@ export class PipelineBuilder {
     this.syntaxError = [];
     this.source = source;
     this.sourceToStages();
-  }
-
-  /**
-   * Cancel preview requests that are currently inflight starting from index
-   */
-  stopPreview(from?: number): void {
-    this.previewManager.clearQueue(from);
   }
 
   /**
@@ -107,26 +116,10 @@ export class PipelineBuilder {
     if (this.syntaxError.length > 0) {
       throw this.syntaxError[0];
     }
-    if (!this.pipeline) {
+    if (this.pipeline === null) {
       throw new PipelineParserError('Invalid pipeline');
     }
     return this.pipeline;
-  }
-
-  /**
-   * Request preview for current pipeline source
-   */
-  getPreviewForPipeline(
-    namespace: string,
-    options: PreviewOptions
-  ): Promise<Document[]> {
-    const pipeline = this.getPipelineFromSource();
-    return this.previewManager.getPreviewForStage(
-      pipeline.length - 1,
-      namespace,
-      pipeline,
-      options
-    );
   }
 
   /**
@@ -138,10 +131,7 @@ export class PipelineBuilder {
         'Trying to generate source from stages with invalid pipeline'
       );
     }
-    this.source = PipelineParser.generate(
-      this.node,
-      this.stages.map((stage) => stage.node)
-    );
+    this.source = PipelineParser.generate(this.node, this.nonEmptyStages);
     this.validateSource();
   }
 
@@ -183,12 +173,17 @@ export class PipelineBuilder {
    * Returns current pipeline stages as string. Throws if stages contain syntax
    * errors
    */
-  getPipelineStringFromStages(stages = this.stages): string {
-    const stage = stages.find((stage) => stage.syntaxError);
-    if (stage) {
-      throw stage.syntaxError;
-    }
+  getPipelineStringFromStages(stages = this.nonEmptyStages): string {
     const code = `[${stages.map((stage) => stage.toString()).join(',\n')}\n]`;
+    // We don't care if disabled stages have errors because they will be
+    // converted to commented out code anyway, but we will not be able to
+    // prettify the code if some stages contain syntax errors
+    const enabledStageWithError = stages.find(
+      (stage) => !stage.disabled && stage.syntaxError
+    );
+    if (enabledStageWithError) {
+      return code;
+    }
     return prettify(code);
   }
 
@@ -196,6 +191,10 @@ export class PipelineBuilder {
    * Returns current source of the pipeline
    */
   getPipelineStringFromSource(): string {
+    // Can't prettify a string when it contains syntax errors
+    if (this.syntaxError.length > 0) {
+      return this.source;
+    }
     return prettify(this.source);
   }
 
@@ -203,10 +202,29 @@ export class PipelineBuilder {
    * Get runnable pipeline from current pipeline stages. Will throw if pipeline
    * contains errors
    */
-  getPipelineFromStages(stages = this.stages): Document[] {
-    return parseEJSON(this.getPipelineStringFromStages(stages), {
-      mode: ParseMode.Loose
-    });
+  getPipelineFromStages(stages = this.nonEmptyStages): Document[] {
+    return parseShellBSON(this.getPipelineStringFromStages(stages));
+  }
+
+  /**
+   * Cancel preview requests that are currently inflight starting from index
+   */
+  stopPreview(from?: number): void {
+    this.previewManager.clearQueue(from);
+  }
+
+  /**
+   * Cancel preview for a specific stage at index
+   */
+  cancelPreviewForStage(id: number): void {
+    this.previewManager.cancelPreviewForStage(id);
+  }
+
+  /**
+   * Cancel preview for the whole pipeline
+   */
+  cancelPreviewForPipeline() {
+    this.cancelPreviewForStage(FULL_PIPELINE_PREVIEW_ID);
   }
 
   /**
@@ -224,6 +242,59 @@ export class PipelineBuilder {
       this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
       options,
       force
+    );
+  }
+
+  /**
+   * Returns true if previous preview request was done for the same pipeline for
+   * a specific stage
+   */
+  isLastStagePreviewEqual(
+    idx: number,
+    pipeline: Document[] = this.getPipelineFromStages(
+      this.stages.slice(0, idx + 1)
+    )
+  ) {
+    return this.previewManager.isLastPipelineEqual(idx, pipeline);
+  }
+
+  /**
+   * Request preview for current pipeline source
+   */
+  getPreviewForPipeline(
+    namespace: string,
+    options: PreviewOptions,
+    filterOutputStage = false
+  ): Promise<Document[]> {
+    // For preview we ignore $out/$merge stage.
+    const pipeline = [...this.getPipelineFromSource()];
+    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+      pipeline.pop();
+    }
+    return this.previewManager.getPreviewForStage(
+      FULL_PIPELINE_PREVIEW_ID,
+      namespace,
+      pipeline,
+      options
+    );
+  }
+
+  /**
+   * Returns true if previous preview request was done for the same pipeline for
+   * the whole pipeline
+   */
+  isLastPipelinePreviewEqual(
+    pipeline: Document[] = this.getPipelineFromSource(),
+    filterOutputStage = false
+  ) {
+    pipeline = [...pipeline];
+    // For preview we ignore $out/$merge stage.
+    if (filterOutputStage && isLastStageOutputStage(pipeline)) {
+      pipeline.pop();
+    }
+    return this.previewManager.isLastPipelineEqual(
+      FULL_PIPELINE_PREVIEW_ID,
+      pipeline
     );
   }
 }

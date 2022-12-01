@@ -159,7 +159,6 @@ describe('FLE2', function () {
       before(async function () {
         compass = await beforeTests();
         browser = compass.browser;
-
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
@@ -266,7 +265,6 @@ describe('FLE2', function () {
             }
           }`,
         });
-
         await browser.shellEval(`use ${databaseName}`);
         await browser.shellEval(
           'db.keyvault.insertOne({' +

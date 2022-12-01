@@ -15,13 +15,6 @@ const configureStore = (options = {}) => {
 
     listenables: options.actions,
 
-    saveRecent(query) {
-      this.setState({
-        current: query,
-      });
-      options.actions.showFavorites();
-    },
-
     saveFavorite(recent, name) {
       track('Query History Favorite Added');
       options.actions.deleteRecent(recent); // If query shouldn't stay in recents after save

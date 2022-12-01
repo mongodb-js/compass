@@ -19,8 +19,11 @@ export { setupPreferences };
 export {
   parseAndValidateGlobalPreferences,
   getHelpText,
+  getExampleConfigFile,
 } from './global-config';
 export type { ParsedGlobalPreferencesResult } from './global-config';
+export { usePreference, withPreferences } from './react';
+export { capMaxTimeMSAtPreferenceLimit } from './utils';
 
 export interface PreferencesAccess {
   savePreferences(
@@ -35,6 +38,7 @@ export interface PreferencesAccess {
     preferenceName: K,
     callback: (value: AllPreferences[K]) => void
   ): () => void;
+  createSandbox(): Promise<PreferencesAccess>;
 }
 
 export const preferencesAccess: PreferencesAccess =

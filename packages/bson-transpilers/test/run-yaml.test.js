@@ -4,7 +4,7 @@ const fs = require('fs');
 const chai = require('chai');
 const expect = chai.expect;
 const yaml = require('js-yaml');
-const Context = require('context-eval');
+const vm = require('vm');
 const bson = require('bson');
 
 const transpiler = require('../index');
@@ -59,9 +59,7 @@ const executeJavascript = (input) => {
     Buffer: Buffer,
     __result: {}
   };
-  const ctx = new Context(sandbox);
-  const res = ctx.evaluate('__result = ' + input);
-  ctx.destroy();
+  const res = vm.runInContext('__result = ' + input, vm.createContext(sandbox));
   return res;
 };
 

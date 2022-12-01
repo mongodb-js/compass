@@ -13,17 +13,33 @@ export function countAggregationStagesInString(str) {
   if (!dummySandbox) {
     dummySandbox = vm.createContext(Object.create(null), {
       codeGeneration: { strings: false, wasm: false },
-      microtaskMode: 'afterEvaluate'
+      microtaskMode: 'afterEvaluate',
     });
-    vm.runInContext([
-      'BSONRegExp', 'DBRef', 'Decimal128', 'Double', 'Int32',
-      'Long', 'Int64', 'MaxKey', 'MinKey', 'ObjectID', 'ObjectId',
-      'BSONSymbol', 'Timestamp', 'Code', 'Buffer', 'Binary'
-    ].map(name => `function ${name}() {}`).join('\n'), dummySandbox);
+    vm.runInContext(
+      [
+        'BSONRegExp',
+        'DBRef',
+        'Decimal128',
+        'Double',
+        'Int32',
+        'Long',
+        'Int64',
+        'MaxKey',
+        'MinKey',
+        'ObjectID',
+        'ObjectId',
+        'BSONSymbol',
+        'Timestamp',
+        'Code',
+        'Buffer',
+        'Binary',
+      ]
+        .map((name) => `function ${name}() {}`)
+        .join('\n'),
+      dummySandbox
+    );
   }
 
-  return vm.runInContext(
-    '(' + str + ')',
-    dummySandbox,
-    { timeout: 100 }).length;
+  return vm.runInContext('(' + str + ')', dummySandbox, { timeout: 100 })
+    .length;
 }

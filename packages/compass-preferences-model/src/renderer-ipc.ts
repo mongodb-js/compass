@@ -3,22 +3,24 @@ import hadronIpc from 'hadron-ipc';
 import type { PreferencesAccess } from '.';
 import type {
   AllPreferences,
+  PreferenceSandboxProperties,
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
 } from './preferences';
+import { createSandboxAccessFromProps } from './setup-preferences';
 
 /**
  * API to communicate with preferences from the electron renderer process.
  */
 export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
-  const cachedPreferences = {} as AllPreferences;
+  let cachedPreferences = {} as Readonly<AllPreferences>;
+  let inflightCacheRefresh: Promise<AllPreferences> | undefined;
   async function refreshCachedPreferences(): Promise<AllPreferences> {
-    const result: AllPreferences = await ipcRenderer.invoke(
-      'compass:get-preferences'
-    );
-    Object.assign(cachedPreferences, result);
-    return result;
+    inflightCacheRefresh = ipcRenderer.invoke('compass:get-preferences');
+    cachedPreferences = await inflightCacheRefresh;
+    inflightCacheRefresh = undefined;
+    return cachedPreferences;
   }
   void refreshCachedPreferences();
   ipcRenderer.on(
@@ -57,15 +59,32 @@ export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
       preferenceName: K,
       callback: (value: AllPreferences[K]) => void
     ): () => void {
-      const listener = (_: Event, preferences: AllPreferences) => {
+      let isUnsubscribed = false;
+      const listener = (_: unknown, preferences: AllPreferences) => {
         if (Object.keys(preferences).includes(preferenceName)) {
           return callback(preferences[preferenceName]);
         }
       };
+
+      // Account for the possibility that we are currently refreshing
+      // preferences, which may update the value of this preference in the
+      // renderer cache, but not result in a call to
+      // compass:preferences-changed (because that call was the one which
+      // triggered the refresh).
+      void inflightCacheRefresh?.then((preferences) => {
+        if (!isUnsubscribed) listener({}, preferences);
+      });
+
       ipcRenderer.on('compass:preferences-changed', listener);
       return () => {
+        isUnsubscribed = true;
         ipcRenderer.removeListener('compass:preferences-changed', listener);
       };
+    },
+    async createSandbox(): Promise<PreferencesAccess> {
+      const props: PreferenceSandboxProperties | undefined =
+        await ipcRenderer.invoke('compass:get-preference-sandbox-properties');
+      return createSandboxAccessFromProps(props);
     },
   };
 };

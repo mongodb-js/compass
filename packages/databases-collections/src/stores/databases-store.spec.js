@@ -8,62 +8,62 @@ const dbs = [{ _id: 'db1', storage_size: 10, collections: [], index_count: 2 }];
 
 const topologyDescription = new TopologyDescription({
   type: 'Unknown',
-  servers: [{ type: 'Unknown' }]
+  servers: [{ type: 'Unknown' }],
 });
 
 const fakeInstance = new MongoDBInstance({
   _id: '123',
   databases: dbs,
-  topologyDescription
+  topologyDescription,
 });
 
 const fakeAppInstanceStore = {
-  getState: function() {
+  getState: function () {
     return {
-      instance: fakeInstance
+      instance: fakeInstance,
     };
-  }
+  },
 };
 
-describe('Databases [Store]', function() {
-  beforeEach(function() {
+describe('Databases [Store]', function () {
+  beforeEach(function () {
     store.dispatch(reset());
   });
 
-  afterEach(function() {
+  afterEach(function () {
     store.dispatch(reset());
   });
 
-  describe('#onActivated', function() {
+  describe('#onActivated', function () {
     const appRegistry = new AppRegistry();
     appRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
 
-    beforeEach(function() {
+    beforeEach(function () {
       store.onActivated(appRegistry);
     });
 
-    it('activates the app registry module', function() {
+    it('activates the app registry module', function () {
       expect(store.getState().appRegistry).to.deep.equal(appRegistry);
     });
 
-    context('when the instance store triggers', function() {
-      beforeEach(function() {
+    context('when the instance store triggers', function () {
+      beforeEach(function () {
         appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
-      it('dispatches the load database action', function() {
+      it('dispatches the load database action', function () {
         expect(store.getState().databases).to.deep.equal(
           fakeInstance.databases.toJSON()
         );
       });
     });
 
-    context('when instance state changes', function() {
-      beforeEach(function() {
+    context('when instance state changes', function () {
+      beforeEach(function () {
         appRegistry.emit('instance-created', { instance: fakeInstance });
       });
 
-      it('dispatches the writeStateChanged action', function() {
+      it('dispatches the writeStateChanged action', function () {
         expect(store.getState().isWritable).to.equal(false);
 
         fakeInstance.topologyDescription.set({ type: 'ReplicaSetWithPrimary' });

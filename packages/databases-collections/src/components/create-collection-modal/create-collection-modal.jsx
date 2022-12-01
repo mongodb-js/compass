@@ -21,8 +21,8 @@ class CreateCollectionModal extends PureComponent {
     serverVersion: PropTypes.string.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
     configuredKMSProviders: PropTypes.array,
-    currentTopologyType: PropTypes.string
-  }
+    currentTopologyType: PropTypes.string,
+  };
 
   constructor() {
     super();
@@ -31,15 +31,15 @@ class CreateCollectionModal extends PureComponent {
 
   onCancel = () => {
     return this.props.toggleIsVisible(false);
-  }
+  };
 
   onConfirm = () => {
     this.props.createCollection(this.state.data);
-  }
+  };
 
   onChange = (data) => {
     this.setState({ data });
-  }
+  };
 
   renderError() {
     if (!this.props.error) {
@@ -47,11 +47,7 @@ class CreateCollectionModal extends PureComponent {
     }
 
     return (
-      <Banner
-        variant="danger"
-        dismissible
-        onClose={this.props.clearError}
-      >
+      <Banner variant="danger" dismissible onClose={this.props.clearError}>
         {this.props.error.message}
       </Banner>
     );
@@ -65,7 +61,7 @@ class CreateCollectionModal extends PureComponent {
         onSubmit={this.onConfirm}
         onCancel={this.onCancel}
         submitButtonText="Create Collection"
-        submitDisabled={!((this.state.data.collection || '').trim())}
+        submitDisabled={!(this.state.data.collection || '').trim()}
         trackingId="create_collection_modal"
         data-testid="create-collection-modal"
       >
@@ -88,17 +84,14 @@ const mapStateToProps = (state) => ({
   error: state.error,
   serverVersion: state.serverVersion,
   configuredKMSProviders: state.dataService.configuredKMSProviders,
-  currentTopologyType: state.dataService.currentTopologyType
+  currentTopologyType: state.dataService.currentTopologyType,
 });
 
-const MappedCreateCollectionModal = connect(
-  mapStateToProps,
-  {
-    createCollection,
-    toggleIsVisible,
-    clearError
-  },
-)(CreateCollectionModal);
+const MappedCreateCollectionModal = connect(mapStateToProps, {
+  createCollection,
+  toggleIsVisible,
+  clearError,
+})(CreateCollectionModal);
 
 export default MappedCreateCollectionModal;
 export { CreateCollectionModal };

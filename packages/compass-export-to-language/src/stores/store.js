@@ -1,27 +1,14 @@
 import { inputExpressionChanged } from '../modules/input-expression';
 import { modalOpenChanged } from '../modules/modal-open';
-import { modeChanged } from '../modules/mode';
 import { uriChanged } from '../modules/uri';
-import { runTranspiler } from '../modules/run-transpiler';
-import { copyToClipboardFnChanged } from '../modules/copy-to-clipboard';
 import { namespaceChanged } from '../modules/namespace';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import {
   localAppRegistryActivated,
-  globalAppRegistryActivated
+  globalAppRegistryActivated,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import reducer from '../modules';
-
-/**
- * Set the custom copy to clipboard function.
- *
- * @param {Store} store - The store.
- * @param {Function} fn - The function.
- */
-export const setCopyToClipboardFn = (store, fn) => {
-  store.dispatch(copyToClipboardFnChanged(fn));
-};
 
 /**
  * Set the namespace in the store.
@@ -46,12 +33,13 @@ const configureStore = (options = {}) => {
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
     store.dispatch(localAppRegistryActivated(localAppRegistry));
-    localAppRegistry.on('open-aggregation-export-to-language', (aggregation) => {
-      store.dispatch(modeChanged('Pipeline'));
-      store.dispatch(modalOpenChanged(true));
-      store.dispatch(runTranspiler({ aggregation: aggregation }));
-      store.dispatch(inputExpressionChanged({ aggregation: aggregation }));
-    });
+    localAppRegistry.on(
+      'open-aggregation-export-to-language',
+      (aggregation) => {
+        store.dispatch(modalOpenChanged(true));
+        store.dispatch(inputExpressionChanged({ aggregation: aggregation }));
+      }
+    );
 
     localAppRegistry.on('open-query-export-to-language', (queryStrings) => {
       const query = {};
@@ -65,7 +53,7 @@ const configureStore = (options = {}) => {
           'collation',
           'skip',
           'limit',
-          'maxTimeMS'
+          'maxTimeMS',
         ].forEach((k) => {
           if (!queryStrings[k] || queryStrings[k] === '') {
             if (k === 'filter') {
@@ -77,9 +65,7 @@ const configureStore = (options = {}) => {
         });
       }
 
-      store.dispatch(modeChanged('Query'));
       store.dispatch(modalOpenChanged(true));
-      store.dispatch(runTranspiler(query));
       store.dispatch(inputExpressionChanged(query));
     });
   }
@@ -91,11 +77,6 @@ const configureStore = (options = {}) => {
 
   if (options.namespace) {
     setNamespace(store, options.namespace);
-  }
-
-
-  if (options.copyToClipboardFn) {
-    store.dispatch(copyToClipboardFnChanged(options.copyToClipboardFn));
   }
 
   if (options.connectionString) {

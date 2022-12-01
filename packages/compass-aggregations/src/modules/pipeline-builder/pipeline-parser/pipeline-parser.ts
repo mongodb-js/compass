@@ -1,6 +1,11 @@
 import * as babelParser from '@babel/parser';
-import * as t from '@babel/types';
-import StageParser, { stageToAstComments, assertStageNode, isNodeDisabled, setNodeDisabled } from './stage-parser';
+import type * as t from '@babel/types';
+import type Stage from '../stage';
+import StageParser, {
+  stageToAstComments,
+  assertStageNode,
+  setNodeDisabled
+} from './stage-parser';
 import { generate } from './utils';
 import { PipelineParserError } from './utils';
 
@@ -40,7 +45,9 @@ function extractStagesFromComments(
   for (const group of groups) {
     const lines: Line[] = Array.isArray(group)
       ? group.map((comment) => {
-        return { value: comment.value, node: comment };
+        // Line comments usually have one space at the beginning, normalizing it
+        // here makes it easier to better format the code later
+        return { value: comment.value.replace(/^\s/, ''), node: comment };
       })
       : group.value.split('\n').map((line) => {
         // Block comments usually have every line prepended by a *, we will
@@ -100,9 +107,19 @@ export default class PipelineParser {
     // elements in the array, in our case it might mean that all stages
     // are disabled
     if (root.elements.length === 0 && root.innerComments?.length) {
-      const [, _stages] = extractStagesFromComments(
+      const [visited, _stages] = extractStagesFromComments(
         root.innerComments
       );
+      if (_stages.length !== 0) {
+        const lastStage = _stages[_stages.length - 1];
+        // Attach all leftover comments to the last stage
+        lastStage.trailingComments = root.innerComments.filter(node => {
+          return !visited.has(node);
+        });
+        adjustAllStagesLoc(_stages);
+        // Delete all inner comments from the root node (they are all part of stages now)
+        delete root.innerComments;
+      }
       stages.push(..._stages);
     }
     root.elements.forEach((node) => {
@@ -138,10 +155,11 @@ export default class PipelineParser {
     }
     return { root, errors };
   }
+
   // Generate source from stages
-  static generate(root: t.ArrayExpression, stages: t.Expression[]): string {
+  static generate(root: t.ArrayExpression, stages: Stage[]): string {
     const isAllDisabled = stages.length && stages.every((stage) => {
-      return isNodeDisabled(stage);
+      return stage.disabled;
     });
     // Special case where all stages should be added as inner comments to the
     // array expression
@@ -156,35 +174,84 @@ export default class PipelineParser {
     return generate(root);
   }
 
-  static _getStageNodes(stages: t.Expression[]): t.ArrayExpression['elements'] {
-    const elements: t.ArrayExpression['elements'] = [];
+  static _getStageNodes(stages: Stage[]): t.Expression[] {
+    const elements: t.Expression[] = [];
     let unusedComments: t.CommentLine[] = [];
 
     for (const stage of stages) {
-      if (!isNodeDisabled(stage)) {
-        elements.push(stage);
-        continue;
-      }
-
-      const comments = stageToAstComments(stage);
-      const prevStage = elements[elements.length - 1];
-      if (!prevStage) {
+      // If node is disabled, store the node as comments for later use
+      if (stage.disabled) {
+        const comments = stageToAstComments(stage);
         unusedComments.push(...comments);
         continue;
       }
 
-      t.addComments(prevStage, 'trailing', comments);
+      const stageNode = stage.node;
+
+      // If node is enabled and there are some comments in the stack, attach
+      // them as as leading comments to the stage
       if (unusedComments.length) {
-        t.addComments(prevStage, 'leading', unusedComments);
+        stageNode.leadingComments = [
+          ...unusedComments,
+          ...(stageNode.leadingComments ?? [])
+        ];
         unusedComments = [];
       }
+
+      const previousLine =
+        (elements[elements.length - 1]?.loc?.end.line ?? 0) + 1;
+
+      // We are "normalizing" source loc by setting every element location to
+      // start and end at the same line that doesn't overlap with other elements
+      // to force babel / prettier code formatter into putting every stage and
+      // comment on a separate line to allow parser to format comments corrently
+      // and avoid leading comments of a stage overlap with the end of the
+      // previous stage
+      adjustStageLoc(stageNode, previousLine);
+
+      elements.push(stageNode);
     }
 
-    const prevStage = elements[elements.length - 1];
-    if (unusedComments.length > 0 && prevStage) {
-      t.addComments(prevStage, 'leading', unusedComments);
+    const lastStage = elements[elements.length - 1];
+
+    // If we still have some comments left after we went through all stages, add
+    // them as trailing comments to the last stage
+    if (lastStage && unusedComments.length > 0) {
+      lastStage.trailingComments = [
+        ...(lastStage.trailingComments ?? []),
+        ...unusedComments
+      ];
+      const firstComment = lastStage.trailingComments[0];
+      // Special handling for last element: now that all the comments are added,
+      // we are adjusting source loc for the first comment to push all trailing
+      // comments to the new line similar to what we already did to stages above
+      if (firstComment) {
+        firstComment.loc = getLineOnlySourceLocation(
+          (lastStage.loc?.end.line ?? 0) + 1
+        );
+      }
     }
 
     return elements;
   }
+}
+
+function getLineOnlySourceLocation(line: number) {
+  return { start: { line, column: 0 }, end: { line, column: 0 } };
+}
+
+function adjustStageLoc(stage: t.Node, line: number) {
+  for (const comment of stage.leadingComments ?? []) {
+    comment.loc = getLineOnlySourceLocation(++line);
+  }
+  stage.loc = getLineOnlySourceLocation(++line);
+  for (const comment of stage.trailingComments ?? []) {
+    comment.loc = getLineOnlySourceLocation(++line);
+  }
+}
+
+function adjustAllStagesLoc(stages: t.Expression[]) {
+  stages.forEach((stage, idx) => {
+    adjustStageLoc(stage, stages[idx - 1]?.loc?.end.line ?? 0);
+  });
 }

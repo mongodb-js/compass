@@ -12,7 +12,7 @@ import type {
   CompletionWithServerInfo,
 } from '@mongodb-js/compass-editor';
 import {
-  Editor,
+  InlineEditor,
   EditorTextCompleter,
   QueryAutoCompleter,
 } from '@mongodb-js/compass-editor';
@@ -39,17 +39,6 @@ const editorWithErrorStyles = css({
   },
 });
 
-const editorSettings = {
-  minLines: 1,
-  maxLines: 10,
-};
-
-function disableEditorCommand(editor: AceEditor, name: string) {
-  const command = editor.commands.byName[name];
-  command.bindKey = undefined;
-  editor.commands.addCommand(command);
-}
-
 type OptionEditorProps = {
   hasError: boolean;
   id: string;
@@ -61,6 +50,7 @@ type OptionEditorProps = {
   schemaFields?: CompletionWithServerInfo[];
   serverVersion?: string;
   value?: string;
+  ['data-testid']?: string;
 };
 
 function useQueryCompleter(
@@ -87,6 +77,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   schemaFields = [],
   serverVersion = '3.6.0',
   value = '',
+  ['data-testid']: dataTestId,
 }) => {
   const focusRingProps = useFocusRing({
     outer: true,
@@ -138,13 +129,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const onLoadEditor = useCallback((editor: AceEditor) => {
     editorRef.current = editor;
     editorRef.current.setBehavioursEnabled(true);
-
-    // Disable the default tab key handlers. COMPASS-4900
-    // This for accessibility so that users can tab navigate through Compass.
-    // Down the line if folks want tab functionality we can keep
-    // these commands enabled and disable them with the `Escape` key.
-    disableEditorCommand(editor, 'indent');
-    disableEditorCommand(editor, 'outdent');
   }, []);
 
   return (
@@ -155,17 +139,16 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         hasError && editorWithErrorStyles
       )}
     >
-      <Editor
+      <InlineEditor
         variant="Shell"
         text={value}
         onChangeText={onChange}
         id={id}
-        options={editorSettings}
         completer={completer}
         placeholder={placeholder}
         onLoad={onLoadEditor}
         commands={commands}
-        inline
+        data-testid={dataTestId}
       />
     </div>
   );

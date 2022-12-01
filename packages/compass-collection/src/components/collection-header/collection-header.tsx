@@ -55,14 +55,6 @@ const collectionHeaderDBLinkStyles = css({
   padding: 0,
 });
 
-const collectionHeaderDBLinkLightStyles = css({
-  color: palette.green.dark1,
-});
-
-const collectionHeaderDBLinkDarkStyles = css({
-  color: palette.green.light2,
-});
-
 const collectionHeaderNamespaceStyles = css({
   backgroundColor: 'transparent',
   border: 'none',
@@ -77,11 +69,11 @@ const collectionHeaderDBNameStyles = css({
   whiteSpace: 'nowrap',
 });
 
-const collectionHeaderDBNameLightStyles = css({
-  color: palette.green.dark1,
+const dbLinkLightStyles = css({
+  color: palette.green.dark2,
 });
 
-const collectionHeaderDBNameDarkStyles = css({
+const dbLinkDarkStyles = css({
   color: palette.green.light2,
 });
 
@@ -195,9 +187,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
               as="button"
               className={cx(
                 collectionHeaderDBLinkStyles,
-                this.props.darkMode
-                  ? collectionHeaderDBLinkDarkStyles
-                  : collectionHeaderDBLinkLightStyles
+                this.props.darkMode ? dbLinkDarkStyles : dbLinkLightStyles
               )}
               hideExternalIcon={true}
               onClick={() => this.handleDBClick(database)}
@@ -205,9 +195,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
               <H3
                 className={cx(
                   collectionHeaderDBNameStyles,
-                  this.props.darkMode
-                    ? collectionHeaderDBNameDarkStyles
-                    : collectionHeaderDBNameLightStyles
+                  this.props.darkMode ? dbLinkDarkStyles : dbLinkLightStyles
                 )}
               >
                 {database}

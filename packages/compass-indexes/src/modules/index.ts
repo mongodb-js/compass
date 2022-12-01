@@ -6,7 +6,9 @@ import { RESET_FORM } from './reset-form';
 import isWritable, {
   INITIAL_STATE as WRITABLE_INITIAL_STATE,
 } from './is-writable';
-import isReadonly, { INITIAL_STATE as READ_INITIAL_STATE } from './is-readonly';
+import isReadonly, {
+  INITIAL_STATE as READONLY_INITIAL_STATE,
+} from './is-readonly';
 import isReadonlyView, {
   INITIAL_STATE as READONLY_VIEW_INITIAL_STATE,
 } from './is-readonly-view';
@@ -56,7 +58,7 @@ const rootReducer = (state: RootState, action: AnyAction): RootState => {
     return {
       ...state,
       isWritable: WRITABLE_INITIAL_STATE,
-      isReadonly: READ_INITIAL_STATE,
+      isReadonly: READONLY_INITIAL_STATE,
       isReadonlyView: READONLY_VIEW_INITIAL_STATE,
       description: DESCRIPTION_INITIAL_STATE,
       indexes: INDEXES_INITIAL_STATE,

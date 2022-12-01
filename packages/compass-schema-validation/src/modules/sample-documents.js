@@ -1,3 +1,4 @@
+import preferences from 'compass-preferences-model';
 import { checkValidator, syntaxErrorOccurred } from './validation';
 
 /**
@@ -114,7 +115,10 @@ const setSyntaxError = (dispatch, error) =>
  * matching or not mathing document.
  */
 const getSampleDocuments = (docsOptions, callback) => {
-  const aggOptions = { allowDiskUse: true };
+  const aggOptions = {
+    allowDiskUse: true,
+    maxTimeMS: preferences.getPreferences().maxTimeMS,
+  };
   const pipeline = docsOptions.pipeline;
 
   if (docsOptions.count > MAX_LIMIT) {

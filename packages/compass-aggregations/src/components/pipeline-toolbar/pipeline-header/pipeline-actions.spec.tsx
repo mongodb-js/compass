@@ -202,7 +202,7 @@ describe('PipelineActions', function () {
     }
 
     it('should disable actions when pipeline contains errors', function () {
-      renderPipelineActions();
+      renderPipelineActions({ sourcePipeline: [42] });
 
       expect(
         screen.getByTestId('pipeline-toolbar-explain-aggregation-button')

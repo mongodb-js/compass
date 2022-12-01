@@ -22,6 +22,7 @@ describe('Preferences class', function () {
     const result = await preferences.fetchPreferences();
     expect(result.id).to.equal('General');
     expect(result.enableMaps).to.equal(false);
+    expect(result.enableShell).to.equal(true);
   });
 
   it('allows saving preferences', async function () {
@@ -54,12 +55,63 @@ describe('Preferences class', function () {
     expect(result.enableMaps).to.equal(true);
   });
 
-  it('notifies callers of preferences changes', async function () {
+  it('notifies callers of preferences changes after savePreferences', async function () {
     const preferences = new Preferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
     await preferences.savePreferences({ enableMaps: true });
     expect(calls).to.deep.equal([{ enableMaps: true }]);
+  });
+
+  it('notifies callers of preferences changes after fetchPreferences', async function () {
+    const calls: any[] = [];
+
+    const preferences1 = new Preferences(tmpdir);
+    preferences1.onPreferencesChanged((prefs) => calls.push(1, prefs));
+    await preferences1.fetchPreferences();
+    const preferences2 = new Preferences(tmpdir);
+    preferences2.onPreferencesChanged((prefs) => calls.push(2, prefs));
+    await preferences2.fetchPreferences();
+
+    await preferences1.savePreferences({ enableMaps: true });
+    await preferences2.fetchPreferences();
+
+    expect(calls).to.deep.equal([
+      1,
+      { enableMaps: true },
+      2,
+      { enableMaps: true },
+    ]);
+  });
+
+  it('handles concurrent modifications to different preferences', async function () {
+    const calls: any[] = [];
+
+    const preferences1 = new Preferences(tmpdir);
+    preferences1.onPreferencesChanged((prefs) => calls.push(1, prefs));
+    await preferences1.fetchPreferences();
+    const preferences2 = new Preferences(tmpdir);
+    preferences2.onPreferencesChanged((prefs) => calls.push(2, prefs));
+    await preferences2.fetchPreferences();
+
+    await preferences1.savePreferences({ enableMaps: true });
+    await preferences2.savePreferences({ autoUpdates: true });
+    const result1 = await preferences1.fetchPreferences();
+    const result2 = await preferences2.fetchPreferences();
+    expect(result1).to.deep.equal(result2);
+    expect(result1.enableMaps).to.equal(true);
+    expect(result1.autoUpdates).to.equal(true);
+
+    expect(calls).to.deep.equal([
+      1,
+      { enableMaps: true },
+      2,
+      { enableMaps: true },
+      2,
+      { autoUpdates: true },
+      1,
+      { autoUpdates: true },
+    ]);
   });
 
   it('can return user-configurable preferences after setting their defaults', async function () {
@@ -68,16 +120,17 @@ describe('Preferences class', function () {
     const result = await preferences.getConfigurableUserPreferences();
     expect(result).not.to.have.property('id');
     expect(result.enableMaps).to.equal(true);
+    expect(result.enableShell).to.equal(true);
   });
 
   it('allows providing cli- and global-config-provided options', async function () {
     const preferences = new Preferences(tmpdir, {
       cli: {
         enableMaps: false,
-        trackErrors: true,
+        trackUsageStatistics: true,
       },
       global: {
-        trackErrors: false,
+        trackUsageStatistics: false,
       },
     });
     await preferences.ensureDefaultConfigurableUserPreferences();
@@ -85,39 +138,62 @@ describe('Preferences class', function () {
     expect(result).not.to.have.property('id');
     expect(result.autoUpdates).to.equal(true);
     expect(result.enableMaps).to.equal(false);
-    expect(result.trackErrors).to.equal(false); // global takes precedence over cli
+    expect(result.trackUsageStatistics).to.equal(false); // global takes precedence over cli
 
     const states = preferences.getPreferenceStates();
     expect(states).to.deep.equal({
-      trackErrors: 'set-global',
+      trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
     });
   });
 
-  it('allows providing options that influence the values of other options', async function () {
+  it('allows providing true options that influence the values of other options', async function () {
     const preferences = new Preferences(tmpdir, {
       cli: {
         enableMaps: true,
+        enableShell: true,
       },
       global: {
-        trackErrors: true,
+        trackUsageStatistics: true,
         networkTraffic: false,
+        readOnly: true,
       },
     });
     const result = await preferences.fetchPreferences();
     expect(result.autoUpdates).to.equal(false);
     expect(result.enableMaps).to.equal(false);
-    expect(result.trackErrors).to.equal(false);
+    expect(result.trackUsageStatistics).to.equal(false);
     expect(result.networkTraffic).to.equal(false);
+    expect(result.readOnly).to.equal(true);
+    expect(result.enableShell).to.equal(false);
 
     const states = preferences.getPreferenceStates();
     expect(states).to.deep.equal({
-      trackErrors: 'set-global',
       enableFeedbackPanel: 'set-global',
       autoUpdates: 'set-global',
+      enableDevTools: 'set-global',
       networkTraffic: 'set-global',
       trackUsageStatistics: 'set-global',
       enableMaps: 'set-cli',
+      enableShell: 'set-cli',
+      readOnly: 'set-global',
+    });
+  });
+
+  it('allows providing false options that should not influence the values of other options', async function () {
+    const preferences = new Preferences(tmpdir, {
+      global: {
+        readOnly: false,
+      },
+    });
+    const result = await preferences.fetchPreferences();
+    expect(result.readOnly).to.equal(false);
+    expect(result.enableShell).to.equal(true);
+
+    const states = preferences.getPreferenceStates();
+
+    expect(states).to.deep.equal({
+      readOnly: 'set-global',
     });
   });
 
@@ -148,11 +224,11 @@ describe('Preferences class', function () {
     await preferences.ensureDefaultConfigurableUserPreferences();
     await preferences.getConfigurableUserPreferences(); // set defaults
     await preferences.savePreferences({ networkTraffic: false });
+    await preferences.savePreferences({ readOnly: true });
     expect(calls).to.deep.equal([
       {
         showedNetworkOptIn: true,
         enableMaps: true,
-        trackErrors: true,
         enableFeedbackPanel: true,
         trackUsageStatistics: true,
         autoUpdates: true,
@@ -160,10 +236,13 @@ describe('Preferences class', function () {
       {
         networkTraffic: false,
         enableMaps: false,
-        trackErrors: false,
         enableFeedbackPanel: false,
         trackUsageStatistics: false,
         autoUpdates: false,
+      },
+      {
+        readOnly: true,
+        enableShell: false,
       },
     ]);
   });
@@ -174,7 +253,7 @@ describe('Preferences class', function () {
         enableMaps: true,
       },
       global: {
-        trackErrors: true,
+        enableDevTools: true,
       },
       hardcoded: {
         networkTraffic: false,
@@ -183,17 +262,50 @@ describe('Preferences class', function () {
     const result = await preferences.fetchPreferences();
     expect(result.autoUpdates).to.equal(false);
     expect(result.enableMaps).to.equal(false);
-    expect(result.trackErrors).to.equal(false);
+    expect(result.enableDevTools).to.equal(true);
     expect(result.networkTraffic).to.equal(false);
 
     const states = preferences.getPreferenceStates();
     expect(states).to.deep.equal({
-      trackErrors: 'set-global',
+      enableDevTools: 'set-global',
       enableMaps: 'set-cli',
       enableFeedbackPanel: 'hardcoded',
       autoUpdates: 'hardcoded',
       networkTraffic: 'hardcoded',
       trackUsageStatistics: 'hardcoded',
+    });
+  });
+
+  it('can create sandbox preferences instances that do not affect the main preference instance', async function () {
+    const mainPreferences = new Preferences(tmpdir, {
+      cli: {
+        enableMaps: true,
+      },
+      global: {
+        trackUsageStatistics: true,
+      },
+    });
+    await mainPreferences.savePreferences({ trackUsageStatistics: true });
+    const sandbox = await Preferences.CreateSandbox(
+      await mainPreferences.getPreferenceSandboxProperties()
+    );
+
+    await sandbox.savePreferences({ readOnly: true });
+    expect((await sandbox.fetchPreferences()).readOnly).to.equal(true);
+    expect((await mainPreferences.fetchPreferences()).readOnly).to.equal(false);
+
+    const mainPreferencesStates = mainPreferences.getPreferenceStates();
+    expect(mainPreferencesStates).to.deep.equal({
+      trackUsageStatistics: 'set-global',
+      enableMaps: 'set-cli',
+    });
+
+    const sandboxPreferencesStates = sandbox.getPreferenceStates();
+    expect(sandboxPreferencesStates).to.deep.equal({
+      enableDevTools: 'derived',
+      trackUsageStatistics: 'set-global',
+      enableMaps: 'set-cli',
+      enableShell: 'derived',
     });
   });
 });

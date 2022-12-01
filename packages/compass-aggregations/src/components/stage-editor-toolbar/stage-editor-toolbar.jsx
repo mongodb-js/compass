@@ -11,10 +11,11 @@ import { Tooltip, Body, Icon } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import styles from './stage-editor-toolbar.module.less';
+import { MERGE_STAGE_PREVIEW_TEXT, OUT_STAGE_PREVIEW_TEXT } from '../../utils/stage';
 
 const STAGE_TOOLTIP_MESSAGE = {
-  $out: 'The $out operator will cause the pipeline to persist the results to the specified location (collection, S3, or Atlas). If the collection exists it will be replaced.',
-  $merge: 'The $merge operator will cause the pipeline to persist the results to the specified location.'
+  $out: OUT_STAGE_PREVIEW_TEXT,
+  $merge: MERGE_STAGE_PREVIEW_TEXT
 };
 
 const STAGES_WITH_TOOLTIP = Object.keys(STAGE_TOOLTIP_MESSAGE);

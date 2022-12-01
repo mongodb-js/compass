@@ -1,7 +1,7 @@
 import os from 'os';
 import { promises as fs } from 'fs';
 
-type OsInfo = {
+export type OsInfo = {
   os_type: string;
   os_version: string;
   os_arch: string;

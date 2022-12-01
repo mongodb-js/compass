@@ -1,17 +1,19 @@
 import { ObjectId } from 'bson';
-import getShellJS from './get-shell-js';
+import { getQueryAsShellJSString } from './get-shell-js';
 import { expect } from 'chai';
 
 describe('get-shell-js', function () {
   it('should support simple query', function () {
-    const ret = getShellJS('lucas.pets', { filter: { name: 'Arlo' } });
+    const ret = getQueryAsShellJSString('lucas.pets', {
+      filter: { name: 'Arlo' },
+    });
     const expected = `db.pets.find(
   {name: 'Arlo'}
 )`;
     expect(ret).to.equal(expected);
   });
   it('should support simple ObjectId', function () {
-    const ret = getShellJS('lucas.pets', {
+    const ret = getQueryAsShellJSString('lucas.pets', {
       filter: { _id: new ObjectId('deadbeefdeadbeefdeadbeef') },
     });
     const expected = `db.pets.find(
@@ -20,7 +22,7 @@ describe('get-shell-js', function () {
     expect(ret).to.equal(expected);
   });
   it('should support a projection', function () {
-    const ret = getShellJS('lucas.pets', {
+    const ret = getQueryAsShellJSString('lucas.pets', {
       filter: { name: 'Arlo' },
       project: { name: 1 },
     });
@@ -31,7 +33,7 @@ describe('get-shell-js', function () {
     expect(ret).to.equal(expected);
   });
   it('should support a skip', function () {
-    const ret = getShellJS('lucas.pets', {
+    const ret = getQueryAsShellJSString('lucas.pets', {
       filter: { name: 'Arlo' },
       project: { name: 1 },
       limit: 100,
@@ -44,7 +46,7 @@ describe('get-shell-js', function () {
     expect(ret).to.equal(expected);
   });
   it('should support a limit', function () {
-    const ret = getShellJS('lucas.pets', {
+    const ret = getQueryAsShellJSString('lucas.pets', {
       filter: { name: 'Arlo' },
       project: { name: 1 },
       limit: 100,

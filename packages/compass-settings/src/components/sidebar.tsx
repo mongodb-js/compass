@@ -4,7 +4,7 @@ import {
   cx,
   spacing,
   palette,
-  focusRing,
+  Button,
 } from '@mongodb-js/compass-components';
 
 const buttonStyles = css({
@@ -19,13 +19,17 @@ const buttonStyles = css({
 });
 
 const hoverStyles = css({
-  '&:hover': {
+  '&:hover,&:focus': {
     backgroundColor: palette.green.light2,
+    color: palette.gray.dark3,
   },
 });
 
 const activeStyles = css({
-  backgroundColor: palette.green.light3,
+  '&:active,&:focus': {
+    backgroundColor: palette.green.light3,
+    color: palette.gray.dark3,
+  },
 });
 
 type SidebarProps = {
@@ -43,16 +47,15 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
     <div
       data-testid="settings-modal-sidebar"
       role="tablist"
-      aria-labelledby="settings-tablist"
+      aria-labelledby="modal-title"
     >
       {items.map((item) => (
-        <button
+        <Button
           key={item}
-          type="button"
           role="tab"
           aria-controls={`${item} Section`}
           aria-selected={activeItem === item}
-          className={cx(buttonStyles, focusRing, {
+          className={cx(buttonStyles, {
             [hoverStyles]: item !== activeItem,
             [activeStyles]: item === activeItem,
           })}
@@ -61,7 +64,7 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
           onClick={() => onSelectItem(item)}
         >
           {item}
-        </button>
+        </Button>
       ))}
     </div>
   );

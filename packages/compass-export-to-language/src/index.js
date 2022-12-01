@@ -9,7 +9,7 @@ const ROLE = {
   component: ExportToLanguagePlugin,
   configureStore: configureStore,
   configureActions: () => {},
-  storeName: 'ExportToLanguage.Store'
+  storeName: 'ExportToLanguage.Store',
 };
 
 /**

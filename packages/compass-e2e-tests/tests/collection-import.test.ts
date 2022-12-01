@@ -27,7 +27,7 @@ async function importJSONFile(browser: CompassBrowser, jsonPath: string) {
   // make sure it auto-selected JSON and then confirm
   const fileTypeJSON = await browser.$(Selectors.FileTypeJSON);
   await browser.waitUntil(async () => {
-    const selected = await fileTypeJSON.getAttribute('aria-selected');
+    const selected = await fileTypeJSON.getAttribute('aria-checked');
     return selected === 'true';
   });
   await browser.clickVisible(Selectors.ImportConfirm);
@@ -46,22 +46,35 @@ async function selectFieldType(
   fieldName: string,
   fieldType: string
 ) {
-  const selectElement = await browser.$(
+  await browser.clickVisible(
     Selectors.importPreviewFieldHeaderSelect(fieldName)
   );
-  await selectElement.waitForDisplayed();
-  await selectElement.scrollIntoView();
-  await selectElement.selectByAttribute('value', fieldType);
+
+  const fieldTypeSelectMenu = await browser.$(
+    Selectors.importPreviewFieldHeaderSelectMenu(fieldName)
+  );
+  await fieldTypeSelectMenu.waitForDisplayed();
+
+  const fieldTypeSelectSpan = await fieldTypeSelectMenu.$(`span=${fieldType}`);
+  await fieldTypeSelectSpan.waitForDisplayed();
+  await fieldTypeSelectSpan.click();
+
+  // Wait so that the menu animation can complete.
+  // Without this clicking multiple select menus bugs out.
+  await fieldTypeSelectMenu.waitForDisplayed({
+    reverse: true,
+  });
 }
 
 async function unselectFieldName(browser: CompassBrowser, fieldName: string) {
   const checkboxElement = await browser.$(
     Selectors.importPreviewFieldHeaderCheckbox(fieldName)
   );
-  await checkboxElement.waitForDisplayed();
-  await checkboxElement.scrollIntoView();
+  const checkboxLabel = await checkboxElement.parentElement();
+  await checkboxLabel.waitForDisplayed();
+  await checkboxLabel.scrollIntoView();
   expect(await checkboxElement.isSelected()).to.be.true;
-  await checkboxElement.click();
+  await checkboxLabel.click();
   expect(await checkboxElement.isSelected()).to.be.false;
 }
 
@@ -411,11 +424,11 @@ describe('Collection import', function () {
     await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
     // select file type JSON
+    await browser.clickParent(Selectors.FileTypeJSON);
+
     const fileTypeJSON = await browser.$(Selectors.FileTypeJSON);
-    await fileTypeJSON.waitForDisplayed();
-    await fileTypeJSON.click();
     await browser.waitUntil(async () => {
-      const selected = await fileTypeJSON.getAttribute('aria-selected');
+      const selected = await fileTypeJSON.getAttribute('aria-checked');
       return selected === 'true';
     });
     await browser.clickVisible(Selectors.ImportConfirm);
@@ -452,7 +465,7 @@ describe('Collection import', function () {
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
     await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-selected');
+      const selected = await fileTypeCSV.getAttribute('aria-checked');
       return selected === 'true';
     });
 
@@ -551,14 +564,25 @@ describe('Collection import', function () {
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
     await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-selected');
+      const selected = await fileTypeCSV.getAttribute('aria-checked');
       return selected === 'true';
     });
 
-    const selectImportDelimiter = await browser.$(Selectors.ImportDelimiter);
-    await selectImportDelimiter.waitForDisplayed();
-    await selectImportDelimiter.scrollIntoView();
-    await selectImportDelimiter.selectByAttribute('value', ';');
+    const importDelimiterSelectButton = await browser.$(
+      Selectors.ImportDelimiterSelect
+    );
+    await importDelimiterSelectButton.waitForDisplayed();
+    await importDelimiterSelectButton.click();
+
+    const importDelimiterSelectMenu = await browser.$(
+      Selectors.ImportDelimiterMenu
+    );
+    await importDelimiterSelectMenu.waitForDisplayed();
+    const delimiterSelectSpan = await importDelimiterSelectMenu.$(
+      'span=semicolon'
+    );
+    await delimiterSelectSpan.waitForDisplayed();
+    await delimiterSelectSpan.click();
 
     // pick some types
     const typeMapping = {
@@ -631,7 +655,7 @@ describe('Collection import', function () {
     // make sure it auto-selected CSV
     const fileTypeCSV = await browser.$(Selectors.FileTypeCSV);
     await browser.waitUntil(async () => {
-      const selected = await fileTypeCSV.getAttribute('aria-selected');
+      const selected = await fileTypeCSV.getAttribute('aria-checked');
       return selected === 'true';
     });
 

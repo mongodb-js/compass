@@ -14,6 +14,7 @@ import {
   ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
 import { TAB_NAME } from '../constants/plugin';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
@@ -325,7 +326,7 @@ const configureStore = (options = {}) => {
       };
 
       const driverOptions = {
-        maxTimeMS: query.maxTimeMS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
       };
 
       const schemaAnalysis = createSchemaAnalysis(

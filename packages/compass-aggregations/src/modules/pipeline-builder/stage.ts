@@ -1,8 +1,5 @@
 import * as babelParser from '@babel/parser';
-import type * as t from '@babel/types';
-import mongodbQueryParser from 'mongodb-query-parser';
-import parseEJSON, { ParseMode } from 'ejson-shell-parser';
-
+import * as t from '@babel/types';
 import {
   isNodeDisabled,
   setNodeDisabled,
@@ -10,10 +7,11 @@ import {
   getStageValueFromNode,
   getStageOperatorFromNode,
   isStageLike,
+  StageAssertionErrorCodes,
 } from './pipeline-parser/stage-parser';
-import { PipelineParserError } from './pipeline-parser/utils';
-
-const PARSE_ERROR = 'Stage must be a properly formatted document.';
+import type { PipelineParserError } from './pipeline-parser/utils';
+import { generate } from './pipeline-parser/utils';
+import { parseShellBSON } from './pipeline-parser/utils';
 
 function createStageNode({
   key,
@@ -36,29 +34,6 @@ function createStageNode({
       } as t.ObjectProperty
     ]
   };
-}
-
-function assertStageValue(value: string) {
-  // mongodbQueryParser will either throw or return an
-  // empty string if input is not a valid query
-  const parsed = (mongodbQueryParser as any)(value);
-  if (parsed === '') {
-    throw new PipelineParserError(PARSE_ERROR);
-  }
-}
-
-export function stageToString(operator: string, value: string, disabled: boolean): string {
-  const str = `{
-  ${operator}: ${value}
-}`;
-
-  if (!disabled) {
-    return str;
-  }
-
-  return str.split('\n')
-    .map((line) => `// ${line}`)
-    .join('\n');
 }
 
 let id = 0;
@@ -88,6 +63,24 @@ export default class Stage {
     }
   }
 
+  /**
+   * Returns true if both operator and value are empty / missing, false
+   * otherwise
+   */
+  get isEmpty(): boolean {
+    // To be able to set operator or value for the Stage, we should be able to
+    // parse it, to avoid marking stages with parse errors (or errors that are
+    // not related to stage operator missing) we check for a specific error code
+    // before checking for empty
+    if (
+      this.syntaxError &&
+      this.syntaxError.code !== StageAssertionErrorCodes.NoStageOperator
+    ) {
+      return false;
+    }
+    return !this.operator?.trim() && !this.value?.trim();
+  }
+
   changeValue(value: string) {
     this.value = value;
     try {
@@ -97,7 +90,6 @@ export default class Stage {
         this.node.properties[0].value = babelParser.parseExpression(value);
       }
       assertStageNode(this.node);
-      assertStageValue(value);
       this.syntaxError = null;
     } catch (e) {
       this.syntaxError = e as PipelineParserError;
@@ -128,17 +120,62 @@ export default class Stage {
   }
 
   toString() {
-    return stageToString(
-      this.operator ?? '',
-      this.value ?? '',
-      this.disabled
-    );
+    let str = '';
+
+    if (!this.syntaxError) {
+      str = generate(this.node);
+    } else {
+      // In cases where stage contains syntax errors, we will not be able to just
+      // generate the source from node. Instead we will create a template and use
+      // current stage value and operator source to populate it while trying to
+      // preserve stage comments
+      const template = t.objectExpression(
+        !this.isEmpty
+          ? [
+              t.objectProperty(
+                t.identifier('$$_STAGE_OPERATOR'),
+                t.identifier('$$_STAGE_VALUE')
+              )
+            ]
+          : []
+      );
+
+      template.leadingComments = this.node.leadingComments;
+      template.trailingComments = this.node.trailingComments;
+
+      if (
+        t.isObjectExpression(this.node) &&
+        this.node.properties[0] &&
+        template.properties[0]
+      ) {
+        template.properties[0].leadingComments =
+          this.node.properties[0].leadingComments;
+        template.properties[0].trailingComments =
+          this.node.properties[0].trailingComments;
+      }
+
+      str = generate(template, {
+        // To avoid trailing comma after the stage value placeholder
+        trailingComma: 'none'
+      })
+        .replace('$$_STAGE_OPERATOR', this.operator ?? '')
+        .replace('$$_STAGE_VALUE', this.value ?? '');
+    }
+
+    if (!this.disabled) {
+      return str;
+    }
+
+    return str
+      .split('\n')
+      .map((line) => (/^\s*\/\//.test(line) ? line : `// ${line}`))
+      .join('\n');
   }
 
   toBSON() {
     if (this.disabled) {
       return null;
     }
-    return parseEJSON(this.toString(), { mode: ParseMode.Loose });
+    return parseShellBSON(this.toString());
   }
 }

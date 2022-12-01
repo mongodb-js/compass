@@ -1,7 +1,7 @@
 import { CLONE_PIPELINE } from './clone-pipeline';
 import { NEW_PIPELINE } from './import-pipeline';
 import { StageEditorActionTypes } from './pipeline-builder/stage-editor';
-import { EditorActionTypes } from './pipeline-builder/text-editor';
+import { EditorActionTypes } from './pipeline-builder/text-editor-pipeline';
 import { SAVED_PIPELINE_ADD } from './saved-pipeline';
 
 /**

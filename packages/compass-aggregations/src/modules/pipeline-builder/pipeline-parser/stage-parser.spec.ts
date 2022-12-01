@@ -9,6 +9,8 @@ import StageParser, {
   stageToAstComments,
 } from './stage-parser';
 import type { StageLike } from './stage-parser';
+import { generate } from './utils';
+import Stage from '../stage';
 
 describe('StageParser', function () {
   describe('Stage node helpers', function () {
@@ -93,36 +95,51 @@ describe('StageParser', function () {
       expect(isNodeDisabled(node)).to.be.false;
     });
 
-    it('asserts stage node', function () {
-      const data = [
+    describe('assertStageNode', function () {
+      stages
+        .filter((x) => x.isValid)
+        .forEach(({ expression }) => {
+          it(`asserting stage ${expression} should not throw`, function () {
+            expect(() => {
+              assertStageNode(babelParser.parseExpression(expression));
+            }).to.not.throw();
+          });
+        });
+
+      const invalidStages = [
         {
           expression: `[]`,
-          errorMessage: 'Each element of the pipeline array must be an object',
+          errorMessage: 'Each element of the pipeline array must be an object'
         },
         {
           expression: `'name'`,
-          errorMessage: 'Each element of the pipeline array must be an object',
+          errorMessage: 'Each element of the pipeline array must be an object'
         },
         {
           expression: `{}`,
-          errorMessage: 'A pipeline stage specification object must contain exactly one field.',
+          errorMessage:
+            'A pipeline stage specification object must contain exactly one field.'
         },
         {
           expression: `{match: {}}`,
-          errorMessage: 'Stage value can not be empty',
+          errorMessage: "Unrecognized pipeline stage name: 'match'"
         },
-      ];
-      data.forEach(({ expression, errorMessage }) => {
-        try {
-          assertStageNode(babelParser.parseExpression(expression))
-        } catch (e) {
-          expect(e).to.be.instanceOf(SyntaxError);
-          expect((e as SyntaxError).message).to.equal(errorMessage);
+        {
+          expression: `{$match: {query}}`,
+          errorMessage: 'Stage value is invalid'
+        },
+        {
+          expression: `{$match: {_id: Math.random()}}`,
+          errorMessage: 'Stage value is invalid'
         }
-      });
+      ];
 
-      stages.filter(x => x.isValid).forEach(({ expression }) => {
-        assertStageNode(babelParser.parseExpression(expression));
+      invalidStages.forEach(({ expression, errorMessage }) => {
+        it(`assertings stage ${expression} should throw`, function () {
+          expect(() => {
+            assertStageNode(babelParser.parseExpression(expression));
+          }).to.throw(errorMessage);
+        });
       });
     });
 
@@ -145,8 +162,8 @@ describe('StageParser', function () {
     });
 
     it('converts stage to comment', function () {
-      const stage = babelParser.parseExpression(`{$match: {name: /berlin/i}}`);
-      const comments = stageToAstComments(stage);
+      const stageNode = babelParser.parseExpression(`{$match: {name: /berlin/i}}`);
+      const comments = stageToAstComments(new Stage(stageNode));
       comments.forEach(({ type }) => expect(type).to.equal('CommentLine'));
       const value = comments.map(({ value }) => value).join('\n');
       expect(value).to.equal([
@@ -372,11 +389,67 @@ describe('StageParser', function () {
 
       let isStage = stageParser.push(lines[3]);
       expect(isStage).to.be.false;
-      expect(stageParser.source).to.equal(`${lines[3]}\n`);
+      expect(stageParser.source).to.equal(`// ${lines[3]}\n`);
 
       isStage = stageParser.push(lines[4]);
       expect(isStage).to.be.false;
-      expect(stageParser.source).to.equal(`${lines[3]}\n${lines[4]}\n`);
+      expect(stageParser.source).to.equal(`// ${lines[3]}\n// ${lines[4]}\n`);
+    });
+
+    it('should treat non-stage-like object expressions as comments', function () {
+      const code = `{
+  foo: 1
+},
+{
+  $match: { _id: 1 }
+}`;
+
+      let stage: any;
+
+      code.split('\n').forEach((line) => {
+        const maybeStage = stageParser.push(line);
+        if (maybeStage) {
+          stage = maybeStage;
+        }
+      });
+
+      expect(generate(stage)).to.eq(`// {
+//   foo: 1
+// },
+{
+  $match: {
+    _id: 1,
+  },
+}`);
+    });
+
+    it('should parse stages that start and end at the same line', function () {
+      const code = `{
+  $match: { _id: 1 }
+}, {
+  $limit: 10
+}`;
+
+      const stages: StageLike[] = [];
+
+      code.split('\n').forEach((line) => {
+        const maybeStage = stageParser.push(line);
+        if (maybeStage) {
+          stages.push(maybeStage);
+        }
+      });
+
+      expect(stages).to.have.lengthOf(2);
+
+      expect(generate(stages[0])).to.eq(`{
+  $match: {
+    _id: 1,
+  },
+}`);
+
+      expect(generate(stages[1])).to.eq(`{
+  $limit: 10,
+}`);
     });
   });
 });

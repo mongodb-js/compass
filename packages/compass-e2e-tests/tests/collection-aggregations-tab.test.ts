@@ -119,11 +119,22 @@ async function waitForTab(browser: CompassBrowser, namespace: string) {
   );
 }
 
+async function switchPipelineMode(
+  browser: CompassBrowser,
+  mode: 'as-text' | 'builder-ui'
+) {
+  await browser.clickVisible(Selectors.aggregationPipelineModeToggle(mode));
+  await browser.waitForAnimations(Selectors.AggregationBuilderWorkspace);
+}
+
+const initialEnableTextModeValue = process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE;
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
   before(async function () {
+    process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = 'true';
     compass = await beforeTests();
     browser = compass.browser;
   });
@@ -146,10 +157,17 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.ConfirmNewPipelineModalConfirmButton);
     await modalElement.waitForDisplayed({ reverse: true });
+
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
+    // sanity check to make sure there's only one stage
+    const stageContainers = await browser.$$(Selectors.StageContainer);
+    expect(stageContainers).to.have.lengthOf(1);
   });
 
   after(async function () {
     await afterTests(compass, this.currentTest);
+    process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = initialEnableTextModeValue;
   });
 
   afterEach(async function () {
@@ -157,10 +175,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
-    // sanity check to make sure there's only one
-    const stageContainers = await browser.$$(Selectors.StageContainer);
-    expect(stageContainers).to.have.lengthOf(1);
-
     await browser.focusStageOperator(0);
 
     const stageOperatorOptionsElements = await browser.$$(
@@ -226,7 +240,6 @@ describe('Collection aggregations tab', function () {
 
   // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
   it('supports creating an aggregation', async function () {
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 0 }');
 
@@ -244,7 +257,6 @@ describe('Collection aggregations tab', function () {
       this.skip();
     }
 
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$search');
 
     await browser.waitUntil(async function () {
@@ -252,12 +264,13 @@ describe('Collection aggregations tab', function () {
         Selectors.atlasOnlyStagePreviewSection(0)
       );
       const text = await textElement.getText();
-      return text.includes('This stage is only available with MongoDB Atlas.');
+      return text.includes(
+        'The $search stage is only available with MongoDB Atlas.'
+      );
     });
   });
 
   it('shows empty preview', async function () {
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$addFields');
 
     await browser.waitUntil(async function () {
@@ -275,7 +288,6 @@ describe('Collection aggregations tab', function () {
     await collationInput.setValue('{ locale: "af" }');
 
     // select $match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     // check that it included the comment by default
     const contentElement0 = await browser.$(Selectors.stageContent(0));
@@ -312,7 +324,6 @@ describe('Collection aggregations tab', function () {
 
     // add a $project
     await browser.clickVisible(Selectors.AddStageButton);
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$project');
 
     // delete it
@@ -320,7 +331,6 @@ describe('Collection aggregations tab', function () {
 
     // add a $project
     await browser.clickVisible(Selectors.AddStageButton);
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$project');
 
     // check that it has no comment
@@ -449,61 +459,95 @@ describe('Collection aggregations tab', function () {
     );
   });
 
-  it('supports maxTimeMS', async function () {
-    // open settings
-    await browser.clickVisible(Selectors.AggregationAdditionalOptionsButton);
+  describe('maxTimeMS', function () {
+    let maxTimeMSBefore: any;
 
-    // set maxTimeMS
-    const sampleSizeElement = await browser.$(
-      Selectors.AggregationMaxTimeMSInput
-    );
-    await sampleSizeElement.setValue('1');
-
-    // run a projection that will take lots of time
-    await browser.focusStageOperator(0);
-    await browser.selectStageOperator(0, '$project');
-
-    await browser.waitUntil(async function () {
-      const textElement = await browser.$(
-        Selectors.stagePreviewToolbarTooltip(0)
-      );
-      const text = await textElement.getText();
-      return text === '(Sample of 0 documents)';
+    beforeEach(async function () {
+      maxTimeMSBefore = await browser.getFeature('maxTimeMS');
     });
 
-    const syntaxMessageElement = await browser.$(
-      Selectors.stageEditorSyntaxErrorMessage(0)
-    );
-    await syntaxMessageElement.waitForDisplayed();
+    afterEach(async function () {
+      await browser.setFeature('maxTimeMS', maxTimeMSBefore);
+    });
 
-    await browser.setAceValue(
-      Selectors.stageEditor(0),
-      `{
-      foo: {
-        $function: {
-          body: 'function() { sleep(1000) }',
-          args: [],
-          lang: 'js'
+    for (const maxTimeMSMode of ['ui', 'preference'] as const) {
+      it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
+        if (maxTimeMSMode === 'ui') {
+          // open settings
+          await browser.clickVisible(
+            Selectors.AggregationAdditionalOptionsButton
+          );
+
+          // set maxTimeMS
+          const maxTimeMSElement = await browser.$(
+            Selectors.AggregationMaxTimeMSInput
+          );
+          await maxTimeMSElement.setValue('100');
         }
-      }
-    }`
-    );
 
-    // make sure we got the timeout error
-    const messageElement = await browser.$(
-      Selectors.stageEditorErrorMessage(0)
-    );
-    await messageElement.waitForDisplayed();
-    // The exact error we get depends on the version of mongodb
-    /*
-    expect(await messageElement.getText()).to.include(
-      'operation exceeded time limit'
-    );
-    */
+        if (maxTimeMSMode === 'preference') {
+          await browser.openSettingsModal();
+          const settingsModal = await browser.$(Selectors.SettingsModal);
+          await settingsModal.waitForDisplayed();
+          await browser.clickVisible(Selectors.FeaturesSettingsButton);
+
+          await browser.setValueVisible(
+            Selectors.SettingsInputElement('maxTimeMS'),
+            '1'
+          );
+          await browser.clickVisible(Selectors.SaveSettingsButton);
+        }
+
+        // run a projection that will take lots of time
+        await browser.selectStageOperator(0, '$match');
+
+        await browser.waitUntil(async function () {
+          const textElement = await browser.$(
+            Selectors.stagePreviewToolbarTooltip(0)
+          );
+          const text = await textElement.getText();
+          return text === '(Sample of 0 documents)';
+        });
+
+        const syntaxMessageElement = await browser.$(
+          Selectors.stageEditorSyntaxErrorMessage(0)
+        );
+        await syntaxMessageElement.waitForDisplayed();
+
+        // 100 x sleep(100) = 10s total execution time
+        // This works better than a $project with sleep(10000),
+        // where the DB may not interrupt the sleep() call if it
+        // has already started.
+        await browser.setAceValue(
+          Selectors.stageEditor(0),
+          `{
+        $expr: {
+          $and: [${[...Array(100).keys()]
+            .map(
+              () =>
+                `{ $function: { body: 'function() { sleep(100) }', args: [], lang: 'js' } }`
+            )
+            .join(',')}]
+        }
+      }`
+        );
+
+        // make sure we got the timeout error
+        const messageElement = await browser.$(
+          Selectors.stageEditorErrorMessage(0)
+        );
+        await messageElement.waitForDisplayed();
+        // The exact error we get depends on the version of mongodb
+        /*
+        expect(await messageElement.getText()).to.include(
+          'operation exceeded time limit'
+        );
+        */
+      });
+    }
   });
 
   it('supports $out as the last stage', async function () {
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$out');
     await browser.setAceValue(Selectors.stageEditor(0), "'my-out-collection'");
 
@@ -546,7 +590,6 @@ describe('Collection aggregations tab', function () {
       return this.skip();
     }
 
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$merge');
     await browser.setAceValue(
       Selectors.stageEditor(0),
@@ -642,7 +685,6 @@ describe('Collection aggregations tab', function () {
 
   it('supports running and editing aggregation', async function () {
     // Set first stage to match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
@@ -684,7 +726,6 @@ describe('Collection aggregations tab', function () {
 
   it('supports paginating aggregation results', async function () {
     // Set first stage to $match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: { $gte: 5 } }');
 
@@ -734,7 +775,6 @@ describe('Collection aggregations tab', function () {
     }`;
 
     // Set first stage to a very slow $addFields
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$addFields');
     await browser.setAceValue(Selectors.stageEditor(0), slowQuery);
 
@@ -756,7 +796,6 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
 
     // Set first stage to an invalid $project stage to trigger server error
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$project');
     await browser.setAceValue(Selectors.stageEditor(0), '{}');
 
@@ -774,7 +813,6 @@ describe('Collection aggregations tab', function () {
 
   it('supports exporting aggregation results', async function () {
     // Set first stage to $match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
@@ -813,7 +851,6 @@ describe('Collection aggregations tab', function () {
 
   it('shows the explain for a pipeline', async function () {
     // Set first stage to $match
-    await browser.focusStageOperator(0);
     await browser.selectStageOperator(0, '$match');
     await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
 
@@ -830,6 +867,167 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AggregationExplainModalCloseButton);
     await modal.waitForDisplayed({ reverse: true });
+  });
+
+  describe('aggregation builder in text mode', function () {
+    it('toggles pipeline mode', async function () {
+      // Select operator
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+
+      await switchPipelineMode(browser, 'as-text');
+      const textContent = await browser.$(Selectors.AggregationAsTextEditor);
+      expect(await textContent.getText()).to.contain(`[
+  {
+    $match: {
+      i: 5,
+    },
+  },
+]`);
+
+      await switchPipelineMode(browser, 'builder-ui');
+      const stageContent = await browser.$(Selectors.stageContent(0));
+      expect(await stageContent.getText()).to.equal(`{
+  i: 5,
+}`);
+    });
+
+    it('runs pipeline in text mode when changed', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$count: "count"}]'
+      );
+
+      const docsPreview = await browser.$(
+        Selectors.AggregationAsTextPreviewDocument
+      );
+      await docsPreview.waitForDisplayed();
+      const text = (await docsPreview.getText())
+        .replace(/\n/g, ' ')
+        .replace(/\s+?:/g, ':')
+        .replace(/\s+/g, ' ');
+      expect(text).to.contain('count: 1000');
+    });
+
+    it('previews $out stage', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$out: "somewhere"}]'
+      );
+
+      const preview = await browser.$(Selectors.AggregationAsTextPreviewOut);
+      await preview.waitForDisplayed();
+      const text = await preview.getText();
+      expect(text).to.contain(
+        'The $out operator will cause the pipeline to persist the results to the specified location'
+      );
+    });
+
+    it('previews $merge stage', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$merge: "somewhere"}]'
+      );
+
+      const preview = await browser.$(Selectors.AggregationAsTextPreviewMerge);
+      await preview.waitForDisplayed();
+      const text = await preview.getText();
+      expect(text).to.contain(
+        'The $merge operator will cause the pipeline to persist the results to the specified location'
+      );
+    });
+
+    it('previews atlas operators - $search', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$search: {}}]'
+      );
+
+      const preview = await browser.$(
+        Selectors.AggregationAsTextPreviewAtlasOperator
+      );
+      await preview.waitForDisplayed();
+      expect(await preview.getText()).to.include(
+        'The $search stage is only available with MongoDB Atlas'
+      );
+    });
+
+    it('previews atlas operators - $searchMeta', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$searchMeta: {}}]'
+      );
+
+      const preview = await browser.$(
+        Selectors.AggregationAsTextPreviewAtlasOperator
+      );
+      await preview.waitForDisplayed();
+      expect(await preview.getText()).to.include(
+        'The $searchMeta stage is only available with MongoDB Atlas'
+      );
+    });
+
+    it('shows syntax error when pipeline is invalid', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$out: "somewhere"]'
+      );
+
+      const errors = await browser.$(Selectors.AggregationAsTextErrorContainer);
+      expect(await errors.getText()).to.include('Unexpected token');
+    });
+
+    it('disables mode toggle when pipeline is invalid', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      await browser.setAceValue(
+        Selectors.AggregationAsTextEditor,
+        '[{$out: "somewhere"]'
+      );
+      const toggle = await browser.$(
+        Selectors.aggregationPipelineModeToggle('builder-ui')
+      );
+      await toggle.waitForEnabled({ reverse: true });
+    });
+
+    it('hides preview when disabled', async function () {
+      await browser.selectStageOperator(0, '$match');
+      await browser.setAceValue(Selectors.stageEditor(0), '{ i: 5 }');
+      await switchPipelineMode(browser, 'as-text');
+
+      const preview = await browser.$(Selectors.AggregationAsTextPreview);
+      await preview.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
+
+      await preview.waitForDisplayed({ reverse: true });
+    });
   });
 
   // TODO: stages can be re-arranged by drag and drop and the preview is refreshed after rearranging them

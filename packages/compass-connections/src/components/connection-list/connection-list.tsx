@@ -1,4 +1,5 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import {
   Button,
   FavoriteIcon,
@@ -12,6 +13,8 @@ import {
   Theme,
   withTheme,
   rgba,
+  useHoverState,
+  ItemActionControls,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 
@@ -121,6 +124,21 @@ const RecentIcon = withTheme(UnthemedRecentIcon);
 export type ConnectionInfoFavorite = ConnectionInfo &
   Required<Pick<ConnectionInfo, 'favorite'>>;
 
+type FavoriteAction = 'import-favorites' | 'export-favorites';
+
+const favoriteActions: ItemAction<FavoriteAction>[] = [
+  {
+    action: 'import-favorites',
+    label: 'Import saved connections',
+    icon: 'Download',
+  },
+  {
+    action: 'export-favorites',
+    label: 'Export saved connections',
+    icon: 'Export',
+  },
+];
+
 function ConnectionList({
   activeConnectionId,
   recentConnections,
@@ -131,6 +149,7 @@ function ConnectionList({
   removeAllRecentsConnections,
   duplicateConnection,
   removeConnection,
+  openConnectionImportExportModal,
 }: {
   activeConnectionId?: string;
   recentConnections: ConnectionInfo[];
@@ -141,16 +160,16 @@ function ConnectionList({
   removeAllRecentsConnections: () => void;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
+  openConnectionImportExportModal: (modal: FavoriteAction) => void;
 }): React.ReactElement {
-  const [recentHeaderHover, setRecentHover] = useState(false);
+  const [recentHoverProps, recentHeaderHover] = useHoverState();
+  const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
 
   const { theme } = useTheme();
 
-  const isExpanded = true; // TODO: https://jira.mongodb.org/browse/COMPASS-5967
-
   return (
     <Fragment>
-      <ConnectionsTitle isExpanded={isExpanded} />
+      <ConnectionsTitle />
       <div className={newConnectionButtonContainerStyles}>
         <Button
           className={cx(
@@ -168,7 +187,11 @@ function ConnectionList({
         </Button>
       </div>
       <div className={connectionListSectionStyles}>
-        <div className={sectionHeaderStyles}>
+        <div
+          className={sectionHeaderStyles}
+          {...favoriteHoverProps}
+          data-testid="favorite-connections-list-header"
+        >
           <div className={sectionHeaderIconStyles}>
             <FavoriteIcon />
           </div>
@@ -182,6 +205,13 @@ function ConnectionList({
           >
             Saved connections
           </H3>
+          <ItemActionControls<FavoriteAction>
+            data-testid="favorites-menu"
+            onAction={openConnectionImportExportModal}
+            iconSize="small"
+            actions={favoriteActions}
+            isVisible={favoriteHeaderHover}
+          ></ItemActionControls>
         </div>
         <ul className={connectionListStyles}>
           {favoriteConnections.map((connectionInfo, index) => (
@@ -210,8 +240,8 @@ function ConnectionList({
         </ul>
         <div
           className={cx(sectionHeaderStyles, recentHeaderStyles)}
-          onMouseEnter={() => setRecentHover(true)}
-          onMouseLeave={() => setRecentHover(false)}
+          {...recentHoverProps}
+          data-testid="recent-connections-list-header"
         >
           <div className={sectionHeaderIconStyles}>
             <RecentIcon />

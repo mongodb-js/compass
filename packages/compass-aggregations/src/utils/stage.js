@@ -1,6 +1,7 @@
 import semver from 'semver';
 import toNS from 'mongodb-ns';
 import {
+  ADL,
   STAGE_OPERATORS,
   ATLAS,
   TIME_SERIES,
@@ -8,7 +9,16 @@ import {
   COLLECTION,
   OUT_STAGES
 } from '@mongodb-js/mongodb-constants';
-import parseEJSON, { ParseMode } from 'ejson-shell-parser';
+import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
+
+export const OUT_STAGE_PREVIEW_TEXT =
+  'The $out operator will cause the pipeline to persist ' +
+  'the results to the specified location (collection, S3, or Atlas). ' +
+  'If the collection exists it will be replaced.';
+
+export const MERGE_STAGE_PREVIEW_TEXT =
+  'The $merge operator will cause the pipeline to persist the results to ' +
+  'the specified location.';
 
 function supportsVersion(operator, serverVersion) {
   const versionWithoutPrerelease = semver.coerce(serverVersion);
@@ -27,11 +37,9 @@ export function isAtlasOnly(operatorEnv) {
   return operatorEnv?.every(env => env === ATLAS);
 }
 
-function disallowOutputStagesOnCompassReadonly(operator) {
+function disallowOutputStagesOnCompassReadonly(operator, isEditable) {
   if (operator?.outputStage) {
-    // NOTE: this should be innocuous in Data Explorer / Web
-    // and just always return `false`
-    return process?.env?.HADRON_READONLY !== 'true';
+    return isEditable;
   }
 
   return true;
@@ -48,7 +56,7 @@ function disallowOutputStagesOnCompassReadonly(operator) {
  *
  * @returns {Array} Stage operators supported by the current version of the server.
  */
-export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceName }) => {
+export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceName, isReadonly, preferencesReadOnly }) => {
   const namespaceType =
     isTimeSeries ? TIME_SERIES :
 
@@ -57,8 +65,9 @@ export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceN
     sourceName ? VIEW :
     COLLECTION;
 
+  const isEditable = !isReadonly && !preferencesReadOnly;
   return STAGE_OPERATORS
-    .filter(disallowOutputStagesOnCompassReadonly)
+    .filter((op) => disallowOutputStagesOnCompassReadonly(op, isEditable))
     .filter((op) => supportsVersion(op, serverVersion))
     .filter((op) => supportsNamespace(op, namespaceType))
 
@@ -86,15 +95,18 @@ export function getStageOperator(stage) {
  * @see {@link https://www.mongodb.com/docs/atlas/data-federation/supported-unsupported/pipeline/out/#syntax}
  *
  * @param {string} namespace
- * @param {unknown} stage
+ * @param {import('mongodb').Document} stage
  * @returns {string}
  */
  export function getDestinationNamespaceFromStage(namespace, stage) {
+  if (!stage) {
+    return null;
+  }
   const stageOperator = getStageOperator(stage);
   const stageValue = stage[stageOperator];
   const { database } = toNS(namespace);
   if (stageOperator === '$merge') {
-    const ns = typeof stage === 'string' ? stageValue : stageValue.into;
+    const ns = typeof stageValue === 'string' ? stageValue : stageValue.into;
     if (ns.atlas) {
       // TODO: Not handled currently and we need some time to figure out how to
       // handle it so just skipping for now
@@ -115,6 +127,11 @@ export function getStageOperator(stage) {
 }
 
 const OUT_OPERATOR_NAMES = new Set(OUT_STAGES.map(stage => stage.value));
+const ATLAS_ONLY_OPERATOR_NAMES = new Set(
+  STAGE_OPERATORS
+    .filter((stage) => isAtlasOnly(stage.env))
+    .map((stage) => stage.value)
+  );
 
 /**
  * @param {string} stageOperator 
@@ -147,9 +164,7 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
     destination: isOutputStage(stageOperator)
       ? (() => {
           try {
-            const stage = parseEJSON(`{${stageOperator}: ${stageValue}}`, {
-              mode: ParseMode.Loose
-            });
+            const stage = parseShellBSON(`{${stageOperator}: ${stageValue}}`);
             if (stage[stageOperator].s3) {
               return 'S3 bucket';
             }
@@ -167,3 +182,45 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
       : null
   };
 }
+
+/**
+ * @param {import('mongodb').Document[]} pipeline
+ * @returns {string}
+ */
+ export const getLastStageOperator = (pipeline) => {
+  const lastStage = pipeline[pipeline.length - 1];
+  return getStageOperator(lastStage) ?? ''
+};
+
+/**
+ * @param {import('mongodb').Document[]} pipeline
+ * @returns {boolean}
+ */
+export const isLastStageOutputStage = (pipeline) => {
+  return isOutputStage(getLastStageOperator(pipeline));
+};
+
+/**
+ * @param {string} env
+ * @param {import('mongodb').MongoServerError | null} serverError
+ */
+ export const isMissingAtlasStageSupport = (env, serverError) => {
+  return !!(
+    ![ADL, ATLAS].includes(env) &&
+    serverError &&
+    [
+      // Unrecognized pipeline stage name
+      40324,
+      // The full-text search stage is not enabled
+      31082,
+    ].includes(Number(serverError.code))
+  );
+};
+
+/**
+ * Returns the atlas operator
+ * @param {string[]} operators 
+ */
+export const findAtlasOperator = (operators) => {
+  return operators.find((operator) => ATLAS_ONLY_OPERATOR_NAMES.has(operator));
+};

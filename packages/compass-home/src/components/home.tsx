@@ -28,11 +28,23 @@ import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
 import Workspace from './workspace';
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let remote: typeof import('@electron/remote') | undefined;
+try {
+  remote = require('@electron/remote');
+} catch {
+  /* no electron, eg. mocha tests */
+}
+
 const homeViewStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
   height: '100vh',
+});
+
+const hiddenStyles = css({
+  display: 'none',
 });
 
 const homePageStyles = css({
@@ -120,12 +132,16 @@ function hideCollectionSubMenu() {
   void ipc.ipcRenderer?.call('window:hide-collection-submenu');
 }
 
+function notifyMainProcessOfDisconnect() {
+  void ipc.ipcRenderer?.call('compass:disconnected');
+}
+
 function Home({
   appName,
   getAutoConnectInfo,
 }: {
   appName: string;
-  getAutoConnectInfo?: () => Promise<ConnectionInfo>;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
 }): React.ReactElement | null {
   const appRegistry = useAppRegistryContext();
   const connectedDataService = useRef<DataService>();
@@ -149,17 +165,17 @@ function Home({
     });
   }
 
-  function onConnected(
-    connectionInfo: ConnectionInfo,
-    dataService: DataService
-  ) {
-    appRegistry.emit(
-      'data-service-connected',
-      null, // No error connecting.
-      dataService,
-      connectionInfo
-    );
-  }
+  const onConnected = useCallback(
+    (connectionInfo: ConnectionInfo, dataService: DataService) => {
+      appRegistry.emit(
+        'data-service-connected',
+        null, // No error connecting.
+        dataService,
+        connectionInfo
+      );
+    },
+    [appRegistry]
+  );
 
   function onSelectDatabase(ns: string) {
     hideCollectionSubMenu();
@@ -203,6 +219,7 @@ function Home({
       type: 'disconnected',
     });
     hideCollectionSubMenu();
+    notifyMainProcessOfDisconnect();
     updateTitle(appName);
   }, [appName]);
 
@@ -271,74 +288,75 @@ function Home({
     };
   }, [appRegistry, onDataServiceDisconnected]);
 
-  if (isConnected) {
-    return (
-      <div className="with-global-bootstrap-styles">
-        <Workspace namespace={namespace} />
-      </div>
-    );
-  }
-
   return (
-    <div className={homeViewStyles} data-testid="home-view">
-      <div className={homePageStyles}>
-        <Connections
-          onConnected={onConnected}
-          appName={appName}
-          getAutoConnectInfo={
-            hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
-          }
-        />
+    <>
+      {isConnected && (
+        <div className="with-global-bootstrap-styles">
+          <Workspace namespace={namespace} />
+        </div>
+      )}
+      {/* Hide <Connections> but keep it in scope if connected so that the connection
+          import/export functionality can still be used through the application menu */}
+      <div
+        className={isConnected ? hiddenStyles : homeViewStyles}
+        data-hidden={isConnected}
+        data-testid="home-view"
+      >
+        <div className={homePageStyles}>
+          <Connections
+            onConnected={onConnected}
+            isConnected={isConnected}
+            appName={appName}
+            getAutoConnectInfo={
+              hasDisconnectedAtLeastOnce ? undefined : getAutoConnectInfo
+            }
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
+}
+
+function getCurrentTheme(): Theme {
+  return preferences.getPreferences().lgDarkmode &&
+    remote?.nativeTheme?.shouldUseDarkColors
+    ? Theme.Dark
+    : Theme.Light;
 }
 
 function ThemedHome(
   props: React.ComponentProps<typeof Home> & {
-    showWelcomeModal: boolean;
-    networkTraffic: boolean;
+    showWelcomeModal?: boolean;
   }
 ): ReturnType<typeof Home> {
-  const { showWelcomeModal, networkTraffic } = props;
+  const {
+    showWelcomeModal = !preferences.getPreferences().showedNetworkOptIn,
+  } = props;
   const appRegistry = useAppRegistryContext();
 
   const [theme, setTheme] = useState<ThemeState>({
-    theme:
-      process.env.COMPASS_LG_DARKMODE === 'true'
-        ? (global as any).hadronApp?.theme ?? Theme.Light
-        : Theme.Light,
+    theme: getCurrentTheme(),
+    enabled: !!preferences.getPreferences().lgDarkmode,
   });
 
-  function onDarkModeEnabled() {
-    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
-      return;
-    }
-
-    setTheme({
-      theme: Theme.Dark,
-    });
-  }
-
-  function onDarkModeDisabled() {
-    if (process.env.COMPASS_LG_DARKMODE !== 'true') {
-      return;
-    }
-
-    setTheme({
-      theme: Theme.Light,
-    });
-  }
-
   useEffect(() => {
-    // Setup app registry listeners.
-    appRegistry.on('darkmode-enable', onDarkModeEnabled);
-    appRegistry.on('darkmode-disable', onDarkModeDisabled);
+    const listener = () => {
+      setTheme({
+        theme: getCurrentTheme(),
+        enabled: !!preferences.getPreferences().lgDarkmode,
+      });
+    };
+
+    const unsubscribeLgDarkmodeListener = preferences.onPreferenceValueChanged(
+      'lgDarkmode',
+      listener
+    );
+    remote?.nativeTheme?.on('updated', listener);
 
     return () => {
-      // Clean up the app registry listeners.
-      appRegistry.removeListener('darkmode-enable', onDarkModeEnabled);
-      appRegistry.removeListener('darkmode-disable', onDarkModeDisabled);
+      // Cleanup preference listeners.
+      unsubscribeLgDarkmodeListener();
+      remote?.nativeTheme?.off('updated', listener);
     };
   }, [appRegistry]);
 
@@ -362,7 +380,7 @@ function ThemedHome(
   }, [appRegistry]);
 
   const closeWelcomeModal = useCallback(
-    (showSettings: boolean) => {
+    (showSettings?: boolean) => {
       async function close() {
         await preferences.ensureDefaultConfigurableUserPreferences();
         setIsWelcomeOpen(false);
@@ -384,11 +402,7 @@ function ThemedHome(
     <LeafyGreenProvider>
       <ThemeProvider theme={theme}>
         {showWelcomeModal && (
-          <Welcome
-            isOpen={isWelcomeOpen}
-            closeModal={closeWelcomeModal}
-            networkTraffic={networkTraffic}
-          />
+          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
         )}
         <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
         <ToastArea>

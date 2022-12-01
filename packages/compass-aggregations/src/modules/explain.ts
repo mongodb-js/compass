@@ -8,7 +8,8 @@ import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import type { IndexInfo } from './indexes';
 import { NEW_PIPELINE } from './import-pipeline';
-import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -132,7 +133,8 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
       maxTimeMS,
       dataService: { dataService },
       indexes: collectionIndexes,
-      collationString: { value: collation }
+      collationString: { value: collation },
+      pipelineBuilder: { pipelineMode },
     } = getState();
 
     if (!dataService) {
@@ -150,7 +152,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
       });
 
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS ?? DEFAULT_MAX_TIME_MS),
         allowDiskUse: true,
         collation: collation ?? undefined,
       };
@@ -192,6 +194,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
         track('Aggregation Explained', {
           num_stages: pipeline.length,
           index_used: explain.stats?.indexes?.length ?? 0,
+          editor_view_type: mapPipelineModeToEditorViewType(pipelineMode),
         });
         // If parsing fails, we still show raw explain json.
         dispatch({

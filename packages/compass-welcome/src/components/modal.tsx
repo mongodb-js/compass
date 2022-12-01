@@ -8,6 +8,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { withPreferences } from 'compass-preferences-model';
 
 import WelcomeImage from './welcome-image';
 
@@ -25,7 +26,7 @@ type WelcomeModalProps = {
   closeModal: (openSettings?: boolean) => void;
 };
 
-const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
+export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
   networkTraffic,
   isOpen,
   closeModal,
@@ -71,4 +72,4 @@ const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
   );
 };
 
-export default WelcomeModal;
+export default withPreferences(WelcomeModal, ['networkTraffic'], React);

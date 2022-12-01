@@ -8,7 +8,11 @@ import { createStore } from 'redux';
 
 const emptyStateTestId = 'p[data-testid="saved-pipelines-empty-state"]';
 
-const store = createStore(() => {})
+const store = createStore(() => ({
+  pipelineBuilder: {
+    pipelinMode: 'builder-ui',
+  }
+}));
 
 describe('SavedPipelines [Component]', function() {
   context('when the component is rendered', function() {

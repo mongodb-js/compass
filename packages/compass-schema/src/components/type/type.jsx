@@ -3,19 +3,12 @@ import PropTypes from 'prop-types';
 import sortBy from 'lodash.sortby';
 import find from 'lodash.find';
 import numeral from 'numeral';
-import ReactTooltip from 'react-tooltip';
-import TOOLTIP_IDS from '../../constants/schema';
+import { Disclaimer, Tooltip, css } from '@mongodb-js/compass-components';
 
-// const debug = require('debug')('mongodb-compass:schema:type');
+const schemaFieldTypeLabelStyles = css({
+  textTransform: 'lowercase',
+});
 
-/**
- * The full schema component class.
- */
-const TYPE_CLASS = 'schema-field-wrapper';
-
-/**
- * Component for the entire document list.
- */
 class Type extends Component {
   static displayName = 'TypeComponent';
 
@@ -104,7 +97,7 @@ class Type extends Component {
    */
   render() {
     const type = this.props.name.toLowerCase();
-    let cls = `${TYPE_CLASS} schema-field-type-${type}`;
+    let cls = `schema-field-wrapper schema-field-type-${type}`;
     if (this.props.activeType === this.props.self) {
       cls += ' active';
     }
@@ -116,7 +109,9 @@ class Type extends Component {
     };
     const subtypes = this._getArraySubTypes();
     const label = (
-      <span className="schema-field-type-label">{this.props.name}</span>
+      <Disclaimer className={schemaFieldTypeLabelStyles}>
+        {this.props.name}
+      </Disclaimer>
     );
     // show integer accuracy by default, but show one decimal point accuracy
     // when less than 1% or greater than 99% but no 0% or 100%
@@ -128,26 +123,19 @@ class Type extends Component {
     const tooltipText = `${this.props.name} (${numeral(
       this.props.probability
     ).format(format)})`;
-    const tooltipOptions = {
-      'data-for': TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT,
-      'data-tip': tooltipText,
-      'data-effect': 'solid',
-      'data-border': true,
-    };
-    tooltipOptions['data-offset'] = this.props.showSubTypes
-      ? '{"top": -25, "left": 0}'
-      : '{"top": 10, "left": 0}';
     return (
-      <button
-        {...tooltipOptions}
-        type="button"
-        className={cls}
-        style={style}
-        onClick={handleClick}
-      >
-        <ReactTooltip id={TOOLTIP_IDS.SCHEMA_PROBABILITY_PERCENT} />
+      <button type="button" className={cls} style={style} onClick={handleClick}>
         {this.props.showSubTypes ? label : null}
-        <div className="schema-field-type" />
+        <Tooltip
+          trigger={({ children, ...props }) => (
+            <div {...props}>
+              <div className="schema-field-type" />
+              {children}
+            </div>
+          )}
+        >
+          {tooltipText}
+        </Tooltip>
         {subtypes}
         {this.props.showSubTypes ? null : label}
       </button>

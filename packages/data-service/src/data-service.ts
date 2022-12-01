@@ -7,7 +7,9 @@ import { isFunction } from 'lodash';
 import type {
   AggregateOptions,
   AggregationCursor,
+  AnyBulkWriteOperation,
   BulkWriteOptions,
+  BulkWriteResult,
   ClientSession,
   Collection,
   CollStats,
@@ -645,6 +647,12 @@ export interface DataService {
     callback: Callback<Document | UpdateResult>
   ): void;
 
+  bulkWrite(
+    ns: string,
+    operations: AnyBulkWriteOperation[],
+    options: BulkWriteOptions
+  ): Promise<BulkWriteResult>;
+
   /**
    * Returns the results of currentOp.
    *
@@ -758,6 +766,9 @@ export interface DataService {
    * helper class.
    */
   createDataKey(provider: string, options?: unknown): Promise<Document>;
+
+  getCSFLEMode(): 'enabled' | 'disabled' | 'unavailable';
+  getCSFLECollectionTracker(): CSFLECollectionTracker;
 }
 
 export class DataServiceImpl extends EventEmitter implements DataService {
@@ -1852,6 +1863,14 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         callback(null, result!);
       }
     );
+  }
+
+  bulkWrite(
+    ns: string,
+    operations: AnyBulkWriteOperation<Document>[],
+    options: BulkWriteOptions
+  ) {
+    return this._collection(ns, 'CRUD').bulkWrite(operations, options);
   }
 
   currentOp(includeAll: boolean, callback: Callback<Document>): void {

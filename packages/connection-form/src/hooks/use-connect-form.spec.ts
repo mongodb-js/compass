@@ -3,6 +3,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 import { handleConnectionFormFieldUpdate } from './use-connect-form';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useConnectForm } from './use-connect-form';
+
 describe('use-connect-form hook', function () {
   describe('isDirty', function () {
     const initialConnectionInfo = {
@@ -53,6 +54,7 @@ describe('use-connect-form hook', function () {
       expect(result.current[0].isDirty).to.be.true;
     });
   });
+
   describe('#handleConnectionFormFieldUpdate', function () {
     describe('add-new-host action', function () {
       describe('when directConnection is not set', function () {
@@ -273,7 +275,7 @@ describe('use-connect-form hook', function () {
         });
 
         it('returns no errors', function () {
-          expect(updateResult.errors.length).to.equal(0);
+          expect(updateResult.errors?.length).to.equal(0);
         });
       });
 
@@ -311,7 +313,7 @@ describe('use-connect-form hook', function () {
         });
 
         it('returns no errors', function () {
-          expect(updateResult.errors.length).to.equal(0);
+          expect(updateResult.errors?.length).to.equal(0);
         });
       });
 
@@ -349,7 +351,7 @@ describe('use-connect-form hook', function () {
         });
 
         it('returns no errors', function () {
-          expect(updateResult.errors.length).to.equal(0);
+          expect(updateResult.errors?.length).to.equal(0);
         });
       });
 
@@ -558,7 +560,7 @@ describe('use-connect-form hook', function () {
         });
 
         it('returns no errors', function () {
-          expect(updateResult.errors.length).to.equal(0);
+          expect(updateResult.errors?.length).to.equal(0);
         });
       });
 
@@ -644,7 +646,7 @@ describe('use-connect-form hook', function () {
         });
 
         it('returns no errors', function () {
-          expect(updateResult.errors.length).to.equal(0);
+          expect(updateResult.errors?.length).to.equal(0);
         });
       });
     });
@@ -668,7 +670,7 @@ describe('use-connect-form hook', function () {
         );
 
         expect(sshTunnel).to.not.be.undefined;
-        expect(sshTunnel.host).to.equal('localhost');
+        expect(sshTunnel?.host).to.equal('localhost');
       });
     });
 

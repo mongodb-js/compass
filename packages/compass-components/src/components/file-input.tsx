@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import path from 'path';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -113,6 +113,17 @@ type FileWithPath = File & {
   path: string;
 };
 
+// Allow alternate backends besides a HTML input, e.g.
+// for writable file saving in Electron rather than read-only opening ("uploading").
+// See createElectronFileInputBackend for a utility that allows this.
+export type FileInputBackend = {
+  // Called when the user indicates that they wish to select a file.
+  openFileChooser: (options: { multi: boolean; accept?: string }) => void;
+  // Should install a listener that is called when files have been selected.
+  // Should return an unsubscribe function.
+  onFilesChosen: (listener: (files: string[]) => void) => () => void;
+};
+
 function FileInput({
   id,
   label,
@@ -125,12 +136,14 @@ function FileInput({
   optionalMessage,
   error = false,
   errorMessage,
-  variant = Variant.Horizontal,
+  variant = 'HORIZONTAL',
   showFileOnNewLine = false,
   link,
   description,
   values,
   className,
+  accept,
+  backend,
 }: {
   id: string;
   label: string;
@@ -143,12 +156,14 @@ function FileInput({
   optionalMessage?: string;
   error?: boolean;
   errorMessage?: string;
-  variant?: Variant;
+  variant?: 'HORIZONTAL' | 'VERTICAL';
   link?: string;
   description?: string;
   showFileOnNewLine?: boolean;
   values?: string[];
   className?: string;
+  accept?: string;
+  backend?: FileInputBackend;
 }): React.ReactElement {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -161,8 +176,8 @@ function FileInput({
   }, [values, multi]);
 
   const onFilesChanged = React.useCallback(
-    (evt) => {
-      const fileList = Array.from(evt.currentTarget.files as FileList);
+    (evt: React.ChangeEvent<HTMLInputElement>) => {
+      const fileList = Array.from(evt.currentTarget.files ?? []);
       const files = fileList.map((file) => {
         return (file as FileWithPath).path;
       });
@@ -170,6 +185,10 @@ function FileInput({
     },
     [onChange]
   );
+
+  useEffect(() => {
+    return backend?.onFilesChosen?.(onChange);
+  }, [backend, onChange]);
 
   const renderDescription = (): React.ReactElement | null => {
     if (!link && !description) {
@@ -194,7 +213,7 @@ function FileInput({
     );
   };
 
-  const applyTheme = global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
+  const valuesAsString = useMemo(() => JSON.stringify(values), [values]);
 
   return (
     <div className={cx(containerStyles, className)}>
@@ -211,7 +230,7 @@ function FileInput({
           <Label htmlFor={`${id}_file_input`} disabled={disabled}>
             <span
               className={cx({
-                [applyTheme && darkMode
+                [darkMode
                   ? disabledDescriptionDarkStyles
                   : disabledDescriptionLightStyles]: disabled,
               })}
@@ -237,7 +256,10 @@ function FileInput({
           style={{ display: 'none' }}
           // Force a re-render when the values change so
           // the component is controlled by the prop.
-          key={values ? values.join(',') : 'empty'}
+          // This is also useful for testing.
+          key={valuesAsString}
+          data-filenames={valuesAsString}
+          accept={accept}
         />
         <Button
           id={id}
@@ -245,7 +267,10 @@ function FileInput({
           className={buttonStyles}
           disabled={disabled}
           onClick={() => {
-            if (!disabled && inputRef.current) {
+            if (disabled) return;
+            if (backend) {
+              backend.openFileChooser({ multi, accept });
+            } else if (inputRef.current) {
               inputRef.current.click();
             }
           }}
@@ -288,3 +313,112 @@ function FileInput({
 }
 
 export default withTheme(FileInput);
+
+// Matches Electron's file dialog options
+export type ElectronFileDialogOptions = {
+  title?: string;
+  defaultPath?: string;
+  filters?: { name: string; extensions: string[] }[];
+  buttonLabel?: string;
+  properties?: string[];
+};
+
+// Matches require('electron') or require('@electron/remote')
+export type ElectronShowFileDialogProvider<ElectronWindow> = {
+  getCurrentWindow(): ElectronWindow;
+  dialog: {
+    showSaveDialog(
+      window: ElectronWindow,
+      options: Partial<ElectronFileDialogOptions>
+    ): Promise<{ canceled: boolean; filePath?: string }>;
+    showOpenDialog(
+      window: ElectronWindow,
+      options: Partial<ElectronFileDialogOptions>
+    ): Promise<{ canceled: boolean; filePaths: string[] }>;
+  };
+};
+
+// Use as:
+//
+// import * as electronRemote from '@electron/remote';
+// const backend = createElectronFileInputBackend(electronRemote, 'save', { ... });
+// <FileInput backend={backend} ... />
+//
+// The third argument can be a callback rather than an object to avoid having to re-create
+// the backend object every time the options object changes.
+export function createElectronFileInputBackend<ElectronWindow>(
+  electron: ElectronShowFileDialogProvider<ElectronWindow>,
+  mode: 'open' | 'save',
+  defaultOptions:
+    | Partial<ElectronFileDialogOptions>
+    | (() => Partial<ElectronFileDialogOptions>) = {}
+): FileInputBackend {
+  const listeners: ((files: string[]) => void)[] = [];
+
+  return {
+    openFileChooser(options) {
+      const window = electron.getCurrentWindow();
+      const defaultOpts =
+        typeof defaultOptions === 'function'
+          ? defaultOptions()
+          : defaultOptions;
+
+      let properties = [...(defaultOpts.properties ?? [])];
+      if (
+        !properties.includes('openFile') &&
+        !properties.includes('openDirectory')
+      ) {
+        properties.push('openFile');
+      }
+      if (options.multi) {
+        if (!properties.includes('multiSelect')) properties.push('multiSelect');
+      } else {
+        properties = properties.filter((prop) => prop !== 'multiSelect');
+      }
+
+      const filters = [...(defaultOpts.filters ?? [])];
+      for (let acceptEntry of options.accept?.split(',') ?? []) {
+        acceptEntry = acceptEntry.trim().toLowerCase();
+        if (!acceptEntry.startsWith('.')) {
+          continue; // A MIME type, not a file extension, so not something we know how to handle
+        }
+        const extension = acceptEntry.slice(1); // strip leading '.'
+        if (!filters.some((filter) => filter.extensions.includes(extension))) {
+          filters.push({
+            name: `${acceptEntry} file`,
+            extensions: [extension],
+          });
+        }
+      }
+
+      electron.dialog[mode === 'open' ? 'showOpenDialog' : 'showSaveDialog'](
+        window,
+        {
+          ...defaultOpts,
+          properties,
+          filters,
+        }
+      )
+        .then((result) => {
+          if (result.canceled) return;
+          const files =
+            'filePaths' in result
+              ? result.filePaths
+              : result.filePath
+              ? [result.filePath]
+              : [];
+          for (const listener of listeners) listener(files);
+        })
+        .catch(() => {
+          /* ignore */
+        });
+    },
+    onFilesChosen(listener) {
+      listeners.push(listener);
+      return () => {
+        const index = listeners.indexOf(listener);
+        if (index !== -1) listeners.splice(index, 1);
+      };
+    },
+  };
+}

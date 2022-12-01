@@ -1,28 +1,24 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import sinon from 'sinon';
+import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
-
 import { StageOperatorSelect } from './stage-operator-select';
-import styles from './stage-operator-select.module.less';
+import Sinon from 'sinon';
 
-describe('StageOperatorSelect [Component]', function() {
-  let component;
-  const spy = sinon.spy();
+const stages = [
+  {name: '$stage1', description: 'stage1 description', env: []},
+  {name: '$stage2', description: 'stage2 description', env: ['atlas']}
+];
 
-  beforeEach(function() {
-    component = mount(
-      <StageOperatorSelect
-        index={0}
-        onChange={spy} />
-    );
+describe('StageOperatorSelect', function () {
+  let onChangeSpy;
+  beforeEach(function () {
+    onChangeSpy = Sinon.spy();
+    render(<StageOperatorSelect index={0} stages={stages} onChange={onChangeSpy} />);
   });
 
-  afterEach(function() {
-    component = null;
-  });
+  afterEach(cleanup);
 
-  it('renders the wrapper div', function() {
-    expect(component.find(`.${styles['stage-operator-select']}`)).to.be.present();
+  it('should render a combobox', function () {
+    expect(screen.getByTestId('stage-operator-combobox')).to.exist;
   });
 });

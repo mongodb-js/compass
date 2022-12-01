@@ -27,5 +27,5 @@ ipc.on('window:zoom-out', zoomOut);
 module.exports = {
   zoomReset,
   zoomIn,
-  zoomOut
+  zoomOut,
 };

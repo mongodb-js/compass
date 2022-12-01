@@ -30,7 +30,7 @@ describe('PipelinePreviewManager', function () {
     expect(result[0]).to.have.property('status', 'rejected');
     expect(result[0]).to.have.nested.property(
       'reason.name',
-      'PromiseCancelledError'
+      'AbortError'
     );
   });
 
@@ -135,6 +135,35 @@ describe('PipelinePreviewManager', function () {
       ).to.deep.eq([
         { $group: {} },
         { $bucket: {} },
+        { $limit: DEFAULT_PREVIEW_LIMIT }
+      ]);
+    });
+
+    it('should throw when last stage is output stage', function () {
+      const pipeline = [
+        { $match: {} },
+        { $sort: {} },
+        { $out: 'test' },
+      ];
+      expect(
+        () => {
+          createPreviewAggregation(pipeline)
+        }
+      ).to.throw;
+    });
+
+    it('should not throw when output stage is not at the end of pipeline', function () {
+      const pipeline = [
+        { $match: {} },
+        { $out: 'test' },
+        { $sort: {} },
+      ];
+      expect(
+        createPreviewAggregation(pipeline)
+      ).to.deep.eq([
+        { $match: {} },
+        { $out: 'test' },
+        { $sort: {} },
         { $limit: DEFAULT_PREVIEW_LIMIT }
       ]);
     });

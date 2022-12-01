@@ -4,7 +4,7 @@ import {
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { NEW_PIPELINE } from './import-pipeline';
-import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -84,7 +84,10 @@ export const updateView = () => {
         }
 
         dispatch(globalAppRegistryEmit('refresh-data'));
-        track('View Updated', { num_stages: viewPipeline.length });
+        track('View Updated', {
+          num_stages: viewPipeline.length,
+          editor_view_type: mapPipelineModeToEditorViewType(state.pipelineBuilder.pipelineMode),
+        });
         dispatch(
           globalAppRegistryEmit(
             'compass:aggregations:update-view',

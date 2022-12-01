@@ -2,13 +2,22 @@ import '../setup-hadron-distribution';
 import { app, dialog } from 'electron';
 import { handleUncaughtException } from './handle-uncaught-exception';
 import { initialize } from '@electron/remote/main';
-import { doImportConnections, doExportConnections } from './import-export-connections';
-import { parseAndValidateGlobalPreferences, getHelpText } from 'compass-preferences-model';
+import {
+  doImportConnections,
+  doExportConnections,
+} from './import-export-connections';
+import {
+  parseAndValidateGlobalPreferences,
+  getHelpText,
+  getExampleConfigFile,
+} from 'compass-preferences-model';
 import chalk from 'chalk';
 import { installEarlyLoggingListener } from './logging';
+import { installEarlyOpenUrlListener } from './window-manager';
 
 initialize();
 installEarlyLoggingListener();
+installEarlyOpenUrlListener();
 
 // Name and version are setup outside of Application and before anything else so
 // that if uncaught exception happens we already show correct name and version
@@ -33,46 +42,76 @@ async function main(): Promise<void> {
   const globalPreferences = await parseAndValidateGlobalPreferences();
 
   if (process.env.HADRON_ISOLATED === 'true') {
-    globalPreferences.hardcoded = { ...globalPreferences.hardcoded, networkTraffic: false };
+    globalPreferences.hardcoded = {
+      ...globalPreferences.hardcoded,
+      networkTraffic: false,
+    };
+  }
+  if (process.env.COMPASS_LG_DARKMODE === 'true') {
+    globalPreferences.hardcoded = {
+      ...globalPreferences.hardcoded,
+      lgDarkmode: true,
+    };
+  }
+  if (process.env.HADRON_READONLY === 'true') {
+    globalPreferences.hardcoded = {
+      ...globalPreferences.hardcoded,
+      readOnly: true,
+    };
   }
 
   const { preferenceParseErrors } = globalPreferences;
+  const preferences = {
+    ...globalPreferences.cli,
+    ...globalPreferences.global,
+    ...globalPreferences.hardcoded,
+  };
   const preferenceParseErrorsString = preferenceParseErrors.join('\n');
-  if (globalPreferences.cli.version) {
-    process.stdout.write(`${app.getName()} ${app.getVersion()}\n`)
+  if (preferences.version) {
+    process.stdout.write(`${app.getName()} ${app.getVersion()}\n`);
     return app.exit(0);
   }
 
-  if (globalPreferences.cli.help) {
+  if (preferences.help) {
     process.stdout.write(getHelpText());
+    return app.exit(0);
+  }
+
+  if (preferences.showExampleConfig) {
+    process.stdout.write(getExampleConfigFile());
     return app.exit(0);
   }
 
   if (preferenceParseErrors.length > 0) {
     process.stderr.write(chalk.yellow(preferenceParseErrorsString) + '\n');
-    process.stderr.write('Use --ignore-additional-command-line-flags to allow passing additional options to Chromium/Electron\n');
+    process.stderr.write(
+      'Use --ignore-additional-command-line-flags to allow passing additional options to Chromium/Electron\n'
+    );
   }
   const errorOutDueToAdditionalCommandLineFlags =
-  preferenceParseErrors.length > 0 &&
-    !globalPreferences.global.ignoreAdditionalCommandLineFlags &&
-    !globalPreferences.cli.ignoreAdditionalCommandLineFlags;
+    preferenceParseErrors.length > 0 &&
+    !preferences.ignoreAdditionalCommandLineFlags;
 
   const importExportOptions = {
-    exportConnections: globalPreferences.cli.exportConnections,
-    importConnections: globalPreferences.cli.importConnections,
-    passphrase: globalPreferences.cli.passphrase,
-    // TODO(COMPASS-6066): Set removeSecrets: true if protectConnectionStrings is set.
-    removeSecrets: false,
+    exportConnections: preferences.exportConnections,
+    importConnections: preferences.importConnections,
+    passphrase: preferences.passphrase,
+    removeSecrets: !!preferences.protectConnectionStrings,
     trackingProps: { context: 'CLI' },
   };
 
   const { CompassApplication } = await import('./application');
 
-  const doImportExport = importExportOptions.exportConnections || importExportOptions.importConnections;
+  const doImportExport =
+    importExportOptions.exportConnections ||
+    importExportOptions.importConnections;
   const mode = doImportExport ? 'CLI' : 'GUI';
   if (mode === 'GUI') {
     if (errorOutDueToAdditionalCommandLineFlags) {
-      dialog.showErrorBox('Errors while parsing Compass preferences', preferenceParseErrorsString);
+      dialog.showErrorBox(
+        'Errors while parsing Compass preferences',
+        preferenceParseErrorsString
+      );
       return app.exit(1);
     }
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -92,18 +131,35 @@ async function main(): Promise<void> {
   if (mode === 'CLI') {
     let exitCode = 0;
     try {
-      if (importExportOptions.exportConnections && importExportOptions.importConnections) {
-        throw new Error('Cannot specify both --export-connections and --import-connections');
+      if (
+        importExportOptions.exportConnections &&
+        importExportOptions.importConnections
+      ) {
+        throw new Error(
+          'Cannot specify both --export-connections and --import-connections'
+        );
       }
-      if (!importExportOptions.exportConnections && !importExportOptions.importConnections && importExportOptions.passphrase) {
-        throw new Error('Cannot specify --passphrase without --export-connections or --import-connections');
+      if (
+        !importExportOptions.exportConnections &&
+        !importExportOptions.importConnections &&
+        importExportOptions.passphrase
+      ) {
+        throw new Error(
+          'Cannot specify --passphrase without --export-connections or --import-connections'
+        );
       }
 
       if (importExportOptions.exportConnections) {
-        await doExportConnections(importExportOptions.exportConnections, importExportOptions);
+        await doExportConnections(
+          importExportOptions.exportConnections,
+          importExportOptions
+        );
       }
       if (importExportOptions.importConnections) {
-        await doImportConnections(importExportOptions.importConnections, importExportOptions);
+        await doImportConnections(
+          importExportOptions.importConnections,
+          importExportOptions
+        );
       }
     } catch (err: any) {
       console.error('Failed to perform operation', err?.messsage ?? err);

@@ -52,6 +52,8 @@ import type {
   UpdateCsfleKmsAction,
   UpdateCsfleKmsTlsAction,
 } from '../utils/csfle-handler';
+import { setAppNameParamIfMissing } from '../utils/set-app-name-if-missing';
+import { applyForceConnectionOptions } from '../utils/force-connection-options';
 
 export interface ConnectFormState {
   connectionOptions: ConnectionOptions;
@@ -59,6 +61,7 @@ export interface ConnectFormState {
   errors: ConnectionFormError[];
   warnings: ConnectionFormWarning[];
   isDirty: boolean;
+  allowEditingIfProtected: boolean;
 }
 
 type Action =
@@ -192,13 +195,16 @@ function buildStateFromConnectionInfo(
   const [, errors] = parseConnectionString(
     initialConnectionInfo.connectionOptions.connectionString
   );
+  // Only enable connection string editing (and in particular, doing so in
+  // protected connection strings mode) when it's the default connection
+  // string and the connection has not been connected to (saved recent/favorite).
+  const isNewDefaultConnection =
+    initialConnectionInfo.connectionOptions.connectionString ===
+      defaultConnectionString && !initialConnectionInfo.lastUsed;
   return {
     errors: errors,
-    // Only enable connection string editing when it's the default connection
-    // string and the connection has not been connected to (saved recent/favorite).
-    enableEditingConnectionString:
-      initialConnectionInfo.connectionOptions.connectionString ===
-        defaultConnectionString && !initialConnectionInfo.lastUsed,
+    enableEditingConnectionString: isNewDefaultConnection,
+    allowEditingIfProtected: isNewDefaultConnection,
     warnings: errors?.length
       ? []
       : validateConnectionOptionsWarnings(
@@ -638,6 +644,7 @@ function setInitialState({
       enableEditingConnectionString,
       warnings,
       connectionOptions,
+      allowEditingIfProtected,
     } = buildStateFromConnectionInfo(initialConnectionInfo);
 
     dispatch({
@@ -648,6 +655,7 @@ function setInitialState({
         warnings,
         connectionOptions,
         isDirty: false,
+        allowEditingIfProtected,
       },
     });
   }, [initialConnectionInfo]);
@@ -660,7 +668,18 @@ function setInitialState({
 }
 
 export function adjustConnectionOptionsBeforeConnect(
-  connectionOptions: Readonly<ConnectionOptions>
+  connectionOptions: Readonly<ConnectionOptions>,
+  defaultAppName?: string
 ): ConnectionOptions {
-  return adjustCSFLEParams(cloneDeep(connectionOptions));
+  const transformers: ((
+    connectionOptions: Readonly<ConnectionOptions>
+  ) => ConnectionOptions)[] = [
+    adjustCSFLEParams,
+    setAppNameParamIfMissing(defaultAppName),
+    applyForceConnectionOptions,
+  ];
+  for (const transformer of transformers) {
+    connectionOptions = transformer(connectionOptions);
+  }
+  return connectionOptions;
 }

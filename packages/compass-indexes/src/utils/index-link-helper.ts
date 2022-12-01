@@ -2,8 +2,6 @@ const HELP_URLS = {
   SINGLE: 'https://docs.mongodb.org/manual/core/index-single/',
   COMPOUND: 'https://docs.mongodb.org/manual/core/index-compound/',
   UNIQUE: 'https://docs.mongodb.org/manual/core/index-unique/',
-  BACKGROUND:
-    'https://docs.mongodb.com/manual/core/index-creation/#index-creation-background',
   PARTIAL: 'https://docs.mongodb.org/manual/core/index-partial/',
   SPARSE: 'https://docs.mongodb.org/manual/core/index-sparse/',
   TTL: 'https://docs.mongodb.org/manual/core/index-ttl/',

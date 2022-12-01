@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
+import {
+  ImportConnectionsModal,
+  ExportConnectionsModal,
+} from '@mongodb-js/compass-connection-import-export';
 import {
   ResizableSidebar,
   ErrorBoundary,
@@ -44,10 +48,13 @@ const formContainerStyles = css({
   flexDirection: 'row',
   flexWrap: 'wrap',
   gap: spacing[4],
+  overflow: 'auto',
+  height: '100%',
 });
 
 function Connections({
   onConnected,
+  isConnected,
   connectionStorage = new ConnectionStorage(),
   appName,
   getAutoConnectInfo,
@@ -57,9 +64,10 @@ function Connections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
+  isConnected: boolean;
   connectionStorage?: ConnectionStorage;
   appName: string;
-  getAutoConnectInfo?: (() => Promise<ConnectionInfo>) | undefined;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
   const {
@@ -74,8 +82,10 @@ function Connections({
     saveConnection,
     favoriteConnections,
     recentConnections,
+    reloadConnections,
   } = useConnections({
     onConnected,
+    isConnected,
     connectionStorage,
     connectFn,
     appName,
@@ -87,16 +97,26 @@ function Connections({
     connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
-    isConnected,
   } = state;
 
-  return (
-    <div
-      data-testid={
-        isConnected ? 'connections-connected' : 'connections-disconnected'
+  const [showExportConnectionsModal, setShowExportConnectionsModal] =
+    useState(false);
+  const [showImportConnectionsModal, setShowImportConnectionsModal] =
+    useState(false);
+
+  const openConnectionImportExportModal = useCallback(
+    (action: 'export-favorites' | 'import-favorites') => {
+      if (action === 'export-favorites') {
+        setShowExportConnectionsModal(true);
+      } else {
+        setShowImportConnectionsModal(true);
       }
-      className={connectStyles}
-    >
+    },
+    []
+  );
+
+  return (
+    <div data-testid="connections-wrapper" className={connectStyles}>
       <ResizableSidebar>
         <ConnectionList
           activeConnectionId={activeConnectionId}
@@ -112,6 +132,7 @@ function Connections({
           }}
           removeConnection={removeConnection}
           duplicateConnection={duplicateConnection}
+          openConnectionImportExportModal={openConnectionImportExportModal}
         />
       </ResizableSidebar>
       <div>
@@ -141,13 +162,25 @@ function Connections({
           <FormHelp />
         </div>
       </div>
-      {(isConnected ||
-        (!!connectionAttempt && !connectionAttempt.isClosed())) && (
+      {!!connectionAttempt && !connectionAttempt.isClosed() && (
         <Connecting
           connectingStatusText={connectingStatusText}
           onCancelConnectionClicked={cancelConnectionAttempt}
         />
       )}
+      <ImportConnectionsModal
+        open={showImportConnectionsModal}
+        setOpen={setShowImportConnectionsModal}
+        favoriteConnections={favoriteConnections}
+        afterImport={reloadConnections}
+        trackingProps={{ context: 'connectionsList' }}
+      />
+      <ExportConnectionsModal
+        open={showExportConnectionsModal}
+        setOpen={setShowExportConnectionsModal}
+        favoriteConnections={favoriteConnections}
+        trackingProps={{ context: 'connectionsList' }}
+      />
     </div>
   );
 }

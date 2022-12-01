@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
-import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
+import type { TypeCastMap } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
+import { variantColors } from '@leafygreen-ui/code';
 
 import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
+import { Theme, useTheme } from '../hooks/use-theme';
 
 type ValueProps =
   | {
@@ -25,58 +27,78 @@ type PropsByValueType<V extends ValueTypes> = Omit<
   'type'
 >;
 
-export const VALUE_COLOR_BY_TYPE: Record<
-  Extract<
-    TypeCastTypes,
-    | 'Int32'
-    | 'Double'
-    | 'Decimal128'
-    | 'Date'
-    | 'Boolean'
-    | 'String'
-    | 'ObjectId'
-  >,
-  string
+const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
+  Theme,
+  Partial<Record<ValueTypes, string>>
 > = {
-  // NOTE: these colors are aligned with the Leafygreen code component
-  // and are not part of the palette
-  Int32: '#016ee9',
-  Double: '#016ee9',
-  Decimal128: '#016ee9',
-  Date: '#016ee9',
-  Boolean: '#CC3887',
-  String: '#12824D',
-  ObjectId: '#D83713',
+  [Theme.Dark]: {
+    Int32: variantColors.dark[9],
+    Double: variantColors.dark[9],
+    Decimal128: variantColors.dark[9],
+    Date: variantColors.dark[9],
+    Boolean: variantColors.dark[10],
+    String: variantColors.dark[7],
+    ObjectId: variantColors.dark[5],
+  },
+  [Theme.Light]: {
+    Int32: variantColors.light[9],
+    Double: variantColors.light[9],
+    Decimal128: variantColors.light[9],
+    Date: variantColors.light[9],
+    Boolean: variantColors.light[10],
+    String: variantColors.light[7],
+    ObjectId: variantColors.light[5],
+  },
 };
-
-export function hasCustomColor(
-  type: ValueTypes | string
-): type is keyof typeof VALUE_COLOR_BY_TYPE {
-  return type in VALUE_COLOR_BY_TYPE;
-}
 
 const bsonValue = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  display: 'inline',
 });
 
 const bsonValuePrewrap = css({
   whiteSpace: 'pre-wrap',
 });
 
-function getStyles(type: ValueTypes | string): string {
-  return cx(
-    bsonValue,
-    type === 'String' && bsonValuePrewrap,
-    hasCustomColor(type) &&
-      css({
-        color: VALUE_COLOR_BY_TYPE[type],
-      }),
-    `element-value element-value-is-${type.toLowerCase()}`
+export const BSONValueContainer: React.FunctionComponent<
+  React.HTMLProps<HTMLDivElement> & {
+    type?: ValueTypes;
+    chidren?: React.ReactChildren;
+  }
+> = ({ type, children, className, ...props }) => {
+  const { theme } = useTheme();
+  const textColorStyle = useMemo(() => {
+    if (!type) {
+      return '';
+    }
+
+    const color = VALUE_COLOR_BY_THEME_AND_TYPE[theme]?.[type];
+
+    if (!color) {
+      return '';
+    }
+
+    return css({ color });
+  }, [type, theme]);
+
+  return (
+    <div
+      {...props}
+      className={cx(
+        className,
+        bsonValue,
+        type === 'String' && bsonValuePrewrap,
+        textColorStyle,
+        `element-value element-value-is-${
+          type ? type.toLowerCase() : 'unknown'
+        }`
+      )}
+    >
+      {children}
+    </div>
   );
-}
+};
 
 const nonSelectable = css({
   userSelect: 'none',
@@ -95,11 +117,11 @@ export const ObjectIdValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getStyles('ObjectId')} title={stringifiedValue}>
+    <BSONValueContainer type="ObjectId" title={stringifiedValue}>
       <span className={nonSelectable}>ObjectId(&apos;</span>
       {stringifiedValue}
       <span className={nonSelectable}>&apos;)</span>
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -154,10 +176,10 @@ export const BinaryValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getStyles('Binary')} title={title ?? stringifiedValue}>
+    <BSONValueContainer type="Binary" title={title ?? stringifiedValue}>
       {stringifiedValue}
       {additionalHints}
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -171,9 +193,9 @@ export const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   }, [value.code, value.scope]);
 
   return (
-    <div className={getStyles('Code')} title={stringifiedValue}>
+    <BSONValueContainer type="Code" title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -189,9 +211,9 @@ export const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   }, [value]);
 
   return (
-    <div className={getStyles('Date')} title={stringifiedValue}>
+    <BSONValueContainer type="Date" title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -203,9 +225,9 @@ export const NumberValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getStyles(type)} title={stringifiedValue}>
+    <BSONValueContainer type={type} title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -217,9 +239,9 @@ export const StringValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getStyles('String')} title={value}>
+    <BSONValueContainer type="String" title={value}>
       &quot;{truncatedValue}&quot;
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -231,9 +253,9 @@ export const RegExpValue: React.FunctionComponent<
   }, [value.pattern, value.options]);
 
   return (
-    <div className={getStyles('BSONRegExp')} title={stringifiedValue}>
+    <BSONValueContainer type="BSONRegExp" title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -245,9 +267,9 @@ export const TimestampValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getStyles('Timestamp')} title={stringifiedValue}>
+    <BSONValueContainer type="Timestamp" title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -259,9 +281,9 @@ export const KeyValue: React.FunctionComponent<{
   }, [type]);
 
   return (
-    <div className={getStyles(type)} title={stringifiedValue}>
+    <BSONValueContainer type={type} title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -275,9 +297,9 @@ export const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   }, [value.collection, value.oid, value.db]);
 
   return (
-    <div className={getStyles('DBRef')} title={stringifiedValue}>
+    <BSONValueContainer type="DBRef" title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 
@@ -289,24 +311,24 @@ export const SymbolValue: React.FunctionComponent<
   }, [value]);
 
   return (
-    <div className={getStyles('Symbol')} title={stringifiedValue}>
+    <BSONValueContainer type="BSONSymbol" title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 
 export const UnknownValue: React.FunctionComponent<{
   type: string;
   value: unknown;
-}> = ({ type, value }) => {
+}> = ({ value }) => {
   const stringifiedValue = useMemo(() => {
     return String(value);
   }, [value]);
 
   return (
-    <div className={getStyles(type)} title={stringifiedValue}>
+    <BSONValueContainer title={stringifiedValue}>
       {stringifiedValue}
-    </div>
+    </BSONValueContainer>
   );
 };
 

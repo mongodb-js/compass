@@ -17,7 +17,6 @@ import {
   trackConnectionFailedEvent,
 } from '../modules/telemetry';
 import ConnectionString from 'mongodb-connection-string-url';
-import type { MongoClientOptions } from 'mongodb';
 import { adjustConnectionOptionsBeforeConnect } from '@mongodb-js/connection-form';
 
 import { ToastVariant, useToast } from '@mongodb-js/compass-components';
@@ -39,33 +38,6 @@ function ensureWellFormedConnectionString(connectionString: string) {
   new ConnectionString(connectionString);
 }
 
-function setAppNameParamIfMissing(
-  connectionString: string,
-  appName: string
-): string {
-  let connectionStringUrl;
-
-  try {
-    connectionStringUrl = new ConnectionString(connectionString, {
-      looseValidation: true,
-    });
-  } catch (e) {
-    //
-  }
-
-  if (!connectionStringUrl) {
-    return connectionString;
-  }
-
-  const searchParams =
-    connectionStringUrl.typedSearchParams<MongoClientOptions>();
-  if (!searchParams.has('appName')) {
-    searchParams.set('appName', appName);
-  }
-
-  return connectionStringUrl.href;
-}
-
 type State = {
   activeConnectionId?: string;
   activeConnectionInfo: ConnectionInfo;
@@ -73,7 +45,6 @@ type State = {
   connectionAttempt: ConnectionAttempt | null;
   connectionErrorMessage: string | null;
   connections: ConnectionInfo[];
-  isConnected: boolean;
 };
 
 export function defaultConnectionsState(): State {
@@ -84,7 +55,6 @@ export function defaultConnectionsState(): State {
     connections: [],
     connectionAttempt: null,
     connectionErrorMessage: null,
-    isConnected: false,
   };
 }
 
@@ -141,7 +111,6 @@ export function connectionsReducer(state: State, action: Action): State {
       return {
         ...state,
         connectionAttempt: null,
-        isConnected: true,
         connectionErrorMessage: null,
       };
     case 'connection-attempt-errored':
@@ -205,6 +174,7 @@ async function loadConnections(
 const MAX_RECENT_CONNECTIONS_LENGTH = 10;
 export function useConnections({
   onConnected,
+  isConnected,
   connectionStorage,
   appName,
   getAutoConnectInfo,
@@ -214,8 +184,9 @@ export function useConnections({
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
+  isConnected: boolean;
   connectionStorage: ConnectionStorage;
-  getAutoConnectInfo?: (() => Promise<ConnectionInfo>) | undefined;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn: (connectionOptions: ConnectionOptions) => Promise<DataService>;
   appName: string;
 }): {
@@ -232,6 +203,7 @@ export function useConnections({
   removeAllRecentsConnections: () => Promise<void>;
   duplicateConnection: (connectioInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
+  reloadConnections: () => void;
 } {
   const { openToast } = useToast('compass-connections');
 
@@ -239,8 +211,7 @@ export function useConnections({
     connectionsReducer,
     defaultConnectionsState()
   );
-  const { activeConnectionId, isConnected, connectionAttempt, connections } =
-    state;
+  const { activeConnectionId, connectionAttempt, connections } = state;
 
   const connectingConnectionAttempt = useRef<ConnectionAttempt>();
 
@@ -310,9 +281,15 @@ export function useConnections({
   }
 
   const onConnectSuccess = useCallback(
-    async (connectionInfo: ConnectionInfo, dataService: DataService) => {
+    async (
+      connectionInfo: ConnectionInfo,
+      dataService: DataService,
+      shouldSaveConnectionInfo: boolean
+    ) => {
       try {
         onConnected(connectionInfo, dataService);
+
+        if (!shouldSaveConnectionInfo) return;
 
         // if a connection has been saved already we only want to update the lastUsed
         // attribute, otherwise we are going to save the entire connection info.
@@ -347,13 +324,7 @@ export function useConnections({
         );
       }
     },
-    [
-      onConnected,
-      connectionStorage,
-      saveConnectionInfo,
-      removeConnection,
-      recentConnections,
-    ]
+    [onConnected, connectionStorage, saveConnectionInfo, removeConnection]
   );
 
   useEffect(() => {
@@ -382,7 +353,9 @@ export function useConnections({
   }, [getAutoConnectInfo]);
 
   const connect = async (
-    getAutoConnectInfo: ConnectionInfo | (() => Promise<ConnectionInfo>)
+    getAutoConnectInfo:
+      | ConnectionInfo
+      | (() => Promise<ConnectionInfo | undefined>)
   ) => {
     if (connectionAttempt || isConnected) {
       // Ensure we aren't currently connecting.
@@ -393,9 +366,14 @@ export function useConnections({
     connectingConnectionAttempt.current = newConnectionAttempt;
 
     let connectionInfo: ConnectionInfo | undefined = undefined;
+    let shouldSaveConnectionInfo = false;
     try {
       if (typeof getAutoConnectInfo === 'function') {
         connectionInfo = await getAutoConnectInfo();
+        if (!connectionInfo) {
+          connectingConnectionAttempt.current = undefined;
+          return;
+        }
 
         dispatch({
           type: 'set-active-connection',
@@ -403,6 +381,7 @@ export function useConnections({
         });
       } else {
         connectionInfo = getAutoConnectInfo;
+        shouldSaveConnectionInfo = true;
       }
 
       dispatch({
@@ -416,16 +395,12 @@ export function useConnections({
       trackConnectionAttemptEvent(connectionInfo);
       debug('connecting with connectionInfo', connectionInfo);
 
-      const connectionStringWithAppName = setAppNameParamIfMissing(
-        connectionInfo.connectionOptions.connectionString,
-        appName
+      const newConnectionDataService = await newConnectionAttempt.connect(
+        adjustConnectionOptionsBeforeConnect(
+          connectionInfo.connectionOptions,
+          appName
+        )
       );
-      const newConnectionDataService = await newConnectionAttempt.connect({
-        ...adjustConnectionOptionsBeforeConnect(
-          connectionInfo.connectionOptions
-        ),
-        connectionString: connectionStringWithAppName,
-      });
       connectingConnectionAttempt.current = undefined;
 
       if (!newConnectionDataService || newConnectionAttempt.isClosed()) {
@@ -437,7 +412,11 @@ export function useConnections({
         type: 'connection-attempt-succeeded',
       });
 
-      void onConnectSuccess(connectionInfo, newConnectionDataService);
+      void onConnectSuccess(
+        connectionInfo,
+        newConnectionDataService,
+        shouldSaveConnectionInfo
+      );
 
       trackNewConnectionEvent(connectionInfo, newConnectionDataService);
       debug(
@@ -567,6 +546,9 @@ export function useConnections({
           return conn.favorite;
         }),
       });
+    },
+    reloadConnections() {
+      void loadConnections(dispatch, connectionStorage);
     },
   };
 }

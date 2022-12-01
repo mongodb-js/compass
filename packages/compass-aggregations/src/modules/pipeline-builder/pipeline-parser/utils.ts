@@ -1,35 +1,40 @@
 import babelGenerate from '@babel/generator';
 import type { Node } from '@babel/types';
-import prettier from 'prettier';
+import _parseShellBSON, { ParseMode } from 'ejson-shell-parser';
+import type { Document } from 'mongodb';
+import { prettify } from '@mongodb-js/compass-editor';
+import type { FormatOptions } from '@mongodb-js/compass-editor';
 
 type ErrorLoc = {
   line: number;
   column: number;
 }
 export class PipelineParserError extends SyntaxError {
-  loc: ErrorLoc | undefined;
-  constructor(message: string, loc?: ErrorLoc) {
+  constructor(message: string, public loc?: ErrorLoc, public code?: number) {
     super(message);
-    this.loc = loc;
   }
 };
 
-export function generate(ast: Node) {
-  return prettify(babelGenerate(ast).code);
+export function generate(ast: Node, formatOptions?: FormatOptions) {
+  return prettify(
+    babelGenerate(ast).code,
+    'javascript-expression',
+    formatOptions,
+  );
 }
 
-export function prettify(code: string) {
-  return prettier
-    .format(code, {
-      printWidth: 60,
-      // Prettier only understands statements, so we use internal
-      // expression parser (it's just babel.parseExpression instead of
-      // babel.parse) as all our cases are for formatting expressions
-      //
-      // TODO: Would be good to use our version of babel here, but currently
-      // this fails. Requires to dig a bit deeper into how the custom parsers
-      // work
-      parser: '__js_expression'
-    })
-    .trim();
+/**
+ * @param source expression source (object or array expression with optional
+ *               leading / trailing comments)
+ */
+export function parseShellBSON(source: string): Document[] {
+  const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
+  if (!parsed || typeof parsed !== 'object') {
+    // XXX(COMPASS-5689): We've hit the condition in
+    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
+    throw new Error('Source expression is invalid');
+  }
+  return parsed;
 }
+
+export { prettify } from '@mongodb-js/compass-editor';

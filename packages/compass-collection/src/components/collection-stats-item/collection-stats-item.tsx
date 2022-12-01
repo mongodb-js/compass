@@ -37,7 +37,7 @@ const darkThemeValueStyles = css({
 
 const lightThemeValueStyles = css({
   textTransform: 'lowercase',
-  color: palette.green.dark1,
+  color: palette.green.dark2,
   display: 'inline-block',
 });
 

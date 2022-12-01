@@ -210,7 +210,11 @@ describe('CrudToolbar Component', function () {
       readonly: false,
     });
 
-    expect(screen.queryByText(addDataText)).to.be.visible;
+    expect(
+      screen.getByRole('button', {
+        name: new RegExp(addDataText, 'i'),
+      })
+    ).to.be.visible;
   });
 
   it('should render the start and end count', function () {
@@ -260,7 +264,9 @@ describe('CrudToolbar Component', function () {
 
     it('has the add data button enabled', function () {
       expect(
-        screen.getByTestId('crud-add-data-button').getAttribute('disabled')
+        screen
+          .getByTestId('crud-add-data-show-actions')
+          .getAttribute('disabled')
       ).to.equal(null);
     });
   });
@@ -274,7 +280,9 @@ describe('CrudToolbar Component', function () {
 
     it('has the add data button disabled', function () {
       expect(
-        screen.getByTestId('crud-add-data-button').getAttribute('disabled')
+        screen
+          .getByTestId('crud-add-data-show-actions')
+          .getAttribute('disabled')
       ).to.exist;
     });
   });

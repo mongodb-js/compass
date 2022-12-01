@@ -1,6 +1,6 @@
 /* eslint complexity: 0 */
+const vm = require('vm');
 const bson = require('bson');
-const Context = require('context-eval');
 const {
   BsonTranspilersRuntimeError,
   BsonTranspilersUnimplementedError
@@ -65,9 +65,7 @@ module.exports = (JavascriptVisitor) => class Visitor extends JavascriptVisitor 
       Buffer: Buffer,
       __result: {}
     };
-    const ctx = new Context(sandbox);
-    const res = ctx.evaluate('__result = ' + input);
-    ctx.destroy();
+    const res = vm.runInContext('__result = ' + input, vm.createContext(sandbox));
     return res;
   }
 

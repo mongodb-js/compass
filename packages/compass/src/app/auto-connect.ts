@@ -1,26 +1,51 @@
-import type { AllPreferences } from 'compass-preferences-model';
 import { importConnections } from 'mongodb-data-service';
 import type { ConnectionInfo } from 'mongodb-data-service';
 import { promises as fsPromises } from 'fs';
 import { UUID } from 'bson';
+import { ipcRenderer } from 'hadron-ipc';
+import { ConnectionString } from 'mongodb-connection-string-url';
+import type { AutoConnectPreferences } from '../main/auto-connect';
 
-export function loadAutoConnectInfo(
-  preferences: Pick<AllPreferences, 'file' | 'positionalArguments' | 'passphrase'>,
+async function getWindowAutoConnectPreferences(): Promise<AutoConnectPreferences> {
+  return await ipcRenderer.call('compass:get-window-auto-connect-preferences');
+}
+
+function applyUsernameAndPassword(
+  connectionInfo: Readonly<ConnectionInfo>,
+  { username, password }: Pick<AutoConnectPreferences, 'username' | 'password'>
+): ConnectionInfo {
+  const connectionString = new ConnectionString(
+    connectionInfo.connectionOptions.connectionString
+  );
+  if (username) connectionString.username = encodeURIComponent(username);
+  if (password) connectionString.password = encodeURIComponent(password);
+  return {
+    ...connectionInfo,
+    connectionOptions: {
+      ...connectionInfo.connectionOptions,
+      connectionString: connectionString.toString(),
+    },
+  };
+}
+
+export async function loadAutoConnectInfo(
+  getPreferences: () => Promise<AutoConnectPreferences> = getWindowAutoConnectPreferences,
   fs: Pick<typeof fsPromises, 'readFile'> = fsPromises
-): undefined | (() => Promise<ConnectionInfo>) {
+): Promise<undefined | (() => Promise<ConnectionInfo | undefined>)> {
+  const autoConnectPreferences = await getPreferences();
   const {
     file,
     positionalArguments = [],
     passphrase,
-  } = preferences;
-  // The about: accounts for webdriverio in the e2e tests appending the argument for every run
-  if (!file && (!positionalArguments.length || positionalArguments.every(arg => arg.startsWith('about:')))) {
-    return;
-  }
+    username,
+    password,
+    shouldAutoConnect,
+  } = autoConnectPreferences;
+  if (!shouldAutoConnect) return;
 
   // Return an async function here rather than just loading the ConnectionInfo so that errors
   // from importing the connection end up being treated like connection failures.
-  return async (): Promise<ConnectionInfo> => {
+  return async (): Promise<ConnectionInfo | undefined> => {
     if (file) {
       const fileContents = await fs.readFile(file, 'utf8');
       const connections: ConnectionInfo[] = [];
@@ -48,14 +73,17 @@ export function loadAutoConnectInfo(
           `Could not find connection with id '${id}' in connection file '${file}'`
         );
       }
-      return connectionInfo;
+      return applyUsernameAndPassword(connectionInfo, { username, password });
     } else {
-      return {
-        connectionOptions: {
-          connectionString: positionalArguments[0],
+      return applyUsernameAndPassword(
+        {
+          connectionOptions: {
+            connectionString: positionalArguments[0],
+          },
+          id: new UUID().toString(),
         },
-        id: new UUID().toString(),
-      };
+        { username, password }
+      );
     }
   };
 }
