@@ -399,7 +399,7 @@ function ThemedHome(
   }, [setIsSettingsOpen]);
 
   return (
-    <LeafyGreenProvider>
+    <LeafyGreenProvider darkMode={theme.enabled && theme.theme === Theme.Dark}>
       <ThemeProvider theme={theme}>
         {showWelcomeModal && (
           <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
