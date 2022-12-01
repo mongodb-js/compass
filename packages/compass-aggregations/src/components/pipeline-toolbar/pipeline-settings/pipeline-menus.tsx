@@ -122,6 +122,7 @@ export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
         variant="primary"
         leftGlyph={<Icon glyph="Plus" />}
         onClick={onCreatePipeline}
+        data-testid="pipeline-toolbar-create-new-button"
       >
         Create new
       </Button>
