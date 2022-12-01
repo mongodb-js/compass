@@ -1,14 +1,16 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { TextButton } from 'hadron-react-buttons';
 import { connect } from 'react-redux';
+
+import { Button, Icon, css } from '@mongodb-js/compass-components';
+
 import { addStage } from '../../modules/pipeline-builder/stage-editor';
 
-import styles from './add-stage.module.less';
 
-/**
- * Display a card with an add stage button.
- */
+const containerStyles = css({
+  textAlign: 'center'
+});
+
 export class AddStage extends PureComponent {
   static displayName = 'AddStageComponent';
 
@@ -27,15 +29,10 @@ export class AddStage extends PureComponent {
    */
   render() {
     return (
-      <div className={styles['add-stage-container']}>
-        <div className={styles['add-stage']}>
-          <TextButton
-            dataTestId="add-stage"
-            text="Add Stage"
-            className="btn btn-xs btn-default"
-            clickHandler={this.onClick}
-          />
-        </div>
+      <div className={containerStyles}>
+        <Button data-testid="add-stage" onClick={this.onClick} variant="primary" leftGlyph={<Icon glyph="Plus"></Icon>}>
+          Add Stage
+        </Button>
       </div>
     );
   }
