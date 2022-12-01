@@ -5,7 +5,6 @@ import { expect } from 'chai';
 
 import { StagePreview } from './stage-preview';
 import styles from './stage-preview.module.less';
-import loadingStyles from '../loading-overlay/loading-overlay.module.less';
 
 describe('StagePreview [Component]', function() {
   context('when the stage operator is not $out', function() {
@@ -176,7 +175,7 @@ describe('StagePreview [Component]', function() {
       });
 
       it('renders the loading overlay', function() {
-        expect(component.find(`.${loadingStyles['loading-overlay-box-text']}`)).
+        expect(component.find('UnstyledLoadingOverlay')).
           to.have.text('Persisting Documents...');
       });
     });
@@ -205,7 +204,7 @@ describe('StagePreview [Component]', function() {
       });
 
       it('renders the loading overlay', function() {
-        expect(component.find(`.${loadingStyles['loading-overlay-box-text']}`)).
+        expect(component.find('UnstyledLoadingOverlay')).
           to.have.text('Loading Preview Documents...');
       });
 

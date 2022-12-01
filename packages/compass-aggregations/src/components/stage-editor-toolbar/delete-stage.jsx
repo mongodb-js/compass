@@ -16,10 +16,13 @@ export class DeleteStage extends PureComponent {
   };
 
   render() {
+    const title = 'Delete Stage';
+
     return (
       <IconButton
         onClick={this.onStageDeleted}
-        title="Delete Stage"
+        title={title}
+        aria-label={title}
       ><Icon glyph="Trash" size="small" /></IconButton>
     );
   }

@@ -18,11 +18,13 @@ export class StageCollapser extends PureComponent {
 
   render() {
     const { isExpanded } = this.props;
+    const title = isExpanded ? 'Collapse' : 'Expand';
 
     return (
       <IconButton
         onClick={this.onStageCollapseToggled}
-        title={isExpanded ? 'Collapse' : 'Expand'}
+        title={title}
+        aria-label={title}
       ><Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'} size="small" /></IconButton>
     );
   }

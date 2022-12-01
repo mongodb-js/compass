@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { StageCollapser } from './stage-collapser';
-import styles from './stage-collapser.module.less';
 
 describe('StageCollaper [Component]', function() {
   context('when the stage is expanded', function() {
@@ -25,7 +24,7 @@ describe('StageCollaper [Component]', function() {
     });
 
     it('renders the correct root classname', function() {
-      expect(component.find(`.${styles['stage-collapser']}`)).to.be.present();
+      expect(component.find('StageCollapser')).to.be.present();
     });
 
     it('renders the collapse text', function() {
@@ -33,7 +32,8 @@ describe('StageCollaper [Component]', function() {
     });
 
     it('renders the collapse button', function() {
-      expect(component.find('.fa-angle-down')).to.be.present();
+      console.log(component.debug());
+      expect(component.find('Icon').first()).to.have.prop('glyph', 'ChevronDown');
     });
   });
 
@@ -59,7 +59,7 @@ describe('StageCollaper [Component]', function() {
     });
 
     it('renders the expand button', function() {
-      expect(component.find('.fa-angle-right')).to.be.present();
+      expect(component.find('Icon').first()).to.have.prop('glyph', 'ChevronRight');
     });
   });
 

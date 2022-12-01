@@ -15,10 +15,13 @@ class InputRefresh extends PureComponent {
   }
 
   render() {
+    const title = 'Refresh Documents';
+
     return (
       <IconButton
         onClick={this.refreshInputDocuments}
-        title="Refresh Documents"
+        title={title}
+        aria-label={title}
         className={iconButtonStyles}
       ><Icon glyph="Refresh" size="small" /></IconButton>
     );
