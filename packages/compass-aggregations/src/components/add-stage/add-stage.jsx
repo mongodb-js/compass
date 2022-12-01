@@ -2,13 +2,15 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Button, Icon, css } from '@mongodb-js/compass-components';
+import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
 
 import { addStage } from '../../modules/pipeline-builder/stage-editor';
 
 
 const containerStyles = css({
-  textAlign: 'center'
+  textAlign: 'center',
+  marginTop: spacing[2],
+  marginBottom: spacing[3]
 });
 
 export class AddStage extends PureComponent {
