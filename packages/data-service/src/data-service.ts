@@ -82,6 +82,11 @@ import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 import * as mongodb from 'mongodb';
 import type { ClientEncryption as ClientEncryptionType } from 'mongodb-client-encryption';
+import {
+  raceWithAbort,
+  createCancelError,
+  isCancelError,
+} from '@mongodb-js/compass-utils';
 
 // TODO: remove try/catch and refactor encryption related types
 // when the Node bundles native binding distributions
@@ -114,16 +119,6 @@ function uniqueBy<T extends Record<string, unknown>>(
 
 function isEmptyObject(obj: Record<string, unknown>) {
   return Object.keys(obj).length === 0;
-}
-
-class DataServiceOperationCancelledError extends Error {
-  name = 'DataServiceOperationCancelledError';
-  constructor() {
-    super('The operation was cancelled.');
-  }
-  static isOperationCancelledError(error: Error) {
-    return error.name === 'DataServiceOperationCancelledError';
-  }
 }
 
 let id = 0;
@@ -754,8 +749,6 @@ export interface DataService {
   ): Promise<Document>;
 
   isConnected(): boolean;
-
-  isOperationCancelledError(error: Error): boolean;
 
   /**
    * Get the stats for a database.
@@ -2093,10 +2086,6 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return !!this._metadataClient;
   }
 
-  isOperationCancelledError(error: Error): boolean {
-    return DataServiceOperationCancelledError.isOperationCancelledError(error);
-  }
-
   private async cancellableOperation<T>(
     start: (session?: ClientSession) => Promise<T>,
     stop: () => Promise<void> = () => Promise.resolve(),
@@ -2107,18 +2096,12 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     if (abortSignal.aborted) {
-      throw new DataServiceOperationCancelledError();
+      throw createCancelError();
     }
 
     const session = this.startSession('CRUD');
 
     let result: T;
-    let abortListener;
-    const pendingPromise = new Promise<never>((_resolve, reject) => {
-      abortListener = () => reject(new DataServiceOperationCancelledError());
-      abortSignal.addEventListener('abort', abortListener, { once: true });
-    });
-
     const abort = async () => {
       const logAbortError = (error: Error) => {
         try {
@@ -2137,14 +2120,12 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     };
 
     try {
-      result = await Promise.race([pendingPromise, start(session)]);
+      result = await raceWithAbort(start(session), abortSignal);
     } catch (err) {
-      if (this.isOperationCancelledError(err as Error)) {
+      if (isCancelError(err)) {
         void abort();
       }
       throw err;
-    } finally {
-      abortListener && abortSignal.removeEventListener('abort', abortListener);
     }
 
     return result;

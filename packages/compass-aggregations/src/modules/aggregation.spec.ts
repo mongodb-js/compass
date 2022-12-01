@@ -10,6 +10,7 @@ import type { RootState } from '.';
 import rootReducer from '../modules';
 import configureStore from '../stores/store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
+import { createCancelError } from '@mongodb-js/compass-utils';
 
 const wait = (): Promise<void> => {
   return new Promise(resolve => setImmediate(resolve));
@@ -64,7 +65,7 @@ describe('aggregation module', function () {
     });
   });
 
-  it.skip('cancels an aggregation', async function () {
+  it('cancels an aggregation', async function () {
     const documents = [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }];
     const store = getMockedStore({
       pipeline: [],
@@ -80,13 +81,12 @@ describe('aggregation module', function () {
       type: DATA_SERVICE_CONNECTED,
       dataService: new class {
         aggregate() {
-          return new Promise(() => {});
+          throw createCancelError();
         }
       }
     });
 
     store.dispatch(fetchNextPage() as any);
-    // now cancel while its fetching data
     await store.dispatch(cancelAggregation() as any);
 
     expect(store.getState().aggregation).to.deep.equal({

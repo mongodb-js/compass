@@ -1,6 +1,7 @@
 import util from 'util';
 import { isInternalFieldPath } from 'hadron-document';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+import { isCancelError } from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-SCHEMA');
 
@@ -57,7 +58,7 @@ export const analyzeSchema = async (
       ns,
       error: err.message,
     });
-    if (dataService.isOperationCancelledError(err)) {
+    if (isCancelError(err)) {
       debug('caught background operation terminated error', err);
       return null;
     }

@@ -93,7 +93,7 @@ export async function countDocuments(
     result = array.length ? array[0].count : 0;
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (dataService.isOperationCancelledError(err)) {
+    if (isCancelError(err)) {
       throw err;
     }
 

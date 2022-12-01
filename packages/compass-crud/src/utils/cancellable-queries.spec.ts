@@ -222,7 +222,7 @@ describe('cancellable-queries', function () {
       expect(count).to.equal(null);
     });
 
-    it.skip('can be aborted', async function () {
+    it('can be aborted', async function () {
       const promise = countDocuments(
         dataService,
         'cancel.numbers',
@@ -232,7 +232,10 @@ describe('cancellable-queries', function () {
 
       // abort the promise
       abortController.abort();
-      await expect(promise).to.be.rejectedWith(Error);
+      await expect(promise).to.be.rejectedWith(
+        Error,
+        createCancelError().message
+      );
 
       // kill the session
       // (unfortunately I can't think of a way to slow the query down enough so

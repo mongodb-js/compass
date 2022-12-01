@@ -1,10 +1,10 @@
 import sinon from 'sinon';
 import bson from 'bson';
 import { expect } from 'chai';
-
+import { createCancelError } from '@mongodb-js/compass-utils';
 import { analyzeSchema } from './schema-analysis';
 
-describe.skip('schema-analyis', function () {
+describe('schema-analyis', function () {
   describe('getResult', function () {
     it('returns the schema', async function () {
       const dataService = {
@@ -117,13 +117,10 @@ describe.skip('schema-analyis', function () {
     });
 
     it('returns null if is cancelled', async function () {
-      let rejectOnSample;
       const dataService = {
-        sample: () =>
-          new Promise((_, reject) => {
-            rejectOnSample = reject;
-          }),
-        isOperationCancelledError: () => true,
+        sample: () => {
+          throw new createCancelError();
+        },
       };
 
       const abortController = new AbortController();
@@ -137,8 +134,6 @@ describe.skip('schema-analyis', function () {
         {}
       );
 
-      rejectOnSample(new Error('cancelled'));
-
       expect(await getResultPromise).to.equal(null);
     });
 
@@ -149,7 +144,6 @@ describe.skip('schema-analyis', function () {
           new Promise((_, _reject) => {
             rejectOnSample = _reject;
           }),
-        isOperationCancelledError: () => false,
       };
 
       const abortController = new AbortController();

@@ -32,6 +32,7 @@ import configureGridStore from './grid-store';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type AppRegistry from 'hadron-app-registry';
 import { BaseRefluxStore } from './base-reflux-store';
+import { isCancelError } from '@mongodb-js/compass-utils';
 export type BSONObject = TypeCastMap['Object'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 
@@ -1341,7 +1342,7 @@ class CrudStoreImpl
         // countDocuments already swallows all db errors and returns null. The
         // only known error it can throw is AbortError. If
         // something new does appear we probably shouldn't swallow it.
-        if (!this.dataService.isOperationCancelledError(err)) {
+        if (!isCancelError(err)) {
           throw err;
         }
         this.setState({ loadingCount: false });

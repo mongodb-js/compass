@@ -443,7 +443,6 @@ describe('DataService', function () {
         const error = await promise;
 
         expect(error).to.be.instanceOf(Error);
-        expect(dataService.isOperationCancelledError(error)).to.true;
       });
     });
 
@@ -1562,7 +1561,6 @@ describe('DataService', function () {
         const error = await promise;
 
         expect(error).to.be.instanceOf(Error);
-        expect(dataService.isOperationCancelledError(error)).to.true;
       });
     });
 
