@@ -119,7 +119,7 @@ describe('schema-analyis', function () {
     it('returns null if is cancelled', async function () {
       const dataService = {
         sample: () => {
-          throw new createCancelError();
+          throw createCancelError();
         },
       };
 

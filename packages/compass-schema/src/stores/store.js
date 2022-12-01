@@ -291,9 +291,9 @@ const configureStore = (options = {}) => {
       const { schema } = this.state;
       const trackEvent = {
         with_filter: Object.entries(this.query.filter).length > 0,
-        schema_width: schema.fields.length,
-        schema_depth: this.calculateSchemaDepth(schema),
-        geo_data: this.schemaContainsGeoData(schema),
+        schema_width: schema ? schema.fields.length : 0,
+        schema_depth: schema ? this.calculateSchemaDepth(schema) : 0,
+        geo_data: schema ? this.schemaContainsGeoData(schema) : false,
         analysis_time_ms: analysisTime,
       };
       track('Schema Analyzed', trackEvent);
