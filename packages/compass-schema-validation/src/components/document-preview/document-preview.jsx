@@ -10,7 +10,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
-import { LoadingOverlay } from '../loading-overlay';
+import LoadingOverlay from '../loading-overlay';
 
 const previewStyles = css({
   display: 'flex',

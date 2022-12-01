@@ -1,44 +1,26 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { connect } from 'react-redux';
+
+import { IconButton, Icon } from '@mongodb-js/compass-components';
+
 import { removeStage } from '../../modules/pipeline-builder/stage-editor';
-
-import styles from './delete-stage.module.less';
-
-/**
- * The delete stage button.
- */
 export class DeleteStage extends PureComponent {
   static propTypes = {
     index: PropTypes.number.isRequired,
     onStageDeleteClick: PropTypes.func.isRequired
   };
 
-  /**
-   * Handle stage deleted clicks.
-   */
   onStageDeleted = () => {
     this.props.onStageDeleteClick(this.props.index);
   };
 
-  /**
-   * Render the button component.
-   *
-   * @returns {Component} The component.
-   */
   render() {
     return (
-      <div className={classnames(styles['delete-stage'])}>
-        <button
-          data-testid="delete-stage"
-          type="button"
-          title="Delete Stage"
-          className="btn btn-default btn-xs"
-          onClick={this.onStageDeleted}>
-          <i className="fa fa-trash-o" aria-hidden />
-        </button>
-      </div>
+      <IconButton
+        onClick={this.onStageDeleted}
+        title="Delete Stage"
+      ><Icon glyph="Trash" size="small" /></IconButton>
     );
   }
 }
