@@ -3,7 +3,6 @@ import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
-import { isFunction } from 'lodash';
 import type {
   AggregateOptions,
   AggregationCursor,
@@ -445,12 +444,12 @@ export interface DataService {
    * @param options - The aggregation options.
    * @param executionOptions - The execution options.
    */
-     aggregate(
-      ns: string,
-      pipeline: Document[],
-      options: AggregateOptions,
-      executionOptions?: ExecutionOptions,
-    ): Promise<Document[]>;
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    options?: AggregateOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]>;
 
   /**
    * Returns an aggregation cursor on the collection.
@@ -459,11 +458,11 @@ export interface DataService {
    * @param pipeline - The aggregation pipeline.
    * @param options - The aggregation options.
    */
-     aggregateCursor(
-      ns: string,
-      pipeline: Document[],
-      options: AggregateOptions,
-    ): AggregationCursor;
+  aggregateCursor(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions
+  ): AggregationCursor;
 
   /**
    * Find documents for the provided filter and options on the collection.
@@ -1506,28 +1505,27 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options: AggregateOptions,
+    options: AggregateOptions
   ): AggregationCursor {
+    log.info(mongoLogId(1_001_000_041), this._logCtx(), 'Running aggregation', {
+      ns,
+      stages: pipeline.map((stage) => Object.keys(stage)[0]),
+    });
     return this._collection(ns, 'CRUD').aggregate(pipeline, options);
   }
 
   aggregate(
     ns: string,
     pipeline: Document[],
-    options: AggregateOptions,
-    executionOptions?: ExecutionOptions,
+    options: AggregateOptions = {},
+    executionOptions?: ExecutionOptions
   ): Promise<Document[]> {
-    log.info(mongoLogId(1_001_000_041), this._logCtx(), 'Running aggregation', {
-      ns,
-      stages: pipeline.map((stage) => Object.keys(stage)[0]),
-    });
-
     let cursor: AggregationCursor;
     return this.cancellableOperation(
       async (session?: ClientSession) => {
-        cursor = this.aggregateCursor(ns, pipeline, {...options, session});
+        cursor = this.aggregateCursor(ns, pipeline, { ...options, session });
         const results = await cursor.toArray();
-        cursor.close();
+        void cursor.close();
         return results;
       },
       () => cursor?.close(),
@@ -1662,9 +1660,9 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     let cursor: AggregationCursor;
     return this.cancellableOperation(
       async (session?: ClientSession) => {
-        cursor = this.aggregateCursor(ns, pipeline, {...options, session});
+        cursor = this.aggregateCursor(ns, pipeline, { ...options, session });
         const results = await cursor.explain(verbosity);
-        cursor.close();
+        void cursor.close();
         return results;
       },
       () => cursor?.close(),
@@ -2025,7 +2023,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       fields,
     }: { query?: Filter<Document>; size?: number; fields?: Document } = {},
     options: AggregateOptions = {},
-    executionOptions?: ExecutionOptions,
+    executionOptions?: ExecutionOptions
   ): Promise<Document[]> {
     const pipeline = [];
     if (query && Object.keys(query).length > 0) {
@@ -2047,10 +2045,15 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       });
     }
 
-    return this.aggregate(ns, pipeline, {
-      allowDiskUse: true,
-      ...options,
-    }, executionOptions);
+    return this.aggregate(
+      ns,
+      pipeline,
+      {
+        allowDiskUse: true,
+        ...options,
+      },
+      executionOptions
+    );
   }
 
   startSession(clientType: ClientType): CompassClientSession {

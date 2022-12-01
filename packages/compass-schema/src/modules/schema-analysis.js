@@ -7,17 +7,6 @@ const { log, mongoLogId, debug } = createLoggerAndTelemetry('COMPASS-SCHEMA');
 import mongodbSchema from 'mongodb-schema';
 const analyzeDocuments = util.promisify(mongodbSchema);
 
-const ERROR_CODE_INTERRUPTED = 11601;
-const ERROR_CODE_CURSOR_NOT_FOUND = 43;
-
-function isOperationTerminatedError(err) {
-  return (
-    err.name === 'MongoError' &&
-    (err.code === ERROR_CODE_INTERRUPTED ||
-      err.code === ERROR_CODE_CURSOR_NOT_FOUND)
-  );
-}
-
 // hack for driver 3.6 not promoting error codes and
 // attributes from ejson when promoteValue is false.
 function promoteMongoErrorCode(err) {
@@ -37,13 +26,13 @@ export const analyzeSchema = async (
   abortSignal,
   ns,
   query,
-  aggregateOptions,
+  aggregateOptions
 ) => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
       ns,
     });
-    
+
     const docs = await dataService.sample(
       ns,
       query,
@@ -68,14 +57,14 @@ export const analyzeSchema = async (
       ns,
       error: err.message,
     });
-    if (isOperationTerminatedError(err)) {
+    if (dataService.isOperationCancelledError(err)) {
       debug('caught background operation terminated error', err);
       return null;
     }
 
-    err = promoteMongoErrorCode(err);
+    const error = promoteMongoErrorCode(err);
 
     debug('schema analysis failed', err);
-    throw err;
+    throw error;
   }
-}
+};

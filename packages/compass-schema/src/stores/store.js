@@ -318,7 +318,7 @@ const configureStore = (options = {}) => {
 
       try {
         debug('analysis started');
-        
+
         const abortController = new AbortController();
         const abortSignal = abortController.signal;
 
@@ -327,7 +327,7 @@ const configureStore = (options = {}) => {
           errorMessage: '',
           outdated: false,
           schema: null,
-          abortController
+          abortController,
         });
 
         const analysisStartTime = Date.now();
@@ -336,7 +336,7 @@ const configureStore = (options = {}) => {
           abortSignal,
           this.ns,
           samplingOptions,
-          driverOptions,
+          driverOptions
         );
         const analysisTime = Date.now() - analysisStartTime;
 

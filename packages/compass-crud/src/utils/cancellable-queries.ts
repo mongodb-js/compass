@@ -86,12 +86,14 @@ export async function countDocuments(
 
   let result;
   try {
-    const array = await dataService.aggregate(ns, stages, opts, { abortSignal: signal });
+    const array = await dataService.aggregate(ns, stages, opts, {
+      abortSignal: signal,
+    });
     // the collection could be empty
     result = array.length ? array[0].count : 0;
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (isCancelError(err)) {
+    if (dataService.isOperationCancelledError(err)) {
       throw err;
     }
 

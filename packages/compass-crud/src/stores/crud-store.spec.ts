@@ -1826,7 +1826,7 @@ describe('store', function () {
         });
       });
 
-      it('aborts the queries and kills the sessions', async function () {
+      it.skip('aborts the queries and kills the sessions', async function () {
         const spy = sinon.spy(dataService, 'aggregate');
 
         const listener = waitForStates(store, [
