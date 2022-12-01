@@ -13,8 +13,6 @@ const containerStyles = css({
 
 const connectionsTitleStyles = css({
   color: 'var(--title-color)',
-  fontFamily: 'MongoDB Value Serif',
-  fontWeight: 'normal',
 });
 
 export default function ConnectionsTitle() {
