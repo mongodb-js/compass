@@ -175,7 +175,7 @@ describe('StagePreview [Component]', function() {
       });
 
       it('renders the loading overlay', function() {
-        expect(component.find('UnstyledLoadingOverlay')).
+        expect(component.find('LoadingOverlay')).
           to.have.text('Persisting Documents...');
       });
     });
@@ -204,7 +204,7 @@ describe('StagePreview [Component]', function() {
       });
 
       it('renders the loading overlay', function() {
-        expect(component.find('UnstyledLoadingOverlay')).
+        expect(component.find('LoadingOverlay')).
           to.have.text('Loading Preview Documents...');
       });
 
