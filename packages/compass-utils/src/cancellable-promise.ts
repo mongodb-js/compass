@@ -29,7 +29,7 @@ export async function raceWithAbort<T>(
 
   // We need a promise that will reject as soon as the operation is aborted.
   const pendingPromise = new Promise<never>((_resolve, reject) => {
-    abortListener = () => reject(createCancelError());
+    abortListener = () => reject(signal.reason ?? createCancelError());
     signal.addEventListener('abort', abortListener, { once: true });
   });
 
