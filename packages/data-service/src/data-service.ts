@@ -2096,7 +2096,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     if (abortSignal.aborted) {
-      throw createCancelError();
+      throw abortSignal.reason ?? createCancelError();
     }
 
     const session = this.startSession('CRUD');
