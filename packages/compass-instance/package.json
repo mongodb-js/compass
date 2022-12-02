@@ -2,7 +2,7 @@
   "name": "@mongodb-js/compass-instance",
   "productName": "Instance plugin",
   "description": "Compass instance plugin",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -57,9 +57,9 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@mongodb-js/compass-components": "^1.3.0",
+    "@mongodb-js/compass-components": "^1.4.0",
     "@mongodb-js/compass-logging": "^1.1.1",
-    "@mongodb-js/mongodb-redux-common": "^2.0.2",
+    "@mongodb-js/mongodb-redux-common": "^2.0.3",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -67,7 +67,7 @@
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
     "@mongodb-js/tsconfig-compass": "^1.0.1",
-    "@mongodb-js/webpack-config-compass": "^1.0.3",
+    "@mongodb-js/webpack-config-compass": "^1.0.4",
     "@testing-library/react": "^12.1.4",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
@@ -86,9 +86,9 @@
     "rimraf": "^3.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.3.0",
+    "@mongodb-js/compass-components": "^1.4.0",
     "@mongodb-js/compass-logging": "^1.1.1",
-    "@mongodb-js/mongodb-redux-common": "^2.0.2",
+    "@mongodb-js/mongodb-redux-common": "^2.0.3",
     "react": "^16.14.0"
   }
 }

@@ -1,7 +1,8 @@
-var inherits = require('util').inherits;
-var BaseBackend = require('./base');
-var _ = require('lodash');
-var debug = require('debug')('mongodb-storage-mixin:backends:secure');
+const inherits = require('util').inherits;
+const BaseBackend = require('./base');
+const _ = require('lodash');
+const { createLoggerAndTelemetry } = require('@mongodb-js/compass-logging');
+const { debug, mongoLogId, log } = createLoggerAndTelemetry('COMPASS-STORAGE-MIXIN');
 
 function SecureBackend(options) {
   if (!(this instanceof SecureBackend)) {
@@ -26,38 +27,36 @@ SecureBackend.clear = function(namespace, done) {
   var serviceName = `storage-mixin/${namespace}`;
   debug('Clearing all secure values for', serviceName);
 
-  var promise;
-
-  try {
-    promise = require('keytar').findCredentials(serviceName);
-  } catch (e) {
-    debug('Error calling findCredentials', e);
-    throw e;
-  }
-
-  promise.then(function(accounts) {
-    debug(
-      'Found credentials',
-      accounts.map(function(credential) {
-        return credential.account;
-      })
-    );
-    return Promise.all(
-      accounts.map(function(entry) {
-        var accountName = entry.account;
-        return require('keytar')
-          .deletePassword(serviceName, accountName)
-          .then(function() {
-            debug('Deleted account %s successfully', accountName);
-            return accountName;
-          })
-          .catch(function(err) {
-            debug('Failed to delete', accountName, err);
-            throw err;
-          });
-      })
-    );
-  })
+  Promise.resolve()
+    .then(function() { return require('keytar').findCredentials(serviceName); })
+    .catch(function(err) {
+      log.error(mongoLogId(1001000175), 'keychain', 'Error calling findCredentials', { err: err.message }); // !dupedLogId
+      throw err;
+    })
+    .then(function(accounts) {
+      debug(
+        'Found credentials',
+        accounts.map(function(credential) {
+          return credential.account;
+        })
+      );
+      return Promise.all(
+        accounts.map(function(entry) {
+          var accountName = entry.account;
+          return require('keytar')
+            .deletePassword(serviceName, accountName)
+            .then(function() {
+              debug('Deleted account %s successfully', accountName);
+              return accountName;
+            })
+            .catch(function(err) {
+              log.error(mongoLogId(1001000176), 'keychain', 'Error calling deletePassword', { err: err.message }); // !dupedLogId
+              debug('Failed to delete', accountName, err);
+              throw err;
+            });
+        })
+      );
+    })
     .then(function(accountNames) {
       debug(
         'Cleared %d accounts for serviceName %s',
@@ -95,7 +94,10 @@ SecureBackend.prototype.remove = function(model, options, done) {
       });
       done();
     })
-    .catch(done);
+    .catch(function(err) {
+      log.error(mongoLogId(1001000170), 'keychain', 'Error calling deletePassword', { err: err.message }); // !dupedLogId
+      done(err);
+    });
 };
 
 /**
@@ -122,6 +124,7 @@ SecureBackend.prototype.update = function(model, options, done) {
       done();
     })
     .catch(function(err) {
+      log.error(mongoLogId(1001000171), 'keychain', 'Error calling setPassword', { err: err.message }); // !dupedLogId
       done(err);
     });
 };
@@ -151,6 +154,7 @@ SecureBackend.prototype.create = function(model, options, done) {
       done();
     })
     .catch(function(err) {
+      log.error(mongoLogId(1001000172), 'keychain', 'Error calling setPassword', { err: err.message }); // !dupedLogId
       done(err);
     });
 };
@@ -186,7 +190,10 @@ SecureBackend.prototype.findOne = function(model, options, done) {
 
       done(null, JSON.parse(rawJsonString));
     })
-    .catch(done);
+    .catch(function(err) {
+      log.error(mongoLogId(1001000173), 'keychain', 'Error calling getPassword', { err: err.message }); // !dupedLogId
+      done(err);
+    });
 };
 
 /**
@@ -227,7 +234,10 @@ SecureBackend.prototype.find = function(collection, options, done) {
       }, []);
       return (done(null, attributes));
     })
-    .catch(done);
+    .catch(function(err) {
+      log.error(mongoLogId(1001000174), 'keychain', 'Error calling findCredentials', { err: err.message }); // !dupedLogId
+      done(err);
+    });
 };
 
 module.exports = SecureBackend;

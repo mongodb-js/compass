@@ -196,6 +196,11 @@ export class CompassShell extends Component {
           show={showInfoModal}
           hideInfoModal={this.hideInfoModal.bind(this)}
         />
+        {/* Clicking on the shell container to focus it is a ux improvement to give
+            the shell more of a native shell feeling. We disable the jsx-ally rules
+            as this is a unique ux improvement solely for clicking. */}
+        {/* eslint-disable jsx-a11y/no-static-element-interactions */}
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
         <div
           data-testid="shell-section"
           className={compassShellStyles}
@@ -203,6 +208,7 @@ export class CompassShell extends Component {
           id="content"
           onClick={this.focusEditor.bind(this)}
         >
+          {/* eslint-enable jsx-a11y/no-static-element-interactions */}
           <ResizeHandle
             direction={ResizeDirection.TOP}
             onChange={(newHeight) => this.updateHeight(newHeight)}

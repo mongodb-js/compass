@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ValueBubble from '../value-bubble';
+import { ValueBubble } from '../value-bubble';
 import sampleSize from 'lodash.samplesize';
 import { Icon, IconButton } from '@mongodb-js/compass-components';
 

@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/mongodb-notary-service-client",
-  "description": "A client for our notary-service: an API for codesigning.",
+  "description": "A client for our notary-service: an API for codesigning",
   "version": "2.0.0",
   "scripts": {
     "check": "npm run lint && npm run depcheck",

@@ -1,13 +1,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { expect } from 'chai';
 
 import ShellInfoModal from './shell-info-modal';
 
 
-describe('InfoModal [Component]', () => {
+describe('InfoModal [Component]', function() {
   let component;
 
-  beforeEach(() => {
+  beforeEach(function() {
     component = mount(
       <ShellInfoModal
         show
@@ -16,11 +17,11 @@ describe('InfoModal [Component]', () => {
     );
   });
 
-  afterEach(() => {
+  afterEach(function() {
     component = null;
   });
 
-  it('renders the title text', () => {
+  it('renders the title text', function() {
     const title = component.find('h1').text();
     const hasVersionZero = title.includes('mongosh v0.');
     const hasVersionOne = title.includes('mongosh v1.');
@@ -28,11 +29,11 @@ describe('InfoModal [Component]', () => {
     expect(titleIsAccurate).to.equal(true);
   });
 
-  it('renders the hotkeys key', () => {
+  it('renders the hotkeys key', function() {
     expect(component.text()).to.include('Ctrl+F');
   });
 
-  it('renders the hotkeys description', () => {
+  it('renders the hotkeys description', function() {
     expect(component.text()).to.include('Ctrl+FMoves the cursor Forward one character.');
   });
 });

@@ -104,7 +104,7 @@ function showConnectWindow(
   > = {}
 ): BrowserWindow {
   const rendererUrl = opts.rendererUrl ?? DEFAULT_URL;
-  const mongodbUrl = opts.rendererUrl;
+  const mongodbUrl = opts.mongodbUrl;
 
   const windowOpts = {
     width: Number(DEFAULT_WIDTH),
