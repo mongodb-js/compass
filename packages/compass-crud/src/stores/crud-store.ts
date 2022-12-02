@@ -1341,7 +1341,7 @@ class CrudStoreImpl
         // countDocuments already swallows all db errors and returns null. The
         // only known error it can throw is AbortError. If
         // something new does appear we probably shouldn't swallow it.
-        if (!this.dataService.isCancelError(err as Error)) {
+        if (!this.dataService.isCancelError(err)) {
           throw err;
         }
         this.setState({ loadingCount: false });

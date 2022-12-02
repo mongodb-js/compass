@@ -205,7 +205,7 @@ export const loadStagePreview = (
         previewDocs
       });
     } catch (err) {
-      if (dataService.dataService?.isCancelError(err as Error)) {
+      if (dataService.dataService?.isCancelError(err)) {
         return;
       }
       dispatch({

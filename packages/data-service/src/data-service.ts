@@ -741,7 +741,7 @@ export interface DataService {
    *
    * @param error - The error to check.
    */
-  isCancelError(error: Error): ReturnType<typeof isCancelError>;
+  isCancelError(error: any): ReturnType<typeof isCancelError>;
 
   /**
    * Get the stats for a database.
@@ -2125,7 +2125,7 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return result;
   }
 
-  isCancelError(error: Error): ReturnType<typeof isCancelError> {
+  isCancelError(error: any): ReturnType<typeof isCancelError> {
     return isCancelError(error);
   }
 

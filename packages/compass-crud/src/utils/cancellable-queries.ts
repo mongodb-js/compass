@@ -85,7 +85,7 @@ export async function countDocuments(
     result = array.length ? array[0].count : 0;
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (dataService.isCancelError(err as Error)) {
+    if (dataService.isCancelError(err)) {
       throw err;
     }
 
@@ -132,7 +132,7 @@ export async function fetchShardingKeys(
     configDocs = await raceWithAbort(cursor.toArray(), signal);
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (dataService.isCancelError(err as Error)) {
+    if (dataService.isCancelError(err)) {
       throw err;
     }
 

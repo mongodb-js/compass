@@ -324,7 +324,7 @@ const fetchAggregationData = (
       }
     } catch (e) {
       // User cancel is handled in cancelAggregation
-      if (dataService.isCancelError(e as Error)) {
+      if (dataService.isCancelError(e)) {
         return;
       }
       // Server errors are surfaced to the user
