@@ -4,7 +4,6 @@ import type { ExplainExecuteOptions } from 'mongodb-data-service';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { isCancelError } from '@mongodb-js/compass-utils';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import type { IndexInfo } from './indexes';
@@ -205,7 +204,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
       }
     } catch (e) {
       // Cancellation is handled in cancelExplain
-      if (!isCancelError(e as Error)) {
+      if (!dataService.isCancelError(e as Error)) {
         dispatch({
           type: ActionTypes.ExplainFailed,
           error: (e as Error).message,

@@ -1,7 +1,6 @@
 import sinon from 'sinon';
 import bson from 'bson';
 import { expect } from 'chai';
-import { createCancelError } from '@mongodb-js/compass-utils';
 import { analyzeSchema } from './schema-analysis';
 
 describe('schema-analyis', function () {
@@ -119,8 +118,9 @@ describe('schema-analyis', function () {
     it('returns null if is cancelled', async function () {
       const dataService = {
         sample: () => {
-          throw createCancelError();
+          throw new Error();
         },
+        isCancelError: () => true,
       };
 
       const abortController = new AbortController();
@@ -144,6 +144,7 @@ describe('schema-analyis', function () {
           new Promise((_, _reject) => {
             rejectOnSample = _reject;
           }),
+        isCancelError: () => false,
       };
 
       const abortController = new AbortController();

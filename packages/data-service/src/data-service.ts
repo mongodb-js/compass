@@ -737,6 +737,13 @@ export interface DataService {
   isConnected(): boolean;
 
   /**
+   * If the error is an AbortError.
+   *
+   * @param error - The error to check.
+   */
+  isCancelError(error: Error): ReturnType<typeof isCancelError>;
+
+  /**
    * Get the stats for a database.
    *
    * @param name - The database name.
@@ -2116,6 +2123,10 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     return result;
+  }
+
+  isCancelError(error: Error): ReturnType<typeof isCancelError> {
+    return isCancelError(error);
   }
 
   /**

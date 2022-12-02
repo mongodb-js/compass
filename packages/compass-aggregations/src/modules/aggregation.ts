@@ -3,7 +3,6 @@ import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { isCancelError } from '@mongodb-js/compass-utils'
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
@@ -325,7 +324,7 @@ const fetchAggregationData = (
       }
     } catch (e) {
       // User cancel is handled in cancelAggregation
-      if (isCancelError(e)) {
+      if (dataService.isCancelError(e as Error)) {
         return;
       }
       // Server errors are surfaced to the user

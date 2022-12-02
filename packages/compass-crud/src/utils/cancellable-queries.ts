@@ -2,11 +2,7 @@ import createLogger from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { DataService } from 'mongodb-data-service';
 import type { BSONObject } from '../stores/crud-store';
-import {
-  createCancelError,
-  isCancelError,
-  raceWithAbort,
-} from '@mongodb-js/compass-utils';
+import { createCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId, debug } = createLogger('cancellable-queries');
 
@@ -89,7 +85,7 @@ export async function countDocuments(
     result = array.length ? array[0].count : 0;
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (isCancelError(err)) {
+    if (dataService.isCancelError(err as Error)) {
       throw err;
     }
 
@@ -136,7 +132,7 @@ export async function fetchShardingKeys(
     configDocs = await raceWithAbort(cursor.toArray(), signal);
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (isCancelError(err)) {
+    if (dataService.isCancelError(err as Error)) {
       throw err;
     }
 
