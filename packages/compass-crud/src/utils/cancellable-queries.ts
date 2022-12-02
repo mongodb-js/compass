@@ -57,10 +57,6 @@ export async function countDocuments(
     typeof dataService.aggregate
   >[2]
 ): Promise<number> {
-  if (signal.aborted) {
-    throw signal.reason ?? createCancelError();
-  }
-
   const opts = {
     session,
     maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),

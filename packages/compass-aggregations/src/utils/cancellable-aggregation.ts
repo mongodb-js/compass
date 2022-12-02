@@ -1,7 +1,6 @@
 import type { AggregateOptions, Document } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import { createCancelError } from '@mongodb-js/compass-utils';
 
 const defaultOptions = {
   promoteValues: false,
@@ -26,9 +25,6 @@ export async function aggregatePipeline({
   skip?: number;
   limit?: number;
 }): Promise<Document[]> {
-  if (signal.aborted) {
-    return Promise.reject(signal.reason ?? createCancelError());
-  }
   const allOptions = {
     ...defaultOptions,
     ...options,
