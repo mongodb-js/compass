@@ -32,7 +32,6 @@ describe('StageCollaper [Component]', function() {
     });
 
     it('renders the collapse button', function() {
-      console.log(component.debug());
       expect(component.find('Icon').first()).to.have.prop('glyph', 'ChevronDown');
     });
   });
