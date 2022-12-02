@@ -129,20 +129,6 @@ interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
 }
 
-// In nodejs, AbortController support is from 15.x and we are currently on 14.x.
-// With the implementation of cancellable actions using AbortSignal, we have custom AbortSignal
-// type definition to avoid including DOM compiler options in tsconfig.
-type AbortSignal = {
-  readonly aborted: boolean;
-  onabort: ((event: any) => void) | null;
-  addEventListener: (
-    type: string,
-    listener: (event: any) => void,
-    options: Record<string, unknown>
-  ) => void;
-  removeEventListener: (type: string, listener: (event: any) => void) => void;
-};
-
 export type ExecutionOptions = {
   abortSignal?: AbortSignal;
 };
@@ -2096,7 +2082,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     if (abortSignal.aborted) {
-      throw abortSignal.reason ?? createCancelError();
+      // AbortSignal.reason is supported from node v17.2.0.
+      throw (abortSignal as any).reason ?? createCancelError();
     }
 
     const session = this.startSession('CRUD');
