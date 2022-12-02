@@ -1,24 +1,11 @@
-ignores: [
-  "@mongosh/node-runtime-worker-thread",
-  "@mongosh/service-provider-core",
-  "@babel/cli",
-  "@babel/register",
-  "core-js",
-  "font-awesome",
-  "karma-chai",
-  "karma-chai-sinon",
-  "karma-electron",
-  "karma-mocha",
-  "karma-mocha-reporter",
-  "karma-sinon",
-  "karma-sourcemap-loader",
-  "karma-webpack",
-  "mongodb-reflux-store",
-  "nyc",
-  "resolve",
-  "webpack-bundle-analyzer",
-  "webpack-cli",
-  "mongodb-compass",
-  "@hot-loader/react-dom",
-  "url-loader"
-]
+ignores:
+  - '@mongodb-js/prettier-config-compass'
+  - '@mongodb-js/tsconfig-compass'
+  - '@types/chai'
+  - '@types/sinon-chai'
+  - 'electron'
+  - '@types/chai-dom'
+  - '@types/react'
+  - '@types/react-dom'
+ignore-patterns:
+  - 'dist'
