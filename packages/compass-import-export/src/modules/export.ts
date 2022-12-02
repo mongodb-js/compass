@@ -593,7 +593,7 @@ const getExportSource = (
     options.maxTimeMS = capMaxTimeMSAtPreferenceLimit(options.maxTimeMS);
     return {
       columns: true,
-      source: dataService.aggregate(ns, stages, options),
+      source: dataService.aggregateCursor(ns, stages, options),
       numDocsToExport: exportData.count,
     };
   }

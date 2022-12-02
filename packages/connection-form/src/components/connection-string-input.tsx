@@ -73,7 +73,7 @@ export function hidePasswordInConnectionString(
   });
 }
 
-function ConnectStringInput({
+function ConnectionStringInput({
   connectionString,
   enableEditingConnectionString,
   setEnableEditingConnectionString,
@@ -211,4 +211,4 @@ function ConnectStringInput({
   );
 }
 
-export default ConnectStringInput;
+export default ConnectionStringInput;

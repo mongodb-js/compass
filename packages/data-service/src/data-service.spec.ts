@@ -381,11 +381,11 @@ describe('DataService', function () {
       });
     });
 
-    describe('#aggregate', function () {
+    describe('#aggregateCursor', function () {
       it('returns a cursor for the documents', function (done) {
         let count = 0;
         dataService
-          .aggregate(
+          .aggregateCursor(
             testNamespace,
             [{ $match: {} }, { $group: { _id: '$a', total: { $sum: '$a' } } }],
             { cursor: { batchSize: 10000 } }
@@ -401,20 +401,48 @@ describe('DataService', function () {
             }
           );
       });
-      it('returns null, calls callback', function (done) {
-        dataService.aggregate(
-          testNamespace,
-          [{ $match: {} }, { $group: { _id: '$a', total: { $sum: '$a' } } }],
-          {},
-          function (error, result) {
-            assert.equal(null, error);
-            result.toArray((err, r) => {
-              assert.equal(null, err);
-              expect(r!.length).to.equal(2);
-              done();
-            });
-          }
-        );
+    });
+
+    describe('#aggregate', function () {
+      it('returns a list of aggregated documents', async function () {
+        const data = await dataService.aggregate(testNamespace, [
+          { $match: {} },
+          { $group: { _id: '$a', total: { $sum: '$a' } } },
+          { $sort: { _id: 1 } },
+        ]);
+        expect(data).to.deep.equal([
+          { _id: 1, total: 1 },
+          { _id: 2, total: 2 },
+        ]);
+      });
+
+      it('cancels the long running aggregation', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const pipeline = [
+          {
+            $addFields: {
+              lazy: {
+                $function: {
+                  body: `function () {
+                    return sleep(1000);
+                  }`,
+                  args: [],
+                  lang: 'js',
+                },
+              },
+            },
+          },
+        ];
+
+        const promise = dataService
+          .aggregate(testNamespace, pipeline, {}, { abortSignal })
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+
+        expect(error).to.be.instanceOf(Error);
       });
     });
 
@@ -934,48 +962,42 @@ describe('DataService', function () {
     });
 
     describe('#sample', function () {
-      it('returns a cursor of sampled documents', async function () {
-        const docs = await dataService.sample(testNamespace).toArray();
+      it('returns a list of sampled documents', async function () {
+        const docs = await dataService.sample(testNamespace);
         expect(docs.length).to.equal(2);
       });
 
       it('allows to pass a query', async function () {
-        const docs = await dataService
-          .sample(testNamespace, {
-            query: { a: 1 },
-          })
-          .toArray();
+        const docs = await dataService.sample(testNamespace, {
+          query: { a: 1 },
+        });
         expect(docs.length).to.equal(1);
         expect(docs[0]).to.haveOwnProperty('_id');
         expect(docs[0].a).to.equal(1);
       });
 
       it('allows to pass a projection', async function () {
-        const docs = await dataService
-          .sample(testNamespace, {
-            fields: {
-              a: 1,
-              _id: 0,
-            },
-          })
-          .toArray();
+        const docs = await dataService.sample(testNamespace, {
+          fields: {
+            a: 1,
+            _id: 0,
+          },
+        });
 
         expect(docs).to.deep.include.members([{ a: 1 }, { a: 2 }]);
       });
 
       it('allows to set a sample size', async function () {
-        const docs = await dataService
-          .sample(testNamespace, {
-            size: 1,
-          })
-          .toArray();
+        const docs = await dataService.sample(testNamespace, {
+          size: 1,
+        });
 
         expect(docs.length).to.equal(1);
       });
 
       it('always sets default sample size and allowDiskUse: true', function () {
         sandbox.spy(dataService, 'aggregate');
-        dataService.sample('db.coll');
+        void dataService.sample('db.coll');
 
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(dataService.aggregate).to.have.been.calledWith(
@@ -987,7 +1009,7 @@ describe('DataService', function () {
 
       it('allows to pass down aggregation options to the driver', function () {
         sandbox.spy(dataService, 'aggregate');
-        dataService.sample(
+        void dataService.sample(
           'db.coll',
           {},
           {
@@ -1007,7 +1029,7 @@ describe('DataService', function () {
 
       it('allows to override allowDiskUse', function () {
         sandbox.spy(dataService, 'aggregate');
-        dataService.sample(
+        void dataService.sample(
           'db.coll',
           {},
           {
@@ -1539,7 +1561,6 @@ describe('DataService', function () {
         const error = await promise;
 
         expect(error).to.be.instanceOf(Error);
-        expect(dataService.isOperationCancelledError(error)).to.true;
       });
     });
 

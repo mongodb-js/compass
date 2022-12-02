@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import sortBy from 'lodash.sortby';
 import find from 'lodash.find';
 import numeral from 'numeral';
-import ReactTooltip from 'react-tooltip';
-import { Disclaimer } from '@mongodb-js/compass-components';
+import { Disclaimer, Tooltip, css } from '@mongodb-js/compass-components';
 
-const schemaTooltipClass = 'schema-probability-percent';
+const schemaFieldTypeLabelStyles = css({
+  textTransform: 'lowercase',
+});
 
 class Type extends Component {
   static displayName = 'TypeComponent';
@@ -108,7 +109,7 @@ class Type extends Component {
     };
     const subtypes = this._getArraySubTypes();
     const label = (
-      <Disclaimer className="schema-field-type-label">
+      <Disclaimer className={schemaFieldTypeLabelStyles}>
         {this.props.name}
       </Disclaimer>
     );
@@ -122,26 +123,19 @@ class Type extends Component {
     const tooltipText = `${this.props.name} (${numeral(
       this.props.probability
     ).format(format)})`;
-    const tooltipOptions = {
-      'data-for': schemaTooltipClass,
-      'data-tip': tooltipText,
-      'data-effect': 'solid',
-      'data-border': true,
-    };
-    tooltipOptions['data-offset'] = this.props.showSubTypes
-      ? '{"top": -25, "left": 0}'
-      : '{"top": 10, "left": 0}';
     return (
-      <button
-        {...tooltipOptions}
-        type="button"
-        className={cls}
-        style={style}
-        onClick={handleClick}
-      >
-        <ReactTooltip id={schemaTooltipClass} />
+      <button type="button" className={cls} style={style} onClick={handleClick}>
         {this.props.showSubTypes ? label : null}
-        <div className="schema-field-type" />
+        <Tooltip
+          trigger={({ children, ...props }) => (
+            <div {...props}>
+              <div className="schema-field-type" />
+              {children}
+            </div>
+          )}
+        >
+          {tooltipText}
+        </Tooltip>
         {subtypes}
         {this.props.showSubTypes ? null : label}
       </button>

@@ -14,7 +14,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -51,8 +51,8 @@
     "reformat": "npm run prettier -- --write ."
   },
   "dependencies": {
-    "compass-preferences-model": "^2.3.0",
-    "mongodb-connection-string-url": "^2.5.4"
+    "compass-preferences-model": "^2.4.0",
+    "mongodb-connection-string-url": "^2.6.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.1",
