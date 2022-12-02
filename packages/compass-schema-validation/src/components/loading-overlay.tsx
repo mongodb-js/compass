@@ -1,11 +1,12 @@
 import React from 'react';
 
 import {
-  withTheme,
   css,
   cx,
   SpinLoader,
   spacing,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 const loadingOverlayStyles = css({
@@ -22,18 +23,16 @@ const loadingOverlayStyles = css({
 });
 
 const loadingOverlayStylesDark = css({
-  backgroundColor: 'black',
+  backgroundColor: palette.black,
 });
 
 const loadingOverlayStylesLight = css({
   backgroundColor: 'white',
 });
 
-type LoadingOverlayProps = {
-  darkMode?: boolean;
-};
+function LoadingOverlay() {
+  const darkMode = useDarkMode();
 
-function UnstyledLoadingOverlay({ darkMode }: LoadingOverlayProps) {
   return (
     <div
       className={cx(
@@ -46,7 +45,4 @@ function UnstyledLoadingOverlay({ darkMode }: LoadingOverlayProps) {
   );
 }
 
-const LoadingOverlay = withTheme(
-  UnstyledLoadingOverlay
-) as typeof UnstyledLoadingOverlay;
 export { LoadingOverlay };
