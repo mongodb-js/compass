@@ -179,18 +179,18 @@ describe('DataService', function () {
               {},
               function (er) {
                 assert.equal(null, er);
-                dataService.find(
-                  testNamespace,
-                  {
-                    a: 500,
-                  },
-                  {},
-                  function (error, docs) {
-                    assert.equal(null, error);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 500,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
                     expect(docs.length).to.equal(0);
                     done();
-                  }
-                );
+                  });
               }
             );
           }
@@ -362,18 +362,18 @@ describe('DataService', function () {
               {},
               function (er) {
                 assert.equal(null, er);
-                dataService.find(
-                  testNamespace,
-                  {
-                    a: 500,
-                  },
-                  {},
-                  function (error, docs) {
-                    assert.equal(null, error);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 500,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
                     expect(docs.length).to.equal(0);
                     done();
-                  }
-                );
+                  });
               }
             );
           }
@@ -447,122 +447,95 @@ describe('DataService', function () {
     });
 
     describe('#find', function () {
-      it('returns a cursor for the documents', function (done) {
-        dataService.find(
+      it('returns a list of documents', async function () {
+        const docs = await dataService.find(
           testNamespace,
           {},
           {
             skip: 1,
-          },
-          function (error, docs) {
-            assert.equal(null, error);
-            expect(docs.length).to.equal(1);
-            done();
           }
         );
+        expect(docs.length).to.equal(1);
       });
 
-      context('when a filter is provided', function () {
-        it('returns a cursor for the matching documents', function (done) {
-          dataService.find(
-            testNamespace,
-            {
-              a: 1,
-            },
-            {},
-            function (error, docs) {
-              assert.equal(null, error);
-              expect(docs.length).to.equal(1);
-              done();
-            }
-          );
-        });
+      it('returns a list of documents when filter is provided', async function () {
+        const docs = await dataService.find(testNamespace, { a: 1 }, {});
+        expect(docs.length).to.equal(1);
       });
 
-      context('when no filter is provided', function () {
-        it('returns a cursor for all documents', function (done) {
-          dataService.find(testNamespace, {}, {}, function (error, docs) {
-            assert.equal(null, error);
-            expect(docs.length).to.equal(2);
-            done();
-          });
-        });
+      it('returns a list of documents when no filter is provided', async function () {
+        const docs = await dataService.find(testNamespace, {}, {});
+        expect(docs.length).to.equal(2);
       });
 
-      context('when options are provided', function () {
-        it('returns a cursor for the documents', function (done) {
-          dataService.find(
-            testNamespace,
-            {},
-            {
-              skip: 1,
-            },
-            function (error, docs) {
-              assert.equal(null, error);
-              expect(docs.length).to.equal(1);
-              done();
-            }
-          );
-        });
+      it('returns a list of documents when options are provided', async function () {
+        const docs = await dataService.find(
+          testNamespace,
+          {},
+          {
+            skip: 1,
+          }
+        );
+        expect(docs.length).to.equal(1);
       });
 
-      context('when array sort is provided', function () {
-        it('returns documents with correct sort order', function (done) {
-          const sort: Sort = [
-            ['2', -1],
-            ['1', -1],
-          ];
-          dataService.find(testNamespace, {}, { sort }, function (error, docs) {
-            assert.strictEqual(null, error);
-            expect(docs[0]).to.have.nested.property('2', 'a');
-            expect(docs[1]).to.have.nested.property('1', 'a');
-            done();
-          });
-        });
+      it('returns a list of documents with correct sort order when array sort is provided', async function () {
+        const sort: Sort = [
+          ['2', -1],
+          ['1', -1],
+        ];
+        const docs = await dataService.find(testNamespace, {}, { sort });
+        expect(docs.length).to.equal(2);
+        expect(docs[0]).to.have.nested.property('2', 'a');
+        expect(docs[1]).to.have.nested.property('1', 'a');
+      });
+
+      it('cancels the long running find operation', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const filter = {
+          query: {
+            $where: `function () {
+              sleep(100);
+              return true;
+            }`,
+          },
+        };
+
+        const promise = dataService
+          .find(testNamespace, filter, {}, { abortSignal })
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+
+        expect(dataService.isCancelError(error)).to.be.true;
       });
     });
 
-    describe('#fetch', function () {
-      it('returns a cursor for the documents', function (done) {
-        const cursor = dataService.fetch(testNamespace, {}, { skip: 1 });
-        cursor.toArray(function (error, docs) {
-          assert.equal(null, error);
-          expect(docs!.length).to.equal(1);
-          done();
-        });
+    describe('#findCursor', function () {
+      it('returns a cursor for the documents', async function () {
+        const cursor = dataService.findCursor(testNamespace, {}, { skip: 1 });
+        const docs = await cursor.toArray();
+        expect(docs.length).to.equal(1);
       });
 
-      context('when a filter is provided', function () {
-        it('returns a cursor for the matching documents', function (done) {
-          const cursor = dataService.fetch(testNamespace, { a: 1 }, {});
-          cursor.toArray(function (error, docs) {
-            assert.equal(null, error);
-            expect(docs!.length).to.equal(1);
-            done();
-          });
-        });
+      it('returns a cursor for the matching documents when a filter is provided', async function () {
+        const cursor = dataService.findCursor(testNamespace, { a: 1 }, {});
+        const docs = await cursor.toArray();
+        expect(docs.length).to.equal(1);
       });
 
-      context('when no filter is provided', function () {
-        it('returns a cursor for all documents', function (done) {
-          const cursor = dataService.fetch(testNamespace, {}, {});
-          cursor.toArray(function (error, docs) {
-            assert.equal(null, error);
-            expect(docs!.length).to.equal(2);
-            done();
-          });
-        });
+      it('returns a cursor for all documents when no filter is provided', async function () {
+        const cursor = dataService.findCursor(testNamespace, {}, {});
+        const docs = await cursor.toArray();
+        expect(docs.length).to.equal(2);
       });
 
-      context('when options are provided', function () {
-        it('returns a cursor for the documents', function (done) {
-          const cursor = dataService.fetch(testNamespace, {}, { skip: 1 });
-          cursor.toArray(function (error, docs) {
-            assert.equal(null, error);
-            expect(docs!.length).to.equal(1);
-            done();
-          });
-        });
+      it('returns a cursor for the documents when options are provided', async function () {
+        const cursor = dataService.findCursor(testNamespace, {}, { skip: 1 });
+        const docs = await cursor.toArray();
+        expect(docs.length).to.equal(1);
       });
     });
 
@@ -912,18 +885,18 @@ describe('DataService', function () {
           {},
           function (err) {
             assert.equal(null, err);
-            dataService.find(
-              testNamespace,
-              {
-                a: 500,
-              },
-              {},
-              function (error, docs) {
-                assert.equal(null, error);
+            void dataService
+              .find(
+                testNamespace,
+                {
+                  a: 500,
+                },
+                {}
+              )
+              .then(function (docs) {
                 expect(docs.length).to.equal(1);
                 done();
-              }
-            );
+              });
           }
         );
       });
@@ -944,18 +917,18 @@ describe('DataService', function () {
           {},
           function (err) {
             assert.equal(null, err);
-            dataService.find(
-              testNamespace,
-              {
-                a: 500,
-              },
-              {},
-              function (error, docs) {
-                assert.equal(null, error);
+            void dataService
+              .find(
+                testNamespace,
+                {
+                  a: 500,
+                },
+                {}
+              )
+              .then(function (docs) {
                 expect(docs.length).to.equal(2);
                 done();
-              }
-            );
+              });
           }
         );
       });
@@ -1069,18 +1042,18 @@ describe('DataService', function () {
               {},
               function (er) {
                 assert.equal(null, er);
-                dataService.find(
-                  testNamespace,
-                  {
-                    a: 600,
-                  },
-                  {},
-                  function (error, docs) {
-                    assert.equal(null, error);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 600,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
                     expect(docs.length).to.equal(1);
                     done();
-                  }
-                );
+                  });
               }
             );
           }
@@ -1140,18 +1113,18 @@ describe('DataService', function () {
               {},
               function (er) {
                 assert.equal(null, er);
-                dataService.find(
-                  testNamespace,
-                  {
-                    a: 600,
-                  },
-                  {},
-                  function (error, docs) {
-                    assert.equal(null, error);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 600,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
                     expect(docs.length).to.equal(2);
                     done();
-                  }
-                );
+                  });
               }
             );
           }
@@ -1186,20 +1159,16 @@ describe('DataService', function () {
         );
       });
 
-      it('returns documents from the view', function (done) {
-        dataService.find(
+      it('returns documents from the view', async function () {
+        const docs = await dataService.find(
           `${testDatabaseName}.myView`,
           {},
-          {},
-          function (err, docs) {
-            if (err) return done(err);
-
-            assert.equal(docs.length, 2);
-            assert.strictEqual(docs[0].a, undefined);
-            assert.strictEqual(docs[1].a, undefined);
-            done();
-          }
+          {}
         );
+
+        assert.equal(docs.length, 2);
+        assert.strictEqual(docs[0].a, undefined);
+        assert.strictEqual(docs[1].a, undefined);
       });
 
       it('updates the view', function (done) {
@@ -1215,20 +1184,16 @@ describe('DataService', function () {
         );
       });
 
-      it('returns documents from the updated', function (done) {
-        dataService.find(
+      it('returns documents from the updated', async function () {
+        const docs = await dataService.find(
           `${testDatabaseName}.myView`,
           {},
-          {},
-          function (err, docs) {
-            if (err) return done(err);
-
-            assert.equal(docs.length, 2);
-            assert.strictEqual(docs[0].a, 1);
-            assert.strictEqual(docs[1].a, 2);
-            done();
-          }
+          {}
         );
+
+        assert.equal(docs.length, 2);
+        assert.strictEqual(docs[0].a, 1);
+        assert.strictEqual(docs[1].a, 2);
       });
 
       it('drops the view', function (done) {
@@ -1385,19 +1350,11 @@ describe('DataService', function () {
 
       describe('#explain', function () {
         context('when a filter is provided', function () {
-          it('returns an explain object for the provided filter', function (done) {
-            dataService.explain(
-              testNamespace,
-              {
-                a: 1,
-              },
-              {},
-              function (error, explanation) {
-                assert.equal(null, error);
-                expect(explanation).to.be.an('object');
-                done();
-              }
-            );
+          it('returns an explain object for the provided filter', async function () {
+            const explanation = await dataService.explainFind(testNamespace, {
+              a: 1,
+            });
+            expect(explanation).to.be.an('object');
           });
         });
       });
@@ -1496,20 +1453,13 @@ describe('DataService', function () {
       it('can create data keys', async function () {
         const uuid = await csfleDataService.createDataKey('local');
         const keyDoc = await csfleDataService
-          .fetch(`${testDatabaseName}.keyvault`, {}, {})
+          .findCursor(`${testDatabaseName}.keyvault`, {}, {})
           .next();
         expect(uuid).to.deep.equal(keyDoc._id);
       });
     });
 
     describe('#explainAggregate', function () {
-      const initialAbortController = global.AbortController;
-      before(function () {
-        (global as any).AbortController = AbortController;
-      });
-      after(function () {
-        global.AbortController = initialAbortController;
-      });
       it('returns an explain object', async function () {
         const explain = await dataService.explainAggregate(
           testNamespace,
@@ -1560,7 +1510,40 @@ describe('DataService', function () {
         abortController.abort();
         const error = await promise;
 
-        expect(error).to.be.instanceOf(Error);
+        expect(dataService.isCancelError(error)).to.be.true;
+      });
+    });
+
+    describe('#explainFind', function () {
+      it('returns an explain object', async function () {
+        const explain = await dataService.explainFind(testNamespace, {
+          query: {
+            a: 1,
+          },
+        });
+        expect(explain).to.be.an('object');
+      });
+      it('returns an explain object - cancellable', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const filter = {
+          query: {
+            a: 1,
+          },
+        };
+        const executionOptions = {
+          abortSignal,
+        };
+
+        // cancellable explain
+        const promise = dataService
+          .explainFind(testNamespace, filter, {}, executionOptions as any)
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+
+        expect(dataService.isCancelError(error)).to.be.true;
       });
     });
 

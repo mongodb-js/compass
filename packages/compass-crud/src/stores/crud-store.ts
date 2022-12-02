@@ -1,7 +1,7 @@
 import type { Listenable, Store } from 'reflux';
 import Reflux from 'reflux';
 import toNS from 'mongodb-ns';
-import { omit, findIndex, isEmpty, isEqual } from 'lodash';
+import { findIndex, isEmpty, isEqual } from 'lodash';
 // @ts-expect-error no types available
 import StateMixin from 'reflux-state-mixin';
 import type { Element } from 'hadron-document';
@@ -298,7 +298,6 @@ type CrudState = {
   ns: string;
   collection: string;
   abortController: AbortController | null;
-  sessions: unknown[] | null;
   error: Error | null;
   docs: Document[] | null;
   start: number;
@@ -338,15 +337,10 @@ class CrudStoreImpl
   dataService!: DataService;
   localAppRegistry!: AppRegistry;
   globalAppRegistry!: AppRegistry;
-  onAbort!: () => void;
 
   constructor(options: CrudStoreOptions) {
     super(options);
     this.listenables = options.actions as any; // TODO: The types genuinely mismatch here
-  }
-
-  init() {
-    this.onAbort = () => void this.onAbortImpl();
   }
 
   getInitialState(): CrudState {
@@ -354,7 +348,6 @@ class CrudStoreImpl
       ns: '',
       collection: '',
       abortController: null,
-      sessions: null,
       error: null,
       docs: [],
       start: 0,
@@ -816,17 +809,11 @@ class CrudStoreImpl
       }
     }
 
-    const session = this.dataService.startSession('CRUD');
     const abortController = new AbortController();
     const signal = abortController.signal;
 
-    abortController.signal.addEventListener('abort', this.onAbort, {
-      once: true,
-    });
-
     const opts = {
       signal,
-      session,
       skip,
       limit: nextPageCount,
       sort,
@@ -840,7 +827,6 @@ class CrudStoreImpl
     this.setState({
       status: DOCUMENTS_STATUS_FETCHING,
       abortController,
-      sessions: [session],
       error: null,
     });
 
@@ -873,9 +859,7 @@ class CrudStoreImpl
       table: this.getInitialTableState(),
       resultId: resultId(),
       abortController: null,
-      sessions: null,
     });
-    abortController.signal.removeEventListener('abort', this.onAbort);
     this.localAppRegistry.emit('documents-paginated', view, documents);
     this.globalAppRegistry.emit('documents-paginated', view, documents);
 
@@ -1285,7 +1269,6 @@ class CrudStoreImpl
 
     const fetchShardingKeysOptions = {
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
-      session: this.dataService.startSession('CRUD'),
       signal,
     };
 
@@ -1296,7 +1279,6 @@ class CrudStoreImpl
           ? COUNT_MAX_TIME_MS_CAP
           : query.maxTimeMS
       ),
-      session: this.dataService.startSession('CRUD'),
       signal,
     };
 
@@ -1313,7 +1295,6 @@ class CrudStoreImpl
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
       promoteValues: false,
       bsonRegExp: true,
-      session: this.dataService.startSession('CRUD'),
       signal,
     };
 
@@ -1326,12 +1307,8 @@ class CrudStoreImpl
     log.info(mongoLogId(1_001_000_073), 'Documents', 'Refreshing documents', {
       ns,
       withFilter: !isEmpty(query.filter),
-      findOptions: omit(findOptions, 'session'),
-      countOptions: omit(countOptions, 'session'),
-    });
-
-    abortController.signal.addEventListener('abort', this.onAbort, {
-      once: true,
+      findOptions,
+      countOptions,
     });
 
     // Don't wait for the count to finish. Set the result asynchronously.
@@ -1356,21 +1333,6 @@ class CrudStoreImpl
     this.setState({
       status: DOCUMENTS_STATUS_FETCHING,
       abortController,
-      /**
-       * We have separate sessions created for the commands we are running as
-       * running commands with the same session concurrently is not really
-       * supported by the server. Even though it works in some environments,
-       * it breaks in others, so having separate sessions is a more spec
-       * compliant way of doing this
-       *
-       * @see https://docs.mongodb.com/manual/core/read-isolation-consistency-recency/#client-sessions-and-causal-consistency-guarantees
-       * @see https://github.com/mongodb/specifications/blob/master/source/sessions/driver-sessions.rst#why-do-we-say-drivers-must-not-attempt-to-detect-unsafe-multi-threaded-or-multi-process-use-of-clientsession
-       */
-      sessions: [
-        fetchShardingKeysOptions.session,
-        countOptions.session,
-        findOptions.session,
-      ],
       outdated: false,
       error: null,
       count: null, // we don't know the new count yet
@@ -1420,41 +1382,18 @@ class CrudStoreImpl
 
     Object.assign(stateChanges, {
       abortController: null,
-      sessions: null,
       resultId: resultId(),
     });
-
-    abortController.signal.removeEventListener('abort', this.onAbort);
 
     // Trigger all the accumulated changes once at the end
     this.setState(stateChanges);
   }
 
-  async onAbortImpl() {
-    const { sessions } = this.state;
-    if (!sessions) {
-      return;
-    }
-    this.setState({ sessions: null });
-    try {
-      await this.dataService.killSessions(sessions as any[]);
-    } catch (err) {
-      log.warn(
-        mongoLogId(1_001_000_096),
-        'Documents',
-        'Attempting to kill the session failed'
-      );
-    }
-  }
-
   cancelOperation() {
-    const { abortController } = this.state;
-    if (!abortController) {
-      return;
-    }
+    // As we use same controller for all operations
+    // (find, count and shardingKeys), aborting will stop all.
+    this.state.abortController?.abort();
     this.setState({ abortController: null });
-
-    abortController.abort();
   }
 
   debounceLoading() {
@@ -1626,14 +1565,11 @@ export async function findAndModifyWithFLEFallback(
 
     if (!error) {
       let docs;
-      [error, docs] = await new Promise<
-        [{ message: string }] | [null | undefined, BSONObject[]]
-      >((resolve) => {
-        ds.find(ns, { _id: d!._id }, fallbackOpts, (...cbArgs) =>
-          resolve(cbArgs as any)
-        );
-      });
-
+      try {
+        docs = await ds.find(ns, { _id: d!._id }, fallbackOpts);
+      } catch (e) {
+        error = e as Error;
+      }
       if (error || !docs || !docs.length) {
         // Race condition -- most likely, somebody else
         // deleted the document between the findAndModify command

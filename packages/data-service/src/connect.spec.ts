@@ -145,12 +145,9 @@ describe('connect', function () {
           connectionString: COMPASS_TEST_SECONDARY_NODE_URL,
         });
 
-        const [command, explain] = [
-          dataService.command.bind(dataService),
-          dataService.explain.bind(dataService),
-        ].map(util.promisify);
+        const command = util.promisify(dataService.command.bind(dataService));
 
-        const explainPlan = await explain('test.test', {}, {});
+        const explainPlan = await dataService.explainFind('test.test', {}, {});
 
         const targetHost = explainPlan?.serverInfo?.host;
         const replSetStatus = await command('admin', { replSetGetStatus: 1 });

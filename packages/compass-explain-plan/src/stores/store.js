@@ -7,6 +7,7 @@ import { editModeChanged } from '../modules/edit-mode';
 import { indexesChanged } from '../modules/indexes';
 import { queryChanged } from '../modules/query';
 import { explainStateChanged } from '../modules/explain';
+import { setIsDataLake } from '../modules/is-datalake';
 import {
   localAppRegistryActivated,
   globalAppRegistryActivated,
@@ -82,6 +83,10 @@ const configureStore = (options = {}) => {
 
   if (options.isReadonly) {
     store.dispatch(editModeChanged(options.isReadonly));
+  }
+
+  if (options.isDataLake) {
+    store.dispatch(setIsDataLake(options.isDataLake));
   }
 
   return store;
