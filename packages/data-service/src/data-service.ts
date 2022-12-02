@@ -3,7 +3,6 @@ import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
-import { isFunction } from 'lodash';
 import type {
   AggregateOptions,
   AggregationCursor,
@@ -83,6 +82,11 @@ import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 import * as mongodb from 'mongodb';
 import type { ClientEncryption as ClientEncryptionType } from 'mongodb-client-encryption';
+import {
+  raceWithAbort,
+  createCancelError,
+  isCancelError,
+} from '@mongodb-js/compass-utils';
 
 // TODO: remove try/catch and refactor encryption related types
 // when the Node bundles native binding distributions
@@ -117,16 +121,6 @@ function isEmptyObject(obj: Record<string, unknown>) {
   return Object.keys(obj).length === 0;
 }
 
-class DataServiceOperationCancelledError extends Error {
-  name = 'DataServiceOperationCancelledError';
-  constructor() {
-    super('The operation was cancelled.');
-  }
-  static isOperationCancelledError(error: Error) {
-    return error.name === 'DataServiceOperationCancelledError';
-  }
-}
-
 let id = 0;
 
 type ClientType = 'CRUD' | 'META';
@@ -135,22 +129,11 @@ interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
 }
 
-// In nodejs, AbortController support is from 15.x and we are currently on 14.x.
-// With the implementation of cancellable actions using AbortSignal, we have custom AbortSignal
-// type definition to avoid including DOM compiler options in tsconfig.
-type AbortSignal = {
-  readonly aborted: boolean;
-  onabort: ((event: any) => void) | null;
-  addEventListener: (
-    type: string,
-    listener: (event: any) => void,
-    options: Record<string, unknown>
-  ) => void;
-  removeEventListener: (type: string, listener: (event: any) => void) => void;
+export type ExecutionOptions = {
+  abortSignal?: AbortSignal;
 };
 
-export type ExplainExecuteOptions = {
-  abortSignal?: AbortSignal;
+export type ExplainExecuteOptions = ExecutionOptions & {
   explainVerbosity?: keyof typeof mongodb.ExplainVerbosity;
 };
 
@@ -440,24 +423,27 @@ export interface DataService {
    * @param ns - The namespace to search on.
    * @param pipeline - The aggregation pipeline.
    * @param options - The aggregation options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
   aggregate(
     ns: string,
     pipeline: Document[],
+    options?: AggregateOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]>;
+
+  /**
+   * Returns an aggregation cursor on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param pipeline - The aggregation pipeline.
+   * @param options - The aggregation options.
+   */
+  aggregateCursor(
+    ns: string,
+    pipeline: Document[],
     options?: AggregateOptions
   ): AggregationCursor;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options: AggregateOptions | undefined,
-    callback: Callback<AggregationCursor>
-  ): void;
 
   /**
    * Find documents for the provided filter and options on the collection.
@@ -731,8 +717,9 @@ export interface DataService {
   sample(
     ns: string,
     args?: { query?: Filter<Document>; size?: number; fields?: Document },
-    options?: AggregateOptions
-  ): AggregationCursor;
+    options?: AggregateOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]>;
 
   /**
    * Create a ClientSession that can be passed to commands.
@@ -749,7 +736,12 @@ export interface DataService {
 
   isConnected(): boolean;
 
-  isOperationCancelledError(error: Error): boolean;
+  /**
+   * If the error is an AbortError.
+   *
+   * @param error - The error to check.
+   */
+  isCancelError(error: any): ReturnType<typeof isCancelError>;
 
   /**
    * Get the stats for a database.
@@ -1496,44 +1488,35 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     });
   }
 
-  aggregate(
+  aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options?: AggregateOptions
-  ): AggregationCursor;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options: AggregateOptions | undefined,
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options?: AggregateOptions | Callback<AggregationCursor>,
-    callback?: Callback<AggregationCursor>
-  ): AggregationCursor | void {
+    options: AggregateOptions = {}
+  ): AggregationCursor {
     log.info(mongoLogId(1_001_000_041), this._logCtx(), 'Running aggregation', {
       ns,
       stages: pipeline.map((stage) => Object.keys(stage)[0]),
     });
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    const cursor = this._collection(ns, 'CRUD').aggregate(pipeline, options);
-    // async when a callback is provided
-    if (isFunction(callback)) {
-      process.nextTick(callback, null, cursor);
-      return;
-    }
-    // otherwise return cursor
-    return cursor;
+    return this._collection(ns, 'CRUD').aggregate(pipeline, options);
+  }
+
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]> {
+    let cursor: AggregationCursor;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        cursor = this.aggregateCursor(ns, pipeline, { ...options, session });
+        const results = await cursor.toArray();
+        void cursor.close();
+        return results;
+      },
+      () => cursor?.close(),
+      executionOptions?.abortSignal
+    );
   }
 
   find(
@@ -1662,9 +1645,11 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       mongodb.ExplainVerbosity.queryPlanner;
     let cursor: AggregationCursor;
     return this.cancellableOperation(
-      (session?: ClientSession) => {
-        cursor = this.aggregate(ns, pipeline, { ...options, session });
-        return cursor.explain(verbosity);
+      async (session?: ClientSession) => {
+        cursor = this.aggregateCursor(ns, pipeline, { ...options, session });
+        const results = await cursor.explain(verbosity);
+        void cursor.close();
+        return results;
       },
       () => cursor?.close(),
       executionOptions?.abortSignal
@@ -2023,8 +2008,9 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       size,
       fields,
     }: { query?: Filter<Document>; size?: number; fields?: Document } = {},
-    options: AggregateOptions = {}
-  ): AggregationCursor {
+    options: AggregateOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]> {
     const pipeline = [];
     if (query && Object.keys(query).length > 0) {
       pipeline.push({
@@ -2045,10 +2031,15 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       });
     }
 
-    return this.aggregate(ns, pipeline, {
-      allowDiskUse: true,
-      ...options,
-    });
+    return this.aggregate(
+      ns,
+      pipeline,
+      {
+        allowDiskUse: true,
+        ...options,
+      },
+      executionOptions
+    );
   }
 
   startSession(clientType: ClientType): CompassClientSession {
@@ -2088,10 +2079,6 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return !!this._metadataClient;
   }
 
-  isOperationCancelledError(error: Error): boolean {
-    return DataServiceOperationCancelledError.isOperationCancelledError(error);
-  }
-
   private async cancellableOperation<T>(
     start: (session?: ClientSession) => Promise<T>,
     stop: () => Promise<void> = () => Promise.resolve(),
@@ -2102,18 +2089,13 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     if (abortSignal.aborted) {
-      throw new DataServiceOperationCancelledError();
+      // AbortSignal.reason is supported from node v17.2.0.
+      throw (abortSignal as any).reason ?? createCancelError();
     }
 
     const session = this.startSession('CRUD');
 
     let result: T;
-    let abortListener;
-    const pendingPromise = new Promise<never>((_resolve, reject) => {
-      abortListener = () => reject(new DataServiceOperationCancelledError());
-      abortSignal.addEventListener('abort', abortListener, { once: true });
-    });
-
     const abort = async () => {
       const logAbortError = (error: Error) => {
         try {
@@ -2132,17 +2114,19 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     };
 
     try {
-      result = await Promise.race([pendingPromise, start(session)]);
+      result = await raceWithAbort(start(session), abortSignal);
     } catch (err) {
-      if (this.isOperationCancelledError(err as Error)) {
+      if (isCancelError(err)) {
         void abort();
       }
       throw err;
-    } finally {
-      abortListener && abortSignal.removeEventListener('abort', abortListener);
     }
 
     return result;
+  }
+
+  isCancelError(error: any): ReturnType<typeof isCancelError> {
+    return isCancelError(error);
   }
 
   /**

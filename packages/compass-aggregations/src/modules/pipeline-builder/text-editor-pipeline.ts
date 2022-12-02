@@ -7,7 +7,6 @@ import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE
 } from './pipeline-preview-manager';
-import { isCancelError } from '@mongodb-js/compass-utils';
 import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
@@ -197,6 +196,7 @@ export const loadPreviewForPipeline = (
       limit,
       largeLimit,
       inputDocuments,
+      dataService,
       pipelineBuilder: {
         textEditor: {
           pipeline: { pipeline }
@@ -243,7 +243,7 @@ export const loadPreviewForPipeline = (
         previewDocs
       });
     } catch (err) {
-      if (isCancelError(err)) {
+      if (dataService.dataService?.isCancelError(err)) {
         return;
       }
       dispatch({
