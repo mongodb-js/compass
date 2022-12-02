@@ -20,6 +20,7 @@ export class DeleteStage extends PureComponent {
 
     return (
       <IconButton
+        data-testid="delete-stage"
         onClick={this.onStageDeleted}
         title={title}
         aria-label={title}

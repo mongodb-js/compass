@@ -31,10 +31,7 @@ const darkStyles = css({
   borderTop: `2px solid ${palette.gray.light3}`,
 });
 
-function SpinLoader({
-  size = '12px',
-  title,
-}: SpinLoaderProps): JSX.Element {
+function SpinLoader({ size = '12px', title }: SpinLoaderProps): JSX.Element {
   const darkMode = useDarkMode();
 
   return (
