@@ -146,10 +146,7 @@ describe('Collection aggregations tab', function () {
     await browser.navigateToCollectionTab('test', 'numbers', 'Aggregations');
     // Get us back to the empty stage every time. Also test the Create New
     // Pipeline flow while at it.
-    await browser.clickVisible(Selectors.CreateNewPipelineMenuButton);
-    const menuElement = await browser.$(Selectors.CreateNewPipelineMenuContent);
-    await menuElement.waitForDisplayed();
-    await browser.clickVisible(Selectors.CreateNewEmptyPipelineAction);
+    await browser.clickVisible(Selectors.CreateNewPipelineButton);
     const modalElement = await browser.$(Selectors.ConfirmNewPipelineModal);
     await modalElement.waitForDisplayed();
 
@@ -630,57 +627,6 @@ describe('Collection aggregations tab', function () {
           'Expected `test.my-merge-collection` namespace tab to be visible',
       }
     );
-  });
-
-  it('allows creating a new pipeline from text', async function () {
-    await browser.clickVisible(Selectors.CreateNewPipelineMenuButton);
-    const menuElement = await browser.$(Selectors.CreateNewPipelineMenuContent);
-    await menuElement.waitForDisplayed();
-    await browser.clickVisible(Selectors.CreateNewPipelineFromTextAction);
-
-    const createModal = await browser.$(Selectors.NewPipelineFromTextModal);
-    await createModal.waitForDisplayed();
-
-    await browser.setAceValue(
-      Selectors.NewPipelineFromTextEditor,
-      `[
-  { $match: { i: 5 } }
-]`
-    );
-
-    const confirmButton = await browser.$(
-      Selectors.NewPipelineFromTextConfirmButton
-    );
-    await confirmButton.waitForEnabled();
-
-    await browser.screenshot('new-pipeline-from-text-modal.png');
-
-    await confirmButton.click();
-
-    await createModal.waitForDisplayed({ reverse: true });
-
-    const confirmModal = await browser.$(Selectors.ConfirmImportPipelineModal);
-    await confirmModal.waitForDisplayed();
-
-    await browser.screenshot('confirm-import-pipeline-modal.png');
-
-    await browser.clickVisible(
-      Selectors.ConfirmImportPipelineModalConfirmButton
-    );
-    await confirmModal.waitForDisplayed({ reverse: true });
-
-    const contentElement = await browser.$(Selectors.stageContent(0));
-    expect(await contentElement.getText()).to.equal(`{
-  i: 5,
-}`);
-
-    await browser.waitUntil(async function () {
-      const textElement = await browser.$(
-        Selectors.stagePreviewToolbarTooltip(0)
-      );
-      const text = await textElement.getText();
-      return text === '(Sample of 1 document)';
-    });
   });
 
   it('supports running and editing aggregation', async function () {
