@@ -1,5 +1,4 @@
 import reducer, {
-  toggleInputDocumentsCollapsed,
   updateInputDocuments,
   loadingInputDocuments,
   UPDATE_INPUT_DOCUMENTS,
