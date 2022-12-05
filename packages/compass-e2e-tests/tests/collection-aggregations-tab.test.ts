@@ -486,7 +486,7 @@ describe('Collection aggregations tab', function () {
           await browser.openSettingsModal();
           const settingsModal = await browser.$(Selectors.SettingsModal);
           await settingsModal.waitForDisplayed();
-          await browser.clickVisible(Selectors.FeaturesSettingsButton);
+          await browser.clickVisible(Selectors.GeneralSettingsButton);
 
           await browser.setValueVisible(
             Selectors.SettingsInputElement('maxTimeMS'),
