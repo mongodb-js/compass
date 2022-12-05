@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 
-import styles from './input-refresh.module.less';
+import { IconButton, Icon, css } from '@mongodb-js/compass-components';
 
-/**
- * Collapse/Expand a stage.
- */
+const iconButtonStyles = css({
+  flexGrow: 0
+});
+
 class InputRefresh extends PureComponent {
   static displayName = 'InputRefreshComponent';
 
@@ -13,23 +14,16 @@ class InputRefresh extends PureComponent {
     refreshInputDocuments: PropTypes.func.isRequired
   }
 
-  /**
-   * Render the input refresh component.
-   *
-   * @returns {Component} The component.
-   */
   render() {
+    const title = 'Refresh Documents';
+
     return (
-      <div className={styles['input-refresh']}>
-        <button
-          type="button"
-          title="Refresh Documents"
-          onClick={this.props.refreshInputDocuments}
-          className="btn btn-default btn-xs"
-        >
-          <i className="fa fa-repeat" aria-hidden />
-        </button>
-      </div>
+      <IconButton
+        onClick={this.refreshInputDocuments}
+        title={title}
+        aria-label={title}
+        className={iconButtonStyles}
+      ><Icon glyph="Refresh" size="small" /></IconButton>
     );
   }
 }

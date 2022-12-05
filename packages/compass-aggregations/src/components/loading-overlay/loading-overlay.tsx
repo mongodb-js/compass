@@ -5,8 +5,9 @@ import {
   cx,
   SpinLoader,
   spacing,
+  Body,
   palette,
-  useDarkMode,
+  useDarkMode
 } from '@mongodb-js/compass-components';
 
 const loadingOverlayStyles = css({
@@ -15,7 +16,6 @@ const loadingOverlayStyles = css({
   left: 0,
   bottom: 0,
   right: 0,
-  borderRadius: spacing[2],
   zIndex: 1000,
   display: 'flex',
   alignItems: 'center',
@@ -30,7 +30,15 @@ const loadingOverlayStylesLight = css({
   backgroundColor: 'white',
 });
 
-function LoadingOverlay() {
+const textStyles = css({
+  marginLeft: spacing[2]
+});
+
+type LoadingOverlayProps = {
+  text: string;
+};
+
+function LoadingOverlay({ text }: LoadingOverlayProps) {
   const darkMode = useDarkMode();
 
   return (
@@ -41,6 +49,7 @@ function LoadingOverlay() {
       )}
     >
       <SpinLoader />
+      <Body className={textStyles}>{text}</Body>
     </div>
   );
 }

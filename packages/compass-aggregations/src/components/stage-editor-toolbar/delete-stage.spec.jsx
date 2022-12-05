@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { DeleteStage } from './delete-stage';
-import styles from './delete-stage.module.less';
 
 describe('DeleteStage [Component]', function() {
   context('when the component is rendered', function() {
@@ -25,7 +24,7 @@ describe('DeleteStage [Component]', function() {
     });
 
     it('renders the correct root classname', function() {
-      expect(component.find(`.${styles['delete-stage']}`)).to.be.present();
+      expect(component.find('DeleteStage')).to.be.present();
     });
 
     it('renders the collapse text', function() {
@@ -33,7 +32,7 @@ describe('DeleteStage [Component]', function() {
     });
 
     it('renders the delete button', function() {
-      expect(component.find('.fa-trash-o')).to.be.present();
+      expect(component.find('Icon').first()).to.have.prop('glyph', 'Trash');
     });
   });
 
