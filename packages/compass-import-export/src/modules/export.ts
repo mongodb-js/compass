@@ -1,7 +1,6 @@
 import throttle from 'lodash/throttle';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import fs from 'fs';
-import { promisify } from 'util';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import type { AnyAction, Dispatch } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
@@ -413,7 +412,7 @@ export const openExport =
     const {
       dataService: { dataService },
     } = getState();
-    
+
     let count = null;
     try {
       count =
