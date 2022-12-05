@@ -2,10 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 
 import createPlugin from './plugin';
 
-const {
-  store,
-  Plugin
-} = createPlugin();
+const { store, Plugin } = createPlugin();
 
 /**
  * Activate all the components in the Compass Shell package.

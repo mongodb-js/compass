@@ -6,7 +6,7 @@ import {
   InfoModal,
   Link,
   Subtitle,
-  spacing
+  spacing,
 } from '@mongodb-js/compass-components';
 
 import { KeyboardShortcutsTable } from './keyboard-shortcuts-table';
@@ -18,20 +18,17 @@ const mongoshVersion = `v${
 const shortcutsTableContainerStyles = css({
   marginTop: spacing[2],
   maxHeight: '50vh',
-  overflow: 'auto'
+  overflow: 'auto',
 });
 
 const shortcutsTitleStyles = css({
-  marginTop: spacing[4]
+  marginTop: spacing[4],
 });
 
-function ShellInfoModal({
-  hideInfoModal,
-  show
-}) {
+function ShellInfoModal({ hideInfoModal, show }) {
   const onClose = useCallback(() => {
     hideInfoModal();
-  }, [ hideInfoModal ]);
+  }, [hideInfoModal]);
 
   return (
     <InfoModal
@@ -47,13 +44,12 @@ function ShellInfoModal({
           id="mongosh-info-link"
           href="https://docs.mongodb.com/compass/beta/embedded-shell/"
           target="_blank"
-        >MongoDB Shell Documentation</Link>.
+        >
+          MongoDB Shell Documentation
+        </Link>
+        .
       </Banner>
-      <Subtitle
-        className={shortcutsTitleStyles}
-      >
-        Keyboard Shortcuts
-      </Subtitle>
+      <Subtitle className={shortcutsTitleStyles}>Keyboard Shortcuts</Subtitle>
       <div className={shortcutsTableContainerStyles}>
         <KeyboardShortcutsTable />
       </div>
@@ -63,7 +59,7 @@ function ShellInfoModal({
 
 ShellInfoModal.propTypes = {
   hideInfoModal: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired
+  show: PropTypes.bool.isRequired,
 };
 
 export default ShellInfoModal;

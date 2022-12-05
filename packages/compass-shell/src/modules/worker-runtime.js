@@ -3,7 +3,7 @@ function getRealRequire() {
   // eslint-disable-next-line camelcase
   return typeof __webpack_require__ === 'function'
     ? // eslint-disable-next-line camelcase, no-undef
-    __non_webpack_require__
+      __non_webpack_require__
     : require;
 }
 

@@ -4,24 +4,18 @@ import { expect } from 'chai';
 
 import ShellInfoModal from './shell-info-modal';
 
-
-describe('InfoModal [Component]', function() {
+describe('InfoModal [Component]', function () {
   let component;
 
-  beforeEach(function() {
-    component = mount(
-      <ShellInfoModal
-        show
-        hideInfoModal={() => {}}
-      />
-    );
+  beforeEach(function () {
+    component = mount(<ShellInfoModal show hideInfoModal={() => {}} />);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     component = null;
   });
 
-  it('renders the title text', function() {
+  it('renders the title text', function () {
     const title = component.find('h1').text();
     const hasVersionZero = title.includes('mongosh v0.');
     const hasVersionOne = title.includes('mongosh v1.');
@@ -29,11 +23,13 @@ describe('InfoModal [Component]', function() {
     expect(titleIsAccurate).to.equal(true);
   });
 
-  it('renders the hotkeys key', function() {
+  it('renders the hotkeys key', function () {
     expect(component.text()).to.include('Ctrl+F');
   });
 
-  it('renders the hotkeys description', function() {
-    expect(component.text()).to.include('Ctrl+FMoves the cursor Forward one character.');
+  it('renders the hotkeys description', function () {
+    expect(component.text()).to.include(
+      'Ctrl+FMoves the cursor Forward one character.'
+    );
   });
 });

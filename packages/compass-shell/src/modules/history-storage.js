@@ -37,7 +37,7 @@ export class HistoryStorage {
    * newest to oldest.
    */
   async load() {
-    if (!await this._canAccess(this.filePath)) {
+    if (!(await this._canAccess(this.filePath))) {
       return [];
     }
 
