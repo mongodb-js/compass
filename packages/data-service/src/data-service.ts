@@ -2123,9 +2123,16 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       await this.killSessions(session).catch(logAbortError);
     };
 
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_179),
+      'Running cancellable operation'
+    );
+
     try {
       result = await raceWithAbort(start(session), abortSignal);
+      logop(null);
     } catch (err) {
+      logop(err);
       if (isCancelError(err)) {
         void abort();
       }
