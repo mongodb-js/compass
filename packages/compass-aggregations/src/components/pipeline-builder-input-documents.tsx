@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { Document as DocumentType } from 'mongodb';
 
@@ -71,14 +71,6 @@ function PipelineBuilderInputDocuments({ documents, isLoading, count, refreshInp
     setExpanded(!isExpanded);
   };
 
-  const docs = useMemo(() => documents.map((doc, i) => {
-    return (
-      <KeylineCard key={i} className={documentContainerStyles}>
-        <Document doc={doc} editable={false} />
-      </KeylineCard>
-    );
-  }), [documents]);
-
   return (<KeylineCard className={cardStyles}>
     <div className={headerStyles}>
       <IconButton onClick={toggleExpanded} aria-label={isExpanded ? 'Collapse' : 'Expand'}>
@@ -96,7 +88,13 @@ function PipelineBuilderInputDocuments({ documents, isLoading, count, refreshInp
         null
       }
       <div className={documentsContainerStyles}>
-        {docs}
+        {documents.map((doc, i) => {
+    return (
+      <KeylineCard key={i} className={documentContainerStyles}>
+        <Document doc={doc} editable={false} />
+      </KeylineCard>
+    );
+  })}
       </div>
     </div>}
   </KeylineCard>);
