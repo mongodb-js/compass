@@ -41,7 +41,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
 
       await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -92,7 +92,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
 
       await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -134,7 +134,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
 
       await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -177,7 +177,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
 
       await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -217,7 +217,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
 
       await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -272,10 +272,10 @@ describe('readOnly: true / Read-Only Edition', function () {
       await settingsModal.waitForDisplayed();
 
       await browser.waitUntil(async () => {
-        await browser.clickVisible(Selectors.FeaturesSettingsButton);
+        await browser.clickVisible(Selectors.GeneralSettingsButton);
 
         const featuresSettingsContent = await browser.$(
-          Selectors.FeaturesSettingsContent
+          Selectors.GeneralSettingsContent
         );
         const isFeaturesSettingsContentExisting =
           await featuresSettingsContent.isExisting();
@@ -325,7 +325,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
 
       await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
@@ -384,7 +384,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.openSettingsModal();
       const settingsModal = await browser.$(Selectors.SettingsModal);
       await settingsModal.waitForDisplayed();
-      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
 
       await browser.clickParent(Selectors.SettingsInputElement('readOnly'));
       await browser.clickVisible(Selectors.SaveSettingsButton);
