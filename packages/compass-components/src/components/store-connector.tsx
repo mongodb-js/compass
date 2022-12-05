@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type Reflux from 'reflux';
 
 type StoreConnectorProps = {
@@ -9,26 +9,41 @@ type StoreConnectorProps = {
 };
 
 /**
+ * NOTE: This is a legacy component. Not recommended for new usage.
+ *
  * Connects our legacy reflux stores to a component's state so we can
  * use it for wrapping components and accepting a store's state as props.
  */
-function StoreConnector({ children, store }: StoreConnectorProps) {
-  const [storeState, setStoreState] = useState(store.state);
+class StoreConnector extends React.Component<StoreConnectorProps> {
+  // We use the non-recommended `Function` type here as reflux's types use it.
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  unsubscribe?: Function;
 
-  useEffect(() => {
-    // Subscribe to changes from the store.
-    // This makes it so that the component re-renders when the store changes.
-    const unsubscribe = store.listen(
-      setStoreState,
-      undefined /* no bound context */
+  constructor(props: StoreConnectorProps) {
+    super(props);
+
+    this.state = props.store.state;
+  }
+
+  /**
+   * Subscribe to changes from the store.
+   * This causes a render of the component on store changes so that
+   * the props are passed down to the children components.
+   */
+  componentDidMount() {
+    this.unsubscribe = this.props.store.listen(
+      this.setState.bind(this),
+      undefined
     );
+  }
 
-    return () => {
-      unsubscribe();
-    };
-  }, [store]);
+  componentWillUnmount() {
+    this.unsubscribe?.();
+  }
 
-  return React.cloneElement(children, storeState);
+  render() {
+    return React.cloneElement(this.props.children, this.state);
+  }
 }
 
 export { StoreConnector };
