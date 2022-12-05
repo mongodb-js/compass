@@ -299,7 +299,7 @@ export interface DataService {
   estimatedCount(
     ns: string,
     options?: EstimatedDocumentCountOptions,
-    executionOptions?: ExecutionOptions,
+    executionOptions?: ExecutionOptions
   ): Promise<number>;
 
   /**
@@ -1278,7 +1278,10 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return this.cancellableOperation(
       async (session?: ClientSession) => {
         _session = session;
-        return this._collection(ns, 'CRUD').estimatedDocumentCount({...options, session});
+        return this._collection(ns, 'CRUD').estimatedDocumentCount({
+          ...options,
+          session,
+        });
       },
       () => _session!.endSession(),
       executionOptions?.abortSignal
@@ -1302,7 +1305,10 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return this.cancellableOperation(
       async (session?: ClientSession) => {
         _session = session;
-        return this._collection(ns, 'CRUD').countDocuments(filter, {...options, session});
+        return this._collection(ns, 'CRUD').countDocuments(filter, {
+          ...options,
+          session,
+        });
       },
       () => _session!.endSession(),
       executionOptions?.abortSignal
