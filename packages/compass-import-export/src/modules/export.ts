@@ -367,10 +367,7 @@ const fetchDocumentCount = async (
     !query.skip
   ) {
     try {
-      const runEstimatedDocumentCount = promisify(
-        dataService.estimatedCount.bind(dataService)
-      );
-      const count = await runEstimatedDocumentCount(ns, {});
+      const count = await dataService.estimatedCount(ns, {});
       return count;
     } catch (estimatedCountErr) {
       // `estimatedDocumentCount` is currently unsupported for
@@ -379,9 +376,7 @@ const fetchDocumentCount = async (
     }
   }
 
-  const runCount = promisify(dataService.count.bind(dataService));
-
-  const count = await runCount(ns, query.filter || {}, {
+  const count = dataService.count(ns, query.filter || {}, {
     ...(query.limit ? { limit: query.limit } : {}),
     ...(query.skip ? { skip: query.skip } : {}),
   });
@@ -418,18 +413,19 @@ export const openExport =
     const {
       dataService: { dataService },
     } = getState();
+    
+    let count = null;
     try {
-      const count =
+      count =
         maybeCount ??
         (!isAggregation
           ? await fetchDocumentCount(dataService!, namespace, query)
           : null);
-
-      dispatch(nsChanged(namespace));
-      dispatch(onModalOpen({ namespace, query, count, aggregation }));
     } catch (e: unknown) {
       dispatch(onError(e as Error));
     }
+    dispatch(nsChanged(namespace));
+    dispatch(onModalOpen({ namespace, query, count, aggregation }));
   };
 
 const getQuery = (query: ExportQueryType | null, isFullCollection: boolean) => {

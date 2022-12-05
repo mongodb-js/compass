@@ -136,7 +136,7 @@ const getSampleDocuments = async (docsOptions) => {
  * @returns {Function} The function.
  */
 export const fetchSampleDocuments = (validator, error) => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     dispatch(loadingSampleDocuments());
 
     if (error) {
@@ -153,13 +153,8 @@ export const fetchSampleDocuments = (validator, error) => {
       return;
     }
 
-    dataService.count(namespace, query, {}, async (countError, count) => {
-      if (countError) {
-        setZeroDocuments(dispatch);
-        setSyntaxError(dispatch, countError);
-
-        return;
-      }
+    try {
+      const count = await dataService.count(namespace, query);
 
       const docsOptions = {
         namespace,
@@ -167,26 +162,24 @@ export const fetchSampleDocuments = (validator, error) => {
         count,
       };
 
-      try {
-        const matching = await getSampleDocuments({
-          ...docsOptions,
-          pipeline: [{ $match: query }, { $limit: 1 }],
-        });
-        const notmatching = await getSampleDocuments({
-          ...docsOptions,
-          pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
-        });
-        dispatch(
-          sampleDocumentsFetched({
-            matching: matching[0],
-            notmatching: notmatching[0],
-          })
-        );
-      } catch (e) {
-        setZeroDocuments(dispatch);
-        setSyntaxError(dispatch, e);
-      }
-    });
+      const matching = await getSampleDocuments({
+        ...docsOptions,
+        pipeline: [{ $match: query }, { $limit: 1 }],
+      });
+      const notmatching = await getSampleDocuments({
+        ...docsOptions,
+        pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
+      });
+      dispatch(
+        sampleDocumentsFetched({
+          matching: matching[0],
+          notmatching: notmatching[0],
+        })
+      );
+    } catch (e) {
+      setZeroDocuments(dispatch);
+      setSyntaxError(dispatch, e);
+    }
   };
 };
 
