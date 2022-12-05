@@ -63,19 +63,6 @@ describe('input documents module', function() {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           documents: [],
           error: null,
-          isExpanded: true,
-          count: null,
-          isLoading: false
-        });
-      });
-    });
-
-    context('when the action is toggle input documents collapsed', function() {
-      it('returns the new state', function() {
-        expect(reducer(undefined, toggleInputDocumentsCollapsed())).to.deep.equal({
-          documents: [],
-          error: null,
-          isExpanded: false,
           count: null,
           isLoading: false
         });
