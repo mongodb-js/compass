@@ -64,7 +64,7 @@ type InputProps = {
   refreshInputDocuments: () => void
 };
 
-function Input({ documents, isLoading, count, refreshInputDocuments }: InputProps) {
+function PipelineBuilderInputDocuments({ documents, isLoading, count, refreshInputDocuments }: InputProps) {
   const darkMode = useDarkMode();
 
   const [isExpanded, setExpanded] = useState(true);
@@ -121,4 +121,4 @@ export default connect(
   {
     refreshInputDocuments: refreshInputDocuments
   }
-)(Input);
+)(PipelineBuilderInputDocuments);

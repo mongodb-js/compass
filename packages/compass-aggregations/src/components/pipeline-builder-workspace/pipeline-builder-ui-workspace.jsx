@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Stage from '../stage';
-import Input from '../input';
+import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
 import { moveStage } from '../../modules/pipeline-builder/stage-editor';
@@ -53,7 +53,7 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
             {this.props.editViewName && (
               <ModifySourceBanner editViewName={this.props.editViewName} />
             )}
-            <Input />
+            <PipelineBuilderInputDocuments />
             <SortableContainer
               axis="y"
               lockAxis="y"
