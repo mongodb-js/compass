@@ -101,7 +101,7 @@ const mongodbAceThemeCssText = css`
   .ace-mongodb.ace_editor {
     color: var(--editor-color);
     background: var(--editor-background);
-    line-height: ${spacing[3]}px;
+    line-height: inherit;
   }
   .inline-editor.ace-mongodb.ace_editor {
     background: transparent;
