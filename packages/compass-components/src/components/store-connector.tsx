@@ -15,8 +15,6 @@ type StoreConnectorProps = {
 function StoreConnector({ children, store }: StoreConnectorProps) {
   const [storeState, setStoreState] = useState(store.state);
 
-  console.log('rendering that store state');
-
   useEffect(() => {
     // Subscribe to changes from the store.
     // This makes it so that the component re-renders when the store changes.
@@ -26,7 +24,6 @@ function StoreConnector({ children, store }: StoreConnectorProps) {
     );
 
     return () => {
-      console.log('unsubscribing!');
       unsubscribe();
     };
   }, [store]);
