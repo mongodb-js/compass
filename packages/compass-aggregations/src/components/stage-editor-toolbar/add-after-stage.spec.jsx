@@ -2,9 +2,9 @@ import React from 'react';
 import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
+import { Tooltip } from '@mongodb-js/compass-components';
 
 import { AddAfterStage } from './add-after-stage';
-import styles from './add-after-stage.module.less';
 
 describe('AddAfterStage [Component]', function() {
   context('when the component is rendered', function() {
@@ -19,15 +19,12 @@ describe('AddAfterStage [Component]', function() {
       component = null;
     });
 
-    it('renders the correct root classname', function() {
-      expect(component.find(`.${styles['add-after-stage']}`)).to.be.present();
+    it('renders the icon', function() {
+      expect(component.find('button').find('Icon').first()).to.have.prop('glyph', 'Plus');
     });
 
-    it('renders + text', function() {
-      expect(component.find('button').contains('+')).to.equal(true);
-    });
     it('renders the tooltip', function() {
-      expect(component.find('.hadron-tooltip')).to.be.present();
+      expect(component.find(Tooltip)).to.be.present();
     });
   });
 

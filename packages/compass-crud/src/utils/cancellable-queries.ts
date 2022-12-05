@@ -2,11 +2,7 @@ import createLogger from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { DataService } from 'mongodb-data-service';
 import type { BSONObject } from '../stores/crud-store';
-import {
-  createCancelError,
-  isCancelError,
-  raceWithAbort,
-} from '@mongodb-js/compass-utils';
+import { createCancelError, raceWithAbort } from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId, debug } = createLogger('cancellable-queries');
 
@@ -57,10 +53,6 @@ export async function countDocuments(
     typeof dataService.aggregate
   >[2]
 ): Promise<number> {
-  if (signal.aborted) {
-    throw signal.reason ?? createCancelError();
-  }
-
   const opts = {
     session,
     maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),
@@ -84,23 +76,16 @@ export async function countDocuments(
   }
   stages.push({ $count: 'count' });
 
-  // The cursor will be replaced if we try after an error due to the index
-  // specified in the hint not existing.
-  const cursor = dataService.aggregate(ns, stages, opts);
-
-  const abort = () => {
-    void cursor.close();
-  };
-  signal.addEventListener('abort', abort, { once: true });
-
   let result;
   try {
-    const array = await raceWithAbort(cursor.toArray(), signal);
+    const array = await dataService.aggregate(ns, stages, opts, {
+      abortSignal: signal,
+    });
     // the collection could be empty
     result = array.length ? array[0].count : 0;
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (isCancelError(err)) {
+    if (dataService.isCancelError(err)) {
       throw err;
     }
 
@@ -110,9 +95,6 @@ export async function countDocuments(
     // The UI will just have to deal with null.
     result = null;
   }
-
-  signal.removeEventListener('abort', abort);
-
   return result;
 }
 
@@ -150,7 +132,7 @@ export async function fetchShardingKeys(
     configDocs = await raceWithAbort(cursor.toArray(), signal);
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (isCancelError(err)) {
+    if (dataService.isCancelError(err)) {
       throw err;
     }
 

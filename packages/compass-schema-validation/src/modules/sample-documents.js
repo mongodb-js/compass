@@ -114,43 +114,17 @@ const setSyntaxError = (dispatch, error) =>
  * @param {Function} callback - Callback function that returns
  * matching or not mathing document.
  */
-const getSampleDocuments = (docsOptions, callback) => {
+const getSampleDocuments = async (docsOptions) => {
   const aggOptions = {
     allowDiskUse: true,
     maxTimeMS: preferences.getPreferences().maxTimeMS,
   };
-  const pipeline = docsOptions.pipeline;
-
-  if (docsOptions.count > MAX_LIMIT) {
+  const { pipeline, count, namespace, dataService } = docsOptions;
+  if (count > MAX_LIMIT) {
     pipeline.unshift({ $limit: MAX_LIMIT });
   }
 
-  docsOptions.dataService.aggregate(
-    docsOptions.namespace,
-    docsOptions.pipeline,
-    aggOptions,
-    (aggError, cursor) => {
-      if (aggError) {
-        setZeroDocuments(docsOptions.dispatch);
-        setSyntaxError(docsOptions.dispatch, aggError);
-
-        return;
-      }
-
-      cursor.toArray((toArrayError, documents) => {
-        if (toArrayError) {
-          setZeroDocuments(docsOptions.dispatch);
-          setSyntaxError(docsOptions.dispatch, toArrayError);
-
-          return;
-        }
-
-        cursor.close();
-
-        return callback(documents);
-      });
-    }
-  );
+  return dataService.aggregate(namespace, pipeline, aggOptions);
 };
 
 /**
@@ -174,38 +148,45 @@ export const fetchSampleDocuments = (validator, error) => {
     const namespace = state.namespace.ns;
     const checkedValidator = checkValidator(validator);
     const query = checkValidator(checkedValidator.validator).validator;
-    const pipeline = [{ $match: query }, { $limit: 1 }];
 
-    if (dataService) {
-      dataService.count(namespace, query, {}, (countError, count) => {
-        if (countError) {
-          setZeroDocuments(dispatch);
-          setSyntaxError(dispatch, countError);
-
-          return;
-        }
-
-        const docsOptions = {
-          pipeline,
-          namespace,
-          dispatch,
-          dataService,
-          count,
-        };
-
-        getSampleDocuments(docsOptions, (matching) => {
-          docsOptions.pipeline = [{ $match: { $nor: [query] } }, { $limit: 1 }];
-          getSampleDocuments(docsOptions, (notmatching) => {
-            return dispatch(
-              sampleDocumentsFetched({
-                matching: matching[0],
-                notmatching: notmatching[0],
-              })
-            );
-          });
-        });
-      });
+    if (!dataService) {
+      return;
     }
+
+    dataService.count(namespace, query, {}, async (countError, count) => {
+      if (countError) {
+        setZeroDocuments(dispatch);
+        setSyntaxError(dispatch, countError);
+
+        return;
+      }
+
+      const docsOptions = {
+        namespace,
+        dataService,
+        count,
+      };
+
+      try {
+        const matching = await getSampleDocuments({
+          ...docsOptions,
+          pipeline: [{ $match: query }, { $limit: 1 }],
+        });
+        const notmatching = await getSampleDocuments({
+          ...docsOptions,
+          pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
+        });
+        dispatch(
+          sampleDocumentsFetched({
+            matching: matching[0],
+            notmatching: notmatching[0],
+          })
+        );
+      } catch (e) {
+        setZeroDocuments(dispatch);
+        setSyntaxError(dispatch, e);
+      }
+    });
   };
 };
 
