@@ -19,9 +19,10 @@ describe('AddAfterStage [Component]', function() {
       component = null;
     });
 
-    it('renders + text', function() {
-      expect(component.find('button').contains('+')).to.equal(true);
+    it('renders the icon', function() {
+      expect(component.find('button').find('Icon').first()).to.have.prop('glyph', 'Plus');
     });
+
     it('renders the tooltip', function() {
       expect(component.find(Tooltip)).to.be.present();
     });

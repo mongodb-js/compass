@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Body, Link } from '@mongodb-js/compass-components';
+import { Link } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/settings';
 import type { SettingsListProps } from './settings-list';
@@ -21,15 +21,13 @@ export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
 }) => {
   return (
     <div data-testid="privacy-settings">
-      <Body>
+      <div>
         To enhance the user experience, Compass can integrate with 3rd party
         services, which requires external network requests. Please choose from
         the settings below:
-      </Body>
-
+      </div>
       <SettingsList fields={privacyFields} {...props} />
-
-      <Body>
+      <div>
         With any of these options, none of your personal information or stored
         data will be submitted.
         <br />
@@ -37,7 +35,7 @@ export const PrivacySettings: React.FunctionComponent<PrivacySettingsProps> = ({
         <Link href="https://www.mongodb.com/legal/privacy-policy">
           MongoDB Privacy Policy
         </Link>
-      </Body>
+      </div>
     </div>
   );
 };

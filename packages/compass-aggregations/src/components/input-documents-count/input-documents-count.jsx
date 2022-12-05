@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
+import { Icon } from '@mongodb-js/compass-components';
+
 import styles from './input-documents-count.module.less';
 
 /**
@@ -20,14 +22,9 @@ class InputDocumentsCount extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const iconClassName = classnames({
-      'fa': true,
-      'fa-database': true,
-      [ styles['input-documents-count-db'] ]: true
-    });
     return (
       <div className={classnames(styles['input-documents-count'])}>
-        <i className={iconClassName} aria-hidden />
+        <Icon glyph="Database" size="small" />
         <div className={classnames(styles['input-documents-count-label'])}>
           {this.props.count ?? 'N/A'} Documents in the Collection
         </div>

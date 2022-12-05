@@ -8,7 +8,7 @@ import createPlugin from './plugin';
 import CompassShellStore from './stores';
 
 function nextTick() {
-  return new Promise(resolve => process.nextTick(resolve));
+  return new Promise((resolve) => process.nextTick(resolve));
 }
 
 async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
@@ -26,8 +26,8 @@ async function waitForAsyncComponent(wrapper, Component, attempts = 10) {
   return result;
 }
 
-describe('CompassShellPlugin', function() {
-  it('returns a renderable plugin', async function() {
+describe('CompassShellPlugin', function () {
+  it('returns a renderable plugin', async function () {
     const { Plugin } = createPlugin();
 
     const wrapper = mount(<Plugin />);
@@ -37,14 +37,14 @@ describe('CompassShellPlugin', function() {
     expect(component.exists()).to.equal(true);
   });
 
-  it('returns a CompassShellStore store', function() {
+  it('returns a CompassShellStore store', function () {
     const { store } = createPlugin();
     const appRegistry = new EventEmitter();
     store.onActivated(appRegistry);
     expect(store).to.be.instanceOf(CompassShellStore);
   });
 
-  it('emits an event on the app registry when it is expanded', async function() {
+  it('emits an event on the app registry when it is expanded', async function () {
     const { store, Plugin } = createPlugin();
 
     const appRegistry = new EventEmitter();
@@ -56,7 +56,10 @@ describe('CompassShellPlugin', function() {
     store.onActivated(appRegistry);
 
     const wrapper = mount(<Plugin />);
-    const shellComponentWrapper = await waitForAsyncComponent(wrapper, CompassShell);
+    const shellComponentWrapper = await waitForAsyncComponent(
+      wrapper,
+      CompassShell
+    );
 
     const { emitShellPluginOpened } = shellComponentWrapper.props();
     emitShellPluginOpened();
@@ -64,4 +67,3 @@ describe('CompassShellPlugin', function() {
     expect(eventOccured).to.equal(true);
   });
 });
-

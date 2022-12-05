@@ -55,7 +55,7 @@ describe('Global preferences', function () {
     });
     try {
       const browser = compass.browser;
-      await browser.openSettingsModal();
+      await browser.openSettingsModal('Privacy');
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
           browser,
@@ -87,7 +87,7 @@ describe('Global preferences', function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
-      await browser.openSettingsModal();
+      await browser.openSettingsModal('Privacy');
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
           browser,
@@ -119,7 +119,7 @@ describe('Global preferences', function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
-      await browser.openSettingsModal();
+      await browser.openSettingsModal('Privacy');
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
           browser,
@@ -151,7 +151,7 @@ describe('Global preferences', function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
-      await browser.openSettingsModal();
+      await browser.openSettingsModal('Privacy');
       const { disabled, value, bannerText } = await getCheckboxAndBannerState(
         browser,
         'enableMaps'
@@ -172,8 +172,8 @@ describe('Global preferences', function () {
     const compass = await beforeTests();
     try {
       const browser = compass.browser;
-      await browser.openSettingsModal();
-      await browser.clickVisible(Selectors.FeaturesSettingsButton);
+      await browser.openSettingsModal('Privacy');
+      await browser.clickVisible(Selectors.GeneralSettingsButton);
       {
         const { disabled, value, bannerText } = await getCheckboxAndBannerState(
           browser,
