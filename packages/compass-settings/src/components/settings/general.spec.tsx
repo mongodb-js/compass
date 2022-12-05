@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { stub } from 'sinon';
 import { expect } from 'chai';
 
-import { FeaturesSettings } from './features';
+import { GeneralSettings } from './general';
 
-describe('FeaturesSettings', function () {
+describe('GeneralsSettings', function () {
   let container: HTMLElement;
   let handleChangeSpy: sinon.SinonStub;
   let currentValues: any;
@@ -15,7 +15,7 @@ describe('FeaturesSettings', function () {
     currentValues = {};
     handleChangeSpy = stub();
     const component = () => (
-      <FeaturesSettings
+      <GeneralSettings
         handleChange={handleChangeSpy}
         preferenceStates={{}}
         currentValues={currentValues}
@@ -26,7 +26,7 @@ describe('FeaturesSettings', function () {
       currentValues[option] = value;
       rerender(component());
     });
-    container = screen.getByTestId('features-settings');
+    container = screen.getByTestId('general-settings');
   });
 
   [

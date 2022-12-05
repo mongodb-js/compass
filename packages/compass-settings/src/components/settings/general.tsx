@@ -1,13 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Body } from '@mongodb-js/compass-components';
 import type { RootState } from '../../stores';
 import { changeFieldValue } from '../../stores/settings';
 import type { SettingsListProps } from './settings-list';
 import { SettingsList } from './settings-list';
 import { pick } from '../../utils/pick';
 
-const featuresFields = [
+const generalFields = [
   'readOnly',
   'enableShell',
   'protectConnectionStrings',
@@ -18,31 +17,30 @@ const featuresFields = [
     ? (['installURLHandlers'] as const)
     : []),
 ] as const;
-type FeaturesFields = typeof featuresFields[number];
-type FeaturesSettingsProps = Omit<SettingsListProps<FeaturesFields>, 'fields'>;
+type GeneralFields = typeof generalFields[number];
+type GeneralSettingsProps = Omit<SettingsListProps<GeneralFields>, 'fields'>;
 
-export const FeaturesSettings: React.FunctionComponent<
-  FeaturesSettingsProps
-> = ({ ...props }) => {
+export const GeneralSettings: React.FunctionComponent<GeneralSettingsProps> = ({
+  ...props
+}) => {
   return (
-    <div data-testid="features-settings">
-      <Body>
+    <div data-testid="general-settings">
+      <div>
         To enhance the user experience, Compass can enable or disable particular
         features. Please choose from the settings below:
-      </Body>
-
-      <SettingsList fields={featuresFields} {...props} />
+      </div>
+      <SettingsList fields={generalFields} {...props} />
     </div>
   );
 };
 
 const mapState = ({ settings: { settings, preferenceStates } }: RootState) => ({
-  currentValues: pick(settings, featuresFields),
-  preferenceStates: pick(preferenceStates, featuresFields),
+  currentValues: pick(settings, generalFields),
+  preferenceStates: pick(preferenceStates, generalFields),
 });
 
 const mapDispatch = {
   handleChange: changeFieldValue,
 };
 
-export default connect(mapState, mapDispatch)(FeaturesSettings);
+export default connect(mapState, mapDispatch)(GeneralSettings);
