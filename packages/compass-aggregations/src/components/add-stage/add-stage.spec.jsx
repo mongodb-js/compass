@@ -3,7 +3,6 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { AddStage } from './add-stage';
-import styles from './add-stage.module.less';
 
 describe('AddStage [Component]', function() {
   let component;
@@ -16,12 +15,12 @@ describe('AddStage [Component]', function() {
   });
 
   afterEach(function() {
-    
+
     component = null;
   });
 
   it('renders the wrapper div', function() {
-    expect(component.find(`.${styles['add-stage']}`)).to.be.present();
+    expect(component.find('AddStageComponent')).to.be.present();
   });
 
   it('renders the add stage button', function() {

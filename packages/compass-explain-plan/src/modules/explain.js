@@ -298,7 +298,7 @@ export function isAggregationExplainOutput(explainOutput) {
  * @returns {Function} The function.
  */
 export const fetchExplainPlan = (query) => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
     const namespace = state.namespace;
@@ -317,74 +317,78 @@ export const fetchExplainPlan = (query) => {
       options.collation = query.collation;
     }
 
-    if (dataService) {
-      dataService.explain(namespace, filter, options, (error, data) => {
-        if (error) {
-          explain.resultId = resultId();
-          explain.error = error;
+    if (!dataService) {
+      return;
+    }
 
-          return dispatch(explainPlanFetched(explain));
-        }
-        // Reset the error.
-        explain.error = null;
+    try {
+      const explainVerbosity = state.isDataLake
+        ? 'queryPlannerExtended'
+        : 'allPlansExecution';
+      const data = await dataService.explainFind(namespace, filter, options, {
+        explainVerbosity,
+      });
+      // Reset the error.
+      explain.error = null;
 
-        if (isAggregationExplainOutput(data)) {
-          // Queries against time series collections are run against
-          // non-materialized views, so the explain plan resembles
-          // that of an explain on an aggregation.
-          // We do not currently support visualizing aggregations,
-          // so we return here before parsing more, and ensure we can show
-          // the json view of the explain plan.
-          explain.errorParsing = true;
-          explain.originalExplainData = data;
-          explain.resultId = resultId();
-
-          return dispatch(explainPlanFetched(explain));
-        }
-
-        try {
-          explain = parseExplainPlan(explain, data);
-        } catch (e) {
-          explain.errorParsing = true;
-          explain.originalExplainData = data;
-          explain.resultId = resultId();
-
-          return dispatch(explainPlanFetched(explain));
-        }
-        explain = updateWithIndexesInfo(explain, indexes);
+      if (isAggregationExplainOutput(data)) {
+        // Queries against time series collections are run against
+        // non-materialized views, so the explain plan resembles
+        // that of an explain on an aggregation.
+        // We do not currently support visualizing aggregations,
+        // so we return here before parsing more, and ensure we can show
+        // the json view of the explain plan.
+        explain.errorParsing = true;
+        explain.originalExplainData = data;
         explain.resultId = resultId();
 
-        dispatch(explainPlanFetched(explain));
-        dispatch(treeStagesChanged(explain));
+        return dispatch(explainPlanFetched(explain));
+      }
 
-        const trackEvent = {
-          with_filter: Object.entries(filter).length > 0,
-          index_used: explain.usedIndexes.length > 0,
-        };
-        track('Explain Plan Executed', trackEvent);
+      try {
+        explain = parseExplainPlan(explain, data);
+      } catch (e) {
+        explain.errorParsing = true;
+        explain.originalExplainData = data;
+        explain.resultId = resultId();
 
-        // Send metrics
-        dispatch(
-          globalAppRegistryEmit('explain-plan-fetched', {
-            viewMode: explain.viewType,
-            executionTimeMS: explain.executionTimeMillis,
-            inMemorySort: explain.inMemorySort,
-            isCollectionScan: explain.isCollectionScan,
-            isCovered: explain.isCovered,
-            isMultiKey: explain.isMultiKey,
-            isSharded: explain.isSharded,
-            indexType: explain.indexType,
-            index: explain.index ? explain.index.serialize() : null,
-            numberOfDocsReturned: explain.nReturned,
-            numberOfShards: explain.numShards,
-            totalDocsExamined: explain.totalDocsExamined,
-            totalKeysExamined: explain.totalKeysExamined,
-            usedIndexes: explain.usedIndexes,
-          })
-        );
+        return dispatch(explainPlanFetched(explain));
+      }
+      explain = updateWithIndexesInfo(explain, indexes);
+      explain.resultId = resultId();
 
-        return;
-      });
+      dispatch(explainPlanFetched(explain));
+      dispatch(treeStagesChanged(explain));
+
+      const trackEvent = {
+        with_filter: Object.entries(filter).length > 0,
+        index_used: explain.usedIndexes.length > 0,
+      };
+      track('Explain Plan Executed', trackEvent);
+
+      // Send metrics
+      dispatch(
+        globalAppRegistryEmit('explain-plan-fetched', {
+          viewMode: explain.viewType,
+          executionTimeMS: explain.executionTimeMillis,
+          inMemorySort: explain.inMemorySort,
+          isCollectionScan: explain.isCollectionScan,
+          isCovered: explain.isCovered,
+          isMultiKey: explain.isMultiKey,
+          isSharded: explain.isSharded,
+          indexType: explain.indexType,
+          index: explain.index ? explain.index.serialize() : null,
+          numberOfDocsReturned: explain.nReturned,
+          numberOfShards: explain.numShards,
+          totalDocsExamined: explain.totalDocsExamined,
+          totalKeysExamined: explain.totalKeysExamined,
+          usedIndexes: explain.usedIndexes,
+        })
+      );
+    } catch (error) {
+      explain.resultId = resultId();
+      explain.error = error;
+      dispatch(explainPlanFetched(explain));
     }
   };
 };

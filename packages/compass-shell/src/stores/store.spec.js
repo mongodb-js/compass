@@ -16,19 +16,19 @@ function createMockDataService() {
   };
 }
 
-describe('CompassShellStore [Store]', function() {
+describe('CompassShellStore [Store]', function () {
   let store;
   let appRegistry;
 
   const getRuntimeState = () => store.reduxStore.getState().runtime;
 
-  beforeEach(function() {
+  beforeEach(function () {
     store = new CompassShellStore();
     appRegistry = new EventEmitter();
     store.onActivated(appRegistry);
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     const { runtime } = getRuntimeState();
 
     if (runtime && runtime.terminate) {
@@ -36,22 +36,24 @@ describe('CompassShellStore [Store]', function() {
     }
   });
 
-  describe('appRegistry', function() {
-    it('sets the global appRegistry', function() {
+  describe('appRegistry', function () {
+    it('sets the global appRegistry', function () {
       expect(store.reduxStore.getState().appRegistry).to.not.equal(null);
-      expect(store.reduxStore.getState().appRegistry.globalAppRegistry).to.be.instanceOf(EventEmitter);
+      expect(
+        store.reduxStore.getState().appRegistry.globalAppRegistry
+      ).to.be.instanceOf(EventEmitter);
     });
   });
 
-  describe('runtime', function() {
-    it('has initialized runtime state', function() {
+  describe('runtime', function () {
+    it('has initialized runtime state', function () {
       const runtimeState = getRuntimeState();
 
       expect(runtimeState.error).to.equal(null);
       expect(runtimeState.runtime).to.equal(null);
     });
 
-    it('sets runtime on data-service-connected', function() {
+    it('sets runtime on data-service-connected', function () {
       appRegistry.emit('data-service-connected', null, createMockDataService());
 
       const runtimeState = getRuntimeState();
@@ -60,7 +62,7 @@ describe('CompassShellStore [Store]', function() {
       expect(runtimeState.runtime).to.be.instanceOf(WorkerRuntime);
     });
 
-    it('emits mongosh events to the appRegistry', async function() {
+    it('emits mongosh events to the appRegistry', async function () {
       appRegistry.emit('data-service-connected', null, createMockDataService());
       let eventRecieved = false;
       appRegistry.on('mongosh:setCtx', () => {
@@ -76,7 +78,7 @@ describe('CompassShellStore [Store]', function() {
       expect(eventRecieved).to.equal(true);
     });
 
-    it('sets error if data-service-connected has one', function() {
+    it('sets error if data-service-connected has one', function () {
       const error = new Error();
       appRegistry.emit('data-service-connected', error, null);
 
@@ -86,7 +88,7 @@ describe('CompassShellStore [Store]', function() {
       expect(runtimeState.runtime).to.equal(null);
     });
 
-    it('does not change state if dataService is the same', function() {
+    it('does not change state if dataService is the same', function () {
       const fakeDataService = createMockDataService();
 
       appRegistry.emit('data-service-connected', null, fakeDataService);
@@ -98,7 +100,7 @@ describe('CompassShellStore [Store]', function() {
       expect(runtimeState1).to.equal(runtimeState2);
     });
 
-    it('resets the runtime on data-service-disconnected', function() {
+    it('resets the runtime on data-service-disconnected', function () {
       appRegistry.emit('data-service-disconnected');
       const runtimeState = getRuntimeState();
 

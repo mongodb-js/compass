@@ -1,32 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
-import styles from './input-collapser.module.less';
+import { IconButton, Icon } from '@mongodb-js/compass-components';
 
-/**
- * Collapse text.
- */
-const COLLAPSE = 'Collapse';
-
-/**
- * Expand text.
- */
-const EXPAND = 'Expand';
-
-/**
- * Angle right class.
- */
-const ANGLE_RIGHT = 'fa fa-angle-right';
-
-/**
- * Angle down class.
- */
-const ANGLE_DOWN = 'fa fa-angle-down';
-
-/**
- * Collapse/Expand a stage.
- */
 class InputCollapser extends PureComponent {
   static displayName = 'InputCollapserComponent';
 
@@ -35,25 +11,16 @@ class InputCollapser extends PureComponent {
     toggleInputDocumentsCollapsed: PropTypes.func.isRequired
   };
 
-  /**
-   * Render the input collapser component.
-   *
-   * @returns {Component} The component.
-   */
   render() {
-    const iconClassName = this.props.isExpanded ? ANGLE_DOWN : ANGLE_RIGHT;
-    const buttonTitle = this.props.isExpanded ? COLLAPSE : EXPAND;
+    const { isExpanded } = this.props;
+    const title = isExpanded ? 'Collapse' : 'Expand';
 
     return (
-      <div className={classnames(styles['input-collapser'])}>
-        <button
-          type="button"
-          title={buttonTitle}
-          onClick={this.props.toggleInputDocumentsCollapsed}
-          className="btn btn-default btn-xs">
-          <i className={iconClassName} aria-hidden />
-        </button>
-      </div>
+      <IconButton
+        onClick={this.props.toggleInputDocumentsCollapsed}
+        title={title}
+        aria-label={title}
+      ><Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'} size="small" /></IconButton>
     );
   }
 }

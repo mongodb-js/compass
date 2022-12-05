@@ -5,6 +5,7 @@ import {
   cx,
   SpinLoader,
   spacing,
+  palette,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 
@@ -22,11 +23,11 @@ const loadingOverlayStyles = css({
 });
 
 const loadingOverlayStylesDark = css({
-  backgroundColor: 'black',
+  backgroundColor: palette.black,
 });
 
 const loadingOverlayStylesLight = css({
-  backgroundColor: 'white',
+  backgroundColor: palette.white,
 });
 
 function LoadingOverlay() {

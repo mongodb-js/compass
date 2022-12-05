@@ -11,18 +11,11 @@ export const mockDataService = function (
       // noop
     },
     aggregate() {
-      return new (class {
-        toArray() {
-          return Promise.resolve(
-            typeof options.data === 'function'
-              ? options.data()
-              : options.data
-          );
-        }
-        close() {
-          // noop
-        }
-      })();
+      return Promise.resolve(
+        typeof options.data === 'function'
+          ? options.data()
+          : options.data
+      );
     },
     killSessions() {
       // noop
