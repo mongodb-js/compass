@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import InputCollapser from '../input-collapser';
-import styles from './input-collapser.module.less';
 
 describe('InputBuilderToolbar [Component]', function() {
   let component;
@@ -23,17 +22,9 @@ describe('InputBuilderToolbar [Component]', function() {
     component = null;
   });
 
-  it('renders the wrapper div', function() {
-    expect(component.find(`.${styles['input-collapser']}`)).to.be.present();
-  });
-
-  it('renders the button', function() {
-    expect(component.find(`.${styles['input-collapser']} button`)).to.be.present();
-  });
-
-  context('when clicking the collapse button', function() {
+  context('when clicking the  button', function() {
     beforeEach(function() {
-      component.find(`.${styles['input-collapser']} button`).simulate('click');
+      component.simulate('click');
     });
 
     it('toggles the expanded state', function() {
