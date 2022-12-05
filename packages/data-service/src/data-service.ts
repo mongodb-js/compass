@@ -2512,8 +2512,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   private _translateMessage(error: any): Error | { message: string } {
     if (typeof error === 'string') {
       error = { message: error };
-    } else {
-      error.message = error.message || error.err || error.errmsg;
+    } else if(!error.message) {
+      error.message = error.err || error.errmsg;
     }
     return error;
   }
