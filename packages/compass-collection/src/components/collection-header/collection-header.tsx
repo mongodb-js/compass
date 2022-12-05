@@ -2,7 +2,7 @@ import type AppRegistry from 'hadron-app-registry';
 import {
   css,
   palette,
-  withTheme,
+  withDarkMode,
   Link,
   spacing,
   H3,
@@ -237,4 +237,4 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
   }
 }
 
-export default withTheme(CollectionHeader);
+export default withDarkMode(CollectionHeader);

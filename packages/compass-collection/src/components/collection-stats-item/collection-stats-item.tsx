@@ -5,7 +5,7 @@ import {
   spacing,
   Disclaimer,
   H3,
-  withTheme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 const collectionStatsItemStyles = css({
@@ -42,7 +42,6 @@ const lightThemeValueStyles = css({
 });
 
 type CollectionStatsItemProps = {
-  darkMode?: boolean;
   label: string;
   value: string;
   dataTestId: string;
@@ -53,7 +52,9 @@ type CollectionStatsItemProps = {
  */
 const CollectionStatsItem: React.FunctionComponent<
   CollectionStatsItemProps
-> = ({ darkMode, dataTestId, label, value }: CollectionStatsItemProps) => {
+> = ({ dataTestId, label, value }: CollectionStatsItemProps) => {
+  const darkMode = useDarkMode();
+
   return (
     <div className={collectionStatsItemStyles} data-testid={dataTestId}>
       <H3
@@ -72,4 +73,4 @@ const CollectionStatsItem: React.FunctionComponent<
   );
 };
 
-export default withTheme(CollectionStatsItem);
+export default CollectionStatsItem;

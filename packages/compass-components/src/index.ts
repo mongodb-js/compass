@@ -53,7 +53,6 @@ export {
   Variant as ButtonVariant,
 } from '@leafygreen-ui/button';
 
-export { Checkbox } from './components/checkbox';
 export { default as LeafyGreenProvider } from '@leafygreen-ui/leafygreen-provider';
 
 export { palette } from '@leafygreen-ui/palette';
@@ -72,7 +71,6 @@ export {
   ToastVariant,
 } from './hooks/use-toast';
 
-export { Toggle } from './components/toggle';
 export { breakpoints, spacing } from '@leafygreen-ui/tokens';
 export { Tooltip } from './components/tooltip';
 import IndexIcon from './components/index-icon';
@@ -118,14 +116,7 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
-export {
-  withTheme,
-  useTheme,
-  useDarkMode,
-  Theme,
-  ThemeState,
-  ThemeProvider,
-} from './hooks/use-theme';
+export { withDarkMode, useDarkMode, Theme } from './hooks/use-theme';
 export {
   ContentWithFallback,
   FadeInPlaceholder,

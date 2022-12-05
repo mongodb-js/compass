@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { css, cx, spacing, palette, withTheme } from '@mongodb-js/compass-components';
+import { css, cx, spacing, palette, useDarkMode } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import PipelineHeader from './pipeline-header';
@@ -47,7 +47,6 @@ const optionsStyles = css({
 });
 
 type PipelineToolbarProps = {
-  darkMode?: boolean;
   isBuilderView: boolean;
   showRunButton: boolean;
   showExportButton: boolean;
@@ -57,7 +56,6 @@ type PipelineToolbarProps = {
 };
 
 export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
-  darkMode,
   isBuilderView,
   showRunButton,
   showExportButton,
@@ -65,6 +63,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   onChangePipelineOutputOption,
   pipelineOutputOption,
 }) => {
+  const darkMode = useDarkMode();
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <div
@@ -74,39 +73,37 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
       )}
       data-testid="pipeline-toolbar"
     >
-      <>
-        <div
-          className={cx(
-            headerAndOptionsRowStyles,
-            darkMode && headerAndOptionsRowDarkStyles
-          )}
-        >
-          <PipelineHeader
-            isOptionsVisible={isOptionsVisible}
-            onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
-            showRunButton={showRunButton}
-            showExportButton={showExportButton}
-            showExplainButton={showExplainButton}
-          />
-          {isOptionsVisible && (
-            <div className={optionsStyles}>
-              <PipelineOptions />
-            </div>
-          )}
-        </div>
-        {isBuilderView ? (
-          <div className={settingsRowStyles}>
-            <PipelineSettings />
-          </div>
-        ) : (
-          <div className={settingsRowStyles}>
-            <PipelineResultsHeader
-              onChangePipelineOutputOption={onChangePipelineOutputOption}
-              pipelineOutputOption={pipelineOutputOption}
-            />
+      <div
+        className={cx(
+          headerAndOptionsRowStyles,
+          darkMode && headerAndOptionsRowDarkStyles
+        )}
+      >
+        <PipelineHeader
+          isOptionsVisible={isOptionsVisible}
+          onToggleOptions={() => setIsOptionsVisible(!isOptionsVisible)}
+          showRunButton={showRunButton}
+          showExportButton={showExportButton}
+          showExplainButton={showExplainButton}
+        />
+        {isOptionsVisible && (
+          <div className={optionsStyles}>
+            <PipelineOptions />
           </div>
         )}
-      </>
+      </div>
+      {isBuilderView ? (
+        <div className={settingsRowStyles}>
+          <PipelineSettings />
+        </div>
+      ) : (
+        <div className={settingsRowStyles}>
+          <PipelineResultsHeader
+            onChangePipelineOutputOption={onChangePipelineOutputOption}
+            pipelineOutputOption={pipelineOutputOption}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -114,4 +111,4 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 const mapState = ({ workspace }: RootState) => ({
   isBuilderView: workspace === 'builder'
 });
-export default withTheme(connect(mapState)(PipelineToolbar));
+export default connect(mapState)(PipelineToolbar);

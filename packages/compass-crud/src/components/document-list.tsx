@@ -9,7 +9,7 @@ import {
   EmptyContent,
   WorkspaceContainer,
   spacing,
-  withTheme,
+  withDarkMode,
 } from '@mongodb-js/compass-components';
 import type { InsertDocumentDialogProps } from './insert-document-dialog';
 import InsertDocumentDialog from './insert-document-dialog';
@@ -430,4 +430,4 @@ DocumentList.defaultProps = {
   tz: 'UTC',
 };
 
-export default withTheme(DocumentList);
+export default withDarkMode(DocumentList);

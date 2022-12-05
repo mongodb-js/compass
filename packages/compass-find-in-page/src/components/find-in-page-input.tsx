@@ -4,7 +4,7 @@ import {
   IconButton,
   Icon,
   Body,
-  withTheme,
+  useDarkMode,
   css,
   cx,
   spacing,
@@ -66,7 +66,6 @@ const closeButtonStyles = css({
 });
 
 type FindInPageInputProps = {
-  darkMode?: boolean;
   dispatchStopFind: () => void;
   setSearchTerm: (searchTerm: string) => void;
   dispatchFind: (
@@ -80,7 +79,6 @@ type FindInPageInputProps = {
 };
 
 function FindInPageInput({
-  darkMode,
   dispatchStopFind,
   setSearchTerm,
   dispatchFind,
@@ -88,6 +86,7 @@ function FindInPageInput({
   searchTerm,
   searching,
 }: FindInPageInputProps) {
+  const darkMode = useDarkMode();
   const findInPageInputRef = useRef<HTMLInputElement | null>(null);
 
   const onSearchChange = useCallback(
@@ -180,4 +179,4 @@ function FindInPageInput({
   );
 }
 
-export default withTheme(FindInPageInput);
+export default FindInPageInput;

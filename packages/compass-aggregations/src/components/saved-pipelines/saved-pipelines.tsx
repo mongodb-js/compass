@@ -4,7 +4,7 @@ import {
   spacing,
   palette,
   Body,
-  withTheme
+  useDarkMode
 } from '@mongodb-js/compass-components';
 import SavePipelineCard from './saved-pipeline-card';
 
@@ -49,16 +49,15 @@ const emptyMessageStyles = css({
 });
 
 type SavedPipelinesProps = {
-  darkMode?: boolean;
   namespace: string;
   savedPipelines: { id: string; name: string }[];
 };
 
-function UnthemedSavedPipelines({
-  darkMode,
+function SavedPipelines({
   namespace,
   savedPipelines,
 }: SavedPipelinesProps) {
+  const darkMode = useDarkMode();
   return (
     <div className={savedPipelinesStyles}>
       <div className={toolbarContentStyles}>
@@ -93,7 +92,5 @@ function UnthemedSavedPipelines({
     </div>
   );
 };
-
-const SavedPipelines = withTheme(UnthemedSavedPipelines);
 
 export { SavedPipelines };

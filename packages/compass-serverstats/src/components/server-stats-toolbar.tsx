@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import d3 from 'd3';
-import { Button, Icon, css, cx, spacing, palette, withTheme } from '@mongodb-js/compass-components';
+import { Button, Icon, css, cx, spacing, palette, useDarkMode } from '@mongodb-js/compass-components';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
@@ -43,14 +43,14 @@ type TimeScrubEventDispatcher = {
 };
 
 type ServerStatsToolbarProps = {
-  darkMode?: boolean;
   eventDispatcher: TimeScrubEventDispatcher
 }
 
-function UnthemedServerStatsToolbar({
-  darkMode,
+function ServerStatsToolbar({
   eventDispatcher
 }: ServerStatsToolbarProps) {
+  const darkMode = useDarkMode();
+
   const [ time, setTime ] = useState('00:00:00');
   const [ isPaused, setPaused ] = useState(ServerStatsStore.isPaused);
 
@@ -88,8 +88,6 @@ function UnthemedServerStatsToolbar({
     </div>
   );
 }
-
-const ServerStatsToolbar = withTheme(UnthemedServerStatsToolbar);
 
 export {
   ServerStatsToolbar

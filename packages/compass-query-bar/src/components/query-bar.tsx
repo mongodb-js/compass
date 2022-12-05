@@ -7,7 +7,7 @@ import {
   cx,
   spacing,
   palette,
-  withTheme,
+  useDarkMode,
   Label,
   Link,
 } from '@mongodb-js/compass-components';
@@ -80,7 +80,6 @@ const queryBarDocumentationLink =
 
 type QueryBarProps = {
   buttonLabel?: string;
-  darkMode?: boolean;
   expanded: boolean;
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
@@ -100,9 +99,8 @@ type QueryBarProps = {
   valid: boolean;
 } & QueryBarOptionProps;
 
-const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
+const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
-  darkMode,
   expanded: isQueryOptionsExpanded = false,
   globalAppRegistry,
   localAppRegistry,
@@ -127,6 +125,8 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
   valid: isQueryValid,
   ...queryOptionProps
 }) => {
+  const darkMode = useDarkMode();
+
   const onApply = useCallback(() => {
     if (isQueryValid) {
       _onApply();
@@ -252,7 +252,5 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
     </form>
   );
 };
-
-const QueryBar = withTheme(UnthemedQueryBar);
 
 export { QueryBar };

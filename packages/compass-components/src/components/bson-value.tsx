@@ -7,7 +7,7 @@ import { variantColors } from '@leafygreen-ui/code';
 import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { Theme, useTheme } from '../hooks/use-theme';
+import { Theme, useDarkMode } from '../hooks/use-theme';
 
 type ValueProps =
   | {
@@ -67,20 +67,23 @@ export const BSONValueContainer: React.FunctionComponent<
     chidren?: React.ReactChildren;
   }
 > = ({ type, children, className, ...props }) => {
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
   const textColorStyle = useMemo(() => {
     if (!type) {
       return '';
     }
 
-    const color = VALUE_COLOR_BY_THEME_AND_TYPE[theme]?.[type];
+    const color =
+      VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Theme.Dark : Theme.Light]?.[
+        type
+      ];
 
     if (!color) {
       return '';
     }
 
     return css({ color });
-  }, [type, theme]);
+  }, [type, darkMode]);
 
   return (
     <div
