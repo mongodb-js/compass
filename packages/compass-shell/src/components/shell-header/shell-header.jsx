@@ -9,7 +9,8 @@ import {
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
-import { ShellLoader } from '@mongosh/browser-repl';
+// The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
+const { ShellLoader } = require('@mongosh/browser-repl');
 
 const shellHeaderStyles = css({
   height: spacing[5],
