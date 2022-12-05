@@ -89,7 +89,7 @@ function Input({ documents, isLoading, count, refreshInputDocuments }: InputProp
       <Body className={headerTextStyles}><b>{count} Document{count === 1 ? '' : 's'}</b> in the collection</Body>
       <IconButton onClick={refreshInputDocuments} aria-label="Refresh">
         <Icon glyph="Refresh" size="small" />
-        </IconButton>
+      </IconButton>
     </div>
     {isExpanded && <div className={cx(bodyStyles, darkMode ? bodyStylesDark : bodyStylesLight)}>
       <Body>Preview of documents</Body>
