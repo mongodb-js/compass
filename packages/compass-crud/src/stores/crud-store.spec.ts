@@ -192,7 +192,6 @@ describe('store', function () {
 
       expect(store.state).to.deep.equal({
         abortController: null,
-        sessions: null,
         debouncingLoad: false,
         loadingCount: false,
         collection: '',
@@ -1141,7 +1140,6 @@ describe('store', function () {
 
               expect(state.status).to.equal('fetching');
               expect(state.abortController).to.not.be.null;
-              expect(state.sessions).to.not.be.null;
               expect(state.outdated).to.be.false;
               expect(state.error).to.be.null;
             },
@@ -1170,7 +1168,6 @@ describe('store', function () {
               expect(state.shardKeys).to.deep.equal({});
 
               expect(state.abortController).to.be.null;
-              expect(state.sessions).to.be.null;
               expect(state.resultId).to.not.equal(resultId);
             },
           ]);
@@ -1826,7 +1823,7 @@ describe('store', function () {
         });
       });
 
-      it('aborts the queries and kills the sessions', async function () {
+      it('aborts the queries', async function () {
         const spy = sinon.spy(dataService, 'aggregate');
 
         const listener = waitForStates(store, [
@@ -1837,7 +1834,6 @@ describe('store', function () {
             expect(state.loadingCount).to.be.true; // initially count is still loading
             expect(state.error).to.be.null;
             expect(state.abortController).to.not.be.null;
-            expect(state.sessions).to.not.be.null;
 
             store.cancelOperation();
           },
@@ -1848,16 +1844,10 @@ describe('store', function () {
           },
 
           (state) => {
-            // onAbort cleans up state.session
-            expect(state.sessions).to.be.null;
-          },
-
-          (state) => {
             // the operation should fail
             expect(state.status).to.equal('error');
             expect(state.error.message).to.equal('This operation was aborted');
             expect(state.abortController).to.be.null;
-            expect(state.sessions).to.be.null;
             expect(state.loadingCount).to.be.false; // eventually count loads
           },
         ]);
@@ -1877,7 +1867,7 @@ describe('store', function () {
   describe('#getPage', function () {
     let store;
     let actions;
-    let fetchSpy;
+    let findSpy;
 
     beforeEach(function (done) {
       actions = configureActions();
@@ -1893,7 +1883,7 @@ describe('store', function () {
         noRefreshOnConfigure: true,
       });
 
-      fetchSpy = sinon.spy(store.dataService, 'fetch');
+      findSpy = sinon.spy(store.dataService, 'find');
 
       const docs = [...Array(1000).keys()].map((i) => ({ i }));
       dataService.insertMany('compass-crud.test', docs, {}, done);
@@ -1905,82 +1895,75 @@ describe('store', function () {
 
     it('does nothing for negative page numbers', async function () {
       await store.getPage(-1);
-      expect(fetchSpy.called).to.be.false;
+      expect(findSpy.called).to.be.false;
     });
 
     it('does nothing if documents are already being fetched', async function () {
       store.state.status = 'fetching';
       await store.getPage(1);
-      expect(fetchSpy.called).to.be.false;
+      expect(findSpy.called).to.be.false;
     });
 
     it('does nothing if the page being requested is past the end', async function () {
       store.state.query.limit = 20;
       await store.getPage(1); // there is only one page of 20
-      expect(fetchSpy.called).to.be.false;
+      expect(findSpy.called).to.be.false;
     });
 
     it('does not ask for documents past the end', async function () {
       store.state.query.limit = 21;
       await store.getPage(1); // there is only one page of 20
-      expect(fetchSpy.called).to.be.true;
-      const opts = fetchSpy.args[0][2];
+      expect(findSpy.called).to.be.true;
+      const opts = findSpy.args[0][2];
       // the second page should only have 1 due to the limit
       expect(opts.limit).to.equal(1);
     });
 
     it('sets status fetchedPagination if it succeeds with no filter', async function () {
       await store.getPage(1); // there is only one page of 20
-      expect(fetchSpy.called).to.be.true;
+      expect(findSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
     });
 
     it('sets status fetchedPagination if it succeeds with a filter', async function () {
       store.state.query.filter = { i: { $gt: 1 } };
       await store.getPage(1); // there is only one page of 20
-      expect(fetchSpy.called).to.be.true;
+      expect(findSpy.called).to.be.true;
       expect(store.state.status).to.equal('fetchedPagination');
     });
 
     it('sets status error if it fails', async function () {
       // remove the spy and replace it with a stub
-      fetchSpy.restore();
-      const fetchStub = sinon.stub(store.dataService, 'fetch').returns({
-        toArray: () => {
-          throw new Error('This is a fake error.');
-        },
-      });
+      findSpy.restore();
+      const findStub = sinon
+        .stub(store.dataService, 'find')
+        .throws(new Error('This is a fake error.'));
 
       expect(store.state.abortController).to.be.null;
-      expect(store.state.sessions).to.be.null;
 
       const promise = store.getPage(1);
       expect(store.state.abortController).to.not.be.null;
-      expect(store.state.sessions).to.not.be.null;
 
       await promise;
       expect(store.state.error.message).to.equal('This is a fake error.');
 
-      expect(fetchStub.called).to.be.true;
+      expect(findStub.called).to.be.true;
     });
 
     it('allows the operation to be cancelled', async function () {
       expect(store.state.abortController).to.be.null;
-      expect(store.state.sessions).to.be.null;
 
       const promise = store.getPage(1);
       expect(store.state.abortController).to.not.be.null;
-      expect(store.state.sessions).to.not.be.null;
 
       store.cancelOperation();
       expect(store.state.abortController).to.be.null;
-      expect(store.state.sessions).to.be.null;
       expect(store.state.error).to.be.null;
 
       await promise;
       expect(store.state.error.message).to.equal('This operation was aborted');
 
-      expect(fetchSpy.called).to.be.true;
+      expect(findSpy.called).to.be.true;
     });
   });
 
@@ -2055,9 +2038,7 @@ describe('store', function () {
 
     beforeEach(function () {
       dataServiceStub = {
-        find: sinon
-          .stub()
-          .callsFake((ns, query, opts, cb) => cb(undefined, [query])),
+        find: sinon.stub().callsFake((ns, query) => Promise.resolve([query])),
       };
     });
 

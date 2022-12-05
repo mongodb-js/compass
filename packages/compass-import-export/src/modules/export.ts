@@ -635,7 +635,7 @@ const getQueryExportSource = async (
     spec,
     projection,
   });
-  const source = dataService.fetch(ns, spec.filter || {}, {
+  const source = dataService.findCursor(ns, spec.filter || {}, {
     projection,
     limit: spec.limit,
     skip: spec.skip,

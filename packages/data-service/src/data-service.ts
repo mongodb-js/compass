@@ -451,23 +451,27 @@ export interface DataService {
    * @param ns - The namespace to search on.
    * @param filter - The query filter.
    * @param options - The query options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
   find(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions,
-    callback: Callback<Document[]>
-  ): void;
+    options?: FindOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]>;
 
   /**
-   * Fetch documents for the provided filter and options on the collection.
+   * Returns a find cursor on the collection.
    *
    * @param ns - The namespace to search on.
    * @param filter - The query filter.
    * @param options - The query options.
    */
-  fetch(ns: string, filter: Filter<Document>, options: FindOptions): FindCursor;
+  findCursor(
+    ns: string,
+    filter: Filter<Document>,
+    options?: FindOptions
+  ): FindCursor;
 
   /**
    * Find one document and replace it with the replacement.
@@ -509,14 +513,14 @@ export interface DataService {
    * @param ns - The namespace to search on.
    * @param filter - The query filter.
    * @param options - The query options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
-  explain(
+  explainFind(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions,
-    callback: Callback<Document>
-  ): void;
+    options?: FindOptions,
+    executionOptions?: ExplainExecuteOptions
+  ): Promise<Document>;
 
   explainAggregate(
     ns: string,
@@ -1522,35 +1526,28 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   find(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions,
-    callback: Callback<Document[]>
-  ): void {
-    const logop = this._startLogOp(mongoLogId(1_001_000_042), 'Running find', {
-      ns,
-    });
-    const cursor = this._collection(ns, 'CRUD').find(filter, options);
-    cursor.toArray((error, documents) => {
-      logop(error);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      callback(null, documents!);
-    });
+    options: FindOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]> {
+    let cursor: FindCursor;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        cursor = this.findCursor(ns, filter, { ...options, session });
+        const results = await cursor.toArray();
+        void cursor.close();
+        return results;
+      },
+      () => cursor?.close(),
+      executionOptions?.abortSignal
+    );
   }
 
-  fetch(
+  findCursor(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions
+    options: FindOptions = {}
   ): FindCursor {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_043),
-      'Running raw find',
-      { ns }
-    );
-
-    logop(null);
+    log.info(mongoLogId(1_001_000_043), this._logCtx(), 'Running find', { ns });
 
     return this._collection(ns, 'CRUD').find(filter, options);
   }
@@ -1609,29 +1606,34 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     );
   }
 
-  explain(
+  explainFind(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions,
-    callback: Callback<Document>
-  ): void {
-    const logop = this._startLogOp(
+    options: FindOptions = {},
+    executionOptions?: ExplainExecuteOptions
+  ): Promise<Document> {
+    const verbosity =
+      executionOptions?.explainVerbosity ||
+      mongodb.ExplainVerbosity.allPlansExecution;
+
+    log.info(
       mongoLogId(1_001_000_046),
+      this._logCtx(),
       'Running find explain',
-      { ns }
+      { ns, verbosity }
     );
-    // @todo thomasr: driver explain() does not yet support verbosity,
-    // once it does, should be passed along from the options object.
-    this._collection(ns, 'CRUD')
-      .find(filter, options)
-      .explain((error, explanation) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
-        callback(null, explanation);
-      });
+
+    let cursor: FindCursor;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        cursor = this.findCursor(ns, filter, { ...options, session });
+        const results = await cursor.explain(verbosity);
+        void cursor.close();
+        return results;
+      },
+      () => cursor?.close(),
+      executionOptions?.abortSignal
+    );
   }
 
   explainAggregate(
@@ -1643,6 +1645,14 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     const verbosity =
       executionOptions?.explainVerbosity ||
       mongodb.ExplainVerbosity.queryPlanner;
+
+    log.info(
+      mongoLogId(1_001_000_177),
+      this._logCtx(),
+      'Running aggregate explain',
+      { ns, verbosity }
+    );
+
     let cursor: AggregationCursor;
     return this.cancellableOperation(
       async (session?: ClientSession) => {
@@ -2113,9 +2123,16 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       await this.killSessions(session).catch(logAbortError);
     };
 
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_179),
+      'Running cancellable operation'
+    );
+
     try {
       result = await raceWithAbort(start(session), abortSignal);
+      logop(null);
     } catch (err) {
+      logop(err);
       if (isCancelError(err)) {
         void abort();
       }
@@ -2495,8 +2512,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   private _translateMessage(error: any): Error | { message: string } {
     if (typeof error === 'string') {
       error = { message: error };
-    } else {
-      error.message = error.message || error.err || error.errmsg;
+    } else if (!error.message) {
+      error.message = error.err || error.errmsg;
     }
     return error;
   }
