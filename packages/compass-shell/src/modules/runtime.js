@@ -16,7 +16,7 @@ export const SETUP_RUNTIME = `${PREFIX}/SETUP_RUNTIME`;
 export const INITIAL_STATE = {
   error: null,
   dataService: null,
-  runtime: null
+  runtime: null,
 };
 
 /**
@@ -49,7 +49,7 @@ function reduceSetupRuntime(state, action) {
   return {
     error: action.error,
     dataService: action.dataService,
-    runtime
+    runtime,
   };
 }
 
@@ -66,7 +66,7 @@ export const setupRuntime = (error, dataService, appRegistry) => ({
   type: SETUP_RUNTIME,
   error,
   dataService,
-  appRegistry
+  appRegistry,
 });
 
 function createWorkerRuntime(dataService, appRegistry) {
