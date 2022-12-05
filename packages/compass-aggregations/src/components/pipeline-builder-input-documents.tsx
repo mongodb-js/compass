@@ -18,9 +18,8 @@ const headerStyles = css({
   gap: spacing[1],
   alignItems: 'center',
   width: '100%',
-  padding: spacing[2],
+  padding: `${spacing[1]}px ${spacing[2]}px`,
 });
-
 
 const headerTextStyles = css({
   flex: 1,
@@ -28,8 +27,7 @@ const headerTextStyles = css({
 
 const bodyStyles = css({
   position: 'relative',
-  padding: spacing[3],
-  paddingBottom: spacing[2],
+  padding: `${spacing[2]}px ${spacing[2] + spacing[1]}px`,
   borderTopWidth: '1px',
   borderTopStyle: 'solid'
 });
@@ -43,17 +41,17 @@ const bodyStylesDark = css({
 });
 
 const documentsContainerStyles = css({
-  marginTop: spacing[3],
+  marginTop: spacing[2],
   display: 'flex',
   overflowX: 'scroll',
-  gap: spacing[3],
+  gap: spacing[2],
   paddingBottom: spacing[2]
 });
 
 const documentContainerStyles = css({
   flexShrink: 0,
   width: '384px',
-  height: '150px',
+  height: '170px',
   overflow: 'scroll'
 });
 
