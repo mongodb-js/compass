@@ -2,18 +2,19 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import React, { useMemo } from 'react';
 
-import { withTheme } from '../../hooks/use-theme';
+import { useDarkMode } from '../../hooks/use-theme';
 
 type NoSavedItemsIconProps = {
-  darkMode?: boolean;
   size?: number;
 };
 
 const defaultSize = spacing[4] * 3;
 
-const UnthemedNoSavedItemsIcon: React.FunctionComponent<
-  NoSavedItemsIconProps
-> = ({ darkMode, size = defaultSize }) => {
+const NoSavedItemsIcon: React.FunctionComponent<NoSavedItemsIconProps> = ({
+  size = defaultSize,
+}) => {
+  const darkMode = useDarkMode();
+
   const strokeColor = useMemo(
     () => (darkMode ? palette.white : palette.black),
     [darkMode]
@@ -44,9 +45,5 @@ const UnthemedNoSavedItemsIcon: React.FunctionComponent<
     </svg>
   );
 };
-
-const NoSavedItemsIcon = withTheme(
-  UnthemedNoSavedItemsIcon
-) as typeof UnthemedNoSavedItemsIcon;
 
 export { NoSavedItemsIcon };

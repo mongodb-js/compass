@@ -7,8 +7,8 @@ import {
   spacing,
   useId,
   palette,
-  withTheme,
   Icon,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 const titleStyles = css({
@@ -48,16 +48,16 @@ type ToolbarProps = {
   namespace: {
     ns: string;
   };
-  darkMode?: boolean;
   showing: 'recent' | 'favorites';
 };
 
-function UnthemedToolbar({
+function Toolbar({
   actions,
-  darkMode,
   namespace,
   showing,
 }: ToolbarProps): React.ReactElement {
+  const darkMode = useDarkMode();
+
   const onViewSwitch = useCallback(
     (label: 'recent' | 'favorites') => {
       if (label === 'recent') {
@@ -110,7 +110,5 @@ function UnthemedToolbar({
     </div>
   );
 }
-
-const Toolbar = withTheme(UnthemedToolbar);
 
 export { Toolbar };

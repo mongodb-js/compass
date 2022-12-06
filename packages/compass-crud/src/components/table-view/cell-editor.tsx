@@ -17,10 +17,9 @@ import {
   css,
   cx,
   Icon,
+  LeafyGreenProvider,
   spacing,
   TextInput,
-  Theme,
-  ThemeProvider,
 } from '@mongodb-js/compass-components';
 import type {
   ColumnApi,
@@ -594,21 +593,16 @@ class CellEditor
       this.element?.currentType === 'Array';
 
     return (
-      // this is needed cause ag-grid renders this component outside
-      // of the context chain
-      <ThemeProvider
-        theme={{
-          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
-          enabled: true,
-        }}
-      >
+      // `ag-grid` renders this component outside of the context chain
+      // so we re-supply the dark mode theme here.
+      <LeafyGreenProvider darkMode={this.props.darkMode}>
         <div className={BEM_BASE}>
           {this.renderFieldName()}
           {this.renderInput(!!showInput)}
           {this.renderTypes(!!showTypes)}
           {this.renderActions(!!showTypes, !!showInput, !!showExpand)}
         </div>
-      </ThemeProvider>
+      </LeafyGreenProvider>
     );
   }
 

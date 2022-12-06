@@ -145,12 +145,9 @@ describe('connect', function () {
           connectionString: COMPASS_TEST_SECONDARY_NODE_URL,
         });
 
-        const [command, explain] = [
-          dataService.command.bind(dataService),
-          dataService.explain.bind(dataService),
-        ].map(util.promisify);
+        const command = util.promisify(dataService.command.bind(dataService));
 
-        const explainPlan = await explain('test.test', {}, {});
+        const explainPlan = await dataService.explainFind('test.test', {}, {});
 
         const targetHost = explainPlan?.serverInfo?.host;
         const replSetStatus = await command('admin', { replSetGetStatus: 1 });
@@ -176,10 +173,9 @@ describe('connect', function () {
           connectionString: COMPASS_TEST_ANALYTICS_NODE_URL,
         });
 
-        const [command, explain] = [
-          dataService.command.bind(dataService),
-          dataService.explain.bind(dataService),
-        ].map(util.promisify);
+        const command = util.promisify(dataService.command.bind(dataService));
+
+        const explainPlan = await dataService.explainFind('test.test', {}, {});
 
         const replSetGetConfig = await command('admin', {
           replSetGetConfig: 1,
@@ -188,8 +184,6 @@ describe('connect', function () {
         const analtyticsNode = replSetGetConfig?.config?.members.find(
           (member) => member?.tags.nodeType === 'ANALYTICS'
         );
-
-        const explainPlan = await explain('test.test', {}, {});
 
         // test that queries are routed to the analytics node
         expect(explainPlan?.serverInfo?.host).to.be.equal(

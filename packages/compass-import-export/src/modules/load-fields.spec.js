@@ -5,8 +5,8 @@ import { expect } from 'chai';
 describe('loadFields', function () {
   const fakeDataService = (err, docs) => {
     return {
-      find: sinon.spy((ns, query, options, cb) => {
-        cb(err, docs);
+      find: sinon.spy(() => {
+        return err ? Promise.reject(err) : Promise.resolve(docs);
       }),
     };
   };

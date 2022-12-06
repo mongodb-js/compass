@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
-  Body,
+  FormFieldContainer,
   Checkbox,
   Label,
   Description,
@@ -92,9 +92,9 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
 
   return (
     <div data-testid="theme-settings">
-      <Body>Change the appearance of Compass.</Body>
+      <div>Change the appearance of Compass.</div>
 
-      <div>
+      <FormFieldContainer>
         <Checkbox
           className={checkboxStyles}
           name="use-os-theme"
@@ -114,32 +114,33 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           disabled={!!preferenceStates.theme}
         />
         {settingStateLabels[preferenceStates.theme ?? '']}
-      </div>
-
-      <RadioBoxGroup
-        id="theme-selector"
-        onChange={handleSelectorChange}
-        value={themeValue}
-      >
-        <RadioBox
-          id="theme-selector-light"
-          data-testid="theme-selector-light"
-          value="LIGHT"
-          disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
+      </FormFieldContainer>
+      <FormFieldContainer>
+        <RadioBoxGroup
+          id="theme-selector"
+          onChange={handleSelectorChange}
+          value={themeValue}
         >
-          <LightThemePreview />
-          Light Theme
-        </RadioBox>
-        <RadioBox
-          id="theme-selector-dark"
-          data-testid="theme-selector-dark"
-          value="DARK"
-          disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
-        >
-          <DarkThemePreview />
-          Dark Theme (Preview)
-        </RadioBox>
-      </RadioBoxGroup>
+          <RadioBox
+            id="theme-selector-light"
+            data-testid="theme-selector-light"
+            value="LIGHT"
+            disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
+          >
+            <LightThemePreview />
+            Light Theme
+          </RadioBox>
+          <RadioBox
+            id="theme-selector-dark"
+            data-testid="theme-selector-dark"
+            value="DARK"
+            disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
+          >
+            <DarkThemePreview />
+            Dark Theme (Preview)
+          </RadioBox>
+        </RadioBoxGroup>
+      </FormFieldContainer>
     </div>
   );
 };

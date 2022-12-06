@@ -6,8 +6,7 @@ import {
   css,
   palette,
   spacing,
-  useTheme,
-  Theme,
+  useDarkMode,
   Subtitle,
   Overline,
 } from '@mongodb-js/compass-components';
@@ -58,17 +57,17 @@ const dbStatNameLight = css({
 });
 
 function DBStat({ name, stat }: { name: string; stat: string | number }) {
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
 
   return (
     <div>
       <Subtitle
-        className={theme === Theme.Dark ? dbStatNumberDark : dbStatNumberLight}
+        className={darkMode ? dbStatNumberDark : dbStatNumberLight}
       >
         {stat}
       </Subtitle>
       <Overline
-        className={theme === Theme.Dark ? dbStatNameDark : dbStatNameLight}
+        className={darkMode ? dbStatNameDark : dbStatNameLight}
       >
         {name}
       </Overline>

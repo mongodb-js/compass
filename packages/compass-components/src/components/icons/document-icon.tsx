@@ -1,15 +1,11 @@
 import { palette } from '@leafygreen-ui/palette';
 import React, { useMemo } from 'react';
 
-import { withTheme } from '../../hooks/use-theme';
+import { useDarkMode } from '../../hooks/use-theme';
 
-type DocumentIconProps = {
-  darkMode?: boolean;
-};
+const DocumentIcon: React.FunctionComponent = () => {
+  const darkMode = useDarkMode();
 
-const UnthemedDocumentIcon: React.FunctionComponent<DocumentIconProps> = ({
-  darkMode,
-}) => {
   const fillColor = useMemo(
     () => (darkMode ? palette.white : palette.black),
     [darkMode]
@@ -106,9 +102,5 @@ const UnthemedDocumentIcon: React.FunctionComponent<DocumentIconProps> = ({
     </svg>
   );
 };
-
-const DocumentIcon = withTheme(
-  UnthemedDocumentIcon
-) as typeof UnthemedDocumentIcon;
 
 export { DocumentIcon };

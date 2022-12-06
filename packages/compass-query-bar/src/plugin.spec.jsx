@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { StoreConnector } from 'hadron-react-components';
+import { StoreConnector } from '@mongodb-js/compass-components';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 
@@ -304,18 +304,14 @@ describe('QueryBar [Plugin]', function () {
       ).to.equal('{field: 1}');
       expect(
         component
-          .find('UnthemedQueryOption[queryOption="maxTimeMS"]')
+          .find('QueryOption[queryOption="maxTimeMS"]')
           .prop('placeholder')
       ).to.equal('50000');
       expect(
-        component
-          .find('UnthemedQueryOption[queryOption="skip"]')
-          .prop('placeholder')
+        component.find('QueryOption[queryOption="skip"]').prop('placeholder')
       ).to.equal('10');
       expect(
-        component
-          .find('UnthemedQueryOption[queryOption="limit"]')
-          .prop('placeholder')
+        component.find('QueryOption[queryOption="limit"]').prop('placeholder')
       ).to.equal('20');
     });
   });

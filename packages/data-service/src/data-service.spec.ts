@@ -179,18 +179,18 @@ describe('DataService', function () {
               {},
               function (er) {
                 assert.equal(null, er);
-                dataService.find(
-                  testNamespace,
-                  {
-                    a: 500,
-                  },
-                  {},
-                  function (error, docs) {
-                    assert.equal(null, error);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 500,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
                     expect(docs.length).to.equal(0);
                     done();
-                  }
-                );
+                  });
               }
             );
           }
@@ -362,18 +362,18 @@ describe('DataService', function () {
               {},
               function (er) {
                 assert.equal(null, er);
-                dataService.find(
-                  testNamespace,
-                  {
-                    a: 500,
-                  },
-                  {},
-                  function (error, docs) {
-                    assert.equal(null, error);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 500,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
                     expect(docs.length).to.equal(0);
                     done();
-                  }
-                );
+                  });
               }
             );
           }
@@ -381,11 +381,11 @@ describe('DataService', function () {
       });
     });
 
-    describe('#aggregate', function () {
+    describe('#aggregateCursor', function () {
       it('returns a cursor for the documents', function (done) {
         let count = 0;
         dataService
-          .aggregate(
+          .aggregateCursor(
             testNamespace,
             [{ $match: {} }, { $group: { _id: '$a', total: { $sum: '$a' } } }],
             { cursor: { batchSize: 10000 } }
@@ -401,140 +401,141 @@ describe('DataService', function () {
             }
           );
       });
-      it('returns null, calls callback', function (done) {
-        dataService.aggregate(
-          testNamespace,
-          [{ $match: {} }, { $group: { _id: '$a', total: { $sum: '$a' } } }],
-          {},
-          function (error, result) {
-            assert.equal(null, error);
-            result.toArray((err, r) => {
-              assert.equal(null, err);
-              expect(r!.length).to.equal(2);
-              done();
-            });
-          }
-        );
+    });
+
+    describe('#aggregate', function () {
+      it('returns a list of aggregated documents', async function () {
+        const data = await dataService.aggregate(testNamespace, [
+          { $match: {} },
+          { $group: { _id: '$a', total: { $sum: '$a' } } },
+          { $sort: { _id: 1 } },
+        ]);
+        expect(data).to.deep.equal([
+          { _id: 1, total: 1 },
+          { _id: 2, total: 2 },
+        ]);
+      });
+
+      it('cancels the long running aggregation', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const pipeline = [
+          {
+            $addFields: {
+              lazy: {
+                $function: {
+                  body: `function () {
+                    return sleep(1000);
+                  }`,
+                  args: [],
+                  lang: 'js',
+                },
+              },
+            },
+          },
+        ];
+
+        const promise = dataService
+          .aggregate(testNamespace, pipeline, {}, { abortSignal })
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+
+        expect(error).to.be.instanceOf(Error);
       });
     });
 
     describe('#find', function () {
-      it('returns a cursor for the documents', function (done) {
-        dataService.find(
+      it('returns a list of documents', async function () {
+        const docs = await dataService.find(
           testNamespace,
           {},
           {
             skip: 1,
-          },
-          function (error, docs) {
-            assert.equal(null, error);
-            expect(docs.length).to.equal(1);
-            done();
           }
         );
+        expect(docs.length).to.equal(1);
       });
 
-      context('when a filter is provided', function () {
-        it('returns a cursor for the matching documents', function (done) {
-          dataService.find(
-            testNamespace,
-            {
-              a: 1,
-            },
-            {},
-            function (error, docs) {
-              assert.equal(null, error);
-              expect(docs.length).to.equal(1);
-              done();
-            }
-          );
-        });
+      it('returns a list of documents when filter is provided', async function () {
+        const docs = await dataService.find(testNamespace, { a: 1 }, {});
+        expect(docs.length).to.equal(1);
       });
 
-      context('when no filter is provided', function () {
-        it('returns a cursor for all documents', function (done) {
-          dataService.find(testNamespace, {}, {}, function (error, docs) {
-            assert.equal(null, error);
-            expect(docs.length).to.equal(2);
-            done();
-          });
-        });
+      it('returns a list of documents when no filter is provided', async function () {
+        const docs = await dataService.find(testNamespace, {}, {});
+        expect(docs.length).to.equal(2);
       });
 
-      context('when options are provided', function () {
-        it('returns a cursor for the documents', function (done) {
-          dataService.find(
-            testNamespace,
-            {},
-            {
-              skip: 1,
-            },
-            function (error, docs) {
-              assert.equal(null, error);
-              expect(docs.length).to.equal(1);
-              done();
-            }
-          );
-        });
+      it('returns a list of documents when options are provided', async function () {
+        const docs = await dataService.find(
+          testNamespace,
+          {},
+          {
+            skip: 1,
+          }
+        );
+        expect(docs.length).to.equal(1);
       });
 
-      context('when array sort is provided', function () {
-        it('returns documents with correct sort order', function (done) {
-          const sort: Sort = [
-            ['2', -1],
-            ['1', -1],
-          ];
-          dataService.find(testNamespace, {}, { sort }, function (error, docs) {
-            assert.strictEqual(null, error);
-            expect(docs[0]).to.have.nested.property('2', 'a');
-            expect(docs[1]).to.have.nested.property('1', 'a');
-            done();
-          });
-        });
+      it('returns a list of documents with correct sort order when array sort is provided', async function () {
+        const sort: Sort = [
+          ['2', -1],
+          ['1', -1],
+        ];
+        const docs = await dataService.find(testNamespace, {}, { sort });
+        expect(docs.length).to.equal(2);
+        expect(docs[0]).to.have.nested.property('2', 'a');
+        expect(docs[1]).to.have.nested.property('1', 'a');
+      });
+
+      it('cancels the long running find operation', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const filter = {
+          query: {
+            $where: `function () {
+              sleep(100);
+              return true;
+            }`,
+          },
+        };
+
+        const promise = dataService
+          .find(testNamespace, filter, {}, { abortSignal })
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+
+        expect(dataService.isCancelError(error)).to.be.true;
       });
     });
 
-    describe('#fetch', function () {
-      it('returns a cursor for the documents', function (done) {
-        const cursor = dataService.fetch(testNamespace, {}, { skip: 1 });
-        cursor.toArray(function (error, docs) {
-          assert.equal(null, error);
-          expect(docs!.length).to.equal(1);
-          done();
-        });
+    describe('#findCursor', function () {
+      it('returns a cursor for the documents', async function () {
+        const cursor = dataService.findCursor(testNamespace, {}, { skip: 1 });
+        const docs = await cursor.toArray();
+        expect(docs.length).to.equal(1);
       });
 
-      context('when a filter is provided', function () {
-        it('returns a cursor for the matching documents', function (done) {
-          const cursor = dataService.fetch(testNamespace, { a: 1 }, {});
-          cursor.toArray(function (error, docs) {
-            assert.equal(null, error);
-            expect(docs!.length).to.equal(1);
-            done();
-          });
-        });
+      it('returns a cursor for the matching documents when a filter is provided', async function () {
+        const cursor = dataService.findCursor(testNamespace, { a: 1 }, {});
+        const docs = await cursor.toArray();
+        expect(docs.length).to.equal(1);
       });
 
-      context('when no filter is provided', function () {
-        it('returns a cursor for all documents', function (done) {
-          const cursor = dataService.fetch(testNamespace, {}, {});
-          cursor.toArray(function (error, docs) {
-            assert.equal(null, error);
-            expect(docs!.length).to.equal(2);
-            done();
-          });
-        });
+      it('returns a cursor for all documents when no filter is provided', async function () {
+        const cursor = dataService.findCursor(testNamespace, {}, {});
+        const docs = await cursor.toArray();
+        expect(docs.length).to.equal(2);
       });
 
-      context('when options are provided', function () {
-        it('returns a cursor for the documents', function (done) {
-          const cursor = dataService.fetch(testNamespace, {}, { skip: 1 });
-          cursor.toArray(function (error, docs) {
-            assert.equal(null, error);
-            expect(docs!.length).to.equal(1);
-            done();
-          });
-        });
+      it('returns a cursor for the documents when options are provided', async function () {
+        const cursor = dataService.findCursor(testNamespace, {}, { skip: 1 });
+        const docs = await cursor.toArray();
+        expect(docs.length).to.equal(1);
       });
     });
 
@@ -884,18 +885,18 @@ describe('DataService', function () {
           {},
           function (err) {
             assert.equal(null, err);
-            dataService.find(
-              testNamespace,
-              {
-                a: 500,
-              },
-              {},
-              function (error, docs) {
-                assert.equal(null, error);
+            void dataService
+              .find(
+                testNamespace,
+                {
+                  a: 500,
+                },
+                {}
+              )
+              .then(function (docs) {
                 expect(docs.length).to.equal(1);
                 done();
-              }
-            );
+              });
           }
         );
       });
@@ -916,66 +917,60 @@ describe('DataService', function () {
           {},
           function (err) {
             assert.equal(null, err);
-            dataService.find(
-              testNamespace,
-              {
-                a: 500,
-              },
-              {},
-              function (error, docs) {
-                assert.equal(null, error);
+            void dataService
+              .find(
+                testNamespace,
+                {
+                  a: 500,
+                },
+                {}
+              )
+              .then(function (docs) {
                 expect(docs.length).to.equal(2);
                 done();
-              }
-            );
+              });
           }
         );
       });
     });
 
     describe('#sample', function () {
-      it('returns a cursor of sampled documents', async function () {
-        const docs = await dataService.sample(testNamespace).toArray();
+      it('returns a list of sampled documents', async function () {
+        const docs = await dataService.sample(testNamespace);
         expect(docs.length).to.equal(2);
       });
 
       it('allows to pass a query', async function () {
-        const docs = await dataService
-          .sample(testNamespace, {
-            query: { a: 1 },
-          })
-          .toArray();
+        const docs = await dataService.sample(testNamespace, {
+          query: { a: 1 },
+        });
         expect(docs.length).to.equal(1);
         expect(docs[0]).to.haveOwnProperty('_id');
         expect(docs[0].a).to.equal(1);
       });
 
       it('allows to pass a projection', async function () {
-        const docs = await dataService
-          .sample(testNamespace, {
-            fields: {
-              a: 1,
-              _id: 0,
-            },
-          })
-          .toArray();
+        const docs = await dataService.sample(testNamespace, {
+          fields: {
+            a: 1,
+            _id: 0,
+          },
+        });
 
         expect(docs).to.deep.include.members([{ a: 1 }, { a: 2 }]);
       });
 
       it('allows to set a sample size', async function () {
-        const docs = await dataService
-          .sample(testNamespace, {
-            size: 1,
-          })
-          .toArray();
+        const docs = await dataService.sample(testNamespace, {
+          size: 1,
+        });
 
         expect(docs.length).to.equal(1);
       });
 
       it('always sets default sample size and allowDiskUse: true', function () {
         sandbox.spy(dataService, 'aggregate');
-        dataService.sample('db.coll');
+        void dataService.sample('db.coll');
 
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(dataService.aggregate).to.have.been.calledWith(
@@ -987,7 +982,7 @@ describe('DataService', function () {
 
       it('allows to pass down aggregation options to the driver', function () {
         sandbox.spy(dataService, 'aggregate');
-        dataService.sample(
+        void dataService.sample(
           'db.coll',
           {},
           {
@@ -1007,7 +1002,7 @@ describe('DataService', function () {
 
       it('allows to override allowDiskUse', function () {
         sandbox.spy(dataService, 'aggregate');
-        dataService.sample(
+        void dataService.sample(
           'db.coll',
           {},
           {
@@ -1047,18 +1042,18 @@ describe('DataService', function () {
               {},
               function (er) {
                 assert.equal(null, er);
-                dataService.find(
-                  testNamespace,
-                  {
-                    a: 600,
-                  },
-                  {},
-                  function (error, docs) {
-                    assert.equal(null, error);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 600,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
                     expect(docs.length).to.equal(1);
                     done();
-                  }
-                );
+                  });
               }
             );
           }
@@ -1118,18 +1113,18 @@ describe('DataService', function () {
               {},
               function (er) {
                 assert.equal(null, er);
-                dataService.find(
-                  testNamespace,
-                  {
-                    a: 600,
-                  },
-                  {},
-                  function (error, docs) {
-                    assert.equal(null, error);
+                void dataService
+                  .find(
+                    testNamespace,
+                    {
+                      a: 600,
+                    },
+                    {}
+                  )
+                  .then(function (docs) {
                     expect(docs.length).to.equal(2);
                     done();
-                  }
-                );
+                  });
               }
             );
           }
@@ -1164,20 +1159,16 @@ describe('DataService', function () {
         );
       });
 
-      it('returns documents from the view', function (done) {
-        dataService.find(
+      it('returns documents from the view', async function () {
+        const docs = await dataService.find(
           `${testDatabaseName}.myView`,
           {},
-          {},
-          function (err, docs) {
-            if (err) return done(err);
-
-            assert.equal(docs.length, 2);
-            assert.strictEqual(docs[0].a, undefined);
-            assert.strictEqual(docs[1].a, undefined);
-            done();
-          }
+          {}
         );
+
+        assert.equal(docs.length, 2);
+        assert.strictEqual(docs[0].a, undefined);
+        assert.strictEqual(docs[1].a, undefined);
       });
 
       it('updates the view', function (done) {
@@ -1193,20 +1184,16 @@ describe('DataService', function () {
         );
       });
 
-      it('returns documents from the updated', function (done) {
-        dataService.find(
+      it('returns documents from the updated', async function () {
+        const docs = await dataService.find(
           `${testDatabaseName}.myView`,
           {},
-          {},
-          function (err, docs) {
-            if (err) return done(err);
-
-            assert.equal(docs.length, 2);
-            assert.strictEqual(docs[0].a, 1);
-            assert.strictEqual(docs[1].a, 2);
-            done();
-          }
+          {}
         );
+
+        assert.equal(docs.length, 2);
+        assert.strictEqual(docs[0].a, 1);
+        assert.strictEqual(docs[1].a, 2);
       });
 
       it('drops the view', function (done) {
@@ -1363,19 +1350,11 @@ describe('DataService', function () {
 
       describe('#explain', function () {
         context('when a filter is provided', function () {
-          it('returns an explain object for the provided filter', function (done) {
-            dataService.explain(
-              testNamespace,
-              {
-                a: 1,
-              },
-              {},
-              function (error, explanation) {
-                assert.equal(null, error);
-                expect(explanation).to.be.an('object');
-                done();
-              }
-            );
+          it('returns an explain object for the provided filter', async function () {
+            const explanation = await dataService.explainFind(testNamespace, {
+              a: 1,
+            });
+            expect(explanation).to.be.an('object');
           });
         });
       });
@@ -1474,20 +1453,13 @@ describe('DataService', function () {
       it('can create data keys', async function () {
         const uuid = await csfleDataService.createDataKey('local');
         const keyDoc = await csfleDataService
-          .fetch(`${testDatabaseName}.keyvault`, {}, {})
+          .findCursor(`${testDatabaseName}.keyvault`, {}, {})
           .next();
         expect(uuid).to.deep.equal(keyDoc._id);
       });
     });
 
     describe('#explainAggregate', function () {
-      const initialAbortController = global.AbortController;
-      before(function () {
-        (global as any).AbortController = AbortController;
-      });
-      after(function () {
-        global.AbortController = initialAbortController;
-      });
       it('returns an explain object', async function () {
         const explain = await dataService.explainAggregate(
           testNamespace,
@@ -1538,8 +1510,40 @@ describe('DataService', function () {
         abortController.abort();
         const error = await promise;
 
-        expect(error).to.be.instanceOf(Error);
-        expect(dataService.isOperationCancelledError(error)).to.true;
+        expect(dataService.isCancelError(error)).to.be.true;
+      });
+    });
+
+    describe('#explainFind', function () {
+      it('returns an explain object', async function () {
+        const explain = await dataService.explainFind(testNamespace, {
+          query: {
+            a: 1,
+          },
+        });
+        expect(explain).to.be.an('object');
+      });
+      it('returns an explain object - cancellable', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const filter = {
+          query: {
+            a: 1,
+          },
+        };
+        const executionOptions = {
+          abortSignal,
+        };
+
+        // cancellable explain
+        const promise = dataService
+          .explainFind(testNamespace, filter, {}, executionOptions as any)
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+
+        expect(dataService.isCancelError(error)).to.be.true;
       });
     });
 

@@ -5,10 +5,9 @@ import {
   css,
   Icon,
   IconButton,
+  LeafyGreenProvider,
   spacing,
-  Theme,
-  ThemeProvider,
-  withTheme,
+  withDarkMode,
 } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 import type { ICellRendererReactComp } from 'ag-grid-react';
@@ -348,14 +347,9 @@ class CellRenderer
     }
 
     return (
-      // this is needed cause ag-grid renders this component outside
-      // of the context chain
-      <ThemeProvider
-        theme={{
-          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
-          enabled: true,
-        }}
-      >
+      // `ag-grid` renders this component outside of the context chain
+      // so we re-supply the dark mode theme here.
+      <LeafyGreenProvider darkMode={this.props.darkMode}>
         {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
         <div
           className={className}
@@ -366,7 +360,7 @@ class CellRenderer
           {this.renderExpand(canExpand)}
           {element}
         </div>
-      </ThemeProvider>
+      </LeafyGreenProvider>
     );
   }
 
@@ -388,4 +382,4 @@ class CellRenderer
   static displayName = 'CellRenderer';
 }
 
-export default withTheme(CellRenderer);
+export default withDarkMode(CellRenderer);

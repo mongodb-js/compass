@@ -1,14 +1,10 @@
 import React, { useCallback } from 'react';
-import { Tooltip, css, cx } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
+
+import { IconButton, Icon, Tooltip } from '@mongodb-js/compass-components';
 
 import { addStage } from '../../modules/pipeline-builder/stage-editor';
 
-const addAfterStageButtonStyles = css({
-  // TODO(COMPASS-6234): We'll remove these hardcoded values.
-  width: '30px',
-  marginRight: '6px',
-})
 
 type AddAfterStageProps = {
   index: number;
@@ -28,19 +24,16 @@ export function AddAfterStage({
   const onStageAddedAfter = useCallback(() => {
     onAddStageClick(index);
   }, [ onAddStageClick, index ]);
-  
+
   return (
     <Tooltip
       trigger={({ children, ...props }) => (
         <div {...props}>
-          <button
+          <IconButton
             data-testid="add-after-stage"
-            type="button"
-            className={cx('btn btn-default btn-xs', addAfterStageButtonStyles)}
             onClick={onStageAddedAfter}
-          >
-            +
-          </button>
+            aria-label="Add stage below"
+          ><Icon glyph="Plus" size="small" /></IconButton>
           {children}
         </div>
       )}

@@ -1,14 +1,12 @@
 import {
-  css,
-  cx,
-  getScrollbarClassForTheme,
   LeafyGreenProvider,
   Theme,
-  ThemeProvider,
   ToastArea,
+  css,
+  cx,
+  getScrollbarStyles,
   palette,
 } from '@mongodb-js/compass-components';
-import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Settings from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
@@ -19,6 +17,7 @@ import toNS from 'mongodb-ns';
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
   useState,
@@ -81,6 +80,11 @@ const globalDarkThemeStyles = css({
 const defaultNS: Namespace = {
   database: '',
   collection: '',
+};
+
+type ThemeState = {
+  theme: Theme;
+  enabled: boolean;
 };
 
 type State = {
@@ -331,6 +335,8 @@ function ThemedHome(
     showWelcomeModal?: boolean;
   }
 ): ReturnType<typeof Home> {
+  const [scrollbarsContainerRef, setScrollbarsContainerRef] =
+    useState<HTMLDivElement | null>(null);
   const {
     showWelcomeModal = !preferences.getPreferences().showedNetworkOptIn,
   } = props;
@@ -340,6 +346,11 @@ function ThemedHome(
     theme: getCurrentTheme(),
     enabled: !!preferences.getPreferences().lgDarkmode,
   });
+
+  const darkMode = useMemo(
+    () => theme.enabled && theme.theme === Theme.Dark,
+    [theme]
+  );
 
   useEffect(() => {
     const listener = () => {
@@ -401,28 +412,32 @@ function ThemedHome(
   }, [setIsSettingsOpen]);
 
   return (
-    <LeafyGreenProvider>
-      <ThemeProvider theme={theme}>
-        <div className={getScrollbarClassForTheme(theme)}>
-          {showWelcomeModal && (
-            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-          )}
-          <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
-          <ToastArea>
-            <div
-              className={cx(
-                homeContainerStyles,
-                theme.theme === Theme.Dark
-                  ? globalDarkThemeStyles
-                  : globalLightThemeStyles
-              )}
-              data-theme={theme.theme}
-            >
-              <Home {...props}></Home>
-            </div>
-          </ToastArea>
-        </div>
-      </ThemeProvider>
+    <LeafyGreenProvider
+      darkMode={darkMode}
+      popoverPortalContainer={{
+        portalContainer: scrollbarsContainerRef,
+      }}
+    >
+      <div
+        className={getScrollbarStyles(darkMode)}
+        ref={setScrollbarsContainerRef}
+      >
+        {showWelcomeModal && (
+          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+        )}
+        <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+        <ToastArea>
+          <div
+            className={cx(
+              homeContainerStyles,
+              darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+            )}
+            data-theme={theme.theme}
+          >
+            <Home {...props}></Home>
+          </div>
+        </ToastArea>
+      </div>
     </LeafyGreenProvider>
   );
 }

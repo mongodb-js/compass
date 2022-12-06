@@ -1,14 +1,12 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import mongodbns from 'mongodb-ns';
-import { StoreConnector } from 'hadron-react-components';
+import { StoreConnector, css } from '@mongodb-js/compass-components';
 
 // Components
 import { Toolbar } from '../toolbar/toolbar';
 import { RecentList } from '../recent';
 import { FavoriteList } from '../favorite';
-
-import { css } from '@mongodb-js/compass-components';
 
 const componentStyle = css({
   display: 'flex',

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StoreConnector } from 'hadron-react-components';
+import { StoreConnector } from '@mongodb-js/compass-components';
 import QueryHistory from './components/query-history';
 import PropTypes from 'prop-types';
 

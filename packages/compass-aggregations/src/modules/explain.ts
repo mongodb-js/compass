@@ -204,7 +204,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
       }
     } catch (e) {
       // Cancellation is handled in cancelExplain
-      if (!dataService.isOperationCancelledError(e as Error)) {
+      if (!dataService.isCancelError(e)) {
         dispatch({
           type: ActionTypes.ExplainFailed,
           error: (e as Error).message,

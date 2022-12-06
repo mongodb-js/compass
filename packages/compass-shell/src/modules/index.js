@@ -4,7 +4,7 @@ import runtime from './runtime';
 
 const reducer = combineReducers({
   appRegistry,
-  runtime
+  runtime,
 });
 
 export default reducer;

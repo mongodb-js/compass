@@ -7,8 +7,7 @@ import {
   palette,
   spacing,
   ItemActionControls,
-  useTheme,
-  Theme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -50,12 +49,12 @@ const titleLogo = css({
 });
 
 function TitleLogo() {
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
 
   return (
     <div className={titleLogo}>
       <MongoDBLogoMark
-        color={theme === Theme.Dark ? 'green-dark-2' : 'green-base'}
+        color={darkMode ? 'green-dark-2' : 'green-base'}
         height={32}
       />
     </div>
@@ -132,7 +131,7 @@ function SidebarTitle({
     return actions;
   }, [isFavorite]);
 
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
 
   const onClick = useCallback(() => {
     if (isExpanded) {
@@ -159,7 +158,7 @@ function SidebarTitle({
           data-testid="sidebar-title-actions"
           iconClassName={cx(
             iconButtonStyle,
-            theme === Theme.Dark ? iconButtonDark : iconButtonLight
+            darkMode ? iconButtonDark : iconButtonLight
           )}
         ></ItemActionControls>
       )}

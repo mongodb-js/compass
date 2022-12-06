@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react';
-import type { ItemAction } from '@mongodb-js/compass-components';
 import {
   Button,
   FavoriteIcon,
@@ -9,12 +8,11 @@ import {
   spacing,
   css,
   cx,
-  useTheme,
-  Theme,
-  withTheme,
+  useDarkMode,
   useHoverState,
   ItemActionControls,
 } from '@mongodb-js/compass-components';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 
 import Connection from './connection';
@@ -90,7 +88,9 @@ const connectionListStyles = css({
   padding: 0,
 });
 
-function UnthemedRecentIcon({ darkMode }: { darkMode?: boolean }) {
+function RecentIcon() {
+  const darkMode = useDarkMode();
+
   const color = darkMode ? 'white' : palette.gray.dark3;
 
   return (
@@ -114,8 +114,6 @@ function UnthemedRecentIcon({ darkMode }: { darkMode?: boolean }) {
     </svg>
   );
 }
-
-const RecentIcon = withTheme(UnthemedRecentIcon);
 
 export type ConnectionInfoFavorite = ConnectionInfo &
   Required<Pick<ConnectionInfo, 'favorite'>>;
@@ -158,10 +156,9 @@ function ConnectionList({
   removeConnection: (connectionInfo: ConnectionInfo) => void;
   openConnectionImportExportModal: (modal: FavoriteAction) => void;
 }): React.ReactElement {
+  const darkMode = useDarkMode();
   const [recentHoverProps, recentHeaderHover] = useHoverState();
   const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
-
-  const { theme } = useTheme();
 
   return (
     <Fragment>
@@ -170,7 +167,7 @@ function ConnectionList({
         <Button
           className={cx(
             newConnectionButtonStyles,
-            theme === Theme.Dark
+            darkMode
               ? newConnectionButtonStylesDark
               : newConnectionButtonStylesLight
           )}
@@ -194,7 +191,7 @@ function ConnectionList({
           <H3
             className={cx(
               sectionHeaderTitleStyles,
-              theme === Theme.Dark
+              darkMode
                 ? sectionHeaderTitleStylesDark
                 : sectionHeaderTitleStylesLight
             )}
@@ -246,7 +243,7 @@ function ConnectionList({
             data-testid="recents-header"
             className={cx(
               sectionHeaderTitleStyles,
-              theme === Theme.Dark
+              darkMode
                 ? sectionHeaderTitleStylesDark
                 : sectionHeaderTitleStylesLight
             )}

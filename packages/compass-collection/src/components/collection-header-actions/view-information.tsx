@@ -3,7 +3,7 @@ import {
   Subtitle,
   palette,
   cx,
-  withTheme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
@@ -24,14 +24,14 @@ const collectionHeaderActionsReadonlyDarkStyles = css({
 });
 
 type ViewInformationProps = {
-  darkMode?: boolean;
   sourceName: string;
 };
 
 const ViewInformation: React.FunctionComponent<ViewInformationProps> = ({
-  darkMode,
   sourceName,
 }: ViewInformationProps) => {
+  const darkMode = useDarkMode();
+
   return (
     <Subtitle
       data-testid="collection-view-on"
@@ -48,4 +48,4 @@ const ViewInformation: React.FunctionComponent<ViewInformationProps> = ({
   );
 };
 
-export default withTheme(ViewInformation);
+export default ViewInformation;

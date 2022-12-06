@@ -4,7 +4,6 @@ import classnames from 'classnames';
 import DeleteStage from './delete-stage';
 import AddAfterStage from './add-after-stage';
 import ToggleStage from './toggle-stage';
-import StageGrabber from './stage-grabber';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
 import { Tooltip, Body, Icon } from '@mongodb-js/compass-components';
@@ -63,7 +62,6 @@ export class StageEditorToolbar extends PureComponent {
       <div className={classnames(styles['stage-editor-toolbar'], {
         [styles['stage-editor-toolbar-errored']]: this.props.hasServerError
       })}>
-        <StageGrabber />
         <StageCollapser index={this.props.index} />
         <StageOperatorSelect index={this.props.index} />
         <ToggleStage index={this.props.index} />

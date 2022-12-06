@@ -1,4 +1,3 @@
-import util from 'util';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { isInternalFieldPath } from 'hadron-document';
 import type { DataService } from 'mongodb-data-service';
@@ -38,10 +37,9 @@ export async function loadFields(
     | undefined = {},
   driverOptions = {}
 ): Promise<Record<string, boolean>> {
-  const find = util.promisify(dataService.find.bind(dataService));
   sampleSize = sampleSize || DEFAULT_SAMPLE_SIZE;
 
-  const docs = await find(ns, filter || {}, {
+  const docs = await dataService.find(ns, filter || {}, {
     limit: sampleSize,
     ...driverOptions,
   });

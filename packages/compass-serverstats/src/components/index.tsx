@@ -3,13 +3,13 @@ import './index.less';
 import React, { useEffect, useRef } from 'react';
 import {
   Banner,
-  ThemeProvider,
+  LeafyGreenProvider,
   Theme,
   css,
   cx,
   spacing,
   palette,
-  useScrollbars
+  useScrollbars,
 } from '@mongodb-js/compass-components';
 
 import GraphsComponent from './server-stats-graphs-component';
@@ -103,14 +103,14 @@ function PerformanceComponent() {
   return (
     <section className="rt-perf">
       <ServerStatsToolbar eventDispatcher={eventDispatcher.current} />
-      <ThemeProvider theme={{
+      <LeafyGreenProvider theme={{
         theme: Theme.Dark,
         enabled: true
       }}>
         <PerformancePanel
           eventDispatcher={eventDispatcher.current}
         />
-      </ThemeProvider>
+      </LeafyGreenProvider>
     </section>
   );
 }

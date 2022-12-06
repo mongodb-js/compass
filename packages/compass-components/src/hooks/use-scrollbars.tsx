@@ -4,8 +4,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import React, { useMemo } from 'react';
 import isElectronRenderer from 'is-electron-renderer';
 
-import { Theme, useTheme } from './use-theme';
-import type { ThemeState } from './use-theme';
+import { useDarkMode } from './use-theme';
 
 const scrollbarSize = 10;
 
@@ -81,25 +80,19 @@ const scrollbarDarkModeStyles = css(
   scrollbarStyles
 );
 
-export function getScrollbarClassForTheme(theme: ThemeState) {
-  if (!theme.enabled) {
-    return scrollbarLightModeStyles;
-  }
-
-  return theme.theme === Theme.Dark
-    ? scrollbarDarkModeStyles
-    : scrollbarLightModeStyles;
+export function getScrollbarStyles(darkMode: boolean) {
+  return darkMode ? scrollbarDarkModeStyles : scrollbarLightModeStyles;
 }
 
 /**
  * Provide styles for overflowing content scrollbars.
- * It takes the theme from the theme context (closest ThemeProvider).
+ * It takes the theme from the theme context (closest LeafyGreenProvider).
  *
  * We customize scrollbars so that they look similar on all devices.
  * Without custom scrollbars, windows looks a bit wild.
  **/
 export function useScrollbars() {
-  const theme = useTheme();
+  const darkMode = useDarkMode();
 
   const scrollbarStylesClass = useMemo(() => {
     if (!isElectronRenderer) {
@@ -108,8 +101,8 @@ export function useScrollbars() {
       return undefined;
     }
 
-    return getScrollbarClassForTheme(theme);
-  }, [theme]);
+    return getScrollbarStyles(!!darkMode);
+  }, [darkMode]);
 
   return {
     className: scrollbarStylesClass,
