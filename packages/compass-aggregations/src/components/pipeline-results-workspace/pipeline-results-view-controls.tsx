@@ -18,6 +18,12 @@ const containerStyles = css({
   flex: 'none',
 });
 
+const segmentedControlOptionStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+});
+
 const PipelineResultsViewControls: React.FunctionComponent<{
   value: ResultsViewType;
   onChange(viewType: ResultsViewType): void;
@@ -45,10 +51,14 @@ const PipelineResultsViewControls: React.FunctionComponent<{
         onChange={onChange as (newValue: string) => void}
       >
         <SegmentedControlOption aria-label="Document list" value="document">
-          <Icon size="small" glyph="Menu"></Icon>
+          <div className={segmentedControlOptionStyles}>
+            <Icon size="small" glyph="Menu"></Icon>
+          </div>
         </SegmentedControlOption>
         <SegmentedControlOption aria-label="JSON list" value="json">
-          <Icon size="small" glyph="CurlyBraces"></Icon>
+          <div className={segmentedControlOptionStyles}>
+            <Icon size="small" glyph="CurlyBraces"></Icon>
+          </div>
         </SegmentedControlOption>
       </SegmentedControl>
     </div>

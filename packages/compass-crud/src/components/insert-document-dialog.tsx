@@ -40,6 +40,12 @@ const bannerStyles = css({
   marginTop: spacing[3],
 });
 
+const segmentedControlOptionStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+});
+
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   closeInsertDocumentDialog: () => void;
   toggleInsertDocumentView: (view: 'JSON' | 'List') => void;
@@ -293,7 +299,9 @@ class InsertDocumentDialog extends React.PureComponent<
                 evt.preventDefault();
               }}
             >
-              <Icon glyph="CurlyBraces" />
+              <div className={segmentedControlOptionStyles}>
+                <Icon glyph="CurlyBraces" />
+              </div>
             </SegmentedControlOption>
             <SegmentedControlOption
               disabled={this.hasErrors()}
@@ -306,7 +314,9 @@ class InsertDocumentDialog extends React.PureComponent<
                 evt.preventDefault();
               }}
             >
-              <Icon glyph="Menu" />
+              <div className={segmentedControlOptionStyles}>
+                <Icon glyph="Menu" />
+              </div>
             </SegmentedControlOption>
           </SegmentedControl>
         </div>

@@ -35,6 +35,12 @@ const toggleLabelStyles = css({
   textTransform: 'uppercase',
 });
 
+const segmentedControlOptionStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+});
+
 type PipelineExtraSettingsProps = {
   isAutoPreview: boolean;
   isPipelineModeDisabled: boolean;
@@ -93,16 +99,20 @@ export const PipelineExtraSettings: React.FunctionComponent<
             data-testid="pipeline-builder-toggle-builder-ui"
             value="builder-ui"
           >
+            <div className={segmentedControlOptionStyles}>
             <Icon size="small" glyph="CurlyBraces"></Icon>
             Stages
+            </div>
           </SegmentedControlOption>
           <SegmentedControlOption
             disabled={isPipelineModeDisabled}
             data-testid="pipeline-builder-toggle-as-text"
             value="as-text"
           >
+            <div className={segmentedControlOptionStyles}>
             <Icon size="small" glyph="Code"></Icon>
             Text
+            </div>
           </SegmentedControlOption>
         </SegmentedControl>
       )}

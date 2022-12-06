@@ -46,6 +46,12 @@ const label = css({
   padding: '0 !important',
 });
 
+const segmentedControlOptionStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+});
+
 export function useViewTypeControls({
   defaultViewType = 'list',
   onChange = () => {
@@ -83,10 +89,14 @@ export function useViewTypeControls({
           onChange={onViewTypeChange as (newValue: string) => void}
         >
           <SegmentedControlOption value="list">
-            <Icon glyph="Menu"></Icon>
+            <div className={segmentedControlOptionStyles}>
+              <Icon glyph="Menu"></Icon>
+            </div>
           </SegmentedControlOption>
           <SegmentedControlOption value="grid">
-            <Icon glyph="Apps"></Icon>
+            <div className={segmentedControlOptionStyles}>
+              <Icon glyph="Apps"></Icon>
+            </div>
           </SegmentedControlOption>
         </SegmentedControl>
       </div>

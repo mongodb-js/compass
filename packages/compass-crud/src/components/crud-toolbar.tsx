@@ -56,6 +56,12 @@ const exportCollectionButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const segmentedControlOptionStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[1],
+});
+
 const OUTDATED_WARNING = `The content is outdated and no longer in sync
 with the current query. Press "Find" again to see the results for
 the current query.`;
@@ -245,21 +251,27 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               aria-label="Document list"
               value="List"
             >
-              <Icon glyph="Menu" />
+              <div className={segmentedControlOptionStyles}>
+                <Icon glyph="Menu" />
+              </div>
             </SegmentedControlOption>
             <SegmentedControlOption
               data-testid="toolbar-view-json"
               aria-label="E-JSON View"
               value="JSON"
             >
-              <Icon glyph="CurlyBraces" />
+              <div className={segmentedControlOptionStyles}>
+                <Icon glyph="CurlyBraces" />
+              </div>
             </SegmentedControlOption>
             <SegmentedControlOption
               data-testid="toolbar-view-table"
               aria-label="Table View"
               value="Table"
             >
-              <Icon glyph="Table" />
+              <div className={segmentedControlOptionStyles}>
+                <Icon glyph="Table" />
+              </div>
             </SegmentedControlOption>
           </SegmentedControl>
         </div>

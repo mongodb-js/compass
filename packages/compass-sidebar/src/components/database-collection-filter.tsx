@@ -38,7 +38,6 @@ export default function DatabaseCollectionFilter({
         data-testid="sidebar-filter-input"
         placeholder="Search"
         type="search"
-        label={null}
         aria-label="Databases and collections filter"
         title="Databases and collections filter"
         onChange={onChange}
