@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { StoreConnector } from 'hadron-react-components';
+import { StoreConnector } from '@mongodb-js/compass-components';
 import { expect } from 'chai';
 import AppRegistry from 'hadron-app-registry';
 
