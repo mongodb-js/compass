@@ -206,6 +206,8 @@ const Icon = ({
   return <LeafyGreenIcon size={size} {...rest} />;
 };
 
+Icon.isGlyph = true;
+
 // 3. Export the leafygreen components.
 export {
   AtlasNavGraphic,

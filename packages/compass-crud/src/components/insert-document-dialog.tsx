@@ -40,12 +40,6 @@ const bannerStyles = css({
   marginTop: spacing[3],
 });
 
-const segmentedControlOptionStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  gap: spacing[1],
-});
-
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   closeInsertDocumentDialog: () => void;
   toggleInsertDocumentView: (view: 'JSON' | 'List') => void;
@@ -293,16 +287,13 @@ class InsertDocumentDialog extends React.PureComponent<
               data-testid="insert-document-dialog-view-json"
               aria-label="E-JSON View"
               value="JSON"
+              glyph={<Icon glyph="CurlyBraces" />}
               onClick={(evt) => {
                 // We override the `onClick` functionality to prevent form submission.
                 // The value changing occurs in the `onChange` in the `SegmentedControl`.
                 evt.preventDefault();
               }}
-            >
-              <div className={segmentedControlOptionStyles}>
-                <Icon glyph="CurlyBraces" />
-              </div>
-            </SegmentedControlOption>
+            ></SegmentedControlOption>
             <SegmentedControlOption
               disabled={this.hasErrors()}
               data-testid="insert-document-dialog-view-list"
@@ -313,11 +304,8 @@ class InsertDocumentDialog extends React.PureComponent<
                 // The value changing occurs in the `onChange` in the `SegmentedControl`.
                 evt.preventDefault();
               }}
-            >
-              <div className={segmentedControlOptionStyles}>
-                <Icon glyph="Menu" />
-              </div>
-            </SegmentedControlOption>
+              glyph={<Icon glyph="Menu" />}
+            ></SegmentedControlOption>
           </SegmentedControl>
         </div>
         <div className={documentViewContainer} id={documentViewId}>
