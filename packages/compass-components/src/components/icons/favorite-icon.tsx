@@ -1,22 +1,22 @@
 import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
-import { withTheme } from '../../hooks/use-theme';
 
-function UnthemedFavoriteIcon({
+import { useDarkMode } from '../../hooks/use-theme';
+
+function FavoriteIcon({
   // When it's a favorite, the star is filled in with gold.
   isFavorite = false,
   favoriteColor = palette.yellow.base,
-  darkMode = false,
   showCircle = true,
   size = spacing[4],
 }: {
   isFavorite?: boolean;
   favoriteColor?: string;
-  darkMode?: boolean;
   showCircle?: boolean;
   size?: number;
 }): React.ReactElement {
+  const darkMode = useDarkMode();
   const stroke = darkMode ? palette.white : palette.black;
 
   return (
@@ -44,7 +44,5 @@ function UnthemedFavoriteIcon({
     </svg>
   );
 }
-
-const FavoriteIcon = withTheme(UnthemedFavoriteIcon);
 
 export { FavoriteIcon };

@@ -2,7 +2,8 @@ import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
-import { withTheme } from '../hooks/use-theme';
+
+import { useDarkMode } from '../hooks/use-theme';
 import { Tabs, Tab } from './leafygreen';
 
 const containerStyles = css({
@@ -41,7 +42,6 @@ type TabNavBarProps = {
   'aria-label': string;
   activeTabIndex: number;
   mountAllViews?: boolean;
-  darkMode?: boolean;
   tabs: string[];
   views: JSX.Element[];
   onTabClicked: (tabIndex: number) => void;
@@ -52,16 +52,17 @@ type TabNavBarProps = {
  * a container that scrolls when it overflows, while keeping
  * the tabs in the same location.
  */
-function UnthemedTabNavBar({
+function TabNavBar({
   'data-testid': dataTestId,
   'aria-label': ariaLabel,
   activeTabIndex,
-  darkMode,
   mountAllViews,
   tabs,
   views,
   onTabClicked,
 }: TabNavBarProps): JSX.Element {
+  const darkMode = useDarkMode();
+
   return (
     <div className={containerStyles}>
       <div
@@ -110,7 +111,5 @@ function UnthemedTabNavBar({
     </div>
   );
 }
-
-const TabNavBar = withTheme(UnthemedTabNavBar);
 
 export { TabNavBar };

@@ -4,7 +4,7 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import type { glyphs } from '@leafygreen-ui/icon';
 
-import { withTheme } from '../../hooks/use-theme';
+import { useDarkMode } from '../../hooks/use-theme';
 import {
   FocusState,
   useFocusState,
@@ -193,7 +193,6 @@ type IconGlyph = Extract<keyof typeof glyphs, string>;
 
 type TabProps = {
   title: string;
-  darkMode?: boolean;
   isSelected: boolean;
   onSelect: () => void;
   onClose: () => void;
@@ -202,8 +201,7 @@ type TabProps = {
   subtitle: string;
 };
 
-function UnthemedTab({
-  darkMode,
+function Tab({
   title,
   isSelected,
   onSelect,
@@ -212,6 +210,8 @@ function UnthemedTab({
   iconGlyph,
   subtitle,
 }: TabProps) {
+  const darkMode = useDarkMode();
+
   const [focusProps, focusState] = useFocusState();
 
   const isFocused = useMemo(
@@ -315,7 +315,5 @@ function UnthemedTab({
     </div>
   );
 }
-
-const Tab = withTheme(UnthemedTab);
 
 export { Tab };

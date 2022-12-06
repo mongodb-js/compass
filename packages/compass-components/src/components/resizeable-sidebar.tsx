@@ -3,7 +3,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { Theme, useTheme } from '../hooks/use-theme';
+import { useDarkMode } from '../hooks/use-theme';
 import { ResizeDirection, ResizeHandle } from './resize-handle';
 
 const containerStyles = css({
@@ -74,6 +74,7 @@ const ResizableSidebar = ({
   collapsedWidth?: number;
   children: JSX.Element;
 }): JSX.Element => {
+  const darkMode = useDarkMode();
   const [width, setWidth] = useState(initialWidth);
   const [prevWidth, setPrevWidth] = useState(initialWidth);
 
@@ -119,13 +120,11 @@ const ResizableSidebar = ({
     }
   }, [setWidth, prevWidth, expanded, width, collapsedWidth]);
 
-  const { theme } = useTheme();
-
   return (
     <div
       className={cx(
         containerStyles,
-        theme === Theme.Dark ? containerStylesDark : containerStylesLight
+        darkMode ? containerStylesDark : containerStylesLight
       )}
       style={{
         minWidth: collapsable ? collapsedWidth : minWidth,

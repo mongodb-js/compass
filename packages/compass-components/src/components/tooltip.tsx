@@ -4,7 +4,6 @@ import { useTooltipTrigger } from '@react-aria/tooltip';
 import React, { useCallback, useRef } from 'react';
 import LeafyGreenTooltip from '@leafygreen-ui/tooltip';
 import { mergeProps } from '../utils/merge-props';
-import { Theme, ThemeProvider, useTheme } from '../hooks/use-theme';
 
 /**
  * @see {@link https://react-spectrum.adobe.com/react-aria/useTooltipTrigger.html}
@@ -30,8 +29,6 @@ const Tooltip: React.FunctionComponent<
       trigger: TooltipTrigger;
     }
 > = ({ isDisabled, triggerOn, delay, trigger, children, ...rest }) => {
-  const theme = useTheme();
-
   const ref = useRef<HTMLDivElement | null>(null);
   const tooltipState = useTooltipTriggerState({
     isDisabled,
@@ -56,7 +53,6 @@ const Tooltip: React.FunctionComponent<
 
   return (
     <LeafyGreenTooltip
-      darkMode={theme.theme === Theme.Dark}
       open={!isDisabled && tooltipState.isOpen}
       setOpen={setOpen}
       trigger={({ children, className }: React.HTMLProps<HTMLElement>) => {
@@ -65,15 +61,7 @@ const Tooltip: React.FunctionComponent<
       {...rest}
       {...tooltipProps}
     >
-      <ThemeProvider
-        theme={{
-          enabled: true,
-          // invert the theme for components inside the tooltip
-          theme: theme.theme === Theme.Dark ? Theme.Light : Theme.Dark,
-        }}
-      >
-        {children}
-      </ThemeProvider>
+      {children}
     </LeafyGreenTooltip>
   );
 };

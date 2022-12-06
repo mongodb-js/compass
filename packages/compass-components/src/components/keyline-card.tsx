@@ -2,7 +2,7 @@ import React from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
-import { withTheme } from '../hooks/use-theme';
+import { useDarkMode } from '../hooks/use-theme';
 
 const keylineStyles = css({
   border: `1px solid ${palette.gray.light2}`,
@@ -17,15 +17,12 @@ const keylineDarkThemeStyles = css({
   borderColor: palette.gray.dark2,
 });
 
-interface KeylineProps extends React.HTMLProps<HTMLDivElement> {
-  darkMode?: boolean;
-}
-
-function UnthemedKeyline({
-  darkMode,
+function KeylineCard({
   className,
   ...props
-}: React.PropsWithChildren<KeylineProps>): React.ReactElement {
+}: React.HTMLProps<HTMLDivElement>): React.ReactElement {
+  const darkMode = useDarkMode();
+
   return (
     <div
       className={cx(
@@ -37,7 +34,5 @@ function UnthemedKeyline({
     ></div>
   );
 }
-
-const KeylineCard = withTheme(UnthemedKeyline);
 
 export { KeylineCard };

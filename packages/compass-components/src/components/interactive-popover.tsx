@@ -6,7 +6,7 @@ import { Icon, IconButton, Popover } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
 import { rgba } from 'polished';
-import { useTheme, Theme } from '../hooks/use-theme';
+import { useDarkMode } from '../hooks/use-theme';
 import { useId } from '@react-aria/utils';
 
 const borderRadius = spacing[2];
@@ -65,7 +65,7 @@ function InteractivePopover({
   setOpen,
   containedElements = [],
 }: InteractivePopoverProps): React.ReactElement {
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const popoverContentContainerRef = useRef<HTMLDivElement>(null);
@@ -179,7 +179,7 @@ function InteractivePopover({
             <div
               className={cx(
                 contentContainerStyles,
-                theme === Theme.Dark
+                darkMode
                   ? contentContainerStylesDark
                   : contentContainerStylesLight
               )}
