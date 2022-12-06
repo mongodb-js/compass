@@ -7,6 +7,11 @@ const debug = require('debug')('mongodb-aggregations:modules:input-document');
 const PREFIX = 'aggregations/input-documents';
 
 /**
+ * Input collapsed action name.
+ */
+export const TOGGLE_INPUT_COLLAPSED = `${PREFIX}/TOGGLE_INPUT_COLLAPSED`;
+
+/**
  * The update input documents action.
  */
 export const UPDATE_INPUT_DOCUMENTS = `${PREFIX}/UPDATE_INPUT_DOCUMENTS`;
@@ -23,6 +28,7 @@ export const INITIAL_STATE = {
   count: null,
   documents: [],
   error: null,
+  isExpanded: true,
   isLoading: false
 };
 
@@ -35,7 +41,9 @@ export const INITIAL_STATE = {
  * @returns {any} The new state.
  */
 const reducer = (state = INITIAL_STATE, action) => {
-  if (action.type === LOADING_INPUT_DOCUMENTS) {
+  if (action.type === TOGGLE_INPUT_COLLAPSED) {
+    return { ...state, isExpanded: !state.isExpanded };
+  } else if (action.type === LOADING_INPUT_DOCUMENTS) {
     return { ...state, isLoading: true };
   } else if (action.type === UPDATE_INPUT_DOCUMENTS) {
     return {
@@ -50,6 +58,15 @@ const reducer = (state = INITIAL_STATE, action) => {
 };
 
 export default reducer;
+
+/**
+ * Action creator for namespace changed events.
+ *
+ * @returns {Object} The namespace changed action.
+ */
+export const toggleInputDocumentsCollapsed = () => ({
+  type: TOGGLE_INPUT_COLLAPSED
+});
 
 /**
  * Update the input documents.

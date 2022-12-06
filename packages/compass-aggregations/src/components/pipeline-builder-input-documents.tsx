@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import type { Document as DocumentType } from 'mongodb';
 
 import { KeylineCard, css, cx, spacing, palette, useDarkMode, Body, IconButton, Icon } from "@mongodb-js/compass-components";
 import { Document } from '@mongodb-js/compass-crud';
 
-import { refreshInputDocuments } from '../modules/input-documents';
+import { refreshInputDocuments, toggleInputDocumentsCollapsed } from '../modules/input-documents';
 import LoadingOverlay from './loading-overlay';
 
 const cardStyles = css({
@@ -57,18 +57,25 @@ const documentContainerStyles = css({
 
 type InputProps = {
   documents: DocumentType[],
+  isExpanded: boolean,
   isLoading: boolean,
   count: number,
+  toggleInputDocumentsCollapsed: (arg0: boolean) => void,
   refreshInputDocuments: () => void
 };
 
-function PipelineBuilderInputDocuments({ documents, isLoading, count, refreshInputDocuments }: InputProps) {
+function PipelineBuilderInputDocuments({
+  documents,
+  isExpanded,
+  isLoading,
+  count,
+  toggleInputDocumentsCollapsed,
+  refreshInputDocuments
+}: InputProps) {
   const darkMode = useDarkMode();
 
-  const [isExpanded, setExpanded] = useState(true);
-
   const toggleExpanded = () => {
-    setExpanded(!isExpanded);
+    toggleInputDocumentsCollapsed(!isExpanded);
   };
 
   return (<KeylineCard className={cardStyles}>
@@ -102,6 +109,7 @@ function PipelineBuilderInputDocuments({ documents, isLoading, count, refreshInp
 
 type InputDocuments = {
   documents: DocumentType[],
+  isExpanded: boolean,
   isLoading: boolean,
   count: number
 };
@@ -110,11 +118,13 @@ export default connect(
   ({ inputDocuments }: { inputDocuments: InputDocuments}) => {
     return {
       documents: inputDocuments.documents,
+      isExpanded: inputDocuments.isExpanded,
       isLoading: inputDocuments.isLoading,
       count: inputDocuments.count
     };
   },
   {
+    toggleInputDocumentsCollapsed: toggleInputDocumentsCollapsed,
     refreshInputDocuments: refreshInputDocuments
   }
 )(PipelineBuilderInputDocuments);

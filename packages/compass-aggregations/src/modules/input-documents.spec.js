@@ -1,12 +1,22 @@
 import reducer, {
+  toggleInputDocumentsCollapsed,
   updateInputDocuments,
   loadingInputDocuments,
+  TOGGLE_INPUT_COLLAPSED,
   UPDATE_INPUT_DOCUMENTS,
   LOADING_INPUT_DOCUMENTS
 } from './input-documents';
 import { expect } from 'chai';
 
 describe('input documents module', function() {
+  describe('#toggleInputDocumentsCollapsed', function() {
+    it('returns the TOGGLE_INPUT_COLLAPSED action', function() {
+      expect(toggleInputDocumentsCollapsed()).to.deep.equal({
+        type: TOGGLE_INPUT_COLLAPSED
+      });
+    });
+  });
+
   describe('#loadingInputDocuments', function() {
     it('returns the LOADING_INPUT_DOCUMENTS action', function() {
       expect(loadingInputDocuments()).to.deep.equal({
@@ -16,7 +26,7 @@ describe('input documents module', function() {
   });
 
   describe('#updateInputDocuments', function() {
-    it('returns the UPDATE_INPUT_DOCUMENTS action', function() {
+    it('returns the TOGGLE_INPUT_COLLAPSED action', function() {
       expect(updateInputDocuments(10, [], null)).to.deep.equal({
         type: UPDATE_INPUT_DOCUMENTS,
         count: 10,
@@ -62,6 +72,19 @@ describe('input documents module', function() {
         expect(reducer(undefined, { type: 'test' })).to.deep.equal({
           documents: [],
           error: null,
+          isExpanded: true,
+          count: null,
+          isLoading: false
+        });
+      });
+    });
+
+    context('when the action is toggle input documents collapsed', function() {
+      it('returns the new state', function() {
+        expect(reducer(undefined, toggleInputDocumentsCollapsed())).to.deep.equal({
+          documents: [],
+          error: null,
+          isExpanded: false,
           count: null,
           isLoading: false
         });
