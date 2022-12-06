@@ -66,11 +66,9 @@ const BEM_BASE = 'table-view-cell-editor';
  */
 const VALUE_CLASS = 'editable-element-value';
 
-const textInputSizeHackStyle = css({
+const textInputStyle = css({
   width: spacing[6] * 2,
-  '& input': {
-    height: 22,
-  },
+  marginRight: spacing[1],
 });
 
 const actionsStyle = css({
@@ -428,10 +426,8 @@ class CellEditor
     if (this.newField && this.element?.currentKey === '$new') {
       return (
         <TextInput
-          className={cx(
-            textInputSizeHackStyle,
-            css({ marginRight: spacing[1] })
-          )}
+          className={textInputStyle}
+          sizeVariant="xsmall"
           data-testid="table-view-cell-editor-fieldname-input"
           value={this.state.fieldName}
           placeholder="Field Name"
@@ -481,14 +477,14 @@ class CellEditor
       <div>
         <span className={this.wrapperStyle()}>
           <TextInput
-            className={textInputSizeHackStyle}
+            className={textInputStyle}
             data-testid="table-view-cell-editor-value-input"
-            // @ts-expect-error TODO: size="small" is not an acceptable size
-            size="xsmall"
+            sizeVariant="xsmall"
             onChange={this.handleInputChange.bind(this)}
             onPaste={this.handlePaste.bind(this)}
             value={this.editor().value()}
             placeholder="Value"
+            aria-labelledby=""
           ></TextInput>
         </span>
       </div>

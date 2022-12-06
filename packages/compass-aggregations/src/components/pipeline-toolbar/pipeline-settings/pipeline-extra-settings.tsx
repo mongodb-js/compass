@@ -92,16 +92,16 @@ export const PipelineExtraSettings: React.FunctionComponent<
             disabled={isPipelineModeDisabled}
             data-testid="pipeline-builder-toggle-builder-ui"
             value="builder-ui"
+            glyph={<Icon glyph="CurlyBraces"></Icon>}
           >
-            <Icon size="small" glyph="CurlyBraces"></Icon>
             Stages
           </SegmentedControlOption>
           <SegmentedControlOption
             disabled={isPipelineModeDisabled}
             data-testid="pipeline-builder-toggle-as-text"
             value="as-text"
+            glyph={<Icon glyph="Code"></Icon>}
           >
-            <Icon size="small" glyph="Code"></Icon>
             Text
           </SegmentedControlOption>
         </SegmentedControl>
