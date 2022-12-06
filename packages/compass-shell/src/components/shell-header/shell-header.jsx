@@ -78,7 +78,10 @@ const operationInProgressStyles = css({
 });
 
 const inProgressSpinLoaderStyles = css({
-  borderTopColor: `palette.green.light2`,
+  '& div': {
+    borderTopColor: palette.green.light2,
+  },
+  display: 'inline',
 });
 
 export class ShellHeader extends Component {
@@ -133,10 +136,9 @@ export class ShellHeader extends Component {
             &gt;_MONGOSH
             {!isExpanded && isOperationInProgress && (
               <span className={operationInProgressStyles}>
-                <SpinLoader
-                  size="12px"
-                  className={inProgressSpinLoaderStyles}
-                />
+                <div className={inProgressSpinLoaderStyles}>
+                  <SpinLoader size="12px" />
+                </div>
                 &nbsp;Command in progress&hellip;
               </span>
             )}
