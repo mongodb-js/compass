@@ -5,12 +5,10 @@ import {
   spacing,
   palette,
   keyframes,
+  SpinLoader,
 } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
-// The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
-const { ShellLoader } = require('@mongosh/browser-repl');
 
 const shellHeaderStyles = css({
   height: spacing[5],
@@ -79,6 +77,10 @@ const operationInProgressStyles = css({
   marginLeft: spacing[2],
 });
 
+const inProgressSpinLoaderStyles = css({
+  borderTopColor: `palette.green.light2`,
+});
+
 export class ShellHeader extends Component {
   static propTypes = {
     isExpanded: PropTypes.bool.isRequired,
@@ -131,7 +133,10 @@ export class ShellHeader extends Component {
             &gt;_MONGOSH
             {!isExpanded && isOperationInProgress && (
               <span className={operationInProgressStyles}>
-                <ShellLoader size="12px" />
+                <SpinLoader
+                  size="12px"
+                  className={inProgressSpinLoaderStyles}
+                />
                 &nbsp;Command in progress&hellip;
               </span>
             )}
