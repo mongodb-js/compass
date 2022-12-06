@@ -19,8 +19,7 @@ import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
 import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
 import IconButton from '@leafygreen-ui/icon-button';
 import {
-  AtlasLogo,
-  AtlasLogoMark,
+  AtlasNavGraphic,
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
@@ -80,10 +79,11 @@ const Icon = ({
   return <LeafyGreenIcon size={size} {...rest} />;
 };
 
+Icon.isGlyph = true;
+
 // 3. Export the leafygreen components.
 export {
-  AtlasLogo,
-  AtlasLogoMark,
+  AtlasNavGraphic,
   Badge,
   Banner,
   Button,
