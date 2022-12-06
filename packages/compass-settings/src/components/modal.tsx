@@ -67,7 +67,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   ];
 
   if (useShouldShowFeatureFlagsSettings()) {
-    settings.push({ name: 'Experimental', component: FeatureFlagSettings });
+    settings.push({ name: 'Feature Preview', component: FeatureFlagSettings });
   }
 
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
