@@ -1,10 +1,41 @@
-import React, { PureComponent } from 'react';
-import { Link, Tooltip, cx } from '@mongodb-js/compass-components';
+import React from 'react';
 import { connect } from 'react-redux';
+
+import { Body, Link, Tooltip, css, cx, useDarkMode, palette } from '@mongodb-js/compass-components';
+
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
 
-import styles from './stage-preview-toolbar.module.less';
+const toolbarStyles = css({
+  width: '100%',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+
+  height: '30px',
+  padding: '10px 0',
+  paddingLeft: '25px',
+
+  display: 'flex',
+  alignItems: 'center',
+  borderBottomWidth: '1px',
+  borderBottomStyle: 'solid',
+  // @palette__gray--light-2;
+  //borderRadius: 4px 4px 0 0;
+});
+
+
+const toolbarStylesDark = css({
+  borderBottomColor: palette.gray.dark2
+});
+
+const toolbarStylesLight = css({
+  borderBottomColor: palette.gray.light2
+});
+
+const toolbarErrorStyles = css({
+  backgroundColor: palette.red.light3
+});
 
 const OperatorLink: React.FunctionComponent<{
   stageOperator: string;
@@ -21,7 +52,6 @@ const OperatorLink: React.FunctionComponent<{
             <Link
               {...props}
               target="_blank"
-              className={styles['stage-preview-toolbar-link']}
               href={link}
             >
               {children}
@@ -38,12 +68,12 @@ const OperatorLink: React.FunctionComponent<{
 
 const DefaultPreviewText: React.FunctionComponent<{
   stageOperator: string;
-  previewSize: number;
+  previewSize?: number;
   description?: string;
   link?: string;
 }> = ({ stageOperator, previewSize, description, link }) => {
   return (
-    <div>
+    <Body>
       <span>
         Output after{' '}
         <OperatorLink
@@ -56,60 +86,59 @@ const DefaultPreviewText: React.FunctionComponent<{
       <span data-testid="stage-preview-toolbar-tooltip">
         (Sample of {previewSize} {previewSize !== 1 ? 'documents' : 'document'})
       </span>
-    </div>
+    </Body>
   );
 };
 
 /**
  * The stage preview toolbar component.
  */
-export class StagePreviewToolbar extends PureComponent<{
+
+type StagePreviewToolbarProps = {
   stageOperator?: string;
   hasServerError?: boolean;
   isEnabled?: boolean;
-  previewSize: number;
+  previewSize?: number;
   description?: string;
   link?: string;
   destination?: string;
-}> {
-  render() {
-    const {
-      stageOperator,
-      hasServerError,
-      isEnabled,
-      previewSize,
-      description,
-      link,
-      destination
-    } = this.props;
+};
 
-    return (
-      <div
-        className={cx(styles['stage-preview-toolbar'], {
-          [styles['stage-preview-toolbar-errored']]: hasServerError
-        })}
-      >
-        {isEnabled ? (
-          stageOperator ? (
-            destination ? (
-              `Documents will be saved to ${destination}.`
-            ) : (
-              <DefaultPreviewText
-                stageOperator={stageOperator}
-                previewSize={previewSize}
-                description={description}
-                link={link}
-              ></DefaultPreviewText>
-            )
+function StagePreviewToolbar({
+  stageOperator,
+  hasServerError,
+  isEnabled,
+  previewSize,
+  description,
+  link,
+  destination
+}: StagePreviewToolbarProps) {
+  const darkMode = useDarkMode();
+
+  return (
+    <Body
+      className={cx(toolbarStyles, darkMode ? toolbarStylesDark : toolbarStylesLight, hasServerError && toolbarErrorStyles)}
+    >
+      {isEnabled ? (
+        stageOperator ? (
+          destination ? (
+            `Documents will be saved to ${destination}.`
           ) : (
-            'A sample of the aggregated results from this stage will be shown below.'
+            <DefaultPreviewText
+              stageOperator={stageOperator}
+              previewSize={previewSize}
+              description={description}
+              link={link}
+            ></DefaultPreviewText>
           )
         ) : (
-          'Stage is disabled. Results not passed in the pipeline.'
-        )}
-      </div>
-    );
-  }
+          'A sample of the aggregated results from this stage will be shown below.'
+        )
+      ) : (
+        'Stage is disabled. Results not passed in the pipeline.'
+      )}
+    </Body>
+  );
 }
 
 export default connect((state: RootState, ownProps: { index: number }) => {

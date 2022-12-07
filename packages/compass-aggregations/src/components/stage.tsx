@@ -1,10 +1,11 @@
 import React from 'react';
-import type { MongoServerError } from 'mongodb';
 import { connect } from 'react-redux';
 import { sortableHandle } from 'react-sortable-hoc';
 import { Resizable } from 're-resizable';
 
 import { KeylineCard, css, cx, spacing, palette } from '@mongodb-js/compass-components';
+
+import type { RootState } from '../modules';
 
 import ResizeHandle from './resize-handle';
 import StageEditorToolbar from './stage-editor-toolbar';
@@ -92,7 +93,6 @@ function ResizableEditor({ index, isExpanded, isAutoPreviewing }: ResizableEdito
 
 const DEFAULT_OPACITY = 0.6;
 
-
 type StageProps = {
   index: number,
   isEnabled: boolean,
@@ -110,11 +110,10 @@ function Stage({
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
 
-  // TODO: clean up previewSize once stage preview toolbar is typed
   return (<KeylineCard className={cx(stageStyles, hasServerError && stageErrorStyles)} style={{ opacity }}>
     <ResizableEditor index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
     {isAutoPreviewing && (<div className={stagePreviewContainerStyles}>
-      <StagePreviewToolbar index={index} previewSize={0} />
+      <StagePreviewToolbar index={index} />
       {isExpanded && (
         <StagePreview index={index} />
       )}
@@ -122,24 +121,12 @@ function Stage({
   </KeylineCard>);
 }
 
-type StageState = {
-  pipelineBuilder: {
-    stageEditor: {
-      stages: {
-        disabled: boolean,
-        collapsed: boolean,
-        serverError: MongoServerError | null,
-      }[]
-    }
-  },
-  autoPreview: boolean
-};
 
 type StageOwnProps = {
   index: number
 };
 
-export default connect((state: StageState, ownProps: StageOwnProps) => {
+export default connect((state: RootState, ownProps: StageOwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index]
   return {
     isEnabled: !stage.disabled,
