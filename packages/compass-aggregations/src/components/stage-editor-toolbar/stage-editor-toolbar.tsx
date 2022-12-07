@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 
 import { Tooltip, Body, Icon, css, cx, spacing, palette, useDarkMode, injectGlobal } from '@mongodb-js/compass-components';
 
@@ -58,10 +57,6 @@ function StageEditorOutMergeTooltip({ stageOperator }: StageEditorOutMergeToolti
   }
   return null;
 }
-
-StageEditorOutMergeTooltip.propTypes = {
-  stageOperator: PropTypes.string.isRequired
-};
 
 const toolbarStyles = css({
   width: '100%',

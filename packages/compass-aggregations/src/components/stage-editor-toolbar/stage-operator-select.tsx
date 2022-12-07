@@ -1,13 +1,16 @@
+import _ from 'lodash';
 import React, { useCallback, useMemo } from 'react';
-import PropTypes from 'prop-types';
+import { usePreference } from 'compass-preferences-model';
 import { connect } from 'react-redux';
-import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
-import { filterStageOperators } from '../../utils/stage';
 
 import { Combobox, ComboboxOption, css, cx, spacing } from '@mongodb-js/compass-components';
+
+import type { RootState } from '../../modules';
+import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
+
+import { filterStageOperators } from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
-import _ from 'lodash';
-import { usePreference } from 'compass-preferences-model';
+
 
 const inputWidth = spacing[7] * 2;
 const descriptionWidth = spacing[5] * 14;
@@ -22,7 +25,7 @@ const comboboxStyles = css({
   }
 });
 
-function comboboxOptionStyles(stage) {
+function comboboxOptionStyles(stage: { env: string, description: string}) {
   return css({
     '&::after': {
       content: JSON.stringify(
@@ -40,13 +43,24 @@ const portalStyles = css({
   },
 });
 
+type StageOperatorSelectProps = {
+  onChange: (index: number, name: string|null) => void,
+  index: number,
+  selectedStage: string | null,
+  stages: {
+      name: string,
+      env: string,
+      description: string
+  }[]
+};
+
 const StageOperatorSelect = ({
   onChange,
   index,
   selectedStage,
   stages
-}) => {
-  const onStageOperatorSelected = useCallback((name) => {
+}: StageOperatorSelectProps) => {
+  const onStageOperatorSelected = useCallback((name: string|null) => {
     onChange(index, name);
   }, [onChange, index]);
 
@@ -61,6 +75,7 @@ const StageOperatorSelect = ({
     clearable={false}
     data-testid="stage-operator-combobox"
     className={comboboxStyles}
+    // @ts-expect-error According to leafygreen the type of portalClassName should be undefined
     portalClassName={cx(
       portalStyles,
       // used for testing since at the moment is not possible to identify
@@ -77,20 +92,27 @@ const StageOperatorSelect = ({
   </Combobox>;
 };
 
-StageOperatorSelect.propTypes = {
-  index: PropTypes.number.isRequired,
-  stages: PropTypes.array.isRequired,
-  selectedStage: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  isDisabled: PropTypes.bool,
+type EnvAwareStageOperatorSelectProps = {
+  envInfo: {
+    serverVersion: string,
+    env: string,
+    isTimeSeries: boolean,
+    isReadonly: boolean,
+    sourceName: string
+  },
+  stage: {
+    stageOperator: string | null,
+    disabled: boolean
+  },
+  onChange: (index: number, name: string) => void,
+  index: number
 };
-
 function EnvAwareStageOperatorSelect({
   envInfo: { serverVersion, env, isTimeSeries, isReadonly, sourceName },
   stage,
   onChange,
   index
-}) {
+}: EnvAwareStageOperatorSelectProps) {
   const preferencesReadOnly = usePreference('readOnly', React);
   const stages = useMemo(() => {
     return filterStageOperators({
@@ -103,24 +125,22 @@ function EnvAwareStageOperatorSelect({
     });
   }, [serverVersion, env, isTimeSeries, isReadonly, preferencesReadOnly, sourceName])
 
+  const onChangeFilter = (index: number, name: string|null) => {
+    if (name) {
+      onChange(index, name);
+    }
+  }
+
   return <StageOperatorSelect
     index={index}
     stages={stages}
     selectedStage={stage.stageOperator}
-    isDisabled={stage.disabled}
-    onChange={onChange}
+    onChange={onChangeFilter}
     />
 }
 
-EnvAwareStageOperatorSelect.propTypes = {
-  index: PropTypes.number.isRequired,
-  envInfo: PropTypes.object.isRequired,
-  stage: PropTypes.object.isRequired,
-  onChange: PropTypes.func.isRequired,
-}
-
 export default connect(
-  (state, ownProps) => {
+  (state: RootState, ownProps: { index: number }) => {
     return {
       envInfo: _.pick(state, ['serverVersion', 'env', 'isTimeSeries', 'isReadonly', 'sourceName']),
       stage: state.pipelineBuilder.stageEditor.stages[ownProps.index]
