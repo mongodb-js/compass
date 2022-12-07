@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Body, Link, Tooltip, css, cx, useDarkMode, palette } from '@mongodb-js/compass-components';
+import { Body, Link, Tooltip, css, cx, useDarkMode, palette, spacing } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
@@ -12,16 +12,13 @@ const toolbarStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 
-  height: '30px',
-  padding: '10px 0',
-  paddingLeft: '25px',
+  height: spacing[5] + spacing[1],
+  paddingLeft: spacing[4],
 
   display: 'flex',
   alignItems: 'center',
   borderBottomWidth: '1px',
   borderBottomStyle: 'solid',
-  // @palette__gray--light-2;
-  //borderRadius: 4px 4px 0 0;
 });
 
 
@@ -89,10 +86,6 @@ const DefaultPreviewText: React.FunctionComponent<{
     </Body>
   );
 };
-
-/**
- * The stage preview toolbar component.
- */
 
 type StagePreviewToolbarProps = {
   stageOperator?: string;

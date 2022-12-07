@@ -40,7 +40,7 @@ const portalStyles = css({
   },
 });
 
-export const StageOperatorSelect = ({
+const StageOperatorSelect = ({
   onChange,
   index,
   selectedStage,
