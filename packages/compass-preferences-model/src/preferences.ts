@@ -13,7 +13,14 @@ const Model = require('ampersand-model');
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = typeof THEMES_VALUES[number];
 
-export type UserConfigurablePreferences = {
+export type FeatureFlags = {
+  showDevFeatureFlags?: boolean;
+  lgDarkmode?: boolean;
+  debugUseCsfleSchemaMap?: boolean;
+  enableTextAsPipeline?: boolean;
+};
+
+export type UserConfigurablePreferences = FeatureFlags & {
   // User-facing preferences
   autoUpdates: boolean;
   enableMaps: boolean;
@@ -61,10 +68,6 @@ export type NonUserPreferences = {
   file?: string;
   username?: string;
   password?: string;
-};
-
-export type FeatureFlags = {
-  lgDarkmode?: boolean;
 };
 
 export type AllPreferences = UserPreferences &
@@ -131,7 +134,7 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
     ? false
     : boolean;
   /** A description used for the --help text and the Settings UI */
-  description: K extends keyof InternalUserPreferences | FeatureFlags
+  description: K extends keyof InternalUserPreferences
     ? null
     : { short: string; long?: string };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
@@ -141,7 +144,9 @@ type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Specify that this option should not be listed in --help output */
   omitFromHelp?: K extends keyof (UserConfigurablePreferences &
     CliOnlyPreferences)
-    ? false
+    ? K extends keyof FeatureFlags
+      ? boolean
+      : false
     : boolean;
 };
 
@@ -196,6 +201,76 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
       s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
   });
 }
+
+const featureFlagsProps: Required<{
+  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
+}> = {
+  /** Meta-feature-flag! Whether to show the dev flags of the feature flag settings modal */
+  showDevFeatureFlags: {
+    type: 'boolean',
+    required: false,
+    default: undefined,
+    ui: true,
+    cli: true,
+    global: true,
+    omitFromHelp: true,
+    description: {
+      short: 'Show Developer Feature Flags',
+    },
+  },
+
+  /**
+   * Currently Compass uses `darkreader` to globally change the views of
+   * Compass to a dark theme. Turning on this feature flag stops darkreader
+   * from being used and instead components which have darkMode
+   * support will listen to the theme to change their styles.
+   */
+  lgDarkmode: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Modern Dark Mode',
+      long: 'Use a custom-design dark mode that rather than a simplistic one.',
+    },
+  },
+
+  /**
+   * Permanent feature flag for debugging.
+   * We want to encourage user to use Queryable Encryption, not CSFLE, so we do not
+   * officially support the CSFLE schemaMap property.
+   */
+  debugUseCsfleSchemaMap: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'CSFLE Schema Map Debugging',
+    },
+  },
+
+  /**
+   * Enables pipeline toggle between stage-by-stage and as-text
+   */
+  enableTextAsPipeline: {
+    type: 'boolean',
+    required: false,
+    default: false,
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Full Aggregation Editing',
+      long: 'Enable editing the entire pipeline as text in the aggregation builder.',
+    },
+  },
+};
 
 const modelPreferencesProps: Required<{
   [K in keyof UserPreferences]: PreferenceDefinition<K>;
@@ -483,6 +558,7 @@ const modelPreferencesProps: Required<{
       long: 'Register Compass as a handler for mongodb:// and mongodb+srv:// URLs',
     },
   },
+  ...featureFlagsProps,
 };
 
 const cliOnlyPreferencesProps: Required<{
@@ -612,35 +688,12 @@ const nonUserPreferences: Required<{
   },
 };
 
-const featureFlagsProps: Required<{
-  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
-}> = {
-  /**
-   * Currently Compass uses `darkreader` to globally change the views of
-   * Compass to a dark theme. Turning on this feature flag stops darkreader
-   * from being used and instead components which have darkMode
-   * support will listen to the theme to change their styles.
-   */
-  lgDarkmode: {
-    type: 'boolean',
-    required: false,
-    default: false,
-    ui: false,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Use leafygreen dark mode instead of darkreader',
-    },
-  },
-};
-
 export const allPreferencesProps: Required<{
   [K in keyof AllPreferences]: PreferenceDefinition<K>;
 }> = {
   ...modelPreferencesProps,
   ...cliOnlyPreferencesProps,
   ...nonUserPreferences,
-  ...featureFlagsProps,
 };
 
 export function getSettingDescription<

@@ -127,16 +127,18 @@ async function switchPipelineMode(
   await browser.waitForAnimations(Selectors.AggregationBuilderWorkspace);
 }
 
-const initialEnableTextModeValue = process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE;
-
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let initialEnableTextModeValue: any;
 
   before(async function () {
-    process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = 'true';
     compass = await beforeTests();
     browser = compass.browser;
+    initialEnableTextModeValue = await browser.getFeature(
+      'enableTextAsPipeline'
+    );
+    await browser.setFeature('enableTextAsPipeline', true);
   });
 
   beforeEach(async function () {
@@ -163,8 +165,11 @@ describe('Collection aggregations tab', function () {
   });
 
   after(async function () {
+    await browser.setFeature(
+      'enableTextAsPipeline',
+      initialEnableTextModeValue
+    );
     await afterTests(compass, this.currentTest);
-    process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = initialEnableTextModeValue;
   });
 
   afterEach(async function () {
