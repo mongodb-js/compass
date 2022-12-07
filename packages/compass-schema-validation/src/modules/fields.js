@@ -17,12 +17,9 @@ export const INITIAL_STATE = [];
  */
 const process = (fields) =>
   Object.keys(fields).map((key) => {
-    const field =
-      key.indexOf('.') > -1 || key.indexOf(' ') > -1 ? `"${key}"` : key;
-
     return {
       name: key,
-      value: field,
+      value: key,
       score: 1,
       meta: 'field',
       version: '0.0.0',

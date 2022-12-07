@@ -124,6 +124,113 @@ describe('QueryAutoCompleter', function () {
         });
       });
 
+      context('when the query prefix matches one of the fields', function () {
+        const { getCompletions } = setupQueryCompleter('{ pi', {
+          serverVersion: '3.4.0',
+          fields: [
+            {
+              name: 'pineapple',
+              value: 'pineapple',
+              score: 1,
+              meta: 'field',
+              version: '0.0.0',
+            },
+            {
+              name: 'noMatches',
+              value: 'noMatches',
+              score: 1,
+              meta: 'field',
+              version: '0.0.0',
+            },
+          ],
+        });
+
+        it('returns all the query operators', function () {
+          getCompletions((error, results) => {
+            expect(error).to.equal(null);
+            expect(results.length).to.equal(1);
+            expect(results).to.deep.equal([
+              {
+                name: 'pineapple',
+                value: 'pineapple',
+                score: 1,
+                meta: 'field',
+                version: '0.0.0',
+              },
+            ]);
+          });
+        });
+      });
+
+      context(
+        'when the query prefix has matching nested field names',
+        function () {
+          const { getCompletions } = setupQueryCompleter('{ pi', {
+            serverVersion: '3.4.0',
+            fields: [
+              {
+                name: 'pineapple',
+                value: 'pineapple',
+                score: 1,
+                meta: 'field',
+                version: '0.0.0',
+              },
+              {
+                name: 'pineapple.price',
+                value: 'pineapple.price',
+                score: 1,
+                meta: 'field',
+                version: '0.0.0',
+              },
+              {
+                name: 'pineapple.fronds',
+                value: 'pineapple.fronds',
+                score: 1,
+                meta: 'field',
+                version: '0.0.0',
+              },
+              {
+                name: 'noMatches',
+                value: 'noMatches',
+                score: 1,
+                meta: 'field',
+                version: '0.0.0',
+              },
+            ],
+          });
+
+          it('returns all the query operators', function () {
+            getCompletions((error, results) => {
+              expect(error).to.equal(null);
+              expect(results.length).to.equal(3);
+              expect(results).to.deep.equal([
+                {
+                  name: 'pineapple',
+                  value: 'pineapple',
+                  score: 1,
+                  meta: 'field',
+                  version: '0.0.0',
+                },
+                {
+                  name: 'pineapple.price',
+                  value: 'pineapple.price',
+                  score: 1,
+                  meta: 'field',
+                  version: '0.0.0',
+                },
+                {
+                  name: 'pineapple.fronds',
+                  value: 'pineapple.fronds',
+                  score: 1,
+                  meta: 'field',
+                  version: '0.0.0',
+                },
+              ]);
+            });
+          });
+        }
+      );
+
       context('when the version doesnt match a bson type', function () {
         const { getCompletions } = setupQueryCompleter('{ N', {
           serverVersion: '3.2.0',
