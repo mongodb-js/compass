@@ -177,14 +177,14 @@ describe('QueryAutoCompleter', function () {
               },
               {
                 name: 'pineapple.price',
-                value: 'pineapple.price',
+                value: '"pineapple.price"',
                 score: 1,
                 meta: 'field',
                 version: '0.0.0',
               },
               {
                 name: 'pineapple.fronds',
-                value: 'pineapple.fronds',
+                value: '"pineapple.fronds"',
                 score: 1,
                 meta: 'field',
                 version: '0.0.0',
@@ -213,14 +213,14 @@ describe('QueryAutoCompleter', function () {
                 },
                 {
                   name: 'pineapple.price',
-                  value: 'pineapple.price',
+                  value: '"pineapple.price"',
                   score: 1,
                   meta: 'field',
                   version: '0.0.0',
                 },
                 {
                   name: 'pineapple.fronds',
-                  value: 'pineapple.fronds',
+                  value: '"pineapple.fronds"',
                   score: 1,
                   meta: 'field',
                   version: '0.0.0',
