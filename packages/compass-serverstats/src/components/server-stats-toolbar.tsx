@@ -38,7 +38,7 @@ const timeDarkThemeStyles = css({
   color: palette.gray.light2,
 });
 
-type TimeScrubEventDispatcher = {
+export type TimeScrubEventDispatcher = {
   on: (eventName: 'newXValue', handler: (xDate: Date) => void) => void;
 };
 

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import { filterStageOperators } from '../../utils/stage';
 
-import { Combobox, ComboboxOption, css, cx, spacing } from '@mongodb-js/compass-components';
+import { Combobox, ComboboxOption, css, cx, LeafyGreenProvider, spacing, useScrollbars } from '@mongodb-js/compass-components';
 import { isAtlasOnly } from '../../utils/stage';
 import _ from 'lodash';
 import { usePreference } from 'compass-preferences-model';
@@ -56,35 +56,57 @@ export const StageOperatorSelect = ({
   selectedStage,
   stages
 }) => {
+  const {
+    className: scrollbarStyles
+  } = useScrollbars();
+
   const onStageOperatorSelected = useCallback((name) => {
     onChange(index, name);
   }, [onChange, index]);
 
   const optionStyleByStageName = useMemo(() => {
     return Object.fromEntries(stages.map((stage) => [stage.name, comboboxOptionStyles(stage)]))
-  }, [stages])
+  }, [stages]);
 
-  return <Combobox value={selectedStage}
-    aria-label="Select a stage operator"
-    onChange={onStageOperatorSelected}
-    size="default"
-    clearable={false}
-    data-testid="stage-operator-combobox"
-    className={comboboxStyles}
-    portalClassName={cx(
-      portalStyles,
-      // used for testing since at the moment is not possible to identify
-      // the listbox container or the single ComboboxOptions with testIds
-      `mongodb-compass-stage-operator-combobox-portal-${index}`
-    )}>
-      {stages.map((stage, index) => <ComboboxOption
-          data-testid={`combobox-option-stage-${stage.name}`}
-          key={`combobox-option-stage-${index}`}
-          value={stage.name}
-          className={optionStyleByStageName[stage.name]}
-          displayName={stage.name} />
-      )}
-  </Combobox>;
+  return (
+    <LeafyGreenProvider
+      popoverPortalContainer={{
+        // We style the combobox option container to fit the atypical width
+        // to accommodate the stage descriptions.
+        // To apply these styles we need to apply them to the portal container
+        // of the combobox options.
+        // Because Compass uses the `popoverPortalContainer` from LeafyGreen in home.tsx
+        // we here need to unset the provided `portalContainer` so that we can
+        // ensure the styles are applied to the combobox options by not using Compass' popover portal.
+        portalContainer: undefined,
+      }}
+    >
+      <Combobox value={selectedStage}
+        aria-label="Select a stage operator"
+        onChange={onStageOperatorSelected}
+        size="default"
+        clearable={false}
+        data-testid="stage-operator-combobox"
+        className={comboboxStyles}
+        portalClassName={cx(
+          scrollbarStyles,
+          portalStyles,
+          // used for testing since at the moment is not possible to identify
+          // the listbox container or the single ComboboxOptions with testIds
+          `mongodb-compass-stage-operator-combobox-portal-${index}`
+        )}
+      >
+        {stages.map((stage, index) => <ComboboxOption
+            data-testid={`combobox-option-stage-${stage.name}`}
+            key={`combobox-option-stage-${index}`}
+            value={stage.name}
+            className={optionStyleByStageName[stage.name]}
+            displayName={stage.name}
+          />
+        )}
+      </Combobox>
+    </LeafyGreenProvider>
+  );
 };
 
 StageOperatorSelect.propTypes = {
@@ -113,13 +135,15 @@ function EnvAwareStageOperatorSelect({
     });
   }, [serverVersion, env, isTimeSeries, isReadonly, preferencesReadOnly, sourceName])
 
-  return <StageOperatorSelect
-    index={index}
-    stages={stages}
-    selectedStage={stage.stageOperator}
-    isDisabled={stage.disabled}
-    onChange={onChange}
+  return (
+    <StageOperatorSelect
+      index={index}
+      stages={stages}
+      selectedStage={stage.stageOperator}
+      isDisabled={stage.disabled}
+      onChange={onChange}
     />
+  );
 }
 
 EnvAwareStageOperatorSelect.propTypes = {

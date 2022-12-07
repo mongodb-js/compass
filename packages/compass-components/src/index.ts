@@ -116,6 +116,7 @@ export {
   useHoverState,
   FocusState,
 } from './hooks/use-focus-hover';
+export { getScrollbarStyles, useScrollbars } from './hooks/use-scrollbars';
 export { withDarkMode, useDarkMode, Theme } from './hooks/use-theme';
 export {
   ContentWithFallback,

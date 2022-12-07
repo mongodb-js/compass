@@ -3,7 +3,7 @@ const app = require('hadron-app');
 const chai = require('chai');
 const expect = chai.expect;
 const React = require('react');
-const { shallow } = require('enzyme');
+const { mount } = require('enzyme');
 const { Banner } = require('@mongodb-js/compass-components');
 const ServerStatsStore = require('../../src/stores/server-stats-graphs-store');
 const { PerformanceComponent } = require('../../src/components/');
@@ -24,16 +24,17 @@ describe('rtss', () => {
 
     beforeEach(() => {
       ServerStatsStore.isMongos = true;
-      component = shallow(<PerformanceComponent />);
+      component = mount(<PerformanceComponent />);
     });
 
     afterEach(() => {
       ServerStatsStore.isMongos = false;
+      component.unmount();
     });
 
     it('displays the top not available in mongos message', () => {
       const state = component.find(Banner);
-      expect(state.dive().text()).to.include(
+      expect(state.text()).to.include(
         'Top command is not available for mongos, some charts may not show any data.'
       );
     });
