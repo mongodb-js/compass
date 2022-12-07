@@ -95,15 +95,15 @@ function Toolbar({
         <SegmentedControlOption
           value="recent"
           data-testid="past-queries-recent"
+          glyph={<Icon glyph="Clock" />}
         >
-          <Icon glyph="Clock" />
           Recents
         </SegmentedControlOption>
         <SegmentedControlOption
           value="favorites"
           data-testid="past-queries-favorites"
+          glyph={<Icon glyph="Favorite" />}
         >
-          <Icon glyph="Favorite" />
           Favorites
         </SegmentedControlOption>
       </SegmentedControl>
