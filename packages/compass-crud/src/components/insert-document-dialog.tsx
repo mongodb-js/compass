@@ -262,7 +262,8 @@ class InsertDocumentDialog extends React.PureComponent<
 
     return (
       <FormModal
-        title={`Insert to Collection ${this.props.ns}`}
+        title="Insert Document"
+        subtitle={`To Collection ${this.props.ns}`}
         className="insert-document-dialog"
         open={this.props.isOpen}
         onSubmit={this.handleInsert.bind(this)}
@@ -286,14 +287,13 @@ class InsertDocumentDialog extends React.PureComponent<
               data-testid="insert-document-dialog-view-json"
               aria-label="E-JSON View"
               value="JSON"
+              glyph={<Icon glyph="CurlyBraces" />}
               onClick={(evt) => {
                 // We override the `onClick` functionality to prevent form submission.
                 // The value changing occurs in the `onChange` in the `SegmentedControl`.
                 evt.preventDefault();
               }}
-            >
-              <Icon glyph="CurlyBraces" />
-            </SegmentedControlOption>
+            ></SegmentedControlOption>
             <SegmentedControlOption
               disabled={this.hasErrors()}
               data-testid="insert-document-dialog-view-list"
@@ -304,9 +304,8 @@ class InsertDocumentDialog extends React.PureComponent<
                 // The value changing occurs in the `onChange` in the `SegmentedControl`.
                 evt.preventDefault();
               }}
-            >
-              <Icon glyph="Menu" />
-            </SegmentedControlOption>
+              glyph={<Icon glyph="Menu" />}
+            ></SegmentedControlOption>
           </SegmentedControl>
         </div>
         <div className={documentViewContainer} id={documentViewId}>

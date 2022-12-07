@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
-import { withTheme } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
 import { rgba } from 'polished';
 import { useInView } from 'react-intersection-observer';
+
+import { useDarkMode } from '../hooks/use-theme';
 
 const workspaceContainerStyles = css({
   height: '100%',
@@ -95,14 +96,12 @@ const darkThemeStyles = css({
 });
 
 type WorkspaceContainerProps = {
-  darkMode?: boolean;
   toolbar?: React.ReactNode;
   'data-testid'?: string;
 };
 
-function UnthemedWorkspaceContainer({
+function WorkspaceContainer({
   className,
-  darkMode,
   children,
   toolbar,
   'data-testid': dataTestId,
@@ -110,6 +109,8 @@ function UnthemedWorkspaceContainer({
 }: React.PropsWithChildren<
   WorkspaceContainerProps & React.HTMLProps<HTMLDivElement>
 >) {
+  const darkMode = useDarkMode();
+
   const scrollContainer = useRef(null);
 
   const [scrollDetectionTrigger, triggerStillInView] = useInView({
@@ -150,7 +151,5 @@ function UnthemedWorkspaceContainer({
     </div>
   );
 }
-
-const WorkspaceContainer = withTheme(UnthemedWorkspaceContainer);
 
 export { WorkspaceContainer };

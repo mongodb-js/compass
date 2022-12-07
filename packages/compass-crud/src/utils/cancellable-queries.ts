@@ -2,11 +2,6 @@ import createLogger from '@mongodb-js/compass-logging';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 import type { DataService } from 'mongodb-data-service';
 import type { BSONObject } from '../stores/crud-store';
-import {
-  createCancelError,
-  isCancelError,
-  raceWithAbort,
-} from '@mongodb-js/compass-utils';
 
 const { log, mongoLogId, debug } = createLogger('cancellable-queries');
 
@@ -19,27 +14,11 @@ export async function findDocuments(
     ...options
   }: {
     signal: AbortSignal;
-  } & Omit<Parameters<typeof dataService.fetch>[2], 'sort'>
+  } & Omit<Parameters<typeof dataService.find>[2], 'sort'>
 ): Promise<BSONObject[]> {
-  if (signal.aborted) {
-    throw signal.reason ?? createCancelError();
-  }
-
-  const cursor = dataService.fetch(ns, filter, options);
-
-  const abort = () => {
-    void cursor.close();
-  };
-  signal.addEventListener('abort', abort, { once: true });
-
-  let result;
-  try {
-    result = await raceWithAbort(cursor.toArray(), signal);
-  } finally {
-    signal.removeEventListener('abort', abort);
-  }
-
-  return result;
+  return dataService.find(ns, filter, options, {
+    abortSignal: signal,
+  });
 }
 
 export async function countDocuments(
@@ -48,7 +27,6 @@ export async function countDocuments(
   filter: BSONObject,
   {
     signal,
-    session,
     skip,
     limit,
     maxTimeMS,
@@ -56,13 +34,8 @@ export async function countDocuments(
   }: { signal: AbortSignal; skip?: number; limit?: number } & Parameters<
     typeof dataService.aggregate
   >[2]
-): Promise<number> {
-  if (signal.aborted) {
-    throw signal.reason ?? createCancelError();
-  }
-
+): Promise<number | null> {
   const opts = {
-    session,
     maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS),
     hint,
   };
@@ -84,23 +57,16 @@ export async function countDocuments(
   }
   stages.push({ $count: 'count' });
 
-  // The cursor will be replaced if we try after an error due to the index
-  // specified in the hint not existing.
-  const cursor = dataService.aggregate(ns, stages, opts);
-
-  const abort = () => {
-    void cursor.close();
-  };
-  signal.addEventListener('abort', abort, { once: true });
-
   let result;
   try {
-    const array = await raceWithAbort(cursor.toArray(), signal);
+    const array = await dataService.aggregate(ns, stages, opts, {
+      abortSignal: signal,
+    });
     // the collection could be empty
     result = array.length ? array[0].count : 0;
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (isCancelError(err)) {
+    if (dataService.isCancelError(err)) {
       throw err;
     }
 
@@ -110,9 +76,6 @@ export async function countDocuments(
     // The UI will just have to deal with null.
     result = null;
   }
-
-  signal.removeEventListener('abort', abort);
-
   return result;
 }
 
@@ -121,36 +84,22 @@ export async function fetchShardingKeys(
   ns: string,
   {
     signal,
-    session,
     maxTimeMS,
   }: {
     signal: AbortSignal;
-  } & Parameters<typeof dataService.fetch>[2]
+  } & Parameters<typeof dataService.find>[2]
 ): Promise<BSONObject> {
-  // best practise is to first check if the signal wasn't already aborted
-  if (signal.aborted) {
-    throw signal.reason ?? createCancelError();
-  }
-
-  const cursor = dataService.fetch(
-    'config.collections',
-    { _id: ns },
-    { session, maxTimeMS, projection: { key: 1, _id: 0 } }
-  );
-
-  // close the cursor if the operation is aborted
-  const abort = () => {
-    void cursor.close();
-  };
-  signal.addEventListener('abort', abort, { once: true });
-
-  let configDocs;
-
   try {
-    configDocs = await raceWithAbort(cursor.toArray(), signal);
+    const docs = await dataService.find(
+      'config.collections',
+      { _id: ns },
+      { maxTimeMS, projection: { key: 1, _id: 0 } },
+      { abortSignal: signal }
+    );
+    return docs.length ? docs[0].key : {};
   } catch (err: any) {
     // rethrow if we aborted along the way
-    if (isCancelError(err)) {
+    if (dataService.isCancelError(err)) {
       throw err;
     }
 
@@ -161,11 +110,7 @@ export async function fetchShardingKeys(
       'Failed to fetch sharding keys',
       err
     );
-    configDocs = [];
   }
 
-  // clean up event handlers because we succeeded
-  signal.removeEventListener('abort', abort);
-
-  return configDocs.length ? configDocs[0].key : {};
+  return {};
 }

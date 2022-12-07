@@ -6,7 +6,7 @@ import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import type { glyphs } from '@leafygreen-ui/icon';
 import { rgba } from 'polished';
 
-import { withTheme } from '../../hooks/use-theme';
+import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
@@ -206,7 +206,6 @@ const SortableList = SortableContainer(
 
 type WorkspaceTabsProps = {
   'aria-label': string;
-  darkMode?: boolean;
   onCreateNewTab: () => void;
   onSelectTab: (tabIndex: number) => void;
   onCloseTab: (tabIndex: number) => void;
@@ -253,9 +252,8 @@ export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   return { ref: rootNode, ...focusProps };
 }
 
-function UnthemedWorkspaceTabs({
+function WorkspaceTabs({
   ['aria-label']: ariaLabel,
-  darkMode,
   onCreateNewTab,
   onCloseTab,
   onMoveTab,
@@ -263,6 +261,8 @@ function UnthemedWorkspaceTabs({
   tabs,
   selectedTabIndex,
 }: WorkspaceTabsProps) {
+  const darkMode = useDarkMode();
+
   const rovingFocusProps = useRovingTabIndex<HTMLDivElement>({
     currentTabbable: selectedTabIndex,
   });
@@ -326,7 +326,5 @@ function UnthemedWorkspaceTabs({
     </div>
   );
 }
-
-const WorkspaceTabs = withTheme(UnthemedWorkspaceTabs);
 
 export { WorkspaceTabs };

@@ -1,6 +1,6 @@
 {
   "name": "compass-user-model",
-  "description": "MongoDB user model.",
+  "description": "MongoDB user model",
   "author": "Lucas Hrabovsky <lucas@mongodb.com>",
   "version": "2.3.0",
   "bugs": {

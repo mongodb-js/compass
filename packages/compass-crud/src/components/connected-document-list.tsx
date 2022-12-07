@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-// @ts-expect-error No ts definitions for hadron-react-components
-import { StoreConnector } from 'hadron-react-components';
-import DocumentList from './document-list';
+import { StoreConnector } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model';
+import type Reflux from 'reflux';
+
+import DocumentList from './document-list';
 
 function DocumentListWithReadonly(props: any) {
   const preferencesReadonly = usePreference('readOnly', React);
@@ -20,7 +20,9 @@ function ConnectedDocumentList({
   actions,
   ...props
 }: {
-  store: unknown;
+  store: Reflux.Store & {
+    getInitialState: () => unknown;
+  };
   actions: unknown & object;
 }) {
   return (
@@ -35,10 +37,4 @@ function ConnectedDocumentList({
   );
 }
 
-ConnectedDocumentList.displayName = 'ConnectedDocumentList';
-ConnectedDocumentList.propTypes = {
-  store: PropTypes.object.isRequired,
-  actions: PropTypes.object.isRequired,
-};
-
-export default ConnectedDocumentList;
+export { ConnectedDocumentList };

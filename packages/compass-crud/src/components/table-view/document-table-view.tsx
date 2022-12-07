@@ -17,7 +17,7 @@ import CellEditor from './cell-editor';
 
 import './document-table-view.less';
 import './ag-grid-dist.css';
-import { cx, spacing, withTheme } from '@mongodb-js/compass-components';
+import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
 import type {
   BSONObject,
   CrudActions,
@@ -1068,4 +1068,4 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
   static displayName = 'DocumentTableView';
 }
 
-export default withTheme(DocumentTableView);
+export default withDarkMode(DocumentTableView);

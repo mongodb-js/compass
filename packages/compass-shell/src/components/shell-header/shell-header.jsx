@@ -1,4 +1,11 @@
-import { Icon, IconButton, css, spacing, palette, keyframes } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  IconButton,
+  css,
+  spacing,
+  palette,
+  keyframes,
+} from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
@@ -7,15 +14,14 @@ import { ShellLoader } from '@mongosh/browser-repl';
 const shellHeaderStyles = css({
   height: spacing[5],
   display: 'flex',
-  color: palette.gray.light1
+  color: palette.gray.light1,
 });
 
 const shellHeaderLeftStyles = css({
   flexGrow: 1,
   display: 'flex',
-  alignItems: 'center'
+  alignItems: 'center',
 });
-
 
 const shellHeaderDefaultColor = palette.gray.light1;
 const shellHeaderFlashColorDark = palette.gray.base;
@@ -53,24 +59,23 @@ const shellHeaderToggleStyles = css({
   textTransform: 'uppercase',
   animation: `${shellLoaderFlash} 2s linear`,
   '&:hover': {
-    color: palette.gray.light3
-  }
+    color: palette.gray.light3,
+  },
 });
-
 
 const shellHeaderRightStyles = css({
   display: 'flex',
   paddingTop: spacing[1] / 2,
-  paddingRight: spacing[2]
+  paddingRight: spacing[2],
 });
 
 const infoButtonStyles = css({
-  marginRight: spacing[2]
+  marginRight: spacing[2],
 });
 
 const operationInProgressStyles = css({
   color: palette.green.light2,
-  marginLeft: spacing[2]
+  marginLeft: spacing[2],
 });
 
 export class ShellHeader extends Component {
@@ -78,7 +83,7 @@ export class ShellHeader extends Component {
     isExpanded: PropTypes.bool.isRequired,
     isOperationInProgress: PropTypes.bool.isRequired,
     onShellToggleClicked: PropTypes.func.isRequired,
-    showInfoModal: PropTypes.func.isRequired
+    showInfoModal: PropTypes.func.isRequired,
   };
 
   componentDidMount() {
@@ -86,7 +91,10 @@ export class ShellHeader extends Component {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyboardToggle.bind(this));
+    document.removeEventListener(
+      'keydown',
+      this.handleKeyboardToggle.bind(this)
+    );
   }
 
   handleKeyboardToggle({ ctrlKey, key }) {
@@ -105,7 +113,7 @@ export class ShellHeader extends Component {
       isExpanded,
       isOperationInProgress,
       onShellToggleClicked,
-      showInfoModal
+      showInfoModal,
     } = this.props;
 
     return (
@@ -122,9 +130,8 @@ export class ShellHeader extends Component {
             &gt;_MONGOSH
             {!isExpanded && isOperationInProgress && (
               <span className={operationInProgressStyles}>
-                <ShellLoader
-                  size="12px"
-                />&nbsp;Command in progress&hellip;
+                <ShellLoader size="12px" />
+                &nbsp;Command in progress&hellip;
               </span>
             )}
           </button>
@@ -139,10 +146,7 @@ export class ShellHeader extends Component {
               aria-haspopup="dialog"
               onClick={showInfoModal}
             >
-              <Icon
-                glyph="InfoWithCircle"
-                size="small"
-              />
+              <Icon glyph="InfoWithCircle" size="small" />
             </IconButton>
           )}
           <IconButton

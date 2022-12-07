@@ -112,23 +112,13 @@ export const refreshInputDocuments = () => {
 
     if (dataService && dataService.isConnected()) {
       dispatch(loadingInputDocuments());
-      dataService.estimatedCount(ns, options, (error, count) => {
-        dataService.aggregate(
-          ns,
-          exampleDocumentsPipeline,
-          options,
-          (err, cursor) => {
-            if (err) {
-              return dispatch(
-                updateInputDocuments(error ? null : count, [], err)
-              );
-            }
-            cursor.toArray((e, docs) => {
-              dispatch(updateInputDocuments(error ? null : count, docs, e));
-              cursor.close();
-            });
-          }
-        );
+      dataService.estimatedCount(ns, options, async (error, count) => {
+        try {
+          const docs = await dataService.aggregate(ns, exampleDocumentsPipeline, options);
+          dispatch(updateInputDocuments(error ? null : count, docs, null));
+        } catch(e) {
+          dispatch(updateInputDocuments(error ? null : count, [], e));
+        }
       });
     } else if (dataService && !dataService.isConnected()) {
       debug(

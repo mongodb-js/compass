@@ -10,7 +10,7 @@ import {
   palette,
   css,
   cx,
-  withTheme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -64,7 +64,9 @@ const createClusterButtonLightModeStyles = css({
   },
 });
 
-function AtlasHelpSection({ darkMode }: { darkMode?: boolean }) {
+function AtlasHelpSection() {
+  const darkMode = useDarkMode();
+
   return (
     <div
       className={cx(
@@ -103,12 +105,10 @@ function AtlasHelpSection({ darkMode }: { darkMode?: boolean }) {
   );
 }
 
-const ThemedAtlasHelpSection = withTheme(AtlasHelpSection);
-
 function FormHelp(): React.ReactElement {
   return (
     <div className={formHelpContainerStyles}>
-      <ThemedAtlasHelpSection />
+      <AtlasHelpSection />
       <div className={sectionContainerStyles}>
         <Subtitle className={titleStyles}>
           How do I find my connection string in Atlas?

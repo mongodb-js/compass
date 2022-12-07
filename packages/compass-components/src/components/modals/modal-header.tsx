@@ -3,7 +3,8 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { uiColors, palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
-import { withTheme } from '../../hooks/use-theme';
+
+import { useDarkMode } from '../../hooks/use-theme';
 import { Body, Icon } from '../leafygreen';
 
 export const Variant = {
@@ -61,15 +62,15 @@ type ModalHeaderProps = {
   title: string;
   subtitle?: string;
   variant?: Variant;
-  darkMode?: boolean;
 };
 
-function UnthemedModalHeader({
+function ModalHeader({
   title,
   subtitle,
   variant = Variant.Default,
-  darkMode,
 }: ModalHeaderProps) {
+  const darkMode = useDarkMode();
+
   return (
     <div className={cx(headerStyle, variantStyle[variant])}>
       {variant === Variant.Danger && (
@@ -88,7 +89,5 @@ function UnthemedModalHeader({
     </div>
   );
 }
-
-const ModalHeader = withTheme(UnthemedModalHeader);
 
 export { ModalHeader };

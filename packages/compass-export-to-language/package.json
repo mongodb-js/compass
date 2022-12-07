@@ -1,7 +1,7 @@
 {
   "name": "@mongodb-js/compass-export-to-language",
   "productName": "compass-export-to-language Plugin",
-  "description": "export to language modal",
+  "description": "Export MongoDB queries and aggregations to various languages",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"

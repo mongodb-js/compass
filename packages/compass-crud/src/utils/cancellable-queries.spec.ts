@@ -19,7 +19,6 @@ const CONNECTION = new Connection({
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { createCancelError } from '@mongodb-js/compass-utils';
 chai.use(chaiAsPromised);
 
 function delay(ms) {
@@ -32,7 +31,6 @@ describe('cancellable-queries', function () {
   this.timeout(5000);
 
   let dataService;
-  let session;
   let abortController;
   let signal;
   let currentOpsByNS;
@@ -91,7 +89,6 @@ describe('cancellable-queries', function () {
   beforeEach(function () {
     sinon.restore();
 
-    session = dataService.startSession('CRUD');
     abortController = new AbortController();
     signal = abortController.signal;
   });
@@ -108,7 +105,6 @@ describe('cancellable-queries', function () {
         { i: { $gt: 5 } },
         {
           signal,
-          session,
           // making sure arbitrary options make it through
           skip: 5,
           limit: 5,
@@ -132,7 +128,6 @@ describe('cancellable-queries', function () {
       const filter = { $where: 'function() { return sleep(10000) || true; }' };
       const promise = findDocuments(dataService, 'cancel.numbers', filter, {
         signal,
-        session,
       });
 
       // give it enough time to start
@@ -142,13 +137,8 @@ describe('cancellable-queries', function () {
 
       // abort the promise
       abortController.abort();
-      await expect(promise).to.be.rejectedWith(
-        Error,
-        createCancelError().message
-      );
-
-      // kill the session
-      await dataService.killSessions(session);
+      const error = await promise.catch((err) => err);
+      expect(dataService.isCancelError(error)).to.equal(true);
 
       // give it enough time to be killed
       await delay(100);
@@ -165,7 +155,6 @@ describe('cancellable-queries', function () {
         { i: { $gt: 5 } },
         {
           signal,
-          session,
           // making sure skip and limit works
           skip: 5,
           limit: 5,
@@ -177,7 +166,6 @@ describe('cancellable-queries', function () {
     it('resolves to the count when no filter is supplied', async function () {
       const count = await countDocuments(dataService, 'cancel.numbers', null, {
         signal,
-        session,
       });
       expect(count).to.equal(1000);
     });
@@ -189,7 +177,6 @@ describe('cancellable-queries', function () {
         {},
         {
           signal,
-          session,
         }
       );
       expect(count).to.equal(1000);
@@ -202,7 +189,6 @@ describe('cancellable-queries', function () {
         {},
         {
           signal,
-          session,
         }
       );
       expect(count).to.equal(0);
@@ -215,7 +201,6 @@ describe('cancellable-queries', function () {
         'this is not a filter',
         {
           signal,
-          session,
           hint: { _id_: 1 }, // this collection doesn't have this index so this query should fail
         }
       );
@@ -227,20 +212,13 @@ describe('cancellable-queries', function () {
         dataService,
         'cancel.numbers',
         {},
-        { signal, session }
+        { signal }
       );
 
       // abort the promise
       abortController.abort();
-      await expect(promise).to.be.rejectedWith(
-        Error,
-        createCancelError().message
-      );
-
-      // kill the session
-      // (unfortunately I can't think of a way to slow the query down enough so
-      //  we can make sure the operation appeared and then disappeared)
-      await dataService.killSessions(session);
+      const error = await promise.catch((err) => err);
+      expect(dataService.isCancelError(error)).to.equal(true);
     });
   });
 
@@ -248,7 +226,6 @@ describe('cancellable-queries', function () {
     it('resolves to {} if there are no shard keys', async function () {
       const shardKeys = await fetchShardingKeys(dataService, 'cancel.numbers', {
         signal,
-        session,
       });
       expect(shardKeys).to.deep.equal({});
     });
@@ -256,7 +233,6 @@ describe('cancellable-queries', function () {
     it('resolves to the shard keys if there are any', async function () {
       const shardKeys = await fetchShardingKeys(dataService, 'cancel.sharded', {
         signal,
-        session,
       });
       expect(shardKeys).to.deep.equal({ a: 1 });
     });
@@ -264,19 +240,12 @@ describe('cancellable-queries', function () {
     it('can be aborted', async function () {
       const promise = fetchShardingKeys(dataService, 'cancel.sharded', {
         signal,
-        session,
       });
 
       // abort the promise
       abortController.abort();
-      await expect(promise).to.be.rejectedWith(
-        Error,
-        createCancelError().message
-      );
-
-      // kill the session
-      // (same problem with testing that this actually worked as for count queries above)
-      await dataService.killSessions(session);
+      const error = await promise.catch((err) => err);
+      expect(dataService.isCancelError(error)).to.equal(true);
     });
 
     // TODO: if (configDocs && configDocs.length) { implies that configDocs could be empty?

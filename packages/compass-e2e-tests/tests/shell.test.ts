@@ -51,7 +51,7 @@ describe('Shell', function () {
     await browser.openSettingsModal();
     const settingsModal = await browser.$(Selectors.SettingsModal);
     await settingsModal.waitForDisplayed();
-    await browser.clickVisible(Selectors.FeaturesSettingsButton);
+    await browser.clickVisible(Selectors.GeneralSettingsButton);
 
     await browser.clickParent(Selectors.SettingsInputElement('enableShell'));
     await browser.clickVisible(Selectors.SaveSettingsButton);

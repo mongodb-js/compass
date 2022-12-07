@@ -48,8 +48,6 @@
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.4.0",
     "hadron-document": "^8.0.2",
-    "hadron-react-buttons": "^6.0.2",
-    "hadron-react-components": "^6.4.0",
     "react": "^16.14.0"
   },
   "devDependencies": {
@@ -108,8 +106,6 @@
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.4.0",
     "hadron-document": "^8.0.2",
-    "hadron-react-buttons": "^6.0.2",
-    "hadron-react-components": "^6.4.0",
     "react": "^16.14.0"
   },
   "homepage": "https://github.com/mongodb-js/compass",

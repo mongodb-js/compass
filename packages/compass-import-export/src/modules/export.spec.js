@@ -171,6 +171,9 @@ describe('export [module]', function () {
         });
       });
     });
+    // todo: add export tests for an aggregation
+    it.skip('#startExport for aggregation');
+
     context('when the action type is FINISHED', function () {
       context('when the state has an error', function () {
         it('returns the new state and stays open', function () {

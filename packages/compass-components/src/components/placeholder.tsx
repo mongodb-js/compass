@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { palette } from '@leafygreen-ui/palette';
-import { withTheme } from '../hooks/use-theme';
+import { useDarkMode } from '../hooks/use-theme';
 
 // Ratio of showing a highlight passing through the placeholder to background color
 const scale = 4;
@@ -48,7 +48,7 @@ function getBoundRandom(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
-const UnthemedPlaceholder: React.FunctionComponent<
+const Placeholder: React.FunctionComponent<
   Omit<
     React.HTMLProps<HTMLDivElement>,
     'minChar' | 'maxChar' | 'width' | 'height'
@@ -57,7 +57,6 @@ const UnthemedPlaceholder: React.FunctionComponent<
     maxChar?: number;
     width?: CSSProperties['width'];
     height?: CSSProperties['height'];
-    darkMode?: boolean;
   }
 > = ({
   className,
@@ -65,9 +64,10 @@ const UnthemedPlaceholder: React.FunctionComponent<
   maxChar = 15,
   width: propsWidth,
   height: propsHeight = spacing[3],
-  darkMode,
   ...props
 }) => {
+  const darkMode = useDarkMode();
+
   const width = useMemo(() => {
     return propsWidth || `${Math.round(getBoundRandom(minChar, maxChar))}ch`;
   }, [minChar, maxChar, propsWidth]);
@@ -82,7 +82,5 @@ const UnthemedPlaceholder: React.FunctionComponent<
     ></div>
   );
 };
-
-const Placeholder = withTheme(UnthemedPlaceholder);
 
 export { Placeholder };

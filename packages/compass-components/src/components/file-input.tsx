@@ -3,7 +3,7 @@ import path from 'path';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import { withTheme } from '../hooks/use-theme';
+import { useDarkMode } from '../hooks/use-theme';
 
 import {
   Button,
@@ -128,7 +128,6 @@ function FileInput({
   id,
   label,
   dataTestId,
-  darkMode,
   onChange,
   disabled,
   multi = false,
@@ -149,7 +148,6 @@ function FileInput({
   label: string;
   dataTestId?: string;
   onChange: (files: string[]) => void;
-  darkMode?: boolean;
   disabled?: boolean;
   multi?: boolean;
   optional?: boolean;
@@ -165,6 +163,8 @@ function FileInput({
   accept?: string;
   backend?: FileInputBackend;
 }): React.ReactElement {
+  const darkMode = useDarkMode();
+
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const buttonText = React.useMemo(() => {
@@ -312,7 +312,7 @@ function FileInput({
   );
 }
 
-export default withTheme(FileInput);
+export default FileInput;
 
 // Matches Electron's file dialog options
 export type ElectronFileDialogOptions = {

@@ -271,7 +271,7 @@ export const createReadableCollectionStream = function (
   const { limit, skip } = spec;
 
   return dataService
-    .fetch(ns, spec.filter || {}, {
+    .findCursor(ns, spec.filter || {}, {
       projection,
       limit,
       skip,

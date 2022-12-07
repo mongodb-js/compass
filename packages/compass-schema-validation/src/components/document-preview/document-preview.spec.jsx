@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import { expect } from 'chai';
 
 import DocumentPreview from '../document-preview';
@@ -11,7 +11,7 @@ describe('DocumentPreview [Component]', function () {
   });
 
   it('renders No Preview Documents if there is no document', function () {
-    const component = shallow(<DocumentPreview />);
+    const component = mount(<DocumentPreview />);
     expect(component).to.have.text('No Preview Documents');
   });
 });
