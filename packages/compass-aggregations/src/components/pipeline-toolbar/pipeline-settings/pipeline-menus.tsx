@@ -12,6 +12,7 @@ import {
   savingPipelineOpen,
 } from '../../../modules/saving-pipeline';
 import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
+import { usePreference } from 'compass-preferences-model';
 
 type SaveMenuActions = 'save' | 'saveAs' | 'createView';
 type SaveMenuProps = {
@@ -115,7 +116,8 @@ export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
   onCreatePipeline,
   onCreatePipelineFromText,
 }) => {
-  if (process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true') {
+  const enableTextAsPipeline = usePreference('enableTextAsPipeline', React);
+  if (enableTextAsPipeline) {
     return (
       <Button
         size="xsmall"
