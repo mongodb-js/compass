@@ -10,7 +10,6 @@ import LoadingOverlay from './loading-overlay';
 
 const cardStyles = css({
   margin: `0 ${spacing[3]}px`,
-  marginBottom: spacing[3]
 });
 
 const headerStyles = css({
