@@ -131,9 +131,10 @@ const configureStore = (options = {}) => {
    */
   store._processAceFields = (fields) => {
     return Object.keys(fields).map((key) => {
+      const field = (key.indexOf('.') > -1 || key.indexOf(' ') > -1) ? `"${key}"` : key;
       return {
         name: key,
-        value: key,
+        value: field,
         score: ONE,
         meta: FIELD,
         version: VERSION_ZERO

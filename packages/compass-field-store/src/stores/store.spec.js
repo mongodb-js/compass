@@ -309,21 +309,21 @@ describe('FieldStore', function() {
             },
             {
               name: 'review._id',
-              value: 'review._id',
+              value: 'review._id"',
               score: 1,
               meta: 'field',
               version: '0.0.0'
             },
             {
               name: 'review.rating',
-              value: 'review.rating',
+              value: 'review.rating"',
               score: 1,
               meta: 'field',
               version: '0.0.0'
             },
             {
               name: 'review.text',
-              value: 'review.text',
+              value: 'review.text"',
               score: 1,
               meta: 'field',
               version: '0.0.0'
@@ -337,21 +337,21 @@ describe('FieldStore', function() {
             },
             {
               name: 'reviews._id',
-              value: 'reviews._id',
+              value: 'reviews._id"',
               score: 1,
               meta: 'field',
               version: '0.0.0'
             },
             {
               name: 'reviews.rating',
-              value: 'reviews.rating',
+              value: 'reviews.rating"',
               score: 1,
               meta: 'field',
               version: '0.0.0'
             },
             {
               name: 'reviews.text',
-              value: 'reviews.text',
+              value: 'reviews.text"',
               score: 1,
               meta: 'field',
               version: '0.0.0'
