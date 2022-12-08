@@ -6,10 +6,8 @@ import {
   FormFieldContainer,
 } from '@mongodb-js/compass-components';
 
-// TODO: change this link to remove v5.3 once clustered-collections is in current
-// see https://jira.mongodb.org/browse/COMPASS-5760
 const HELP_URL_CLUSTERED =
-  'https://www.mongodb.com/docs/v5.3/core/clustered-collections/';
+  'https://www.mongodb.com/docs/manual/core/clustered-collections/';
 
 const EXPIRE_AFTER_SECONDS_DESCRIPTION =
   'The expireAfterSeconds field enables ' +
