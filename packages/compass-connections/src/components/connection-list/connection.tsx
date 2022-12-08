@@ -6,8 +6,7 @@ import {
   palette,
   css,
   cx,
-  useTheme,
-  Theme,
+  useDarkMode,
   ItemActionControls,
   useHoverState,
   useToast,
@@ -201,27 +200,28 @@ function Connection({
     lastUsed,
   } = connectionInfo;
 
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
 
   const { connectionColorToHex } = useConnectionColor();
   const favoriteColorHex = connectionColorToHex(favorite?.color) ?? '';
 
   const hasColoredBackground = isActive && favoriteColorHex;
-  const normalTitleColor =
-    theme === Theme.Dark ? palette.white : palette.gray.dark3;
+  const normalTitleColor = darkMode ? palette.white : palette.gray.dark3;
   const titleColor = hasColoredBackground ? palette.black : normalTitleColor;
   const backgroundColor = hasColoredBackground
     ? `${favoriteColorHex} !important`
     : 'none';
 
-  const normalDescriptionColor =
-    theme === Theme.Dark ? palette.gray.light1 : palette.gray.base;
+  const normalDescriptionColor = darkMode
+    ? palette.gray.light1
+    : palette.gray.base;
   const descriptionColor = hasColoredBackground
     ? palette.gray.dark3
     : normalDescriptionColor;
 
-  const normalConnectionMenuColor =
-    theme === Theme.Dark ? palette.white : palette.gray.base;
+  const normalConnectionMenuColor = darkMode
+    ? palette.white
+    : palette.gray.base;
   const connectionMenuColor = hasColoredBackground
     ? palette.gray.dark3
     : normalConnectionMenuColor;
@@ -279,9 +279,7 @@ function Connection({
         type="button"
         className={cx(
           connectionButtonStyles,
-          theme === Theme.Dark
-            ? connectionButtonStylesDark
-            : connectionButtonStylesLight,
+          darkMode ? connectionButtonStylesDark : connectionButtonStylesLight,
           css({ background: backgroundColor })
         )}
         data-testid={`saved-connection-button-${connectionInfo.id || ''}`}

@@ -3,9 +3,9 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
+import { useDarkMode } from '../hooks/use-theme';
 
 import { Description, Icon } from './leafygreen';
-import { withTheme } from '../hooks/use-theme';
 
 const buttonStyles = css({
   fontWeight: 'bold',
@@ -48,16 +48,15 @@ const buttonHintStyles = css({
   display: 'inline',
 });
 interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
-  darkMode?: boolean;
   text: string | React.ReactNode;
   hintText?: string;
 }
-function UnthemedAccordion({
+function Accordion({
   text,
-  darkMode,
   hintText,
   ...props
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
+  const darkMode = useDarkMode();
   const [open, setOpen] = useState(false);
   const regionId = useId('region-');
   const labelId = useId('label-');
@@ -97,7 +96,5 @@ function UnthemedAccordion({
     </>
   );
 }
-
-const Accordion = withTheme(UnthemedAccordion);
 
 export { Accordion };

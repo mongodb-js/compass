@@ -8,7 +8,7 @@ import {
   css,
   spacing,
   useId,
-  withTheme,
+  useDarkMode,
   WarningSummary,
   ErrorSummary,
 } from '@mongodb-js/compass-components';
@@ -45,7 +45,6 @@ type ExplainView = 'json' | 'tree';
 
 type ExplainToolbarProps = {
   localAppRegistry: AppRegistry;
-  darkMode?: boolean;
   explainErrorMessage?: string;
   resultId: string;
   hasExplainResults: boolean;
@@ -57,9 +56,8 @@ type ExplainToolbarProps = {
   viewType: ExplainView;
 };
 
-function UnthemedExplainToolbar({
+function ExplainToolbar({
   localAppRegistry,
-  darkMode,
   resultId,
   explainErrorMessage,
   hasExplainResults,
@@ -70,6 +68,7 @@ function UnthemedExplainToolbar({
   switchToJSONView,
   viewType,
 }: ExplainToolbarProps) {
+  const darkMode = useDarkMode();
   const labelId = useId();
   const controlId = useId();
 
@@ -151,7 +150,5 @@ function UnthemedExplainToolbar({
     </div>
   );
 }
-
-const ExplainToolbar = withTheme(UnthemedExplainToolbar);
 
 export { ExplainToolbar };

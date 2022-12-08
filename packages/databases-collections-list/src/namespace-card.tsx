@@ -16,8 +16,7 @@ import {
   mergeProps,
   useDefaultAction,
   ItemActionControls,
-  useTheme,
-  Theme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
   BadgeVariant,
@@ -68,15 +67,12 @@ const cardName = css({
 const CardName: React.FunctionComponent<{ children: string }> = ({
   children,
 }) => {
-  const theme = useTheme();
+  const darkMode = useDarkMode();
   return (
     <div title={children} className={cardNameWrapper}>
       <Subtitle
         as="div"
-        className={cx(
-          cardName,
-          theme.theme === Theme.Dark ? cardNameDark : cardNameLight
-        )}
+        className={cx(cardName, darkMode ? cardNameDark : cardNameLight)}
       >
         {children}
       </Subtitle>

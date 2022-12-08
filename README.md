@@ -72,7 +72,6 @@ Is there anything else you’d like to see in Compass? Let us know by submitting
 - [**hadron-document**](packages/hadron-document): Hadron Document
 - [**hadron-ipc**](packages/hadron-ipc): Simplified IPC for electron apps.
 - [**hadron-react-buttons**](packages/hadron-react-buttons): Hadron React Button Components
-- [**hadron-react-components**](packages/hadron-react-components): Hadron React Components
 - [**hadron-reflux-store**](packages/reflux-store): Hadron Reflux Stores
 - [**hadron-type-checker**](packages/hadron-type-checker): Hadron Type Checker
 - [**mongodb-collection-model**](packages/collection-model): MongoDB collection model

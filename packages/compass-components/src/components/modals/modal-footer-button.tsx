@@ -2,7 +2,7 @@ import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import type { ButtonProps } from '@leafygreen-ui/button';
 import { Button } from '../leafygreen';
-import { Theme, useTheme, withTheme } from '../../hooks/use-theme';
+import { Theme, useDarkMode } from '../../hooks/use-theme';
 
 const buttonStyle = {
   [Theme.Light]: css({
@@ -25,11 +25,18 @@ const buttonStyle = {
   }),
 };
 
-function UnthemedModalFooterButton({ className, ...props }: ButtonProps) {
-  const { theme } = useTheme();
-  return <Button {...props} className={cx(className, buttonStyle[theme])} />;
-}
+function ModalFooterButton({ className, ...props }: ButtonProps) {
+  const darkMode = useDarkMode();
 
-const ModalFooterButton = withTheme(UnthemedModalFooterButton);
+  return (
+    <Button
+      {...props}
+      className={cx(
+        className,
+        buttonStyle[darkMode ? Theme.Dark : Theme.Light]
+      )}
+    />
+  );
+}
 
 export { ModalFooterButton };

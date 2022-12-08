@@ -10,7 +10,7 @@ import {
   spacing,
   Banner,
   palette,
-  withTheme,
+  withDarkMode,
   KeylineCard,
 } from '@mongodb-js/compass-components';
 import {
@@ -66,7 +66,7 @@ const buttonStyles = css({
 /**
  * The validation editor component.
  */
-class UnthemedValidationEditor extends Component {
+class ValidationEditor extends Component {
   static displayName = 'ValidationEditor';
 
   static propTypes = {
@@ -322,6 +322,4 @@ class UnthemedValidationEditor extends Component {
   }
 }
 
-const ValidationEditor = withTheme(UnthemedValidationEditor);
-
-export default ValidationEditor;
+export default withDarkMode(ValidationEditor);

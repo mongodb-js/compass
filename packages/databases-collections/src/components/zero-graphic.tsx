@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { palette, withTheme } from '@mongodb-js/compass-components';
+import { palette, useDarkMode } from '@mongodb-js/compass-components';
 
-const UnthemedZeroGraphic = ({ darkMode }: { darkMode?: boolean }) => {
+const ZeroGraphic = () => {
+  const darkMode = useDarkMode();
   const strokeColor = useMemo(
     () => (darkMode ? palette.white : palette.black),
     [darkMode]
@@ -34,9 +35,5 @@ const UnthemedZeroGraphic = ({ darkMode }: { darkMode?: boolean }) => {
     </svg>
   );
 };
-
-const ZeroGraphic = withTheme(
-  UnthemedZeroGraphic
-) as typeof UnthemedZeroGraphic;
 
 export { ZeroGraphic };

@@ -1,15 +1,10 @@
 import React, { useMemo } from 'react';
 import {
-  EmptyContent, palette, withTheme
+  EmptyContent, palette, useDarkMode
 } from '@mongodb-js/compass-components';
 
-type ZeroGraphicProps = {
-  darkMode?: boolean;
-};
-
-const UnthemedZeroGraphic: React.FunctionComponent<
-  ZeroGraphicProps
-> = ({ darkMode }) => {
+const ZeroGraphic: React.FunctionComponent = () => {
+  const darkMode = useDarkMode();
   const fillColor = useMemo(
     () => (darkMode ? palette.white : palette.black),
     [darkMode]
@@ -25,10 +20,6 @@ const UnthemedZeroGraphic: React.FunctionComponent<
     </svg>
   );
 };
-
-const ZeroGraphic = withTheme(
-  UnthemedZeroGraphic
-) as typeof UnthemedZeroGraphic;
 
 export const PipelineEmptyResults: React.FunctionComponent = () => {
   return (

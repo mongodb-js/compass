@@ -6,7 +6,7 @@ import {
   cx,
   spacing,
   palette,
-  withTheme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
@@ -77,7 +77,6 @@ export const documentEditorLabelContainerStyles = cx(
 );
 
 type QueryOptionProps = {
-  darkMode?: boolean;
   hasError: boolean;
   id: string;
   onChange: (value: string) => void;
@@ -110,8 +109,7 @@ const WithOptionDefinitionTextInputProps: React.FunctionComponent<{
   return <>{children({ props })}</>;
 };
 
-const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
-  darkMode,
+const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   hasError,
   onApply,
   onChange,
@@ -123,6 +121,8 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
   serverVersion,
   value = '',
 }) => {
+  const darkMode = useDarkMode();
+
   const optionDefinition = OPTION_DEFINITION[queryOption];
   const isDocumentEditor = optionDefinition.type === 'document';
   placeholder ||= optionDefinition.placeholder;
@@ -202,7 +202,5 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
     </div>
   );
 };
-
-const QueryOption = withTheme(UnthemedQueryOption);
 
 export { QueryOption };

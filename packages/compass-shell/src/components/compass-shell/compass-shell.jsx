@@ -9,29 +9,29 @@ import {
   ResizeDirection,
   css,
   cx,
+  getScrollbarStyles,
   palette,
-  rgba,
 } from '@mongodb-js/compass-components';
 
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
 
-const compassShellStyles = css({
-  backgroundColor: palette.gray.dark3,
-  display: 'flex',
-  flexBasis: 'auto',
-  position: 'relative',
-  flexDirection: 'column',
-});
+const compassShellStyles = css(
+  {
+    backgroundColor: palette.gray.dark3,
+    display: 'flex',
+    flexBasis: 'auto',
+    position: 'relative',
+    flexDirection: 'column',
+  },
+  getScrollbarStyles(true /* Always show dark mode. */)
+);
 
 const compassShellContainerStyles = css({
   flexGrow: 1,
   display: 'none',
   overflow: 'auto',
   borderTop: `1px solid ${palette.gray.dark2}`,
-  '*::-webkit-scrollbar-thumb': {
-    background: rgba(palette.gray.light1, 0.5),
-  },
 });
 
 const compassShellContainerVisibleStyles = css({
@@ -242,9 +242,10 @@ export class CompassShell extends Component {
           />
           <div
             data-testid="shell-content"
-            className={cx(compassShellContainerStyles, {
-              [compassShellContainerVisibleStyles]: isExpanded,
-            })}
+            className={cx(
+              compassShellContainerStyles,
+              isExpanded && compassShellContainerVisibleStyles
+            )}
           >
             <Shell
               ref={this.shellRef}

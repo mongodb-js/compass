@@ -9,6 +9,7 @@ import { changeViewType } from '../../modules/aggregation';
 import { getStageOperator, isOutputStage } from '../../utils/stage';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
+import { usePreference } from 'compass-preferences-model';
 
 type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
@@ -44,12 +45,13 @@ export const PipelineResultsHeader: React.FunctionComponent<
   onChangePipelineOutputOption,
   pipelineOutputOption,
 }) => {
+  const enableTextAsPipeline = usePreference('enableTextAsPipeline', React);
   if (isMergeOrOutPipeline) {
     return null;
   }
   return (
     <div className={containerStyles} data-testid="pipeline-results-header">
-      {process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' && (
+      {enableTextAsPipeline && (
         <div className={pipelineOptionsStyles}>
           <Overline>All Results</Overline>
           <PipelineOutputOptionsMenu

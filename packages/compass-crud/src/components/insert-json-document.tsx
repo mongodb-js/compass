@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { css, cx, palette, withTheme } from '@mongodb-js/compass-components';
+import { css, cx, palette, withDarkMode } from '@mongodb-js/compass-components';
 import type { AceEditor } from '@mongodb-js/compass-editor';
 import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
@@ -42,7 +42,7 @@ type InsertJsonDocumentProps = {
   updateJsonDoc: (value: string) => void;
 };
 
-class UnstyledInsertJsonDocument extends Component<InsertJsonDocumentProps> {
+class InsertJsonDocument extends Component<InsertJsonDocumentProps> {
   editor?: AceEditor;
 
   componentDidMount() {
@@ -100,8 +100,4 @@ class UnstyledInsertJsonDocument extends Component<InsertJsonDocumentProps> {
   }
 }
 
-const InsertJsonDocument = withTheme(
-  UnstyledInsertJsonDocument
-) as typeof UnstyledInsertJsonDocument;
-
-export default InsertJsonDocument;
+export default withDarkMode(InsertJsonDocument);

@@ -8,7 +8,7 @@ import {
   Body,
   Badge,
   BadgeVariant,
-  withTheme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { IndexDefinition } from '../../modules/indexes';
 import BadgeWithIconLink from './badge-with-icon-link';
@@ -79,18 +79,18 @@ const ErrorBadgeWithTooltip: React.FunctionComponent<{
 };
 
 type PropertyFieldProps = {
-  darkMode?: boolean;
   extra: IndexDefinition['extra'];
   properties: IndexDefinition['properties'];
   cardinality: IndexDefinition['cardinality'];
 };
 
 const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
-  darkMode,
   extra,
   properties,
   cardinality,
 }) => {
+  const darkMode = useDarkMode();
+
   return (
     <div className={containerStyles}>
       {properties.map((property) => {
@@ -122,4 +122,4 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
   );
 };
 
-export default withTheme(PropertyField);
+export default PropertyField;
