@@ -75,7 +75,7 @@ const toolbarStyles = css({
 });
 
 const toolbarStylesDark = css({
-  borderBottomColor: palette.gray.light2
+  borderBottomColor: palette.gray.dark2
 });
 
 const toolbarStylesLight = css({
