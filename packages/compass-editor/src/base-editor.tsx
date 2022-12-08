@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useMemo, useRef } from 'react';
-import { cx } from '@mongodb-js/compass-components';
+import { cx, spacing } from '@mongodb-js/compass-components';
 import {
   css,
   useId,
@@ -70,6 +70,7 @@ export type EditorProps = {
 } & Omit<IAceEditorProps, 'onChange' | 'value' | 'theme'>;
 
 const editorStyle = css({
+  lineHeight: `${spacing[3]}px`,
   position: 'relative',
   width: '100%',
   zIndex: 0,
