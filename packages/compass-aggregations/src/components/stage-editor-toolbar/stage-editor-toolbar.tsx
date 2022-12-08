@@ -82,7 +82,11 @@ const toolbarStylesLight = css({
   borderBottomColor: palette.gray.light2
 });
 
-const toolbarErrorStyles = css({
+const toolbarErrorStylesDark = css({
+  backgroundColor: palette.red.dark3
+});
+
+const toolbarErrorStylesLight = css({
   backgroundColor: palette.red.light3
 });
 
@@ -109,7 +113,13 @@ function StageEditorToolbar({
   const darkMode = useDarkMode();
 
   return (
-    <div className={cx('stage-editor-toolbar', toolbarStyles, darkMode ? toolbarStylesDark : toolbarStylesLight, hasServerError && toolbarErrorStyles)}>
+    <div
+      className={cx(
+        'stage-editor-toolbar',
+        toolbarStyles,
+        darkMode ? toolbarStylesDark : toolbarStylesLight,
+        hasServerError && (darkMode ? toolbarErrorStylesDark : toolbarErrorStylesLight)
+      )}>
       <StageCollapser index={index} />
       <StageOperatorSelect index={index} />
       <ToggleStage index={index} />
