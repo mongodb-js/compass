@@ -1,11 +1,11 @@
 The following third-party software is used by and included in **compass**.
-This document was automatically generated on Wed Dec 07 2022.
+This document was automatically generated on Thu Dec 08 2022.
 
 ## List of dependencies
 
 Package|Version|License
 -------|-------|-------
-**[@mongosh/node-runtime-worker-thread](#15af2bd3c4e8ac5324529caabe5d302ad7a91ec05bc5e17e7dd3e24c7152de76)**|1.6.0|Apache-2.0
+**[@mongosh/node-runtime-worker-thread](#55b577e859dd7306c9d9c90bfb15989f6b79a9587706cd98be99f4cd5038c19a)**|1.6.1|Apache-2.0
 **[ansi-regex](#945d39147a145d6a28d87154006fa731c2e69d2a19e76cc7012624a1109f9317)**|2.1.1|MIT
 **[ansi-regex](#f4a8a360dfe3cdd0cbb8fcfa0cff23bb22eafa4225343577912ddf831d670411)**|3.0.0|MIT
 **[aproba](#b8b30f42274956b772cec4ea9f13cebaa5900724e514eaf0098a3ad6f1f7f16e)**|1.2.0|ISC
@@ -82,7 +82,7 @@ Package|Version|License
 **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**|4.0.1|MIT
 **[simple-get](#ade55c33f4d681462bccf90b122b9e974e43632f78545b6d8dc845e7f185e5da)**|3.1.0|MIT
 **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**|4.2.0|MIT
-**[socks](#d248334926a1dc960150cbe3b2ab15fa021e1b8b498cf04f0f32a9a876263e66)**|2.7.0|MIT
+**[socks](#16837d081453b731932951f203fc17778642c71f7cdc0c4557bc2dbd68a6fd1d)**|2.7.1|MIT
 **[string-width](#b0725207ba4a78809dec9436283671608c6a6c89b5f5cc66db6ce6da7bfb0cc0)**|1.0.2|MIT
 **[string-width](#e3ae6ddac7d522ef262f26fbded9f398d3642ba93321363b4634916ce1962b01)**|2.1.1|MIT
 **[strip-ansi](#79e4e45eb767932cbcc94ba2f18534155184857640dee665f4b43ae6d5294646)**|3.0.1|MIT
@@ -100,8 +100,8 @@ Package|Version|License
 
 ## Package details
 
-<a id="15af2bd3c4e8ac5324529caabe5d302ad7a91ec05bc5e17e7dd3e24c7152de76"></a>
-### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.6.0)
+<a id="55b577e859dd7306c9d9c90bfb15989f6b79a9587706cd98be99f4cd5038c19a"></a>
+### [@mongosh/node-runtime-worker-thread](https://www.npmjs.com/package/@mongosh/node-runtime-worker-thread) (version 1.6.1)
 <!-- initially found at node_modules/@mongosh/node-runtime-worker-thread -->
 > MongoDB shell runtime that lives in a worker thread
 
@@ -4403,8 +4403,8 @@ Authors:
 * syvita
 
 
-<a id="d248334926a1dc960150cbe3b2ab15fa021e1b8b498cf04f0f32a9a876263e66"></a>
-### [socks](https://www.npmjs.com/package/socks) (version 2.7.0)
+<a id="16837d081453b731932951f203fc17778642c71f7cdc0c4557bc2dbd68a6fd1d"></a>
+### [socks](https://www.npmjs.com/package/socks) (version 2.7.1)
 <!-- initially found at node_modules/socks -->
 > Fully featured SOCKS proxy client supporting SOCKSv4, SOCKSv4a, and SOCKSv5. Includes Bind and Associate functionality.
 
