@@ -16,7 +16,7 @@ import {
 } from '../utils/stage';
 
 import LoadingOverlay from './loading-overlay';
-import { AtlastStagePreivew } from './atlas-stage-preview';
+import { AtlasStagePreview } from './atlas-stage-preview';
 
 const stagePreviewOutStyles = css({
   display: 'flex',
@@ -70,9 +70,9 @@ function MergeSection({
     // TODO: is it still possible to get here? How do we test this?
     return (
       <div className={stagePreviewOutStyles}>
-        <div className={stagePreviewOutTextStyles}>
+        <Body className={stagePreviewOutTextStyles}>
           Documents persisted to collection specified by $merge.
-        </div>
+        </Body>
         <Link
           data-testid="go-to-merge-collection"
           as="button"
@@ -128,9 +128,9 @@ function OutSection({
       // TODO: is it still possible to get here? How do we test this?
       return (
         <Body as="div" className={stagePreviewOutStyles}>
-          <div className={stagePreviewOutTextStyles}>
+          <Body className={stagePreviewOutTextStyles}>
             Documents persisted to collection: {decomment(stageValue)}.
-          </div>
+          </Body>
           <Link
             data-testid="go-to-out-collection"
             as="button"
@@ -145,9 +145,9 @@ function OutSection({
 
     return (
       <Body as="div" className={stagePreviewOutStyles}>
-        <div className={stagePreviewOutTextStyles}>
+        <Body className={stagePreviewOutTextStyles}>
           {OUT_STAGE_PREVIEW_TEXT}
-        </div>
+        </Body>
         {isAtlasDeployed && (
           <Button
             variant="primary"
@@ -174,7 +174,7 @@ type AtlasOnlySectionProps = {
 function AtlasOnlySection({ stageOperator }: AtlasOnlySectionProps) {
   return (
     <div className={stagePreviewMissingSearchSupportStyles}>
-      <AtlastStagePreivew stageOperator={stageOperator} />
+      <AtlasStagePreview stageOperator={stageOperator} />
     </div>
   );
 }
@@ -209,9 +209,9 @@ function EmptyIcon() {
         <path d="M32.481 23.5351C32.5371 24.1479 32.4356 24.6923 32.2521 25.0729C32.0636 25.464 31.8363 25.6025 31.6674 25.6179C31.4985 25.6334 31.2499 25.5385 30.9935 25.1881C30.744 24.847 30.5454 24.3301 30.4894 23.7174C30.4333 23.1046 30.5348 22.5602 30.7183 22.1796C30.9068 21.7885 31.1341 21.65 31.303 21.6346C31.4719 21.6191 31.7205 21.714 31.9769 22.0644C32.2264 22.4055 32.425 22.9224 32.481 23.5351Z" fill="#889397"/>
       </svg>
     </div>
-    <div>
+    <Body>
       <i data-testid="stage-preview-empty">No Preview Documents</i>
-    </div>
+    </Body>
   </div>);
 }
 

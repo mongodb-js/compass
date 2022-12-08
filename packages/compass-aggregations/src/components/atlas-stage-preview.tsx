@@ -25,7 +25,7 @@ const atlasTextStyles = css({
   maxWidth: '400px',
 });
 
-export const AtlastStagePreivew = ({
+export const AtlasStagePreview = ({
   stageOperator,
 }: {
   stageOperator: string;
