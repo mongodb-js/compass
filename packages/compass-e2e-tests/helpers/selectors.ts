@@ -362,10 +362,7 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
-export const ShellOutput =
-  '[data-testid="shell-content"] [class^=mongosh-shell-output-line] pre';
-export const ShellLoader =
-  '[data-testid="shell-content"] [class~=mongosh-shell-loader-shell-loader]';
+export const ShellOutput = '[data-testid="shell-content"] pre[class]';
 
 // Query bar (Find, Schema, Explain Plan)
 export const QueryBarMenuActions = '#query-bar-menu-actions';

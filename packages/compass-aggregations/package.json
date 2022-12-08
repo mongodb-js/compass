@@ -77,7 +77,7 @@
     "is-electron-renderer": "^2.0.1",
     "lodash": "^4.17.21",
     "mocha": "^8.4.0",
-    "mongodb": "^4.10.0",
+    "mongodb": "^4.12.1",
     "mongodb-data-service": "^22.3.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
