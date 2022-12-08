@@ -132,3 +132,22 @@ i.syntax-help {
   padding-top: 4px;
   padding-left: 15px;
 }
+
+
+// Global scrollbar styles.
+// These are used in tandem with the styles applied in
+// `use-scrollbars` from `compass-components`.
+// Without these styles, the ace editor scrollbar
+// overlaps the content and impedes user experience.
+::-webkit-scrollbar {
+  width: 10px;
+  &:horizontal {
+    height: 10px;
+  }
+}
+::-webkit-scrollbar-track {
+  background-color: none;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+}
