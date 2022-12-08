@@ -6,6 +6,7 @@ import { useDarkMode } from '../hooks/use-theme';
 interface SpinLoaderProps {
   size?: string;
   title?: string;
+  className?: string;
 }
 
 const shellLoaderSpin = keyframes`
@@ -31,12 +32,20 @@ const darkStyles = css({
   borderTop: `2px solid ${palette.gray.light3}`,
 });
 
-function SpinLoader({ size = '12px', title }: SpinLoaderProps): JSX.Element {
+function SpinLoader({
+  size = '12px',
+  title,
+  className,
+}: SpinLoaderProps): JSX.Element {
   const darkMode = useDarkMode();
 
   return (
     <div
-      className={cx(spinLoaderStyle, darkMode ? darkStyles : lightStyles)}
+      className={cx(
+        spinLoaderStyle,
+        darkMode ? darkStyles : lightStyles,
+        className
+      )}
       style={{
         width: size,
         height: size,
