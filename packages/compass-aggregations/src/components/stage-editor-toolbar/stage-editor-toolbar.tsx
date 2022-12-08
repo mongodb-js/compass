@@ -82,12 +82,12 @@ const toolbarStylesLight = css({
   borderBottomColor: palette.gray.light2
 });
 
-const toolbarErrorStylesDark = css({
-  backgroundColor: palette.red.dark3
+const toolbarWarningStyles = css({
+  borderBottomColor: palette.yellow.base
 });
 
-const toolbarErrorStylesLight = css({
-  backgroundColor: palette.red.light3
+const toolbarErrorStyles = css({
+  borderBottomColor: palette.red.base
 });
 
 const rightStyles = css({
@@ -100,14 +100,16 @@ const rightStyles = css({
 type StageEditorToolbarProps = {
   stageOperator?: keyof typeof STAGE_TOOLTIP_MESSAGE,
   index: number
-  isAutoPreviewing?: boolean,
-  hasServerError?: boolean
+  isAutoPreviewing: boolean,
+  hasSyntaxError: boolean
+  hasServerError: boolean
 };
 
 function StageEditorToolbar({
   stageOperator,
   index,
   isAutoPreviewing,
+  hasSyntaxError,
   hasServerError
 }: StageEditorToolbarProps) {
   const darkMode = useDarkMode();
@@ -118,7 +120,8 @@ function StageEditorToolbar({
         'stage-editor-toolbar',
         toolbarStyles,
         darkMode ? toolbarStylesDark : toolbarStylesLight,
-        hasServerError && (darkMode ? toolbarErrorStylesDark : toolbarErrorStylesLight)
+        hasSyntaxError && toolbarWarningStyles,
+        hasServerError && toolbarErrorStyles
       )}>
       <StageCollapser index={index} />
       <StageOperatorSelect index={index} />
@@ -140,7 +143,8 @@ export default connect((state: RootState, ownProps: { index: number}) => {
   const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
   return {
     stageOperator: stage.stageOperator,
-    isAutoPreviewing: state.autoPreview,
+    isAutoPreviewing: !!state.autoPreview,
+    hasSyntaxError: !!stage.syntaxError,
     hasServerError: !!stage.serverError,
   };
 }, null)(StageEditorToolbar);

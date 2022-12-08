@@ -26,6 +26,10 @@ const stageStyles = css({
   overflow: 'hidden' // this is so that the top left red border corner does not get cut off when there's a server error
 });
 
+const stageWarningStyles = css({
+  borderColor: palette.yellow.base
+});
+
 const stageErrorStyles = css({
   borderColor: palette.red.base
 });
@@ -111,6 +115,7 @@ type StageProps = {
   index: number,
   isEnabled: boolean,
   isExpanded: boolean,
+  hasSyntaxError: boolean,
   hasServerError: boolean,
   isAutoPreviewing: boolean
 }
@@ -119,12 +124,17 @@ function Stage({
   index,
   isEnabled,
   isExpanded,
+  hasSyntaxError,
   hasServerError,
   isAutoPreviewing
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
 
-  return (<KeylineCard className={cx(stageStyles, hasServerError && stageErrorStyles)} style={{ opacity }}>
+  return (<KeylineCard className={cx(
+      stageStyles,
+      hasSyntaxError && stageWarningStyles,
+      hasServerError && stageErrorStyles
+    )} style={{ opacity }}>
     <ResizableEditor index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
     {isAutoPreviewing && (<div className={stagePreviewContainerStyles}>
       <StagePreviewToolbar index={index} />
@@ -145,6 +155,7 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
   return {
     isEnabled: !stage.disabled,
     isExpanded: !stage.collapsed,
+    hasSyntaxError: !!stage.syntaxError,
     hasServerError: !!stage.serverError,
     isAutoPreviewing: state.autoPreview
   };

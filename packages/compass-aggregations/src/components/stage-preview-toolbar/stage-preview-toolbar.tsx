@@ -30,12 +30,12 @@ const toolbarStylesLight = css({
   borderBottomColor: palette.gray.light2
 });
 
-const toolbarErrorStylesDark = css({
-  backgroundColor: palette.red.dark3
+const toolbarWarningStyles = css({
+  borderBottomColor: palette.yellow.base
 });
 
-const toolbarErrorStylesLight = css({
-  backgroundColor: palette.red.light3
+const toolbarErrorStyles = css({
+  borderBottomColor: palette.red.base
 });
 
 const OperatorLink: React.FunctionComponent<{
@@ -92,9 +92,11 @@ const DefaultPreviewText: React.FunctionComponent<{
 };
 
 type StagePreviewToolbarProps = {
-  stageOperator?: string;
-  hasServerError?: boolean;
-  isEnabled?: boolean;
+  index: number;
+  stageOperator: string | null;
+  hasSyntaxError: boolean;
+  hasServerError: boolean;
+  isEnabled: boolean;
   previewSize?: number;
   description?: string;
   link?: string;
@@ -103,6 +105,7 @@ type StagePreviewToolbarProps = {
 
 function StagePreviewToolbar({
   stageOperator,
+  hasSyntaxError,
   hasServerError,
   isEnabled,
   previewSize,
@@ -117,7 +120,8 @@ function StagePreviewToolbar({
       className={cx(
         toolbarStyles,
         darkMode ? toolbarStylesDark : toolbarStylesLight,
-        hasServerError && (darkMode ? toolbarErrorStylesDark : toolbarErrorStylesLight)
+        hasSyntaxError && toolbarWarningStyles,
+        hasServerError && toolbarErrorStyles
       )}
     >
       {isEnabled ? (
@@ -150,7 +154,9 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     stage.value
   );
   return {
+    index: ownProps.index,
     stageOperator: stage.stageOperator,
+    hasSyntaxError: !!stage.syntaxError,
     hasServerError: !!stage.serverError,
     isEnabled: !stage.disabled,
     previewSize: stage.previewDocs?.length ?? 0,
