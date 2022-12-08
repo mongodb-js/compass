@@ -172,6 +172,7 @@ class EditableJson extends React.Component<
    */
   handleCancel = () => {
     this.setState({
+      containsErrors: false,
       editing: false,
       deleting: false,
       value: this._getObjectAsString(),
