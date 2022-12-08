@@ -64,6 +64,7 @@ function ResizableEditor({ index, isExpanded, isAutoPreviewing }: ResizableEdito
     <>
       <DragHandleToolbar index={index} />
       {isExpanded && (
+        // @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted.
         <StageEditor index={index} />
       )}
     </>
