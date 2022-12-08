@@ -8,15 +8,13 @@ const filter = (
   prefix: string
 ) => {
   const parsedVersion = semver.parse(version);
+  const cleanVersion = parsedVersion
+    ? [parsedVersion.major, parsedVersion.minor, parsedVersion.patch].join('.')
+    : version;
   return entries.filter((e) => {
     if (!e.name) {
       return false;
     }
-    const cleanVersion = parsedVersion
-      ? [parsedVersion.major, parsedVersion.minor, parsedVersion.patch].join(
-          '.'
-        )
-      : version;
     return e.name.startsWith(prefix) && semver.gte(cleanVersion, e.version);
   });
 };
