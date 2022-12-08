@@ -41,10 +41,10 @@ const bodyStylesDark = css({
 
 const documentsContainerStyles = css({
   marginTop: spacing[2],
+  paddingBottom: spacing[2],
   display: 'flex',
   overflowX: 'scroll',
   gap: spacing[2],
-  paddingBottom: spacing[2]
 });
 
 const documentContainerStyles = css({
