@@ -1,5 +1,7 @@
 import React from 'react';
-import { useDarkMode as useLeafyGreenDarkMode } from '@leafygreen-ui/leafygreen-provider';
+import LeafyGreenProvider, {
+  useDarkMode as useLeafyGreenDarkMode,
+} from '@leafygreen-ui/leafygreen-provider';
 
 enum Theme {
   Light = 'Light',
@@ -15,6 +17,26 @@ export function useDarkMode(): boolean | undefined {
 interface WithDarkModeProps {
   darkMode?: boolean;
 }
+
+// @deprecated Only left for browser-shell compatibility
+export const ThemeProvider = ({
+  children,
+  theme,
+}: {
+  children: React.ReactNode;
+  theme: {
+    theme: Theme;
+    enabled: boolean;
+  };
+}): React.ReactElement => {
+  return theme.enabled ? (
+    <LeafyGreenProvider darkMode={theme.theme === Theme.Dark}>
+      {children}
+    </LeafyGreenProvider>
+  ) : (
+    <>{children}</>
+  );
+};
 
 // High Order Component(HOC) used to inject Compass' theme pulled from the available
 // theme on the React context from LeafyGreen's provider into the wrapped component.
