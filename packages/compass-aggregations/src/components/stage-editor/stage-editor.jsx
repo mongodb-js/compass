@@ -19,29 +19,24 @@ const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const editorContainerStyles = css({
   position: 'relative',
-  padding: spacing[2],
-  textAlign: 'center'
+  textAlign: 'center',
+  overflow: 'hidden',
 });
 
 const editorStyles = css({
   flexShrink: 0,
   margin: 0,
   padding: `${spacing[2]}px 0 ${spacing[2]}px 0`,
-  overflow: 'hidden',
-  borderLeftWidth: '2px',
-  borderLeftStyle: 'solid',
   width: '100%',
   minHeight: '200px'
 });
 
-const editorStylesDark = css({
+const editorContainerStylesDark = css({
   background: palette.gray.dark3,
-  borderLeftColor: palette.gray.dark2
 });
 
-const editorStylesLight = css({
+const editorContainerStylesLight = css({
   background: palette.gray.light3,
-  borderLeftColor: palette.gray.light2
 });
 
 const aceEditorStyles = css({
@@ -49,7 +44,7 @@ const aceEditorStyles = css({
 });
 
 const bannerStyles = css({
-  marginTop: spacing[2]
+  margin: spacing[2],
 });
 
 /**
@@ -198,8 +193,8 @@ class UnthemedStageEditor extends PureComponent {
    */
   render() {
     return (
-      <div className={editorContainerStyles}>
-        <div className={cx(editorStyles, this.props.darkMode ? editorStylesDark : editorStylesLight)}>
+      <div className={cx(editorContainerStyles, this.props.darkMode ? editorContainerStylesDark : editorContainerStylesLight)}>
+        <div className={editorStyles}>
           <Editor
             text={this.props.stageValue}
             onChangeText={this.onStageChange}
