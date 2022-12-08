@@ -86,6 +86,19 @@ function ResizableEditor({ index, isExpanded, isAutoPreviewing }: ResizableEdito
       handleComponent={{
         right: <ResizeHandle />,
       }}
+      handleStyles={{
+        right: {
+          // Position the line in the middle of the container so that:
+          // a) It sits on the border of the editor and preview areas rather
+          //    than inside the editor.
+          // b) The user initiates dragging from the line and not slightly off
+          //    to the left.
+          // If this ever needs to be tweaked, the easiest way is to give the
+          // editor and preview toolbars different background colours and add a
+          // transparent background here.
+          right: '-9px' // default -5px
+        }
+      }}
     >
       {editor}
     </Resizable>
