@@ -132,7 +132,13 @@ export const refreshInputDocuments = () => {
 
       const count = data[0].status === 'fulfilled' ? data[0].value : null;
       const docs = data[1].status === 'fulfilled' ? data[1].value : [];
-      dispatch(updateInputDocuments(count, docs, null));
+
+      const error = data[0].status === 'rejected'
+        ? data[0].reason
+        : data[1].status === 'rejected'
+        ? data[1].reason
+        : null;
+      dispatch(updateInputDocuments(count, docs, error));
     } catch (error) {
       dispatch(updateInputDocuments(null, [], error));
     }
