@@ -71,6 +71,9 @@ export type EditorProps = {
 
 const editorStyle = css({
   lineHeight: `${spacing[3]}px`,
+  // We want folks to be able to click into the container element
+  // they're using for the editor to focus the editor.
+  minHeight: 'inherit',
   position: 'relative',
   width: '100%',
   zIndex: 0,
