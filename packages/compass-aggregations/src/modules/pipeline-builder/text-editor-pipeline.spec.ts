@@ -74,26 +74,6 @@ describe('textEditorPipeline', function () {
       expect(pipeline.syntaxErrors).to.deep.equal([]);
       expect(pipeline.isPreviewStale).to.equal(false);
     });
-
-    it('does not load preview if pipeline is same as old', async function () {
-      store.dispatch(changeEditorValue('[{$match: {_id: 1}}]'));
-      // we debounce for 700ms in preview manager
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.isLastPipelinePreviewEqual).to.be.calledOnce;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
-
-      Sinon.resetHistory();
-
-      // change the pipeline, which is same as old
-      store.dispatch(changeEditorValue('[{"$match": {_id: 1,},},]'));
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.isLastPipelinePreviewEqual).to.be.calledOnce;
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
-    });
   });
 
   describe('loadPreviewForPipeline', function () {
