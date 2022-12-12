@@ -93,10 +93,10 @@ const DefaultPreviewText: React.FunctionComponent<{
 
 type StagePreviewToolbarProps = {
   index: number;
-  stageOperator: string | null;
-  hasSyntaxError: boolean;
-  hasServerError: boolean;
-  isEnabled: boolean;
+  stageOperator?: string | null;
+  hasSyntaxError?: boolean;
+  hasServerError?: boolean;
+  isEnabled?: boolean;
   previewSize?: number;
   description?: string;
   link?: string;

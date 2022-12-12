@@ -100,9 +100,9 @@ const rightStyles = css({
 type StageEditorToolbarProps = {
   stageOperator?: keyof typeof STAGE_TOOLTIP_MESSAGE,
   index: number
-  isAutoPreviewing: boolean,
-  hasSyntaxError: boolean
-  hasServerError: boolean
+  isAutoPreviewing?: boolean,
+  hasSyntaxError?: boolean
+  hasServerError?: boolean
 };
 
 function StageEditorToolbar({
