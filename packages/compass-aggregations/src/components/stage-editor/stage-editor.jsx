@@ -10,7 +10,7 @@ import {
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-import { css, cx, spacing, palette, Banner, withTheme } from '@mongodb-js/compass-components';
+import { css, cx, spacing, palette, Banner, withDarkMode } from '@mongodb-js/compass-components';
 
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
 
@@ -216,7 +216,7 @@ class UnthemedStageEditor extends PureComponent {
   }
 }
 
-const StageEditor = withTheme(UnthemedStageEditor);
+const StageEditor = withDarkMode(UnthemedStageEditor);
 
 export default connect(
   (state, ownProps) => {
