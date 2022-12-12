@@ -159,4 +159,4 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
     hasServerError: !!stage.serverError,
     isAutoPreviewing: state.autoPreview
   };
-}, null)(Stage);
+})(Stage);

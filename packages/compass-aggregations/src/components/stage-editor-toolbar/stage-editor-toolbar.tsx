@@ -98,7 +98,7 @@ const rightStyles = css({
 });
 
 type StageEditorToolbarProps = {
-  stageOperator?: keyof typeof STAGE_TOOLTIP_MESSAGE,
+  stageOperator?: string | null,
   index: number
   isAutoPreviewing?: boolean,
   hasSyntaxError?: boolean
@@ -127,9 +127,9 @@ function StageEditorToolbar({
       <StageOperatorSelect index={index} />
       <ToggleStage index={index} />
       <div className={rightStyles}>
-        {!isAutoPreviewing && stageOperator && (
+        {!isAutoPreviewing && stageOperator && ['$out', '$merge'].includes(stageOperator) && (
           <StageEditorOutMergeTooltip
-            stageOperator={stageOperator}
+            stageOperator={stageOperator as '$out'|'$merge'}
           ></StageEditorOutMergeTooltip>
         )}
         <DeleteStage index={index} />
@@ -147,4 +147,4 @@ export default connect((state: RootState, ownProps: { index: number}) => {
     hasSyntaxError: !!stage.syntaxError,
     hasServerError: !!stage.serverError,
   };
-}, null)(StageEditorToolbar);
+})(StageEditorToolbar);

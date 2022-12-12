@@ -162,4 +162,4 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     previewSize: stage.previewDocs?.length ?? 0,
     ...stageInfo
   };
-}, null)(StagePreviewToolbar);
+})(StagePreviewToolbar);
