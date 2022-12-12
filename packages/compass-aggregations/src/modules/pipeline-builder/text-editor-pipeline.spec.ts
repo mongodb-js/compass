@@ -80,14 +80,18 @@ describe('textEditorPipeline', function () {
       // we debounce for 700ms in preview manager
       await new Promise((resolve) => setTimeout(resolve, 800));
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.isLastPipelinePreviewEqual).to.be.calledOnce;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForPipeline).to.be.calledOnce;
 
       Sinon.resetHistory();
 
       // change the pipeline, which is same as old
       store.dispatch(changeEditorValue('[{"$match": {_id: 1,},},]'));
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.isLastPipelinePreviewEqual).to.be.calledOnce;
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(store.pipelineBuilder.getPreviewForPipeline).not.to.be.called;
     });
   });
