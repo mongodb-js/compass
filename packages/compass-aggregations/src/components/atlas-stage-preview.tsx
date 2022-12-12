@@ -3,7 +3,7 @@ import {
   Button,
   css,
   spacing,
-  AtlasLogo,
+  AtlasNavGraphic,
   Body,
 } from '@mongodb-js/compass-components';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
@@ -35,7 +35,7 @@ export const AtlasStagePreview = ({
       className={atlasContainerStyles}
       data-testid="atlas-only-stage-preview"
     >
-      <AtlasLogo />
+      <AtlasNavGraphic />
       <Body
         data-testid="stage-preview-missing-search-support"
         className={atlasTextStyles}

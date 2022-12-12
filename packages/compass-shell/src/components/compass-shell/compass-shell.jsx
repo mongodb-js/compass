@@ -3,35 +3,36 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withPreferences } from 'compass-preferences-model';
 
-import { Shell } from '@mongosh/browser-repl';
+// The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
+const { Shell } = require('@mongosh/browser-repl');
 import {
   ResizeHandle,
   ResizeDirection,
   css,
   cx,
+  getScrollbarStyles,
   palette,
-  rgba,
 } from '@mongodb-js/compass-components';
 
 import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
 
-const compassShellStyles = css({
-  backgroundColor: palette.gray.dark3,
-  display: 'flex',
-  flexBasis: 'auto',
-  position: 'relative',
-  flexDirection: 'column',
-});
+const compassShellStyles = css(
+  {
+    backgroundColor: palette.gray.dark3,
+    display: 'flex',
+    flexBasis: 'auto',
+    position: 'relative',
+    flexDirection: 'column',
+  },
+  getScrollbarStyles(true /* Always show dark mode. */)
+);
 
 const compassShellContainerStyles = css({
   flexGrow: 1,
   display: 'none',
   overflow: 'auto',
   borderTop: `1px solid ${palette.gray.dark2}`,
-  '*::-webkit-scrollbar-thumb': {
-    background: rgba(palette.gray.light1, 0.5),
-  },
 });
 
 const compassShellContainerVisibleStyles = css({
@@ -242,9 +243,10 @@ export class CompassShell extends Component {
           />
           <div
             data-testid="shell-content"
-            className={cx(compassShellContainerStyles, {
-              [compassShellContainerVisibleStyles]: isExpanded,
-            })}
+            className={cx(
+              compassShellContainerStyles,
+              isExpanded && compassShellContainerVisibleStyles
+            )}
           >
             <Shell
               ref={this.shellRef}

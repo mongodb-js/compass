@@ -294,28 +294,29 @@ export interface DataService {
    *
    * @param ns - The namespace to search on.
    * @param options - The query options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
   estimatedCount(
     ns: string,
-    options: EstimatedDocumentCountOptions,
-    callback: Callback<number>
-  ): void;
+    options?: EstimatedDocumentCountOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<number>;
 
   /**
    * Count the number of documents in the collection for the provided filter
    * and options.
    *
    * @param ns - The namespace to search on.
+   * @param filter - The filter query.
    * @param options - The query options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
   count(
     ns: string,
     filter: Filter<Document>,
-    options: CountDocumentsOptions,
-    callback: Callback<number>
-  ): void;
+    options?: CountDocumentsOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<number>;
 
   /**
    * Creates a collection
@@ -1263,41 +1264,54 @@ export class DataServiceImpl extends EventEmitter implements DataService {
 
   estimatedCount(
     ns: string,
-    options: EstimatedDocumentCountOptions,
-    callback: Callback<number>
-  ): void {
-    const logop = this._startLogOp(
+    options: EstimatedDocumentCountOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<number> {
+    log.info(
       mongoLogId(1_001_000_034),
+      this._logCtx(),
       'Running estimatedCount',
       { ns }
     );
-    this._collection(ns, 'CRUD').estimatedDocumentCount(
-      options,
-      (err, result) => {
-        logop(err, result);
-        callback(err, result!);
-      }
+
+    let _session: ClientSession | undefined;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        _session = session;
+        return this._collection(ns, 'CRUD').estimatedDocumentCount({
+          ...options,
+          session,
+        });
+      },
+      () => _session!.endSession(),
+      executionOptions?.abortSignal
     );
   }
 
   count(
     ns: string,
     filter: Filter<Document>,
-    options: CountDocumentsOptions,
-    callback: Callback<number>
-  ): void {
-    const logop = this._startLogOp(
+    options: CountDocumentsOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<number> {
+    log.info(
       mongoLogId(1_001_000_035),
+      this._logCtx(),
       'Running countDocuments',
       { ns }
     );
-    this._collection(ns, 'CRUD').countDocuments(
-      filter,
-      options,
-      (err, result) => {
-        logop(err, result);
-        callback(err, result!);
-      }
+
+    let _session: ClientSession | undefined;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        _session = session;
+        return this._collection(ns, 'CRUD').countDocuments(filter, {
+          ...options,
+          session,
+        });
+      },
+      () => _session!.endSession(),
+      executionOptions?.abortSignal
     );
   }
 

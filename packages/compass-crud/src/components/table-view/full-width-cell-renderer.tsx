@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   DocumentList,
-  Theme,
-  ThemeProvider,
+  LeafyGreenProvider,
 } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { CellEditorProps } from './cell-editor';
@@ -127,12 +126,7 @@ class FullWidthCellRenderer extends React.Component<
     return (
       // this is needed cause ag-grid renders this component outside
       // of the context chain
-      <ThemeProvider
-        theme={{
-          theme: this.props.darkMode ? Theme.Dark : Theme.Light,
-          enabled: true,
-        }}
-      >
+      <LeafyGreenProvider darkMode={this.props.darkMode}>
         <DocumentList.DocumentEditActionsFooter
           doc={this.doc}
           editing={this.state.mode === 'editing'}
@@ -157,7 +151,7 @@ class FullWidthCellRenderer extends React.Component<
             }
           }}
         />
-      </ThemeProvider>
+      </LeafyGreenProvider>
     );
   }
 

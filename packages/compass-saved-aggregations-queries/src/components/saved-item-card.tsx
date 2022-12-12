@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import type { MenuAction } from '@mongodb-js/compass-components';
-import { cx, Theme, useTheme } from '@mongodb-js/compass-components';
+import { cx, useDarkMode } from '@mongodb-js/compass-components';
 import {
   Card,
   css,
@@ -190,7 +190,7 @@ export const SavedItemCard: React.FunctionComponent<
   );
 
   const formattedDate = useFormattedDate(lastModified);
-  const theme = useTheme();
+  const darkMode = useDarkMode();
 
   return (
     // @ts-expect-error the error here is caused by passing children to Card
@@ -217,10 +217,7 @@ export const SavedItemCard: React.FunctionComponent<
       </div>
       <Subtitle
         as="div"
-        className={cx(
-          cardName,
-          theme.theme === Theme.Dark ? cardNameDark : cardNameLight
-        )}
+        className={cx(cardName, darkMode ? cardNameDark : cardNameLight)}
         title={name}
       >
         {name}

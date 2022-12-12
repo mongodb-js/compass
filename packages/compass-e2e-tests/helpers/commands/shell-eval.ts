@@ -28,8 +28,7 @@ export async function shellEval(
   // wait until more output appears
   await browser.waitUntil(async () => {
     const lines = await getOutputText(browser);
-    // first the command we send appears then later the response
-    return lines.length > numLines + 1;
+    return lines.length > numLines;
   });
 
   const shellOutputElements = await browser.$$(Selectors.ShellOutput);

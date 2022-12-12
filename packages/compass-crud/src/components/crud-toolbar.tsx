@@ -244,23 +244,20 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               data-testid="toolbar-view-list"
               aria-label="Document list"
               value="List"
-            >
-              <Icon glyph="Menu" />
-            </SegmentedControlOption>
+              glyph={<Icon glyph="Menu" />}
+            ></SegmentedControlOption>
             <SegmentedControlOption
               data-testid="toolbar-view-json"
               aria-label="E-JSON View"
               value="JSON"
-            >
-              <Icon glyph="CurlyBraces" />
-            </SegmentedControlOption>
+              glyph={<Icon glyph="CurlyBraces" />}
+            ></SegmentedControlOption>
             <SegmentedControlOption
               data-testid="toolbar-view-table"
               aria-label="Table View"
               value="Table"
-            >
-              <Icon glyph="Table" />
-            </SegmentedControlOption>
+              glyph={<Icon glyph="Table" />}
+            ></SegmentedControlOption>
           </SegmentedControl>
         </div>
       </div>

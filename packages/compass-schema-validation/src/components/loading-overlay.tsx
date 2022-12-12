@@ -27,7 +27,7 @@ const loadingOverlayStylesDark = css({
 });
 
 const loadingOverlayStylesLight = css({
-  backgroundColor: 'white',
+  backgroundColor: palette.white,
 });
 
 function LoadingOverlay() {

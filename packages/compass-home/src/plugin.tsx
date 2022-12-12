@@ -3,8 +3,6 @@ import type AppRegistry from 'hadron-app-registry';
 import Home from './components/home';
 import AppRegistryContext from './contexts/app-registry-context';
 
-import './index.less';
-
 function Plugin({
   appRegistry,
   ...homeProps

@@ -17,7 +17,7 @@ import {
   css,
   cx,
   palette,
-  withTheme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 
@@ -116,7 +116,6 @@ const connectionStringErrorStyles = css({
 });
 
 function ConnectForm({
-  darkMode,
   initialConnectionInfo,
   connectionErrorMessage,
   onConnectClicked,
@@ -130,6 +129,8 @@ function ConnectForm({
   onConnectClicked: (connectionInfo: ConnectionInfo) => void;
   onSaveConnectionClicked?: (connectionInfo: ConnectionInfo) => Promise<void>;
 }): React.ReactElement {
+  const darkMode = useDarkMode();
+
   const [
     {
       enableEditingConnectionString: _enableEditingConnectionString,
@@ -364,4 +365,4 @@ function ConnectForm({
   );
 }
 
-export default withTheme(ConnectForm);
+export default ConnectForm;

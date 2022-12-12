@@ -174,6 +174,9 @@ const editorContainerStyle = css({
   // top of the container that wraps the editor
   paddingTop: spacing[1],
   height: `calc(100% - ${spacing[1]}px)`,
+  // We want folks to be able to click into the container element
+  // they're using for the editor to focus the editor.
+  minHeight: 'inherit',
 });
 
 const actionsContainerStyle = css({

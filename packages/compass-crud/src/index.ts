@@ -3,7 +3,7 @@ import type AppRegistry from 'hadron-app-registry';
 import Document, { DocumentProps } from './components/document';
 import DocumentList, { DocumentListProps } from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
-import ConnectedDocumentList from './components/connected-document-list';
+import { ConnectedDocumentList } from './components/connected-document-list';
 import configureActions from './actions';
 import configureStore from './stores/crud-store';
 

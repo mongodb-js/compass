@@ -1,4 +1,0 @@
-ignores: [
-  "core-js",
-  "webpack-cli"
-]

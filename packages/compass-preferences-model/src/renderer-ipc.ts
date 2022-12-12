@@ -14,7 +14,7 @@ import { createSandboxAccessFromProps } from './setup-preferences';
  * API to communicate with preferences from the electron renderer process.
  */
 export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
-  let cachedPreferences = {} as Readonly<AllPreferences>;
+  let cachedPreferences = {} as AllPreferences;
   let inflightCacheRefresh: Promise<AllPreferences> | undefined;
   async function refreshCachedPreferences(): Promise<AllPreferences> {
     inflightCacheRefresh = ipcRenderer.invoke('compass:get-preferences');
@@ -60,9 +60,11 @@ export const makePreferencesIpc = (ipcRenderer: HadronIpcRenderer) => {
       callback: (value: AllPreferences[K]) => void
     ): () => void {
       let isUnsubscribed = false;
-      const listener = (_: unknown, preferences: AllPreferences) => {
-        if (Object.keys(preferences).includes(preferenceName)) {
-          return callback(preferences[preferenceName]);
+      const listener = (_: unknown, changedPreferences: AllPreferences) => {
+        // Ensure that .getPreferences() calls return the right value inside the callback.
+        Object.assign(cachedPreferences, changedPreferences);
+        if (Object.keys(changedPreferences).includes(preferenceName)) {
+          return callback(changedPreferences[preferenceName]);
         }
       };
 

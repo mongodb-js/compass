@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import { usePreference } from 'compass-preferences-model';
 import { connect } from 'react-redux';
 
-import { Combobox, ComboboxOption, css, cx, spacing } from '@mongodb-js/compass-components';
+import { Combobox, ComboboxOption, css, cx, spacing, LeafyGreenProvider, useScrollbars } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
@@ -17,11 +17,21 @@ const descriptionWidth = spacing[5] * 14;
 const stageNameWidth = spacing[4] * 8;
 const dropdownWidth = stageNameWidth + descriptionWidth;
 
+const inputHeight = spacing[4] - 2; // match other xs controls
 const comboboxStyles = css({
   marginLeft: spacing[2],
+  marginRight: spacing[2],
   width: inputWidth,
   '& [role="combobox"]': {
-    height: spacing[4] - 2 // match other xs controls
+    padding: 0,
+    paddingLeft: spacing[1],
+    height: inputHeight,
+    '& > div': {
+      minHeight: inputHeight,
+    },
+    '& input': {
+      height: inputHeight - 2
+    }
   }
 });
 
@@ -60,6 +70,10 @@ const StageOperatorSelect = ({
   selectedStage,
   stages
 }: StageOperatorSelectProps) => {
+  const {
+    className: scrollbarStyles
+  } = useScrollbars();
+
   const onStageOperatorSelected = useCallback((name: string|null) => {
     onChange(index, name);
   }, [onChange, index]);
@@ -68,28 +82,46 @@ const StageOperatorSelect = ({
     return Object.fromEntries(stages.map((stage) => [stage.name, comboboxOptionStyles(stage)]))
   }, [stages])
 
-  return <Combobox value={selectedStage}
-    aria-label="Select a stage operator"
-    onChange={onStageOperatorSelected}
-    size="default"
-    clearable={false}
-    data-testid="stage-operator-combobox"
-    className={comboboxStyles}
-    // @ts-expect-error According to leafygreen the type of portalClassName should be undefined
-    portalClassName={cx(
-      portalStyles,
-      // used for testing since at the moment is not possible to identify
-      // the listbox container or the single ComboboxOptions with testIds
-      `mongodb-compass-stage-operator-combobox-portal-${index}`
-    )}>
-      {stages.map((stage, index) => <ComboboxOption
-          data-testid={`combobox-option-stage-${stage.name}`}
-          key={`combobox-option-stage-${index}`}
-          value={stage.name}
-          className={optionStyleByStageName[stage.name]}
-          displayName={stage.name} />
-      )}
-  </Combobox>;
+  return (
+    <LeafyGreenProvider
+      popoverPortalContainer={{
+        // We style the combobox option container to fit the atypical width
+        // to accommodate the stage descriptions.
+        // To apply these styles we need to apply them to the portal container
+        // of the combobox options.
+        // Because Compass uses the `popoverPortalContainer` from LeafyGreen in home.tsx
+        // we here need to unset the provided `portalContainer` so that we can
+        // ensure the styles are applied to the combobox options by not using Compass' popover portal.
+        portalContainer: undefined,
+      }}
+    >
+      <Combobox value={selectedStage}
+        aria-label="Select a stage operator"
+        onChange={onStageOperatorSelected}
+        size="default"
+        clearable={false}
+        data-testid="stage-operator-combobox"
+        className={comboboxStyles}
+        // @ts-expect-error According to leafygreen the type of portalClassName should be undefined
+        portalClassName={cx(
+          scrollbarStyles,
+          portalStyles,
+          // used for testing since at the moment is not possible to identify
+          // the listbox container or the single ComboboxOptions with testIds
+          `mongodb-compass-stage-operator-combobox-portal-${index}`
+        )}
+      >
+        {stages.map((stage, index) => <ComboboxOption
+            data-testid={`combobox-option-stage-${stage.name}`}
+            key={`combobox-option-stage-${index}`}
+            value={stage.name}
+            className={optionStyleByStageName[stage.name]}
+            displayName={stage.name}
+          />
+        )}
+      </Combobox>
+    </LeafyGreenProvider>
+  );
 };
 
 type EnvAwareStageOperatorSelectProps = {
@@ -131,12 +163,14 @@ function EnvAwareStageOperatorSelect({
     }
   }
 
-  return <StageOperatorSelect
-    index={index}
-    stages={stages}
-    selectedStage={stage.stageOperator}
-    onChange={onChangeFilter}
-    />
+  return (
+    <StageOperatorSelect
+      index={index}
+      stages={stages}
+      selectedStage={stage.stageOperator}
+      onChange={onChangeFilter}
+      />
+  );
 }
 
 export default connect(

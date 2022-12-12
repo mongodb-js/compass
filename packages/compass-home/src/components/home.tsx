@@ -1,13 +1,12 @@
 import {
-  css,
-  cx,
   LeafyGreenProvider,
   Theme,
-  ThemeProvider,
   ToastArea,
+  css,
+  cx,
+  getScrollbarStyles,
   palette,
 } from '@mongodb-js/compass-components';
-import type { ThemeState } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Settings from '@mongodb-js/compass-settings';
 import Welcome from '@mongodb-js/compass-welcome';
@@ -18,11 +17,13 @@ import toNS from 'mongodb-ns';
 import React, {
   useCallback,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
   useState,
 } from 'react';
 import preferences from 'compass-preferences-model';
+
 import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
@@ -79,6 +80,11 @@ const globalDarkThemeStyles = css({
 const defaultNS: Namespace = {
   database: '',
   collection: '',
+};
+
+type ThemeState = {
+  theme: Theme;
+  enabled: boolean;
 };
 
 type State = {
@@ -329,6 +335,8 @@ function ThemedHome(
     showWelcomeModal?: boolean;
   }
 ): ReturnType<typeof Home> {
+  const [scrollbarsContainerRef, setScrollbarsContainerRef] =
+    useState<HTMLDivElement | null>(null);
   const {
     showWelcomeModal = !preferences.getPreferences().showedNetworkOptIn,
   } = props;
@@ -338,6 +346,11 @@ function ThemedHome(
     theme: getCurrentTheme(),
     enabled: !!preferences.getPreferences().lgDarkmode,
   });
+
+  const darkMode = useMemo(
+    () => theme.enabled && theme.theme === Theme.Dark,
+    [theme]
+  );
 
   useEffect(() => {
     const listener = () => {
@@ -399,8 +412,16 @@ function ThemedHome(
   }, [setIsSettingsOpen]);
 
   return (
-    <LeafyGreenProvider>
-      <ThemeProvider theme={theme}>
+    <LeafyGreenProvider
+      darkMode={darkMode}
+      popoverPortalContainer={{
+        portalContainer: scrollbarsContainerRef,
+      }}
+    >
+      <div
+        className={getScrollbarStyles(darkMode)}
+        ref={setScrollbarsContainerRef}
+      >
         {showWelcomeModal && (
           <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
         )}
@@ -409,16 +430,14 @@ function ThemedHome(
           <div
             className={cx(
               homeContainerStyles,
-              theme.theme === Theme.Dark
-                ? globalDarkThemeStyles
-                : globalLightThemeStyles
+              darkMode ? globalDarkThemeStyles : globalLightThemeStyles
             )}
             data-theme={theme.theme}
           >
             <Home {...props}></Home>
           </div>
         </ToastArea>
-      </ThemeProvider>
+      </div>
     </LeafyGreenProvider>
   );
 }

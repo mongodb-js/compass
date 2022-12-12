@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { StoreConnector } from 'hadron-react-components';
-import { isFunction } from 'lodash';
+import { StoreConnector } from '@mongodb-js/compass-components';
 
 import { QueryBar } from './components/query-bar';
 
@@ -15,7 +14,7 @@ function Plugin({
   const onApply = useCallback(() => {
     actions.apply();
 
-    if (isFunction(_onApply)) {
+    if (typeof _onApply === 'function') {
       _onApply();
     }
   }, [_onApply, actions]);
@@ -23,7 +22,7 @@ function Plugin({
   const onReset = useCallback(() => {
     actions.reset();
 
-    if (isFunction(_onReset)) {
+    if (typeof _onReset === 'function') {
       _onReset();
     }
   }, [_onReset, actions]);
