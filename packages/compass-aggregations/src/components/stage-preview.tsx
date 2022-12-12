@@ -26,25 +26,20 @@ const stagePreviewOutStyles = css({
   paddingTop: spacing[5],
   paddingLeft: spacing[1],
   paddingRight: spacing[1],
-  paddingBottom: spacing[2]
+  paddingBottom: spacing[2],
 });
 
 const stagePreviewOutTextStyles = css({
   padding: `0 ${spacing[3]}px ${spacing[1]}px ${spacing[3]}px`,
   textAlign: 'center',
-
-  // TODO: is this still used?
-  '&:not(:last-child)': {
-    paddingBottom: '8px'
-  }
+  marginBottom: spacing[2]
 });
 
-// TODO: double-check that this is actually needed
 const stagePreviewOutLinkStyles = css({
   border: 'none',
   padding: 0,
   margin: 0,
-  background: 'none'
+  background: 'none',
 });
 
 type MergeProps = {
@@ -67,7 +62,6 @@ function MergeSection({
       return (<div className={stagePreviewOutStyles} />);
     }
 
-    // TODO: is it still possible to get here? How do we test this?
     return (
       <div className={stagePreviewOutStyles}>
         <Body className={stagePreviewOutTextStyles}>
@@ -125,7 +119,6 @@ function OutSection({
         return (<div className={stagePreviewOutStyles} />);
       }
 
-      // TODO: is it still possible to get here? How do we test this?
       return (
         <Body as="div" className={stagePreviewOutStyles}>
           <Body className={stagePreviewOutTextStyles}>
