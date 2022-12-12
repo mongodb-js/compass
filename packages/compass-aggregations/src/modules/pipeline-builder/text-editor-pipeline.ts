@@ -197,16 +197,7 @@ export const loadPreviewForPipeline = (
       largeLimit,
       inputDocuments,
       dataService,
-      pipelineBuilder: {
-        textEditor: {
-          pipeline: { pipeline }
-        }
-      }
     } = getState();
-
-    if (pipelineBuilder.isLastPipelinePreviewEqual(pipeline, true)) {
-      return;
-    }
 
     // Ignoring the state of the stage, always try to stop current preview fetch
     pipelineBuilder.cancelPreviewForPipeline();
@@ -279,7 +270,12 @@ export const changeEditorValue = (
       syntaxErrors: pipelineBuilder.syntaxError
     });
 
-    void dispatch(loadPreviewForPipeline());
+    if (!pipelineBuilder.isLastPipelinePreviewEqual(
+      pipelineBuilder.pipeline ?? [],
+      true
+    )) {
+      void dispatch(loadPreviewForPipeline());
+    }
   };
 };
 
