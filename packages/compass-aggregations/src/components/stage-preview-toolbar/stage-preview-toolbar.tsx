@@ -5,6 +5,7 @@ import { Body, Link, Tooltip, css, cx, useDarkMode, palette, spacing } from '@mo
 
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
+import { hasSyntaxError } from '../../utils/stage';
 
 const toolbarStyles = css({
   width: '100%',
@@ -157,7 +158,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
   return {
     index: ownProps.index,
     stageOperator: stage.stageOperator,
-    hasSyntaxError: !!stage.syntaxError,
+    hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
     isEnabled: !stage.disabled,
     previewSize: stage.previewDocs?.length ?? 0,

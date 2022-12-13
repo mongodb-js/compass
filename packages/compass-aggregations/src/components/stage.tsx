@@ -12,6 +12,7 @@ import StageEditorToolbar from './stage-editor-toolbar';
 import StageEditor from './stage-editor';
 import StagePreview from './stage-preview';
 import StagePreviewToolbar from './stage-preview-toolbar';
+import { hasSyntaxError } from '../utils/stage';
 
 const DragHandleToolbar = sortableHandle((props: { index: number }) => {
   return <StageEditorToolbar {...props}></StageEditorToolbar>
@@ -155,7 +156,7 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
   return {
     isEnabled: !stage.disabled,
     isExpanded: !stage.collapsed,
-    hasSyntaxError: !!stage.syntaxError,
+    hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
     isAutoPreviewing: state.autoPreview
   };

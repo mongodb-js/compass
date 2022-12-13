@@ -11,6 +11,7 @@ import AddAfterStage from './add-after-stage';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
+import { hasSyntaxError } from '../../utils/stage';
 
 const STAGE_TOOLTIP_MESSAGE = {
   $out: OUT_STAGE_PREVIEW_TEXT,
@@ -144,7 +145,7 @@ export default connect((state: RootState, ownProps: { index: number}) => {
   return {
     stageOperator: stage.stageOperator,
     isAutoPreviewing: !!state.autoPreview,
-    hasSyntaxError: !!stage.syntaxError,
+    hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
   };
 })(StageEditorToolbar);

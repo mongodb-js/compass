@@ -79,7 +79,7 @@ export const filterStageOperators = ({ serverVersion, env, isTimeSeries, sourceN
 };
 
 /**
- * @param {unknown} stage 
+ * @param {unknown} stage
  * @returns {string | undefined}
  */
 export function getStageOperator(stage) {
@@ -134,7 +134,7 @@ const ATLAS_ONLY_OPERATOR_NAMES = new Set(
   );
 
 /**
- * @param {string} stageOperator 
+ * @param {string} stageOperator
  * @returns {boolean}
  */
 export function isOutputStage(stageOperator) {
@@ -146,9 +146,9 @@ const STAGE_OPERATOS_MAP = new Map(
 );
 
 /**
- * @param {string} namespace 
- * @param {string | undefined | null} stageOperator 
- * @param {string | undefined | null} stageValue 
+ * @param {string} namespace
+ * @param {string | undefined | null} stageOperator
+ * @param {string | undefined | null} stageValue
  * @returns {{ description?: string, link?: string, destination?: string }}
  */
 export function getStageInfo(namespace, stageOperator, stageValue) {
@@ -219,8 +219,12 @@ export const isLastStageOutputStage = (pipeline) => {
 
 /**
  * Returns the atlas operator
- * @param {string[]} operators 
+ * @param {string[]} operators
  */
 export const findAtlasOperator = (operators) => {
   return operators.find((operator) => ATLAS_ONLY_OPERATOR_NAMES.has(operator));
+};
+
+export function hasSyntaxError(stage) {
+  return !!stage.syntaxError && !!stage.stageOperator && !!stage.value
 };
