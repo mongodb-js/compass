@@ -244,9 +244,10 @@ class Field extends Component {
             >
               {get(this.getNestedDocType(), 'fields', []).map((field) => (
                 <div className={nestedFieldStyles} key={field.name}>
-                  <FieldWithPreferences
+                  <Field
                     actions={this.props.actions}
                     localAppRegistry={this.props.localAppRegistry}
+                    enableMaps={this.prop.enableMaps}
                     {...field}
                   />
                 </div>
@@ -259,5 +260,4 @@ class Field extends Component {
   }
 }
 
-const FieldWithPreferences = withPreferences(Field, ['enableMaps'], React);
-export default FieldWithPreferences;
+export default withPreferences(Field, ['enableMaps'], React);
