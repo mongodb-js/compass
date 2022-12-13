@@ -1,5 +1,5 @@
 import type { DataService } from 'mongodb-data-service';
-import type * as t from '@babel/types';
+import * as t from '@babel/types';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
 import type { PreviewOptions } from './pipeline-preview-manager';
@@ -17,28 +17,63 @@ export const DEFAULT_PIPELINE = `[]`;
 const FULL_PIPELINE_PREVIEW_ID = Infinity;
 
 export class PipelineBuilder {
-  private _source: string = DEFAULT_PIPELINE;
+  source: string = DEFAULT_PIPELINE;
+  private _node: t.ArrayExpression | null = null;
   /* Pipeline representation of parsable source */
-  pipeline: Document[] | null = null;
-  node: t.ArrayExpression | null = null;
-  stages: Stage[] = [];
-  syntaxError: PipelineParserError[] = [];
+  private _pipeline: Document[] | null = null;
+  private _syntaxError: PipelineParserError[] = [];
+  private _stages: Stage[] = [];
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
 
   constructor(dataService: DataService, source = DEFAULT_PIPELINE) {
     this.previewManager = new PipelinePreviewManager(dataService);
-    this.source = source;
+    this.changeSource(source);
     this.sourceToStages();
   }
 
-  set source(source: string) {
-    this._source = source;
-    this.parseSourceToPipeline();
+  /**
+   * To avoid checking for the source emptiness everywhere in the builder and UI
+   * code, and because no source is technically a broken code that can't be
+   * meaningfully parsed we use this method to provide special getters for all
+   * values derived from the pipeline source: if source is an empty string, then
+   * node, parsed pipeline, and syntax errors returned by this class will match
+   * the state of an empty pipeline (an empty array)
+   */
+  private isEmptySource() {
+    return this.source.trim() === '';
   }
 
-  get source() {
-    return this._source;
+  get node() {
+    return this.isEmptySource() ? t.arrayExpression() : this._node;
+  }
+
+  set node(val: typeof this._node) {
+    this._node = val;
+  }
+
+  get pipeline() {
+    return this.isEmptySource() ? [] : this._pipeline;
+  }
+
+  set pipeline(val: typeof this._pipeline) {
+    this._pipeline = val;
+  }
+
+  get syntaxError() {
+    return this.isEmptySource() ? [] : this._syntaxError;
+  }
+
+  set syntaxError(val: typeof this._syntaxError) {
+    this._syntaxError = val;
+  }
+
+  get stages() {
+    return this.isEmptySource() ? [] : this._stages
+  }
+
+  set stages(val: typeof this._stages) {
+    this._stages = val;
   }
 
   // COMPASS-6319: We deliberately ignore all empty stages for all operations
@@ -68,7 +103,7 @@ export class PipelineBuilder {
     this.pipeline = [];
     this.stages = [];
     this.syntaxError = [];
-    this.source = source;
+    this.changeSource(source);
     this.sourceToStages();
   }
 
@@ -77,6 +112,7 @@ export class PipelineBuilder {
    */
   changeSource(source: string): void {
     this.source = source;
+    this.parseSourceToPipeline();
     this.validateSource();
   }
 
@@ -131,8 +167,7 @@ export class PipelineBuilder {
         'Trying to generate source from stages with invalid pipeline'
       );
     }
-    this.source = PipelineParser.generate(this.node, this.nonEmptyStages);
-    this.validateSource();
+    this.changeSource(PipelineParser.generate(this.node, this.nonEmptyStages));
   }
 
   /**
