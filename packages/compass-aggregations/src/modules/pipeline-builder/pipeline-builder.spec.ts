@@ -237,4 +237,11 @@ describe('PipelineBuilder', function () {
       expect(pipelineBuilder.source).to.eq('[]');
     });
   })
+
+  it('treats empty source as empty pipeline', function () {
+    pipelineBuilder.reset('   ');
+    expect(pipelineBuilder).to.have.property('syntaxError').to.have.lengthOf(0);
+    expect(pipelineBuilder).to.have.property('pipeline').deep.eq([]);
+    expect(pipelineBuilder).to.have.property('node');
+  });
 });
