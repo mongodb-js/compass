@@ -23,11 +23,11 @@ const formActionStyles = css({
 });
 
 const formActionStylesDark = css({
-  borderTopColor: palette.gray.dark2
+  borderTopColor: palette.gray.dark2,
 });
 
 const formActionStylesLight = css({
-  borderTopColor: palette.gray.light2
+  borderTopColor: palette.gray.light2,
 });
 
 const formActionItemStyles = css({
@@ -69,7 +69,12 @@ function ConnectFormActions({
   const darkMode = useDarkMode();
 
   return (
-    <div className={cx(formActionStyles, darkMode ? formActionStylesDark : formActionStylesLight )}>
+    <div
+      className={cx(
+        formActionStyles,
+        darkMode ? formActionStylesDark : formActionStylesLight
+      )}
+    >
       {warnings.length > 0 && (
         <div className={formActionItemStyles}>
           <WarningSummary
