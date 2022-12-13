@@ -44,6 +44,7 @@ const aceEditorStyles = css({
 
 const bannerStyles = css({
   margin: spacing[2],
+  textAlign: 'left'
 });
 
 /**
