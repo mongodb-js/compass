@@ -191,6 +191,7 @@ export const createNew = () => ({
     pipeline: pipelineBuilder.pipeline,
     syntaxErrors: pipelineBuilder.syntaxError,
   });
+  dispatch(updatePipelinePreview());
 };
 
 /**

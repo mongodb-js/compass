@@ -87,7 +87,6 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       serverError: null,
-      previewDocs: null,
       pipelineText: action.pipelineText,
       pipeline,
       syntaxErrors: action.syntaxErrors,
