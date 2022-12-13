@@ -11,9 +11,10 @@ const devFeatureFlagFields = [
   'enableTextAsPipeline',
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
+  'lgDarkmode',
 ] as const;
 
-export const publicFeatureFlagFields = ['lgDarkmode'] as const;
+export const publicFeatureFlagFields = [] as const;
 
 const featureFlagFields = [
   ...publicFeatureFlagFields,

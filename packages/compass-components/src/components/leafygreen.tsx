@@ -8,7 +8,7 @@ import { default as Banner } from '@leafygreen-ui/banner';
 import Button from '@leafygreen-ui/button';
 import Checkbox from '@leafygreen-ui/checkbox';
 import Card from '@leafygreen-ui/card';
-import Code, { Language } from '@leafygreen-ui/code';
+import LeafyGreenCode, { Language } from '@leafygreen-ui/code';
 import {
   Combobox,
   ComboboxOption,
@@ -33,7 +33,7 @@ MenuItem.defaultProps = {
   type: 'button',
 };
 
-import Modal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
+import LeafyGreenModal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
 import MarketingModal from '@leafygreen-ui/marketing-modal';
 import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
 import Popover from '@leafygreen-ui/popover';
@@ -44,7 +44,12 @@ import {
   SegmentedControlOption,
 } from '@leafygreen-ui/segmented-control';
 import { Select, Option, OptionGroup } from '@leafygreen-ui/select';
-import { Table, TableHeader, Row, Cell } from '@leafygreen-ui/table';
+import {
+  Table as LeafyGreenTable,
+  TableHeader,
+  Row,
+  Cell,
+} from '@leafygreen-ui/table';
 import { Tabs, Tab } from '@leafygreen-ui/tabs';
 import TextArea from '@leafygreen-ui/text-area';
 import TextInput from '@leafygreen-ui/text-input';
@@ -68,6 +73,8 @@ import {
   Description,
 } from '@leafygreen-ui/typography';
 
+import { withDarkMode } from '../hooks/use-theme';
+
 // 2. Wrap and make any changes/workaround to leafygreen components.
 const Icon = ({
   size,
@@ -78,8 +85,16 @@ const Icon = ({
   size = size === 'xsmall' ? 12 : size;
   return <LeafyGreenIcon size={size} {...rest} />;
 };
-
 Icon.isGlyph = true;
+
+// The following components, Table, Modal, and Code do not currently
+// pull the theme from the LeafyGreen Provider.
+// TODO(LG-2703, COMPASS-6367) In new versions they do pull from the provider, however there's a
+// bug with the language switcher in the Code component,
+// so we're not updating yet.
+const Code = withDarkMode(LeafyGreenCode as any) as typeof LeafyGreenCode;
+const Table = withDarkMode(LeafyGreenTable) as typeof LeafyGreenTable;
+const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
 
 // 3. Export the leafygreen components.
 export {
