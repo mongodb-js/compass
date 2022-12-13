@@ -654,7 +654,7 @@ export const myQueriesItem = (title: string): string => {
 export const MyQueriesList = '[data-testid="my-queries-list"]';
 
 // Aggregations tab
-export const StageContainer = '[data-testid="stage-container"]';
+export const StageCard = '[data-testid="stage-card"]';
 export const CreateNewPipelineMenuButton =
   '[data-testid="create-new-menu-show-actions"]';
 // todo: COMPASS-6299 remove create new pipeline menu selectors

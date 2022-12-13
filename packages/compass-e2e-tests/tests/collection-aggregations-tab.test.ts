@@ -160,7 +160,7 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AddStageButton);
     await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
     // sanity check to make sure there's only one stage
-    const stageContainers = await browser.$$(Selectors.StageContainer);
+    const stageContainers = await browser.$$(Selectors.StageCard);
     expect(stageContainers).to.have.lengthOf(1);
   });
 

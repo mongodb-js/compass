@@ -131,7 +131,7 @@ function Stage({
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
 
-  return (<KeylineCard className={cx(
+  return (<KeylineCard data-testid="stage-card" data-stage-index={index} className={cx(
       stageStyles,
       hasSyntaxError && stageWarningStyles,
       hasServerError && stageErrorStyles
