@@ -15,7 +15,6 @@ import { css, cx, spacing, palette, Banner, withDarkMode } from '@mongodb-js/com
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
-//import styles from './stage-editor.module.less';
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -216,7 +215,8 @@ class UnthemedStageEditor extends PureComponent {
   }
 }
 
-const StageEditor = withDarkMode(UnthemedStageEditor);
+// exported for tests
+export const StageEditor = withDarkMode(UnthemedStageEditor);
 
 export default connect(
   (state, ownProps) => {

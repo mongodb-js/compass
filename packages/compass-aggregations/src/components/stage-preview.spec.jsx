@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { StagePreview } from './stage-preview';
-import styles from './stage-preview.module.less';
 
 describe('StagePreview [Component]', function() {
   context('when the stage operator is not $out', function() {
@@ -21,7 +20,9 @@ describe('StagePreview [Component]', function() {
           onRunOutStageClick={sinon.spy()}
           onGoToOutResultsClick={sinon.spy()}
           onGoToMergeResultsClick={sinon.spy()}
-          isLoading={false} />
+          isLoading={false}
+          stageValue="something"
+           />
       );
     });
 
@@ -30,11 +31,11 @@ describe('StagePreview [Component]', function() {
     });
 
     it('renders the wrapper div', function() {
-      expect(component.find(`.${styles['stage-preview']}`)).to.be.present();
+      expect(component.find('StagePreview')).to.be.present();
     });
 
     it('renders the documents', function() {
-      expect(component.find(`.${styles['stage-preview-documents']}`)).to.be.present();
+      expect(component.find('Document')).to.be.present();
     });
   });
 
@@ -62,7 +63,7 @@ describe('StagePreview [Component]', function() {
 
     it('renders an empty state', function() {
       expect(
-        component.find(`.${styles['stage-preview-empty']}`)
+        component.find('EmptyIcon')
       ).to.be.present();
     });
   });
@@ -84,7 +85,7 @@ describe('StagePreview [Component]', function() {
             onGoToOutResultsClick={sinon.spy()}
             onGoToMergeResultsClick={sinon.spy()}
             isLoading={false}
-            stageValue=""
+            stageValue="something"
             stageOperator="$out" />
         );
       });
@@ -94,15 +95,15 @@ describe('StagePreview [Component]', function() {
       });
 
       it('renders the wrapper div', function() {
-        expect(component.find(`.${styles['stage-preview']}`)).to.be.present();
+        expect(component.find('StagePreview')).to.be.present();
       });
 
       it('does not render the documents', function() {
-        expect(component.find(`.${styles['stage-preview-documents']}`)).to.not.be.present();
+        expect(component.find('StagePreviewDocuments')).to.not.be.present();
       });
 
       it('renders the out text', function() {
-        expect(component.find(`.${styles['stage-preview-out-text']}`)).to.be.present();
+        expect(component.find('OutSection')).to.be.present();
       });
     });
 
@@ -132,19 +133,19 @@ describe('StagePreview [Component]', function() {
       });
 
       it('renders the wrapper div', function() {
-        expect(component.find(`.${styles['stage-preview']}`)).to.be.present();
+        expect(component.find('StagePreview')).to.be.present();
       });
 
       it('does not render the documents', function() {
-        expect(component.find(`.${styles['stage-preview-documents']}`)).to.not.be.present();
+        expect(component.find('StagePreviewDocuments')).to.not.be.present();
       });
 
       it('renders the out text', function() {
-        expect(component.find(`.${styles['stage-preview-out-text']}`)).to.be.present();
+        expect(component.find('OutSection')).to.be.present();
       });
 
       it('renders the link', function() {
-        expect(component.find(`.${styles['stage-preview-out-link']}`)).to.be.present();
+        expect(component.find('[data-testid="go-to-out-collection"]')).to.be.present();
       });
     });
   });
@@ -165,7 +166,7 @@ describe('StagePreview [Component]', function() {
             onRunOutStageClick={sinon.spy()}
             onGoToOutResultsClick={sinon.spy()}
             onGoToMergeResultsClick={sinon.spy()}
-            stageValue=""
+            stageValue="something"
             stageOperator="$out" />
         );
       });
@@ -210,7 +211,7 @@ describe('StagePreview [Component]', function() {
 
       it('does not show the empty state', function() {
         expect(
-          component.find(`.${styles['stage-preview-empty']}`)
+          component.find('StagePreviewEmpty')
         ).to.not.be.present();
       });
     });
@@ -232,7 +233,7 @@ describe('StagePreview [Component]', function() {
           onGoToOutResultsClick={sinon.spy()}
           onGoToMergeResultsClick={sinon.spy()}
           isLoading={false}
-          stageValue=""
+          stageValue="something"
           stageOperator={stageOperator}
           isAtlasDeployed
         />

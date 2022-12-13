@@ -51,6 +51,7 @@ const OperatorLink: React.FunctionComponent<{
         trigger={({ children, ...props }) => {
           return (
             <Link
+              data-testid="stage-preview-toolbar-link"
               {...props}
               target="_blank"
               href={link}

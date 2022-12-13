@@ -64,7 +64,8 @@ type StageOperatorSelectProps = {
   }[]
 };
 
-const StageOperatorSelect = ({
+// exported for tests
+export const StageOperatorSelect = ({
   onChange,
   index,
   selectedStage,

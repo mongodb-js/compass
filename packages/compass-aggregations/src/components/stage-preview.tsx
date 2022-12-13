@@ -120,7 +120,7 @@ function OutSection({
       }
 
       return (
-        <Body as="div" className={stagePreviewOutStyles}>
+        <div className={stagePreviewOutStyles}>
           <Body className={stagePreviewOutTextStyles}>
             Documents persisted to collection: {decomment(stageValue)}.
           </Body>
@@ -132,7 +132,7 @@ function OutSection({
           >
             Go to collection.
           </Link>
-        </Body>
+        </div>
       );
     }
 
@@ -351,7 +351,8 @@ const stagePreviewStyles = css({
   flexGrow: 1,
 });
 
-function StagePreview(props: StagePreviewProps) {
+// exported for tests
+export function StagePreview(props: StagePreviewProps) {
   const { isLoading, stageOperator } = props;
   return (
     <div className={stagePreviewStyles}>
