@@ -4,6 +4,7 @@ import {
   Subtitle,
   Icon,
   css,
+  cx,
   palette,
   spacing,
   KeylineCard,
@@ -49,8 +50,46 @@ const expandCollapseFieldButtonStyles = css({
   },
 });
 
-const schemaFieldContainerStyles = css({
+const fieldContainerStyles = css({
   marginBottom: spacing[2],
+});
+
+const fieldStyles = css({
+  paddingTop: spacing[4],
+  marginBottom: spacing[2],
+});
+
+const fieldListContainerStyles = css({
+  position: 'relative',
+});
+
+const fieldTypeListStyles = css({
+  // borderRadius: '1px'
+  paddingTop: spacing[1],
+});
+
+const fieldNameContainerStyles = css({
+  position: 'relative',
+});
+
+const fieldRowStyles = css({
+  marginBottom: spacing[4],
+  padding: `0px ${spacing[3]}px`,
+  display: 'grid',
+
+  gridTemplateAreas: '"description chart"',
+  gridTemplateColumns: '1fr 2fr',
+  columnGap: spacing[6],
+  position: 'relative',
+  alignItems: 'center',
+});
+
+const fieldDescriptionStyles = css({
+  gridArea: 'description',
+});
+
+const fieldChartContainerStyles = css({
+  gridArea: 'chart',
 });
 
 const nestedFieldStyles = css({
@@ -188,11 +227,19 @@ class Field extends Component {
 
     // children fields in case of nested array / document
     return (
-      <KeylineCard className={schemaFieldContainerStyles}>
-        <div className="schema-field">
-          <div className="row">
-            <div className="col-sm-4">
-              <div className="schema-field-name">
+      <KeylineCard className={fieldContainerStyles}>
+        <div className={fieldStyles} data-testid="schema-field">
+          <div className={fieldRowStyles}>
+            {/* width 33% */}
+            <div
+              // className="col-sm-4"
+              className={fieldDescriptionStyles}
+            >
+              {/* <div className="schema-field-name"> */}
+              <div
+                className={fieldNameContainerStyles}
+                data-testid="schema-field-name"
+              >
                 {nestedDocType ? (
                   <button
                     className={expandCollapseFieldButtonStyles}
@@ -222,9 +269,19 @@ class Field extends Component {
                   </Subtitle>
                 )}
               </div>
-              <div className="schema-field-type-list">{typeList}</div>
+              <div
+                className={cx('schema-field-type-list', fieldTypeListStyles)}
+                data-testid="schema-field-type-list"
+              >
+                {typeList}
+              </div>
             </div>
-            <div className="col-sm-7 col-sm-offset-1">
+            {/* width: 58.33333333%; */}
+            {/* margin-left: 8.33333333%; */}
+            <div
+              // className="col-sm-7 col-sm-offset-1"
+              className={fieldChartContainerStyles}
+            >
               <Minichart
                 fieldName={this.props.path}
                 type={activeType}
@@ -237,7 +294,8 @@ class Field extends Component {
 
           {!this.state.collapsed && (
             <div
-              className="schema-field-list"
+              className={cx('schema-field-list', fieldListContainerStyles)}
+              data-testid="schema-field-list"
               id={fieldListRegionId}
               role="region"
               aria-labelledby={fieldAccordionButtonId}
@@ -247,7 +305,7 @@ class Field extends Component {
                   <Field
                     actions={this.props.actions}
                     localAppRegistry={this.props.localAppRegistry}
-                    enableMaps={this.prop.enableMaps}
+                    enableMaps={this.props.enableMaps}
                     {...field}
                   />
                 </div>

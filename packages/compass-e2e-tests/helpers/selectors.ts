@@ -814,12 +814,12 @@ export const AggregationAsTextPreviewAtlasOperator =
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
-export const SchemaFieldList = '.schema-field-list';
+export const SchemaFieldList = '[data-testid="schema-field-list"]';
 export const AnalysisMessage =
   '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
-export const SchemaField = '.schema-field';
-export const SchemaFieldName = '.schema-field-name';
-export const SchemaFieldTypeList = '.schema-field-type-list';
+export const SchemaField = '[data-testid="schema-field"';
+export const SchemaFieldName = '[data-testid="schema-field-name"]';
+export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
 // Explain Plan tab
 export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';
