@@ -215,12 +215,11 @@ const documentContainerStyles = css({
   flex: 'none',
   flexShrink: 0,
   width: '384px',
-  minHeight: '170px',
   marginBottom: spacing[2]
 });
 
 const documentStyles = css({
-  flexBasis: '170px',
+  flexBasis: '164px',
   flexGrow: 1,
   flexShrink: 0,
   overflow: 'auto',

@@ -19,7 +19,7 @@ const dropdownWidth = stageNameWidth + descriptionWidth;
 
 const inputHeight = spacing[4] - 2; // match other xs controls
 const comboboxStyles = css({
-  marginLeft: spacing[2],
+  marginLeft: spacing[1],
   marginRight: spacing[2],
   width: inputWidth,
   '& [role="combobox"]': {

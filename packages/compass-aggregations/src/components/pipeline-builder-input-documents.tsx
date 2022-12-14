@@ -77,13 +77,15 @@ function PipelineBuilderInputDocuments({
     toggleInputDocumentsCollapsed(!isExpanded);
   };
 
+  const expandTooltipText = isExpanded ? 'Collapse' : 'Expand';
+
   return (<KeylineCard className={cardStyles}>
     <div className={headerStyles}>
-      <IconButton onClick={toggleExpanded} aria-label={isExpanded ? 'Collapse' : 'Expand'}>
+      <IconButton onClick={toggleExpanded} title={expandTooltipText} aria-label={expandTooltipText}>
         <Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'} size="small"></Icon>
       </IconButton>
       <Body className={headerTextStyles}><b>{count} Document{count === 1 ? '' : 's'}</b> in the collection</Body>
-      <IconButton onClick={refreshInputDocuments} aria-label="Refresh">
+      <IconButton onClick={refreshInputDocuments} aria-label="Refresh" title="Refresh">
         <Icon glyph="Refresh" size="small" />
       </IconButton>
     </div>
