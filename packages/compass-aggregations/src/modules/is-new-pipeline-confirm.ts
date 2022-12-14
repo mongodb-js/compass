@@ -1,5 +1,5 @@
 import type { AnyAction } from 'redux';
-import { PipelineBuilderThunkAction } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 export enum ActionTypes {
