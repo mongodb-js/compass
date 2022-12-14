@@ -3,7 +3,7 @@ import {
   globalAppRegistryEmit
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -25,7 +25,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   }
   if (
     action.type === DISMISS_VIEW_UPDATE_ERROR ||
-    action.type === NEW_PIPELINE
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
   ) {
     return INITIAL_STATE;
   }

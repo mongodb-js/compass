@@ -1,24 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Pipeline from '../pipeline';
-import { maxTimeMSChanged } from '../../modules/max-time-ms';
-import { collationStringChanged } from '../../modules/collation-string';
-import { toggleAutoPreview } from '../../modules/auto-preview';
-import { exportToLanguage } from '../../modules/export-to-language';
-import { openLink } from '../../modules/link';
 import { clonePipeline } from "../../modules/clone-pipeline";
 import {
   saveCurrentPipeline,
-  savedPipelineAdd,
-  getSavedPipelines,
 } from '../../modules/saved-pipeline';
-import {
-  newPipeline,
-  newPipelineFromText,
-  closeImport,
-  confirmNew
-} from '../../modules/import-pipeline';
-import { setIsNewPipelineConfirm } from '../../modules/is-new-pipeline-confirm';
 import {
   toggleSettingsIsExpanded,
   toggleSettingsIsCommentMode,
@@ -34,7 +20,6 @@ import {
 } from '../../modules/saving-pipeline';
 import {
   dismissViewError,
-  updateView
 } from '../../modules/update-view';
 
 import styles from './aggregations.module.less';
@@ -73,14 +58,11 @@ const mapStateToProps = (state) => ({
   isCommenting: state.comments,
   isAtlasDeployed: state.isAtlasDeployed,
   isAutoPreviewing: state.autoPreview,
-  isImportConfirmationNeeded: state.importPipeline.isConfirmationNeeded,
   settings: state.settings,
   limit: state.limit,
   largeLimit: state.largeLimit,
   maxTimeMS: state.maxTimeMS,
   savingPipeline: state.savingPipeline,
-  isNewPipelineConfirm: state.isNewPipelineConfirm,
-  setIsNewPipelineConfirm: state.setIsNewPipelineConfirm,
   updateViewError: state.updateViewError,
   workspace: state.workspace,
 });
@@ -92,30 +74,17 @@ const mapStateToProps = (state) => ({
 const MappedAggregations = connect(
   mapStateToProps,
   {
-    collationStringChanged,
-    toggleAutoPreview,
     toggleSettingsIsExpanded,
     toggleSettingsIsCommentMode,
     setSettingsSampleSize,
     setSettingsLimit,
-    exportToLanguage,
     saveCurrentPipeline,
-    savedPipelineAdd,
-    getSavedPipelines,
-    newPipeline,
-    newPipelineFromText,
-    closeImport,
     clonePipeline,
-    confirmNew,
-    openLink,
     applySettings,
-    maxTimeMSChanged,
     savingPipelineNameChanged,
     savingPipelineApply,
     savingPipelineCancel,
     savingPipelineOpen,
-    updateView,
-    setIsNewPipelineConfirm,
     dismissViewError
   }
 )(Aggregations);

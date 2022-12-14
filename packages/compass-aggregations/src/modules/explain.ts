@@ -7,7 +7,7 @@ import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import type { IndexInfo } from './indexes';
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
@@ -102,7 +102,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
         abortController: undefined,
       };
     case ActionTypes.ExplainCancelled:
-    case NEW_PIPELINE:
+    case ConfirmNewPipelineActions.NewPipelineConfirmed:
       return INITIAL_STATE;
     default:
       return state;
