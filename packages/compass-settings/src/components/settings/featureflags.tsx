@@ -8,7 +8,6 @@ import { pick } from '../../utils/pick';
 import preferences, { usePreference } from 'compass-preferences-model';
 
 const devFeatureFlagFields = [
-  'enableTextAsPipeline',
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
   'lgDarkmode',

@@ -35,7 +35,6 @@ declare module 'process' {
 
         // Legacy feature flags. Add new feature flags to the preferences model directly!
         COMPASS_LG_DARKMODE?: 'true' | 'false';
-        COMPASS_ENABLE_AS_TEXT_PIPELINE?: 'true' | 'false';
       }
     }
   }

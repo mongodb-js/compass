@@ -95,8 +95,8 @@ describe('PipelineToolbar', function () {
       ).to.exist;
 
       expect(
-        within(settings).getByTestId('create-new-menu-show-actions'),
-        'shows create-new menu'
+        within(settings).getByTestId('pipeline-toolbar-create-new-button'),
+        'shows create-new button'
       ).to.exist;
       expect(
         within(settings).getByTestId('pipeline-toolbar-export-button'),
@@ -121,17 +121,6 @@ describe('PipelineToolbar', function () {
       expect(saveMenuContent.childNodes[0].textContent).to.equal('Save');
       expect(saveMenuContent.childNodes[1].textContent).to.equal('Save as');
       expect(saveMenuContent.childNodes[2].textContent).to.equal('Create view');
-
-      userEvent.click(
-        within(settings).getByTestId('create-new-menu-show-actions')
-      );
-      const createNewMenuContent = screen.getByTestId('create-new-menu');
-      expect(createNewMenuContent.childNodes[0].textContent).to.equal(
-        'Pipeline'
-      );
-      expect(createNewMenuContent.childNodes[1].textContent).to.equal(
-        'Pipeline from text'
-      );
     });
   });
 

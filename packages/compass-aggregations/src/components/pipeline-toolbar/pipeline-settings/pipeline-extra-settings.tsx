@@ -16,7 +16,6 @@ import type { RootState } from '../../../modules';
 import { changePipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import type { PipelineMode } from '../../../modules/pipeline-builder/pipeline-mode';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
-import { usePreference } from 'compass-preferences-model';
 
 const containerStyles = css({
   display: 'flex',
@@ -55,7 +54,6 @@ export const PipelineExtraSettings: React.FunctionComponent<
   onChangePipelineMode,
   onToggleSettings,
 }) => {
-  const showPipelineAsText = usePreference('enableTextAsPipeline', React);
   return (
     <div
       className={containerStyles}
@@ -76,36 +74,34 @@ export const PipelineExtraSettings: React.FunctionComponent<
           Preview
         </Label>
       </div>
-      {showPipelineAsText && (
-        <SegmentedControl
-          // SegmentedControl is not working correctly otherwise
-          // https://jira.mongodb.org/browse/LG-2597
-          key={pipelineMode}
-          data-testid="pipeline-builder-toggle"
-          value={pipelineMode}
-          size={'small'}
-          onChange={(value) => {
-            onChangePipelineMode(value as PipelineMode);
-          }}
+      <SegmentedControl
+        // SegmentedControl is not working correctly otherwise
+        // https://jira.mongodb.org/browse/LG-2597
+        key={pipelineMode}
+        data-testid="pipeline-builder-toggle"
+        value={pipelineMode}
+        size={'small'}
+        onChange={(value) => {
+          onChangePipelineMode(value as PipelineMode);
+        }}
+      >
+        <SegmentedControlOption
+          disabled={isPipelineModeDisabled}
+          data-testid="pipeline-builder-toggle-builder-ui"
+          value="builder-ui"
+          glyph={<Icon glyph="CurlyBraces"></Icon>}
         >
-          <SegmentedControlOption
-            disabled={isPipelineModeDisabled}
-            data-testid="pipeline-builder-toggle-builder-ui"
-            value="builder-ui"
-            glyph={<Icon glyph="CurlyBraces"></Icon>}
-          >
-            Stages
-          </SegmentedControlOption>
-          <SegmentedControlOption
-            disabled={isPipelineModeDisabled}
-            data-testid="pipeline-builder-toggle-as-text"
-            value="as-text"
-            glyph={<Icon glyph="Code"></Icon>}
-          >
-            Text
-          </SegmentedControlOption>
-        </SegmentedControl>
-      )}
+          Stages
+        </SegmentedControlOption>
+        <SegmentedControlOption
+          disabled={isPipelineModeDisabled}
+          data-testid="pipeline-builder-toggle-as-text"
+          value="as-text"
+          glyph={<Icon glyph="Code"></Icon>}
+        >
+          Text
+        </SegmentedControlOption>
+      </SegmentedControl>
       <IconButton
         aria-label="More Settings"
         onClick={() => onToggleSettings()}

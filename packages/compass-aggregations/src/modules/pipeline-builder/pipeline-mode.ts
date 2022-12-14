@@ -7,7 +7,6 @@ import type Stage from './stage';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
-import preferences from 'compass-preferences-model';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -38,11 +37,8 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     return action.mode;
   }
   if (action.type === RESTORE_PIPELINE) {
-    if (
-      preferences.getPreferences().enableTextAsPipeline &&
-      // Force as-text editor mode if loaded pipeline contains syntax errors
-      action.syntaxErrors.length > 0
-    ) {
+    // Force as-text editor mode if loaded pipeline contains syntax errors
+    if (action.syntaxErrors.length > 0) {
       return 'as-text';
     }
   }

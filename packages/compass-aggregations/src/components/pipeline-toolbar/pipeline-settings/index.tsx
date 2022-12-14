@@ -2,11 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
-import { SaveMenu, CreateMenu } from './pipeline-menus';
+import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 
 const containerStyles = css({
   display: 'grid',
@@ -33,6 +34,7 @@ type PipelineSettingsProps = {
   isCreatePipelineDisplayed?: boolean;
   isExportToLanguageEnabled?: boolean;
   onExportToLanguage: () => void;
+  onCreateNewPipeline: () => void;
 };
 
 export const PipelineSettings: React.FunctionComponent<
@@ -42,6 +44,7 @@ export const PipelineSettings: React.FunctionComponent<
   isCreatePipelineDisplayed,
   isExportToLanguageEnabled,
   onExportToLanguage,
+  onCreateNewPipeline,
 }) => {
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
@@ -52,7 +55,17 @@ export const PipelineSettings: React.FunctionComponent<
             <SaveMenu />
           </>
         )}
-        {isCreatePipelineDisplayed && <CreateMenu />}
+        {isCreatePipelineDisplayed && 
+          <Button
+            size="xsmall"
+            variant="primary"
+            leftGlyph={<Icon glyph="Plus" />}
+            onClick={onCreateNewPipeline}
+            data-testid="pipeline-toolbar-create-new-button"
+          >
+            Create new
+          </Button>
+        }
         <Button
           variant="primaryOutline"
           size="xsmall"
@@ -82,5 +95,6 @@ export default connect(
   },
   {
     onExportToLanguage: exportToLanguage,
+    onCreateNewPipeline: () => setIsNewPipelineConfirm(true),
   }
 )(PipelineSettings);

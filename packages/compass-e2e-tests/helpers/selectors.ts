@@ -657,13 +657,6 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 export const StageCard = '[data-testid="stage-card"]';
 export const CreateNewPipelineMenuButton =
   '[data-testid="create-new-menu-show-actions"]';
-// todo: COMPASS-6299 remove create new pipeline menu selectors
-// when enabling pipeline as text (COMPASS_ENABLE_AS_TEXT_PIPELINE)
-export const CreateNewPipelineMenuContent = '[data-testid="create-new-menu"]';
-export const CreateNewEmptyPipelineAction =
-  '[data-testid="create-new-menu-createPipeline-action"]';
-export const CreateNewPipelineFromTextAction =
-  '[data-testid="create-new-menu-createPipelineFromText-action"]';
 export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';
