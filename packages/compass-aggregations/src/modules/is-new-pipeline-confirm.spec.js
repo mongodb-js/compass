@@ -1,16 +1,19 @@
 import reducer, {
   ActionTypes,
-  setIsNewPipelineConfirm,
+  toggleNewPipelineModal,
 } from './is-new-pipeline-confirm';
 import { expect } from 'chai';
 
 describe('is new pipeline confirm', function() {
-  describe('#setIsNewPipelineConfirm', function() {
-    it('returns the set confirm pipeline action', function() {
-      expect(setIsNewPipelineConfirm(true)).to.deep.equal({
-        type: ActionTypes.SetConfirmNewPipeline,
-        confirm: true
-      });
+  it('returns the set confirm pipeline action', function() {
+    expect(toggleNewPipelineModal(true)).to.deep.equal({
+      type: ActionTypes.ToggleConfirmNewPipeline,
+      confirm: true
+    });
+
+    expect(toggleNewPipelineModal(false)).to.deep.equal({
+      type: ActionTypes.ToggleConfirmNewPipeline,
+      confirm: false
     });
   });
 

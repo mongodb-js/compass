@@ -3,19 +3,19 @@ import { PipelineBuilderThunkAction } from '.';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 export enum ActionTypes {
-  SetConfirmNewPipeline = 'compass-aggregations/is-new-pipeline-confirm/setConfirmNewPipeline',
+  ToggleConfirmNewPipeline = 'compass-aggregations/is-new-pipeline-confirm/toggleConfirmNewPipeline',
   NewPipelineConfirmed = 'compass-aggregations/is-new-pipeline-confirm/newPipelineConfirmed',
 }
 
 type SetConfirmNewPipelineAction = {
-  type: ActionTypes.SetConfirmNewPipeline;
+  type: ActionTypes.ToggleConfirmNewPipeline;
   confirm: boolean;
 };
 
 export const INITIAL_STATE = false;
 
 export default function reducer(state = INITIAL_STATE, action: AnyAction) {
-  if (action.type === ActionTypes.SetConfirmNewPipeline) {
+  if (action.type === ActionTypes.ToggleConfirmNewPipeline) {
     return action.confirm;
   }
   if (action.type === ActionTypes.NewPipelineConfirmed) {
@@ -27,8 +27,8 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 /**
  * Action creator for set isNewPipelineConfirm events.
  */
-export const setIsNewPipelineConfirm = (confirm: boolean): SetConfirmNewPipelineAction => ({
-  type: ActionTypes.SetConfirmNewPipeline,
+export const toggleNewPipelineModal = (confirm: boolean): SetConfirmNewPipelineAction => ({
+  type: ActionTypes.ToggleConfirmNewPipeline,
   confirm
 });
 

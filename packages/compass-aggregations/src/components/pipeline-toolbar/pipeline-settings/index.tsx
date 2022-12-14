@@ -7,7 +7,7 @@ import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
 import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
-import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
+import { toggleNewPipelineModal } from '../../../modules/is-new-pipeline-confirm';
 
 const containerStyles = css({
   display: 'grid',
@@ -95,6 +95,6 @@ export default connect(
   },
   {
     onExportToLanguage: exportToLanguage,
-    onCreateNewPipeline: () => setIsNewPipelineConfirm(true),
+    onCreateNewPipeline: () => toggleNewPipelineModal(true),
   }
 )(PipelineSettings);

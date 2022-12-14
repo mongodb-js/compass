@@ -3,7 +3,7 @@ import { ConfirmationModal } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import type { RootState } from '../../modules';
-import { setIsNewPipelineConfirm, confirmNewPipeline } from '../../modules/is-new-pipeline-confirm';
+import { toggleNewPipelineModal, confirmNewPipeline } from '../../modules/is-new-pipeline-confirm';
 
 const QUESTION = 'Are you sure you want to create a new pipeline?';
 
@@ -40,7 +40,7 @@ const mapState = ({
 });
 
 const mapDispatch = {
-  onCloseModal: () => setIsNewPipelineConfirm(false),
+  onCloseModal: () => toggleNewPipelineModal(false),
   onConfirmNewPipeline: confirmNewPipeline,
 };
 export default connect(mapState, mapDispatch)(PipelineConfirmModal);
