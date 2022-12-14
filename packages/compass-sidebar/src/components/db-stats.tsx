@@ -61,14 +61,10 @@ function DBStat({ name, stat }: { name: string; stat: string | number }) {
 
   return (
     <div>
-      <Subtitle
-        className={darkMode ? dbStatNumberDark : dbStatNumberLight}
-      >
+      <Subtitle className={darkMode ? dbStatNumberDark : dbStatNumberLight}>
         {stat}
       </Subtitle>
-      <Overline
-        className={darkMode ? dbStatNameDark : dbStatNameLight}
-      >
+      <Overline className={darkMode ? dbStatNameDark : dbStatNameLight}>
         {name}
       </Overline>
     </div>

@@ -10,7 +10,6 @@ import LoadingOverlay from './loading-overlay';
 
 const cardStyles = css({
   margin: `0 ${spacing[3]}px`,
-  marginBottom: spacing[3]
 });
 
 const headerStyles = css({
@@ -42,10 +41,10 @@ const bodyStylesDark = css({
 
 const documentsContainerStyles = css({
   marginTop: spacing[2],
+  paddingBottom: spacing[2],
   display: 'flex',
   overflowX: 'scroll',
   gap: spacing[2],
-  paddingBottom: spacing[2]
 });
 
 const documentContainerStyles = css({

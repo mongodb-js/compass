@@ -1,10 +1,43 @@
-import React, { PureComponent } from 'react';
-import { Link, Tooltip, cx } from '@mongodb-js/compass-components';
+import React from 'react';
 import { connect } from 'react-redux';
+
+import { Body, Link, Tooltip, css, cx, useDarkMode, palette, spacing } from '@mongodb-js/compass-components';
+
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
+import { hasSyntaxError } from '../../utils/stage';
 
-import styles from './stage-preview-toolbar.module.less';
+const toolbarStyles = css({
+  width: '100%',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+
+  height: spacing[5] + spacing[1],
+  paddingLeft: spacing[4],
+
+  display: 'flex',
+  alignItems: 'center',
+  borderBottomWidth: '1px',
+  borderBottomStyle: 'solid',
+});
+
+
+const toolbarStylesDark = css({
+  borderBottomColor: palette.gray.dark2
+});
+
+const toolbarStylesLight = css({
+  borderBottomColor: palette.gray.light2
+});
+
+const toolbarWarningStyles = css({
+  borderBottomColor: palette.yellow.base
+});
+
+const toolbarErrorStyles = css({
+  borderBottomColor: palette.red.base
+});
 
 const OperatorLink: React.FunctionComponent<{
   stageOperator: string;
@@ -19,9 +52,9 @@ const OperatorLink: React.FunctionComponent<{
         trigger={({ children, ...props }) => {
           return (
             <Link
+              data-testid="stage-preview-toolbar-link"
               {...props}
               target="_blank"
-              className={styles['stage-preview-toolbar-link']}
               href={link}
             >
               {children}
@@ -38,12 +71,12 @@ const OperatorLink: React.FunctionComponent<{
 
 const DefaultPreviewText: React.FunctionComponent<{
   stageOperator: string;
-  previewSize: number;
+  previewSize?: number;
   description?: string;
   link?: string;
 }> = ({ stageOperator, previewSize, description, link }) => {
   return (
-    <div>
+    <Body>
       <span>
         Output after{' '}
         <OperatorLink
@@ -56,60 +89,63 @@ const DefaultPreviewText: React.FunctionComponent<{
       <span data-testid="stage-preview-toolbar-tooltip">
         (Sample of {previewSize} {previewSize !== 1 ? 'documents' : 'document'})
       </span>
-    </div>
+    </Body>
   );
 };
 
-/**
- * The stage preview toolbar component.
- */
-export class StagePreviewToolbar extends PureComponent<{
-  stageOperator?: string;
+type StagePreviewToolbarProps = {
+  index: number;
+  stageOperator?: string | null;
+  hasSyntaxError?: boolean;
   hasServerError?: boolean;
   isEnabled?: boolean;
-  previewSize: number;
+  previewSize?: number;
   description?: string;
   link?: string;
   destination?: string;
-}> {
-  render() {
-    const {
-      stageOperator,
-      hasServerError,
-      isEnabled,
-      previewSize,
-      description,
-      link,
-      destination
-    } = this.props;
+};
 
-    return (
-      <div
-        className={cx(styles['stage-preview-toolbar'], {
-          [styles['stage-preview-toolbar-errored']]: hasServerError
-        })}
-      >
-        {isEnabled ? (
-          stageOperator ? (
-            destination ? (
-              `Documents will be saved to ${destination}.`
-            ) : (
-              <DefaultPreviewText
-                stageOperator={stageOperator}
-                previewSize={previewSize}
-                description={description}
-                link={link}
-              ></DefaultPreviewText>
-            )
+function StagePreviewToolbar({
+  stageOperator,
+  hasSyntaxError,
+  hasServerError,
+  isEnabled,
+  previewSize,
+  description,
+  link,
+  destination
+}: StagePreviewToolbarProps) {
+  const darkMode = useDarkMode();
+
+  return (
+    <Body
+      className={cx(
+        toolbarStyles,
+        darkMode ? toolbarStylesDark : toolbarStylesLight,
+        hasSyntaxError && toolbarWarningStyles,
+        hasServerError && toolbarErrorStyles
+      )}
+    >
+      {isEnabled ? (
+        stageOperator ? (
+          destination ? (
+            `Documents will be saved to ${destination}.`
           ) : (
-            'A sample of the aggregated results from this stage will be shown below.'
+            <DefaultPreviewText
+              stageOperator={stageOperator}
+              previewSize={previewSize}
+              description={description}
+              link={link}
+            ></DefaultPreviewText>
           )
         ) : (
-          'Stage is disabled. Results not passed in the pipeline.'
-        )}
-      </div>
-    );
-  }
+          'A sample of the aggregated results from this stage will be shown below.'
+        )
+      ) : (
+        'Stage is disabled. Results not passed in the pipeline.'
+      )}
+    </Body>
+  );
 }
 
 export default connect((state: RootState, ownProps: { index: number }) => {
@@ -120,10 +156,12 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     stage.value
   );
   return {
+    index: ownProps.index,
     stageOperator: stage.stageOperator,
+    hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
     isEnabled: !stage.disabled,
     previewSize: stage.previewDocs?.length ?? 0,
     ...stageInfo
   };
-}, null)(StagePreviewToolbar);
+})(StagePreviewToolbar);
