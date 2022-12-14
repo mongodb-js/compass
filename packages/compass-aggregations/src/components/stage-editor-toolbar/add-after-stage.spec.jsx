@@ -2,7 +2,6 @@ import React from 'react';
 import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { Tooltip } from '@mongodb-js/compass-components';
 
 import { AddAfterStage } from './add-after-stage';
 
