@@ -22,10 +22,6 @@ describe('AddAfterStage [Component]', function() {
     it('renders the icon', function() {
       expect(component.find('button').find('Icon').first()).to.have.prop('glyph', 'Plus');
     });
-
-    it('renders the tooltip', function() {
-      expect(component.find(Tooltip)).to.be.present();
-    });
   });
 
   context('when clicking on the button', function() {
