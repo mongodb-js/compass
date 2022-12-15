@@ -33,10 +33,19 @@ export type IndexFieldsDefinition = { field: string; value: number | string };
 
 export type IndexDefinition = {
   name: string;
+  ns: string;
   fields: {
     serialize: () => IndexFieldsDefinition[];
   };
-  type: 'geo' | 'hashed' | 'text' | 'wildcard' | 'clustered' | 'columnstore';
+
+  type:
+    | 'regular'
+    | 'geospatial'
+    | 'hashed'
+    | 'text'
+    | 'wildcard'
+    | 'clustered'
+    | 'columnstore';
   cardinality: 'single' | 'compound';
   properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
   extra: Record<string, string | number | Record<string, any>>;
@@ -44,6 +53,7 @@ export type IndexDefinition = {
   relativeSize: number;
   usageCount: number;
   usageSince?: Date;
+  usageHost?: string;
 };
 
 export enum ActionTypes {
@@ -227,7 +237,9 @@ function _mergeInProgressIndexes(
     const index = indexes.find((index) => index.name === inProgressIndex.name);
 
     if (index) {
+      index.extra = index.extra ?? {};
       index.extra.status = inProgressIndex.extra.status;
+      index.extra.error = inProgressIndex.extra.error;
     } else {
       indexes.push(inProgressIndex);
     }

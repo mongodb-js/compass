@@ -65,6 +65,7 @@ const ErrorBadgeWithTooltip: React.FunctionComponent<{
 }> = ({ tooltip, darkMode }) => {
   return (
     <Tooltip
+      enabled={!!tooltip}
       darkMode={darkMode}
       delay={500}
       trigger={({ children, ...props }) => (
@@ -115,7 +116,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
       )}
       {extra.status === 'failed' && (
         <ErrorBadgeWithTooltip
-          tooltip={String(extra.error)}
+          tooltip={extra.error ? String(extra.error) : ''}
           darkMode={darkMode}
         />
       )}

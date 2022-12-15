@@ -9,6 +9,7 @@ import type { IndexDefinition } from '../../modules/indexes';
 
 const indexes: IndexDefinition[] = [
   {
+    ns: 'db.coll',
     cardinality: 'single',
     name: '_id_',
     size: 12,
@@ -29,6 +30,7 @@ const indexes: IndexDefinition[] = [
     usageCount: 10,
   },
   {
+    ns: 'db.coll',
     cardinality: 'compound',
     name: 'album_id_artist_id',
     size: 20,
@@ -53,6 +55,7 @@ const indexes: IndexDefinition[] = [
     usageCount: 15,
   },
   {
+    ns: 'db.coll',
     cardinality: 'compound',
     name: 'partial_with_ttl',
     size: 20,
@@ -78,6 +81,7 @@ const indexes: IndexDefinition[] = [
     usageCount: 20,
   },
   {
+    ns: 'db.coll',
     cardinality: 'single',
     name: 'wildcard_index',
     size: 20,

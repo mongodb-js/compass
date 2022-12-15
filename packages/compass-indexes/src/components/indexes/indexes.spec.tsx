@@ -88,6 +88,7 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: '_id_',
           size: 12,
@@ -121,6 +122,7 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: '_id_',
           size: 12,
@@ -141,6 +143,7 @@ describe('Indexes Component', function () {
           usageCount: 20,
         },
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: 'item',
           size: 0,
@@ -185,6 +188,7 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: '_id_',
           size: 12,
@@ -205,6 +209,7 @@ describe('Indexes Component', function () {
           usageCount: 20,
         },
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: 'item',
           size: 0,
