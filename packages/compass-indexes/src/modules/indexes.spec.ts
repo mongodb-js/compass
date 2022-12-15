@@ -23,7 +23,6 @@ import type { Document } from 'bson';
 type RawIndexDefinition = Partial<IndexDefinition> & {
   id: string;
   key: Record<string, string | number>;
-  name: string;
   version?: number;
   clustered?: boolean;
   collation?: boolean;
