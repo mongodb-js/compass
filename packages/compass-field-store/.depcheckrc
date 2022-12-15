@@ -4,7 +4,6 @@ ignores: [
   "classnames",
   "core-js",
   "electron-rebuild",
-  "font-awesome",
   "karma-electron",
   "karma-sourcemap-loader",
   "karma-webpack",

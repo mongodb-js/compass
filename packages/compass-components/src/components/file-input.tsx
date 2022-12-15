@@ -74,7 +74,6 @@ const infoLinkStyles = css({
 const labelIconStyles = css({
   display: 'inline-block',
   verticalAlign: 'middle',
-  font: 'normal normal normal 14px/1 FontAwesome',
   fontSize: 'inherit',
   textRendering: 'auto',
   margin: '0 0 0 5px',

@@ -63,9 +63,6 @@ module.exports = {
                 // to the compass
                 'compass-fonts-path': '../fonts',
                 'compass-images-path': '../images',
-                'fa-font-path': path.dirname(
-                  require.resolve('mongodb-compass/src/app/fonts/FontAwesome.otf')
-                )
               }
             }
           }
