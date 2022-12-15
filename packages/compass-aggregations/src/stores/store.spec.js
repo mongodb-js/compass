@@ -155,10 +155,6 @@ describe('Aggregation Store', function() {
           expect(state.isModified).to.equal(INITIAL_STATE.isModified);
         });
 
-        it('resets import pipeline', function() {
-          expect(state.importPipeline).to.equal(INITIAL_STATE.importPipeline);
-        });
-
         it('resets collation', function() {
           expect(state.collation).to.equal(INITIAL_STATE.collation);
         });
@@ -225,7 +221,6 @@ describe('Aggregation Store', function() {
             isModified: INITIAL_STATE.isModified,
             isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
             isReadonly: INITIAL_STATE.isReadonly,
-            importPipeline: INITIAL_STATE.importPipeline,
             collationString: INITIAL_STATE.collationString,
             settings: INITIAL_STATE.settings,
             limit: INITIAL_STATE.limit,

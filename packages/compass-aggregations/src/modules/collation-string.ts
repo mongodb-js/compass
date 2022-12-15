@@ -1,7 +1,7 @@
 import type { CollationOptions } from 'mongodb';
 import queryParser from 'mongodb-query-parser';
 import type { AnyAction } from 'redux';
-import { CONFIRM_NEW, NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 
 /**
@@ -51,7 +51,7 @@ export default function reducer(
   if (action.type === COLLATION_STRING_CHANGED) {
     return getCollationStateFromString(action.value as string);
   }
-  if (action.type === CONFIRM_NEW || action.type === NEW_PIPELINE) {
+  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return { ...INITIAL_STATE };
   }
   if (action.type === RESTORE_PIPELINE) {

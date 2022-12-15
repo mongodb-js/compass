@@ -1,6 +1,6 @@
 import type { AnyAction } from "redux";
 import type { PipelineBuilderThunkAction } from ".";
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 
@@ -19,7 +19,7 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): boole
   if (action.type === ActionTypes.AutoPreviewToggled) {
     return action.value;
   }
-  if (action.type === NEW_PIPELINE) {
+  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return INITIAL_STATE;
   }
   if (action.type === RESTORE_PIPELINE) {

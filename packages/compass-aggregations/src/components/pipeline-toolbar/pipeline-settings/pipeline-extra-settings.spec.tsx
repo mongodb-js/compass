@@ -7,7 +7,6 @@ import type { SinonSandbox } from 'sinon';
 import { spy, createSandbox } from 'sinon';
 
 import { PipelineExtraSettings } from './pipeline-extra-settings';
-import preferences from 'compass-preferences-model';
 
 const renderPipelineExtraSettings = (
   props: Partial<ComponentProps<typeof PipelineExtraSettings>> = {}
@@ -61,14 +60,7 @@ describe('PipelineExtraSettings', function () {
     expect(onToggleSettingsSpy.calledOnce).to.be.true;
   });
 
-  it('does not show pipeline builder mode when feature flag is not enabled', function () {
-    renderPipelineExtraSettings();
-    expect(() => {
-      screen.getByTestId('pipeline-builder-toggle');
-    }).to.throw;
-  });
-  it('shows pipeline builder mode when feature flag is enabled', function () {
-    sandbox.stub(preferences, 'getPreferences').returns({ enableTextAsPipeline: true } as any);
+  it('shows pipeline builder toggle', function () {
     renderPipelineExtraSettings();
     const container = screen.getByTestId('pipeline-toolbar-extra-settings');
     expect(within(container).getByTestId('pipeline-builder-toggle')).to.exist;

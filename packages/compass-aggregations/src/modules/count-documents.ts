@@ -4,7 +4,7 @@ import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 export enum ActionTypes {
@@ -48,7 +48,7 @@ const reducer: Reducer<State, AnyAction> = (
 ) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
-    case NEW_PIPELINE:
+    case ConfirmNewPipelineActions.NewPipelineConfirmed:
       return INITIAL_STATE;
     case ActionTypes.CountStarted:
       return {

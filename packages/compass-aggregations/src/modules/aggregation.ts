@@ -6,7 +6,7 @@ import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-regi
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
 import { getStageOperator } from '../utils/stage';
 
@@ -105,7 +105,7 @@ const reducer: Reducer<State, AnyAction> = (
 ) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
-    case NEW_PIPELINE:
+    case ConfirmNewPipelineActions.NewPipelineConfirmed:
       return INITIAL_STATE;
     case ActionTypes.RunAggregation:
       return {

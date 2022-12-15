@@ -1,6 +1,6 @@
 import { ObjectId } from 'bson';
 import { CLONE_PIPELINE } from './clone-pipeline';
-import { CONFIRM_NEW, NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from '././is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 
 /**
@@ -24,9 +24,8 @@ export const INITIAL_STATE = '';
 export default function reducer(state = INITIAL_STATE, action) {
   if (
     action.type === CREATE_ID ||
-    action.type === CONFIRM_NEW ||
     action.type === CLONE_PIPELINE ||
-    action.type === NEW_PIPELINE
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
   ) {
     return new ObjectId().toHexString();
   }

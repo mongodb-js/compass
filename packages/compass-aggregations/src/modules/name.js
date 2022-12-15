@@ -1,4 +1,4 @@
-import { CONFIRM_NEW, NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import { SAVING_PIPELINE_APPLY } from './saving-pipeline';
 
@@ -19,7 +19,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === SAVING_PIPELINE_APPLY) {
     return action.name;
   }
-  if (action.type === CONFIRM_NEW || action.type === NEW_PIPELINE) {
+  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return INITIAL_STATE;
   }
   if (action.type === RESTORE_PIPELINE) {
