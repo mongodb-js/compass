@@ -107,6 +107,7 @@ export const PipelineExtraSettings: React.FunctionComponent<
         </SegmentedControl>
       )}
       <IconButton
+        title="More Settings"
         aria-label="More Settings"
         onClick={() => onToggleSettings()}
         data-testid="pipeline-toolbar-settings-button"

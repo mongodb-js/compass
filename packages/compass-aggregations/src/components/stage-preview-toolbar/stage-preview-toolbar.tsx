@@ -22,6 +22,9 @@ const toolbarStyles = css({
   borderBottomStyle: 'solid',
 });
 
+const collapsedToolbarStyles = css({
+  borderBottomWidth: 0,
+});
 
 const toolbarStylesDark = css({
   borderBottomColor: palette.gray.dark2
@@ -103,6 +106,7 @@ type StagePreviewToolbarProps = {
   description?: string;
   link?: string;
   destination?: string;
+  isCollapsed?: boolean;
 };
 
 function StagePreviewToolbar({
@@ -113,7 +117,8 @@ function StagePreviewToolbar({
   previewSize,
   description,
   link,
-  destination
+  destination,
+  isCollapsed,
 }: StagePreviewToolbarProps) {
   const darkMode = useDarkMode();
 
@@ -123,7 +128,8 @@ function StagePreviewToolbar({
         toolbarStyles,
         darkMode ? toolbarStylesDark : toolbarStylesLight,
         hasSyntaxError && toolbarWarningStyles,
-        hasServerError && toolbarErrorStyles
+        hasServerError && toolbarErrorStyles,
+        isCollapsed && collapsedToolbarStyles,
       )}
     >
       {isEnabled ? (
@@ -162,6 +168,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     hasServerError: !!stage.serverError,
     isEnabled: !stage.disabled,
     previewSize: stage.previewDocs?.length ?? 0,
+    isCollapsed: stage.collapsed,
     ...stageInfo
   };
 })(StagePreviewToolbar);

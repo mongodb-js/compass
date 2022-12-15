@@ -39,6 +39,7 @@ export class ToggleStage extends PureComponent {
         id="toggle-stage-button"
         checked={this.props.isEnabled}
         onChange={this.onStageToggled}
+        title={TOOLTIP}
         aria-label={TOOLTIP}
         size="xsmall"
         className={toggleStyle}

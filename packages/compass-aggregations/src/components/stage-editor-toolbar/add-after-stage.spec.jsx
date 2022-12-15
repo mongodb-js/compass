@@ -2,7 +2,6 @@ import React from 'react';
 import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { Tooltip } from '@mongodb-js/compass-components';
 
 import { AddAfterStage } from './add-after-stage';
 
@@ -21,10 +20,6 @@ describe('AddAfterStage [Component]', function() {
 
     it('renders the icon', function() {
       expect(component.find('button').find('Icon').first()).to.have.prop('glyph', 'Plus');
-    });
-
-    it('renders the tooltip', function() {
-      expect(component.find(Tooltip)).to.be.present();
     });
   });
 

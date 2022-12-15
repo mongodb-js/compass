@@ -75,6 +75,10 @@ const toolbarStyles = css({
   cursor: 'grab'
 });
 
+const collapsedToolbarStyles = css({
+  borderBottomWidth: 0,
+});
+
 const toolbarStylesDark = css({
   borderBottomColor: palette.gray.dark2
 });
@@ -99,11 +103,12 @@ const rightStyles = css({
 });
 
 type StageEditorToolbarProps = {
-  stageOperator?: string | null,
-  index: number
-  isAutoPreviewing?: boolean,
-  hasSyntaxError?: boolean
-  hasServerError?: boolean
+  stageOperator?: string | null;
+  index: number;
+  isAutoPreviewing?: boolean;
+  hasSyntaxError?: boolean;
+  hasServerError?: boolean;
+  isCollapsed?: boolean;
 };
 
 function StageEditorToolbar({
@@ -111,7 +116,8 @@ function StageEditorToolbar({
   index,
   isAutoPreviewing,
   hasSyntaxError,
-  hasServerError
+  hasServerError,
+  isCollapsed,
 }: StageEditorToolbarProps) {
   const darkMode = useDarkMode();
 
@@ -122,7 +128,8 @@ function StageEditorToolbar({
         toolbarStyles,
         darkMode ? toolbarStylesDark : toolbarStylesLight,
         hasSyntaxError && toolbarWarningStyles,
-        hasServerError && toolbarErrorStyles
+        hasServerError && toolbarErrorStyles,
+        isCollapsed && collapsedToolbarStyles,
       )}>
       <StageCollapser index={index} />
       <StageOperatorSelect index={index} />
@@ -147,5 +154,6 @@ export default connect((state: RootState, ownProps: { index: number}) => {
     isAutoPreviewing: !!state.autoPreview,
     hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
+    isCollapsed: stage.collapsed,
   };
 })(StageEditorToolbar);
