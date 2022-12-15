@@ -166,10 +166,10 @@ export const fetchIndexes = (): ThunkAction<
         cloneDeep(inProgressIndexes)
       );
 
-      const convertedIndexes = _convertToModels(indexes);
+      const indexModels = _convertToModels(indexes);
 
       const allIndexes = _mergeInProgressIndexes(
-        convertedIndexes,
+        indexModels,
         inProgressIndexModels
       ).sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
 
