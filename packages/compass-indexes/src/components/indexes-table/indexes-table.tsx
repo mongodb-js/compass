@@ -56,7 +56,7 @@ const cellStyles = css({
   verticalAlign: 'middle',
 });
 
-const removePaddingStyles = css({
+const nestedRowCellStyles = css({
   padding: 0,
 });
 
@@ -175,9 +175,9 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
                 )}
               </Cell>
             )}
-            <Row className={removePaddingStyles}>
+            <Row>
               <Cell
-                className={cx(removePaddingStyles, cellStyles)}
+                className={cx(nestedRowCellStyles, cellStyles)}
                 colSpan={canDeleteIndex ? 6 : 5}
               >
                 <KeyList keys={index.fields.serialize()} />
