@@ -8,6 +8,7 @@ import {
   MenuItem,
 } from '@mongodb-js/compass-components';
 import type { CellEditorProps } from './cell-editor';
+import type Document from 'hadron-document';
 import type { Element } from 'hadron-document';
 
 /**
@@ -82,19 +83,23 @@ class AddFieldButton extends React.Component<
 
   handleAddFieldClick() {
     const document = this.props.node.data.hadronDocument;
+    let parent: Document | Element = this.props.node.data.hadronDocument;
     let editOnly = false;
 
-    if (!this.props.context.path.length) {
-      return;
+    // By default and for top-level fields the path is empty.
+    // Once the user drills down, the path changes.
+    // If the user clicks on the breadcrumb component, then the path also
+    // changes.
+    if (this.props.context.path.length) {
+      parent = document.getChild(this.props.context.path)!;
     }
-    const parent = document.getChild(this.props.context.path)!;
 
     const isArray = !parent.isRoot() && parent.currentType === 'Array';
     let newElement: Element;
 
     if (!this.empty) {
       /* Set key to $new even though for arrays, it will be a index */
-      newElement = parent.insertAfter(this.props.value, '$new', '');
+      newElement = parent.insertAfter(this.props.value, '$new', '')!;
     } else {
       newElement = parent.insertEnd('$new', '');
     }
