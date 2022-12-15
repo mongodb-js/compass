@@ -18,7 +18,7 @@ class Type extends Component {
     activeType: PropTypes.any,
     self: PropTypes.object,
     probability: PropTypes.number.isRequired,
-    renderType: PropTypes.func.isRequired,
+    onRenderType: PropTypes.func.isRequired,
     showSubTypes: PropTypes.bool.isRequired,
   };
 
@@ -31,7 +31,7 @@ class Type extends Component {
    */
   typeClicked(e) {
     e.stopPropagation();
-    this.props.renderType(this.props.self);
+    this.props.onRenderType(this.props.self);
   }
 
   /**
@@ -41,7 +41,7 @@ class Type extends Component {
    * @param  {Object} subtype   The subtype object
    */
   subTypeClicked(subtype) {
-    this.props.renderType(subtype);
+    this.props.onRenderType(subtype);
   }
 
   /**
@@ -75,7 +75,7 @@ class Type extends Component {
         <Type
           key={'subtype-' + subtype.name}
           activeType={activeSubType}
-          renderType={this.subTypeClicked.bind(this, subtype)}
+          onRenderType={this.subTypeClicked.bind(this, subtype)}
           self={subtype}
           showSubTypes={false}
           {...subtype}
