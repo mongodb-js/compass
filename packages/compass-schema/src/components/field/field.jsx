@@ -247,7 +247,7 @@ class Field extends Component {
                   <Field
                     actions={this.props.actions}
                     localAppRegistry={this.props.localAppRegistry}
-                    enableMaps={this.prop.enableMaps}
+                    enableMaps={this.props.enableMaps}
                     {...field}
                   />
                 </div>
