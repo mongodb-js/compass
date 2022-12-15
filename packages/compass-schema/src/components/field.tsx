@@ -128,7 +128,7 @@ function sortTypes(types: FieldType[]) {
 }
 
 /**
- * returns Document type object of a nested document, either directly nested
+ * Returns Document type object of a nested document, either directly nested
  * or sub-documents inside an array.
  *
  * @example
@@ -156,7 +156,7 @@ function getNestedDocType(types: FieldType[]) {
  * replaces type information like name and values if there's a match.
  */
 function getSemanticType(type: FieldType, enableMaps: boolean) {
-  // Check if the type represents geo coordinates, if privacy settings allow/
+  // Check if the type represents geo coordinates, if privacy settings allow.
   if (!enableMaps) {
     return type;
   }
@@ -186,8 +186,6 @@ function Field({
     const sortedTypes = sortTypes(types);
     return sortedTypes.length > 0 ? sortedTypes[0] : null;
   });
-  console.log('activeType', activeType);
-  console.log('types', types);
 
   const activeShownTypes = useMemo(() => sortTypes(types), [types]);
   const nestedDocType = useMemo(() => getNestedDocType(types), [types]);
