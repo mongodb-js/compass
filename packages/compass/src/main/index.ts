@@ -41,23 +41,18 @@ void main();
 async function main(): Promise<void> {
   const globalPreferences = await parseAndValidateGlobalPreferences();
 
-  if (process.env.HADRON_ISOLATED === 'true') {
-    globalPreferences.hardcoded = {
-      ...globalPreferences.hardcoded,
-      networkTraffic: false,
-    };
-  }
-  if (process.env.COMPASS_LG_DARKMODE === 'true') {
-    globalPreferences.hardcoded = {
-      ...globalPreferences.hardcoded,
-      lgDarkmode: true,
-    };
-  }
-  if (process.env.HADRON_READONLY === 'true') {
-    globalPreferences.hardcoded = {
-      ...globalPreferences.hardcoded,
-      readOnly: true,
-    };
+  // These are expected to go away at some point.
+  for (const [envvar, preference, preferenceValue] of [
+    ['HADRON_ISOLATED', 'networkTraffic', false],
+    ['HADRON_READONLY', 'readOnly', true],
+    ['COMPASS_LG_DARKMODE', 'lgDarkmode', true],
+  ] as const) {
+    if (process.env[envvar] === 'true') {
+      globalPreferences.hardcoded = {
+        ...globalPreferences.hardcoded,
+        [preference]: preferenceValue,
+      };
+    }
   }
 
   const { preferenceParseErrors } = globalPreferences;

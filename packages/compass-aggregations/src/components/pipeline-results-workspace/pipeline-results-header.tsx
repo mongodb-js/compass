@@ -49,15 +49,13 @@ export const PipelineResultsHeader: React.FunctionComponent<
   }
   return (
     <div className={containerStyles} data-testid="pipeline-results-header">
-      {process?.env?.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' && (
-        <div className={pipelineOptionsStyles}>
-          <Overline>All Results</Overline>
-          <PipelineOutputOptionsMenu
-            option={pipelineOutputOption}
-            onChangeOption={onChangePipelineOutputOption}
-          />
-        </div>
-      )}
+      <div className={pipelineOptionsStyles}>
+        <Overline>All Results</Overline>
+        <PipelineOutputOptionsMenu
+          option={pipelineOutputOption}
+          onChangeOption={onChangePipelineOutputOption}
+        />
+      </div>
       <div className={pipelinePaginationStyles}>
         <PipelinePagination />
         <PipelineResultsViewControls

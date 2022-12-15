@@ -3,7 +3,8 @@ import type { ComponentProps } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
-import { spy } from 'sinon';
+import type { SinonSandbox } from 'sinon';
+import { spy, createSandbox } from 'sinon';
 
 import { PipelineExtraSettings } from './pipeline-extra-settings';
 
@@ -24,6 +25,15 @@ const renderPipelineExtraSettings = (
 };
 
 describe('PipelineExtraSettings', function () {
+  let sandbox: SinonSandbox
+  beforeEach(function() {
+    sandbox = createSandbox();
+  })
+
+  afterEach(function() {
+    sandbox.restore();
+  })
+
   it('calls onToggleAutoPreview when clicked', function () {
     const onToggleAutoPreviewSpy = spy();
     renderPipelineExtraSettings({
@@ -50,20 +60,9 @@ describe('PipelineExtraSettings', function () {
     expect(onToggleSettingsSpy.calledOnce).to.be.true;
   });
 
-  it('does not show pipeline builder mode when feature flag is not enabled', function () {
+  it('shows pipeline builder toggle', function () {
     renderPipelineExtraSettings();
-    expect(() => {
-      screen.getByTestId('pipeline-builder-toggle');
-    }).to.throw;
-  });
-  it('shows pipeline builder mode when feature flag is enabled', function () {
-    process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = 'true';
-    try {
-      renderPipelineExtraSettings();
-      const container = screen.getByTestId('pipeline-toolbar-extra-settings');
-      expect(within(container).getByTestId('pipeline-builder-toggle')).to.exist;
-    } finally {
-      delete process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE;
-    }
+    const container = screen.getByTestId('pipeline-toolbar-extra-settings');
+    expect(within(container).getByTestId('pipeline-builder-toggle')).to.exist;
   });
 });

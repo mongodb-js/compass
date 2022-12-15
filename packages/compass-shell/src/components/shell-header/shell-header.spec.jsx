@@ -1,9 +1,7 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
-import { Icon } from '@mongodb-js/compass-components';
-import { IconButton } from '@mongodb-js/compass-components';
+import { Icon, IconButton, SpinLoader } from '@mongodb-js/compass-components';
 import { expect } from 'chai';
-import { ShellLoader } from '@mongosh/browser-repl';
 
 import { ShellHeader } from './shell-header';
 
@@ -33,7 +31,7 @@ describe('ShellHeader', function () {
     });
 
     it('does not render the loader', function () {
-      expect(wrapper.find(ShellLoader).exists()).to.equal(false);
+      expect(wrapper.find(SpinLoader).exists()).to.equal(false);
     });
   });
 
@@ -56,7 +54,7 @@ describe('ShellHeader', function () {
     });
 
     it('does not render the loader', function () {
-      expect(wrapper.find(ShellLoader).exists()).to.equal(false);
+      expect(wrapper.find(SpinLoader).exists()).to.equal(false);
     });
   });
 
@@ -73,7 +71,7 @@ describe('ShellHeader', function () {
           />
         );
 
-        expect(wrapper.find(ShellLoader).exists()).to.equal(true);
+        expect(wrapper.find(SpinLoader).exists()).to.equal(true);
       });
     }
   );

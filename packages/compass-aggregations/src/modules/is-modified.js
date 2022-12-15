@@ -1,5 +1,5 @@
 import { CLONE_PIPELINE } from './clone-pipeline';
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { StageEditorActionTypes } from './pipeline-builder/stage-editor';
 import { EditorActionTypes } from './pipeline-builder/text-editor-pipeline';
 import { SAVED_PIPELINE_ADD } from './saved-pipeline';
@@ -28,7 +28,7 @@ export default function reducer(state = false, action) {
   }
   if (
     action.type === CLONE_PIPELINE ||
-    action.type === NEW_PIPELINE ||
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
     action.type === SAVED_PIPELINE_ADD
   ) {
     return false;

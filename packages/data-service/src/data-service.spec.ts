@@ -668,76 +668,89 @@ describe('DataService', function () {
     });
 
     describe('#estimatedCount', function () {
-      it('returns a 0 for an empty collection', function (done) {
-        dataService.estimatedCount(
+      it('returns a 0 for an empty collection', async function () {
+        const count = await dataService.estimatedCount(
           `${testDatabaseName}.empty`,
-          {},
-          function (error, count) {
-            assert.equal(null, error);
-            expect(count).to.equal(0);
-            done();
-          }
+          {}
         );
+        expect(count).to.equal(0);
       });
 
-      it('returns the estimated count', function (done) {
-        dataService.estimatedCount(testNamespace, {}, function (error, count) {
-          assert.equal(null, error);
-          expect(count).to.equal(2);
-          done();
-        });
+      it('returns the estimated count', async function () {
+        const count = await dataService.estimatedCount(testNamespace, {});
+        expect(count).to.equal(2);
+      });
+
+      it('cancels the long running estimated count', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+
+        const promise = dataService
+          .estimatedCount(testNamespace, {}, { abortSignal })
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+        expect(dataService.isCancelError(error)).to.be.true;
       });
     });
 
     describe('#count', function () {
-      context('when a filter is provided', function () {
-        it('returns 0 for an empty collection', function (done) {
-          dataService.count(
-            `${testDatabaseName}.empty`,
-            {
-              a: 1,
-            },
-            {},
-            function (error, count) {
-              assert.equal(null, error);
-              expect(count).to.equal(0);
-              done();
-            }
-          );
-        });
-
-        it('returns a count for the matching documents', function (done) {
-          dataService.count(
-            testNamespace,
-            {
-              a: 1,
-            },
-            {},
-            function (error, count) {
-              assert.equal(null, error);
-              expect(count).to.equal(1);
-              done();
-            }
-          );
-        });
+      it('returns 0 for an empty collection', async function () {
+        const count = await dataService.count(
+          `${testDatabaseName}.empty`,
+          {
+            a: 1,
+          },
+          {}
+        );
+        expect(count).to.equal(0);
       });
 
-      context('when max timeout is provided', function () {
-        context('when the count times out', function () {
-          it('throws the error', function (done) {
-            dataService.count(
-              testNamespace,
-              {
-                $where: 'function() { sleep(5500); return true; }',
-              },
-              { maxTimeMS: 500 },
-              function (error) {
-                expect(error).to.not.equal(null);
-                done();
-              }
-            );
-          });
-        });
+      it('returns a count for the matching documents', async function () {
+        const count = await dataService.count(
+          testNamespace,
+          {
+            a: 1,
+          },
+          {}
+        );
+        expect(count).to.equal(1);
+      });
+
+      it('throws the error when count times out', async function () {
+        const error = await dataService
+          .count(
+            testNamespace,
+            {
+              $where: 'function() { sleep(5500); return true; }',
+            },
+            { maxTimeMS: 500 }
+          )
+          .catch((e) => e);
+        expect(error).to.not.equal(null);
+      });
+
+      it('cancels the long running count', async function () {
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
+        const filter = {
+          query: {
+            $where: `function () {
+              sleep(100);
+              return true;
+            }`,
+          },
+        };
+
+        const promise = dataService
+          .count(testNamespace, filter, {}, { abortSignal })
+          .catch((err) => err);
+        // cancel the operation
+        abortController.abort();
+        const error = await promise;
+
+        expect(dataService.isCancelError(error)).to.be.true;
       });
     });
 
@@ -1200,18 +1213,13 @@ describe('DataService', function () {
         dataService.dropView(`${testDatabaseName}.myView`, done);
       });
 
-      it('returns 0 documents because the view has been dropped', function (done) {
-        dataService.count(
+      it('returns 0 documents because the view has been dropped', async function () {
+        const count = await dataService.count(
           `${testDatabaseName}.myView`,
           {},
-          {},
-          function (err, _count) {
-            if (err) return done(err);
-
-            assert.equal(_count, 0);
-            done();
-          }
+          {}
         );
+        expect(count).to.equal(0);
       });
 
       // describe('#collectionDetail', function () {

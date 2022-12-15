@@ -18,7 +18,7 @@ import {
   DEFAULT_SAMPLE_SIZE,
   DEFAULT_LARGE_LIMIT
 } from '../constants';
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
 
 type State = {
@@ -77,7 +77,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
     return { ...state, isDirty: false };
   }
 
-  if (action.type === NEW_PIPELINE) {
+  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return { ...INITIAL_STATE };
   }
 

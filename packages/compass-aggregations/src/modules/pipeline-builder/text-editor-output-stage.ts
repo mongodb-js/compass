@@ -6,7 +6,7 @@ import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import { isAction } from '../../utils/is-action';
 import { EditorActionTypes, canRunPipeline } from './text-editor-pipeline';
 import type { EditorValueChangeAction } from './text-editor-pipeline';
-import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { gotoOutResults } from '../out-results-fn';
@@ -55,8 +55,7 @@ const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
       PipelineModeActionTypes.PipelineModeToggled
     ) ||
     action.type === RESTORE_PIPELINE ||
-    action.type === CONFIRM_NEW ||
-    action.type === NEW_PIPELINE
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
   ) {
     return { ...INITIAL_STATE };
   }

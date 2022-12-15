@@ -10,7 +10,6 @@ import LoadingOverlay from './loading-overlay';
 
 const cardStyles = css({
   margin: `0 ${spacing[3]}px`,
-  marginBottom: spacing[3]
 });
 
 const headerStyles = css({
@@ -42,10 +41,10 @@ const bodyStylesDark = css({
 
 const documentsContainerStyles = css({
   marginTop: spacing[2],
+  paddingBottom: spacing[2],
   display: 'flex',
   overflowX: 'scroll',
   gap: spacing[2],
-  paddingBottom: spacing[2]
 });
 
 const documentContainerStyles = css({
@@ -78,13 +77,15 @@ function PipelineBuilderInputDocuments({
     toggleInputDocumentsCollapsed(!isExpanded);
   };
 
+  const expandTooltipText = isExpanded ? 'Collapse' : 'Expand';
+
   return (<KeylineCard className={cardStyles}>
     <div className={headerStyles}>
-      <IconButton onClick={toggleExpanded} aria-label={isExpanded ? 'Collapse' : 'Expand'}>
+      <IconButton onClick={toggleExpanded} title={expandTooltipText} aria-label={expandTooltipText}>
         <Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'} size="small"></Icon>
       </IconButton>
       <Body className={headerTextStyles}><b>{count} Document{count === 1 ? '' : 's'}</b> in the collection</Body>
-      <IconButton onClick={refreshInputDocuments} aria-label="Refresh">
+      <IconButton onClick={refreshInputDocuments} aria-label="Refresh" title="Refresh">
         <Icon glyph="Refresh" size="small" />
       </IconButton>
     </div>

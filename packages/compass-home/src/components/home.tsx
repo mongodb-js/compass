@@ -1,9 +1,10 @@
 import {
-  css,
-  cx,
   LeafyGreenProvider,
   Theme,
   ToastArea,
+  css,
+  cx,
+  getScrollbarStyles,
   palette,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
@@ -22,6 +23,7 @@ import React, {
   useState,
 } from 'react';
 import preferences from 'compass-preferences-model';
+
 import { useAppRegistryContext } from '../contexts/app-registry-context';
 import updateTitle from '../modules/update-title';
 import type Namespace from '../types/namespace';
@@ -333,6 +335,8 @@ function ThemedHome(
     showWelcomeModal?: boolean;
   }
 ): ReturnType<typeof Home> {
+  const [scrollbarsContainerRef, setScrollbarsContainerRef] =
+    useState<HTMLDivElement | null>(null);
   const {
     showWelcomeModal = !preferences.getPreferences().showedNetworkOptIn,
   } = props;
@@ -408,22 +412,32 @@ function ThemedHome(
   }, [setIsSettingsOpen]);
 
   return (
-    <LeafyGreenProvider darkMode={darkMode}>
-      {showWelcomeModal && (
-        <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-      )}
-      <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
-      <ToastArea>
-        <div
-          className={cx(
-            homeContainerStyles,
-            darkMode ? globalDarkThemeStyles : globalLightThemeStyles
-          )}
-          data-theme={theme.theme}
-        >
-          <Home {...props}></Home>
-        </div>
-      </ToastArea>
+    <LeafyGreenProvider
+      darkMode={darkMode}
+      popoverPortalContainer={{
+        portalContainer: scrollbarsContainerRef,
+      }}
+    >
+      <div
+        className={getScrollbarStyles(darkMode)}
+        ref={setScrollbarsContainerRef}
+      >
+        {showWelcomeModal && (
+          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+        )}
+        <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+        <ToastArea>
+          <div
+            className={cx(
+              homeContainerStyles,
+              darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+            )}
+            data-theme={theme.theme}
+          >
+            <Home {...props}></Home>
+          </div>
+        </ToastArea>
+      </div>
     </LeafyGreenProvider>
   );
 }

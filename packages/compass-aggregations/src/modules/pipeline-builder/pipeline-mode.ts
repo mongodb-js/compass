@@ -37,11 +37,8 @@ const reducer: Reducer<State> = (state = INITIAL_STATE, action) => {
     return action.mode;
   }
   if (action.type === RESTORE_PIPELINE) {
-    if (
-      process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true' &&
-      // Force as-text editor mode if loaded pipeline contains syntax errors
-      action.syntaxErrors.length > 0
-    ) {
+    // Force as-text editor mode if loaded pipeline contains syntax errors
+    if (action.syntaxErrors.length > 0) {
       return 'as-text';
     }
   }

@@ -32,6 +32,7 @@ import type {
   KMSField,
 } from '../../../utils/csfle-kms-fields';
 import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
+import { usePreference } from 'compass-preferences-model';
 
 const kmsProviderComponentWrapperStyles = css({
   paddingLeft: spacing[3],
@@ -90,8 +91,10 @@ function CSFLETab({
   const autoEncryptionOptions =
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
-  const enableSchemaMapDebugFlag =
-    !!globalThis?.process?.env?.COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP;
+  const enableSchemaMapDebugFlag = usePreference(
+    'debugUseCsfleSchemaMap',
+    React
+  );
 
   const errors = errorsByFieldTab(errors_, 'csfle');
 

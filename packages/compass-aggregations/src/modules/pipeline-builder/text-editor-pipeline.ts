@@ -11,7 +11,7 @@ import { isAction } from '../../utils/is-action';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 import type { PipelineModeToggledAction } from './pipeline-mode';
-import { CONFIRM_NEW, NEW_PIPELINE } from '../import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
@@ -78,8 +78,7 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
       PipelineModeActionTypes.PipelineModeToggled
     ) ||
     action.type === RESTORE_PIPELINE ||
-    action.type === CONFIRM_NEW ||
-    action.type === NEW_PIPELINE
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
   ) {
     // On editor switch or reset, reset the parsed pipeline completely
     const pipeline = action.pipeline ?? [];
@@ -87,7 +86,6 @@ const reducer: Reducer<TextEditorState> = (state = INITIAL_STATE, action) => {
     return {
       ...state,
       serverError: null,
-      previewDocs: null,
       pipelineText: action.pipelineText,
       pipeline,
       syntaxErrors: action.syntaxErrors,

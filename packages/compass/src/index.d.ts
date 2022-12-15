@@ -33,24 +33,8 @@ declare module 'process' {
         HADRON_METRICS_SEGMENT_HOST?: string;
         HADRON_AUTO_UPDATE_ENDPOINT: string;
 
-        // Feature flags.
-        /**
-         * Currently Compass uses `darkreader` to globally change the views of
-         * Compass to a dark theme. Turning on this feature flag stops darkreader
-         * from being used and instead components which have darkMode
-         * support will listen to the theme to change their styles.
-         */
+        // Legacy feature flags. Add new feature flags to the preferences model directly!
         COMPASS_LG_DARKMODE?: 'true' | 'false';
-
-        /**
-         * Permanent feature flag for debugging.
-         */
-        COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';
-
-        /**
-         * Enables pipeline toggle between stage-by-stage and as-text
-         */
-        COMPASS_ENABLE_AS_TEXT_PIPELINE?: 'true' | 'false';
       }
     }
   }

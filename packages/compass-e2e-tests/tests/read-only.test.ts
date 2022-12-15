@@ -252,7 +252,7 @@ describe('readOnly: true / Read-Only Edition', function () {
       await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
 
       // sanity check to make sure there's only one
-      const stageContainers = await browser.$$(Selectors.StageContainer);
+      const stageContainers = await browser.$$(Selectors.StageCard);
       expect(stageContainers).to.have.lengthOf(1);
 
       await browser.focusStageOperator(0);

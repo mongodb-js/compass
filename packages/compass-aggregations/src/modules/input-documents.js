@@ -99,9 +99,21 @@ export const loadingInputDocuments = () => ({
  * @returns {Function} The function.
  */
 export const refreshInputDocuments = () => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
+
+    if (!dataService) {
+      return;
+    }
+
+    if (dataService && !dataService.isConnected()) {
+      debug(
+        'warning: trying to refresh aggregation but dataService is disconnected',
+        dataService
+      );
+    }
+
     const ns = state.namespace;
 
     const options = {
@@ -110,21 +122,25 @@ export const refreshInputDocuments = () => {
 
     const exampleDocumentsPipeline = [{ $limit: state.settings.sampleSize }];
 
-    if (dataService && dataService.isConnected()) {
-      dispatch(loadingInputDocuments());
-      dataService.estimatedCount(ns, options, async (error, count) => {
-        try {
-          const docs = await dataService.aggregate(ns, exampleDocumentsPipeline, options);
-          dispatch(updateInputDocuments(error ? null : count, docs, null));
-        } catch(e) {
-          dispatch(updateInputDocuments(error ? null : count, [], e));
-        }
-      });
-    } else if (dataService && !dataService.isConnected()) {
-      debug(
-        'warning: trying to refresh aggregation but dataService is disconnected',
-        dataService
-      );
+    dispatch(loadingInputDocuments());
+
+    try {
+      const data = await Promise.allSettled([
+        dataService.estimatedCount(ns, options),
+        dataService.aggregate(ns, exampleDocumentsPipeline, options)
+      ]);
+
+      const count = data[0].status === 'fulfilled' ? data[0].value : null;
+      const docs = data[1].status === 'fulfilled' ? data[1].value : [];
+
+      const error = data[0].status === 'rejected'
+        ? data[0].reason
+        : data[1].status === 'rejected'
+        ? data[1].reason
+        : null;
+      dispatch(updateInputDocuments(count, docs, error));
+    } catch (error) {
+      dispatch(updateInputDocuments(null, [], error));
     }
   };
 };

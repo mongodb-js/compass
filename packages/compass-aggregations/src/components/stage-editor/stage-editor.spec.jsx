@@ -4,7 +4,6 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 
 import { StageEditor } from './stage-editor';
-import styles from './stage-editor.module.less';
 
 describe('StageEditor [Component]', function() {
   let component;
@@ -30,6 +29,6 @@ describe('StageEditor [Component]', function() {
   });
 
   it('renders the wrapper div', function() {
-    expect(component.find(`.${styles['stage-editor']}`)).to.be.present();
+    expect(component.find('UnthemedStageEditor')).to.be.present();
   });
 });

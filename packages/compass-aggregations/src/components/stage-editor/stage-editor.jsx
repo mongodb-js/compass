@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
   Editor,
@@ -6,18 +7,52 @@ import {
   EditorTextCompleter,
   StageAutoCompleter
 } from '@mongodb-js/compass-editor';
-import { connect } from 'react-redux';
-import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+import { css, cx, spacing, palette, Banner, withDarkMode } from '@mongodb-js/compass-components';
+
+import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
+
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
-import styles from './stage-editor.module.less';
+
+const editorContainerStyles = css({
+  position: 'relative',
+  textAlign: 'center',
+  overflow: 'hidden',
+});
+
+const editorStyles = css({
+  flexShrink: 0,
+  margin: 0,
+  padding: `${spacing[2]}px 0 ${spacing[2]}px 0`,
+  width: '100%',
+  minHeight: '200px'
+});
+
+const editorContainerStylesDark = css({
+  background: palette.gray.dark3,
+});
+
+const editorContainerStylesLight = css({
+  background: palette.gray.light3,
+});
+
+const aceEditorStyles = css({
+  minHeight: '160px'
+});
+
+const bannerStyles = css({
+  margin: spacing[2],
+  textAlign: 'left'
+});
 
 /**
  * Edit a single stage in the aggregation pipeline.
  */
-export class StageEditor extends PureComponent {
+class UnthemedStageEditor extends PureComponent {
   static propTypes = {
+    darkMode: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
     stageValue: PropTypes.string,
     onChange: PropTypes.func.isRequired,
@@ -120,13 +155,14 @@ export class StageEditor extends PureComponent {
   renderError() {
     if (this.props.serverError) {
       return (
-        <div
+        <Banner
+          variant="danger"
           data-testid="stage-editor-error-message"
-          className={styles['stage-editor-errormsg']}
           title={this.props.serverError.message}
+          className={bannerStyles}
         >
           {this.props.serverError.message}
-        </div>
+        </Banner>
       );
     }
   }
@@ -134,17 +170,18 @@ export class StageEditor extends PureComponent {
   renderSyntaxError() {
     if (this.props.syntaxError) {
       return (
-        <div
+        <Banner
+          variant="warning"
           data-testid="stage-editor-syntax-error"
-          className={styles['stage-editor-syntax-error']}
           title={this.props.syntaxError.message}
+          className={bannerStyles}
         >
           {!this.props.stageOperator
             ? 'Stage operator is required'
             : !this.props.stageValue
             ? 'Stage value can not be empty'
             : this.props.syntaxError.message}
-        </div>
+          </Banner>
       );
     }
   }
@@ -156,13 +193,13 @@ export class StageEditor extends PureComponent {
    */
   render() {
     return (
-      <div className={styles['stage-editor-container']}>
-        <div className={styles['stage-editor']}>
+      <div className={cx(editorContainerStyles, this.props.darkMode ? editorContainerStylesDark : editorContainerStylesLight)}>
+        <div className={editorStyles}>
           <Editor
             text={this.props.stageValue}
             onChangeText={this.onStageChange}
             variant={EditorVariant.Shell}
-            className={styles['stage-editor-ace-editor']}
+            className={aceEditorStyles}
             name={`aggregations-stage-editor-${this.props.index}`}
             options={{ minLines: 5 }}
             completer={this.completer}
@@ -178,6 +215,9 @@ export class StageEditor extends PureComponent {
     );
   }
 }
+
+// exported for tests
+export const StageEditor = withDarkMode(UnthemedStageEditor);
 
 export default connect(
   (state, ownProps) => {

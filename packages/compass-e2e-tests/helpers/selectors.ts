@@ -362,10 +362,7 @@ export const ShellSection = '[data-testid="shell-section"]';
 export const ShellContent = '[data-testid="shell-content"]';
 export const ShellExpandButton = '[data-testid="shell-expand-button"]';
 export const ShellInput = '[data-testid="shell-content"] .ace_content';
-export const ShellOutput =
-  '[data-testid="shell-content"] [class^=mongosh-shell-output-line] pre';
-export const ShellLoader =
-  '[data-testid="shell-content"] [class~=mongosh-shell-loader-shell-loader]';
+export const ShellOutput = '[data-testid="shell-content"] pre[class]';
 
 // Query bar (Find, Schema, Explain Plan)
 export const QueryBarMenuActions = '#query-bar-menu-actions';
@@ -657,16 +654,9 @@ export const myQueriesItem = (title: string): string => {
 export const MyQueriesList = '[data-testid="my-queries-list"]';
 
 // Aggregations tab
-export const StageContainer = '[data-testid="stage-container"]';
+export const StageCard = '[data-testid="stage-card"]';
 export const CreateNewPipelineMenuButton =
   '[data-testid="create-new-menu-show-actions"]';
-// todo: COMPASS-6299 remove create new pipeline menu selectors
-// when enabling pipeline as text (COMPASS_ENABLE_AS_TEXT_PIPELINE)
-export const CreateNewPipelineMenuContent = '[data-testid="create-new-menu"]';
-export const CreateNewEmptyPipelineAction =
-  '[data-testid="create-new-menu-createPipeline-action"]';
-export const CreateNewPipelineFromTextAction =
-  '[data-testid="create-new-menu-createPipelineFromText-action"]';
 export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';

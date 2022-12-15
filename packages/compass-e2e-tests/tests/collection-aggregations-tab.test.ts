@@ -127,14 +127,11 @@ async function switchPipelineMode(
   await browser.waitForAnimations(Selectors.AggregationBuilderWorkspace);
 }
 
-const initialEnableTextModeValue = process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE;
-
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
 
   before(async function () {
-    process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = 'true';
     compass = await beforeTests();
     browser = compass.browser;
   });
@@ -158,13 +155,12 @@ describe('Collection aggregations tab', function () {
     await browser.clickVisible(Selectors.AddStageButton);
     await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
     // sanity check to make sure there's only one stage
-    const stageContainers = await browser.$$(Selectors.StageContainer);
+    const stageContainers = await browser.$$(Selectors.StageCard);
     expect(stageContainers).to.have.lengthOf(1);
   });
 
   after(async function () {
     await afterTests(compass, this.currentTest);
-    process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE = initialEnableTextModeValue;
   });
 
   afterEach(async function () {

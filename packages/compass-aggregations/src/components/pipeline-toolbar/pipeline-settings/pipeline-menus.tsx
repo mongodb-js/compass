@@ -1,17 +1,14 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import semver from 'semver';
-import { Icon, DropdownMenuButton, Button } from '@mongodb-js/compass-components';
+import { Icon, DropdownMenuButton } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
-import type { Dispatch } from 'redux';
 import type { RootState } from '../../../modules';
-import { newPipelineFromText } from '../../../modules/import-pipeline';
 import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
 import {
   openCreateView,
   savingPipelineOpen,
 } from '../../../modules/saving-pipeline';
-import { setIsNewPipelineConfirm } from '../../../modules/is-new-pipeline-confirm';
 
 type SaveMenuActions = 'save' | 'saveAs' | 'createView';
 type SaveMenuProps = {
@@ -101,61 +98,3 @@ export const SaveMenu = connect(
   mapSaveMenuState,
   mapSaveMenuDispatch
 )(SaveMenuComponent);
-
-type CreateMenuActions = 'createPipeline' | 'createPipelineFromText';
-type CreateMenuProps = {
-  onCreatePipeline: () => void;
-  onCreatePipelineFromText: () => void;
-};
-const createMenuActions: MenuAction<CreateMenuActions>[] = [
-  { action: 'createPipeline', label: 'Pipeline' },
-  { action: 'createPipelineFromText', label: 'Pipeline from text' },
-];
-export const CreateMenuComponent: React.FunctionComponent<CreateMenuProps> = ({
-  onCreatePipeline,
-  onCreatePipelineFromText,
-}) => {
-  if (process.env.COMPASS_ENABLE_AS_TEXT_PIPELINE === 'true') {
-    return (
-      <Button
-        size="xsmall"
-        variant="primary"
-        leftGlyph={<Icon glyph="Plus" />}
-        onClick={onCreatePipeline}
-        data-testid="pipeline-toolbar-create-new-button"
-      >
-        Create new
-      </Button>
-    );
-  }
-
-  const onAction = (action: CreateMenuActions) => {
-    switch (action) {
-      case 'createPipeline':
-        return onCreatePipeline();
-      case 'createPipelineFromText':
-        return onCreatePipelineFromText();
-    }
-  };
-  return (
-    <DropdownMenuButton<CreateMenuActions>
-      data-testid="create-new-menu"
-      actions={createMenuActions}
-      onAction={onAction}
-      buttonText="Create new"
-      buttonProps={{
-        size: 'xsmall',
-        variant: 'primary',
-        leftGlyph: <Icon glyph="Plus" />,
-      }}
-    ></DropdownMenuButton>
-  );
-};
-const mapCreateMenuDispatch = (dispatch: Dispatch) => ({
-  onCreatePipeline: () => dispatch(setIsNewPipelineConfirm(true)),
-  onCreatePipelineFromText: () => dispatch(newPipelineFromText()),
-});
-export const CreateMenu = connect(
-  null,
-  mapCreateMenuDispatch
-)(CreateMenuComponent);

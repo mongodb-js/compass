@@ -2,7 +2,7 @@ import type { AnyAction, Reducer } from 'redux';
 import { ActionTypes as AggregationActionTypes, cancelAggregation } from './aggregation';
 import type { PipelineBuilderThunkAction } from '.';
 import { cancelCount } from './count-documents';
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 
 export type Workspace = 'builder' | 'results';
 
@@ -26,7 +26,7 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
       return action.view;
     case AggregationActionTypes.RunAggregation:
       return 'results';
-    case NEW_PIPELINE:
+    case ConfirmNewPipelineActions.NewPipelineConfirmed:
       return INITIAL_STATE;
     default:
       return state;

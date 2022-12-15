@@ -6,8 +6,6 @@ import configureStore from '../../stores/store';
 import StagePreviewToolbar from './stage-preview-toolbar';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 
-import styles from './stage-preview-toolbar.module.less';
-
 function mountStagePreviewToolbar(
   options = {}
 ) {
@@ -41,7 +39,7 @@ describe('StagePreviewToolbar [Component]', function() {
     });
 
     it('renders the stage text', function() {
-      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+      expect(component.find('StagePreviewToolbar')).
         to.include.text('(Sample of 0 documents)');
     });
 
@@ -73,12 +71,12 @@ describe('StagePreviewToolbar [Component]', function() {
     });
 
     it('renders the stage text', function() {
-      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+      expect(component.find('StagePreviewToolbar')).
         to.include.text('(Sample of 0 documents)');
     });
 
     it('renders the stage link', function() {
-      expect(component.find('a.stage-preview-toolbar-link')).
+      expect(component.find('[data-testid="stage-preview-toolbar-link"]').first()).
         to.have.text('$monkey');
     });
   });
@@ -97,7 +95,7 @@ describe('StagePreviewToolbar [Component]', function() {
     });
 
     it('does not render the stage text', function() {
-      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+      expect(component.find('StagePreviewToolbar')).
         to.have.text('Stage is disabled. Results not passed in the pipeline.');
     });
   });
@@ -118,7 +116,7 @@ describe('StagePreviewToolbar [Component]', function() {
       });
 
       it('renders the $out stage text', function() {
-        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        expect(component.find('StagePreviewToolbar')).
           to.have.text('Documents will be saved to test.collection.');
       });
     });
@@ -139,7 +137,7 @@ describe('StagePreviewToolbar [Component]', function() {
         });
 
         it('renders the $out stage text', function() {
-          expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+          expect(component.find('StagePreviewToolbar')).
             to.have.text('Documents will be saved to S3 bucket.');
         });
       });
@@ -159,7 +157,7 @@ describe('StagePreviewToolbar [Component]', function() {
         });
 
         it('renders the $out stage text', function() {
-          expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+          expect(component.find('StagePreviewToolbar')).
             to.have.text('Documents will be saved to S3 bucket.');
         });
       });
@@ -180,7 +178,7 @@ describe('StagePreviewToolbar [Component]', function() {
       });
 
       it('renders the $out stage text', function() {
-        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        expect(component.find('StagePreviewToolbar')).
           to.have.text('Documents will be saved to Atlas cluster.');
       });
     });
@@ -202,7 +200,7 @@ describe('StagePreviewToolbar [Component]', function() {
       });
 
       it('renders the $merge stage text', function() {
-        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        expect(component.find('StagePreviewToolbar')).
           to.have.text('Documents will be saved to test.collection.');
       });
     });
@@ -224,7 +222,7 @@ describe('StagePreviewToolbar [Component]', function() {
       });
 
       it('renders the $merge stage text', function() {
-        expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+        expect(component.find('StagePreviewToolbar')).
           to.have.text('Documents will be saved to Atlas cluster.');
       });
     });
@@ -245,7 +243,7 @@ describe('StagePreviewToolbar [Component]', function() {
     });
 
     it('renders the stage text', function() {
-      expect(component.find(`.${styles['stage-preview-toolbar']}`)).
+      expect(component.find('StagePreviewToolbar')).
         to.have.text('A sample of the aggregated results from this stage will be shown below.');
     });
   });
