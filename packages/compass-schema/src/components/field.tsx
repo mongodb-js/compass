@@ -184,7 +184,9 @@ function Field({
   // Set the active type to the first type in the sorted props.types array.
   const [activeType, setActiveType] = useState(() => {
     const sortedTypes = sortTypes(types);
-    return sortedTypes.length > 0 ? sortedTypes[0] : null;
+    return sortedTypes.length > 0
+      ? getSemanticType(sortedTypes[0], enableMaps)
+      : null;
   });
 
   const activeShownTypes = useMemo(() => sortTypes(types), [types]);
@@ -262,7 +264,7 @@ function Field({
         {/* Render nested fields when it's a nested array / document. */}
         {isExpanded && (
           <div
-            className={cx('schema-field-list', fieldListContainerStyles)}
+            className={fieldListContainerStyles}
             data-testid="schema-field-list"
             id={fieldListRegionId}
             role="region"

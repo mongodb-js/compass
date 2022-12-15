@@ -98,7 +98,7 @@ class Type extends Component {
   render() {
     const type = this.props.name.toLowerCase();
     let cls = `schema-field-wrapper schema-field-type-${type}`;
-    if (this.props.activeType === this.props.self) {
+    if (this.props.activeType.name === this.props.self.name) {
       cls += ' active';
     }
     const handleClick =
