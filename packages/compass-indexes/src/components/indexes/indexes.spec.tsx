@@ -173,7 +173,7 @@ describe('Indexes Component', function () {
       'index-property-field'
     );
 
-    expect(indexPropertyField).to.contain.text('In Progress...');
+    expect(indexPropertyField).to.contain.text('In Progress ...');
 
     const dropIndexButton = within(inProgressIndex).queryByTestId(
       'index-actions-delete-action'

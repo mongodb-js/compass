@@ -9,13 +9,8 @@ import {
   spacing,
   Icon,
   SpinLoader,
-  KeylineCard,
 } from '@mongodb-js/compass-components';
 import type AppRegistry from 'hadron-app-registry';
-
-const toolbarStyles = css({
-  padding: spacing[2],
-});
 
 const containerStyles = css({
   margin: `${spacing[3]}px 0`,
@@ -75,7 +70,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   return (
     <div className={containerStyles}>
       {!isReadonlyView && (
-        <KeylineCard className={toolbarStyles} data-testid="indexes-toolbar">
+        <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             <Button
               data-testid="refresh-indexes-button"
@@ -118,7 +113,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
               </Tooltip>
             )}
           </div>
-        </KeylineCard>
+        </div>
       )}
       {isReadonlyView ? (
         <WarningSummary

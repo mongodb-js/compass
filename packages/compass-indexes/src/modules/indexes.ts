@@ -152,10 +152,18 @@ export const fetchIndexes = (): ThunkAction<
       for (const index of indexes) {
         index.ns = namespace;
       }
-      const ixs = _convertToModels(
-        indexes.concat(cloneDeep(inProgressIndexes))
+      const inProgressIndexModels = _convertToModels(
+        cloneDeep(inProgressIndexes)
+      );
+
+      const convertedIndexes = _convertToModels(indexes);
+
+      const allIndexes = _mergeInProgressIndexes(
+        convertedIndexes,
+        inProgressIndexModels
       ).sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
-      return _handleIndexesChanged(dispatch, ixs);
+
+      return _handleIndexesChanged(dispatch, allIndexes);
     });
   };
 };
@@ -210,6 +218,23 @@ const _convertToModels = (indexes: Document[]): IndexDefinition[] => {
     return model as IndexDefinition;
   });
 };
+
+function _mergeInProgressIndexes(
+  indexes: IndexDefinition[],
+  inProgressIndexes: IndexDefinition[]
+) {
+  for (const inProgressIndex of inProgressIndexes) {
+    const index = indexes.find((index) => index.name === inProgressIndex.name);
+
+    if (index) {
+      index.extra.status = inProgressIndex.extra.status;
+    } else {
+      indexes.push(inProgressIndex);
+    }
+  }
+
+  return indexes;
+}
 
 export const dropFailedIndex = (
   id: string

@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, spacing } from '@mongodb-js/compass-components';
+import { css, KeylineCard, spacing } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import type AppRegistry from 'hadron-app-registry';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -19,6 +19,7 @@ import type { RootState } from '../../modules';
 
 const paddingBottom = spacing[4] * 2;
 const containerStyles = css({
+  margin: spacing[3],
   paddingLeft: spacing[3],
   paddingRight: spacing[3],
   paddingBottom: paddingBottom,
@@ -65,7 +66,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
     return localAppRegistry.emit('toggle-drop-index-modal', true, index.name);
   };
   return (
-    <div className={containerStyles} data-testid="indexes">
+    <KeylineCard className={containerStyles} data-testid="indexes">
       <IndexesToolbar
         isWritable={isWritable}
         isReadonly={isReadonly}
@@ -91,7 +92,7 @@ export const Indexes: React.FunctionComponent<IndexesProps> = ({
           )}
         </AutoSizer>
       )}
-    </div>
+    </KeylineCard>
   );
 };
 

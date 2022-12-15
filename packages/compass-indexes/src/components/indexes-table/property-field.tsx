@@ -17,6 +17,7 @@ const containerStyles = css({
   display: 'flex',
   gap: spacing[1],
   minWidth: spacing[3] * 7,
+  alignItems: 'center',
 });
 
 const partialTooltip = (partialFilterExpression: JSON) => {
@@ -110,7 +111,7 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
         />
       )}
       {extra.status === 'inprogress' && (
-        <Badge variant={BadgeVariant.Blue}>In Progress...</Badge>
+        <Badge variant={BadgeVariant.Blue}>In Progress ...</Badge>
       )}
       {extra.status === 'failed' && (
         <ErrorBadgeWithTooltip
