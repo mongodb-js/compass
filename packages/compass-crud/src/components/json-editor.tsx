@@ -10,56 +10,8 @@ import {
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 
-import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
+import { JSONEditor as Editor } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
-
-import hljs from 'highlight.js/lib/core'; // Skip highlight's auto-registering
-import json from 'highlight.js/lib/languages/json';
-
-hljs.registerLanguage('json', json);
-
-type ReadOnlyJsonCodeProps = {
-  className?: string;
-  code: string;
-};
-
-const codeStyle = css({
-  fontFamily: fontFamilies.code,
-  fontSize: '13px',
-  fontWeight: 400,
-  lineHeight: '16px',
-  whiteSpace: 'pre',
-  padding: spacing[3],
-  margin: 0,
-  overflow: 'auto',
-  '& .hljs-string': { color: palette.blue.base },
-  '& .hljs-literal': { color: palette.blue.base },
-  '& .hljs-number': { color: palette.blue.base },
-  '& .hljs-keyword': { color: palette.blue.base, fontWeight: 'bold' },
-});
-
-const ReadOnlyJsonCode: React.FunctionComponent<
-  ReadOnlyJsonCodeProps & React.HTMLAttributes<HTMLPreElement>
-> = ({ className, code, ...rest }) => {
-  const highlightedContent: string = useMemo(() => {
-    const { value } = hljs.highlight(code, {
-      language: 'json',
-      ignoreIllegals: true,
-    });
-
-    const lines = value.split('\n');
-
-    return lines.map((line) => `<code>${line}</code>`).join('\n');
-  }, [code]);
-
-  return (
-    <pre
-      {...rest}
-      className={cx(className, codeStyle)}
-      dangerouslySetInnerHTML={{ __html: highlightedContent }}
-    ></pre>
-  );
-};
 
 export type JsonEditorProps = {
   doc: Document;
@@ -84,8 +36,8 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
 }) => {
   const [editing, setEditing] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
-  const [value, setValue] = useState<string>('');
-  const [initialValue, setInitialValue] = useState<string>('');
+  const [value, setValue] = useState<string>(() => doc.toEJSON());
+  const [initialValue] = useState<string>(() => doc.toEJSON());
   const [containsErrors, setContainsErrors] = useState<boolean>(false);
 
   const handleUpdateSuccess = useCallback(() => {
@@ -105,10 +57,6 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
   }, [deleting]);
 
   useEffect(() => {
-    const text = doc.toEJSON();
-    setValue(text);
-    setInitialValue(text);
-
     doc.on('remove-success', handleRemoveSuccess);
     doc.on('update-success', handleUpdateSuccess);
 
@@ -159,41 +107,32 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
 
   return (
     <div data-testid="editable-json">
-      {editing ? (
-        <div className="json-ace-editor">
-          <Editor
-            copyable={false}
-            formattable={false}
-            variant={EditorVariant.EJSON}
-            text={value}
-            onChangeText={onChange}
-            options={{
-              minLines: 2,
-              highlightActiveLine: false,
-              highlightGutterLine: false,
-              showLineNumbers: true,
-              fixedWidthGutter: false,
-              displayIndentGuides: false,
-              wrapBehavioursEnabled: true,
-              foldStyle: 'markbegin',
-            }}
-          />
-        </div>
-      ) : (
-        <>
-          <DocumentList.DocumentActionsGroup
-            onEdit={isEditable ? () => setEditing(true) : undefined}
-            onCopy={handleCopy}
-            onRemove={isEditable ? () => setDeleting(true) : undefined}
-            onClone={isEditable ? handleClone : undefined}
-          />
-          <ReadOnlyJsonCode
-            code={value}
-            onDoubleClick={isEditable ? () => setEditing(true) : undefined}
-          ></ReadOnlyJsonCode>
-        </>
+      <Editor
+        // copyable={false}
+        // formattable={false}
+        // variant={EditorVariant.EJSON}
+        text={value}
+        onChangeText={onChange}
+        readOnly={!editing}
+        // options={{
+        //   minLines: 2,
+        //   highlightActiveLine: false,
+        //   highlightGutterLine: false,
+        //   showLineNumbers: true,
+        //   fixedWidthGutter: false,
+        //   displayIndentGuides: false,
+        //   wrapBehavioursEnabled: true,
+        //   foldStyle: 'markbegin',
+        // }}
+      />
+      {!editing && (
+        <DocumentList.DocumentActionsGroup
+          onEdit={isEditable ? () => setEditing(true) : undefined}
+          onCopy={handleCopy}
+          onRemove={isEditable ? () => setDeleting(true) : undefined}
+          onClone={isEditable ? handleClone : undefined}
+        />
       )}
-
       <DocumentList.DocumentEditActionsFooter
         doc={doc}
         alwaysForceUpdate

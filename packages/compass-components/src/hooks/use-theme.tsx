@@ -8,9 +8,8 @@ enum Theme {
   Dark = 'Dark',
 }
 
-export function useDarkMode(): boolean | undefined {
-  const darkMode = useLeafyGreenDarkMode();
-
+export function useDarkMode(localDarkMode?: boolean): boolean | undefined {
+  const darkMode = useLeafyGreenDarkMode(localDarkMode);
   return darkMode.darkMode;
 }
 

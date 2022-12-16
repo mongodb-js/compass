@@ -152,3 +152,4 @@ export { fontFamilies } from '@leafygreen-ui/tokens';
 export { default as BSONValue } from './components/bson-value';
 export * as DocumentList from './components/document-list';
 export { KeylineCard } from './components/keyline-card';
+export { variantColors as codePalette } from '@leafygreen-ui/code';

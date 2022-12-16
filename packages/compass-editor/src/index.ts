@@ -11,3 +11,4 @@ export { InlineEditor } from './inline-editor';
 export { prettify } from './prettify';
 export type { FormatOptions } from './prettify';
 export { Editor } from './multiline-editor';
+export { JSONEditor } from './json-editor';
