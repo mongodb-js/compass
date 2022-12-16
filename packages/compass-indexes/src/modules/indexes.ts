@@ -242,7 +242,7 @@ function _mergeInProgressIndexes(
       index.extra.status = inProgressIndex.extra.status;
       index.extra.error = inProgressIndex.extra.error;
     } else {
-      indexes.push(inProgressIndex);
+      indexesClone.push(inProgressIndex);
     }
   }
 
