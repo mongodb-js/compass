@@ -17,7 +17,7 @@ const containerStyles = css({
   display: 'flex',
   gap: spacing[1],
   minWidth: spacing[3] * 7,
-  alignItems: 'center',
+  alignItems: 'baseline',
 });
 
 const partialTooltip = (partialFilterExpression: JSON) => {

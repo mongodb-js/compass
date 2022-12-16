@@ -233,6 +233,7 @@ function _mergeInProgressIndexes(
   indexes: IndexDefinition[],
   inProgressIndexes: IndexDefinition[]
 ) {
+  const indexesClone = cloneDeep(indexes);
   for (const inProgressIndex of inProgressIndexes) {
     const index = indexes.find((index) => index.name === inProgressIndex.name);
 
@@ -245,7 +246,7 @@ function _mergeInProgressIndexes(
     }
   }
 
-  return indexes;
+  return indexesClone;
 }
 
 export const dropFailedIndex = (
