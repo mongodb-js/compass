@@ -17,7 +17,7 @@ const padding = {
     paddingLeft: spacing[3] + spacing[1],
   }),
   collection: css({
-    paddingLeft: spacing[5] + spacing[1],
+    paddingLeft: spacing[5] + spacing[1] + spacing[4],
   }),
 } as const;
 
