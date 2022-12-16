@@ -25,11 +25,15 @@ import KeyList from './key-list';
 // When row is hovered, we show the delete button
 const rowStyles = css({
   ':hover': {
+    background: palette.gray.light2,
     '.index-actions-cell': {
       button: {
         opacity: 1,
       },
     },
+  },
+  ':hover + tr': {
+    background: palette.gray.light2,
   },
 });
 
@@ -58,6 +62,7 @@ const cellStyles = css({
 
 const nestedRowCellStyles = css({
   padding: 0,
+  paddingBottom: spacing[3],
 });
 
 const tableStyles = css({
@@ -76,6 +81,8 @@ type IndexesTableProps = {
   onSortTable: (column: SortColumn, direction: SortDirection) => void;
   onDeleteIndex: (index: IndexDefinition) => void;
 };
+
+const actionsPlaceholderStyles = css({ width: 28, height: 28 });
 
 export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
   indexes,
@@ -163,7 +170,8 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
             {/* Delete column is conditional */}
             {canDeleteIndex && (
               <Cell data-testid="index-actions-field" className={cellStyles}>
-                {index.name !== '_id_' && index.extra.status !== 'inprogress' && (
+                {index.name !== '_id_' &&
+                index.extra.status !== 'inprogress' ? (
                   <div
                     className={cx(indexActionsCellStyles, 'index-actions-cell')}
                   >
@@ -172,6 +180,9 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
                       onDeleteIndex={onDeleteIndex}
                     ></IndexActions>
                   </div>
+                ) : (
+                  // ensures that _id and in progress rows are the same height
+                  <div className={actionsPlaceholderStyles}></div>
                 )}
               </Cell>
             )}
