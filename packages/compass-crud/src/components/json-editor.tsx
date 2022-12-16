@@ -1,29 +1,67 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { DocumentList } from '@mongodb-js/compass-components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  css,
+  cx,
+  DocumentList,
+  fontFamilies,
+  palette,
+  spacing,
+} from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 
-import type { AceEditor } from '@mongodb-js/compass-editor';
 import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 
-/**
- * The base class.
- */
-const BASE = 'json';
+import hljs from 'highlight.js/lib/core'; // Skip highlight's auto-registering
+import json from 'highlight.js/lib/languages/json';
 
-/**
- * The contents class.
- */
-const CONTENTS = `${BASE}-contents`;
+hljs.registerLanguage('json', json);
 
-/**
- * The test id.
- */
-const TEST_ID = 'editable-json';
+type ReadOnlyJsonCodeProps = {
+  className?: string;
+  code: string;
+};
 
-export type EditableJsonProps = {
+const codeStyle = css({
+  fontFamily: fontFamilies.code,
+  fontSize: '13px',
+  fontWeight: 400,
+  lineHeight: '16px',
+  whiteSpace: 'pre',
+  padding: spacing[3],
+  margin: 0,
+  overflow: 'auto',
+  '& .hljs-string': { color: palette.blue.base },
+  '& .hljs-literal': { color: palette.blue.base },
+  '& .hljs-number': { color: palette.blue.base },
+  '& .hljs-keyword': { color: palette.blue.base, fontWeight: 'bold' },
+});
+
+const ReadOnlyJsonCode: React.FunctionComponent<
+  ReadOnlyJsonCodeProps & React.HTMLAttributes<HTMLPreElement>
+> = ({ className, code, ...rest }) => {
+  const highlightedContent: string = useMemo(() => {
+    const { value } = hljs.highlight(code, {
+      language: 'json',
+      ignoreIllegals: true,
+    });
+
+    const lines = value.split('\n');
+
+    return lines.map((line) => `<code>${line}</code>`).join('\n');
+  }, [code]);
+
+  return (
+    <pre
+      {...rest}
+      className={cx(className, codeStyle)}
+      dangerouslySetInnerHTML={{ __html: highlightedContent }}
+    ></pre>
+  );
+};
+
+export type JsonEditorProps = {
   doc: Document;
   editable: boolean;
   isTimeSeries: boolean;
@@ -35,344 +73,142 @@ export type EditableJsonProps = {
   isExpanded: boolean;
 };
 
-type EditableJsonState = {
-  editing: boolean;
-  deleting: boolean;
-  deleteFinished: boolean;
-  containsErrors: boolean;
-  value: string;
-  initialValue: string;
-};
+const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
+  doc,
+  editable,
+  isTimeSeries,
+  removeDocument,
+  replaceDocument,
+  openInsertDocumentDialog,
+  copyToClipboard,
+}) => {
+  const [editing, setEditing] = useState<boolean>(false);
+  const [deleting, setDeleting] = useState<boolean>(false);
+  const [value, setValue] = useState<string>('');
+  const [initialValue, setInitialValue] = useState<string>('');
+  const [containsErrors, setContainsErrors] = useState<boolean>(false);
 
-/**
- * Component for a single editable document in a list of json documents.
- */
-class EditableJson extends React.Component<
-  EditableJsonProps,
-  EditableJsonState
-> {
-  editor?: AceEditor;
+  const handleUpdateSuccess = useCallback(() => {
+    if (editing) {
+      setTimeout(() => {
+        setEditing(false);
+      }, 500);
+    }
+  }, [editing]);
 
-  /**
-   * The component constructor.
-   *
-   * @note: Local json object state is the current doc that's been serialised into an
-   * EJSON.
-   *
-   * @param {Object} props - The properties.
-   */
-  constructor(props: EditableJsonProps) {
-    super(props);
+  const handleRemoveSuccess = useCallback(() => {
+    if (deleting) {
+      setTimeout(() => {
+        setDeleting(false);
+      }, 500);
+    }
+  }, [deleting]);
 
-    const value = this._getObjectAsString();
+  useEffect(() => {
+    const text = doc.toEJSON();
+    setValue(text);
+    setInitialValue(text);
 
-    this.state = {
-      editing: false,
-      deleting: false,
-      deleteFinished: false,
-      containsErrors: false,
-      value,
-      initialValue: value,
+    doc.on('remove-success', handleRemoveSuccess);
+    doc.on('update-success', handleUpdateSuccess);
+
+    return () => {
+      doc.removeListener('remove-success', handleRemoveSuccess);
+      doc.removeListener('update-success', handleUpdateSuccess);
     };
-  }
+  }, [doc, handleRemoveSuccess, handleUpdateSuccess]);
 
-  /**
-   * Fold up all nested values when loading editors.
-   */
-  componentDidMount() {
-    this.subscribeToDocumentEvents(this.props.doc);
-    if (!this.props.isExpanded) {
-      (this.editor?.getSession() as any).foldAll(2);
-    }
-  }
+  const handleCopy = useCallback(() => {
+    copyToClipboard?.(doc);
+  }, [copyToClipboard, doc]);
 
-  componentDidUpdate(
-    prevProps: EditableJsonProps,
-    prevState: EditableJsonState
-  ) {
-    if (this.props.doc !== prevProps.doc) {
-      this.unsubscribeFromDocumentEvents(prevProps.doc);
-      this.subscribeToDocumentEvents(this.props.doc);
-      const newValue = this._getObjectAsString();
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({
-        editing: false,
-        deleting: false,
-        value: newValue,
-        initialValue: newValue,
-      });
-    }
-
-    if (prevProps.isExpanded !== this.props.isExpanded) {
-      this.props.isExpanded
-        ? (this.editor?.getSession() as any).unfold()
-        : (this.editor?.getSession() as any).foldAll(2);
-    }
-
-    if (
-      prevState.editing !== this.state.editing &&
-      this.state.editing === false
-    ) {
-      (this.editor?.getSession() as any).foldAll(2);
-    }
-  }
-
-  componentWillUnmount() {
-    this.unsubscribeFromDocumentEvents(this.props.doc);
-  }
-
-  _getObjectAsString() {
-    return this.props.doc.toEJSON();
-  }
-
-  /**
-   * Subscribe to the hadron document events.
-   *
-   * @param {Document} doc - The hadron document.
-   */
-  subscribeToDocumentEvents(doc: Document) {
-    doc.on('remove-success', this.handleRemoveSuccess);
-    doc.on('update-success', this.handleUpdateSuccess);
-  }
-
-  /**
-   * Unsubscribe from the hadron document events.
-   *
-   * @param {Document} doc - The hadron document.
-   */
-  unsubscribeFromDocumentEvents(doc: Document) {
-    doc.removeListener('remove-success', this.handleRemoveSuccess);
-    doc.removeListener('update-success', this.handleUpdateSuccess);
-  }
-
-  /**
-   * Fires when the document update was successful.
-   */
-  handleUpdateSuccess = () => {
-    if (this.state.editing) {
-      setTimeout(() => {
-        this.setState({ editing: false });
-      }, 500);
-    }
-  };
-
-  /**
-   * Handle the successful remove.
-   */
-  handleRemoveSuccess = () => {
-    if (this.state.deleting) {
-      setTimeout(() => {
-        this.setState({ deleting: false, deleteFinished: true });
-      }, 500);
-    }
-  };
-
-  /**
-   * Handle the user clicking the cancel button.
-   */
-  handleCancel = () => {
-    this.setState({
-      containsErrors: false,
-      editing: false,
-      deleting: false,
-      value: this._getObjectAsString(),
-    });
-  };
-
-  /**
-   * Handle copying JSON to clipboard of the json document.
-   */
-  handleCopy() {
-    this.props.copyToClipboard?.(this.props.doc);
-  }
-
-  /**
-   * Handle cloning of the json document.
-   */
-  handleClone() {
-    const clonedDoc = this.props.doc.generateObject({
+  const handleClone = useCallback(() => {
+    const clonedDoc = doc.generateObject({
       excludeInternalFields: true,
     });
-    this.props.openInsertDocumentDialog?.(clonedDoc, true);
-  }
+    openInsertDocumentDialog?.(clonedDoc, true);
+  }, [doc, openInsertDocumentDialog]);
 
-  /**
-   * Handles json document deletion.
-   */
-  handleDelete() {
-    this.setState({
-      deleting: true,
-      editing: false,
-    });
-  }
+  const onCancel = useCallback(() => {
+    setEditing(false);
+    setDeleting(false);
+    setValue(doc.toEJSON());
+  }, [doc]);
 
-  /**
-   * Handles canceling a delete.
-   */
-  handleCancelRemove() {
-    this.setState({
-      deleting: false,
-      deleteFinished: false,
-    });
-  }
+  const onUpdate = useCallback(() => {
+    doc.apply(HadronDocument.FromEJSON(value || ''));
+    replaceDocument?.(doc);
+  }, [doc, replaceDocument, value]);
 
-  /**
-   * Handle the edit click.
-   */
-  handleEdit() {
-    this.setState({ editing: true });
-  }
+  const onDelete = useCallback(() => {
+    removeDocument?.(doc);
+  }, [doc, removeDocument]);
 
-  /**
-   * Handle editor changes when updating the document
-   *
-   * @param {String} value - changed value of json doc being edited.
-   */
-  handleOnChange(value: string) {
+  const onChange = useCallback((value: string) => {
     let containsErrors = false;
     try {
       JSON.parse(value);
     } catch {
       containsErrors = true;
     }
-    this.setState({ value, containsErrors });
-  }
+    setContainsErrors(containsErrors);
+    setValue(value);
+  }, []);
 
-  /**
-   * Get the current style of the json document div.
-   *
-   * @returns {String} The json document class name.
-   */
-  jsonStyle() {
-    let style = BASE;
-    if (this.state.editing) {
-      style = style.concat(' json-document-is-editing');
-    }
-    if (this.state.deleting && !this.state.deleteFinished) {
-      style = style.concat(' json-document-is-deleting');
-    }
-    return style;
-  }
+  const isEditable = editable && !deleting && !isTimeSeries;
 
-  /**
-   * Render the actions component.
-   *
-   * @returns {Component} The actions component.
-   */
-  renderActions() {
-    if (this.props.editable) {
-      if (!this.state.editing && !this.state.deleting) {
-        return (
-          <DocumentList.DocumentActionsGroup
-            onEdit={
-              !this.props.isTimeSeries ? this.handleEdit.bind(this) : undefined
-            }
-            onCopy={this.handleCopy.bind(this)}
-            onRemove={
-              !this.props.isTimeSeries
-                ? this.handleDelete.bind(this)
-                : undefined
-            }
-            onClone={this.handleClone.bind(this)}
+  return (
+    <div data-testid="editable-json">
+      {editing ? (
+        <div className="json-ace-editor">
+          <Editor
+            copyable={false}
+            formattable={false}
+            variant={EditorVariant.EJSON}
+            text={value}
+            onChangeText={onChange}
+            options={{
+              minLines: 2,
+              highlightActiveLine: false,
+              highlightGutterLine: false,
+              showLineNumbers: true,
+              fixedWidthGutter: false,
+              displayIndentGuides: false,
+              wrapBehavioursEnabled: true,
+              foldStyle: 'markbegin',
+            }}
           />
-        );
-      }
-    }
-  }
-
-  /**
-   * Render Parsed and prettified view of json documents
-   *
-   * @returns {Component} The footer component.
-   */
-  renderJson() {
-    const options = {
-      minLines: 2,
-      highlightActiveLine: false,
-      highlightGutterLine: false,
-      showLineNumbers: this.state.editing,
-      fixedWidthGutter: false,
-      displayIndentGuides: false,
-      wrapBehavioursEnabled: true,
-      foldStyle: 'markbegin',
-    };
-
-    return (
-      <div className="json-ace-editor">
-        <Editor
-          copyable={false}
-          formattable={false}
-          variant={EditorVariant.EJSON}
-          text={this.state.value}
-          onChangeText={this.handleOnChange.bind(this)}
-          options={options}
-          readOnly={!this.state.editing}
-          onLoad={(editor) => {
-            this.editor = editor;
-          }}
-        />
-      </div>
-    );
-  }
-
-  /**
-   * Render the footer component.
-   *
-   * @returns {Component} The footer component.
-   */
-  renderFooter() {
-    return (
-      <DocumentList.DocumentEditActionsFooter
-        doc={this.props.doc}
-        alwaysForceUpdate
-        editing={this.state.editing}
-        deleting={this.state.deleting}
-        modified={this.state.value !== this.state.initialValue}
-        containsErrors={this.state.containsErrors}
-        onUpdate={() => {
-          this.props.doc.apply(HadronDocument.FromEJSON(this.state.value));
-          this.props.replaceDocument?.(this.props.doc);
-        }}
-        onDelete={() => {
-          this.props.removeDocument?.(this.props.doc);
-        }}
-        onCancel={() => {
-          this.handleCancel();
-        }}
-      />
-    );
-  }
-
-  /**
-   * Render a single document list item.
-   *
-   * @returns {React.Component} The component.
-   */
-  render() {
-    return (
-      <div className={this.jsonStyle()} data-testid={TEST_ID}>
-        <div className={CONTENTS}>
-          {this.renderJson()}
-          {this.renderActions()}
         </div>
-        {this.renderFooter()}
-      </div>
-    );
-  }
+      ) : (
+        <>
+          <DocumentList.DocumentActionsGroup
+            onEdit={isEditable ? () => setEditing(true) : undefined}
+            onCopy={handleCopy}
+            onRemove={isEditable ? () => setDeleting(true) : undefined}
+            onClone={isEditable ? handleClone : undefined}
+          />
+          <ReadOnlyJsonCode
+            code={value}
+            onDoubleClick={isEditable ? () => setEditing(true) : undefined}
+          ></ReadOnlyJsonCode>
+        </>
+      )}
 
-  static displayName = 'EditableJson';
+      <DocumentList.DocumentEditActionsFooter
+        doc={doc}
+        alwaysForceUpdate
+        editing={!!editing}
+        deleting={!!deleting}
+        modified={value !== initialValue}
+        containsErrors={containsErrors}
+        onUpdate={onUpdate}
+        onDelete={onDelete}
+        onCancel={onCancel}
+      />
+    </div>
+  );
+};
 
-  static propTypes = {
-    doc: PropTypes.object.isRequired,
-    editable: PropTypes.bool,
-    isTimeSeries: PropTypes.bool,
-    removeDocument: PropTypes.func.isRequired,
-    replaceDocument: PropTypes.func.isRequired,
-    updateDocument: PropTypes.func.isRequired,
-    openInsertDocumentDialog: PropTypes.func.isRequired,
-    copyToClipboard: PropTypes.func.isRequired,
-    isExpanded: PropTypes.bool,
-  };
-}
+JSONEditor.displayName = 'JSONEditor';
 
-export default EditableJson;
+export default JSONEditor;
