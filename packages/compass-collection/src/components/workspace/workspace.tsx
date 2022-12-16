@@ -1,8 +1,7 @@
 import type AppRegistry from 'hadron-app-registry';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import classnames from 'classnames';
-import { WorkspaceTabs, css } from '@mongodb-js/compass-components';
+import { WorkspaceTabs, css, cx } from '@mongodb-js/compass-components';
 
 import {
   createNewTab,
@@ -37,6 +36,10 @@ const workspaceViewsStyles = css({
 const workspaceViewTabStyles = css({
   height: '100%',
   width: '100%',
+});
+
+const workspaceHiddenStyles = css({
+  display: 'none',
 });
 
 function getTabType(isTimeSeries: boolean, isReadonly: boolean): string {
@@ -208,13 +211,12 @@ class Workspace extends PureComponent<WorkspaceProps> {
    */
   renderViews(): React.ReactElement[] {
     return this.props.tabs.map((tab: WorkspaceTabObject) => {
-      const viewTabClass = classnames({
-        [workspaceViewTabStyles]: true,
-        hidden: !tab.isActive,
-      });
       return (
         <div
-          className={viewTabClass}
+          className={cx(
+            workspaceViewTabStyles,
+            !tab.isActive && workspaceHiddenStyles
+          )}
           id={tab.id}
           key={`${String(tab.id)}-wrap`}
         >

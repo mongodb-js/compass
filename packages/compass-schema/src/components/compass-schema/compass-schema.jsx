@@ -159,7 +159,7 @@ class Schema extends Component {
 
     return (
       <div className={styles.schema}>
-        <div className="schema-field-list">{this.renderFieldList()}</div>
+        <div data-testid="schema-field-list">{this.renderFieldList()}</div>
       </div>
     );
   }
