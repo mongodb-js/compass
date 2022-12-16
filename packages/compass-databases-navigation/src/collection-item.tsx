@@ -38,6 +38,7 @@ const CollectionIcon: React.FunctionComponent<{
 
 const collectionItem = css({
   height: COLLECTION_ROW_HEIGHT,
+  paddingLeft: spacing[4],
 });
 
 const itemButtonWrapper = css({
