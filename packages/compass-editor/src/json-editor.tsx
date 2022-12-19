@@ -1,5 +1,17 @@
 /**
- * TODO
+ * TODO: We want to migrate all editors to codemirror from ace, as this involves
+ * refactoring a decent amount of code in multiple places in the codebase, we
+ * are starting with json editor as the first step because it supports the least
+ * amount of functionality that other editors might need. The code in this file
+ * should eventually become the new base-editor, when the following
+ * functionality is covered:
+ *
+ * - [x] basic functionality: code highlighting for js and json, controlled /
+ *       uncontrolled behavior, gutters, common hotkeys
+ * - [x] leafygreen light and dark theme
+ * - [ ] inline mode (disabled gutter extensions and adjusted theme)
+ * - [ ] autocomplete
+ * - [ ] lint annotations (for agg. builder)
  */
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import {
@@ -49,21 +61,7 @@ const editorStyle = css({
   fontFamily: fontFamilies.code,
 });
 
-// interface Base16Palette {
-//   0: string; // Background
-//   1: string; // Borders / non-text graphical accents
-//   2: string; // Comments, Doctags, Formulas
-//   3: string; // Default Text
-//   4: string; // Highlights
-//   5: string; // Variables, XML Tags, Markup Link Text, Markup Lists, Diff Deleted
-//   6: string; // Classes, Markup Bold, Search Text Background
-//   7: string; // Strings, Inherited Class, Markup Code, Diff Inserted
-//   8: string; // Support, Regular Expressions, Escape Characters, Markup Quotes
-//   9: string; // Functions, Methods, Classes, Names, Sections, Literals
-//   10: string; // Keywords, Storage, Selector, Markup Italic, Diff Changed
-// }
-
-type ThemeType = 'light' | 'dark';
+type CodemirrorThemeType = 'light' | 'dark';
 
 const editorPalette = {
   light: {
@@ -72,6 +70,7 @@ const editorPalette = {
     gutterColor: palette.gray.base,
     gutterBackgroundColor: palette.gray.light3,
     gutterActiveLineBackgroundColor: palette.gray.light2,
+    gutterFoldButtonColor: palette.black,
     cursorColor: palette.gray.base,
     activeLineBackgroundColor: palette.gray.light2,
     selectionBackgroundColor: palette.blue.light2,
@@ -83,6 +82,7 @@ const editorPalette = {
     gutterColor: palette.gray.light3,
     gutterBackgroundColor: palette.gray.dark3,
     gutterActiveLineBackgroundColor: palette.gray.dark2,
+    gutterFoldButtonColor: palette.white,
     cursorColor: palette.green.base,
     activeLineBackgroundColor: palette.gray.dark2,
     selectionBackgroundColor: palette.gray.dark1,
@@ -90,40 +90,70 @@ const editorPalette = {
   },
 } as const;
 
-function getStylesForTheme(theme: ThemeType) {
+function getStylesForTheme(theme: CodemirrorThemeType) {
   return EditorView.theme(
     {
       '&': {
         color: editorPalette[theme].color,
         backgroundColor: editorPalette[theme].backgroundColor,
+      },
+      '& .cm-scroller': {
+        lineHeight: `${spacing[3]}px`,
+      },
+      '&.cm-editor.cm-focused': {
         outline: 'none',
       },
-      '.cm-content': {
+      '& .cm-content': {
         caretColor: editorPalette[theme].cursorColor,
       },
-      '.cm-activeLine': {
+      '& .cm-activeLine': {
+        background: 'none',
+      },
+      '&.cm-focused .cm-activeLine': {
         backgroundColor: editorPalette[theme].activeLineBackgroundColor,
       },
-      '.cm-gutters': {
+      '& .cm-gutters': {
         color: editorPalette[theme].gutterColor,
         backgroundColor: editorPalette[theme].gutterBackgroundColor,
         border: 'none',
       },
-      '.cm-activeLineGutter': {
+      '& .cm-activeLineGutter': {
+        background: 'none',
+      },
+      '&.cm-focused .cm-activeLineGutter': {
         backgroundColor: editorPalette[theme].gutterActiveLineBackgroundColor,
       },
-      '.cm-selectionBackground': {
+      '& .foldMarker': {
+        width: `${spacing[3]}px`,
+        height: `${spacing[3]}px`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'pointer',
+      },
+      '& .foldMarker > svg': {
+        width: '12px',
+        height: '12px',
+        display: 'block',
+        color: editorPalette[theme].gutterFoldButtonColor,
+      },
+      '& .cm-selectionBackground': {
         backgroundColor: editorPalette[theme].selectionBackgroundColor,
       },
-      '.cm-selectionBackground:first-child': {
+      '&.cm-focused .cm-matchingBracket': {
+        background: 'none',
+        boxShadow: `0 0 0 1px ${editorPalette[theme].bracketBorderColor}`,
+        borderRadius: '2px',
+      },
+      '& .cm-selectionBackground:first-child': {
         borderTopLeftRadius: '3px',
         borderTopRightRadius: '3px',
       },
-      '.cm-selectionBackground:last-child': {
+      '& .cm-selectionBackground:last-child': {
         borderBottomLeftRadius: '3px',
         borderBottomRightRadius: '3px',
       },
-      '.cm-cursor': {
+      '& .cm-cursor': {
         borderLeft: '2px solid',
         borderColor: editorPalette[theme].cursorColor,
         marginLeft: '-1px',
@@ -138,8 +168,8 @@ const themeStyles = {
   dark: getStylesForTheme('dark'),
 } as const;
 
-function getHighlightStyleForTheme(theme: ThemeType) {
-  // For the full list of tags parsed by leser for javascript / json see:
+function getHighlightStyleForTheme(theme: CodemirrorThemeType) {
+  // For the full list of tags parsed by lezer for javascript / json see:
   //   https://github.com/lezer-parser/javascript/blob/main/src/highlight.js
   //   https://github.com/lezer-parser/json/blob/main/src/highlight.js
   return HighlightStyle.define(
@@ -207,45 +237,48 @@ const highlightStyles = {
   dark: getHighlightStyleForTheme('dark'),
 } as const;
 
-// const highlightStyleDark = HighlightStyle.define([], { themeType: 'dark' });
+// We don't have any other cases we need to support in a base editor
+type EditorLanguage = 'json' | 'javascript';
 
 type EditorProps = {
-  text: string;
+  language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
-  // We don't have any other cases we need to support in a base editor
-  type: 'json' | 'javascript';
   darkMode?: boolean;
   inline?: boolean;
   readOnly?: boolean;
   className?: string;
-  editorClassName?: string;
   'data-testid'?: string;
-};
+} & (
+  | { text: string; initialText?: never }
+  | { text?: never; initialText: string }
+);
 
-const languages: Record<EditorProps['type'], () => LanguageSupport> = {
+const languages: Record<EditorLanguage, () => LanguageSupport> = {
   json: json,
   javascript: javascript,
 };
 
 const BaseEditor: React.FunctionComponent<EditorProps> = ({
+  initialText: _initialText,
   text,
   onChangeText = () => {
     /**/
   },
-  type = 'json',
+  language = 'json',
   darkMode: _darkMode,
   className,
-  editorClassName,
-  inline,
+  // TODO: Should disable gutter extensions
+  // inline,
   readOnly = false,
   ...props
 }) => {
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
   const initialReadOnly = useRef(readOnly);
-  const initialText = useRef(text);
-  const initialType = useRef(type);
-  const initialDarkMode = useRef<ThemeType>(darkMode ? 'dark' : 'light');
+  const initialTextProvided = useRef(!!_initialText);
+  const initialText = useRef(_initialText ?? text);
+  const initialLanguage = useRef(language);
+  const initialDarkMode = useRef(darkMode);
   const containerRef = useRef<HTMLDivElement>(null);
   const languageConfigRef = useRef<Compartment>();
   const readOnlyConfigRef = useRef<Compartment>();
@@ -271,19 +304,36 @@ const BaseEditor: React.FunctionComponent<EditorProps> = ({
       extensions: [
         lineNumbers(),
         history(),
-        foldGutter(),
+        foldGutter({
+          markerDOM(open) {
+            const marker = document.createElement('span');
+            marker.className = `foldMarker foldMarker${
+              open ? 'Open' : 'Closed'
+            }`;
+            marker.ariaHidden = 'true';
+            marker.title = open ? 'Fold code block' : 'Unfold code block';
+            marker.innerHTML = open
+              ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M8.679 10.796a.554.554 0 0 1-.858 0L4.64 6.976C4.32 6.594 4.582 6 5.069 6h6.362c.487 0 .748.594.43.976l-3.182 3.82z"/></svg>`
+              : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16"><path fill="currentColor" d="M10.796 7.321a.554.554 0 0 1 0 .858l-3.82 3.181c-.382.319-.976.058-.976-.429V4.57c0-.487.594-.748.976-.43l3.82 3.182z"/></svg>`;
+            return marker;
+          },
+        }),
         drawSelection(),
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
-        // TODO
+        // TODO: Make ace autocompleters work with codemirror format
         // autocompletion(),
+        // TODO: https://codemirror.net/docs/ref/#lint.lintGutter
+        // lintGutter(),
         highlightActiveLine(),
         highlightActiveLineGutter(),
-        languageConfigRef.current.of(languages[initialType.current]()),
+        languageConfigRef.current.of(languages[initialLanguage.current]()),
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
-        themeConfigRef.current.of(themeStyles[initialDarkMode.current]),
+        themeConfigRef.current.of(
+          themeStyles[initialDarkMode.current ? 'dark' : 'light']
+        ),
         keymap.of([
           ...defaultKeymap,
           ...closeBracketsKeymap,
@@ -292,6 +342,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> = ({
           // Breaks keyboard navigation out of the editor, but we want that
           // https://codemirror.net/examples/tab/
           indentWithTab,
+          // TODO: "Prettify" and "Copy all" commands
         ]),
         readOnlyConfigRef.current.of(
           EditorState.readOnly.of(initialReadOnly.current)
@@ -312,12 +363,12 @@ const BaseEditor: React.FunctionComponent<EditorProps> = ({
   }, []);
 
   useEffect(() => {
-    if (type !== initialType.current) {
+    if (language !== initialLanguage.current) {
       editorViewRef.current?.dispatch({
-        effects: languageConfigRef.current?.reconfigure(languages[type]()),
+        effects: languageConfigRef.current?.reconfigure(languages[language]()),
       });
     }
-  }, [type]);
+  }, [language]);
 
   useEffect(() => {
     if (readOnly !== initialReadOnly.current) {
@@ -330,8 +381,24 @@ const BaseEditor: React.FunctionComponent<EditorProps> = ({
   }, [readOnly]);
 
   useEffect(() => {
+    // Ignore changes to `text` prop if `initialText` was provided
+    if (initialTextProvided.current) {
+      return;
+    }
+
+    // When the outside value is out of sync with the editor value, hard reset
+    // the editor if we are in controlled mode (we might need to account for
+    // cursor position, but currently this sort of update can happen only on
+    // blur so we can ignore this for now)
     if (text !== editorViewRef.current?.state.sliceDoc()) {
-      console.log('update from outside');
+      editorViewRef.current?.dispatch({
+        changes: {
+          from: 0,
+          // Replace all the content
+          to: editorViewRef.current.state.doc.length,
+          insert: text,
+        },
+      });
     }
   }, [text]);
 

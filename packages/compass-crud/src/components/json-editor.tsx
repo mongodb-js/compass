@@ -1,17 +1,30 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  css,
-  cx,
-  DocumentList,
-  fontFamilies,
-  palette,
-  spacing,
-} from '@mongodb-js/compass-components';
+import React, { useCallback, useEffect, useState } from 'react';
+import { css, cx, DocumentList, spacing } from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 
 import { JSONEditor as Editor } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
+
+const editorStyles = css({
+  minHeight: spacing[5] + spacing[3],
+  // Special case only for this view that doesn't make sense to make part of
+  // the editor component
+  '& .cm-editor': {
+    background: 'none !important',
+  },
+  '& .cm-gutters': {
+    background: 'none !important',
+  },
+});
+
+const editorReadonlyStyles = css({
+  '& .cm-lineNumbers': {
+    // We want to hide the line number but keep the spacing and the active line
+    // highlight, the easiest way to do it is to make the text color transparent
+    color: 'transparent !important',
+  },
+});
 
 export type JsonEditorProps = {
   doc: Document;
@@ -108,28 +121,28 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
   return (
     <div data-testid="editable-json">
       <Editor
-        // copyable={false}
-        // formattable={false}
-        // variant={EditorVariant.EJSON}
         text={value}
         onChangeText={onChange}
         readOnly={!editing}
-        // options={{
-        //   minLines: 2,
-        //   highlightActiveLine: false,
-        //   highlightGutterLine: false,
-        //   showLineNumbers: true,
-        //   fixedWidthGutter: false,
-        //   displayIndentGuides: false,
-        //   wrapBehavioursEnabled: true,
-        //   foldStyle: 'markbegin',
-        // }}
+        className={cx(editorStyles, !editing && editorReadonlyStyles)}
       />
       {!editing && (
         <DocumentList.DocumentActionsGroup
-          onEdit={isEditable ? () => setEditing(true) : undefined}
+          onEdit={
+            isEditable
+              ? () => {
+                  setEditing(true);
+                }
+              : undefined
+          }
           onCopy={handleCopy}
-          onRemove={isEditable ? () => setDeleting(true) : undefined}
+          onRemove={
+            isEditable
+              ? () => {
+                  setDeleting(true);
+                }
+              : undefined
+          }
           onClone={isEditable ? handleClone : undefined}
         />
       )}
