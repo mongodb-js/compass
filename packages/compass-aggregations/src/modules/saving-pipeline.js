@@ -1,4 +1,4 @@
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
@@ -52,7 +52,7 @@ export default function reducer(state = INITIAL_STATE, action) {
     };
   }
 
-  if (action.type === SAVING_PIPELINE_APPLY || action.type === NEW_PIPELINE) {
+  if (action.type === SAVING_PIPELINE_APPLY || action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return { ...INITIAL_STATE };
   }
 

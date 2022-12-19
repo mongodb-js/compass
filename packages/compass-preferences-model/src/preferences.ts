@@ -17,7 +17,6 @@ export type FeatureFlags = {
   showDevFeatureFlags?: boolean;
   lgDarkmode?: boolean;
   debugUseCsfleSchemaMap?: boolean;
-  enableTextAsPipeline?: boolean;
 };
 
 export type UserConfigurablePreferences = FeatureFlags & {
@@ -252,22 +251,6 @@ const featureFlagsProps: Required<{
     global: true,
     description: {
       short: 'CSFLE Schema Map Debugging',
-    },
-  },
-
-  /**
-   * Enables pipeline toggle between stage-by-stage and as-text
-   */
-  enableTextAsPipeline: {
-    type: 'boolean',
-    required: false,
-    default: false,
-    ui: true,
-    cli: true,
-    global: true,
-    description: {
-      short: 'Full Aggregation Editing',
-      long: 'Enable editing the entire pipeline as text in the aggregation builder.',
     },
   },
 };

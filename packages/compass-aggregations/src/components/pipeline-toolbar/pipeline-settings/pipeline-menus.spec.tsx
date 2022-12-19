@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 
-import { SaveMenuComponent, CreateMenuComponent } from './pipeline-menus';
+import { SaveMenuComponent } from './pipeline-menus';
 
 describe('PipelineMenus', function () {
   describe('SaveMenu', function () {
@@ -80,53 +80,6 @@ describe('PipelineMenus', function () {
       expect(() => {
         screen.getByTestId('save-menu-createView-action');
       }).to.throw;
-    });
-  });
-
-  describe('CreateMenu', function () {
-    let onCreatePipelineSpy: SinonSpy;
-    let onCreatePipelineFromTextSpy: SinonSpy;
-    let menu: HTMLElement;
-    beforeEach(function () {
-      onCreatePipelineSpy = spy();
-      onCreatePipelineFromTextSpy = spy();
-      render(
-        <CreateMenuComponent
-          onCreatePipeline={onCreatePipelineSpy}
-          onCreatePipelineFromText={onCreatePipelineFromTextSpy}
-        />
-      );
-      menu = screen.getByTestId('create-new-menu-show-actions');
-      expect(menu).to.exist;
-    });
-    it('renders menu with options', function () {
-      userEvent.click(menu);
-
-      expect(screen.getByTestId('create-new-menu-createPipeline-action')).to
-        .exist;
-      expect(
-        screen.getByTestId('create-new-menu-createPipelineFromText-action')
-      ).to.exist;
-    });
-
-    it('calls createPipeline', function () {
-      userEvent.click(menu);
-
-      userEvent.click(
-        screen.getByTestId('create-new-menu-createPipeline-action')
-      );
-      expect(onCreatePipelineSpy.calledOnce).to.be.true;
-      expect(onCreatePipelineSpy.firstCall.args).to.be.empty;
-    });
-
-    it('calls createPipelineFromText', function () {
-      userEvent.click(menu);
-
-      userEvent.click(
-        screen.getByTestId('create-new-menu-createPipelineFromText-action')
-      );
-      expect(onCreatePipelineFromTextSpy.calledOnce).to.be.true;
-      expect(onCreatePipelineFromTextSpy.firstCall.args).to.be.empty;
     });
   });
 });

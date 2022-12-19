@@ -657,13 +657,6 @@ export const MyQueriesList = '[data-testid="my-queries-list"]';
 export const StageCard = '[data-testid="stage-card"]';
 export const CreateNewPipelineMenuButton =
   '[data-testid="create-new-menu-show-actions"]';
-// todo: COMPASS-6299 remove create new pipeline menu selectors
-// when enabling pipeline as text (COMPASS_ENABLE_AS_TEXT_PIPELINE)
-export const CreateNewPipelineMenuContent = '[data-testid="create-new-menu"]';
-export const CreateNewEmptyPipelineAction =
-  '[data-testid="create-new-menu-createPipeline-action"]';
-export const CreateNewPipelineFromTextAction =
-  '[data-testid="create-new-menu-createPipelineFromText-action"]';
 export const AggregationAdditionalOptionsButton =
   '[data-testid="pipeline-toolbar-options-button"]';
 export const AggregationCollationInput = '[data-testid="collation-string"]';
@@ -814,12 +807,12 @@ export const AggregationAsTextPreviewAtlasOperator =
 
 // Schema tab
 export const AnalyzeSchemaButton = '[data-testid="analyze-schema-button"]';
-export const SchemaFieldList = '.schema-field-list';
+export const SchemaFieldList = '[data-testid="schema-field-list"]';
 export const AnalysisMessage =
   '[data-testid="schema-content"] [data-testid="schema-analysis-message"]';
-export const SchemaField = '.schema-field';
-export const SchemaFieldName = '.schema-field-name';
-export const SchemaFieldTypeList = '.schema-field-type-list';
+export const SchemaField = '[data-testid="schema-field"';
+export const SchemaFieldName = '[data-testid="schema-field-name"]';
+export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
 // Explain Plan tab
 export const ExecuteExplainButton = '[data-testid="execute-explain-button"]';

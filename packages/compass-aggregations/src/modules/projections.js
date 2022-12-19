@@ -1,5 +1,5 @@
 // TODO: remove this completely
-import { NEW_PIPELINE } from './import-pipeline';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 
 /**
  * Handled in the root reducer.
@@ -13,7 +13,7 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === PROJECTIONS_CHANGED) {
     return action.projections;
   }
-  if (action.type === NEW_PIPELINE) {
+  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return INITIAL_STATE;
   }
   return state;

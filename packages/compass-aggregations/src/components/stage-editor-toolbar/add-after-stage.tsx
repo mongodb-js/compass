@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 
-import { IconButton, Icon, Tooltip } from '@mongodb-js/compass-components';
+import { IconButton, Icon } from '@mongodb-js/compass-components';
 
 import { addStage } from '../../modules/pipeline-builder/stage-editor';
 
@@ -26,20 +26,12 @@ export function AddAfterStage({
   }, [ onAddStageClick, index ]);
 
   return (
-    <Tooltip
-      trigger={({ children, ...props }) => (
-        <div {...props}>
-          <IconButton
-            data-testid="add-after-stage"
-            onClick={onStageAddedAfter}
-            aria-label="Add stage below"
-          ><Icon glyph="Plus" size="small" /></IconButton>
-          {children}
-        </div>
-      )}
-    >
-      Add stage below
-    </Tooltip>
+    <IconButton
+      data-testid="add-after-stage"
+      onClick={onStageAddedAfter}
+      title="Add stage below"
+      aria-label="Add stage below"
+    ><Icon glyph="Plus" size="small" /></IconButton>
   );
 }
 

@@ -46,7 +46,6 @@ async function main(): Promise<void> {
     ['HADRON_ISOLATED', 'networkTraffic', false],
     ['HADRON_READONLY', 'readOnly', true],
     ['COMPASS_LG_DARKMODE', 'lgDarkmode', true],
-    ['COMPASS_ENABLE_AS_TEXT_PIPELINE', 'enableTextAsPipeline', true],
   ] as const) {
     if (process.env[envvar] === 'true') {
       globalPreferences.hardcoded = {

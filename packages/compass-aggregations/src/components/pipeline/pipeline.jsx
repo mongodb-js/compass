@@ -3,10 +3,8 @@ import PropTypes from 'prop-types';
 import { Banner, WorkspaceContainer } from '@mongodb-js/compass-components';
 
 import Settings from '../settings';
-import ImportPipeline from './modals/import-pipeline';
-import ConfirmImportPipeline from './modals/confirm-import-pipeline';
 import SavingPipelineModal from '../saving-pipeline-modal';
-import ConfirmNewPipeline from './modals/confirm-new-pipeline';
+import PipelineConfirmModal from '../pipeline-confirm-modal/pipeline-confirm-modal';
 import styles from './pipeline.module.less';
 
 import PipelineToolbar from '../pipeline-toolbar';
@@ -28,22 +26,11 @@ class Pipeline extends PureComponent {
   static propTypes = {
     isAtlasDeployed: PropTypes.bool.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
-    newPipeline: PropTypes.func.isRequired,
-    newPipelineFromText: PropTypes.func.isRequired,
-    closeImport: PropTypes.func.isRequired,
     clonePipeline: PropTypes.func.isRequired,
-    confirmNew: PropTypes.func.isRequired,
-    exportToLanguage: PropTypes.func.isRequired,
     isCommenting: PropTypes.bool.isRequired,
-    isAutoPreviewing: PropTypes.bool.isRequired,
-    isImportConfirmationNeeded: PropTypes.bool.isRequired,
     name: PropTypes.string,
     dismissViewError: PropTypes.func.isRequired,
-    updateView: PropTypes.func.isRequired,
     updateViewError: PropTypes.string,
-    collationString: PropTypes.object,
-    collationStringChanged: PropTypes.func.isRequired,
-    openLink: PropTypes.func.isRequired,
     settings: PropTypes.object.isRequired,
     toggleSettingsIsExpanded: PropTypes.func.isRequired,
     toggleSettingsIsCommentMode: PropTypes.func.isRequired,
@@ -58,8 +45,6 @@ class Pipeline extends PureComponent {
     savingPipelineCancel: PropTypes.func.isRequired,
     savingPipelineOpen: PropTypes.func.isRequired,
     savingPipeline: PropTypes.object.isRequired,
-    isNewPipelineConfirm: PropTypes.bool.isRequired,
-    setIsNewPipelineConfirm: PropTypes.func.isRequired,
     workspace: PropTypes.string.isRequired,
     showExportButton: PropTypes.bool.isRequired,
     showRunButton: PropTypes.bool.isRequired,
@@ -114,22 +99,6 @@ class Pipeline extends PureComponent {
    * @returns {Component} The component.
    */
   render() {
-    const confirmImportPipelineModal = (
-      <ConfirmImportPipeline
-        isConfirmationNeeded={this.props.isImportConfirmationNeeded}
-        closeImport={this.props.closeImport}
-        isAutoPreviewing={this.props.isAutoPreviewing}
-        confirmNew={this.props.confirmNew}
-      />
-    );
-    const confirmNewPipelineModal = (
-      <ConfirmNewPipeline
-        isNewPipelineConfirm={this.props.isNewPipelineConfirm}
-        setIsNewPipelineConfirm={this.props.setIsNewPipelineConfirm}
-        newPipeline={this.props.newPipeline}
-      />
-    );
-
     const savingPipelineModal = (
       <SavingPipelineModal
         name={this.props.savingPipeline.name}
@@ -170,10 +139,8 @@ class Pipeline extends PureComponent {
             <PipelineBuilderWorkspace />
           )}
           <PipelineExplain />
-          <ImportPipeline />
-          {confirmImportPipelineModal}
+          <PipelineConfirmModal />
           {savingPipelineModal}
-          {confirmNewPipelineModal}
         </WorkspaceContainer>
       </div>
     );
