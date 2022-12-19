@@ -17,6 +17,7 @@ const containerStyles = css({
   display: 'flex',
   gap: spacing[1],
   minWidth: spacing[3] * 7,
+  alignItems: 'baseline',
 });
 
 const partialTooltip = (partialFilterExpression: JSON) => {
@@ -64,6 +65,7 @@ const ErrorBadgeWithTooltip: React.FunctionComponent<{
 }> = ({ tooltip, darkMode }) => {
   return (
     <Tooltip
+      enabled={!!tooltip}
       darkMode={darkMode}
       delay={500}
       trigger={({ children, ...props }) => (
@@ -110,11 +112,11 @@ const PropertyField: React.FunctionComponent<PropertyFieldProps> = ({
         />
       )}
       {extra.status === 'inprogress' && (
-        <Badge variant={BadgeVariant.Blue}>In Progress...</Badge>
+        <Badge variant={BadgeVariant.Blue}>In Progress ...</Badge>
       )}
       {extra.status === 'failed' && (
         <ErrorBadgeWithTooltip
-          tooltip={String(extra.error)}
+          tooltip={extra.error ? String(extra.error) : ''}
           darkMode={darkMode}
         />
       )}
