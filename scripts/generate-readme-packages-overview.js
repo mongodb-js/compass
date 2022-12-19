@@ -14,7 +14,6 @@ const rootDir = path.resolve(__dirname, '..');
 const pluginNames = [
   '@mongodb-js/compass-app-stores',
   '@mongodb-js/compass-aggregations',
-  '@mongodb-js/compass-auto-updates',
   '@mongodb-js/compass-export-to-language',
   '@mongodb-js/compass-collection',
   '@mongodb-js/compass-crud',
