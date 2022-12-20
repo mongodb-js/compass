@@ -32,7 +32,7 @@ const countButtonStyles = css({
   },
 });
 
-const countWithRefreshButtonStyles = css({
+const countDocsContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
 });
@@ -47,12 +47,12 @@ const spinnerStyles = css({
   alignItems: 'center',
 });
 
-const COUNT_DEFINITION = `
+const countDefinition = `
   In order to have the final count of documents we need to run the
   aggregation again. This will be the equivalent of adding a
   $count as the last stage of the pipeline.
 `;
-const TEST_ID = 'pipeline-pagination-count';
+const testId = 'pipeline-pagination-count';
 
 const StyledSpinner = ({title}: {title: string}) => (
   <div className={spinnerStyles} title={title}>
@@ -66,7 +66,7 @@ export const PipelinePaginationCount: React.FunctionComponent<PipelinePagination
     // User has clicked on the count results button. Show the count loader.
     if (loading && count === undefined) {
       return (
-        <div data-testid={TEST_ID}>
+        <div data-testid={testId}>
           <StyledSpinner title='Counting documents' />
         </div>
       );
@@ -75,7 +75,7 @@ export const PipelinePaginationCount: React.FunctionComponent<PipelinePagination
     // Show the count and the loader / refresh button.
     if (count !== undefined) {
       return (
-        <div data-testid={TEST_ID} className={countWithRefreshButtonStyles}>
+        <div data-testid={testId} className={countDocsContainerStyles}>
           <Body>of {count}</Body>
            {
             loading ? <StyledSpinner title='Refreshing document count'/> : 
@@ -94,7 +94,7 @@ export const PipelinePaginationCount: React.FunctionComponent<PipelinePagination
 
     // User has not interacted with the count yet. Show a button with tooltip.
     return (
-      <div data-testid={TEST_ID}>
+      <div data-testid={testId}>
         <Tooltip
           trigger={({ children, ...props }) => (
             <Link
@@ -111,7 +111,7 @@ export const PipelinePaginationCount: React.FunctionComponent<PipelinePagination
             </Link>
           )}
         >
-          <Body>{COUNT_DEFINITION}</Body>
+          <Body>{countDefinition}</Body>
         </Tooltip>
       </div>
     );
