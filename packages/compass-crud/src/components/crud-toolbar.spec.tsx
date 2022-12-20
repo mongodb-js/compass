@@ -225,7 +225,7 @@ describe('CrudToolbar Component', function () {
     });
 
     expect(screen.getByTestId('crud-document-count-display')).to.have.text(
-      '5 - 25 of 200'
+      '5 – 25 of 200'
     );
   });
 
