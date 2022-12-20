@@ -49,16 +49,14 @@ async function goToEditPipeline(browser: CompassBrowser) {
 async function getDocuments(browser: CompassBrowser) {
   // Switch to JSON view so it's easier to get document value
   await browser.clickVisible(Selectors.AggregationResultsJSONListSwitchButton);
-  // Get all visible documents
-  const documents = await browser.$$(Selectors.DocumentJSONEntry);
-  // Get ace editor content and parse it
-  const parsed = await Promise.all(
-    documents.map(async (doc) => {
-      const aceEditor = await doc.$('.ace_content');
-      return JSON.parse(await aceEditor.getText());
-    })
+
+  const documents = await browser.getCodemirrorEditorTextAll(
+    Selectors.DocumentJSONEntry
   );
-  return parsed;
+
+  return documents.map((text) => {
+    return JSON.parse(text);
+  });
 }
 
 async function chooseCollectionAction(

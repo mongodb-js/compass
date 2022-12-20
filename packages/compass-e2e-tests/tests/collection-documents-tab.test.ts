@@ -387,7 +387,9 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await waitForJSON(browser, document);
 
-    const json = await document.getText();
+    const json = await browser.getCodemirrorEditorText(
+      Selectors.DocumentJSONEntry
+    );
     expect(json.replace(/\s+/g, ' ')).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/
     );
@@ -397,9 +399,9 @@ FindIterable<Document> result = collection.find(filter);`);
 
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
-    await browser.setAceValue(
-      '[data-testid="editable-json"] .ace_editor',
-      newjson
+    await browser.setCodemirrorEditorValue(
+      newjson,
+      Selectors.DocumentJSONEntry
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -417,7 +419,11 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await waitForJSON(browser, modifiedDocument);
 
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
+    expect(
+      (
+        await browser.getCodemirrorEditorText(Selectors.DocumentJSONEntry)
+      ).replace(/\s+/g, ' ')
+    ).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 1234 \}$/
     );
   });
@@ -431,7 +437,9 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await waitForJSON(browser, document);
 
-    const json = await document.getText();
+    const json = await browser.getCodemirrorEditorText(
+      Selectors.DocumentJSONEntry
+    );
     expect(json.replace(/\s+/g, ' ')).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
     );
@@ -444,9 +452,9 @@ FindIterable<Document> result = collection.find(filter);`);
       j: { $numberLong: '12345' },
     });
 
-    await browser.setAceValue(
-      '[data-testid="editable-json"] .ace_editor',
-      newjson
+    await browser.setCodemirrorEditorValue(
+      newjson,
+      Selectors.DocumentJSONEntry
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -464,7 +472,11 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await waitForJSON(browser, modifiedDocument);
 
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
+    expect(
+      (
+        await browser.getCodemirrorEditorText(Selectors.DocumentJSONEntry)
+      ).replace(/\s+/g, ' ')
+    ).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": \{\.\.\.\} \}$/
     );
   });

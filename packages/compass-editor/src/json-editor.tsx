@@ -317,6 +317,10 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
   onLoadRef.current = onLoad;
 
   useLayoutEffect(() => {
+    if (!containerRef.current) {
+      throw new Error("Can't mount editor: DOM node is missing");
+    }
+
     // Dynamic configuration is an opt-in that requires some special handling
     // https://codemirror.net/examples/config/#dynamic-configuration
     languageConfigRef.current = new Compartment();
@@ -385,14 +389,17 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
           }
         }),
       ],
-      parent: containerRef.current!,
+      parent: containerRef.current,
     }));
+
+    // For debugging / e2e tests purposes
+    (containerRef.current as any)._cm = editor;
 
     onLoadRef.current(editor);
 
     if (editor && initialLanguage.current === 'json') {
       // By default codemirror uses partial parser that will parse only visible
-      // part of the code on the screen. This is exremely performant, but
+      // part of the code on the screen. This is extremely performant, but
       // collides with our folding logic for the json view. For json we collapse
       // everything but the very top level document. To be able to do that we
       // need to ensure that the whole syntax tree is available to the fold
@@ -474,6 +481,7 @@ const BaseEditor: React.FunctionComponent<EditorProps> & {
     <div
       ref={containerRef}
       className={cx(editorStyle, className)}
+      data-codemirror="true"
       {...props}
     ></div>
   );
