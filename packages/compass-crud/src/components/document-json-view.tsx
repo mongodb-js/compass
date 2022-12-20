@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { cx, KeylineCard } from '@mongodb-js/compass-components';
 
-import type { EditableJsonProps } from './json-editor';
+import type { JsonEditorProps } from './json-editor';
 import JsonEditor from './json-editor';
 import type Document from 'hadron-document';
 
@@ -26,7 +26,7 @@ export type DocumentJsonViewProps = {
   isEditable: boolean;
   className?: string;
 } & Pick<
-  EditableJsonProps,
+  JsonEditorProps,
   | 'isTimeSeries'
   | 'copyToClipboard'
   | 'removeDocument'
