@@ -57,15 +57,6 @@ describe.skip('Workspace [Component]', function () {
     expect(screen.getByTestId('workspace-tabs')).to.exist;
   });
 
-  // TODO: finish this test
-  it.skip('renders one tab hidden, one not', function () {
-    // New part:
-    // const workspaceViewTabs = screen.queryByTestId('collection-badge-view');
-    // Old part:
-    // expect(component.find(`.${styles['workspace-view-tab']}:not(.hidden)`)).to.be.present();
-    // expect(component.find(`.${styles['workspace-view-tab']}.hidden`)).to.be.present();
-  });
-
   describe('#getTabType', function () {
     it('should return "timeseries" for a timeseries collection', function () {
       expect(getTabType(true, false)).to.equal('timeseries');

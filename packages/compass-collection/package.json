@@ -89,7 +89,6 @@
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
-    "classnames": "^2.2.6",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "lodash": "^4.17.21",

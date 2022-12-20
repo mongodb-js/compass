@@ -152,7 +152,6 @@ function EnvAwareStageOperatorSelect({
       serverVersion,
       env,
       isTimeSeries,
-      isReadonly,
       preferencesReadOnly,
       sourceName
     });

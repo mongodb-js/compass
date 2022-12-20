@@ -31,11 +31,10 @@ describe('PipelineStages', function () {
       stages: [],
       showAddNewStage: true,
     });
-    expect(
-      within(container).findByText(
-        'Your pipeline is currently empty. To get started select the first stage.'
-      )
-    ).to.exist;
+    const content = container.textContent?.trim().replace(/\u00a0/g, ' ');
+    expect(content).to.equal(
+      `Your pipeline is currently empty. To get started add the first stage.`
+    );
   });
 
   describe('add stage button', function () {

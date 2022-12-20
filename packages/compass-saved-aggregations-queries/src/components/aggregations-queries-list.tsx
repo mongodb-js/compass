@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useContext, useRef } from 'react';
+import React, { useEffect, useCallback, useContext } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
 import {
@@ -7,6 +7,7 @@ import {
   spacing,
   useSortControls,
   useSortedItems,
+  useEffectOnChange,
 } from '@mongodb-js/compass-components';
 import { fetchItems } from '../stores/aggregations-queries-items';
 import type { Item } from '../stores/aggregations-queries-items';
@@ -25,31 +26,6 @@ import { copyToClipboard } from '../stores/copy-to-clipboard';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 const { track } = createLoggerAndTelemetry('COMPASS-MY-QUERIES-UI');
-
-/**
- * Runs an effect, but only after the value changes for the first time (skipping
- * the first "onMount" effect)
- */
-function useEffectOnChange<T>(fn: React.EffectCallback, val: T) {
-  // Keep the initial value as a ref so we can check against it in effect when
-  // the current value changes
-  const initial = useRef<T | symbol>(val);
-  if (!initial.current) {
-    initial.current = val;
-  }
-  const effect = useRef(fn);
-  effect.current = fn;
-  useEffect(() => {
-    // We check if value doesn't match the initial one to avoid running effect
-    // for the first mount
-    if (val !== initial.current) {
-      // After we detected at least one change in value, we set the initial to a
-      // symbol so that the current value is never equal to it anymore
-      initial.current = Symbol();
-      return effect.current();
-    }
-  }, [val]);
-}
 
 const sortBy: { name: keyof Item; label: string }[] = [
   {

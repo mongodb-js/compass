@@ -1,4 +1,3 @@
-import path from 'path';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import type { ConfigArgs } from './args';
 import { isServe } from './args';
@@ -127,15 +126,6 @@ export const lessLoader = (args: ConfigArgs) => ({
     ...cssLoader(args).use,
     {
       loader: require.resolve('less-loader'),
-      options: {
-        lessOptions: {
-          modifyVars: {
-            'fa-font-path': path.dirname(
-              require.resolve('mongodb-compass/src/app/fonts/FontAwesome.otf')
-            ),
-          },
-        },
-      },
     },
   ],
 });
