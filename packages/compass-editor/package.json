@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
-    "@mongodb-js/mongodb-constants": "^0.1.4",
+    "@mongodb-js/mongodb-constants": "^0.1.5",
     "ace-builds": "^1.11.2",
     "react": "^16.14.0",
     "react-ace": "^9.5.0",
