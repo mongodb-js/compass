@@ -14,6 +14,7 @@
  * - [ ] lint annotations (for agg. builder)
  */
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import type { Command } from '@codemirror/view';
 import {
   keymap,
   drawSelection,
@@ -27,6 +28,13 @@ import {
   bracketMatching,
   foldGutter,
   foldKeymap,
+  unfoldAll,
+  forceParsing,
+  syntaxTreeAvailable,
+  foldable,
+  syntaxTree,
+  foldInside,
+  foldEffect,
 } from '@codemirror/language';
 import {
   defaultKeymap,
@@ -47,6 +55,8 @@ import {
   palette,
   spacing,
   useDarkMode,
+  useEffectOnChange,
+  codePalette,
 } from '@mongodb-js/compass-components';
 import { javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
@@ -54,7 +64,6 @@ import { Compartment, EditorState } from '@codemirror/state';
 import type { LanguageSupport } from '@codemirror/language';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
-import { codePalette } from '@mongodb-js/compass-components';
 
 const editorStyle = css({
   fontSize: 13,
@@ -116,6 +125,12 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         color: editorPalette[theme].gutterColor,
         backgroundColor: editorPalette[theme].gutterBackgroundColor,
         border: 'none',
+      },
+      '& .cm-gutters > .cm-gutter:first-child > .cm-gutterElement': {
+        paddingLeft: `${spacing[2]}px`,
+      },
+      '& .cm-gutters > .cm-gutter:last-child > .cm-gutterElement': {
+        paddingRight: `${spacing[2]}px`,
       },
       '& .cm-activeLineGutter': {
         background: 'none',
@@ -243,8 +258,10 @@ type EditorLanguage = 'json' | 'javascript';
 type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
+  onLoad?: (editor: EditorView) => void;
   darkMode?: boolean;
   inline?: boolean;
+  showLineNumbers?: boolean;
   readOnly?: boolean;
   className?: string;
   'data-testid'?: string;
@@ -258,35 +275,46 @@ const languages: Record<EditorLanguage, () => LanguageSupport> = {
   javascript: javascript,
 };
 
-const BaseEditor: React.FunctionComponent<EditorProps> = ({
+const BaseEditor: React.FunctionComponent<EditorProps> & {
+  foldAll: typeof foldAll;
+  unfoldAll: typeof unfoldAll;
+} = ({
   initialText: _initialText,
   text,
   onChangeText = () => {
     /**/
   },
   language = 'json',
+  showLineNumbers = true,
   darkMode: _darkMode,
   className,
   // TODO: Should disable gutter extensions
   // inline,
   readOnly = false,
+  onLoad = () => {
+    /**/
+  },
   ...props
 }) => {
   const darkMode = useDarkMode(_darkMode);
   const onChangeTextRef = useRef(onChangeText);
+  const onLoadRef = useRef(onLoad);
   const initialReadOnly = useRef(readOnly);
   const initialTextProvided = useRef(!!_initialText);
   const initialText = useRef(_initialText ?? text);
   const initialLanguage = useRef(language);
   const initialDarkMode = useRef(darkMode);
+  const initialShowLineNumbers = useRef(showLineNumbers);
   const containerRef = useRef<HTMLDivElement>(null);
   const languageConfigRef = useRef<Compartment>();
   const readOnlyConfigRef = useRef<Compartment>();
   const themeConfigRef = useRef<Compartment>();
+  const showLineNumbersConfigRef = useRef<Compartment>();
   const editorViewRef = useRef<EditorView>();
 
-  // Always keep the latest reference of the onChange callback
+  // Always keep the latest reference of the callbacks
   onChangeTextRef.current = onChangeText;
+  onLoadRef.current = onLoad;
 
   useLayoutEffect(() => {
     // Dynamic configuration is an opt-in that requires some special handling
@@ -294,15 +322,18 @@ const BaseEditor: React.FunctionComponent<EditorProps> = ({
     languageConfigRef.current = new Compartment();
     readOnlyConfigRef.current = new Compartment();
     themeConfigRef.current = new Compartment();
+    showLineNumbersConfigRef.current = new Compartment();
 
-    editorViewRef.current = new EditorView({
+    const editor = (editorViewRef.current = new EditorView({
       doc: initialText.current,
       // Cherry-picked from codemirror basicSetup extensions to match the ones
       // we had with ace-editor. There are many more that we might want to add,
       // but this is good as a starting point
       // https://github.com/codemirror/basic-setup/blob/5b4dafdb3b02271bd3fd507d86982208457d8c5b/src/codemirror.ts#L12-L49
       extensions: [
-        lineNumbers(),
+        showLineNumbersConfigRef.current.of(
+          initialShowLineNumbers.current ? lineNumbers() : []
+        ),
         history(),
         foldGutter({
           markerDOM(open) {
@@ -355,30 +386,67 @@ const BaseEditor: React.FunctionComponent<EditorProps> = ({
         }),
       ],
       parent: containerRef.current!,
-    });
+    }));
+
+    onLoadRef.current(editor);
+
+    if (editor && initialLanguage.current === 'json') {
+      // By default codemirror uses partial parser that will parse only visible
+      // part of the code on the screen. This is exremely performant, but
+      // collides with our folding logic for the json view. For json we collapse
+      // everything but the very top level document. To be able to do that we
+      // need to ensure that the whole syntax tree is available to the fold
+      // extension.
+      //
+      // WARNING: This is a massive performance bottleneck in editor rendering,
+      // we do parsing with a timeout to avoid locking main thread for too long,
+      // but even this is a compromise. If this becomes an issue, we might
+      // consider disabling this folding by default.
+      const docLength = editor.state.doc.length;
+      const isSyntaxTreeAvailable =
+        syntaxTreeAvailable(editor.state, docLength) ||
+        forceParsing(editor, docLength, 150);
+      if (isSyntaxTreeAvailable) {
+        foldAll(editor);
+      } else {
+        // warn: document is to big to be parsed and folded, this is not a critical issue, just a ui problem
+      }
+    }
 
     return () => {
-      editorViewRef.current?.destroy();
+      editor.destroy();
     };
   }, []);
 
-  useEffect(() => {
-    if (language !== initialLanguage.current) {
-      editorViewRef.current?.dispatch({
-        effects: languageConfigRef.current?.reconfigure(languages[language]()),
-      });
-    }
-  }, [language]);
+  useEffectOnChange(() => {
+    editorViewRef.current?.dispatch({
+      effects: languageConfigRef.current?.reconfigure(languages[language]()),
+    });
+  }, language);
 
-  useEffect(() => {
-    if (readOnly !== initialReadOnly.current) {
-      editorViewRef.current?.dispatch({
-        effects: readOnlyConfigRef.current?.reconfigure(
-          EditorState.readOnly.of(readOnly)
-        ),
-      });
-    }
-  }, [readOnly]);
+  useEffectOnChange(() => {
+    editorViewRef.current?.dispatch({
+      effects: readOnlyConfigRef.current?.reconfigure(
+        EditorState.readOnly.of(readOnly)
+      ),
+    });
+  }, readOnly);
+
+  useEffectOnChange(() => {
+    editorViewRef.current?.dispatch({
+      effects: themeConfigRef.current?.reconfigure(
+        themeStyles[darkMode ? 'dark' : 'light']
+      ),
+    });
+  }, darkMode);
+
+  useEffectOnChange(() => {
+    editorViewRef.current?.dispatch({
+      effects: showLineNumbersConfigRef.current?.reconfigure(
+        showLineNumbers ? lineNumbers() : []
+      ),
+    });
+  }, showLineNumbers);
 
   useEffect(() => {
     // Ignore changes to `text` prop if `initialText` was provided
@@ -402,16 +470,6 @@ const BaseEditor: React.FunctionComponent<EditorProps> = ({
     }
   }, [text]);
 
-  useEffect(() => {
-    if (darkMode !== initialDarkMode.current) {
-      editorViewRef.current?.dispatch({
-        effects: themeConfigRef.current?.reconfigure(
-          themeStyles[darkMode ? 'dark' : 'light']
-        ),
-      });
-    }
-  }, [darkMode]);
-
   return (
     <div
       ref={containerRef}
@@ -420,5 +478,55 @@ const BaseEditor: React.FunctionComponent<EditorProps> = ({
     ></div>
   );
 };
+
+function isTopNode(node?: any): boolean {
+  return !node
+    ? true
+    : node.name === 'Array' || node.name === 'Property'
+    ? false
+    : node.name === 'JsonText'
+    ? true
+    : isTopNode(node.parent);
+}
+
+const foldAll: Command = (editor) => {
+  const foldableProperties: { from: number; to: number }[] = [];
+  syntaxTree(editor.state).iterate({
+    enter(nodeRef) {
+      if (
+        ['{', '['].includes(String(nodeRef.name)) &&
+        foldable(editor.state, nodeRef.from, nodeRef.to) &&
+        !isTopNode(nodeRef.node)
+      ) {
+        if (!nodeRef.node.parent) {
+          // isTopNode guarantees that we are not trying to fold something
+          // without a parent
+          throw new Error('Trying to fold node without parent');
+        }
+        const range = foldInside(nodeRef.node.parent);
+        if (range) {
+          foldableProperties.push(range);
+        }
+        // Returning `false` stops iteration over children, we don't need
+        // to iterate children if the node we entered is foldable
+        return false;
+      }
+    },
+  });
+  if (foldableProperties.length > 0) {
+    editor.dispatch({
+      effects: foldableProperties.map((range) => {
+        return foldEffect.of(range);
+      }),
+    });
+  }
+  return !!foldableProperties.length;
+};
+
+BaseEditor.foldAll = foldAll;
+
+BaseEditor.unfoldAll = unfoldAll;
+
+export type { EditorView };
 
 export { BaseEditor as JSONEditor };

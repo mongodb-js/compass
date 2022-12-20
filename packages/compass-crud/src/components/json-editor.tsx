@@ -1,9 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { css, cx, DocumentList, spacing } from '@mongodb-js/compass-components';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import {
+  css,
+  cx,
+  DocumentList,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 
 import { JSONEditor as Editor } from '@mongodb-js/compass-editor';
+import type { EditorView } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 
 const editorStyles = css({
@@ -11,18 +19,19 @@ const editorStyles = css({
   // Special case only for this view that doesn't make sense to make part of
   // the editor component
   '& .cm-editor': {
-    background: 'none !important',
+    backgroundColor: `${palette.white} !important`,
   },
   '& .cm-gutters': {
-    background: 'none !important',
+    backgroundColor: `${palette.white} !important`,
   },
 });
 
-const editorReadonlyStyles = css({
-  '& .cm-lineNumbers': {
-    // We want to hide the line number but keep the spacing and the active line
-    // highlight, the easiest way to do it is to make the text color transparent
-    color: 'transparent !important',
+const editorDarkModeStyles = css({
+  '& .cm-editor': {
+    backgroundColor: `${palette.gray.dark3} !important`,
+  },
+  '& .cm-gutters': {
+    backgroundColor: `${palette.gray.dark3} !important`,
   },
 });
 
@@ -44,9 +53,12 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
   isTimeSeries,
   removeDocument,
   replaceDocument,
-  openInsertDocumentDialog,
   copyToClipboard,
+  openInsertDocumentDialog,
+  isExpanded,
 }) => {
+  const darkMode = useDarkMode();
+  const editorRef = useRef<EditorView>();
   const [editing, setEditing] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
   const [value, setValue] = useState<string>(() => doc.toEJSON());
@@ -116,6 +128,18 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
     setValue(value);
   }, []);
 
+  useEffect(() => {
+    if (!editorRef.current) {
+      return;
+    }
+
+    if (isExpanded) {
+      Editor.unfoldAll(editorRef.current);
+    } else {
+      Editor.foldAll(editorRef.current);
+    }
+  }, [isExpanded]);
+
   const isEditable = editable && !deleting && !isTimeSeries;
 
   return (
@@ -124,7 +148,11 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
         text={value}
         onChangeText={onChange}
         readOnly={!editing}
-        className={cx(editorStyles, !editing && editorReadonlyStyles)}
+        showLineNumbers={editing}
+        className={cx(editorStyles, darkMode && editorDarkModeStyles)}
+        onLoad={(editor) => {
+          editorRef.current = editor;
+        }}
       />
       {!editing && (
         <DocumentList.DocumentActionsGroup
@@ -160,7 +188,5 @@ const JSONEditor: React.FunctionComponent<JsonEditorProps> = ({
     </div>
   );
 };
-
-JSONEditor.displayName = 'JSONEditor';
 
 export default JSONEditor;
