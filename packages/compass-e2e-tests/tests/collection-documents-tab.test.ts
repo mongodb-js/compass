@@ -121,7 +121,7 @@ describe('Collection documents tab', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
-    expect(text).to.equal('1 - 1 of 1');
+    expect(text).to.equal('1 – 1 of 1');
 
     const queryExecutedEvent = await telemetryEntry('Query Executed');
     expect(queryExecutedEvent).to.deep.equal({
@@ -151,7 +151,7 @@ describe('Collection documents tab', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
-    expect(text).to.equal('1 - 20 of 50');
+    expect(text).to.equal('1 – 20 of 50');
     const queryExecutedEvent = await telemetryEntry('Query Executed');
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -208,7 +208,7 @@ describe('Collection documents tab', function () {
     );
 
     const displayText = await documentListActionBarMessageElement.getText();
-    expect(displayText).to.equal('1 - 1 of 1');
+    expect(displayText).to.equal('1 – 1 of 1');
 
     const queries = await getRecentQueries(browser);
     expect(queries).to.deep.include.members([
@@ -270,7 +270,7 @@ describe('Collection documents tab', function () {
     );
     const documentsMessage =
       await documentListActionBarMessageElement.getText();
-    expect(documentsMessage).to.equal('1 - 1 of 1');
+    expect(documentsMessage).to.equal('1 – 1 of 1');
 
     await navigateToTab(browser, 'Schema');
 
