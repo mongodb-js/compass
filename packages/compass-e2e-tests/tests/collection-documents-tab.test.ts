@@ -477,7 +477,7 @@ FindIterable<Document> result = collection.find(filter);`);
         await browser.getCodemirrorEditorText(Selectors.DocumentJSONEntry)
       ).replace(/\s+/g, ' ')
     ).to.match(
-      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": \{\.\.\.\} \}$/
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": \{.+?\} \}$/
     );
   });
 
