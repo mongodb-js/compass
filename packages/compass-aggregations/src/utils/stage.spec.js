@@ -6,7 +6,6 @@ describe('utils', function() {
     const defaultFilter = {
       env: 'on-prem',
       isTimeSeries: false,
-      isReadonly: false,
       preferencesReadOnly: false,
       sourceName: null,
       serverVersion: '4.2.0'
@@ -79,7 +78,7 @@ describe('utils', function() {
       });
 
       it('does not return full-text search stages for views', function() {
-        const searchStages = filterStageOperators({ ...filter, isReadonly: true, sourceName: 'simple.sample' })
+        const searchStages = filterStageOperators({ ...filter, sourceName: 'simple.sample' })
           .filter((o) => (['$search', '$searchMeta', '$documents'].includes(o.name)));
 
         expect(searchStages.length).to.be.equal(0);
@@ -119,15 +118,8 @@ describe('utils', function() {
     });
 
     context('when is not a read-only distribution of Compass', function() {
-      it('returns output stages if isReadonly is false', function() {
-        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', isReadonly: false })
-          .filter((o) => (['$out', '$merge'].includes(o.name)));
-
-        expect(searchStages.length).to.be.equal(2);
-      });
-
-      it('returns output stages if isReadonly is undefined', function() {
-        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+      it('returns output stages', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', preferencesReadOnly: false })
           .filter((o) => (['$out', '$merge'].includes(o.name)));
 
         expect(searchStages.length).to.be.equal(2);
@@ -135,7 +127,7 @@ describe('utils', function() {
     });
 
     context('when is a read-only distribution of Compass', function() {
-      it('filters out output stages if isEditable is true', function() {
+      it('filters out output stages', function() {
         const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', preferencesReadOnly: true })
           .filter((o) => (['$out', '$merge'].includes(o.name)));
 
@@ -143,6 +135,7 @@ describe('utils', function() {
       });
     });
   });
+
   context('findAtlasOperator', function() {
     it('returns atlas only stage operator', function() {
       expect(
