@@ -63,6 +63,7 @@ export const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = 
             className={button}
             size="xsmall"
             onClick={onOpenPipeline}
+            data-testid="saved-pipeline-card-open-action"
           >
             Open
           </Button>
@@ -71,6 +72,7 @@ export const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = 
             size="xsmall"
             onClick={onDeletePipeline}
             aria-label="Delete"
+            data-testid="saved-pipeline-card-delete-action"
           >
             <Icon size="small" glyph="Trash"></Icon>
           </Button>

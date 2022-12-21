@@ -13,7 +13,7 @@ import { SavePipelineCard } from './saved-pipeline-card';
 import { OpenPipelineConfirmationModal, DeletePipelineConfirmationModal } from './saved-pipeline-confirmation-modals';
 import { openPipelineById, deletePipelineById } from '../../modules/saved-pipeline';
 import { type EditorViewType, mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
-import { RootState } from '../../modules';
+import { type RootState } from '../../modules';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
@@ -99,11 +99,11 @@ export const SavedPipelines: React.FC<SavedPipelinesProps> = ({
       <div className={toolbarContentStyles}>
         <Body
           className={toolbarTitleStyles}
+          data-testid="saved-pipeline-header-title"
           id="saved-pipeline-header-title"
         >
           Saved Pipelines in <span
             className={darkMode ? titleStylesDark : titleStylesLight}
-            data-testid="saved-pipeline-header-title-namespace"
             title={namespace}
           >{namespace}</span>
         </Body>
