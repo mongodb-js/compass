@@ -13,7 +13,7 @@ import { connect } from 'react-redux';
 import PipelineStages from './pipeline-stages';
 import PipelineActions from './pipeline-actions';
 import { setShowSavedPipelines } from '../../../modules/saved-pipeline';
-import { SavedPipelines } from '../../saved-pipelines/saved-pipelines';
+import SavedPipelines from '../../saved-pipelines/saved-pipelines';
 import type { RootState } from '../../../modules';
 
 const containerStyles = css({
@@ -63,7 +63,6 @@ const savedAggregationsPopoverStyles = css({
 
 type PipelineHeaderProps = {
   isOptionsVisible: boolean;
-  namespace: string;
   showRunButton: boolean;
   showExportButton: boolean;
   showExplainButton: boolean;
@@ -71,11 +70,9 @@ type PipelineHeaderProps = {
   onToggleOptions: () => void;
   isOpenPipelineVisible: boolean;
   isSavedPipelineVisible: boolean;
-  savedPipelines: { id: string; name: string }[];
 };
 
 export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
-  namespace,
   showRunButton,
   showExportButton,
   showExplainButton,
@@ -84,10 +81,12 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
   isOptionsVisible,
   isOpenPipelineVisible,
   isSavedPipelineVisible,
-  savedPipelines,
 }) => {
   const containedElements = useMemo(() => {
-    return ['[data-id="open-pipeline-confirmation-modal"]']
+    return [
+      '[data-id="open-pipeline-confirmation-modal"]',
+      '[data-id="delete-pipeline-confirmation-modal"]',
+    ]
   }, [])
 
   return (
@@ -120,10 +119,7 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           open={isSavedPipelineVisible}
           setOpen={onToggleSavedPipelines}
         >
-          <SavedPipelines
-            namespace={namespace}
-            savedPipelines={savedPipelines}
-          />
+          <SavedPipelines />
         </InteractivePopover>
       )}
       <div className={pipelineStagesStyles}>
@@ -147,10 +143,6 @@ export default connect(
     return {
       isOpenPipelineVisible: !state.editViewName && !state.isAtlasDeployed,
       isSavedPipelineVisible: state.savedPipeline.isListVisible,
-      // TODO: this component should not be the one connected to the saved
-      // pipelines state as it's not the one using it
-      namespace: state.namespace,
-      savedPipelines: state.savedPipeline.pipelines
     };
   },
   {

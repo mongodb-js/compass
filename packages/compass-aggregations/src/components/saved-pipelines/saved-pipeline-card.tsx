@@ -1,34 +1,22 @@
-import React, { useCallback, useState } from 'react';
-import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import { connect } from 'react-redux';
-import { deletePipeline, openPipelineById } from '../../modules/saved-pipeline';
+import React from 'react';
 import {
   Body,
   Button,
-  ConfirmationModal,
   css,
   cx,
   Icon,
   KeylineCard,
   spacing
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../modules';
-import {
-  type EditorViewType,
-  mapPipelineModeToEditorViewType,
-} from '../../modules/pipeline-builder/builder-helpers';
-
-const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 type SavePipelineCardProps = {
   id: string;
   name: string;
-  editor_view_type: EditorViewType;
-  onOpenPipelineConfirm: (id: string) => void;
-  onDeletePipeline: (id: string) => void;
+  onOpenPipeline: () => void;
+  onDeletePipeline: () => void;
 };
 
-const cardOuter = css({
+const containerStyles = css({
   margin: spacing[2]
 });
 
@@ -54,95 +42,40 @@ const button = css({
   flex: 'none'
 });
 
-const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
+export const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
   id,
   name,
-  editor_view_type,
-  onOpenPipelineConfirm,
+  onOpenPipeline,
   onDeletePipeline
 }) => {
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-
-  const onDelete = useCallback(() => {
-    track('Aggregation Deleted', {
-      id,
-      editor_view_type,
-      screen: 'aggregations',
-    });
-    onDeletePipeline(id);
-  }, [id, editor_view_type, onDeletePipeline]);
-
-  const onOpenConfirm = useCallback(() => {
-    track('Aggregation Opened', {
-      id,
-      editor_view_type,
-      screen: 'aggregations',
-    });
-    setShowConfirmModal(false);
-    onOpenPipelineConfirm(id);
-  }, [id, editor_view_type, onOpenPipelineConfirm]);
-
   return (
-    <>
-      <ConfirmationModal
-        data-id="open-pipeline-confirmation-modal"
-        title="Are you sure you want to open this pipeline?"
-        open={showConfirmModal}
-        onConfirm={() => {
-          onOpenConfirm();
-        }}
-        onCancel={() => {
-          setShowConfirmModal(false);
-        }}
-        buttonText="Open Pipeline"
-        trackingId="restore_pipeline_modal"
-        data-testid="restore-pipeline-modal"
+    <div className={containerStyles}>
+      <KeylineCard
+        className={card}
+        data-testid="saved-pipeline-card"
+        data-pipeline-object-id={id}
       >
-        Opening this project will abandon <b>unsaved</b> changes to the current
-        pipeline you are building.
-      </ConfirmationModal>
-      <div className={cardOuter}>
-        <KeylineCard
-          className={card}
-          data-testid="saved-pipeline-card"
-          data-pipeline-object-id={id}
-        >
-          <Body as="div" data-testid="saved-pipeline-card-name">
-            {name}
-          </Body>
-          <div className={cx(controls, 'controls')}>
-            <Button
-              className={button}
-              size="xsmall"
-              onClick={() => {
-                setShowConfirmModal(true);
-              }}
-            >
-              Open
-            </Button>
-            <Button
-              className={button}
-              size="xsmall"
-              onClick={onDelete}
-              aria-label="Delete"
-            >
-              <Icon size="small" glyph="Trash"></Icon>
-            </Button>
-          </div>
-        </KeylineCard>
-      </div>
-    </>
+        <Body as="div" data-testid="saved-pipeline-card-name">
+          {name}
+        </Body>
+        <div className={cx(controls, 'controls')}>
+          <Button
+            className={button}
+            size="xsmall"
+            onClick={onOpenPipeline}
+          >
+            Open
+          </Button>
+          <Button
+            className={button}
+            size="xsmall"
+            onClick={onDeletePipeline}
+            aria-label="Delete"
+          >
+            <Icon size="small" glyph="Trash"></Icon>
+          </Button>
+        </div>
+      </KeylineCard>
+    </div>
   );
 };
-
-export default connect(
-  (state: RootState) => ({
-    editor_view_type: mapPipelineModeToEditorViewType(
-      state.pipelineBuilder.pipelineMode
-    ),
-  }),
-  {
-    onOpenPipelineConfirm: openPipelineById,
-    onDeletePipeline: deletePipeline,
-  }
-)(SavePipelineCard);
