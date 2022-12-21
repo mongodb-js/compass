@@ -43,7 +43,7 @@ tests:
                     MongoDatabase database = mongoClient.getDatabase("db");
                     MongoCollection<Document> collection = database.getCollection("collection");
 
-                    FindIterable<Document> result = collection.aggregate(and(eq("x", 0L), eq("y", new ObjectId())));
+                    AggregateIterable<Document> result = collection.aggregate(and(eq("x", 0L), eq("y", new ObjectId())));
                 javascript: |-
                     /*
                      * Requires the MongoDB Node.js Driver
@@ -132,7 +132,7 @@ tests:
                     import static com.mongodb.client.model.Filters.eq;
                     import com.mongodb.MongoClient;
                     import com.mongodb.MongoClientURI;
-                    import com.mongodb.client.FindIterable;
+                    import com.mongodb.client.AggregateIterable;
                     import com.mongodb.client.MongoCollection;
                     import com.mongodb.client.MongoDatabase;
                     import org.bson.conversions.Bson;

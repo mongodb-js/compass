@@ -12,6 +12,7 @@
   "main": "index.js",
   "compass:main": "index.js",
   "scripts": {
+    "bootstrap": "npm run compile",
     "start": "node index.js",
     "precompile": "node download-antlr.js",
     "compile": "npm run antlr4-js && npm run antlr4-py && npm run symbol-table",

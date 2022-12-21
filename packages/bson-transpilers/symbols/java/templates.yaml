@@ -46,7 +46,7 @@ Templates:
             if ('aggregation' in spec) {
                 return `${comment}\n */\n\n${connection}
 
-        FindIterable<Document> result = collection.aggregate(${spec.aggregation});`;
+        AggregateIterable<Document> result = collection.aggregate(${spec.aggregation});`;
             }
 
             let warning = '';
@@ -967,7 +967,7 @@ Templates:
         () => {
         return 'import com.mongodb.MongoClient;\n' +
             'import com.mongodb.MongoClientURI;\n' +
-            'import com.mongodb.client.FindIterable;\n' +
+            'import com.mongodb.client.AggregateIterable;\n' +
             'import com.mongodb.client.MongoCollection;\n' +
             'import com.mongodb.client.MongoDatabase;\n' +
             'import org.bson.conversions.Bson;\n' +
