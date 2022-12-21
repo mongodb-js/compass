@@ -92,10 +92,11 @@ export const SavedPipelines: React.FC<SavedPipelinesProps> = ({
       screen: 'aggregations',
     });
     onDeletePipeline(id);
-  }, [editor_view_type, onDeletePipeline]);
+    setDeletePipelineId(null);
+  }, [editor_view_type, onDeletePipeline, setDeletePipelineId]);
 
   return (
-    <div className={savedPipelinesStyles}>
+    <div className={savedPipelinesStyles} data-testid="saved-pipelines">
       <div className={toolbarContentStyles}>
         <Body
           className={toolbarTitleStyles}

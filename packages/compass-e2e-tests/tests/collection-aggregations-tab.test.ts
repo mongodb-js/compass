@@ -125,6 +125,46 @@ async function switchPipelineMode(
   await browser.waitForAnimations(Selectors.AggregationBuilderWorkspace);
 }
 
+async function saveAggregation(
+  browser: CompassBrowser,
+  aggregationName: string,
+  pipeline: Record<string, any>[]
+) {
+  for (let index = 0; index < pipeline.length; index++) {
+    const stage = pipeline[index];
+    const stageOperator = Object.keys(stage)[0];
+    const stageValue = stage[stageOperator];
+
+    // add stage
+    await browser.clickVisible(Selectors.AddStageButton);
+    await browser.$(Selectors.stageEditor(index)).waitForDisplayed();
+
+    await browser.focusStageOperator(index);
+    await browser.selectStageOperator(index, stageOperator);
+    await browser.setAceValue(Selectors.stageEditor(index), stageValue);
+  }
+
+  await browser.clickVisible(Selectors.SavePipelineMenuButton);
+  const menuElement = await browser.$(Selectors.SavePipelineMenuContent);
+  await menuElement.waitForDisplayed();
+  await browser.clickVisible(Selectors.SavePipelineSaveAsAction);
+
+  // wait for the modal to appear
+  const savePipelineModal = await browser.$(Selectors.SavePipelineModal);
+  await savePipelineModal.waitForDisplayed();
+
+  // set aggregation name
+  await browser.waitForAnimations(Selectors.SavePipelineNameInput);
+  const pipelineNameInput = await browser.$(Selectors.SavePipelineNameInput);
+  await pipelineNameInput.setValue(aggregationName);
+
+  const createButton = await browser
+    .$(Selectors.SavePipelineModal)
+    .$('button=Save');
+
+  await createButton.click();
+}
+
 describe('Collection aggregations tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -967,6 +1007,59 @@ describe('Collection aggregations tab', function () {
       await browser.clickVisible(Selectors.AggregationAutoPreviewToggle);
 
       await preview.waitForDisplayed({ reverse: true });
+    });
+  });
+
+  describe('saving pipelines', function () {
+    const name = 'test agg 1';
+    beforeEach(async function () {
+      await saveAggregation(browser, name, [
+        {
+          $match: '{ i: 0 }',
+        },
+      ]);
+      await browser.waitForAnimations(
+        Selectors.AggregationOpenSavedPipelinesButton
+      );
+      await browser.clickVisible(Selectors.AggregationOpenSavedPipelinesButton);
+      await browser.waitForAnimations(
+        Selectors.AggregationSavedPipelinesPopover
+      );
+      await browser.hover(Selectors.AggregationSavedPipelineCard(name));
+    });
+
+    it('opens an aggregation', async function () {
+      await browser.clickVisible(
+        Selectors.AggregationSavedPipelineCardOpenButton(name)
+      );
+
+      const confirmOpenModal = await browser.$(
+        Selectors.AggregationSavedPipelineConfirmOpenModal
+      );
+      await confirmOpenModal.waitForDisplayed();
+      const openButton = await browser
+        .$(Selectors.AggregationSavedPipelineConfirmOpenModal)
+        .$('button=Open Pipeline');
+
+      await openButton.click();
+      await confirmOpenModal.waitForDisplayed({ reverse: true });
+    });
+
+    it('deletes an aggregation', async function () {
+      await browser.clickVisible(
+        Selectors.AggregationSavedPipelineCardDeleteButton(name)
+      );
+
+      const confirmDeleteModal = await browser.$(
+        Selectors.AggregationSavedPipelineConfirmDeleteModal
+      );
+      await confirmDeleteModal.waitForDisplayed();
+      const deleteButton = await browser
+        .$(Selectors.AggregationSavedPipelineConfirmDeleteModal)
+        .$('button=Delete Pipeline');
+
+      await deleteButton.click();
+      await confirmDeleteModal.waitForDisplayed({ reverse: true });
     });
   });
 

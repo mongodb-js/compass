@@ -54,6 +54,7 @@ export const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = 
         className={card}
         data-testid="saved-pipeline-card"
         data-pipeline-object-id={id}
+        data-pipeline-object-name={name}
       >
         <Body as="div" data-testid="saved-pipeline-card-name">
           {name}

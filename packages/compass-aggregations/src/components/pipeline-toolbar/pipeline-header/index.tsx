@@ -98,7 +98,10 @@ export const PipelineHeader: React.FunctionComponent<PipelineHeaderProps> = ({
           // To prevent popover from closing when confirmation modal is shown
           containedElements={containedElements}
           trigger={({ onClick, ref, children }) => (
-            <div className={pipelineTextAndOpenStyles}>
+            <div
+              data-testid="saved-pipelines-popover"
+              className={pipelineTextAndOpenStyles}
+              >
               <Body weight="medium">Pipeline</Body>
               <button
                 data-testid="pipeline-toolbar-open-pipelines-button"
