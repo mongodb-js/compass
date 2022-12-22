@@ -108,7 +108,7 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
       });
     this.requiredImports.driver = !!driverSyntax;
     const imports = {};
-    for (const code in this.requiredImports) {
+    for (const code of Object.keys(this.requiredImports)) {
       if (
         this.requiredImports[code] &&
         this.Imports[code] &&
