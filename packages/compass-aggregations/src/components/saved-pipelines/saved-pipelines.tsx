@@ -65,13 +65,13 @@ type SavedPipelinesProps = {
   onDeletePipeline: (pipelineId: string) => void;
 };
 
-export const SavedPipelines: React.FC<SavedPipelinesProps> = ({
+export const SavedPipelines = ({
   namespace,
   savedPipelines,
   editor_view_type,
   onOpenPipeline,
   onDeletePipeline,
-}) => {
+}: SavedPipelinesProps) => {
   const darkMode = useDarkMode();
   const [deletePipelineId, setDeletePipelineId] = useState<string | null>(null);
   const [openPipelineId, setOpenPipelineId] = useState<string | null>(null);
@@ -131,12 +131,12 @@ export const SavedPipelines: React.FC<SavedPipelinesProps> = ({
       <OpenPipelineConfirmationModal
         isOpen={!!openPipelineId}
         onCancel={() => setOpenPipelineId(null)}
-        onOpen={() => onOpenConfirm(openPipelineId as string)}
+        onConfirm={() => onOpenConfirm(openPipelineId as string)}
       />
       <DeletePipelineConfirmationModal
         isOpen={!!deletePipelineId}
         onCancel={() => setDeletePipelineId(null)}
-        onDelete={() => onDeleteConfirm(deletePipelineId as string)}
+        onConfirm={() => onDeleteConfirm(deletePipelineId as string)}
       />
     </div>
   );
