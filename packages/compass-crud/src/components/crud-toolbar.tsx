@@ -194,7 +194,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         </div>
         <div className={toolbarRightActionStyles}>
           <Body data-testid="crud-document-count-display">
-            {start} - {end} of {displayedDocumentCount}
+            {start} – {end}{' '}
+            {displayedDocumentCount && `of ${displayedDocumentCount}`}
           </Body>
           {loadingCount && (
             <SpinLoader size="12px" title="Fetching document count…" />
