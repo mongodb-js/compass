@@ -932,7 +932,7 @@ Templates:
                 .join('\n');
         }
     DriverImportTemplate: &DriverImportTemplate !!js/function >
-        (args) => {
+        () => {
             return [
                     "go.mongodb.org/mongo-driver/mongo",
                     "go.mongodb.org/mongo-driver/mongo/options",

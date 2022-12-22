@@ -41,7 +41,7 @@ Output a compiled string given input and output languages.
 - __codeString:__ The code string you would like to be compiled to your
   selected output language.
 
-### importsString = transpiler\[inputLang\]\[outputLang\].getImports()
+### importsString = transpiler\[inputLang\]\[outputLang\].getImports(mode, driverSyntax)
 Output a string containing the set of import statements for the generated code
 to compile. These are all the packages that the compiled code could use so that
 the transpiler output will be runnable.

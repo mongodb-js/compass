@@ -87,11 +87,11 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
    * PUBLIC: As code is generated, any classes that require imports are tracked
    * in this.Imports. Each class has a "code" defined in the symbol table.
    * The imports are then generated based on the output language templates.
-   *
+   * @param {String} mode
    * @param {Boolean} driverSyntax (optional)
-   *  @return {String} - The list of imports in the target language.
+   * @return {String} - The list of imports in the target language.
    */
-  getImports(driverSyntax) {
+  getImports(mode, driverSyntax) {
     const importTemplate = this.Imports.import.template ?
       this.Imports.import.template :
       (s) => (
@@ -116,7 +116,12 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
         );
       })
       .reduce((obj, c) => {
-        obj[c] = this.Imports[c].template(this.requiredImports[c]);
+        if (c === 'driver') {
+          obj[c] = this.Imports[c].template(mode);
+        } else {
+          obj[c] = this.Imports[c].template(this.requiredImports[c]);
+        }
+
         return obj;
       }, {});
     return importTemplate(imports);
