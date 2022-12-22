@@ -53,6 +53,7 @@ const reducer: Reducer<State, AnyAction> = (
     case ActionTypes.CountStarted:
       return {
         loading: true,
+        count: state.count,
         abortController: action.abortController,
       };
     case ActionTypes.CountFinished:
