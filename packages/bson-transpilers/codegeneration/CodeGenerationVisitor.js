@@ -107,23 +107,17 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
         }
       });
     this.requiredImports.driver = !!driverSyntax;
-    const imports = Object.keys(this.requiredImports)
-      .filter((code) => {
-        return (
-          this.requiredImports[code] &&
-          this.Imports[code] &&
-          this.Imports[code].template
-        );
-      })
-      .reduce((obj, c) => {
-        if (c === 'driver') {
-          obj[c] = this.Imports[c].template(mode);
-        } else {
-          obj[c] = this.Imports[c].template(this.requiredImports[c]);
-        }
-
-        return obj;
-      }, {});
+    const imports = {};
+    for (const code in this.requiredImports) {
+      if (
+        Object.prototype.hasOwnProperty.call(this.requiredImports, code) &&
+        this.requiredImports[code] &&
+        this.Imports[code] &&
+        this.Imports[code].template
+      ) {
+        imports[code] = this.Imports[code].template(this.requiredImports[code], mode);
+      }
+    }
     return importTemplate(imports);
   }
 

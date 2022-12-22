@@ -964,7 +964,7 @@ Templates:
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
     ImportTemplate: &ImportTemplate null
     DriverImportTemplate: &DriverImportTemplate !!js/function >
-        (mode) => {
+        (_, mode) => {
             let imports = 'import com.mongodb.MongoClient;\n' +
                 'import com.mongodb.MongoClientURI;\n' +
                 'import com.mongodb.client.MongoCollection;\n' +
