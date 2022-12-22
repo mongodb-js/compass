@@ -45,6 +45,12 @@ Output a compiled string given input and output languages.
 Output a string containing the set of import statements for the generated code
 to compile. These are all the packages that the compiled code could use so that
 the transpiler output will be runnable.
+- __inputLang:__ Input language of the code string. `shell` and `javascript`
+  are currently supported.
+- __outputLang:__ The language you would like the output to be. `java`,
+  `python`, `shell`, `javascript`, and `csharp` are currently supported.
+- __mode:__ Either 'Query' for the `.find()` method or 'Pipeline' for `.aggregate()`.
+- __driverSyntax:__ Whether or not you want to include Driver Syntax into your output string.
 
 ### catch (error)
 Any transpiler errors that occur will be thrown. To catch them, wrap the
