@@ -156,7 +156,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(
     // If we don't know the count, we can't know if there are more pages.
-    () => (count ? 20 * (page + 1) >= count : false),
+    () =>
+      count === undefined || count === null ? false : 20 * (page + 1) >= count,
     [count, page]
   );
 
