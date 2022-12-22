@@ -46,7 +46,7 @@ Templates:
             if ('aggregation' in spec) {
                 return `${comment}\n */\n\n${connection}
 
-        FindIterable<Document> result = collection.aggregate(${spec.aggregation});`;
+        AggregateIterable<Document> result = collection.aggregate(${spec.aggregation});`;
             }
 
             let warning = '';
@@ -964,15 +964,20 @@ Templates:
     RegExpSymbolArgsTemplate: &RegExpSymbolArgsTemplate null
     ImportTemplate: &ImportTemplate null
     DriverImportTemplate: &DriverImportTemplate !!js/function >
-        () => {
-        return 'import com.mongodb.MongoClient;\n' +
-            'import com.mongodb.MongoClientURI;\n' +
-            'import com.mongodb.client.FindIterable;\n' +
-            'import com.mongodb.client.MongoCollection;\n' +
-            'import com.mongodb.client.MongoDatabase;\n' +
-            'import org.bson.conversions.Bson;\n' +
-            'import java.util.concurrent.TimeUnit;\n' +
-            'import org.bson.Document;';
+        (_, mode) => {
+            let imports = 'import com.mongodb.MongoClient;\n' +
+                'import com.mongodb.MongoClientURI;\n' +
+                'import com.mongodb.client.MongoCollection;\n' +
+                'import com.mongodb.client.MongoDatabase;\n' +
+                'import org.bson.conversions.Bson;\n' +
+                'import java.util.concurrent.TimeUnit;\n' +
+                'import org.bson.Document;\n';
+            if (mode === 'Query') {
+                imports += 'import com.mongodb.client.FindIterable;';
+            } else {
+                imports += 'import com.mongodb.client.AggregateIterable;';
+            }
+            return imports;
         }
     0ImportTemplate: &0ImportTemplate null
     1ImportTemplate: &1ImportTemplate null
