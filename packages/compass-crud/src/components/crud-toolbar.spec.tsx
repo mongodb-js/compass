@@ -205,6 +205,24 @@ describe('CrudToolbar Component', function () {
     expect(getPageSpy.calledOnce).to.be.false;
   });
 
+  it('should have the next page button enabled when count is unknown', function () {
+    const getPageSpy = sinon.spy();
+    renderCrudToolbar({
+      getPage: getPageSpy,
+      page: 2,
+      count: undefined,
+    });
+
+    const nextButton = screen.getByTestId('docs-toolbar-next-page-btn');
+    expect(nextButton).to.have.attribute('aria-disabled', 'false');
+
+    expect(getPageSpy.called).to.be.false;
+    fireEvent.click(nextButton);
+
+    expect(getPageSpy.calledOnce).to.be.true;
+    expect(getPageSpy.firstCall.args[0]).to.equal(3);
+  });
+
   it('should render the add data button when it is not readonly', function () {
     renderCrudToolbar({
       readonly: false,
