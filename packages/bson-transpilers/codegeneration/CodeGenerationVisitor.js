@@ -110,7 +110,6 @@ module.exports = (ANTLRVisitor) => class CodeGenerationVisitor extends ANTLRVisi
     const imports = {};
     for (const code in this.requiredImports) {
       if (
-        Object.prototype.hasOwnProperty.call(this.requiredImports, code) &&
         this.requiredImports[code] &&
         this.Imports[code] &&
         this.Imports[code].template
