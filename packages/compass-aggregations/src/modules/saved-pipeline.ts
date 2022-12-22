@@ -100,7 +100,7 @@ export const updatePipelineList = (): PipelineBuilderThunkAction<void> =>
 /**
  * Get the delete action.
  */
-export const deletePipeline = (
+export const deletePipelineById = (
   pipelineId: string
 ): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState, { pipelineStorage }) => {
