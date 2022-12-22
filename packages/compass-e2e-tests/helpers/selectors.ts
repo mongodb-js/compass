@@ -710,7 +710,28 @@ export const EditPipelineButton = `[data-testid="pipeline-toolbar-edit-button"]`
 export const GoToCollectionButton = `[data-testid="pipeline-results-go-to-collection"]`;
 export const ExportAggregationResultsButton = `[data-testid="pipeline-toolbar-export-aggregation-button"]`;
 
-// New Aggregation Toolbar Specific
+export const AggregationOpenSavedPipelinesButton = `[data-testid="pipeline-toolbar-open-pipelines-button"]`;
+export const AggregationSavedPipelinesPopover = `[data-testid="saved-pipelines"]`;
+export const AggregationSavedPipelineCard = (name: string): string => {
+  return `[data-testid="saved-pipeline-card"][data-pipeline-object-name="${name}"]`;
+};
+export const AggregationSavedPipelineCardOpenButton = (
+  name: string
+): string => {
+  return `${AggregationSavedPipelineCard(
+    name
+  )} [data-testid="saved-pipeline-card-open-action"]`;
+};
+export const AggregationSavedPipelineCardDeleteButton = (
+  name: string
+): string => {
+  return `${AggregationSavedPipelineCard(
+    name
+  )} [data-testid="saved-pipeline-card-delete-action"]`;
+};
+export const AggregationSavedPipelineConfirmOpenModal = `[data-testid="restore-pipeline-modal"]`;
+export const AggregationSavedPipelineConfirmDeleteModal = `[data-testid="delete-pipeline-modal"]`;
+
 export const AggregationExplainButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainModal = '[data-testid="pipeline-explain-modal"]';
