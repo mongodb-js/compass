@@ -72,9 +72,14 @@ export type SchemaFieldType = {
   name: string;
   path: string;
   probability: number;
-  values?: any[];
-  fields: SchemaFieldType[];
   types: SchemaFieldType[];
+  fields?: SchemaFieldType[];
+  values?: any[];
+  count?: number;
+  has_duplicates?: boolean;
+  lengths?: number[];
+  average_length?: number;
+  total_count?: number;
 };
 
 function ArraySubTypes({
