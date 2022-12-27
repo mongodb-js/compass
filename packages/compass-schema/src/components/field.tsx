@@ -12,7 +12,8 @@ import find from 'lodash.find';
 import { withPreferences } from 'compass-preferences-model';
 import type AppRegistry from 'hadron-app-registry';
 
-import Type from './type';
+import { FieldType, sortTypes } from './type';
+import type { SchemaFieldType } from './type';
 import Minichart from './minichart';
 import detectCoordinates from '../modules/detect-coordinates';
 import type configureActions from '../actions';
@@ -54,8 +55,8 @@ const fieldContainerStyles = css({
 });
 
 const fieldStyles = css({
-  paddingTop: spacing[3],
-  marginBottom: spacing[2],
+  paddingTop: spacing[4],
+  paddingBottom: spacing[3],
 });
 
 const fieldListContainerStyles = css({
@@ -67,11 +68,11 @@ const fieldTypeListStyles = css({
 });
 
 const fieldNameContainerStyles = css({
-  position: 'relative',
+  paddingTop: spacing[2],
 });
 
 const fieldRowStyles = css({
-  marginBottom: spacing[4],
+  marginBottom: spacing[3],
   padding: `0px ${spacing[3]}px`,
   display: 'grid',
 
@@ -79,7 +80,6 @@ const fieldRowStyles = css({
   gridTemplateColumns: '1fr 2fr',
   columnGap: spacing[6],
   position: 'relative',
-  alignItems: 'center',
 });
 
 const fieldDescriptionStyles = css({
@@ -94,38 +94,14 @@ const nestedFieldStyles = css({
   margin: spacing[2],
 });
 
-type FieldType = {
-  name: string;
-  path: string;
-  probability: number;
-  values?: unknown[];
-  fields: FieldType[];
-  types: FieldType[];
-};
-
 type FieldProps = {
   actions: ReturnType<typeof configureActions>;
   localAppRegistry: AppRegistry;
   name: string;
   path: string;
-  types: FieldType[];
+  types: SchemaFieldType[];
   enableMaps: boolean;
 };
-
-function sortTypes(types: FieldType[]) {
-  // Sort the types in descending order and push undefined to the end.
-  return (
-    types?.sort((a: FieldType, b: FieldType) => {
-      if (a.name === 'Undefined') {
-        return 1;
-      }
-      if (b.name === 'Undefined') {
-        return -1;
-      }
-      return b.probability - a.probability;
-    }) || []
-  );
-}
 
 /**
  * Returns Document type object of a nested document, either directly nested
@@ -137,7 +113,7 @@ function sortTypes(types: FieldType[]) {
  *
  * @see mongodb-js/mongodb-schema
  */
-function getNestedDocType(types: FieldType[]) {
+function getNestedDocType(types: SchemaFieldType[]) {
   // Check for directly nested document first.
   const docType = find(types, { name: 'Document' });
   if (docType) {
@@ -155,13 +131,16 @@ function getNestedDocType(types: FieldType[]) {
  * Tests type for semantic interpretations, like geo coordinates, and
  * replaces type information like name and values if there's a match.
  */
-function getSemanticType(type: FieldType, enableMaps: boolean) {
+function getSemanticType(
+  type: SchemaFieldType,
+  enableMaps: boolean
+): SchemaFieldType {
   // Check if the type represents geo coordinates, if privacy settings allow.
   if (!enableMaps) {
     return type;
   }
   const coords = detectCoordinates(type);
-  if (coords) {
+  if (coords && typeof coords !== 'boolean') {
     return {
       ...type,
       name: 'Coordinates',
@@ -186,7 +165,7 @@ function Field({
     const sortedTypes = sortTypes(types);
     return sortedTypes.length > 0
       ? getSemanticType(sortedTypes[0], enableMaps)
-      : null;
+      : undefined;
   });
 
   const activeShownTypes = useMemo(() => sortTypes(types), [types]);
@@ -238,13 +217,17 @@ function Field({
                 // Allow for semantic types and convert the type, e.g. geo coordinates.
                 const semanticType = getSemanticType(type, enableMaps);
                 return (
-                  <Type
-                    key={'type-' + semanticType.name}
+                  <FieldType
+                    key={`type-${semanticType.name}`}
                     activeType={activeType}
-                    onRenderType={(type: FieldType) => setActiveType(type)}
-                    self={semanticType}
+                    onSetTypeActive={(type: SchemaFieldType) =>
+                      setActiveType(getSemanticType(type, enableMaps))
+                    }
+                    type={semanticType}
+                    types={semanticType.types}
                     showSubTypes
-                    {...semanticType}
+                    probability={semanticType.probability}
+                    typeName={semanticType.name}
                   />
                 );
               })}
@@ -270,16 +253,18 @@ function Field({
             role="region"
             aria-labelledby={fieldAccordionButtonId}
           >
-            {(getNestedDocType(types)?.fields || []).map((field: FieldType) => (
-              <div className={nestedFieldStyles} key={field.name}>
-                <Field
-                  actions={actions}
-                  localAppRegistry={localAppRegistry}
-                  enableMaps={enableMaps}
-                  {...field}
-                />
-              </div>
-            ))}
+            {(getNestedDocType(types)?.fields || []).map(
+              (field: SchemaFieldType) => (
+                <div className={nestedFieldStyles} key={field.name}>
+                  <Field
+                    actions={actions}
+                    localAppRegistry={localAppRegistry}
+                    enableMaps={enableMaps}
+                    {...field}
+                  />
+                </div>
+              )
+            )}
           </div>
         )}
       </div>
