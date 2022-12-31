@@ -107,7 +107,7 @@
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
     "rimraf": "^3.0.0",
     "sinon": "^8.1.1",
-    "webpack": "^4.46.0"
+    "webpack": "^5.75.0"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
