@@ -1,20 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Body, Link, Tooltip, css, cx, useDarkMode, palette, spacing } from '@mongodb-js/compass-components';
+import { Body, Link, Tooltip, css, cx, useDarkMode, palette, spacing, IconButton, Icon } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
 import { hasSyntaxError } from '../../utils/stage';
+import { focusModeEnabled } from '../../modules/focus-mode';
 
 const toolbarStyles = css({
   width: '100%',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
 
   height: spacing[5] + spacing[1],
-  paddingLeft: spacing[4],
+  paddingLeft: spacing[2],
+  paddingRight: spacing[2],
 
   display: 'flex',
   alignItems: 'center',
@@ -40,6 +39,16 @@ const toolbarWarningStyles = css({
 
 const toolbarErrorStyles = css({
   borderBottomColor: palette.red.base
+});
+
+const toolbarTextStyles = css({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+const focusModeButtonStyles = css({
+  marginLeft: 'auto',
 });
 
 const OperatorLink: React.FunctionComponent<{
@@ -107,6 +116,7 @@ type StagePreviewToolbarProps = {
   link?: string;
   destination?: string;
   isCollapsed?: boolean;
+  onFocusMode: (stageIndex: number) => void;
 };
 
 function StagePreviewToolbar({
@@ -119,38 +129,45 @@ function StagePreviewToolbar({
   link,
   destination,
   isCollapsed,
+  onFocusMode,
+  index: stageIndex
 }: StagePreviewToolbarProps) {
   const darkMode = useDarkMode();
 
   return (
-    <Body
-      className={cx(
-        toolbarStyles,
-        darkMode ? toolbarStylesDark : toolbarStylesLight,
-        hasSyntaxError && toolbarWarningStyles,
-        hasServerError && toolbarErrorStyles,
-        isCollapsed && collapsedToolbarStyles,
-      )}
-    >
-      {isEnabled ? (
-        stageOperator ? (
-          destination ? (
-            `Documents will be saved to ${destination}.`
+    <div className={cx(
+      toolbarStyles,
+      darkMode ? toolbarStylesDark : toolbarStylesLight,
+      hasSyntaxError && toolbarWarningStyles,
+      hasServerError && toolbarErrorStyles,
+      isCollapsed && collapsedToolbarStyles,
+    )}>
+      <Body
+        className={toolbarTextStyles}
+      >
+        {isEnabled ? (
+          stageOperator ? (
+            destination ? (
+              `Documents will be saved to ${destination}.`
+            ) : (
+              <DefaultPreviewText
+                stageOperator={stageOperator}
+                previewSize={previewSize}
+                description={description}
+                link={link}
+              ></DefaultPreviewText>
+            )
           ) : (
-            <DefaultPreviewText
-              stageOperator={stageOperator}
-              previewSize={previewSize}
-              description={description}
-              link={link}
-            ></DefaultPreviewText>
+            'A sample of the aggregated results from this stage will be shown below.'
           )
         ) : (
-          'A sample of the aggregated results from this stage will be shown below.'
-        )
-      ) : (
-        'Stage is disabled. Results not passed in the pipeline.'
-      )}
-    </Body>
+          'Stage is disabled. Results not passed in the pipeline.'
+        )}
+      </Body>
+      <IconButton className={focusModeButtonStyles} onClick={() => onFocusMode(stageIndex)} aria-label={'Focus Mode'}>
+        <Icon glyph={'FullScreenEnter'} size="small"></Icon>
+      </IconButton>
+    </div>
   );
 }
 
@@ -171,4 +188,6 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     isCollapsed: stage.collapsed,
     ...stageInfo
   };
+}, {
+  onFocusMode: focusModeEnabled
 })(StagePreviewToolbar);
