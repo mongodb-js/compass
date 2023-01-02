@@ -5,8 +5,8 @@ import {
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
-import type { RootState } from '../modules';
-import { focusModeDisabled } from '../modules/focus-mode';
+import type { RootState } from '../../modules';
+import { focusModeDisabled } from '../../modules/focus-mode';
 
 
 type FocusModeProps = {
@@ -31,7 +31,6 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
       onClose={onCloseModal}
       open={isModalOpen}
       data-testid={`focus-mode-modal-${stageIndex}`}
-      closeIconColor='red'
     >
       <Body>In progress feature.</Body>
       <Body>Focus mode for stage {stage.stageOperator}.</Body>

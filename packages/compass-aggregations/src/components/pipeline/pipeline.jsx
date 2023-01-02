@@ -11,7 +11,7 @@ import PipelineToolbar from '../pipeline-toolbar';
 import PipelineExplain from '../pipeline-explain';
 import PipelineBuilderWorkspace from '../pipeline-builder-workspace';
 import PipelineResultsWorkspace from '../pipeline-results-workspace';
-import FocusMode from './../focus-mode';
+import FocusMode from '../focus-mode/focus-mode';
 import {
   DEFAULT_MAX_TIME_MS,
   DEFAULT_SAMPLE_SIZE,
