@@ -254,7 +254,7 @@ const featureFlagsProps: Required<{
       short: 'CSFLE Schema Map Debugging',
     },
   },
-  
+
   /**
    * Feature flag for the focus mode in aggregation pipeline builder.
    */
