@@ -72,6 +72,7 @@
     "@mongodb-js/tsconfig-compass": "^1.0.1",
     "@mongodb-js/webpack-config-compass": "^1.0.4",
     "@testing-library/react": "^12.1.4",
+    "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",
     "@types/lodash.find": "^4.6.7",
     "@types/mocha": "^9.0.0",
