@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { Body, Link, Tooltip, css, cx, useDarkMode, palette, spacing, IconButton, Icon } from '@mongodb-js/compass-components';
-
+import { usePreference } from 'compass-preferences-model';
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
 import { hasSyntaxError } from '../../utils/stage';
@@ -133,7 +133,7 @@ function StagePreviewToolbar({
   index: stageIndex
 }: StagePreviewToolbarProps) {
   const darkMode = useDarkMode();
-
+  const showFocusMode = usePreference('showFocusMode', React);
   return (
     <div className={cx(
       toolbarStyles,
@@ -164,9 +164,9 @@ function StagePreviewToolbar({
           'Stage is disabled. Results not passed in the pipeline.'
         )}
       </Body>
-      <IconButton className={focusModeButtonStyles} onClick={() => onFocusMode(stageIndex)} aria-label={'Focus Mode'}>
+      {showFocusMode && <IconButton className={focusModeButtonStyles} onClick={() => onFocusMode(stageIndex)} aria-label={'Focus Mode'}>
         <Icon glyph={'FullScreenEnter'} size="small"></Icon>
-      </IconButton>
+      </IconButton>}
     </div>
   );
 }
