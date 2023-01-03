@@ -1,5 +1,5 @@
 runner: !!js/function >
-    (it, expect, input, output, transpiler, test) => {
+    (it, type, expect, input, output, transpiler, test) => {
         it(`${input}: ${test.input[input]} => ${output}`, () => {
             expect(
                 transpiler[input][output].compile(test.input[input], true)

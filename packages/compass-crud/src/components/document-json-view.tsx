@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { cx, KeylineCard } from '@mongodb-js/compass-components';
+import { css, cx, KeylineCard } from '@mongodb-js/compass-components';
 
 import type { JsonEditorProps } from './json-editor';
 import JsonEditor from './json-editor';
@@ -36,6 +36,10 @@ export type DocumentJsonViewProps = {
   | 'isExpanded'
 >;
 
+const keylineCardCSS = css({
+  overflow: 'hidden',
+});
+
 /**
  * Represents the list view of the documents tab.
  */
@@ -51,7 +55,7 @@ class DocumentJsonView extends React.Component<DocumentJsonViewProps> {
     return this.props.docs.map((doc, i) => {
       return (
         <li className={LIST_ITEM_CLASS} data-testid={LIST_ITEM_TEST_ID} key={i}>
-          <KeylineCard>
+          <KeylineCard className={keylineCardCSS}>
             <JsonEditor
               key={doc.uuid}
               doc={doc}

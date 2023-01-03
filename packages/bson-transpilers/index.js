@@ -184,8 +184,8 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
       return transpiler.Syntax.driver.bind(transpiler.getState())(result);
     },
     compile: compile,
-    getImports: (driverSyntax) => {
-      return transpiler.getImports(driverSyntax);
+    getImports: (mode, driverSyntax) => {
+      return transpiler.getImports(mode, driverSyntax);
     }
   };
 };

@@ -139,7 +139,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === '1 - 1 of 1';
+      return text === '1 – 1 of 1';
     });
 
     const result = await getFirstListDocument(browser);
@@ -211,7 +211,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === '1 - 1 of 1';
+      return text === '1 – 1 of 1';
     });
 
     const result = await getFirstListDocument(browser);
@@ -265,7 +265,7 @@ describe('Collection import', function () {
     );
     await browser.waitUntil(async () => {
       const text = await messageElement.getText();
-      return text === '1 - 20 of 1000';
+      return text === '1 – 20 of 1000';
     });
 
     const result = await getFirstListDocument(browser);
@@ -324,7 +324,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('1 - 20 of 16116');
+    expect(text).to.equal('1 – 20 of 16116');
 
     const result = await getFirstListDocument(browser);
 
@@ -373,7 +373,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('1 - 1 of 1');
+    expect(text).to.equal('1 – 1 of 1');
 
     const result = await getFirstListDocument(browser);
 
@@ -508,7 +508,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('1 - 20 of 16116');
+    expect(text).to.equal('1 – 20 of 16116');
 
     const result = await getFirstListDocument(browser);
 
@@ -615,7 +615,7 @@ describe('Collection import', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await messageElement.getText();
-    expect(text).to.equal('1 - 1 of 1');
+    expect(text).to.equal('1 – 1 of 1');
 
     const result = await getFirstListDocument(browser);
 

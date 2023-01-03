@@ -111,7 +111,7 @@ fs.readdirSync(testpath).map((file) => {
                     }
                   });
                 } else if (input !== output) {
-                  tests.runner(it, expect, input, output, transpiler, test);
+                  tests.runner(it, type, expect, input, output, transpiler, test);
                 }
               }
             }
