@@ -127,7 +127,7 @@ async function assertCanReadData(
     const text = await browser
       .$(Selectors.DocumentListActionBarMessage)
       .getText();
-    return /\d+ - \d+ of \d+/.test(text);
+    return /\d+ – \d+ of \d+/.test(text);
   });
 }
 

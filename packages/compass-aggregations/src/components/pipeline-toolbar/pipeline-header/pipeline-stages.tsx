@@ -46,6 +46,8 @@ type PipelineStagesProps = {
   onEditPipelineClick: (workspace: Workspace) => void;
 };
 
+const nbsp = '\u00a0';
+
 export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   isResultsMode,
   stages,
@@ -60,8 +62,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
           Your pipeline is currently empty.
           {showAddNewStage && (
             <>
-              {' '}
-              To get started select the&nbsp;
+              {nbsp}To get started add the{nbsp}
               <Link
                 className={addStageStyles}
                 as="button"
@@ -97,11 +98,12 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
 };
 
 const mapState = (state: RootState) => {
-  const stages = getPipelineStageOperatorsFromBuilderState(state);
+  const stages = getPipelineStageOperatorsFromBuilderState(state, false);
   const isResultsMode = state.workspace === 'results';
+  const isStageMode = state.pipelineBuilder.pipelineMode === 'builder-ui';
   return {
-    stages,
-    showAddNewStage: !isResultsMode && stages.length === 0,
+    stages: stages.filter(Boolean) as string[],
+    showAddNewStage: !isResultsMode && isStageMode && stages.length === 0,
     isResultsMode,
   };
 };

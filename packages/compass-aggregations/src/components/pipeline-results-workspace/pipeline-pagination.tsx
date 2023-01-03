@@ -32,7 +32,7 @@ const containerStyles = css({
 const paginationStyles = css({
   display: 'flex',
   gap: spacing[1],
-  alignItems: 'center',
+  alignItems: 'baseline',
 });
 
 export const PipelinePagination: React.FunctionComponent<PipelinePaginationProps> =

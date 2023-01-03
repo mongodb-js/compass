@@ -155,7 +155,9 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const controlId = useId();
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(
-    () => (count ? 20 * (page + 1) >= count : true),
+    // If we don't know the count, we can't know if there are more pages.
+    () =>
+      count === undefined || count === null ? false : 20 * (page + 1) >= count,
     [count, page]
   );
 
@@ -194,7 +196,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         </div>
         <div className={toolbarRightActionStyles}>
           <Body data-testid="crud-document-count-display">
-            {start} - {end} of {displayedDocumentCount}
+            {start} – {end}{' '}
+            {displayedDocumentCount && `of ${displayedDocumentCount}`}
           </Body>
           {loadingCount && (
             <SpinLoader size="12px" title="Fetching document count…" />

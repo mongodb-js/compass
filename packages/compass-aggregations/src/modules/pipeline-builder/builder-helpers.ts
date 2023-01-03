@@ -53,19 +53,27 @@ export function getPipelineStringFromBuilderState(
 }
 
 export function getPipelineStageOperatorsFromBuilderState(
-  state: RootState
-): string[] {
-  if (state.pipelineBuilder.pipelineMode === 'builder-ui') {
-    return state.pipelineBuilder.stageEditor.stages
+  state: RootState,
+  filterEmptyStageOperators?: true,
+): string[];
+export function getPipelineStageOperatorsFromBuilderState(
+  state: RootState,
+  filterEmptyStageOperators?: false
+): (string | null)[];
+export function getPipelineStageOperatorsFromBuilderState(
+  state: RootState,
+  filterEmptyStageOperators = true
+): (string | null)[] | string[] {
+  const stages = state.pipelineBuilder.pipelineMode === 'builder-ui'
+    ? state.pipelineBuilder.stageEditor.stages
       .filter((stage) => !stage.disabled)
       .map((stage) => stage.stageOperator)
-      .filter(Boolean) as string[];
-  }
-  return state.pipelineBuilder.textEditor.pipeline.pipeline
-    .map((stage) => {
-      return getStageOperator(stage);
-    })
-    .filter(Boolean) as string[];
+    : state.pipelineBuilder.textEditor.pipeline.pipeline
+      .map((stage) => {
+        return getStageOperator(stage) ?? null;
+      });
+
+  return filterEmptyStageOperators ? stages.filter(Boolean) : stages;
 }
 
 export function getIsPipelineInvalidFromBuilderState(

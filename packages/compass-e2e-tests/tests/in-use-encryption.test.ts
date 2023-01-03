@@ -500,22 +500,9 @@ describe('FLE2', function () {
         const document = await browser.$(Selectors.DocumentJSONEntry);
         await document.waitForDisplayed();
 
-        // Recursively expand __safeContent__ so that the JSON is valid
-        for (let i = 0; i < 3; i++) {
-          await browser.clickVisible(
-            `${Selectors.DocumentJSONEntry} .ace_fold-widget.ace_closed`
-          );
-        }
-        let json = '';
-        await browser.waitUntil(async function () {
-          json = await document.getText();
-          try {
-            JSON.parse(json);
-            return true;
-          } catch {
-            return false;
-          }
-        });
+        const json = await browser.getCodemirrorEditorText(
+          Selectors.DocumentJSONEntry
+        );
 
         expect(json).to.include('30303030');
         expect(json).to.include('__safeContent__');
@@ -527,9 +514,9 @@ describe('FLE2', function () {
           ...JSON.parse(json),
           phoneNumber: '10101010',
         });
-        await browser.setAceValue(
-          '[data-testid="editable-json"] .ace_editor',
-          newjson
+        await browser.setCodemirrorEditorValue(
+          newjson,
+          Selectors.DocumentJSONEntry
         );
 
         const footer = await document.$(Selectors.DocumentFooterMessage);
