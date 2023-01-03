@@ -98,6 +98,7 @@ describe('PipelineActions', function () {
           onExportAggregationResults={() => {}}
           onUpdateView={() => {}}
           onExplainAggregation={() => {}}
+          isAtlasDeployed: {false}
         />
       );
     });
@@ -113,6 +114,45 @@ describe('PipelineActions', function () {
       expect(onToggleOptionsSpy.calledOnce).to.be.true;
     });
   });
+
+  describe('options disabled', function () {
+      let onRunAggregationSpy: SinonSpy;
+      let onToggleOptionsSpy: SinonSpy;
+      beforeEach(function () {
+        onRunAggregationSpy = spy();
+        onToggleOptionsSpy = spy();
+        render(
+          <PipelineActions
+            isOptionsVisible={false}
+            showRunButton={true}
+            showExportButton={true}
+            showExplainButton={true}
+            onRunAggregation={onRunAggregationSpy}
+            onToggleOptions={onToggleOptionsSpy}
+            onExportAggregationResults={() => {}}
+            onUpdateView={() => {}}
+            onExplainAggregation={() => {}}
+            isAtlasDeployed: {false}
+          />
+        );
+      });
+
+      it('toggle options action button', function () {
+        const button = screen.getByTestId('pipeline-toolbar-options-button');
+        expect(button).to.exist;
+        expect(button?.textContent?.toLowerCase().trim()).to.equal('more options');
+        expect(within(button).getByLabelText('Caret Right Icon')).to.exist;
+
+        userEvent.click(button);
+
+        expect(onToggleOptionsSpy.calledOnce).to.be.true;
+      });
+
+      it('hides the extra options button when in Cloud mode', function () {
+            const button = screen.getByTestId('pipeline-toolbar-options-button');
+            expect(button).to.not.exist;
+          });
+    });
 
   describe('disables actions when pipeline is invalid', function () {
     let onRunAggregationSpy: SinonSpy;
