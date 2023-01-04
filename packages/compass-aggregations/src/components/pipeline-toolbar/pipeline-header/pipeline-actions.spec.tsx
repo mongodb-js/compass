@@ -138,8 +138,7 @@ describe('PipelineActions', function () {
       });
 
       it('hides the extra options button when in Cloud mode', function () {
-            const button = screen.getByTestId('pipeline-toolbar-options-button');
-            expect(button).to.not.exist;
+            expect(screen.queryByTestId('pipeline-toolbar-options-button')).to.not.exist;
       });
     });
 
