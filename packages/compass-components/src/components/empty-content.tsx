@@ -1,10 +1,11 @@
 import React from 'react';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 
 import { Body, Subtitle } from './leafygreen';
 import type { Link } from './leafygreen';
+import { useDarkMode } from '../hooks/use-theme';
 
 const containerStyles = css({
   display: 'flex',
@@ -22,8 +23,13 @@ const iconStyles = css({
   maxHeight: '80px',
 });
 const titleStyles = css({
-  color: palette.green.dark2,
   marginTop: spacing[2],
+});
+const titleLightStyles = css({
+  color: palette.green.dark2,
+});
+const titleDarkStyles = css({
+  color: palette.green.light2,
 });
 const subTitleStyles = css({
   marginTop: spacing[2],
@@ -49,12 +55,21 @@ type EmptyContentProps = {
 const EmptyContent: React.FunctionComponent<
   EmptyContentProps & React.HTMLProps<HTMLDivElement>
 > = ({ icon: Icon, title, subTitle, callToAction, callToActionLink }) => {
+  const darkMode = useDarkMode();
+
   return (
     <div className={containerStyles}>
       <div className={iconStyles}>
         <Icon />
       </div>
-      <Subtitle className={titleStyles}>{title}</Subtitle>
+      <Subtitle
+        className={cx(
+          titleStyles,
+          darkMode ? titleDarkStyles : titleLightStyles
+        )}
+      >
+        {title}
+      </Subtitle>
       <Body className={subTitleStyles}>{subTitle}</Body>
       {!!callToAction && (
         <div className={callToActionStyles}>
