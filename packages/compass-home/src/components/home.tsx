@@ -6,6 +6,7 @@ import {
   cx,
   getScrollbarStyles,
   palette,
+  Body,
 } from '@mongodb-js/compass-components';
 import Connections from '@mongodb-js/compass-connections';
 import Settings from '@mongodb-js/compass-settings';
@@ -296,11 +297,7 @@ function Home({
 
   return (
     <>
-      {isConnected && (
-        <div className="with-global-bootstrap-styles">
-          <Workspace namespace={namespace} />
-        </div>
-      )}
+      {isConnected && <Workspace namespace={namespace} />}
       {/* Hide <Connections> but keep it in scope if connected so that the connection
           import/export functionality can still be used through the application menu */}
       <div
@@ -418,26 +415,29 @@ function ThemedHome(
         portalContainer: scrollbarsContainerRef,
       }}
     >
-      <div
-        className={getScrollbarStyles(darkMode)}
-        ref={setScrollbarsContainerRef}
-      >
-        {showWelcomeModal && (
-          <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
-        )}
-        <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
-        <ToastArea>
-          <div
-            className={cx(
-              homeContainerStyles,
-              darkMode ? globalDarkThemeStyles : globalLightThemeStyles
-            )}
-            data-theme={theme.theme}
-          >
-            <Home {...props}></Home>
-          </div>
-        </ToastArea>
-      </div>
+      {/* Wrap the page in a body typography element so that font-size and line-height is standardized. */}
+      <Body as="div">
+        <div
+          className={getScrollbarStyles(darkMode)}
+          ref={setScrollbarsContainerRef}
+        >
+          {showWelcomeModal && (
+            <Welcome isOpen={isWelcomeOpen} closeModal={closeWelcomeModal} />
+          )}
+          <Settings isOpen={isSettingsOpen} closeModal={closeSettingsModal} />
+          <ToastArea>
+            <div
+              className={cx(
+                homeContainerStyles,
+                darkMode ? globalDarkThemeStyles : globalLightThemeStyles
+              )}
+              data-theme={theme.theme}
+            >
+              <Home {...props}></Home>
+            </div>
+          </ToastArea>
+        </div>
+      </Body>
     </LeafyGreenProvider>
   );
 }
