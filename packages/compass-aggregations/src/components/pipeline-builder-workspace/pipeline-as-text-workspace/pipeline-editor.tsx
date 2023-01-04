@@ -6,6 +6,8 @@ import {
   WarningSummary,
   spacing,
   palette,
+  useDarkMode,
+  cx,
 } from '@mongodb-js/compass-components';
 import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 import {
@@ -32,6 +34,10 @@ const containerStyles = css({
   paddingBottom: spacing[2],
   gap: spacing[2],
   marginRight: spacing[1],
+});
+
+const containerDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
 });
 
 const editorContainerStyles = css({
@@ -130,10 +136,12 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     editorRef.current?.getSession().setAnnotations(annotations);
   }, [syntaxErrors, editorRef]);
 
+  const darkMode = useDarkMode();
+
   const showErrorContainer = serverError || syntaxErrors.length > 0;
 
   return (
-    <div className={containerStyles} data-testid="pipeline-as-text-editor">
+    <div className={cx(containerStyles, darkMode && containerDarkStyles)} data-testid="pipeline-as-text-editor">
       <div className={editorContainerStyles}>
         <Editor
           text={pipelineText}
