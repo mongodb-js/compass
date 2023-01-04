@@ -132,7 +132,7 @@ describe('PipelineActions', function () {
             onExportAggregationResults={() => {}}
             onUpdateView={() => {}}
             onExplainAggregation={() => {}}
-            isAtlasDeployed: {false}
+            isAtlasDeployed={false}
           />
         );
       });
