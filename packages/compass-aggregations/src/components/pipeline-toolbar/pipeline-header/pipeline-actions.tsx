@@ -44,6 +44,8 @@ type PipelineActionsProps = {
 
   isOptionsVisible?: boolean;
   onToggleOptions: () => void;
+
+  isAtlasDeployed?: boolean;
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
@@ -61,6 +63,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onToggleOptions,
   onExportAggregationResults,
   onExplainAggregation,
+  isAtlasDeployed,
 }) => {
   return (
     <div className={containerStyles}>
@@ -112,13 +115,13 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Run
         </Button>
       )}
-      <MoreOptionsToggle
+      {!isAtlasDeployed && (<MoreOptionsToggle
         isExpanded={!!isOptionsVisible}
         aria-controls="pipeline-options"
         id="pipeline-toolbar-options"
         data-testid="pipeline-toolbar-options-button"
         onToggleOptions={onToggleOptions}
-      />
+      />)}
     </div>
   );
 };
@@ -134,7 +137,8 @@ const mapState = (state: RootState) => {
     isExplainButtonDisabled: hasSyntaxErrors,
     isExportButtonDisabled: isMergeOrOutPipeline || hasSyntaxErrors,
     showUpdateViewButton: Boolean(state.editViewName),
-    isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors
+    isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors,
+    isAtlasDeployed: state.isAtlasDeployed,
   };
 };
 
