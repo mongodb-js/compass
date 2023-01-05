@@ -95,9 +95,10 @@ function ExportOptions({
     [ns, query]
   );
 
+  // TODO(LG-2741): Once we update the `radio-group` package we can remove this explicit theme fetch.
   // In the LeafyGreen package `@leafygreen-ui/radio-group` version `10.0.3` the
   // radio component doesn't listen to the `darkMode` that the `LeafyGreenProvider` provides.
-  // So for new we are setting it ourselves here.
+  // So for now we are setting it ourselves here.
   const darkMode = useDarkMode();
 
   return (
