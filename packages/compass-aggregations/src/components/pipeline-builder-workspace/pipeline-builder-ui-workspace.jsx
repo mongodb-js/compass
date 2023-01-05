@@ -7,11 +7,25 @@ import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
 import { moveStage } from '../../modules/pipeline-builder/stage-editor';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
+import { css } from '@mongodb-js/compass-components';
 
 import styles from './pipeline-builder-ui-workspace.module.less';
 
+const stageContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  '&.dragging .add-stage-button': {
+    display: 'none'
+  }
+});
+
 const SortableStage = sortableElement(({ idx, ...props }) => {
-  return <Stage index={idx} {...props}></Stage>;
+  return (
+    <div className={stageContainerStyles}>
+      <Stage index={idx} {...props}></Stage>
+      <div className='add-stage-button'><AddStage index={idx} /></div>
+    </div>
+  );
 });
 
 const SortableContainer = sortableContainer(({ children }) => {
@@ -72,7 +86,7 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
                 return <SortableStage key={id} idx={index} index={index} />;
               })}
             </SortableContainer>
-            <AddStage />
+            {this.props.stageIds.length === 0 && <AddStage />}
           </div>
         </div>
       </div>
