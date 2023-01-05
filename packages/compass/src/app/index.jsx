@@ -175,7 +175,7 @@ const Application = View.extend({
     this.renderWithTemplate(this);
 
     const AutoUpdatesComponent =
-    app.appRegistry.getRole('App.AutoUpdate')?.[0].component;
+      app.appRegistry.getRole('App.AutoUpdate')?.[0].component;
 
     if (AutoUpdatesComponent) {
       ReactDOM.render(
