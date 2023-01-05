@@ -194,6 +194,7 @@ const Application = View.extend({
           <HomeComponent
             appRegistry={app.appRegistry}
             appName={remote.app.getName()}
+            getAutoConnectInfo={getAutoConnectInfo}
           ></HomeComponent>
         </React.StrictMode>,
         this.queryByHook('layout-container')
