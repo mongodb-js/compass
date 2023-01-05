@@ -71,9 +71,7 @@ const Application = View.extend({
     return [
       '<div id="application">',
       '  <div data-hook="auto-update"></div>',
-      '  <div data-hook="notifications"></div>',
       '  <div data-hook="layout-container"></div>',
-      '  <div data-hook="license"></div>',
       '</div>',
     ].join('\n');
   },
@@ -90,10 +88,6 @@ const Application = View.extend({
      * @see mongodb-connection-model.js
      */
     connection: 'state',
-    /**
-     * @see notifications.js
-     */
-    notifications: 'state',
     /**
      * Details of the MongoDB Instance we're currently connected to.
      */
@@ -180,23 +174,32 @@ const Application = View.extend({
     this.el = document.querySelector('#application');
     this.renderWithTemplate(this);
 
-    this.autoUpdatesRoles = app.appRegistry.getRole('App.AutoUpdate');
-    if (this.autoUpdatesRoles) {
+    const AutoUpdatesComponent =
+    app.appRegistry.getRole('App.AutoUpdate')?.[0].component;
+
+    if (AutoUpdatesComponent) {
       ReactDOM.render(
-        React.createElement(this.autoUpdatesRoles[0].component),
+        <React.StrictMode>
+          <AutoUpdatesComponent></AutoUpdatesComponent>
+        </React.StrictMode>,
         this.queryByHook('auto-update')
       );
     }
 
-    this.homeComponent = app.appRegistry.getComponent('Home.Home');
-    ReactDOM.render(
-      React.createElement(this.homeComponent, {
-        appRegistry: app.appRegistry,
-        appName: remote.app.getName(),
-        getAutoConnectInfo,
-      }),
-      this.queryByHook('layout-container')
-    );
+    const HomeComponent = app.appRegistry.getComponent('Home.Home');
+
+    if (HomeComponent) {
+      ReactDOM.render(
+        <React.StrictMode>
+          <HomeComponent
+            appRegistry={app.appRegistry}
+            appName={remote.app.getName()}
+          ></HomeComponent>
+        </React.StrictMode>,
+        this.queryByHook('layout-container')
+      );
+    }
+
     document.querySelector('#loading-placeholder')?.remove();
   },
   fetchUser: async function () {

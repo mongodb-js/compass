@@ -59,7 +59,7 @@
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
     "@mongodb-js/compass-logging": "^1.1.1",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.1",
@@ -78,12 +78,12 @@
     "hadron-app-registry": "^9.0.2",
     "mocha": "^8.4.0",
     "nyc": "^15.0.0",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "rimraf": "^3.0.1"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
     "@mongodb-js/compass-logging": "^1.1.1",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   }
 }

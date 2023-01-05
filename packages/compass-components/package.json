@@ -81,7 +81,7 @@
     "react-window": "^1.8.6"
   },
   "peerDependencies": {
-    "react": "^16.14.0",
+    "react": "^17.0.2",
     "react-ace": "^9.5.0"
   },
   "devDependencies": {
@@ -103,9 +103,9 @@
     "mocha": "^8.4.0",
     "nyc": "^15.0.0",
     "prettier": "^2.7.1",
-    "react": "^16.14.0",
+    "react": "^17.0.2",
     "react-ace": "^9.5.0",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "reflux": "^0.4.1",
     "rimraf": "^3.0.2",
     "sinon": "^9.0.0",
