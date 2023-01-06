@@ -73,6 +73,7 @@ function HostInput({
               data-testid={`connection-host-input-${index}`}
               id={`connection-host-input-${index}`}
               aria-labelledby="connection-host-input-label"
+              placeholder={isSRV ? 'mongodb.net' : 'localhost:27017'}
               state={fieldNameHasError(errors, 'hosts') ? 'error' : undefined}
               errorMessage={errorMessageByFieldNameAndIndex(
                 errors,
