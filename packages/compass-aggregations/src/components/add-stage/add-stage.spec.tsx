@@ -9,56 +9,53 @@ const renderAddStage = (
 ) => {
   render(
     <AddStage
-      index={0}
-      numStages={1}
-      onAddStageClick={() => {}}
+      onAddStage={() => {}}
+      variant="button"
       {...props}
     />
   );
 };
 
 describe('AddStage', function() {
-  context('stage is not last', function () {
-    const props = { index: 1, numStages: 3 };
+  context('add stage icon button', function () {
     it('renders icon button', function () {
-      renderAddStage(props);
+      renderAddStage({ variant: 'icon' });
       const button = screen.getByTestId('add-stage');
       expect(() => {
         within(button).getByText('Add Stage');
       }).to.throw;
     });
 
-    it('calls onAddStageClick with index when clicked', function () {
-      const onAddStageClick = sinon.spy();
-      renderAddStage({ ...props, onAddStageClick });
+    it('calls onAddStage with index when clicked', function () {
+      const onAddStage = sinon.spy();
+      renderAddStage({ variant: 'icon', onAddStage });
       const button = screen.getByTestId('add-stage');
-      expect(onAddStageClick).not.to.have.been.called;
+      expect(onAddStage).not.to.have.been.called;
       button.click();
-      expect(onAddStageClick).to.have.been.calledOnceWith(1);
+      expect(onAddStage).to.have.been.calledOnce;
     });
 
   });
 
-  context('stage is last', function () {
-    const props = { index: 2, numStages: 3 };
+  context('add stage button with link', function () {
     it('renders text button', function () {
-      renderAddStage(props);
+      renderAddStage({ variant: 'button' });
       const button = screen.getByTestId('add-stage');
       expect(within(button).getByText('Add Stage')).to.exist;
     });
 
     it('renders help link when stage is not last', function () {
-      renderAddStage(props);
+      renderAddStage();
       expect(screen.getByText('Learn more about aggregation pipeline stages')).to.exist;
     });
 
-    it('calls onAddStageClick with index when clicked', function () {
-      const onAddStageClick = sinon.spy();
-      renderAddStage({ ...props, onAddStageClick });
+    it('calls onAddStage with index when clicked', function () {
+      const onAddStage = sinon.spy();
+      renderAddStage({ variant: 'button', onAddStage });
       const button = screen.getByTestId('add-stage');
-      expect(onAddStageClick).not.to.have.been.called;
+      expect(onAddStage).not.to.have.been.called;
       button.click();
-      expect(onAddStageClick).to.have.been.calledOnce;
+      expect(onAddStage).to.have.been.calledOnce;
     });
   });
 });

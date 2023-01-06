@@ -5,7 +5,7 @@ import Stage from '../stage';
 import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
-import { moveStage } from '../../modules/pipeline-builder/stage-editor';
+import { addStage, moveStage } from '../../modules/pipeline-builder/stage-editor';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
 import { css } from '@mongodb-js/compass-components';
 
@@ -19,11 +19,15 @@ const stageContainerStyles = css({
   }
 });
 
-const SortableStage = sortableElement(({ idx, ...props }) => {
+const SortableStage = sortableElement(({ idx, onAddStage, ...props }) => {
   return (
     <div className={stageContainerStyles}>
+      {/* We render the stage add button first and then the stage. */}
+      {/* So, clicking add stage, should add a stage before the current one */}
+      <div className='add-stage-button'>
+        <AddStage onAddStage={() => onAddStage(idx - 1)} variant='icon' />
+      </div>
       <Stage index={idx} {...props}></Stage>
-      <div className='add-stage-button'><AddStage index={idx} /></div>
     </div>
   );
 });
@@ -36,7 +40,8 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
   static propTypes = {
     stageIds: PropTypes.array.isRequired,
     editViewName: PropTypes.string,
-    onStageMoveEnd: PropTypes.func.isRequired
+    onStageMoveEnd: PropTypes.func.isRequired,
+    onAddStage: PropTypes.func.isRequired
   };
 
   /**
@@ -83,10 +88,16 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
               distance={10}
             >
               {this.props.stageIds.map((id, index) => {
-                return <SortableStage key={id} idx={index} index={index} />;
+                return (
+                  <SortableStage
+                    key={id}
+                    idx={index}
+                    index={index}
+                    onAddStage={this.props.onAddStage} />
+                );
               })}
             </SortableContainer>
-            {this.props.stageIds.length === 0 && <AddStage />}
+            <AddStage onAddStage={this.props.onAddStage} variant='button' />
           </div>
         </div>
       </div>
@@ -106,7 +117,8 @@ const mapState = (state) => {
 };
 
 const mapDispatch = {
-  onStageMoveEnd: moveStage
+  onStageMoveEnd: moveStage,
+  onAddStage: addStage
 };
 
 export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);

@@ -1,10 +1,5 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Button, IconButton, Icon, css, spacing, Link } from '@mongodb-js/compass-components';
-
-import { addStage } from '../../modules/pipeline-builder/stage-editor';
-import { RootState } from '../../modules';
-
 
 const containerStyles = css({
   textAlign: 'center',
@@ -19,43 +14,37 @@ const linkContainerStyles = css({
 });
 
 type AddStageProps = {
-  index: number;
-  numStages: number;
-  onAddStageClick: (after?: number) => void;
+  variant: 'button' | 'icon';
+  onAddStage: () => void;
 }
 
 export const AddStage = ({
-  onAddStageClick,
-  numStages,
-  index,
+  onAddStage,
+  variant,
 }: AddStageProps) => {
-  // If we are on the last stage, show a normal button instead of an icon button
-  if (index === undefined || index + 1 === numStages) {
+
+  if (variant === 'icon') {
     return (
       <div className={containerStyles}>
-        <Button data-testid="add-stage" onClick={() => onAddStageClick()} variant="primary" leftGlyph={<Icon glyph="Plus"></Icon>}>
-          Add Stage
-        </Button>
-  
-        <div className={linkContainerStyles}>
-          <Link href='https://www.mongodb.com/docs/manual/reference/operator/aggregation-pipeline/'>Learn more about aggregation pipeline stages</Link>
-        </div>
+        <IconButton aria-label='Add stage' title='Add stage' data-testid="add-stage" onClick={onAddStage}>
+          <Icon glyph="Plus"></Icon>
+        </IconButton>
       </div>
     );
   }
 
   return (
     <div className={containerStyles}>
-      <IconButton aria-label='Add stage' data-testid="add-stage" onClick={() => onAddStageClick(index)}>
-        <Icon glyph="Plus"></Icon>
-      </IconButton>
+      <Button data-testid="add-stage" onClick={onAddStage} variant="primary" leftGlyph={<Icon glyph="Plus"></Icon>}>
+        Add Stage
+      </Button>
+
+      <div className={linkContainerStyles}>
+        <Link href='https://www.mongodb.com/docs/manual/reference/operator/aggregation-pipeline/'>Learn more about aggregation pipeline stages</Link>
+      </div>
     </div>
   );
 }
 
-export default connect((state: RootState) => {
-  return {
-    numStages: state.pipelineBuilder.stageEditor.stageIds.length,
-  }
-}, { onAddStageClick: addStage })(AddStage);
+export default AddStage;
  
