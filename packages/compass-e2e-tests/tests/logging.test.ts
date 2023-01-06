@@ -371,6 +371,29 @@ describe('Logging and Telemetry integration', function () {
     });
   });
 
+  describe('on subsequent run', function () {
+    let compass: Compass;
+    let telemetry: Telemetry;
+
+    before(async function () {
+      telemetry = await startTelemetryServer();
+      compass = await beforeTests();
+    });
+
+    after(async function name() {
+      await telemetry.stop();
+      await afterTests(compass);
+    });
+
+    it('tracks an event for identify call', function () {
+      const identify = telemetry
+        .events()
+        .find((entry) => entry.type === 'identify');
+      expect(identify.traits.platform).to.equal(process.platform);
+      expect(identify.traits.arch).to.match(/^(x64|arm64)$/);
+    });
+  });
+
   describe('Uncaught exceptions', function () {
     let compass: Compass;
 
