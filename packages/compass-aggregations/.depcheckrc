@@ -3,5 +3,6 @@ ignores:
   - '@mongodb-js/tsconfig-compass'
   - '@mongodb-js/tsconfig-compass'
   - 'mongodb-compass'
+  - '@dnd-kit/core'
 ignore-patterns:
   - 'dist'

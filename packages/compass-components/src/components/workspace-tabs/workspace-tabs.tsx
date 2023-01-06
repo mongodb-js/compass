@@ -2,9 +2,11 @@ import React, { useEffect, useCallback, useMemo, useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import type { glyphs } from '@leafygreen-ui/icon';
 import { rgba } from 'polished';
+
+import { SortableContext, useSortable } from '@dnd-kit/sortable';
+import { CSS as cssDndKit } from '@dnd-kit/utilities';
 
 import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
@@ -73,15 +75,6 @@ const sortableItemContainerStyles = css({
   display: 'inline-flex',
 });
 
-// These styles are applied while a user is dragging a collection tab.
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error The pointerEvents usage errors ts although it's valid.
-const workspaceTabsSortableCloneStyles = css({
-  pointerEvents: 'auto !important',
-  cursor: 'grabbing !important',
-  zIndex: 50,
-});
-
 function useTabListKeyboardNavigation<HTMLDivElement>({
   tabsCount,
   onSelectTab,
@@ -136,34 +129,49 @@ function useTabListKeyboardNavigation<HTMLDivElement>({
 
 type SortableItemProps = {
   tab: TabProps;
+  id: number;
   tabIndex: number;
   selectedTabIndex: number;
   onSelect: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
 };
 
-const SortableItem = SortableElement(
-  ({
-    tab: { tabContentId, iconGlyph, subtitle, title },
-    tabIndex,
-    selectedTabIndex,
-    onSelect,
-    onClose,
-  }: SortableItemProps) => {
-    const onTabSelected = useCallback(() => {
-      onSelect(tabIndex);
-    }, [onSelect, tabIndex]);
+const SortableItem = ({
+  tab: { tabContentId, iconGlyph, subtitle, title },
+  id,
+  tabIndex,
+  selectedTabIndex,
+  onSelect,
+  onClose,
+}: SortableItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id } as any);
 
-    const onTabClosed = useCallback(() => {
-      onClose(tabIndex);
-    }, [onClose, tabIndex]);
+  const onTabSelected = useCallback(() => {
+    onSelect(tabIndex);
+  }, [onSelect, tabIndex]);
 
-    const isSelected = useMemo(
-      () => selectedTabIndex === tabIndex,
-      [selectedTabIndex, tabIndex]
-    );
+  const onTabClosed = useCallback(() => {
+    onClose(tabIndex);
+  }, [onClose, tabIndex]);
 
-    return (
+  const isSelected = useMemo(
+    () => selectedTabIndex === tabIndex,
+    [selectedTabIndex, tabIndex]
+  );
+
+  const style = {
+    transform: cssDndKit.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <Tab
         title={title}
         isSelected={isSelected}
@@ -173,9 +181,9 @@ const SortableItem = SortableElement(
         onSelect={onTabSelected}
         onClose={onTabClosed}
       />
-    );
-  }
-);
+    </div>
+  );
+};
 
 type SortableListProps = {
   tabs: TabProps[];
@@ -184,15 +192,13 @@ type SortableListProps = {
   onClose: (tabIndex: number) => void;
 };
 
-const SortableList = SortableContainer(
-  ({ tabs, onSelect, onClose, selectedTabIndex }: SortableListProps) => (
-    <div className={sortableItemContainerStyles}>
+const SortableList = ({ tabs, onSelect, onClose, selectedTabIndex }: SortableListProps) => (
+  <div className={sortableItemContainerStyles}>
+    <SortableContext items={tabs.map((tab: TabProps, index: number) => index)}>
       {tabs.map((tab: TabProps, index: number) => (
         <SortableItem
           key={`tab-${index}-${tab.subtitle}`}
-          // `index` is used internally by the SortableContainer hoc,
-          // so we pass our own `tabIndex`.
-          index={index}
+          id={index}
           tabIndex={index}
           tab={tab}
           onSelect={onSelect}
@@ -200,8 +206,8 @@ const SortableList = SortableContainer(
           selectedTabIndex={selectedTabIndex}
         />
       ))}
-    </div>
-  )
+    </SortableContext>
+  </div>
 );
 
 type WorkspaceTabsProps = {
@@ -256,7 +262,6 @@ function WorkspaceTabs({
   ['aria-label']: ariaLabel,
   onCreateNewTab,
   onCloseTab,
-  onMoveTab,
   onSelectTab,
   tabs,
   selectedTabIndex,
@@ -275,13 +280,6 @@ function WorkspaceTabs({
   const tabContainerProps = mergeProps<HTMLDivElement>(
     rovingFocusProps,
     navigationProps
-  );
-
-  const onSortEnd = useCallback(
-    ({ oldIndex, newIndex }) => {
-      onMoveTab(oldIndex, newIndex);
-    },
-    [onMoveTab]
   );
 
   return (
@@ -304,13 +302,6 @@ function WorkspaceTabs({
             onSelect={onSelectTab}
             tabs={tabs}
             selectedTabIndex={selectedTabIndex}
-            axis="x"
-            lockAxis="x"
-            lockToContainerEdges
-            lockOffset="0%"
-            distance={10}
-            onSortEnd={onSortEnd}
-            helperClass={workspaceTabsSortableCloneStyles}
           />
         </div>
         <div className={newTabContainerStyles}>

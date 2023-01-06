@@ -20,7 +20,7 @@ const STAGE_TOOLTIP_MESSAGE = {
 
 injectGlobal({
   '.dragging .stage-editor-toolbar': {
-    // react-sortable-hoc sets pointer events none to the whole container which
+    // dnd-kit (former react-sortable-hoc) sets pointer events none to the whole container which
     // is good, but also means that the cursor will not be changed. For that
     // reason we set pointer events back to auto for the drag handle when
     // dragging stage around
