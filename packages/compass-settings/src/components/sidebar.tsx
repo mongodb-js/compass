@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  css,
-  cx,
-  spacing,
-  palette,
-  Button,
-} from '@mongodb-js/compass-components';
+import { css, cx, spacing, palette } from '@mongodb-js/compass-components';
 
 const buttonStyles = css({
   borderRadius: spacing[1],
@@ -36,6 +30,11 @@ const activeStyles = css({
   },
 });
 
+const buttonTextStyles = css({
+  width: '100%',
+  textAlign: 'left',
+});
+
 type SidebarProps = {
   activeItem: string;
   onSelectItem: (item: string) => void;
@@ -54,7 +53,8 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
       aria-labelledby="modal-title"
     >
       {items.map((item) => (
-        <Button
+        <button
+          type="button"
           key={item}
           role="tab"
           aria-controls={`${item} Section`}
@@ -68,7 +68,7 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
           onClick={() => onSelectItem(item)}
         >
           {item}
-        </Button>
+        </button>
       ))}
     </div>
   );

@@ -29,6 +29,19 @@ const checkboxStyles = css({
   marginBottom: spacing[3],
 });
 
+const radioBoxStyles = css({
+  div: {
+    textAlign: 'left',
+    padding: spacing[3],
+    justifyContent: 'flex-start',
+  },
+});
+
+const themePreviewStyles = css({
+  marginRight: spacing[2],
+  maxWidth: '128px',
+});
+
 function LightThemePreview() {
   return (
     <svg
@@ -36,6 +49,7 @@ function LightThemePreview() {
       xmlnsXlink="http://www.w3.org/1999/xlink"
       fill="none"
       viewBox="0 0 171 119"
+      className={themePreviewStyles}
     >
       <rect width="171" height="119" fill="#fff" rx="6" />
       <rect width="42" height="119" fill="#F9FBFA" rx="6" />
@@ -58,6 +72,7 @@ function DarkThemePreview() {
       xmlnsXlink="http://www.w3.org/1999/xlink"
       fill="none"
       viewBox="0 0 171 119"
+      className={themePreviewStyles}
     >
       <rect width="171" height="119" fill="#3D4F58" rx="6" />
       <rect width="42" height="119" fill="#1C2D38" rx="6" />
@@ -120,10 +135,12 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           id="theme-selector"
           onChange={handleSelectorChange}
           value={themeValue}
+          size="full"
         >
           <RadioBox
             id="theme-selector-light"
             data-testid="theme-selector-light"
+            className={radioBoxStyles}
             value="LIGHT"
             disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
           >
@@ -133,6 +150,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           <RadioBox
             id="theme-selector-dark"
             data-testid="theme-selector-dark"
+            className={radioBoxStyles}
             value="DARK"
             disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
           >
