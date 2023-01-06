@@ -10,6 +10,7 @@ const buttonStyles = css({
   width: '100%',
   padding: spacing[2],
   textAlign: 'left',
+  fontWeight: 500,
 });
 
 const hoverStyles = css({
@@ -28,11 +29,6 @@ const activeStyles = css({
     backgroundColor: palette.green.light3,
     color: palette.gray.dark3,
   },
-});
-
-const buttonTextStyles = css({
-  width: '100%',
-  textAlign: 'left',
 });
 
 type SidebarProps = {
