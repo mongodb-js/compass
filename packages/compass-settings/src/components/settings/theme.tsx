@@ -39,7 +39,7 @@ const radioBoxStyles = css({
 
 const themePreviewStyles = css({
   marginRight: spacing[2],
-  maxWidth: '128px',
+  maxWidth: '50%',
 });
 
 function LightThemePreview() {
