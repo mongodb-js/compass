@@ -75,6 +75,7 @@
     "@mongodb-js/compass-components": "^1.4.0",
     "@mongodb-js/mongodb-constants": "^0.1.5",
     "ace-builds": "^1.11.2",
+    "polished": "^4.2.2",
     "react": "^17.0.2",
     "react-ace": "^9.5.0",
     "semver": "^7.3.8"

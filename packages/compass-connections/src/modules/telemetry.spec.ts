@@ -286,7 +286,7 @@ describe('connection tracking', function () {
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
       connectionOptions: {
-        connectionString: 'mongodb://127.128.0.0',
+        connectionString: 'mongodb://notlocalhost',
       },
     };
 
@@ -552,7 +552,7 @@ describe('connection tracking', function () {
     const [{ properties }] = await trackEvent;
 
     const expected = {
-      is_localhost: false,
+      is_localhost: true,
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
