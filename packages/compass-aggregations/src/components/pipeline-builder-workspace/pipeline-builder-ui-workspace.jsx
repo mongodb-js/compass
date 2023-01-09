@@ -25,7 +25,7 @@ const SortableStage = sortableElement(({ idx, onAddStage, isLastStage, ...props 
     <div className={stageContainerStyles}>
       <Stage index={idx} {...props}></Stage>
       {!isLastStage && <div className='add-stage-button'>
-        <AddStage onAddStage={() => onAddStage(idx)} variant='icon' />
+        <AddStage onAddStage={onAddStage} variant='icon' />
       </div>}
     </div>
   );
@@ -73,7 +73,7 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
               <ModifySourceBanner editViewName={this.props.editViewName} />
             )}
             <PipelineBuilderInputDocuments />
-            {stageIds.length !== 0 && <AddStage onAddStage={onAddStage} variant='icon' />}
+            {stageIds.length !== 0 && <AddStage onAddStage={() => onAddStage(-1)} variant='icon' />}
             <SortableContainer
               axis="y"
               lockAxis="y"
@@ -95,7 +95,7 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
                     idx={index}
                     index={index}
                     isLastStage={index === stageIds.length - 1}
-                    onAddStage={onAddStage} />
+                    onAddStage={() => onAddStage(index)} />
                 );
               })}
             </SortableContainer>

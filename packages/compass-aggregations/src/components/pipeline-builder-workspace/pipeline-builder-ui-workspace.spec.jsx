@@ -41,6 +41,45 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       expect(buttons.length).to.equal(1);
       expect(buttons[0]).to.have.text('Add Stage');
     });
+
+    it('adds a stage to the start of pipeline when first icon button is clicked', function () {
+      renderPipelineBuilderUIWorkspace();
+      const buttons = screen.getAllByTestId('add-stage-icon-button');
+      buttons[0].click();
+      expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
+      
+      const stageNames = screen
+        .getAllByLabelText('Select a stage operator')
+        .map((el) => el.getAttribute('value'));
+      
+      expect(stageNames).to.deep.equal(['', '$match', '$limit', '$out']);
+    });
+
+    it('adds a stage at the correct position of pipeline when last icon button is clicked', function () {
+      renderPipelineBuilderUIWorkspace();
+      const buttons = screen.getAllByTestId('add-stage-icon-button');
+      buttons[2].click();
+      expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
+      
+      const stageNames = screen
+        .getAllByLabelText('Select a stage operator')
+        .map((el) => el.getAttribute('value'));
+      
+      // last icon button appears between last two stages and when clicked
+      // it adds a stage between those 2 stages
+      expect(stageNames).to.deep.equal(['$match', '$limit', '', '$out']);
+    });
+
+    it('adds a stage at the end when (text) add stage button is clicked', function () {
+      renderPipelineBuilderUIWorkspace();
+      const button = screen.getByTestId('add-stage');
+      button.click();
+
+      const stageNames = screen
+        .getAllByLabelText('Select a stage operator')
+        .map((el) => el.getAttribute('value'));
+      expect(stageNames).to.deep.equal(['$match', '$limit', '$out', '']);
+    });
   });
 
   context('when pipeline is empty', function () {
@@ -49,11 +88,23 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       expect(screen.queryByTestId('stage-card')).to.not.exist;
     });
 
-    it('renders add stage button', function () {
+    it('does not render icon buttons', function () {
       renderPipelineBuilderUIWorkspace({}, { sourcePipeline: [] });
-      const buttons = screen.getAllByTestId('add-stage');
-      expect(buttons.length).to.equal(1);
-      expect(buttons[0]).to.have.text('Add Stage');
+      expect(screen.queryByTestId('add-stage-icon-button')).to.not.exist;
     });
+
+    it('renders (text) add stage button', function () {
+      renderPipelineBuilderUIWorkspace({}, { sourcePipeline: [] });
+      const button = screen.getByTestId('add-stage');
+      expect(button).to.exist;
+      expect(button).to.have.text('Add Stage');
+    });
+
+    it('adds a stage when (text) button is clicked', function () {
+      renderPipelineBuilderUIWorkspace({}, { sourcePipeline: [] });
+      const button = screen.getByTestId('add-stage');
+      button.click();
+      expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(1);
+    })
   });
 });
