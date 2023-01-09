@@ -38,10 +38,6 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
   onStageMoveEnd,
 }) => {
   const SortableItem = ({ idx, ...props }: { idx: number } & Partial<StageProps>) => {
-    console.log('props----------------------');
-    console.log(props);
-    console.log('----------------------');
-
     const {
       attributes,
       listeners,
