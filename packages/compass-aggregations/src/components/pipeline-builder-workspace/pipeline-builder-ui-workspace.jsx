@@ -15,7 +15,8 @@ const stageContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   '&.dragging .add-stage-button': {
-    display: 'none'
+    visibility: 'hidden',
+    pointerEvents: 'none'
   }
 });
 

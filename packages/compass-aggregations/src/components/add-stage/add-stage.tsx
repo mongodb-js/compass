@@ -1,16 +1,22 @@
 import React from 'react';
 import { Button, IconButton, Icon, css, spacing, Link } from '@mongodb-js/compass-components';
 
-const containerStyles = css({
+const iconContainerStyles = css({
   textAlign: 'center',
   marginTop: spacing[2],
   marginBottom: spacing[2]
 });
 
-const linkContainerStyles = css({
+const buttonContainerStyles = css({
   textAlign: 'center',
   marginTop: spacing[3],
-  marginBottom: spacing[3],
+  marginBottom: spacing[3]
+});
+
+const linkContainerStyles = css({
+  textAlign: 'center',
+  marginTop: spacing[2],
+  marginBottom: spacing[2],
 });
 
 type AddStageProps = {
@@ -25,7 +31,7 @@ export const AddStage = ({
 
   if (variant === 'icon') {
     return (
-      <div className={containerStyles}>
+      <div className={iconContainerStyles}>
         <IconButton aria-label='Add stage' title='Add stage' data-testid="add-stage" onClick={onAddStage}>
           <Icon glyph="Plus"></Icon>
         </IconButton>
@@ -34,7 +40,7 @@ export const AddStage = ({
   }
 
   return (
-    <div className={containerStyles}>
+    <div className={buttonContainerStyles}>
       <Button data-testid="add-stage" onClick={onAddStage} variant="primary" leftGlyph={<Icon glyph="Plus"></Icon>}>
         Add Stage
       </Button>

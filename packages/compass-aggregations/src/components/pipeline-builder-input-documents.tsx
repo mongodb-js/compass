@@ -9,7 +9,9 @@ import { refreshInputDocuments, toggleInputDocumentsCollapsed } from '../modules
 import LoadingOverlay from './loading-overlay';
 
 const cardStyles = css({
-  margin: spacing[3],
+  marginLeft: spacing[3],
+  marginRight: spacing[3],
+  marginBottom: spacing[2],
   marginTop: 0,
 });
 
