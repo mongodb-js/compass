@@ -67,7 +67,7 @@
     "compass-preferences-model": "^2.4.0",
     "mongodb-data-service": "^22.3.0",
     "mongodb-instance-model": "^12.3.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
@@ -79,7 +79,7 @@
     "compass-preferences-model": "^2.4.0",
     "mongodb-data-service": "^22.3.0",
     "mongodb-instance-model": "^12.3.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.1",
@@ -108,8 +108,8 @@
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
     "prop-types": "^15.7.2",
-    "react-dom": "^16.14.0",
-    "react-redux": "^8.0.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^8.0.5",
     "redux": "^4.2.0",
     "redux-thunk": "^2.3.0",
     "reflux": "^0.4.1",
