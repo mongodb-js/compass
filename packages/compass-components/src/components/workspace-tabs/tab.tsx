@@ -4,6 +4,9 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import type { glyphs } from '@leafygreen-ui/icon';
 
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS as cssDndKit } from '@dnd-kit/utilities';
+
 import { useDarkMode } from '../../hooks/use-theme';
 import {
   FocusState,
@@ -199,6 +202,7 @@ type TabProps = {
   iconGlyph: IconGlyph;
   tabContentId: string;
   subtitle: string;
+  tabIndex: number;
 };
 
 function Tab({
@@ -209,6 +213,7 @@ function Tab({
   tabContentId,
   iconGlyph,
   subtitle,
+  tabIndex,
 }: TabProps) {
   const darkMode = useDarkMode();
 
@@ -232,8 +237,19 @@ function Tab({
     defaultActionProps
   );
 
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: tabIndex });
+  const style = {
+    transform: cssDndKit.Transform.toString(transform),
+    transition,
+  };
+
   return (
     <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       className={cx(
         tabStyles,
         darkMode ? tabDarkThemeStyles : tabLightThemeStyles,

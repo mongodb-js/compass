@@ -20,8 +20,7 @@ import {
   useSensors,
   TouchSensor,
 } from '@dnd-kit/core';
-import { SortableContext, useSortable } from '@dnd-kit/sortable';
-import { CSS as cssDndKit } from '@dnd-kit/utilities';
+import { SortableContext } from '@dnd-kit/sortable';
 import type { Active } from '@dnd-kit/core';
 
 import { useDarkMode } from '../../hooks/use-theme';
@@ -145,7 +144,6 @@ function useTabListKeyboardNavigation<HTMLDivElement>({
 
 type SortableItemProps = {
   tab: TabProps;
-  id: number;
   tabIndex: number;
   selectedTabIndex: number;
   onSelect: (tabIndex: number) => void;
@@ -271,15 +269,14 @@ function WorkspaceTabs({
           setActive(null);
         }}
       >
-        <SortableContext items={tabs.map((tab) => tab.tabContentId)}>
+        <SortableContext items={tabs.map((tab, index) => index)}>
           <div>{children}</div>
         </SortableContext>
         <DragOverlay>
-          {activeTab ? (
+          {active && activeTab ? (
             <SortableItem
-              key={`tab-${activeTab.tabContentId}-active`}
-              id={+activeTab.tabContentId}
-              tabIndex={+activeTab.tabContentId}
+              key={`tab-${+active.id}-active`}
+              tabIndex={+active.id}
               tab={activeTab}
               onSelect={onSelectTab}
               onClose={onCloseTab}
@@ -293,13 +290,9 @@ function WorkspaceTabs({
 
   const SortableItem = ({
     tab: { tabContentId, iconGlyph, subtitle, title },
-    id,
     tabIndex,
     selectedTabIndex,
   }: SortableItemProps) => {
-    const { attributes, listeners, setNodeRef, transform, transition } =
-      useSortable({ id });
-
     const onTabSelected = useCallback(() => {
       onSelectTab(tabIndex);
     }, [tabIndex]);
@@ -313,23 +306,17 @@ function WorkspaceTabs({
       [selectedTabIndex, tabIndex]
     );
 
-    const style = {
-      transform: cssDndKit.Transform.toString(transform),
-      transition,
-    };
-
     return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <Tab
-          title={title}
-          isSelected={isSelected}
-          iconGlyph={iconGlyph}
-          tabContentId={tabContentId}
-          subtitle={subtitle}
-          onSelect={onTabSelected}
-          onClose={onTabClosed}
-        />
-      </div>
+      <Tab
+        tabIndex={tabIndex}
+        title={title}
+        isSelected={isSelected}
+        iconGlyph={iconGlyph}
+        tabContentId={tabContentId}
+        subtitle={subtitle}
+        onSelect={onTabSelected}
+        onClose={onTabClosed}
+      />
     );
   };
 
@@ -352,8 +339,7 @@ function WorkspaceTabs({
             <div className={sortableItemContainerStyles}>
               {tabs.map((tab: TabProps, index: number) => (
                 <SortableItem
-                  key={`tab-${index}-${tab.subtitle}`}
-                  id={index}
+                  key={`tab-${tab.tabContentId}-${tab.subtitle}`}
                   tabIndex={index}
                   tab={tab}
                   onSelect={onSelectTab}
