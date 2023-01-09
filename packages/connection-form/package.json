@@ -58,7 +58,7 @@
     "@testing-library/react-hooks": "^7.0.2",
     "compass-preferences-model": "^2.4.0",
     "lodash": "^4.17.21",
-    "mongodb-build-info": "^1.4.0",
+    "mongodb-build-info": "^1.5.0",
     "mongodb-connection-string-url": "^2.6.0",
     "mongodb-query-parser": "^2.4.6",
     "react": "^17.0.2",

@@ -237,6 +237,7 @@ describe('Aggregation Store', function() {
             isDataLake: INITIAL_STATE.isDataLake,
             indexes: INITIAL_STATE.indexes,
             pipelineBuilder: INITIAL_STATE.pipelineBuilder,
+            focusMode: INITIAL_STATE.focusMode,
           });
         });
       });

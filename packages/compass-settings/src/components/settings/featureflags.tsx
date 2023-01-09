@@ -11,6 +11,7 @@ const devFeatureFlagFields = [
   'showDevFeatureFlags',
   'debugUseCsfleSchemaMap',
   'lgDarkmode',
+  'showFocusMode',
 ] as const;
 
 export const publicFeatureFlagFields = [] as const;
