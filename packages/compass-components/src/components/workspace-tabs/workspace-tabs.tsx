@@ -1,4 +1,10 @@
-import React, { useEffect, useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -13,11 +19,8 @@ import {
   useSensor,
   useSensors,
   TouchSensor,
- } from '@dnd-kit/core';
-import {
-  SortableContext,
-  useSortable,
-} from '@dnd-kit/sortable';
+} from '@dnd-kit/core';
+import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import type { Active } from '@dnd-kit/core';
 
@@ -221,9 +224,7 @@ function WorkspaceTabs({
     navigationProps
   );
 
-  const SortableList = ({
-    children,
-  }: { children: React.ReactNode }) => {
+  const SortableList = ({ children }: { children: React.ReactNode }) => {
     const [active, setActive] = useState<Active | null>(null);
     const activeTab = active ? tabs[+active.id] : null;
     const sensors = useSensors(
@@ -242,20 +243,22 @@ function WorkspaceTabs({
       })
     );
 
-    const onSortEnd = ({ oldIndex, newIndex }: { oldIndex: number, newIndex: number }) => {
+    const onSortEnd = ({
+      oldIndex,
+      newIndex,
+    }: {
+      oldIndex: number;
+      newIndex: number;
+    }) => {
       onMoveTab(oldIndex, newIndex);
     };
 
-    console.log('activeTab----------------------');
-    console.log(activeTab);
-    console.log('----------------------');
-  
     return (
       <DndContext
         sensors={sensors}
         autoScroll={false}
         collisionDetection={closestCorners}
-        onDragStart={({active}) => {
+        onDragStart={({ active }) => {
           setActive(active);
         }}
         onDragEnd={({ active, over }) => {
@@ -271,15 +274,19 @@ function WorkspaceTabs({
         <SortableContext items={tabs.map((tab) => tab.tabContentId)}>
           <div>{children}</div>
         </SortableContext>
-        <DragOverlay>{activeTab ? <SortableItem
-            key={`tab-${activeTab.tabContentId}-active`}
-            id={+activeTab.tabContentId}
-            tabIndex={+activeTab.tabContentId}
-            tab={activeTab}
-            onSelect={onSelectTab}
-            onClose={onCloseTab}
-            selectedTabIndex={selectedTabIndex}
-          /> : null}</DragOverlay>
+        <DragOverlay>
+          {activeTab ? (
+            <SortableItem
+              key={`tab-${activeTab.tabContentId}-active`}
+              id={+activeTab.tabContentId}
+              tabIndex={+activeTab.tabContentId}
+              tab={activeTab}
+              onSelect={onSelectTab}
+              onClose={onCloseTab}
+              selectedTabIndex={selectedTabIndex}
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     );
   };
@@ -290,14 +297,9 @@ function WorkspaceTabs({
     tabIndex,
     selectedTabIndex,
   }: SortableItemProps) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-    } = useSortable({ id });
-  
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id });
+
     const onTabSelected = useCallback(() => {
       onSelectTab(tabIndex);
     }, [tabIndex]);
@@ -310,12 +312,12 @@ function WorkspaceTabs({
       () => selectedTabIndex === tabIndex,
       [selectedTabIndex, tabIndex]
     );
-  
+
     const style = {
       transform: cssDndKit.Transform.toString(transform),
       transition,
     };
-  
+
     return (
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
         <Tab

@@ -37,14 +37,18 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
   editViewName,
   onStageMoveEnd,
 }) => {
-  const SortableItem = (props: Partial<StageProps> & { id: number }) => {
+  const SortableItem = ({ idx, ...props }: { idx: number } & Partial<StageProps>) => {
+    console.log('props----------------------');
+    console.log(props);
+    console.log('----------------------');
+
     const {
       attributes,
       listeners,
       setNodeRef,
       transform,
       transition,
-    } = useSortable({ id: props.id });
+    } = useSortable({ id: idx });
   
     const style = {
       transform: cssDndKit.Transform.toString(transform),
@@ -53,7 +57,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
   
     return (
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <Stage index={props.id} {...props}></Stage>
+        <Stage index={idx} {...props}></Stage>
       </div>
     );
   };
@@ -78,6 +82,10 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
       })
     );
 
+    const onSortEnd = ({ oldIndex, newIndex }: { oldIndex: number, newIndex: number }) => {
+      onStageMoveEnd(oldIndex, newIndex);
+    };
+
     return (
       <DndContext
         sensors={sensors}
@@ -88,7 +96,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
         }}
         onDragEnd={({ active, over }) => {
           if (over && active.id !== over?.id) {
-            onStageMoveEnd(+active.id, +over.id);
+            onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
           }
           setActive(null);
         }}
@@ -99,7 +107,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
         <SortableContext items={stageIds}>
           <div>{children}</div>
         </SortableContext>
-        <DragOverlay>{active ? <SortableItem id={+active.id} index={+active.id} /> : null}</DragOverlay>
+        <DragOverlay>{active ? <SortableItem idx={+active.id} index={+active.id} /> : null}</DragOverlay>
       </DndContext>
     );
   };
@@ -115,8 +123,8 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
           )}
           <PipelineBuilderInputDocuments />
           <SortableList>
-            {stageIds.map((id) => {
-              return <SortableItem key={id} id={id} index={id} />;
+            {stageIds.map((id, index) => {
+              return <SortableItem key={id} idx={index} index={index} />;
             })}
           </SortableList>
           <AddStage />
