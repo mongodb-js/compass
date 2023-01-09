@@ -11,14 +11,15 @@ const pipelineOptionsActions: MenuAction<PipelineOutputOption>[] = [
 export const PipelineOutputOptionsMenu: React.FunctionComponent<{
   option: PipelineOutputOption;
   onChangeOption: (option: PipelineOutputOption) => void;
-}> = ({ option, onChangeOption }) => {
+  buttonText?: string;
+}> = ({ option, onChangeOption, buttonText }) => {
   return (
     <DropdownMenuButton<PipelineOutputOption>
       activeAction={option}
       data-testid="pipeline-output-options"
       actions={pipelineOptionsActions}
       onAction={onChangeOption}
-      buttonText="Output Options"
+      buttonText={buttonText ?? "Output Options"}
       buttonProps={{
         size: 'xsmall',
       }}
