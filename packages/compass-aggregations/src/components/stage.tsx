@@ -2,9 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS as cssDndKit } from '@dnd-kit/utilities';
-
 import { KeylineCard, css, cx, spacing, palette } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../modules';
@@ -15,26 +12,6 @@ import StageEditor from './stage-editor';
 import StagePreview from './stage-preview';
 import StagePreviewToolbar from './stage-preview-toolbar';
 import { hasSyntaxError } from '../utils/stage';
-
-const DragHandleToolbar = (props: { index: number }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: props.index } as any);
-
-  const style = {
-    transform: cssDndKit.Transform.toString(transform),
-    transition,
-  };
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <StageEditorToolbar {...props}></StageEditorToolbar>
-    </div>
-  );
-};
 
 const stageStyles = css({
   position: 'relative',
@@ -82,10 +59,10 @@ type ResizableEditorProps = {
   isAutoPreviewing: boolean,
 };
 
-function ResizableEditor({ index, isExpanded, isAutoPreviewing }: ResizableEditorProps) {
+function ResizableEditor({ index, isExpanded, isAutoPreviewing, ...props }: ResizableEditorProps) {
   const editor = (
     <>
-      <DragHandleToolbar index={index} />
+      <StageEditorToolbar index={index} {...props}></StageEditorToolbar>
       {isExpanded && (
         // @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted.
         <StageEditor index={index} />
