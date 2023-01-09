@@ -20,15 +20,13 @@ const stageContainerStyles = css({
   }
 });
 
-const SortableStage = sortableElement(({ idx, onAddStage, ...props }) => {
+const SortableStage = sortableElement(({ idx, onAddStage, isLastStage, ...props }) => {
   return (
     <div className={stageContainerStyles}>
-      {/* We render the stage add button first and then the stage. */}
-      {/* So, clicking add stage, should add a stage before the current one */}
-      <div className='add-stage-button'>
-        <AddStage onAddStage={() => onAddStage(idx - 1)} variant='icon' />
-      </div>
       <Stage index={idx} {...props}></Stage>
+      {!isLastStage && <div className='add-stage-button'>
+        <AddStage onAddStage={() => onAddStage(idx)} variant='icon' />
+      </div>}
     </div>
   );
 });
@@ -61,6 +59,7 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const { stageIds, onAddStage } = this.props;
     return (
       <div
         data-testid="pipeline-builder-ui-workspace"
@@ -74,6 +73,7 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
               <ModifySourceBanner editViewName={this.props.editViewName} />
             )}
             <PipelineBuilderInputDocuments />
+            {stageIds.length !== 0 && <AddStage onAddStage={onAddStage} variant='icon' />}
             <SortableContainer
               axis="y"
               lockAxis="y"
@@ -88,17 +88,18 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
               // interactive elements in the handler toolbar component
               distance={10}
             >
-              {this.props.stageIds.map((id, index) => {
+              {stageIds.map((id, index) => {
                 return (
                   <SortableStage
                     key={id}
                     idx={index}
                     index={index}
-                    onAddStage={this.props.onAddStage} />
+                    isLastStage={index === stageIds.length - 1}
+                    onAddStage={onAddStage} />
                 );
               })}
             </SortableContainer>
-            <AddStage onAddStage={this.props.onAddStage} variant='button' />
+            <AddStage onAddStage={onAddStage} variant='button' />
           </div>
         </div>
       </div>
