@@ -13,7 +13,6 @@ import type { Document } from 'mongodb';
 import type { RootState } from '../../modules';
 import { focusModeDisabled } from '../../modules/focus-mode';
 import { StageEditorArea } from './stage-editor-area';
-import { findAtlasOperator, isMissingAtlasStageSupport } from '../../utils/stage';
 import { StagePreviewArea } from './stage-preview-area';
 
 const modalStyles = css({
@@ -61,10 +60,6 @@ type StagePreview = {
 type FocusModeStage = StagePreview & {
   stageOperator: string | null;
   index: number;
-  isMergeStage: boolean;
-  isOutStage: boolean;
-  isMissingAtlasSupport: boolean;
-  atlasOperator: string;
 };
 
 type FocusModeProps = {
@@ -121,7 +116,6 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
 };
 
 const mapState = ({
-  env,
   focusMode: { isEnabled, stageIndex },
   inputDocuments,
   pipelineBuilder: {
@@ -144,12 +138,6 @@ const mapState = ({
       error: inputDocuments.error?.message,
     };
 
-  const isMissingAtlasSupport = isMissingAtlasStageSupport(
-    env,
-    currentStage?.serverError
-  );
-  const atlasOperator = findAtlasOperator([currentStage?.stageOperator ?? '']) ?? '';
-
   const stage: FocusModeStage | null = currentStage
     ? {
       isLoading: currentStage.loading,
@@ -157,10 +145,6 @@ const mapState = ({
       error: currentStage.serverError?.message,
       stageOperator: currentStage.stageOperator,
       index: stageIndex,
-      isMergeStage: currentStage.stageOperator === '$merge',
-      isOutStage: currentStage.stageOperator === '$out',
-      isMissingAtlasSupport,
-      atlasOperator,
     } : null;
 
   return {
