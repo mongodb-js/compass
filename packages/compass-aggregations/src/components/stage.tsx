@@ -130,7 +130,7 @@ function ResizableEditor({ index, isExpanded, isAutoPreviewing }: ResizableEdito
 
 const DEFAULT_OPACITY = 0.6;
 
-type StageProps = {
+export type StageProps = {
   index: number,
   isEnabled: boolean,
   isExpanded: boolean,

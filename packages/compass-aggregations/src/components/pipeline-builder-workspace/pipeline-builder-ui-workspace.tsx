@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import Stage from '../stage';
+import type { StageProps } from '../stage';
 import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
@@ -28,26 +29,22 @@ import styles from './pipeline-builder-ui-workspace.module.less';
 type PipelineBuilderUIWorkspaceProps = {
   stageIds: number[];
   editViewName?: string;
-  onStageMoveEnd: any;
+  onStageMoveEnd: (from: number, to: number) => void;
 };
-
-interface SortableListProps {
-  children: any;
-}
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilderUIWorkspaceProps> = ({
   stageIds,
   editViewName,
   onStageMoveEnd,
 }) => {
-  const SortableStage = (props: any) => {
+  const SortableItem = (props: Partial<StageProps> & { id: number }) => {
     const {
       attributes,
       listeners,
       setNodeRef,
       transform,
       transition,
-    } = useSortable({ id: props.index });
+    } = useSortable({ id: props.id });
   
     const style = {
       transform: cssDndKit.Transform.toString(transform),
@@ -56,14 +53,14 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
   
     return (
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <Stage index={props.index} {...props}></Stage>
+        <Stage index={props.id} {...props}></Stage>
       </div>
     );
   };
   
   const SortableList = ({
     children,
-  }: SortableListProps) => {
+  }: { children: React.ReactNode }) => {
     const [active, setActive] = useState<Active | null>(null);
     const sensors = useSensors(
       useSensor(MouseSensor, {
@@ -91,7 +88,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
         }}
         onDragEnd={({ active, over }) => {
           if (over && active.id !== over?.id) {
-            onStageMoveEnd(active.id, over.id);
+            onStageMoveEnd(+active.id, +over.id);
           }
           setActive(null);
         }}
@@ -102,7 +99,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
         <SortableContext items={stageIds}>
           <div>{children}</div>
         </SortableContext>
-        <DragOverlay>{active ? children[active.id] : null}</DragOverlay>
+        <DragOverlay>{active ? <SortableItem id={+active.id} index={+active.id} /> : null}</DragOverlay>
       </DndContext>
     );
   };
@@ -118,8 +115,8 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
           )}
           <PipelineBuilderInputDocuments />
           <SortableList>
-            {stageIds.map((id, index) => {
-              return <SortableStage key={id} index={index} />;
+            {stageIds.map((id) => {
+              return <SortableItem key={id} id={id} index={id} />;
             })}
           </SortableList>
           <AddStage />

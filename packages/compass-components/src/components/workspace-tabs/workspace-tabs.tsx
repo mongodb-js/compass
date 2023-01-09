@@ -1,12 +1,25 @@
-import React, { useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useCallback, useMemo, useRef, useState } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import type { glyphs } from '@leafygreen-ui/icon';
 import { rgba } from 'polished';
 
-import { SortableContext, useSortable } from '@dnd-kit/sortable';
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  MouseSensor,
+  useSensor,
+  useSensors,
+  TouchSensor,
+ } from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+} from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
+import type { Active } from '@dnd-kit/core';
 
 import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
@@ -136,80 +149,6 @@ type SortableItemProps = {
   onClose: (tabIndex: number) => void;
 };
 
-const SortableItem = ({
-  tab: { tabContentId, iconGlyph, subtitle, title },
-  id,
-  tabIndex,
-  selectedTabIndex,
-  onSelect,
-  onClose,
-}: SortableItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id } as any);
-
-  const onTabSelected = useCallback(() => {
-    onSelect(tabIndex);
-  }, [onSelect, tabIndex]);
-
-  const onTabClosed = useCallback(() => {
-    onClose(tabIndex);
-  }, [onClose, tabIndex]);
-
-  const isSelected = useMemo(
-    () => selectedTabIndex === tabIndex,
-    [selectedTabIndex, tabIndex]
-  );
-
-  const style = {
-    transform: cssDndKit.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <Tab
-        title={title}
-        isSelected={isSelected}
-        iconGlyph={iconGlyph}
-        tabContentId={tabContentId}
-        subtitle={subtitle}
-        onSelect={onTabSelected}
-        onClose={onTabClosed}
-      />
-    </div>
-  );
-};
-
-type SortableListProps = {
-  tabs: TabProps[];
-  selectedTabIndex: number;
-  onSelect: (tabIndex: number) => void;
-  onClose: (tabIndex: number) => void;
-};
-
-const SortableList = ({ tabs, onSelect, onClose, selectedTabIndex }: SortableListProps) => (
-  <div className={sortableItemContainerStyles}>
-    <SortableContext items={tabs.map((tab: TabProps, index: number) => index)}>
-      {tabs.map((tab: TabProps, index: number) => (
-        <SortableItem
-          key={`tab-${index}-${tab.subtitle}`}
-          id={index}
-          tabIndex={index}
-          tab={tab}
-          onSelect={onSelect}
-          onClose={onClose}
-          selectedTabIndex={selectedTabIndex}
-        />
-      ))}
-    </SortableContext>
-  </div>
-);
-
 type WorkspaceTabsProps = {
   'aria-label': string;
   onCreateNewTab: () => void;
@@ -262,12 +201,12 @@ function WorkspaceTabs({
   ['aria-label']: ariaLabel,
   onCreateNewTab,
   onCloseTab,
+  onMoveTab,
   onSelectTab,
   tabs,
   selectedTabIndex,
 }: WorkspaceTabsProps) {
   const darkMode = useDarkMode();
-
   const rovingFocusProps = useRovingTabIndex<HTMLDivElement>({
     currentTabbable: selectedTabIndex,
   });
@@ -281,6 +220,116 @@ function WorkspaceTabs({
     rovingFocusProps,
     navigationProps
   );
+
+  const SortableList = ({
+    children,
+  }: { children: React.ReactNode }) => {
+    const [active, setActive] = useState<Active | null>(null);
+    const activeTab = active ? tabs[+active.id] : null;
+    const sensors = useSensors(
+      useSensor(MouseSensor, {
+        // Require the mouse to move by 10 pixels before activating
+        activationConstraint: {
+          distance: 10,
+        },
+      }),
+      useSensor(TouchSensor, {
+        // Press delay of 250ms, with tolerance of 5px of movement
+        activationConstraint: {
+          delay: 250,
+          tolerance: 5,
+        },
+      })
+    );
+
+    const onSortEnd = ({ oldIndex, newIndex }: { oldIndex: number, newIndex: number }) => {
+      onMoveTab(oldIndex, newIndex);
+    };
+
+    console.log('activeTab----------------------');
+    console.log(activeTab);
+    console.log('----------------------');
+  
+    return (
+      <DndContext
+        sensors={sensors}
+        autoScroll={false}
+        collisionDetection={closestCorners}
+        onDragStart={({active}) => {
+          setActive(active);
+        }}
+        onDragEnd={({ active, over }) => {
+          if (over && active.id !== over?.id) {
+            onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
+          }
+          setActive(null);
+        }}
+        onDragCancel={() => {
+          setActive(null);
+        }}
+      >
+        <SortableContext items={tabs.map((tab) => tab.tabContentId)}>
+          <div>{children}</div>
+        </SortableContext>
+        <DragOverlay>{activeTab ? <SortableItem
+            key={`tab-${activeTab.tabContentId}-active`}
+            id={+activeTab.tabContentId}
+            tabIndex={+activeTab.tabContentId}
+            tab={activeTab}
+            onSelect={onSelectTab}
+            onClose={onCloseTab}
+            selectedTabIndex={selectedTabIndex}
+          /> : null}</DragOverlay>
+      </DndContext>
+    );
+  };
+
+  const SortableItem = ({
+    tab: { tabContentId, iconGlyph, subtitle, title },
+    id,
+    tabIndex,
+    selectedTabIndex,
+  }: SortableItemProps) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+    } = useSortable({ id });
+  
+    const onTabSelected = useCallback(() => {
+      onSelectTab(tabIndex);
+    }, [tabIndex]);
+
+    const onTabClosed = useCallback(() => {
+      onCloseTab(tabIndex);
+    }, [tabIndex]);
+
+    const isSelected = useMemo(
+      () => selectedTabIndex === tabIndex,
+      [selectedTabIndex, tabIndex]
+    );
+  
+    const style = {
+      transform: cssDndKit.Transform.toString(transform),
+      transition,
+    };
+  
+    return (
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <Tab
+          title={title}
+          isSelected={isSelected}
+          iconGlyph={iconGlyph}
+          tabContentId={tabContentId}
+          subtitle={subtitle}
+          onSelect={onTabSelected}
+          onClose={onTabClosed}
+        />
+      </div>
+    );
+  };
 
   return (
     <div
@@ -297,12 +346,21 @@ function WorkspaceTabs({
           aria-orientation="horizontal"
           {...tabContainerProps}
         >
-          <SortableList
-            onClose={onCloseTab}
-            onSelect={onSelectTab}
-            tabs={tabs}
-            selectedTabIndex={selectedTabIndex}
-          />
+          <SortableList>
+            <div className={sortableItemContainerStyles}>
+              {tabs.map((tab: TabProps, index: number) => (
+                <SortableItem
+                  key={`tab-${index}-${tab.subtitle}`}
+                  id={index}
+                  tabIndex={index}
+                  tab={tab}
+                  onSelect={onSelectTab}
+                  onClose={onCloseTab}
+                  selectedTabIndex={selectedTabIndex}
+                />
+              ))}
+            </div>
+          </SortableList>
         </div>
         <div className={newTabContainerStyles}>
           <IconButton
