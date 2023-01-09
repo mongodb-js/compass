@@ -20,7 +20,7 @@ describe('AddStage', function() {
   context('add stage icon button', function () {
     it('renders icon button', function () {
       renderAddStage({ variant: 'icon' });
-      const button = screen.getByTestId('add-stage');
+      const button = screen.getByTestId('add-stage-icon-button');
       expect(() => {
         within(button).getByText('Add Stage');
       }).to.throw;
@@ -29,7 +29,7 @@ describe('AddStage', function() {
     it('calls onAddStage with index when clicked', function () {
       const onAddStage = sinon.spy();
       renderAddStage({ variant: 'icon', onAddStage });
-      const button = screen.getByTestId('add-stage');
+      const button = screen.getByTestId('add-stage-icon-button');
       expect(onAddStage).not.to.have.been.called;
       button.click();
       expect(onAddStage).to.have.been.calledOnce;

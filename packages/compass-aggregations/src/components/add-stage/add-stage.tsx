@@ -41,8 +41,8 @@ export const AddStage = ({
           className={iconButtonStyles}
           aria-label="Add stage"
           title="Add stage"
-          data-testid="add-stage"
-          onClick={onAddStage}>
+          data-testid="add-stage-icon-button"
+          onClick={() => onAddStage()}>
           <Icon glyph="Plus"></Icon>
         </IconButton>
       </div>
@@ -51,7 +51,7 @@ export const AddStage = ({
 
   return (
     <div className={buttonContainerStyles}>
-      <Button data-testid="add-stage" onClick={onAddStage} variant="primary" leftGlyph={<Icon glyph="Plus"></Icon>}>
+      <Button data-testid="add-stage" onClick={() => onAddStage()} variant="primary" leftGlyph={<Icon glyph="Plus"></Icon>}>
         Add Stage
       </Button>
 
