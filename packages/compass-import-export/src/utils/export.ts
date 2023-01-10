@@ -3,12 +3,12 @@ import type { TypeCastMap } from 'hadron-type-checker';
 export type BSONObject = TypeCastMap['Object'];
 
 type AnalyzeOptions = {
-  dataService: DataService,
-  ns: string,
-  abortSignal: AbortSignal,
-  filter?: BSONObject,
-  progressCallback: (index: number) => void,
-  sampleSize: number
+  dataService: DataService;
+  ns: string;
+  abortSignal: AbortSignal;
+  filter?: BSONObject;
+  progressCallback: (index: number) => void;
+  sampleSize: number;
 };
 
 // array of path components. ie. { foo: { bar: { baz:  1 } } } results in ['foo', 'bar', 'baz']
@@ -26,14 +26,14 @@ export function analyze({
 }
 
 type ExportJSONOptions = {
-  dataService: DataService,
-  ns: string,
-  filename: string,
-  abortSignal: AbortSignal,
-  filter?: BSONObject,
-  progressCallback: (index: number) => void,
-  variant: 'default'|'relaxed'|'canonical',
-  fields?: Path[],
+  dataService: DataService;
+  ns: string;
+  filename: string;
+  abortSignal: AbortSignal;
+  filter?: BSONObject;
+  progressCallback: (index: number) => void;
+  variant: 'default' | 'relaxed' | 'canonical';
+  fields?: Path[];
 };
 
 export function exportJSON({
@@ -51,13 +51,13 @@ export function exportJSON({
 }
 
 type ExportCSVOptions = {
-  dataService: DataService,
-  ns: string,
-  filename: string,
-  abortSignal: AbortSignal,
-  filter?: BSONObject,
-  progressCallback: (index: number) => void,
-  fields?: Path[],
+  dataService: DataService;
+  ns: string;
+  filename: string;
+  abortSignal: AbortSignal;
+  filter?: BSONObject;
+  progressCallback: (index: number) => void;
+  fields?: Path[];
 };
 
 export function exportCSV({
