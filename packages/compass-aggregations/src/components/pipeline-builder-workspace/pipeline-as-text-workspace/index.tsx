@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, spacing, palette } from '@mongodb-js/compass-components';
+import { css, spacing, palette, useDarkMode, cx } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
@@ -18,6 +18,11 @@ const containerStyles = css({
   border: `1px solid ${palette.gray.light2}`,
   borderRadius: '4px',
   boxShadow: `1px 1px 1px ${palette.gray.light2}`,
+});
+
+const containerDarkStyles = css({
+  borderColor: palette.gray.dark2,
+  boxShadow: `1px 1px 1px ${palette.gray.dark2}`,
 });
 
 const noPreviewEditorStyles = css({
@@ -39,9 +44,14 @@ const containerDataTestId = 'pipeline-as-text-workspace';
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
 > = ({ isAutoPreview }) => {
+  const darkMode = useDarkMode();
+
   if (!isAutoPreview) {
     return (
-      <div data-testid={containerDataTestId} className={containerStyles}>
+      <div
+        data-testid={containerDataTestId}
+        className={cx(containerStyles, darkMode && containerDarkStyles)}
+      >
         <div className={noPreviewEditorStyles}>
           <PipelineEditor />
         </div>
@@ -49,7 +59,10 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
     );
   }
   return (
-    <div data-testid={containerDataTestId} className={containerStyles}>
+    <div
+      data-testid={containerDataTestId}
+      className={cx(containerStyles, darkMode && containerDarkStyles)}
+    >
       <Resizable
         defaultSize={{
           width: '50%',

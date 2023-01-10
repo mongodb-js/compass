@@ -9,6 +9,8 @@ import {
   css,
   palette,
   spacing,
+  cx,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
@@ -34,6 +36,11 @@ const headerStyles = css({
   boxShadow: `1px 1px 1px ${palette.gray.light2}`
 });
 
+const headerDarkStyles = css({
+  borderColor: palette.gray.dark2,
+  boxShadow: `1px 1px 1px ${palette.gray.dark2}`,
+});
+
 const headerButtonGroupStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -54,12 +61,22 @@ const containerStyles = css({
   zIndex: 500,
 });
 
+const containerDarkStyles = css({
+  background: palette.gray.dark3,
+  borderColor: palette.gray.dark2,
+  boxShadow: `1px 1px 1px ${palette.gray.dark2}`,
+});
+
 const inputGroupStyles = css({
   margin: spacing[2],
   padding: `${spacing[2]}px ${spacing[3]}px`,
   backgroundColor: palette.white,
   display: 'flex',
   alignItems: 'center',
+});
+
+const inputGroupDarkStyles = css({
+  backgroundColor: palette.black,
 });
 
 const inputControlStyles = css({
@@ -103,6 +120,7 @@ function Settings({
   toggleSettingsIsCommentMode,
   toggleSettingsIsExpanded,
 }: SettingsProps) {
+  const darkMode = useDarkMode();
   const onSampleSizeChanged = useCallback((evt: React.ChangeEvent<HTMLInputElement>) => {
     setSettingsSampleSize(parseInt(evt.currentTarget.value, 10));
   }, [ setSettingsSampleSize ]);
@@ -134,8 +152,8 @@ function Settings({
   }
 
   return (
-    <div className={containerStyles}>
-      <div className={headerStyles}>
+    <div className={cx(containerStyles, darkMode && containerDarkStyles)}>
+      <div className={cx(headerStyles, darkMode && headerDarkStyles)}>
         <Body weight="medium">Settings</Body>
         <div className={headerButtonGroupStyles}>
           <Button
@@ -151,7 +169,7 @@ function Settings({
           >Apply</Button>
         </div>
       </div>
-      <div className={inputGroupStyles}>
+      <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
         <div className={inputMetaStyles}>
           <Label
             htmlFor={aggregationCommentModeId}
@@ -173,7 +191,7 @@ function Settings({
           />
         </div>
       </div>
-      <div className={inputGroupStyles}>
+      <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
         <div className={inputMetaStyles}>
           <Label
             htmlFor={aggregationSampleSizeId}
@@ -195,7 +213,7 @@ function Settings({
         </div>
       </div>
       {!isAtlasDeployed && (
-        <div className={inputGroupStyles}>
+        <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
           <div className={inputMetaStyles}>
             <Label
               htmlFor={aggregationLimitId}

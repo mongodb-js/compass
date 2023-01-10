@@ -17,6 +17,9 @@ describe('Connection Import / Export', function () {
   let originalDisableKeychainUsage: string | undefined;
   let telemetry: Telemetry;
 
+  const getTrackedEvents = (): any[] =>
+    telemetry.events().filter((e: any) => e.type === 'track');
+
   before(function () {
     originalDisableKeychainUsage =
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE;
@@ -137,7 +140,7 @@ describe('Connection Import / Export', function () {
       }
 
       {
-        const existingEventsCount = telemetry.events().length;
+        const existingEventsCount = getTrackedEvents().length;
         // Export favorite, roughly verify file contents
         await runCompassOnce([
           `--export-connections=${file}`,
@@ -148,7 +151,7 @@ describe('Connection Import / Export', function () {
         const contents = JSON.parse(await fs.readFile(file, 'utf8'));
         verifyExportedFile(contents, variant);
 
-        const newEvents = telemetry.events().slice(existingEventsCount);
+        const newEvents = getTrackedEvents().slice(existingEventsCount);
         expect(newEvents).to.have.lengthOf(1);
         expect(newEvents[0].event).to.equal('Connection Exported');
         expect(newEvents[0].properties.context).to.equal('CLI');
@@ -169,7 +172,7 @@ describe('Connection Import / Export', function () {
       }
 
       {
-        const existingEventsCount = telemetry.events().length;
+        const existingEventsCount = getTrackedEvents().length;
         // Import favorite
         await runCompassOnce([
           `--import-connections=${file}`,
@@ -177,7 +180,7 @@ describe('Connection Import / Export', function () {
           '--trackUsageStatistics',
         ]);
 
-        const newEvents = telemetry.events().slice(existingEventsCount);
+        const newEvents = getTrackedEvents().slice(existingEventsCount);
         expect(newEvents).to.have.lengthOf(1);
         expect(newEvents[0].event).to.equal('Connection Imported');
         expect(newEvents[0].properties.context).to.equal('CLI');
