@@ -34,13 +34,13 @@ type PipelineBuilderUIWorkspaceProps = {
   stageIds: number[];
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
-  onAddStage: (after?: number) => void;
+  onStageAddAfterEnd: (after?: number) => void;
 };
 
 type SortableItemProps = {
   idx: number;
   isLastStage: boolean;
-  onAddStageAfter: (after?: number) => void;
+  onStageAddAfter: (after?: number) => void;
 } & Partial<StageProps>;
 
 type SortableListProps = {
@@ -49,12 +49,12 @@ type SortableListProps = {
   children: React.ReactNode;
 };
 
-const SortableItem = ({ idx, isLastStage, onAddStageAfter, ...props }: SortableItemProps) => {
+const SortableItem = ({ idx, isLastStage, onStageAddAfter, ...props }: SortableItemProps) => {
   return (
     <div className={stageContainerStyles}>
       <Stage index={idx} {...props}></Stage>
       {!isLastStage && <div className='add-stage-button'>
-        <AddStage onAddStage={onAddStageAfter} variant='icon' />
+        <AddStage onAddStage={onStageAddAfter} variant='icon' />
       </div>}
     </div>
   );
@@ -108,7 +108,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
   stageIds,
   editViewName,
   onStageMoveEnd,
-  onAddStage,
+  onStageAddAfterEnd,
 }) => {
   return (
     <div
@@ -120,7 +120,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
             <ModifySourceBanner editViewName={editViewName} />
           )}
           <PipelineBuilderInputDocuments />
-          {stageIds.length !== 0 && <AddStage onAddStage={() => onAddStage(-1)} variant='icon' />}
+          {stageIds.length !== 0 && <AddStage onAddStage={() => onStageAddAfterEnd(-1)} variant='icon' />}
           <SortableList stageIds={stageIds} onStageMoveEnd={onStageMoveEnd}>
             {stageIds.map((id, index) => (
               <SortableItem
@@ -128,10 +128,10 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
                 idx={index}
                 index={index}
                 isLastStage={index === stageIds.length - 1}
-                onAddStageAfter={() => onAddStage(index)} />
+                onStageAddAfter={() => onStageAddAfterEnd(index)} />
             ))}
           </SortableList>
-          <AddStage onAddStage={onAddStage} variant='button' />
+          <AddStage onAddStage={onStageAddAfterEnd} variant='button' />
         </div>
       </div>
     </div>
@@ -147,7 +147,7 @@ const mapState = (state: RootState) => {
 
 const mapDispatch = {
   onStageMoveEnd: moveStage,
-  onAddStage: addStage,
+  onStageAddAfterEnd: addStage,
 };
 
 export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);
