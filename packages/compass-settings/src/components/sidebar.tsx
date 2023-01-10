@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  css,
-  cx,
-  spacing,
-  palette,
-  Button,
-} from '@mongodb-js/compass-components';
+import { css, cx, spacing, palette } from '@mongodb-js/compass-components';
 
 const buttonStyles = css({
   borderRadius: spacing[1],
@@ -16,6 +10,7 @@ const buttonStyles = css({
   width: '100%',
   padding: spacing[2],
   textAlign: 'left',
+  fontWeight: 500,
 });
 
 const hoverStyles = css({
@@ -28,8 +23,6 @@ const hoverStyles = css({
 const activeStyles = css({
   backgroundColor: palette.green.light3,
   color: palette.gray.dark3,
-  // The LG component overwrites the color
-  // with the default value when the button loses focus.
   '&:active,&:focus': {
     backgroundColor: palette.green.light3,
     color: palette.gray.dark3,
@@ -54,7 +47,8 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
       aria-labelledby="modal-title"
     >
       {items.map((item) => (
-        <Button
+        <button
+          type="button"
           key={item}
           role="tab"
           aria-controls={`${item} Section`}
@@ -68,7 +62,7 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
           onClick={() => onSelectItem(item)}
         >
           {item}
-        </Button>
+        </button>
       ))}
     </div>
   );
