@@ -19,7 +19,7 @@ export function guessFileType({
 
   // TODO
   console.log(filename);
-  return Promise.resolve({ type: 'csv', csvDelimeter: ',' });
+  return Promise.resolve({ type: 'csv', delimiter: ',' });
 }
 
 ///
@@ -89,6 +89,7 @@ type CSVFields = Record<string, CSVField>;
 type AnalyzeCSVFieldsResult = {
   total: number;
   fields: CSVFields;
+  preview: string[][]; // first 5 or so rows of field values to display below the field type selects
 };
 
 export function analyzeCSVFields({
@@ -103,8 +104,10 @@ export function analyzeCSVFields({
 
   // TODO
   console.log(filename, delimiter, abortSignal, progressCallback);
-  return Promise.resolve({ total: 0, fields: {} });
+  return Promise.resolve({ total: 0, fields: {}, preview: [] });
 }
+
+///
 
 type ImportJSONOptions = {
   dataService: DataService;
@@ -138,6 +141,8 @@ export function importJSON({
   );
   return Promise.resolve([]);
 }
+
+///
 
 type ImportCSVOptions = {
   dataService: DataService;
