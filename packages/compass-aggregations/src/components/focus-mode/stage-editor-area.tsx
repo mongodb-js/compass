@@ -19,6 +19,11 @@ const headerStyles = css({
   marginLeft: spacing[2],
 });
 
+const editorStyles = css({
+  height: '100%',
+  overflowY: 'auto',
+});
+
 export const StageEditorArea = ({
   index,
   stageOperator
@@ -41,7 +46,9 @@ export const StageEditorArea = ({
           </Link>
         )}
       </div>
-      <StageEditor index={index} />
+      <div className={editorStyles}>
+        <StageEditor index={index} />
+      </div>
     </div>
   );
 };
