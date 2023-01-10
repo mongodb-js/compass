@@ -46,7 +46,7 @@
     "hadron-app-registry": "^9.0.2",
     "hadron-ipc": "^3.1.0",
     "mongodb-data-service": "^22.3.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
@@ -57,7 +57,7 @@
     "hadron-app-registry": "^9.0.2",
     "hadron-ipc": "^3.1.0",
     "mongodb-data-service": "^22.3.0",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@electron/remote": "^2.0.8",
@@ -78,7 +78,7 @@
     "mongodb-ns": "^2.4.0",
     "nyc": "^15.0.0",
     "prettier": "^2.7.1",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.2",
     "resolve": "^1.15.1",
     "rimraf": "^3.0.2",
     "sinon": "^8.1.1",

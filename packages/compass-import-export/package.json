@@ -65,7 +65,7 @@
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.4.0",
     "hadron-document": "^8.0.2",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
@@ -73,7 +73,7 @@
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.4.0",
     "hadron-document": "^8.0.2",
-    "react": "^16.14.0"
+    "react": "^17.0.2"
   },
   "devDependencies": {
     "@electron/remote": "^2.0.8",
@@ -110,7 +110,7 @@
     "marky": "^1.2.1",
     "mime-types": "^2.1.35",
     "mocha": "^8.4.0",
-    "mongodb": "^4.12.1",
+    "mongodb": "^4.13.0",
     "mongodb-data-service": "^22.3.0",
     "mongodb-ns": "^2.4.0",
     "mongodb-query-parser": "^2.4.6",
@@ -121,8 +121,8 @@
     "prettier": "^2.7.1",
     "progress-stream": "^2.0.0",
     "prop-types": "^15.7.2",
-    "react-dom": "^16.14.0",
-    "react-redux": "^8.0.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^8.0.5",
     "redux": "^4.2.0",
     "redux-mock-store": "^1.5.4",
     "redux-thunk": "^2.3.0",
