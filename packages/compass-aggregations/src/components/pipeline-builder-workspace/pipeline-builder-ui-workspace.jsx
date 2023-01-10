@@ -5,13 +5,29 @@ import Stage from '../stage';
 import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
-import { moveStage } from '../../modules/pipeline-builder/stage-editor';
+import { addStage, moveStage } from '../../modules/pipeline-builder/stage-editor';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
+import { css } from '@mongodb-js/compass-components';
 
 import styles from './pipeline-builder-ui-workspace.module.less';
 
-const SortableStage = sortableElement(({ idx, ...props }) => {
-  return <Stage index={idx} {...props}></Stage>;
+const stageContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  '&.dragging .add-stage-button': {
+    visibility: 'hidden',
+  }
+});
+
+const SortableStage = sortableElement(({ idx, onAddStage, isLastStage, ...props }) => {
+  return (
+    <div className={stageContainerStyles}>
+      <Stage index={idx} {...props}></Stage>
+      {!isLastStage && <div className='add-stage-button'>
+        <AddStage onAddStage={onAddStage} variant='icon' />
+      </div>}
+    </div>
+  );
 });
 
 const SortableContainer = sortableContainer(({ children }) => {
@@ -22,7 +38,8 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
   static propTypes = {
     stageIds: PropTypes.array.isRequired,
     editViewName: PropTypes.string,
-    onStageMoveEnd: PropTypes.func.isRequired
+    onStageMoveEnd: PropTypes.func.isRequired,
+    onAddStage: PropTypes.func.isRequired
   };
 
   /**
@@ -41,6 +58,7 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
    * @returns {React.Component} The component.
    */
   render() {
+    const { stageIds, onAddStage } = this.props;
     return (
       <div
         data-testid="pipeline-builder-ui-workspace"
@@ -54,6 +72,7 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
               <ModifySourceBanner editViewName={this.props.editViewName} />
             )}
             <PipelineBuilderInputDocuments />
+            {stageIds.length !== 0 && <AddStage onAddStage={() => onAddStage(-1)} variant='icon' />}
             <SortableContainer
               axis="y"
               lockAxis="y"
@@ -68,11 +87,18 @@ export class PipelineBuilderUIWorkspace extends PureComponent {
               // interactive elements in the handler toolbar component
               distance={10}
             >
-              {this.props.stageIds.map((id, index) => {
-                return <SortableStage key={id} idx={index} index={index} />;
+              {stageIds.map((id, index) => {
+                return (
+                  <SortableStage
+                    key={id}
+                    idx={index}
+                    index={index}
+                    isLastStage={index === stageIds.length - 1}
+                    onAddStage={() => onAddStage(index)} />
+                );
               })}
             </SortableContainer>
-            <AddStage />
+            <AddStage onAddStage={onAddStage} variant='button' />
           </div>
         </div>
       </div>
@@ -92,7 +118,8 @@ const mapState = (state) => {
 };
 
 const mapDispatch = {
-  onStageMoveEnd: moveStage
+  onStageMoveEnd: moveStage,
+  onAddStage: addStage
 };
 
 export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);
