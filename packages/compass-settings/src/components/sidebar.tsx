@@ -23,8 +23,6 @@ const hoverStyles = css({
 const activeStyles = css({
   backgroundColor: palette.green.light3,
   color: palette.gray.dark3,
-  // The LG component overwrites the color
-  // with the default value when the button loses focus.
   '&:active,&:focus': {
     backgroundColor: palette.green.light3,
     color: palette.gray.dark3,
