@@ -92,7 +92,7 @@ const SortableList = ({
       sensors={sensors}
       autoScroll={false}
       onDragEnd={({ active, over }) => {
-        if (over && active.id !== over?.id) {
+        if (over && active.id !== over.id) {
           onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
         }
       }}

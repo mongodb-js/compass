@@ -202,7 +202,6 @@ type TabProps = {
   iconGlyph: IconGlyph;
   tabContentId: string;
   subtitle: string;
-  tabIndex: number;
 };
 
 function Tab({
@@ -213,7 +212,6 @@ function Tab({
   tabContentId,
   iconGlyph,
   subtitle,
-  tabIndex,
 }: TabProps) {
   const darkMode = useDarkMode();
 
@@ -238,7 +236,7 @@ function Tab({
   );
 
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: tabIndex });
+    useSortable({ id: tabContentId });
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
@@ -248,8 +246,6 @@ function Tab({
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
       className={cx(
         tabStyles,
         darkMode ? tabDarkThemeStyles : tabLightThemeStyles,
@@ -267,7 +263,7 @@ function Tab({
       title={`${subtitle} - ${title}`}
       {...tabProps}
     >
-      <div className={tabTitleContainerStyles}>
+      <div className={tabTitleContainerStyles} {...attributes} {...listeners}>
         <Icon
           size="small"
           role="presentation"
