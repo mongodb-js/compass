@@ -16,6 +16,7 @@ const headerStyles = css({
   display: 'flex',
   justifyContent: 'flex-start',
   gap: spacing[2],
+  marginLeft: spacing[2],
 });
 
 export const StageEditorArea = ({

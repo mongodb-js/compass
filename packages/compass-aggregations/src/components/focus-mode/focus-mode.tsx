@@ -35,7 +35,7 @@ const headerStyles = css({
 
 const bodyStyles = css({
   display: 'flex',
-  gap: spacing[1],
+  gap: spacing[2],
   height: '100%',
   overflow: 'hidden',
 });

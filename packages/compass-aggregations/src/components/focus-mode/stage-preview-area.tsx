@@ -19,7 +19,7 @@ const containerStyles = css({
   gap: spacing[2],
 });
 
-const previewHeaderStyles = css({
+const headerStyles = css({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'flex-start',
@@ -38,7 +38,7 @@ const centerStyles = css({
 const messageStyles = css({ marginTop: spacing[3] });
 
 const documentListStyles = css({
-  overflow: 'scroll',
+  overflowY: 'scroll',
 });
 
 const pipelineOutputMenuStyles = css({
@@ -46,10 +46,6 @@ const pipelineOutputMenuStyles = css({
   marginRight: 0,
   marginBottom: 'auto',
   marginLeft: 'auto',
-});
-
-const outputStageStyles = css({
-  marginTop: 'auto',
 });
 
 type StagePreviewAreaProps = {
@@ -119,8 +115,8 @@ export const StagePreviewArea = ({
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
   return (
-    <div className={containerStyles} data-testid="pipeline-as-text-preview">
-      <div className={previewHeaderStyles}>
+    <div className={containerStyles} data-testid="focus-mode-stage-preview">
+      <div className={headerStyles}>
         <div>
           <Overline>{title}</Overline>
           {shouldShowCount && (
