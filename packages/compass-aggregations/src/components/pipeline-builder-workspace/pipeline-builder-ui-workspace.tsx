@@ -43,65 +43,73 @@ type SortableItemProps = {
   onAddStageAfter: (after?: number) => void;
 } & Partial<StageProps>;
 
+type SortableListProps = {
+  stageIds: number[];
+  onStageMoveEnd: (from: number, to: number) => void;
+  children: React.ReactNode;
+};
+
+const SortableItem = ({ idx, isLastStage, onAddStageAfter, ...props }: SortableItemProps) => {
+  return (
+    <div className={stageContainerStyles}>
+      <Stage index={idx} {...props}></Stage>
+      {!isLastStage && <div className='add-stage-button'>
+        <AddStage onAddStage={onAddStageAfter} variant='icon' />
+      </div>}
+    </div>
+  );
+};
+
+const SortableList = ({
+  stageIds,
+  onStageMoveEnd,
+  children,
+}: SortableListProps) => {
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      // Require the mouse to move by 10 pixels before activating.
+      // Slight distance prevents sortable logic messing with
+      // interactive elements in the handler toolbar component.
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      // Press delay of 250ms, with tolerance of 5px of movement.
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+  const onSortEnd = ({ oldIndex, newIndex }: { oldIndex: number, newIndex: number }) => {
+    onStageMoveEnd(oldIndex, newIndex);
+  };
+
+  return (
+    <DndContext
+      sensors={sensors}
+      autoScroll={false}
+      onDragEnd={({ active, over }) => {
+        if (over && active.id !== over?.id) {
+          onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
+        }
+      }}
+    >
+      <SortableContext items={stageIds.map((stage, index) => index)}>
+        <div>{children}</div>
+      </SortableContext>
+    </DndContext>
+  );
+};
+
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilderUIWorkspaceProps> = ({
   stageIds,
   editViewName,
   onStageMoveEnd,
   onAddStage,
 }) => {
-  const SortableItem = ({ idx, isLastStage, onAddStageAfter, ...props }: SortableItemProps) => {
-    return (
-      <div className={stageContainerStyles}>
-        <Stage index={idx} {...props}></Stage>
-        {!isLastStage && <div className='add-stage-button'>
-          <AddStage onAddStage={onAddStageAfter} variant='icon' />
-        </div>}
-      </div>
-    );
-  };
-  
-  const SortableList = ({
-    children,
-  }: { children: React.ReactNode }) => {
-    const sensors = useSensors(
-      useSensor(MouseSensor, {
-        // Require the mouse to move by 10 pixels before activating.
-        // Slight distance prevents sortable logic messing with
-        // interactive elements in the handler toolbar component.
-        activationConstraint: {
-          distance: 10,
-        },
-      }),
-      useSensor(TouchSensor, {
-        // Press delay of 250ms, with tolerance of 5px of movement.
-        activationConstraint: {
-          delay: 250,
-          tolerance: 5,
-        },
-      })
-    );
-
-    const onSortEnd = ({ oldIndex, newIndex }: { oldIndex: number, newIndex: number }) => {
-      onStageMoveEnd(oldIndex, newIndex);
-    };
-
-    return (
-      <DndContext
-        sensors={sensors}
-        autoScroll={false}
-        onDragEnd={({ active, over }) => {
-          if (over && active.id !== over?.id) {
-            onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
-          }
-        }}
-      >
-        <SortableContext items={stageIds.map((stage, index) => index)}>
-          <div>{children}</div>
-        </SortableContext>
-      </DndContext>
-    );
-  };
-
   return (
     <div
       data-testid="pipeline-builder-ui-workspace"
@@ -113,7 +121,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
           )}
           <PipelineBuilderInputDocuments />
           {stageIds.length !== 0 && <AddStage onAddStage={() => onAddStage(-1)} variant='icon' />}
-          <SortableList>
+          <SortableList stageIds={stageIds} onStageMoveEnd={onStageMoveEnd}>
             {stageIds.map((id, index) => (
               <SortableItem
                 key={`stage-${id}`}

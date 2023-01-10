@@ -72,8 +72,9 @@ function ResizableEditor({ index, isExpanded, isAutoPreviewing, ...props }: Resi
   const editor = (
     <>
       <div
-      {...attributes}
-      {...listeners}>
+        {...attributes}
+        {...listeners}
+      >
         <StageEditorToolbar index={index} {...props}></StageEditorToolbar>
       </div>
       {isExpanded && (
