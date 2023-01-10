@@ -63,7 +63,7 @@ type ResizableEditorProps = {
 };
 
 function ResizableEditor({ index, isExpanded, isAutoPreviewing, ...props }: ResizableEditorProps) {
-  const { attributes, listeners, transform, transition } =
+  const { attributes, listeners } =
     useSortable({ id: index });
 
   const editor = (

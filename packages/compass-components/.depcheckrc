@@ -5,5 +5,5 @@ ignores: [
     'mongodb-compass',
     # To keep versions same across packages
     '@testing-library/dom',
-    '@testing-library/user-event'
+    '@testing-library/user-event',
   ]

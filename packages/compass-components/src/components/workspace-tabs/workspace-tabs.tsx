@@ -13,11 +13,10 @@ import { rgba } from 'polished';
 
 import {
   DndContext,
-  closestCorners,
   MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
-  TouchSensor,
 } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
 
@@ -223,13 +222,13 @@ function WorkspaceTabs({
   const SortableList = ({ children }: { children: React.ReactNode }) => {
     const sensors = useSensors(
       useSensor(MouseSensor, {
-        // Require the mouse to move by 10 pixels before activating
+        // Require the mouse to move by 10 pixels before activating.
         activationConstraint: {
           distance: 10,
         },
       }),
       useSensor(TouchSensor, {
-        // Press delay of 250ms, with tolerance of 5px of movement
+        // Press delay of 250ms, with tolerance of 5px of movement.
         activationConstraint: {
           delay: 250,
           tolerance: 5,
@@ -251,7 +250,6 @@ function WorkspaceTabs({
       <DndContext
         sensors={sensors}
         autoScroll={false}
-        collisionDetection={closestCorners}
         onDragEnd={({ active, over }) => {
           if (over && active.id !== over?.id) {
             onSortEnd({ oldIndex: +active.id, newIndex: +over.id });

@@ -11,9 +11,9 @@ import type { RootState } from '../../modules';
 import {
   DndContext,
   MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
-  TouchSensor,
  } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -49,7 +49,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
         },
       }),
       useSensor(TouchSensor, {
-        // Press delay of 250ms, with tolerance of 5px of movement
+        // Press delay of 250ms, with tolerance of 5px of movement.
         activationConstraint: {
           delay: 250,
           tolerance: 5,
