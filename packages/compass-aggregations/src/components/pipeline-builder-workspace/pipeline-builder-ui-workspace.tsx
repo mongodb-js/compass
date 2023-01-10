@@ -5,8 +5,9 @@ import type { StageProps } from '../stage';
 import PipelineBuilderInputDocuments from '../pipeline-builder-input-documents';
 import AddStage from '../add-stage';
 import ModifySourceBanner from '../modify-source-banner';
-import { moveStage } from '../../modules/pipeline-builder/stage-editor';
+import { addStage, moveStage } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
+import { css } from '@mongodb-js/compass-components';
 
 import {
   DndContext,
@@ -21,19 +22,38 @@ import {
 
 import styles from './pipeline-builder-ui-workspace.module.less';
 
+const stageContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  '&.dragging .add-stage-button': {
+    visibility: 'hidden',
+  }
+});
+
 type PipelineBuilderUIWorkspaceProps = {
   stageIds: number[];
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
+  onAddStage: () => void;
+  isLastStage: boolean;
 };
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilderUIWorkspaceProps> = ({
   stageIds,
   editViewName,
   onStageMoveEnd,
+  onAddStage,
+  isLastStage,
 }) => {
   const SortableItem = ({ idx, ...props }: { idx: number } & Partial<StageProps>) => {
-    return (<Stage index={idx} {...props}></Stage>);
+    return (
+      <div className={stageContainerStyles}>
+        <Stage index={idx} {...props}></Stage>
+        {!isLastStage && <div className='add-stage-button'>
+          <AddStage onAddStage={onAddStage} variant='icon' />
+        </div>}
+      </div>
+    );
   };
   
   const SortableList = ({
@@ -108,7 +128,8 @@ const mapState = (state: RootState) => {
 };
 
 const mapDispatch = {
-  onStageMoveEnd: moveStage
+  onStageMoveEnd: moveStage,
+  onAddStage: addStage,
 };
 
 export default connect(mapState, mapDispatch)(PipelineBuilderUIWorkspace);

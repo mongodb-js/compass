@@ -18,7 +18,10 @@ import { hasSyntaxError } from '../utils/stage';
 
 const stageStyles = css({
   position: 'relative',
-  margin: spacing[3],
+  marginLeft: spacing[3],
+  marginRight: spacing[3],
+  marginTop: spacing[2],
+  marginBottom: spacing[2],
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'stretch',
