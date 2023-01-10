@@ -40,7 +40,7 @@ type PipelineBuilderUIWorkspaceProps = {
 type SortableItemProps = {
   idx: number;
   isLastStage: boolean;
-  onAddStage: (after?: number) => void;
+  onAddStageAfter: (after?: number) => void;
 } & Partial<StageProps>;
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilderUIWorkspaceProps> = ({
@@ -49,12 +49,12 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
   onStageMoveEnd,
   onAddStage,
 }) => {
-  const SortableItem = ({ idx, isLastStage, onAddStage, ...props }: SortableItemProps) => {
+  const SortableItem = ({ idx, isLastStage, onAddStageAfter, ...props }: SortableItemProps) => {
     return (
       <div className={stageContainerStyles}>
         <Stage index={idx} {...props}></Stage>
         {!isLastStage && <div className='add-stage-button'>
-          <AddStage onAddStage={onAddStage} variant='icon' />
+          <AddStage onAddStage={onAddStageAfter} variant='icon' />
         </div>}
       </div>
     );
@@ -114,10 +114,14 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
           <PipelineBuilderInputDocuments />
           {stageIds.length !== 0 && <AddStage onAddStage={() => onAddStage(-1)} variant='icon' />}
           <SortableList>
-            {stageIds.map((id, index) => {
-              return <SortableItem key={`stage-${id}`} idx={index} index={index} isLastStage={index === stageIds.length - 1}
-              onAddStage={() => onAddStage(index)} />;
-            })}
+            {stageIds.map((id, index) => (
+              <SortableItem
+                key={`stage-${id}`}
+                idx={index}
+                index={index}
+                isLastStage={index === stageIds.length - 1}
+                onAddStageAfter={() => onAddStage(index)} />
+            ))}
           </SortableList>
           <AddStage onAddStage={onAddStage} variant='button' />
         </div>
