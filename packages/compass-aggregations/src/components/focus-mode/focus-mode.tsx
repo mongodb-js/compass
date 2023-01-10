@@ -54,28 +54,26 @@ const editorAreaStyles = css({
 type StagePreview = {
   isLoading: boolean;
   documents: Document[] | null;
-  error?: string;
-};
-
-type FocusModeStage = StagePreview & {
-  stageOperator: string | null;
-  index: number;
 };
 
 type FocusModeProps = {
   isModalOpen: boolean;
-  stage: FocusModeStage | null;
   stageInput: StagePreview | null;
+  stageIndex: number;
+  stageOperator: string | null;
+  stageOutput: StagePreview | null;
   onCloseModal: () => void;
 };
 
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
-  stage,
   stageInput,
+  stageIndex,
+  stageOperator,
+  stageOutput,
   onCloseModal,
 }) => {
-  if (!isModalOpen || !stage || !stageInput) {
+  if (!isModalOpen || !stageOutput || !stageInput) {
     return null;
   }
 
@@ -85,7 +83,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
       size={'large'}
       setOpen={onCloseModal}
       open={isModalOpen}
-      data-testid={`focus-mode-modal-${stage.index}`}
+      data-testid={`focus-mode-modal-${stageIndex}`}
     >
       <ModalBody className={containerStyles}>
         <div className={headerStyles}>
@@ -100,14 +98,14 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
           </div>
           <div className={editorAreaStyles}>
             <StageEditorArea
-              index={stage.index}
-              stageOperator={stage.stageOperator} />
+              index={stageIndex}
+              stageOperator={stageOperator} />
           </div>
           <div className={previewAreaStyles}>
             <StagePreviewArea
               title='Stage Output'
-              isLoading={stage.isLoading}
-              documents={stage.documents} /> 
+              isLoading={stageOutput.isLoading}
+              documents={stageOutput.documents} /> 
           </div>
         </div>
       </ModalBody>
@@ -131,26 +129,23 @@ const mapState = ({
     ? {
       isLoading: previousStage.loading,
       documents: previousStage.previewDocs,
-      error: previousStage.serverError?.message,
     } : {
       isLoading: inputDocuments.isLoading,
       documents: inputDocuments.documents,
-      error: inputDocuments.error?.message,
     };
 
-  const stage: FocusModeStage | null = currentStage
+  const stageOutput: StagePreview | null = currentStage
     ? {
       isLoading: currentStage.loading,
       documents: currentStage.previewDocs,
-      error: currentStage.serverError?.message,
-      stageOperator: currentStage.stageOperator,
-      index: stageIndex,
     } : null;
 
   return {
     isModalOpen: isEnabled,
-    stage,
     stageInput,
+    stageIndex,
+    stageOperator: currentStage?.stageOperator,
+    stageOutput,
   };
 };
 

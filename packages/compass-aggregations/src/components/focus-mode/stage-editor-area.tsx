@@ -47,6 +47,7 @@ export const StageEditorArea = ({
         )}
       </div>
       <div className={editorStyles}>
+        {/* @ts-expect-error requires stage-editor.jsx to be converted */}
         <StageEditor index={index} />
       </div>
     </div>
