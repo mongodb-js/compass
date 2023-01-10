@@ -1,9 +1,11 @@
 import type { Document } from 'mongodb';
 import type { AnyAction } from 'redux';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
-import { PipelineBuilderThunkAction } from '.';
-const debug = require('debug')('mongodb-aggregations:modules:input-document');
-
+import type { PipelineBuilderThunkAction } from '.';
+import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
+const { debug } = createLoggerAndTelemetry(
+  'mongodb-aggregations:modules:input-document'
+);
 export enum ActionTypes {
   CollapseToggled = 'aggregations/input-documents/CollapseToggled',
   DocumentsFetchStarted = 'aggregations/input-documents/DocumentsFetchStarted',
@@ -84,7 +86,7 @@ export const updateInputDocuments = (
   error,
 });
 
-export const refreshInputDocuments = (): PipelineBuilderThunkAction<void> => {
+export const refreshInputDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
       dataService: { dataService },

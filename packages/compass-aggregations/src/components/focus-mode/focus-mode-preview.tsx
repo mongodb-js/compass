@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Body,
   css,
@@ -9,8 +9,8 @@ import {
 import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
-import { PipelineOutputOptionsMenu } from './../pipeline-output-options-menu';
-import type { PipelineOutputOption } from './../pipeline-output-options-menu';
+import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
+import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 
 const containerStyles = css({
   display: 'flex',
@@ -48,65 +48,17 @@ const pipelineOutputMenuStyles = css({
   marginLeft: 'auto',
 });
 
-type StagePreviewAreaProps = {
+type FocusModePreviewProps = {
   title: string;
-  isLoading: boolean;
-  documents: Document[] | null;
+  isLoading?: boolean;
+  documents?: Document[] | null;
 };
 
-const PreviewResults = ({
-  documents,
-  isLoading,
-  isExpanded,
-}: {
-  documents: Document[] | null;
-  isLoading: boolean;
-  isExpanded: boolean;
-}) => {
-  const listProps: Omit<React.ComponentProps<typeof DocumentListView>,
-  'isExpanded' |
-  'className'> = useMemo(
-    () => ({
-      docs: (documents ?? []).map((doc) => new HadronDocument(doc)),
-      isEditable: false,
-      copyToClipboard(doc: HadronDocument) {
-        const str = doc.toEJSON();
-        void navigator.clipboard.writeText(str);
-      },
-    }),
-    [documents]
-  );
-
-  if (isLoading) {
-    return (
-      <div className={centerStyles}>
-        <SpinLoader size="24px" />
-      </div>
-    );
-  }
-
-  if (!documents || documents.length === 0) {
-    return (
-      <div className={centerStyles}>
-        <Body className={messageStyles}>No preview documents</Body>
-      </div>
-    );
-  }
-
-  return (
-    <DocumentListView
-      {...listProps}
-      isExpanded={isExpanded}
-      className={documentListStyles}
-    />
-  );
-};
-
-export const StagePreviewArea = ({
+export const FocusModePreview = ({
   title,
   isLoading,
   documents
-}: StagePreviewAreaProps) => {
+}: FocusModePreviewProps) => {
   const [pipelineOutputOption, setPipelineOutputOption] =
     useState<PipelineOutputOption>('collapse');
   const isExpanded = pipelineOutputOption === 'expand';
@@ -133,11 +85,26 @@ export const StagePreviewArea = ({
           />
         </div>
       </div>
-      <PreviewResults
-        documents={documents}
-        isLoading={isLoading}
-        isExpanded={isExpanded}
-      />
+      {isLoading ? (
+        <div className={centerStyles}>
+          <SpinLoader size="24px" />
+        </div>
+      ) : (!documents || documents.length === 0) ? (
+        <div className={centerStyles}>
+          <Body className={messageStyles}>No preview documents</Body>
+        </div>
+      ) : (
+        <DocumentListView
+          docs={(documents ?? []).map((doc) => new HadronDocument(doc))}
+          copyToClipboard = {(doc: HadronDocument) => {
+            const str = doc.toEJSON();
+            void navigator.clipboard.writeText(str);
+          }}
+          isEditable={false}
+          isExpanded={isExpanded}
+          className={documentListStyles}
+        />
+      )}
     </div>
   );
 };

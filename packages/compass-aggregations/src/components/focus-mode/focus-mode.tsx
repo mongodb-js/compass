@@ -12,8 +12,8 @@ import type { Document } from 'mongodb';
 
 import type { RootState } from '../../modules';
 import { focusModeDisabled } from '../../modules/focus-mode';
-import { StageEditorArea } from './stage-editor-area';
-import { StagePreviewArea } from './stage-preview-area';
+import { FocusModeEditor } from './focus-mode-editor';
+import { FocusModePreview } from './focus-mode-preview';
 
 const modalStyles = css({
   '[role="dialog"]': {
@@ -73,7 +73,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   stageOutput,
   onCloseModal,
 }) => {
-  if (!isModalOpen || !stageOutput || !stageInput) {
+  if (!isModalOpen) {
     return null;
   }
 
@@ -83,29 +83,29 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
       size={'large'}
       setOpen={onCloseModal}
       open={isModalOpen}
-      data-testid={`focus-mode-modal-${stageIndex}`}
+      data-testid={"focus-mode-modal"}
     >
       <ModalBody className={containerStyles}>
         <div className={headerStyles}>
           <Body>Focus Mode (in progress feature)</Body>
         </div>
         <div className={bodyStyles}>
-          <div className={previewAreaStyles}>
-            <StagePreviewArea
+          <div className={previewAreaStyles} data-testid="stage-input">
+            <FocusModePreview
               title='Stage Input'
-              isLoading={stageInput.isLoading}
-              documents={stageInput.documents} />
+              isLoading={stageInput?.isLoading}
+              documents={stageInput?.documents} />
           </div>
-          <div className={editorAreaStyles}>
-            <StageEditorArea
+          <div className={editorAreaStyles} data-testid="stage-editor">
+            <FocusModeEditor
               index={stageIndex}
               stageOperator={stageOperator} />
           </div>
-          <div className={previewAreaStyles}>
-            <StagePreviewArea
+          <div className={previewAreaStyles} data-testid="stage-output">
+            <FocusModePreview
               title='Stage Output'
-              isLoading={stageOutput.isLoading}
-              documents={stageOutput.documents} /> 
+              isLoading={stageOutput?.isLoading}
+              documents={stageOutput?.documents} /> 
           </div>
         </div>
       </ModalBody>

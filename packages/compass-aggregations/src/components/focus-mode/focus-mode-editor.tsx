@@ -24,7 +24,7 @@ const editorStyles = css({
   overflowY: 'auto',
 });
 
-export const StageEditorArea = ({
+export const FocusModeEditor = ({
   index,
   stageOperator
 }: {
