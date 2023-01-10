@@ -4,6 +4,9 @@ import { Resizable } from 're-resizable';
 
 import { KeylineCard, css, cx, spacing, palette } from '@mongodb-js/compass-components';
 
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS as cssDndKit } from '@dnd-kit/utilities';
+
 import type { RootState } from '../modules';
 
 import ResizeHandle from './resize-handle';
@@ -60,9 +63,16 @@ type ResizableEditorProps = {
 };
 
 function ResizableEditor({ index, isExpanded, isAutoPreviewing, ...props }: ResizableEditorProps) {
+  const { attributes, listeners, transform, transition } =
+    useSortable({ id: index });
+
   const editor = (
     <>
-      <StageEditorToolbar index={index} {...props}></StageEditorToolbar>
+      <div
+      {...attributes}
+      {...listeners}>
+        <StageEditorToolbar index={index} {...props}></StageEditorToolbar>
+      </div>
       {isExpanded && (
         // @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted.
         <StageEditor index={index} />
@@ -125,20 +135,38 @@ function Stage({
   isAutoPreviewing
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
+  const { setNodeRef, transform, transition } =
+    useSortable({ id: index });
+  const style = {
+    transform: cssDndKit.Transform.toString(transform),
+    transition,
+  };
 
-  return (<KeylineCard data-testid="stage-card" data-stage-index={index} className={cx(
-      stageStyles,
-      hasSyntaxError && stageWarningStyles,
-      hasServerError && stageErrorStyles
-    )} style={{ opacity }}>
-    <ResizableEditor index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
-    {isAutoPreviewing && (<div className={stagePreviewContainerStyles}>
-      <StagePreviewToolbar index={index} />
-      {isExpanded && (
-        <StagePreview index={index} />
-      )}
-    </div>)}
-  </KeylineCard>);
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+    >
+      <KeylineCard
+        data-testid="stage-card"
+        data-stage-index={index}
+        className={cx(
+          stageStyles,
+          hasSyntaxError && stageWarningStyles,
+          hasServerError && stageErrorStyles
+        )}
+        style={{ opacity }}
+      >
+        <ResizableEditor index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
+        {isAutoPreviewing && (<div className={stagePreviewContainerStyles}>
+          <StagePreviewToolbar index={index} />
+          {isExpanded && (
+            <StagePreview index={index} />
+          )}
+        </div>)}
+      </KeylineCard>
+    </div>
+  );
 }
 
 

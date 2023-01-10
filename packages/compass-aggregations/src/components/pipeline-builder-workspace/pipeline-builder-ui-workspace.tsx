@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import Stage from '../stage';
 import type { StageProps } from '../stage';
@@ -10,8 +10,6 @@ import type { RootState } from '../../modules';
 
 import {
   DndContext,
-  DragOverlay,
-  closestCorners,
   MouseSensor,
   useSensor,
   useSensors,
@@ -19,10 +17,7 @@ import {
  } from '@dnd-kit/core';
 import {
   SortableContext,
-  useSortable,
 } from '@dnd-kit/sortable';
-import { CSS as cssDndKit } from '@dnd-kit/utilities';
-import type { Active } from '@dnd-kit/core';
 
 import styles from './pipeline-builder-ui-workspace.module.less';
 
@@ -38,33 +33,17 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
   onStageMoveEnd,
 }) => {
   const SortableItem = ({ idx, ...props }: { idx: number } & Partial<StageProps>) => {
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-    } = useSortable({ id: idx });
-  
-    const style = {
-      transform: cssDndKit.Transform.toString(transform),
-      transition,
-    };
-  
-    return (
-      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <Stage index={idx} {...props}></Stage>
-      </div>
-    );
+    return (<Stage index={idx} {...props}></Stage>);
   };
   
   const SortableList = ({
     children,
   }: { children: React.ReactNode }) => {
-    const [active, setActive] = useState<Active | null>(null);
     const sensors = useSensors(
       useSensor(MouseSensor, {
-        // Require the mouse to move by 10 pixels before activating
+        // Require the mouse to move by 10 pixels before activating.
+        // Slight distance prevents sortable logic messing with
+        // interactive elements in the handler toolbar component.
         activationConstraint: {
           distance: 10,
         },
@@ -86,24 +65,15 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
       <DndContext
         sensors={sensors}
         autoScroll={false}
-        collisionDetection={closestCorners}
-        onDragStart={({active}) => {
-          setActive(active);
-        }}
         onDragEnd={({ active, over }) => {
           if (over && active.id !== over?.id) {
             onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
           }
-          setActive(null);
-        }}
-        onDragCancel={() => {
-          setActive(null);
         }}
       >
-        <SortableContext items={stageIds}>
+        <SortableContext items={stageIds.map((stage, index) => index)}>
           <div>{children}</div>
         </SortableContext>
-        <DragOverlay>{active ? <SortableItem idx={+active.id} index={+active.id} /> : null}</DragOverlay>
       </DndContext>
     );
   };
@@ -120,7 +90,7 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
           <PipelineBuilderInputDocuments />
           <SortableList>
             {stageIds.map((id, index) => {
-              return <SortableItem key={id} idx={index} index={index} />;
+              return <SortableItem key={`stage-${id}`} idx={index} index={index} />;
             })}
           </SortableList>
           <AddStage />
@@ -130,10 +100,6 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
   );
 }
 
-/**
- *
- * @param {import('./../../modules/').RootState} state
- */
 const mapState = (state: RootState) => {
   return {
     stageIds: state.pipelineBuilder.stageEditor.stageIds,

@@ -13,7 +13,6 @@ import { rgba } from 'polished';
 
 import {
   DndContext,
-  DragOverlay,
   closestCorners,
   MouseSensor,
   useSensor,
@@ -21,7 +20,6 @@ import {
   TouchSensor,
 } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
-import type { Active } from '@dnd-kit/core';
 
 import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
@@ -223,8 +221,6 @@ function WorkspaceTabs({
   );
 
   const SortableList = ({ children }: { children: React.ReactNode }) => {
-    const [active, setActive] = useState<Active | null>(null);
-    const activeTab = active ? tabs[+active.id] : null;
     const sensors = useSensors(
       useSensor(MouseSensor, {
         // Require the mouse to move by 10 pixels before activating
@@ -256,34 +252,15 @@ function WorkspaceTabs({
         sensors={sensors}
         autoScroll={false}
         collisionDetection={closestCorners}
-        onDragStart={({ active }) => {
-          setActive(active);
-        }}
         onDragEnd={({ active, over }) => {
           if (over && active.id !== over?.id) {
             onSortEnd({ oldIndex: +active.id, newIndex: +over.id });
           }
-          setActive(null);
-        }}
-        onDragCancel={() => {
-          setActive(null);
         }}
       >
         <SortableContext items={tabs.map((tab, index) => index)}>
           <div>{children}</div>
         </SortableContext>
-        <DragOverlay>
-          {active && activeTab ? (
-            <SortableItem
-              key={`tab-${+active.id}-active`}
-              tabIndex={+active.id}
-              tab={activeTab}
-              onSelect={onSelectTab}
-              onClose={onCloseTab}
-              selectedTabIndex={selectedTabIndex}
-            />
-          ) : null}
-        </DragOverlay>
       </DndContext>
     );
   };
