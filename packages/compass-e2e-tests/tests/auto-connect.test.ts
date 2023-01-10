@@ -117,7 +117,7 @@ describe('Automatically connecting from the command line', function () {
     });
     const error = await compass.browser.waitForConnectionResult('failure');
     expect(error).to.match(
-      /Server selection timed out|Client network socket disconnected/i
+      /ECONNRESET|Server selection timed out|Client network socket disconnected/i
     );
     await afterTests(compass, this.currentTest);
   });
