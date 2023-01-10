@@ -3,6 +3,32 @@ import bson from 'bson';
 import { expect } from 'chai';
 import { analyzeSchema } from './schema-analysis';
 
+function schemaToPaths(fields, parent = []) {
+  const paths = [];
+
+  for (const field of fields) {
+    const path = [...parent, field.name];
+    paths.push(path);
+
+    // recurse on doc
+    const doc = field.types.find((f) => f.bsonType === 'Document');
+    if (doc) {
+      paths.push(...schemaToPaths(doc.fields, path));
+    }
+
+    // recurse on array
+    const array = field.types.find((f) => f.bsonType === 'Array');
+    if (array) {
+      const arrayDoc = array.types.find((f) => f.bsonType === 'Document');
+      if (arrayDoc) {
+        paths.push(...schemaToPaths(arrayDoc.fields, [...path, '*']));
+      }
+    }
+  }
+
+  return paths;
+}
+
 describe('schema-analyis', function () {
   describe('getResult', function () {
     it('returns the schema', async function () {
@@ -168,6 +194,47 @@ describe('schema-analyis', function () {
         'should have been thrown'
       );
       expect((await getResultPromise).code).to.equal(1000);
+    });
+
+    it.only('returns the schema for a complex example', async function () {
+       const dataService = {
+        sample: () =>
+          Promise.resolve([
+            { foo: 1 },
+            { foo: [1, 2, 3] },
+            { foo: { bar: 1 } },
+            { foo: { bar: { baz: 1 } } },
+
+            { array: [{ monkey: 1}, { banana: 1 }] }
+          ]),
+      };
+
+      const abortController = new AbortController();
+      const abortSignal = abortController.signal;
+
+      const schema = await analyzeSchema(
+        dataService,
+        abortSignal,
+        'db.coll',
+        {},
+        {}
+      );
+
+      console.dir(schema, { depth: Infinity });
+
+      const paths = schemaToPaths(schema.fields);
+      console.dir(paths, { depth: Infinity });
+
+      /*
+        [
+          [ 'array' ],
+          [ 'array', '*', 'banana' ],
+          [ 'array', '*', 'monkey' ],
+          [ 'foo' ],
+          [ 'foo', 'bar' ],
+          [ 'foo', 'bar', 'baz' ]
+        ]
+      */
     });
   });
 });
