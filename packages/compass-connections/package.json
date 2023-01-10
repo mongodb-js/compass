@@ -51,8 +51,8 @@
     "@mongodb-js/compass-components": "^1.4.0",
     "hadron-ipc": "^3.1.0",
     "mongodb-data-service": "^22.3.0",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "dependencies": {
     "@mongodb-js/compass-connection-import-export": "^0.2.0",
@@ -60,9 +60,9 @@
     "@mongodb-js/connection-form": "^1.4.0",
     "hadron-ipc": "^3.1.0",
     "lodash": "^4.17.21",
-    "mongodb": "^4.12.1",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
+    "mongodb": "^4.13.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "uuid": "^8.2.0"
   },
   "devDependencies": {

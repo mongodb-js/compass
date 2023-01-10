@@ -7,7 +7,6 @@ import type { RootState } from '../../modules';
 import { MERGE_STAGE_PREVIEW_TEXT, OUT_STAGE_PREVIEW_TEXT } from '../../utils/stage';
 
 import DeleteStage from './delete-stage';
-import AddAfterStage from './add-after-stage';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
@@ -141,7 +140,6 @@ function StageEditorToolbar({
           ></StageEditorOutMergeTooltip>
         )}
         <DeleteStage index={index} />
-        <AddAfterStage index={index} />
       </div>
     </div>
   );

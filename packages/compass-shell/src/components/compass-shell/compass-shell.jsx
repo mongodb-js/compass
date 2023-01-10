@@ -24,6 +24,7 @@ const compassShellStyles = css(
     flexBasis: 'auto',
     position: 'relative',
     flexDirection: 'column',
+    width: '100vw',
   },
   getScrollbarStyles(true /* Always show dark mode. */)
 );
