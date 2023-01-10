@@ -34,18 +34,22 @@ type PipelineBuilderUIWorkspaceProps = {
   stageIds: number[];
   editViewName?: string;
   onStageMoveEnd: (from: number, to: number) => void;
-  onAddStage: () => void;
-  isLastStage: boolean;
+  onAddStage: (after?: number) => void;
 };
+
+type SortableItemProps = {
+  idx: number;
+  isLastStage: boolean;
+  onAddStage: (after?: number) => void;
+} & Partial<StageProps>;
 
 export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilderUIWorkspaceProps> = ({
   stageIds,
   editViewName,
   onStageMoveEnd,
   onAddStage,
-  isLastStage,
 }) => {
-  const SortableItem = ({ idx, ...props }: { idx: number } & Partial<StageProps>) => {
+  const SortableItem = ({ idx, isLastStage, onAddStage, ...props }: SortableItemProps) => {
     return (
       <div className={stageContainerStyles}>
         <Stage index={idx} {...props}></Stage>
@@ -108,12 +112,14 @@ export const PipelineBuilderUIWorkspace: React.FunctionComponent<PipelineBuilder
             <ModifySourceBanner editViewName={editViewName} />
           )}
           <PipelineBuilderInputDocuments />
+          {stageIds.length !== 0 && <AddStage onAddStage={() => onAddStage(-1)} variant='icon' />}
           <SortableList>
             {stageIds.map((id, index) => {
-              return <SortableItem key={`stage-${id}`} idx={index} index={index} />;
+              return <SortableItem key={`stage-${id}`} idx={index} index={index} isLastStage={index === stageIds.length - 1}
+              onAddStage={() => onAddStage(index)} />;
             })}
           </SortableList>
-          <AddStage />
+          <AddStage onAddStage={onAddStage} variant='button' />
         </div>
       </div>
     </div>
