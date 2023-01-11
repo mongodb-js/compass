@@ -1,7 +1,9 @@
 #! /usr/bin/env node
 'use strict';
-
 const fs = require('fs');
+const path = require('path');
+
+const config = require('./config.json');
 
 function template(input) {
   // PHP-like syntax, except it's JS.
@@ -30,139 +32,105 @@ function template(input) {
   return eval(asJs);
 }
 
-const testPackagedAppVariations = [
-  {
-    name: 'test-packaged-app-40x-community',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '4.0.x'
-      }
-    }
-  },
-  {
-    name: 'test-packaged-app-40x-enterprise',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '4.0.x',
-        mongodb_use_enterprise: 'yes'
-      }
-    }
-  },
-  {
-    name: 'test-packaged-app-42x-community',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '4.2.x'
-      }
-    }
-  },
-  {
-    name: 'test-packaged-app-42x-enterprise',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '4.2.x',
-        mongodb_use_enterprise: 'yes'
-      }
-    }
-  },
-  {
-    name: 'test-packaged-app-44x-community',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '4.4.x'
-      }
-    }
-  },
-  {
-    name: 'test-packaged-app-44x-enterprise',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '4.4.x',
-        mongodb_use_enterprise: 'yes'
-      }
-    }
-  },
-  {
-    name: 'test-packaged-app-5x-community',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '5.x.x'
-      }
-    }
-  },
-  {
-    name: 'test-packaged-app-5x-enterprise',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '5.x.x',
-        mongodb_use_enterprise: 'yes'
-      }
-    }
-  },
-  {
-    name: 'test-packaged-app-60x-enterprise',
-    'test-packaged-app': {
-      vars: {
-        mongodb_version: '6.x.x',
-        mongodb_use_enterprise: 'yes'
-      }
-    }
+function generateBuildVariantTask(
+  taskName,
+  taskOptions,
+  defaultRunOn,
+  runOnOptions
+) {
+  const task = { name: taskName };
+  const guiMachine = runOnOptions.gui ?? defaultRunOn;
+  if (taskOptions.depends_on) {
+    task.depends_on = taskOptions.depends_on;
   }
-];
-
-const buildVariants = [
-  {
-    name: 'windows',
-    display_name: 'Windows (Test and Package)',
-    run_on: 'windows-vsCurrent-large'
-  },
-  {
-    name: 'ubuntu',
-    display_name: 'Ubuntu (Test and Package)',
-    run_on: 'ubuntu1604-large'
-  },
-  {
-    name: 'rhel',
-    display_name: 'RHEL (Test and Package)',
-    run_on: 'rhel76-large'
-  },
-  {
-    name: 'macos',
-    display_name: 'MacOS x64 (Test and Package)',
-    run_on: 'macos-1100-gui',
-    // TODO: Even though these tests are running, they run compass with a
-    //       keychain disabled and clipboard tests skipped
-    //
-    //       https://jira.mongodb.org/browse/BUILD-14458
-    //       https://jira.mongodb.org/browse/BUILD-14780
-    tasks: [{ name: 'test-packaged-app-60x-enterprise' }]
-  },
-  {
-    name: 'macos_arm64',
-    display_name: 'MacOS arm64 (Test and Package)',
-    run_on: 'macos-1100-arm64-gui',
-    tasks: [{ name: 'test-packaged-app-60x-enterprise' }]
+  if (taskOptions.gui && guiMachine !== defaultRunOn) {
+    task.run_on = guiMachine;
   }
-];
-
-for (const buildVariant of buildVariants) {
-  if (buildVariant.tasks) continue; // Do not generate tasks if already pre-specified
-  buildVariant.tasks = [];
-  for (const task of testPackagedAppVariations) {
-    // TODO: The version of ubuntu we're using is not supported by mongodb 5 so
-    // for now skip mongodb 5 on ubuntu. We'll upgrade (hopefully) soon and then
-    // we can remove this.
-    if (
-      (task.name.startsWith('test-packaged-app-5x') ||
-        task.name.startsWith('test-packaged-app-60x')) &&
-      buildVariant.name === 'ubuntu'
-    ) {
-      continue;
-    }
-    buildVariant.tasks.push(task);
-  }
+  return task;
 }
 
-const input = fs.readFileSync(process.argv[2], 'utf8');
+function generateBuildVariants() {
+  const variants = [];
 
-process.stdout.write(template(input));
+  for (const runOn of config.variants.run_on) {
+    const [runOnName, runOnOptions = {}] = Array.isArray(runOn)
+      ? runOn
+      : [runOn];
+
+    const variant = {
+      name: config.run_on_alias.short[runOnName],
+      display_name: config.run_on_alias.long[runOnName],
+      run_on: runOnName,
+      tasks: config.variants.tasks.flatMap((task) => {
+        const [taskName, taskOptions = {}] = Array.isArray(task)
+          ? task
+          : [task];
+
+        if (taskOptions.skip_on && taskOptions.skip_on.includes(runOnName)) {
+          return [];
+        }
+
+        if (config.tasks.variants[taskName]) {
+          return config.tasks.variants[taskName]
+            .filter((variantOptions) => {
+              return !variantOptions.skip_on?.includes(runOnName);
+            })
+            .map((variantOptions) => {
+              return generateBuildVariantTask(
+                `${taskName}-${variantOptions.name}`,
+                taskOptions,
+                runOnName,
+                runOnOptions
+              );
+            });
+        }
+
+        return generateBuildVariantTask(
+          taskName,
+          taskOptions,
+          runOnName,
+          runOnOptions
+        );
+      })
+    };
+
+    variants.push(variant);
+  }
+
+  return variants;
+}
+
+function generateTasks() {
+  const tasks = {};
+
+  for (const [taskName, taskVariants] of Object.entries(
+    config.tasks.variants
+  )) {
+    for (const taskVariant of taskVariants) {
+      const task = {
+        name: `${taskName}-${taskVariant.name}`,
+        vars: taskVariant.vars
+      };
+
+      tasks[taskName] ??= [];
+      tasks[taskName].push(task);
+    }
+  }
+
+  return tasks;
+}
+
+const buildVariants = generateBuildVariants();
+const tasks = generateTasks();
+
+const inputs = process.argv[2]
+  ? [process.argv[2]]
+  : [
+      path.resolve(__dirname, 'buildvariants.in.yml'),
+      path.resolve(__dirname, 'tasks.in.yml')
+    ];
+
+for (const inputPath of inputs) {
+  const input = fs.readFileSync(inputPath, 'utf8');
+  fs.writeFileSync(inputPath.replace(/\.in\.yml$/, '.yml'), template(input));
+}

@@ -22,16 +22,11 @@ buildvariants:
     display_name: CSFLE Tests
     run_on: ubuntu2004-large
     tasks:
-      - name: test-csfle<% for (const buildVariant of buildVariants) { %>
-
+      - name: test-csfle
+<% for (const buildVariant of buildVariants) { %>
   - name: <% out(buildVariant.name) %>
-    display_name: <% out(buildVariant.display_name) %>
+    display_name: <% out(buildVariant.display_name) %> (Test and Package)
     run_on: <% out(buildVariant.run_on) %>
-    tasks:
-      - name: test
-      - name: test-electron
-      - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated<% for (const task of buildVariant.tasks) { %>
-      - name: <% out(task.name) %><% }} %>
+    tasks:<% for (const task of buildVariant.tasks) { %>
+      - name: <% out(task.name); task.run_on && out(`\n        run_on: ${task.run_on}`); task.depends_on && out(`\n        depends_on: ${task.depends_on}`); %>
+<% }} %>
