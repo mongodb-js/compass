@@ -687,22 +687,7 @@ describe('schema-analyis', function () {
 
       /*
       [
-        // ignore all this complex _id stuff as the example has a very weird id format. It would just be one _id field in almost all cases
         [ '_id' ],
-        [ '_id', 'id' ],
-        [ '_id', 'id', '0' ],
-        [ '_id', 'id', '1' ],
-        [ '_id', 'id', '10' ],
-        [ '_id', 'id', '11' ],
-        [ '_id', 'id', '2' ],
-        [ '_id', 'id', '3' ],
-        [ '_id', 'id', '4' ],
-        [ '_id', 'id', '5' ],
-        [ '_id', 'id', '6' ],
-        [ '_id', 'id', '7' ],
-        [ '_id', 'id', '8' ],
-        [ '_id', 'id', '9' ],
-
         [ 'analysis' ],
         [ 'analysis', 'comprehend' ],
         [ 'analysis', 'comprehend', 'entities' ],
@@ -719,19 +704,11 @@ describe('schema-analyis', function () {
         [ 'author' ],
         [ 'content' ],
         [ 'dataset' ],
-
         [ 'date' ],
-        [ 'date', '$date' ],
-        [ 'date', '$date', '$numberLong' ],
-
         [ 'emailData' ],
         [ 'emailData', 'bcc' ],
         [ 'emailData', 'cc' ],
-
         [ 'emailData', 'dateSent' ],
-        [ 'emailData', 'dateSent', '$date' ],
-        [ 'emailData', 'dateSent', '$date', '$numberLong' ],
-
         [ 'emailData', 'folderPath' ],
         [ 'emailData', 'from' ],
         [ 'emailData', 'relativeFilePath' ],
