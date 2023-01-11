@@ -27,114 +27,6 @@ tasks:
         vars:
           debug: 'hadron*,mongo*'
 
-  - name: package
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: '@mongodb-js/webpack-config-compass'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: package
-        vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
-          compass_distribution: compass
-      - func: save-windows-artifacts
-        vars:
-          compass_distribution: compass
-        variants: [windows]
-      - func: save-macos-artifacts
-        vars:
-          compass_distribution: compass
-        variants: [macos]
-      - func: save-macos-artifacts
-        vars:
-          compass_distribution: compass
-        variants: [macos_arm64]
-      - func: save-rhel-artifacts
-        vars:
-          compass_distribution: compass
-        variants: [rhel]
-      - func: save-ubuntu-artifacts
-        vars:
-          compass_distribution: compass
-        variants: [ubuntu]
-
-  - name: package-isolated
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: '@mongodb-js/webpack-config-compass'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-isolated
-      - func: package
-        vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
-          compass_distribution: compass-isolated
-      - func: save-windows-artifacts
-        vars:
-          compass_distribution: compass-isolated
-        variants: [windows]
-      - func: save-macos-artifacts
-        vars:
-          compass_distribution: compass-isolated
-        variants: [macos]
-      - func: save-macos-artifacts
-        vars:
-          compass_distribution: compass-isolated
-        variants: [macos_arm64]
-      - func: save-rhel-artifacts
-        vars:
-          compass_distribution: compass-isolated
-        variants: [rhel]
-      - func: save-ubuntu-artifacts
-        vars:
-          compass_distribution: compass-isolated
-        variants: [ubuntu]
-
-  - name: package-readonly
-    tags: ['required-for-publish', 'run-on-pr']
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: '@mongodb-js/webpack-config-compass'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass-readonly
-      - func: package
-        vars:
-          debug: 'hadron*,mongo*,compass*,electron*'
-          compass_distribution: compass-readonly
-      - func: save-windows-artifacts
-        vars:
-          compass_distribution: compass-readonly
-        variants: [windows]
-      - func: save-macos-artifacts
-        vars:
-          compass_distribution: compass-readonly
-        variants: [macos]
-      - func: save-macos-artifacts
-        vars:
-          compass_distribution: compass-readonly
-        variants: [macos_arm64]
-      - func: save-rhel-artifacts
-        vars:
-          compass_distribution: compass-readonly
-        variants: [rhel]
-      - func: save-ubuntu-artifacts
-        vars:
-          compass_distribution: compass-readonly
-        variants: [ubuntu]
-
   - name: test-connectivity
     tags: ['required-for-publish', 'run-on-pr']
     commands:
@@ -192,13 +84,65 @@ tasks:
       - func: bootstrap
       - func: publish-packages-next
 
-  # copied as test-packaged-app-macos due to depends_on variation
-  
+  - name: package-compass
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: package
+        vars:
+          debug: 'hadron*,mongo*,compass*,electron*'
+          compass_distribution: compass
+      - func: save-all-artifacts
+        vars:
+          compass_distribution: compass
+
+  - name: package-compass-readonly
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-readonly
+      - func: package
+        vars:
+          debug: 'hadron*,mongo*,compass*,electron*'
+          compass_distribution: compass-readonly
+      - func: save-all-artifacts
+        vars:
+          compass_distribution: compass-readonly
+
+  - name: package-compass-isolated
+    tags: ['required-for-publish', 'run-on-pr']
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: '@mongodb-js/webpack-config-compass'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass-isolated
+      - func: package
+        vars:
+          debug: 'hadron*,mongo*,compass*,electron*'
+          compass_distribution: compass-isolated
+      - func: save-all-artifacts
+        vars:
+          compass_distribution: compass-isolated
 
   - name: test-packaged-app-40x-community
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -216,12 +160,9 @@ tasks:
           mongodb_version: '4.0.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
 
   - name: test-packaged-app-40x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -240,12 +181,9 @@ tasks:
           mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
 
   - name: test-packaged-app-42x-community
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -263,12 +201,9 @@ tasks:
           mongodb_version: '4.2.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
 
   - name: test-packaged-app-42x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -287,12 +222,9 @@ tasks:
           mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
 
   - name: test-packaged-app-44x-community
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -310,12 +242,9 @@ tasks:
           mongodb_version: '4.4.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
 
   - name: test-packaged-app-44x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -334,12 +263,9 @@ tasks:
           mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
 
   - name: test-packaged-app-5x-community
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -357,12 +283,9 @@ tasks:
           mongodb_version: '5.x.x'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
 
   - name: test-packaged-app-5x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -381,12 +304,9 @@ tasks:
           mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
 
   - name: test-packaged-app-60x-enterprise
     tags: ['required-for-publish', 'run-on-pr']
-    depends_on:
-      - name: package
     commands:
       - func: prepare
       - func: install
@@ -405,4 +325,3 @@ tasks:
           mongodb_use_enterprise: 'yes'
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-  
