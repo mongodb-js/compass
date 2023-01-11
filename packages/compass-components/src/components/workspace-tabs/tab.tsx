@@ -235,11 +235,13 @@ function Tab({
     defaultActionProps
   );
 
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: tabContentId });
+  const { listeners, setNodeRef, transform, transition } = useSortable({
+    id: tabContentId,
+  });
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
+    cursor: 'grabbing !important',
   };
 
   return (
@@ -261,9 +263,10 @@ function Tab({
       aria-controls={tabContentId}
       data-testid="workspace-tab-button"
       title={`${subtitle} - ${title}`}
+      {...listeners}
       {...tabProps}
     >
-      <div className={tabTitleContainerStyles} {...attributes} {...listeners}>
+      <div className={tabTitleContainerStyles}>
         <Icon
           size="small"
           role="presentation"

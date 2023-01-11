@@ -12,8 +12,10 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import type { UniqueIdentifier } from '@dnd-kit/core';
-import { SortableContext } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 import { useDarkMode } from '../../hooks/use-theme';
 import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
@@ -144,8 +146,10 @@ type SortableItemProps = {
 
 type SortableListProps = {
   tabs: TabProps[];
+  selectedTabIndex: number;
   onMove: (oldTabIndex: number, newTabIndex: number) => void;
-  children: React.ReactNode;
+  onSelect: (tabIndex: number) => void;
+  onClose: (tabIndex: number) => void;
 };
 
 type WorkspaceTabsProps = {
@@ -196,7 +200,13 @@ export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   return { ref: rootNode, ...focusProps };
 }
 
-const SortableList = ({ tabs, onMove, children }: SortableListProps) => {
+const SortableList = ({
+  tabs,
+  onMove,
+  onSelect,
+  selectedTabIndex,
+  onClose,
+}: SortableListProps) => {
   const items = tabs.map((tab) => tab.tabContentId);
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -214,17 +224,14 @@ const SortableList = ({ tabs, onMove, children }: SortableListProps) => {
     })
   );
 
-  const onSortEnd = ({
-    oldIndex,
-    newIndex,
-  }: {
-    oldIndex: UniqueIdentifier;
-    newIndex: UniqueIdentifier;
-  }) => {
-    const from = tabs.findIndex((tab) => tab.tabContentId === oldIndex);
-    const to = tabs.findIndex((tab) => tab.tabContentId === newIndex);
-    onMove(from, to);
-  };
+  const onSortEnd = useCallback(
+    ({ oldIndex, newIndex }) => {
+      const from = tabs.findIndex((tab) => tab.tabContentId === oldIndex);
+      const to = tabs.findIndex((tab) => tab.tabContentId === newIndex);
+      onMove(from, to);
+    },
+    [onMove, tabs]
+  );
 
   return (
     <DndContext
@@ -236,8 +243,19 @@ const SortableList = ({ tabs, onMove, children }: SortableListProps) => {
         }
       }}
     >
-      <SortableContext items={items}>
-        <div>{children}</div>
+      <SortableContext items={items} strategy={horizontalListSortingStrategy}>
+        <div className={sortableItemContainerStyles}>
+          {tabs.map((tab: TabProps, index: number) => (
+            <SortableItem
+              key={`tab-${tab.tabContentId}-${tab.subtitle}`}
+              index={index}
+              tab={tab}
+              onSelect={onSelect}
+              onClose={onClose}
+              selectedTabIndex={selectedTabIndex}
+            />
+          ))}
+        </div>
       </SortableContext>
     </DndContext>
   );
@@ -315,20 +333,13 @@ function WorkspaceTabs({
           aria-orientation="horizontal"
           {...tabContainerProps}
         >
-          <SortableList tabs={tabs} onMove={onMoveTab}>
-            <div className={sortableItemContainerStyles}>
-              {tabs.map((tab: TabProps, index: number) => (
-                <SortableItem
-                  key={`tab-${tab.tabContentId}-${tab.subtitle}`}
-                  index={index}
-                  tab={tab}
-                  onSelect={onSelectTab}
-                  onClose={onCloseTab}
-                  selectedTabIndex={selectedTabIndex}
-                />
-              ))}
-            </div>
-          </SortableList>
+          <SortableList
+            tabs={tabs}
+            onMove={onMoveTab}
+            onSelect={onSelectTab}
+            onClose={onCloseTab}
+            selectedTabIndex={selectedTabIndex}
+          />
         </div>
         <div className={newTabContainerStyles}>
           <IconButton

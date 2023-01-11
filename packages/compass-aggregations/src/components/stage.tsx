@@ -67,15 +67,10 @@ type ResizableEditorProps = {
 };
 
 function ResizableEditor({ id, index, isExpanded, isAutoPreviewing, ...props }: ResizableEditorProps) {
-  const { attributes, listeners } =
-    useSortable({ id: id + 1 });
-
+  const { listeners } = useSortable({ id: id + 1 });
   const editor = (
     <>
-      <div
-        {...attributes}
-        {...listeners}
-      >
+      <div {...listeners}>
         <StageEditorToolbar index={index} {...props}></StageEditorToolbar>
       </div>
       {isExpanded && (
