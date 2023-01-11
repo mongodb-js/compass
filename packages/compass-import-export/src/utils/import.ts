@@ -1,7 +1,8 @@
 import type { DataService } from 'mongodb-data-service';
+import type { ReadStream } from 'fs';
 
 type GuessFileTypeOptions = {
-  filename: string;
+  input: ReadStream;
 };
 
 type GuessFileTypeResult = {
@@ -11,28 +12,28 @@ type GuessFileTypeResult = {
 };
 
 export function guessFileType({
-  filename,
+  input,
 }: GuessFileTypeOptions): Promise<GuessFileTypeResult> {
   // Steps:
   // 1. guess the type (csv or json)
   // 2. if csv, guess the delimiter
 
   // TODO
-  console.log(filename);
+  console.log(input);
   return Promise.resolve({ type: 'csv', delimiter: ',' });
 }
 
 ///
 
 type ListCSVFieldsOptions = {
-  filename: string;
+  input: ReadStream;
   delimiter: string;
 };
 
 type ListCSVFieldsResult = string[];
 
 export function listCSVFields({
-  filename,
+  input,
   delimiter,
 }: ListCSVFieldsOptions): Promise<ListCSVFieldsResult> {
   // Steps:
@@ -40,14 +41,14 @@ export function listCSVFields({
   // 2. split by the specified delimiter
 
   // TODO
-  console.log(filename, delimiter);
+  console.log(input, delimiter);
   return Promise.resolve([]);
 }
 
 ///
 
 type AnalyzeCSVFieldsOptions = {
-  filename: string;
+  input: ReadStream;
   delimiter: string;
   abortSignal: AbortSignal;
   progressCallback: (index: number) => void;
@@ -93,7 +94,7 @@ type AnalyzeCSVFieldsResult = {
 };
 
 export function analyzeCSVFields({
-  filename,
+  input,
   delimiter,
   abortSignal,
   progressCallback,
@@ -103,7 +104,7 @@ export function analyzeCSVFields({
   //    analyzed fields object along the way (see importer spike/prototype)
 
   // TODO
-  console.log(filename, delimiter, abortSignal, progressCallback);
+  console.log(input, delimiter, abortSignal, progressCallback);
   return Promise.resolve({ total: 0, fields: {}, preview: [] });
 }
 
@@ -112,7 +113,7 @@ export function analyzeCSVFields({
 type ImportJSONOptions = {
   dataService: DataService;
   ns: string;
-  filename: string;
+  input: ReadStream;
   abortSignal: AbortSignal;
   progressCallback: (index: number) => void;
   stopOnErrors?: boolean;
@@ -123,7 +124,7 @@ type ImportJSONResult = Error[];
 export function importJSON({
   dataService,
   ns,
-  filename,
+  input,
   abortSignal,
   progressCallback,
   stopOnErrors,
@@ -134,7 +135,7 @@ export function importJSON({
   console.log(
     dataService,
     ns,
-    filename,
+    input,
     abortSignal,
     progressCallback,
     stopOnErrors
@@ -147,7 +148,7 @@ export function importJSON({
 type ImportCSVOptions = {
   dataService: DataService;
   ns: string;
-  filename: string;
+  input: ReadStream;
   abortSignal: AbortSignal;
   progressCallback: (index: number) => void;
   delimiter: string;
@@ -164,7 +165,7 @@ type ImportCSVResult = Error[];
 export function importCSV({
   dataService,
   ns,
-  filename,
+  input,
   abortSignal,
   progressCallback,
   delimiter,
@@ -179,7 +180,7 @@ export function importCSV({
   console.log(
     dataService,
     ns,
-    filename,
+    input,
     abortSignal,
     progressCallback,
     delimiter,
