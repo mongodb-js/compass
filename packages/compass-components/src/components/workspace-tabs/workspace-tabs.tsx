@@ -1,4 +1,10 @@
-import React, { useEffect, useCallback, useMemo, useRef } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -12,6 +18,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import type { UniqueIdentifier } from '@dnd-kit/core';
 import {
   SortableContext,
   horizontalListSortingStrategy,
@@ -140,6 +147,7 @@ type SortableItemProps = {
   tab: TabProps;
   index: number;
   selectedTabIndex: number;
+  activeId: UniqueIdentifier | null;
   onSelect: (tabIndex: number) => void;
   onClose: (tabIndex: number) => void;
 };
@@ -208,6 +216,7 @@ const SortableList = ({
   onClose,
 }: SortableListProps) => {
   const items = tabs.map((tab) => tab.tabContentId);
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const sensors = useSensors(
     useSensor(MouseSensor, {
       // Require the mouse to move by 10 pixels before activating.
@@ -237,11 +246,20 @@ const SortableList = ({
     <DndContext
       sensors={sensors}
       autoScroll={false}
+      onDragStart={({ active }) => {
+        if (!active) {
+          return;
+        }
+
+        setActiveId(active.id);
+      }}
       onDragEnd={({ active, over }) => {
+        setActiveId(null);
         if (over && active.id !== over.id) {
           onSortEnd({ oldIndex: active.id, newIndex: over.id });
         }
       }}
+      onDragCancel={() => setActiveId(null)}
     >
       <SortableContext items={items} strategy={horizontalListSortingStrategy}>
         <div className={sortableItemContainerStyles}>
@@ -250,6 +268,7 @@ const SortableList = ({
               key={`tab-${tab.tabContentId}-${tab.subtitle}`}
               index={index}
               tab={tab}
+              activeId={activeId}
               onSelect={onSelect}
               onClose={onClose}
               selectedTabIndex={selectedTabIndex}
@@ -265,6 +284,7 @@ const SortableItem = ({
   tab: { tabContentId, iconGlyph, subtitle, title },
   index,
   selectedTabIndex,
+  activeId,
   onSelect,
   onClose,
 }: SortableItemProps) => {
@@ -281,10 +301,16 @@ const SortableItem = ({
     [selectedTabIndex, index]
   );
 
+  const isDragging = useMemo(
+    () => tabContentId === activeId,
+    [tabContentId, activeId]
+  );
+
   return (
     <Tab
       title={title}
       isSelected={isSelected}
+      isDragging={isDragging}
       iconGlyph={iconGlyph}
       tabContentId={tabContentId}
       subtitle={subtitle}

@@ -66,6 +66,10 @@ const selectedTabStyles = css({
   },
 });
 
+const draggingTabStyles = css({
+  cursor: 'grabbing !important',
+});
+
 const focusedTabStyles = css({
   zIndex: 3, // Show the border over surrounding tabs.
   borderColor: palette.blue.light1,
@@ -197,6 +201,7 @@ type IconGlyph = Extract<keyof typeof glyphs, string>;
 type TabProps = {
   title: string;
   isSelected: boolean;
+  isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
   iconGlyph: IconGlyph;
@@ -207,6 +212,7 @@ type TabProps = {
 function Tab({
   title,
   isSelected,
+  isDragging,
   onSelect,
   onClose,
   tabContentId,
@@ -254,6 +260,7 @@ function Tab({
         {
           [selectedTabStyles]: isSelected,
           [focusedTabStyles]: isFocused,
+          [draggingTabStyles]: isDragging,
         }
       )}
       aria-selected={isSelected}
