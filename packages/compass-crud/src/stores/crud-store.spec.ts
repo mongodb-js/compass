@@ -505,6 +505,29 @@ describe('store', function () {
       });
     });
 
+    context('when the count is null', function () {
+      const doc = { _id: null, name: 'Depeche Mode' };
+      const hadronDoc = new HadronDocument(doc);
+
+      beforeEach(function () {
+        store.state.docs = [hadronDoc];
+        store.state.count = null;
+        store.state.end = 1;
+      });
+
+      it('keeps the count as null after the delete', async function () {
+        const listener = waitForState(store, (state) => {
+          expect(state.docs.length).to.equal(0);
+          expect(state.count).to.equal(null);
+          expect(state.end).to.equal(0);
+        });
+
+        store.removeDocument(hadronDoc);
+
+        await listener;
+      });
+    });
+
     context('when the deletion errors', function () {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
