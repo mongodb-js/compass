@@ -1,9 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { sortableHandle } from 'react-sortable-hoc';
 import { Resizable } from 're-resizable';
 
 import { KeylineCard, css, cx, spacing, palette } from '@mongodb-js/compass-components';
+
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS as cssDndKit } from '@dnd-kit/utilities';
 
 import type { RootState } from '../modules';
 
@@ -13,10 +15,6 @@ import StageEditor from './stage-editor';
 import StagePreview from './stage-preview';
 import StagePreviewToolbar from './stage-preview-toolbar';
 import { hasSyntaxError } from '../utils/stage';
-
-const DragHandleToolbar = sortableHandle((props: { index: number }) => {
-  return <StageEditorToolbar {...props}></StageEditorToolbar>
-});
 
 const stageStyles = css({
   position: 'relative',
@@ -62,15 +60,19 @@ const RESIZABLE_DIRECTIONS = {
 };
 
 type ResizableEditorProps = {
+  id: number;
   index: number,
   isExpanded: boolean,
   isAutoPreviewing: boolean,
 };
 
-function ResizableEditor({ index, isExpanded, isAutoPreviewing }: ResizableEditorProps) {
+function ResizableEditor({ id, index, isExpanded, isAutoPreviewing, ...props }: ResizableEditorProps) {
+  const { listeners } = useSortable({ id: id + 1 });
   const editor = (
     <>
-      <DragHandleToolbar index={index} />
+      <div {...listeners}>
+        <StageEditorToolbar index={index} {...props}></StageEditorToolbar>
+      </div>
       {isExpanded && (
         // @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted.
         <StageEditor index={index} />
@@ -115,7 +117,8 @@ function ResizableEditor({ index, isExpanded, isAutoPreviewing }: ResizableEdito
 
 const DEFAULT_OPACITY = 0.6;
 
-type StageProps = {
+export type StageProps = {
+  id: number;
   index: number,
   isEnabled: boolean,
   isExpanded: boolean,
@@ -125,6 +128,7 @@ type StageProps = {
 }
 
 function Stage({
+  id,
   index,
   isEnabled,
   isExpanded,
@@ -133,20 +137,38 @@ function Stage({
   isAutoPreviewing
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
+  const { setNodeRef, transform, transition } =
+    useSortable({ id: id + 1 });
+  const style = {
+    transform: cssDndKit.Transform.toString(transform),
+    transition,
+  };
 
-  return (<KeylineCard data-testid="stage-card" data-stage-index={index} className={cx(
-      stageStyles,
-      hasSyntaxError && stageWarningStyles,
-      hasServerError && stageErrorStyles
-    )} style={{ opacity }}>
-    <ResizableEditor index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
-    {isAutoPreviewing && (<div className={stagePreviewContainerStyles}>
-      <StagePreviewToolbar index={index} />
-      {isExpanded && (
-        <StagePreview index={index} />
-      )}
-    </div>)}
-  </KeylineCard>);
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+    >
+      <KeylineCard
+        data-testid="stage-card"
+        data-stage-index={index}
+        className={cx(
+          stageStyles,
+          hasSyntaxError && stageWarningStyles,
+          hasServerError && stageErrorStyles
+        )}
+        style={{ opacity }}
+      >
+        <ResizableEditor id={id} index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
+        {isAutoPreviewing && (<div className={stagePreviewContainerStyles}>
+          <StagePreviewToolbar index={index} />
+          {isExpanded && (
+            <StagePreview index={index} />
+          )}
+        </div>)}
+      </KeylineCard>
+    </div>
+  );
 }
 
 
@@ -157,6 +179,7 @@ type StageOwnProps = {
 export default connect((state: RootState, ownProps: StageOwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index]
   return {
+    id: stage.id,
     isEnabled: !stage.disabled,
     isExpanded: !stage.collapsed,
     hasSyntaxError: hasSyntaxError(stage),

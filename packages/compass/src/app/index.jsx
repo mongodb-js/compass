@@ -70,7 +70,6 @@ const Application = View.extend({
   template: function () {
     return [
       '<div id="application">',
-      '  <div data-hook="auto-update"></div>',
       '  <div data-hook="layout-container"></div>',
       '</div>',
     ].join('\n');
