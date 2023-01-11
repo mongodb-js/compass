@@ -240,37 +240,14 @@ describe('schema-analyis', function () {
 
     it.only('returns the schema for a more complex example', async function () {
       const doc = {
-        "_id": {
-          "id": {
-            "0": 93,
-            "1": 137,
-            "2": 25,
-            "3": 27,
-            "4": 95,
-            "5": 93,
-            "6": 93,
-            "7": 120,
-            "8": 185,
-            "9": 152,
-            "10": 89,
-            "11": 19
-          }
-        },
+        "_id": new bson.ObjectId(),
         "author": "arnold-j",
         "content": "Message-ID: <1304703.1075857631406.JavaMail.evans@thyme>\r\nDate: Fri, 11 May 2001 08:56:00 -0700 (PDT)\r\nFrom: outlook.team@enron.com\r\nTo: aimee.shek@enron.com, albino.lopez@enron.com, andrea.williams@enron.com, \r\n\tanitha.mathis@enron.com, antonette.concepcion@enron.com, \r\n\tbernard.rhoden@enron.com, deborah.kallus@enron.com, \r\n\tdiane.taylor@enron.com, gardenia.sullivan@enron.com, \r\n\tginger.sinclair@enron.com, janice.priddy@enron.com, \r\n\tjeanne.seward@enron.com, lloyd.whiteurst@enron.com, \r\n\tmonique.criswell@enron.com, monique.mcfarland@enron.com, \r\n\tpauline.sanchez@enron.com, rena.lo@enron.com, shawn.simon@enron.com, \r\n\tvalley.confer@enron.com, cynthia.barrow@enron.com, \r\n\tdeborah.guillory@enron.com, dinah.sultanik@enron.com, \r\n\tgeorgia.fogo@enron.com, ginger.mccain@enron.com, \r\n\tiris.jimenez@enron.com, jennifer.mendez@enron.com, \r\n\tjohn.cevilla@enron.com, joshua.wooten@enron.com, \r\n\tkarla.dobbs@enron.com, kayla.ruiz@enron.com, lee.wright@enron.com, \r\n\tmaria.mitchell@enron.com, mikie.rath@enron.com, \r\n\trobin.hosea@enron.com, sandy.huseman@enron.com, \r\n\tsheri.jordan@enron.com, tashia.hayes@enron.com, \r\n\tdonna.greif@enron.com, eric.gonzales@enron.com, \r\n\tjared.kaiser@enron.com, jonathan.whitehead@enron.com, \r\n\tomar.aboudaher@enron.com, paul.omasits@enron.com, \r\n\tshahnaz.lakho@enron.com, troy.denetsosie@enron.com, \r\n\twilliam.giuliani@enron.com, zionette.vincent@enron.com, \r\n\tadrial.boals@enron.com, albert.escamilla@enron.com, \r\n\tamber.ebow@enron.com, avril.forster@enron.com, \r\n\tbernice.rodriguez@enron.com, bill.hare@enron.com, \r\n\tbrian.heinrich@enron.com, cheryl.johnson@enron.com, \r\n\tchristopher.hargett@enron.com, dejoun.windless@enron.com, \r\n\tdonna.consemiu@enron.com, donna.everett@enron.com, \r\n\tgloria.roberson@enron.com, james.scribner@enron.com, \r\n\tjason.moore@enron.com, jean.killough@enron.com, jeff.klotz@enron.com, \r\n\tjenny.helton@enron.com, john.harrison@enron.com, \r\n\tjulissa.marron@enron.com, karen.lambert@enron.com, \r\n\tkathryn.pallant@enron.com, kelly.lombardi@enron.com, \r\n\tkevin.richardson@enron.com, lisa.woods@enron.com, \r\n\tmarilyn.colbert@enron.com, michelle.laurant@enron.com, \r\n\tremi.otegbola@enron.com, ruby.kyser@enron.com, \r\n\tsamuel.schott@enron.com, stacie.guidry@enron.com, \r\n\tsteve.venturatos@enron.com, suzanne.nicholie@enron.com, \r\n\ttammie.huthmacher@enron.com, willie.harrell@enron.com, \r\n\talexandra.villarreal@enron.com, daniel.quezada@enron.com, \r\n\tdutch.quigley@enron.com, ina.rangel@enron.com, jason.panos@enron.com, \r\n\tjesus.hernandez@enron.com, john.arnold@enron.com, \r\n\tjohn.griffith@enron.com, kimberly.hardy@enron.com, \r\n\tlarry.may@enron.com, mike.maggi@enron.com, steve.dailey@enron.com\r\nSubject: 3 - URGENT - TO PREVENT LOSS OF INFORMATION\r\nMime-Version: 1.0\r\nContent-Type: text/plain; charset=us-ascii\r\nContent-Transfer-Encoding: 7bit\r\nX-From: Outlook Migration Team\r\nX-To: Aimee Shek, Albino Lopez, Andrea Williams, Anitha Mathis, Antonette Concepcion, Bernard Rhoden, Deborah Kallus, Diane Taylor, Gardenia Sullivan, Ginger Sinclair, Janice Priddy, Jeanne Seward, Lloyd Whiteurst, Monique Criswell, Monique McFarland, Pauline Sanchez, Rena Lo, Shawn Simon, Valley Confer, Cynthia Barrow, Deborah Guillory, Dinah Sultanik, Georgia Fogo, Ginger McCain, Iris Jimenez, Jennifer Mendez, John Cevilla, Joshua Wooten, Karla Dobbs, Kayla Ruiz, Lee Wright, Maria Mitchell, Mikie Rath, Robin Hosea, Sandy Huseman, Sheri Jordan, Tashia Hayes, Donna Greif, Eric Gonzales, Jared Kaiser, Jonathan Whitehead, Omar Aboudaher, Paul Omasits, Shahnaz Lakho, Troy Denetsosie, William Giuliani, Zionette Vincent, Adrial Boals, Albert Escamilla, Amber Ebow, Avril Forster, Bernice Rodriguez, Bill D Hare, Brian Heinrich, Cheryl Johnson, Christopher Hargett, Dejoun Windless, Donna Consemiu, Donna Everett, Gloria Roberson, James Scribner, Jason Moore, Jean Killough, Jeff Klotz, Jenny Helton, John Howard Harrison, Julissa Marron, Karen Lambert, Kathryn Pallant, Kelly Lombardi, Kevin Richardson, Lisa Woods, Marilyn Colbert, Michelle Laurant, Remi Otegbola, Ruby Kyser, Samuel Schott, Stacie Guidry, Steve Venturatos, Suzanne Nicholie, Tammie Huthmacher, Willie Harrell, Alexandra Villarreal, Daniel Quezada, Dutch Quigley, Ina Rangel, Jason Panos, Jesus A Hernandez, John Arnold, John Griffith, Kimberly Hardy, Larry May, Mike Maggi, Steve Dailey\r\nX-cc: \r\nX-bcc: \r\nX-Folder: \\John_Arnold_Jun2001\\Notes Folders\\Notes inbox\r\nX-Origin: Arnold-J\r\nX-FileName: Jarnold.nsf\r\n\r\nCritical Migration Information:\n\n1. Your scheduled Outlook Migration Date is THE EVENING OF : May 15th\n2. You need to press the \"Save My Data\" button (only once) to send us your \npre-migration information.\n3. You must be connected to the network before you press the button.\n4. If a POP-UP BOX appears, prompting you to \"ABORT, CANCEL OR TRUST SIGNER\" \nplease  select TRUST SIGNER.\n5. Any information you Add to your Personal Address Book, Journal or calendar \nafter you click on the button will need to be manually re-added into Outlook \nafter you have been migrated.\n6. Clicking this button does not complete your migration to Outlook. Your \nmigration will be completed  the evening of your migration date.\n\n\n\n    Failure to click on the button means you WILL NOT get your Calendar, \nContacts, Journal and ToDo information imported into Outlook the day of your \nmigration and could result in up to a 2 week delay to restore this \ninformation.\n\nIf you encounter any errors please contact the resolution center @ \n713-853-1411 ",
-        "date": {
-          "$date": {
-            "$numberLong": "989596560000"
-          }
-        },
+        "date": new Date(),
         "emailData": {
           "bcc": [],
           "cc": [],
-          "dateSent": {
-            "$date": {
-              "$numberLong": "989596560000"
-            }
-          },
+          "dateSent": new Date(),
           "folderPath": "notes_inbox",
           "from": "outlook.team@enron.com",
           "relativeFilePath": "arnold-j/notes_inbox/76.",
@@ -710,6 +687,7 @@ describe('schema-analyis', function () {
 
       /*
       [
+        // ignore all this complex _id stuff as the example has a very weird id format. It would just be one _id field in almost all cases
         [ '_id' ],
         [ '_id', 'id' ],
         [ '_id', 'id', '0' ],
@@ -724,6 +702,7 @@ describe('schema-analyis', function () {
         [ '_id', 'id', '7' ],
         [ '_id', 'id', '8' ],
         [ '_id', 'id', '9' ],
+
         [ 'analysis' ],
         [ 'analysis', 'comprehend' ],
         [ 'analysis', 'comprehend', 'entities' ],
@@ -740,15 +719,19 @@ describe('schema-analyis', function () {
         [ 'author' ],
         [ 'content' ],
         [ 'dataset' ],
+
         [ 'date' ],
         [ 'date', '$date' ],
         [ 'date', '$date', '$numberLong' ],
+
         [ 'emailData' ],
         [ 'emailData', 'bcc' ],
         [ 'emailData', 'cc' ],
+
         [ 'emailData', 'dateSent' ],
         [ 'emailData', 'dateSent', '$date' ],
         [ 'emailData', 'dateSent', '$date', '$numberLong' ],
+
         [ 'emailData', 'folderPath' ],
         [ 'emailData', 'from' ],
         [ 'emailData', 'relativeFilePath' ],
