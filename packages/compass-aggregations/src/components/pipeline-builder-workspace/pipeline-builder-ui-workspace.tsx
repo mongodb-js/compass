@@ -84,7 +84,9 @@ const SortableList = ({
   );
 
   const onSortEnd = ({ oldIndex, newIndex }: { oldIndex: number, newIndex: number }) => {
-    onStageMoveEnd(oldIndex, newIndex);
+    const from = stageIds.findIndex((id) => id + 1 === oldIndex);
+    const to = stageIds.findIndex((id) =>  id + 1 === newIndex);
+    onStageMoveEnd(from, to);
   };
 
   return (
@@ -97,7 +99,7 @@ const SortableList = ({
         }
       }}
     >
-      <SortableContext items={stageIds.map((stage, index) => index)}>
+      <SortableContext items={stageIds.map((id) => id + 1)}>
         <div>{children}</div>
       </SortableContext>
     </DndContext>

@@ -60,14 +60,15 @@ const RESIZABLE_DIRECTIONS = {
 };
 
 type ResizableEditorProps = {
+  id: number;
   index: number,
   isExpanded: boolean,
   isAutoPreviewing: boolean,
 };
 
-function ResizableEditor({ index, isExpanded, isAutoPreviewing, ...props }: ResizableEditorProps) {
+function ResizableEditor({ id, index, isExpanded, isAutoPreviewing, ...props }: ResizableEditorProps) {
   const { attributes, listeners } =
-    useSortable({ id: index });
+    useSortable({ id: id + 1 });
 
   const editor = (
     <>
@@ -122,6 +123,7 @@ function ResizableEditor({ index, isExpanded, isAutoPreviewing, ...props }: Resi
 const DEFAULT_OPACITY = 0.6;
 
 export type StageProps = {
+  id: number;
   index: number,
   isEnabled: boolean,
   isExpanded: boolean,
@@ -131,6 +133,7 @@ export type StageProps = {
 }
 
 function Stage({
+  id,
   index,
   isEnabled,
   isExpanded,
@@ -140,7 +143,7 @@ function Stage({
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
   const { setNodeRef, transform, transition } =
-    useSortable({ id: index });
+    useSortable({ id: id + 1 });
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
@@ -161,7 +164,7 @@ function Stage({
         )}
         style={{ opacity }}
       >
-        <ResizableEditor index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
+        <ResizableEditor id={id} index={index} isExpanded={isExpanded} isAutoPreviewing={isAutoPreviewing} />
         {isAutoPreviewing && (<div className={stagePreviewContainerStyles}>
           <StagePreviewToolbar index={index} />
           {isExpanded && (
@@ -181,6 +184,7 @@ type StageOwnProps = {
 export default connect((state: RootState, ownProps: StageOwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index]
   return {
+    id: stage.id,
     isEnabled: !stage.disabled,
     isExpanded: !stage.collapsed,
     hasSyntaxError: hasSyntaxError(stage),
