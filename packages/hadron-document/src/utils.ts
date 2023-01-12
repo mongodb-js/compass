@@ -1,6 +1,8 @@
 import { EJSON } from 'bson';
 import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
 
+const maxFourYearDate = new Date('9999-12-31T23:59:59.999Z').valueOf();
+
 export function fieldStringLen(value: unknown): number {
   const length = String(value).length;
   return length === 0 ? 1 : length;
@@ -25,6 +27,10 @@ export interface HadronEJSONOptions {
  * types are exactly representable in JS and $numberLong is not,
  * in addition to the fact that this has been historic behavior
  * in Compass for a long time, this seems like a reasonable choice.
+ *
+ * Also turns $date.$numberLong into a date so that it will be
+ * displayed as an iso date string since this is what Compass did
+ * historically.
  *
  * @param value Any BSON value.
  * @returns A serialized, human-readable and human-editable string.
@@ -69,6 +75,12 @@ function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
         (value as any)[key] = +entry.$numberDouble;
       }
       continue;
+    }
+    if (entry.$date && entry.$date.$numberLong) {
+      const number = entry.$date.$numberLong;
+      if (number >= 0 && number <= maxFourYearDate) {
+        entry.$date = new Date(+number);
+      }
     }
     makeEJSONIdiomatic(entry);
   }
