@@ -79,7 +79,7 @@ function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
     if (entry.$date && entry.$date.$numberLong) {
       const number = entry.$date.$numberLong;
       if (number >= 0 && number <= maxFourYearDate) {
-        entry.$date = new Date(+number);
+        entry.$date = new Date(+number).toISOString();
       }
     }
     makeEJSONIdiomatic(entry);
