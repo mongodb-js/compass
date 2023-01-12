@@ -64,6 +64,7 @@ import { Compartment, EditorState } from '@codemirror/state';
 import type { LanguageSupport } from '@codemirror/language';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags as t } from '@lezer/highlight';
+import { rgba } from 'polished';
 
 const editorStyle = css({
   fontSize: 13,
@@ -78,10 +79,11 @@ const editorPalette = {
     backgroundColor: codePalette.light[0],
     gutterColor: palette.gray.base,
     gutterBackgroundColor: palette.gray.light3,
-    gutterActiveLineBackgroundColor: palette.gray.light2,
+    gutterActiveLineBackgroundColor: rgba(palette.gray.light2, 0.5),
     gutterFoldButtonColor: palette.black,
     cursorColor: palette.gray.base,
-    activeLineBackgroundColor: palette.gray.light2,
+    // Semi-transparent opacity so that the selection background can still be seen.
+    activeLineBackgroundColor: rgba(palette.gray.light2, 0.5),
     selectionBackgroundColor: palette.blue.light2,
     bracketBorderColor: palette.gray.light1,
   },
@@ -90,10 +92,11 @@ const editorPalette = {
     backgroundColor: codePalette.dark[0],
     gutterColor: palette.gray.light3,
     gutterBackgroundColor: palette.gray.dark3,
-    gutterActiveLineBackgroundColor: palette.gray.dark2,
+    gutterActiveLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
     gutterFoldButtonColor: palette.white,
     cursorColor: palette.green.base,
-    activeLineBackgroundColor: palette.gray.dark2,
+    // Semi-transparent opacity so that the selection background can still be seen.
+    activeLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
     selectionBackgroundColor: palette.gray.dark1,
     bracketBorderColor: palette.gray.light1,
   },

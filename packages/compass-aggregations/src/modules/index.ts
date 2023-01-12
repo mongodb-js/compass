@@ -39,6 +39,7 @@ import indexes from './indexes';
 import type { ThunkAction } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { PipelineStorage } from '../utils/pipeline-storage';
+import focusMode from './focus-mode';
 
 /**
  * The main application reducer.
@@ -82,7 +83,8 @@ const rootReducer = combineReducers({
   explain,
   isDataLake,
   indexes,
-  pipelineBuilder
+  pipelineBuilder,
+  focusMode,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

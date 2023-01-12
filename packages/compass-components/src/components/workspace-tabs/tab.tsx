@@ -4,6 +4,9 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import type { glyphs } from '@leafygreen-ui/icon';
 
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS as cssDndKit } from '@dnd-kit/utilities';
+
 import { useDarkMode } from '../../hooks/use-theme';
 import {
   FocusState,
@@ -61,6 +64,10 @@ const selectedTabStyles = css({
   '&:hover': {
     cursor: 'default',
   },
+});
+
+const draggingTabStyles = css({
+  cursor: 'grabbing !important',
 });
 
 const focusedTabStyles = css({
@@ -194,6 +201,7 @@ type IconGlyph = Extract<keyof typeof glyphs, string>;
 type TabProps = {
   title: string;
   isSelected: boolean;
+  isDragging: boolean;
   onSelect: () => void;
   onClose: () => void;
   iconGlyph: IconGlyph;
@@ -204,6 +212,7 @@ type TabProps = {
 function Tab({
   title,
   isSelected,
+  isDragging,
   onSelect,
   onClose,
   tabContentId,
@@ -232,14 +241,26 @@ function Tab({
     defaultActionProps
   );
 
+  const { listeners, setNodeRef, transform, transition } = useSortable({
+    id: tabContentId,
+  });
+  const style = {
+    transform: cssDndKit.Transform.toString(transform),
+    transition,
+    cursor: 'grabbing !important',
+  };
+
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       className={cx(
         tabStyles,
         darkMode ? tabDarkThemeStyles : tabLightThemeStyles,
         {
           [selectedTabStyles]: isSelected,
           [focusedTabStyles]: isFocused,
+          [draggingTabStyles]: isDragging,
         }
       )}
       aria-selected={isSelected}
@@ -249,6 +270,7 @@ function Tab({
       aria-controls={tabContentId}
       data-testid="workspace-tab-button"
       title={`${subtitle} - ${title}`}
+      {...listeners}
       {...tabProps}
     >
       <div className={tabTitleContainerStyles}>
