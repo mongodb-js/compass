@@ -43,7 +43,15 @@ buildvariants:
       - name: test-packaged-app-40x-community
         depends_on: package-compass
 
+      - name: test-packaged-app-40x-enterprise
+        run_on: ubuntu1804-large
+        depends_on: package-compass
+
       - name: test-packaged-app-42x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-42x-enterprise
+        run_on: ubuntu1804-large
         depends_on: package-compass
 
       - name: test-packaged-app-44x-community

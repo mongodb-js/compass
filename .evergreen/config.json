@@ -46,7 +46,10 @@
             "mongodb_version": "4.0.x",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "ubuntu2004-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64"],
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1804-large"
+          }
         },
         {
           "name": "42x-community",
@@ -61,7 +64,10 @@
             "mongodb_version": "4.2.x",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "ubuntu2004-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64"],
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1804-large"
+          }
         },
         {
           "name": "44x-community",
