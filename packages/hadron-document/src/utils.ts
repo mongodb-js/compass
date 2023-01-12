@@ -30,7 +30,7 @@ export interface HadronEJSONOptions {
  *
  * Also turns $date.$numberLong into a date so that it will be
  * displayed as an iso date string since this is what Compass did
- * historically.
+ * historically. Unless it is outside of the safe range.
  *
  * @param value Any BSON value.
  * @returns A serialized, human-readable and human-editable string.
