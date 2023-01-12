@@ -2,10 +2,12 @@ import {
   Icon,
   IconButton,
   css,
+  cx,
   spacing,
   palette,
   keyframes,
   SpinLoader,
+  withDarkMode,
 } from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -14,6 +16,10 @@ const shellHeaderStyles = css({
   height: spacing[5],
   display: 'flex',
   color: palette.gray.light1,
+});
+
+const shellHeaderDarkModeStyles = css({
+  borderTop: `1px solid ${palette.gray.dark2}`,
 });
 
 const shellHeaderLeftStyles = css({
@@ -83,6 +89,7 @@ const inProgressSpinLoaderStyles = css({
 
 export class ShellHeader extends Component {
   static propTypes = {
+    darkMode: PropTypes.bool,
     isExpanded: PropTypes.bool.isRequired,
     isOperationInProgress: PropTypes.bool.isRequired,
     onShellToggleClicked: PropTypes.func.isRequired,
@@ -113,6 +120,7 @@ export class ShellHeader extends Component {
    */
   render() {
     const {
+      darkMode,
       isExpanded,
       isOperationInProgress,
       onShellToggleClicked,
@@ -120,7 +128,9 @@ export class ShellHeader extends Component {
     } = this.props;
 
     return (
-      <div className={shellHeaderStyles}>
+      <div
+        className={cx(shellHeaderStyles, darkMode && shellHeaderDarkModeStyles)}
+      >
         <div className={shellHeaderLeftStyles}>
           <button
             type="button"
@@ -172,4 +182,4 @@ export class ShellHeader extends Component {
   }
 }
 
-export default ShellHeader;
+export default withDarkMode(ShellHeader);
