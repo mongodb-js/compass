@@ -1,20 +1,20 @@
 buildvariants:
   - name: coverage
     display_name: E2E Coverage
-    run_on: ubuntu1604-large
+    run_on: ubuntu2004-large
     tasks:
       - name: e2e-coverage
 
   - name: ubuntu_publish
     display_name: Publish Artifacts
-    run_on: ubuntu1604-large
+    run_on: ubuntu2004-large
     tasks:
       - name: publish
       - name: publish-packages-next
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests
-    run_on: ubuntu1604-large
+    run_on: ubuntu2004-large
     tasks:
       - name: test-connectivity
 
@@ -25,8 +25,8 @@ buildvariants:
       - name: test-csfle
 
   - name: ubuntu
-    display_name: Ubuntu 16.04 (Test and Package)
-    run_on: ubuntu1604-large
+    display_name: Ubuntu 20.04 (Test and Package)
+    run_on: ubuntu2004-large
     tasks:
       - name: check
 
@@ -43,19 +43,25 @@ buildvariants:
       - name: test-packaged-app-40x-community
         depends_on: package-compass
 
-      - name: test-packaged-app-40x-enterprise
-        depends_on: package-compass
-
       - name: test-packaged-app-42x-community
-        depends_on: package-compass
-
-      - name: test-packaged-app-42x-enterprise
         depends_on: package-compass
 
       - name: test-packaged-app-44x-community
         depends_on: package-compass
 
       - name: test-packaged-app-44x-enterprise
+        depends_on: package-compass
+
+      - name: test-packaged-app-5x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-5x-enterprise
+        depends_on: package-compass
+
+      - name: test-packaged-app-60x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-60x-enterprise
         depends_on: package-compass
 
   - name: windows
@@ -96,6 +102,9 @@ buildvariants:
         depends_on: package-compass
 
       - name: test-packaged-app-5x-enterprise
+        depends_on: package-compass
+
+      - name: test-packaged-app-60x-community
         depends_on: package-compass
 
       - name: test-packaged-app-60x-enterprise
@@ -141,6 +150,9 @@ buildvariants:
       - name: test-packaged-app-5x-enterprise
         depends_on: package-compass
 
+      - name: test-packaged-app-60x-community
+        depends_on: package-compass
+
       - name: test-packaged-app-60x-enterprise
         depends_on: package-compass
 
@@ -160,6 +172,10 @@ buildvariants:
       - name: package-compass-readonly
 
       - name: package-compass-isolated
+
+      - name: test-packaged-app-60x-community
+        run_on: macos-1100-gui
+        depends_on: package-compass
 
       - name: test-packaged-app-60x-enterprise
         run_on: macos-1100-gui
@@ -181,6 +197,10 @@ buildvariants:
       - name: package-compass-readonly
 
       - name: package-compass-isolated
+
+      - name: test-packaged-app-60x-community
+        run_on: macos-1100-arm64-gui
+        depends_on: package-compass
 
       - name: test-packaged-app-60x-enterprise
         run_on: macos-1100-arm64-gui

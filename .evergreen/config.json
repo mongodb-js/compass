@@ -1,7 +1,7 @@
 {
   "variants": {
     "run_on": [
-      "ubuntu1604-large",
+      "ubuntu2004-large",
       "windows-vsCurrent-large",
       "rhel76-large",
       ["macos-1100", { "gui": "macos-1100-gui" }],
@@ -46,7 +46,7 @@
             "mongodb_version": "4.0.x",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64"]
+          "skip_on": ["macos-1100", "macos-1100-arm64", "ubuntu2004-large"]
         },
         {
           "name": "42x-community",
@@ -61,7 +61,7 @@
             "mongodb_version": "4.2.x",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64"]
+          "skip_on": ["macos-1100", "macos-1100-arm64", "ubuntu2004-large"]
         },
         {
           "name": "44x-community",
@@ -83,7 +83,7 @@
           "vars": {
             "mongodb_version": "5.x.x"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "ubuntu1604-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
         },
         {
           "name": "5x-enterprise",
@@ -91,22 +91,27 @@
             "mongodb_version": "5.x.x",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "ubuntu1604-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
+        },
+        {
+          "name": "60x-community",
+          "vars": {
+            "mongodb_version": "6.x.x"
+          }
         },
         {
           "name": "60x-enterprise",
           "vars": {
             "mongodb_version": "6.x.x",
             "mongodb_use_enterprise": "yes"
-          },
-          "skip_on": ["ubuntu1604-large"]
+          }
         }
       ]
     }
   },
   "run_on_alias": {
     "short": {
-      "ubuntu1604-large": "ubuntu",
+      "ubuntu2004-large": "ubuntu",
       "windows-vsCurrent-large": "windows",
       "rhel76-large": "rhel",
       "macos-1100": "macos",
@@ -115,7 +120,7 @@
       "macos-1100-arm64-gui": "macos-gui-arm"
     },
     "long": {
-      "ubuntu1604-large": "Ubuntu 16.04",
+      "ubuntu2004-large": "Ubuntu 20.04",
       "windows-vsCurrent-large": "Windows 10",
       "rhel76-large": "RHEL 7.6",
       "macos-1100": "MacOS x64 11.00",
