@@ -34,6 +34,7 @@ class CompassTelemetry {
   private static currentUserId?: string; // Deprecated field. Should be used only for old users to keep their analytics in Segment.
   private static telemetryAnonymousId = ''; // The randomly generated anonymous user id.
   private static lastReportedScreen = '';
+  private static osInfo: ReturnType<typeof getOsInfo> extends Promise<infer T> ? Partial<T> : never = {};
 
   private constructor() {
     // marking constructor as private to disallow usage
@@ -52,6 +53,7 @@ class CompassTelemetry {
     };
   }
 
+  // Keep this method synchronous to avoid race conditions.
   private static _track(info: EventInfo) {
     const commonProperties = this._getCommonProperties();
 
@@ -79,7 +81,8 @@ class CompassTelemetry {
     });
   }
 
-  private static async identify() {
+  // Keep this method synchronous to avoid race conditions.
+  private static identify() {
     log.info(
       mongoLogId(1_001_000_093),
       'Telemetry',
@@ -98,18 +101,6 @@ class CompassTelemetry {
       this.analytics &&
       this.telemetryAnonymousId
     ) {
-      let osInfo = {};
-      try {
-        osInfo = await getOsInfo();
-      } catch (err: any) {
-        log.error(
-          mongoLogId(1_001_000_147),
-          'Telemetry',
-          'Failed to get OS info',
-          { err: err.message }
-        );
-      }
-
       this.analytics.identify({
         userId: this.currentUserId,
         anonymousId: this.telemetryAnonymousId,
@@ -117,7 +108,7 @@ class CompassTelemetry {
           ...this._getCommonProperties(),
           platform: process.platform,
           arch: process.arch,
-          ...osInfo,
+          ...this.osInfo,
         },
       });
     }
@@ -128,11 +119,22 @@ class CompassTelemetry {
     }
   }
 
-  private static _init(app: typeof CompassApplication) {
+  private static async _init(app: typeof CompassApplication) {
     const { trackUsageStatistics, currentUserId, telemetryAnonymousId } =
       preferences.getPreferences();
     this.currentUserId = currentUserId;
     this.telemetryAnonymousId = telemetryAnonymousId;
+
+    try {
+      this.osInfo = await getOsInfo();
+    } catch (err: any) {
+      log.error(
+        mongoLogId(1_001_000_147),
+        'Telemetry',
+        'Failed to get OS info',
+        { err: err.message }
+      );
+    }
 
     if (telemetryCapableEnvironment) {
       this.analytics = new Analytics(SEGMENT_API_KEY, { host: SEGMENT_HOST });
@@ -150,7 +152,7 @@ class CompassTelemetry {
           'Enabling Telemetry reporting'
         );
         this.state = 'enabled';
-        void this.identify();
+        this.identify();
       } else if (!value && this.state !== 'disabled') {
         log.info(
           mongoLogId(1_001_000_095),
