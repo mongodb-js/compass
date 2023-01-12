@@ -1,5 +1,30 @@
 import { EJSON } from 'bson';
+import TypeChecker from 'hadron-type-checker';
 import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
+
+const UNCASTED_EMPTY_TYPE_VALUE: {
+  [T in TypeCastTypes]: unknown;
+} = {
+  Array: [],
+  Object: {},
+  Decimal128: 0,
+  Int32: 0,
+  Int64: 0,
+  Double: 0,
+  MaxKey: 0,
+  MinKey: 0,
+  Timestamp: 0,
+  Date: 0,
+  String: '',
+  Code: '',
+  Binary: '',
+  ObjectId: '',
+  BSONRegExp: '',
+  BSONSymbol: '',
+  Boolean: false,
+  Undefined: undefined,
+  Null: null,
+};
 
 export function fieldStringLen(value: unknown): number {
   const length = String(value).length;
@@ -72,4 +97,11 @@ function makeEJSONIdiomatic(value: EJSON.SerializableTypes): void {
     }
     makeEJSONIdiomatic(entry);
   }
+}
+
+/**
+ * Returns a default value for the BSON type passed in.
+ */
+export function getDefaultValueForType(type: keyof TypeCastMap) {
+  return TypeChecker.cast(UNCASTED_EMPTY_TYPE_VALUE[type], type);
 }
