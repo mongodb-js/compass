@@ -34,7 +34,9 @@ class CompassTelemetry {
   private static currentUserId?: string; // Deprecated field. Should be used only for old users to keep their analytics in Segment.
   private static telemetryAnonymousId = ''; // The randomly generated anonymous user id.
   private static lastReportedScreen = '';
-  private static osInfo: ReturnType<typeof getOsInfo> extends Promise<infer T> ? Partial<T> : never = {};
+  private static osInfo: ReturnType<typeof getOsInfo> extends Promise<infer T>
+    ? Partial<T>
+    : never = {};
 
   private constructor() {
     // marking constructor as private to disallow usage
