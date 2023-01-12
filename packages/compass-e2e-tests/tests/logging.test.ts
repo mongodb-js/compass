@@ -381,8 +381,8 @@ describe('Logging and Telemetry integration', function () {
     });
 
     after(async function name() {
-      await telemetry.stop();
       await afterTests(compass);
+      await telemetry.stop();
     });
 
     it('tracks an event for identify call', function () {
