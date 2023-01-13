@@ -21,15 +21,25 @@
       "package": [
         {
           "name": "compass",
-          "vars": { "compass_distribution": "compass" }
+          "vars": { "compass_distribution": "compass" },
+          "//": "We are explicitly packaging on the EOL version of Ubuntu so that Compass (or rather compiled native dependencies) works on Ubuntu versions starting from this versions",
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
         },
         {
           "name": "compass-readonly",
-          "vars": { "compass_distribution": "compass-readonly" }
+          "vars": { "compass_distribution": "compass-readonly" },
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
         },
         {
           "name": "compass-isolated",
-          "vars": { "compass_distribution": "compass-isolated" }
+          "vars": { "compass_distribution": "compass-isolated" },
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
         }
       ],
       "test-packaged-app": [
@@ -47,6 +57,7 @@
             "mongodb_use_enterprise": "yes"
           },
           "skip_on": ["macos-1100", "macos-1100-arm64"],
+          "//": "MongoDB 4.0 / 4.2 Enterprise doesn't work on Ubuntu 20.04 without additional dependencies installed, it's easier to use an older machine than install missing dependencies as machines we are using are stateful",
           "run_on_override": {
             "ubuntu2004-large": "ubuntu1804-large"
           }

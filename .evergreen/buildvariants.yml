@@ -35,10 +35,13 @@ buildvariants:
       - name: test-electron
 
       - name: package-compass
+        run_on: ubuntu1604-large
 
       - name: package-compass-readonly
+        run_on: ubuntu1604-large
 
       - name: package-compass-isolated
+        run_on: ubuntu1604-large
 
       - name: test-packaged-app-40x-community
         depends_on: package-compass

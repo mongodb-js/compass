@@ -366,7 +366,12 @@ describe('Logging and Telemetry integration', function () {
 
       it('does not contain warnings about missing optional dependencies', function () {
         const ids = logs.map(({ id }) => id);
-        expect(ids).not.to.contain(1_000_000_041);
+        expect(ids).not.to.contain(
+          1_000_000_041,
+          `Expected log to not contain warnings about missing dependencies, but got ${JSON.stringify(
+            logs.find((log) => log.id === 1_000_000_041)
+          )}`
+        );
       });
     });
   });
