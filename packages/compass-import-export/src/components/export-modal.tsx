@@ -14,6 +14,7 @@ import {
   cx,
   spacing,
   Code,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import ExportSelectOutput from './export-select-output';
@@ -94,12 +95,19 @@ function ExportOptions({
     [ns, query]
   );
 
+  // TODO(LG-2741): Once we update the `radio-group` package we can remove this explicit theme fetch.
+  // In the LeafyGreen package `@leafygreen-ui/radio-group` version `10.0.3` the
+  // radio component doesn't listen to the `darkMode` that the `LeafyGreenProvider` provides.
+  // So for now we are setting it ourselves here.
+  const darkMode = useDarkMode();
+
   return (
     <FormFieldContainer>
       <RadioGroup
         data-testid="export-option-filters"
         onChange={handleExportOptionSelect}
         className={optionRadioStyles}
+        darkMode={darkMode}
       >
         <Radio value="filter" checked={!isFullCollection}>
           Export query with filters{resultsSummary} (Recommended)
