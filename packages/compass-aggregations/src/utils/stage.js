@@ -103,24 +103,60 @@ export function getStageOperator(stage) {
   }
   const stageOperator = getStageOperator(stage);
   const stageValue = stage[stageOperator];
-  const { database } = toNS(namespace);
+
+  if (!stageValue) {
+    return null;
+  }
+
   if (stageOperator === '$merge') {
-    const ns = typeof stageValue === 'string' ? stageValue : stageValue.into;
-    if (ns.atlas) {
-      // TODO: Not handled currently and we need some time to figure out how to
-      // handle it so just skipping for now
-      return null;
-    }
-    return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
+    return getDestinationNamespaceFromMergeStage(namespace, stageValue);
   }
   if (stageOperator === '$out') {
-    if (stageValue.s3 || stageValue.atlas) {
-      // TODO: Not handled currently and we need some time to figure out how to
-      // handle it so just skipping for now
-      return null;
-    }
-    const ns = stageValue;
-    return typeof ns === 'object' ? `${ns.db}.${ns.coll}` : `${database}.${ns}`;
+    return getDestinationNamespaceFromOutStage(namespace, stageValue);
+  }
+  return null;
+}
+
+function getDestinationNamespaceFromMergeStage(namespace, stageValue) {
+  const { database } = toNS(namespace);
+
+  const ns = typeof stageValue === 'string' ? stageValue : stageValue.into;
+
+  if (!ns) {
+    return null;
+  }
+
+  if (typeof ns === 'string') {
+    return `${database}.${ns}`;
+  }
+
+  if (ns.atlas) {
+    // TODO: Not handled currently and we need some time to figure out how to
+    // handle it so just skipping for now
+    return null;
+  }
+
+  if (ns.db && ns.coll) {
+    return `${ns.db}.${ns.coll}`;
+  }
+  return null;
+}
+
+function getDestinationNamespaceFromOutStage(namespace, stageValue) {
+  const { database } = toNS(namespace);
+
+  if (typeof stageValue === 'string') {
+    return `${database}.${stageValue}`;
+  }
+
+  if (stageValue.s3 || stageValue.atlas) {
+    // TODO: Not handled currently and we need some time to figure out how to
+    // handle it so just skipping for now
+    return null;
+  }
+
+  if (stageValue.db && stageValue.coll) {
+    return `${stageValue.db}.${stageValue.coll}`;
   }
   return null;
 }

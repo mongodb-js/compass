@@ -1,7 +1,6 @@
 /* eslint complexity: [2, 12] */
 const React = require('react');
 const PropTypes = require('prop-types');
-const ReactDOM = require('react-dom');
 const { palette } = require('@mongodb-js/compass-components');
 const Actions = require('../actions');
 const d3 = require('d3');
@@ -75,7 +74,6 @@ class ChartComponent extends React.Component {
    * Redraw the component.
    */
   redraw() {
-    const el = ReactDOM.findDOMNode(this.refs.container);
     const data = this.state.error ? {} : this.state.data;
     if (!data.localTime || data.localTime.length === 0) {
       return;
@@ -117,7 +115,7 @@ class ChartComponent extends React.Component {
       .on('mouseout', Actions.mouseOut)
       .eventDispatcher(this.props.dispatcher);
 
-    d3.select(el)
+    d3.select(this.containerRef)
       .datum(this.state.data)
       .call(this.chart);
   }
@@ -130,7 +128,9 @@ class ChartComponent extends React.Component {
   render() {
     return (
       <div className="chart">
-        <div ref="container" />
+        <div ref={(container) => {
+          this.containerRef = container;
+        }} />
       </div>
     );
   }

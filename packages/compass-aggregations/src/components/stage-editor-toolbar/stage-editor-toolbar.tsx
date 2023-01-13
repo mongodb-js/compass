@@ -1,13 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Tooltip, Body, Icon, css, cx, spacing, palette, useDarkMode, injectGlobal } from '@mongodb-js/compass-components';
+import { Tooltip, Body, Icon, css, cx, spacing, palette, useDarkMode } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
 import { MERGE_STAGE_PREVIEW_TEXT, OUT_STAGE_PREVIEW_TEXT } from '../../utils/stage';
 
 import DeleteStage from './delete-stage';
-import AddAfterStage from './add-after-stage';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
@@ -17,17 +16,6 @@ const STAGE_TOOLTIP_MESSAGE = {
   $out: OUT_STAGE_PREVIEW_TEXT,
   $merge: MERGE_STAGE_PREVIEW_TEXT
 };
-
-injectGlobal({
-  '.dragging .stage-editor-toolbar': {
-    // react-sortable-hoc sets pointer events none to the whole container which
-    // is good, but also means that the cursor will not be changed. For that
-    // reason we set pointer events back to auto for the drag handle when
-    // dragging stage around
-    pointerEvents: 'auto',
-    cursor: 'grabbing',
-  }
-});
 
 const STAGES_WITH_TOOLTIP = Object.keys(STAGE_TOOLTIP_MESSAGE);
 
@@ -141,7 +129,6 @@ function StageEditorToolbar({
           ></StageEditorOutMergeTooltip>
         )}
         <DeleteStage index={index} />
-        <AddAfterStage index={index} />
       </div>
     </div>
   );

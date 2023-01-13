@@ -4,7 +4,7 @@ import { ipcMain } from 'hadron-ipc';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
-import { getOsInfo } from './get-os-info';
+import { getOsInfo } from '@mongodb-js/get-os-info';
 import preferences from 'compass-preferences-model';
 
 const { log, mongoLogId } = createLoggerAndTelemetry('COMPASS-TELEMETRY');
@@ -109,6 +109,7 @@ class CompassTelemetry {
           { err: err.message }
         );
       }
+
       this.analytics.identify({
         userId: this.currentUserId,
         anonymousId: this.telemetryAnonymousId,
@@ -132,6 +133,15 @@ class CompassTelemetry {
       preferences.getPreferences();
     this.currentUserId = currentUserId;
     this.telemetryAnonymousId = telemetryAnonymousId;
+
+    if (telemetryCapableEnvironment) {
+      this.analytics = new Analytics(SEGMENT_API_KEY, { host: SEGMENT_HOST });
+
+      app.addExitHandler(async () => {
+        await new Promise((resolve) => this.analytics?.flush(resolve));
+      });
+    }
+
     const onTrackUsageStatisticsChanged = (value: boolean) => {
       if (value && this.state !== 'enabled') {
         log.info(
@@ -173,14 +183,6 @@ class CompassTelemetry {
     ipcMain.respondTo('compass:usage:flush', () => {
       this.analytics?.flush();
     });
-
-    if (telemetryCapableEnvironment) {
-      this.analytics = new Analytics(SEGMENT_API_KEY, { host: SEGMENT_HOST });
-
-      app.addExitHandler(async () => {
-        await new Promise((resolve) => this.analytics?.flush(resolve));
-      });
-    }
   }
 
   static init(app: typeof CompassApplication): Promise<void> {
