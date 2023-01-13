@@ -1,70 +1,41 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
+import { connect } from 'react-redux';
 
-import styles from './stage-collapser.module.less';
+import { IconButton, Icon } from '@mongodb-js/compass-components';
 
-/**
- * Collapse text.
- */
-const COLLAPSE = 'Collapse';
-
-/**
- * Expand text.
- */
-const EXPAND = 'Expand';
-
-/**
- * Angle right class.
- */
-const ANGLE_RIGHT = 'fa fa-angle-right';
-
-/**
- * Angle down class.
- */
-const ANGLE_DOWN = 'fa fa-angle-down';
-
-/**
- * Collapse/Expand a stage.
- */
-class StageCollapser extends PureComponent {
-  static displayName = 'StageCollapserComponent';
-
+import { changeStageCollapsed } from '../../modules/pipeline-builder/stage-editor';
+export class StageCollapser extends PureComponent {
   static propTypes = {
-    isExpanded: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
-    stageCollapseToggled: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired
+    isExpanded: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
   };
 
-  /**
-   * Called when the collapse icon is toggled.
-   */
   onStageCollapseToggled = () => {
-    this.props.stageCollapseToggled(this.props.index);
-    this.props.setIsModified(true);
+    this.props.onChange(this.props.index, this.props.isExpanded);
   };
 
-  /**
-   * Render the stage collapser component.
-   *
-   * @returns {Component} The component.
-   */
   render() {
-    const iconClassName = this.props.isExpanded ? ANGLE_DOWN : ANGLE_RIGHT;
-    const buttonTitle = this.props.isExpanded ? COLLAPSE : EXPAND;
+    const { isExpanded } = this.props;
+    const title = isExpanded ? 'Collapse' : 'Expand';
+
     return (
-      <div className={classnames(styles['stage-collapser'])}>
-        <button
-          type="button"
-          title={buttonTitle}
-          onClick={this.onStageCollapseToggled}
-          className="btn btn-default btn-xs">
-          <i className={iconClassName} aria-hidden />
-        </button>
-      </div>
+      <IconButton
+        onClick={this.onStageCollapseToggled}
+        title={title}
+        aria-label={title}
+      ><Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'} size="small" /></IconButton>
     );
   }
 }
 
-export default StageCollapser;
+export default connect(
+  (state, ownProps) => {
+    return {
+      isExpanded:
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed
+    };
+  },
+  { onChange: changeStageCollapsed }
+)(StageCollapser);

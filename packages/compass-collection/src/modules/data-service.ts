@@ -51,10 +51,7 @@ export default function reducer(
  *
  * @returns {Object} The data service connected action.
  */
-export const dataServiceConnected = (
-  error: any,
-  dataService: DataService
-): any => ({
+export const dataServiceConnected = (error: any, dataService: DataService) => ({
   type: DATA_SERVICE_CONNECTED,
   error: error,
   dataService: dataService,

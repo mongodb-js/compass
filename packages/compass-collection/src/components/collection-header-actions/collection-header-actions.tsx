@@ -10,17 +10,17 @@ import ViewInformation from './view-information';
 
 const editViewButtonStyles = css({
   flex: 'none',
-  marginLeft: spacing[2],
 });
 
 const collectionHeaderActionsStyles = css({
   display: 'flex',
   marginLeft: 'auto',
   alignItems: 'center',
+  overflow: 'hidden',
+  gap: spacing[2],
 });
 
 const collectionHeaderActionsReadonlyStyles = css({
-  marginLeft: spacing[2],
   alignItems: 'center',
   flex: 'none',
 });

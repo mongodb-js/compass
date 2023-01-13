@@ -1,32 +1,38 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { mapPipelineToStages } from '../utils/stage';
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
-import { PROMISE_CANCELLED_ERROR } from '../utils/cancellable-promise';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
-import type { Actions as WorkspaceActions } from './workspace';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
+import { getStageOperator } from '../utils/stage';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
 );
 
 export enum ActionTypes {
+  RunAggregation = 'compass-aggeregations/runAggregation',
   AggregationStarted = 'compass-aggregations/aggregationStarted',
   AggregationFinished = 'compass-aggregations/aggregationFinished',
   AggregationFailed = 'compass-aggregations/aggregationFailed',
   AggregationCancelledByUser = 'compass-aggregations/aggregationCancelledByUser',
-  LastPageReached = 'compass-aggregations/lastPageReached'
+  LastPageReached = 'compass-aggregations/lastPageReached',
+  ResultViewTypeChanged = 'compass-aggregations/resultViewTypeChanged'
 }
 
 type PreviousPageData = {
   page: number;
   isLast: boolean;
   documents: Document[];
+};
+
+type RunAggregation = {
+  type: ActionTypes.RunAggregation;
+  pipeline: Document[];
 };
 
 type AggregationStartedAction = {
@@ -56,14 +62,22 @@ type LastPageReachedAction = {
   page: number;
 };
 
+type ResultViewTypeChangedAction = {
+  type : ActionTypes.ResultViewTypeChanged;
+  viewType: 'document' | 'json';
+}
+
 export type Actions =
+  | RunAggregation
   | AggregationStartedAction
   | AggregationFinishedAction
   | AggregationFailedAction
   | AggregationCancelledAction
-  | LastPageReachedAction;
+  | LastPageReachedAction
+  | ResultViewTypeChangedAction;
 
 export type State = {
+  pipeline: Document[];
   documents: Document[];
   page: number;
   limit: number;
@@ -72,23 +86,32 @@ export type State = {
   abortController?: AbortController;
   error?: string;
   previousPageData?: PreviousPageData;
+  resultsViewType: 'document' | 'json';
 };
 
 export const INITIAL_STATE: State = {
+  pipeline: [],
   documents: [],
   page: 1,
   limit: 20,
   isLast: false,
   loading: false,
+  resultsViewType: 'document',
 };
 
-const reducer: Reducer<State, Actions | WorkspaceActions> = (
+const reducer: Reducer<State, AnyAction> = (
   state = INITIAL_STATE,
   action
 ) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
+    case ConfirmNewPipelineActions.NewPipelineConfirmed:
       return INITIAL_STATE;
+    case ActionTypes.RunAggregation:
+      return {
+        ...state,
+        pipeline: action.pipeline,
+      }
     case ActionTypes.AggregationStarted:
       return {
         ...state,
@@ -140,30 +163,33 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (
         loading: false,
         page: action.page,
       };
+    case ActionTypes.ResultViewTypeChanged:
+      return {
+        ...state,
+        resultsViewType: action.viewType
+      }
     default:
       return state;
   }
 };
 
-export const runAggregation = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
-  return (dispatch, getState) => {
-    const { pipeline } = getState();
+export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+    dispatch({
+      type: ActionTypes.RunAggregation,
+      pipeline,
+    })
     track('Aggregation Executed', () => ({
-      num_stages: mapPipelineToStages(pipeline).length,
+      num_stages: pipeline.length,
+      editor_view_type: mapPipelineModeToEditorViewType(getState().pipelineBuilder.pipelineMode),
     }));
     return dispatch(fetchAggregationData());
   };
 };
 
-export const fetchPrevPage = (): ThunkAction<
+export const fetchPrevPage = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return async (dispatch, getState) => {
@@ -177,10 +203,8 @@ export const fetchPrevPage = (): ThunkAction<
   };
 };
 
-export const fetchNextPage = (): ThunkAction<
+export const fetchNextPage = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return async (dispatch, getState) => {
@@ -194,10 +218,8 @@ export const fetchNextPage = (): ThunkAction<
   };
 };
 
-export const retryAggregation = (): ThunkAction<
+export const retryAggregation = (): PipelineBuilderThunkAction<
   Promise<void>,
-  RootState,
-  void,
   Actions
 > => {
   return (dispatch, getState) => {
@@ -208,9 +230,7 @@ export const retryAggregation = (): ThunkAction<
   };
 };
 
-export const cancelAggregation = (): ThunkAction<
-  void,
-  RootState,
+export const cancelAggregation = (): PipelineBuilderThunkAction<
   void,
   Actions
 > => {
@@ -234,15 +254,18 @@ const _abortAggregation = (controller?: AbortController): void => {
 
 const fetchAggregationData = (
   page = 1
-): ThunkAction<Promise<void>, RootState, void, Actions> => {
+): PipelineBuilderThunkAction<Promise<void>> => {
   return async (dispatch, getState) => {
     const {
       id,
-      pipeline,
       namespace,
       maxTimeMS,
       dataService: { dataService },
-      aggregation: { limit, abortController: _abortController },
+      aggregation: {
+        limit,
+        abortController: _abortController,
+        pipeline
+      },
       collationString: { value: collation }
     } = getState();
 
@@ -262,28 +285,26 @@ const fetchAggregationData = (
         abortController
       });
 
-      const nonEmptyStages = mapPipelineToStages(pipeline);
-
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collation ?? undefined
       };
 
-      const lastStage = nonEmptyStages[nonEmptyStages.length - 1] ?? {};
+      const lastStage = pipeline[pipeline.length - 1];
 
       const isMergeOrOut = ['$merge', '$out'].includes(
-        Object.keys(lastStage)[0]
+        getStageOperator(lastStage) ?? ''
       );
 
       const documents = await aggregatePipeline({
         dataService,
         signal,
         namespace,
-        pipeline: nonEmptyStages,
+        pipeline,
         options,
         ...(!isMergeOrOut && {
           skip: (page - 1) * limit,
-          limit,
+          limit
         })
       });
 
@@ -303,7 +324,7 @@ const fetchAggregationData = (
       }
     } catch (e) {
       // User cancel is handled in cancelAggregation
-      if ((e as Error).name === PROMISE_CANCELLED_ERROR) {
+      if (dataService.isCancelError(e)) {
         return;
       }
       // Server errors are surfaced to the user
@@ -330,22 +351,16 @@ const fetchAggregationData = (
   };
 };
 
-export const exportAggregationResults = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  Actions
-> => {
-  return (dispatch, getState) => {
+export const exportAggregationResults = (): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     const {
-      pipeline,
       namespace,
       maxTimeMS,
       countDocuments: { count },
       collationString: { value: collation }
     } = getState();
 
-    const stages = mapPipelineToStages(pipeline);
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
     const options: AggregateOptions = {
       maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
@@ -357,7 +372,7 @@ export const exportAggregationResults = (): ThunkAction<
       globalAppRegistryEmit('open-export', {
         namespace,
         aggregation: {
-          stages,
+          stages: pipeline,
           options
         },
         count,
@@ -365,5 +380,12 @@ export const exportAggregationResults = (): ThunkAction<
     );
   };
 };
+
+export const changeViewType = (newViewType: 'document' | 'json') => {
+  return {
+    type: ActionTypes.ResultViewTypeChanged,
+    viewType: newViewType,
+  }
+}
 
 export default reducer;

@@ -94,7 +94,7 @@ const appReducer = combineReducers({
   namespace,
 });
 
-type RootState = ReturnType<typeof appReducer>;
+export type RootState = ReturnType<typeof appReducer>;
 
 /**
  * The root reducer.
@@ -104,7 +104,7 @@ type RootState = ReturnType<typeof appReducer>;
  *
  * @returns {Object} The new state.
  */
-const rootReducer = (state: any, action: AnyAction): any => {
+const rootReducer = (state: any, action: AnyAction) => {
   const fn = MAPPINGS[action.type];
   return fn ? fn(state, action) : appReducer(state, action);
 };
@@ -112,8 +112,8 @@ const rootReducer = (state: any, action: AnyAction): any => {
 const store: any = createStore(rootReducer, applyMiddleware(thunk));
 
 // We use these symbols so that nothing from outside can access these values on
-// the store
-const kInstance = Symbol('instance');
+// the store. Exported for tests.
+export const kInstance = Symbol('instance');
 
 /**
  * This hook is Compass specific to listen to app registry events.
@@ -138,15 +138,13 @@ store.onActivated = (appRegistry: AppRegistry) => {
     instance.on(
       'change:collections.status',
       (collectionModel: Collection, status: string) => {
-        const { namespace } = store.getState();
-        if (collectionModel.ns !== namespace) {
-          return;
-        }
         if (status === 'ready') {
-          store.dispatch(updateCollectionDetails(collectionModel));
+          store.dispatch(
+            updateCollectionDetails(collectionModel, collectionModel.ns)
+          );
         }
         if (status === 'error') {
-          store.dispatch(resetCollectionDetails());
+          store.dispatch(resetCollectionDetails(collectionModel.ns));
         }
       }
     );
@@ -199,7 +197,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
       return;
     }
 
-    store.dispatch(updateCollectionDetails(collectionModel as Collection));
+    store.dispatch(updateCollectionDetails(collectionModel as Collection, ns));
 
     store.dispatch(
       createNewTab({
@@ -245,7 +243,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
       return;
     }
 
-    store.dispatch(updateCollectionDetails(collectionModel as Collection));
+    store.dispatch(updateCollectionDetails(collectionModel as Collection, ns));
 
     store.dispatch(
       selectOrCreateTab({
@@ -275,7 +273,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
    *
    * @param {String} namespace - The namespace.
    */
-  appRegistry.on('collection-dropped', (namespace) => {
+  appRegistry.on('collection-dropped', (namespace: string) => {
     store.dispatch(collectionDropped(namespace));
   });
 
@@ -284,7 +282,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
    *
    * @param {String} name - The name.
    */
-  appRegistry.on('database-dropped', (name) => {
+  appRegistry.on('database-dropped', (name: string) => {
     store.dispatch(databaseDropped(name));
   });
 

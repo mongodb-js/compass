@@ -4,10 +4,9 @@ import { connect } from 'react-redux';
 
 import {
   css,
-  uiColors,
+  palette,
   spacing,
-  useTheme,
-  Theme,
+  useDarkMode,
   Subtitle,
   Overline,
 } from '@mongodb-js/compass-components';
@@ -42,34 +41,30 @@ const dbStats = css({
 });
 
 const dbStatNumberDark = css({
-  color: uiColors.green.base,
+  color: palette.green.light2,
 });
 
 const dbStatNumberLight = css({
-  color: uiColors.green.dark2,
+  color: palette.green.dark2,
 });
 
 const dbStatNameDark = css({
-  color: uiColors.gray.light2,
+  color: palette.gray.light2,
 });
 
 const dbStatNameLight = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 function DBStat({ name, stat }: { name: string; stat: string | number }) {
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
 
   return (
     <div>
-      <Subtitle
-        className={theme === Theme.Dark ? dbStatNumberDark : dbStatNumberLight}
-      >
+      <Subtitle className={darkMode ? dbStatNumberDark : dbStatNumberLight}>
         {stat}
       </Subtitle>
-      <Overline
-        className={theme === Theme.Dark ? dbStatNameDark : dbStatNameLight}
-      >
+      <Overline className={darkMode ? dbStatNameDark : dbStatNameLight}>
         {name}
       </Overline>
     </div>

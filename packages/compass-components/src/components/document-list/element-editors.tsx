@@ -3,11 +3,14 @@ import type { Element as HadronElementType } from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import TypeChecker from 'hadron-type-checker';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import BSONValue, { hasCustomColor, VALUE_COLOR_BY_TYPE } from '../bson-value';
+import BSONValue, { BSONValueContainer } from '../bson-value';
 import { Tooltip } from '../tooltip';
 import { mergeProps } from '../../utils/merge-props';
+import { documentTypography } from './typography';
+import { Icon } from '../leafygreen';
+import { useDarkMode } from '../../hooks/use-theme';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -28,16 +31,24 @@ const editorReset = css({
 const editorOutline = css({
   '&:focus, &:active': {
     borderRadius: `2px`,
-    boxShadow: `0 0 0 2px ${uiColors.focus}`,
+    boxShadow: `0 0 0 2px ${palette.blue.light1}`,
   },
 });
 
 const editorInvalid = css({
-  backgroundColor: uiColors.red.light2,
-  color: uiColors.red.dark2,
   '&:focus, &:active': {
-    boxShadow: `0 0 0 2px ${uiColors.red.dark2}`,
+    boxShadow: `0 0 0 2px ${palette.red.dark2}`,
   },
+});
+
+const editorInvalidLightMode = css({
+  backgroundColor: palette.red.light2,
+  color: palette.red.dark2,
+});
+
+const editorInvalidDarkMode = css({
+  backgroundColor: palette.red.dark2,
+  color: palette.red.light2,
 });
 
 export const KeyEditor: React.FunctionComponent<{
@@ -57,6 +68,7 @@ export const KeyEditor: React.FunctionComponent<{
   autoFocus,
   onEditStart,
 }) => {
+  const darkMode = useDarkMode();
   const width = `${Math.max(value.length, 1)}ch`;
 
   return (
@@ -100,7 +112,11 @@ export const KeyEditor: React.FunctionComponent<{
                     maxWidth,
                     editorReset,
                     editorOutline,
-                    !valid && editorInvalid
+                    !valid && editorInvalid,
+                    !valid &&
+                      (darkMode
+                        ? editorInvalidDarkMode
+                        : editorInvalidLightMode)
                   )}
                   style={{ width }}
                   spellCheck="false"
@@ -144,13 +160,8 @@ const editorTextarea = css({
   // 2ch for `"` around the textarea
   maxWidth: 'calc(100% - 2ch)',
   verticalAlign: 'top',
+  color: 'inherit',
 });
-
-const valueContainer = css({});
-
-function getCustomColorStyle(type: string): string {
-  return hasCustomColor(type) ? css({ color: VALUE_COLOR_BY_TYPE[type] }) : '';
-}
 
 export const ValueEditor: React.FunctionComponent<{
   editing?: boolean;
@@ -195,8 +206,9 @@ export const ValueEditor: React.FunctionComponent<{
         longestLineCharLength > 70 ? 2 : 1
       );
       const maxLines = Math.min(minLines, 10);
-      const minHeight = spacing[3] * Math.min(minLines, maxLines);
-      const height = spacing[3] * maxLines;
+      const minHeight =
+        documentTypography.lineHeight * Math.min(minLines, maxLines);
+      const height = documentTypography.lineHeight * maxLines;
 
       return { width, minHeight, height };
     }
@@ -232,8 +244,9 @@ export const ValueEditor: React.FunctionComponent<{
             return (
               <div className={className}>
                 {type === 'String' ? (
-                  <div
-                    className={cx(textareaContainer, getCustomColorStyle(type))}
+                  <BSONValueContainer
+                    type="String"
+                    className={cx(textareaContainer)}
                   >
                     <textarea
                       data-testid="hadron-document-value-editor"
@@ -254,7 +267,7 @@ export const ValueEditor: React.FunctionComponent<{
                       style={inputStyle}
                       {...(mergedProps as React.HTMLProps<HTMLTextAreaElement>)}
                     ></textarea>
-                  </div>
+                  </BSONValueContainer>
                 ) : (
                   <input
                     type="text"
@@ -288,7 +301,6 @@ export const ValueEditor: React.FunctionComponent<{
         // users won't be able to interact with it anyway
         <div
           data-testid="hadron-document-clickable-value"
-          className={valueContainer}
           onDoubleClick={onEditStart}
         >
           <BSONValue type={type as any} value={originalValue}></BSONValue>
@@ -303,22 +315,35 @@ const TYPES = TypeChecker.castableTypes(true);
 const longestTypeNameCharLength = Math.max(...TYPES.map((type) => type.length));
 
 const typeEditor = css({
-  color: uiColors.gray.base,
+  color: palette.gray.base,
   appearance: 'none',
   // Accounting for the margin that `appearance: auto` will add to the shadow
   // dom inside select node
   paddingLeft: spacing[1],
   width: `calc(${longestTypeNameCharLength}ch + ${spacing[4]}px)`,
-  '&:hover, &:focus, &:focus-within, &:active': {
-    appearance: 'auto',
-    paddingLeft: 0,
+  '&:hover': {
     color: 'inherit',
+    cursor: 'pointer',
   },
 });
 
 const typeEditorActive = css({
   appearance: 'auto',
   paddingLeft: 0,
+});
+
+const typeEditorChevron = css({
+  position: 'absolute',
+  right: 4,
+  top: 2,
+  pointerEvents: 'none',
+  display: 'none',
+});
+
+const typeEditorContainer = css({
+  [`&:hover .${typeEditorChevron}`]: { display: 'block' },
+  position: 'relative',
+  cursor: 'pointer',
 });
 
 export const TypeEditor: React.FunctionComponent<{
@@ -331,33 +356,42 @@ export const TypeEditor: React.FunctionComponent<{
   return (
     <>
       {editing && (
-        // This rule is deprecated
-        // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/main/docs/rules/no-onchange.md#deprecated-no-onchange
-        // eslint-disable-next-line jsx-a11y/no-onchange
-        <select
-          value={type}
-          data-testid="hadron-document-type-editor"
-          // See ./element.tsx
-          // eslint-disable-next-line jsx-a11y/no-autofocus
-          autoFocus={autoFocus}
-          onChange={(evt) => {
-            onChange(evt.currentTarget.value as HadronElementType['type']);
-          }}
-          className={cx(
-            editorReset,
-            editorOutline,
-            typeEditor,
-            visuallyActive && typeEditorActive
-          )}
-        >
-          {TYPES.map((type) => {
-            return (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            );
-          })}
-        </select>
+        <div className={typeEditorContainer}>
+          {/* This rule is deprecated https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/main/docs/rules/no-onchange.md#deprecated-no-onchange */}
+          {/* eslint-disable-next-line jsx-a11y/no-onchange */}
+          <select
+            value={type}
+            data-testid="hadron-document-type-editor"
+            // See ./element.tsx
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus={autoFocus}
+            onChange={(evt) => {
+              onChange(evt.currentTarget.value as HadronElementType['type']);
+            }}
+            className={cx(
+              editorReset,
+              editorOutline,
+              typeEditor,
+              visuallyActive && typeEditorActive
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {TYPES.map((type) => {
+              return (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              );
+            })}
+          </select>
+          <Icon
+            glyph="ChevronDown"
+            size="xsmall"
+            className={typeEditorChevron}
+          ></Icon>
+        </div>
       )}
     </>
   );

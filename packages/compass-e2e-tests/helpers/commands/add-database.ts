@@ -1,11 +1,14 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
+import type { AddCollectionOptions } from './add-collection';
+
 export async function addDatabase(
   browser: CompassBrowser,
   dbName: string,
-  collectionName: string
-  // TODO: options for capped collection, use custom collation and time-series
+  collectionName: string,
+  collectionOptions?: AddCollectionOptions,
+  screenshotPath?: string
 ): Promise<void> {
   const createModalElement = await browser.$(Selectors.CreateDatabaseModal);
   await createModalElement.waitForDisplayed();
@@ -17,6 +20,11 @@ export async function addDatabase(
   await collectionInput.setValue(collectionName);
   const createButton = await browser.$(Selectors.CreateDatabaseCreateButton);
   await createButton.waitForEnabled();
+
+  if (screenshotPath) {
+    await browser.screenshot(screenshotPath);
+  }
+
   await createButton.click();
   await createModalElement.waitForDisplayed({ reverse: true });
 }

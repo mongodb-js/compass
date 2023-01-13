@@ -5,11 +5,24 @@ export async function focusStageOperator(
   browser: CompassBrowser,
   index: number
 ): Promise<void> {
-  await browser.clickVisible(Selectors.stageCollapseButton(index));
-  await browser.clickVisible(Selectors.stageExpandButton(index));
-  await browser.keys(['Tab']);
-  const stageSelectorElement = await browser.$(
-    Selectors.stageSelectControlInput(index, true)
+  const comboboxInputSelector = Selectors.stagePickerComboboxInput(index);
+  await browser.clickVisible(comboboxInputSelector);
+
+  await browser.waitUntil(async () => {
+    const inputElement = await browser.$(comboboxInputSelector);
+    const isFocused = await inputElement.isFocused();
+    if (isFocused === true) {
+      return true;
+    } else {
+      // try to click again
+      await inputElement.click();
+      return false;
+    }
+  });
+
+  const stageSelectorListBoxElement = await browser.$(
+    Selectors.stagePickerListBox(index)
   );
-  await stageSelectorElement.waitForDisplayed();
+
+  await stageSelectorListBoxElement.waitForDisplayed();
 }

@@ -41,6 +41,6 @@ export const pluginExternals: string[] = [
   'react',
   // Arbitrary external dependencies that would make sense to keep out of the
   // plugin bundles, feel free to update this as needed
-  'mongodb-ace-autocompleter',
+  '@mongodb-js/mongodb-constants',
   'bson',
 ];

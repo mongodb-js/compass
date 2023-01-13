@@ -23,7 +23,9 @@ function localPortGenerator() {
   const startPort = 29170;
   const endPort = 29899;
   return parseInt(
-    (Math.random() * (endPort - startPort + 1) + startPort).toString(), 10);
+    (Math.random() * (endPort - startPort + 1) + startPort).toString(),
+    10
+  );
 }
 
 /**
@@ -32,14 +34,14 @@ function localPortGenerator() {
 var CONNECTION_TYPE_VALUES = {
   NODE_DRIVER: 'NODE_DRIVER',
   STITCH_ON_PREM: 'STITCH_ON_PREM',
-  STITCH_ATLAS: 'STITCH_ATLAS'
+  STITCH_ATLAS: 'STITCH_ATLAS',
 };
 
 Object.assign(session, {
   selected: {
     type: 'boolean',
-    default: false
-  }
+    default: false,
+  },
 });
 
 /**
@@ -56,71 +58,71 @@ Object.assign(props, {
    */
   name: {
     type: 'string',
-    default: 'Local'
+    default: 'Local',
   },
   hostname: {
     type: 'string',
-    default: 'localhost'
+    default: 'localhost',
   },
   connectionType: {
     type: 'string',
-    default: CONNECTION_TYPE_VALUES.NODE_DRIVER
+    default: CONNECTION_TYPE_VALUES.NODE_DRIVER,
   },
   stitchServiceName: {
-    type: 'string'
+    type: 'string',
   },
   stitchClientAppId: {
-    type: 'string'
+    type: 'string',
   },
   stitchGroupId: {
-    type: 'string'
+    type: 'string',
   },
   stitchBaseUrl: {
-    type: 'string'
+    type: 'string',
   },
   port: {
     type: 'port',
-    default: 27017
+    default: 27017,
   },
   ns: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   app_name: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   extra_options: {
     type: 'object',
-    default: function() {
+    default: function () {
       return {};
-    }
+    },
   },
   replica_set_name: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   isSrvRecord: {
     type: 'boolean',
-    default: false
+    default: false,
   },
   _id: {
     type: 'string',
-    default: function() {
+    default: function () {
       return uuid.v4();
-    }
+    },
   },
   /**
    * Updated on each successful connection to the Deployment.
    */
   last_used: {
     type: 'date',
-    default: null
+    default: null,
   },
   is_favorite: {
     type: 'boolean',
-    default: false
-  }
+    default: false,
+  },
 });
 
 Object.assign(derived, {
@@ -129,13 +131,13 @@ Object.assign(derived, {
    */
   instance_id: {
     deps: ['hostname', 'port'],
-    fn: function() {
+    fn: function () {
       return format('%s:%s', this.hostname, this.port);
-    }
+    },
   },
   username: {
     deps: ['authentication'],
-    fn: function() {
+    fn: function () {
       if (this.authentication === 'NONE') {
         return '';
       }
@@ -151,8 +153,8 @@ Object.assign(derived, {
       if (this.authentication === 'LDAP') {
         return this.ldap_username;
       }
-    }
-  }
+    },
+  },
 });
 
 /**
@@ -163,7 +165,7 @@ var READ_PREFERENCE_VALUES = [
   ReadPreference.PRIMARY_PREFERRED,
   ReadPreference.SECONDARY,
   ReadPreference.SECONDARY_PREFERRED,
-  ReadPreference.NEAREST
+  ReadPreference.NEAREST,
 ];
 
 /**
@@ -178,8 +180,8 @@ Object.assign(props, {
   read_preference: {
     type: 'string',
     values: READ_PREFERENCE_VALUES,
-    default: READ_PREFERENCE_DEFAULT
-  }
+    default: READ_PREFERENCE_DEFAULT,
+  },
 });
 
 /**
@@ -210,7 +212,7 @@ var AUTHENTICATION_VALUES = [
    * @see http://bit.ly/mongodb-node-driver-ldap
    */
   'LDAP',
-  'SCRAM-SHA-256'
+  'SCRAM-SHA-256',
 ];
 
 /**
@@ -225,8 +227,8 @@ Object.assign(props, {
   authentication: {
     type: 'string',
     values: AUTHENTICATION_VALUES,
-    default: AUTHENTICATION_DEFAULT
-  }
+    default: AUTHENTICATION_DEFAULT,
+  },
 });
 
 /**
@@ -238,7 +240,7 @@ var AUTHENICATION_TO_AUTH_MECHANISM = {
   KERBEROS: 'GSSAPI',
   X509: 'MONGODB-X509',
   LDAP: 'PLAIN',
-  'SCRAM-SHA-256': 'SCRAM-SHA-256'
+  'SCRAM-SHA-256': 'SCRAM-SHA-256',
 };
 
 Object.assign(derived, {
@@ -249,10 +251,10 @@ Object.assign(derived, {
   driver_auth_mechanism: {
     type: 'string',
     deps: ['authentication'],
-    fn: function() {
+    fn: function () {
       return AUTHENICATION_TO_AUTH_MECHANISM[this.authentication];
-    }
-  }
+    },
+  },
 });
 
 /**
@@ -268,7 +270,7 @@ var AUTH_MECHANISM_TO_AUTHENTICATION = {
   GSSAPI: 'KERBEROS',
   SSPI: 'KERBEROS',
   PLAIN: 'LDAP',
-  LDAP: 'LDAP'
+  LDAP: 'LDAP',
 };
 
 /**
@@ -279,26 +281,26 @@ var AUTHENTICATION_TO_FIELD_NAMES = {
   MONGODB: [
     'mongodb_username', // required
     'mongodb_password', // required
-    'mongodb_database_name' // optional
+    'mongodb_database_name', // optional
   ],
   'SCRAM-SHA-256': [
     'mongodb_username', // required
     'mongodb_password', // required
-    'mongodb_database_name' // optional
+    'mongodb_database_name', // optional
   ],
   KERBEROS: [
     'kerberos_principal', // required
     'kerberos_password', // optional
     'kerberos_service_name', // optional
-    'kerberos_canonicalize_hostname'
+    'kerberos_canonicalize_hostname',
   ],
   X509: [
-    'x509_username' // required
+    'x509_username', // required
   ],
   LDAP: [
     'ldap_username', // required
-    'ldap_password' // required
-  ]
+    'ldap_password', // required
+  ],
 };
 
 /**
@@ -318,11 +320,11 @@ var AUTHENTICATION_TO_FIELD_NAMES = {
 Object.assign(props, {
   mongodb_username: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   mongodb_password: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   /**
    * The database name associated with the user's credentials.
@@ -333,14 +335,14 @@ Object.assign(props, {
    */
   mongodb_database_name: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   /**
    * Whether BSON values should be promoted to their JS type counterparts.
    */
   promote_values: {
-    type: 'boolean'
-  }
+    type: 'boolean',
+  },
 });
 
 var MONGODB_DATABASE_NAME_DEFAULT = 'admin';
@@ -376,7 +378,7 @@ Object.assign(props, {
    */
   kerberos_service_name: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   /**
    * The format of a typical Kerberos V5 principal is `primary/instance@REALM`.
@@ -391,7 +393,7 @@ Object.assign(props, {
    */
   kerberos_principal: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   /**
    * You can optionally include a password for a kerberos connection.
@@ -402,13 +404,13 @@ Object.assign(props, {
    */
   kerberos_password: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
 
   kerberos_canonicalize_hostname: {
     type: 'boolean',
-    default: false
-  }
+    default: false,
+  },
 });
 
 var KERBEROS_SERVICE_NAME_DEFAULT = 'mongodb';
@@ -438,7 +440,7 @@ Object.assign(props, {
    */
   ldap_username: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   /**
    * @see http://bit.ly/mongodb-node-driver-ldap
@@ -446,8 +448,8 @@ Object.assign(props, {
    */
   ldap_password: {
     type: 'string',
-    default: undefined
-  }
+    default: undefined,
+  },
 });
 
 /**
@@ -472,8 +474,8 @@ Object.assign(props, {
    */
   x509_username: {
     type: 'string',
-    default: undefined
-  }
+    default: undefined,
+  },
 });
 
 /**
@@ -508,7 +510,7 @@ var SSL_VALUES = [
   /**
    * The driver must present a valid certificate and validate the server certificate.
    */
-  'ALL'
+  'ALL',
 ];
 
 /**
@@ -520,7 +522,7 @@ Object.assign(props, {
   ssl: {
     type: 'string',
     values: SSL_VALUES,
-    default: SSL_DEFAULT
+    default: SSL_DEFAULT,
   },
   /**
    * Array of valid certificates either as Buffers or Strings
@@ -528,7 +530,7 @@ Object.assign(props, {
    */
   ssl_ca: {
     type: 'any',
-    default: undefined
+    default: undefined,
   },
 
   /**
@@ -537,7 +539,7 @@ Object.assign(props, {
    */
   ssl_certificate: {
     type: 'any',
-    default: undefined
+    default: undefined,
   },
   /**
    * String or buffer containing the certificate private key we wish to present
@@ -545,7 +547,7 @@ Object.assign(props, {
    */
   ssl_private_key: {
     type: 'any',
-    default: undefined
+    default: undefined,
   },
   /**
    * String or buffer containing the certificate password
@@ -553,8 +555,8 @@ Object.assign(props, {
    */
   ssl_private_key_password: {
     type: 'string',
-    default: undefined
-  }
+    default: undefined,
+  },
 });
 
 /**
@@ -572,7 +574,7 @@ var SSH_TUNNEL_VALUES = [
   /**
    * The tunnel is created using an identity file.
    */
-  'IDENTITY_FILE'
+  'IDENTITY_FILE',
 ];
 
 /**
@@ -584,57 +586,57 @@ Object.assign(props, {
   ssh_tunnel: {
     type: 'string',
     values: SSH_TUNNEL_VALUES,
-    default: SSH_TUNNEL_DEFAULT
+    default: SSH_TUNNEL_DEFAULT,
   },
   /**
    * The hostname of the SSH remote host.
    */
   ssh_tunnel_hostname: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   /**
    * The SSH port of the remote host.
    */
   ssh_tunnel_port: {
     type: 'port',
-    default: 22
+    default: 22,
   },
   /**
    * Bind the localhost endpoint of the SSH Tunnel to this port.
    */
   ssh_tunnel_bind_to_local_port: {
     type: 'port',
-    default: undefined
+    default: undefined,
   },
   /**
    * The optional SSH username for the remote host.
    */
   ssh_tunnel_username: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   /**
    * The optional SSH password for the remote host.
    */
   ssh_tunnel_password: {
     type: 'string',
-    default: undefined
+    default: undefined,
   },
   /**
    * The optional path to the SSH identity file for the remote host.
    */
   ssh_tunnel_identity_file: {
     type: 'any',
-    default: undefined
+    default: undefined,
   },
   /**
    * The optional passphrase for `ssh_tunnel_identity_file`.
    */
   ssh_tunnel_passphrase: {
     type: 'string',
-    default: undefined
-  }
+    default: undefined,
+  },
 });
 
 /**
@@ -645,8 +647,7 @@ Object.assign(props, {
  * will always blindly pass to the driver when connecting to mongodb:
  * `MongoClient.connect(model.driver_url, model.driver_options)`.
  */
-var DRIVER_OPTIONS_DEFAULT = {
-};
+var DRIVER_OPTIONS_DEFAULT = {};
 
 Object.assign(derived, {
   /**
@@ -657,7 +658,7 @@ Object.assign(derived, {
   driver_url: {
     cache: false,
     /* eslint complexity: 0 */
-    fn: function() {
+    fn: function () {
       const AUTH_TOKEN = 'AUTH_TOKEN';
       var req = {
         protocol: this.isSrvRecord ? 'mongodb+srv' : 'mongodb',
@@ -665,7 +666,7 @@ Object.assign(derived, {
         hostname: this.hostname,
         port: this.isSrvRecord ? null : this.port,
         pathname: '/',
-        query: {}
+        query: {},
       };
 
       if (this.replica_set_name) {
@@ -685,29 +686,31 @@ Object.assign(derived, {
       const encodeAuthForUrlFormat = () => {
         if (this.authentication === 'MONGODB') {
           req.auth = AUTH_TOKEN;
-          req.query.authSource = this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
+          req.query.authSource =
+            this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
         } else if (this.authentication === 'SCRAM-SHA-256') {
           req.auth = AUTH_TOKEN;
-          req.query.authSource = this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
+          req.query.authSource =
+            this.mongodb_database_name || MONGODB_DATABASE_NAME_DEFAULT;
           req.query.authMechanism = this.driver_auth_mechanism;
         } else if (this.authentication === 'KERBEROS') {
           req.query = {
             gssapiServiceName: this.kerberos_service_name,
             authMechanism: this.driver_auth_mechanism,
-            ...req.query
+            ...req.query,
           };
           req.auth = AUTH_TOKEN;
         } else if (this.authentication === 'X509') {
           req.auth = this.x509_username;
           req.query = {
             authMechanism: this.driver_auth_mechanism,
-            ...req.query
+            ...req.query,
           };
         } else if (this.authentication === 'LDAP') {
           req.auth = AUTH_TOKEN;
           req.query = {
             authMechanism: this.driver_auth_mechanism,
-            ...req.query
+            ...req.query,
           };
         }
       };
@@ -730,7 +733,10 @@ Object.assign(derived, {
 
       // Post url.format() workaround for
       // https://github.com/nodejs/node/issues/1802
-      if (this.authentication === 'MONGODB' || this.authentication === 'SCRAM-SHA-256') {
+      if (
+        this.authentication === 'MONGODB' ||
+        this.authentication === 'SCRAM-SHA-256'
+      ) {
         const authField = format(
           '%s:%s',
           encodeURIComponent(this.mongodb_username),
@@ -771,7 +777,7 @@ Object.assign(derived, {
         }
       }
       return result;
-    }
+    },
   },
   /**
    * Get the options which can be passed to `MongoClient.connect`
@@ -781,19 +787,19 @@ Object.assign(derived, {
    */
   driver_options: {
     cache: false,
-    fn: function() {
+    fn: function () {
       var opts = { ...DRIVER_OPTIONS_DEFAULT };
       if (this.ssl === 'SERVER') {
         Object.assign(opts, {
           sslValidate: true,
-          sslCA: this.ssl_ca
+          sslCA: this.ssl_ca,
         });
       } else if (this.ssl === 'ALL') {
         Object.assign(opts, {
           sslValidate: true,
           sslCA: this.ssl_ca,
           sslKey: this.ssl_private_key,
-          sslCert: this.ssl_certificate
+          sslCert: this.ssl_certificate,
         });
 
         if (this.ssl_private_key_password) {
@@ -807,17 +813,17 @@ Object.assign(derived, {
       } else if (this.ssl === 'UNVALIDATED') {
         Object.assign(opts, {
           checkServerIdentity: false,
-          sslValidate: false
+          sslValidate: false,
         });
       } else if (this.ssl === 'SYSTEMCA') {
         Object.assign(opts, {
           checkServerIdentity: true,
-          sslValidate: true
+          sslValidate: true,
         });
       } else if (this.ssl === 'IFAVAILABLE') {
         Object.assign(opts, {
           checkServerIdentity: false,
-          sslValidate: true
+          sslValidate: true,
         });
       }
 
@@ -832,7 +838,7 @@ Object.assign(derived, {
       opts.readPreference = this.read_preference;
 
       return opts;
-    }
+    },
   },
   /**
    * @return {Object} The options passed to our SSHTunnel and also
@@ -840,7 +846,7 @@ Object.assign(derived, {
    */
   ssh_tunnel_options: {
     cache: false,
-    fn: function() {
+    fn: function () {
       if (this.ssh_tunnel === 'NONE') {
         return {};
       }
@@ -858,7 +864,7 @@ Object.assign(derived, {
         localAddr: '127.0.0.1',
         host: this.ssh_tunnel_hostname,
         port: this.ssh_tunnel_port,
-        username: this.ssh_tunnel_username
+        username: this.ssh_tunnel_username,
       };
 
       if (this.ssh_tunnel === 'USER_PASSWORD') {
@@ -872,7 +878,9 @@ Object.assign(derived, {
             opts.privateKey = fs.readFileSync(fileName);
           } catch (e) {
             /* eslint no-console: 0 */
-            console.error(`Could not locate ssh tunnel identity file: ${fileName}`);
+            console.error(
+              `Could not locate ssh tunnel identity file: ${fileName}`
+            );
           }
         }
         if (this.ssh_tunnel_passphrase) {
@@ -880,8 +888,8 @@ Object.assign(derived, {
         }
       }
       return opts;
-    }
-  }
+    },
+  },
 });
 
 /**
@@ -896,7 +904,7 @@ Connection = AmpersandModel.extend({
   derived: derived,
   session: session,
   dataTypes: dataTypes,
-  initialize: function(attrs) {
+  initialize: function (attrs) {
     if (attrs) {
       if (typeof attrs === 'string') {
         try {
@@ -918,7 +926,7 @@ Connection = AmpersandModel.extend({
       this.parse(attrs);
     }
   },
-  parse: function(attrs) {
+  parse: function (attrs) {
     if (!attrs) {
       return attrs;
     }
@@ -932,7 +940,10 @@ Connection = AmpersandModel.extend({
       this.authentication = attrs.authentication = 'X509';
     }
 
-    if (attrs.authentication === 'MONGODB' || attrs.authentication === 'SCRAM-SHA-256') {
+    if (
+      attrs.authentication === 'MONGODB' ||
+      attrs.authentication === 'SCRAM-SHA-256'
+    ) {
       if (!attrs.mongodb_database_name) {
         attrs.mongodb_database_name = MONGODB_DATABASE_NAME_DEFAULT;
       }
@@ -947,7 +958,7 @@ Connection = AmpersandModel.extend({
     return attrs;
   },
 
-  validate: function(attrs) {
+  validate: function (attrs) {
     try {
       this.validate_ssl(attrs);
       this.validate_mongodb(attrs);
@@ -964,8 +975,11 @@ Connection = AmpersandModel.extend({
    * Enforce constraints for SSL.
    * @param {Object} attrs - Incoming attributes.
    */
-  validate_ssl: function(attrs) {
-    if (!attrs.ssl || ['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'].includes(attrs.ssl)) {
+  validate_ssl: function (attrs) {
+    if (
+      !attrs.ssl ||
+      ['NONE', 'UNVALIDATED', 'IFAVAILABLE', 'SYSTEMCA'].includes(attrs.ssl)
+    ) {
       return;
     }
     if (attrs.ssl === 'SERVER' && !attrs.ssl_ca) {
@@ -984,18 +998,27 @@ Connection = AmpersandModel.extend({
       }
     }
   },
-  validate_mongodb: function(attrs) {
-    if (attrs.authentication === 'MONGODB' || attrs.authentication === 'SCRAM-SHA-256') {
+  validate_mongodb: function (attrs) {
+    if (
+      attrs.authentication === 'MONGODB' ||
+      attrs.authentication === 'SCRAM-SHA-256'
+    ) {
       if (!attrs.mongodb_username) {
-        throw new TypeError(format(
-          'The mongodb_username field is required when '
-          + 'using MONGODB or SCRAM-SHA-256 for authentication.'));
+        throw new TypeError(
+          format(
+            'The mongodb_username field is required when ' +
+              'using MONGODB or SCRAM-SHA-256 for authentication.'
+          )
+        );
       }
 
       if (!attrs.mongodb_password) {
-        throw new TypeError(format(
-          'The mongodb_password field is required when '
-          + 'using MONGODB or SCRAM-SHA-256 for authentication.'));
+        throw new TypeError(
+          format(
+            'The mongodb_password field is required when ' +
+              'using MONGODB or SCRAM-SHA-256 for authentication.'
+          )
+        );
       }
     }
   },
@@ -1003,116 +1026,168 @@ Connection = AmpersandModel.extend({
    * Enforce constraints for Kerberos.
    * @param {Object} attrs - Incoming attributes.
    */
-  validate_kerberos: function(attrs) {
+  validate_kerberos: function (attrs) {
     if (attrs.authentication !== 'KERBEROS') {
       if (attrs.kerberos_service_name) {
-        throw new TypeError(format(
-          'The kerberos_service_name field does not apply when '
-          + 'using %s for authentication.', attrs.authentication));
+        throw new TypeError(
+          format(
+            'The kerberos_service_name field does not apply when ' +
+              'using %s for authentication.',
+            attrs.authentication
+          )
+        );
       }
       if (attrs.kerberos_principal) {
-        throw new TypeError(format(
-          'The kerberos_principal field does not apply when '
-          + 'using %s for authentication.', attrs.authentication));
+        throw new TypeError(
+          format(
+            'The kerberos_principal field does not apply when ' +
+              'using %s for authentication.',
+            attrs.authentication
+          )
+        );
       }
       if (attrs.kerberos_password) {
-        throw new TypeError(format(
-          'The kerberos_password field does not apply when '
-          + 'using %s for authentication.', attrs.authentication));
+        throw new TypeError(
+          format(
+            'The kerberos_password field does not apply when ' +
+              'using %s for authentication.',
+            attrs.authentication
+          )
+        );
       }
     }
 
     if (attrs.authentication === 'KERBEROS') {
       if (!attrs.kerberos_principal) {
-        throw new TypeError(format(
-          'The kerberos_principal field is required when '
-          + 'using KERBEROS for authentication.'));
+        throw new TypeError(
+          format(
+            'The kerberos_principal field is required when ' +
+              'using KERBEROS for authentication.'
+          )
+        );
       }
     }
   },
-  validate_x509: function(attrs) {
+  validate_x509: function (attrs) {
     if (attrs.authentication === 'X509') {
       if (!attrs.x509_username) {
-        throw new TypeError(format(
-          'The x509_username field is required when '
-          + 'using X509 for authentication.'));
+        throw new TypeError(
+          format(
+            'The x509_username field is required when ' +
+              'using X509 for authentication.'
+          )
+        );
       }
     }
   },
-  validate_ldap: function(attrs) {
+  validate_ldap: function (attrs) {
     if (attrs.authentication === 'LDAP') {
       if (!attrs.ldap_username) {
-        throw new TypeError(format(
-          'The ldap_username field is required when '
-          + 'using LDAP for authentication.'));
+        throw new TypeError(
+          format(
+            'The ldap_username field is required when ' +
+              'using LDAP for authentication.'
+          )
+        );
       }
       if (!attrs.ldap_password) {
-        throw new TypeError(format(
-          'The ldap_password field is required when '
-          + 'using LDAP for authentication.'));
+        throw new TypeError(
+          format(
+            'The ldap_password field is required when ' +
+              'using LDAP for authentication.'
+          )
+        );
       }
     }
   },
-  validate_ssh_tunnel: function(attrs) {
+  validate_ssh_tunnel: function (attrs) {
     if (!attrs.ssh_tunnel || attrs.ssh_tunnel === SSH_TUNNEL_DEFAULT) {
       return;
     }
     if (attrs.ssh_tunnel === 'USER_PASSWORD') {
       this.validate_standard_ssh_tunnel_options(attrs);
       if (!attrs.ssh_tunnel_password) {
-        throw new TypeError('ssl_tunnel_password is required when ssh_tunnel is USER_PASSWORD.');
+        throw new TypeError(
+          'ssl_tunnel_password is required when ssh_tunnel is USER_PASSWORD.'
+        );
       }
     } else if (attrs.ssh_tunnel === 'IDENTITY_FILE') {
       this.validate_standard_ssh_tunnel_options(attrs);
       if (!attrs.ssh_tunnel_identity_file) {
-        throw new TypeError('ssl_tunnel_identity_file is required when ssh_tunnel is IDENTITY_FILE.');
+        throw new TypeError(
+          'ssl_tunnel_identity_file is required when ssh_tunnel is IDENTITY_FILE.'
+        );
       }
     }
   },
-  validate_standard_ssh_tunnel_options: function(attrs) {
+  validate_standard_ssh_tunnel_options: function (attrs) {
     if (!attrs.ssh_tunnel_username) {
-      throw new TypeError('ssl_tunnel_username is required when ssh_tunnel is not NONE.');
+      throw new TypeError(
+        'ssl_tunnel_username is required when ssh_tunnel is not NONE.'
+      );
     }
     if (!attrs.ssh_tunnel_hostname) {
-      throw new TypeError('ssl_tunnel_hostname is required when ssh_tunnel is not NONE.');
+      throw new TypeError(
+        'ssl_tunnel_hostname is required when ssh_tunnel is not NONE.'
+      );
     }
     if (!attrs.ssh_tunnel_port) {
-      throw new TypeError('ssl_tunnel_port is required when ssh_tunnel is not NONE.');
+      throw new TypeError(
+        'ssl_tunnel_port is required when ssh_tunnel is not NONE.'
+      );
     }
   },
-  validate_stitch: function(attrs) {
+  validate_stitch: function (attrs) {
     if (attrs.connectionType === CONNECTION_TYPE_VALUES.STITCH_ATLAS) {
       if (!attrs.stitchClientAppId) {
-        throw new TypeError('stitchClientAppId is required when connectionType is STITCH_ATLAS.');
+        throw new TypeError(
+          'stitchClientAppId is required when connectionType is STITCH_ATLAS.'
+        );
       }
     } else if (attrs.connectionType === CONNECTION_TYPE_VALUES.STITCH_ON_PREM) {
       if (!attrs.stitchClientAppId) {
-        throw new TypeError('stitchClientAppId is required when connectionType is STITCH_ON_PREM.');
+        throw new TypeError(
+          'stitchClientAppId is required when connectionType is STITCH_ON_PREM.'
+        );
       }
       if (!attrs.stitchBaseUrl) {
-        throw new TypeError('stitchBaseUrl is required when connectionType is STITCH_ON_PREM.');
+        throw new TypeError(
+          'stitchBaseUrl is required when connectionType is STITCH_ON_PREM.'
+        );
       }
       if (!attrs.stitchGroupId) {
-        throw new TypeError('stitchGroupId is required when connectionType is STITCH_ON_PREM.');
+        throw new TypeError(
+          'stitchGroupId is required when connectionType is STITCH_ON_PREM.'
+        );
       }
       if (!attrs.stitchServiceName) {
-        throw new TypeError('stitchServiceName is required when connectionType is STITCH_ON_PREM.');
+        throw new TypeError(
+          'stitchServiceName is required when connectionType is STITCH_ON_PREM.'
+        );
       }
     } else if (attrs.connectionType === CONNECTION_TYPE_VALUES.NODE_DRIVER) {
       if (attrs.stitchClientAppId) {
-        throw new TypeError('stitchClientAppId should not be provided when connectionType is NODE_DRIVER.');
+        throw new TypeError(
+          'stitchClientAppId should not be provided when connectionType is NODE_DRIVER.'
+        );
       }
       if (attrs.stitchBaseUrl) {
-        throw new TypeError('stitchBaseUrl should not be provided when connectionType is NODE_DRIVER.');
+        throw new TypeError(
+          'stitchBaseUrl should not be provided when connectionType is NODE_DRIVER.'
+        );
       }
       if (attrs.stitchGroupId) {
-        throw new TypeError('stitchGroupId should not be provided when connectionType is NODE_DRIVER.');
+        throw new TypeError(
+          'stitchGroupId should not be provided when connectionType is NODE_DRIVER.'
+        );
       }
       if (attrs.stitchServiceName) {
-        throw new TypeError('stitchServiceName should not be provided when connectionType is NODE_DRIVER.');
+        throw new TypeError(
+          'stitchServiceName should not be provided when connectionType is NODE_DRIVER.'
+        );
       }
     }
-  }
+  },
 });
 
 /**
@@ -1128,7 +1203,7 @@ Connection = AmpersandModel.extend({
  * @param {String} [url]
  * @return {Connection}
  */
-Connection.from = function(url) {
+Connection.from = function (url) {
   /* eslint camelcase:0 */
   if (!url) {
     url = 'mongodb://localhost:27017';
@@ -1137,7 +1212,7 @@ Connection.from = function(url) {
   var parsed = parse(url);
   var attrs = {
     hostname: parsed.servers[0].host,
-    port: parsed.servers[0].port
+    port: parsed.servers[0].port,
   };
 
   attrs.isSrvRecord = parsed.isSrvRecord;
@@ -1166,7 +1241,8 @@ Connection.from = function(url) {
   if (parsed.auth && parsed.db_options) {
     // Handles cannonicalizing all possible values for each
     // `authentication` into the correct one.
-    attrs.authentication = AUTH_MECHANISM_TO_AUTHENTICATION[parsed.db_options.authMechanism];
+    attrs.authentication =
+      AUTH_MECHANISM_TO_AUTHENTICATION[parsed.db_options.authMechanism];
 
     if (parsed.db_options.read_preference) {
       attrs.read_preference = parsed.db_options.read_preference;
@@ -1180,7 +1256,7 @@ Connection.from = function(url) {
     } else if (attrs.authentication === 'KERBEROS') {
       attrs.kerberos_principal = decodeURIComponent(parsed.auth.user);
       attrs.kerberos_password = decodeURIComponent(parsed.auth.password);
-    // attrs.kerberos_service_name = parsed.
+      // attrs.kerberos_service_name = parsed.
     } else {
       if (!attrs.authentication) {
         attrs.authentication = 'MONGODB';
@@ -1191,9 +1267,13 @@ Connection.from = function(url) {
       // @note Durran: This is not the documented behaviour of the connection string
       //   but the shell also does not fall back to the dbName and will use admin.
       attrs.mongodb_database_name = decodeURIComponent(
-        parsed.db_options.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT);
+        parsed.db_options.authSource || Connection.MONGODB_DATABASE_NAME_DEFAULT
+      );
     }
-    Object.assign(attrs, Connection._improveAtlasDefaults(url, attrs.mongodb_password, attrs.ns));
+    Object.assign(
+      attrs,
+      Connection._improveAtlasDefaults(url, attrs.mongodb_password, attrs.ns)
+    );
   }
 
   return new Connection(attrs);
@@ -1210,7 +1290,7 @@ Connection.from = function(url) {
  * @returns {Object} Connection attributes to override
  * @private
  */
-Connection._improveAtlasDefaults = function(url, mongodb_password, namespace) {
+Connection._improveAtlasDefaults = function (url, mongodb_password, namespace) {
   var atlasConnectionAttrs = {};
   if (Connection.isAtlas(url)) {
     atlasConnectionAttrs.ssl = 'SYSTEMCA';
@@ -1231,16 +1311,16 @@ Connection._improveAtlasDefaults = function(url, mongodb_password, namespace) {
  * @param {String} authentication - @see {Connection#authentication}
  * @return {Array}
  */
-Connection.getFieldNames = function(authentication) {
+Connection.getFieldNames = function (authentication) {
   return AUTHENTICATION_TO_FIELD_NAMES[authentication];
 };
 
-Connection.isAtlas = function(str) {
+Connection.isAtlas = function (str) {
   return str.match(/mongodb.net[:/]/i);
 };
 
-Connection.isURI = function(str) {
-  return (str.startsWith('mongodb://')) || (str.startsWith('mongodb+srv://'));
+Connection.isURI = function (str) {
+  return str.startsWith('mongodb://') || str.startsWith('mongodb+srv://');
 };
 
 Connection.AUTHENTICATION_VALUES = AUTHENTICATION_VALUES;
@@ -1260,7 +1340,7 @@ Connection.CONNECTION_TYPE_VALUES = CONNECTION_TYPE_VALUES;
 var ConnectionCollection = AmpersandCollection.extend({
   comparator: 'instance_id',
   model: Connection,
-  modelType: 'ConnectionCollection'
+  modelType: 'ConnectionCollection',
 });
 
 module.exports = Connection;

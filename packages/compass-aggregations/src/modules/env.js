@@ -1,10 +1,4 @@
-import { ON_PREM } from 'mongodb-ace-autocompleter';
-
-/**
- * Env changed action.
- */
-export const ENV_CHANGED = 'aggregations/env/ENV_CHANGED';
-
+import { ON_PREM } from '@mongodb-js/mongodb-constants';
 /**
  * The initial state.
  */
@@ -18,21 +12,6 @@ export const INITIAL_STATE = ON_PREM;
  *
  * @returns {String} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === ENV_CHANGED) {
-    return action.env;
-  }
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }
-
-/**
- * Action creator for env changed events.
- *
- * @param {String} env - The env value.
- *
- * @returns {Object} The env changed action.
- */
-export const envChanged = (env) => ({
-  type: ENV_CHANGED,
-  env: env
-});

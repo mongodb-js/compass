@@ -1,17 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
   version="1.1" x="0px" y="0px" viewBox="0 0 436 136"
   enable-background="new 0 0 436 136" xml:space="preserve">
-  <defs>
-    <!-- @see http://frabru.de/c.php/article/SVGFonts-usage -->
-    <font-face font-family="AkzidenzGroteskStd-Md">
-      <!-- Akzidenz Grotesk Std Medium -->
-      <font-face-src>
-       <font-face-uri xlink:href="https://www.mongodb.com/fonts/akzidenzgroteskbq_medium-webfont.svg#akzidenz-grotesk_bqmedium">
-        <font-face-format string="svg"/>
-       </font-face-uri>
-      </font-face-src>
-     </font-face>
-  </defs>
   <g id="nucleus-icon" data-noun-id="3004" data-url="https://thenounproject.com/term/particle/3004/" data-attribution="Nucleus by Chad Wimberly from the Noun Project" transform="scale(0.9957777903384514)">
     <polygon points="61.866,31.14 65.454,29.609 64.841,28.109 61.213,29.656 " transform="translate(-6.104000091552734,0.1889999806880951)" fill="#E24F6A"></polygon>
     <path d="M92.193,26.097l1.496-0.623c-0.618-1.522-2.169-2.462-3.53-2.718l-0.427,1.564C90.915,24.55,91.826,25.21,92.193,26.097z" transform="translate(-6.104000091552734,0.1889999806880951)" fill="#E24F6A"></path>

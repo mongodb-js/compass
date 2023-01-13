@@ -29,27 +29,17 @@ describe('Instance sidebar', function () {
     await afterTest(compass, this.currentTest);
   });
 
-  it('contains cluster info', async function () {
-    const topologyReplicaSetHostAddressElement = await browser.$(
-      Selectors.TopologyReplicaSetHostAddress
-    );
+  it('has a connection info modal with connection info', async function () {
+    await browser.clickVisible(Selectors.SidebarShowActions);
+    await browser.clickVisible(Selectors.SidebarActionClusterInfo);
 
-    const topologyReplicaSetHostAddressAddress =
-      await topologyReplicaSetHostAddressElement.getText();
-    expect(topologyReplicaSetHostAddressAddress).to.equal('localhost:27091');
+    const modal = await browser.$(Selectors.ConnectionInfoModal);
+    await modal.waitForDisplayed();
 
-    const replicaSetTypeElement = await browser.$(Selectors.ReplicaSetType);
+    await browser.screenshot('connection-info-modal.png');
 
-    const replicaSetType = await replicaSetTypeElement.getText();
-    expect(replicaSetType).to.equal('Replica Set (replicaset)');
-
-    const serverVersionTextElement = await browser.$(
-      Selectors.ServerVersionText
-    );
-
-    const serverVersionText = await serverVersionTextElement.getText(); // the version number changes constantly and is different in CI
-    expect(serverVersionText).to.include('MongoDB');
-    expect(serverVersionText).to.match(/\b(Community|Enterprise)\b/);
+    await browser.clickVisible(Selectors.ConnectionInfoModalCloseButton);
+    await modal.waitForDisplayed({ reverse: true });
   });
 
   it('contains a dbs/collections tree view', async function () {

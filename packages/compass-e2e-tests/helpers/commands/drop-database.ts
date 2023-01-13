@@ -11,6 +11,9 @@ export async function dropDatabase(
   await confirmInput.setValue(dbName);
   const confirmButton = await browser.$(Selectors.DropDatabaseDropButton);
   await confirmButton.waitForEnabled();
+
+  await browser.screenshot('drop-database-modal.png');
+
   await confirmButton.click();
   await dropModalElement.waitForDisplayed({ reverse: true });
 }

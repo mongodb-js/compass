@@ -1,36 +1,24 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import sinon from 'sinon';
+import { cleanup, render, screen } from '@testing-library/react';
 import { expect } from 'chai';
+import { StageOperatorSelect } from './stage-operator-select';
+import Sinon from 'sinon';
 
-import StageOperatorSelect from './stage-operator-select';
-import styles from './stage-operator-select.module.less';
+const stages = [
+  {name: '$stage1', description: 'stage1 description', env: []},
+  {name: '$stage2', description: 'stage2 description', env: ['atlas']}
+];
 
-describe('StageOperatorSelect [Component]', function() {
-  let component;
-  const spy = sinon.spy();
-  const setIsModifiedSpy = sinon.spy();
-
-  beforeEach(function() {
-    component = mount(
-      <StageOperatorSelect
-        env="on-prem"
-        isTimeSeries={false}
-        isReadonly={false}
-        index={0}
-        isEnabled
-        isCommenting
-        serverVersion="3.4.0"
-        setIsModified={setIsModifiedSpy}
-        stageOperatorSelected={spy} />
-    );
+describe('StageOperatorSelect', function () {
+  let onChangeSpy;
+  beforeEach(function () {
+    onChangeSpy = Sinon.spy();
+    render(<StageOperatorSelect index={0} stages={stages} onChange={onChangeSpy} />);
   });
 
-  afterEach(function() {
-    component = null;
-  });
+  afterEach(cleanup);
 
-  it('renders the wrapper div', function() {
-    expect(component.find(`.${styles['stage-operator-select']}`)).to.be.present();
+  it('should render a combobox', function () {
+    expect(screen.getByTestId('stage-operator-combobox')).to.exist;
   });
 });

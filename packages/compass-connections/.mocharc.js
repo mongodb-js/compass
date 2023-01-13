@@ -1,1 +1,6 @@
-module.exports = require('@mongodb-js/mocha-config-compass/compass-plugin');
+const base = require('@mongodb-js/mocha-config-compass/compass-plugin');
+
+module.exports = {
+  ...base,
+  require: base.require.concat(['./test/mocha-plugins.ts']),
+};

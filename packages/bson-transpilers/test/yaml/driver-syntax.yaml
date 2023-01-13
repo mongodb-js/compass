@@ -1,13 +1,14 @@
 runner: !!js/function >
-    (it, expect, input, output, transpiler, test) => {
+    (it, type, expect, input, output, transpiler, test) => {
         it(`${input} => ${output}`, () => {
             expect(
                 transpiler[input][output].compileWithDriver(test.input[input], true, true)
             ).to.equal(test.output[output]);
         });
         it(`${input}: imports in ${output}`, () => {
+            const mode = type === 'query' ? 'Query' : 'Pipeline';
             expect(
-                transpiler[input][output].getImports(true)
+                transpiler[input][output].getImports(mode, true)
             ).to.equal(test.imports[output]);
         });
     }
@@ -43,7 +44,7 @@ tests:
                     MongoDatabase database = mongoClient.getDatabase("db");
                     MongoCollection<Document> collection = database.getCollection("collection");
 
-                    FindIterable<Document> result = collection.aggregate(and(eq("x", 0L), eq("y", new ObjectId())));
+                    AggregateIterable<Document> result = collection.aggregate(and(eq("x", 0L), eq("y", new ObjectId())));
                 javascript: |-
                     /*
                      * Requires the MongoDB Node.js Driver
@@ -132,12 +133,12 @@ tests:
                     import static com.mongodb.client.model.Filters.eq;
                     import com.mongodb.MongoClient;
                     import com.mongodb.MongoClientURI;
-                    import com.mongodb.client.FindIterable;
                     import com.mongodb.client.MongoCollection;
                     import com.mongodb.client.MongoDatabase;
                     import org.bson.conversions.Bson;
                     import java.util.concurrent.TimeUnit;
                     import org.bson.Document;
+                    import com.mongodb.client.AggregateIterable;
                 javascript: |-
                     import { MongoClient } from 'mongodb';
                     import {
@@ -279,12 +280,12 @@ tests:
                     import static com.mongodb.client.model.Filters.eq;
                     import com.mongodb.MongoClient;
                     import com.mongodb.MongoClientURI;
-                    import com.mongodb.client.FindIterable;
                     import com.mongodb.client.MongoCollection;
                     import com.mongodb.client.MongoDatabase;
                     import org.bson.conversions.Bson;
                     import java.util.concurrent.TimeUnit;
                     import org.bson.Document;
+                    import com.mongodb.client.FindIterable;
                 javascript: |-
                     import { MongoClient } from 'mongodb';
                     import {
@@ -542,12 +543,12 @@ tests:
                     import static com.mongodb.client.model.Filters.eq;
                     import com.mongodb.MongoClient;
                     import com.mongodb.MongoClientURI;
-                    import com.mongodb.client.FindIterable;
                     import com.mongodb.client.MongoCollection;
                     import com.mongodb.client.MongoDatabase;
                     import org.bson.conversions.Bson;
                     import java.util.concurrent.TimeUnit;
                     import org.bson.Document;
+                    import com.mongodb.client.FindIterable;
                 javascript: |-
                     import { MongoClient } from 'mongodb';
                     import {

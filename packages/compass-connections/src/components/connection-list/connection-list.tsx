@@ -1,45 +1,25 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import {
   Button,
   FavoriteIcon,
-  H2,
+  H3,
   Icon,
-  uiColors,
-  compassUIColors,
+  palette,
   spacing,
   css,
   cx,
-  useTheme,
-  Theme,
-  withTheme,
+  useDarkMode,
+  useHoverState,
+  ItemActionControls,
 } from '@mongodb-js/compass-components';
+import type { ItemAction } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from 'mongodb-data-service';
 
 import Connection from './connection';
 import ConnectionsTitle from './connections-title';
 
-const legacyNewConnectionButtonContainerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  background: uiColors.gray.dark2,
-  position: 'relative',
-});
-
 const newConnectionButtonContainerStyles = css({
   padding: spacing[3],
-});
-
-const legacyNewConnectionButtonStyles = css({
-  border: 'none',
-  fontWeight: 'bold',
-  borderRadius: 0,
-  svg: {
-    color: uiColors.white,
-  },
-  ':hover': {
-    border: 'none',
-    boxShadow: 'none',
-  },
 });
 
 const newConnectionButtonStyles = css({
@@ -52,10 +32,10 @@ const newConnectionButtonStyles = css({
 });
 
 const newConnectionButtonStylesLight = css({
-  backgroundColor: 'white',
+  backgroundColor: palette.white,
 });
 const newConnectionButtonStylesDark = css({
-  backgroundColor: uiColors.gray.dark2,
+  backgroundColor: palette.gray.dark2,
 });
 
 const sectionHeaderStyles = css({
@@ -81,7 +61,7 @@ const sectionHeaderTitleStyles = css({
 });
 
 const sectionHeaderTitleStylesLight = css({
-  color: uiColors.gray.dark3,
+  color: palette.gray.dark3,
 });
 
 const sectionHeaderTitleStylesDark = css({
@@ -100,9 +80,6 @@ const connectionListSectionStyles = css({
   overflowY: 'auto',
   padding: 0,
   paddingBottom: spacing[3],
-  '::-webkit-scrollbar-thumb': {
-    background: compassUIColors.transparentGray,
-  },
 });
 
 const connectionListStyles = css({
@@ -111,8 +88,10 @@ const connectionListStyles = css({
   padding: 0,
 });
 
-function UnthemedRecentIcon({ darkMode }: { darkMode?: boolean }) {
-  const color = darkMode ? 'white' : uiColors.gray.dark3;
+function RecentIcon() {
+  const darkMode = useDarkMode();
+
+  const color = darkMode ? 'white' : palette.gray.dark3;
 
   return (
     <svg
@@ -136,10 +115,23 @@ function UnthemedRecentIcon({ darkMode }: { darkMode?: boolean }) {
   );
 }
 
-const RecentIcon = withTheme(UnthemedRecentIcon);
-
 export type ConnectionInfoFavorite = ConnectionInfo &
   Required<Pick<ConnectionInfo, 'favorite'>>;
+
+type FavoriteAction = 'import-favorites' | 'export-favorites';
+
+const favoriteActions: ItemAction<FavoriteAction>[] = [
+  {
+    action: 'import-favorites',
+    label: 'Import saved connections',
+    icon: 'Download',
+  },
+  {
+    action: 'export-favorites',
+    label: 'Export saved connections',
+    icon: 'Export',
+  },
+];
 
 function ConnectionList({
   activeConnectionId,
@@ -151,6 +143,7 @@ function ConnectionList({
   removeAllRecentsConnections,
   duplicateConnection,
   removeConnection,
+  openConnectionImportExportModal,
 }: {
   activeConnectionId?: string;
   recentConnections: ConnectionInfo[];
@@ -161,37 +154,25 @@ function ConnectionList({
   removeAllRecentsConnections: () => void;
   duplicateConnection: (connectionInfo: ConnectionInfo) => void;
   removeConnection: (connectionInfo: ConnectionInfo) => void;
+  openConnectionImportExportModal: (modal: FavoriteAction) => void;
 }): React.ReactElement {
-  const [recentHeaderHover, setRecentHover] = useState(false);
-
-  const { theme } = useTheme();
-
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
-
-  const isExpanded = true; // TODO: https://jira.mongodb.org/browse/COMPASS-5967
+  const darkMode = useDarkMode();
+  const [recentHoverProps, recentHeaderHover] = useHoverState();
+  const [favoriteHoverProps, favoriteHeaderHover] = useHoverState();
 
   return (
     <Fragment>
-      {useNewSidebar && <ConnectionsTitle isExpanded={isExpanded} />}
-      <div
-        className={
-          useNewSidebar
-            ? newConnectionButtonContainerStyles
-            : legacyNewConnectionButtonContainerStyles
-        }
-      >
+      <ConnectionsTitle />
+      <div className={newConnectionButtonContainerStyles}>
         <Button
           className={cx(
-            useNewSidebar
-              ? newConnectionButtonStyles
-              : legacyNewConnectionButtonStyles,
-            useNewSidebar &&
-              (theme === Theme.Dark
-                ? newConnectionButtonStylesDark
-                : newConnectionButtonStylesLight)
+            newConnectionButtonStyles,
+            darkMode
+              ? newConnectionButtonStylesDark
+              : newConnectionButtonStylesLight
           )}
           onClick={createNewConnection}
-          size={useNewSidebar ? 'default' : 'large'}
+          size="default"
           data-testid="new-connection-button"
           rightGlyph={<Icon glyph="Plus" />}
         >
@@ -199,20 +180,31 @@ function ConnectionList({
         </Button>
       </div>
       <div className={connectionListSectionStyles}>
-        <div className={sectionHeaderStyles}>
+        <div
+          className={sectionHeaderStyles}
+          {...favoriteHoverProps}
+          data-testid="favorite-connections-list-header"
+        >
           <div className={sectionHeaderIconStyles}>
             <FavoriteIcon />
           </div>
-          <H2
+          <H3
             className={cx(
               sectionHeaderTitleStyles,
-              theme === Theme.Dark
+              darkMode
                 ? sectionHeaderTitleStylesDark
                 : sectionHeaderTitleStylesLight
             )}
           >
             Saved connections
-          </H2>
+          </H3>
+          <ItemActionControls<FavoriteAction>
+            data-testid="favorites-menu"
+            onAction={openConnectionImportExportModal}
+            iconSize="small"
+            actions={favoriteActions}
+            isVisible={favoriteHeaderHover}
+          ></ItemActionControls>
         </div>
         <ul className={connectionListStyles}>
           {favoriteConnections.map((connectionInfo, index) => (
@@ -241,23 +233,23 @@ function ConnectionList({
         </ul>
         <div
           className={cx(sectionHeaderStyles, recentHeaderStyles)}
-          onMouseEnter={() => setRecentHover(true)}
-          onMouseLeave={() => setRecentHover(false)}
+          {...recentHoverProps}
+          data-testid="recent-connections-list-header"
         >
           <div className={sectionHeaderIconStyles}>
             <RecentIcon />
           </div>
-          <H2
+          <H3
             data-testid="recents-header"
             className={cx(
               sectionHeaderTitleStyles,
-              theme === Theme.Dark
+              darkMode
                 ? sectionHeaderTitleStylesDark
                 : sectionHeaderTitleStylesLight
             )}
           >
             Recents
-          </H2>
+          </H3>
           {recentHeaderHover && (
             <Button
               onClick={removeAllRecentsConnections}

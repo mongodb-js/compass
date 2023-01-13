@@ -3,8 +3,8 @@ import type { CSSProperties } from 'react';
 import React, { useMemo } from 'react';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { uiColors } from '@leafygreen-ui/palette';
-import { withTheme } from '../hooks/use-theme';
+import { palette } from '@leafygreen-ui/palette';
+import { useDarkMode } from '../hooks/use-theme';
 
 // Ratio of showing a highlight passing through the placeholder to background color
 const scale = 4;
@@ -21,8 +21,8 @@ const move = keyframes({
 });
 
 const placeholder = css({
-  '--gradient-start': uiColors.gray.light3,
-  '--gradient-end': 'rgba(235, 241, 239, 1)',
+  '--gradient-start': palette.gray.light2,
+  '--gradient-end': palette.gray.light3,
   alignSelf: 'center',
   borderRadius: 3,
   maxWidth: '80%',
@@ -40,15 +40,15 @@ const placeholder = css({
 });
 
 const placeholderDarkMode = css({
-  '--gradient-start': 'rgba(38, 55, 66, 1)',
-  '--gradient-end': 'rgba(47, 64, 74, 1)',
+  '--gradient-start': palette.gray.dark2,
+  '--gradient-end': palette.gray.dark3,
 });
 
 function getBoundRandom(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
-const UnthemedPlaceholder: React.FunctionComponent<
+const Placeholder: React.FunctionComponent<
   Omit<
     React.HTMLProps<HTMLDivElement>,
     'minChar' | 'maxChar' | 'width' | 'height'
@@ -57,7 +57,6 @@ const UnthemedPlaceholder: React.FunctionComponent<
     maxChar?: number;
     width?: CSSProperties['width'];
     height?: CSSProperties['height'];
-    darkMode?: boolean;
   }
 > = ({
   className,
@@ -65,9 +64,10 @@ const UnthemedPlaceholder: React.FunctionComponent<
   maxChar = 15,
   width: propsWidth,
   height: propsHeight = spacing[3],
-  darkMode,
   ...props
 }) => {
+  const darkMode = useDarkMode();
+
   const width = useMemo(() => {
     return propsWidth || `${Math.round(getBoundRandom(minChar, maxChar))}ch`;
   }, [minChar, maxChar, propsWidth]);
@@ -82,7 +82,5 @@ const UnthemedPlaceholder: React.FunctionComponent<
     ></div>
   );
 };
-
-const Placeholder = withTheme(UnthemedPlaceholder);
 
 export { Placeholder };

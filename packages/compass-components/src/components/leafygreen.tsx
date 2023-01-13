@@ -1,57 +1,63 @@
-import type React from 'react';
+import React from 'react';
 
-import { withTheme } from '../hooks/use-theme';
-
-// This file exports `@leafygreen-ui` components and wraps some of
-// them with a listener to Compass' theme in the react context.
+// This file exports `@leafygreen-ui` components and wraps some of them.
 
 // 1. Import the components we use from leafygreen.
 import { default as Badge } from '@leafygreen-ui/badge';
 import { default as Banner } from '@leafygreen-ui/banner';
-import { default as LeafyGreenButton } from '@leafygreen-ui/button';
-import { default as LeafyGreenCheckbox } from '@leafygreen-ui/checkbox';
-import { default as LeafyGreenCard } from '@leafygreen-ui/card';
-import { default as LeafyGreenCode } from '@leafygreen-ui/code';
-import { default as LeafyGreenConfirmationModal } from '@leafygreen-ui/confirmation-modal';
-import { default as Icon } from '@leafygreen-ui/icon';
-import { default as LeafyGreenIconButton } from '@leafygreen-ui/icon-button';
+import Button from '@leafygreen-ui/button';
+import Checkbox from '@leafygreen-ui/checkbox';
+import Card from '@leafygreen-ui/card';
+import LeafyGreenCode, { Language } from '@leafygreen-ui/code';
 import {
-  AtlasLogoMark,
+  Combobox,
+  ComboboxOption,
+  ComboboxGroup,
+} from '@leafygreen-ui/combobox';
+import ConfirmationModal from '@leafygreen-ui/confirmation-modal';
+import { default as LeafyGreenIcon } from '@leafygreen-ui/icon';
+import type { Size as LeafyGreenIconSize } from '@leafygreen-ui/icon';
+import IconButton from '@leafygreen-ui/icon-button';
+import {
+  AtlasNavGraphic,
   MongoDBLogoMark,
   MongoDBLogo,
 } from '@leafygreen-ui/logo';
 import { Menu, MenuSeparator, MenuItem } from '@leafygreen-ui/menu';
-import {
-  default as LeafyGreenModal,
-  Footer as LeafyGreenModalFooter,
-} from '@leafygreen-ui/modal';
+
+// If a leafygreen Menu (and therefore MenuItems) makes its way into a <form>,
+// clicking on a menu item will submit that form. This is because it uses a button
+// tag without specifying a type and buttons by default have type="submit".
+MenuItem.defaultProps = {
+  ...MenuItem.defaultProps,
+  type: 'button',
+};
+
+import LeafyGreenModal, { Footer as ModalFooter } from '@leafygreen-ui/modal';
+import MarketingModal from '@leafygreen-ui/marketing-modal';
+import { Pipeline, Stage } from '@leafygreen-ui/pipeline';
 import Popover from '@leafygreen-ui/popover';
 import { RadioBox, RadioBoxGroup } from '@leafygreen-ui/radio-box-group';
+import { Radio, RadioGroup } from '@leafygreen-ui/radio-group';
 import {
-  Radio,
-  RadioGroup as LeafyGreenRadioGroup,
-} from '@leafygreen-ui/radio-group';
-import {
-  SegmentedControl as LeafyGreenSegmentedControl,
+  SegmentedControl,
   SegmentedControlOption,
 } from '@leafygreen-ui/segmented-control';
-import {
-  Select as LeafyGreenSelect,
-  Option,
-  OptionGroup,
-} from '@leafygreen-ui/select';
+import { Select, Option, OptionGroup } from '@leafygreen-ui/select';
 import {
   Table as LeafyGreenTable,
   TableHeader,
   Row,
   Cell,
 } from '@leafygreen-ui/table';
-import { Tabs as LeafyGreenTabs, Tab } from '@leafygreen-ui/tabs';
-import { default as LeafyGreenTextArea } from '@leafygreen-ui/text-area';
-import { default as LeafyGreenTextInput } from '@leafygreen-ui/text-input';
-import { default as Toast } from '@leafygreen-ui/toast';
-import { default as LeafyGreenToggle } from '@leafygreen-ui/toggle';
-import { default as LeafyGreenTooltip } from '@leafygreen-ui/tooltip';
+import { Tabs, Tab } from '@leafygreen-ui/tabs';
+import TextArea from '@leafygreen-ui/text-area';
+import TextInput from '@leafygreen-ui/text-input';
+import {
+  default as Toast,
+  Variant as ToastVariant,
+} from '@leafygreen-ui/toast';
+import Toggle from '@leafygreen-ui/toggle';
 import {
   H1,
   H2,
@@ -62,89 +68,37 @@ import {
   InlineKeyCode,
   Disclaimer,
   Overline,
-  Label as LeafyGreenLabel,
   Link,
-  Description as LeafyGreenDescription,
+  Label,
+  Description,
 } from '@leafygreen-ui/typography';
 
-// 2. Wrap the components that accept darkMode with Compass' theme.
-const Button = withTheme(
-  LeafyGreenButton as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenButton>
-  >
-) as typeof LeafyGreenButton;
-const Card: typeof LeafyGreenCard = withTheme(
-  LeafyGreenCard as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenCard>
-  >
-) as typeof LeafyGreenCard;
-const Checkbox = withTheme(
-  LeafyGreenCheckbox as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenCheckbox>
-  >
-) as typeof LeafyGreenCheckbox;
-const Code = withTheme(
-  LeafyGreenCode as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenCode>
-  >
-) as typeof LeafyGreenCode;
-const ConfirmationModal: typeof LeafyGreenConfirmationModal = withTheme(
-  LeafyGreenConfirmationModal as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenConfirmationModal>
-  >
-) as typeof LeafyGreenConfirmationModal;
-const IconButton: typeof LeafyGreenIconButton = withTheme(
-  LeafyGreenIconButton as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenIconButton>
-  >
-) as typeof LeafyGreenIconButton;
-const ModalFooter: typeof LeafyGreenModalFooter = withTheme(
-  LeafyGreenModalFooter
-) as typeof LeafyGreenModalFooter;
-const Modal = withTheme(
-  LeafyGreenModal as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenModal>
-  >
-) as typeof LeafyGreenModal;
-const RadioGroup: typeof LeafyGreenRadioGroup = withTheme(
-  LeafyGreenRadioGroup as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenRadioGroup>
-  >
-) as typeof LeafyGreenRadioGroup;
-const SegmentedControl = withTheme(
-  LeafyGreenSegmentedControl
-) as typeof LeafyGreenSegmentedControl;
-const Select: typeof LeafyGreenSelect = withTheme(
-  LeafyGreenSelect as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenSelect>
-  >
-) as typeof LeafyGreenSelect;
-const Table = withTheme(LeafyGreenTable) as typeof LeafyGreenTable;
-const Tabs = withTheme(
-  LeafyGreenTabs as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenTabs>
-  >
-) as typeof LeafyGreenTabs;
-const TextArea: typeof LeafyGreenTextArea = withTheme(LeafyGreenTextArea);
-const TextInput: typeof LeafyGreenTextInput = withTheme(LeafyGreenTextInput);
-const Toggle = withTheme(
-  LeafyGreenToggle as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenToggle>
-  >
-) as typeof LeafyGreenToggle;
-const Tooltip = withTheme(
-  LeafyGreenTooltip as React.ComponentType<
-    React.ComponentProps<typeof LeafyGreenTooltip>
-  >
-) as typeof LeafyGreenTooltip;
-const Label = withTheme(LeafyGreenLabel) as typeof LeafyGreenLabel;
-const Description = withTheme(
-  LeafyGreenDescription
-) as typeof LeafyGreenDescription;
+import { withDarkMode } from '../hooks/use-theme';
+
+// 2. Wrap and make any changes/workaround to leafygreen components.
+const Icon = ({
+  size,
+  ...rest
+}: Omit<React.ComponentProps<typeof LeafyGreenIcon>, 'size'> & {
+  size?: LeafyGreenIconSize | 'xsmall' | number;
+}) => {
+  size = size === 'xsmall' ? 12 : size;
+  return <LeafyGreenIcon size={size} {...rest} />;
+};
+Icon.isGlyph = true;
+
+// The following components, Table, Modal, and Code do not currently
+// pull the theme from the LeafyGreen Provider.
+// TODO(LG-2703, COMPASS-6367) In new versions they do pull from the provider, however there's a
+// bug with the language switcher in the Code component,
+// so we're not updating yet.
+const Code = withDarkMode(LeafyGreenCode as any) as typeof LeafyGreenCode;
+const Table = withDarkMode(LeafyGreenTable) as typeof LeafyGreenTable;
+const Modal = withDarkMode(LeafyGreenModal as any) as typeof LeafyGreenModal;
 
 // 3. Export the leafygreen components.
 export {
-  AtlasLogoMark,
+  AtlasNavGraphic,
   Badge,
   Banner,
   Button,
@@ -154,13 +108,16 @@ export {
   ConfirmationModal,
   Icon,
   IconButton,
+  Language,
   Menu,
   MenuItem,
   MenuSeparator,
   Modal,
   ModalFooter,
+  MarketingModal,
   MongoDBLogoMark,
   MongoDBLogo,
+  Pipeline,
   Popover,
   RadioBox,
   RadioBoxGroup,
@@ -175,13 +132,14 @@ export {
   TableHeader,
   Row,
   Cell,
+  Stage,
   Tab,
   Tabs,
   TextArea,
   TextInput,
   Toast,
+  ToastVariant,
   Toggle,
-  Tooltip,
   H1,
   H2,
   H3,
@@ -194,4 +152,7 @@ export {
   Label,
   Link,
   Description,
+  Combobox,
+  ComboboxOption,
+  ComboboxGroup,
 };

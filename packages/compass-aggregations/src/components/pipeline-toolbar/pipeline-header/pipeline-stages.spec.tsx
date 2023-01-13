@@ -16,8 +16,8 @@ const renderPipelineStages = (
       isResultsMode={false}
       stages={[]}
       showAddNewStage={true}
-      onStageAdded={() => {}}
-      onChangeWorkspace={() => {}}
+      onAddStageClick={() => {}}
+      onEditPipelineClick={() => {}}
       {...props}
     />
   );
@@ -31,11 +31,10 @@ describe('PipelineStages', function () {
       stages: [],
       showAddNewStage: true,
     });
-    expect(
-      within(container).findByText(
-        'Your pipeline is currently empty. To get started select the first stage.'
-      )
-    ).to.exist;
+    const content = container.textContent?.trim().replace(/\u00a0/g, ' ');
+    expect(content).to.equal(
+      `Your pipeline is currently empty. To get started add the first stage.`
+    );
   });
 
   describe('add stage button', function () {
@@ -49,7 +48,7 @@ describe('PipelineStages', function () {
       const onStageAddedSpy = spy();
       const container = renderPipelineStages({
         showAddNewStage: true,
-        onStageAdded: onStageAddedSpy,
+        onAddStageClick: onStageAddedSpy,
       });
       expect(within(container).getByTestId('pipeline-toolbar-add-stage-button'))
         .to.exist;
@@ -73,8 +72,8 @@ describe('PipelineStages', function () {
       container = renderPipelineStages({
         isResultsMode: false,
         stages: ['$group', '$sort'],
-        onStageAdded: onStageAddedSpy,
-        onChangeWorkspace: onChangeWorkspaceSpy,
+        onAddStageClick: onStageAddedSpy,
+        onEditPipelineClick: onChangeWorkspaceSpy,
       });
     });
     it('renders stages in builder mode', function () {
@@ -93,8 +92,8 @@ describe('PipelineStages', function () {
       container = renderPipelineStages({
         isResultsMode: true,
         stages: ['$match', '$project'],
-        onStageAdded: onStageAddedSpy,
-        onChangeWorkspace: onChangeWorkspaceSpy,
+        onAddStageClick: onStageAddedSpy,
+        onEditPipelineClick: onChangeWorkspaceSpy,
       });
     });
 

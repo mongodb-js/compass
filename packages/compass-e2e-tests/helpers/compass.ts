@@ -4,11 +4,12 @@ import { promises as fs, rmdirSync } from 'fs';
 import type Mocha from 'mocha';
 import path from 'path';
 import os from 'os';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from 'electron-rebuild';
-import type { ConsoleMessage } from 'puppeteer';
+import type { ConsoleMessageType } from 'puppeteer';
 import {
   run as packageCompass,
   compileAssets,
@@ -34,6 +35,7 @@ export const COMPASS_PATH = path.dirname(
 );
 export const LOG_PATH = path.resolve(__dirname, '..', '.log');
 const OUTPUT_PATH = path.join(LOG_PATH, 'output');
+const SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
 const COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 
 // mongodb-runner defaults to stable if the env var isn't there
@@ -58,22 +60,29 @@ interface Coverage {
   renderer: string;
 }
 
+interface RenderLogEntry {
+  timestamp: string;
+  type: ConsoleMessageType;
+  text: string;
+  args: unknown;
+}
+
 export class Compass {
   browser: CompassBrowser;
-  isFirstRun: boolean;
   testPackagedApp: boolean;
-  renderLogs: any[]; // TODO
+  needsCloseWelcomeModal: boolean;
+  renderLogs: RenderLogEntry[];
   logs: LogEntry[];
   logPath?: string;
   userDataPath?: string;
 
   constructor(
     browser: CompassBrowser,
-    { isFirstRun = false, testPackagedApp = false } = {}
+    { testPackagedApp = false, needsCloseWelcomeModal = false } = {}
   ) {
     this.browser = browser;
-    this.isFirstRun = isFirstRun;
     this.testPackagedApp = testPackagedApp;
+    this.needsCloseWelcomeModal = needsCloseWelcomeModal;
     this.logs = [];
     this.renderLogs = [];
 
@@ -93,9 +102,10 @@ export class Compass {
     const pages = await puppeteerBrowser.pages();
     const page = pages[0];
 
-    page.on('console', (message: any) => {
-      // TODO: why is this a different ConsoleMessage? Different versions of puppeteer?
-      message = message as ConsoleMessage;
+    // TS infers the type of `message` correctly here, which would conflict with
+    // what we get from `import type { ConsoleMessage } from 'puppeteer'`, so we
+    // leave out an explicit type annotation.
+    page.on('console', (message) => {
       const run = async () => {
         // human and machine readable, always UTC
         const timestamp = new Date().toISOString();
@@ -145,15 +155,63 @@ export class Compass {
     const debugClient = debug.extend('webdriver:client');
     const browserProto = Object.getPrototypeOf(browser);
 
-    for (const prop of Object.getOwnPropertyNames(browserProto)) {
+    // We can pull the own property names straight from browser, but brings up a
+    // lot of things we're not interested. So this is just a list of the public
+    // interface methods.
+    const props = Object.getOwnPropertyNames(browserProto).concat(
+      '$$',
+      '$',
+      'addCommand',
+      'call',
+      'custom$$',
+      'custom$',
+      'debug',
+      'deleteCookies',
+      'execute',
+      'executeAsync',
+      'getCookies',
+      'getPuppeteer',
+      'getWindowSize',
+      'keys',
+      'mock',
+      'mockClearAll',
+      'mockRestoreAll',
+      'newWindow',
+      'overwriteCommand',
+      'pause',
+      'react$$',
+      'react$',
+      'reloadSession',
+      'savePDF',
+      'saveRecordingScreen',
+      'saveScreenshot',
+      'setCookies',
+      'setTimeout',
+      'setWindowSize',
+      'switchWindow',
+      'throttle',
+      'touchAction',
+      'uploadFile',
+      'url',
+      'waitUntil'
+    );
+
+    for (const prop of props) {
       // disable emit logging for now because it is very noisy
       if (prop.includes('.') || prop === 'emit') {
         continue;
       }
-      const descriptor = Object.getOwnPropertyDescriptor(browserProto, prop);
+
+      const protoDescriptor = Object.getOwnPropertyDescriptor(
+        browserProto,
+        prop
+      );
+      const browserDescriptor = Object.getOwnPropertyDescriptor(browser, prop);
+      const descriptor = protoDescriptor || browserDescriptor;
       if (!descriptor || typeof descriptor.value !== 'function') {
         continue;
       }
+
       const origFn = descriptor.value;
       descriptor.value = function (...args: any[]) {
         debugClient(
@@ -174,7 +232,10 @@ export class Compass {
           throw error;
         }
 
-        if (result && result.then) {
+        // Many of the webdriverio browser methods are chainable, so rather just
+        // return their objects as is. They are also promises, but resolving
+        // them will mess with the chainability.
+        if (protoDescriptor && result && result.then) {
           // If the result looks like a promise, resolve it and look for errors
           return result.catch((error: Error) => {
             augmentError(error, stack);
@@ -182,10 +243,16 @@ export class Compass {
           });
         }
 
-        // return the synchronous result
+        // return the synchronous result for our browser commands or possibly
+        // chainable thing as is for builtin browser commands
         return result;
       };
-      Object.defineProperty(browserProto, prop, descriptor);
+
+      Object.defineProperty(
+        protoDescriptor ? browserProto : browser,
+        prop,
+        descriptor
+      );
     }
   }
 
@@ -264,6 +331,9 @@ export class Compass {
 
 interface StartCompassOptions {
   firstRun?: boolean;
+  noWaitForConnectionScreen?: boolean;
+  extraSpawnArgs?: string[];
+  wrapBinary?: (binary: string) => Promise<string> | string;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -284,14 +354,47 @@ export function removeUserDataDir(): void {
   }
 }
 
-async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+async function getCompassExecutionParameters(): Promise<{
+  testPackagedApp: boolean;
+  binary: string;
+}> {
   const testPackagedApp = ['1', 'true'].includes(
     process.env.TEST_PACKAGED_APP ?? ''
   );
+  const binary = testPackagedApp
+    ? getCompassBinPath(await getCompassBuildMetadata())
+    : require('electron');
+  return { testPackagedApp, binary };
+}
 
+export async function runCompassOnce(args: string[], timeout = 30_000) {
+  const { binary } = await getCompassExecutionParameters();
+  debug('spawning compass...', {
+    binary,
+    COMPASS_PATH,
+    defaultUserDataDir,
+    args,
+    timeout,
+  });
+  const { stdout, stderr } = await promisify(execFile)(
+    binary,
+    [
+      COMPASS_PATH,
+      '--ignore-additional-command-line-flags',
+      `--user-data-dir=${String(defaultUserDataDir)}`,
+      '--no-sandbox', // See below
+      ...args,
+    ],
+    { timeout }
+  );
+  debug('Ran compass with args', { args, stdout, stderr });
+  return { stdout, stderr };
+}
+
+async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
+  const { testPackagedApp, binary } = await getCompassExecutionParameters();
   const nowFormatted = formattedDate();
-
-  const isFirstRun = opts.firstRun || !defaultUserDataDir;
+  let needsCloseWelcomeModal: boolean;
 
   // If this is not the first run, but we want it to be, delete the user data
   // dir so it will be recreated below.
@@ -300,6 +403,12 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     // windows seems to be weird about us deleting and recreating this dir, so
     // just make a new one for next time
     defaultUserDataDir = undefined;
+    needsCloseWelcomeModal = true;
+  } else {
+    // Need to close the welcome modal if firstRun is undefined or true, because
+    // in those cases we do not pass --showed-network-opt-in=true, but only
+    // if Compass hasn't been run before (i.e. defaultUserDataDir is defined)
+    needsCloseWelcomeModal = !defaultUserDataDir && opts.firstRun !== false;
   }
 
   // Calculate the userDataDir once so it will be the same between runs. That
@@ -324,11 +433,9 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   await fs.mkdir(path.dirname(chromedriverLogPath), { recursive: true });
   await fs.mkdir(webdriverLogPath, { recursive: true });
   await fs.mkdir(OUTPUT_PATH, { recursive: true });
+  await fs.mkdir(SCREENSHOTS_PATH, { recursive: true });
   await fs.mkdir(COVERAGE_PATH, { recursive: true });
 
-  const binary = testPackagedApp
-    ? getCompassBinPath(await getCompassBuildMetadata())
-    : require('electron');
   const chromeArgs = [];
 
   if (!testPackagedApp) {
@@ -340,13 +447,16 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // https://peter.sh/experiments/chromium-command-line-switches/
   // https://www.electronjs.org/docs/latest/api/command-line-switches
   chromeArgs.push(
+    // Allow options such as --user-data-dir to pass through the command line
+    // flag validation code.
+    '--ignore-additional-command-line-flags',
     `--user-data-dir=${defaultUserDataDir}`,
     // Chromecast feature that is enabled by default in some chrome versions
     // and breaks the app on Ubuntu
     '--media-router=0',
     // Evergren RHEL ci runs everything as root, and chrome will not start as
     // root without this flag
-    '--no-sandbox'
+    '--no-sandbox',
 
     // chomedriver options
     // TODO: cant get this to work
@@ -360,7 +470,30 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     //'--log-level=INFO',
     //'--v=1',
     // --vmodule=pattern
+
+    // by default make sure we get the welcome modal
+    ...(opts.firstRun === false ? ['--showed-network-opt-in=true'] : []),
+
+    ...(opts.extraSpawnArgs ?? [])
   );
+
+  // Electron on Windows interprets its arguments in a weird way where
+  // the second positional argument inserted by webdriverio (about:blank)
+  // throws it off and won't let it start because it then interprets the first
+  // positional argument as an app path.
+  if (
+    process.platform === 'win32' &&
+    chromeArgs.some((arg) => !arg.startsWith('--'))
+  ) {
+    chromeArgs.push('--');
+  }
+
+  // webdriverio automatically prepends '--' to options that do not already have it.
+  // We need the ability to pass positional arguments, though.
+  // https://github.com/webdriverio/webdriverio/blob/1825c633aead82bc650dff1f403ac30cff7c7cb3/packages/devtools/src/launcher.ts#L37-L39
+  (chromeArgs as any).map = function () {
+    return [...this];
+  };
 
   // https://webdriver.io/docs/options/#webdriver-options
   const webdriverOptions = {
@@ -373,12 +506,14 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
     // default is 3000ms
     waitforTimeout: process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT
       ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_TIMEOUT)
-      : 120_000,
+      : 120_000, // shorter than the test timeout so the exact line will fail, not the test
     // default is 500ms
     waitforInterval: process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL
       ? Number(process.env.COMPASS_TEST_DEFAULT_WAITFOR_INTERVAL)
       : 100,
   };
+
+  const maybeWrappedBinary = (await opts.wrapBinary?.(binary)) ?? binary;
 
   process.env.APP_ENV = 'webdriverio';
   process.env.DEBUG = `${process.env.DEBUG ?? ''},mongodb-compass:main:logging`;
@@ -390,7 +525,7 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
       browserName: 'chrome',
       // https://chromedriver.chromium.org/capabilities#h.p_ID_106
       'goog:chromeOptions': {
-        binary,
+        binary: maybeWrappedBinary,
         args: chromeArgs,
       },
       // more chrome options
@@ -417,7 +552,10 @@ async function startCompass(opts: StartCompassOptions = {}): Promise<Compass> {
   // @ts-expect-error
   const browser = await remote(options);
 
-  const compass = new Compass(browser, { isFirstRun, testPackagedApp });
+  const compass = new Compass(browser, {
+    testPackagedApp,
+    needsCloseWelcomeModal,
+  });
 
   await compass.recordLogs();
 
@@ -609,18 +747,17 @@ function augmentError(error: Error, stack: string) {
 }
 
 export async function beforeTests(
-  opts?: StartCompassOptions
+  opts: StartCompassOptions = {}
 ): Promise<Compass> {
   const compass = await startCompass(opts);
 
   const { browser } = compass;
 
-  await browser.waitForConnectionScreen();
-  if (process.env.SHOW_TOUR) {
-    await browser.closeTourModal();
+  if (compass.needsCloseWelcomeModal) {
+    await browser.closeWelcomeModal();
   }
-  if (compass.isFirstRun) {
-    await browser.closeSettingsModal();
+  if (!opts.noWaitForConnectionScreen) {
+    await browser.waitForConnectionScreen();
   }
 
   return compass;

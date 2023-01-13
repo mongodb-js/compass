@@ -1,17 +1,18 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 
-import { SaveMenuComponent, CreateMenuComponent } from './pipeline-menus';
+import { SaveMenuComponent } from './pipeline-menus';
 
 describe('PipelineMenus', function () {
   describe('SaveMenu', function () {
     let onSaveSpy: SinonSpy;
     let onSaveAsSpy: SinonSpy;
     let onCreateViewSpy: SinonSpy;
+    let menu: HTMLElement;
     beforeEach(function () {
       onSaveSpy = spy();
       onSaveAsSpy = spy();
@@ -25,54 +26,36 @@ describe('PipelineMenus', function () {
           onCreateView={onCreateViewSpy}
         />
       );
+      menu = screen.getByTestId('save-menu-show-actions');
+      expect(menu).to.exist;
     });
     it('renders menu with options', function () {
-      const menu = screen.getByTestId('save-menu');
-      expect(menu).to.exist;
-
       userEvent.click(menu);
-
-      const menuContent = screen.getByTestId('save-menu-content');
-      expect(within(menuContent).getByLabelText('Save')).to.exist;
-      expect(within(menuContent).getByLabelText('Save as')).to.exist;
-      expect(within(menuContent).getByLabelText('Create view')).to.exist;
+      expect(screen.getByTestId('save-menu-save-action')).to.exist;
+      expect(screen.getByTestId('save-menu-saveAs-action')).to.exist;
+      expect(screen.getByTestId('save-menu-createView-action')).to.exist;
     });
 
     it('calls save', function () {
-      const menu = screen.getByTestId('save-menu');
-      expect(menu).to.exist;
-
       userEvent.click(menu);
 
-      const menuContent = screen.getByTestId('save-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Save'));
-
+      userEvent.click(screen.getByTestId('save-menu-save-action'));
       expect(onSaveSpy.calledOnce).to.be.true;
       expect(onSaveSpy.firstCall.args).to.deep.equal(['Name']);
     });
 
     it('calls saveAs', function () {
-      const menu = screen.getByTestId('save-menu');
-      expect(menu).to.exist;
-
       userEvent.click(menu);
 
-      const menuContent = screen.getByTestId('save-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Save as'));
-
+      userEvent.click(screen.getByTestId('save-menu-saveAs-action'));
       expect(onSaveAsSpy.calledOnce).to.be.true;
       expect(onSaveAsSpy.firstCall.args).to.deep.equal(['Name']);
     });
 
     it('calls createView', function () {
-      const menu = screen.getByTestId('save-menu');
-      expect(menu).to.exist;
-
       userEvent.click(menu);
 
-      const menuContent = screen.getByTestId('save-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Create view'));
-
+      userEvent.click(screen.getByTestId('save-menu-createView-action'));
       expect(onCreateViewSpy.calledOnce).to.be.true;
       expect(onCreateViewSpy.firstCall.args).to.be.empty;
     });
@@ -89,68 +72,14 @@ describe('PipelineMenus', function () {
           onCreateView={spy()}
         />
       );
-      const menu = screen.getByTestId('save-menu');
-      expect(menu).to.exist;
+      const menu = screen.getByTestId('save-menu-show-actions');
 
       userEvent.click(menu);
-
-      const menuContent = screen.getByTestId('save-menu-content');
-      expect(within(menuContent).getByLabelText('Save')).to.exist;
-      expect(within(menuContent).getByLabelText('Save as')).to.exist;
+      expect(screen.getByTestId('save-menu-save-action')).to.exist;
+      expect(screen.getByTestId('save-menu-saveAs-action')).to.exist;
       expect(() => {
-        within(menuContent).getByLabelText('Create view');
+        screen.getByTestId('save-menu-createView-action');
       }).to.throw;
-    });
-  });
-
-  describe('CreateMenu', function () {
-    let onCreatePipelineSpy: SinonSpy;
-    let onCreatePipelineFromTextSpy: SinonSpy;
-    beforeEach(function () {
-      onCreatePipelineSpy = spy();
-      onCreatePipelineFromTextSpy = spy();
-      render(
-        <CreateMenuComponent
-          onCreatePipeline={onCreatePipelineSpy}
-          onCreatePipelineFromText={onCreatePipelineFromTextSpy}
-        />
-      );
-    });
-    it('renders menu with options', function () {
-      const menu = screen.getByTestId('create-new-menu');
-      expect(menu).to.exist;
-
-      userEvent.click(menu);
-
-      const menuContent = screen.getByTestId('create-new-menu-content');
-      expect(within(menuContent).getByLabelText('Pipeline')).to.exist;
-      expect(within(menuContent).getByLabelText('Pipeline from text')).to.exist;
-    });
-
-    it('calls createPipeline', function () {
-      const menu = screen.getByTestId('create-new-menu');
-      expect(menu).to.exist;
-
-      userEvent.click(menu);
-
-      const menuContent = screen.getByTestId('create-new-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Pipeline'));
-
-      expect(onCreatePipelineSpy.calledOnce).to.be.true;
-      expect(onCreatePipelineSpy.firstCall.args).to.be.empty;
-    });
-
-    it('calls createPipleineFromText', function () {
-      const menu = screen.getByTestId('create-new-menu');
-      expect(menu).to.exist;
-
-      userEvent.click(menu);
-
-      const menuContent = screen.getByTestId('create-new-menu-content');
-      userEvent.click(within(menuContent).getByLabelText('Pipeline from text'));
-
-      expect(onCreatePipelineFromTextSpy.calledOnce).to.be.true;
-      expect(onCreatePipelineFromTextSpy.firstCall.args).to.be.empty;
     });
   });
 });

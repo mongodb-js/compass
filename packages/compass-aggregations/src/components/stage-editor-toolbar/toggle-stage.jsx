@@ -1,31 +1,28 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip } from 'hadron-react-components';
-import { Toggle } from '@mongodb-js/compass-components';
+import { Toggle, css, spacing } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
+import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 
-import styles from './toggle-stage.module.less';
+const toggleStyle = css({
+  marginLeft: spacing[1]
+});
 
 /**
  * The toggle stage button.
  */
-class ToggleStage extends PureComponent {
-  static displayName = 'ToggleStageComponent';
-
+export class ToggleStage extends PureComponent {
   static propTypes = {
-    isEnabled: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
-    runStage: PropTypes.func.isRequired,
-    stageToggled: PropTypes.func.isRequired,
-    setIsModified: PropTypes.func.isRequired
+    isEnabled: PropTypes.bool.isRequired,
+    onChange: PropTypes.func.isRequired,
   };
 
   /**
    * Handle stage toggled clicks.
    */
-  onStageToggled = () => {
-    this.props.stageToggled(this.props.index);
-    this.props.setIsModified(true);
-    this.props.runStage(this.props.index, true /* force execute */);
+  onStageToggled = (newVal) => {
+    this.props.onChange(this.props.index, !newVal);
   };
 
   /**
@@ -38,24 +35,25 @@ class ToggleStage extends PureComponent {
       ? 'Exclude stage from pipeline'
       : 'Include stage in pipeline';
     return (
-      <div
-        className={styles['toggle-stage']}
-        data-for="toggle-stage"
-        data-tip={TOOLTIP}
-        data-place="top"
-      >
-        <Toggle
-          id="toggle-stage-button"
-          checked={this.props.isEnabled}
-          onChange={this.onStageToggled}
-          className={styles['toggle-stage-button']}
-          aria-label={TOOLTIP}
-          size="small"
-        />
-        <Tooltip id="toggle-stage" />
-      </div>
+      <Toggle
+        id="toggle-stage-button"
+        checked={this.props.isEnabled}
+        onChange={this.onStageToggled}
+        title={TOOLTIP}
+        aria-label={TOOLTIP}
+        size="xsmall"
+        className={toggleStyle}
+      />
     );
   }
 }
 
-export default ToggleStage;
+export default connect(
+  (state, ownProps) => {
+    return {
+      isEnabled:
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].disabled
+    };
+  },
+  { onChange: changeStageDisabled }
+)(ToggleStage);

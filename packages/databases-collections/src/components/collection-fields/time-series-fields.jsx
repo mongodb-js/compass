@@ -1,39 +1,41 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { Select, Option, TextInput } from '@mongodb-js/compass-components';
-import { spacing, css } from '@mongodb-js/compass-components';
-
-import FieldSet from '../field-set/field-set';
-import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
+import {
+  FormFieldContainer,
+  Select,
+  Option,
+  TextInput,
+} from '@mongodb-js/compass-components';
+import { css, CollapsibleFieldSet } from '@mongodb-js/compass-components';
 
 const optionsSelectDropdownStyles = css({
   zIndex: 1,
   'button:focus, button:focus-within': {
-    zIndex: 20
-  }
+    zIndex: 20,
+  },
 });
 
-const TIME_FIELD_INPUT_DESCRIPTION = 'Specify which field should be used ' +
+const TIME_FIELD_INPUT_DESCRIPTION =
+  'Specify which field should be used ' +
   'as timeField for the time-series collection. ' +
   'This field must have a BSON type date.';
 
-const HELP_URL_TIME_FIELD = 'https://www.mongodb.com/docs/manual/core/timeseries-collections/';
+const HELP_URL_TIME_FIELD =
+  'https://www.mongodb.com/docs/manual/core/timeseries-collections/';
 
-const META_FIELD_INPUT_DESCRIPTION = 'The metaField is the designated field ' +
-  'for metadata.';
+const META_FIELD_INPUT_DESCRIPTION =
+  'The metaField is the designated field ' + 'for metadata.';
 
-const EXPIRE_AFTER_SECONDS_DESCRIPTION = 'The expireAfterSeconds field enables ' +
+const EXPIRE_AFTER_SECONDS_DESCRIPTION =
+  'The expireAfterSeconds field enables ' +
   'automatic deletion of documents older than the specified number of seconds.';
 
-const GRANULARITY_DESCRIPTION = 'The granularity field allows specifying a ' +
+const GRANULARITY_DESCRIPTION =
+  'The granularity field allows specifying a ' +
   'coarser granularity so measurements over a longer time span can be ' +
   'more efficiently stored and queried.';
 
-const GRANULARITY_OPTIONS = [
-  'seconds',
-  'minutes',
-  'hours'
-];
+const GRANULARITY_OPTIONS = ['seconds', 'minutes', 'hours'];
 
 function TimeSeriesFields({
   isCapped,
@@ -43,13 +45,9 @@ function TimeSeriesFields({
   onChangeIsTimeSeries,
   onChangeField,
   timeSeries,
-  expireAfterSeconds
+  expireAfterSeconds,
 }) {
-  const {
-    granularity,
-    metaField,
-    timeField
-  } = timeSeries;
+  const { granularity, metaField, timeField } = timeSeries;
 
   const onInputChange = useCallback(
     (e) => {
@@ -62,14 +60,14 @@ function TimeSeriesFields({
   return (
     <CollapsibleFieldSet
       disabled={isCapped || isClustered || isFLE2}
-      onToggle={checked => onChangeIsTimeSeries(checked)}
+      onToggle={(checked) => onChangeIsTimeSeries(checked)}
       toggled={isTimeSeries}
       label="Time-Series"
-      dataTestId="time-series-fields"
+      data-testid="time-series-fields"
       helpUrl={HELP_URL_TIME_FIELD}
       description="Time-series collections efficiently store sequences of measurements over a period of time."
     >
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           value={timeField}
           label="timeField"
@@ -79,9 +77,9 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           label="metaField"
           name="timeSeries.metaField"
@@ -91,9 +89,9 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
+      <FormFieldContainer>
         <Select
           id="timeSeries-granularity"
           className={optionsSelectDropdownStyles}
@@ -107,17 +105,14 @@ function TimeSeriesFields({
           value={granularity}
         >
           {GRANULARITY_OPTIONS.map((granularityOption) => (
-            <Option
-              key={granularityOption}
-              value={granularityOption}
-            >
+            <Option key={granularityOption} value={granularityOption}>
               {granularityOption}
             </Option>
           ))}
         </Select>
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
+      <FormFieldContainer>
         <TextInput
           value={expireAfterSeconds}
           label="expireAfterSeconds"
@@ -128,7 +123,7 @@ function TimeSeriesFields({
           onChange={onInputChange}
           spellCheck={false}
         />
-      </FieldSet>
+      </FormFieldContainer>
     </CollapsibleFieldSet>
   );
 }
@@ -141,7 +136,7 @@ TimeSeriesFields.propTypes = {
   onChangeIsTimeSeries: PropTypes.func.isRequired,
   onChangeField: PropTypes.func.isRequired,
   timeSeries: PropTypes.object.isRequired,
-  expireAfterSeconds: PropTypes.string.isRequired
+  expireAfterSeconds: PropTypes.string.isRequired,
 };
 
 export default TimeSeriesFields;

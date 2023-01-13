@@ -3,11 +3,12 @@ import type SshTunnel from '@mongodb-js/ssh-tunnel';
 import async from 'async';
 import createLoggerAndTelemetry from '@mongodb-js/compass-logging';
 import { EventEmitter } from 'events';
-import { isFunction } from 'lodash';
 import type {
   AggregateOptions,
   AggregationCursor,
+  AnyBulkWriteOperation,
   BulkWriteOptions,
+  BulkWriteResult,
   ClientSession,
   Collection,
   CollStats,
@@ -65,7 +66,8 @@ import {
   configuredKMSProviders,
 } from './instance-detail-helper';
 import { redactConnectionString } from './redact';
-import connectMongoClient from './connect-mongo-client';
+import type { CloneableMongoClient } from './connect-mongo-client';
+import connectMongoClient, { createClonedClient } from './connect-mongo-client';
 import type { CollectionInfo, CollectionInfoNameOnly } from './run-command';
 import type {
   Callback,
@@ -79,18 +81,27 @@ import type { CSFLECollectionTracker } from './csfle-collection-tracker';
 import { CSFLECollectionTrackerImpl } from './csfle-collection-tracker';
 
 import * as mongodb from 'mongodb';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore no types for 'extension' available
-import { extension } from 'mongodb-client-encryption';
-import type {
-  ClientEncryption as ClientEncryptionType,
-  ClientEncryptionDataKeyProvider,
-  ClientEncryptionCreateDataKeyProviderOptions,
-} from 'mongodb-client-encryption';
-// mongodb-client-encryption only works properly in a packaged
-// environment with dependency injection
-const ClientEncryption: typeof ClientEncryptionType =
-  extension(mongodb).ClientEncryption;
+import type { ClientEncryption as ClientEncryptionType } from 'mongodb-client-encryption';
+import {
+  raceWithAbort,
+  createCancelError,
+  isCancelError,
+} from '@mongodb-js/compass-utils';
+
+// TODO: remove try/catch and refactor encryption related types
+// when the Node bundles native binding distributions
+// https://jira.mongodb.org/browse/WRITING-10274
+let ClientEncryption: typeof ClientEncryptionType;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { extension } = require('mongodb-client-encryption');
+
+  // mongodb-client-encryption only works properly in a packaged
+  // environment with dependency injection
+  ClientEncryption = extension(mongodb).ClientEncryption;
+} catch (e) {
+  console.warn(e);
+}
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { fetch: getIndexes } = require('mongodb-index-model');
@@ -110,16 +121,6 @@ function isEmptyObject(obj: Record<string, unknown>) {
   return Object.keys(obj).length === 0;
 }
 
-class DataServiceOperationCancelledError extends Error {
-  name = 'DataServiceOperationCancelledError';
-  constructor() {
-    super('The operation was cancelled.');
-  }
-  static isOperationCancelledError(error: Error) {
-    return error.name === 'DataServiceOperationCancelledError';
-  }
-}
-
 let id = 0;
 
 type ClientType = 'CRUD' | 'META';
@@ -128,22 +129,11 @@ interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
 }
 
-// In nodejs, AbortController support is from 15.x and we are currently on 14.x.
-// With the implementation of cancellable actions using AbortSignal, we have custom AbortSignal
-// type definition to avoid including DOM compiler options in tsconfig.
-type AbortSignal = {
-  readonly aborted: boolean;
-  onabort: ((event: any) => void) | null;
-  addEventListener: (
-    type: string,
-    listener: (event: any) => void,
-    options: Record<string, unknown>
-  ) => void;
-  removeEventListener: (type: string, listener: (event: any) => void) => void;
+export type ExecutionOptions = {
+  abortSignal?: AbortSignal;
 };
 
-export type ExplainExecuteOptions = {
-  abortSignal?: AbortSignal;
+export type ExplainExecuteOptions = ExecutionOptions & {
   explainVerbosity?: keyof typeof mongodb.ExplainVerbosity;
 };
 
@@ -304,28 +294,29 @@ export interface DataService {
    *
    * @param ns - The namespace to search on.
    * @param options - The query options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
   estimatedCount(
     ns: string,
-    options: EstimatedDocumentCountOptions,
-    callback: Callback<number>
-  ): void;
+    options?: EstimatedDocumentCountOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<number>;
 
   /**
    * Count the number of documents in the collection for the provided filter
    * and options.
    *
    * @param ns - The namespace to search on.
+   * @param filter - The filter query.
    * @param options - The query options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
   count(
     ns: string,
     filter: Filter<Document>,
-    options: CountDocumentsOptions,
-    callback: Callback<number>
-  ): void;
+    options?: CountDocumentsOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<number>;
 
   /**
    * Creates a collection
@@ -433,24 +424,27 @@ export interface DataService {
    * @param ns - The namespace to search on.
    * @param pipeline - The aggregation pipeline.
    * @param options - The aggregation options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
   aggregate(
     ns: string,
     pipeline: Document[],
+    options?: AggregateOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]>;
+
+  /**
+   * Returns an aggregation cursor on the collection.
+   *
+   * @param ns - The namespace to search on.
+   * @param pipeline - The aggregation pipeline.
+   * @param options - The aggregation options.
+   */
+  aggregateCursor(
+    ns: string,
+    pipeline: Document[],
     options?: AggregateOptions
   ): AggregationCursor;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options: AggregateOptions | undefined,
-    callback: Callback<AggregationCursor>
-  ): void;
 
   /**
    * Find documents for the provided filter and options on the collection.
@@ -458,23 +452,27 @@ export interface DataService {
    * @param ns - The namespace to search on.
    * @param filter - The query filter.
    * @param options - The query options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
   find(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions,
-    callback: Callback<Document[]>
-  ): void;
+    options?: FindOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]>;
 
   /**
-   * Fetch documents for the provided filter and options on the collection.
+   * Returns a find cursor on the collection.
    *
    * @param ns - The namespace to search on.
    * @param filter - The query filter.
    * @param options - The query options.
    */
-  fetch(ns: string, filter: Filter<Document>, options: FindOptions): FindCursor;
+  findCursor(
+    ns: string,
+    filter: Filter<Document>,
+    options?: FindOptions
+  ): FindCursor;
 
   /**
    * Find one document and replace it with the replacement.
@@ -516,14 +514,14 @@ export interface DataService {
    * @param ns - The namespace to search on.
    * @param filter - The query filter.
    * @param options - The query options.
-   * @param callback - The callback function.
+   * @param executionOptions - The execution options.
    */
-  explain(
+  explainFind(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions,
-    callback: Callback<Document>
-  ): void;
+    options?: FindOptions,
+    executionOptions?: ExplainExecuteOptions
+  ): Promise<Document>;
 
   explainAggregate(
     ns: string,
@@ -640,6 +638,12 @@ export interface DataService {
     callback: Callback<Document | UpdateResult>
   ): void;
 
+  bulkWrite(
+    ns: string,
+    operations: AnyBulkWriteOperation[],
+    options: BulkWriteOptions
+  ): Promise<BulkWriteResult>;
+
   /**
    * Returns the results of currentOp.
    *
@@ -718,8 +722,9 @@ export interface DataService {
   sample(
     ns: string,
     args?: { query?: Filter<Document>; size?: number; fields?: Document },
-    options?: AggregateOptions
-  ): AggregationCursor;
+    options?: AggregateOptions,
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]>;
 
   /**
    * Create a ClientSession that can be passed to commands.
@@ -736,7 +741,12 @@ export interface DataService {
 
   isConnected(): boolean;
 
-  isOperationCancelledError(error: Error): boolean;
+  /**
+   * If the error is an AbortError.
+   *
+   * @param error - The error to check.
+   */
+  isCancelError(error: any): ReturnType<typeof isCancelError>;
 
   /**
    * Get the stats for a database.
@@ -753,6 +763,9 @@ export interface DataService {
    * helper class.
    */
   createDataKey(provider: string, options?: unknown): Promise<Document>;
+
+  getCSFLEMode(): 'enabled' | 'disabled' | 'unavailable';
+  getCSFLECollectionTracker(): CSFLECollectionTracker;
 }
 
 export class DataServiceImpl extends EventEmitter implements DataService {
@@ -768,8 +781,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   // to fetch the right one. _useCRUDClient can be used to control
   // this behavior after connecting, i.e. for disabling and
   // enabling CSFLE on an already-connected DataService instance.
-  private _metadataClient?: MongoClient;
-  private _crudClient?: MongoClient;
+  private _metadataClient?: CloneableMongoClient;
+  private _crudClient?: CloneableMongoClient;
   private _useCRUDClient = true;
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
@@ -1251,41 +1264,54 @@ export class DataServiceImpl extends EventEmitter implements DataService {
 
   estimatedCount(
     ns: string,
-    options: EstimatedDocumentCountOptions,
-    callback: Callback<number>
-  ): void {
-    const logop = this._startLogOp(
+    options: EstimatedDocumentCountOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<number> {
+    log.info(
       mongoLogId(1_001_000_034),
+      this._logCtx(),
       'Running estimatedCount',
       { ns }
     );
-    this._collection(ns, 'CRUD').estimatedDocumentCount(
-      options,
-      (err, result) => {
-        logop(err, result);
-        callback(err, result!);
-      }
+
+    let _session: ClientSession | undefined;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        _session = session;
+        return this._collection(ns, 'CRUD').estimatedDocumentCount({
+          ...options,
+          session,
+        });
+      },
+      () => _session!.endSession(),
+      executionOptions?.abortSignal
     );
   }
 
   count(
     ns: string,
     filter: Filter<Document>,
-    options: CountDocumentsOptions,
-    callback: Callback<number>
-  ): void {
-    const logop = this._startLogOp(
+    options: CountDocumentsOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<number> {
+    log.info(
       mongoLogId(1_001_000_035),
+      this._logCtx(),
       'Running countDocuments',
       { ns }
     );
-    this._collection(ns, 'CRUD').countDocuments(
-      filter,
-      options,
-      (err, result) => {
-        logop(err, result);
-        callback(err, result!);
-      }
+
+    let _session: ClientSession | undefined;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        _session = session;
+        return this._collection(ns, 'CRUD').countDocuments(filter, {
+          ...options,
+          session,
+        });
+      },
+      () => _session!.endSession(),
+      executionOptions?.abortSignal
     );
   }
 
@@ -1480,78 +1506,62 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     });
   }
 
-  aggregate(
+  aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options?: AggregateOptions
-  ): AggregationCursor;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options: AggregateOptions | undefined,
-    callback: Callback<AggregationCursor>
-  ): void;
-  aggregate(
-    ns: string,
-    pipeline: Document[],
-    options?: AggregateOptions | Callback<AggregationCursor>,
-    callback?: Callback<AggregationCursor>
-  ): AggregationCursor | void {
+    options: AggregateOptions = {}
+  ): AggregationCursor {
     log.info(mongoLogId(1_001_000_041), this._logCtx(), 'Running aggregation', {
       ns,
       stages: pipeline.map((stage) => Object.keys(stage)[0]),
     });
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    const cursor = this._collection(ns, 'CRUD').aggregate(pipeline, options);
-    // async when a callback is provided
-    if (isFunction(callback)) {
-      process.nextTick(callback, null, cursor);
-      return;
-    }
-    // otherwise return cursor
-    return cursor;
+    return this._collection(ns, 'CRUD').aggregate(pipeline, options);
+  }
+
+  aggregate(
+    ns: string,
+    pipeline: Document[],
+    options: AggregateOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]> {
+    let cursor: AggregationCursor;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        cursor = this.aggregateCursor(ns, pipeline, { ...options, session });
+        const results = await cursor.toArray();
+        void cursor.close();
+        return results;
+      },
+      () => cursor?.close(),
+      executionOptions?.abortSignal
+    );
   }
 
   find(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions,
-    callback: Callback<Document[]>
-  ): void {
-    const logop = this._startLogOp(mongoLogId(1_001_000_042), 'Running find', {
-      ns,
-    });
-    const cursor = this._collection(ns, 'CRUD').find(filter, options);
-    cursor.toArray((error, documents) => {
-      logop(error);
-      if (error) {
-        // @ts-expect-error Callback without result...
-        return callback(this._translateMessage(error));
-      }
-      callback(null, documents!);
-    });
+    options: FindOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]> {
+    let cursor: FindCursor;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        cursor = this.findCursor(ns, filter, { ...options, session });
+        const results = await cursor.toArray();
+        void cursor.close();
+        return results;
+      },
+      () => cursor?.close(),
+      executionOptions?.abortSignal
+    );
   }
 
-  fetch(
+  findCursor(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions
+    options: FindOptions = {}
   ): FindCursor {
-    const logop = this._startLogOp(
-      mongoLogId(1_001_000_043),
-      'Running raw find',
-      { ns }
-    );
-
-    logop(null);
+    log.info(mongoLogId(1_001_000_043), this._logCtx(), 'Running find', { ns });
 
     return this._collection(ns, 'CRUD').find(filter, options);
   }
@@ -1610,29 +1620,34 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     );
   }
 
-  explain(
+  explainFind(
     ns: string,
     filter: Filter<Document>,
-    options: FindOptions,
-    callback: Callback<Document>
-  ): void {
-    const logop = this._startLogOp(
+    options: FindOptions = {},
+    executionOptions?: ExplainExecuteOptions
+  ): Promise<Document> {
+    const verbosity =
+      executionOptions?.explainVerbosity ||
+      mongodb.ExplainVerbosity.allPlansExecution;
+
+    log.info(
       mongoLogId(1_001_000_046),
+      this._logCtx(),
       'Running find explain',
-      { ns }
+      { ns, verbosity }
     );
-    // @todo thomasr: driver explain() does not yet support verbosity,
-    // once it does, should be passed along from the options object.
-    this._collection(ns, 'CRUD')
-      .find(filter, options)
-      .explain((error, explanation) => {
-        logop(error);
-        if (error) {
-          // @ts-expect-error Callback without result...
-          return callback(this._translateMessage(error));
-        }
-        callback(null, explanation);
-      });
+
+    let cursor: FindCursor;
+    return this.cancellableOperation(
+      async (session?: ClientSession) => {
+        cursor = this.findCursor(ns, filter, { ...options, session });
+        const results = await cursor.explain(verbosity);
+        void cursor.close();
+        return results;
+      },
+      () => cursor?.close(),
+      executionOptions?.abortSignal
+    );
   }
 
   explainAggregate(
@@ -1644,11 +1659,21 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     const verbosity =
       executionOptions?.explainVerbosity ||
       mongodb.ExplainVerbosity.queryPlanner;
+
+    log.info(
+      mongoLogId(1_001_000_177),
+      this._logCtx(),
+      'Running aggregate explain',
+      { ns, verbosity }
+    );
+
     let cursor: AggregationCursor;
     return this.cancellableOperation(
-      (session?: ClientSession) => {
-        cursor = this.aggregate(ns, pipeline, { ...options, session });
-        return cursor.explain(verbosity);
+      async (session?: ClientSession) => {
+        cursor = this.aggregateCursor(ns, pipeline, { ...options, session });
+        const results = await cursor.explain(verbosity);
+        void cursor.close();
+        return results;
       },
       () => cursor?.close(),
       executionOptions?.abortSignal
@@ -1781,7 +1806,17 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         // @ts-expect-error Callback without result...
         return callback(this._translateMessage(error));
       }
-      callback(null, result!);
+      // Reset the CSFLE-enabled client (if any) to clear
+      // any collection metadata caches that might still be active.
+      this._resetCRUDClient().then(
+        () => {
+          callback(null, result!);
+        },
+        (error: any) => {
+          // @ts-expect-error Callback without result...
+          callback(this._translateMessage(error));
+        }
+      );
     });
   }
 
@@ -1837,6 +1872,14 @@ export class DataServiceImpl extends EventEmitter implements DataService {
         callback(null, result!);
       }
     );
+  }
+
+  bulkWrite(
+    ns: string,
+    operations: AnyBulkWriteOperation<Document>[],
+    options: BulkWriteOptions
+  ) {
+    return this._collection(ns, 'CRUD').bulkWrite(operations, options);
   }
 
   currentOp(includeAll: boolean, callback: Callback<Document>): void {
@@ -1989,8 +2032,9 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       size,
       fields,
     }: { query?: Filter<Document>; size?: number; fields?: Document } = {},
-    options: AggregateOptions = {}
-  ): AggregationCursor {
+    options: AggregateOptions = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Document[]> {
     const pipeline = [];
     if (query && Object.keys(query).length > 0) {
       pipeline.push({
@@ -2011,10 +2055,15 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       });
     }
 
-    return this.aggregate(ns, pipeline, {
-      allowDiskUse: true,
-      ...options,
-    });
+    return this.aggregate(
+      ns,
+      pipeline,
+      {
+        allowDiskUse: true,
+        ...options,
+      },
+      executionOptions
+    );
   }
 
   startSession(clientType: ClientType): CompassClientSession {
@@ -2054,10 +2103,6 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return !!this._metadataClient;
   }
 
-  isOperationCancelledError(error: Error): boolean {
-    return DataServiceOperationCancelledError.isOperationCancelledError(error);
-  }
-
   private async cancellableOperation<T>(
     start: (session?: ClientSession) => Promise<T>,
     stop: () => Promise<void> = () => Promise.resolve(),
@@ -2068,18 +2113,13 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     }
 
     if (abortSignal.aborted) {
-      throw new DataServiceOperationCancelledError();
+      // AbortSignal.reason is supported from node v17.2.0.
+      throw (abortSignal as any).reason ?? createCancelError();
     }
 
     const session = this.startSession('CRUD');
 
     let result: T;
-    let abortListener;
-    const pendingPromise = new Promise<never>((_resolve, reject) => {
-      abortListener = () => reject(new DataServiceOperationCancelledError());
-      abortSignal.addEventListener('abort', abortListener, { once: true });
-    });
-
     const abort = async () => {
       const logAbortError = (error: Error) => {
         try {
@@ -2097,18 +2137,27 @@ export class DataServiceImpl extends EventEmitter implements DataService {
       await this.killSessions(session).catch(logAbortError);
     };
 
+    const logop = this._startLogOp(
+      mongoLogId(1_001_000_179),
+      'Running cancellable operation'
+    );
+
     try {
-      result = await Promise.race([pendingPromise, start(session)]);
+      result = await raceWithAbort(start(session), abortSignal);
+      logop(null);
     } catch (err) {
-      if (this.isOperationCancelledError(err as Error)) {
+      logop(err);
+      if (isCancelError(err)) {
         void abort();
       }
       throw err;
-    } finally {
-      abortListener && abortSignal.removeEventListener('abort', abortListener);
     }
 
     return result;
+  }
+
+  isCancelError(error: any): ReturnType<typeof isCancelError> {
+    return isCancelError(error);
   }
 
   /**
@@ -2477,8 +2526,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   private _translateMessage(error: any): Error | { message: string } {
     if (typeof error === 'string') {
       error = { message: error };
-    } else {
-      error.message = error.message || error.err || error.errmsg;
+    } else if (!error.message) {
+      error.message = error.err || error.errmsg;
     }
     return error;
   }
@@ -2493,6 +2542,28 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     this._isWritable = false;
     this._topologyType = 'Unknown';
     this._isConnecting = false;
+  }
+
+  private async _resetCRUDClient(): Promise<void> {
+    if (this.getCSFLEMode() === 'unavailable') {
+      // No separate client in use, don't do anything
+      return;
+    }
+    const crudClient = this._crudClient;
+    if (!crudClient) {
+      // In disconnected state, don't do anything
+      return;
+    }
+    const newClient = await crudClient[createClonedClient]();
+    if (this._crudClient === crudClient) {
+      this._crudClient = newClient;
+      await crudClient.close();
+    } else {
+      // If _crudClient has changed between start and end of
+      // connection establishment, don't do anything, just
+      // close and discard the new client.
+      await newClient.close();
+    }
   }
 
   private _startLogOp(
@@ -2549,8 +2620,8 @@ export class DataServiceImpl extends EventEmitter implements DataService {
   }
 
   async createDataKey(
-    provider: ClientEncryptionDataKeyProvider,
-    options?: ClientEncryptionCreateDataKeyProviderOptions
+    provider: any /* ClientEncryptionDataKeyProvider */,
+    options?: any /* ClientEncryptionCreateDataKeyProviderOptions */
   ): Promise<Document> {
     const logop = this._startLogOp(
       mongoLogId(1_001_000_123),
@@ -2570,7 +2641,13 @@ export class DataServiceImpl extends EventEmitter implements DataService {
     return result;
   }
 
-  _getClientEncryption(): ClientEncryptionType {
+  _getClientEncryption(): any {
+    if (!ClientEncryption) {
+      throw new Error(
+        'Cannot get client encryption, because the optional mongodb-client-encryption dependency is not installed'
+      );
+    }
+
     const crudClient = this._initializedClient('CRUD');
     const autoEncryptionOptions = crudClient.options.autoEncryption;
     const { proxyHost, proxyPort, proxyUsername, proxyPassword } =

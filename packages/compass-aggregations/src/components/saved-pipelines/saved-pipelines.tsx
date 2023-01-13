@@ -1,22 +1,27 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
-  Icon,
-  IconButton,
   css,
   spacing,
-  Toolbar,
-  uiColors,
+  palette,
   Body,
-  withTheme
+  useDarkMode
 } from '@mongodb-js/compass-components';
+import { connect } from 'react-redux';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-import SavePipelineCard from './save-pipeline-card/save-pipeline-card';
-import type { Pipeline } from '../../modules/pipeline';
+import { SavePipelineCard } from './saved-pipeline-card';
+import { OpenPipelineConfirmationModal, DeletePipelineConfirmationModal } from './saved-pipeline-confirmation-modals';
+import { openPipelineById, deletePipelineById } from '../../modules/saved-pipeline';
+import { type EditorViewType, mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
+import { type RootState } from '../../modules';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 const savedPipelinesStyles = css({
   width: '400px',
   display: 'flex',
   flexDirection: 'column',
+  height: '100%'
 });
 
 const toolbarTitleStyles = css({
@@ -27,16 +32,11 @@ const toolbarTitleStyles = css({
 });
 
 const titleStylesDark = css({
-  color: uiColors.green.light2,
+  color: palette.green.light2,
 });
 
 const titleStylesLight = css({
-  color: uiColors.green.dark2,
-});
-
-const toolbarStyles = css({
-  display: 'flex',
-  justifyContent: 'space-between',
+  color: palette.green.dark2,
 });
 
 const toolbarContentStyles = css({
@@ -44,16 +44,12 @@ const toolbarContentStyles = css({
   display: 'flex',
   flexDirection: 'column',
   padding: spacing[3],
-});
-
-const closeButtonStyles = css({
-  marginLeft: 'auto',
-  marginTop: spacing[2],
-  marginRight: spacing[2],
+  paddingRight: spacing[5], // Extra right padding to account for close button.
 });
 
 const cardsContainerStyles = css({
-  overflowY: 'scroll',
+  overflowY: 'auto',
+  flex: 1
 });
 
 const emptyMessageStyles = css({
@@ -62,57 +58,65 @@ const emptyMessageStyles = css({
 });
 
 type SavedPipelinesProps = {
-  darkMode?: boolean;
-  deletePipeline: (pipelineId: string) => void;
   namespace: string;
-  onSetShowSavedPipelines: (show: boolean) => void;
-  restorePipelineFrom: (pipelineId: string) => void;
-  restorePipelineModalToggle: (index: number) => void;
-  savedPipelines: Pipeline[];
-}
+  savedPipelines: { id: string; name: string }[];
+  editor_view_type: EditorViewType;
+  onOpenPipeline: (pipelineId: string) => void;
+  onDeletePipeline: (pipelineId: string) => void;
+};
 
-function UnthemedSavedPipelines({
-  darkMode,
+export const SavedPipelines = ({
   namespace,
-  restorePipelineModalToggle,
-  restorePipelineFrom,
-  deletePipeline,
-  onSetShowSavedPipelines,
   savedPipelines,
-}: SavedPipelinesProps) {
+  editor_view_type,
+  onOpenPipeline,
+  onDeletePipeline,
+}: SavedPipelinesProps) => {
+  const darkMode = useDarkMode();
+  const [deletePipelineId, setDeletePipelineId] = useState<string | null>(null);
+  const [openPipelineId, setOpenPipelineId] = useState<string | null>(null);
+
+  const onOpenConfirm = useCallback((id: string) => {
+    track('Aggregation Opened', {
+      id,
+      editor_view_type,
+      screen: 'aggregations',
+    });
+    onOpenPipeline(id);
+  }, [editor_view_type, onOpenPipeline]);
+
+  const onDeleteConfirm = useCallback((id: string) => {
+    track('Aggregation Deleted', {
+      id,
+      editor_view_type,
+      screen: 'aggregations',
+    });
+    onDeletePipeline(id);
+    setDeletePipelineId(null);
+  }, [editor_view_type, onDeletePipeline, setDeletePipelineId]);
+
   return (
-    <div className={savedPipelinesStyles}>
-      <Toolbar className={toolbarStyles}>
-        <div className={toolbarContentStyles}>
-          <Body
-            className={toolbarTitleStyles}
-            id="saved-pipeline-header-title"
-          >
-            Saved Pipelines in <span
-              className={darkMode ? titleStylesDark : titleStylesLight}
-              data-testid="saved-pipeline-header-title-namespace"
-              title={namespace}
-            >{namespace}</span>
-          </Body>
-        </div>
-        <IconButton
-          className={closeButtonStyles}
-          data-testid="saved-pipelines-close-button"
-          onClick={() => onSetShowSavedPipelines(false)}
-          aria-label="Close saved pipelines popover"
+    <div className={savedPipelinesStyles} data-testid="saved-pipelines">
+      <div className={toolbarContentStyles}>
+        <Body
+          className={toolbarTitleStyles}
+          data-testid="saved-pipeline-header-title"
+          id="saved-pipeline-header-title"
         >
-          <Icon glyph="X" />
-        </IconButton>
-      </Toolbar>
+          Saved Pipelines in <span
+            className={darkMode ? titleStylesDark : titleStylesLight}
+            title={namespace}
+          >{namespace}</span>
+        </Body>
+      </div>
       <div className={cardsContainerStyles}>
-        {savedPipelines.map((pipeline: Pipeline) => (
+        {savedPipelines.map((pipeline) => (
           <SavePipelineCard
-            restorePipelineModalToggle={restorePipelineModalToggle}
-            restorePipelineFrom={restorePipelineFrom}
-            deletePipeline={deletePipeline}
-            name={pipeline.name}
-            objectID={pipeline.id}
             key={pipeline.id}
+            name={pipeline.name ?? ''}
+            id={pipeline.id}
+            onOpenPipeline={() => setOpenPipelineId(pipeline.id)}
+            onDeletePipeline={() => setDeletePipelineId(pipeline.id)}
           />
         ))}
         {savedPipelines.length === 0 && (
@@ -124,10 +128,31 @@ function UnthemedSavedPipelines({
           </Body>
         )}
       </div>
+      <OpenPipelineConfirmationModal
+        isOpen={!!openPipelineId}
+        onCancel={() => setOpenPipelineId(null)}
+        onConfirm={() => onOpenConfirm(openPipelineId as string)}
+      />
+      <DeletePipelineConfirmationModal
+        isOpen={!!deletePipelineId}
+        onCancel={() => setDeletePipelineId(null)}
+        onConfirm={() => onDeleteConfirm(deletePipelineId as string)}
+      />
     </div>
   );
 };
+const mapState = (state: RootState) => ({
+  editor_view_type: mapPipelineModeToEditorViewType(
+    state.pipelineBuilder.pipelineMode
+  ),
+  namespace: state.namespace,
+  savedPipelines: state.savedPipeline.pipelines,
+});
 
-const SavedPipelines = withTheme(UnthemedSavedPipelines);
+const mapDispatch = {
+  onOpenPipeline: openPipelineById,
+  onDeletePipeline: deletePipelineById,
+}
 
-export { SavedPipelines };
+export default connect(mapState, mapDispatch)(SavedPipelines);
+

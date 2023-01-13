@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   spacing,
-  Label,
+  Body,
   Description,
   Link,
   css,
@@ -10,14 +10,15 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-import UrlOptionsTable from './url-options-table';
+import UrlOptionsListEditor from './url-options-list-editor';
 
 const urlOptionsContainerStyles = css({
   marginTop: spacing[3],
 });
 
-const urlOptionsTableDescriptionStyles = css({
+const urlOptionsDescriptionStyles = css({
   marginTop: spacing[1],
+  marginBottom: spacing[2],
 });
 
 function UrlOptions({
@@ -29,8 +30,8 @@ function UrlOptions({
 }): React.ReactElement {
   return (
     <div className={urlOptionsContainerStyles} data-testid="url-options">
-      <Label htmlFor={''}>URI Options</Label>
-      <Description className={urlOptionsTableDescriptionStyles}>
+      <Body weight="medium">URI Options</Body>
+      <Description className={urlOptionsDescriptionStyles}>
         Add additional MongoDB URI options to customize your connection.&nbsp;
         <Link
           href={
@@ -40,7 +41,7 @@ function UrlOptions({
           Learn More
         </Link>
       </Description>
-      <UrlOptionsTable
+      <UrlOptionsListEditor
         connectionStringUrl={connectionStringUrl}
         updateConnectionFormField={updateConnectionFormField}
       />

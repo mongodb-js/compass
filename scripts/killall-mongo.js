@@ -4,12 +4,12 @@
  * test suites are not running into weird issues trying to access a database
  * that was spawned and modified before
  */
-const psList = require('ps-list');
 const { withProgress } = require('./monorepo/with-progress');
 const { runInDir } = require('./run-in-dir');
 
 async function getMongoProcesses() {
-  const list = await psList({ all: true });
+  const psList = await import('ps-list'); // ps-list@>=8 is an ESM module
+  const list = await psList.default({ all: true });
   return list.filter(({ name }) => /(mongos|mongod)/.test(name));
 }
 

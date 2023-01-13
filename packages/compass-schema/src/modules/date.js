@@ -9,9 +9,11 @@ import groupBy from 'lodash.groupby';
 import map from 'lodash.map';
 import $ from 'jquery';
 import moment from 'moment';
+import { inValueRange } from 'mongodb-query-util';
+import { palette, spacing } from '@mongodb-js/compass-components';
+
 import shared from './shared';
 import many from './many';
-import { inValueRange } from 'mongodb-query-util';
 
 require('./d3-tip')(d3);
 
@@ -259,7 +261,6 @@ const minicharts_d3fns_date = (appRegistry) => {
 
       const g = el.selectAll('g').data([data]);
 
-      // append g element if it doesn't exist yet
       const gEnter = g
         .enter()
         .append('g')
@@ -268,28 +269,42 @@ const minicharts_d3fns_date = (appRegistry) => {
       gEnter
         .append('g')
         .attr('class', 'weekday')
-        .append('text')
-        .attr('class', 'date-icon fa-fw')
-        .attr('x', 0)
-        .attr('dx', '-0.6em')
-        .attr('y', 0)
-        .attr('dy', '1em')
-        .attr('text-anchor', 'end')
-        .attr('font-family', 'FontAwesome')
-        .text('\uf133');
+        .append('g')
+        .attr('transform', `translate(${-spacing[4] + spacing[1]} ${0})`)
+        .append('svg')
+        .attr('width', 15)
+        .attr('height', 13)
+        .attr('viewBox', '0 0 18 16')
+        .attr('fill', 'none')
+        .append('path')
+        .attr('fill-rule', 'evenodd')
+        .attr('clip-rule', 'evenodd')
+        // SVG glyph 'Calendar' from LeafyGreen.
+        .attr(
+          'd',
+          'M5 2C5 1.44772 5.44772 1 6 1C6.55228 1 7 1.44772 7 2V3C7 3.55228 6.55228 4 6 4C5.44772 4 5 3.55228 5 3V2ZM10 3H8C8 4.10457 7.10457 5 6 5C4.89543 5 4 4.10457 4 3C2.89543 3 2 3.89543 2 5V12C2 13.1046 2.89543 14 4 14H14C15.1046 14 16 13.1046 16 12V5C16 3.89543 15.1046 3 14 3C14 4.10457 13.1046 5 12 5C10.8954 5 10 4.10457 10 3ZM11 3C11 3.55228 11.4477 4 12 4C12.5523 4 13 3.55228 13 3V2C13 1.44772 12.5523 1 12 1C11.4477 1 11 1.44772 11 2V3ZM13 7H10V10H13V7Z'
+        )
+        .attr('fill', palette.gray.base);
 
       gEnter
         .append('g')
         .attr('class', 'hour')
-        .append('text')
-        .attr('class', 'date-icon fa-fw')
-        .attr('x', 0)
-        .attr('dx', '-0.6em')
-        .attr('y', 0)
-        .attr('dy', '1em')
-        .attr('text-anchor', 'end')
-        .attr('font-family', 'FontAwesome')
-        .text('\uf017');
+        .append('g')
+        .attr('transform', `translate(${-spacing[3]} ${0})`)
+        .append('svg')
+        .attr('width', 13)
+        .attr('height', 13)
+        .attr('viewBox', '0 0 16 16')
+        .attr('fill', 'none')
+        .append('path')
+        .attr('fill-rule', 'evenodd')
+        .attr('clip-rule', 'evenodd')
+        // SVG glyph 'Clock' from LeafyGreen.
+        .attr(
+          'd',
+          'M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14ZM7.25 4.75C7.25 4.33579 7.58579 4 8 4C8.41421 4 8.75 4.33579 8.75 4.75V7.90966L10.4939 9.43556C10.8056 9.70832 10.8372 10.1821 10.5644 10.4939C10.2917 10.8056 9.81786 10.8372 9.50613 10.5644L7.51059 8.81833C7.5014 8.8104 7.4924 8.80226 7.48361 8.79391C7.41388 8.7278 7.35953 8.65117 7.32087 8.56867C7.27541 8.47195 7.25 8.36394 7.25 8.25V4.75Z'
+        )
+        .attr('fill', palette.gray.base);
 
       el.select('.hour').attr(
         'transform',

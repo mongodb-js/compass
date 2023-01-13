@@ -33,10 +33,19 @@ export type IndexFieldsDefinition = { field: string; value: number | string };
 
 export type IndexDefinition = {
   name: string;
+  ns: string;
   fields: {
     serialize: () => IndexFieldsDefinition[];
   };
-  type: 'geo' | 'hashed' | 'text' | 'wildcard' | 'clustered' | 'columnstore';
+
+  type:
+    | 'regular'
+    | 'geospatial'
+    | 'hashed'
+    | 'text'
+    | 'wildcard'
+    | 'clustered'
+    | 'columnstore';
   cardinality: 'single' | 'compound';
   properties: ('unique' | 'sparse' | 'partial' | 'ttl' | 'collation')[];
   extra: Record<string, string | number | Record<string, any>>;
@@ -44,6 +53,7 @@ export type IndexDefinition = {
   relativeSize: number;
   usageCount: number;
   usageSince?: Date;
+  usageHost?: string;
 };
 
 export enum ActionTypes {
@@ -152,10 +162,18 @@ export const fetchIndexes = (): ThunkAction<
       for (const index of indexes) {
         index.ns = namespace;
       }
-      const ixs = _convertToModels(
-        indexes.concat(cloneDeep(inProgressIndexes))
+      const inProgressIndexModels = _convertToModels(
+        cloneDeep(inProgressIndexes)
+      );
+
+      const indexModels = _convertToModels(indexes);
+
+      const allIndexes = _mergeInProgressIndexes(
+        indexModels,
+        inProgressIndexModels
       ).sort(_getSortFunction(_mapColumnToProp(sortColumn), sortOrder));
-      return _handleIndexesChanged(dispatch, ixs);
+
+      return _handleIndexesChanged(dispatch, allIndexes);
     });
   };
 };
@@ -210,6 +228,27 @@ const _convertToModels = (indexes: Document[]): IndexDefinition[] => {
     return model as IndexDefinition;
   });
 };
+
+function _mergeInProgressIndexes(
+  indexes: IndexDefinition[],
+  inProgressIndexes: IndexDefinition[]
+) {
+  indexes = cloneDeep(indexes);
+
+  for (const inProgressIndex of inProgressIndexes) {
+    const index = indexes.find((index) => index.name === inProgressIndex.name);
+
+    if (index) {
+      index.extra = index.extra ?? {};
+      index.extra.status = inProgressIndex.extra.status;
+      index.extra.error = inProgressIndex.extra.error;
+    } else {
+      indexes.push(inProgressIndex);
+    }
+  }
+
+  return indexes;
+}
 
 export const dropFailedIndex = (
   id: string

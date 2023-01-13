@@ -29,11 +29,12 @@ class SummaryStat extends Component {
     const dataTestId = this.props.dataTestId;
 
     return (
-      <div className={styles['summary-stat']} data-test-id={dataTestId}>
+      <div className={styles['summary-stat']} data-testid={dataTestId}>
         {dataLink && (
           <IconButton
             className={styles['summary-stat-info-sprinkle']}
             href={dataLink}
+            target="_blank"
             aria-label="More information on index usage in explain results"
           >
             <Icon glyph="InfoWithCircle" size="small" />

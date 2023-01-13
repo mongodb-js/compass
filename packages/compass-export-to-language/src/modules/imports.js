@@ -38,5 +38,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const importsChanged = (imports) => ({
   type: IMPORTS_CHANGED,
-  imports
+  imports,
 });

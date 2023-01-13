@@ -36,10 +36,6 @@ describe('PipelineExplain', function () {
       skipPointerEventsCheck: true,
     });
     expect(onCancelExplainSpy.callCount).to.equal(1);
-
-    expect(() => {
-      within(modal).getByTestId('pipeline-explain-footer-close-button');
-    }, 'does not show footer in loading state').to.throw;
   });
 
   it('renders error state', function () {
@@ -52,9 +48,6 @@ describe('PipelineExplain', function () {
     expect(() => {
       within(modal).getByTestId('pipeline-explain-retry-button');
     }).to.throw;
-
-    expect(within(modal).getByTestId('pipeline-explain-footer-close-button')).to
-      .exist;
   });
 
   it('renders explain results - without stats', function () {
@@ -71,8 +64,6 @@ describe('PipelineExplain', function () {
     expect(() => {
       within(results).getByTestId('pipeline-explain-results-summary');
     }).to.throw;
-
-    expect(screen.getByTestId('pipeline-explain-footer-close-button')).to.exist;
   });
 
   it('renders explain results - with stats', function () {
@@ -103,7 +94,6 @@ describe('PipelineExplain', function () {
     expect(() => {
       within(summary).getByText(/query used the following indexes/gi);
     }).to.throw;
-    expect(screen.getByTestId('pipeline-explain-footer-close-button')).to.exist;
   });
 
   it('renders explain results - indexes', function () {

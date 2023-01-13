@@ -13,7 +13,7 @@ karma.conf.js
 dist/index.html
 mocha-webpack.opts
 scripts/**/*
-!scripts/download-akzidenz.js
+!scripts/download-fonts.js
 src/
 coverage/
 .nyc_output/

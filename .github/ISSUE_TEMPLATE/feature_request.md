@@ -4,23 +4,14 @@ about: Suggest an idea for this project
 title: Feature Request
 ---
 
-<!--- Please note this repository's Issue Tracker is not being watched.
-Issues are instead being tracked in our public Jira project:
+**We are currently not using github issues to track feature requests.**
+
+We track feature requests in our feedback forum:
+https://feedback.mongodb.com/forums/924283-compass
+
+Please submit feature requests and ideas there. The feedback forum enables other people to vote on ideas so we can get a better sense of how many folks are interested in a change. You can also receive  updates when certain features and requests are implemented.
+
+We're working on making Compass better and are interested to hear your ideas and thoughts!
+
+Please submit bug reports and issues through our public jira project:
 https://jira.mongodb.org/projects/COMPASS/summary
--->
-
-<!--- Provide a general summary of the issue in the Title above -->
-
-## Feature Request
-
-## Detailed Description
-
-<!--- Provide a detailed description of the change or addition you are proposing -->
-
-## Context
-
-<!--- Why is this change important to you? How would you use it? -->
-
-## Possible Implementation
-
-<!--- Optional: suggest an idea for implementing addition or change -->

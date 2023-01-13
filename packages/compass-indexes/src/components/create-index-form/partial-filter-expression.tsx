@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  Editor,
-  EditorVariant,
-  CollapsibleFieldSet,
-} from '@mongodb-js/compass-components';
+import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 type PartialFilter = {
   usePartialFilterExpression: boolean;
@@ -25,7 +22,7 @@ const PartialFilterCollapsibleFieldSet = ({
       toggled={usePartialFilterExpression}
       onToggle={toggleUsePartialFilterExpression}
       label="Partial Filter Expression"
-      dataTestId="create-index-modal-is-pfe-checkbox"
+      data-testid="create-index-modal-is-pfe"
       description="Partial indexes only index the documents in a collection that meet a specified filter expression."
     >
       <Editor

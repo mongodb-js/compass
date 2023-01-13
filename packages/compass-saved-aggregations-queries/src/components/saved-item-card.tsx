@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import type { MenuAction } from '@mongodb-js/compass-components';
+import { cx, useDarkMode } from '@mongodb-js/compass-components';
 import {
   Card,
   css,
@@ -8,15 +9,15 @@ import {
   Icon,
   Subtitle,
   spacing,
-  uiColors,
+  palette,
   useFocusState,
   useHoverState,
   mergeProps,
   FocusState,
   ItemActionMenu,
+  useFormattedDate,
 } from '@mongodb-js/compass-components';
 import type { Item } from '../stores/aggregations-queries-items';
-import { formatDate } from '../utlis/format-date';
 
 export type Action = 'open' | 'delete' | 'copy' | 'rename';
 
@@ -51,7 +52,7 @@ const NamespacePart: React.FunctionComponent<{
       <Icon
         title={null}
         glyph={type === 'database' ? 'Database' : 'Folder'}
-        color={uiColors.gray.dark1}
+        color={palette.gray.dark1}
         className={namespaceIconStyles}
       ></Icon>
       <span className={namespaceNameStyles}>{name}</span>
@@ -69,8 +70,8 @@ const card = css({
   width: '100%',
   paddingTop: spacing[3],
   paddingBottom: spacing[3],
-  paddingLeft: spacing[2],
-  paddingRight: spacing[2],
+  paddingLeft: spacing[3],
+  paddingRight: spacing[3],
 });
 
 const actionsRow = css({
@@ -93,10 +94,16 @@ const cardActions = css({
   marginLeft: 'auto',
 });
 
+const cardNameDark = css({
+  color: palette.green.light2,
+});
+
+const cardNameLight = css({
+  color: palette.green.dark2,
+});
+
 const cardName = css({
   fontWeight: 'bold',
-  // Because leafygreen
-  color: `${uiColors.green.dark1} !important`,
   height: spacing[4] * 2,
   marginBottom: spacing[3],
 
@@ -123,24 +130,6 @@ const lastModifiedLabel = css({
   fontStyle: 'italic',
 });
 
-function useFormattedDate(timestamp: number) {
-  const [formattedDate, setFormattedDate] = useState(() =>
-    formatDate(timestamp)
-  );
-
-  useEffect(() => {
-    setFormattedDate(formatDate(timestamp));
-    const interval = setInterval(() => {
-      setFormattedDate(formatDate(timestamp));
-    }, 1000 * 60);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [timestamp]);
-
-  return formattedDate;
-}
-
 type SavedItemAction = 'copy' | 'rename' | 'delete';
 const savedItemActions: MenuAction<SavedItemAction>[] = [
   { action: 'copy', label: 'Copy' },
@@ -162,6 +151,7 @@ const CardActions: React.FunctionComponent<{
 
   return (
     <ItemActionMenu<SavedItemAction>
+      data-testid="saved-item-actions"
       isVisible={isVisible}
       actions={savedItemActions}
       onAction={onMenuItemClick}
@@ -200,6 +190,7 @@ export const SavedItemCard: React.FunctionComponent<
   );
 
   const formattedDate = useFormattedDate(lastModified);
+  const darkMode = useDarkMode();
 
   return (
     // @ts-expect-error the error here is caused by passing children to Card
@@ -224,7 +215,11 @@ export const SavedItemCard: React.FunctionComponent<
           ></CardActions>
         </div>
       </div>
-      <Subtitle as="div" className={cardName} title={name}>
+      <Subtitle
+        as="div"
+        className={cx(cardName, darkMode ? cardNameDark : cardNameLight)}
+        title={name}
+      >
         {name}
       </Subtitle>
       <div className={namespaceGroup}>

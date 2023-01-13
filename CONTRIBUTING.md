@@ -1,6 +1,16 @@
 # Contributing
 
-## Workflow
+
+## Getting Started
+
+You'll need node `^16` and npm `^8` installed on your machine to work with the repository locally.
+After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
+
+After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
+
+Compass uses a monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
+
+## Submitting a Change
 
 MongoDB welcomes community contributions! If you’re interested in making a contribution to MongoDB Compass, please follow the steps below before you start writing any code:
 
@@ -24,14 +34,6 @@ This repository includes a few recommended plugins for your convenience:
   > ⚠️&nbsp;&nbsp;If you install the [Prettier VSCode extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) please make sure to set the `prettier.requireConfig` option for the workspace! This will ensure only packages that have `prettier` enabled will get formatted.
 - ESLint extension highlights possible issues in your code following our common eslint configuration.
 - ANTLR4 grammar support extension helps to work with the `bson-transpilers` package that is implemented with the help of antlr (.g and .g4 files).
-
-## Working With the Monorepo
-
-You'll need node `^16` and npm `^8` installed on your machine to work with the repository locally. After your environment is ready, navigate to the repository and run `npm run bootstrap`, this will install dependencies and will compile all packages.
-
-After bootstrap is finished, you should be able to run `npm run start` and see Compass application running locally.
-
-This monorepo is powered by [`npm workspaces`](https://docs.npmjs.com/cli/v7/using-npm/workspaces) and [`lerna`](https://github.com/lerna/lerna#readme), although not necessary, it might be helpful to have a high level understanding of those tools.
 
 ### Working on Plugins
 

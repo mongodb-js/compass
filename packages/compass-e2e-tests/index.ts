@@ -161,7 +161,7 @@ async function main() {
   const bail = process.argv.includes('--bail');
 
   const mocha = new Mocha({
-    timeout: 120_000,
+    timeout: 240_000, // kinda arbitrary, but longer than waitforTimeout set in helpers/compass.ts so the test can fail before it times out
     bail,
   });
 
@@ -182,7 +182,10 @@ async function main() {
 
   debug('Running E2E tests');
   // mocha.run has a callback and returns a result, so just promisify it manually
-  const { resultLogger, failures } = await new Promise((resolve, reject) => {
+  const { resultLogger, failures } = await new Promise<{
+    resultLogger: ResultLogger;
+    failures: number;
+  }>((resolve, reject) => {
     // eslint-disable-next-line prefer-const
     let resultLogger: ResultLogger;
 

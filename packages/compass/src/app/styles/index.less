@@ -1,49 +1,22 @@
 @import './reset.less';
-
-// Bootstrap styles we are in the process of removing
-// from Compass.
-@import './deprecated-bootstrap-styles/buttons.less';
-@import './deprecated-bootstrap-styles/caret.less';
-@import './deprecated-bootstrap-styles/dropdowns.less';
-@import './deprecated-bootstrap-styles/utilities.less';
-@import './deprecated-bootstrap-styles/forms.less';
-@import './deprecated-bootstrap-styles/globals.less';
-@import './deprecated-bootstrap-styles/modals.less';
-@import './deprecated-bootstrap-styles/grid.less';
-
-// Dependencies
-@import './react-select.less';
-@import './zero-state.less';
-
 @import './palette.less';
-@import './fontawesome.less';
 @import './fonts.less';
-@import './mms-icons.less';
-
-// Tweaks to bootstrap
-@import './message-background.less';
-
-/* Styles from previous internal-plugin app */
-@import './modal-status-message.less';
-@import './hadron-tooltip.less';
-@import './info-sprinkle.less';
-@import './option-selector.less';
-@import './status-row.less';
 
 :root {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  font-family: 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font: 100% 'Akzidenz', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial,
+    sans-serif;
+  font: 100% 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 
   // The color and background styles are overridden by the current theme.
-  background-color: @gray8;
-  color: @grayDark2;
+  background-color: @palette__gray--light-3;
+  color: @palette__gray--dark-2;
 }
 
-.loading {
+#loading {
   &-placeholder {
     position: absolute;
     top: 0;
@@ -51,27 +24,19 @@
     width: 100vw;
     height: 100vh;
     display: grid;
-    grid-template-columns: 248px auto;
+    grid-template-columns: 256px auto;
     grid-template-areas: 'sidebar content';
     pointer-events: none;
   }
 
   &-sidebar {
     grid-area: 'sidebar';
-    background: @grayDark3;
-  }
-
-  &-new-connection-button {
-    height: 48px;
-    box-sizing: content-box;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    // These styles are coupled with the actual button from compass-connections.
-    background: @grayDark2;
+    background: @palette__gray--light-3;
   }
 
   &-content {
     grid-area: 'content';
-    background: @gray8;
+    background: @palette__gray--light-3;
   }
 }
 
@@ -100,7 +65,7 @@
   }
 
   #statusbar {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: fade(@palette__white, 50%);
     position: fixed;
     top: 0;
     left: 0;
@@ -119,7 +84,7 @@
       transition: height 500ms cubic-bezier(0.6, -0.28, 0.735, 0.045);
 
       .progress-bar {
-        background-color: #6ba442;
+        background-color: @palette__green--dark-1;
       }
     }
   }
@@ -128,30 +93,23 @@
 * {
   user-select: text;
   -webkit-user-select: text;
-  outline-color: #019ee2;
+  outline-color: @palette__blue--light-1;
 }
 
-// make all help buttons consistent
-i.help,
-i.syntax-help {
-  .fa-icon();
-  margin: 0 5px;
-  cursor: pointer;
-  color: @gray5;
-
-  &:hover {
-    color: @alertOrange;
-  }
-  &:before {
-    content: @fa-var-info-circle;
+// Global scrollbar styles.
+// These are used in tandem with the styles applied in
+// `use-scrollbars` from `compass-components`.
+// Without these styles, the ace editor scrollbar
+// overlaps the content and impedes user experience.
+::-webkit-scrollbar {
+  width: 10px;
+  &:horizontal {
+    height: 10px;
   }
 }
-
-//action-bar, just a drop-shadow for now but should think about where to put these styles eventually
-.action-bar {
-  height: 32px;
-  background: @gray8;
-  border-bottom: 1px solid @gray7;
-  padding-top: 4px;
-  padding-left: 15px;
+::-webkit-scrollbar-track {
+  background-color: none;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 10px;
 }

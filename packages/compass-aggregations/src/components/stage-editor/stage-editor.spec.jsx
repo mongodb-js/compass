@@ -3,35 +3,23 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import StageEditor from '../stage-editor';
-import styles from './stage-editor.module.less';
+import { StageEditor } from './stage-editor';
 
 describe('StageEditor [Component]', function() {
   let component;
   const spy = sinon.spy();
-  const runStageSpy = sinon.spy();
-  const setIsModifiedSpy = sinon.spy();
   const stage = '{ name: "testing" }';
   const stageOperator = '$match';
-  const isValid = true;
-  const projectionsChangedSpy = sinon.spy();
-  const newPipelineFromPasteSpy = sinon.spy();
 
   beforeEach(function() {
     component = mount(
       <StageEditor
-        stage={stage}
+        stageValue={stage}
         stageOperator={stageOperator}
-        isValid={isValid}
         index={0}
-        isAutoPreviewing
-        fields={[]}
+        autocompleteFields={[]}
         serverVersion="3.6.0"
-        runStage={runStageSpy}
-        setIsModified={setIsModifiedSpy}
-        stageChanged={spy}
-        projectionsChanged={projectionsChangedSpy}
-        newPipelineFromPaste={newPipelineFromPasteSpy}
+        onChange={spy}
       />
     );
   });
@@ -41,6 +29,6 @@ describe('StageEditor [Component]', function() {
   });
 
   it('renders the wrapper div', function() {
-    expect(component.find(`.${styles['stage-editor']}`)).to.be.present();
+    expect(component.find('UnthemedStageEditor')).to.be.present();
   });
 });

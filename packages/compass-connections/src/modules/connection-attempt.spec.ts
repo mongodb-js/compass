@@ -32,8 +32,7 @@ describe('ConnectionAttempt Module', function () {
       expect(await connectPromise).to.equal(undefined);
     });
 
-    // TODO: Why is this skipped?
-    it.skip('throws if connecting throws', async function () {
+    it('throws if connecting throws', async function () {
       try {
         const connectionAttempt = createConnectionAttempt(
           async (): Promise<any> => {

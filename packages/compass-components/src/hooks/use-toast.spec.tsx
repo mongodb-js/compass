@@ -8,7 +8,7 @@ import {
 import { expect } from 'chai';
 import React from 'react';
 
-import { ToastArea, ToastVariant, useToast } from '..';
+import { ToastArea, ToastVariant, useToast } from './use-toast';
 
 const OpenToastButton = ({
   namespace,
@@ -27,7 +27,10 @@ const OpenToastButton = ({
 }) => {
   const { openToast } = useToast(namespace);
   return (
-    <button onClick={() => openToast(id, { title, variant, body, timeout })}>
+    <button
+      type="button"
+      onClick={() => openToast(id, { title, variant, body, timeout })}
+    >
       Open Toast
     </button>
   );
@@ -41,7 +44,11 @@ const CloseToastButton = ({
   id: string;
 }) => {
   const { closeToast } = useToast(namespace);
-  return <button onClick={() => closeToast(id)}>Close Toast</button>;
+  return (
+    <button type="button" onClick={() => closeToast(id)}>
+      Close Toast
+    </button>
+  );
 };
 
 describe('useToast', function () {

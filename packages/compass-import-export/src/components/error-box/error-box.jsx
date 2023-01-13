@@ -1,10 +1,11 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { palette } from '@mongodb-js/compass-components';
 
 import ANSIConverter from 'ansi-to-html';
 
 import styles from './error-box.module.less';
-import createStyler from '../../utils/styler.js';
+import createStyler from '../../utils/styler';
 const style = createStyler(styles, 'error-box');
 
 /**
@@ -12,8 +13,8 @@ const style = createStyler(styles, 'error-box');
  * once we start actually produce ansi.
  */
 const ANSI_TO_HTML_OPTIONS = {
-  fg: '#FFF',
-  bg: '#000',
+  fg: palette.white,
+  bg: palette.black,
   newline: true,
   escapeXML: true,
   stream: false,
@@ -35,7 +36,7 @@ class ErrorBox extends PureComponent {
     const prettyError = getPrettyErrorMessage(this.props.message);
     return (
       <div
-        data-test-id={this.props.dataTestId}
+        data-testid={this.props.dataTestId}
         className={style()}
         dangerouslySetInnerHTML={{ __html: prettyError }}
       />

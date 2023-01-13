@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import {
+  ImportConnectionsModal,
+  ExportConnectionsModal,
+} from '@mongodb-js/compass-connection-import-export';
 import {
   ResizableSidebar,
-  useTheme,
-  Theme,
-  ThemeProvider,
   ErrorBoundary,
-  WorkspaceContainer,
   spacing,
   css,
 } from '@mongodb-js/compass-components';
-import type { ThemeState } from '@mongodb-js/compass-components';
 import ConnectionForm from '@mongodb-js/connection-form';
 import type {
   ConnectionInfo,
@@ -49,20 +48,26 @@ const formContainerStyles = css({
   flexDirection: 'row',
   flexWrap: 'wrap',
   gap: spacing[4],
+  overflow: 'auto',
+  height: '100%',
 });
 
 function Connections({
   onConnected,
+  isConnected,
   connectionStorage = new ConnectionStorage(),
   appName,
+  getAutoConnectInfo,
   connectFn = connect,
 }: {
   onConnected: (
     connectionInfo: ConnectionInfo,
     dataService: DataService
   ) => void;
+  isConnected: boolean;
   connectionStorage?: ConnectionStorage;
   appName: string;
+  getAutoConnectInfo?: () => Promise<ConnectionInfo | undefined>;
   connectFn?: (connectionOptions: ConnectionOptions) => Promise<DataService>;
 }): React.ReactElement {
   const {
@@ -77,62 +82,60 @@ function Connections({
     saveConnection,
     favoriteConnections,
     recentConnections,
-  } = useConnections({ onConnected, connectionStorage, connectFn, appName });
+    reloadConnections,
+  } = useConnections({
+    onConnected,
+    isConnected,
+    connectionStorage,
+    connectFn,
+    appName,
+    getAutoConnectInfo,
+  });
   const {
     activeConnectionId,
     activeConnectionInfo,
     connectionAttempt,
     connectionErrorMessage,
     connectingStatusText,
-    isConnected,
   } = state;
 
-  const existingTheme = useTheme();
+  const [showExportConnectionsModal, setShowExportConnectionsModal] =
+    useState(false);
+  const [showImportConnectionsModal, setShowImportConnectionsModal] =
+    useState(false);
 
-  // Use the same theme as Home if the feature flag is activated, otherwise
-  // always use Dark. We'll remove this code along with the provider once we
-  // remove the feature flag, hopefully soon.
-  const useNewSidebar = process?.env?.COMPASS_SHOW_NEW_SIDEBAR === 'true';
-  const expectedTheme = useNewSidebar ? existingTheme.theme : Theme.Dark;
-
-  const [theme, setTheme] = useState<ThemeState>({
-    theme: expectedTheme,
-    enabled: true,
-  });
-
-  // If the inherited theme (from Home) changes because the user changed the
-  // theme via the menu, we have to update it here too.
-  if (theme.theme !== expectedTheme) {
-    setTheme({ theme: expectedTheme, enabled: true });
-  }
+  const openConnectionImportExportModal = useCallback(
+    (action: 'export-favorites' | 'import-favorites') => {
+      if (action === 'export-favorites') {
+        setShowExportConnectionsModal(true);
+      } else {
+        setShowImportConnectionsModal(true);
+      }
+    },
+    []
+  );
 
   return (
-    <div
-      data-testid={
-        isConnected ? 'connections-connected' : 'connections-disconnected'
-      }
-      className={connectStyles}
-    >
-      <ThemeProvider theme={theme}>
-        <ResizableSidebar>
-          <ConnectionList
-            activeConnectionId={activeConnectionId}
-            favoriteConnections={favoriteConnections}
-            recentConnections={recentConnections}
-            createNewConnection={createNewConnection}
-            setActiveConnectionId={setActiveConnectionById}
-            onDoubleClick={(connectionInfo) => {
-              void connect(connectionInfo);
-            }}
-            removeAllRecentsConnections={() => {
-              void removeAllRecentsConnections();
-            }}
-            removeConnection={removeConnection}
-            duplicateConnection={duplicateConnection}
-          />
-        </ResizableSidebar>
-      </ThemeProvider>
-      <WorkspaceContainer>
+    <div data-testid="connections-wrapper" className={connectStyles}>
+      <ResizableSidebar>
+        <ConnectionList
+          activeConnectionId={activeConnectionId}
+          favoriteConnections={favoriteConnections}
+          recentConnections={recentConnections}
+          createNewConnection={createNewConnection}
+          setActiveConnectionId={setActiveConnectionById}
+          onDoubleClick={(connectionInfo) => {
+            void connect(connectionInfo);
+          }}
+          removeAllRecentsConnections={() => {
+            void removeAllRecentsConnections();
+          }}
+          removeConnection={removeConnection}
+          duplicateConnection={duplicateConnection}
+          openConnectionImportExportModal={openConnectionImportExportModal}
+        />
+      </ResizableSidebar>
+      <div>
         <div className={formContainerStyles}>
           <ErrorBoundary
             onError={(error: Error, errorInfo: React.ErrorInfo) => {
@@ -158,14 +161,26 @@ function Connections({
           </ErrorBoundary>
           <FormHelp />
         </div>
-      </WorkspaceContainer>
-      {(isConnected ||
-        (!!connectionAttempt && !connectionAttempt.isClosed())) && (
+      </div>
+      {!!connectionAttempt && !connectionAttempt.isClosed() && (
         <Connecting
           connectingStatusText={connectingStatusText}
           onCancelConnectionClicked={cancelConnectionAttempt}
         />
       )}
+      <ImportConnectionsModal
+        open={showImportConnectionsModal}
+        setOpen={setShowImportConnectionsModal}
+        favoriteConnections={favoriteConnections}
+        afterImport={reloadConnections}
+        trackingProps={{ context: 'connectionsList' }}
+      />
+      <ExportConnectionsModal
+        open={showExportConnectionsModal}
+        setOpen={setShowExportConnectionsModal}
+        favoriteConnections={favoriteConnections}
+        trackingProps={{ context: 'connectionsList' }}
+      />
     </div>
   );
 }

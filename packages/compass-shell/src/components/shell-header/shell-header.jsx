@@ -1,25 +1,30 @@
-import { Icon, IconButton, css, spacing, uiColors, keyframes } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  IconButton,
+  css,
+  spacing,
+  palette,
+  keyframes,
+  SpinLoader,
+} from '@mongodb-js/compass-components';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-
-import { ShellLoader } from '@mongosh/browser-repl';
 
 const shellHeaderStyles = css({
   height: spacing[5],
   display: 'flex',
-  color: uiColors.gray.light1
+  color: palette.gray.light1,
 });
 
 const shellHeaderLeftStyles = css({
   flexGrow: 1,
   display: 'flex',
-  alignItems: 'center'
+  alignItems: 'center',
 });
 
-
-const shellHeaderDefaultColor = uiColors.gray.light1;
-const shellHeaderFlashColorDark = uiColors.gray.base;
-const shellHeaderFlashColorLight = uiColors.gray.light2;
+const shellHeaderDefaultColor = palette.gray.light1;
+const shellHeaderFlashColorDark = palette.gray.base;
+const shellHeaderFlashColorLight = palette.gray.light2;
 const shellLoaderFlash = keyframes`
   0% { color: ${shellHeaderDefaultColor}; }
   10% { color: ${shellHeaderFlashColorDark}; }
@@ -53,24 +58,27 @@ const shellHeaderToggleStyles = css({
   textTransform: 'uppercase',
   animation: `${shellLoaderFlash} 2s linear`,
   '&:hover': {
-    color: uiColors.gray.light3
-  }
+    color: palette.gray.light3,
+  },
 });
-
 
 const shellHeaderRightStyles = css({
   display: 'flex',
   paddingTop: spacing[1] / 2,
-  paddingRight: spacing[2]
+  paddingRight: spacing[2],
 });
 
 const infoButtonStyles = css({
-  marginRight: spacing[2]
+  marginRight: spacing[2],
 });
 
 const operationInProgressStyles = css({
-  color: uiColors.green.light2,
-  marginLeft: spacing[2]
+  color: palette.green.light2,
+  marginLeft: spacing[2],
+});
+
+const inProgressSpinLoaderStyles = css({
+  borderTopColor: palette.green.light2,
 });
 
 export class ShellHeader extends Component {
@@ -78,7 +86,7 @@ export class ShellHeader extends Component {
     isExpanded: PropTypes.bool.isRequired,
     isOperationInProgress: PropTypes.bool.isRequired,
     onShellToggleClicked: PropTypes.func.isRequired,
-    showInfoModal: PropTypes.func.isRequired
+    showInfoModal: PropTypes.func.isRequired,
   };
 
   componentDidMount() {
@@ -86,7 +94,10 @@ export class ShellHeader extends Component {
   }
 
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyboardToggle.bind(this));
+    document.removeEventListener(
+      'keydown',
+      this.handleKeyboardToggle.bind(this)
+    );
   }
 
   handleKeyboardToggle({ ctrlKey, key }) {
@@ -105,14 +116,15 @@ export class ShellHeader extends Component {
       isExpanded,
       isOperationInProgress,
       onShellToggleClicked,
-      showInfoModal
+      showInfoModal,
     } = this.props;
 
     return (
       <div className={shellHeaderStyles}>
         <div className={shellHeaderLeftStyles}>
           <button
-            data-test-id="shell-expand-button"
+            type="button"
+            data-testid="shell-expand-button"
             className={shellHeaderToggleStyles}
             aria-label={isExpanded ? 'Close Shell' : 'Open Shell'}
             onClick={onShellToggleClicked}
@@ -121,9 +133,11 @@ export class ShellHeader extends Component {
             &gt;_MONGOSH
             {!isExpanded && isOperationInProgress && (
               <span className={operationInProgressStyles}>
-                <ShellLoader
+                <SpinLoader
                   size="12px"
-                />&nbsp;Command in progress&hellip;
+                  className={inProgressSpinLoaderStyles}
+                />
+                &nbsp;Command in progress&hellip;
               </span>
             )}
           </button>
@@ -131,16 +145,14 @@ export class ShellHeader extends Component {
         <div className={shellHeaderRightStyles}>
           {isExpanded && (
             <IconButton
+              data-testid="shell-info-button"
               className={infoButtonStyles}
               variant="dark"
               aria-label="Shell Info"
               aria-haspopup="dialog"
               onClick={showInfoModal}
             >
-              <Icon
-                glyph="InfoWithCircle"
-                size="small"
-              />
+              <Icon glyph="InfoWithCircle" size="small" />
             </IconButton>
           )}
           <IconButton

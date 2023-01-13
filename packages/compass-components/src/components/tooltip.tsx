@@ -2,7 +2,7 @@
 import { useTooltipTriggerState } from '@react-stately/tooltip';
 import { useTooltipTrigger } from '@react-aria/tooltip';
 import React, { useCallback, useRef } from 'react';
-import { Tooltip as LeafyGreenTooltip } from './leafygreen';
+import LeafyGreenTooltip from '@leafygreen-ui/tooltip';
 import { mergeProps } from '../utils/merge-props';
 
 /**
@@ -25,10 +25,10 @@ type TooltipTrigger = React.FunctionComponent;
 
 const Tooltip: React.FunctionComponent<
   TooltipTriggerProps &
-    Omit<LeafyGreenTooltipProps, 'open' | 'setOpen' | 'trigger'> & {
+    Omit<LeafyGreenTooltipProps, 'trigger'> & {
       trigger: TooltipTrigger;
     }
-> = ({ isDisabled, triggerOn, delay, trigger, ...rest }) => {
+> = ({ isDisabled, triggerOn, delay, trigger, children, ...rest }) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const tooltipState = useTooltipTriggerState({
     isDisabled,
@@ -60,7 +60,9 @@ const Tooltip: React.FunctionComponent<
       }}
       {...rest}
       {...tooltipProps}
-    ></LeafyGreenTooltip>
+    >
+      {children}
+    </LeafyGreenTooltip>
   );
 };
 

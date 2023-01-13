@@ -17,13 +17,18 @@ import {
 
 const { debug, log } = createLoggerAndTelemetry('COMPASS-CONNECT');
 
+export const createClonedClient = Symbol('createClonedClient');
+export type CloneableMongoClient = MongoClient & {
+  [createClonedClient](): Promise<CloneableMongoClient>;
+};
+
 export default async function connectMongoClientCompass(
   connectionOptions: Readonly<ConnectionOptions>,
   setupListeners: (client: MongoClient) => void
 ): Promise<
   [
-    metadataClient: MongoClient,
-    crudClient: MongoClient,
+    metadataClient: CloneableMongoClient,
+    crudClient: CloneableMongoClient,
     sshTunnel: SSHTunnel | undefined,
     options: { url: string; options: DevtoolsConnectOptions }
   ]
@@ -75,21 +80,26 @@ export default async function connectMongoClientCompass(
 
   async function connectSingleClient(
     overrideOptions: DevtoolsConnectOptions
-  ): Promise<MongoClient> {
+  ): Promise<CloneableMongoClient> {
+    // Deep clone because of https://jira.mongodb.org/browse/NODE-4124,
+    // the options here are being mutated.
+    const connectOptions = _.cloneDeep({ ...options, ...overrideOptions });
     const client = await connectMongoClient(
       url,
-      // Deep clone because of https://jira.mongodb.org/browse/NODE-4124,
-      // the options here are being mutated.
-      _.cloneDeep({ ...options, ...overrideOptions }),
+      connectOptions,
       connectLogger,
       CompassMongoClient
     );
     await client.db('admin').command({ ping: 1 });
-    return client;
+    return Object.assign(client, {
+      async [createClonedClient]() {
+        return await connectSingleClient(connectOptions);
+      },
+    });
   }
 
-  let metadataClient: MongoClient | undefined;
-  let crudClient: MongoClient | undefined;
+  let metadataClient: CloneableMongoClient | undefined;
+  let crudClient: CloneableMongoClient | undefined;
   try {
     debug('waiting for MongoClient to connect ...');
     // Create one or two clients, depending on whether CSFLE

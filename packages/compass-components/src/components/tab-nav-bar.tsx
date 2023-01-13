@@ -1,32 +1,36 @@
 import React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 
-import { WorkspaceContainer } from './workspace-container';
-import { withTheme } from '../hooks/use-theme';
+import { useDarkMode } from '../hooks/use-theme';
 import { Tabs, Tab } from './leafygreen';
 
 const containerStyles = css({
   flexGrow: 1,
-  flexShrink: 1,
-  flexBasis: 'auto',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
-  overflow: 'auto',
+  overflow: 'hidden',
 });
 
 const tabsContainerStyles = css({
+  flex: 'none',
   padding: `0 ${spacing[3]}px`,
 });
 
 const tabsContainerDarkStyles = css({
-  background: uiColors.gray.dark3,
+  background: palette.gray.dark3,
 });
 
 const tabsContainerLightStyles = css({
-  background: uiColors.white,
+  background: palette.white,
+});
+
+const tabStyles = css({
+  display: 'flex',
+  flex: 1,
+  minHeight: 0,
 });
 
 const hiddenStyles = css({
@@ -34,11 +38,10 @@ const hiddenStyles = css({
 });
 
 type TabNavBarProps = {
-  'data-test-id'?: string;
+  'data-testid'?: string;
   'aria-label': string;
   activeTabIndex: number;
   mountAllViews?: boolean;
-  darkMode?: boolean;
   tabs: string[];
   views: JSX.Element[];
   onTabClicked: (tabIndex: number) => void;
@@ -49,16 +52,17 @@ type TabNavBarProps = {
  * a container that scrolls when it overflows, while keeping
  * the tabs in the same location.
  */
-function UnthemedTabNavBar({
-  'data-test-id': dataTestId,
+function TabNavBar({
+  'data-testid': dataTestId,
   'aria-label': ariaLabel,
   activeTabIndex,
-  darkMode,
   mountAllViews,
   tabs,
   views,
   onTabClicked,
 }: TabNavBarProps): JSX.Element {
+  const darkMode = useDarkMode();
+
   return (
     <div className={containerStyles}>
       <div
@@ -68,10 +72,14 @@ function UnthemedTabNavBar({
         )}
       >
         <Tabs
-          data-test-id={dataTestId}
+          data-testid={dataTestId}
           aria-label={ariaLabel}
           className="test-tab-nav-bar-tabs"
-          setSelected={onTabClicked}
+          // Note: we cast the (tabIndex: number) => void to React.Dispatch<React.SetStateAction<number>>
+          // here as a result of leafygreen's type strictness.
+          setSelected={
+            onTabClicked as React.Dispatch<React.SetStateAction<number>>
+          }
           selected={activeTabIndex}
         >
           {tabs.map((tab, idx) => (
@@ -86,23 +94,22 @@ function UnthemedTabNavBar({
       {views.map(
         (view, idx) =>
           (mountAllViews || idx === activeTabIndex) && (
-            <WorkspaceContainer
+            <div
               className={cx({
+                [tabStyles]: true,
                 [hiddenStyles]: idx !== activeTabIndex,
               })}
               key={`tab-content-${tabs[idx]}`}
-              data-test-id={`${tabs[idx]
+              data-testid={`${tabs[idx]
                 .toLowerCase()
                 .replace(/ /g, '-')}-content`}
             >
               {view}
-            </WorkspaceContainer>
+            </div>
           )
       )}
     </div>
   );
 }
-
-const TabNavBar = withTheme(UnthemedTabNavBar);
 
 export { TabNavBar };

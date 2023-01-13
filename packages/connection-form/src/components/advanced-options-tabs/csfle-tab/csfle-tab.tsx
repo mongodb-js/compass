@@ -4,7 +4,9 @@ import type { ConnectionOptions } from 'mongodb-data-service';
 import {
   Accordion,
   Banner,
+  Body,
   Checkbox,
+  FormFieldContainer,
   Label,
   Link,
   Description,
@@ -30,7 +32,7 @@ import type {
   KMSField,
 } from '../../../utils/csfle-kms-fields';
 import { KMSProviderFields } from '../../../utils/csfle-kms-fields';
-import FormFieldContainer from '../../form-field-container';
+import { usePreference } from 'compass-preferences-model';
 
 const kmsProviderComponentWrapperStyles = css({
   paddingLeft: spacing[3],
@@ -89,8 +91,10 @@ function CSFLETab({
   const autoEncryptionOptions =
     connectionOptions.fleOptions?.autoEncryption ?? {};
 
-  const enableSchemaMapDebugFlag =
-    !!globalThis?.process?.env?.COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP;
+  const enableSchemaMapDebugFlag = usePreference(
+    'debugUseCsfleSchemaMap',
+    React
+  );
 
   const errors = errorsByFieldTab(errors_, 'csfle');
 
@@ -147,7 +151,7 @@ function CSFLETab({
         />
       </FormFieldContainer>
       <FormFieldContainer>
-        <Label htmlFor="TODO(COMPASS-5653)">KMS Providers</Label>
+        <Body weight="medium">KMS Providers</Body>
         <Description>
           Specify one or more Key Management Systems to use.
         </Description>

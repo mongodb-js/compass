@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import d3 from 'd3';
-import { Button, Icon, Toolbar, css, cx, spacing, uiColors, withTheme } from '@mongodb-js/compass-components';
+import { Button, Icon, css, cx, spacing, palette, useDarkMode } from '@mongodb-js/compass-components';
 
 import Actions from '../actions';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
@@ -12,6 +12,16 @@ const serverStatsToolbarStyles = css({
   padding: spacing[3]
 });
 
+const serverStatsToolbarDarkThemeStyles = css({
+  background: palette.gray.dark3,
+  color: palette.gray.light2,
+});
+
+const serverStatsToolbarLightThemeStyles = css({
+  background: palette.white,
+  color: palette.black,
+});
+
 const timeStyles = css({
   padding: `${spacing[2]}px ${spacing[5]}px`,
   borderRadius: '3px',
@@ -19,28 +29,28 @@ const timeStyles = css({
 });
 
 const timeLightThemeStyles = css({
-  background: uiColors.gray.light2,
-  color: uiColors.gray.dark1,
+  background: palette.gray.light2,
+  color: palette.gray.dark1,
 });
 
 const timeDarkThemeStyles = css({
-  background: uiColors.gray.dark2,
-  color: uiColors.gray.light2,
+  background: palette.gray.dark2,
+  color: palette.gray.light2,
 });
 
-type TimeScrubEventDispatcher = {
+export type TimeScrubEventDispatcher = {
   on: (eventName: 'newXValue', handler: (xDate: Date) => void) => void;
 };
 
 type ServerStatsToolbarProps = {
-  darkMode?: boolean;
   eventDispatcher: TimeScrubEventDispatcher
 }
 
-function UnthemedServerStatsToolbar({
-  darkMode,
+function ServerStatsToolbar({
   eventDispatcher
 }: ServerStatsToolbarProps) {
+  const darkMode = useDarkMode();
+
   const [ time, setTime ] = useState('00:00:00');
   const [ isPaused, setPaused ] = useState(ServerStatsStore.isPaused);
 
@@ -58,8 +68,11 @@ function UnthemedServerStatsToolbar({
   }, [ isPaused ]);
 
   return (
-    <Toolbar
-      className={serverStatsToolbarStyles}
+    <div
+      className={cx(serverStatsToolbarStyles, darkMode ?
+          serverStatsToolbarDarkThemeStyles :
+          serverStatsToolbarLightThemeStyles
+      )}
     >
       <Button
         onClick={onPlayPauseClicked}
@@ -70,13 +83,11 @@ function UnthemedServerStatsToolbar({
       </Button>
       <div
         className={cx(timeStyles, darkMode ? timeDarkThemeStyles : timeLightThemeStyles)}
-        data-test-id="server-stats-time"
+        data-testid="server-stats-time"
       >{time}</div>
-    </Toolbar>
+    </div>
   );
 }
-
-const ServerStatsToolbar = withTheme(UnthemedServerStatsToolbar);
 
 export {
   ServerStatsToolbar

@@ -9,6 +9,7 @@ const git = require('./git');
 const npm = require('./npm');
 
 const ux = require('./ux');
+const { checkReleaseTicketInProgress } = require('./jira');
 
 async function getPackageJsonVersion() {
   return require(await pkgUp()).version;
@@ -18,7 +19,9 @@ async function getValidReleaseBranch() {
   const currentBranch = await git.getCurrentBranch();
 
   if (!branch.isReleaseBranch(currentBranch)) {
-    throw new Error(`The current branch (${currentBranch}) is not a release branch.`);
+    throw new Error(
+      `The current branch (${currentBranch}) is not a release branch.`
+    );
   }
 
   return currentBranch;
@@ -55,8 +58,8 @@ async function startRelease(bumpFn, evergreenProject) {
   const newSemver = bumpFn(packageJsonVersion, currentBranch);
 
   const answer = await cli.confirm(
-    `Are you sure you want to bump from ${chalk.bold(packageJsonVersion)} `
-    + `to ${chalk.bold(newSemver)} and release?`
+    `Are you sure you want to bump from ${chalk.bold(packageJsonVersion)} ` +
+      `to ${chalk.bold(newSemver)} and release?`
   );
 
   if (!answer) {
@@ -64,10 +67,14 @@ async function startRelease(bumpFn, evergreenProject) {
     return;
   }
 
+  await checkReleaseTicketInProgress(newSemver);
+
   cli.info(
     '\n\n',
     ux.manualAction(
-      `Make sure that ${chalk.bold(evergreenProject)} is building from ${chalk.bold(currentBranch)}:\n`,
+      `Make sure that ${chalk.bold(
+        evergreenProject
+      )} is building from ${chalk.bold(currentBranch)}:\n`,
       ux.link(`https://evergreen.mongodb.com/projects##${evergreenProject}`)
     ),
     '\n'
@@ -76,10 +83,7 @@ async function startRelease(bumpFn, evergreenProject) {
   cli.info('Press enter to continue or Ctrl+C to abort....');
   ux.waitForEnter();
 
-  await commitAndPushNewVersion(
-    newSemver,
-    currentBranch
-  );
+  await commitAndPushNewVersion(newSemver, currentBranch);
 
   cli.info(
     '\n',
@@ -124,7 +128,8 @@ async function releaseCheckout(versionLike) {
       '\n',
       ux.manualAction(
         'You just checked out a new release branch that does not exist in the remote. Run:\n',
-        ux.command(`git push -u origin ${releaseBranchName}`), '\n',
+        ux.command(`git push -u origin ${releaseBranchName}`),
+        '\n',
         'to create the remote branch before proceeding with the release.'
       ),
       '\n'
@@ -137,5 +142,5 @@ async function releaseCheckout(versionLike) {
 module.exports = {
   releaseBeta,
   releaseGa,
-  releaseCheckout
+  releaseCheckout,
 };

@@ -1,12 +1,11 @@
-import type { Reducer } from 'redux';
+import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions } from 'mongodb';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { mapPipelineToStages } from '../utils/stage';
 import { aggregatePipeline } from '../utils/cancellable-aggregation';
-import type { Actions as WorkspaceActions } from './workspace';
 import { ActionTypes as WorkspaceActionTypes } from './workspace';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 
 export enum ActionTypes {
   CountStarted = 'compass-aggregations/countStarted',
@@ -43,16 +42,18 @@ export const INITIAL_STATE: State = {
   loading: false,
 };
 
-const reducer: Reducer<State, Actions | WorkspaceActions> = (
+const reducer: Reducer<State, AnyAction> = (
   state = INITIAL_STATE,
   action
 ) => {
   switch (action.type) {
     case WorkspaceActionTypes.WorkspaceChanged:
+    case ConfirmNewPipelineActions.NewPipelineConfirmed:
       return INITIAL_STATE;
     case ActionTypes.CountStarted:
       return {
         loading: true,
+        count: state.count,
         abortController: action.abortController,
       };
     case ActionTypes.CountFinished:
@@ -72,7 +73,7 @@ const reducer: Reducer<State, Actions | WorkspaceActions> = (
   }
 };
 
-export const cancelCount = (): ThunkAction<void, RootState, void, Actions> => {
+export const cancelCount = (): PipelineBuilderThunkAction<void> => {
   return (_dispatch, getState) => {
     const {
       countDocuments: { abortController }
@@ -81,15 +82,9 @@ export const cancelCount = (): ThunkAction<void, RootState, void, Actions> => {
   };
 };
 
-export const countDocuments = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
-  return async (dispatch, getState) => {
+export const countDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
-      pipeline,
       namespace,
       maxTimeMS,
       dataService: { dataService },
@@ -100,6 +95,8 @@ export const countDocuments = (): ThunkAction<
       return;
     }
 
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
+
     try {
       const abortController = new AbortController();
       const signal = abortController.signal;
@@ -108,7 +105,6 @@ export const countDocuments = (): ThunkAction<
         abortController,
       });
 
-      const nonEmptyStages = mapPipelineToStages(pipeline);
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collation ?? undefined,
@@ -118,7 +114,7 @@ export const countDocuments = (): ThunkAction<
         dataService,
         signal,
         namespace,
-        pipeline: [...nonEmptyStages, { $count: 'count' }],
+        pipeline: [...pipeline, { $count: 'count' }],
         options,
       });
 

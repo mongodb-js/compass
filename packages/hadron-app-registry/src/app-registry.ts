@@ -20,8 +20,11 @@ interface Role {
   name: string;
   component: React.ComponentType<any>;
   actionName?: string;
+  configureActions?: () => any;
   storeName?: string;
+  configureStore?: (storeSetup: any) => any;
   order?: number;
+  hasQueryHistory?: boolean;
 }
 
 type Store = Partial<
@@ -383,3 +386,5 @@ export class AppRegistry {
     return aOrder - bOrder;
   }
 }
+
+export type { Role };

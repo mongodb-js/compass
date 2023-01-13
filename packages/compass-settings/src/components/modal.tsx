@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import ipc from 'hadron-ipc';
 
 import {
-  Modal,
-  ModalTitle,
+  FormModal,
   css,
   spacing,
-  Button,
-  ModalFooter,
   focusRing,
 } from '@mongodb-js/compass-components';
 
-import { fetchSettings } from '../stores/settings';
-
+import GeneralSettings from './settings/general';
 import PrivacySettings from './settings/privacy';
+import ThemeSettings from './settings/theme';
+import FeatureFlagSettings, {
+  useShouldShowFeatureFlagsSettings,
+} from './settings/featureflags';
 import Sidebar from './sidebar';
-import { updateSettings } from '../stores/updated-fields';
+import { saveSettings, fetchSettings } from '../stores/settings';
+import type { RootState } from '../stores';
 
 type Settings = {
   name: string;
@@ -24,71 +24,84 @@ type Settings = {
 };
 
 type SettingsModalProps = {
-  onModalOpen: () => void;
-  onUpdate: () => void;
+  isOpen: boolean;
+  closeModal: () => void;
+  onSave: () => void;
+  fetchSettings: () => Promise<void>;
+  loadingState: 'loading' | 'ready';
+  hasChangedSettings: boolean;
 };
 
 const contentStyles = css({
   display: 'flex',
-  minHeight: '400px',
+  height: spacing[7] * 5,
+  paddingTop: spacing[2],
 });
 
 const sideNavStyles = css({
-  width: '20%',
+  position: 'absolute',
+  width: spacing[6] * 3,
 });
 
 const settingsStyles = css(
   {
     width: '80%',
-    paddingLeft: spacing[2],
+    marginLeft: spacing[6] * 3,
+    padding: `0 ${spacing[2]}px 0 ${spacing[3]}px`,
   },
   focusRing
 );
 
-const footerStyles = css({
-  display: 'flex',
-  justifyContent: 'flex-end',
-  flexDirection: 'row',
-  gap: spacing[2],
-  paddingRight: 0,
-  paddingBottom: 0,
-});
-
-const settings: Settings[] = [{ name: 'Privacy', component: PrivacySettings }];
-
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
-  onModalOpen,
-  onUpdate,
+  isOpen,
+  closeModal,
+  onSave,
+  fetchSettings,
+  loadingState,
+  hasChangedSettings,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const settings: Settings[] = [
+    { name: 'General', component: GeneralSettings },
+    { name: 'Theme', component: ThemeSettings },
+    { name: 'Privacy', component: PrivacySettings },
+  ];
+
+  if (useShouldShowFeatureFlagsSettings()) {
+    settings.push({ name: 'Feature Preview', component: FeatureFlagSettings });
+  }
+
   const [selectedSetting, setSelectedSettings] = useState(settings[0].name);
+
+  useEffect(() => {
+    if (isOpen) {
+      void fetchSettings();
+    }
+  }, [isOpen, fetchSettings]);
 
   const SettingComponent =
     settings.find((x) => x.name === selectedSetting)?.component ?? null;
 
-  useEffect(() => {
-    (ipc as any).on('window:show-network-optin', () => {
-      onModalOpen();
-      setIsOpen(true);
-    });
-  }, [setIsOpen, onModalOpen]);
-
-  const closeModal = () => setIsOpen(false);
-  const updateSettings = () => {
-    onUpdate();
+  const saveSettings = () => {
+    onSave();
     closeModal();
   };
 
+  if (loadingState !== 'ready') {
+    return null;
+  }
+
   return (
-    <Modal
+    <FormModal
       size="large"
+      title="Settings"
       open={isOpen}
-      setOpen={closeModal}
+      submitButtonText="Save"
+      onSubmit={saveSettings}
+      submitDisabled={!hasChangedSettings}
+      onCancel={closeModal}
       data-testid="settings-modal"
+      minBodyHeight={spacing[6] * 2}
     >
-      <ModalTitle id="settings-tablist" data-testid="settings-modal-title">
-        Settings
-      </ModalTitle>
       <div className={contentStyles}>
         <div className={sideNavStyles}>
           <Sidebar
@@ -108,27 +121,19 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           {SettingComponent && <SettingComponent />}
         </div>
       </div>
-      <ModalFooter className={footerStyles}>
-        <Button
-          data-testid="cancel-settings-button"
-          variant="default"
-          onClick={closeModal}
-        >
-          Cancel
-        </Button>
-        <Button
-          data-testid="save-settings-button"
-          variant="primary"
-          onClick={updateSettings}
-        >
-          Save
-        </Button>
-      </ModalFooter>
-    </Modal>
+    </FormModal>
   );
 };
 
-export default connect(null, {
-  onModalOpen: fetchSettings,
-  onUpdate: updateSettings,
-})(SettingsModal);
+export default connect(
+  (state: RootState) => {
+    return {
+      loadingState: state.settings.loadingState,
+      hasChangedSettings: state.settings.updatedFields.length > 0,
+    };
+  },
+  {
+    onSave: saveSettings,
+    fetchSettings,
+  }
+)(SettingsModal);

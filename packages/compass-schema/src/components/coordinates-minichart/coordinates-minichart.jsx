@@ -5,6 +5,7 @@ import L from 'leaflet';
 
 import { Map, TileLayer, FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
+import { palette } from '@mongodb-js/compass-components';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.webpack.css';
@@ -19,9 +20,9 @@ import debounce from 'lodash.debounce';
 
 // TODO: Disable boxZoom handler for circle lasso.
 //
-// const SELECTED_COLOR = '#F68A1E';
-const UNSELECTED_COLOR = '#43B1E5';
-// const CONTROL_COLOR = '#ed271c';
+// const SELECTED_COLOR = palette.yellow.base;
+const UNSELECTED_COLOR = palette.blue.light1;
+// const CONTROL_COLOR = palette.red.base;
 
 /**
  * Fetches the tiles from the compass maps-proxy

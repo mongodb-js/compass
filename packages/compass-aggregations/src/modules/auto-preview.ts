@@ -1,7 +1,8 @@
 import type { AnyAction } from "redux";
-import type { ThunkAction } from "redux-thunk";
-import type { RootState } from ".";
-import { runStage } from "./pipeline";
+import type { PipelineBuilderThunkAction } from ".";
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import { updatePipelinePreview } from './pipeline-builder/builder-helpers';
+import { RESTORE_PIPELINE } from './saved-pipeline';
 
 export enum ActionTypes {
   AutoPreviewToggled = 'compass-aggregations/autoPreviewToggled',
@@ -18,20 +19,23 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): boole
   if (action.type === ActionTypes.AutoPreviewToggled) {
     return action.value;
   }
+  if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
+    return INITIAL_STATE;
+  }
+  if (action.type === RESTORE_PIPELINE) {
+    return action.restoreState.autoPreview;
+  }
   return state;
 }
 
 export const toggleAutoPreview = (
   newVal: boolean
-): ThunkAction<void, RootState, void, AutoPreviewToggledAction> => {
+): PipelineBuilderThunkAction<void> => {
   return (dispatch) => {
     dispatch({
       type: ActionTypes.AutoPreviewToggled,
       value: newVal
     });
-
-    if (newVal) {
-      dispatch(runStage(0, true /* force execute */));
-    }
+    dispatch(updatePipelinePreview());
   };
 };

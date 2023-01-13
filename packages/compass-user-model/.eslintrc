@@ -1,6 +1,5 @@
 {
-  "env": {
-    "mocha": true
-  },
-  "extends": ["mongodb-js/node"]
+  "extends": [
+    "mongodb-js/compass-plugin"
+  ]
 }

@@ -277,7 +277,7 @@ const DatabasesNavigationTree: React.FunctionComponent<{
         aria-labelledby={id}
         className={navigationTree}
         {...rootProps}
-        data-test-id="databases-and-collections"
+        data-testid="databases-and-collections"
       >
         <AutoSizer
           disableWidth={Boolean(__TEST_REACT_AUTOSIZER_DEFAULT_WIDTH)}

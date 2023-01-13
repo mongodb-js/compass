@@ -14,14 +14,7 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
 
 async function selectExportFileTypeCSV(browser: CompassBrowser) {
-  // select csv (unselected at first, selected by the end)
-  await browser.clickVisible(
-    Selectors.selectExportFileTypeButton('csv', false)
-  );
-  const selectExportFileTypeButtonElement = await browser.$(
-    Selectors.selectExportFileTypeButton('csv', true)
-  );
-  await selectExportFileTypeButtonElement.waitForDisplayed();
+  await browser.clickParent(Selectors.FileTypeCSV);
 }
 
 describe('Collection export', function () {
@@ -142,7 +135,11 @@ describe('Collection export', function () {
 )`);
 
     // export the entire collection
-    await browser.clickVisible(Selectors.ExportModalFullCollectionOption);
+    const fullCollectionRadio = await browser
+      .$(Selectors.ExportModalFullCollectionOption)
+      .parentElement();
+    await fullCollectionRadio.waitForExist();
+    await fullCollectionRadio.click();
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // export all fields
@@ -200,11 +197,19 @@ describe('Collection export', function () {
     await exportModal.waitForDisplayed();
 
     // export the entire collection
-    await browser.clickVisible(Selectors.ExportModalFullCollectionOption);
+    const fullCollectionRadio = await browser
+      .$(Selectors.ExportModalFullCollectionOption)
+      .parentElement();
+    await fullCollectionRadio.waitForExist();
+    await fullCollectionRadio.click();
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // de-select _id to just export the i field
-    await browser.clickVisible(Selectors.exportModalExportField('_id'));
+    const idFieldCheckbox = await browser
+      .$(Selectors.exportModalExportField('_id'))
+      .parentElement();
+    await idFieldCheckbox.waitForExist();
+    await idFieldCheckbox.click();
     await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
     // CSV file type
@@ -338,7 +343,11 @@ describe('Collection export', function () {
 )`);
 
     // export the entire collection
-    await browser.clickVisible(Selectors.ExportModalFullCollectionOption);
+    const fullCollectionRadio = await browser
+      .$(Selectors.ExportModalFullCollectionOption)
+      .parentElement();
+    await fullCollectionRadio.waitForExist();
+    await fullCollectionRadio.click();
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // export all fields
@@ -393,12 +402,24 @@ describe('Collection export', function () {
     await exportModal.waitForDisplayed();
 
     // export the entire collection
-    await browser.clickVisible(Selectors.ExportModalFullCollectionOption);
+    const fullCollectionRadio = await browser
+      .$(Selectors.ExportModalFullCollectionOption)
+      .parentElement();
+    await fullCollectionRadio.waitForExist();
+    await fullCollectionRadio.click();
     await browser.clickVisible(Selectors.ExportModalSelectFieldsButton);
 
     // de-select _id to just export the i field
-    await browser.clickVisible(Selectors.exportModalExportField('_id'));
-    await browser.clickVisible(Selectors.exportModalExportField('j'));
+    const idFieldCheckbox = await browser
+      .$(Selectors.exportModalExportField('_id'))
+      .parentElement();
+    await idFieldCheckbox.waitForExist();
+    await idFieldCheckbox.click();
+    const jFieldCheckbox = await browser
+      .$(Selectors.exportModalExportField('j'))
+      .parentElement();
+    await jFieldCheckbox.waitForExist();
+    await jFieldCheckbox.click();
     await browser.clickVisible(Selectors.ExportModalSelectOutputButton);
 
     // go with the default file type (JSON)

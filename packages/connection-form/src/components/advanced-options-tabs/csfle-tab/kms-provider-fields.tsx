@@ -1,8 +1,11 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
-import { TextInput, TextArea } from '@mongodb-js/compass-components';
+import {
+  FormFieldContainer,
+  TextInput,
+  TextArea,
+} from '@mongodb-js/compass-components';
 
-import FormFieldContainer from '../../form-field-container';
 import KMSTLSOptions from './kms-tls-options';
 import KMSLocalKeyGenerator from './kms-local-key-generator';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';

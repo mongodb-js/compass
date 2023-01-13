@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { useId } from '@react-aria/utils';
+import { useDarkMode } from '../hooks/use-theme';
 
 import { Description, Icon } from './leafygreen';
-import { defaultFontSize } from '../compass-font-sizes';
-import { withTheme } from '../hooks/use-theme';
 
 const buttonStyles = css({
   fontWeight: 'bold',
-  fontSize: defaultFontSize,
+  fontSize: '14px',
   display: 'flex',
-  alignItems: 'center',
+  alignItems: 'flex-start',
+  paddingLeft: 0,
+  paddingRight: 0,
   border: 'none',
   background: 'none',
   borderRadius: '6px',
@@ -23,38 +24,39 @@ const buttonStyles = css({
   },
   '&:focus-visible': {
     outline: 'none',
-    boxShadow: `0 0 0 3px ${uiColors.focus}`,
+    boxShadow: `0 0 0 3px ${palette.blue.light1}`,
   },
 });
+
 const buttonLightThemeStyles = css({
-  color: uiColors.gray.dark2,
+  color: palette.gray.dark2,
 });
 const buttonDarkThemeStyles = css({
-  color: uiColors.white,
+  color: palette.white,
 });
-const buttonIconStyles = css({
-  marginRight: spacing[1],
+const buttonIconContainerStyles = css({
+  padding: spacing[1] / 2, // matches the line-height (16 + 4)
+  paddingLeft: 0,
 });
 const buttonTextStyles = css({
-  alignItems: 'baseline',
-  display: 'flex',
+  textAlign: 'left',
 });
 const buttonHintStyles = css({
   margin: 0,
   marginLeft: spacing[1],
   padding: 0,
+  display: 'inline',
 });
 interface AccordionProps extends React.HTMLProps<HTMLButtonElement> {
-  darkMode?: boolean;
   text: string | React.ReactNode;
   hintText?: string;
 }
-function UnthemedAccordion({
+function Accordion({
   text,
-  darkMode,
   hintText,
   ...props
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
+  const darkMode = useDarkMode();
   const [open, setOpen] = useState(false);
   const regionId = useId('region-');
   const labelId = useId('label-');
@@ -74,10 +76,10 @@ function UnthemedAccordion({
           setOpen((currentOpen) => !currentOpen);
         }}
       >
-        <Icon
-          className={buttonIconStyles}
-          glyph={open ? 'ChevronDown' : 'ChevronRight'}
-        />
+        <span className={buttonIconContainerStyles}>
+          <Icon glyph={open ? 'ChevronDown' : 'ChevronRight'} />
+        </span>
+
         <div className={buttonTextStyles}>
           {text}
           {hintText && (
@@ -94,7 +96,5 @@ function UnthemedAccordion({
     </>
   );
 }
-
-const Accordion = withTheme(UnthemedAccordion);
 
 export { Accordion };

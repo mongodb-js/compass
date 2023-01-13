@@ -7,8 +7,6 @@ ignores: [
   "classnames",
   "core-js",
   "electron-rebuild",
-  "font-awesome",
-  "hadron-react-components",
   "karma-electron",
   "karma-sourcemap-loader",
   "karma-webpack",

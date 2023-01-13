@@ -4,11 +4,10 @@ import {
   MongoDBLogoMark,
   css,
   cx,
-  uiColors,
+  palette,
   spacing,
   ItemActionControls,
-  useTheme,
-  Theme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 import type { ItemAction } from '@mongodb-js/compass-components';
@@ -50,12 +49,12 @@ const titleLogo = css({
 });
 
 function TitleLogo() {
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
 
   return (
     <div className={titleLogo}>
       <MongoDBLogoMark
-        color={theme === Theme.Dark ? 'green-dark-2' : 'green-base'}
+        color={darkMode ? 'green-dark-2' : 'green-base'}
         height={32}
       />
     </div>
@@ -74,16 +73,16 @@ const sidebarTitle = css({
 });
 
 const iconButtonDark = css({
-  color: uiColors.gray.dark3,
+  color: palette.gray.dark3,
   '&:hover': {
-    color: uiColors.white,
+    color: palette.white,
   },
 });
 
 const iconButtonLight = css({
-  color: uiColors.white,
+  color: palette.white,
   '&:hover': {
-    color: uiColors.gray.dark3,
+    color: palette.gray.dark3,
   },
 });
 
@@ -125,14 +124,14 @@ function SidebarTitle({
 
     actions.push({
       action: 'refresh-data',
-      label: 'Refresh',
+      label: 'Reload Data',
       icon: 'Refresh',
     });
 
     return actions;
   }, [isFavorite]);
 
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
 
   const onClick = useCallback(() => {
     if (isExpanded) {
@@ -144,7 +143,11 @@ function SidebarTitle({
 
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-    <div className={cx(sidebarTitle)} onClick={onClick}>
+    <div
+      className={cx(sidebarTitle)}
+      data-testid="sidebar-title"
+      onClick={onClick}
+    >
       <TitleLogo />
       {isExpanded && <TitleLabel title={title}>{title}</TitleLabel>}
       {isExpanded && (
@@ -155,7 +158,7 @@ function SidebarTitle({
           data-testid="sidebar-title-actions"
           iconClassName={cx(
             iconButtonStyle,
-            theme === Theme.Dark ? iconButtonDark : iconButtonLight
+            darkMode ? iconButtonDark : iconButtonLight
           )}
         ></ItemActionControls>
       )}

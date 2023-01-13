@@ -12,10 +12,11 @@ import {
   cx,
   useFocusState,
   FocusState,
-  uiColors,
+  palette,
   mergeProps,
   useDefaultAction,
   ItemActionControls,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
   BadgeVariant,
@@ -25,6 +26,7 @@ import type {
 import { NamespaceParam } from './namespace-param';
 import type { ItemType } from './use-create';
 import type { ViewType } from './use-view-type';
+import { usePreference } from 'compass-preferences-model';
 
 const cardTitleGroup = css({
   display: 'flex',
@@ -42,6 +44,14 @@ const cardNameWrapper = css({
   minWidth: 0,
 });
 
+const cardNameDark = css({
+  color: palette.green.light2,
+});
+
+const cardNameLight = css({
+  color: palette.green.dark2,
+});
+
 const cardName = css({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
@@ -49,8 +59,6 @@ const cardName = css({
   // To make container 28px to match leafygreen buttons
   paddingTop: 2,
   paddingBottom: 2,
-  // Because leafygreen
-  color: `${uiColors.green.dark1} !important`,
   // TS is very confused if fontWeight is not a number even though it's a valid
   // CSS value
   fontWeight: '600 !important' as unknown as number,
@@ -59,9 +67,13 @@ const cardName = css({
 const CardName: React.FunctionComponent<{ children: string }> = ({
   children,
 }) => {
+  const darkMode = useDarkMode();
   return (
     <div title={children} className={cardNameWrapper}>
-      <Subtitle as="div" className={cardName}>
+      <Subtitle
+        as="div"
+        className={cx(cardName, darkMode ? cardNameDark : cardNameLight)}
+      >
         {children}
       </Subtitle>
     </div>
@@ -188,6 +200,7 @@ export const NamespaceItemCard: React.FunctionComponent<
   viewType,
   ...props
 }) => {
+  const readOnly = usePreference('readOnly', React);
   const [hoverProps, isHovered] = useHoverState();
   const [focusProps, focusState] = useFocusState();
 
@@ -195,15 +208,18 @@ export const NamespaceItemCard: React.FunctionComponent<
     onItemClick(id);
   }, [onItemClick, id]);
 
+  const hasDeleteHandler = !!onItemDeleteClick;
   const cardActions: ItemAction<NamespaceAction>[] = useMemo(() => {
-    return [
-      {
-        action: 'delete',
-        label: `Delete ${type}`,
-        icon: 'Trash',
-      },
-    ];
-  }, [type]);
+    return readOnly || !hasDeleteHandler
+      ? []
+      : [
+          {
+            action: 'delete',
+            label: `Delete ${type}`,
+            icon: 'Trash',
+          },
+        ];
+  }, [type, readOnly, hasDeleteHandler]);
 
   const defaultActionProps = useDefaultAction(onDefaultAction);
 
@@ -233,11 +249,9 @@ export const NamespaceItemCard: React.FunctionComponent<
   );
 
   const isButtonVisible =
-    onItemDeleteClick &&
-    ([FocusState.FocusVisible, FocusState.FocusWithinVisible].includes(
+    [FocusState.FocusVisible, FocusState.FocusWithinVisible].includes(
       focusState
-    ) ||
-      isHovered);
+    ) || isHovered;
 
   return (
     // @ts-expect-error the error here is caused by passing children to Card
@@ -257,7 +271,7 @@ export const NamespaceItemCard: React.FunctionComponent<
 
         <ItemActionControls
           data-testid="namespace-card-actions"
-          isVisible={isButtonVisible}
+          isVisible={isButtonVisible && cardActions.length > 0}
           actions={cardActions}
           onAction={onAction}
           className={cardActionContainer}

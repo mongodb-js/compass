@@ -6,9 +6,10 @@ import {
   css,
   cx,
   spacing,
-  uiColors,
-  withTheme,
+  palette,
+  useDarkMode,
   Label,
+  Link,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 import type AppRegistry from 'hadron-app-registry';
@@ -17,34 +18,45 @@ import type {
   QueryOption,
   QueryBarOptionProps,
 } from '../constants/query-option-definition';
-import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import {
   QueryOption as QueryOptionComponent,
-  queryOptionLabelContainerStyles,
+  documentEditorLabelContainerStyles,
 } from './query-option';
-import { QueryOptionsGrid } from './query-options-grid';
 import { QueryHistoryButtonPopover } from './query-history-button-popover';
+import { QueryBarRow } from './query-bar-row';
+import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 
 const queryBarFormStyles = css({
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
-  background: 'white',
-  border: `1px solid ${uiColors.gray.light2}`,
+  background: palette.white,
+  border: `1px solid ${palette.gray.light2}`,
   borderRadius: '6px',
   padding: spacing[2],
 });
 
 const queryBarFormDarkStyles = css({
-  background: uiColors.gray.dark3,
-  borderColor: uiColors.gray.dark2,
+  background: palette.gray.dark3,
+  borderColor: palette.gray.dark2,
 });
 
 const queryBarFirstRowStyles = css({
   display: 'flex',
+  // NOTE: To keep the elements in the query bar from re-positioning
+  // vertically when the filter input is multi-line we use
+  // `flex-start` here. It is more brittle as it does require the other elements
+  // to account for their height individually.
   alignItems: 'flex-start',
   gap: spacing[2],
   paddingLeft: spacing[2],
+});
+
+const moreOptionsContainerStyles = css({
+  // We explicitly offset this element so we can use
+  // `alignItems: 'flex-start'` on the first row of the query bar.
+  paddingTop: 2,
+  paddingBottom: 2,
 });
 
 const filterContainerStyles = css({
@@ -55,9 +67,19 @@ const filterLabelStyles = css({
   padding: 0,
 });
 
+const queryOptionsContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  marginTop: spacing[2],
+  padding: `0 ${spacing[2]}px`,
+  gap: spacing[2],
+});
+
+const queryBarDocumentationLink =
+  'https://docs.mongodb.com/compass/current/query/filter/';
+
 type QueryBarProps = {
   buttonLabel?: string;
-  darkMode?: boolean;
   expanded: boolean;
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
@@ -65,18 +87,11 @@ type QueryBarProps = {
   onChangeQueryOption: (queryOption: QueryOption, value: string) => void;
   onOpenExportToLanguage: () => void;
   onReset: () => void;
-  queryOptions?: (
-    | 'project'
-    | 'sort'
-    | 'collation'
-    | 'skip'
-    | 'limit'
-    | 'maxTimeMS'
-  )[];
+  queryOptionsLayout?: (QueryOption | QueryOption[])[];
   queryState: 'apply' | 'reset';
   refreshEditorAction: Listenable;
   resultId: string | number;
-  schemaFields: string[];
+  schemaFields: CompletionWithServerInfo[];
   serverVersion: string;
   showExportToLanguageButton?: boolean;
   showQueryHistoryButton?: boolean;
@@ -84,9 +99,8 @@ type QueryBarProps = {
   valid: boolean;
 } & QueryBarOptionProps;
 
-const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
+const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
-  darkMode,
   expanded: isQueryOptionsExpanded = false,
   globalAppRegistry,
   localAppRegistry,
@@ -94,7 +108,12 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
   onChangeQueryOption,
   onOpenExportToLanguage,
   onReset,
-  queryOptions = ['project', 'sort', 'collation', 'skip', 'limit', 'maxTimeMS'],
+  // Used to specify which query options to show and where they are positioned.
+  queryOptionsLayout = [
+    'project',
+    ['sort', 'maxTimeMS'],
+    ['collation', 'skip', 'limit'],
+  ],
   queryState,
   refreshEditorAction,
   resultId,
@@ -106,6 +125,8 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
   valid: isQueryValid,
   ...queryOptionProps
 }) => {
+  const darkMode = useDarkMode();
+
   const onApply = useCallback(() => {
     if (isQueryValid) {
       _onApply();
@@ -132,13 +153,15 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
       data-result-id={resultId}
     >
       <div className={queryBarFirstRowStyles}>
-        <div className={queryOptionLabelContainerStyles}>
+        <div className={documentEditorLabelContainerStyles}>
           <Label
             htmlFor={filterQueryOptionId}
             id="query-bar-option-input-filter-label"
             className={filterLabelStyles}
           >
-            Filter
+            <Link href={queryBarDocumentationLink} target="_blank">
+              Filter
+            </Link>
           </Label>
           {showQueryHistoryButton && (
             <QueryHistoryButtonPopover
@@ -154,10 +177,7 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
             id={filterQueryOptionId}
             onChange={(value: string) => onChangeQueryOption('filter', value)}
             onApply={onApply}
-            placeholder={
-              queryOptionProps.filterPlaceholder ||
-              OPTION_DEFINITION.filter.placeholder
-            }
+            placeholder={queryOptionProps.filterPlaceholder}
             refreshEditorAction={refreshEditorAction}
             schemaFields={schemaFields}
             serverVersion={serverVersion}
@@ -197,34 +217,40 @@ const UnthemedQueryBar: React.FunctionComponent<QueryBarProps> = ({
           </Button>
         )}
 
-        {queryOptions && queryOptions.length > 0 && (
-          <MoreOptionsToggle
-            aria-controls="additional-query-options-container"
-            data-testid="query-bar-options-toggle"
-            isExpanded={isQueryOptionsExpanded}
-            onToggleOptions={toggleExpandQueryOptions}
-          />
+        {queryOptionsLayout && queryOptionsLayout.length > 0 && (
+          <div className={moreOptionsContainerStyles}>
+            <MoreOptionsToggle
+              aria-controls="additional-query-options-container"
+              data-testid="query-bar-options-toggle"
+              isExpanded={isQueryOptionsExpanded}
+              onToggleOptions={toggleExpandQueryOptions}
+            />
+          </div>
         )}
       </div>
-      {queryOptions && queryOptions.length > 0 && (
-        <div id="additional-query-options-container">
-          {isQueryOptionsExpanded && (
-            <QueryOptionsGrid
-              queryOptions={queryOptions}
-              queryOptionProps={queryOptionProps}
-              onChangeQueryOption={onChangeQueryOption}
-              onApply={onApply}
-              refreshEditorAction={refreshEditorAction}
-              schemaFields={schemaFields}
-              serverVersion={serverVersion}
-            />
-          )}
-        </div>
-      )}
+      {isQueryOptionsExpanded &&
+        queryOptionsLayout &&
+        queryOptionsLayout.length > 0 && (
+          <div
+            className={queryOptionsContainerStyles}
+            id="additional-query-options-container"
+          >
+            {queryOptionsLayout.map((queryOptionRowLayout, rowIndex) => (
+              <QueryBarRow
+                queryOptionsLayout={queryOptionRowLayout}
+                key={`query-bar-row-${rowIndex}`}
+                queryOptionProps={queryOptionProps}
+                onChangeQueryOption={onChangeQueryOption}
+                onApply={onApply}
+                refreshEditorAction={refreshEditorAction}
+                schemaFields={schemaFields}
+                serverVersion={serverVersion}
+              />
+            ))}
+          </div>
+        )}
     </form>
   );
 };
-
-const QueryBar = withTheme(UnthemedQueryBar);
 
 export { QueryBar };

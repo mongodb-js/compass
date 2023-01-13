@@ -1,3 +1,5 @@
+@import (reference) "mongodb-compass/src/app/styles/index.less";
+
 .pipeline {
   display: flex;
   flex-grow: 1;
@@ -9,8 +11,8 @@
 
   &-collation-toolbar-container {
     padding: 6px 10px 6px 15px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    border-bottom: 1px solid fade(@palette__black, 20%);
+    box-shadow: 1px 1px 3px fade(@palette__black, 40%);
   }
 
   &-error-banner-container {

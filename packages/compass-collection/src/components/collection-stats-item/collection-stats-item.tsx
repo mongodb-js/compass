@@ -1,11 +1,11 @@
 import React from 'react';
 import {
   css,
-  uiColors,
+  palette,
   spacing,
   Disclaimer,
   H3,
-  withTheme,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 
 const collectionStatsItemStyles = css({
@@ -18,31 +18,30 @@ const collectionStatsItemStyles = css({
 
 const darkThemeLabelStyles = css({
   textTransform: 'uppercase',
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
   display: 'inline-block',
   fontWeight: 'bold',
 });
 
 const lightThemeLabelStyles = css({
   textTransform: 'uppercase',
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
   display: 'inline-block',
 });
 
 const darkThemeValueStyles = css({
   textTransform: 'lowercase',
-  color: uiColors.green.light2,
+  color: palette.green.light2,
   display: 'inline-block',
 });
 
 const lightThemeValueStyles = css({
   textTransform: 'lowercase',
-  color: uiColors.green.base,
+  color: palette.green.dark2,
   display: 'inline-block',
 });
 
 type CollectionStatsItemProps = {
-  darkMode?: boolean;
   label: string;
   value: string;
   dataTestId: string;
@@ -53,7 +52,9 @@ type CollectionStatsItemProps = {
  */
 const CollectionStatsItem: React.FunctionComponent<
   CollectionStatsItemProps
-> = ({ darkMode, dataTestId, label, value }: CollectionStatsItemProps) => {
+> = ({ dataTestId, label, value }: CollectionStatsItemProps) => {
+  const darkMode = useDarkMode();
+
   return (
     <div className={collectionStatsItemStyles} data-testid={dataTestId}>
       <H3
@@ -72,4 +73,4 @@ const CollectionStatsItem: React.FunctionComponent<
   );
 };
 
-export default withTheme(CollectionStatsItem);
+export default CollectionStatsItem;

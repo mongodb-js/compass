@@ -5,12 +5,12 @@ import type {
   Element as HadronElementType,
 } from 'hadron-document';
 import { ElementEvents } from 'hadron-document';
-import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
 import { AutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
 import { HadronElement } from './element';
 import { usePrevious } from './use-previous';
 import DocumentFieldsToggleGroup from './document-fields-toggle-group';
+import { documentTypography } from './typography';
 
 function useHadronDocument(doc: HadronDocumentType) {
   const prevDoc = usePrevious(doc);
@@ -55,9 +55,9 @@ function useHadronDocument(doc: HadronDocumentType) {
 
 const hadronDocument = css({
   position: 'relative',
-  fontFamily: fontFamilies.code,
-  fontSize: '12px',
-  lineHeight: `${spacing[3]}px`,
+  fontFamily: documentTypography.fontFamily,
+  fontSize: `${documentTypography.fontSize}px`,
+  lineHeight: `${documentTypography.lineHeight}px`,
   counterReset: 'line-number',
 });
 

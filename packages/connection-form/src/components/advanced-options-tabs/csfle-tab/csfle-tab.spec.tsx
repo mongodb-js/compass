@@ -11,7 +11,7 @@ import {
 } from '@testing-library/react';
 
 import type { ConnectionOptions } from 'mongodb-data-service';
-import { setEditorValue } from '@mongodb-js/compass-components';
+import { setEditorValue } from '@mongodb-js/compass-editor';
 import { Binary } from 'bson';
 
 import ConnectionForm from '../../../';

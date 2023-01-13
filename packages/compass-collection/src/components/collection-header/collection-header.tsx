@@ -1,8 +1,8 @@
 import type AppRegistry from 'hadron-app-registry';
 import {
   css,
-  uiColors,
-  withTheme,
+  palette,
+  withDarkMode,
   Link,
   spacing,
   H3,
@@ -33,11 +33,11 @@ const collectionHeaderStyles = css({
 
 const collectionHeaderTitleStyles = css({
   display: 'flex',
+  width: '100%',
   alignItems: 'center',
-  flex: '1 1 100%',
   padding: `0 ${String(spacing[3])}px`,
   margin: 0,
-  width: '100%',
+  overflow: 'hidden',
 });
 
 const collectionHeaderDBLinkStyles = css({
@@ -51,16 +51,8 @@ const collectionHeaderDBLinkStyles = css({
   },
   backgroundColor: 'transparent',
   border: 'none',
-  display: 'inline',
+  display: 'inline-block',
   padding: 0,
-});
-
-const collectionHeaderDBLinkLightStyles = css({
-  color: uiColors.green.base,
-});
-
-const collectionHeaderDBLinkDarkStyles = css({
-  color: uiColors.green.light2,
 });
 
 const collectionHeaderNamespaceStyles = css({
@@ -69,20 +61,20 @@ const collectionHeaderNamespaceStyles = css({
   display: 'flex',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
-  textOverflow: 'ellipsis',
 });
 
 const collectionHeaderDBNameStyles = css({
-  display: 'flex',
-  alignItems: 'center',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 });
 
-const collectionHeaderDBNameLightStyles = css({
-  color: uiColors.green.base,
+const dbLinkLightStyles = css({
+  color: palette.green.dark2,
 });
 
-const collectionHeaderDBNameDarkStyles = css({
-  color: uiColors.green.light2,
+const dbLinkDarkStyles = css({
+  color: palette.green.light2,
 });
 
 const collectionHeaderCollectionStyles = css({
@@ -91,12 +83,20 @@ const collectionHeaderCollectionStyles = css({
   textOverflow: 'ellipsis',
 });
 
+const collectionHeaderLightStyles = css({
+  background: palette.white,
+});
+
+const collectionHeaderDarkStyles = css({
+  backgroundColor: palette.gray.dark3,
+});
+
 const collectionHeaderTitleCollectionLightStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const collectionHeaderTitleCollectionDarkStyles = css({
-  color: uiColors.gray.light1,
+  color: palette.gray.light1,
 });
 
 type CollectionHeaderProps = {
@@ -109,7 +109,7 @@ type CollectionHeaderProps = {
   isFLE: boolean;
   selectOrCreateTab: (options: any) => any;
   sourceName?: string;
-  sourceReadonly: boolean;
+  sourceReadonly?: boolean;
   sourceViewOn?: string;
   editViewName?: string;
   pipeline: Document[];
@@ -164,7 +164,15 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
     const collection = ns.collection;
 
     return (
-      <div className={collectionHeaderStyles} data-testid="collection-header">
+      <div
+        className={cx(
+          collectionHeaderStyles,
+          this.props.darkMode
+            ? collectionHeaderDarkStyles
+            : collectionHeaderLightStyles
+        )}
+        data-testid="collection-header"
+      >
         <div
           title={`${database}.${collection}`}
           className={collectionHeaderTitleStyles}
@@ -179,9 +187,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
               as="button"
               className={cx(
                 collectionHeaderDBLinkStyles,
-                this.props.darkMode
-                  ? collectionHeaderDBLinkDarkStyles
-                  : collectionHeaderDBLinkLightStyles
+                this.props.darkMode ? dbLinkDarkStyles : dbLinkLightStyles
               )}
               hideExternalIcon={true}
               onClick={() => this.handleDBClick(database)}
@@ -189,9 +195,7 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
               <H3
                 className={cx(
                   collectionHeaderDBNameStyles,
-                  this.props.darkMode
-                    ? collectionHeaderDBNameDarkStyles
-                    : collectionHeaderDBNameLightStyles
+                  this.props.darkMode ? dbLinkDarkStyles : dbLinkLightStyles
                 )}
               >
                 {database}
@@ -233,4 +237,4 @@ class CollectionHeader extends Component<CollectionHeaderProps> {
   }
 }
 
-export default withTheme(CollectionHeader);
+export default withDarkMode(CollectionHeader);

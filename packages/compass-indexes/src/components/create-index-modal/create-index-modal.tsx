@@ -3,13 +3,9 @@ import { connect } from 'react-redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import {
   Modal,
-  Disclaimer,
-  css,
-  spacing,
-  H3,
   ModalFooter,
-  Body,
-  uiColors,
+  ModalHeader,
+  ModalBody,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -38,7 +34,7 @@ import { toggleUseCustomCollation } from '../../modules/create-index/use-custom-
 import { collationStringChanged } from '../../modules/create-index/collation-string';
 import { openLink } from '../../modules/link';
 import { createIndex, closeCreateIndexModal } from '../../modules/create-index';
-import CreateIndexForm from '../create-index-form';
+import { CreateIndexForm } from '../create-index-form/create-index-form';
 import CreateIndexActions from '../create-index-actions';
 import { toggleUseIndexName } from '../../modules/create-index/use-index-name';
 import type { RootState } from '../../modules/create-index';
@@ -46,38 +42,6 @@ import { toggleIsSparse } from '../../modules/create-index/is-sparse';
 
 const { track } = createLoggerAndTelemetry('COMPASS-IMPORT-EXPORT-UI');
 
-const modalStyles = css({
-  'div[role=dialog] > :first-child': {
-    minHeight: '50vh',
-    maxHeight: '80vh',
-    overflow: 'scroll',
-  },
-});
-
-const modalContentWrapperStyles = css({
-  padding: 'initial',
-});
-
-const modalContentStyles = css({
-  padding: spacing[5],
-});
-
-const modalFooterStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-});
-
-const collectionHeaderTitleLightStyles = css({
-  color: uiColors.gray.dark1,
-});
-
-const createIndexHeaderTitleDarkStyles = css({
-  color: uiColors.gray.light1,
-});
-
-/**
- * Create index modal.
- */
 function CreateIndexModal({
   isVisible,
   namespace,
@@ -113,23 +77,14 @@ function CreateIndexModal({
       open={isVisible}
       trackingId="create_index_modal"
       data-testid="create-index-modal"
-      className={modalStyles}
-      contentClassName={modalContentWrapperStyles}
     >
-      <Body className={modalContentStyles}>
-        <H3
-          className={
-            props.darkMode
-              ? createIndexHeaderTitleDarkStyles
-              : collectionHeaderTitleLightStyles
-          }
-        >
-          Create Index
-        </H3>
-        <Disclaimer>{namespace}</Disclaimer>
+      <ModalHeader title="Create Index" subtitle={namespace} />
+
+      <ModalBody>
         <CreateIndexForm {...props} />
-      </Body>
-      <ModalFooter className={modalFooterStyles}>
+      </ModalBody>
+
+      <ModalFooter>
         <CreateIndexActions
           error={error}
           clearError={clearError}

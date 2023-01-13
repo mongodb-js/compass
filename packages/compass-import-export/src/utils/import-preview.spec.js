@@ -1,4 +1,4 @@
-import createPreviewWritable, { createPeekStream } from './import-preview';
+import { createPreviewWritable, createPeekStream } from './import-preview';
 import { Readable, pipeline } from 'stream';
 import fs from 'fs';
 import { expect } from 'chai';

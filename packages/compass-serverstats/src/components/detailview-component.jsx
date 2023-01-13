@@ -1,6 +1,6 @@
 const React = require('react');
 const Actions = require('../actions');
-const { TextButton } = require('hadron-react-buttons');
+const { Button, Icon } = require('@mongodb-js/compass-components');
 
 // const debug = require('debug')('mongodb-compass:server-stats:detailview-component');
 
@@ -72,8 +72,9 @@ class DetailViewComponent extends React.Component {
       <div className="rt-details" style={{ display: this.state.display }}>
         <header className="rt-details__header">
           <h2 className="rt-details__headerlabel">operation details</h2>
-          <div className="rt-details__closebutton" onClick={this.hideOperationDetails.bind(this)}><i className="fa fa-times" />
-  Close</div>
+          <div className="rt-details__closebutton" >
+            <Button darkMode size="xsmall" leftGlyph={<Icon glyph="X"/>} onClick={this.hideOperationDetails.bind(this)}>Close</Button>
+          </div>
         </header>
         <div className="rt-details__body">
           <div className="rt-details__opinfo">
@@ -100,10 +101,7 @@ class DetailViewComponent extends React.Component {
             </li>
             <li className="rt-details__item">
               <div className="rt-details__datatype">
-                <TextButton
-                  text="Kill Op"
-                  clickHandler={this.killOp.bind(this)}
-                  className="btn btn-alert btn-xs" />
+                <Button variant="danger" size="xsmall" darkMode onClick={this.killOp.bind(this)}>Kill Op</Button>
               </div>
             </li>
           </ul>

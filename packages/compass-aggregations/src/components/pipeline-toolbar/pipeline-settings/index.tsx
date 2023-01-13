@@ -2,16 +2,18 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
 import { exportToLanguage } from '../../../modules/export-to-language';
-import { SaveMenu, CreateMenu } from './pipeline-menus';
+import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
+import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { toggleNewPipelineModal } from '../../../modules/is-new-pipeline-confirm';
 
 const containerStyles = css({
   display: 'grid',
   gap: spacing[2],
   gridTemplateAreas: '"settings extraSettings"',
-  gridTemplateColumns: "1fr min-content",
+  gridTemplateColumns: '1fr auto',
   alignItems: 'center',
   whiteSpace: 'nowrap',
 });
@@ -28,32 +30,49 @@ const extraSettingsStyles = css({
 });
 
 type PipelineSettingsProps = {
-  isSavePipelineEnabled?: boolean;
-  isCreatePipelineEnabled?: boolean;
+  isSavePipelineDisplayed?: boolean;
+  isCreatePipelineDisplayed?: boolean;
+  isExportToLanguageEnabled?: boolean;
   onExportToLanguage: () => void;
+  onCreateNewPipeline: () => void;
 };
 
-export const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = ({
-  isSavePipelineEnabled,
-  isCreatePipelineEnabled,
+export const PipelineSettings: React.FunctionComponent<
+  PipelineSettingsProps
+> = ({
+  isSavePipelineDisplayed,
+  isCreatePipelineDisplayed,
+  isExportToLanguageEnabled,
   onExportToLanguage,
+  onCreateNewPipeline,
 }) => {
   return (
     <div className={containerStyles} data-testid="pipeline-settings">
       <div className={settingsStyles}>
-        {isSavePipelineEnabled && (
+        {isSavePipelineDisplayed && (
           <>
             <PipelineName />
             <SaveMenu />
           </>
         )}
-        {isCreatePipelineEnabled && <CreateMenu />}
+        {isCreatePipelineDisplayed && 
+          <Button
+            size="xsmall"
+            variant="primary"
+            leftGlyph={<Icon glyph="Plus" />}
+            onClick={onCreateNewPipeline}
+            data-testid="pipeline-toolbar-create-new-button"
+          >
+            Create new
+          </Button>
+        }
         <Button
           variant="primaryOutline"
           size="xsmall"
           leftGlyph={<Icon glyph="Code" />}
           onClick={onExportToLanguage}
           data-testid="pipeline-toolbar-export-button"
+          disabled={!isExportToLanguageEnabled}
         >
           Export to language
         </Button>
@@ -67,12 +86,15 @@ export const PipelineSettings: React.FunctionComponent<PipelineSettingsProps> = 
 
 export default connect(
   (state: RootState) => {
+    const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
     return {
-      isSavePipelineEnabled: !state.editViewName && !state.isAtlasDeployed,
-      isCreatePipelineEnabled: !state.editViewName,
+      isSavePipelineDisplayed: !state.editViewName && !state.isAtlasDeployed,
+      isCreatePipelineDisplayed: !state.editViewName,
+      isExportToLanguageEnabled: !hasSyntaxErrors
     };
   },
   {
     onExportToLanguage: exportToLanguage,
+    onCreateNewPipeline: () => toggleNewPipelineModal(true),
   }
 )(PipelineSettings);

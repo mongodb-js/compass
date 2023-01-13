@@ -5,11 +5,10 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   Overline,
-  Toolbar,
   css,
   spacing,
   useId,
-  withTheme,
+  useDarkMode,
   WarningSummary,
   ErrorSummary,
 } from '@mongodb-js/compass-components';
@@ -46,9 +45,8 @@ type ExplainView = 'json' | 'tree';
 
 type ExplainToolbarProps = {
   localAppRegistry: AppRegistry;
-  darkMode?: boolean;
   explainErrorMessage?: string;
-  explainResultId: string;
+  resultId: string;
   hasExplainResults: boolean;
   onExecuteExplainClicked: (queryBarStoreState: any) => void;
   showOutdatedWarning: boolean;
@@ -58,10 +56,9 @@ type ExplainToolbarProps = {
   viewType: ExplainView;
 };
 
-function UnthemedExplainToolbar({
+function ExplainToolbar({
   localAppRegistry,
-  darkMode,
-  explainResultId,
+  resultId,
   explainErrorMessage,
   hasExplainResults,
   onExecuteExplainClicked,
@@ -71,6 +68,7 @@ function UnthemedExplainToolbar({
   switchToJSONView,
   viewType,
 }: ExplainToolbarProps) {
+  const darkMode = useDarkMode();
   const labelId = useId();
   const controlId = useId();
 
@@ -100,14 +98,14 @@ function UnthemedExplainToolbar({
   const QueryBarComponent = queryBarRef.current.component;
 
   return (
-    <Toolbar className={explainToolbarStyles}>
+    <div className={explainToolbarStyles}>
       <div className={explainQueryBarStyles}>
         {
           <QueryBarComponent
             store={queryBarRef.current.store}
             actions={queryBarRef.current.actions}
             buttonLabel="Explain"
-            resultId={explainResultId}
+            resultId={resultId}
             onApply={onExecuteExplainClicked}
             onReset={onExecuteExplainClicked}
           />
@@ -149,10 +147,8 @@ function UnthemedExplainToolbar({
         />
       )}
       {explainErrorMessage && <ErrorSummary errors={[explainErrorMessage]} />}
-    </Toolbar>
+    </div>
   );
 }
-
-const ExplainToolbar = withTheme(UnthemedExplainToolbar);
 
 export { ExplainToolbar };

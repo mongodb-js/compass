@@ -1,9 +1,7 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { StoreConnector } from 'hadron-react-components';
-import { isFunction } from 'lodash';
+import { StoreConnector } from '@mongodb-js/compass-components';
 
-import LegacyQueryBar from './components/legacy-query-bar';
 import { QueryBar } from './components/query-bar';
 
 function Plugin({
@@ -13,12 +11,10 @@ function Plugin({
   store,
   ...props
 }) {
-  const useNewQueryBar = process?.env?.COMPASS_SHOW_NEW_TOOLBARS === 'true';
-
   const onApply = useCallback(() => {
     actions.apply();
 
-    if (isFunction(_onApply)) {
+    if (typeof _onApply === 'function') {
       _onApply();
     }
   }, [_onApply, actions]);
@@ -26,33 +22,24 @@ function Plugin({
   const onReset = useCallback(() => {
     actions.reset();
 
-    if (isFunction(_onReset)) {
+    if (typeof _onReset === 'function') {
       _onReset();
     }
   }, [_onReset, actions]);
 
   return (
     <StoreConnector store={store}>
-      {useNewQueryBar ? (
-        <QueryBar
-          onApply={onApply}
-          onReset={onReset}
-          onChangeQueryOption={actions.typeQueryString}
-          onOpenExportToLanguage={actions.exportToLanguage}
-          refreshEditorAction={actions.refreshEditor}
-          toggleExpandQueryOptions={actions.toggleQueryOptions}
-          globalAppRegistry={store.globalAppRegistry}
-          localAppRegistry={store.localAppRegistry}
-          {...props}
-        />
-      ) : (
-        <LegacyQueryBar
-          actions={actions}
-          onApply={onApply}
-          onReset={onReset}
-          {...props}
-        />
-      )}
+      <QueryBar
+        onApply={onApply}
+        onReset={onReset}
+        onChangeQueryOption={actions.typeQueryString}
+        onOpenExportToLanguage={actions.exportToLanguage}
+        refreshEditorAction={actions.refreshEditor}
+        toggleExpandQueryOptions={actions.toggleQueryOptions}
+        globalAppRegistry={store.globalAppRegistry}
+        localAppRegistry={store.localAppRegistry}
+        {...props}
+      />
     </StoreConnector>
   );
 }

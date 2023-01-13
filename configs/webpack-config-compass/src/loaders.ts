@@ -1,4 +1,3 @@
-import path from 'path';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import type { ConfigArgs } from './args';
 import { isServe } from './args';
@@ -127,22 +126,13 @@ export const lessLoader = (args: ConfigArgs) => ({
     ...cssLoader(args).use,
     {
       loader: require.resolve('less-loader'),
-      options: {
-        lessOptions: {
-          modifyVars: {
-            'fa-font-path': path.dirname(
-              require.resolve('mongodb-compass/src/app/fonts/FontAwesome.otf')
-            ),
-          },
-        },
-      },
     },
   ],
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const assetsLoader = (_args: ConfigArgs) => ({
-  test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot)(\?.+?)?$/,
+  test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot|otf)(\?.+?)?$/,
   // asset (or asset auto) will either compile as data-uri or to a file path
   // based on the size, this is a good strategy for loading assets in the GUI
   type: 'asset',
@@ -155,7 +145,7 @@ export const assetsLoader = (_args: ConfigArgs) => ({
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const resourceLoader = (_args: ConfigArgs) => ({
-  test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot)(\?.+?)?$/,
+  test: /\.(jpe?g|png|svg|gif|woff|woff2|ttf|eot|otf)(\?.+?)?$/,
   // asset/resource always compiles imports to paths to files, this is a good
   // strategy for electron main (node.js) process where handling data uris might
   // be more work than handling files

@@ -1,5 +1,0 @@
-{
-  "extends": [
-    "mongodb-js/compass-plugin"
-  ]
-}

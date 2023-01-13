@@ -88,7 +88,12 @@ describe('Instance databases tab', function () {
     // open the create database modal from the button at the top
     await browser.clickVisible(Selectors.InstanceCreateDatabaseButton);
 
-    await browser.addDatabase(dbName, collectionName);
+    await browser.addDatabase(
+      dbName,
+      collectionName,
+      undefined,
+      'add-database-modal-basic.png'
+    );
 
     const selector = Selectors.databaseCard(dbName);
     await browser.scrollToVirtualItem(

@@ -14,8 +14,8 @@ async function runReleaseCommand(args, options = {}) {
     ...options,
     env: {
       ...options.env,
-      MONGODB_COMPASS_RELEASE_MAX_WAIT_TIME: '0'
-    }
+      MONGODB_COMPASS_RELEASE_MAX_WAIT_TIME: '0',
+    },
   };
 
   const proc = execa(
@@ -40,7 +40,7 @@ async function checkoutBranch(branchName, options) {
   }
 }
 
-describe('release', function() {
+describe('release', function () {
   if (!!process.env.EVERGREEN && process.platform === 'darwin') {
     // These tests are not working well on Evergreen macOS machines and we will
     // skip them for now (they will run in GitHub CI)
@@ -49,7 +49,7 @@ describe('release', function() {
     return;
   }
 
-  afterEach(function() {
+  afterEach(function () {
     while (running.length) {
       running.shift().kill('SIGTERM', { forceKillAfterTimeout: 100 });
     }
@@ -59,7 +59,7 @@ describe('release', function() {
   let remote;
   let repoPath;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'compass-release-tests-'));
 
     // create fake git remote:
@@ -89,7 +89,7 @@ describe('release', function() {
   });
 
   // eslint-disable-next-line mocha/no-sibling-hooks
-  afterEach(function() {
+  afterEach(function () {
     try {
       fs.removeSync(tempDir);
     } catch (e) {
@@ -98,134 +98,172 @@ describe('release', function() {
     }
   });
 
-  it('prints usage if no argument is passed', async function() {
-    const { stdout, failed } = await (runReleaseCommand(['']).catch(e => e));
+  it('prints usage if no argument is passed', async function () {
+    const { stdout, failed } = await runReleaseCommand(['']).catch((e) => e);
     expect(failed).to.be.true;
     expect(stdout).to.contain('USAGE');
   });
 
-  describe('checkout', function() {
-    it('creates a new branch if not exists', async function() {
+  describe('checkout', function () {
+    it('creates a new branch if not exists', async function () {
       await runReleaseCommand(['checkout', '1.12']);
-      const { stdout } = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+      const { stdout } = await execa('git', [
+        'rev-parse',
+        '--abbrev-ref',
+        'HEAD',
+      ]);
       expect(stdout).to.equal('1.12-releases');
     });
 
-    it('checks out an existing branch', async function() {
+    it('checks out an existing branch', async function () {
       await checkoutBranch('1.12-releases');
       await checkoutBranch(MAIN_BRANCH);
       await runReleaseCommand(['checkout', '1.12']);
-      const { stdout } = await execa('git', ['rev-parse', '--abbrev-ref', 'HEAD']);
+      const { stdout } = await execa('git', [
+        'rev-parse',
+        '--abbrev-ref',
+        'HEAD',
+      ]);
       expect(stdout).to.equal('1.12-releases');
     });
 
-    it('prints usage if no version is passed', async function() {
-      const { stdout, failed } = await (runReleaseCommand(['checkout']).catch(e => e));
+    it('prints usage if no version is passed', async function () {
+      const { stdout, failed } = await runReleaseCommand(['checkout']).catch(
+        (e) => e
+      );
       expect(failed).to.be.true;
       expect(stdout).to.contain('USAGE');
     });
 
-    it(`fails if branch is not ${MAIN_BRANCH}`, async function() {
+    it(`fails if branch is not ${MAIN_BRANCH}`, async function () {
       await checkoutBranch('some-branch');
-      const { stderr, failed } = await (runReleaseCommand(['checkout', '1.12']).catch(e => e));
+      const { stderr, failed } = await runReleaseCommand([
+        'checkout',
+        '1.12',
+      ]).catch((e) => e);
       expect(failed).to.be.true;
-      expect(stderr).to.contain(`The current branch is not the ${MAIN_BRANCH} branch`);
+      expect(stderr).to.contain(
+        `The current branch is not the ${MAIN_BRANCH} branch`
+      );
     });
   });
 
   [
     ['beta', '1.12.0-beta.0'],
-    ['ga', '1.12.0']
-  ].forEach(([ command, expectedVersion ]) => {
-    describe(command, function() {
-      it(`fails from ${MAIN_BRANCH}`, async function() {
+    ['ga', '1.12.0'],
+  ].forEach(([command, expectedVersion]) => {
+    describe(command, function () {
+      it(`fails from ${MAIN_BRANCH}`, async function () {
         await checkoutBranch(MAIN_BRANCH);
-        const { stderr, failed } = await (runReleaseCommand([command]).catch(e => e));
+        const { stderr, failed } = await runReleaseCommand([command]).catch(
+          (e) => e
+        );
         expect(failed).to.be.true;
-        expect(stderr).to.contain(`The current branch (${MAIN_BRANCH}) is not a release branch`);
+        expect(stderr).to.contain(
+          `The current branch (${MAIN_BRANCH}) is not a release branch`
+        );
       });
 
-      it('fails if branch is not a release branch', async function() {
+      it('fails if branch is not a release branch', async function () {
         await checkoutBranch('some-branch');
-        const { stderr, failed } = await (runReleaseCommand([command]).catch(e => e));
+        const { stderr, failed } = await runReleaseCommand([command]).catch(
+          (e) => e
+        );
         expect(failed).to.be.true;
-        expect(stderr).to.contain('The current branch (some-branch) is not a release branch');
+        expect(stderr).to.contain(
+          'The current branch (some-branch) is not a release branch'
+        );
       });
 
-      it('fails with untracked files', async function() {
+      it('fails with untracked files', async function () {
         fs.writeFileSync('README.md', '');
         await checkoutBranch('1.12-releases');
-        const { stderr, failed } = await (runReleaseCommand([command]).catch(e => e));
+        const { stderr, failed } = await runReleaseCommand([command]).catch(
+          (e) => e
+        );
         expect(failed).to.be.true;
         expect(stderr).to.contain('You have untracked or staged changes');
       });
 
-      it('fails with staged files', async function() {
+      it('fails with staged files', async function () {
         fs.writeFileSync('README.md', '');
         await checkoutBranch('1.12-releases');
         await execa('git', ['add', '.']);
-        const { stderr, failed } = await (runReleaseCommand([command]).catch(e => e));
+        const { stderr, failed } = await runReleaseCommand([command]).catch(
+          (e) => e
+        );
         expect(failed).to.be.true;
         expect(stderr).to.contain('You have untracked or staged changes');
       });
 
-      it('works with committed files', async function() {
+      it('works with committed files', async function () {
         fs.writeFileSync('README.md', '');
         await checkoutBranch('1.12-releases');
         await execa('git', ['add', '.']);
         await execa('git', ['commit', '-am', 'test']);
-        await runReleaseCommand([command], {input: 'N\n'});
+        await runReleaseCommand([command], { input: 'N\n' });
       });
 
-      it('asks for confirmation and skips if not confirmed', async function() {
-        expect(readPackageJsonVersion(
-          path.resolve(repoPath, './package.json')
-        )).to.equal('1.0.0');
+      it('asks for confirmation and skips if not confirmed', async function () {
+        expect(
+          readPackageJsonVersion(path.resolve(repoPath, './package.json'))
+        ).to.equal('1.0.0');
 
         await checkoutBranch('1.12-releases');
         const { stderr } = await runReleaseCommand([command], {
-          input: 'N\n'
+          input: 'N\n',
         });
 
         expect(stderr).to.contain(
-          `Are you sure you want to bump from 1.0.0 to ${expectedVersion} and release?`);
+          `Are you sure you want to bump from 1.0.0 to ${expectedVersion} and release?`
+        );
 
-        expect(readPackageJsonVersion(
-          path.resolve(repoPath, './package.json')
-        )).to.equal('1.0.0');
+        expect(
+          readPackageJsonVersion(path.resolve(repoPath, './package.json'))
+        ).to.equal('1.0.0');
       });
 
-      describe('from a release branch', function() {
+      describe('from a release branch', function () {
         let clonePath;
 
-        beforeEach(async function() {
+        beforeEach(async function () {
           await checkoutBranch('1.12-releases');
           await runReleaseCommand([command], {
             input: 'Y\n',
             stdout: 'inherit',
-            stderr: 'inherit'
+            stderr: 'inherit',
           });
 
           clonePath = path.resolve(tempDir, command);
-          await execa('git', ['clone', '--branch', MAIN_BRANCH, remote, clonePath]);
+          await execa('git', [
+            'clone',
+            '--branch',
+            MAIN_BRANCH,
+            remote,
+            clonePath,
+          ]);
         });
 
-        it(`does not affect ${MAIN_BRANCH}`, function() {
-          const version = readPackageJsonVersion(path.resolve(clonePath, 'package.json'));
+        it(`does not affect ${MAIN_BRANCH}`, function () {
+          const version = readPackageJsonVersion(
+            path.resolve(clonePath, 'package.json')
+          );
           expect(version).to.equal('1.0.0');
         });
 
-        it('bumps the package version', async function() {
-          await checkoutBranch('1.12-releases', {cwd: clonePath});
-          const version = readPackageJsonVersion(path.resolve(clonePath, 'package.json'));
+        it('bumps the package version', async function () {
+          await checkoutBranch('1.12-releases', { cwd: clonePath });
+          const version = readPackageJsonVersion(
+            path.resolve(clonePath, 'package.json')
+          );
           expect(version).to.equal(expectedVersion);
         });
 
-        it('pushes tags', async function() {
-          await checkoutBranch('1.12-releases', {cwd: clonePath});
+        it('pushes tags', async function () {
+          await checkoutBranch('1.12-releases', { cwd: clonePath });
           await execa('git', ['fetch', '--all', '--tags']);
 
-          const { stdout } = await execa('git', ['tag'], {cwd: clonePath});
+          const { stdout } = await execa('git', ['tag'], { cwd: clonePath });
           expect(stdout.split('\n')).to.deep.equal([`v${expectedVersion}`]);
         });
       });

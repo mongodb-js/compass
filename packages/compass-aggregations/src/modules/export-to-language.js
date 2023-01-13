@@ -1,8 +1,8 @@
-import { generatePipelineAsString } from './pipeline';
 import {
   localAppRegistryEmit,
   globalAppRegistryEmit
 } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
 
 /**
  * Action creator for export to language events.
@@ -10,12 +10,15 @@ import {
  * @returns {Function} The export to language function.
  */
 export const exportToLanguage = () => {
-  return (dispatch, getState) => {
-    const state = getState();
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const pipeline = getPipelineStringFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
     dispatch(
       localAppRegistryEmit(
         'open-aggregation-export-to-language',
-        generatePipelineAsString(state, state.pipeline.length)
+        pipeline
       )
     );
     dispatch(

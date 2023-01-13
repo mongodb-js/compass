@@ -121,7 +121,6 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
-          hadronReadOnly: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: true,
         });
@@ -136,7 +135,6 @@ describe('Schema Validation Store', function () {
         expect(store.getState().editMode).to.deep.equal({
           collectionReadOnly: false,
           collectionTimeSeries: false,
-          hadronReadOnly: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: false,
         });
@@ -302,27 +300,6 @@ describe('Schema Validation Store', function () {
           done();
         });
         store.dispatch(validationLevelChanged(validationLevel));
-      });
-    });
-
-    context('when running in a readonly context', function () {
-      beforeEach(function () {
-        process.env.HADRON_READONLY = 'true';
-        store = configureStore({
-          namespace: 'db.coll',
-          globalAppRegistry: globalAppRegistry,
-        });
-      });
-
-      afterEach(function () {
-        process.env.HADRON_READONLY = 'false';
-      });
-
-      it('sets hadronReadOnly property as true', function () {
-        expect(store.getState().editMode).to.have.property(
-          'hadronReadOnly',
-          true
-        );
       });
     });
   });

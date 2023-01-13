@@ -2,9 +2,10 @@ import toNS from 'mongodb-ns';
 import {
   globalAppRegistryEmit
 } from '@mongodb-js/mongodb-redux-common/app-registry';
-
-import { generateStage } from './stage';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
+
 const { track, debug } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
 
 /**
@@ -22,8 +23,11 @@ export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === ERROR_UPDATING_VIEW) {
     return action.error;
   }
-  if (action.type === DISMISS_VIEW_UPDATE_ERROR) {
-    return null;
+  if (
+    action.type === DISMISS_VIEW_UPDATE_ERROR ||
+    action.type === ConfirmNewPipelineActions.NewPipelineConfirmed
+  ) {
+    return INITIAL_STATE;
   }
   return state;
 }
@@ -55,13 +59,16 @@ export const dismissViewError = () => ({
  * @returns {Function} The function.
  */
 export const updateView = () => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
     dispatch(dismissViewError());
 
     const state = getState();
     const ds = state.dataService.dataService;
     const viewNamespace = state.editViewName;
-    const viewPipeline = state.pipeline.map((p) => (p.executor || generateStage(p)));
+    const viewPipeline = getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
     const options = {
       viewOn: toNS(state.namespace).collection,
       pipeline: viewPipeline
@@ -77,7 +84,10 @@ export const updateView = () => {
         }
 
         dispatch(globalAppRegistryEmit('refresh-data'));
-        track('View Updated', { num_stages: viewPipeline.length });
+        track('View Updated', {
+          num_stages: viewPipeline.length,
+          editor_view_type: mapPipelineModeToEditorViewType(state.pipelineBuilder.pipelineMode),
+        });
         dispatch(
           globalAppRegistryEmit(
             'compass:aggregations:update-view',

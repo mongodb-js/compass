@@ -27,13 +27,22 @@ export default function DatabaseCollectionFilter({
     [changeFilterRegex]
   );
 
+  const onSubmit = useCallback((evt) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+  }, []);
+
   return (
-    <TextInput
-      placeholder="Filter your data"
-      type="search"
-      aria-label="Databases and Collections filter"
-      onChange={onChange}
-      className={databaseCollectionsFilter}
-    />
+    <form noValidate onSubmit={onSubmit}>
+      <TextInput
+        data-testid="sidebar-filter-input"
+        placeholder="Search"
+        type="search"
+        aria-label="Databases and collections filter"
+        title="Databases and collections filter"
+        onChange={onChange}
+        className={databaseCollectionsFilter}
+      />
+    </form>
   );
 }

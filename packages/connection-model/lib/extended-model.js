@@ -12,9 +12,10 @@ const ExtendedConnection = Connection.extend(storageMixin, {
   namespace: 'Connections',
   storage: {
     backend:
+      // eslint-disable-next-line no-nested-ternary
       process.env.COMPASS_E2E_DISABLE_KEYCHAIN_USAGE === 'true'
-        ? 'disk'
-        : 'splice-disk-ipc',
+        ? 'disk' :
+        typeof window === 'undefined' ? 'splice-disk' : 'splice-disk-ipc',
     namespace: 'Connections',
     basepath,
     appName, // Not to be confused with `props.appname` that is being sent to driver

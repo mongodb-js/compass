@@ -2,41 +2,48 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import FocusTrap from 'focus-trap-react';
 
-import { Popover } from './leafygreen';
+import { Icon, IconButton, Popover } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
-import { uiColors } from '@leafygreen-ui/palette';
-import { transparentize } from 'polished';
-import { useTheme, Theme } from '../hooks/use-theme';
-import { gray8 } from '../compass-ui-colors';
+import { palette } from '@leafygreen-ui/palette';
+import { rgba } from 'polished';
+import { useDarkMode } from '../hooks/use-theme';
+import { useId } from '@react-aria/utils';
 
 const borderRadius = spacing[2];
 
 const contentContainerStyles = css({
   display: 'flex',
+  flexDirection: 'column',
   height: '100%',
   alignItems: 'center',
   borderRadius: borderRadius,
-  boxShadow: `0px 2px 4px -1px ${transparentize(0.85, uiColors.black)}`,
+  boxShadow: `0px 2px 4px -1px ${rgba(palette.black, 0.15)}`,
   border: `1px solid`,
   overflow: 'hidden',
   width: 'fit-content',
 });
 
 const contentContainerStylesLight = css({
-  borderColor: uiColors.gray.light2,
-  backgroundColor: gray8,
-  color: uiColors.gray.dark2,
+  borderColor: palette.gray.light2,
+  backgroundColor: palette.gray.light3,
+  color: palette.gray.dark2,
 });
 
 const contentContainerStylesDark = css({
-  borderColor: uiColors.gray.dark2,
-  backgroundColor: uiColors.gray.dark3,
-  color: uiColors.white,
+  borderColor: palette.gray.dark2,
+  backgroundColor: palette.gray.dark3,
+  color: palette.white,
+});
+
+const closeButtonStyles = css({
+  position: 'absolute',
+  top: spacing[2],
+  right: spacing[2],
 });
 
 type InteractivePopoverProps = {
   className: string;
-  children: (childrenProps: { onClose: () => void }) => React.ReactElement;
+  children: React.ReactElement;
   trigger: (triggerProps: {
     onClick: (event: React.MouseEvent | React.TouchEvent) => void;
     ref: React.RefObject<HTMLButtonElement>;
@@ -44,6 +51,10 @@ type InteractivePopoverProps = {
   }) => React.ReactElement;
   open: boolean;
   setOpen: (open: boolean) => void;
+  /**
+   * List of selector to consider contained elements to skip closing on click
+   */
+  containedElements?: string[];
 };
 
 function InteractivePopover({
@@ -52,9 +63,11 @@ function InteractivePopover({
   trigger,
   open,
   setOpen,
+  containedElements = [],
 }: InteractivePopoverProps): React.ReactElement {
-  const { theme } = useTheme();
+  const darkMode = useDarkMode();
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const popoverContentContainerRef = useRef<HTMLDivElement>(null);
 
   const onClose = useCallback(() => {
@@ -98,6 +111,16 @@ function InteractivePopover({
         return;
       }
 
+      if (
+        containedElements.some((selector) => {
+          return document
+            .querySelector(selector)
+            ?.contains(event.target as Node);
+        })
+      ) {
+        return;
+      }
+
       onClose();
     };
     window.addEventListener('mousedown', clickEventListener);
@@ -106,7 +129,7 @@ function InteractivePopover({
       window.removeEventListener('mousedown', clickEventListener);
       window.removeEventListener('touchstart', clickEventListener);
     };
-  }, [open, onClose]);
+  }, [open, onClose, containedElements]);
 
   const onPopoverKeyDown = useCallback(
     (evt: KeyboardEvent) => {
@@ -129,6 +152,8 @@ function InteractivePopover({
     };
   }, [onPopoverKeyDown, open]);
 
+  const closeButtonId = useId('close-button-id');
+
   return trigger({
     onClick: onClickTrigger,
     ref: triggerRef,
@@ -147,20 +172,31 @@ function InteractivePopover({
           <FocusTrap
             focusTrapOptions={{
               clickOutsideDeactivates: true,
+              // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
+              fallbackFocus: `#${closeButtonId}`,
             }}
           >
             <div
               className={cx(
                 contentContainerStyles,
-                theme === Theme.Dark
+                darkMode
                   ? contentContainerStylesDark
                   : contentContainerStylesLight
               )}
               ref={popoverContentContainerRef}
             >
-              {children({
-                onClose: onClose,
-              })}
+              {children}
+
+              <IconButton
+                className={closeButtonStyles}
+                data-testid="interactive-popover-close-button"
+                onClick={onClose}
+                aria-label="Close"
+                id={closeButtonId}
+                ref={closeButtonRef}
+              >
+                <Icon glyph="X" />
+              </IconButton>
             </div>
           </FocusTrap>
         )}

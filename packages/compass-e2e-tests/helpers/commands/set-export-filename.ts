@@ -20,8 +20,12 @@ export async function setExportFilename(
   }, filename);
 
   await browser.waitUntil(async () => {
-    const exportModalFileText = await browser.$(Selectors.ExportModalFileText);
-    const value = await exportModalFileText.getValue();
-    return value === filename;
+    const exportModalFileInput = await browser.$(
+      Selectors.ExportModalFileInput
+    );
+    const filenames: string = await exportModalFileInput.getAttribute(
+      'data-filenames'
+    );
+    return JSON.parse(filenames).includes(filename);
   });
 }

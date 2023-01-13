@@ -53,7 +53,6 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
     <div data-testid="collection-stats" className={collectionStatsStyles}>
       <Tooltip
         data-testid="collection-stats-tooltip"
-        darkMode
         align="left"
         justify="middle"
         delay={500}

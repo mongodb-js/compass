@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import mongodbns from 'mongodb-ns';
 
-import { Card, CardBody } from '../card';
-import styles from './list.module.less';
+import { spacing, css } from '@mongodb-js/compass-components';
 
-const factory = (ListItem, Saving) => {
+import { ZeroGraphic } from '../zero-graphic';
+
+const componentStyles = css({
+  overflowY: 'auto',
+  padding: spacing[3],
+  paddingTop: 0,
+});
+
+const factory = (ListItem) => {
   class List extends Component {
     static displayName = 'QueryHistoryList';
 
@@ -14,48 +20,21 @@ const factory = (ListItem, Saving) => {
       items: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
         .isRequired,
       actions: PropTypes.object.isRequired,
-      zeroStateTitle: PropTypes.string.isRequired,
       current: PropTypes.object,
       ns: PropTypes.object,
     };
 
     static defaultProps = {
       items: [],
-      zeroStateTitle: '',
       current: null,
       ns: mongodbns(''),
     };
 
-    renderSaving = () => {
-      const { current, actions } = this.props;
-
-      if (typeof Saving !== 'function' || current === null) {
-        return null;
-      }
-
-      return (
-        <Saving
-          key={0}
-          className={classnames(styles.item)}
-          model={current}
-          actions={actions}
-        />
-      );
-    };
-
     renderZeroState = (length) => {
-      const { current, zeroStateTitle } = this.props;
+      const { current } = this.props;
 
       if (length === 0 && current === null) {
-        return (
-          <Card>
-            <CardBody className={classnames(styles.zeroState)}>
-              <div className={classnames(styles['zeroState-title'])}>
-                {zeroStateTitle}
-              </div>
-            </CardBody>
-          </Card>
-        );
+        return <ZeroGraphic />;
       }
 
       return null;
@@ -67,19 +46,13 @@ const factory = (ListItem, Saving) => {
       const renderItems = items
         .filter((item) => item._ns === ns.ns)
         .map((item, index) => (
-          <ListItem
-            key={index + 1}
-            className={classnames(styles.item)}
-            model={item}
-            actions={actions}
-          />
+          <ListItem key={index + 1} model={item} actions={actions} />
         ));
 
       return (
-        <div className={classnames(styles.component)}>
-          {this.renderSaving()}
+        <div className={componentStyles}>
           {this.renderZeroState(renderItems.length)}
-          <ul className={classnames(styles.items)}>{renderItems}</ul>
+          <div>{renderItems}</div>
         </div>
       );
     }

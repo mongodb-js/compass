@@ -8,7 +8,7 @@ import {
   cx,
   Icon,
   spacing,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 
 const iconStyles = css({
@@ -41,7 +41,7 @@ function KMSProviderStatusIndicator<KMSProvider extends keyof KMSProviders>({
       <span title="Error">
         <Icon
           glyph="XWithCircle"
-          className={cx(css({ color: uiColors.red.base }), iconStyles)}
+          className={cx(css({ color: palette.red.base }), iconStyles)}
         />
       </span>
     );
@@ -56,7 +56,7 @@ function KMSProviderStatusIndicator<KMSProvider extends keyof KMSProviders>({
       <span title="Fully configured">
         <Icon
           glyph="CheckmarkWithCircle"
-          className={cx(css({ color: uiColors.green.base }), iconStyles)}
+          className={cx(css({ color: palette.green.dark1 }), iconStyles)}
         />
       </span>
     );

@@ -15,6 +15,7 @@ const renderIndexes = (
       isWritable={true}
       isReadonly={false}
       isReadonlyView={false}
+      readOnly={false}
       description={undefined}
       error={null}
       localAppRegistry={appRegistry}
@@ -38,6 +39,26 @@ describe('Indexes Component', function () {
 
   it('renders indexes toolbar', function () {
     renderIndexes();
+    expect(screen.getByTestId('indexes-toolbar')).to.exist;
+  });
+
+  it('does not render indexes toolbar when its a readonly view', function () {
+    renderIndexes({
+      indexes: [],
+      isReadonlyView: true,
+      error: undefined,
+    });
+    expect(() => {
+      screen.getByTestId('indexes-toolbar');
+    }).to.throw;
+  });
+
+  it('renders indexes toolbar when there is an error', function () {
+    renderIndexes({
+      indexes: [],
+      isReadonlyView: false,
+      error: 'Some random error',
+    });
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
   });
 
@@ -67,6 +88,7 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: '_id_',
           size: 12,
@@ -100,6 +122,7 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: '_id_',
           size: 12,
@@ -120,6 +143,7 @@ describe('Indexes Component', function () {
           usageCount: 20,
         },
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: 'item',
           size: 0,
@@ -152,7 +176,7 @@ describe('Indexes Component', function () {
       'index-property-field'
     );
 
-    expect(indexPropertyField).to.contain.text('In Progress...');
+    expect(indexPropertyField).to.contain.text('In Progress ...');
 
     const dropIndexButton = within(inProgressIndex).queryByTestId(
       'index-actions-delete-action'
@@ -164,6 +188,7 @@ describe('Indexes Component', function () {
     renderIndexes({
       indexes: [
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: '_id_',
           size: 12,
@@ -184,6 +209,7 @@ describe('Indexes Component', function () {
           usageCount: 20,
         },
         {
+          ns: 'db.coll',
           cardinality: 'single',
           name: 'item',
           size: 0,

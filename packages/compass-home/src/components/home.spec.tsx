@@ -62,13 +62,13 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" />
+          <Home appName="home-testing" showWelcomeModal={false} />
         </AppRegistryContext.Provider>
       );
     });
 
     it('renders the connect screen', function () {
-      expect(screen.getByTestId('connections-disconnected')).to.be.visible;
+      expect(screen.getByTestId('connections-wrapper')).to.be.visible;
     });
 
     it('does not render the sidebar', function () {
@@ -83,15 +83,18 @@ describe('Home [Component]', function () {
     ) {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" />
+          <Home appName="home-testing" showWelcomeModal={false} />
         </AppRegistryContext.Provider>
       );
       testAppRegistry.emit('data-service-connected', null, dataService, {
         connectionOptions,
       });
-      await waitFor(
-        () =>
-          expect(screen.queryByTestId('connections-disconnected')).to.not.exist
+      await waitFor(() =>
+        expect(
+          screen
+            .queryAllByTestId('home-view')
+            .map((el) => el.getAttribute('data-hidden'))
+        ).to.include('true')
       );
     }
 
@@ -142,8 +145,7 @@ describe('Home [Component]', function () {
         });
 
         it('renders the new connect form', function () {
-          expect(screen.queryByTestId('connections-disconnected')).to.be
-            .visible;
+          expect(screen.queryByTestId('connections-wrapper')).to.be.visible;
         });
 
         it('calls to disconnect the data service', function () {
@@ -157,7 +159,7 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" />
+          <Home appName="home-testing" showWelcomeModal={false} />
         </AppRegistryContext.Provider>
       );
     });
@@ -171,8 +173,6 @@ describe('Home [Component]', function () {
         'open-instance-workspace',
         'open-namespace-in-new-tab',
         'all-collection-tabs-closed',
-        'darkmode-enable',
-        'darkmode-disable',
       ];
 
       events.forEach((name) => {
@@ -185,7 +185,7 @@ describe('Home [Component]', function () {
     beforeEach(function () {
       const { unmount } = render(
         <AppRegistryContext.Provider value={testAppRegistry}>
-          <Home appName="home-testing" />
+          <Home appName="home-testing" showWelcomeModal={false} />
         </AppRegistryContext.Provider>
       );
       unmount();

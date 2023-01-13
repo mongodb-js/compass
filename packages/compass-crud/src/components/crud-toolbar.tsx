@@ -9,10 +9,11 @@ import {
   SegmentedControl,
   SegmentedControlOption,
   SpinLoader,
-  Toolbar,
   css,
   spacing,
   useId,
+  WarningSummary,
+  ErrorSummary,
 } from '@mongodb-js/compass-components';
 
 import { AddDataMenu } from './add-data-menu';
@@ -55,10 +56,34 @@ const exportCollectionButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
-type CrudToolbarProps = {
+const OUTDATED_WARNING = `The content is outdated and no longer in sync
+with the current query. Press "Find" again to see the results for
+the current query.`;
+
+// From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L86
+const ERROR_CODE_OPERATION_TIMED_OUT = 50;
+
+const INCREASE_MAX_TIME_MS_HINT =
+  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
+
+type ErrorWithPossibleCode = Error & {
+  code?: {
+    value: number;
+  };
+};
+
+function isOperationTimedOutError(err: ErrorWithPossibleCode) {
+  return (
+    err.name === 'MongoServerError' &&
+    err.code?.value === ERROR_CODE_OPERATION_TIMED_OUT
+  );
+}
+
+export type CrudToolbarProps = {
   activeDocumentView: string;
   count?: number;
   end: number;
+  error?: ErrorWithPossibleCode | null;
   getPage: (page: number) => void;
   insertDataHandler: (openInsertKey: 'insert-document' | 'import-file') => void;
   instanceDescription: string;
@@ -69,6 +94,7 @@ type CrudToolbarProps = {
   onApplyClicked: () => void;
   onResetClicked: () => void;
   openExportFileDialog: () => void;
+  outdated: boolean;
   page: number;
   readonly: boolean;
   refreshDocuments: () => void;
@@ -81,6 +107,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   activeDocumentView,
   count,
   end,
+  error,
   getPage,
   insertDataHandler,
   instanceDescription,
@@ -91,6 +118,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   onApplyClicked,
   onResetClicked,
   openExportFileDialog,
+  outdated,
   page,
   readonly,
   refreshDocuments,
@@ -127,12 +155,14 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const controlId = useId();
   const prevButtonDisabled = useMemo(() => page === 0, [page]);
   const nextButtonDisabled = useMemo(
-    () => (count ? 20 * (page + 1) >= count : true),
+    // If we don't know the count, we can't know if there are more pages.
+    () =>
+      count === undefined || count === null ? false : 20 * (page + 1) >= count,
     [count, page]
   );
 
   return (
-    <Toolbar className={crudToolbarStyles}>
+    <div className={crudToolbarStyles}>
       <div className={crudQueryBarStyles}>
         {isExportable && QueryBarComponent && (
           <QueryBarComponent
@@ -166,7 +196,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         </div>
         <div className={toolbarRightActionStyles}>
           <Body data-testid="crud-document-count-display">
-            {start} - {end} of {displayedDocumentCount}
+            {start} – {end}{' '}
+            {displayedDocumentCount && `of ${displayedDocumentCount}`}
           </Body>
           {loadingCount && (
             <SpinLoader size="12px" title="Fetching document count…" />
@@ -216,27 +247,40 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               data-testid="toolbar-view-list"
               aria-label="Document list"
               value="List"
-            >
-              <Icon glyph="Menu" />
-            </SegmentedControlOption>
+              glyph={<Icon glyph="Menu" />}
+            ></SegmentedControlOption>
             <SegmentedControlOption
               data-testid="toolbar-view-json"
               aria-label="E-JSON View"
               value="JSON"
-            >
-              <Icon glyph="CurlyBraces" />
-            </SegmentedControlOption>
+              glyph={<Icon glyph="CurlyBraces" />}
+            ></SegmentedControlOption>
             <SegmentedControlOption
               data-testid="toolbar-view-table"
               aria-label="Table View"
               value="Table"
-            >
-              <Icon glyph="Table" />
-            </SegmentedControlOption>
+              glyph={<Icon glyph="Table" />}
+            ></SegmentedControlOption>
           </SegmentedControl>
         </div>
       </div>
-    </Toolbar>
+      {error && (
+        <ErrorSummary
+          data-testid="document-list-error-summary"
+          errors={
+            isOperationTimedOutError(error)
+              ? INCREASE_MAX_TIME_MS_HINT
+              : error.message
+          }
+        />
+      )}
+      {outdated && !error && (
+        <WarningSummary
+          data-testid="crud-outdated-message-id"
+          warnings={[OUTDATED_WARNING]}
+        />
+      )}
+    </div>
   );
 };
 

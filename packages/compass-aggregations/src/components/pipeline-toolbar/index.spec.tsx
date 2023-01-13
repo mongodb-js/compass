@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { expect } from 'chai';
@@ -12,9 +12,13 @@ describe('PipelineToolbar', function () {
     let toolbar: HTMLElement;
     beforeEach(function () {
       render(
-        <Provider store={configureStore({})}>
+        <Provider
+          store={configureStore({ sourcePipeline: [{ $match: { _id: 1 } }] })}
+        >
           <PipelineToolbar
-            isSettingsVisible
+            onChangePipelineOutputOption={() => {}}
+            pipelineOutputOption="collapse"
+            isBuilderView
             showExportButton
             showRunButton
             showExplainButton
@@ -23,6 +27,8 @@ describe('PipelineToolbar', function () {
       );
       toolbar = screen.getByTestId('pipeline-toolbar');
     });
+
+    afterEach(cleanup);
 
     it('renders toolbar', function () {
       expect(toolbar, 'should render toolbar').to.exist;
@@ -83,12 +89,14 @@ describe('PipelineToolbar', function () {
         'shows untitled as default name'
       ).to.equal('untitled');
 
-      expect(within(settings).getByTestId('save-menu'), 'shows save menu').to
-        .exist;
+      expect(
+        within(settings).getByTestId('save-menu-show-actions'),
+        'shows save menu'
+      ).to.exist;
 
       expect(
-        within(settings).getByTestId('create-new-menu'),
-        'shows create-new menu'
+        within(settings).getByTestId('pipeline-toolbar-create-new-button'),
+        'shows create-new button'
       ).to.exist;
       expect(
         within(settings).getByTestId('pipeline-toolbar-export-button'),
@@ -108,22 +116,11 @@ describe('PipelineToolbar', function () {
     it('renders menus', function () {
       const settings = within(toolbar).getByTestId('pipeline-settings');
 
-      userEvent.click(within(settings).getByTestId('save-menu'));
-      const saveMenuContent = screen.getByTestId('save-menu-content');
+      userEvent.click(within(settings).getByTestId('save-menu-show-actions'));
+      const saveMenuContent = screen.getByTestId('save-menu');
       expect(saveMenuContent.childNodes[0].textContent).to.equal('Save');
       expect(saveMenuContent.childNodes[1].textContent).to.equal('Save as');
       expect(saveMenuContent.childNodes[2].textContent).to.equal('Create view');
-
-      userEvent.click(within(settings).getByTestId('create-new-menu'));
-      const createNewMenuContent = screen.getByTestId(
-        'create-new-menu-content'
-      );
-      expect(createNewMenuContent.childNodes[0].textContent).to.equal(
-        'Pipeline'
-      );
-      expect(createNewMenuContent.childNodes[1].textContent).to.equal(
-        'Pipeline from text'
-      );
     });
   });
 
@@ -132,7 +129,9 @@ describe('PipelineToolbar', function () {
       render(
         <Provider store={configureStore({})}>
           <PipelineToolbar
-            isSettingsVisible={false}
+            onChangePipelineOutputOption={() => {}}
+            pipelineOutputOption="collapse"
+            isBuilderView
             showExplainButton
             showExportButton
             showRunButton

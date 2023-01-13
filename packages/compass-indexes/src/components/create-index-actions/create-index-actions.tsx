@@ -1,18 +1,22 @@
 import React from 'react';
 import { css, Banner, spacing, Button } from '@mongodb-js/compass-components';
 
+const containerStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  width: '100%',
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  gap: spacing[2],
+});
+
 const bannerStyles = css({
-  margin: `${spacing[3]}px 0`,
+  flexGrow: 1,
+  width: '100%',
 });
 
 const createIndexButtonStyles = css({
-  marginLeft: spacing[2],
-});
-
-const modalFooterActionsStyles = css({
-  display: 'flex',
-  justifyContent: 'flex-end',
-  gap: spacing[2],
+  flex: 'none',
 });
 
 /**
@@ -37,13 +41,11 @@ function CreateIndexActions({
     }
 
     return (
-      <div data-testid="create-index-actions-error-banner-wrapper">
-        <Banner
-          className={bannerStyles}
-          variant="danger"
-          dismissible
-          onClose={clearError}
-        >
+      <div
+        data-testid="create-index-actions-error-banner-wrapper"
+        className={bannerStyles}
+      >
+        <Banner variant="danger" dismissible onClose={clearError}>
           {error}
         </Banner>
       </div>
@@ -56,8 +58,11 @@ function CreateIndexActions({
     }
 
     return (
-      <div data-testid="create-index-actions-in-progress-banner-wrapper">
-        <Banner className={bannerStyles} variant="info">
+      <div
+        data-testid="create-index-actions-in-progress-banner-wrapper"
+        className={bannerStyles}
+      >
+        <Banner variant="info">
           Index creation in progress. The dialog can be closed.
         </Banner>
       </div>
@@ -73,30 +78,27 @@ function CreateIndexActions({
   };
 
   return (
-    <>
-      <div>
-        {renderError()}
-        {renderInProgress()}
-      </div>
-      <div className={modalFooterActionsStyles}>
+    <div className={containerStyles}>
+      {renderError()}
+      {renderInProgress()}
+
+      <Button
+        data-testid="create-index-actions-cancel-button"
+        onClick={onCancel}
+      >
+        {inProgress ? 'Close' : 'Cancel'}
+      </Button>
+      {!inProgress && (
         <Button
-          data-testid="create-index-actions-cancel-button"
-          onClick={onCancel}
+          data-testid="create-index-actions-create-index-button"
+          onClick={onConfirm}
+          variant="primary"
+          className={createIndexButtonStyles}
         >
-          {inProgress ? 'Close' : 'Cancel'}
+          Create Index
         </Button>
-        {!inProgress && (
-          <Button
-            data-testid="create-index-actions-create-index-button"
-            onClick={onConfirm}
-            variant="primary"
-            className={createIndexButtonStyles}
-          >
-            Create Index
-          </Button>
-        )}
-      </div>
-    </>
+      )}
+    </div>
   );
 }
 

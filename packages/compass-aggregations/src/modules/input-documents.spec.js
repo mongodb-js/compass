@@ -73,7 +73,7 @@ describe('input documents module', function() {
           documents: [],
           error: null,
           isExpanded: true,
-          count: 0,
+          count: null,
           isLoading: false
         });
       });
@@ -85,7 +85,7 @@ describe('input documents module', function() {
           documents: [],
           error: null,
           isExpanded: false,
-          count: 0,
+          count: null,
           isLoading: false
         });
       });

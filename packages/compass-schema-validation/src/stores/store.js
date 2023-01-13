@@ -58,25 +58,29 @@ const configureStore = (options = {}) => {
     store.dispatch(globalAppRegistryActivated(globalAppRegistry));
 
     const instanceStore = globalAppRegistry.getStore('App.InstanceStore');
-    const instance = instanceStore.getState().instance;
+    const { instance } = instanceStore.getState();
 
-    const changeEditMode = () => {
-      const editMode = {
-        collectionTimeSeries: !!options.isTimeSeries,
-        collectionReadOnly: options.isReadonly ? true : false,
-        hadronReadOnly: process.env.HADRON_READONLY === 'true',
-        writeStateStoreReadOnly: !instance.isWritable,
-        oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
-      };
-      store.dispatch(editModeChanged(editMode));
+    const setEditMode = () => {
+      store.dispatch(
+        editModeChanged({
+          collectionTimeSeries: !!options.isTimeSeries,
+          collectionReadOnly: options.isReadonly ? true : false,
+          writeStateStoreReadOnly: !instance.isWritable,
+          oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
+        })
+      );
     };
 
     // set the initial value
-    changeEditMode();
+    setEditMode();
 
     // isWritable can change later
     instance.on('change:isWritable', () => {
-      changeEditMode();
+      store.dispatch(
+        editModeChanged({
+          writeStateStoreReadOnly: !instance.isWritable,
+        })
+      );
     });
 
     store.dispatch(serverVersionChanged(instance.build.version));

@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-settings",
-  "description": "settings for compass",
+  "description": "Settings for compass",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -24,6 +24,7 @@
   "license": "SSPL",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
+  "types": "dist/index.d.ts",
   "exports": {
     "require": "./dist/index.js",
     "browser": "./dist/browser.js"
@@ -32,10 +33,12 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "bootstrap": "npm run postcompile",
     "prepublishOnly": "npm run compile",
     "compile": "npm run webpack -- --mode production",
     "prewebpack": "rimraf ./dist",
     "webpack": "webpack-compass",
+    "postcompile": "tsc --emitDeclarationOnly",
     "start": "npm run webpack serve -- --mode development",
     "analyze": "npm run webpack -- --mode production --analyze",
     "typecheck": "tsc --noEmit",
@@ -54,27 +57,26 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.0.0",
-    "@mongodb-js/compass-logging": "^1.0.0",
-    "@mongodb-js/compass-utils": "^0.1.0",
-    "compass-preferences-model": "^2.0.0",
-    "hadron-ipc": "^3.0.0",
-    "react": "^16.14.0",
-    "react-dom": "^16.14.0",
-    "react-redux": "^5.1.2",
+    "@mongodb-js/compass-components": "^1.4.0",
+    "@mongodb-js/compass-logging": "^1.1.1",
+    "compass-preferences-model": "^2.4.0",
+    "hadron-ipc": "^3.1.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^8.0.5",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.1"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.0.0",
-    "@mongodb-js/mocha-config-compass": "^1.0.0",
+    "@mongodb-js/eslint-config-compass": "^1.0.1",
+    "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",
-    "@mongodb-js/tsconfig-compass": "^1.0.0",
-    "@mongodb-js/webpack-config-compass": "^1.0.0",
+    "@mongodb-js/tsconfig-compass": "^1.0.1",
+    "@mongodb-js/webpack-config-compass": "^1.0.4",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
     "@types/chai": "^4.2.21",

@@ -1,3 +1,7 @@
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import { localAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+
 export const SAVING_PIPELINE_NAME_CHANGED = 'aggregations/saving-pipeline/NAME_CHANGED';
 
 export const SAVING_PIPELINE_APPLY = 'aggregations/saving-pipeline/APPLY';
@@ -47,6 +51,11 @@ export default function reducer(state = INITIAL_STATE, action) {
       isOpen: false
     };
   }
+
+  if (action.type === SAVING_PIPELINE_APPLY || action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
+    return { ...INITIAL_STATE };
+  }
+
   return state;
 }
 
@@ -66,12 +75,19 @@ export const savingPipelineNameChanged = (name) => ({
 /**
  * Action creator for apply name events handled in root reducer.
  *
- * @param {String} name - The name value.
  * @returns {Object} The apply name action.
  */
-export const savingPipelineApply = () => ({
-  type: SAVING_PIPELINE_APPLY
-});
+export const savingPipelineApply = () => (dispatch, getState) => {
+  const {
+    name: currentName,
+    savingPipeline: { name }
+  } = getState();
+
+  dispatch({
+    type: SAVING_PIPELINE_APPLY,
+    name: currentName === name ? `${name} (copy)` : name
+  });
+};
 
 /**
  * Action creator for cancel events.
@@ -91,5 +107,29 @@ export const savingPipelineOpen = ({name = '', isSaveAs = false} = {}) => {
     type: SAVING_PIPELINE_OPEN,
     isSaveAs: isSaveAs,
     name: name
+  };
+};
+
+/**
+ * Open create view.
+ *
+ * @emits open-create-view {meta: {source, pipeline}}
+ * @see create-view src/stores/create-view.js
+ */
+export const openCreateView = () => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const state = getState();
+    const sourceNs = state.namespace;
+    const sourcePipeline = getPipelineFromBuilderState(
+      getState(),
+      pipelineBuilder
+    );
+
+    const meta = {
+      source: sourceNs,
+      pipeline: sourcePipeline
+    };
+
+    dispatch(localAppRegistryEmit('open-create-view', meta));
   };
 };

@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import {
+  FormFieldContainer,
   InlineInfoLink,
   Label,
   RadioBox,
@@ -12,7 +13,6 @@ import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import { AuthMechanism } from 'mongodb';
 
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-import FormFieldContainer from '../../form-field-container';
 import type { ConnectionFormError } from '../../../utils/validation';
 import { errorMessageByFieldName } from '../../../utils/validation';
 import {

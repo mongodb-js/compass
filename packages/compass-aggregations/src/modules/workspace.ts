@@ -1,10 +1,8 @@
-import type { Reducer } from 'redux';
-
+import type { AnyAction, Reducer } from 'redux';
 import { ActionTypes as AggregationActionTypes, cancelAggregation } from './aggregation';
-import type { Actions as AggregationActions } from './aggregation';
-import type { ThunkAction } from 'redux-thunk';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { cancelCount } from './count-documents';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
 
 export type Workspace = 'builder' | 'results';
 
@@ -22,27 +20,26 @@ export type State = Workspace;
 
 export const INITIAL_STATE: State = 'builder';
 
-const reducer: Reducer<State, Actions | AggregationActions> = (state = INITIAL_STATE, action) => {
+const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case ActionTypes.WorkspaceChanged:
       return action.view;
-    case AggregationActionTypes.AggregationStarted:
+    case AggregationActionTypes.RunAggregation:
       return 'results';
+    case ConfirmNewPipelineActions.NewPipelineConfirmed:
+      return INITIAL_STATE;
     default:
       return state;
   }
 };
 
-export const changeWorkspace = (view: Workspace): ThunkAction<void, RootState, void, Actions> => {
+export const editPipeline = (): PipelineBuilderThunkAction<void> => {
   return (dispatch) => {
-    // As user switches to builder view, we cancel running ops
-    if (view === 'builder') {
-      dispatch(cancelAggregation());
-      dispatch(cancelCount());
-    }
+    dispatch(cancelAggregation());
+    dispatch(cancelCount());
     dispatch({
       type: ActionTypes.WorkspaceChanged,
-      view,
+      view: 'builder',
     });
   };
 };

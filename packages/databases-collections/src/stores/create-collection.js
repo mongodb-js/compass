@@ -1,7 +1,10 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
-import { dataServiceConnected, dataServiceUpdated } from '../modules/data-service';
+import {
+  dataServiceConnected,
+  dataServiceUpdated,
+} from '../modules/data-service';
 import { serverVersionChanged } from '../modules/server-version';
 import reducer, { open } from '../modules/create-collection';
 

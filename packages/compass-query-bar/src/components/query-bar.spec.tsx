@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -40,15 +40,18 @@ const exportToLanguageButtonId = 'query-bar-open-export-to-language-button';
 const queryHistoryButtonId = 'query-history-button';
 const queryHistoryComponentTestId = 'query-history-component-test-id';
 
+const QueryHistoryMockComponent = () => (
+  <div data-testid={queryHistoryComponentTestId}>
+    <div>Query history</div>
+    <button type="button" onClick={() => {}}>
+      Button
+    </button>
+  </div>
+);
 const mockQueryHistoryRole = {
   name: 'Query History',
   // eslint-disable-next-line react/display-name
-  component: () => (
-    <div data-testid={queryHistoryComponentTestId}>
-      <div>Query history</div>
-      <button onClick={() => {}}>Button</button>
-    </div>
-  ),
+  component: QueryHistoryMockComponent,
   configureStore: () => ({}),
   configureActions: () => {},
   storeName: 'Query.History',
@@ -111,6 +114,7 @@ describe('QueryBar Component', function () {
     onOpenExportToLanguageSpy = sinon.spy();
     toggleExpandQueryOptionsSpy = sinon.spy();
   });
+  afterEach(cleanup);
 
   describe('when rendered', function () {
     beforeEach(function () {
@@ -190,7 +194,7 @@ describe('QueryBar Component', function () {
   describe('with one query option', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptions: ['project'],
+        queryOptionsLayout: ['project'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
@@ -207,7 +211,7 @@ describe('QueryBar Component', function () {
   describe('with two query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptions: ['project', 'sort'],
+        queryOptionsLayout: ['project', 'sort'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
@@ -252,7 +256,7 @@ describe('QueryBar Component', function () {
   describe('with three query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptions: ['project', 'sort', 'collation'],
+        queryOptionsLayout: ['project', 'sort', 'collation'],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
@@ -269,7 +273,7 @@ describe('QueryBar Component', function () {
   describe('with four query options', function () {
     beforeEach(function () {
       renderQueryBar({
-        queryOptions: ['project', 'sort', 'collation', 'limit'],
+        queryOptionsLayout: ['project', 'sort', ['collation', 'limit']],
         expanded: true,
         onApply: onApplySpy,
         onReset: onResetSpy,
@@ -302,7 +306,7 @@ describe('QueryBar Component', function () {
       renderQueryBar();
     });
 
-    it('should allow tabbing through the input to the apply button COMPASS-4900', function () {
+    it('should not allow tabbing through the input to the apply button', function () {
       const queryHistoryButton = screen.getByTestId(queryHistoryButtonId);
       const applyButton = screen.getByTestId('query-bar-apply-filter-button');
 
@@ -311,9 +315,9 @@ describe('QueryBar Component', function () {
       userEvent.tab();
       userEvent.tab();
 
-      expect(applyButton.ownerDocument.activeElement === applyButton).to.equal(
-        true
-      );
+      expect(
+        applyButton.ownerDocument.activeElement === screen.getByRole('textbox')
+      ).to.equal(true);
     });
   });
 });

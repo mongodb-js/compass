@@ -38,8 +38,8 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): State
 }
 
 /**
- * Action creator for data service connected events.
- *
+ * Action creator for data service connected events. Only used by duplicate-view
+ * store
  */
 export const dataServiceConnected = (error: Error, dataService: DataService): AnyAction => ({
   type: DATA_SERVICE_CONNECTED,

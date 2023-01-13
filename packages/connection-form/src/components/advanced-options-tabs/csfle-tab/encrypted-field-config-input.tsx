@@ -4,15 +4,15 @@ import {
   encryptedFieldConfigToText,
   textToEncryptedFieldConfig,
 } from '../../../utils/csfle-handler';
-import FormFieldContainer from '../../form-field-container';
 import {
-  Editor,
+  FormFieldContainer,
   Label,
   Banner,
   Description,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
+import { Editor } from '@mongodb-js/compass-editor';
 
 const errorContainerStyles = css({
   padding: spacing[3],
@@ -35,6 +35,8 @@ const ENCRYPTED_FIELDS_MAP_PLACEHOLDER = `{
  */
 }
 `;
+
+const encryptedFieldsMapEditorId = 'encrypted-fields-map-editor-id';
 
 function EncryptedFieldConfigInput({
   encryptedFieldsMap,
@@ -60,11 +62,12 @@ function EncryptedFieldConfigInput({
   return (
     <div data-testid="connection-csfle-encrypted-fields-map">
       <FormFieldContainer>
-        <Label htmlFor="TODO(COMPASS-5653)">{label}</Label>
+        <Label htmlFor={encryptedFieldsMapEditorId}>{label}</Label>
         <Description>{description}</Description>
         <Editor
           data-testid="encrypted-fields-map-editor"
           variant="Shell"
+          id={encryptedFieldsMapEditorId}
           text={encryptedFieldConfigToText(encryptedFieldsMap)}
           onChangeText={(newText) => {
             setHasEditedContent(true);

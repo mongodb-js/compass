@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-  Editor,
-  EditorVariant,
-  CollapsibleFieldSet,
-} from '@mongodb-js/compass-components';
+import { CollapsibleFieldSet } from '@mongodb-js/compass-components';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 type WildcardProjection = {
   useWildcardProjection: boolean;
@@ -23,7 +20,7 @@ const WildcardProjectionCollapsibleFieldSet = ({
       toggled={useWildcardProjection}
       onToggle={toggleUseWildcardProjection}
       label="Wildcard Projection"
-      dataTestId="create-index-modal-use-wildcard-checkbox"
+      data-testid="create-index-modal-use-wildcard"
       description="Wildcard indexes support queries against unknown or arbitrary fields."
     >
       <Editor

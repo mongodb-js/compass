@@ -1,9 +1,10 @@
 runner: !!js/function >
-    (it, expect, input, output, transpiler, test) => {
+    (it, type, expect, input, output, transpiler, test) => {
         it(`correct ${output} imports from ${input}`, () => {
             transpiler[input][output].compile(test.input[input], true, false);
+            const mode = type === 'query' ? 'Query' : 'Pipeline';
             expect(
-                transpiler[input][output].getImports()
+                transpiler[input][output].getImports(mode)
             ).to.equal(test.output[output]);
         });
     }

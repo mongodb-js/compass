@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  css,
-  cx,
-  spacing,
-  uiColors,
-  focusRing,
-} from '@mongodb-js/compass-components';
+import { css, cx, spacing, palette } from '@mongodb-js/compass-components';
 
 const buttonStyles = css({
   borderRadius: spacing[1],
@@ -16,16 +10,23 @@ const buttonStyles = css({
   width: '100%',
   padding: spacing[2],
   textAlign: 'left',
+  fontWeight: 500,
 });
 
 const hoverStyles = css({
-  '&:hover': {
-    backgroundColor: uiColors.green.light2,
+  '&:hover,&:focus': {
+    backgroundColor: palette.green.light2,
+    color: palette.gray.dark3,
   },
 });
 
 const activeStyles = css({
-  backgroundColor: uiColors.green.light3,
+  backgroundColor: palette.green.light3,
+  color: palette.gray.dark3,
+  '&:active,&:focus': {
+    backgroundColor: palette.green.light3,
+    color: palette.gray.dark3,
+  },
 });
 
 type SidebarProps = {
@@ -43,16 +44,16 @@ const SettingsSideNav: React.FunctionComponent<SidebarProps> = ({
     <div
       data-testid="settings-modal-sidebar"
       role="tablist"
-      aria-labelledby="settings-tablist"
+      aria-labelledby="modal-title"
     >
       {items.map((item) => (
         <button
-          key={item}
           type="button"
+          key={item}
           role="tab"
           aria-controls={`${item} Section`}
           aria-selected={activeItem === item}
-          className={cx(buttonStyles, focusRing, {
+          className={cx(buttonStyles, {
             [hoverStyles]: item !== activeItem,
             [activeStyles]: item === activeItem,
           })}

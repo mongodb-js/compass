@@ -7,6 +7,17 @@ import {
 } from './update-view';
 
 describe('large-limit module', function() {
+  const thunkArg = {
+    pipelineBuilder: {
+      getPipelineFromStages() {
+        return [{ $project: { _id: 0, avg_price: { $avg: '$price' } } }];
+      },
+      getPipelineFromSource() {
+        return [{ $project: { _id: 0, avg_price: { $avg: '$price' } } }];
+      }
+    }
+  }
+
   describe('#updateView', function() {
     let dispatchFake = sinon.fake();
     let stateMock;
@@ -17,16 +28,9 @@ describe('large-limit module', function() {
       dispatchFake = sinon.fake();
       updateCollectionFake = sinon.fake.yields(null);
       stateMock = {
+        pipelineBuilder: {pipelineMode: 'builder-ui'},
         namespace: 'aa.bb',
         editViewName: 'aa.bb',
-        pipeline: [{
-          id: 0,
-          isEnabled: true,
-          isExpanded: true,
-          isValid: true,
-          stageOperator: '$project',
-          stage: '{_id: 0, avg_price: {$avg: "$price"}}'
-        }],
         dataService: {
           dataService: {
             updateCollection: updateCollectionFake
@@ -36,7 +40,7 @@ describe('large-limit module', function() {
       getStateMock = () => stateMock;
 
       const runUpdateView = updateView();
-      runUpdateView(dispatchFake, getStateMock);
+      runUpdateView(dispatchFake, getStateMock, thunkArg);
     });
 
     it('first it calls to dismiss any existing error', function() {
@@ -76,7 +80,7 @@ describe('large-limit module', function() {
         };
         getStateMock = () => stateMock;
         const runUpdateView = updateView();
-        runUpdateView(dispatchFake, getStateMock);
+        runUpdateView(dispatchFake, getStateMock, thunkArg);
       });
 
       it('dispatches the updateViewErrorOccured action with an error', function() {

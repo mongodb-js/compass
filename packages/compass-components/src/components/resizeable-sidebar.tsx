@@ -1,61 +1,59 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import {
-  ResizeHandle,
-  ResizeDirection,
-  useTheme,
-  Theme,
-  css,
-  cx,
-} from '../index';
 
-import { uiColors } from '@leafygreen-ui/palette';
+import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
+import { css, cx } from '@leafygreen-ui/emotion';
+import { useDarkMode } from '../hooks/use-theme';
+import { ResizeDirection, ResizeHandle } from './resize-handle';
 
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   margin: 0,
   padding: 0,
-  maxWidth: '80%',
   height: '100%',
   position: 'relative',
 });
 
 const containerStylesDark = css({
-  '--color': 'white',
-  '--bg-color': uiColors.gray.dark3,
+  '--color': palette.white,
+  '--bg-color': palette.gray.dark3,
 
-  '--title-color': uiColors.gray.dark3,
-  '--title-bg-color': '#71F6BA', // TODO: there is no uiColors.green.light1,
+  '--title-color': palette.gray.dark3,
+  '--title-bg-color': palette.green.light1,
 
-  '--icon-color': 'white',
+  '--icon-color': palette.white,
 
-  '--item-color': 'white',
-  '--item-color-active': '#71F6BA', // TODO: there is no uiColors.green.light1
-  '--item-bg-color': uiColors.gray.dark3,
-  '--item-bg-color-active': uiColors.black,
+  '--item-color': palette.white,
+  '--item-color-active': palette.green.light1,
+  '--item-bg-color': palette.gray.dark3,
+  '--item-bg-color-hover': palette.gray.dark2,
+  '--item-bg-color-active': palette.black,
 
   color: 'var(--color)',
   backgroundColor: 'var(--bg-color)',
 });
 
 const containerStylesLight = css({
-  '--color': uiColors.gray.dark3,
-  '--bg-color': uiColors.gray.light3,
+  '--color': palette.gray.dark3,
+  '--bg-color': palette.gray.light3,
 
-  '--title-color': 'white',
-  '--title-bg-color': uiColors.green.dark2,
+  '--title-color': palette.white,
+  '--title-bg-color': palette.green.dark2,
 
-  '--icon-color': uiColors.gray.dark3,
+  '--icon-color': palette.gray.dark3,
 
-  '--item-color': uiColors.gray.dark3,
-  '--item-color-active': uiColors.green.dark2,
-  '--item-bg-color': uiColors.gray.light3,
-  '--item-bg-color-active': uiColors.green.light3,
+  '--item-color': palette.gray.dark3,
+  '--item-color-active': palette.green.dark2,
+  '--item-bg-color': palette.gray.light3,
+  '--item-bg-color-hover': palette.gray.light2,
+  '--item-bg-color-active': palette.green.light3,
 
   color: 'var(--color)',
   backgroundColor: 'var(--bg-color)',
 });
+
+export const defaultSidebarWidth = spacing[6] * 4;
 
 const ResizableSidebar = ({
   collapsable = false,
@@ -63,7 +61,7 @@ const ResizableSidebar = ({
   setExpanded = () => {
     return;
   },
-  initialWidth = spacing[6] * 4,
+  initialWidth = defaultSidebarWidth,
   minWidth = 210,
   collapsedWidth = 48,
   children,
@@ -76,11 +74,12 @@ const ResizableSidebar = ({
   collapsedWidth?: number;
   children: JSX.Element;
 }): JSX.Element => {
+  const darkMode = useDarkMode();
   const [width, setWidth] = useState(initialWidth);
   const [prevWidth, setPrevWidth] = useState(initialWidth);
 
   const getMaxSidebarWidth = useCallback(() => {
-    return Math.max(minWidth, window.innerWidth - 100);
+    return Math.max(minWidth, 600);
   }, [minWidth]);
 
   // Apply bounds to the sidebar width when resizing to ensure it's always
@@ -121,13 +120,11 @@ const ResizableSidebar = ({
     }
   }, [setWidth, prevWidth, expanded, width, collapsedWidth]);
 
-  const { theme } = useTheme();
-
   return (
     <div
       className={cx(
         containerStyles,
-        theme === Theme.Dark ? containerStylesDark : containerStylesLight
+        darkMode ? containerStylesDark : containerStylesLight
       )}
       style={{
         minWidth: collapsable ? collapsedWidth : minWidth,

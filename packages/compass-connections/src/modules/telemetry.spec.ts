@@ -8,8 +8,6 @@ import {
   trackConnectionFailedEvent,
 } from './telemetry';
 
-const initialHadronApp = (global as any).hadronApp;
-
 const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
   instance: () => {
     return Promise.resolve({
@@ -34,19 +32,23 @@ const dataService: Pick<DataService, 'instance' | 'currentTopologyType'> = {
 };
 
 describe('connection tracking', function () {
-  beforeEach(function () {
-    (global as any).hadronApp = { isFeatureEnabled: () => true };
+  before(function () {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('hadron-ipc').ipcRenderer.invoke('compass:save-preferences', {
+      trackUsageStatistics: true,
+    });
   });
 
-  afterEach(function () {
-    (global as any).hadronApp = initialHadronApp;
+  after(function () {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    require('hadron-ipc').ipcRenderer.invoke('test:clear-preferences');
   });
 
   it('tracks a new connection attempt event - favorite', async function () {
     const trackEvent = once(process, 'compass:track');
     trackConnectionAttemptEvent({
       favorite: { name: 'example' },
-      lastUsed: null,
+      lastUsed: undefined,
     });
     const [{ properties }] = await trackEvent;
 
@@ -282,7 +284,7 @@ describe('connection tracking', function () {
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
       connectionOptions: {
-        connectionString: 'mongodb://127.128.0.0',
+        connectionString: 'mongodb://notlocalhost',
       },
     };
 
@@ -547,7 +549,7 @@ describe('connection tracking', function () {
     const [{ properties }] = await trackEvent;
 
     const expected = {
-      is_localhost: false,
+      is_localhost: true,
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,

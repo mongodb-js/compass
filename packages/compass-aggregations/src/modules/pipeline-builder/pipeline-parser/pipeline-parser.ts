@@ -1,0 +1,257 @@
+import * as babelParser from '@babel/parser';
+import type * as t from '@babel/types';
+import type Stage from '../stage';
+import StageParser, {
+  stageToAstComments,
+  assertStageNode,
+  setNodeDisabled
+} from './stage-parser';
+import { generate } from './utils';
+import { PipelineParserError } from './utils';
+
+function commentsToCommentGroups(
+  comments: t.Comment[]
+): (t.CommentBlock | t.CommentLine[])[] {
+  const groups: (t.CommentBlock | t.CommentLine[])[] = [];
+  let i = 0;
+  for (const comment of comments) {
+    if (comment.type === 'CommentBlock') {
+      groups.push(comment);
+      i++;
+    } else {
+      groups[i] ??= [];
+      (groups[i] as t.CommentLine[]).push(comment);
+    }
+  }
+  return groups;
+}
+
+/**
+ * Parses comment blocks to stages with a few assumptions:
+ *
+ * - Sequential comment lines are parsed as one multiline
+ * - Stage always starts with a opening curly brace
+ * - Stage is a valid ObjectExpression (we can parse it as one)
+ * - Everything above a commented out stage that is not a stage is a comment
+ *   that belongs to the stage
+ */
+function extractStagesFromComments(
+  comments: t.Comment[]
+): [Set<t.Comment>, t.ObjectExpression[]] {
+  type Line = { value: string; node: t.Comment };
+  const stages: t.ObjectExpression[] = [];
+  const visitedComments = new Set<t.Comment>();
+  const groups = commentsToCommentGroups(comments);
+  for (const group of groups) {
+    const lines: Line[] = Array.isArray(group)
+      ? group.map((comment) => {
+        // Line comments usually have one space at the beginning, normalizing it
+        // here makes it easier to better format the code later
+        return { value: comment.value.replace(/^\s/, ''), node: comment };
+      })
+      : group.value.split('\n').map((line) => {
+        // Block comments usually have every line prepended by a *, we will
+        // try to account for that
+        return { value: line.replace(/^\s*\*/, ''), node: group };
+      });
+    const parser = new StageParser();
+    let seenComments: t.Comment[] = [];
+    for (const line of lines) {
+      seenComments.push(line.node);
+      const maybeStage = parser.push(line.value);
+      if (maybeStage) {
+        // Mark a stage so that we know that it was extracted from comments
+        setNodeDisabled(maybeStage, true);
+        stages.push(maybeStage);
+        seenComments.forEach((comment) => {
+          visitedComments.add(comment);
+        });
+        seenComments = [];
+      }
+    }
+  }
+  return [visitedComments, stages];
+}
+
+function extractStagesFromNode(node: t.Expression): t.Expression[] {
+  const [leadingVisited, leadingStages] = extractStagesFromComments(
+    node.leadingComments ?? []
+  );
+  node.leadingComments = node.leadingComments?.filter((node) => {
+    return !leadingVisited.has(node);
+  });
+  const [trailingVisited, trailingStages] = extractStagesFromComments(
+    node.trailingComments ?? []
+  );
+  node.trailingComments = node.trailingComments?.filter((node) => {
+    return !trailingVisited.has(node);
+  });
+  return [...leadingStages, node, ...trailingStages];
+}
+
+type ParseResponse = {
+  root: t.ArrayExpression;
+  stages: t.Expression[];
+};
+
+type ValidateResponse = {
+  root: t.ArrayExpression | null;
+  errors: PipelineParserError[];
+};
+
+export default class PipelineParser {
+  static parse(source: string): ParseResponse {
+    const stages: t.Expression[] = [];
+    const root = PipelineParser._parseStringToRoot(source);
+    // Inner comments will only be available here if there is no other
+    // elements in the array, in our case it might mean that all stages
+    // are disabled
+    if (root.elements.length === 0 && root.innerComments?.length) {
+      const [visited, _stages] = extractStagesFromComments(
+        root.innerComments
+      );
+      if (_stages.length !== 0) {
+        const lastStage = _stages[_stages.length - 1];
+        // Attach all leftover comments to the last stage
+        lastStage.trailingComments = root.innerComments.filter(node => {
+          return !visited.has(node);
+        });
+        adjustAllStagesLoc(_stages);
+        // Delete all inner comments from the root node (they are all part of stages now)
+        delete root.innerComments;
+      }
+      stages.push(..._stages);
+    }
+    root.elements.forEach((node) => {
+      stages.push(...extractStagesFromNode(node as t.Expression));
+    });
+    return { root, stages };
+  }
+
+  static _parseStringToRoot(source: string): t.ArrayExpression {
+    const root = babelParser.parseExpression(source);
+    if (root.type !== 'ArrayExpression') {
+      throw new PipelineParserError('Pipeline must be an array of aggregation stages');
+    }
+    return root;
+  }
+
+  // Validate that source is parseable and all stages look like valid pipeline
+  // stages
+  static validate(source: string): ValidateResponse {
+    let root: t.ArrayExpression | null = null;
+    const errors: PipelineParserError[] = [];
+    try {
+      root = PipelineParser._parseStringToRoot(source);
+      root.elements.forEach(stage => {
+        try {
+          assertStageNode(stage as t.Expression);
+        } catch (e) {
+          errors.push(e as PipelineParserError);
+        }
+      });
+    } catch (e) {
+      errors.push(e as PipelineParserError);
+    }
+    return { root, errors };
+  }
+
+  // Generate source from stages
+  static generate(root: t.ArrayExpression, stages: Stage[]): string {
+    const isAllDisabled = stages.length && stages.every((stage) => {
+      return stage.disabled;
+    });
+    // Special case where all stages should be added as inner comments to the
+    // array expression
+    if (isAllDisabled) {
+      root.elements = [];
+      root.innerComments = stages.flatMap((stage) => {
+        return stageToAstComments(stage);
+      });
+    } else {
+      root.elements = PipelineParser._getStageNodes(stages);
+    }
+    return generate(root);
+  }
+
+  static _getStageNodes(stages: Stage[]): t.Expression[] {
+    const elements: t.Expression[] = [];
+    let unusedComments: t.CommentLine[] = [];
+
+    for (const stage of stages) {
+      // If node is disabled, store the node as comments for later use
+      if (stage.disabled) {
+        const comments = stageToAstComments(stage);
+        unusedComments.push(...comments);
+        continue;
+      }
+
+      const stageNode = stage.node;
+
+      // If node is enabled and there are some comments in the stack, attach
+      // them as as leading comments to the stage
+      if (unusedComments.length) {
+        stageNode.leadingComments = [
+          ...unusedComments,
+          ...(stageNode.leadingComments ?? [])
+        ];
+        unusedComments = [];
+      }
+
+      const previousLine =
+        (elements[elements.length - 1]?.loc?.end.line ?? 0) + 1;
+
+      // We are "normalizing" source loc by setting every element location to
+      // start and end at the same line that doesn't overlap with other elements
+      // to force babel / prettier code formatter into putting every stage and
+      // comment on a separate line to allow parser to format comments corrently
+      // and avoid leading comments of a stage overlap with the end of the
+      // previous stage
+      adjustStageLoc(stageNode, previousLine);
+
+      elements.push(stageNode);
+    }
+
+    const lastStage = elements[elements.length - 1];
+
+    // If we still have some comments left after we went through all stages, add
+    // them as trailing comments to the last stage
+    if (lastStage && unusedComments.length > 0) {
+      lastStage.trailingComments = [
+        ...(lastStage.trailingComments ?? []),
+        ...unusedComments
+      ];
+      const firstComment = lastStage.trailingComments[0];
+      // Special handling for last element: now that all the comments are added,
+      // we are adjusting source loc for the first comment to push all trailing
+      // comments to the new line similar to what we already did to stages above
+      if (firstComment) {
+        firstComment.loc = getLineOnlySourceLocation(
+          (lastStage.loc?.end.line ?? 0) + 1
+        );
+      }
+    }
+
+    return elements;
+  }
+}
+
+function getLineOnlySourceLocation(line: number) {
+  return { start: { line, column: 0 }, end: { line, column: 0 } };
+}
+
+function adjustStageLoc(stage: t.Node, line: number) {
+  for (const comment of stage.leadingComments ?? []) {
+    comment.loc = getLineOnlySourceLocation(++line);
+  }
+  stage.loc = getLineOnlySourceLocation(++line);
+  for (const comment of stage.trailingComments ?? []) {
+    comment.loc = getLineOnlySourceLocation(++line);
+  }
+}
+
+function adjustAllStagesLoc(stages: t.Expression[]) {
+  stages.forEach((stage, idx) => {
+    adjustStageLoc(stage, stages[idx - 1]?.loc?.end.line ?? 0);
+  });
+}

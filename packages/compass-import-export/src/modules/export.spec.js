@@ -171,6 +171,9 @@ describe('export [module]', function () {
         });
       });
     });
+    // todo: add export tests for an aggregation
+    it.skip('#startExport for aggregation');
+
     context('when the action type is FINISHED', function () {
       context('when the state has an error', function () {
         it('returns the new state and stays open', function () {
@@ -192,6 +195,7 @@ describe('export [module]', function () {
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
             isFullCollection: false,
+            ns: '',
             query: null,
             error: true,
             fields: {},
@@ -224,6 +228,7 @@ describe('export [module]', function () {
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
             isFullCollection: false,
+            ns: '',
             query: null,
             error: null,
             fields: {},
@@ -258,6 +263,7 @@ describe('export [module]', function () {
             isFullCollection: false,
             query: null,
             error: null,
+            ns: '',
             fields: {},
             allFields: {},
             fileName: '',
@@ -285,6 +291,7 @@ describe('export [module]', function () {
             dest: undefined,
             exporter: undefined,
             exportedDocsCount: 10,
+            ns: '',
             progress: 0,
             exportStep: EXPORT_STEP.QUERY,
             isFullCollection: false,
@@ -317,6 +324,7 @@ describe('export [module]', function () {
           exportedDocsCount: 100,
           progress: 0.7,
           exportStep: EXPORT_STEP.QUERY,
+          ns: '',
           isFullCollection: false,
           query: null,
           error: null,
@@ -341,6 +349,7 @@ describe('export [module]', function () {
           exportStep: EXPORT_STEP.QUERY,
           exportedDocsCount: 0,
           fields: {},
+          ns: '',
           allFields: {},
           progress: 0,
           isFullCollection: false,
@@ -362,10 +371,11 @@ describe('export [module]', function () {
           isOpen: false,
           progress: 0,
           count: 0,
-          source: undefined,
+          exporter: undefined,
           dest: undefined,
           exportStep: EXPORT_STEP.QUERY,
           exportedDocsCount: 0,
+          ns: '',
           fields: {},
           allFields: {},
           isFullCollection: false,
@@ -389,6 +399,7 @@ describe('export [module]', function () {
           count: 0,
           exportedDocsCount: 0,
           exportStep: EXPORT_STEP.QUERY,
+          ns: '',
           isFullCollection: false,
           fields: {},
           allFields: {},
@@ -411,6 +422,7 @@ describe('export [module]', function () {
           isOpen: false,
           count: 0,
           exportedDocsCount: 0,
+          ns: '',
           exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
           query: null,
@@ -438,6 +450,7 @@ describe('export [module]', function () {
           exportStep: EXPORT_STEP.QUERY,
           isFullCollection: false,
           query: null,
+          ns: '',
           fields: {},
           allFields: fields,
           progress: 0,
@@ -462,6 +475,7 @@ describe('export [module]', function () {
           query: null,
           error: null,
           fields: {},
+          ns: '',
           allFields: {},
           fileName: '',
           fileType: FILE_TYPES.JSON,
@@ -492,6 +506,7 @@ describe('export [module]', function () {
           allFields: {},
           fileName: '',
           fileType: FILE_TYPES.JSON,
+          ns: '',
           status: PROCESS_STATUS.UNSPECIFIED,
           count: 0,
         });

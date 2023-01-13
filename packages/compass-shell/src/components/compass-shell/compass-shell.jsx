@@ -1,34 +1,43 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withPreferences } from 'compass-preferences-model';
 
-import { Shell } from '@mongosh/browser-repl';
-import { ResizeHandle, ResizeDirection, css, cx, uiColors } from '@mongodb-js/compass-components';
+// The browser-repl package.json defines exports['.'].require but not .module, hence require() instead of import
+const { Shell } = require('@mongosh/browser-repl');
+import {
+  ResizeHandle,
+  ResizeDirection,
+  css,
+  cx,
+  getScrollbarStyles,
+  palette,
+} from '@mongodb-js/compass-components';
 
-import InfoModal from '../info-modal';
+import ShellInfoModal from '../shell-info-modal';
 import ShellHeader from '../shell-header';
 
-const compassShellStyles = css({
-  backgroundColor: uiColors.gray.dark3,
-  display: 'flex',
-  flexBasis: 'auto',
-  position: 'relative',
-  flexDirection: 'column',
-  maxHeight: '95%'
-});
+const compassShellStyles = css(
+  {
+    backgroundColor: palette.gray.dark3,
+    display: 'flex',
+    flexBasis: 'auto',
+    position: 'relative',
+    flexDirection: 'column',
+    width: '100vw',
+  },
+  getScrollbarStyles(true /* Always show dark mode. */)
+);
 
 const compassShellContainerStyles = css({
   flexGrow: 1,
   display: 'none',
   overflow: 'auto',
-  borderTop: `1px solid ${uiColors.gray.dark2}`,
-  '*::-webkit-scrollbar-thumb': {
-    background: 'rgba(180, 180, 180, 0.5)'
-  }
+  borderTop: `1px solid ${palette.gray.dark2}`,
 });
 
 const compassShellContainerVisibleStyles = css({
-  display: 'flex'
+  display: 'flex',
 });
 
 const defaultShellHeightOpened = 240;
@@ -52,12 +61,13 @@ export class CompassShell extends Component {
     emitShellPluginOpened: PropTypes.func,
     runtime: PropTypes.object,
     shellOutput: PropTypes.array,
-    historyStorage: PropTypes.object
+    historyStorage: PropTypes.object,
+    enableShell: PropTypes.bool,
   };
 
   static defaultProps = {
     emitShellPluginOpened: () => {},
-    runtime: null
+    runtime: null,
   };
   constructor(props) {
     super(props);
@@ -71,7 +81,7 @@ export class CompassShell extends Component {
       prevHeight: defaultShellHeightOpened,
       initialHistory: this.props.historyStorage ? null : [],
       isOperationInProgress: false,
-      showInfoModal: false
+      showInfoModal: false,
     };
   }
 
@@ -82,7 +92,10 @@ export class CompassShell extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { height } = this.state;
-    if (prevState.height < shellMinHeightOpened && height > shellMinHeightOpened) {
+    if (
+      prevState.height < shellMinHeightOpened &&
+      height > shellMinHeightOpened
+    ) {
       this.props.emitShellPluginOpened();
     }
   }
@@ -93,27 +106,27 @@ export class CompassShell extends Component {
 
   onShellOutputChanged = (output) => {
     this.shellOutput = output;
-  }
+  };
 
   onOperationStarted = () => {
     this.setState({
-      isOperationInProgress: true
+      isOperationInProgress: true,
     });
-  }
+  };
 
   onOperationEnd = () => {
     this.setState({
-      isOperationInProgress: false
+      isOperationInProgress: false,
     });
-  }
+  };
 
   terminateRuntime = () => {
     if (this.props.runtime) {
       this.props.runtime.terminate();
     }
-  }
+  };
 
-  saveHistory = async(history) => {
+  saveHistory = async (history) => {
     if (!this.props.historyStorage) {
       return;
     }
@@ -124,9 +137,9 @@ export class CompassShell extends Component {
       // eslint-disable-next-line no-console
       console.error(error);
     }
-  }
+  };
 
-  loadHistory = async() => {
+  loadHistory = async () => {
     if (!this.props.historyStorage) {
       return;
     }
@@ -134,28 +147,29 @@ export class CompassShell extends Component {
     try {
       const history = await this.props.historyStorage.load();
       this.setState({
-        initialHistory: history
+        initialHistory: history,
       });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
       this.setState({
-        initialHistory: []
+        initialHistory: [],
       });
     }
-  }
+  };
 
   updateHeight(height) {
     this.setState(
-      (height > shellMinHeightOpened)
+      height > shellMinHeightOpened
         ? {
-          height,
-          // Store the previous height to use when toggling open/close
-          // when we resize while the shell is expanded.
-          prevHeight: height
-        } : {
-          height
-        }
+            height,
+            // Store the previous height to use when toggling open/close
+            // when we resize while the shell is expanded.
+            prevHeight: height,
+          }
+        : {
+            height,
+          }
     );
   }
 
@@ -175,33 +189,41 @@ export class CompassShell extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const {
-      height,
-      prevHeight,
-      isOperationInProgress,
-      showInfoModal
-    } = this.state;
+    const { height, prevHeight, isOperationInProgress, showInfoModal } =
+      this.state;
 
-    if (!this.props.runtime || !this.state.initialHistory) {
-      return (<div />);
+    if (
+      !this.props.enableShell ||
+      !this.props.runtime ||
+      !this.state.initialHistory
+    ) {
+      return <div />;
     }
 
     const isExpanded = height > shellMinHeightOpened;
-    const renderedHeight = isExpanded ? boundShellHeight(height) : shellHeightClosed;
+    const renderedHeight = isExpanded
+      ? boundShellHeight(height)
+      : shellHeightClosed;
 
     return (
       <Fragment>
-        <InfoModal
+        <ShellInfoModal
           show={showInfoModal}
           hideInfoModal={this.hideInfoModal.bind(this)}
         />
+        {/* Clicking on the shell container to focus it is a ux improvement to give
+            the shell more of a native shell feeling. We disable the jsx-ally rules
+            as this is a unique ux improvement solely for clicking. */}
+        {/* eslint-disable jsx-a11y/no-static-element-interactions */}
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events */}
         <div
-          data-test-id="shell-section"
+          data-testid="shell-section"
           className={compassShellStyles}
           style={{ height: renderedHeight }}
           id="content"
           onClick={this.focusEditor.bind(this)}
         >
+          {/* eslint-enable jsx-a11y/no-static-element-interactions */}
           <ResizeHandle
             direction={ResizeDirection.TOP}
             onChange={(newHeight) => this.updateHeight(newHeight)}
@@ -212,19 +234,19 @@ export class CompassShell extends Component {
           />
           <ShellHeader
             isExpanded={isExpanded}
-            onShellToggleClicked={() => isExpanded
-              ? this.updateHeight(shellHeightClosed)
-              : this.updateHeight(prevHeight)
+            onShellToggleClicked={() =>
+              isExpanded
+                ? this.updateHeight(shellHeightClosed)
+                : this.updateHeight(prevHeight)
             }
             isOperationInProgress={isOperationInProgress}
             showInfoModal={() => this.setState({ showInfoModal: true })}
           />
           <div
-            data-test-id="shell-content"
+            data-testid="shell-content"
             className={cx(
-              compassShellContainerStyles, {
-                [compassShellContainerVisibleStyles]: isExpanded
-              }
+              compassShellContainerStyles,
+              isExpanded && compassShellContainerVisibleStyles
             )}
           >
             <Shell
@@ -244,13 +266,11 @@ export class CompassShell extends Component {
   }
 }
 
-export default connect(
-  (state) => ({
-    emitShellPluginOpened: () => {
-      if (state.appRegistry && state.appRegistry.globalAppRegistry) {
-        state.appRegistry.globalAppRegistry.emit('compass:compass-shell:opened');
-      }
-    },
-    runtime: state.runtime ? state.runtime.runtime : null
-  })
-)(CompassShell);
+export default connect((state) => ({
+  emitShellPluginOpened: () => {
+    if (state.appRegistry && state.appRegistry.globalAppRegistry) {
+      state.appRegistry.globalAppRegistry.emit('compass:compass-shell:opened');
+    }
+  },
+  runtime: state.runtime ? state.runtime.runtime : null,
+}))(withPreferences(CompassShell, ['enableShell'], React));

@@ -1,10 +1,12 @@
 import React from 'react';
-import { css, keyframes } from '@leafygreen-ui/emotion';
-import { uiColors } from '@leafygreen-ui/palette';
+import { css, cx, keyframes } from '@leafygreen-ui/emotion';
+import { palette } from '@leafygreen-ui/palette';
+import { useDarkMode } from '../hooks/use-theme';
 
 interface SpinLoaderProps {
   size?: string;
   title?: string;
+  className?: string;
 }
 
 const shellLoaderSpin = keyframes`
@@ -14,7 +16,6 @@ const shellLoaderSpin = keyframes`
 
 const spinLoaderStyle = css`
   border: 2px solid transparent;
-  border-top: 2px solid ${uiColors.gray.dark3};
   border-radius: 50%;
   padding: 0;
   margin: 0;
@@ -23,11 +24,28 @@ const spinLoaderStyle = css`
 
   animation: ${shellLoaderSpin} 700ms ease infinite;
 `;
+const lightStyles = css({
+  borderTop: `2px solid ${palette.gray.dark3}`,
+});
 
-function SpinLoader({ size = '12px', title }: SpinLoaderProps): JSX.Element {
+const darkStyles = css({
+  borderTop: `2px solid ${palette.gray.light3}`,
+});
+
+function SpinLoader({
+  size = '12px',
+  title,
+  className,
+}: SpinLoaderProps): JSX.Element {
+  const darkMode = useDarkMode();
+
   return (
     <div
-      className={spinLoaderStyle}
+      className={cx(
+        spinLoaderStyle,
+        darkMode ? darkStyles : lightStyles,
+        className
+      )}
       style={{
         width: size,
         height: size,

@@ -14,7 +14,7 @@ export const COLLECTIONS_STATUS_CHANGED = `${PREFIX}/COLLECTIONS_STATUS_CHANGED`
 export const collectionsStatusChanged = (db) => ({
   type: COLLECTIONS_STATUS_CHANGED,
   status: db.collectionsStatus,
-  error: db.collectionsError
+  error: db.collectionsError,
 });
 
 /**

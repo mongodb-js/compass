@@ -5,7 +5,7 @@ import toNS from 'mongodb-ns';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 import { intersection } from 'lodash';
 import { addLayer, generateGeoQuery } from '../modules/geo';
-import createSchemaAnalysis from '../modules/schema-analysis';
+import { analyzeSchema } from '../modules/schema-analysis';
 import {
   ANALYSIS_STATE_ANALYZING,
   ANALYSIS_STATE_COMPLETE,
@@ -14,6 +14,7 @@ import {
   ANALYSIS_STATE_TIMEOUT,
 } from '../constants/analysis-states';
 import { TAB_NAME } from '../constants/plugin';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const debug = require('debug')('mongodb-compass:stores:schema');
 const { track } = createLoggerAndTelemetry('COMPASS-SCHEMA-UI');
@@ -156,6 +157,7 @@ const configureStore = (options = {}) => {
         outdated: false,
         isActiveTab: false,
         resultId: resultId(),
+        abortController: undefined,
       };
     },
 
@@ -232,17 +234,7 @@ const configureStore = (options = {}) => {
     },
 
     async stopAnalysis() {
-      if (!this.schemaAnalysis) {
-        return;
-      }
-
-      try {
-        await this.schemaAnalysis.terminate();
-      } catch (err) {
-        debug('failed to terminate schema analysis. ignoring ...', err);
-      } finally {
-        this.schemaAnalysis = null;
-      }
+      this.state.abortController?.abort();
     },
 
     _calculateDepthByPath(input, paths) {
@@ -299,19 +291,15 @@ const configureStore = (options = {}) => {
       const { schema } = this.state;
       const trackEvent = {
         with_filter: Object.entries(this.query.filter).length > 0,
-        schema_width: schema.fields.length,
-        schema_depth: this.calculateSchemaDepth(schema),
-        geo_data: this.schemaContainsGeoData(schema),
+        schema_width: schema ? schema.fields.length : 0,
+        schema_depth: schema ? this.calculateSchemaDepth(schema) : 0,
+        geo_data: schema ? this.schemaContainsGeoData(schema) : false,
         analysis_time_ms: analysisTime,
       };
       track('Schema Analyzed', trackEvent);
     },
 
     startAnalysis: async function () {
-      if (this.schemaAnalysis) {
-        return;
-      }
-
       const query = this.query || {};
 
       const sampleSize = query.limit
@@ -325,30 +313,31 @@ const configureStore = (options = {}) => {
       };
 
       const driverOptions = {
-        maxTimeMS: query.maxTimeMS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
       };
-
-      const schemaAnalysis = createSchemaAnalysis(
-        this.dataService,
-        this.ns,
-        samplingOptions,
-        driverOptions
-      );
-
-      this.schemaAnalysis = schemaAnalysis;
 
       try {
         debug('analysis started');
+
+        const abortController = new AbortController();
+        const abortSignal = abortController.signal;
 
         this.setState({
           analysisState: ANALYSIS_STATE_ANALYZING,
           errorMessage: '',
           outdated: false,
           schema: null,
+          abortController,
         });
 
         const analysisStartTime = Date.now();
-        const schema = await schemaAnalysis.getResult();
+        const schema = await analyzeSchema(
+          this.dataService,
+          abortSignal,
+          this.ns,
+          samplingOptions,
+          driverOptions
+        );
         const analysisTime = Date.now() - analysisStartTime;
 
         this.setState({
@@ -366,7 +355,7 @@ const configureStore = (options = {}) => {
         debug('analysis error catched', err);
         this.setState({ ...getErrorState(err), resultId: resultId() });
       } finally {
-        this.schemaAnalysis = null;
+        this.setState({ abortController: undefined });
       }
     },
 

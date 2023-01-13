@@ -12,14 +12,19 @@ describe('PrivacySettings', function () {
 
   beforeEach(function () {
     handleChangeSpy = spy();
-    render(<PrivacySettings handleChange={handleChangeSpy} />);
+    render(
+      <PrivacySettings
+        handleChange={handleChangeSpy}
+        preferenceStates={{}}
+        currentValues={{} as any}
+      />
+    );
     container = screen.getByTestId('privacy-settings');
   });
 
   [
     'autoUpdates',
     'enableMaps',
-    'trackErrors',
     'trackUsageStatistics',
     'enableFeedbackPanel',
   ].forEach((option) => {

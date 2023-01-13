@@ -1,8 +1,7 @@
 import type { ChangeEvent } from 'react';
 import React, { useCallback } from 'react';
-import { TextInput } from '@mongodb-js/compass-components';
+import { FormFieldContainer, TextInput } from '@mongodb-js/compass-components';
 import type { SSHConnectionOptions } from '../../../utils/connection-ssh-handler';
-import FormFieldContainer from '../../form-field-container';
 import type { ConnectionFormError } from '../../../utils/validation';
 import {
   errorMessageByFieldName,
@@ -36,7 +35,7 @@ function SshTunnelPassword({
   );
 
   const fields: {
-    name: string;
+    name: PasswordFormKeys;
     label: string;
     type: 'text' | 'number' | 'password';
     optional: boolean;
@@ -91,7 +90,7 @@ function SshTunnelPassword({
               onChange={({
                 target: { value },
               }: ChangeEvent<HTMLInputElement>) => {
-                formFieldChanged(name as PasswordFormKeys, value);
+                formFieldChanged(name, value);
               }}
               name={name}
               data-testid={name}

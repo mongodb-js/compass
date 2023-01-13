@@ -218,13 +218,11 @@ async function main(argv) {
     'compass:exports': {
       '.': './src/index.ts',
     },
-    ...(!isPlugin && { types: './dist/index.d.ts' }),
+    // plugins use `export {...} from '../package.json'` by default and therefore
+    // tsc adds types for `src` to `dist/src/` rather than to `dist/`
+    types: isPlugin ? './dist/src/index.d.ts' : './dist/index.d.ts',
     scripts: {
-      // Plugins are bundled by webpack from source and tested with ts-node
-      // runtime processor, no need to bootstrap them
-      ...(!isPlugin && {
-        bootstrap: 'npm run compile',
-      }),
+      bootstrap: 'npm run compile',
       prepublishOnly: 'npm run compile',
       // For normal packages we are just compiling code with typescript, for
       // plugins (but only for them) we are using webpack to create independent
@@ -232,9 +230,13 @@ async function main(argv) {
       compile:
         'tsc -p tsconfig.json && gen-esm-wrapper . ./dist/.esm-wrapper.mjs',
       ...(isPlugin && {
+        // Plugins are bundled by webpack from source and tested with ts-node
+        // runtime processor, no need to fully compile them on bootstrap
+        bootstrap: 'npm run postcompile',
         compile: 'npm run webpack -- --mode production',
         prewebpack: 'rimraf ./dist',
         webpack: 'webpack-compass',
+        postcompile: 'tsc --emitDeclarationOnly',
         start: 'npm run webpack serve -- --mode development',
         analyze: 'npm run webpack -- --mode production --analyze',
       }),

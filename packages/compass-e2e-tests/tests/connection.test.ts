@@ -127,7 +127,7 @@ async function assertCanReadData(
     const text = await browser
       .$(Selectors.DocumentListActionBarMessage)
       .getText();
-    return /Displaying documents \d+ - \d+ of \d+/.test(text);
+    return /\d+ – \d+ of \d+/.test(text);
   });
 }
 
@@ -197,6 +197,8 @@ async function assertCannotCreateDb(
     `not authorized on ${dbName} to execute command`
   );
 
+  await browser.screenshot('create-database-modal-error.png');
+
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateDatabaseCancelButton);
   await createModalElement.waitForDisplayed({ reverse: true });
@@ -233,6 +235,8 @@ async function assertCannotCreateCollection(
   expect(await errorElement.getText()).to.contain(
     `not authorized on ${dbName} to execute command`
   );
+
+  await browser.screenshot('create-collection-modal-error.png');
 
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateCollectionCancelButton);
@@ -288,7 +292,6 @@ describe('Connection screen', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ATLAS_HOST ?? ''
     );
-
     await browser.connectWithConnectionForm(atlasConnectionOptions);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -315,7 +318,6 @@ describe('Connection screen', function () {
         sslConnection: 'ON',
         tlsCertificateKeyFile: certPath,
       };
-
       await browser.connectWithConnectionForm(atlasConnectionOptions);
       const result = await browser.shellEval(
         'db.runCommand({ connectionStatus: 1 })',
@@ -342,7 +344,6 @@ describe('Connection screen', function () {
       awsSecretAccessKey:
         process.env.E2E_TESTS_ATLAS_IAM_SECRET_ACCESS_KEY ?? '',
     };
-
     await browser.connectWithConnectionForm(atlasConnectionOptions);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -373,7 +374,6 @@ describe('Connection screen', function () {
       awsSecretAccessKey: secret,
       awsSessionToken: token,
     };
-
     await browser.connectWithConnectionForm(atlasConnectionOptions);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -393,7 +393,6 @@ describe('Connection screen', function () {
     const withSRV = `mongodb+srv://${username}:${password}@${host}`;
 
     const connectionString = await resolveMongodbSrv(withSRV);
-
     await browser.connectWithConnectionString(connectionString);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -420,7 +419,6 @@ describe('Connection screen', function () {
     parsedString.searchParams.delete('replicaSet');
 
     const connectionString = parsedString.toString();
-
     await browser.connectWithConnectionString(connectionString);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -447,6 +445,7 @@ describe('Connection screen', function () {
       sslConnection: 'ON',
       useSystemCA: true,
     });
+
     // NB: The fact that we can use the shell is a regression test for COMPASS-5802.
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -464,7 +463,6 @@ describe('Connection screen', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_SERVERLESS_HOST ?? ''
     );
-
     await browser.connectWithConnectionForm(atlasConnectionOptions);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -502,7 +500,6 @@ describe('Connection screen', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_ANALYTICS_NODE_HOST ?? ''
     );
-
     await browser.connectWithConnectionForm(atlasConnectionOptions);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -519,7 +516,6 @@ describe('Connection screen', function () {
     const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
       process.env.E2E_TESTS_FREE_TIER_HOST ?? ''
     );
-
     await browser.connectWithConnectionForm(atlasConnectionOptions);
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
@@ -573,7 +569,6 @@ describe('Connection screen', function () {
     await browser.connectWithConnectionString(
       process.env.E2E_TESTS_ATLAS_CUSTOMROLE_STRING ?? ''
     );
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -593,7 +588,6 @@ describe('Connection screen', function () {
     await browser.connectWithConnectionString(
       process.env.E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING ?? ''
     );
-
     const result = await browser.shellEval(
       'db.runCommand({ connectionStatus: 1 })',
       true
@@ -731,7 +725,7 @@ describe('FLE2', function () {
 
   it('can connect using local KMS', async function () {
     if (
-      semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
+      semver.lt(MONGODB_VERSION, '6.0.0') ||
       process.env.MONGODB_USE_ENTERPRISE !== 'yes'
     ) {
       return this.skip();
@@ -753,7 +747,6 @@ describe('FLE2', function () {
         }
       }`,
     });
-
     const result = await browser.shellEval('db.getName()', true);
     expect(result).to.be.equal('test');
   });

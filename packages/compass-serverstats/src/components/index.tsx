@@ -1,7 +1,16 @@
 import './index.less';
 
 import React, { useEffect, useRef } from 'react';
-import { Banner, WorkspaceContainer, css, spacing } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  LeafyGreenProvider,
+  Theme,
+  css,
+  cx,
+  spacing,
+  palette,
+  useScrollbars,
+} from '@mongodb-js/compass-components';
 
 import GraphsComponent from './server-stats-graphs-component';
 import { realTimeDispatcher } from '../d3';
@@ -11,6 +20,7 @@ import DBErrorStore from '../stores/dberror-store';
 import ServerStatsStore from '../stores/server-stats-graphs-store';
 import { ServerStatsToolbar } from './server-stats-toolbar';
 import Actions from '../actions';
+import type { TimeScrubEventDispatcher } from './server-stats-toolbar';
 
 const REFRESH_STATS_INTERVAL_MS = 1000;
 
@@ -20,10 +30,9 @@ const workspaceContainerStyles = css({
   overflow: 'auto'
 });
 
-const workspaceBackground = '#3D4247';
-
 const workspaceBackgroundStyles = css({
-  background: workspaceBackground
+  background: palette.gray.dark2,
+  overflow: 'hidden',
 });
 
 const workspaceStyles = css({
@@ -32,13 +41,50 @@ const workspaceStyles = css({
   display: 'flex',
   flexWrap: 'wrap',
   justifyContent: 'space-around',
-  flexGrow: 1
+  flexGrow: 1,
+  overflow: 'auto',
+  minHeight: 0,
+  height: '100%',
 });
 
 const mongosWarningStyles = css({
   margin: spacing[2],
   marginBottom: 0
 });
+
+function PerformancePanel({
+  eventDispatcher
+}: {
+  eventDispatcher: TimeScrubEventDispatcher
+}) {
+  const {
+    className: scrollbarStyles
+  } = useScrollbars();
+
+  return (
+    <div className={cx(workspaceContainerStyles, scrollbarStyles)}>
+      {ServerStatsStore.isMongos && (
+        <Banner className={mongosWarningStyles} variant="warning">
+          Top command is not available for mongos, some charts may not show any data.
+        </Banner>
+      )}
+      <DBErrorComponent store={DBErrorStore} />
+      <div className={workspaceBackgroundStyles}>
+        <div className={workspaceStyles}>
+          <section className="rt__graphs-out">
+            <GraphsComponent
+              eventDispatcher={eventDispatcher}
+              interval={REFRESH_STATS_INTERVAL_MS}
+            />
+          </section>
+          <section className="rt__lists-out">
+            <ListsComponent interval={REFRESH_STATS_INTERVAL_MS} />
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Renders the entire performance tab, including charts and lists.
@@ -57,27 +103,14 @@ function PerformanceComponent() {
   return (
     <section className="rt-perf">
       <ServerStatsToolbar eventDispatcher={eventDispatcher.current} />
-      <div className={workspaceContainerStyles}>
-        {ServerStatsStore.isMongos && (
-          <Banner className={mongosWarningStyles} variant="warning">
-            Top command is not available for mongos, some charts may not show any data.
-          </Banner>
-        )}
-        <DBErrorComponent store={DBErrorStore} />
-        <WorkspaceContainer darkMode className={workspaceBackgroundStyles}>
-          <div className={workspaceStyles}>
-            <section className="rt__graphs-out">
-              <GraphsComponent
-                eventDispatcher={eventDispatcher.current}
-                interval={REFRESH_STATS_INTERVAL_MS}
-              />
-            </section>
-            <section className="rt__lists-out">
-              <ListsComponent interval={REFRESH_STATS_INTERVAL_MS} />
-            </section>
-          </div>
-        </WorkspaceContainer>
-      </div>
+      <LeafyGreenProvider theme={{
+        theme: Theme.Dark,
+        enabled: true
+      }}>
+        <PerformancePanel
+          eventDispatcher={eventDispatcher.current}
+        />
+      </LeafyGreenProvider>
     </section>
   );
 }

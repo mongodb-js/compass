@@ -82,12 +82,14 @@ export function useViewTypeControls({
           value={viewType}
           onChange={onViewTypeChange as (newValue: string) => void}
         >
-          <SegmentedControlOption value="list">
-            <Icon glyph="Menu"></Icon>
-          </SegmentedControlOption>
-          <SegmentedControlOption value="grid">
-            <Icon glyph="Apps"></Icon>
-          </SegmentedControlOption>
+          <SegmentedControlOption
+            value="list"
+            glyph={<Icon glyph="Menu"></Icon>}
+          />
+          <SegmentedControlOption
+            value="grid"
+            glyph={<Icon glyph="Apps"></Icon>}
+          />
         </SegmentedControl>
       </div>
     );

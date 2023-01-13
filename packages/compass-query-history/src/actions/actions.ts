@@ -7,13 +7,10 @@ const configureActions = () => {
      */
     'showFavorites',
     'showRecent',
-    'collapse',
-    'toggleCollapse',
     'copyQuery',
     'deleteRecent',
     'deleteFavorite',
     'addRecent',
-    'saveRecent',
     'saveFavorite',
     'cancelSave',
     'runQuery',

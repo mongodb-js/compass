@@ -2,8 +2,11 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { ZeroState } from 'hadron-react-components';
-import { Banner, WarningSummary } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  EmptyContent,
+  WarningSummary,
+} from '@mongodb-js/compass-components';
 
 import ValidationStates from '../validation-states';
 import ValidationEditor from '../validation-editor';
@@ -49,11 +52,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
-        hadronReadOnly: false,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: true,
       };
-
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = false;
       props.serverVersion = '3.1.0';
@@ -85,10 +88,10 @@ describe('ValidationStates [Component]', function () {
       props.editMode = {
         collectionTimeSeries: true,
         collectionReadOnly: false,
-        hadronReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -119,10 +122,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: true,
-        hadronReadOnly: false,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -157,10 +161,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
-        hadronReadOnly: false,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -178,10 +183,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
-        hadronReadOnly: true,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
       };
+      props.readOnly = true;
       props.isZeroState = false;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -199,10 +205,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
-        hadronReadOnly: false,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = false;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -237,10 +244,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
-        hadronReadOnly: false,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = false;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -249,7 +257,7 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('does not render the zero state', function () {
-      expect(component.find(ZeroState)).to.not.be.present();
+      expect(component.find(EmptyContent)).to.not.be.present();
     });
   });
 
@@ -257,10 +265,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
-        hadronReadOnly: false,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = true;
       props.isLoaded = true;
       props.serverVersion = '3.2.0';
@@ -269,7 +278,7 @@ describe('ValidationStates [Component]', function () {
     });
 
     it('renders the zero state', function () {
-      expect(component.find(ZeroState)).to.be.present();
+      expect(component.find(EmptyContent)).to.be.present();
     });
   });
 
@@ -277,10 +286,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
-        hadronReadOnly: false,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = false;
       props.isLoaded = false;
       props.serverVersion = '3.2.0';
@@ -297,10 +307,11 @@ describe('ValidationStates [Component]', function () {
     beforeEach(function () {
       props.editMode = {
         collectionReadOnly: false,
-        hadronReadOnly: false,
+        collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
       };
+      props.readOnly = false;
       props.isZeroState = false;
       props.isLoaded = true;
       props.serverVersion = '3.2.0';

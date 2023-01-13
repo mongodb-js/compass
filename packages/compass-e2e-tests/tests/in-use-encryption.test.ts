@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import semver from 'semver';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { beforeTests, afterTests } from '../helpers/compass';
+import { beforeTests, afterTests, afterTest } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -15,6 +15,16 @@ import { LOG_PATH } from '../helpers/compass';
 
 const CONNECTION_HOSTS = 'localhost:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
+
+async function refresh(browser: CompassBrowser) {
+  // We refresh immediately after running commands, so there is an opportunity
+  // for race conditions. Ideally we'd wait for something to become true, then
+  // hit refresh, then wait for a transition to occur that will correlate to the
+  // data actually being refreshed and arriving.
+
+  await browser.clickVisible(Selectors.SidebarShowActions);
+  await browser.clickVisible(Selectors.SidebarActionRefresh);
+}
 
 describe('FLE2', function () {
   describe('server version gte 4.2.20 and not a linux platform', function () {
@@ -41,6 +51,12 @@ describe('FLE2', function () {
       const sidebar = await browser.$(Selectors.SidebarTitle);
       if (await sidebar.isDisplayed()) {
         await browser.disconnect();
+      }
+    });
+
+    afterEach(async function () {
+      if (compass) {
+        await afterTest(compass, this.currentTest);
       }
     });
 
@@ -124,10 +140,10 @@ describe('FLE2', function () {
     });
   });
 
-  describe('server version gte 6.0.0-rc0', function () {
+  describe('server version gte 6.0.0', function () {
     before(function () {
       if (
-        semver.lt(MONGODB_VERSION, '6.0.0-rc0') ||
+        semver.lt(MONGODB_VERSION, '6.0.0') ||
         process.env.MONGODB_USE_ENTERPRISE !== 'yes'
       ) {
         return this.skip();
@@ -143,7 +159,6 @@ describe('FLE2', function () {
       before(async function () {
         compass = await beforeTests();
         browser = compass.browser;
-
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
           fleKeyVaultNamespace: `${databaseName}.keyvault`,
@@ -161,7 +176,7 @@ describe('FLE2', function () {
         await browser.shellEval(
           `db.getMongo().getDB('${databaseName}').createCollection('default')`
         );
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
       });
 
       it('can create a fle2 collection with encryptedFields', async function () {
@@ -169,8 +184,10 @@ describe('FLE2', function () {
 
         // open the create collection modal from the button at the top
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
-        await browser.addCollection(collectionName, {
-          encryptedFields: `{
+        await browser.addCollection(
+          collectionName,
+          {
+            encryptedFields: `{
               fields: [{
                 path: 'phoneNumber',
                 keyId: UUID("fd6275d7-9260-4e6c-a86b-68ec5240814a"),
@@ -178,7 +195,9 @@ describe('FLE2', function () {
                 queries: { queryType: 'equality' }
               }]
             }`,
-        });
+          },
+          'add-collection-modal-encryptedfields.png'
+        );
 
         const collectionListFLE2BadgeElement = await browser.$(
           Selectors.CollectionListFLE2Badge
@@ -257,7 +276,8 @@ describe('FLE2', function () {
             '"masterKey": { "provider" : "local" }' +
             '})'
         );
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
+
         plainMongo = await MongoClient.connect(CONNECTION_STRING);
       });
 
@@ -314,8 +334,7 @@ describe('FLE2', function () {
 
       it('can insert a document with an encrypted field and a non-encrypted field', async function () {
         await browser.shellEval(`db.createCollection('${collectionName}')`);
-
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
 
         await browser.navigateToCollectionTab(
           databaseName,
@@ -376,6 +395,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
         );
+        await refresh(browser);
 
         await browser.navigateToCollectionTab(
           databaseName,
@@ -403,6 +423,7 @@ describe('FLE2', function () {
               coll
             )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
           );
+          await refresh(browser);
 
           await browser.navigateToCollectionTab(
             databaseName,
@@ -430,7 +451,7 @@ describe('FLE2', function () {
           const button = await document.$(Selectors.UpdateDocumentButton);
           await button.click();
           try {
-            // Prmpt failure is required here and so the timeout should be
+            // Prompt failure is required here and so the timeout should be
             // present and smaller than the default one to allow for tests to
             // proceed correctly
             await footer.waitForDisplayed({ reverse: true, timeout: 10000 });
@@ -440,14 +461,18 @@ describe('FLE2', function () {
               (await footer.getText()) ===
                 'Found indexed encrypted fields but could not find __safeContent__'
             ) {
-              return; // This version is affected by SERVER-68065 where updates on unindexed fields in QE are buggy.
+              return; // MongodDB < 6.1 is affected by SERVER-68065 where updates on unindexed fields in QE are buggy.
             }
           }
           await footer.waitForDisplayed({ reverse: true });
 
           await browser.runFindOperation(
             'Documents',
-            "{ phoneNumber: '10101010' }"
+            // Querying on encrypted fields when they are unindexed is not
+            // supported, so we use document _id instead
+            mode === 'unindexed'
+              ? `{ _id: ${result._id} }`
+              : "{ phoneNumber: '10101010' }"
           );
 
           const modifiedResult = await getFirstListDocument(browser);
@@ -463,6 +488,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person X" })`
         );
+        await refresh(browser);
 
         await browser.navigateToCollectionTab(
           databaseName,
@@ -474,36 +500,23 @@ describe('FLE2', function () {
         const document = await browser.$(Selectors.DocumentJSONEntry);
         await document.waitForDisplayed();
 
-        // Recursively expand __safeContent__ so that the JSON is valid
-        for (let i = 0; i < 3; i++) {
-          await browser.clickVisible(
-            `${Selectors.DocumentJSONEntry} .ace_fold-widget.ace_closed`
-          );
-        }
-        let json = '';
-        await browser.waitUntil(async function () {
-          json = await document.getText();
-          try {
-            JSON.parse(json);
-            return true;
-          } catch {
-            return false;
-          }
-        });
+        const json = await browser.getCodemirrorEditorText(
+          Selectors.DocumentJSONEntry
+        );
 
         expect(json).to.include('30303030');
         expect(json).to.include('__safeContent__');
 
-        await browser.hover('[data-test-id="editable-json"]');
+        await browser.hover('[data-testid="editable-json"]');
         await browser.clickVisible('[data-testid="edit-document-button"]');
 
         const newjson = JSON.stringify({
           ...JSON.parse(json),
           phoneNumber: '10101010',
         });
-        await browser.setAceValue(
-          '[data-test-id="editable-json"] .ace_editor',
-          newjson
+        await browser.setCodemirrorEditorValue(
+          newjson,
+          Selectors.DocumentJSONEntry
         );
 
         const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -529,6 +542,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
         );
+        await refresh(browser);
 
         const doc = await plainMongo
           .db(databaseName)
@@ -541,7 +555,7 @@ describe('FLE2', function () {
           name: 'La La',
         });
 
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
         await browser.navigateToCollectionTab(
           databaseName,
           collectionName,
@@ -609,6 +623,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "First" })`
         );
+        await refresh(browser);
 
         const doc = await plainMongo
           .db(databaseName)
@@ -621,7 +636,7 @@ describe('FLE2', function () {
           name: 'Second',
         });
 
-        await browser.clickVisible(Selectors.SidebarInstanceRefreshButton);
+        await refresh(browser);
         await browser.navigateToCollectionTab(
           databaseName,
           collectionName,
@@ -702,6 +717,7 @@ describe('FLE2', function () {
             collectionName
           )}].insertOne({ "phoneNumber": "30303030", "name": "Person Z" })`
         );
+        await refresh(browser);
 
         await browser.navigateToCollectionTab(
           databaseName,
@@ -725,6 +741,8 @@ describe('FLE2', function () {
         await modal.waitForDisplayed();
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
+
+        await browser.screenshot('csfle-connection-modal.png');
 
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
         await modal.waitForDisplayed({ reverse: true });

@@ -1,18 +1,19 @@
 import { useCallback } from 'react';
+import { palette } from '@mongodb-js/compass-components';
 
 type ColorCode = `color${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10}`;
 
 const COLOR_CODES_TO_UI_COLORS_DARK_THEME_MAP: Record<ColorCode, string> = {
-  color1: '#00A35C', // green.dark1
-  color2: '#71F6BA', // green.light1
-  color3: '#016BF8', // blue.base
-  color4: '#0498EC', // blue.light1
-  color5: '#FFC010', // yellow.base
-  color6: '#EF5752', // red.light1
-  color7: '#B45AF2', // purple.base
-  color8: '#F1D4FD', // purple.light2
-  color9: '#889397', // gray.base
-  color10: '#C1C7C6', // gray.light1
+  color1: palette.green.dark1,
+  color2: palette.green.light1,
+  color3: palette.blue.base,
+  color4: palette.blue.light1,
+  color5: palette.yellow.base,
+  color6: palette.red.light1,
+  color7: palette.purple.base,
+  color8: palette.purple.light2,
+  color9: palette.gray.base,
+  color10: palette.gray.light1,
 };
 
 const LEGACY_COLORS_TO_COLOR_CODE_MAP: Record<string, ColorCode> = {

@@ -7,10 +7,9 @@ import {
   Cell,
   cx,
   spacing,
-  uiColors,
+  palette,
 } from '@mongodb-js/compass-components';
 
-import NameField from './name-field';
 import TypeField from './type-field';
 import SizeField from './size-field';
 import UsageField from './usage-field';
@@ -21,6 +20,7 @@ import type {
   SortDirection,
 } from '../../modules/indexes';
 import IndexActions from './index-actions';
+import KeyList from './key-list';
 
 // When row is hovered, we show the delete button
 const rowStyles = css({
@@ -53,20 +53,19 @@ const tableHeaderStyles = css({
 });
 
 const cellStyles = css({
-  verticalAlign: 'top',
+  verticalAlign: 'middle',
 });
 
-const nameFieldStyles = css({
-  paddingTop: spacing[2],
-  paddingBottom: spacing[2],
+const nestedRowCellStyles = css({
+  padding: 0,
 });
 
 const tableStyles = css({
   thead: {
     position: 'sticky',
     top: 0,
-    background: uiColors.white,
-    zIndex: 1,
+    background: palette.white,
+    zIndex: 5,
   },
 });
 
@@ -143,9 +142,7 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
             className={rowStyles}
           >
             <Cell data-testid="index-name-field" className={cellStyles}>
-              <div className={nameFieldStyles}>
-                <NameField name={index.name} keys={index.fields.serialize()} />
-              </div>
+              {index.name}
             </Cell>
             <Cell data-testid="index-type-field" className={cellStyles}>
               <TypeField type={index.type} extra={index.extra} />
@@ -178,6 +175,14 @@ export const IndexesTable: React.FunctionComponent<IndexesTableProps> = ({
                 )}
               </Cell>
             )}
+            <Row>
+              <Cell
+                className={cx(nestedRowCellStyles, cellStyles)}
+                colSpan={canDeleteIndex ? 6 : 5}
+              >
+                <KeyList keys={index.fields.serialize()} />
+              </Cell>
+            </Row>
           </Row>
         )}
       </Table>

@@ -4,33 +4,34 @@ import {
   IconButton,
   Icon,
   Body,
-  withTheme,
+  useDarkMode,
   css,
   cx,
   spacing,
-  uiColors,
-  compassUIColors,
+  palette,
+  rgba,
 } from '@mongodb-js/compass-components';
 
 const findInPageContainerStyles = css({
   borderRadius: '0 0 5px 5px',
   border: '1px solid',
   borderTop: 'none',
-  position: 'absolute',
+  position: 'fixed',
   zIndex: 4,
+  top: 0,
   right: spacing[4],
   width: spacing[6] * 4, // 256px
-  boxShadow: '0px 2px 5px rgba(6, 22, 23, 0.3)',
+  boxShadow: `0px 2px 5px ${rgba(palette.black, 0.3)}`,
 });
 
 const containerLightThemeStyles = css({
-  background: compassUIColors.gray8,
-  borderColor: uiColors.gray.light2,
+  background: palette.gray.light3,
+  borderColor: palette.gray.light2,
 });
 
 const containerDarkThemeStyles = css({
-  background: uiColors.gray.dark2,
-  borderColor: uiColors.gray.dark1,
+  background: palette.gray.dark2,
+  borderColor: palette.gray.dark1,
 });
 
 const descriptionStyles = css({
@@ -40,11 +41,11 @@ const descriptionStyles = css({
 });
 
 const descriptionLightThemeStyles = css({
-  color: uiColors.gray.dark1,
+  color: palette.gray.dark1,
 });
 
 const descriptionDarkThemeStyles = css({
-  color: uiColors.gray.light2,
+  color: palette.gray.light2,
 });
 
 const findStyles = css({
@@ -65,7 +66,6 @@ const closeButtonStyles = css({
 });
 
 type FindInPageInputProps = {
-  darkMode?: boolean;
   dispatchStopFind: () => void;
   setSearchTerm: (searchTerm: string) => void;
   dispatchFind: (
@@ -79,7 +79,6 @@ type FindInPageInputProps = {
 };
 
 function FindInPageInput({
-  darkMode,
   dispatchStopFind,
   setSearchTerm,
   dispatchFind,
@@ -87,6 +86,7 @@ function FindInPageInput({
   searchTerm,
   searching,
 }: FindInPageInputProps) {
+  const darkMode = useDarkMode();
   const findInPageInputRef = useRef<HTMLInputElement | null>(null);
 
   const onSearchChange = useCallback(
@@ -150,7 +150,7 @@ function FindInPageInput({
       <div className={findStyles}>
         <form
           name="find-in-page"
-          data-testid="find-in-page"
+          data-testid="find-in-page-form"
           className={formStyles}
         >
           <TextInput
@@ -166,6 +166,11 @@ function FindInPageInput({
           className={closeButtonStyles}
           aria-label="Close find box"
           onClick={onClose}
+          onKeyDown={(evt: React.KeyboardEvent) => {
+            // So that enter / space works as a trigger on the button instead of
+            // window keydown event handler reacting to Enter press
+            evt.stopPropagation();
+          }}
         >
           <Icon glyph="X" role="presentation" />
         </IconButton>
@@ -174,4 +179,4 @@ function FindInPageInput({
   );
 }
 
-export default withTheme(FindInPageInput);
+export default FindInPageInput;

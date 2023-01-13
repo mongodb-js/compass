@@ -1,4 +1,4 @@
-import createStyler from './styler.js';
+import createStyler from './styler';
 import { expect } from 'chai';
 
 describe('styler', function () {

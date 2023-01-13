@@ -1,16 +1,9 @@
 import AppRegistry from 'hadron-app-registry';
 import configureStore from './';
-import {
-  stageChanged,
-  stageCollapseToggled,
-  stageDeleted,
-  stageAdded,
-  stageAddedAfter,
-  stageToggled,
-  stageOperatorSelected
-} from '../modules/pipeline';
-import { INITIAL_STATE } from '../modules/index';
+import rootReducer from '../modules';
 import { expect } from 'chai';
+
+const INITIAL_STATE = rootReducer(undefined, { type: '@@init' });
 
 const fakeAppInstanceStore = {
   getState: function () {
@@ -123,15 +116,11 @@ describe('Aggregation Store', function() {
         });
 
         it('resets the app registry', function() {
-          expect(state.appRegistry).to.equal(INITIAL_STATE.appRegistry);
+          expect(state.appRegistry).to.deep.eq(INITIAL_STATE.appRegistry);
         });
 
         it('resets the comments', function() {
           expect(state.comments).to.equal(INITIAL_STATE.comments);
-        });
-
-        it('resets the sample', function() {
-          expect(state.sample).to.equal(INITIAL_STATE.sample);
         });
 
         it('resets auto preview', function() {
@@ -142,20 +131,16 @@ describe('Aggregation Store', function() {
           expect(state.name).to.equal(INITIAL_STATE.name);
         });
 
-        it('resets restore', function() {
-          expect(state.restorePipeline).to.equal(INITIAL_STATE.restorePipeline);
-        });
-
         it('resets the saved pipeline', function() {
           expect(state.savedPipeline).to.equal(INITIAL_STATE.savedPipeline);
         });
 
         it('resets the data service', function() {
-          expect(state.dataService).to.equal(INITIAL_STATE.dataService);
+          expect(state.dataService).to.deep.eq(INITIAL_STATE.dataService);
         });
 
         it('resets the fields', function() {
-          expect(state.fields).to.equal(INITIAL_STATE.fields);
+          expect(state.fields).to.deep.eq(INITIAL_STATE.fields);
         });
 
         it('resets the input douments', function() {
@@ -166,16 +151,8 @@ describe('Aggregation Store', function() {
           expect(state.serverVersion).to.equal(INITIAL_STATE.serverVersion);
         });
 
-        it('resets the pipeline with a new id', function() {
-          expect(state.pipeline[0].id).to.not.equal(INITIAL_STATE.pipeline[0].id);
-        });
-
         it('resets is modified', function() {
           expect(state.isModified).to.equal(INITIAL_STATE.isModified);
-        });
-
-        it('resets import pipeline', function() {
-          expect(state.importPipeline).to.equal(INITIAL_STATE.importPipeline);
         });
 
         it('resets collation', function() {
@@ -184,10 +161,6 @@ describe('Aggregation Store', function() {
 
         it('resets collation string', function() {
           expect(state.collationString).to.equal(INITIAL_STATE.collationString);
-        });
-
-        it('resets is overview on', function() {
-          expect(state.isOverviewOn).to.equal(INITIAL_STATE.isOverviewOn);
         });
 
         it('resets settings', function() {
@@ -204,10 +177,6 @@ describe('Aggregation Store', function() {
 
         it('resets maxTimeMS', function() {
           expect(state.maxTimeMS).to.equal(INITIAL_STATE.maxTimeMS);
-        });
-
-        it('resets isFullscreenOn', function() {
-          expect(state.isFullscreenOn).to.equal(INITIAL_STATE.isFullscreenOn);
         });
 
         it('resets saving pipeline', function() {
@@ -229,6 +198,9 @@ describe('Aggregation Store', function() {
         it('resets the rest of the state to initial state', function() {
           // eslint-disable-next-line no-unused-vars
           const { aggregationWorkspaceId, ...state } = store.getState();
+          // eslint-disable-next-line no-unused-vars
+          state.pipelineBuilder.stageEditor = { stages: [], stageIds: [] };
+          delete state.pipeline;
           expect(state).to.deep.equal({
             outResultsFn: INITIAL_STATE.outResultsFn,
             namespace: 'db.coll',
@@ -238,28 +210,22 @@ describe('Aggregation Store', function() {
             sourceName: null,
             appRegistry: INITIAL_STATE.appRegistry,
             comments: INITIAL_STATE.comments,
-            sample: INITIAL_STATE.sample,
             autoPreview: INITIAL_STATE.autoPreview,
             name: INITIAL_STATE.name,
             id: INITIAL_STATE.id,
-            restorePipeline: INITIAL_STATE.restorePipeline,
             savedPipeline: INITIAL_STATE.savedPipeline,
             dataService: INITIAL_STATE.dataService,
             fields: INITIAL_STATE.fields,
             inputDocuments: INITIAL_STATE.inputDocuments,
             serverVersion: INITIAL_STATE.serverVersion,
-            pipeline: INITIAL_STATE.pipeline,
             isModified: INITIAL_STATE.isModified,
             isAtlasDeployed: INITIAL_STATE.isAtlasDeployed,
             isReadonly: INITIAL_STATE.isReadonly,
-            importPipeline: INITIAL_STATE.importPipeline,
             collationString: INITIAL_STATE.collationString,
-            isOverviewOn: INITIAL_STATE.isOverviewOn,
             settings: INITIAL_STATE.settings,
             limit: INITIAL_STATE.limit,
             largeLimit: INITIAL_STATE.largeLimit,
             maxTimeMS: INITIAL_STATE.maxTimeMS,
-            isFullscreenOn: INITIAL_STATE.isFullscreenOn,
             savingPipeline: INITIAL_STATE.savingPipeline,
             projections: INITIAL_STATE.projections,
             isNewPipelineConfirm: INITIAL_STATE.isNewPipelineConfirm,
@@ -270,6 +236,8 @@ describe('Aggregation Store', function() {
             explain: INITIAL_STATE.explain,
             isDataLake: INITIAL_STATE.isDataLake,
             indexes: INITIAL_STATE.indexes,
+            pipelineBuilder: INITIAL_STATE.pipelineBuilder,
+            focusMode: INITIAL_STATE.focusMode,
           });
         });
       });
@@ -345,122 +313,6 @@ describe('Aggregation Store', function() {
             }
           ]
         });
-      });
-    });
-  });
-
-  describe('#dispatch', function() {
-    let store;
-
-    beforeEach(function() {
-      store = configureStore();
-    });
-
-    context('when the action is unknown', function() {
-      it('returns the initial state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline[0].stage).to.equal('');
-          done();
-        });
-        store.dispatch({ type: 'UNKNOWN' });
-      });
-    });
-
-    context('when the action is STAGE_CHANGED', function() {
-      const stage = '{ $match: {}}';
-
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline[0].stage).to.equal(stage);
-          done();
-        });
-        store.dispatch(stageChanged(stage, 0));
-      });
-    });
-
-    context('when the action is STAGE_DELETED', function() {
-      it('deletes the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline).to.deep.equal([]);
-          done();
-        });
-        store.dispatch(stageDeleted(0));
-      });
-    });
-
-    context('when the action is STAGE_ADDED', function() {
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline.length).to.equal(2);
-          done();
-        });
-        store.dispatch(stageAdded());
-      });
-    });
-
-    context('when the action is STAGE_ADDED_AFTER', function() {
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline.length).to.equal(2);
-          done();
-        });
-        store.dispatch(stageAddedAfter(0));
-      });
-    });
-
-    context('when the action is STAGE_TOGGLED', function() {
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline[0].isEnabled).to.equal(false);
-          done();
-        });
-        store.dispatch(stageToggled(0));
-      });
-    });
-
-    context('when the action is STAGE_COLLAPSE_TOGGLED', function() {
-      it('updates the stage in state', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          expect(store.getState().pipeline[0].isExpanded).to.equal(false);
-          done();
-        });
-        store.dispatch(stageCollapseToggled(0));
-      });
-    });
-
-    context('when the action is STAGE_OPERATOR_SELECTED', function() {
-      it('clears the error', function(done) {
-        const unsubscribe = store.subscribe(() => {
-          unsubscribe();
-          const pipeline = store.getState().pipeline[0];
-          delete pipeline.id;
-          expect(pipeline).to.deep.equal({
-            stageOperator: '$match',
-            stage: '{\n  query\n}',
-            isMissingAtlasOnlyStageSupport: false,
-            isValid: false,
-            isEnabled: true,
-            isExpanded: true,
-            isLoading: false,
-            isComplete: false,
-            previewDocuments: [],
-            syntaxError: 'Stage must be a properly formatted document.',
-            error: null,
-            projections: []
-          });
-          done();
-        });
-
-        store.getState().pipeline[0].error = 'foo';
-
-        store.dispatch(stageOperatorSelected(0, '$match', false, 'on-prem'));
       });
     });
   });

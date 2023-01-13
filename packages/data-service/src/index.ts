@@ -14,6 +14,12 @@ import {
   mergeSecrets,
 } from './connection-secrets';
 import { configuredKMSProviders } from './instance-detail-helper';
+export {
+  ExportConnectionOptions,
+  ImportConnectionOptions,
+  exportConnections,
+  importConnections,
+} from './import-export-connection';
 
 export {
   ConnectionInfo,

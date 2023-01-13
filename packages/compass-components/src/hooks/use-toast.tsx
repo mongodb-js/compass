@@ -3,12 +3,15 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
-import type { ToastVariant } from '..';
-import { css } from '..';
-import { Toast } from '..';
+
+import { ToastVariant, Toast } from '../components/leafygreen';
+import { css } from '@leafygreen-ui/emotion';
+
+export { ToastVariant };
 
 type ToastProperties = {
   title?: React.ReactNode;
@@ -22,6 +25,55 @@ interface ToastActions {
   openToast: (id: string, toastProperties: ToastProperties) => void;
   closeToast: (id: string) => void;
 }
+
+class GlobalToastState implements ToastActions {
+  private timeouts = new Map<string, ReturnType<typeof setTimeout>>();
+  private toasts = new Map<string, ToastProperties>();
+  onToastsChange: (toasts: [string, ToastProperties][]) => void = () => {
+    /**/
+  };
+  openToast(id: string, toastProperties: ToastProperties): void {
+    this.clearTimeout(id);
+    this.toasts.set(id, toastProperties);
+    if (toastProperties.timeout) {
+      this.timeouts.set(
+        id,
+        setTimeout(() => {
+          this.closeToast(id);
+        }, toastProperties.timeout)
+      );
+    }
+    this.onToastsChange(Array.from(this.toasts.entries()));
+  }
+  closeToast(id: string): void {
+    this.clearTimeout(id);
+    this.toasts.delete(id);
+    this.onToastsChange(Array.from(this.toasts.entries()));
+  }
+  clearTimeout(id?: string) {
+    if (id) {
+      if (this.timeouts.has(id)) {
+        clearTimeout(this.timeouts.get(id)!);
+        this.timeouts.delete(id);
+      }
+    } else {
+      this.timeouts.forEach((id) => {
+        clearTimeout(id);
+      });
+      this.timeouts.clear();
+    }
+  }
+  clear() {
+    this.clearTimeout();
+    this.toasts.clear();
+  }
+}
+
+const toastState = new GlobalToastState();
+
+export const openToast = toastState.openToast.bind(toastState);
+
+export const closeToast = toastState.closeToast.bind(toastState);
 
 const ToastContext = createContext<ToastActions>({
   openToast: () => {
@@ -44,7 +96,7 @@ const toastStyles = css({
  * ```
  * const MyButton = () => {
  *   const { openToast } = useToast('namespace');
- *   return <button onClick={() => openToast(
+ *   return <button type="button" onClick={() => openToast(
  *      'myToast1', {title: 'This is a notification'})} />
  * };
  *
@@ -54,86 +106,41 @@ const toastStyles = css({
  * @returns
  */
 export const ToastArea: React.FunctionComponent = ({ children }) => {
-  const [toasts, setToasts] = useState<Record<string, ToastProperties>>({});
-  const timeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const [toasts, setToasts] = useState<[string, ToastProperties][]>([]);
+  const toastStateRef = useRef<GlobalToastState>();
+
+  if (!toastStateRef.current) {
+    toastStateRef.current = toastState;
+    toastStateRef.current.onToastsChange = setToasts;
+  }
+
+  const toastActions = useMemo(() => {
+    return { openToast, closeToast };
+  }, []);
 
   useEffect(() => {
     return () => {
-      Object.values(timeouts).forEach(clearTimeout);
+      toastStateRef.current?.clear();
     };
-  }, [timeouts]);
-
-  const clearTimeoutRef = useCallback(
-    (id) => {
-      clearTimeout(timeouts.current[id]);
-      delete timeouts.current[id];
-    },
-    [timeouts]
-  );
-
-  const setTimeoutRef = useCallback(
-    (id: string, callback: () => void, timeout: number) => {
-      clearTimeoutRef(id);
-      timeouts.current[id] = setTimeout(callback, timeout);
-    },
-    [timeouts, clearTimeoutRef]
-  );
-
-  const closeToast = useCallback(
-    (toastId: string): void => {
-      clearTimeoutRef(toastId);
-
-      setToasts((prevToasts) => {
-        const newToasts = { ...prevToasts };
-        delete newToasts[toastId];
-        return newToasts;
-      });
-    },
-    [setToasts, clearTimeoutRef]
-  );
-
-  const openToast = useCallback(
-    (toastId: string, toastProperties: ToastProperties): void => {
-      clearTimeoutRef(toastId);
-
-      if (toastProperties.timeout) {
-        setTimeoutRef(
-          toastId,
-          () => {
-            closeToast(toastId);
-          },
-          toastProperties.timeout
-        );
-      }
-
-      setToasts((prevToasts) => ({
-        ...prevToasts,
-        [toastId]: {
-          ...toastProperties,
-        },
-      }));
-    },
-    [setToasts, setTimeoutRef, clearTimeoutRef, closeToast]
-  );
+  }, []);
 
   return (
-    <ToastContext.Provider value={{ closeToast, openToast }}>
+    <ToastContext.Provider value={toastActions}>
       <>{children}</>
       <>
-        {Object.entries(toasts).map(
-          ([id, { title, body, variant, progress }]) => (
-            <Toast
-              className={toastStyles}
-              key={id}
-              title={title}
-              body={body}
-              variant={variant}
-              progress={progress}
-              open={true}
-              close={() => closeToast(id)}
-            />
-          )
-        )}
+        {toasts.map(([id, { title, body, variant, progress }]) => (
+          <Toast
+            className={toastStyles}
+            key={id}
+            data-testid={`toast-${id}`}
+            title={title}
+            body={body}
+            variant={variant}
+            progress={progress}
+            open={true}
+            close={() => closeToast(id)}
+          />
+        ))}
       </>
     </ToastContext.Provider>
   );

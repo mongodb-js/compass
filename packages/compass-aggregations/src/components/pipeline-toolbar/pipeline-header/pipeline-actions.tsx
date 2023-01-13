@@ -11,9 +11,13 @@ import {
   exportAggregationResults,
   runAggregation,
 } from '../../../modules/aggregation';
-import { isEmptyishStage } from '../../../modules/stage';
 import { updateView } from '../../../modules/update-view';
 import { explainAggregation } from '../../../modules/explain';
+import {
+  getIsPipelineInvalidFromBuilderState,
+  getPipelineStageOperatorsFromBuilderState,
+} from '../../../modules/pipeline-builder/builder-helpers';
+import { isOutputStage } from '../../../utils/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -40,6 +44,8 @@ type PipelineActionsProps = {
 
   isOptionsVisible?: boolean;
   onToggleOptions: () => void;
+
+  isAtlasDeployed?: boolean;
 };
 
 export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
@@ -57,6 +63,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onToggleOptions,
   onExportAggregationResults,
   onExplainAggregation,
+  isAtlasDeployed,
 }) => {
   return (
     <div className={containerStyles}>
@@ -108,38 +115,30 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Run
         </Button>
       )}
-      <MoreOptionsToggle
+      {!isAtlasDeployed && (<MoreOptionsToggle
         isExpanded={!!isOptionsVisible}
         aria-controls="pipeline-options"
         id="pipeline-toolbar-options"
         data-testid="pipeline-toolbar-options-button"
         onToggleOptions={onToggleOptions}
-      />
+      />)}
     </div>
   );
 };
 
-const mapState = ({ pipeline, editViewName, isModified }: RootState) => {
-  const resultPipeline = pipeline.filter(
-    (stageState) => !isEmptyishStage(stageState)
-  );
+const mapState = (state: RootState) => {
+  const resultPipeline = getPipelineStageOperatorsFromBuilderState(state);
   const lastStage = resultPipeline[resultPipeline.length - 1];
-  const isMergeOrOutPipeline = ['$merge', '$out'].includes(
-    lastStage?.stageOperator
-  );
-  const isPipelineInvalid = resultPipeline.some(
-    (stageState) => !stageState.isValid || Boolean(stageState.error)
-  );
-  const isStageStateEmpty = pipeline.length === 0;
+  const isMergeOrOutPipeline = isOutputStage(lastStage);
+  const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
 
   return {
-    isRunButtonDisabled: isPipelineInvalid || isStageStateEmpty,
-    isExplainButtonDisabled: isPipelineInvalid,
-    isExportButtonDisabled:
-      isMergeOrOutPipeline || isPipelineInvalid || isStageStateEmpty,
-    showUpdateViewButton: Boolean(editViewName),
-    isUpdateViewButtonDisabled:
-      !isModified || isPipelineInvalid || isStageStateEmpty,
+    isRunButtonDisabled: hasSyntaxErrors,
+    isExplainButtonDisabled: hasSyntaxErrors,
+    isExportButtonDisabled: isMergeOrOutPipeline || hasSyntaxErrors,
+    showUpdateViewButton: Boolean(state.editViewName),
+    isUpdateViewButtonDisabled: !state.isModified || hasSyntaxErrors,
+    isAtlasDeployed: state.isAtlasDeployed,
   };
 };
 
@@ -150,4 +149,4 @@ const mapDispatch = {
   onExplainAggregation: explainAggregation,
 };
 
-export default connect(mapState, mapDispatch)(PipelineActions);
+export default connect(mapState, mapDispatch)(React.memo(PipelineActions));

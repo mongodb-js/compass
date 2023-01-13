@@ -1,14 +1,21 @@
 /* eslint complexity: [2, 12] */
 const React = require('react');
 const PropTypes = require('prop-types');
-const ReactDOM = require('react-dom');
+const { palette } = require('@mongodb-js/compass-components');
 const Actions = require('../actions');
 const d3 = require('d3');
 const chartFn = require('../d3/').realTimeLineChart;
 
 // const debug = require('debug')('mongodb-compass:server-stats:chart-component');
 
-const LINE_COLORS = ['#45BAAB', '#23B1FF', '#6F72FF', '#A33A35', '#FFA900', '#C7E82F'];
+const LINE_COLORS = [
+  palette.green.dark1,
+  palette.blue.light1,
+  palette.blue.base,
+  palette.red.light1,
+  palette.purple.base,
+  palette.yellow.light2
+];
 
 /**
  * Represents the component that renders serverStatus charts.
@@ -67,7 +74,6 @@ class ChartComponent extends React.Component {
    * Redraw the component.
    */
   redraw() {
-    const el = ReactDOM.findDOMNode(this.refs.container);
     const data = this.state.error ? {} : this.state.data;
     if (!data.localTime || data.localTime.length === 0) {
       return;
@@ -109,7 +115,7 @@ class ChartComponent extends React.Component {
       .on('mouseout', Actions.mouseOut)
       .eventDispatcher(this.props.dispatcher);
 
-    d3.select(el)
+    d3.select(this.containerRef)
       .datum(this.state.data)
       .call(this.chart);
   }
@@ -122,7 +128,9 @@ class ChartComponent extends React.Component {
   render() {
     return (
       <div className="chart">
-        <div ref="container" />
+        <div ref={(container) => {
+          this.containerRef = container;
+        }} />
       </div>
     );
   }

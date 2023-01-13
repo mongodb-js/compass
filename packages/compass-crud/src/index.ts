@@ -1,9 +1,9 @@
 import type AppRegistry from 'hadron-app-registry';
 
-import Document from './components/document';
-import DocumentList from './components/document-list';
+import Document, { DocumentProps } from './components/document';
+import DocumentList, { DocumentListProps } from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
-import ConnectedDocumentList from './components/connected-document-list';
+import { ConnectedDocumentList } from './components/connected-document-list';
 import configureActions from './actions';
 import configureStore from './stores/crud-store';
 
@@ -49,11 +49,19 @@ export {
   activate,
   deactivate,
   DocumentList,
+  DocumentListProps,
   Document,
+  DocumentProps,
   InsertDocumentDialog,
   configureStore,
   configureActions,
 };
-export { default as DocumentListView } from './components/document-list-view';
-export { default as DocumentJsonView } from './components/document-json-view';
+export {
+  default as DocumentListView,
+  DocumentListViewProps,
+} from './components/document-list-view';
+export {
+  default as DocumentJsonView,
+  DocumentJsonViewProps,
+} from './components/document-json-view';
 export { default as metadata } from '../package.json';

@@ -41,8 +41,8 @@ function ConnectingBackground(): React.ReactElement {
           y2="0.4"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0.09" stopColor="#ffe1ea" stopOpacity="0.34" />
-          <stop offset="0.74" stopColor="#c5e4f2" stopOpacity="0.61">
+          <stop offset="0.09" stopColor="#f9ebff" stopOpacity="0.34" />
+          <stop offset="0.74" stopColor="#c3e7fe" stopOpacity="0.61">
             <animate
               attributeName="offset"
               from="0.74"
@@ -53,7 +53,7 @@ function ConnectingBackground(): React.ReactElement {
               values="0.74;0.45;0.74"
             />
           </stop>
-          <stop offset="1" stopColor="#fef2c8" stopOpacity="0.8" />
+          <stop offset="1" stopColor="#fef7db" stopOpacity="0.8" />
         </linearGradient>
       </defs>
       <g>

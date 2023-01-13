@@ -1,6 +1,6 @@
 # mongodb-collection-model [![][npm_img]][npm_url]
 
-> MongoDB collection model.
+> MongoDB collection model
 
 ## Installation
 

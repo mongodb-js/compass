@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { ConfirmationModal, TextInput } from '@mongodb-js/compass-components';
+import {
+  FormModal,
+  FormFieldContainer,
+  TextInput,
+} from '@mongodb-js/compass-components';
 import type { ConnectionFavoriteOptions } from 'mongodb-data-service';
 
-import FormFieldContainer from './form-field-container';
 import { FavoriteColorPicker } from './favorite-color-picker';
 
 function SaveConnectionModal({
@@ -24,20 +27,20 @@ function SaveConnectionModal({
   });
 
   return (
-    <ConfirmationModal
+    <FormModal
       title={
         initialFavoriteInfo ? 'Edit favorite' : 'Save connection to favorites'
       }
       open={open}
-      onConfirm={() => {
+      onSubmit={() => {
         void onSaveClicked({
           ...editingFavorite,
         });
       }}
       submitDisabled={(editingFavorite.name || '').trim() ? false : true}
       onCancel={onCancelClicked}
-      buttonText={saveText}
-      data-testid="favorite_modal"
+      submitButtonText={saveText}
+      data-testid="favorite-modal"
     >
       <FormFieldContainer>
         <TextInput
@@ -66,7 +69,7 @@ function SaveConnectionModal({
           }}
         />
       </FormFieldContainer>
-    </ConfirmationModal>
+    </FormModal>
   );
 }
 

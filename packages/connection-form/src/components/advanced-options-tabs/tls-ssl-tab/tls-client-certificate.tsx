@@ -1,7 +1,9 @@
 import React from 'react';
-import { FileInput, TextInput } from '@mongodb-js/compass-components';
-
-import FormFieldContainer from '../../form-field-container';
+import {
+  FormFieldContainer,
+  FileInput,
+  TextInput,
+} from '@mongodb-js/compass-components';
 
 function TLSClientCertificate({
   tlsCertificateKeyFile,

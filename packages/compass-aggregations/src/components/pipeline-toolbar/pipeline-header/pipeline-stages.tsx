@@ -13,9 +13,10 @@ import {
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../../modules';
-import { stageAdded } from '../../../modules/pipeline';
-import { changeWorkspace } from '../../../modules/workspace';
+import { editPipeline } from '../../../modules/workspace';
 import type { Workspace } from '../../../modules/workspace';
+import { getPipelineStageOperatorsFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
+import { addStage } from '../../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   display: 'flex',
@@ -41,16 +42,18 @@ type PipelineStagesProps = {
   isResultsMode: boolean;
   stages: string[];
   showAddNewStage: boolean;
-  onStageAdded: () => void;
-  onChangeWorkspace: (workspace: Workspace) => void;
+  onAddStageClick: () => void;
+  onEditPipelineClick: (workspace: Workspace) => void;
 };
+
+const nbsp = '\u00a0';
 
 export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   isResultsMode,
   stages,
   showAddNewStage,
-  onStageAdded,
-  onChangeWorkspace,
+  onAddStageClick,
+  onEditPipelineClick,
 }) => {
   return (
     <div className={containerStyles} data-testid="toolbar-pipeline-stages">
@@ -59,12 +62,11 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
           Your pipeline is currently empty.
           {showAddNewStage && (
             <>
-              {' '}
-              To get started select the&nbsp;
+              {nbsp}To get started add the{nbsp}
               <Link
                 className={addStageStyles}
                 as="button"
-                onClick={() => onStageAdded()}
+                onClick={() => onAddStageClick()}
                 hideExternalIcon
                 data-testid="pipeline-toolbar-add-stage-button"
               >
@@ -85,7 +87,7 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
           data-testid="pipeline-toolbar-edit-button"
           variant="primaryOutline"
           size="small"
-          onClick={() => onChangeWorkspace('builder')}
+          onClick={() => onEditPipelineClick('builder')}
           leftGlyph={<Icon glyph="Edit" />}
         >
           Edit
@@ -95,17 +97,19 @@ export const PipelineStages: React.FunctionComponent<PipelineStagesProps> = ({
   );
 };
 
-const mapState = ({ pipeline, workspace }: RootState) => ({
-  stages: pipeline
-    .filter((stage) => stage.isEnabled)
-    .map(({ stageOperator }) => stageOperator)
-    .filter(Boolean),
-  showAddNewStage: pipeline.length === 0,
-  isResultsMode: workspace === 'results',
-});
+const mapState = (state: RootState) => {
+  const stages = getPipelineStageOperatorsFromBuilderState(state, false);
+  const isResultsMode = state.workspace === 'results';
+  const isStageMode = state.pipelineBuilder.pipelineMode === 'builder-ui';
+  return {
+    stages: stages.filter(Boolean) as string[],
+    showAddNewStage: !isResultsMode && isStageMode && stages.length === 0,
+    isResultsMode,
+  };
+};
 
 const mapDispatch = {
-  onStageAdded: stageAdded,
-  onChangeWorkspace: changeWorkspace,
+  onAddStageClick: addStage,
+  onEditPipelineClick: editPipeline,
 };
-export default connect(mapState, mapDispatch)(PipelineStages);
+export default connect(mapState, mapDispatch)(React.memo(PipelineStages));

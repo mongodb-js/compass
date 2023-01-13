@@ -270,9 +270,7 @@ describe('Connection form', function () {
       hosts: ['localhost:27017'],
       directConnection: false,
       authMethod: 'GSSAPI',
-      // kerberosPassword: 'password',
       kerberosPrincipal: 'principal',
-      // kerberosProvidePassword: true,
       kerberosServiceName: 'service name',
       kerberosCanonicalizeHostname: 'forward',
       kerberosServiceRealm: 'service realm',
@@ -522,23 +520,11 @@ describe('Connection form', function () {
     const newFavoriteName = 'My Favorite (edited)';
 
     // save
-    await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
-    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-    await browser.$(Selectors.FavoriteNameInput).setValue(favoriteName);
-    await browser.clickVisible(
-      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color1"]`
-    );
-    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-    expect(await browser.$(Selectors.FavoriteSaveButton).getText()).to.equal(
-      'Save'
-    );
-    await browser.clickVisible(Selectors.FavoriteSaveButton);
-    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+    await browser.saveFavorite(favoriteName, 'color1');
 
     if (process.env.COMPASS_E2E_DISABLE_CLIPBOARD_USAGE !== 'true') {
       // copy the connection string
-      await selectConnectionMenuItem(
-        browser,
+      await browser.selectConnectionMenuItem(
         favoriteName,
         Selectors.CopyConnectionStringItem
       );
@@ -551,39 +537,48 @@ describe('Connection form', function () {
     }
 
     // duplicate
-    await selectConnectionMenuItem(
-      browser,
+    await browser.selectConnectionMenuItem(
       favoriteName,
       Selectors.DuplicateConnectionItem
     );
 
     // delete the duplicate
-    await selectConnectionMenuItem(
-      browser,
+    await browser.selectConnectionMenuItem(
       `${favoriteName} (copy)`,
       Selectors.RemoveConnectionItem
     );
 
-    // edit
-    await browser.clickVisible(Selectors.sidebarFavoriteButton(favoriteName));
-    await browser.waitUntil(async () => {
-      const text = await browser.$(Selectors.ConnectionTitle).getText();
-      return text === favoriteName;
-    });
-    await browser.clickVisible(Selectors.ConnectionFormEditFavouriteButton);
-    await browser.$(Selectors.FavoriteModal).waitForDisplayed();
-    await browser.$(Selectors.FavoriteNameInput).setValue(newFavoriteName);
-    await browser.clickVisible(
-      `${Selectors.FavoriteColorSelector} [data-testid="color-pick-color2"]`
-    );
-    await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
-    await browser.clickVisible(Selectors.FavoriteSaveButton);
-    await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
+    // edit the original
+    await browser.selectFavorite(favoriteName);
+    await browser.saveFavorite(newFavoriteName, 'color2');
 
-    // should now be updated in the sidebar
+    // it should now be updated in the sidebar
     await browser
       .$(Selectors.sidebarFavorite(newFavoriteName))
       .waitForDisplayed();
+
+    // the edit the connection string toggle should be on (because this is a new connection we just saved)
+    const toggle = await browser.$(Selectors.EditConnectionStringToggle);
+    expect(await toggle.getAttribute('aria-checked')).to.equal('true');
+
+    // toggle the edit connection string toggle twice
+    await browser.clickVisible(Selectors.EditConnectionStringToggle);
+    expect(await toggle.getAttribute('aria-checked')).to.equal('false');
+    await browser.clickVisible(Selectors.EditConnectionStringToggle);
+
+    const confirmModal = await browser.$(Selectors.EditConnectionStringModal);
+    await confirmModal.waitForDisplayed();
+
+    await browser.screenshot('edit-uri-confirmation-modal.png');
+
+    await browser.clickVisible(
+      Selectors.EditConnectionStringModalConfirmButton
+    );
+
+    await confirmModal.waitForDisplayed({ reverse: true });
+
+    // the toggle should now be on
+    expect(await toggle.getAttribute('aria-checked')).to.equal('true');
   });
 
   it('can save & connect', async function () {
@@ -609,6 +604,9 @@ describe('Connection form', function () {
     );
 
     await browser.$(Selectors.FavoriteSaveButton).waitForEnabled();
+
+    await browser.screenshot('save-favorite-modal-new.png');
+
     await browser.clickVisible(Selectors.FavoriteSaveButton);
     await browser.$(Selectors.FavoriteModal).waitForExist({ reverse: true });
 
@@ -622,18 +620,3 @@ describe('Connection form', function () {
     );
   });
 });
-
-async function selectConnectionMenuItem(
-  browser: CompassBrowser,
-  favoriteName: string,
-  itemSelector: string
-) {
-  const selector = Selectors.sidebarFavorite(favoriteName);
-  // It takes some time for the favourites to load
-  await browser.$(selector).waitForDisplayed();
-  await browser.hover(selector);
-
-  await browser.clickVisible(Selectors.sidebarFavoriteMenuButton(favoriteName));
-  await browser.$(Selectors.ConnectionMenu).waitForDisplayed();
-  await browser.clickVisible(itemSelector);
-}

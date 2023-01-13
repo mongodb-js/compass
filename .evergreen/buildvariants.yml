@@ -10,6 +10,7 @@ buildvariants:
     run_on: ubuntu1604-large
     tasks:
       - name: publish
+      - name: publish-packages-next
 
   - name: ubuntu_connectivity_tests
     display_name: Connectivity Tests
@@ -23,83 +24,164 @@ buildvariants:
     tasks:
       - name: test-csfle
 
-  - name: windows
-    display_name: Windows (Test and Package)
-    run_on: windows-vsCurrent-large
-    tasks:
-      - name: test
-      - name: test-electron
-      - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
-      - name: test-packaged-app-40x-community
-      - name: test-packaged-app-40x-enterprise
-      - name: test-packaged-app-42x-community
-      - name: test-packaged-app-42x-enterprise
-      - name: test-packaged-app-44x-community
-      - name: test-packaged-app-44x-enterprise
-      - name: test-packaged-app-5x-community
-      - name: test-packaged-app-5x-enterprise
-      - name: test-packaged-app-60x-enterprise
-
   - name: ubuntu
-    display_name: Ubuntu (Test and Package)
+    display_name: Ubuntu 16.04 (Test and Package)
     run_on: ubuntu1604-large
     tasks:
-      - name: test
-      - name: test-electron
       - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
+
+      - name: test
+
+      - name: test-electron
+
+      - name: package-compass
+
+      - name: package-compass-readonly
+
+      - name: package-compass-isolated
+
       - name: test-packaged-app-40x-community
+        depends_on: package-compass
+
       - name: test-packaged-app-40x-enterprise
+        depends_on: package-compass
+
       - name: test-packaged-app-42x-community
+        depends_on: package-compass
+
       - name: test-packaged-app-42x-enterprise
+        depends_on: package-compass
+
       - name: test-packaged-app-44x-community
+        depends_on: package-compass
+
       - name: test-packaged-app-44x-enterprise
+        depends_on: package-compass
+
+  - name: windows
+    display_name: Windows 10 (Test and Package)
+    run_on: windows-vsCurrent-large
+    tasks:
+      - name: check
+
+      - name: test
+
+      - name: test-electron
+
+      - name: package-compass
+
+      - name: package-compass-readonly
+
+      - name: package-compass-isolated
+
+      - name: test-packaged-app-40x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-40x-enterprise
+        depends_on: package-compass
+
+      - name: test-packaged-app-42x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-42x-enterprise
+        depends_on: package-compass
+
+      - name: test-packaged-app-44x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-44x-enterprise
+        depends_on: package-compass
+
+      - name: test-packaged-app-5x-community
+        depends_on: package-compass
+
+      - name: test-packaged-app-5x-enterprise
+        depends_on: package-compass
+
+      - name: test-packaged-app-60x-enterprise
+        depends_on: package-compass
 
   - name: rhel
-    display_name: RHEL (Test and Package)
+    display_name: RHEL 7.6 (Test and Package)
     run_on: rhel76-large
     tasks:
-      - name: test
-      - name: test-electron
       - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
+
+      - name: test
+
+      - name: test-electron
+
+      - name: package-compass
+
+      - name: package-compass-readonly
+
+      - name: package-compass-isolated
+
       - name: test-packaged-app-40x-community
+        depends_on: package-compass
+
       - name: test-packaged-app-40x-enterprise
+        depends_on: package-compass
+
       - name: test-packaged-app-42x-community
+        depends_on: package-compass
+
       - name: test-packaged-app-42x-enterprise
+        depends_on: package-compass
+
       - name: test-packaged-app-44x-community
+        depends_on: package-compass
+
       - name: test-packaged-app-44x-enterprise
+        depends_on: package-compass
+
       - name: test-packaged-app-5x-community
+        depends_on: package-compass
+
       - name: test-packaged-app-5x-enterprise
+        depends_on: package-compass
+
       - name: test-packaged-app-60x-enterprise
+        depends_on: package-compass
 
   - name: macos
-    display_name: MacOS x64 (Test and Package)
-    run_on: macos-1100-gui
+    display_name: MacOS x64 11.00 (Test and Package)
+    run_on: macos-1100
     tasks:
-      - name: test
-      - name: test-electron
       - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
-      - name: test-packaged-app-60x-enterprise
 
-  - name: macos_arm64
-    display_name: MacOS arm64 (Test and Package)
-    run_on: macos-1100-arm64-gui
-    tasks:
       - name: test
+
       - name: test-electron
-      - name: check
-      - name: package
-      - name: package-readonly
-      - name: package-isolated
+        run_on: macos-1100-gui
+
+      - name: package-compass
+
+      - name: package-compass-readonly
+
+      - name: package-compass-isolated
+
       - name: test-packaged-app-60x-enterprise
+        run_on: macos-1100-gui
+        depends_on: package-compass
+
+  - name: macos-arm
+    display_name: MacOS arm64 11.00 (Test and Package)
+    run_on: macos-1100-arm64
+    tasks:
+      - name: check
+
+      - name: test
+
+      - name: test-electron
+        run_on: macos-1100-arm64-gui
+
+      - name: package-compass
+
+      - name: package-compass-readonly
+
+      - name: package-compass-isolated
+
+      - name: test-packaged-app-60x-enterprise
+        run_on: macos-1100-arm64-gui
+        depends_on: package-compass

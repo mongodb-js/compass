@@ -1,9 +1,5 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import {
-  localAppRegistryActivated,
-  globalAppRegistryActivated
-} from '@mongodb-js/mongodb-redux-common/app-registry';
 import { dataServiceConnected } from '../modules/data-service';
 import reducer, { open } from '../modules/create-view';
 
@@ -21,11 +17,23 @@ export const setDataProvider = (store, error, provider) => {
 };
 
 const configureStore = (options = {}) => {
-  const store = createStore(reducer, applyMiddleware(thunk));
+  const store = createStore(
+    reducer,
+    {
+      appRegistry: {
+        localAppRegistry: options.localAppRegistry ?? null,
+        globalAppRegistry: options.globalAppRegistry ?? null
+      },
+      dataService: {
+        error: options.dataProvider.error,
+        dataService: options.dataProvider.dataProvider
+      }
+    },
+    applyMiddleware(thunk)
+  );
 
   if (options.localAppRegistry) {
     const localAppRegistry = options.localAppRegistry;
-    store.dispatch(localAppRegistryActivated(localAppRegistry));
 
     /**
      * When needing to create a view from elsewhere, the app registry
@@ -35,19 +43,6 @@ const configureStore = (options = {}) => {
       debug('open-create-view', meta.source, meta.pipeline);
       store.dispatch(open(meta.source, meta.pipeline, false));
     });
-  }
-
-  if (options.globalAppRegistry) {
-    const globalAppRegistry = options.globalAppRegistry;
-    store.dispatch(globalAppRegistryActivated(globalAppRegistry));
-  }
-
-  if (options.dataProvider) {
-    setDataProvider(
-      store,
-      options.dataProvider.error,
-      options.dataProvider.dataProvider
-    );
   }
 
   return store;

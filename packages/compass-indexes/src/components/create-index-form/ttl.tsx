@@ -19,7 +19,7 @@ const TTLCollapsibleFieldSet = ({
       toggled={useTtl}
       onToggle={toggleUseTtl}
       label="Create TTL"
-      dataTestId="create-index-modal-use-ttl-checkbox"
+      data-testid="create-index-modal-use-ttl"
       description="TTL indexes are special single-field indexes that MongoDB can use to automatically remove documents from a collection after a certain amount of time or at a specific clock time."
     >
       <TextInput

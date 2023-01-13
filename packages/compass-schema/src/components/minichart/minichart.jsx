@@ -104,7 +104,7 @@ class MiniChart extends Component {
       return (
         <UniqueMiniChart
           localAppRegistry={this.props.localAppRegistry}
-          key={typeName}
+          key={`${typeName}-${this.props.type.isInArray}`}
           fieldName={fieldName}
           queryValue={queryValue}
           type={this.props.type}

@@ -3,16 +3,18 @@ import dataService from '../data-service';
 import serverVersion from '../server-version';
 import isRunning, {
   toggleIsRunning,
-  INITIAL_STATE as IS_RUNNING_INITIAL_STATE
+  INITIAL_STATE as IS_RUNNING_INITIAL_STATE,
 } from '../is-running';
 import isVisible, {
-  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
+  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
 } from '../is-visible';
 import databaseName, {
-  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE
+  INITIAL_STATE as DATABASE_NAME_INITIAL_STATE,
 } from '../database-name';
 import error, {
-  clearError, handleError, INITIAL_STATE as ERROR_INITIAL_STATE
+  clearError,
+  handleError,
+  INITIAL_STATE as ERROR_INITIAL_STATE,
 } from '../error';
 import { reset, RESET } from '../reset';
 import { prepareMetrics } from '../metrics';
@@ -40,7 +42,7 @@ const reducer = combineReducers({
   databaseName,
   error,
   serverVersion,
-  dataService
+  dataService,
 });
 
 /**
@@ -57,7 +59,7 @@ const rootReducer = (state, action) => {
     isRunning: IS_RUNNING_INITIAL_STATE,
     isVisible: IS_VISIBLE_INITIAL_STATE,
     databaseName: DATABASE_NAME_INITIAL_STATE,
-    error: ERROR_INITIAL_STATE
+    error: ERROR_INITIAL_STATE,
   };
 
   if (action.type === RESET) {
@@ -66,7 +68,7 @@ const rootReducer = (state, action) => {
     return {
       ...resetState,
       isVisible: true,
-      databaseName: action.databaseName
+      databaseName: action.databaseName,
     };
   }
   return reducer(state, action);
@@ -97,61 +99,8 @@ const stopWithError = (dispatch, err) => {
  */
 export const open = (dbName) => ({
   type: OPEN,
-  databaseName: dbName
+  databaseName: dbName,
 });
-
-export const createCollection = (data, kind = 'Collection') => {
-  // Note: This method can also be called from createDatabase(),
-  // against a different state.
-  return async(dispatch, getState) => {
-    const state = getState();
-    const ds = state.dataService.dataService;
-    const dbName = kind === 'Collection' ? state.databaseName : data.database;
-    const collName = data.collection;
-    const namespace = `${dbName}.${collName}`;
-
-    dispatch(clearError());
-
-    if (dbName && dbName.includes('.')) {
-      return dispatch(handleError(new Error(NO_DOT)));
-    }
-
-    try {
-      dispatch(toggleIsRunning(true));
-
-      const options = await handleFLE2Options(ds, data.options);
-
-      const collection = await new Promise((resolve, reject) => {
-        ds.createCollection(namespace, options, (err, coll) => {
-          if (err) reject(err); else resolve(coll);
-        });
-      });
-
-      const trackEvent = {
-        is_capped: !!data.options.capped,
-        has_collation: !!data.options.collation,
-        is_timeseries: !!data.options.timeseries,
-        is_clustered: !!data.options.clusteredIndex,
-        is_fle2: !!data.options.encryptedFields,
-        expires: !!data.options.expireAfterSeconds
-      };
-
-      track(`${kind} Created`, trackEvent);
-
-      prepareMetrics(collection).then((metrics) => {
-        global.hadronApp.appRegistry.emit('compass:collection:created', metrics);
-      });
-      global.hadronApp.appRegistry.emit('collection-created', {
-        ns: namespace,
-        database: dbName,
-        collection: collName,
-      });
-      dispatch(reset());
-    } catch (e) {
-      return stopWithError(dispatch, e);
-    }
-  };
-};
 
 export async function handleFLE2Options(ds, options) {
   if (!options) {
@@ -182,11 +131,13 @@ export async function handleFLE2Options(ds, options) {
         const keyCreationPromises = [];
         for (const field of fields) {
           if (field.keyId) continue;
-          keyCreationPromises.push((async() => {
-            field.keyId = await ds.createDataKey(options.kmsProvider, {
-              masterKey: keyEncryptionKey
-            });
-          })());
+          keyCreationPromises.push(
+            (async () => {
+              field.keyId = await ds.createDataKey(options.kmsProvider, {
+                masterKey: keyEncryptionKey,
+              });
+            })()
+          );
         }
         await Promise.all(keyCreationPromises);
       }
@@ -200,3 +151,60 @@ export async function handleFLE2Options(ds, options) {
 
   return options;
 }
+
+export const createCollection = (data, kind = 'Collection') => {
+  // Note: This method can also be called from createDatabase(),
+  // against a different state.
+  return async (dispatch, getState) => {
+    const state = getState();
+    const ds = state.dataService.dataService;
+    const dbName = kind === 'Collection' ? state.databaseName : data.database;
+    const collName = data.collection;
+    const namespace = `${dbName}.${collName}`;
+
+    dispatch(clearError());
+
+    if (dbName && dbName.includes('.')) {
+      return dispatch(handleError(new Error(NO_DOT)));
+    }
+
+    try {
+      dispatch(toggleIsRunning(true));
+
+      const options = await handleFLE2Options(ds, data.options);
+
+      const collection = await new Promise((resolve, reject) => {
+        ds.createCollection(namespace, options, (err, coll) => {
+          if (err) reject(err);
+          else resolve(coll);
+        });
+      });
+
+      const trackEvent = {
+        is_capped: !!data.options.capped,
+        has_collation: !!data.options.collation,
+        is_timeseries: !!data.options.timeseries,
+        is_clustered: !!data.options.clusteredIndex,
+        is_fle2: !!data.options.encryptedFields,
+        expires: !!data.options.expireAfterSeconds,
+      };
+
+      track(`${kind} Created`, trackEvent);
+
+      prepareMetrics(collection).then((metrics) => {
+        global.hadronApp.appRegistry.emit(
+          'compass:collection:created',
+          metrics
+        );
+      });
+      global.hadronApp.appRegistry.emit('collection-created', {
+        ns: namespace,
+        database: dbName,
+        collection: collName,
+      });
+      dispatch(reset());
+    } catch (e) {
+      return stopWithError(dispatch, e);
+    }
+  };
+};

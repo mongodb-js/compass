@@ -1,36 +1,71 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Editor, EditorVariant, EditorTextCompleter } from '@mongodb-js/compass-components';
-import { StageAutoCompleter } from 'mongodb-ace-autocompleter';
+import {
+  Editor,
+  EditorVariant,
+  EditorTextCompleter,
+  StageAutoCompleter
+} from '@mongodb-js/compass-editor';
 
-import styles from './stage-editor.module.less';
+import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
+
+import { css, cx, spacing, palette, Banner, withDarkMode } from '@mongodb-js/compass-components';
+
+import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
+
+const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
+
+const editorContainerStyles = css({
+  position: 'relative',
+  textAlign: 'center',
+  overflow: 'hidden',
+});
+
+const editorStyles = css({
+  flexShrink: 0,
+  margin: 0,
+  padding: `${spacing[2]}px 0 ${spacing[2]}px 0`,
+  width: '100%',
+  minHeight: '200px'
+});
+
+const editorContainerStylesDark = css({
+  background: palette.gray.dark3,
+});
+
+const editorContainerStylesLight = css({
+  background: palette.gray.light3,
+});
+
+const aceEditorStyles = css({
+  minHeight: '160px'
+});
+
+const bannerStyles = css({
+  margin: spacing[2],
+  textAlign: 'left'
+});
 
 /**
  * Edit a single stage in the aggregation pipeline.
  */
-class StageEditor extends Component {
-  static displayName = 'StageEditorComponent';
-
+class UnthemedStageEditor extends PureComponent {
   static propTypes = {
-    stage: PropTypes.string,
-    stageOperator: PropTypes.string,
-    error: PropTypes.string,
-    syntaxError: PropTypes.string,
-    runStage: PropTypes.func.isRequired,
+    darkMode: PropTypes.bool.isRequired,
     index: PropTypes.number.isRequired,
+    stageValue: PropTypes.string,
+    onChange: PropTypes.func.isRequired,
+    stageOperator: PropTypes.string,
     serverVersion: PropTypes.string.isRequired,
-    fields: PropTypes.array.isRequired,
-    stageChanged: PropTypes.func.isRequired,
-    isValid: PropTypes.bool.isRequired,
-    setIsModified: PropTypes.func.isRequired,
-    projections: PropTypes.array.isRequired,
-    projectionsChanged: PropTypes.func.isRequired,
-    newPipelineFromPaste: PropTypes.func.isRequired
+    autocompleteFields: PropTypes.array.isRequired,
+    syntaxError: PropTypes.object,
+    serverError: PropTypes.object,
+    num_stages: PropTypes.number.isRequired,
   };
 
   static defaultProps = {
-    fields: [],
-    projections: []
+    autocompleteFields: []
   };
 
   /**
@@ -43,43 +78,44 @@ class StageEditor extends Component {
     this.completer = new StageAutoCompleter(
       this.props.serverVersion,
       EditorTextCompleter,
-      this.getFieldsAndProjections(),
+      this.props.autocompleteFields,
       this.props.stageOperator
     );
-  }
-
-  /**
-   * Should the component update?
-   *
-   * @param {Object} nextProps - The next properties.
-   *
-   * @returns {Boolean} If the component should update.
-   */
-  shouldComponentUpdate(nextProps) {
-    return (
-      nextProps.stageOperator !== this.props.stageOperator ||
-      nextProps.error !== this.props.error ||
-      nextProps.syntaxError !== this.props.syntaxError ||
-      nextProps.index !== this.props.index ||
-      nextProps.serverVersion !== this.props.serverVersion ||
-      nextProps.fields.length !== this.props.fields.length ||
-      nextProps.projections.length !== this.props.projections.length ||
-      nextProps.isValid !== this.props.isValid
-    );
+    this.editor = null;
+    this.initialValue = props.stageValue;
   }
 
   /**
    * @param {Object} prevProps - The previous properties.
    */
   componentDidUpdate(prevProps) {
-    this.completer.update(
-      this.getFieldsAndProjections(),
-      this.props.stageOperator
-    );
-    this.completer.version = this.props.serverVersion;
+    if (
+      this.props.autocompleteFields !== prevProps.autocompleteFields ||
+      this.props.stageOperator !== prevProps.stageOperator ||
+      this.props.serverVersion !== prevProps.serverVersion
+    ) {
+      this.completer.update(
+        this.props.autocompleteFields,
+        this.props.stageOperator,
+        this.props.serverVersion
+      );
+    }
     if (this.props.stageOperator !== prevProps.stageOperator && this.editor) {
       // Focus the editor when the stage operator has changed.
       this.editor.focus();
+    }
+    if (this.props.syntaxError && this.props.syntaxError.loc) {
+      const { line: row, column } = this.props.syntaxError.loc;
+      this.editor?.getSession().setAnnotations([
+        {
+          row: row - 1,
+          column,
+          text: this.props.syntaxError.message,
+          type: 'error'
+        }
+      ]);
+    } else {
+      this.editor?.getSession().setAnnotations([]);
     }
   }
 
@@ -90,32 +126,26 @@ class StageEditor extends Component {
    * @param {String} value - The value of the stage.
    */
   onStageChange = (value) => {
-    if (this.props.stageOperator === null && value && value.charAt(0) === '[') {
-      this.props.newPipelineFromPaste(value);
-      this.props.runStage(0);
-      return;
-    }
-    this.props.stageChanged(value, this.props.index);
+    this.props.onChange(this.props.index, value);
   };
 
-  /**
-   * Combines all fields and projections into a single array for
-   * auto-completer.
-   * @returns {Array}
-   */
-  getFieldsAndProjections() {
-    const { fields, projections, index } = this.props;
-    const previouslyDefinedProjections = projections.filter(
-      (p) => p.index < index
-    );
-
-    const fieldsAndProjections = [].concat.call(
-      [],
-      fields,
-      previouslyDefinedProjections
-    );
-    return fieldsAndProjections;
-  }
+  onBlur = () => {
+    const value = this.editor?.getValue();
+    if (
+      this.initialValue !== undefined &&
+      value !== undefined &&
+      value !== this.initialValue
+    ) {
+      track('Aggregation Edited', {
+        num_stages: this.props.num_stages,
+        stage_index: this.props.index + 1,
+        stage_action: 'stage_content_changed',
+        stage_name: this.props.stageOperator,
+        editor_view_type: 'stage',
+      });
+      this.initialValue = value;
+    }
+  };
 
   /**
    * Render the error.
@@ -123,26 +153,35 @@ class StageEditor extends Component {
    * @returns {React.Component} The component.
    */
   renderError() {
-    if (this.props.error) {
+    if (this.props.serverError) {
       return (
-        <div
-          data-test-id="stage-editor-error-message"
-          className={styles['stage-editor-errormsg']}
-          title={this.props.error}>
-          {this.props.error}
-        </div>
+        <Banner
+          variant="danger"
+          data-testid="stage-editor-error-message"
+          title={this.props.serverError.message}
+          className={bannerStyles}
+        >
+          {this.props.serverError.message}
+        </Banner>
       );
     }
   }
 
   renderSyntaxError() {
-    if (!this.props.isValid && this.props.syntaxError) {
+    if (this.props.syntaxError) {
       return (
-        <div
-          className={styles['stage-editor-syntax-error']}
-          title={this.props.syntaxError}>
-          {this.props.syntaxError}
-        </div>
+        <Banner
+          variant="warning"
+          data-testid="stage-editor-syntax-error"
+          title={this.props.syntaxError.message}
+          className={bannerStyles}
+        >
+          {!this.props.stageOperator
+            ? 'Stage operator is required'
+            : !this.props.stageValue
+            ? 'Stage value can not be empty'
+            : this.props.syntaxError.message}
+          </Banner>
       );
     }
   }
@@ -154,19 +193,20 @@ class StageEditor extends Component {
    */
   render() {
     return (
-      <div className={styles['stage-editor-container']}>
-        <div className={styles['stage-editor']}>
+      <div className={cx(editorContainerStyles, this.props.darkMode ? editorContainerStylesDark : editorContainerStylesLight)}>
+        <div className={editorStyles}>
           <Editor
-            text={this.props.stage}
+            text={this.props.stageValue}
             onChangeText={this.onStageChange}
             variant={EditorVariant.Shell}
-            className={styles['stage-editor-ace-editor']}
+            className={aceEditorStyles}
             name={`aggregations-stage-editor-${this.props.index}`}
-            options={({minLines: 5})}
+            options={{ minLines: 5 }}
             completer={this.completer}
             onLoad={(editor) => {
               this.editor = editor;
             }}
+            onBlur={this.onBlur}
           />
         </div>
         {this.renderSyntaxError()}
@@ -176,4 +216,23 @@ class StageEditor extends Component {
   }
 }
 
-export default StageEditor;
+// exported for tests
+export const StageEditor = withDarkMode(UnthemedStageEditor);
+
+export default connect(
+  (state, ownProps) => {
+    const stages = state.pipelineBuilder.stageEditor.stages;
+    const stage = stages[ownProps.index];
+    const num_stages = stages.length;
+    return {
+      stageValue: stage.value,
+      stageOperator: stage.stageOperator,
+      syntaxError: !stage.empty ? (stage.syntaxError ?? null) : null,
+      serverError: !stage.empty ? (stage.serverError ?? null) : null,
+      serverVersion: state.serverVersion,
+      autocompleteFields: state.fields,
+      num_stages,
+    };
+  },
+  { onChange: changeStageValue }
+)(StageEditor);

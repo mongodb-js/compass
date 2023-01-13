@@ -25,18 +25,18 @@ async function getRecentQueries(
   }
 
   const queryTags = await browser.$$(
-    '[data-test-id="query-history-query-attributes"]'
+    '[data-testid="query-history-query-attributes"]'
   );
   return Promise.all(
     queryTags.map(async (queryTag) => {
       const attributeTags = await queryTag.$$(
-        '[data-test-id="query-history-query-attribute"]'
+        '[data-testid="query-history-query-attribute"]'
       );
       const attributes: RecentQuery = {};
       await Promise.all(
         attributeTags.map(async (attributeTag: Element<'async'>) => {
           const labelTag = await attributeTag.$(
-            '[data-test-id="query-history-query-label"]'
+            '[data-testid="query-history-query-label"]'
           );
           const preTag = await attributeTag.$('pre');
           const key = await labelTag.getText();
@@ -96,7 +96,6 @@ describe('Collection documents tab', function () {
     telemetry = await startTelemetryServer();
     compass = await beforeTests();
     browser = compass.browser;
-    await browser.setFeature('trackUsageStatistics', true);
   });
 
   beforeEach(async function () {
@@ -122,7 +121,7 @@ describe('Collection documents tab', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
-    expect(text).to.equal('Displaying documents 1 - 1 of 1');
+    expect(text).to.equal('1 – 1 of 1');
 
     const queryExecutedEvent = await telemetryEntry('Query Executed');
     expect(queryExecutedEvent).to.deep.equal({
@@ -152,7 +151,7 @@ describe('Collection documents tab', function () {
       Selectors.DocumentListActionBarMessage
     );
     const text = await documentListActionBarMessageElement.getText();
-    expect(text).to.equal('Displaying documents 1 - 20 of 50');
+    expect(text).to.equal('1 – 20 of 50');
     const queryExecutedEvent = await telemetryEntry('Query Executed');
     expect(queryExecutedEvent).to.deep.equal({
       changed_maxtimems: false,
@@ -200,7 +199,7 @@ describe('Collection documents tab', function () {
     await documentListErrorElement.waitForDisplayed();
 
     const errorText = await documentListErrorElement.getText();
-    expect(errorText).to.equal('The operation was cancelled.');
+    expect(errorText).to.equal('This operation was aborted');
 
     // execute another (small, fast) query
     await browser.runFindOperation('Documents', '{ i: 5 }');
@@ -209,7 +208,7 @@ describe('Collection documents tab', function () {
     );
 
     const displayText = await documentListActionBarMessageElement.getText();
-    expect(displayText).to.equal('Displaying documents 1 - 1 of 1');
+    expect(displayText).to.equal('1 – 1 of 1');
 
     const queries = await getRecentQueries(browser);
     expect(queries).to.deep.include.members([
@@ -219,27 +218,49 @@ describe('Collection documents tab', function () {
     ]);
   });
 
-  it('supports maxTimeMS', async function () {
-    // execute a query that will take a long time, but set a maxTimeMS shorter than that
-    await browser.runFindOperation(
-      'Documents',
-      '{ $where: function() { return sleep(10000) || true; } }',
-      {
-        maxTimeMS: '1000',
-        waitForResult: false,
+  for (const maxTimeMSMode of ['ui', 'preference'] as const) {
+    it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
+      let maxTimeMSBefore;
+      if (maxTimeMSMode === 'preference') {
+        maxTimeMSBefore = await browser.getFeature('maxTimeMS');
+
+        await browser.openSettingsModal();
+        const settingsModal = await browser.$(Selectors.SettingsModal);
+        await settingsModal.waitForDisplayed();
+        await browser.clickVisible(Selectors.GeneralSettingsButton);
+
+        await browser.setValueVisible(
+          Selectors.SettingsInputElement('maxTimeMS'),
+          '1'
+        );
+        await browser.clickVisible(Selectors.SaveSettingsButton);
       }
-    );
 
-    const documentListErrorElement = await browser.$(
-      Selectors.DocumentListError
-    );
-    await documentListErrorElement.waitForDisplayed();
+      // execute a query that will take a long time, but set a maxTimeMS shorter than that
+      await browser.runFindOperation(
+        'Documents',
+        '{ $where: function() { return sleep(10000) || true; } }',
+        {
+          ...(maxTimeMSMode === 'ui' ? { maxTimeMS: '1' } : {}),
+          waitForResult: false,
+        }
+      );
 
-    const errorText = await documentListErrorElement.getText();
-    expect(errorText).to.include(
-      'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
-    );
-  });
+      const documentListErrorElement = await browser.$(
+        Selectors.DocumentListError
+      );
+      await documentListErrorElement.waitForDisplayed();
+
+      const errorText = await documentListErrorElement.getText();
+      expect(errorText).to.include(
+        'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+      );
+
+      if (maxTimeMSMode === 'preference') {
+        await browser.setFeature('maxTimeMS', maxTimeMSBefore);
+      }
+    });
+  }
 
   it('keeps the query when navigating to schema and explain', async function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
@@ -249,7 +270,7 @@ describe('Collection documents tab', function () {
     );
     const documentsMessage =
       await documentListActionBarMessageElement.getText();
-    expect(documentsMessage).to.equal('Displaying documents 1 - 1 of 1');
+    expect(documentsMessage).to.equal('1 – 1 of 1');
 
     await navigateToTab(browser, 'Schema');
 
@@ -275,7 +296,7 @@ describe('Collection documents tab', function () {
       Selectors.ExplainDocumentsReturnedSummary
     );
     const explainSummary = await explainSummaryElement.getText();
-    expect(explainSummary.replace(/\s/g, ' ')).to.equal(
+    expect(explainSummary.replace(/\s+/g, ' ')).to.equal(
       'Documents Returned: 1'
     );
 
@@ -288,17 +309,8 @@ describe('Collection documents tab', function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     await browser.clickVisible(
-      Selectors.queryBarMenuActionsButton('Documents')
+      Selectors.queryBarExportToLanguageButton('Documents')
     );
-
-    const queryBarActionsMenu = await browser.$(
-      Selectors.queryBarActionsMenu('Documents')
-    );
-    const exportToLanguageButton = await queryBarActionsMenu.$(
-      'a=Export To Language'
-    );
-    await exportToLanguageButton.waitForDisplayed();
-    await exportToLanguageButton.click();
 
     const text = await browser.exportToLanguage('Java', {
       includeImportStatements: true,
@@ -309,12 +321,12 @@ describe('Collection documents tab', function () {
     expect(text).to.equal(`import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.conversions.Bson;
 import java.util.concurrent.TimeUnit;
 import org.bson.Document;
+import com.mongodb.client.FindIterable;
 
 /*
  * Requires the MongoDB Java Driver.
@@ -375,19 +387,21 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await waitForJSON(browser, document);
 
-    const json = await document.getText();
+    const json = await browser.getCodemirrorEditorText(
+      Selectors.DocumentJSONEntry
+    );
     expect(json.replace(/\s+/g, ' ')).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 0 \}$/
     );
 
-    await browser.hover('[data-test-id="editable-json"]');
+    await browser.hover('[data-testid="editable-json"]');
     await browser.clickVisible('[data-testid="edit-document-button"]');
 
     const newjson = JSON.stringify({ ...JSON.parse(json), j: 1234 });
 
-    await browser.setAceValue(
-      '[data-test-id="editable-json"] .ace_editor',
-      newjson
+    await browser.setCodemirrorEditorValue(
+      newjson,
+      Selectors.DocumentJSONEntry
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -405,7 +419,11 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await waitForJSON(browser, modifiedDocument);
 
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
+    expect(
+      (
+        await browser.getCodemirrorEditorText(Selectors.DocumentJSONEntry)
+      ).replace(/\s+/g, ' ')
+    ).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 32, "j": 1234 \}$/
     );
   });
@@ -419,12 +437,14 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await waitForJSON(browser, document);
 
-    const json = await document.getText();
+    const json = await browser.getCodemirrorEditorText(
+      Selectors.DocumentJSONEntry
+    );
     expect(json.replace(/\s+/g, ' ')).to.match(
       /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
     );
 
-    await browser.hover('[data-test-id="editable-json"]');
+    await browser.hover('[data-testid="editable-json"]');
     await browser.clickVisible('[data-testid="edit-document-button"]');
 
     const newjson = JSON.stringify({
@@ -432,9 +452,9 @@ FindIterable<Document> result = collection.find(filter);`);
       j: { $numberLong: '12345' },
     });
 
-    await browser.setAceValue(
-      '[data-test-id="editable-json"] .ace_editor',
-      newjson
+    await browser.setCodemirrorEditorValue(
+      newjson,
+      Selectors.DocumentJSONEntry
     );
 
     const footer = await document.$(Selectors.DocumentFooterMessage);
@@ -452,8 +472,12 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await waitForJSON(browser, modifiedDocument);
 
-    expect((await modifiedDocument.getText()).replace(/\s+/g, ' ')).to.match(
-      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": \{\.\.\.\} \}$/
+    expect(
+      (
+        await browser.getCodemirrorEditorText(Selectors.DocumentJSONEntry)
+      ).replace(/\s+/g, ' ')
+    ).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": \{.+?\} \}$/
     );
   });
 
@@ -469,7 +493,9 @@ FindIterable<Document> result = collection.find(filter);`);
     const value = await document.$('[col-id="j"] .element-value');
     await value.doubleClick();
 
-    const input = await document.$('[col-id="j"] input.editable-element-value');
+    const input = await document.$(
+      '[col-id="j"] [data-testid="table-view-cell-editor-value-input"]'
+    );
     await input.setValue('-100');
 
     const footer = await browser.$(Selectors.DocumentFooterMessage);

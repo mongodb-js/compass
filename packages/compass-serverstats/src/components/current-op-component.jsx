@@ -123,7 +123,7 @@ class CurrentOpComponent extends React.Component {
           <h2 className="rt-lists__headerlabel">Slowest Operations</h2>
         </header>
         <div
-          data-test-id="no-slow-operations"
+          data-testid="no-slow-operations"
           className="rt-lists__empty-error">
           &#10004; No Slow Operations
         </div>

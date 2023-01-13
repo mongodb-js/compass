@@ -1,66 +1,12 @@
-import { parseNamespace, filterStageOperators } from './stage';
+import { filterStageOperators, findAtlasOperator, getDestinationNamespaceFromStage } from './stage';
 import { expect } from 'chai';
 
 describe('utils', function() {
-  describe('#parseNamespace', function() {
-    context('when the stage is only a collection name', function() {
-      const stage = {
-        isEnabled: true,
-        stageOperator: '$merge',
-        stage: '"coll"'
-      };
-
-      it('returns the namespace', function() {
-        expect(parseNamespace('db', stage)).to.equal('db.coll');
-      });
-    });
-
-    context('when the stage is an object', function() {
-      context('when the into field is a string', function() {
-        const stage = {
-          isEnabled: true,
-          stageOperator: '$merge',
-          stage: '{ into: "coll" }'
-        };
-
-        it('returns the namespace', function() {
-          expect(parseNamespace('db', stage)).to.equal('db.coll');
-        });
-      });
-
-      context('when the into field is an object', function() {
-        context('when db is not present', function() {
-          const stage = {
-            isEnabled: true,
-            stageOperator: '$merge',
-            stage: '{ into: { coll: "coll" }}'
-          };
-
-          it('returns the namespace', function() {
-            expect(parseNamespace('db', stage)).to.equal('db.coll');
-          });
-        });
-
-        context('when db is present', function() {
-          const stage = {
-            isEnabled: true,
-            stageOperator: '$merge',
-            stage: '{ into: { db: "test", coll: "coll" }}'
-          };
-
-          it('returns the namespace', function() {
-            expect(parseNamespace('db', stage)).to.equal('test.coll');
-          });
-        });
-      });
-    });
-  });
-
   describe('#filterStageOperators', function() {
     const defaultFilter = {
       env: 'on-prem',
       isTimeSeries: false,
-      isReadonly: false,
+      preferencesReadOnly: false,
       sourceName: null,
       serverVersion: '4.2.0'
     };
@@ -132,7 +78,7 @@ describe('utils', function() {
       });
 
       it('does not return full-text search stages for views', function() {
-        const searchStages = filterStageOperators({ ...filter, isReadonly: true, sourceName: 'simple.sample' })
+        const searchStages = filterStageOperators({ ...filter, sourceName: 'simple.sample' })
           .filter((o) => (['$search', '$searchMeta', '$documents'].includes(o.name)));
 
         expect(searchStages.length).to.be.equal(0);
@@ -172,28 +118,8 @@ describe('utils', function() {
     });
 
     context('when is not a read-only distribution of Compass', function() {
-      let envBkp;
-      beforeEach(function() {
-        envBkp = process.env.HADRON_READONLY;
-      });
-
-      afterEach(function() {
-        process.env.HADRON_READONLY = envBkp;
-      });
-
-      it('returns output stages if process.env.HADRON_READONLY === "false"', function() {
-        process.env.HADRON_READONLY = 'false';
-
-        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
-          .filter((o) => (['$out', '$merge'].includes(o.name)));
-
-        expect(searchStages.length).to.be.equal(2);
-      });
-
-      it('returns output stages if process.env.HADRON_READONLY is undefined', function() {
-        process.env.HADRON_READONLY = undefined;
-
-        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+      it('returns output stages', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', preferencesReadOnly: false })
           .filter((o) => (['$out', '$merge'].includes(o.name)));
 
         expect(searchStages.length).to.be.equal(2);
@@ -201,22 +127,127 @@ describe('utils', function() {
     });
 
     context('when is a read-only distribution of Compass', function() {
-      let envBkp;
-      beforeEach(function() {
-        envBkp = process.env.HADRON_READONLY;
-      });
-
-      afterEach(function() {
-        process.env.HADRON_READONLY = envBkp;
-      });
-
-      it('filters out output stages if process.env.HADRON_READONLY === "true"', function() {
-        process.env.HADRON_READONLY = 'true';
-
-        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0' })
+      it('filters out output stages', function() {
+        const searchStages = filterStageOperators({ ...defaultFilter, env: 'adl', serverVersion: '6.0.0', preferencesReadOnly: true })
           .filter((o) => (['$out', '$merge'].includes(o.name)));
 
         expect(searchStages.length).to.be.equal(0);
+      });
+    });
+  });
+
+  context('findAtlasOperator', function() {
+    it('returns atlas only stage operator', function() {
+      expect(
+        findAtlasOperator(['$search', '$match', '$out', '$searchMeta'])
+      ).to.deep.equal('$search');
+    });
+
+    it('returns undefined when operators do not have atlas operator', function() {
+      expect(
+        findAtlasOperator(['$project', '$match', '$out'])
+      ).to.deep.equal(undefined);
+    })
+  });
+
+  context('getDestinationNamespaceFromStage', function() {
+    const invalidNamespaces = [
+      null,
+      undefined,
+      '',
+      {},
+      {db: '', coll: null},
+      {db: '', coll: undefined},
+      {db: '', coll: ''},
+      {db: '', coll: 'users'},
+      {db: 'airbnb', coll: ''},
+      {db: '', coll: ''},
+    ];
+    it('returns null when stage is not defined', function() {
+      expect(getDestinationNamespaceFromStage('airbnb.users')).to.equal(null);
+    });
+    context('$out stage', function() {
+      it('returns null for invalid stage value', function () {
+        const invalidStageValues = [
+          null,
+          undefined,
+          '',
+          {},
+          ...invalidNamespaces
+        ];
+        invalidStageValues.forEach((invalidStageValue) => {
+          expect(getDestinationNamespaceFromStage('airbnb.users', {
+            $merge: invalidStageValue
+          })).to.be.null;
+        });
+      });
+      it('handles $out stage with scaler value', function() {
+        expect(getDestinationNamespaceFromStage('airbnb.users', {
+          $out: 'users_out'
+        })).to.equal('airbnb.users_out');
+      });
+      it('handles $out stage with db and coll in object', function() {
+        expect(getDestinationNamespaceFromStage('airbnb.users', {
+          $out: {
+            db: 'another',
+            coll: 'users_out'
+          }
+        })).to.equal('another.users_out');
+      });
+      it('does not handle $out s3 yet', function() {
+        expect(getDestinationNamespaceFromStage('airbnb.users', {
+          $out: {
+            s3: {}
+          }
+        })).to.equal(null);
+      });
+      it('does not handle $out atlas yet', function() {
+        expect(getDestinationNamespaceFromStage('airbnb.users', {
+          $out: {
+            atlas: {}
+          }
+        })).to.equal(null);
+      });
+    });
+
+    context('$merge stage', function() {
+      it('returns null for invalid stage value', function () {
+        const invalidStageValues = [
+          null,
+          undefined,
+          '',
+          {},
+          ...invalidNamespaces.map((ns) => ({into: ns}))
+        ];
+        invalidStageValues.forEach((invalidStageValue) => {
+          expect(getDestinationNamespaceFromStage('airbnb.users', {
+            $merge: invalidStageValue
+          })).to.be.null;
+        });
+      });
+      it('handles $merge stage with scaler value', function() {
+        expect(getDestinationNamespaceFromStage('airbnb.users', {
+          $merge: 'users_merge'
+        })).to.equal('airbnb.users_merge');
+      });
+      it('handles $merge stage with db and coll in object', function() {
+        expect(getDestinationNamespaceFromStage('airbnb.users', {
+          $merge: {
+            into: {
+              db: 'another',
+              coll: 'users_merge'
+            }
+          }
+        })).to.equal('another.users_merge');
+      });
+      it('does not handle $merge atlas yet', function() {
+        expect(getDestinationNamespaceFromStage('airbnb.users', {
+          $merge: {
+            into: {
+              atlas: {}
+            }
+          }
+        })).to.equal(null);
       });
     });
   });

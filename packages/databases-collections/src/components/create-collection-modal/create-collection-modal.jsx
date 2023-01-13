@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { ConfirmationModal } from '@mongodb-js/compass-components';
+import { FormModal } from '@mongodb-js/compass-components';
 import { Banner } from '@mongodb-js/compass-components';
 
 import { createCollection } from '../../modules/create-collection';
@@ -10,7 +10,6 @@ import { clearError } from '../../modules/error';
 import { toggleIsVisible } from '../../modules/is-visible';
 
 import CollectionFields from '../collection-fields';
-import styles from './create-collection-modal.module.less';
 
 class CreateCollectionModal extends PureComponent {
   static propTypes = {
@@ -22,8 +21,8 @@ class CreateCollectionModal extends PureComponent {
     serverVersion: PropTypes.string.isRequired,
     toggleIsVisible: PropTypes.func.isRequired,
     configuredKMSProviders: PropTypes.array,
-    currentTopologyType: PropTypes.string
-  }
+    currentTopologyType: PropTypes.string,
+  };
 
   constructor() {
     super();
@@ -32,15 +31,15 @@ class CreateCollectionModal extends PureComponent {
 
   onCancel = () => {
     return this.props.toggleIsVisible(false);
-  }
+  };
 
   onConfirm = () => {
     this.props.createCollection(this.state.data);
-  }
+  };
 
   onChange = (data) => {
     this.setState({ data });
-  }
+  };
 
   renderError() {
     if (!this.props.error) {
@@ -48,11 +47,7 @@ class CreateCollectionModal extends PureComponent {
     }
 
     return (
-      <Banner
-        variant="danger"
-        dismissible
-        onClose={this.props.clearError}
-      >
+      <Banner variant="danger" dismissible onClose={this.props.clearError}>
         {this.props.error.message}
       </Banner>
     );
@@ -60,15 +55,15 @@ class CreateCollectionModal extends PureComponent {
 
   render() {
     return (
-      <ConfirmationModal
+      <FormModal
         title="Create Collection"
         open={this.props.isVisible}
-        onConfirm={this.onConfirm}
+        onSubmit={this.onConfirm}
         onCancel={this.onCancel}
-        buttonText="Create Collection"
-        submitDisabled={!((this.state.data.collection || '').trim())}
-        className={styles['create-collection-modal']}
+        submitButtonText="Create Collection"
+        submitDisabled={!(this.state.data.collection || '').trim()}
         trackingId="create_collection_modal"
+        data-testid="create-collection-modal"
       >
         <CollectionFields
           serverVersion={this.props.serverVersion}
@@ -78,7 +73,7 @@ class CreateCollectionModal extends PureComponent {
           currentTopologyType={this.props.currentTopologyType}
         />
         {this.renderError()}
-      </ConfirmationModal>
+      </FormModal>
     );
   }
 }
@@ -89,17 +84,14 @@ const mapStateToProps = (state) => ({
   error: state.error,
   serverVersion: state.serverVersion,
   configuredKMSProviders: state.dataService.configuredKMSProviders,
-  currentTopologyType: state.dataService.currentTopologyType
+  currentTopologyType: state.dataService.currentTopologyType,
 });
 
-const MappedCreateCollectionModal = connect(
-  mapStateToProps,
-  {
-    createCollection,
-    toggleIsVisible,
-    clearError
-  },
-)(CreateCollectionModal);
+const MappedCreateCollectionModal = connect(mapStateToProps, {
+  createCollection,
+  toggleIsVisible,
+  clearError,
+})(CreateCollectionModal);
 
 export default MappedCreateCollectionModal;
 export { CreateCollectionModal };

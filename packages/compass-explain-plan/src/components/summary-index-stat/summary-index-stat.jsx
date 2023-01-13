@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import FontAwesome from 'react-fontawesome';
-import { Icon, IconButton } from '@mongodb-js/compass-components';
+import { Icon, IconButton, palette } from '@mongodb-js/compass-components';
 
 import { IndexDefinitionType } from '../index-definition-type';
 import INDEX_TYPES from '../../constants/index-types';
@@ -43,17 +42,17 @@ class SummaryIndexStat extends Component {
    */
   getIndexMessageIcon() {
     const greenCheckMark = (
-      <FontAwesome
-        fixedWidth
-        style={{ color: '#507b32' }}
-        name="check-circle"
+      <Icon
+        glyph="CheckmarkWithCircle"
+        style={{ color: palette.green.dark2 }}
+        size="small"
       />
     );
     const yellowWarning = (
-      <FontAwesome
-        fixedWidth
-        style={{ color: '#fbb129' }}
-        name="exclamation-triangle"
+      <Icon
+        glyph="Warning"
+        style={{ color: palette.yellow.base }}
+        size="small"
       />
     );
     const typeToIcon = {
@@ -74,11 +73,11 @@ class SummaryIndexStat extends Component {
    */
   getIndexMessageColor() {
     const typeToColor = {
-      COLLSCAN: '#7F6A4E',
-      COVERED: '#507b32',
-      MULTIPLE: '#7F6A4E',
-      INDEX: '#000',
-      UNAVAILABLE: '#000',
+      COLLSCAN: palette.yellow.dark2,
+      COVERED: palette.green.dark2,
+      MULTIPLE: palette.yellow.dark2,
+      INDEX: palette.gray.dark1,
+      UNAVAILABLE: palette.black,
     };
 
     return typeToColor[this.props.indexType];
@@ -95,20 +94,20 @@ class SummaryIndexStat extends Component {
         <IconButton
           className={styles['summary-index-stat-info-sprinkle']}
           href={this.props.dataLink}
+          target="_blank"
           aria-label="More information on index usage in explain results"
         >
           <Icon glyph="InfoWithCircle" size="small" />
         </IconButton>
         <div className={this.props.index && styles['summary-index-stat-index']}>
-          <span className={styles['summary-index-stat-index-icon']}>
-            {this.getIndexMessageIcon()}
-          </span>
-          <span
-            className={styles['summary-index-stat-index-message']}
-            style={{ color: this.getIndexMessageColor() }}
-          >
-            {this.getIndexMessageText()}
-          </span>
+          <div>
+            <span className={styles['summary-index-stat-index-icon']}>
+              {this.getIndexMessageIcon()}
+            </span>
+            <span style={{ color: this.getIndexMessageColor() }}>
+              {this.getIndexMessageText()}
+            </span>
+          </div>
           {this.props.index ? (
             <IndexDefinitionType index={this.props.index} />
           ) : null}

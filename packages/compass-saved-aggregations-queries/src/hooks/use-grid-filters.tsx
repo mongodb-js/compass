@@ -41,7 +41,6 @@ const filterStyles = css({
 const searchInputStyles = css({
   width: '300px',
   marginRight: spacing[2],
-  marginTop: 2,
 });
 
 const FilterSelect: React.FunctionComponent<{
@@ -243,11 +242,7 @@ export function filterByText(items: Item[], text: string): FilterItem[] {
             filter: item.query.filter,
           });
         } else {
-          const stages = item.aggregation.pipeline
-            .filter((p) => p.stageOperator && p.stage)
-            .map((p) => `${p.stageOperator}: ${p.stage}`)
-            .join(' ');
-          return JSON.stringify(stages);
+          return item.aggregation.pipelineText;
         }
       }
 

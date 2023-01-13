@@ -1,5 +1,5 @@
 /* eslint camelcase: 0 complexity: 0*/
-const Context = require('context-eval');
+const vm = require('vm');
 const {
   BsonTranspilersArgumentError,
   BsonTranspilersRuntimeError,
@@ -506,9 +506,7 @@ module.exports = (CodeGenerationVisitor) => class Visitor extends CodeGeneration
       const sandbox = {
         RegExp: RegExp
       };
-      const context = new Context(sandbox);
-      const regexobj = context.evaluate('__result = ' + input);
-      context.destroy();
+      const regexobj = vm.runInContext('__result = ' + input, vm.createContext(sandbox));
       pattern = regexobj.source;
     } catch (error) {
       throw new BsonTranspilersRuntimeError(error.message);

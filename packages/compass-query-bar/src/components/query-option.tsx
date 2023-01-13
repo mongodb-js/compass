@@ -1,18 +1,19 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   Label,
   TextInput,
   css,
   cx,
   spacing,
-  uiColors,
-  withTheme,
+  palette,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Listenable } from 'reflux';
 
 import { OptionEditor } from './option-editor';
 import { OPTION_DEFINITION } from '../constants/query-option-definition';
 import type { QueryOption as QueryOptionType } from '../constants/query-option-definition';
+import type { CompletionWithServerInfo } from '@mongodb-js/compass-editor';
 
 const queryOptionStyles = css({
   display: 'flex',
@@ -20,11 +21,20 @@ const queryOptionStyles = css({
   alignItems: 'flex-start',
 });
 
+const documentEditorOptionContainerStyles = css({
+  flexGrow: 1,
+});
+
 const queryOptionLabelStyles = css({
-  // A bit of vertical padding so users can click the label easier.
-  paddingTop: spacing[1],
   marginRight: spacing[2],
 });
+
+const documentEditorQueryOptionLabelStyles = cx(
+  queryOptionLabelStyles,
+  css({
+    minWidth: spacing[5] * 3,
+  })
+);
 
 const documentEditorOptionStyles = css({
   minWidth: spacing[7],
@@ -46,11 +56,11 @@ const numericTextInputDarkStyles = css({
 
 const optionInputWithErrorStyles = css({
   input: {
-    borderColor: uiColors.red.base,
+    borderColor: palette.red.base,
   },
 });
 
-export const queryOptionLabelContainerStyles = css({
+const queryOptionLabelContainerStyles = css({
   // Hardcoded height as we want the label not to vertically
   // center on the input area when it's expanded.
   height: spacing[4] + spacing[1],
@@ -59,8 +69,14 @@ export const queryOptionLabelContainerStyles = css({
   alignItems: 'center',
 });
 
+export const documentEditorLabelContainerStyles = cx(
+  queryOptionLabelContainerStyles,
+  css({
+    minWidth: spacing[5] * 3,
+  })
+);
+
 type QueryOptionProps = {
-  darkMode?: boolean;
   hasError: boolean;
   id: string;
   onChange: (value: string) => void;
@@ -68,13 +84,32 @@ type QueryOptionProps = {
   placeholder?: string;
   queryOption: QueryOptionType;
   refreshEditorAction: Listenable;
-  schemaFields: string[];
+  schemaFields: CompletionWithServerInfo[];
   serverVersion: string;
   value?: string;
 };
 
-const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
-  darkMode,
+// Helper component to allow flexible computation of extra props for the TextInput
+// component if the query option definition suggests it. In particular,
+// using a separate component allows those extra props to use React hooks in their definition.
+const WithOptionDefinitionTextInputProps: React.FunctionComponent<{
+  definition: typeof OPTION_DEFINITION[QueryOptionType];
+  children: ({
+    props,
+  }: {
+    props: Partial<React.ComponentProps<typeof TextInput>>;
+  }) => JSX.Element;
+}> = ({ definition, children }) => {
+  let props: Partial<React.ComponentProps<typeof TextInput>> = {};
+  if (definition.type === 'numeric') {
+    props.inputMode = 'numeric';
+    props.pattern = '[0-9]*';
+  }
+  props = { ...props, ...definition.extraTextInputProps?.() };
+  return <>{children({ props })}</>;
+};
+
+const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   hasError,
   onApply,
   onChange,
@@ -86,23 +121,37 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
   serverVersion,
   value = '',
 }) => {
-  const isDocumentEditor = useMemo(
-    () => OPTION_DEFINITION[queryOption].type === 'document',
-    [queryOption]
-  );
+  const darkMode = useDarkMode();
+
+  const optionDefinition = OPTION_DEFINITION[queryOption];
+  const isDocumentEditor = optionDefinition.type === 'document';
+  placeholder ||= optionDefinition.placeholder;
 
   return (
     <div
-      className={queryOptionStyles}
+      className={cx(
+        queryOptionStyles,
+        isDocumentEditor && documentEditorOptionContainerStyles
+      )}
       data-testid={`query-bar-option-${queryOption}`}
     >
       {/* The filter label is shown by the query bar. */}
       {queryOption !== 'filter' && (
-        <div className={queryOptionLabelContainerStyles}>
+        <div
+          className={
+            isDocumentEditor
+              ? documentEditorLabelContainerStyles
+              : queryOptionLabelContainerStyles
+          }
+        >
           <Label
             htmlFor={id}
             id={`query-bar-option-input-${queryOption}-label`}
-            className={queryOptionLabelStyles}
+            className={
+              isDocumentEditor
+                ? documentEditorQueryOptionLabelStyles
+                : queryOptionLabelStyles
+            }
           >
             {queryOption}
           </Label>
@@ -121,33 +170,37 @@ const UnthemedQueryOption: React.FunctionComponent<QueryOptionProps> = ({
             schemaFields={schemaFields}
             serverVersion={serverVersion}
             value={value}
+            data-testid={`query-bar-option-${queryOption}-input`}
           />
         ) : (
-          <TextInput
-            aria-labelledby={`query-bar-option-input-${queryOption}-label`}
-            id={id}
-            data-testid="query-bar-option-input"
-            className={cx(
-              darkMode
-                ? numericTextInputDarkStyles
-                : numericTextInputLightStyles,
-              hasError && optionInputWithErrorStyles
+          <WithOptionDefinitionTextInputProps definition={optionDefinition}>
+            {({ props }) => (
+              <TextInput
+                aria-labelledby={`query-bar-option-input-${queryOption}-label`}
+                id={id}
+                data-testid="query-bar-option-input"
+                className={cx(
+                  darkMode
+                    ? numericTextInputDarkStyles
+                    : numericTextInputLightStyles,
+                  hasError && optionInputWithErrorStyles
+                )}
+                type="text"
+                sizeVariant="small"
+                state={hasError ? 'error' : 'none'}
+                value={`${value}`}
+                onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange(evt.target.value)
+                }
+                placeholder={placeholder}
+                {...props}
+              />
             )}
-            type="text"
-            sizeVariant="small"
-            state={hasError ? 'error' : 'none'}
-            value={`${value}`}
-            onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-              onChange(evt.target.value)
-            }
-            placeholder={placeholder}
-          />
+          </WithOptionDefinitionTextInputProps>
         )}
       </div>
     </div>
   );
 };
-
-const QueryOption = withTheme(UnthemedQueryOption);
 
 export { QueryOption };

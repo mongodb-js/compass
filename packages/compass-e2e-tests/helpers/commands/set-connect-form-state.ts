@@ -23,7 +23,7 @@ export async function setConnectFormState(
     for (let i = 0; i < state.hosts.length; ++i) {
       if (i > 0) {
         await browser.clickVisible(
-          '[data-testid="host-input-container"]:last-child [data-testid="connection-add-host-button"]'
+          '[data-testid="connection-add-host-button"]:last-child'
         );
       }
       await browser.setValueVisible(
@@ -94,8 +94,7 @@ export async function setConnectFormState(
       state.kerberosServiceRealm
     );
   }
-  /* TODO(COMPASS-5950):
-  if (state.kerberosServiceRealm) {
+  if (state.kerberosProvidePassword) {
     await browser.clickParent(Selectors.ConnectionFormGssApiPasswordCheckbox);
   }
   if (state.kerberosPassword) {
@@ -104,7 +103,6 @@ export async function setConnectFormState(
       state.kerberosPassword
     );
   }
-  */
 
   // LDAP
   if (state.ldapUsername && state.ldapPassword) {

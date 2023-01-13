@@ -42,24 +42,6 @@ const configureStore = (options = {}) => {
       });
     },
 
-    collapse() {
-      if (!this.state.collapsed) {
-        track('Query History Closed');
-        this.setState({
-          collapsed: true,
-        });
-      }
-    },
-
-    toggleCollapse() {
-      track(
-        this.state.collapsed ? 'Query History Opened' : 'Query History Closed'
-      );
-      this.setState({
-        collapsed: !this.state.collapsed,
-      });
-    },
-
     /**
      * Plugin lifecycle method that is called when the namespace changes in Compass.
      *
@@ -79,7 +61,6 @@ const configureStore = (options = {}) => {
     getInitialState() {
       return {
         showing: 'recent',
-        collapsed: true,
         ns: mongodbns(''),
       };
     },
@@ -104,7 +85,7 @@ const configureStore = (options = {}) => {
     const favoriteListStore = localAppRegistry.getStore(FAVORITE_LIST_STORE);
     const recentListStore = localAppRegistry.getStore(RECENT_LIST_STORE);
 
-    if (!favoriteListStore.saveRecent) {
+    if (!favoriteListStore.saveFavorite) {
       localAppRegistry.registerStore(
         FAVORITE_LIST_STORE,
         configureFavoriteListStore(options)

@@ -1,7 +1,6 @@
-/**
- * Out results function changed action.
- */
-export const OUT_RESULTS_FN_CHANGED = 'aggregations/out-results-fn/OUT_RESULTS_FN_CHANGED';
+import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
+import { getStagesFromBuilderState } from './pipeline-builder/builder-helpers';
+import { getDestinationNamespaceFromStage } from '../utils/stage';
 
 /**
  * The initial state.
@@ -16,21 +15,24 @@ export const INITIAL_STATE = null;
  *
  * @returns {any} The new state.
  */
-export default function reducer(state = INITIAL_STATE, action) {
-  if (action.type === OUT_RESULTS_FN_CHANGED) {
-    return action.outResultsFn;
-  }
+export default function reducer(state = INITIAL_STATE) {
   return state;
 }
 
 /**
- * Action creator for out results fn changed events.
- *
- * @param {Function} fn - The out results fn.
- *
- * @returns {Object} The out results fn changed action.
+ * Go to the $out / $merge results collection
  */
-export const outResultsFnChanged = (fn) => ({
-  type: OUT_RESULTS_FN_CHANGED,
-  outResultsFn: fn
-});
+export const gotoOutResults = (index) => {
+  return (dispatch, getState, { pipelineBuilder }) => {
+    const state = getState();
+    const stage = getStagesFromBuilderState(state, pipelineBuilder)[index];
+    const namespace = getDestinationNamespaceFromStage(state.namespace, stage);
+    if (state.outResultsFn) {
+      state.outResultsFn(namespace);
+    } else {
+      dispatch(
+        globalAppRegistryEmit('aggregations-open-result-namespace', namespace)
+      );
+    }
+  };
+};

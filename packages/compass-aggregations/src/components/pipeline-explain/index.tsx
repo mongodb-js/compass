@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
   css,
-  cx,
-  spacing,
-  Modal,
+  InfoModal,
   CancelLoader,
-  H3,
-  ModalFooter,
-  Button,
   ErrorSummary,
   breakpoints,
 } from '@mongodb-js/compass-components';
@@ -26,41 +21,6 @@ type PipelineExplainProps = {
   onCloseModal: () => void;
   onCancelExplain: () => void;
 };
-
-const modalStyles = css({
-  display: 'grid',
-  gap: spacing[3],
-  gridTemplateRows: 'auto 1fr auto',
-});
-
-const gridWithFooter = css({
-  gridTemplateAreas: `
-    'header'
-    'content'
-    'footer'
-  `,
-});
-
-const gridWithoutFooter = css({
-  gridTemplateAreas: `
-    'header'
-    'content'
-  `,
-});
-
-const headerStyles = css({
-  gridArea: 'header',
-});
-
-const contentStyles = css({
-  gridArea: 'content',
-});
-
-const footerStyles = css({
-  gridArea: 'footer',
-  paddingRight: 0,
-  paddingBottom: 0,
-});
 
 const loadingStyles = css({
   display: 'flex',
@@ -127,29 +87,15 @@ export const PipelineExplain: React.FunctionComponent<PipelineExplainProps> = ({
   }
 
   return (
-    <Modal
+    <InfoModal
+      title="Explain Plan"
       size={modalSize}
-      setOpen={onCloseModal}
+      onClose={onCloseModal}
       open={isModalOpen}
       data-testid="pipeline-explain-modal"
-      contentClassName={cx(
-        isLoading ? gridWithoutFooter : gridWithFooter,
-        modalStyles
-      )}
     >
-      <H3 className={headerStyles}>Explain Plan</H3>
-      <div className={contentStyles}>{content}</div>
-      {!isLoading && (
-        <ModalFooter className={footerStyles}>
-          <Button
-            onClick={onCloseModal}
-            data-testid="pipeline-explain-footer-close-button"
-          >
-            Close
-          </Button>
-        </ModalFooter>
-      )}
-    </Modal>
+      {content}
+    </InfoModal>
   );
 };
 

@@ -1,3 +1,4 @@
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 const debug = require('debug')('mongodb-aggregations:modules:input-document');
 
 /**
@@ -21,15 +22,10 @@ export const UPDATE_INPUT_DOCUMENTS = `${PREFIX}/UPDATE_INPUT_DOCUMENTS`;
 export const LOADING_INPUT_DOCUMENTS = `${PREFIX}/LOADING_INPUT_DOCUMENTS`;
 
 /**
- * N/A contant.
- */
-const NA = 'N/A';
-
-/**
  * The initial state.
  */
 export const INITIAL_STATE = {
-  count: 0,
+  count: null,
   documents: [],
   error: null,
   isExpanded: true,
@@ -103,42 +99,48 @@ export const loadingInputDocuments = () => ({
  * @returns {Function} The function.
  */
 export const refreshInputDocuments = () => {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const state = getState();
     const dataService = state.dataService.dataService;
-    const ns = state.namespace;
 
-    const options = {
-      maxTimeMS: state.settings.maxTimeMS
-    };
+    if (!dataService) {
+      return;
+    }
 
-    const exampleDocumentsPipeline = [{ $limit: state.settings.sampleSize }];
-
-    if (dataService && dataService.isConnected()) {
-      dispatch(loadingInputDocuments());
-      dataService.estimatedCount(ns, options, (error, count) => {
-        dataService.aggregate(
-          ns,
-          exampleDocumentsPipeline,
-          options,
-          (err, cursor) => {
-            if (err) {
-              return dispatch(
-                updateInputDocuments(error ? NA : count, [], err)
-              );
-            }
-            cursor.toArray((e, docs) => {
-              dispatch(updateInputDocuments(error ? NA : count, docs, e));
-              cursor.close();
-            });
-          }
-        );
-      });
-    } else if (dataService && !dataService.isConnected()) {
+    if (dataService && !dataService.isConnected()) {
       debug(
         'warning: trying to refresh aggregation but dataService is disconnected',
         dataService
       );
+    }
+
+    const ns = state.namespace;
+
+    const options = {
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(state.settings.maxTimeMS)
+    };
+
+    const exampleDocumentsPipeline = [{ $limit: state.settings.sampleSize }];
+
+    dispatch(loadingInputDocuments());
+
+    try {
+      const data = await Promise.allSettled([
+        dataService.estimatedCount(ns, options),
+        dataService.aggregate(ns, exampleDocumentsPipeline, options)
+      ]);
+
+      const count = data[0].status === 'fulfilled' ? data[0].value : null;
+      const docs = data[1].status === 'fulfilled' ? data[1].value : [];
+
+      const error = data[0].status === 'rejected'
+        ? data[0].reason
+        : data[1].status === 'rejected'
+        ? data[1].reason
+        : null;
+      dispatch(updateInputDocuments(count, docs, error));
+    } catch (error) {
+      dispatch(updateInputDocuments(null, [], error));
     }
   };
 };

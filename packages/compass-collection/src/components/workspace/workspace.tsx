@@ -1,8 +1,7 @@
 import type AppRegistry from 'hadron-app-registry';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import classnames from 'classnames';
-import { WorkspaceTabs, css } from '@mongodb-js/compass-components';
+import { WorkspaceTabs, css, cx } from '@mongodb-js/compass-components';
 
 import {
   createNewTab,
@@ -15,7 +14,7 @@ import {
   changeActiveSubTab,
 } from '../../modules/tabs';
 import type { WorkspaceTabObject } from '../../modules/tabs';
-import type { CollectionStatsObject } from '../../modules/stats';
+import type { CollectionStatsMap } from '../../modules/stats';
 import Collection from '../collection';
 
 const workspaceStyles = css({
@@ -37,6 +36,10 @@ const workspaceViewsStyles = css({
 const workspaceViewTabStyles = css({
   height: '100%',
   width: '100%',
+});
+
+const workspaceHiddenStyles = css({
+  display: 'none',
 });
 
 function getTabType(isTimeSeries: boolean, isReadonly: boolean): string {
@@ -109,15 +112,8 @@ type WorkspaceProps = {
     type: string;
     index: number;
   };
-  changeActiveSubTab: (
-    activeSubTab: number,
-    id: string
-  ) => {
-    type: string;
-    activeSubTab: number;
-    id: string;
-  };
-  stats: CollectionStatsObject;
+  changeActiveSubTab: (activeSubTab: number, id: string) => void;
+  stats: CollectionStatsMap;
 };
 
 /**
@@ -215,13 +211,12 @@ class Workspace extends PureComponent<WorkspaceProps> {
    */
   renderViews(): React.ReactElement[] {
     return this.props.tabs.map((tab: WorkspaceTabObject) => {
-      const viewTabClass = classnames({
-        [workspaceViewTabStyles]: true,
-        hidden: !tab.isActive,
-      });
       return (
         <div
-          className={viewTabClass}
+          className={cx(
+            workspaceViewTabStyles,
+            !tab.isActive && workspaceHiddenStyles
+          )}
           id={tab.id}
           key={`${String(tab.id)}-wrap`}
         >
@@ -240,7 +235,6 @@ class Workspace extends PureComponent<WorkspaceProps> {
             tabs={tab.tabs}
             views={tab.views}
             scopedModals={tab.scopedModals}
-            queryHistoryIndexes={tab.queryHistoryIndexes}
             activeSubTab={tab.activeSubTab}
             pipeline={tab.pipeline}
             changeActiveSubTab={this.props.changeActiveSubTab}
@@ -275,7 +269,7 @@ class Workspace extends PureComponent<WorkspaceProps> {
     );
 
     return (
-      <div className={workspaceStyles} data-test-id="workspace-tabs">
+      <div className={workspaceStyles} data-testid="workspace-tabs">
         <WorkspaceTabs
           aria-label="Collection Tabs"
           onCreateNewTab={this.onCreateNewTab}

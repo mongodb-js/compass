@@ -3,13 +3,21 @@ import type { TypeCastTypes } from 'hadron-type-checker';
 import { Menu, MenuItem } from '@leafygreen-ui/menu';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { FontAwesomeIcon } from './font-awesome-icon';
+import { Icon } from '../leafygreen';
+import { documentTypography } from './typography';
 
 const buttonReset = css({
   margin: 0,
   padding: 0,
   border: 'none',
   background: 'none',
+  cursor: 'pointer',
+});
+
+const editActionIconStyle = css({
+  position: 'absolute',
+  top: 2,
+  right: 0,
 });
 
 export const EditActions: React.FunctionComponent<{
@@ -22,27 +30,39 @@ export const EditActions: React.FunctionComponent<{
       {editing &&
         (onRevert ? (
           <button
+            type="button"
             data-testid="hadron-document-revert"
             className={buttonReset}
             aria-label="Revert changes"
+            title="Revert changes"
             onClick={(evt) => {
               evt.stopPropagation();
               onRevert();
             }}
           >
-            <FontAwesomeIcon icon="revert"></FontAwesomeIcon>
+            <Icon
+              size="xsmall"
+              className={editActionIconStyle}
+              glyph="Undo"
+            ></Icon>
           </button>
         ) : onRemove ? (
           <button
+            type="button"
             data-testid="hadron-document-remove"
             className={buttonReset}
+            title="Remove field"
             aria-label="Remove field"
             onClick={(evt) => {
               evt.stopPropagation();
               onRemove();
             }}
           >
-            <FontAwesomeIcon icon="remove"></FontAwesomeIcon>
+            <Icon
+              size="xsmall"
+              glyph="Trash"
+              className={editActionIconStyle}
+            ></Icon>
           </button>
         ) : null)}
     </>
@@ -51,8 +71,8 @@ export const EditActions: React.FunctionComponent<{
 
 const addFieldButton = css({
   display: 'block',
-  width: spacing[3],
-  height: spacing[3],
+  width: documentTypography.lineHeight,
+  height: documentTypography.lineHeight,
   marginLeft: 'auto',
   boxShadow: `inset 0 0 0 1px currentColor`,
   borderRadius: '2px',
@@ -108,7 +128,9 @@ export const AddFieldActions: React.FunctionComponent<{
         return (
           <>
             <button
+              type="button"
               data-testid="hadron-document-add-element"
+              title="Add field"
               className={cx(buttonReset, addFieldButton)}
               onClick={(evt) => {
                 evt.stopPropagation();
@@ -130,10 +152,12 @@ export const AddFieldActions: React.FunctionComponent<{
             setIsOpen(false);
             onAddFieldToElement();
           }}
+          glyph={<Icon glyph="Relationship"></Icon>}
           className={menuItem}
         >
-          <FontAwesomeIcon icon="addChild"></FontAwesomeIcon>&nbsp;Add{' '}
-          {type === 'Array' ? 'item' : 'field'} to <b>{keyName}</b>
+          <div>
+            Add {type === 'Array' ? 'item' : 'field'} to <b>{keyName}</b>
+          </div>
         </MenuItem>
       )}
       <MenuItem
@@ -142,10 +166,12 @@ export const AddFieldActions: React.FunctionComponent<{
           setIsOpen(false);
           onAddFieldAfterElement();
         }}
+        glyph={<Icon glyph="PlusWithCircle"></Icon>}
         className={menuItem}
       >
-        <FontAwesomeIcon icon="addSibling"></FontAwesomeIcon>&nbsp;Add{' '}
-        {parentType === 'Array' ? 'item' : 'field'} after <b>{keyName}</b>
+        <div>
+          Add {parentType === 'Array' ? 'item' : 'field'} after <b>{keyName}</b>
+        </div>
       </MenuItem>
     </Menu>
   );

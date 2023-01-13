@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import {
   Banner,
   Button,
-  ButtonSize,
   ButtonVariant,
+  EmptyContent,
   Link,
   WarningSummary,
+  WorkspaceContainer,
 } from '@mongodb-js/compass-components';
-import { ZeroState } from 'hadron-react-components';
 import ValidationEditor from '../validation-editor';
 import SampleDocuments from '../sample-documents';
 import { ZeroGraphic } from '../zero-graphic';
@@ -26,17 +26,6 @@ export const READ_ONLY_WARNING = {
   oldServerReadOnly:
     'Compass no longer supports the visual rule builder for server versions below 3.2. To use the visual rule builder, please',
 };
-
-/**
- * Header for zero state.
- */
-const HEADER = 'Add validation rules';
-
-/**
- * Additional text for zero state.
- */
-const SUBTEXT =
-  'Create rules to enforce data structure of documents on updates and inserts.';
 
 /**
  * Link to the schema validation documentation.
@@ -63,74 +52,63 @@ class ValidationStates extends Component {
     zeroStateChanged: PropTypes.func.isRequired,
     editMode: PropTypes.object.isRequired,
     serverVersion: PropTypes.string,
+    readOnly: PropTypes.bool,
   };
 
-  /**
-   * Checks if the validation is editable.
-   *
-   * @returns {Boolean} True if it is editable.
-   */
+  renderBanner() {
+    if (this.props.editMode.collectionTimeSeries) {
+      return (
+        <WarningSummary
+          warnings={READ_ONLY_WARNING.collectionTimeSeries}
+          data-testid="collection-validation-warning"
+        />
+      );
+    }
+
+    if (this.props.editMode.collectionReadOnly) {
+      return (
+        <WarningSummary
+          warnings={READ_ONLY_WARNING.collectionReadOnly}
+          data-testid="collection-validation-warning"
+        />
+      );
+    }
+
+    if (this.props.editMode.writeStateStoreReadOnly) {
+      return (
+        <WarningSummary
+          warnings={READ_ONLY_WARNING.writeStateStoreReadOnly}
+          data-testid="collection-validation-warning"
+        />
+      );
+    }
+
+    if (this.props.editMode.oldServerReadOnly) {
+      return (
+        <Banner variant="warning">
+          <div data-testid="old-server-read-only">
+            {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
+            <Link
+              className={styles['upgrade-link']}
+              target="_blank"
+              href={DOC_UPGRADE_REVISION}
+            >
+              upgrade to MongoDB 3.2.
+            </Link>
+          </div>
+        </Banner>
+      );
+    }
+  }
+
   isEditable() {
     return (
       !this.props.editMode.collectionReadOnly &&
       !this.props.editMode.collectionTimeSeries &&
-      !this.props.editMode.hadronReadOnly &&
       !this.props.editMode.writeStateStoreReadOnly &&
-      !this.props.editMode.oldServerReadOnly
+      !this.props.editMode.oldServerReadOnly &&
+      !this.props.readOnly
     );
-  }
-
-  /**
-   * Renders the banner if the validation is not editable.
-   *
-   * @returns {React.Component} The component.
-   */
-  renderBanner() {
-    if (!this.isEditable()) {
-      if (this.props.editMode.collectionTimeSeries) {
-        return (
-          <WarningSummary
-            warnings={READ_ONLY_WARNING.collectionTimeSeries}
-            data-testid="collection-validation-warning"
-          />
-        );
-      }
-
-      if (this.props.editMode.collectionReadOnly) {
-        return (
-          <WarningSummary
-            warnings={READ_ONLY_WARNING.collectionReadOnly}
-            data-testid="collection-validation-warning"
-          />
-        );
-      }
-
-      if (this.props.editMode.writeStateStoreReadOnly) {
-        return (
-          <WarningSummary
-            warnings={READ_ONLY_WARNING.writeStateStoreReadOnly}
-            data-testid="collection-validation-warning"
-          />
-        );
-      }
-
-      if (this.props.editMode.oldServerReadOnly) {
-        return (
-          <Banner variant="warning">
-            <div data-testid="old-server-read-only">
-              {READ_ONLY_WARNING.oldServerReadOnly}&nbsp;
-              <Link
-                className={styles['upgrade-link']}
-                target="_blank"
-                href={DOC_UPGRADE_REVISION}
-              >
-                upgrade to MongoDB 3.2.
-              </Link>
-            </div>
-          </Banner>
-        );
-      }
-    }
   }
 
   /**
@@ -149,29 +127,27 @@ class ValidationStates extends Component {
     }
 
     return (
-      <div className={styles['zero-state-container']}>
-        <ZeroGraphic />
-        <ZeroState header={HEADER} subtext={SUBTEXT}>
-          <div className={styles['zero-state-action']}>
-            <Button
-              data-test-id="add-rule-button"
-              disabled={!this.isEditable()}
-              onClick={this.props.changeZeroState.bind(this, false)}
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-            >
-              Add Rule
-            </Button>
-          </div>
-          <Link
-            className={styles['zero-state-link']}
-            href={DOC_SCHEMA_VALIDATION}
-            target="_blank"
+      <EmptyContent
+        icon={ZeroGraphic}
+        title="Add validation rules"
+        subTitle="Create rules to enforce data structure of documents on updates and inserts."
+        callToAction={
+          <Button
+            data-testid="add-rule-button"
+            disabled={!this.isEditable()}
+            onClick={this.props.changeZeroState.bind(this, false)}
+            variant={ButtonVariant.Primary}
+            size="small"
           >
+            Add Rule
+          </Button>
+        }
+        callToActionLink={
+          <Link href={DOC_SCHEMA_VALIDATION} target="_blank">
             Learn more about validations
           </Link>
-        </ZeroState>
-      </div>
+        }
+      />
     );
   }
 
@@ -204,11 +180,13 @@ class ValidationStates extends Component {
    */
   render() {
     return (
-      <div className={styles['validation-states']}>
-        {this.renderBanner()}
-        {this.renderZeroState()}
-        {this.renderContent()}
-      </div>
+      <WorkspaceContainer>
+        <div className={styles['validation-states']}>
+          {this.renderBanner()}
+          {this.renderZeroState()}
+          {this.renderContent()}
+        </div>
+      </WorkspaceContainer>
     );
   }
 }

@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
-import { Button, Icon, Tooltip } from '../leafygreen';
+import { Button, Icon } from '../leafygreen';
+import { Tooltip } from '../tooltip';
 
 const actionsGroupContainer = css({
   position: 'absolute',
   display: 'flex',
   gap: spacing[2],
   width: '100%',
-  top: spacing[3],
+  top: spacing[2] + spacing[1],
   paddingLeft: spacing[3],
   paddingRight: spacing[3],
   pointerEvents: 'none',
@@ -126,7 +127,7 @@ const DocumentActionsGroup: React.FunctionComponent<
       {onCopy && (
         <Tooltip
           open={showCopyButtonTooltip}
-          trigger={({ children }: { children: React.ReactChildren }) => {
+          trigger={({ children }) => {
             return (
               <div>
                 <Button
@@ -146,7 +147,6 @@ const DocumentActionsGroup: React.FunctionComponent<
             );
           }}
           justify="middle"
-          darkMode
         >
           Copied!
         </Tooltip>

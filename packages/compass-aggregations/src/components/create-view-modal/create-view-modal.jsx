@@ -2,12 +2,17 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { ConfirmationModal } from '@mongodb-js/compass-components';
-import { ModalInput, ModalStatusMessage } from 'hadron-react-components';
+import { Banner, Body, FormModal, SpinLoader, css, spacing, TextInput } from '@mongodb-js/compass-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
 import { toggleIsVisible } from '../../modules/create-view/is-visible';
+
+const progressContainerStyles = css({
+  display: 'flex',
+  gap: spacing[2],
+  alignItems: 'center',
+});
 
 class CreateViewModal extends PureComponent {
   static displayName = 'CreateViewModalComponent';
@@ -58,41 +63,36 @@ class CreateViewModal extends PureComponent {
    */
   render() {
     return (
-      <ConfirmationModal
+      <FormModal
         title={this.props.isDuplicating ? 'Duplicate View' : 'Create a View'}
         open={this.props.isVisible}
-        onConfirm={this.props.createView}
+        onSubmit={this.props.createView}
         onCancel={this.onCancel}
-        buttonText="Create"
+        submitButtonText="Create"
         trackingId="create_view_modal"
+        data-testid="create-view-modal"
       >
-        <form
-          name="create-view-modal-form"
-          onSubmit={this.onFormSubmit.bind(this)}
-          data-test-id="create-view-modal"
-        >
-          <ModalInput
-            id="create-view-name"
-            name="Enter a View Name"
-            value={this.props.name || ''}
-            onChangeHandler={this.onNameChange}
-          />
-          {this.props.error ? (
-            <ModalStatusMessage
-              icon="times"
-              message={this.props.error.message}
-              type="error"
-            />
-          ) : null}
-          {this.props.isRunning ? (
-            <ModalStatusMessage
-              icon="spinner"
-              message="Create in Progress"
-              type="in-progress"
-            />
-          ) : null}
-        </form>
-      </ConfirmationModal>
+        <TextInput
+          data-testid="create-view-name"
+          value={this.props.name || ''}
+          onChange={this.onNameChange}
+          label="Name"
+          name="name"
+        />
+        {this.props.error ? (
+          <Banner
+            variant='danger'
+          >
+            {this.props.error.message}
+          </Banner>
+        ) : null}
+        {this.props.isRunning ? (
+          <Body className={progressContainerStyles}>
+            <SpinLoader />
+            <span>Creating view&hellip;</span>
+          </Body>
+        ) : null}
+      </FormModal>
     );
   }
 }

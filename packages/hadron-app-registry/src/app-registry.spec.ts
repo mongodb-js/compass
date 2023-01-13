@@ -201,7 +201,6 @@ describe('AppRegistry', function () {
       component: 'collection-tab',
       name: 'another tab',
       order: 2,
-      minimumServerVersion: '3.2.0-rc0',
     };
 
     const roleTwo = {
@@ -368,7 +367,6 @@ describe('AppRegistry', function () {
       component: 'collection-tab',
       name: 'another tab',
       order: 2,
-      minimumServerVersion: '3.2.0-rc0',
     };
 
     const roleTwo = {

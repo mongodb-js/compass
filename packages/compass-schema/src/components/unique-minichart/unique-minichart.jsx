@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ValueBubble from '../value-bubble';
+import { ValueBubble } from '../value-bubble';
 import sampleSize from 'lodash.samplesize';
 import { Icon, IconButton } from '@mongodb-js/compass-components';
 
@@ -67,7 +67,7 @@ class UniqueMiniChart extends Component {
             </IconButton>
           </dt>
           <dd>
-            <ul className="list-inline">{randomValueList}</ul>
+            <ul>{randomValueList}</ul>
           </dd>
         </dl>
       </div>

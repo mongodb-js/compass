@@ -13,7 +13,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import CreateIndexForm from '../create-index-form';
+import { CreateIndexForm } from './create-index-form';
 
 describe('CreateIndexForm Component', function () {
   let updateFieldNameSpy;
@@ -438,8 +438,6 @@ describe('CreateIndexForm Component', function () {
 
         const editor = within(editorWrapper).getByRole('textbox');
 
-        screen.debug(editor);
-
         userEvent.paste(editor, '{}');
 
         expect(collationStringChangedSpy).to.have.been.calledWith('{}');
@@ -508,8 +506,6 @@ describe('CreateIndexForm Component', function () {
 
         const editor = within(editorWrapper).getByRole('textbox');
 
-        screen.debug(editor);
-
         userEvent.paste(editor, '{}');
 
         expect(partialFilterExpressionChangedSpy).to.have.been.calledWith('{}');
@@ -577,8 +573,6 @@ describe('CreateIndexForm Component', function () {
         );
 
         const editor = within(editorWrapper).getByRole('textbox');
-
-        screen.debug(editor);
 
         userEvent.paste(editor, '{}');
 
@@ -722,8 +716,6 @@ describe('CreateIndexForm Component', function () {
         );
 
         const editor = within(editorWrapper).getByRole('textbox');
-
-        screen.debug(editor);
 
         userEvent.paste(editor, '{}');
 

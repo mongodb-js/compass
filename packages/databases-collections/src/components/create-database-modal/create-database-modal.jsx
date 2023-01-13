@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Banner, ConfirmationModal, Link } from '@mongodb-js/compass-components';
+import { FormModal, Banner, Link } from '@mongodb-js/compass-components';
 
 import { createDatabase } from '../../modules/create-database';
 import { clearError } from '../../modules/error';
@@ -11,7 +11,7 @@ import styles from './create-database-modal.module.less';
 
 // The more information url.
 const INFO_URL_CREATE_DB =
-  'https://docs.mongodb.com/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection';
+  'https://www.mongodb.com/docs/manual/faq/fundamentals/#how-do-i-create-a-database-and-a-collection-';
 
 /**
  * The modal to create a database.
@@ -28,11 +28,11 @@ class CreateDatabaseModal extends PureComponent {
     clearError: PropTypes.func.isRequired,
     serverVersion: PropTypes.string.isRequired,
     configuredKMSProviders: PropTypes.array,
-    currentTopologyType: PropTypes.string
-  }
+    currentTopologyType: PropTypes.string,
+  };
 
   state = {
-    data: {}
+    data: {},
   };
 
   /**
@@ -40,19 +40,19 @@ class CreateDatabaseModal extends PureComponent {
    */
   onDismissErrorMessage = () => {
     this.props.clearError();
-  }
+  };
 
   onCancel = () => {
     return this.props.toggleIsVisible(false);
-  }
+  };
 
   onConfirm = () => {
     this.props.createDatabase(this.state.data);
-  }
+  };
 
   onChange = (data) => {
     this.setState({ data });
-  }
+  };
 
   renderError() {
     if (!this.props.error) {
@@ -60,11 +60,7 @@ class CreateDatabaseModal extends PureComponent {
     }
 
     return (
-      <Banner
-        variant="danger"
-        dismissible
-        onClose={this.props.clearError}
-      >
+      <Banner variant="danger" dismissible onClose={this.props.clearError}>
         {this.props.error.message}
       </Banner>
     );
@@ -72,16 +68,12 @@ class CreateDatabaseModal extends PureComponent {
 
   renderCollectionNameRequiredNotice() {
     return (
-      <Banner
-        className={styles['collection-name-info-banner']}
-        variant="info"
-      >
-        Before MongoDB can save your new database, a collection name
-        must also be specified at the time of creation.&nbsp;
-        <Link
-          href={INFO_URL_CREATE_DB}
-          target="_blank"
-        >More Information</Link>
+      <Banner className={styles['collection-name-info-banner']} variant="info">
+        Before MongoDB can save your new database, a collection name must also
+        be specified at the time of creation.&nbsp;
+        <Link href={INFO_URL_CREATE_DB} target="_blank">
+          More Information
+        </Link>
       </Banner>
     );
   }
@@ -95,18 +87,17 @@ class CreateDatabaseModal extends PureComponent {
     const hasCollectionName = !!(this.state.data.collection || '').trim();
 
     return (
-      <ConfirmationModal
+      <FormModal
         title="Create Database"
         open={this.props.isVisible}
-        onConfirm={this.onConfirm}
+        onSubmit={this.onConfirm}
         onCancel={this.onCancel}
-        buttonText="Create Database"
-        submitDisabled={(
-          !hasCollectionName ||
-          !(this.state.data.database || '').trim()
-        )}
-        className={styles['create-database-modal']}
+        submitButtonText="Create Database"
+        submitDisabled={
+          !hasCollectionName || !(this.state.data.database || '').trim()
+        }
         trackingId="create_database_modal"
+        data-testid="create-database-modal"
       >
         <CollectionFields
           serverVersion={this.props.serverVersion}
@@ -117,7 +108,7 @@ class CreateDatabaseModal extends PureComponent {
         />
         {!hasCollectionName && this.renderCollectionNameRequiredNotice()}
         {this.renderError()}
-      </ConfirmationModal>
+      </FormModal>
     );
   }
 }
@@ -135,21 +126,18 @@ const mapStateToProps = (state) => ({
   error: state.error,
   serverVersion: state.serverVersion,
   configuredKMSProviders: state.dataService.configuredKMSProviders,
-  currentTopologyType: state.dataService.currentTopologyType
+  currentTopologyType: state.dataService.currentTopologyType,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedCreateDatabaseModal = connect(
-  mapStateToProps,
-  {
-    createDatabase,
-    toggleIsVisible,
-    clearError
-  },
-)(CreateDatabaseModal);
+const MappedCreateDatabaseModal = connect(mapStateToProps, {
+  createDatabase,
+  toggleIsVisible,
+  clearError,
+})(CreateDatabaseModal);
 
 export default MappedCreateDatabaseModal;
 export { CreateDatabaseModal };

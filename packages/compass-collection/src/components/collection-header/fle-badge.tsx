@@ -9,6 +9,7 @@ import {
 
 const collectionHeaderBadgeStyles = css({
   marginLeft: spacing[2],
+  whiteSpace: 'nowrap',
 });
 
 const FLEBadge = (): React.ReactElement => (

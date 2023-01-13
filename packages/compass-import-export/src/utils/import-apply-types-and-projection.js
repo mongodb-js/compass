@@ -105,7 +105,7 @@ export default transformProjectedTypes;
  * Use `transformProjectedTypes` in a stream.
  *
  * @param {spec} spec
- * @returns {TransformStream}
+ * @returns {Transform}
  */
 export function transformProjectedTypesStream({
   transform = [],

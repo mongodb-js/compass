@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Variant as BannerVariant } from '@leafygreen-ui/banner';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 
 import { InlineDefinition } from './inline-definition';
 import { Banner, Button } from './leafygreen';
@@ -76,6 +76,7 @@ const BannerWithSummary: React.FunctionComponent<
     messages: string | string[];
     variant: BannerVariant;
     ['data-testid']?: string;
+    className?: string;
   } & (
     | { actionText: string; onAction(): void }
     | { actionText?: never; onAction?: never }
@@ -86,13 +87,18 @@ const BannerWithSummary: React.FunctionComponent<
   onAction,
   actionText,
   variant,
+  className,
 }) => {
   const _messages = useMemo(() => {
     return !Array.isArray(messages) ? [messages] : messages;
   }, [messages]);
 
   return (
-    <Banner data-testid={dataTestId} variant={variant} className={bannerStyle}>
+    <Banner
+      data-testid={dataTestId}
+      variant={variant}
+      className={cx(bannerStyle, className)}
+    >
       <div className={summaryStyles}>
         <Summary messages={_messages}></Summary>
         {onAction && actionText && (
@@ -111,13 +117,18 @@ const BannerWithSummary: React.FunctionComponent<
 };
 
 export const ErrorSummary: React.FunctionComponent<
-  { errors: string | string[]; ['data-testid']?: string } & (
+  {
+    className?: string;
+    errors: string | string[];
+    ['data-testid']?: string;
+  } & (
     | { actionText: string; onAction(): void }
     | { actionText?: never; onAction?: never }
   )
-> = ({ errors, ...props }) => {
+> = ({ className, errors, ...props }) => {
   return (
     <BannerWithSummary
+      className={className}
       messages={errors}
       variant={BannerVariant.Danger}
       {...props}
@@ -126,13 +137,18 @@ export const ErrorSummary: React.FunctionComponent<
 };
 
 export const WarningSummary: React.FunctionComponent<
-  { warnings: string | string[]; ['data-testid']?: string } & (
+  {
+    className?: string;
+    warnings: string | string[];
+    ['data-testid']?: string;
+  } & (
     | { actionText: string; onAction(): void }
     | { actionText?: never; onAction?: never }
   )
-> = ({ warnings, ...props }) => {
+> = ({ className, warnings, ...props }) => {
   return (
     <BannerWithSummary
+      className={className}
       messages={warnings}
       variant={BannerVariant.Warning}
       {...props}

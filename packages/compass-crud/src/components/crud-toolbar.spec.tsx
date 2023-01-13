@@ -39,6 +39,9 @@ const mockQueryBarStore = {
   },
 };
 
+const testOutdatedMessageId = 'crud-outdated-message-id';
+const testErrorMessageId = 'document-list-error-summary';
+
 function renderCrudToolbar(
   props?: Partial<React.ComponentProps<typeof CrudToolbar>>
 ) {
@@ -61,6 +64,7 @@ function renderCrudToolbar(
       onApplyClicked={noop}
       onResetClicked={noop}
       openExportFileDialog={noop}
+      outdated={false}
       page={0}
       readonly={false}
       refreshDocuments={noop}
@@ -201,12 +205,34 @@ describe('CrudToolbar Component', function () {
     expect(getPageSpy.calledOnce).to.be.false;
   });
 
+  it('should have the next page button enabled when count is unknown', function () {
+    const getPageSpy = sinon.spy();
+    renderCrudToolbar({
+      getPage: getPageSpy,
+      page: 2,
+      count: undefined,
+    });
+
+    const nextButton = screen.getByTestId('docs-toolbar-next-page-btn');
+    expect(nextButton).to.have.attribute('aria-disabled', 'false');
+
+    expect(getPageSpy.called).to.be.false;
+    fireEvent.click(nextButton);
+
+    expect(getPageSpy.calledOnce).to.be.true;
+    expect(getPageSpy.firstCall.args[0]).to.equal(3);
+  });
+
   it('should render the add data button when it is not readonly', function () {
     renderCrudToolbar({
       readonly: false,
     });
 
-    expect(screen.queryByText(addDataText)).to.be.visible;
+    expect(
+      screen.getByRole('button', {
+        name: new RegExp(addDataText, 'i'),
+      })
+    ).to.be.visible;
   });
 
   it('should render the start and end count', function () {
@@ -217,7 +243,7 @@ describe('CrudToolbar Component', function () {
     });
 
     expect(screen.getByTestId('crud-document-count-display')).to.have.text(
-      '5 - 25 of 200'
+      '5 – 25 of 200'
     );
   });
 
@@ -241,6 +267,12 @@ describe('CrudToolbar Component', function () {
     expect(exportSpy.calledOnce).to.be.true;
   });
 
+  it('should not render the outdated message', function () {
+    renderCrudToolbar();
+
+    expect(screen.queryByTestId(testOutdatedMessageId)).to.not.exist;
+  });
+
   describe('when the instance is in a writable state (`isWritable` is true)', function () {
     beforeEach(function () {
       renderCrudToolbar({
@@ -250,7 +282,9 @@ describe('CrudToolbar Component', function () {
 
     it('has the add data button enabled', function () {
       expect(
-        screen.getByTestId('crud-add-data-button').getAttribute('disabled')
+        screen
+          .getByTestId('crud-add-data-show-actions')
+          .getAttribute('disabled')
       ).to.equal(null);
     });
   });
@@ -264,8 +298,65 @@ describe('CrudToolbar Component', function () {
 
     it('has the add data button disabled', function () {
       expect(
-        screen.getByTestId('crud-add-data-button').getAttribute('disabled')
+        screen
+          .getByTestId('crud-add-data-show-actions')
+          .getAttribute('disabled')
       ).to.exist;
+    });
+  });
+
+  describe('when the documents are outdated', function () {
+    beforeEach(function () {
+      renderCrudToolbar({
+        outdated: true,
+      });
+    });
+
+    it('should render the outdated message', function () {
+      expect(screen.getByTestId(testOutdatedMessageId)).to.be.visible;
+    });
+
+    it('should not render an error message', function () {
+      expect(screen.queryByTestId(testErrorMessageId)).to.not.exist;
+    });
+  });
+
+  describe('when there is an error', function () {
+    beforeEach(function () {
+      renderCrudToolbar({
+        error: {
+          name: 'test-error',
+          message: 'pineapple 123',
+        },
+      });
+    });
+
+    it('should render the message', function () {
+      expect(screen.getByTestId(testErrorMessageId)).to.be.visible;
+      expect(screen.getByText('pineapple 123')).to.be.visible;
+    });
+  });
+
+  describe('when there is an operation timed out error', function () {
+    beforeEach(function () {
+      renderCrudToolbar({
+        error: {
+          name: 'MongoServerError',
+          message: 'pineapple',
+          code: {
+            value: 50,
+          },
+        },
+      });
+    });
+
+    it('should render the message', function () {
+      expect(screen.queryByText('pineapple')).to.not.exist;
+      expect(
+        screen.getByText(
+          'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.'
+        )
+      ).to.be.visible;
     });
   });
 });

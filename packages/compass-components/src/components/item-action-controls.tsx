@@ -1,10 +1,9 @@
 import React, { useRef, forwardRef, useCallback, useState } from 'react';
-import { Icon, IconButton } from '../index';
+import { Button, Icon, IconButton, Menu, MenuItem } from './leafygreen';
+import type { ButtonProps } from '@leafygreen-ui/button';
 
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-
-import { Menu, MenuItem } from '@leafygreen-ui/menu';
 
 export type ItemAction<Action> = {
   action: Action;
@@ -15,9 +14,11 @@ export type ItemAction<Action> = {
 export type MenuAction<Action> = {
   action: Action;
   label: string;
+  icon?: string;
 };
 
 const ItemActionButtonSize = {
+  XSmall: 'xsmall',
   Small: 'small',
   Default: 'default',
 } as const;
@@ -47,11 +48,20 @@ const iconContainerStyle = css({
 
 // Using important here because leafygreen / emotion applies styles in the order
 // that doesn't allow our styles override theirs
-const iconButtonSmallStyle = css({
-  flex: 'none',
-  width: `${spacing[4]}px !important`,
-  height: `${spacing[4]}px !important`,
-});
+const buttonSizeStyle: Record<ItemActionButtonSize, string | undefined> = {
+  default: undefined,
+  small: css({
+    flex: 'none',
+    width: `${spacing[4]}px !important`,
+    height: `${spacing[4]}px !important`,
+  }),
+  xsmall: css({
+    flex: 'none',
+    // aligns with other xsmall components
+    width: `${20}px !important`,
+    height: `${20}px !important`,
+  }),
+};
 
 function actionTestId<Action extends string>(
   dataTestId: string | undefined,
@@ -78,10 +88,7 @@ const ItemActionButton = forwardRef<
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error leafygreen confuses TS a lot here
       ref={ref}
-      className={cx(
-        size === ItemActionButtonSize.Small ? iconButtonSmallStyle : '',
-        className
-      )}
+      className={cx(buttonSizeStyle[size], className)}
       aria-label={label}
       title={title}
       onClick={onClick}
@@ -115,6 +122,9 @@ export function ItemActionMenu<Action extends string>({
   isVisible?: boolean;
   'data-testid'?: string;
 }) {
+  // this ref is used by the Menu component to calculate the height and position
+  // of the menu, and by us to give back the focus to the trigger when the menu
+  // is closed (https://jira.mongodb.org/browse/PD-1674).
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -173,13 +183,14 @@ export function ItemActionMenu<Action extends string>({
           );
         }}
       >
-        {actions.map(({ action, label }) => {
+        {actions.map(({ action, label, icon }) => {
           return (
             <MenuItem
               key={action}
               data-testid={actionTestId<Action>(dataTestId, action)}
               data-action={action}
               data-menuitem={true}
+              glyph={icon ? <Icon glyph={icon} /> : undefined}
               onClick={onClick}
             >
               {label}
@@ -277,7 +288,7 @@ export function ItemActionControls<Action extends string>({
     return (
       <ItemActionMenu
         actions={actions}
-        className={className}
+        className={cx('item-action-controls', className)}
         data-testid={dataTestId}
         iconClassName={iconClassName}
         iconSize={iconSize}
@@ -293,10 +304,106 @@ export function ItemActionControls<Action extends string>({
       isVisible={isVisible}
       actions={actions}
       onAction={onAction}
-      className={className}
+      className={cx('item-action-controls', className)}
       iconSize={iconSize}
       data-testid={dataTestId}
       iconClassName={iconClassName}
     ></ItemActionGroup>
+  );
+}
+
+export function DropdownMenuButton<Action extends string>({
+  isVisible = true,
+  actions,
+  onAction,
+  usePortal,
+  activeAction,
+  buttonText,
+  buttonProps,
+  'data-testid': dataTestId,
+}: {
+  actions: MenuAction<Action>[];
+  onAction(actionName: Action): void;
+  usePortal?: boolean;
+  iconSize?: ItemActionButtonSize;
+  isVisible?: boolean;
+  activeAction?: Action;
+  'data-testid'?: string;
+  buttonText: string;
+  buttonProps: ButtonProps;
+}) {
+  // this ref is used by the Menu component to calculate the height and position
+  // of the menu, and by us to give back the focus to the trigger when the menu
+  // is closed (https://jira.mongodb.org/browse/PD-1674).
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const onClick = useCallback(
+    (evt) => {
+      evt.stopPropagation();
+      if (evt.currentTarget.dataset.menuitem) {
+        setIsMenuOpen(false);
+        // Workaround for https://jira.mongodb.org/browse/PD-1674
+        menuTriggerRef.current?.focus();
+      }
+      onAction(evt.currentTarget.dataset.action);
+    },
+    [onAction]
+  );
+
+  const shouldRender = isMenuOpen || (isVisible && actions.length > 0);
+
+  if (!shouldRender) {
+    return null;
+  }
+
+  return (
+    <Menu
+      open={isMenuOpen}
+      setOpen={setIsMenuOpen}
+      justify="start"
+      refEl={menuTriggerRef}
+      usePortal={usePortal}
+      data-testid={dataTestId}
+      trigger={({
+        onClick,
+        children,
+      }: {
+        onClick: React.MouseEventHandler<HTMLButtonElement>;
+        children: React.ReactNode;
+      }) => {
+        return (
+          <Button
+            {...buttonProps}
+            ref={menuTriggerRef}
+            data-testid={dataTestId ? `${dataTestId}-show-actions` : undefined}
+            onClick={(evt) => {
+              evt.stopPropagation();
+              onClick && onClick(evt);
+            }}
+            rightGlyph={<Icon glyph={'CaretDown'} />}
+          >
+            {buttonText}
+            {children}
+          </Button>
+        );
+      }}
+    >
+      {actions.map(({ action, label, icon }) => {
+        return (
+          <MenuItem
+            active={activeAction === action}
+            key={action}
+            data-testid={actionTestId<Action>(dataTestId, action)}
+            data-action={action}
+            data-menuitem={true}
+            glyph={icon ? <Icon glyph={icon} /> : undefined}
+            onClick={onClick}
+          >
+            {label}
+          </MenuItem>
+        );
+      })}
+    </Menu>
   );
 }

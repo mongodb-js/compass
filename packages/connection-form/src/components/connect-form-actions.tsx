@@ -5,9 +5,10 @@ import {
   ErrorSummary,
   WarningSummary,
   spacing,
-  uiColors,
+  palette,
   css,
   cx,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
   ConnectionFormError,
@@ -15,9 +16,18 @@ import type {
 } from '../utils/validation';
 
 const formActionStyles = css({
-  borderTop: `1px solid ${uiColors.gray.light2}`,
+  borderTopWidth: '1px',
+  borderTopStyle: 'solid',
   paddingLeft: spacing[4],
   paddingRight: spacing[4],
+});
+
+const formActionStylesDark = css({
+  borderTopColor: palette.gray.dark2,
+});
+
+const formActionStylesLight = css({
+  borderTopColor: palette.gray.light2,
 });
 
 const formActionItemStyles = css({
@@ -56,11 +66,19 @@ function ConnectFormActions({
   saveButton: 'enabled' | 'disabled' | 'hidden';
   saveAndConnectButton: 'enabled' | 'disabled' | 'hidden';
 }): React.ReactElement {
+  const darkMode = useDarkMode();
+
   return (
-    <div className={formActionStyles}>
+    <div
+      className={cx(
+        formActionStyles,
+        darkMode ? formActionStylesDark : formActionStylesLight
+      )}
+    >
       {warnings.length > 0 && (
         <div className={formActionItemStyles}>
           <WarningSummary
+            data-testid="connection-warnings-summary"
             warnings={warnings.map((warning) => warning.message)}
           />
         </div>

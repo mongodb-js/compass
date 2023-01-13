@@ -1,14 +1,15 @@
 import type { AnyAction, Reducer } from 'redux';
 import type { AggregateOptions, Document } from 'mongodb';
 import type { ExplainExecuteOptions } from 'mongodb-data-service';
-import type { ThunkAction } from 'redux-thunk';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import type { IndexInformation } from '@mongodb-js/explain-plan-helper';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
-import type { RootState } from '.';
+import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
-import { mapPipelineToStages } from '../utils/stage';
 import type { IndexInfo } from './indexes';
+import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
+import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
+import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
   'COMPASS-AGGREGATIONS-UI'
@@ -101,29 +102,20 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
         abortController: undefined,
       };
     case ActionTypes.ExplainCancelled:
+    case ConfirmNewPipelineActions.NewPipelineConfirmed:
       return INITIAL_STATE;
     default:
       return state;
   }
 };
 
-export const closeExplainModal = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  Actions
-> => {
+export const closeExplainModal = (): PipelineBuilderThunkAction<void> => {
   return (dispatch) => {
     dispatch(cancelExplain());
   };
 };
 
-export const cancelExplain = (): ThunkAction<
-  void,
-  RootState,
-  void,
-  Actions
-> => {
+export const cancelExplain = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState) => {
     const { explain: { abortController } } = getState();
     abortController?.abort();
@@ -133,26 +125,23 @@ export const cancelExplain = (): ThunkAction<
   };
 };
 
-export const explainAggregation = (): ThunkAction<
-  Promise<void>,
-  RootState,
-  void,
-  Actions
-> => {
-  return async (dispatch, getState) => {
+export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       isDataLake,
-      pipeline: _pipeline,
       namespace,
       maxTimeMS,
       dataService: { dataService },
       indexes: collectionIndexes,
-      collationString: { value: collation }
+      collationString: { value: collation },
+      pipelineBuilder: { pipelineMode },
     } = getState();
 
     if (!dataService) {
       return;
     }
+
+    const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
 
     try {
       const abortController = new AbortController();
@@ -163,12 +152,10 @@ export const explainAggregation = (): ThunkAction<
       });
 
       const options: AggregateOptions = {
-        maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS ?? DEFAULT_MAX_TIME_MS),
         allowDiskUse: true,
         collation: collation ?? undefined,
       };
-
-      const pipeline = mapPipelineToStages(_pipeline);
       const explainVerbosity = _getExplainVerbosity(pipeline, isDataLake);
       const rawExplain = await dataService.explainAggregate(
         namespace,
@@ -207,6 +194,7 @@ export const explainAggregation = (): ThunkAction<
         track('Aggregation Explained', {
           num_stages: pipeline.length,
           index_used: explain.stats?.indexes?.length ?? 0,
+          editor_view_type: mapPipelineModeToEditorViewType(pipelineMode),
         });
         // If parsing fails, we still show raw explain json.
         dispatch({
@@ -216,7 +204,7 @@ export const explainAggregation = (): ThunkAction<
       }
     } catch (e) {
       // Cancellation is handled in cancelExplain
-      if (!dataService.isOperationCancelledError(e as Error)) {
+      if (!dataService.isCancelError(e)) {
         dispatch({
           type: ActionTypes.ExplainFailed,
           error: (e as Error).message,

@@ -2,45 +2,18 @@ import type { Store } from 'redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { expect } from 'chai';
-import { spy, stub } from 'sinon';
-import type { Document } from 'mongodb';
+import { spy } from 'sinon';
 
-import reducer, { runAggregation, fetchNextPage, fetchPrevPage, cancelAggregation } from './aggregation';
+import reducer, { runAggregation, fetchNextPage, fetchPrevPage, cancelAggregation, changeViewType } from './aggregation';
 import type { State as AggregateState } from './aggregation';
 import type { RootState } from '.';
-import rootReducer, { INITIAL_STATE } from '../modules';
+import rootReducer from '../modules';
 import configureStore from '../stores/store';
 import { DATA_SERVICE_CONNECTED } from './data-service';
-
-const wait = (): Promise<void> => {
-  return new Promise(resolve => setImmediate(resolve));
-};
-
-class AggregationCursorMock {
-  constructor(public options: {
-    hasNext: boolean;
-    documents: Document[];
-    skip?: number;
-    limit?: number;
-  }) {
-  }
-  skip(count: number) {
-    this.options.skip = count;
-    return this;
-  }
-  limit(count: number) {
-    this.options.limit = count;
-    return this;
-  }
-  toArray() {
-    return Promise.resolve(this.options.documents);
-  }
-  close() { }
-}
+import { createCancelError } from '@mongodb-js/compass-utils';
 
 const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
-  const mockedState: RootState = {
-    ...INITIAL_STATE,
+  const mockedState = {
     aggregationWorkspaceId: '0',
     aggregation,
   };
@@ -50,43 +23,32 @@ const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
 describe('aggregation module', function () {
   it('should return the initial state', function () {
     expect(reducer(undefined, {} as any)).to.deep.equal({
+      pipeline: [],
       documents: [],
       page: 1,
       limit: 20,
       isLast: false,
       loading: false,
+      resultsViewType: 'document',
     });
   });
 
   it('runs an aggregation', async function () {
     const mockDocuments = [{ id: 1 }, { id: 2 }];
-    const aggregateMock = new AggregationCursorMock({
-      hasNext: true,
-      documents: mockDocuments,
-    });
-    const toArraySpy = spy(aggregateMock, 'toArray');
-
-    const startSessionSpy = spy();
-
-    const store: Store<RootState> = configureStore({});
+    const store: Store<RootState> = configureStore({ sourcePipeline: `[]` });
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
       dataService: new class {
-        startSession(client: string) {
-          return startSessionSpy(client);
-        }
         aggregate() {
-          return aggregateMock;
+          return Promise.resolve(mockDocuments);
         }
       }
     });
 
     await store.dispatch(runAggregation() as any);
 
-    expect(startSessionSpy.getCalls().map(x => x.args), 'calls startSession with correct args').to.deep.equal([['CRUD']]);
-    expect(toArraySpy.getCalls().map(x => x.args), 'calls toArray with correct args').to.deep.equal([[]]);
-
     expect(store.getState().aggregation).to.deep.equal({
+      pipeline: [],
       documents: mockDocuments,
       isLast: true,
       page: 1,
@@ -95,53 +57,36 @@ describe('aggregation module', function () {
       error: undefined,
       abortController: undefined,
       previousPageData: undefined,
+      resultsViewType: 'document',
     });
   });
 
   it('cancels an aggregation', async function () {
     const documents = [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }];
     const store = getMockedStore({
+      pipeline: [],
       isLast: false,
       loading: false,
       documents,
       limit: 4,
       page: 2,
+      resultsViewType: 'document'
     });
 
-    const aggregateMock = new AggregationCursorMock({
-      hasNext: true,
-      documents: [{ id: 9 }, { id: 10 }, { id: 11 }, { id: 12 }],
-    });
-
-    stub(aggregateMock, 'toArray').callsFake(async () => new Promise(() => { }));
-    const cursorCloseSpy = spy(aggregateMock, 'close');
-
-    const killSessionsSpy = spy();
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
       dataService: new class {
-        startSession() {
-          return {};
-        }
-        killSessions() {
-          killSessionsSpy();
-          return Promise.resolve();
-        }
         aggregate() {
-          return aggregateMock;
+          throw createCancelError();
         }
       }
     });
 
     store.dispatch(fetchNextPage() as any);
-    // now cancel while its fetching data
     await store.dispatch(cancelAggregation() as any);
 
-    await wait();
-
-    expect(killSessionsSpy.getCalls().map(x => x.args), 'calls killSessions with correct args').to.deep.equal([[]]);
-    expect(cursorCloseSpy.getCalls().map(x => x.args), 'calls cursorClose with correct args').to.deep.equal([[]]);
     expect(store.getState().aggregation).to.deep.equal({
+      pipeline: [],
       documents,
       isLast: false,
       page: 2,
@@ -150,12 +95,14 @@ describe('aggregation module', function () {
       error: undefined,
       abortController: undefined,
       previousPageData: undefined,
+      resultsViewType: 'document',
     });
   });
 
   describe('paginates data', function () {
-    it('nextPage -> not on last page', async function () {
+    it('runs aggregation when fetching nextPage', async function () {
       const store = getMockedStore({
+        pipeline: [],
         isLast: false,
         loading: false,
         documents: [
@@ -163,35 +110,23 @@ describe('aggregation module', function () {
         ],
         limit: 4,
         page: 2,
+        resultsViewType: 'document',
       });
 
       const mockDocuments = [{ id: 9 }, { id: 10 }, { id: 11 }, { id: 12 }];
-      const aggregateMock = new AggregationCursorMock({
-        hasNext: true,
-        documents: mockDocuments,
-      });
-      const toArraySpy = spy(aggregateMock, 'toArray');
-      const startSessionSpy = spy();
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
         dataService: new class {
-          startSession(client: string) {
-            return startSessionSpy(client);
-          }
           aggregate() {
-            return aggregateMock;
+            return Promise.resolve(mockDocuments);
           }
         }
       });
 
       await store.dispatch(fetchNextPage() as any);
 
-      await wait();
-
-      expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal(['CRUD']);
-      expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
-
       expect(store.getState().aggregation).to.deep.equal({
+        pipeline: [],
         documents: mockDocuments,
         isLast: false,
         page: 3,
@@ -200,10 +135,12 @@ describe('aggregation module', function () {
         error: undefined,
         abortController: undefined,
         previousPageData: undefined,
+        resultsViewType: 'document',
       });
     });
-    it('nextPage -> on last page', async function () {
+    it('does not run aggregation when fetching nextPage on last page', async function () {
       const store = getMockedStore({
+        pipeline: [],
         isLast: true,
         loading: false,
         documents: [
@@ -211,6 +148,7 @@ describe('aggregation module', function () {
         ],
         limit: 4,
         page: 1,
+        resultsViewType: 'document',
       });
       const aggregateSpy = spy();
       store.dispatch({
@@ -222,8 +160,9 @@ describe('aggregation module', function () {
       await store.dispatch(fetchNextPage() as any);
       expect(aggregateSpy.callCount).to.equal(0);
     });
-    it('prevPage -> not on first page', async function () {
+    it('runs aggregation when fetching prevPage', async function () {
       const store = getMockedStore({
+        pipeline: [],
         isLast: false,
         loading: false,
         documents: [
@@ -231,36 +170,24 @@ describe('aggregation module', function () {
         ],
         limit: 4,
         page: 2,
+        resultsViewType: 'document',
       });
 
       const mockDocuments = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
-      const aggregateMock = new AggregationCursorMock({
-        hasNext: true,
-        documents: mockDocuments,
-      });
-      const toArraySpy = spy(aggregateMock, 'toArray');
-      const startSessionSpy = spy();
 
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
         dataService: new class {
-          startSession(client: string) {
-            return startSessionSpy(client);
-          }
           aggregate() {
-            return aggregateMock;
+            return Promise.resolve(mockDocuments);
           }
         }
       });
 
       await store.dispatch(fetchPrevPage() as any);
 
-      await wait();
-
-      expect(startSessionSpy.firstCall.args, 'calls startSession with correct args').to.deep.equal(['CRUD']);
-      expect(toArraySpy.firstCall.args, 'calls toArray with correct args').to.deep.equal([]);
-
       expect(store.getState().aggregation).to.deep.equal({
+        pipeline: [],
         documents: mockDocuments,
         isLast: false,
         page: 1,
@@ -269,10 +196,12 @@ describe('aggregation module', function () {
         error: undefined,
         abortController: undefined,
         previousPageData: undefined,
+        resultsViewType: 'document',
       });
     });
-    it('prevPage -> on first page', async function () {
+    it('does not run aggregation when fetching prevPage on first page', async function () {
       const store = getMockedStore({
+        pipeline: [],
         isLast: false,
         loading: false,
         documents: [
@@ -280,6 +209,7 @@ describe('aggregation module', function () {
         ],
         limit: 4,
         page: 1,
+        resultsViewType: 'document',
       });
       const aggregateSpy = spy();
       store.dispatch({
@@ -291,5 +221,22 @@ describe('aggregation module', function () {
       await store.dispatch(fetchPrevPage() as any);
       expect(aggregateSpy.callCount).to.equal(0);
     });
+  });
+  it('should switch results view type', function () {
+    const store = getMockedStore({
+      pipeline: [],
+      isLast: false,
+      loading: false,
+      documents: [
+        { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
+      ],
+      limit: 4,
+      page: 2,
+      resultsViewType: 'document',
+    });
+
+    expect(store.getState().aggregation.resultsViewType).to.equal('document')
+    store.dispatch(changeViewType('json'));
+    expect(store.getState().aggregation.resultsViewType).to.equal('json')
   });
 });

@@ -9,7 +9,12 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ItemAction } from '@mongodb-js/compass-components';
 import { COLLECTION_ROW_HEIGHT } from './constants';
-import { ItemContainer, ItemLabel } from './tree-item';
+import {
+  ItemContainer,
+  ItemLabel,
+  ItemWrapper,
+  ItemButtonWrapper,
+} from './tree-item';
 import type {
   VirtualListItemProps,
   TreeItemProps,
@@ -33,16 +38,16 @@ const CollectionIcon: React.FunctionComponent<{
 
 const collectionItem = css({
   height: COLLECTION_ROW_HEIGHT,
+});
+
+const itemButtonWrapper = css({
+  height: COLLECTION_ROW_HEIGHT,
   paddingRight: spacing[1],
-  paddingLeft: spacing[5] + spacing[1],
+  paddingLeft: spacing[5] + spacing[1] + spacing[4],
 });
 
 const collectionItemLabel = css({
   marginLeft: spacing[2],
-});
-
-const collectionActions = css({
-  marginLeft: 'auto',
 });
 
 export const CollectionItem: React.FunctionComponent<
@@ -82,7 +87,7 @@ export const CollectionItem: React.FunctionComponent<
     const actions: ItemAction<Actions>[] = [
       {
         action: 'open-in-new-tab',
-        label: 'Open in New Tab',
+        label: 'Open in new tab',
         icon: 'OpenNewTab',
       },
     ];
@@ -95,24 +100,24 @@ export const CollectionItem: React.FunctionComponent<
       actions.push(
         {
           action: 'drop-collection',
-          label: 'Drop View',
+          label: 'Drop view',
           icon: 'Trash',
         },
         {
           action: 'duplicate-view',
-          label: 'Duplicate View',
+          label: 'Duplicate view',
           icon: 'Copy',
         },
         {
           action: 'modify-view',
-          label: 'Modify View',
+          label: 'Modify view',
           icon: 'Edit',
         }
       );
     } else {
       actions.push({
         action: 'drop-collection',
-        label: 'Drop Collection',
+        label: 'Drop collection',
         icon: 'Trash',
       });
     }
@@ -130,20 +135,25 @@ export const CollectionItem: React.FunctionComponent<
       isActive={isActive}
       isTabbable={isTabbable}
       onDefaultAction={onDefaultAction}
-      className={collectionItem}
       style={style}
+      className={collectionItem}
       {...hoverProps}
     >
-      <CollectionIcon type={type} />
-      <ItemLabel className={collectionItemLabel}>{name}</ItemLabel>
-      <ItemActionControls<Actions>
-        className={collectionActions}
-        onAction={onAction}
-        data-testid="sidebar-collection-item-actions"
-        iconSize="small"
-        isVisible={isActive || isHovered}
-        actions={actions}
-      ></ItemActionControls>
+      <ItemWrapper>
+        <ItemButtonWrapper className={itemButtonWrapper}>
+          <CollectionIcon type={type} />
+          <ItemLabel className={collectionItemLabel} title={name}>
+            {name}
+          </ItemLabel>
+        </ItemButtonWrapper>
+        <ItemActionControls<Actions>
+          onAction={onAction}
+          data-testid="sidebar-collection-item-actions"
+          iconSize="small"
+          isVisible={isActive || isHovered}
+          actions={actions}
+        ></ItemActionControls>
+      </ItemWrapper>
     </ItemContainer>
   );
 };

@@ -84,10 +84,9 @@ const configureActions = () => {
     reset: { sync: true },
 
     /**
-     * Export to language/query history.
+     * Export to language.
      */
     exportToLanguage: { sync: true },
-    toggleQueryHistory: { sync: true },
     refreshEditor: { sync: true },
   });
 

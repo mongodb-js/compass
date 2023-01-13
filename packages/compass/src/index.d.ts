@@ -33,32 +33,8 @@ declare module 'process' {
         HADRON_METRICS_SEGMENT_HOST?: string;
         HADRON_AUTO_UPDATE_ENDPOINT: string;
 
-        // Feature flags.
-        /**
-         * Currently Compass uses `darkreader` to globally change the views of
-         * Compass to a dark theme. Turning on this feature flag stops darkreader
-         * from being used and instead components which have darkMode
-         * support will listen to the theme to change their styles.
-         */
+        // Legacy feature flags. Add new feature flags to the preferences model directly!
         COMPASS_LG_DARKMODE?: 'true' | 'false';
-
-        /**
-         * Set to true to enable the new toolbars with leafygreen components.
-         * https://jira.mongodb.org/browse/COMPASS-5484
-         */
-        COMPASS_SHOW_NEW_TOOLBARS?: 'true' | 'false';
-
-        COMPASS_SHOW_NEW_SIDEBAR?: 'true' | 'false',
-
-        /**
-         * Permanent feature flag for debugging.
-         */
-        COMPASS_DEBUG_USE_CSFLE_SCHEMA_MAP?: 'true';
-
-        /**
-         * (Hopefully) temporary feature flag for Kerberos password support.
-         */
-         COMPASS_ENABLE_KERBEROS_PASSWORD_FIELD?: 'true';
       }
     }
   }

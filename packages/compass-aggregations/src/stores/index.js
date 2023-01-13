@@ -1,27 +1,3 @@
-import configureStore, {
-  refreshInput,
-  setDataProvider,
-  setNamespace,
-  setServerVersion,
-  setFields,
-  setGlobalAppRegistry,
-  setLocalAppRegistry,
-  setIsAtlas,
-  setOutResultsFn,
-  setViewSource,
-  setIndexes,
-} from './store';
+import configureStore from './store';
 export default configureStore;
-export {
-  refreshInput,
-  setDataProvider,
-  setNamespace,
-  setServerVersion,
-  setFields,
-  setGlobalAppRegistry,
-  setLocalAppRegistry,
-  setIsAtlas,
-  setOutResultsFn,
-  setViewSource,
-  setIndexes,
-};
+export { refreshInput, setFields, setIndexes } from './store';

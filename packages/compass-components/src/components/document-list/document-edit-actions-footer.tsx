@@ -2,7 +2,10 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { default as HadronDocumentType } from 'hadron-document';
 import { Element } from 'hadron-document';
 import { Button } from '../leafygreen';
-import { css, spacing, uiColors } from '../..';
+import { css } from '@leafygreen-ui/emotion';
+import { palette } from '@leafygreen-ui/palette';
+import { spacing } from '@leafygreen-ui/tokens';
+import { useDarkMode } from '../../hooks/use-theme';
 
 type Status =
   | 'Initial'
@@ -191,6 +194,8 @@ const container = css({
   paddingLeft: spacing[3],
   alignItems: 'center',
   gap: spacing[2],
+  borderBottomLeftRadius: 'inherit',
+  borderBottomRightRadius: 'inherit',
 });
 
 const message = css({
@@ -208,10 +213,15 @@ const button = css({
   flex: 'none',
 });
 
-function getColorStyles(status: Status): React.CSSProperties {
+function getColorStyles(
+  status: Status,
+  darkMode?: boolean
+): React.CSSProperties {
   switch (status) {
     case 'Editing':
-      return { backgroundColor: uiColors.gray.light2 };
+      return {
+        backgroundColor: darkMode ? palette.black : palette.gray.light2,
+      };
     case 'ContainsErrors':
     case 'UpdateError':
     case 'UpdateBlocked':
@@ -219,24 +229,24 @@ function getColorStyles(status: Status): React.CSSProperties {
     case 'DeleteError':
     case 'DeleteStart':
       return {
-        backgroundColor: uiColors.red.light2,
-        color: uiColors.red.dark3,
+        backgroundColor: darkMode ? palette.red.dark3 : palette.red.light2,
+        color: darkMode ? palette.red.light2 : palette.red.dark3,
       };
     case 'UpdateStart':
       return {
-        backgroundColor: uiColors.blue.light2,
-        color: uiColors.blue.dark3,
+        backgroundColor: palette.blue.light2,
+        color: palette.blue.dark3,
       };
     case 'DeleteSuccess':
     case 'UpdateSuccess':
       return {
-        backgroundColor: uiColors.green.light2,
-        color: uiColors.green.dark3,
+        backgroundColor: palette.green.light2,
+        color: palette.green.dark3,
       };
     default:
       return {
-        backgroundColor: uiColors.yellow.light2,
-        color: uiColors.yellow.dark3,
+        backgroundColor: palette.yellow.light2,
+        color: palette.yellow.dark3,
       };
   }
 }
@@ -268,6 +278,8 @@ const EditActionsFooter: React.FunctionComponent<{
     errorMessage,
   } = useHadronDocumentStatus(doc, editing, deleting);
 
+  const darkMode = useDarkMode();
+
   // Allow props to override event based status of the document (helpful for
   // JSON editor where changing the document text doesn't really generate any
   // changes of the HadronDocument)
@@ -286,7 +298,7 @@ const EditActionsFooter: React.FunctionComponent<{
   return (
     <div
       className={container}
-      style={getColorStyles(status)}
+      style={getColorStyles(status, darkMode)}
       data-testid="document-footer"
       data-status={status}
     >

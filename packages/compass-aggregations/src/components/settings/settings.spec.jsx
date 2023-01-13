@@ -3,10 +3,8 @@ import { mount } from 'enzyme';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-import Settings from './settings.jsx';
+import Settings from './settings';
 import { INITIAL_STATE } from '../../modules/settings';
-
-import styles from './settings.module.less';
 
 describe('Settings [Component]', function() {
   let state;
@@ -15,9 +13,7 @@ describe('Settings [Component]', function() {
   let toggleSettingsIsExpandedSpy;
   let toggleSettingsIsCommentModeSpy;
   let setSettingsSampleSizeSpy;
-  let setSettingsMaxTimeMSSpy;
   let setSettingsLimitSpy;
-  let toggleCommentsSpy;
   let runStageSpy;
 
   context('when the component is not atlas deployed', function() {
@@ -26,7 +22,6 @@ describe('Settings [Component]', function() {
       toggleSettingsIsExpandedSpy = sinon.spy();
       toggleSettingsIsCommentModeSpy = sinon.spy();
       setSettingsSampleSizeSpy = sinon.spy();
-      setSettingsMaxTimeMSSpy = sinon.spy();
       setSettingsLimitSpy = sinon.spy();
       runStageSpy = sinon.spy();
 
@@ -37,10 +32,8 @@ describe('Settings [Component]', function() {
         toggleSettingsIsExpanded: toggleSettingsIsExpandedSpy,
         toggleSettingsIsCommentMode: toggleSettingsIsCommentModeSpy,
         setSettingsSampleSize: setSettingsSampleSizeSpy,
-        setSettingsMaxTimeMS: setSettingsMaxTimeMSSpy,
         setSettingsLimit: setSettingsLimitSpy,
         isCommenting: true,
-        toggleComments: toggleCommentsSpy,
         limit: INITIAL_STATE.sampleSize,
         largeLimit: INITIAL_STATE.limit,
         maxTimeMS: INITIAL_STATE.maxTimeMS,
@@ -55,9 +48,7 @@ describe('Settings [Component]', function() {
       toggleSettingsIsExpandedSpy = null;
       toggleSettingsIsCommentModeSpy = null;
       setSettingsSampleSizeSpy = null;
-      setSettingsMaxTimeMSSpy = null;
       setSettingsLimitSpy = null;
-      toggleCommentsSpy = null;
       runStageSpy = null;
     });
 
@@ -69,7 +60,7 @@ describe('Settings [Component]', function() {
     it('is rendered when isExpanded=true', function() {
       const props = { ...state, isExpanded: true };
       component = mount(<Settings {...props} />);
-      expect(component.find(`.${styles.container}`)).to.be.present();
+      expect(component.text()).to.contain('Settings');
     });
 
     describe('When opened', function() {
@@ -93,7 +84,6 @@ describe('Settings [Component]', function() {
           .simulate('click');
 
         expect(applySettingsSpy.calledOnce).to.equal(true);
-        expect(runStageSpy.calledOnce).to.equal(true);
         expect(toggleSettingsIsExpandedSpy.calledOnce).to.equal(true);
       });
     });
@@ -105,7 +95,6 @@ describe('Settings [Component]', function() {
       toggleSettingsIsExpandedSpy = sinon.spy();
       toggleSettingsIsCommentModeSpy = sinon.spy();
       setSettingsSampleSizeSpy = sinon.spy();
-      setSettingsMaxTimeMSSpy = sinon.spy();
       setSettingsLimitSpy = sinon.spy();
       runStageSpy = sinon.spy();
 
@@ -115,10 +104,8 @@ describe('Settings [Component]', function() {
         toggleSettingsIsExpanded: toggleSettingsIsExpandedSpy,
         toggleSettingsIsCommentMode: toggleSettingsIsCommentModeSpy,
         setSettingsSampleSize: setSettingsSampleSizeSpy,
-        setSettingsMaxTimeMS: setSettingsMaxTimeMSSpy,
         setSettingsLimit: setSettingsLimitSpy,
         isCommenting: true,
-        toggleComments: toggleCommentsSpy,
         limit: INITIAL_STATE.sampleSize,
         largeLimit: INITIAL_STATE.limit,
         maxTimeMS: INITIAL_STATE.maxTimeMS,
@@ -133,9 +120,7 @@ describe('Settings [Component]', function() {
       toggleSettingsIsExpandedSpy = null;
       toggleSettingsIsCommentModeSpy = null;
       setSettingsSampleSizeSpy = null;
-      setSettingsMaxTimeMSSpy = null;
       setSettingsLimitSpy = null;
-      toggleCommentsSpy = null;
       runStageSpy = null;
     });
 

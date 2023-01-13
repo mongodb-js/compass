@@ -1,63 +1,61 @@
-import React, { createContext, useContext } from 'react';
+import React from 'react';
+import LeafyGreenProvider, {
+  useDarkMode as useLeafyGreenDarkMode,
+} from '@leafygreen-ui/leafygreen-provider';
 
 enum Theme {
   Light = 'Light',
   Dark = 'Dark',
 }
 
-type ThemeState = {
-  theme: Theme;
-  enabled?: true;
-};
+export function useDarkMode(localDarkMode?: boolean): boolean | undefined {
+  const darkMode = useLeafyGreenDarkMode(localDarkMode);
+  return darkMode.darkMode;
+}
 
-const ThemeContext = createContext<ThemeState>({
-  theme: Theme.Light,
-});
+interface WithDarkModeProps {
+  darkMode?: boolean;
+}
 
-const ThemeProvider = ({
+// @deprecated Only left for browser-shell compatibility
+export const ThemeProvider = ({
   children,
   theme,
 }: {
   children: React.ReactNode;
-  theme: ThemeState;
+  theme: {
+    theme: Theme;
+    enabled: boolean;
+  };
 }): React.ReactElement => {
-  return (
-    <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
+  return theme.enabled ? (
+    <LeafyGreenProvider darkMode={theme.theme === Theme.Dark}>
+      {children}
+    </LeafyGreenProvider>
+  ) : (
+    <>{children}</>
   );
 };
 
-function useTheme(): ThemeState {
-  return useContext(ThemeContext);
-}
-
-interface WithThemeProps {
-  darkMode?: boolean;
-}
-
-// High Order Component(HOC) used to inject Compass' theme pulled from the
-// available ThemeProvider on the React context into the wrapped component.
-const withTheme = function <
-  ComponentProps extends WithThemeProps = WithThemeProps
+// High Order Component(HOC) used to inject Compass' theme pulled from the available
+// theme on the React context from LeafyGreen's provider into the wrapped component.
+const withDarkMode = function <
+  ComponentProps extends WithDarkModeProps = WithDarkModeProps
 >(
-  WrappedComponent: React.ComponentType<ComponentProps & WithThemeProps>
+  WrappedComponent: React.ComponentType<ComponentProps & WithDarkModeProps>
 ): React.ComponentType<ComponentProps> {
-  const ComponentWithTheme = (
+  const ComponentWithDarkMode = (
     props: ComponentProps,
     ref: React.ForwardedRef<
-      React.ComponentType<ComponentProps & WithThemeProps>
+      React.ComponentType<ComponentProps & WithDarkModeProps>
     >
   ) => {
-    const theme = useTheme();
-
-    const applyTheme =
-      theme.enabled === true ||
-      global?.process?.env?.COMPASS_LG_DARKMODE === 'true';
-
+    const darkMode = useDarkMode();
     return (
       <WrappedComponent
         // Set the darkMode before the props so that the props can
         // override the theme if needed.
-        darkMode={applyTheme ? theme?.theme === Theme.Dark : undefined}
+        darkMode={darkMode}
         ref={ref}
         {...props}
       />
@@ -66,9 +64,9 @@ const withTheme = function <
 
   const displayName =
     WrappedComponent.displayName || WrappedComponent.name || 'Component';
-  ComponentWithTheme.displayName = `withTheme(${displayName})`;
+  ComponentWithDarkMode.displayName = `WithDarkMode(${displayName})`;
 
-  return React.forwardRef(ComponentWithTheme) as typeof WrappedComponent;
+  return React.forwardRef(ComponentWithDarkMode) as typeof WrappedComponent;
 };
 
-export { Theme, ThemeState, ThemeProvider, useTheme, withTheme };
+export { Theme, withDarkMode };

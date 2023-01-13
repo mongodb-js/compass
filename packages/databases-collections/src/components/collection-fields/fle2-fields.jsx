@@ -1,20 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  css,
+  FormFieldContainer,
+  CollapsibleFieldSet,
   Description,
-  Editor,
-  EditorVariant,
   Label,
-  Option,
   RadioBox,
   RadioBoxGroup,
-  Select,
-  SelectSize
 } from '@mongodb-js/compass-components';
-
-import CollapsibleFieldSet from '../collapsible-field-set/collapsible-field-set';
-import FieldSet from '../field-set/field-set';
+import { Editor, EditorVariant } from '@mongodb-js/compass-editor';
 
 const HELP_URL_FLE2 = 'https://dochub.mongodb.org/core/rqe-encrypted-fields';
 
@@ -23,7 +17,7 @@ const kmsProviderNames = {
   gcp: 'GCP',
   azure: 'Azure',
   aws: 'AWS',
-  kmip: 'KMIP'
+  kmip: 'KMIP',
 };
 
 export const ENCRYPTED_FIELDS_PLACEHOLDER = `{
@@ -53,8 +47,11 @@ const keyEncryptionKeyTemplate = {
   keyName: '',
   keyVaultEndpoint: '',
 }`,
-  kmip: '/* No KeyEncryptionKey required */\n{}'
+  kmip: '/* No KeyEncryptionKey required */\n{}',
 };
+
+const queryableEncryptedFieldsEditorId = 'queryable-encrypted-fields-editor-id';
+const keyEncryptionKeyEditorId = 'key-encryption-key-editor-id';
 
 function FLE2Fields({
   isCapped,
@@ -63,38 +60,45 @@ function FLE2Fields({
   onChangeIsFLE2,
   onChangeField,
   fle2,
-  configuredKMSProviders
+  configuredKMSProviders,
 }) {
   return (
     <CollapsibleFieldSet
       toggled={isFLE2}
       disabled={isTimeSeries || isCapped}
-      onToggle={checked => onChangeIsFLE2(checked)}
+      onToggle={(checked) => onChangeIsFLE2(checked)}
       // Queryable Encryption is the user-facing name of FLE2
       label="Queryable Encryption"
-      dataTestId="fle2-fields"
+      data-testid="fle2-fields"
       helpUrl={HELP_URL_FLE2}
       description="Encrypt a subset of the fields using Queryable Encryption."
     >
-      <FieldSet>
-        <Label htmlFor="TODO(COMPASS-5653)">Encrypted fields</Label>
-        <Description>Indicate which fields should be encrypted and whether they should be queryable.</Description>
+      <FormFieldContainer>
+        <Label htmlFor={queryableEncryptedFieldsEditorId}>
+          Encrypted fields
+        </Label>
+        <Description>
+          Indicate which fields should be encrypted and whether they should be
+          queryable.
+        </Description>
         <Editor
           variant={EditorVariant.Shell}
+          id={queryableEncryptedFieldsEditorId}
           name="fle2.encryptedFields"
           value={fle2.encryptedFields}
           data-testid="fle2-encryptedFields"
-          onChangeText={(newText) => onChangeField('fle2.encryptedFields', newText)}
+          onChangeText={(newText) =>
+            onChangeField('fle2.encryptedFields', newText)
+          }
         />
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
-        <Label htmlFor="createcollection-radioboxgroup">
-          KMS Provider
-        </Label>
+      <FormFieldContainer>
+        <Label htmlFor="createcollection-radioboxgroup">KMS Provider</Label>
         <Description>
           Optional. If no keyId is specified in the encrypted fields config,
-          Compass will create new data keys for each encrypted field using the specified KMS.
+          Compass will create new data keys for each encrypted field using the
+          specified KMS.
         </Description>
         <RadioBoxGroup
           onChange={(ev) => {
@@ -107,34 +111,44 @@ function FLE2Fields({
           id="createcollection-radioboxgroup"
           value={fle2.kmsProvider}
         >
-          {(configuredKMSProviders || Object.keys(kmsProviderNames)).map(provider => {
-            return (
-              <RadioBox
-                id={`${provider}-kms-button`}
-                data-testid={`${provider}-kms-button`}
-                checked={fle2.kmsProvider === provider}
-                value={provider}
-                key={provider}
-              >
-                {kmsProviderNames[provider]}
-              </RadioBox>
-            );
-          })}
+          {(configuredKMSProviders || Object.keys(kmsProviderNames)).map(
+            (provider) => {
+              return (
+                <RadioBox
+                  id={`${provider}-kms-button`}
+                  data-testid={`${provider}-kms-button`}
+                  checked={fle2.kmsProvider === provider}
+                  value={provider}
+                  key={provider}
+                >
+                  {kmsProviderNames[provider]}
+                </RadioBox>
+              );
+            }
+          )}
         </RadioBoxGroup>
-      </FieldSet>
+      </FormFieldContainer>
 
-      <FieldSet>
-        <Label htmlFor="TODO(COMPASS-5653)">Key Encryption Key</Label>
-        <Description>Specify which key encryption key to use for creating new data encryption keys.</Description>
+      <FormFieldContainer>
+        <Label htmlFor={keyEncryptionKeyEditorId}>Key Encryption Key</Label>
+        <Description>
+          Specify which key encryption key to use for creating new data
+          encryption keys.
+        </Description>
         <Editor
           variant={EditorVariant.Shell}
+          id={keyEncryptionKeyEditorId}
           name="fle2.keyEncryptionKey"
           defaultValue={keyEncryptionKeyTemplate[fle2.kmsProvider]}
-          value={fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]}
+          value={
+            fle2.keyEncryptionKey || keyEncryptionKeyTemplate[fle2.kmsProvider]
+          }
           data-testid="fle2-keyEncryptionKey"
-          onChangeText={(newText) => onChangeField('fle2.keyEncryptionKey', newText)}
+          onChangeText={(newText) =>
+            onChangeField('fle2.keyEncryptionKey', newText)
+          }
         />
-      </FieldSet>
+      </FormFieldContainer>
     </CollapsibleFieldSet>
   );
 }
@@ -146,7 +160,7 @@ FLE2Fields.propTypes = {
   onChangeIsFLE2: PropTypes.func.isRequired,
   onChangeField: PropTypes.func.isRequired,
   fle2: PropTypes.object.isRequired,
-  configuredKMSProviders: PropTypes.array
+  configuredKMSProviders: PropTypes.array,
 };
 
 export default FLE2Fields;
