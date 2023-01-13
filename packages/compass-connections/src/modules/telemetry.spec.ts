@@ -1,7 +1,6 @@
 import { once } from 'events';
 import { expect } from 'chai';
 import type { ConnectionInfo, DataService } from 'mongodb-data-service';
-
 import {
   trackConnectionAttemptEvent,
   trackNewConnectionEvent,
@@ -176,21 +175,28 @@ describe('connection tracking', function () {
 
   // eslint-disable-next-line mocha/no-setup-in-describe
   [
+    // domain resolves, so is_public_cloud and public_cloud_name are defined
     {
-      url: 'mongodb://compass-data-sets.e06dc.mongodb.net',
+      url: 'mongodb://compass-data-sets-shard-00-00.e06dc.mongodb.net',
       is_srv: false,
       title: 'is atlas, no srv',
     },
+    // this domain does not resolve. Are there atlas dev domains that we can use to test?
+    /*
     {
-      url: 'mongodb://compass-data-sets.e06dc.mongodb-dev.net',
+      url: 'mongodb://compass-data-sets-shard-00-00.e06dc.mongodb-dev.net',
       is_srv: false,
       title: 'is dev atlas, no srv',
     },
+    */
+    // domain does not resolve, so is_public_cloud and public_cloud_name are both undefined
     {
       url: 'mongodb+srv://compass-data-sets.e06dc.mongodb.net',
       is_srv: true,
       title: 'is atlas, is srv',
     },
+
+    // domain does not resolve, so is_public_cloud and public_cloud_name are both undefined
     {
       url: 'mongodb+srv://compass-data-sets.e06dc.mongodb-dev.net',
       is_srv: true,
@@ -208,12 +214,10 @@ describe('connection tracking', function () {
       trackNewConnectionEvent(connectionInfo, dataService);
       const [{ properties }] = await trackEvent;
 
-      const expected = {
+      const expected: any = {
         is_localhost: false,
-        is_public_cloud: false, // TODO: this can't be false. These are the tests for atlas!
         is_do_url: false,
         is_atlas_url: true,
-        public_cloud_name: '', // TODO: this should be AWS or something, not blank
         auth_type: 'NONE',
         tunnel: 'none',
         is_srv: is_srv,
@@ -234,6 +238,11 @@ describe('connection tracking', function () {
         has_kms_kmip: false,
         has_kms_azure: false,
       };
+
+      if (!is_srv) {
+        expected.is_public_cloud = true;
+        expected.public_cloud_name = 'AWS';
+      }
 
       expect(properties).to.deep.equal(expected);
     });
@@ -284,7 +293,7 @@ describe('connection tracking', function () {
     const trackEvent = once(process, 'compass:track');
     const connectionInfo = {
       connectionOptions: {
-        connectionString: 'mongodb://notlocalhost',
+        connectionString: 'mongodb://google.com',
       },
     };
 
@@ -296,7 +305,6 @@ describe('connection tracking', function () {
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
-      public_cloud_name: '',
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,
@@ -553,7 +561,6 @@ describe('connection tracking', function () {
       is_public_cloud: false,
       is_do_url: false,
       is_atlas_url: false,
-      public_cloud_name: '',
       auth_type: 'NONE',
       tunnel: 'none',
       is_srv: false,

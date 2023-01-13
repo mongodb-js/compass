@@ -9,12 +9,11 @@ import { configuredKMSProviders } from 'mongodb-data-service';
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
 type HostInformation = {
-  is_localhost: boolean,
-  is_atlas_url: boolean,
-  is_do_url: boolean,
-  is_public_cloud?: boolean,
-  public_cloud_name?: string
-
+  is_localhost: boolean;
+  is_atlas_url: boolean;
+  is_do_url: boolean;
+  is_public_cloud?: boolean;
+  public_cloud_name?: string;
 };
 
 async function getHostInformation(host: string) {
@@ -50,7 +49,7 @@ async function getHostInformation(host: string) {
     ? 'Azure'
     : isGcp
     ? 'GCP'
-    : '';
+    : undefined;
 
   const result: HostInformation = {
     is_localhost: false,
@@ -58,8 +57,11 @@ async function getHostInformation(host: string) {
     is_atlas_url: isAtlas(host),
   };
 
-  if (typeof isPublicCloud !== "undefined") {
+  if (typeof isPublicCloud !== 'undefined') {
     result.is_public_cloud = isPublicCloud;
+  }
+
+  if (typeof publicCloudName !== 'undefined') {
     result.public_cloud_name = publicCloudName;
   }
 
