@@ -326,6 +326,84 @@ describe('connection tracking', function () {
     expect(properties).to.deep.equal(expected);
   });
 
+  it('tracks a new connection event - nonexistent', async function () {
+    const trackEvent = once(process, 'compass:track');
+    const connectionInfo = {
+      connectionOptions: {
+        connectionString: 'mongodb://nonexistent',
+      },
+    };
+
+    trackNewConnectionEvent(connectionInfo, dataService);
+    const [{ properties }] = await trackEvent;
+
+    const expected = {
+      is_localhost: false,
+      is_do_url: false,
+      is_atlas_url: false,
+      auth_type: 'NONE',
+      tunnel: 'none',
+      is_srv: false,
+      topology_type: 'Unknown',
+      is_atlas: false,
+      is_dataLake: false,
+      is_enterprise: false,
+      is_genuine: true,
+      non_genuine_server_name: 'na',
+      server_version: 'na',
+      server_arch: undefined,
+      server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
+    };
+
+    expect(properties).to.deep.equal(expected);
+  });
+
+  it('tracks a new connection event - nonexistent SRV', async function () {
+    const trackEvent = once(process, 'compass:track');
+    const connectionInfo = {
+      connectionOptions: {
+        connectionString: 'mongodb+srv://nonexistent',
+      },
+    };
+
+    trackNewConnectionEvent(connectionInfo, dataService);
+    const [{ properties }] = await trackEvent;
+
+    const expected = {
+      is_localhost: false,
+      is_do_url: false,
+      is_atlas_url: false,
+      auth_type: 'NONE',
+      tunnel: 'none',
+      is_srv: true,
+      topology_type: 'Unknown',
+      is_atlas: false,
+      is_dataLake: false,
+      is_enterprise: false,
+      is_genuine: true,
+      non_genuine_server_name: 'na',
+      server_version: 'na',
+      server_arch: undefined,
+      server_os_family: undefined,
+      is_csfle: false,
+      has_csfle_schema: false,
+      has_kms_aws: false,
+      has_kms_local: false,
+      has_kms_gcp: false,
+      has_kms_kmip: false,
+      has_kms_azure: false,
+    };
+
+    expect(properties).to.deep.equal(expected);
+  });
+
   // eslint-disable-next-line mocha/no-setup-in-describe
   ['', 'DEFAULT', 'GSSAPI', 'PLAIN', 'MONGODB-X509', 'SCRAM-SHA-256'].forEach(
     (authMechanism) => {

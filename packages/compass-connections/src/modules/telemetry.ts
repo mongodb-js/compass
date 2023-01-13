@@ -17,7 +17,15 @@ type HostInformation = {
   public_cloud_name?: string;
 };
 
-async function getHostInformation(host: string) {
+async function getHostInformation(host: string | null) {
+  if (!host) {
+    return {
+      is_do_url: false,
+      is_atlas_url: false,
+      is_localhost: false,
+    };
+  }
+
   if (isLocalhost(host)) {
     return {
       is_public_cloud: false,
@@ -129,7 +137,7 @@ async function getConnectionData({
   const resolvedHostname = await getHostnameForConnection(connectionStringData);
 
   return {
-    ...(resolvedHostname && (await getHostInformation(resolvedHostname))),
+    ...(await getHostInformation(resolvedHostname)),
     auth_type: authType.toUpperCase(),
     tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,
