@@ -91,6 +91,7 @@
     "mongodb-data-service": "^22.3.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
+    "resolve-mongodb-srv": "^1.1.2",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"

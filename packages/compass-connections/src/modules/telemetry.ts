@@ -5,6 +5,7 @@ import { getCloudInfo } from 'mongodb-cloud-info';
 import ConnectionString from 'mongodb-connection-string-url';
 import type { MongoServerError, MongoClientOptions } from 'mongodb';
 import { configuredKMSProviders } from 'mongodb-data-service';
+import resolveMongodbSrv from 'resolve-mongodb-srv';
 
 const { track, debug } = createLoggerAndTelemetry('COMPASS-CONNECT-UI');
 
@@ -38,7 +39,6 @@ async function getHostInformation(host: string) {
   const { isAws, isAzure, isGcp } = await getCloudInfo(host).catch(
     (err: Error) => {
       debug('getCloudInfo failed', err);
-      // TODO: we need to test this path because we had a bug where we cast undefined to false
       return {};
     }
   );
@@ -85,6 +85,27 @@ function getCsfleInformation(
   return csfleInfo;
 }
 
+async function getHostnameForConnection(
+  connectionStringData: ConnectionString
+): Promise<string | null> {
+  if (connectionStringData.isSRV) {
+    const uri = await resolveMongodbSrv(connectionStringData.toString()).catch(
+      (err: Error) => {
+        debug('resolveMongodbSrv failed', err);
+        return null;
+      }
+    );
+    if (!uri) {
+      return null;
+    }
+    connectionStringData = new ConnectionString(uri, {
+      looseValidation: true,
+    });
+  }
+
+  return connectionStringData.hosts[0];
+}
+
 async function getConnectionData({
   connectionOptions: { connectionString, sshTunnel, fleOptions },
 }: Pick<ConnectionInfo, 'connectionOptions'>): Promise<
@@ -93,7 +114,7 @@ async function getConnectionData({
   const connectionStringData = new ConnectionString(connectionString, {
     looseValidation: true,
   });
-  const hostName = connectionStringData.hosts[0];
+  //const hostName = connectionStringData.hosts[0];
   const searchParams =
     connectionStringData.typedSearchParams<MongoClientOptions>();
 
@@ -105,8 +126,10 @@ async function getConnectionData({
     : 'NONE';
   const proxyHost = searchParams.get('proxyHost');
 
+  const resolvedHostname = await getHostnameForConnection(connectionStringData);
+
   return {
-    ...(await getHostInformation(hostName)),
+    ...(resolvedHostname && (await getHostInformation(resolvedHostname))),
     auth_type: authType.toUpperCase(),
     tunnel: proxyHost ? 'socks5' : sshTunnel ? 'ssh' : 'none',
     is_srv: connectionStringData.isSRV,

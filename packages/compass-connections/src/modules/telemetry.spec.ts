@@ -194,12 +194,14 @@ describe('connection tracking', function () {
       title: 'is atlas, is srv',
     },
 
-    // domain does not resolve, so is_public_cloud and public_cloud_name are both undefined
+    // TODO: we need a dev atlas domain for testing
+    /*
     {
       url: 'mongodb+srv://compass-data-sets.e06dc.mongodb-dev.net',
       is_srv: true,
       title: 'is dev atlas, is srv',
     },
+    */
   ].forEach(({ url, is_srv, title }) => {
     it(`tracks a new connection event - ${title}`, async function () {
       const trackEvent = once(process, 'compass:track');
@@ -212,7 +214,7 @@ describe('connection tracking', function () {
       trackNewConnectionEvent(connectionInfo, dataService);
       const [{ properties }] = await trackEvent;
 
-      const expected: any = {
+      const expected = {
         is_localhost: false,
         is_do_url: false,
         is_atlas_url: true,
@@ -235,12 +237,9 @@ describe('connection tracking', function () {
         has_kms_gcp: false,
         has_kms_kmip: false,
         has_kms_azure: false,
+        is_public_cloud: true,
+        public_cloud_name: 'AWS',
       };
-
-      if (!is_srv) {
-        expected.is_public_cloud = true;
-        expected.public_cloud_name = 'AWS';
-      }
 
       expect(properties).to.deep.equal(expected);
     });
