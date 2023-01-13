@@ -181,14 +181,12 @@ describe('connection tracking', function () {
       is_srv: false,
       title: 'is atlas, no srv',
     },
-    // this domain does not resolve. Are there atlas dev domains that we can use to test?
-    /*
+    // domain resolves, so is_public_cloud and public_cloud_name are defined
     {
-      url: 'mongodb://compass-data-sets-shard-00-00.e06dc.mongodb-dev.net',
+      url: 'mongodb://frankfurt-lxonw.a.query.mongodb-dev.net',
       is_srv: false,
       title: 'is dev atlas, no srv',
     },
-    */
     // domain does not resolve, so is_public_cloud and public_cloud_name are both undefined
     {
       url: 'mongodb+srv://compass-data-sets.e06dc.mongodb.net',
