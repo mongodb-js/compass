@@ -1890,7 +1890,7 @@ describe('Element', function () {
         before(function () {
           element.insertPlaceholder();
         });
-        it('array has one element', function () {
+        it('array has one empty string element', function () {
           expect(element.at(0)?.currentKey).to.equal(0);
           expect(element.at(0)?.value).to.equal('');
           expect(element.elements?.size).to.equal(1);
@@ -1920,6 +1920,89 @@ describe('Element', function () {
           for (let i = 0; i < 4; i++) {
             expect(element.at(i)?.isModified()).to.equal(i === 3);
           }
+        });
+      });
+      context('into a number array', function () {
+        const doc = new Document({});
+        const element = new Element('emails', [25, 123], doc);
+        before(function () {
+          element.insertPlaceholder();
+        });
+        it('inserts a number type element into the end', function () {
+          expect(element.at(2)?.value).to.deep.equal(new Int32(0));
+        });
+      });
+      context('into a date array', function () {
+        const doc = new Document({});
+        const element = new Element('emails', [new Date(), new Date()], doc);
+        before(function () {
+          element.insertPlaceholder();
+        });
+        it('inserts a date type element into the end', function () {
+          expect(element.at(2)?.value?.toString()).to.equal(
+            new Date(0).toString()
+          );
+          expect(element.at(2)?.value).to.deep.equal(new Date(0));
+        });
+      });
+      context('into an array of arrays', function () {
+        const doc = new Document({});
+        const element = new Element(
+          'emails',
+          [
+            ['a', 'b'],
+            ['c', 'd'],
+          ],
+          doc
+        );
+        before(function () {
+          element.insertPlaceholder();
+        });
+        it('inserts an array type element into the end', function () {
+          expect(element.elements?.size).to.equal(3);
+          expect(element.elements?.at(1)?.elements?.at(0)?.value).to.equal('c');
+          expect(element.elements?.at(2)?.currentType).to.equal('Array');
+          expect(element.elements?.at(2)?.elements?.size).to.equal(0);
+          expect(element.generateObject()).to.deep.equal([
+            ['a', 'b'],
+            ['c', 'd'],
+            [],
+          ]);
+        });
+      });
+      context('into an array of objects', function () {
+        const doc = new Document({});
+        const element = new Element(
+          'fruits',
+          [
+            {
+              name: 'pineapple',
+            },
+            {
+              name: 'orange',
+            },
+          ],
+          doc
+        );
+        before(function () {
+          element.insertPlaceholder();
+        });
+        it('inserts an object type element into the end', function () {
+          expect(element.elements?.size).to.equal(3);
+          expect(
+            element.elements?.at(1)?.elements?.get('name')?.value
+          ).to.equal('orange');
+          expect(element.elements?.at(2)?.currentType).to.equal('Object');
+          expect(element.elements?.at(2)?.elements?.size).to.equal(0);
+          expect(element.generateObject()).to.deep.equal([
+            {
+              name: 'pineapple',
+            },
+            {
+              name: 'orange',
+            },
+            {},
+          ]);
         });
       });
       context('insert after placeholders', function () {
@@ -2035,6 +2118,129 @@ describe('Element', function () {
               expect(element.at(3)?.currentKey).to.equal(3);
               expect(element.at(3)?.value).to.equal('value');
             });
+          });
+        });
+      });
+    });
+
+    describe('#insertSiblingPlaceholder', function () {
+      context('into an empty array', function () {
+        const doc = new Document({});
+        const element = new Element('emails', [], doc);
+        before(function () {
+          element.insertPlaceholder();
+          element.at(0)?.insertSiblingPlaceholder();
+        });
+        it('array has two empty string element', function () {
+          expect(element.at(0)?.currentKey).to.equal(0);
+          expect(element.at(0)?.value).to.equal('');
+          expect(element.at(1)?.currentKey).to.equal(1);
+          expect(element.at(1)?.value).to.equal('');
+          expect(element.elements?.size).to.equal(2);
+        });
+        it('element is modified', function () {
+          expect(element.at(0)?.isModified()).to.equal(true);
+          expect(element.at(1)?.isModified()).to.equal(true);
+        });
+      });
+      context('into a full array', function () {
+        const doc = new Document({});
+        const element = new Element('emails', ['item0', 'item1', 'item2'], doc);
+        before(function () {
+          element.at(2)?.insertSiblingPlaceholder();
+        });
+        it('inserts the element into the end', function () {
+          expect(element.at(3)?.currentKey).to.equal(3);
+          expect(element.at(3)?.value).to.equal('');
+        });
+        it('keeps the other elements the same', function () {
+          expect(element.elements?.size).to.equal(4);
+          for (let i = 0; i < 3; i++) {
+            expect(element.at(i)?.currentKey).to.equal(i);
+            expect(element.at(i)?.value).to.equal(`item${i}`);
+          }
+        });
+        it('element is modified', function () {
+          for (let i = 0; i < 4; i++) {
+            expect(element.at(i)?.isModified()).to.equal(i === 3);
+          }
+        });
+      });
+      context('into a number array', function () {
+        const doc = new Document({});
+        const element = new Element('emails', [25, 123], doc);
+        before(function () {
+          element.at(1)?.insertSiblingPlaceholder();
+        });
+        it('inserts a number type element into the end', function () {
+          expect(element.at(2)?.value).to.deep.equal(new Int32(0));
+        });
+      });
+      context('into a date array', function () {
+        const doc = new Document({});
+        const element = new Element('emails', [new Date(), new Date()], doc);
+        before(function () {
+          element.at(1)?.insertSiblingPlaceholder();
+        });
+        it('inserts a date type element into the end', function () {
+          expect(element.at(2)?.value).to.deep.equal(new Date(0));
+        });
+      });
+      context('into an array of arrays', function () {
+        const doc = new Document({});
+        const element = new Element(
+          'emails',
+          [
+            [1, 2],
+            [3, 4],
+          ],
+          doc
+        );
+        before(function () {
+          element.at(1)?.insertSiblingPlaceholder();
+        });
+        it('inserts an array type element into the end', function () {
+          expect(element.elements?.size).to.equal(3);
+          expect(element.elements?.at(1)?.elements?.at(0)?.value).to.deep.equal(
+            new Int32(3)
+          );
+          expect(element.elements?.at(2)?.currentType).to.equal('Array');
+          expect(element.elements?.at(2)?.elements?.size).to.equal(0);
+          expect(element.elements?.at(2)?.generateObject()).to.deep.equal([]);
+        });
+        context('into an array of objects', function () {
+          const doc = new Document({});
+          const element = new Element(
+            'fruits',
+            [
+              {
+                name: 'pineapple',
+              },
+              {
+                name: 'orange',
+              },
+            ],
+            doc
+          );
+          before(function () {
+            element.at(1)?.insertSiblingPlaceholder();
+          });
+          it('inserts an object type element into the end', function () {
+            expect(element.elements?.size).to.equal(3);
+            expect(
+              element.elements?.at(1)?.elements?.get('name')?.value
+            ).to.equal('orange');
+            expect(element.elements?.at(2)?.currentType).to.equal('Object');
+            expect(element.elements?.at(2)?.elements?.size).to.equal(0);
+            expect(element.generateObject()).to.deep.equal([
+              {
+                name: 'pineapple',
+              },
+              {
+                name: 'orange',
+              },
+              {},
+            ]);
           });
         });
       });
