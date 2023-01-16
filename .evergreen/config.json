@@ -1,7 +1,7 @@
 {
   "variants": {
     "run_on": [
-      "ubuntu1604-large",
+      "ubuntu2004-large",
       "windows-vsCurrent-large",
       "rhel76-large",
       ["macos-1100", { "gui": "macos-1100-gui" }],
@@ -21,15 +21,25 @@
       "package": [
         {
           "name": "compass",
-          "vars": { "compass_distribution": "compass" }
+          "vars": { "compass_distribution": "compass" },
+          "//": "We are explicitly packaging on the EOL version of Ubuntu so that Compass (or rather compiled native dependencies) works on Ubuntu versions starting from this versions",
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
         },
         {
           "name": "compass-readonly",
-          "vars": { "compass_distribution": "compass-readonly" }
+          "vars": { "compass_distribution": "compass-readonly" },
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
         },
         {
           "name": "compass-isolated",
-          "vars": { "compass_distribution": "compass-isolated" }
+          "vars": { "compass_distribution": "compass-isolated" },
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
         }
       ],
       "test-packaged-app": [
@@ -46,7 +56,11 @@
             "mongodb_version": "4.0.x",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64"]
+          "skip_on": ["macos-1100", "macos-1100-arm64"],
+          "//": "MongoDB 4.0 / 4.2 Enterprise doesn't work on Ubuntu 20.04 without additional dependencies installed, it's easier to use an older machine than install missing dependencies as machines we are using are stateful",
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1804-large"
+          }
         },
         {
           "name": "42x-community",
@@ -61,7 +75,10 @@
             "mongodb_version": "4.2.x",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64"]
+          "skip_on": ["macos-1100", "macos-1100-arm64"],
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1804-large"
+          }
         },
         {
           "name": "44x-community",
@@ -83,7 +100,7 @@
           "vars": {
             "mongodb_version": "5.x.x"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "ubuntu1604-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
         },
         {
           "name": "5x-enterprise",
@@ -91,22 +108,27 @@
             "mongodb_version": "5.x.x",
             "mongodb_use_enterprise": "yes"
           },
-          "skip_on": ["macos-1100", "macos-1100-arm64", "ubuntu1604-large"]
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
+        },
+        {
+          "name": "60x-community",
+          "vars": {
+            "mongodb_version": "6.x.x"
+          }
         },
         {
           "name": "60x-enterprise",
           "vars": {
             "mongodb_version": "6.x.x",
             "mongodb_use_enterprise": "yes"
-          },
-          "skip_on": ["ubuntu1604-large"]
+          }
         }
       ]
     }
   },
   "run_on_alias": {
     "short": {
-      "ubuntu1604-large": "ubuntu",
+      "ubuntu2004-large": "ubuntu",
       "windows-vsCurrent-large": "windows",
       "rhel76-large": "rhel",
       "macos-1100": "macos",
@@ -115,7 +137,7 @@
       "macos-1100-arm64-gui": "macos-gui-arm"
     },
     "long": {
-      "ubuntu1604-large": "Ubuntu 16.04",
+      "ubuntu2004-large": "Ubuntu 20.04",
       "windows-vsCurrent-large": "Windows 10",
       "rhel76-large": "RHEL 7.6",
       "macos-1100": "MacOS x64 11.00",
