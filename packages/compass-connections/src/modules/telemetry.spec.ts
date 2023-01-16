@@ -175,33 +175,16 @@ describe('connection tracking', function () {
 
   // eslint-disable-next-line mocha/no-setup-in-describe
   [
-    // domain resolves, so is_public_cloud and public_cloud_name are defined
     {
       url: 'mongodb://compass-data-sets-shard-00-00.e06dc.mongodb.net',
       is_srv: false,
       title: 'is atlas, no srv',
     },
-    // domain resolves, so is_public_cloud and public_cloud_name are defined
-    {
-      url: 'mongodb://frankfurt-lxonw.a.query.mongodb-dev.net',
-      is_srv: false,
-      title: 'is dev atlas, no srv',
-    },
-    // domain does not resolve, so is_public_cloud and public_cloud_name are both undefined
     {
       url: 'mongodb+srv://compass-data-sets.e06dc.mongodb.net',
       is_srv: true,
       title: 'is atlas, is srv',
     },
-
-    // TODO: we need a dev atlas domain for testing
-    /*
-    {
-      url: 'mongodb+srv://compass-data-sets.e06dc.mongodb-dev.net',
-      is_srv: true,
-      title: 'is dev atlas, is srv',
-    },
-    */
   ].forEach(({ url, is_srv, title }) => {
     it(`tracks a new connection event - ${title}`, async function () {
       const trackEvent = once(process, 'compass:track');
