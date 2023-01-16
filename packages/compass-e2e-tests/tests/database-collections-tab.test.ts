@@ -97,6 +97,8 @@ describe('Database collections tab', function () {
       'add-collection-modal-basic.png'
     );
 
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
       Selectors.CollectionsGrid,
@@ -146,6 +148,8 @@ describe('Database collections tab', function () {
       'add-collection-modal-capped.png'
     );
 
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
       Selectors.CollectionsGrid,
@@ -181,6 +185,8 @@ describe('Database collections tab', function () {
       },
       'add-collection-modal-custom-collation.png'
     );
+
+    await browser.navigateToDatabaseTab('test', 'Collections');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
@@ -219,6 +225,8 @@ describe('Database collections tab', function () {
       'add-collection-modal-timeseries.png'
     );
 
+    await browser.navigateToDatabaseTab('test', 'Collections');
+
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
       Selectors.CollectionsGrid,
@@ -254,6 +262,8 @@ describe('Database collections tab', function () {
       },
       'add-collection-modal-clustered.png'
     );
+
+    await browser.navigateToDatabaseTab('test', 'Collections');
 
     const selector = Selectors.collectionCard('test', collectionName);
     await browser.scrollToVirtualItem(
