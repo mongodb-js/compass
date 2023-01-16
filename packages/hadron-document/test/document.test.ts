@@ -2337,6 +2337,17 @@ describe('Document', function () {
         );
       });
 
+      it('serializes Date as relaxed, but not dates before 1970 and after 9999', function () {
+        const doc = new Document({
+          epoch: new Date(0),
+          negative: new Date(-1),
+          y10k: new Date(253402300800000),
+        });
+        expect(doc.toEJSON('current', { indent: undefined })).to.equal(
+          '{"epoch":{"$date":"1970-01-01T00:00:00.000Z"},"negative":{"$date":{"$numberLong":"-1"}},"y10k":{"$date":{"$numberLong":"253402300800000"}}}'
+        );
+      });
+
       it('optionally serializes the current or the original document', function () {
         const doc = new Document({
           a: 1,

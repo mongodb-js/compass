@@ -1,0 +1,149 @@
+{
+  "variants": {
+    "run_on": [
+      "ubuntu2004-large",
+      "windows-vsCurrent-large",
+      "rhel76-large",
+      ["macos-1100", { "gui": "macos-1100-gui" }],
+      ["macos-1100-arm64", { "gui": "macos-1100-arm64-gui" }]
+    ],
+    "tasks": [
+      "check",
+      "test",
+      ["test-electron", { "gui": true }],
+      "package",
+      ["test-packaged-app", { "gui": true, "depends_on": "package-compass" }]
+    ]
+  },
+  "tasks": {
+    "tags": ["required-for-publish", "run-on-pr"],
+    "variants": {
+      "package": [
+        {
+          "name": "compass",
+          "vars": { "compass_distribution": "compass" },
+          "//": "We are explicitly packaging on the EOL version of Ubuntu so that Compass (or rather compiled native dependencies) works on Ubuntu versions starting from this versions",
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
+        },
+        {
+          "name": "compass-readonly",
+          "vars": { "compass_distribution": "compass-readonly" },
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
+        },
+        {
+          "name": "compass-isolated",
+          "vars": { "compass_distribution": "compass-isolated" },
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1604-large"
+          }
+        }
+      ],
+      "test-packaged-app": [
+        {
+          "name": "40x-community",
+          "vars": {
+            "mongodb_version": "4.0.x"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
+        },
+        {
+          "name": "40x-enterprise",
+          "vars": {
+            "mongodb_version": "4.0.x",
+            "mongodb_use_enterprise": "yes"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"],
+          "//": "MongoDB 4.0 / 4.2 Enterprise doesn't work on Ubuntu 20.04 without additional dependencies installed, it's easier to use an older machine than install missing dependencies as machines we are using are stateful",
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1804-large"
+          }
+        },
+        {
+          "name": "42x-community",
+          "vars": {
+            "mongodb_version": "4.2.x"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
+        },
+        {
+          "name": "42x-enterprise",
+          "vars": {
+            "mongodb_version": "4.2.x",
+            "mongodb_use_enterprise": "yes"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"],
+          "run_on_override": {
+            "ubuntu2004-large": "ubuntu1804-large"
+          }
+        },
+        {
+          "name": "44x-community",
+          "vars": {
+            "mongodb_version": "4.4.x"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
+        },
+        {
+          "name": "44x-enterprise",
+          "vars": {
+            "mongodb_version": "4.4.x",
+            "mongodb_use_enterprise": "yes"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
+        },
+        {
+          "name": "5x-community",
+          "vars": {
+            "mongodb_version": "5.x.x"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
+        },
+        {
+          "name": "5x-enterprise",
+          "vars": {
+            "mongodb_version": "5.x.x",
+            "mongodb_use_enterprise": "yes"
+          },
+          "skip_on": ["macos-1100", "macos-1100-arm64"]
+        },
+        {
+          "name": "60x-community",
+          "vars": {
+            "mongodb_version": "6.x.x"
+          }
+        },
+        {
+          "name": "60x-enterprise",
+          "vars": {
+            "mongodb_version": "6.x.x",
+            "mongodb_use_enterprise": "yes"
+          }
+        }
+      ]
+    }
+  },
+  "run_on_alias": {
+    "short": {
+      "ubuntu2004-large": "ubuntu",
+      "windows-vsCurrent-large": "windows",
+      "rhel76-large": "rhel",
+      "macos-1100": "macos",
+      "macos-1100-arm64": "macos-arm",
+      "macos-1100-gui": "macos-gui",
+      "macos-1100-arm64-gui": "macos-gui-arm"
+    },
+    "long": {
+      "ubuntu2004-large": "Ubuntu 20.04",
+      "windows-vsCurrent-large": "Windows 10",
+      "rhel76-large": "RHEL 7.6",
+      "macos-1100": "MacOS x64 11.00",
+      "macos-1100-arm64": "MacOS arm64 11.00",
+      "macos-1100-gui": "MacOS x64 11.00 w/ GUI Session",
+      "macos-1100-arm64-gui": "MacOS arm64 11.00 w/ GUI Session"
+    }
+  }
+}
