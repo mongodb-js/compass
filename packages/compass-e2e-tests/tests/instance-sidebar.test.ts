@@ -160,6 +160,15 @@ describe('Instance sidebar', function () {
 
     await browser.addCollection(collectionName);
 
+    // the app should land on the collection's documents tab
+    const headerSelector = Selectors.collectionHeaderTitle(
+      dbName,
+      collectionName
+    );
+    await browser.$(headerSelector).waitForDisplayed();
+    const tabSelectedSelector = Selectors.collectionTab('Documents', true);
+    await browser.$(tabSelectedSelector).waitForDisplayed();
+
     const collectionSelector = Selectors.sidebarCollection(
       dbName,
       collectionName
