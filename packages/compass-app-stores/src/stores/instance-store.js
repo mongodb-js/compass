@@ -265,6 +265,18 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('select-namespace', metadata);
   });
 
+  appRegistry.on('collection-dropped', async(ns) => {
+    const { instance, dataService } = store.getState();
+    const { database } = toNS(ns);
+    const db = instance.databases.get(database);
+    await db.fetchCollections({ dataService, force: true });
+    if (db.collectionsLength) {
+      appRegistry.emit('select-database', database);
+    } else {
+      appRegistry.emit('open-instance-workspace', 'Databases');
+    }
+  });
+
   appRegistry.on('collections-list-select-collection', async({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
