@@ -265,6 +265,10 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('select-namespace', metadata);
   });
 
+  appRegistry.on('database-dropped', async() => {
+    appRegistry.emit('open-instance-workspace', 'Databases');
+  });
+
   appRegistry.on('collections-list-select-collection', async({ ns }) => {
     const metadata = await store.fetchCollectionMetadata(ns);
     appRegistry.emit('select-namespace', metadata);
