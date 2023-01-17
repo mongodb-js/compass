@@ -213,7 +213,7 @@ describe('Instance sidebar', function () {
     await collectionElement.waitForExist({ reverse: true });
 
     // the app should have redirected to the the database Collections tab
-    // because we were on the collection Docuemnts tab and the database has
+    // because we were on the collection Documents tab and the database has
     // other collections
     await browser
       .$(Selectors.instanceTab('Databases', true))
