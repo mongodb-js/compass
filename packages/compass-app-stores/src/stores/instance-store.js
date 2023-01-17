@@ -266,10 +266,11 @@ store.onActivated = (appRegistry) => {
   });
 
   appRegistry.on('collection-dropped', async(ns) => {
-    const { instance, dataService } = store.getState();
     const { database } = toNS(ns);
+    await store.fetchDatabaseDetails(database);
+
+    const { instance } = store.getState();
     const db = instance.databases.get(database);
-    await db.fetchCollections({ dataService, force: true });
     if (db.collectionsLength) {
       appRegistry.emit('select-database', database);
     } else {
