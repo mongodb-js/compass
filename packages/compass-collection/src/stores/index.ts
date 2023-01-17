@@ -275,6 +275,11 @@ store.onActivated = (appRegistry: AppRegistry) => {
    */
   appRegistry.on('collection-dropped', (namespace: string) => {
     store.dispatch(collectionDropped(namespace));
+
+    const currentNamespace = store.getState().namespace
+    if (namespace === currentNamespace) {
+      appRegistry.emit('active-collection-dropped', namespace);
+    }
   });
 
   /**
@@ -284,6 +289,14 @@ store.onActivated = (appRegistry: AppRegistry) => {
    */
   appRegistry.on('database-dropped', (name: string) => {
     store.dispatch(databaseDropped(name));
+
+    const currentNamespace = store.getState().namespace;
+    if (currentNamespace) {
+      const { database } = toNS(currentNamespace as string);
+      if (name === database) {
+        appRegistry.emit('active-database-dropped', name);
+      }
+    }
   });
 
   /**

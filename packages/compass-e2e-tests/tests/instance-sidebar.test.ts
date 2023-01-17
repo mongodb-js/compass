@@ -128,8 +128,9 @@ describe('Instance sidebar', function () {
       collectionName
     );
     await browser.$(headerSelector).waitForDisplayed();
-    const tabSelectedSelector = Selectors.collectionTab('Documents', true);
-    await browser.$(tabSelectedSelector).waitForDisplayed();
+    await browser
+      .$(Selectors.collectionTab('Documents', true))
+      .waitForDisplayed();
 
     await browser.clickVisible(Selectors.sidebarDatabase(dbName));
 
@@ -149,6 +150,11 @@ describe('Instance sidebar', function () {
     // wait for it to be gone
     const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
     await dbElement.waitForExist({ reverse: true });
+
+    // the app should land back on the instance Databases tab.
+    await browser
+      .$(Selectors.instanceTab('Databases', true))
+      .waitForDisplayed();
   });
 
   it('can create a collection and drop it', async function () {
