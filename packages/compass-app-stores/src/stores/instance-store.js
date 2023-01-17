@@ -265,7 +265,23 @@ store.onActivated = (appRegistry) => {
     appRegistry.emit('select-namespace', metadata);
   });
 
-  appRegistry.on('database-dropped', async() => {
+  appRegistry.on('active-collection-dropped', async(ns) => {
+    console.log('active-collection-dropped');
+    const { instance, dataService } = store.getState();
+    const { database } = toNS(ns);
+    await store.fetchDatabaseDetails(database);
+    const db = instance.databases.get(database);
+    await db.fetchCollections({ dataService, force: true });
+
+    if (db.collectionsLength) {
+      appRegistry.emit('select-database', database);
+    } else {
+      appRegistry.emit('open-instance-workspace', 'Databases');
+    }
+  });
+
+  appRegistry.on('active-database-dropped', async() => {
+    console.log('active-database-dropped');
     appRegistry.emit('open-instance-workspace', 'Databases');
   });
 

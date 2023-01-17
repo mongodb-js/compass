@@ -1,6 +1,7 @@
 import throttle from 'lodash/throttle';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import toNS from 'mongodb-ns';
 import { appRegistryActivated } from '../modules/app-registry';
 import { changeDatabaseName } from '../modules/database-name';
 import { dataServiceConnected } from '../modules/data-service';
@@ -104,6 +105,23 @@ store.onActivated = (appRegistry) => {
    */
   appRegistry.on('data-service-connected', (error, dataService) => {
     store.dispatch(dataServiceConnected(error, dataService));
+  });
+
+  appRegistry.on('collection-dropped', (namespace) => {
+    const { database } = toNS(namespace);
+
+    const currentDatabase = store.getState().databaseName
+    if (database === currentDatabase) {
+      appRegistry.emit('active-collection-dropped', namespace);
+    }
+  });
+
+  appRegistry.on('database-dropped', (name) => {
+    const currentDatabase = store.getState().databaseName;
+
+    if (name === currentDatabase) {
+      appRegistry.emit('active-database-dropped', name);
+    }
   });
 
   /**
