@@ -75,6 +75,7 @@
     "@mongodb-js/webpack-config-compass": "^1.0.4",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
+    "@types/d3": "3.5.x",
     "chai": "^4.2.0",
     "classnames": "^2.2.6",
     "d3": "^3.5.17",
