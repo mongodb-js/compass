@@ -151,7 +151,8 @@ describe('Instance sidebar', function () {
     const dbElement = await browser.$(Selectors.sidebarDatabase(dbName));
     await dbElement.waitForExist({ reverse: true });
 
-    // the app should land back on the instance Databases tab.
+    // the app should land back on the instance Databases tab because it was
+    // still on the collection Documents tab
     await browser
       .$(Selectors.instanceTab('Databases', true))
       .waitForDisplayed();
@@ -210,5 +211,12 @@ describe('Instance sidebar', function () {
 
     // wait for it to be gone
     await collectionElement.waitForExist({ reverse: true });
+
+    // the app should have redirected to the the database Collections tab
+    // because we were on the collection Docuemnts tab and the database has
+    // other collections
+    await browser
+      .$(Selectors.instanceTab('Databases', true))
+      .waitForDisplayed();
   });
 });
