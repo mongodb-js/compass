@@ -199,6 +199,8 @@ describe('FLE2', function () {
           'add-collection-modal-encryptedfields.png'
         );
 
+        await browser.navigateToDatabaseTab(databaseName, 'Collections');
+
         const collectionListFLE2BadgeElement = await browser.$(
           Selectors.CollectionListFLE2Badge
         );
@@ -296,6 +298,8 @@ describe('FLE2', function () {
         await browser.navigateToDatabaseTab(databaseName, 'Collections');
         await browser.clickVisible(Selectors.DatabaseCreateCollectionButton);
         await browser.addCollection(collectionName);
+
+        await browser.navigateToDatabaseTab(databaseName, 'Collections');
 
         const selector = Selectors.collectionCard(databaseName, collectionName);
         await browser.scrollToVirtualItem(
