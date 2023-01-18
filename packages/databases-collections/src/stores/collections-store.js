@@ -110,7 +110,7 @@ store.onActivated = (appRegistry) => {
   appRegistry.on('collection-dropped', (namespace) => {
     const { database } = toNS(namespace);
 
-    const currentDatabase = store.getState().databaseName
+    const currentDatabase = store.getState().databaseName;
     if (database === currentDatabase) {
       appRegistry.emit('active-collection-dropped', namespace);
     }

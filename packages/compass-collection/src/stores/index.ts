@@ -276,7 +276,7 @@ store.onActivated = (appRegistry: AppRegistry) => {
   appRegistry.on('collection-dropped', (namespace: string) => {
     store.dispatch(collectionDropped(namespace));
 
-    const currentNamespace = store.getState().namespace
+    const currentNamespace = store.getState().namespace;
     if (namespace === currentNamespace) {
       appRegistry.emit('active-collection-dropped', namespace);
     }
