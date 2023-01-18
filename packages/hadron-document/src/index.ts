@@ -5,6 +5,7 @@ import Element, {
 } from './element';
 import ElementEditor from './editor';
 import type { Editor } from './editor';
+import { getDefaultValueForType } from './utils';
 
 export default Document;
 export type { Editor };
@@ -15,4 +16,5 @@ export {
   ElementEvents,
   ElementEditor,
   isInternalFieldPath,
+  getDefaultValueForType,
 };

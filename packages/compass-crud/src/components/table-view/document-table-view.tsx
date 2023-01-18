@@ -92,7 +92,6 @@ export type GridContext = {
 class DocumentTableView extends React.Component<DocumentTableViewProps> {
   AGGrid: React.ReactElement;
   collection: string;
-  hadronDocs: Document[];
   topLevel: boolean;
   // eslint-disable-next-line @typescript-eslint/ban-types
   unsubscribeGridStore?: Function;
@@ -153,7 +152,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     };
 
     this.collection = mongodbns(props.ns).collection;
-    this.hadronDocs = [];
     this.topLevel = true;
 
     this.AGGrid = React.createElement(AgGridReact, sharedGridProperties);
@@ -169,10 +167,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
   componentWillUnmount() {
     this.unsubscribeGridStore?.();
     this.gridApi?.destroy?.();
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps: DocumentTableViewProps) {
-    this.hadronDocs = nextProps.docs;
   }
 
   componentDidUpdate(prevProps: DocumentTableViewProps) {
@@ -204,7 +198,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     this.gridApi = params.api;
     this.columnApi = params.columnApi;
 
-    this.hadronDocs = this.props.docs;
     this.handleBreadcrumbChange();
   }
 
@@ -330,13 +323,12 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
       rowNumber: rowNumber,
     };
 
-    /* Update this.hadronDocs */
-    for (let i = 0; i < this.hadronDocs.length; i++) {
+    for (let i = 0; i < this.props.docs.length; i++) {
       if (
-        this.hadronDocs[i].getStringId() ===
+        this.props.docs[i].getStringId() ===
         newData.hadronDocument.getStringId()
       ) {
-        this.hadronDocs[i] = newData.hadronDocument;
+        this.props.docs[i] = newData.hadronDocument;
         break;
       }
     }
@@ -561,9 +553,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
       rowNumber: lineNumber,
     };
 
-    /* Update this.hadronDocs */
-    this.hadronDocs.splice(index, 0, data.hadronDocument);
-
     if (this.topLevel) {
       /* Update row numbers */
       this.updateRowNumbers(lineNumber, true);
@@ -613,12 +602,12 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     if (params.path.length === 0) {
       this.topLevel = true;
 
-      const headers = this.createColumnHeaders(this.hadronDocs, [], []);
+      const headers = this.createColumnHeaders([], []);
 
       (this.gridApi as any).gridOptionsWrapper.gridOptions.context.path = [];
       this.gridApi.setColumnDefs(headers);
       this.gridApi.setRowData(
-        this.createRowData(this.hadronDocs, this.props.start)
+        this.createRowData(this.props.docs, this.props.start)
       );
     } else if (
       params.types[params.types.length - 1] === 'Object' ||
@@ -626,11 +615,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     ) {
       this.topLevel = false;
 
-      const headers = this.createColumnHeaders(
-        this.hadronDocs,
-        params.path,
-        params.types
-      );
+      const headers = this.createColumnHeaders(params.path, params.types);
       headers.push(this.createObjectIdHeader());
 
       if (headers.length <= 3) {
@@ -644,7 +629,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
 
       (this.gridApi as any).gridOptionsWrapper.gridOptions.context.path =
         params.path;
-      this.gridApi.setRowData(this.createRowData(this.hadronDocs, 1));
+      this.gridApi.setRowData(this.createRowData(this.props.docs, 1));
       this.gridApi.setColumnDefs(headers);
     }
     this.gridApi.refreshCells({ force: true });
@@ -869,7 +854,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
    * Third, get the displayed type for the headers of each of the field columns.
    * Last, add the document level actions column that is pinned to the right.
    *
-   * @param {Array} hadronDocs - The list of HadronDocuments.
    * @param {Array} path - The list of path segments. Empty when top-level.
    * @param {Array} types - The list of types. If element is not of the correct
    * type, then don't render it.
@@ -877,7 +861,6 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
    * @returns {object} the ColHeaders, which is a list of colDefs.
    */
   createColumnHeaders = (
-    hadronDocs: Document[],
     path: (string | number)[],
     types: TableHeaderType[]
   ): ColDef[] => {
@@ -902,9 +885,9 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     };
 
     /* Make column definitions + track type for header components */
-    for (let i = 0; i < hadronDocs.length; i++) {
+    for (let i = 0; i < this.props.docs.length; i++) {
       /* Get the top-level element/document in the view */
-      let topLevel: Document | Element = hadronDocs[i];
+      let topLevel: Document | Element = this.props.docs[i];
 
       if (path.length > 0) {
         topLevel = topLevel.getChild(path)!;
@@ -926,7 +909,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         if (!(key in headerTypes)) {
           headerTypes[key] = {};
         }
-        headerTypes[key][String(hadronDocs[i].getStringId())] = type;
+        headerTypes[key][String(this.props.docs[i].getStringId())] = type;
       }
     }
 

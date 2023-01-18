@@ -95,6 +95,8 @@ describe('Instance databases tab', function () {
       'add-database-modal-basic.png'
     );
 
+    await browser.navigateToInstanceTab('Databases');
+
     const selector = Selectors.databaseCard(dbName);
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,

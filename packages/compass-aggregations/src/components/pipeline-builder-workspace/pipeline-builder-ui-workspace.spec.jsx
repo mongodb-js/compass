@@ -13,7 +13,7 @@ const renderPipelineBuilderUIWorkspace = (props = {}, options = {}) => {
       sourcePipeline: SOURCE_PIPELINE,
       ...options
     })}>
-      <PipelineBuilderUIWorkspace stageIds={[]} {...props} />
+      <PipelineBuilderUIWorkspace stageIds={[1, 2, 3]} {...props} />
     </Provider>
   );
 };
@@ -46,6 +46,7 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       renderPipelineBuilderUIWorkspace();
       const buttons = screen.getAllByTestId('add-stage-icon-button');
       buttons[0].click();
+
       expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
       
       const stageNames = screen
