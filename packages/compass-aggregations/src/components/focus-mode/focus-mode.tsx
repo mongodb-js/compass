@@ -1,23 +1,35 @@
 import React from 'react';
 import {
   Modal,
-  ModalBody,
   Body,
   css,
   spacing,
   palette,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { Document } from 'mongodb';
 
 import type { RootState } from '../../modules';
 import { focusModeDisabled } from '../../modules/focus-mode';
-import { FocusModeEditor } from './focus-mode-editor';
-import { FocusModePreview } from './focus-mode-preview';
+import FocusModeStageEditor from './focus-mode-stage-editor';
+import { FocusModeStageInput, FocusModeStageOutput } from './focus-mode-stage-preview';
 
+// These styles make the modal occupy the whole screen,
+// with 18px of padding - because that's the
+// default padding for the modal (left and right).
 const modalStyles = css({
+  '> div': {
+    height: '100%',
+    padding: '18px',
+  },
   '[role="dialog"]': {
     width: '100%',
+    height: '100%',
+    // LG sets maxHeight to calc(100% - 64px). This enables modal
+    // to occupy the whole screen.
+    maxHeight: '100%', 
+    '> div': {
+      height: '100%',
+    }
   },
 });
 
@@ -27,6 +39,8 @@ const containerStyles = css({
   gridTemplateColumns: '1fr',
   overflow: 'hidden',
   padding: spacing[5],
+  paddingBottom: 0,
+  height: '100%',
 });
 
 const headerStyles = css({
@@ -51,103 +65,47 @@ const editorAreaStyles = css({
   backgroundColor: palette.gray.light3,
 });
 
-type StagePreview = {
-  isLoading: boolean;
-  documents: Document[] | null;
-};
-
 type FocusModeProps = {
   isModalOpen: boolean;
-  stageInput: StagePreview | null;
-  stageIndex: number;
-  stageOperator: string | null;
-  stageOutput: StagePreview | null;
   onCloseModal: () => void;
 };
 
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
-  stageInput,
-  stageIndex,
-  stageOperator,
-  stageOutput,
   onCloseModal,
 }) => {
-  if (!isModalOpen) {
-    return null;
-  }
-
   return (
     <Modal
       className={modalStyles}
-      size={'large'}
       setOpen={onCloseModal}
       open={isModalOpen}
       data-testid={"focus-mode-modal"}
     >
-      <ModalBody className={containerStyles}>
+      <div className={containerStyles}>
         <div className={headerStyles}>
           <Body>Focus Mode (in progress feature)</Body>
         </div>
         <div className={bodyStyles}>
           <div className={previewAreaStyles} data-testid="stage-input">
-            <FocusModePreview
-              title='Stage Input'
-              isLoading={stageInput?.isLoading}
-              documents={stageInput?.documents} />
+            <FocusModeStageInput />
           </div>
           <div className={editorAreaStyles} data-testid="stage-editor">
-            <FocusModeEditor
-              index={stageIndex}
-              stageOperator={stageOperator} />
+            <FocusModeStageEditor />
           </div>
           <div className={previewAreaStyles} data-testid="stage-output">
-            <FocusModePreview
-              title='Stage Output'
-              isLoading={stageOutput?.isLoading}
-              documents={stageOutput?.documents} /> 
+            <FocusModeStageOutput />
           </div>
         </div>
-      </ModalBody>
+      </div>
     </Modal>
   );
 };
 
 const mapState = ({
-  focusMode: { isEnabled, stageIndex },
-  inputDocuments,
-  pipelineBuilder: {
-    stageEditor: {
-      stages,
-    }
-  }
-}: RootState) => {
-  const currentStage = stages[stageIndex];
-  const previousStage = stages[stageIndex - 1];
-
-  const stageInput: StagePreview = previousStage
-    ? {
-      isLoading: previousStage.loading,
-      documents: previousStage.previewDocs,
-    } : {
-      isLoading: inputDocuments.isLoading,
-      documents: inputDocuments.documents,
-    };
-
-  const stageOutput: StagePreview | null = currentStage
-    ? {
-      isLoading: currentStage.loading,
-      documents: currentStage.previewDocs,
-    } : null;
-
-  return {
-    isModalOpen: isEnabled,
-    stageInput,
-    stageIndex,
-    stageOperator: currentStage?.stageOperator,
-    stageOutput,
-  };
-};
+  focusMode: { isEnabled },
+}: RootState) => ({
+  isModalOpen: isEnabled,
+});
 
 const mapDispatch = {
   onCloseModal: focusModeDisabled

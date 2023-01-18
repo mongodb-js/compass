@@ -11,6 +11,8 @@ import { DocumentListView } from '@mongodb-js/compass-crud';
 import HadronDocument from 'hadron-document';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
+import { connect } from 'react-redux';
+import type { RootState } from '../../modules';
 
 const containerStyles = css({
   display: 'flex',
@@ -67,7 +69,7 @@ export const FocusModePreview = ({
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
   return (
-    <div className={containerStyles} data-testid="focus-mode-stage-preview">
+    <div className={containerStyles} data-testid='focus-mode-stage-preview'>
       <div className={headerStyles}>
         <div>
           <Overline>{title}</Overline>
@@ -87,7 +89,7 @@ export const FocusModePreview = ({
       </div>
       {isLoading ? (
         <div className={centerStyles}>
-          <SpinLoader size="24px" />
+          <SpinLoader size='24px' title='Loading' />
         </div>
       ) : (!documents || documents.length === 0) ? (
         <div className={centerStyles}>
@@ -108,3 +110,49 @@ export const FocusModePreview = ({
     </div>
   );
 };
+
+export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
+  return <FocusModePreview {...props} title='Stage Input'/>;
+};
+
+export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
+  return <FocusModePreview {...props} title='Stage Output' />;
+};
+
+export const FocusModeStageInput = connect(({
+  focusMode: { stageIndex },
+  inputDocuments,
+  pipelineBuilder: {
+    stageEditor: {
+      stages,
+    }
+  }
+}: RootState) => {
+  const previousStage = stages[stageIndex - 1];
+  return previousStage
+  ? {
+    isLoading: previousStage.loading,
+    documents: previousStage.previewDocs,
+  } : {
+    isLoading: inputDocuments.isLoading,
+    documents: inputDocuments.documents,
+  };
+})(InputPreview);
+
+export const FocusModeStageOutput = connect(({
+  focusMode: { stageIndex },
+  pipelineBuilder: {
+    stageEditor: {
+      stages,
+    }
+  }
+}: RootState) => {
+  const stage = stages[stageIndex];
+  if (!stage) {
+    return null;
+  }
+  return {
+    isLoading: stage.loading,
+    documents: stage.previewDocs,
+  };
+})(OutputPreview);

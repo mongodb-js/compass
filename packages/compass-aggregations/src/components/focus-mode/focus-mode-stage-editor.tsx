@@ -4,6 +4,8 @@ import { css, spacing, Link } from '@mongodb-js/compass-components';
 import StageEditor from '../stage-editor/stage-editor';
 import StageOperatorSelect from '../stage-editor-toolbar/stage-operator-select';
 import { getStageHelpLink } from '../../utils/stage';
+import type { RootState } from '../../modules';
+import { connect } from 'react-redux';
 
 const containerStyles = css({
   display: 'grid',
@@ -24,14 +26,17 @@ const editorStyles = css({
   overflowY: 'auto',
 });
 
-export const FocusModeEditor = ({
+export const FocusModeStageEditor = ({
   index,
-  stageOperator
+  operator
 }: {
   index: number;
-  stageOperator: string | null;
+  operator: string | null;
 }) => {
-  const link = getStageHelpLink(stageOperator);
+  if (index === -1) {
+    return null;
+  }
+  const link = getStageHelpLink(operator);
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
@@ -53,3 +58,20 @@ export const FocusModeEditor = ({
     </div>
   );
 };
+
+const mapState = ({
+  focusMode: { stageIndex },
+  pipelineBuilder: {
+    stageEditor: {
+      stages,
+    }
+  }
+}: RootState) => {
+  const currentStage = stages[stageIndex];
+  return {
+    index: stageIndex,
+    operator: currentStage?.stageOperator,
+  };
+};
+
+export default connect(mapState)(FocusModeStageEditor);
