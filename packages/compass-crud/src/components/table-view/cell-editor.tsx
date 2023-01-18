@@ -129,7 +129,8 @@ class CellEditor
       /* If the column is of one type, then make the new value that type.
          Otherwise, set it to undefined. Set the key name to be the columnId */
       const key = column.getColDef().headerName;
-      let type: TableHeaderType = column.getColDef().headerComponentParams.bsonType;
+      let type: TableHeaderType =
+        column.getColDef().headerComponentParams.bsonType;
       if (type === 'Mixed') {
         type = 'String';
       }
