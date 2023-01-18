@@ -216,7 +216,7 @@ describe('Instance sidebar', function () {
     // because we were on the collection Documents tab and the database has
     // other collections
     await browser
-      .$(Selectors.instanceTab('Databases', true))
+      .$(Selectors.databaseTab('Collections', true))
       .waitForDisplayed();
   });
 });

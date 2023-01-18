@@ -133,7 +133,7 @@ describe('Database collections tab', function () {
 
     // the app should still be on the database Collections tab
     await browser
-      .$(Selectors.instanceTab('Databases', true))
+      .$(Selectors.databaseTab('Collections', true))
       .waitForDisplayed();
   });
 
