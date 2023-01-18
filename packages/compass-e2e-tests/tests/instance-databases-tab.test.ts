@@ -129,7 +129,7 @@ describe('Instance databases tab', function () {
     // redirect back to the databases tab)
     await databaseCard.waitForExist({ reverse: true });
 
-    // the app should land back on the instance Databases tab.
+    // the app should stay on the instance Databases tab.
     const tabSelectedSelector = Selectors.instanceTab('Databases', true);
     await browser.$(tabSelectedSelector).waitForDisplayed();
   });
