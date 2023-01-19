@@ -93,28 +93,18 @@ class InsertDocumentDialog extends React.PureComponent<
     prevProps: InsertDocumentDialogProps,
     state: InsertDocumentDialogState
   ) {
-    const isMany = this.hasManyDocuments();
-
-    if (!isMany) {
-      // When switching to Hadron Document View - reset the invalid elements list, which contains the
-      // uuids of each element that current has BSON type cast errors.
-      //
-      // Subscribe to the validation errors for BSON types on the document.
-      if (this.props.isOpen && prevProps.jsonView && !this.props.jsonView) {
+    if (this.props.isOpen && !this.hasManyDocuments()) {
+      if (prevProps.jsonView && !this.props.jsonView) {
+        // When switching to Hadron Document View.
+        // Reset the invalid elements list, which contains the
+        // uuids of each element that has BSON type cast errors.
         this.invalidElements = [];
+        // Subscribe to the validation errors for BSON types on the document.
         this.props.doc.on(Element.Events.Invalid, this.handleInvalid);
         this.props.doc.on(Element.Events.Valid, this.handleValid);
-        // Closing the modal or switching back to jsonView.
-        //
-        // Remove the listeners to the BSON type validation errors in order to
-        // clean up properly.
-      } else if (
-        (!this.props.isOpen && prevProps.isOpen && !prevProps.jsonView) ||
-        (this.props.isOpen &&
-          prevProps.isOpen &&
-          !prevProps.jsonView &&
-          this.props.jsonView)
-      ) {
+      } else {
+        // When switching to JSON View.
+        // Remove the listeners to the BSON type validation errors in order to clean up properly.
         this.props.doc.removeListener(
           Element.Events.Invalid,
           this.handleInvalid
@@ -125,6 +115,15 @@ class InsertDocumentDialog extends React.PureComponent<
 
     if (state.insertInProgress) {
       this.setState({ insertInProgress: false });
+    }
+  }
+
+  componentWillUnount() {
+    if (!this.hasManyDocuments()) {
+      // When closing the modal.
+      // Remove the listeners to the BSON type validation errors in order to clean up properly.
+      this.props.doc.removeListener(Element.Events.Invalid, this.handleInvalid);
+      this.props.doc.removeListener(Element.Events.Valid, this.handleValid);
     }
   }
 
