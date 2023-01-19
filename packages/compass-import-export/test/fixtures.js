@@ -1,36 +1,66 @@
 import path from 'path';
 
-const FIXTURES = {
+const fixtures = {
   // other
-  JS_I_THINK_IS_JSON: path.join(__dirname, 'other', 'js-i-think-is-json'),
+  other: {
+    javascript: path.join(__dirname, 'other', 'javascript.json'),
+  },
 
   // csv
-  GOOD_COMMAS_CSV: path.join(__dirname, 'csv', 'good-commas.csv'),
-  GOOD_TABS_CSV: path.join(__dirname, 'csv', 'good-tabs.csv'), // tsv?
-  BAD_CSV: path.join(__dirname, 'csv', 'test_bad.csv'),
-  NUMBER_TRANSFORM_CSV: path.join(__dirname, 'csv', 'number-transform.csv'),
-  CSV_FLAT_HEADERS: path.join(__dirname, 'csv', 'export-flat-headers.csv'),
-  SPARSE_CSV: path.join(__dirname, 'csv', 'sparse.csv'),
+  csv: {
+    good_commas: path.join(__dirname, 'csv', 'good-commas.csv'),
+    good_tabs: path.join(__dirname, 'csv', 'good-tabs.csv'),
+    // TODO: semicolon, space
+    bad: path.join(__dirname, 'csv', 'bad.csv'),
+    number_transform: path.join(__dirname, 'csv', 'number-transform.csv'),
+    sparse: path.join(__dirname, 'csv', 'sparse.csv'),
+  },
 
   // json
-  JSON_SINGLE_DOC: path.join(__dirname, 'json', 'export-single-doc.json'),
-  JSON_MULTI_SMALL_DOCS: path.join(__dirname, 'json', 'export-multi-small-docs.json'),
-  GOOD_JSON: path.join(__dirname, 'json', 'docs.json'),
-  JSON_ARRAY: path.join(__dirname, 'json', 'docs.json'),
-  JSON_WITH_CSV_FILEEXT: path.join(__dirname, 'json', 'json-with-a.csv'),
-  COMPLEX_JSON: path.join(__dirname, 'json', 'complex.json'),
-  SINGLE_JSON: path.join(__dirname, 'json', 'single-doc.json'),
+  json: {
+    good: path.join(__dirname, 'json', 'good.json'),
+    json_with_csv_fileext: path.join(
+      __dirname,
+      'json',
+      'json-with-csv-fileext.csv'
+    ),
+    complex: path.join(__dirname, 'json', 'complex.json'),
+    single_doc: path.join(__dirname, 'json', 'single-doc.json'),
+  },
 
   // jsonl
-  JSONL: path.join(__dirname, 'jsonl', 'export-two-docs.jsonl'),
-  NDJSON: path.join(__dirname, 'jsonl', 'docs.jsonl'),
-  NDJSON_EXTRA_LINE: path.join(__dirname, 'jsonl', 'docs-with-newline-ending.jsonl'),
-  LINE_DELIMITED_JSON: path.join(__dirname, 'jsonl', 'docs.jsonl'),
-  LINE_DELIMITED_JSON_EXTRA_LINE: path.join(
-    __dirname,
-    'jsonl',
-    'docs-with-newline-ending.jsonl'
-  ),
+  jsonl: {
+    good: path.join(__dirname, 'jsonl', 'good.jsonl'),
+    extra_line: path.join(__dirname, 'jsonl', 'extra-line.jsonl'),
+  },
+
+  // CSV files by BSON type
+  csvByType: [
+    'array',
+    'binData',
+    'boolean',
+    'date',
+    'decimal',
+    'double',
+    'int',
+    'javascript',
+    'javascriptWithScope',
+    'long',
+    'maxKey',
+    'minKey',
+    'null',
+    'object',
+    'objectId',
+    'regex',
+    'string',
+    'symbol',
+    'timestamp',
+    'number', // actually a mix of all number types
+    'mixed', // mix of a bunch of different types
+  ].reduce((memo, type) => {
+    memo[type] = path.join(__dirname, 'csv', 'types', `${type}.csv`);
+    return memo;
+  }, {}),
 };
 
-export { FIXTURES };
+export { fixtures };

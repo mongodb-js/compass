@@ -2,7 +2,7 @@ import { createPreviewWritable, createPeekStream } from './import-preview';
 import { Readable, pipeline } from 'stream';
 import fs from 'fs';
 import { expect } from 'chai';
-import { FIXTURES } from '../../test/fixtures';
+import { fixtures } from '../../test/fixtures';
 
 describe('import-preview', function () {
   describe('createPreviewWritable', function () {
@@ -71,7 +71,7 @@ describe('import-preview', function () {
 
   describe('func', function () {
     it('should return 2 docs for a csv containing 3 docs', function (done) {
-      const src = fs.createReadStream(FIXTURES.GOOD_COMMAS_CSV);
+      const src = fs.createReadStream(fixtures.csv.good_commas);
       const dest = createPreviewWritable({ MAX_SIZE: 2 });
 
       pipeline(src, createPeekStream('csv'), dest, () => {

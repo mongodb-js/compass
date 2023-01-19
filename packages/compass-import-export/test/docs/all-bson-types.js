@@ -35,7 +35,9 @@ export default [
     int: new Int32(12345), // 32-bit integer, 16, "int"
     timestamp: new Timestamp(), // Timestamp, 17, timestamp
     long: new Long('123456789123456789'), // 64-bit integer, 18, long
-    decimal: new Decimal128(Buffer.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])), // Decimal128, 19, decimal
+    decimal: new Decimal128(
+      Buffer.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+    ), // Decimal128, 19, decimal
     minKey: new MinKey(), // Min key, -1, minKey
     maxKey: new MaxKey(), // Max key, 127, maxKey
 
@@ -50,5 +52,5 @@ export default [
     binDataCustom: new Binary('//8=', 128), // 128
 
     dbRef: new DBRef('namespace', new ObjectId()), // not actually a separate type, just a convention
-  }
+  },
 ];

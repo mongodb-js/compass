@@ -6,5 +6,5 @@ export default [
   { foo: { bar: { baz: 1 } } },
 
   // the objects inside array have different keys
-  { array: [{ monkey: 1}, { banana: 1 }] }
-]
+  { array: [{ monkey: 1 }, { banana: 1 }] },
+];
