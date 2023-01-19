@@ -3,7 +3,7 @@ import path from 'path';
 const fixtures = {
   // other
   other: {
-    javascript: path.join(__dirname, 'other', 'javascript.json'),
+    javascript: path.join(__dirname, 'other', 'javascript'),
   },
 
   // csv
@@ -33,6 +33,12 @@ const fixtures = {
     good: path.join(__dirname, 'jsonl', 'good.jsonl'),
     extra_line: path.join(__dirname, 'jsonl', 'extra-line.jsonl'),
   },
+
+  // some tests write files
+  JSON_MULTI_SMALL_DOCS: path.join(__dirname, 'json-multi-small-docs.json'),
+  JSON_SINGLE_DOC: path.join(__dirname, 'json-single-doc.json'),
+  CSV_FLAT_HEADERS: path.join(__dirname, 'csv-flat-headers.csv'),
+  JSONL: path.join(__dirname, 'jsonl.jsonl'),
 
   // CSV files by BSON type
   csvByType: [

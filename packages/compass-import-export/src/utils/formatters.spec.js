@@ -26,17 +26,17 @@ describe('formatters', function () {
         { _id: new ObjectID('5e5ea7558d35931a05eafec0') },
       ]);
       const formatter = createJSONFormatter({ brackets: true });
-      const dest = fs.createWriteStream(fixtures.json.single_doc);
+      const dest = fs.createWriteStream(fixtures.JSON_SINGLE_DOC);
 
       return pipeline(source, formatter, dest)
-        .then(() => readFile(fixtures.json.single_doc))
+        .then(() => readFile(fixtures.JSON_SINGLE_DOC))
         .then((contents) => {
           const parsed = EJSON.parse(contents);
           expect(parsed).to.deep.equal([
             { _id: new ObjectID('5e5ea7558d35931a05eafec0') },
           ]);
         })
-        .then(() => rm(fixtures.json.single_doc));
+        .then(() => rm(fixtures.JSON_SINGLE_DOC));
     });
     it('should format more than 2 documents in an array', function () {
       const docs = [
