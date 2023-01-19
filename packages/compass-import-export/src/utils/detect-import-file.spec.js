@@ -29,11 +29,14 @@ describe('detectImportFile', function () {
     });
   });
   it('should detect with a preference toward peek NOT just file extension', function (done) {
-    detectImportFile(fixtures.json.json_with_csv_fileext, function (err, res) {
-      if (err) return done(err);
-      expect(res.fileType).to.equal('json');
-      expect(res.fileIsMultilineJSON).to.be.true;
-      done();
-    });
+    detectImportFile(
+      fixtures.jsonl.jsonl_with_csv_fileext,
+      function (err, res) {
+        if (err) return done(err);
+        expect(res.fileType).to.equal('json');
+        expect(res.fileIsMultilineJSON).to.be.true;
+        done();
+      }
+    );
   });
 });
