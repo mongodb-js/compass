@@ -12,7 +12,7 @@ const expectedDelimiters = {
   'sparse.csv': ',',
   'semicolons.csv': ';',
   'spaces.csv': ' ',
-};
+} as const;
 
 describe('guessFileType', function () {
   for (const filepath of Object.values(fixtures.json)) {
@@ -39,7 +39,8 @@ describe('guessFileType', function () {
       const input = fs.createReadStream(filepath);
       const result = await guessFileType({ input });
       expect(result.type).to.equal('csv');
-      const expectedDelimiter = expectedDelimiters[basename];
+      const expectedDelimiter =
+        expectedDelimiters[basename as keyof typeof expectedDelimiters];
       if (expectedDelimiter) {
         expect(result.type === 'csv' && result.csvDelimiter).to.equal(
           expectedDelimiter
