@@ -2,7 +2,6 @@ import React from 'react';
 import { css, spacing, Link } from '@mongodb-js/compass-components';
 
 import StageEditor from '../stage-editor/stage-editor';
-import StageOperatorSelect from '../stage-editor-toolbar/stage-operator-select';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import { connect } from 'react-redux';
@@ -40,7 +39,7 @@ export const FocusModeStageEditor = ({
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
-        <StageOperatorSelect index={index} />
+        {operator ? `Stage: ${operator}` : `Add a stage from builder UI`}
         {link && (
           <Link
             hideExternalIcon={false}
