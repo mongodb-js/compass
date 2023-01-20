@@ -14,7 +14,7 @@ const expectedDelimiters = {
   'spaces.csv': ' ',
 };
 
-describe.only('guessFileType', function () {
+describe('guessFileType', function () {
   for (const filepath of Object.values(fixtures.json)) {
     const basename = path.basename(filepath);
     it(`detects ${basename} as json`, async function () {
@@ -41,7 +41,9 @@ describe.only('guessFileType', function () {
       expect(result.type).to.equal('csv');
       const expectedDelimiter = expectedDelimiters[basename];
       if (expectedDelimiter) {
-        expect(result.type === 'csv' && result.csvDelimiter).to.equal(expectedDelimiter);
+        expect(result.type === 'csv' && result.csvDelimiter).to.equal(
+          expectedDelimiter
+        );
       } else {
         expect(result.type === 'csv' && result.csvDelimiter).to.equal(
           `add an entry for ${basename} to expectedDelimiters`

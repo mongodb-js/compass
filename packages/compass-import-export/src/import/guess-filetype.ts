@@ -101,12 +101,14 @@ type GuessFileTypeOptions = {
   input: Readable;
 };
 
-type GuessFileTypeResult = {
-  type: 'json' | 'jsonl' | 'unknown';
-} | {
-  type: 'csv';
-  csvDelimiter: Delimiter;
-};
+type GuessFileTypeResult =
+  | {
+      type: 'json' | 'jsonl' | 'unknown';
+    }
+  | {
+      type: 'csv';
+      csvDelimiter: Delimiter;
+    };
 
 export async function guessFileType({
   input,
@@ -115,7 +117,8 @@ export async function guessFileType({
   const csvStream = input.pipe(new PassThrough());
 
   const [jsonVariant, csvDelimiter] = await Promise.all([
-    detectJSON(jsStream), detectCSV(csvStream)
+    detectJSON(jsStream),
+    detectCSV(csvStream),
   ]);
 
   debug('guessFileType', jsonVariant, csvDelimiter);
