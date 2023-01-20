@@ -117,8 +117,9 @@ export async function guessFileType({
   const jsStream = input.pipe(new PassThrough());
   const csvStream = input.pipe(new PassThrough());
 
-  const jsonVariant = await detectJSON(jsStream);
-  const csvDelimiter = await detectCSV(csvStream);
+  const [jsonVariant, csvDelimiter] = await Promise.all([ 
+    detectJSON(jsStream), detectCSV(csvStream) 
+  ]);
 
   debug('guessFileType', jsonVariant, csvDelimiter);
 
