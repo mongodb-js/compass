@@ -16,11 +16,8 @@ function detectJSON(input: Readable): Promise<'json' | 'jsonl' | null> {
   return new Promise(function (resolve) {
     const parser = StreamJSON.parser();
 
-    parser.on('data', (data) => {
+    parser.once('data', (data) => {
       debug('detectJSON:data', data);
-      if (jsonVariant) {
-        return;
-      }
       if (data.name === 'startObject') {
         jsonVariant = 'jsonl';
       } else if (data.name === 'startArray') {
@@ -117,8 +114,8 @@ export async function guessFileType({
   const jsStream = input.pipe(new PassThrough());
   const csvStream = input.pipe(new PassThrough());
 
-  const [jsonVariant, csvDelimiter] = await Promise.all([ 
-    detectJSON(jsStream), detectCSV(csvStream) 
+  const [jsonVariant, csvDelimiter] = await Promise.all([
+    detectJSON(jsStream), detectCSV(csvStream)
   ]);
 
   debug('guessFileType', jsonVariant, csvDelimiter);
