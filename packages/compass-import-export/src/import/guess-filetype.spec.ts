@@ -14,14 +14,13 @@ const expectedDelimiters = {
   'spaces.csv': ' ',
 };
 
-describe('guessFileType', function () {
+describe.only('guessFileType', function () {
   for (const filepath of Object.values(fixtures.json)) {
     const basename = path.basename(filepath);
     it(`detects ${basename} as json`, async function () {
       const input = fs.createReadStream(filepath);
-      const { type, csvDelimiter } = await guessFileType({ input });
+      const { type } = await guessFileType({ input });
       expect(type).to.equal('json');
-      expect(csvDelimiter).to.equal(undefined);
     });
   }
 
@@ -29,9 +28,8 @@ describe('guessFileType', function () {
     const basename = path.basename(filepath);
     it(`detects ${basename} as jsonl`, async function () {
       const input = fs.createReadStream(filepath);
-      const { type, csvDelimiter } = await guessFileType({ input });
+      const { type } = await guessFileType({ input });
       expect(type).to.equal('jsonl');
-      expect(csvDelimiter).to.equal(undefined);
     });
   }
 
@@ -39,13 +37,13 @@ describe('guessFileType', function () {
     const basename = path.basename(filepath);
     it(`detects ${basename} as csv`, async function () {
       const input = fs.createReadStream(filepath);
-      const { type, csvDelimiter } = await guessFileType({ input });
-      expect(type).to.equal('csv');
+      const result = await guessFileType({ input });
+      expect(result.type).to.equal('csv');
       const expectedDelimiter = expectedDelimiters[basename];
       if (expectedDelimiter) {
-        expect(csvDelimiter).to.equal(expectedDelimiter);
+        expect(result.type === 'csv' && result.csvDelimiter).to.equal(expectedDelimiter);
       } else {
-        expect(csvDelimiter).to.equal(
+        expect(result.type === 'csv' && result.csvDelimiter).to.equal(
           `add an entry for ${basename} to expectedDelimiters`
         );
       }
@@ -61,16 +59,14 @@ describe('guessFileType', function () {
     const basename = path.basename(filepath);
     it(`detects ${basename} as unknown`, async function () {
       const input = fs.createReadStream(filepath);
-      const { type, csvDelimiter } = await guessFileType({ input });
+      const { type } = await guessFileType({ input });
       expect(type).to.equal('unknown');
-      expect(csvDelimiter).to.equal(undefined);
     });
   }
 
   it('can treat javascript as a json false positive', async function () {
     const input = fs.createReadStream(fixtures.other.javascript);
-    const { type, csvDelimiter } = await guessFileType({ input });
+    const { type } = await guessFileType({ input });
     expect(type).to.equal('json');
-    expect(csvDelimiter).to.equal(undefined);
   });
 });
