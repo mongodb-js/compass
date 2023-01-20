@@ -105,8 +105,9 @@ type GuessFileTypeOptions = {
 };
 
 type GuessFileTypeResult = {
-  type: 'json' | 'jsonl' | 'csv' | 'unknown';
-  // CSV only
+  type: 'json' | 'jsonl' | 'unknown';
+} | {
+  type: 'csv';
   csvDelimiter?: Delimiter;
 };
 
