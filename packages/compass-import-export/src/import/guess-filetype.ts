@@ -72,7 +72,7 @@ function detectCSV(input: Readable): Promise<Delimiter | null> {
     Papa.parse(input, {
       // NOTE: parsing without header: true otherwise the delimiter detection
       // can't fail and will always detect ,
-      delimitersToGuess: supportedDelimiters as unknown as string[],
+      delimitersToGuess: supportedDelimiters,
       step: function (results: Papa.ParseStepResult<string[]>, parser) {
         ++lines;
         debug('detectCSV:step', lines, results);
