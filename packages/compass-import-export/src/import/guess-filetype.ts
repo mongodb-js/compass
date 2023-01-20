@@ -105,7 +105,7 @@ type GuessFileTypeResult = {
   type: 'json' | 'jsonl' | 'unknown';
 } | {
   type: 'csv';
-  csvDelimiter?: Delimiter;
+  csvDelimiter: Delimiter;
 };
 
 export async function guessFileType({
