@@ -9,10 +9,10 @@
   NOTE: use `feat`, `fix` and `perf` for user facing changes that will be part of
   release notes.
 -->
-
 ## Description
 <!--- Describe your changes in detail -->
 <!--- If applicable, describe (or illustrate) architecture flow -->
+
 ### Checklist
 - [ ] New tests and/or benchmarks are included
 - [ ] Documentation is changed or added

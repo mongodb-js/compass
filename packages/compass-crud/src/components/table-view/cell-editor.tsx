@@ -100,27 +100,24 @@ class CellEditor
   constructor(props: CellEditorProps) {
     super(props);
     this.state = { fieldName: '' };
-  }
 
-  /**
-   * Mount the component. If the editor is opened and there was no field defined
-   * in this cell, get the type of the column from this.props.column and add a
-   * field to the HadronDocument that is empty.
-   */
-  UNSAFE_componentWillMount() {
-    this.element = this.props.value;
+    /* If the editor is opened and there was no field defined
+       in this cell, get the type of the column from props.column and add a
+       field to the HadronDocument that is empty. */
+    const { node, context, column, value } = props;
+    this.element = value;
     this.wasEmpty = false;
     this.newField = false;
 
-    let parent: Document | Element = this.props.node.data.hadronDocument;
-    if (this.props.context.path.length) {
-      parent = parent.getChild(this.props.context.path)!;
+    let parent: Document | Element = node.data.hadronDocument;
+    if (context.path.length) {
+      parent = parent.getChild(context.path)!;
     }
 
     /* If expanding an empty element */
     if (
       this.element === undefined &&
-      this.props.column.getColDef().headerName === '$new'
+      column.getColDef().headerName === '$new'
     ) {
       this.wasEmpty = true;
 
@@ -131,9 +128,9 @@ class CellEditor
       this.wasEmpty = true;
       /* If the column is of one type, then make the new value that type.
          Otherwise, set it to undefined. Set the key name to be the columnId */
-      const key = this.props.column.getColDef().headerName;
+      const key = column.getColDef().headerName;
       let type: TableHeaderType =
-        this.props.column.getColDef().headerComponentParams.bsonType;
+        column.getColDef().headerComponentParams.bsonType;
       if (type === 'Mixed') {
         type = 'String';
       }
@@ -147,11 +144,11 @@ class CellEditor
         this.setState({ fieldName: String(this.element.currentKey) });
       }
       /* If this column has just been added */
-      this.newField = this.props.value.currentKey === '$new';
+      this.newField = value.currentKey === '$new';
     }
 
     this.oldType = this.element.currentType;
-    this._editors = initEditors(this.element /*, this.props.tz*/);
+    this._editors = initEditors(this.element /*, props.tz*/);
     this.editor().start();
   }
 
