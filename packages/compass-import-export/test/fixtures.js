@@ -4,12 +4,16 @@ const fixtures = {
   // other
   other: {
     javascript: path.join(__dirname, 'other', 'javascript'),
+    text: path.join(__dirname, 'other', 'hello.txt'),
+    empty: path.join(__dirname, 'other', 'empty'),
   },
 
   // csv
   csv: {
     good_commas: path.join(__dirname, 'csv', 'good-commas.csv'),
     good_tabs: path.join(__dirname, 'csv', 'good-tabs.csv'),
+    semicolons: path.join(__dirname, 'csv', 'semicolons.csv'),
+    spaces: path.join(__dirname, 'csv', 'spaces.csv'),
     // TODO: semicolon, space
     bad: path.join(__dirname, 'csv', 'bad.csv'),
     number_transform: path.join(__dirname, 'csv', 'number-transform.csv'),
@@ -19,19 +23,19 @@ const fixtures = {
   // json
   json: {
     good: path.join(__dirname, 'json', 'good.json'),
-    json_with_csv_fileext: path.join(
-      __dirname,
-      'json',
-      'json-with-csv-fileext.csv'
-    ),
     complex: path.join(__dirname, 'json', 'complex.json'),
-    single_doc: path.join(__dirname, 'json', 'single-doc.json'),
   },
 
   // jsonl
   jsonl: {
     good: path.join(__dirname, 'jsonl', 'good.jsonl'),
     extra_line: path.join(__dirname, 'jsonl', 'extra-line.jsonl'),
+    jsonl_with_csv_fileext: path.join(
+      __dirname,
+      'jsonl',
+      'jsonl-with-csv-fileext.csv'
+    ),
+    single_doc: path.join(__dirname, 'jsonl', 'single-doc.json'),
   },
 
   // some tests write files
