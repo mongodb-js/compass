@@ -110,7 +110,7 @@ const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onReset,
   // Used to specify which query options to show and where they are positioned.
   queryOptionsLayout = [
-    'project',
+    'projection',
     ['sort', 'maxTimeMS'],
     ['collation', 'skip', 'limit'],
   ],
