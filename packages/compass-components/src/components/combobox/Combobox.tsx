@@ -13,7 +13,7 @@ import isString from 'lodash/isString';
 import isUndefined from 'lodash/isUndefined';
 import PropTypes from 'prop-types';
 
-import { cx } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import {
   useDynamicRefs,
   useEventListener,
@@ -73,6 +73,24 @@ import {
   getOptionObjectFromValue,
   getValueForDisplayName,
 } from './utils';
+import { spacing } from '@leafygreen-ui/tokens';
+
+const descriptionWidth = spacing[5] * 14;
+
+// By default we want the menu option to be the same width as the input
+// If the user has specified a description, we add extra space to fit the description.
+const popoverMenuStyles = (width: number, containsDescription: boolean) => {
+  if (!containsDescription) {
+    return css`
+      width: ${width}px;
+    `;
+  }
+  const dropdownWidth = width + descriptionWidth;
+  return css`
+    width: ${dropdownWidth}px;
+    margin-left: ${(dropdownWidth / 2) - (width / 2)}px;
+  `;
+};
 
 /**
  * Combobox is a combination of a Select and TextInput,
@@ -609,7 +627,7 @@ export function Combobox<M extends boolean>({
       }
     }
   }, [highlightedOption, getOptionRef]);
-
+    
   /**
    * Rendering
    */
@@ -655,6 +673,7 @@ export function Combobox<M extends boolean>({
               className={className}
               index={index}
               ref={optionRef}
+              description={child.props.description}
             />
           );
         }
@@ -926,17 +945,17 @@ export function Combobox<M extends boolean>({
    *
    */
 
-  const [menuWidth, setMenuWidth] = useState(0);
+  const [popoverMenuWidth, setPopoverMenuWidth] = useState(0);
 
   // When the menu opens, or the selection changes, or the focused option changes
   // update the menu width
   useEffect(() => {
-    setMenuWidth(comboboxRef.current?.clientWidth ?? 0);
+    setPopoverMenuWidth(comboboxRef.current?.clientWidth ?? 0);
   }, [comboboxRef, isOpen, highlightedOption, selection]);
 
   // Handler fired when the menu has finished transitioning in/out
   const handleTransitionEnd = () => {
-    setMenuWidth(comboboxRef.current?.clientWidth ?? 0);
+    setPopoverMenuWidth(comboboxRef.current?.clientWidth ?? 0);
   };
 
   /**
@@ -1187,6 +1206,15 @@ export function Combobox<M extends boolean>({
       : { usePortal }),
   } as const;
 
+  const isAnyOptionWithDescription = useMemo(() => {
+    const numberOfOptionsWithDescriptions = React.Children.map(
+      children, 
+      (child: React.ReactNode) => 
+        child?.props?.description
+    )?.filter(Boolean)?.length
+    return (numberOfOptionsWithDescriptions || 0) > 0;
+  }, [children]);
+
   return (
     <ComboboxContext.Provider
       value={{
@@ -1202,6 +1230,13 @@ export function Combobox<M extends boolean>({
         chipTruncationLocation,
         chipCharacterLimit,
         inputValue,
+        // When we open the menu (popover), we want the width of
+        // menu options to be same as the size of the input by default.
+        // If user has specifed a description with the option, we want
+        // the width of the option display value to be the same as the
+        // width of the input and the accomodate the description
+        // in rest of the popover width.
+        searchInputSize: popoverMenuWidth,
       }}
     >
       <div className={cx(comboboxParentStyle(size), className)} {...rest}>
@@ -1301,7 +1336,7 @@ export function Combobox<M extends boolean>({
           labelId={labelId}
           refEl={comboboxRef}
           ref={menuRef}
-          menuWidth={menuWidth}
+          className={popoverMenuStyles(popoverMenuWidth, isAnyOptionWithDescription)}
           searchLoadingMessage={searchLoadingMessage}
           searchErrorMessage={searchErrorMessage}
           searchEmptyMessage={searchEmptyMessage}

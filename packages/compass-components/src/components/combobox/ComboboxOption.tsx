@@ -25,8 +25,9 @@ import { wrapJSX } from './utils';
 const comboboxOptionBaseStyle = css`
   position: relative;
   display: flex;
+  flex: 1;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   list-style: none;
   color: inherit;
   cursor: pointer;
@@ -46,6 +47,16 @@ const comboboxOptionBaseStyle = css`
     transition: 200ms ease-in-out;
     transition-property: transform, background-color;
   }
+`;
+
+const optionNameStyles = (width: number) => css`
+  max-width: ${width}px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  margin-right: ${spacing[2]}px;
 `;
 
 const comboboxOptionThemeStyle: Record<Theme, string> = {
@@ -181,10 +192,11 @@ const InternalComboboxOption = React.forwardRef<
       disabled,
       setSelected,
       className,
+      description,
     }: InternalComboboxOptionProps,
     forwardedRef,
   ) => {
-    const { multiselect, darkMode, theme, withIcons, inputValue, size } =
+    const { multiselect, darkMode, theme, withIcons, inputValue, size, searchInputSize } =
       useContext(ComboboxContext);
     const optionTextId = useIdAllocator({ prefix: 'combobox-option-text' });
     const optionRef = useForwardedRef(forwardedRef, null);
@@ -196,13 +208,7 @@ const InternalComboboxOption = React.forwardRef<
         // the keyDown event does not actually fire on the option element
         e.stopPropagation();
 
-        // If user clicked on the option, or the checkbox
-        // Ignore extra click events on the checkbox wrapper
-        if (
-          !disabled &&
-          (e.target === optionRef.current ||
-            (e.target as Element).tagName === 'INPUT')
-        ) {
+        if (!disabled) {
           setSelected();
         }
       },
@@ -243,13 +249,16 @@ const InternalComboboxOption = React.forwardRef<
 
         return (
           <>
-            <span className={cx(flexSpan, disallowPointer)}>
-              {withIcons ? renderedIcon : checkbox}
-              <span id={optionTextId} className={displayNameStyle(isSelected)}>
-                {wrapJSX(displayName, inputValue, 'strong')}
+            <span className={optionNameStyles(searchInputSize)}>
+              <span className={cx(flexSpan, disallowPointer)}>
+                {withIcons ? renderedIcon : checkbox}
+                <span id={optionTextId} className={displayNameStyle(isSelected)}>
+                  {wrapJSX(displayName, inputValue, 'strong')}
+                </span>
               </span>
+              {withIcons && checkbox}
             </span>
-            {withIcons && checkbox}
+            {description && <span>{description}</span>}
           </>
         );
       }
@@ -257,19 +266,22 @@ const InternalComboboxOption = React.forwardRef<
       // Single select
       return (
         <>
-          <span className={cx(flexSpan, disallowPointer)}>
-            {renderedIcon}
-            <span className={displayNameStyle(isSelected)}>
-              {wrapJSX(displayName, inputValue, 'strong')}
+          <span className={optionNameStyles(searchInputSize)}>
+            <span className={cx(flexSpan, disallowPointer)}>
+              {renderedIcon}
+              <span className={displayNameStyle(isSelected)}>
+                {wrapJSX(displayName, inputValue, 'strong')}
+              </span>
             </span>
+            {isSelected && (
+              <Icon
+                glyph="Checkmark"
+                className={checkIconStyle[size]}
+                color={darkMode ? palette.blue.light1 : palette.blue.base}
+              />
+            )}
           </span>
-          {isSelected && (
-            <Icon
-              glyph="Checkmark"
-              className={checkIconStyle[size]}
-              color={darkMode ? palette.blue.light1 : palette.blue.base}
-            />
-          )}
+          {description && <span>{description}</span>}
         </>
       );
     }, [

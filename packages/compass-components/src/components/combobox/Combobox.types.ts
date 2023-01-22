@@ -306,6 +306,11 @@ interface BaseComboboxOptionProps {
    * Styling Prop
    */
   className?: string;
+
+  /**
+   * A description for the option.
+   */ 
+  description?: string;
 }
 
 export type ComboboxOptionProps = Either<
@@ -318,6 +323,7 @@ export interface OptionObject {
   displayName: string;
   isDisabled: boolean;
   hasGlyph?: boolean;
+  description?: string;
 }
 
 export interface InternalComboboxOptionProps {
@@ -330,6 +336,7 @@ export interface InternalComboboxOptionProps {
   glyph?: ReactElement;
   className?: string;
   index: number;
+  description?: string;
 }
 
 /**

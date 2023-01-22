@@ -23,8 +23,7 @@ export const menuItemHeight = {
  * Menu styles
  */
 
-export const popoverStyle = (width = 384) => css`
-  width: ${width}px;
+export const popoverStyle = css`
   overflow: hidden;
   border-radius: 12px;
   border: 1px solid;

@@ -22,6 +22,7 @@ interface ComboboxData {
   chipTruncationLocation?: TruncationLocation;
   chipCharacterLimit?: number;
   inputValue?: string;
+  searchInputSize: number;
 }
 
 export const ComboboxContext = createContext<ComboboxData>({
@@ -34,4 +35,5 @@ export const ComboboxContext = createContext<ComboboxData>({
   isOpen: false,
   state: State.none,
   searchState: SearchState.unset,
+  searchInputSize: 384,
 });

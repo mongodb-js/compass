@@ -27,7 +27,6 @@ type ComboboxMenuProps = {
   refEl: React.RefObject<HTMLDivElement>;
   id: string;
   labelId: string;
-  menuWidth: number;
 } & Pick<
   ComboboxProps<any>,
   | 'searchLoadingMessage'
@@ -38,6 +37,7 @@ type ComboboxMenuProps = {
   | 'portalContainer'
   | 'scrollContainer'
   | 'popoverZIndex'
+  | 'className'
 >;
 
 export const ComboboxMenu = React.forwardRef<HTMLDivElement, ComboboxMenuProps>(
@@ -47,10 +47,10 @@ export const ComboboxMenu = React.forwardRef<HTMLDivElement, ComboboxMenuProps>(
       id,
       refEl,
       labelId,
-      menuWidth,
       searchLoadingMessage,
       searchErrorMessage,
       searchEmptyMessage,
+      className,
       ...popoverProps
     }: ComboboxMenuProps,
     forwardedRef,
@@ -135,7 +135,7 @@ export const ComboboxMenu = React.forwardRef<HTMLDivElement, ComboboxMenuProps>(
         justify="middle"
         refEl={refEl}
         adjustOnMutation={true}
-        className={cx(popoverStyle(menuWidth), popoverThemeStyle[theme])}
+        className={cx(className, popoverStyle, popoverThemeStyle[theme])}
         {...popoverProps}
       >
         <div
