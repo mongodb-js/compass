@@ -1,0 +1,14 @@
+mixed,notes
+0,int32
+1.2,double
+12345,int32
+01234,???
+0xff,???
+00fa36,???
+-567,int32
+Hello,string
+"Hello World",string
+2023-01-04T16:22:59.453Z,date
+5c45bf2447de2b5c9979bb98,objectId
+ObjectId(63b5a7e34e370b56b5ec6012),objectId
+123456789123456789,long

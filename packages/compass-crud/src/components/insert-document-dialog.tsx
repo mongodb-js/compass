@@ -48,7 +48,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   insertMany: () => void;
   isOpen: boolean;
   message: string;
-  mode: 'progress' | 'error';
+  mode: 'modifying' | 'error';
   version: string;
   updateJsonDoc: (value: string | null) => void;
   jsonDoc: string;
@@ -61,8 +61,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
 };
 
 type InsertDocumentDialogState = {
-  message: string;
-  mode: 'progress' | 'error';
+  insertInProgress: boolean;
 };
 
 /**
@@ -81,39 +80,31 @@ class InsertDocumentDialog extends React.PureComponent<
    */
   constructor(props: InsertDocumentDialogProps) {
     super(props);
-    this.state = { message: this.props.message, mode: this.props.mode };
+    this.state = { insertInProgress: false };
     this.invalidElements = [];
   }
 
   /**
-   * Handle the property updates and subscriptions to the document.
+   * Handle subscriptions to the document.
    *
-   * @param {Object} nextProps - The new properties.
+   * @param {Object} prevProps - The previous properties.
    */
-  // TODO: COMPASS-5847 Remove deprecated react function usage.
-  UNSAFE_componentWillReceiveProps(nextProps: InsertDocumentDialogProps) {
-    const isMany = this.hasManyDocuments();
-
-    if (!isMany) {
-      // When switching to Hadron Document View - reset the invalid elements list, which contains the
-      // uuids of each element that current has BSON type cast errors.
-      //
-      // Subscribe to the validation errors for BSON types on the document.
-      if (nextProps.isOpen && this.props.jsonView && !nextProps.jsonView) {
+  componentDidUpdate(
+    prevProps: InsertDocumentDialogProps,
+    state: InsertDocumentDialogState
+  ) {
+    if (this.props.isOpen && !this.hasManyDocuments()) {
+      if (prevProps.jsonView && !this.props.jsonView) {
+        // When switching to Hadron Document View.
+        // Reset the invalid elements list, which contains the
+        // uuids of each element that has BSON type cast errors.
         this.invalidElements = [];
-        nextProps.doc.on(Element.Events.Invalid, this.handleInvalid);
-        nextProps.doc.on(Element.Events.Valid, this.handleValid);
-        // Closing the modal or switching back to jsonView.
-        //
-        // Remove the listeners to the BSON type validation errors in order to
-        // clean up properly.
-      } else if (
-        (!nextProps.isOpen && this.props.isOpen && !this.props.jsonView) ||
-        (nextProps.isOpen &&
-          this.props.isOpen &&
-          !this.props.jsonView &&
-          nextProps.jsonView)
-      ) {
+        // Subscribe to the validation errors for BSON types on the document.
+        this.props.doc.on(Element.Events.Invalid, this.handleInvalid);
+        this.props.doc.on(Element.Events.Valid, this.handleValid);
+      } else {
+        // When switching to JSON View.
+        // Remove the listeners to the BSON type validation errors in order to clean up properly.
         this.props.doc.removeListener(
           Element.Events.Invalid,
           this.handleInvalid
@@ -121,7 +112,19 @@ class InsertDocumentDialog extends React.PureComponent<
         this.props.doc.removeListener(Element.Events.Valid, this.handleValid);
       }
     }
-    this.setState({ message: nextProps.message, mode: nextProps.mode });
+
+    if (state.insertInProgress) {
+      this.setState({ insertInProgress: false });
+    }
+  }
+
+  componentWillUnount() {
+    if (!this.hasManyDocuments()) {
+      // When closing the modal.
+      // Remove the listeners to the BSON type validation errors in order to clean up properly.
+      this.props.doc.removeListener(Element.Events.Invalid, this.handleInvalid);
+      this.props.doc.removeListener(Element.Events.Valid, this.handleValid);
+    }
   }
 
   /**
@@ -152,7 +155,7 @@ class InsertDocumentDialog extends React.PureComponent<
    * Handle the insert.
    */
   handleInsert() {
-    this.setState({ message: 'Inserting Document', mode: 'progress' });
+    this.setState({ insertInProgress: true });
     if (this.hasManyDocuments()) {
       this.props.insertMany();
     } else {
@@ -254,11 +257,15 @@ class InsertDocumentDialog extends React.PureComponent<
    */
   render() {
     const currentView = this.props.jsonView ? 'JSON' : 'List';
+    const variant = this.state.insertInProgress ? 'info' : 'danger';
 
-    const message = this.hasErrors()
-      ? INSERT_INVALID_MESSAGE
-      : this.state.message;
-    const variant = this.state.mode === 'progress' ? 'info' : 'danger';
+    let message = this.props.message;
+    if (this.hasErrors()) {
+      message = INSERT_INVALID_MESSAGE;
+    }
+    if (this.state.insertInProgress) {
+      message = 'Inserting Document';
+    }
 
     return (
       <FormModal
