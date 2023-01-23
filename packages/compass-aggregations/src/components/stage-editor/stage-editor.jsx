@@ -25,7 +25,6 @@ const editorContainerStyles = css({
 const editorStyles = css({
   flexShrink: 0,
   margin: 0,
-  padding: `${spacing[2]}px 0 ${spacing[2]}px 0`,
   width: '100%',
   minHeight: '200px'
 });
@@ -62,6 +61,7 @@ class UnthemedStageEditor extends PureComponent {
     syntaxError: PropTypes.object,
     serverError: PropTypes.object,
     num_stages: PropTypes.number.isRequired,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
@@ -193,7 +193,7 @@ class UnthemedStageEditor extends PureComponent {
    */
   render() {
     return (
-      <div className={cx(editorContainerStyles, this.props.darkMode ? editorContainerStylesDark : editorContainerStylesLight)}>
+      <div className={cx(editorContainerStyles, this.props.darkMode ? editorContainerStylesDark : editorContainerStylesLight, this.props.className)}>
         <div className={editorStyles}>
           <Editor
             text={this.props.stageValue}

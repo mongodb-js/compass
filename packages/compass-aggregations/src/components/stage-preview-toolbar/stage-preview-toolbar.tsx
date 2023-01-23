@@ -6,7 +6,7 @@ import { usePreference } from 'compass-preferences-model';
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
 import { hasSyntaxError } from '../../utils/stage';
-import { focusModeEnabled } from '../../modules/focus-mode';
+import { enableFocusMode } from '../../modules/focus-mode';
 
 const toolbarStyles = css({
   width: '100%',
@@ -189,5 +189,5 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     ...stageInfo
   };
 }, {
-  onFocusMode: focusModeEnabled
+  onFocusMode: enableFocusMode
 })(StagePreviewToolbar);

@@ -17,6 +17,7 @@ const renderFocusMode = (
     })}>
       <FocusMode
         isModalOpen={true}
+        isAutoPreviewEnabled={true}
         onCloseModal={() => {}}
         {...props}
       />

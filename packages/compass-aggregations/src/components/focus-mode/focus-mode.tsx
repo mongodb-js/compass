@@ -5,11 +5,12 @@ import {
   css,
   spacing,
   palette,
+  cx,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import type { RootState } from '../../modules';
-import { focusModeDisabled } from '../../modules/focus-mode';
+import { disableFocusMode } from '../../modules/focus-mode';
 import FocusModeStageEditor from './focus-mode-stage-editor';
 import { FocusModeStageInput, FocusModeStageOutput } from './focus-mode-stage-preview';
 
@@ -65,13 +66,19 @@ const editorAreaStyles = css({
   backgroundColor: palette.gray.light3,
 });
 
+const editorAreaExpanded = css({
+  width: '100%',
+})
+
 type FocusModeProps = {
   isModalOpen: boolean;
+  isAutoPreviewEnabled: boolean;
   onCloseModal: () => void;
 };
 
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
+  isAutoPreviewEnabled,
   onCloseModal,
 }) => {
   return (
@@ -86,15 +93,25 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
           <Body>Focus Mode (in progress feature)</Body>
         </div>
         <div className={bodyStyles}>
-          <div className={previewAreaStyles} data-testid="stage-input">
-            <FocusModeStageInput />
-          </div>
-          <div className={editorAreaStyles} data-testid="stage-editor">
+          {isAutoPreviewEnabled && (
+            <div className={previewAreaStyles} data-testid="stage-input">
+              <FocusModeStageInput />
+            </div>
+          )}
+          <div
+            className={cx(
+              editorAreaStyles,
+              !isAutoPreviewEnabled && editorAreaExpanded
+            )}
+            data-testid="stage-editor"
+          >
             <FocusModeStageEditor />
           </div>
-          <div className={previewAreaStyles} data-testid="stage-output">
-            <FocusModeStageOutput />
-          </div>
+          {isAutoPreviewEnabled && (
+            <div className={previewAreaStyles} data-testid="stage-output">
+              <FocusModeStageOutput />
+            </div>
+          )}
         </div>
       </div>
     </Modal>
@@ -103,11 +120,13 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
 
 const mapState = ({
   focusMode: { isEnabled },
+  autoPreview,
 }: RootState) => ({
   isModalOpen: isEnabled,
+  isAutoPreviewEnabled: autoPreview,
 });
 
 const mapDispatch = {
-  onCloseModal: focusModeDisabled
+  onCloseModal: disableFocusMode
 };
 export default connect(mapState, mapDispatch)(FocusMode);
