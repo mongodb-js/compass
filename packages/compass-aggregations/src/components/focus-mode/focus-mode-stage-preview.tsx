@@ -53,6 +53,12 @@ const pipelineOutputMenuStyles = css({
   marginLeft: 'auto',
 });
 
+const loaderStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+});
+
 type FocusModePreviewProps = {
   title: string;
   isLoading?: boolean;
@@ -105,7 +111,10 @@ export const FocusModePreview = ({
   } else if (isLoading) {
     content = (
       <div className={centerStyles}>
-        <SpinLoader title='Loading' />
+        <div className={loaderStyles}>
+          <SpinLoader title='Loading' />
+          Loading Preview Documents... 
+        </div>
       </div>
     );
   } else if (documents && documents.length > 0) {

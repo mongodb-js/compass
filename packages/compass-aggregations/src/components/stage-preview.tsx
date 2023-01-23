@@ -85,75 +85,61 @@ const documentStyles = css({
 
 
 type StagePreviewProps = {
-  index: number,
-  stageOperator: string,
-  stageValue: string | null,
-  isEnabled: boolean,
-  isValid: boolean,
-  isLoading: boolean,
+  index: number;
+  isLoading: boolean;
+  isMissingAtlasOnlyStageSupport: boolean;
+  stageOperator: string;
   documents: DocumentType[] | null;
-  isComplete: boolean,
-  hasServerError: boolean,
-  isAtlasDeployed: boolean,
-  isMissingAtlasOnlyStageSupport: boolean
+  shouldRenderStage: boolean;
 };
 
 function StagePreviewBody({
   index,
   stageOperator,
-  stageValue,
-  isEnabled,
-  isValid,
-  isLoading,
   documents,
-  isMissingAtlasOnlyStageSupport
+  isMissingAtlasOnlyStageSupport,
+  shouldRenderStage,
+  isLoading,
 }: StagePreviewProps) {
+  if (!shouldRenderStage) {
+    return <EmptyIcon />;
+  }
+
   if (isMissingAtlasOnlyStageSupport) {
     return <AtlasOnlySection stageOperator={stageOperator} />;
   }
 
-  if (isValid && isEnabled && stageValue) {
-    if (stageOperator === '$out') {
-      return <OutStagePreivew index={index}/>
-    }
-
-    if (stageOperator === '$merge') {
-      return <MergeStagePreivew index={index} />
-    }
-
-    if (documents && documents.length > 0) {
-      const docs = documents.map((doc, i) => {
-        return (
-          <KeylineCard key={i} className={documentContainerStyles}>
-            <div className={documentStyles}>
-              <Document doc={doc} editable={false}  />
-            </div>
-          </KeylineCard>
-        );
-      });
-      return (
-        <div className={documentsStyles}>
-          {docs}
-        </div>
-      );
-    }
+  // $out renders its own loader
+  if (stageOperator === '$out') {
+    return <OutStagePreivew index={index}/>
+  }
+  // $merge renders its own loader
+  if (stageOperator === '$merge') {
+    return <MergeStagePreivew index={index} />
   }
 
   if (isLoading) {
-    // Don't render the empty state when loading.
-    return null;
+    return <LoadingOverlay text="Loading Preview Documents..." />;
   }
 
-  return (
-    <EmptyIcon />
-  );
-}
+  if (documents && documents.length > 0) {
+    const docs = documents.map((doc, i) => {
+      return (
+        <KeylineCard key={i} className={documentContainerStyles}>
+          <div className={documentStyles}>
+            <Document doc={doc} editable={false}  />
+          </div>
+        </KeylineCard>
+      );
+    });
+    return (
+      <div className={documentsStyles}>
+        {docs}
+      </div>
+    );
+  }
 
-function LoadingIndicator({ stageOperator }: { stageOperator: string}) {
-    if (['$out', '$merge'].includes(stageOperator)) {
-      return (<LoadingOverlay text="Persisting Documents..." />);
-    }
-    return (<LoadingOverlay text="Loading Preview Documents..." />);
+  return <EmptyIcon />;
 }
 
 const stagePreviewStyles = css({
@@ -167,10 +153,8 @@ const stagePreviewStyles = css({
 
 // exported for tests
 export function StagePreview(props: StagePreviewProps) {
-  const { isLoading, stageOperator } = props;
   return (
     <div className={stagePreviewStyles}>
-      {isLoading && stageOperator && <LoadingIndicator stageOperator={stageOperator} />}
       <StagePreviewBody {...props} />
     </div>
   );
@@ -179,23 +163,23 @@ export function StagePreview(props: StagePreviewProps) {
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
     const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-    const isComplete =
-      Boolean(!stage.loading && !stage.serverError && stage.previewDocs);
     const isMissingAtlasOnlyStageSupport = state.env && stage.serverError && isMissingAtlasStageSupport(
       state.env,
       stage.serverError
     );
 
+    const shouldRenderStage = Boolean(
+      !stage.disabled
+      && !stage.syntaxError
+      && !stage.syntaxError
+      && stage.value
+    );
+
     return {
-      stageOperator: stage.stageOperator as string,
-      stageValue: stage.value,
-      isEnabled: !stage.disabled,
-      isValid: !stage.serverError && !stage.syntaxError,
       isLoading: stage.loading,
+      stageOperator: stage.stageOperator as string,
+      shouldRenderStage,
       documents: stage.previewDocs,
-      hasServerError: !!stage.serverError,
-      isAtlasDeployed: state.isAtlasDeployed,
-      isComplete,
       isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
     };
   })(StagePreview);

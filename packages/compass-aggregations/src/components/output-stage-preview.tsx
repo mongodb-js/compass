@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { css, spacing, Body, Link, Button } from '@mongodb-js/compass-components';
+import { css, spacing, Body, Link, Button, SpinLoader } from '@mongodb-js/compass-components';
 import type { AnyAction } from "redux";
 import type { ThunkDispatch } from "redux-thunk";
 
@@ -38,108 +38,155 @@ const stagePreviewOutLinkStyles = css({
   background: 'none',
 });
 
+const loaderStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+});
+
 type OutputStageProps = {
-  isComplete: boolean;
+  isLoading: boolean;
   hasServerError: boolean;
+  isFinishedPersistingDocuments: boolean;
   isAtlasDeployed: boolean;
   destinationNamespace: string;
   onRunOutputStage: () => void;
   onGoToOutputResults: () => void;
 };
 
-const MergeStage = ({
-  isComplete,
+const documentsPersistedText = (destination: string | null) => {
+  const location = destination
+    ? `collection: ${destination}`
+    : `specified collection`;
+  return `Documents persisted to ${location}`;
+}
+
+const Loader = ({
+  destinationNamespace,
+}: {
+  destinationNamespace: string | null;
+}) => {
+  return (
+    <div className={stagePreviewOutStyles}>
+      <div className={loaderStyles}>
+        <SpinLoader />
+        Persisting Documents {
+          destinationNamespace
+          ? `to ${destinationNamespace}`
+          : '...'
+        }
+      </div>
+    </div>
+  )
+};
+
+export const MergeStage = ({
+  isLoading,
   hasServerError,
+  isFinishedPersistingDocuments,
   isAtlasDeployed,
   destinationNamespace,
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
 
-  if (!isComplete) {
+  if (isLoading) {
+    return <Loader destinationNamespace={destinationNamespace} />;
+  }
+
+  // Stage editor show the error message.
+  if (hasServerError) {
+    return null;
+  }
+
+  if (isFinishedPersistingDocuments) {
     return (
       <div className={stagePreviewOutStyles}>
-        <div className={stagePreviewOutTextStyles}>
-          {MERGE_STAGE_PREVIEW_TEXT}
-        </div>
-        {isAtlasDeployed && (
-          <Button
-            variant="primary"
-            data-testid="save-merge-documents"
-            onClick={onRunOutputStage}
-          >
-            Merge documents
-          </Button>
-        )}
+        <Body className={stagePreviewOutTextStyles}>
+          {documentsPersistedText(destinationNamespace)}
+        </Body>
+        <Link
+          data-testid="go-to-merge-collection"
+          as="button"
+          className={stagePreviewOutLinkStyles}
+          onClick={onGoToOutputResults}
+        >
+          Go to collection.
+        </Link>
       </div>
     );
   }
 
-  if (hasServerError) {
-    return (<div className={stagePreviewOutStyles} />);
-  }
-
   return (
     <div className={stagePreviewOutStyles}>
-      <Body className={stagePreviewOutTextStyles}>
-        Documents persisted to collection: {destinationNamespace}.
-      </Body>
-      <Link
-        data-testid="go-to-merge-collection"
-        as="button"
-        className={stagePreviewOutLinkStyles}
-        onClick={onGoToOutputResults}
-      >
-        Go to collection.
-      </Link>
+      <div className={stagePreviewOutTextStyles}>
+        {MERGE_STAGE_PREVIEW_TEXT}
+      </div>
+      {isAtlasDeployed && (
+        <Button
+          variant="primary"
+          data-testid="save-merge-documents"
+          onClick={onRunOutputStage}
+        >
+          Merge documents
+        </Button>
+      )}
     </div>
   );
 }
 
-const OutStage = ({
-  isComplete,
+export const OutStage = ({
+  isLoading,
   hasServerError,
+  isFinishedPersistingDocuments,
   isAtlasDeployed,
   destinationNamespace,
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
-  if (!isComplete) {
-    return (
-      <Body as="div" className={stagePreviewOutStyles}>
-        <Body className={stagePreviewOutTextStyles}>
-          {OUT_STAGE_PREVIEW_TEXT}
-        </Body>
-        {isAtlasDeployed && (
-          <Button
-            variant="primary"
-            data-testid="save-out-documents"
-            onClick={onRunOutputStage}
-          >
-            Save documents
-          </Button>
-        )}
-      </Body>
-    );
+
+  if (isLoading) {
+    return <Loader destinationNamespace={destinationNamespace} />;
   }
+
+  // Stage editor show the error message.
   if (hasServerError) {
-    return (<div className={stagePreviewOutStyles} />);
+    return null;
+  }
+
+  if (isFinishedPersistingDocuments) {
+    return (
+      <div className={stagePreviewOutStyles}>
+        <Body className={stagePreviewOutTextStyles}>
+          {documentsPersistedText(destinationNamespace)}
+        </Body>
+        <Link
+          data-testid="go-to-out-collection"
+          as="button"
+          className={stagePreviewOutLinkStyles}
+          onClick={onGoToOutputResults}
+        >
+          Go to collection.
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <div className={stagePreviewOutStyles}>
+    <Body as="div" className={stagePreviewOutStyles}>
       <Body className={stagePreviewOutTextStyles}>
-        Documents persisted to collection: {destinationNamespace}.
+        {OUT_STAGE_PREVIEW_TEXT}
       </Body>
-      <Link
-        data-testid="go-to-out-collection"
-        as="button"
-        className={stagePreviewOutLinkStyles}
-        onClick={onGoToOutputResults}
-      >
-        Go to collection.
-      </Link>
-    </div>
+      {isAtlasDeployed && (
+        <Button
+          variant="primary"
+          data-testid="save-out-documents"
+          onClick={onRunOutputStage}
+        >
+          Save documents
+        </Button>
+      )}
+    </Body>
   );
 }
 
@@ -149,9 +196,6 @@ type OwnProps = {
 
 const mapState = (state: RootState, ownProps: OwnProps) => {
   const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-  const isComplete =
-    Boolean(!stage.loading && !stage.serverError && stage.previewDocs);
-
   const destinationNamespace = getDestinationNamespaceFromStage(
     state.namespace,
     parseShellBSON(`{
@@ -160,8 +204,9 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
   );
 
   return {
-    isComplete,
+    isLoading: stage.loading,
     hasServerError: !!stage.serverError,
+    isFinishedPersistingDocuments: Boolean(stage.previewDocs),
     isAtlasDeployed: state.isAtlasDeployed,
     destinationNamespace,
   };
