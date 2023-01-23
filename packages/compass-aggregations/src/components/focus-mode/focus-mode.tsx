@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Modal,
-  Body,
   css,
   spacing,
   palette,
@@ -13,6 +12,7 @@ import type { RootState } from '../../modules';
 import { disableFocusMode } from '../../modules/focus-mode';
 import FocusModeStageEditor from './focus-mode-stage-editor';
 import { FocusModeStageInput, FocusModeStageOutput } from './focus-mode-stage-preview';
+import FocusModeModalHeader from './focus-mode-modal-header';
 
 // These styles make the modal occupy the whole screen,
 // with 18px of padding - because that's the
@@ -46,6 +46,7 @@ const containerStyles = css({
 
 const headerStyles = css({
   borderBottom: `1px solid ${palette.gray.light2}`,
+  paddingBottom: spacing[2],
 });
 
 const bodyStyles = css({
@@ -90,7 +91,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
     >
       <div className={containerStyles}>
         <div className={headerStyles}>
-          <Body>Focus Mode (in progress feature)</Body>
+          <FocusModeModalHeader></FocusModeModalHeader>
         </div>
         <div className={bodyStyles}>
           {isAutoPreviewEnabled && (
