@@ -1,8 +1,12 @@
-import type { AnyAction } from "redux";
+import type { AnyAction } from 'redux';
+import type { PipelineBuilderThunkAction } from '.';
+import { isAction } from '../utils/is-action';
+import { addStage } from './pipeline-builder/stage-editor';
 
 enum ActionTypes {
   FocusModeEnabled = 'compass-aggregations/focusModeEnabled',
   FocusModeDisabled = 'compass-aggregations/focusModeDisabled',
+  SelectFocusModeStage = 'compass-aggregations/selectFocusModeStage',
 }
 
 type FocusModeEnabledAction = {
@@ -12,6 +16,11 @@ type FocusModeEnabledAction = {
 
 type FocusModeDisabledAction = {
   type: ActionTypes.FocusModeDisabled;
+};
+
+type SelectFocusModeStageAction = {
+  type: ActionTypes.SelectFocusModeStage;
+  index: number;
 };
 
 type State = {
@@ -37,6 +46,17 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): State
       stageIndex: -1,
     }
   }
+  if (
+    isAction<SelectFocusModeStageAction>(
+      action,
+      ActionTypes.SelectFocusModeStage
+    )
+  ) {
+    return {
+      ...state,
+      stageIndex: action.index
+    };
+  }
   return state;
 }
 
@@ -50,3 +70,19 @@ export const enableFocusMode = (
 export const disableFocusMode = (): FocusModeDisabledAction => ({
   type: ActionTypes.FocusModeDisabled,
 });
+
+export const selectFocusModeStage = (index: number) => {
+  return {
+    type: ActionTypes.SelectFocusModeStage,
+    index
+  };
+};
+
+export const addStageInFocusMode = (
+  index: number
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch) => {
+    dispatch(addStage(index));
+    dispatch(selectFocusModeStage(index + 1));
+  };
+};
