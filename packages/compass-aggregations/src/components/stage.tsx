@@ -48,6 +48,11 @@ const stagePreviewContainerStyles = css({
   overflow: 'auto'
 });
 
+const stageEditorContainerStyles = css({
+  paddingTop: spacing[2],
+  paddingBottom: spacing[2],
+});
+
 const RESIZABLE_DIRECTIONS = {
   top: false,
   right: true,
@@ -75,7 +80,7 @@ function ResizableEditor({ id, index, isExpanded, isAutoPreviewing, ...props }: 
       </div>
       {isExpanded && (
         // @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted.
-        <StageEditor index={index} />
+        <StageEditor index={index} className={stageEditorContainerStyles}/>
       )}
     </>
   );

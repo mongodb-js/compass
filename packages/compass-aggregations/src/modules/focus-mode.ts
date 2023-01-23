@@ -40,13 +40,13 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction): State
   return state;
 }
 
-export const focusModeEnabled = (
+export const enableFocusMode = (
   stageIndex: number
 ): FocusModeEnabledAction => ({
   type: ActionTypes.FocusModeEnabled,
   stageIndex,
 });
 
-export const focusModeDisabled = (): FocusModeDisabledAction => ({
+export const disableFocusMode = (): FocusModeDisabledAction => ({
   type: ActionTypes.FocusModeDisabled,
 });
