@@ -4,10 +4,6 @@ import { connect } from 'react-redux';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 
-const toggleStyle = css({
-  marginLeft: spacing[1]
-});
-
 const ToggleStage = ({
   index,
   isEnabled,
@@ -28,7 +24,6 @@ const ToggleStage = ({
       title={TOOLTIP}
       aria-label={TOOLTIP}
       size="xsmall"
-      className={toggleStyle}
     />
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Icon, css, cx, spacing, palette, useDarkMode, IconButton } from '@mongodb-js/compass-components';
+import { Icon, Body, css, cx, spacing, palette, useDarkMode, IconButton } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -50,6 +50,7 @@ const leftStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-start',
+  gap: spacing[1],
   width: '388px', // default width of the stage editor
 });
 
@@ -61,6 +62,7 @@ const rightStyles = css({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
+  gap: spacing[1],
 });
 
 type StageToolbarProps = {
@@ -102,7 +104,7 @@ function StageToolbar({
     >
       <div className={leftStyles}>
         <StageCollapser index={index} />
-        {stageOperator && <span>Stage {index + 1}</span>}
+        {stageOperator && <Body weight='medium'>Stage {index + 1}</Body>}
         <StageOperatorSelect index={index} />
         <ToggleStage index={index} />
       </div>
