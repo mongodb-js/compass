@@ -99,7 +99,7 @@ export const FocusModePreview = ({
   } else if (isMissingAtlasOnlyStageSupport) {
     content = (
       <div className={centerStyles}>
-        <AtlasStagePreview stageOperator={stageOperator ?? ''} />;
+        <AtlasStagePreview stageOperator={stageOperator ?? ''} />
       </div>
     );
   } else if (isLoading) {

@@ -162,7 +162,7 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
   return {
     isComplete,
     hasServerError: !!stage.serverError,
-    isAtlasDeployed: true,
+    isAtlasDeployed: state.isAtlasDeployed,
     destinationNamespace,
   };
 };
