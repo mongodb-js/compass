@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { css, spacing, Body, Link, Button } from '@mongodb-js/compass-components';
-import { AnyAction } from "redux";
-import { ThunkDispatch } from "redux-thunk";
+import type { AnyAction } from "redux";
+import type { ThunkDispatch } from "redux-thunk";
 
 import type { ExtraArgs, RootState } from '../modules';
 import { gotoOutResults } from '../modules/out-results-fn';
@@ -154,7 +154,9 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
 
   const destinationNamespace = getDestinationNamespaceFromStage(
     state.namespace,
-    parseShellBSON(`{${stage.stageOperator}: ${stage.value}}`)
+    parseShellBSON(`{
+      ${stage.stageOperator as string}: ${stage.value ?? ''}
+    }`)
   );
 
   return {

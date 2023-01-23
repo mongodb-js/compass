@@ -105,7 +105,7 @@ export const FocusModePreview = ({
   } else if (isLoading) {
     content = (
       <div className={centerStyles}>
-        <SpinLoader />
+        <SpinLoader title='Loading' />
       </div>
     );
   } else if (documents && documents.length > 0) {
@@ -171,10 +171,14 @@ export const FocusModeStageInput = connect(({
     }
   }
 }: RootState) => {
+  if (stageIndex === -1) {
+    return null;
+  }
+
   const previousStage = stages
     .slice(0, stageIndex)
-    .reverse()
-    .filter(x => !x.disabled)[0];
+    .filter(x => !x.disabled)
+    .reverse()[0];
   if (!previousStage) {
     return {
       isLoading: inputDocuments.isLoading,
@@ -203,10 +207,10 @@ export const FocusModeStageOutput = connect(({
     }
   }
 }: RootState) => {
-  const stage = stages[stageIndex];
-  if (!stage) {
-    return {};
+  if (stageIndex === -1) {
+    return null;
   }
+  const stage = stages[stageIndex];
   const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
     env,
     stage.serverError
