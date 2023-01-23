@@ -4,7 +4,7 @@ import Papa from 'papaparse';
 import { createDebug } from '../utils/logger';
 import type { Delimiter } from '../utils/constants';
 
-const debug = createDebug('import-guess-filetype');
+const debug = createDebug('list-csv-fields');
 
 type ListCSVFieldsOptions = {
   input: Readable;
