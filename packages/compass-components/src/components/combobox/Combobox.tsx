@@ -1209,7 +1209,7 @@ export function Combobox<M extends boolean>({
   const isAnyOptionWithDescription = useMemo(() => {
     const numberOfOptionsWithDescriptions = React.Children.map(
       children, 
-      (child: React.ReactNode) => 
+      (child: any) => 
         child?.props?.description
     )?.filter(Boolean)?.length
     return (numberOfOptionsWithDescriptions || 0) > 0;

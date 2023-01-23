@@ -5,6 +5,7 @@ import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import { connect } from 'react-redux';
+import StageOperatorSelect from '../stage-editor-toolbar/stage-operator-select';
 
 const containerStyles = css({
   display: 'grid',
@@ -39,7 +40,7 @@ export const FocusModeStageEditor = ({
   return (
     <div className={containerStyles}>
       <div className={headerStyles}>
-        {operator ? `Stage: ${operator}` : `Add a stage from builder UI`}
+        <StageOperatorSelect index={index} />
         {link && (
           <Link
             hideExternalIcon={false}
