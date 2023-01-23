@@ -13,6 +13,9 @@ import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
+import { OutStagePreivew, MergeStagePreivew } from '../output-stage-preview';  
+import { AtlasStagePreview } from '../atlas-stage-preview';  
+import { isMissingAtlasStageSupport } from '../../utils/stage';
 
 const containerStyles = css({
   display: 'flex',
@@ -54,12 +57,18 @@ type FocusModePreviewProps = {
   title: string;
   isLoading?: boolean;
   documents?: Document[] | null;
+  stageIndex?: number;
+  stageOperator?: string | null;
+  isMissingAtlasOnlyStageSupport?: boolean;
 };
 
 export const FocusModePreview = ({
   title,
-  isLoading,
-  documents
+  isLoading = false,
+  documents = null,
+  stageIndex = -1,
+  stageOperator = '',
+  isMissingAtlasOnlyStageSupport = false,
 }: FocusModePreviewProps) => {
   const [pipelineOutputOption, setPipelineOutputOption] =
     useState<PipelineOutputOption>('collapse');
@@ -68,6 +77,58 @@ export const FocusModePreview = ({
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
+
+  const isPipelineOptionsMenuHidden = stageOperator === '$out'
+    || stageOperator === '$merge'
+    || isMissingAtlasOnlyStageSupport;
+
+  let content = null;
+
+  if (stageOperator === '$out') {
+    content = (
+      <div className={centerStyles}>
+        <OutStagePreivew index={stageIndex} />
+      </div>
+    );
+  } else if (stageOperator === '$merge') {
+    content = (
+      <div className={centerStyles}>
+        <MergeStagePreivew index={stageIndex} />
+      </div>
+    );
+  } else if (isMissingAtlasOnlyStageSupport) {
+    content = (
+      <div className={centerStyles}>
+        <AtlasStagePreview stageOperator={stageOperator ?? ''} />;
+      </div>
+    );
+  } else if (isLoading) {
+    content = (
+      <div className={centerStyles}>
+        <SpinLoader />
+      </div>
+    );
+  } else if (documents && documents.length > 0) {
+    content = (
+      <DocumentListView
+        docs={documents.map((doc) => new HadronDocument(doc))}
+        copyToClipboard={(doc: HadronDocument) => {
+          const str = doc.toEJSON();
+          void navigator.clipboard.writeText(str);
+        }}
+        isEditable={false}
+        isExpanded={isExpanded}
+        className={documentListStyles}
+      />
+    );
+  } else {
+    content = (
+      <div className={centerStyles}>
+        <Body className={messageStyles}>No preview documents</Body>
+      </div>
+    );
+  }
+
   return (
     <div className={containerStyles} data-testid='focus-mode-stage-preview'>
       <div className={headerStyles}>
@@ -80,33 +141,14 @@ export const FocusModePreview = ({
           )}
         </div>
         <div className={pipelineOutputMenuStyles}>
-          <PipelineOutputOptionsMenu
+          {!isPipelineOptionsMenuHidden && <PipelineOutputOptionsMenu
             buttonText='Options'
             option={pipelineOutputOption}
             onChangeOption={setPipelineOutputOption}
-          />
+          />}
         </div>
       </div>
-      {isLoading ? (
-        <div className={centerStyles}>
-          <SpinLoader size='24px' title='Loading' />
-        </div>
-      ) : (!documents || documents.length === 0) ? (
-        <div className={centerStyles}>
-          <Body className={messageStyles}>No preview documents</Body>
-        </div>
-      ) : (
-        <DocumentListView
-          docs={(documents ?? []).map((doc) => new HadronDocument(doc))}
-          copyToClipboard = {(doc: HadronDocument) => {
-            const str = doc.toEJSON();
-            void navigator.clipboard.writeText(str);
-          }}
-          isEditable={false}
-          isExpanded={isExpanded}
-          className={documentListStyles}
-        />
-      )}
+      {content}
     </div>
   );
 };
@@ -121,6 +163,7 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
 
 export const FocusModeStageInput = connect(({
   focusMode: { stageIndex },
+  env,
   inputDocuments,
   pipelineBuilder: {
     stageEditor: {
@@ -128,19 +171,32 @@ export const FocusModeStageInput = connect(({
     }
   }
 }: RootState) => {
-  const previousStage = stages[stageIndex - 1];
-  return previousStage
-  ? {
+  const previousStage = stages
+    .slice(0, stageIndex)
+    .reverse()
+    .filter(x => !x.disabled)[0];
+  if (!previousStage) {
+    return {
+      isLoading: inputDocuments.isLoading,
+      documents: inputDocuments.documents,
+    };
+  }
+
+  return {
     isLoading: previousStage.loading,
     documents: previousStage.previewDocs,
-  } : {
-    isLoading: inputDocuments.isLoading,
-    documents: inputDocuments.documents,
+    stageIndex: stageIndex - 1,
+    stageOperator: previousStage.stageOperator,
+    isMissingAtlasOnlyStageSupport: isMissingAtlasStageSupport(
+      env,
+      previousStage.serverError
+    )
   };
 })(InputPreview);
 
 export const FocusModeStageOutput = connect(({
   focusMode: { stageIndex },
+  env,
   pipelineBuilder: {
     stageEditor: {
       stages,
@@ -149,10 +205,17 @@ export const FocusModeStageOutput = connect(({
 }: RootState) => {
   const stage = stages[stageIndex];
   if (!stage) {
-    return null;
+    return {};
   }
+  const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
+    env,
+    stage.serverError
+  );
   return {
     isLoading: stage.loading,
     documents: stage.previewDocs,
+    stageIndex,
+    stageOperator: stage.stageOperator,
+    isMissingAtlasOnlyStageSupport,
   };
 })(OutputPreview);

@@ -1,158 +1,15 @@
 import React from 'react';
-import decomment from 'decomment';
 import { connect } from 'react-redux';
 import type { Document as DocumentType  } from 'mongodb';
-
-import { css, cx, spacing, palette, Body, Link, Button, KeylineCard, useDarkMode } from '@mongodb-js/compass-components';
+import { css, cx, spacing, palette, Body, KeylineCard, useDarkMode } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
 import type { RootState } from '../modules';
-import { gotoOutResults } from '../modules/out-results-fn';
-import { runStage } from '../modules/pipeline-builder/stage-editor';
-import {
-  isMissingAtlasStageSupport,
-  MERGE_STAGE_PREVIEW_TEXT,
-  OUT_STAGE_PREVIEW_TEXT,
-} from '../utils/stage';
+import { isMissingAtlasStageSupport } from '../utils/stage';
 
 import LoadingOverlay from './loading-overlay';
 import { AtlasStagePreview } from './atlas-stage-preview';
-
-const stagePreviewOutStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  width: '100%',
-  paddingTop: spacing[5],
-  paddingLeft: spacing[1],
-  paddingRight: spacing[1],
-  paddingBottom: spacing[2],
-});
-
-const stagePreviewOutTextStyles = css({
-  padding: `0 ${spacing[3]}px ${spacing[1]}px ${spacing[3]}px`,
-  textAlign: 'center',
-  marginBottom: spacing[2]
-});
-
-const stagePreviewOutLinkStyles = css({
-  border: 'none',
-  padding: 0,
-  margin: 0,
-  background: 'none',
-});
-
-type MergeProps = {
-  isComplete: boolean,
-  hasServerError: boolean,
-  isAtlasDeployed: boolean,
-  gotoMergeResults: () => void,
-  saveDocuments: () => void
-};
-
-function MergeSection({
-  isComplete,
-  hasServerError,
-  isAtlasDeployed,
-  gotoMergeResults,
-  saveDocuments
-}: MergeProps) {
-  if (isComplete) {
-    if (hasServerError) {
-      return (<div className={stagePreviewOutStyles} />);
-    }
-
-    return (
-      <div className={stagePreviewOutStyles}>
-        <Body className={stagePreviewOutTextStyles}>
-          Documents persisted to collection specified by $merge.
-        </Body>
-        <Link
-          data-testid="go-to-merge-collection"
-          as="button"
-          className={stagePreviewOutLinkStyles}
-          onClick={gotoMergeResults}
-        >
-          Go to collection.
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className={stagePreviewOutStyles}>
-      <div className={stagePreviewOutTextStyles}>
-        {MERGE_STAGE_PREVIEW_TEXT}
-      </div>
-      {isAtlasDeployed && (
-        <Button
-          variant="primary"
-          data-testid="save-merge-documents"
-          onClick={saveDocuments}
-        >
-          Merge documents
-        </Button>
-      )}
-    </div>
-  );
-}
-
-type OutProps = {
-  isComplete: boolean,
-  hasServerError: boolean,
-  isAtlasDeployed: boolean,
-  gotoOutResults: () => void,
-  saveDocuments: () => void,
-  stageValue: string
-};
-
-function OutSection({
-  isComplete,
-  hasServerError,
-  isAtlasDeployed,
-  gotoOutResults,
-  saveDocuments,
-  stageValue
-}: OutProps) {
-    if (isComplete) {
-      if (hasServerError) {
-        return (<div className={stagePreviewOutStyles} />);
-      }
-
-      return (
-        <div className={stagePreviewOutStyles}>
-          <Body className={stagePreviewOutTextStyles}>
-            Documents persisted to collection: {decomment(stageValue)}.
-          </Body>
-          <Link
-            data-testid="go-to-out-collection"
-            as="button"
-            className={stagePreviewOutLinkStyles}
-            onClick={gotoOutResults}
-          >
-            Go to collection.
-          </Link>
-        </div>
-      );
-    }
-
-    return (
-      <Body as="div" className={stagePreviewOutStyles}>
-        <Body className={stagePreviewOutTextStyles}>
-          {OUT_STAGE_PREVIEW_TEXT}
-        </Body>
-        {isAtlasDeployed && (
-          <Button
-            variant="primary"
-            data-testid="save-out-documents"
-            onClick={saveDocuments}
-          >
-            Save documents
-          </Button>
-        )}
-      </Body>
-    );
-}
+import { OutStagePreivew, MergeStagePreivew } from './output-stage-preview';
 
 const stagePreviewMissingSearchSupportStyles = css({
   display: 'flex',
@@ -229,9 +86,6 @@ const documentStyles = css({
 
 type StagePreviewProps = {
   index: number,
-  onRunOutStageClick: (index: number) => void,
-  onGoToOutResultsClick: (index: number) => void,
-  onGoToMergeResultsClick: (index: number) => void,
   stageOperator: string,
   stageValue: string | null,
   isEnabled: boolean,
@@ -246,56 +100,25 @@ type StagePreviewProps = {
 
 function StagePreviewBody({
   index,
-  onRunOutStageClick,
-  onGoToOutResultsClick,
-  onGoToMergeResultsClick,
   stageOperator,
   stageValue,
   isEnabled,
   isValid,
   isLoading,
   documents,
-  isComplete,
-  hasServerError,
-  isAtlasDeployed,
   isMissingAtlasOnlyStageSupport
 }: StagePreviewProps) {
-  const gotoMergeResults = () => {
-    onGoToMergeResultsClick(index);
-  };
-
-  const gotoOutResults = () => {
-    onGoToOutResultsClick(index);
-  };
-
-  const saveDocuments = () => {
-    onRunOutStageClick(index);
-  };
-
   if (isMissingAtlasOnlyStageSupport) {
     return <AtlasOnlySection stageOperator={stageOperator} />;
   }
 
   if (isValid && isEnabled && stageValue) {
     if (stageOperator === '$out') {
-      return <OutSection
-        isComplete={isComplete}
-        hasServerError={hasServerError}
-        isAtlasDeployed={isAtlasDeployed}
-        gotoOutResults={gotoOutResults}
-        saveDocuments={saveDocuments}
-        stageValue={stageValue}
-      />
+      return <OutStagePreivew index={index}/>
     }
 
     if (stageOperator === '$merge') {
-      return <MergeSection
-        isComplete={isComplete}
-        hasServerError={hasServerError}
-        isAtlasDeployed={isAtlasDeployed}
-        gotoMergeResults={gotoMergeResults}
-        saveDocuments={saveDocuments}
-      />
+      return <MergeStagePreivew index={index} />
     }
 
     if (documents && documents.length > 0) {
@@ -375,10 +198,4 @@ export default connect(
       isComplete,
       isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
     };
-  },
-  {
-    onRunOutStageClick: runStage,
-    onGoToOutResultsClick: gotoOutResults,
-    onGoToMergeResultsClick: gotoOutResults
-  }
-)(StagePreview);
+  })(StagePreview);

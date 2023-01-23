@@ -88,6 +88,10 @@ const rootReducer = combineReducers({
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
+export type ExtraArgs = {
+  pipelineBuilder: PipelineBuilder;
+  pipelineStorage: PipelineStorage;
+};
 
 export type PipelineBuilderThunkAction<
   R,
@@ -95,7 +99,7 @@ export type PipelineBuilderThunkAction<
 > = ThunkAction<
   R,
   RootState,
-  { pipelineBuilder: PipelineBuilder; pipelineStorage: PipelineStorage },
+  ExtraArgs,
   A
 >;
 
