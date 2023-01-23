@@ -12,6 +12,9 @@ const expectedDelimiters = {
   'sparse.csv': ',',
   'semicolons.csv': ';',
   'spaces.csv': ' ',
+  'array.csv': ',',
+  'object.csv': ',',
+  'complex.csv': ','
 } as const;
 
 describe('guessFileType', function () {
