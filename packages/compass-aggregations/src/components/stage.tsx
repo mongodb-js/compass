@@ -142,11 +142,12 @@ function Stage({
   isAutoPreviewing
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
-  const { setNodeRef, transform, transition } =
+  const { setNodeRef, transform, transition, isDragging } =
     useSortable({ id: id + 1 });
   const style = {
     transform: cssDndKit.Transform.toString(transform),
     transition,
+    zIndex: isDragging ? 1 : 0
   };
 
   return (

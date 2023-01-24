@@ -37,9 +37,6 @@ const pipelineWorkspaceStyles = css({
 const stageContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  '&.dragging .add-stage-button': {
-    visibility: 'hidden',
-  }
 });
 
 type PipelineBuilderUIWorkspaceProps = {
@@ -65,9 +62,9 @@ const SortableItem = ({ idx, isLastStage, onStageAddAfter, ...props }: SortableI
   return (
     <div className={stageContainerStyles}>
       <Stage index={idx} {...props}></Stage>
-      {!isLastStage && <div className='add-stage-button'>
+      {!isLastStage && 
         <AddStage onAddStage={onStageAddAfter} variant='icon' />
-      </div>}
+      }
     </div>
   );
 };

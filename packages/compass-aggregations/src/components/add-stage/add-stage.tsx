@@ -1,10 +1,8 @@
 import React from 'react';
-import { Button, IconButton, Icon, css, spacing, Link, palette } from '@mongodb-js/compass-components';
+import { Button, IconButton, Icon, css, spacing, Link } from '@mongodb-js/compass-components';
 
 const iconContainerStyles = css({
   textAlign: 'center',
-  marginTop: spacing[2],
-  marginBottom: spacing[2]
 });
 
 const buttonContainerStyles = css({
@@ -17,11 +15,6 @@ const linkContainerStyles = css({
   textAlign: 'center',
   marginTop: spacing[2],
   marginBottom: spacing[2],
-});
-
-const iconButtonStyles = css({
-  backgroundColor: palette.gray.light1,
-  color: palette.white,
 });
 
 type AddStageProps = {
@@ -38,12 +31,11 @@ export const AddStage = ({
     return (
       <div className={iconContainerStyles}>
         <IconButton
-          className={iconButtonStyles}
           aria-label="Add stage"
           title="Add stage"
           data-testid="add-stage-icon-button"
           onClick={() => onAddStage()}>
-          <Icon glyph="Plus"></Icon>
+          <Icon glyph="PlusWithCircle"></Icon>
         </IconButton>
       </div>
     );
