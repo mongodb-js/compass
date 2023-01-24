@@ -333,8 +333,8 @@ function getStageSnippet(
   const stage = ESCAPED_STAGE_OPERATORS.find((stageOp) => {
     return (
       stageOp.value === stageOperator &&
-      (stageOp.env as readonly (typeof ENVS)[number][]).includes(
-        env as (typeof ENVS)[number]
+      (stageOp.env as readonly typeof ENVS[number][]).includes(
+        env as typeof ENVS[number]
       )
     );
   });

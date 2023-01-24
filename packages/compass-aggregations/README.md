@@ -212,8 +212,7 @@ application can be listened to via [hadron-app-registry][hadron-app-registry].
 - **'open-aggregation-export-to-language', pipeline**: Indicates
   `export-to-language` plugin is to opened. `pipeline` refers to the pipeline to
   be exported.
-- **'open-create-view', { meta: { source, pipeline }}**: Indicates `Create
-View` is being opened.
+- **'open-create-view', { meta: { source, pipeline }}**: Indicates `Create View` is being opened.
 
 ### App Registry Events Received
 
@@ -225,8 +224,7 @@ View` is being opened.
   plugin's fields.
 - **'refresh-data'**: Received when Compass data was refreshed. Refreshes input
   data in the plugin.
-- **'open-create-view', { meta: { source, pipeline }}**: Received when `Create
-View` is to be opened. Opens a Create View modal.
+- **'open-create-view', { meta: { source, pipeline }}**: Received when `Create View` is to be opened. Opens a Create View modal.
 
 #### Global
 
