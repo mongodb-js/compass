@@ -9,7 +9,10 @@ import {
   switchToJSONView,
   explainStateChanged,
   explainPlanFetched,
+  startExplainPlan,
+  cancelExplainPlan,
 } from '../modules/explain';
+import explainStates from '../constants/explain-states';
 
 describe('Explain Plan Store', function () {
   let store;
@@ -109,17 +112,45 @@ describe('Explain Plan Store', function () {
       });
 
       context('when the action is EXPLAIN_STATE_CHANGED', function () {
-        const explainState = 'executed';
 
-        it('updates the view type in state to "json"', function (done) {
+        it('marks the start of explain plan"', function (done) {
+          const explainState = explainStates.REQUESTED
           const unsubscribe = store.subscribe(() => {
             unsubscribe();
             expect(store.getState().explain.explainState).to.equal(
               explainState
             );
+            expect(store.getState().explain.abortController).to.be.instanceOf(
+              AbortController
+            );
+            done();
+          });
+          store.dispatch(startExplainPlan());
+        });
+
+        it('marks the completion of explain plan', function (done) {
+          const explainState = explainStates.EXECUTED;
+          const unsubscribe = store.subscribe(() => {
+            unsubscribe();
+            expect(store.getState().explain.explainState).to.equal(
+              explainState
+            );
+            expect(store.getState().explain.abortController).to.be.null;
             done();
           });
           store.dispatch(explainStateChanged(explainState));
+        });
+
+        it('cancels the ongoing request to explain plan', function (done) {
+          const unsubscribe = store.subscribe(async () => {
+            setTimeout(() => {
+              unsubscribe();
+              expect(store.getState().explain.abortController.signal.aborted).to.be.true;
+              done();
+            });
+          });
+          store.dispatch(startExplainPlan());
+          store.dispatch(cancelExplainPlan());
         });
       });
 
@@ -127,6 +158,7 @@ describe('Explain Plan Store', function () {
         const explain = {
           error: null,
           errorParsing: false,
+          abortController: null,
           executionSuccess: true,
           executionTimeMillis: 6,
           explainState: 'executed',

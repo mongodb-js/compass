@@ -40,6 +40,7 @@ export const EXPLAIN_PLAN_FETCHED = `${PREFIX}/EXPLAIN_PLAN_FETCHED`;
 export const INITIAL_STATE = {
   explainState: EXPLAIN_STATES.INITIAL,
   viewType: EXPLAIN_VIEWS.tree,
+  abortController: null,
   error: null,
   errorParsing: false,
   executionSuccess: false,
@@ -85,15 +86,15 @@ const switchViewType = (state, action) => ({
  * @returns {Object} The new state.
  */
 const doChangeExplainPlanState = (state, action) => {
-  let explainState = '';
-
   if (action.explainState === EXPLAIN_STATES.INITIAL) {
     return INITIAL_STATE;
   }
 
-  explainState = action.explainState;
-
-  return { ...state, explainState };
+  return {
+    ...state,
+    explainState: action.explainState,
+    abortController: action.abortController
+  };
 };
 
 /**
@@ -157,9 +158,10 @@ export const switchToJSONView = () => ({
  *
  * @returns {Object} The explainState changed action.
  */
-export const explainStateChanged = (explainState) => ({
+export const explainStateChanged = (explainState, abortController = null) => ({
   type: EXPLAIN_STATE_CHANGED,
   explainState,
+  abortController
 });
 
 /**
@@ -311,6 +313,7 @@ export const fetchExplainPlan = (query) => {
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(query.maxTimeMS),
     };
     let explain = state.explain;
+    const abortSignal = explain.abortController?.signal;
 
     if (query.collation) {
       options.collation = query.collation;
@@ -326,9 +329,13 @@ export const fetchExplainPlan = (query) => {
         : 'allPlansExecution';
       const data = await dataService.explainFind(namespace, filter, options, {
         explainVerbosity,
+        abortSignal
       });
       // Reset the error.
       explain.error = null;
+
+      // Reset the abortController
+      explain.abortController = null;
 
       if (isAggregationExplainOutput(data)) {
         // Queries against time series collections are run against
@@ -387,6 +394,8 @@ export const fetchExplainPlan = (query) => {
       explain.resultId = resultId();
       explain.error = error;
       dispatch(explainPlanFetched(explain));
+    } finally {
+      dispatch(changeExplainPlanState(EXPLAIN_STATES.EXECUTED))
     }
   };
 };
@@ -403,6 +412,22 @@ export const changeExplainPlanState = (explainState) => {
     return dispatch(explainStateChanged(explainState));
   };
 };
+
+/**
+ * Sets the explain plan state to `requested`
+ */
+export const startExplainPlan = () => {
+  return (dispatch) => {
+    const abortController = new AbortController();
+    return dispatch(explainStateChanged(EXPLAIN_STATES.REQUESTED, abortController));
+  };
+};
+
+export const cancelExplainPlan = () => {
+  return (dispatch, getStore) => {
+    getStore().explain.abortController?.abort();
+  }
+}
 
 function resultId() {
   return Math.floor(Math.random() * 2 ** 53);

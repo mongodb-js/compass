@@ -6,7 +6,8 @@ import {
   switchToTreeView,
   switchToJSONView,
   fetchExplainPlan,
-  changeExplainPlanState,
+  startExplainPlan,
+  cancelExplainPlan,
   explainStateChanged,
 } from '../../modules/explain';
 import ExplainStates from '../explain-states';
@@ -58,7 +59,8 @@ const MappedExplainPlan = connect(mapStateToProps, {
   switchToTreeView,
   switchToJSONView,
   fetchExplainPlan,
-  changeExplainPlanState,
+  startExplainPlan,
+  cancelExplainPlan,
   explainStateChanged,
   queryExecuted,
 })(ExplainPlan);

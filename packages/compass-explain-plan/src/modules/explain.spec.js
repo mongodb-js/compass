@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { omit } from 'lodash';
+import explainStates from '../constants/explain-states';
 
 import reducer, {
   isAggregationExplainOutput,
@@ -16,6 +17,7 @@ import reducer, {
 const explainExample = {
   error: null,
   errorParsing: false,
+  abortController: null,
   executionSuccess: true,
   executionTimeMillis: 6,
   explainState: 'executed',
@@ -59,10 +61,33 @@ describe('explain module', function () {
 
   describe('#explainStateChanged', function () {
     it('returns the EXPLAIN_STATE_CHANGED action', function () {
-      expect(explainStateChanged('executed')).to.deep.equal({
-        type: EXPLAIN_STATE_CHANGED,
-        explainState: 'executed',
-      });
+      const expectedActions = {
+        [explainStates.INITIAL]: {
+          type: EXPLAIN_STATE_CHANGED,
+          explainState: explainStates.INITIAL,
+          abortController: null
+        },
+        [explainStates.REQUESTED]: {
+          type: EXPLAIN_STATE_CHANGED,
+          explainState: explainStates.REQUESTED,
+          abortController: new AbortController()
+        },
+        [explainStates.EXECUTED]: {
+          type: EXPLAIN_STATE_CHANGED,
+          explainState: explainStates.EXECUTED,
+          abortController: null
+        },
+        [explainStates.OUTDATED]: {
+          type: EXPLAIN_STATE_CHANGED,
+          explainState: explainStates.OUTDATED,
+          abortController: null
+        }
+      };
+
+      Object.keys(expectedActions).forEach((state) => {
+        const expectedAction = expectedActions[state];
+        expect(explainStateChanged(state, expectedAction.abortController)).to.deep.equal(expectedAction);
+      })
     });
   });
 
@@ -135,6 +160,7 @@ describe('explain module', function () {
           expect(omit(result, 'resultId')).to.deep.equal({
             explainState: 'initial',
             viewType: 'tree',
+            abortController: null,
             error: null,
             errorParsing: false,
             executionSuccess: false,
@@ -178,9 +204,11 @@ describe('explain module', function () {
 
     context('when the action is explainStateChanged', function () {
       it('returns the new state', function () {
-        const explain = reducer(undefined, explainStateChanged('initial'));
-
-        expect(explain.explainState).to.equal('initial');
+        const possibleExplainStates = ['initial', 'requested', 'executed', 'outdated'];
+        possibleExplainStates.forEach((state) => {
+          const explain = reducer(undefined, explainStateChanged(state));
+          expect(explain.explainState).to.equal(state);
+        });
       });
     });
 

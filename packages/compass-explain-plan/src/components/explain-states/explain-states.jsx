@@ -6,6 +6,8 @@ import {
   EmptyContent,
   Link,
   WorkspaceContainer,
+  css,
+  CancelLoader
 } from '@mongodb-js/compass-components';
 import { ZeroGraphic } from '../zero-graphic';
 import { ExplainBody } from '../explain-body';
@@ -20,6 +22,14 @@ import { ExplainToolbar } from '../explain-toolbar/explain-toolbar';
  */
 const DOCUMENTATION_LINK =
   'https://docs.mongodb.com/compass/master/query-plan/';
+
+
+const loaderBackdropStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  height: '100%',
+});
 
 /**
  * The ExplainStates component.
@@ -44,7 +54,8 @@ class ExplainStates extends Component {
       resultId: PropTypes.number.isRequired,
     }),
     fetchExplainPlan: PropTypes.func.isRequired,
-    changeExplainPlanState: PropTypes.func.isRequired,
+    startExplainPlan: PropTypes.func.isRequired,
+    cancelExplainPlan: PropTypes.func.isRequired,
     switchToTreeView: PropTypes.func.isRequired,
     switchToJSONView: PropTypes.func.isRequired,
     query: PropTypes.any,
@@ -67,7 +78,7 @@ class ExplainStates extends Component {
    * Executes the explain plan.
    */
   onExecuteExplainClicked() {
-    this.props.changeExplainPlanState(EXPLAIN_STATES.EXECUTED);
+    this.props.startExplainPlan();
     this.props.fetchExplainPlan(this.queryBarStore.state);
   }
 
@@ -135,29 +146,42 @@ class ExplainStates extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
+    const isExplainLoading = this.props.explain.explainState === 'requested';
     return (
-      <WorkspaceContainer
-        toolbar={
-          <ExplainToolbar
-            explainErrorMessage={this.props.explain.error?.message}
-            localAppRegistry={this.props.appRegistry.localAppRegistry}
-            onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
-            showOutdatedWarning={
-              this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
-            }
-            resultId={this.props.explain.resultId}
-            hasExplainResults={!this.checkIfZeroState()}
-            showReadonlyWarning={!this.props.isEditable}
-            switchToTreeView={this.props.switchToTreeView}
-            switchToJSONView={this.props.switchToJSONView}
-            viewType={this.props.explain.viewType}
-          />
-        }
-      >
-        {this.renderZeroState()}
-        {this.renderContent()}
-      </WorkspaceContainer>
-    );
+      isExplainLoading 
+        ? <div className={loaderBackdropStyles}>
+            <CancelLoader
+              data-testid="query-explain-cancel"
+              cancelText="Cancel"
+              onCancel={() => this.props.cancelExplainPlan()}
+              progressText="Running explain"
+            />
+          </div>
+        : (
+        <WorkspaceContainer
+          className='boys-2'
+          toolbar={
+            <ExplainToolbar
+              explainErrorMessage={this.props.explain.error?.message}
+              localAppRegistry={this.props.appRegistry.localAppRegistry}
+              onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
+              showOutdatedWarning={
+                this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
+              }
+              resultId={this.props.explain.resultId}
+              hasExplainResults={!this.checkIfZeroState()}
+              showReadonlyWarning={!this.props.isEditable}
+              switchToTreeView={this.props.switchToTreeView}
+              switchToJSONView={this.props.switchToJSONView}
+              viewType={this.props.explain.viewType}
+            />
+          }
+        >
+          {this.renderZeroState()}
+          {this.renderContent()}
+        </WorkspaceContainer>
+      )
+    )
   }
 }
 
