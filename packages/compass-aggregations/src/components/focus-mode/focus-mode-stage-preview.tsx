@@ -84,9 +84,7 @@ export const FocusModePreview = ({
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
 
-  const isPipelineOptionsMenuHidden = stageOperator === '$out'
-    || stageOperator === '$merge'
-    || isMissingAtlasOnlyStageSupport;
+  const isPipelineOptionsMenuVisible = documents && documents.length > 0;
 
   let content = null;
 
@@ -120,7 +118,7 @@ export const FocusModePreview = ({
   } else if (documents && documents.length > 0) {
     content = (
       <DocumentListView
-        docs={documents.map((doc) => new HadronDocument(doc))}
+        docs={documents}
         copyToClipboard={(doc: HadronDocument) => {
           const str = doc.toEJSON();
           void navigator.clipboard.writeText(str);
@@ -150,7 +148,7 @@ export const FocusModePreview = ({
           )}
         </div>
         <div className={pipelineOutputMenuStyles}>
-          {!isPipelineOptionsMenuHidden && <PipelineOutputOptionsMenu
+          {isPipelineOptionsMenuVisible && <PipelineOutputOptionsMenu
             buttonText='Options'
             option={pipelineOutputOption}
             onChangeOption={setPipelineOutputOption}
@@ -184,21 +182,23 @@ export const FocusModeStageInput = connect(({
     return null;
   }
 
-  const previousStage = stages
+  const previousStages = stages
     .slice(0, stageIndex)
-    .filter(x => !x.disabled)
-    .reverse()[0];
-  if (!previousStage) {
+    .filter(x => !x.disabled);
+  if (previousStages.length === 0) {
     return {
       isLoading: inputDocuments.isLoading,
       documents: inputDocuments.documents,
     };
   }
 
+  const previousStage = previousStages[previousStages.length - 1];
+  const previousStageIndex = previousStages.length - 1;
+
   return {
     isLoading: previousStage.loading,
     documents: previousStage.previewDocs,
-    stageIndex: stageIndex - 1,
+    stageIndex: previousStageIndex,
     stageOperator: previousStage.stageOperator,
     isMissingAtlasOnlyStageSupport: isMissingAtlasStageSupport(
       env,

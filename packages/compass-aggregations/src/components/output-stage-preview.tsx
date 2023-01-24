@@ -5,7 +5,7 @@ import type { AnyAction } from "redux";
 import type { ThunkDispatch } from "redux-thunk";
 
 import type { ExtraArgs, RootState } from '../modules';
-import { gotoOutResults } from '../modules/out-results-fn';
+import { viewOutResults } from '../modules/out-results-fn';
 import { runStage } from '../modules/pipeline-builder/stage-editor';
 import {
   getDestinationNamespaceFromStage,
@@ -214,7 +214,7 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
 
 const mapDispatch = (dispatch: ThunkDispatch<RootState, ExtraArgs, AnyAction>, ownProps: OwnProps) => ({
   onRunOutputStage: () => dispatch(runStage(ownProps.index)),
-  onGoToOutputResults: () => dispatch(gotoOutResults(ownProps.index)),
+  onGoToOutputResults: () => dispatch(viewOutResults(ownProps.index)),
 });
 
 export const MergeStagePreivew = connect(
