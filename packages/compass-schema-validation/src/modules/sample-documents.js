@@ -119,11 +119,7 @@ const getSampleDocuments = async (docsOptions) => {
     allowDiskUse: true,
     maxTimeMS: preferences.getPreferences().maxTimeMS,
   };
-  const { pipeline, count, namespace, dataService } = docsOptions;
-  if (count > MAX_LIMIT) {
-    pipeline.unshift({ $limit: MAX_LIMIT });
-  }
-
+  const { pipeline, namespace, dataService } = docsOptions;
   return dataService.aggregate(namespace, pipeline, aggOptions);
 };
 
@@ -154,12 +150,9 @@ export const fetchSampleDocuments = (validator, error) => {
     }
 
     try {
-      const count = await dataService.count(namespace, query);
-
       const docsOptions = {
         namespace,
-        dataService,
-        count,
+        dataService
       };
 
       const matching = await getSampleDocuments({
