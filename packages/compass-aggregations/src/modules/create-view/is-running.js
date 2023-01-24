@@ -1,7 +1,8 @@
 /**
  * Toggle is running action name.
  */
-export const TOGGLE_IS_RUNNING = 'aggregations/create-view/is-running/TOGGLE_IS_RUNNING';
+export const TOGGLE_IS_RUNNING =
+  'aggregations/create-view/is-running/TOGGLE_IS_RUNNING';
 
 export const INITIAL_STATE = false;
 
@@ -21,5 +22,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const toggleIsRunning = (isRunning) => ({
   type: TOGGLE_IS_RUNNING,
-  isRunning: isRunning
+  isRunning: isRunning,
 });

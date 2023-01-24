@@ -69,7 +69,7 @@ export class PipelineBuilder {
   }
 
   get stages() {
-    return this.isEmptySource() ? [] : this._stages
+    return this.isEmptySource() ? [] : this._stages;
   }
 
   set stages(val: typeof this._stages) {

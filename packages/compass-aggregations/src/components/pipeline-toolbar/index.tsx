@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { css, cx, spacing, palette, useDarkMode } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  palette,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import PipelineHeader from './pipeline-header';
@@ -23,14 +29,13 @@ const containerDisplayStyles = css({
   `,
 });
 
-
 const headerAndOptionsRowStyles = css({
   gridArea: 'headerAndOptionsRow',
   border: '1px solid',
   borderRadius: '6px',
   borderColor: palette.gray.light2,
   padding: `${spacing[2]}px ${spacing[2]}px ${spacing[2]}px ${spacing[3]}px`,
-  background: palette.white
+  background: palette.white,
 });
 
 const headerAndOptionsRowDarkStyles = css({
@@ -39,7 +44,7 @@ const headerAndOptionsRowDarkStyles = css({
 });
 
 const settingsRowStyles = css({
-  gridArea: 'settingsRow'
+  gridArea: 'settingsRow',
 });
 
 const optionsStyles = css({
@@ -67,10 +72,7 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
   const [isOptionsVisible, setIsOptionsVisible] = useState(false);
   return (
     <div
-      className={cx(
-        containerStyles,
-        containerDisplayStyles,
-      )}
+      className={cx(containerStyles, containerDisplayStyles)}
       data-testid="pipeline-toolbar"
     >
       <div
@@ -109,6 +111,6 @@ export const PipelineToolbar: React.FunctionComponent<PipelineToolbarProps> = ({
 };
 
 const mapState = ({ workspace }: RootState) => ({
-  isBuilderView: workspace === 'builder'
+  isBuilderView: workspace === 'builder',
 });
 export default connect(mapState)(PipelineToolbar);

@@ -27,26 +27,26 @@ export default function reducer(state = INITIAL_STATE, action: AnyAction) {
 /**
  * Action creator for set isNewPipelineConfirm events.
  */
-export const toggleNewPipelineModal = (confirm: boolean): SetConfirmNewPipelineAction => ({
+export const toggleNewPipelineModal = (
+  confirm: boolean
+): SetConfirmNewPipelineAction => ({
   type: ActionTypes.ToggleConfirmNewPipeline,
-  confirm
+  confirm,
 });
 
 /**
  * Confirm new pipeline action
  */
-export const confirmNewPipeline = (): PipelineBuilderThunkAction<void> => (
-  dispatch,
-  _getState,
-  { pipelineBuilder }
-) => {
-  pipelineBuilder.reset();
-  dispatch({
-    type: ActionTypes.NewPipelineConfirmed,
-    stages: pipelineBuilder.stages,
-    pipelineText: pipelineBuilder.source,
-    pipeline: pipelineBuilder.pipeline,
-    syntaxErrors: pipelineBuilder.syntaxError,
-  });
-  dispatch(updatePipelinePreview());
-};
+export const confirmNewPipeline =
+  (): PipelineBuilderThunkAction<void> =>
+  (dispatch, _getState, { pipelineBuilder }) => {
+    pipelineBuilder.reset();
+    dispatch({
+      type: ActionTypes.NewPipelineConfirmed,
+      stages: pipelineBuilder.stages,
+      pipelineText: pipelineBuilder.source,
+      pipeline: pipelineBuilder.pipeline,
+      syntaxErrors: pipelineBuilder.syntaxError,
+    });
+    dispatch(updatePipelinePreview());
+  };

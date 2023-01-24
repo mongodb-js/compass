@@ -28,7 +28,7 @@ const editorStyles = css({
 
 export const FocusModeStageEditor = ({
   index,
-  operator
+  operator,
 }: {
   index: number;
   operator: string | null;
@@ -42,11 +42,7 @@ export const FocusModeStageEditor = ({
       <div className={headerStyles}>
         <StageOperatorSelect index={index} />
         {link && (
-          <Link
-            hideExternalIcon={false}
-            href={link}
-            target="_blank"
-          >
+          <Link hideExternalIcon={false} href={link} target="_blank">
             Open docs
           </Link>
         )}
@@ -62,10 +58,8 @@ export const FocusModeStageEditor = ({
 const mapState = ({
   focusMode: { stageIndex },
   pipelineBuilder: {
-    stageEditor: {
-      stages,
-    }
-  }
+    stageEditor: { stages },
+  },
 }: RootState) => {
   const currentStage = stages[stageIndex];
   return {

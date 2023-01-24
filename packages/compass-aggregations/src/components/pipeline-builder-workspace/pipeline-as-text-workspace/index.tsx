@@ -1,5 +1,11 @@
 import React from 'react';
-import { css, spacing, palette, useDarkMode, cx } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  palette,
+  useDarkMode,
+  cx,
+} from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 

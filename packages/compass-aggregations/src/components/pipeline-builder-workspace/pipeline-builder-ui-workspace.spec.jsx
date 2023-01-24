@@ -5,14 +5,20 @@ import { Provider } from 'react-redux';
 import configureStore from '../../stores/store';
 import PipelineBuilderUIWorkspace from './pipeline-builder-ui-workspace';
 
-const SOURCE_PIPELINE = [{$match: {_id: 1}}, {$limit: 10}, {$out: 'out'}];
+const SOURCE_PIPELINE = [
+  { $match: { _id: 1 } },
+  { $limit: 10 },
+  { $out: 'out' },
+];
 
 const renderPipelineBuilderUIWorkspace = (props = {}, options = {}) => {
   render(
-    <Provider store={configureStore({
-      sourcePipeline: SOURCE_PIPELINE,
-      ...options
-    })}>
+    <Provider
+      store={configureStore({
+        sourcePipeline: SOURCE_PIPELINE,
+        ...options,
+      })}
+    >
       <PipelineBuilderUIWorkspace stageIds={[1, 2, 3]} {...props} />
     </Provider>
   );
@@ -48,11 +54,11 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       buttons[0].click();
 
       expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
-      
+
       const stageNames = screen
         .getAllByLabelText('Select a stage operator')
         .map((el) => el.getAttribute('value'));
-      
+
       expect(stageNames).to.deep.equal(['', '$match', '$limit', '$out']);
     });
 
@@ -61,11 +67,11 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       const buttons = screen.getAllByTestId('add-stage-icon-button');
       buttons[2].click();
       expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(4);
-      
+
       const stageNames = screen
         .getAllByLabelText('Select a stage operator')
         .map((el) => el.getAttribute('value'));
-      
+
       // last icon button appears between last two stages and when clicked
       // it adds a stage between those 2 stages
       expect(stageNames).to.deep.equal(['$match', '$limit', '', '$out']);
@@ -106,6 +112,6 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       const button = screen.getByTestId('add-stage');
       button.click();
       expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(1);
-    })
+    });
   });
 });

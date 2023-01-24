@@ -1,26 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Pipeline from '../pipeline';
-import { clonePipeline } from "../../modules/clone-pipeline";
-import {
-  saveCurrentPipeline,
-} from '../../modules/saved-pipeline';
+import { clonePipeline } from '../../modules/clone-pipeline';
+import { saveCurrentPipeline } from '../../modules/saved-pipeline';
 import {
   toggleSettingsIsExpanded,
   toggleSettingsIsCommentMode,
   setSettingsSampleSize,
   setSettingsLimit,
-  applySettings
+  applySettings,
 } from '../../modules/settings';
 import {
   savingPipelineNameChanged,
   savingPipelineApply,
   savingPipelineCancel,
-  savingPipelineOpen
+  savingPipelineOpen,
 } from '../../modules/saving-pipeline';
-import {
-  dismissViewError,
-} from '../../modules/update-view';
+import { dismissViewError } from '../../modules/update-view';
 
 import styles from './aggregations.module.less';
 
@@ -71,23 +67,20 @@ const mapStateToProps = (state) => ({
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedAggregations = connect(
-  mapStateToProps,
-  {
-    toggleSettingsIsExpanded,
-    toggleSettingsIsCommentMode,
-    setSettingsSampleSize,
-    setSettingsLimit,
-    saveCurrentPipeline,
-    clonePipeline,
-    applySettings,
-    savingPipelineNameChanged,
-    savingPipelineApply,
-    savingPipelineCancel,
-    savingPipelineOpen,
-    dismissViewError
-  }
-)(Aggregations);
+const MappedAggregations = connect(mapStateToProps, {
+  toggleSettingsIsExpanded,
+  toggleSettingsIsCommentMode,
+  setSettingsSampleSize,
+  setSettingsLimit,
+  saveCurrentPipeline,
+  clonePipeline,
+  applySettings,
+  savingPipelineNameChanged,
+  savingPipelineApply,
+  savingPipelineCancel,
+  savingPipelineOpen,
+  dismissViewError,
+})(Aggregations);
 
 export default MappedAggregations;
 export { Aggregations };

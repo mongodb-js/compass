@@ -14,9 +14,9 @@ import { mockDataService } from '../../../test/mocks/data-service';
 
 function createStore(
   pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}]`,
-  data: unknown[] | (() => unknown[]) = [],
-  ) {
-    const pipelineBuilder = Sinon.spy(
+  data: unknown[] | (() => unknown[]) = []
+) {
+  const pipelineBuilder = Sinon.spy(
     new PipelineBuilder(mockDataService({ data }), pipelineSource)
   ) as unknown as PipelineBuilder;
   const store = createReduxStore(
@@ -44,7 +44,7 @@ function createStore(
     applyMiddleware(
       thunk.withExtraArgument({
         pipelineBuilder,
-        pipelineStorage: new PipelineStorage()
+        pipelineStorage: new PipelineStorage(),
       })
     )
   );
@@ -53,7 +53,7 @@ function createStore(
     getState() {
       return store.getState().pipelineBuilder.textEditor;
     },
-    pipelineBuilder
+    pipelineBuilder,
   };
 }
 
@@ -118,16 +118,16 @@ describe('textEditorPipeline', function () {
     });
   });
 
-  describe('stale results', function() {
+  describe('stale results', function () {
     beforeEach(function () {
       store = createStore(`[{$limit: "2"}]`, () => {
         throw new Error('Wrong aggregation');
       });
     });
-    it('should set results as stale if there is a server error', async function() {
+    it('should set results as stale if there is a server error', async function () {
       await store.dispatch(loadPreviewForPipeline());
       const state = store.getState().pipeline;
       expect(state.isPreviewStale).to.equal(true);
     });
-  })
+  });
 });

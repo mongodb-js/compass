@@ -1,6 +1,6 @@
 import {
   localAppRegistryEmit,
-  globalAppRegistryEmit
+  globalAppRegistryEmit,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getPipelineStringFromBuilderState } from './pipeline-builder/builder-helpers';
 
@@ -16,16 +16,12 @@ export const exportToLanguage = () => {
       pipelineBuilder
     );
     dispatch(
-      localAppRegistryEmit(
-        'open-aggregation-export-to-language',
-        pipeline
-      )
+      localAppRegistryEmit('open-aggregation-export-to-language', pipeline)
     );
     dispatch(
-      globalAppRegistryEmit(
-        'compass:export-to-language:opened',
-        { source: 'Aggregations' }
-      )
+      globalAppRegistryEmit('compass:export-to-language:opened', {
+        source: 'Aggregations',
+      })
     );
   };
 };
