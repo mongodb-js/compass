@@ -5,6 +5,7 @@ import { KeylineCard, cx } from '@mongodb-js/compass-components';
 import type { DocumentProps } from './document';
 import Document from './document';
 import type HadronDocument from 'hadron-document';
+import type { BSONObject } from '../stores/crud-store';
 
 /**
  * The full document list container class.
@@ -22,7 +23,7 @@ const LIST_ITEM_CLASS = `${LIST_CLASS}-item`;
 const LIST_ITEM_TEST_ID = LIST_ITEM_CLASS;
 
 export type DocumentListViewProps = {
-  docs: HadronDocument[];
+  docs: (HadronDocument | BSONObject)[];
   className?: string;
   isEditable: boolean;
 } & Pick<
