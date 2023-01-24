@@ -185,10 +185,9 @@ export const FocusModeStageInput = connect(({
     .slice(0, stageIndex)
     .map((stage, index) => ({ stage, index }))
     .filter(({ stage }) => !stage.disabled)
-    .map(({ index }) => index)
-    .pop();
+    .pop()?.index ?? null;
 
-  if (!previousStageIndex) {
+  if (previousStageIndex === null) {
     return {
       isLoading: inputDocuments.isLoading,
       documents: inputDocuments.documents,
