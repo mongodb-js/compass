@@ -19,15 +19,17 @@ const StageCollapser = ({
       onClick={() => onChange(index, isExpanded)}
       title={title}
       aria-label={title}
-    ><Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'} size="small" /></IconButton>
+    >
+      <Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'} size="small" />
+    </IconButton>
   );
-}
+};
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
     return {
       isExpanded:
-        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed,
     };
   },
   { onChange: changeStageCollapsed }

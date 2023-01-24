@@ -26,13 +26,13 @@ const ToggleStage = ({
       size="xsmall"
     />
   );
-}
+};
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
     return {
       isEnabled:
-        !state.pipelineBuilder.stageEditor.stages[ownProps.index].disabled
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].disabled,
     };
   },
   { onChange: changeStageDisabled }

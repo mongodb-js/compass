@@ -1,6 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Icon, Body, css, cx, spacing, palette, useDarkMode, IconButton } from '@mongodb-js/compass-components';
+import {
+  Icon,
+  Body,
+  css,
+  cx,
+  spacing,
+  palette,
+  useDarkMode,
+  IconButton,
+} from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -23,7 +32,7 @@ const toolbarStyles = css({
   flexShrink: 0,
   flexDirection: 'row',
   justifyContent: 'space-between',
-  cursor: 'grab'
+  cursor: 'grab',
 });
 
 const collapsedToolbarStyles = css({
@@ -77,7 +86,8 @@ type StageToolbarProps = {
 };
 
 const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
-const COLLAPSED_TEXT = 'A sample of the aggregated results from this stage will be shown below.';
+const COLLAPSED_TEXT =
+  'A sample of the aggregated results from this stage will be shown below.';
 
 function StageToolbar({
   stageOperator,
@@ -86,7 +96,7 @@ function StageToolbar({
   hasServerError,
   isCollapsed,
   isDisabled,
-  onFocusModeEnableClick
+  onFocusModeEnableClick,
 }: StageToolbarProps) {
   const darkMode = useDarkMode();
   const showFocusMode = usePreference('showFocusMode', React);
@@ -104,7 +114,7 @@ function StageToolbar({
     >
       <div className={leftStyles}>
         <StageCollapser index={index} />
-        {stageOperator && <Body weight='medium'>Stage {index + 1}</Body>}
+        {stageOperator && <Body weight="medium">Stage {index + 1}</Body>}
         <StageOperatorSelect index={index} />
         <ToggleStage index={index} />
       </div>
@@ -135,7 +145,7 @@ export default connect(
       hasSyntaxError: hasSyntaxError(stage),
       hasServerError: !!stage.serverError,
       isCollapsed: stage.collapsed,
-      isDisabled: stage.disabled
+      isDisabled: stage.disabled,
     };
   },
   { onFocusModeEnableClick: enableFocusMode }

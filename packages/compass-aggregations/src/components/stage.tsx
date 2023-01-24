@@ -76,15 +76,15 @@ const RESIZABLE_DIRECTIONS = {
 
 type ResizableEditorProps = {
   id: number;
-  index: number,
-  isAutoPreviewing: boolean,
+  index: number;
+  isAutoPreviewing: boolean;
 };
 
 function ResizableEditor({ index, isAutoPreviewing }: ResizableEditorProps) {
   const editor = (
     <>
       {/* @ts-expect-error typescript is getting confused about the index prop. Requires stage-editor.jsx to be converted. */}
-      <StageEditor index={index} className={stageEditorContainerStyles}/>
+      <StageEditor index={index} className={stageEditorContainerStyles} />
     </>
   );
 
@@ -145,7 +145,9 @@ function Stage({
   isAutoPreviewing,
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
-  const { setNodeRef, transform, transition, listeners } = useSortable({ id: id + 1 });
+  const { setNodeRef, transform, transition, listeners } = useSortable({
+    id: id + 1,
+  });
 
   const style = {
     transform: cssDndKit.Transform.toString(transform),
@@ -167,14 +169,20 @@ function Stage({
         <div {...listeners}>
           <StageToolbar index={index} />
         </div>
-        {isExpanded && <div className={stageContentStyles}>
-          <ResizableEditor id={id} index={index} isAutoPreviewing={isAutoPreviewing} />
-          {isAutoPreviewing && (
-            <div className={stagePreviewContainerStyles}>
-              <StagePreview index={index} />
-            </div>
-          )}
-        </div>}
+        {isExpanded && (
+          <div className={stageContentStyles}>
+            <ResizableEditor
+              id={id}
+              index={index}
+              isAutoPreviewing={isAutoPreviewing}
+            />
+            {isAutoPreviewing && (
+              <div className={stagePreviewContainerStyles}>
+                <StagePreview index={index} />
+              </div>
+            )}
+          </div>
+        )}
       </KeylineCard>
     </div>
   );

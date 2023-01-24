@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { Menu, MenuItem, css, IconButton, Icon, palette, spacing } from '@mongodb-js/compass-components';
-import { addStage, removeStage } from '../../modules/pipeline-builder/stage-editor';
+import {
+  Menu,
+  MenuItem,
+  css,
+  IconButton,
+  Icon,
+  palette,
+  spacing,
+} from '@mongodb-js/compass-components';
+import {
+  addStage,
+  removeStage,
+} from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
 
 const menuItemStyles = css({
@@ -28,10 +39,7 @@ const OptionMenu = ({
       trigger={({ onClick, children }: any) => {
         return (
           <>
-            <IconButton
-              onClick={onClick}
-              aria-label="More options"
-            >
+            <IconButton onClick={onClick} aria-label="More options">
               <Icon glyph="Ellipsis" size="small"></Icon>
             </IconButton>
             {children}
@@ -44,12 +52,13 @@ const OptionMenu = ({
           onAddStageClick(index);
           setMenuOpen(false);
         }}
-        >
+      >
         <div className={menuItemStyles}>
           <Icon
             color={palette.gray.dark2}
             glyph="PlusWithCircle"
-            size="small" />
+            size="small"
+          />
           Add stage after
         </div>
       </MenuItem>
@@ -58,12 +67,13 @@ const OptionMenu = ({
           onAddStageClick(index - 1);
           setMenuOpen(false);
         }}
-        >
+      >
         <div className={menuItemStyles}>
           <Icon
             color={palette.gray.dark2}
             glyph="PlusWithCircle"
-            size="small" />
+            size="small"
+          />
           Add stage before
         </div>
       </MenuItem>
@@ -72,28 +82,25 @@ const OptionMenu = ({
           onDeleteStageClick(index);
           setMenuOpen(false);
         }}
-        >
+      >
         <div className={menuItemStyles}>
-          <Icon
-            color={palette.gray.dark2}
-            glyph="Trash"
-            size="small" />
+          <Icon color={palette.gray.dark2} glyph="Trash" size="small" />
           Delete stage
         </div>
       </MenuItem>
     </Menu>
-  )
-}
+  );
+};
 
 export default connect(
   (state: RootState, ownProps: { index: number }) => {
     return {
       isExpanded:
-        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed,
     };
   },
   {
     onAddStageClick: addStage,
-    onDeleteStageClick: removeStage
+    onDeleteStageClick: removeStage,
   }
 )(OptionMenu);
