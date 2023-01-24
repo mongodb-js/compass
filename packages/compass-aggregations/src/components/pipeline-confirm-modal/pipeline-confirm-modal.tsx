@@ -3,7 +3,10 @@ import { ConfirmationModal } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 
 import type { RootState } from '../../modules';
-import { toggleNewPipelineModal, confirmNewPipeline } from '../../modules/is-new-pipeline-confirm';
+import {
+  toggleNewPipelineModal,
+  confirmNewPipeline,
+} from '../../modules/is-new-pipeline-confirm';
 
 const QUESTION = 'Are you sure you want to create a new pipeline?';
 
@@ -13,11 +16,9 @@ type PipelineConfirmModalProps = {
   onConfirmNewPipeline: () => void;
 };
 
-export const PipelineConfirmModal: React.FunctionComponent<PipelineConfirmModalProps> = ({
-  isModalOpen,
-  onCloseModal,
-  onConfirmNewPipeline,
-}) => {
+export const PipelineConfirmModal: React.FunctionComponent<
+  PipelineConfirmModalProps
+> = ({ isModalOpen, onCloseModal, onConfirmNewPipeline }) => {
   return (
     <ConfirmationModal
       title={QUESTION}
@@ -28,14 +29,13 @@ export const PipelineConfirmModal: React.FunctionComponent<PipelineConfirmModalP
       trackingId="confirm_new_pipeline_modal"
       data-testid="confirm-new-pipeline-modal"
     >
-      Creating this pipeline will abandon unsaved changes to the current pipeline.
+      Creating this pipeline will abandon unsaved changes to the current
+      pipeline.
     </ConfirmationModal>
   );
 };
 
-const mapState = ({
-  isNewPipelineConfirm
-}: RootState) => ({
+const mapState = ({ isNewPipelineConfirm }: RootState) => ({
   isModalOpen: isNewPipelineConfirm,
 });
 

@@ -5,7 +5,7 @@ import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 const defaultOptions = {
   promoteValues: false,
   allowDiskUse: true,
-  bsonRegExp: true
+  bsonRegExp: true,
 };
 
 export async function aggregatePipeline({
@@ -15,7 +15,7 @@ export async function aggregatePipeline({
   pipeline,
   options,
   skip,
-  limit
+  limit,
 }: {
   dataService: DataService;
   signal: AbortSignal;
@@ -37,7 +37,7 @@ export async function aggregatePipeline({
       .concat(limit ? [{ $limit: limit }] : []),
     allOptions,
     {
-      abortSignal: signal
+      abortSignal: signal,
     }
   );
 }

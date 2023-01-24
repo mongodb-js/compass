@@ -93,18 +93,12 @@ export type PipelineBuilderExtraArgs = {
   pipelineStorage: PipelineStorage;
 };
 
-export type PipelineBuilderThunkDispatch<
-  A extends Action = AnyAction
-> = ThunkDispatch<RootState, PipelineBuilderExtraArgs, A>;
+export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =
+  ThunkDispatch<RootState, PipelineBuilderExtraArgs, A>;
 
 export type PipelineBuilderThunkAction<
   R,
   A extends Action = AnyAction
-> = ThunkAction<
-  R,
-  RootState,
-  PipelineBuilderExtraArgs,
-  A
->;
+> = ThunkAction<R, RootState, PipelineBuilderExtraArgs, A>;
 
 export default rootReducer;

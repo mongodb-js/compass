@@ -5,12 +5,19 @@ import {
   Editor,
   EditorVariant,
   EditorTextCompleter,
-  StageAutoCompleter
+  StageAutoCompleter,
 } from '@mongodb-js/compass-editor';
 
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
-import { css, cx, spacing, palette, Banner, withDarkMode } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  spacing,
+  palette,
+  Banner,
+  withDarkMode,
+} from '@mongodb-js/compass-components';
 
 import { changeStageValue } from '../../modules/pipeline-builder/stage-editor';
 
@@ -26,7 +33,7 @@ const editorStyles = css({
   flexShrink: 0,
   margin: 0,
   width: '100%',
-  minHeight: '200px'
+  minHeight: '200px',
 });
 
 const editorContainerStylesDark = css({
@@ -38,12 +45,12 @@ const editorContainerStylesLight = css({
 });
 
 const aceEditorStyles = css({
-  minHeight: '160px'
+  minHeight: '160px',
 });
 
 const bannerStyles = css({
   margin: spacing[2],
-  textAlign: 'left'
+  textAlign: 'left',
 });
 
 /**
@@ -65,7 +72,7 @@ class UnthemedStageEditor extends PureComponent {
   };
 
   static defaultProps = {
-    autocompleteFields: []
+    autocompleteFields: [],
   };
 
   /**
@@ -111,8 +118,8 @@ class UnthemedStageEditor extends PureComponent {
           row: row - 1,
           column,
           text: this.props.syntaxError.message,
-          type: 'error'
-        }
+          type: 'error',
+        },
       ]);
     } else {
       this.editor?.getSession().setAnnotations([]);
@@ -181,7 +188,7 @@ class UnthemedStageEditor extends PureComponent {
             : !this.props.stageValue
             ? 'Stage value can not be empty'
             : this.props.syntaxError.message}
-          </Banner>
+        </Banner>
       );
     }
   }
@@ -193,7 +200,15 @@ class UnthemedStageEditor extends PureComponent {
    */
   render() {
     return (
-      <div className={cx(editorContainerStyles, this.props.darkMode ? editorContainerStylesDark : editorContainerStylesLight, this.props.className)}>
+      <div
+        className={cx(
+          editorContainerStyles,
+          this.props.darkMode
+            ? editorContainerStylesDark
+            : editorContainerStylesLight,
+          this.props.className
+        )}
+      >
         <div className={editorStyles}>
           <Editor
             text={this.props.stageValue}
@@ -227,8 +242,8 @@ export default connect(
     return {
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
-      syntaxError: !stage.empty ? (stage.syntaxError ?? null) : null,
-      serverError: !stage.empty ? (stage.serverError ?? null) : null,
+      syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
+      serverError: !stage.empty ? stage.serverError ?? null : null,
       serverVersion: state.serverVersion,
       autocompleteFields: state.fields,
       num_stages,

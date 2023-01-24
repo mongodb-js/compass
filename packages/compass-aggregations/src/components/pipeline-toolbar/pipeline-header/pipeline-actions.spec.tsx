@@ -72,7 +72,9 @@ describe('PipelineActions', function () {
     it('calls onToggleOptions on click', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
-      expect(button?.textContent?.toLowerCase().trim()).to.equal('less options');
+      expect(button?.textContent?.toLowerCase().trim()).to.equal(
+        'less options'
+      );
       expect(within(button).getByLabelText('Caret Down Icon')).to.exist;
 
       userEvent.click(button);
@@ -106,7 +108,9 @@ describe('PipelineActions', function () {
     it('toggle options action button', function () {
       const button = screen.getByTestId('pipeline-toolbar-options-button');
       expect(button).to.exist;
-      expect(button?.textContent?.toLowerCase().trim()).to.equal('more options');
+      expect(button?.textContent?.toLowerCase().trim()).to.equal(
+        'more options'
+      );
       expect(within(button).getByLabelText('Caret Right Icon')).to.exist;
 
       userEvent.click(button);
@@ -116,31 +120,32 @@ describe('PipelineActions', function () {
   });
 
   describe('options disabled in atlas', function () {
-      let onRunAggregationSpy: SinonSpy;
-      let onToggleOptionsSpy: SinonSpy;
-      beforeEach(function () {
-        onRunAggregationSpy = spy();
-        onToggleOptionsSpy = spy();
-        render(
-          <PipelineActions
-            isOptionsVisible={false}
-            showRunButton={true}
-            showExportButton={true}
-            showExplainButton={true}
-            onRunAggregation={onRunAggregationSpy}
-            onToggleOptions={onToggleOptionsSpy}
-            onExportAggregationResults={() => {}}
-            onUpdateView={() => {}}
-            onExplainAggregation={() => {}}
-            isAtlasDeployed={true}
-          />
-        );
-      });
-
-      it('hides the extra options button when in Cloud mode', function () {
-            expect(screen.queryByTestId('pipeline-toolbar-options-button')).to.not.exist;
-      });
+    let onRunAggregationSpy: SinonSpy;
+    let onToggleOptionsSpy: SinonSpy;
+    beforeEach(function () {
+      onRunAggregationSpy = spy();
+      onToggleOptionsSpy = spy();
+      render(
+        <PipelineActions
+          isOptionsVisible={false}
+          showRunButton={true}
+          showExportButton={true}
+          showExplainButton={true}
+          onRunAggregation={onRunAggregationSpy}
+          onToggleOptions={onToggleOptionsSpy}
+          onExportAggregationResults={() => {}}
+          onUpdateView={() => {}}
+          onExplainAggregation={() => {}}
+          isAtlasDeployed={true}
+        />
+      );
     });
+
+    it('hides the extra options button when in Cloud mode', function () {
+      expect(screen.queryByTestId('pipeline-toolbar-options-button')).to.not
+        .exist;
+    });
+  });
 
   describe('disables actions when pipeline is invalid', function () {
     let onRunAggregationSpy: SinonSpy;
@@ -225,7 +230,7 @@ describe('PipelineActions', function () {
         store,
         rerender: () => {
           result.rerender(component);
-        }
+        },
       };
     }
 
@@ -247,7 +252,7 @@ describe('PipelineActions', function () {
 
     it('should disable export button when pipeline is $out / $merge', function () {
       renderPipelineActions({
-        sourcePipeline: [{ $out: 'foo' }]
+        sourcePipeline: [{ $out: 'foo' }],
       });
 
       expect(
@@ -257,7 +262,7 @@ describe('PipelineActions', function () {
 
     it('should disable export button when last enabled stage is $out / $merge', function () {
       const { store, rerender } = renderPipelineActions({
-        sourcePipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }]
+        sourcePipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }],
       });
 
       store.dispatch(changeStageDisabled(1, true));

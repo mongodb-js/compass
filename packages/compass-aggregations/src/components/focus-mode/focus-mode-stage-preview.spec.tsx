@@ -2,20 +2,33 @@ import React, { type ComponentProps } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
-import { FocusModePreview, InputPreview, OutputPreview } from './focus-mode-stage-preview';
-import { MERGE_STAGE_PREVIEW_TEXT, OUT_STAGE_PREVIEW_TEXT } from '../../utils/stage';
+import {
+  FocusModePreview,
+  InputPreview,
+  OutputPreview,
+} from './focus-mode-stage-preview';
+import {
+  MERGE_STAGE_PREVIEW_TEXT,
+  OUT_STAGE_PREVIEW_TEXT,
+} from '../../utils/stage';
 
 import configureStore from '../../stores/store';
 
 const renderFocusModePreview = (
-  props: Partial<ComponentProps<typeof FocusModePreview>> = {},
+  props: Partial<ComponentProps<typeof FocusModePreview>> = {}
 ) => {
   render(
-    <Provider store={configureStore({
-      sourcePipeline: [{$match: {_id: 1}}, {$limit: 10}, {$out: 'out'}]
-    })}>
+    <Provider
+      store={configureStore({
+        sourcePipeline: [
+          { $match: { _id: 1 } },
+          { $limit: 10 },
+          { $out: 'out' },
+        ],
+      })}
+    >
       <FocusModePreview
-        title=''
+        title=""
         isLoading={false}
         stageIndex={-1}
         stageOperator={null}
@@ -42,7 +55,7 @@ describe('FocusModeStagePreview', function () {
     expect(within(preview).getByText(/stage output/i)).to.exist;
   });
 
-  context('FocusModePreview', function() {
+  context('FocusModePreview', function () {
     it('renders loader', function () {
       renderFocusModePreview({
         isLoading: true,
@@ -54,7 +67,7 @@ describe('FocusModeStagePreview', function () {
     it('renders list of documents', function () {
       renderFocusModePreview({
         isLoading: false,
-        documents: [{_id: 12345}, {_id: 54321}]
+        documents: [{ _id: 12345 }, { _id: 54321 }],
       });
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(/12345/i)).to.exist;
@@ -65,31 +78,31 @@ describe('FocusModeStagePreview', function () {
         documents: [],
         isLoading: false,
       });
-      
+
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(/no preview documents/i)).to.exist;
     });
-    it('renders $out stage preview', function() {
+    it('renders $out stage preview', function () {
       renderFocusModePreview({
         stageOperator: '$out',
-        stageIndex: 2
+        stageIndex: 2,
       });
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(OUT_STAGE_PREVIEW_TEXT)).to.exist;
     });
-    it('renders $merge stage preview', function() {
+    it('renders $merge stage preview', function () {
       renderFocusModePreview({
         stageOperator: '$merge',
-        stageIndex: 2
+        stageIndex: 2,
       });
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByText(MERGE_STAGE_PREVIEW_TEXT)).to.exist;
     });
-    it('renders atlas stage preview', function() {
+    it('renders atlas stage preview', function () {
       renderFocusModePreview({
         stageOperator: '$search',
         stageIndex: 2,
-        isMissingAtlasOnlyStageSupport: true
+        isMissingAtlasOnlyStageSupport: true,
       });
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByTestId('atlas-only-stage-preview')).to.exist;

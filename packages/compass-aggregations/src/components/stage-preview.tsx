@@ -1,7 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import type { Document as DocumentType  } from 'mongodb';
-import { css, cx, spacing, palette, Body, KeylineCard, useDarkMode } from '@mongodb-js/compass-components';
+import type { Document as DocumentType } from 'mongodb';
+import {
+  css,
+  cx,
+  spacing,
+  palette,
+  Body,
+  KeylineCard,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
 import type { RootState } from '../modules';
@@ -14,11 +22,11 @@ import { OutStagePreivew, MergeStagePreivew } from './output-stage-preview';
 const stagePreviewMissingSearchSupportStyles = css({
   display: 'flex',
   flex: 1,
-  justifyContent: 'center'
+  justifyContent: 'center',
 });
 
 type AtlasOnlySectionProps = {
-  stageOperator: string
+  stageOperator: string;
 };
 
 function AtlasOnlySection({ stageOperator }: AtlasOnlySectionProps) {
@@ -36,25 +44,29 @@ const emptyStyles = css({
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   fill: 'none',
-  textAlign: 'center'
+  textAlign: 'center',
 });
 
 const emptyStylesDark = css({
-  stroke: palette.gray.base
+  stroke: palette.gray.base,
 });
 
 const emptyStylesLight = css({
-  stroke: palette.gray.base
+  stroke: palette.gray.base,
 });
 
 function EmptyIcon() {
   const darkMode = useDarkMode();
 
-  return (<div className={cx(emptyStyles, darkMode ? emptyStylesDark : emptyStylesLight)}>
-    <Body>
-      <span data-testid="stage-preview-empty">No Preview Documents</span>
-    </Body>
-  </div>);
+  return (
+    <div
+      className={cx(emptyStyles, darkMode ? emptyStylesDark : emptyStylesLight)}
+    >
+      <Body>
+        <span data-testid="stage-preview-empty">No Preview Documents</span>
+      </Body>
+    </div>
+  );
 }
 
 const documentsStyles = css({
@@ -63,7 +75,7 @@ const documentsStyles = css({
   display: 'flex',
   alignItems: 'stretch',
   width: '100%',
-  overflowX: 'auto'
+  overflowX: 'auto',
 });
 
 const documentContainerStyles = css({
@@ -72,7 +84,7 @@ const documentContainerStyles = css({
   flex: 'none',
   flexShrink: 0,
   width: '384px',
-  marginBottom: spacing[2]
+  marginBottom: spacing[2],
 });
 
 const documentStyles = css({
@@ -82,7 +94,6 @@ const documentStyles = css({
   overflow: 'auto',
   padding: 0,
 });
-
 
 type StagePreviewProps = {
   index: number;
@@ -111,11 +122,11 @@ function StagePreviewBody({
 
   // $out renders its own loader
   if (stageOperator === '$out') {
-    return <OutStagePreivew index={index}/>
+    return <OutStagePreivew index={index} />;
   }
   // $merge renders its own loader
   if (stageOperator === '$merge') {
-    return <MergeStagePreivew index={index} />
+    return <MergeStagePreivew index={index} />;
   }
 
   if (isLoading) {
@@ -127,16 +138,12 @@ function StagePreviewBody({
       return (
         <KeylineCard key={i} className={documentContainerStyles}>
           <div className={documentStyles}>
-            <Document doc={doc} editable={false}  />
+            <Document doc={doc} editable={false} />
           </div>
         </KeylineCard>
       );
     });
-    return (
-      <div className={documentsStyles}>
-        {docs}
-      </div>
-    );
+    return <div className={documentsStyles}>{docs}</div>;
   }
 
   return <EmptyIcon />;
@@ -160,26 +167,22 @@ export function StagePreview(props: StagePreviewProps) {
   );
 }
 
-export default connect(
-  (state: RootState, ownProps: { index: number }) => {
-    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-    const isMissingAtlasOnlyStageSupport = state.env && stage.serverError && isMissingAtlasStageSupport(
-      state.env,
-      stage.serverError
-    );
+export default connect((state: RootState, ownProps: { index: number }) => {
+  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+  const isMissingAtlasOnlyStageSupport =
+    state.env &&
+    stage.serverError &&
+    isMissingAtlasStageSupport(state.env, stage.serverError);
 
-    const shouldRenderStage = Boolean(
-      !stage.disabled
-      && !stage.syntaxError
-      && !stage.syntaxError
-      && stage.value
-    );
+  const shouldRenderStage = Boolean(
+    !stage.disabled && !stage.syntaxError && !stage.syntaxError && stage.value
+  );
 
-    return {
-      isLoading: stage.loading,
-      stageOperator: stage.stageOperator as string,
-      shouldRenderStage,
-      documents: stage.previewDocs,
-      isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
-    };
-  })(StagePreview);
+  return {
+    isLoading: stage.loading,
+    stageOperator: stage.stageOperator as string,
+    shouldRenderStage,
+    documents: stage.previewDocs,
+    isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
+  };
+})(StagePreview);
