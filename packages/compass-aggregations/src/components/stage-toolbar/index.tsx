@@ -31,19 +31,19 @@ const collapsedToolbarStyles = css({
 });
 
 const toolbarStylesDark = css({
-  borderBottomColor: palette.gray.dark2
+  borderBottomColor: palette.gray.dark2,
 });
 
 const toolbarStylesLight = css({
-  borderBottomColor: palette.gray.light2
+  borderBottomColor: palette.gray.light2,
 });
 
 const toolbarWarningStyles = css({
-  borderBottomColor: palette.yellow.base
+  borderBottomColor: palette.yellow.base,
 });
 
 const toolbarErrorStyles = css({
-  borderBottomColor: palette.red.base
+  borderBottomColor: palette.red.base,
 });
 
 const leftStyles = css({

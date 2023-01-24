@@ -11,7 +11,10 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import { disableFocusMode } from '../../modules/focus-mode';
 import FocusModeStageEditor from './focus-mode-stage-editor';
-import { FocusModeStageInput, FocusModeStageOutput } from './focus-mode-stage-preview';
+import {
+  FocusModeStageInput,
+  FocusModeStageOutput,
+} from './focus-mode-stage-preview';
 import FocusModeModalHeader from './focus-mode-modal-header';
 
 // These styles make the modal occupy the whole screen,
@@ -27,10 +30,10 @@ const modalStyles = css({
     height: '100%',
     // LG sets maxHeight to calc(100% - 64px). This enables modal
     // to occupy the whole screen.
-    maxHeight: '100%', 
+    maxHeight: '100%',
     '> div': {
       height: '100%',
-    }
+    },
   },
 });
 
@@ -69,7 +72,7 @@ const editorAreaStyles = css({
 
 const editorAreaExpanded = css({
   width: '100%',
-})
+});
 
 type FocusModeProps = {
   isModalOpen: boolean;
@@ -87,7 +90,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
       className={modalStyles}
       setOpen={onCloseModal}
       open={isModalOpen}
-      data-testid={"focus-mode-modal"}
+      data-testid={'focus-mode-modal'}
     >
       <div className={containerStyles}>
         <div className={headerStyles}>
@@ -119,15 +122,12 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   );
 };
 
-const mapState = ({
-  focusMode: { isEnabled },
-  autoPreview,
-}: RootState) => ({
+const mapState = ({ focusMode: { isEnabled }, autoPreview }: RootState) => ({
   isModalOpen: isEnabled,
   isAutoPreviewEnabled: autoPreview,
 });
 
 const mapDispatch = {
-  onCloseModal: disableFocusMode
+  onCloseModal: disableFocusMode,
 };
 export default connect(mapState, mapDispatch)(FocusMode);

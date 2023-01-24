@@ -5,7 +5,7 @@ import Stage from './stage';
 describe('Stage', function () {
   let stage: Stage;
 
-  beforeEach(function() {
+  beforeEach(function () {
     const ast = babelParser.parseExpression(`{}`);
     stage = new Stage(ast);
     expect(stage.operator).to.equal(null);
@@ -13,21 +13,21 @@ describe('Stage', function () {
     expect(stage.disabled).to.equal(false);
   });
 
-  it('changes stage operator', function() {
+  it('changes stage operator', function () {
     stage.changeOperator('$match');
     expect(stage.operator).to.equal('$match');
     expect(stage.value).to.equal(null);
     expect(stage.disabled).to.equal(false);
   });
 
-  it('changes stage value', function() {
+  it('changes stage value', function () {
     stage.changeValue('{}');
     expect(stage.operator).to.equal(null);
     expect(stage.value).to.equal('{}');
     expect(stage.disabled).to.equal(false);
   });
 
-  it('changes stage disabled', function() {
+  it('changes stage disabled', function () {
     stage.changeDisabled(true);
     expect(stage.operator).to.equal(null);
     expect(stage.value).to.equal(null);

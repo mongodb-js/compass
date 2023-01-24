@@ -5,36 +5,34 @@ import { combineReducers } from 'redux';
 import dataService from '../data-service';
 
 import source, {
-  INITIAL_STATE as SOURCE_INITIAL_STATE
+  INITIAL_STATE as SOURCE_INITIAL_STATE,
 } from '../create-view/source';
 
 import pipeline, {
-  INITIAL_STATE as PIPELINE_INITIAL_STATE
+  INITIAL_STATE as PIPELINE_INITIAL_STATE,
 } from '../create-view/pipeline';
 
 import isRunning, {
   toggleIsRunning,
-  INITIAL_STATE as IS_RUNNING_INITIAL_STATE
+  INITIAL_STATE as IS_RUNNING_INITIAL_STATE,
 } from '../create-view/is-running';
 import isVisible, {
-  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE
+  INITIAL_STATE as IS_VISIBLE_INITIAL_STATE,
 } from '../create-view/is-visible';
 import isDuplicating, {
-  INITIAL_STATE as IS_DUPLICATING_INITIAL_STATE
+  INITIAL_STATE as IS_DUPLICATING_INITIAL_STATE,
 } from '../create-view/is-duplicating';
-import name, {
-  INITIAL_STATE as NAME_INITIAL_STATE
-} from '../create-view/name';
+import name, { INITIAL_STATE as NAME_INITIAL_STATE } from '../create-view/name';
 
 import error, {
   clearError,
   handleError,
-  INITIAL_STATE as ERROR_INITIAL_STATE
+  INITIAL_STATE as ERROR_INITIAL_STATE,
 } from '../create-view/error';
 
 import { reset, RESET } from '../create-view/reset';
 import appRegistry, {
-  globalAppRegistryEmit
+  globalAppRegistryEmit,
 } from '@mongodb-js/mongodb-redux-common/app-registry';
 
 const parseNs = require('mongodb-ns');
@@ -51,7 +49,7 @@ export const INITIAL_STATE = {
   name: NAME_INITIAL_STATE,
   error: ERROR_INITIAL_STATE,
   source: SOURCE_INITIAL_STATE,
-  pipeline: PIPELINE_INITIAL_STATE
+  pipeline: PIPELINE_INITIAL_STATE,
 };
 
 /**
@@ -66,7 +64,7 @@ const reducer = combineReducers({
   error,
   source,
   pipeline,
-  dataService
+  dataService,
 });
 
 /**
@@ -81,7 +79,7 @@ const rootReducer = (state, action) => {
   if (action.type === RESET) {
     return {
       ...state,
-      ...INITIAL_STATE
+      ...INITIAL_STATE,
     };
   } else if (action.type === OPEN) {
     const newState = {
@@ -90,7 +88,7 @@ const rootReducer = (state, action) => {
       isVisible: true,
       isDuplicating: action.duplicate,
       source: action.source,
-      pipeline: action.pipeline
+      pipeline: action.pipeline,
     };
 
     debug('handling open', { newState });
@@ -126,7 +124,7 @@ export const open = (sourceNs, sourcePipeline, duplicate) => ({
   type: OPEN,
   source: sourceNs,
   pipeline: sourcePipeline,
-  duplicate: duplicate
+  duplicate: duplicate,
 });
 
 /**
@@ -150,7 +148,13 @@ export const createView = () => {
 
     try {
       dispatch(toggleIsRunning(true));
-      debug('calling data-service.createView', viewName, viewSource, viewPipeline, options);
+      debug(
+        'calling data-service.createView',
+        viewName,
+        viewSource,
+        viewPipeline,
+        options
+      );
       ds.createView(viewName, viewSource, viewPipeline, options, (e) => {
         if (e) {
           debug('error creating view', e);
@@ -159,10 +163,9 @@ export const createView = () => {
         debug('View created!');
         track('Aggregation Saved As View', { num_stages: viewPipeline.length });
         dispatch(
-          globalAppRegistryEmit(
-            'compass:aggregations:create-view',
-            { numStages: viewPipeline.length }
-          )
+          globalAppRegistryEmit('compass:aggregations:create-view', {
+            numStages: viewPipeline.length,
+          })
         );
         dispatch(
           globalAppRegistryEmit(

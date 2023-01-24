@@ -2,7 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Resizable } from 're-resizable';
 
-import { KeylineCard, css, cx, spacing, palette } from '@mongodb-js/compass-components';
+import {
+  KeylineCard,
+  css,
+  cx,
+  spacing,
+  palette,
+} from '@mongodb-js/compass-components';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS as cssDndKit } from '@dnd-kit/utilities';
@@ -25,15 +31,15 @@ const stageStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'stretch',
-  overflow: 'hidden' // this is so that the top left red border corner does not get cut off when there's a server error
+  overflow: 'hidden', // this is so that the top left red border corner does not get cut off when there's a server error
 });
 
 const stageWarningStyles = css({
-  borderColor: palette.yellow.base
+  borderColor: palette.yellow.base,
 });
 
 const stageErrorStyles = css({
-  borderColor: palette.red.base
+  borderColor: palette.red.base,
 });
 
 const stageContentStyles = css({
@@ -41,7 +47,7 @@ const stageContentStyles = css({
 });
 
 const stageEditorNoPreviewStyles = css({
-  width: '100%'
+  width: '100%',
 });
 
 const stagePreviewContainerStyles = css({
@@ -49,7 +55,7 @@ const stagePreviewContainerStyles = css({
   position: 'relative',
   flexDirection: 'column',
   width: '100%',
-  overflow: 'auto'
+  overflow: 'auto',
 });
 
 const stageEditorContainerStyles = css({
@@ -65,7 +71,7 @@ const RESIZABLE_DIRECTIONS = {
   topRight: false,
   bottomRight: false,
   bottomLeft: false,
-  topLeft: false
+  topLeft: false,
 };
 
 type ResizableEditorProps = {
@@ -108,8 +114,8 @@ function ResizableEditor({ index, isAutoPreviewing }: ResizableEditorProps) {
           // If this ever needs to be tweaked, the easiest way is to give the
           // editor and preview toolbars different background colours and add a
           // transparent background here.
-          right: '-9px' // default -5px
-        }
+          right: '-9px', // default -5px
+        },
       }}
     >
       {editor}
@@ -121,13 +127,13 @@ const DEFAULT_OPACITY = 0.6;
 
 export type StageProps = {
   id: number;
-  index: number,
-  isEnabled: boolean,
-  isExpanded: boolean,
-  hasSyntaxError: boolean,
-  hasServerError: boolean,
-  isAutoPreviewing: boolean
-}
+  index: number;
+  isEnabled: boolean;
+  isExpanded: boolean;
+  hasSyntaxError: boolean;
+  hasServerError: boolean;
+  isAutoPreviewing: boolean;
+};
 
 function Stage({
   id,
@@ -136,7 +142,7 @@ function Stage({
   isExpanded,
   hasSyntaxError,
   hasServerError,
-  isAutoPreviewing
+  isAutoPreviewing,
 }: StageProps) {
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
   const { setNodeRef, transform, transition, listeners } = useSortable({ id: id + 1 });
@@ -147,10 +153,7 @@ function Stage({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-    >
+    <div ref={setNodeRef} style={style}>
       <KeylineCard
         data-testid="stage-card"
         data-stage-index={index}
@@ -177,19 +180,18 @@ function Stage({
   );
 }
 
-
 type StageOwnProps = {
-  index: number
+  index: number;
 };
 
 export default connect((state: RootState, ownProps: StageOwnProps) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index]
+  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
   return {
     id: stage.id,
     isEnabled: !stage.disabled,
     isExpanded: !stage.collapsed,
     hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
-    isAutoPreviewing: state.autoPreview
+    isAutoPreviewing: state.autoPreview,
   };
 })(Stage);

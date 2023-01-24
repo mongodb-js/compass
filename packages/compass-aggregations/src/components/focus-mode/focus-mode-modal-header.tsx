@@ -7,14 +7,14 @@ import {
   Option,
   Select,
   spacing,
-  Toggle
+  Toggle,
 } from '@mongodb-js/compass-components';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
   addStageInFocusMode,
-  selectFocusModeStage
+  selectFocusModeStage,
 } from '../../modules/focus-mode';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 
@@ -30,13 +30,13 @@ type FocusModeModalHeaderProps = {
 const controlsContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[3]
+  gap: spacing[3],
 });
 
 const controlContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
-  gap: spacing[2]
+  gap: spacing[2],
 });
 
 const fakeToggleLabelStyles = css({
@@ -44,13 +44,13 @@ const fakeToggleLabelStyles = css({
   fontWeight: 'bold',
   width: `${String(
     Math.max(...['Enabled', 'Disabled'].map((label) => label.length))
-  )}ch`
+  )}ch`,
 });
 
 const menuItemStyles = css({
   '&:after': {
-    content: 'attr(data-hotkey)'
-  }
+    content: 'attr(data-hotkey)',
+  },
 });
 
 const FocusModeModalHeader: React.FunctionComponent<
@@ -61,7 +61,7 @@ const FocusModeModalHeader: React.FunctionComponent<
   stages,
   onAddStageClick,
   onStageSelect,
-  onStageToggleClick
+  onStageToggleClick,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const isFirst = stageIndex === 0;
@@ -76,7 +76,7 @@ const FocusModeModalHeader: React.FunctionComponent<
           return label.length;
         })
       )
-    )}ch + ${spacing[5]}px)`
+    )}ch + ${spacing[5]}px)`,
   };
 
   return (
@@ -210,8 +210,8 @@ export default connect(
     const {
       focusMode: { stageIndex },
       pipelineBuilder: {
-        stageEditor: { stages }
-      }
+        stageEditor: { stages },
+      },
     } = state;
     const stage = stages[stageIndex];
     return {
@@ -219,12 +219,12 @@ export default connect(
       isEnabled: !stage?.disabled,
       stages: stages.map((stage) => {
         return stage.stageOperator;
-      })
+      }),
     };
   },
   {
     onStageSelect: selectFocusModeStage,
     onStageToggleClick: changeStageDisabled,
-    onAddStageClick: addStageInFocusMode
+    onAddStageClick: addStageInFocusMode,
   }
 )(FocusModeModalHeader);

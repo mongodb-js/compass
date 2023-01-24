@@ -9,193 +9,196 @@ const fakeAppInstanceStore = {
   getState: function () {
     return {
       instance: {
-        env: 'atlas'
-      }
+        env: 'atlas',
+      },
     };
-  }
+  },
 };
 
-describe('Aggregation Store', function() {
-  describe('#configureStore', function() {
-    context('when providing an app registry', function() {
+describe('Aggregation Store', function () {
+  describe('#configureStore', function () {
+    context('when providing an app registry', function () {
       let store;
       const localAppRegistry = new AppRegistry();
       const globalAppRegistry = new AppRegistry();
 
-      beforeEach(function() {
-        globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
+      beforeEach(function () {
+        globalAppRegistry.registerStore(
+          'App.InstanceStore',
+          fakeAppInstanceStore
+        );
         store = configureStore({
           localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry
+          globalAppRegistry: globalAppRegistry,
         });
       });
 
-      it('sets the app registry state', function() {
+      it('sets the app registry state', function () {
         expect(store.getState().appRegistry).to.deep.equal({
           localAppRegistry: localAppRegistry,
-          globalAppRegistry: globalAppRegistry
+          globalAppRegistry: globalAppRegistry,
         });
       });
     });
 
-    context('when providing a serverVersion', function() {
+    context('when providing a serverVersion', function () {
       let store;
 
-      beforeEach(function() {
+      beforeEach(function () {
         store = configureStore({
-          serverVersion: '4.2.0'
+          serverVersion: '4.2.0',
         });
       });
 
-      it('sets the server version the state', function() {
+      it('sets the server version the state', function () {
         expect(store.getState().serverVersion).to.equal('4.2.0');
       });
     });
 
-    context('when providing an env', function() {
+    context('when providing an env', function () {
       let store;
 
-      beforeEach(function() {
+      beforeEach(function () {
         store = configureStore({
-          env: 'atlas'
+          env: 'atlas',
         });
       });
 
-      it('sets the env in the state', function() {
+      it('sets the env in the state', function () {
         expect(store.getState().env).to.equal('atlas');
       });
     });
 
-    context('when providing fields', function() {
+    context('when providing fields', function () {
       let store;
-      const fields = [ 1, 2, 3 ];
+      const fields = [1, 2, 3];
 
-      beforeEach(function() {
+      beforeEach(function () {
         store = configureStore({
-          fields: fields
+          fields: fields,
         });
       });
 
-      it('sets the server version the state', function() {
+      it('sets the server version the state', function () {
         expect(store.getState().fields).to.deep.equal(fields);
       });
     });
 
-    context('when providing a data provider', function() {
+    context('when providing a data provider', function () {
       let store;
 
-      beforeEach(function() {
+      beforeEach(function () {
         store = configureStore({
           dataProvider: {
             error: 'error',
-            dataProvider: 'ds'
-          }
+            dataProvider: 'ds',
+          },
         });
       });
 
-      it('sets the data service in the state', function() {
+      it('sets the data service in the state', function () {
         expect(store.getState().dataService.dataService).to.equal('ds');
       });
 
-      it('sets the error in the state', function() {
+      it('sets the error in the state', function () {
         expect(store.getState().dataService.error).to.equal('error');
       });
     });
 
-    context('when providing a namespace', function() {
-      context('when there is no collection', function() {
+    context('when providing a namespace', function () {
+      context('when there is no collection', function () {
         let state;
 
-        beforeEach(function() {
+        beforeEach(function () {
           const store = configureStore({ namespace: 'db' });
           state = store.getState();
         });
 
-        it('does not update the namespace in the store', function() {
+        it('does not update the namespace in the store', function () {
           expect(state.namespace).to.equal('');
         });
 
-        it('resets the app registry', function() {
+        it('resets the app registry', function () {
           expect(state.appRegistry).to.deep.eq(INITIAL_STATE.appRegistry);
         });
 
-        it('resets the comments', function() {
+        it('resets the comments', function () {
           expect(state.comments).to.equal(INITIAL_STATE.comments);
         });
 
-        it('resets auto preview', function() {
+        it('resets auto preview', function () {
           expect(state.autoPreview).to.equal(INITIAL_STATE.autoPreview);
         });
 
-        it('resets the name', function() {
+        it('resets the name', function () {
           expect(state.name).to.equal(INITIAL_STATE.name);
         });
 
-        it('resets the saved pipeline', function() {
+        it('resets the saved pipeline', function () {
           expect(state.savedPipeline).to.equal(INITIAL_STATE.savedPipeline);
         });
 
-        it('resets the data service', function() {
+        it('resets the data service', function () {
           expect(state.dataService).to.deep.eq(INITIAL_STATE.dataService);
         });
 
-        it('resets the fields', function() {
+        it('resets the fields', function () {
           expect(state.fields).to.deep.eq(INITIAL_STATE.fields);
         });
 
-        it('resets the input douments', function() {
+        it('resets the input douments', function () {
           expect(state.inputDocuments).to.equal(INITIAL_STATE.inputDocuments);
         });
 
-        it('resets the server version', function() {
+        it('resets the server version', function () {
           expect(state.serverVersion).to.equal(INITIAL_STATE.serverVersion);
         });
 
-        it('resets is modified', function() {
+        it('resets is modified', function () {
           expect(state.isModified).to.equal(INITIAL_STATE.isModified);
         });
 
-        it('resets collation', function() {
+        it('resets collation', function () {
           expect(state.collation).to.equal(INITIAL_STATE.collation);
         });
 
-        it('resets collation string', function() {
+        it('resets collation string', function () {
           expect(state.collationString).to.equal(INITIAL_STATE.collationString);
         });
 
-        it('resets settings', function() {
+        it('resets settings', function () {
           expect(state.settings).to.equal(INITIAL_STATE.settings);
         });
 
-        it('resets limit', function() {
+        it('resets limit', function () {
           expect(state.limit).to.equal(INITIAL_STATE.limit);
         });
 
-        it('resets large limit', function() {
+        it('resets large limit', function () {
           expect(state.largeLimit).to.equal(INITIAL_STATE.largeLimit);
         });
 
-        it('resets maxTimeMS', function() {
+        it('resets maxTimeMS', function () {
           expect(state.maxTimeMS).to.equal(INITIAL_STATE.maxTimeMS);
         });
 
-        it('resets saving pipeline', function() {
+        it('resets saving pipeline', function () {
           expect(state.savingPipeline).to.equal(INITIAL_STATE.savingPipeline);
         });
       });
 
-      context('when there is a collection', function() {
+      context('when there is a collection', function () {
         let store;
 
-        beforeEach(function() {
+        beforeEach(function () {
           store = configureStore({ namespace: 'db.coll' });
         });
 
-        it('updates the namespace in the store', function() {
+        it('updates the namespace in the store', function () {
           expect(store.getState().namespace).to.equal('db.coll');
         });
 
-        it('resets the rest of the state to initial state', function() {
+        it('resets the rest of the state to initial state', function () {
           // eslint-disable-next-line no-unused-vars
           const { aggregationWorkspaceId, ...state } = store.getState();
           // eslint-disable-next-line no-unused-vars
@@ -244,21 +247,24 @@ describe('Aggregation Store', function() {
     });
   });
 
-  describe('#onActivated', function() {
+  describe('#onActivated', function () {
     let store;
     const localAppRegistry = new AppRegistry();
     const globalAppRegistry = new AppRegistry();
 
-    beforeEach(function() {
-      globalAppRegistry.registerStore('App.InstanceStore', fakeAppInstanceStore);
+    beforeEach(function () {
+      globalAppRegistry.registerStore(
+        'App.InstanceStore',
+        fakeAppInstanceStore
+      );
       store = configureStore({
         localAppRegistry: localAppRegistry,
-        globalAppRegistry: globalAppRegistry
+        globalAppRegistry: globalAppRegistry,
       });
     });
 
-    context('when the fields change', function() {
-      it('updates the fields', function(done) {
+    context('when the fields change', function () {
+      it('updates the fields', function (done) {
         const unsubscribe = store.subscribe(() => {
           unsubscribe();
           expect(store.getState().fields).to.deep.equal([
@@ -267,15 +273,15 @@ describe('Aggregation Store', function() {
               value: 'harry',
               score: 1,
               meta: 'field',
-              version: '0.0.0'
+              version: '0.0.0',
             },
             {
               name: 'potter',
               value: 'potter',
               score: 1,
               meta: 'field',
-              version: '0.0.0'
-            }
+              version: '0.0.0',
+            },
           ]);
           done();
         });
@@ -286,14 +292,14 @@ describe('Aggregation Store', function() {
               name: 'harry',
               path: 'harry',
               count: 1,
-              type: 'Number'
+              type: 'Number',
             },
             potter: {
               name: 'potter',
               path: 'potter',
               count: 1,
-              type: 'Boolean'
-            }
+              type: 'Boolean',
+            },
           },
           topLevelFields: ['harry', 'potter'],
           aceFields: [
@@ -302,16 +308,16 @@ describe('Aggregation Store', function() {
               value: 'harry',
               score: 1,
               meta: 'field',
-              version: '0.0.0'
+              version: '0.0.0',
             },
             {
               name: 'potter',
               value: 'potter',
               score: 1,
               meta: 'field',
-              version: '0.0.0'
-            }
-          ]
+              version: '0.0.0',
+            },
+          ],
         });
       });
     });

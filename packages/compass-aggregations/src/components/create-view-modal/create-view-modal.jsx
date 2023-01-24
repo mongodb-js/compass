@@ -2,7 +2,15 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { Banner, Body, FormModal, SpinLoader, css, spacing, TextInput } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  Body,
+  FormModal,
+  SpinLoader,
+  css,
+  spacing,
+  TextInput,
+} from '@mongodb-js/compass-components';
 
 import { createView } from '../../modules/create-view';
 import { changeViewName } from '../../modules/create-view/name';
@@ -30,7 +38,7 @@ class CreateViewModal extends PureComponent {
     source: PropTypes.string.isRequired,
     pipeline: PropTypes.array.isRequired,
     isRunning: PropTypes.bool.isRequired,
-    error: PropTypes.object
+    error: PropTypes.object,
   };
 
   static defaultProps = {
@@ -39,7 +47,7 @@ class CreateViewModal extends PureComponent {
     pipeline: [],
     isRunning: false,
     isVisible: false,
-    isDuplicating: false
+    isDuplicating: false,
   };
 
   onNameChange = (evt) => {
@@ -80,11 +88,7 @@ class CreateViewModal extends PureComponent {
           name="name"
         />
         {this.props.error ? (
-          <Banner
-            variant='danger'
-          >
-            {this.props.error.message}
-          </Banner>
+          <Banner variant="danger">{this.props.error.message}</Banner>
         ) : null}
         {this.props.isRunning ? (
           <Body className={progressContainerStyles}>
@@ -111,21 +115,18 @@ const mapStateToProps = (state) => ({
   name: state.name,
   error: state.error,
   source: state.source,
-  pipeline: state.pipeline
+  pipeline: state.pipeline,
 });
 
 /**
  * Connect the redux store to the component.
  * (dispatch)
  */
-const MappedCreateViewModal = connect(
-  mapStateToProps,
-  {
-    createView,
-    changeViewName,
-    toggleIsVisible
-  }
-)(CreateViewModal);
+const MappedCreateViewModal = connect(mapStateToProps, {
+  createView,
+  changeViewName,
+  toggleIsVisible,
+})(CreateViewModal);
 
 export default MappedCreateViewModal;
 export { CreateViewModal };

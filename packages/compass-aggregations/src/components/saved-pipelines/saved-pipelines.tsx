@@ -4,15 +4,24 @@ import {
   spacing,
   palette,
   Body,
-  useDarkMode
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
 import { createLoggerAndTelemetry } from '@mongodb-js/compass-logging';
 
 import { SavePipelineCard } from './saved-pipeline-card';
-import { OpenPipelineConfirmationModal, DeletePipelineConfirmationModal } from './saved-pipeline-confirmation-modals';
-import { openPipelineById, deletePipelineById } from '../../modules/saved-pipeline';
-import { type EditorViewType, mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/builder-helpers';
+import {
+  OpenPipelineConfirmationModal,
+  DeletePipelineConfirmationModal,
+} from './saved-pipeline-confirmation-modals';
+import {
+  openPipelineById,
+  deletePipelineById,
+} from '../../modules/saved-pipeline';
+import {
+  type EditorViewType,
+  mapPipelineModeToEditorViewType,
+} from '../../modules/pipeline-builder/builder-helpers';
 import { type RootState } from '../../modules';
 
 const { track } = createLoggerAndTelemetry('COMPASS-AGGREGATIONS-UI');
@@ -21,7 +30,7 @@ const savedPipelinesStyles = css({
   width: '400px',
   display: 'flex',
   flexDirection: 'column',
-  height: '100%'
+  height: '100%',
 });
 
 const toolbarTitleStyles = css({
@@ -49,7 +58,7 @@ const toolbarContentStyles = css({
 
 const cardsContainerStyles = css({
   overflowY: 'auto',
-  flex: 1
+  flex: 1,
 });
 
 const emptyMessageStyles = css({
@@ -76,24 +85,30 @@ export const SavedPipelines = ({
   const [deletePipelineId, setDeletePipelineId] = useState<string | null>(null);
   const [openPipelineId, setOpenPipelineId] = useState<string | null>(null);
 
-  const onOpenConfirm = useCallback((id: string) => {
-    track('Aggregation Opened', {
-      id,
-      editor_view_type,
-      screen: 'aggregations',
-    });
-    onOpenPipeline(id);
-  }, [editor_view_type, onOpenPipeline]);
+  const onOpenConfirm = useCallback(
+    (id: string) => {
+      track('Aggregation Opened', {
+        id,
+        editor_view_type,
+        screen: 'aggregations',
+      });
+      onOpenPipeline(id);
+    },
+    [editor_view_type, onOpenPipeline]
+  );
 
-  const onDeleteConfirm = useCallback((id: string) => {
-    track('Aggregation Deleted', {
-      id,
-      editor_view_type,
-      screen: 'aggregations',
-    });
-    onDeletePipeline(id);
-    setDeletePipelineId(null);
-  }, [editor_view_type, onDeletePipeline, setDeletePipelineId]);
+  const onDeleteConfirm = useCallback(
+    (id: string) => {
+      track('Aggregation Deleted', {
+        id,
+        editor_view_type,
+        screen: 'aggregations',
+      });
+      onDeletePipeline(id);
+      setDeletePipelineId(null);
+    },
+    [editor_view_type, onDeletePipeline, setDeletePipelineId]
+  );
 
   return (
     <div className={savedPipelinesStyles} data-testid="saved-pipelines">
@@ -103,10 +118,13 @@ export const SavedPipelines = ({
           data-testid="saved-pipeline-header-title"
           id="saved-pipeline-header-title"
         >
-          Saved Pipelines in <span
+          Saved Pipelines in{' '}
+          <span
             className={darkMode ? titleStylesDark : titleStylesLight}
             title={namespace}
-          >{namespace}</span>
+          >
+            {namespace}
+          </span>
         </Body>
       </div>
       <div className={cardsContainerStyles}>
@@ -152,7 +170,6 @@ const mapState = (state: RootState) => ({
 const mapDispatch = {
   onOpenPipeline: openPipelineById,
   onDeletePipeline: deletePipelineById,
-}
+};
 
 export default connect(mapState, mapDispatch)(SavedPipelines);
-

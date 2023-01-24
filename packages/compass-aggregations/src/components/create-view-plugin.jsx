@@ -6,8 +6,8 @@ import CreateViewModal from './create-view-modal';
 class CreateViewPlugin extends Component {
   static displayName = 'CreateViewPlugin';
   static propTypes = {
-    store: PropTypes.object.isRequired
-  }
+    store: PropTypes.object.isRequired,
+  };
 
   /**
    * Connect the Plugin to the store and render.

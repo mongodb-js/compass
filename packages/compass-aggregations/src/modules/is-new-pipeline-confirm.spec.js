@@ -4,22 +4,22 @@ import reducer, {
 } from './is-new-pipeline-confirm';
 import { expect } from 'chai';
 
-describe('is new pipeline confirm', function() {
-  it('returns the set confirm pipeline action', function() {
+describe('is new pipeline confirm', function () {
+  it('returns the set confirm pipeline action', function () {
     expect(toggleNewPipelineModal(true)).to.deep.equal({
       type: ActionTypes.ToggleConfirmNewPipeline,
-      confirm: true
+      confirm: true,
     });
 
     expect(toggleNewPipelineModal(false)).to.deep.equal({
       type: ActionTypes.ToggleConfirmNewPipeline,
-      confirm: false
+      confirm: false,
     });
   });
 
-  describe('#reducer', function() {
-    context('when the action is not set is new pipeline confirm', function() {
-      it('returns the default state', function() {
+  describe('#reducer', function () {
+    context('when the action is not set is new pipeline confirm', function () {
+      it('returns the default state', function () {
         expect(reducer(undefined, { type: 'test' })).to.equal(false);
       });
     });
