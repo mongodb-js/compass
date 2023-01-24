@@ -65,7 +65,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "compass-preferences-model": "^2.4.0",
     "hadron-ipc": "^3.1.0",
-    "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",
     "redux": "^4.2.0",
@@ -91,6 +90,7 @@
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "prettier": "^2.7.1",
+    "react": "^17.0.2",
     "rimraf": "^3.0.2",
     "sinon": "^9.2.3",
     "xvfb-maybe": "^0.2.1"

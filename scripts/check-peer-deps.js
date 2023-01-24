@@ -53,6 +53,7 @@ async function main() {
       return requiredPeerDep.has(name);
     })
   );
+  const excludedFromProdDependencies = new Set(['react']);
   const missingInPeerDeps = Array.from(expectedPeerDependencies).filter(
     (name) => {
       return !peerDependencies.includes(name);
@@ -61,12 +62,21 @@ async function main() {
   const extraneousInPeerDeps = peerDependencies.filter((name) => {
     return !expectedPeerDependencies.has(name);
   });
+  const peerDependenciesWithoutReact = peerDependencies.filter((name) => {
+    return !excludedFromProdDependencies.has(name);
+  });
+  const extraneousInProdDeps = peerDependencies.find((name) => {
+    return excludedFromProdDependencies.has(name);
+  });
   const extraneousInDevDeps = devDependencies.filter((name) => {
-    return expectedPeerDependencies.has(name);
+    return (
+      expectedPeerDependencies.has(name) &&
+      !excludedFromProdDependencies.has(name)
+    );
   });
   const prodDependenciesMatching =
-    peerDependencies.length === prodDependencies.length &&
-    peerDependencies.every((name) => {
+    peerDependenciesWithoutReact.length === prodDependencies.length &&
+    peerDependenciesWithoutReact.every((name) => {
       return prodDependencies.includes(name);
     });
 
@@ -92,6 +102,11 @@ async function main() {
     `Following dependencies should not be in peerDependencies:\n\n  ${extraneousInPeerDeps.join(
       ', '
     )}`;
+  const extraneousProd =
+    extraneousInProdDeps.length > 0 &&
+    `Following dependencies should be peer dependencies:\n\n  ${extraneousInProdDeps.join(
+      ', '
+    )}`;
   const extraneousDev =
     extraneousInDevDeps.length > 0 &&
     `Following dev dependencies should be peer dependencies:\n\n  ${extraneousInDevDeps.join(
@@ -105,6 +120,7 @@ async function main() {
     header,
     missingPeer,
     extraneousPeer,
+    extraneousProd,
     extraneousDev,
     prodMismatch,
   ]
