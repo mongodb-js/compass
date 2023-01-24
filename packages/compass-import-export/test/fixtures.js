@@ -18,6 +18,9 @@ const fixtures = {
     bad: path.join(__dirname, 'csv', 'bad.csv'),
     number_transform: path.join(__dirname, 'csv', 'number-transform.csv'),
     sparse: path.join(__dirname, 'csv', 'sparse.csv'),
+    array: path.join(__dirname, 'csv', 'array.csv'),
+    object: path.join(__dirname, 'csv', 'object.csv'),
+    complex: path.join(__dirname, 'csv', 'complex.csv'),
   },
 
   // json
