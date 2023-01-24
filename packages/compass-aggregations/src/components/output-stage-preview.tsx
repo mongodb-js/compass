@@ -1,6 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { css, spacing, Body, Link, Button, SpinLoader } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Body,
+  Link,
+  Button,
+  SpinLoader,
+} from '@mongodb-js/compass-components';
 import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import { viewOutResults } from '../modules/out-results-fn';
 import { runStage } from '../modules/pipeline-builder/stage-editor';
@@ -25,7 +32,7 @@ const stagePreviewOutStyles = css({
 const stagePreviewOutTextStyles = css({
   padding: `0 ${spacing[3]}px ${spacing[1]}px ${spacing[3]}px`,
   textAlign: 'center',
-  marginBottom: spacing[2]
+  marginBottom: spacing[2],
 });
 
 const stagePreviewOutLinkStyles = css({
@@ -56,7 +63,7 @@ const documentsPersistedText = (destination: string | null) => {
     ? `collection: ${destination}`
     : `specified collection`;
   return `Documents persisted to ${location}`;
-}
+};
 
 const Loader = ({
   destinationNamespace,
@@ -67,14 +74,11 @@ const Loader = ({
     <div className={stagePreviewOutStyles}>
       <div className={loaderStyles}>
         <SpinLoader />
-        Persisting Documents {
-          destinationNamespace
-          ? `to ${destinationNamespace}`
-          : '...'
-        }
+        Persisting Documents{' '}
+        {destinationNamespace ? `to ${destinationNamespace}` : '...'}
       </div>
     </div>
-  )
+  );
 };
 
 export const MergeStage = ({
@@ -86,7 +90,6 @@ export const MergeStage = ({
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
-
   if (isLoading) {
     return <Loader destinationNamespace={destinationNamespace} />;
   }
@@ -130,7 +133,7 @@ export const MergeStage = ({
       )}
     </div>
   );
-}
+};
 
 export const OutStage = ({
   isLoading,
@@ -141,7 +144,6 @@ export const OutStage = ({
   onRunOutputStage,
   onGoToOutputResults,
 }: OutputStageProps) => {
-
   if (isLoading) {
     return <Loader destinationNamespace={destinationNamespace} />;
   }
@@ -185,7 +187,7 @@ export const OutStage = ({
       )}
     </Body>
   );
-}
+};
 
 type OwnProps = {
   index: number;
@@ -209,17 +211,14 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
   };
 };
 
-const mapDispatch = (dispatch: PipelineBuilderThunkDispatch, ownProps: OwnProps) => ({
+const mapDispatch = (
+  dispatch: PipelineBuilderThunkDispatch,
+  ownProps: OwnProps
+) => ({
   onRunOutputStage: () => dispatch(runStage(ownProps.index)),
   onGoToOutputResults: () => dispatch(viewOutResults(ownProps.index)),
 });
 
-export const MergeStagePreivew = connect(
-  mapState,
-  mapDispatch
-)(MergeStage);
+export const MergeStagePreivew = connect(mapState, mapDispatch)(MergeStage);
 
-export const OutStagePreivew = connect(
-  mapState,
-  mapDispatch
-)(OutStage);
+export const OutStagePreivew = connect(mapState, mapDispatch)(OutStage);

@@ -8,7 +8,7 @@ import { removeStage } from '../../modules/pipeline-builder/stage-editor';
 export class DeleteStage extends PureComponent {
   static propTypes = {
     index: PropTypes.number.isRequired,
-    onStageDeleteClick: PropTypes.func.isRequired
+    onStageDeleteClick: PropTypes.func.isRequired,
   };
 
   onStageDeleted = () => {
@@ -24,7 +24,9 @@ export class DeleteStage extends PureComponent {
         onClick={this.onStageDeleted}
         title={title}
         aria-label={title}
-      ><Icon glyph="Trash" size="small" /></IconButton>
+      >
+        <Icon glyph="Trash" size="small" />
+      </IconButton>
     );
   }
 }

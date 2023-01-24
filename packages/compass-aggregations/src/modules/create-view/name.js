@@ -18,5 +18,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const changeViewName = (name) => ({
   type: CHANGE_VIEW_NAME,
-  name: name
+  name: name,
 });

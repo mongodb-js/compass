@@ -12,8 +12,8 @@ import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import { OutStagePreivew, MergeStagePreivew } from '../output-stage-preview';  
-import { AtlasStagePreview } from '../atlas-stage-preview';  
+import { OutStagePreivew, MergeStagePreivew } from '../output-stage-preview';
+import { AtlasStagePreview } from '../atlas-stage-preview';
 import { isMissingAtlasStageSupport } from '../../utils/stage';
 
 const containerStyles = css({
@@ -109,8 +109,8 @@ export const FocusModePreview = ({
     content = (
       <div className={centerStyles}>
         <div className={loaderStyles}>
-          <SpinLoader title='Loading' />
-          Loading Preview Documents... 
+          <SpinLoader title="Loading" />
+          Loading Preview Documents...
         </div>
       </div>
     );
@@ -136,7 +136,7 @@ export const FocusModePreview = ({
   }
 
   return (
-    <div className={containerStyles} data-testid='focus-mode-stage-preview'>
+    <div className={containerStyles} data-testid="focus-mode-stage-preview">
       <div className={headerStyles}>
         <div>
           <Overline>{title}</Overline>
@@ -147,11 +147,13 @@ export const FocusModePreview = ({
           )}
         </div>
         <div className={pipelineOutputMenuStyles}>
-          {isPipelineOptionsMenuVisible && <PipelineOutputOptionsMenu
-            buttonText='Options'
-            option={pipelineOutputOption}
-            onChangeOption={setPipelineOutputOption}
-          />}
+          {isPipelineOptionsMenuVisible && (
+            <PipelineOutputOptionsMenu
+              buttonText="Options"
+              option={pipelineOutputOption}
+              onChangeOption={setPipelineOutputOption}
+            />
+          )}
         </div>
       </div>
       {content}
@@ -160,75 +162,76 @@ export const FocusModePreview = ({
 };
 
 export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  return <FocusModePreview {...props} title='Stage Input'/>;
+  return <FocusModePreview {...props} title="Stage Input" />;
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  return <FocusModePreview {...props} title='Stage Output' />;
+  return <FocusModePreview {...props} title="Stage Output" />;
 };
 
-export const FocusModeStageInput = connect(({
-  focusMode: { stageIndex },
-  env,
-  inputDocuments,
-  pipelineBuilder: {
-    stageEditor: {
-      stages,
+export const FocusModeStageInput = connect(
+  ({
+    focusMode: { stageIndex },
+    env,
+    inputDocuments,
+    pipelineBuilder: {
+      stageEditor: { stages },
+    },
+  }: RootState) => {
+    if (stageIndex === -1) {
+      return null;
     }
-  }
-}: RootState) => {
-  if (stageIndex === -1) {
-    return null;
-  }
 
-  const previousStageIndex = stages
-    .slice(0, stageIndex)
-    .map((stage, index) => ({ stage, index }))
-    .filter(({ stage }) => !stage.disabled)
-    .pop()?.index ?? null;
+    const previousStageIndex =
+      stages
+        .slice(0, stageIndex)
+        .map((stage, index) => ({ stage, index }))
+        .filter(({ stage }) => !stage.disabled)
+        .pop()?.index ?? null;
 
-  if (previousStageIndex === null) {
+    if (previousStageIndex === null) {
+      return {
+        isLoading: inputDocuments.isLoading,
+        documents: inputDocuments.documents,
+      };
+    }
+
+    const previousStage = stages[previousStageIndex];
     return {
-      isLoading: inputDocuments.isLoading,
-      documents: inputDocuments.documents,
+      isLoading: previousStage.loading,
+      documents: previousStage.previewDocs,
+      stageIndex: previousStageIndex,
+      stageOperator: previousStage.stageOperator,
+      isMissingAtlasOnlyStageSupport: isMissingAtlasStageSupport(
+        env,
+        previousStage.serverError
+      ),
     };
   }
+)(InputPreview);
 
-  const previousStage = stages[previousStageIndex];
-  return {
-    isLoading: previousStage.loading,
-    documents: previousStage.previewDocs,
-    stageIndex: previousStageIndex,
-    stageOperator: previousStage.stageOperator,
-    isMissingAtlasOnlyStageSupport: isMissingAtlasStageSupport(
-      env,
-      previousStage.serverError
-    )
-  };
-})(InputPreview);
-
-export const FocusModeStageOutput = connect(({
-  focusMode: { stageIndex },
-  env,
-  pipelineBuilder: {
-    stageEditor: {
-      stages,
-    }
-  }
-}: RootState) => {
-  if (stageIndex === -1) {
-    return null;
-  }
-  const stage = stages[stageIndex];
-  const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
+export const FocusModeStageOutput = connect(
+  ({
+    focusMode: { stageIndex },
     env,
-    stage.serverError
-  );
-  return {
-    isLoading: stage.loading,
-    documents: stage.previewDocs,
-    stageIndex,
-    stageOperator: stage.stageOperator,
-    isMissingAtlasOnlyStageSupport,
-  };
-})(OutputPreview);
+    pipelineBuilder: {
+      stageEditor: { stages },
+    },
+  }: RootState) => {
+    if (stageIndex === -1) {
+      return null;
+    }
+    const stage = stages[stageIndex];
+    const isMissingAtlasOnlyStageSupport = isMissingAtlasStageSupport(
+      env,
+      stage.serverError
+    );
+    return {
+      isLoading: stage.loading,
+      documents: stage.previewDocs,
+      stageIndex,
+      stageOperator: stage.stageOperator,
+      isMissingAtlasOnlyStageSupport,
+    };
+  }
+)(OutputPreview);

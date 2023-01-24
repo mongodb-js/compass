@@ -22,15 +22,17 @@ describe('PipelineCollation', function () {
     expect(screen.getByTestId('collation-toolbar')).to.exist;
   });
 
-  it('updates the store when a new collation value is typed', function() {
+  it('updates the store when a new collation value is typed', function () {
     userEvent.tab();
-    expect(screen.getByTestId('collation-string')).to.eq(document.activeElement);
+    expect(screen.getByTestId('collation-string')).to.eq(
+      document.activeElement
+    );
     userEvent.keyboard('8');
     const storeState = store.getState();
     expect(storeState.collationString.value).to.equal(8);
   });
 
-  it('updates the store when a new max time ms value is typed', function() {
+  it('updates the store when a new max time ms value is typed', function () {
     userEvent.tab();
     userEvent.tab();
     expect(screen.getByTestId('max-time-ms')).to.eq(document.activeElement);

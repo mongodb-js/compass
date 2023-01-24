@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 
 const toggleStyle = css({
-  marginLeft: spacing[1]
+  marginLeft: spacing[1],
 });
 
 /**
@@ -52,7 +52,7 @@ export default connect(
   (state, ownProps) => {
     return {
       isEnabled:
-        !state.pipelineBuilder.stageEditor.stages[ownProps.index].disabled
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].disabled,
     };
   },
   { onChange: changeStageDisabled }

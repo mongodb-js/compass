@@ -15,7 +15,7 @@ import { parseShellBSON } from './pipeline-parser/utils';
 
 function createStageNode({
   key,
-  value
+  value,
 }: { key?: string; value?: string } = {}): t.ObjectExpression {
   return {
     type: 'ObjectExpression',
@@ -25,14 +25,14 @@ function createStageNode({
         ...(key && { key: { type: 'Identifier', name: key } }),
         ...(value && { value: babelParser.parseExpression(value) }),
         computed: false,
-        shorthand: false
+        shorthand: false,
         // NB: This is not a completely valid object property: it might be
         // missing either `key` or `value`, but for our purposes this is
         // alright as @babel/generator can handle these values missing, so
         // converting between text pipeline and stages pipeline will be still
         // possible
-      } as t.ObjectProperty
-    ]
+      } as t.ObjectProperty,
+    ],
   };
 }
 
@@ -135,7 +135,7 @@ export default class Stage {
               t.objectProperty(
                 t.identifier('$$_STAGE_OPERATOR'),
                 t.identifier('$$_STAGE_VALUE')
-              )
+              ),
             ]
           : []
       );
@@ -156,7 +156,7 @@ export default class Stage {
 
       str = generate(template, {
         // To avoid trailing comma after the stage value placeholder
-        trailingComma: 'none'
+        trailingComma: 'none',
       })
         .replace('$$_STAGE_OPERATOR', this.operator ?? '')
         .replace('$$_STAGE_VALUE', this.value ?? '');
