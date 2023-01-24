@@ -117,7 +117,7 @@ export function getStageValueFromNode(node: StageLike): string {
   if (stagePropertyNode.trailingComments) {
     stageValueNode.trailingComments = [
       ...(stageValueNode.trailingComments ?? []),
-      ...(stagePropertyNode.trailingComments ?? [])
+      ...(stagePropertyNode.trailingComments ?? []),
     ];
     delete stagePropertyNode.trailingComments;
   }
@@ -135,7 +135,7 @@ export function stageToAstComments(stage: Stage): t.CommentLine[] {
     .map((line: string) => {
       return {
         type: 'CommentLine',
-        value: ` ${line.replace(/^\s*\/\/\s/, '')}`
+        value: ` ${line.replace(/^\s*\/\/\s/, '')}`,
       };
     });
 }

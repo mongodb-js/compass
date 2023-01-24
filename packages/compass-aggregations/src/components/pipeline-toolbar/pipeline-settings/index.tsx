@@ -55,7 +55,7 @@ export const PipelineSettings: React.FunctionComponent<
             <SaveMenu />
           </>
         )}
-        {isCreatePipelineDisplayed && 
+        {isCreatePipelineDisplayed && (
           <Button
             size="xsmall"
             variant="primary"
@@ -65,7 +65,7 @@ export const PipelineSettings: React.FunctionComponent<
           >
             Create new
           </Button>
-        }
+        )}
         <Button
           variant="primaryOutline"
           size="xsmall"
@@ -90,7 +90,7 @@ export default connect(
     return {
       isSavePipelineDisplayed: !state.editViewName && !state.isAtlasDeployed,
       isCreatePipelineDisplayed: !state.editViewName,
-      isExportToLanguageEnabled: !hasSyntaxErrors
+      isExportToLanguageEnabled: !hasSyntaxErrors,
     };
   },
   {

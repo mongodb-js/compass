@@ -25,14 +25,14 @@ const renderPipelineExtraSettings = (
 };
 
 describe('PipelineExtraSettings', function () {
-  let sandbox: SinonSandbox
-  beforeEach(function() {
+  let sandbox: SinonSandbox;
+  beforeEach(function () {
     sandbox = createSandbox();
-  })
+  });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
-  })
+  });
 
   it('calls onToggleAutoPreview when clicked', function () {
     const onToggleAutoPreviewSpy = spy();

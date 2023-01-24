@@ -1,7 +1,14 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
 import type { ConnectedProps } from 'react-redux';
-import { css, cx, Label, spacing, TextInput, palette } from '@mongodb-js/compass-components';
+import {
+  css,
+  cx,
+  Label,
+  spacing,
+  TextInput,
+  palette,
+} from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../../modules';
 import { collationStringChanged } from '../../../modules/collation-string';
@@ -105,23 +112,27 @@ const PipelineCollation: React.FunctionComponent<PipelineCollationProps> = ({
         id={maxTimeMSInputId}
         data-testid="max-time-ms"
         className={inputStyles}
-        placeholder={`${Math.min(DEFAULT_MAX_TIME_MS, maxTimeMSLimit || Infinity)}`}
+        placeholder={`${Math.min(
+          DEFAULT_MAX_TIME_MS,
+          maxTimeMSLimit || Infinity
+        )}`}
         type="number"
         min="0"
         max={maxTimeMSLimit}
         sizeVariant="small"
         value={`${maxTimeMSValue ?? ''}`}
-        state={(maxTimeMSValue && maxTimeMSLimit && maxTimeMSValue > maxTimeMSLimit) ? 'error' : 'none'}
+        state={
+          maxTimeMSValue && maxTimeMSLimit && maxTimeMSValue > maxTimeMSLimit
+            ? 'error'
+            : 'none'
+        }
         onChange={onMaxTimeMSChanged}
       />
     </div>
   );
 };
 
-const mapState = ({
-  collationString,
-  maxTimeMS,
-}: RootState) => ({
+const mapState = ({ collationString, maxTimeMS }: RootState) => ({
   collationValue: collationString.text,
   collationHasError: !collationString.isValid,
   maxTimeMSValue: maxTimeMS,

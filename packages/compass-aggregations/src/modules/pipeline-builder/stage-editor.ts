@@ -12,7 +12,7 @@ import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   DEFAULT_PREVIEW_LIMIT,
-  DEFAULT_SAMPLE_SIZE
+  DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
@@ -145,10 +145,10 @@ export const loadStagePreview = (
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       pipelineBuilder: {
-        stageEditor: { stages }
+        stageEditor: { stages },
       },
       dataService,
-      autoPreview
+      autoPreview,
     } = getState();
 
     // Ignoring the state of the stage, always try to stop current preview fetch
@@ -166,7 +166,7 @@ export const loadStagePreview = (
     if (!canFetchPreviewForStage) {
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchSkipped,
-        id: idx
+        id: idx,
       });
       return;
     }
@@ -174,7 +174,7 @@ export const loadStagePreview = (
     try {
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetch,
-        id: idx
+        id: idx,
       });
 
       const {
@@ -183,7 +183,7 @@ export const loadStagePreview = (
         collationString,
         limit,
         largeLimit,
-        inputDocuments
+        inputDocuments,
       } = getState();
 
       const options: PreviewOptions = {
@@ -191,7 +191,7 @@ export const loadStagePreview = (
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
-        totalDocumentCount: inputDocuments.count
+        totalDocumentCount: inputDocuments.count,
       };
 
       const previewDocs = await pipelineBuilder.getPreviewForStage(
@@ -202,7 +202,7 @@ export const loadStagePreview = (
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchSuccess,
         id: idx,
-        previewDocs
+        previewDocs,
       });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
@@ -211,7 +211,7 @@ export const loadStagePreview = (
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchError,
         id: idx,
-        error: err as MongoServerError
+        error: err as MongoServerError,
       });
     }
   };
@@ -240,8 +240,8 @@ export const runStage = (
       maxTimeMS,
       collationString,
       pipelineBuilder: {
-        stageEditor: { stages }
-      }
+        stageEditor: { stages },
+      },
     } = getState();
 
     if (!dataService) {
@@ -269,7 +269,7 @@ export const runStage = (
       );
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collationString.value ?? undefined
+        collation: collationString.value ?? undefined,
       };
       // We are not handling cancelling, just supporting `aggregatePipeline` interface
       const { signal } = new AbortController();
@@ -278,12 +278,12 @@ export const runStage = (
         signal,
         namespace,
         pipeline,
-        options
+        options,
       });
       dispatch({
         type: StageEditorActionTypes.StageRunSuccess,
         id: idx,
-        previewDocs: result
+        previewDocs: result,
       });
       dispatch(globalAppRegistryEmit('agg-pipeline-out-executed', { id: idx }));
     } catch (error) {
@@ -321,7 +321,7 @@ const ESCAPED_STAGE_OPERATORS = STAGE_OPERATORS.map((stage) => {
   return {
     ...stage,
     comment: replaceOperatorSnippetTokens(stage.comment),
-    snippet: replaceOperatorSnippetTokens(stage.snippet)
+    snippet: replaceOperatorSnippetTokens(stage.snippet),
   };
 });
 
@@ -367,8 +367,8 @@ export const changeStageOperator = (
       env,
       comments,
       pipelineBuilder: {
-        stageEditor: { stages }
-      }
+        stageEditor: { stages },
+      },
     } = getState();
 
     const currentSnippet = getStageSnippet(
@@ -414,7 +414,7 @@ export const changeStageDisabled = (
     dispatch({
       type: StageEditorActionTypes.StageDisabledChange,
       id,
-      disabled: newVal
+      disabled: newVal,
     });
     dispatch(loadPreviewForStagesFrom(id));
   };
@@ -427,7 +427,7 @@ export const changeStageCollapsed = (
   return {
     type: StageEditorActionTypes.StageCollapsedChange,
     id,
-    collapsed: newVal
+    collapsed: newVal,
   };
 };
 
@@ -526,14 +526,17 @@ const reducer: Reducer<StageEditorState> = (
   if (
     action.type === RESTORE_PIPELINE ||
     action.type === ConfirmNewPipelineActions.NewPipelineConfirmed ||
-    isAction<PipelineModeToggledAction>(action, PipelineModeActionTypes.PipelineModeToggled)
+    isAction<PipelineModeToggledAction>(
+      action,
+      PipelineModeActionTypes.PipelineModeToggled
+    )
   ) {
     const stages = action.stages.map((stage: Stage) => {
       return mapBuilderStageToStoreStage(stage);
     });
     return {
       stageIds: stages.map((stage: Stage) => stage.id),
-      stages
+      stages,
     };
   }
 
@@ -551,10 +554,10 @@ const reducer: Reducer<StageEditorState> = (
         {
           ...state.stages[action.id],
           serverError: null,
-          loading: true
+          loading: true,
         },
-        ...state.stages.slice(action.id + 1)
-      ]
+        ...state.stages.slice(action.id + 1),
+      ],
     };
   }
 
@@ -572,10 +575,10 @@ const reducer: Reducer<StageEditorState> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: null,
-          serverError: null
+          serverError: null,
         },
-        ...state.stages.slice(action.id + 1)
-      ]
+        ...state.stages.slice(action.id + 1),
+      ],
     };
   }
 
@@ -597,10 +600,10 @@ const reducer: Reducer<StageEditorState> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: action.previewDocs,
-          serverError: null
+          serverError: null,
         },
-        ...state.stages.slice(action.id + 1)
-      ]
+        ...state.stages.slice(action.id + 1),
+      ],
     };
   }
 
@@ -618,10 +621,10 @@ const reducer: Reducer<StageEditorState> = (
         {
           ...state.stages[action.id],
           loading: false,
-          serverError: action.error
+          serverError: action.error,
         },
-        ...state.stages.slice(action.id + 1)
-      ]
+        ...state.stages.slice(action.id + 1),
+      ],
     };
   }
 
@@ -642,8 +645,8 @@ const reducer: Reducer<StageEditorState> = (
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
         },
-        ...state.stages.slice(action.id + 1)
-      ]
+        ...state.stages.slice(action.id + 1),
+      ],
     };
   }
 
@@ -664,8 +667,8 @@ const reducer: Reducer<StageEditorState> = (
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
         },
-        ...state.stages.slice(action.id + 1)
-      ]
+        ...state.stages.slice(action.id + 1),
+      ],
     };
   }
 
@@ -683,10 +686,10 @@ const reducer: Reducer<StageEditorState> = (
           ...state.stages[action.id],
           serverError: null,
           previewDocs: null,
-          disabled: action.disabled
+          disabled: action.disabled,
         },
-        ...state.stages.slice(action.id + 1)
-      ]
+        ...state.stages.slice(action.id + 1),
+      ],
     };
   }
 
@@ -702,10 +705,10 @@ const reducer: Reducer<StageEditorState> = (
         ...state.stages.slice(0, action.id),
         {
           ...state.stages[action.id],
-          collapsed: action.collapsed
+          collapsed: action.collapsed,
         },
-        ...state.stages.slice(action.id + 1)
-      ]
+        ...state.stages.slice(action.id + 1),
+      ],
     };
   }
 
@@ -716,7 +719,7 @@ const reducer: Reducer<StageEditorState> = (
     return {
       ...state,
       stageIds: stages.map((stage) => stage.id),
-      stages
+      stages,
     };
   }
 
@@ -728,7 +731,7 @@ const reducer: Reducer<StageEditorState> = (
     return {
       ...state,
       stageIds: stages.map((stage) => stage.id),
-      stages
+      stages,
     };
   }
 
@@ -739,7 +742,7 @@ const reducer: Reducer<StageEditorState> = (
     return {
       ...state,
       stageIds: stages.map((stage) => stage.id),
-      stages
+      stages,
     };
   }
 

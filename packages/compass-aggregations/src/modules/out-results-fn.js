@@ -1,6 +1,7 @@
 import { globalAppRegistryEmit } from '@mongodb-js/mongodb-redux-common/app-registry';
 import { getStagesFromBuilderState } from './pipeline-builder/builder-helpers';
 import { getDestinationNamespaceFromStage } from '../utils/stage';
+import { disableFocusMode } from './focus-mode';
 
 /**
  * The initial state.
@@ -34,5 +35,14 @@ export const gotoOutResults = (index) => {
         globalAppRegistryEmit('aggregations-open-result-namespace', namespace)
       );
     }
+  };
+};
+
+export const viewOutResults = (index) => {
+  return (dispatch, getState) => {
+    if (getState().focusMode.isEnabled) {
+      dispatch(disableFocusMode());
+    }
+    dispatch(gotoOutResults(index));
   };
 };

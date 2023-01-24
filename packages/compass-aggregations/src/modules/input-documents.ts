@@ -10,7 +10,7 @@ export enum ActionTypes {
   CollapseToggled = 'aggregations/input-documents/CollapseToggled',
   DocumentsFetchStarted = 'aggregations/input-documents/DocumentsFetchStarted',
   DocumentsFetchFinished = 'aggregations/input-documents/DocumentsFetchFinished',
-};
+}
 
 type CollapseToggledAction = {
   type: ActionTypes.CollapseToggled;
@@ -40,25 +40,25 @@ export const INITIAL_STATE: State = {
   documents: [],
   error: null,
   isExpanded: true,
-  isLoading: false
+  isLoading: false,
 };
 
 const reducer = (state = INITIAL_STATE, action: AnyAction) => {
   if (action.type === ActionTypes.CollapseToggled) {
     return { ...state, isExpanded: !state.isExpanded };
   }
-  
+
   if (action.type === ActionTypes.DocumentsFetchStarted) {
     return { ...state, isLoading: true };
   }
-  
+
   if (action.type === ActionTypes.DocumentsFetchFinished) {
     return {
       ...state,
       count: action.count,
       documents: action.documents,
       error: action.error,
-      isLoading: false
+      isLoading: false,
     };
   }
   return state;
@@ -67,12 +67,11 @@ const reducer = (state = INITIAL_STATE, action: AnyAction) => {
 export default reducer;
 
 export const toggleInputDocumentsCollapsed = (): CollapseToggledAction => ({
-  type: ActionTypes.CollapseToggled
+  type: ActionTypes.CollapseToggled,
 });
 
-
 export const loadingInputDocuments = (): DocumentsFetchStartedAction => ({
-  type: ActionTypes.DocumentsFetchStarted
+  type: ActionTypes.DocumentsFetchStarted,
 });
 
 export const updateInputDocuments = (
@@ -86,15 +85,15 @@ export const updateInputDocuments = (
   error,
 });
 
-export const refreshInputDocuments = (): PipelineBuilderThunkAction<Promise<void>> => {
+export const refreshInputDocuments = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => {
   return async (dispatch, getState) => {
     const {
       dataService: { dataService },
       namespace: ns,
       maxTimeMS,
-      settings: {
-        sampleSize
-      }
+      settings: { sampleSize },
     } = getState();
 
     if (!dataService) {
@@ -109,7 +108,7 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<Promise<void
     }
 
     const options = {
-      maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS) as number | undefined
+      maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS) as number | undefined,
     };
 
     const exampleDocumentsPipeline = [{ $limit: sampleSize }];
@@ -119,17 +118,18 @@ export const refreshInputDocuments = (): PipelineBuilderThunkAction<Promise<void
     try {
       const data = await Promise.allSettled([
         dataService.estimatedCount(ns, options),
-        dataService.aggregate(ns, exampleDocumentsPipeline, options)
+        dataService.aggregate(ns, exampleDocumentsPipeline, options),
       ]);
 
       const count = data[0].status === 'fulfilled' ? data[0].value : null;
       const docs = data[1].status === 'fulfilled' ? data[1].value : [];
 
-      const error = data[0].status === 'rejected'
-        ? data[0].reason
-        : data[1].status === 'rejected'
-        ? data[1].reason
-        : null;
+      const error =
+        data[0].status === 'rejected'
+          ? data[0].reason
+          : data[1].status === 'rejected'
+          ? data[1].reason
+          : null;
       dispatch(updateInputDocuments(count, docs, error));
     } catch (error) {
       dispatch(updateInputDocuments(null, [], error as Error));

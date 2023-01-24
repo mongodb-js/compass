@@ -17,7 +17,7 @@ export const INITIAL_STATE = true;
  */
 export default function reducer(state = INITIAL_STATE, action) {
   if (action.type === APPLY_SETTINGS) {
-    return action.settings.isCommentMode ?? state
+    return action.settings.isCommentMode ?? state;
   }
   if (action.type === ConfirmNewPipelineActions.NewPipelineConfirmed) {
     return INITIAL_STATE;

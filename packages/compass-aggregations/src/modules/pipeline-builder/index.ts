@@ -10,7 +10,7 @@ const reducer = combineReducers({
   textEditor: combineReducers({
     pipeline,
     outputStage,
-  })
+  }),
 });
 
 export default reducer;

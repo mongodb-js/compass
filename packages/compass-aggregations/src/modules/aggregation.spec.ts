@@ -4,7 +4,13 @@ import thunk from 'redux-thunk';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
-import reducer, { runAggregation, fetchNextPage, fetchPrevPage, cancelAggregation, changeViewType } from './aggregation';
+import reducer, {
+  runAggregation,
+  fetchNextPage,
+  fetchPrevPage,
+  cancelAggregation,
+  changeViewType,
+} from './aggregation';
 import type { State as AggregateState } from './aggregation';
 import type { RootState } from '.';
 import rootReducer from '../modules';
@@ -18,7 +24,7 @@ const getMockedStore = (aggregation: AggregateState): Store<RootState> => {
     aggregation,
   };
   return createStore(rootReducer, mockedState, applyMiddleware(thunk));
-}
+};
 
 describe('aggregation module', function () {
   it('should return the initial state', function () {
@@ -38,11 +44,11 @@ describe('aggregation module', function () {
     const store: Store<RootState> = configureStore({ sourcePipeline: `[]` });
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
-      dataService: new class {
+      dataService: new (class {
         aggregate() {
           return Promise.resolve(mockDocuments);
         }
-      }
+      })(),
     });
 
     await store.dispatch(runAggregation() as any);
@@ -70,16 +76,16 @@ describe('aggregation module', function () {
       documents,
       limit: 4,
       page: 2,
-      resultsViewType: 'document'
+      resultsViewType: 'document',
     });
 
     store.dispatch({
       type: DATA_SERVICE_CONNECTED,
-      dataService: new class {
+      dataService: new (class {
         aggregate() {
           throw createCancelError();
         }
-      }
+      })(),
     });
 
     store.dispatch(fetchNextPage() as any);
@@ -105,9 +111,7 @@ describe('aggregation module', function () {
         pipeline: [],
         isLast: false,
         loading: false,
-        documents: [
-          { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
-        ],
+        documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }],
         limit: 4,
         page: 2,
         resultsViewType: 'document',
@@ -116,11 +120,11 @@ describe('aggregation module', function () {
       const mockDocuments = [{ id: 9 }, { id: 10 }, { id: 11 }, { id: 12 }];
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
-        dataService: new class {
+        dataService: new (class {
           aggregate() {
             return Promise.resolve(mockDocuments);
           }
-        }
+        })(),
       });
 
       await store.dispatch(fetchNextPage() as any);
@@ -143,9 +147,7 @@ describe('aggregation module', function () {
         pipeline: [],
         isLast: true,
         loading: false,
-        documents: [
-          { id: 1 }, { id: 2 }, { id: 3 },
-        ],
+        documents: [{ id: 1 }, { id: 2 }, { id: 3 }],
         limit: 4,
         page: 1,
         resultsViewType: 'document',
@@ -155,7 +157,7 @@ describe('aggregation module', function () {
         type: DATA_SERVICE_CONNECTED,
         dataService: {
           aggregate: aggregateSpy,
-        }
+        },
       });
       await store.dispatch(fetchNextPage() as any);
       expect(aggregateSpy.callCount).to.equal(0);
@@ -165,9 +167,7 @@ describe('aggregation module', function () {
         pipeline: [],
         isLast: false,
         loading: false,
-        documents: [
-          { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
-        ],
+        documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }],
         limit: 4,
         page: 2,
         resultsViewType: 'document',
@@ -177,11 +177,11 @@ describe('aggregation module', function () {
 
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
-        dataService: new class {
+        dataService: new (class {
           aggregate() {
             return Promise.resolve(mockDocuments);
           }
-        }
+        })(),
       });
 
       await store.dispatch(fetchPrevPage() as any);
@@ -204,9 +204,7 @@ describe('aggregation module', function () {
         pipeline: [],
         isLast: false,
         loading: false,
-        documents: [
-          { id: 1 }, { id: 2 }, { id: 3 }, { id: 4 },
-        ],
+        documents: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
         limit: 4,
         page: 1,
         resultsViewType: 'document',
@@ -216,7 +214,7 @@ describe('aggregation module', function () {
         type: DATA_SERVICE_CONNECTED,
         dataService: {
           aggregate: aggregateSpy,
-        }
+        },
       });
       await store.dispatch(fetchPrevPage() as any);
       expect(aggregateSpy.callCount).to.equal(0);
@@ -227,16 +225,14 @@ describe('aggregation module', function () {
       pipeline: [],
       isLast: false,
       loading: false,
-      documents: [
-        { id: 5 }, { id: 6 }, { id: 7 }, { id: 8 },
-      ],
+      documents: [{ id: 5 }, { id: 6 }, { id: 7 }, { id: 8 }],
       limit: 4,
       page: 2,
       resultsViewType: 'document',
     });
 
-    expect(store.getState().aggregation.resultsViewType).to.equal('document')
+    expect(store.getState().aggregation.resultsViewType).to.equal('document');
     store.dispatch(changeViewType('json'));
-    expect(store.getState().aggregation.resultsViewType).to.equal('json')
+    expect(store.getState().aggregation.resultsViewType).to.equal('json');
   });
 });
