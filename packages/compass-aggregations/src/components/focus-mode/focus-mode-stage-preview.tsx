@@ -8,7 +8,6 @@ import {
 } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
 import { DocumentListView } from '@mongodb-js/compass-crud';
-import HadronDocument from 'hadron-document';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
 import { connect } from 'react-redux';
@@ -119,7 +118,7 @@ export const FocusModePreview = ({
     content = (
       <DocumentListView
         docs={documents}
-        copyToClipboard={(doc: HadronDocument) => {
+        copyToClipboard={(doc) => {
           const str = doc.toEJSON();
           void navigator.clipboard.writeText(str);
         }}
@@ -182,19 +181,21 @@ export const FocusModeStageInput = connect(({
     return null;
   }
 
-  const previousStages = stages
+  const previousStageIndex = stages
     .slice(0, stageIndex)
-    .filter(x => !x.disabled);
-  if (previousStages.length === 0) {
+    .map((stage, index) => ({ stage, index }))
+    .filter(({ stage }) => !stage.disabled)
+    .map(({ index }) => index)
+    .pop();
+
+  if (!previousStageIndex) {
     return {
       isLoading: inputDocuments.isLoading,
       documents: inputDocuments.documents,
     };
   }
 
-  const previousStageIndex = previousStages.length - 1;
-  const previousStage = previousStages[previousStageIndex];
-
+  const previousStage = stages[previousStageIndex];
   return {
     isLoading: previousStage.loading,
     documents: previousStage.previewDocs,
