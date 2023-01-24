@@ -728,10 +728,7 @@ export class Element extends EventEmitter {
    * @param evt - The event.
    * @paramdata - Optional.
    */
-  _bubbleUp(
-    evt: (typeof Events)[keyof typeof Events],
-    ...data: BSONArray
-  ): void {
+  _bubbleUp(evt: typeof Events[keyof typeof Events], ...data: BSONArray): void {
     this.emit(evt, ...data);
     const element = this.parent;
     if (element) {
