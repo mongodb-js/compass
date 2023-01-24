@@ -1,0 +1,13 @@
+double,notes
+1.0
+1.2
+-1.0
+-1.2
+"1.0"
+"1.2"
+1e-15
+1.0000000000000002,the smallest number > 1
+4.940656458412465E-324,Min. subnormal positive double
+2.225073858507201e-308,Max. subnormal double
+2.2250738585072014e-308,Min. normal positive double
+1.7976931348623157e+308,Max. Double

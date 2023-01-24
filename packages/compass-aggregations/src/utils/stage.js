@@ -180,6 +180,14 @@ const STAGE_OPERATOS_MAP = new Map(
   STAGE_OPERATORS.map((stage) => [stage.value, stage])
 );
 
+export const getStageHelpLink = (stageOperator) => {
+  if (!stageOperator) {
+    return null;
+  }
+  const BASE_URL = 'https://www.mongodb.com/docs/manual/reference/operator/aggregation';
+  return `${BASE_URL}/${stageOperator.replace(/^\$/, '')}`;
+};
+
 /**
  * @param {string} namespace
  * @param {string | undefined | null} stageOperator
@@ -190,12 +198,7 @@ export function getStageInfo(namespace, stageOperator, stageValue) {
   const stage = STAGE_OPERATOS_MAP.get(stageOperator);
   return {
     description: stage?.description,
-    link: stageOperator
-      ? `https://www.mongodb.com/docs/manual/reference/operator/aggregation/${stageOperator.replace(
-          /^\$/,
-          ''
-        )}`
-      : null,
+    link: getStageHelpLink(stageOperator),
     destination: isOutputStage(stageOperator)
       ? (() => {
           try {

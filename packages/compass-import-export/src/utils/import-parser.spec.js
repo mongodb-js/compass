@@ -6,7 +6,7 @@ import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
 import createParser from './import-parser';
-import { FIXTURES } from '../../test/fixtures';
+import { fixtures } from '../../test/fixtures';
 function runParser(src, parser) {
   const docs = [];
   const source = fs.createReadStream(src);
@@ -30,19 +30,19 @@ function runParser(src, parser) {
 describe('import-parser', function () {
   describe('json', function () {
     it('should parse a file', function () {
-      return runParser(FIXTURES.GOOD_JSON, createParser()).then((docs) => {
+      return runParser(fixtures.json.good, createParser()).then((docs) => {
         expect(docs).to.have.length(3);
       });
     });
     it('should parse a line-delimited file', function () {
       return runParser(
-        FIXTURES.LINE_DELIMITED_JSON,
+        fixtures.jsonl.good,
         createParser({ fileType: 'json', fileIsMultilineJSON: true })
       ).then((docs) => expect(docs).to.have.length(3));
     });
     it('should parse a line-delimited file with an extra empty line', function () {
       return runParser(
-        FIXTURES.LINE_DELIMITED_JSON_EXTRA_LINE,
+        fixtures.jsonl.extra_line,
         createParser({ fileIsMultilineJSON: true })
       ).then((docs) => {
         expect(docs).to.have.length(3);
@@ -51,7 +51,7 @@ describe('import-parser', function () {
     describe('deserialize', function () {
       const BSON_DOCS = [];
       before(function () {
-        const src = FIXTURES.GOOD_JSON;
+        const src = fixtures.json.good;
         return runParser(src, createParser()).then(function (docs) {
           BSON_DOCS.push.apply(BSON_DOCS, docs);
         });
@@ -63,7 +63,7 @@ describe('import-parser', function () {
     describe('errors', function () {
       let parseError;
       before(function (done) {
-        const p = runParser(FIXTURES.JS_I_THINK_IS_JSON, createParser());
+        const p = runParser(fixtures.other.javascript, createParser());
         p.catch((err) => (parseError = err));
         expect(p).to.be.rejected.and.notify(done);
       });
@@ -80,8 +80,8 @@ describe('import-parser', function () {
   describe('csv', function () {
     it('should work with commas', function () {
       return runParser(
-        FIXTURES.GOOD_COMMAS_CSV,
-        createParser({ fileType: 'csv', fileName: FIXTURES.GOOD_COMMAS_CSV })
+        fixtures.csv.good_commas,
+        createParser({ fileType: 'csv', fileName: fixtures.csv.good_commas })
       ).then((docs) => {
         expect(docs).to.deep.equal([
           { _id: '1', value: 'some string' },
@@ -92,10 +92,10 @@ describe('import-parser', function () {
     });
     it('should work with hard tabs', function () {
       return runParser(
-        FIXTURES.GOOD_TABS_CSV,
+        fixtures.csv.good_tabs,
         createParser({
           fileType: 'csv',
-          fileName: FIXTURES.GOOD_TABS_CSV,
+          fileName: fixtures.csv.good_tabs,
           delimiter: '\t',
         })
       ).then((docs) => {
@@ -108,7 +108,7 @@ describe('import-parser', function () {
     });
     it('should parse number-transform', function () {
       return runParser(
-        FIXTURES.NUMBER_TRANSFORM_CSV,
+        fixtures.csv.number_transform,
         createParser({ fileType: 'csv' })
       ).then((docs) => {
         expect(docs).to.have.length(1);
@@ -185,7 +185,7 @@ describe('import-parser', function () {
       let parseError;
       before(function (done) {
         const p = runParser(
-          FIXTURES.BAD_CSV,
+          fixtures.csv.bad,
           createParser({ fileType: 'csv', delimiter: '\n' })
         );
         p.catch((err) => (parseError = err));
