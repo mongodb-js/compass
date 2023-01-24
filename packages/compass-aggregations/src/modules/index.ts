@@ -36,7 +36,7 @@ import isDataLake from './is-datalake';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import indexes from './indexes';
-import type { ThunkAction } from 'redux-thunk';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 import type { PipelineStorage } from '../utils/pipeline-storage';
 import focusMode from './focus-mode';
@@ -88,10 +88,14 @@ const rootReducer = combineReducers({
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
-export type ExtraArgs = {
+export type PipelineBuilderExtraArgs = {
   pipelineBuilder: PipelineBuilder;
   pipelineStorage: PipelineStorage;
 };
+
+export type PipelineBuilderThunkDispatch<
+  A extends Action = AnyAction
+> = ThunkDispatch<RootState, PipelineBuilderExtraArgs, A>;
 
 export type PipelineBuilderThunkAction<
   R,
@@ -99,7 +103,7 @@ export type PipelineBuilderThunkAction<
 > = ThunkAction<
   R,
   RootState,
-  ExtraArgs,
+  PipelineBuilderExtraArgs,
   A
 >;
 

@@ -1,10 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { css, spacing, Body, Link, Button, SpinLoader } from '@mongodb-js/compass-components';
-import type { AnyAction } from "redux";
-import type { ThunkDispatch } from "redux-thunk";
-
-import type { ExtraArgs, RootState } from '../modules';
+import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import { viewOutResults } from '../modules/out-results-fn';
 import { runStage } from '../modules/pipeline-builder/stage-editor';
 import {
@@ -212,7 +209,7 @@ const mapState = (state: RootState, ownProps: OwnProps) => {
   };
 };
 
-const mapDispatch = (dispatch: ThunkDispatch<RootState, ExtraArgs, AnyAction>, ownProps: OwnProps) => ({
+const mapDispatch = (dispatch: PipelineBuilderThunkDispatch, ownProps: OwnProps) => ({
   onRunOutputStage: () => dispatch(runStage(ownProps.index)),
   onGoToOutputResults: () => dispatch(viewOutResults(ownProps.index)),
 });

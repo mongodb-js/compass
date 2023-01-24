@@ -192,8 +192,8 @@ export const FocusModeStageInput = connect(({
     };
   }
 
-  const previousStage = previousStages[previousStages.length - 1];
   const previousStageIndex = previousStages.length - 1;
+  const previousStage = previousStages[previousStageIndex];
 
   return {
     isLoading: previousStage.loading,
