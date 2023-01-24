@@ -75,7 +75,7 @@ const expectedFieldsByFile = {
   'sparse.csv': ['foo', 'bar', 'baz'],
   'semicolons.csv': ['a', 'b', 'c', 'd'],
   'spaces.csv': ['a', 'b', 'c', 'd'],
-  'array.csv': ['a', 'foo', 'z', 'notes'],
+  'array.csv': ['a', 'foo', 'bar', 'z', 'notes'],
   'object.csv': ['a', 'foo.bar', 'foo.baz.qux', 'foo.baz.quux', 'z', 'notes'],
   'complex.csv': ['foo', 'foo.bar', 'foo.bar.baz', 'notes'],
 } as const;

@@ -1,0 +1,72 @@
+{
+  "totalRows": 3,
+  "aborted": false,
+  "fields": {
+    "foo": {
+      "types": {
+        "int": {
+          "count": 3,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 0,
+          "firstValue": "1"
+        },
+        "null": {
+          "count": 3,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 1,
+          "firstValue": ""
+        }
+      },
+      "columnIndexes": [0, 1],
+      "detected": "int"
+    },
+    "foo.bar": {
+      "types": {
+        "null": {
+          "count": 2,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 2,
+          "firstValue": ""
+        },
+        "int": {
+          "count": 1,
+          "firstRowIndex": 2,
+          "firstColumnIndex": 2,
+          "firstValue": "1"
+        }
+      },
+      "columnIndexes": [2],
+      "detected": "int"
+    },
+    "foo.bar.baz": {
+      "types": {
+        "null": {
+          "count": 2,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 3,
+          "firstValue": ""
+        },
+        "int": {
+          "count": 1,
+          "firstRowIndex": 2,
+          "firstColumnIndex": 3,
+          "firstValue": "1"
+        }
+      },
+      "columnIndexes": [3],
+      "detected": "int"
+    },
+    "notes": {
+      "types": {
+        "string": {
+          "count": 3,
+          "firstRowIndex": 0,
+          "firstColumnIndex": 4,
+          "firstValue": "simple value"
+        }
+      },
+      "columnIndexes": [4],
+      "detected": "string"
+    }
+  }
+}
