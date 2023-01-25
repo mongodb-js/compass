@@ -21,13 +21,6 @@ import {
 } from '../modules/input-documents';
 import LoadingOverlay from './loading-overlay';
 
-const cardStyles = css({
-  marginLeft: spacing[3],
-  marginRight: spacing[3],
-  marginBottom: spacing[2],
-  marginTop: 0,
-});
-
 const headerStyles = css({
   display: 'flex',
   gap: spacing[1],
@@ -96,7 +89,7 @@ function PipelineBuilderInputDocuments({
   const expandTooltipText = isExpanded ? 'Collapse' : 'Expand';
 
   return (
-    <KeylineCard className={cardStyles}>
+    <KeylineCard>
       <div className={headerStyles}>
         <IconButton
           onClick={toggleExpanded}
