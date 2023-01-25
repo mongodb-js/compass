@@ -63,8 +63,11 @@ const leftStyles = css({
   width: '388px', // default width of the stage editor
 });
 
-const centerStyles = css({
+const textStyles = css({
   flex: 1,
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 const rightStyles = css({
@@ -118,7 +121,7 @@ function StageToolbar({
         <StageOperatorSelect index={index} />
         <ToggleStage index={index} />
       </div>
-      <div className={centerStyles}>
+      <div className={textStyles}>
         {isDisabled ? DISABLED_TEXT : isCollapsed ? COLLAPSED_TEXT : null}
       </div>
       <div className={rightStyles}>

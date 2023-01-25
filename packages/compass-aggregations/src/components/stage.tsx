@@ -163,13 +163,12 @@ function Stage({
           hasSyntaxError && stageWarningStyles,
           hasServerError && stageErrorStyles
         )}
-        style={{ opacity }}
       >
         <div {...listeners}>
           <StageToolbar index={index} />
         </div>
         {isExpanded && (
-          <div className={stageContentStyles}>
+          <div style={{ opacity }} className={stageContentStyles}>
             <ResizableEditor
               id={id}
               index={index}

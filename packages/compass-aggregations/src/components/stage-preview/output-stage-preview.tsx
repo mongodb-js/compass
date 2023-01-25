@@ -22,17 +22,12 @@ const stagePreviewOutStyles = css({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  width: '100%',
-  paddingTop: spacing[5],
-  paddingLeft: spacing[1],
-  paddingRight: spacing[1],
-  paddingBottom: spacing[2],
+  justifyContent: 'center',
+  gap: spacing[2],
 });
 
 const stagePreviewOutTextStyles = css({
-  padding: `0 ${spacing[3]}px ${spacing[1]}px ${spacing[3]}px`,
   textAlign: 'center',
-  marginBottom: spacing[2],
 });
 
 const stagePreviewOutLinkStyles = css({

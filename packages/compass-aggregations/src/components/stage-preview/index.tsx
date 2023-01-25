@@ -18,27 +18,17 @@ import { isMissingAtlasStageSupport } from '../../utils/stage';
 import LoadingOverlay from '../loading-overlay';
 import { AtlasStagePreview } from './atlas-stage-preview';
 import { OutStagePreivew, MergeStagePreivew } from './output-stage-preview';
+import StagePreviewHeader from './stage-preview-header';
 
-const stagePreviewMissingSearchSupportStyles = css({
+const centeredContent = css({
   display: 'flex',
-  flex: 1,
+  alignItems: 'center',
   justifyContent: 'center',
+  height: '100%',
+  padding: spacing[3],
 });
 
-type AtlasOnlySectionProps = {
-  stageOperator: string;
-};
-
-function AtlasOnlySection({ stageOperator }: AtlasOnlySectionProps) {
-  return (
-    <div className={stagePreviewMissingSearchSupportStyles}>
-      <AtlasStagePreview stageOperator={stageOperator} />
-    </div>
-  );
-}
-
 const emptyStyles = css({
-  paddingLeft: spacing[3],
   margin: 'auto',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -59,18 +49,19 @@ function EmptyIcon() {
   const darkMode = useDarkMode();
 
   return (
-    <div
-      className={cx(emptyStyles, darkMode ? emptyStylesDark : emptyStylesLight)}
-    >
-      <Body>
-        <span data-testid="stage-preview-empty">No Preview Documents</span>
-      </Body>
+    <div className={centeredContent}>
+      <div
+        className={cx(emptyStyles, darkMode ? emptyStylesDark : emptyStylesLight)}
+      >
+        <Body>
+          <span data-testid="stage-preview-empty">No Preview Documents</span>
+        </Body>
+      </div>
     </div>
   );
 }
 
 const documentsStyles = css({
-  margin: spacing[2],
   gap: spacing[2],
   display: 'flex',
   alignItems: 'stretch',
@@ -98,6 +89,7 @@ const documentStyles = css({
 type StagePreviewProps = {
   index: number;
   isLoading: boolean;
+  isDisabled: boolean;
   isMissingAtlasOnlyStageSupport: boolean;
   stageOperator: string;
   documents: DocumentType[] | null;
@@ -117,20 +109,36 @@ function StagePreviewBody({
   }
 
   if (isMissingAtlasOnlyStageSupport) {
-    return <AtlasOnlySection stageOperator={stageOperator} />;
+    return (
+      <div className={centeredContent}>
+        <AtlasStagePreview stageOperator={stageOperator} />
+      </div>
+    );
   }
 
   // $out renders its own loader
   if (stageOperator === '$out') {
-    return <OutStagePreivew index={index} />;
+    return (
+      <div className={centeredContent}>
+        <OutStagePreivew index={index} />
+      </div>
+    );
   }
   // $merge renders its own loader
   if (stageOperator === '$merge') {
-    return <MergeStagePreivew index={index} />;
+    return (
+      <div className={centeredContent}>
+        <MergeStagePreivew index={index} />
+      </div>
+    );
   }
 
   if (isLoading) {
-    return <LoadingOverlay text="Loading Preview Documents..." />;
+    return (
+      <div className={centeredContent}>
+        <LoadingOverlay text="Loading Preview Documents..." />
+      </div>
+    );
   }
 
   if (documents && documents.length > 0) {
@@ -149,20 +157,35 @@ function StagePreviewBody({
   return <EmptyIcon />;
 }
 
-const stagePreviewStyles = css({
-  width: '100%',
+const containerStyles = css({
   display: 'flex',
+  flexDirection: 'column',
+  padding: spacing[3],
+  gap: spacing[2],
+  flex: 1,
+});
+
+const stagePreviewStyles = css({
   alignItems: 'stretch',
-  overflow: 'auto',
   position: 'relative',
   flexGrow: 1,
 });
 
 // exported for tests
 export function StagePreview(props: StagePreviewProps) {
+  if (props.isDisabled) {
+    return (
+      <div className={containerStyles}>
+        <EmptyIcon />
+      </div>
+    );
+  }
   return (
-    <div className={stagePreviewStyles}>
-      <StagePreviewBody {...props} />
+    <div className={containerStyles}>
+      <StagePreviewHeader index={props.index} />
+      <div className={stagePreviewStyles}>
+        <StagePreviewBody {...props} />
+      </div>
     </div>
   );
 }
@@ -180,6 +203,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
 
   return {
     isLoading: stage.loading,
+    isDisabled: stage.disabled,
     stageOperator: stage.stageOperator as string,
     shouldRenderStage,
     documents: stage.previewDocs,
