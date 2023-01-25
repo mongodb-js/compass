@@ -7,9 +7,7 @@ import {
   Combobox,
   ComboboxOption,
   css,
-  cx,
   spacing,
-  useScrollbars,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
@@ -56,8 +54,6 @@ export const StageOperatorSelect = ({
   selectedStage,
   stages,
 }: StageOperatorSelectProps) => {
-  const { className: scrollbarStyles } = useScrollbars();
-
   const onStageOperatorSelected = useCallback(
     (name: string | null) => {
       onChange(index, name);
