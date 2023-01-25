@@ -1,6 +1,6 @@
 ignores: [
   "mongodb-compass",
   # webpack always externalizes 'clipboard' for legacy reasons
-  "clipboard"
+  "clipboard",
   "react-dom"
 ]
