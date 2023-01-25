@@ -22,12 +22,12 @@ const horizontalRuleStylesDark = css({
 });
 
 export const HorizontalRule = forwardRef<
-  HTMLHRElement,
-  HTMLProps<HTMLHRElement>
+  HTMLDivElement,
+  HTMLProps<HTMLDivElement>
 >(({ className, ...props }, ref) => {
   const darkMode = useDarkMode();
   return (
-    <hr
+    <div
       ref={ref}
       className={cx(
         horizontalRuleStyles,
