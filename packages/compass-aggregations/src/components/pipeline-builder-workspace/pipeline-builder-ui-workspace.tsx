@@ -10,7 +10,7 @@ import {
   moveStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
-import { css } from '@mongodb-js/compass-components';
+import { css, spacing } from '@mongodb-js/compass-components';
 
 import {
   DndContext,
@@ -35,6 +35,8 @@ const pipelineWorkspaceStyles = css({
   flexDirection: 'column',
   width: '100%',
   flexGrow: 1,
+  paddingRight: spacing[3],
+  paddingLeft: spacing[3],
 });
 
 const stageContainerStyles = css({

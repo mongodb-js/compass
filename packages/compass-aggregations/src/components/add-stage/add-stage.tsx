@@ -10,11 +10,13 @@ import {
 
 const iconContainerStyles = css({
   textAlign: 'center',
+  marginTop: spacing[1]/2,
+  marginBottom: spacing[1]/2,
 });
 
 const buttonContainerStyles = css({
   textAlign: 'center',
-  marginTop: spacing[3],
+  marginTop: spacing[4],
   marginBottom: spacing[3],
 });
 
