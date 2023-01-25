@@ -1392,7 +1392,7 @@ class CrudStoreImpl
   cancelOperation() {
     // As we use same controller for all operations
     // (find, count and shardingKeys), aborting will stop all.
-    this.state.abortController?.abort();
+    this.state.abortController?.abort(new Error('This operation was aborted'));
     this.setState({ abortController: null });
   }
 

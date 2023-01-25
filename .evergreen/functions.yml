@@ -119,10 +119,15 @@ functions:
           .evergreen/preinstall.sh
 
           # Make sure install worked
-          echo "node -v";
+          echo "Using node version:";
           node -v;
-          echo "npm -v";
+          echo "Using npm version:";
           npm -v;
+          
+          echo "Using gcc version:"
+          gcc --version;
+          echo "Using g++ version:"
+          g++ --version;
 
   install:
     - command: shell.exec

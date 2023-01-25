@@ -164,11 +164,10 @@ function showConnectWindow(
 
   /**
    * Open all external links in the system's web browser.
-   * TODO: https://jira.mongodb.org/browse/COMPASS-5187
    */
-  window.webContents.on('new-window', function (event, url) {
-    event.preventDefault();
-    void shell.openExternal(url);
+  window.webContents.setWindowOpenHandler((details) => {
+    void shell.openExternal(details.url);
+    return { action: 'deny' };
   });
 
   return window;

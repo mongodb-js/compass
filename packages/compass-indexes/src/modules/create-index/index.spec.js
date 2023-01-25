@@ -63,11 +63,10 @@ describe('create index module', function () {
     });
     it('errors if PFE is not JSON', function () {
       const dispatch = (res) => {
-        expect(res).to.deep.equal({
-          type: ErrorActionTypes.HandleError,
-          error:
-            'Bad PartialFilterExpression: SyntaxError: Unexpected token a in JSON at position 0',
-        });
+        expect(res).to.have.property('type', ErrorActionTypes.HandleError);
+        expect(res)
+          .to.have.property('error')
+          .match(/Bad PartialFilterExpression: SyntaxError/);
         errorSpy();
       };
       const state = () => ({
