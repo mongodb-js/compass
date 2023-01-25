@@ -206,9 +206,7 @@ export const saveCurrentPipeline =
     track('Aggregation Saved', {
       id: savedPipeline.id,
       num_stages: stagesLength,
-      editor_view_type: mapPipelineModeToEditorViewType(
-        getState().pipelineBuilder.pipelineMode
-      ),
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
     });
 
     dispatch(updatePipelineList());

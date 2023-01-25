@@ -182,9 +182,7 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
     });
     track('Aggregation Executed', () => ({
       num_stages: pipeline.length,
-      editor_view_type: mapPipelineModeToEditorViewType(
-        getState().pipelineBuilder.pipelineMode
-      ),
+      editor_view_type: mapPipelineModeToEditorViewType(getState()),
     }));
     return dispatch(fetchAggregationData());
   };
