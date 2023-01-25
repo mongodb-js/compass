@@ -215,9 +215,7 @@ describe('Collection aggregations tab', function () {
       stageOperatorOptionsElements.map((element) => element.getText())
     );
 
-    const actualOptions = options.map((option) => 
-      option.split('\n')[0]
-    );
+    const actualOptions = options.map((option) => option.split('\n')[0]);
 
     actualOptions.sort();
 
