@@ -8,15 +8,15 @@ import {
   Button,
   SpinLoader,
 } from '@mongodb-js/compass-components';
-import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
-import { viewOutResults } from '../modules/out-results-fn';
-import { runStage } from '../modules/pipeline-builder/stage-editor';
+import type { PipelineBuilderThunkDispatch, RootState } from '../../modules';
+import { viewOutResults } from '../../modules/out-results-fn';
+import { runStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getDestinationNamespaceFromStage,
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
-} from '../utils/stage';
-import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
+} from '../../utils/stage';
+import { parseShellBSON } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
 const stagePreviewOutStyles = css({
   display: 'flex',

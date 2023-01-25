@@ -16,11 +16,10 @@ import { CSS as cssDndKit } from '@dnd-kit/utilities';
 import type { RootState } from '../modules';
 
 import ResizeHandle from './resize-handle';
+import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
-
-import StageToolbar from './stage-toolbar';
 
 const stageStyles = css({
   position: 'relative',
