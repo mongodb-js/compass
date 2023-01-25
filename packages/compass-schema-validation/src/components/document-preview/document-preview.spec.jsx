@@ -11,7 +11,12 @@ describe('DocumentPreview [Component]', function () {
   });
 
   it('renders No Preview Documents if there is no document', function () {
-    const component = mount(<DocumentPreview />);
+    const component = mount(<DocumentPreview document={undefined} />);
     expect(component).to.have.text('No Preview Documents');
+  });
+
+  it('renders a button to load a sample document if a document could be loaded', function () {
+    const component = mount(<DocumentPreview document={null} />);
+    expect(component.find('[data-testid="load-sample"]')).to.be.present();
   });
 });

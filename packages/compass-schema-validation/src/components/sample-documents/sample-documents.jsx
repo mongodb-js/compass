@@ -9,7 +9,15 @@ import {
   cx,
   spacing,
   palette,
+  InlineDefinition,
 } from '@mongodb-js/compass-components';
+import { SAMPLE_SIZE } from '../../modules/sample-documents';
+
+const SAMPLE_DEFINITION = [
+  'A sample is fetched from a sample-space of',
+  SAMPLE_SIZE,
+  'randomly selected documents'
+].join(' ');
 
 /**
  * The Sample Documents editor component.
@@ -49,10 +57,13 @@ class SampleDocuments extends Component {
 
   static propTypes = {
     sampleDocuments: PropTypes.shape({
-      matching: PropTypes.object,
-      notmatching: PropTypes.object,
-      isLoading: PropTypes.bool,
+      validDocument: PropTypes.object,
+      validDocumentLoading: PropTypes.bool,
+      invalidDocument: PropTypes.object,
+      invalidDocumentLoading: PropTypes.bool,
     }),
+    fetchValidDocument: PropTypes.func,
+    fetchInvalidDocument: PropTypes.func
   };
 
   /**
@@ -63,10 +74,12 @@ class SampleDocuments extends Component {
    * @returns {Boolean} If the component should update.
    */
   shouldComponentUpdate(nextProps) {
-    return (
-      nextProps.sampleDocuments.isLoading !==
-      this.props.sampleDocuments.isLoading
-    );
+    const { sampleDocuments: prevDocs } = this.props;
+    const { sampleDocuments: nextDocs } = nextProps;
+    return prevDocs.validDocumentLoading !== nextDocs.validDocumentLoading
+      || prevDocs.invalidDocumentLoading !== nextDocs.invalidDocumentLoading
+      || prevDocs.validDocument !== nextDocs.validDocument
+      || prevDocs.invalidDocument !== nextDocs.invalidDocument;
   }
 
   /**
@@ -75,17 +88,27 @@ class SampleDocuments extends Component {
    * @returns {React.Component} The component.
    */
   renderMatchingDocuments() {
-    const title = 'Sample document that passed validation';
+    const {
+      sampleDocuments: {
+        validDocument,
+        validDocumentLoading
+      }
+    } = this.props;
 
     return (
       <div className={sampleDocumentStyles} data-testid="matching-documents">
         <div className={cx(documentHeadingStyles, matchingStyles)}>
           <Icon glyph="InfoWithCircle" size="small" />
-          <Body className={documentHeadingTextStyles}>{title}</Body>
+          <Body className={documentHeadingTextStyles}>
+            <InlineDefinition definition={SAMPLE_DEFINITION}>
+              Sample document
+            </InlineDefinition>  that passed validation
+          </Body>
         </div>
         <DocumentPreview
-          document={this.props.sampleDocuments.matching}
-          isLoading={this.props.sampleDocuments.isLoading}
+          document={validDocument}
+          isLoading={validDocumentLoading}
+          loadSampleDocument={this.props.fetchValidDocument}
         />
       </div>
     );
@@ -97,17 +120,27 @@ class SampleDocuments extends Component {
    * @returns {React.Component} The component.
    */
   renderNotMatchingDocuments() {
-    const title = 'Sample document that failed falidation';
+    const {
+      sampleDocuments: {
+        invalidDocument,
+        invalidDocumentLoading
+      }
+    } = this.props;
 
     return (
       <div className={sampleDocumentStyles} data-testid="notmatching-documents">
         <div className={cx(documentHeadingStyles, notMatchingStyles)}>
           <Icon glyph="XWithCircle" size="small" />
-          <Body className={documentHeadingTextStyles}>{title}</Body>
+          <Body className={documentHeadingTextStyles}>
+            <InlineDefinition definition={SAMPLE_DEFINITION}>
+              Sample document
+            </InlineDefinition>  that failed validation
+          </Body>
         </div>
         <DocumentPreview
-          document={this.props.sampleDocuments.notmatching}
-          isLoading={this.props.sampleDocuments.isLoading}
+          document={invalidDocument}
+          isLoading={invalidDocumentLoading}
+          loadSampleDocument={this.props.fetchInvalidDocument}
         />
       </div>
     );

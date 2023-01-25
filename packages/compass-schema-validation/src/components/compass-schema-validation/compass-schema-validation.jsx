@@ -9,7 +9,11 @@ import {
   validationLevelChanged,
 } from '../../modules/validation';
 import { namespaceChanged } from '../../modules/namespace';
-import { fetchSampleDocuments } from '../../modules/sample-documents';
+import {
+  clearSampleDocuments,
+  fetchValidDocument,
+  fetchInvalidDocument,
+} from '../../modules/sample-documents';
 import { changeZeroState, zeroStateChanged } from '../../modules/zero-state';
 import { withPreferences } from 'compass-preferences-model';
 
@@ -57,7 +61,9 @@ const mapStateToProps = (state) => ({
  * Connect the redux store to the component (dispatch).
  */
 const MappedCompassSchemaValidation = connect(mapStateToProps, {
-  fetchSampleDocuments,
+  clearSampleDocuments,
+  fetchValidDocument,
+  fetchInvalidDocument,
   validatorChanged,
   cancelValidation,
   saveValidation,

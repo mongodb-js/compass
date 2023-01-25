@@ -7,6 +7,7 @@ import {
   css,
   cx,
   spacing,
+  Button,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 
@@ -22,6 +23,11 @@ const previewStyles = css({
 
 const noPreviewStyles = css({
   alignItems: 'center',
+});
+
+const loadSampleStyles = css({
+  width: '100%',
+  textAlign: 'center'
 });
 
 const noPreviewTextStyles = css({
@@ -40,6 +46,7 @@ class DocumentPreview extends Component {
   static propTypes = {
     document: PropTypes.object,
     isLoading: PropTypes.bool,
+    loadSampleDocument: PropTypes.func
   };
 
   /**
@@ -60,6 +67,12 @@ class DocumentPreview extends Component {
           <LoadingOverlay />
         ) : this.props.document ? (
           <Document doc={this.props.document} editable={false} />
+        ) : this.props.document === null ? (
+          <Body as='div' className={loadSampleStyles}>
+            <Button data-testid='load-sample' size="small" onClick={this.props.loadSampleDocument}>
+              Load sample
+            </Button>
+          </Body>
         ) : (
           <Body className={noPreviewTextStyles}>No Preview Documents</Body>
         )}

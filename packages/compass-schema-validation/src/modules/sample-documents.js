@@ -1,147 +1,122 @@
 import preferences from 'compass-preferences-model';
 import { checkValidator, syntaxErrorOccurred } from './validation';
 
-/**
- * Sample documents fetched action.
- */
-export const SAMPLE_DOCUMENTS_FETCHED =
-  'validation/namespace/SAMPLE_DOCUMENTS_FETCHED';
+export const SAMPLE_SIZE = 10000;
 
 /**
- * Loading sample documents aciton name.
+ * Initial state
  */
-export const LOADING_SAMPLE_DOCUMENTS =
-  'validation/namespace/LOADING_SAMPLE_DOCUMENTS';
+
+export const INITIAL_STATE = {
+  validDocumentLoading: false,
+  validDocument: null, // Possible states - null (yet to fetch), undefined (no document/s), document/s
+
+  invalidDocumentLoading: false,
+  invalidDocument: null // Possible states - null (yet to fetch), undefined (no document/s), document/s
+};
 
 /**
- * The initial state.
+ * Action names
  */
-export const INITIAL_STATE = { isLoading: false };
+
+export const FETCHING_VALID_DOCUMENT =
+  'validation/namespace/FETCHING_VALID_DOCUMENT';
+
+export const FETCHED_VALID_DOCUMENT =
+  'validation/namespace/FETCHED_VALID_DOCUMENT';
+
+export const FETCHING_INVALID_DOCUMENT =
+  'validation/namespace/FETCHING_INVALID_DOCUMENT';
+
+export const FETCHED_INVALID_DOCUMENT =
+  'validation/namespace/FETCHED_INVALID_DOCUMENT';
+
 
 /**
- * Collection max limit.
+ * Action creators
  */
-const MAX_LIMIT = 100000;
+
+export const fetchingValidDocument = () => ({
+  type: FETCHING_VALID_DOCUMENT
+});
+
+export const fetchingInvalidDocument = () => ({
+  type: FETCHING_INVALID_DOCUMENT
+});
+
+export const fetchedValidDocument = (document) => ({
+  type: FETCHED_VALID_DOCUMENT,
+  document
+});
+
+export const fetchedInvalidDocument = (document) => ({
+  type: FETCHED_INVALID_DOCUMENT,
+  document
+});
 
 /**
- * Refresh sample document.
- *
- * @param {Object} state - The state
- * @param {Object} action - The action.
- *
- * @returns {Object} The new state.
+ * State reducers
  */
-const refreshSampleDocuments = (state, action) => ({
+
+export const startFetchingValidDocument = (state) => ({
   ...state,
-  matching: action.matching,
-  notmatching: action.notmatching,
-  isLoading: false,
+  validDocumentLoading: true
 });
 
-/**
- * Action creator for sample documents changed events.
- *
- * @param {Object} sampleDocuments - Sample documents.
- *
- * @returns {Object} Validation saved action.
- */
-export const sampleDocumentsFetched = (sampleDocuments) => ({
-  type: SAMPLE_DOCUMENTS_FETCHED,
-  matching: sampleDocuments.matching,
-  notmatching: sampleDocuments.notmatching,
-});
-
-/**
- * Action creator for load sample documents events.
- *
- * @param {Object} state - The state
- *
- * @returns {Object} Validation saved action.
- */
-const loadSampleDocuments = (state) => ({
+export const startFetchingInvalidDocument = (state) => ({
   ...state,
-  type: LOADING_SAMPLE_DOCUMENTS,
-  isLoading: true,
+  invalidDocumentLoading: true
 });
 
-/**
- * The loading sample documents.
- *
- * @returns {Object} The action.
- */
-export const loadingSampleDocuments = () => ({
-  type: LOADING_SAMPLE_DOCUMENTS,
+export const updateStateWithFetchedValidDocument = (state, action) => ({
+  ...state,
+  validDocumentLoading: false,
+  validDocument: action.document
 });
 
-/**
- * To not have a huge switch statement in the reducer.
- */
-const MAPPINGS = {};
+export const updateStateWithFetchedInvalidDocument = (state, action) => ({
+  ...state,
+  invalidDocumentLoading: false,
+  invalidDocument: action.document
+});
 
-MAPPINGS[SAMPLE_DOCUMENTS_FETCHED] = refreshSampleDocuments;
-MAPPINGS[LOADING_SAMPLE_DOCUMENTS] = loadSampleDocuments;
+const ACTION_TO_REDUCER_MAPPINGS = {
+  [FETCHING_VALID_DOCUMENT]: startFetchingValidDocument,
+  [FETCHED_VALID_DOCUMENT]: updateStateWithFetchedValidDocument,
+  [FETCHING_INVALID_DOCUMENT]: startFetchingInvalidDocument,
+  [FETCHED_INVALID_DOCUMENT]: updateStateWithFetchedInvalidDocument
+}
 
-/**
- * Sets zero documents.
- *
- * @param {Function} dispatch - Dispatch.
- *
- * @returns {Function} The function.
- */
-const setZeroDocuments = (dispatch) =>
-  dispatch(
-    sampleDocumentsFetched({
-      matching: undefined,
-      notmatching: undefined,
-    })
-  );
+export default function (state = INITIAL_STATE, action) {
+  const fn = ACTION_TO_REDUCER_MAPPINGS[action.type];
+
+  return fn ? fn(state, action) : state;
+}
 
 /**
- * Sets syntax error.
- *
- * @param {Function} dispatch - Dispatch.
- * @param {Object} error - Error.
- *
- * @returns {Function} The function.
+ * Side effects
  */
-const setSyntaxError = (dispatch, error) =>
-  dispatch(syntaxErrorOccurred(error));
 
-/**
- * Fetch sample documents.
- *
- * @param {Object} docsOptions - Collection of auxiliary options.
- * @param {Function} callback - Callback function that returns
- * matching or not mathing document.
- */
 const getSampleDocuments = async (docsOptions) => {
   const aggOptions = {
     allowDiskUse: true,
     maxTimeMS: preferences.getPreferences().maxTimeMS,
   };
   const { pipeline, namespace, dataService } = docsOptions;
-  return dataService.aggregate(namespace, pipeline, aggOptions);
+  pipeline.unshift({ $sample: { size: SAMPLE_SIZE } });
+
+  return await dataService.aggregate(namespace, pipeline, aggOptions);
 };
 
-/**
- * Fetch sample documents.
- *
- * @param {Object} validator - Validator.
- * @param {Object} error - Error.
- *
- * @returns {Function} The function.
- */
-export const fetchSampleDocuments = (validator, error) => {
+export const fetchValidDocument = () => {
   return async (dispatch, getState) => {
-    dispatch(loadingSampleDocuments());
-
-    if (error) {
-      return setZeroDocuments(dispatch);
-    }
+    dispatch(fetchingValidDocument());
 
     const state = getState();
     const dataService = state.dataService.dataService;
     const namespace = state.namespace.ns;
+    const validator = state.validation.validator;
+
     const checkedValidator = checkValidator(validator);
     const query = checkValidator(checkedValidator.validator).validator;
 
@@ -150,42 +125,57 @@ export const fetchSampleDocuments = (validator, error) => {
     }
 
     try {
-      const docsOptions = {
+
+      const valid = (await getSampleDocuments({
         namespace,
-        dataService
-      };
-
-      const matching = await getSampleDocuments({
-        ...docsOptions,
+        dataService,
         pipeline: [{ $match: query }, { $limit: 1 }],
-      });
-      const notmatching = await getSampleDocuments({
-        ...docsOptions,
-        pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
-      });
-      dispatch(
-        sampleDocumentsFetched({
-          matching: matching[0],
-          notmatching: notmatching[0],
-        })
-      );
+      }))[0];
+
+      dispatch(fetchedValidDocument(valid))
+      
     } catch (e) {
-      setZeroDocuments(dispatch);
-      setSyntaxError(dispatch, e);
+      dispatch(fetchedValidDocument());
+      dispatch(syntaxErrorOccurred(e));
     }
-  };
-};
-
-/**
- * Reducer function for handle state changes to status.
- *
- * @param {String} state - The status state.
- * @param {Object} action - The action.
- *
- * @returns {String} The new state.
- */
-export default function reducer(state = INITIAL_STATE, action) {
-  const fn = MAPPINGS[action.type];
-
-  return fn ? fn(state, action) : state;
+  }
 }
+
+export const fetchInvalidDocument = () => {
+  return async (dispatch, getState) => {
+    dispatch(fetchingInvalidDocument());
+
+    const state = getState();
+    const dataService = state.dataService.dataService;
+    const namespace = state.namespace.ns;
+    const validator = state.validation.validator;
+
+    const checkedValidator = checkValidator(validator);
+    const query = checkValidator(checkedValidator.validator).validator;
+
+    if (!dataService) {
+      return;
+    }
+
+    try {
+
+      const invalid = (await getSampleDocuments({
+        namespace,
+        dataService,
+        pipeline: [{ $match: { $nor: [query] } }, { $limit: 1 }],
+      }))[0];
+
+      dispatch(fetchedInvalidDocument(invalid))
+      
+    } catch (e) {
+      dispatch(fetchedInvalidDocument());
+      dispatch(syntaxErrorOccurred(e));
+    }
+  }
+}
+
+export const clearSampleDocuments = () =>
+  (dispatch) => {
+    dispatch(fetchedValidDocument(null));
+    dispatch(fetchedInvalidDocument(null));
+  }

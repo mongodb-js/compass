@@ -26,7 +26,7 @@ describe('ValidationStates [Component]', function () {
       validationLevelChanged: sinon.spy(),
       cancelValidation: sinon.spy(),
       saveValidation: sinon.spy(),
-      fetchSampleDocuments: sinon.spy(),
+      clearSampleDocuments: sinon.spy(),
       fields: [],
       sampleDocuments: {},
       validation: {
