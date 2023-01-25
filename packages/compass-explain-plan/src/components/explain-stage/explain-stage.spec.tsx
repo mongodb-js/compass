@@ -1,9 +1,8 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, cleanup } from '@testing-library/react';
 import { expect } from 'chai';
 
-import ExplainStage from '../explain-stage';
-import styles from './explain-stage.module.less';
+import ExplainStage from '.';
 
 describe('ExplainStage [Component]', function () {
   let component;
@@ -21,7 +20,7 @@ describe('ExplainStage [Component]', function () {
   const yoffset = 0;
 
   beforeEach(function () {
-    component = mount(
+    component = render(
       <ExplainStage
         name={name}
         nReturned={nReturned}
@@ -39,11 +38,9 @@ describe('ExplainStage [Component]', function () {
     );
   });
 
-  afterEach(function () {
-    component = null;
-  });
+  afterEach(cleanup);
 
   it('renders the correct root classname', function () {
-    expect(component.find(`.${styles['explain-stage']}`)).to.be.present();
+    expect(component.getByTestId('explain-stage')).to.exist;
   });
 });

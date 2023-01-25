@@ -7,10 +7,8 @@ import {
   IndexIcon,
 } from '@mongodb-js/compass-components';
 
-import type { IndexDefinition } from '../../modules/indexes';
-
 const keyListStyles = css({
-  display: 'flex',
+  display: 'inline-flex',
   gap: spacing[1],
 });
 
@@ -19,10 +17,10 @@ const badgeStyles = css({
 });
 
 type KeyListProps = {
-  keys: ReturnType<IndexDefinition['fields']['serialize']>;
+  keys: { field: string; value: any }[];
 };
 
-const KeyList: React.FunctionComponent<KeyListProps> = ({ keys }) => {
+const IndexKeysBadge: React.FunctionComponent<KeyListProps> = ({ keys }) => {
   return (
     <div className={keyListStyles} role="list">
       {keys.map(({ field, value }) => (
@@ -41,4 +39,4 @@ const KeyList: React.FunctionComponent<KeyListProps> = ({ keys }) => {
   );
 };
 
-export default KeyList;
+export { IndexKeysBadge };

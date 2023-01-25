@@ -1,3 +1,4 @@
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Badge,
   Button,
@@ -9,12 +10,10 @@ import {
   rgba,
   spacing,
   Subtitle,
-  useDarkMode,
+  HorizontalRule,
 } from '@mongodb-js/compass-components';
-import React, { useCallback, useMemo, useState } from 'react';
-import { Clock } from './clock';
 
-function drawArc({ startAngleDeg: number, endAngleDeg: number });
+import { Clock } from './clock';
 
 interface ExplainStageProps {
   name: string;
@@ -66,13 +65,8 @@ const cardStyles = css({
 });
 
 const separatorStyles = css({
-  borderTop: `1px solid ${palette.gray.light2}`,
   marginTop: spacing[2],
   marginBottom: spacing[2],
-});
-
-const separatorStylesDark = css({
-  borderColor: palette.gray.dark2,
 });
 
 const contentStyles = css({ position: 'relative' });
@@ -86,12 +80,11 @@ const codeStyles = css({
   marginTop: spacing[2],
 });
 
-const Separator = () => {
-  const darkMode = useDarkMode();
-  return (
-    <div className={cx(separatorStyles, darkMode && separatorStylesDark)}></div>
-  );
-};
+const executionStatsStyle = css({
+  position: 'relative',
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+});
 
 const ShardView: React.FunctionComponent<ShardViewProps> = (props) => {
   return <Subtitle>{props.name}</Subtitle>;
@@ -121,13 +114,7 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
   totalExecTimeMS,
 }) => {
   return (
-    <div
-      className={css({
-        position: 'relative',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-      })}
-    >
+    <div className={executionStatsStyle}>
       <div>
         <span>nReturned </span>
         <span>
@@ -138,9 +125,11 @@ const ExecutionStats: React.FunctionComponent<ExecutionstatsProps> = ({
         <span>Execution Time</span>
         <span>
           <Clock
-            prevStageExMillis={prevStageExecTimeMS}
-            curStageExMillis={curStageExecTimeMS}
-            totalExMillis={totalExecTimeMS}
+            prevStageExecTimeMS={prevStageExecTimeMS}
+            curStageExecTimeMS={curStageExecTimeMS}
+            totalExecTimeMS={totalExecTimeMS}
+            width={60}
+            height={60}
             className={clockStyles}
           />
         </span>
@@ -153,7 +142,7 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
   return (
     <>
       <Subtitle>{props.name}</Subtitle>
-      <Separator />
+      <HorizontalRule className={separatorStyles} />
 
       <ExecutionStats
         nReturned={props.nReturned}
@@ -164,11 +153,11 @@ const StageView: React.FunctionComponent<StageViewProps> = (props) => {
 
       {Object.entries(props.highlights).length > 0 && (
         <div>
-          <Separator />
+          <HorizontalRule className={separatorStyles} />
           <Highlights highlights={props.highlights}></Highlights>
         </div>
       )}
-      <Separator />
+      <HorizontalRule className={separatorStyles} />
       <Button
         type="button"
         size="xsmall"

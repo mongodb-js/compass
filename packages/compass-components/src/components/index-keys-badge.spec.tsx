@@ -1,9 +1,9 @@
 import React from 'react';
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { expect } from 'chai';
-import KeyList from './key-list';
+import { IndexKeysBadge } from './index-keys-badge';
 
-describe('KeyList Component', function () {
+describe('IndexKeysBadge Component', function () {
   before(cleanup);
   afterEach(cleanup);
   it('renders name with keys', function () {
@@ -21,7 +21,7 @@ describe('KeyList Component', function () {
         value: 'text',
       },
     ];
-    render(<KeyList keys={keys as any} />);
+    render(<IndexKeysBadge keys={keys as any} />);
 
     const keysList = screen.getByRole('list');
 
