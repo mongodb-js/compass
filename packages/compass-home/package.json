@@ -39,9 +39,9 @@
   "license": "SSPL",
   "dependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
-    "@mongodb-js/compass-welcome": "^0.3.0",
-    "@mongodb-js/compass-settings": "^0.6.0",
     "@mongodb-js/compass-connections": "^1.5.0",
+    "@mongodb-js/compass-settings": "^0.6.0",
+    "@mongodb-js/compass-welcome": "^0.3.0",
     "compass-preferences-model": "^2.4.0",
     "hadron-app-registry": "^9.0.2",
     "hadron-ipc": "^3.1.0",
@@ -50,9 +50,9 @@
   },
   "peerDependencies": {
     "@mongodb-js/compass-components": "^1.4.0",
-    "@mongodb-js/compass-welcome": "^0.3.0",
-    "@mongodb-js/compass-settings": "^0.6.0",
     "@mongodb-js/compass-connections": "^1.5.0",
+    "@mongodb-js/compass-settings": "^0.6.0",
+    "@mongodb-js/compass-welcome": "^0.3.0",
     "compass-preferences-model": "^2.4.0",
     "hadron-app-registry": "^9.0.2",
     "hadron-ipc": "^3.1.0",
@@ -60,7 +60,7 @@
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@electron/remote": "^2.0.8",
+    "@electron/remote": "^2.0.9",
     "@mongodb-js/eslint-config-compass": "^1.0.1",
     "@mongodb-js/mocha-config-compass": "^1.0.1",
     "@mongodb-js/prettier-config-compass": "^1.0.0",

@@ -437,7 +437,7 @@ describe('Collection import', function () {
     const errorElement = await browser.$(Selectors.ImportErrorBox);
     await errorElement.waitForDisplayed();
     const errorText = await errorElement.getText();
-    expect(errorText).to.contain('Unexpected token "i"');
+    expect(errorText).to.match(/Unexpected token ("|')i\1/);
 
     // click the cancel button
     await browser.clickVisible(Selectors.ImportCancel);
