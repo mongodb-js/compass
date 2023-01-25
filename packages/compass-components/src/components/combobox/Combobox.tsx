@@ -129,6 +129,7 @@ export function Combobox<M extends boolean>({
   portalContainer,
   scrollContainer,
   popoverZIndex,
+  popoverClassName,
   ...rest
 }: ComboboxProps<M>) {
   const { darkMode, theme } = useDarkMode(darkModeProp);
@@ -1336,7 +1337,10 @@ export function Combobox<M extends boolean>({
           labelId={labelId}
           refEl={comboboxRef}
           ref={menuRef}
-          className={popoverMenuStyles(popoverMenuWidth, isAnyOptionWithDescription)}
+          className={cx(
+            popoverMenuStyles(popoverMenuWidth, isAnyOptionWithDescription),
+            popoverClassName,
+          )}
           searchLoadingMessage={searchLoadingMessage}
           searchErrorMessage={searchErrorMessage}
           searchEmptyMessage={searchEmptyMessage}

@@ -267,6 +267,11 @@ export interface BaseComboboxProps
    * Number that controls the z-index of the popover element directly.
    */
   popoverZIndex?: number;
+
+  /**
+   * Popover menu class name
+   */
+  popoverClassName?: string;
 }
 
 export type ComboboxProps<M extends boolean> = Either<

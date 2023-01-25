@@ -74,13 +74,8 @@ export const StageOperatorSelect = ({
       clearable={false}
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
-      // @ts-expect-error According to leafygreen the type of portalClassName should be undefined
-      portalClassName={cx(
-        scrollbarStyles,
-        // used for testing since at the moment is not possible to identify
-        // the listbox container or the single ComboboxOptions with testIds
-        `mongodb-compass-stage-operator-combobox-portal-${index}`
-      )}
+      // Used for testing to access the popover for a stage
+      popoverClassName={`mongodb-compass-stage-operator-combobox-${index}`}
     >
       {stages.map((stage, index) => (
         <ComboboxOption

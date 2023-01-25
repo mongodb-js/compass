@@ -215,7 +215,11 @@ describe('Collection aggregations tab', function () {
       stageOperatorOptionsElements.map((element) => element.getText())
     );
 
-    options.sort();
+    const actualOptions = options.map((option) => 
+      option.split('\n')[0]
+    );
+
+    actualOptions.sort();
 
     const expectedAggregations = [
       '$addFields',
@@ -266,7 +270,7 @@ describe('Collection aggregations tab', function () {
 
     expectedAggregations.sort();
 
-    expect(options).to.deep.equal(expectedAggregations);
+    expect(actualOptions).to.deep.equal(expectedAggregations);
   });
 
   // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
