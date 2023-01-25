@@ -1,11 +1,9 @@
+import { Badge } from './leafygreen';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
-import {
-  spacing,
-  css,
-  Badge,
-  BadgeVariant,
-  IndexIcon,
-} from '@mongodb-js/compass-components';
+import IndexIcon from './index-icon';
+import { Variant as BadgeVariant } from '@leafygreen-ui/badge';
 
 const keyListStyles = css({
   display: 'inline-flex',
