@@ -26,12 +26,12 @@ interface ExplainSummaryProps {
   totalDocsExamined: number;
   executionTimeMillis: number;
   inMemorySort: boolean;
-  indexType: 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX';
+  indexType: 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX' | 'UNAVAILABLE';
   index?: IndexModel;
 }
 
 const SummaryIndexStat: React.FC<{
-  indexType: 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX';
+  indexType: 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX' | 'UNAVAILABLE';
   index?: IndexModel;
   className?: string;
 }> = ({ indexType, index, className }) => {

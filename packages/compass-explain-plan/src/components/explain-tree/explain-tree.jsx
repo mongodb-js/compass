@@ -3,11 +3,15 @@ import PropTypes from 'prop-types';
 import { map } from 'lodash';
 import d3 from 'd3';
 import { ExplainStage } from '../explain-stage';
-import { palette } from '@mongodb-js/compass-components';
+import { css, palette, spacing } from '@mongodb-js/compass-components';
 
 import STAGE_CARD_PROPERTIES from '../../constants/stage-card-properties';
 
-import styles from './explain-tree.module.less';
+const explainTreeStyles = css({
+  position: 'relative',
+  zIndex: 0,
+  margin: `${spacing[5]}px auto`,
+})
 
 /**
  * Reference to the tree div.
@@ -100,7 +104,8 @@ class ExplainTree extends Component {
   render() {
     return (
       <div
-        className={styles['explain-tree']}
+        data-testid="explain-tree"
+        className={explainTreeStyles}
         style={{ height: this.props.height, width: this.props.width }}
         ref={(inst) => {
           tree = inst;

@@ -209,7 +209,10 @@ const ExplainStage: React.FunctionComponent<ExplainStageProps> = ({
   }, [detailsOpen, x, y, yoffset, xoffset]);
 
   return (
-    <KeylineCard className={cx(cardStyles, dynamicContainerStyles)}>
+    <KeylineCard
+      data-testid="explain-stage"
+      className={cx(cardStyles, dynamicContainerStyles)}
+    >
       <div className={contentStyles}>
         {isShard ? (
           <ShardView name={name} />

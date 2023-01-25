@@ -40,7 +40,7 @@ describe('ExplainStage [Component]', function () {
 
   afterEach(cleanup);
 
-  it('renders the correct root classname', function () {
+  it('renders', function () {
     expect(component.getByTestId('explain-stage')).to.exist;
   });
 });
