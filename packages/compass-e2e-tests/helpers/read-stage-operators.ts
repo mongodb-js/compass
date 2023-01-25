@@ -1,5 +1,3 @@
-import chai from 'chai';
-
 import type { CompassBrowser } from '../helpers/compass-browser';
 import * as Selectors from '../helpers/selectors';
 
