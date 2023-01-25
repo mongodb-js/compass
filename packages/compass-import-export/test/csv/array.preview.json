@@ -1,0 +1,8 @@
+{
+  "uniqueFields": ["a", "foo", "z", "notes"],
+  "headerFields": ["a", "foo[0]", "foo[1]", "foo[2]", "z", "notes"],
+  "preview": [
+    ["a", "1", "2", "3", "z", "foo is an array of simple values"],
+    ["a", "1", "", "", "z", "foo is not always of the same length"]
+  ]
+}
