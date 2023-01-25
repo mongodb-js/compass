@@ -53,7 +53,10 @@ async function main() {
       return requiredPeerDep.has(name);
     })
   );
-  const excludedFromProdDependencies = new Set(['react']);
+  // On request from cloud team we are making react/react-dom an exception
+  // from the common rule and only keep them as peer dependencies
+  // even when they should be a prod dependency.
+  const excludedFromProdDependencies = new Set(['react', 'react-dom']);
   const missingInPeerDeps = Array.from(expectedPeerDependencies).filter(
     (name) => {
       return !peerDependencies.includes(name);
@@ -65,7 +68,7 @@ async function main() {
   const peerDependenciesWithoutReact = peerDependencies.filter((name) => {
     return !excludedFromProdDependencies.has(name);
   });
-  const extraneousInProdDeps = peerDependencies.find((name) => {
+  const extraneousInProdDeps = peerDependencies.filter((name) => {
     return excludedFromProdDependencies.has(name);
   });
   const extraneousInDevDeps = devDependencies.filter((name) => {
@@ -94,22 +97,22 @@ async function main() {
   const header = `Errors found in the ${packageJson.name} package.json dependencies description`;
   const missingPeer =
     missingInPeerDeps.length > 0 &&
-    `Following dependencies are missing from peerDependencies:\n\n  ${missingInPeerDeps.join(
+    `Following dependencies are missing from peerDependencies:\n\n ${missingInPeerDeps.join(
       ', '
     )}`;
   const extraneousPeer =
     extraneousInPeerDeps.length > 0 &&
-    `Following dependencies should not be in peerDependencies:\n\n  ${extraneousInPeerDeps.join(
+    `Following dependencies should not be in peerDependencies:\n\n ${extraneousInPeerDeps.join(
       ', '
     )}`;
   const extraneousProd =
     extraneousInProdDeps.length > 0 &&
-    `Following dependencies should be peer dependencies:\n\n  ${extraneousInProdDeps.join(
+    `Following dependencies should be only in peer dependencies (not in prod):\n\n ${extraneousInProdDeps.join(
       ', '
     )}`;
   const extraneousDev =
     extraneousInDevDeps.length > 0 &&
-    `Following dev dependencies should be peer dependencies:\n\n  ${extraneousInDevDeps.join(
+    `Following dev dependencies should be peer dependencies:\n\n ${extraneousInDevDeps.join(
       ', '
     )}`;
   const prodMismatch =
