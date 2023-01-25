@@ -13,6 +13,7 @@ import type { Compass } from '../helpers/compass';
 import { MONGODB_VERSION } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/insert-data';
+import { getStageOperators } from '../helpers/read-stage-operators';
 
 const { expect } = chai;
 
@@ -206,18 +207,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
-    await browser.focusStageOperator(0);
-
-    const stageOperatorOptionsElements = await browser.$$(
-      Selectors.stageOperatorOptions(0)
-    );
-    const options = await Promise.all(
-      stageOperatorOptionsElements.map((element) => element.getText())
-    );
-
-    const actualOptions = options.map((option) => option.split('\n')[0]);
-
-    actualOptions.sort();
+    const options = await getStageOperators(browser, 0);
 
     const expectedAggregations = [
       '$addFields',
@@ -268,7 +258,7 @@ describe('Collection aggregations tab', function () {
 
     expectedAggregations.sort();
 
-    expect(actualOptions).to.deep.equal(expectedAggregations);
+    expect(options).to.deep.equal(expectedAggregations);
   });
 
   // TODO: we can probably remove this one now that there is a more advanced one. or merge that into here?
