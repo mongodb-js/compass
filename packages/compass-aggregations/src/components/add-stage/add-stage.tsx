@@ -10,8 +10,8 @@ import {
 
 const iconContainerStyles = css({
   textAlign: 'center',
-  marginTop: spacing[1]/2,
-  marginBottom: spacing[1]/2,
+  marginTop: spacing[1] / 2,
+  marginBottom: spacing[1] / 2,
 });
 
 const buttonContainerStyles = css({
