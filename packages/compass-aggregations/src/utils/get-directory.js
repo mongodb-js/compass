@@ -2,7 +2,7 @@ const DIRNAME = 'SavedPipelines';
 
 let electronApp;
 try {
-  electronApp = require('@electron/remote').app
+  electronApp = require('@electron/remote').app;
 } catch (e) {
   console.log('Could not load @electron/remote', e.message);
 }

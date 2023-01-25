@@ -1,20 +1,35 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Tooltip, Body, Icon, css, cx, spacing, palette, useDarkMode } from '@mongodb-js/compass-components';
+import {
+  Tooltip,
+  Body,
+  Icon,
+  css,
+  cx,
+  spacing,
+  palette,
+  useDarkMode,
+  IconButton,
+} from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
-import { MERGE_STAGE_PREVIEW_TEXT, OUT_STAGE_PREVIEW_TEXT } from '../../utils/stage';
+import {
+  MERGE_STAGE_PREVIEW_TEXT,
+  OUT_STAGE_PREVIEW_TEXT,
+} from '../../utils/stage';
 
 import DeleteStage from './delete-stage';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
 import { hasSyntaxError } from '../../utils/stage';
+import { usePreference } from 'compass-preferences-model';
+import { enableFocusMode } from '../../modules/focus-mode';
 
 const STAGE_TOOLTIP_MESSAGE = {
   $out: OUT_STAGE_PREVIEW_TEXT,
-  $merge: MERGE_STAGE_PREVIEW_TEXT
+  $merge: MERGE_STAGE_PREVIEW_TEXT,
 };
 
 const STAGES_WITH_TOOLTIP = Object.keys(STAGE_TOOLTIP_MESSAGE);
@@ -22,14 +37,16 @@ const STAGES_WITH_TOOLTIP = Object.keys(STAGE_TOOLTIP_MESSAGE);
 const tooltipIconStyles = css({
   marginRight: spacing[2],
   cursor: 'default',
-  height: spacing[3]
+  height: spacing[3],
 });
 
 type StageEditorOutMergeTooltip = {
-  stageOperator: keyof typeof STAGE_TOOLTIP_MESSAGE
+  stageOperator: keyof typeof STAGE_TOOLTIP_MESSAGE;
 };
 
-function StageEditorOutMergeTooltip({ stageOperator }: StageEditorOutMergeTooltip) {
+function StageEditorOutMergeTooltip({
+  stageOperator,
+}: StageEditorOutMergeTooltip) {
   if (STAGES_WITH_TOOLTIP.includes(stageOperator)) {
     return (
       <Tooltip
@@ -60,7 +77,7 @@ const toolbarStyles = css({
   flexShrink: 0,
   flexDirection: 'row',
   position: 'relative',
-  cursor: 'grab'
+  cursor: 'grab',
 });
 
 const collapsedToolbarStyles = css({
@@ -68,19 +85,19 @@ const collapsedToolbarStyles = css({
 });
 
 const toolbarStylesDark = css({
-  borderBottomColor: palette.gray.dark2
+  borderBottomColor: palette.gray.dark2,
 });
 
 const toolbarStylesLight = css({
-  borderBottomColor: palette.gray.light2
+  borderBottomColor: palette.gray.light2,
 });
 
 const toolbarWarningStyles = css({
-  borderBottomColor: palette.yellow.base
+  borderBottomColor: palette.yellow.base,
 });
 
 const toolbarErrorStyles = css({
-  borderBottomColor: palette.red.base
+  borderBottomColor: palette.red.base,
 });
 
 const rightStyles = css({
@@ -97,6 +114,7 @@ type StageEditorToolbarProps = {
   hasSyntaxError?: boolean;
   hasServerError?: boolean;
   isCollapsed?: boolean;
+  onFocusModeEnableClick?: (index: number) => void;
 };
 
 function StageEditorToolbar({
@@ -106,8 +124,15 @@ function StageEditorToolbar({
   hasSyntaxError,
   hasServerError,
   isCollapsed,
+  onFocusModeEnableClick,
 }: StageEditorToolbarProps) {
   const darkMode = useDarkMode();
+  const showFocusModeFromSettings = usePreference('showFocusMode', React);
+  const showOutTooltip =
+    !isAutoPreviewing &&
+    stageOperator &&
+    ['$out', '$merge'].includes(stageOperator);
+  const showFocusMode = !isAutoPreviewing && showFocusModeFromSettings;
 
   return (
     <div
@@ -117,16 +142,25 @@ function StageEditorToolbar({
         darkMode ? toolbarStylesDark : toolbarStylesLight,
         hasSyntaxError && toolbarWarningStyles,
         hasServerError && toolbarErrorStyles,
-        isCollapsed && collapsedToolbarStyles,
-      )}>
+        isCollapsed && collapsedToolbarStyles
+      )}
+    >
       <StageCollapser index={index} />
       <StageOperatorSelect index={index} />
       <ToggleStage index={index} />
       <div className={rightStyles}>
-        {!isAutoPreviewing && stageOperator && ['$out', '$merge'].includes(stageOperator) && (
+        {showOutTooltip && (
           <StageEditorOutMergeTooltip
-            stageOperator={stageOperator as '$out'|'$merge'}
+            stageOperator={stageOperator as '$out' | '$merge'}
           ></StageEditorOutMergeTooltip>
+        )}
+        {showFocusMode && (
+          <IconButton
+            onClick={() => onFocusModeEnableClick?.(index)}
+            aria-label="Open stage in focus mode"
+          >
+            <Icon glyph="FullScreenEnter" size="small"></Icon>
+          </IconButton>
         )}
         <DeleteStage index={index} />
       </div>
@@ -134,13 +168,16 @@ function StageEditorToolbar({
   );
 }
 
-export default connect((state: RootState, ownProps: { index: number}) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-  return {
-    stageOperator: stage.stageOperator,
-    isAutoPreviewing: !!state.autoPreview,
-    hasSyntaxError: hasSyntaxError(stage),
-    hasServerError: !!stage.serverError,
-    isCollapsed: stage.collapsed,
-  };
-})(StageEditorToolbar);
+export default connect(
+  (state: RootState, ownProps: { index: number }) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    return {
+      stageOperator: stage.stageOperator,
+      isAutoPreviewing: !!state.autoPreview,
+      hasSyntaxError: hasSyntaxError(stage),
+      hasServerError: !!stage.serverError,
+      isCollapsed: stage.collapsed,
+    };
+  },
+  { onFocusModeEnableClick: enableFocusMode }
+)(StageEditorToolbar);

@@ -51,7 +51,6 @@
     "reformat": "npm run prettier -- --write ."
   },
   "peerDependencies": {
-    "@electron/remote": "^2.0.8",
     "@mongodb-js/compass-components": "^1.4.0",
     "hadron-ipc": "^3.1.0",
     "mongodb-data-service": "^22.3.0",
@@ -59,12 +58,12 @@
     "react-dom": "*"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.8",
+    "@electron/remote": "^2.0.9",
     "@mongodb-js/compass-components": "^1.4.0",
     "hadron-ipc": "^3.1.0",
     "mongodb-data-service": "^22.3.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "*",
+    "react-dom": "*"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.0.1",
@@ -79,8 +78,8 @@
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
-    "compass-preferences-model": "^2.4.0",
     "chai": "^4.3.6",
+    "compass-preferences-model": "^2.4.0",
     "depcheck": "^1.4.1",
     "eslint": "^7.25.0",
     "gen-esm-wrapper": "^1.1.0",

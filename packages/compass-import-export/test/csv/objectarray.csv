@@ -1,0 +1,2 @@
+a,foo[0].bar,foo[1].bar,foo[2].baz,z,notes
+a,1,2,3,z,foo is a sparse object array

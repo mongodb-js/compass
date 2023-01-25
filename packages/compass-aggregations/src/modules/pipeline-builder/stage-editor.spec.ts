@@ -12,7 +12,7 @@ import {
   moveStage,
   removeStage,
   loadStagePreview,
-  mapBuilderStageToStoreStage
+  mapBuilderStageToStoreStage,
 } from './stage-editor';
 import reducer from '../';
 import { PipelineStorage } from '../../utils/pipeline-storage';
@@ -29,15 +29,15 @@ function createStore(
     {
       pipelineBuilder: {
         stageEditor: {
-          stageIds: pipelineBuilder.stages.map(stage => stage.id),
-          stages: pipelineBuilder.stages.map(mapBuilderStageToStoreStage)
-        }
-      }
+          stageIds: pipelineBuilder.stages.map((stage) => stage.id),
+          stages: pipelineBuilder.stages.map(mapBuilderStageToStoreStage),
+        },
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
         pipelineBuilder,
-        pipelineStorage: new PipelineStorage()
+        pipelineStorage: new PipelineStorage(),
       })
     )
   );
@@ -46,7 +46,7 @@ function createStore(
     getState() {
       return store.getState().pipelineBuilder.stageEditor;
     },
-    pipelineBuilder
+    pipelineBuilder,
   };
 }
 

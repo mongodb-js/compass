@@ -89,9 +89,10 @@ const PreviewResults = ({
   atlasOperator: string;
   isPreviewStale: boolean;
 }) => {
-  const listProps: Omit<React.ComponentProps<typeof DocumentListView>,
-  'isExpanded' |
-  'className'> = useMemo(
+  const listProps: Omit<
+    React.ComponentProps<typeof DocumentListView>,
+    'isExpanded' | 'className'
+  > = useMemo(
     () => ({
       docs: (previewDocs ?? []).map((doc) => new HadronDocument(doc)),
       isEditable: false,
@@ -143,9 +144,7 @@ const PreviewResults = ({
   return (
     <>
       {isPreviewStale && (
-        <WarningSummary
-          warnings={["Output outdated and no longer in sync."]}
-        />
+        <WarningSummary warnings={['Output outdated and no longer in sync.']} />
       )}
       <DocumentListView
         {...listProps}

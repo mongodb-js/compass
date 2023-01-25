@@ -24,7 +24,7 @@ const ModifySourceBanner = (props) => {
 };
 
 ModifySourceBanner.propTypes = {
-  editViewName: PropTypes.string.isRequired
+  editViewName: PropTypes.string.isRequired,
 };
 
 export default ModifySourceBanner;

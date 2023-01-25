@@ -23,7 +23,6 @@ const renderPipelinePaginationCount = (
 };
 
 describe('PipelinePaginationCount', function () {
-  
   it('renders count of results', function () {
     const container = renderPipelinePaginationCount({ count: 20 });
     expect(within(container).getByText('of 20')).to.exist;
@@ -31,9 +30,11 @@ describe('PipelinePaginationCount', function () {
 
   it('renders count button and calls onCount when clicked', function () {
     const onCountSpy = spy();
-    const container = renderPipelinePaginationCount({onCount: onCountSpy});
+    const container = renderPipelinePaginationCount({ onCount: onCountSpy });
 
-    const countButton = within(container).getByTestId('pipeline-pagination-count-action');
+    const countButton = within(container).getByTestId(
+      'pipeline-pagination-count-action'
+    );
     expect(countButton).to.exist;
 
     expect(onCountSpy.calledOnce).to.be.false;
@@ -43,9 +44,14 @@ describe('PipelinePaginationCount', function () {
 
   it('renders refresh button and calls onRefresh when clicked', function () {
     const onRefreshSpy = spy();
-    const container = renderPipelinePaginationCount({ count: 20, onRefresh: onRefreshSpy });
+    const container = renderPipelinePaginationCount({
+      count: 20,
+      onRefresh: onRefreshSpy,
+    });
 
-    const refreshButton = within(container).getByTestId('pipeline-pagination-refresh-count-action');
+    const refreshButton = within(container).getByTestId(
+      'pipeline-pagination-refresh-count-action'
+    );
     expect(refreshButton).to.exist;
 
     expect(onRefreshSpy.calledOnce).to.be.false;
@@ -59,7 +65,10 @@ describe('PipelinePaginationCount', function () {
   });
 
   it('renders spinner when refreshing documents along with count', function () {
-    const container = renderPipelinePaginationCount({ loading: true, count: 20 });
+    const container = renderPipelinePaginationCount({
+      loading: true,
+      count: 20,
+    });
     expect(within(container).getByText('of 20')).to.exist;
     expect(within(container).getByTitle(/Refreshing document count/)).to.exist;
   });

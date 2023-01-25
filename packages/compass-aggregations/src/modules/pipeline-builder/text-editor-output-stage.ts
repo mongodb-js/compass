@@ -10,14 +10,14 @@ import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-con
 import { RESTORE_PIPELINE } from '../saved-pipeline';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import { gotoOutResults } from '../out-results-fn';
-import type { PipelineModeToggledAction} from './pipeline-mode';
+import type { PipelineModeToggledAction } from './pipeline-mode';
 import { ActionTypes as PipelineModeActionTypes } from './pipeline-mode';
 
 const enum OutputStageActionTypes {
   FetchStarted = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchStarted',
   FetchSucceded = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchSucceded',
   FetchFailed = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchFailed',
-};
+}
 
 type OutputStageFetchStartedAction = {
   type: OutputStageActionTypes.FetchStarted;
@@ -33,8 +33,8 @@ type OutputStageFetchFailedAction = {
 };
 
 type OutputStageState = {
-  isLoading: boolean,
-  serverError: MongoServerError | null,
+  isLoading: boolean;
+  serverError: MongoServerError | null;
   isComplete: boolean;
 };
 
@@ -102,8 +102,9 @@ const reducer: Reducer<OutputStageState> = (state = INITIAL_STATE, action) => {
   return state;
 };
 
-export const runPipelineWithOutputStage = (
-): PipelineBuilderThunkAction<Promise<void>> => {
+export const runPipelineWithOutputStage = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       autoPreview,
@@ -113,7 +114,6 @@ export const runPipelineWithOutputStage = (
       maxTimeMS,
       collationString,
     } = getState();
-
 
     if (!dataService || !isAtlasDeployed) {
       return;
@@ -128,7 +128,7 @@ export const runPipelineWithOutputStage = (
       const pipeline = pipelineBuilder.getPipelineFromSource();
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
-        collation: collationString.value ?? undefined
+        collation: collationString.value ?? undefined,
       };
       const { signal } = new AbortController();
       await aggregatePipeline({
@@ -136,7 +136,7 @@ export const runPipelineWithOutputStage = (
         signal,
         namespace,
         pipeline,
-        options
+        options,
       });
       dispatch({
         type: OutputStageActionTypes.FetchSucceded,
@@ -151,21 +151,20 @@ export const runPipelineWithOutputStage = (
   };
 };
 
-export const gotoOutputStageCollection = (
-): PipelineBuilderThunkAction<void> => {
-  return (dispatch, getState) => {
-    const {
-      pipelineBuilder: {
-        textEditor: {
-          pipeline: { pipeline }
-        }
-      }
-    } = getState();
-    // $out or $merge is always last stage
-    const lastStageIndex = pipeline.length - 1;
-    dispatch(gotoOutResults(lastStageIndex));
+export const gotoOutputStageCollection =
+  (): PipelineBuilderThunkAction<void> => {
+    return (dispatch, getState) => {
+      const {
+        pipelineBuilder: {
+          textEditor: {
+            pipeline: { pipeline },
+          },
+        },
+      } = getState();
+      // $out or $merge is always last stage
+      const lastStageIndex = pipeline.length - 1;
+      dispatch(gotoOutResults(lastStageIndex));
+    };
   };
-};
-
 
 export default reducer;
