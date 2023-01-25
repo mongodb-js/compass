@@ -19,10 +19,12 @@ describe('explain module', function () {
   describe('#reducer', function () {
     it('returns state when explain starts', function () {
       const abortController = new AbortController();
-      expect(reducer(undefined, {
-        type: ActionTypes.ExplainStarted,
-        abortController,
-      })).to.deep.equal({
+      expect(
+        reducer(undefined, {
+          type: ActionTypes.ExplainStarted,
+          abortController,
+        })
+      ).to.deep.equal({
         isModalOpen: true,
         isLoading: true,
         explain: undefined,
@@ -41,10 +43,12 @@ describe('explain module', function () {
           indexes: [{ index: '_id', shard: 'shard01', key: { _id: -1 } }],
         },
       };
-      expect(reducer(undefined, {
-        type: ActionTypes.ExplainFinished,
-        explain,
-      })).to.deep.equal({
+      expect(
+        reducer(undefined, {
+          type: ActionTypes.ExplainFinished,
+          explain,
+        })
+      ).to.deep.equal({
         isModalOpen: true,
         isLoading: false,
         explain,
@@ -53,10 +57,12 @@ describe('explain module', function () {
       });
     });
     it('returns state when explain fails', function () {
-      expect(reducer(undefined, {
-        type: ActionTypes.ExplainFailed,
-        error: 'error',
-      })).to.deep.equal({
+      expect(
+        reducer(undefined, {
+          type: ActionTypes.ExplainFailed,
+          error: 'error',
+        })
+      ).to.deep.equal({
         isModalOpen: true,
         isLoading: false,
         explain: undefined,
@@ -65,14 +71,18 @@ describe('explain module', function () {
       });
     });
     it('returns state when explain is cancelled', function () {
-      expect(reducer(undefined, {
-        type: ActionTypes.ExplainCancelled,
-      })).to.deep.equal(INITIAL_STATE);
+      expect(
+        reducer(undefined, {
+          type: ActionTypes.ExplainCancelled,
+        })
+      ).to.deep.equal(INITIAL_STATE);
     });
     it('when returns initial state by default', function () {
-      expect(reducer(undefined, {
-        type: 'unknown',
-      })).to.deep.equal(INITIAL_STATE);
+      expect(
+        reducer(undefined, {
+          type: 'unknown',
+        })
+      ).to.deep.equal(INITIAL_STATE);
     });
   });
   describe('#actions', function () {
@@ -81,11 +91,11 @@ describe('explain module', function () {
       store = configureStore({ sourcePipeline: '[]' });
       store.dispatch({
         type: DATA_SERVICE_CONNECTED,
-        dataService: new class {
+        dataService: new (class {
           explainAggregate() {
-            return Promise.resolve({ explainVersion: 2 })
+            return Promise.resolve({ explainVersion: 2 });
           }
-        }
+        })(),
       });
     });
     it('explains aggregation', async function () {
@@ -95,7 +105,7 @@ describe('explain module', function () {
         isLoading: false,
         explain: { plan: { explainVersion: 2 } },
         error: undefined,
-        abortController: undefined
+        abortController: undefined,
       });
     });
     it('closes explain modal', async function () {
@@ -133,7 +143,12 @@ describe('explain module', function () {
     it('maps indexes correctly', function () {
       const collectionIndexes: IndexInfo[] = [
         { ns: 'test.users', name: '_id_', key: { _id: 1 }, extra: {} },
-        { ns: 'test.users', name: '_location_', key: { _address: '2dsphere' }, extra: {} }
+        {
+          ns: 'test.users',
+          name: '_location_',
+          key: { _address: '2dsphere' },
+          extra: {},
+        },
       ];
       const explainIndexes = [
         { index: '_id_', shard: 'shard01' },

@@ -16,7 +16,7 @@ class SavingPipelineModal extends PureComponent {
     savingPipelineApply: PropTypes.func.isRequired,
     savingPipelineNameChanged: PropTypes.func.isRequired,
     saveCurrentPipeline: PropTypes.func.isRequired,
-    clonePipeline: PropTypes.func.isRequired
+    clonePipeline: PropTypes.func.isRequired,
   };
 
   /**

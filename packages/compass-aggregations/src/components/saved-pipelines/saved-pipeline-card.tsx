@@ -6,7 +6,7 @@ import {
   cx,
   Icon,
   KeylineCard,
-  spacing
+  spacing,
 } from '@mongodb-js/compass-components';
 
 type SavePipelineCardProps = {
@@ -17,7 +17,7 @@ type SavePipelineCardProps = {
 };
 
 const containerStyles = css({
-  margin: spacing[2]
+  margin: spacing[2],
 });
 
 const card = css({
@@ -25,8 +25,8 @@ const card = css({
   alignItems: 'center',
   padding: spacing[2],
   '&:hover .controls': {
-    visibility: 'visible'
-  }
+    visibility: 'visible',
+  },
 });
 
 const controls = css({
@@ -35,19 +35,16 @@ const controls = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[2],
-  visibility: 'hidden'
+  visibility: 'hidden',
 });
 
 const button = css({
-  flex: 'none'
+  flex: 'none',
 });
 
-export const SavePipelineCard: React.FunctionComponent<SavePipelineCardProps> = ({
-  id,
-  name,
-  onOpenPipeline,
-  onDeletePipeline
-}) => {
+export const SavePipelineCard: React.FunctionComponent<
+  SavePipelineCardProps
+> = ({ id, name, onOpenPipeline, onDeletePipeline }) => {
   return (
     <div className={containerStyles}>
       <KeylineCard

@@ -16,11 +16,11 @@ const reducer: Reducer<State, AnyAction> = (state = INITIAL_STATE, action) => {
     return INITIAL_STATE;
   }
   return state;
-}
+};
 
 export const maxTimeMSChanged = (value: number) => ({
   type: MAX_TIME_MS_CHANGED,
-  maxTimeMS: isNaN(value) ? null : value
+  maxTimeMS: isNaN(value) ? null : value,
 });
 
 export default reducer;

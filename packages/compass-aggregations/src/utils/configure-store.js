@@ -1,7 +1,7 @@
 import {
   applyMiddleware,
   compose,
-  createStore as reduxCreateStore
+  createStore as reduxCreateStore,
 } from 'redux';
 
 import reduxThunk from 'redux-thunk';

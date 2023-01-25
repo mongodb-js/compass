@@ -25,7 +25,12 @@ export class StageCollapser extends PureComponent {
         onClick={this.onStageCollapseToggled}
         title={title}
         aria-label={title}
-      ><Icon glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'} size="small" /></IconButton>
+      >
+        <Icon
+          glyph={isExpanded ? 'ChevronDown' : 'ChevronRight'}
+          size="small"
+        />
+      </IconButton>
     );
   }
 }
@@ -34,7 +39,7 @@ export default connect(
   (state, ownProps) => {
     return {
       isExpanded:
-        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed
+        !state.pipelineBuilder.stageEditor.stages[ownProps.index].collapsed,
     };
   },
   { onChange: changeStageCollapsed }

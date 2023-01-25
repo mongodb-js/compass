@@ -51,7 +51,9 @@ const configureStore = (options = {}) => {
 
   const pipelineBuilder = new PipelineBuilder(
     options.dataProvider?.dataProvider ?? null,
-    options.sourcePipeline ? toJSString(options.sourcePipeline, '  ') : undefined
+    options.sourcePipeline
+      ? toJSString(options.sourcePipeline, '  ')
+      : undefined
   );
   const pipelineStorage = new PipelineStorage();
 
@@ -60,11 +62,11 @@ const configureStore = (options = {}) => {
     {
       appRegistry: {
         localAppRegistry: options.localAppRegistry ?? null,
-        globalAppRegistry: options.globalAppRegistry ?? null
+        globalAppRegistry: options.globalAppRegistry ?? null,
       },
       dataService: {
         error: options.dataProvider?.error ?? null,
-        dataService: options.dataProvider?.dataProvider ?? null
+        dataService: options.dataProvider?.dataProvider ?? null,
       },
       namespace: collection ? options.namespace : undefined,
       serverVersion: options.serverVersion,
@@ -99,14 +101,14 @@ const configureStore = (options = {}) => {
           stages: pipelineBuilder.stages.map((stage) =>
             mapBuilderStageToStoreStage(stage)
           ),
-          stageIds: pipelineBuilder.stages.map((stage) => stage.id)
-        }
-      }
+          stageIds: pipelineBuilder.stages.map((stage) => stage.id),
+        },
+      },
     },
     applyMiddleware(
       thunk.withExtraArgument({
         pipelineBuilder,
-        pipelineStorage
+        pipelineStorage,
       })
     )
   );

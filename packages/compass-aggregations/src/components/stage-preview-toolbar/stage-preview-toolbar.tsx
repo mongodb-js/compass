@@ -1,12 +1,23 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Body, Link, Tooltip, css, cx, useDarkMode, palette, spacing, IconButton, Icon } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Link,
+  Tooltip,
+  css,
+  cx,
+  useDarkMode,
+  palette,
+  spacing,
+  IconButton,
+  Icon,
+} from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model';
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
 import { hasSyntaxError } from '../../utils/stage';
-import { focusModeEnabled } from '../../modules/focus-mode';
+import { enableFocusMode } from '../../modules/focus-mode';
 
 const toolbarStyles = css({
   width: '100%',
@@ -26,19 +37,19 @@ const collapsedToolbarStyles = css({
 });
 
 const toolbarStylesDark = css({
-  borderBottomColor: palette.gray.dark2
+  borderBottomColor: palette.gray.dark2,
 });
 
 const toolbarStylesLight = css({
-  borderBottomColor: palette.gray.light2
+  borderBottomColor: palette.gray.light2,
 });
 
 const toolbarWarningStyles = css({
-  borderBottomColor: palette.yellow.base
+  borderBottomColor: palette.yellow.base,
 });
 
 const toolbarErrorStyles = css({
-  borderBottomColor: palette.red.base
+  borderBottomColor: palette.red.base,
 });
 
 const toolbarTextStyles = css({
@@ -130,21 +141,21 @@ function StagePreviewToolbar({
   destination,
   isCollapsed,
   onFocusMode,
-  index: stageIndex
+  index: stageIndex,
 }: StagePreviewToolbarProps) {
   const darkMode = useDarkMode();
   const showFocusMode = usePreference('showFocusMode', React);
   return (
-    <div className={cx(
-      toolbarStyles,
-      darkMode ? toolbarStylesDark : toolbarStylesLight,
-      hasSyntaxError && toolbarWarningStyles,
-      hasServerError && toolbarErrorStyles,
-      isCollapsed && collapsedToolbarStyles,
-    )}>
-      <Body
-        className={toolbarTextStyles}
-      >
+    <div
+      className={cx(
+        toolbarStyles,
+        darkMode ? toolbarStylesDark : toolbarStylesLight,
+        hasSyntaxError && toolbarWarningStyles,
+        hasServerError && toolbarErrorStyles,
+        isCollapsed && collapsedToolbarStyles
+      )}
+    >
+      <Body className={toolbarTextStyles}>
         {isEnabled ? (
           stageOperator ? (
             destination ? (
@@ -164,30 +175,39 @@ function StagePreviewToolbar({
           'Stage is disabled. Results not passed in the pipeline.'
         )}
       </Body>
-      {showFocusMode && <IconButton className={focusModeButtonStyles} onClick={() => onFocusMode(stageIndex)} aria-label={'Focus Mode'}>
-        <Icon glyph={'FullScreenEnter'} size="small"></Icon>
-      </IconButton>}
+      {showFocusMode && (
+        <IconButton
+          className={focusModeButtonStyles}
+          onClick={() => onFocusMode(stageIndex)}
+          aria-label={'Focus Mode'}
+        >
+          <Icon glyph={'FullScreenEnter'} size="small"></Icon>
+        </IconButton>
+      )}
     </div>
   );
 }
 
-export default connect((state: RootState, ownProps: { index: number }) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
-  const stageInfo = getStageInfo(
-    state.namespace,
-    stage.stageOperator,
-    stage.value
-  );
-  return {
-    index: ownProps.index,
-    stageOperator: stage.stageOperator,
-    hasSyntaxError: hasSyntaxError(stage),
-    hasServerError: !!stage.serverError,
-    isEnabled: !stage.disabled,
-    previewSize: stage.previewDocs?.length ?? 0,
-    isCollapsed: stage.collapsed,
-    ...stageInfo
-  };
-}, {
-  onFocusMode: focusModeEnabled
-})(StagePreviewToolbar);
+export default connect(
+  (state: RootState, ownProps: { index: number }) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[ownProps.index];
+    const stageInfo = getStageInfo(
+      state.namespace,
+      stage.stageOperator,
+      stage.value
+    );
+    return {
+      index: ownProps.index,
+      stageOperator: stage.stageOperator,
+      hasSyntaxError: hasSyntaxError(stage),
+      hasServerError: !!stage.serverError,
+      isEnabled: !stage.disabled,
+      previewSize: stage.previewDocs?.length ?? 0,
+      isCollapsed: stage.collapsed,
+      ...stageInfo,
+    };
+  },
+  {
+    onFocusMode: enableFocusMode,
+  }
+)(StagePreviewToolbar);

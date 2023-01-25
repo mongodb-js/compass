@@ -18,5 +18,5 @@ export default function reducer(state = INITIAL_STATE, action) {
  */
 export const setViewPipeline = (pipeline) => ({
   type: SET_VIEW_PIPELINE,
-  pipeline: pipeline
+  pipeline: pipeline,
 });

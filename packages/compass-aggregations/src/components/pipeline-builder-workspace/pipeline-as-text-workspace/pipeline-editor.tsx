@@ -99,10 +99,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
   const onBlurEditor = useCallback(() => {
     const value = editorRef.current?.getValue();
-    if (
-      value !== undefined &&
-      value !== editorInitialValueRef.current
-    ) {
+    if (value !== undefined && value !== editorInitialValueRef.current) {
       track('Aggregation Edited', {
         num_stages,
         editor_view_type: 'text',
@@ -141,7 +138,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const showErrorContainer = serverError || syntaxErrors.length > 0;
 
   return (
-    <div className={cx(containerStyles, darkMode && containerDarkStyles)} data-testid="pipeline-as-text-editor">
+    <div
+      className={cx(containerStyles, darkMode && containerDarkStyles)}
+      data-testid="pipeline-as-text-editor"
+    >
       <div className={editorContainerStyles}>
         <Editor
           text={pipelineText}
@@ -156,7 +156,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
         />
       </div>
       {showErrorContainer && (
-        <div className={errorContainerStyles} data-testid="pipeline-as-text-error-container">
+        <div
+          className={errorContainerStyles}
+          data-testid="pipeline-as-text-error-container"
+        >
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (

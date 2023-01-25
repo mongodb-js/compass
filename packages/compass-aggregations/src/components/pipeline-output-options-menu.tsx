@@ -19,7 +19,7 @@ export const PipelineOutputOptionsMenu: React.FunctionComponent<{
       data-testid="pipeline-output-options"
       actions={pipelineOptionsActions}
       onAction={onChangeOption}
-      buttonText={buttonText ?? "Output Options"}
+      buttonText={buttonText ?? 'Output Options'}
       buttonProps={{
         size: 'xsmall',
       }}

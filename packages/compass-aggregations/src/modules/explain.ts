@@ -8,7 +8,10 @@ import type { PipelineBuilderThunkAction } from '.';
 import { DEFAULT_MAX_TIME_MS } from '../constants';
 import type { IndexInfo } from './indexes';
 import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-confirm';
-import { getPipelineFromBuilderState, mapPipelineModeToEditorViewType } from './pipeline-builder/builder-helpers';
+import {
+  getPipelineFromBuilderState,
+  mapPipelineModeToEditorViewType,
+} from './pipeline-builder/builder-helpers';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model';
 
 const { log, mongoLogId, track } = createLoggerAndTelemetry(
@@ -46,12 +49,11 @@ export type Actions =
   | ExplainFailedAction
   | ExplainCancelledAction;
 
-
 export type ExplainIndex = {
   name: string;
   shard?: string;
   key: IndexInfo['key'];
-}
+};
 
 export type ExplainData = {
   plan: Document;
@@ -117,15 +119,19 @@ export const closeExplainModal = (): PipelineBuilderThunkAction<void> => {
 
 export const cancelExplain = (): PipelineBuilderThunkAction<void> => {
   return (dispatch, getState) => {
-    const { explain: { abortController } } = getState();
+    const {
+      explain: { abortController },
+    } = getState();
     abortController?.abort();
     dispatch({
-      type: ActionTypes.ExplainCancelled
+      type: ActionTypes.ExplainCancelled,
     });
   };
 };
 
-export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
+export const explainAggregation = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => {
   return async (dispatch, getState, { pipelineBuilder }) => {
     const {
       isDataLake,
@@ -152,7 +158,9 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
       });
 
       const options: AggregateOptions = {
-        maxTimeMS: capMaxTimeMSAtPreferenceLimit(maxTimeMS ?? DEFAULT_MAX_TIME_MS),
+        maxTimeMS: capMaxTimeMSAtPreferenceLimit(
+          maxTimeMS ?? DEFAULT_MAX_TIME_MS
+        ),
         allowDiskUse: true,
         collation: collation ?? undefined,
       };
@@ -171,17 +179,15 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
         plan: rawExplain,
       };
       try {
-        const {
-          nReturned,
-          executionTimeMillis,
-          usedIndexes
-        } = new ExplainPlan(rawExplain as any);
+        const { nReturned, executionTimeMillis, usedIndexes } = new ExplainPlan(
+          rawExplain as any
+        );
         const indexes = _mapIndexesInformation(collectionIndexes, usedIndexes);
         const stats = {
           executionTimeMillis,
           nReturned,
           indexes,
-        }
+        };
         explain.stats = stats;
       } catch (e) {
         log.warn(
@@ -217,7 +223,7 @@ export const explainAggregation = (): PipelineBuilderThunkAction<Promise<void>> 
         );
       }
     }
-  }
+  };
 };
 
 export const _getExplainVerbosity = (
@@ -242,7 +248,7 @@ export const _mapIndexesInformation = function (
   explainIndexes: IndexInformation[]
 ): ExplainIndex[] {
   return explainIndexes
-    .filter(x => x.index)
+    .filter((x) => x.index)
     .map((explainIndex) => {
       const collectionIndex = collectionIndexes.find(
         (collectionIndex) => collectionIndex.name === explainIndex.index
@@ -254,6 +260,6 @@ export const _mapIndexesInformation = function (
       };
     })
     .filter(Boolean) as ExplainIndex[];
-}
+};
 
 export default reducer;
