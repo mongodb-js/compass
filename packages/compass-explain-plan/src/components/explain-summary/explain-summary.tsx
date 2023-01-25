@@ -41,6 +41,7 @@ const SummaryIndexStat: React.FC<{
       COVERED: 'Query covered by index:',
       MULTIPLE: 'Shard results differ (see details below)',
       INDEX: 'Query used the following index:',
+      UNAVAILABLE: '',
     };
     return typeToMessage[indexType];
   }, [indexType]);
@@ -82,11 +83,19 @@ const SummaryIndexStat: React.FC<{
   }, [indexType]);
 
   return (
-    <div className={className}>
+    <div className={className} data-testid="summary-index-stat">
       {indexMessageIcon}{' '}
-      <span className={indexMessageColorStyles}>{indexMessageText}</span>{' '}
+      <span
+        data-testid="summary-index-stat-message"
+        className={indexMessageColorStyles}
+      >
+        {indexMessageText}
+      </span>{' '}
       {index ? (
-        <IndexKeysBadge keys={index.fields.serialize()}></IndexKeysBadge>
+        <IndexKeysBadge
+          data-testid="summary-index-stat-badge"
+          keys={index.fields.serialize()}
+        ></IndexKeysBadge>
       ) : null}
     </div>
   );
@@ -99,7 +108,8 @@ const SummaryStat: React.FC<{
   className?: string;
 }> = ({ dataTestId, label, value, className }) => (
   <Body className={className} data-testid={dataTestId}>
-    {label} <b>{value}</b>
+    <span data-testid={dataTestId ? `${dataTestId}-label` : ''}>{label}</span>{' '}
+    <b data-testid={dataTestId ? `${dataTestId}-value` : ''}>{value}</b>
   </Body>
 );
 
@@ -131,17 +141,19 @@ const ExplainSummary: React.FC<ExplainSummaryProps> = ({
         <div>
           <SummaryStat
             className={rowStyles}
-            dataTestId="documents-returned-summary"
+            dataTestId="nReturned-summary"
             label="Documents Returned:"
             value={nReturned}
           />
           <SummaryStat
             className={rowStyles}
+            dataTestId="totalKeysExamined-summary"
             label="Index Keys Examined:"
             value={totalKeysExamined}
           />
           <SummaryStat
             className={rowStyles}
+            dataTestId="totalDocsExamined-summary"
             label="Documents Examined:"
             value={totalDocsExamined}
           />
@@ -149,12 +161,14 @@ const ExplainSummary: React.FC<ExplainSummaryProps> = ({
         <div>
           <SummaryStat
             className={rowStyles}
+            dataTestId="executionTimeMillis-summary"
             label="Actual Query Execution Time (ms):"
             value={executionTimeMillis}
           />
           <SummaryStat
             className={rowStyles}
             label="Sorted in Memory:"
+            dataTestId="inMemorySort-summary"
             value={inMemorySortValue}
           />
           <SummaryIndexStat

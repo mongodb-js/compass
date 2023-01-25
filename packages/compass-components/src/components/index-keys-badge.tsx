@@ -16,11 +16,15 @@ const badgeStyles = css({
 
 type KeyListProps = {
   keys: { field: string; value: any }[];
+  'data-testid'?: string;
 };
 
-const IndexKeysBadge: React.FunctionComponent<KeyListProps> = ({ keys }) => {
+const IndexKeysBadge: React.FunctionComponent<KeyListProps> = ({
+  keys,
+  'data-testid': testId,
+}) => {
   return (
-    <div className={keyListStyles} role="list">
+    <div className={keyListStyles} role="list" data-testid={testId}>
       {keys.map(({ field, value }) => (
         <Badge
           key={field}
