@@ -83,7 +83,7 @@
     "ampersand-rest-collection": "^6.0.0",
     "chai": "^4.1.2",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
+    "electron": "^22.0.2",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.2",
     "lodash": "^4.17.15",
