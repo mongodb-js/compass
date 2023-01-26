@@ -293,6 +293,7 @@ export function isAggregationExplainOutput(explainOutput) {
 
 /**
  * Fetches the explain plan.
+ * TODO: Declutter this middleware as it is getting difficult to read
  *
  * @param {Object} query - The query.
  *
@@ -333,9 +334,6 @@ export const fetchExplainPlan = (query) => {
       });
       // Reset the error.
       explain.error = null;
-
-      // Reset the abortController
-      explain.abortController = null;
 
       if (isAggregationExplainOutput(data)) {
         // Queries against time series collections are run against
@@ -395,7 +393,16 @@ export const fetchExplainPlan = (query) => {
       explain.error = error;
       dispatch(explainPlanFetched(explain));
     } finally {
-      dispatch(changeExplainPlanState(EXPLAIN_STATES.EXECUTED))
+      // This state change will also reset the abort controller
+      // The reason we dispatch an initial state on aborted is
+      // to keep the behavior post cancellation consistent with
+      // other tabs (e.g. Schema analysis) which is to show
+      // the user a welcome page for the feature itself
+      dispatch(changeExplainPlanState(
+        abortSignal.aborted
+          ? EXPLAIN_STATES.INITIAL
+          : EXPLAIN_STATES.EXECUTED
+      ));
     }
   };
 };
@@ -425,7 +432,9 @@ export const startExplainPlan = () => {
 
 export const cancelExplainPlan = () => {
   return (dispatch, getStore) => {
-    getStore().explain.abortController?.abort();
+    getStore().explain.abortController?.abort(
+      new Error("Explain cancelled by user")
+    );
   }
 }
 

@@ -7,7 +7,7 @@ import {
   Link,
   WorkspaceContainer,
   css,
-  CancelLoader
+  CancelLoader,
 } from '@mongodb-js/compass-components';
 import { ZeroGraphic } from '../zero-graphic';
 import { ExplainBody } from '../explain-body';
@@ -22,7 +22,6 @@ import { ExplainToolbar } from '../explain-toolbar/explain-toolbar';
  */
 const DOCUMENTATION_LINK =
   'https://docs.mongodb.com/compass/master/query-plan/';
-
 
 const loaderBackdropStyles = css({
   display: 'flex',
@@ -94,16 +93,16 @@ class ExplainStates extends Component {
     );
   }
 
+  checkIfExplainIsLoading() {
+    return this.props.explain.explainState === EXPLAIN_STATES.REQUESTED;
+  }
+
   /**
    * Render the schema validation component zero state.
    *
    * @returns {React.Component} The component.
    */
   renderZeroState() {
-    if (!this.checkIfZeroState()) {
-      return null;
-    }
-
     return (
       <EmptyContent
         icon={ZeroGraphic}
@@ -135,9 +134,20 @@ class ExplainStates extends Component {
    * @returns {React.Component} The component.
    */
   renderContent() {
-    if (!this.checkIfZeroState()) {
-      return <ExplainBody key="explain-body" {...this.props} />;
-    }
+    return <ExplainBody key="explain-body" {...this.props} />;
+  }
+
+  renderCancellableSpinner() {
+    return (
+      <div className={loaderBackdropStyles}>
+        <CancelLoader
+          data-testid="query-explain-cancel"
+          cancelText="Cancel"
+          onCancel={() => this.props.cancelExplainPlan()}
+          progressText="Running explain"
+        />
+      </div>
+    );
   }
 
   /**
@@ -146,42 +156,33 @@ class ExplainStates extends Component {
    * @returns {React.Component} The rendered component.
    */
   render() {
-    const isExplainLoading = this.props.explain.explainState === 'requested';
     return (
-      isExplainLoading 
-        ? <div className={loaderBackdropStyles}>
-            <CancelLoader
-              data-testid="query-explain-cancel"
-              cancelText="Cancel"
-              onCancel={() => this.props.cancelExplainPlan()}
-              progressText="Running explain"
-            />
-          </div>
-        : (
-        <WorkspaceContainer
-          className='boys-2'
-          toolbar={
-            <ExplainToolbar
-              explainErrorMessage={this.props.explain.error?.message}
-              localAppRegistry={this.props.appRegistry.localAppRegistry}
-              onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
-              showOutdatedWarning={
-                this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
-              }
-              resultId={this.props.explain.resultId}
-              hasExplainResults={!this.checkIfZeroState()}
-              showReadonlyWarning={!this.props.isEditable}
-              switchToTreeView={this.props.switchToTreeView}
-              switchToJSONView={this.props.switchToJSONView}
-              viewType={this.props.explain.viewType}
-            />
-          }
-        >
-          {this.renderZeroState()}
-          {this.renderContent()}
-        </WorkspaceContainer>
-      )
-    )
+      <WorkspaceContainer
+        className="boys-2"
+        toolbar={
+          <ExplainToolbar
+            explainErrorMessage={this.props.explain.error?.message}
+            localAppRegistry={this.props.appRegistry.localAppRegistry}
+            onExecuteExplainClicked={this.onExecuteExplainClicked.bind(this)}
+            showOutdatedWarning={
+              this.props.explain.explainState === EXPLAIN_STATES.OUTDATED
+            }
+            resultId={this.props.explain.resultId}
+            hasExplainResults={!this.checkIfZeroState()}
+            showReadonlyWarning={!this.props.isEditable}
+            switchToTreeView={this.props.switchToTreeView}
+            switchToJSONView={this.props.switchToJSONView}
+            viewType={this.props.explain.viewType}
+          />
+        }
+      >
+        {this.checkIfExplainIsLoading()
+          ? this.renderCancellableSpinner()
+          : this.checkIfZeroState()
+          ? this.renderZeroState()
+          : this.renderContent()}
+      </WorkspaceContainer>
+    );
   }
 }
 
