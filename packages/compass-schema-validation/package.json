@@ -105,7 +105,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/mongodb-redux-common": "^2.0.3",
     "bson": "^4.4.1",
-    "compass-preferences-model": "^2.4.0",
-    "react": "^17.0.2"
+    "compass-preferences-model": "^2.4.0"
   }
 }

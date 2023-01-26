@@ -87,6 +87,7 @@
     "prettier": "^2.7.1",
     "prop-types": "^15.7.2",
     "re-resizable": "^6.9.0",
+    "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",
     "redux": "^4.2.0",
@@ -107,8 +108,7 @@
     "@mongodb-js/mongodb-redux-common": "^2.0.3",
     "bson": "^4.4.1",
     "compass-preferences-model": "^2.4.0",
-    "hadron-document": "^8.0.2",
-    "react": "^17.0.2"
+    "hadron-document": "^8.0.2"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "bugs": {
