@@ -11,6 +11,11 @@ const MIN_INT = -2147483648;
 const MAX_INT = 2147483647;
 const MIN_LONG = BigInt('-9223372036854775808');
 const MAX_LONG = BigInt('9223372036854775807');
+// from papaparse: https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1024
+const FLOAT = /^\s*-?(\d+\.?|\.\d+|\d+\.\d+)([eE][-+]?\d+)?\s*$/;
+// from papaparse: https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1025
+const ISO_DATE =
+  /^((\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z)))$/;
 
 type AnalyzeCSVFieldsOptions = {
   input: Readable;
@@ -19,11 +24,7 @@ type AnalyzeCSVFieldsOptions = {
   progressCallback: (index: number) => void;
 };
 
-// see parseDynamic() in papaparse.js:
-// https://github.com/mholt/PapaParse/blob/aa0046865f1b4e817ebba6966d6baf483e0652d7/papaparse.js#L1225
-type PapaValue = boolean | number | Date | null | string;
-
-type PapaRowData = Record<string, PapaValue>;
+type PapaRowData = Record<string, string>;
 
 type CSVFieldTypeInfo = {
   // How many cells in the file matched this type.
@@ -68,45 +69,45 @@ type AnalyzeCSVFieldsResult = {
   fields: Record<string, CSVField>;
 };
 
-function detectFieldType(value: PapaValue): CSVFieldType {
-  // papaparse handles some types for us, so get those out of the way first
-  if (value === null) {
+function detectFieldType(value: string): CSVFieldType {
+  // mongoexport and existing compass style nulls
+  if (!value || value === 'Null') {
     return 'null';
-  }
-  if (Object.prototype.toString.call(value) === '[object Date]') {
-    return 'date';
-  }
-  const jsType = typeof value;
-  if (jsType === 'boolean') {
+  } else if (value === 'true' || value === 'TRUE') {
     return 'boolean';
-  }
-
-  // papaparse will make anything > -2^^53 and < 2^^53 a number (via parseFloat)
-  // and leave any number outside of that range a string.
-  if (jsType === 'number') {
+  } else if (value === 'false' || value === 'FALSE') {
+    return 'boolean';
+  } else if (FLOAT.test(value)) {
     // first separate floating point numbers from integers
-    if (value.toString().includes('.')) {
+
+    // 1.0 should be double
+    if (value.includes('.') || /[Ee][+-]/.test(value)) {
       return 'double';
     }
-    // then separate ints from longs
-    if (value >= MIN_INT && value <= MAX_INT) {
-      return 'int';
-    }
-    return 'long';
-  }
 
-  // now deal with remaining large ints
-  try {
-    const number = BigInt(value as string);
+    let number;
+    try {
+      number = BigInt(value);
+    } catch (err) {
+      // just in case something makes it past the regex by accident
+      return 'string';
+    }
+
+    // then separate ints from longs
     if (number >= MIN_LONG && number <= MAX_LONG) {
+      if (number >= MIN_INT && number <= MAX_INT) {
+        return 'int';
+      }
       return 'long';
     }
+
+    // really big integers will remain as strings
     return 'string';
-  } catch (err) {
-    // If it doesn't parse as a BigInt, then just fall back to string.
-    // We might still want to check the string for certain patterns, though.
-    return 'string';
+  } else if (ISO_DATE.test(value)) {
+    return 'date';
   }
+
+  return 'string';
 }
 
 function initResultFields(
@@ -134,22 +135,21 @@ function initResultFields(
 function addRowToResult(
   result: AnalyzeCSVFieldsResult,
   headerFields: string[],
-  data: PapaRowData,
-  currentRow: Record<string, string>
+  data: PapaRowData
 ) {
   for (const field of Object.values(result.fields)) {
     for (const columnIndex of field.columnIndexes) {
       const name = headerFields[columnIndex];
-      const value = data[name];
-      const type = detectFieldType(value);
-      debug('detectFieldType', name, value, type);
+      const original = data[name] ?? '';
+      const type = detectFieldType(original);
+      debug('detectFieldType', name, original, type);
 
       if (!field.types[type]) {
         field.types[type] = {
           count: 0,
           firstRowIndex: result.totalRows,
           firstColumnIndex: columnIndex,
-          firstValue: currentRow[name] ?? '', // the original string, not the PapaValue
+          firstValue: original,
         };
       }
 
@@ -193,19 +193,11 @@ export function analyzeCSVFields({
 
   let aborted = false;
   let headerFields: string[];
-  const currentRow: Record<string, string> = {};
 
   return new Promise(function (resolve, reject) {
     Papa.parse(input, {
       delimiter,
       header: true,
-      dynamicTyping: true,
-      transform: function (value: string, field: string | number) {
-        // collect the strings before dynamicTyping tries to parse them so that
-        // we can use the original values as firstValue
-        currentRow[field] = value;
-        return value;
-      },
       step: function (results: Papa.ParseStepResult<PapaRowData>, parser) {
         debug('analyzeCSVFields:step', results);
 
@@ -220,7 +212,7 @@ export function analyzeCSVFields({
           initResultFields(result, headerFields);
         }
 
-        addRowToResult(result, headerFields, results.data, currentRow);
+        addRowToResult(result, headerFields, results.data);
 
         ++result.totalRows;
 

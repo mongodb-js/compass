@@ -40,9 +40,76 @@ describe('analyzeCSVFields', function () {
       }
 
       const expectedResult = JSON.parse(text);
-      expect(result, basename.replace(/\.csv$/, '.analyzed.json')).to.deep.equal(
-        expectedResult
-      );
+      expect(
+        result,
+        basename.replace(/\.csv$/, '.analyzed.json')
+      ).to.deep.equal(expectedResult);
+      expect(progressCallback.callCount).to.equal(result.totalRows);
+    });
+  }
+
+  for (const [type, filepath] of Object.entries(fixtures.csvByType)) {
+    // array and object relates to the structure, not the CSVfield types
+    if (['array', 'object'].includes(type)) {
+      continue;
+    }
+
+    // not all types are bi-directional (yet)
+    if (
+      [
+        'binData',
+        'decimal',
+        'javascript',
+        'javascriptWithScope',
+        'maxKey',
+        'minKey',
+        'objectId',
+        'regex',
+        'timestamp',
+      ].includes(type)
+    ) {
+      continue;
+    }
+
+    const basename = path.basename(filepath);
+
+    let expectedTypes = [type];
+    let expectedDetected = type;
+
+    if (type === 'number') {
+      expectedTypes = ['int', 'double', 'long'];
+      expectedDetected = 'mixed';
+    }
+
+    if (type === 'mixed') {
+      expectedTypes = ['int', 'double', 'string', 'date', 'long'];
+      expectedDetected = 'mixed';
+    }
+
+    it(`detects ${expectedDetected} for ${basename}`, async function () {
+      const abortController = new AbortController();
+      const progressCallback = sinon.spy();
+      const result = await analyzeCSVFields({
+        input: fs.createReadStream(filepath),
+        delimiter: ',',
+        abortSignal: abortController.signal,
+        progressCallback,
+      });
+
+      for (const [fieldName, field] of Object.entries(result.fields)) {
+        // ignore note / padding fields
+        if (['something', 'something_else', 'notes'].includes(fieldName)) {
+          continue;
+        }
+
+        expect(Object.keys(field.types), `${fieldName} types`).to.deep.equal(
+          expectedTypes
+        );
+        expect(field.detected, `${fieldName} detected`).to.equal(
+          expectedDetected
+        );
+      }
+
       expect(progressCallback.callCount).to.equal(result.totalRows);
     });
   }

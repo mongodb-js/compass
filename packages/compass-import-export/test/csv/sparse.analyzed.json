@@ -1,6 +1,5 @@
 {
   "totalRows": 9,
-  "aborted": false,
   "fields": {
     "foo": {
       "types": {
@@ -23,7 +22,7 @@
     "bar": {
       "types": {
         "null": {
-          "count": 3,
+          "count": 4,
           "firstRowIndex": 0,
           "firstColumnIndex": 1,
           "firstValue": ""
@@ -33,21 +32,15 @@
           "firstRowIndex": 1,
           "firstColumnIndex": 1,
           "firstValue": "2"
-        },
-        "string": {
-          "count": 1,
-          "firstRowIndex": 4,
-          "firstColumnIndex": 1,
-          "firstValue": ""
         }
       },
       "columnIndexes": [1],
-      "detected": "mixed"
+      "detected": "int"
     },
     "baz": {
       "types": {
-        "string": {
-          "count": 4,
+        "null": {
+          "count": 5,
           "firstRowIndex": 0,
           "firstColumnIndex": 2,
           "firstValue": ""
@@ -57,16 +50,11 @@
           "firstRowIndex": 2,
           "firstColumnIndex": 2,
           "firstValue": "3"
-        },
-        "null": {
-          "count": 1,
-          "firstRowIndex": 5,
-          "firstColumnIndex": 2,
-          "firstValue": ""
         }
       },
       "columnIndexes": [2],
-      "detected": "mixed"
+      "detected": "int"
     }
-  }
+  },
+  "aborted": false
 }
