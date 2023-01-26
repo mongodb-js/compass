@@ -64,6 +64,16 @@ export type CollectionStreamProgress = {
   errors: CollectionStreamProgressError[];
 };
 
+export type CollectionStreamStats = {
+  ok: number;
+  nInserted: number;
+  nMatched: number;
+  nModified: number;
+  nRemoved: number;
+  nUpserted: number;
+  writeErrors: WriteCollectionStreamProgressError[];
+  writeConcernErrors: WriteCollectionStreamProgressError[];
+}
 export class WritableCollectionStream extends Writable {
   dataService: DataService;
   ns: string;
@@ -73,16 +83,7 @@ export class WritableCollectionStream extends Writable {
   stopOnErrors: boolean;
   batch: Document[];
   _batchCounter: number;
-  _stats: {
-    ok: number;
-    nInserted: number;
-    nMatched: number;
-    nModified: number;
-    nRemoved: number;
-    nUpserted: number;
-    writeErrors: WriteCollectionStreamProgressError[];
-    writeConcernErrors: WriteCollectionStreamProgressError[];
-  };
+  _stats: CollectionStreamStats;
   _errors: CollectionStreamProgressError[];
 
   constructor(dataService: DataService, ns: string, stopOnErrors: boolean) {
@@ -237,9 +238,13 @@ export class WritableCollectionStream extends Writable {
     );
   }
 
+  getStats() {
+    return this._stats;
+  }
+
   printJobStats() {
     console.group('Import Info');
-    console.table(this._stats);
+    console.table(this.getStats());
     console.log('Errors Seen');
     console.log(
       this._errors
