@@ -20,18 +20,20 @@ interface IndexModel {
   };
 }
 
+type IndexType = 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX' | 'UNAVAILABLE';
+
 interface ExplainSummaryProps {
   nReturned: number;
   totalKeysExamined: number;
   totalDocsExamined: number;
   executionTimeMillis: number;
   inMemorySort: boolean;
-  indexType: 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX' | 'UNAVAILABLE';
+  indexType: IndexType;
   index?: IndexModel;
 }
 
 const SummaryIndexStat: React.FC<{
-  indexType: 'COLLSCAN' | 'COVERED' | 'MULTIPLE' | 'INDEX' | 'UNAVAILABLE';
+  indexType: IndexType;
   index?: IndexModel;
   className?: string;
 }> = ({ indexType, index, className }) => {
