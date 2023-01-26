@@ -17,6 +17,6 @@ describe('DocumentPreview [Component]', function () {
 
   it('renders a button to load a sample document if a document could be loaded', function () {
     const component = mount(<DocumentPreview document={null} />);
-    expect(component.find('[data-testid="load-sample"]')).to.be.present();
+    expect(component.find('[data-testid="load-sample-document"]')).to.be.present();
   });
 });

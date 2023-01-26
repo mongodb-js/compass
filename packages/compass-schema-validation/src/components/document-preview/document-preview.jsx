@@ -69,8 +69,8 @@ class DocumentPreview extends Component {
           <Document doc={this.props.document} editable={false} />
         ) : this.props.document === null ? (
           <Body as='div' className={loadSampleStyles}>
-            <Button data-testid='load-sample' size="small" onClick={this.props.loadSampleDocument}>
-              Load sample
+            <Button data-testid='load-sample-document' size="small" onClick={this.props.loadSampleDocument}>
+              Load document
             </Button>
           </Body>
         ) : (
