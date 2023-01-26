@@ -10,7 +10,7 @@ import {
   moveStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { RootState } from '../../modules';
-import { css } from '@mongodb-js/compass-components';
+import { css, spacing } from '@mongodb-js/compass-components';
 
 import {
   DndContext,
@@ -35,14 +35,13 @@ const pipelineWorkspaceStyles = css({
   flexDirection: 'column',
   width: '100%',
   flexGrow: 1,
+  paddingRight: spacing[3],
+  paddingLeft: spacing[3],
 });
 
 const stageContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  '&.dragging .add-stage-button': {
-    visibility: 'hidden',
-  },
 });
 
 type PipelineBuilderUIWorkspaceProps = {
@@ -73,11 +72,7 @@ const SortableItem = ({
   return (
     <div className={stageContainerStyles}>
       <Stage index={idx} {...props}></Stage>
-      {!isLastStage && (
-        <div className="add-stage-button">
-          <AddStage onAddStage={onStageAddAfter} variant="icon" />
-        </div>
-      )}
+      {!isLastStage && <AddStage onAddStage={onStageAddAfter} variant="icon" />}
     </div>
   );
 };

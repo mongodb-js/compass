@@ -33,8 +33,7 @@
     "react": "^17.0.2"
   },
   "dependencies": {
-    "@mongodb-js/compass-components": "^1.4.0",
-    "react": "^17.0.2"
+    "@mongodb-js/compass-components": "^1.4.0"
   },
   "devDependencies": {
     "@mongodb-js/mocha-config-compass": "^1.0.1",

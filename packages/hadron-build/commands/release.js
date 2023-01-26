@@ -348,7 +348,10 @@ const removeDevelopmentFiles = (CONFIG, done) => {
     path.join(CONFIG.resourcesAppDir, 'release'),
     path.join(CONFIG.resourcesAppDir, '**', 'Debug', 'obj'),
     path.join(CONFIG.resourcesAppDir, '**', 'Release', 'obj'),
-    path.join(CONFIG.resourcesAppDir, '{' + DOT_FILES.join(',') + '}')
+    path.join(CONFIG.resourcesAppDir, '{' + DOT_FILES.join(',') + '}'),
+    // node-gyp creates symlinks for build purposes, but doesn't clean them up
+    // afterwards https://github.com/nodejs/node-gyp/issues/2713
+    path.join(CONFIG.resourcesAppDir, '**', 'node_gyp_bins')
   ];
 
   cli.debug('Checking for extraneous files to remove:\n' +

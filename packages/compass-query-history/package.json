@@ -61,7 +61,6 @@
     "@mongodb-js/compass-logging": "^1.1.1",
     "@mongodb-js/compass-utils": "^0.1.2",
     "bson": "^4.4.1",
-    "react": "^17.0.2",
     "storage-mixin": "^5.1.0"
   },
   "peerDependencies": {
@@ -84,7 +83,7 @@
     "ampersand-rest-collection": "^6.0.0",
     "chai": "^4.1.2",
     "depcheck": "^1.4.1",
-    "electron": "^15.5.7",
+    "electron": "^22.0.2",
     "eslint": "^7.25.0",
     "hadron-app-registry": "^9.0.2",
     "lodash": "^4.17.15",
@@ -93,6 +92,7 @@
     "mongodb-query-parser": "^2.4.6",
     "nyc": "^15.0.0",
     "prop-types": "^15.7.2",
+    "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "reflux": "^0.4.1",
     "reflux-state-mixin": "github:mongodb-js/reflux-state-mixin",
