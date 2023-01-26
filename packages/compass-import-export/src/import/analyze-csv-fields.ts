@@ -73,7 +73,7 @@ function detectFieldType(value: PapaValue): CSVFieldType {
   if (value === null) {
     return 'null';
   }
-  if (Object.prototype.toString.call(value) === '[object Date') {
+  if (Object.prototype.toString.call(value) === '[object Date]') {
     return 'date';
   }
   const jsType = typeof value;
